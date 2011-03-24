@@ -1,0 +1,494 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Net;
+using System.Net.Sockets;
+using System.Globalization;
+
+namespace System.Net.FtpClient {
+	public class FtpClient : FtpCommandChannel {
+		string _username = null;
+		/// <summary>
+		/// The username to authenticate with
+		/// </summary>
+		public string Username {
+			get { return _username; }
+			set { _username = value; }
+		}
+
+		string _password = null;
+		/// <summary>
+		/// The password to authenticate with
+		/// </summary>
+		public string Password {
+			get { return _password; }
+			set { _password = value; }
+		}
+
+		bool _useSsl = true;
+		/// <summary>
+		/// Use SSL IF IT IS AVAILABLE. The default is true.
+		/// </summary>
+		public bool UseSsl {
+			get { return _useSsl; }
+
+			set {
+				// if true and we're already connected,
+				// go ahead and enable ssl
+				if (value && this.Connected && !this.SslEnabled) {
+					_useSsl = this.EnableSsl();
+				}
+				else {
+					_useSsl = value;
+				}
+			}
+		}
+
+		FtpDirectory _currentDirectory = null;
+		/// <summary>
+		/// Gets the current working directory. Use the SetWorkingDirectory() method
+		/// to change the working directory.
+		/// </summary>
+		public FtpDirectory CurrentDirectory {
+			get {
+				if (_currentDirectory == null) {
+					Match m;
+
+					if (!this.Execute("PWD")) {
+						throw new FtpException(this.ResponseMessage);
+					}
+
+					m = Regex.Match(this.ResponseMessage, "\"(.*)\"");
+					if (!m.Success || m.Groups.Count < 2) {
+						throw new FtpException(string.Format("Failed to parse current working directory from {0}", this.ResponseMessage));
+					}
+
+					this._currentDirectory = new FtpDirectory(this, m.Groups[1].Value);
+				}
+
+				return _currentDirectory;
+			}
+
+			private set {
+				_currentDirectory = value;
+			}
+		}
+
+		/// <summary>
+		/// Gets the system type that we're connected to
+		/// </summary>
+		public string System {
+			get {
+				if (!this.Execute("SYST")) {
+					throw new FtpException(this.ResponseMessage);
+				}
+
+				return this.ResponseMessage;
+			}
+		}
+
+		/// <summary>
+		/// This is the ConnectionReady event handler. It performs the FTP login
+		/// if a connection to the server has been made.
+		/// </summary>
+		void Login() {
+			// if UseSsl is true, try to enable SSL before
+			// authenticating to the server if the server
+			// supports AUTH SSL or AUTH TLS.
+			if (this.UseSsl) {
+				// we could check to see if SSL failed or not...
+				this.EnableSsl();
+			}
+
+			if (this.Username != null) {
+				if (!this.Execute("USER {0}", this.Username)) {
+					throw new FtpException(this.ResponseMessage);
+				}
+
+				if (this.ResponseType == FtpResponseType.PositiveIntermediate) {
+					if (this.Password == null) {
+						throw new FtpException("The server is asking for a password but none has been set.");
+					}
+
+					if (!this.Execute("PASS {0}", this.Password)) {
+						throw new FtpException(this.ResponseMessage);
+					}
+				}
+			}
+
+			this.CurrentDirectory = null;
+		}
+
+		/// <summary>
+		/// Sends the NoOp command. Does nothing other than send a command to the
+		/// server and get a response.
+		/// </summary>
+		public void NoOp() {
+			if (!this.Execute("NOOP")) {
+				throw new FtpException(this.ResponseMessage);
+			}
+		}
+
+		/// <summary>
+		/// Gets a raw directory listing of the current working directory. Prefers
+		/// the MLSD command to LIST if it's available.
+		/// </summary>
+		/// <returns></returns>
+		public string[] GetRawListing() {
+			return this.GetRawListing(this.CurrentDirectory.FullName);
+		}
+
+		/// <summary>
+		/// Returns a raw file listing, preferring to use the MLSD command
+		/// over LIST if it is available
+		/// </summary>
+		/// <param name="path">The full or relative (to the current working directory) path</param>
+		/// <returns>string array of the raw listing</returns>
+		public string[] GetRawListing(string path) {
+			if (this.HasCapability(FtpCapability.MLSD)) {
+				return this.GetRawListing(path, FtpListType.MLSD);
+			}
+
+			return this.GetRawListing(path, FtpListType.LIST);
+		}
+
+		/// <summary>
+		/// Returns a raw file listing using the specified LIST type
+		/// </summary>
+		/// <param name="path">The full or relative (to the current working directory) path</param>
+		/// <param name="type"></param>
+		/// <returns>string array of the raw listing</returns>
+		public string[] GetRawListing(string path, FtpListType type) {
+			List<string> lst = new List<string>();
+			string cmd, buf;
+
+			switch (type) {
+				case FtpListType.LIST:
+					cmd = "LIST";
+					break;
+				case FtpListType.MLSD:
+				case FtpListType.MLST:
+					if (!this.HasCapability(FtpCapability.MLSD)) {
+						throw new NotImplementedException("The server we're connected to does not support MLST/MLSD");
+					}
+
+					cmd = "MLSD";
+					break;
+				default:
+					throw new NotImplementedException("The specified list type has not been implemented.");
+			}
+
+			using (FtpDataChannel dc = this.OpenDataChannel(FtpTransferMode.ASCII)) {
+				if (!this.Execute("{0} {1}", cmd, path)) {
+					throw new FtpException(this.ResponseMessage);
+				}
+
+				while ((buf = dc.ReadLine()) != null) {
+					lst.Add(buf);
+				}
+			}
+
+			return lst.ToArray();
+		}
+
+		/// <summary>
+		/// Gets a file listing, parses it, and returns an array of FtpListItem 
+		/// objects that contain the parsed information. Supports MLSD/LIST (DOS and UNIX) formats.
+		/// </summary>
+		/// <returns></returns>
+		public FtpListItem[] GetListing() {
+			return this.GetListing(this.CurrentDirectory.FullName);
+		}
+
+		/// <summary>
+		/// Gets a file listing, parses it, and returns an array of FtpListItem 
+		/// objects that contain the parsed information. Supports MLSD/LIST (DOS and UNIX) formats.
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns></returns>
+		public FtpListItem[] GetListing(string path) {
+			if (this.HasCapability(FtpCapability.MLSD)) {
+				return this.GetListing(path, FtpListType.MLSD);
+			}
+
+			return this.GetListing(path, FtpListType.LIST);
+		}
+
+		/// <summary>
+		/// Gets a file listing, parses it, and returns an array of FtpListItem 
+		/// objects that contain the parsed information. Supports MLSD/LIST (DOS and UNIX) formats.
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="type"></param>
+		/// <returns></returns>
+		public FtpListItem[] GetListing(string path, FtpListType type) {
+			return FtpListItem.ParseList(this.GetRawListing(path, type), type);
+		}
+
+		/// <summary>
+		/// Changes the current working directory
+		/// </summary>
+		/// <param name="path">The full or relative (to the current directory) path</param>
+		public void SetWorkingDirectory(string path) {
+			if (!this.Execute("CWD {0}", path)) {
+				throw new FtpException(this.ResponseMessage);
+			}
+
+			this.CurrentDirectory = null;
+		}
+
+		/// <summary>
+		/// Gets the last write time if the server supports the MDTM command. If the
+		/// server does not support the MDTM NotImplementedException is thrown.
+		/// </summary>
+		/// <param name="path">The full or relative (to the current working directory) path</param>
+		/// <returns>DateTime/DateTime.MinValue if there was a problem parsing the date</returns>
+		public DateTime GetLastWriteTime(string path) {
+			string[] formats = new string[] { "yyyyMMddHHmmss", "yyyyMMddHHmmss.fff" };
+			DateTime modify = DateTime.MinValue;
+
+			if (!this.HasCapability(FtpCapability.MDTM)) {
+				throw new NotImplementedException("The connected server does not support the MDTM command.");
+			}
+
+			if (!this.Execute("MDTM {0}", path)) {
+				throw new FtpException(this.ResponseMessage);
+			}
+
+			if (DateTime.TryParseExact(this.ResponseMessage, formats, 
+				CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out modify)) {
+				return modify;
+			}
+
+			return DateTime.MinValue;
+		}
+
+		/// <summary>
+		/// Gets the size of the specified file. Prefer the MLST command since some servers don't
+		/// support large files. If there are any errors getting the file size, 0 will be returned
+		/// rather than throwing an exception.
+		/// </summary>
+		/// <param name="path">The full or relative (to the current working directory) path</param>
+		/// <returns>The file size, 0 if there was a problem parsing the size</returns>
+		public long GetFileSize(string path) {
+			// prefer MLST for getting the file size because some
+			// servers won't give the file size back for large files
+			if (this.HasCapability(FtpCapability.MLST)) {
+				if (!this.Execute("MLST {0}", path)) {
+					throw new FtpException(this.ResponseMessage);
+				}
+
+				foreach (string s in this.Messages) {
+					// MLST response starts with a space according to draft-ietf-ftpext-mlst-16
+					if (s.StartsWith(" ") && s.ToLower().Contains("size")) {
+						Match m = Regex.Match(s, @"Size=(\d+);", RegexOptions.IgnoreCase);
+						long size = 0;
+
+						if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
+							size = 0;
+						}
+
+						return size;
+					}
+				}
+			}
+			// used for older servers, has limitations, will error
+			// if the file size is too big.
+			else if (this.HasCapability(FtpCapability.SIZE)) {
+				long size;
+				Match m;
+
+				// ignore errors, return 0 if there is one. some servers
+				// don't support large file sizes.
+				if (this.Execute("SIZE {0}", path)) {
+					m = Regex.Match(this.ResponseMessage, @"(\d+)");
+					if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
+						size = 0;
+					}
+				}
+			}
+
+			// we failed to get a file size due to server or code errors however
+			// we don't want to trigger an exception because this is not a fatal
+			// error. people implementing this code need to be aware of this fact.
+			return 0;
+		}
+
+		/// <summary>
+		/// Removes the specified directory
+		/// </summary>
+		/// <param name="path">The full or relative (to the current working directory) path</param>
+		public void RemoveDirectory(string path) {
+			if (!this.Execute("RMD {0}", path)) {
+				throw new FtpException(this.ResponseMessage);
+			}
+		}
+
+		/// <summary>
+		/// Removes the specified file
+		/// </summary>
+		/// <param name="path">The full or relative (to the current working directory) path</param>
+		public void RemoveFile(string path) {
+			if (!this.Execute("DELE {0}", path)) {
+				throw new FtpException(this.ResponseMessage);
+			}
+		}
+
+		/// <summary>
+		/// Creates the specified directory
+		/// </summary>
+		/// <param name="path">The full or relative (to the current working directory) path</param>
+		public void CreateDirectory(string path) {
+			if (!this.Execute("MKD {0}", path)) {
+				throw new FtpException(this.ResponseMessage);
+			}
+		}
+
+		/// <summary>
+		/// Renames the specified file
+		/// </summary>
+		/// <param name="from">The full or relative (to the current working directory) path of the existing file</param>
+		/// <param name="to">The full or relative (to the current working directory) path of the new file</param>
+		public void RenameFile(string from, string to) {
+			if (!this.Execute("RNFR {0}", from)) {
+				throw new FtpException(this.ResponseMessage);
+			}
+
+			if (!this.Execute("RNTO {0}", to)) {
+				throw new FtpException(this.ResponseMessage);
+			}
+		}
+
+		/// <summary>
+		/// Opens a file for reading. If you want the file size, be sure to retrieve
+		/// it before attempting to open a file on the server.
+		/// </summary>
+		/// <param name="path">The full or relative (to the current working directory) path</param>
+		/// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+		public FtpDataChannel OpenRead(string path) {
+			return this.OpenRead(path, FtpTransferMode.Binary, 0);
+		}
+
+		/// <summary>
+		/// Opens a file for reading. If you want the file size, be sure to retrieve
+		/// it before attempting to open a file on the server.
+		/// </summary>
+		/// <param name="path"The full or relative (to the current working directory) path></param>
+		/// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
+		/// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+		public FtpDataChannel OpenRead(string path, long rest) {
+			return this.OpenRead(path, FtpTransferMode.Binary, rest);
+		}
+
+		/// <summary>
+		/// Opens a file for reading. If you want the file size, be sure to retrieve
+		/// it before attempting to open a file on the server.
+		/// </summary>
+		/// <param name="path">The full or relative (to the current working directory) path</param>
+		/// <param name="xferMode">ASCII/Binary</param>
+		/// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+		public FtpDataChannel OpenRead(string path, FtpTransferMode xferMode) {
+			return this.OpenRead(path, xferMode, 0);
+		}
+
+		/// <summary>
+		/// Opens a file for reading. If you want the file size, be sure to retrieve
+		/// it before attempting to open a file on the server.
+		/// </summary>
+		/// <param name="path">The full or relative (to the current working directory) path</param>
+		/// <param name="xferMode">ASCII/Binary</param>
+		/// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
+		/// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+		public FtpDataChannel OpenRead(string path, FtpTransferMode xferMode, long rest) {
+			FtpDataChannel dc = this.OpenDataChannel(xferMode);
+
+			if (rest > 0) {
+				if (!this.HasCapability(FtpCapability.REST)) {
+					dc.Disconnect();
+					throw new NotImplementedException("The connected server does not support resuming.");
+				}
+
+				if (!this.Execute("REST {0}", rest)) {
+					dc.Disconnect();
+					throw new FtpException(this.ResponseMessage);
+				}
+			}
+
+			if (!this.Execute("RETR {0}", path)) {
+				dc.Disconnect();
+				throw new FtpException(this.ResponseMessage);
+			}
+
+			return dc;
+		}
+
+		/// <summary>
+		/// Opens a file for writing. If you want the file size, be sure to retrieve
+		/// it before attempting to open a file on the server.
+		/// </summary>
+		/// <param name="path">The full or relative (to the current working directory) path</param>
+		/// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+		public FtpDataChannel OpenWrite(string path) {
+			return this.OpenWrite(path, FtpTransferMode.Binary, 0);
+		}
+
+		/// <summary>
+		/// Opens a file for writing. If you want the file size, be sure to retrieve
+		/// it before attempting to open a file on the server.
+		/// </summary>
+		/// <param name="path"The full or relative (to the current working directory) path></param>
+		/// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
+		/// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+		public FtpDataChannel OpenWrite(string path, long rest) {
+			return this.OpenWrite(path, FtpTransferMode.Binary, rest);
+		}
+
+		/// <summary>
+		/// Opens a file for writing. If you want the file size, be sure to retrieve
+		/// it before attempting to open a file on the server.
+		/// </summary>
+		/// <param name="path">The full or relative (to the current working directory) path</param>
+		/// <param name="xferMode">ASCII/Binary</param>
+		/// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+		public FtpDataChannel OpenWrite(string path, FtpTransferMode xferMode) {
+			return this.OpenWrite(path, xferMode, 0);
+		}
+
+		/// <summary>
+		/// Opens a file for writing. If you want the existing file size, be sure to retrieve
+		/// it before attempting to open a file on the server.
+		/// </summary>
+		/// <param name="path">The full or relative (to the current working directory) path</param>
+		/// <param name="xferMode">ASCII/Binary</param>
+		/// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
+		/// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+		public FtpDataChannel OpenWrite(string path, FtpTransferMode xferMode, long rest) {
+			FtpDataChannel dc = this.OpenDataChannel(xferMode);
+
+			if (rest > 0) {
+				if (!this.HasCapability(FtpCapability.REST)) {
+					dc.Disconnect();
+					throw new NotImplementedException("The connected server does not support resuming.");
+				}
+
+				if (!this.Execute("REST {0}", rest)) {
+					dc.Disconnect();
+					throw new FtpException(this.ResponseMessage);
+				}
+			}
+
+			if (!this.Execute("STOR {0}", path)) {
+				dc.Disconnect();
+				throw new FtpException(this.ResponseMessage);
+			}
+
+			return dc;
+		}
+
+		public FtpClient()
+			: base() {
+			this.ConnectionReady += new FtpChannelConnected(Login);
+		}
+	}
+}
