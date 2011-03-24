@@ -88,6 +88,22 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		public void Connect(string username, string password) {
+			this.Username = username;
+			this.Password = password;
+			this.Connect();
+		}
+
+		public void Connect(string username, string password, string server) {
+			this.Server = server;
+			this.Connect(username, password);
+		}
+
+		public void Connect(string username, string password, string server, int port) {
+			this.Port = port;
+			this.Connect(username, password, server);
+		}
+
 		/// <summary>
 		/// This is the ConnectionReady event handler. It performs the FTP login
 		/// if a connection to the server has been made.
@@ -256,7 +272,7 @@ namespace System.Net.FtpClient {
 				throw new FtpException(this.ResponseMessage);
 			}
 
-			if (DateTime.TryParseExact(this.ResponseMessage, formats, 
+			if (DateTime.TryParseExact(this.ResponseMessage, formats,
 				CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out modify)) {
 				return modify;
 			}
@@ -296,7 +312,7 @@ namespace System.Net.FtpClient {
 			// used for older servers, has limitations, will error
 			// if the file size is too big.
 			else if (this.HasCapability(FtpCapability.SIZE)) {
-				long size;
+				long size = 0;
 				Match m;
 
 				// ignore errors, return 0 if there is one. some servers
@@ -307,6 +323,8 @@ namespace System.Net.FtpClient {
 						size = 0;
 					}
 				}
+
+				return size;
 			}
 
 			// we failed to get a file size due to server or code errors however
@@ -489,6 +507,22 @@ namespace System.Net.FtpClient {
 		public FtpClient()
 			: base() {
 			this.ConnectionReady += new FtpChannelConnected(Login);
+		}
+
+		public FtpClient(string username, string password)
+			: this() {
+			this.Username = username;
+			this.Password = password;
+		}
+
+		public FtpClient(string username, string password, string server)
+			: this(username, password) {
+			this.Server = server;
+		}
+
+		public FtpClient(string username, string password, string server, int port)
+			: this(username, password, server) {
+			this.Port = port;
 		}
 	}
 }

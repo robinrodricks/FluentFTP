@@ -88,22 +88,14 @@ namespace System.Net.FtpClient {
 
 		/// <summary>
 		/// Enables SSL or TLS if they are available. Returns true
-		/// if SSL has been enabled, false other wise.
+		/// if SSL has been enabled, false otherwise.
 		/// </summary>
 		protected bool EnableSsl() {
-			string type = null;
-
-			if (this.HasCapability(FtpCapability.AUTHSSL)) {
-				type = "SSL";
+			if (this.Execute("AUTH SSL")) {
+				this.SslEnabled = true;
 			}
-			else if (this.HasCapability(FtpCapability.AUTHTLS)) {
-				type = "TLS";
-			}
-
-			if (type != null) {
-				if (this.Execute("AUTH {0}", type)) {
-					this.SslEnabled = true;	
-				}
+			else if (this.Execute("AUTH TLS")) {
+				this.SslEnabled = true;
 			}
 
 			return this.SslEnabled;
@@ -211,12 +203,6 @@ namespace System.Net.FtpClient {
 						this.Capabilities |= FtpCapability.SIZE;
 					else if (feat.ToUpper().Contains("EPSV") || feat.ToUpper().Contains("EPRT"))
 						this.Capabilities |= FtpCapability.EPSV | FtpCapability.EPRT;
-					else if (feat.ToUpper().Contains("AUTH")) {
-						if (feat.ToUpper().Contains("SSL"))
-							this.Capabilities |= FtpCapability.AUTHSSL;
-						else if (feat.ToUpper().Contains("TLS"))
-							this.Capabilities |= FtpCapability.AUTHTLS;
-					}
 				}
 			}
 		}
@@ -270,17 +256,6 @@ namespace System.Net.FtpClient {
 			if (this.SslEnabled) {
 				if (!this.Execute("PROT P")) {
 					throw new FtpException(this.ResponseMessage);
-				}
-			}
-			else {
-				if (this.HasCapability(FtpCapability.AUTHSSL) || this.HasCapability(FtpCapability.AUTHTLS)) {
-					// at some ponit SSL may have been enabled and we may 
-					// have told the server to use data channel encryption.
-					// if we're here, we're no longer using encryption so
-					// tell the server to not encrypt the data channel.
-					if (!this.Execute("PROT C")) {
-						throw new FtpException(this.ResponseMessage);
-					}
 				}
 			}
 

@@ -38,9 +38,7 @@ namespace System.Net.FtpClient {
 		MDTM = 8,
 		REST = 16,
 		EPSV = 32,
-		EPRT = 64,
-		AUTHSSL = 128,
-		AUTHTLS = 256
+		EPRT = 64
 	}
 
 	public enum FtpProtocolType : int {

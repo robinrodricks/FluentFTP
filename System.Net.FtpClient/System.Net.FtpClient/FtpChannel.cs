@@ -43,9 +43,11 @@ namespace System.Net.FtpClient {
 					_sslStream.AuthenticateAsClient(this.Server);
 				}
 				else {
-					_sslStream.Close();
-					_sslStream.Dispose();
-					_stream = null;
+					if (_sslStream != null) {
+						_sslStream.Close();
+						_sslStream.Dispose();
+						_stream = null;
+					}
 				}
 
 				this.StreamReader = null; // stream reader has to be reset to use the SslStream
@@ -315,6 +317,7 @@ namespace System.Net.FtpClient {
 		/// <param name="port"></param>
 		public virtual void Connect(string host, int port) {
 			if (!this.Connected) {
+				this.SslEnabled = false;
 				this.Server = host;
 				this.Port = port;
 				this.Socket.Connect(host, port);
@@ -329,6 +332,7 @@ namespace System.Net.FtpClient {
 		/// <param name="port"></param>
 		public virtual void Connect(IPAddress ip, int port) {
 			if (!this.Connected) {
+				this.SslEnabled = false;
 				this.Server = ip.ToString();
 				this.Port = port;
 				this.Socket.Connect(ip, port);
@@ -342,6 +346,8 @@ namespace System.Net.FtpClient {
 		/// <param name="ep"></param>
 		public virtual void Connect(EndPoint ep) {
 			if (!this.Connected) {
+				this.SslEnabled = false;
+
 				if (ep is IPEndPoint) {
 					IPEndPoint ipep = (IPEndPoint)ep;
 
