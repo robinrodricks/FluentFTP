@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+# Visual C# Express 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Net.FtpClient", "System.Net.FtpClient\System.Net.FtpClient.csproj", "{B437F9C5-1BCF-4AE4-BADE-1E54B122C142}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtpTests", "FtpTests\FtpTests.csproj", "{B2729DA4-0DA2-4501-A234-DD3CED32DC84}"
