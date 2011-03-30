@@ -267,7 +267,7 @@ namespace System.Net.FtpClient {
 					return this.OpenPassiveChannel();
 				case FtpDataMode.Active:
 					if (this.HasCapability(FtpCapability.EPRT)) {
-						// would be open EPORT channel
+						return this.OpenExtendedActiveDataChannel();
 					}
 					return this.OpenActiveChannel();
 			}
@@ -295,10 +295,9 @@ namespace System.Net.FtpClient {
 				throw new Exception(string.Format("Malformed PASV response: {0}", this.ResponseMessage));
 			}
 
-			ip = string.Format("{0}.{1}.{2}.{3}", m.Groups[1].Value, m.Groups[2].Value, m.Groups[3].Value, m.Groups[4].Value);
-			port = (int.Parse(m.Groups[5].Value) << 8) + int.Parse(m.Groups[6].Value);
-
-			chan.Connect(ip, port);
+			chan.Server = string.Format("{0}.{1}.{2}.{3}", m.Groups[1].Value, m.Groups[2].Value, m.Groups[3].Value, m.Groups[4].Value);
+			chan.Port = (int.Parse(m.Groups[5].Value) << 8) + int.Parse(m.Groups[6].Value);
+			chan.Connect();
 
 			return chan;
 		}
@@ -309,6 +308,8 @@ namespace System.Net.FtpClient {
 
 			if (!this.Execute("EPSV")) {
 				// the server doesn't support EPSV
+				chan.Dispose();
+
 				if (this.ResponseCode == "500") {
 					this.Capabilities &= ~(FtpCapability.EPSV | FtpCapability.EPRT);
 					return this.OpenPassiveChannel();
@@ -325,7 +326,11 @@ namespace System.Net.FtpClient {
 				throw new FtpException("Failed to get the EPSV port from: " + this.ResponseMessage);
 			}
 
-			chan.Connect(this.Server, int.Parse(m.Groups[1].Value));
+			chan.Server = this.Server;
+			chan.Port = int.Parse(m.Groups[1].Value);
+			chan.Connect();
+
+			//chan.Connect(this.Server, int.Parse(m.Groups[1].Value));
 
 			return chan;
 		}
@@ -335,7 +340,43 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <returns></returns>
 		private FtpDataChannel OpenActiveChannel() {
-			throw new NotImplementedException("Active mode transfers are not implemented in this client.");
+			FtpDataChannel dc = new FtpDataChannel(this);
+			int port;
+
+			dc.InitalizeActiveChannel();
+			port = dc.LocalPort;
+
+			if (!this.Execute("PORT {0},{1},{2}",
+				dc.LocalIPAddress.ToString().Replace(".", ","),
+				port / 256, port % 256)) {
+				dc.Dispose();
+				throw new FtpException(this.ResponseMessage);
+			}
+
+			return dc;
+		}
+
+		private FtpDataChannel OpenExtendedActiveDataChannel() {
+			FtpDataChannel dc = new FtpDataChannel(this);
+			int port;
+
+			dc.InitalizeActiveChannel();
+			port = dc.LocalPort;
+
+			// |1| is IPv4, need to support IPv6 at some point.
+			if (!this.Execute("EPRT |1|{0}|{1}|",
+				dc.LocalIPAddress.ToString(), dc.LocalPort)) {
+				dc.Dispose();
+
+				if (this.ResponseCode == "500") { // server doesn't support EPRT
+					this.Capabilities &= ~(FtpCapability.EPSV | FtpCapability.EPRT);
+					return this.OpenActiveChannel();
+				}
+
+				throw new FtpException(this.ResponseMessage);
+			}
+
+			return dc;
 		}
 
 		/// <summary>

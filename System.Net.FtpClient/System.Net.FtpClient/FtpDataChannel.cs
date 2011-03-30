@@ -15,6 +15,74 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
+		/// The local port we are going out or listening on
+		/// </summary>
+		public Int32 LocalPort {
+			get {
+				// need to test if the socket has been created first!
+				return ((IPEndPoint)this.Socket.LocalEndPoint).Port;
+			}
+		}
+
+		/// <summary>
+		/// The local IP address the socket is using
+		/// </summary>
+		public IPAddress LocalIPAddress {
+			get {
+				// need to test if the socket has been created first!
+				return ((IPEndPoint)this.Socket.LocalEndPoint).Address;
+			}
+		}
+
+		/// <summary>
+		/// The report port we are connected to
+		/// </summary>
+		public Int32 RemotePort {
+			get {
+				if (this.Connected) {
+					return ((IPEndPoint)this.Socket.RemoteEndPoint).Port;
+				}
+
+				return 0;
+			}
+		}
+
+		/// <summary>
+		/// The remote IP address this socket is connected to
+		/// </summary>
+		public IPAddress RemoteIPAddress {
+			get {
+				if (this.Connected) {
+					return ((IPEndPoint)this.Socket.RemoteEndPoint).Address;
+				}
+
+				return null;
+			}
+		}
+
+		/// <summary>
+		/// Connects active or passive channels
+		/// </summary>
+		public override void Connect() {
+			if (!this.Connected) {
+				if (this.CommandChannel.DefaultDataMode == FtpDataMode.Active) {
+					this.ConnectActiveChannel();
+
+					/*if (!this.CommandChannel.ReadResponse()) {
+						this.Disconnect();
+						throw new FtpException(this.CommandChannel.ResponseMessage);
+					}*/
+				}
+				else {
+					base.Connect();
+				}
+
+				this.SslEnabled = this.CommandChannel.SslEnabled;
+				this.IgnoreInvalidSslCertificates = this.CommandChannel.IgnoreInvalidSslCertificates;
+			}
+		}
+
+		/// <summary>
 		/// Closes the data channel and reads the final response from the command channel if
 		/// the last command completed successfully
 		/// </summary>
@@ -32,6 +100,31 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
+		/// Intializes the active channel socket
+		/// </summary>
+		public void InitalizeActiveChannel() {
+			this.Socket.Bind(new IPEndPoint(((IPEndPoint)this.CommandChannel.LocalEndPoint).Address, 0));
+			this.Socket.Listen(1);
+#if DEBUG
+			System.Diagnostics.Debug.WriteLine(string.Format("Active channel initalized and waiting: {0}:{1}",
+				this.LocalIPAddress, this.LocalPort));
+#endif
+		}
+				
+		public void ConnectActiveChannel() {
+			Socket s = this.Socket.Accept();
+
+			this.Socket.Close();
+			this.Socket = null;
+			this.Socket = s;
+			this.IsServerSocket = true;
+#if DEBUG
+			System.Diagnostics.Debug.WriteLine(string.Format("Connected from: {0}:{1}",
+				this.RemoteIPAddress, this.RemotePort));
+#endif
+		}
+
+		/// <summary>
 		/// Cleans up any resources the DataChannel was using, also
 		/// terminates any active connections.
 		/// </summary>
@@ -41,7 +134,9 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
-		/// Sets up the SSL stream for FTPS
+		/// Sets up the SSL stream for FTPS. This will only be
+		/// called on passive connections, port/eprt has to be
+		/// setup after the server connects to us.
 		/// </summary>
 		void SetupSsl() {
 			if (this.CommandChannel.SslEnabled) {
@@ -51,6 +146,7 @@ namespace System.Net.FtpClient {
 		}
 
 		public FtpDataChannel(FtpCommandChannel cmdchan) {
+			this.SslEnabled = false;
 			this.CommandChannel = cmdchan;
 			this.ConnectionReady += new FtpChannelConnected(SetupSsl);
 		}

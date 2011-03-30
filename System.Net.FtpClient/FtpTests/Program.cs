@@ -20,16 +20,18 @@ namespace FtpTests {
 
 		static void Main(string[] args) {
 			try {
-				Examples.Download.DownloadFile();
+				//Examples.Download.DownloadFile();
 
-				/*using (FtpClient cmd = new FtpClient()) {
+				using (FtpClient cmd = new FtpClient()) {
 					cmd.Username = "test";
 					cmd.Password = "test";
-					cmd.Server = "localhost";
+					cmd.Server = "127.0.0.1";
 					cmd.IgnoreInvalidSslCertificates = true;
-					cmd.UseSsl = true;
+					cmd.UseSsl = false;
+					cmd.DefaultDataMode = FtpDataMode.Active;
+
 					ListDirectory(cmd.CurrentDirectory);
-				}*/
+				}
 			}
 			catch (Exception ex) {
 				Console.WriteLine(ex.ToString());

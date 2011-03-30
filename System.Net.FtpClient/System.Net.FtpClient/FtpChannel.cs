@@ -27,31 +27,19 @@ namespace System.Net.FtpClient {
 			}
 		}
 
-		protected bool _sslEnabled = false;
+		private bool _isServerSocket = false;
+		protected bool IsServerSocket {
+			get { return _isServerSocket; }
+			set { _isServerSocket = value; }
+		}
+
+		bool _sslEnabled = false;
 		/// <summary>
 		/// Gets a value indicating if SSL is in use.
 		/// </summary>
 		public bool SslEnabled {
 			get { return _sslEnabled; }
-
-			protected set {
-				_sslEnabled = value;
-
-				if (_sslEnabled) {
-					_sslStream = new SslStream(this.NetworkStream, true,
-						new RemoteCertificateValidationCallback(CheckCertificate));
-					_sslStream.AuthenticateAsClient(this.Server);
-				}
-				else {
-					if (_sslStream != null) {
-						_sslStream.Close();
-						_sslStream.Dispose();
-						_stream = null;
-					}
-				}
-
-				this.StreamReader = null; // stream reader has to be reset to use the SslStream
-			}
+			protected set { _sslEnabled = value; this.StreamReader = null; }
 		}
 
 		bool _ignoreInvalidSslCerts = false;
@@ -77,8 +65,34 @@ namespace System.Net.FtpClient {
 				return _sock;
 			}
 
-			private set {
+			set {
 				_sock = value;
+			}
+		}
+
+		/// <summary>
+		/// Local end point
+		/// </summary>
+		public EndPoint LocalEndPoint {
+			get {
+				if (_sock != null && _sock.Connected) {
+					return _sock.LocalEndPoint;
+				}
+
+				return null;
+			}
+		}
+
+		/// <summary>
+		/// Remote end point
+		/// </summary>
+		public EndPoint RemoteEndPoint {
+			get {
+				if (_sock != null && _sock.Connected) {
+					return _sock.RemoteEndPoint;
+				}
+
+				return null;
 			}
 		}
 
@@ -159,18 +173,37 @@ namespace System.Net.FtpClient {
 		/// Intended to be used with the AUTH SSL command
 		/// </summary>
 		protected SslStream SecurteStream {
-			get { return _sslStream; }
+			get {
+				if (_sslStream == null) {
+					this._reader = null;
+					this._sslStream = new SslStream(this.NetworkStream, true, 
+						new RemoteCertificateValidationCallback(CheckCertificate));
 
-			private set { 
-				_sslStream = value;
+					if (this.IsServerSocket) {
+#if DEBUG
+						Debug.WriteLine("Configuring server certificate...");
+#endif
+						this._sslStream.AuthenticateAsClient(((IPEndPoint)this.RemoteEndPoint).Address.ToString());
+					}
+					else {
+#if DEBUG
+						Debug.WriteLine("Configuring client certificate...");
+#endif
+						this._sslStream.AuthenticateAsClient(this.Server);
+					}
 
-				if (value == null) 
-					_sslEnabled = false;
-				else 
-					_sslEnabled = true;
+#if DEBUG
+					Debug.WriteLine("Secure stream ready");
+#endif
+				}
+
+				return _sslStream; 
 			}
+
+			private set { _sslStream = value; }
 		}
 
+		
 		/// <summary>
 		/// The base stream for reading and writing the socket
 		/// </summary>
