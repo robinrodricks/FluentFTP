@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C# Express 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Net.FtpClient", "System.Net.FtpClient\System.Net.FtpClient.csproj", "{B437F9C5-1BCF-4AE4-BADE-1E54B122C142}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtpTests", "FtpTests\FtpTests.csproj", "{B2729DA4-0DA2-4501-A234-DD3CED32DC84}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ftpcli", "ftpcli\ftpcli.csproj", "{BD8F8EF5-DD6B-4D72-9022-5C7859D5BEC5}"
 EndProject
 Global
@@ -27,17 +25,6 @@ Global
 		{B437F9C5-1BCF-4AE4-BADE-1E54B122C142}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{B437F9C5-1BCF-4AE4-BADE-1E54B122C142}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{B437F9C5-1BCF-4AE4-BADE-1E54B122C142}.Release|x86.ActiveCfg = Release|Any CPU
-		{B2729DA4-0DA2-4501-A234-DD3CED32DC84}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{B2729DA4-0DA2-4501-A234-DD3CED32DC84}.Debug|Any CPU.Build.0 = Debug|x86
-		{B2729DA4-0DA2-4501-A234-DD3CED32DC84}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{B2729DA4-0DA2-4501-A234-DD3CED32DC84}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{B2729DA4-0DA2-4501-A234-DD3CED32DC84}.Debug|x86.ActiveCfg = Debug|x86
-		{B2729DA4-0DA2-4501-A234-DD3CED32DC84}.Debug|x86.Build.0 = Debug|x86
-		{B2729DA4-0DA2-4501-A234-DD3CED32DC84}.Release|Any CPU.ActiveCfg = Release|x86
-		{B2729DA4-0DA2-4501-A234-DD3CED32DC84}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{B2729DA4-0DA2-4501-A234-DD3CED32DC84}.Release|Mixed Platforms.Build.0 = Release|x86
-		{B2729DA4-0DA2-4501-A234-DD3CED32DC84}.Release|x86.ActiveCfg = Release|x86
-		{B2729DA4-0DA2-4501-A234-DD3CED32DC84}.Release|x86.Build.0 = Release|x86
 		{BD8F8EF5-DD6B-4D72-9022-5C7859D5BEC5}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{BD8F8EF5-DD6B-4D72-9022-5C7859D5BEC5}.Debug|Any CPU.Build.0 = Debug|x86
 		{BD8F8EF5-DD6B-4D72-9022-5C7859D5BEC5}.Debug|Mixed Platforms.ActiveCfg = Debug|x86

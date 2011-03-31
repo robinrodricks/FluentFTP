@@ -177,9 +177,10 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		public void AuthenticateConnection() {
 			if (this.Connected && !this.SecurteStream.IsAuthenticated) {
-					this.SecurteStream.AuthenticateAsClient(((IPEndPoint)this.RemoteEndPoint).Address.ToString());
+
+				this.SecurteStream.AuthenticateAsClient(((IPEndPoint)this.RemoteEndPoint).Address.ToString());
 #if DEBUG
-					Debug.WriteLine("Secure stream authenticated...");
+				Debug.WriteLine("Secure stream authenticated...");
 #endif
 			}
 		}
@@ -193,17 +194,17 @@ namespace System.Net.FtpClient {
 			get {
 				if (_sslStream == null) {
 					this._reader = null;
-					this._sslStream = new SslStream(this.NetworkStream, true, 
+					this._sslStream = new SslStream(this.NetworkStream, true,
 						new RemoteCertificateValidationCallback(CheckCertificate));
 				}
 
-				return _sslStream; 
+				return _sslStream;
 			}
 
 			private set { _sslStream = value; }
 		}
 
-		
+
 		/// <summary>
 		/// The base stream for reading and writing the socket
 		/// </summary>
@@ -257,7 +258,7 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
-		/// Reads a line from the FTP command channel socket. Use with discretion,
+		/// Reads a line from the FTP channel socket. Use with discretion,
 		/// can cause the code to freeze if you're trying to read data when no data
 		/// is being sent.
 		/// </summary>
@@ -289,7 +290,7 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
-		/// Writes a line to the command channel with the correct line endings.
+		/// Writes a line to the channel with the correct line endings.
 		/// </summary>
 		/// <param name="line">Format</param>
 		/// <param name="args">Parameters</param>
@@ -298,7 +299,7 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
-		/// Writes a line to the command channel with the correct line endings.
+		/// Writes a line to the channel with the correct line endings.
 		/// </summary>
 		/// <param name="line">The line to write</param>
 		public virtual void WriteLine(string line) {

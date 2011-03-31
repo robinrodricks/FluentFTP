@@ -76,6 +76,30 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		public override string ReadLine() {
+			if (!this.Connected) {
+				this.Connect();
+			}
+
+			return base.ReadLine();
+		}
+
+		public override int Read(byte[] buf, int offset, int size) {
+			if (!this.Connected) {
+				this.Connect();
+			}
+
+			return base.Read(buf, offset, size);
+		}
+
+		public override void Write(byte[] buf, int offset, int count) {
+			if (!this.Connected) {
+				this.Connect();
+			}
+
+			base.Write(buf, offset, count);
+		}
+
 		/// <summary>
 		/// Connects active or passive channels
 		/// </summary>

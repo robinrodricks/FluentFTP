@@ -199,8 +199,6 @@ namespace System.Net.FtpClient {
 				if (!this.Execute("{0} {1}", cmd, path)) {
 					throw new FtpException(this.ResponseMessage);
 				}
-				
-				dc.Connect();
 
 				while ((buf = dc.ReadLine()) != null) {
 					lst.Add(buf);
@@ -440,8 +438,6 @@ namespace System.Net.FtpClient {
 				throw new FtpException(this.ResponseMessage);
 			}
 
-			dc.Connect();
-
 			return dc;
 		}
 
@@ -504,8 +500,6 @@ namespace System.Net.FtpClient {
 				dc.Disconnect();
 				throw new FtpException(this.ResponseMessage);
 			}
-
-			dc.Connect();
 
 			return dc;
 		}
