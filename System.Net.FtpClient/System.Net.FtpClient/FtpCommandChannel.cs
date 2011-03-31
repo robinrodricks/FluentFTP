@@ -4,7 +4,19 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace System.Net.FtpClient {
+	public delegate void ResponseReceived(string message);
+
 	public class FtpCommandChannel : FtpChannel {
+		event ResponseReceived _responseReceived = null;
+		/// <summary>
+		/// Event is fired when a message is received from the server. Useful
+		/// for logging the conversation with the server.
+		/// </summary>
+		public event ResponseReceived ResponseReceived {
+			add { this._responseReceived += value; }
+			remove { this._responseReceived -= value; }
+		}
+
 		FtpCapability _caps = FtpCapability.EMPTY;
 		/// <summary>
 		/// Capabilities of the server
@@ -87,15 +99,43 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
+		/// Fires the response received event.
+		/// </summary>
+		/// <param name="message"></param>
+		protected void OnResponseReceived(string message) {
+			if (this._responseReceived != null) {
+				this._responseReceived(message);
+			}
+		}
+
+		/// <summary>
 		/// Enables SSL or TLS if they are available. Returns true
 		/// if SSL has been enabled, false otherwise.
 		/// </summary>
 		protected bool EnableSsl() {
-			if (this.Execute("AUTH SSL")) {
-				this.SslEnabled = true;
+			// try TLS first, then SSL.
+			if (this.Execute("AUTH TLS")) {
+				this.AuthenticateConnection();
 			}
-			else if (this.Execute("AUTH TLS")) {
-				this.SslEnabled = true;
+			else if (this.Execute("AUTH SSL")) {
+				this.AuthenticateConnection();
+			}
+
+			if (this.SslEnabled) {
+				if (!this.Execute("PBSZ 0")) {
+					// do nothing? some severs don't even
+					// care if you execute PBSZ however rfc 4217
+					// says that PBSZ is required if you want
+					// data channel security.
+					//throw new FtpException(this.ResponseMessage);
+#if DEBUG
+					System.Diagnostics.Debug.WriteLine("PBSZ ERROR: " + this.ResponseMessage);
+#endif
+				}
+
+				if (!this.Execute("PROT P")) { // turn on data channel protection.
+					throw new FtpException(this.ResponseMessage);
+				}
 			}
 
 			return this.SslEnabled;
@@ -142,6 +182,8 @@ namespace System.Net.FtpClient {
 
 			while ((buf = this.ReadLine()) != null) {
 				Match m = Regex.Match(buf, @"^(\d{3})\s(.*)$");
+
+				this.OnResponseReceived(buf);
 
 				if (m.Success) { // the server sent the final response message
 					if (m.Groups.Count > 1) {
@@ -253,12 +295,6 @@ namespace System.Net.FtpClient {
 				throw new FtpException(this.ResponseMessage);
 			}
 
-			if (this.SslEnabled) {
-				if (!this.Execute("PROT P")) {
-					throw new FtpException(this.ResponseMessage);
-				}
-			}
-
 			switch (mode) {
 				case FtpDataMode.Passive:
 					if (this.HasCapability(FtpCapability.EPSV)) {
@@ -282,8 +318,6 @@ namespace System.Net.FtpClient {
 		private FtpDataChannel OpenPassiveChannel() {
 			FtpDataChannel chan = new FtpDataChannel(this);
 			Match m;
-			string ip;
-			int port;
 
 			if (!this.Execute("PASV")) {
 				throw new FtpException(this.ResponseMessage);
@@ -329,8 +363,6 @@ namespace System.Net.FtpClient {
 			chan.Server = this.Server;
 			chan.Port = int.Parse(m.Groups[1].Value);
 			chan.Connect();
-
-			//chan.Connect(this.Server, int.Parse(m.Groups[1].Value));
 
 			return chan;
 		}

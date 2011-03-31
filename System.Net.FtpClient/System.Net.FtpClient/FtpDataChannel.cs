@@ -61,24 +61,32 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
+		/// Base network stream, could be NetworkStream or SslStream
+		/// depending on if ssl is enabled.
+		/// </summary>
+		public override Stream BaseStream {
+			get {
+				// authenticate the stream if it isn't already
+				if (this.CommandChannel.SslEnabled && !this.SecurteStream.IsAuthenticated) {
+					this.IgnoreInvalidSslCertificates = this.CommandChannel.IgnoreInvalidSslCertificates;
+					this.AuthenticateConnection();
+				}
+
+				return base.BaseStream;
+			}
+		}
+
+		/// <summary>
 		/// Connects active or passive channels
 		/// </summary>
 		public override void Connect() {
 			if (!this.Connected) {
 				if (this.CommandChannel.DefaultDataMode == FtpDataMode.Active) {
 					this.ConnectActiveChannel();
-
-					/*if (!this.CommandChannel.ReadResponse()) {
-						this.Disconnect();
-						throw new FtpException(this.CommandChannel.ResponseMessage);
-					}*/
 				}
 				else {
 					base.Connect();
 				}
-
-				this.SslEnabled = this.CommandChannel.SslEnabled;
-				this.IgnoreInvalidSslCertificates = this.CommandChannel.IgnoreInvalidSslCertificates;
 			}
 		}
 
@@ -117,7 +125,8 @@ namespace System.Net.FtpClient {
 			this.Socket.Close();
 			this.Socket = null;
 			this.Socket = s;
-			this.IsServerSocket = true;
+			this.IgnoreInvalidSslCertificates = this.CommandChannel.IgnoreInvalidSslCertificates;
+			this.AuthenticateConnection();
 #if DEBUG
 			System.Diagnostics.Debug.WriteLine(string.Format("Connected from: {0}:{1}",
 				this.RemoteIPAddress, this.RemotePort));
@@ -139,14 +148,10 @@ namespace System.Net.FtpClient {
 		/// setup after the server connects to us.
 		/// </summary>
 		void SetupSsl() {
-			if (this.CommandChannel.SslEnabled) {
-				this.IgnoreInvalidSslCertificates = this.CommandChannel.IgnoreInvalidSslCertificates;
-				this.SslEnabled = true;
-			}
+			
 		}
 
 		public FtpDataChannel(FtpCommandChannel cmdchan) {
-			this.SslEnabled = false;
 			this.CommandChannel = cmdchan;
 			this.ConnectionReady += new FtpChannelConnected(SetupSsl);
 		}

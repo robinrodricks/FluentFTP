@@ -33,13 +33,17 @@ namespace System.Net.FtpClient {
 			set { _isServerSocket = value; }
 		}
 
-		bool _sslEnabled = false;
 		/// <summary>
-		/// Gets a value indicating if SSL is in use.
+		/// Gets a value indicating if encryption is in use
 		/// </summary>
 		public bool SslEnabled {
-			get { return _sslEnabled; }
-			protected set { _sslEnabled = value; this.StreamReader = null; }
+			get {
+				if (this.Connected) {
+					return this.SecurteStream.IsEncrypted;
+				}
+
+				return false;
+			}
 		}
 
 		bool _ignoreInvalidSslCerts = false;
@@ -167,6 +171,19 @@ namespace System.Net.FtpClient {
 			return this.IgnoreInvalidSslCertificates;
 		}
 
+		/// <summary>
+		/// Authenticates the SSL certificate. This should be called when the stream is switched over
+		/// to encryption.
+		/// </summary>
+		public void AuthenticateConnection() {
+			if (this.Connected && !this.SecurteStream.IsAuthenticated) {
+					this.SecurteStream.AuthenticateAsClient(((IPEndPoint)this.RemoteEndPoint).Address.ToString());
+#if DEBUG
+					Debug.WriteLine("Secure stream authenticated...");
+#endif
+			}
+		}
+
 		SslStream _sslStream = null;
 		/// <summary>
 		/// Gets a secure stream to the socket.
@@ -178,23 +195,6 @@ namespace System.Net.FtpClient {
 					this._reader = null;
 					this._sslStream = new SslStream(this.NetworkStream, true, 
 						new RemoteCertificateValidationCallback(CheckCertificate));
-
-					if (this.IsServerSocket) {
-#if DEBUG
-						Debug.WriteLine("Configuring server certificate...");
-#endif
-						this._sslStream.AuthenticateAsClient(((IPEndPoint)this.RemoteEndPoint).Address.ToString());
-					}
-					else {
-#if DEBUG
-						Debug.WriteLine("Configuring client certificate...");
-#endif
-						this._sslStream.AuthenticateAsClient(this.Server);
-					}
-
-#if DEBUG
-					Debug.WriteLine("Secure stream ready");
-#endif
 				}
 
 				return _sslStream; 
@@ -207,9 +207,13 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// The base stream for reading and writing the socket
 		/// </summary>
-		public Stream BaseStream {
+		public virtual Stream BaseStream {
 			get {
-				if (this.SslEnabled) {
+				if (this.SecurteStream.IsEncrypted) {
+					if (this._reader != null && this._reader.BaseStream == this.NetworkStream) {
+						this._reader = new StreamReader(this.SecurteStream);
+					}
+
 					return this.SecurteStream;
 				}
 				else {
@@ -350,7 +354,6 @@ namespace System.Net.FtpClient {
 		/// <param name="port"></param>
 		public virtual void Connect(string host, int port) {
 			if (!this.Connected) {
-				this.SslEnabled = false;
 				this.Server = host;
 				this.Port = port;
 				this.Socket.Connect(host, port);
@@ -365,7 +368,6 @@ namespace System.Net.FtpClient {
 		/// <param name="port"></param>
 		public virtual void Connect(IPAddress ip, int port) {
 			if (!this.Connected) {
-				this.SslEnabled = false;
 				this.Server = ip.ToString();
 				this.Port = port;
 				this.Socket.Connect(ip, port);
@@ -379,7 +381,6 @@ namespace System.Net.FtpClient {
 		/// <param name="ep"></param>
 		public virtual void Connect(EndPoint ep) {
 			if (!this.Connected) {
-				this.SslEnabled = false;
 
 				if (ep is IPEndPoint) {
 					IPEndPoint ipep = (IPEndPoint)ep;

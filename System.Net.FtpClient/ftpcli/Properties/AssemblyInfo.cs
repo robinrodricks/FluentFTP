@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("FtpTests")]
+[assembly: AssemblyTitle("ftpcli")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("FtpTests")]
-[assembly: AssemblyCopyright("Copyright © J.P. Trosclair 2011")]
+[assembly: AssemblyCompany("Jude")]
+[assembly: AssemblyProduct("ftpcli")]
+[assembly: AssemblyCopyright("Copyright © Jude 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("94ccfb9e-3fb4-401c-8608-b5d4f7b65b42")]
+[assembly: Guid("eedaa855-43bb-4ec5-acc6-34faa952d17b")]
 
 // Version information for an assembly consists of the following four values:
 //
