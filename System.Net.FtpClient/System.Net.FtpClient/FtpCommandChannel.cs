@@ -159,19 +159,17 @@ namespace System.Net.FtpClient {
 		/// <param name="cmd"></param>
 		/// <returns></returns>
 		public bool Execute(string cmd) {
-			try {
-				if (this.Connected) {
-					this.Connect();
-				}
-
-				if (this.Socket.Poll(50000, SelectMode.SelectRead) && this.Socket.Available == 0) {
-					// we've been disconnected, probably due to inactivity
-					this.Connect();
-				}
-
-				this.WriteLine(cmd);
+			if (this.Connected) {
+				this.Connect();
 			}
-			
+
+			if (this.Socket.Poll(50000, SelectMode.SelectRead) && this.Socket.Available == 0) {
+				// we've been disconnected, probably due to inactivity
+				this.Connect();
+			}
+
+			this.WriteLine(cmd);
+
 			return this.ReadResponse();
 		}
 
