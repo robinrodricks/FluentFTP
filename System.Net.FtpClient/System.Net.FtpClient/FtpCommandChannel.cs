@@ -433,6 +433,8 @@ namespace System.Net.FtpClient {
 				this.Disconnect();
 				throw new FtpException(this.ResponseMessage);
 			}
+
+			this.Capabilities = FtpCapability.EMPTY;
 		}
 
 		public FtpCommandChannel() {

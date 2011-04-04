@@ -402,31 +402,31 @@ namespace System.Net.FtpClient {
 #if DEBUG
 			Debug.WriteLine("Called: FtpChannel.Disconnect();");
 #endif
-			if (this.Connected) {
-				if (this._sock != null) {
-					this._sock.Shutdown(SocketShutdown.Both);
-					this._sock.Close();
-					this._sock = null;
-				}
 
-				if (this._stream != null) {
-					this._stream.Close();
-					this._stream.Dispose();
-					this._stream = null;
-				}
-
-				if (this._reader != null) {
-					this._reader.Close();
-					this._reader.Dispose();
-					this._reader = null;
-				}
-
-				if (this._sslStream != null) {
-					this._sslStream.Close();
-					this._sslStream.Dispose();
-					this._sslStream = null;
-				}
+			if (this._sock != null && this.Connected) {
+				this._sock.Shutdown(SocketShutdown.Both);
+				this._sock.Close();
 			}
+
+			if (this._stream != null) {
+				this._stream.Close();
+				this._stream.Dispose();
+			}
+
+			if (this._reader != null) {
+				this._reader.Close();
+				this._reader.Dispose();
+			}
+
+			if (this._sslStream != null) {
+				this._sslStream.Close();
+				this._sslStream.Dispose();
+			}
+
+			this._sock = null;
+			this._stream = null;
+			this._reader = null;
+			this._sslStream = null;
 		}
 
 		/// <summary>
