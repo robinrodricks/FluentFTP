@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.IO;
+using System.Net.Sockets;
 
 namespace System.Net.FtpClient {
 	public delegate void ResponseReceived(string message);
@@ -157,11 +159,19 @@ namespace System.Net.FtpClient {
 		/// <param name="cmd"></param>
 		/// <returns></returns>
 		public bool Execute(string cmd) {
-			if (!this.Connected) {
-				this.Connect();
-			}
+			try {
+				if (this.Connected) {
+					this.Connect();
+				}
 
-			this.WriteLine(cmd);
+				if (this.Socket.Poll(50000, SelectMode.SelectRead) && this.Socket.Available == 0) {
+					// we've been disconnected, probably due to inactivity
+					this.Connect();
+				}
+
+				this.WriteLine(cmd);
+			}
+			
 			return this.ReadResponse();
 		}
 
@@ -417,8 +427,12 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		public override void Disconnect() {
 			if (this.Connected) {
-				if (!this.Execute("QUIT")) {
-					throw new FtpException(this.ResponseMessage);
+				bool disconnected = (this.Socket.Poll(50000, SelectMode.SelectRead) && this.Socket.Available == 0);
+
+				if (!disconnected && !this.Execute("QUIT")) {
+					// we don't want to do this, the user is 
+					// trying to terminate the connection.
+					//throw new FtpException(this.ResponseMessage);
 				}
 			}
 

@@ -357,6 +357,7 @@ namespace System.Net.FtpClient {
 			if (!this.Connected) {
 				this.Server = host;
 				this.Port = port;
+				this.Disconnect(); // cleans up socket resources before making another connection
 				this.Socket.Connect(host, port);
 				this.OnConnectionReady();
 			}
@@ -371,6 +372,7 @@ namespace System.Net.FtpClient {
 			if (!this.Connected) {
 				this.Server = ip.ToString();
 				this.Port = port;
+				this.Disconnect(); // cleans up socket resources before making another connection
 				this.Socket.Connect(ip, port);
 				this.OnConnectionReady();
 			}
@@ -390,6 +392,7 @@ namespace System.Net.FtpClient {
 					this.Port = ipep.Port;
 				}
 
+				this.Disconnect(); // cleans up socket resources before making another connection
 				this.Socket.Connect(ep);
 				this.OnConnectionReady();
 			}
