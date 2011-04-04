@@ -159,7 +159,7 @@ namespace System.Net.FtpClient {
 		/// <param name="cmd"></param>
 		/// <returns></returns>
 		public bool Execute(string cmd) {
-			if (this.Connected) {
+			if (!this.Connected) {
 				this.Connect();
 			}
 
