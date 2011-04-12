@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Net;
 using System.Net.Sockets;
 using System.Globalization;
+using System.IO;
 
 namespace System.Net.FtpClient {
 	public class FtpClient : FtpCommandChannel {
@@ -28,7 +29,7 @@ namespace System.Net.FtpClient {
 
 		bool _useSsl = true;
 		/// <summary>
-		/// Use SSL IF IT IS AVAILABLE. The default is true.
+		/// Use SSL if it is available. The default is true.
 		/// </summary>
 		public bool UseSsl {
 			get { return _useSsl; }
@@ -185,10 +186,6 @@ namespace System.Net.FtpClient {
 					break;
 				case FtpListType.MLSD:
 				case FtpListType.MLST:
-					if (!this.HasCapability(FtpCapability.MLSD)) {
-						throw new NotImplementedException("The server we're connected to does not support MLST/MLSD");
-					}
-
 					cmd = "MLSD";
 					break;
 				default:
@@ -364,11 +361,58 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
-		/// Renames the specified file
+		/// Gets an FTP list item representing the specified file system object
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns></returns>
+		public FtpListItem GetObjectInfo(string path) {
+			if (this.HasCapability(FtpCapability.MLST) && this.Execute("MLST {0}", path)) {
+				foreach (string s in this.Messages) {
+					// MLST response starts with a space according to draft-ietf-ftpext-mlst-16
+					if (s.StartsWith(" ")) {
+						return new FtpListItem(s, FtpListType.LIST);
+					}
+				}
+			}
+			else {
+				// the server doesn't support MLS* functions so
+				// we have to do it the hard and inefficient way
+				foreach (string s in this.GetRawListing(Path.GetDirectoryName(path), FtpListType.LIST)) {
+					FtpListItem l = new FtpListItem(s, FtpListType.LIST);
+
+					if (l.Name == Path.GetFileName(path)) {
+						return l;
+					}
+				}
+			}
+
+			return new FtpListItem();
+		}
+
+		/// <summary>
+		/// Checks if the specified directory exists
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns></returns>
+		public bool DirectoryExists(string path) {
+			return this.GetObjectInfo(path).Type == FtpObjectType.Directory;
+		}
+
+		/// <summary>
+		/// Checks if the specified file exists
+		/// </summary>
+		/// <param name="path"></param>
+		/// <returns></returns>
+		public bool FileExists(string path) {
+			return this.GetObjectInfo(path).Type == FtpObjectType.File;
+		}
+
+		/// <summary>
+		/// Renames the specified object
 		/// </summary>
 		/// <param name="from">The full or relative (to the current working directory) path of the existing file</param>
 		/// <param name="to">The full or relative (to the current working directory) path of the new file</param>
-		public void RenameFile(string from, string to) {
+		public void Rename(string from, string to) {
 			if (!this.Execute("RNFR {0}", from)) {
 				throw new FtpException(this.ResponseMessage);
 			}

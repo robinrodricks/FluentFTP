@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace System.Net.FtpClient {
-	public class FtpFile {
+	public class FtpFile : IDisposable {
 		FtpClient _client = null;
 		/// <summary>
 		/// The FtpClient object this directory is associated with
@@ -59,6 +59,24 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		public string Name {
 			get { return System.IO.Path.GetFileName(this.FullName); }
+		}
+
+		FtpDirectory _parent = null;
+		/// <summary>
+		/// Gets the parent directory.
+		/// </summary>
+		public FtpDirectory Parent {
+			get {
+				if (_parent == null) {
+					_parent = new FtpDirectory(this.Client, System.IO.Path.GetDirectoryName(this.FullName));
+				}
+
+				return _parent;
+			}
+
+			private set {
+				_parent = value;
+			}
 		}
 
 		/// <summary>
@@ -137,9 +155,10 @@ namespace System.Net.FtpClient {
 		/// Delete this file
 		/// </summary>
 		public void Delete() {
-			this.Client.RemoveFile(this.FullName);
+			this.Parent.Delete(this);
 			this.Length = 0;
 			this.LastWriteTime = DateTime.MinValue;
+			this.Parent = null;
 		}
 
 		void GetInfo() {
@@ -164,16 +183,25 @@ namespace System.Net.FtpClient {
 			return System.Text.RegularExpressions.Regex.Replace(path, @"/+", "/");
 		}
 
+		public void Dispose() {
+			this._client = null;
+			this._lastWriteTime = DateTime.MinValue;
+			this._length = -1;
+			this._parent = null;
+			this._path = null;
+		}
+
 		public FtpFile(FtpClient cl, string path) {
 			this.FullName = this.CleanPath(path);
 			this.Client = cl;
 		}
 
-		public FtpFile(FtpClient cl, string root, FtpListItem listing) {
+		public FtpFile(FtpClient cl, FtpDirectory parent, FtpListItem listing) {
 			this.Client = cl;
-			this.FullName = this.CleanPath(string.Format("{0}/{1}", root, listing.Name));
+			this.FullName = this.CleanPath(string.Format("{0}/{1}", parent.FullName, listing.Name));
 			this.LastWriteTime = listing.Modify;
 			this.Length = listing.Size;
+			this.Parent = parent;
 		}
 	}
 }

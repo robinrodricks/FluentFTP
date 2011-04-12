@@ -11,11 +11,11 @@ namespace ftpcli {
 		string Prompt {
 			get {
 				if (this.FtpClient.Connected) {
-					return string.Format("[{0}:{1}] ", this.FtpClient.Server,
+					return string.Format("[{0}:{1}]# ", this.FtpClient.Server,
 						this.FtpClient.CurrentDirectory.FullName);
 				}
 
-				return "[disconnected] ";
+				return "# ";
 			}
 		}
 
@@ -103,10 +103,13 @@ namespace ftpcli {
 		}
 
 		public void Run() {
+			Readline rl = new Readline();
 			string input;
 
-			Console.Write(this.Prompt);
-			while ((input = Console.ReadLine()) != null) {
+			rl.AutoComplete += new AutoCompleteItems(rl_AutoComplete);
+			rl.Prompt = this.Prompt;
+
+			while ((input = rl.GetLine()) != null) {
 				string cmd = input.Trim();
 				string[] args = null;
 
@@ -171,8 +174,34 @@ namespace ftpcli {
 						break;
 				}
 
-				Console.Write(this.Prompt);
+				rl.Prompt = this.Prompt;
 			}
+		}
+
+		string[] rl_AutoComplete(string text) {
+			List<string> lst = new List<string>();
+
+			if (this.FtpClient.Connected && text != null) {
+				for (int i = 0; i < text.Length; i++) {
+					if (text[i] == ' ') {
+						text = text.Substring(i).Trim();
+					}
+				}
+
+				foreach (FtpDirectory dir in this.FtpClient.CurrentDirectory.Directories) {
+					if(dir.Name.ToLower().StartsWith(text.ToLower())) {
+						lst.Add(dir.Name);
+					}
+				}
+
+				foreach(FtpFile f in this.FtpClient.CurrentDirectory.Files) {
+					if(f.Name.ToLower().StartsWith(text.ToLower())) {
+						lst.Add(f.Name);
+					}
+				}
+			}
+
+			return lst.ToArray();
 		}
 
 		public void Dispose() {

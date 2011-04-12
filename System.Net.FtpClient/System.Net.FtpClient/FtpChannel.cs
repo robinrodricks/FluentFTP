@@ -74,6 +74,38 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		public int RecieveBufferSize {
+			get {
+				if (this._sock != null) {
+					return this._sock.ReceiveBufferSize;
+				}
+
+				return 0;
+			}
+
+			set {
+				if (this._sock != null) {
+					this._sock.ReceiveBufferSize = value;
+				}
+			}
+		}
+
+		public int SendBufferSize {
+			get {
+				if (this._sock != null) {
+					return this._sock.SendBufferSize;
+				}
+
+				return 0;
+			}
+
+			set {
+				if (this._sock != null) {
+					this._sock.SendBufferSize = value;
+				}
+			}
+		}
+
 		/// <summary>
 		/// Local end point
 		/// </summary>
