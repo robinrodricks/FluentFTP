@@ -53,18 +53,31 @@ namespace ReleaseTests {
 		}
 
 		static void Main(string[] args) {
-			using (FtpClient cl = new FtpClient("test", "test", "localhost")) {
-				cl.IgnoreInvalidSslCertificates = true;
-				cl.TransferProgress += new TransferProgress(cl_TransferProgress);
+			try {
+				using (FtpClient cl = new FtpClient("test", "test", "localhost")) {
+					try {
+						//cl.IgnoreInvalidSslCertificates = true;
+						//cl.DefaultDataMode = FtpDataMode.Active;
+						cl.TransferProgress += new TransferProgress(cl_TransferProgress);
 
-				RecursiveDownload(cl.CurrentDirectory, "c:\\temp");
-				RecursiveDelete(cl.CurrentDirectory);
-				RecursiveUpload(cl.CurrentDirectory, new DirectoryInfo("c:\\temp"));
+						RecursiveDownload(cl.CurrentDirectory, "c:\\temp");
+						RecursiveDelete(cl.CurrentDirectory);
+						RecursiveUpload(cl.CurrentDirectory, new DirectoryInfo("c:\\temp"));
+					}
+					catch (FtpInvalidCertificateException ex) {
+						Console.WriteLine(ex.Message);
+						Console.ReadKey();
+					}
+				}
+			}
+			catch (Exception ex) {
+				Console.WriteLine(ex.Message);
+				Console.ReadKey();
 			}
 		}
 
 		static void cl_TransferProgress(FtpTransferInfo e) {
-			Console.Write("\r{0}: {1} {2}/{3} {4}/s {5}%",
+			Console.Write("\r{0}: {1} {2}/{3} {4}/s {5}%   ",
 				e.TransferType == FtpTransferType.Upload ? "U" : "D",
 				Path.GetFileName(e.RemoteFile), e.Transferred, e.Length,
 				e.BytesPerSecond, e.Percentage);

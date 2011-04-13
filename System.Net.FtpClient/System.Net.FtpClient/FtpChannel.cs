@@ -12,7 +12,7 @@ namespace System.Net.FtpClient {
 	public delegate void FtpChannelConnected();
 	public delegate void FtpChannelDisconnected();
 	public delegate void FtpChannelDisposed();
-
+	
 	public abstract class FtpChannel : IDisposable {
 		event FtpChannelConnected _onConnected = null;
 		/// <summary>
@@ -98,6 +98,24 @@ namespace System.Net.FtpClient {
 		public bool IgnoreInvalidSslCertificates {
 			get { return _ignoreInvalidSslCerts; }
 			set { _ignoreInvalidSslCerts = value; }
+		}
+
+		SslPolicyErrors _policyErrors = SslPolicyErrors.None;
+		/// <summary>
+		/// Gets the SSL errors if there were any
+		/// </summary>
+		public SslPolicyErrors SslPolicyErrors {
+			get { return _policyErrors; }
+			private set { _policyErrors = value; }
+		}
+
+		X509Certificate _sslCertificate = null;
+		/// <summary>
+		/// Gets the certificate associated with the current connection
+		/// </summary>
+		public X509Certificate SslCertificate {
+			get { return _sslCertificate; }
+			private set { _sslCertificate = value; }
 		}
 
 		Socket _sock = null;
@@ -248,9 +266,19 @@ namespace System.Net.FtpClient {
 		/// <param name="sslPolicyErrors"></param>
 		/// <returns></returns>
 		bool CheckCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
-			if (sslPolicyErrors == SslPolicyErrors.None)
+			// the exception triggered by not returning true here does not
+			// propogate properly and ends up causing an obscure error so
+			// always return true and check for policy errors after the
+			// stream has been setup.
+			/*if (sslPolicyErrors == SslPolicyErrors.None) {
 				return true;
-			return this.IgnoreInvalidSslCertificates;
+			}
+			return this.IgnoreInvalidSslCertificates;*/
+
+			this.SslPolicyErrors = sslPolicyErrors;
+			this.SslCertificate = certificate;
+
+			return true;
 		}
 
 		/// <summary>
@@ -259,8 +287,10 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		protected void AuthenticateConnection() {
 			if (this.Connected && !this.SecurteStream.IsAuthenticated) {
-
 				this.SecurteStream.AuthenticateAsClient(((IPEndPoint)this.RemoteEndPoint).Address.ToString());
+				if (this.SslPolicyErrors != Security.SslPolicyErrors.None && !this.IgnoreInvalidSslCertificates) {
+					throw new FtpInvalidCertificateException("There were errors validating the SSL certificate: " + this.SslPolicyErrors.ToString());
+				}
 #if DEBUG
 				Debug.WriteLine("Secure stream authenticated...");
 #endif
@@ -278,6 +308,10 @@ namespace System.Net.FtpClient {
 					this._reader = null;
 					this._sslStream = new SslStream(this.NetworkStream, true,
 						new RemoteCertificateValidationCallback(CheckCertificate));
+
+					if (this.SslPolicyErrors != Security.SslPolicyErrors.None && !this.IgnoreInvalidSslCertificates) {
+						throw new FtpException("There were errors validating the SSL certificate: " + this.SslPolicyErrors.ToString());
+					}
 				}
 
 				return _sslStream;
@@ -429,6 +463,8 @@ namespace System.Net.FtpClient {
 			this._stream = null;
 			this._reader = null;
 			this._sslStream = null;
+			this._sslCertificate = null;
+			this._policyErrors = Security.SslPolicyErrors.None;
 		}
 
 		public void Dispose() {
