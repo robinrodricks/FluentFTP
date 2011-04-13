@@ -133,6 +133,7 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		#region MLS* Parsing
 		/// <summary>
 		/// Parses MLST and MLSD formats
 		/// </summary>
@@ -200,6 +201,7 @@ namespace System.Net.FtpClient {
 				}
 			}
 		}
+		#endregion
 
 		/// <summary>
 		/// Parses a given listing

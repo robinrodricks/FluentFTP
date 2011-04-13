@@ -32,7 +32,9 @@ namespace System.Net.FtpClient {
 				return _caps;
 			}
 
-			private set { _caps = value; }
+			private set { 
+				_caps = value; 
+			}
 		}
 
 		FtpDataMode _dataMode = FtpDataMode.Passive;
@@ -233,15 +235,13 @@ namespace System.Net.FtpClient {
 		/// Loads the capabilities of this server
 		/// </summary>
 		private void LoadCapabilities() {
-			this.Capabilities = FtpCapability.NONE;
-
-			// some servers support EPSV but do not advertise it
-			// in the FEAT list. for this reasons, we assume EPSV
-			// is supported and if we get a 500 reply then we fall back
-			// to PASV.
-			this.Capabilities |= FtpCapability.EPSV | FtpCapability.EPRT;
-
 			if (this.Execute("FEAT")) {
+				// some servers support EPSV but do not advertise it
+				// in the FEAT list. for this reason, we assume EPSV
+				// is supported and if we get a 500 reply then we fall back
+				// to PASV.
+				this.Capabilities = FtpCapability.EPSV | FtpCapability.EPRT;
+
 				foreach (string feat in this.Messages) {
 					if (feat.ToUpper().Contains("MLST") || feat.ToUpper().Contains("MLSD"))
 						this.Capabilities |= FtpCapability.MLSD | FtpCapability.MLST;
@@ -254,6 +254,9 @@ namespace System.Net.FtpClient {
 					else if (feat.ToUpper().Contains("EPSV") || feat.ToUpper().Contains("EPRT"))
 						this.Capabilities |= FtpCapability.EPSV | FtpCapability.EPRT;
 				}
+			}
+			else {
+				this.Capabilities = FtpCapability.NONE;
 			}
 		}
 
@@ -334,7 +337,7 @@ namespace System.Net.FtpClient {
 			// parse pasv response
 			m = Regex.Match(this.ResponseMessage, "([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)");
 			if (!m.Success || m.Groups.Count != 7) {
-				throw new Exception(string.Format("Malformed PASV response: {0}", this.ResponseMessage));
+				throw new FtpException(string.Format("Malformed PASV response: {0}", this.ResponseMessage));
 			}
 
 			chan.Server = string.Format("{0}.{1}.{2}.{3}", m.Groups[1].Value, m.Groups[2].Value, m.Groups[3].Value, m.Groups[4].Value);

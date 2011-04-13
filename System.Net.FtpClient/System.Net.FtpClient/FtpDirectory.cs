@@ -163,7 +163,7 @@ namespace System.Net.FtpClient {
 				this.Parent.Delete(this, recursive);
 			}
 			else {
-				throw new Exception("You can't remove the top level directory!");
+				throw new FtpException("You can't remove the top level directory!");
 			}
 
 			this._files.Clear();

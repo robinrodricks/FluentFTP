@@ -125,7 +125,7 @@ namespace System.Net.FtpClient {
 
 				if (this.ResponseType == FtpResponseType.PositiveIntermediate) {
 					if (this.Password == null) {
-						throw new FtpException("The server is asking for a password but none has been set.");
+						throw new FtpException("The server is asking for a password but it has been set.");
 					}
 
 					if (!this.Execute("PASS {0}", this.Password)) {
@@ -377,9 +377,7 @@ namespace System.Net.FtpClient {
 			else {
 				// the server doesn't support MLS* functions so
 				// we have to do it the hard and inefficient way
-				foreach (string s in this.GetRawListing(Path.GetDirectoryName(path), FtpListType.LIST)) {
-					FtpListItem l = new FtpListItem(s, FtpListType.LIST);
-
+				foreach (FtpListItem l in this.GetListing(Path.GetDirectoryName(path))) {
 					if (l.Name == Path.GetFileName(path)) {
 						return l;
 					}
