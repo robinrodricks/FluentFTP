@@ -13,6 +13,13 @@ namespace System.Net.FtpClient {
 			private set { _client = value; }
 		}
 
+		/// <summary>
+		/// Gets a value indicating if this file exists on the server
+		/// </summary>
+		public bool Exists {
+			get { return this.Client.FileExists(this.FullName); }
+		}
+
 		string _path = null;
 		/// <summary>
 		/// The full or relative path of this directory on the server
@@ -149,6 +156,85 @@ namespace System.Net.FtpClient {
 		/// <returns></returns>
 		public FtpDataChannel OpenWrite(FtpTransferMode mode, long rest) {
 			return this.Client.OpenWrite(this.FullName, mode, rest);
+		}
+
+		/// <summary>
+		/// Download this file to the current working directory
+		/// </summary>
+		public void Download() {
+			this.Client.Download(this);
+		}
+
+		/// <summary>
+		/// Download this file
+		/// </summary>
+		/// <param name="local">Local path</param>
+		public void Download(string local) {
+			this.Client.Download(this, local);
+		}
+
+		/// <summary>
+		/// Download this file
+		/// </summary>
+		/// <param name="local">Local path</param>
+		/// <param name="rest">Restart position</param>
+		public void Download(string local, long rest) {
+			this.Client.Download(this, local, rest);
+		}
+
+		/// <summary>
+		/// Download this file
+		/// </summary>
+		/// <param name="local">Local path</param>
+		/// <param name="xferMode">ASCII/Binary</param>
+		public void Download(string local, FtpTransferMode xferMode) {
+			this.Client.Download(this, local, xferMode);
+		}
+
+		/// <summary>
+		/// Download this file
+		/// </summary>
+		/// <param name="local">Local path</param>
+		/// <param name="xferMode">ASCII/Binary</param>
+		/// <param name="rest">Restart location</param>
+		public void Download(string local, FtpTransferMode xferMode, long rest) {
+			this.Client.Download(this, local, xferMode, rest);
+		}
+
+		/// <summary>
+		/// Uploads the specified file
+		/// </summary>
+		/// <param name="local"></param>
+		public void Upload(string local) {
+			this.Client.Upload(local, this);
+		}
+
+		/// <summary>
+		/// Uploads the specified file 
+		/// </summary>
+		/// <param name="local"></param>
+		/// <param name="rest"></param>
+		public void Upload(string local, long rest) {
+			this.Client.Upload(local, this, rest);
+		}
+
+		/// <summary>
+		/// Uploads the specified file
+		/// </summary>
+		/// <param name="local"></param>
+		/// <param name="xferMode"></param>
+		public void Upload(string local, FtpTransferMode xferMode) {
+			this.Client.Upload(local, this, xferMode);
+		}
+
+		/// <summary>
+		/// Uploads the specified file
+		/// </summary>
+		/// <param name="local"></param>
+		/// <param name="xferMode"></param>
+		/// <param name="rest"></param>
+		public void Upload(string local, FtpTransferMode xferMode, long rest) {
+			this.Client.Upload(local, this, xferMode, rest);
 		}
 
 		/// <summary>

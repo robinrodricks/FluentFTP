@@ -13,6 +13,13 @@ namespace System.Net.FtpClient {
 			private set { _client = value; }
 		}
 
+		/// <summary>
+		/// Gets a value indicating if this directory exists on the server
+		/// </summary>
+		public bool Exists {
+			get { return this.Client.DirectoryExists(this.FullName); }
+		}
+
 		string _path = null;
 		/// <summary>
 		/// The full or relative path of this directory on the server
@@ -88,6 +95,14 @@ namespace System.Net.FtpClient {
 			private set {
 				_parent = value;
 			}
+		}
+
+		/// <summary>
+		/// Creates this directory on the server. Exception thrown 
+		/// if the directory already exists.
+		/// </summary>
+		public void Create() {
+			this.Client.CreateDirectory(this.FullName);
 		}
 
 		/// <summary>

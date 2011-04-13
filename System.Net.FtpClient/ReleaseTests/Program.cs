@@ -7,39 +7,13 @@ using System.IO;
 
 namespace ReleaseTests {
 	class Program {
-		static void DownloadFile(FtpFile f, string local) {
-			long size = f.Length, total = 0;
-			int read = 0;
-
-			using (FtpDataChannel chan = f.OpenRead()) {
-				FileStream fs = new FileStream(local, FileMode.OpenOrCreate, FileAccess.Write);
-
-				try {
-					byte[] buf = new byte[chan.RecieveBufferSize];
-
-					while ((read = chan.Read(buf, 0, buf.Length)) > 0) {
-						fs.Write(buf, 0, read);
-
-						total += read;
-
-						Console.Write("\rD: {0} {1}/{2} {3:p}",
-							f.Name, total, size, ((double)total / (double)size));
-					}
-				}
-				finally {
-					fs.Close();
-					Console.WriteLine();
-				}
-			}
-		}
-
 		static void RecursiveDownload(FtpDirectory dir, string local) {
 			if (!Directory.Exists(local)) {
 				Directory.CreateDirectory(local);
 			}
 
 			foreach (FtpFile f in dir.Files) {
-				DownloadFile(f, string.Format("{0}\\{1}", local, f.Name));
+				f.Download(string.Format("{0}\\{1}", local, f.Name));
 			}
 
 			foreach (FtpDirectory d in dir.Directories) {
@@ -47,36 +21,12 @@ namespace ReleaseTests {
 			}
 		}
 
-		static void UploadFile(FtpDirectory remote, FileInfo local) {
-			long size = local.Length, total = 0;
-			int read = 0;
-
-			using (FtpDataChannel chan = remote.Client.OpenWrite(string.Format("{0}/{1}", remote.FullName, local.Name))) {
-				FileStream fs = new FileStream(local.FullName, FileMode.Open, FileAccess.Read);
-
-				try {
-					byte[] buf = new byte[chan.RecieveBufferSize];
-
-					while ((read = fs.Read(buf, 0, buf.Length)) > 0) {
-						chan.Write(buf, 0, read);
-
-						total += read;
-
-						Console.Write("\rU: {0} {1}/{2} {3:p}",
-							local.Name, total, size, ((double)total / (double)size));
-					}
-				}
-				finally {
-					fs.Close();
-					Console.WriteLine();
-				}
-			}
-		}
-
 		static void RecursiveUpload(FtpDirectory remote, DirectoryInfo local) {
 			foreach (FileInfo f in local.GetFiles()) {
-				if (!remote.FileExists(f.Name)) {
-					UploadFile(remote, f);
+				FtpFile ff = new FtpFile(remote.Client, string.Format("{0}/{1}", remote.FullName, f.Name));
+
+				if (!ff.Exists) {
+					ff.Upload(f.FullName);
 				}
 			}
 
@@ -105,10 +55,22 @@ namespace ReleaseTests {
 		static void Main(string[] args) {
 			using (FtpClient cl = new FtpClient("test", "test", "localhost")) {
 				cl.IgnoreInvalidSslCertificates = true;
+				cl.TransferProgress += new TransferProgress(cl_TransferProgress);
 
 				RecursiveDownload(cl.CurrentDirectory, "c:\\temp");
 				RecursiveDelete(cl.CurrentDirectory);
 				RecursiveUpload(cl.CurrentDirectory, new DirectoryInfo("c:\\temp"));
+			}
+		}
+
+		static void cl_TransferProgress(FtpTransferInfo e) {
+			Console.Write("\r{0}: {1} {2}/{3} {4}/s {5}%",
+				e.TransferType == FtpTransferType.Upload ? "U" : "D",
+				Path.GetFileName(e.RemoteFile), e.Transferred, e.Length,
+				e.BytesPerSecond, e.Percentage);
+
+			if (e.Complete) {
+				Console.WriteLine();
 			}
 		}
 	}

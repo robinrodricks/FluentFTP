@@ -10,24 +10,68 @@ using System.Text;
 
 namespace System.Net.FtpClient {
 	public delegate void FtpChannelConnected();
+	public delegate void FtpChannelDisconnected();
+	public delegate void FtpChannelDisposed();
 
 	public abstract class FtpChannel : IDisposable {
 		event FtpChannelConnected _onConnected = null;
 		/// <summary>
 		/// Event is fired after a connection has been made
 		/// </summary>
-		protected event FtpChannelConnected ConnectionReady {
+		public event FtpChannelConnected ConnectionReady {
 			add { _onConnected += value; }
 			remove { _onConnected -= value; }
 		}
 
+		event FtpChannelDisconnected _onDisconnected = null;
+		/// <summary>
+		/// Event is fired when Disconnect is called
+		/// </summary>
+		public event FtpChannelDisconnected ConnectionClosed {
+			add { _onDisconnected += value; }
+			remove { _onDisconnected -= value; }
+		}
+
+		event FtpChannelDisposed _onDisposed = null;
+		/// <summary>
+		/// Event is fired when this object is disposed.
+		/// </summary>
+		public event FtpChannelDisposed Diposed {
+			add { _onDisposed += value; }
+			remove { _onDisposed -= value; }
+		}
+
+		/// <summary>
+		/// Fire ConnectionReady event
+		/// </summary>
 		protected void OnConnectionReady() {
 			if (_onConnected != null) {
 				this._onConnected();
 			}
 		}
 
+		/// <summary>
+		/// Fire ConnectionClosed event
+		/// </summary>
+		protected void OnConnectionClosed() {
+			if (_onDisconnected != null) {
+				this._onDisconnected();
+			}
+		}
+
+		/// <summary>
+		/// Fire Disposed event
+		/// </summary>
+		protected void OnDisposed() {
+			if (_onDisposed != null) {
+				this._onDisposed();
+			}
+		}
+
 		private bool _isServerSocket = false;
+		/// <summary>
+		/// Indicates if this is an incomming (active) or outgoing channel (passive)
+		/// </summary>
 		protected bool IsServerSocket {
 			get { return _isServerSocket; }
 			set { _isServerSocket = value; }
@@ -74,6 +118,9 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		/// <summary>
+		/// Default buffer size of the underlying socket
+		/// </summary>
 		public int RecieveBufferSize {
 			get {
 				if (this._sock != null) {
@@ -90,6 +137,9 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		/// <summary>
+		/// Default buffer size of the underlying socket
+		/// </summary>
 		public int SendBufferSize {
 			get {
 				if (this._sock != null) {
@@ -207,7 +257,7 @@ namespace System.Net.FtpClient {
 		/// Authenticates the SSL certificate. This should be called when the stream is switched over
 		/// to encryption.
 		/// </summary>
-		public void AuthenticateConnection() {
+		protected void AuthenticateConnection() {
 			if (this.Connected && !this.SecurteStream.IsAuthenticated) {
 
 				this.SecurteStream.AuthenticateAsClient(((IPEndPoint)this.RemoteEndPoint).Address.ToString());
@@ -289,93 +339,6 @@ namespace System.Net.FtpClient {
 			set { _port = value; }
 		}
 
-		/// <summary>
-		/// Reads a line from the FTP channel socket. Use with discretion,
-		/// can cause the code to freeze if you're trying to read data when no data
-		/// is being sent.
-		/// </summary>
-		/// <returns></returns>
-		public virtual string ReadLine() {
-			if (this.StreamReader != null) {
-				string buf = this.StreamReader.ReadLine();
-#if DEBUG
-				Debug.WriteLine(string.Format("> {0}", buf));
-#endif
-				return buf;
-			}
-
-			throw new FtpException("The reader object is null. Are we connected?");
-		}
-
-		/// <summary>
-		/// Reads bytes off the socket
-		/// </summary>
-		/// <param name="buf"></param>
-		/// <param name="offset"></param>
-		/// <param name="size"></param>
-		public virtual int Read(byte[] buf, int offset, int size) {
-			if (this.BaseStream != null) {
-				return this.BaseStream.Read(buf, 0, size);
-			}
-
-			throw new FtpException("The network stream is null. Are we connected?");
-		}
-
-		/// <summary>
-		/// Writes a line to the channel with the correct line endings.
-		/// </summary>
-		/// <param name="line">Format</param>
-		/// <param name="args">Parameters</param>
-		public virtual void WriteLine(string line, params object[] args) {
-			this.WriteLine(line, args);
-		}
-
-		/// <summary>
-		/// Writes a line to the channel with the correct line endings.
-		/// </summary>
-		/// <param name="line">The line to write</param>
-		public virtual void WriteLine(string line) {
-			this.Write(string.Format("{0}\r\n", line));
-		}
-
-		/// <summary>
-		/// Writes the specified data to the network stream in the proper encoding
-		/// </summary>
-		public virtual void Write(string format, params object[] args) {
-			this.Write(string.Format(format, args));
-		}
-
-		/// <summary>
-		/// Writes the specified data to the network stream in the proper encoding
-		/// </summary>
-		/// <param name="data"></param>
-		public virtual void Write(string data) {
-#if DEBUG
-			Debug.WriteLine(string.Format("< {0}", data.Trim('\n').Trim('\r')));
-#endif
-			this.Write(Encoding.ASCII.GetBytes(data));
-		}
-
-		/// <summary>
-		/// Writes the specified byte array to the network stream
-		/// </summary>
-		/// <param name="buf"></param>
-		public virtual void Write(byte[] buf) {
-			this.Write(buf, 0, buf.Length);
-		}
-
-		/// <summary>
-		/// Writes the specified byte array to the network stream
-		/// </summary>
-		public virtual void Write(byte[] buf, int offset, int count) {
-			if (this.BaseStream != null) {
-				this.BaseStream.Write(buf, offset, count);
-			}
-			else {
-				throw new FtpException("The network stream is null. Are we connected?");
-			}
-		}
-
 		public virtual void Connect() {
 			this.Connect(this.Server, this.Port);
 		}
@@ -438,9 +401,13 @@ namespace System.Net.FtpClient {
 			Debug.WriteLine("Called: FtpChannel.Disconnect();");
 #endif
 
-			if (this._sock != null && this.Connected) {
-				this._sock.Shutdown(SocketShutdown.Both);
-				this._sock.Close();
+			if (this._sock != null) {
+				if (this.Connected) {
+					this._sock.Shutdown(SocketShutdown.Both);
+					this._sock.Close();
+				}
+
+				this.OnConnectionClosed();
 			}
 
 			if (this._stream != null) {
@@ -464,17 +431,9 @@ namespace System.Net.FtpClient {
 			this._sslStream = null;
 		}
 
-		/// <summary>
-		/// Flush the network stream this object is working with.
-		/// </summary>
-		public virtual void Flush() {
-			if (this.Connected && this.NetworkStream != null) {
-				this.NetworkStream.Flush();
-			}
-		}
-
 		public void Dispose() {
 			this.Disconnect();
+			this.OnDisposed();
 		}
 	}
 }

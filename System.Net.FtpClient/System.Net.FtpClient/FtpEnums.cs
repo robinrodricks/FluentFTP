@@ -50,4 +50,9 @@ namespace System.Net.FtpClient {
 		File,
 		Unknown
 	}
+
+	public enum FtpTransferType {
+		Upload,
+		Download
+	}
 }

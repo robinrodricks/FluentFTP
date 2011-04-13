@@ -2,6 +2,7 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Diagnostics;
 
 namespace System.Net.FtpClient {
 	public class FtpDataChannel : FtpChannel {
@@ -76,28 +77,60 @@ namespace System.Net.FtpClient {
 			}
 		}
 
-		public override string ReadLine() {
+		/// <summary>
+		/// Reads a line from the FTP channel socket. Use with discretion,
+		/// can cause the code to freeze if you're trying to read data when no data
+		/// is being sent.
+		/// </summary>
+		/// <returns></returns>
+		public string ReadLine() {
 			if (!this.Connected) {
 				this.Connect();
 			}
 
-			return base.ReadLine();
+			if (this.StreamReader != null) {
+				string buf = this.StreamReader.ReadLine();
+#if DEBUG
+				Debug.WriteLine(string.Format("> {0}", buf));
+#endif
+				return buf;
+			}
+
+			throw new FtpException("The reader object is null. Are we connected?");
 		}
 
-		public override int Read(byte[] buf, int offset, int size) {
+		/// <summary>
+		/// Reads bytes off the socket
+		/// </summary>
+		/// <param name="buf"></param>
+		/// <param name="offset"></param>
+		/// <param name="size"></param>
+		public int Read(byte[] buf, int offset, int size) {
 			if (!this.Connected) {
 				this.Connect();
 			}
 
-			return base.Read(buf, offset, size);
+			if (this.BaseStream != null) {
+				return this.BaseStream.Read(buf, 0, size);
+			}
+
+			throw new FtpException("The network stream is null. Are we connected?");
 		}
 
-		public override void Write(byte[] buf, int offset, int count) {
+		/// <summary>
+		/// Writes the specified byte array to the network stream
+		/// </summary>
+		public void Write(byte[] buf, int offset, int count) {
 			if (!this.Connected) {
 				this.Connect();
 			}
 
-			base.Write(buf, offset, count);
+			if (this.BaseStream != null) {
+				this.BaseStream.Write(buf, offset, count);
+			}
+			else {
+				throw new FtpException("The network stream is null. Are we connected?");
+			}
 		}
 
 		/// <summary>
@@ -115,23 +148,6 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
-		/// Closes the data channel and reads the final response from the command channel if
-		/// the last command completed successfully
-		/// </summary>
-		public override void Disconnect() {
-			bool connected = this.Connected;
-
-			base.Disconnect();
-			// if we were connected and the data channel was use successfully
-			// the server will send a response when the data channel is closed.
-			if (connected && this.CommandChannel.Connected && this.CommandChannel.ResponseStatus) {
-				if (!this.CommandChannel.ReadResponse()) {
-					throw new FtpException(this.CommandChannel.ResponseMessage);
-				}
-			}
-		}
-
-		/// <summary>
 		/// Intializes the active channel socket
 		/// </summary>
 		public void InitalizeActiveChannel() {
@@ -143,7 +159,7 @@ namespace System.Net.FtpClient {
 #endif
 		}
 				
-		public void ConnectActiveChannel() {
+		private void ConnectActiveChannel() {
 			Socket s = this.Socket.Accept();
 
 			this.Socket.Close();
@@ -166,18 +182,8 @@ namespace System.Net.FtpClient {
 			this.CommandChannel = null;
 		}
 
-		/// <summary>
-		/// Sets up the SSL stream for FTPS. This will only be
-		/// called on passive connections, port/eprt has to be
-		/// setup after the server connects to us.
-		/// </summary>
-		void SetupSsl() {
-			
-		}
-
 		public FtpDataChannel(FtpCommandChannel cmdchan) {
 			this.CommandChannel = cmdchan;
-			this.ConnectionReady += new FtpChannelConnected(SetupSsl);
 		}
 	}
 }

@@ -4,11 +4,22 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Net.Sockets;
+using System.Diagnostics;
 
 namespace System.Net.FtpClient {
 	public delegate void ResponseReceived(string message);
 
 	public class FtpCommandChannel : FtpChannel {
+		private bool _dataChannelOpen = false;
+		/// <summary>
+		/// Gets a value indicating if a data channel is active.
+		/// Only 1 data channel can be active per connection.
+		/// </summary>
+		public bool DataChannelOpen {
+			get { return _dataChannelOpen; }
+			private set { _dataChannelOpen = value; }
+		}
+
 		event ResponseReceived _responseReceived = null;
 		/// <summary>
 		/// Event is fired when a message is received from the server. Useful
@@ -146,6 +157,93 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
+		/// Reads a line from the FTP channel socket. Use with discretion,
+		/// can cause the code to freeze if you're trying to read data when no data
+		/// is being sent.
+		/// </summary>
+		/// <returns></returns>
+		protected virtual string ReadLine() {
+			if (this.StreamReader != null) {
+				string buf = this.StreamReader.ReadLine();
+#if DEBUG
+				Debug.WriteLine(string.Format("> {0}", buf));
+#endif
+				return buf;
+			}
+
+			throw new FtpException("The reader object is null. Are we connected?");
+		}
+
+		/// <summary>
+		/// Reads bytes off the socket
+		/// </summary>
+		/// <param name="buf"></param>
+		/// <param name="offset"></param>
+		/// <param name="size"></param>
+		protected virtual int Read(byte[] buf, int offset, int size) {
+			if (this.BaseStream != null) {
+				return this.BaseStream.Read(buf, 0, size);
+			}
+
+			throw new FtpException("The network stream is null. Are we connected?");
+		}
+
+		/// <summary>
+		/// Writes the specified byte array to the network stream
+		/// </summary>
+		/// <param name="buf"></param>
+		protected virtual void Write(byte[] buf) {
+			this.Write(buf, 0, buf.Length);
+		}
+
+		/// <summary>
+		/// Writes the specified byte array to the network stream
+		/// </summary>
+		protected virtual void Write(byte[] buf, int offset, int count) {
+			if (this.BaseStream != null) {
+				this.BaseStream.Write(buf, offset, count);
+			}
+			else {
+				throw new FtpException("The network stream is null. Are we connected?");
+			}
+		}
+
+		/// <summary>
+		/// Writes a line to the channel with the correct line endings.
+		/// </summary>
+		/// <param name="line">Format</param>
+		/// <param name="args">Parameters</param>
+		protected virtual void WriteLine(string line, params object[] args) {
+			this.WriteLine(line, args);
+		}
+
+		/// <summary>
+		/// Writes a line to the channel with the correct line endings.
+		/// </summary>
+		/// <param name="line">The line to write</param>
+		protected virtual void WriteLine(string line) {
+			this.Write(string.Format("{0}\r\n", line));
+		}
+
+		/// <summary>
+		/// Writes the specified data to the network stream in the proper encoding
+		/// </summary>
+		protected virtual void Write(string format, params object[] args) {
+			this.Write(string.Format(format, args));
+		}
+
+		/// <summary>
+		/// Writes the specified data to the network stream in the proper encoding
+		/// </summary>
+		/// <param name="data"></param>
+		protected virtual void Write(string data) {
+#if DEBUG
+			Debug.WriteLine(string.Format("< {0}", data.Trim('\n').Trim('\r')));
+#endif
+			this.Write(Encoding.ASCII.GetBytes(data));
+		}
+
+		/// <summary>
 		/// Executes a command on the server
 		/// </summary>
 		/// <param name="cmd"></param>
@@ -181,7 +279,7 @@ namespace System.Net.FtpClient {
 		/// server to send data that is never comming.
 		/// </summary>
 		/// <returns></returns>
-		public bool ReadResponse() {
+		protected bool ReadResponse() {
 			string buf;
 			List<string> messages = new List<string>();
 
@@ -264,7 +362,7 @@ namespace System.Net.FtpClient {
 		/// Opens a passive/binary data channel
 		/// </summary>
 		/// <returns></returns>
-		public FtpDataChannel OpenDataChannel() {
+		protected FtpDataChannel OpenDataChannel() {
 			return this.OpenDataChannel(this.DefaultDataMode, FtpTransferMode.Binary);
 		}
 
@@ -273,7 +371,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="xfer"></param>
 		/// <returns></returns>
-		public FtpDataChannel OpenDataChannel(FtpTransferMode xfer) {
+		protected FtpDataChannel OpenDataChannel(FtpTransferMode xfer) {
 			return this.OpenDataChannel(this.DefaultDataMode, xfer);
 		}
 
@@ -282,7 +380,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="mode"></param>
 		/// <returns></returns>
-		public FtpDataChannel OpenDataChannel(FtpDataMode mode) {
+		protected FtpDataChannel OpenDataChannel(FtpDataMode mode) {
 			return this.OpenDataChannel(mode, FtpTransferMode.Binary);
 		}
 
@@ -292,7 +390,14 @@ namespace System.Net.FtpClient {
 		/// <param name="mode"></param>
 		/// <param name="xfer"></param>
 		/// <returns></returns>
-		public FtpDataChannel OpenDataChannel(FtpDataMode mode, FtpTransferMode xfer) {
+		protected FtpDataChannel OpenDataChannel(FtpDataMode mode, FtpTransferMode xfer) {
+			FtpDataChannel ch = null;
+
+			if (this.DataChannelOpen) {
+				throw new FtpException("Only 1 data channel can be opened per connection. " +
+					"Create more connections if you want to perform operations in parallel.");
+			}
+
 			switch (xfer) {
 				case FtpTransferMode.Binary:
 					this.Execute("TYPE I");
@@ -309,17 +414,54 @@ namespace System.Net.FtpClient {
 			switch (mode) {
 				case FtpDataMode.Passive:
 					if (this.HasCapability(FtpCapability.EPSV)) {
-						return this.OpenExtendedPassiveChannel();
+						ch = this.OpenExtendedPassiveChannel();
 					}
-					return this.OpenPassiveChannel();
+					else {
+						ch = this.OpenPassiveChannel();
+					}
+					break;
 				case FtpDataMode.Active:
 					if (this.HasCapability(FtpCapability.EPRT)) {
-						return this.OpenExtendedActiveDataChannel();
+						ch = this.OpenExtendedActiveDataChannel();
 					}
-					return this.OpenActiveChannel();
+					else {
+						ch = this.OpenActiveChannel();
+					}
+					break;
 			}
 
-			throw new FtpException("Unsupported data mode: " + mode.ToString());
+			if (ch == null) {
+				throw new FtpException("Unsupported data mode: " + mode.ToString());
+			}
+
+			this.DataChannelOpen = true;
+			ch.ConnectionClosed += new FtpChannelDisconnected(OnDataChannelDisconnected);
+			ch.Diposed += new FtpChannelDisposed(OnDataChannelDisposed);
+
+			return ch;
+		}
+
+		/// <summary>
+		/// Set value indicating the data channel has been disposed
+		/// so that more can be opened.
+		/// </summary>
+		void OnDataChannelDisposed() {
+			this.DataChannelOpen = false;
+		}
+
+		/// <summary>
+		/// Reads the response from the server after the data channel
+		/// has been disconnected
+		/// </summary>
+		void OnDataChannelDisconnected() {
+			if (this.ResponseStatus) {
+				// when the data channel is disconnected after 
+				// a successful command the server will send a
+				// response to us.
+				if (!this.ReadResponse()) {
+					throw new FtpException(this.ResponseMessage);
+				}
+			}
 		}
 
 		/// <summary>
@@ -355,7 +497,7 @@ namespace System.Net.FtpClient {
 				// the server doesn't support EPSV
 				chan.Dispose();
 
-				if (this.ResponseCode == "500") {
+				if (this.ResponseType == FtpResponseType.PermanentNegativeCompletion) {
 					this.Capabilities &= ~(FtpCapability.EPSV | FtpCapability.EPRT);
 					return this.OpenPassiveChannel();
 				}
@@ -411,7 +553,7 @@ namespace System.Net.FtpClient {
 				dc.LocalIPAddress.ToString(), dc.LocalPort)) {
 				dc.Dispose();
 
-				if (this.ResponseCode == "500") { // server doesn't support EPRT
+				if (this.ResponseType == FtpResponseType.PermanentNegativeCompletion) { // server doesn't support EPRT
 					this.Capabilities &= ~(FtpCapability.EPSV | FtpCapability.EPRT);
 					return this.OpenActiveChannel();
 				}

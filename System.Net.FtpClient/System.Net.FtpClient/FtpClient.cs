@@ -8,6 +8,8 @@ using System.Globalization;
 using System.IO;
 
 namespace System.Net.FtpClient {
+	public delegate void TransferProgress(FtpTransferInfo e);
+
 	public class FtpClient : FtpCommandChannel {
 		string _username = null;
 		/// <summary>
@@ -44,6 +46,15 @@ namespace System.Net.FtpClient {
 					_useSsl = value;
 				}
 			}
+		}
+
+		event TransferProgress _transfer = null;
+		/// <summary>
+		/// Event fired from Download() and Upload() methods
+		/// </summary>
+		public event TransferProgress TransferProgress {
+			add { _transfer += value; }
+			remove { _transfer -= value; }
 		}
 
 		FtpDirectory _currentDirectory = null;
@@ -544,6 +555,270 @@ namespace System.Net.FtpClient {
 			}
 
 			return dc;
+		}
+
+		/// <summary>
+		/// Fires the TransferProgress event
+		/// </summary>
+		/// <param name="e"></param>
+		public void OnTransferProgress(FtpTransferInfo e) {
+			if (_transfer != null) {
+				_transfer(e);
+			}
+		}
+
+		/// <summary>
+		/// Downloads a file from the server to the current working directory
+		/// </summary>
+		/// <param name="remote"></param>
+		public void Download(string remote) {
+			string local = string.Format(@"{0}\{1}", 
+				Environment.CurrentDirectory, Path.GetFileName(remote));
+			this.Download(remote, local);
+		}
+
+		/// <summary>
+		/// Downloads a file from the server
+		/// </summary>
+		/// <param name="remote"></param>
+		/// <param name="local"></param>
+		public void Download(string remote, string local) {
+			this.Download(remote, local, FtpTransferMode.Binary, 0);
+		}
+
+		/// <summary>
+		/// Downloads a file from the server
+		/// </summary>
+		/// <param name="remote">Remote path of the file</param>
+		/// <param name="local">Local path of the file</param>
+		/// <param name="rest">Resume location</param>
+		public void Download(string remote, string local, long rest) {
+			this.Download(remote, local, FtpTransferMode.Binary, rest);
+		}
+
+		/// <summary>
+		/// Downloads a file from the server
+		/// </summary>
+		/// <param name="remote">Remote path of the file</param>
+		/// <param name="local">Local path of the file</param>
+		/// <param name="xferMode">ASCII/Binary</param>
+		public void Download(string remote, string local, FtpTransferMode xferMode) {
+			this.Download(remote, local, xferMode, 0);
+		}
+
+		/// <summary>
+		/// Downloads a file from the server
+		/// </summary>
+		/// <param name="remote">Remote path of the file</param>
+		/// <param name="local">Local path of the file</param>
+		/// <param name="xferMode">ASCII/Binary</param>
+		/// <param name="rest">Resume location</param>
+		public void Download(string remote, string local, FtpTransferMode xferMode, long rest) {
+			this.Download(new FtpFile(this, remote), local, xferMode, rest);
+		}
+
+		/// <summary>
+		/// Downloads a file from the server to the current working directory
+		/// </summary>
+		/// <param name="remote"></param>
+		public void Download(FtpFile remote) {
+			this.Download(remote, string.Format(@"{0}\{1}", 
+				Environment.CurrentDirectory, remote.Name));
+		}
+
+		/// <summary>
+		/// Downloads a file from the server
+		/// </summary>
+		/// <param name="remote"></param>
+		/// <param name="local"></param>
+		public void Download(FtpFile remote, string local) {
+			this.Download(remote, local, FtpTransferMode.Binary, 0);
+		}
+
+		/// <summary>
+		/// Downloads a file from the server
+		/// </summary>
+		/// <param name="remote">Remote path of the file</param>
+		/// <param name="local">Local path of the file</param>
+		/// <param name="rest">Resume location</param>
+		public void Download(FtpFile remote, string local, long rest) {
+			this.Download(remote, local, FtpTransferMode.Binary, rest);
+		}
+
+		/// <summary>
+		/// Downloads a file from the server
+		/// </summary>
+		/// <param name="remote">Remote path of the file</param>
+		/// <param name="local">Local path of the file</param>
+		/// <param name="xferMode">ASCII/Binary</param>
+		public void Download(FtpFile remote, string local, FtpTransferMode xferMode) {
+			this.Download(remote, local, xferMode, 0);
+		}
+
+		/// <summary>
+		/// Downloads the specified file from the server
+		/// </summary>
+		/// <param name="remote"></param>
+		/// <param name="local"></param>
+		/// <param name="xferMode"></param>
+		/// <param name="rest"></param>
+		public void Download(FtpFile remote, string local, FtpTransferMode xferMode, long rest) {
+			FileStream ostream = new FileStream(local, FileMode.OpenOrCreate, FileAccess.Write);
+
+			try {
+				long size = remote.Length;
+				long total = 0;
+				int read = 0;
+
+				if (rest > 0) { // set reset position
+					ostream.Seek(rest, SeekOrigin.Begin);
+					total = rest;
+				}
+
+				using (FtpDataChannel ch = this.OpenRead(remote.FullName, xferMode, rest)) {
+					byte[] buf = new byte[ch.RecieveBufferSize];
+					DateTime start = DateTime.Now;
+
+					while ((read = ch.Read(buf, 0, buf.Length)) > 0) {
+						FtpTransferInfo e;
+
+						ostream.Write(buf, 0, read);
+						total += read;
+						e = new FtpTransferInfo(FtpTransferType.Download, remote.FullName, local, size, total, start);
+
+						this.OnTransferProgress(e);
+						if (e.Cancel) {
+							return;
+						}
+					}
+				}
+			}
+			finally {
+				ostream.Close();
+			}
+		}
+
+		/// <summary>
+		/// Uploads a file to the server in the current working directory
+		/// </summary>
+		/// <param name="remote"></param>
+		public void Upload(string local) {
+			string remote = string.Format("{0}/{1}",
+				this.CurrentDirectory.FullName, 
+				Path.GetFileName(local));
+			this.Upload(local, remote);
+		}
+
+		/// <summary>
+		/// Uploads a file to the server
+		/// </summary>
+		/// <param name="remote"></param>
+		/// <param name="local"></param>
+		public void Upload(string local, string remote) {
+			this.Upload(local, remote, FtpTransferMode.Binary, 0);
+		}
+
+		/// <summary>
+		/// Uploads a file to the server
+		/// </summary>
+		/// <param name="remote">Remote path of the file</param>
+		/// <param name="local">Local path of the file</param>
+		/// <param name="rest">Resume location</param>
+		public void Upload(string local, string remote, long rest) {
+			this.Upload(local, remote, FtpTransferMode.Binary, rest);
+		}
+
+		/// <summary>
+		/// Uploads a file to the server
+		/// </summary>
+		/// <param name="remote">Remote path of the file</param>
+		/// <param name="local">Local path of the file</param>
+		/// <param name="xferMode">ASCII/Binary</param>
+		public void Upload(string local, string remote, FtpTransferMode xferMode) {
+			this.Upload(local, remote, xferMode, 0);
+		}
+
+		/// <summary>
+		/// Uploads a file to the server
+		/// </summary>
+		/// <param name="remote">Local path of the file</param>
+		/// <param name="local">Remote path of the file</param>
+		/// <param name="xferMode">ASCII/Binary</param>
+		/// <param name="rest">Resume location</param>
+		public void Upload(string local, string remote, FtpTransferMode xferMode, long rest) {
+			this.Upload(local, new FtpFile(this, remote), xferMode, rest);
+		}
+
+		/// <summary>
+		/// Uploads a file to the server
+		/// </summary>
+		/// <param name="remote"></param>
+		/// <param name="local"></param>
+		public void Upload(string local, FtpFile remote) {
+			this.Upload(local, remote, FtpTransferMode.Binary, 0);
+		}
+
+		/// <summary>
+		/// Uploads a file to the server
+		/// </summary>
+		/// <param name="remote">Remote path of the file</param>
+		/// <param name="local">Local path of the file</param>
+		/// <param name="rest">Resume location</param>
+		public void Upload(string local, FtpFile remote, long rest) {
+			this.Upload(local, remote, FtpTransferMode.Binary, rest);
+		}
+
+		/// <summary>
+		/// Uploads a file to the server
+		/// </summary>
+		/// <param name="remote">Remote path of the file</param>
+		/// <param name="local">Local path of the file</param>
+		/// <param name="xferMode">ASCII/Binary</param>
+		public void Upload(string local, FtpFile remote, FtpTransferMode xferMode) {
+			this.Upload(local, remote, xferMode, 0);
+		}
+
+		/// <summary>
+		/// Uploads a file to the server
+		/// </summary>
+		/// <param name="remote">Local path of the file</param>
+		/// <param name="local">Remote path of the file</param>
+		/// <param name="xferMode">ASCII/Binary</param>
+		/// <param name="rest">Resume location</param>
+		public void Upload(string local, FtpFile remote, FtpTransferMode xferMode, long rest) {
+			FileStream istream = new FileStream(local, FileMode.Open, FileAccess.Read);
+
+			try {
+				long size = istream.Length;
+				long total = 0;
+				int read = 0;
+
+				if (rest > 0) { // set resume position
+					istream.Seek(rest, SeekOrigin.Begin);
+					total = rest;
+				}
+
+				using (FtpDataChannel ch = this.OpenWrite(remote.FullName, xferMode, rest)) {
+					byte[] buf = new byte[ch.RecieveBufferSize];
+					DateTime start = DateTime.Now;
+
+					while ((read = istream.Read(buf, 0, buf.Length)) > 0) {
+						FtpTransferInfo e;
+
+						ch.Write(buf, 0, read);
+						total += read;
+						e = new FtpTransferInfo(FtpTransferType.Upload, remote.FullName, local, size, total, start);
+
+						this.OnTransferProgress(e);
+						if (e.Cancel) {
+							return;
+						}
+					}
+				}
+			}
+			finally {
+				istream.Close();
+			}
 		}
 
 		public FtpClient()
