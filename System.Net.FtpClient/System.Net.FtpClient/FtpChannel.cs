@@ -12,6 +12,7 @@ namespace System.Net.FtpClient {
 	public delegate void FtpChannelConnected();
 	public delegate void FtpChannelDisconnected();
 	public delegate void FtpChannelDisposed();
+	public delegate void FtpInvalidCertificate(FtpChannel c, InvalidCertificateInfo e);
 	
 	public abstract class FtpChannel : IDisposable {
 		event FtpChannelConnected _onConnected = null;
@@ -41,6 +42,15 @@ namespace System.Net.FtpClient {
 			remove { _onDisposed -= value; }
 		}
 
+		event FtpInvalidCertificate _onBadCert = null;
+		/// <summary>
+		/// Event is fired when an invalid SSL certificate is encountered.
+		/// </summary>
+		public event FtpInvalidCertificate InvalidCertificate {
+			add { _onBadCert += value; }
+			remove { _onBadCert -= value; }
+		}
+
 		/// <summary>
 		/// Fire ConnectionReady event
 		/// </summary>
@@ -68,6 +78,15 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		/// <summary>
+		/// Fire the invalid ssl certificate event
+		/// </summary>
+		protected void OnInvalidSslCerticate(FtpChannel c, InvalidCertificateInfo e) {
+			if (this._onBadCert != null) {
+				this._onBadCert(c, e);
+			}
+		}
+
 		private bool _isServerSocket = false;
 		/// <summary>
 		/// Indicates if this is an incomming (active) or outgoing channel (passive)
@@ -88,16 +107,6 @@ namespace System.Net.FtpClient {
 
 				return false;
 			}
-		}
-
-		bool _ignoreInvalidSslCerts = false;
-		/// <summary>
-		/// Indicates if an exception should be thrown
-		/// when an invalid certifcate is encountered
-		/// </summary>
-		public bool IgnoreInvalidSslCertificates {
-			get { return _ignoreInvalidSslCerts; }
-			set { _ignoreInvalidSslCerts = value; }
 		}
 
 		SslPolicyErrors _policyErrors = SslPolicyErrors.None;
@@ -288,12 +297,14 @@ namespace System.Net.FtpClient {
 		protected void AuthenticateConnection() {
 			if (this.Connected && !this.SecurteStream.IsAuthenticated) {
 				this.SecurteStream.AuthenticateAsClient(((IPEndPoint)this.RemoteEndPoint).Address.ToString());
-				if (this.SslPolicyErrors != Security.SslPolicyErrors.None && !this.IgnoreInvalidSslCertificates) {
-					throw new FtpInvalidCertificateException("There were errors validating the SSL certificate: " + this.SslPolicyErrors.ToString());
+				if (this.SslPolicyErrors != Security.SslPolicyErrors.None) {
+					InvalidCertificateInfo e = new InvalidCertificateInfo(this);
+
+					this.OnInvalidSslCerticate(this, e);
+					if (!e.Ignore) {
+						throw new FtpInvalidCertificateException("There were errors validating the SSL certificate: " + this.SslPolicyErrors.ToString());
+					}
 				}
-#if DEBUG
-				Debug.WriteLine("Secure stream authenticated...");
-#endif
 			}
 		}
 
@@ -308,10 +319,6 @@ namespace System.Net.FtpClient {
 					this._reader = null;
 					this._sslStream = new SslStream(this.NetworkStream, true,
 						new RemoteCertificateValidationCallback(CheckCertificate));
-
-					if (this.SslPolicyErrors != Security.SslPolicyErrors.None && !this.IgnoreInvalidSslCertificates) {
-						throw new FtpException("There were errors validating the SSL certificate: " + this.SslPolicyErrors.ToString());
-					}
 				}
 
 				return _sslStream;

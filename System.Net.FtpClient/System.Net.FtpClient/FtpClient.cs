@@ -8,7 +8,7 @@ using System.Globalization;
 using System.IO;
 
 namespace System.Net.FtpClient {
-	public delegate void TransferProgress(FtpTransferInfo e);
+	public delegate void FtpTransferProgress(FtpTransferInfo e);
 
 	public class FtpClient : FtpCommandChannel {
 		string _username = null;
@@ -48,11 +48,11 @@ namespace System.Net.FtpClient {
 			}
 		}
 
-		event TransferProgress _transfer = null;
+		event FtpTransferProgress _transfer = null;
 		/// <summary>
 		/// Event fired from Download() and Upload() methods
 		/// </summary>
-		public event TransferProgress TransferProgress {
+		public event FtpTransferProgress TransferProgress {
 			add { _transfer += value; }
 			remove { _transfer -= value; }
 		}

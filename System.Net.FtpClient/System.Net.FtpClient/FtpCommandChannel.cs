@@ -43,8 +43,8 @@ namespace System.Net.FtpClient {
 				return _caps;
 			}
 
-			private set { 
-				_caps = value; 
+			private set {
+				_caps = value;
 			}
 		}
 
@@ -129,14 +129,9 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		protected bool EnableSsl() {
 			// try TLS first, then SSL.
-			if (this.Execute("AUTH TLS")) {
+			if (this.Execute("AUTH TLS") || this.Execute("AUTH SSL")) {
 				this.AuthenticateConnection();
-			}
-			else if (this.Execute("AUTH SSL")) {
-				this.AuthenticateConnection();
-			}
 
-			if (this.SslEnabled) {
 				if (!this.Execute("PBSZ 0")) {
 					// do nothing? some severs don't even
 					// care if you execute PBSZ however rfc 4217
@@ -437,8 +432,15 @@ namespace System.Net.FtpClient {
 			this.DataChannelOpen = true;
 			ch.ConnectionClosed += new FtpChannelDisconnected(OnDataChannelDisconnected);
 			ch.Diposed += new FtpChannelDisposed(OnDataChannelDisposed);
+			ch.InvalidCertificate += new FtpInvalidCertificate(OnInvalidDataChannelCertificate);
 
 			return ch;
+		}
+
+		void OnInvalidDataChannelCertificate(FtpChannel c, InvalidCertificateInfo e) {
+			// redirect invalid data channel certificate errors to 
+			// event handlers for the command channel
+			this.OnInvalidSslCerticate(c, e);
 		}
 
 		/// <summary>

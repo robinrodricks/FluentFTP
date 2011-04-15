@@ -69,7 +69,6 @@ namespace System.Net.FtpClient {
 			get {
 				// authenticate the stream if it isn't already
 				if (this.CommandChannel.SslEnabled && !this.SecurteStream.IsAuthenticated) {
-					this.IgnoreInvalidSslCertificates = this.CommandChannel.IgnoreInvalidSslCertificates;
 					this.AuthenticateConnection();
 				}
 
@@ -165,8 +164,8 @@ namespace System.Net.FtpClient {
 			this.Socket.Close();
 			this.Socket = null;
 			this.Socket = s;
-			this.IgnoreInvalidSslCertificates = this.CommandChannel.IgnoreInvalidSslCertificates;
 			this.AuthenticateConnection();
+
 #if DEBUG
 			System.Diagnostics.Debug.WriteLine(string.Format("Connected from: {0}:{1}",
 				this.RemoteIPAddress, this.RemotePort));

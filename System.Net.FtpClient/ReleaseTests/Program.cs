@@ -56,12 +56,13 @@ namespace ReleaseTests {
 			try {
 				using (FtpClient cl = new FtpClient("test", "test", "localhost")) {
 					try {
-						//cl.IgnoreInvalidSslCertificates = true;
-						//cl.DefaultDataMode = FtpDataMode.Active;
-						cl.TransferProgress += new TransferProgress(cl_TransferProgress);
+						cl.TransferProgress += new FtpTransferProgress(cl_TransferProgress);
+						cl.InvalidCertificate += new FtpInvalidCertificate(cl_InvalidCertificate);
 
 						RecursiveDownload(cl.CurrentDirectory, "c:\\temp");
+						cl.Disconnect();
 						RecursiveDelete(cl.CurrentDirectory);
+						cl.Disconnect();
 						RecursiveUpload(cl.CurrentDirectory, new DirectoryInfo("c:\\temp"));
 					}
 					catch (FtpInvalidCertificateException ex) {
@@ -74,6 +75,12 @@ namespace ReleaseTests {
 				Console.WriteLine(ex.Message);
 				Console.ReadKey();
 			}
+		}
+
+		static void cl_InvalidCertificate(FtpChannel c, InvalidCertificateInfo e) {
+			Console.Error.WriteLine("Invalid SSL certification from {0}: {1}", 
+				c.RemoteEndPoint.ToString(), e.SslPolicyErrors);
+			e.Ignore = true;
 		}
 
 		static void cl_TransferProgress(FtpTransferInfo e) {
