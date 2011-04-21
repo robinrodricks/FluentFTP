@@ -164,7 +164,10 @@ namespace System.Net.FtpClient {
 			this.Socket.Close();
 			this.Socket = null;
 			this.Socket = s;
-			this.AuthenticateConnection();
+
+			if (this.CommandChannel.SslEnabled) {
+				this.AuthenticateConnection();
+			}
 
 #if DEBUG
 			System.Diagnostics.Debug.WriteLine(string.Format("Connected from: {0}:{1}",

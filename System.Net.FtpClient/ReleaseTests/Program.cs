@@ -35,7 +35,8 @@ namespace ReleaseTests {
 					remote.CreateDirectory(d.Name);
 				}
 
-				RecursiveUpload(new FtpDirectory(remote.Client, string.Format("{0}/{1}", remote.FullName, d.Name)), d);
+				RecursiveUpload(new FtpDirectory(remote.Client, 
+					string.Format("{0}/{1}", remote.FullName, d.Name)), d);
 			}
 		}
 
@@ -54,8 +55,17 @@ namespace ReleaseTests {
 
 		static void Main(string[] args) {
 			try {
-				using (FtpClient cl = new FtpClient("test", "test", "localhost")) {
+				using (FtpClient ftp = new FtpClient() { Server = "localhost", Username = "test", Password = "test", DefaultDataMode = FtpDataMode.Active, UseSsl = false }) {
+					ftp.Connect();
+					ftp.SetWorkingDirectory("/");
+					FtpListItem[] items = ftp.GetListing();
+					foreach (FtpListItem item in items)
+						Console.WriteLine("{0} {1}", item.Name, item.Type.ToString());
+				}
+
+				/*using (FtpClient cl = new FtpClient("test", "test", "localhost")) {
 					try {
+						cl.DefaultDataMode = FtpDataMode.Active;
 						cl.TransferProgress += new FtpTransferProgress(cl_TransferProgress);
 						cl.InvalidCertificate += new FtpInvalidCertificate(cl_InvalidCertificate);
 
@@ -69,7 +79,9 @@ namespace ReleaseTests {
 						Console.WriteLine(ex.Message);
 						Console.ReadKey();
 					}
-				}
+				}*/
+
+				Console.ReadKey();
 			}
 			catch (Exception ex) {
 				Console.WriteLine(ex.Message);
@@ -78,8 +90,8 @@ namespace ReleaseTests {
 		}
 
 		static void cl_InvalidCertificate(FtpChannel c, InvalidCertificateInfo e) {
-			Console.Error.WriteLine("Invalid SSL certification from {0}: {1}", 
-				c.RemoteEndPoint.ToString(), e.SslPolicyErrors);
+			//Console.Error.WriteLine("Invalid SSL certification from {0}: {1}", 
+			//	c.RemoteEndPoint.ToString(), e.SslPolicyErrors);
 			e.Ignore = true;
 		}
 

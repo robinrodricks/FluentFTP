@@ -572,7 +572,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="remote"></param>
 		public void Download(string remote) {
-			string local = string.Format(@"{0}\{1}", 
+			string local = string.Format(@"{0}\{1}",
 				Environment.CurrentDirectory, Path.GetFileName(remote));
 			this.Download(remote, local);
 		}
@@ -622,7 +622,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="remote"></param>
 		public void Download(FtpFile remote) {
-			this.Download(remote, string.Format(@"{0}\{1}", 
+			this.Download(remote, string.Format(@"{0}\{1}",
 				Environment.CurrentDirectory, remote.Name));
 		}
 
@@ -704,7 +704,7 @@ namespace System.Net.FtpClient {
 		/// <param name="remote"></param>
 		public void Upload(string local) {
 			string remote = string.Format("{0}/{1}",
-				this.CurrentDirectory.FullName, 
+				this.CurrentDirectory.FullName,
 				Path.GetFileName(local));
 			this.Upload(local, remote);
 		}
