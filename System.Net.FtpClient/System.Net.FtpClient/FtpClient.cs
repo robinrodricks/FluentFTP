@@ -29,25 +29,6 @@ namespace System.Net.FtpClient {
 			set { _password = value; }
 		}
 
-		bool _useSsl = true;
-		/// <summary>
-		/// Use SSL if it is available. The default is true.
-		/// </summary>
-		public bool UseSsl {
-			get { return _useSsl; }
-
-			set {
-				// if true and we're already connected,
-				// go ahead and enable ssl
-				if (value && this.Connected && !this.SslEnabled) {
-					_useSsl = this.EnableSsl();
-				}
-				else {
-					_useSsl = value;
-				}
-			}
-		}
-
 		event FtpTransferProgress _transfer = null;
 		/// <summary>
 		/// Event fired from Download() and Upload() methods
@@ -121,14 +102,6 @@ namespace System.Net.FtpClient {
 		/// if a connection to the server has been made.
 		/// </summary>
 		void Login() {
-			// if UseSsl is true, try to enable SSL before
-			// authenticating to the server if the server
-			// supports AUTH SSL or AUTH TLS.
-			if (this.UseSsl) {
-				// we could check to see if SSL failed or not...
-				this.EnableSsl();
-			}
-
 			if (this.Username != null) {
 				if (!this.Execute("USER {0}", this.Username)) {
 					throw new FtpException(this.ResponseMessage);

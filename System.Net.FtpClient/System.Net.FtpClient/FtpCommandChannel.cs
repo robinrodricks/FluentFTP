@@ -20,6 +20,17 @@ namespace System.Net.FtpClient {
 			private set { _dataChannelOpen = value; }
 		}
 
+		FtpSslMode _sslMode = FtpSslMode.Explicit;
+		/// <summary>
+		/// Sets the type of SSL to use when the EnableSSL property is
+		/// true. The default is Explicit, meaning SSL is negotiated
+		/// after the initial connection, before credentials are sent.
+		/// </summary>
+		public FtpSslMode SslMode {
+			get { return _sslMode; }
+			set { _sslMode = value; }
+		}
+
 		event ResponseReceived _responseReceived = null;
 		/// <summary>
 		/// Event is fired when a message is received from the server. Useful
@@ -121,34 +132,6 @@ namespace System.Net.FtpClient {
 			if (this._responseReceived != null) {
 				this._responseReceived(message);
 			}
-		}
-
-		/// <summary>
-		/// Enables SSL or TLS if they are available. Returns true
-		/// if SSL has been enabled, false otherwise.
-		/// </summary>
-		protected bool EnableSsl() {
-			// try TLS first, then SSL.
-			if (this.Execute("AUTH TLS") || this.Execute("AUTH SSL")) {
-				this.AuthenticateConnection();
-
-				if (!this.Execute("PBSZ 0")) {
-					// do nothing? some severs don't even
-					// care if you execute PBSZ however rfc 4217
-					// says that PBSZ is required if you want
-					// data channel security.
-					//throw new FtpException(this.ResponseMessage);
-#if DEBUG
-					System.Diagnostics.Debug.WriteLine("PBSZ ERROR: " + this.ResponseMessage);
-#endif
-				}
-
-				if (!this.Execute("PROT P")) { // turn on data channel protection.
-					throw new FtpException(this.ResponseMessage);
-				}
-			}
-
-			return this.SslEnabled;
 		}
 
 		/// <summary>
@@ -585,14 +568,59 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
+		/// Enables data channel security if SSL is enabled.
+		/// </summary>
+		void EnableDataChannelSecurity() {
+			if (this.SslEnabled) {
+				if (!this.Execute("PBSZ 0")) {
+					// do nothing? some severs don't even
+					// care if you execute PBSZ however rfc 4217
+					// says that PBSZ is required if you want
+					// data channel security.
+					//throw new FtpException(this.ResponseMessage);
+#if DEBUG
+					System.Diagnostics.Debug.WriteLine("PBSZ ERROR: " + this.ResponseMessage);
+#endif
+				}
+
+				if (!this.Execute("PROT P")) { // turn on data channel protection.
+					throw new FtpException(this.ResponseMessage);
+				}
+			}
+		}
+
+		/// <summary>
 		/// Upon the initial connection, we will be presented with a banner and status
 		/// </summary>
 		void OnChannelConnected() {
-			if (!this.ReadResponse()) {
-				this.Disconnect();
-				throw new FtpException(this.ResponseMessage);
+			if (this.SslMode == FtpSslMode.None || this.SslMode == FtpSslMode.Explicit) {
+				// we're reading data in plain text right now
+				// so get the initial greeting and then setup
+				// security if the SslMode property says so.
+				if (!this.ReadResponse()) {
+					this.Disconnect();
+					throw new FtpException(this.ResponseMessage);
+				}
+
+				if (this.SslMode == FtpSslMode.Explicit) {
+					if (this.Execute("AUTH TLS") || this.Execute("AUTH SSL")) {
+						this.AuthenticateConnection();
+					}
+				}
+			}
+			else if (this.SslMode == FtpSslMode.Implicit) {
+				// The connection should already be encrypted
+				// so authenticate the connection and then
+				// try to read the initial greeting.
+				this.AuthenticateConnection();
+
+				if (!this.ReadResponse()) {
+					this.Disconnect();
+					throw new FtpException(this.ResponseMessage);
+				}
 			}
 
+			this.EnableDataChannelSecurity();
 			this.Capabilities = FtpCapability.EMPTY;
 		}
 

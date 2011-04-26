@@ -55,4 +55,20 @@ namespace System.Net.FtpClient {
 		Upload,
 		Download
 	}
+
+	public enum FtpSslMode {
+		/// <summary>
+		/// Do not use SSL
+		/// </summary>
+		None,
+		/// <summary>
+		/// A SSL or TLS session is negotiated after the initial
+		/// unencrypted connection, before credentials are sent.
+		/// </summary>
+		Explicit,
+		/// <summary>
+		/// SSL/TLS is implied upon the initial connection.
+		/// </summary>
+		Implicit
+	}
 }

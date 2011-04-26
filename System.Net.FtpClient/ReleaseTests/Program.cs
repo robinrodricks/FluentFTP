@@ -55,7 +55,9 @@ namespace ReleaseTests {
 
 		static void Main(string[] args) {
 			try {
-				using (FtpClient ftp = new FtpClient() { Server = "localhost", Username = "test", Password = "test", DefaultDataMode = FtpDataMode.Active, UseSsl = false }) {
+				using (FtpClient ftp = new FtpClient() { Server = "localhost", Username = "test", Password = "test", 
+					DefaultDataMode = FtpDataMode.Active, SslMode = FtpSslMode.Implicit, Port = 990 }) {
+					ftp.InvalidCertificate += new FtpInvalidCertificate(cl_InvalidCertificate);
 					ftp.Connect();
 					ftp.SetWorkingDirectory("/");
 					FtpListItem[] items = ftp.GetListing();
