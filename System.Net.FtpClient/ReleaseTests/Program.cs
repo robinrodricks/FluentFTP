@@ -35,7 +35,7 @@ namespace ReleaseTests {
 					remote.CreateDirectory(d.Name);
 				}
 
-				RecursiveUpload(new FtpDirectory(remote.Client, 
+				RecursiveUpload(new FtpDirectory(remote.Client,
 					string.Format("{0}/{1}", remote.FullName, d.Name)), d);
 			}
 		}
@@ -55,19 +55,12 @@ namespace ReleaseTests {
 
 		static void Main(string[] args) {
 			try {
-				using (FtpClient ftp = new FtpClient() { Server = "localhost", Username = "test", Password = "test", 
-					DefaultDataMode = FtpDataMode.Active, SslMode = FtpSslMode.Implicit, Port = 990 }) {
-					ftp.InvalidCertificate += new FtpInvalidCertificate(cl_InvalidCertificate);
-					ftp.Connect();
-					ftp.SetWorkingDirectory("/");
-					FtpListItem[] items = ftp.GetListing();
-					foreach (FtpListItem item in items)
-						Console.WriteLine("{0} {1}", item.Name, item.Type.ToString());
-				}
-
-				/*using (FtpClient cl = new FtpClient("test", "test", "localhost")) {
+				using (FtpClient cl = new FtpClient() {
+					Server = "localhost", Username = "test", Password = "test",
+					SslMode = FtpSslMode.Implicit, Port = 990, 
+					DefaultDataMode = FtpDataMode.Passive
+				}) {
 					try {
-						cl.DefaultDataMode = FtpDataMode.Active;
 						cl.TransferProgress += new FtpTransferProgress(cl_TransferProgress);
 						cl.InvalidCertificate += new FtpInvalidCertificate(cl_InvalidCertificate);
 
@@ -81,8 +74,9 @@ namespace ReleaseTests {
 						Console.WriteLine(ex.Message);
 						Console.ReadKey();
 					}
-				}*/
+				}
 
+				Console.WriteLine("Done");
 				Console.ReadKey();
 			}
 			catch (Exception ex) {
@@ -100,7 +94,7 @@ namespace ReleaseTests {
 		static void cl_TransferProgress(FtpTransferInfo e) {
 			Console.Write("\r{0}: {1} {2}/{3} {4}/s {5}%   ",
 				e.TransferType == FtpTransferType.Upload ? "U" : "D",
-				Path.GetFileName(e.RemoteFile), e.Transferred, e.Length,
+				Path.GetFileName(e.FileName), e.Transferred, e.Length,
 				e.BytesPerSecond, e.Percentage);
 
 			if (e.Complete) {

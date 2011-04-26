@@ -13,22 +13,13 @@ namespace System.Net.FtpClient {
 			private set { _xferType = value; }
 		}
 
-		string _remote = null;
+		string _file = null;
 		/// <summary>
 		/// The full path to remote file
 		/// </summary>
-		public string RemoteFile {
-			get { return _remote; }
-			private set { _remote = value; }
-		}
-
-		string _local = null;
-		/// <summary>
-		/// The full path to the local file
-		/// </summary>
-		public string LocalFile {
-			get { return _local; }
-			private set { _local = value; }
+		public string FileName {
+			get { return _file; }
+			private set { _file = value; }
 		}
 
 		long _length = 0;
@@ -117,11 +108,9 @@ namespace System.Net.FtpClient {
 			set { _cancel = value; }
 		}
 
-		public FtpTransferInfo(FtpTransferType type, string remote, string local,
-			long length, long transferred, DateTime start) {
+		public FtpTransferInfo(FtpTransferType type, string file, long length, long transferred, DateTime start) {
 			this.TransferType = type;
-			this.RemoteFile = remote;
-			this.LocalFile = local;
+			this.FileName = file;
 			this.Length = length;
 			this.Transferred = transferred;
 			this.Start = start;
