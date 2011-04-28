@@ -9,15 +9,31 @@ namespace ReleaseTests {
 	class Program {
 		static void RecursiveDownload(FtpDirectory dir, string local) {
 			if (!Directory.Exists(local)) {
-				Directory.CreateDirectory(local);
+				try {
+					Directory.CreateDirectory(local);
+				}
+				catch (Exception ex) {
+					Console.WriteLine("E: {0}", ex.Message);
+					return;
+				}
 			}
 
 			foreach (FtpFile f in dir.Files) {
-				f.Download(string.Format("{0}\\{1}", local, f.Name));
+				try {
+					f.Download(string.Format("{0}\\{1}", local, f.Name));
+				}
+				catch (Exception e) {
+					Console.WriteLine("E: {0}", e.Message);
+				}
 			}
 
 			foreach (FtpDirectory d in dir.Directories) {
-				RecursiveDownload(d, string.Format("{0}\\{1}", local, d.Name));
+				try {
+					RecursiveDownload(d, string.Format("{0}\\{1}", local, d.Name));
+				}
+				catch (Exception e) {
+					Console.WriteLine("E: {0}", e.Message);
+				}
 			}
 		}
 
@@ -57,7 +73,7 @@ namespace ReleaseTests {
 			try {
 				using (FtpClient cl = new FtpClient() {
 					Server = "localhost", Username = "test", Password = "test",
-					SslMode = FtpSslMode.Implicit, Port = 990, 
+					SslMode = FtpSslMode.None, Port = 21, 
 					DefaultDataMode = FtpDataMode.Passive
 				}) {
 					try {
@@ -65,9 +81,7 @@ namespace ReleaseTests {
 						cl.InvalidCertificate += new FtpInvalidCertificate(cl_InvalidCertificate);
 
 						RecursiveDownload(cl.CurrentDirectory, "c:\\temp");
-						cl.Disconnect();
 						RecursiveDelete(cl.CurrentDirectory);
-						cl.Disconnect();
 						RecursiveUpload(cl.CurrentDirectory, new DirectoryInfo("c:\\temp"));
 					}
 					catch (FtpInvalidCertificateException ex) {
@@ -96,6 +110,11 @@ namespace ReleaseTests {
 				e.TransferType == FtpTransferType.Upload ? "U" : "D",
 				Path.GetFileName(e.FileName), e.Transferred, e.Length,
 				e.BytesPerSecond, e.Percentage);
+
+			// force an abort on some donwloads
+			// to see how the code handles.
+			//if (e.Transferred > 8 * 1024)
+			//	e.Cancel = true;
 
 			if (e.Complete) {
 				Console.WriteLine();

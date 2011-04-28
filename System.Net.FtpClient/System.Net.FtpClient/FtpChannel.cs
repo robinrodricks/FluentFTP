@@ -9,9 +9,9 @@ using System.Diagnostics;
 using System.Text;
 
 namespace System.Net.FtpClient {
-	public delegate void FtpChannelConnected();
-	public delegate void FtpChannelDisconnected();
-	public delegate void FtpChannelDisposed();
+	public delegate void FtpChannelConnected(FtpChannel c);
+	public delegate void FtpChannelDisconnected(FtpChannel c);
+	public delegate void FtpChannelDisposed(FtpChannel c);
 	public delegate void FtpInvalidCertificate(FtpChannel c, InvalidCertificateInfo e);
 	
 	public abstract class FtpChannel : IDisposable {
@@ -37,7 +37,7 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Event is fired when this object is disposed.
 		/// </summary>
-		public event FtpChannelDisposed Diposed {
+		public event FtpChannelDisposed Disposed {
 			add { _onDisposed += value; }
 			remove { _onDisposed -= value; }
 		}
@@ -56,7 +56,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		protected void OnConnectionReady() {
 			if (_onConnected != null) {
-				this._onConnected();
+				this._onConnected(this);
 			}
 		}
 
@@ -65,7 +65,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		protected void OnConnectionClosed() {
 			if (_onDisconnected != null) {
-				this._onDisconnected();
+				this._onDisconnected(this);
 			}
 		}
 
@@ -74,7 +74,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		protected void OnDisposed() {
 			if (_onDisposed != null) {
-				this._onDisposed();
+				this._onDisposed(this);
 			}
 		}
 
@@ -381,55 +381,9 @@ namespace System.Net.FtpClient {
 		}
 
 		public virtual void Connect() {
-			this.Connect(this.Server, this.Port);
-		}
-
-		/// <summary>
-		/// Open a connection
-		/// </summary>
-		/// <param name="host"></param>
-		/// <param name="port"></param>
-		public virtual void Connect(string host, int port) {
 			if (!this.Connected) {
-				this.Server = host;
-				this.Port = port;
 				this.Disconnect(); // cleans up socket resources before making another connection
-				this.Socket.Connect(host, port);
-				this.OnConnectionReady();
-			}
-		}
-
-		/// <summary>
-		/// Open a connection
-		/// </summary>
-		/// <param name="ip"></param>
-		/// <param name="port"></param>
-		public virtual void Connect(IPAddress ip, int port) {
-			if (!this.Connected) {
-				this.Server = ip.ToString();
-				this.Port = port;
-				this.Disconnect(); // cleans up socket resources before making another connection
-				this.Socket.Connect(ip, port);
-				this.OnConnectionReady();
-			}
-		}
-
-		/// <summary>
-		/// Open a connection
-		/// </summary>
-		/// <param name="ep"></param>
-		public virtual void Connect(EndPoint ep) {
-			if (!this.Connected) {
-
-				if (ep is IPEndPoint) {
-					IPEndPoint ipep = (IPEndPoint)ep;
-
-					this.Server = ipep.Address.ToString();
-					this.Port = ipep.Port;
-				}
-
-				this.Disconnect(); // cleans up socket resources before making another connection
-				this.Socket.Connect(ep);
+				this.Socket.Connect(this.Server, this.Port);
 				this.OnConnectionReady();
 			}
 		}
@@ -438,14 +392,11 @@ namespace System.Net.FtpClient {
 		/// Disconnect the socket and free up any resources being used here
 		/// </summary>
 		public virtual void Disconnect() {
-#if DEBUG
-			Debug.WriteLine("Called: FtpChannel.Disconnect();");
-#endif
-
 			if (this._sock != null) {
 				if (this.Connected) {
 					this._sock.Shutdown(SocketShutdown.Both);
-					this._sock.Close();
+					this._sock.Disconnect(false);
+					this._sock.Close(5);
 				}
 
 				this.OnConnectionClosed();

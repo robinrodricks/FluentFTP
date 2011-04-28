@@ -232,6 +232,44 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
+		/// Open a connection
+		/// </summary>
+		/// <param name="host"></param>
+		/// <param name="port"></param>
+		public virtual void Connect(string host, int port) {
+			if (!this.Connected) {
+				this.Server = host;
+				this.Port = port;
+				this.Connect();
+			}
+		}
+
+		/// <summary>
+		/// Open a connection
+		/// </summary>
+		/// <param name="ip"></param>
+		/// <param name="port"></param>
+		public virtual void Connect(IPAddress ip, int port) {
+			if (!this.Connected) {
+				this.Server = ip.ToString();
+				this.Port = port;
+				this.Connect();
+			}
+		}
+
+		/// <summary>
+		/// Open a connection
+		/// </summary>
+		/// <param name="ep"></param>
+		public virtual void Connect(IPEndPoint ipep) {
+			if (!this.Connected) {
+				this.Server = ipep.Address.ToString();
+				this.Port = ipep.Port;
+				this.Connect();
+			}
+		}
+
+		/// <summary>
 		/// Executes a command on the server
 		/// </summary>
 		/// <param name="cmd"></param>
@@ -371,11 +409,6 @@ namespace System.Net.FtpClient {
 		protected FtpDataChannel OpenDataChannel(FtpDataMode mode, FtpTransferMode xfer) {
 			FtpDataChannel ch = null;
 
-			if (this.DataChannelOpen) {
-				throw new FtpException("Only 1 data channel can be opened per connection. " +
-					"Create more connections if you want to perform operations in parallel.");
-			}
-
 			switch (xfer) {
 				case FtpTransferMode.Binary:
 					this.Execute("TYPE I");
@@ -412,9 +445,13 @@ namespace System.Net.FtpClient {
 				throw new FtpException("Unsupported data mode: " + mode.ToString());
 			}
 
-			this.DataChannelOpen = true;
+
+			// when the data channel is closed, we need to see if the associated
+			// command status was successful or not. if it was, we need to be
+			// expecting a response from the server.
 			ch.ConnectionClosed += new FtpChannelDisconnected(OnDataChannelDisconnected);
-			ch.Diposed += new FtpChannelDisposed(OnDataChannelDisposed);
+			// If the data channel is using SSL and it fails verification, call this
+			// objects invalid certificate handler
 			ch.InvalidCertificate += new FtpInvalidCertificate(OnInvalidDataChannelCertificate);
 
 			return ch;
@@ -427,26 +464,16 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
-		/// Set value indicating the data channel has been disposed
-		/// so that more can be opened.
-		/// </summary>
-		void OnDataChannelDisposed() {
-			this.DataChannelOpen = false;
-		}
-
-		/// <summary>
 		/// Reads the response from the server after the data channel
 		/// has been disconnected
 		/// </summary>
-		void OnDataChannelDisconnected() {
-			if (this.ResponseStatus) {
-				// when the data channel is disconnected after 
-				// a successful command the server will send a
-				// response to us.
-				if (!this.ReadResponse()) {
-					throw new FtpException(this.ResponseMessage);
-				}
+		void OnDataChannelDisconnected(FtpChannel ch) {
+			// if the associated command succeeded the
+			// server will send a response when this data channel closes
+			if (((FtpDataChannel)ch).AssociatedCommandStatus && !this.ReadResponse()) {
+				throw new FtpException(this.ResponseMessage);
 			}
+			this.DataChannelOpen = false;
 		}
 
 		/// <summary>
@@ -592,7 +619,7 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Upon the initial connection, we will be presented with a banner and status
 		/// </summary>
-		void OnChannelConnected() {
+		void OnChannelConnected(FtpChannel c) {
 			if (this.SslMode == FtpSslMode.None || this.SslMode == FtpSslMode.Explicit) {
 				// we're reading data in plain text right now
 				// so get the initial greeting and then setup

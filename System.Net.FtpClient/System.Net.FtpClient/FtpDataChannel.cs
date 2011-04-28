@@ -76,6 +76,29 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		bool _associatedCommandStatus = false;
+		/// <summary>
+		/// Gets the status of the command associated with this data channel. If you open a
+		/// data channel and execute a command that succeeds, you must set this property to
+		/// true so that when this data channel closes the a response can be read!
+		/// </summary>
+		public bool AssociatedCommandStatus {
+			get { return _associatedCommandStatus; }
+			private set { _associatedCommandStatus = value; }
+		}
+
+		/// <summary>
+		/// Executes a command on the command channel and sets a status
+		/// in this data channel indicating if the command succeeded or failed
+		/// </summary>
+		/// <param name="cmd"></param>
+		/// <param name="args"></param>
+		/// <returns></returns>
+		public bool Execute(string cmd, params object[] args) {
+			this.AssociatedCommandStatus = this.CommandChannel.Execute(string.Format(cmd, args));
+			return this.AssociatedCommandStatus;
+		}
+
 		/// <summary>
 		/// Reads a line from the FTP channel socket. Use with discretion,
 		/// can cause the code to freeze if you're trying to read data when no data
@@ -157,7 +180,7 @@ namespace System.Net.FtpClient {
 				this.LocalIPAddress, this.LocalPort));
 #endif
 		}
-				
+
 		private void ConnectActiveChannel() {
 			Socket s = this.Socket.Accept();
 
@@ -168,11 +191,6 @@ namespace System.Net.FtpClient {
 			if (this.CommandChannel.SslEnabled) {
 				this.AuthenticateConnection();
 			}
-
-#if DEBUG
-			System.Diagnostics.Debug.WriteLine(string.Format("Connected from: {0}:{1}",
-				this.RemoteIPAddress, this.RemotePort));
-#endif
 		}
 
 		/// <summary>
@@ -184,7 +202,8 @@ namespace System.Net.FtpClient {
 			this.CommandChannel = null;
 		}
 
-		public FtpDataChannel(FtpCommandChannel cmdchan) {
+		public FtpDataChannel(FtpCommandChannel cmdchan)
+			: base() {
 			this.CommandChannel = cmdchan;
 		}
 	}

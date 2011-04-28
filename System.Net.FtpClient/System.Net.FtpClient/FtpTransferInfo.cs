@@ -86,17 +86,13 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		bool _complete = false;
 		/// <summary>
 		/// Gets a value indicating if the transfer is complete
 		/// </summary>
 		public bool Complete {
-			get {
-				if (this.Transferred == this.Length) {
-					return true;
-				}
-
-				return false;
-			}
+			get { return _complete; }
+			private set { _complete = value; }
 		}
 
 		bool _cancel = false;
@@ -108,12 +104,13 @@ namespace System.Net.FtpClient {
 			set { _cancel = value; }
 		}
 
-		public FtpTransferInfo(FtpTransferType type, string file, long length, long transferred, DateTime start) {
+		public FtpTransferInfo(FtpTransferType type, string file, long length, long transferred, DateTime start, bool complete) {
 			this.TransferType = type;
 			this.FileName = file;
 			this.Length = length;
 			this.Transferred = transferred;
 			this.Start = start;
+			this.Complete = complete;
 		}
 	}
 }

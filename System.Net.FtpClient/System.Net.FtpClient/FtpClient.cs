@@ -101,7 +101,7 @@ namespace System.Net.FtpClient {
 		/// This is the ConnectionReady event handler. It performs the FTP login
 		/// if a connection to the server has been made.
 		/// </summary>
-		void Login() {
+		void Login(FtpChannel c) {
 			if (this.Username != null) {
 				if (!this.Execute("USER {0}", this.Username)) {
 					throw new FtpException(this.ResponseMessage);
@@ -177,7 +177,7 @@ namespace System.Net.FtpClient {
 			}
 
 			using (FtpDataChannel dc = this.OpenDataChannel(FtpTransferMode.ASCII)) {
-				if (!this.Execute("{0} {1}", cmd, path)) {
+				if (!dc.Execute("{0} {1}", cmd, path)) {
 					throw new FtpException(this.ResponseMessage);
 				}
 
@@ -354,7 +354,7 @@ namespace System.Net.FtpClient {
 				foreach (string s in this.Messages) {
 					// MLST response starts with a space according to draft-ietf-ftpext-mlst-16
 					if (s.StartsWith(" ")) {
-						return new FtpListItem(s, FtpListType.LIST);
+						return new FtpListItem(s, FtpListType.MLST);
 					}
 				}
 			}
@@ -459,7 +459,7 @@ namespace System.Net.FtpClient {
 				}
 			}
 
-			if (!this.Execute("RETR {0}", path)) {
+			if (!dc.Execute("RETR {0}", path)) {
 				dc.Disconnect();
 				throw new FtpException(this.ResponseMessage);
 			}
@@ -522,7 +522,7 @@ namespace System.Net.FtpClient {
 				}
 			}
 
-			if (!this.Execute("STOR {0}", path)) {
+			if (!dc.Execute("STOR {0}", path)) {
 				dc.Disconnect();
 				throw new FtpException(this.ResponseMessage);
 			}
@@ -716,6 +716,18 @@ namespace System.Net.FtpClient {
 			long total = 0;
 			int read = 0;
 
+			if (remote == null) {
+				throw new ArgumentException("remote is null");
+			}
+
+			if (ostream == null) {
+				throw new ArgumentException("ostream is null");
+			}
+
+			if (!ostream.CanWrite) {
+				throw new ArgumentException("ostream is not writable");
+			}
+
 			if (rest > 0 && ostream.CanSeek) { // set reset position
 				ostream.Seek(rest, SeekOrigin.Begin);
 				total = rest;
@@ -724,23 +736,33 @@ namespace System.Net.FtpClient {
 				rest = 0;
 			}
 
-			using (FtpDataChannel ch = this.OpenRead(remote.FullName, xferMode, rest)) {
-				byte[] buf = new byte[ch.RecieveBufferSize];
-				DateTime start = DateTime.Now;
+			try {
+				using (FtpDataChannel ch = this.OpenRead(remote.FullName, xferMode, rest)) {
+					byte[] buf = new byte[ch.RecieveBufferSize];
+					DateTime start = DateTime.Now;
+					FtpTransferInfo e = null;
 
-				while ((read = ch.Read(buf, 0, buf.Length)) > 0) {
-					FtpTransferInfo e;
+					while ((read = ch.Read(buf, 0, buf.Length)) > 0) {
+						ostream.Write(buf, 0, read);
+						total += read;
+						e = new FtpTransferInfo(FtpTransferType.Download, remote.FullName, size, total, start, false);
 
-					ostream.Write(buf, 0, read);
-					total += read;
-					e = new FtpTransferInfo(FtpTransferType.Download, remote.FullName, size, total, start);
-
-					this.OnTransferProgress(e);
-					if (e.Cancel) {
-						return;
+						this.OnTransferProgress(e);
+						if (e.Cancel) {
+							break;
+						}
 					}
+	
+					// fire one more time to let event handler know that the transfer is complete
+					this.OnTransferProgress(new FtpTransferInfo(FtpTransferType.Download, remote.FullName,
+						size, total, start, true));
 				}
 			}
+			finally {
+				ostream.Flush();
+			}
+
+			
 		}
 
 		/// <summary>
@@ -907,34 +929,53 @@ namespace System.Net.FtpClient {
 		/// <param name="xferMode"></param>
 		/// <param name="rest"></param>
 		public void Upload(Stream istream, FtpFile remote, FtpTransferMode xferMode, long rest) {
-			long size = istream.Length;
+			long size = 0;
 			long total = 0;
 			int read = 0;
 
-			if (rest > 0 && istream.CanSeek) { // set resume position
-				istream.Seek(rest, SeekOrigin.Begin);
-				total = rest;
+			if (istream == null) {
+				throw new ArgumentException("istream is null");
 			}
-			else if (!istream.CanSeek) {
+
+			if (remote == null) {
+				throw new ArgumentException("remote is null");
+			}
+
+			if (!istream.CanRead) {
+				throw new ArgumentException("istream is not readable");
+			}
+
+			if (istream.CanSeek) {
+				size = istream.Length;
+
+				if (rest > 0) { // set resume position
+					istream.Seek(rest, SeekOrigin.Begin);
+					total = rest;
+				}
+			}
+			else {
 				rest = 0;
 			}
 
 			using (FtpDataChannel ch = this.OpenWrite(remote.FullName, xferMode, rest)) {
 				byte[] buf = new byte[ch.RecieveBufferSize];
 				DateTime start = DateTime.Now;
+				FtpTransferInfo e;
 
 				while ((read = istream.Read(buf, 0, buf.Length)) > 0) {
-					FtpTransferInfo e;
-
 					ch.Write(buf, 0, read);
 					total += read;
-					e = new FtpTransferInfo(FtpTransferType.Upload, remote.FullName, size, total, start);
+					e = new FtpTransferInfo(FtpTransferType.Upload, remote.FullName, size, total, start, false);
 
 					this.OnTransferProgress(e);
 					if (e.Cancel) {
-						return;
+						break;
 					}
 				}
+
+				// fire one more time to let event handler know the transfer is complete
+				this.OnTransferProgress(new FtpTransferInfo(FtpTransferType.Upload, remote.FullName,
+					size, total, start, true));
 			}
 		}
 
