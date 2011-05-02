@@ -761,8 +761,36 @@ namespace System.Net.FtpClient {
 			finally {
 				ostream.Flush();
 			}
+		}
 
-			
+		/// <summary>
+		/// Downloads the specified file using the specified number of threads
+		/// to complete the operation
+		/// </summary>
+		/// <param name="remote"></param>
+		/// <param name="ostream"></param>
+		/// <param name="xferMode"></param>
+		/// <param name="rest"></param>
+		/// <param name="threads"></param>
+		public void Download(FtpFile remote, string local, FtpTransferMode xferMode, long rest, int threads) {
+			using (FileStream stream = new FileStream(local, FileMode.OpenOrCreate, FileAccess.Write)) {
+				this.Download(remote, stream, xferMode, rest, threads);
+			}
+		}
+
+		/// <summary>
+		/// Downloads the specified file using the specified number of threads
+		/// to complete the operation
+		/// </summary>
+		/// <param name="remote"></param>
+		/// <param name="ostream"></param>
+		/// <param name="xferMode"></param>
+		/// <param name="rest"></param>
+		/// <param name="threads"></param>
+		public void Download(FtpFile remote, Stream ostream, FtpTransferMode xferMode, long rest, int threads) {
+			using (FtpThreadedTransfer txfer = new FtpThreadedTransfer(this)) {
+				txfer.Download(remote, ostream, xferMode, rest, threads);
+			}
 		}
 
 		/// <summary>

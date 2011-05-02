@@ -80,9 +80,11 @@ namespace ReleaseTests {
 						cl.TransferProgress += new FtpTransferProgress(cl_TransferProgress);
 						cl.InvalidCertificate += new FtpInvalidCertificate(cl_InvalidCertificate);
 
-						RecursiveDownload(cl.CurrentDirectory, "c:\\temp");
+						cl.Download(new FtpFile(cl, "BigFile1.ext"), "BigFile.ext", FtpTransferMode.Binary, 0, 10);
+
+						/*RecursiveDownload(cl.CurrentDirectory, "c:\\temp");
 						RecursiveDelete(cl.CurrentDirectory);
-						RecursiveUpload(cl.CurrentDirectory, new DirectoryInfo("c:\\temp"));
+						RecursiveUpload(cl.CurrentDirectory, new DirectoryInfo("c:\\temp"));*/
 					}
 					catch (FtpInvalidCertificateException ex) {
 						Console.WriteLine(ex.Message);

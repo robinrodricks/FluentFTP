@@ -81,7 +81,7 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Fire the invalid ssl certificate event
 		/// </summary>
-		protected void OnInvalidSslCerticate(FtpChannel c, InvalidCertificateInfo e) {
+		public void OnInvalidSslCerticate(FtpChannel c, InvalidCertificateInfo e) {
 			if (this._onBadCert != null) {
 				this._onBadCert(c, e);
 			}
