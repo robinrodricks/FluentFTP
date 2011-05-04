@@ -159,6 +159,15 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		DateTime _start = DateTime.Now;
+		/// <summary>
+		/// Gets the time this download started
+		/// </summary>
+		public DateTime Start {
+			get { return _start; }
+			private set { _start = value; }
+		}
+
 		long _size = 0;
 		/// <summary>
 		/// Gets the size of the file being transferred
@@ -177,6 +186,9 @@ namespace System.Net.FtpClient {
 			private set { _transferred = value; }
 		}
 
+		/// <summary>
+		/// Ensures that the server we're connecting to supports threaded downloads
+		/// </summary>
 		private void CheckCapabilities() {
 			if (!this.Client.HasCapability(FtpCapability.SIZE)) {
 				throw new FtpException("Threaded downloads are not supported on servers that do not support retrieving file sizes.");
@@ -187,6 +199,10 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		/// <summary>
+		/// Clones the main connection only copying connection infor and options
+		/// </summary>
+		/// <returns></returns>
 		private FtpClient CloneClient() {
 			FtpClient cl = null;
 
@@ -210,13 +226,23 @@ namespace System.Net.FtpClient {
 		}
 
 		object LockInvalidCertificate = new object();
-
+		/// <summary>
+		/// Calls the invalid certificate event on the main thread's client
+		/// </summary>
+		/// <param name="c"></param>
+		/// <param name="e"></param>
 		void OnInvalidCertificate(FtpChannel c, InvalidCertificateInfo e) {
 			lock (this.LockInvalidCertificate) {
 				this.Client.OnInvalidSslCerticate(c, e);
 			}
 		}
 
+		/// <summary>
+		/// Writes the specified data to the specified position in the file
+		/// </summary>
+		/// <param name="buf"></param>
+		/// <param name="length"></param>
+		/// <param name="position"></param>
 		private void Write(byte[] buf, int length, long position) {
 			lock (this.LockStream) {
 				if (this.Stream == null) {
@@ -225,29 +251,85 @@ namespace System.Net.FtpClient {
 
 				this.Stream.Seek(position, SeekOrigin.Begin);
 				this.Stream.Write(buf, 0, length);
-				this.Stream.Flush();
+				//this.Stream.Flush(); // this improves the seek time for new files
+				// where all of the space is not yet allocated.
 			}
 		}
 
-		private void ReportProgress(FtpTransferType type, string fullname, long read, DateTime start) {
+		/// <summary>
+		/// Pre-Allocate file storage to make the transfer faster
+		/// </summary>
+		/// <param name="s"></param>
+		private void PreAllocateFile(Stream s) {
+#if DEBUG
+			DateTime dtstart = DateTime.Now;
+#endif
+			if (s.Length < this.Size) {
+				long start = s.Position;
+				long written = s.Length;
+
+				try {
+					while (written != this.Size) {
+						byte[] buf = new byte[this.Client.DefaultFileSystemBufferSize];
+						int bufSize = buf.Length;
+
+						if (bufSize + written > this.Size) {
+							bufSize = (int)(this.Size - written);
+						}
+
+						s.Write(buf, 0, bufSize);
+						written += bufSize;
+					}
+				}
+				finally {
+					s.Flush();
+					s.Seek(start, SeekOrigin.Begin);
+				}
+			}
+
+#if DEBUG
+			TimeSpan ts = DateTime.Now.Subtract(dtstart);
+
+			System.Diagnostics.Debug.WriteLine(string.Format("File allocation time: {0}h {1}m {2}s",
+				Math.Round(ts.TotalHours, 0), Math.Round(ts.TotalMinutes, 0),
+				Math.Round(ts.TotalSeconds, 0)));
+#endif
+		}
+
+		/// <summary>
+		/// Calls the TransferProgress event on the main connection
+		/// </summary>
+		/// <param name="type"></param>
+		/// <param name="fullname"></param>
+		/// <param name="read"></param>
+		private void ReportProgress(FtpTransferType type, string fullname, long read) {
 			FtpTransferInfo e = null;
 
 			lock (this.LockClient) {
 				this.Transferred += read;
 				e = new FtpTransferInfo(type, fullname, this.Size, this.Transferred,
-					start, this.Transferred == this.Size);
+					this.Start, this.Transferred == this.Size);
 				this.Client.OnTransferProgress(e);
 			}
 
 			this.Cancel = e.Cancel;
 		}
 
+		/// <summary>
+		/// Adds an exception to the exception list
+		/// </summary>
+		/// <param name="ex"></param>
 		private void AddException(Exception ex) {
 			lock (this.LockExceptions) {
 				this.Exceptions.Add(ex);
 			}
 		}
 
+
+		/// <summary>
+		/// Worker thread for downloading a specified chunk of data
+		/// </summary>
+		/// <param name="data"></param>
 		private void ThreadDownload(object data) {
 			FtpThreadedTransferArgs args = (FtpThreadedTransferArgs)data;
 
@@ -256,29 +338,22 @@ namespace System.Net.FtpClient {
 					using (FtpDataChannel chan = client.OpenRead(args.FullPath, args.TransferMode, args.Start)) {
 						byte[] buf = new byte[chan.RecieveBufferSize];
 						int read = 0;
-						DateTime start = DateTime.Now;
 
 						while ((read = chan.Read(buf, 0, args.GetNextReadSize(buf.Length))) > 0) {
 							// currently we seek and write, might be
 							// more efficient to write to separate streams 
 							// instead of seeking
-							//this.Write(buf, read, args.Start + args.Transferred);
+							this.Write(buf, read, args.Start + args.Transferred);
 							args.Transferred += read;
 
-							this.ReportProgress(FtpTransferType.Download, args.FullPath, read, start);
+							this.ReportProgress(FtpTransferType.Download, args.FullPath, read);
 							if (this.Cancel || args.Complete) {
 								// end the transfer.
 								break;
 							}
 						}
 
-						try {
-							// this is going to trigger an exception
-							// because of early termination of the stream
-							// however we do not care.
-							chan.Disconnect();
-						}
-						catch (FtpException) { }
+						chan.Disconnect(true);
 					}
 
 					client.Disconnect();
@@ -294,12 +369,23 @@ namespace System.Net.FtpClient {
 #endif
 		}
 
+		/// <summary>
+		/// Waits for all of the download threads to finish and
+		/// uses the NOOP command to keep the main connection alive
+		/// </summary>
 		private void WaitForThreads() {
 			foreach (Thread t in this.Threads) {
-				t.Join();
+				while (t.IsAlive) {
+					t.Join(10000); // timeout so that we can keep the main thread's connection alive
+					this.Client.NoOp(); // keep the main connection alive
+				}
 			}
 		}
 
+		/// <summary>
+		/// Checks exceptions from the other threads and combines them
+		/// into one exception.
+		/// </summary>
 		private void CheckExceptions() {
 			if (this.Exceptions.Count > 0) {
 				string sb = "";
@@ -312,19 +398,38 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		/// <summary>
+		/// Downloads the specified file using the specified number of threads
+		/// </summary>
+		/// <param name="remote"></param>
+		/// <param name="local"></param>
+		/// <param name="mode"></param>
+		/// <param name="rest"></param>
+		/// <param name="threads"></param>
 		public void Download(FtpFile remote, string local, FtpTransferMode mode, long rest, int threads) {
 			using (FileStream stream = new FileStream(local, FileMode.OpenOrCreate, FileAccess.Write)) {
 				this.Download(remote, stream, mode, rest, threads);
 			}
 		}
 
+		/// <summary>
+		/// Downloads the specified file using the specified number of threads
+		/// </summary>
+		/// <param name="remote"></param>
+		/// <param name="local"></param>
+		/// <param name="mode"></param>
+		/// <param name="rest"></param>
+		/// <param name="threads"></param>
 		public void Download(FtpFile remote, Stream local, FtpTransferMode mode, long rest, int threads) {
-			long chunk = 0;
+			long chunk = 0; // chunk size, will reflect the resume location
+			long dsize = 0; // download size used for taking into account the resume location
 
 			this.Threads.Clear();
 			this.CheckCapabilities();
 			this.Stream = local;
 			this.Size = remote.Length;
+			this.Transferred = rest;
+			dsize = this.Size - rest;
 
 			if (threads <= 0) {
 				throw new FtpException("The number of download threads cannot be less than or equal to 0!");
@@ -334,15 +439,36 @@ namespace System.Net.FtpClient {
 				throw new FtpException("The output stream is not seekable, cannot perform threaded downloads.");
 			}
 
-			chunk = (this.Size / threads);
+			chunk = (dsize / threads);
 			if (chunk <= 0) {
 				throw new FtpException("The thread chunk size is less than or equal to 0");
 			}
 
+			//////////////////////////////
+			// this operation is slow, however
+			// it decreases the seek time when
+			// each thread needs to write data 
+			// to the local file.
+			// this.PreAllocateFile(local);
+			//////////////////////////////
+
+			this.Stream.Seek(this.Size, SeekOrigin.Begin);
+			this.Start = DateTime.Now;
+
 			for (int i = 0; i < threads; i++) {
+				long chunkSize = chunk;
+				long chunkStart = i * chunk;
+				long chunkEnd = chunkStart + chunkSize;
 				Thread t = new Thread(new ParameterizedThreadStart(this.ThreadDownload));
+
+				// make sure that the last thread gets the rest of the data
+				// incase the chunk size was not an even split of the file size
+				if ((this.Size - chunkEnd) < chunkSize) {
+					chunkSize += (this.Size - chunkEnd);
+				}
+
 				this.Threads.Add(t);
-				t.Start(new FtpThreadedTransferArgs(remote.FullName, mode, i * chunk, chunk));
+				t.Start(new FtpThreadedTransferArgs(remote.FullName, mode, (i * chunk) + rest, chunkSize));
 			}
 
 			this.WaitForThreads();

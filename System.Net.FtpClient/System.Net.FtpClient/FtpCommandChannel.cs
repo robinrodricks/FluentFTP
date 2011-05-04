@@ -10,16 +10,6 @@ namespace System.Net.FtpClient {
 	public delegate void ResponseReceived(string message);
 
 	public class FtpCommandChannel : FtpChannel {
-		private bool _dataChannelOpen = false;
-		/// <summary>
-		/// Gets a value indicating if a data channel is active.
-		/// Only 1 data channel can be active per connection.
-		/// </summary>
-		public bool DataChannelOpen {
-			get { return _dataChannelOpen; }
-			private set { _dataChannelOpen = value; }
-		}
-
 		FtpSslMode _sslMode = FtpSslMode.Explicit;
 		/// <summary>
 		/// Sets the type of SSL to use when the EnableSSL property is
@@ -468,12 +458,17 @@ namespace System.Net.FtpClient {
 		/// has been disconnected
 		/// </summary>
 		void OnDataChannelDisconnected(FtpChannel ch) {
+			FtpDataChannel chan = (FtpDataChannel)ch;
+
 			// if the associated command succeeded the
 			// server will send a response when this data channel closes
-			if (((FtpDataChannel)ch).AssociatedCommandStatus && !this.ReadResponse()) {
-				throw new FtpException(this.ResponseMessage);
+			if (chan.AssociatedCommandStatus && !this.ReadResponse()) {
+				// don't throw an exception if ignorestatus is true
+				// this option has to be set manually
+				if (!chan.IgnoreStatus) {
+					throw new FtpException(this.ResponseMessage);
+				}
 			}
-			this.DataChannelOpen = false;
 		}
 
 		/// <summary>

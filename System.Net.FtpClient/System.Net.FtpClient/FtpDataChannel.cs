@@ -76,6 +76,17 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		bool _ignoreStatus = false;
+		/// <summary>
+		/// Gets a value indicating if an exception should be thrown
+		/// if an error response is received on the command channel
+		/// when disconnecting this data channel
+		/// </summary>
+		public bool IgnoreStatus {
+			get { return _ignoreStatus; }
+			set { _ignoreStatus = value; }
+		}
+
 		bool _associatedCommandStatus = false;
 		/// <summary>
 		/// Gets the status of the command associated with this data channel. If you open a
@@ -167,6 +178,11 @@ namespace System.Net.FtpClient {
 					base.Connect();
 				}
 			}
+		}
+
+		public void Disconnect(bool ignorestatus) {
+			this.IgnoreStatus = true;
+			this.Disconnect();
 		}
 
 		/// <summary>

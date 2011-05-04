@@ -29,6 +29,17 @@ namespace System.Net.FtpClient {
 			set { _password = value; }
 		}
 
+		int _defBufferSize = 8192;
+		/// <summary>
+		/// Gets or sets the default buffer size to use when
+		/// allocating local file storage. Only used in threaded
+		/// downloads.
+		/// </summary>
+		public int DefaultFileSystemBufferSize {
+			get { return _defBufferSize; }
+			set { _defBufferSize = value; }
+		}
+
 		event FtpTransferProgress _transfer = null;
 		/// <summary>
 		/// Event fired from Download() and Upload() methods
@@ -617,6 +628,18 @@ namespace System.Net.FtpClient {
 		/// <param name="rest">Resume location</param>
 		public void Download(string remote, string local, FtpTransferMode xferMode, long rest) {
 			this.Download(new FtpFile(this, remote), local, xferMode, rest);
+		}
+
+		/// <summary>
+		/// Downloads a file from the server
+		/// </summary>
+		/// <param name="remote"></param>
+		/// <param name="local"></param>
+		/// <param name="xferMode"></param>
+		/// <param name="rest"></param>
+		/// <param name="threads"></param>
+		public void Download(string remote, string local, FtpTransferMode xferMode, long rest, int threads) {
+			this.Download(new FtpFile(this, remote), local, xferMode, rest, threads);
 		}
 
 		/// <summary>

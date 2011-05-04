@@ -80,7 +80,7 @@ namespace ReleaseTests {
 						cl.TransferProgress += new FtpTransferProgress(cl_TransferProgress);
 						cl.InvalidCertificate += new FtpInvalidCertificate(cl_InvalidCertificate);
 
-						cl.Download(new FtpFile(cl, "BigFile1.ext"), "BigFile.ext", FtpTransferMode.Binary, 0, 10);
+						cl.Download("BigFile1.ext", @"c:\test.exe", FtpTransferMode.Binary, 0, 10);
 
 						/*RecursiveDownload(cl.CurrentDirectory, "c:\\temp");
 						RecursiveDelete(cl.CurrentDirectory);
@@ -88,17 +88,16 @@ namespace ReleaseTests {
 					}
 					catch (FtpInvalidCertificateException ex) {
 						Console.WriteLine(ex.Message);
-						Console.ReadKey();
 					}
 				}
-
-				Console.WriteLine("Done");
-				Console.ReadKey();
 			}
 			catch (Exception ex) {
 				Console.WriteLine(ex.Message);
-				Console.ReadKey();
 			}
+
+			Console.WriteLine();
+			Console.WriteLine("Done");
+			Console.ReadKey();
 		}
 
 		static void cl_InvalidCertificate(FtpChannel c, InvalidCertificateInfo e) {
@@ -111,7 +110,7 @@ namespace ReleaseTests {
 			Console.Write("\r{0}: {1} {2}/{3} {4}/s {5}%   ",
 				e.TransferType == FtpTransferType.Upload ? "U" : "D",
 				Path.GetFileName(e.FileName), e.Transferred, e.Length,
-				e.BytesPerSecond, e.Percentage);
+				FormatBytes(e.BytesPerSecond), e.Percentage);
 
 			// force an abort on some donwloads
 			// to see how the code handles.
@@ -121,6 +120,23 @@ namespace ReleaseTests {
 			if (e.Complete) {
 				Console.WriteLine();
 			}
+		}
+
+		//
+		// http://sharpertutorials.com/pretty-format-bytes-kb-mb-gb/
+		//
+		static string FormatBytes(long bytes) {
+			const int scale = 1024;
+			string[] orders = new string[] { "GB", "MB", "KB", "B" };
+			long max = (long)Math.Pow(scale, orders.Length - 1);
+
+			foreach (string order in orders) {
+				if (bytes > max)
+					return string.Format("{0:##.##} {1}", decimal.Divide(bytes, max), order);
+
+				max /= scale;
+			}
+			return "0 B";
 		}
 	}
 }
