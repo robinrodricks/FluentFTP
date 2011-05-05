@@ -59,16 +59,23 @@ namespace System.Net.FtpClient {
 				if (_currentDirectory == null) {
 					Match m;
 
-					if (!this.Execute("PWD")) {
-						throw new FtpException(this.ResponseMessage);
-					}
+					this.LockCommandChannel();
 
-					m = Regex.Match(this.ResponseMessage, "\"(.*)\"");
-					if (!m.Success || m.Groups.Count < 2) {
-						throw new FtpException(string.Format("Failed to parse current working directory from {0}", this.ResponseMessage));
-					}
+					try {
+						if (!this.Execute("PWD")) {
+							throw new FtpException(this.ResponseMessage);
+						}
 
-					this._currentDirectory = new FtpDirectory(this, m.Groups[1].Value);
+						m = Regex.Match(this.ResponseMessage, "\"(.*)\"");
+						if (!m.Success || m.Groups.Count < 2) {
+							throw new FtpException(string.Format("Failed to parse current working directory from {0}", this.ResponseMessage));
+						}
+
+						this._currentDirectory = new FtpDirectory(this, m.Groups[1].Value);
+					}
+					finally {
+						this.UnlockCommandChannel();
+					}
 				}
 
 				return _currentDirectory;
@@ -84,11 +91,18 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		public string System {
 			get {
-				if (!this.Execute("SYST")) {
-					throw new FtpException(this.ResponseMessage);
-				}
+				try {
+					this.LockCommandChannel();
 
-				return this.ResponseMessage;
+					if (!this.Execute("SYST")) {
+						throw new FtpException(this.ResponseMessage);
+					}
+
+					return this.ResponseMessage;
+				}
+				finally {
+					this.UnlockCommandChannel();
+				}
 			}
 		}
 
@@ -113,20 +127,27 @@ namespace System.Net.FtpClient {
 		/// if a connection to the server has been made.
 		/// </summary>
 		void Login(FtpChannel c) {
-			if (this.Username != null) {
-				if (!this.Execute("USER {0}", this.Username)) {
-					throw new FtpException(this.ResponseMessage);
-				}
+			this.LockCommandChannel();
 
-				if (this.ResponseType == FtpResponseType.PositiveIntermediate) {
-					if (this.Password == null) {
-						throw new FtpException("The server is asking for a password but it has been set.");
-					}
-
-					if (!this.Execute("PASS {0}", this.Password)) {
+			try {
+				if (this.Username != null) {
+					if (!this.Execute("USER {0}", this.Username)) {
 						throw new FtpException(this.ResponseMessage);
 					}
+
+					if (this.ResponseType == FtpResponseType.PositiveIntermediate) {
+						if (this.Password == null) {
+							throw new FtpException("The server is asking for a password but it has been set.");
+						}
+
+						if (!this.Execute("PASS {0}", this.Password)) {
+							throw new FtpException(this.ResponseMessage);
+						}
+					}
 				}
+			}
+			finally {
+				this.UnlockCommandChannel();
 			}
 
 			this.CurrentDirectory = null;
@@ -137,8 +158,15 @@ namespace System.Net.FtpClient {
 		/// server and get a response.
 		/// </summary>
 		public void NoOp() {
-			if (!this.Execute("NOOP")) {
-				throw new FtpException(this.ResponseMessage);
+			this.LockCommandChannel();
+
+			try {
+				if (!this.Execute("NOOP")) {
+					throw new FtpException(this.ResponseMessage);
+				}
+			}
+			finally {
+				this.UnlockCommandChannel();
 			}
 		}
 
@@ -187,14 +215,21 @@ namespace System.Net.FtpClient {
 					throw new NotImplementedException("The specified list type has not been implemented.");
 			}
 
-			using (FtpDataChannel dc = this.OpenDataChannel(FtpTransferMode.ASCII)) {
-				if (!dc.Execute("{0} {1}", cmd, path)) {
-					throw new FtpException(this.ResponseMessage);
-				}
+			this.LockCommandChannel();
 
-				while ((buf = dc.ReadLine()) != null) {
-					lst.Add(buf);
+			try {
+				using (FtpDataChannel dc = this.OpenDataChannel(FtpTransferMode.ASCII)) {
+					if (!dc.Execute("{0} {1}", cmd, path)) {
+						throw new FtpException(this.ResponseMessage);
+					}
+
+					while ((buf = dc.ReadLine()) != null) {
+						lst.Add(buf);
+					}
 				}
+			}
+			finally {
+				this.UnlockCommandChannel();
 			}
 
 			return lst.ToArray();
@@ -239,8 +274,15 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="path">The full or relative (to the current directory) path</param>
 		public void SetWorkingDirectory(string path) {
-			if (!this.Execute("CWD {0}", path)) {
-				throw new FtpException(this.ResponseMessage);
+			this.LockCommandChannel();
+
+			try {
+				if (!this.Execute("CWD {0}", path)) {
+					throw new FtpException(this.ResponseMessage);
+				}
+			}
+			finally {
+				this.UnlockCommandChannel();
 			}
 
 			this.CurrentDirectory = null;
@@ -260,13 +302,18 @@ namespace System.Net.FtpClient {
 				throw new NotImplementedException("The connected server does not support the MDTM command.");
 			}
 
-			if (!this.Execute("MDTM {0}", path)) {
-				throw new FtpException(this.ResponseMessage);
-			}
+			this.LockCommandChannel();
 
-			if (DateTime.TryParseExact(this.ResponseMessage, formats,
-				CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out modify)) {
-				return modify;
+			try {
+				if (this.Execute("MDTM {0}", path)) {
+					if (DateTime.TryParseExact(this.ResponseMessage, formats,
+						CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out modify)) {
+						return modify;
+					}
+				}
+			}
+			finally {
+				this.UnlockCommandChannel();
 			}
 
 			return DateTime.MinValue;
@@ -283,22 +330,29 @@ namespace System.Net.FtpClient {
 			// prefer MLST for getting the file size because some
 			// servers won't give the file size back for large files
 			if (this.HasCapability(FtpCapability.MLST)) {
-				if (!this.Execute("MLST {0}", path)) {
-					throw new FtpException(this.ResponseMessage);
-				}
+				this.LockCommandChannel();
 
-				foreach (string s in this.Messages) {
-					// MLST response starts with a space according to draft-ietf-ftpext-mlst-16
-					if (s.StartsWith(" ") && s.ToLower().Contains("size")) {
-						Match m = Regex.Match(s, @"Size=(\d+);", RegexOptions.IgnoreCase);
-						long size = 0;
-
-						if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
-							size = 0;
-						}
-
-						return size;
+				try {
+					if (!this.Execute("MLST {0}", path)) {
+						throw new FtpException(this.ResponseMessage);
 					}
+
+					foreach (string s in this.Messages) {
+						// MLST response starts with a space according to draft-ietf-ftpext-mlst-16
+						if (s.StartsWith(" ") && s.ToLower().Contains("size")) {
+							Match m = Regex.Match(s, @"Size=(\d+);", RegexOptions.IgnoreCase);
+							long size = 0;
+
+							if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
+								size = 0;
+							}
+
+							return size;
+						}
+					}
+				}
+				finally {
+					this.UnlockCommandChannel();
 				}
 			}
 			// used for older servers, has limitations, will error
@@ -307,13 +361,20 @@ namespace System.Net.FtpClient {
 				long size = 0;
 				Match m;
 
-				// ignore errors, return 0 if there is one. some servers
-				// don't support large file sizes.
-				if (this.Execute("SIZE {0}", path)) {
-					m = Regex.Match(this.ResponseMessage, @"(\d+)");
-					if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
-						size = 0;
+				this.LockCommandChannel();
+
+				try {
+					// ignore errors, return 0 if there is one. some servers
+					// don't support large file sizes.
+					if (this.Execute("SIZE {0}", path)) {
+						m = Regex.Match(this.ResponseMessage, @"(\d+)");
+						if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
+							size = 0;
+						}
 					}
+				}
+				finally {
+					this.UnlockCommandChannel();
 				}
 
 				return size;
@@ -330,8 +391,15 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="path">The full or relative (to the current working directory) path</param>
 		public void RemoveDirectory(string path) {
-			if (!this.Execute("RMD {0}", path)) {
-				throw new FtpException(this.ResponseMessage);
+			this.LockCommandChannel();
+
+			try {
+				if (!this.Execute("RMD {0}", path)) {
+					throw new FtpException(this.ResponseMessage);
+				}
+			}
+			finally {
+				this.UnlockCommandChannel();
 			}
 		}
 
@@ -340,8 +408,15 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="path">The full or relative (to the current working directory) path</param>
 		public void RemoveFile(string path) {
-			if (!this.Execute("DELE {0}", path)) {
-				throw new FtpException(this.ResponseMessage);
+			this.LockCommandChannel();
+
+			try {
+				if (!this.Execute("DELE {0}", path)) {
+					throw new FtpException(this.ResponseMessage);
+				}
+			}
+			finally {
+				this.UnlockCommandChannel();
 			}
 		}
 
@@ -350,8 +425,15 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="path">The full or relative (to the current working directory) path</param>
 		public void CreateDirectory(string path) {
-			if (!this.Execute("MKD {0}", path)) {
-				throw new FtpException(this.ResponseMessage);
+			this.LockCommandChannel();
+
+			try {
+				if (!this.Execute("MKD {0}", path)) {
+					throw new FtpException(this.ResponseMessage);
+				}
+			}
+			finally {
+				this.UnlockCommandChannel();
 			}
 		}
 
@@ -361,12 +443,21 @@ namespace System.Net.FtpClient {
 		/// <param name="path"></param>
 		/// <returns></returns>
 		public FtpListItem GetObjectInfo(string path) {
-			if (this.HasCapability(FtpCapability.MLST) && this.Execute("MLST {0}", path)) {
-				foreach (string s in this.Messages) {
-					// MLST response starts with a space according to draft-ietf-ftpext-mlst-16
-					if (s.StartsWith(" ")) {
-						return new FtpListItem(s, FtpListType.MLST);
+			if (this.HasCapability(FtpCapability.MLST)) {
+				this.LockCommandChannel();
+
+				try {
+					if (this.Execute("MLST {0}", path)) {
+						foreach (string s in this.Messages) {
+							// MLST response starts with a space according to draft-ietf-ftpext-mlst-16
+							if (s.StartsWith(" ")) {
+								return new FtpListItem(s, FtpListType.MLST);
+							}
+						}
 					}
+				}
+				finally {
+					this.UnlockCommandChannel();
 				}
 			}
 			else {
@@ -406,12 +497,19 @@ namespace System.Net.FtpClient {
 		/// <param name="from">The full or relative (to the current working directory) path of the existing file</param>
 		/// <param name="to">The full or relative (to the current working directory) path of the new file</param>
 		public void Rename(string from, string to) {
-			if (!this.Execute("RNFR {0}", from)) {
-				throw new FtpException(this.ResponseMessage);
-			}
+			this.LockCommandChannel();
 
-			if (!this.Execute("RNTO {0}", to)) {
-				throw new FtpException(this.ResponseMessage);
+			try {
+				if (!this.Execute("RNFR {0}", from)) {
+					throw new FtpException(this.ResponseMessage);
+				}
+
+				if (!this.Execute("RNTO {0}", to)) {
+					throw new FtpException(this.ResponseMessage);
+				}
+			}
+			finally {
+				this.UnlockCommandChannel();
 			}
 		}
 
@@ -522,14 +620,21 @@ namespace System.Net.FtpClient {
 			FtpDataChannel dc = this.OpenDataChannel(xferMode);
 
 			if (rest > 0) {
-				if (!this.HasCapability(FtpCapability.REST)) {
-					dc.Disconnect();
-					throw new NotImplementedException("The connected server does not support resuming.");
-				}
+				this.LockCommandChannel();
 
-				if (!this.Execute("REST {0}", rest)) {
-					dc.Disconnect();
-					throw new FtpException(this.ResponseMessage);
+				try {
+					if (!this.HasCapability(FtpCapability.REST)) {
+						dc.Disconnect();
+						throw new NotImplementedException("The connected server does not support resuming.");
+					}
+
+					if (!this.Execute("REST {0}", rest)) {
+						dc.Disconnect();
+						throw new FtpException(this.ResponseMessage);
+					}
+				}
+				finally {
+					this.UnlockCommandChannel();
 				}
 			}
 
@@ -775,7 +880,7 @@ namespace System.Net.FtpClient {
 							break;
 						}
 					}
-	
+
 					// fire one more time to let event handler know that the transfer is complete
 					this.OnTransferProgress(new FtpTransferInfo(FtpTransferType.Download, remote.FullName,
 						size, total, start, true));

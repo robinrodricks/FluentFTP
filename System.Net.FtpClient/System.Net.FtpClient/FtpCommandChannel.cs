@@ -5,11 +5,18 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Net.Sockets;
 using System.Diagnostics;
+using System.Threading;
 
 namespace System.Net.FtpClient {
-	public delegate void ResponseReceived(string message);
+	public delegate void ResponseReceived(string status, string response);
 
 	public class FtpCommandChannel : FtpChannel {
+		/// <summary>
+		/// Mutex used for locking the command channel while
+		/// executing commands
+		/// </summary>
+		Mutex mCommandLock = new Mutex();
+
 		FtpSslMode _sslMode = FtpSslMode.Explicit;
 		/// <summary>
 		/// Sets the type of SSL to use when the EnableSSL property is
@@ -115,12 +122,36 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
+		/// Acquire an exclusive lock on the command channel
+		/// while executing/processing commands
+		/// </summary>
+		public void LockCommandChannel() {
+			this.mCommandLock.WaitOne();
+		}
+
+		/// <summary>
+		/// Acquire an exclusive lock on the command channel
+		/// while executing/processing commands 
+		/// </summary>
+		/// <param name="timeout"></param>
+		public void LockCommandChannel(int timeout) {
+			this.mCommandLock.WaitOne(timeout);
+		}
+
+		/// <summary>
+		/// Release the exclusive lock held on the command channel
+		/// </summary>
+		public void UnlockCommandChannel() {
+			this.mCommandLock.ReleaseMutex();
+		}
+
+		/// <summary>
 		/// Fires the response received event.
 		/// </summary>
 		/// <param name="message"></param>
-		protected void OnResponseReceived(string message) {
+		protected void OnResponseReceived(string status, string response) {
 			if (this._responseReceived != null) {
-				this._responseReceived(message);
+				this._responseReceived(status, response);
 			}
 		}
 
@@ -269,7 +300,7 @@ namespace System.Net.FtpClient {
 				this.Connect();
 			}
 
-			if (this.Socket.Poll(50000, SelectMode.SelectRead) && this.Socket.Available == 0) {
+			if (this.Socket.Poll(500000, SelectMode.SelectRead) && this.Socket.Available == 0) {
 				// we've been disconnected, probably due to inactivity
 				this.Connect();
 			}
@@ -297,8 +328,6 @@ namespace System.Net.FtpClient {
 			while ((buf = this.ReadLine()) != null) {
 				Match m = Regex.Match(buf, @"^(\d{3})\s(.*)$");
 
-				this.OnResponseReceived(buf);
-
 				if (m.Success) { // the server sent the final response message
 					if (m.Groups.Count > 1) {
 						this.ResponseCode = m.Groups[1].Value;
@@ -315,10 +344,14 @@ namespace System.Net.FtpClient {
 					// check response
 					if (this.ResponseCode != null) {
 						this.ResponseType = (FtpResponseType)int.Parse(this.ResponseCode[0].ToString());
+						this.OnResponseReceived(this.ResponseCode, this.ResponseMessage);
 						return this.ResponseStatus;
 					}
 
 					throw new FtpException("Could not determine the response status");
+				}
+				else {
+					this.OnResponseReceived("INFO", buf);
 				}
 
 				messages.Add(buf);
@@ -336,6 +369,14 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
+		/// Removes the specified capability from the list
+		/// </summary>
+		/// <param name="cap"></param>
+		public void RemoveCapability(FtpCapability cap) {
+			this.Capabilities &= ~(cap);
+		}
+
+		/// <summary>
 		/// Loads the capabilities of this server
 		/// </summary>
 		private void LoadCapabilities() {
@@ -350,7 +391,7 @@ namespace System.Net.FtpClient {
 					if (feat.ToUpper().Contains("MLST") || feat.ToUpper().Contains("MLSD"))
 						this.Capabilities |= FtpCapability.MLSD | FtpCapability.MLST;
 					else if (feat.ToUpper().Contains("MDTM"))
-						this.Capabilities |= FtpCapability.MDTM;
+						this.Capabilities |= (FtpCapability.MDTM | FtpCapability.MDTMDIR);
 					else if (feat.ToUpper().Contains("REST STREAM"))
 						this.Capabilities |= FtpCapability.REST;
 					else if (feat.ToUpper().Contains("SIZE"))

@@ -34,6 +34,12 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		public string Name {
 			get { return System.IO.Path.GetFileName(this.FullName); }
+			set {
+				if (this.FullName != null) {
+					this.FullName = string.Format("{0}/{1}",
+						System.IO.Path.GetDirectoryName(this.FullName), value);
+				}
+			}
 		}
 
 		DateTime _lastWriteTime = DateTime.MinValue;
@@ -42,8 +48,14 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		public DateTime LastWriteTime {
 			get {
-				if (_lastWriteTime == DateTime.MinValue) {
-					this.LastWriteTime = this.Client.GetLastWriteTime(this.FullName);
+				if (_lastWriteTime == DateTime.MinValue && this.Client.HasCapability(FtpCapability.MDTMDIR)) {
+					this.LastWriteTime = this.Client.GetLastWriteTime(string.Format("{0}/", this.FullName));
+
+					if (_lastWriteTime == DateTime.MinValue) {
+						// remote mdtm capability for directories
+						// because this server doesn't support it
+						this.Client.RemoveCapability(FtpCapability.MDTMDIR);
+					}
 				}
 
 				return _lastWriteTime;

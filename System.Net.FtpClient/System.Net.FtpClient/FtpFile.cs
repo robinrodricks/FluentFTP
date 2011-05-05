@@ -66,6 +66,12 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		public string Name {
 			get { return System.IO.Path.GetFileName(this.FullName); }
+			set {
+				if (this.FullName != null) {
+					this.FullName = string.Format("{0}/{1}", 
+						System.IO.Path.GetDirectoryName(this.FullName), value);
+				}
+			}
 		}
 
 		FtpDirectory _parent = null;
