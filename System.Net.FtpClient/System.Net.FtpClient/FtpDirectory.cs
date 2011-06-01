@@ -63,13 +63,14 @@ namespace System.Net.FtpClient {
 			private set { _lastWriteTime = value; }
 		}
 
-		List<FtpDirectory> _dirs = new List<FtpDirectory>();
+		List<FtpDirectory> _dirs = null;
 		/// <summary>
 		/// A list of directories within this directory
 		/// </summary>
 		public FtpDirectory[] Directories {
 			get {
-				if (this._dirs.Count < 1) {
+				if (this._dirs == null) {
+					this._dirs = new List<FtpDirectory>();
 					this.LoadListing();
 				}
 
@@ -77,13 +78,14 @@ namespace System.Net.FtpClient {
 			}
 		}
 
-		List<FtpFile> _files = new List<FtpFile>();
+		List<FtpFile> _files = null;
 		/// <summary>
 		/// A list of files within this directory
 		/// </summary>
 		public FtpFile[] Files {
 			get {
-				if (this._files.Count < 1) {
+				if (this._files == null) {
+					this._files = new List<FtpFile>();
 					this.LoadListing();
 				}
 
