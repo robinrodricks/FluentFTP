@@ -186,6 +186,15 @@ namespace System.Net.FtpClient {
 			private set { _transferred = value; }
 		}
 
+		long _rest = 0;
+		/// <summary>
+		/// Gets the location this download was resumed at.
+		/// </summary>
+		public long Resume {
+			get { return _rest; }
+			private set { _rest = value; }
+		}
+
 		/// <summary>
 		/// Ensures that the server we're connecting to supports threaded downloads
 		/// </summary>
@@ -307,7 +316,7 @@ namespace System.Net.FtpClient {
 
 			lock (this.LockClient) {
 				this.Transferred += read;
-				e = new FtpTransferInfo(type, fullname, this.Size, this.Transferred,
+				e = new FtpTransferInfo(type, fullname, this.Size, this.Resume, this.Transferred,
 					this.Start, this.Transferred == this.Size);
 				this.Client.OnTransferProgress(e);
 			}
@@ -429,6 +438,7 @@ namespace System.Net.FtpClient {
 			this.Stream = local;
 			this.Size = remote.Length;
 			this.Transferred = rest;
+			this.Resume = rest;
 			dsize = this.Size - rest;
 
 			if (threads <= 0) {

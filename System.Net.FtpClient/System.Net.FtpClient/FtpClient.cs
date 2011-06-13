@@ -873,7 +873,7 @@ namespace System.Net.FtpClient {
 					while ((read = ch.Read(buf, 0, buf.Length)) > 0) {
 						ostream.Write(buf, 0, read);
 						total += read;
-						e = new FtpTransferInfo(FtpTransferType.Download, remote.FullName, size, total, start, false);
+						e = new FtpTransferInfo(FtpTransferType.Download, remote.FullName, size, rest, total, start, false);
 
 						this.OnTransferProgress(e);
 						if (e.Cancel) {
@@ -883,7 +883,7 @@ namespace System.Net.FtpClient {
 
 					// fire one more time to let event handler know that the transfer is complete
 					this.OnTransferProgress(new FtpTransferInfo(FtpTransferType.Download, remote.FullName,
-						size, total, start, true));
+						size, rest, total, start, true));
 				}
 			}
 			finally {
@@ -1121,7 +1121,7 @@ namespace System.Net.FtpClient {
 				while ((read = istream.Read(buf, 0, buf.Length)) > 0) {
 					ch.Write(buf, 0, read);
 					total += read;
-					e = new FtpTransferInfo(FtpTransferType.Upload, remote.FullName, size, total, start, false);
+					e = new FtpTransferInfo(FtpTransferType.Upload, remote.FullName, size, rest, total, start, false);
 
 					this.OnTransferProgress(e);
 					if (e.Cancel) {
@@ -1131,7 +1131,7 @@ namespace System.Net.FtpClient {
 
 				// fire one more time to let event handler know the transfer is complete
 				this.OnTransferProgress(new FtpTransferInfo(FtpTransferType.Upload, remote.FullName,
-					size, total, start, true));
+					size, rest, total, start, true));
 			}
 		}
 

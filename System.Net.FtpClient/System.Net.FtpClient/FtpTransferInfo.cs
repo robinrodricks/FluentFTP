@@ -31,6 +31,15 @@ namespace System.Net.FtpClient {
 			private set { _length = value; }
 		}
 
+		long _resume = 0;
+		/// <summary>
+		/// Gets the location the download was resumed at
+		/// </summary>
+		public long Resume {
+			get { return _resume; }
+			private set { _resume = value; }
+		}
+
 		long _transferred = 0;
 		/// <summary>
 		/// The number of bytes transferred
@@ -78,8 +87,8 @@ namespace System.Net.FtpClient {
 			get {
 				TimeSpan t = this.Now.Subtract(this.Start);
 
-				if (this.Transferred > 0 && t.TotalSeconds > 0) {
-					return (long)Math.Round(this.Transferred / t.TotalSeconds, 0);
+				if ((this.Transferred - this.Resume) > 0 && t.TotalSeconds > 0) {
+					return (long)Math.Round((this.Transferred - this.Resume) / t.TotalSeconds, 0);
 				}
 
 				return 0;
@@ -104,10 +113,11 @@ namespace System.Net.FtpClient {
 			set { _cancel = value; }
 		}
 
-		public FtpTransferInfo(FtpTransferType type, string file, long length, long transferred, DateTime start, bool complete) {
+		public FtpTransferInfo(FtpTransferType type, string file, long length, long resume, long transferred, DateTime start, bool complete) {
 			this.TransferType = type;
 			this.FileName = file;
 			this.Length = length;
+			this.Resume = resume;
 			this.Transferred = transferred;
 			this.Start = start;
 			this.Complete = complete;
