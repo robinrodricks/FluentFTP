@@ -27,6 +27,17 @@ namespace System.Net.FtpClient {
 			get { return _sslMode; }
 			set { _sslMode = value; }
 		}
+		
+		bool _dataChanEncrypt = true;
+		/// <summary>
+		/// Enable or disable data channel encryption. This option is only
+	 	/// applicable when the SslMode property is set to use encryption.
+	 	/// The default value is true.
+		/// </summary>
+		public bool DataChannelEncryption {
+			get { return _dataChanEncrypt; }
+			set { _dataChanEncrypt = value; }
+		}
 
 		event ResponseReceived _responseReceived = null;
 		/// <summary>
@@ -591,10 +602,10 @@ namespace System.Net.FtpClient {
 
 		private FtpDataChannel OpenExtendedActiveDataChannel() {
 			FtpDataChannel dc = new FtpDataChannel(this);
-			int port;
+			//int port;
 
 			dc.InitalizeActiveChannel();
-			port = dc.LocalPort;
+			//port = dc.LocalPort;
 
 			// |1| is IPv4, need to support IPv6 at some point.
 			if (!this.Execute("EPRT |1|{0}|{1}|",
@@ -634,7 +645,7 @@ namespace System.Net.FtpClient {
 		/// Enables data channel security if SSL is enabled.
 		/// </summary>
 		void EnableDataChannelSecurity() {
-			if (this.SslEnabled) {
+			if (this.SslEnabled && this.DataChannelEncryption) {
 				if (!this.Execute("PBSZ 0")) {
 					// do nothing? some severs don't even
 					// care if you execute PBSZ however rfc 4217

@@ -73,14 +73,18 @@ namespace ReleaseTests {
 			try {
 				using (FtpClient cl = new FtpClient() {
 					Server = "localhost", Username = "test", Password = "test",
-					SslMode = FtpSslMode.None, Port = 21, 
-					DefaultDataMode = FtpDataMode.Passive
+					SslMode = FtpSslMode.Explicit, Port = 21, 
+					DefaultDataMode = FtpDataMode.Active, DataChannelEncryption = true
 				}) {
 					try {
 						cl.TransferProgress += new FtpTransferProgress(cl_TransferProgress);
 						cl.InvalidCertificate += new FtpInvalidCertificate(cl_InvalidCertificate);
 
-						cl.Download("BigFile1.ext", @"c:\test.exe", FtpTransferMode.Binary, 0, 10);
+						foreach(FtpListItem l in cl.GetListing()) {
+							Console.WriteLine(l.Name);	
+						}
+						
+						//cl.Download("BigFile1.ext", @"c:\test.exe", FtpTransferMode.Binary, 0, 10);
 
 						/*RecursiveDownload(cl.CurrentDirectory, "c:\\temp");
 						RecursiveDelete(cl.CurrentDirectory);
@@ -92,7 +96,7 @@ namespace ReleaseTests {
 				}
 			}
 			catch (Exception ex) {
-				Console.WriteLine(ex.Message);
+				Console.WriteLine(ex);
 			}
 
 			Console.WriteLine();

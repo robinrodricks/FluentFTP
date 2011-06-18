@@ -68,7 +68,7 @@ namespace System.Net.FtpClient {
 		public override Stream BaseStream {
 			get {
 				// authenticate the stream if it isn't already
-				if (this.CommandChannel.SslEnabled && !this.SecurteStream.IsAuthenticated) {
+				if (this.CommandChannel.DataChannelEncryption && this.CommandChannel.SslEnabled && !this.SecurteStream.IsAuthenticated) {
 					this.AuthenticateConnection();
 				}
 
@@ -204,7 +204,7 @@ namespace System.Net.FtpClient {
 			this.Socket = null;
 			this.Socket = s;
 
-			if (this.CommandChannel.SslEnabled) {
+			if (this.CommandChannel.SslEnabled && this.CommandChannel.DataChannelEncryption) {
 				this.AuthenticateConnection();
 			}
 		}
