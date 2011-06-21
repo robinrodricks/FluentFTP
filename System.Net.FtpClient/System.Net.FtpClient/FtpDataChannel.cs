@@ -197,6 +197,14 @@ namespace System.Net.FtpClient {
 #endif
 		}
 
+		protected override string SslAuthTargetHost {
+			get {
+				if (this.CommandChannel != null)
+					return this.CommandChannel.Server;
+				return this.Server;
+			}
+		}
+
 		private void ConnectActiveChannel() {
 			Socket s = this.Socket.Accept();
 

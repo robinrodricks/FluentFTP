@@ -267,6 +267,13 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
+		/// Gets the host to use for ssl certificate authentication
+		/// </summary>
+		protected virtual string SslAuthTargetHost {
+			get { return this.Server; }
+		}
+
+		/// <summary>
 		/// Checks if a certificate is valid
 		/// </summary>
 		/// <param name="sender"></param>
@@ -296,7 +303,8 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		protected void AuthenticateConnection() {
 			if (this.Connected && !this.SecurteStream.IsAuthenticated) {
-				this.SecurteStream.AuthenticateAsClient(((IPEndPoint)this.RemoteEndPoint).Address.ToString());
+				//this.SecurteStream.AuthenticateAsClient(((IPEndPoint)this.RemoteEndPoint).Address.ToString());
+				this.SecurteStream.AuthenticateAsClient(this.SslAuthTargetHost);
 				if (this.SslPolicyErrors != Security.SslPolicyErrors.None) {
 					InvalidCertificateInfo e = new InvalidCertificateInfo(this);
 

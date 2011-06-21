@@ -179,6 +179,7 @@ namespace gftpclient {
 		}
 
 		void OnInvalidCertificate(FtpChannel c, InvalidCertificateInfo e) {
+			this.AddLogEntry("500", "Invalid SSL Certificate");
 			e.Ignore = true;
 		}
 
