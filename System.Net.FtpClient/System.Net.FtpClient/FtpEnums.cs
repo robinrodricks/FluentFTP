@@ -13,8 +13,22 @@ namespace System.Net.FtpClient {
 	}
 
 	public enum FtpDataMode {
+        /// <summary>
+        /// PORT Command
+        /// </summary>
 		Active,
-		Passive
+        /// <summary>
+        /// EPRT Command
+        /// </summary>
+        ExtendedActive,
+        /// <summary>
+        /// PASV Command
+        /// </summary>
+		Passive,
+        /// <summary>
+        /// EPSV Command
+        /// </summary>
+        ExtendedPassive
 	}
 
 	public enum FtpTransferMode {
@@ -28,6 +42,7 @@ namespace System.Net.FtpClient {
 		MLST
 	}
 
+    [Flags]
 	public enum FtpCapability : int {
 		EMPTY = -1,
 		NONE = 0,

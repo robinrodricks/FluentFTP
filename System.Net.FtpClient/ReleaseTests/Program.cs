@@ -74,7 +74,7 @@ namespace ReleaseTests {
 				using (FtpClient cl = new FtpClient() {
 					Server = "localhost", Username = "test", Password = "test",
 					SslMode = FtpSslMode.Explicit, Port = 21, 
-					DefaultDataMode = FtpDataMode.Active, DataChannelEncryption = true
+					DefaultDataMode = FtpDataMode.Passive, DataChannelEncryption = true
 				}) {
 					try {
 						cl.TransferProgress += new FtpTransferProgress(cl_TransferProgress);
