@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("System.Net.FtpClient")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("FTP Client Library")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("System.Net.FtpClient")]
