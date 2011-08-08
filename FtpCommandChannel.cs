@@ -698,12 +698,12 @@ namespace System.Net.FtpClient {
 			Match m;
 
 			if(this.EnablePipelining) {
-				FtpCommandResult[] res = this.Execute(
-					new string[]
-					{
-						string.Format("TYPE {0}", xfer == FtpTransferMode.ASCII ? "A" : "I"),
-						"PASV"
-					});
+				// It's important that pipeline begins with tye TYPE command and ends with the EPRT
+				// command because their positions have to be known later in this block of code.
+				FtpCommandResult[] res = this.Execute(new string[] {
+					string.Format("TYPE {0}", xfer == FtpTransferMode.ASCII ? "A" : "I"),
+					"PASV"
+				});
 
 				// check result
 				foreach(FtpCommandResult r in res) {
@@ -742,18 +742,19 @@ namespace System.Net.FtpClient {
 			Match m;
 
 			if(this.EnablePipelining) {
-				FtpCommandResult[] res = this.Execute(
-					new string[]
-					{
-						string.Format("TYPE {0}", xfer == FtpTransferMode.ASCII ? "A" : "I"),
-						"EPSV"
-					});
+				// It's important that pipeline begins with tye TYPE command and ends with the EPRT
+				// command because their positions have to be known later in this block of code.
+				FtpCommandResult[] res = this.Execute(new string[] {
+					string.Format("TYPE {0}", xfer == FtpTransferMode.ASCII ? "A" : "I"),
+					"EPSV"
+				});
 
-				// check result
-				foreach(FtpCommandResult r in res) {
-					if(!r.ResponseStatus) {
-						throw new FtpException(r.ResponseMessage);
-					}
+				if(res.Length < 1) {
+					throw new FtpException("The command results array from the pipeline is empty!");
+				}
+
+				if(!res[0].ResponseStatus) {
+					throw new FtpException(res[0].ResponseMessage);
 				}
 			}
 			else {
@@ -801,14 +802,14 @@ namespace System.Net.FtpClient {
 			port = dc.LocalPort;
 
 			if(this.EnablePipelining) {
-				FtpCommandResult[] res = this.Execute(
-					new string[]
-					{
-						string.Format("TYPE {0}", xfer == FtpTransferMode.ASCII ? "A" : "I"),
-						string.Format("PORT {0},{1},{2}",
-							dc.LocalIPAddress.ToString().Replace(".", ","),
-							port / 256, port % 256)
-					});
+				// It's important that pipeline begins with tye TYPE command and ends with the EPRT
+				// command because their positions have to be known later in this block of code.
+				FtpCommandResult[] res = this.Execute(new string[] {
+					string.Format("TYPE {0}", xfer == FtpTransferMode.ASCII ? "A" : "I"),
+					string.Format("PORT {0},{1},{2}",
+						dc.LocalIPAddress.ToString().Replace(".", ","),
+						port / 256, port % 256)
+				});
 
 				// check results
 				foreach(FtpCommandResult r in res) {
@@ -838,18 +839,19 @@ namespace System.Net.FtpClient {
 			dc.InitalizeActiveChannel();
 
 			if(this.EnablePipelining) {
-				FtpCommandResult[] res = this.Execute(
-					new string[]
-					{
-						string.Format("TYPE {0}", xfer == FtpTransferMode.ASCII ? "A" : "I"),
-						string.Format("EPRT |1|{0}|{1}|", dc.LocalIPAddress.ToString(), dc.LocalPort)
-					});
+				// It's important that pipeline begins with tye TYPE command and ends with the EPRT
+				// command because their positions have to be known later in this block of code.
+				FtpCommandResult[] res = this.Execute(new string[] {
+					string.Format("TYPE {0}", xfer == FtpTransferMode.ASCII ? "A" : "I"),
+					string.Format("EPRT |1|{0}|{1}|", dc.LocalIPAddress.ToString(), dc.LocalPort)
+				});
 
-				// check results
-				foreach(FtpCommandResult r in res) {
-					if(!r.ResponseStatus) {
-						throw new FtpException(r.ResponseMessage);
-					}
+				if(res.Length < 1) {
+					throw new FtpException("The command results array from the pipeline is empty!");
+				}
+
+				if(!res[0].ResponseStatus) {
+					throw new FtpException(res[0].ResponseMessage);
 				}
 			}
 			else {
