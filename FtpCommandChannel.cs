@@ -8,8 +8,17 @@ using System.Diagnostics;
 using System.Threading;
 
 namespace System.Net.FtpClient {
+	/// <summary>
+	/// ResponseReceived delegate
+	/// </summary>
+	/// <param name="status">Status number</param>
+	/// <param name="response">Status message</param>
 	public delegate void ResponseReceived(string status, string response);
 
+	/// <summary>
+	/// The communication channel for the FTP server / used for issuing commands
+	/// and controlling transactions.
+	/// </summary>
 	public class FtpCommandChannel : FtpChannel {
 		/// <summary>
 		/// Mutex used for locking the command channel while
@@ -170,7 +179,8 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Fires the response received event.
 		/// </summary>
-		/// <param name="message"></param>
+		/// <param name="status">Status code</param>
+		/// <param name="response">Status message</param>
 		protected void OnResponseReceived(string status, string response) {
 			if(this._responseReceived != null) {
 				this._responseReceived(status, response);
@@ -274,6 +284,9 @@ namespace System.Net.FtpClient {
 		}
 
 		DateTime _lastSockActivity = DateTime.MinValue;
+		/// <summary>
+		/// Gets a the last time data was read or written to the socket.
+		/// </summary>
 		protected DateTime LastSocketActivity {
 			get {
 				if(_lastSockActivity == DateTime.MinValue) {
@@ -514,7 +527,7 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Open a connection
 		/// </summary>
-		/// <param name="ep"></param>
+		/// <param name="ipep"></param>
 		public virtual void Connect(IPEndPoint ipep) {
 			if(!this.Connected) {
 				this.Server = ipep.Address.ToString();
@@ -568,7 +581,11 @@ namespace System.Net.FtpClient {
 			}
 		}
 
-		public void SetTransferMode(FtpTransferMode xfer) {
+		/// <summary>
+		/// Set the transfer mode for the data channel
+		/// </summary>
+		/// <param name="xfer"></param>
+		protected void SetTransferMode(FtpTransferMode xfer) {
 			switch(xfer) {
 				case FtpTransferMode.Binary:
 					this.Execute("TYPE I");
@@ -916,6 +933,9 @@ namespace System.Net.FtpClient {
 			this.Capabilities = FtpCapability.EMPTY;
 		}
 
+		/// <summary>
+		/// Initalize a new command channel object.
+		/// </summary>
 		public FtpCommandChannel() {
 			this.ConnectionReady += new FtpChannelConnected(OnChannelConnected);
 		}

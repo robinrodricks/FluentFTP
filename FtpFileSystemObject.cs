@@ -1,12 +1,11 @@
 ﻿using System;
 
-#if LINQ
-using System.Linq;
-#endif
-
 namespace System.Net.FtpClient {
+	/// <summary>
+	/// Base class for remote file system objects
+	/// </summary>
 	public abstract class FtpFileSystemObject {
-		protected FtpClient _client = null;
+		private FtpClient _client = null;
 		/// <summary>
 		/// The FtpClient object this directory is associated with
 		/// </summary>
@@ -28,7 +27,7 @@ namespace System.Net.FtpClient {
 			}
 		}
 
-		protected string _path = null;
+		private string _path = null;
 		/// <summary>
 		/// The full or relative path of this directory on the server
 		/// </summary>
@@ -37,6 +36,9 @@ namespace System.Net.FtpClient {
 			set { _path = value; }
 		}
 
+		/// <summary>
+		/// The size of the object, -1 means it hasn't been loaded.
+		/// </summary>
 		protected long _length = -1;
 		/// <summary>
 		/// Gets the file system size of this object if
@@ -60,6 +62,10 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		/// <summary>
+		/// The last write time of the object. DateTime.MinValue means
+		/// that is hasn't been loaded.
+		/// </summary>
 		protected DateTime _lastWriteTime = DateTime.MinValue;
 		/// <summary>
 		/// Last modification time
@@ -113,6 +119,9 @@ namespace System.Net.FtpClient {
 			return System.Text.RegularExpressions.Regex.Replace(path.Replace('\\', '/'), @"/+", "/");
 		}
 
+		/// <summary>
+		/// Cleanup an release resources
+		/// </summary>
 		public virtual void Dispose() {
 			this._client = null;
 			this._path = null;
@@ -120,8 +129,16 @@ namespace System.Net.FtpClient {
 			this._length = -1;
 		}
 
+		/// <summary>
+		/// Base constructor
+		/// </summary>
 		public FtpFileSystemObject() { }
 
+		/// <summary>
+		/// Create new object lined to the specified client and pointing at the specified path
+		/// </summary>
+		/// <param name="client">The client to link this objec to</param>
+		/// <param name="path">The full path of the remote object</param>
 		public FtpFileSystemObject(FtpClient client, string path) {
 			this.Client = client;
 			this.FullName = this.CleanPath(path);

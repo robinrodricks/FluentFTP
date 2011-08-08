@@ -4,6 +4,9 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
 namespace System.Net.FtpClient {
+	/// <summary>
+	/// Invalid SSL certification event arguments
+	/// </summary>
 	public class InvalidCertificateInfo : EventArgs {
 		bool _ignoreCertificate = false;
 		/// <summary>
@@ -32,6 +35,11 @@ namespace System.Net.FtpClient {
 			private set { _cert = value; }
 		}
 
+		/// <summary>
+		/// Iniatlizes the object
+		/// </summary>
+		/// <param name="c">The ftp channel this object is associated with. Could
+		/// be FtpCommandChannel or FtpDataChannel</param>
 		public InvalidCertificateInfo(FtpChannel c) {
 			this.SslPolicyErrors = c.SslPolicyErrors;
 			this.SslCertificate = c.SslCertificate;

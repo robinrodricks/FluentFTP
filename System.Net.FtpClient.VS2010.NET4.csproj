@@ -22,6 +22,7 @@
     <DefineConstants>TRACE;DEBUG;NET4;LINQ</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>Documentation\System.Net.FtpClient.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\net4\Release\</OutputPath>

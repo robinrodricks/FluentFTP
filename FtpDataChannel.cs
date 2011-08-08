@@ -5,6 +5,9 @@ using System.Net.Sockets;
 using System.Diagnostics;
 
 namespace System.Net.FtpClient {
+	/// <summary>
+	/// FTP data channel
+	/// </summary>
 	public class FtpDataChannel : FtpChannel {
 		FtpCommandChannel _cmdChan = null;
 		/// <summary>
@@ -180,6 +183,10 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		/// <summary>
+		/// Disconnects this data channel
+		/// </summary>
+		/// <param name="ignorestatus"></param>
 		public void Disconnect(bool ignorestatus) {
 			this.IgnoreStatus = true;
 			this.Disconnect();
@@ -197,6 +204,9 @@ namespace System.Net.FtpClient {
 #endif
 		}
 
+		/// <summary>
+		/// The host to validate the SSL certificate against
+		/// </summary>
 		protected override string SslAuthTargetHost {
 			get {
 				if (this.CommandChannel != null)
@@ -205,6 +215,9 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		/// <summary>
+		/// Connects the channel
+		/// </summary>
 		private void ConnectActiveChannel() {
 			Socket s = this.Socket.Accept();
 
@@ -226,6 +239,10 @@ namespace System.Net.FtpClient {
 			this.CommandChannel = null;
 		}
 
+		/// <summary>
+		/// Initialize object
+		/// </summary>
+		/// <param name="cmdchan">The command channel this data channel is associated with</param>
 		public FtpDataChannel(FtpCommandChannel cmdchan)
 			: base() {
 			this.CommandChannel = cmdchan;

@@ -9,11 +9,31 @@ using System.Diagnostics;
 using System.Text;
 
 namespace System.Net.FtpClient {
+	/// <summary>
+	/// Delegate for event
+	/// </summary>
+	/// <param name="c"></param>
 	public delegate void FtpChannelConnected(FtpChannel c);
+	/// <summary>
+	/// Delegate for event
+	/// </summary>
+	/// <param name="c"></param>
 	public delegate void FtpChannelDisconnected(FtpChannel c);
+	/// <summary>
+	/// Delegate for event
+	/// </summary>
+	/// <param name="c"></param>
 	public delegate void FtpChannelDisposed(FtpChannel c);
+	/// <summary>
+	/// Delegate for event
+	/// </summary>
+	/// <param name="c"></param>
+	/// <param name="e"></param>
 	public delegate void FtpInvalidCertificate(FtpChannel c, InvalidCertificateInfo e);
 	
+	/// <summary>
+	/// Base class for Ftp*Channel implementations
+	/// </summary>
 	public abstract class FtpChannel : IDisposable {
 		event FtpChannelConnected _onConnected = null;
 		/// <summary>
@@ -388,6 +408,9 @@ namespace System.Net.FtpClient {
 			set { _port = value; }
 		}
 
+		/// <summary>
+		/// Connect this channel
+		/// </summary>
 		public virtual void Connect() {
 			if (!this.Connected) {
 				this.Disconnect(); // cleans up socket resources before making another connection
@@ -433,6 +456,10 @@ namespace System.Net.FtpClient {
 			this._policyErrors = Security.SslPolicyErrors.None;
 		}
 
+
+		/// <summary>
+		/// Cleanup and release resources
+		/// </summary>
 		public void Dispose() {
 			this.Disconnect();
 			this.OnDisposed();

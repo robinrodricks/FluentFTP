@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace System.Net.FtpClient {
+	/// <summary>
+	/// Represents a directory on a FTP server
+	/// </summary>
 	public class FtpDirectory : FtpFileSystemObject {
 		/// <summary>
 		/// Gets a value indicating if this directory exists on the server
@@ -28,7 +31,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		public override DateTime LastWriteTime {
 			get {
-				if(_lastWriteTime == DateTime.MinValue && this.Client.HasCapability(FtpCapability.MDTMDIR)) {
+				if(base._lastWriteTime == DateTime.MinValue && this.Client.HasCapability(FtpCapability.MDTMDIR)) {
 					this.LastWriteTime = this.Client.GetLastWriteTime(string.Format("{0}/", this.FullName));
 
 					if(_lastWriteTime == DateTime.MinValue) {
@@ -241,6 +244,9 @@ namespace System.Net.FtpClient {
 			this._files = files;
 		}
 
+		/// <summary>
+		/// Clean up this object and release all of it's resources.
+		/// </summary>
 		public override void Dispose() {
 			base.Dispose();
 			this._parent = null;
@@ -248,8 +254,19 @@ namespace System.Net.FtpClient {
 			this._dirs = null;
 		}
 
+		/// <summary>
+		/// Initialize a new object representing a directory on the FTP server
+		/// </summary>
+		/// <param name="cl">The client this directory will be associated with</param>
+		/// <param name="path">The full path of the object on the server</param>
 		public FtpDirectory(FtpClient cl, string path) : base(cl, path) { }
 
+		/// <summary>
+		/// Initialize a new object representing a directory on the FTP server
+		/// </summary>
+		/// <param name="cl">The client this object is associated with</param>
+		/// <param name="parent">The parent directory (if any)</param>
+		/// <param name="listing">The file listing object that was parsed to get this object's data</param>
 		public FtpDirectory(FtpClient cl, FtpDirectory parent, FtpListItem listing)
 			: base(cl, string.Format("{0}/{1}", parent.FullName, listing.Name)) {
 			this.LastWriteTime = listing.Modify;

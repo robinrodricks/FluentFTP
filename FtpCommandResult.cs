@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 
 namespace System.Net.FtpClient {
+	/// <summary>
+	/// The information returned from the server for a given command.
+	/// </summary>
 	public class FtpCommandResult {
 		FtpResponseType _respType = FtpResponseType.None;
 		/// <summary>
@@ -61,6 +64,10 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		/// <summary>
+		/// Initalize object
+		/// </summary>
+		/// <param name="chan">The command channel this object is associated with</param>
 		public FtpCommandResult(FtpCommandChannel chan) {
 			this.ResponseType = chan.ResponseType;
 			this.ResponseMessage = chan.ResponseMessage;

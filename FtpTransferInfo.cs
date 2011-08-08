@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace System.Net.FtpClient {
+	/// <summary>
+	/// Provides upload / download progress information
+	/// </summary>
 	public class FtpTransferInfo : EventArgs {
 		FtpTransferType _xferType;
 		/// <summary>
@@ -113,6 +116,16 @@ namespace System.Net.FtpClient {
 			set { _cancel = value; }
 		}
 
+		/// <summary>
+		/// Iniatlize the FtpTransferInfo object
+		/// </summary>
+		/// <param name="type">Upload or download</param>
+		/// <param name="file">Remote object path</param>
+		/// <param name="length">Size of the object in bytes</param>
+		/// <param name="resume">Bytes resumed (if this was a resume)</param>
+		/// <param name="transferred">Bytes transfered</param>
+		/// <param name="start">The time the transfer started</param>
+		/// <param name="complete">Value indicating if the transfer is complete</param>
 		public FtpTransferInfo(FtpTransferType type, string file, long length, long resume, long transferred, DateTime start, bool complete) {
 			this.TransferType = type;
 			this.FileName = file;

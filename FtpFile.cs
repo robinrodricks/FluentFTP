@@ -3,27 +3,15 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace System.Net.FtpClient {
+	/// <summary>
+	/// A file on a FTP server
+	/// </summary>
 	public class FtpFile : FtpFileSystemObject {
 		/// <summary>
 		/// Gets a value indicating if this file exists on the server
 		/// </summary>
 		public bool Exists {
 			get { return this.Client.FileExists(this.FullName); }
-		}
-
-		/// <summary>
-		/// The size of the file
-		/// </summary>
-		public override long Length {
-			get {
-				if(_length < 0) {
-					this.Length = this.Client.GetFileSize(this.FullName);
-				}
-
-				return _length;
-			}
-
-			protected set { _length = value; }
 		}
 
 		FtpDirectory _parent = null;
@@ -205,13 +193,27 @@ namespace System.Net.FtpClient {
 			this.Parent = null;
 		}
 
+		/// <summary>
+		/// Cleans up this object's resources
+		/// </summary>
 		public override void Dispose() {
 			base.Dispose();
 			this._parent = null;
 		}
 
+		/// <summary>
+		/// Constructs a new FtpFile object
+		/// </summary>
+		/// <param name="cl">The FtpClient to associate this FtpFile with</param>
+		/// <param name="path">The remote path to the file</param>
 		public FtpFile(FtpClient cl, string path) : base(cl, path) { }
 
+		/// <summary>
+		/// Constructs a new FtpFile object
+		/// </summary>
+		/// <param name="cl">The FtpClient to associate this FtpFile with</param>
+		/// <param name="parent">The parent FtpDirectory if any</param>
+		/// <param name="listing">The FtpListItem object that was acquired from parsing flie list from the server.</param>
 		public FtpFile(FtpClient cl, FtpDirectory parent, FtpListItem listing)
 			: base(cl, string.Format("{0}/{1}", parent.FullName, listing.Name)) {
 			this.Length = listing.Size;

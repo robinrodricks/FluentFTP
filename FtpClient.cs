@@ -8,8 +8,15 @@ using System.Globalization;
 using System.IO;
 
 namespace System.Net.FtpClient {
+	/// <summary>
+	/// FtpTransferProgress delegate
+	/// </summary>
+	/// <param name="e"></param>
 	public delegate void FtpTransferProgress(FtpTransferInfo e);
 
+	/// <summary>
+	/// FtpClient library
+	/// </summary>
 	public class FtpClient : FtpCommandChannel {
 		string _username = null;
 		/// <summary>
@@ -106,17 +113,35 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		/// <summary>
+		/// Connect using the specified username and password
+		/// </summary>
+		/// <param name="username"></param>
+		/// <param name="password"></param>
 		public void Connect(string username, string password) {
 			this.Username = username;
 			this.Password = password;
 			this.Connect();
 		}
 
+		/// <summary>
+		/// Connect using the specified username and password to the specified server
+		/// </summary>
+		/// <param name="username"></param>
+		/// <param name="password"></param>
+		/// <param name="server"></param>
 		public void Connect(string username, string password, string server) {
 			this.Server = server;
 			this.Connect(username, password);
 		}
 
+		/// <summary>
+		/// Connect using the specified username and password to the specified server on the specified port
+		/// </summary>
+		/// <param name="username"></param>
+		/// <param name="password"></param>
+		/// <param name="server"></param>
+		/// <param name="port"></param>
 		public void Connect(string username, string password, string server, int port) {
 			this.Port = port;
 			this.Connect(username, password, server);
@@ -367,6 +392,11 @@ namespace System.Net.FtpClient {
 			return DateTime.MinValue;
 		}
 
+		/// <summary>
+		/// Parses the last write time values from the server
+		/// </summary>
+		/// <param name="mdtm">The string value to parse</param>
+		/// <returns>A DateTime object representing what was parsed, DateTime.MinValue if there was a failure</returns>
 		protected DateTime ParseLastWriteTime(string mdtm) {
 			string[] formats = new string[] { "yyyyMMddHHmmss", "yyyyMMddHHmmss.fff" };
 			DateTime modify = DateTime.MinValue;
@@ -587,7 +617,7 @@ namespace System.Net.FtpClient {
 		/// Opens a file for reading. If you want the file size, be sure to retrieve
 		/// it before attempting to open a file on the server.
 		/// </summary>
-		/// <param name="path"The full or relative (to the current working directory) path></param>
+		/// <param name="path">The full or relative (to the current working directory) path</param>
 		/// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
 		/// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
 		public FtpDataChannel OpenRead(string path, long rest) {
@@ -650,7 +680,7 @@ namespace System.Net.FtpClient {
 		/// Opens a file for writing. If you want the file size, be sure to retrieve
 		/// it before attempting to open a file on the server.
 		/// </summary>
-		/// <param name="path"The full or relative (to the current working directory) path></param>
+		/// <param name="path">The full or relative (to the current working directory) path</param>
 		/// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
 		/// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
 		public FtpDataChannel OpenWrite(string path, long rest) {
@@ -738,8 +768,8 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Downloads a file from the server
 		/// </summary>
-		/// <param name="remote"></param>
-		/// <param name="local"></param>
+		/// <param name="remote">The remote file to download</param>
+		/// <param name="ostream">The stream to download the file to</param>
 		public void Download(string remote, Stream ostream) {
 			this.Download(new FtpFile(this, remote), ostream, FtpTransferMode.Binary, 0);
 		}
@@ -758,7 +788,7 @@ namespace System.Net.FtpClient {
 		/// Downloads a file from the server
 		/// </summary>
 		/// <param name="remote">Remote path of the file</param>
-		/// <param name="local">Local path of the file</param>
+		/// <param name="ostream">The stream to download the file to</param>
 		/// <param name="rest">Resume location</param>
 		public void Download(string remote, Stream ostream, long rest) {
 			this.Download(new FtpFile(this, remote), ostream, FtpTransferMode.Binary, rest);
@@ -778,7 +808,7 @@ namespace System.Net.FtpClient {
 		/// Downloads a file from the server
 		/// </summary>
 		/// <param name="remote">Remote path of the file</param>
-		/// <param name="local">Local path of the file</param>
+		/// <param name="ostream">The stream to download the file to</param>
 		/// <param name="xferMode">ASCII/Binary</param>
 		public void Download(string remote, Stream ostream, FtpTransferMode xferMode) {
 			this.Download(new FtpFile(this, remote), ostream, xferMode, 0);
@@ -829,7 +859,7 @@ namespace System.Net.FtpClient {
 		/// Downloads a file from the server
 		/// </summary>
 		/// <param name="remote"></param>
-		/// <param name="local"></param>
+		/// <param name="ostream">The stream to write the file to</param>
 		public void Download(FtpFile remote, Stream ostream) {
 			this.Download(remote, ostream, FtpTransferMode.Binary, 0);
 		}
@@ -848,7 +878,7 @@ namespace System.Net.FtpClient {
 		/// Downloads a file from the server
 		/// </summary>
 		/// <param name="remote">Remote path of the file</param>
-		/// <param name="local">Local path of the file</param>
+		/// <param name="ostream">Local path of the file</param>
 		/// <param name="rest">Resume location</param>
 		public void Download(FtpFile remote, Stream ostream, long rest) {
 			this.Download(remote, ostream, FtpTransferMode.Binary, rest);
@@ -868,7 +898,7 @@ namespace System.Net.FtpClient {
 		/// Downloads a file from the server
 		/// </summary>
 		/// <param name="remote">Remote path of the file</param>
-		/// <param name="local">Local path of the file</param>
+		/// <param name="ostream">The stream to download the file to</param>
 		/// <param name="xferMode">ASCII/Binary</param>
 		public void Download(FtpFile remote, Stream ostream, FtpTransferMode xferMode) {
 			this.Download(remote, ostream, xferMode, 0);
@@ -956,7 +986,7 @@ namespace System.Net.FtpClient {
 		/// to complete the operation
 		/// </summary>
 		/// <param name="remote"></param>
-		/// <param name="ostream"></param>
+		/// <param name="local"></param>
 		/// <param name="xferMode"></param>
 		/// <param name="rest"></param>
 		/// <param name="threads"></param>
@@ -984,7 +1014,7 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Uploads a file to the server in the current working directory
 		/// </summary>
-		/// <param name="remote"></param>
+		/// <param name="local"></param>
 		public void Upload(string local) {
 			string remote = string.Format("{0}/{1}",
 				this.CurrentDirectory.FullName,
@@ -1004,8 +1034,8 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Uploads a file to the server
 		/// </summary>
+		/// <param name="istream"></param>
 		/// <param name="remote"></param>
-		/// <param name="local"></param>
 		public void Upload(Stream istream, string remote) {
 			this.Upload(istream, new FtpFile(this, remote), FtpTransferMode.Binary, 0);
 		}
@@ -1023,8 +1053,8 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Uploads a file to the server
 		/// </summary>
+		/// <param name="istream">Stream to read the file from</param>
 		/// <param name="remote">Remote path of the file</param>
-		/// <param name="local">Local path of the file</param>
 		/// <param name="rest">Resume location</param>
 		public void Upload(Stream istream, string remote, long rest) {
 			this.Upload(istream, new FtpFile(this, remote), FtpTransferMode.Binary, rest);
@@ -1043,8 +1073,8 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Uploads a file to the server
 		/// </summary>
+		/// <param name="istream">The stream to read the file from</param>
 		/// <param name="remote">Remote path of the file</param>
-		/// <param name="local">Local path of the file</param>
 		/// <param name="xferMode">ASCII/Binary</param>
 		public void Upload(Stream istream, string remote, FtpTransferMode xferMode) {
 			this.Upload(istream, new FtpFile(this, remote), xferMode, 0);
@@ -1073,8 +1103,8 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Uploads a file to the server
 		/// </summary>
+		/// <param name="istream">Stream to read the file from</param>
 		/// <param name="remote"></param>
-		/// <param name="local"></param>
 		public void Upload(Stream istream, FtpFile remote) {
 			this.Upload(istream, remote, FtpTransferMode.Binary, 0);
 		}
@@ -1092,8 +1122,8 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Uploads a file to the server
 		/// </summary>
+		/// <param name="istream">The file to upload</param>
 		/// <param name="remote">Remote path of the file</param>
-		/// <param name="local">Local path of the file</param>
 		/// <param name="rest">Resume location</param>
 		public void Upload(Stream istream, FtpFile remote, long rest) {
 			this.Upload(istream, remote, FtpTransferMode.Binary, rest);
@@ -1112,8 +1142,8 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Uploads a file to the server
 		/// </summary>
+		/// <param name="istream">The stream to upload</param>
 		/// <param name="remote">Remote path of the file</param>
-		/// <param name="local">Local path of the file</param>
 		/// <param name="xferMode">ASCII/Binary</param>
 		public void Upload(Stream istream, FtpFile remote, FtpTransferMode xferMode) {
 			this.Upload(istream, remote, xferMode, 0);
@@ -1195,22 +1225,43 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		/// <summary>
+		/// Creates a new isntance of an FtpClient
+		/// </summary>
 		public FtpClient()
 			: base() {
 			this.ConnectionReady += new FtpChannelConnected(Login);
 		}
 
+		/// <summary>
+		/// Creates a new isntance of an FtpClient
+		/// </summary>
+		/// <param name="username"></param>
+		/// <param name="password"></param>
 		public FtpClient(string username, string password)
 			: this() {
 			this.Username = username;
 			this.Password = password;
 		}
 
+		/// <summary>
+		/// Creates a new isntance of an FtpClient
+		/// </summary>
+		/// <param name="username"></param>
+		/// <param name="password"></param>
+		/// <param name="server"></param>
 		public FtpClient(string username, string password, string server)
 			: this(username, password) {
 			this.Server = server;
 		}
 
+		/// <summary>
+		/// Creates a new isntance of an FtpClient
+		/// </summary>
+		/// <param name="username"></param>
+		/// <param name="password"></param>
+		/// <param name="server"></param>
+		/// <param name="port"></param>
 		public FtpClient(string username, string password, string server, int port)
 			: this(username, password, server) {
 			this.Port = port;
