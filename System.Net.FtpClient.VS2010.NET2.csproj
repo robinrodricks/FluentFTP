@@ -45,6 +45,8 @@
     <Compile Include="FtpDataChannel.cs" />
     <Compile Include="FtpEnums.cs" />
     <Compile Include="FtpException.cs" />
+    <Compile Include="FtpFileSystemObject.cs" />
+    <Compile Include="FtpFileSystemObjectList.cs" />
     <Compile Include="FtpInvalidSslCertificate.cs" />
     <Compile Include="FtpListItem.cs" />
     <Compile Include="FtpThreadedTransfer.cs" />

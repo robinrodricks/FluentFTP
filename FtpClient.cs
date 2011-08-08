@@ -56,18 +56,18 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		public FtpDirectory CurrentDirectory {
 			get {
-				if (_currentDirectory == null) {
+				if(_currentDirectory == null) {
 					Match m;
 
 					this.LockCommandChannel();
 
 					try {
-						if (!this.Execute("PWD")) {
+						if(!this.Execute("PWD")) {
 							throw new FtpException(this.ResponseMessage);
 						}
 
 						m = Regex.Match(this.ResponseMessage, "\"(.*)\"");
-						if (!m.Success || m.Groups.Count < 2) {
+						if(!m.Success || m.Groups.Count < 2) {
 							throw new FtpException(string.Format("Failed to parse current working directory from {0}", this.ResponseMessage));
 						}
 
@@ -94,7 +94,7 @@ namespace System.Net.FtpClient {
 				try {
 					this.LockCommandChannel();
 
-					if (!this.Execute("SYST")) {
+					if(!this.Execute("SYST")) {
 						throw new FtpException(this.ResponseMessage);
 					}
 
@@ -130,18 +130,33 @@ namespace System.Net.FtpClient {
 			this.LockCommandChannel();
 
 			try {
-				if (this.Username != null) {
-					if (!this.Execute("USER {0}", this.Username)) {
-						throw new FtpException(this.ResponseMessage);
-					}
+				if(this.Username != null) {
+					// there's no reason to pipeline here if the password is null
+					if(this.EnablePipelining && this.Password != null) {
+						FtpCommandResult[] res = this.Execute(new string[] {
+							string.Format("USER {0}", this.Username),
+							string.Format("PASS {0}", this.Password)
+						});
 
-					if (this.ResponseType == FtpResponseType.PositiveIntermediate) {
-						if (this.Password == null) {
-							throw new FtpException("The server is asking for a password but it has been set.");
+						foreach(FtpCommandResult r in res) {
+							if(!r.ResponseStatus) {
+								throw new FtpException(r.ResponseMessage);
+							}
+						}
+					}
+					else {
+						if(!this.Execute("USER {0}", this.Username)) {
+							throw new FtpException(this.ResponseMessage);
 						}
 
-						if (!this.Execute("PASS {0}", this.Password)) {
-							throw new FtpException(this.ResponseMessage);
+						if(this.ResponseType == FtpResponseType.PositiveIntermediate) {
+							if(this.Password == null) {
+								throw new FtpException("The server is asking for a password but it has been set.");
+							}
+
+							if(!this.Execute("PASS {0}", this.Password)) {
+								throw new FtpException(this.ResponseMessage);
+							}
 						}
 					}
 				}
@@ -150,7 +165,7 @@ namespace System.Net.FtpClient {
 				this.UnlockCommandChannel();
 			}
 
-			this.CurrentDirectory = null;
+			this.CurrentDirectory = new FtpDirectory(this, "/");
 		}
 
 		/// <summary>
@@ -161,7 +176,7 @@ namespace System.Net.FtpClient {
 			this.LockCommandChannel();
 
 			try {
-				if (!this.Execute("NOOP")) {
+				if(!this.Execute("NOOP")) {
 					throw new FtpException(this.ResponseMessage);
 				}
 			}
@@ -186,7 +201,7 @@ namespace System.Net.FtpClient {
 		/// <param name="path">The full or relative (to the current working directory) path</param>
 		/// <returns>string array of the raw listing</returns>
 		public string[] GetRawListing(string path) {
-			if (this.HasCapability(FtpCapability.MLSD)) {
+			if(this.HasCapability(FtpCapability.MLSD)) {
 				return this.GetRawListing(path, FtpListType.MLSD);
 			}
 
@@ -203,7 +218,7 @@ namespace System.Net.FtpClient {
 			List<string> lst = new List<string>();
 			string cmd, buf;
 
-			switch (type) {
+			switch(type) {
 				case FtpListType.LIST:
 					cmd = "LIST";
 					break;
@@ -218,12 +233,12 @@ namespace System.Net.FtpClient {
 			this.LockCommandChannel();
 
 			try {
-				using (FtpDataChannel dc = this.OpenDataChannel(FtpTransferMode.ASCII)) {
-					if (!dc.Execute("{0} {1}", cmd, path)) {
+				using(FtpDataChannel dc = this.OpenDataChannel(FtpTransferMode.ASCII)) {
+					if(!dc.Execute("{0} {1}", cmd, path)) {
 						throw new FtpException(this.ResponseMessage);
 					}
 
-					while ((buf = dc.ReadLine()) != null) {
+					while((buf = dc.ReadLine()) != null) {
 						lst.Add(buf);
 					}
 				}
@@ -251,7 +266,7 @@ namespace System.Net.FtpClient {
 		/// <param name="path"></param>
 		/// <returns></returns>
 		public FtpListItem[] GetListing(string path) {
-			if (this.HasCapability(FtpCapability.MLSD)) {
+			if(this.HasCapability(FtpCapability.MLSD)) {
 				return this.GetListing(path, FtpListType.MLSD);
 			}
 
@@ -266,7 +281,38 @@ namespace System.Net.FtpClient {
 		/// <param name="type"></param>
 		/// <returns></returns>
 		public FtpListItem[] GetListing(string path, FtpListType type) {
-			return FtpListItem.ParseList(this.GetRawListing(path, type), type);
+			FtpListItem[] list = FtpListItem.ParseList(this.GetRawListing(path, type), type);
+			
+			// parsing last write time out of most LIST formats is not feasable so it's ignored.
+			// if the server supports the MDTM command and pipelining is enable, we 
+			// can go ahead and retrieve the last write time's of the files in this list.
+			if(list.Length > 0 && this.EnablePipelining && this.HasCapability(FtpCapability.MDTM)) {
+				List<FtpListItem> items = new List<FtpListItem>();
+
+				for(int i = 0; i < list.Length; i++) {
+					if(list[i].Type == FtpObjectType.File && list[i].Modify == DateTime.MinValue) {
+						items.Add(list[i]);
+					}
+				}
+
+				if(items.Count > 0) {
+					this.BeginExecute();
+
+					foreach(FtpListItem i in items) {
+						this.Execute("MDTM {0}/{1}", path, i.Name);
+					}
+
+					FtpCommandResult[] res = this.EndExecute();
+
+					for(int i = 0; i < res.Length; i++) {
+						if(res[i].ResponseStatus) {
+							items[i].Modify = this.ParseLastWriteTime(res[i].ResponseMessage);
+						}
+					}
+				}
+			}
+
+			return list;
 		}
 
 		/// <summary>
@@ -277,7 +323,7 @@ namespace System.Net.FtpClient {
 			this.LockCommandChannel();
 
 			try {
-				if (!this.Execute("CWD {0}", path)) {
+				if(!this.Execute("CWD {0}", path)) {
 					throw new FtpException(this.ResponseMessage);
 				}
 			}
@@ -298,18 +344,20 @@ namespace System.Net.FtpClient {
 			string[] formats = new string[] { "yyyyMMddHHmmss", "yyyyMMddHHmmss.fff" };
 			DateTime modify = DateTime.MinValue;
 
-			if (!this.HasCapability(FtpCapability.MDTM)) {
+			if(!this.HasCapability(FtpCapability.MDTM)) {
 				throw new NotImplementedException("The connected server does not support the MDTM command.");
 			}
 
 			this.LockCommandChannel();
 
 			try {
-				if (this.Execute("MDTM {0}", path)) {
-					if (DateTime.TryParseExact(this.ResponseMessage, formats,
+				if(this.Execute("MDTM {0}", path)) {
+					/*if(DateTime.TryParseExact(this.ResponseMessage, formats,
 						CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out modify)) {
 						return modify;
-					}
+					}*/
+
+					return this.ParseLastWriteTime(this.ResponseMessage);
 				}
 			}
 			finally {
@@ -317,6 +365,18 @@ namespace System.Net.FtpClient {
 			}
 
 			return DateTime.MinValue;
+		}
+
+		protected DateTime ParseLastWriteTime(string mdtm) {
+			string[] formats = new string[] { "yyyyMMddHHmmss", "yyyyMMddHHmmss.fff" };
+			DateTime modify = DateTime.MinValue;
+
+			if(!DateTime.TryParseExact(mdtm, formats,CultureInfo.InvariantCulture, 
+				DateTimeStyles.AssumeLocal, out modify)) {
+				modify = DateTime.MinValue;
+			}
+
+			return modify;
 		}
 
 		/// <summary>
@@ -329,21 +389,21 @@ namespace System.Net.FtpClient {
 		public long GetFileSize(string path) {
 			// prefer MLST for getting the file size because some
 			// servers won't give the file size back for large files
-			if (this.HasCapability(FtpCapability.MLST)) {
+			if(this.HasCapability(FtpCapability.MLST)) {
 				this.LockCommandChannel();
 
 				try {
-					if (!this.Execute("MLST {0}", path)) {
+					if(!this.Execute("MLST {0}", path)) {
 						throw new FtpException(this.ResponseMessage);
 					}
 
-					foreach (string s in this.Messages) {
+					foreach(string s in this.Messages) {
 						// MLST response starts with a space according to draft-ietf-ftpext-mlst-16
-						if (s.StartsWith(" ") && s.ToLower().Contains("size")) {
+						if(s.StartsWith(" ") && s.ToLower().Contains("size")) {
 							Match m = Regex.Match(s, @"Size=(\d+);", RegexOptions.IgnoreCase);
 							long size = 0;
 
-							if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
+							if(m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
 								size = 0;
 							}
 
@@ -357,7 +417,7 @@ namespace System.Net.FtpClient {
 			}
 			// used for older servers, has limitations, will error
 			// if the file size is too big.
-			else if (this.HasCapability(FtpCapability.SIZE)) {
+			else if(this.HasCapability(FtpCapability.SIZE)) {
 				long size = 0;
 				Match m;
 
@@ -366,9 +426,9 @@ namespace System.Net.FtpClient {
 				try {
 					// ignore errors, return 0 if there is one. some servers
 					// don't support large file sizes.
-					if (this.Execute("SIZE {0}", path)) {
+					if(this.Execute("SIZE {0}", path)) {
 						m = Regex.Match(this.ResponseMessage, @"(\d+)");
-						if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
+						if(m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
 							size = 0;
 						}
 					}
@@ -394,7 +454,7 @@ namespace System.Net.FtpClient {
 			this.LockCommandChannel();
 
 			try {
-				if (!this.Execute("RMD {0}", path)) {
+				if(!this.Execute("RMD {0}", path)) {
 					throw new FtpException(this.ResponseMessage);
 				}
 			}
@@ -411,7 +471,7 @@ namespace System.Net.FtpClient {
 			this.LockCommandChannel();
 
 			try {
-				if (!this.Execute("DELE {0}", path)) {
+				if(!this.Execute("DELE {0}", path)) {
 					throw new FtpException(this.ResponseMessage);
 				}
 			}
@@ -428,7 +488,7 @@ namespace System.Net.FtpClient {
 			this.LockCommandChannel();
 
 			try {
-				if (!this.Execute("MKD {0}", path)) {
+				if(!this.Execute("MKD {0}", path)) {
 					throw new FtpException(this.ResponseMessage);
 				}
 			}
@@ -443,14 +503,14 @@ namespace System.Net.FtpClient {
 		/// <param name="path"></param>
 		/// <returns></returns>
 		public FtpListItem GetObjectInfo(string path) {
-			if (this.HasCapability(FtpCapability.MLST)) {
+			if(this.HasCapability(FtpCapability.MLST)) {
 				this.LockCommandChannel();
 
 				try {
-					if (this.Execute("MLST {0}", path)) {
-						foreach (string s in this.Messages) {
+					if(this.Execute("MLST {0}", path)) {
+						foreach(string s in this.Messages) {
 							// MLST response starts with a space according to draft-ietf-ftpext-mlst-16
-							if (s.StartsWith(" ")) {
+							if(s.StartsWith(" ")) {
 								return new FtpListItem(s, FtpListType.MLST);
 							}
 						}
@@ -463,8 +523,8 @@ namespace System.Net.FtpClient {
 			else {
 				// the server doesn't support MLS* functions so
 				// we have to do it the hard and inefficient way
-				foreach (FtpListItem l in this.GetListing(Path.GetDirectoryName(path))) {
-					if (l.Name == Path.GetFileName(path)) {
+				foreach(FtpListItem l in this.GetListing(Path.GetDirectoryName(path))) {
+					if(l.Name == Path.GetFileName(path)) {
 						return l;
 					}
 				}
@@ -500,11 +560,11 @@ namespace System.Net.FtpClient {
 			this.LockCommandChannel();
 
 			try {
-				if (!this.Execute("RNFR {0}", from)) {
+				if(!this.Execute("RNFR {0}", from)) {
 					throw new FtpException(this.ResponseMessage);
 				}
 
-				if (!this.Execute("RNTO {0}", to)) {
+				if(!this.Execute("RNTO {0}", to)) {
 					throw new FtpException(this.ResponseMessage);
 				}
 			}
@@ -556,19 +616,19 @@ namespace System.Net.FtpClient {
 		public FtpDataChannel OpenRead(string path, FtpTransferMode xferMode, long rest) {
 			FtpDataChannel dc = this.OpenDataChannel(xferMode);
 
-			if (rest > 0) {
-				if (!this.HasCapability(FtpCapability.REST)) {
+			if(rest > 0) {
+				if(!this.HasCapability(FtpCapability.REST)) {
 					dc.Disconnect();
 					throw new NotImplementedException("The connected server does not support resuming.");
 				}
 
-				if (!this.Execute("REST {0}", rest)) {
+				if(!this.Execute("REST {0}", rest)) {
 					dc.Disconnect();
 					throw new FtpException(this.ResponseMessage);
 				}
 			}
 
-			if (!dc.Execute("RETR {0}", path)) {
+			if(!dc.Execute("RETR {0}", path)) {
 				dc.Disconnect();
 				throw new FtpException(this.ResponseMessage);
 			}
@@ -619,16 +679,16 @@ namespace System.Net.FtpClient {
 		public FtpDataChannel OpenWrite(string path, FtpTransferMode xferMode, long rest) {
 			FtpDataChannel dc = this.OpenDataChannel(xferMode);
 
-			if (rest > 0) {
+			if(rest > 0) {
 				this.LockCommandChannel();
 
 				try {
-					if (!this.HasCapability(FtpCapability.REST)) {
+					if(!this.HasCapability(FtpCapability.REST)) {
 						dc.Disconnect();
 						throw new NotImplementedException("The connected server does not support resuming.");
 					}
 
-					if (!this.Execute("REST {0}", rest)) {
+					if(!this.Execute("REST {0}", rest)) {
 						dc.Disconnect();
 						throw new FtpException(this.ResponseMessage);
 					}
@@ -638,7 +698,7 @@ namespace System.Net.FtpClient {
 				}
 			}
 
-			if (!dc.Execute("STOR {0}", path)) {
+			if(!dc.Execute("STOR {0}", path)) {
 				dc.Disconnect();
 				throw new FtpException(this.ResponseMessage);
 			}
@@ -651,7 +711,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="e"></param>
 		public void OnTransferProgress(FtpTransferInfo e) {
-			if (_transfer != null) {
+			if(_transfer != null) {
 				_transfer(e);
 			}
 		}
@@ -822,7 +882,7 @@ namespace System.Net.FtpClient {
 		/// <param name="xferMode"></param>
 		/// <param name="rest"></param>
 		public void Download(FtpFile remote, string local, FtpTransferMode xferMode, long rest) {
-			using (FileStream ostream = new FileStream(local, FileMode.OpenOrCreate, FileAccess.Write)) {
+			using(FileStream ostream = new FileStream(local, FileMode.OpenOrCreate, FileAccess.Write)) {
 				try {
 					this.Download(remote, ostream, xferMode, rest);
 				}
@@ -844,39 +904,39 @@ namespace System.Net.FtpClient {
 			long total = 0;
 			int read = 0;
 
-			if (remote == null) {
+			if(remote == null) {
 				throw new ArgumentException("remote is null");
 			}
 
-			if (ostream == null) {
+			if(ostream == null) {
 				throw new ArgumentException("ostream is null");
 			}
 
-			if (!ostream.CanWrite) {
+			if(!ostream.CanWrite) {
 				throw new ArgumentException("ostream is not writable");
 			}
 
-			if (rest > 0 && ostream.CanSeek) { // set reset position
+			if(rest > 0 && ostream.CanSeek) { // set reset position
 				ostream.Seek(rest, SeekOrigin.Begin);
 				total = rest;
 			}
-			else if (!ostream.CanSeek) {
+			else if(!ostream.CanSeek) {
 				rest = 0;
 			}
 
 			try {
-				using (FtpDataChannel ch = this.OpenRead(remote.FullName, xferMode, rest)) {
+				using(FtpDataChannel ch = this.OpenRead(remote.FullName, xferMode, rest)) {
 					byte[] buf = new byte[ch.RecieveBufferSize];
 					DateTime start = DateTime.Now;
 					FtpTransferInfo e = null;
 
-					while ((read = ch.Read(buf, 0, buf.Length)) > 0) {
+					while((read = ch.Read(buf, 0, buf.Length)) > 0) {
 						ostream.Write(buf, 0, read);
 						total += read;
 						e = new FtpTransferInfo(FtpTransferType.Download, remote.FullName, size, rest, total, start, false);
 
 						this.OnTransferProgress(e);
-						if (e.Cancel) {
+						if(e.Cancel) {
 							break;
 						}
 					}
@@ -901,7 +961,7 @@ namespace System.Net.FtpClient {
 		/// <param name="rest"></param>
 		/// <param name="threads"></param>
 		public void Download(FtpFile remote, string local, FtpTransferMode xferMode, long rest, int threads) {
-			using (FileStream stream = new FileStream(local, FileMode.OpenOrCreate, FileAccess.Write)) {
+			using(FileStream stream = new FileStream(local, FileMode.OpenOrCreate, FileAccess.Write)) {
 				this.Download(remote, stream, xferMode, rest, threads);
 			}
 		}
@@ -916,7 +976,7 @@ namespace System.Net.FtpClient {
 		/// <param name="rest"></param>
 		/// <param name="threads"></param>
 		public void Download(FtpFile remote, Stream ostream, FtpTransferMode xferMode, long rest, int threads) {
-			using (FtpThreadedTransfer txfer = new FtpThreadedTransfer(this)) {
+			using(FtpThreadedTransfer txfer = new FtpThreadedTransfer(this)) {
 				txfer.Download(remote, ostream, xferMode, rest, threads);
 			}
 		}
@@ -1067,7 +1127,7 @@ namespace System.Net.FtpClient {
 		/// <param name="xferMode">ASCII/Binary</param>
 		/// <param name="rest">Resume location</param>
 		public void Upload(string local, FtpFile remote, FtpTransferMode xferMode, long rest) {
-			using (FileStream istream = new FileStream(local, FileMode.Open, FileAccess.Read)) {
+			using(FileStream istream = new FileStream(local, FileMode.Open, FileAccess.Read)) {
 				try {
 					this.Upload(istream, remote, xferMode, rest);
 				}
@@ -1089,22 +1149,22 @@ namespace System.Net.FtpClient {
 			long total = 0;
 			int read = 0;
 
-			if (istream == null) {
+			if(istream == null) {
 				throw new ArgumentException("istream is null");
 			}
 
-			if (remote == null) {
+			if(remote == null) {
 				throw new ArgumentException("remote is null");
 			}
 
-			if (!istream.CanRead) {
+			if(!istream.CanRead) {
 				throw new ArgumentException("istream is not readable");
 			}
 
-			if (istream.CanSeek) {
+			if(istream.CanSeek) {
 				size = istream.Length;
 
-				if (rest > 0) { // set resume position
+				if(rest > 0) { // set resume position
 					istream.Seek(rest, SeekOrigin.Begin);
 					total = rest;
 				}
@@ -1113,18 +1173,18 @@ namespace System.Net.FtpClient {
 				rest = 0;
 			}
 
-			using (FtpDataChannel ch = this.OpenWrite(remote.FullName, xferMode, rest)) {
+			using(FtpDataChannel ch = this.OpenWrite(remote.FullName, xferMode, rest)) {
 				byte[] buf = new byte[ch.RecieveBufferSize];
 				DateTime start = DateTime.Now;
 				FtpTransferInfo e;
 
-				while ((read = istream.Read(buf, 0, buf.Length)) > 0) {
+				while((read = istream.Read(buf, 0, buf.Length)) > 0) {
 					ch.Write(buf, 0, read);
 					total += read;
 					e = new FtpTransferInfo(FtpTransferType.Upload, remote.FullName, size, rest, total, start, false);
 
 					this.OnTransferProgress(e);
-					if (e.Cancel) {
+					if(e.Cancel) {
 						break;
 					}
 				}

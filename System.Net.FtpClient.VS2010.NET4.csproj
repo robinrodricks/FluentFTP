@@ -19,7 +19,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\net4\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NET4</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET4;LINQ</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,9 +34,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Data.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FtpClient.cs" />
+    <Compile Include="FtpCommandResult.cs" />
     <Compile Include="FtpDirectory.cs" />
     <Compile Include="FtpFile.cs" />
     <Compile Include="FtpChannel.cs" />
@@ -45,10 +47,12 @@
     <Compile Include="FtpEnums.cs" />
     <Compile Include="FtpException.cs" />
     <Compile Include="FtpInvalidSslCertificate.cs" />
+    <Compile Include="FtpFileSystemObjectList.cs" />
     <Compile Include="FtpListItem.cs" />
     <Compile Include="FtpThreadedTransfer.cs" />
     <Compile Include="FtpTransferInfo.cs" />
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="FtpFileSystemObject.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -3,16 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace System.Net.FtpClient {
-	public class FtpDirectory : IDisposable {
-		FtpClient _client = null;
-		/// <summary>
-		/// The FtpClient object this directory is associated with
-		/// </summary>
-		public FtpClient Client {
-			get { return _client; }
-			private set { _client = value; }
-		}
-
+	public class FtpDirectory : FtpFileSystemObject {
 		/// <summary>
 		/// Gets a value indicating if this directory exists on the server
 		/// </summary>
@@ -20,39 +11,28 @@ namespace System.Net.FtpClient {
 			get { return this.Client.DirectoryExists(this.FullName); }
 		}
 
-		string _path = null;
 		/// <summary>
-		/// The full or relative path of this directory on the server
+		/// Directory size will always be 0.
 		/// </summary>
-		public string FullName {
-			get { return _path; }
-			set { _path = value; }
-		}
+		public override long Length {
+			get {
+				return 0;
+			}
+			protected set {
 
-		/// <summary>
-		/// The name of this directory
-		/// </summary>
-		public string Name {
-			get { return System.IO.Path.GetFileName(this.FullName); }
-			set {
-				if (this.FullName != null) {
-					this.FullName = string.Format("{0}/{1}",
-						System.IO.Path.GetDirectoryName(this.FullName), value);
-				}
 			}
 		}
 
-		DateTime _lastWriteTime = DateTime.MinValue;
 		/// <summary>
 		/// Last modification time
 		/// </summary>
-		public DateTime LastWriteTime {
+		public override DateTime LastWriteTime {
 			get {
-				if (_lastWriteTime == DateTime.MinValue && this.Client.HasCapability(FtpCapability.MDTMDIR)) {
+				if(_lastWriteTime == DateTime.MinValue && this.Client.HasCapability(FtpCapability.MDTMDIR)) {
 					this.LastWriteTime = this.Client.GetLastWriteTime(string.Format("{0}/", this.FullName));
 
-					if (_lastWriteTime == DateTime.MinValue) {
-						// remote mdtm capability for directories
+					if(_lastWriteTime == DateTime.MinValue) {
+						// remove mdtm capability for directories
 						// because this server doesn't support it
 						this.Client.RemoveCapability(FtpCapability.MDTMDIR);
 					}
@@ -60,36 +40,40 @@ namespace System.Net.FtpClient {
 
 				return _lastWriteTime;
 			}
-			private set { _lastWriteTime = value; }
+			protected set { _lastWriteTime = value; }
 		}
 
-		List<FtpDirectory> _dirs = null;
+		FtpFileSystemObjectList<FtpDirectory> _dirs = null;
 		/// <summary>
 		/// A list of directories within this directory
 		/// </summary>
 		public FtpDirectory[] Directories {
 			get {
-				if (this._dirs == null) {
-					this._dirs = new List<FtpDirectory>();
+				if(this._dirs == null) {
+					this._dirs = new FtpFileSystemObjectList<FtpDirectory>();
 					this.LoadListing();
 				}
 
-				return _dirs.ToArray();
+				// .net 2 solution requires me to cast these
+				// but the .net 4 solution doesn't?
+				return (FtpDirectory[])_dirs.ToArray();
 			}
 		}
 
-		List<FtpFile> _files = null;
+		FtpFileSystemObjectList<FtpFile> _files = null;
 		/// <summary>
 		/// A list of files within this directory
 		/// </summary>
 		public FtpFile[] Files {
 			get {
-				if (this._files == null) {
-					this._files = new List<FtpFile>();
+				if(this._files == null) {
+					this._files = new FtpFileSystemObjectList<FtpFile>();
 					this.LoadListing();
 				}
 
-				return _files.ToArray();
+				// .net 2 solution requires me to cast these
+				// but the .net 4 solution doesn't?
+				return (FtpFile[])_files.ToArray();
 			}
 		}
 
@@ -99,7 +83,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		public FtpDirectory Parent {
 			get {
-				if (_parent == null && this.FullName != "/") {
+				if(_parent == null && this.FullName != "/") {
 					_parent = new FtpDirectory(this.Client, System.IO.Path.GetDirectoryName(this.FullName));
 				}
 
@@ -127,7 +111,7 @@ namespace System.Net.FtpClient {
 		public void Delete(FtpFile file) {
 			this.Client.RemoveFile(file.FullName);
 
-			if (this._files.Contains(file)) {
+			if(this._files.Contains(file)) {
 				this._files.Remove(file);
 #if DEBUG
 				System.Diagnostics.Debug.WriteLine(string.Format("Removed {0} from my file list!", file.FullName));
@@ -151,15 +135,15 @@ namespace System.Net.FtpClient {
 		/// <param name="dir"></param>
 		/// <param name="recursive"></param>
 		public void Delete(FtpDirectory dir, bool recursive) {
-			if (recursive) {
-				if (dir.Files.Length > 0) {
-					foreach (FtpFile f in dir.Files) {
+			if(recursive) {
+				if(dir.Files.Length > 0) {
+					foreach(FtpFile f in dir.Files) {
 						f.Delete();
 					}
 				}
 
-				if (dir.Directories.Length > 0) {
-					foreach (FtpDirectory d in dir.Directories) {
+				if(dir.Directories.Length > 0) {
+					foreach(FtpDirectory d in dir.Directories) {
 						d.Delete();
 					}
 				}
@@ -167,7 +151,7 @@ namespace System.Net.FtpClient {
 
 			this.Client.RemoveDirectory(dir.FullName);
 
-			if (this._dirs.Contains(dir)) {
+			if(this._dirs.Contains(dir)) {
 				this._dirs.Remove(dir);
 
 #if DEBUG
@@ -188,7 +172,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="recursive"></param>
 		public void Delete(bool recursive) {
-			if (this.Parent != null) {
+			if(this.Parent != null) {
 				this.Parent.Delete(this, recursive);
 			}
 			else {
@@ -227,10 +211,10 @@ namespace System.Net.FtpClient {
 		/// <param name="name"></param>
 		public FtpDirectory CreateDirectory(string name) {
 			FtpDirectory fd = new FtpDirectory(this.Client, string.Format("{0}/{1}", this.FullName, name));
-			
+
 			fd.Parent = this;
 			this.Client.CreateDirectory(string.Format("{0}/{1}", this.FullName, name));
-			if (_dirs.Count > 0) {
+			if(_dirs.Count > 0) {
 				_dirs.Add(fd);
 			}
 
@@ -241,14 +225,14 @@ namespace System.Net.FtpClient {
 		/// Loads the file and directory listing
 		/// </summary>
 		void LoadListing() {
-			List<FtpDirectory> dirs = new List<FtpDirectory>();
-			List<FtpFile> files = new List<FtpFile>();
+			FtpFileSystemObjectList<FtpDirectory> dirs = new FtpFileSystemObjectList<FtpDirectory>();
+			FtpFileSystemObjectList<FtpFile> files = new FtpFileSystemObjectList<FtpFile>();
 
-			foreach (FtpListItem i in this.Client.GetListing(this.FullName)) {
-				if (i.Type == FtpObjectType.Directory) {
+			foreach(FtpListItem i in this.Client.GetListing(this.FullName)) {
+				if(i.Type == FtpObjectType.Directory) {
 					dirs.Add(new FtpDirectory(this.Client, this, i));
 				}
-				else if (i.Type == FtpObjectType.File) {
+				else if(i.Type == FtpObjectType.File) {
 					files.Add(new FtpFile(this.Client, this, i));
 				}
 			}
@@ -257,44 +241,17 @@ namespace System.Net.FtpClient {
 			this._files = files;
 		}
 
-		string CleanPath(string path) {
-			path = path.Replace('\\', '/');
-			return System.Text.RegularExpressions.Regex.Replace(path, @"/+", "/");
+		public override void Dispose() {
+			base.Dispose();
+			this._parent = null;
+			this._files = null;
+			this._dirs = null;
 		}
 
-		void GetInfo() {
-			if (this.Client.HasCapability(FtpCapability.MLST)) {
-				if (this.Client.Execute("MLST {0}", this.FullName)) {
-					foreach (string s in this.Client.Messages) {
-						if (s.StartsWith(" ")) { // MLST response begins with space according to internet draft
-							FtpListItem i = new FtpListItem(s, FtpListType.MLST);
-							if (i.Type == FtpObjectType.Directory) {
-								this.LastWriteTime = i.Modify;
-								return;
-							}
-						}
-					}
-				}
-			}
-		}
+		public FtpDirectory(FtpClient cl, string path) : base(cl, path) { }
 
-		public void Dispose() {
-			this._files.Clear();
-			this._dirs.Clear();
-			this._client = null;
-			this._lastWriteTime = DateTime.MinValue;
-			this._path = null;
-		}
-
-		public FtpDirectory(FtpClient cl, string path) {
-			this.FullName = this.CleanPath(path);
-			this.Client = cl;
-			this.GetInfo();
-		}
-
-		public FtpDirectory(FtpClient cl, FtpDirectory parent, FtpListItem listing) {
-			this.Client = cl;
-			this.FullName = this.CleanPath(string.Format("{0}/{1}", parent.FullName, listing.Name));
+		public FtpDirectory(FtpClient cl, FtpDirectory parent, FtpListItem listing)
+			: base(cl, string.Format("{0}/{1}", parent.FullName, listing.Name)) {
 			this.LastWriteTime = listing.Modify;
 			this.Parent = parent;
 		}

@@ -33,7 +33,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		public long Size {
 			get { return _size; }
-			private set { _size = value; }
+			set { _size = value; }
 		}
 
 		DateTime _modify = DateTime.MinValue;
@@ -42,7 +42,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		public DateTime Modify {
 			get { return _modify; }
-			private set { _modify = value; }
+			set { _modify = value; }
 		}
 
 		#region LIST parsing regular expressions
