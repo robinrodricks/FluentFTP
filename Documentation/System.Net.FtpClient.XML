@@ -882,12 +882,22 @@
             <summary>
             Executes all of the commands in the pipeline list
             </summary>
-            <returns></returns>
+            <returns>An array of FtpCommandResult objects. The order of the objects relates
+            to the order that commands were executed.</returns>
         </member>
         <member name="M:System.Net.FtpClient.FtpCommandChannel.CancelPipeline">
             <summary>
             Cancels the current pipeline
             </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpCommandChannel.Execute(System.String[])">
+            <summary>
+            Pipeline the given commands on the server / regardless of the current
+            pipeline status.
+            </summary>
+            <param name="commands">If null value is passed, no attempt to execute is made but an attempt
+            to performance a response read will be made regardless.</param>
+            <returns>An array of FtpCommandResults</returns>
         </member>
         <member name="M:System.Net.FtpClient.FtpCommandChannel.Execute(System.String,System.Object[])">
             <summary>
@@ -904,15 +914,6 @@
             </summary>
             <param name="cmd"></param>
             <returns></returns>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpCommandChannel.Execute(System.String[])">
-            <summary>
-            Pipeline the given commands on the server / regardless of the current
-            pipeline status.
-            </summary>
-            <param name="commands">If null value is passed, no attempt to execute is made but an attempt
-            to performance a response read will be made regardless.</param>
-            <returns>An array of FtpCommandResults</returns>
         </member>
         <member name="M:System.Net.FtpClient.FtpCommandChannel.ReadResponse">
             <summary>
@@ -1099,6 +1100,15 @@
             <summary>
             Returns true if the last socket poll was 30 seconds ago. The last poll
             time gets updated everytime data is read or written to the socket.
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpCommandChannel.MaxPipelineExecute">
+            <summary>
+            Gets or sets the maximum number of commands that can be
+            executed at a time in a pipeline. Once this number is exceeded,
+            execution stops and the responses are read. The process repeats
+            itself until all of the pending commands have been executed. Setting
+            this value to 0 means there is no limit.
             </summary>
         </member>
         <member name="P:System.Net.FtpClient.FtpCommandChannel.ExecuteList">

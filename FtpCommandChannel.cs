@@ -295,7 +295,7 @@ namespace System.Net.FtpClient {
 					_lastSockActivity = DateTime.Now;
 				}
 
-				return _lastSockActivity; 
+				return _lastSockActivity;
 			}
 			private set { _lastSockActivity = value; }
 		}
@@ -330,6 +330,19 @@ namespace System.Net.FtpClient {
 			return true;
 		}
 
+		uint _maxExecute = 20;
+		/// <summary>
+		/// Gets or sets the maximum number of commands that can be
+		/// executed at a time in a pipeline. Once this number is exceeded,
+		/// execution stops and the responses are read. The process repeats
+		/// itself until all of the pending commands have been executed. Setting
+		/// this value to 0 means there is no limit.
+		/// </summary>
+		public uint MaxPipelineExecute {
+			get { return _maxExecute; }
+			set { _maxExecute = value; }
+		}
+
 		private List<string> _execList = new List<string>();
 		/// <summary>
 		/// Gets a list of commands in the current pipeline
@@ -359,23 +372,40 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Executes all of the commands in the pipeline list
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>An array of FtpCommandResult objects. The order of the objects relates
+		/// to the order that commands were executed.</returns>
 		public FtpCommandResult[] EndExecute() {
 			FtpCommandResult[] results = new FtpCommandResult[this.ExecuteList.Count];
+			int reslocation = 0;
 
-			for(int i = 0; i < this.ExecuteList.Count; i++) {
-				if(this.ExecuteList[i] != null) {
-					this.WriteLine(this.ExecuteList[i]);
+			this.LockCommandChannel();
+
+			try {
+				for(int i = 0; i < this.ExecuteList.Count; i++) {
+					if(this.ExecuteList[i] != null) {
+						this.WriteLine(this.ExecuteList[i]);
+
+						// check the pipeline limits
+						if(this.MaxPipelineExecute > 0 && ((i + 1) % this.MaxPipelineExecute) == 0) {
+							for(; reslocation <= i; reslocation++) {
+								this.ReadResponse();
+								results[reslocation] = new FtpCommandResult(this);
+							}
+						}
+					}
+				}
+
+				// go ahead and read the rest of the responses if there are any
+				for(; reslocation < this.ExecuteList.Count; reslocation++) {
+					this.ReadResponse();
+					results[reslocation] = new FtpCommandResult(this);
 				}
 			}
-
-			for(int i = 0; i < this.ExecuteList.Count; i++) {
-				this.ReadResponse();
-				results[i] = new FtpCommandResult(this);
+			finally {
+				this.UnlockCommandChannel();
+				this.ExecuteList.Clear();
+				this.PipelineInProgress = false;
 			}
-
-			this.ExecuteList.Clear();
-			this.PipelineInProgress = false;
 
 			return results;
 		}
@@ -386,6 +416,23 @@ namespace System.Net.FtpClient {
 		public void CancelPipeline() {
 			this.ExecuteList.Clear();
 			this.PipelineInProgress = false;
+		}
+
+		/// <summary>
+		/// Pipeline the given commands on the server / regardless of the current
+		/// pipeline status.
+		/// </summary>
+		/// <param name="commands">If null value is passed, no attempt to execute is made but an attempt
+		/// to performance a response read will be made regardless.</param>
+		/// <returns>An array of FtpCommandResults</returns>
+		public FtpCommandResult[] Execute(string[] commands) {
+			this.BeginExecute();
+
+			foreach(string cmd in commands) {
+				this.Execute(cmd);
+			}
+
+			return this.EndExecute();
 		}
 
 		/// <summary>
@@ -410,7 +457,7 @@ namespace System.Net.FtpClient {
 			}
 
 			//if(this.Socket.Poll(500000, SelectMode.SelectRead) && this.Socket.Available == 0) {
-				// we've been disconnected, probably due to inactivity
+			// we've been disconnected, probably due to inactivity
 			//	this.Connect();
 			//}
 
@@ -422,30 +469,6 @@ namespace System.Net.FtpClient {
 				this.WriteLine(cmd);
 				return this.ReadResponse();
 			}
-		}
-
-		/// <summary>
-		/// Pipeline the given commands on the server / regardless of the current
-		/// pipeline status.
-		/// </summary>
-		/// <param name="commands">If null value is passed, no attempt to execute is made but an attempt
-		/// to performance a response read will be made regardless.</param>
-		/// <returns>An array of FtpCommandResults</returns>
-		public FtpCommandResult[] Execute(string[] commands) {
-			FtpCommandResult[] results = new FtpCommandResult[commands.Length];
-
-			for(int i = 0; i < commands.Length; i++) {
-				if(commands[i] != null) {
-					this.WriteLine(commands[i]);
-				}
-			}
-
-			for(int i = 0; i < commands.Length; i++) {
-				this.ReadResponse();
-				results[i] = new FtpCommandResult(this);
-			}
-
-			return results;
 		}
 
 		/// <summary>
