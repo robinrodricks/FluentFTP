@@ -52,7 +52,7 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Gets / sets a value indicating if we can use pipelining techniques
 		/// to talk to the server. If the server allows it, this will help
-		/// improve performance on the command channel, considerably.
+		/// improve performance on the command channel with large command transactions.
 		/// </summary>
 		public bool EnablePipelining {
 			get { return _enablePipelining; }
@@ -237,6 +237,7 @@ namespace System.Net.FtpClient {
 			if(this.BaseStream != null) {
 				if(this.NeedsSocketPoll && !this.PollConnection()) {
 					// we've been disconnected, try to reconnect
+					this.Disconnect();
 					this.Connect();
 				}
 
@@ -419,11 +420,10 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
-		/// Pipeline the given commands on the server / regardless of the current
-		/// pipeline status.
+		/// Pipeline the given commands on the server
 		/// </summary>
 		/// <param name="commands">If null value is passed, no attempt to execute is made but an attempt
-		/// to performance a response read will be made regardless.</param>
+		/// to performan a response read will be made regardless.</param>
 		/// <returns>An array of FtpCommandResults</returns>
 		public FtpCommandResult[] Execute(string[] commands) {
 			this.BeginExecute();
