@@ -382,12 +382,31 @@ namespace System.Net.FtpClient {
 			this.LockCommandChannel();
 
 			try {
+                MemoryStream cmdstream = new MemoryStream();
+                byte[] buf = new byte[this.SendBufferSize];
+                int read = 0;
+
 				for(int i = 0; i < this.ExecuteList.Count; i++) {
 					if(this.ExecuteList[i] != null) {
-						this.WriteLine(this.ExecuteList[i]);
+                        //this.WriteLine(this.ExecuteList[i]);
+
+                        byte[] cmd = Encoding.ASCII.GetBytes(string.Format("{0}\r\n", this.ExecuteList[i]));
+
+#if DEBUG
+                        System.Diagnostics.Debug.WriteLine("< " + this.ExecuteList[i]);
+#endif
+						
+                        cmdstream.Write(cmd, 0, cmd.Length);
 
 						// check the pipeline limits
 						if(this.MaxPipelineExecute > 0 && ((i + 1) % this.MaxPipelineExecute) == 0) {
+                            // write the commands in blocks to the socket
+                            cmdstream.Seek(0, SeekOrigin.Begin);
+                            while ((read = cmdstream.Read(buf, 0, buf.Length)) > 0)
+                                this.Write(buf, 0, read);
+                            cmdstream.Dispose();
+                            cmdstream = new MemoryStream();
+
 							for(; reslocation <= i; reslocation++) {
 								this.ReadResponse();
 								results[reslocation] = new FtpCommandResult(this);
@@ -395,6 +414,12 @@ namespace System.Net.FtpClient {
 						}
 					}
 				}
+
+                // write the commands in blocks to the control socket
+                cmdstream.Seek(0, SeekOrigin.Begin);
+                while ((read = cmdstream.Read(buf, 0, buf.Length)) > 0)
+                    this.Write(buf, 0, read);
+                cmdstream.Dispose();
 
 				// go ahead and read the rest of the responses if there are any
 				for(; reslocation < this.ExecuteList.Count; reslocation++) {

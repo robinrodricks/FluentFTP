@@ -4,6 +4,95 @@
         <name>System.Net.FtpClient</name>
     </assembly>
     <members>
+        <member name="T:System.Net.FtpClient.FtpListItem">
+            <summary>
+            Parses MLST/MLSD and LIST formats
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpListItem.ParseListListing(System.String)">
+            <summary>
+            Parses DOS and UNIX LIST style listings
+            </summary>
+            <param name="listing"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpListItem.ParseMachineListing(System.String)">
+            <summary>
+            Parses MLST and MLSD formats
+            </summary>
+            <param name="listing"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpListItem.Parse(System.String,System.Net.FtpClient.FtpListType)">
+            <summary>
+            Parses a given listing
+            </summary>
+            <param name="listing">The single line that needs to be parsed</param>
+            <param name="type">The command that generated the line to be parsed</param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpListItem.#ctor">
+            <summary>
+            Initializes an empty parser
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpListItem.#ctor(System.String,System.Net.FtpClient.FtpListType)">
+            <summary>
+            Parses a given listing
+            </summary>
+            <param name="listing">The single line that needs to be parsed</param>
+            <param name="type">The command that generated the line to be parsed</param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpListItem.ParseList(System.String[],System.Net.FtpClient.FtpListType)">
+            <summary>
+            Parses an array of list results
+            </summary>
+            <param name="items">Array of list results</param>
+            <param name="type">The command that generated the list being parsed</param>
+            <returns></returns>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpListItem.Type">
+            <summary>
+            Gets the type of object (File/Directory/Unknown)
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpListItem.Name">
+            <summary>
+            The file/directory name from the listing
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpListItem.Size">
+            <summary>
+            The file size from the listing, default -1
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpListItem.Modify">
+            <summary>
+            The last write time from the listing
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpListItem.RegexDosFile">
+            <summary>
+            Regular expression used for matching IIS DOS style file listings
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpListItem.RegexDosDirectory">
+            <summary>
+            Regular expression used for matching IIS DOS style directory listings
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpListItem.RegexUnixDirectory">
+            <summary>
+            Regular expression used for matching UNIX directory listings
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpListItem.RegexUnixFile">
+            <summary>
+            Regular expression used for matching UNIX file listings
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpListItem.RegexUnixLink">
+            <summary>
+            Regular expression used for matching UNIX symbolic link listings
+            </summary>
+        </member>
         <member name="T:System.Net.FtpClient.FtpResponseType">
             <summary>
             The type of response the server responded with
@@ -227,101 +316,18 @@
             SSL/TLS is implied upon the initial connection.
             </summary>
         </member>
-        <member name="T:System.Net.FtpClient.FtpFileSystemObject">
+        <member name="T:System.Net.FtpClient.ResponseReceived">
             <summary>
-            Base class for remote file system objects
+            ResponseReceived delegate
             </summary>
+            <param name="status">Status number</param>
+            <param name="response">Status message</param>
         </member>
-        <member name="F:System.Net.FtpClient.FtpFileSystemObject._length">
+        <member name="T:System.Net.FtpClient.FtpCommandChannel">
             <summary>
-            The size of the object, -1 means it hasn't been loaded.
+            The communication channel for the FTP server / used for issuing commands
+            and controlling transactions.
             </summary>
-        </member>
-        <member name="F:System.Net.FtpClient.FtpFileSystemObject._lastWriteTime">
-            <summary>
-            The last write time of the object. DateTime.MinValue means
-            that is hasn't been loaded.
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFileSystemObject.GetInfo">
-            <summary>
-            Tries to load the object information
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFileSystemObject.CleanPath(System.String)">
-            <summary>
-            Fixes directory separators
-            </summary>
-            <param name="path"></param>
-            <returns></returns>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFileSystemObject.Dispose">
-            <summary>
-            Cleanup an release resources
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFileSystemObject.#ctor">
-            <summary>
-            Base constructor
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFileSystemObject.#ctor(System.Net.FtpClient.FtpClient,System.String)">
-            <summary>
-            Create new object lined to the specified client and pointing at the specified path
-            </summary>
-            <param name="client">The client to link this objec to</param>
-            <param name="path">The full path of the remote object</param>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpFileSystemObject.Client">
-            <summary>
-            The FtpClient object this directory is associated with
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpFileSystemObject.Name">
-            <summary>
-            The name of this object
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpFileSystemObject.FullName">
-            <summary>
-            The full or relative path of this directory on the server
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpFileSystemObject.Length">
-            <summary>
-            Gets the file system size of this object if
-            applicable.
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpFileSystemObject.LastWriteTime">
-            <summary>
-            Last modification time
-            </summary>
-        </member>
-        <member name="T:System.Net.FtpClient.FtpChannelConnected">
-            <summary>
-            Delegate for event
-            </summary>
-            <param name="c"></param>
-        </member>
-        <member name="T:System.Net.FtpClient.FtpChannelDisconnected">
-            <summary>
-            Delegate for event
-            </summary>
-            <param name="c"></param>
-        </member>
-        <member name="T:System.Net.FtpClient.FtpChannelDisposed">
-            <summary>
-            Delegate for event
-            </summary>
-            <param name="c"></param>
-        </member>
-        <member name="T:System.Net.FtpClient.FtpInvalidCertificate">
-            <summary>
-            Delegate for event
-            </summary>
-            <param name="c"></param>
-            <param name="e"></param>
         </member>
         <member name="T:System.Net.FtpClient.FtpChannel">
             <summary>
@@ -493,295 +499,6 @@
         <member name="P:System.Net.FtpClient.FtpChannel.Port">
             <summary>
             The port the FTP server is listening on
-            </summary>
-        </member>
-        <member name="T:System.Net.FtpClient.FtpDirectory">
-            <summary>
-            Represents a directory on a FTP server
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDirectory.Create">
-            <summary>
-            Creates this directory on the server. Exception thrown 
-            if the directory already exists.
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDirectory.Delete(System.Net.FtpClient.FtpFile)">
-            <summary>
-            Deletes the specified file and removes it from the list of files in this
-            directory if it's there
-            </summary>
-            <param name="file"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDirectory.Delete(System.Net.FtpClient.FtpDirectory)">
-            <summary>
-            Deletes the specified directory and removes it from the list of directories
-            in this directory if it's there
-            </summary>
-            <param name="dir"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDirectory.Delete(System.Net.FtpClient.FtpDirectory,System.Boolean)">
-            <summary>
-            Deletes the specified directory and removes it from the list of directories
-            in this directory if it's there
-            </summary>
-            <param name="dir"></param>
-            <param name="recursive"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDirectory.Delete">
-            <summary>
-            Delete this directory, throw exception if not empty.
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDirectory.Delete(System.Boolean)">
-            <summary>
-            Delete this directory and all files and directories beneath it
-            </summary>
-            <param name="recursive"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDirectory.DirectoryExists(System.String)">
-            <summary>
-            Checks if the specified directory exists. Will fail
-            if the server doesn't support MLST
-            </summary>
-            <param name="name"></param>
-            <returns></returns>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDirectory.FileExists(System.String)">
-            <summary>
-            Checks if the specified file exists. Will fail
-            if the server doesn't support MLST
-            </summary>
-            <param name="name"></param>
-            <returns></returns>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDirectory.CreateDirectory(System.String)">
-            <summary>
-            Creates the specified sub directory
-            </summary>
-            <param name="name"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDirectory.LoadListing">
-            <summary>
-            Loads the file and directory listing
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDirectory.Dispose">
-            <summary>
-            Clean up this object and release all of it's resources.
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDirectory.#ctor(System.Net.FtpClient.FtpClient,System.String)">
-            <summary>
-            Initialize a new object representing a directory on the FTP server
-            </summary>
-            <param name="cl">The client this directory will be associated with</param>
-            <param name="path">The full path of the object on the server</param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDirectory.#ctor(System.Net.FtpClient.FtpClient,System.Net.FtpClient.FtpDirectory,System.Net.FtpClient.FtpListItem)">
-            <summary>
-            Initialize a new object representing a directory on the FTP server
-            </summary>
-            <param name="cl">The client this object is associated with</param>
-            <param name="parent">The parent directory (if any)</param>
-            <param name="listing">The file listing object that was parsed to get this object's data</param>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpDirectory.Exists">
-            <summary>
-            Gets a value indicating if this directory exists on the server
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpDirectory.Length">
-            <summary>
-            Directory size will always be 0.
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpDirectory.LastWriteTime">
-            <summary>
-            Last modification time
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpDirectory.Directories">
-            <summary>
-            A list of directories within this directory
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpDirectory.Files">
-            <summary>
-            A list of files within this directory
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpDirectory.Parent">
-            <summary>
-            Gets the parent directory. If this is the top level directory, this property will be null.
-            </summary>
-        </member>
-        <member name="T:System.Net.FtpClient.FtpCommandResult">
-            <summary>
-            The information returned from the server for a given command.
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpCommandResult.#ctor(System.Net.FtpClient.FtpCommandChannel)">
-            <summary>
-            Initalize object
-            </summary>
-            <param name="chan">The command channel this object is associated with</param>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpCommandResult.ResponseType">
-            <summary>
-            The type of response received from the last command executed
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpCommandResult.ResponseCode">
-            <summary>
-            The status code of the response
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpCommandResult.ResponseMessage">
-            <summary>
-            The message, if any, that the server sent with the response
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpCommandResult.Messages">
-            <summary>
-            Other informational messages sent from the server
-            that are not considered part of the response
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpCommandResult.ResponseStatus">
-            <summary>
-            General success or failure of the last command executed
-            </summary>
-        </member>
-        <member name="T:System.Net.FtpClient.FtpDataChannel">
-            <summary>
-            FTP data channel
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDataChannel.Execute(System.String,System.Object[])">
-            <summary>
-            Executes a command on the command channel and sets a status
-            in this data channel indicating if the command succeeded or failed
-            </summary>
-            <param name="cmd"></param>
-            <param name="args"></param>
-            <returns></returns>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDataChannel.ReadLine">
-            <summary>
-            Reads a line from the FTP channel socket. Use with discretion,
-            can cause the code to freeze if you're trying to read data when no data
-            is being sent.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDataChannel.Read(System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            Reads bytes off the socket
-            </summary>
-            <param name="buf"></param>
-            <param name="offset"></param>
-            <param name="size"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDataChannel.Write(System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            Writes the specified byte array to the network stream
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDataChannel.Connect">
-            <summary>
-            Connects active or passive channels
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDataChannel.Disconnect(System.Boolean)">
-            <summary>
-            Disconnects this data channel
-            </summary>
-            <param name="ignorestatus"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDataChannel.InitalizeActiveChannel">
-            <summary>
-            Intializes the active channel socket
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDataChannel.ConnectActiveChannel">
-            <summary>
-            Connects the channel
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDataChannel.Dispose">
-            <summary>
-            Cleans up any resources the DataChannel was using, also
-            terminates any active connections.
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpDataChannel.#ctor(System.Net.FtpClient.FtpCommandChannel)">
-            <summary>
-            Initialize object
-            </summary>
-            <param name="cmdchan">The command channel this data channel is associated with</param>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpDataChannel.CommandChannel">
-            <summary>
-            The command channel that opened this data channel
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpDataChannel.LocalPort">
-            <summary>
-            The local port we are going out or listening on
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpDataChannel.LocalIPAddress">
-            <summary>
-            The local IP address the socket is using
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpDataChannel.RemotePort">
-            <summary>
-            The report port we are connected to
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpDataChannel.RemoteIPAddress">
-            <summary>
-            The remote IP address this socket is connected to
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpDataChannel.BaseStream">
-            <summary>
-            Base network stream, could be NetworkStream or SslStream
-            depending on if ssl is enabled.
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpDataChannel.IgnoreStatus">
-            <summary>
-            Gets a value indicating if an exception should be thrown
-            if an error response is received on the command channel
-            when disconnecting this data channel
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpDataChannel.AssociatedCommandStatus">
-            <summary>
-            Gets the status of the command associated with this data channel. If you open a
-            data channel and execute a command that succeeds, you must set this property to
-            true so that when this data channel closes the a response can be read!
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpDataChannel.SslAuthTargetHost">
-            <summary>
-            The host to validate the SSL certificate against
-            </summary>
-        </member>
-        <member name="T:System.Net.FtpClient.ResponseReceived">
-            <summary>
-            ResponseReceived delegate
-            </summary>
-            <param name="status">Status number</param>
-            <param name="response">Status message</param>
-        </member>
-        <member name="T:System.Net.FtpClient.FtpCommandChannel">
-            <summary>
-            The communication channel for the FTP server / used for issuing commands
-            and controlling transactions.
             </summary>
         </member>
         <member name="F:System.Net.FtpClient.FtpCommandChannel.mCommandLock">
@@ -1120,6 +837,254 @@
             Gets a value indicating if a pipeline has been started
             </summary>
         </member>
+        <member name="T:System.Net.FtpClient.FtpCommandResult">
+            <summary>
+            The information returned from the server for a given command.
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpCommandResult.#ctor(System.Net.FtpClient.FtpCommandChannel)">
+            <summary>
+            Initalize object
+            </summary>
+            <param name="chan">The command channel this object is associated with</param>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpCommandResult.ResponseType">
+            <summary>
+            The type of response received from the last command executed
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpCommandResult.ResponseCode">
+            <summary>
+            The status code of the response
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpCommandResult.ResponseMessage">
+            <summary>
+            The message, if any, that the server sent with the response
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpCommandResult.Messages">
+            <summary>
+            Other informational messages sent from the server
+            that are not considered part of the response
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpCommandResult.ResponseStatus">
+            <summary>
+            General success or failure of the last command executed
+            </summary>
+        </member>
+        <member name="T:System.Net.FtpClient.FtpFileSystemObject">
+            <summary>
+            Base class for remote file system objects
+            </summary>
+        </member>
+        <member name="F:System.Net.FtpClient.FtpFileSystemObject._length">
+            <summary>
+            The size of the object, -1 means it hasn't been loaded.
+            </summary>
+        </member>
+        <member name="F:System.Net.FtpClient.FtpFileSystemObject._lastWriteTime">
+            <summary>
+            The last write time of the object. DateTime.MinValue means
+            that is hasn't been loaded.
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFileSystemObject.GetInfo">
+            <summary>
+            Tries to load the object information
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFileSystemObject.CleanPath(System.String)">
+            <summary>
+            Fixes directory separators
+            </summary>
+            <param name="path"></param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFileSystemObject.Dispose">
+            <summary>
+            Cleanup an release resources
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFileSystemObject.#ctor">
+            <summary>
+            Base constructor
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFileSystemObject.#ctor(System.Net.FtpClient.FtpClient,System.String)">
+            <summary>
+            Create new object lined to the specified client and pointing at the specified path
+            </summary>
+            <param name="client">The client to link this objec to</param>
+            <param name="path">The full path of the remote object</param>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpFileSystemObject.Client">
+            <summary>
+            The FtpClient object this directory is associated with
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpFileSystemObject.Name">
+            <summary>
+            The name of this object
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpFileSystemObject.FullName">
+            <summary>
+            The full or relative path of this directory on the server
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpFileSystemObject.Length">
+            <summary>
+            Gets the file system size of this object if
+            applicable.
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpFileSystemObject.LastWriteTime">
+            <summary>
+            Last modification time
+            </summary>
+        </member>
+        <member name="T:System.Net.FtpClient.FtpException">
+            <summary>
+            FTP related error
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpException.#ctor(System.String)">
+            <summary>
+            Initializes the exception object
+            </summary>
+            <param name="message">The error message</param>
+        </member>
+        <member name="T:System.Net.FtpClient.FtpInvalidCertificateException">
+            <summary>
+            Error validating the SSL certificate of an FTP server
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpInvalidCertificateException.#ctor(System.String)">
+            <summary>
+            Initializes the exception object
+            </summary>
+            <param name="message">The error message</param>
+        </member>
+        <member name="T:System.Net.FtpClient.FtpDataChannel">
+            <summary>
+            FTP data channel
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDataChannel.Execute(System.String,System.Object[])">
+            <summary>
+            Executes a command on the command channel and sets a status
+            in this data channel indicating if the command succeeded or failed
+            </summary>
+            <param name="cmd"></param>
+            <param name="args"></param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDataChannel.ReadLine">
+            <summary>
+            Reads a line from the FTP channel socket. Use with discretion,
+            can cause the code to freeze if you're trying to read data when no data
+            is being sent.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDataChannel.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Reads bytes off the socket
+            </summary>
+            <param name="buf"></param>
+            <param name="offset"></param>
+            <param name="size"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDataChannel.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Writes the specified byte array to the network stream
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDataChannel.Connect">
+            <summary>
+            Connects active or passive channels
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDataChannel.Disconnect(System.Boolean)">
+            <summary>
+            Disconnects this data channel
+            </summary>
+            <param name="ignorestatus"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDataChannel.InitalizeActiveChannel">
+            <summary>
+            Intializes the active channel socket
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDataChannel.ConnectActiveChannel">
+            <summary>
+            Connects the channel
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDataChannel.Dispose">
+            <summary>
+            Cleans up any resources the DataChannel was using, also
+            terminates any active connections.
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDataChannel.#ctor(System.Net.FtpClient.FtpCommandChannel)">
+            <summary>
+            Initialize object
+            </summary>
+            <param name="cmdchan">The command channel this data channel is associated with</param>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpDataChannel.CommandChannel">
+            <summary>
+            The command channel that opened this data channel
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpDataChannel.LocalPort">
+            <summary>
+            The local port we are going out or listening on
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpDataChannel.LocalIPAddress">
+            <summary>
+            The local IP address the socket is using
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpDataChannel.RemotePort">
+            <summary>
+            The report port we are connected to
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpDataChannel.RemoteIPAddress">
+            <summary>
+            The remote IP address this socket is connected to
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpDataChannel.BaseStream">
+            <summary>
+            Base network stream, could be NetworkStream or SslStream
+            depending on if ssl is enabled.
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpDataChannel.IgnoreStatus">
+            <summary>
+            Gets a value indicating if an exception should be thrown
+            if an error response is received on the command channel
+            when disconnecting this data channel
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpDataChannel.AssociatedCommandStatus">
+            <summary>
+            Gets the status of the command associated with this data channel. If you open a
+            data channel and execute a command that succeeds, you must set this property to
+            true so that when this data channel closes the a response can be read!
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpDataChannel.SslAuthTargetHost">
+            <summary>
+            The host to validate the SSL certificate against
+            </summary>
+        </member>
         <member name="T:System.Net.FtpClient.FtpTransferInfo">
             <summary>
             Provides upload / download progress information
@@ -1219,94 +1184,487 @@
             The SSL certificate that failed verification
             </summary>
         </member>
-        <member name="T:System.Net.FtpClient.FtpListItem">
+        <member name="T:System.Net.FtpClient.FtpChannelConnected">
             <summary>
-            Parses MLST/MLSD and LIST formats
+            Delegate for event
+            </summary>
+            <param name="c"></param>
+        </member>
+        <member name="T:System.Net.FtpClient.FtpChannelDisconnected">
+            <summary>
+            Delegate for event
+            </summary>
+            <param name="c"></param>
+        </member>
+        <member name="T:System.Net.FtpClient.FtpChannelDisposed">
+            <summary>
+            Delegate for event
+            </summary>
+            <param name="c"></param>
+        </member>
+        <member name="T:System.Net.FtpClient.FtpInvalidCertificate">
+            <summary>
+            Delegate for event
+            </summary>
+            <param name="c"></param>
+            <param name="e"></param>
+        </member>
+        <member name="T:System.Net.FtpClient.FtpFile">
+            <summary>
+            A file on a FTP server
             </summary>
         </member>
-        <member name="M:System.Net.FtpClient.FtpListItem.ParseListListing(System.String)">
+        <member name="M:System.Net.FtpClient.FtpFile.OpenRead">
             <summary>
-            Parses DOS and UNIX LIST style listings
+            Opens this file for reading
             </summary>
-            <param name="listing"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpListItem.ParseMachineListing(System.String)">
-            <summary>
-            Parses MLST and MLSD formats
-            </summary>
-            <param name="listing"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpListItem.Parse(System.String,System.Net.FtpClient.FtpListType)">
-            <summary>
-            Parses a given listing
-            </summary>
-            <param name="listing">The single line that needs to be parsed</param>
-            <param name="type">The command that generated the line to be parsed</param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpListItem.#ctor">
-            <summary>
-            Initializes an empty parser
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpListItem.#ctor(System.String,System.Net.FtpClient.FtpListType)">
-            <summary>
-            Parses a given listing
-            </summary>
-            <param name="listing">The single line that needs to be parsed</param>
-            <param name="type">The command that generated the line to be parsed</param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpListItem.ParseList(System.String[],System.Net.FtpClient.FtpListType)">
-            <summary>
-            Parses an array of list results
-            </summary>
-            <param name="items">Array of list results</param>
-            <param name="type">The command that generated the list being parsed</param>
             <returns></returns>
         </member>
-        <member name="P:System.Net.FtpClient.FtpListItem.Type">
+        <member name="M:System.Net.FtpClient.FtpFile.OpenRead(System.Int64)">
             <summary>
-            Gets the type of object (File/Directory/Unknown)
+            Opens this file for reading
+            </summary>
+            <param name="rest"></param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.OpenRead(System.Net.FtpClient.FtpTransferMode)">
+            <summary>
+            Opens this file for reading
+            </summary>
+            <param name="mode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.OpenRead(System.Net.FtpClient.FtpTransferMode,System.Int64)">
+            <summary>
+            Opens this file for reading
+            </summary>
+            <param name="mode"></param>
+            <param name="rest"></param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.OpenWrite">
+            <summary>
+            Opens this file for writing
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.OpenWrite(System.Int64)">
+            <summary>
+            Opens this file for writing
+            </summary>
+            <param name="rest"></param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.OpenWrite(System.Net.FtpClient.FtpTransferMode)">
+            <summary>
+            Opens this file for writing
+            </summary>
+            <param name="mode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.OpenWrite(System.Net.FtpClient.FtpTransferMode,System.Int64)">
+            <summary>
+            Opens this file for writing
+            </summary>
+            <param name="mode"></param>
+            <param name="rest"></param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.Download">
+            <summary>
+            Download this file to the current working directory
             </summary>
         </member>
-        <member name="P:System.Net.FtpClient.FtpListItem.Name">
+        <member name="M:System.Net.FtpClient.FtpFile.Download(System.String)">
             <summary>
-            The file/directory name from the listing
+            Download this file
+            </summary>
+            <param name="local">Local path</param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.Download(System.String,System.Int64)">
+            <summary>
+            Download this file
+            </summary>
+            <param name="local">Local path</param>
+            <param name="rest">Restart position</param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.Download(System.String,System.Net.FtpClient.FtpTransferMode)">
+            <summary>
+            Download this file
+            </summary>
+            <param name="local">Local path</param>
+            <param name="xferMode">ASCII/Binary</param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.Download(System.String,System.Net.FtpClient.FtpTransferMode,System.Int64)">
+            <summary>
+            Download this file
+            </summary>
+            <param name="local">Local path</param>
+            <param name="xferMode">ASCII/Binary</param>
+            <param name="rest">Restart location</param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.Upload(System.String)">
+            <summary>
+            Uploads the specified file
+            </summary>
+            <param name="local"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.Upload(System.String,System.Int64)">
+            <summary>
+            Uploads the specified file 
+            </summary>
+            <param name="local"></param>
+            <param name="rest"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.Upload(System.String,System.Net.FtpClient.FtpTransferMode)">
+            <summary>
+            Uploads the specified file
+            </summary>
+            <param name="local"></param>
+            <param name="xferMode"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.Upload(System.String,System.Net.FtpClient.FtpTransferMode,System.Int64)">
+            <summary>
+            Uploads the specified file
+            </summary>
+            <param name="local"></param>
+            <param name="xferMode"></param>
+            <param name="rest"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.Delete">
+            <summary>
+            Delete this file
             </summary>
         </member>
-        <member name="P:System.Net.FtpClient.FtpListItem.Size">
+        <member name="M:System.Net.FtpClient.FtpFile.Dispose">
             <summary>
-            The file size from the listing, default -1
+            Cleans up this object's resources
             </summary>
         </member>
-        <member name="P:System.Net.FtpClient.FtpListItem.Modify">
+        <member name="M:System.Net.FtpClient.FtpFile.#ctor(System.Net.FtpClient.FtpClient,System.String)">
             <summary>
-            The last write time from the listing
+            Constructs a new FtpFile object
+            </summary>
+            <param name="cl">The FtpClient to associate this FtpFile with</param>
+            <param name="path">The remote path to the file</param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpFile.#ctor(System.Net.FtpClient.FtpClient,System.Net.FtpClient.FtpDirectory,System.Net.FtpClient.FtpListItem)">
+            <summary>
+            Constructs a new FtpFile object
+            </summary>
+            <param name="cl">The FtpClient to associate this FtpFile with</param>
+            <param name="parent">The parent FtpDirectory if any</param>
+            <param name="listing">The FtpListItem object that was acquired from parsing flie list from the server.</param>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpFile.Exists">
+            <summary>
+            Gets a value indicating if this file exists on the server
             </summary>
         </member>
-        <member name="P:System.Net.FtpClient.FtpListItem.RegexDosFile">
+        <member name="P:System.Net.FtpClient.FtpFile.Parent">
             <summary>
-            Regular expression used for matching IIS DOS style file listings
+            Gets the parent directory.
             </summary>
         </member>
-        <member name="P:System.Net.FtpClient.FtpListItem.RegexDosDirectory">
+        <member name="M:System.Net.FtpClient.FtpThreadedTransferArgs.GetNextReadSize(System.Int32)">
             <summary>
-            Regular expression used for matching IIS DOS style directory listings
+            Gets the appropriate size of the next read for this chunk
+            </summary>
+            <param name="bufsize"></param>
+            <returns></returns>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpThreadedTransferArgs.ChunkSize">
+            <summary>
+            Gets the size of the chunk this thread is
+            responsible for downloading
             </summary>
         </member>
-        <member name="P:System.Net.FtpClient.FtpListItem.RegexUnixDirectory">
+        <member name="P:System.Net.FtpClient.FtpThreadedTransferArgs.Start">
             <summary>
-            Regular expression used for matching UNIX directory listings
+            Gets the starting location for this download
             </summary>
         </member>
-        <member name="P:System.Net.FtpClient.FtpListItem.RegexUnixFile">
+        <member name="P:System.Net.FtpClient.FtpThreadedTransferArgs.End">
             <summary>
-            Regular expression used for matching UNIX file listings
+            Gets the ending location for this download
             </summary>
         </member>
-        <member name="P:System.Net.FtpClient.FtpListItem.RegexUnixLink">
+        <member name="P:System.Net.FtpClient.FtpThreadedTransferArgs.Transferred">
             <summary>
-            Regular expression used for matching UNIX symbolic link listings
+            Gets the number of bytes transferred
             </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpThreadedTransferArgs.Complete">
+            <summary>
+            Gets a value indicating if this chunk has been completed
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpThreadedTransferArgs.FullPath">
+            <summary>
+            Gets the full path of the file to be transferred
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpThreadedTransferArgs.TransferMode">
+            <summary>
+            Gets the transfer mode (ASCII/Binary)
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.CheckCapabilities">
+            <summary>
+            Ensures that the server we're connecting to supports threaded downloads
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.CloneClient">
+            <summary>
+            Clones the main connection only copying connection infor and options
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.OnInvalidCertificate(System.Net.FtpClient.FtpChannel,System.Net.FtpClient.InvalidCertificateInfo)">
+            <summary>
+            Calls the invalid certificate event on the main thread's client
+            </summary>
+            <param name="c"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.Write(System.Byte[],System.Int32,System.Int64)">
+            <summary>
+            Writes the specified data to the specified position in the file
+            </summary>
+            <param name="buf"></param>
+            <param name="length"></param>
+            <param name="position"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.PreAllocateFile(System.IO.Stream)">
+            <summary>
+            Pre-Allocate file storage to make the transfer faster
+            </summary>
+            <param name="s"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.ReportProgress(System.Net.FtpClient.FtpTransferType,System.String,System.Int64)">
+            <summary>
+            Calls the TransferProgress event on the main connection
+            </summary>
+            <param name="type"></param>
+            <param name="fullname"></param>
+            <param name="read"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.AddException(System.Exception)">
+            <summary>
+            Adds an exception to the exception list
+            </summary>
+            <param name="ex"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.ThreadDownload(System.Object)">
+            <summary>
+            Worker thread for downloading a specified chunk of data
+            </summary>
+            <param name="data"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.WaitForThreads">
+            <summary>
+            Waits for all of the download threads to finish and
+            uses the NOOP command to keep the main connection alive
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.CheckExceptions">
+            <summary>
+            Checks exceptions from the other threads and combines them
+            into one exception.
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.Download(System.Net.FtpClient.FtpFile,System.String,System.Net.FtpClient.FtpTransferMode,System.Int64,System.Int32)">
+            <summary>
+            Downloads the specified file using the specified number of threads
+            </summary>
+            <param name="remote"></param>
+            <param name="local"></param>
+            <param name="mode"></param>
+            <param name="rest"></param>
+            <param name="threads"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.Download(System.Net.FtpClient.FtpFile,System.IO.Stream,System.Net.FtpClient.FtpTransferMode,System.Int64,System.Int32)">
+            <summary>
+            Downloads the specified file using the specified number of threads
+            </summary>
+            <param name="remote"></param>
+            <param name="local"></param>
+            <param name="mode"></param>
+            <param name="rest"></param>
+            <param name="threads"></param>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Client">
+            <summary>
+            The FTP client used to perform this operation
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Threads">
+            <summary>
+            The threads being used to carry out the operation
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Exceptions">
+            <summary>
+            A list of exceptions that were thrown by the work threads, if any
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Stream">
+            <summary>
+            The input or output stream depending if this is an
+            upload or download
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Cancel">
+            <summary>
+            Abort the transfer
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Start">
+            <summary>
+            Gets the time this download started
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Size">
+            <summary>
+            Gets the size of the file being transferred
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Transferred">
+            <summary>
+            Gets the number of bytes that have been transferred
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Resume">
+            <summary>
+            Gets the location this download was resumed at.
+            </summary>
+        </member>
+        <member name="T:System.Net.FtpClient.FtpDirectory">
+            <summary>
+            Represents a directory on a FTP server
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDirectory.Create">
+            <summary>
+            Creates this directory on the server. Exception thrown 
+            if the directory already exists.
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDirectory.Delete(System.Net.FtpClient.FtpFile)">
+            <summary>
+            Deletes the specified file and removes it from the list of files in this
+            directory if it's there
+            </summary>
+            <param name="file"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDirectory.Delete(System.Net.FtpClient.FtpDirectory)">
+            <summary>
+            Deletes the specified directory and removes it from the list of directories
+            in this directory if it's there
+            </summary>
+            <param name="dir"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDirectory.Delete(System.Net.FtpClient.FtpDirectory,System.Boolean)">
+            <summary>
+            Deletes the specified directory and removes it from the list of directories
+            in this directory if it's there
+            </summary>
+            <param name="dir"></param>
+            <param name="recursive"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDirectory.Delete">
+            <summary>
+            Delete this directory, throw exception if not empty.
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDirectory.Delete(System.Boolean)">
+            <summary>
+            Delete this directory and all files and directories beneath it
+            </summary>
+            <param name="recursive"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDirectory.DirectoryExists(System.String)">
+            <summary>
+            Checks if the specified directory exists. Will fail
+            if the server doesn't support MLST
+            </summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDirectory.FileExists(System.String)">
+            <summary>
+            Checks if the specified file exists. Will fail
+            if the server doesn't support MLST
+            </summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDirectory.CreateDirectory(System.String)">
+            <summary>
+            Creates the specified sub directory
+            </summary>
+            <param name="name"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDirectory.LoadListing">
+            <summary>
+            Loads the file and directory listing
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDirectory.Dispose">
+            <summary>
+            Clean up this object and release all of it's resources.
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDirectory.#ctor(System.Net.FtpClient.FtpClient,System.String)">
+            <summary>
+            Initialize a new object representing a directory on the FTP server
+            </summary>
+            <param name="cl">The client this directory will be associated with</param>
+            <param name="path">The full path of the object on the server</param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpDirectory.#ctor(System.Net.FtpClient.FtpClient,System.Net.FtpClient.FtpDirectory,System.Net.FtpClient.FtpListItem)">
+            <summary>
+            Initialize a new object representing a directory on the FTP server
+            </summary>
+            <param name="cl">The client this object is associated with</param>
+            <param name="parent">The parent directory (if any)</param>
+            <param name="listing">The file listing object that was parsed to get this object's data</param>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpDirectory.Exists">
+            <summary>
+            Gets a value indicating if this directory exists on the server
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpDirectory.Length">
+            <summary>
+            Directory size will always be 0.
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpDirectory.LastWriteTime">
+            <summary>
+            Last modification time
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpDirectory.Directories">
+            <summary>
+            A list of directories within this directory
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpDirectory.Files">
+            <summary>
+            A list of files within this directory
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpDirectory.Parent">
+            <summary>
+            Gets the parent directory. If this is the top level directory, this property will be null.
+            </summary>
+        </member>
+        <member name="T:System.Net.FtpClient.FtpFileSystemObjectList`1">
+            <summary>
+            List of FtpFileSystemObject's
+            </summary>
+            <typeparam name="FtpFileSystemObject">FtpFile / FtpDirectory</typeparam>
         </member>
         <member name="T:System.Net.FtpClient.FtpTransferProgress">
             <summary>
@@ -1904,364 +2262,6 @@
         <member name="P:System.Net.FtpClient.FtpClient.System">
             <summary>
             Gets the system type that we're connected to
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpThreadedTransferArgs.GetNextReadSize(System.Int32)">
-            <summary>
-            Gets the appropriate size of the next read for this chunk
-            </summary>
-            <param name="bufsize"></param>
-            <returns></returns>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransferArgs.ChunkSize">
-            <summary>
-            Gets the size of the chunk this thread is
-            responsible for downloading
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransferArgs.Start">
-            <summary>
-            Gets the starting location for this download
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransferArgs.End">
-            <summary>
-            Gets the ending location for this download
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransferArgs.Transferred">
-            <summary>
-            Gets the number of bytes transferred
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransferArgs.Complete">
-            <summary>
-            Gets a value indicating if this chunk has been completed
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransferArgs.FullPath">
-            <summary>
-            Gets the full path of the file to be transferred
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransferArgs.TransferMode">
-            <summary>
-            Gets the transfer mode (ASCII/Binary)
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.CheckCapabilities">
-            <summary>
-            Ensures that the server we're connecting to supports threaded downloads
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.CloneClient">
-            <summary>
-            Clones the main connection only copying connection infor and options
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.OnInvalidCertificate(System.Net.FtpClient.FtpChannel,System.Net.FtpClient.InvalidCertificateInfo)">
-            <summary>
-            Calls the invalid certificate event on the main thread's client
-            </summary>
-            <param name="c"></param>
-            <param name="e"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.Write(System.Byte[],System.Int32,System.Int64)">
-            <summary>
-            Writes the specified data to the specified position in the file
-            </summary>
-            <param name="buf"></param>
-            <param name="length"></param>
-            <param name="position"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.PreAllocateFile(System.IO.Stream)">
-            <summary>
-            Pre-Allocate file storage to make the transfer faster
-            </summary>
-            <param name="s"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.ReportProgress(System.Net.FtpClient.FtpTransferType,System.String,System.Int64)">
-            <summary>
-            Calls the TransferProgress event on the main connection
-            </summary>
-            <param name="type"></param>
-            <param name="fullname"></param>
-            <param name="read"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.AddException(System.Exception)">
-            <summary>
-            Adds an exception to the exception list
-            </summary>
-            <param name="ex"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.ThreadDownload(System.Object)">
-            <summary>
-            Worker thread for downloading a specified chunk of data
-            </summary>
-            <param name="data"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.WaitForThreads">
-            <summary>
-            Waits for all of the download threads to finish and
-            uses the NOOP command to keep the main connection alive
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.CheckExceptions">
-            <summary>
-            Checks exceptions from the other threads and combines them
-            into one exception.
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.Download(System.Net.FtpClient.FtpFile,System.String,System.Net.FtpClient.FtpTransferMode,System.Int64,System.Int32)">
-            <summary>
-            Downloads the specified file using the specified number of threads
-            </summary>
-            <param name="remote"></param>
-            <param name="local"></param>
-            <param name="mode"></param>
-            <param name="rest"></param>
-            <param name="threads"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpThreadedTransfer.Download(System.Net.FtpClient.FtpFile,System.IO.Stream,System.Net.FtpClient.FtpTransferMode,System.Int64,System.Int32)">
-            <summary>
-            Downloads the specified file using the specified number of threads
-            </summary>
-            <param name="remote"></param>
-            <param name="local"></param>
-            <param name="mode"></param>
-            <param name="rest"></param>
-            <param name="threads"></param>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Client">
-            <summary>
-            The FTP client used to perform this operation
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Threads">
-            <summary>
-            The threads being used to carry out the operation
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Exceptions">
-            <summary>
-            A list of exceptions that were thrown by the work threads, if any
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Stream">
-            <summary>
-            The input or output stream depending if this is an
-            upload or download
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Cancel">
-            <summary>
-            Abort the transfer
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Start">
-            <summary>
-            Gets the time this download started
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Size">
-            <summary>
-            Gets the size of the file being transferred
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Transferred">
-            <summary>
-            Gets the number of bytes that have been transferred
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpThreadedTransfer.Resume">
-            <summary>
-            Gets the location this download was resumed at.
-            </summary>
-        </member>
-        <member name="T:System.Net.FtpClient.FtpFileSystemObjectList`1">
-            <summary>
-            List of FtpFileSystemObject's
-            </summary>
-            <typeparam name="FtpFileSystemObject">FtpFile / FtpDirectory</typeparam>
-        </member>
-        <member name="T:System.Net.FtpClient.FtpException">
-            <summary>
-            FTP related error
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpException.#ctor(System.String)">
-            <summary>
-            Initializes the exception object
-            </summary>
-            <param name="message">The error message</param>
-        </member>
-        <member name="T:System.Net.FtpClient.FtpInvalidCertificateException">
-            <summary>
-            Error validating the SSL certificate of an FTP server
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpInvalidCertificateException.#ctor(System.String)">
-            <summary>
-            Initializes the exception object
-            </summary>
-            <param name="message">The error message</param>
-        </member>
-        <member name="T:System.Net.FtpClient.FtpFile">
-            <summary>
-            A file on a FTP server
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.OpenRead">
-            <summary>
-            Opens this file for reading
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.OpenRead(System.Int64)">
-            <summary>
-            Opens this file for reading
-            </summary>
-            <param name="rest"></param>
-            <returns></returns>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.OpenRead(System.Net.FtpClient.FtpTransferMode)">
-            <summary>
-            Opens this file for reading
-            </summary>
-            <param name="mode"></param>
-            <returns></returns>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.OpenRead(System.Net.FtpClient.FtpTransferMode,System.Int64)">
-            <summary>
-            Opens this file for reading
-            </summary>
-            <param name="mode"></param>
-            <param name="rest"></param>
-            <returns></returns>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.OpenWrite">
-            <summary>
-            Opens this file for writing
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.OpenWrite(System.Int64)">
-            <summary>
-            Opens this file for writing
-            </summary>
-            <param name="rest"></param>
-            <returns></returns>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.OpenWrite(System.Net.FtpClient.FtpTransferMode)">
-            <summary>
-            Opens this file for writing
-            </summary>
-            <param name="mode"></param>
-            <returns></returns>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.OpenWrite(System.Net.FtpClient.FtpTransferMode,System.Int64)">
-            <summary>
-            Opens this file for writing
-            </summary>
-            <param name="mode"></param>
-            <param name="rest"></param>
-            <returns></returns>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.Download">
-            <summary>
-            Download this file to the current working directory
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.Download(System.String)">
-            <summary>
-            Download this file
-            </summary>
-            <param name="local">Local path</param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.Download(System.String,System.Int64)">
-            <summary>
-            Download this file
-            </summary>
-            <param name="local">Local path</param>
-            <param name="rest">Restart position</param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.Download(System.String,System.Net.FtpClient.FtpTransferMode)">
-            <summary>
-            Download this file
-            </summary>
-            <param name="local">Local path</param>
-            <param name="xferMode">ASCII/Binary</param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.Download(System.String,System.Net.FtpClient.FtpTransferMode,System.Int64)">
-            <summary>
-            Download this file
-            </summary>
-            <param name="local">Local path</param>
-            <param name="xferMode">ASCII/Binary</param>
-            <param name="rest">Restart location</param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.Upload(System.String)">
-            <summary>
-            Uploads the specified file
-            </summary>
-            <param name="local"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.Upload(System.String,System.Int64)">
-            <summary>
-            Uploads the specified file 
-            </summary>
-            <param name="local"></param>
-            <param name="rest"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.Upload(System.String,System.Net.FtpClient.FtpTransferMode)">
-            <summary>
-            Uploads the specified file
-            </summary>
-            <param name="local"></param>
-            <param name="xferMode"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.Upload(System.String,System.Net.FtpClient.FtpTransferMode,System.Int64)">
-            <summary>
-            Uploads the specified file
-            </summary>
-            <param name="local"></param>
-            <param name="xferMode"></param>
-            <param name="rest"></param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.Delete">
-            <summary>
-            Delete this file
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.Dispose">
-            <summary>
-            Cleans up this object's resources
-            </summary>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.#ctor(System.Net.FtpClient.FtpClient,System.String)">
-            <summary>
-            Constructs a new FtpFile object
-            </summary>
-            <param name="cl">The FtpClient to associate this FtpFile with</param>
-            <param name="path">The remote path to the file</param>
-        </member>
-        <member name="M:System.Net.FtpClient.FtpFile.#ctor(System.Net.FtpClient.FtpClient,System.Net.FtpClient.FtpDirectory,System.Net.FtpClient.FtpListItem)">
-            <summary>
-            Constructs a new FtpFile object
-            </summary>
-            <param name="cl">The FtpClient to associate this FtpFile with</param>
-            <param name="parent">The parent FtpDirectory if any</param>
-            <param name="listing">The FtpListItem object that was acquired from parsing flie list from the server.</param>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpFile.Exists">
-            <summary>
-            Gets a value indicating if this file exists on the server
-            </summary>
-        </member>
-        <member name="P:System.Net.FtpClient.FtpFile.Parent">
-            <summary>
-            Gets the parent directory.
             </summary>
         </member>
     </members>
