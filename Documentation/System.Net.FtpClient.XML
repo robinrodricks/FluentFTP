@@ -855,6 +855,13 @@
             used for logging to a file, the console window, or what have you.
             </summary>
         </member>
+        <member name="P:System.Net.FtpClient.FtpCommandChannel.FtpLogFlushOnWrite">
+            <summary>
+            Gets or sets a value that indicates if the
+            output stream should be flushed everytime
+            a log enter is written to it.
+            </summary>
+        </member>
         <member name="T:System.Net.FtpClient.FtpCommandResult">
             <summary>
             The information returned from the server for a given command.
