@@ -45,13 +45,13 @@ namespace System.Net.FtpClient {
 			set { _modify = value; }
 		}
 
-		#region LIST parsing regular expressions
+		#region LIST parsing
 		/// <summary>
 		/// Regular expression used for matching IIS DOS style file listings
 		/// </summary>
 		Regex RegexDosFile {
 			get {
-				return new Regex(@"\d+-\d+-\d+\s+\d+:\d+\w+\s+(\d+)\s+(.*)");
+				return new Regex(@"(\d+-\d+-\d+\s+\d+:\d+\w+)\s+(\d+)\s+(.*)");
 			}
 		}
 
@@ -60,7 +60,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		Regex RegexDosDirectory {
 			get {
-				return new Regex(@"\d+-\d+-\d+\s+\d+:\d+\w+\s+<DIR>\s+(.*)");
+				return new Regex(@"(\d+-\d+-\d+\s+\d+:\d+\w+)\s+<DIR>\s+(.*)");
 			}
 		}
 
@@ -90,8 +90,7 @@ namespace System.Net.FtpClient {
 				return new Regex(@"l[\w-]{9}\s+\d+\s+[\w\d]+\s+[\w\d]+\s+(\d+)\s+\w+\s+\d+\s+\d+:?\d+\s+.*->\s+(.*)");
 			}
 		}
-		#endregion
-
+		
 		/// <summary>
 		/// Parses DOS and UNIX LIST style listings
 		/// </summary>
@@ -102,14 +101,34 @@ namespace System.Net.FtpClient {
 			m = this.RegexDosDirectory.Match(listing);
 			if (m.Success) {
 				this.Type = FtpObjectType.Directory;
-				this.Name = m.Groups[1].Value;
+				this.Name = m.Groups[2].Value;
+
+                // MDTM doesn't work on directories in all IIS
+                // implementations so we're going to take the
+                // less than accurate date time reported in the
+                // file listing command. The date time reported
+                // does not include the seconds, they're always
+                // zero in a lot of cases even when that's not
+                // the case.
+                if (!DateTime.TryParse(m.Groups[1].Value, out _modify)) {
+                    this.Modify = DateTime.MinValue;
+                }
 			}
 
 			m = this.RegexDosFile.Match(listing);
 			if (m.Success) {
 				this.Type = FtpObjectType.File;
-				this.Size = long.Parse(m.Groups[1].Value);
-				this.Name = m.Groups[2].Value;
+				this.Size = long.Parse(m.Groups[2].Value);
+				this.Name = m.Groups[3].Value;
+
+                // the modify date in the listing never
+                // seems to include the seconds, however
+                // using MDTM does. if you don't care
+                // and want to increase performance a little
+                // bit then uncomment the following code.
+                //if (!DateTime.TryParse(m.Groups[1].Value, out _modify)) {
+                //    this.Modify = DateTime.MinValue;
+                //}
 			}
 
 			m = this.RegexUnixDirectory.Match(listing);
@@ -132,9 +151,10 @@ namespace System.Net.FtpClient {
 				this.Name = m.Groups[2].Value;
 			}
 		}
+        #endregion
 
-		#region MLS* Parsing
-		/// <summary>
+        #region MLS* Parsing
+        /// <summary>
 		/// Parses MLST and MLSD formats
 		/// </summary>
 		/// <param name="listing"></param>
