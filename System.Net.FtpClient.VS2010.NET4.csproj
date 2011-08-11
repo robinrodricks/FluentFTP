@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.50727</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{B437F9C5-1BCF-4AE4-BADE-1E54B122C142}</ProjectGuid>
+    <ProjectGuid>{224AE20C-09D7-4CF7-BD5D-B61267EEF8E6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>System.Net.FtpClient</RootNamespace>
@@ -51,6 +51,7 @@
     <Compile Include="FtpFileSystemObjectList.cs" />
     <Compile Include="FtpListItem.cs" />
     <Compile Include="FtpThreadedTransfer.cs" />
+    <Compile Include="FtpTraceListener.cs" />
     <Compile Include="FtpTransferInfo.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="FtpFileSystemObject.cs" />

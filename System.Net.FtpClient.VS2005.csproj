@@ -50,6 +50,7 @@
     <Compile Include="FtpListItem.cs" />
     <Compile Include="FtpThreadedTransfer.cs" />
     <Compile Include="FtpTransferInfo.cs" />
+	<Compile Include="FtpTraceListener.cs" />
     <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

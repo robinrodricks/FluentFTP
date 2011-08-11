@@ -744,6 +744,18 @@
             Initalize a new command channel object.
             </summary>
         </member>
+        <member name="M:System.Net.FtpClient.FtpCommandChannel.WriteToLogStream(System.String)">
+            <summary>
+            Writes a message to the FTP log stream
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpCommandChannel.WriteLineToLogStream(System.String)">
+            <summary>
+            Writes a line to the FTP log stream
+            </summary>
+            <param name="message"></param>
+        </member>
         <member name="P:System.Net.FtpClient.FtpCommandChannel.SslMode">
             <summary>
             Sets the type of SSL to use when the EnableSSL property is
@@ -835,6 +847,12 @@
         <member name="P:System.Net.FtpClient.FtpCommandChannel.PipelineInProgress">
             <summary>
             Gets a value indicating if a pipeline has been started
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpCommandChannel.FtpLogStream">
+            <summary>
+            Gets or sets a stream to log FTP transactions to. Can be
+            used for logging to a file, the console window, or what have you.
             </summary>
         </member>
         <member name="T:System.Net.FtpClient.FtpCommandResult">
@@ -2262,6 +2280,11 @@
         <member name="P:System.Net.FtpClient.FtpClient.System">
             <summary>
             Gets the system type that we're connected to
+            </summary>
+        </member>
+        <member name="T:System.Net.FtpClient.FtpTraceListener">
+            <summary>
+            Adds a trace lister for System.Net.FtpClient output 
             </summary>
         </member>
     </members>

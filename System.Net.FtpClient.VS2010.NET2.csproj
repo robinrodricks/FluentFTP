@@ -51,6 +51,7 @@
     <Compile Include="FtpInvalidSslCertificate.cs" />
     <Compile Include="FtpListItem.cs" />
     <Compile Include="FtpThreadedTransfer.cs" />
+    <Compile Include="FtpTraceListener.cs" />
     <Compile Include="FtpTransferInfo.cs" />
     <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>

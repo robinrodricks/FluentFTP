@@ -126,6 +126,8 @@ namespace System.Net.FtpClient {
 
 			if (this.StreamReader != null) {
 				string buf = this.StreamReader.ReadLine();
+
+                FtpCommandChannel.WriteLineToLogStream(string.Format("> {0}", buf));
 #if DEBUG
 				Debug.WriteLine(string.Format("> {0}", buf));
 #endif

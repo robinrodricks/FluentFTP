@@ -196,6 +196,9 @@ namespace System.Net.FtpClient {
 		protected virtual string ReadLine() {
 			if(this.StreamReader != null) {
 				string buf = this.StreamReader.ReadLine();
+
+                WriteLineToLogStream(string.Format("> {0}", buf));
+
 #if DEBUG
 				Debug.WriteLine(string.Format("> {0}", buf));
 #endif
@@ -278,9 +281,21 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="data"></param>
 		protected virtual void Write(string data) {
+            string traceout = null;
+
+            if (data.ToUpper().StartsWith("PASS")) {
+                traceout = "< PASS [omitted for security]";
+            }
+            else {
+                traceout = string.Format("< {0}", data.Trim('\n').Trim('\r'));
+            }
+
+            WriteLineToLogStream(traceout);
+
 #if DEBUG
-			Debug.WriteLine(string.Format("< {0}", data.Trim('\n').Trim('\r')));
+            Debug.WriteLine(traceout);
 #endif
+
 			this.Write(Encoding.ASCII.GetBytes(data));
 		}
 
@@ -389,13 +404,23 @@ namespace System.Net.FtpClient {
 				for(int i = 0; i < this.ExecuteList.Count; i++) {
 					if(this.ExecuteList[i] != null) {
                         //this.WriteLine(this.ExecuteList[i]);
-
+                        string traceout;
                         byte[] cmd = Encoding.ASCII.GetBytes(string.Format("{0}\r\n", this.ExecuteList[i]));
 
+
+                        if (this.ExecuteList[i].ToUpper().StartsWith("PASS")) {
+                            traceout = "< PASS [omitted for security]";
+                        }
+                        else {
+                            traceout = string.Format("< {0}", this.ExecuteList[i].Trim('\n').Trim('\r'));
+                        }
+
+                        WriteLineToLogStream(traceout);
+
 #if DEBUG
-                        System.Diagnostics.Debug.WriteLine("< " + this.ExecuteList[i]);
+                        Debug.WriteLine(traceout);
 #endif
-						
+                       						
                         cmdstream.Write(cmd, 0, cmd.Length);
 
 						// check the pipeline limits
@@ -989,5 +1014,35 @@ namespace System.Net.FtpClient {
 		public FtpCommandChannel() {
 			this.ConnectionReady += new FtpChannelConnected(OnChannelConnected);
 		}
+
+        static FtpTraceListener TraceListener = new FtpTraceListener();
+        /// <summary>
+        /// Gets or sets a stream to log FTP transactions to. Can be
+        /// used for logging to a file, the console window, or what have you.
+        /// </summary>
+        public static Stream FtpLogStream {
+            get { return TraceListener.OutputStream; }
+            set { TraceListener.OutputStream = value; }
+        }
+
+        /// <summary>
+        /// Writes a message to the FTP log stream
+        /// </summary>
+        /// <param name="message"></param>
+        public static void WriteToLogStream(string message) {
+            lock (TraceListener) {
+                TraceListener.Write(message);
+            }
+        }
+
+        /// <summary>
+        /// Writes a line to the FTP log stream
+        /// </summary>
+        /// <param name="message"></param>
+        public static void WriteLineToLogStream(string message) {
+            lock (TraceListener) {
+                TraceListener.WriteLine(message);
+            }
+        }
 	}
 }
