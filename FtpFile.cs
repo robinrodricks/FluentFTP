@@ -37,7 +37,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <returns></returns>
 		public FtpDataChannel OpenRead() {
-			return this.OpenRead(FtpTransferMode.Binary, 0);
+			return this.OpenRead(FtpDataType.Binary, 0);
 		}
 
 		/// <summary>
@@ -46,7 +46,7 @@ namespace System.Net.FtpClient {
 		/// <param name="rest"></param>
 		/// <returns></returns>
 		public FtpDataChannel OpenRead(long rest) {
-			return this.OpenRead(FtpTransferMode.Binary, 0);
+			return this.OpenRead(FtpDataType.Binary, 0);
 		}
 
 		/// <summary>
@@ -54,7 +54,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="mode"></param>
 		/// <returns></returns>
-		public FtpDataChannel OpenRead(FtpTransferMode mode) {
+		public FtpDataChannel OpenRead(FtpDataType mode) {
 			return this.OpenRead(mode, 0);
 		}
 
@@ -64,7 +64,7 @@ namespace System.Net.FtpClient {
 		/// <param name="mode"></param>
 		/// <param name="rest"></param>
 		/// <returns></returns>
-		public FtpDataChannel OpenRead(FtpTransferMode mode, long rest) {
+		public FtpDataChannel OpenRead(FtpDataType mode, long rest) {
 			return this.Client.OpenRead(this.FullName, mode, rest);
 		}
 
@@ -73,7 +73,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <returns></returns>
 		public FtpDataChannel OpenWrite() {
-			return this.OpenWrite(FtpTransferMode.Binary, 0);
+			return this.OpenWrite(FtpDataType.Binary, 0);
 		}
 
 		/// <summary>
@@ -82,7 +82,7 @@ namespace System.Net.FtpClient {
 		/// <param name="rest"></param>
 		/// <returns></returns>
 		public FtpDataChannel OpenWrite(long rest) {
-			return this.OpenWrite(FtpTransferMode.Binary, 0);
+			return this.OpenWrite(FtpDataType.Binary, 0);
 		}
 
 		/// <summary>
@@ -90,7 +90,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="mode"></param>
 		/// <returns></returns>
-		public FtpDataChannel OpenWrite(FtpTransferMode mode) {
+		public FtpDataChannel OpenWrite(FtpDataType mode) {
 			return this.OpenWrite(mode, 0);
 		}
 
@@ -100,7 +100,7 @@ namespace System.Net.FtpClient {
 		/// <param name="mode"></param>
 		/// <param name="rest"></param>
 		/// <returns></returns>
-		public FtpDataChannel OpenWrite(FtpTransferMode mode, long rest) {
+		public FtpDataChannel OpenWrite(FtpDataType mode, long rest) {
 			return this.Client.OpenWrite(this.FullName, mode, rest);
 		}
 
@@ -132,19 +132,19 @@ namespace System.Net.FtpClient {
 		/// Download this file
 		/// </summary>
 		/// <param name="local">Local path</param>
-		/// <param name="xferMode">ASCII/Binary</param>
-		public void Download(string local, FtpTransferMode xferMode) {
-			this.Client.Download(this, local, xferMode);
+		/// <param name="datatype">ASCII/Binary</param>
+		public void Download(string local, FtpDataType datatype) {
+			this.Client.Download(this, local, datatype);
 		}
 
 		/// <summary>
 		/// Download this file
 		/// </summary>
 		/// <param name="local">Local path</param>
-		/// <param name="xferMode">ASCII/Binary</param>
+		/// <param name="datatype">ASCII/Binary</param>
 		/// <param name="rest">Restart location</param>
-		public void Download(string local, FtpTransferMode xferMode, long rest) {
-			this.Client.Download(this, local, xferMode, rest);
+		public void Download(string local, FtpDataType datatype, long rest) {
+			this.Client.Download(this, local, datatype, rest);
 		}
 
 		/// <summary>
@@ -168,19 +168,19 @@ namespace System.Net.FtpClient {
 		/// Uploads the specified file
 		/// </summary>
 		/// <param name="local"></param>
-		/// <param name="xferMode"></param>
-		public void Upload(string local, FtpTransferMode xferMode) {
-			this.Client.Upload(local, this, xferMode);
+		/// <param name="datatype"></param>
+		public void Upload(string local, FtpDataType datatype) {
+			this.Client.Upload(local, this, datatype);
 		}
 
 		/// <summary>
 		/// Uploads the specified file
 		/// </summary>
 		/// <param name="local"></param>
-		/// <param name="xferMode"></param>
+		/// <param name="datatype"></param>
 		/// <param name="rest"></param>
-		public void Upload(string local, FtpTransferMode xferMode, long rest) {
-			this.Client.Upload(local, this, xferMode, rest);
+		public void Upload(string local, FtpDataType datatype, long rest) {
+			this.Client.Upload(local, this, datatype, rest);
 		}
 
 		/// <summary>

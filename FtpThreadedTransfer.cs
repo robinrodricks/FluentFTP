@@ -71,16 +71,16 @@ namespace System.Net.FtpClient {
 			private set { _fileName = value; }
 		}
 
-		FtpTransferMode _mode = FtpTransferMode.Binary;
+		FtpDataType _mode = FtpDataType.Binary;
 		/// <summary>
 		/// Gets the transfer mode (ASCII/Binary)
 		/// </summary>
-		public FtpTransferMode TransferMode {
+		public FtpDataType TransferMode {
 			get { return _mode; }
 			private set { _mode = value; }
 		}
 
-		public FtpThreadedTransferArgs ( string path, FtpTransferMode mode, long start, long chunk ) {
+		public FtpThreadedTransferArgs ( string path, FtpDataType mode, long start, long chunk ) {
 			this.Start = start;
 			this.ChunkSize = chunk;
 			this.FullPath = path;
@@ -414,7 +414,7 @@ namespace System.Net.FtpClient {
 		/// <param name="mode"></param>
 		/// <param name="rest"></param>
 		/// <param name="threads"></param>
-		public void Download ( FtpFile remote, string local, FtpTransferMode mode, long rest, int threads ) {
+		public void Download ( FtpFile remote, string local, FtpDataType mode, long rest, int threads ) {
 			using ( FileStream stream = new FileStream(local, FileMode.OpenOrCreate, FileAccess.Write) ) {
 				this.Download(remote, stream, mode, rest, threads);
 			}
@@ -428,7 +428,7 @@ namespace System.Net.FtpClient {
 		/// <param name="mode"></param>
 		/// <param name="rest"></param>
 		/// <param name="threads"></param>
-		public void Download ( FtpFile remote, Stream local, FtpTransferMode mode, long rest, int threads ) {
+		public void Download ( FtpFile remote, Stream local, FtpDataType mode, long rest, int threads ) {
 			long chunk = 0; // chunk size, will reflect the resume location
 			long dsize = 0; // download size used for taking into account the resume location
 

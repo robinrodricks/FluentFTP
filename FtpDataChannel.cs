@@ -176,7 +176,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		public override void Connect() {
 			if (!this.Connected) {
-				if (this.CommandChannel.DefaultDataMode == FtpDataMode.Active) {
+				if(this.CommandChannel.DataChannelType == FtpDataChannelType.Active) {
 					this.ConnectActiveChannel();
 				}
 				else {

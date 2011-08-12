@@ -36,7 +36,7 @@ namespace System.Net.FtpClient {
 	/// <summary>
 	/// The of data channel to be used
 	/// </summary>
-	public enum FtpDataMode {
+	public enum FtpDataChannelType {
         /// <summary>
         /// PORT Command
         /// </summary>
@@ -58,7 +58,7 @@ namespace System.Net.FtpClient {
 	/// <summary>
 	/// Transfer data over data channel in ASCII or binary.
 	/// </summary>
-	public enum FtpTransferMode {
+	public enum FtpDataType {
 		/// <summary>
 		/// Transfer data as ASCII
 		/// </summary>
@@ -67,6 +67,35 @@ namespace System.Net.FtpClient {
 		/// Transfer data as binary
 		/// </summary>
 		Binary
+	}
+
+	/// <summary>
+	/// Indicates the mode to use for transfering
+	/// data between the client and server.
+	/// </summary>
+	public enum FtpDataMode {
+		/// <summary>
+		/// Default, opens a socket, transfers data and
+		/// socket is closed to indicate eof. Can leave a lot
+		/// of sockets in linger state on large transfers.
+		/// </summary>
+		Stream,
+		/// <summary>
+		/// No implemented or under development
+		/// </summary>
+		Block
+	}
+
+	/// <summary>
+	/// The type of structure to use when transferring the file.
+	/// Currently only file structure is supported, others will
+	/// be added as necessary.
+	/// </summary>
+	public enum FtpDataStructure {
+		/// <summary>
+		/// Default, no special structure, sequential bytes
+		/// </summary>
+		File
 	}
 
 	/// <summary>
