@@ -2339,5 +2339,76 @@
             Gets the parent directory.
             </summary>
         </member>
+        <member name="T:System.Net.FtpClient.FtpStream">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpStream.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="buffer"></param>
+            <param name="offset"></param>
+            <param name="count"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="buffer"></param>
+            <param name="offset"></param>
+            <param name="count"></param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpStream.SetLength(System.Int64)">
+            <summary>
+            
+            </summary>
+            <param name="value"></param>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpStream.Seek(System.Int64,System.IO.SeekOrigin)">
+            <summary>
+            
+            </summary>
+            <param name="offset"></param>
+            <param name="origin"></param>
+            <returns></returns>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpStream.Flush">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:System.Net.FtpClient.FtpStream.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpStream.Length">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpStream.Position">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpStream.CanSeek">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpStream.CanRead">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:System.Net.FtpClient.FtpStream.CanWrite">
+            <summary>
+            
+            </summary>
+        </member>
     </members>
 </doc>

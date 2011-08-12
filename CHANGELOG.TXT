@@ -13,3 +13,4 @@ Removed pipelining support from Open*DataChannel() methods to reduce
   couple of commands and thus doesn't justify complication in the code.
 Added DataChannelMode property to FtpCommandChannel for setting the default
   data transfer mode, stream or block.
+Added new classes FtpDataStream.cs and FtpPassiveStream.cs, FtpActiveStream.cs

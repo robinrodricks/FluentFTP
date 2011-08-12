@@ -547,7 +547,7 @@ namespace System.Net.FtpClient {
 		/// server to send data that is never comming.
 		/// </summary>
 		/// <returns></returns>
-		protected bool ReadResponse() {
+		public bool ReadResponse() {
 			string buf;
 			List<string> messages = new List<string>();
 
@@ -904,6 +904,22 @@ namespace System.Net.FtpClient {
 			}
 
 			return dc;
+		}
+
+		public FtpDataStream OpenDataStream(FtpDataType type, FtpDataMode mode) {
+			this.SetDataType(type);
+			this.SetDataMode(mode);
+
+			switch(this.DataChannelType) {
+				case FtpDataChannelType.Passive:
+				case FtpDataChannelType.ExtendedPassive:
+					return new FtpPassiveStream(this);
+				case FtpDataChannelType.Active:
+				case FtpDataChannelType.ExtendedActive:
+					return new FtpActiveStream(this);
+			}
+
+			throw new FtpException("Unknown data stream type " + this.DataChannelType);
 		}
 
 		/// <summary>
