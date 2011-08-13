@@ -215,6 +215,11 @@ namespace System.Net.FtpClient {
         bool CheckCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
             this.SslPolicyErrors = sslPolicyErrors;
             this.SslCertificate = certificate;
+            // we don't care if there are policy errors on
+            // this connection because if we're at the point
+            // that a data stream is being opened then it means
+            // the ssl certificate on the control connection
+            // was already accepted.
             return true;
         }
 
@@ -247,7 +252,7 @@ namespace System.Net.FtpClient {
             this._position += count;
         }
 
-        protected FtpBlockHeader BlockHeader = null;
+        private FtpBlockHeader BlockHeader = null;
 
         private void GetBlockHeader() {
             byte[] buf = new byte[3];
@@ -255,14 +260,21 @@ namespace System.Net.FtpClient {
 
             do {
                 read += this.BaseStream.Read(buf, read, buf.Length);
-            } while(read < buf.Length && read > 0) ;
+            } while (read < buf.Length && read > 0);
 
             if (read == 0) {
                 // something aint right, we should have at least got a header.
                 // check the command channel for an
                 // error response from the server.
-                if (!this.CommandChannel.ReadResponse()) {
-                    throw new FtpException(this.CommandChannel.ResponseMessage);
+                try {
+                    this.CommandChannel.LockCommandChannel();
+
+                    if (!this.CommandChannel.ReadResponse()) {
+                        throw new FtpException(this.CommandChannel.ResponseMessage);
+                    }
+                }
+                finally {
+                    this.CommandChannel.UnlockCommandChannel();
                 }
             }
 
@@ -270,7 +282,7 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// 
+        /// Read bytes off the data stream
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="offset"></param>
@@ -288,21 +300,36 @@ namespace System.Net.FtpClient {
             }
 
             if (this.DataMode == FtpDataMode.Block) {
+                // see if we need to fetch a new header
                 if (this.BlockHeader == null || (this.BlockHeader.IsBlockFinished && !this.BlockHeader.IsEndOfFile)) {
                     this.GetBlockHeader();
                 }
-                
+
+                // see if we've got the EOF marker yet
+                // if so return 0 to signal the end of the stream
                 if (this.BlockHeader.IsBlockFinished && this.BlockHeader.IsEndOfFile) {
                     // we're done! we got the EOF marker and we're at the end 
                     // of the file
-                    if (!this.CommandChannel.ReadResponse()) {
-                        throw new FtpException(this.CommandChannel.ResponseMessage);
+                    try {
+                        this.CommandChannel.LockCommandChannel();
+                        if (!this.CommandChannel.ReadResponse()) {
+                            throw new FtpException(this.CommandChannel.ResponseMessage);
+                        }
+                    }
+                    finally {
+                        this.CommandChannel.UnlockCommandChannel();
                     }
 
                     this.BlockHeader = null;
                     return 0;
                 }
 
+                // the amount of data asked for can't exceed what is
+                // in the current block otherwise we risk reading in
+                // the next header. in order to keep block mode transfers
+                // behaving like a stream, we only read what's in the
+                // current block and when it's done we'll fetch the new
+                // header
                 if (count > (this.BlockHeader.Length - this.BlockHeader.TotalRead)) {
                     count = this.BlockHeader.Length - this.BlockHeader.TotalRead;
                 }
@@ -315,8 +342,18 @@ namespace System.Net.FtpClient {
             read = this.BaseStream.Read(buffer, offset, count);
             this._position += read;
 
+            // update data block header read count
+            // so we will know when this data block
+            // is finished.
             if (this.DataMode == FtpDataMode.Block) {
                 this.BlockHeader.TotalRead += read;
+            }
+
+            // on stream mode, when we get 0 it means our
+            // transfer is done and it's time to close this
+            // socket.
+            if (read == 0 && this.DataMode == FtpDataMode.Stream) {
+                this.Close();
             }
 
             return read;
@@ -358,8 +395,14 @@ namespace System.Net.FtpClient {
                 throw new IOException("The only seek origin that is supported is SeekOrigin.Begin");
             }
 
-            if (!this.CommandChannel.Execute("REST {0}", offset)) {
-                throw new FtpException(this.CommandChannel.ResponseMessage);
+            try {
+                this.CommandChannel.LockCommandChannel();
+                if (!this.CommandChannel.Execute("REST {0}", offset)) {
+                    throw new FtpException(this.CommandChannel.ResponseMessage);
+                }
+            }
+            finally {
+                this.CommandChannel.UnlockCommandChannel();
             }
 
             this._position = offset;
@@ -381,8 +424,16 @@ namespace System.Net.FtpClient {
             if (this._socket != null) {
                 this.Socket = null;
 
-                if (this.DataMode == FtpDataMode.Stream && this.CommandChannel.Connected && !this.CommandChannel.ReadResponse()) {
-                    throw new FtpException(this.CommandChannel.ResponseMessage);
+                if (this.DataMode == FtpDataMode.Stream && this.CommandChannel.Connected) {
+                    try {
+                        this.CommandChannel.LockCommandChannel();
+                        if (!this.CommandChannel.ReadResponse()) {
+                            throw new FtpException(this.CommandChannel.ResponseMessage);
+                        }
+                    }
+                    finally {
+                        this.CommandChannel.UnlockCommandChannel();
+                    }
                 }
             }
 

@@ -161,7 +161,15 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Supports retrieving modification times on directories
 		/// </summary>
-		MDTMDIR = 128
+		MDTMDIR = 128,
+        /// <summary>
+        /// Supports block mode transfers
+        /// </summary>
+        MODE_B = 256,
+        /// <summary>
+        /// Supports stream mode transfers
+        /// </summary>
+        MODE_S = 512
 	}
 
 	/// <summary>

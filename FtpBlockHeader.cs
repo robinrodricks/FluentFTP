@@ -51,7 +51,7 @@ namespace System.Net.FtpClient {
             +--------+--------+--------+
      */
     [Flags]
-    public enum FtpBlockDescriptor : short {
+    internal enum FtpBlockDescriptor : short {
         EndOfRecord = 128,
         EndOfFile = 64,
         Errors = 32,
@@ -59,7 +59,7 @@ namespace System.Net.FtpClient {
         Empty = 0
     }
 
-    public class FtpBlockHeader {
+    internal class FtpBlockHeader {
         private FtpBlockDescriptor _desc = FtpBlockDescriptor.Empty;
         public FtpBlockDescriptor Descriptor {
             get { return _desc; }

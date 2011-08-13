@@ -3,86 +3,97 @@ using System.IO;
 using System.Text.RegularExpressions;
 
 namespace System.Net.FtpClient {
-	public class FtpPassiveStream : FtpDataStream {
-		public override bool Execute(string command) {
-            if (this.Socket.Connected) {
-                if (this.DataMode == FtpDataMode.Stream) {
-                    throw new FtpException("A command has already been executed on this data stream. You must create a new stream.");
-                }
-                else {
-                    return this.CommandChannel.Execute(command);
-                }
+    public class FtpPassiveStream : FtpDataStream {
+        public override bool Execute(string command) {
+            if (this.Socket.Connected && this.DataMode == FtpDataMode.Stream) {
+                this.Close();
             }
 
-			this.Open();
-			return this.CommandChannel.Execute(command);
-		}
+            if (!this.Socket.Connected) {
+                this.Open();
+            }
 
-		protected override void Open(FtpDataChannelType type) {
-			Match m = null;
-			string host = null;
-			int port = 0;
+            try {
+                this.CommandChannel.LockCommandChannel();
+                return this.CommandChannel.Execute(command);
+            }
+            finally {
+                this.CommandChannel.UnlockCommandChannel();
+            }
+        }
 
-			switch(type) {
-				case FtpDataChannelType.ExtendedPassive:
-					this.CommandChannel.Execute("EPSV");
-					break;
-				case FtpDataChannelType.Passive:
-					this.CommandChannel.Execute("PASV");
-					break;
-				default:
-					throw new Exception("Passive streams do not support " + type.ToString());
-			}
+        protected override void Open(FtpDataChannelType type) {
+            Match m = null;
+            string host = null;
+            int port = 0;
 
-			if(!this.CommandChannel.ResponseStatus) {
-				// if using epsv, fall back to pasv in the
-				// event the epsv command wasn't acccepted
-				if(type == FtpDataChannelType.ExtendedPassive && this.CommandChannel.ResponseType == FtpResponseType.PermanentNegativeCompletion) {
-					this.CommandChannel.RemoveCapability(FtpCapability.EPSV);
-					this.CommandChannel.RemoveCapability(FtpCapability.EPRT);
-					this.Open(FtpDataChannelType.Passive);
-					return;
-				}
-				
-				throw new FtpException(this.CommandChannel.ResponseMessage);
-			}
+            try {
+                this.CommandChannel.LockCommandChannel();
 
-			if(type == FtpDataChannelType.Passive) {
-				m = Regex.Match(this.CommandChannel.ResponseMessage, 
-					"([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)");
+                switch (type) {
+                    case FtpDataChannelType.ExtendedPassive:
+                        this.CommandChannel.Execute("EPSV");
+                        break;
+                    case FtpDataChannelType.Passive:
+                        this.CommandChannel.Execute("PASV");
+                        break;
+                    default:
+                        throw new Exception("Passive streams do not support " + type.ToString());
+                }
 
-				if(!m.Success || m.Groups.Count != 7) {
-					throw new FtpException(string.Format("Malformed PASV response: {0}", this.CommandChannel.ResponseMessage));
-				}
+                if (!this.CommandChannel.ResponseStatus) {
+                    // if using epsv, fall back to pasv in the
+                    // event the epsv command wasn't acccepted
+                    if (type == FtpDataChannelType.ExtendedPassive && this.CommandChannel.ResponseType == FtpResponseType.PermanentNegativeCompletion) {
+                        this.CommandChannel.RemoveCapability(FtpCapability.EPSV);
+                        this.CommandChannel.RemoveCapability(FtpCapability.EPRT);
+                        this.Open(FtpDataChannelType.Passive);
+                        return;
+                    }
 
-				host = string.Format("{0}.{1}.{2}.{3}", m.Groups[1].Value, 
-					m.Groups[2].Value, m.Groups[3].Value, m.Groups[4].Value);
-				port = (int.Parse(m.Groups[5].Value) << 8) + int.Parse(m.Groups[6].Value);
-			}
-			else if(type == FtpDataChannelType.ExtendedPassive) {
-				// according to RFC 2428, EPSV response must be exactly the
-				// the same as EPRT response except the first two fields MUST BE blank
-				// so that leaves us with (|||port_here|)
-				m = Regex.Match(this.CommandChannel.ResponseMessage, @"\(\|\|\|(\d+)\|\)");
-				if(!m.Success) {
-					throw new FtpException("Failed to get the EPSV port from: " + this.CommandChannel.ResponseMessage);
-				}
+                    throw new FtpException(this.CommandChannel.ResponseMessage);
+                }
 
-				host = this.CommandChannel.Server;
-				port = int.Parse(m.Groups[1].Value);
-			}
+                if (type == FtpDataChannelType.Passive) {
+                    m = Regex.Match(this.CommandChannel.ResponseMessage,
+                        "([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)");
 
-			this.Socket.Connect(host, port);
-		}
+                    if (!m.Success || m.Groups.Count != 7) {
+                        throw new FtpException(string.Format("Malformed PASV response: {0}", this.CommandChannel.ResponseMessage));
+                    }
 
-		public FtpPassiveStream(FtpCommandChannel chan, FtpDataMode mode)
-			: base() {
-			if(chan == null) {
-				throw new ArgumentNullException("chan");
-			}
+                    host = string.Format("{0}.{1}.{2}.{3}", m.Groups[1].Value,
+                        m.Groups[2].Value, m.Groups[3].Value, m.Groups[4].Value);
+                    port = (int.Parse(m.Groups[5].Value) << 8) + int.Parse(m.Groups[6].Value);
+                }
+                else if (type == FtpDataChannelType.ExtendedPassive) {
+                    // according to RFC 2428, EPSV response must be exactly the
+                    // the same as EPRT response except the first two fields MUST BE blank
+                    // so that leaves us with (|||port_here|)
+                    m = Regex.Match(this.CommandChannel.ResponseMessage, @"\(\|\|\|(\d+)\|\)");
+                    if (!m.Success) {
+                        throw new FtpException("Failed to get the EPSV port from: " + this.CommandChannel.ResponseMessage);
+                    }
 
-			this.CommandChannel = chan;
+                    host = this.CommandChannel.Server;
+                    port = int.Parse(m.Groups[1].Value);
+                }
+
+                this.Socket.Connect(host, port);
+            }
+            finally {
+                this.CommandChannel.UnlockCommandChannel();
+            }
+        }
+
+        public FtpPassiveStream(FtpCommandChannel chan, FtpDataMode mode)
+            : base() {
+            if (chan == null) {
+                throw new ArgumentNullException("chan");
+            }
+
+            this.CommandChannel = chan;
             this.DataMode = mode;
-		}
-	}
+        }
+    }
 }

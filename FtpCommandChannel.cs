@@ -654,7 +654,7 @@ namespace System.Net.FtpClient {
 				// in the FEAT list. for this reason, we assume EPSV
 				// is supported and if we get a 500 reply then we fall back
 				// to PASV.
-				this.Capabilities = FtpCapability.EPSV | FtpCapability.EPRT;
+				this.Capabilities = FtpCapability.EPSV | FtpCapability.EPRT | FtpCapability.MODE_B | FtpCapability.MODE_S;
 
 				foreach(string feat in this.Messages) {
 					if(feat.ToUpper().Contains("MLST") || feat.ToUpper().Contains("MLSD"))
@@ -701,9 +701,14 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="mode"></param>
 		protected void SetDataMode(FtpDataMode mode) {
+            if (mode == FtpDataMode.Block && !this.HasCapability(FtpCapability.MODE_B)) {
+                mode = FtpDataMode.Stream;
+            }
+
 			switch(mode) {
 				case FtpDataMode.Block:
                     if (!this.Execute("MODE B")) {
+                        this.RemoveCapability(FtpCapability.MODE_B);
                         this.SetDataMode(FtpDataMode.Stream);
                     }
 					break;
@@ -943,6 +948,10 @@ namespace System.Net.FtpClient {
 		public FtpDataStream OpenDataStream(FtpDataType type, FtpDataMode mode) {
 			this.SetDataType(type);
 			this.SetDataMode(mode);
+
+            if (!this.HasCapability(FtpCapability.MODE_B) && mode == FtpDataMode.Block) {
+                mode = FtpDataMode.Stream;
+            }
 
 			switch(this.DataChannelType) {
 				case FtpDataChannelType.Passive:

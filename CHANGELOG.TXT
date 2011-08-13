@@ -1,16 +1,27 @@
 ﻿*** 8/12/2010 - 1
 Renamed FtpTransferMode enum to FtpDataType
+
 Renamed FtpDataMode to FtpDataChannelType
+
 Renamed DefaultDataMode property of FtpCommandChannel to DataChannelType
+
 Renamed SetTransferMode() of FtpCommandChannel method to SetDataType()
+
 Added new FtpDataMode enum for Stream and Block transfers
+
 Added new FtpDataStructure enum, currently only File type structures are
   supported. If this makes no sense read RFC959 3.1.2. Data Structures.
+
 Added new SetDataMode() method FtpCommandChannel for specifying
   stream or block transfer modes.
+
 Removed pipelining support from Open*DataChannel() methods to reduce
   complication of code. Little value was added by pipelining just a
   couple of commands and thus doesn't justify complication in the code.
+
 Added DataChannelMode property to FtpCommandChannel for setting the default
   data transfer mode, stream or block.
+
 Added new classes FtpDataStream.cs and FtpPassiveStream.cs, FtpActiveStream.cs
+
+Added support for block mode reading
