@@ -695,22 +695,23 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
-		/// Set the transfer mode for the data channel
+		/// Set the transfer mode for the data channel. If block
+        /// mode is requested and it fails, stream mode is
+        /// automatically used.
 		/// </summary>
 		/// <param name="mode"></param>
 		protected void SetDataMode(FtpDataMode mode) {
 			switch(mode) {
 				case FtpDataMode.Block:
-					this.Execute("MODE B");
+                    if (!this.Execute("MODE B")) {
+                        this.SetDataMode(FtpDataMode.Stream);
+                    }
 					break;
-					//throw new NotImplementedException("Block mode transfers have not been implemented. Please use Stream.");
 				case FtpDataMode.Stream:
-					this.Execute("MODE S");
+                    if (!this.Execute("MODE S")) {
+                        throw new FtpException(this.ResponseMessage);
+                    }
 					break;
-			}
-
-			if(!this.ResponseStatus) {
-				throw new FtpException(this.ResponseMessage);
 			}
 		}
 
@@ -906,6 +907,39 @@ namespace System.Net.FtpClient {
 			return dc;
 		}
 
+        /// <summary>
+        /// Opens a binary data stream
+        /// </summary>
+        /// <returns></returns>
+        public FtpDataStream OpenDataStream() {
+            return this.OpenDataStream(FtpDataType.Binary);
+        }
+
+        /// <summary>
+        /// Opens a binary data stream
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <returns></returns>
+        public FtpDataStream OpenDataStream(FtpDataMode mode) {
+            return this.OpenDataStream(FtpDataType.Binary, mode);
+        }
+
+        /// <summary>
+        /// Opens a data stream in the format specified by type
+        /// using the DefaultChannelMode property mode.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public FtpDataStream OpenDataStream(FtpDataType type) {
+            return this.OpenDataStream(type, this.DataChannelMode);
+        }
+
+        /// <summary>
+        /// Opens a data stream using the format and mode specified
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="mode"></param>
+        /// <returns></returns>
 		public FtpDataStream OpenDataStream(FtpDataType type, FtpDataMode mode) {
 			this.SetDataType(type);
 			this.SetDataMode(mode);
