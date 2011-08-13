@@ -5,6 +5,15 @@ using System.Text.RegularExpressions;
 namespace System.Net.FtpClient {
 	public class FtpPassiveStream : FtpDataStream {
 		public override bool Execute(string command) {
+            if (this.Socket.Connected) {
+                if (this.DataMode == FtpDataMode.Stream) {
+                    throw new FtpException("A command has already been executed on this data stream. You must create a new stream.");
+                }
+                else {
+                    return this.CommandChannel.Execute(command);
+                }
+            }
+
 			this.Open();
 			return this.CommandChannel.Execute(command);
 		}
@@ -66,13 +75,14 @@ namespace System.Net.FtpClient {
 			this.Socket.Connect(host, port);
 		}
 
-		public FtpPassiveStream(FtpCommandChannel chan)
+		public FtpPassiveStream(FtpCommandChannel chan, FtpDataMode mode)
 			: base() {
 			if(chan == null) {
 				throw new ArgumentNullException("chan");
 			}
 
 			this.CommandChannel = chan;
+            this.DataMode = mode;
 		}
 	}
 }

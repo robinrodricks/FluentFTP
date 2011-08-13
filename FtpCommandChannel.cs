@@ -701,9 +701,9 @@ namespace System.Net.FtpClient {
 		protected void SetDataMode(FtpDataMode mode) {
 			switch(mode) {
 				case FtpDataMode.Block:
-					//this.Execute("MODE B");
-					//break;
-					throw new NotImplementedException("Block mode transfers have not been implemented. Please use Stream.");
+					this.Execute("MODE B");
+					break;
+					//throw new NotImplementedException("Block mode transfers have not been implemented. Please use Stream.");
 				case FtpDataMode.Stream:
 					this.Execute("MODE S");
 					break;
@@ -913,10 +913,10 @@ namespace System.Net.FtpClient {
 			switch(this.DataChannelType) {
 				case FtpDataChannelType.Passive:
 				case FtpDataChannelType.ExtendedPassive:
-					return new FtpPassiveStream(this);
+					return new FtpPassiveStream(this, mode);
 				case FtpDataChannelType.Active:
 				case FtpDataChannelType.ExtendedActive:
-					return new FtpActiveStream(this);
+					return new FtpActiveStream(this, mode);
 			}
 
 			throw new FtpException("Unknown data stream type " + this.DataChannelType);

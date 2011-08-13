@@ -6,7 +6,12 @@ namespace System.Net.FtpClient {
 	public class FtpActiveStream : FtpDataStream {
 		public override bool Execute(string command) {
 			if(this.Socket.Connected) {
-				throw new FtpException("A command has already been executed on this data stream. You must create a new stream.");
+                if (this.DataMode == FtpDataMode.Stream) {
+                    throw new FtpException("A command has already been executed on this data stream. You must create a new stream.");
+                }
+                else {
+                    return this.CommandChannel.Execute(command);
+                }
 			}
 
 			this.Open();
@@ -55,12 +60,13 @@ namespace System.Net.FtpClient {
 			}
 		}
 
-		public FtpActiveStream(FtpCommandChannel chan)
+		public FtpActiveStream(FtpCommandChannel chan, FtpDataMode mode)
 			: base() {
 			if(chan == null) {
 				throw new ArgumentNullException("chan");
 			}
 			this.CommandChannel = chan;
+            this.DataMode = mode;
 		}
 	}
 }
