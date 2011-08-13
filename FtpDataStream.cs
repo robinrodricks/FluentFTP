@@ -127,7 +127,7 @@ namespace System.Net.FtpClient {
 
         long _length = 0;
         /// <summary>
-        /// 
+        /// Gets the length of the stream
         /// </summary>
         public override long Length {
             get { return _length; }
@@ -135,7 +135,9 @@ namespace System.Net.FtpClient {
 
         long _position = 0;
         /// <summary>
-        /// 
+        /// Gets or sets the position in the stream. Once a transfer
+        /// has started, the position cannot be modified. If an attempt
+        /// is made an exception will be thrown.
         /// </summary>
         public override long Position {
             get {
@@ -151,7 +153,9 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// 
+        /// Gets a value indicating if this stream is seekable. 
+        /// If you are doing a stream mode transfer and the transfer has not
+        /// yet started you can use seeking to resume your transfer.
         /// </summary>
         public override bool CanSeek {
             get {
@@ -160,14 +164,15 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// 
+        /// Gets a value indicating if this stream can be read
         /// </summary>
         public override bool CanRead {
             get { return this.BaseStream != null ? this.BaseStream.CanRead : false; }
         }
 
         /// <summary>
-        /// 
+        /// Gets a value indicating if this stream can be
+        /// written to.
         /// </summary>
         public override bool CanWrite {
             get { return this.BaseStream != null ? this.BaseStream.CanWrite : false; }
@@ -224,7 +229,7 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// 
+        /// Validates the SSL certificate if security is in use
         /// </summary>
         void Authenticate() {
             if (this.Socket.Connected && !this.SslEnabled) {
@@ -234,7 +239,34 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// 
+        /// Writes the EOF block descriptor to
+        /// the stream if the transfer mode is block. If
+        /// the transfer mode is stream, nothing happens
+        /// at all.
+        /// </summary>
+        public void WriteEndOfFile() {
+            if (!this.CanWrite) {
+                throw new IOException("This stream is not writeable!");
+            }
+
+            if (this.BaseStream == null) {
+                throw new IOException("The base stream is null. Has a socket connection been opened yet?");
+            }
+
+            if (this.DataMode == FtpDataMode.Block) {
+                byte[] header = new byte[3];
+
+                header[0] = (byte)FtpBlockDescriptor.EndOfFile;
+                header[1] = 0;
+                header[2] = 0;
+
+                this.BaseStream.Write(header, 0, header.Length);
+            }
+        }
+
+        /// <summary>
+        /// Writes bytes to the stream. If the transfer mode is block
+        /// a block header is encoded and sent with the data.
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="offset"></param>
@@ -248,10 +280,20 @@ namespace System.Net.FtpClient {
                 throw new IOException("The base stream is null. Has a socket connection been opened yet?");
             }
 
+            if (this.DataMode == FtpDataMode.Block) {
+                byte[] header = new byte[3];
+
+                header[0] = (byte)FtpBlockDescriptor.Empty;
+                header[1] = (byte)(count & 0xFF);
+                header[2] = (byte)((count >> 8) & 0xFF);
+
+                this.BaseStream.Write(header, 0, header.Length);
+            }
+
             this.BaseStream.Write(buffer, offset, count);
             this._position += count;
         }
-
+        
         private FtpBlockHeader BlockHeader = null;
 
         private void GetBlockHeader() {
@@ -360,7 +402,7 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// 
+        /// Sets the length of the stream.
         /// </summary>
         /// <param name="value"></param>
         public override void SetLength(long value) {
@@ -377,7 +419,10 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// 
+        /// Uses the REST command to set the stream position in stream
+        /// mode transfers. If the transfer has started an exception
+        /// will be triggered because REST cannot be executed once data
+        /// has been exchanged.
         /// </summary>
         /// <param name="offset"></param>
         /// <param name="origin"></param>
@@ -385,6 +430,10 @@ namespace System.Net.FtpClient {
         public override long Seek(long offset, SeekOrigin origin) {
             if (!this.CommandChannel.HasCapability(FtpCapability.REST)) {
                 throw new FtpException("The FTP server does not support stream seeking.");
+            }
+
+            if (this.DataMode != FtpDataMode.Stream) {
+                throw new IOException("Seeking is only valid on stream mode transfers.");
             }
 
             if (this.TransferStarted) {
@@ -410,7 +459,7 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// 
+        /// Flushes the base stream
         /// </summary>
         public override void Flush() {
             if (this.BaseStream == null) {
@@ -420,6 +469,10 @@ namespace System.Net.FtpClient {
             this.BaseStream.Flush();
         }
 
+        /// <summary>
+        /// Closes the base stream and reads the response
+        /// status of the transfer if necessary.
+        /// </summary>
         public override void Close() {
             if (this._socket != null) {
                 this.Socket = null;
@@ -437,31 +490,57 @@ namespace System.Net.FtpClient {
                 }
             }
 
+            this.BlockHeader = null;
+            this._length = 0;
+            this._position = 0;
+            this._started = false;
             this.SslPolicyErrors = Security.SslPolicyErrors.None;
         }
 
+        /// <summary>
+        /// Cleans up the resources this stream is using.
+        /// </summary>
         public new void Dispose() {
             this.Close();
             base.Dispose();
         }
 
+        /// <summary>
+        /// Opens the stream
+        /// </summary>
         protected void Open() {
             if (!this.Socket.Connected) {
                 this.Open(this.CommandChannel.DataChannelType);
                 this.TransferStarted = true;
             }
         }
-
+        
+        /// <summary>
+        /// Sets up sockets and executes necessary commands to initalize
+        /// a data transfer.
+        /// </summary>
+        /// <param name="type"></param>
         protected abstract void Open(FtpDataChannelType type);
 
+        /// <summary>
+        /// Executes a command on the control channel
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="args"></param>
+        /// <returns></returns>
         public bool Execute(string command, params object[] args) {
             return this.Execute(string.Format(command, args));
         }
 
+        /// <summary>
+        /// Executes a command on the control channel
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
         public abstract bool Execute(string command);
 
         /// <summary>
-        /// 
+        /// Stream for reading and writing to ftp data channels
         /// </summary>
         public FtpDataStream() { }
     }
