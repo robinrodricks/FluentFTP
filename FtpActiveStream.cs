@@ -5,7 +5,9 @@ using System.Net.Sockets;
 namespace System.Net.FtpClient {
     public class FtpActiveStream : FtpDataStream {
         public override bool Execute(string command) {
-            if (this.Socket.Connected && this.DataMode == FtpDataMode.Stream) {
+            // if we're already connected we need
+            // to reset ourselves and start over
+            if (this.Socket.Connected) {
                 this.Close();
             }
 
@@ -70,13 +72,12 @@ namespace System.Net.FtpClient {
             }
         }
 
-        public FtpActiveStream(FtpCommandChannel chan, FtpDataMode mode)
+        public FtpActiveStream(FtpCommandChannel chan)
             : base() {
             if (chan == null) {
                 throw new ArgumentNullException("chan");
             }
             this.CommandChannel = chan;
-            this.DataMode = mode;
         }
     }
 }

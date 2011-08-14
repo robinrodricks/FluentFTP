@@ -40,7 +40,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FtpActiveStream.cs" />
-    <Compile Include="FtpBlockHeader.cs" />
     <Compile Include="FtpPassiveStream.cs" />
     <Compile Include="FtpDataStream.cs" />
     <Compile Include="FtpClient.cs" />

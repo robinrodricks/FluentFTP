@@ -5,7 +5,9 @@ using System.Text.RegularExpressions;
 namespace System.Net.FtpClient {
     public class FtpPassiveStream : FtpDataStream {
         public override bool Execute(string command) {
-            if (this.Socket.Connected && this.DataMode == FtpDataMode.Stream) {
+            // if we're already connected we need to close
+            // and reset ourselves
+            if (this.Socket.Connected) {
                 this.Close();
             }
 
@@ -86,14 +88,13 @@ namespace System.Net.FtpClient {
             }
         }
 
-        public FtpPassiveStream(FtpCommandChannel chan, FtpDataMode mode)
+        public FtpPassiveStream(FtpCommandChannel chan)
             : base() {
             if (chan == null) {
                 throw new ArgumentNullException("chan");
             }
 
             this.CommandChannel = chan;
-            this.DataMode = mode;
         }
     }
 }

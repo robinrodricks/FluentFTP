@@ -81,7 +81,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		Stream,
 		/// <summary>
-		/// No implemented or under development
+		/// Not implemented
 		/// </summary>
 		Block
 	}
@@ -161,15 +161,7 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Supports retrieving modification times on directories
 		/// </summary>
-		MDTMDIR = 128,
-        /// <summary>
-        /// Supports block mode transfers
-        /// </summary>
-        MODE_B = 256,
-        /// <summary>
-        /// Supports stream mode transfers
-        /// </summary>
-        MODE_S = 512
+		MDTMDIR = 128
 	}
 
 	/// <summary>

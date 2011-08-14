@@ -19,15 +19,6 @@ namespace System.Net.FtpClient {
             protected set { _channel = value; }
         }
 
-        FtpDataMode _mode = FtpDataMode.Stream;
-        /// <summary>
-        /// Gets the data mode being used to transfer the file: stream / block
-        /// </summary>
-        public FtpDataMode DataMode {
-            get { return _mode; }
-            protected set { _mode = value; }
-        }
-
         bool _started = false;
         /// <summary>
         /// Gets a value indicating if the transfer has started.
@@ -51,6 +42,11 @@ namespace System.Net.FtpClient {
             }
 
             set {
+                if (this._reader != null) {
+                    this._reader.Dispose();
+                    this._reader = null;
+                }
+
                 if (this._sslstream != null) {
                     this._sslstream.Dispose();
                     this._sslstream = null;
@@ -122,6 +118,20 @@ namespace System.Net.FtpClient {
                 else {
                     return this.NetworkStream;
                 }
+            }
+        }
+
+        StreamReader _reader = null;
+        /// <summary>
+        /// Gets a stream reader object
+        /// </summary>
+        protected StreamReader StreamReader {
+            get {
+                if (_reader == null && this._netstream != null) {
+                    _reader = new StreamReader(this, true);
+                }
+
+                return _reader;
             }
         }
 
@@ -239,32 +249,6 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// Writes the EOF block descriptor to
-        /// the stream if the transfer mode is block. If
-        /// the transfer mode is stream, nothing happens
-        /// at all.
-        /// </summary>
-        public void WriteEndOfFile() {
-            if (!this.CanWrite) {
-                throw new IOException("This stream is not writeable!");
-            }
-
-            if (this.BaseStream == null) {
-                throw new IOException("The base stream is null. Has a socket connection been opened yet?");
-            }
-
-            if (this.DataMode == FtpDataMode.Block) {
-                byte[] header = new byte[3];
-
-                header[0] = (byte)FtpBlockDescriptor.EndOfFile;
-                header[1] = 0;
-                header[2] = 0;
-
-                this.BaseStream.Write(header, 0, header.Length);
-            }
-        }
-
-        /// <summary>
         /// Writes bytes to the stream. If the transfer mode is block
         /// a block header is encoded and sent with the data.
         /// </summary>
@@ -280,47 +264,8 @@ namespace System.Net.FtpClient {
                 throw new IOException("The base stream is null. Has a socket connection been opened yet?");
             }
 
-            if (this.DataMode == FtpDataMode.Block) {
-                byte[] header = new byte[3];
-
-                header[0] = (byte)FtpBlockDescriptor.Empty;
-                header[1] = (byte)(count & 0xFF);
-                header[2] = (byte)((count >> 8) & 0xFF);
-
-                this.BaseStream.Write(header, 0, header.Length);
-            }
-
             this.BaseStream.Write(buffer, offset, count);
             this._position += count;
-        }
-        
-        private FtpBlockHeader BlockHeader = null;
-
-        private void GetBlockHeader() {
-            byte[] buf = new byte[3];
-            int read = 0;
-
-            do {
-                read += this.BaseStream.Read(buf, read, buf.Length);
-            } while (read < buf.Length && read > 0);
-
-            if (read == 0) {
-                // something aint right, we should have at least got a header.
-                // check the command channel for an
-                // error response from the server.
-                try {
-                    this.CommandChannel.LockCommandChannel();
-
-                    if (!this.CommandChannel.ReadResponse()) {
-                        throw new FtpException(this.CommandChannel.ResponseMessage);
-                    }
-                }
-                finally {
-                    this.CommandChannel.UnlockCommandChannel();
-                }
-            }
-
-            this.BlockHeader = new FtpBlockHeader(buf);
         }
 
         /// <summary>
@@ -341,64 +286,36 @@ namespace System.Net.FtpClient {
                 throw new IOException("The base stream is null. Has a socket connection been opened yet?");
             }
 
-            if (this.DataMode == FtpDataMode.Block) {
-                // see if we need to fetch a new header
-                if (this.BlockHeader == null || (this.BlockHeader.IsBlockFinished && !this.BlockHeader.IsEndOfFile)) {
-                    this.GetBlockHeader();
-                }
-
-                // see if we've got the EOF marker yet
-                // if so return 0 to signal the end of the stream
-                if (this.BlockHeader.IsBlockFinished && this.BlockHeader.IsEndOfFile) {
-                    // we're done! we got the EOF marker and we're at the end 
-                    // of the file
-                    try {
-                        this.CommandChannel.LockCommandChannel();
-                        if (!this.CommandChannel.ReadResponse()) {
-                            throw new FtpException(this.CommandChannel.ResponseMessage);
-                        }
-                    }
-                    finally {
-                        this.CommandChannel.UnlockCommandChannel();
-                    }
-
-                    this.BlockHeader = null;
-                    return 0;
-                }
-
-                // the amount of data asked for can't exceed what is
-                // in the current block otherwise we risk reading in
-                // the next header. in order to keep block mode transfers
-                // behaving like a stream, we only read what's in the
-                // current block and when it's done we'll fetch the new
-                // header
-                if (count > (this.BlockHeader.Length - this.BlockHeader.TotalRead)) {
-                    count = this.BlockHeader.Length - this.BlockHeader.TotalRead;
-                }
-
-#if DEBUG
-                System.Diagnostics.Debug.WriteLine(this.BlockHeader.ToString());
-#endif
-            }
-
             read = this.BaseStream.Read(buffer, offset, count);
             this._position += read;
 
-            // update data block header read count
-            // so we will know when this data block
-            // is finished.
-            if (this.DataMode == FtpDataMode.Block) {
-                this.BlockHeader.TotalRead += read;
-            }
-
-            // on stream mode, when we get 0 it means our
-            // transfer is done and it's time to close this
-            // socket.
-            if (read == 0 && this.DataMode == FtpDataMode.Stream) {
+            // if EOF close stream
+            if (read == 0) {
                 this.Close();
             }
 
             return read;
+        }
+
+        /// <summary>
+        /// Reads a line off the data stream
+        /// </summary>
+        /// <returns></returns>
+        public string ReadLine() {
+            string data = null;
+
+            if (!this.CanRead) {
+                throw new IOException("This stream is not readable!");
+            }
+
+            if (this.BaseStream == null) {
+                throw new IOException("The base stream is null. Has a socket connection been opened yet?");
+            }
+
+            data = this.StreamReader.ReadLine();
+            FtpCommandChannel.WriteLineToLogStream("> " + data);
+
+            return data;
         }
 
         /// <summary>
@@ -430,10 +347,6 @@ namespace System.Net.FtpClient {
         public override long Seek(long offset, SeekOrigin origin) {
             if (!this.CommandChannel.HasCapability(FtpCapability.REST)) {
                 throw new FtpException("The FTP server does not support stream seeking.");
-            }
-
-            if (this.DataMode != FtpDataMode.Stream) {
-                throw new IOException("Seeking is only valid on stream mode transfers.");
             }
 
             if (this.TransferStarted) {
@@ -475,12 +388,13 @@ namespace System.Net.FtpClient {
         /// </summary>
         public override void Close() {
             if (this._socket != null) {
-                this.Socket = null;
+                this._socket = null;
 
-                if (this.DataMode == FtpDataMode.Stream && this.CommandChannel.Connected) {
+                if (this.CommandChannel.Connected) {
                     try {
                         this.CommandChannel.LockCommandChannel();
-                        if (!this.CommandChannel.ReadResponse()) {
+                        
+                        if (this.CommandChannel.ResponseStatus && !this.CommandChannel.ReadResponse()) {
                             throw new FtpException(this.CommandChannel.ResponseMessage);
                         }
                     }
@@ -490,7 +404,6 @@ namespace System.Net.FtpClient {
                 }
             }
 
-            this.BlockHeader = null;
             this._length = 0;
             this._position = 0;
             this._started = false;
