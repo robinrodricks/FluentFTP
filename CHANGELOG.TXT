@@ -1,4 +1,14 @@
-﻿*** 8/12/2010 - 1
+﻿*** 8/15/2011
+Removed all internal usage of FtpDataChannel, replaced with FtpDataStream
+
+Fixed spelling error of ReceiveBufferSize property in FtpChannel.cs
+
+Fixed bug introduced in revision 8525 with upload freeze which was
+caused by a bug fix to stop a stack overflow which was caused from
+FtpDataStream's internal StreamReader.
+
+
+*** 8/12/2011
 Renamed FtpTransferMode enum to FtpDataType
 
 Renamed FtpDataMode to FtpDataChannelType

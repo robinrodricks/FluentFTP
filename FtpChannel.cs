@@ -168,7 +168,7 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Default buffer size of the underlying socket
 		/// </summary>
-		public int RecieveBufferSize {
+		public int ReceiveBufferSize {
 			get {
 				if (this._sock != null) {
 					return this._sock.ReceiveBufferSize;

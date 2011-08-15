@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 
 namespace System.Net.FtpClient {
 	/// <summary>
@@ -36,7 +37,7 @@ namespace System.Net.FtpClient {
 		/// Opens this file for reading
 		/// </summary>
 		/// <returns></returns>
-		public FtpDataChannel OpenRead() {
+		public FtpDataStream OpenRead() {
 			return this.OpenRead(FtpDataType.Binary, 0);
 		}
 
@@ -45,7 +46,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="rest"></param>
 		/// <returns></returns>
-		public FtpDataChannel OpenRead(long rest) {
+		public FtpDataStream OpenRead(long rest) {
 			return this.OpenRead(FtpDataType.Binary, 0);
 		}
 
@@ -54,7 +55,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="mode"></param>
 		/// <returns></returns>
-		public FtpDataChannel OpenRead(FtpDataType mode) {
+		public FtpDataStream OpenRead(FtpDataType mode) {
 			return this.OpenRead(mode, 0);
 		}
 
@@ -64,7 +65,7 @@ namespace System.Net.FtpClient {
 		/// <param name="mode"></param>
 		/// <param name="rest"></param>
 		/// <returns></returns>
-		public FtpDataChannel OpenRead(FtpDataType mode, long rest) {
+		public FtpDataStream OpenRead(FtpDataType mode, long rest) {
 			return this.Client.OpenRead(this.FullName, mode, rest);
 		}
 
@@ -72,7 +73,7 @@ namespace System.Net.FtpClient {
 		/// Opens this file for writing
 		/// </summary>
 		/// <returns></returns>
-		public FtpDataChannel OpenWrite() {
+		public FtpDataStream OpenWrite() {
 			return this.OpenWrite(FtpDataType.Binary, 0);
 		}
 
@@ -81,7 +82,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="rest"></param>
 		/// <returns></returns>
-		public FtpDataChannel OpenWrite(long rest) {
+		public FtpDataStream OpenWrite(long rest) {
 			return this.OpenWrite(FtpDataType.Binary, 0);
 		}
 
@@ -90,7 +91,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="mode"></param>
 		/// <returns></returns>
-		public FtpDataChannel OpenWrite(FtpDataType mode) {
+		public FtpDataStream OpenWrite(FtpDataType mode) {
 			return this.OpenWrite(mode, 0);
 		}
 
@@ -100,7 +101,7 @@ namespace System.Net.FtpClient {
 		/// <param name="mode"></param>
 		/// <param name="rest"></param>
 		/// <returns></returns>
-		public FtpDataChannel OpenWrite(FtpDataType mode, long rest) {
+		public FtpDataStream OpenWrite(FtpDataType mode, long rest) {
 			return this.Client.OpenWrite(this.FullName, mode, rest);
 		}
 

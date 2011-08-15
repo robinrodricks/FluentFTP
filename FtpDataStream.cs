@@ -7,7 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace System.Net.FtpClient {
     /// <summary>
-    /// 
+    /// Stream for reading and writing FTP data channels
     /// </summary>
     public abstract class FtpDataStream : Stream, IDisposable {
         FtpCommandChannel _channel = null;
@@ -28,6 +28,32 @@ namespace System.Net.FtpClient {
             private set { _started = value; }
         }
 
+		/// <summary>
+		/// Gets the receive buffer size of the underlying socket
+		/// </summary>
+		public int ReceiveBufferSize {
+			get {
+				if(this._socket != null) {
+					return this._socket.ReceiveBufferSize;
+				}
+
+				return 0;
+			}
+		}
+
+		/// <summary>
+		/// Gets the send buffer size of the underlying socket
+		/// </summary>
+		public int SendBufferSize {
+			get {
+				if(this._socket != null) {
+					return this._socket.SendBufferSize;
+				}
+
+				return 0;
+			}
+		}
+
         Socket _socket = null;
         /// <summary>
         /// Socket used for communication
@@ -43,7 +69,7 @@ namespace System.Net.FtpClient {
 
             set {
                 if (this._reader != null) {
-                    this._reader.Dispose();
+                    //this._reader.Dispose();
                     this._reader = null;
                 }
 
@@ -388,7 +414,8 @@ namespace System.Net.FtpClient {
         /// </summary>
         public override void Close() {
             if (this._socket != null) {
-                this._socket = null;
+                //this._socket = null;
+				this.Socket = null;
 
                 if (this.CommandChannel.Connected) {
                     try {

@@ -724,7 +724,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="chantype"></param>
         /// <returns></returns>
-        protected FtpDataChannel OpenDataChannel(FtpDataChannelType chantype) {
+        protected FtpDataChannel _OpenDataChannel(FtpDataChannelType chantype) {
             return this.OpenDataChannel(chantype, FtpDataType.Binary);
         }
 

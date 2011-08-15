@@ -602,7 +602,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
-        public FtpDataChannel OpenRead(string path) {
+		public FtpDataStream OpenRead(string path) {
             return this.OpenRead(path, FtpDataType.Binary, 0);
         }
 
@@ -613,7 +613,7 @@ namespace System.Net.FtpClient {
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
         /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
-        public FtpDataChannel OpenRead(string path, long rest) {
+		public FtpDataStream OpenRead(string path, long rest) {
             return this.OpenRead(path, FtpDataType.Binary, rest);
         }
 
@@ -624,7 +624,7 @@ namespace System.Net.FtpClient {
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <param name="datatype">ASCII/Binary</param>
         /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
-        public FtpDataChannel OpenRead(string path, FtpDataType datatype) {
+		public FtpDataStream OpenRead(string path, FtpDataType datatype) {
             return this.OpenRead(path, datatype, 0);
         }
 
@@ -636,27 +636,24 @@ namespace System.Net.FtpClient {
         /// <param name="datatype">ASCII/Binary</param>
         /// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
         /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
-        public FtpDataChannel OpenRead(string path, FtpDataType datatype, long rest) {
-            FtpDataChannel dc = this.OpenDataChannel(datatype);
+		public FtpDataStream OpenRead(string path, FtpDataType datatype, long rest) {
+			FtpDataStream s = this.OpenDataStream(datatype);
 
-            if (rest > 0) {
-                if (!this.HasCapability(FtpCapability.REST)) {
-                    dc.Disconnect();
-                    throw new NotImplementedException("The connected server does not support resuming.");
-                }
+			if(rest > 0) {
+				if(!this.HasCapability(FtpCapability.REST)) {
+					s.Dispose();
+					throw new NotImplementedException("The connected server does not support resuming.");
+				}
 
-                if (!this.Execute("REST {0}", rest)) {
-                    dc.Disconnect();
-                    throw new FtpException(this.ResponseMessage);
-                }
-            }
+				s.Seek(rest);
+			}
 
-            if (!dc.Execute("RETR {0}", path)) {
-                dc.Disconnect();
-                throw new FtpException(this.ResponseMessage);
-            }
+			if(!s.Execute("RETR {0}", path)) {
+				s.Dispose();
+				throw new FtpException(this.ResponseMessage);
+			}
 
-            return dc;
+			return s;
         }
 
         /// <summary>
@@ -665,7 +662,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
-        public FtpDataChannel OpenWrite(string path) {
+		public FtpDataStream OpenWrite(string path) {
             return this.OpenWrite(path, FtpDataType.Binary, 0);
         }
 
@@ -676,7 +673,7 @@ namespace System.Net.FtpClient {
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
         /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
-        public FtpDataChannel OpenWrite(string path, long rest) {
+		public FtpDataStream OpenWrite(string path, long rest) {
             return this.OpenWrite(path, FtpDataType.Binary, rest);
         }
 
@@ -687,7 +684,7 @@ namespace System.Net.FtpClient {
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <param name="datatype">ASCII/Binary</param>
         /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
-        public FtpDataChannel OpenWrite(string path, FtpDataType datatype) {
+		public FtpDataStream OpenWrite(string path, FtpDataType datatype) {
             return this.OpenWrite(path, datatype, 0);
         }
 
@@ -699,34 +696,24 @@ namespace System.Net.FtpClient {
         /// <param name="datatype">ASCII/Binary</param>
         /// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
         /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
-        public FtpDataChannel OpenWrite(string path, FtpDataType datatype, long rest) {
-            FtpDataChannel dc = this.OpenDataChannel(datatype);
+		public FtpDataStream OpenWrite(string path, FtpDataType datatype, long rest) {
+			FtpDataStream s = this.OpenDataStream(datatype);
 
-            if (rest > 0) {
-                this.LockCommandChannel();
+			if(rest > 0) {
+				if(!this.HasCapability(FtpCapability.REST)) {
+					s.Dispose();
+					throw new NotImplementedException("The connected server does not support resuming.");
+				}
 
-                try {
-                    if (!this.HasCapability(FtpCapability.REST)) {
-                        dc.Disconnect();
-                        throw new NotImplementedException("The connected server does not support resuming.");
-                    }
+				s.Seek(rest);
+			}
 
-                    if (!this.Execute("REST {0}", rest)) {
-                        dc.Disconnect();
-                        throw new FtpException(this.ResponseMessage);
-                    }
-                }
-                finally {
-                    this.UnlockCommandChannel();
-                }
-            }
+			if(!s.Execute("STOR {0}", path)) {
+				s.Dispose();
+				throw new FtpException(this.ResponseMessage);
+			}
 
-            if (!dc.Execute("STOR {0}", path)) {
-                dc.Disconnect();
-                throw new FtpException(this.ResponseMessage);
-            }
-
-            return dc;
+			return s;
         }
 
         /// <summary>
@@ -948,8 +935,8 @@ namespace System.Net.FtpClient {
             }
 
             try {
-                using (FtpDataChannel ch = this.OpenRead(remote.FullName, datatype, rest)) {
-                    byte[] buf = new byte[ch.RecieveBufferSize];
+                using (FtpDataStream ch = this.OpenRead(remote.FullName, datatype, rest)) {
+                    byte[] buf = new byte[ch.ReceiveBufferSize];
                     DateTime start = DateTime.Now;
                     FtpTransferInfo e = null;
 
@@ -1196,8 +1183,8 @@ namespace System.Net.FtpClient {
                 rest = 0;
             }
 
-            using (FtpDataChannel ch = this.OpenWrite(remote.FullName, datatype, rest)) {
-                byte[] buf = new byte[ch.RecieveBufferSize];
+			using(FtpDataStream ch = this.OpenWrite(remote.FullName, datatype, rest)) {
+                byte[] buf = new byte[ch.ReceiveBufferSize];
                 DateTime start = DateTime.Now;
                 FtpTransferInfo e;
 
