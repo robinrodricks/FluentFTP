@@ -14,6 +14,13 @@ Same bug fix for EPRT.
 More text encoding bug fixes. Encoding.Default should be in use 
 everywhere now.
 
+Added new ClearListing() method to FtpDirectory to force a reload
+on child items.
+
+Removed FtpDataChannel code from project
+
+Updated VS2010/2005 .net 2 project files
+
 *** 8/12/2011
 Renamed FtpTransferMode enum to FtpDataType
 

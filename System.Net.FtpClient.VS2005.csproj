@@ -36,21 +36,24 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FtpActiveStream.cs" />
     <Compile Include="FtpClient.cs" />
+    <Compile Include="FtpCommandResult.cs" />
+    <Compile Include="FtpDataStream.cs" />
     <Compile Include="FtpDirectory.cs" />
     <Compile Include="FtpFile.cs" />
     <Compile Include="FtpChannel.cs" />
     <Compile Include="FtpCommandChannel.cs" />
-    <Compile Include="FtpDataChannel.cs" />
     <Compile Include="FtpEnums.cs" />
     <Compile Include="FtpException.cs" />
     <Compile Include="FtpFileSystemObject.cs" />
     <Compile Include="FtpFileSystemObjectList.cs" />
     <Compile Include="FtpInvalidSslCertificate.cs" />
     <Compile Include="FtpListItem.cs" />
+    <Compile Include="FtpPassiveStream.cs" />
     <Compile Include="FtpThreadedTransfer.cs" />
     <Compile Include="FtpTransferInfo.cs" />
-	<Compile Include="FtpTraceListener.cs" />
+    <Compile Include="FtpTraceListener.cs" />
     <Compile Include="AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

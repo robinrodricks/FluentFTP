@@ -80,6 +80,13 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+		/// <summary>
+		/// Clears the file listing results
+		/// </summary>
+		public void ClearListing() {
+			this._dirs = null;
+		}
+
 		FtpDirectory _parent = null;
 		/// <summary>
 		/// Gets the parent directory. If this is the top level directory, this property will be null.

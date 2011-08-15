@@ -89,7 +89,8 @@ namespace System.Net.FtpClient {
                         this._socket.Disconnect(false);
                     }
 
-                    this._socket.Dispose();
+					// doesn't work in .net 2
+                    //this._socket.Dispose();
                 }
 
                 this._socket = value;
