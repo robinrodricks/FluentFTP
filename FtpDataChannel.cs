@@ -4,6 +4,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Diagnostics;
 
+/* This code is depricated. It will no longer be used or
+ * supported. If you make use of this code you are strongly
+ * urged to move to FtpDataStream instead.
+ */
+
 namespace System.Net.FtpClient {
 	/// <summary>
 	/// FTP data channel

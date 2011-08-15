@@ -7,6 +7,7 @@ Fixed bug introduced in revision 8525 with upload freeze which was
 caused by a bug fix to stop a stack overflow which was caused from
 FtpDataStream's internal StreamReader.
 
+Fixed but in FtpPassiveChannel with PASV fallback when EPSV fails.
 
 *** 8/12/2011
 Renamed FtpTransferMode enum to FtpDataType
