@@ -407,7 +407,7 @@ namespace System.Net.FtpClient {
                     if (this.ExecuteList[i] != null) {
                         //this.WriteLine(this.ExecuteList[i]);
                         string traceout;
-                        byte[] cmd = Encoding.ASCII.GetBytes(string.Format("{0}\r\n", this.ExecuteList[i]));
+                        byte[] cmd = Encoding.Default.GetBytes(string.Format("{0}\r\n", this.ExecuteList[i]));
 
 
                         if (this.ExecuteList[i].ToUpper().StartsWith("PASS")) {

@@ -154,7 +154,7 @@ namespace System.Net.FtpClient {
         protected StreamReader StreamReader {
             get {
                 if (_reader == null && this._netstream != null) {
-                    _reader = new StreamReader(this, true);
+                    _reader = new StreamReader(this, System.Text.Encoding.Default);
                 }
 
                 return _reader;

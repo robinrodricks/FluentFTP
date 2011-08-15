@@ -9,6 +9,11 @@ FtpDataStream's internal StreamReader.
 
 Fixed but in FtpPassiveChannel with PASV fallback when EPSV fails.
 
+Same bug fix for EPRT.
+
+More text encoding bug fixes. Encoding.Default should be in use 
+everywhere now.
+
 *** 8/12/2011
 Renamed FtpTransferMode enum to FtpDataType
 
