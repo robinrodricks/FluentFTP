@@ -50,7 +50,7 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// A list of directories within this directory
 		/// </summary>
-		public FtpDirectory[] Directories {
+		public FtpFileSystemObjectList<FtpDirectory> Directories {
 			get {
 				if(this._dirs == null) {
 					this._dirs = new FtpFileSystemObjectList<FtpDirectory>();
@@ -59,7 +59,8 @@ namespace System.Net.FtpClient {
 
 				// .net 2 solution requires me to cast these
 				// but the .net 4 solution doesn't?
-				return (FtpDirectory[])_dirs.ToArray();
+				//return (FtpDirectory[])_dirs.ToArray();
+				return _dirs;
 			}
 		}
 
@@ -67,7 +68,7 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// A list of files within this directory
 		/// </summary>
-		public FtpFile[] Files {
+		public FtpFileSystemObjectList<FtpFile> Files {
 			get {
 				if(this._files == null) {
 					this._files = new FtpFileSystemObjectList<FtpFile>();
@@ -76,7 +77,8 @@ namespace System.Net.FtpClient {
 
 				// .net 2 solution requires me to cast these
 				// but the .net 4 solution doesn't?
-				return (FtpFile[])_files.ToArray();
+				//return (FtpFile[])_files.ToArray();
+				return _files;
 			}
 		}
 
@@ -146,14 +148,14 @@ namespace System.Net.FtpClient {
 		/// <param name="recursive"></param>
 		public void Delete(FtpDirectory dir, bool recursive) {
 			if(recursive) {
-				if(dir.Files.Length > 0) {
-					foreach(FtpFile f in dir.Files) {
+				if(dir.Files.Count > 0) {
+					foreach(FtpFile f in dir.Files.ToArray()) {
 						f.Delete();
 					}
 				}
 
-				if(dir.Directories.Length > 0) {
-					foreach(FtpDirectory d in dir.Directories) {
+				if(dir.Directories.Count > 0) {
+					foreach(FtpDirectory d in dir.Directories.ToArray()) {
 						d.Delete();
 					}
 				}

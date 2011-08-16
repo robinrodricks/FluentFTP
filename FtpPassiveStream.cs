@@ -51,7 +51,7 @@ namespace System.Net.FtpClient {
 				}
 
 				if(!this.CommandChannel.ResponseStatus) {
-					throw new FtpException(this.CommandChannel.ResponseMessage);
+					throw new FtpCommandException(this.CommandChannel);
 				}
 
 				if(type == FtpDataChannelType.Passive) {

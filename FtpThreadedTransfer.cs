@@ -254,7 +254,7 @@ namespace System.Net.FtpClient {
 		private void Write(byte[] buf, int length, long position) {
 			lock(this.LockStream) {
 				if(this.Stream == null) {
-					throw new FtpException("The output stream is null");
+					throw new IOException("The output stream is null");
 				}
 
 				this.Stream.Seek(position, SeekOrigin.Begin);

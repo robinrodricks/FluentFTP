@@ -373,7 +373,7 @@ namespace System.Net.FtpClient {
         /// <returns></returns>
         public override long Seek(long offset, SeekOrigin origin) {
             if (!this.CommandChannel.HasCapability(FtpCapability.REST)) {
-                throw new FtpException("The FTP server does not support stream seeking.");
+                throw new IOException("The FTP server does not support stream seeking.");
             }
 
             if (this.TransferStarted) {
@@ -387,7 +387,7 @@ namespace System.Net.FtpClient {
             try {
                 this.CommandChannel.LockCommandChannel();
                 if (!this.CommandChannel.Execute("REST {0}", offset)) {
-                    throw new FtpException(this.CommandChannel.ResponseMessage);
+                    throw new FtpCommandException(this.CommandChannel);
                 }
             }
             finally {
@@ -423,7 +423,7 @@ namespace System.Net.FtpClient {
                         this.CommandChannel.LockCommandChannel();
                         
                         if (this.CommandChannel.ResponseStatus && !this.CommandChannel.ReadResponse()) {
-                            throw new FtpException(this.CommandChannel.ResponseMessage);
+                            throw new FtpCommandException(this.CommandChannel);
                         }
                     }
                     finally {

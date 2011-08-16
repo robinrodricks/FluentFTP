@@ -207,7 +207,7 @@ namespace System.Net.FtpClient {
                 return buf;
             }
 
-            throw new FtpException("The reader object is null. Are we connected?");
+            throw new IOException("The reader object is null. Are we connected?");
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace System.Net.FtpClient {
                 return this.BaseStream.Read(buf, 0, size);
             }
 
-            throw new FtpException("The network stream is null. Are we connected?");
+            throw new IOException("The network stream is null. Are we connected?");
         }
 
         /// <summary>
@@ -248,7 +248,7 @@ namespace System.Net.FtpClient {
                 this.LastSocketActivity = DateTime.Now;
             }
             else {
-                throw new FtpException("The network stream is null. Are we connected?");
+                throw new IOException("The network stream is null. Are we connected?");
             }
         }
 
@@ -678,7 +678,7 @@ namespace System.Net.FtpClient {
             }
 
             if (!this.ResponseStatus) {
-                throw new FtpException(this.ResponseMessage);
+                throw new FtpCommandException(this);
             }
         }
 
@@ -698,7 +698,7 @@ namespace System.Net.FtpClient {
             }
 
             if (!this.ResponseStatus) {
-                throw new FtpException(this.ResponseMessage);
+                throw new FtpCommandException(this);
             }
         }
 
@@ -742,7 +742,7 @@ namespace System.Net.FtpClient {
                 if (!disconnected && !this.Execute("QUIT")) {
                     // we don't want to do this, the user is 
                     // trying to terminate the connection.
-                    //throw new FtpException(this.ResponseMessage);
+                    //throw new FtpCommandException(this);
                 }
             }
 
@@ -763,7 +763,7 @@ namespace System.Net.FtpClient {
 
             if (!this.ReadResponse()) {
                 this.Disconnect();
-                throw new FtpException(this.ResponseMessage);
+                throw new FtpCommandException(this);
             }
 
             if (this.SslMode == FtpSslMode.Explicit) {
@@ -778,14 +778,14 @@ namespace System.Net.FtpClient {
                     // care if you execute PBSZ however rfc 4217
                     // says that PBSZ is required if you want
                     // data channel security.
-                    //throw new FtpException(this.ResponseMessage);
+                    //throw new FtpCommandException(this);
 #if DEBUG
                     System.Diagnostics.Debug.WriteLine("PBSZ ERROR: " + this.ResponseMessage);
 #endif
                 }
 
                 if (!this.Execute("PROT P")) { // turn on data channel protection.
-                    throw new FtpException(this.ResponseMessage);
+                    throw new FtpCommandException(this);
                 }
             }
 

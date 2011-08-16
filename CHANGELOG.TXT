@@ -1,4 +1,19 @@
-﻿*** 8/15/2011
+﻿*** 8/16/2011
+Changed FtpFileSystemObjectList to implement IEenumerable and changed
+all places were list was enumerated to use .ToArray() method of the 
+object list. FtpDirectory File and Directory lists no longer return
+an array. Please update your code accordingly, in most cases this
+should be as simple as using Directories.ToArray() or Files.ToArray()
+instead of enumerating the list directly.
+
+Added new exception type FtpCommandException that will be used for
+all command failure exceptions instead of FtpException. The exception
+object includes the completion code, the message and a property for
+easily determining if it's a temporary (4xx) or permanent (5xx) failure.
+
+All custom exception types inherit from FtpException.
+
+*** 8/15/2011
 Removed all internal usage of FtpDataChannel, replaced with FtpDataStream
 
 Fixed spelling error of ReceiveBufferSize property in FtpChannel.cs
