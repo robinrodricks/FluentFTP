@@ -62,7 +62,7 @@ namespace System.Net.FtpClient {
 		/// Initalizes a new instance of a FtpResponseException
 		/// </summary>
 		/// <param name="chan"></param>
-		public FtpCommandException(FtpCommandChannel chan)
+		public FtpCommandException(FtpControlConnection chan)
 			: this(chan.ResponseCode, chan.ResponseMessage) {
 		}
 	}

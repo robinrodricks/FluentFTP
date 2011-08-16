@@ -1,4 +1,6 @@
 ﻿*** 8/16/2011
+Fixed bug in Active mode transfers that caused the code to hang when accepting the incoming connection. 
+
 Changed FtpFileSystemObjectList to implement IEenumerable and changed
 all places were list was enumerated to use .ToArray() method of the 
 object list. FtpDirectory File and Directory lists no longer return
@@ -12,6 +14,10 @@ object includes the completion code, the message and a property for
 easily determining if it's a temporary (4xx) or permanent (5xx) failure.
 
 All custom exception types inherit from FtpException.
+
+Renamed FtpCommandChannel to follow RFC terminology. New name is
+FtpControlConnection. LockCommandChannel and UnlockCommandChannel
+have also been renamed to LockControlConnection and UnlockControlConnection.
 
 *** 8/15/2011
 Removed all internal usage of FtpDataChannel, replaced with FtpDataStream
@@ -41,23 +47,23 @@ Renamed FtpTransferMode enum to FtpDataType
 
 Renamed FtpDataMode to FtpDataChannelType
 
-Renamed DefaultDataMode property of FtpCommandChannel to DataChannelType
+Renamed DefaultDataMode property of FtpControlConnection to DataChannelType
 
-Renamed SetTransferMode() of FtpCommandChannel method to SetDataType()
+Renamed SetTransferMode() of FtpControlConnection method to SetDataType()
 
 Added new FtpDataMode enum for Stream and Block transfers
 
 Added new FtpDataStructure enum, currently only File type structures are
   supported. If this makes no sense read RFC959 3.1.2. Data Structures.
 
-Added new SetDataMode() method FtpCommandChannel for specifying
+Added new SetDataMode() method FtpControlConnection for specifying
   stream or block transfer modes.
 
 Removed pipelining support from Open*DataChannel() methods to reduce
   complication of code. Little value was added by pipelining just a
   couple of commands and thus doesn't justify complication in the code.
 
-Added DataChannelMode property to FtpCommandChannel for setting the default
+Added DataChannelMode property to FtpControlConnection for setting the default
   data transfer mode, stream or block.
 
 Added new classes FtpDataStream.cs and FtpPassiveStream.cs, FtpActiveStream.cs

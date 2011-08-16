@@ -14,12 +14,12 @@ namespace System.Net.FtpClient {
     /// <param name="status">Status number</param>
     /// <param name="response">Status message</param>
     public delegate void ResponseReceived(string status, string response);
-
-    /// <summary>
+	
+	/// <summary>
     /// The communication channel for the FTP server / used for issuing commands
     /// and controlling transactions.
     /// </summary>
-    public class FtpCommandChannel : FtpChannel {
+    public class FtpControlConnection : FtpChannel {
         /// <summary>
         /// Mutex used for locking the command channel while
         /// executing commands
@@ -156,7 +156,7 @@ namespace System.Net.FtpClient {
         /// Acquire an exclusive lock on the command channel
         /// while executing/processing commands
         /// </summary>
-        public void LockCommandChannel() {
+        public void LockControlConnection() {
             this.mCommandLock.WaitOne();
         }
 
@@ -165,14 +165,14 @@ namespace System.Net.FtpClient {
         /// while executing/processing commands 
         /// </summary>
         /// <param name="timeout"></param>
-        public void LockCommandChannel(int timeout) {
+        public void LockControlConnection(int timeout) {
             this.mCommandLock.WaitOne(timeout);
         }
 
         /// <summary>
         /// Release the exclusive lock held on the command channel
         /// </summary>
-        public void UnlockCommandChannel() {
+        public void UnlockControlConnection() {
             this.mCommandLock.ReleaseMutex();
         }
 
@@ -394,7 +394,7 @@ namespace System.Net.FtpClient {
             FtpCommandResult[] results = new FtpCommandResult[this.ExecuteList.Count];
             int reslocation = 0;
 
-            this.LockCommandChannel();
+            this.LockControlConnection();
 
             try {
                 MemoryStream cmdstream = new MemoryStream();
@@ -461,7 +461,7 @@ namespace System.Net.FtpClient {
                 WriteLineToLogStream("*** END PIPELINE");
             }
             finally {
-                this.UnlockCommandChannel();
+                this.UnlockControlConnection();
                 this.ExecuteList.Clear();
                 this.PipelineInProgress = false;
             }
@@ -795,7 +795,7 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Initalize a new command channel object.
         /// </summary>
-        public FtpCommandChannel() {
+        public FtpControlConnection() {
             this.ConnectionReady += new FtpChannelConnected(OnChannelConnected);
         }
 

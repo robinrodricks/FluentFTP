@@ -17,7 +17,7 @@ namespace System.Net.FtpClient {
 	/// <summary>
 	/// FtpClient library
 	/// </summary>
-	public class FtpClient : FtpCommandChannel {
+	public class FtpClient : FtpControlConnection {
 		string _username = null;
 		/// <summary>
 		/// The username to authenticate with
@@ -66,7 +66,7 @@ namespace System.Net.FtpClient {
 				if(_currentDirectory == null) {
 					Match m;
 
-					this.LockCommandChannel();
+					this.LockControlConnection();
 
 					try {
 						if(!this.Execute("PWD")) {
@@ -82,7 +82,7 @@ namespace System.Net.FtpClient {
 						this._currentDirectory = new FtpDirectory(this, m.Groups[1].Value);
 					}
 					finally {
-						this.UnlockCommandChannel();
+						this.UnlockControlConnection();
 					}
 				}
 
@@ -100,7 +100,7 @@ namespace System.Net.FtpClient {
 		public string System {
 			get {
 				try {
-					this.LockCommandChannel();
+					this.LockControlConnection();
 
 					if(!this.Execute("SYST")) {
 						throw new FtpCommandException(this);
@@ -109,7 +109,7 @@ namespace System.Net.FtpClient {
 					return this.ResponseMessage;
 				}
 				finally {
-					this.UnlockCommandChannel();
+					this.UnlockControlConnection();
 				}
 			}
 		}
@@ -153,7 +153,7 @@ namespace System.Net.FtpClient {
 		/// if a connection to the server has been made.
 		/// </summary>
 		void Login(FtpChannel c) {
-			this.LockCommandChannel();
+			this.LockControlConnection();
 
 			try {
 				if(this.Username != null) {
@@ -188,7 +188,7 @@ namespace System.Net.FtpClient {
 				}
 			}
 			finally {
-				this.UnlockCommandChannel();
+				this.UnlockControlConnection();
 			}
 
 			this.CurrentDirectory = new FtpDirectory(this, "/");
@@ -199,7 +199,7 @@ namespace System.Net.FtpClient {
 		/// server and get a response.
 		/// </summary>
 		public void NoOp() {
-			this.LockCommandChannel();
+			this.LockControlConnection();
 
 			try {
 				if(!this.Execute("NOOP")) {
@@ -207,7 +207,7 @@ namespace System.Net.FtpClient {
 				}
 			}
 			finally {
-				this.UnlockCommandChannel();
+				this.UnlockControlConnection();
 			}
 		}
 
@@ -339,7 +339,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="path">The full or relative (to the current directory) path</param>
 		public void SetWorkingDirectory(string path) {
-			this.LockCommandChannel();
+			this.LockControlConnection();
 
 			try {
 				if(!this.Execute("CWD {0}", path)) {
@@ -347,7 +347,7 @@ namespace System.Net.FtpClient {
 				}
 			}
 			finally {
-				this.UnlockCommandChannel();
+				this.UnlockControlConnection();
 			}
 
 			this.CurrentDirectory = null;
@@ -367,7 +367,7 @@ namespace System.Net.FtpClient {
 				throw new NotImplementedException("The connected server does not support the MDTM command.");
 			}
 
-			this.LockCommandChannel();
+			this.LockControlConnection();
 
 			try {
 				if(this.Execute("MDTM {0}", path)) {
@@ -380,7 +380,7 @@ namespace System.Net.FtpClient {
 				}
 			}
 			finally {
-				this.UnlockCommandChannel();
+				this.UnlockControlConnection();
 			}
 
 			return DateTime.MinValue;
@@ -414,7 +414,7 @@ namespace System.Net.FtpClient {
 			// prefer MLST for getting the file size because some
 			// servers won't give the file size back for large files
 			if(this.HasCapability(FtpCapability.MLST)) {
-				this.LockCommandChannel();
+				this.LockControlConnection();
 
 				try {
 					if(!this.Execute("MLST {0}", path)) {
@@ -436,7 +436,7 @@ namespace System.Net.FtpClient {
 					}
 				}
 				finally {
-					this.UnlockCommandChannel();
+					this.UnlockControlConnection();
 				}
 			}
 			// used for older servers, has limitations, will error
@@ -445,7 +445,7 @@ namespace System.Net.FtpClient {
 				long size = 0;
 				Match m;
 
-				this.LockCommandChannel();
+				this.LockControlConnection();
 
 				try {
 					// ignore errors, return 0 if there is one. some servers
@@ -458,7 +458,7 @@ namespace System.Net.FtpClient {
 					}
 				}
 				finally {
-					this.UnlockCommandChannel();
+					this.UnlockControlConnection();
 				}
 
 				return size;
@@ -475,7 +475,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="path">The full or relative (to the current working directory) path</param>
 		public void RemoveDirectory(string path) {
-			this.LockCommandChannel();
+			this.LockControlConnection();
 
 			try {
 				if(!this.Execute("RMD {0}", path)) {
@@ -483,7 +483,7 @@ namespace System.Net.FtpClient {
 				}
 			}
 			finally {
-				this.UnlockCommandChannel();
+				this.UnlockControlConnection();
 			}
 		}
 
@@ -492,7 +492,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="path">The full or relative (to the current working directory) path</param>
 		public void RemoveFile(string path) {
-			this.LockCommandChannel();
+			this.LockControlConnection();
 
 			try {
 				if(!this.Execute("DELE {0}", path)) {
@@ -500,7 +500,7 @@ namespace System.Net.FtpClient {
 				}
 			}
 			finally {
-				this.UnlockCommandChannel();
+				this.UnlockControlConnection();
 			}
 		}
 
@@ -509,7 +509,7 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="path">The full or relative (to the current working directory) path</param>
 		public void CreateDirectory(string path) {
-			this.LockCommandChannel();
+			this.LockControlConnection();
 
 			try {
 				if(!this.Execute("MKD {0}", path)) {
@@ -517,7 +517,7 @@ namespace System.Net.FtpClient {
 				}
 			}
 			finally {
-				this.UnlockCommandChannel();
+				this.UnlockControlConnection();
 			}
 		}
 
@@ -528,7 +528,7 @@ namespace System.Net.FtpClient {
 		/// <returns></returns>
 		public FtpListItem GetObjectInfo(string path) {
 			if(this.HasCapability(FtpCapability.MLST)) {
-				this.LockCommandChannel();
+				this.LockControlConnection();
 
 				try {
 					if(this.Execute("MLST {0}", path)) {
@@ -541,7 +541,7 @@ namespace System.Net.FtpClient {
 					}
 				}
 				finally {
-					this.UnlockCommandChannel();
+					this.UnlockControlConnection();
 				}
 			}
 			else {
@@ -581,7 +581,7 @@ namespace System.Net.FtpClient {
 		/// <param name="from">The full or relative (to the current working directory) path of the existing file</param>
 		/// <param name="to">The full or relative (to the current working directory) path of the new file</param>
 		public void Rename(string from, string to) {
-			this.LockCommandChannel();
+			this.LockControlConnection();
 
 			try {
 				if(!this.Execute("RNFR {0}", from)) {
@@ -593,7 +593,7 @@ namespace System.Net.FtpClient {
 				}
 			}
 			finally {
-				this.UnlockCommandChannel();
+				this.UnlockControlConnection();
 			}
 		}
 

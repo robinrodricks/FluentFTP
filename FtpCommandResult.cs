@@ -67,7 +67,7 @@ namespace System.Net.FtpClient {
 		/// Initalize object
 		/// </summary>
 		/// <param name="chan">The command channel this object is associated with</param>
-		public FtpCommandResult(FtpCommandChannel chan) {
+		public FtpCommandResult(FtpControlConnection chan) {
 			this.ResponseType = chan.ResponseType;
 			this.ResponseMessage = chan.ResponseMessage;
 			this.ResponseCode = chan.ResponseCode;

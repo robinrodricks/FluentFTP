@@ -10,11 +10,11 @@ namespace System.Net.FtpClient {
     /// Stream for reading and writing FTP data channels
     /// </summary>
     public abstract class FtpDataStream : Stream, IDisposable {
-        FtpCommandChannel _channel = null;
+        FtpControlConnection _channel = null;
         /// <summary>
         /// Command channel this data stream is associated with
         /// </summary>
-        public FtpCommandChannel CommandChannel {
+        public FtpControlConnection ControlConnection {
             get { return _channel; }
             protected set { _channel = value; }
         }
@@ -135,7 +135,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         private Stream BaseStream {
             get {
-                if (this.CommandChannel.SslEnabled && this.CommandChannel.DataChannelEncryption) {
+                if (this.ControlConnection.SslEnabled && this.ControlConnection.DataChannelEncryption) {
                     if (!this.SslEnabled) {
                         this.Authenticate();
                     }
@@ -271,7 +271,7 @@ namespace System.Net.FtpClient {
         void Authenticate() {
             if (this.Socket.Connected && !this.SslEnabled) {
                 //this.SecurteStream.AuthenticateAsClient(((IPEndPoint)this.RemoteEndPoint).Address.ToString());
-                this.SecureStream.AuthenticateAsClient(this.CommandChannel.Server);
+                this.SecureStream.AuthenticateAsClient(this.ControlConnection.Server);
             }
         }
 
@@ -340,7 +340,7 @@ namespace System.Net.FtpClient {
             }
 
             data = this.StreamReader.ReadLine();
-            FtpCommandChannel.WriteLineToLogStream("> " + data);
+            FtpControlConnection.WriteLineToLogStream("> " + data);
 
             return data;
         }
@@ -372,7 +372,7 @@ namespace System.Net.FtpClient {
         /// <param name="origin"></param>
         /// <returns></returns>
         public override long Seek(long offset, SeekOrigin origin) {
-            if (!this.CommandChannel.HasCapability(FtpCapability.REST)) {
+            if (!this.ControlConnection.HasCapability(FtpCapability.REST)) {
                 throw new IOException("The FTP server does not support stream seeking.");
             }
 
@@ -385,13 +385,13 @@ namespace System.Net.FtpClient {
             }
 
             try {
-                this.CommandChannel.LockCommandChannel();
-                if (!this.CommandChannel.Execute("REST {0}", offset)) {
-                    throw new FtpCommandException(this.CommandChannel);
+                this.ControlConnection.LockControlConnection();
+                if (!this.ControlConnection.Execute("REST {0}", offset)) {
+                    throw new FtpCommandException(this.ControlConnection);
                 }
             }
             finally {
-                this.CommandChannel.UnlockCommandChannel();
+                this.ControlConnection.UnlockControlConnection();
             }
 
             this._position = offset;
@@ -418,16 +418,16 @@ namespace System.Net.FtpClient {
                 //this._socket = null;
 				this.Socket = null;
 
-                if (this.CommandChannel.Connected) {
+                if (this.ControlConnection.Connected) {
                     try {
-                        this.CommandChannel.LockCommandChannel();
+                        this.ControlConnection.LockControlConnection();
                         
-                        if (this.CommandChannel.ResponseStatus && !this.CommandChannel.ReadResponse()) {
-                            throw new FtpCommandException(this.CommandChannel);
+                        if (this.ControlConnection.ResponseStatus && !this.ControlConnection.ReadResponse()) {
+                            throw new FtpCommandException(this.ControlConnection);
                         }
                     }
                     finally {
-                        this.CommandChannel.UnlockCommandChannel();
+                        this.ControlConnection.UnlockControlConnection();
                     }
                 }
             }
@@ -451,7 +451,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         protected void Open() {
             if (!this.Socket.Connected) {
-                this.Open(this.CommandChannel.DataChannelType);
+                this.Open(this.ControlConnection.DataChannelType);
                 this.TransferStarted = true;
             }
         }

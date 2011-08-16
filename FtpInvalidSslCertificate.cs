@@ -39,7 +39,7 @@ namespace System.Net.FtpClient {
 		/// Iniatlizes the object
 		/// </summary>
 		/// <param name="c">The ftp channel this object is associated with. Could
-		/// be FtpCommandChannel or FtpDataChannel</param>
+		/// be FtpControlConnection or FtpDataChannel</param>
 		public InvalidCertificateInfo(FtpChannel c) {
 			this.SslPolicyErrors = c.SslPolicyErrors;
 			this.SslCertificate = c.SslCertificate;
