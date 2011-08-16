@@ -31,11 +31,7 @@ namespace System.Net.FtpClient {
 		}
 
 		protected void Accept() {
-			Socket s = this.Socket.Accept();
-
-			this.Socket.Close();
-			this.Socket = null;
-			this.Socket = s;
+			this.Socket = this.Socket.Accept();
 		}
 
 		protected override void Open(FtpDataChannelType type) {
