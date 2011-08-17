@@ -148,6 +148,88 @@ namespace System.Net.FtpClient {
 			this.Connect(username, password, server);
 		}
 
+        /// <summary>
+        /// Connect asynchronously using the specified username and password
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        public IAsyncResult BeginConnect(string username, string password) {
+            this.Username = username;
+            this.Password = password;
+            return this.BeginConnect();
+        }
+
+        /// <summary>
+        /// Connect asynchronously using the specified username and password to the specified server
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="server"></param>
+        public IAsyncResult BeginConnect(string username, string password, string server) {
+            this.Server = server;
+            return this.BeginConnect(username, password);
+        }
+
+        /// <summary>
+        /// Connect asynchronously using the specified username and password to the specified server on the specified port
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="server"></param>
+        /// <param name="port"></param>
+        public IAsyncResult BeginConnect(string username, string password, string server, int port) {
+            this.Port = port;
+            return this.BeginConnect(username, password, server);
+        }
+
+        /// <summary>
+        /// Connect to the server asynchronously
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <param name="state"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
+        public IAsyncResult BeginConnect(AsyncCallback callback, object state, string username, string password) {
+            this.Username = username;
+            this.Password = password;
+            return this.BeginConnect(callback, state);
+        }
+
+        /// <summary>
+        /// Connect to the server asynchronously
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <param name="state"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="server"></param>
+        /// <returns></returns>
+        public IAsyncResult BeginConnect(AsyncCallback callback, object state, string username, string password, string server) {
+            this.Username = username;
+            this.Password = password;
+            this.Server = server;
+            return this.BeginConnect(callback, state);
+        }
+
+        /// <summary>
+        /// Connect to the server asynchronously
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <param name="state"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="server"></param>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        public IAsyncResult BeginConnect(AsyncCallback callback, object state, string username, string password, string server, int port) {
+            this.Username = username;
+            this.Password = password;
+            this.Server = server;
+            this.Port = port;
+            return this.BeginConnect(callback, state);
+        }
+
 		/// <summary>
 		/// This is the ConnectionReady event handler. It performs the FTP login
 		/// if a connection to the server has been made.

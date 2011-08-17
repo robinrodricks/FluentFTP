@@ -30,6 +30,11 @@ namespace System.Net.FtpClient {
 	/// <param name="c"></param>
 	/// <param name="e"></param>
 	public delegate void FtpInvalidCertificate(FtpChannel c, InvalidCertificateInfo e);
+    /// <summary>
+    /// Delegate for asynchronous connections
+    /// </summary>
+    /// <returns></returns>
+    public delegate void FtpAsyncInvoker();
 	
 	/// <summary>
 	/// Base class for Ftp*Channel implementations
@@ -408,6 +413,24 @@ namespace System.Net.FtpClient {
 			set { _port = value; }
 		}
 
+        FtpAsyncInvoker _asyncConnect = null;
+        /// <summary>
+        /// Gets an FtpAsyncInvoker object for asynchronous
+        /// connections
+        /// </summary>
+        protected FtpAsyncInvoker AsyncConnect {
+            get {
+                if (_asyncConnect == null) {
+                    _asyncConnect = new FtpAsyncInvoker(Connect);
+                }
+
+                return _asyncConnect;
+            }
+            private set {
+                _asyncConnect = value;
+            }
+        }
+
 		/// <summary>
 		/// Connect this channel
 		/// </summary>
@@ -419,7 +442,36 @@ namespace System.Net.FtpClient {
 			}
 		}
 
-		/// <summary>
+        /// <summary>
+        /// Connect asynchronously
+        /// </summary>
+        /// <returns>IAsyncResult</returns>
+        public virtual IAsyncResult BeginConnect() {
+            return this.BeginConnect(null, this);
+        }
+
+        /// <summary>
+        /// Connect asynchronously
+        /// </summary>
+        /// <param name="state"></param>
+        /// <returns>IAsyncResult</returns>
+        public virtual IAsyncResult BeginConnect(object state) {
+            return this.BeginConnect(null, state);
+        }
+
+        /// <summary>
+        /// Connect asynchronously
+        /// </summary>
+        /// <returns>IAsyncResult</returns>
+        public virtual IAsyncResult BeginConnect(AsyncCallback callback, object state) {
+            return this.AsyncConnect.BeginInvoke(callback, state);
+        }
+
+        public virtual void EndConnect(IAsyncResult result) {
+            this.AsyncConnect.EndInvoke(result);
+        }
+
+        /// <summary>
 		/// Disconnect the socket and free up any resources being used here
 		/// </summary>
 		public virtual void Disconnect() {
