@@ -34,6 +34,10 @@ namespace System.Net.FtpClient {
         }
 
         public override void Write(string message) {
+#if DEBUG
+            Debug.WriteLine(message);
+#endif
+
             if (this.Writer != null) {
                 lock (this.Writer) {
                     this.Writer.Write(message);
@@ -46,6 +50,10 @@ namespace System.Net.FtpClient {
         }
 
         public override void WriteLine(string message) {
+#if DEBUG
+            Debug.WriteLine(message);
+#endif
+
             if (this.Writer != null) {
                 lock (this.Writer) {
                     this.Writer.WriteLine(message);
@@ -69,7 +77,6 @@ namespace System.Net.FtpClient {
 
         public FtpTraceListener()
             : base("FtpTraceListener") {
-            //Debug.Listeners.Add(this);
         }
     }
 }

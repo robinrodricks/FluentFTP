@@ -1,4 +1,8 @@
-﻿*** 8/16/2011
+﻿*** 8/21/2011
+Added new ParseMachineList method to FtpListItem.cs and a new constructor that takes an array of strings
+to deal with servers that don't give MLST format with standards compliance.
+
+*** 8/16/2011
 Fixed bug in Active mode transfers that caused the code to hang when accepting the incoming connection. 
 
 Changed FtpFileSystemObjectList to implement IEenumerable and changed

@@ -198,10 +198,6 @@ namespace System.Net.FtpClient {
                 string buf = this.StreamReader.ReadLine();
 
                 WriteLineToLogStream(string.Format("> {0}", buf));
-
-#if DEBUG
-                Debug.WriteLine(string.Format("> {0}", buf));
-#endif
                 this.LastSocketActivity = DateTime.Now;
 
                 return buf;
@@ -291,10 +287,6 @@ namespace System.Net.FtpClient {
             }
 
             WriteLineToLogStream(traceout);
-
-#if DEBUG
-            Debug.WriteLine(traceout);
-#endif
 
             this.Write(Encoding.Default.GetBytes(data));
         }
@@ -418,11 +410,6 @@ namespace System.Net.FtpClient {
                         }
 
                         WriteLineToLogStream(traceout);
-
-#if DEBUG
-                        Debug.WriteLine(traceout);
-#endif
-
                         cmdstream.Write(cmd, 0, cmd.Length);
 
                         // check the pipeline limits

@@ -614,12 +614,14 @@ namespace System.Net.FtpClient {
 
 				try {
 					if(this.Execute("MLST {0}", path)) {
-						foreach(string s in this.Messages) {
+						/*foreach(string s in this.Messages) {
 							// MLST response starts with a space according to draft-ietf-ftpext-mlst-16
 							if(s.StartsWith(" ")) {
 								return new FtpListItem(s, FtpListType.MLST);
 							}
-						}
+						}*/
+
+                        return new FtpListItem(this.Messages, FtpListType.MLST);
 					}
 				}
 				finally {
