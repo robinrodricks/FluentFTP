@@ -156,15 +156,15 @@ namespace System.Net.FtpClient {
 
 				if(dir.Directories.Count > 0) {
 					foreach(FtpDirectory d in dir.Directories.ToArray()) {
-						d.Delete();
+						d.Delete(recursive);
 					}
 				}
 			}
 
 			this.Client.RemoveDirectory(dir.FullName);
 
-			if(this._dirs.Contains(dir)) {
-				this._dirs.Remove(dir);
+			if(this.Directories.Contains(dir)) {
+				this.Directories.Remove(dir);
 
 #if DEBUG
 				System.Diagnostics.Debug.WriteLine(string.Format("Removed {0} from my directory list!", dir.FullName));
