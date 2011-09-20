@@ -192,6 +192,10 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		File,
 		/// <summary>
+		/// A symbolic link.
+		/// </summary>
+		Link,
+		/// <summary>
 		/// No idea.
 		/// </summary>
 		Unknown
