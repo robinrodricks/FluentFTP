@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Net;
@@ -1331,5 +1332,31 @@ namespace System.Net.FtpClient {
 			: this(username, password, server) {
 			this.Port = port;
 		}
+
+        public FtpClient(Uri uri)
+        {
+            if (uri == null) throw new ArgumentNullException("uri");
+            if (!IsFtpUriScheme(uri)) throw new ArgumentException("Only FTP or FTPS URIs are supported.", "uri");
+
+            var uriBuilder = new UriBuilder(uri);
+
+            Username = uriBuilder.UserName;
+            Password = uriBuilder.Password;
+            Server = uriBuilder.Host;
+            Port = uriBuilder.Port;
+            
+            if (uriBuilder.Scheme.Equals(UriSchemeFtps))
+                SslMode = FtpSslMode.Explicit;
+            else
+                SslMode = FtpSslMode.None;
+        }
+
+	    static bool IsFtpUriScheme(Uri uri)
+        {
+            var ftpSchemes = new StringCollection { Uri.UriSchemeFtp, UriSchemeFtps };
+            return ftpSchemes.Contains(uri.Scheme);
+        }
+
+	    const string UriSchemeFtps = "ftps";
 	}
 }
