@@ -14,6 +14,7 @@ namespace System.Net.FtpClient {
     /// <param name="status">Status number</param>
     /// <param name="response">Status message</param>
     public delegate void ResponseReceived(string status, string response);
+	public delegate void SecurityNotAvailable(FtpSecurityNotAvailable e);
 	
 	/// <summary>
     /// The communication channel for the FTP server / used for issuing commands
@@ -58,6 +59,17 @@ namespace System.Net.FtpClient {
             get { return _enablePipelining; }
             set { _enablePipelining = value; }
         }
+
+		event SecurityNotAvailable _secNotAvailable = null;
+		/// <summary>
+		/// Event is fired when the AUTH command fails for
+		/// explicit SSL connections. A cancel property is
+		/// provided to allow you to abort the connection.
+		/// </summary>
+		public event SecurityNotAvailable SecurityNotAvailable {
+			add { this._secNotAvailable += value; }
+			remove { this._secNotAvailable -= value; }
+		}
 
         event ResponseReceived _responseReceived = null;
         /// <summary>
@@ -754,9 +766,18 @@ namespace System.Net.FtpClient {
             }
 
             if (this.SslMode == FtpSslMode.Explicit) {
-                if (this.Execute("AUTH TLS") || this.Execute("AUTH SSL")) {
-                    this.AuthenticateConnection();
-                }
+				if(this.Execute("AUTH TLS") || this.Execute("AUTH SSL")) {
+					this.AuthenticateConnection();
+				}
+				else if(this._secNotAvailable != null) {
+					FtpSecurityNotAvailable secna = new FtpSecurityNotAvailable(this);
+
+					this._secNotAvailable(secna);
+
+					if(secna.Cancel) {
+						throw new FtpCommandException(this);
+					}
+				}
             }
 
             if (this.SslEnabled && this.DataChannelEncryption) {
