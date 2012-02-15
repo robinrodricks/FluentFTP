@@ -50,7 +50,8 @@ namespace System.Net.FtpClient.Proxy
         /// <param name="port">The remote port to connect to.</param>
         public override void Connect(string host, int port)
         {
-            this.Connect(GetConnectCommand(host, port));
+            byte[] connectCommand = this.GetConnectCommand(host, port);
+            this.Connect(connectCommand);
         }
 
         /// <summary>
