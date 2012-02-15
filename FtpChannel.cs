@@ -7,6 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.IO;
 using System.Diagnostics;
 using System.Text;
+using System.Net.FtpClient.Proxy;
 
 namespace System.Net.FtpClient {
 	/// <summary>
@@ -152,23 +153,60 @@ namespace System.Net.FtpClient {
 			private set { _sslCertificate = value; }
 		}
 
-		Socket _sock = null;
-		/// <summary>
-		/// Connection
-		/// </summary>
-		protected Socket Socket {
-			get {
-				if (_sock == null) {
-					_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-				}
+        /// <summary>
+        /// The proxy server type used for the connection.
+        /// </summary>
+        public ProxyType ProxyType { get; set; }
 
-				return _sock;
-			}
+        /// <summary>
+        /// The proxy server address.
+        /// </summary>
+        public string ProxyHost { get; set; }
 
-			set {
-				_sock = value;
-			}
-		}
+        /// <summary>
+        /// The proxy server port.
+        /// </summary>
+        public int ProxyPort { get; set; }
+
+        /// <summary>
+        /// The proxy server username used to connect.
+        /// </summary>
+        public string ProxyUsername { get; set; }
+
+        /// <summary>
+        /// The proxy server password used to connect.
+        /// </summary>
+        public string ProxyPassword { get; set; }
+
+        ProxySocket _sock = null;
+        /// <summary>
+        /// Connection
+        /// </summary>
+        protected ProxySocket Socket
+        {
+            get
+            {
+                if (_sock == null)
+                {
+                    _sock = new ProxySocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    _sock.ProxyType = ProxyType.None;
+                    if (this.ProxyType != ProxyType.None)
+                    {
+                        _sock.ProxyType = this.ProxyType;
+                        _sock.ProxyEndPoint = new IPEndPoint(IPAddress.Parse(this.ProxyHost), this.ProxyPort);
+                        _sock.ProxyUsername = this.ProxyUsername;
+                        _sock.ProxyPassword = this.ProxyPassword;
+                    }
+                }
+
+                return _sock;
+            }
+
+            set
+            {
+                _sock = value;
+            }
+        }
 
 		/// <summary>
 		/// Default buffer size of the underlying socket

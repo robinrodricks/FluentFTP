@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Net.FtpClient.Proxy;
 
 namespace System.Net.FtpClient {
     /// <summary>
@@ -61,7 +62,15 @@ namespace System.Net.FtpClient {
         protected Socket Socket {
             get {
                 if (this._socket == null) {
-                    this.Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    this._socket = new ProxySocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    (this._socket as ProxySocket).ProxyType = ProxyType.None;
+                    if (this.ControlConnection.ProxyType != ProxyType.None)
+                    {
+                        (this._socket as ProxySocket).ProxyType = this.ControlConnection.ProxyType;
+                        (this._socket as ProxySocket).ProxyEndPoint = new IPEndPoint(IPAddress.Parse(this.ControlConnection.ProxyHost), this.ControlConnection.ProxyPort);
+                        (this._socket as ProxySocket).ProxyUsername = this.ControlConnection.ProxyUsername;
+                        (this._socket as ProxySocket).ProxyPassword = this.ControlConnection.ProxyPassword;
+                    }
                 }
 
                 return this._socket;
