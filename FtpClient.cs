@@ -416,6 +416,26 @@ namespace System.Net.FtpClient {
 			return list;
 		}
 
+        /// <summary>
+        /// Changes the CHMOD of the file at specified path.
+        /// </summary>
+        /// <param name="mode">The desired chmod. (ie: 755, etc...)</param>
+        /// <param name="path">The file of the file.</param>
+        public void SetCHMod(string mode, string path)
+        {
+            this.LockControlConnection();
+
+            try
+            {
+                if (!this.Execute("SITE CHMOD {0} {1}", mode, path))
+                    throw new FtpCommandException(this);
+            }
+            finally
+            {
+                this.UnlockControlConnection();
+            }
+        }
+
 		/// <summary>
 		/// Changes the current working directory
 		/// </summary>
