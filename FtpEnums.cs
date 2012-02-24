@@ -233,4 +233,17 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		Implicit
 	}
+
+	[Flags]
+	/// <summary>
+	/// Permission flags, identical to UNIX file system permissions
+	/// 1 = X
+	/// 2 = W
+	/// 4 = R
+	/// </summary>
+	public enum FtpPermission : uint {
+		Execute = 1,
+		Write = 2,
+		Read = 4
+	}
 }

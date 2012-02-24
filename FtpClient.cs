@@ -416,25 +416,50 @@ namespace System.Net.FtpClient {
 			return list;
 		}
 
-        /// <summary>
-        /// Changes the CHMOD of the file at specified path.
-        /// </summary>
-        /// <param name="mode">The desired chmod. (ie: 755, etc...)</param>
-        /// <param name="path">The file of the file.</param>
-        public void SetCHMod(string mode, string path)
-        {
-            this.LockControlConnection();
+		/// <summary>
+		/// Set permissions on the specified object using the chmod command. Some server may not
+		/// support chmod so be prepared to handle the subsequent FtpCommandException that may 
+		/// be thrown.
+		/// </summary>
+		/// <param name="path">Path of the object to change the permissions on</param>
+		/// <param name="user">Permissions for the user that owns the object</param>
+		/// <param name="group">Permissions for the group the object belongs to</param>
+		/// <param name="others">Permissions for other users on the system</param>
+		public void SetPermissions(string path, FtpPermission user, FtpPermission group, FtpPermission others) {
+			this.SetPermissions(path, (uint)user, (uint)group, (uint)others);
+		}
 
-            try
-            {
-                if (!this.Execute("SITE CHMOD {0} {1}", mode, path))
-                    throw new FtpCommandException(this);
-            }
-            finally
-            {
-                this.UnlockControlConnection();
-            }
-        }
+		/// <summary>
+		/// Set permissions on the specified object using the chmod command. Some server may not
+		/// support chmod so be prepared to handle the subsequent FtpCommandException that may 
+		/// be thrown.
+		/// </summary>
+		/// <param name="path">Path of the object to change the permissions on</param>
+		/// <param name="user">Permissions for the user that owns the object</param>
+		/// <param name="group">Permissions for the group the object belongs to</param>
+		/// <param name="others">Permissions for other users on the system</param>
+		public void SetPermissions(string path, uint user, uint group, uint others) {
+			this.SetPermissions(path, string.Format("{0}{1}{2}", user, group, others));
+		}
+
+		/// <summary>
+		/// Set permissions on the specified object using the chmod command. Some server may not
+		/// support chmod so be prepared to handle the subsequent FtpCommandException that may 
+		/// be thrown.
+		/// </summary>
+		/// <param name="path">Path of the object to change the permissions on</param>
+		/// <param name="mode">3 digit mode of the object</param>
+		public void SetPermissions(string path, string mode) {
+			this.LockControlConnection();
+
+			try {
+				if(!this.Execute("SITE CHMOD {0} {1}", mode, path))
+					throw new FtpCommandException(this);
+			}
+			finally {
+				this.UnlockControlConnection();
+			}
+		}
 
 		/// <summary>
 		/// Changes the current working directory
