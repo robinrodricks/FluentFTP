@@ -242,8 +242,12 @@ namespace System.Net.FtpClient {
 	/// 4 = R
 	/// </summary>
 	public enum FtpPermission : uint {
+		None = 0,
 		Execute = 1,
 		Write = 2,
-		Read = 4
+		Read = 4,
+		ReadWrite = Read | Write,
+		ReadExecute = Read | Execute,
+		ReadWriteExecute = Read | Write | Execute
 	}
 }
