@@ -96,6 +96,79 @@ namespace System.Net.FtpClient {
 			set { _modifyIndex = value; }
 		}
 
+        /// <summary>
+        /// The mode of the object. null is return when this information is not available.
+        /// </summary>
+        public string Mode
+        {
+            get
+            {
+                if (this.ModeIndex > 0 && this.Match != null && this.Match.Groups.Count > this.ModeIndex)
+                    return this.Match.Groups[this.ModeIndex].Value;
+                return null;
+            }
+        }
+
+        int _modeIndex = 0;
+        /// <summary>
+        /// The index of the match group collection where the object mode can be found after
+        /// a successful parse. Setting a less than 1 value indicates that this field is not available.
+        /// </summary>
+        public int ModeIndex
+        {
+            get { return _modeIndex; }
+            set { _modeIndex = value; }
+
+        }
+
+        /// <summary>
+        /// The owner of the object. null is return when this information is not available.
+        /// </summary>
+        public string Owner
+        {
+            get
+            {
+                if (this.OwnerIndex > 0 && this.Match != null && this.Match.Groups.Count > this.OwnerIndex)
+                    return this.Match.Groups[this.OwnerIndex].Value;
+                return null;
+            }
+        }
+
+        int _ownerIndex = 0;
+        /// <summary>
+        /// The index of the match group collection where the object owner can be found after
+        /// a successful parse. Setting a less than 1 value indicates that this field is not available.
+        /// </summary>
+        public int OwnerIndex
+        {
+            get { return _ownerIndex; }
+            set { _ownerIndex = value; }
+        }
+
+        /// <summary>
+        /// The group of the object. null is return when this information is not available.
+        /// </summary>
+        public string Group
+        {
+            get
+            {
+                if (this.GroupIndex > 0 && this.Match != null && this.Match.Groups.Count > this.GroupIndex)
+                    return this.Match.Groups[this.GroupIndex].Value;
+                return null;
+            }
+        }
+
+        int _groupIndex = 0;
+        /// <summary>
+        /// The index of the match group collection where the object group can be found after
+        /// a successful parse. Setting a less than 1 value indicates that this field is not available.
+        /// </summary>
+        public int GroupIndex
+        {
+            get { return _groupIndex; }
+            set { _groupIndex = value; }
+        }
+
 		Match _m = null;
 		/// <summary>
 		/// The match result after calling the Parse() method.
@@ -132,13 +205,19 @@ namespace System.Net.FtpClient {
 		/// <param name="nameIndex"></param>
 		/// <param name="sizeIndex"></param>
 		/// <param name="modifyIndex"></param>
+        /// <param name="modeIndex"></param>
+        /// <param name="ownerIndex"></param>
+        /// <param name="groupIndex"></param>
 		/// <param name="type"></param>
-		public FtpListFormatParser(Regex re, int nameIndex, int sizeIndex, int modifyIndex, FtpObjectType type) {
-			this.Regex = re;
-			this.NameIndex = nameIndex;
-			this.SizeIndex = sizeIndex;
-			this.ModifyIndex = modifyIndex;
-			this.ObjectType = type;
+        public FtpListFormatParser(Regex re, int nameIndex, int sizeIndex, int modifyIndex, int modeIndex, int ownerIndex, int groupIndex, FtpObjectType type) {
+            this.Regex = re;
+            this.NameIndex = nameIndex;
+            this.SizeIndex = sizeIndex;
+            this.ModifyIndex = modifyIndex;
+            this.ModeIndex = modeIndex;
+            this.OwnerIndex = ownerIndex;
+            this.GroupIndex = groupIndex;
+            this.ObjectType = type;
 		}
 
 		/// <summary>
@@ -149,17 +228,23 @@ namespace System.Net.FtpClient {
 		/// <param name="nameIndex"></param>
 		/// <param name="sizeIndex"></param>
 		/// <param name="modifyIndex"></param>
+        /// <param name="modeIndex"></param>
+        /// <param name="ownerIndex"></param>
+        /// <param name="groupIndex"></param>
 		/// <param name="type"></param>
-		public FtpListFormatParser(string regex, int nameIndex, int sizeIndex, int modifyIndex, FtpObjectType type)
-			: this(new Regex(regex), nameIndex, sizeIndex, modifyIndex, type) {
-		}
+        public FtpListFormatParser(string regex, int nameIndex, int sizeIndex, int modifyIndex, int modeIndex, int ownerIndex, int groupIndex, FtpObjectType type)
+            : this(new Regex(regex), nameIndex, sizeIndex, modifyIndex, modeIndex, ownerIndex, groupIndex, type) {
+        }
 
 		public void Dispose() {
-			this.Regex = null;
-			this.Match = null;
-			this.NameIndex = 0;
-			this.SizeIndex = 0;
-			this.ModifyIndex = 0;
+            this.Regex = null;
+            this.Match = null;
+            this.NameIndex = 0;
+            this.SizeIndex = 0;
+            this.ModifyIndex = 0;
+            this.ModeIndex = 0;
+            this.GroupIndex = 0;
+            this.OwnerIndex = 0;
 		}
 
 		static List<FtpListFormatParser> _listParsers = null;
@@ -174,47 +259,47 @@ namespace System.Net.FtpClient {
 
 					// initalize the default set of parsers
 
-					// DOS format directory
-					_listParsers.Add(new FtpListFormatParser(
-						@"(\d+-\d+-\d+\s+\d+:\d+\w+)\s+<DIR>\s+(.*)",
-						2, 0, 1, FtpObjectType.Directory));
+                    // DOS format directory
+                    _listParsers.Add(new FtpListFormatParser(
+                        @"(\d+-\d+-\d+\s+\d+:\d+\w+)\s+<DIR>\s+(.*)",
+                        2, -1, 1, -1, -1, -1, FtpObjectType.Directory));
 
-					// DOS format file
-					_listParsers.Add(new FtpListFormatParser(
-						@"(\d+-\d+-\d+\s+\d+:\d+\w+)\s+(\d+)\s+(.*)",
-						3, 2, 0, FtpObjectType.File));
+                    // DOS format file
+                    _listParsers.Add(new FtpListFormatParser(
+                        @"(\d+-\d+-\d+\s+\d+:\d+\w+)\s+(\d+)\s+(.*)",
+                        3, 2, 1, -1, -1, -1, FtpObjectType.File));
 
-					// UNIX format directory
-					_listParsers.Add(new FtpListFormatParser(
-						@"d[\w-]{9}\s+\d+\s+[\w\d]+\s+[\w\d]+\s+\d+\s+\w+\s+\d+\s+\d+:?\d+\s+(.*)",
-						1, 0, 0, FtpObjectType.Directory));
+                    // UNIX format directory
+                    _listParsers.Add(new FtpListFormatParser(
+                        @"(d[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+\d+\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
+                        5, -1, 4, 1, 2, 3, FtpObjectType.Directory));
 
-					// UNIX format file
-					_listParsers.Add(new FtpListFormatParser(
-						@"-[\w-]{9}\s+\d+\s+[\w\d]+\s+[\w\d]+\s+(\d+)\s+\w+\s+\d+\s+\d+:?\d+\s+(.*)",
-						2, 1, 0, FtpObjectType.File));
+                    // UNIX format file
+                    _listParsers.Add(new FtpListFormatParser(
+                        @"(-[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
+                        6, 4, 5, 1, 2, 3, FtpObjectType.File));
 
-					// UNIX format link
-					// THIS IS BROKEN. Other list methods return only the name
-					// however the link will point at the full path of the object.
-					_listParsers.Add(new FtpListFormatParser(
-						@"l[\w-]{9}\s+\d+\s+[\w\d]+\s+[\w\d]+\s+(\d+)\s+\w+\s+\d+\s+\d+:?\d+\s+.*->\s+(.*)",
-						2, 1, 0, FtpObjectType.Link));
+                    // UNIX format link
+                    // THIS IS BROKEN. Other list methods return only the name
+                    // however the link will point at the full path of the object.
+                    _listParsers.Add(new FtpListFormatParser(
+                        @"(l[\w-]{9})\s+\d+\s+[\w\d]+\s+[\w\d]+\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+.*->\s+(.*)",
+                        6, 4, 5, 1, 2, 3, FtpObjectType.Link));
 
 
-					//
-					// see work item 349 in the issue tracker for the bug report
-					// indicating the format being parsed here.
-					//
-					// other format directory
-					_listParsers.Add(new FtpListFormatParser(
-						@"d[\w-]+\s\d+\s[\d\w]+\s\d+\s+\w+\s+\d+\s+\d+:?\d+\s+(.*)",
-						1, 0, 0, FtpObjectType.Directory));
+                    //
+                    // see work item 349 in the issue tracker for the bug report
+                    // indicating the format being parsed here.
+                    //
+                    // other format directory
+                    _listParsers.Add(new FtpListFormatParser(
+                        @"d[\w-]+\s\d+\s[\d\w]+\s\d+\s+\w+\s+\d+\s+\d+:?\d+\s+(.*)",
+                        1, 0, 0, 0, 0, 0, FtpObjectType.Directory));
 
-					// other format file
-					_listParsers.Add(new FtpListFormatParser(
-						@"-[\w-]+\s+\d+\s+[\w\d]+\s+(\d+)\s+\w+\s+\d+\s+\d+:?\d+\s+(.*)",
-						2, 1, 0, FtpObjectType.File));
+                    // other format file
+                    _listParsers.Add(new FtpListFormatParser(
+                        @"-[\w-]+\s+\d+\s+[\w\d]+\s+(\d+)\s+\w+\s+\d+\s+\d+:?\d+\s+(.*)",
+                        2, 1, 0, 0, 0, 0, FtpObjectType.File));
 				}
 
 				return _listParsers;

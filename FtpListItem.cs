@@ -36,6 +36,16 @@ namespace System.Net.FtpClient {
 			set { _size = value; }
 		}
 
+        string _mode = "0000";
+        /// <summary>
+        /// The file mode from the listing, default 0000
+        /// </summary>
+        public string Mode
+        {
+            get { return _mode; }
+            set { _mode = value; }
+        }
+
 		DateTime _modify = DateTime.MinValue;
 		/// <summary>
 		/// The last write time from the listing
@@ -45,6 +55,26 @@ namespace System.Net.FtpClient {
 			set { _modify = value; }
 		}
 
+        public string _owner = null;
+        /// <summary>
+        /// The file's owner from the listing
+        /// </summary>
+        public string Owner
+        {
+            get { return _owner; }
+            set { _owner = value; }
+        }
+
+        public string _group = null;
+        /// <summary>
+        /// The file's group from the listing
+        /// </summary>
+        public string Group
+        {
+            get { return _group; }
+            set { _group = value; }
+        }
+
 		#region LIST parsing
 		/// <summary>
 		/// Parses DOS and UNIX LIST style listings
@@ -53,10 +83,13 @@ namespace System.Net.FtpClient {
 		private void ParseListListing(string listing) {
 			foreach(FtpListFormatParser p in FtpListFormatParser.Parsers) {
 				if(p.Parse(listing)) {
-					this.Type = p.ObjectType;
-					this.Name = p.Name;
-					this.Size = p.Size;
-					this.Modify = p.Modify;
+                    this.Type = p.ObjectType;
+                    this.Name = p.Name;
+                    this.Size = p.Size;
+                    this.Modify = p.Modify;
+                    this.Mode = p.Mode;
+                    this.Owner = p.Owner;
+                    this.Group = p.Group;
 
 					return;
 				}
@@ -112,6 +145,18 @@ namespace System.Net.FtpClient {
 									}
 								}
 								break;
+                            case "unix.mode":
+                                if (this.Mode == "0000")
+                                    this.Mode = matches[1];
+                                break;
+                            case "unix.owner":
+                                if (this.Owner == null)
+                                    this.Owner = matches[1];
+                                break;
+                            case "unix.group":
+                                if (this.Group == null)
+                                    this.Group = matches[1];
+                                break;
 						}
 					}
 					else if(matches.Count == 1 && this.Name == null) {
@@ -163,6 +208,9 @@ namespace System.Net.FtpClient {
 			this.Name = parser.Name;
 			this.Size = parser.Size;
 			this.Modify = parser.Modify;
+            this.Mode = parser.Mode;
+            this.Owner = parser.Owner;
+            this.Group = parser.Group;
 		}
 
 		/// <summary>
