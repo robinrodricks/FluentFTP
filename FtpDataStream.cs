@@ -349,7 +349,7 @@ namespace System.Net.FtpClient {
             }
 
             data = this.StreamReader.ReadLine();
-            FtpControlConnection.WriteLineToLogStream("> " + data);
+            ControlConnection.WriteLineToLogStream("> " + data);
 
             return data;
         }

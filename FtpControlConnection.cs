@@ -807,12 +807,12 @@ namespace System.Net.FtpClient {
             this.ConnectionReady += new FtpChannelConnected(OnChannelConnected);
         }
 
-        static FtpTraceListener TraceListener = new FtpTraceListener();
+        private FtpTraceListener TraceListener = new FtpTraceListener();
         /// <summary>
         /// Gets or sets a stream to log FTP transactions to. Can be
         /// used for logging to a file, the console window, or what have you.
         /// </summary>
-        public static Stream FtpLogStream {
+        public Stream FtpLogStream {
             get { return TraceListener.OutputStream; }
             set { TraceListener.OutputStream = value; }
         }
@@ -822,7 +822,7 @@ namespace System.Net.FtpClient {
         /// output stream should be flushed everytime
         /// a log enter is written to it.
         /// </summary>
-        public static bool FtpLogFlushOnWrite {
+        public bool FtpLogFlushOnWrite {
             get { return TraceListener.FlushOnWrite; }
             set { TraceListener.FlushOnWrite = value; }
         }
@@ -831,7 +831,7 @@ namespace System.Net.FtpClient {
         /// Writes a message to the FTP log stream
         /// </summary>
         /// <param name="message"></param>
-        public static void WriteToLogStream(string message) {
+        public void WriteToLogStream(string message) {
             TraceListener.Write(message);
         }
 
@@ -839,7 +839,7 @@ namespace System.Net.FtpClient {
         /// Writes a line to the FTP log stream
         /// </summary>
         /// <param name="message"></param>
-        public static void WriteLineToLogStream(string message) {
+        public void WriteLineToLogStream(string message) {
             TraceListener.WriteLine(message);
         }
     }
