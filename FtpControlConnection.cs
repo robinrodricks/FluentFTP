@@ -15,7 +15,8 @@ namespace System.Net.FtpClient {
     /// <param name="response">Status message</param>
     public delegate void ResponseReceived(string status, string response);
 	public delegate void SecurityNotAvailable(FtpSecurityNotAvailable e);
-	
+	public delegate string CustomLogMessage(string originalMessage);
+
 	/// <summary>
     /// The communication channel for the FTP server / used for issuing commands
     /// and controlling transactions.
@@ -808,6 +809,9 @@ namespace System.Net.FtpClient {
         }
 
         private FtpTraceListener TraceListener = new FtpTraceListener();
+
+        public CustomLogMessage LogMessage;
+
         /// <summary>
         /// Gets or sets a stream to log FTP transactions to. Can be
         /// used for logging to a file, the console window, or what have you.
@@ -832,6 +836,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="message"></param>
         public void WriteToLogStream(string message) {
+            if (LogMessage != null) {
+                message = LogMessage(message);
+            }
             TraceListener.Write(message);
         }
 
@@ -840,6 +847,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="message"></param>
         public void WriteLineToLogStream(string message) {
+            if (LogMessage != null) {
+                message = LogMessage(message);
+            }
             TraceListener.WriteLine(message);
         }
     }
