@@ -3,7 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Net.FtpClient.NET4", "System.Net.FtpClient.NET4.csproj", "{224AE20C-09D7-4CF7-BD5D-B61267EEF8E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{337C4246-70AB-4EBE-96FE-450163DC4D1A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C676B9AC-A048-41B0-8FC5-823F187D884D}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+		System.Net.FtpClient.NET4.vsmdi = System.Net.FtpClient.NET4.vsmdi
+		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(TestCaseManagementSettings) = postSolution
+		CategoryFile = System.Net.FtpClient.NET4.vsmdi
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -23,6 +35,16 @@ Global
 		{224AE20C-09D7-4CF7-BD5D-B61267EEF8E6}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{224AE20C-09D7-4CF7-BD5D-B61267EEF8E6}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{224AE20C-09D7-4CF7-BD5D-B61267EEF8E6}.Release|x86.ActiveCfg = Release|Any CPU
+		{337C4246-70AB-4EBE-96FE-450163DC4D1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{337C4246-70AB-4EBE-96FE-450163DC4D1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{337C4246-70AB-4EBE-96FE-450163DC4D1A}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{337C4246-70AB-4EBE-96FE-450163DC4D1A}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{337C4246-70AB-4EBE-96FE-450163DC4D1A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{337C4246-70AB-4EBE-96FE-450163DC4D1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{337C4246-70AB-4EBE-96FE-450163DC4D1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{337C4246-70AB-4EBE-96FE-450163DC4D1A}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{337C4246-70AB-4EBE-96FE-450163DC4D1A}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{337C4246-70AB-4EBE-96FE-450163DC4D1A}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

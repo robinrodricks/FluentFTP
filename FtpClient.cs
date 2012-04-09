@@ -1315,7 +1315,7 @@ namespace System.Net.FtpClient {
 			}
 
 			using(FtpDataStream ch = this.OpenWrite(remote.FullName, datatype, rest)) {
-				byte[] buf = new byte[ch.ReceiveBufferSize];
+				byte[] buf = new byte[ch.SendBufferSize];
 				DateTime start = DateTime.Now;
 				FtpTransferInfo e;
 
