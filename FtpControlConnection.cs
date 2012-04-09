@@ -28,6 +28,26 @@ namespace System.Net.FtpClient {
         /// </summary>
         Mutex mCommandLock = new Mutex();
 
+        int _keepAliveInterval = 0;
+        /// <summary>
+        /// Sets an interval in seconds to send keep-alive commands to the server
+        /// during data transfers. This should not be required, it's 
+        /// not even outline in RFC959. The server should not close the
+        /// control connection, if it does it's a bug. With that said
+        /// it does happen so this feature is there to help work around
+        /// it in cases where the server cannot be upgraded. It is a last
+        /// ditch effort and unsupported. If it doesn't solve your problem
+        /// then contact the administrator of the server where the timeout
+        /// occurs and ask them to upgrade their software.
+        /// 
+        /// A setting of 0 (default) disables this feature. Do not set the value
+        /// too low, I recommend starting at about 15 seconds.
+        /// </summary>
+        public int KeepAliveInterval {
+            get { return _keepAliveInterval; }
+            set { _keepAliveInterval = value; }
+        }
+
         FtpSslMode _sslMode = FtpSslMode.Explicit;
         /// <summary>
         /// Sets the type of SSL to use when the EnableSSL property is

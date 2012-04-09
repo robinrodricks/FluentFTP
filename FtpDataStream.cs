@@ -29,6 +29,12 @@ namespace System.Net.FtpClient {
             private set { _started = value; }
         }
 
+        DateTime _lastNoOp = DateTime.Now;
+        protected DateTime LastNoOp {
+            get { return _lastNoOp; }
+            set { _lastNoOp = value; }
+        }
+
 		/// <summary>
 		/// Gets the receive buffer size of the underlying socket
 		/// </summary>
@@ -300,6 +306,12 @@ namespace System.Net.FtpClient {
                 throw new IOException("The base stream is null. Has a socket connection been opened yet?");
             }
 
+            // keep-alive hack
+            if (DateTime.Now.Subtract(this.LastNoOp).Seconds >= this.ControlConnection.KeepAliveInterval) {
+                this.ControlConnection.Execute("NOOP");
+                this.LastNoOp = DateTime.Now;
+            }
+
             this.BaseStream.Write(buffer, offset, count);
             this._position += count;
         }
@@ -328,6 +340,13 @@ namespace System.Net.FtpClient {
             // if EOF close stream
             if (read == 0) {
                 this.Close();
+            }
+            else {
+                // keep-alive hack
+                if (DateTime.Now.Subtract(this.LastNoOp).Seconds >= this.ControlConnection.KeepAliveInterval) {
+                    this.ControlConnection.Execute("NOOP");
+                    this.LastNoOp = DateTime.Now;
+                }
             }
 
             return read;
