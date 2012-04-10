@@ -18,6 +18,14 @@ namespace System.Net.FtpClient {
     /// <summary>
     /// FtpClient library
     /// </summary>
+    /// <example>
+    ///     This example attempts to illustrate a file download.
+    ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+    /// </example>
+    /// <example>
+    ///     This example attempts to illustrate a file upload.
+    ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+    /// </example>
     public class FtpClient : FtpControlConnection {
         string _username = null;
         /// <summary>

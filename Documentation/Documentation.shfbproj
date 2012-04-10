@@ -29,18 +29,18 @@
     <FeedbackEMailAddress>jptrosclair%40gmail.com</FeedbackEMailAddress>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\bin\net4\Release\System.Net.FtpClient.XML" xmlns="" />
-      <DocumentationSource sourceFile="..\bin\net4\Release\System.Net.FtpClient.dll" xmlns="" />
-    </DocumentationSources>
+      <DocumentationSource sourceFile="..\bin\net4\Debug\System.Net.FtpClient.dll" />
+<DocumentationSource sourceFile="..\bin\net4\Debug\System.Net.FtpClient.XML" /></DocumentationSources>
     <ProjectSummary>System.Net.FtpClient API Reference</ProjectSummary>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="System.Net.FtpClient" isDocumented="True" xmlns="">The core FTP client objects.</NamespaceSummaryItem>
-<NamespaceSummaryItem name="System.Net.FtpClient.Proxy" isDocumented="True" xmlns="">Proxy implementation.</NamespaceSummaryItem></NamespaceSummaries>
+      <NamespaceSummaryItem name="System.Net.FtpClient.Proxy" isDocumented="True" xmlns="">Proxy implementation.</NamespaceSummaryItem>
+    </NamespaceSummaries>
     <WebsiteSdkLinkType>Msdn</WebsiteSdkLinkType>
     <HtmlSdkLinkType>Msdn</HtmlSdkLinkType>
     <IncludeFavorites>True</IncludeFavorites>
     <BinaryTOC>True</BinaryTOC>
-    <HelpFileFormat>HtmlHelp1, MSHelpViewer</HelpFileFormat>
+    <HelpFileFormat>HtmlHelp1</HelpFileFormat>
     <IndentHtml>False</IndentHtml>
     <FrameworkVersion>.NET 4.0.30319</FrameworkVersion>
     <KeepLogFile>True</KeepLogFile>
