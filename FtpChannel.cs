@@ -105,7 +105,7 @@ namespace System.Net.FtpClient {
 		}
 
 		/// <summary>
-		/// Fire the invalid ssl certificate event
+		/// Fire the invalid SSL certificate event
 		/// </summary>
 		public void OnInvalidSslCerticate(FtpChannel c, InvalidCertificateInfo e) {
 			if (this._onBadCert != null) {
@@ -115,7 +115,7 @@ namespace System.Net.FtpClient {
 
 		private bool _isServerSocket = false;
 		/// <summary>
-		/// Indicates if this is an incomming (active) or outgoing channel (passive)
+		/// Indicates if this is an incoming (active) or outgoing channel (passive)
 		/// </summary>
 		protected bool IsServerSocket {
 			get { return _isServerSocket; }
@@ -505,6 +505,10 @@ namespace System.Net.FtpClient {
             return this.AsyncConnect.BeginInvoke(callback, state);
         }
 
+        /// <summary>
+        /// End connection
+        /// </summary>
+        /// <param name="result">IAsyncResult returned from BeginConnect()</param>
         public virtual void EndConnect(IAsyncResult result) {
             this.AsyncConnect.EndInvoke(result);
         }

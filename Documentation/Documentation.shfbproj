@@ -36,6 +36,27 @@
     <NamespaceSummaries>
       <NamespaceSummaryItem name="System.Net.FtpClient" isDocumented="True" xmlns="">The core FTP client objects.</NamespaceSummaryItem>
 <NamespaceSummaryItem name="System.Net.FtpClient.Proxy" isDocumented="True" xmlns="">Proxy implementation.</NamespaceSummaryItem></NamespaceSummaries>
+    <WebsiteSdkLinkType>Msdn</WebsiteSdkLinkType>
+    <HtmlSdkLinkType>Msdn</HtmlSdkLinkType>
+    <IncludeFavorites>True</IncludeFavorites>
+    <BinaryTOC>True</BinaryTOC>
+    <HelpFileFormat>HtmlHelp1, MSHelpViewer</HelpFileFormat>
+    <IndentHtml>False</IndentHtml>
+    <FrameworkVersion>.NET 4.0.30319</FrameworkVersion>
+    <KeepLogFile>True</KeepLogFile>
+    <DisableCodeBlockComponent>False</DisableCodeBlockComponent>
+    <CppCommentsFixup>False</CppCommentsFixup>
+    <CleanIntermediates>True</CleanIntermediates>
+    <TocParentId>-1</TocParentId>
+    <TocParentVersion>100</TocParentVersion>
+    <TopicVersion>100</TopicVersion>
+    <TocOrder>-1</TocOrder>
+    <SelfBranded>True</SelfBranded>
+    <ProductTitle>System.Net.FtpClient</ProductTitle>
+    <VendorName>J.P. Trosclair</VendorName>
+    <MSHelpViewerSdkLinkType>Msdn</MSHelpViewerSdkLinkType>
+    <CatalogVersion>100</CatalogVersion>
+    <CatalogProductId>System.Net.FtpClient</CatalogProductId>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional

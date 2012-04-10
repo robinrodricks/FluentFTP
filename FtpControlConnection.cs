@@ -50,8 +50,7 @@ namespace System.Net.FtpClient {
 
         FtpSslMode _sslMode = FtpSslMode.Explicit;
         /// <summary>
-        /// Sets the type of SSL to use when the EnableSSL property is
-        /// true. The default is Explicit, meaning SSL is negotiated
+        /// Sets the type of SSL to use. The default is Explicit, meaning SSL is negotiated
         /// after the initial connection, before credentials are sent.
         /// </summary>
         public FtpSslMode SslMode {
@@ -343,7 +342,7 @@ namespace System.Net.FtpClient {
 
         /// <summary>
         /// Returns true if the last socket poll was 30 seconds ago. The last poll
-        /// time gets updated everytime data is read or written to the socket.
+        /// time gets updated every time data is read or written to the socket.
         /// </summary>
         protected bool NeedsSocketPoll {
             get {

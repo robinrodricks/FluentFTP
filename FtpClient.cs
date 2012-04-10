@@ -355,6 +355,8 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Gets a file listing, parses it, and returns an array of FtpListItem 
         /// objects that contain the parsed information. Supports MLSD/LIST (DOS and UNIX) formats.
+        /// Most people should use the FtpDirectory/FtpFile classes which have more features than
+        /// the objects returned from this method.
         /// </summary>
         /// <returns></returns>
         public FtpListItem[] GetListing() {
@@ -364,6 +366,8 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Gets a file listing, parses it, and returns an array of FtpListItem 
         /// objects that contain the parsed information. Supports MLSD/LIST (DOS and UNIX) formats.
+        /// Most people should use the FtpDirectory/FtpFile classes which have more features than
+        /// the objects returned from this method.
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
@@ -378,6 +382,8 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Gets a file listing, parses it, and returns an array of FtpListItem 
         /// objects that contain the parsed information. Supports MLSD/LIST (DOS and UNIX) formats.
+        /// Most people should use the FtpDirectory/FtpFile classes which have more features than
+        /// the objects returned from this method.
         /// </summary>
         /// <param name="path"></param>
         /// <param name="type"></param>
@@ -385,7 +391,7 @@ namespace System.Net.FtpClient {
         public FtpListItem[] GetListing(string path, FtpListType type) {
             FtpListItem[] list = FtpListItem.ParseList(this.GetRawListing(path, type), type);
 
-            // parsing last write time out of most LIST formats is not feasable so it's ignored.
+            // parsing last write time out of most LIST formats is not feasible so it's ignored.
             // if the server supports the MDTM command and pipelining is enable, we 
             // can go ahead and retrieve the last write time's of the files in this list.
             if (list.Length > 0 && this.EnablePipelining && this.HasCapability(FtpCapability.MDTM)) {
@@ -860,7 +866,10 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Downloads a file from the server to the current working directory
         /// </summary>
-        /// <param name="remote"></param>
+        /// <param name="remote">The full or relative path to the remote file</param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(string remote) {
             string local = string.Format(@"{0}\{1}",
                 Environment.CurrentDirectory, Path.GetFileName(remote));
@@ -872,6 +881,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="remote"></param>
         /// <param name="local"></param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(string remote, string local) {
             this.Download(remote, local, FtpDataType.Binary, 0);
         }
@@ -881,6 +893,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="remote">The remote file to download</param>
         /// <param name="ostream">The stream to download the file to</param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(string remote, Stream ostream) {
             this.Download(new FtpFile(this, remote), ostream, FtpDataType.Binary, 0);
         }
@@ -891,6 +906,9 @@ namespace System.Net.FtpClient {
         /// <param name="remote">Remote path of the file</param>
         /// <param name="local">Local path of the file</param>
         /// <param name="rest">Resume location</param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(string remote, string local, long rest) {
             this.Download(remote, local, FtpDataType.Binary, rest);
         }
@@ -901,6 +919,9 @@ namespace System.Net.FtpClient {
         /// <param name="remote">Remote path of the file</param>
         /// <param name="ostream">The stream to download the file to</param>
         /// <param name="rest">Resume location</param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(string remote, Stream ostream, long rest) {
             this.Download(new FtpFile(this, remote), ostream, FtpDataType.Binary, rest);
         }
@@ -911,6 +932,9 @@ namespace System.Net.FtpClient {
         /// <param name="remote">Remote path of the file</param>
         /// <param name="local">Local path of the file</param>
         /// <param name="datatype">ASCII/Binary</param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(string remote, string local, FtpDataType datatype) {
             this.Download(remote, local, datatype, 0);
         }
@@ -921,6 +945,9 @@ namespace System.Net.FtpClient {
         /// <param name="remote">Remote path of the file</param>
         /// <param name="ostream">The stream to download the file to</param>
         /// <param name="datatype">ASCII/Binary</param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(string remote, Stream ostream, FtpDataType datatype) {
             this.Download(new FtpFile(this, remote), ostream, datatype, 0);
         }
@@ -932,6 +959,9 @@ namespace System.Net.FtpClient {
         /// <param name="local">Local path of the file</param>
         /// <param name="datatype">ASCII/Binary</param>
         /// <param name="rest">Resume location</param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(string remote, string local, FtpDataType datatype, long rest) {
             this.Download(new FtpFile(this, remote), local, datatype, rest);
         }
@@ -944,6 +974,9 @@ namespace System.Net.FtpClient {
         /// <param name="datatype"></param>
         /// <param name="rest"></param>
         /// <param name="threads"></param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(string remote, string local, FtpDataType datatype, long rest, int threads) {
             this.Download(new FtpFile(this, remote), local, datatype, rest, threads);
         }
@@ -952,6 +985,9 @@ namespace System.Net.FtpClient {
         /// Downloads a file from the server to the current working directory
         /// </summary>
         /// <param name="remote"></param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(FtpFile remote) {
             this.Download(remote, string.Format(@"{0}\{1}",
                 Environment.CurrentDirectory, remote.Name));
@@ -962,6 +998,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="remote"></param>
         /// <param name="local"></param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(FtpFile remote, string local) {
             this.Download(remote, local, FtpDataType.Binary, 0);
         }
@@ -971,6 +1010,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="remote"></param>
         /// <param name="ostream">The stream to write the file to</param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(FtpFile remote, Stream ostream) {
             this.Download(remote, ostream, FtpDataType.Binary, 0);
         }
@@ -981,6 +1023,9 @@ namespace System.Net.FtpClient {
         /// <param name="remote">Remote path of the file</param>
         /// <param name="local">Local path of the file</param>
         /// <param name="rest">Resume location</param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(FtpFile remote, string local, long rest) {
             this.Download(remote, local, FtpDataType.Binary, rest);
         }
@@ -991,6 +1036,9 @@ namespace System.Net.FtpClient {
         /// <param name="remote">Remote path of the file</param>
         /// <param name="ostream">Local path of the file</param>
         /// <param name="rest">Resume location</param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(FtpFile remote, Stream ostream, long rest) {
             this.Download(remote, ostream, FtpDataType.Binary, rest);
         }
@@ -1001,6 +1049,9 @@ namespace System.Net.FtpClient {
         /// <param name="remote">Remote path of the file</param>
         /// <param name="local">Local path of the file</param>
         /// <param name="datatype">ASCII/Binary</param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(FtpFile remote, string local, FtpDataType datatype) {
             this.Download(remote, local, datatype, 0);
         }
@@ -1011,6 +1062,9 @@ namespace System.Net.FtpClient {
         /// <param name="remote">Remote path of the file</param>
         /// <param name="ostream">The stream to download the file to</param>
         /// <param name="datatype">ASCII/Binary</param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(FtpFile remote, Stream ostream, FtpDataType datatype) {
             this.Download(remote, ostream, datatype, 0);
         }
@@ -1022,6 +1076,9 @@ namespace System.Net.FtpClient {
         /// <param name="local"></param>
         /// <param name="datatype"></param>
         /// <param name="rest"></param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(FtpFile remote, string local, FtpDataType datatype, long rest) {
             using (FileStream ostream = new FileStream(local, FileMode.OpenOrCreate, FileAccess.Write)) {
                 try {
@@ -1040,6 +1097,9 @@ namespace System.Net.FtpClient {
         /// <param name="ostream"></param>
         /// <param name="datatype"></param>
         /// <param name="rest"></param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(FtpFile remote, Stream ostream, FtpDataType datatype, long rest) {
             long size = remote.Length;
             long total = 0;
@@ -1101,6 +1161,9 @@ namespace System.Net.FtpClient {
         /// <param name="datatype"></param>
         /// <param name="rest"></param>
         /// <param name="threads"></param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(FtpFile remote, string local, FtpDataType datatype, long rest, int threads) {
             using (FileStream stream = new FileStream(local, FileMode.OpenOrCreate, FileAccess.Write)) {
                 this.Download(remote, stream, datatype, rest, threads);
@@ -1116,6 +1179,9 @@ namespace System.Net.FtpClient {
         /// <param name="datatype"></param>
         /// <param name="rest"></param>
         /// <param name="threads"></param>
+        /// <example>
+        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
+        /// </example>
         public void Download(FtpFile remote, Stream ostream, FtpDataType datatype, long rest, int threads) {
             using (FtpThreadedTransfer txfer = new FtpThreadedTransfer(this)) {
                 txfer.Download(remote, ostream, datatype, rest, threads);
@@ -1126,6 +1192,9 @@ namespace System.Net.FtpClient {
         /// Uploads a file to the server in the current working directory
         /// </summary>
         /// <param name="local"></param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(string local) {
             string remote = string.Format("{0}/{1}",
                 this.CurrentDirectory.FullName,
@@ -1138,6 +1207,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="remote"></param>
         /// <param name="local"></param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(string local, string remote) {
             this.Upload(local, remote, FtpDataType.Binary, 0);
         }
@@ -1147,6 +1219,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="istream"></param>
         /// <param name="remote"></param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(Stream istream, string remote) {
             this.Upload(istream, new FtpFile(this, remote), FtpDataType.Binary, 0);
         }
@@ -1157,6 +1232,9 @@ namespace System.Net.FtpClient {
         /// <param name="remote">Remote path of the file</param>
         /// <param name="local">Local path of the file</param>
         /// <param name="rest">Resume location</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(string local, string remote, long rest) {
             this.Upload(local, remote, FtpDataType.Binary, rest);
         }
@@ -1167,6 +1245,9 @@ namespace System.Net.FtpClient {
         /// <param name="istream">Stream to read the file from</param>
         /// <param name="remote">Remote path of the file</param>
         /// <param name="rest">Resume location</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(Stream istream, string remote, long rest) {
             this.Upload(istream, new FtpFile(this, remote), FtpDataType.Binary, rest);
         }
@@ -1177,6 +1258,9 @@ namespace System.Net.FtpClient {
         /// <param name="remote">Remote path of the file</param>
         /// <param name="local">Local path of the file</param>
         /// <param name="datatype">ASCII/Binary</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(string local, string remote, FtpDataType datatype) {
             this.Upload(local, remote, datatype, 0);
         }
@@ -1187,6 +1271,9 @@ namespace System.Net.FtpClient {
         /// <param name="istream">The stream to read the file from</param>
         /// <param name="remote">Remote path of the file</param>
         /// <param name="datatype">ASCII/Binary</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(Stream istream, string remote, FtpDataType datatype) {
             this.Upload(istream, new FtpFile(this, remote), datatype, 0);
         }
@@ -1198,6 +1285,9 @@ namespace System.Net.FtpClient {
         /// <param name="local">Remote path of the file</param>
         /// <param name="datatype">ASCII/Binary</param>
         /// <param name="rest">Resume location</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(string local, string remote, FtpDataType datatype, long rest) {
             this.Upload(local, new FtpFile(this, remote), datatype, rest);
         }
@@ -1207,6 +1297,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="remote"></param>
         /// <param name="local"></param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(string local, FtpFile remote) {
             this.Upload(local, remote, FtpDataType.Binary, 0);
         }
@@ -1216,6 +1309,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="istream">Stream to read the file from</param>
         /// <param name="remote"></param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(Stream istream, FtpFile remote) {
             this.Upload(istream, remote, FtpDataType.Binary, 0);
         }
@@ -1226,6 +1322,9 @@ namespace System.Net.FtpClient {
         /// <param name="remote">Remote path of the file</param>
         /// <param name="local">Local path of the file</param>
         /// <param name="rest">Resume location</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(string local, FtpFile remote, long rest) {
             this.Upload(local, remote, FtpDataType.Binary, rest);
         }
@@ -1236,6 +1335,9 @@ namespace System.Net.FtpClient {
         /// <param name="istream">The file to upload</param>
         /// <param name="remote">Remote path of the file</param>
         /// <param name="rest">Resume location</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(Stream istream, FtpFile remote, long rest) {
             this.Upload(istream, remote, FtpDataType.Binary, rest);
         }
@@ -1246,6 +1348,9 @@ namespace System.Net.FtpClient {
         /// <param name="remote">Remote path of the file</param>
         /// <param name="local">Local path of the file</param>
         /// <param name="datatype">ASCII/Binary</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(string local, FtpFile remote, FtpDataType datatype) {
             this.Upload(local, remote, datatype, 0);
         }
@@ -1256,6 +1361,9 @@ namespace System.Net.FtpClient {
         /// <param name="istream">The stream to upload</param>
         /// <param name="remote">Remote path of the file</param>
         /// <param name="datatype">ASCII/Binary</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(Stream istream, FtpFile remote, FtpDataType datatype) {
             this.Upload(istream, remote, datatype, 0);
         }
@@ -1267,6 +1375,9 @@ namespace System.Net.FtpClient {
         /// <param name="local">Remote path of the file</param>
         /// <param name="datatype">ASCII/Binary</param>
         /// <param name="rest">Resume location</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(string local, FtpFile remote, FtpDataType datatype, long rest) {
             using (FileStream istream = new FileStream(local, FileMode.Open, FileAccess.Read)) {
                 try {
@@ -1285,6 +1396,9 @@ namespace System.Net.FtpClient {
         /// <param name="remote"></param>
         /// <param name="datatype"></param>
         /// <param name="rest"></param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
         public void Upload(Stream istream, FtpFile remote, FtpDataType datatype, long rest) {
             long size = 0;
             long total = 0;
