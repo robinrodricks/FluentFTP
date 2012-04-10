@@ -307,7 +307,7 @@ namespace System.Net.FtpClient {
             }
 
             // keep-alive hack
-            if (DateTime.Now.Subtract(this.LastNoOp).Seconds >= this.ControlConnection.KeepAliveInterval) {
+            if (this.ControlConnection.KeepAliveInterval > 0 && DateTime.Now.Subtract(this.LastNoOp).Seconds >= this.ControlConnection.KeepAliveInterval) {
                 this.ControlConnection.Execute("NOOP");
                 this.LastNoOp = DateTime.Now;
             }
@@ -343,7 +343,7 @@ namespace System.Net.FtpClient {
             }
             else {
                 // keep-alive hack
-                if (DateTime.Now.Subtract(this.LastNoOp).Seconds >= this.ControlConnection.KeepAliveInterval) {
+                if (this.ControlConnection.KeepAliveInterval > 0 && DateTime.Now.Subtract(this.LastNoOp).Seconds >= this.ControlConnection.KeepAliveInterval) {
                     this.ControlConnection.Execute("NOOP");
                     this.LastNoOp = DateTime.Now;
                 }
