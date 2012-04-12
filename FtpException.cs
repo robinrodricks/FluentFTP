@@ -77,4 +77,15 @@ namespace System.Net.FtpClient {
 		/// <param name="message">The error message</param>
 		public FtpInvalidCertificateException(string message) : base(message) { }
 	}
+
+    /// <summary>
+    /// Error reading the response from the server
+    /// </summary>
+    public class FtpResponseTimeoutException : FtpException {
+        /// <summary>
+        /// Initialize the exception object
+        /// </summary>
+        /// <param name="message">The error message</param>
+        public FtpResponseTimeoutException(string message) : base(message) { }
+    }
 }

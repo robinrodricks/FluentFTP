@@ -4,7 +4,7 @@ using System.Net.FtpClient;
 namespace Download {
     class Program {
         static void Main(string[] args) {
-            using (FtpClient cl = new FtpClient("ftp", "ftp", "ftp.microsoft.com")) {
+            using (FtpClient cl = new FtpClient("ftp", "ftp", "ftp.netbsd.org")) {
                 /////
                 // Logging the transaction
                 /////
@@ -13,7 +13,7 @@ namespace Download {
                 // flush the output buffer so that the transaction
                 // stays in sync with out output going to screen
                 cl.FtpLogFlushOnWrite = true;
-                   
+
                 //////
                 // SSL/TLS configuration
                 // If you're going to use encryption you should handle the 2 events
@@ -22,7 +22,7 @@ namespace Download {
                 // you should handle the InvalidCertificate event.
                 //////
                 // default, use AUTH command to setup encryption
-                cl.SslMode = FtpSslMode.Explicit; 
+                cl.SslMode = FtpSslMode.Explicit;
                 // If you do not handle this event and the AUTH command fails the
                 // login credentials will be sent in plain text!!!! See the event args
                 // for this event handler.
@@ -34,7 +34,7 @@ namespace Download {
                     // The actual download
                     //////
                     cl.TransferProgress += new FtpTransferProgress(OnTransferProgress);
-                    cl.Download("/developr/visualstudio/sp3/core/vssp3_1.exe");
+                    cl.Download("/pub/pkgsrc/current/pkgsrc.tar.gz");
                 }
                 catch (Exception ex) {
                     Console.WriteLine();
@@ -61,7 +61,7 @@ namespace Download {
         }
 
         static void OnTransferProgress(FtpTransferInfo e) {
-            Console.Write("\r{0}/{1} {2}% {3}/s       ", 
+            Console.Write("\r{0}/{1} {2}% {3}/s       ",
                 e.Transferred, e.Length, e.Percentage, e.BytesPerSecond);
 
             if (e.Complete) {

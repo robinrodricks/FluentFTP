@@ -48,6 +48,17 @@ namespace System.Net.FtpClient {
             set { _keepAliveInterval = value; }
         }
 
+        int _responseReadTimeout = 0;
+        /// <summary>
+        /// Gets or sets the maximum time in miliseconds in which the control
+        /// connection will wait for the server to respond to a command. If the
+        /// timeout is exceeded a FtpResponseTimeoutExecption will be thrown.
+        /// </summary>
+        public int ResponseReadTimeout {
+            get { return _responseReadTimeout; }
+            set { _responseReadTimeout = value; }
+        }
+
         FtpSslMode _sslMode = FtpSslMode.Explicit;
         /// <summary>
         /// Sets the type of SSL to use. The default is Explicit, meaning SSL is negotiated
@@ -220,6 +231,12 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
+        /// Delegate used for read response timeout
+        /// </summary>
+        /// <returns></returns>
+        delegate string GetLineFromSocket();
+
+        /// <summary>
         /// Reads a line from the FTP channel socket. Use with discretion,
         /// can cause the code to freeze if you're trying to read data when no data
         /// is being sent.
@@ -227,8 +244,26 @@ namespace System.Net.FtpClient {
         /// <returns></returns>
         protected virtual string ReadLine() {
             if (this.StreamReader != null) {
-                string buf = this.StreamReader.ReadLine();
+                string buf; // = this.StreamReader.ReadLine();
 
+                if (this.ResponseReadTimeout > 0) {
+                    GetLineFromSocket GetLine = new GetLineFromSocket(this.StreamReader.ReadLine);
+                    IAsyncResult ar = GetLine.BeginInvoke(null, null);
+
+                    ar.AsyncWaitHandle.WaitOne(this.ResponseReadTimeout);
+                    if (!ar.IsCompleted) {
+                        // close the socket because we'll need to reconnect to recover
+                        // from this failure
+                        this.Socket.Close();
+                        throw new FtpResponseTimeoutException("Timed out waiting for the server to respond to the last command.");
+                    }
+
+                    buf = GetLine.EndInvoke(ar);
+                }
+                else {
+                    buf = this.StreamReader.ReadLine();
+                }
+               
                 WriteLineToLogStream(string.Format("> {0}", buf));
                 this.LastSocketActivity = DateTime.Now;
 
