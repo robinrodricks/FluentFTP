@@ -29,6 +29,8 @@ namespace Download {
                 cl.SecurityNotAvailable += new SecurityNotAvailable(OnSecurityNotAvailable);
                 cl.InvalidCertificate += new FtpInvalidCertificate(OnInvalidCertficate);
 
+                Console.WriteLine(cl.CurrentDirectory);
+
                 try {
                     //////
                     // The actual download

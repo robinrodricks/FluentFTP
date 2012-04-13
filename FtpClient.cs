@@ -282,7 +282,7 @@ namespace System.Net.FtpClient {
                 this.UnlockControlConnection();
             }
 
-            this.CurrentDirectory = new FtpDirectory(this, "/");
+            //this.CurrentDirectory = new FtpDirectory(this, "/");
         }
 
         /// <summary>

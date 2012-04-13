@@ -119,6 +119,14 @@ namespace System.Net.FtpClient {
 			return System.Text.RegularExpressions.Regex.Replace(path.Replace('\\', '/'), @"/+", "/");
 		}
 
+        /// <summary>
+        /// Returns the full path of this object
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString() {
+            return this.FullName;
+        }
+
 		/// <summary>
 		/// Cleanup an release resources
 		/// </summary>
