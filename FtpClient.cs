@@ -785,11 +785,6 @@ namespace System.Net.FtpClient {
             FtpDataStream s = this.OpenDataStream(datatype);
 
             if (rest > 0) {
-                if (!this.HasCapability(FtpCapability.REST)) {
-                    s.Dispose();
-                    throw new NotImplementedException("The connected server does not support resuming.");
-                }
-
                 s.Seek(rest);
             }
 
@@ -843,17 +838,21 @@ namespace System.Net.FtpClient {
         /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
         public FtpDataStream OpenWrite(string path, FtpDataType datatype, long rest) {
             FtpDataStream s = this.OpenDataStream(datatype);
+            string cmd = null;
 
-            if (rest > 0) {
-                if (!this.HasCapability(FtpCapability.REST)) {
-                    s.Dispose();
-                    throw new NotImplementedException("The connected server does not support resuming.");
+            if (rest > 0 && this.System == "Windows_NT") {
+                this.WriteLineToLogStream("IIS servers do not support REST + STOR. The rest parament will be ignored and the file will be appended to.");
+                cmd = string.Format("APPE {0}", path);
+            }
+            else {
+                if (rest > 0) {
+                    s.Seek(rest);
                 }
 
-                s.Seek(rest);
+                cmd = string.Format("STOR {0}", path);
             }
 
-            if (!s.Execute("STOR {0}", path)) {
+            if(!s.Execute(cmd)) {
                 s.Dispose();
                 throw new FtpCommandException(this);
             }

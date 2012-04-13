@@ -19,16 +19,16 @@ namespace System.Net.FtpClient {
     /// SecurityNotAvailable delegate
     /// </summary>
     /// <param name="e"></param>
-	public delegate void SecurityNotAvailable(FtpSecurityNotAvailable e);
+    public delegate void SecurityNotAvailable(FtpSecurityNotAvailable e);
 
     /// <summary>
     /// Custom log message delegate
     /// </summary>
     /// <param name="originalMessage"></param>
     /// <returns></returns>
-	public delegate string CustomLogMessage(string originalMessage);
+    public delegate string CustomLogMessage(string originalMessage);
 
-	/// <summary>
+    /// <summary>
     /// The communication channel for the FTP server / used for issuing commands
     /// and controlling transactions.
     /// </summary>
@@ -102,16 +102,16 @@ namespace System.Net.FtpClient {
             set { _enablePipelining = value; }
         }
 
-		event SecurityNotAvailable _secNotAvailable = null;
-		/// <summary>
-		/// Event is fired when the AUTH command fails for
-		/// explicit SSL connections. A cancel property is
-		/// provided to allow you to abort the connection.
-		/// </summary>
-		public event SecurityNotAvailable SecurityNotAvailable {
-			add { this._secNotAvailable += value; }
-			remove { this._secNotAvailable -= value; }
-		}
+        event SecurityNotAvailable _secNotAvailable = null;
+        /// <summary>
+        /// Event is fired when the AUTH command fails for
+        /// explicit SSL connections. A cancel property is
+        /// provided to allow you to abort the connection.
+        /// </summary>
+        public event SecurityNotAvailable SecurityNotAvailable {
+            add { this._secNotAvailable += value; }
+            remove { this._secNotAvailable -= value; }
+        }
 
         event ResponseReceived _responseReceived = null;
         /// <summary>
@@ -274,7 +274,7 @@ namespace System.Net.FtpClient {
                 else {
                     buf = this.StreamReader.ReadLine();
                 }
-               
+
                 WriteLineToLogStream(string.Format("> {0}", buf));
                 this.LastSocketActivity = DateTime.Now;
 
@@ -774,7 +774,7 @@ namespace System.Net.FtpClient {
         public FtpDataStream OpenDataStream() {
             return this.OpenDataStream(FtpDataType.Binary);
         }
-       
+
         /// <summary>
         /// Opens a data stream using the format and mode specified
         /// </summary>
@@ -782,7 +782,7 @@ namespace System.Net.FtpClient {
         /// <returns>Data Stream Object</returns>
         public FtpDataStream OpenDataStream(FtpDataType type) {
             this.SetDataType(type);
-           
+
             switch (this.DataChannelType) {
                 case FtpDataChannelType.Passive:
                 case FtpDataChannelType.ExtendedPassive:
@@ -831,18 +831,18 @@ namespace System.Net.FtpClient {
             }
 
             if (this.SslMode == FtpSslMode.Explicit) {
-				if(this.Execute("AUTH TLS") || this.Execute("AUTH SSL")) {
-					this.AuthenticateConnection();
-				}
-				else if(this._secNotAvailable != null) {
-					FtpSecurityNotAvailable secna = new FtpSecurityNotAvailable(this);
+                if (this.Execute("AUTH TLS") || this.Execute("AUTH SSL")) {
+                    this.AuthenticateConnection();
+                }
+                else if (this._secNotAvailable != null) {
+                    FtpSecurityNotAvailable secna = new FtpSecurityNotAvailable(this);
 
-					this._secNotAvailable(secna);
+                    this._secNotAvailable(secna);
 
-					if(secna.Cancel) {
-						throw new FtpCommandException(this);
-					}
-				}
+                    if (secna.Cancel) {
+                        throw new FtpCommandException(this);
+                    }
+                }
             }
 
             if (this.SslEnabled && this.DataChannelEncryption) {
@@ -874,10 +874,14 @@ namespace System.Net.FtpClient {
 
         private FtpTraceListener TraceListener = new FtpTraceListener();
 
+        CustomLogMessage _logMessage;
         /// <summary>
         /// Custom log message delegate
         /// </summary>
-        public CustomLogMessage LogMessage;
+        public CustomLogMessage LogMessage {
+            get { return _logMessage; }
+            set { _logMessage = value; }
+        }
 
         /// <summary>
         /// Gets or sets a stream to log FTP transactions to. Can be
