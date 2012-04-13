@@ -281,8 +281,6 @@ namespace System.Net.FtpClient {
             finally {
                 this.UnlockControlConnection();
             }
-
-            //this.CurrentDirectory = new FtpDirectory(this, "/");
         }
 
         /// <summary>
@@ -974,21 +972,6 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// Downloads a file from the server
-        /// </summary>
-        /// <param name="remote"></param>
-        /// <param name="local"></param>
-        /// <param name="datatype"></param>
-        /// <param name="rest"></param>
-        /// <param name="threads"></param>
-        /// <example>
-        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
-        /// </example>
-        public void Download(string remote, string local, FtpDataType datatype, long rest, int threads) {
-            this.Download(new FtpFile(this, remote), local, datatype, rest, threads);
-        }
-
-        /// <summary>
         /// Downloads a file from the server to the current working directory
         /// </summary>
         /// <param name="remote"></param>
@@ -1156,42 +1139,6 @@ namespace System.Net.FtpClient {
             }
             finally {
                 ostream.Flush();
-            }
-        }
-
-        /// <summary>
-        /// Downloads the specified file using the specified number of threads
-        /// to complete the operation
-        /// </summary>
-        /// <param name="remote"></param>
-        /// <param name="local"></param>
-        /// <param name="datatype"></param>
-        /// <param name="rest"></param>
-        /// <param name="threads"></param>
-        /// <example>
-        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
-        /// </example>
-        public void Download(FtpFile remote, string local, FtpDataType datatype, long rest, int threads) {
-            using (FileStream stream = new FileStream(local, FileMode.OpenOrCreate, FileAccess.Write)) {
-                this.Download(remote, stream, datatype, rest, threads);
-            }
-        }
-
-        /// <summary>
-        /// Downloads the specified file using the specified number of threads
-        /// to complete the operation
-        /// </summary>
-        /// <param name="remote"></param>
-        /// <param name="ostream"></param>
-        /// <param name="datatype"></param>
-        /// <param name="rest"></param>
-        /// <param name="threads"></param>
-        /// <example>
-        ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
-        /// </example>
-        public void Download(FtpFile remote, Stream ostream, FtpDataType datatype, long rest, int threads) {
-            using (FtpThreadedTransfer txfer = new FtpThreadedTransfer(this)) {
-                txfer.Download(remote, ostream, datatype, rest, threads);
             }
         }
 
