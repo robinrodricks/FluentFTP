@@ -227,6 +227,9 @@ namespace System.Net.FtpClient {
             : this(new Regex(regex), nameIndex, sizeIndex, modifyIndex, modeIndex, ownerIndex, groupIndex, type) {
         }
 
+        /// <summary>
+        /// Cleans up this format parser
+        /// </summary>
         public void Dispose() {
             this.Regex = null;
             this.Match = null;

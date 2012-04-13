@@ -3,7 +3,15 @@ using System.IO;
 using System.Text.RegularExpressions;
 
 namespace System.Net.FtpClient {
+    /// <summary>
+    /// FtpDataStream object setup for passive mode transfers
+    /// </summary>
 	public class FtpPassiveStream : FtpDataStream {
+        /// <summary>
+        /// Executes the sepcified command on the control connection
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
 		public override bool Execute(string command) {
 			// if we're already connected we need to close
 			// and reset ourselves
@@ -24,6 +32,10 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+        /// <summary>
+        /// Open the specified type of passive stream
+        /// </summary>
+        /// <param name="type"></param>
 		protected override void Open(FtpDataChannelType type) {
 			Match m = null;
 			string host = null;

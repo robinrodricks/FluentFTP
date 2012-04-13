@@ -30,6 +30,10 @@ namespace System.Net.FtpClient {
         }
 
         DateTime _lastNoOp = DateTime.Now;
+        /// <summary>
+        /// Gets or sets the last time the NOOP command was
+        /// executed on the server
+        /// </summary>
         protected DateTime LastNoOp {
             get { return _lastNoOp; }
             set { _lastNoOp = value; }
@@ -400,9 +404,9 @@ namespace System.Net.FtpClient {
         /// <param name="origin"></param>
         /// <returns></returns>
         public override long Seek(long offset, SeekOrigin origin) {
-            if (!this.ControlConnection.HasCapability(FtpCapability.REST)) {
+            /*if (!this.ControlConnection.HasCapability(FtpCapability.REST)) {
                 throw new IOException("The FTP server does not support stream seeking.");
-            }
+            }*/
 
             if (this.TransferStarted) {
                 throw new IOException("FTP stream seeking cannot be done after the transfer has started.");

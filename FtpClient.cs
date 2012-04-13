@@ -1500,6 +1500,10 @@ namespace System.Net.FtpClient {
             this.Port = port;
         }
 
+        /// <summary>
+        /// Initalizes a new FtpClient object based on the given URI
+        /// </summary>
+        /// <param name="uri">URI to parse</param>
         public FtpClient(Uri uri) {
             if (uri == null) throw new ArgumentNullException("uri");
             if (!IsFtpUriScheme(uri)) throw new ArgumentException("Only FTP or FTPS URIs are supported.", "uri");

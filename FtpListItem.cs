@@ -54,7 +54,7 @@ namespace System.Net.FtpClient {
             set { _modify = value; }
         }
 
-        public string _owner = null;
+        string _owner = null;
         /// <summary>
         /// The file's owner from the listing
         /// </summary>
@@ -63,7 +63,7 @@ namespace System.Net.FtpClient {
             set { _owner = value; }
         }
 
-        public string _group = null;
+        string _group = null;
         /// <summary>
         /// The file's group from the listing
         /// </summary>
@@ -184,6 +184,10 @@ namespace System.Net.FtpClient {
             return this.Type != FtpObjectType.Unknown;
         }
 
+        /// <summary>
+        /// Returns a text representation of this object
+        /// </summary>
+        /// <returns></returns>
         public override string ToString() {
             return string.Format("Type: {0} Name: {1} Size: {2}: Modify: {3}",
                 this.Type, this.Name, this.Size, this.Modify);

@@ -51,8 +51,8 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Initalizes a new instance of a FtpResponseException
 		/// </summary>
-		/// <param name="status"></param>
-		/// <param name="message"></param>
+		/// <param name="code">Status code</param>
+		/// <param name="message">Associated message</param>
 		public FtpCommandException(string code, string message)
 			: base(message) {
 			this.CompletionCode = code;

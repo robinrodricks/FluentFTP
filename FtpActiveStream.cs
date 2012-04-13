@@ -3,7 +3,15 @@ using System.Net;
 using System.Net.Sockets;
 
 namespace System.Net.FtpClient {
+    /// <summary>
+    /// FtpDataStream setup for active mode transfers
+    /// </summary>
 	public class FtpActiveStream : FtpDataStream {
+        /// <summary>
+        /// Executes the specified command on the control connection
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
 		public override bool Execute(string command) {
 			// if we're already connected we need
 			// to reset ourselves and start over
@@ -30,10 +38,17 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+        /// <summary>
+        /// Accepts the incomming connection
+        /// </summary>
 		protected void Accept() {
 			this.Socket = this.Socket.Accept();
 		}
 
+        /// <summary>
+        /// Opens the specified type of active data stream
+        /// </summary>
+        /// <param name="type"></param>
 		protected override void Open(FtpDataChannelType type) {
 			string ipaddress = null;
 			int port = 0;
@@ -75,6 +90,10 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+        /// <summary>
+        /// Initalizes a new instance of an active ftp data stream
+        /// </summary>
+        /// <param name="chan"></param>
 		public FtpActiveStream(FtpControlConnection chan)
 			: base() {
 			if(chan == null) {

@@ -14,7 +14,18 @@ namespace System.Net.FtpClient {
     /// <param name="status">Status number</param>
     /// <param name="response">Status message</param>
     public delegate void ResponseReceived(string status, string response);
+
+    /// <summary>
+    /// SecurityNotAvailable delegate
+    /// </summary>
+    /// <param name="e"></param>
 	public delegate void SecurityNotAvailable(FtpSecurityNotAvailable e);
+
+    /// <summary>
+    /// Custom log message delegate
+    /// </summary>
+    /// <param name="originalMessage"></param>
+    /// <returns></returns>
 	public delegate string CustomLogMessage(string originalMessage);
 
 	/// <summary>
@@ -767,9 +778,8 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Opens a data stream using the format and mode specified
         /// </summary>
-        /// <param name="type"></param>
-        /// <param name="mode"></param>
-        /// <returns></returns>
+        /// <param name="type">Type of data channel to use</param>
+        /// <returns>Data Stream Object</returns>
         public FtpDataStream OpenDataStream(FtpDataType type) {
             this.SetDataType(type);
            
@@ -864,6 +874,9 @@ namespace System.Net.FtpClient {
 
         private FtpTraceListener TraceListener = new FtpTraceListener();
 
+        /// <summary>
+        /// Custom log message delegate
+        /// </summary>
         public CustomLogMessage LogMessage;
 
         /// <summary>

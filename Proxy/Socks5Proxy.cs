@@ -246,7 +246,7 @@ namespace System.Net.FtpClient.Proxy {
 
 		/// <summary>
 		/// Creates an array of bytes representing the SOCKS5 proxy server authenticate command.
-		///// See http://www.ietf.org/rfc/rfc1928.txt
+		/// See http://www.ietf.org/rfc/rfc1928.txt
 		/// </summary>
 		/// <returns>An array of bytes representing the authenticate command for the specified username/password combination.</returns>
 		private byte[] GetAuthenticateCommand() {

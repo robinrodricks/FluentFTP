@@ -234,20 +234,41 @@ namespace System.Net.FtpClient {
 		Implicit
 	}
 
-	[Flags]
 	/// <summary>
 	/// Permission flags, identical to UNIX file system permissions
 	/// 1 = X
 	/// 2 = W
 	/// 4 = R
 	/// </summary>
+    [Flags]
 	public enum FtpPermission : uint {
+        /// <summary>
+        /// No permissions!?!?!
+        /// </summary>
 		None = 0,
+        /// <summary>
+        /// Set executable bit
+        /// </summary>
 		Execute = 1,
+        /// <summary>
+        /// Set writeable bit
+        /// </summary>
 		Write = 2,
+        /// <summary>
+        /// Set readable bit
+        /// </summary>
 		Read = 4,
+        /// <summary>
+        /// Set the readable and writable bits
+        /// </summary>
 		ReadWrite = Read | Write,
+        /// <summary>
+        /// Set the readable and executable bits
+        /// </summary>
 		ReadExecute = Read | Execute,
+        /// <summary>
+        /// Set the readable, writeable and executable bits
+        /// </summary>
 		ReadWriteExecute = Read | Write | Execute
 	}
 }
