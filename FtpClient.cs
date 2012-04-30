@@ -500,9 +500,6 @@ namespace System.Net.FtpClient {
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <returns>DateTime/DateTime.MinValue if there was a problem parsing the date</returns>
         public DateTime GetLastWriteTime(string path) {
-            string[] formats = new string[] { "yyyyMMddHHmmss", "yyyyMMddHHmmss.fff" };
-            DateTime modify = DateTime.MinValue;
-
             if (!this.HasCapability(FtpCapability.MDTM)) {
                 throw new NotImplementedException("The connected server does not support the MDTM command.");
             }
