@@ -47,7 +47,7 @@ namespace System.Net.FtpClient {
 		/// <param name="rest"></param>
 		/// <returns></returns>
 		public FtpDataStream OpenRead(long rest) {
-			return this.OpenRead(FtpDataType.Binary, 0);
+			return this.OpenRead(FtpDataType.Binary, rest);
 		}
 
 		/// <summary>
@@ -83,7 +83,7 @@ namespace System.Net.FtpClient {
 		/// <param name="rest"></param>
 		/// <returns></returns>
 		public FtpDataStream OpenWrite(long rest) {
-			return this.OpenWrite(FtpDataType.Binary, 0);
+			return this.OpenWrite(FtpDataType.Binary, rest);
 		}
 
 		/// <summary>
