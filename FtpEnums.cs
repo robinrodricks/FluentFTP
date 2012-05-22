@@ -195,6 +195,10 @@ namespace System.Net.FtpClient {
 		/// A symbolic link.
 		/// </summary>
 		Link,
+        /// <summary>
+        /// A device.
+        /// </summary>
+        Device,
 		/// <summary>
 		/// No idea.
 		/// </summary>

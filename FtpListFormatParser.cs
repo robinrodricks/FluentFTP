@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace System.Net.FtpClient {
     /// <summary>
@@ -77,7 +78,9 @@ namespace System.Net.FtpClient {
                 if (this.ModifyIndex > 0 && this.Match != null && this.Match.Groups.Count > this.ModifyIndex) {
                     DateTime date;
 
-                    if (DateTime.TryParse(this.Match.Groups[this.ModifyIndex].Value, out date)) {
+                    string[] formats = new string[] { "MMM dd HH:mm", "MMM dd  yyyy" };
+                    if (DateTime.TryParseExact(this.Match.Groups[this.ModifyIndex].Value, formats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date))
+                    {
                         return date;
                     }
                 }
@@ -160,6 +163,27 @@ namespace System.Net.FtpClient {
             set { _groupIndex = value; }
         }
 
+        /// <summary>
+        /// The link path of the object in case it is a symlink. null is return when this information is not available.
+        /// </summary>
+        public string LinkPath {
+            get {
+                if (this.LinkPathIndex > 0 && this.Match != null && this.Match.Groups.Count > this.LinkPathIndex)
+                    return this.Match.Groups[this.LinkPathIndex].Value;
+                return null;
+            }
+        }
+
+        int _linkPathIndex = 0;
+        /// <summary>
+        /// The index of the match group collection where the object link path can be found afet
+        /// a successful parse. Setting a less than 1 value indicates that this field is not available.
+        /// </summary>
+        public int LinkPathIndex {
+            get { return _linkPathIndex; }
+            set { _linkPathIndex = value; }
+        }
+
         Match _m = null;
         /// <summary>
         /// The match result after calling the Parse() method.
@@ -200,7 +224,7 @@ namespace System.Net.FtpClient {
         /// <param name="ownerIndex"></param>
         /// <param name="groupIndex"></param>
         /// <param name="type"></param>
-        public FtpListFormatParser(Regex re, int nameIndex, int sizeIndex, int modifyIndex, int modeIndex, int ownerIndex, int groupIndex, FtpObjectType type) {
+        public FtpListFormatParser(Regex re, int nameIndex, int sizeIndex, int modifyIndex, int modeIndex, int ownerIndex, int groupIndex, int linkPathIndex, FtpObjectType type) {
             this.Regex = re;
             this.NameIndex = nameIndex;
             this.SizeIndex = sizeIndex;
@@ -208,6 +232,7 @@ namespace System.Net.FtpClient {
             this.ModeIndex = modeIndex;
             this.OwnerIndex = ownerIndex;
             this.GroupIndex = groupIndex;
+            this.LinkPathIndex = linkPathIndex;
             this.ObjectType = type;
         }
 
@@ -223,8 +248,8 @@ namespace System.Net.FtpClient {
         /// <param name="ownerIndex"></param>
         /// <param name="groupIndex"></param>
         /// <param name="type"></param>
-        public FtpListFormatParser(string regex, int nameIndex, int sizeIndex, int modifyIndex, int modeIndex, int ownerIndex, int groupIndex, FtpObjectType type)
-            : this(new Regex(regex), nameIndex, sizeIndex, modifyIndex, modeIndex, ownerIndex, groupIndex, type) {
+        public FtpListFormatParser(string regex, int nameIndex, int sizeIndex, int modifyIndex, int modeIndex, int ownerIndex, int groupIndex, int linkPathIndex, FtpObjectType type)
+            : this(new Regex(regex), nameIndex, sizeIndex, modifyIndex, modeIndex, ownerIndex, groupIndex, linkPathIndex, type) {
         }
 
         /// <summary>
@@ -239,6 +264,7 @@ namespace System.Net.FtpClient {
             this.ModeIndex = 0;
             this.GroupIndex = 0;
             this.OwnerIndex = 0;
+            this.LinkPathIndex = 0;
         }
 
         static List<FtpListFormatParser> _listParsers = null;
@@ -256,30 +282,36 @@ namespace System.Net.FtpClient {
                     // DOS format directory
                     _listParsers.Add(new FtpListFormatParser(
                         @"(\d+-\d+-\d+\s+\d+:\d+\w+)\s+<DIR>\s+(.*)",
-                        2, -1, 1, -1, -1, -1, FtpObjectType.Directory));
+                        2, -1, 1, -1, -1, -1, -1, FtpObjectType.Directory));
 
                     // DOS format file
                     _listParsers.Add(new FtpListFormatParser(
                         @"(\d+-\d+-\d+\s+\d+:\d+\w+)\s+(\d+)\s+(.*)",
-                        3, 2, 1, -1, -1, -1, FtpObjectType.File));
+                        3, 2, 1, -1, -1, -1, -1, FtpObjectType.File));
 
                     // UNIX format directory
                     _listParsers.Add(new FtpListFormatParser(
                         @"(d[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+\d+\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
-                        5, -1, 4, 1, 2, 3, FtpObjectType.Directory));
+                        5, -1, 4, 1, 2, 3, -1, FtpObjectType.Directory));
 
                     // UNIX format file
                     _listParsers.Add(new FtpListFormatParser(
                         @"(-[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
-                        6, 4, 5, 1, 2, 3, FtpObjectType.File));
+                        6, 4, 5, 1, 2, 3, -1, FtpObjectType.File));
 
                     // UNIX format link
-                    // THIS IS BROKEN. Other list methods return only the name
-                    // however the link will point at the full path of the object.
                     _listParsers.Add(new FtpListFormatParser(
-                        @"(l[\w-]{9})\s+\d+\s+[\w\d]+\s+[\w\d]+\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+.*->\s+(.*)",
-                        6, 4, 5, 1, 2, 3, FtpObjectType.Link));
+                        @"(l[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*) ->\s+(.*)",
+                        6, 4, 5, 1, 2, 3, 7, FtpObjectType.Link));
+                    
+                    // UNIX format device
+                    _listParsers.Add(new FtpListFormatParser(
+                        @"(c[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
+                        6, 4, 5, 1, 2, 3, -1, FtpObjectType.Device));
 
+                    _listParsers.Add(new FtpListFormatParser(
+                        @"(b[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
+                        6, 4, 5, 1, 2, 3, -1, FtpObjectType.Device));
 
                     //
                     // see work item 349 in the issue tracker for the bug report
@@ -288,12 +320,12 @@ namespace System.Net.FtpClient {
                     // other format directory
                     _listParsers.Add(new FtpListFormatParser(
                         @"d[\w-]+\s\d+\s[\d\w]+\s\d+\s+\w+\s+\d+\s+\d+:?\d+\s+(.*)",
-                        1, 0, 0, 0, 0, 0, FtpObjectType.Directory));
+                        1, 0, 0, 0, 0, 0, 0, FtpObjectType.Directory));
 
                     // other format file
                     _listParsers.Add(new FtpListFormatParser(
                         @"-[\w-]+\s+\d+\s+[\w\d]+\s+(\d+)\s+\w+\s+\d+\s+\d+:?\d+\s+(.*)",
-                        2, 1, 0, 0, 0, 0, FtpObjectType.File));
+                        2, 1, 0, 0, 0, 0, 0, FtpObjectType.File));
                 }
 
                 return _listParsers;

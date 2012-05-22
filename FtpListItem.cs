@@ -72,6 +72,15 @@ namespace System.Net.FtpClient {
             set { _group = value; }
         }
 
+        string _linkPath = null;
+        /// <summary>
+        /// The file's link path, if it is a symlink.
+        /// </summary>
+        public string LinkPath {
+            get { return _linkPath; }
+            set { _linkPath = value; }
+        }
+
         #region LIST parsing
         /// <summary>
         /// Parses DOS and UNIX LIST style listings
@@ -86,6 +95,7 @@ namespace System.Net.FtpClient {
                     this.Modify = p.Modify;
                     this.Mode = p.Mode;
                     this.Owner = p.Owner;
+                    this.LinkPath = p.LinkPath;
                     this.Group = p.Group;
 
                     return;
@@ -97,7 +107,7 @@ namespace System.Net.FtpClient {
         #region MLS* Parsing
         private void ParseMachineListing(string listing) {
             List<string> matches = new List<string>();
-            Regex re = new Regex(@"(.+?)=(.+?);|  ?(.+?)$");
+            Regex re = new Regex(@"(.+?)=(.*?);|  ?(.+?)$");
             Match m;
 
             if (Regex.Match(listing, "^[0-9]+").Success) {
@@ -123,7 +133,13 @@ namespace System.Net.FtpClient {
                                     if (matches[1].ToLower() == "file") {
                                         this.Type = FtpObjectType.File;
                                     }
-                                    else if (matches[1].ToLower() == "dir") {
+                                    else if (matches[1].ToLower().Contains("os.unix=slink"))
+                                    {
+                                        this.Type = FtpObjectType.Link;
+                                        this.LinkPath = matches[1].Substring(matches[1].LastIndexOf(':'));
+                                    }
+                                    else if (matches[1].ToLower() == "dir")
+                                    {
                                         this.Type = FtpObjectType.Directory;
                                     }
                                 }
