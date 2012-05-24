@@ -345,17 +345,18 @@ namespace System.Net.FtpClient {
 		/// <param name="sslPolicyErrors"></param>
 		/// <returns></returns>
 		bool CheckCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
-			// the exception triggered by not returning true here does not
-			// propogate properly and ends up causing an obscure error so
-			// always return true and check for policy errors after the
-			// stream has been setup.
-			/*if (sslPolicyErrors == SslPolicyErrors.None) {
-				return true;
-			}
-			return this.IgnoreInvalidSslCertificates;*/
+            if (sslPolicyErrors == SslPolicyErrors.None) {
+                return true;
+            }
 
-			this.SslPolicyErrors = sslPolicyErrors;
-			this.SslCertificate = certificate;
+            this.SslPolicyErrors = sslPolicyErrors;
+            this.SslCertificate = certificate;
+
+            InvalidCertificateInfo e = new InvalidCertificateInfo(this);
+            this.OnInvalidSslCerticate(this, e);
+            if (!e.Ignore) {
+                return false;
+            }
 
 			return true;
 		}
@@ -367,15 +368,13 @@ namespace System.Net.FtpClient {
 		protected void AuthenticateConnection() {
 			if (this.Connected && !this.SecurteStream.IsAuthenticated) {
 				//this.SecurteStream.AuthenticateAsClient(((IPEndPoint)this.RemoteEndPoint).Address.ToString());
-				this.SecurteStream.AuthenticateAsClient(this.SslAuthTargetHost);
-				if (this.SslPolicyErrors != Security.SslPolicyErrors.None) {
-					InvalidCertificateInfo e = new InvalidCertificateInfo(this);
-
-					this.OnInvalidSslCerticate(this, e);
-					if (!e.Ignore) {
-						throw new FtpInvalidCertificateException("There were errors validating the SSL certificate: " + this.SslPolicyErrors.ToString());
-					}
-				}
+                try {
+                    this.SecurteStream.AuthenticateAsClient(this.SslAuthTargetHost);
+                }
+                catch (AuthenticationException) {
+                    this.InternalDisconnect();
+                    throw new FtpInvalidCertificateException("There were errors validating the SSL certificate: " + this.SslPolicyErrors.ToString());
+                }
 			}
 		}
 
@@ -424,7 +423,7 @@ namespace System.Net.FtpClient {
 		protected StreamReader StreamReader {
 			get {
 				if (_reader == null && this.Connected) {
-					_reader = new StreamReader(this.BaseStream, Encoding.Default);
+                    _reader = new StreamReader(this.BaseStream, Encoding.Default);
 				}
 
 				return _reader;
@@ -513,41 +512,45 @@ namespace System.Net.FtpClient {
             this.AsyncConnect.EndInvoke(result);
         }
 
+        public void InternalDisconnect() {
+            if (this._sock != null) {
+                if (this.Connected) {
+                    this._sock.Shutdown(SocketShutdown.Both);
+                    this._sock.Disconnect(false);
+                    this._sock.Close(5);
+                }
+
+                this.OnConnectionClosed();
+            }
+
+            if (this._stream != null) {
+                this._stream.Close();
+                this._stream.Dispose();
+            }
+
+            if (this._reader != null) {
+                this._reader.Close();
+                this._reader.Dispose();
+            }
+
+            if (this._sslStream != null) {
+                this._sslStream.Close();
+                this._sslStream.Dispose();
+            }
+
+            this._sock = null;
+            this._stream = null;
+            this._reader = null;
+            this._sslStream = null;
+            this._sslCertificate = null;
+            this._policyErrors = Security.SslPolicyErrors.None;
+        }
+
         /// <summary>
 		/// Disconnect the socket and free up any resources being used here
 		/// </summary>
 		public virtual void Disconnect() {
-			if (this._sock != null) {
-				if (this.Connected) {
-					this._sock.Shutdown(SocketShutdown.Both);
-					this._sock.Disconnect(false);
-					this._sock.Close(5);
-				}
-
-				this.OnConnectionClosed();
-			}
-
-			if (this._stream != null) {
-				this._stream.Close();
-				this._stream.Dispose();
-			}
-
-			if (this._reader != null) {
-				this._reader.Close();
-				this._reader.Dispose();
-			}
-
-			if (this._sslStream != null) {
-				this._sslStream.Close();
-				this._sslStream.Dispose();
-			}
-
-			this._sock = null;
-			this._stream = null;
-			this._reader = null;
-			this._sslStream = null;
-			this._sslCertificate = null;
-			this._policyErrors = Security.SslPolicyErrors.None;
+            this.InternalDisconnect();
 		}
 
 
