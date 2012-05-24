@@ -133,13 +133,11 @@ namespace System.Net.FtpClient {
                                     if (matches[1].ToLower() == "file") {
                                         this.Type = FtpObjectType.File;
                                     }
-                                    else if (matches[1].ToLower().Contains("os.unix=slink"))
-                                    {
+                                    else if (matches[1].ToLower().Contains("os.unix=slink")) {
                                         this.Type = FtpObjectType.Link;
                                         this.LinkPath = matches[1].Substring(matches[1].LastIndexOf(':'));
                                     }
-                                    else if (matches[1].ToLower() == "dir")
-                                    {
+                                    else if (matches[1].ToLower() == "dir" || matches[1].ToLower() == "cdir" || matches[1].ToLower() == "pdir") {
                                         this.Type = FtpObjectType.Directory;
                                     }
                                 }
