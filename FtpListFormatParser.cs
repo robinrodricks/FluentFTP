@@ -78,11 +78,15 @@ namespace System.Net.FtpClient {
                 if (this.ModifyIndex > 0 && this.Match != null && this.Match.Groups.Count > this.ModifyIndex) {
                     DateTime date;
 
-                    string[] formats = new string[] { "MMM dd HH:mm", "MMM dd  yyyy" };
-                    if (DateTime.TryParseExact(this.Match.Groups[this.ModifyIndex].Value, formats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date))
+                    DateTime.TryParse(this.Match.Groups[this.ModifyIndex].Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date);
+
+                    if (date.Equals(DateTime.MinValue))
                     {
-                        return date;
+                        string[] formats = new string[] { "MMM dd HH:mm", "MMM dd  yyyy" };
+                        DateTime.TryParseExact(this.Match.Groups[this.ModifyIndex].Value, formats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date);    
                     }
+
+                    return date;
                 }
 
                 return DateTime.MinValue;
