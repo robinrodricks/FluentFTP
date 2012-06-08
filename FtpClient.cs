@@ -589,7 +589,8 @@ namespace System.Net.FtpClient {
                     // don't support large file sizes.
                     if (this.Execute("SIZE {0}", path)) {
                         m = Regex.Match(this.ResponseMessage, @"(\d+)");
-                        if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
+                        if (m.Success && !long.TryParse(m.Groups[1].Value, out size))
+                        {
                             size = 0;
                         }
                     }
@@ -686,8 +687,15 @@ namespace System.Net.FtpClient {
             else {
                 // the server doesn't support MLS* functions so
                 // we have to do it the hard and inefficient way
-                foreach (FtpListItem l in this.GetListing(Path.GetDirectoryName(path))) {
-                    if (l.Name == Path.GetFileName(path)) {
+                string directoryName = path.Substring(0, path.LastIndexOf("/") + 1);
+                if (directoryName.Length > 1 && directoryName.EndsWith("/")) {
+                    directoryName = directoryName.Remove(path.LastIndexOf("/"));
+                }
+
+                string fileName = path.Substring(path.LastIndexOf("/") + 1);
+
+                foreach (FtpListItem l in this.GetListing(directoryName)) {
+                    if (l.Name == fileName) {
                         return l;
                     }
                 }
@@ -847,7 +855,7 @@ namespace System.Net.FtpClient {
                 cmd = string.Format("STOR {0}", path);
             }
 
-            if(!s.Execute(cmd)) {
+            if (!s.Execute(cmd)) {
                 s.Dispose();
                 throw new FtpCommandException(this);
             }
@@ -1448,8 +1456,10 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="uri">URI to parse</param>
         public FtpClient(Uri uri) {
-            if (uri == null) throw new ArgumentNullException("uri");
-            if (!IsFtpUriScheme(uri)) throw new ArgumentException("Only FTP or FTPS URIs are supported.", "uri");
+            if (uri == null)
+                throw new ArgumentNullException("uri");
+            if (!IsFtpUriScheme(uri))
+                throw new ArgumentException("Only FTP or FTPS URIs are supported.", "uri");
 
             var uriBuilder = new UriBuilder(uri);
 
