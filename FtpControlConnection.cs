@@ -366,7 +366,12 @@ namespace System.Net.FtpClient {
 
             WriteLineToLogStream(traceout);
 
-            this.Write(Encoding.Default.GetBytes(data));
+            if (_caps != FtpCapability.EMPTY && this.HasCapability(FtpCapability.UTF8)) {
+                this.Write(Encoding.UTF8.GetBytes(data));
+            }
+            else {
+                this.Write(Encoding.Default.GetBytes(data));
+            }
         }
 
         DateTime _lastSockActivity = DateTime.MinValue;
@@ -477,7 +482,14 @@ namespace System.Net.FtpClient {
                     if (this.ExecuteList[i] != null) {
                         //this.WriteLine(this.ExecuteList[i]);
                         string traceout;
-                        byte[] cmd = Encoding.Default.GetBytes(string.Format("{0}\r\n", this.ExecuteList[i]));
+                        byte[] cmd;
+                        string cmdStr = string.Format("{0}\r\n", this.ExecuteList[i]);
+                        if (_caps != FtpCapability.EMPTY && this.HasCapability(FtpCapability.UTF8)) {
+                            cmd = Encoding.UTF8.GetBytes(cmdStr);
+                        }
+                        else {
+                            cmd = Encoding.Default.GetBytes(cmdStr);
+                        }
 
 
                         if (this.ExecuteList[i].ToUpper().StartsWith("PASS")) {
@@ -718,6 +730,8 @@ namespace System.Net.FtpClient {
                         this.Capabilities |= FtpCapability.REST;
                     else if (feat.ToUpper().Contains("SIZE"))
                         this.Capabilities |= FtpCapability.SIZE;
+                    else if (feat.ToUpper().Contains("UTF8"))
+                        this.Capabilities |= FtpCapability.UTF8;
                     // EPSV and EPRT are already assumed to be supported.
                     //else if(feat.ToUpper().Contains("EPSV") || feat.ToUpper().Contains("EPRT"))
                     //	this.Capabilities |= FtpCapability.EPSV | FtpCapability.EPRT;

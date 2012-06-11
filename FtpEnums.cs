@@ -161,7 +161,11 @@ namespace System.Net.FtpClient {
 		/// <summary>
 		/// Supports retrieving modification times on directories
 		/// </summary>
-		MDTMDIR = 128
+		MDTMDIR = 128,
+        /// <summary>
+        /// Supports for UTF8
+        /// </summary>
+        UTF8 = 256
 	}
 
 	/// <summary>
