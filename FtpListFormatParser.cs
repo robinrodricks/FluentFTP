@@ -331,6 +331,17 @@ namespace System.Net.FtpClient {
                     _listParsers.Add(new FtpListFormatParser(
                         @"-[\w-]+\s+\d+\s+[\w\d]+\s+(\d+)\s+\w+\s+\d+\s+\d+:?\d+\s+(.*)",
                         2, 1, 0, 0, 0, 0, 0, FtpObjectType.File));
+
+                    //VxWorks format directory
+                    _listParsers.Add(new FtpListFormatParser(
+                      @"(\d+)\s+(\w+-\d{1,2}-\d{4}\s+\d{1,2}:\d{1,2}:\d{1,2})\s+(.*?)\s+\<\DIR\>",
+                       3, -1, 2, -1, -1, -1, -1, FtpObjectType.Directory));
+
+                    //VxWorks format file
+                    _listParsers.Add(new FtpListFormatParser(
+                      @"(\d+)\s+(\w+-\d{1,2}-\d{4}\s+\d{1,2}:\d{1,2}:\d{1,2})\s+(.*?)\s+",
+                      3, 1, 2, -1, -1, -1, -1, FtpObjectType.File));
+
                 }
 
                 return _listParsers;
