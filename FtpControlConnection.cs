@@ -206,6 +206,16 @@ namespace System.Net.FtpClient {
             }
         }
 
+        int _dataChannelReadTimeout = -1;
+        /// <summary>
+        /// Gets or sets the time in miliseconds that a data channel will
+        /// wait for the server to responde before throwing an IOException
+        /// </summary>
+        public int DataChannelReadTimeout {
+            get { return _dataChannelReadTimeout; }
+            set { _dataChannelReadTimeout = value; }
+        }
+
         /// <summary>
         /// Acquire an exclusive lock on the command channel
         /// while executing/processing commands
@@ -795,18 +805,26 @@ namespace System.Net.FtpClient {
         /// <param name="type">Type of data channel to use</param>
         /// <returns>Data Stream Object</returns>
         public FtpDataStream OpenDataStream(FtpDataType type) {
+            FtpDataStream stream = null;
+
             this.SetDataType(type);
 
             switch (this.DataChannelType) {
                 case FtpDataChannelType.Passive:
                 case FtpDataChannelType.ExtendedPassive:
-                    return new FtpPassiveStream(this);
+                    stream = new FtpPassiveStream(this);
+                    break;
                 case FtpDataChannelType.Active:
                 case FtpDataChannelType.ExtendedActive:
-                    return new FtpActiveStream(this);
+                    stream = new FtpActiveStream(this);
+                    break;
             }
 
-            throw new FtpException("Unknown data stream type " + this.DataChannelType);
+            if (stream != null) {
+                stream.ReadTimeout = this.DataChannelReadTimeout;
+            }
+
+            return stream;
         }
 
         /// <summary>

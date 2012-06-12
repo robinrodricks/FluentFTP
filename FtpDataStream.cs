@@ -39,31 +39,31 @@ namespace System.Net.FtpClient {
             set { _lastNoOp = value; }
         }
 
-		/// <summary>
-		/// Gets the receive buffer size of the underlying socket
-		/// </summary>
-		public int ReceiveBufferSize {
-			get {
-				if(this._socket != null) {
-					return this._socket.ReceiveBufferSize;
-				}
+        /// <summary>
+        /// Gets the receive buffer size of the underlying socket
+        /// </summary>
+        public int ReceiveBufferSize {
+            get {
+                if (this._socket != null) {
+                    return this._socket.ReceiveBufferSize;
+                }
 
-				return 0;
-			}
-		}
+                return 0;
+            }
+        }
 
-		/// <summary>
-		/// Gets the send buffer size of the underlying socket
-		/// </summary>
-		public int SendBufferSize {
-			get {
-				if(this._socket != null) {
-					return this._socket.SendBufferSize;
-				}
+        /// <summary>
+        /// Gets the send buffer size of the underlying socket
+        /// </summary>
+        public int SendBufferSize {
+            get {
+                if (this._socket != null) {
+                    return this._socket.SendBufferSize;
+                }
 
-				return 0;
-			}
-		}
+                return 0;
+            }
+        }
 
         Socket _socket = null;
         /// <summary>
@@ -74,8 +74,7 @@ namespace System.Net.FtpClient {
                 if (this._socket == null) {
                     this._socket = new ProxySocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                     (this._socket as ProxySocket).ProxyType = ProxyType.None;
-                    if (this.ControlConnection.ProxyType != ProxyType.None)
-                    {
+                    if (this.ControlConnection.ProxyType != ProxyType.None) {
                         (this._socket as ProxySocket).ProxyType = this.ControlConnection.ProxyType;
                         (this._socket as ProxySocket).ProxyEndPoint = new IPEndPoint(IPAddress.Parse(this.ControlConnection.ProxyHost), this.ControlConnection.ProxyPort);
                         (this._socket as ProxySocket).ProxyUsername = this.ControlConnection.ProxyUsername;
@@ -108,7 +107,7 @@ namespace System.Net.FtpClient {
                         this._socket.Disconnect(false);
                     }
 
-					// doesn't work in .net 2
+                    // doesn't work in .net 2
                     //this._socket.Dispose();
                 }
 
@@ -184,6 +183,21 @@ namespace System.Net.FtpClient {
                 }
 
                 return _reader;
+            }
+        }
+
+        int _readTimeout = -1;
+        /// <summary>
+        /// Gets or sets the length of time in miliseconds that this stream will
+        /// attempt to read from the underlying socket before giving up. The default
+        /// value of -1 means wait indefinitely.
+        /// </summary>
+        public override int ReadTimeout {
+            get {
+                return this._readTimeout;
+            }
+            set {
+                this._readTimeout = value;
             }
         }
 
@@ -334,6 +348,7 @@ namespace System.Net.FtpClient {
         /// <param name="count"></param>
         /// <returns></returns>
         public override int Read(byte[] buffer, int offset, int count) {
+            IAsyncResult res;
             int read = 0;
 
             if (!this.CanRead) {
@@ -344,8 +359,28 @@ namespace System.Net.FtpClient {
                 throw new IOException("The base stream is null. Has a socket connection been opened yet?");
             }
 
-            read = this.BaseStream.Read(buffer, offset, count);
+
+            // old blocking read
+            //read = this.BaseStream.Read(buffer, offset, count);
+            //this._position += read;
+
+            // new read code that supports read timeout
+            res = this.BaseStream.BeginRead(buffer, offset, count, null, null);
+            res.AsyncWaitHandle.WaitOne(this.ReadTimeout);
+            if (!res.IsCompleted) {
+                // can just set this.Socket = null due to strange bug
+                // where _socket gets reset and causes another exception
+                // in the Close method of this class.
+                this._socket.Close();
+                this._socket = null;
+                this._netstream = null;
+                this._reader = null;
+                throw new IOException("Timed out waiting for a response on the data channel.");
+            }
+
+            read = this.BaseStream.EndRead(res);
             this._position += read;
+            // end new read code
 
             // if EOF close stream
             if (read == 0) {
@@ -454,12 +489,12 @@ namespace System.Net.FtpClient {
         public override void Close() {
             if (this._socket != null) {
                 //this._socket = null;
-				this.Socket = null;
+                this.Socket = null;
 
                 if (this.ControlConnection.Connected) {
                     try {
                         this.ControlConnection.LockControlConnection();
-                        
+
                         if (this.ControlConnection.ResponseStatus && !this.ControlConnection.ReadResponse()) {
                             throw new FtpCommandException(this.ControlConnection);
                         }
@@ -493,7 +528,7 @@ namespace System.Net.FtpClient {
                 this.TransferStarted = true;
             }
         }
-        
+
         /// <summary>
         /// Sets up sockets and executes necessary commands to initalize
         /// a data transfer.

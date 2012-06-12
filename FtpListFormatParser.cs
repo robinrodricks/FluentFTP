@@ -227,6 +227,7 @@ namespace System.Net.FtpClient {
         /// <param name="modeIndex"></param>
         /// <param name="ownerIndex"></param>
         /// <param name="groupIndex"></param>
+        /// <param name="linkPathIndex"></param>
         /// <param name="type"></param>
         public FtpListFormatParser(Regex re, int nameIndex, int sizeIndex, int modifyIndex, int modeIndex, int ownerIndex, int groupIndex, int linkPathIndex, FtpObjectType type) {
             this.Regex = re;

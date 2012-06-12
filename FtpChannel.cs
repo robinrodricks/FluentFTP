@@ -512,6 +512,9 @@ namespace System.Net.FtpClient {
             this.AsyncConnect.EndInvoke(result);
         }
 
+        /// <summary>
+        /// ???? Should this method be private?
+        /// </summary>
         public void InternalDisconnect() {
             if (this._sock != null) {
                 if (this.Connected) {

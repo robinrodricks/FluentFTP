@@ -38,7 +38,7 @@ namespace Download {
                 }
                 catch (Exception ex) {
                     Console.WriteLine();
-                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex.ToString());
                 }
             }
 
