@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Globalization;
 using System.IO;
+using System.Diagnostics;
 
 namespace System.Net.FtpClient {
     /// <summary>
@@ -787,6 +788,7 @@ namespace System.Net.FtpClient {
         public FtpDataStream OpenRead(string path, FtpDataType datatype, long rest) {
             FtpDataStream s = this.OpenDataStream(datatype);
 
+            s.SetLength(this.GetFileSize(path));
             if (rest > 0) {
                 s.Seek(rest);
             }
@@ -1096,7 +1098,7 @@ namespace System.Net.FtpClient {
         ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
         /// </example>
         public void Download(FtpFile remote, Stream ostream, FtpDataType datatype, long rest) {
-            long size = remote.Length;
+            long size = 0;
             long total = 0;
             int read = 0;
 
@@ -1125,6 +1127,8 @@ namespace System.Net.FtpClient {
                     byte[] buf = new byte[ch.ReceiveBufferSize];
                     DateTime start = DateTime.Now;
                     FtpTransferInfo e = null;
+
+                    size = ch.Length;
 
                     while ((read = ch.Read(buf, 0, buf.Length)) > 0) {
                         ostream.Write(buf, 0, read);

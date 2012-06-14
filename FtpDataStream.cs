@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
 using System.Net.FtpClient.Proxy;
 
 namespace System.Net.FtpClient {
@@ -352,17 +353,23 @@ namespace System.Net.FtpClient {
             int read = 0;
 
             if (!this.CanRead) {
-                throw new IOException("This stream is not readable!");
+                //throw new IOException("This stream is not readable!");
+                return 0;
             }
 
             if (this.BaseStream == null) {
-                throw new IOException("The base stream is null. Has a socket connection been opened yet?");
+                //throw new IOException("The base stream is null. Has a socket connection been opened yet?");
+                return 0;
             }
 
 
             // old blocking read
             //read = this.BaseStream.Read(buffer, offset, count);
             //this._position += read;
+
+            if ((this.Position + count) > this.Length) {
+                count = (int)(this.Length - this.Position);
+            }
 
             // new read code that supports read timeout
             res = this.BaseStream.BeginRead(buffer, offset, count, null, null);
@@ -383,7 +390,7 @@ namespace System.Net.FtpClient {
             // end new read code
 
             // if EOF close stream
-            if (read == 0) {
+            if (read == 0 || (this.Position == this.Length)) {
                 this.Close();
             }
             else {
