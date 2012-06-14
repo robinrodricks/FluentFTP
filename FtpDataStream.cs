@@ -367,7 +367,7 @@ namespace System.Net.FtpClient {
             //read = this.BaseStream.Read(buffer, offset, count);
             //this._position += read;
 
-            if ((this.Position + count) > this.Length) {
+            if (this.Length > 0 && (this.Position + count) > this.Length) {
                 count = (int)(this.Length - this.Position);
             }
 
