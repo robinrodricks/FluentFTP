@@ -426,6 +426,14 @@ namespace System.Net.FtpClient {
                     }
                 }
             }
+            else if (list.Length > 0 && this.HasCapability(FtpCapability.MDTM)) {
+                // load the last write time of the files who have DateTime.MinValue set
+                foreach (FtpListItem item in list) {
+                    if (item.Modify == DateTime.MinValue) {
+                        item.Modify = this.GetLastWriteTime(string.Format("{0}/{1}", path, item.Name));
+                    }
+                }
+            }
 
             return list;
         }
@@ -590,8 +598,7 @@ namespace System.Net.FtpClient {
                     // don't support large file sizes.
                     if (this.Execute("SIZE {0}", path)) {
                         m = Regex.Match(this.ResponseMessage, @"(\d+)");
-                        if (m.Success && !long.TryParse(m.Groups[1].Value, out size))
-                        {
+                        if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
                             size = 0;
                         }
                     }
