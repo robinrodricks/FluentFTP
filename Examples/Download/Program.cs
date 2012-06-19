@@ -30,15 +30,11 @@ namespace Download {
                 cl.InvalidCertificate += new FtpInvalidCertificate(OnInvalidCertficate);
 
                 try {
-                    foreach (FtpListItem i in cl.GetListing("/pub/pkgsrc/current")) {
-                        Console.WriteLine(i.Modify);
-                    }
-
                     //////
                     // The actual download
                     //////
-                    //cl.TransferProgress += new FtpTransferProgress(OnTransferProgress);
-                    //cl.Download("/pub/pkgsrc/current/pkgsrc.tar.gz");
+                    cl.TransferProgress += new FtpTransferProgress(OnTransferProgress);
+                    cl.Download("/pub/pkgsrc/current/pkgsrc.tar.gz");
                 }
                 catch (Exception ex) {
                     Console.WriteLine();
