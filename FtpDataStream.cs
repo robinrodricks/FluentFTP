@@ -362,14 +362,13 @@ namespace System.Net.FtpClient {
                 return 0;
             }
 
+            if (this._socket == null || !this._socket.Connected) {
+                return 0;
+            }
 
             // old blocking read
             //read = this.BaseStream.Read(buffer, offset, count);
             //this._position += read;
-
-            if (this.Length > 0 && (this.Position + count) > this.Length) {
-                count = (int)(this.Length - this.Position);
-            }
 
             // new read code that supports read timeout
             res = this.BaseStream.BeginRead(buffer, offset, count, null, null);
@@ -390,7 +389,7 @@ namespace System.Net.FtpClient {
             // end new read code
 
             // if EOF close stream
-            if (read == 0 || (this.Position == this.Length)) {
+            if (read == 0) {
                 this.Close();
             }
             else {

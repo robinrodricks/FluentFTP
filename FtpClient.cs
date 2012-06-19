@@ -76,9 +76,9 @@ namespace System.Net.FtpClient {
                 if (_currentDirectory == null) {
                     Match m;
 
-                    this.LockControlConnection();
-
                     try {
+                        this.LockControlConnection();
+
                         if (!this.Execute("PWD")) {
                             throw new FtpCommandException(this);
                         }
@@ -245,9 +245,9 @@ namespace System.Net.FtpClient {
         /// if a connection to the server has been made.
         /// </summary>
         void Login(FtpChannel c) {
-            this.LockControlConnection();
-
             try {
+                this.LockControlConnection();
+
                 if (this.Username != null) {
                     // there's no reason to pipeline here if the password is null
                     if (this.EnablePipelining && this.Password != null) {
@@ -289,9 +289,9 @@ namespace System.Net.FtpClient {
         /// server and get a response.
         /// </summary>
         public void NoOp() {
-            this.LockControlConnection();
-
             try {
+                this.LockControlConnection();
+
                 if (!this.Execute("NOOP")) {
                     throw new FtpCommandException(this);
                 }
@@ -464,9 +464,9 @@ namespace System.Net.FtpClient {
         /// <param name="path">Path of the object to change the permissions on</param>
         /// <param name="mode">3 digit mode of the object</param>
         public void SetPermissions(string path, string mode) {
-            this.LockControlConnection();
-
             try {
+                this.LockControlConnection();
+
                 if (!this.Execute("SITE CHMOD {0} {1}", mode, path))
                     throw new FtpCommandException(this);
             }
@@ -480,9 +480,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="path">The full or relative (to the current directory) path</param>
         public void SetWorkingDirectory(string path) {
-            this.LockControlConnection();
-
             try {
+                this.LockControlConnection();
+
                 if (!this.Execute("CWD {0}", path)) {
                     throw new FtpCommandException(this);
                 }
@@ -505,9 +505,9 @@ namespace System.Net.FtpClient {
                 throw new NotImplementedException("The connected server does not support the MDTM command.");
             }
 
-            this.LockControlConnection();
-
             try {
+                this.LockControlConnection();
+
                 if (this.Execute("MDTM {0}", path)) {
                     /*if(DateTime.TryParseExact(this.ResponseMessage, formats,
                         CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out modify)) {
@@ -552,9 +552,9 @@ namespace System.Net.FtpClient {
             // prefer MLST for getting the file size because some
             // servers won't give the file size back for large files
             if (this.HasCapability(FtpCapability.MLST)) {
-                this.LockControlConnection();
-
                 try {
+                    this.LockControlConnection();
+
                     if (!this.Execute("MLST {0}", path)) {
                         throw new FtpCommandException(this);
                     }
@@ -583,9 +583,9 @@ namespace System.Net.FtpClient {
                 long size = 0;
                 Match m;
 
-                this.LockControlConnection();
-
                 try {
+                    this.LockControlConnection();
+
                     // ignore errors, return 0 if there is one. some servers
                     // don't support large file sizes.
                     if (this.Execute("SIZE {0}", path)) {
@@ -614,9 +614,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="path">The full or relative (to the current working directory) path</param>
         public void RemoveDirectory(string path) {
-            this.LockControlConnection();
-
             try {
+                this.LockControlConnection();
+
                 if (!this.Execute("RMD {0}", path)) {
                     throw new FtpCommandException(this);
                 }
@@ -631,9 +631,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="path">The full or relative (to the current working directory) path</param>
         public void RemoveFile(string path) {
-            this.LockControlConnection();
-
             try {
+                this.LockControlConnection();
+
                 if (!this.Execute("DELE {0}", path)) {
                     throw new FtpCommandException(this);
                 }
@@ -648,9 +648,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="path">The full or relative (to the current working directory) path</param>
         public void CreateDirectory(string path) {
-            this.LockControlConnection();
-
             try {
+                this.LockControlConnection();
+
                 if (!this.Execute("MKD {0}", path)) {
                     throw new FtpCommandException(this);
                 }
@@ -667,9 +667,9 @@ namespace System.Net.FtpClient {
         /// <returns></returns>
         public FtpListItem GetObjectInfo(string path) {
             if (this.HasCapability(FtpCapability.MLST)) {
-                this.LockControlConnection();
-
                 try {
+                    this.LockControlConnection();
+
                     if (this.Execute("MLST {0}", path)) {
                         /*foreach(string s in this.Messages) {
                             // MLST response starts with a space according to draft-ietf-ftpext-mlst-16
@@ -729,9 +729,9 @@ namespace System.Net.FtpClient {
         /// <param name="from">The full or relative (to the current working directory) path of the existing file</param>
         /// <param name="to">The full or relative (to the current working directory) path of the new file</param>
         public void Rename(string from, string to) {
-            this.LockControlConnection();
-
             try {
+                this.LockControlConnection();
+
                 if (!this.Execute("RNFR {0}", from)) {
                     throw new FtpCommandException(this);
                 }

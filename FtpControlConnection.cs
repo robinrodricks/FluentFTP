@@ -479,9 +479,9 @@ namespace System.Net.FtpClient {
             FtpCommandResult[] results = new FtpCommandResult[this.ExecuteList.Count];
             int reslocation = 0;
 
-            this.LockControlConnection();
-
             try {
+                this.LockControlConnection();
+
                 MemoryStream cmdstream = new MemoryStream();
                 byte[] buf = new byte[this.SendBufferSize];
                 int read = 0;

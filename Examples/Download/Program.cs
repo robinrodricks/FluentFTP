@@ -62,11 +62,24 @@ namespace Download {
 
         static void OnTransferProgress(FtpTransferInfo e) {
             Console.Write("\r{0}/{1} {2}% {3}/s       ",
-                e.Transferred, e.Length, e.Percentage, e.BytesPerSecond);
+                FormatBytes(e.Transferred), FormatBytes(e.Length), e.Percentage, FormatBytes(e.BytesPerSecond));
 
             if (e.Complete) {
                 Console.WriteLine();
             }
+        }
+
+        static string FormatBytes(long size) {
+            string[] units = new string[] { "B", "KB", "MB", "GB" };
+            double val = size;
+            int count = 0;
+
+            while (val > 1024 && count < units.Length) {
+                val /= 1024;
+                count++;
+            }
+
+            return string.Format("{0}{1}", Math.Round(val, 2), units[count]);
         }
     }
 }
