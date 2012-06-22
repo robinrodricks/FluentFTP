@@ -77,13 +77,15 @@ namespace System.Net.FtpClient {
             get {
                 if (this.ModifyIndex > 0 && this.Match != null && this.Match.Groups.Count > this.ModifyIndex) {
                     DateTime date;
+                    string[] formats = new string[] { "MMM dd HH:mm", "MMM  d HH:mm", "MMM dd  yyyy" };
 
-                    DateTime.TryParse(this.Match.Groups[this.ModifyIndex].Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date);
-
-                    if (date.Equals(DateTime.MinValue))
-                    {
-                        string[] formats = new string[] { "MMM dd HH:mm", "MMM dd  yyyy" };
-                        DateTime.TryParseExact(this.Match.Groups[this.ModifyIndex].Value, formats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date);    
+                    // try to parse an exact format first, if it fails
+                    // then just see if TryParse can extract any date
+                    // and if it fails, return DateTime.MinValue
+                    if (!DateTime.TryParseExact(this.Match.Groups[this.ModifyIndex].Value, formats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date)) {
+                        if (!DateTime.TryParse(this.Match.Groups[this.ModifyIndex].Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out date)) {
+                            date = DateTime.MinValue;
+                        }
                     }
 
                     return date;
@@ -252,6 +254,7 @@ namespace System.Net.FtpClient {
         /// <param name="modeIndex"></param>
         /// <param name="ownerIndex"></param>
         /// <param name="groupIndex"></param>
+        /// <param name="linkPathIndex"></param>
         /// <param name="type"></param>
         public FtpListFormatParser(string regex, int nameIndex, int sizeIndex, int modifyIndex, int modeIndex, int ownerIndex, int groupIndex, int linkPathIndex, FtpObjectType type)
             : this(new Regex(regex), nameIndex, sizeIndex, modifyIndex, modeIndex, ownerIndex, groupIndex, linkPathIndex, type) {
@@ -297,26 +300,26 @@ namespace System.Net.FtpClient {
                     // UNIX format directory
                     _listParsers.Add(new FtpListFormatParser(
                         @"(d[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+\d+\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
-                        5, -1, 0, 1, 2, 3, -1, FtpObjectType.Directory));
+                        5, -1, 4, 1, 2, 3, -1, FtpObjectType.Directory));
 
                     // UNIX format file
                     _listParsers.Add(new FtpListFormatParser(
                         @"(-[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
-                        6, 4, 0, 1, 2, 3, -1, FtpObjectType.File));
+                        6, 4, 5, 1, 2, 3, -1, FtpObjectType.File));
 
                     // UNIX format link
                     _listParsers.Add(new FtpListFormatParser(
                         @"(l[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*) ->\s+(.*)",
-                        6, 4, 0, 1, 2, 3, 7, FtpObjectType.Link));
-                    
+                        6, 4, 5, 1, 2, 3, 7, FtpObjectType.Link));
+
                     // UNIX format device
                     _listParsers.Add(new FtpListFormatParser(
                         @"(c[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
-                        6, 4, 0, 1, 2, 3, -1, FtpObjectType.Device));
+                        6, 4, 5, 1, 2, 3, -1, FtpObjectType.Device));
 
                     _listParsers.Add(new FtpListFormatParser(
                         @"(b[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
-                        6, 4, 0, 1, 2, 3, -1, FtpObjectType.Device));
+                        6, 4, 5, 1, 2, 3, -1, FtpObjectType.Device));
 
                     //
                     // see work item 349 in the issue tracker for the bug report

@@ -27,6 +27,10 @@ namespace System.Net.FtpClient {
     ///     This example attempts to illustrate a file upload.
     ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
     /// </example>
+    /// <example>
+    ///     This example attempts to illustrate file listings
+    ///     <code source="..\Examples\ListingFiles\Program.cs" lang="cs"></code>
+    /// </example>
     public class FtpClient : FtpControlConnection {
         string _username = null;
         /// <summary>
@@ -390,52 +394,25 @@ namespace System.Net.FtpClient {
         /// Gets a file listing, parses it, and returns an array of FtpListItem 
         /// objects that contain the parsed information. Supports MLSD/LIST (DOS and UNIX) formats.
         /// Most people should use the FtpDirectory/FtpFile classes which have more features than
-        /// the objects returned from this method.
+        /// the objects returned from this method. Please note that Date/Time formats in LIST
+        /// style listings vary greatly. We try to parse the last write time but we make no
+        /// guarntee that it will succeed. If the FtpListItem.Modify == DateTime.MinValue it
+        /// means the parsers failed. You can then use FtpClient.GetLastWriteTime() to try to
+        /// retrieve the modification time. In some edge cases the parsed date from LIST formats may 
+        /// be incorrect. If you encounter such a case please report it to the developers and include
+        /// a copy of the raw listing that produced the invalid dates. If you care about the accuracy
+        /// of the last write time and you know LIST is being used instead of MLSD you should use
+        /// FtpClient.GetLastWriteTime to load the modification time. Example:
+        /// 
+        /// if(!client.HasCapability(FtpCapability.MLSD) {
+        ///   listItem.Modify = client.GetLastWriteTime(full_or_relative_path_to_file);
+        /// };
         /// </summary>
         /// <param name="path"></param>
         /// <param name="type"></param>
         /// <returns></returns>
         public FtpListItem[] GetListing(string path, FtpListType type) {
-            FtpListItem[] list = FtpListItem.ParseList(this.GetRawListing(path, type), type);
-
-            // parsing last write time out of most LIST formats is not feasible so it's ignored.
-            // if the server supports the MDTM command and pipelining is enable, we 
-            // can go ahead and retrieve the last write time's of the files in this list.
-            if (list.Length > 0 && this.EnablePipelining && this.HasCapability(FtpCapability.MDTM)) {
-                List<FtpListItem> items = new List<FtpListItem>();
-
-                for (int i = 0; i < list.Length; i++) {
-                    if (list[i].Type == FtpObjectType.File && list[i].Modify == DateTime.MinValue) {
-                        items.Add(list[i]);
-                    }
-                }
-
-                if (items.Count > 0) {
-                    this.BeginExecute();
-
-                    foreach (FtpListItem i in items) {
-                        this.Execute("MDTM {0}/{1}", path, i.Name);
-                    }
-
-                    FtpCommandResult[] res = this.EndExecute();
-
-                    for (int i = 0; i < res.Length; i++) {
-                        if (res[i].ResponseStatus) {
-                            items[i].Modify = this.ParseLastWriteTime(res[i].ResponseMessage);
-                        }
-                    }
-                }
-            }
-            else if (list.Length > 0 && this.HasCapability(FtpCapability.MDTM)) {
-                // load the last write time of the files who have DateTime.MinValue set
-                foreach (FtpListItem item in list) {
-                    if (item.Modify == DateTime.MinValue) {
-                        item.Modify = this.GetLastWriteTime(string.Format("{0}/{1}", path, item.Name));
-                    }
-                }
-            }
-
-            return list;
+            return FtpListItem.ParseList(this.GetRawListing(path, type), type);
         }
 
         /// <summary>

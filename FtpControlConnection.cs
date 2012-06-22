@@ -32,7 +32,7 @@ namespace System.Net.FtpClient {
     /// The communication channel for the FTP server / used for issuing commands
     /// and controlling transactions.
     /// </summary>
-    public class FtpControlConnection : FtpChannel {
+    public class FtpControlConnection : FtpChannel, IDisposable {
         /// <summary>
         /// Mutex used for locking the command channel while
         /// executing commands

@@ -6,7 +6,7 @@ namespace System.Net.FtpClient {
 	/// <summary>
 	/// Represents a directory on a FTP server
 	/// </summary>
-	public class FtpDirectory : FtpFileSystemObject {
+	public class FtpDirectory : FtpFileSystemObject, IDisposable {
 		/// <summary>
 		/// Gets a value indicating if this directory exists on the server
 		/// </summary>
