@@ -370,6 +370,10 @@ namespace System.Net.FtpClient {
         /// the objects returned from this method.
         /// </summary>
         /// <returns></returns>
+        /// <example>
+        ///     This example attempts to illustrate file listings
+        ///     <code source="..\Examples\ListingFiles\Program.cs" lang="cs"></code>
+        /// </example>
         public FtpListItem[] GetListing() {
             return this.GetListing(this.CurrentDirectory.FullName);
         }
@@ -382,6 +386,10 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
+        /// <example>
+        ///     This example attempts to illustrate file listings
+        ///     <code source="..\Examples\ListingFiles\Program.cs" lang="cs"></code>
+        /// </example>
         public FtpListItem[] GetListing(string path) {
             if (this.HasCapability(FtpCapability.MLSD)) {
                 return this.GetListing(path, FtpListType.MLSD);
@@ -411,6 +419,10 @@ namespace System.Net.FtpClient {
         /// <param name="path"></param>
         /// <param name="type"></param>
         /// <returns></returns>
+        /// <example>
+        ///     This example attempts to illustrate file listings
+        ///     <code source="..\Examples\ListingFiles\Program.cs" lang="cs"></code>
+        /// </example>
         public FtpListItem[] GetListing(string path, FtpListType type) {
             return FtpListItem.ParseList(this.GetRawListing(path, type), type);
         }
