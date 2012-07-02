@@ -742,6 +742,8 @@ namespace System.Net.FtpClient {
                         this.Capabilities |= FtpCapability.SIZE;
                     else if (feat.ToUpper().Contains("UTF8"))
                         this.Capabilities |= FtpCapability.UTF8;
+                    else if (feat.ToUpper().Contains("PRET"))
+                        this.Capabilities |= FtpCapability.PRET;
                     // EPSV and EPRT are already assumed to be supported.
                     //else if(feat.ToUpper().Contains("EPSV") || feat.ToUpper().Contains("EPRT"))
                     //	this.Capabilities |= FtpCapability.EPSV | FtpCapability.EPRT;

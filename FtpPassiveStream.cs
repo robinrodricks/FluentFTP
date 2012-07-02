@@ -19,6 +19,14 @@ namespace System.Net.FtpClient {
 				this.Close();
 			}
 
+            // On servers that advertise PRET (DrFTPD), the PRET command
+            // must be executed before a passive connection is opened.
+            if (this.ControlConnection.HasCapability(FtpCapability.PRET)) {
+                if (!this.ControlConnection.Execute("PRET {0}", command)) {
+                    throw new FtpCommandException(this.ControlConnection);
+                }
+            }
+
 			if(!this.Socket.Connected) {
 				this.Open();
 			}

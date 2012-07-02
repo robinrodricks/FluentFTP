@@ -165,7 +165,11 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Supports for UTF8
         /// </summary>
-        UTF8 = 256
+        UTF8 = 256,
+        /// <summary>
+        /// PRET Command used in distributed ftp server software DrFTPD
+        /// </summary>
+        PRET = 512
 	}
 
 	/// <summary>
