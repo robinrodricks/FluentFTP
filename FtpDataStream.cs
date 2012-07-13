@@ -175,7 +175,8 @@ namespace System.Net.FtpClient {
             get {
                 if (_reader == null && this._netstream != null) {
 
-                    if (_channel.HasCapability(FtpCapability.UTF8)) {
+                    //if (_channel.HasCapability(FtpCapability.UTF8)) {
+                    if(_channel.IsUTF8Enabled) {
                         _reader = new StreamReader(this, System.Text.Encoding.UTF8);
                     }
                     else {

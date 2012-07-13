@@ -50,17 +50,6 @@ namespace System.Net.FtpClient {
             set { _password = value; }
         }
 
-        int _defBufferSize = 8192;
-        /// <summary>
-        /// Gets or sets the default buffer size to use when
-        /// allocating local file storage. Only used in threaded
-        /// downloads.
-        /// </summary>
-        public int DefaultFileSystemBufferSize {
-            get { return _defBufferSize; }
-            set { _defBufferSize = value; }
-        }
-
         event FtpTransferProgress _transfer = null;
         /// <summary>
         /// Event fired from Download() and Upload() methods
@@ -273,7 +262,7 @@ namespace System.Net.FtpClient {
 
                         if (this.ResponseType == FtpResponseType.PositiveIntermediate) {
                             if (this.Password == null) {
-                                throw new FtpException("The server is asking for a password but it has been set.");
+                                throw new FtpException("The server is asking for a password but it has not been set.");
                             }
 
                             if (!this.Execute("PASS {0}", this.Password)) {
@@ -282,6 +271,9 @@ namespace System.Net.FtpClient {
                         }
                     }
                 }
+
+                // turn on UTF8 if it's available
+                this.EnableUTF8();
             }
             finally {
                 this.UnlockControlConnection();

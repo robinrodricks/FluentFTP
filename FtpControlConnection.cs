@@ -102,6 +102,15 @@ namespace System.Net.FtpClient {
             set { _enablePipelining = value; }
         }
 
+        bool m_utf8Enabled = false;
+        /// <summary>
+        /// Gets a value indicating if UTF8 has been enabled
+        /// on this connection
+        /// </summary>
+        public bool IsUTF8Enabled {
+            get { return m_utf8Enabled; }
+        }
+
         event SecurityNotAvailable _secNotAvailable = null;
         /// <summary>
         /// Event is fired when the AUTH command fails for
@@ -129,6 +138,10 @@ namespace System.Net.FtpClient {
         /// </summary>
         protected FtpCapability Capabilities {
             get {
+                if (!this.Connected) {
+                    this.Connect();
+                }
+
                 if (_caps == FtpCapability.EMPTY) {
                     this.LoadCapabilities();
                 }
@@ -376,7 +389,8 @@ namespace System.Net.FtpClient {
 
             WriteLineToLogStream(traceout);
 
-            if (_caps != FtpCapability.EMPTY && this.HasCapability(FtpCapability.UTF8)) {
+            //if (_caps != FtpCapability.EMPTY && this.HasCapability(FtpCapability.UTF8)) {
+            if (this.IsUTF8Enabled) {
                 this.Write(Encoding.UTF8.GetBytes(data));
             }
             else {
@@ -494,7 +508,8 @@ namespace System.Net.FtpClient {
                         string traceout;
                         byte[] cmd;
                         string cmdStr = string.Format("{0}\r\n", this.ExecuteList[i]);
-                        if (_caps != FtpCapability.EMPTY && this.HasCapability(FtpCapability.UTF8)) {
+                        //if (_caps != FtpCapability.EMPTY && this.HasCapability(FtpCapability.UTF8)) {
+                        if(this.IsUTF8Enabled) {
                             cmd = Encoding.UTF8.GetBytes(cmdStr);
                         }
                         else {
@@ -709,7 +724,8 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="cap"></param>
         public bool HasCapability(FtpCapability cap) {
-            return (this.Capabilities & cap) == cap;
+            //return (this.Capabilities & cap) == cap;
+            return this.Capabilities.HasFlag(cap);
         }
 
         /// <summary>
@@ -724,33 +740,38 @@ namespace System.Net.FtpClient {
         /// Loads the capabilities of this server
         /// </summary>
         private void LoadCapabilities() {
+#if DEBUG
+            // trying to figure out why capabilities are being loading
+            // multiple times upon connection
+            //Debug.Print(Environment.StackTrace.ToString());
+#endif
             if (this.Execute("FEAT")) {
                 // some servers support EPSV but do not advertise it
                 // in the FEAT list. for this reason, we assume EPSV
                 // is supported and if we get a 500 reply then we fall back
                 // to PASV.
-                this.Capabilities = FtpCapability.EPSV | FtpCapability.EPRT;
+                this._caps = FtpCapability.EPSV | FtpCapability.EPRT;
 
                 foreach (string feat in this.Messages) {
                     if (feat.ToUpper().Contains("MLST") || feat.ToUpper().Contains("MLSD"))
-                        this.Capabilities |= FtpCapability.MLSD | FtpCapability.MLST;
+                        this._caps |= FtpCapability.MLSD | FtpCapability.MLST;
                     else if (feat.ToUpper().Contains("MDTM"))
-                        this.Capabilities |= (FtpCapability.MDTM | FtpCapability.MDTMDIR);
+                        this._caps |= (FtpCapability.MDTM | FtpCapability.MDTMDIR);
                     else if (feat.ToUpper().Contains("REST STREAM"))
-                        this.Capabilities |= FtpCapability.REST;
+                        this._caps |= FtpCapability.REST;
                     else if (feat.ToUpper().Contains("SIZE"))
-                        this.Capabilities |= FtpCapability.SIZE;
+                        this._caps |= FtpCapability.SIZE;
                     else if (feat.ToUpper().Contains("UTF8"))
-                        this.Capabilities |= FtpCapability.UTF8;
+                        this._caps |= FtpCapability.UTF8;
                     else if (feat.ToUpper().Contains("PRET"))
-                        this.Capabilities |= FtpCapability.PRET;
+                        this._caps |= FtpCapability.PRET;
                     // EPSV and EPRT are already assumed to be supported.
                     //else if(feat.ToUpper().Contains("EPSV") || feat.ToUpper().Contains("EPRT"))
                     //	this.Capabilities |= FtpCapability.EPSV | FtpCapability.EPRT;
                 }
             }
             else {
-                this.Capabilities = FtpCapability.NONE;
+                this._caps = FtpCapability.NONE;
             }
         }
 
@@ -850,7 +871,12 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Upon the initial connection, we will be presented with a banner and status
         /// </summary>
-        void OnChannelConnected(FtpChannel c) {
+        void OnInitalizedConnection(FtpChannel c) {
+            // clear out the capabilities flag upon
+            // connection to force a re-load if this
+            // is a reconnection
+            this.Capabilities = FtpCapability.EMPTY;
+
             if (this.SslMode == FtpSslMode.Implicit) {
                 // The connection should already be encrypted
                 // so authenticate the connection and then
@@ -895,15 +921,27 @@ namespace System.Net.FtpClient {
                     throw new FtpCommandException(this);
                 }
             }
+        }
 
-            this.Capabilities = FtpCapability.EMPTY;
+        /// <summary>
+        /// Turns on UTF8 if it's available
+        /// </summary>
+        /// <returns>True if UTF8 is enabled, false otherwise.</returns>
+        public bool EnableUTF8() {
+            if (!this.IsUTF8Enabled && this.HasCapability(FtpCapability.UTF8)) {
+                if (this.Execute("OPTS UTF8 ON")) {
+                    this.m_utf8Enabled = true;
+                }
+            }
+
+            return this.IsUTF8Enabled;
         }
 
         /// <summary>
         /// Initalize a new command channel object.
         /// </summary>
         public FtpControlConnection() {
-            this.ConnectionReady += new FtpChannelConnected(OnChannelConnected);
+            this.ConnectionReady += new FtpChannelConnected(OnInitalizedConnection);
         }
 
         private FtpTraceListener TraceListener = new FtpTraceListener();
