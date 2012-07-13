@@ -876,6 +876,9 @@ namespace System.Net.FtpClient {
             // connection to force a re-load if this
             // is a reconnection
             this.Capabilities = FtpCapability.EMPTY;
+            // if this is a new connection on an existing object we may not
+            // have UTF8 so make sure we reset this property accordingly.
+            this.m_utf8Enabled = false;
 
             if (this.SslMode == FtpSslMode.Implicit) {
                 // The connection should already be encrypted
