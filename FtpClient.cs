@@ -59,6 +59,49 @@ namespace System.Net.FtpClient {
             remove { _transfer -= value; }
         }
 
+        bool? _useAppendForUploadResume = null;
+        /// <summary>
+        /// Some servers do not allow specifying an upload starting point
+        /// with REST + STOR, instead they only support the use of the APPE
+        /// command. Set this property to true to force the use of the APPE
+        /// command for upload resume. Some systems are automatically detected
+        /// such as Windows_NT (IIS FTP) and OS/400.
+        /// </summary>
+        public bool UseAppendForUploadResume {
+            get {
+                if (_useAppendForUploadResume == null) {
+                    // these are systems that do support
+                    // REST + STOR resumes for uploads
+                    string[] appeSystems = new string[] {
+                        "Windows_NT", "OS/400"
+                    };
+
+                    if (this.System != null) {
+                        foreach (string sys in appeSystems) {
+                            if (this.System.ToLower().Contains(sys.ToLower())) {
+                                this.WriteLineToLogStream(string.Format(
+                                    "{0} servers do not support REST + STOR. The rest parament will be " +
+                                    "ignored and the file will be appended to.", this.System));
+                                _useAppendForUploadResume = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    // if null, couldn't detect system that requires
+                    // the use of APPE instead of REST + STOR.
+                    if (_useAppendForUploadResume == null)
+                        _useAppendForUploadResume = false;
+                }
+
+                return (bool)_useAppendForUploadResume;
+            }
+            set {
+                _useAppendForUploadResume = value;
+            }
+        }
+
+
         FtpDirectory _currentDirectory = null;
         /// <summary>
         /// Gets the current working directory. Use the SetWorkingDirectory() method
@@ -833,8 +876,7 @@ namespace System.Net.FtpClient {
             FtpDataStream s = this.OpenDataStream(datatype);
             string cmd = null;
 
-            if (rest > 0 && this.System == "Windows_NT") {
-                this.WriteLineToLogStream("IIS servers do not support REST + STOR. The rest parament will be ignored and the file will be appended to.");
+            if (rest > 0 && this.UseAppendForUploadResume) {
                 cmd = string.Format("APPE {0}", path);
             }
             else {
