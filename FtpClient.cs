@@ -837,7 +837,7 @@ namespace System.Net.FtpClient {
         /// it before attempting to open a file on the server.
         /// </summary>
         /// <param name="path">The full or relative (to the current working directory) path</param>
-        /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+        /// <returns>FtpDataStream used for writing to the remote file. Be sure to dispose this object when done.</returns>
         public FtpDataStream OpenWrite(string path) {
             return this.OpenWrite(path, FtpDataType.Binary, 0);
         }
@@ -848,7 +848,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
-        /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+        /// <returns>FtpDataStream used for writing to the remote file. Be sure to dispose this object when done.</returns>
         public FtpDataStream OpenWrite(string path, long rest) {
             return this.OpenWrite(path, FtpDataType.Binary, rest);
         }
@@ -859,7 +859,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <param name="datatype">ASCII/Binary</param>
-        /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+        /// <returns>FtpDataStream used for writing to the remote file. Be sure to dispose this object when done.</returns>
         public FtpDataStream OpenWrite(string path, FtpDataType datatype) {
             return this.OpenWrite(path, datatype, 0);
         }
@@ -871,7 +871,7 @@ namespace System.Net.FtpClient {
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <param name="datatype">ASCII/Binary</param>
         /// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
-        /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+        /// <returns>FtpDataStream used for writing to the remote file. Be sure to dispose this object when done.</returns>
         public FtpDataStream OpenWrite(string path, FtpDataType datatype, long rest) {
             FtpDataStream s = this.OpenDataStream(datatype);
             string cmd = null;
@@ -884,6 +884,42 @@ namespace System.Net.FtpClient {
                     s.Seek(rest);
                 }
 
+                cmd = string.Format("STOR {0}", path);
+            }
+
+            if (!s.Execute(cmd)) {
+                s.Dispose();
+                throw new FtpCommandException(this);
+            }
+
+            return s;
+        }
+
+        /// <summary>
+        /// Opens a file for writing on the server
+        /// </summary>
+        /// <param name="path">The full or relative path of the file</param>
+        /// <param name="append">If the file exists, append to it</param>
+        /// <returns></returns>
+        public FtpDataStream OpenWrite(string path, bool append) {
+            return this.OpenWrite(path, FtpDataType.Binary, append);
+        }
+
+        /// <summary>
+        /// Opens a file for writing.
+        /// </summary>
+        /// <param name="path">The full or relative path of the file</param>
+        /// <param name="datatype">ASCII/Binary</param>
+        /// <param name="append">If the file exists, append to it</param>
+        /// <returns>FtpDataStream used for writing to the remote file. Be sure to dispose this object when done.</returns>
+        public FtpDataStream OpenWrite(string path, FtpDataType datatype, bool append) {
+            FtpDataStream s = this.OpenDataStream(datatype);
+            string cmd = null;
+
+            if (append) {
+                cmd = string.Format("APPE {0}", path);
+            }
+            else {
                 cmd = string.Format("STOR {0}", path);
             }
 
@@ -1443,6 +1479,149 @@ namespace System.Net.FtpClient {
             }
         }
 
+        /// <summary>
+        /// Uploads a file to the server
+        /// </summary>
+        /// <param name="remote">Remote path of the file</param>
+        /// <param name="local">Local path of the file</param>
+        /// <param name="append">Append to the remote file if it exists</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
+        public void Upload(string local, string remote, bool append) {
+            this.Upload(local, remote, FtpDataType.Binary, append);
+        }
+
+        /// <summary>
+        /// Uploads a file to the server
+        /// </summary>
+        /// <param name="istream">Stream to read the file from</param>
+        /// <param name="remote">Remote path of the file</param>
+        /// <param name="append">Append to the remote file if it exists</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
+        public void Upload(Stream istream, string remote, bool append) {
+            this.Upload(istream, new FtpFile(this, remote), FtpDataType.Binary, append);
+        }
+
+        /// <summary>
+        /// Uploads a file to the server
+        /// </summary>
+        /// <param name="remote">Local path of the file</param>
+        /// <param name="local">Remote path of the file</param>
+        /// <param name="datatype">ASCII/Binary</param>
+        /// <param name="append">Append to the remote file if it exists</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
+        public void Upload(string local, string remote, FtpDataType datatype, bool append) {
+            this.Upload(local, new FtpFile(this, remote), datatype, append);
+        }
+
+        /// <summary>
+        /// Uploads a file to the server
+        /// </summary>
+        /// <param name="remote">Remote path of the file</param>
+        /// <param name="local">Local path of the file</param>
+        /// <param name="append">Append to the remote file if it exists</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
+        public void Upload(string local, FtpFile remote, bool append) {
+            this.Upload(local, remote, FtpDataType.Binary, append);
+        }
+
+        /// <summary>
+        /// Uploads a file to the server
+        /// </summary>
+        /// <param name="istream">The file to upload</param>
+        /// <param name="remote">Remote path of the file</param>
+        /// <param name="append">Append to the remote file if it exists</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
+        public void Upload(Stream istream, FtpFile remote, bool append) {
+            this.Upload(istream, remote, FtpDataType.Binary, append);
+        }
+
+        /// <summary>
+        /// Uploads a file to the server
+        /// </summary>
+        /// <param name="remote">Local path of the file</param>
+        /// <param name="local">Remote path of the file</param>
+        /// <param name="datatype">ASCII/Binary</param>
+        /// <param name="append">Append to the remote file if it exists</param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
+        public void Upload(string local, FtpFile remote, FtpDataType datatype, bool append) {
+            using (FileStream istream = new FileStream(local, FileMode.Open, FileAccess.Read)) {
+                try {
+                    this.Upload(istream, remote, datatype, append);
+                }
+                finally {
+                    istream.Close();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Uploads a stream to the specified remote file
+        /// </summary>
+        /// <param name="istream"></param>
+        /// <param name="remote"></param>
+        /// <param name="datatype"></param>
+        /// <param name="append"></param>
+        /// <example>
+        ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
+        /// </example>
+        public void Upload(Stream istream, FtpFile remote, FtpDataType datatype, bool append) {
+            long size = 0;
+            long total = 0;
+            int read = 0;
+            long rest = 0;
+
+            if (istream == null) {
+                throw new ArgumentException("istream is null");
+            }
+
+            if (remote == null) {
+                throw new ArgumentException("remote is null");
+            }
+
+            if (!istream.CanRead) {
+                throw new ArgumentException("istream is not readable");
+            }
+
+            if (istream.CanSeek) {
+                size = istream.Length;
+            }
+
+            rest = istream.Position;
+
+            using (FtpDataStream ch = this.OpenWrite(remote.FullName, datatype, append)) {
+                byte[] buf = new byte[ch.SendBufferSize];
+                DateTime start = DateTime.Now;
+                FtpTransferInfo e;
+
+                while ((read = istream.Read(buf, 0, buf.Length)) > 0) {
+                    ch.Write(buf, 0, read);
+                    total += read;
+                    e = new FtpTransferInfo(FtpTransferType.Upload, remote.FullName, size, rest, total, start, false);
+
+                    this.OnTransferProgress(e);
+                    if (e.Cancel) {
+                        break;
+                    }
+                }
+
+                // fire one more time to let event handler know the transfer is complete
+                this.OnTransferProgress(new FtpTransferInfo(FtpTransferType.Upload, remote.FullName,
+                    size, rest, total, start, true));
+            }
+        }
+        
         /// <summary>
         /// Creates a new isntance of an FtpClient
         /// </summary>

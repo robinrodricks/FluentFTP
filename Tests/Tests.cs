@@ -36,8 +36,7 @@ namespace System.Net.FtpClient.Tests {
                     cl.RemoveFile(remote);
                 }
 
-                cl.UseAppendForUploadResume = true;
-                cl.Upload(f, remote, 2);
+                cl.Upload(f, remote, true);
             }
 
             foreach (string d in System.IO.Directory.GetDirectories(path)) {
@@ -106,14 +105,14 @@ namespace System.Net.FtpClient.Tests {
 
         void OnTransferProgress(FtpTransferInfo e) {
             if (e.TransferType == FtpTransferType.Download) {
-                Console.Write("Download: ");
+                System.Diagnostics.Debug.Write("Download: ");
             }
             else {
-                Console.Write("Upload: ");
+                System.Diagnostics.Debug.Write("Upload: ");
             }
 
-            Console.WriteLine("{0} {1}/{2} {3}%",
-                e.FileName, e.Transferred, e.Length, e.Percentage);
+            System.Diagnostics.Debug.WriteLine(string.Format("{0} {1}/{2} {3}%",
+                e.FileName, e.Transferred, e.Length, e.Percentage));
         }
     }
 }
