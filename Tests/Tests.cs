@@ -36,7 +36,7 @@ namespace System.Net.FtpClient.Tests {
                     cl.RemoveFile(remote);
                 }
 
-                cl.Upload(f, remote, true);
+                cl.Upload(f, remote);
             }
 
             foreach (string d in System.IO.Directory.GetDirectories(path)) {

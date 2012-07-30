@@ -33,11 +33,13 @@ namespace System.Net.FtpClient {
 			}
 		}
 
-		/// <summary>
+        #region Obsolete open methods
+        /// <summary>
 		/// Opens this file for reading
 		/// </summary>
 		/// <returns></returns>
-		public FtpDataStream OpenRead() {
+        [Obsolete("This method has been deprecated and will be removed in the future. Please use Open() instead.")]
+        public FtpDataStream OpenRead() {
 			return this.OpenRead(FtpDataType.Binary, 0);
 		}
 
@@ -46,7 +48,8 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="rest"></param>
 		/// <returns></returns>
-		public FtpDataStream OpenRead(long rest) {
+        [Obsolete("This method has been deprecated and will be removed in the future. Please use Open() instead.")]
+        public FtpDataStream OpenRead(long rest) {
 			return this.OpenRead(FtpDataType.Binary, rest);
 		}
 
@@ -55,7 +58,8 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="mode"></param>
 		/// <returns></returns>
-		public FtpDataStream OpenRead(FtpDataType mode) {
+        [Obsolete("This method has been deprecated and will be removed in the future. Please use Open() instead.")]
+        public FtpDataStream OpenRead(FtpDataType mode) {
 			return this.OpenRead(mode, 0);
 		}
 
@@ -65,15 +69,17 @@ namespace System.Net.FtpClient {
 		/// <param name="mode"></param>
 		/// <param name="rest"></param>
 		/// <returns></returns>
-		public FtpDataStream OpenRead(FtpDataType mode, long rest) {
-			return this.Client.OpenRead(this.FullName, mode, rest);
+        [Obsolete("This method has been deprecated and will be removed in the future. Please use Open() instead.")]
+        public FtpDataStream OpenRead(FtpDataType mode, long rest) {
+            return this.Client.OpenFile(this.FullName, mode, FtpFileAccess.Read, rest);
 		}
 
 		/// <summary>
 		/// Opens this file for writing
 		/// </summary>
 		/// <returns></returns>
-		public FtpDataStream OpenWrite() {
+        [Obsolete("This method has been deprecated and will be removed in the future. Please use Open() instead.")]
+        public FtpDataStream OpenWrite() {
 			return this.OpenWrite(FtpDataType.Binary, 0);
 		}
 
@@ -82,7 +88,8 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="rest"></param>
 		/// <returns></returns>
-		public FtpDataStream OpenWrite(long rest) {
+        [Obsolete("This method has been deprecated and will be removed in the future. Please use Open() instead.")]
+        public FtpDataStream OpenWrite(long rest) {
 			return this.OpenWrite(FtpDataType.Binary, rest);
 		}
 
@@ -91,7 +98,8 @@ namespace System.Net.FtpClient {
 		/// </summary>
 		/// <param name="mode"></param>
 		/// <returns></returns>
-		public FtpDataStream OpenWrite(FtpDataType mode) {
+        [Obsolete("This method has been deprecated and will be removed in the future. Please use Open() instead.")]
+        public FtpDataStream OpenWrite(FtpDataType mode) {
 			return this.OpenWrite(mode, 0);
 		}
 
@@ -101,9 +109,51 @@ namespace System.Net.FtpClient {
 		/// <param name="mode"></param>
 		/// <param name="rest"></param>
 		/// <returns></returns>
-		public FtpDataStream OpenWrite(FtpDataType mode, long rest) {
-			return this.Client.OpenWrite(this.FullName, mode, rest);
+		[Obsolete("This method has been deprecated and will be removed in the future. Please use Open() instead.")]
+        public FtpDataStream OpenWrite(FtpDataType mode, long rest) {
+            return this.Client.OpenFile(this.FullName, mode, FtpFileAccess.Write, rest);
 		}
+        #endregion
+
+        /// <summary>
+        /// Opens a stream to this file on the server
+        /// </summary>
+        /// <param name="access">Read, write or append. If append, offset parameter is ignored.</param>
+        /// <returns>A stream to the file.</returns>
+        public FtpDataStream Open(FtpFileAccess access) {
+            return this.Open(FtpDataType.Binary, access, 0);
+        }
+
+        /// <summary>
+        /// Opens a stream to this file on the server
+        /// </summary>
+        /// <param name="type">ASCII/Binary</param>
+        /// <param name="access">Read, write or append. If append, offset parameter is ignored.</param>
+        /// <returns>A stream to the file.</returns>
+        public FtpDataStream Open(FtpDataType type, FtpFileAccess access) {
+            return this.Open(type, access, 0);
+        }
+
+        /// <summary>
+        /// Opens a stream to this file on the server
+        /// </summary>
+        /// <param name="access">Read, write or append. If append, offset parameter is ignored.</param>
+        /// <param name="offset">Starting position of the stream, ignored if access type is append.</param>
+        /// <returns>A stream to the file.</returns>
+        public FtpDataStream Open(FtpFileAccess access, long offset) {
+            return this.Open(FtpDataType.Binary, access, offset);
+        }
+
+        /// <summary>
+        /// Opens a stream to this file on the server
+        /// </summary>
+        /// <param name="type">ASCII/Binary</param>
+        /// <param name="access">Read, write or append. If append, offset parameter is ignored.</param>
+        /// <param name="offset">Starting position of the stream, ignored if access type is append.</param>
+        /// <returns>A stream to the file.</returns>
+        public FtpDataStream Open(FtpDataType type, FtpFileAccess access, long offset) {
+            return this.Client.OpenFile(this.FullName, type, access, offset);
+        }
 
 		/// <summary>
 		/// Download this file to the current working directory

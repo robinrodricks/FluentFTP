@@ -283,4 +283,22 @@ namespace System.Net.FtpClient {
         /// </summary>
 		ReadWriteExecute = Read | Write | Execute
 	}
+
+    /// <summary>
+    /// Desired file access mode
+    /// </summary>
+    public enum FtpFileAccess {
+        /// <summary>
+        /// Read the file
+        /// </summary>
+        Read,
+        /// <summary>
+        /// Write to a file
+        /// </summary>
+        Write,
+        /// <summary>
+        /// Append to the file
+        /// </summary>
+        Append
+    }
 }

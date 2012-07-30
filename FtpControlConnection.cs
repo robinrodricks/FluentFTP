@@ -39,6 +39,24 @@ namespace System.Net.FtpClient {
         /// </summary>
         Mutex mCommandLock = new Mutex();
 
+        string _username = null;
+        /// <summary>
+        /// The username to authenticate with
+        /// </summary>
+        public string Username {
+            get { return _username; }
+            set { _username = value; }
+        }
+
+        string _password = null;
+        /// <summary>
+        /// The password to authenticate with
+        /// </summary>
+        public string Password {
+            get { return _password; }
+            set { _password = value; }
+        }
+
         int _keepAliveInterval = 0;
         /// <summary>
         /// Sets an interval in seconds to send keep-alive commands to the server
@@ -776,6 +794,73 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
+        /// Gets the size of the specified file. Prefer the MLST command since some servers don't
+        /// support large files. If there are any errors getting the file size, 0 will be returned
+        /// rather than throwing an exception.
+        /// </summary>
+        /// <param name="path">The full or relative (to the current working directory) path</param>
+        /// <returns>The file size, 0 if there was a problem parsing the size</returns>
+        public long GetFileSize(string path) {
+            // prefer MLST for getting the file size because some
+            // servers won't give the file size back for large files
+            if (this.HasCapability(FtpCapability.MLST)) {
+                try {
+                    this.LockControlConnection();
+
+                    if (!this.Execute("MLST {0}", path)) {
+                        return 0;
+                    }
+
+                    foreach (string s in this.Messages) {
+                        // MLST response starts with a space according to draft-ietf-ftpext-mlst-16
+                        if (s.StartsWith(" ") && s.ToLower().Contains("size")) {
+                            Match m = Regex.Match(s, @"Size=(\d+);", RegexOptions.IgnoreCase);
+                            long size = 0;
+
+                            if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
+                                size = 0;
+                            }
+
+                            return size;
+                        }
+                    }
+                }
+                finally {
+                    this.UnlockControlConnection();
+                }
+            }
+            // used for older servers, has limitations, will error
+            // if the file size is too big.
+            else if (this.HasCapability(FtpCapability.SIZE)) {
+                long size = 0;
+                Match m;
+
+                try {
+                    this.LockControlConnection();
+
+                    // ignore errors, return 0 if there is one. some servers
+                    // don't support large file sizes.
+                    if (this.Execute("SIZE {0}", path)) {
+                        m = Regex.Match(this.ResponseMessage, @"(\d+)");
+                        if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
+                            size = 0;
+                        }
+                    }
+                }
+                finally {
+                    this.UnlockControlConnection();
+                }
+
+                return size;
+            }
+
+            // we failed to get a file size due to server or code errors however
+            // we don't want to trigger an exception because this is not a fatal
+            // error. people implementing this code need to be aware of this fact.
+            return 0;
+        }
+
+        /// <summary>
         /// Set the data type for the data channel
         /// </summary>
         /// <param name="datatype"></param>
@@ -817,17 +902,17 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Opens a binary data stream
         /// </summary>
-        /// <returns></returns>
-        public FtpDataStream OpenDataStream() {
+        /// <returns>A stream that can be read or written depending on the type of transaction, but not both.</returns>
+        protected FtpDataStream OpenDataStream() {
             return this.OpenDataStream(FtpDataType.Binary);
         }
 
         /// <summary>
-        /// Opens a data stream using the format and mode specified
+        /// Opens a data stream using the data format specified
         /// </summary>
-        /// <param name="type">Type of data channel to use</param>
-        /// <returns>Data Stream Object</returns>
-        public FtpDataStream OpenDataStream(FtpDataType type) {
+        /// <param name="type">Data format to use</param>
+        /// <returns>A stream that can be read or written depending on the type of transaction, but not both.</returns>
+        protected FtpDataStream OpenDataStream(FtpDataType type) {
             FtpDataStream stream = null;
 
             this.SetDataType(type);
@@ -845,6 +930,96 @@ namespace System.Net.FtpClient {
 
             if (stream != null) {
                 stream.ReadTimeout = this.DataChannelReadTimeout;
+            }
+
+            return stream;
+        }
+
+        /// <summary>
+        /// Opens a stream to the specified file on the server
+        /// </summary>
+        /// <param name="path">The full or relative path to the file</param>
+        /// <param name="access">Read, write or append to the file. Append ignores the offset parameter. Use read or write accordingly if you want to open the file to a specific location.</param>
+        /// <returns>A non seekable stream to the file.</returns>
+        /// <example>
+        ///     This example attempts to illustrate a stream based file download.
+        ///     <code source="..\Examples\DownloadStream\Program.cs" lang="cs"></code>
+        /// </example>
+        public FtpDataStream OpenFile(string path, FtpFileAccess access) {
+            return this.OpenFile(path, FtpDataType.Binary, access, 0);
+        }
+
+        /// <summary>
+        /// Opens a stream to the specified file on the server
+        /// </summary>
+        /// <param name="path">The full or relative path to the file</param>
+        /// <param name="access">Read, write or append to the file. Append ignores the offset parameter. Use read or write accordingly if you want to open the file to a specific location.</param>
+        /// <param name="offset">Starting position of the stream. Please note this parameter is ignored for FtpFileAccess.Append.</param>
+        /// <returns>A non seekable stream to the file.</returns>
+        /// <example>
+        ///     This example attempts to illustrate a stream based file download.
+        ///     <code source="..\Examples\DownloadStream\Program.cs" lang="cs"></code>
+        /// </example>
+        public FtpDataStream OpenFile(string path, FtpFileAccess access, long offset) {
+            return this.OpenFile(path, FtpDataType.Binary, access, offset);
+        }
+
+        /// <summary>
+        /// Opens a stream to the specified file on the server
+        /// </summary>
+        /// <param name="path">The full or relative path to the file</param>
+        /// <param name="type">ASCII/Binary</param>
+        /// <param name="access">Starting position of the stream. Please note this parameter is ignored for FtpFileAccess.Append.</param>
+        /// <returns>A non seekable stream to the file.</returns>
+        /// <example>
+        ///     This example attempts to illustrate a stream based file download.
+        ///     <code source="..\Examples\DownloadStream\Program.cs" lang="cs"></code>
+        /// </example>
+        public FtpDataStream OpenFile(string path, FtpDataType type, FtpFileAccess access) {
+            return this.OpenFile(path, type, access, 0);
+        }
+
+        /// <summary>
+        /// Opens a stream to the specified file on the server
+        /// </summary>
+        /// <param name="path">The full or relative path to the file</param>
+        /// <param name="type">ASCII/Binary</param>
+        /// <param name="access">Read, write or append to the file. Append ignores the offset parameter. Use read or write accordingly if you want to open the file to a specific location.</param>
+        /// <param name="offset">Starting position of the stream. Please note this parameter is ignored for FtpFileAccess.Append.</param>
+        /// <returns>A non seekable stream to the file.</returns>
+        /// <example>
+        ///     This example attempts to illustrate a stream based file download.
+        ///     <code source="..\Examples\DownloadStream\Program.cs" lang="cs"></code>
+        /// </example>
+        public FtpDataStream OpenFile(string path, FtpDataType type, FtpFileAccess access, long offset) {
+            FtpDataStream stream = this.OpenDataStream(type);
+            string cmd = null;
+
+            switch (access) {
+                case FtpFileAccess.Read:
+                    cmd = string.Format("RETR {0}", path);
+                    break;
+                case FtpFileAccess.Write:
+                    cmd = string.Format("STOR {0}", path);
+                    break;
+                case FtpFileAccess.Append:
+                    cmd = string.Format("APPE {0}", path);
+                    break;
+            }
+
+            stream.SetLength(this.GetFileSize(path));
+
+            switch (access) {
+                case FtpFileAccess.Read:
+                case FtpFileAccess.Write:
+                    if (offset > 0)
+                        stream.Seek(offset);
+                    break;
+            }
+
+            if (!stream.Execute(cmd)) {
+                stream.Dispose();
+                throw new FtpCommandException(this);
             }
 
             return stream;
@@ -924,20 +1099,60 @@ namespace System.Net.FtpClient {
                     throw new FtpCommandException(this);
                 }
             }
+
+            this.Login();
         }
 
         /// <summary>
-        /// Turns on UTF8 if it's available
+        /// This is the login event handler. It performs the FTP login
+        /// if a connection to the server has been made.
         /// </summary>
-        /// <returns>True if UTF8 is enabled, false otherwise.</returns>
-        public bool EnableUTF8() {
-            if (!this.IsUTF8Enabled && this.HasCapability(FtpCapability.UTF8)) {
-                if (this.Execute("OPTS UTF8 ON")) {
-                    this.m_utf8Enabled = true;
+        void Login() {
+            try {
+                this.LockControlConnection();
+
+                if (this.Username != null) {
+                    // there's no reason to pipeline here if the password is null
+                    if (this.EnablePipelining && this.Password != null) {
+                        FtpCommandResult[] res = this.Execute(new string[] {
+							string.Format("USER {0}", this.Username),
+							string.Format("PASS {0}", this.Password)
+						});
+
+                        foreach (FtpCommandResult r in res) {
+                            if (!r.ResponseStatus) {
+                                throw new FtpCommandException(r.ResponseCode, r.ResponseMessage);
+                            }
+                        }
+                    }
+                    else {
+                        if (!this.Execute("USER {0}", this.Username)) {
+                            throw new FtpCommandException(this);
+                        }
+
+                        if (this.ResponseType == FtpResponseType.PositiveIntermediate) {
+                            if (this.Password == null) {
+                                throw new FtpException("The server is asking for a password but it has not been set.");
+                            }
+
+                            if (!this.Execute("PASS {0}", this.Password)) {
+                                throw new FtpCommandException(this);
+                            }
+                        }
+                    }
+                }
+
+                // turn on UTF8 if it's available
+                //this.EnableUTF8();
+                if (!this.IsUTF8Enabled && this.HasCapability(FtpCapability.UTF8)) {
+                    if (this.Execute("OPTS UTF8 ON")) {
+                        this.m_utf8Enabled = true;
+                    }
                 }
             }
-
-            return this.IsUTF8Enabled;
+            finally {
+                this.UnlockControlConnection();
+            }
         }
 
         /// <summary>

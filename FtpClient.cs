@@ -24,6 +24,10 @@ namespace System.Net.FtpClient {
     ///     <code source="..\Examples\Download\Program.cs" lang="cs"></code>
     /// </example>
     /// <example>
+    ///     This example attempts to illustrate a stream based file download.
+    ///     <code source="..\Examples\DownloadStream\Program.cs" lang="cs"></code>
+    /// </example>
+    /// <example>
     ///     This example attempts to illustrate a file upload.
     ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
     /// </example>
@@ -32,24 +36,6 @@ namespace System.Net.FtpClient {
     ///     <code source="..\Examples\ListingFiles\Program.cs" lang="cs"></code>
     /// </example>
     public class FtpClient : FtpControlConnection {
-        string _username = null;
-        /// <summary>
-        /// The username to authenticate with
-        /// </summary>
-        public string Username {
-            get { return _username; }
-            set { _username = value; }
-        }
-
-        string _password = null;
-        /// <summary>
-        /// The password to authenticate with
-        /// </summary>
-        public string Password {
-            get { return _password; }
-            set { _password = value; }
-        }
-
         event FtpTransferProgress _transfer = null;
         /// <summary>
         /// Event fired from Download() and Upload() methods
@@ -67,6 +53,7 @@ namespace System.Net.FtpClient {
         /// command for upload resume. Some systems are automatically detected
         /// such as Windows_NT (IIS FTP) and OS/400.
         /// </summary>
+        [Obsolete("This property is depricated and will soon be remvoed.")]
         public bool UseAppendForUploadResume {
             get {
                 if (_useAppendForUploadResume == null) {
@@ -100,7 +87,6 @@ namespace System.Net.FtpClient {
                 _useAppendForUploadResume = value;
             }
         }
-
 
         FtpDirectory _currentDirectory = null;
         /// <summary>
@@ -274,53 +260,6 @@ namespace System.Net.FtpClient {
             this.Server = server;
             this.Port = port;
             return this.BeginConnect(callback, state);
-        }
-
-        /// <summary>
-        /// This is the ConnectionReady event handler. It performs the FTP login
-        /// if a connection to the server has been made.
-        /// </summary>
-        void Login(FtpChannel c) {
-            try {
-                this.LockControlConnection();
-
-                if (this.Username != null) {
-                    // there's no reason to pipeline here if the password is null
-                    if (this.EnablePipelining && this.Password != null) {
-                        FtpCommandResult[] res = this.Execute(new string[] {
-							string.Format("USER {0}", this.Username),
-							string.Format("PASS {0}", this.Password)
-						});
-
-                        foreach (FtpCommandResult r in res) {
-                            if (!r.ResponseStatus) {
-                                throw new FtpCommandException(r.ResponseCode, r.ResponseMessage);
-                            }
-                        }
-                    }
-                    else {
-                        if (!this.Execute("USER {0}", this.Username)) {
-                            throw new FtpCommandException(this);
-                        }
-
-                        if (this.ResponseType == FtpResponseType.PositiveIntermediate) {
-                            if (this.Password == null) {
-                                throw new FtpException("The server is asking for a password but it has not been set.");
-                            }
-
-                            if (!this.Execute("PASS {0}", this.Password)) {
-                                throw new FtpCommandException(this);
-                            }
-                        }
-                    }
-                }
-
-                // turn on UTF8 if it's available
-                this.EnableUTF8();
-            }
-            finally {
-                this.UnlockControlConnection();
-            }
         }
 
         /// <summary>
@@ -572,74 +511,7 @@ namespace System.Net.FtpClient {
 
             return modify;
         }
-
-        /// <summary>
-        /// Gets the size of the specified file. Prefer the MLST command since some servers don't
-        /// support large files. If there are any errors getting the file size, 0 will be returned
-        /// rather than throwing an exception.
-        /// </summary>
-        /// <param name="path">The full or relative (to the current working directory) path</param>
-        /// <returns>The file size, 0 if there was a problem parsing the size</returns>
-        public long GetFileSize(string path) {
-            // prefer MLST for getting the file size because some
-            // servers won't give the file size back for large files
-            if (this.HasCapability(FtpCapability.MLST)) {
-                try {
-                    this.LockControlConnection();
-
-                    if (!this.Execute("MLST {0}", path)) {
-                        throw new FtpCommandException(this);
-                    }
-
-                    foreach (string s in this.Messages) {
-                        // MLST response starts with a space according to draft-ietf-ftpext-mlst-16
-                        if (s.StartsWith(" ") && s.ToLower().Contains("size")) {
-                            Match m = Regex.Match(s, @"Size=(\d+);", RegexOptions.IgnoreCase);
-                            long size = 0;
-
-                            if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
-                                size = 0;
-                            }
-
-                            return size;
-                        }
-                    }
-                }
-                finally {
-                    this.UnlockControlConnection();
-                }
-            }
-            // used for older servers, has limitations, will error
-            // if the file size is too big.
-            else if (this.HasCapability(FtpCapability.SIZE)) {
-                long size = 0;
-                Match m;
-
-                try {
-                    this.LockControlConnection();
-
-                    // ignore errors, return 0 if there is one. some servers
-                    // don't support large file sizes.
-                    if (this.Execute("SIZE {0}", path)) {
-                        m = Regex.Match(this.ResponseMessage, @"(\d+)");
-                        if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
-                            size = 0;
-                        }
-                    }
-                }
-                finally {
-                    this.UnlockControlConnection();
-                }
-
-                return size;
-            }
-
-            // we failed to get a file size due to server or code errors however
-            // we don't want to trigger an exception because this is not a fatal
-            // error. people implementing this code need to be aware of this fact.
-            return 0;
-        }
-
+        
         /// <summary>
         /// Removes the specified directory
         /// </summary>
@@ -776,14 +648,16 @@ namespace System.Net.FtpClient {
             }
         }
 
+        #region OpenRead()/OpenWrite() obsolete
         /// <summary>
         /// Opens a file for reading. If you want the file size, be sure to retrieve
         /// it before attempting to open a file on the server.
         /// </summary>
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+        [Obsolete("This method is depricated and will soon be remvoed. Please use OpenFile() instead.")]
         public FtpDataStream OpenRead(string path) {
-            return this.OpenRead(path, FtpDataType.Binary, 0);
+            return this.OpenFile(path, FtpDataType.Binary, FtpFileAccess.Read, 0);
         }
 
         /// <summary>
@@ -793,8 +667,9 @@ namespace System.Net.FtpClient {
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
         /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+        [Obsolete("This method is depricated and will soon be remvoed. Please use OpenFile() instead.")]
         public FtpDataStream OpenRead(string path, long rest) {
-            return this.OpenRead(path, FtpDataType.Binary, rest);
+            return this.OpenFile(path, FtpDataType.Binary, FtpFileAccess.Read, rest);
         }
 
         /// <summary>
@@ -804,8 +679,9 @@ namespace System.Net.FtpClient {
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <param name="datatype">ASCII/Binary</param>
         /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+        [Obsolete("This method is depricated and will soon be remvoed. Please use OpenFile() instead.")]
         public FtpDataStream OpenRead(string path, FtpDataType datatype) {
-            return this.OpenRead(path, datatype, 0);
+            return this.OpenFile(path, datatype, FtpFileAccess.Read, 0);
         }
 
         /// <summary>
@@ -816,20 +692,9 @@ namespace System.Net.FtpClient {
         /// <param name="datatype">ASCII/Binary</param>
         /// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
         /// <returns>FtpDataChannel used for reading the data stream. Be sure to disconnect when finished.</returns>
+        [Obsolete("This method is depricated and will soon be remvoed. Please use OpenFile() instead.")]
         public FtpDataStream OpenRead(string path, FtpDataType datatype, long rest) {
-            FtpDataStream s = this.OpenDataStream(datatype);
-
-            s.SetLength(this.GetFileSize(path));
-            if (rest > 0) {
-                s.Seek(rest);
-            }
-
-            if (!s.Execute("RETR {0}", path)) {
-                s.Dispose();
-                throw new FtpCommandException(this);
-            }
-
-            return s;
+            return this.OpenFile(path, datatype, FtpFileAccess.Read, rest);
         }
 
         /// <summary>
@@ -838,8 +703,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <returns>FtpDataStream used for writing to the remote file. Be sure to dispose this object when done.</returns>
+        [Obsolete("This method is depricated and will soon be remvoed. Please use OpenFile() instead.")]
         public FtpDataStream OpenWrite(string path) {
-            return this.OpenWrite(path, FtpDataType.Binary, 0);
+            return this.OpenFile(path, FtpDataType.Binary, FtpFileAccess.Write, 0);
         }
 
         /// <summary>
@@ -849,8 +715,9 @@ namespace System.Net.FtpClient {
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
         /// <returns>FtpDataStream used for writing to the remote file. Be sure to dispose this object when done.</returns>
+        [Obsolete("This method is depricated and will soon be remvoed. Please use OpenFile() instead.")]
         public FtpDataStream OpenWrite(string path, long rest) {
-            return this.OpenWrite(path, FtpDataType.Binary, rest);
+            return this.OpenFile(path, FtpDataType.Binary, FtpFileAccess.Write, rest);
         }
 
         /// <summary>
@@ -860,8 +727,9 @@ namespace System.Net.FtpClient {
         /// <param name="path">The full or relative (to the current working directory) path</param>
         /// <param name="datatype">ASCII/Binary</param>
         /// <returns>FtpDataStream used for writing to the remote file. Be sure to dispose this object when done.</returns>
+        [Obsolete("This method is depricated and will soon be remvoed. Please use OpenFile() instead.")]
         public FtpDataStream OpenWrite(string path, FtpDataType datatype) {
-            return this.OpenWrite(path, datatype, 0);
+            return this.OpenFile(path, datatype, FtpFileAccess.Write, 0);
         }
 
         /// <summary>
@@ -872,27 +740,9 @@ namespace System.Net.FtpClient {
         /// <param name="datatype">ASCII/Binary</param>
         /// <param name="rest">Resume location, if specified and server doesn't support REST STREAM, a NotImplementedException is thrown</param>
         /// <returns>FtpDataStream used for writing to the remote file. Be sure to dispose this object when done.</returns>
+        [Obsolete("This method is depricated and will soon be remvoed. Please use OpenFile() instead.")]
         public FtpDataStream OpenWrite(string path, FtpDataType datatype, long rest) {
-            FtpDataStream s = this.OpenDataStream(datatype);
-            string cmd = null;
-
-            if (rest > 0 && this.UseAppendForUploadResume) {
-                cmd = string.Format("APPE {0}", path);
-            }
-            else {
-                if (rest > 0) {
-                    s.Seek(rest);
-                }
-
-                cmd = string.Format("STOR {0}", path);
-            }
-
-            if (!s.Execute(cmd)) {
-                s.Dispose();
-                throw new FtpCommandException(this);
-            }
-
-            return s;
+            return this.OpenFile(path, datatype, FtpFileAccess.Write, rest);
         }
 
         /// <summary>
@@ -901,8 +751,9 @@ namespace System.Net.FtpClient {
         /// <param name="path">The full or relative path of the file</param>
         /// <param name="append">If the file exists, append to it</param>
         /// <returns></returns>
+        [Obsolete("This method is depricated and will soon be remvoed. Please use OpenFile() instead.")]
         public FtpDataStream OpenWrite(string path, bool append) {
-            return this.OpenWrite(path, FtpDataType.Binary, append);
+            return this.OpenFile(path, FtpDataType.Binary, append ? FtpFileAccess.Append : FtpFileAccess.Write, 0);
         }
 
         /// <summary>
@@ -912,24 +763,11 @@ namespace System.Net.FtpClient {
         /// <param name="datatype">ASCII/Binary</param>
         /// <param name="append">If the file exists, append to it</param>
         /// <returns>FtpDataStream used for writing to the remote file. Be sure to dispose this object when done.</returns>
+        [Obsolete("This method is depricated and will soon be remvoed. Please use OpenFile() instead.")]
         public FtpDataStream OpenWrite(string path, FtpDataType datatype, bool append) {
-            FtpDataStream s = this.OpenDataStream(datatype);
-            string cmd = null;
-
-            if (append) {
-                cmd = string.Format("APPE {0}", path);
-            }
-            else {
-                cmd = string.Format("STOR {0}", path);
-            }
-
-            if (!s.Execute(cmd)) {
-                s.Dispose();
-                throw new FtpCommandException(this);
-            }
-
-            return s;
+            return this.OpenFile(path, datatype, append ? FtpFileAccess.Append : FtpFileAccess.Write, 0);
         }
+        #endregion
 
         /// <summary>
         /// Fires the TransferProgress event
@@ -1189,7 +1027,7 @@ namespace System.Net.FtpClient {
             }
 
             try {
-                using (FtpDataStream ch = this.OpenRead(remote.FullName, datatype, rest)) {
+                using (FtpDataStream ch = this.OpenFile(remote.FullName, datatype, FtpFileAccess.Read, rest)) {
                     byte[] buf = new byte[ch.ReceiveBufferSize];
                     DateTime start = DateTime.Now;
                     FtpTransferInfo e = null;
@@ -1457,7 +1295,7 @@ namespace System.Net.FtpClient {
                 rest = 0;
             }
 
-            using (FtpDataStream ch = this.OpenWrite(remote.FullName, datatype, rest)) {
+            using (FtpDataStream ch = this.OpenFile(remote.FullName, datatype, FtpFileAccess.Write, rest)) {
                 byte[] buf = new byte[ch.SendBufferSize];
                 DateTime start = DateTime.Now;
                 FtpTransferInfo e;
@@ -1600,7 +1438,7 @@ namespace System.Net.FtpClient {
 
             rest = istream.Position;
 
-            using (FtpDataStream ch = this.OpenWrite(remote.FullName, datatype, append)) {
+            using (FtpDataStream ch = this.OpenFile(remote.FullName, datatype, append ? FtpFileAccess.Append : FtpFileAccess.Write)) {
                 byte[] buf = new byte[ch.SendBufferSize];
                 DateTime start = DateTime.Now;
                 FtpTransferInfo e;
@@ -1621,13 +1459,12 @@ namespace System.Net.FtpClient {
                     size, rest, total, start, true));
             }
         }
-        
+
         /// <summary>
         /// Creates a new isntance of an FtpClient
         /// </summary>
         public FtpClient()
             : base() {
-            this.ConnectionReady += new FtpChannelConnected(Login);
         }
 
         /// <summary>
