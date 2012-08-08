@@ -58,15 +58,15 @@ namespace System.Net.FtpClient {
 	/// <summary>
 	/// Transfer data over data channel in ASCII or binary.
 	/// </summary>
-	public enum FtpDataType {
+	public enum FtpDataType : int {
 		/// <summary>
 		/// Transfer data as ASCII
 		/// </summary>
-		ASCII,
+		ASCII = 1,
 		/// <summary>
 		/// Transfer data as binary
 		/// </summary>
-		Binary
+		Binary = 2
 	}
 
 	/// <summary>

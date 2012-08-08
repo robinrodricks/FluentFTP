@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Upload", "Upload\Upload.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ListingFiles", "ListingFiles\ListingFiles.csproj", "{E54E50D1-B981-49E0-8171-0E06FE0234F7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DownloadStream", "DownloadStream\DownloadStream.csproj", "{B33C8B77-DBE4-4ADB-A773-C302CA2D9313}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,16 +59,6 @@ Global
 		{E54E50D1-B981-49E0-8171-0E06FE0234F7}.Release|Mixed Platforms.Build.0 = Release|x86
 		{E54E50D1-B981-49E0-8171-0E06FE0234F7}.Release|x86.ActiveCfg = Release|x86
 		{E54E50D1-B981-49E0-8171-0E06FE0234F7}.Release|x86.Build.0 = Release|x86
-		{B33C8B77-DBE4-4ADB-A773-C302CA2D9313}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{B33C8B77-DBE4-4ADB-A773-C302CA2D9313}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{B33C8B77-DBE4-4ADB-A773-C302CA2D9313}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{B33C8B77-DBE4-4ADB-A773-C302CA2D9313}.Debug|x86.ActiveCfg = Debug|x86
-		{B33C8B77-DBE4-4ADB-A773-C302CA2D9313}.Debug|x86.Build.0 = Debug|x86
-		{B33C8B77-DBE4-4ADB-A773-C302CA2D9313}.Release|Any CPU.ActiveCfg = Release|x86
-		{B33C8B77-DBE4-4ADB-A773-C302CA2D9313}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{B33C8B77-DBE4-4ADB-A773-C302CA2D9313}.Release|Mixed Platforms.Build.0 = Release|x86
-		{B33C8B77-DBE4-4ADB-A773-C302CA2D9313}.Release|x86.ActiveCfg = Release|x86
-		{B33C8B77-DBE4-4ADB-A773-C302CA2D9313}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

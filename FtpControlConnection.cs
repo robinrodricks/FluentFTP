@@ -172,6 +172,17 @@ namespace System.Net.FtpClient {
             }
         }
 
+        FtpDataType _currentDataType = 0;
+        /// <summary>
+        /// Gets the current data type. This value is updated with the SetDataType() method
+        /// is called. It is used to avoid the overheaded of executing the command on the 
+        /// server when the specified type is already set.
+        /// </summary>
+        public FtpDataType CurrentDataType {
+            get { return _currentDataType; }
+            private set { _currentDataType = value; }
+        }
+
         FtpDataChannelType _dataChanType = FtpDataChannelType.ExtendedPassive;
         /// <summary>
         /// The default data channel type to use (default: ExtendedPassive)
@@ -527,7 +538,7 @@ namespace System.Net.FtpClient {
                         byte[] cmd;
                         string cmdStr = string.Format("{0}\r\n", this.ExecuteList[i]);
                         //if (_caps != FtpCapability.EMPTY && this.HasCapability(FtpCapability.UTF8)) {
-                        if(this.IsUTF8Enabled) {
+                        if (this.IsUTF8Enabled) {
                             cmd = Encoding.UTF8.GetBytes(cmdStr);
                         }
                         else {
@@ -794,49 +805,22 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// Gets the size of the specified file. Prefer the MLST command since some servers don't
-        /// support large files. If there are any errors getting the file size, 0 will be returned
-        /// rather than throwing an exception.
+        /// Gets the size of the specified file. If there are any errors getting the file size, 0 will be returned
+        /// rather than throwing an exception, even if the file doesn't exist.
         /// </summary>
         /// <param name="path">The full or relative (to the current working directory) path</param>
-        /// <returns>The file size, 0 if there was a problem parsing the size</returns>
+        /// <returns>The file size, 0 if there was a problem executing the command or parsing the size</returns>
         public long GetFileSize(string path) {
-            // prefer MLST for getting the file size because some
-            // servers won't give the file size back for large files
-            if (this.HasCapability(FtpCapability.MLST)) {
-                try {
-                    this.LockControlConnection();
+            long size = 0;
 
-                    if (!this.Execute("MLST {0}", path)) {
-                        return 0;
-                    }
-
-                    foreach (string s in this.Messages) {
-                        // MLST response starts with a space according to draft-ietf-ftpext-mlst-16
-                        if (s.StartsWith(" ") && s.ToLower().Contains("size")) {
-                            Match m = Regex.Match(s, @"Size=(\d+);", RegexOptions.IgnoreCase);
-                            long size = 0;
-
-                            if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
-                                size = 0;
-                            }
-
-                            return size;
-                        }
-                    }
-                }
-                finally {
-                    this.UnlockControlConnection();
-                }
-            }
-            // used for older servers, has limitations, will error
-            // if the file size is too big.
-            else if (this.HasCapability(FtpCapability.SIZE)) {
-                long size = 0;
+            if (this.HasCapability(FtpCapability.SIZE)) {
                 Match m;
 
                 try {
                     this.LockControlConnection();
+
+                    // change to binary before executing this command
+                    this.SetDataType(FtpDataType.Binary);
 
                     // ignore errors, return 0 if there is one. some servers
                     // don't support large file sizes.
@@ -850,14 +834,9 @@ namespace System.Net.FtpClient {
                 finally {
                     this.UnlockControlConnection();
                 }
-
-                return size;
             }
 
-            // we failed to get a file size due to server or code errors however
-            // we don't want to trigger an exception because this is not a fatal
-            // error. people implementing this code need to be aware of this fact.
-            return 0;
+            return size;
         }
 
         /// <summary>
@@ -865,6 +844,11 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="datatype"></param>
         protected void SetDataType(FtpDataType datatype) {
+            // don't execute the command if the requested
+            // data type is already set.
+            if (this.CurrentDataType == datatype)
+                return;
+
             switch (datatype) {
                 case FtpDataType.Binary:
                     this.Execute("TYPE I");
@@ -873,6 +857,8 @@ namespace System.Net.FtpClient {
                     this.Execute("TYPE A");
                     break;
             }
+
+            this.CurrentDataType = datatype;
 
             if (!this.ResponseStatus) {
                 throw new FtpCommandException(this);
