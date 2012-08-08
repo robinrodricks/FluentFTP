@@ -12,6 +12,15 @@ namespace System.Net.FtpClient {
     /// Stream for reading and writing FTP data channels
     /// </summary>
     public abstract class FtpDataStream : Stream, IDisposable {
+        FtpReply _commandReply = null;
+        /// <summary>
+        /// Gets the reply to the command that was excuted for this data stream.
+        /// </summary>
+        public FtpReply CommandReply {
+            get { return _commandReply; }
+            protected set { _commandReply = value; }
+        }
+
         FtpControlConnection _channel = null;
         /// <summary>
         /// Command channel this data stream is associated with
@@ -452,9 +461,7 @@ namespace System.Net.FtpClient {
         /// <param name="origin"></param>
         /// <returns></returns>
         public override long Seek(long offset, SeekOrigin origin) {
-            /*if (!this.ControlConnection.HasCapability(FtpCapability.REST)) {
-                throw new IOException("The FTP server does not support stream seeking.");
-            }*/
+            FtpReply reply;
 
             if (this.TransferStarted) {
                 throw new IOException("FTP stream seeking cannot be done after the transfer has started.");
@@ -466,8 +473,8 @@ namespace System.Net.FtpClient {
 
             try {
                 this.ControlConnection.LockControlConnection();
-                if (!this.ControlConnection.Execute("REST {0}", offset)) {
-                    throw new FtpCommandException(this.ControlConnection);
+                if (!(reply = this.ControlConnection.Execute("REST {0}", offset)).Success) {
+                    throw new FtpCommandException(reply);
                 }
             }
             finally {
@@ -499,11 +506,13 @@ namespace System.Net.FtpClient {
                 this.Socket = null;
 
                 if (this.ControlConnection.Connected) {
+                    FtpReply reply;
+
                     try {
                         this.ControlConnection.LockControlConnection();
 
-                        if (this.ControlConnection.ResponseStatus && !this.ControlConnection.ReadResponse()) {
-                            throw new FtpCommandException(this.ControlConnection);
+                        if (this.CommandReply.Success && !(reply = this.ControlConnection.GetReply()).Success) {
+                            throw new FtpCommandException(reply);
                         }
                     }
                     finally {
@@ -549,7 +558,7 @@ namespace System.Net.FtpClient {
         /// <param name="command"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public bool Execute(string command, params object[] args) {
+        public FtpReply Execute(string command, params object[] args) {
             return this.Execute(string.Format(command, args));
         }
 
@@ -558,7 +567,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-        public abstract bool Execute(string command);
+        public abstract FtpReply Execute(string command);
 
         /// <summary>
         /// Stream for reading and writing to ftp data channels

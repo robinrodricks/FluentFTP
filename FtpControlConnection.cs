@@ -9,13 +9,6 @@ using System.Threading;
 
 namespace System.Net.FtpClient {
     /// <summary>
-    /// ResponseReceived delegate
-    /// </summary>
-    /// <param name="status">Status number</param>
-    /// <param name="response">Status message</param>
-    public delegate void ResponseReceived(string status, string response);
-
-    /// <summary>
     /// SecurityNotAvailable delegate
     /// </summary>
     /// <param name="e"></param>
@@ -140,16 +133,6 @@ namespace System.Net.FtpClient {
             remove { this._secNotAvailable -= value; }
         }
 
-        event ResponseReceived _responseReceived = null;
-        /// <summary>
-        /// Event is fired when a message is received from the server. Useful
-        /// for logging the conversation with the server.
-        /// </summary>
-        public event ResponseReceived ResponseReceived {
-            add { this._responseReceived += value; }
-            remove { this._responseReceived -= value; }
-        }
-
         FtpCapability _caps = FtpCapability.EMPTY;
         /// <summary>
         /// Capabilities of the server
@@ -192,62 +175,6 @@ namespace System.Net.FtpClient {
             set { _dataChanType = value; }
         }
 
-        FtpResponseType _respType = FtpResponseType.None;
-        /// <summary>
-        /// The type of response received from the last command executed
-        /// </summary>
-        public FtpResponseType ResponseType {
-            get { return _respType; }
-            private set { _respType = value; }
-        }
-
-        string _respCode = null;
-        /// <summary>
-        /// The status code of the response
-        /// </summary>
-        public string ResponseCode {
-            get { return _respCode; }
-            private set { _respCode = value; }
-        }
-
-        string _respMessage = null;
-        /// <summary>
-        /// The message, if any, that the server sent with the response
-        /// </summary>
-        public string ResponseMessage {
-            get { return _respMessage; }
-            private set { _respMessage = value; }
-        }
-
-        string[] _messages = null;
-        /// <summary>
-        /// Other informational messages sent from the server
-        /// that are not considered part of the response
-        /// </summary>
-        public string[] Messages {
-            get { return _messages; }
-            private set { _messages = value; }
-        }
-
-        /// <summary>
-        /// General success or failure of the last command executed
-        /// </summary>
-        public bool ResponseStatus {
-            get {
-                if (this.ResponseCode != null) {
-                    int i = int.Parse(this.ResponseCode[0].ToString());
-
-                    // 1xx, 2xx, 3xx indicate success
-                    // 4xx, 5xx are failures
-                    if (i >= 1 && i <= 3) {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-        }
-
         int _dataChannelReadTimeout = -1;
         /// <summary>
         /// Gets or sets the time in miliseconds that a data channel will
@@ -280,17 +207,6 @@ namespace System.Net.FtpClient {
         /// </summary>
         public void UnlockControlConnection() {
             this.mCommandLock.ReleaseMutex();
-        }
-
-        /// <summary>
-        /// Fires the response received event.
-        /// </summary>
-        /// <param name="status">Status code</param>
-        /// <param name="response">Status message</param>
-        protected void OnResponseReceived(string status, string response) {
-            if (this._responseReceived != null) {
-                this._responseReceived(status, response);
-            }
         }
 
         /// <summary>
@@ -494,7 +410,7 @@ namespace System.Net.FtpClient {
         /// <param name="cmd"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public bool Execute(string cmd, params object[] args) {
+        public FtpReply Execute(string cmd, params object[] args) {
             return this.Execute(string.Format(cmd, args));
         }
 
@@ -503,14 +419,23 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="cmd"></param>
         /// <returns></returns>
-        public bool Execute(string cmd) {
+        public FtpReply Execute(string cmd) {
+            FtpReply reply;
+
             if (!this.Connected) {
                 this.Connect();
             }
 
-            this.WriteLine(cmd);
+            try {
+                this.LockControlConnection();
+                this.WriteLine(cmd);
+                reply = this.GetReply();
+            }
+            finally {
+                this.UnlockControlConnection();
+            }
 
-            return this.ReadResponse();
+            return reply;
         }
 
         /// <summary>
@@ -519,48 +444,36 @@ namespace System.Net.FtpClient {
         /// server to send data that is never comming.
         /// </summary>
         /// <returns></returns>
-        public bool ReadResponse() {
+        public FtpReply GetReply() {
+            FtpReply reply = new FtpReply();
             string buf;
-            List<string> messages = new List<string>();
 
-            this.ResponseType = FtpResponseType.None;
-            this.ResponseCode = null;
-            this.ResponseMessage = null;
-            this.Messages = null;
+            try {
+                this.LockControlConnection();
 
-            while ((buf = this.ReadLine()) != null) {
-                Match m = Regex.Match(buf, @"^(\d{3})\s(.*)$");
+                while ((buf = this.ReadLine()) != null) {
+                    Match m = Regex.Match(buf, @"^(\d{3})\s(.*)$");
 
-                if (m.Success) { // the server sent the final response message
-                    if (m.Groups.Count > 1) {
-                        this.ResponseCode = m.Groups[1].Value;
+                    if (m.Success) { // the server sent the final response message
+                        if (m.Groups.Count > 1) {
+                            reply.Code = m.Groups[1].Value;
+                        }
+
+                        if (m.Groups.Count > 2) {
+                            reply.Message = m.Groups[2].Value;
+                        }
+
+                        break;
                     }
 
-                    if (m.Groups.Count > 2) {
-                        this.ResponseMessage = m.Groups[2].Value;
-                    }
-
-                    if (messages.Count > 0) {
-                        this.Messages = messages.ToArray();
-                    }
-
-                    // check response
-                    if (this.ResponseCode != null) {
-                        this.ResponseType = (FtpResponseType)int.Parse(this.ResponseCode[0].ToString());
-                        this.OnResponseReceived(this.ResponseCode, this.ResponseMessage);
-                        return this.ResponseStatus;
-                    }
-
-                    throw new FtpException("Could not determine the response status");
+                    reply.InfoMessages += string.Format("{0}\n", buf);
                 }
-                else {
-                    this.OnResponseReceived("INFO", buf);
-                }
-
-                messages.Add(buf);
+            }
+            finally {
+                this.UnlockControlConnection();
             }
 
-            throw new FtpException("An unknown error occurred while executing the command");
+            return reply;
         }
 
         /// <summary>
@@ -622,19 +535,16 @@ namespace System.Net.FtpClient {
         /// Loads the capabilities of this server
         /// </summary>
         private void LoadCapabilities() {
-#if DEBUG
-            // trying to figure out why capabilities are being loading
-            // multiple times upon connection
-            //Debug.Print(Environment.StackTrace.ToString());
-#endif
-            if (this.Execute("FEAT")) {
+            FtpReply reply;
+
+            if ((reply = this.Execute("FEAT")).Success) {
                 // some servers support EPSV but do not advertise it
                 // in the FEAT list. for this reason, we assume EPSV
                 // is supported and if we get a 500 reply then we fall back
                 // to PASV.
                 this._caps = FtpCapability.EPSV | FtpCapability.EPRT;
 
-                foreach (string feat in this.Messages) {
+                foreach (string feat in reply.InfoMessages.Split('\n')) {
                     if (feat.ToUpper().Contains("MLST") || feat.ToUpper().Contains("MLSD"))
                         this._caps |= FtpCapability.MLSD | FtpCapability.MLST;
                     else if (feat.ToUpper().Contains("MDTM"))
@@ -668,24 +578,18 @@ namespace System.Net.FtpClient {
 
             if (this.HasCapability(FtpCapability.SIZE)) {
                 Match m;
+                FtpReply reply;
 
-                try {
-                    this.LockControlConnection();
+                // change to binary before executing this command
+                this.SetDataType(FtpDataType.Binary);
 
-                    // change to binary before executing this command
-                    this.SetDataType(FtpDataType.Binary);
-
-                    // ignore errors, return 0 if there is one. some servers
-                    // don't support large file sizes.
-                    if (this.Execute("SIZE {0}", path)) {
-                        m = Regex.Match(this.ResponseMessage, @"(\d+)");
-                        if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
-                            size = 0;
-                        }
+                // ignore errors, return 0 if there is one. some servers
+                // don't support large file sizes.
+                if ((reply = this.Execute("SIZE {0}", path)).Success) {
+                    m = Regex.Match(reply.InfoMessages, @"(\d+)");
+                    if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
+                        size = 0;
                     }
-                }
-                finally {
-                    this.UnlockControlConnection();
                 }
             }
 
@@ -697,6 +601,8 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="datatype"></param>
         protected void SetDataType(FtpDataType datatype) {
+            FtpReply reply = null;
+
             // don't execute the command if the requested
             // data type is already set.
             if (this.CurrentDataType == datatype)
@@ -704,37 +610,17 @@ namespace System.Net.FtpClient {
 
             switch (datatype) {
                 case FtpDataType.Binary:
-                    this.Execute("TYPE I");
+                    reply = this.Execute("TYPE I");
                     break;
                 case FtpDataType.ASCII:
-                    this.Execute("TYPE A");
+                    reply = this.Execute("TYPE A");
                     break;
             }
 
             this.CurrentDataType = datatype;
 
-            if (!this.ResponseStatus) {
-                throw new FtpCommandException(this);
-            }
-        }
-
-        /// <summary>
-        /// Set the transfer mode for the data channel. If block
-        /// mode is requested and it fails, stream mode is
-        /// automatically used.
-        /// </summary>
-        /// <param name="mode"></param>
-        protected void SetDataMode(FtpDataMode mode) {
-            switch (mode) {
-                case FtpDataMode.Block:
-                    throw new FtpException("Block mode transfers have not and will not be implemented.");
-                case FtpDataMode.Stream:
-                    this.Execute("MODE S");
-                    break;
-            }
-
-            if (!this.ResponseStatus) {
-                throw new FtpCommandException(this);
+            if (reply == null || !reply.Success) {
+                throw new FtpCommandException(reply);
             }
         }
 
@@ -832,6 +718,7 @@ namespace System.Net.FtpClient {
         /// </example>
         public FtpDataStream OpenFile(string path, FtpDataType type, FtpFileAccess access, long offset) {
             FtpDataStream stream = this.OpenDataStream(type);
+            FtpReply reply;
             string cmd = null;
 
             switch (access) {
@@ -856,9 +743,9 @@ namespace System.Net.FtpClient {
                     break;
             }
 
-            if (!stream.Execute(cmd)) {
+            if (!(reply = stream.Execute(cmd)).Success) {
                 stream.Dispose();
-                throw new FtpCommandException(this);
+                throw new FtpCommandException(reply);
             }
 
             return stream;
@@ -872,10 +759,10 @@ namespace System.Net.FtpClient {
             if (this.Connected) {
                 bool disconnected = (this.Socket.Poll(50000, SelectMode.SelectRead) && this.Socket.Available == 0);
 
-                if (!disconnected && !this.Execute("QUIT")) {
+                if (!disconnected && !this.Execute("QUIT").Success) {
                     // we don't want to do this, the user is 
                     // trying to terminate the connection.
-                    //throw new FtpCommandException(this);
+                    //throw new FtpCommandException(reply);
                 }
             }
 
@@ -886,6 +773,8 @@ namespace System.Net.FtpClient {
         /// Upon the initial connection, we will be presented with a banner and status
         /// </summary>
         void OnInitalizedConnection(FtpChannel c) {
+            FtpReply reply;
+
             // clear out the capabilities flag upon
             // connection to force a re-load if this
             // is a reconnection
@@ -901,14 +790,13 @@ namespace System.Net.FtpClient {
                 this.AuthenticateConnection();
             }
 
-
-            if (!this.ReadResponse()) {
+            if (!(reply = this.GetReply()).Success) {
                 this.Disconnect();
-                throw new FtpCommandException(this);
+                throw new FtpCommandException(reply);
             }
 
             if (this.SslMode == FtpSslMode.Explicit) {
-                if (this.Execute("AUTH TLS") || this.Execute("AUTH SSL")) {
+                if ((reply = this.Execute("AUTH TLS")).Success || (reply = this.Execute("AUTH SSL")).Success) {
                     this.AuthenticateConnection();
                 }
                 else if (this._secNotAvailable != null) {
@@ -917,25 +805,24 @@ namespace System.Net.FtpClient {
                     this._secNotAvailable(secna);
 
                     if (secna.Cancel) {
-                        throw new FtpCommandException(this);
+                        throw new FtpCommandException(reply);
                     }
                 }
             }
 
             if (this.SslEnabled && this.DataChannelEncryption) {
-                if (!this.Execute("PBSZ 0")) {
+                if (!(reply = this.Execute("PBSZ 0")).Success) {
                     // do nothing? some severs don't even
                     // care if you execute PBSZ however rfc 4217
                     // says that PBSZ is required if you want
                     // data channel security.
-                    //throw new FtpCommandException(this);
 #if DEBUG
-                    System.Diagnostics.Debug.WriteLine("PBSZ ERROR: " + this.ResponseMessage);
+                    System.Diagnostics.Debug.WriteLine("PBSZ ERROR: " + reply.Message);
 #endif
                 }
 
-                if (!this.Execute("PROT P")) { // turn on data channel protection.
-                    throw new FtpCommandException(this);
+                if (!(reply = this.Execute("PROT P")).Success) { // turn on data channel protection.
+                    throw new FtpCommandException(reply);
                 }
             }
 
@@ -948,20 +835,22 @@ namespace System.Net.FtpClient {
         /// </summary>
         void Login() {
             try {
+                FtpReply reply;
+
                 this.LockControlConnection();
 
                 if (this.Username != null) {
-                    if (!this.Execute("USER {0}", this.Username)) {
-                        throw new FtpCommandException(this);
+                    if (!(reply = this.Execute("USER {0}", this.Username)).Success) {
+                        throw new FtpCommandException(reply);
                     }
 
-                    if (this.ResponseType == FtpResponseType.PositiveIntermediate) {
+                    if (reply.Type == FtpResponseType.PositiveIntermediate) {
                         if (this.Password == null) {
                             throw new FtpException("The server is asking for a password but it has not been set.");
                         }
 
-                        if (!this.Execute("PASS {0}", this.Password)) {
-                            throw new FtpCommandException(this);
+                        if (!(reply = this.Execute("PASS {0}", this.Password)).Success) {
+                            throw new FtpCommandException(reply);
                         }
                     }
                 }
@@ -969,7 +858,7 @@ namespace System.Net.FtpClient {
                 // turn on UTF8 if it's available
                 //this.EnableUTF8();
                 if (!this.IsUTF8Enabled && this.HasCapability(FtpCapability.UTF8)) {
-                    if (this.Execute("OPTS UTF8 ON")) {
+                    if ((reply = this.Execute("OPTS UTF8 ON")).Success) {
                         this.m_utf8Enabled = true;
                     }
                 }

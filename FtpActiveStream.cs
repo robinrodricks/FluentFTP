@@ -12,7 +12,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-		public override bool Execute(string command) {
+		public override FtpReply Execute(string command) {
 			// if we're already connected we need
 			// to reset ourselves and start over
 			if(this.Socket.Connected) {
@@ -24,18 +24,19 @@ namespace System.Net.FtpClient {
 			}
 
 			try {
-				this.ControlConnection.LockControlConnection();
-				this.ControlConnection.Execute(command);
 
-				if(this.ControlConnection.ResponseStatus && !this.Socket.Connected) {
+				this.ControlConnection.LockControlConnection();
+				this.CommandReply = this.ControlConnection.Execute(command);
+
+				if(this.CommandReply.Success && !this.Socket.Connected) {
 					this.Accept();
 				}
-
-				return this.ControlConnection.ResponseStatus;
 			}
 			finally {
 				this.ControlConnection.UnlockControlConnection();
 			}
+
+            return this.CommandReply;
 		}
 
         /// <summary>
@@ -50,6 +51,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="type"></param>
 		protected override void Open(FtpDataChannelType type) {
+            FtpReply reply;
 			string ipaddress = null;
 			int port = 0;
 
@@ -64,8 +66,8 @@ namespace System.Net.FtpClient {
 
 				switch(type) {
 					case FtpDataChannelType.ExtendedActive:
-						this.ControlConnection.Execute("EPRT |1|{0}|{1}|", ipaddress, port);
-						if(this.ControlConnection.ResponseType == FtpResponseType.PermanentNegativeCompletion) {
+						reply = this.ControlConnection.Execute("EPRT |1|{0}|{1}|", ipaddress, port);
+						if(reply.Type == FtpResponseType.PermanentNegativeCompletion) {
 							this.ControlConnection.RemoveCapability(FtpCapability.EPSV);
 							this.ControlConnection.RemoveCapability(FtpCapability.EPRT);
 							this.ControlConnection.Execute("PORT {0},{1},{2}",
@@ -74,15 +76,15 @@ namespace System.Net.FtpClient {
 						}
 						break;
 					case FtpDataChannelType.Active:
-						this.ControlConnection.Execute("PORT {0},{1},{2}",
+						reply = this.ControlConnection.Execute("PORT {0},{1},{2}",
 							ipaddress.Replace(".", ","), port / 256, port % 256);
 						break;
 					default:
 						throw new Exception("Active streams do not support " + type.ToString());
 				}
 
-				if(!this.ControlConnection.ResponseStatus) {
-					throw new FtpCommandException(this.ControlConnection);
+				if(!reply.Success) {
+					throw new FtpCommandException(reply);
 				}
 			}
 			finally {

@@ -513,9 +513,9 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// ???? Should this method be private?
+        /// Disconnects and frees up the socket and streams
         /// </summary>
-        public void InternalDisconnect() {
+        private void InternalDisconnect() {
             if (this._sock != null) {
                 if (this.Connected) {
                     this._sock.Shutdown(SocketShutdown.Both);

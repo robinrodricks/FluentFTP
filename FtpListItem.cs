@@ -246,7 +246,8 @@ namespace System.Net.FtpClient {
         public FtpListItem(string[] listing, FtpListType type)
             : this() {
             foreach (string s in listing) {
-                this.Parse(s, type);
+                if (this.Parse(s, type))
+                    break;
             }
         }
 

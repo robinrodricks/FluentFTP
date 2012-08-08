@@ -12,7 +12,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="command"></param>
         /// <returns></returns>
-		public override bool Execute(string command) {
+		public override FtpReply Execute(string command) {
 			// if we're already connected we need to close
 			// and reset ourselves
 			if(this.Socket.Connected) {
@@ -22,8 +22,10 @@ namespace System.Net.FtpClient {
             // On servers that advertise PRET (DrFTPD), the PRET command
             // must be executed before a passive connection is opened.
             if (this.ControlConnection.HasCapability(FtpCapability.PRET)) {
-                if (!this.ControlConnection.Execute("PRET {0}", command)) {
-                    throw new FtpCommandException(this.ControlConnection);
+                FtpReply reply;
+
+                if (!(reply = this.ControlConnection.Execute("PRET {0}", command)).Success) {
+                    throw new FtpCommandException(reply);
                 }
             }
 
@@ -33,11 +35,13 @@ namespace System.Net.FtpClient {
 
 			try {
 				this.ControlConnection.LockControlConnection();
-				return this.ControlConnection.Execute(command);
+				this.CommandReply = this.ControlConnection.Execute(command);
 			}
 			finally {
 				this.ControlConnection.UnlockControlConnection();
 			}
+
+            return this.CommandReply;
 		}
 
         /// <summary>
@@ -45,6 +49,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="type"></param>
 		protected override void Open(FtpDataChannelType type) {
+            FtpReply reply;
 			Match m = null;
 			string host = null;
 			int port = 0;
@@ -54,8 +59,8 @@ namespace System.Net.FtpClient {
 
 				switch(type) {
 					case FtpDataChannelType.ExtendedPassive:
-						this.ControlConnection.Execute("EPSV");
-						if(this.ControlConnection.ResponseType == FtpResponseType.PermanentNegativeCompletion) {
+						reply =this.ControlConnection.Execute("EPSV");
+						if(reply.Type == FtpResponseType.PermanentNegativeCompletion) {
 							// fall back to PASV if EPSV fails
 							this.ControlConnection.RemoveCapability(FtpCapability.EPSV);
 							this.ControlConnection.RemoveCapability(FtpCapability.EPRT);
@@ -64,22 +69,22 @@ namespace System.Net.FtpClient {
 						}
 						break;
 					case FtpDataChannelType.Passive:
-						this.ControlConnection.Execute("PASV");
+						reply = this.ControlConnection.Execute("PASV");
 						break;
 					default:
 						throw new Exception("Passive streams do not support " + type.ToString());
 				}
 
-				if(!this.ControlConnection.ResponseStatus) {
-					throw new FtpCommandException(this.ControlConnection);
+				if(!reply.Success) {
+					throw new FtpCommandException(reply);
 				}
 
 				if(type == FtpDataChannelType.Passive) {
-					m = Regex.Match(this.ControlConnection.ResponseMessage,
+					m = Regex.Match(reply.Message,
 						"([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)");
 
 					if(!m.Success || m.Groups.Count != 7) {
-						throw new FtpException(string.Format("Malformed PASV response: {0}", this.ControlConnection.ResponseMessage));
+						throw new FtpException(string.Format("Malformed PASV response: {0}", reply.Message));
 					}
 
 					host = string.Format("{0}.{1}.{2}.{3}", m.Groups[1].Value,
@@ -90,9 +95,9 @@ namespace System.Net.FtpClient {
 					// according to RFC 2428, EPSV response must be exactly the
 					// the same as EPRT response except the first two fields MUST BE blank
 					// so that leaves us with (|||port_here|)
-					m = Regex.Match(this.ControlConnection.ResponseMessage, @"\(\|\|\|(\d+)\|\)");
+					m = Regex.Match(reply.Message, @"\(\|\|\|(\d+)\|\)");
 					if(!m.Success) {
-						throw new FtpException("Failed to get the EPSV port from: " + this.ControlConnection.ResponseMessage);
+						throw new FtpException("Failed to get the EPSV port from: " + reply.Message);
 					}
 
 					host = this.ControlConnection.Server;
