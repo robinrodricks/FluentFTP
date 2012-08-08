@@ -474,156 +474,6 @@ namespace System.Net.FtpClient {
             return true;
         }
 
-        uint _maxExecute = 20;
-        /// <summary>
-        /// Gets or sets the maximum number of commands that can be
-        /// executed at a time in a pipeline. Once this number is exceeded,
-        /// execution stops and the responses are read. The process repeats
-        /// itself until all of the pending commands have been executed. Setting
-        /// this value to 0 means there is no limit.
-        /// </summary>
-        public uint MaxPipelineExecute {
-            get { return _maxExecute; }
-            set { _maxExecute = value; }
-        }
-
-        private List<string> _execList = new List<string>();
-        /// <summary>
-        /// Gets a list of commands in the current pipeline
-        /// </summary>
-        protected List<string> ExecuteList {
-            get { return _execList; }
-            set { _execList = value; }
-        }
-
-        bool _pipelineInProgress = false;
-        /// <summary>
-        /// Gets a value indicating if a pipeline has been started
-        /// </summary>
-        public bool PipelineInProgress {
-            get { return _pipelineInProgress; }
-            private set { _pipelineInProgress = value; }
-        }
-
-        /// <summary>
-        /// Starts a new pipeline of commands
-        /// </summary>
-        public void BeginExecute() {
-            this.ExecuteList.Clear();
-            this.PipelineInProgress = true;
-        }
-
-        /// <summary>
-        /// Executes all of the commands in the pipeline list
-        /// </summary>
-        /// <returns>An array of FtpCommandResult objects. The order of the objects relates
-        /// to the order that commands were executed.</returns>
-        public FtpCommandResult[] EndExecute() {
-            FtpCommandResult[] results = new FtpCommandResult[this.ExecuteList.Count];
-            int reslocation = 0;
-
-            try {
-                this.LockControlConnection();
-
-                MemoryStream cmdstream = new MemoryStream();
-                byte[] buf = new byte[this.SendBufferSize];
-                int read = 0;
-
-                WriteLineToLogStream("*** BEGIN PIPELINE");
-
-                for (int i = 0; i < this.ExecuteList.Count; i++) {
-                    if (this.ExecuteList[i] != null) {
-                        //this.WriteLine(this.ExecuteList[i]);
-                        string traceout;
-                        byte[] cmd;
-                        string cmdStr = string.Format("{0}\r\n", this.ExecuteList[i]);
-                        //if (_caps != FtpCapability.EMPTY && this.HasCapability(FtpCapability.UTF8)) {
-                        if (this.IsUTF8Enabled) {
-                            cmd = Encoding.UTF8.GetBytes(cmdStr);
-                        }
-                        else {
-                            cmd = Encoding.Default.GetBytes(cmdStr);
-                        }
-
-
-                        if (this.ExecuteList[i].ToUpper().StartsWith("PASS")) {
-                            traceout = "< PASS [omitted for security]";
-                        }
-                        else {
-                            traceout = string.Format("< {0}", this.ExecuteList[i].Trim('\n').Trim('\r'));
-                        }
-
-                        WriteLineToLogStream(traceout);
-                        cmdstream.Write(cmd, 0, cmd.Length);
-
-                        // check the pipeline limits
-                        if (this.MaxPipelineExecute > 0 && ((i + 1) % this.MaxPipelineExecute) == 0) {
-                            WriteLineToLogStream("*** PIPELINE LIMIT REACHED AT " + this.MaxPipelineExecute);
-
-                            // write the commands in blocks to the socket
-                            cmdstream.Seek(0, SeekOrigin.Begin);
-                            while ((read = cmdstream.Read(buf, 0, buf.Length)) > 0)
-                                this.Write(buf, 0, read);
-                            cmdstream.Dispose();
-                            cmdstream = new MemoryStream();
-
-                            for (; reslocation <= i; reslocation++) {
-                                this.ReadResponse();
-                                results[reslocation] = new FtpCommandResult(this);
-                            }
-
-                            WriteLineToLogStream("*** RESUMING PIPELINE EXECUTION AT " + i + "/" + this.ExecuteList.Count);
-                        }
-                    }
-                }
-
-                // write the commands in blocks to the control socket
-                cmdstream.Seek(0, SeekOrigin.Begin);
-                while ((read = cmdstream.Read(buf, 0, buf.Length)) > 0)
-                    this.Write(buf, 0, read);
-                cmdstream.Dispose();
-
-                // go ahead and read the rest of the responses if there are any
-                for (; reslocation < this.ExecuteList.Count; reslocation++) {
-                    this.ReadResponse();
-                    results[reslocation] = new FtpCommandResult(this);
-                }
-
-                WriteLineToLogStream("*** END PIPELINE");
-            }
-            finally {
-                this.UnlockControlConnection();
-                this.ExecuteList.Clear();
-                this.PipelineInProgress = false;
-            }
-
-            return results;
-        }
-
-        /// <summary>
-        /// Cancels the current pipeline
-        /// </summary>
-        public void CancelPipeline() {
-            this.ExecuteList.Clear();
-            this.PipelineInProgress = false;
-        }
-
-        /// <summary>
-        /// Pipeline the given commands on the server
-        /// </summary>
-        /// <param name="commands">If null value is passed, no attempt to execute is made but an attempt
-        /// to performan a response read will be made regardless.</param>
-        /// <returns>An array of FtpCommandResults</returns>
-        public FtpCommandResult[] Execute(string[] commands) {
-            this.BeginExecute();
-
-            foreach (string cmd in commands) {
-                this.Execute(cmd);
-            }
-
-            return this.EndExecute();
-        }
-
         /// <summary>
         /// Executes a command on the server
         /// </summary>
@@ -635,8 +485,7 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// Executes a command on the server. If there is a pipeline in progress
-        /// the command is queued and true is returned.
+        /// Executes a command on the server. 
         /// </summary>
         /// <param name="cmd"></param>
         /// <returns></returns>
@@ -645,19 +494,9 @@ namespace System.Net.FtpClient {
                 this.Connect();
             }
 
-            //if(this.Socket.Poll(500000, SelectMode.SelectRead) && this.Socket.Available == 0) {
-            // we've been disconnected, probably due to inactivity
-            //	this.Connect();
-            //}
+            this.WriteLine(cmd);
 
-            if (this.PipelineInProgress) {
-                this.ExecuteList.Add(cmd);
-                return true;
-            }
-            else {
-                this.WriteLine(cmd);
-                return this.ReadResponse();
-            }
+            return this.ReadResponse();
         }
 
         /// <summary>
@@ -1098,32 +937,17 @@ namespace System.Net.FtpClient {
                 this.LockControlConnection();
 
                 if (this.Username != null) {
-                    // there's no reason to pipeline here if the password is null
-                    if (this.EnablePipelining && this.Password != null) {
-                        FtpCommandResult[] res = this.Execute(new string[] {
-							string.Format("USER {0}", this.Username),
-							string.Format("PASS {0}", this.Password)
-						});
-
-                        foreach (FtpCommandResult r in res) {
-                            if (!r.ResponseStatus) {
-                                throw new FtpCommandException(r.ResponseCode, r.ResponseMessage);
-                            }
-                        }
+                    if (!this.Execute("USER {0}", this.Username)) {
+                        throw new FtpCommandException(this);
                     }
-                    else {
-                        if (!this.Execute("USER {0}", this.Username)) {
-                            throw new FtpCommandException(this);
+
+                    if (this.ResponseType == FtpResponseType.PositiveIntermediate) {
+                        if (this.Password == null) {
+                            throw new FtpException("The server is asking for a password but it has not been set.");
                         }
 
-                        if (this.ResponseType == FtpResponseType.PositiveIntermediate) {
-                            if (this.Password == null) {
-                                throw new FtpException("The server is asking for a password but it has not been set.");
-                            }
-
-                            if (!this.Execute("PASS {0}", this.Password)) {
-                                throw new FtpCommandException(this);
-                            }
+                        if (!this.Execute("PASS {0}", this.Password)) {
+                            throw new FtpCommandException(this);
                         }
                     }
                 }
