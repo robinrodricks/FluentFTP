@@ -427,6 +427,20 @@ namespace System.Net.FtpClient {
             }
         }
 
+        int _pollInterval = 30;
+        /// <summary>
+        /// Gets or sets the amount of seconds that must pass before the
+        /// socket is polled for connectivity. If this time elapses, the
+        /// next time the socket is written to a poll is performed to
+        /// determine if there is still connectivity. If there isn't an
+        /// automatic reconnection should take place. Default value
+        /// is 30 seconds.
+        /// </summary>
+        public int SocketPollInterval {
+            get { return _pollInterval; }
+            set { _pollInterval = value; }
+        }
+
         DateTime _lastSockActivity = DateTime.MinValue;
         /// <summary>
         /// Gets a the last time data was read or written to the socket.
@@ -452,7 +466,7 @@ namespace System.Net.FtpClient {
             get {
                 DateTime lastPoll = this.LastSocketActivity;
 
-                if (Math.Round(DateTime.Now.Subtract(lastPoll).TotalSeconds) > 30) {
+                if (DateTime.Now.Subtract(lastPoll).TotalSeconds >= this.SocketPollInterval) {
                     return true;
                 }
 

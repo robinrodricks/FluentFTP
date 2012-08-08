@@ -60,7 +60,6 @@
     <Compile Include="FtpPassiveStream.cs" />
     <Compile Include="FtpDataStream.cs" />
     <Compile Include="FtpClient.cs" />
-    <Compile Include="FtpCommandResult.cs" />
     <Compile Include="FtpDirectory.cs" />
     <Compile Include="FtpFile.cs" />
     <Compile Include="FtpChannel.cs" />
