@@ -485,16 +485,8 @@ namespace System.Net.FtpClient {
                 }
             }
             else {
-                string directoryName, fileName;
-
-                // the server doesn't support MLS* functions so
-                // we have to do it the hard and inefficient way
-                directoryName = path.Substring(0, path.LastIndexOf("/") + 1);
-                if (directoryName.Length > 1 && directoryName.EndsWith("/")) {
-                    directoryName = directoryName.Remove(path.LastIndexOf("/"));
-                }
-
-                fileName = path.Substring(path.LastIndexOf("/") + 1);
+                string directoryName = Path.GetDirectoryName(path.Replace("\\", "/").TrimEnd('/')).Replace("\\", "/");
+                string fileName = Path.GetFileName(path.Replace("\\", "/").TrimEnd('/')).Replace("\\", "/");
 
                 foreach (FtpListItem l in this.GetListing(directoryName)) {
                     if (l.Name == fileName) {
@@ -512,7 +504,19 @@ namespace System.Net.FtpClient {
         /// <param name="path"></param>
         /// <returns></returns>
         public bool DirectoryExists(string path) {
-            return this.GetObjectInfo(path).Type == FtpObjectType.Directory;
+            try {
+                // if they ask if "/" exists return true because
+                // it does.
+                if (path.Replace("\\", "/").TrimEnd('/').Length == 0)
+                    return true;
+
+                return this.GetObjectInfo(path).Type == FtpObjectType.Directory;
+            }
+            catch (FtpCommandException) {
+                // a command exception can be thrown if the
+                // root directory does not exist
+                return false;
+            }
         }
 
         /// <summary>
@@ -521,7 +525,14 @@ namespace System.Net.FtpClient {
         /// <param name="path"></param>
         /// <returns></returns>
         public bool FileExists(string path) {
-            return this.GetObjectInfo(path).Type == FtpObjectType.File;
+            try {
+                return this.GetObjectInfo(path).Type == FtpObjectType.File;
+            }
+            catch (FtpCommandException) {
+                // a command exception can be thrown if the
+                // root directory does not exist
+                return false;
+            }
         }
 
         /// <summary>
