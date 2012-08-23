@@ -59,12 +59,12 @@ namespace System.Net.FtpClient {
 
 				switch(type) {
 					case FtpDataChannelType.ExtendedPassive:
-						reply =this.ControlConnection.Execute("EPSV");
+						reply = this.ControlConnection.Execute("EPSV");
 						if(reply.Type == FtpResponseType.PermanentNegativeCompletion) {
 							// fall back to PASV if EPSV fails
 							this.ControlConnection.RemoveCapability(FtpCapability.EPSV);
 							this.ControlConnection.RemoveCapability(FtpCapability.EPRT);
-							this.ControlConnection.Execute("PASV");
+							reply = this.ControlConnection.Execute("PASV");
 							type = FtpDataChannelType.Passive;
 						}
 						break;
