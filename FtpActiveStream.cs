@@ -70,7 +70,7 @@ namespace System.Net.FtpClient {
 						if(reply.Type == FtpResponseType.PermanentNegativeCompletion) {
 							this.ControlConnection.RemoveCapability(FtpCapability.EPSV);
 							this.ControlConnection.RemoveCapability(FtpCapability.EPRT);
-							this.ControlConnection.Execute("PORT {0},{1},{2}",
+							reply = this.ControlConnection.Execute("PORT {0},{1},{2}",
 								ipaddress.Replace(".", ","), port / 256, port % 256);
 							type = FtpDataChannelType.Active;
 						}
