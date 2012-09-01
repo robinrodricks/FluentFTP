@@ -87,7 +87,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="listing"></param>
         private void ParseListListing(string listing) {
-            foreach (FtpListFormatParser p in FtpListFormatParser.Parsers) {
+            foreach (FtpListFormatParser p in FtpListFormatParser.Parsers.ToArray()) {
                 if (p.Parse(listing)) {
                     this.Type = p.ObjectType;
                     this.Name = p.Name;

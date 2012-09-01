@@ -2,8 +2,8 @@ SOURCEFILES = \
     FtpActiveStream.cs \
     FtpChannel.cs \
     FtpClient.cs \
-    FtpCommandResult.cs \
     FtpControlConnection.cs \
+	FtpReply.cs \
     FtpDataStream.cs \
     FtpDirectory.cs \
     FtpEnums.cs \
@@ -25,7 +25,7 @@ SOURCEFILES = \
     Proxy/Socks4Proxy.cs \
     Proxy/Socks5Proxy.cs
 
-CSC = gmcs
+CSC = dmcs
 CSC_FLAGS =
 
 all: System.Net.FtpClient.dll
