@@ -52,21 +52,28 @@ namespace System.Net.FtpClient {
         /// </summary>
         public FtpDirectory CurrentDirectory {
             get {
-                if (_currentDirectory == null) {
-                    FtpReply reply;
-                    Match m;
+                try {
+                    this.LockControlConnection();
 
-                    if (!(reply = this.Execute("PWD")).Success) {
-                        throw new FtpCommandException(reply);
+                    if (_currentDirectory == null) {
+                        FtpReply reply;
+                        Match m;
+
+                        if (!(reply = this.Execute("PWD")).Success) {
+                            throw new FtpCommandException(reply);
+                        }
+
+                        m = Regex.Match(reply.Message, "\"(.*)\"");
+                        if (!m.Success || m.Groups.Count < 2) {
+                            throw new FtpCommandException(reply.Code,
+                                string.Format("Failed to parse current working directory from {0}", reply.Message));
+                        }
+
+                        this._currentDirectory = new FtpDirectory(this, m.Groups[1].Value);
                     }
-
-                    m = Regex.Match(reply.Message, "\"(.*)\"");
-                    if (!m.Success || m.Groups.Count < 2) {
-                        throw new FtpCommandException(reply.Code,
-                            string.Format("Failed to parse current working directory from {0}", reply.Message));
-                    }
-
-                    this._currentDirectory = new FtpDirectory(this, m.Groups[1].Value);
+                }
+                finally {
+                    this.UnlockControlConnection();
                 }
 
                 return _currentDirectory;
@@ -84,8 +91,15 @@ namespace System.Net.FtpClient {
             get {
                 FtpReply reply;
 
-                if (!(reply = this.Execute("SYST")).Success) {
-                    throw new FtpCommandException(reply);
+                try {
+                    this.LockControlConnection();
+
+                    if (!(reply = this.Execute("SYST")).Success) {
+                        throw new FtpCommandException(reply);
+                    }
+                }
+                finally {
+                    this.UnlockControlConnection();
                 }
 
                 return reply.Message;
@@ -215,8 +229,15 @@ namespace System.Net.FtpClient {
         public void NoOp() {
             FtpReply reply;
 
-            if (!(reply = this.Execute("NOOP")).Success) {
-                throw new FtpCommandException(reply);
+            try {
+                this.LockControlConnection();
+
+                if (!(reply = this.Execute("NOOP")).Success) {
+                    throw new FtpCommandException(reply);
+                }
+            }
+            finally {
+                this.UnlockControlConnection();
             }
         }
 
@@ -265,16 +286,23 @@ namespace System.Net.FtpClient {
                     throw new NotImplementedException("The specified list type has not been implemented.");
             }
 
-            using (FtpDataStream s = this.OpenDataStream(FtpDataType.ASCII)) {
-                FtpReply reply;
+            try {
+                this.LockControlConnection();
 
-                if (!(reply = s.Execute("{0} {1}", cmd, path)).Success) {
-                    throw new FtpCommandException(reply);
-                }
+                using (FtpDataStream s = this.OpenDataStream(FtpDataType.ASCII)) {
+                    FtpReply reply;
 
-                while ((buf = s.ReadLine()) != null) {
-                    lst.Add(buf);
+                    if (!(reply = s.Execute("{0} {1}", cmd, GetFtpPath(path))).Success) {
+                        throw new FtpCommandException(reply);
+                    }
+
+                    while ((buf = s.ReadLine()) != null) {
+                        lst.Add(buf);
+                    }
                 }
+            }
+            finally {
+                this.UnlockControlConnection();
             }
 
             return lst.ToArray();
@@ -380,8 +408,15 @@ namespace System.Net.FtpClient {
         public void SetPermissions(string path, string mode) {
             FtpReply reply;
 
-            if (!(reply = this.Execute("SITE CHMOD {0} {1}", mode, path)).Success)
-                throw new FtpCommandException(reply);
+            try {
+                this.LockControlConnection();
+
+                if (!(reply = this.Execute("SITE CHMOD {0} {1}", mode, GetFtpPath(path))).Success)
+                    throw new FtpCommandException(reply);
+            }
+            finally {
+                this.UnlockControlConnection();
+            }
         }
 
         /// <summary>
@@ -391,8 +426,15 @@ namespace System.Net.FtpClient {
         public void SetWorkingDirectory(string path) {
             FtpReply reply;
 
-            if (!(reply = this.Execute("CWD {0}", path)).Success) {
-                throw new FtpCommandException(reply);
+            try {
+                this.LockControlConnection();
+
+                if (!(reply = this.Execute("CWD {0}", GetFtpPath(path))).Success) {
+                    throw new FtpCommandException(reply);
+                }
+            }
+            finally {
+                this.UnlockControlConnection();
             }
 
             this.CurrentDirectory = null;
@@ -407,12 +449,19 @@ namespace System.Net.FtpClient {
         public DateTime GetLastWriteTime(string path) {
             FtpReply reply;
 
-            if (!this.HasCapability(FtpCapability.MDTM)) {
-                throw new NotImplementedException("The connected server does not support the MDTM command.");
-            }
+            try {
+                this.LockControlConnection();
 
-            if ((reply = this.Execute("MDTM {0}", path)).Success) {
-                return this.ParseLastWriteTime(reply.Message);
+                if (!this.HasCapability(FtpCapability.MDTM)) {
+                    throw new NotImplementedException("The connected server does not support the MDTM command.");
+                }
+
+                if ((reply = this.Execute("MDTM {0}", GetFtpPath(path))).Success) {
+                    return this.ParseLastWriteTime(reply.Message);
+                }
+            }
+            finally {
+                this.UnlockControlConnection();
             }
 
             return DateTime.MinValue;
@@ -442,8 +491,15 @@ namespace System.Net.FtpClient {
         public void RemoveDirectory(string path) {
             FtpReply reply;
 
-            if (!(reply = this.Execute("RMD {0}", path)).Success) {
-                throw new FtpCommandException(reply);
+            try {
+                this.LockControlConnection();
+
+                if (!(reply = this.Execute("RMD {0}", GetFtpPath(path))).Success) {
+                    throw new FtpCommandException(reply);
+                }
+            }
+            finally {
+                this.UnlockControlConnection();
             }
         }
 
@@ -454,8 +510,15 @@ namespace System.Net.FtpClient {
         public void RemoveFile(string path) {
             FtpReply reply;
 
-            if (!(reply = this.Execute("DELE {0}", path)).Success) {
-                throw new FtpCommandException(reply);
+            try {
+                this.LockControlConnection();
+
+                if (!(reply = this.Execute("DELE {0}", GetFtpPath(path))).Success) {
+                    throw new FtpCommandException(reply);
+                }
+            }
+            finally {
+                this.UnlockControlConnection();
             }
         }
 
@@ -466,7 +529,7 @@ namespace System.Net.FtpClient {
         public void CreateDirectory(string path) {
             FtpReply reply;
 
-            if (!(reply = this.Execute("MKD {0}", path)).Success) {
+            if (!(reply = this.Execute("MKD {0}", GetFtpPath(path))).Success) {
                 throw new FtpCommandException(reply);
             }
         }
@@ -474,9 +537,18 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Gets an FTP list item representing the specified file system object
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
+        /// <param name="path">The full or relative path to the object</param>
+        /// <returns>A FtpListItem object which will be empty if the object
+        /// information was unable to be retrieved</returns>
         public FtpListItem GetObjectInfo(string path) {
+            path = GetFtpPath(path);
+
+            // this method doesn't work properly for '/' on servers
+            // that only support LIST because LIST / returns the contents
+            // of / instead of information about / itself.
+            if (path == "/" && !this.Capabilities.HasFlag(FtpCapability.MLST))
+                return new FtpListItem();
+
             if (this.HasCapability(FtpCapability.MLST)) {
                 FtpReply reply;
 
@@ -485,11 +557,8 @@ namespace System.Net.FtpClient {
                 }
             }
             else {
-                string directoryName = Path.GetDirectoryName(path.Replace("\\", "/").TrimEnd('/')).Replace("\\", "/");
-                string fileName = Path.GetFileName(path.Replace("\\", "/").TrimEnd('/')).Replace("\\", "/");
-
-                foreach (FtpListItem l in this.GetListing(directoryName)) {
-                    if (l.Name == fileName) {
+                foreach (FtpListItem l in this.GetListing(GetFtpDirectoryName(path))) {
+                    if (l.Name == GetFtpBaseName(path)) {
                         return l;
                     }
                 }
@@ -504,19 +573,31 @@ namespace System.Net.FtpClient {
         /// <param name="path"></param>
         /// <returns></returns>
         public bool DirectoryExists(string path) {
+            FtpReply reply;
+            string pwd;
+
             try {
+                this.LockControlConnection();
+                path = GetFtpPath(path);
+
                 // if they ask if "/" exists return true because
                 // it does.
-                if (path.Replace("\\", "/").TrimEnd('/').Length == 0)
+                if (path == "/")
                     return true;
 
-                return this.GetObjectInfo(path).Type == FtpObjectType.Directory;
+                // if we can change the working directory to the path
+                // then it must exist...
+                pwd = this.CurrentDirectory.FullName;
+                if ((reply = this.Execute("CWD {0}", path)).Success) {
+                    this.SetWorkingDirectory(pwd);
+                    return true;
+                }
             }
-            catch (FtpCommandException) {
-                // a command exception can be thrown if the
-                // root directory does not exist
-                return false;
+            finally {
+                this.UnlockControlConnection();
             }
+
+            return false;
         }
 
         /// <summary>
@@ -541,16 +622,16 @@ namespace System.Net.FtpClient {
         /// <param name="from">The full or relative (to the current working directory) path of the existing file</param>
         /// <param name="to">The full or relative (to the current working directory) path of the new file</param>
         public void Rename(string from, string to) {
-            try {
-                FtpReply reply;
+            FtpReply reply;
 
+            try {
                 this.LockControlConnection();
 
-                if (!(reply = this.Execute("RNFR {0}", from)).Success) {
+                if (!(reply = this.Execute("RNFR {0}", GetFtpPath(from))).Success) {
                     throw new FtpCommandException(reply);
                 }
 
-                if (!(reply = this.Execute("RNTO {0}", to)).Success) {
+                if (!(reply = this.Execute("RNTO {0}", GetFtpPath(to))).Success) {
                     throw new FtpCommandException(reply);
                 }
             }
@@ -1057,7 +1138,6 @@ namespace System.Net.FtpClient {
         ///     <code source="..\Examples\Upload\Program.cs" lang="cs"></code>
         /// </example>
         public void Upload(Stream istream, FtpFile remote, FtpDataType datatype, long rest) {
-            long size = 0;
             long total = 0;
             int read = 0;
 
@@ -1073,37 +1153,40 @@ namespace System.Net.FtpClient {
                 throw new ArgumentException("istream is not readable");
             }
 
-            if (istream.CanSeek) {
-                size = istream.Length;
-
-                if (rest > 0) { // set resume position
-                    istream.Seek(rest, SeekOrigin.Begin);
-                    total = rest;
-                }
+            if (istream.CanSeek && rest > 0) {
+                istream.Seek(rest, SeekOrigin.Begin);
+                total = rest;
             }
             else {
                 rest = 0;
             }
 
-            using (FtpDataStream ch = this.OpenFile(remote.FullName, datatype, FtpFileAccess.Write, rest)) {
-                byte[] buf = new byte[ch.SendBufferSize];
-                DateTime start = DateTime.Now;
-                FtpTransferInfo e;
+            try {
+                this.LockControlConnection();
 
-                while ((read = istream.Read(buf, 0, buf.Length)) > 0) {
-                    ch.Write(buf, 0, read);
-                    total += read;
-                    e = new FtpTransferInfo(FtpTransferType.Upload, remote.FullName, size, rest, total, start, false);
+                using (FtpDataStream ch = this.OpenFile(remote.FullName, datatype, FtpFileAccess.Write, rest)) {
+                    byte[] buf = new byte[ch.SendBufferSize];
+                    DateTime start = DateTime.Now;
+                    FtpTransferInfo e;
 
-                    this.OnTransferProgress(e);
-                    if (e.Cancel) {
-                        break;
+                    while ((read = istream.Read(buf, 0, buf.Length)) > 0) {
+                        ch.Write(buf, 0, read);
+                        total += read;
+                        e = new FtpTransferInfo(FtpTransferType.Upload, remote.FullName, istream.Length, rest, total, start, false);
+
+                        this.OnTransferProgress(e);
+                        if (e.Cancel) {
+                            break;
+                        }
                     }
-                }
 
-                // fire one more time to let event handler know the transfer is complete
-                this.OnTransferProgress(new FtpTransferInfo(FtpTransferType.Upload, remote.FullName,
-                    size, rest, total, start, true));
+                    // fire one more time to let event handler know the transfer is complete
+                    this.OnTransferProgress(new FtpTransferInfo(FtpTransferType.Upload, remote.FullName,
+                        istream.Length, rest, total, start, true));
+                }
+            }
+            finally {
+                this.UnlockControlConnection();
             }
         }
 
@@ -1228,25 +1311,32 @@ namespace System.Net.FtpClient {
 
             rest = istream.Position;
 
-            using (FtpDataStream ch = this.OpenFile(remote.FullName, datatype, append ? FtpFileAccess.Append : FtpFileAccess.Write)) {
-                byte[] buf = new byte[ch.SendBufferSize];
-                DateTime start = DateTime.Now;
-                FtpTransferInfo e;
+            try {
+                this.LockControlConnection();
 
-                while ((read = istream.Read(buf, 0, buf.Length)) > 0) {
-                    ch.Write(buf, 0, read);
-                    total += read;
-                    e = new FtpTransferInfo(FtpTransferType.Upload, remote.FullName, size, rest, total, start, false);
+                using (FtpDataStream ch = this.OpenFile(remote.FullName, datatype, append ? FtpFileAccess.Append : FtpFileAccess.Write)) {
+                    byte[] buf = new byte[ch.SendBufferSize];
+                    DateTime start = DateTime.Now;
+                    FtpTransferInfo e;
 
-                    this.OnTransferProgress(e);
-                    if (e.Cancel) {
-                        break;
+                    while ((read = istream.Read(buf, 0, buf.Length)) > 0) {
+                        ch.Write(buf, 0, read);
+                        total += read;
+                        e = new FtpTransferInfo(FtpTransferType.Upload, remote.FullName, size, rest, total, start, false);
+
+                        this.OnTransferProgress(e);
+                        if (e.Cancel) {
+                            break;
+                        }
                     }
-                }
 
-                // fire one more time to let event handler know the transfer is complete
-                this.OnTransferProgress(new FtpTransferInfo(FtpTransferType.Upload, remote.FullName,
-                    size, rest, total, start, true));
+                    // fire one more time to let event handler know the transfer is complete
+                    this.OnTransferProgress(new FtpTransferInfo(FtpTransferType.Upload, remote.FullName,
+                        size, rest, total, start, true));
+                }
+            }
+            finally {
+                this.UnlockControlConnection();
             }
         }
 

@@ -588,7 +588,7 @@ namespace System.Net.FtpClient {
                 // ignore errors, return 0 if there is one. some servers
                 // don't support large file sizes.
                 if ((reply = this.Execute("SIZE {0}", path)).Success) {
-                    m = Regex.Match(reply.InfoMessages, @"(\d+)");
+                    m = Regex.Match(reply.Message, @"(\d+)");
                     if (m.Success && !long.TryParse(m.Groups[1].Value, out size)) {
                         size = 0;
                     }
@@ -725,13 +725,13 @@ namespace System.Net.FtpClient {
 
             switch (access) {
                 case FtpFileAccess.Read:
-                    cmd = string.Format("RETR {0}", path);
+                    cmd = string.Format("RETR {0}", GetFtpPath(path));
                     break;
                 case FtpFileAccess.Write:
-                    cmd = string.Format("STOR {0}", path);
+                    cmd = string.Format("STOR {0}", GetFtpPath(path));
                     break;
                 case FtpFileAccess.Append:
-                    cmd = string.Format("APPE {0}", path);
+                    cmd = string.Format("APPE {0}", GetFtpPath(path));
                     break;
             }
 
@@ -927,6 +927,59 @@ namespace System.Net.FtpClient {
                 message = LogMessage(message);
             }
             TraceListener.WriteLine(message);
+        }
+
+        /// <summary>
+        /// Gets a FTP compatible paath name
+        /// </summary>
+        /// <param name="path">The path to clean</param>
+        /// <returns>A FTP Compatible path</returns>
+        public static string GetFtpPath(string path) {
+            // replace one or more \ with /
+            path = Regex.Replace(path, @"\+", "/");
+            // remove doubled-up /'s from the path.
+            path = Regex.Replace(path, @"/+", "/");
+
+            if (path == "/")
+                return path;
+
+            return path.TrimEnd('/');
+        }
+
+        /// <summary>
+        /// Gets the top level file or directory name from the
+        /// specified path.
+        /// </summary>
+        /// <param name="path">The full or relative path of the object</param>
+        /// <returns>The top level file or directory name or same path
+        /// if no directory information was included in the path.</returns>
+        public static string GetFtpBaseName(string path) {
+            path = GetFtpPath(path);
+
+            if (path.Contains("/"))
+                return path.Substring(path.LastIndexOf('/') + 1);
+
+            return path;
+        }
+
+        /// <summary>
+        /// Gets the parent directory of the specified object
+        /// </summary>
+        /// <param name="path">The full or relative path of the object</param>
+        /// <returns>The parent directory or the same path if the parent directory
+        /// was not included in the path name</returns>
+        public static string GetFtpDirectoryName(string path) {
+            path = GetFtpPath(path);
+
+            if (path.Contains("/"))
+                path = path.Substring(0, path.LastIndexOf('/'));
+
+            // if there is nothing left of the path
+            // the parent directory was '/'
+            if (path.Length == 0)
+                path = "/";
+
+            return path;
         }
     }
 }

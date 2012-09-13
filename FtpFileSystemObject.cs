@@ -18,11 +18,11 @@ namespace System.Net.FtpClient {
         /// The name of this object
         /// </summary>
         public string Name {
-            get { return System.IO.Path.GetFileName(this.FullName); }
+            get { return FtpControlConnection.GetFtpBaseName(this.FullName); }
             set {
                 if (this.FullName != null) {
                     this.FullName = string.Format("{0}/{1}",
-                        System.IO.Path.GetDirectoryName(this.FullName), value);
+                        FtpControlConnection.GetFtpDirectoryName(this.FullName), value);
                 }
             }
         }
@@ -113,15 +113,6 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// Fixes directory separators
-        /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
-        protected virtual string CleanPath(string path) {
-            return System.Text.RegularExpressions.Regex.Replace(path.Replace('\\', '/'), @"/+", "/");
-        }
-
-        /// <summary>
         /// Returns the full path of this object
         /// </summary>
         /// <returns></returns>
@@ -151,7 +142,7 @@ namespace System.Net.FtpClient {
         /// <param name="path">The full path of the remote object</param>
         public FtpFileSystemObject(FtpClient client, string path) {
             this.Client = client;
-            this.FullName = this.CleanPath(path);
+            this.FullName = FtpControlConnection.GetFtpPath(path);
         }
     }
 }
