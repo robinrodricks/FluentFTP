@@ -113,15 +113,6 @@ namespace System.Net.FtpClient {
             set { _enablePipelining = value; }
         }
 
-        bool m_utf8Enabled = false;
-        /// <summary>
-        /// Gets a value indicating if UTF8 has been enabled
-        /// on this connection
-        /// </summary>
-        public bool IsUTF8Enabled {
-            get { return m_utf8Enabled; }
-        }
-
         event SecurityNotAvailable _secNotAvailable = null;
         /// <summary>
         /// Event is fired when the AUTH command fails for
@@ -783,7 +774,7 @@ namespace System.Net.FtpClient {
             this.Capabilities = FtpCapability.EMPTY;
             // if this is a new connection on an existing object we may not
             // have UTF8 so make sure we reset this property accordingly.
-            this.m_utf8Enabled = false;
+            this.IsUTF8Enabled = false;
 
             if (this.SslMode == FtpSslMode.Implicit) {
                 // The connection should already be encrypted
@@ -861,7 +852,7 @@ namespace System.Net.FtpClient {
                 //this.EnableUTF8();
                 if (!this.IsUTF8Enabled && this.HasCapability(FtpCapability.UTF8)) {
                     if ((reply = this.Execute("OPTS UTF8 ON")).Success) {
-                        this.m_utf8Enabled = true;
+                        this.IsUTF8Enabled = true;
                     }
                 }
             }

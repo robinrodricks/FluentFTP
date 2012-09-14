@@ -416,14 +416,30 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+        bool m_utf8Enabled = false;
+        /// <summary>
+        /// Gets a value indicating if UTF8 has been enabled
+        /// on this connection
+        /// </summary>
+        public bool IsUTF8Enabled {
+            get { return m_utf8Enabled; }
+            protected set { m_utf8Enabled = value; }
+        }
+
 		StreamReader _reader = null;
 		/// <summary>
 		/// Used for easy reading from the socket
 		/// </summary>
 		protected StreamReader StreamReader {
 			get {
+                // If UTF8 is enabled and the encoding of the stream reader doesn't 
+                // match up set it to null so a new isntance is created with the
+                // right encoding
+                if (_reader != null && m_utf8Enabled && _reader.CurrentEncoding != Encoding.UTF8)
+                    _reader = null;
+
 				if (_reader == null && this.Connected) {
-                    _reader = new StreamReader(this.BaseStream, Encoding.Default);
+                    _reader = new StreamReader(this.BaseStream, m_utf8Enabled ? Encoding.UTF8 : Encoding.Default);
 				}
 
 				return _reader;
