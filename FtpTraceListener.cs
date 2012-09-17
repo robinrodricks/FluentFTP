@@ -17,7 +17,7 @@ namespace System.Net.FtpClient {
         protected StreamWriter Writer {
             get {
                 if (_writer == null && this.OutputStream != null) {
-                    _writer = new StreamWriter(this.OutputStream);
+                    _writer = new StreamWriter(this.OutputStream, System.Text.Encoding.Default);
                 }
 
                 return _writer;
