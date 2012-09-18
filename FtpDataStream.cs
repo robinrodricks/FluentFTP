@@ -511,7 +511,7 @@ namespace System.Net.FtpClient {
                     try {
                         this.ControlConnection.LockControlConnection();
 
-                        if (this.CommandReply.Success && !(reply = this.ControlConnection.GetReply()).Success) {
+                        if (this.CommandReply != null && this.CommandReply.Success && !(reply = this.ControlConnection.GetReply()).Success) {
                             throw new FtpCommandException(reply);
                         }
                     }
