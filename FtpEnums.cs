@@ -46,13 +46,25 @@ namespace System.Net.FtpClient {
         /// </summary>
         ExtendedActive,
         /// <summary>
+        /// Chooses the active channel command based on server capabilities
+        /// for example if the server reports EPRT in FEAT then it is used 
+        /// otherwise PORT is used.
+        /// </summary>
+        AutoActive,
+        /// <summary>
         /// PASV Command
         /// </summary>
 		Passive,
         /// <summary>
         /// EPSV Command
         /// </summary>
-        ExtendedPassive
+        ExtendedPassive,
+        /// <summary>
+        /// Chooses the passive channel command based on server capabilities
+        /// for example if the server reports EPSV in FEAT then it is used
+        /// otherwise PASV is used.
+        /// </summary>
+        AutoPassive
 	}
 
 	/// <summary>

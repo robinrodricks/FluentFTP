@@ -64,16 +64,19 @@ namespace System.Net.FtpClient {
 			try {
 				this.ControlConnection.LockControlConnection();
 
+                // if the data channel type is AutoActive then check the
+                // server capabilities for EPRT and decide which command
+                // to use
+                if (type == FtpDataChannelType.AutoActive) {
+                    if (this.ControlConnection.HasCapability(FtpCapability.EPRT))
+                        type = FtpDataChannelType.ExtendedActive;
+                    else
+                        type = FtpDataChannelType.Active;
+                }
+
 				switch(type) {
 					case FtpDataChannelType.ExtendedActive:
 						reply = this.ControlConnection.Execute("EPRT |1|{0}|{1}|", ipaddress, port);
-						if(reply.Type == FtpResponseType.PermanentNegativeCompletion) {
-							this.ControlConnection.RemoveCapability(FtpCapability.EPSV);
-							this.ControlConnection.RemoveCapability(FtpCapability.EPRT);
-							reply = this.ControlConnection.Execute("PORT {0},{1},{2}",
-								ipaddress.Replace(".", ","), port / 256, port % 256);
-							type = FtpDataChannelType.Active;
-						}
 						break;
 					case FtpDataChannelType.Active:
 						reply = this.ControlConnection.Execute("PORT {0},{1},{2}",

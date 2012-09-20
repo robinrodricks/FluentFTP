@@ -57,17 +57,20 @@ namespace System.Net.FtpClient {
 			try {
 				this.ControlConnection.LockControlConnection();
 
+                // if the data channel type is AutoPassive then check the
+                // server capabilities for EPSV and decide which command
+                // to use
+                if (type == FtpDataChannelType.AutoPassive) {
+                    if (this.ControlConnection.HasCapability(FtpCapability.EPSV))
+                        type = FtpDataChannelType.ExtendedPassive;
+                    else
+                        type = FtpDataChannelType.Passive;
+                }
+
 				switch(type) {
 					case FtpDataChannelType.ExtendedPassive:
 						reply = this.ControlConnection.Execute("EPSV");
-						if(reply.Type == FtpResponseType.PermanentNegativeCompletion) {
-							// fall back to PASV if EPSV fails
-							this.ControlConnection.RemoveCapability(FtpCapability.EPSV);
-							this.ControlConnection.RemoveCapability(FtpCapability.EPRT);
-							reply = this.ControlConnection.Execute("PASV");
-							type = FtpDataChannelType.Passive;
-						}
-						break;
+                        break;
 					case FtpDataChannelType.Passive:
 						reply = this.ControlConnection.Execute("PASV");
 						break;

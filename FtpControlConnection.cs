@@ -157,9 +157,9 @@ namespace System.Net.FtpClient {
             private set { _currentDataType = value; }
         }
 
-        FtpDataChannelType _dataChanType = FtpDataChannelType.ExtendedPassive;
+        FtpDataChannelType _dataChanType = FtpDataChannelType.AutoPassive;
         /// <summary>
-        /// The default data channel type to use (default: ExtendedPassive)
+        /// The default data channel type to use (default: AutoPassive)
         /// </summary>
         public FtpDataChannelType DataChannelType {
             get { return _dataChanType; }
@@ -528,35 +528,25 @@ namespace System.Net.FtpClient {
         private void LoadCapabilities() {
             FtpReply reply;
 
-            if ((reply = this.Execute("FEAT")).Success) {
-                // some servers support EPSV but do not advertise it
-                // in the FEAT list. for this reason, we assume EPSV
-                // is supported and if we get a 500 reply then we fall back
-                // to PASV.
-                this._caps = FtpCapability.EPSV | FtpCapability.EPRT;
+            this._caps = FtpCapability.NONE;
 
-                if (reply.InfoMessages != null && reply.InfoMessages.Length > 0) {
-                    foreach (string feat in reply.InfoMessages.Split('\n')) {
-                        if (feat.ToUpper().Contains("MLST") || feat.ToUpper().Contains("MLSD"))
-                            this._caps |= FtpCapability.MLSD | FtpCapability.MLST;
-                        else if (feat.ToUpper().Contains("MDTM"))
-                            this._caps |= (FtpCapability.MDTM | FtpCapability.MDTMDIR);
-                        else if (feat.ToUpper().Contains("REST STREAM"))
-                            this._caps |= FtpCapability.REST;
-                        else if (feat.ToUpper().Contains("SIZE"))
-                            this._caps |= FtpCapability.SIZE;
-                        else if (feat.ToUpper().Contains("UTF8"))
-                            this._caps |= FtpCapability.UTF8;
-                        else if (feat.ToUpper().Contains("PRET"))
-                            this._caps |= FtpCapability.PRET;
-                        // EPSV and EPRT are already assumed to be supported.
-                        //else if(feat.ToUpper().Contains("EPSV") || feat.ToUpper().Contains("EPRT"))
-                        //	this.Capabilities |= FtpCapability.EPSV | FtpCapability.EPRT;
-                    }
+            if ((reply = this.Execute("FEAT")).Success && reply.InfoMessages != null && reply.InfoMessages.Length > 0) {
+                foreach (string feat in reply.InfoMessages.Split('\n')) {
+                    if (feat.ToUpper().Contains("MLST") || feat.ToUpper().Contains("MLSD"))
+                        this._caps |= FtpCapability.MLSD | FtpCapability.MLST;
+                    else if (feat.ToUpper().Contains("MDTM"))
+                        this._caps |= (FtpCapability.MDTM | FtpCapability.MDTMDIR);
+                    else if (feat.ToUpper().Contains("REST STREAM"))
+                        this._caps |= FtpCapability.REST;
+                    else if (feat.ToUpper().Contains("SIZE"))
+                        this._caps |= FtpCapability.SIZE;
+                    else if (feat.ToUpper().Contains("UTF8"))
+                        this._caps |= FtpCapability.UTF8;
+                    else if (feat.ToUpper().Contains("PRET"))
+                        this._caps |= FtpCapability.PRET;
+                    else if (feat.ToUpper().Contains("EPSV") || feat.ToUpper().Contains("EPRT"))
+                        this._caps |= FtpCapability.EPSV | FtpCapability.EPRT;
                 }
-            }
-            else {
-                this._caps = FtpCapability.NONE;
             }
         }
 
@@ -638,10 +628,12 @@ namespace System.Net.FtpClient {
             switch (this.DataChannelType) {
                 case FtpDataChannelType.Passive:
                 case FtpDataChannelType.ExtendedPassive:
+                case FtpDataChannelType.AutoPassive:
                     stream = new FtpPassiveStream(this);
                     break;
                 case FtpDataChannelType.Active:
                 case FtpDataChannelType.ExtendedActive:
+                case FtpDataChannelType.AutoActive:
                     stream = new FtpActiveStream(this);
                     break;
             }
