@@ -107,7 +107,17 @@ namespace System.Net.FtpClient {
 					port = int.Parse(m.Groups[1].Value);
 				}
 
-				this.Socket.Connect(host, port);
+				//this.Socket.Connect(host, port);
+                IAsyncResult ar = this.Socket.BeginConnect(host, port, null, null);
+                if (this.ControlConnection != null)
+                    ar.AsyncWaitHandle.WaitOne(this.ControlConnection.DataChannelConnectionTimeout);
+                else
+                    ar.AsyncWaitHandle.WaitOne(-1);
+
+                if (!ar.IsCompleted)
+                    throw new TimeoutException("Timed out try to connect to the server's data channel.");
+
+                this.Socket.EndConnect(ar);
 			}
 			finally {
 				this.ControlConnection.UnlockControlConnection();

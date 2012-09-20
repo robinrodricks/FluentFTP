@@ -176,6 +176,15 @@ namespace System.Net.FtpClient {
             set { _dataChannelReadTimeout = value; }
         }
 
+        int _dataChannelConnectionTimeout = -1;
+        /// <summary>
+        /// Gets or sets the data channel connection timeout in miliseconds. The default infinite.
+        /// </summary>
+        public int DataChannelConnectionTimeout {
+            get { return _dataChannelConnectionTimeout; }
+            set { _dataChannelConnectionTimeout = value; }
+        }
+
         /// <summary>
         /// Acquire an exclusive lock on the command channel
         /// while executing/processing commands
