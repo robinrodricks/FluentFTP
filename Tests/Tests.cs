@@ -20,7 +20,7 @@ namespace System.Net.FtpClient.Tests {
             using (FtpClient cl = new FtpClient(Config.FtpUser, Config.FtpPass, Config.FtpServer, Config.FtpPort)) {
                 cl.FtpLogStream = Config.OpenTransactionLog();
                 cl.InvalidCertificate += new FtpInvalidCertificate(OnInvalidCertificate);
-
+                
                 System.Diagnostics.Debug.WriteLine(string.Format("/: {0}", cl.DirectoryExists("/")));
                 System.Diagnostics.Debug.WriteLine(string.Format("/not_real: {0}", cl.DirectoryExists("/not_real")));
                 System.Diagnostics.Debug.WriteLine(string.Format("/Documentation: {0}", cl.DirectoryExists("/Documentation")));

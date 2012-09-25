@@ -283,10 +283,14 @@ namespace System.Net.FtpClient {
 			}
 		}
 
+        // These don't work so we're not including them.
+        // In order to implement timeouts we need to use
+        // asynchronous reads and writes.
+
 		/// <summary>
 		/// Gets/Sets the read timeout
 		/// </summary>
-		public int ReadTimeout {
+		/*public int ReadTimeout {
 			get {
 				if (this.NetworkStream != null)
 					return this.NetworkStream.ReadTimeout;
@@ -311,7 +315,7 @@ namespace System.Net.FtpClient {
 				if (this.NetworkStream != null)
 					this.NetworkStream.WriteTimeout = value;
 			}
-		}
+		}*/
 
 		NetworkStream _stream = null;
 		/// <summary>

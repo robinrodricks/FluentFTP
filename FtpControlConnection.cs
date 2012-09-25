@@ -70,7 +70,7 @@ namespace System.Net.FtpClient {
             set { _keepAliveInterval = value; }
         }
 
-        int _responseReadTimeout = 0;
+        int _responseReadTimeout = 15000;
         /// <summary>
         /// Gets or sets the maximum time in miliseconds in which the control
         /// connection will wait for the server to respond to a command. If the
@@ -166,7 +166,7 @@ namespace System.Net.FtpClient {
             set { _dataChanType = value; }
         }
 
-        int _dataChannelReadTimeout = -1;
+        int _dataChannelReadTimeout = 15000;
         /// <summary>
         /// Gets or sets the time in miliseconds that a data channel will
         /// wait for the server to responde before throwing an IOException
@@ -176,7 +176,7 @@ namespace System.Net.FtpClient {
             set { _dataChannelReadTimeout = value; }
         }
 
-        int _dataChannelConnectionTimeout = -1;
+        int _dataChannelConnectionTimeout = 15000;
         /// <summary>
         /// Gets or sets the data channel connection timeout in miliseconds. The default infinite.
         /// </summary>
