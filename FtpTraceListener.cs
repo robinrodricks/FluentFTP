@@ -38,7 +38,7 @@ namespace System.Net.FtpClient {
             Debug.WriteLine(message);
 #endif
 
-            if (this.Writer != null) {
+            if (this.Writer != null && this.Writer.BaseStream != null && this.Writer.BaseStream.CanWrite) {
                 lock (this.Writer) {
                     this.Writer.Write(message);
 
@@ -54,7 +54,7 @@ namespace System.Net.FtpClient {
             Debug.WriteLine(message);
 #endif
 
-            if (this.Writer != null) {
+            if (this.Writer != null && this.Writer.BaseStream != null && this.Writer.BaseStream.CanWrite) {
                 lock (this.Writer) {
                     this.Writer.WriteLine(message);
 
