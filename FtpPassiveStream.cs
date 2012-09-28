@@ -45,6 +45,64 @@ namespace System.Net.FtpClient {
 		}
 
         /// <summary>
+        /// Verify is a special ip address is routable, if not we should
+        /// use the server address.
+        /// </summary>
+        /// <param name="host">The ip address to test.</param>
+        /// <returns>true if routable false otherwise.</returns>
+        private bool IsRootableAddress(string host) {
+
+            IPAddress address = null;
+            if (IPAddress.TryParse(host, out address)) {
+                string parsedAddress = address.ToString();
+                if (address.AddressFamily == Sockets.AddressFamily.InterNetwork) {
+                    if (address == IPAddress.Loopback) {
+                        return false;
+                    }
+
+                    if (parsedAddress.StartsWith("10.") || parsedAddress.StartsWith("192.168") || parsedAddress.StartsWith("169.254")) {
+                        return false;
+                    }
+
+                    if (parsedAddress.StartsWith("172")) {
+                        string[] splittedAddress = parsedAddress.Split(new char[] { '.' });
+                        if (splittedAddress.Length < 4 || (Convert.ToInt32(splittedAddress[1]) >= 16 && Convert.ToInt32(splittedAddress[1]) <= 31)) {
+                            return false;
+                        }
+                    }
+                }
+                else {
+                    if (address.Equals(IPAddress.IPv6Any)) {
+                        return false;
+                    }
+
+                    if (address.Equals(IPAddress.IPv6Loopback)) {
+                        return false;
+                    }
+
+                    if (address.IsIPv6LinkLocal || address.IsIPv6SiteLocal) {
+                        return false;
+                    }
+
+                    // IPv4 mapped
+                    string mapped = "::ffff:";
+                    if (parsedAddress.StartsWith(mapped)) {
+                        string ipv4 = parsedAddress.Substring(mapped.Length, parsedAddress.Length - mapped.Length);
+                            if (string.IsNullOrEmpty(ipv4)) {
+                                return false;
+                            }
+
+                            return IsRootableAddress(ipv4);
+                    }
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Open the specified type of passive stream
         /// </summary>
         /// <param name="type"></param>
@@ -92,6 +150,11 @@ namespace System.Net.FtpClient {
 
 					host = string.Format("{0}.{1}.{2}.{3}", m.Groups[1].Value,
 						m.Groups[2].Value, m.Groups[3].Value, m.Groups[4].Value);
+
+                    if (!IsRootableAddress(host)) {
+                        host = this.ControlConnection.Server;
+                    }
+
 					port = (int.Parse(m.Groups[5].Value) << 8) + int.Parse(m.Groups[6].Value);
 				}
 				else if(type == FtpDataChannelType.ExtendedPassive) {
