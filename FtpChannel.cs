@@ -153,6 +153,36 @@ namespace System.Net.FtpClient {
 			private set { _sslCertificate = value; }
 		}
 
+        private IPAddress _ipAddress = null;
+        /// <summary>
+        /// The IPAddress used to connect to the channel.
+        /// </summary>
+        public IPAddress IpAddress {
+            get {
+                return _ipAddress;
+            }
+        }
+
+        private bool _autoTryOtherAddresses = true;
+        /// <summary>
+        /// Indicates if we should try to connect to other available
+        /// addresses, when it cannot connect to a specific one. Default value is true.
+        /// </summary>
+        public bool AutoTryOtherAddresses {
+            get { return _autoTryOtherAddresses; }
+            set { _autoTryOtherAddresses = value; }
+        }
+
+        private bool _usesIPv6 = true;
+        /// <summary>
+        /// Indicates if we can uses IPv6 addresses to connect to the socket when
+        /// the server address is not an IP. Default value is true.
+        /// </summary>
+        public bool UsesIPv6 {
+            get { return _usesIPv6; }
+            set { _usesIPv6 = value; }
+        }
+
         /// <summary>
         /// The proxy server type used for the connection.
         /// </summary>
@@ -188,12 +218,7 @@ namespace System.Net.FtpClient {
             {
                 if (_sock == null)
                 {
-                    IPAddress serverAddress = null;
-                    if (!IPAddress.TryParse(this.Server, out serverAddress)) {
-                        serverAddress = Dns.GetHostEntry(this.Server).AddressList[0];
-                    }
-
-                    _sock = new ProxySocket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                    _sock = new ProxySocket(IpAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                     _sock.ProxyType = ProxyType.None;
                     if (this.ProxyType != ProxyType.None)
                     {
@@ -493,13 +518,63 @@ namespace System.Net.FtpClient {
             }
         }
 
-		/// <summary>
+        /// <summary>
 		/// Connect this channel
 		/// </summary>
 		public virtual void Connect() {
 			if (!this.Connected) {
 				this.Disconnect(); // cleans up socket resources before making another connection
-				this.Socket.Connect(this.Server, this.Port);
+
+                IPAddress serverAddress = null;
+                IPAddress[] addressList = null;
+
+                if (this.AutoTryOtherAddresses == false) {
+                    if (!IPAddress.TryParse(this.Server, out serverAddress)) {
+                        if (_usesIPv6 == false)
+                            serverAddress = Array.Find(Dns.GetHostEntry(this.Server).AddressList, a => a.AddressFamily == AddressFamily.InterNetwork);
+                        else
+                            serverAddress = Dns.GetHostEntry(this.Server).AddressList[0];
+                    }
+
+                    _ipAddress = serverAddress;
+                    this.Socket.Connect(this.Server, this.Port);
+                }
+                else {
+                    if (!IPAddress.TryParse(this.Server, out serverAddress)) {
+                        if (_usesIPv6 == false)
+                            addressList = Array.FindAll(Dns.GetHostEntry(this.Server).AddressList, a => a.AddressFamily == AddressFamily.InterNetwork);
+                        else
+                            addressList = Dns.GetHostEntry(this.Server).AddressList;
+
+                        int i = 0;
+                        _ipAddress = addressList[i];
+                        while (this.Socket.Connected == false && i < addressList.Length) {
+                            try {
+                                this.Socket.Connect(this.Server, this.Port);
+                            }
+                            catch (SocketException ex) {
+                                if (ex.ErrorCode == 10061) {
+                                    this.Disconnect(); // cleans up socket resources, before making another attempt. 
+                                    ++i;
+                                    if (i < addressList.Length)
+                                        _ipAddress = addressList[i];
+                                }
+                            }
+                        }
+
+                        if (this.Socket.Connected == false) {
+                            // If we cannot connect to the socket even after trying all the possible addresses,
+                            // we rethrow a SocketExpection that indicates the server refuses connection.
+                            throw new SocketException(10061);
+                        }
+
+                    }
+                    else {
+                        _ipAddress = serverAddress;
+                        this.Socket.Connect(this.Server, this.Port);
+                    }
+                }
+
 				this.OnConnectionReady();
 			}
 		}

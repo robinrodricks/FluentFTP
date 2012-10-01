@@ -83,12 +83,8 @@ namespace System.Net.FtpClient {
             get {
                 if (this._socket == null) {
 
-                    IPAddress serverAddress = null;
-                    if (!IPAddress.TryParse(this.ControlConnection.Server, out serverAddress)) {
-                        serverAddress = Dns.GetHostEntry(this.ControlConnection.Server).AddressList[0];
-                    }
-
-                    this._socket = new ProxySocket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                    // The data streams will now uses the IpAddress from the ControlConnection.
+                    this._socket = new ProxySocket(this.ControlConnection.IpAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                     (this._socket as ProxySocket).ProxyType = ProxyType.None;
                     if (this.ControlConnection.ProxyType != ProxyType.None) {
                         (this._socket as ProxySocket).ProxyType = this.ControlConnection.ProxyType;

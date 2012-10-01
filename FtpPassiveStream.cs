@@ -115,7 +115,7 @@ namespace System.Net.FtpClient {
 			try {
 				this.ControlConnection.LockControlConnection();
 
-                IPAddress serverAddress = Dns.GetHostEntry(this.ControlConnection.Server).AddressList[0];
+                IPAddress serverAddress = this.ControlConnection.IpAddress;
 
                 // if the data channel type is AutoPassive then check the
                 // server capabilities for EPSV and decide which command
