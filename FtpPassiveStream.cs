@@ -115,20 +115,15 @@ namespace System.Net.FtpClient {
 			try {
 				this.ControlConnection.LockControlConnection();
 
-                IPAddress serverAddress = IPAddress.Parse(this.ControlConnection.Server);
-
                 // if the data channel type is AutoPassive then check the
                 // server capabilities for EPSV and decide which command
                 // to use
                 if (type == FtpDataChannelType.AutoPassive) {
-                    if (this.ControlConnection.HasCapability(FtpCapability.EPSV) || serverAddress.AddressFamily == Sockets.AddressFamily.InterNetworkV6)
+                    if (this.ControlConnection.HasCapability(FtpCapability.EPSV))
                         type = FtpDataChannelType.ExtendedPassive;
                     else
                         type = FtpDataChannelType.Passive;
                 }
-                
-                if (serverAddress.AddressFamily == Sockets.AddressFamily.InterNetworkV6 && type != FtpDataChannelType.ExtendedPassive)
-                    type = FtpDataChannelType.ExtendedPassive;
 
 				switch(type) {
 					case FtpDataChannelType.ExtendedPassive:

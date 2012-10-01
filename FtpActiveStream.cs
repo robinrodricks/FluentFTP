@@ -74,27 +74,19 @@ namespace System.Net.FtpClient {
             try {
                 this.ControlConnection.LockControlConnection();
 
-                IPAddress serverAddress = IPAddress.Parse(this.ControlConnection.Server);
-
                 // if the data channel type is AutoActive then check the
                 // server capabilities for EPRT and decide which command
                 // to use
                 if (type == FtpDataChannelType.AutoActive) {
-                    if (this.ControlConnection.HasCapability(FtpCapability.EPRT) || serverAddress.AddressFamily == AddressFamily.InterNetworkV6)
+                    if (this.ControlConnection.HasCapability(FtpCapability.EPRT))
                         type = FtpDataChannelType.ExtendedActive;
                     else
                         type = FtpDataChannelType.Active;
                 }
 
-                if (serverAddress.AddressFamily == AddressFamily.InterNetworkV6 && type != FtpDataChannelType.ExtendedActive)
-                    type = FtpDataChannelType.ExtendedActive;
-
                 switch (type) {
                     case FtpDataChannelType.ExtendedActive:
-                        if (serverAddress.AddressFamily == AddressFamily.InterNetworkV6)
-                            reply = this.ControlConnection.Execute("EPRT |2|{0}|{1}|", ipaddress, port);    
-                        else
-                            reply = this.ControlConnection.Execute("EPRT |1|{0}|{1}|", ipaddress, port);
+                        reply = this.ControlConnection.Execute("EPRT |1|{0}|{1}|", ipaddress, port);
                         break;
                     case FtpDataChannelType.Active:
                         reply = this.ControlConnection.Execute("PORT {0},{1},{2}",

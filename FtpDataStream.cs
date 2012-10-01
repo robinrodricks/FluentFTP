@@ -82,10 +82,7 @@ namespace System.Net.FtpClient {
         protected Socket Socket {
             get {
                 if (this._socket == null) {
-
-                    IPAddress serverAddress = IPAddress.Parse(this.ControlConnection.Server);
-
-                    this._socket = new ProxySocket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                    this._socket = new ProxySocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                     (this._socket as ProxySocket).ProxyType = ProxyType.None;
                     if (this.ControlConnection.ProxyType != ProxyType.None) {
                         (this._socket as ProxySocket).ProxyType = this.ControlConnection.ProxyType;
