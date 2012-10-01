@@ -62,13 +62,16 @@ namespace System.Net.FtpClient {
         /// <param name="type"></param>
         protected override void Open(FtpDataChannelType type) {
             FtpReply reply;
-            string ipaddress = null;
+            IPAddress ipaddress = null;
+            string ipAddressStr = null;
             int port = 0;
 
-            this.Socket.Bind(new IPEndPoint(((IPEndPoint)this.ControlConnection.LocalEndPoint).Address, 0));
+            ipaddress = ((IPEndPoint)this.ControlConnection.LocalEndPoint).Address;
+
+            this.Socket.Bind(new IPEndPoint(ipaddress, 0));
             this.Socket.Listen(1);
 
-            ipaddress = ((IPEndPoint)this.Socket.LocalEndPoint).Address.ToString();
+            ipAddressStr = ipaddress.ToString();
             port = ((IPEndPoint)this.Socket.LocalEndPoint).Port;
 
             try {
@@ -78,19 +81,25 @@ namespace System.Net.FtpClient {
                 // server capabilities for EPRT and decide which command
                 // to use
                 if (type == FtpDataChannelType.AutoActive) {
-                    if (this.ControlConnection.HasCapability(FtpCapability.EPRT))
+                    if (this.ControlConnection.HasCapability(FtpCapability.EPRT) || ipaddress.AddressFamily == AddressFamily.InterNetworkV6)
                         type = FtpDataChannelType.ExtendedActive;
                     else
                         type = FtpDataChannelType.Active;
                 }
 
+                if (ipaddress.AddressFamily == AddressFamily.InterNetworkV6 && type != FtpDataChannelType.ExtendedActive)
+                    type = FtpDataChannelType.ExtendedActive;
+
                 switch (type) {
                     case FtpDataChannelType.ExtendedActive:
-                        reply = this.ControlConnection.Execute("EPRT |1|{0}|{1}|", ipaddress, port);
+                        if (ipaddress.AddressFamily == AddressFamily.InterNetworkV6)
+                            reply = this.ControlConnection.Execute("EPRT |2|{0}|{1}|", ipAddressStr, port);    
+                        else
+                            reply = this.ControlConnection.Execute("EPRT |1|{0}|{1}|", ipAddressStr, port);
                         break;
                     case FtpDataChannelType.Active:
                         reply = this.ControlConnection.Execute("PORT {0},{1},{2}",
-                            ipaddress.Replace(".", ","), port / 256, port % 256);
+                            ipAddressStr.Replace(".", ","), port / 256, port % 256);
                         break;
                     default:
                         throw new Exception("Active streams do not support " + type.ToString());

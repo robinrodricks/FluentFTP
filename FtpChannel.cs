@@ -188,7 +188,8 @@ namespace System.Net.FtpClient {
             {
                 if (_sock == null)
                 {
-                    _sock = new ProxySocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    IPAddress server = Dns.GetHostEntry(this.Server).AddressList[0];
+                    _sock = new ProxySocket(server.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                     _sock.ProxyType = ProxyType.None;
                     if (this.ProxyType != ProxyType.None)
                     {
