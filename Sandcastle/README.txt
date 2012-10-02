@@ -1,0 +1,1 @@
+Before building this sand castle project, open System.Net.FtpClient, change from Release to Debug and rebuild the project to regenerate new XML docs based on the current API.

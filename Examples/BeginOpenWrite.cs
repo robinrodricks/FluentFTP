@@ -1,0 +1,56 @@
+﻿using System;
+using System.Net;
+using System.Net.FtpClient;
+using System.IO;
+using System.Threading;
+
+namespace Examples {
+    public static class BeginOpenWriteExample {
+        static ManualResetEvent m_reset = new ManualResetEvent(false);
+
+        public static void BeginOpenWrite() {
+            using (FtpClient conn = new FtpClient()) {
+                m_reset.Reset();
+
+                conn.Host = "localhost";
+                conn.Credentials = new NetworkCredential("ftptest", "ftptest");
+                conn.BeginOpenWrite("/path/to/file",
+                    new AsyncCallback(BeginOpenWriteCallback), conn);
+
+                m_reset.WaitOne();
+                conn.Disconnect();
+            }
+        }
+
+        static void BeginOpenWriteCallback(IAsyncResult ar) {
+            FtpClient conn = ar.AsyncState as FtpClient;
+            Stream istream = null, ostream = null;
+            byte[] buf = new byte[8192];
+            int read = 0;
+
+            try {
+                if (conn == null)
+                    throw new InvalidOperationException("The FtpControlConnection object is null!");
+
+                ostream = conn.EndOpenWrite(ar);
+                istream = new FileStream("input_file", FileMode.Open, FileAccess.Read);
+
+                while ((read = istream.Read(buf, 0, buf.Length)) > 0) {
+                    ostream.Write(buf, 0, read);
+                }
+            }
+            catch (Exception ex) {
+                Console.WriteLine(ex.ToString());
+            }
+            finally {
+                if (istream != null)
+                    istream.Close();
+
+                if (ostream != null)
+                    ostream.Close();
+
+                m_reset.Set();
+            }
+        }
+    }
+}
