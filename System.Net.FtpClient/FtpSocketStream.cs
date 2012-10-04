@@ -441,17 +441,13 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="host">The host to connect to</param>
         /// <param name="port">The port to connect to</param>
-        /// <param name="allowIPv6">Ignore IPv6 host addresses</param>
-        public void Connect(string host, int port, bool allowIPv6) {
+        public void Connect(string host, int port) {
             IAsyncResult ar = null;
             IPAddress[] addresses = Dns.GetHostAddresses(host);
 
             for(int i = 0; i < addresses.Length; i++) {
                 try {
-                    if (!allowIPv6 && addresses[i].AddressFamily == AddressFamily.InterNetworkV6)
-                        continue;
-
-                    m_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                     ar = m_socket.BeginConnect(addresses[i], port, null, null);
                     if (!ar.AsyncWaitHandle.WaitOne(m_connectTimeout, true)) {
                         Close();
@@ -522,7 +518,7 @@ namespace System.Net.FtpClient {
         public void Listen(IPAddress address, int port) {
             if(!IsConnected) {
                 if (m_socket == null)
-                    m_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                    m_socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
                 m_socket.Bind(new IPEndPoint(address, port));
                 m_socket.Listen(1);

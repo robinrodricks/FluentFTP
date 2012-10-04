@@ -106,21 +106,6 @@ namespace System.Net.FtpClient {
             }
         }
 
-        bool m_enableIPv6 = false;
-        /// <summary>
-        /// Accept IPv6 addresses when connecting control and data connections. Default
-        /// value is false.
-        /// </summary>
-        [FtpControlConnectionClone]
-        public bool EnableIPv6 {
-            get {
-                return m_enableIPv6;
-            }
-            set {
-                m_enableIPv6 = value;
-            }
-        }
-
         bool m_threadSafeDataChannels = true;
         /// <summary>
         /// When this value is set to true (default) the control connection
@@ -598,7 +583,7 @@ namespace System.Net.FtpClient {
                 m_textEncoding = Encoding.Default;
                 m_caps = FtpCapability.NONE;
                 m_stream.ConnectTimeout = m_connectTimeout;
-                m_stream.Connect(Host, Port, EnableIPv6);
+                m_stream.Connect(Host, Port);
 
                 if (EncryptionMode == FtpEncryptionMode.Implicit)
                     m_stream.ActivateEncryption(Host);
@@ -794,7 +779,8 @@ namespace System.Net.FtpClient {
 
             if (type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) {
                 if (!(reply = Execute("EPSV")).Success) {
-                    if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoPassive)
+                    // if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
+                    if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoPassive && m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetwork)
                         return OpenPassiveDataStream(FtpDataConnectionType.PASV, command, args);
                     throw new FtpCommandException(reply);
                 }
@@ -808,6 +794,9 @@ namespace System.Net.FtpClient {
                 port = int.Parse(m.Groups["port"].Value);
             }
             else {
+                if (m_stream.LocalEndPoint.AddressFamily != Sockets.AddressFamily.InterNetwork)
+                    throw new FtpException("Only IPv4 is supported by the PASV command. Use EPSV instead.");
+
                 if (!(reply = Execute("PASV")).Success)
                     throw new FtpCommandException(reply);
 
@@ -839,7 +828,7 @@ namespace System.Net.FtpClient {
             stream = new FtpDataStream(this);
             stream.ConnectTimeout = DataConnectionConnectTimeout;
             stream.ReadTimeout = DataConnectionReadTimeout;
-            stream.Connect(host, port, EnableIPv6);
+            stream.Connect(host, port);
 
             if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
                 stream.ActivateEncryption(m_host);
@@ -875,15 +864,32 @@ namespace System.Net.FtpClient {
             ar = stream.BeginAccept(null, null);
 
             if (type == FtpDataConnectionType.EPRT || type == FtpDataConnectionType.AutoActive) {
-                if (!(reply = Execute("EPRT |1|{0}|{1}|",
+                int ipver = 0;
+
+                switch (stream.LocalEndPoint.AddressFamily) {
+                    case Sockets.AddressFamily.InterNetwork:
+                        ipver = 1; // IPv4
+                        break;
+                    case Sockets.AddressFamily.InterNetworkV6:
+                        ipver = 2; // IPv6
+                        break;
+                    default:
+                        throw new InvalidOperationException("The IP protocol being used is not supported.");
+                }
+
+                if (!(reply = Execute("EPRT |{0}|{1}|{2}|", ipver,
                     stream.LocalEndPoint.Address.ToString(), stream.LocalEndPoint.Port)).Success) {
                     stream.Close();
-                    if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive)
+                    // if we're connected with IPv4 and the data channel type is AutoActive then try to fall back to the PORT command
+                    if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetwork)
                         return OpenActiveDataStream(FtpDataConnectionType.PORT, command, args);
                     throw new FtpCommandException(reply);
                 }
             }
-            else
+            else {
+                if (m_stream.LocalEndPoint.AddressFamily != Sockets.AddressFamily.InterNetwork)
+                    throw new FtpException("Only IPv4 is supported by the PORT command. Use EPRT instead.");
+
                 if (!(reply = Execute("PORT {0},{1},{2}",
                         stream.LocalEndPoint.Address.ToString().Replace('.', ','),
                         stream.LocalEndPoint.Port / 256,
@@ -891,6 +897,7 @@ namespace System.Net.FtpClient {
                     stream.Close();
                     throw new FtpCommandException(reply);
                 }
+            }
 
             if (!(reply = Execute(command, args)).Success) {
                 stream.Close();
@@ -917,6 +924,7 @@ namespace System.Net.FtpClient {
         /// <param name='args'>Format arguments.</param>
         /// <returns>The data stream.</returns>
         FtpDataStream OpenDataStream(string command, params object[] args) {
+            FtpDataConnectionType type = m_dataConnectionType;
             FtpDataStream stream = null;
             FtpClient client = null;
 
@@ -931,17 +939,39 @@ namespace System.Net.FtpClient {
                     client = this;
                 }
 
-                switch (DataConnectionType) {
+                // The PORT and PASV commands do not work with IPv6 so
+                // if either one of those types are set change them
+                // to EPSV or EPRT appropriately.
+
+                if (client.m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetworkV6) {
+                    switch (type) {
+                        case FtpDataConnectionType.PORT:
+                            type = FtpDataConnectionType.EPRT;
+#if DEBUG
+                            Debug.WriteLine("Changed data connection type to EPRT because we are connected with IPv6.");
+#endif
+                            break;
+                        case FtpDataConnectionType.PASV:
+                        case FtpDataConnectionType.PASVEX:
+                            type = FtpDataConnectionType.EPSV;
+#if DEBUG
+                            Debug.WriteLine("Changed data connection type to EPSV because we are connected with IPv6.");
+#endif
+                            break;
+                    }
+                }
+
+                switch (type) {
                     case FtpDataConnectionType.AutoPassive:
                     case FtpDataConnectionType.EPSV:
                     case FtpDataConnectionType.PASV:
                     case FtpDataConnectionType.PASVEX:
-                        stream = client.OpenPassiveDataStream(m_dataConnectionType, command, args);
+                        stream = client.OpenPassiveDataStream(type, command, args);
                         break;
                     case FtpDataConnectionType.AutoActive:
                     case FtpDataConnectionType.EPRT:
                     case FtpDataConnectionType.PORT:
-                        stream = client.OpenActiveDataStream(m_dataConnectionType, command, args);
+                        stream = client.OpenActiveDataStream(type, command, args);
                         break;
                 }
 

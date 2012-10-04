@@ -45,7 +45,9 @@ namespace Tests {
             List<Thread> threads = new List<Thread>();
             FtpClient cl = new FtpClient();
 
-            for (int i = 0; i < 50; i++) {
+            for (int i = 0; i < 10; i++) {
+                int count = i;
+
                 Thread t = new Thread(new ThreadStart(delegate() {
                     cl.Credentials = new NetworkCredential(m_user, m_pass);
                     cl.Host = m_host;
@@ -54,7 +56,7 @@ namespace Tests {
                     for (int j = 0; j < 10; j++)
                         cl.Execute("NOOP");
 
-                    if (i % 10 == 0)
+                    if (count % 2 == 0)
                         cl.Disconnect();
                 }));
 
