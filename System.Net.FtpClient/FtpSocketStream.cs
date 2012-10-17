@@ -498,7 +498,8 @@ namespace System.Net.FtpClient {
                         return OnValidateCertificate(certificate, chain, sslPolicyErrors);
                     }));
 
-                m_sslStream.AuthenticateAsClient(targethost);
+                m_sslStream.AuthenticateAsClient(targethost, null, 
+                    SslProtocols.Tls | SslProtocols.Ssl2 | SslProtocols.Ssl3, true);
             }
             catch (AuthenticationException ex) {
                 // authentication failed and in addition it left our 
