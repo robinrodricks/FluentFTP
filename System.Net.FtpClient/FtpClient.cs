@@ -327,7 +327,7 @@ namespace System.Net.FtpClient {
 
         bool m_dataConnectionEncryption = true;
         /// <summary>
-        /// Indicates if data channel transfers should be encrypted. Only valid if using SslMode
+        /// Indicates if data channel transfers should be encrypted. Only valid if EncryptionMode
         /// property is not equal to FtpSslMode.None.
         /// </summary>
         [FtpControlConnectionClone]
@@ -830,14 +830,15 @@ namespace System.Net.FtpClient {
             stream.ReadTimeout = DataConnectionReadTimeout;
             stream.Connect(host, port);
 
-            if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
-                stream.ActivateEncryption(m_host);
-
             // and finally execute the command that needed the data stream
             if (!(reply = Execute(command, args)).Success) {
                 stream.Close();
                 throw new FtpCommandException(reply);
             }
+
+            // this needs to take place after the command is executed
+            if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
+                stream.ActivateEncryption(m_host);
 
             // the command status is used to determine
             // if a reply needs to be read from the server
