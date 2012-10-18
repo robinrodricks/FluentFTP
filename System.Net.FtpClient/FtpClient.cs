@@ -598,9 +598,9 @@ namespace System.Net.FtpClient {
                 }
 
                 if (m_stream.IsEncrypted && DataConnectionEncryption) {
-                    if (!(reply = Execute("PROT P")).Success)
-                        throw new FtpCommandException(reply);
                     if (!(reply = Execute("PBSZ 0")).Success)
+                        throw new FtpCommandException(reply);
+                    if (!(reply = Execute("PROT P")).Success)
                         throw new FtpCommandException(reply);
                 }
 
