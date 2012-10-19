@@ -553,8 +553,10 @@ namespace System.Net.FtpClient {
                         this._caps |= FtpCapability.UTF8;
                     else if (feat.ToUpper().Contains("PRET"))
                         this._caps |= FtpCapability.PRET;
-                    else if (feat.ToUpper().Contains("EPSV") || feat.ToUpper().Contains("EPRT"))
-                        this._caps |= FtpCapability.EPSV | FtpCapability.EPRT;
+                    else if (feat.ToUpper().Contains("EPSV"))
+                        this._caps |= FtpCapability.EPSV;
+                    else if (feat.ToUpper().Contains("EPRT"))
+                        this._caps |= FtpCapability.EPRT;
                 }
             }
         }
