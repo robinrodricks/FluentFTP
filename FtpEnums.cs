@@ -207,6 +207,14 @@ namespace System.Net.FtpClient {
 		/// A directory.
 		/// </summary>
 		Directory,
+        /// <summary>
+        /// The current directory.
+        /// </summary>
+        CurrentDirectory,
+        /// <summary>
+        /// A parent directory.
+        /// </summary>
+        ParentDirectory,
 		/// <summary>
 		/// A file.
 		/// </summary>

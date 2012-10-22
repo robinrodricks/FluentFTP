@@ -137,8 +137,14 @@ namespace System.Net.FtpClient {
                                         this.Type = FtpObjectType.Link;
                                         this.LinkPath = matches[1].Substring(matches[1].LastIndexOf(':'));
                                     }
-                                    else if (matches[1].ToLower() == "dir" || matches[1].ToLower() == "cdir" || matches[1].ToLower() == "pdir") {
+                                    else if (matches[1].ToLower() == "dir") {
                                         this.Type = FtpObjectType.Directory;
+                                    }
+                                    else if (matches[1].ToLower() == "cdir") {
+                                        this.Type = FtpObjectType.CurrentDirectory;
+                                    }
+                                    else if (matches[1].ToLower() == "pdir") {
+                                        this.Type = FtpObjectType.ParentDirectory;
                                     }
                                 }
                                 break;
