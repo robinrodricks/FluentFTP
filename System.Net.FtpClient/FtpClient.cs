@@ -602,7 +602,7 @@ namespace System.Net.FtpClient {
 
                 if (EncryptionMode == FtpEncryptionMode.Implicit)
                     m_stream.ActivateEncryption(Host, 
-                        this.ClientCertificates.Count > 0 ? this.ClientCertificates : null);
+                        m_clientCerts.Count > 0 ? m_clientCerts : null);
 
                 if (!(reply = GetReply()).Success)
                     throw new FtpCommandException(reply);
@@ -610,7 +610,8 @@ namespace System.Net.FtpClient {
                 if (EncryptionMode == FtpEncryptionMode.Explicit) {
                     if (!(reply = Execute("AUTH TLS")).Success)
                         throw new FtpSecrutiyNotAvailableException("AUTH TLS command failed.");
-                    m_stream.ActivateEncryption(Host);
+                    m_stream.ActivateEncryption(Host, 
+                        m_clientCerts.Count > 0 ? m_clientCerts : null);
                 }
 
                 if (m_stream.IsEncrypted && DataConnectionEncryption) {
@@ -854,7 +855,8 @@ namespace System.Net.FtpClient {
 
             // this needs to take place after the command is executed
             if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
-                stream.ActivateEncryption(m_host);
+                stream.ActivateEncryption(m_host, 
+                    this.ClientCertificates.Count > 0 ? this.ClientCertificates : null);
 
             // the command status is used to determine
             // if a reply needs to be read from the server
@@ -928,6 +930,11 @@ namespace System.Net.FtpClient {
             }
 
             stream.EndAccept(ar);
+
+            if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
+                stream.ActivateEncryption(m_host,
+                    this.ClientCertificates.Count > 0 ? this.ClientCertificates : null);
+
             stream.ReadTimeout = m_dataConnectionReadTimeout;
             stream.CommandStatus = reply;
 
