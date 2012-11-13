@@ -483,6 +483,17 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="targethost">The host to authenticate the certiciate against</param>
         public void ActivateEncryption(string targethost) {
+            ActivateEncryption(targethost, null);
+        }
+
+        /// <summary>
+        /// Activates SSL on this stream. Fires the ValidateCertificate event. If this event is
+        /// not handled and there are SslPolicyErrors present, the certificate will not be
+        /// accepted.
+        /// </summary>
+        /// <param name="targethost">The host to authenticate the certiciate against</param>
+        /// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
+        public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts) {
             if (!IsConnected)
                 throw new InvalidOperationException("The FtpSocketStream object is not connected.");
 
@@ -498,8 +509,8 @@ namespace System.Net.FtpClient {
                         return OnValidateCertificate(certificate, chain, sslPolicyErrors);
                     }));
 
-                m_sslStream.AuthenticateAsClient(targethost);/*, null, 
-                    SslProtocols.Tls | SslProtocols.Ssl2 | SslProtocols.Ssl3, true);*/
+                m_sslStream.AuthenticateAsClient(targethost, clientCerts,
+                    SslProtocols.Tls | SslProtocols.Ssl2 | SslProtocols.Ssl3, true);
             }
             catch (AuthenticationException ex) {
                 // authentication failed and in addition it left our 

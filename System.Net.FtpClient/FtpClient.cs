@@ -7,6 +7,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Web;
+using System.Security.Cryptography.X509Certificates;
 
 namespace System.Net.FtpClient {
     /// <summary>
@@ -211,6 +212,20 @@ namespace System.Net.FtpClient {
             }
             set {
                 m_credentials = value;
+            }
+        }
+
+        X509CertificateCollection m_clientCerts = new X509CertificateCollection();
+        /// <summary>
+        /// Client certificates to be used in SSL authentication process
+        /// </summary>
+        [FtpControlConnectionClone]
+        public X509CertificateCollection ClientCertificates {
+            get {
+                return m_clientCerts;
+            }
+            private set {
+                m_clientCerts = value;
             }
         }
 
@@ -586,7 +601,8 @@ namespace System.Net.FtpClient {
                 m_stream.Connect(Host, Port);
 
                 if (EncryptionMode == FtpEncryptionMode.Implicit)
-                    m_stream.ActivateEncryption(Host);
+                    m_stream.ActivateEncryption(Host, 
+                        this.ClientCertificates.Count > 0 ? this.ClientCertificates : null);
 
                 if (!(reply = GetReply()).Success)
                     throw new FtpCommandException(reply);
