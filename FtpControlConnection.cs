@@ -50,6 +50,16 @@ namespace System.Net.FtpClient {
             set { _password = value; }
         }
 
+        string _clientName = null;
+        /// <summary>
+        /// The client name that uses this library and will connect to the server
+        /// It will be sepcified to the server if the it has the capabilities
+        /// </summary>
+        public string ClientName {
+            get { return _clientName; }
+            set { _clientName = value; }
+        }
+
         int _keepAliveInterval = 0;
         /// <summary>
         /// Sets an interval in seconds to send keep-alive commands to the server
@@ -557,6 +567,8 @@ namespace System.Net.FtpClient {
                         this._caps |= FtpCapability.EPSV;
                     else if (feat.ToUpper().Contains("EPRT"))
                         this._caps |= FtpCapability.EPRT;
+                    else if (feat.ToUpper().Contains("CLNT"))
+                        this._caps |= FtpCapability.CLNT;
                 }
             }
         }
@@ -857,6 +869,10 @@ namespace System.Net.FtpClient {
                     if ((reply = this.Execute("OPTS UTF8 ON")).Success) {
                         this.IsUTF8Enabled = true;
                     }
+                }
+
+                if (this.HasCapability(FtpCapability.CLNT) && !string.IsNullOrEmpty(this.ClientName)) {
+                    this.Execute(string.Format("CLNT {0}", this.ClientName));
                 }
             }
             finally {

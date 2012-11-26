@@ -181,7 +181,11 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// PRET Command used in distributed ftp server software DrFTPD
         /// </summary>
-        PRET = 512
+        PRET = 512,
+        /// <summary>
+        /// Support the CLNT command
+        /// </summary>
+        CLNT = 1024
 	}
 
 	/// <summary>

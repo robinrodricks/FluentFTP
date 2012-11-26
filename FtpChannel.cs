@@ -537,7 +537,7 @@ namespace System.Net.FtpClient {
                     }
 
                     _ipAddress = serverAddress;
-                    this.Socket.Connect(this.Server, this.Port);
+                    this.Socket.Connect(_ipAddress.ToString(), this.Port);
                 }
                 else {
                     if (!IPAddress.TryParse(this.Server, out serverAddress)) {
@@ -550,7 +550,8 @@ namespace System.Net.FtpClient {
                         _ipAddress = addressList[i];
                         while (this.Socket.Connected == false && i < addressList.Length) {
                             try {
-                                this.Socket.Connect(this.Server, this.Port);
+                                this.Disconnect();
+                                this.Socket.Connect(_ipAddress.ToString(), this.Port); 
                             }
                             catch (SocketException ex) {
                                 if (ex.ErrorCode == 10061) {
@@ -571,7 +572,7 @@ namespace System.Net.FtpClient {
                     }
                     else {
                         _ipAddress = serverAddress;
-                        this.Socket.Connect(this.Server, this.Port);
+                        this.Socket.Connect(_ipAddress.ToString(), this.Port);
                     }
                 }
 

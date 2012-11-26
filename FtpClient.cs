@@ -292,8 +292,15 @@ namespace System.Net.FtpClient {
                 using (FtpDataStream s = this.OpenDataStream(FtpDataType.ASCII)) {
                     FtpReply reply;
 
-                    if (!(reply = s.Execute("{0} {1}", cmd, GetFtpPath(path))).Success) {
-                        throw new FtpCommandException(reply);
+                    if (path == null) {
+                        if (!(reply = s.Execute("{0}", cmd)).Success) {
+                            throw new FtpCommandException(reply);
+                        }
+                    }
+                    else {
+                        if (!(reply = s.Execute("{0} {1}", cmd, GetFtpPath(path))).Success) {
+                            throw new FtpCommandException(reply);
+                        }
                     }
 
                     while ((buf = s.ReadLine()) != null) {
