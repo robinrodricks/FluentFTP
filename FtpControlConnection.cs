@@ -493,6 +493,7 @@ namespace System.Net.FtpClient {
         /// <param name="port"></param>
         public virtual void Connect(string host, int port) {
             if (!this.Connected) {
+                this.CurrentDataType = 0;
                 this.Server = host;
                 this.Port = port;
                 this.Connect();
@@ -506,6 +507,7 @@ namespace System.Net.FtpClient {
         /// <param name="port"></param>
         public virtual void Connect(IPAddress ip, int port) {
             if (!this.Connected) {
+                this.CurrentDataType = 0;
                 this.Server = ip.ToString();
                 this.Port = port;
                 this.Connect();
@@ -518,6 +520,7 @@ namespace System.Net.FtpClient {
         /// <param name="ipep"></param>
         public virtual void Connect(IPEndPoint ipep) {
             if (!this.Connected) {
+                this.CurrentDataType = 0;
                 this.Server = ipep.Address.ToString();
                 this.Port = ipep.Port;
                 this.Connect();
