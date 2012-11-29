@@ -794,6 +794,9 @@ namespace System.Net.FtpClient {
             string host = null;
             int port = 0;
 
+            if (m_stream == null)
+                throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open a passive data stream.");
+
             if (type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) {
                 if (!(reply = Execute("EPSV")).Success) {
                     // if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
@@ -879,6 +882,9 @@ namespace System.Net.FtpClient {
             FtpReply reply;
             IAsyncResult ar;
 
+            if (m_stream == null)
+                throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open an active data stream.");
+
             stream.Listen(m_stream.LocalEndPoint.Address, 0);
             ar = stream.BeginAccept(null, null);
 
@@ -954,6 +960,9 @@ namespace System.Net.FtpClient {
 
             try {
                 m_lock.WaitOne();
+
+                if (!IsConnected)
+                    Connect();
 
                 if (m_threadSafeDataChannels) {
                     client = CloneConnection();

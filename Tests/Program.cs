@@ -20,9 +20,9 @@ namespace Tests {
 
             try {
                 foreach (int i in new int[] {
-                    (int)FtpDataConnectionType.EPSV,
+                    //(int)FtpDataConnectionType.EPSV,
                     (int)FtpDataConnectionType.EPRT,
-                    (int)FtpDataConnectionType.PASV,
+                    //(int)FtpDataConnectionType.PASV,
                     (int)FtpDataConnectionType.PORT
                 }) {
                     using (FtpClient cl = Connect()) {
@@ -44,6 +44,9 @@ namespace Tests {
         static FtpClient Connect() {
             List<Thread> threads = new List<Thread>();
             FtpClient cl = new FtpClient();
+
+            cl.ValidateCertificate += OnValidateCertificate;
+            cl.EncryptionMode = FtpEncryptionMode.Explicit;
 
             for (int i = 0; i < 10; i++) {
                 int count = i;
@@ -70,6 +73,10 @@ namespace Tests {
             }
 
             return cl;
+        }
+
+        static void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
+            e.Accept = true;
         }
 
         static void Upload(FtpClient cl) {
