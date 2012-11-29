@@ -740,6 +740,11 @@ namespace System.Net.FtpClient {
                     try {
                         Execute("QUIT");
                     }
+                    catch (IOException e) {
+#if DEBUG
+                        System.Diagnostics.Debug.WriteLine("IOException thrown closing control connectin: " + e.ToString());
+#endif
+                    }
                     finally {
                         m_stream.Close();
                     }
