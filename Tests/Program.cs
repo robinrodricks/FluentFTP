@@ -20,9 +20,9 @@ namespace Tests {
 
             try {
                 foreach (int i in new int[] {
-                    //(int)FtpDataConnectionType.EPSV,
+                    (int)FtpDataConnectionType.EPSV,
                     (int)FtpDataConnectionType.EPRT,
-                    //(int)FtpDataConnectionType.PASV,
+                    (int)FtpDataConnectionType.PASV,
                     (int)FtpDataConnectionType.PORT
                 }) {
                     using (FtpClient cl = Connect()) {

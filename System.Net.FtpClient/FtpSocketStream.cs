@@ -291,7 +291,8 @@ namespace System.Net.FtpClient {
                 FtpSslValidationEventArgs e = new FtpSslValidationEventArgs() {
                     Certificate = certificate,
                     Chain = chain,
-                    PolicyErrors = errors
+                    PolicyErrors = errors,
+                    Accept = (errors == SslPolicyErrors.None)
                 };
 
                 evt(this, e);
