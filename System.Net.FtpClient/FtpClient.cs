@@ -961,7 +961,6 @@ namespace System.Net.FtpClient {
         FtpDataStream OpenDataStream(string command, params object[] args) {
             FtpDataConnectionType type = m_dataConnectionType;
             FtpDataStream stream = null;
-            FtpClient client = null;
 
             try {
                 m_lock.WaitOne();
@@ -969,19 +968,13 @@ namespace System.Net.FtpClient {
                 if (!IsConnected)
                     Connect();
 
-                if (m_threadSafeDataChannels) {
-                    client = CloneConnection();
-                    client.Connect();
-                }
-                else {
-                    client = this;
-                }
+                
 
                 // The PORT and PASV commands do not work with IPv6 so
                 // if either one of those types are set change them
                 // to EPSV or EPRT appropriately.
 
-                if (client.m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetworkV6) {
+                if (m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetworkV6) {
                     switch (type) {
                         case FtpDataConnectionType.PORT:
                             type = FtpDataConnectionType.EPRT;
@@ -1004,12 +997,12 @@ namespace System.Net.FtpClient {
                     case FtpDataConnectionType.EPSV:
                     case FtpDataConnectionType.PASV:
                     case FtpDataConnectionType.PASVEX:
-                        stream = client.OpenPassiveDataStream(type, command, args);
+                        stream = OpenPassiveDataStream(type, command, args);
                         break;
                     case FtpDataConnectionType.AutoActive:
                     case FtpDataConnectionType.EPRT:
                     case FtpDataConnectionType.PORT:
-                        stream = client.OpenActiveDataStream(type, command, args);
+                        stream = OpenActiveDataStream(type, command, args);
                         break;
                 }
 
@@ -1095,6 +1088,7 @@ namespace System.Net.FtpClient {
         /// <returns>A stream for reading the file on the server</returns>
         /// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
         public virtual Stream OpenRead(string path, FtpDataType type, long restart) {
+            FtpClient client = null;
             FtpDataStream stream = null;
             FtpReply reply;
             long length = 0;
@@ -1102,15 +1096,23 @@ namespace System.Net.FtpClient {
             try {
                 m_lock.WaitOne();
 
-                SetDataType(type);
-                length = GetFileSize(path);
+                if (m_threadSafeDataChannels) {
+                    client = CloneConnection();
+                    client.Connect();
+                }
+                else {
+                    client = this;
+                }
+
+                client.SetDataType(type);
+                length = client.GetFileSize(path);
 
                 if (restart > 0) {
-                    if (!(reply = Execute("REST {0}", restart)).Success)
+                    if (!(reply = client.Execute("REST {0}", restart)).Success)
                         throw new FtpCommandException(reply);
                 }
 
-                stream = OpenDataStream("RETR {0}", path.GetFtpPath());
+                stream = client.OpenDataStream("RETR {0}", path.GetFtpPath());
             }
             finally {
                 m_lock.ReleaseMutex();
@@ -1217,15 +1219,24 @@ namespace System.Net.FtpClient {
         /// <returns>A stream for writing to the file on the server</returns>
         /// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
         public virtual Stream OpenWrite(string path, FtpDataType type) {
+            FtpClient client = null;
             FtpDataStream stream = null;
             long length = 0;
 
             try {
                 m_lock.WaitOne();
 
-                SetDataType(type);
-                length = GetFileSize(path);
-                stream = OpenDataStream("STOR {0}", path.GetFtpPath());
+                if (m_threadSafeDataChannels) {
+                    client = CloneConnection();
+                    client.Connect();
+                }
+                else {
+                    client = this;
+                }
+
+                client.SetDataType(type);
+                length = client.GetFileSize(path);
+                stream = client.OpenDataStream("STOR {0}", path.GetFtpPath());
 
                 if (length > 0 && stream != null)
                     stream.SetLength(length);
@@ -1300,15 +1311,24 @@ namespace System.Net.FtpClient {
         /// <returns>A stream for writing to the file on the server</returns>
         /// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
         public virtual Stream OpenAppend(string path, FtpDataType type) {
+            FtpClient client = null;
             FtpDataStream stream = null;
             long length = 0;
 
             try {
                 m_lock.WaitOne();
 
-                SetDataType(type);
-                length = GetFileSize(path);
-                stream = OpenDataStream("APPE {0}", path.GetFtpPath());
+                if (m_threadSafeDataChannels) {
+                    client = CloneConnection();
+                    client.Connect();
+                }
+                else {
+                    client = this;
+                }
+
+                client.SetDataType(type);
+                length = client.GetFileSize(path);
+                stream = client.OpenDataStream("APPE {0}", path.GetFtpPath());
 
                 if (length > 0 && stream != null) {
                     stream.SetLength(length);
