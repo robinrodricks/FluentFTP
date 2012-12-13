@@ -46,7 +46,7 @@ namespace Tests {
             FtpClient cl = new FtpClient();
 
             cl.ValidateCertificate += OnValidateCertificate;
-            cl.EncryptionMode = FtpEncryptionMode.Explicit;
+            //cl.EncryptionMode = FtpEncryptionMode.Explicit;
 
             for (int i = 0; i < 10; i++) {
                 int count = i;

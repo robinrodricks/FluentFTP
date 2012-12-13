@@ -1099,6 +1099,7 @@ namespace System.Net.FtpClient {
                 if (m_threadSafeDataChannels) {
                     client = CloneConnection();
                     client.Connect();
+                    client.SetWorkingDirectory(GetWorkingDirectory());
                 }
                 else {
                     client = this;
@@ -1229,6 +1230,7 @@ namespace System.Net.FtpClient {
                 if (m_threadSafeDataChannels) {
                     client = CloneConnection();
                     client.Connect();
+                    client.SetWorkingDirectory(GetWorkingDirectory());
                 }
                 else {
                     client = this;
@@ -1321,6 +1323,7 @@ namespace System.Net.FtpClient {
                 if (m_threadSafeDataChannels) {
                     client = CloneConnection();
                     client.Connect();
+                    client.SetWorkingDirectory(GetWorkingDirectory());
                 }
                 else {
                     client = this;
