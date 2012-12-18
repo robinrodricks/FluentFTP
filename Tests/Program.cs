@@ -19,7 +19,7 @@ namespace Tests {
             Debug.Listeners.Add(new ConsoleTraceListener());
 
             try {
-                /*foreach (int i in new int[] {
+                foreach (int i in new int[] {
                     (int)FtpDataConnectionType.EPSV,
                     (int)FtpDataConnectionType.EPRT,
                     (int)FtpDataConnectionType.PASV,
@@ -31,8 +31,8 @@ namespace Tests {
                         Download(cl);
                         Delete(cl);
                     }
-                }*/
-                TestNameListing();
+                }
+                //TestNameListing();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());

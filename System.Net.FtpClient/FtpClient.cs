@@ -1416,7 +1416,7 @@ namespace System.Net.FtpClient {
         /// <returns>An array of FtpListItem objects</returns>
         /// <example><code source="..\Examples\GetListing.cs" lang="cs" /></example>
         public FtpListItem[] GetListing(string path) {
-            return GetListing(path, FtpListOption.Modify | FtpListOption.Size);
+            return GetListing(path, 0);
         }
 
         /// <summary>
@@ -1459,7 +1459,6 @@ namespace System.Net.FtpClient {
                     else
                         listcmd = "LIST";
                 }
-
 
                 using (FtpDataStream stream = OpenDataStream(string.Format("{0} {1}", listcmd, path.GetFtpPath()))) {
                     string buf;
@@ -2005,7 +2004,7 @@ namespace System.Net.FtpClient {
         /// <param name="path">The full or relative path of the directory to delete</param>
         /// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
         public void DeleteDirectory(string path) {
-            DeleteDirectory(path, false, FtpListOption.AllFiles | FtpListOption.ForceList);
+            DeleteDirectory(path, false);
         }
 
         /// <summary>
@@ -2015,7 +2014,7 @@ namespace System.Net.FtpClient {
         /// <param name="force">If the directory is not empty, remove its contents</param>
         /// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
         public void DeleteDirectory(string path, bool force) {
-            DeleteDirectory(path, force, FtpListOption.AllFiles | FtpListOption.ForceList);
+            DeleteDirectory(path, force, 0);
         }
 
         /// <summary>
@@ -2024,9 +2023,7 @@ namespace System.Net.FtpClient {
         /// <param name="path">The full or relative path of the directory to delete</param>
         /// <param name="force">If the directory is not empty, remove its contents</param>
         /// <param name="options">FtpListOptions for controlling how the directory
-        /// contents are retrieved with the force option is true. The recommended value
-        /// here is FtpListOption.AllFiles | FtpListOption.ForceList however these
-        /// parameters may not work on all servers. If you experience problems
+        /// contents are retrieved with the force option is true. If you experience problems
         /// the file listing can be fine tuned through this parameter.</param>
         /// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
         public void DeleteDirectory(string path, bool force, FtpListOption options) {
@@ -2071,7 +2068,7 @@ namespace System.Net.FtpClient {
         /// <returns>IAsyncResult</returns>
         /// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
         public IAsyncResult BeginDeleteDirectory(string path, AsyncCallback callback, object state) {
-            return BeginDeleteDirectory(path, true, FtpListOption.ForceList | FtpListOption.AllFiles, callback, state);
+            return BeginDeleteDirectory(path, true, 0, callback, state);
         }
 
         /// <summary>
@@ -2084,7 +2081,7 @@ namespace System.Net.FtpClient {
         /// <returns>IAsyncResult</returns>
         /// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
         public IAsyncResult BeginDeleteDirectory(string path, bool force, AsyncCallback callback, object state) {
-            return BeginDeleteDirectory(path, force, FtpListOption.ForceList | FtpListOption.AllFiles, callback, state);
+            return BeginDeleteDirectory(path, force, 0, callback, state);
         }
 
         /// <summary>
@@ -2093,9 +2090,7 @@ namespace System.Net.FtpClient {
         /// <param name="path">The full or relative path of the directory to delete</param>
         /// <param name="force">If the directory is not empty, remove its contents</param>
         /// <param name="options">FtpListOptions for controlling how the directory
-        /// contents are retrieved with the force option is true. The recommended value
-        /// here is FtpListOption.AllFiles | FtpListOption.ForceList however these
-        /// parameters may not work on all servers. If you experience problems
+        /// contents are retrieved with the force option is true. If you experience problems
         /// the file listing can be fine tuned through this parameter.</param>
         /// <param name="callback">Async callback</param>
         /// <param name="state">State object</param>
@@ -2200,7 +2195,7 @@ namespace System.Net.FtpClient {
         /// <returns>True if the file exists</returns>
         /// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
         public bool FileExists(string path) {
-            return FileExists(path, FtpListOption.AllFiles | FtpListOption.ForceList);
+            return FileExists(path, 0);
         }
 
         /// <summary>
@@ -2210,10 +2205,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="path">The full or relative path to the file</param>
         /// <param name="options">Options for controling the file listing used to
-        /// determine if the file exists. The recommended value here is
-        /// FtpListOption.AllFiles | FtpListOption.ForceList to ensure that
-        /// hidden files are included in the listing however some servers
-        /// may not support this feature.</param>
+        /// determine if the file exists.</param>
         /// <returns>True if the file exists</returns>
         /// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
         public bool FileExists(string path, FtpListOption options) {
@@ -2249,7 +2241,7 @@ namespace System.Net.FtpClient {
         /// <returns>IAsyncResult</returns>
         /// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
         public IAsyncResult BeginFileExists(string path, AsyncCallback callback, object state) {
-            return BeginFileExists(path, FtpListOption.AllFiles | FtpListOption.ForceList, callback, state);
+            return BeginFileExists(path, 0, callback, state);
         }
 
         /// <summary>
@@ -2259,10 +2251,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="path">The full or relative path to the file</param>
         /// <param name="options">Options for controling the file listing used to
-        /// determine if the file exists. The recommended value here is
-        /// FtpListOption.AllFiles | FtpListOption.ForceList to ensure that
-        /// hidden files are included in the listing however some servers
-        /// may not support this feature.</param>
+        /// determine if the file exists.</param>
         /// <param name="callback">Async callback</param>
         /// <param name="state">State object</param>
         /// <returns>IAsyncResult</returns>
