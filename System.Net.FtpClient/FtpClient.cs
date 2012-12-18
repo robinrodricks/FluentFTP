@@ -601,7 +601,7 @@ namespace System.Net.FtpClient {
                 m_stream.Connect(Host, Port);
 
                 if (EncryptionMode == FtpEncryptionMode.Implicit)
-                    m_stream.ActivateEncryption(Host, 
+                    m_stream.ActivateEncryption(Host,
                         m_clientCerts.Count > 0 ? m_clientCerts : null);
 
                 if (!(reply = GetReply()).Success)
@@ -610,7 +610,7 @@ namespace System.Net.FtpClient {
                 if (EncryptionMode == FtpEncryptionMode.Explicit) {
                     if (!(reply = Execute("AUTH TLS")).Success)
                         throw new FtpSecrutiyNotAvailableException("AUTH TLS command failed.");
-                    m_stream.ActivateEncryption(Host, 
+                    m_stream.ActivateEncryption(Host,
                         m_clientCerts.Count > 0 ? m_clientCerts : null);
                 }
 
@@ -863,7 +863,7 @@ namespace System.Net.FtpClient {
 
             // this needs to take place after the command is executed
             if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
-                stream.ActivateEncryption(m_host, 
+                stream.ActivateEncryption(m_host,
                     this.ClientCertificates.Count > 0 ? this.ClientCertificates : null);
 
             // the command status is used to determine
@@ -968,7 +968,7 @@ namespace System.Net.FtpClient {
                 if (!IsConnected)
                     Connect();
 
-                
+
 
                 // The PORT and PASV commands do not work with IPv6 so
                 // if either one of those types are set change them
@@ -1482,37 +1482,37 @@ namespace System.Net.FtpClient {
                     finally {
                         stream.Close();
                     }
+                }
 
-                    // don't loop through the files to load extended information
-                    // unless an option pertaining to this operation has bee set
-                    // by the caller of this method
-                    if (options.HasFlag(FtpListOption.Modify) || options.HasFlag(FtpListOption.Size)) {
-                        // do not try to load extended file system information until
-                        // after the list retrieval is done because you cannot execute
-                        // commands on the control connection while the data stream
-                        // is open without triggering an error on the server
-                        foreach (FtpListItem item in lst) {
-                            if (options.HasFlag(FtpListOption.Modify)) {
-                                // if the modified date was not loaded and the server supports
-                                // the MDTM command and this is not a directory, load the modified date.
-                                // most if not all servers do not support retrieving the modified date
-                                // from a directory
-                                if (item.Modified == DateTime.MinValue && item.Type != FtpFileSystemObjectType.Directory && m_caps.HasFlag(FtpCapability.MDTM))
-                                    item.Modified = GetModifiedTime(item.FullName);
-                            }
+                // don't loop through the files to load extended information
+                // unless an option pertaining to this operation has bee set
+                // by the caller of this method
+                if (options.HasFlag(FtpListOption.Modify) || options.HasFlag(FtpListOption.Size)) {
+                    // do not try to load extended file system information until
+                    // after the list retrieval is done because you cannot execute
+                    // commands on the control connection while the data stream
+                    // is open without triggering an error on the server
+                    foreach (FtpListItem item in lst) {
+                        if (options.HasFlag(FtpListOption.Modify)) {
+                            // if the modified date was not loaded and the server supports
+                            // the MDTM command and this is not a directory, load the modified date.
+                            // most if not all servers do not support retrieving the modified date
+                            // from a directory
+                            if (item.Modified == DateTime.MinValue && item.Type != FtpFileSystemObjectType.Directory && m_caps.HasFlag(FtpCapability.MDTM))
+                                item.Modified = GetModifiedTime(item.FullName);
+                        }
 
-                            if (options.HasFlag(FtpListOption.Size)) {
-                                // if no size was parsed, the object is a file and the server
-                                // supports the SIZE command, then load the file size
-                                if (item.Size == -1) {
-                                    long size;
+                        if (options.HasFlag(FtpListOption.Size)) {
+                            // if no size was parsed, the object is a file and the server
+                            // supports the SIZE command, then load the file size
+                            if (item.Size == -1) {
+                                long size;
 
-                                    if (item.Type == FtpFileSystemObjectType.File && m_caps.HasFlag(FtpCapability.SIZE) && (size = GetFileSize(item.FullName)) >= 0) {
-                                        item.Size = size;
-                                    }
-                                    else {
-                                        item.Size = 0;
-                                    }
+                                if (item.Type == FtpFileSystemObjectType.File && m_caps.HasFlag(FtpCapability.SIZE) && (size = GetFileSize(item.FullName)) >= 0) {
+                                    item.Size = size;
+                                }
+                                else {
+                                    item.Size = 0;
                                 }
                             }
                         }
@@ -1581,6 +1581,96 @@ namespace System.Net.FtpClient {
         /// <example><code source="..\Examples\BeginGetListing.cs" lang="cs" /></example>
         public FtpListItem[] EndGetListing(IAsyncResult ar) {
             return GetAsyncDelegate<AsyncGetListing>(ar).EndInvoke(ar);
+        }
+
+        /// <summary>
+        /// Returns a file/directory listing using the NLST command.
+        /// </summary>
+        /// <returns>A string array of file and directory names if any were returned.</returns>
+        public string[] GetNameListing() {
+            return GetNameListing(null);
+        }
+
+        /// <summary>
+        /// Returns a file/directory listing using the NLST command.
+        /// </summary>
+        /// <param name="path">The path of the directory to list</param>
+        /// <returns>A string array of file and directory names if any were returned.</returns>
+        /// <example><code source="..\Examples\GetNameListing.cs" lang="cs" /></example>
+        public string[] GetNameListing(string path) {
+            List<string> lst = new List<string>();
+
+            try {
+                m_lock.WaitOne();
+
+                if (path == null || path.Trim().Length == 0)
+                    path = GetWorkingDirectory();
+
+                // always get the file listing in binary
+                // to avoid any potential character translation
+                // problems that would happen if in ASCII.
+                Execute("TYPE I");
+
+                using (FtpDataStream stream = OpenDataStream(string.Format("NLST {0}", path.GetFtpPath()))) {
+                    string buf;
+
+                    try {
+                        while ((buf = stream.ReadLine(Encoding)) != null)
+                            lst.Add(buf);
+                    }
+                    finally {
+                        stream.Close();
+                    }
+                }
+            }
+            finally {
+                m_lock.ReleaseMutex();
+            }
+
+            return lst.ToArray();
+        }
+
+        delegate string[] AsyncGetNameListing(string path);
+
+        /// <summary>
+        /// Asynchronously gets a list of file and directory names for the specified path.
+        /// </summary>
+        /// <param name="path">The path of the directory to list</param>
+        /// <param name="callback">Async Callback</param>
+        /// <param name="state">State object</param>
+        /// <returns>IAsyncResult</returns>
+        /// <example><code source="..\Examples\BeginGetNameListing.cs" lang="cs" /></example>
+        public IAsyncResult BeginGetNameListing(string path, AsyncCallback callback, object state) {
+            IAsyncResult ar;
+            AsyncGetNameListing func;
+
+            ar = (func = new AsyncGetNameListing(GetNameListing)).BeginInvoke(path, callback, state);
+            lock (m_asyncmethods) {
+                m_asyncmethods.Add(ar, func);
+            }
+
+            return ar;
+        }
+
+        /// <summary>
+        /// Asynchronously gets a list of file and directory names for the specified path.
+        /// </summary>
+        /// <param name="callback">Async Callback</param>
+        /// <param name="state">State object</param>
+        /// <returns>IAsyncResult</returns>
+        /// <example><code source="..\Examples\BeginGetNameListing.cs" lang="cs" /></example>
+        public IAsyncResult BeginGetNameListing(AsyncCallback callback, object state) {
+            return BeginGetNameListing(null, callback, state);
+        }
+
+        /// <summary>
+        /// Ends a call to BeginGetNameListing()
+        /// </summary>
+        /// <param name="ar">IAsyncResult object returned from BeginGetNameListing</param>
+        /// <returns>An array of file and directory names if any were returned.</returns>
+        /// <example><code source="..\Examples\BeginGetNameListing.cs" lang="cs" /></example>
+        public string[] EndGetNameListing(IAsyncResult ar) {
+            return GetAsyncDelegate<AsyncGetNameListing>(ar).EndInvoke(ar);
         }
 
         /// <summary>

@@ -42,6 +42,7 @@
     <Compile Include="BeginGetFileSize.cs" />
     <Compile Include="BeginGetListing.cs" />
     <Compile Include="BeginGetModifiedTime.cs" />
+    <Compile Include="BeginGetNameListing.cs" />
     <Compile Include="BeginGetWorkingDirectory.cs" />
     <Compile Include="BeginOpenAppend.cs" />
     <Compile Include="BeginOpenWrite.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="GetFileSize.cs" />
     <Compile Include="GetListing.cs" />
     <Compile Include="GetModifiedTime.cs" />
+    <Compile Include="GetNameListing.cs" />
     <Compile Include="GetWorkingDirectory.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="AssemblyInfo.cs" />

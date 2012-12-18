@@ -23,7 +23,8 @@ namespace Examples {
                 //BeginRenameExample.BeginRename();
                 //BeginSetDataTypeExample.BeginSetDataType();
                 //BeginSetWorkingDirectoryExample.BeginSetWorkingDirectory();
-                OpenReadURI.OpenURI();
+                //OpenReadURI.OpenURI();
+                //BeginGetNameListingExample.BeginGetNameListing();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
