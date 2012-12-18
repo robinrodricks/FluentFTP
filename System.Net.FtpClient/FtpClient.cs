@@ -1454,10 +1454,15 @@ namespace System.Net.FtpClient {
                 if (!options.HasFlag(FtpListOption.ForceList) && m_caps.HasFlag(FtpCapability.MLSD))
                     listcmd = "MLSD";
                 else {
-                    if (options.HasFlag(FtpListOption.AllFiles))
-                        listcmd = "LIST -a";
-                    else
-                        listcmd = "LIST";
+                    if (options.HasFlag(FtpListOption.NameList)) {
+                        listcmd = "NLST";
+                    }
+                    else {
+                        if (options.HasFlag(FtpListOption.AllFiles))
+                            listcmd = "LIST -a";
+                        else
+                            listcmd = "LIST";
+                    }
                 }
 
                 using (FtpDataStream stream = OpenDataStream(string.Format("{0} {1}", listcmd, path.GetFtpPath()))) {
@@ -1471,15 +1476,40 @@ namespace System.Net.FtpClient {
                             Debug.WriteLine(buf);
 #endif
 
-                            item = FtpListItem.Parse(path, buf, Capabilities);
-                            // FtpListItem.Parse() returns null if the line
-                            // could not be parsed
-                            if (item != null)
+                            if (listcmd == "NLST") {
+                                // if NLST was used we only have a file name so
+                                // there is nothing to parse.
+                                item = new FtpListItem() {
+                                    FullName = buf
+                                };
                                 lst.Add(item);
+                            }
+                            else {
+                                item = FtpListItem.Parse(path, buf, Capabilities);
+                                // FtpListItem.Parse() returns null if the line
+                                // could not be parsed
+                                if (item != null)
+                                    lst.Add(item);
+                            }
                         }
                     }
                     finally {
                         stream.Close();
+                    }
+                }
+
+                // if NLST was used we don't know
+                // the type of the objects returned
+                // so now we need to figure it out
+                if (listcmd == "NLST") {
+                    // if DirectoryExists() returns true then
+                    // the object must be a directory, otherwise
+                    // we assume it's a file.
+                    foreach (FtpListItem item in lst) {
+                        if (DirectoryExists(item.FullName))
+                            item.Type = FtpFileSystemObjectType.Directory;
+                        else
+                            item.Type = FtpFileSystemObjectType.File;
                     }
                 }
 
@@ -1494,10 +1524,10 @@ namespace System.Net.FtpClient {
                     foreach (FtpListItem item in lst) {
                         if (options.HasFlag(FtpListOption.Modify)) {
                             // if the modified date was not loaded and the server supports
-                            // the MDTM command and this is not a directory, load the modified date.
-                            // most if not all servers do not support retrieving the modified date
-                            // from a directory
-                            if (item.Modified == DateTime.MinValue && item.Type != FtpFileSystemObjectType.Directory && m_caps.HasFlag(FtpCapability.MDTM))
+                            // the MDTM command, load the modified date.
+                            // most servers do not support retrieving the modified date
+                            // of a directory but we try any way.
+                            if (item.Modified == DateTime.MinValue && m_caps.HasFlag(FtpCapability.MDTM))
                                 item.Modified = GetModifiedTime(item.FullName);
                         }
 

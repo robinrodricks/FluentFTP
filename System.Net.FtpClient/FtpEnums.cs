@@ -280,6 +280,10 @@ namespace System.Net.FtpClient {
         /// </summary>
         Size = 2,
         /// <summary>
+        /// Combines the Modify and Size flags
+        /// </summary>
+        SizeModify = Modify | Size,
+        /// <summary>
         /// Show hidden/dot files. This only pertains to servers
         /// that do not support the MLSD command. This option
         /// makes use the non standard -a parameter to LIST to
@@ -290,9 +294,17 @@ namespace System.Net.FtpClient {
         /// </summary>
         AllFiles = 4,
         /// <summary>
-        /// Force the use of the LIST command even if MLSD
+        /// Force the use of the NLST command even if MLSD
         /// is supported by the server
         /// </summary>
-        ForceList = 8
+        ForceList = 8,
+        /// <summary>
+        /// Use the NLST command instead of LIST for a reliable file listing
+        /// </summary>
+        NameList = 16,
+        /// <summary>
+        /// Combines the ForceList and NameList flags
+        /// </summary>
+        ForceNameList = ForceList | NameList
     }
 }
