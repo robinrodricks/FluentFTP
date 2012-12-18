@@ -49,8 +49,8 @@ namespace Tests {
                 cl.Host = m_host;
                 cl.Connect();
 
-                foreach (FtpListItem s in cl.GetListing(null, FtpListOption.SizeModify | FtpListOption.ForceNameList)) {
-                    Console.WriteLine(s);
+                foreach (FtpListItem item in cl.GetListing(null, FtpListOption.SizeModify | FtpListOption.ForceNameList)) {
+                    Console.WriteLine(item);
                 }
             }
         }

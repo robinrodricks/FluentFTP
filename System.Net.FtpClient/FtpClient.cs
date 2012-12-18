@@ -1490,6 +1490,10 @@ namespace System.Net.FtpClient {
                                 // could not be parsed
                                 if (item != null)
                                     lst.Add(item);
+#if DEBUG
+                                else
+                                    Debug.WriteLine("Failed to parse file listing: " + buf);
+#endif
                             }
                         }
                     }
