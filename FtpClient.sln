@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Examples", "Examples\Exampl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{28AA032E-CACF-4C07-BF12-C4FBE71BC8BD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FtpGUI", "FtpGUI\FtpGUI.csproj", "{0DC30DE2-AC4F-4A88-8479-025C1D5CDF72}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,16 @@ Global
 		{28AA032E-CACF-4C07-BF12-C4FBE71BC8BD}.Release|Mixed Platforms.Build.0 = Release|x86
 		{28AA032E-CACF-4C07-BF12-C4FBE71BC8BD}.Release|x86.ActiveCfg = Release|x86
 		{28AA032E-CACF-4C07-BF12-C4FBE71BC8BD}.Release|x86.Build.0 = Release|x86
+		{0DC30DE2-AC4F-4A88-8479-025C1D5CDF72}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{0DC30DE2-AC4F-4A88-8479-025C1D5CDF72}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{0DC30DE2-AC4F-4A88-8479-025C1D5CDF72}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{0DC30DE2-AC4F-4A88-8479-025C1D5CDF72}.Debug|x86.ActiveCfg = Debug|x86
+		{0DC30DE2-AC4F-4A88-8479-025C1D5CDF72}.Debug|x86.Build.0 = Debug|x86
+		{0DC30DE2-AC4F-4A88-8479-025C1D5CDF72}.Release|Any CPU.ActiveCfg = Release|x86
+		{0DC30DE2-AC4F-4A88-8479-025C1D5CDF72}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{0DC30DE2-AC4F-4A88-8479-025C1D5CDF72}.Release|Mixed Platforms.Build.0 = Release|x86
+		{0DC30DE2-AC4F-4A88-8479-025C1D5CDF72}.Release|x86.ActiveCfg = Release|x86
+		{0DC30DE2-AC4F-4A88-8479-025C1D5CDF72}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

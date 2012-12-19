@@ -49,6 +49,8 @@ namespace System.Net.FtpClient {
         /// </summary>
         public string Name {
             get {
+                if (m_name == null && m_path != null)
+                    return m_path.GetFtpFileName();
                 return m_name;
             }
             set {
