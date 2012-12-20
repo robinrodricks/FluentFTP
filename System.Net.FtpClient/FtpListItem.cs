@@ -312,7 +312,7 @@ namespace System.Net.FtpClient {
             FtpListItem item = new FtpListItem();
             Match m;
 
-            if (!(m = Regex.Match(buf, "^type=(?<type>.+?);", RegexOptions.IgnoreCase)).Success)
+            if (!(m = Regex.Match(buf, "type=(?<type>.+?);", RegexOptions.IgnoreCase)).Success)
                 return null;
 
             switch (m.Groups["type"].Value.ToLower()) {
