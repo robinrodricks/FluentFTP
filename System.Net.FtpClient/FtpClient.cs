@@ -1527,14 +1527,14 @@ namespace System.Net.FtpClient {
                     // is open without triggering an error on the server
                     foreach (FtpListItem item in lst) {
                         if (options.HasFlag(FtpListOption.Modify)) {
-                            // if the modified date was not loaded and the server supports
-                            // the MDTM command, load the modified date.
+                            // if the modified date was not loaded or the modified date is in the future 
+                            // and the server supports the MDTM command, load the modified date.
                             // most servers do not support retrieving the modified date
                             // of a directory but we try any way.
-                            if (item.Modified == DateTime.MinValue && m_caps.HasFlag(FtpCapability.MDTM))
+                            if ((item.Modified == DateTime.MinValue || item.Modified > DateTime.Now) && m_caps.HasFlag(FtpCapability.MDTM))
                                 item.Modified = GetModifiedTime(item.FullName);
                         }
-
+                     
                         if (options.HasFlag(FtpListOption.Size)) {
                             // if no size was parsed, the object is a file and the server
                             // supports the SIZE command, then load the file size
