@@ -1531,7 +1531,7 @@ namespace System.Net.FtpClient {
                             // and the server supports the MDTM command, load the modified date.
                             // most servers do not support retrieving the modified date
                             // of a directory but we try any way.
-                            if ((item.Modified == DateTime.MinValue || item.Modified > DateTime.Now) && m_caps.HasFlag(FtpCapability.MDTM))
+                            if ((item.Modified == DateTime.MinValue || (listcmd.StartsWith("LIST") && item.Modified > DateTime.Now)) && m_caps.HasFlag(FtpCapability.MDTM))
                                 item.Modified = GetModifiedTime(item.FullName);
                         }
                      
