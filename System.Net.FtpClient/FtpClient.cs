@@ -1603,11 +1603,13 @@ namespace System.Net.FtpClient {
                         string buf = null;
 
                         while ((buf = stream.ReadLine(Encoding)) != null) {
-                            rawlisting.Add(buf);
+                            if (buf.Length > 0) {
+                                rawlisting.Add(buf);
 
 #if DEBUG
-                            Debug.WriteLine(buf);
+                                Debug.WriteLine(buf);
 #endif
+                            }
 
                         }
                     }
