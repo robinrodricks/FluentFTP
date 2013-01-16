@@ -208,7 +208,13 @@ namespace System.Net.FtpClient {
 
                 foreach (Parser parser in Parsers) {
                     if ((item = parser(buf, capabilities)) != null) {
-                        item.FullName = path.GetFtpPath(item.Name);
+                        // if this is a vax/openvms file listing
+                        // there are no slashes in the path name
+                        if (parser == (new Parser(ParseVaxList)))
+                            item.FullName = path + item.Name;
+                        else
+                            item.FullName = path.GetFtpPath(item.Name);
+
                         item.Input = buf;
                         return item;
                     }
@@ -246,6 +252,7 @@ namespace System.Net.FtpClient {
                         m_parsers.Add(new Parser(ParseMachineList));
                         m_parsers.Add(new Parser(ParseUnixList));
                         m_parsers.Add(new Parser(ParseDosList));
+                        m_parsers.Add(new Parser(ParseVaxList));
                     }
 
                     parsers = m_parsers.ToArray();
@@ -501,6 +508,38 @@ namespace System.Net.FtpClient {
                 return null;
 
             return item;
+        }
+
+        static FtpListItem ParseVaxList(string buf, FtpCapability capabilities) {
+            string regex =
+                @"(?<name>.+)\.(?<extension>.+);(?<version>\d+)\s+" +
+                @"(?<size>\d+)\s+" + 
+                @"(?<modify>\d+-\w+-\d+\s+\d+:\d+)";
+            Match m;
+
+            if ((m = Regex.Match(buf, regex)).Success) {
+                FtpListItem item = new FtpListItem();
+
+                item.m_name = string.Format("{0}.{1};{2}",
+                    m.Groups["name"].Value,
+                    m.Groups["extension"].Value,
+                    m.Groups["version"].Value);
+
+                if (m.Groups["extension"].Value.ToUpper() == "DIR")
+                    item.m_type = FtpFileSystemObjectType.Directory;
+                else
+                    item.m_type = FtpFileSystemObjectType.File;
+
+                if (!long.TryParse(m.Groups["size"].Value, out item.m_size))
+                    item.m_size = -1;
+
+                if (!DateTime.TryParse(m.Groups["modify"].Value, out item.m_modified))
+                    item.m_modified = DateTime.MinValue;
+
+                return item;
+            }
+           
+            return null;
         }
 
         /// <summary>

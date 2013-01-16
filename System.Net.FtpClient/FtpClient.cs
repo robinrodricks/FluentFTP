@@ -1419,6 +1419,7 @@ namespace System.Net.FtpClient {
             return GetListing(path, 0);
         }
 
+        /*
         /// <summary>
         /// Gets a file listing from the server. Each FtpListItem object returned
         /// contains information about the file that was able to be retrieved. If
@@ -1472,6 +1473,7 @@ namespace System.Net.FtpClient {
                         while ((buf = stream.ReadLine(Encoding)) != null) {
                             FtpListItem item = null;
 
+                            
 #if DEBUG
                             Debug.WriteLine(buf);
 #endif
@@ -1542,6 +1544,134 @@ namespace System.Net.FtpClient {
                                 long size;
 
                                 if (item.Type == FtpFileSystemObjectType.File && m_caps.HasFlag(FtpCapability.SIZE) && (size = GetFileSize(item.FullName)) >= 0) {
+                                    item.Size = size;
+                                }
+                                else {
+                                    item.Size = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            finally {
+                m_lock.ReleaseMutex();
+            }
+
+            return lst.ToArray();
+        } 
+        */
+
+        public FtpListItem[] GetListing(string path, FtpListOption options) {
+            List<FtpListItem> lst = new List<FtpListItem>();
+            List<string> rawlisting = new List<string>();
+            string listcmd = null;
+
+            try {
+                m_lock.WaitOne();
+
+                if (path == null || path.Trim().Length == 0)
+                    path = GetWorkingDirectory();
+
+                // always get the file listing in binary
+                // to avoid any potential character translation
+                // problems that would happen if in ASCII.
+                Execute("TYPE I");
+
+                // MLSD provides a machine parsable format with more
+                // accurate information than most of the UNIX long list
+                // formats which translates to more effcient file listings
+                // so always prefer MLSD over LIST unless the caller of this
+                // method overrides it with the ForceList option
+                if (!options.HasFlag(FtpListOption.ForceList) && m_caps.HasFlag(FtpCapability.MLSD))
+                    listcmd = "MLSD";
+                else {
+                    if (options.HasFlag(FtpListOption.NameList)) {
+                        listcmd = "NLST";
+                    }
+                    else {
+                        if (options.HasFlag(FtpListOption.AllFiles))
+                            listcmd = "LIST -a";
+                        else
+                            listcmd = "LIST";
+                    }
+                }
+
+                // read in raw file listing
+                using (FtpDataStream stream = OpenDataStream(string.Format("{0} {1}", listcmd, path.GetFtpPath()))) {
+                    try {
+                        string buf = null;
+
+                        while ((buf = stream.ReadLine(Encoding)) != null) {
+                            rawlisting.Add(buf);
+
+#if DEBUG
+                            Debug.WriteLine(buf);
+#endif
+
+                        }
+                    }
+                    finally {
+                        stream.Close();
+                    }
+                }
+
+                for (int i = 0; i < rawlisting.Count; i++) {
+                    string buf = rawlisting[i];
+                    FtpListItem item = null;
+
+                    if (listcmd == "NLST") {
+                        // if NLST was used we only have a file name so
+                        // there is nothing to parse.
+                        item = new FtpListItem() {
+                            FullName = buf
+                        };
+
+                        if (DirectoryExists(item.FullName))
+                            item.Type = FtpFileSystemObjectType.Directory;
+                        else
+                            item.Type = FtpFileSystemObjectType.File;
+
+                        lst.Add(item);
+                    }
+                    else {
+                        // if the next line in the listing starts with spaces
+                        // it is assumed to be a continuation of the current line
+                        if (i + 1 < rawlisting.Count && (rawlisting[i + 1].StartsWith("\t") || rawlisting[i + 1].StartsWith(" ")))
+                            buf += rawlisting[++i];
+
+                        item = FtpListItem.Parse(path, buf, Capabilities);
+                        // FtpListItem.Parse() returns null if the line
+                        // could not be parsed
+                        if (item != null)
+                            lst.Add(item);
+#if DEBUG
+                        else
+                            Debug.WriteLine("Failed to parse file listing: " + buf);
+#endif
+                    }
+
+                    // load extended information that wasn't available 
+                    // if the list options flags say to do so.
+                    if (item != null) {
+                        if (options.HasFlag(FtpListOption.Modify)) {
+                            // if the modified date was not loaded or the modified date is in the future 
+                            // and the server supports the MDTM command, load the modified date.
+                            // most servers do not support retrieving the modified date
+                            // of a directory but we try any way.
+                            if ((item.Modified == DateTime.MinValue || (listcmd.StartsWith("LIST") && item.Modified > DateTime.Now))
+                                && m_caps.HasFlag(FtpCapability.MDTM))
+                                item.Modified = GetModifiedTime(item.FullName);
+                        }
+
+                        if (options.HasFlag(FtpListOption.Size)) {
+                            // if no size was parsed, the object is a file and the server
+                            // supports the SIZE command, then load the file size
+                            if (item.Size == -1) {
+                                long size;
+
+                                if (item.Type == FtpFileSystemObjectType.File && m_caps.HasFlag(FtpCapability.SIZE)
+                                    && (size = GetFileSize(item.FullName)) >= 0) {
                                     item.Size = size;
                                 }
                                 else {
