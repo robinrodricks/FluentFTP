@@ -2469,10 +2469,21 @@ namespace System.Net.FtpClient {
             try {
                 m_lock.WaitOne();
 
-                if (force && !DirectoryExists(path.GetFtpDirectoryName()))
+                if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
+#if DEBUG
+                    Debug.WriteLine(string.Format(
+                        "CreateDirectory(\"{0}\", {1}): Create non-existent parent: {2}",
+                        path, force, path.GetFtpDirectoryName()));
+#endif
                     CreateDirectory(path.GetFtpDirectoryName(), true);
+                }
                 else if (DirectoryExists(path))
                     return;
+
+#if DEBUG
+                Debug.WriteLine(string.Format("CreateDirectory(\"{0}\", {1})",
+                    path.GetFtpPath(), force));
+#endif
 
                 if (!(reply = Execute("MKD {0}", path.GetFtpPath())).Success)
                     throw new FtpCommandException(reply);
