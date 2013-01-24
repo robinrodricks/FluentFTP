@@ -2469,6 +2469,8 @@ namespace System.Net.FtpClient {
             try {
                 m_lock.WaitOne();
 
+                path = path.GetFtpPath().TrimEnd('/');
+
                 if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
 #if DEBUG
                     Debug.WriteLine(string.Format(
