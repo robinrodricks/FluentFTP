@@ -309,6 +309,27 @@ namespace System.Net.FtpClient {
             }
         }
 
+        bool m_keepAlive = false;
+        /// <summary>
+        /// Gets or sets a value indicating if SocketOption.KeepAlive should be set on 
+        /// the underlying stream's socket. If the connection is alive, the option is
+        /// adjusted in real-time. The value is stored and the KeepAlive option is set
+        /// accordingly upon any new connections. The value set here is also applied to
+        /// all future data streams. It has no affect on cloned control connections or
+        /// data connections already in progress.
+        /// </summary>
+        [FtpControlConnectionClone]
+        public bool SocketKeepAlive {
+            get {
+                return m_keepAlive;
+            }
+            set {
+                m_keepAlive = value;
+                if (m_stream != null)
+                    m_stream.SetSocketOption(Sockets.SocketOptionLevel.Socket, Sockets.SocketOptionName.KeepAlive, value);
+            }
+        }
+
         FtpCapability m_caps = FtpCapability.NONE;
         /// <summary>
         /// Gets the server capabilties represented by flags
@@ -599,6 +620,8 @@ namespace System.Net.FtpClient {
                 m_caps = FtpCapability.NONE;
                 m_stream.ConnectTimeout = m_connectTimeout;
                 m_stream.Connect(Host, Port);
+                m_stream.SetSocketOption(Sockets.SocketOptionLevel.Socket, 
+                    Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
                 if (EncryptionMode == FtpEncryptionMode.Implicit)
                     m_stream.ActivateEncryption(Host,
@@ -854,6 +877,7 @@ namespace System.Net.FtpClient {
             stream.ConnectTimeout = DataConnectionConnectTimeout;
             stream.ReadTimeout = DataConnectionReadTimeout;
             stream.Connect(host, port);
+            stream.SetSocketOption(Sockets.SocketOptionLevel.Socket, Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
             // and finally execute the command that needed the data stream
             if (!(reply = Execute(command, args)).Success) {
@@ -946,6 +970,7 @@ namespace System.Net.FtpClient {
                 stream.ActivateEncryption(m_host,
                     this.ClientCertificates.Count > 0 ? this.ClientCertificates : null);
 
+            stream.SetSocketOption(Sockets.SocketOptionLevel.Socket, Sockets.SocketOptionName.KeepAlive, m_keepAlive);
             stream.ReadTimeout = m_dataConnectionReadTimeout;
             stream.CommandStatus = reply;
 
@@ -968,12 +993,9 @@ namespace System.Net.FtpClient {
                 if (!IsConnected)
                     Connect();
 
-
-
                 // The PORT and PASV commands do not work with IPv6 so
                 // if either one of those types are set change them
                 // to EPSV or EPRT appropriately.
-
                 if (m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetworkV6) {
                     switch (type) {
                         case FtpDataConnectionType.PORT:

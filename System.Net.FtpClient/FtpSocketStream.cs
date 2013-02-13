@@ -25,12 +25,12 @@ namespace System.Net.FtpClient {
         /// The certificate to be validated
         /// </summary>
         public X509Certificate Certificate {
-            get { 
-				return m_certificate; 
-			}
-            set { 
-				m_certificate = value; 
-			}
+            get {
+                return m_certificate;
+            }
+            set {
+                m_certificate = value;
+            }
         }
 
         X509Chain m_chain = null;
@@ -38,12 +38,12 @@ namespace System.Net.FtpClient {
         /// The certificate chain
         /// </summary>
         public X509Chain Chain {
-            get { 
-				return m_chain; 
-			}
-            set { 
-				m_chain = value; 
-			}
+            get {
+                return m_chain;
+            }
+            set {
+                m_chain = value;
+            }
         }
 
         SslPolicyErrors m_policyErrors = SslPolicyErrors.None;
@@ -51,12 +51,12 @@ namespace System.Net.FtpClient {
         /// Validation errors, if any.
         /// </summary>
         public SslPolicyErrors PolicyErrors {
-            get { 
-				return m_policyErrors; 
-			}
-            set { 
-				m_policyErrors = value; 
-			}
+            get {
+                return m_policyErrors;
+            }
+            set {
+                m_policyErrors = value;
+            }
         }
 
         bool m_accept = false;
@@ -66,12 +66,12 @@ namespace System.Net.FtpClient {
         /// be thrown.
         /// </summary>
         public bool Accept {
-            get { 
-				return m_accept; 
-			}
-            set { 
-				m_accept = value; 
-			}
+            get {
+                return m_accept;
+            }
+            set {
+                m_accept = value;
+            }
         }
     }
 
@@ -84,11 +84,11 @@ namespace System.Net.FtpClient {
         /// The socket used for talking
         /// </summary>
         protected Socket Socket {
-            get { 
-                return m_socket; 
+            get {
+                return m_socket;
             }
-            private set { 
-                m_socket = value; 
+            private set {
+                m_socket = value;
             }
         }
 
@@ -99,9 +99,9 @@ namespace System.Net.FtpClient {
             get {
                 if (m_socket == null)
                     return false;
-				
-				// check Connected first to avoid calling the Poll method
-				// on a disposed socket.
+
+                // check Connected first to avoid calling the Poll method
+                // on a disposed socket.
                 if (m_socket.Connected && m_socket.Poll(0, SelectMode.SelectRead) && m_socket.Available == 0)
                     return false;
 
@@ -123,11 +123,11 @@ namespace System.Net.FtpClient {
         /// The non-encrypted stream
         /// </summary>
         private NetworkStream NetworkStream {
-            get { 
-                return m_netStream; 
+            get {
+                return m_netStream;
             }
-            set { 
-                m_netStream = value; 
+            set {
+                m_netStream = value;
             }
         }
 
@@ -136,11 +136,11 @@ namespace System.Net.FtpClient {
         /// The encrypted stream
         /// </summary>
         private SslStream SslStream {
-            get { 
-                return m_sslStream; 
+            get {
+                return m_sslStream;
             }
-            set { 
-                m_sslStream = value; 
+            set {
+                m_sslStream = value;
             }
         }
 
@@ -173,8 +173,8 @@ namespace System.Net.FtpClient {
         /// Gets a value indicating if this stream if seekable
         /// </summary>
         public override bool CanSeek {
-            get { 
-                return false; 
+            get {
+                return false;
             }
         }
 
@@ -208,8 +208,8 @@ namespace System.Net.FtpClient {
                     return BaseStream.Position;
                 return 0;
             }
-            set { 
-                throw new InvalidOperationException(); 
+            set {
+                throw new InvalidOperationException();
             }
         }
 
@@ -218,11 +218,11 @@ namespace System.Net.FtpClient {
         /// Event is fired when a SSL certificate needs to be validated
         /// </summary>
         public event FtpSocketStreamSslValidation ValidateCertificate {
-            add { 
-                m_sslvalidate += value; 
+            add {
+                m_sslvalidate += value;
             }
-            remove { 
-                m_sslvalidate -= value; 
+            remove {
+                m_sslvalidate -= value;
             }
         }
 
@@ -399,7 +399,7 @@ namespace System.Net.FtpClient {
             data = encoding.GetBytes(string.Format("{0}\r\n", buf));
             Write(data, 0, data.Length);
         }
-        
+
         /// <summary>
         /// Does nothing. Call Disconnect() to close the connection and free
         /// the resources being occupied by this object.
@@ -438,6 +438,18 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
+        /// Sets socket options on the underlying socket
+        /// </summary>
+        /// <param name="level">SocketOptionLevel</param>
+        /// <param name="name">SocketOptionName</param>
+        /// <param name="value">SocketOptionValue</param>
+        public void SetSocketOption(SocketOptionLevel level, SocketOptionName name, bool value) {
+            if (m_socket == null)
+                throw new InvalidOperationException("The underlying socket is null. Have you established a connection?");
+            m_socket.SetSocketOption(level, name, value);
+        }
+
+        /// <summary>
         /// Connect to the specified host
         /// </summary>
         /// <param name="host">The host to connect to</param>
@@ -446,24 +458,22 @@ namespace System.Net.FtpClient {
             IAsyncResult ar = null;
             IPAddress[] addresses = Dns.GetHostAddresses(host);
 
-            for(int i = 0; i < addresses.Length; i++) {
-                try {
-                    m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                    ar = m_socket.BeginConnect(addresses[i], port, null, null);
-                    if (!ar.AsyncWaitHandle.WaitOne(m_connectTimeout, true)) {
-                        Close();
-                        throw new TimeoutException("Timed out trying to connect!");
-                    }
+            for (int i = 0; i < addresses.Length; i++) {
+                m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                ar = m_socket.BeginConnect(addresses[i], port, null, null);
+                if (!ar.AsyncWaitHandle.WaitOne(m_connectTimeout, true)) {
+                    Close();
 
+                    // check to see if we're out of addresses
+                    // and if we are throw a TimeoutException
+                    if (i + 1 == addresses.Length)
+                        throw new TimeoutException("Timed out trying to connect!");
+                }
+                else {
                     m_socket.EndConnect(ar);
                     // we got a connection, break out
                     // of the loop.
                     break;
-                }
-                catch (TimeoutException ex) {
-                    // check to see if we're out of addresses to try
-                    if (i + 1 == addresses.Length)
-                        throw ex;
                 }
             }
 
@@ -529,7 +539,7 @@ namespace System.Net.FtpClient {
         /// <param name="address">The address to listen on</param>
         /// <param name="port">The port to listen on</param>
         public void Listen(IPAddress address, int port) {
-            if(!IsConnected) {
+            if (!IsConnected) {
                 if (m_socket == null)
                     m_socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -545,7 +555,7 @@ namespace System.Net.FtpClient {
             if (m_socket != null)
                 m_socket = m_socket.Accept();
         }
-        
+
         /// <summary>
         /// Asynchronously accepts a connection from a listening socket
         /// </summary>
