@@ -96,6 +96,26 @@ namespace System.Net.FtpClient {
             }
         }
 
+        int m_socketPollInterval = 15000;
+        /// <summary>
+        /// Gets or sets the length of time in miliseconds
+        /// that must pass since the last socket activity
+        /// before calling Poll() on the socket to test for
+        /// connectivity. Setting this interval too low will
+        /// have a negative impact on perfomance. Setting this
+        /// interval to 0 disables Poll()'ing all together.
+        /// The default value is 15 seconds.
+        /// </summary>
+        [FtpControlConnectionClone]
+        public int SocketPollInterval {
+            get { return m_socketPollInterval; }
+            set {
+                m_socketPollInterval = value;
+                if (m_stream != null)
+                    m_stream.SocketPollInterval = value;
+            }
+        }
+
         /// <summary>
         /// Gets a value indicating if the connection is alive
         /// </summary>
@@ -619,6 +639,7 @@ namespace System.Net.FtpClient {
                 m_textEncoding = Encoding.Default;
                 m_caps = FtpCapability.NONE;
                 m_stream.ConnectTimeout = m_connectTimeout;
+                m_stream.SocketPollInterval = m_socketPollInterval;
                 m_stream.Connect(Host, Port);
                 m_stream.SetSocketOption(Sockets.SocketOptionLevel.Socket, 
                     Sockets.SocketOptionName.KeepAlive, m_keepAlive);
@@ -1049,18 +1070,25 @@ namespace System.Net.FtpClient {
             try {
                 m_lock.WaitOne();
 
-                if (stream.CommandStatus.Type == FtpResponseType.PositivePreliminary) {
-                    FtpReply reply;
+                if (IsConnected) {
+                    if (stream.CommandStatus.Type == FtpResponseType.PositivePreliminary) {
+                        FtpReply reply;
 
-                    if (!(reply = GetReply()).Success) {
-                        throw new FtpCommandException(reply);
+                        if (!(reply = GetReply()).Success) {
+                            throw new FtpCommandException(reply);
+                        }
+                    }
+
+                    // if this is a clone of the original control
+                    // connection disconnect
+                    if (IsClone) {
+                        Disconnect();
                     }
                 }
 
                 // if this is a clone of the original control
-                // connection close this object out
+                // connection we should Dispose()
                 if (IsClone) {
-                    Disconnect();
                     Dispose();
                 }
             }
@@ -1584,6 +1612,18 @@ namespace System.Net.FtpClient {
         } 
         */
 
+        /// <summary>
+        /// Gets a file listing from the server. Each FtpListItem object returned
+        /// contains information about the file that was able to be retrieved. If
+        /// a DateTime property is equal to DateTime.MinValue then it means the 
+        /// date in question was not able to be retrieved. If the Size property
+        /// is equal to 0 then it means the size of the object could also not
+        /// be retrieved.
+        /// </summary>
+        /// <param name="path">The path of the directory to list</param>
+        /// <param name="options">Options that dictacte how a list is performed and what information is gathered.</param>
+        /// <returns>An array of FtpListItem objects</returns>
+        /// <example><code source="..\Examples\GetListing.cs" lang="cs" /></example>
         public FtpListItem[] GetListing(string path, FtpListOption options) {
             List<FtpListItem> lst = new List<FtpListItem>();
             List<string> rawlisting = new List<string>();

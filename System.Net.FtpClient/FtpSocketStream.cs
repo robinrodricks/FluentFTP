@@ -79,6 +79,17 @@ namespace System.Net.FtpClient {
     /// Stream class used for talking to 
     /// </summary>
     class FtpSocketStream : Stream, IDisposable {
+        /// <summary>
+        /// Used for tacking read/write activity on the socket
+        /// to determine if Poll() should be used to test for
+        /// socket conenctivity. The socket in this class will
+        /// not know it has been disconnected if the remote host
+        /// closes the connection first. Using Poll() avoids 
+        /// the exception that would be thrown when trying to
+        /// read or write to the disconnected socket.
+        /// </summary>
+        private DateTime m_lastActivity = DateTime.Now;
+
         private Socket m_socket = null;
         /// <summary>
         /// The socket used for talking
@@ -92,6 +103,21 @@ namespace System.Net.FtpClient {
             }
         }
 
+        int m_socketPollInterval = 15000;
+        /// <summary>
+        /// Gets or sets the length of time in miliseconds
+        /// that must pass since the last socket activity
+        /// before calling Poll() on the socket to test for
+        /// connectivity. Setting this interval too low will
+        /// have a negative impact on perfomance. Setting this
+        /// interval to 0 disables Poll()'ing all together.
+        /// The default value is 15 seconds.
+        /// </summary>
+        public int SocketPollInterval {
+            get { return m_socketPollInterval; }
+            set { m_socketPollInterval = value; }
+        }
+
         /// <summary>
         /// Gets a value indicating if this socket stream is connected
         /// </summary>
@@ -100,10 +126,20 @@ namespace System.Net.FtpClient {
                 if (m_socket == null)
                     return false;
 
-                // check Connected first to avoid calling the Poll method
-                // on a disposed socket.
-                if (m_socket.Connected && m_socket.Poll(0, SelectMode.SelectRead) && m_socket.Available == 0)
+                if (!m_socket.Connected) {
+                    Close();
                     return false;
+                }
+
+                if (m_socketPollInterval > 0 && DateTime.Now.Subtract(m_lastActivity).TotalMilliseconds > m_socketPollInterval) {
+#if DEBUG
+                    Debug.WriteLine("Poll()'ing sock for connectivity...");
+#endif
+                    if (m_socket.Poll(1000000, SelectMode.SelectRead) && m_socket.Available == 0) {
+                        Close();
+                        return false;
+                    }
+                }
 
                 return true;
             }
@@ -348,6 +384,7 @@ namespace System.Net.FtpClient {
             if (!IsConnected || BaseStream == null)
                 return 0;
 
+            m_lastActivity = DateTime.Now;
             ar = BaseStream.BeginRead(buffer, offset, count, null, null);
             if (!ar.AsyncWaitHandle.WaitOne(m_readTimeout, true)) {
                 Close();
@@ -387,6 +424,7 @@ namespace System.Net.FtpClient {
             if (!IsConnected || BaseStream == null)
                 return;
             BaseStream.Write(buffer, offset, count);
+            m_lastActivity = DateTime.Now;
         }
 
         /// <summary>
@@ -477,14 +515,14 @@ namespace System.Net.FtpClient {
                 }
             }
 
-            // we've looped through all of the available IP addresses
-            // for the host. make sure that we actually connected to
-            // one of the addresses
+            // make sure that we actually connected to
+            // one of the addresses returned from GetHostAddresses()
             if (!m_socket.Connected) {
                 throw new Exception("Failed to connect to host.");
             }
 
             m_netStream = new NetworkStream(m_socket);
+            m_lastActivity = DateTime.Now;
         }
 
         /// <summary>
