@@ -563,6 +563,24 @@ namespace System.Net.FtpClient {
             try {
                 m_lock.WaitOne();
 
+                if (m_stream != null && m_stream.SocketDataAvailable > 0) {
+                    // Data should be on the socket, if it is it probably
+                    // means we've been disconnected. Read and discard
+                    // whatever is there to increase the reliability of
+                    // of the connection test with Poll() in FtpSocketStream.IsConnected
+                    byte[] buf = new byte[m_stream.SocketDataAvailable];
+
+                    m_stream.RawSocketRead(buf);
+#if DEBUG
+                    Debug.WriteLine("Read stale data off the socket, maybe our connection timed out.");
+
+                    if (!m_stream.IsEncrypted) {
+                        Debug.Write("The data was: ");
+                        Debug.WriteLine(Encoding.GetString(buf).TrimEnd('\r', '\n'));
+                    }
+#endif
+                }
+
                 if (!IsConnected)
                     Connect();
 

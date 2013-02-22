@@ -19,7 +19,7 @@ namespace Tests {
             Debug.Listeners.Add(new ConsoleTraceListener());
 
             try {
-                foreach (int i in new int[] {
+                /*foreach (int i in new int[] {
                     (int)FtpDataConnectionType.EPSV,
                     (int)FtpDataConnectionType.EPRT,
                     (int)FtpDataConnectionType.PASV,
@@ -31,9 +31,9 @@ namespace Tests {
                         Download(cl);
                         Delete(cl);
                     }
-                }
+                }*/
 
-                //TestNameListing();
+                TestNameListing();
                 //TestOpenVMSParser();
             }
             catch (Exception ex) {
@@ -78,11 +78,28 @@ namespace Tests {
         static void TestNameListing() {
             using (FtpClient cl = new FtpClient()) {
                 cl.Credentials = new NetworkCredential(m_user, m_pass);
-                cl.Host = m_host;
+                cl.Host = m_host; cl.ValidateCertificate += OnValidateCertificate;
+                cl.EncryptionMode = FtpEncryptionMode.Explicit;
+                cl.SocketPollInterval = 1000;
                 cl.Connect();
 
+                Console.WriteLine("Sleeping for 5 seconds to force timeout.");
+                Thread.Sleep(6000);
+
+                DoNameListing(cl);
+            }
+        }
+
+        static void DoNameListing(FtpClient cl) {
+            try {
                 foreach (FtpListItem item in cl.GetListing(null, FtpListOption.SizeModify | FtpListOption.ForceList)) {
                     Console.WriteLine(item);
+                }
+            }
+            catch (IOException ex) {
+                // test for abnormal disconnection and if it was try again.
+                if (ex.InnerException is System.Net.Sockets.SocketException) {
+                    DoNameListing(cl);
                 }
             }
         }

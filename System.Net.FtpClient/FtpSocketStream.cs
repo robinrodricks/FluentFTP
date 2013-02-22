@@ -119,6 +119,20 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
+        /// Gets the number of available bytes on the socket, 0 if the
+        /// socket has not been initalized. This property is used internally
+        /// by FtpClient in an effort to detect disconnections and gracefully
+        /// reconnect the control connection.
+        /// </summary>
+        internal int SocketDataAvailable {
+            get {
+                if (m_socket != null)
+                    return m_socket.Available;
+                return 0;
+            }
+        }
+
+        /// <summary>
         /// Gets a value indicating if this socket stream is connected
         /// </summary>
         public bool IsConnected {
@@ -131,11 +145,19 @@ namespace System.Net.FtpClient {
                     return false;
                 }
 
+                if (!CanRead || !CanWrite) {
+                    Close();
+                    return false;
+                }
+
                 if (m_socketPollInterval > 0 && DateTime.Now.Subtract(m_lastActivity).TotalMilliseconds > m_socketPollInterval) {
 #if DEBUG
-                    Debug.WriteLine("Poll()'ing sock for connectivity...");
+                    Debug.WriteLine("Testing connectivity using Socket.Poll()...");
 #endif
-                    if (m_socket.Poll(1000000, SelectMode.SelectRead) && m_socket.Available == 0) {
+                    if (m_socket.Poll(1000000000, SelectMode.SelectRead) && m_socket.Available == 0) {
+#if DEBUG
+                        Debug.WriteLine("Looks like we've been disconnected...");
+#endif
                         Close();
                         return false;
                     }
@@ -199,8 +221,8 @@ namespace System.Net.FtpClient {
         /// </summary>
         public override bool CanRead {
             get {
-                if (IsConnected)
-                    return true;
+                if (m_netStream != null)
+                    return m_netStream.CanRead;
                 return false;
             }
         }
@@ -219,8 +241,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         public override bool CanWrite {
             get {
-                if (IsConnected)
-                    return true;
+                if (m_netStream != null)
+                    return m_netStream.CanWrite;
+
                 return false;
             }
         }
@@ -372,6 +395,21 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
+        /// Bypass the stream and read directly off the socket.
+        /// </summary>
+        /// <param name="buffer">The buffer to read into</param>
+        /// <returns>The number of bytes read</returns>
+        internal int RawSocketRead(byte[] buffer) {
+            int read = 0;
+
+            if (m_socket != null && m_socket.Connected) {
+                read = m_socket.Receive(buffer, buffer.Length, 0);
+            }
+
+            return read;
+        }
+
+        /// <summary>
         /// Reads data from the stream
         /// </summary>
         /// <param name="buffer">Buffer to read into</param>
@@ -381,7 +419,7 @@ namespace System.Net.FtpClient {
         public override int Read(byte[] buffer, int offset, int count) {
             IAsyncResult ar = null;
 
-            if (!IsConnected || BaseStream == null)
+            if (BaseStream == null)
                 return 0;
 
             m_lastActivity = DateTime.Now;
@@ -421,8 +459,9 @@ namespace System.Net.FtpClient {
         /// <param name="offset">Where in the buffer to start</param>
         /// <param name="count">Number of bytes to be read</param>
         public override void Write(byte[] buffer, int offset, int count) {
-            if (!IsConnected || BaseStream == null)
+            if (BaseStream == null)
                 return;
+
             BaseStream.Write(buffer, offset, count);
             m_lastActivity = DateTime.Now;
         }
