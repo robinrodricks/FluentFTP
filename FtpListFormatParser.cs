@@ -299,26 +299,26 @@ namespace System.Net.FtpClient {
 
                     // UNIX format directory
                     _listParsers.Add(new FtpListFormatParser(
-                        @"(d[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+\d+\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
+                        @"(d[\w-]{9})\s+\d+\s+([\S]+)\s+([\S]+)\s+\d+\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
                         5, -1, 4, 1, 2, 3, -1, FtpObjectType.Directory));
 
                     // UNIX format file
                     _listParsers.Add(new FtpListFormatParser(
-                        @"(-[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
+                        @"(-[\w-]{9})\s+\d+\s+([\S]+)\s+([\S]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
                         6, 4, 5, 1, 2, 3, -1, FtpObjectType.File));
 
                     // UNIX format link
                     _listParsers.Add(new FtpListFormatParser(
-                        @"(l[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*) ->\s+(.*)",
+                        @"(l[\w-]{9})\s+\d+\s+([\S]+)\s+([\S]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*) ->\s+(.*)",
                         6, 4, 5, 1, 2, 3, 7, FtpObjectType.Link));
 
                     // UNIX format device
                     _listParsers.Add(new FtpListFormatParser(
-                        @"(c[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
+                        @"(c[\w-]{9})\s+\d+\s+([\S]+)\s+([\S]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
                         6, 4, 5, 1, 2, 3, -1, FtpObjectType.Device));
 
                     _listParsers.Add(new FtpListFormatParser(
-                        @"(b[\w-]{9})\s+\d+\s+([\w\d]+)\s+([\w\d]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
+                        @"(b[\w-]{9})\s+\d+\s+([\S]+)\s+([\S]+)\s+(\d+)\s+(\w+\s+\d+\s+\d+:?\d+)\s+(.*)",
                         6, 4, 5, 1, 2, 3, -1, FtpObjectType.Device));
 
                     //
