@@ -666,8 +666,14 @@ namespace System.Net.FtpClient {
                     m_stream.ActivateEncryption(Host,
                         m_clientCerts.Count > 0 ? m_clientCerts : null);
 
-                if (!(reply = GetReply()).Success)
-                    throw new FtpCommandException(reply);
+                if (!(reply = GetReply()).Success) {
+                    if (reply.Code == null) {
+                        throw new IOException("The connection was terminated before a greeting could be read.");
+                    }
+                    else {
+                        throw new FtpCommandException(reply);
+                    }
+                }
 
                 if (EncryptionMode == FtpEncryptionMode.Explicit) {
                     if (!(reply = Execute("AUTH TLS")).Success)

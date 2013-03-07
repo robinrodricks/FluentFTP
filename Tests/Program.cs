@@ -70,7 +70,8 @@ namespace Tests {
                 FtpListItem item = FtpListItem.Parse("disk$user520:[4114.2012.Jan]", s, 0);
 
                 if (item != null) {
-                    Console.WriteLine(item);
+                    Console.WriteLine(item.Modified);
+                    //Console.WriteLine(item);
                 }
             }
         }
@@ -78,28 +79,18 @@ namespace Tests {
         static void TestNameListing() {
             using (FtpClient cl = new FtpClient()) {
                 cl.Credentials = new NetworkCredential(m_user, m_pass);
-                cl.Host = m_host; cl.ValidateCertificate += OnValidateCertificate;
-                cl.EncryptionMode = FtpEncryptionMode.Explicit;
-                cl.SocketPollInterval = 1000;
+                cl.Host = m_host; 
+                cl.ValidateCertificate += OnValidateCertificate;
+                //cl.EncryptionMode = FtpEncryptionMode.Explicit;
+                //cl.SocketPollInterval = 5000;
                 cl.Connect();
 
-                Console.WriteLine("Sleeping for 5 seconds to force timeout.");
-                Thread.Sleep(6000);
+                //Console.WriteLine("Sleeping for 10 seconds to force timeout.");
+                //Thread.Sleep(10000);
 
-                DoNameListing(cl);
-            }
-        }
-
-        static void DoNameListing(FtpClient cl) {
-            try {
                 foreach (FtpListItem item in cl.GetListing(null, FtpListOption.SizeModify | FtpListOption.ForceList)) {
-                    Console.WriteLine(item);
-                }
-            }
-            catch (IOException ex) {
-                // test for abnormal disconnection and if it was try again.
-                if (ex.InnerException is System.Net.Sockets.SocketException) {
-                    DoNameListing(cl);
+                    Console.WriteLine(item.Modified.Kind);
+                    Console.WriteLine(item.Modified);
                 }
             }
         }

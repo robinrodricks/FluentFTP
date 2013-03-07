@@ -487,7 +487,7 @@ namespace System.Net.FtpClient {
                 item.Type = FtpFileSystemObjectType.Directory;
                 item.Name = m.Groups["name"].Value;
 
-                if (DateTime.TryParse(m.Groups["modify"].Value, out modify))
+                if (DateTime.TryParse(m.Groups["modify"].Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out modify))
                     item.Modified = modify;
             }
             // file
@@ -501,7 +501,7 @@ namespace System.Net.FtpClient {
                 if (long.TryParse(m.Groups["size"].Value, out size))
                     item.Size = size;
 
-                if (DateTime.TryParse(m.Groups["modify"].Value, out modify))
+                if (DateTime.TryParse(m.Groups["modify"].Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out modify))
                     item.Modified = modify;
             }
             else

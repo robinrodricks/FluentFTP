@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace System.Net.FtpClient {
     /// <summary>
@@ -81,9 +82,7 @@ namespace System.Net.FtpClient {
             };
             DateTime parsed;
 
-            if (DateTime.TryParseExact(date, formats,
-                System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.AssumeLocal, out parsed)) {
+            if (DateTime.TryParseExact(date, formats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out parsed)) {
                 return parsed;
             }
 
