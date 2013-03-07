@@ -533,7 +533,7 @@ namespace System.Net.FtpClient {
                 if (!long.TryParse(m.Groups["size"].Value, out item.m_size))
                     item.m_size = -1;
 
-                if (!DateTime.TryParse(m.Groups["modify"].Value, out item.m_modified))
+                if (!DateTime.TryParse(m.Groups["modify"].Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out item.m_modified))
                     item.m_modified = DateTime.MinValue;
 
                 return item;
