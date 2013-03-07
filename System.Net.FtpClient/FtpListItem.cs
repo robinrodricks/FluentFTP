@@ -342,10 +342,10 @@ namespace System.Net.FtpClient {
                 return null;
 
             if ((m = Regex.Match(buf, "modify=(?<modify>.+?);", RegexOptions.IgnoreCase)).Success)
-                item.Modified = m.Groups["modify"].Value.GetFtpDate();
+                item.Modified = m.Groups["modify"].Value.GetFtpDate(DateTimeStyles.AssumeUniversal);
 
             if ((m = Regex.Match(buf, "created?=(?<create>.+?);", RegexOptions.IgnoreCase)).Success)
-                item.Created = m.Groups["create"].Value.GetFtpDate();
+                item.Created = m.Groups["create"].Value.GetFtpDate(DateTimeStyles.AssumeUniversal);
 
             if ((m = Regex.Match(buf, @"size=(?<size>\d+);", RegexOptions.IgnoreCase)).Success) {
                 long size;
@@ -417,7 +417,7 @@ namespace System.Net.FtpClient {
             // to convert it to a DateTime object and use it for directories.
             ////
             if ((!capabilities.HasFlag(FtpCapability.MDTM) || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0)
-                item.Modified = m.Groups["modify"].Value.GetFtpDate();
+                item.Modified = m.Groups["modify"].Value.GetFtpDate(DateTimeStyles.AssumeLocal);
 
             if (m.Groups["size"].Value.Length > 0) {
                 long size;

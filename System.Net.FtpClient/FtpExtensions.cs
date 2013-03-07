@@ -72,8 +72,9 @@ namespace System.Net.FtpClient {
         /// Tries to convert the string FTP date representation  into a date time object
         /// </summary>
         /// <param name="date">The date</param>
+        /// <param name="style">UTC/Local Time</param>
         /// <returns>A date time object representing the date, DateTime.MinValue if there was a problem</returns>
-        public static DateTime GetFtpDate(this string date) {
+        public static DateTime GetFtpDate(this string date, DateTimeStyles style) {
             string[] formats = new string[] { 
                 "yyyyMMddHHmmss", 
                 "yyyyMMddHHmmss.fff",
@@ -82,7 +83,7 @@ namespace System.Net.FtpClient {
             };
             DateTime parsed;
 
-            if (DateTime.TryParseExact(date, formats, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out parsed)) {
+            if (DateTime.TryParseExact(date, formats, CultureInfo.InvariantCulture, style, out parsed)) {
                 return parsed;
             }
 

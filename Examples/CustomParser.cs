@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using System.Net.FtpClient;
+using System.Globalization;
 
 namespace Examples {
     /// <summary>
@@ -62,7 +63,7 @@ namespace Examples {
             // to convert it to a DateTime object and use it for directories.
             ////
             if ((!capabilities.HasFlag(FtpCapability.MDTM) || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0)
-                item.Modified = m.Groups["modify"].Value.GetFtpDate();
+                item.Modified = m.Groups["modify"].Value.GetFtpDate(DateTimeStyles.AssumeUniversal);
 
             if (m.Groups["size"].Value.Length > 0) {
                 long size;

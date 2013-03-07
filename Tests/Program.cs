@@ -84,7 +84,7 @@ namespace Tests {
                 //cl.EncryptionMode = FtpEncryptionMode.Explicit;
                 //cl.SocketPollInterval = 5000;
                 cl.Connect();
-
+                
                 //Console.WriteLine("Sleeping for 10 seconds to force timeout.");
                 //Thread.Sleep(10000);
 

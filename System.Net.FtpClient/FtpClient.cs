@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Web;
 using System.Security.Cryptography.X509Certificates;
+using System.Globalization;
 
 namespace System.Net.FtpClient {
     /// <summary>
@@ -2159,7 +2160,7 @@ namespace System.Net.FtpClient {
                 m_lock.WaitOne();
 
                 if ((reply = Execute("MDTM {0}", path.GetFtpPath())).Success)
-                    modify = reply.Message.GetFtpDate();
+                    modify = reply.Message.GetFtpDate(DateTimeStyles.AssumeUniversal);
             }
             finally {
                 m_lock.ReleaseMutex();
