@@ -154,7 +154,7 @@ namespace System.Net.FtpClient {
 #if DEBUG
                     Debug.WriteLine("Testing connectivity using Socket.Poll()...");
 #endif
-                    if (m_socket.Poll(1000000000, SelectMode.SelectRead) && m_socket.Available == 0) {
+                    if (m_socket.Poll(500000, SelectMode.SelectRead) && m_socket.Available == 0) {
 #if DEBUG
                         Debug.WriteLine("Looks like we've been disconnected...");
 #endif
