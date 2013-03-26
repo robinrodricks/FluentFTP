@@ -478,6 +478,10 @@ namespace System.Net.FtpClient {
         /// <returns>FtpListItem if the item is able to be parsed</returns>
         static FtpListItem ParseDosList(string buf, FtpCapability capabilities) {
             FtpListItem item = new FtpListItem();
+            string[] datefmt = new string[] {
+                "MM-dd-yy  hh:mmtt",
+                "MM-dd-yyyy  hh:mmtt"
+            };
             Match m;
 
             // directory
@@ -487,7 +491,8 @@ namespace System.Net.FtpClient {
                 item.Type = FtpFileSystemObjectType.Directory;
                 item.Name = m.Groups["name"].Value;
 
-                if (DateTime.TryParse(m.Groups["modify"].Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out modify))
+                //if (DateTime.TryParse(m.Groups["modify"].Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out modify))
+                if(DateTime.TryParseExact(m.Groups["modify"].Value, datefmt, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out modify))
                     item.Modified = modify;
             }
             // file
@@ -501,7 +506,8 @@ namespace System.Net.FtpClient {
                 if (long.TryParse(m.Groups["size"].Value, out size))
                     item.Size = size;
 
-                if (DateTime.TryParse(m.Groups["modify"].Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out modify))
+                //if (DateTime.TryParse(m.Groups["modify"].Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out modify))
+                if(DateTime.TryParseExact(m.Groups["modify"].Value, datefmt, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out modify))
                     item.Modified = modify;
             }
             else

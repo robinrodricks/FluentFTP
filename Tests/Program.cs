@@ -33,8 +33,10 @@ namespace Tests {
                     }
                 }*/
 
-                TestNameListing();
+                //TestNameListing();
                 //TestOpenVMSParser();
+               // TestIISParser();
+               // GetMicrosoftFTPListing();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -42,6 +44,44 @@ namespace Tests {
 
             Console.WriteLine("--DONE--");
             Console.ReadKey();
+        }
+
+        static void GetMicrosoftFTPListing() {
+            using (FtpClient cl = new FtpClient()) {
+                cl.Credentials = new NetworkCredential("ftp", "ftp");
+                cl.Host = "ftp.microsoft.com";
+
+                foreach (FtpListItem item in cl.GetListing()) {
+                    Console.WriteLine(item.Modified);
+                }
+            }
+        }
+
+        static void TestIISParser() {
+            string[] sample = new string[] {
+                "03-07-13  10:02AM                  901 File01.xml",
+                "03-07-13  10:03AM                  921 File02.xml",
+                "03-07-13  10:04AM                  904 File03.xml",
+                "03-07-13  10:04AM                  912 File04.xml",
+                "03-08-13  11:10AM                  912 File05.xml",
+                "03-15-13  02:38PM                  912 File06.xml",
+                "03-07-13  10:16AM                  909 File07.xml",
+                "03-07-13  10:16AM                  899 File08.xml",
+                "03-08-13  10:22AM                  904 File09.xml",
+                "03-25-13  07:27AM                  895 File10.xml",
+                "03-08-13  10:22AM                 6199 File11.txt",
+                "03-25-13  07:22AM                31444 File12.txt",
+                "03-25-13  07:24AM                24537 File13.txt"
+            };
+
+            foreach (string s in sample) {
+                FtpListItem item = FtpListItem.Parse("/", s, 0);
+
+                if (item != null) {
+                    Console.WriteLine(item.Modified);
+                    //Console.WriteLine(item);
+                }
+            }
         }
 
         static void TestOpenVMSParser() {
