@@ -737,23 +737,23 @@ namespace System.Net.FtpClient {
         /// contain a list of the features the server supported delimited by a new line '\n' character.</param>
         protected virtual void GetFeatures(FtpReply reply) {
             foreach (string feat in reply.InfoMessages.Split('\n')) {
-                if (feat.ToUpper().Contains("MLST") || feat.ToUpper().Contains("MLSD"))
+                if (feat.ToUpper().Trim().StartsWith("MLST") || feat.ToUpper().Trim().StartsWith("MLSD"))
                     m_caps |= FtpCapability.MLSD;
-                else if (feat.ToUpper().Contains("MDTM"))
+                else if (feat.ToUpper().Trim().StartsWith("MDTM"))
                     m_caps |= FtpCapability.MDTM;
-                else if (feat.ToUpper().Contains("REST STREAM"))
+                else if (feat.ToUpper().Trim().StartsWith("REST STREAM"))
                     m_caps |= FtpCapability.REST;
-                else if (feat.ToUpper().Contains("SIZE"))
+                else if (feat.ToUpper().Trim().StartsWith("SIZE"))
                     m_caps |= FtpCapability.SIZE;
-                else if (feat.ToUpper().Contains("UTF8"))
+                else if (feat.ToUpper().Trim().StartsWith("UTF8"))
                     m_caps |= FtpCapability.UTF8;
-                else if (feat.ToUpper().Contains("PRET"))
+                else if (feat.ToUpper().Trim().StartsWith("PRET"))
                     m_caps |= FtpCapability.PRET;
-                else if (feat.ToUpper().Contains("MFMT"))
+                else if (feat.ToUpper().Trim().StartsWith("MFMT"))
                     m_caps |= FtpCapability.MFMT;
-                else if (feat.ToUpper().Contains("MFCT"))
+                else if (feat.ToUpper().Trim().StartsWith("MFCT"))
                     m_caps |= FtpCapability.MFCT;
-                else if (feat.ToUpper().Contains("MFF"))
+                else if (feat.ToUpper().Trim().StartsWith("MFF"))
                     m_caps |= FtpCapability.MFF;
             }
         }

@@ -36,7 +36,7 @@ namespace Tests {
                 //TestNameListing();
                 //TestOpenVMSParser();
                // TestIISParser();
-               // GetMicrosoftFTPListing();
+               GetMicrosoftFTPListing();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -48,8 +48,11 @@ namespace Tests {
 
         static void GetMicrosoftFTPListing() {
             using (FtpClient cl = new FtpClient()) {
-                cl.Credentials = new NetworkCredential("ftp", "ftp");
-                cl.Host = "ftp.microsoft.com";
+                cl.Credentials = new NetworkCredential("ftptest", "ftptest");
+                cl.Host = "localhost";
+                cl.Connect();
+
+                Console.WriteLine(cl.Capabilities);
 
                 foreach (FtpListItem item in cl.GetListing()) {
                     Console.WriteLine(item.Modified);
