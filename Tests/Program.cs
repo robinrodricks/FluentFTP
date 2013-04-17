@@ -19,7 +19,7 @@ namespace Tests {
             Debug.Listeners.Add(new ConsoleTraceListener());
 
             try {
-                /*foreach (int i in new int[] {
+                foreach (int i in new int[] {
                     (int)FtpDataConnectionType.EPSV,
                     (int)FtpDataConnectionType.EPRT,
                     (int)FtpDataConnectionType.PASV,
@@ -31,12 +31,13 @@ namespace Tests {
                         Download(cl);
                         Delete(cl);
                     }
-                }*/
+                }
 
                 //TestNameListing();
                 //TestOpenVMSParser();
                // TestIISParser();
-               GetMicrosoftFTPListing();
+               //GetMicrosoftFTPListing();
+                //TestReset();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -44,6 +45,18 @@ namespace Tests {
 
             Console.WriteLine("--DONE--");
             Console.ReadKey();
+        }
+
+        static void TestReset() {
+            using (FtpClient cl = new FtpClient()) {
+                cl.Credentials = new NetworkCredential("ftptest", "ftptest");
+                cl.Host = "localhost";
+                cl.Connect();
+
+                using (Stream istream = cl.OpenRead("LICENSE.TXT", 10)) {
+                    istream.Close();
+                }
+            }
         }
 
         static void GetMicrosoftFTPListing() {

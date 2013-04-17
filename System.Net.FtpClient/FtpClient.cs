@@ -859,9 +859,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="type">Type of passive data stream to open</param>
         /// <param name="command">The command to execute that requires a data stream</param>
-        /// <param name="args">Arguments to the command</param>
+        /// <param name="restart">Restart location in bytes for file transfer</param>
         /// <returns>A data stream ready to be used</returns>
-        FtpDataStream OpenPassiveDataStream(FtpDataConnectionType type, string command, params object[] args) {
+        FtpDataStream OpenPassiveDataStream(FtpDataConnectionType type, string command, long restart) {
             FtpDataStream stream = null;
             FtpReply reply;
             Match m;
@@ -875,7 +875,7 @@ namespace System.Net.FtpClient {
                 if (!(reply = Execute("EPSV")).Success) {
                     // if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
                     if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoPassive && m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetwork)
-                        return OpenPassiveDataStream(FtpDataConnectionType.PASV, command, args);
+                        return OpenPassiveDataStream(FtpDataConnectionType.PASV, command, restart);
                     throw new FtpCommandException(reply);
                 }
 
@@ -925,8 +925,12 @@ namespace System.Net.FtpClient {
             stream.Connect(host, port);
             stream.SetSocketOption(Sockets.SocketOptionLevel.Socket, Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
-            // and finally execute the command that needed the data stream
-            if (!(reply = Execute(command, args)).Success) {
+            if (restart > 0) {
+                if (!(reply = Execute("REST {0}", restart)).Success)
+                    throw new FtpCommandException(reply);
+            }
+
+            if (!(reply = Execute(command)).Success) {
                 stream.Close();
                 throw new FtpCommandException(reply);
             }
@@ -950,9 +954,9 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="type">Type of passive data stream to open</param>
         /// <param name="command">The command to execute that requires a data stream</param>
-        /// <param name="args">Arguments to the command</param>
+        /// <param name="restart">Restart location in bytes for file transfer</param>
         /// <returns>A data stream ready to be used</returns>
-        FtpDataStream OpenActiveDataStream(FtpDataConnectionType type, string command, params object[] args) {
+        FtpDataStream OpenActiveDataStream(FtpDataConnectionType type, string command, long restart) {
             FtpDataStream stream = new FtpDataStream(this);
             FtpReply reply;
             IAsyncResult ar;
@@ -982,7 +986,7 @@ namespace System.Net.FtpClient {
                     stream.Close();
                     // if we're connected with IPv4 and the data channel type is AutoActive then try to fall back to the PORT command
                     if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetwork)
-                        return OpenActiveDataStream(FtpDataConnectionType.PORT, command, args);
+                        return OpenActiveDataStream(FtpDataConnectionType.PORT, command, restart);
                     throw new FtpCommandException(reply);
                 }
             }
@@ -999,7 +1003,12 @@ namespace System.Net.FtpClient {
                 }
             }
 
-            if (!(reply = Execute(command, args)).Success) {
+            if (restart > 0) {
+                if (!(reply = Execute("REST {0}", restart)).Success)
+                    throw new FtpCommandException(reply);
+            }
+
+            if (!(reply = Execute(command)).Success) {
                 stream.Close();
                 throw new FtpCommandException(reply);
             }
@@ -1027,9 +1036,9 @@ namespace System.Net.FtpClient {
         /// Opens a data stream.
         /// </summary>
         /// <param name='command'>The command to execute that requires a data stream</param>
-        /// <param name='args'>Format arguments.</param>
+        /// <param name="restart">Restart location in bytes for file transfer</param>
         /// <returns>The data stream.</returns>
-        FtpDataStream OpenDataStream(string command, params object[] args) {
+        FtpDataStream OpenDataStream(string command, long restart) {
             FtpDataConnectionType type = m_dataConnectionType;
             FtpDataStream stream = null;
 
@@ -1065,12 +1074,12 @@ namespace System.Net.FtpClient {
                     case FtpDataConnectionType.EPSV:
                     case FtpDataConnectionType.PASV:
                     case FtpDataConnectionType.PASVEX:
-                        stream = OpenPassiveDataStream(type, command, args);
+                        stream = OpenPassiveDataStream(type, command, restart);
                         break;
                     case FtpDataConnectionType.AutoActive:
                     case FtpDataConnectionType.EPRT:
                     case FtpDataConnectionType.PORT:
-                        stream = OpenActiveDataStream(type, command, args);
+                        stream = OpenActiveDataStream(type, command, restart);
                         break;
                 }
 
@@ -1165,7 +1174,6 @@ namespace System.Net.FtpClient {
         public virtual Stream OpenRead(string path, FtpDataType type, long restart) {
             FtpClient client = null;
             FtpDataStream stream = null;
-            FtpReply reply;
             long length = 0;
 
             try {
@@ -1182,13 +1190,7 @@ namespace System.Net.FtpClient {
 
                 client.SetDataType(type);
                 length = client.GetFileSize(path);
-
-                if (restart > 0) {
-                    if (!(reply = client.Execute("REST {0}", restart)).Success)
-                        throw new FtpCommandException(reply);
-                }
-
-                stream = client.OpenDataStream("RETR {0}", path.GetFtpPath());
+                stream = client.OpenDataStream(string.Format("RETR {0}", path.GetFtpPath()), restart);
             }
             finally {
                 m_lock.ReleaseMutex();
@@ -1313,7 +1315,7 @@ namespace System.Net.FtpClient {
 
                 client.SetDataType(type);
                 length = client.GetFileSize(path);
-                stream = client.OpenDataStream("STOR {0}", path.GetFtpPath());
+                stream = client.OpenDataStream(string.Format("STOR {0}", path.GetFtpPath()), 0);
 
                 if (length > 0 && stream != null)
                     stream.SetLength(length);
@@ -1406,7 +1408,7 @@ namespace System.Net.FtpClient {
 
                 client.SetDataType(type);
                 length = client.GetFileSize(path);
-                stream = client.OpenDataStream("APPE {0}", path.GetFtpPath());
+                stream = client.OpenDataStream(string.Format("APPE {0}", path.GetFtpPath()), 0);
 
                 if (length > 0 && stream != null) {
                     stream.SetLength(length);
@@ -1494,149 +1496,6 @@ namespace System.Net.FtpClient {
             return GetListing(path, 0);
         }
 
-        /*
-        /// <summary>
-        /// Gets a file listing from the server. Each FtpListItem object returned
-        /// contains information about the file that was able to be retrieved. If
-        /// a DateTime property is equal to DateTime.MinValue then it means the 
-        /// date in question was not able to be retrieved. If the Size property
-        /// is equal to 0 then it means the size of the object could also not
-        /// be retrieved.
-        /// </summary>
-        /// <param name="path">The path of the directory to list</param>
-        /// <param name="options">Options that dictacte how a list is performed and what information is gathered.</param>
-        /// <returns>An array of FtpListItem objects</returns>
-        /// <example><code source="..\Examples\GetListing.cs" lang="cs" /></example>
-        public FtpListItem[] GetListing(string path, FtpListOption options) {
-            List<FtpListItem> lst = new List<FtpListItem>();
-            string listcmd = null;
-
-            try {
-                m_lock.WaitOne();
-
-                if (path == null || path.Trim().Length == 0)
-                    path = GetWorkingDirectory();
-
-                // always get the file listing in binary
-                // to avoid any potential character translation
-                // problems that would happen if in ASCII.
-                Execute("TYPE I");
-
-                // MLSD provides a machine parsable format with more
-                // accurate information than most of the UNIX long list
-                // formats which translates to more effcient file listings
-                // so always prefer MLSD over LIST unless the caller of this
-                // method overrides it with the ForceList option
-                if (!options.HasFlag(FtpListOption.ForceList) && m_caps.HasFlag(FtpCapability.MLSD))
-                    listcmd = "MLSD";
-                else {
-                    if (options.HasFlag(FtpListOption.NameList)) {
-                        listcmd = "NLST";
-                    }
-                    else {
-                        if (options.HasFlag(FtpListOption.AllFiles))
-                            listcmd = "LIST -a";
-                        else
-                            listcmd = "LIST";
-                    }
-                }
-
-                using (FtpDataStream stream = OpenDataStream(string.Format("{0} {1}", listcmd, path.GetFtpPath()))) {
-                    string buf;
-
-                    try {
-                        while ((buf = stream.ReadLine(Encoding)) != null) {
-                            FtpListItem item = null;
-
-                            
-#if DEBUG
-                            Debug.WriteLine(buf);
-#endif
-
-                            if (listcmd == "NLST") {
-                                // if NLST was used we only have a file name so
-                                // there is nothing to parse.
-                                item = new FtpListItem() {
-                                    FullName = buf
-                                };
-                                lst.Add(item);
-                            }
-                            else {
-                                item = FtpListItem.Parse(path, buf, Capabilities);
-                                // FtpListItem.Parse() returns null if the line
-                                // could not be parsed
-                                if (item != null)
-                                    lst.Add(item);
-#if DEBUG
-                                else
-                                    Debug.WriteLine("Failed to parse file listing: " + buf);
-#endif
-                            }
-                        }
-                    }
-                    finally {
-                        stream.Close();
-                    }
-                }
-
-                // if NLST was used we don't know
-                // the type of the objects returned
-                // so now we need to figure it out
-                if (listcmd == "NLST") {
-                    // if DirectoryExists() returns true then
-                    // the object must be a directory, otherwise
-                    // we assume it's a file.
-                    foreach (FtpListItem item in lst) {
-                        if (DirectoryExists(item.FullName))
-                            item.Type = FtpFileSystemObjectType.Directory;
-                        else
-                            item.Type = FtpFileSystemObjectType.File;
-                    }
-                }
-
-                // don't loop through the files to load extended information
-                // unless an option pertaining to this operation has bee set
-                // by the caller of this method
-                if (options.HasFlag(FtpListOption.Modify) || options.HasFlag(FtpListOption.Size)) {
-                    // do not try to load extended file system information until
-                    // after the list retrieval is done because you cannot execute
-                    // commands on the control connection while the data stream
-                    // is open without triggering an error on the server
-                    foreach (FtpListItem item in lst) {
-                        if (options.HasFlag(FtpListOption.Modify)) {
-                            // if the modified date was not loaded or the modified date is in the future 
-                            // and the server supports the MDTM command, load the modified date.
-                            // most servers do not support retrieving the modified date
-                            // of a directory but we try any way.
-                            if ((item.Modified == DateTime.MinValue || (listcmd.StartsWith("LIST") && item.Modified > DateTime.Now)) && m_caps.HasFlag(FtpCapability.MDTM))
-                                item.Modified = GetModifiedTime(item.FullName);
-                        }
-                     
-                        if (options.HasFlag(FtpListOption.Size)) {
-                            // if no size was parsed, the object is a file and the server
-                            // supports the SIZE command, then load the file size
-                            if (item.Size == -1) {
-                                long size;
-
-                                if (item.Type == FtpFileSystemObjectType.File && m_caps.HasFlag(FtpCapability.SIZE) && (size = GetFileSize(item.FullName)) >= 0) {
-                                    item.Size = size;
-                                }
-                                else {
-                                    item.Size = 0;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            finally {
-                m_lock.ReleaseMutex();
-            }
-
-            return lst.ToArray();
-        } 
-        */
-
         /// <summary>
         /// Gets a file listing from the server. Each FtpListItem object returned
         /// contains information about the file that was able to be retrieved. If
@@ -1685,7 +1544,7 @@ namespace System.Net.FtpClient {
                 }
 
                 // read in raw file listing
-                using (FtpDataStream stream = OpenDataStream(string.Format("{0} {1}", listcmd, path.GetFtpPath()))) {
+                using (FtpDataStream stream = OpenDataStream(string.Format("{0} {1}", listcmd, path.GetFtpPath()), 0)) {
                     try {
                         string buf = null;
 
@@ -1863,7 +1722,7 @@ namespace System.Net.FtpClient {
                 // problems that would happen if in ASCII.
                 Execute("TYPE I");
 
-                using (FtpDataStream stream = OpenDataStream(string.Format("NLST {0}", path.GetFtpPath()))) {
+                using (FtpDataStream stream = OpenDataStream(string.Format("NLST {0}", path.GetFtpPath()), 0)) {
                     string buf;
 
                     try {
