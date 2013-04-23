@@ -70,7 +70,7 @@ namespace System.Net.FtpClient {
     /// listing from the server.
     /// <code source="..\Examples\GetListing.cs" lang="cs" />
     /// </example>
-    public class FtpClient : IDisposable {
+    public class FtpClient : IDisposable, IFtpClient {
         /// <summary>
         /// Used for internally syncrhonizing access to this
         /// object from multiple threads

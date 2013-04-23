@@ -6,7 +6,7 @@ namespace System.Net.FtpClient {
     /// <summary>
     /// Represents a reply to an event on the server
     /// </summary>
-    public struct FtpReply {
+    public struct FtpReply : IFtpReply {
         /// <summary>
         /// The type of response received from the last command executed
         /// </summary>

@@ -10,7 +10,7 @@ namespace System.Net.FtpClient {
     /// Represents a file system object on the server
     /// </summary>
     /// <example><code source="..\Examples\CustomParser.cs" lang="cs" /></example>
-    public class FtpListItem {
+    public class FtpListItem : IFtpListItem {
         FtpFileSystemObjectType m_type = 0;
         /// <summary>
         /// Gets the type of file system object. This property can be
