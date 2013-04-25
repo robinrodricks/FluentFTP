@@ -1,21 +1,24 @@
 <?xml version="1.0"?>
 <package >
- <metadata>
-   <id>$id$</id>
-   <version>$version$</version>
-   <!--<version>13.01.25.0</version>-->
-   <title>$title$</title>
-   <!--<title>System.Net.FtpClient</title>-->
-   <authors>$author$</authors>
-   <!--<authors>J.P. Trosclair, StrAbz</authors>-->
-   <owners>$author$</owners>
-   <!--<owners>J.P. Trosclair</owners>-->
-   <licenseUrl>https://netftp.codeplex.com/license</licenseUrl>
-   <projectUrl>https://netftp.codeplex.com/</projectUrl>
-   <requireLicenseAcceptance>false</requireLicenseAcceptance>
-   <description>$description$</description>
-   <releaseNotes>Package created.</releaseNotes>
-   <copyright>Copyright 2013 J.P. Trosclair</copyright>
-   <tags>ftp ftps .net ssl tls</tags>
- </metadata>
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>J.P. Trosclair</authors>
+    <owners>J.P. Trosclair</owners>
+    <licenseUrl>https://netftp.codeplex.com/license</licenseUrl>
+    <projectUrl>https://netftp.codeplex.com/</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <copyright>Copyright 2013</copyright>
+    <tags>FTP FTPS .net SSL TLS</tags>
+  </metadata>
+  <files>
+    <file src="..\LICENSE.TXT" target="" />
+    <file src="*.cs" target="source\" />
+    <file src="*.csproj" target="source\" />
+    <file src="..\Sandcastle\Help\System.Net.FtpClient.chm" target="help\" />
+    <file src="..\Examples\*.cs" target="examples\" />
+    <file src="..\Examples\*.csproj" target="examples\" />
+  </files>
 </package>
