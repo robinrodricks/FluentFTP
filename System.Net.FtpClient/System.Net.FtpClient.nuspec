@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package >
+ <metadata>
+   <id>$id$</id>
+   <version>$version$</version>
+   <!--<version>13.01.25.0</version>-->
+   <title>$title$</title>
+   <!--<title>System.Net.FtpClient</title>-->
+   <authors>$author$</authors>
+   <!--<authors>J.P. Trosclair, StrAbz</authors>-->
+   <owners>$author$</owners>
+   <!--<owners>J.P. Trosclair</owners>-->
+   <licenseUrl>https://netftp.codeplex.com/license</licenseUrl>
+   <projectUrl>https://netftp.codeplex.com/</projectUrl>
+   <requireLicenseAcceptance>false</requireLicenseAcceptance>
+   <description>$description$</description>
+   <releaseNotes>Package created.</releaseNotes>
+   <copyright>Copyright 2013 J.P. Trosclair</copyright>
+   <tags>ftp ftps .net ssl tls</tags>
+ </metadata>
+</package>

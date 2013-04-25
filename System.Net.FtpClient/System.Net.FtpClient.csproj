@@ -48,4 +48,7 @@
     <Compile Include="IFtpListItem.cs" />
     <Compile Include="IFtpReply.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="System.Net.FtpClient.nuspec" />
+  </ItemGroup>
 </Project>

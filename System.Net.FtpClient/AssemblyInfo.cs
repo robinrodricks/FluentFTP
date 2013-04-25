@@ -5,11 +5,11 @@ using System.Runtime.CompilerServices;
 // Change them to the values specific to your project.
 
 [assembly: AssemblyTitle("System.Net.FtpClient")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("FTP and FTPS client implementation")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("")]
-[assembly: AssemblyCopyright("jp")]
+[assembly: AssemblyProduct("System.Net.FtpClient")]
+[assembly: AssemblyCopyright("J.P. Trosclair")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
