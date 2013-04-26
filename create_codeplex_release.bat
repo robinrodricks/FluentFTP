@@ -29,6 +29,9 @@ xcopy "Examples\*.csproj" "%release%\examples\"
 xcopy "Sandcastle\Help\System.Net.FtpClient.chm" "%release%\help\"
 xcopy "LICENSE.TXT" "%release%\"
 
-7za.exe a -tzip "%archive%" "%release%\"*
+cd "%release%" 
+7za.exe a -tzip "..\%archive%" *
+cd ..
+rd /s /q "%release%"
 
 pause
