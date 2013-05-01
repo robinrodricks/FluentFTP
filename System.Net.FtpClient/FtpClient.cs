@@ -985,7 +985,7 @@ namespace System.Net.FtpClient {
                     stream.LocalEndPoint.Address.ToString(), stream.LocalEndPoint.Port)).Success) {
                     stream.Close();
                     // if we're connected with IPv4 and the data channel type is AutoActive then try to fall back to the PORT command
-                    if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetwork)
+                    if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetwork)
                         return OpenActiveDataStream(FtpDataConnectionType.PORT, command, restart);
                     throw new FtpCommandException(reply);
                 }
