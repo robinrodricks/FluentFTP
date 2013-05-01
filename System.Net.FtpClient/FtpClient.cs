@@ -983,11 +983,17 @@ namespace System.Net.FtpClient {
 
                 if (!(reply = Execute("EPRT |{0}|{1}|{2}|", ipver,
                     stream.LocalEndPoint.Address.ToString(), stream.LocalEndPoint.Port)).Success) {
-                    stream.Close();
+
                     // if we're connected with IPv4 and the data channel type is AutoActive then try to fall back to the PORT command
-                    if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetwork)
-                        return OpenActiveDataStream(FtpDataConnectionType.PORT, command, restart);
-                    throw new FtpCommandException(reply);
+                        if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetwork) {
+                            stream.ControlConnection = null; // we don't want this failed EPRT attempt to close our control connection when the stream is closed so clear out the reference.
+                            stream.Close();
+                            return OpenActiveDataStream(FtpDataConnectionType.PORT, command, restart);
+                        }
+                        else {
+                            stream.Close();
+                            throw new FtpCommandException(reply);
+                        }
                 }
             }
             else {
