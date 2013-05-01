@@ -874,7 +874,7 @@ namespace System.Net.FtpClient {
             if (type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) {
                 if (!(reply = Execute("EPSV")).Success) {
                     // if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
-                    if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoPassive && m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetwork)
+                    if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoPassive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetwork)
                         return OpenPassiveDataStream(FtpDataConnectionType.PASV, command, restart);
                     throw new FtpCommandException(reply);
                 }
