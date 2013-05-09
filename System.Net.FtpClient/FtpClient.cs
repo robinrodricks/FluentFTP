@@ -521,9 +521,7 @@ namespace System.Net.FtpClient {
                 while ((buf = m_stream.ReadLine(Encoding)) != null) {
                     Match m;
 
-#if DEBUG
-                    Debug.WriteLine(buf);
-#endif
+                    FtpTrace.WriteLine(buf);
 
                     if ((m = Regex.Match(buf, "^(?<code>[0-9]{3}) (?<message>.*)$")).Success) {
                         reply.Code = m.Groups["code"].Value;
@@ -572,23 +570,19 @@ namespace System.Net.FtpClient {
                     byte[] buf = new byte[m_stream.SocketDataAvailable];
 
                     m_stream.RawSocketRead(buf);
-#if DEBUG
-                    Debug.WriteLine("Read stale data off the socket, maybe our connection timed out.");
+
+                    FtpTrace.WriteLine("Read stale data off the socket, maybe our connection timed out.");
 
                     if (!m_stream.IsEncrypted) {
-                        Debug.Write("The data was: ");
-                        Debug.WriteLine(Encoding.GetString(buf).TrimEnd('\r', '\n'));
+                        FtpTrace.Write("The data was: ");
+                        FtpTrace.WriteLine(Encoding.GetString(buf).TrimEnd('\r', '\n'));
                     }
-#endif
                 }
 
                 if (!IsConnected)
                     Connect();
 
-#if DEBUG
-                Debug.WriteLine(command.StartsWith("PASS") ? "PASS <omitted>" : command);
-#endif
-
+                FtpTrace.WriteLine(command.StartsWith("PASS") ? "PASS <omitted>" : command);
                 m_stream.WriteLine(Encoding, command);
                 reply = GetReply();
             }
@@ -810,9 +804,7 @@ namespace System.Net.FtpClient {
                         Execute("QUIT");
                     }
                     catch (IOException e) {
-#if DEBUG
-                        System.Diagnostics.Debug.WriteLine("IOException thrown closing control connectin: " + e.ToString());
-#endif
+                        FtpTrace.WriteLine("IOException thrown closing control connectin: " + e.ToString());
                     }
                     finally {
                         m_stream.Close();
@@ -1061,16 +1053,12 @@ namespace System.Net.FtpClient {
                     switch (type) {
                         case FtpDataConnectionType.PORT:
                             type = FtpDataConnectionType.EPRT;
-#if DEBUG
-                            Debug.WriteLine("Changed data connection type to EPRT because we are connected with IPv6.");
-#endif
+                            FtpTrace.WriteLine("Changed data connection type to EPRT because we are connected with IPv6.");
                             break;
                         case FtpDataConnectionType.PASV:
                         case FtpDataConnectionType.PASVEX:
                             type = FtpDataConnectionType.EPSV;
-#if DEBUG
-                            Debug.WriteLine("Changed data connection type to EPSV because we are connected with IPv6.");
-#endif
+                            FtpTrace.WriteLine("Changed data connection type to EPSV because we are connected with IPv6.");
                             break;
                     }
                 }
@@ -1557,10 +1545,7 @@ namespace System.Net.FtpClient {
                         while ((buf = stream.ReadLine(Encoding)) != null) {
                             if (buf.Length > 0) {
                                 rawlisting.Add(buf);
-
-#if DEBUG
-                                Debug.WriteLine(buf);
-#endif
+                                FtpTrace.WriteLine(buf);
                             }
 
                         }
@@ -1599,10 +1584,8 @@ namespace System.Net.FtpClient {
                         // could not be parsed
                         if (item != null)
                             lst.Add(item);
-#if DEBUG
                         else
-                            Debug.WriteLine("Failed to parse file listing: " + buf);
-#endif
+                            FtpTrace.WriteLine("Failed to parse file listing: " + buf);
                     }
 
                     // load extended information that wasn't available 
@@ -2424,20 +2407,16 @@ namespace System.Net.FtpClient {
                 path = path.GetFtpPath().TrimEnd('/');
 
                 if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
-#if DEBUG
-                    Debug.WriteLine(string.Format(
+                    FtpTrace.WriteLine(string.Format(
                         "CreateDirectory(\"{0}\", {1}): Create non-existent parent: {2}",
                         path, force, path.GetFtpDirectoryName()));
-#endif
                     CreateDirectory(path.GetFtpDirectoryName(), true);
                 }
                 else if (DirectoryExists(path))
                     return;
 
-#if DEBUG
-                Debug.WriteLine(string.Format("CreateDirectory(\"{0}\", {1})",
+                FtpTrace.WriteLine(string.Format("CreateDirectory(\"{0}\", {1})",
                     path.GetFtpPath(), force));
-#endif
 
                 if (!(reply = Execute("MKD {0}", path.GetFtpPath())).Success)
                     throw new FtpCommandException(reply);

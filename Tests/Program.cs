@@ -16,7 +16,8 @@ namespace Tests {
         static readonly string m_pass = "ftptest";
 
         static void Main(string[] args) {
-            Debug.Listeners.Add(new ConsoleTraceListener());
+            //Debug.Listeners.Add(new ConsoleTraceListener());
+            FtpTrace.Add(new ConsoleTraceListener());
 
             try {
                 foreach (int i in new int[] {

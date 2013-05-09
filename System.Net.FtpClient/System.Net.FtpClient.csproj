@@ -45,6 +45,7 @@
     <Compile Include="FtpListItem.cs" />
     <Compile Include="FtpReply.cs" />
     <Compile Include="FtpSocketStream.cs" />
+    <Compile Include="FtpTrace.cs" />
     <Compile Include="IFtpClient.cs" />
     <Compile Include="IFtpListItem.cs" />
     <Compile Include="IFtpReply.cs" />
