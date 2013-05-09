@@ -589,13 +589,31 @@ namespace System.Net.FtpClient {
                 throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
 
             try {
+#if DEBUG
+                DateTime auth_start;
+                TimeSpan auth_time_total;
+#endif
+
                 m_sslStream = new SslStream(NetworkStream, true, new RemoteCertificateValidationCallback(
                     delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
                         return OnValidateCertificate(certificate, chain, sslPolicyErrors);
                     }));
 
+#if DEBUG
+                auth_start = DateTime.Now;
+#endif
+
                 m_sslStream.AuthenticateAsClient(targethost, clientCerts,
                     SslProtocols.Tls | SslProtocols.Ssl2 | SslProtocols.Ssl3, true);
+
+#if DEBUG
+                auth_time_total = DateTime.Now.Subtract(auth_start);
+                Debug.WriteLine("Time to activate encryption: {0}h {1}m {2}s, Total Seconds: {3}.", 
+                    auth_time_total.Hours,
+                    auth_time_total.Minutes,
+                    auth_time_total.Seconds,
+                    auth_time_total.TotalSeconds);
+#endif
             }
             catch (AuthenticationException ex) {
                 // authentication failed and in addition it left our 
