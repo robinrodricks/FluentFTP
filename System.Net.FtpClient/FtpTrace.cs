@@ -20,7 +20,7 @@ namespace System.Net.FtpClient {
         /// System.Diagnostics.TraceListener.
         /// </summary>
         /// <param name="listener">The TraceListener to add to the collection</param>
-        public static void Add(TraceListener listener) {
+        public static void AddListener(TraceListener listener) {
             lock (m_listeners) {
                 m_listeners.Add(listener);
             }
@@ -30,7 +30,7 @@ namespace System.Net.FtpClient {
         /// Remove the specified TraceListener from the collection
         /// </summary>
         /// <param name="listener">The TraceListener to remove from the collection.</param>
-        public static void Remove(TraceListener listener) {
+        public static void RemoveListener(TraceListener listener) {
             lock (m_listeners) {
                 m_listeners.Remove(listener);
             }
@@ -42,14 +42,18 @@ namespace System.Net.FtpClient {
         /// <param name="message">The message to write</param>
         /// <param name="args">Optional variables if using a format string similar to string.Format()</param>
         public static void Write(string message, params object[] args) {
+            TraceListener[] listeners;
+
+            lock (m_listeners) {
+                listeners = m_listeners.ToArray();
+            }
+
 #if DEBUG
             Debug.Write(string.Format(message, args));
 #endif
 
-            lock (m_listeners) {
-                foreach (TraceListener t in m_listeners) {
-                    t.Write(string.Format(message, args));
-                }
+            foreach (TraceListener t in listeners) {
+                t.Write(string.Format(message, args));
             }
         }
 

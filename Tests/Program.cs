@@ -17,7 +17,7 @@ namespace Tests {
 
         static void Main(string[] args) {
             //Debug.Listeners.Add(new ConsoleTraceListener());
-            FtpTrace.Add(new ConsoleTraceListener());
+            FtpTrace.AddListener(new ConsoleTraceListener());
 
             try {
                 foreach (int i in new int[] {

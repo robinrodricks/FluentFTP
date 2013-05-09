@@ -13,7 +13,7 @@ namespace Examples {
         /// Log to a console window
         /// </summary>
         static void LogToConsole() {
-            FtpTrace.Add(new ConsoleTraceListener());
+            FtpTrace.AddListener(new ConsoleTraceListener());
 
             // now use System.Net.FtpCLient as usual and the server transactions
             // will be written to the Console window.
@@ -23,7 +23,7 @@ namespace Examples {
         /// Log to a text file
         /// </summary>
         static void LogToFile() {
-            FtpTrace.Add(new TextWriterTraceListener("log_file.txt"));
+            FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"));
 
             // now use System.Net.FtpCLient as usual and the server transactions
             // will be written to the specified log file.
@@ -47,7 +47,7 @@ namespace Examples {
         /// Log to a custom TraceListener
         /// </summary>
         static void LogToCustomListener() {
-            FtpTrace.Add(new CustomTraceListener());
+            FtpTrace.AddListener(new CustomTraceListener());
         }
     }
 }
