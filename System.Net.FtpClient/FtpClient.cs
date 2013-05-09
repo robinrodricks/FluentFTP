@@ -31,9 +31,7 @@ namespace System.Net.FtpClient {
     /// your TraceListener object or by using one of the pre-existing ones.
     /// </summary>
     /// <example>The following example illustrates how to assist in debugging
-    /// System.Net.FtpClient by getting a transaction log from the server. In
-    /// order for this code to work System.Net.FtpClient must be built with
-    /// #DEBUG defined. Writing the Debug.Listener is omitted from release builds.
+    /// System.Net.FtpClient by getting a transaction log from the server.
     /// <code source="..\Examples\Debug.cs" lang="cs" />
     /// </example>
     /// <example>The following example demonstrates adding a custom file

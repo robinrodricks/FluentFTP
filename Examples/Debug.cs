@@ -4,16 +4,16 @@ using System.Net.FtpClient;
 
 namespace Examples {
     /// <summary>
-    /// Example for logging server transactions for use in debugging problems. In order
-    /// for this feature to work System.Net.FtpClient needs to be built with #DEBUG defined.
-    /// The code that logs to the Debug TraceListener is omitted from release builds.
+    /// Example for logging server transactions for use in debugging problems. If DEBUG
+    /// is defined this information is logged via System.Diagnostics.Debug.Write() as well 
+    /// so you'll the same information in your Visual Studio Output window
     /// </summary>
     public static class DebugExample {
         /// <summary>
         /// Log to a console window
         /// </summary>
         static void LogToConsole() {
-            Debug.Listeners.Add(new ConsoleTraceListener());
+            FtpTrace.Add(new ConsoleTraceListener());
 
             // now use System.Net.FtpCLient as usual and the server transactions
             // will be written to the Console window.
@@ -23,10 +23,10 @@ namespace Examples {
         /// Log to a text file
         /// </summary>
         static void LogToFile() {
-            Debug.Listeners.Add(new TextWriterTraceListener("log_file.txt"));
+            FtpTrace.Add(new TextWriterTraceListener("log_file.txt"));
 
             // now use System.Net.FtpCLient as usual and the server transactions
-            // will be written to the Console window.
+            // will be written to the specified log file.
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Examples {
         /// Log to a custom TraceListener
         /// </summary>
         static void LogToCustomListener() {
-            Debug.Listeners.Add(new CustomTraceListener());
+            FtpTrace.Add(new CustomTraceListener());
         }
     }
 }

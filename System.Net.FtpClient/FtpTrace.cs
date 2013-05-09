@@ -6,6 +6,10 @@ namespace System.Net.FtpClient {
     /// <summary>
     /// Used for transaction logging and debug information.
     /// </summary>
+    /// <example>The following example illustrates how to assist in debugging
+    /// System.Net.FtpClient by getting a transaction log from the server.
+    /// <code source="..\Examples\Debug.cs" lang="cs" />
+    /// </example>
     public static class FtpTrace {
         static List<TraceListener> m_listeners = new List<TraceListener>();
 
