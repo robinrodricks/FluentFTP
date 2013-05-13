@@ -1,14 +1,10 @@
 @echo off
 setlocal
 
-set haszip=0
+set msbuild=C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe
 set year=%DATE:~12,2%
 set month=%DATE:~4,2%
 set day=%DATE:~7,2%
-
-if %month:~0,1% equ 0 set month=%month:~1,1%
-if %day:~0,1% equ 0 set month=%day:~1,1%
-
 set release=System.Net.FtpClient.%year%.%month%.%day%
 set archive=%release%.zip
 
@@ -20,6 +16,9 @@ md "%release%\bin"
 md "%release%\source"
 md "%release%\examples"
 md "%release%\help"
+
+%msbuild% /p:Configuration=Debug System.Net.FtpClient\System.Net.FtpClient.csproj
+%msbuild% /p:Configuration=Release System.Net.FtpClient\System.Net.FtpClient.csproj
 
 xcopy /s "System.Net.FtpClient\bin" "%release%\bin\"
 xcopy "System.Net.FtpClient\*.cs" "%release%\source\"
