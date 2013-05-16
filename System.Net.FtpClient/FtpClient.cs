@@ -652,7 +652,7 @@ namespace System.Net.FtpClient {
                 m_stream.ConnectTimeout = m_connectTimeout;
                 m_stream.SocketPollInterval = m_socketPollInterval;
                 m_stream.Connect(Host, Port);
-                m_stream.SetSocketOption(Sockets.SocketOptionLevel.Socket, 
+                m_stream.SetSocketOption(Sockets.SocketOptionLevel.Socket,
                     Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
                 if (EncryptionMode == FtpEncryptionMode.Implicit)
@@ -975,15 +975,15 @@ namespace System.Net.FtpClient {
                     stream.LocalEndPoint.Address.ToString(), stream.LocalEndPoint.Port)).Success) {
 
                     // if we're connected with IPv4 and the data channel type is AutoActive then try to fall back to the PORT command
-                        if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetwork) {
-                            stream.ControlConnection = null; // we don't want this failed EPRT attempt to close our control connection when the stream is closed so clear out the reference.
-                            stream.Close();
-                            return OpenActiveDataStream(FtpDataConnectionType.PORT, command, restart);
-                        }
-                        else {
-                            stream.Close();
-                            throw new FtpCommandException(reply);
-                        }
+                    if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == Sockets.AddressFamily.InterNetwork) {
+                        stream.ControlConnection = null; // we don't want this failed EPRT attempt to close our control connection when the stream is closed so clear out the reference.
+                        stream.Close();
+                        return OpenActiveDataStream(FtpDataConnectionType.PORT, command, restart);
+                    }
+                    else {
+                        stream.Close();
+                        throw new FtpCommandException(reply);
+                    }
                 }
             }
             else {
@@ -1950,8 +1950,11 @@ namespace System.Net.FtpClient {
             try {
                 m_lock.WaitOne();
 
-                if ((reply = Execute("SIZE {0}", path.GetFtpPath())).Success && !long.TryParse(reply.Message, out length))
-                    length = -1;
+                if (!(reply = Execute("SIZE {0}", path.GetFtpPath())).Success)
+                    return -1;
+
+                if (!long.TryParse(reply.Message, out length))
+                    return -1;
             }
             finally {
                 m_lock.ReleaseMutex();
