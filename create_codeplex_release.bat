@@ -17,6 +17,8 @@ md "%release%\source"
 md "%release%\examples"
 md "%release%\help"
 
+rd /q /s System.Net.FtpClient\bin
+
 %msbuild% /p:Configuration=Debug System.Net.FtpClient\System.Net.FtpClient.csproj
 %msbuild% /p:Configuration=Release System.Net.FtpClient\System.Net.FtpClient.csproj
 
