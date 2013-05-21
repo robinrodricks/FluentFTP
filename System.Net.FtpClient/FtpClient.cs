@@ -1900,8 +1900,12 @@ namespace System.Net.FtpClient {
                 m_lock.ReleaseMutex();
             }
 
-            if (!(m = Regex.Match(reply.Message, "\"(?<pwd>.*)\"")).Success)
-                throw new FtpException("Failed to parse working directory from: " + reply.Message);
+            if (!(m = Regex.Match(reply.Message, "\"(?<pwd>.*)\"")).Success) {
+                // check for MODCOMP ftp path mentioned in forums: https://netftp.codeplex.com/discussions/444461
+                if (!(m = Regex.Match(reply.Message, "PWD = (?<pwd>.*)")).Success) {
+                    throw new FtpException("Failed to parse working directory from: " + reply.Message);
+                }
+            }
 
             return m.Groups["pwd"].Value;
         }

@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.FtpClient;
 using System.Threading;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Tests {
     /// <summary>
@@ -20,7 +21,7 @@ namespace Tests {
             FtpTrace.AddListener(new ConsoleTraceListener());
 
             try {
-                foreach (int i in new int[] {
+                /*foreach (int i in new int[] {
                     (int)FtpDataConnectionType.EPSV,
                     (int)FtpDataConnectionType.EPRT,
                     (int)FtpDataConnectionType.PASV,
@@ -32,7 +33,9 @@ namespace Tests {
                         Download(cl);
                         Delete(cl);
                     }
-                }
+                }*/
+
+                TestMODCOMP_PWD_Parser();
 
                 //TestNameListing();
                 //TestOpenVMSParser();
@@ -131,6 +134,14 @@ namespace Tests {
                     //Console.WriteLine(item);
                 }
             }
+        }
+
+        static void TestMODCOMP_PWD_Parser() {
+            string response = "PWD = ~TNA=AMP,VNA=VOL03,FNA=U-ED-B2-USL";
+            Match m;
+
+            if ((m = Regex.Match(response, "PWD = (?<pwd>.*)")).Success)
+                Console.WriteLine("PWD: {0}", m.Groups["pwd"].Value);
         }
 
         static void TestNameListing() {
