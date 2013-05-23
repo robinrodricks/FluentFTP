@@ -784,8 +784,14 @@ namespace System.Net.FtpClient {
                     m_caps |= FtpCapability.MFCT;
                 else if (feat.ToUpper().Trim().StartsWith("MFF"))
                     m_caps |= FtpCapability.MFF;
+                else if (feat.ToUpper().Trim().StartsWith("MD5")) {
+                    m_caps |= FtpCapability.MD5;
+                    m_hashAlgorithms |= FtpHashAlgorithm.MD5;
+                }
                 else if (feat.ToUpper().Trim().StartsWith("HASH")) {
                     Match m;
+
+                    m_caps |= FtpCapability.HASH;
 
                     if ((m = Regex.Match(feat.ToUpper().Trim(), @"^HASH\s+(?<types>.*)$")).Success) {
                         foreach (string type in m.Groups["types"].Value.Split(';')) {
@@ -2815,12 +2821,11 @@ namespace System.Net.FtpClient {
                     default:
                         throw new NotImplementedException("Unknown hash algorithm: " + m.Groups["algorithm"].Value);
                 }
-
-
+                
                 hash.Value = m.Groups["hash"].Value;
             }
             else {
-                FtpTrace.WriteLine("Failed to parse HASH from: {0}", reply.Message);
+                FtpTrace.WriteLine("Failed to parse hash from: {0}", reply.Message);
             }
 
             return hash;

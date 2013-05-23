@@ -85,7 +85,7 @@ namespace System.Net.FtpClient {
                             hash += b.ToString("x2");
                         }
 
-                        return (hash == m_value);
+                        return (hash.ToUpper() == m_value.ToUpper());
                     }
                 }
                 finally {

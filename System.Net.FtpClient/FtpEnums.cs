@@ -104,7 +104,15 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Server supports the STAT command
         /// </summary>
-        STAT = 512
+        STAT = 512,
+        /// <summary>
+        /// Support for the HASH command
+        /// </summary>
+        HASH = 1024,
+        /// <summary>
+        /// Support for the MD5 command
+        /// </summary>
+        MD5 = 2048
     }
 
     /// <summary>

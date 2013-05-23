@@ -287,6 +287,10 @@ namespace Tests {
                     ostream.Close();
                     istream.Close();
                 }
+
+                if (cl.HashAlgorithms != FtpHashAlgorithm.NONE) {
+                    Debug.Assert(cl.GetHash(s.Replace(root, "")).Verify(s), "The computed hashes don't match!");
+                }
             }
         }
 

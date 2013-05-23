@@ -10,13 +10,14 @@ namespace Examples {
                 cl.Host = "some.ftpserver.on.the.internet.com";
 
                 // If server supports the HASH command then the
-                // FtpClient.HashAlgorithms flags NOT be equal
+                // FtpClient.HashAlgorithms flags will NOT be equal
                 // to FtpHashAlgorithm.NONE. 
                 if (cl.HashAlgorithms != FtpHashAlgorithm.NONE) {
                     FtpHash hash;
 
-                    // Compute the has using whatever the default hash
-                    // algorithm (probably SHA-1) on the server is.
+                    // Ask the server to compute the hash using whatever 
+                    // the default hash algorithm (probably SHA-1) on the 
+                    // server is.
                     hash = cl.GetHash("/path/to/remote/somefile.ext");
 
                     // The FtpHash.Verify method computes the hash of the
