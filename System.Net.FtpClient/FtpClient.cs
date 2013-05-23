@@ -2645,6 +2645,34 @@ namespace System.Net.FtpClient {
             return type;
         }
 
+        delegate FtpHashAlgorithm AsyncGetHashAlgorithm();
+
+        /// <summary>
+        /// Asynchronously get the hash algorithm being used by the HASH command.
+        /// </summary>
+        /// <param name="callback">Async callback</param>
+        /// <param name="state">State object</param>
+        /// <returns>IAsyncResult</returns>
+        public IAsyncResult BeginGetHashAlgorithm(AsyncCallback callback, object state) {
+            AsyncGetHashAlgorithm func;
+            IAsyncResult ar;
+
+            ar = (func = new AsyncGetHashAlgorithm(GetHashAlgorithm)).BeginInvoke(callback, state);
+            lock (m_asyncmethods) {
+                m_asyncmethods.Add(ar, func);
+            }
+
+            return ar;
+        }
+
+        /// <summary>
+        /// Ends a call to BeginGetHashAlgorithm
+        /// </summary>
+        /// <param name="ar">IAsyncResult returned from BeginGetHashAlgorithm</param>
+        public FtpHashAlgorithm EndGetHashAlgorithm(IAsyncResult ar) {
+            return GetAsyncDelegate<AsyncGetHashAlgorithm>(ar).EndInvoke(ar);
+        }
+
         /// <summary>
         /// Tells the server which hash algorith to use
         /// for the HASH command. If you specifiy an 
@@ -2691,6 +2719,35 @@ namespace System.Net.FtpClient {
             finally {
                 m_lock.ReleaseMutex();
             }
+        }
+
+        delegate void AsyncSetHashAlgorithm(FtpHashAlgorithm type);
+
+        /// <summary>
+        /// Asynchronously sets the hash algorithm type to be used with the HASH command.
+        /// </summary>
+        /// <param name="type">Hash algorithm to use</param>
+        /// <param name="callback">Async Callback</param>
+        /// <param name="state">State object</param>
+        /// <returns>IAsyncResult</returns>
+        public IAsyncResult BeginSetHashAlgorithm(FtpHashAlgorithm type, AsyncCallback callback, object state) {
+            AsyncSetHashAlgorithm func;
+            IAsyncResult ar;
+
+            ar = (func = new AsyncSetHashAlgorithm(SetHashAlgorithm)).BeginInvoke(type, callback, state);
+            lock (m_asyncmethods) {
+                m_asyncmethods.Add(ar, func);
+            }
+
+            return ar;
+        }
+
+        /// <summary>
+        /// Ends an asynchronous call to BeginSetHashAlgorithm
+        /// </summary>
+        /// <param name="ar">IAsyncResult returned from BeginSetHashAlgorithm</param>
+        public void EndSetHashAlgorithm(IAsyncResult ar) {
+            GetAsyncDelegate<AsyncSetHashAlgorithm>(ar).EndInvoke(ar);
         }
 
         /// <summary>
@@ -2764,6 +2821,35 @@ namespace System.Net.FtpClient {
             }
 
             return hash;
+        }
+
+        delegate FtpHash AsyncGetHash(string path);
+
+        /// <summary>
+        /// Asynchronously retrieves the hash for the specified file
+        /// </summary>
+        /// <param name="path">The file you want the server to compute the hash for</param>
+        /// <param name="callback">AsyncCallback</param>
+        /// <param name="state">State object</param>
+        /// <returns></returns>
+        public IAsyncResult BeginGetHash(string path, AsyncCallback callback, object state) {
+            AsyncGetHash func;
+            IAsyncResult ar;
+
+            ar = (func = new AsyncGetHash(GetHash)).BeginInvoke(path, callback, state);
+            lock (m_asyncmethods) {
+                m_asyncmethods.Add(ar, func);
+            }
+
+            return ar;
+        }
+
+        /// <summary>
+        /// Ends an asynchronous call to BeginGetHash
+        /// </summary>
+        /// <param name="ar">IAsyncResult returned from BeginGetHash</param>
+        public void EndGetHash(IAsyncResult ar) {
+            GetAsyncDelegate<AsyncGetHash>(ar).EndInvoke(ar);
         }
 
         /// <summary>

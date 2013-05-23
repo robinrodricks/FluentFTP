@@ -738,5 +738,69 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="ar"></param>
         void EndSetWorkingDirectory(IAsyncResult ar);
+
+        /// <summary>
+        /// Added for the MoQ unit testing framework
+        /// </summary>
+        /// <returns></returns>
+        FtpHashAlgorithm GetHashAlgorithm();
+
+        /// <summary>
+        /// Added for the MoQ unit testing framework
+        /// </summary>
+        /// <param name="callback"></param>
+        /// <param name="state"></param>
+        /// <returns></returns>
+        IAsyncResult BeginGetHashAlgorithm(AsyncCallback callback, object state);
+        
+        /// <summary>
+        /// Added for the MoQ unit testing framework
+        /// </summary>
+        /// <param name="ar"></param>
+        /// <returns></returns>
+        FtpHashAlgorithm EndGetHashAlgorithm(IAsyncResult ar);
+        
+        /// <summary>
+        /// Added for the MoQ unit testing framework
+        /// </summary>
+        /// <param name="type"></param>
+        void SetHashAlgorithm(FtpHashAlgorithm type);
+
+        /// <summary>
+        /// Added for the MoQ unit testing framework
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="callback"></param>
+        /// <param name="state"></param>
+        /// <returns></returns>
+        IAsyncResult BeginSetHashAlgorithm(FtpHashAlgorithm type, AsyncCallback callback, object state);
+
+        /// <summary>
+        /// Added for the MoQ unit testing framework
+        /// </summary>
+        /// <param name="ar"></param>
+        void EndSetHashAlgorithm(IAsyncResult ar);
+       
+        /// <summary>
+        /// Added for the MoQ unit testing framework
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        FtpHash GetHash(string path);
+
+        /// <summary>
+        /// Added for the MoQ unit testing framework
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="callback"></param>
+        /// <param name="state"></param>
+        /// <returns></returns>
+        IAsyncResult BeginGetHash(string path, AsyncCallback callback, object state);
+
+        /// <summary>
+        /// Added for the MoQ unit testing framework
+        /// </summary>
+        /// <param name="ar"></param>
+        void EndGetHash(IAsyncResult ar);
     }
 }
