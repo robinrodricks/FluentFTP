@@ -38,9 +38,9 @@ namespace Tests {
 
                 //TestMODCOMP_PWD_Parser();
                 //TestDispose();
-                TestHash();
+                //TestHash();
 
-                //TestNameListing();
+                TestNameListing();
                 //TestOpenVMSParser();
                 // TestIISParser();
                 //GetMicrosoftFTPListing();
@@ -197,7 +197,7 @@ namespace Tests {
                 //Console.WriteLine("Sleeping for 10 seconds to force timeout.");
                 //Thread.Sleep(10000);
 
-                foreach (FtpListItem item in cl.GetListing(null, FtpListOption.SizeModify | FtpListOption.ForceList)) {
+                foreach (FtpListItem item in cl.GetListing("./", FtpListOption.SizeModify | FtpListOption.ForceNameList)) {
                     Console.WriteLine(item.Modified.Kind);
                     Console.WriteLine(item.Modified);
                 }

@@ -1571,8 +1571,13 @@ namespace System.Net.FtpClient {
             try {
                 m_lock.WaitOne();
 
-                if (path == null || path.Trim().Length == 0)
+                if (string.IsNullOrEmpty(path) && string.IsNullOrWhiteSpace(path))
                     path = GetWorkingDirectory();
+
+                // if we still don't have a path then assign one
+                // relative to the current working directory
+                if (string.IsNullOrEmpty(path) && string.IsNullOrWhiteSpace(path))
+                    path = "./";
 
                 // always get the file listing in binary
                 // to avoid any potential character translation
@@ -1620,7 +1625,7 @@ namespace System.Net.FtpClient {
                     string buf = rawlisting[i];
                     FtpListItem item = null;
 
-                    if (listcmd == "NLST") {
+                    if (options.HasFlag(FtpListOption.NameList)) {
                         // if NLST was used we only have a file name so
                         // there is nothing to parse.
                         item = new FtpListItem() {
@@ -1764,8 +1769,13 @@ namespace System.Net.FtpClient {
             try {
                 m_lock.WaitOne();
 
-                if (path == null || path.Trim().Length == 0)
+                if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
                     path = GetWorkingDirectory();
+
+                // if there is still no path then assign one
+                // relative to the working directory
+                if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
+                    path = "./";
 
                 // always get the file listing in binary
                 // to avoid any potential character translation
@@ -1947,7 +1957,7 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Gets the current working directory
         /// </summary>
-        /// <returns>The current working directory</returns>
+        /// <returns>The current working directory, ./ if the response couldn't be parsed.</returns>
         /// <example><code source="..\Examples\GetWorkingDirectory.cs" lang="cs" /></example>
         public string GetWorkingDirectory() {
             FtpReply reply;
@@ -1963,14 +1973,18 @@ namespace System.Net.FtpClient {
                 m_lock.ReleaseMutex();
             }
 
-            if (!(m = Regex.Match(reply.Message, "\"(?<pwd>.*)\"")).Success) {
-                // check for MODCOMP ftp path mentioned in forums: https://netftp.codeplex.com/discussions/444461
-                if (!(m = Regex.Match(reply.Message, "PWD = (?<pwd>.*)")).Success) {
-                    throw new FtpException("Failed to parse working directory from: " + reply.Message);
-                }
+            if ((m = Regex.Match(reply.Message, "\"(?<pwd>.*)\"")).Success) {
+                return m.Groups["pwd"].Value;
             }
 
-            return m.Groups["pwd"].Value;
+            // check for MODCOMP ftp path mentioned in forums: https://netftp.codeplex.com/discussions/444461
+            if ((m = Regex.Match(reply.Message, "PWD = (?<pwd>.*)")).Success) {
+                return m.Groups["pwd"].Value;
+            }
+
+            FtpTrace.WriteLine("Failed to parse working directory from: " + reply.Message);
+
+            return "./";
         }
 
         delegate string AsyncGetWorkingDirectory();
@@ -2713,7 +2727,7 @@ namespace System.Net.FtpClient {
 
             // Current draft says the server should return this:
             // SHA-256 0-49 169cd22282da7f147cb491e559e9dd filename.ext
-            if (!(m = Regex.Match(reply.Message, 
+            if (!(m = Regex.Match(reply.Message,
                     @"(?<algorithm>.+)\s" +
                     @"(?<bytestart>\d+)-(?<byteend>\d+)\s" +
                     @"(?<hash>.+)\s" +
@@ -2721,7 +2735,7 @@ namespace System.Net.FtpClient {
 
                 // Current version of FileZilla returns this:
                 // SHA-1 21c2ca15cf570582949eb59fb78038b9c27ffcaf 
-                        m = Regex.Match(reply.Message, @"(?<algorithm>.+)\s(?<hash>.+)\s");
+                m = Regex.Match(reply.Message, @"(?<algorithm>.+)\s(?<hash>.+)\s");
             }
 
             if (m != null && m.Success) {
