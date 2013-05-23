@@ -472,13 +472,9 @@ namespace System.Net.FtpClient {
             Write(data, 0, data.Length);
         }
 
-        /// <summary>
-        /// Does nothing. Call Disconnect() to close the connection and free
-        /// the resources being occupied by this object.
-        /// </summary>
-        /// <param name="disposing">Indicates if the stream is disposing</param>
-        protected override void Dispose(bool disposing) {
-            base.Dispose(disposing);
+        public new void Dispose() {
+            FtpTrace.WriteLine("Disposing FtpSocketStream...");
+            Close();
         }
 
         /// <summary>

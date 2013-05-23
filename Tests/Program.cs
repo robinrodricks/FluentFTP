@@ -35,7 +35,8 @@ namespace Tests {
                     }
                 }*/
 
-                TestMODCOMP_PWD_Parser();
+                //TestMODCOMP_PWD_Parser();
+                TestDispose();
 
                 //TestNameListing();
                 //TestOpenVMSParser();
@@ -49,6 +50,21 @@ namespace Tests {
 
             Console.WriteLine("--DONE--");
             Console.ReadKey();
+        }
+
+        static void TestDispose() {
+            using (FtpClient cl = new FtpClient()) {
+                cl.Credentials = new NetworkCredential("ftptest", "ftptest");
+                cl.Host = "localhost";
+                cl.Connect();
+
+                // FTP server set to timeout after 5 seconds.
+                Thread.Sleep(6000);
+
+                foreach(FtpListItem item in cl.GetListing()) {
+
+                }
+            }
         }
 
         static void TestReset() {

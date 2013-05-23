@@ -561,24 +561,32 @@ namespace System.Net.FtpClient {
                 m_lock.WaitOne();
 
                 if (m_stream != null && m_stream.SocketDataAvailable > 0) {
-                    // Data should be on the socket, if it is it probably
+                    // Data shouldn't be on the socket, if it is it probably
                     // means we've been disconnected. Read and discard
-                    // whatever is there to increase the reliability of
-                    // of the connection test with Poll() in FtpSocketStream.IsConnected
-                    byte[] buf = new byte[m_stream.SocketDataAvailable];
+                    // whatever is there and close the connection.
 
-                    m_stream.RawSocketRead(buf);
-
-                    FtpTrace.WriteLine("Read stale data off the socket, maybe our connection timed out.");
-
-                    if (!m_stream.IsEncrypted) {
+                    FtpTrace.WriteLine("There is stale data on the socket, maybe our connection timed out. Re-connecting.");
+                    if (m_stream.IsConnected && !m_stream.IsEncrypted) {
+                        byte[] buf = new byte[m_stream.SocketDataAvailable];
+                        m_stream.RawSocketRead(buf);
                         FtpTrace.Write("The data was: ");
                         FtpTrace.WriteLine(Encoding.GetString(buf).TrimEnd('\r', '\n'));
                     }
+
+                    m_stream.Close();
                 }
 
-                if (!IsConnected)
+                if (!IsConnected) {
+                    if (command == "QUIT") {
+                        FtpTrace.WriteLine("Not sending QUIT because the connection has already been closed.");
+                        return new FtpReply() {
+                            Code = "200",
+                            Message = "Connection already closed."
+                        };
+                    }
+
                     Connect();
+                }
 
                 FtpTrace.WriteLine(command.StartsWith("PASS") ? "PASS <omitted>" : command);
                 m_stream.WriteLine(Encoding, command);
@@ -802,7 +810,7 @@ namespace System.Net.FtpClient {
                         Execute("QUIT");
                     }
                     catch (IOException e) {
-                        FtpTrace.WriteLine("IOException thrown closing control connectin: " + e.ToString());
+                        FtpTrace.WriteLine("IOException thrown and disgarded when closing control connection: " + e.Message);
                     }
                     finally {
                         m_stream.Close();
@@ -2535,9 +2543,15 @@ namespace System.Net.FtpClient {
         /// object.
         /// </summary>
         public void Dispose() {
+            FtpTrace.WriteLine("Disposing FtpClient object...");
+
+            if (IsConnected) {
+                Disconnect();
+            }
+
             if (m_stream != null) {
-                if (m_stream.IsConnected)
-                    m_stream.Close();
+                /*if (m_stream.IsConnected)
+                    m_stream.Close();*/
                 m_stream.Dispose();
                 m_stream = null;
             }
