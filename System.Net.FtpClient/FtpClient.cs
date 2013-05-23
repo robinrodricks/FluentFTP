@@ -335,7 +335,7 @@ namespace System.Net.FtpClient {
         /// adjusted in real-time. The value is stored and the KeepAlive option is set
         /// accordingly upon any new connections. The value set here is also applied to
         /// all future data streams. It has no affect on cloned control connections or
-        /// data connections already in progress.
+        /// data connections already in progress. The default value is false.
         /// </summary>
         [FtpControlConnectionClone]
         public bool SocketKeepAlive {
@@ -353,6 +353,7 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Gets the server capabilties represented by flags
         /// </summary>
+        [FtpControlConnectionClone]
         public FtpCapability Capabilities {
             get {
                 if (m_stream == null || !m_stream.IsConnected) {
@@ -363,6 +364,27 @@ namespace System.Net.FtpClient {
             }
             private set {
                 m_caps = value;
+            }
+        }
+
+        FtpHashAlgorithm m_hashAlgorithms = FtpHashAlgorithm.NONE;
+        /// <summary>
+        /// Get the hash types supported by the server, if any. This
+        /// is a recent extension to the protocol that is not fully
+        /// standardized and is not guarateed to work. See here for
+        /// more details:
+        /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
+        /// </summary>
+        public FtpHashAlgorithm HashAlgorithms {
+            get {
+                if (m_stream == null || !m_stream.IsConnected) {
+                    Connect();
+                }
+
+                return m_hashAlgorithms;
+            }
+            private set {
+                m_hashAlgorithms = value;
             }
         }
 
@@ -657,6 +679,7 @@ namespace System.Net.FtpClient {
 
                 m_textEncoding = Encoding.Default;
                 m_caps = FtpCapability.NONE;
+                m_hashAlgorithms = FtpHashAlgorithm.NONE;
                 m_stream.ConnectTimeout = m_connectTimeout;
                 m_stream.SocketPollInterval = m_socketPollInterval;
                 m_stream.Connect(Host, Port);
@@ -694,8 +717,14 @@ namespace System.Net.FtpClient {
                     Authenticate();
                 }
 
-                if ((reply = Execute("FEAT")).Success && reply.InfoMessages != null) {
-                    GetFeatures(reply);
+                // if this is a clone these values
+                // should have already been loaded
+                // so save some bandwidth and CPU
+                // time and skip executing this again.
+                if (!IsClone) {
+                    if ((reply = Execute("FEAT")).Success && reply.InfoMessages != null) {
+                        GetFeatures(reply);
+                    }
                 }
 
                 // Enable UTF8 if it's available
@@ -755,6 +784,32 @@ namespace System.Net.FtpClient {
                     m_caps |= FtpCapability.MFCT;
                 else if (feat.ToUpper().Trim().StartsWith("MFF"))
                     m_caps |= FtpCapability.MFF;
+                else if (feat.ToUpper().Trim().StartsWith("HASH")) {
+                    Match m;
+
+                    if ((m = Regex.Match(feat.ToUpper().Trim(), @"^HASH\s+(?<types>.*)$")).Success) {
+                        foreach (string type in m.Groups["types"].Value.Split(';')) {
+                            switch (type.Trim()) {
+                                case "SHA-1":
+                                case "SHA-1*":
+                                    m_hashAlgorithms |= FtpHashAlgorithm.SHA1;
+                                    break;
+                                case "SHA-256":
+                                case "SHA-256*":
+                                    m_hashAlgorithms |= FtpHashAlgorithm.SHA256;
+                                    break;
+                                case "SHA-512":
+                                case "SHA-512*":
+                                    m_hashAlgorithms |= FtpHashAlgorithm.SHA512;
+                                    break;
+                                case "MD5":
+                                case "MD5*":
+                                    m_hashAlgorithms |= FtpHashAlgorithm.MD5;
+                                    break;
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -2536,6 +2591,165 @@ namespace System.Net.FtpClient {
         /// <example><code source="..\Examples\BeginRename.cs" lang="cs" /></example>
         public void EndRename(IAsyncResult ar) {
             GetAsyncDelegate<AsyncRename>(ar).EndInvoke(ar);
+        }
+
+        /// <summary>
+        /// Gets the currently selected hash algorith for the HASH
+        /// command. This feature is experimental. See this link
+        /// for details:
+        /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
+        /// </summary>
+        /// <returns>The FtpHashType flag or FtpHashType.NONE if there was a problem.</returns>
+        public FtpHashAlgorithm GetHashAlgorithm() {
+            FtpReply reply;
+            FtpHashAlgorithm type = FtpHashAlgorithm.NONE;
+
+            try {
+                m_lock.WaitOne();
+
+                if ((reply = Execute("OPTS HASH")).Success) {
+                    switch (reply.Message) {
+                        case "SHA-1":
+                            type = FtpHashAlgorithm.SHA1;
+                            break;
+                        case "SHA-256":
+                            type = FtpHashAlgorithm.SHA256;
+                            break;
+                        case "SHA-512":
+                            type = FtpHashAlgorithm.SHA512;
+                            break;
+                        case "MD5":
+                            type = FtpHashAlgorithm.MD5;
+                            break;
+                    }
+                }
+            }
+            finally {
+                m_lock.ReleaseMutex();
+            }
+
+            return type;
+        }
+
+        /// <summary>
+        /// Tells the server which hash algorith to use
+        /// for the HASH command. If you specifiy an 
+        /// algorithm not listed in FtpClient.HashTypes
+        /// a NotImplemented() exectpion will be thrown
+        /// so be sure to query that list of Flags before
+        /// selecting a hash algorithm. Support for the
+        /// HASH command is experimental. Please see
+        /// the following link for more details:
+        /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
+        /// </summary>
+        /// <param name="type">Hash Algorithm</param>
+        public void SetHashAlgorithm(FtpHashAlgorithm type) {
+            FtpReply reply;
+            string algorithm;
+
+            try {
+                m_lock.WaitOne();
+
+                if (!HashAlgorithms.HasFlag(type))
+                    throw new NotImplementedException(string.Format("The hash algorithm {0} was not advertised by the server.", type.ToString()));
+
+                switch (type) {
+                    case FtpHashAlgorithm.SHA1:
+                        algorithm = "SHA-1";
+                        break;
+                    case FtpHashAlgorithm.SHA256:
+                        algorithm = "SHA-256";
+                        break;
+                    case FtpHashAlgorithm.SHA512:
+                        algorithm = "SHA-512";
+                        break;
+                    case FtpHashAlgorithm.MD5:
+                        algorithm = "MD5";
+                        break;
+                    default:
+                        algorithm = type.ToString();
+                        break;
+                }
+
+                if (!(reply = Execute("OPTS HASH {0}", algorithm)).Success)
+                    throw new FtpCommandException(reply);
+            }
+            finally {
+                m_lock.ReleaseMutex();
+            }
+        }
+
+        /// <summary>
+        /// Gets the hash of an object on the server using the
+        /// currently selected hash algorithm. Supported
+        /// algorithms, if any, are available in the HashAlgorithms
+        /// property. You should confirm that it's not equal
+        /// to FtpHashAlgorithm.NONE before calling this method
+        /// otherwise the server trigger a FtpCommandException()
+        /// due to a lack of support for the HASH command. You can
+        /// set the algorithm using the SetHashAlgorithm() method and
+        /// you can query the server for the current hash algorithm
+        /// using the GetHashAlgorithm() method.
+        /// 
+        /// This feature is experimental and based on the following draft:
+        /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
+        /// </summary>
+        /// <param name="path">Full or relative path of the object to compute the hash for.</param>
+        /// <returns>The hash of the file.</returns>
+        public FtpHash GetHash(string path) {
+            FtpReply reply;
+            FtpHash hash = new FtpHash();
+            Match m;
+
+            try {
+                m_lock.WaitOne();
+
+                if (!(reply = Execute("HASH {0}", path)).Success)
+                    throw new FtpCommandException(reply);
+            }
+            finally {
+                m_lock.ReleaseMutex();
+            }
+
+            // Current draft says the server should return this:
+            // SHA-256 0-49 169cd22282da7f147cb491e559e9dd filename.ext
+            if (!(m = Regex.Match(reply.Message, 
+                    @"(?<algorithm>.+)\s" +
+                    @"(?<bytestart>\d+)-(?<byteend>\d+)\s" +
+                    @"(?<hash>.+)\s" +
+                    @"(?<filename>.+)")).Success) {
+
+                // Current version of FileZilla returns this:
+                // SHA-1 21c2ca15cf570582949eb59fb78038b9c27ffcaf 
+                        m = Regex.Match(reply.Message, @"(?<algorithm>.+)\s(?<hash>.+)\s");
+            }
+
+            if (m != null && m.Success) {
+                switch (m.Groups["algorithm"].Value) {
+                    case "SHA-1":
+                        hash.Algorithm = FtpHashAlgorithm.SHA1;
+                        break;
+                    case "SHA-256":
+                        hash.Algorithm = FtpHashAlgorithm.SHA256;
+                        break;
+                    case "SHA-512":
+                        hash.Algorithm = FtpHashAlgorithm.SHA512;
+                        break;
+                    case "MD5":
+                        hash.Algorithm = FtpHashAlgorithm.MD5;
+                        break;
+                    default:
+                        throw new NotImplementedException("Unknown hash algorithm: " + m.Groups["algorithm"].Value);
+                }
+
+
+                hash.Value = m.Groups["hash"].Value;
+            }
+            else {
+                FtpTrace.WriteLine("Failed to parse HASH from: {0}", reply.Message);
+            }
+
+            return hash;
         }
 
         /// <summary>

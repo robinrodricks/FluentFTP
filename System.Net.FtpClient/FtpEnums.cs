@@ -108,6 +108,34 @@ namespace System.Net.FtpClient {
     }
 
     /// <summary>
+    /// Algorithms supported by the HASH command; see
+    /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
+    /// </summary>
+    [Flags]
+    public enum FtpHashAlgorithm : int {
+        /// <summary>
+        /// HASH command is not supported
+        /// </summary>
+        NONE = 0,
+        /// <summary>
+        /// SHA-1
+        /// </summary>
+        SHA1 = 1,
+        /// <summary>
+        /// SHA-256
+        /// </summary>
+        SHA256 = 2,
+        /// <summary>
+        /// SHA-512
+        /// </summary>
+        SHA512 = 4,
+        /// <summary>
+        /// MD5
+        /// </summary>
+        MD5 = 8
+    }
+
+    /// <summary>
     /// Data connection type
     /// </summary>
     public enum FtpDataConnectionType {

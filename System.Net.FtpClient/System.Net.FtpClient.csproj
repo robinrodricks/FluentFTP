@@ -42,6 +42,7 @@
     <Compile Include="FtpEnums.cs" />
     <Compile Include="FtpExceptions.cs" />
     <Compile Include="FtpExtensions.cs" />
+    <Compile Include="FtpHash.cs" />
     <Compile Include="FtpListItem.cs" />
     <Compile Include="FtpReply.cs" />
     <Compile Include="FtpSocketStream.cs" />

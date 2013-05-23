@@ -6,6 +6,7 @@ using System.Net.FtpClient;
 using System.Threading;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace Tests {
     /// <summary>
@@ -36,12 +37,13 @@ namespace Tests {
                 }*/
 
                 //TestMODCOMP_PWD_Parser();
-                TestDispose();
+                //TestDispose();
+                TestHash();
 
                 //TestNameListing();
                 //TestOpenVMSParser();
-               // TestIISParser();
-               //GetMicrosoftFTPListing();
+                // TestIISParser();
+                //GetMicrosoftFTPListing();
                 //TestReset();
             }
             catch (Exception ex) {
@@ -57,12 +59,29 @@ namespace Tests {
                 cl.Credentials = new NetworkCredential("ftptest", "ftptest");
                 cl.Host = "localhost";
                 cl.Connect();
-
                 // FTP server set to timeout after 5 seconds.
-                Thread.Sleep(6000);
+                //Thread.Sleep(6000);
 
-                foreach(FtpListItem item in cl.GetListing()) {
+                foreach (FtpListItem item in cl.GetListing()) {
 
+                }
+            }
+        }
+
+        static void TestHash() {
+            using (FtpClient cl = new FtpClient()) {
+                cl.Credentials = new NetworkCredential("ftptest", "ftptest");
+                cl.Host = "localhost";
+                cl.Connect();
+
+                Console.WriteLine("Supported HASH algorithms: {0}", cl.HashAlgorithms);
+                Console.WriteLine("Current HASH algorithm: {0}", cl.GetHashAlgorithm());
+
+                foreach (FtpHashAlgorithm alg in Enum.GetValues(typeof(FtpHashAlgorithm))) {
+                    if (alg != FtpHashAlgorithm.NONE && cl.HashAlgorithms.HasFlag(alg)) {
+                        cl.SetHashAlgorithm(alg);
+                        cl.GetHash("LICENSE.TXT");
+                    }
                 }
             }
         }
@@ -163,12 +182,12 @@ namespace Tests {
         static void TestNameListing() {
             using (FtpClient cl = new FtpClient()) {
                 cl.Credentials = new NetworkCredential(m_user, m_pass);
-                cl.Host = m_host; 
+                cl.Host = m_host;
                 cl.ValidateCertificate += OnValidateCertificate;
                 //cl.EncryptionMode = FtpEncryptionMode.Explicit;
                 //cl.SocketPollInterval = 5000;
                 cl.Connect();
-                
+
                 //Console.WriteLine("Sleeping for 10 seconds to force timeout.");
                 //Thread.Sleep(10000);
 
