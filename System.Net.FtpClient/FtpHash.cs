@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Security.Cryptography;
 
 namespace System.Net.FtpClient {
     /// <summary>
@@ -24,6 +26,75 @@ namespace System.Net.FtpClient {
         public string Value {
             get { return m_value; }
             internal set { m_value = value; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating if this object represents a
+        /// valid hash response from the server.
+        /// </summary>
+        public bool IsValid {
+            get { return m_algorithm != FtpHashAlgorithm.NONE && !string.IsNullOrEmpty(m_value); }
+        }
+
+        /// <summary>
+        /// Computes the hash for the specified file and compares
+        /// it to the value in this object.
+        /// </summary>
+        /// <param name="file">The file to compute the hash for</param>
+        /// <returns>True if the computed hash matches what's stored in this object.</returns>
+        public bool Verify(string file) {
+            using (FileStream istream = new FileStream(file, FileMode.Open, FileAccess.Read)) {
+                return Verify(istream);
+            }
+        }
+
+        /// <summary>
+        /// Computes the hash for the specified stream and compares
+        /// it to the value in this object.
+        /// </summary>
+        /// <param name="istream">The stream to compute the hash for</param>
+        /// <returns>True if the computed hash matches what's stored in this object.</returns>
+        public bool Verify(Stream istream) {
+            if (IsValid) {
+                HashAlgorithm hashAlg = null;
+
+                switch (m_algorithm) {
+                    case FtpHashAlgorithm.SHA1:
+                        hashAlg = new SHA1CryptoServiceProvider();
+                        break;
+                    case FtpHashAlgorithm.SHA256:
+                        hashAlg = new SHA256CryptoServiceProvider();
+                        break;
+                    case FtpHashAlgorithm.SHA512:
+                        hashAlg = new SHA512CryptoServiceProvider();
+                        break;
+                    case FtpHashAlgorithm.MD5:
+                        hashAlg = new MD5CryptoServiceProvider();
+                        break;
+                    default:
+                        throw new NotImplementedException("Unknown hash algorithm: " + m_algorithm.ToString());
+                }
+
+                try {
+                    byte[] data = null;
+                    string hash = "";
+
+                    data = hashAlg.ComputeHash(istream);
+                    if (data != null) {
+                        foreach (byte b in data) {
+                            hash += b.ToString("x2");
+                        }
+
+                        return (hash == m_value);
+                    }
+                }
+                finally {
+                    if (hashAlg != null)
+                        hashAlg.Dispose();
+                }
+            }
+
+            return false;
         }
 
         /// <summary>

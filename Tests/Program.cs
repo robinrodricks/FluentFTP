@@ -79,8 +79,14 @@ namespace Tests {
 
                 foreach (FtpHashAlgorithm alg in Enum.GetValues(typeof(FtpHashAlgorithm))) {
                     if (alg != FtpHashAlgorithm.NONE && cl.HashAlgorithms.HasFlag(alg)) {
+                        FtpHash hash = null;
+
                         cl.SetHashAlgorithm(alg);
-                        cl.GetHash("LICENSE.TXT");
+                        hash = cl.GetHash("LICENSE.TXT");
+
+                        if (hash.IsValid) {
+                            Debug.Assert(hash.Verify(@"C:\FTPTEST\LICENSE.TXT"), "The computed hash didn't match or the hash object was invalid!");
+                        }
                     }
                 }
             }
