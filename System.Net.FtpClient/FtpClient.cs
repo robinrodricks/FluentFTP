@@ -2614,6 +2614,7 @@ namespace System.Net.FtpClient {
         /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
         /// </summary>
         /// <returns>The FtpHashType flag or FtpHashType.NONE if there was a problem.</returns>
+        /// <example><code source="..\Examples\GetHashAlgorithm.cs" lang="cs" /></example>
         public FtpHashAlgorithm GetHashAlgorithm() {
             FtpReply reply;
             FtpHashAlgorithm type = FtpHashAlgorithm.NONE;
@@ -2685,6 +2686,7 @@ namespace System.Net.FtpClient {
         /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
         /// </summary>
         /// <param name="type">Hash Algorithm</param>
+        /// <example><code source="..\Examples\SetHashAlgorithm.cs" lang="cs" /></example>
         public void SetHashAlgorithm(FtpHashAlgorithm type) {
             FtpReply reply;
             string algorithm;
@@ -2767,6 +2769,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="path">Full or relative path of the object to compute the hash for.</param>
         /// <returns>The hash of the file.</returns>
+        /// <example><code source="..\Examples\GetHash.cs" lang="cs" /></example>
         public FtpHash GetHash(string path) {
             FtpReply reply;
             FtpHash hash = new FtpHash();
@@ -2831,7 +2834,7 @@ namespace System.Net.FtpClient {
         /// <param name="path">The file you want the server to compute the hash for</param>
         /// <param name="callback">AsyncCallback</param>
         /// <param name="state">State object</param>
-        /// <returns></returns>
+        /// <returns>IAsyncResult</returns>
         public IAsyncResult BeginGetHash(string path, AsyncCallback callback, object state) {
             AsyncGetHash func;
             IAsyncResult ar;
