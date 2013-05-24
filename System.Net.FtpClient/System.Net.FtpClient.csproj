@@ -37,6 +37,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Extensions\GetChecksum.cs" />
     <Compile Include="Extensions\MD5.cs" />
     <Compile Include="FtpClient.cs" />
     <Compile Include="FtpDataStream.cs" />

@@ -803,7 +803,7 @@ namespace System.Net.FtpClient {
 
                     if ((m = Regex.Match(feat.ToUpper().Trim(), @"^HASH\s+(?<types>.*)$")).Success) {
                         foreach (string type in m.Groups["types"].Value.Split(';')) {
-                            switch (type.Trim()) {
+                            switch (type.ToUpper().Trim()) {
                                 case "SHA-1":
                                 case "SHA-1*":
                                     m_hashAlgorithms |= FtpHashAlgorithm.SHA1;
@@ -819,6 +819,10 @@ namespace System.Net.FtpClient {
                                 case "MD5":
                                 case "MD5*":
                                     m_hashAlgorithms |= FtpHashAlgorithm.MD5;
+                                    break;
+                                case "CRC":
+                                case "CRC*":
+                                    m_hashAlgorithms |= FtpHashAlgorithm.CRC;
                                     break;
                             }
                         }

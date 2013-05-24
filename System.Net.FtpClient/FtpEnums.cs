@@ -136,8 +136,7 @@ namespace System.Net.FtpClient {
     }
 
     /// <summary>
-    /// Algorithms supported by the HASH command; see
-    /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
+    /// Different types of hashing algorithms for computing checksums.
     /// </summary>
     [Flags]
     public enum FtpHashAlgorithm : int {
@@ -160,7 +159,11 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// MD5
         /// </summary>
-        MD5 = 8
+        MD5 = 8,
+        /// <summary>
+        /// CRC
+        /// </summary>
+        CRC = 16
     }
 
     /// <summary>

@@ -60,6 +60,7 @@
     <Compile Include="DirectoryExists.cs" />
     <Compile Include="Execute.cs" />
     <Compile Include="FileExists.cs" />
+    <Compile Include="GetChecksum.cs" />
     <Compile Include="GetFileSize.cs" />
     <Compile Include="GetHash.cs" />
     <Compile Include="GetHashAlgorithm.cs" />

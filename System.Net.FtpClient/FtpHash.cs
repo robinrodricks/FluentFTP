@@ -38,7 +38,11 @@ namespace System.Net.FtpClient {
 
         /// <summary>
         /// Computes the hash for the specified file and compares
-        /// it to the value in this object.
+        /// it to the value in this object. CRC hashes are not supported 
+        /// because there is no built-in support in the .net framework and
+        /// a CRC implementation exceeds the scope of this project. If you
+        /// attempt to Verify() a CRC hash a NotImplemented() exception will
+        /// be thrown.
         /// </summary>
         /// <param name="file">The file to compute the hash for</param>
         /// <returns>True if the computed hash matches what's stored in this object.</returns>
@@ -50,7 +54,11 @@ namespace System.Net.FtpClient {
 
         /// <summary>
         /// Computes the hash for the specified stream and compares
-        /// it to the value in this object.
+        /// it to the value in this object. CRC hashes are not supported 
+        /// because there is no built-in support in the .net framework and
+        /// a CRC implementation exceeds the scope of this project. If you
+        /// attempt to Verify() a CRC hash a NotImplemented() exception will
+        /// be thrown.
         /// </summary>
         /// <param name="istream">The stream to compute the hash for</param>
         /// <returns>True if the computed hash matches what's stored in this object.</returns>
@@ -71,6 +79,8 @@ namespace System.Net.FtpClient {
                     case FtpHashAlgorithm.MD5:
                         hashAlg = new MD5CryptoServiceProvider();
                         break;
+                    case FtpHashAlgorithm.CRC:
+                        throw new NotImplementedException("There is no built in support for computing CRC hashes.");
                     default:
                         throw new NotImplementedException("Unknown hash algorithm: " + m_algorithm.ToString());
                 }
