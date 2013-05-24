@@ -50,6 +50,11 @@
     <Compile Include="IFtpClient.cs" />
     <Compile Include="IFtpListItem.cs" />
     <Compile Include="IFtpReply.cs" />
+    <Compile Include="Extensions\XCRC.cs" />
+    <Compile Include="Extensions\XMD5.cs" />
+    <Compile Include="Extensions\XSHA1.cs" />
+    <Compile Include="Extensions\XSHA256.cs" />
+    <Compile Include="Extensions\XSHA512.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="System.Net.FtpClient.nuspec" />

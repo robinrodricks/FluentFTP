@@ -784,10 +784,18 @@ namespace System.Net.FtpClient {
                     m_caps |= FtpCapability.MFCT;
                 else if (feat.ToUpper().Trim().StartsWith("MFF"))
                     m_caps |= FtpCapability.MFF;
-                else if (feat.ToUpper().Trim().StartsWith("MD5")) {
+                else if (feat.ToUpper().Trim().StartsWith("MD5"))
                     m_caps |= FtpCapability.MD5;
-                    m_hashAlgorithms |= FtpHashAlgorithm.MD5;
-                }
+                else if (feat.ToUpper().Trim().StartsWith("XMD5"))
+                    m_caps |= FtpCapability.XMD5;
+                else if (feat.ToUpper().Trim().StartsWith("XCRC"))
+                    m_caps |= FtpCapability.XCRC;
+                else if (feat.ToUpper().Trim().StartsWith("XSHA1"))
+                    m_caps |= FtpCapability.XSHA1;
+                else if (feat.ToUpper().Trim().StartsWith("XSHA256"))
+                    m_caps |= FtpCapability.XSHA256;
+                else if (feat.ToUpper().Trim().StartsWith("XSHA512"))
+                    m_caps |= FtpCapability.XSHA512;
                 else if (feat.ToUpper().Trim().StartsWith("HASH")) {
                     Match m;
 

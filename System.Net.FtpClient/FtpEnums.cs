@@ -110,9 +110,29 @@ namespace System.Net.FtpClient {
         /// </summary>
         HASH = 1024,
         /// <summary>
-        /// Support for the MD5 command
+        /// Support for the non-standard MD5 command
         /// </summary>
-        MD5 = 2048
+        MD5 = 2048,
+        /// <summary>
+        /// Support for the non-standard XMD5 command
+        /// </summary>
+        XMD5 = 4096,
+        /// <summary>
+        /// Support for the non-standard XCRC command
+        /// </summary>
+        XCRC = 8192,
+        /// <summary>
+        /// Support for the non-standard XSHA1 command
+        /// </summary>
+        XSHA1 = 16384,
+        /// <summary>
+        /// Support for the non-standard XSHA256 command
+        /// </summary>
+        XSHA256 = 32768,
+        /// <summary>
+        /// Support for the non-standard XSHA512 command
+        /// </summary>
+        XSHA512 = 65536
     }
 
     /// <summary>
