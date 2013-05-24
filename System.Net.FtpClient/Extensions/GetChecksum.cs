@@ -26,6 +26,7 @@ namespace System.Net.FtpClient.Extensions {
         /// <returns>FtpHash object containing the value and algorithm. Use the IsValid property to
         /// determine if this command was successfull. FtpCommandException's can be thrown from
         /// the underlying calls.</returns>
+        /// <example><code source="..\Examples\GetChecksum.cs" lang="cs" /></example>
         public static FtpHash GetChecksum(this FtpClient client, string path) {
             if (client.Capabilities.HasFlag(FtpCapability.HASH)) {
                 return client.GetHash(path);
