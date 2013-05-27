@@ -22,7 +22,7 @@ namespace Tests {
             FtpTrace.AddListener(new ConsoleTraceListener());
 
             try {
-               foreach (int i in new int[] {
+               /*foreach (int i in new int[] {
                     (int)FtpDataConnectionType.EPSV,
                     (int)FtpDataConnectionType.EPRT,
                     (int)FtpDataConnectionType.PASV,
@@ -34,7 +34,7 @@ namespace Tests {
                         Download(cl);
                         Delete(cl);
                     }
-                }
+                }*/
 
                 //TestMODCOMP_PWD_Parser();
                 //TestDispose();
@@ -45,6 +45,7 @@ namespace Tests {
                 // TestIISParser();
                 //GetMicrosoftFTPListing();
                 //TestReset();
+                TestUTF8();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -353,6 +354,23 @@ namespace Tests {
                 else if (item.Type == FtpFileSystemObjectType.Directory) {
                     DeleteDirectory(cl, item.FullName);
                     cl.DeleteDirectory(item.FullName);
+                }
+            }
+        }
+
+        static void TestUTF8() {
+            // the following file name was reported in the discussions as having
+            // problems:
+            // https://netftp.codeplex.com/discussions/445090
+            string filename = "Verbundmörtel Zubehör + Technische Daten DE.pdf";
+
+            using (FtpClient cl = new FtpClient()) {
+                cl.Host = "localhost";
+                cl.Credentials = new NetworkCredential("ftptest", "ftptest");
+                using (Stream ostream = cl.OpenWrite(filename)) {
+                    StreamWriter writer = new StreamWriter(filename);
+                    writer.WriteLine(filename);
+                    writer.Close();
                 }
             }
         }

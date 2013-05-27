@@ -362,7 +362,7 @@ namespace System.Net.FtpClient {
 
                 return m_caps;
             }
-            private set {
+            protected set {
                 m_caps = value;
             }
         }
@@ -611,7 +611,11 @@ namespace System.Net.FtpClient {
                 }
 
                 FtpTrace.WriteLine(command.StartsWith("PASS") ? "PASS <omitted>" : command);
-                m_stream.WriteLine(Encoding, command);
+
+#if DEBUG
+                FtpTrace.WriteLine("Text encoding: " + m_textEncoding.ToString());
+#endif
+                m_stream.WriteLine(m_textEncoding, command);
                 reply = GetReply();
             }
             finally {
@@ -678,7 +682,11 @@ namespace System.Net.FtpClient {
                     throw new FtpException("No credentials have been specified");
 
                 m_textEncoding = Encoding.ASCII;
-                m_caps = FtpCapability.NONE;
+
+                if (!IsClone) {
+                    m_caps = FtpCapability.NONE;
+                }
+
                 m_hashAlgorithms = FtpHashAlgorithm.NONE;
                 m_stream.ConnectTimeout = m_connectTimeout;
                 m_stream.SocketPollInterval = m_socketPollInterval;
