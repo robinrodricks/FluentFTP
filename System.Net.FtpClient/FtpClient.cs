@@ -677,7 +677,7 @@ namespace System.Net.FtpClient {
                 if (Credentials == null)
                     throw new FtpException("No credentials have been specified");
 
-                m_textEncoding = Encoding.Default;
+                m_textEncoding = Encoding.ASCII;
                 m_caps = FtpCapability.NONE;
                 m_hashAlgorithms = FtpHashAlgorithm.NONE;
                 m_stream.ConnectTimeout = m_connectTimeout;
@@ -2870,6 +2870,27 @@ namespace System.Net.FtpClient {
         /// <param name="ar">IAsyncResult returned from BeginGetHash</param>
         public void EndGetHash(IAsyncResult ar) {
             GetAsyncDelegate<AsyncGetHash>(ar).EndInvoke(ar);
+        }
+
+        /// <summary>
+        /// Disables UTF8 support and changes the Encoding property
+        /// back to ASCII. If the server returns an error when trying
+        /// to turn UTF8 off a FtpCommandException will be thrown.
+        /// </summary>
+        public void DisableUTF8() {
+            FtpReply reply;
+
+            try {
+                m_lock.WaitOne();
+
+                if (!(reply = Execute("OPTS UTF8 OFF")).Success)
+                    throw new FtpCommandException(reply);
+
+                m_textEncoding = Encoding.ASCII;
+            }
+            finally {
+                m_lock.ReleaseMutex();
+            }
         }
 
         /// <summary>
