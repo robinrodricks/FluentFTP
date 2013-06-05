@@ -490,7 +490,9 @@ namespace System.Net.FtpClient {
                     m_socket.Close();
                 }
 
+#if !NET2
                 m_socket.Dispose();
+#endif
                 m_socket = null;
             }
 
@@ -534,23 +536,28 @@ namespace System.Net.FtpClient {
 #if DEBUG
                 FtpTrace.WriteLine("{0}: {1}", addresses[0].AddressFamily.ToString(), addresses[0].ToString());
 #endif
-                switch (addresses[0].AddressFamily) {
-                    case AddressFamily.InterNetwork:
-                        if ((ipVersions & FtpIpVersion.IPv4) != FtpIpVersion.IPv4) {
+                // we don't need to do this check unless
+                // a particular version of IP has been
+                // omitted so we won't.
+                if (ipVersions != FtpIpVersion.ANY) {
+                    switch (addresses[0].AddressFamily) {
+                        case AddressFamily.InterNetwork:
+                            if ((ipVersions & FtpIpVersion.IPv4) != FtpIpVersion.IPv4) {
 #if DEBUG
-                            FtpTrace.WriteLine("SKIPPED!");
+                                FtpTrace.WriteLine("SKIPPED!");
 #endif
-                            continue;
-                        }
-                        break;
-                    case AddressFamily.InterNetworkV6:
-                        if ((ipVersions & FtpIpVersion.IPv6) != FtpIpVersion.IPv6) {
+                                continue;
+                            }
+                            break;
+                        case AddressFamily.InterNetworkV6:
+                            if ((ipVersions & FtpIpVersion.IPv6) != FtpIpVersion.IPv6) {
 #if DEBUG
-                            FtpTrace.WriteLine("SKIPPED!");
+                                FtpTrace.WriteLine("SKIPPED!");
 #endif
-                            continue;
-                        }
-                        break;
+                                continue;
+                            }
+                            break;
+                    }
                 }
 
                 m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
