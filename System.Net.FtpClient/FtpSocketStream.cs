@@ -522,11 +522,37 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="host">The host to connect to</param>
         /// <param name="port">The port to connect to</param>
-        public void Connect(string host, int port) {
+        /// <param name="ipVersions">Internet Protocol versions to support durring the connection phase</param>
+        public void Connect(string host, int port, FtpIpVersion ipVersions) {
             IAsyncResult ar = null;
             IPAddress[] addresses = Dns.GetHostAddresses(host);
 
+            if (ipVersions == 0)
+                throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.");
+
             for (int i = 0; i < addresses.Length; i++) {
+#if DEBUG
+                FtpTrace.WriteLine("{0}: {1}", addresses[0].AddressFamily.ToString(), addresses[0].ToString());
+#endif
+                switch (addresses[0].AddressFamily) {
+                    case AddressFamily.InterNetwork:
+                        if ((ipVersions & FtpIpVersion.IPv4) != FtpIpVersion.IPv4) {
+#if DEBUG
+                            FtpTrace.WriteLine("SKIPPED!");
+#endif
+                            continue;
+                        }
+                        break;
+                    case AddressFamily.InterNetworkV6:
+                        if ((ipVersions & FtpIpVersion.IPv6) != FtpIpVersion.IPv6) {
+#if DEBUG
+                            FtpTrace.WriteLine("SKIPPED!");
+#endif
+                            continue;
+                        }
+                        break;
+                }
+
                 m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 ar = m_socket.BeginConnect(addresses[i], port, null, null);
                 if (!ar.AsyncWaitHandle.WaitOne(m_connectTimeout, true)) {
@@ -547,8 +573,9 @@ namespace System.Net.FtpClient {
 
             // make sure that we actually connected to
             // one of the addresses returned from GetHostAddresses()
-            if (!m_socket.Connected) {
-                throw new Exception("Failed to connect to host.");
+            if (m_socket == null || !m_socket.Connected) {
+                Close();
+                throw new IOException("Failed to connect to host.");
             }
 
             m_netStream = new NetworkStream(m_socket);

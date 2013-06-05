@@ -95,6 +95,25 @@ namespace System.Net.FtpClient {
             }
         }
 
+        FtpIpVersion m_ipVersions = FtpIpVersion.ANY;
+        /// <summary>
+        /// Flags specifying which versions of the internet protocol to
+        /// support when making a connection. All addresses returned during
+        /// name resolution are tried until a successful connection is made.
+        /// You can fine tune which versions of the internet protocol to use
+        /// by adding or removing flags here. I.e., setting this property
+        /// to FtpIpVersion.IPv4 will cause the connection process to
+        /// ignore IPv6 addresses. The default value is ANY version.
+        /// </summary>
+        public FtpIpVersion InternetProtocolVersions {
+            get {
+                return m_ipVersions;
+            }
+            set {
+                m_ipVersions = value;
+            }
+        }
+
         int m_socketPollInterval = 15000;
         /// <summary>
         /// Gets or sets the length of time in miliseconds
@@ -611,10 +630,6 @@ namespace System.Net.FtpClient {
                 }
 
                 FtpTrace.WriteLine(command.StartsWith("PASS") ? "PASS <omitted>" : command);
-
-#if DEBUG
-                FtpTrace.WriteLine("Text encoding: " + m_textEncoding.ToString());
-#endif
                 m_stream.WriteLine(m_textEncoding, command);
                 reply = GetReply();
             }
@@ -690,7 +705,7 @@ namespace System.Net.FtpClient {
                 m_hashAlgorithms = FtpHashAlgorithm.NONE;
                 m_stream.ConnectTimeout = m_connectTimeout;
                 m_stream.SocketPollInterval = m_socketPollInterval;
-                m_stream.Connect(Host, Port);
+                m_stream.Connect(Host, Port, InternetProtocolVersions);
                 m_stream.SetSocketOption(Sockets.SocketOptionLevel.Socket,
                     Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
@@ -743,6 +758,8 @@ namespace System.Net.FtpClient {
                     Execute("OPTS UTF8 ON");
                     m_textEncoding = Encoding.UTF8;
                 }
+
+                FtpTrace.WriteLine("Text encoding: " + m_textEncoding.ToString());
             }
             finally {
                 m_lock.ReleaseMutex();
@@ -1001,7 +1018,7 @@ namespace System.Net.FtpClient {
             stream = new FtpDataStream(this);
             stream.ConnectTimeout = DataConnectionConnectTimeout;
             stream.ReadTimeout = DataConnectionReadTimeout;
-            stream.Connect(host, port);
+            stream.Connect(host, port, InternetProtocolVersions);
             stream.SetSocketOption(Sockets.SocketOptionLevel.Socket, Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
             if (restart > 0) {

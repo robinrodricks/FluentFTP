@@ -367,6 +367,9 @@ namespace Tests {
             using (FtpClient cl = new FtpClient()) {
                 cl.Host = "localhost";
                 cl.Credentials = new NetworkCredential("ftptest", "ftptest");
+                cl.DataConnectionType = FtpDataConnectionType.PASV;
+                cl.InternetProtocolVersions = FtpIpVersion.ANY;
+
                 using (Stream ostream = cl.OpenWrite(filename)) {
                     StreamWriter writer = new StreamWriter(filename);
                     writer.WriteLine(filename);
