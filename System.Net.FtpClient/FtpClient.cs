@@ -105,6 +105,7 @@ namespace System.Net.FtpClient {
         /// to FtpIpVersion.IPv4 will cause the connection process to
         /// ignore IPv6 addresses. The default value is ANY version.
         /// </summary>
+        [FtpControlConnectionClone]
         public FtpIpVersion InternetProtocolVersions {
             get {
                 return m_ipVersions;
