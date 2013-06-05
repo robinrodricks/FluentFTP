@@ -40,7 +40,7 @@ namespace Tests {
                 //TestDispose();
                 //TestHash();
 
-                //TestNameListing();
+                TestNameListing();
                 //TestOpenVMSParser();
                 // TestIISParser();
                 //GetMicrosoftFTPListing();

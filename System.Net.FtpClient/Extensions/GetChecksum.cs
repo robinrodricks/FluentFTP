@@ -28,33 +28,33 @@ namespace System.Net.FtpClient.Extensions {
         /// the underlying calls.</returns>
         /// <example><code source="..\Examples\GetChecksum.cs" lang="cs" /></example>
         public static FtpHash GetChecksum(this FtpClient client, string path) {
-            if (client.Capabilities.HasFlag(FtpCapability.HASH)) {
+            if (client.HasFeature(FtpCapability.HASH)) {
                 return client.GetHash(path);
             }
             else {
                 FtpHash res = new FtpHash();
 
-                if (client.Capabilities.HasFlag(FtpCapability.MD5)) {
+                if (client.HasFeature(FtpCapability.MD5)) {
                     res.Value = client.GetMD5(path);
                     res.Algorithm = FtpHashAlgorithm.MD5;
                 }
-                else if (client.Capabilities.HasFlag(FtpCapability.XMD5)) {
+                else if (client.HasFeature(FtpCapability.XMD5)) {
                     res.Value = client.GetXMD5(path);
                     res.Algorithm = FtpHashAlgorithm.MD5;
                 }
-                else if (client.Capabilities.HasFlag(FtpCapability.XSHA1)) {
+                else if (client.HasFeature(FtpCapability.XSHA1)) {
                     res.Value = client.GetXSHA1(path);
                     res.Algorithm = FtpHashAlgorithm.SHA1;
                 }
-                else if (client.Capabilities.HasFlag(FtpCapability.XSHA256)) {
+                else if (client.HasFeature(FtpCapability.XSHA256)) {
                     res.Value = client.GetXSHA256(path);
                     res.Algorithm = FtpHashAlgorithm.SHA256;
                 }
-                else if (client.Capabilities.HasFlag(FtpCapability.XSHA512)) {
+                else if (client.HasFeature(FtpCapability.XSHA512)) {
                     res.Value = client.GetXSHA512(path);
                     res.Algorithm = FtpHashAlgorithm.SHA512;
                 }
-                else if (client.Capabilities.HasFlag(FtpCapability.XCRC)) {
+                else if (client.HasFeature(FtpCapability.XCRC)) {
                     res.Value = client.GetXCRC(path);
                     res.Algorithm = FtpHashAlgorithm.CRC;
                 }
