@@ -70,12 +70,14 @@ namespace System.Net.FtpClient {
                     case FtpHashAlgorithm.SHA1:
                         hashAlg = new SHA1CryptoServiceProvider();
                         break;
+#if !NET2
                     case FtpHashAlgorithm.SHA256:
                         hashAlg = new SHA256CryptoServiceProvider();
                         break;
                     case FtpHashAlgorithm.SHA512:
                         hashAlg = new SHA512CryptoServiceProvider();
                         break;
+#endif
                     case FtpHashAlgorithm.MD5:
                         hashAlg = new MD5CryptoServiceProvider();
                         break;
@@ -99,8 +101,10 @@ namespace System.Net.FtpClient {
                     }
                 }
                 finally {
+#if !NET2 // .NET 2.0 doesn't provide access to Dispose() for HashAlgorithm
                     if (hashAlg != null)
                         hashAlg.Dispose();
+#endif
                 }
             }
 

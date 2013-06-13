@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2E4F2A25-7133-455A-AC1D-FBE3E56CA1A1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>System.Net.FtpClient</RootNamespace>
+    <AssemblyName>System.Net.FtpClient</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>NET2\bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET2</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>NET2\bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NET2</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Web" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Extensions\GetChecksum.cs" />
+    <Compile Include="Extensions\MD5.cs" />
+    <Compile Include="Extensions\XCRC.cs" />
+    <Compile Include="Extensions\XMD5.cs" />
+    <Compile Include="Extensions\XSHA1.cs" />
+    <Compile Include="Extensions\XSHA256.cs" />
+    <Compile Include="Extensions\XSHA512.cs" />
+    <Compile Include="FtpClient.cs" />
+    <Compile Include="FtpDataStream.cs" />
+    <Compile Include="FtpEnums.cs" />
+    <Compile Include="FtpExceptions.cs" />
+    <Compile Include="FtpExtensionAttribute.cs" />
+    <Compile Include="FtpExtensions.cs" />
+    <Compile Include="FtpHash.cs" />
+    <Compile Include="FtpListItem.cs" />
+    <Compile Include="FtpReply.cs" />
+    <Compile Include="FtpSocketStream.cs" />
+    <Compile Include="FtpTrace.cs" />
+    <Compile Include="IFtpClient.cs" />
+    <Compile Include="IFtpListItem.cs" />
+    <Compile Include="IFtpReply.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1625,12 +1625,12 @@ namespace System.Net.FtpClient {
             try {
                 m_lock.WaitOne();
 
-                if (string.IsNullOrEmpty(path) && string.IsNullOrWhiteSpace(path))
+                if (path == null || path.Trim().Length == 0)
                     path = GetWorkingDirectory();
 
                 // if we still don't have a path then assign one
                 // relative to the current working directory
-                if (string.IsNullOrEmpty(path) && string.IsNullOrWhiteSpace(path))
+                if (path == null || path.Trim().Length == 0)
                     path = "./";
 
                 // always get the file listing in binary
@@ -1823,12 +1823,12 @@ namespace System.Net.FtpClient {
             try {
                 m_lock.WaitOne();
 
-                if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
+                if (path == null || path.Trim().Length == 0)
                     path = GetWorkingDirectory();
 
                 // if there is still no path then assign one
                 // relative to the working directory
-                if (string.IsNullOrEmpty(path) || string.IsNullOrWhiteSpace(path))
+                if (path == null || path.Trim().Length == 0)
                     path = "./";
 
                 // always get the file listing in binary
