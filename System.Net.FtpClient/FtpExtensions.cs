@@ -88,13 +88,5 @@ namespace System.Net.FtpClient {
 
             return DateTime.MinValue;
         }
-
-#if NET2
-        public static bool IsNullOrWhiteSpace(this string source, string val) {
-            if (val == null || val.Trim().Length == 0)
-                return true;
-            return false;
-        }
-#endif
     }
 }
