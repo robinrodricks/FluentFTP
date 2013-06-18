@@ -1711,25 +1711,22 @@ namespace System.Net.FtpClient {
                     // load extended information that wasn't available 
                     // if the list options flags say to do so.
                     if (item != null) {
-                        if ((options & FtpListOption.Modify) == FtpListOption.Modify) {
-                            // if the modified date was not loaded or the modified date is in the future 
+                        if ((options & FtpListOption.Modify) == FtpListOption.Modify && HasFeature(FtpCapability.MDTM)) {
+                            // if the modified date was not loaded or the modified date is more than a day in the future 
                             // and the server supports the MDTM command, load the modified date.
                             // most servers do not support retrieving the modified date
                             // of a directory but we try any way.
-                            if ((item.Modified == DateTime.MinValue || (listcmd.StartsWith("LIST") && item.Modified > DateTime.Now))
-                                && HasFeature(FtpCapability.MDTM))
+                            if (item.Modified == DateTime.MinValue || (listcmd.StartsWith("LIST") && item.Modified.Date > DateTime.Now.Date)) {
                                 item.Modified = GetModifiedTime(item.FullName);
+                            }
                         }
 
-                        if ((options & FtpListOption.Size) == FtpListOption.Size) {
+                        if ((options & FtpListOption.Size) == FtpListOption.Size && HasFeature(FtpCapability.SIZE)) {
                             // if no size was parsed, the object is a file and the server
                             // supports the SIZE command, then load the file size
                             if (item.Size == -1) {
-                                long size;
-
-                                if (item.Type == FtpFileSystemObjectType.File && HasFeature(FtpCapability.SIZE)
-                                    && (size = GetFileSize(item.FullName)) >= 0) {
-                                    item.Size = size;
+                                if (item.Type == FtpFileSystemObjectType.File) {
+                                    item.Size = GetFileSize(item.FullName);
                                 }
                                 else {
                                     item.Size = 0;
