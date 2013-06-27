@@ -22,19 +22,19 @@ namespace Tests {
             FtpTrace.AddListener(new ConsoleTraceListener());
 
             try {
-               /*foreach (int i in new int[] {
-                    (int)FtpDataConnectionType.EPSV,
-                    (int)FtpDataConnectionType.EPRT,
-                    (int)FtpDataConnectionType.PASV,
-                    (int)FtpDataConnectionType.PORT
-                }) {
-                    using (FtpClient cl = Connect()) {
-                        cl.DataConnectionType = (FtpDataConnectionType)i;
-                        Upload(cl);
-                        Download(cl);
-                        Delete(cl);
-                    }
-                }*/
+                /*foreach (int i in new int[] {
+                     (int)FtpDataConnectionType.EPSV,
+                     (int)FtpDataConnectionType.EPRT,
+                     (int)FtpDataConnectionType.PASV,
+                     (int)FtpDataConnectionType.PORT
+                 }) {
+                     using (FtpClient cl = Connect()) {
+                         cl.DataConnectionType = (FtpDataConnectionType)i;
+                         Upload(cl);
+                         Download(cl);
+                         Delete(cl);
+                     }
+                 }*/
 
                 //TestMODCOMP_PWD_Parser();
                 //TestDispose();
@@ -43,9 +43,15 @@ namespace Tests {
                 //TestNameListing();
                 //TestOpenVMSParser();
                 // TestIISParser();
-                GetMicrosoftFTPListing();
+                //GetMicrosoftFTPListing();
                 //TestReset();
                 //TestUTF8();
+
+                //TestDirectoryWithDots();
+
+                //TestUnixListParser();
+
+                TestFileZillaKick();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -53,6 +59,64 @@ namespace Tests {
 
             Console.WriteLine("--DONE--");
             Console.ReadKey();
+        }
+
+        static void TestFileZillaKick() {
+            using (FtpClient cl = new FtpClient()) {
+                cl.Host = "localhost";
+                cl.Credentials = new NetworkCredential("ftptest", "ftptest");
+                cl.EnableThreadSafeDataConnections = false;
+
+                if (cl.FileExists("TestFile.txt"))
+                    cl.DeleteFile("TestFile.txt");
+
+                try {
+                    using (Stream s = cl.OpenWrite("TestFile.txt")) {
+                        for (int i = 0; true; i++) {
+                            s.WriteByte((byte)i);
+                            Thread.Sleep(100);
+                        }
+                        
+                        s.Close();
+                    }
+                }
+                catch (FtpCommandException ex) {
+                    Console.WriteLine("Exception caught!");
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+        }
+
+        static void TestUnixListParser() {
+            string[] sample = new string[] {
+                "drwxr-xr-x   7  user1 user1       512 Sep 27  2011 .",
+                "drwxr-xr-x  31 user1  user1      1024 Sep 27  2011 ..",
+                "lrwxrwxrwx   1 user1  user1      9 Sep 27  2011 data.0000 -> data.6460",
+                "drwxr-xr-x  10 user1  user1      512 Jun 29  2012 data.6460",
+                "lrwxrwxrwx   1 user1 user1       8 Sep 27  2011 sys.0000 -> sys.6460",
+                "drwxr-xr-x 133 user1  user1     4096 Jun 25 16:26 sys.6460"
+            };
+
+            foreach (string s in sample) {
+                FtpListItem item = FtpListItem.Parse("/", s, FtpCapability.NONE);
+
+                if (item != null)
+                    Console.WriteLine(item);
+            }
+        }
+
+        static void TestDirectoryWithDots() {
+            using (FtpClient cl = new FtpClient()) {
+                cl.Credentials = new NetworkCredential("ftptest", "ftptest");
+                cl.Host = "localhost";
+                cl.Connect();
+                // FTP server set to timeout after 5 seconds.
+                //Thread.Sleep(6000);
+
+                cl.GetListing("Test.Directory", FtpListOption.ForceList);
+                cl.SetWorkingDirectory("Test.Directory");
+                cl.GetListing(null, FtpListOption.ForceList);
+            }
         }
 
         static void TestDispose() {
@@ -189,8 +253,9 @@ namespace Tests {
         static void TestNameListing() {
             using (FtpClient cl = new FtpClient()) {
                 cl.Credentials = new NetworkCredential(m_user, m_pass);
-                cl.Host = m_host;
+                cl.Host = "127.0.0.1";
                 cl.ValidateCertificate += OnValidateCertificate;
+                cl.DataConnectionType = FtpDataConnectionType.PASV;
                 //cl.EncryptionMode = FtpEncryptionMode.Explicit;
                 //cl.SocketPollInterval = 5000;
                 cl.Connect();

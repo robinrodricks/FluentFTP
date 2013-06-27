@@ -1962,11 +1962,15 @@ namespace System.Net.FtpClient {
         /// <example><code source="..\Examples\SetWorkingDirectory.cs" lang="cs" /></example>
         public void SetWorkingDirectory(string path) {
             FtpReply reply;
+            string ftppath = path.GetFtpPath();
+
+            if (ftppath == "." || ftppath == "./")
+                return;
 
             try {
                 m_lock.WaitOne();
 
-                if (!(reply = Execute("CWD {0}", path.GetFtpPath())).Success)
+                if (!(reply = Execute("CWD {0}", ftppath)).Success)
                     throw new FtpCommandException(reply);
             }
             finally {
@@ -2262,6 +2266,7 @@ namespace System.Net.FtpClient {
         /// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
         public void DeleteDirectory(string path, bool force, FtpListOption options) {
             FtpReply reply;
+            string ftppath = path.GetFtpPath();
 
             try {
                 m_lock.WaitOne();
@@ -2283,7 +2288,12 @@ namespace System.Net.FtpClient {
                     }
                 }
 
-                if (!(reply = Execute("RMD {0}", path.GetFtpPath())).Success)
+                // can't delete the working directory and
+                // can't delete the server root.
+                if (ftppath == "." || ftppath == "./" || ftppath == "/")
+                    return;
+
+                if (!(reply = Execute("RMD {0}", ftppath)).Success)
                     throw new FtpCommandException(reply);
             }
             finally {
@@ -2364,15 +2374,16 @@ namespace System.Net.FtpClient {
         /// <example><code source="..\Examples\DirectoryExists.cs" lang="cs" /></example>
         public bool DirectoryExists(string path) {
             string pwd;
+            string ftppath = path.GetFtpPath();
 
-            if (path.GetFtpPath() == "/")
+            if (ftppath == "." || ftppath == "./" || ftppath == "/")
                 return true;
 
             try {
                 m_lock.WaitOne();
                 pwd = GetWorkingDirectory();
 
-                if (Execute("CWD {0}", path.GetFtpPath()).Success) {
+                if (Execute("CWD {0}", ftppath).Success) {
                     FtpReply reply = Execute("CWD {0}", pwd.GetFtpPath());
 
                     if (!reply.Success)
@@ -2530,8 +2541,9 @@ namespace System.Net.FtpClient {
         /// <example><code source="..\Examples\CreateDirectory.cs" lang="cs" /></example>
         public void CreateDirectory(string path, bool force) {
             FtpReply reply;
+            string ftppath = path.GetFtpPath();
 
-            if (path.GetFtpPath() == "/")
+            if (ftppath == "." || ftppath == "./" || ftppath == "/")
                 return;
 
             try {
@@ -2549,9 +2561,9 @@ namespace System.Net.FtpClient {
                     return;
 
                 FtpTrace.WriteLine(string.Format("CreateDirectory(\"{0}\", {1})",
-                    path.GetFtpPath(), force));
+                    ftppath, force));
 
-                if (!(reply = Execute("MKD {0}", path.GetFtpPath())).Success)
+                if (!(reply = Execute("MKD {0}", ftppath)).Success)
                     throw new FtpCommandException(reply);
             }
             finally {
