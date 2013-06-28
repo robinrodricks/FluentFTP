@@ -291,7 +291,11 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// A directory
         /// </summary>
-        Directory
+        Directory,
+        /// <summary>
+        /// A symbolic link
+        /// </summary>
+        Link
     }
     
     /// <summary>

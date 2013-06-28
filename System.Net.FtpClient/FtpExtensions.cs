@@ -40,6 +40,7 @@ namespace System.Net.FtpClient {
                 }
             }
 
+            path = Regex.Replace(path.Replace('\\', '/'), "[/]+", "/").TrimEnd('/');
             if (path.Length == 0)
                 path = "/";
 

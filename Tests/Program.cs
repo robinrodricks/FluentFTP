@@ -22,7 +22,7 @@ namespace Tests {
             FtpTrace.AddListener(new ConsoleTraceListener());
 
             try {
-                foreach (int i in new int[] {
+                /*foreach (int i in new int[] {
                      (int)FtpDataConnectionType.EPSV,
                      (int)FtpDataConnectionType.EPRT,
                      (int)FtpDataConnectionType.PASV,
@@ -34,7 +34,7 @@ namespace Tests {
                          Download(cl);
                          Delete(cl);
                      }
-                 }
+                 }*/
 
                 //TestMODCOMP_PWD_Parser();
                 //TestDispose();
@@ -54,7 +54,7 @@ namespace Tests {
                // TestFileZillaKick();
 
                 //TestUnixList();
-                //TestNetBSDServer();
+                TestNetBSDServer();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -68,7 +68,9 @@ namespace Tests {
             using (FtpClient client = new FtpClient()) {
                 client.Credentials = new NetworkCredential("ftp", "ftp");
                 client.Host = "ftp.netbsd.org";
-                client.GetListing(null, FtpListOption.ForceList | FtpListOption.Modify);
+                foreach (FtpListItem item in client.GetListing(null, FtpListOption.ForceList | FtpListOption.Modify)) {
+                    Console.WriteLine(item);
+                }
             }
         }
 

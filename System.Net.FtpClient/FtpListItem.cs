@@ -58,6 +58,21 @@ namespace System.Net.FtpClient {
             }
         }
 
+        string m_linkTarget = null;
+        /// <summary>
+        /// Gets the target a symbolic link points to. This property can be
+        /// set however this functionality is intended to be done by
+        /// custom parsers.
+        /// </summary>
+        public string LinkTarget {
+            get {
+                return m_linkTarget;
+            }
+            set {
+                m_linkTarget = value;
+            }
+        }
+
         DateTime m_modified = DateTime.MinValue;
         /// <summary>
         /// Gets the last write time of the object. This property can be
@@ -110,11 +125,11 @@ namespace System.Net.FtpClient {
         /// custom parsers.
         /// </summary>
         public FtpSpecialPermissions SpecialPermissions {
-            get { 
-                return m_specialPermissions; 
+            get {
+                return m_specialPermissions;
             }
-            set { 
-                m_specialPermissions = value; 
+            set {
+                m_specialPermissions = value;
             }
         }
 
@@ -125,11 +140,11 @@ namespace System.Net.FtpClient {
         /// custom parsers.
         /// </summary>
         public FtpPermission OwnerPermissions {
-            get { 
-                return m_ownerPermissions; 
+            get {
+                return m_ownerPermissions;
             }
-            set { 
-                m_ownerPermissions = value; 
+            set {
+                m_ownerPermissions = value;
             }
         }
 
@@ -140,11 +155,11 @@ namespace System.Net.FtpClient {
         /// custom parsers.
         /// </summary>
         public FtpPermission GroupPermissions {
-            get { 
-                return m_groupPermissions; 
+            get {
+                return m_groupPermissions;
             }
-            set { 
-                m_groupPermissions = value; 
+            set {
+                m_groupPermissions = value;
             }
         }
 
@@ -155,11 +170,11 @@ namespace System.Net.FtpClient {
         /// custom parsers.
         /// </summary>
         public FtpPermission OthersPermissions {
-            get { 
-                return m_otherPermissions; 
+            get {
+                return m_otherPermissions;
             }
-            set { 
-                m_otherPermissions = value; 
+            set {
+                m_otherPermissions = value;
             }
         }
 
@@ -212,8 +227,18 @@ namespace System.Net.FtpClient {
                         // there are no slashes in the path name
                         if (parser == (new Parser(ParseVaxList)))
                             item.FullName = path + item.Name;
-                        else
+                        else {
                             item.FullName = path.GetFtpPath(item.Name);
+
+                            // if a link target is set and it doesn't include an absolute path
+                            // then try to resolve it.
+                            if (item.LinkTarget != null && !item.LinkTarget.StartsWith("/")) {
+                                if (item.LinkTarget.StartsWith("./"))
+                                    item.LinkTarget = path.GetFtpPath(item.LinkTarget.Remove(0, 2));
+                                else
+                                    item.LinkTarget = path.GetFtpPath(item.LinkTarget);
+                            }
+                        }
 
                         item.Input = buf;
                         return item;
@@ -264,8 +289,6 @@ namespace System.Net.FtpClient {
                 return parsers;
             }
         }
-
-        
 
         /// <summary>
         /// Adds a custom parser
@@ -354,14 +377,14 @@ namespace System.Net.FtpClient {
                     item.Size = size;
             }
 
-            if((m = Regex.Match(buf, @"unix.mode=(?<mode>\d+);", RegexOptions.IgnoreCase)).Success) {
+            if ((m = Regex.Match(buf, @"unix.mode=(?<mode>\d+);", RegexOptions.IgnoreCase)).Success) {
                 if (m.Groups["mode"].Value.Length == 4) {
                     item.SpecialPermissions = (FtpSpecialPermissions)int.Parse(m.Groups["mode"].Value[0].ToString());
                     item.OwnerPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[1].ToString());
                     item.GroupPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[2].ToString());
                     item.OthersPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[3].ToString());
                 }
-                else if(m.Groups["mode"].Value.Length == 3) {
+                else if (m.Groups["mode"].Value.Length == 3) {
                     item.OwnerPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[0].ToString());
                     item.GroupPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[1].ToString());
                     item.OthersPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[2].ToString());
@@ -378,7 +401,7 @@ namespace System.Net.FtpClient {
         /// <param name="capabilities">Server capabilities</param>
         /// <returns>FtpListItem if the item is able to be parsed</returns>
         static FtpListItem ParseUnixList(string buf, FtpCapability capabilities) {
-            string regex = 
+            string regex =
                 @"(?<permissions>.+)\s+" +
                 @"(?<objectcount>\d+)\s+" +
                 @"(?<user>.+)\s+" +
@@ -392,12 +415,25 @@ namespace System.Net.FtpClient {
             if (!(m = Regex.Match(buf, regex, RegexOptions.IgnoreCase)).Success)
                 return null;
 
-            if (m.Groups["permissions"].Value.StartsWith("d"))
-                item.Type = FtpFileSystemObjectType.Directory;
-            else if (m.Groups["permissions"].Value.StartsWith("-"))
-                item.Type = FtpFileSystemObjectType.File;
-            else
+            // if this field is missing we can't determine
+            // what the object is.
+            if (m.Groups["permissions"].Value.Length == 0)
                 return null;
+
+            switch (m.Groups["permissions"].Value[0]) {
+                case 'd':
+                    item.Type = FtpFileSystemObjectType.Directory;
+                    break;
+                case '-':
+                case 's':
+                    item.Type = FtpFileSystemObjectType.File;
+                    break;
+                case 'l':
+                    item.Type = FtpFileSystemObjectType.Link;
+                    break;
+                default:
+                    return null;
+            }
 
             // if we can't determine a file name then
             // we are not considering this a successful parsing operation.
@@ -405,8 +441,20 @@ namespace System.Net.FtpClient {
                 return null;
             item.Name = m.Groups["name"].Value;
 
-            if (item.Type == FtpFileSystemObjectType.Directory && (item.Name == "." || item.Name == ".."))
-                return null;
+            switch (item.Type) {
+                case FtpFileSystemObjectType.Directory:
+                    // ignore these...
+                    if (item.Name == "." || item.Name == "..")
+                        return null;
+                    break;
+                case FtpFileSystemObjectType.Link:
+                    if (!item.Name.Contains(" -> "))
+                        return null;
+                    item.LinkTarget = item.Name.Remove(0, item.Name.IndexOf("-> ") + 3);
+                    item.Name = item.Name.Remove(item.Name.IndexOf(" -> "));
+                    // that's all the processing we can do on symbolic links for now
+                    return item;
+            }
 
             ////
             // Ignore the Modify times sent in LIST format for files
@@ -427,7 +475,7 @@ namespace System.Net.FtpClient {
             }
 
             if (m.Groups["permissions"].Value.Length > 0) {
-                Match perms = Regex.Match(m.Groups["permissions"].Value, 
+                Match perms = Regex.Match(m.Groups["permissions"].Value,
                     @"[\w-]{1}(?<owner>[\w-]{3})(?<group>[\w-]{3})(?<others>[\w-]{3})",
                     RegexOptions.IgnoreCase);
 
@@ -492,7 +540,7 @@ namespace System.Net.FtpClient {
                 item.Name = m.Groups["name"].Value;
 
                 //if (DateTime.TryParse(m.Groups["modify"].Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out modify))
-                if(DateTime.TryParseExact(m.Groups["modify"].Value, datefmt, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out modify))
+                if (DateTime.TryParseExact(m.Groups["modify"].Value, datefmt, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out modify))
                     item.Modified = modify;
             }
             // file
@@ -507,7 +555,7 @@ namespace System.Net.FtpClient {
                     item.Size = size;
 
                 //if (DateTime.TryParse(m.Groups["modify"].Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out modify))
-                if(DateTime.TryParseExact(m.Groups["modify"].Value, datefmt, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out modify))
+                if (DateTime.TryParseExact(m.Groups["modify"].Value, datefmt, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out modify))
                     item.Modified = modify;
             }
             else
@@ -519,7 +567,7 @@ namespace System.Net.FtpClient {
         static FtpListItem ParseVaxList(string buf, FtpCapability capabilities) {
             string regex =
                 @"(?<name>.+)\.(?<extension>.+);(?<version>\d+)\s+" +
-                @"(?<size>\d+)\s+" + 
+                @"(?<size>\d+)\s+" +
                 @"(?<modify>\d+-\w+-\d+\s+\d+:\d+)";
             Match m;
 
@@ -544,7 +592,7 @@ namespace System.Net.FtpClient {
 
                 return item;
             }
-           
+
             return null;
         }
 
