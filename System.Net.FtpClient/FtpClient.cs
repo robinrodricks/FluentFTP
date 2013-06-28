@@ -1621,22 +1621,18 @@ namespace System.Net.FtpClient {
             List<FtpListItem> lst = new List<FtpListItem>();
             List<string> rawlisting = new List<string>();
             string listcmd = null;
+            string pwd = GetWorkingDirectory();
 
             try {
                 m_lock.WaitOne();
 
-                if (path == null || path.Trim().Length == 0)
-                    path = GetWorkingDirectory();
-
-                // if we still don't have a path then assign one
-                // relative to the current working directory
-                if (path == null || path.Trim().Length == 0)
-                    path = "./";
-
-                // always get the file listing in binary
-                // to avoid any potential character translation
-                // problems that would happen if in ASCII.
-                Execute("TYPE I");
+                path = path.GetFtpPath();
+                if (path == null || path.GetFtpPath().Trim().Length == 0 || path.StartsWith(".")) {
+                    if (pwd == null || pwd.Length == 0)
+                        path = "./";
+                    else
+                        path = pwd;
+                }
 
                 // MLSD provides a machine parsable format with more
                 // accurate information than most of the UNIX long list
@@ -1657,8 +1653,13 @@ namespace System.Net.FtpClient {
                     }
                 }
 
+                // always get the file listing in binary
+                // to avoid any potential character translation
+                // problems that would happen if in ASCII.
+                Execute("TYPE I");
+
                 // read in raw file listing
-                using (FtpDataStream stream = OpenDataStream(string.Format("{0} {1}", listcmd, path.GetFtpPath()), 0)) {
+                using (FtpDataStream stream = OpenDataStream(string.Format("{0} {1}", listcmd, path), 0)) {
                     try {
                         string buf = null;
 
@@ -1667,7 +1668,6 @@ namespace System.Net.FtpClient {
                                 rawlisting.Add(buf);
                                 FtpTrace.WriteLine(buf);
                             }
-
                         }
                     }
                     finally {
@@ -1675,65 +1675,85 @@ namespace System.Net.FtpClient {
                     }
                 }
 
-                for (int i = 0; i < rawlisting.Count; i++) {
-                    string buf = rawlisting[i];
-                    FtpListItem item = null;
+                try {
+                    FtpReply reply; // used for NLST results to test if an object is a directory or not.
 
-                    if ((options & FtpListOption.NameList) == FtpListOption.NameList) {
-                        // if NLST was used we only have a file name so
-                        // there is nothing to parse.
-                        item = new FtpListItem() {
-                            FullName = buf
-                        };
+                    for (int i = 0; i < rawlisting.Count; i++) {
+                        string buf = rawlisting[i];
+                        FtpListItem item = null;
 
-                        if (DirectoryExists(item.FullName))
-                            item.Type = FtpFileSystemObjectType.Directory;
-                        else
-                            item.Type = FtpFileSystemObjectType.File;
+                        if ((options & FtpListOption.NameList) == FtpListOption.NameList) {
+                            // if NLST was used we only have a file name so
+                            // there is nothing to parse.
+                            item = new FtpListItem() {
+                                FullName = buf
+                            };
 
-                        lst.Add(item);
-                    }
-                    else {
-                        // if the next line in the listing starts with spaces
-                        // it is assumed to be a continuation of the current line
-                        if (i + 1 < rawlisting.Count && (rawlisting[i + 1].StartsWith("\t") || rawlisting[i + 1].StartsWith(" ")))
-                            buf += rawlisting[++i];
+                            // directory exist sends 2 calls to the server so
+                            // we're going to avoid this by not changing back
+                            // to the original working directory until the
+                            // list processing is done
+                            //if (DirectoryExists(item.FullName))
+                            
+                            if((reply = this.Execute("CWD {0}", item.FullName)).Success)
+                                item.Type = FtpFileSystemObjectType.Directory;
+                            else
+                                item.Type = FtpFileSystemObjectType.File;
 
-                        item = FtpListItem.Parse(path, buf, Capabilities);
-                        // FtpListItem.Parse() returns null if the line
-                        // could not be parsed
-                        if (item != null)
                             lst.Add(item);
-                        else
-                            FtpTrace.WriteLine("Failed to parse file listing: " + buf);
-                    }
+                        }
+                        else {
+                            // if the next line in the listing starts with spaces
+                            // it is assumed to be a continuation of the current line
+                            if (i + 1 < rawlisting.Count && (rawlisting[i + 1].StartsWith("\t") || rawlisting[i + 1].StartsWith(" ")))
+                                buf += rawlisting[++i];
 
-                    // load extended information that wasn't available 
-                    // if the list options flags say to do so.
-                    if (item != null) {
-                        if ((options & FtpListOption.Modify) == FtpListOption.Modify && HasFeature(FtpCapability.MDTM)) {
-                            // if the modified date was not loaded or the modified date is more than a day in the future 
-                            // and the server supports the MDTM command, load the modified date.
-                            // most servers do not support retrieving the modified date
-                            // of a directory but we try any way.
-                            if (item.Modified == DateTime.MinValue || (listcmd.StartsWith("LIST") && item.Modified.Date > DateTime.Now.Date)) {
-                                item.Modified = GetModifiedTime(item.FullName);
-                            }
+                            item = FtpListItem.Parse(path, buf, Capabilities);
+                            // FtpListItem.Parse() returns null if the line
+                            // could not be parsed
+                            if (item != null)
+                                lst.Add(item);
+                            else
+                                FtpTrace.WriteLine("Failed to parse file listing: " + buf);
                         }
 
-                        if ((options & FtpListOption.Size) == FtpListOption.Size && HasFeature(FtpCapability.SIZE)) {
-                            // if no size was parsed, the object is a file and the server
-                            // supports the SIZE command, then load the file size
-                            if (item.Size == -1) {
-                                if (item.Type == FtpFileSystemObjectType.File) {
-                                    item.Size = GetFileSize(item.FullName);
+                        // load extended information that wasn't available if the list options flags say to do so.
+                        if (item != null) {
+                            if ((options & FtpListOption.Modify) == FtpListOption.Modify && HasFeature(FtpCapability.MDTM)) {
+                                // if the modified date was not loaded or the modified date is more than a day in the future 
+                                // and the server supports the MDTM command, load the modified date.
+                                // most servers do not support retrieving the modified date
+                                // of a directory but we try any way.
+                                if (item.Modified == DateTime.MinValue || listcmd.StartsWith("LIST")) {
+                                    DateTime modify;
+
+                                    if (item.Type == FtpFileSystemObjectType.Directory)
+                                        FtpTrace.WriteLine("Trying to retrieve modification time of a directory, some servers don't like this...");
+
+                                    if ((modify = GetModifiedTime(item.FullName)) != DateTime.MinValue)
+                                        item.Modified = modify;
                                 }
-                                else {
-                                    item.Size = 0;
+                            }
+
+                            if ((options & FtpListOption.Size) == FtpListOption.Size && HasFeature(FtpCapability.SIZE)) {
+                                // if no size was parsed, the object is a file and the server
+                                // supports the SIZE command, then load the file size
+                                if (item.Size == -1) {
+                                    if (item.Type == FtpFileSystemObjectType.File) {
+                                        item.Size = GetFileSize(item.FullName);
+                                    }
+                                    else {
+                                        item.Size = 0;
+                                    }
                                 }
                             }
                         }
                     }
+                }
+                finally {
+                    if (listcmd == "NLST")
+                        // reset the working directory
+                        SetWorkingDirectory(pwd);
                 }
             }
             finally {

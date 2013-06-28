@@ -42,6 +42,14 @@ namespace System.Net.FtpClient {
         /// <param name="message">The message to write</param>
         /// <param name="args">Optional variables if using a format string similar to string.Format()</param>
         public static void Write(string message, params object[] args) {
+            Write(string.Format(message, args));
+        }
+
+        /// <summary>
+        /// Write to the TraceListeners
+        /// </summary>
+        /// <param name="message">The message to write</param>
+        public static void Write(string message) {
             TraceListener[] listeners;
 
             lock (m_listeners) {
@@ -49,11 +57,11 @@ namespace System.Net.FtpClient {
             }
 
 #if DEBUG
-            Debug.Write(string.Format(message, args));
+            Debug.Write(message);
 #endif
 
             foreach (TraceListener t in listeners) {
-                t.Write(string.Format(message, args));
+                t.Write(message);
             }
         }
 
@@ -64,6 +72,14 @@ namespace System.Net.FtpClient {
         /// <param name="args">Optional variables if using a format string similar to string.Format()</param>
         public static void WriteLine(string message, params object[] args) {
             Write(string.Format("{0}{1}", string.Format(message, args), Environment.NewLine));
+        }
+
+        /// <summary>
+        /// Write to the TraceListeners
+        /// </summary>
+        /// <param name="message">The message to write</param>
+        public static void WriteLine(string message) {
+            Write(string.Format("{0}{1}", message, Environment.NewLine));
         }
     }
 }

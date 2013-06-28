@@ -51,7 +51,10 @@ namespace Tests {
 
                 //TestUnixListParser();
 
-                TestFileZillaKick();
+               // TestFileZillaKick();
+
+                //TestUnixList();
+                TestNetBSDServer();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -59,6 +62,70 @@ namespace Tests {
 
             Console.WriteLine("--DONE--");
             Console.ReadKey();
+        }
+
+        static void TestNetBSDServer() {
+            using (FtpClient client = new FtpClient()) {
+                client.Credentials = new NetworkCredential("ftp", "ftp");
+                client.Host = "ftp.netbsd.org";
+                client.GetListing(null, FtpListOption.ForceList | FtpListOption.Modify);
+            }
+        }
+
+        static void TestUnixList() {
+            using (FtpClient client = new FtpClient()) {
+                client.Credentials = new NetworkCredential("ftptest", "ftptest");
+                client.Host = "localhost";
+                
+                FtpListItem[] items = client.GetListing(null, FtpListOption.ForceList | FtpListOption.Modify);
+                DirectoryInfo ftproot = new DirectoryInfo(@"C:\FTPTEST");
+
+                foreach (DirectoryInfo dir in ftproot.GetDirectories()) {
+                    bool found = false;
+
+                    foreach (FtpListItem item in items) {
+                        if (item.Name == dir.Name) {
+                            found = true;
+                                                       
+                            if (item.Modified.ToString() != dir.LastWriteTime.ToString())
+                                throw new Exception(string.Format("The last write time for {0} is not right! FtpListItem: {1} FileInfo: {2}",
+                                   dir.Name, item.Modified.ToString(), dir.LastAccessTime.ToString()));
+                        }
+
+                        if (found)
+                            break;
+                    }
+
+                    if (!found) {
+                        throw new Exception(string.Format("Couldn't locate directory {0} in listing.", dir.Name));
+                    }
+                }
+
+                foreach (FileInfo file in ftproot.GetFiles()) {
+                    bool found = false;
+
+                    foreach (FtpListItem item in items) {
+                        if (item.Name == file.Name) {
+                            found = true;
+
+                            if (item.Modified.ToString() != file.LastWriteTime.ToString())
+                                throw new Exception(string.Format("The last write time for {0} is not right! FtpListItem: {1} FileInfo: {2}", 
+                                    file.Name, item.Modified.ToString(), file.LastAccessTime.ToString()));
+
+                            if (item.Size != file.Length)
+                                throw new Exception(string.Format("The file size for {0} is not right! FtpListItem: {1} FileInfo: {2}", 
+                                    file.Name, item.Size, file.Length));
+                        }
+
+                        if (found)
+                            break;
+                    }
+
+                    if (!found) {
+                        throw new Exception(string.Format("Couldn't locate file {0} in listing.", file.Name));
+                    }
+                }
+            }
         }
 
         static void TestFileZillaKick() {
@@ -71,14 +138,13 @@ namespace Tests {
                     cl.DeleteFile("TestFile.txt");
 
                 try {
-                    using (Stream s = cl.OpenWrite("TestFile.txt")) {
-                        for (int i = 0; true; i++) {
-                            s.WriteByte((byte)i);
-                            Thread.Sleep(100);
-                        }
-                        
-                        s.Close();
+                    Stream s = cl.OpenWrite("TestFile.txt");
+                    for (int i = 0; true; i++) {
+                        s.WriteByte((byte)i);
+                        Thread.Sleep(100);
                     }
+
+                    s.Close();
                 }
                 catch (FtpCommandException ex) {
                     Console.WriteLine("Exception caught!");
@@ -263,7 +329,7 @@ namespace Tests {
                 //Console.WriteLine("Sleeping for 10 seconds to force timeout.");
                 //Thread.Sleep(10000);
 
-                foreach (FtpListItem item in cl.GetListing("./", FtpListOption.SizeModify | FtpListOption.ForceNameList)) {
+                foreach (FtpListItem item in cl.GetListing(null, FtpListOption.SizeModify | FtpListOption.ForceNameList)) {
                     Console.WriteLine(item.Modified.Kind);
                     Console.WriteLine(item.Modified);
                 }

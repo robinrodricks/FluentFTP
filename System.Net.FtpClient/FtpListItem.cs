@@ -379,12 +379,12 @@ namespace System.Net.FtpClient {
         /// <returns>FtpListItem if the item is able to be parsed</returns>
         static FtpListItem ParseUnixList(string buf, FtpCapability capabilities) {
             string regex = 
-                @"(?<permissions>[\w-]{10})\s+" +
+                @"(?<permissions>.+)\s+" +
                 @"(?<objectcount>\d+)\s+" +
-                @"(?<user>[\w\d]+)\s+" +
-                @"(?<group>[\w\d]+)\s+" +
+                @"(?<user>.+)\s+" +
+                @"(?<group>.+)\s+" +
                 @"(?<size>\d+)\s+" +
-                @"(?<modify>\w+\s+\d+\s+\d+:\d+|\w+\s+\d+\s+\d+)\s+" +
+                @"(?<modify>\w+\s+\d+\s+\d+:\d+|\w+\s+\d+\s+\d+)\s" +
                 @"(?<name>.*)$";
             FtpListItem item = new FtpListItem();
             Match m;
