@@ -919,7 +919,7 @@ namespace System.Net.FtpClient {
                         Execute("QUIT");
                     }
                     catch (IOException e) {
-                        FtpTrace.WriteLine("IOException thrown and disgarded when closing control connection: " + e.Message);
+                        FtpTrace.WriteLine("IOException thrown and discarded when closing control connection: " + e.Message);
                     }
                     finally {
                         m_stream.Close();
@@ -1618,7 +1618,6 @@ namespace System.Net.FtpClient {
         /// <returns>An array of FtpListItem objects</returns>
         /// <example><code source="..\Examples\GetListing.cs" lang="cs" /></example>
         public FtpListItem[] GetListing(string path, FtpListOption options) {
-            FtpReply reply; // used for NLST results to test if an object is a directory or not.
             FtpListItem item = null;
             List<FtpListItem> lst = new List<FtpListItem>();
             List<string> rawlisting = new List<string>();
