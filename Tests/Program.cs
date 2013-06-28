@@ -40,7 +40,7 @@ namespace Tests {
                 //TestDispose();
                 //TestHash();
 
-                //TestNameListing();
+                TestNameListing();
                 //TestOpenVMSParser();
                 // TestIISParser();
                 //GetMicrosoftFTPListing();
@@ -53,8 +53,8 @@ namespace Tests {
 
                // TestFileZillaKick();
 
-                //TestUnixList();
-                TestNetBSDServer();
+                TestUnixList();
+                //TestNetBSDServer();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -77,14 +77,14 @@ namespace Tests {
                 client.Credentials = new NetworkCredential("ftptest", "ftptest");
                 client.Host = "localhost";
                 
-                FtpListItem[] items = client.GetListing(null, FtpListOption.ForceList | FtpListOption.Modify);
-                DirectoryInfo ftproot = new DirectoryInfo(@"C:\FTPTEST");
+                FtpListItem[] items = client.GetListing("./TEST", FtpListOption.ForceList | FtpListOption.Modify);
+                DirectoryInfo ftproot = new DirectoryInfo(@"C:\FTPTEST\TEST");
 
                 foreach (DirectoryInfo dir in ftproot.GetDirectories()) {
                     bool found = false;
 
                     foreach (FtpListItem item in items) {
-                        if (item.Name == dir.Name) {
+                        if (item.Name.ToUpper() == dir.Name.ToUpper()) {
                             found = true;
                                                        
                             if (item.Modified.ToString() != dir.LastWriteTime.ToString())
@@ -144,7 +144,7 @@ namespace Tests {
                         Thread.Sleep(100);
                     }
 
-                    s.Close();
+                    //s.Close();
                 }
                 catch (FtpCommandException ex) {
                     Console.WriteLine("Exception caught!");
