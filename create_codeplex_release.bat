@@ -18,9 +18,15 @@ md "%release%\examples"
 md "%release%\help"
 
 rd /q /s System.Net.FtpClient\bin
+rd /q /s Sandcastle\Help
 
-%msbuild% /p:Configuration=Debug System.Net.FtpClient\System.Net.FtpClient.csproj
-%msbuild% /p:Configuration=Release System.Net.FtpClient\System.Net.FtpClient.csproj
+%msbuild% /p:Configuration=Debug "System.Net.FtpClient\System.Net.FtpClient.csproj"
+%msbuild% /p:Configuration=Release "System.Net.FtpClient\System.Net.FtpClient.csproj"
+
+:: Build API Reference/CHM
+cd Sandcastle
+%msbuild% /p:Configuration=Release "API Reference.shfbproj"
+cd ..
 
 xcopy /s "System.Net.FtpClient\bin" "%release%\bin\"
 xcopy "System.Net.FtpClient\*.cs" "%release%\source\"

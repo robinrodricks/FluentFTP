@@ -8,7 +8,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{e71f7a35-5ccb-4bb5-b3a0-75b7fdadc3d7}</ProjectGuid>
-    <SHFBSchemaVersion>1.9.3.0</SHFBSchemaVersion>
+    <SHFBSchemaVersion>1.9.5.0</SHFBSchemaVersion>
     <!-- AssemblyName, Name, and RootNamespace are not used by SHFB but Visual
          Studio adds them anyway -->
     <AssemblyName>Documentation</AssemblyName>
@@ -25,14 +25,14 @@
     <RootNamespaceTitle>System.Net.FtpClient</RootNamespaceTitle>
     <MSHelpViewerSdkLinkType>Id</MSHelpViewerSdkLinkType>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\System.Net.FtpClient\bin\Debug\System.Net.FtpClient.dll" xmlns="" />
-      <DocumentationSource sourceFile="..\System.Net.FtpClient\bin\Debug\System.Net.FtpClient.XML" xmlns="" />
-    </DocumentationSources>
+      <DocumentationSource sourceFile="..\System.Net.FtpClient\bin\Release\System.Net.FtpClient.dll" />
+<DocumentationSource sourceFile="..\System.Net.FtpClient\bin\Release\System.Net.FtpClient.xml" /></DocumentationSources>
     <VisibleItems>InheritedMembers, InheritedFrameworkMembers, Protected, SealedProtected</VisibleItems>
     <HelpFileFormat>HtmlHelp1</HelpFileFormat>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="(global)" isDocumented="False" />
-<NamespaceSummaryItem name="System.Net.FtpClient" isDocumented="True">A set of classes to ease interactions with FTP servers.</NamespaceSummaryItem></NamespaceSummaries>
+      <NamespaceSummaryItem name="System.Net.FtpClient" isDocumented="True">A set of classes to ease interactions with FTP servers.</NamespaceSummaryItem>
+    </NamespaceSummaries>
     <ProjectSummary>FTP Client Implementation</ProjectSummary>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
