@@ -1659,9 +1659,6 @@ namespace System.Net.FtpClient {
             try {
                 m_lock.WaitOne();
 
-                // always get the file listing in binary
-                // to avoid any potential character translation
-                // problems that would happen if in ASCII.
                 Execute("TYPE I");
 
                 // read in raw file listing
@@ -1693,13 +1690,7 @@ namespace System.Net.FtpClient {
                         FullName = buf
                     };
 
-                    // directory exist sends 2 calls to the server so
-                    // we're going to avoid this by not changing back
-                    // to the original working directory until the
-                    // list processing is done
-                    //if (DirectoryExists(item.FullName))
-
-                    if ((reply = this.Execute("CWD {0}", item.FullName)).Success)
+                    if (DirectoryExists(item.FullName))
                         item.Type = FtpFileSystemObjectType.Directory;
                     else
                         item.Type = FtpFileSystemObjectType.File;
@@ -1753,10 +1744,6 @@ namespace System.Net.FtpClient {
                     }
                 }
             }
-
-            if (listcmd == "NLST")
-                // reset the working directory
-                SetWorkingDirectory(pwd);
 
             return lst.ToArray();
         }

@@ -22,7 +22,7 @@ namespace Tests {
             FtpTrace.AddListener(new ConsoleTraceListener());
 
             try {
-                /*foreach (int i in new int[] {
+                foreach (int i in new int[] {
                      (int)FtpDataConnectionType.EPSV,
                      (int)FtpDataConnectionType.EPRT,
                      (int)FtpDataConnectionType.PASV,
@@ -34,13 +34,13 @@ namespace Tests {
                          Download(cl);
                          Delete(cl);
                      }
-                 }*/
+                 }
 
                 //TestMODCOMP_PWD_Parser();
                 //TestDispose();
                 //TestHash();
 
-                TestNameListing();
+                //TestNameListing();
                 //TestOpenVMSParser();
                 // TestIISParser();
                 //GetMicrosoftFTPListing();
@@ -53,7 +53,7 @@ namespace Tests {
 
                // TestFileZillaKick();
 
-                TestUnixList();
+                //TestUnixList();
                 //TestNetBSDServer();
             }
             catch (Exception ex) {
@@ -381,6 +381,9 @@ namespace Tests {
             foreach (string s in Directory.GetFiles(root, "*", SearchOption.AllDirectories)) {
                 string file = s;
 
+                if (file.Contains(@"\.git"))
+                    continue;
+
                 Thread t = new Thread(new ThreadStart(delegate() {
                     DoUpload(cl, root, file);
                 }));
@@ -424,6 +427,9 @@ namespace Tests {
                     Debug.Assert(cl.GetHash(s.Replace(root, "")).Verify(s), "The computed hashes don't match!");
                 }
             }
+
+            if (!cl.GetHash(s.Replace(root, "")).Verify(s))
+                throw new Exception("Hashes didn't match!");
         }
 
         static void Download(FtpClient cl) {
