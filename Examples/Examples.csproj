@@ -35,6 +35,7 @@
     <Compile Include="BeginConnect.cs" />
     <Compile Include="BeginDeleteDirectory.cs" />
     <Compile Include="BeginDeleteFile.cs" />
+    <Compile Include="BeginDereferenceLink.cs" />
     <Compile Include="BeginDirectoryExists.cs" />
     <Compile Include="BeginDisconnect.cs" />
     <Compile Include="BeginExecute.cs" />
@@ -57,6 +58,7 @@
     <Compile Include="Debug.cs" />
     <Compile Include="DeleteDirectory.cs" />
     <Compile Include="DeleteFile.cs" />
+    <Compile Include="DereferenceLink.cs" />
     <Compile Include="DirectoryExists.cs" />
     <Compile Include="Execute.cs" />
     <Compile Include="FileExists.cs" />

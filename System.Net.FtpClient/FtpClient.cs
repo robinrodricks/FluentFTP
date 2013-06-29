@@ -1603,6 +1603,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="item">The symbolic link</param>
         /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
+        /// <example><code source="..\Examples\DereferenceLink.cs" lang="cs" /></example>
         public FtpListItem DereferenceLink(FtpListItem item) {
             return DereferenceLink(item, MaximumDereferenceCount);
         }
@@ -1613,6 +1614,7 @@ namespace System.Net.FtpClient {
         /// <param name="item">The symbolic link</param>
         /// <param name="recMax">The maximum depth of recursion that can be performed before giving up.</param>
         /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
+        /// <example><code source="..\Examples\DereferenceLink.cs" lang="cs" /></example>
         public FtpListItem DereferenceLink(FtpListItem item, int recMax) {
             int count = 0;
             return DereferenceLink(item, recMax, ref count);
@@ -1625,6 +1627,7 @@ namespace System.Net.FtpClient {
         /// <param name="recMax">Maximum recursive calls</param>
         /// <param name="count">Counter</param>
         /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
+        /// <example><code source="..\Examples\DereferenceLink.cs" lang="cs" /></example>
         FtpListItem DereferenceLink(FtpListItem item, int recMax, ref int count) {
             if (item.Type != FtpFileSystemObjectType.Link)
                 throw new FtpException("You can only derefernce a symbolic link. Please verify the item type is Link.");
@@ -1668,6 +1671,7 @@ namespace System.Net.FtpClient {
         /// <param name="callback">AsyncCallback</param>
         /// <param name="state">State Object</param>
         /// <returns>IAsyncResult</returns>
+        /// <example><code source="..\Examples\BeginDereferenceLink.cs" lang="cs" /></example>
         public IAsyncResult BeginDereferenceLink(FtpListItem item, int recMax, AsyncCallback callback, object state) {
             IAsyncResult ar;
             AsyncDereferenceLink func;
@@ -1689,6 +1693,7 @@ namespace System.Net.FtpClient {
         /// <param name="callback">AsyncCallback</param>
         /// <param name="state">State Object</param>
         /// <returns>IAsyncResult</returns>
+        /// <example><code source="..\Examples\BeginDereferenceLink.cs" lang="cs" /></example>
         public IAsyncResult BeginDereferenceLink(FtpListItem item, AsyncCallback callback, object state) {
             return BeginDereferenceLink(item, MaximumDereferenceCount, callback, state);
         }
@@ -1698,6 +1703,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="ar">IAsyncResult</param>
         /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
+        /// <example><code source="..\Examples\BeginDereferenceLink.cs" lang="cs" /></example>
         public FtpListItem EndDereferenceLink(IAsyncResult ar) {
             return GetAsyncDelegate<AsyncDereferenceLink>(ar).EndInvoke(ar);
         }

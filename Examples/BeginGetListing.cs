@@ -4,6 +4,8 @@ using System.Net.FtpClient;
 using System.Threading;
 
 namespace Examples {
+    // Also see the GetListing() example for more details
+    // about file listings and the objects returned.
     public static class BeginGetListing {
         static ManualResetEvent m_reset = new ManualResetEvent(false);
 
