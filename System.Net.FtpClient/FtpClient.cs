@@ -254,6 +254,26 @@ namespace System.Net.FtpClient {
             }
         }
 
+        int m_maxDerefCount = 20;
+        /// <summary>
+        /// Gets or sets a value that controls the maximum depth
+        /// of recursion that DereferenceLink() will follow symbolic
+        /// links before giving up. You can also specify the value
+        /// to be used as one of the overloaded parameters to the
+        /// DereferenceLink() method. The default value is 20. Specifying
+        /// -1 here means inifinitly try to resolve a link. This is
+        /// not recommended for obvious reasons (stack overflow).
+        /// </summary>
+        [FtpControlConnectionClone]
+        public int MaximumDereferenceCount {
+            get { 
+                return m_maxDerefCount; 
+            }
+            set {
+                m_maxDerefCount = value;
+            }
+        }
+
         X509CertificateCollection m_clientCerts = new X509CertificateCollection();
         /// <summary>
         /// Client certificates to be used in SSL authentication process
@@ -1577,12 +1597,14 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// Recursively dereferences a symbolic link
+        /// Recursively dereferences a symbolic link. See the
+        /// MaximumDereferenceCount property for controlling
+        /// how deep this method will recurse before giving up.
         /// </summary>
         /// <param name="item">The symbolic link</param>
         /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
         public FtpListItem DereferenceLink(FtpListItem item) {
-            return DereferenceLink(item, 20);
+            return DereferenceLink(item, MaximumDereferenceCount);
         }
 
         /// <summary>
@@ -1659,14 +1681,16 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// Derefence a FtpListItem object asynchronously
+        /// Derefence a FtpListItem object asynchronously. See the
+        /// MaximumDereferenceCount property for controlling
+        /// how deep this method will recurse before giving up.
         /// </summary>
         /// <param name="item">The item to derefence</param>
         /// <param name="callback">AsyncCallback</param>
         /// <param name="state">State Object</param>
         /// <returns>IAsyncResult</returns>
         public IAsyncResult BeginDereferenceLink(FtpListItem item, AsyncCallback callback, object state) {
-            return BeginDereferenceLink(item, 20, callback, state);
+            return BeginDereferenceLink(item, MaximumDereferenceCount, callback, state);
         }
 
         /// <summary>
