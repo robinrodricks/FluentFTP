@@ -1636,6 +1636,48 @@ namespace System.Net.FtpClient {
             return null;
         }
 
+        delegate FtpListItem AsyncDereferenceLink(FtpListItem item, int recMax);
+
+        /// <summary>
+        /// Derefence a FtpListItem object asynchronously
+        /// </summary>
+        /// <param name="item">The item to derefence</param>
+        /// <param name="recMax">Maximum recursive calls</param>
+        /// <param name="callback">AsyncCallback</param>
+        /// <param name="state">State Object</param>
+        /// <returns>IAsyncResult</returns>
+        public IAsyncResult BeginDereferenceLink(FtpListItem item, int recMax, AsyncCallback callback, object state) {
+            IAsyncResult ar;
+            AsyncDereferenceLink func;
+
+            ar = (func = new AsyncDereferenceLink(DereferenceLink)).BeginInvoke(item, recMax, callback, state);
+            lock (m_asyncmethods) {
+                m_asyncmethods.Add(ar, func);
+            }
+
+            return ar;
+        }
+
+        /// <summary>
+        /// Derefence a FtpListItem object asynchronously
+        /// </summary>
+        /// <param name="item">The item to derefence</param>
+        /// <param name="callback">AsyncCallback</param>
+        /// <param name="state">State Object</param>
+        /// <returns>IAsyncResult</returns>
+        public IAsyncResult BeginDereferenceLink(FtpListItem item, AsyncCallback callback, object state) {
+            return BeginDereferenceLink(item, 20, callback, state);
+        }
+
+        /// <summary>
+        /// Ends a call to BeginDereferenceLink
+        /// </summary>
+        /// <param name="ar">IAsyncResult</param>
+        /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
+        public FtpListItem EndDereferenceLink(IAsyncResult ar) {
+            return GetAsyncDelegate<AsyncDereferenceLink>(ar).EndInvoke(ar);
+        }
+
         /// <summary>
         /// Gets a file listing from the server. Each FtpListItem object returned
         /// contains information about the file that was able to be retrieved. If
@@ -1773,6 +1815,12 @@ namespace System.Net.FtpClient {
 
                 // load extended information that wasn't available if the list options flags say to do so.
                 if (item != null) {
+                    // try to dereference symbolic links if the appropriate list
+                    // option was passed
+                    if (item.Type == FtpFileSystemObjectType.Link && (options & FtpListOption.DerefLinks) == FtpListOption.DerefLinks) {
+                        item.LinkObject = DereferenceLink(item);
+                    }
+
                     if ((options & FtpListOption.Modify) == FtpListOption.Modify && HasFeature(FtpCapability.MDTM)) {
                         // if the modified date was not loaded or the modified date is more than a day in the future 
                         // and the server supports the MDTM command, load the modified date.
@@ -1793,7 +1841,7 @@ namespace System.Net.FtpClient {
                         // if no size was parsed, the object is a file and the server
                         // supports the SIZE command, then load the file size
                         if (item.Size == -1) {
-                            if (item.Type == FtpFileSystemObjectType.File) {
+                            if (item.Type != FtpFileSystemObjectType.Directory) {
                                 item.Size = GetFileSize(item.FullName);
                             }
                             else {

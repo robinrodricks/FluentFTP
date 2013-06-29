@@ -68,11 +68,12 @@ namespace Tests {
             using (FtpClient client = new FtpClient()) {
                 client.Credentials = new NetworkCredential("ftp", "ftp");
                 client.Host = "ftp.netbsd.org";
-                foreach (FtpListItem item in client.GetListing(null, FtpListOption.ForceList | FtpListOption.Modify)) {
+                foreach (FtpListItem item in client.GetListing(null, 
+                    FtpListOption.ForceList | FtpListOption.Modify | FtpListOption.DerefLinks)) {
                     Console.WriteLine(item);
 
-                    if (item.Type == FtpFileSystemObjectType.Link)
-                        Console.WriteLine(client.DereferenceLink(item));
+                    if (item.Type == FtpFileSystemObjectType.Link && item.LinkObject != null)
+                        Console.WriteLine(item.LinkObject);
                 }
             }
         }

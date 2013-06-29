@@ -73,6 +73,21 @@ namespace System.Net.FtpClient {
             }
         }
 
+        FtpListItem m_linkObject = null;
+        /// <summary>
+        /// Gets the object the LinkTarget points to. This property is null unless pass the
+        /// FtpListOption.DerefLink flag in which case GetListing() will try to resolve
+        /// the target itself.
+        /// </summary>
+        public FtpListItem LinkObject {
+            get {
+                return m_linkObject;
+            }
+            set {
+                m_linkObject = value;
+            }
+        }
+
         DateTime m_modified = DateTime.MinValue;
         /// <summary>
         /// Gets the last write time of the object. This property can be

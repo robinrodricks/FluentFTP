@@ -388,6 +388,10 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Combines the ForceList and NameList flags
         /// </summary>
-        ForceNameList = ForceList | NameList
+        ForceNameList = ForceList | NameList,
+        /// <summary>
+        /// Try to dereference symbolic links
+        /// </summary>
+        DerefLinks = 32
     }
 }
