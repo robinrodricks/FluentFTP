@@ -1577,6 +1577,66 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
+        /// Recursively dereferences a symbolic link
+        /// </summary>
+        /// <param name="item">The symbolic link</param>
+        /// <returns>FtpListItem</returns>
+        public FtpListItem DereferenceLink(FtpListItem item) {
+            return DereferenceLink(item, 20);
+        }
+
+        /// <summary>
+        /// Recursively dereferences a symbolic link
+        /// </summary>
+        /// <param name="item">The symbolic link</param>
+        /// <param name="recMax">The maximum depth of recursion that can be performed before giving up.</param>
+        /// <returns>FtpListItem</returns>
+        public FtpListItem DereferenceLink(FtpListItem item, int recMax) {
+            int count = 0;
+            return DereferenceLink(item, recMax, ref count);
+        }
+
+        /// <summary>
+        /// Derefence a FtpListItem object
+        /// </summary>
+        /// <param name="item">The item to derefence</param>
+        /// <param name="recMax">Maximum recursive calls</param>
+        /// <param name="count">Counter</param>
+        /// <returns></returns>
+        FtpListItem DereferenceLink(FtpListItem item, int recMax, ref int count) {
+            if (item.Type != FtpFileSystemObjectType.Link)
+                throw new FtpException("You can only derefernce a symbolic link. Please verify the item type is Link.");
+
+            if (item.LinkTarget == null)
+                throw new FtpException("The link target was null. Please check this before trying to dereference the link.");
+
+            foreach (FtpListItem obj in GetListing(item.LinkTarget.GetFtpDirectoryName(), FtpListOption.ForceList)) {
+                if (item.LinkTarget == obj.FullName) {
+                    if (obj.Type == FtpFileSystemObjectType.Link) {
+                        if (++count == recMax)
+                            return null;
+
+                        return DereferenceLink(obj, recMax, ref count);
+                    }
+
+                    if (HasFeature(FtpCapability.MDTM)) {
+                        DateTime modify = GetModifiedTime(obj.FullName);
+
+                        if (modify != DateTime.MinValue)
+                            obj.Modified = modify;
+                    }
+
+                    if (obj.Type == FtpFileSystemObjectType.File && obj.Size < 0 && HasFeature(FtpCapability.SIZE))
+                        obj.Size = GetFileSize(obj.FullName);
+
+                    return obj;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Gets a file listing from the server. Each FtpListItem object returned
         /// contains information about the file that was able to be retrieved. If
         /// a DateTime property is equal to DateTime.MinValue then it means the 

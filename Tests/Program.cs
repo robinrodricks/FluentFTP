@@ -70,6 +70,9 @@ namespace Tests {
                 client.Host = "ftp.netbsd.org";
                 foreach (FtpListItem item in client.GetListing(null, FtpListOption.ForceList | FtpListOption.Modify)) {
                     Console.WriteLine(item);
+
+                    if (item.Type == FtpFileSystemObjectType.Link)
+                        Console.WriteLine(client.DereferenceLink(item));
                 }
             }
         }

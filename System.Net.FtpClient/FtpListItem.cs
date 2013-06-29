@@ -229,7 +229,7 @@ namespace System.Net.FtpClient {
                             item.FullName = path + item.Name;
                         else {
                             item.FullName = path.GetFtpPath(item.Name);
-
+                            
                             // if a link target is set and it doesn't include an absolute path
                             // then try to resolve it.
                             if (item.LinkTarget != null && !item.LinkTarget.StartsWith("/")) {
