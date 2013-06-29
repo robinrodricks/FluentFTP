@@ -1580,7 +1580,7 @@ namespace System.Net.FtpClient {
         /// Recursively dereferences a symbolic link
         /// </summary>
         /// <param name="item">The symbolic link</param>
-        /// <returns>FtpListItem</returns>
+        /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
         public FtpListItem DereferenceLink(FtpListItem item) {
             return DereferenceLink(item, 20);
         }
@@ -1590,7 +1590,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="item">The symbolic link</param>
         /// <param name="recMax">The maximum depth of recursion that can be performed before giving up.</param>
-        /// <returns>FtpListItem</returns>
+        /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
         public FtpListItem DereferenceLink(FtpListItem item, int recMax) {
             int count = 0;
             return DereferenceLink(item, recMax, ref count);
@@ -1602,7 +1602,7 @@ namespace System.Net.FtpClient {
         /// <param name="item">The item to derefence</param>
         /// <param name="recMax">Maximum recursive calls</param>
         /// <param name="count">Counter</param>
-        /// <returns></returns>
+        /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
         FtpListItem DereferenceLink(FtpListItem item, int recMax, ref int count) {
             if (item.Type != FtpFileSystemObjectType.Link)
                 throw new FtpException("You can only derefernce a symbolic link. Please verify the item type is Link.");
