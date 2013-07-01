@@ -467,8 +467,7 @@ namespace System.Net.FtpClient {
                         return null;
                     item.LinkTarget = item.Name.Remove(0, item.Name.IndexOf("-> ") + 3);
                     item.Name = item.Name.Remove(item.Name.IndexOf(" -> "));
-                    // that's all the processing we can do on symbolic links for now
-                    return item;
+                    break;
             }
 
             ////
