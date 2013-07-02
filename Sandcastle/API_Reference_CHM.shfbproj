@@ -18,7 +18,7 @@
     <OutputPath>CHM\</OutputPath>
     <HtmlHelpName>System.Net.FtpClient</HtmlHelpName>
     <Language>en-US</Language>
-    <CopyrightText>Copyright J.P. Trosclair %28c%29 2012</CopyrightText>
+    <CopyrightText>Copyright J.P. Trosclair %28c%29 2013</CopyrightText>
     <FeedbackEMailAddress>jptrosclair%40gmail.com</FeedbackEMailAddress>
     <FeedbackEMailLinkText>J.P. Trosclair</FeedbackEMailLinkText>
     <HelpTitle>System.Net.FtpClient</HelpTitle>
@@ -42,6 +42,13 @@
     <DisableCodeBlockComponent>False</DisableCodeBlockComponent>
     <CppCommentsFixup>True</CppCommentsFixup>
     <CleanIntermediates>True</CleanIntermediates>
+    <SyntaxFilters>Standard</SyntaxFilters>
+    <SdkLinkTarget>Blank</SdkLinkTarget>
+    <RootNamespaceContainer>False</RootNamespaceContainer>
+    <PresentationStyle>VS2005</PresentationStyle>
+    <Preliminary>False</Preliminary>
+    <NamingMethod>Guid</NamingMethod>
+    <ContentPlacement>AboveNamespaces</ContentPlacement>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional
