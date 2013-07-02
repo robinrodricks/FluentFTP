@@ -23,9 +23,14 @@ rd /q /s Sandcastle\Help
 %msbuild% /p:Configuration=Debug "System.Net.FtpClient\System.Net.FtpClient.csproj"
 %msbuild% /p:Configuration=Release "System.Net.FtpClient\System.Net.FtpClient.csproj"
 
-:: Build API Reference/CHM
+:: Build API Reference
 cd Sandcastle
-%msbuild% /p:Configuration=Release "API Reference.shfbproj"
+if exist CHM rd /q /s CHM
+if exist HTML rd /q /s HTML
+%msbuild% /p:Configuration=Release "API_Reference_CHM.shfbproj"
+%msbuild% /p:Configuration=Release "API_Reference_HTML.shfbproj"
+if exist CHM/LastBuild.log del /q /s CHM/LastBuild.log
+if exist HTML/LastBuild.log del /q /s HTML/LastBuild.log
 cd ..
 
 xcopy /s "System.Net.FtpClient\bin" "%release%\bin\"
@@ -33,7 +38,9 @@ xcopy "System.Net.FtpClient\*.cs" "%release%\source\"
 xcopy "System.Net.FtpClient\*.csproj" "%release%\source\"
 xcopy "Examples\*.cs" "%release%\examples\"
 xcopy "Examples\*.csproj" "%release%\examples\"
-xcopy "Sandcastle\Help\System.Net.FtpClient.chm" "%release%\help\"
+xcopy "Sandcastle\README.txt" "%release%\help\"
+xcopy "Sandcastle\CHM\System.Net.FtpClient.chm" "%release%\help\"
+xcopy /s "Sandcastle\HTML\*" "%release%\help\html\"
 xcopy "LICENSE.TXT" "%release%\"
 
 cd "%release%" 
