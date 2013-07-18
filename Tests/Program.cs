@@ -7,6 +7,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Tests {
     /// <summary>
@@ -53,8 +54,8 @@ namespace Tests {
 
                // TestFileZillaKick();
 
-                //TestUnixList();
-                TestNetBSDServer();
+                TestUnixList();
+                //TestNetBSDServer();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -68,6 +69,7 @@ namespace Tests {
             using (FtpClient client = new FtpClient()) {
                 client.Credentials = new NetworkCredential("ftp", "ftp");
                 client.Host = "ftp.netbsd.org";
+
                 foreach (FtpListItem item in client.GetListing(null, 
                     FtpListOption.ForceList | FtpListOption.Modify | FtpListOption.DerefLinks)) {
                     Console.WriteLine(item);
@@ -82,6 +84,8 @@ namespace Tests {
             using (FtpClient client = new FtpClient()) {
                 client.Credentials = new NetworkCredential("ftptest", "ftptest");
                 client.Host = "localhost";
+
+                Console.WriteLine("Connected!");
                 
                 FtpListItem[] items = client.GetListing("./TEST", FtpListOption.ForceList | FtpListOption.Modify);
                 DirectoryInfo ftproot = new DirectoryInfo(@"C:\FTPTEST\TEST");

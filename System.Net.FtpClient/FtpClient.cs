@@ -22,13 +22,11 @@ namespace System.Net.FtpClient {
     /// FTP Control Connection. Speaks the FTP protocol with the server and
     /// provides facilities for performing basic transactions.
     /// 
-    /// Debugging problems with the FTP transactions is much easier to do when
+    /// Debugging problems with FTP transactions is much easier to do when
     /// you can see exactly what is sent to the server and the reply 
-    /// System.Net.FtpClient gets in return. In order to view this information
-    /// you need to build System.Net.FtpClient with DEBUG defined. When enable
-    /// System.Net.FtpClient will log to the System.Diagnostics.Debug trace
-    /// listener. You can access what is being sent there by either defining 
-    /// your TraceListener object or by using one of the pre-existing ones.
+    /// System.Net.FtpClient gets in return. Please review the Debug example
+    /// below for information on how to add TraceListeners for capturing
+    /// the convorsation between System.Net.FtpClient and the server.
     /// </summary>
     /// <example>The following example illustrates how to assist in debugging
     /// System.Net.FtpClient by getting a transaction log from the server.
@@ -888,7 +886,7 @@ namespace System.Net.FtpClient {
         }
 
         delegate void AsyncConnect();
-
+        
         /// <summary>
         /// Initiates a connection to the server
         /// </summary>
@@ -901,6 +899,7 @@ namespace System.Net.FtpClient {
             IAsyncResult ar;
 
             ar = (func = new AsyncConnect(Connect)).BeginInvoke(callback, state);
+
             lock (m_asyncmethods) {
                 m_asyncmethods.Add(ar, func);
             }
@@ -3133,7 +3132,7 @@ namespace System.Net.FtpClient {
                 case "ftps":
                     break;
                 default:
-                    throw new UriFormatException("The specified URI scheme is not support. Please use ftp:// or ftps://");
+                    throw new UriFormatException("The specified URI scheme is not supported. Please use ftp:// or ftps://");
             }
 
             cl.Host = uri.Host;
