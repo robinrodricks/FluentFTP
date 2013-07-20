@@ -939,16 +939,16 @@ namespace System.Net.FtpClient {
                         Execute("QUIT");
                     }
                     catch (SocketException sockex) {
-                        FtpTrace.WriteLine("SocketException caught and discarded while closing control connection: {0}", sockex.ToString());
+                        FtpTrace.WriteLine("FtpClient.Disconnect(): SocketException caught and discarded while closing control connection: {0}", sockex.ToString());
                     }
                     catch (IOException ioex) {
-                        FtpTrace.WriteLine("IOException caught and discarded while closing control connection: {0}", ioex.ToString());
+                        FtpTrace.WriteLine("FtpClient.Disconnect(): IOException caught and discarded while closing control connection: {0}", ioex.ToString());
                     }
                     catch (FtpCommandException cmdex) {
-                        FtpTrace.WriteLine("FtpCommandException caught and discarded while closing control connection: {0}", cmdex.ToString());
+                        FtpTrace.WriteLine("FtpClient.Disconnect(): FtpCommandException caught and discarded while closing control connection: {0}", cmdex.ToString());
                     }
                     catch (FtpException ftpex) {
-                        FtpTrace.WriteLine("FtpException caught and discarded while closing control connection: {0}", ftpex.ToString());
+                        FtpTrace.WriteLine("FtpClient.Disconnect(): FtpException caught and discarded while closing control connection: {0}", ftpex.ToString());
                     }
                     finally {
                         m_stream.Close();
@@ -3101,10 +3101,15 @@ namespace System.Net.FtpClient {
             }
 
             if (m_stream != null) {
-                /*if (m_stream.IsConnected)
-                    m_stream.Close();*/
-                m_stream.Dispose();
-                m_stream = null;
+                try {
+                    m_stream.Dispose();
+                }
+                catch (Exception ex) {
+                    FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: {0}", ex.ToString());
+                }
+                finally {
+                    m_stream = null;
+                }
             }
 
             m_credentials = null;
