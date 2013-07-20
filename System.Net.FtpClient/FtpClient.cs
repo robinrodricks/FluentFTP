@@ -1242,26 +1242,29 @@ namespace System.Net.FtpClient {
             try {
                 m_lock.WaitOne();
 
-                if (IsConnected) {
-                    if (stream.CommandStatus.Type == FtpResponseType.PositivePreliminary) {
-                        FtpReply reply;
+                try {
+                    if (IsConnected) {
+                        // if the command that required the data connection was
+                        // not successful then there will be no reply from
+                        // the server, however if the command was successful
+                        // the server will send a reply when the data connection
+                        // is closed.
+                        if (stream.CommandStatus.Type == FtpResponseType.PositivePreliminary) {
+                            FtpReply reply;
 
-                        if (!(reply = GetReply()).Success) {
-                            throw new FtpCommandException(reply);
+                            if (!(reply = GetReply()).Success) {
+                                throw new FtpCommandException(reply);
+                            }
                         }
                     }
-
+                }
+                finally {
                     // if this is a clone of the original control
-                    // connection disconnect
+                    // connection we should Dispose()
                     if (IsClone) {
                         Disconnect();
+                        Dispose();
                     }
-                }
-
-                // if this is a clone of the original control
-                // connection we should Dispose()
-                if (IsClone) {
-                    Dispose();
                 }
             }
             finally {

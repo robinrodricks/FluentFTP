@@ -13,6 +13,21 @@ namespace System.Net.FtpClient {
     public static class FtpTrace {
         static List<TraceListener> m_listeners = new List<TraceListener>();
 
+        static bool m_flushOnWrite = false;
+
+        /// <summary>
+        /// Gets or sets whether the trace listeners should be flushed or not
+        /// after writing to them. Default value is false.
+        /// </summary>
+        public static bool FlushOnWrite {
+            get {
+                return m_flushOnWrite;
+            }
+            set {
+                m_flushOnWrite = value;
+            }
+        }
+
         /// <summary>
         /// Add a TraceListner to the collection. You can use one of the predefined
         /// TraceListeners in the System.Diagnostics namespace, such as ConsoleTraceListener
@@ -62,6 +77,10 @@ namespace System.Net.FtpClient {
 
             foreach (TraceListener t in listeners) {
                 t.Write(message);
+
+                if (m_flushOnWrite) {
+                    t.Flush();
+                }
             }
         }
 
