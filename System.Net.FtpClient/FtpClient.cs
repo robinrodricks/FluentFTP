@@ -937,8 +937,14 @@ namespace System.Net.FtpClient {
                     try {
                         Execute("QUIT");
                     }
-                    catch (IOException e) {
-                        FtpTrace.WriteLine("IOException thrown and discarded when closing control connection: " + e.Message);
+                    catch (System.Net.Sockets.SocketException sockex) {
+                        FtpTrace.WriteLine("SocketException caught and discarded while closing control connection: {0}", sockex.ToString());
+                    }
+                    catch (IOException ioex) {
+                        FtpTrace.WriteLine("IOException caught and discarded while closing control connection: {0}", ioex.ToString());
+                    }
+                    catch (FtpCommandException cmdex) {
+                        FtpTrace.WriteLine("FtpCommandException caught and discarded while closing control connection: {0}", cmdex.ToString());
                     }
                     finally {
                         m_stream.Close();
