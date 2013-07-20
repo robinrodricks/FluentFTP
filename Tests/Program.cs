@@ -54,8 +54,10 @@ namespace Tests {
 
                // TestFileZillaKick();
 
-                TestUnixList();
+                //TestUnixList();
                 //TestNetBSDServer();
+
+                TestConnectionFailure();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -63,6 +65,20 @@ namespace Tests {
 
             Console.WriteLine("--DONE--");
             Console.ReadKey();
+        }
+
+        static void TestConnectionFailure() {
+            try {
+                using (FtpClient cl = new FtpClient()) {
+                    cl.Credentials = new NetworkCredential("ftp", "ftp");
+                    cl.Host = "somefakehost";
+                    cl.ConnectTimeout = 5000;
+                    cl.Connect();
+                }
+            }
+            catch (Exception e) {
+                Console.WriteLine("Caught connection faillure: {0}", e.Message);
+            }
         }
 
         static void TestNetBSDServer() {

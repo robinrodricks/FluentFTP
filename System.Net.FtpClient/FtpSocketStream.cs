@@ -482,28 +482,49 @@ namespace System.Net.FtpClient {
         /// </summary>
         public override void Close() {
             if (m_socket != null) {
-                if (m_socket.Connected) {
-                    ////
-                    // Calling Shutdown() with mono causes an
-                    // exception if the remote host closed first
-                    //m_socket.Shutdown(SocketShutdown.Both);
-                    m_socket.Close();
-                }
+                try {
+                    if (m_socket.Connected) {
+                        ////
+                        // Calling Shutdown() with mono causes an
+                        // exception if the remote host closed first
+                        //m_socket.Shutdown(SocketShutdown.Both);
+                        m_socket.Close();
+                    }
 
 #if !NET2
-                m_socket.Dispose();
+                    m_socket.Dispose();
 #endif
-                m_socket = null;
+                }
+                catch (SocketException ex) {
+                    FtpTrace.WriteLine("Caught and discarded a SocketException while cleaning up the Socket: {0}", ex.ToString());
+                }
+                finally {
+                    m_socket = null;
+                }
             }
 
             if (m_netStream != null) {
-                m_netStream.Dispose();
-                m_netStream = null;
+                try {
+                    m_netStream.Dispose();
+                }
+                catch (IOException ex) {
+                    FtpTrace.WriteLine("Caught and discarded an IOException while cleaning up the NetworkStream: {0}", ex.ToString());
+                }
+                finally {
+                    m_netStream = null;
+                }
             }
 
             if (m_sslStream != null) {
-                m_sslStream.Dispose();
-                m_sslStream = null;
+                try {
+                    m_sslStream.Dispose();
+                }
+                catch (IOException ex) {
+                    FtpTrace.WriteLine("Caught and discarded an IOException while cleaning up the SslStream: {0}", ex.ToString());
+                }
+                finally {
+                    m_sslStream = null;
+                }
             }
         }
 
@@ -630,7 +651,7 @@ namespace System.Net.FtpClient {
                     SslProtocols.Tls | SslProtocols.Ssl2 | SslProtocols.Ssl3, true);
 
                 auth_time_total = DateTime.Now.Subtract(auth_start);
-                FtpTrace.WriteLine("Time to activate encryption: {0}h {1}m {2}s, Total Seconds: {3}.", 
+                FtpTrace.WriteLine("Time to activate encryption: {0}h {1}m {2}s, Total Seconds: {3}.",
                     auth_time_total.Hours,
                     auth_time_total.Minutes,
                     auth_time_total.Seconds,
