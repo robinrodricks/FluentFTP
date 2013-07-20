@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Reflection;
@@ -937,7 +938,7 @@ namespace System.Net.FtpClient {
                     try {
                         Execute("QUIT");
                     }
-                    catch (System.Net.Sockets.SocketException sockex) {
+                    catch (SocketException sockex) {
                         FtpTrace.WriteLine("SocketException caught and discarded while closing control connection: {0}", sockex.ToString());
                     }
                     catch (IOException ioex) {
@@ -945,6 +946,9 @@ namespace System.Net.FtpClient {
                     }
                     catch (FtpCommandException cmdex) {
                         FtpTrace.WriteLine("FtpCommandException caught and discarded while closing control connection: {0}", cmdex.ToString());
+                    }
+                    catch (FtpException ftpex) {
+                        FtpTrace.WriteLine("FtpException caught and discarded while closing control connection: {0}", ftpex.ToString());
                     }
                     finally {
                         m_stream.Close();

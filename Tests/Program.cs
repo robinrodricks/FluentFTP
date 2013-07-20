@@ -23,19 +23,22 @@ namespace Tests {
             FtpTrace.AddListener(new ConsoleTraceListener());
 
             try {
-                /*foreach (int i in new int[] {
+                foreach (int i in new int[] {
                      (int)FtpDataConnectionType.EPSV,
                      (int)FtpDataConnectionType.EPRT,
                      (int)FtpDataConnectionType.PASV,
                      (int)FtpDataConnectionType.PORT
                  }) {
-                     using (FtpClient cl = Connect()) {
+                     using (FtpClient cl = new FtpClient()) {
+                         cl.Credentials = new NetworkCredential(m_user, m_pass);
+                         cl.Host = m_host;
                          cl.DataConnectionType = (FtpDataConnectionType)i;
+                         cl.Connect();
                          Upload(cl);
                          Download(cl);
                          Delete(cl);
                      }
-                 }*/
+                 }
 
                 //TestMODCOMP_PWD_Parser();
                 //TestDispose();
@@ -57,7 +60,7 @@ namespace Tests {
                 //TestUnixList();
                 //TestNetBSDServer();
 
-                TestConnectionFailure();
+               // TestConnectionFailure();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
