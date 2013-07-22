@@ -137,25 +137,37 @@ namespace System.Net.FtpClient {
         /// </summary>
         public bool IsConnected {
             get {
-                if (m_socket == null)
-                    return false;
+                try {
+                    if (m_socket == null)
+                        return false;
 
-                if (!m_socket.Connected) {
-                    Close();
-                    return false;
-                }
-
-                if (!CanRead || !CanWrite) {
-                    Close();
-                    return false;
-                }
-
-                if (m_socketPollInterval > 0 && DateTime.Now.Subtract(m_lastActivity).TotalMilliseconds > m_socketPollInterval) {
-                    FtpTrace.WriteLine("Testing connectivity using Socket.Poll()...");
-                    if (m_socket.Poll(500000, SelectMode.SelectRead) && m_socket.Available == 0) {
+                    if (!m_socket.Connected) {
                         Close();
                         return false;
                     }
+
+                    if (!CanRead || !CanWrite) {
+                        Close();
+                        return false;
+                    }
+
+                    if (m_socketPollInterval > 0 && DateTime.Now.Subtract(m_lastActivity).TotalMilliseconds > m_socketPollInterval) {
+                        FtpTrace.WriteLine("Testing connectivity using Socket.Poll()...");
+                        if (m_socket.Poll(500000, SelectMode.SelectRead) && m_socket.Available == 0) {
+                            Close();
+                            return false;
+                        }
+                    }
+                }
+                catch (SocketException sockex) {
+                    Close();
+                    FtpTrace.WriteLine("FtpSocketStream.IsConnected: Caught and discarded SocketException while testing for connectivity: {0}", sockex.ToString());
+                    return false;
+                }
+                catch (IOException ioex) {
+                    Close();
+                    FtpTrace.WriteLine("FtpSocketStream.IsConnected: Caught and discarded IOException while testing for connectivity: {0}", ioex.ToString());
+                    return false;
                 }
 
                 return true;
