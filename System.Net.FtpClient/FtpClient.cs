@@ -3099,25 +3099,38 @@ namespace System.Net.FtpClient {
         public void Dispose() {
             FtpTrace.WriteLine("Disposing FtpClient object...");
 
-            if (IsConnected) {
-                Disconnect();
-            }
+            try {
+                m_lock.WaitOne();
 
-            if (m_stream != null) {
                 try {
-                    m_stream.Dispose();
+                    if (IsConnected) {
+                        Disconnect();
+                    }
                 }
                 catch (Exception ex) {
-                    FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: {0}", ex.ToString());
+                    FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disconnecting from host: {0}", ex.ToString());
                 }
-                finally {
-                    m_stream = null;
-                }
-            }
 
-            m_credentials = null;
-            m_textEncoding = null;
-            m_host = null;
+                if (m_stream != null) {
+                    try {
+                        m_stream.Dispose();
+                    }
+                    catch (Exception ex) {
+                        FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: {0}", ex.ToString());
+                    }
+                    finally {
+                        m_stream = null;
+                    }
+                }
+
+                m_credentials = null;
+                m_textEncoding = null;
+                m_host = null;
+                m_asyncmethods.Clear();
+            }
+            finally {
+                m_lock.ReleaseMutex();
+            }
         }
 
         /// <summary>
