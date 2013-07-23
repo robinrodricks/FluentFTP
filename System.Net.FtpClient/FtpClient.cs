@@ -84,6 +84,19 @@ namespace System.Net.FtpClient {
         /// </summary>
         FtpSocketStream m_stream = null;
 
+        bool m_isDisposed = false;
+        /// <summary>
+        /// Gets a value indicating if this object has already been disposed.
+        /// </summary>
+        public bool IsDisposed {
+            get {
+                return m_isDisposed;
+            }
+            private set {
+                m_isDisposed = value;
+            }
+        }
+
         /// <summary>
         /// Gets the base stream for talking to the server via
         /// the control connection.
@@ -703,7 +716,7 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// Connect to the server
+        /// Connect to the server. Throws ObjectDisposedException if this object has been disposed.
         /// </summary>
         /// <example><code source="..\Examples\Connect.cs" lang="cs" /></example>
         public virtual void Connect() {
@@ -711,6 +724,9 @@ namespace System.Net.FtpClient {
 
             try {
                 m_lock.WaitOne();
+
+                if (IsDisposed)
+                    throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
 
                 if (m_stream == null) {
                     m_stream = new FtpSocketStream();
@@ -3102,6 +3118,9 @@ namespace System.Net.FtpClient {
             try {
                 m_lock.WaitOne();
 
+                if (IsDisposed)
+                    return;
+
                 try {
                     if (IsConnected) {
                         Disconnect();
@@ -3129,6 +3148,7 @@ namespace System.Net.FtpClient {
                 m_asyncmethods.Clear();
             }
             finally {
+                IsDisposed = true;
                 m_lock.ReleaseMutex();
             }
         }

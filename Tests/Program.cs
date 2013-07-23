@@ -23,7 +23,7 @@ namespace Tests {
             FtpTrace.AddListener(new ConsoleTraceListener());
 
             try {
-                foreach (int i in new int[] {
+                /*foreach (int i in new int[] {
                      (int)FtpDataConnectionType.EPSV,
                      (int)FtpDataConnectionType.EPRT,
                      (int)FtpDataConnectionType.PASV,
@@ -38,7 +38,9 @@ namespace Tests {
                          Download(cl);
                          Delete(cl);
                      }
-                 }
+                 }*/
+
+                TestDisposeWithMultipleThreads();
 
                 //TestMODCOMP_PWD_Parser();
                 //TestDispose();
@@ -68,6 +70,28 @@ namespace Tests {
 
             Console.WriteLine("--DONE--");
             Console.ReadKey();
+        }
+
+        static void TestDisposeWithMultipleThreads() {
+            using (FtpClient cl = new FtpClient()) {
+                cl.Host = "ftp.netbsd.org";
+                cl.Credentials = new NetworkCredential("ftp", "ftp");
+
+                Thread t1 = new Thread(() => {
+                    cl.GetListing();
+                });
+
+                Thread t2 = new Thread(() => {
+                    cl.Dispose();
+                });
+
+                t1.Start();
+                Thread.Sleep(500);
+                t2.Start();
+
+                t1.Join();
+                t2.Join();
+            }
         }
 
         static void TestConnectionFailure() {
