@@ -93,7 +93,7 @@ namespace System.Net.FtpClient {
             get {
                 string message = "";
 
-                if (!Success) {
+                if (Success) {
                     return message;
                 }
 
