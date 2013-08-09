@@ -61,7 +61,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="reply">The FtpReply to build the exception from</param>
         public FtpCommandException(FtpReply reply)
-            : this(reply.Code, reply.Message) {
+            : this(reply.Code, reply.ErrorMessage) {
         }
     }
 

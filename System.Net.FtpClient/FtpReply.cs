@@ -80,5 +80,34 @@ namespace System.Net.FtpClient {
                 return false;
             }
         }
+
+        /// <summary>
+        /// Gets the error message include any informational output
+        /// that was sent by the server. Sometimes the final response
+        /// line doesn't contain anything informative as to what was going
+        /// on with the server. Instead it meay send information messages so
+        /// in an effort to give as meaningful as a response as possible
+        /// the informational messages will be included in the error.
+        /// </summary>
+        public string ErrorMessage {
+            get {
+                string message = "";
+
+                if (!Success) {
+                    return message;
+                }
+
+                if (InfoMessages != null && InfoMessages.Length > 0) {
+                    foreach (string s in InfoMessages.Split('\n')) {
+                        string m = Regex.Replace(s, "^[0-9]{3}-", "");
+                        message += string.Format("{0}; ", m.Trim());
+                    }
+                }
+
+                message += Message;
+
+                return message;
+            }
+        }
     }
 }
