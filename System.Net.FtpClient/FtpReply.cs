@@ -82,10 +82,10 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// Gets the error message include any informational output
+        /// Gets the error message including any informational output
         /// that was sent by the server. Sometimes the final response
         /// line doesn't contain anything informative as to what was going
-        /// on with the server. Instead it meay send information messages so
+        /// on with the server. Instead it may send information messages so
         /// in an effort to give as meaningful as a response as possible
         /// the informational messages will be included in the error.
         /// </summary>
