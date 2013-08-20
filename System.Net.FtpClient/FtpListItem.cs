@@ -269,6 +269,26 @@ namespace System.Net.FtpClient {
         /// </summary>
         static Mutex m_parserLock = new Mutex();
 
+        /// <summary>
+        /// Initalizes the default list of parsers
+        /// </summary>
+        static void InitParsers() {
+            try {
+                m_parserLock.WaitOne();
+
+                if (m_parsers == null) {
+                    m_parsers = new List<Parser>();
+                    m_parsers.Add(new Parser(ParseMachineList));
+                    m_parsers.Add(new Parser(ParseUnixList));
+                    m_parsers.Add(new Parser(ParseDosList));
+                    m_parsers.Add(new Parser(ParseVaxList));
+                }
+            }
+            finally {
+                m_parserLock.ReleaseMutex();
+            }
+        }
+
         static List<Parser> m_parsers = null;
         /// <summary>
         /// Collection of parsers. Each parser object contains
@@ -287,13 +307,8 @@ namespace System.Net.FtpClient {
                 try {
                     m_parserLock.WaitOne();
 
-                    if (m_parsers == null) {
-                        m_parsers = new List<Parser>();
-                        m_parsers.Add(new Parser(ParseMachineList));
-                        m_parsers.Add(new Parser(ParseUnixList));
-                        m_parsers.Add(new Parser(ParseDosList));
-                        m_parsers.Add(new Parser(ParseVaxList));
-                    }
+                    if (m_parsers == null)
+                        InitParsers();
 
                     parsers = m_parsers.ToArray();
                 }
@@ -313,6 +328,10 @@ namespace System.Net.FtpClient {
         public static void AddParser(Parser parser) {
             try {
                 m_parserLock.WaitOne();
+
+                if (m_parsers == null)
+                    InitParsers();
+
                 m_parsers.Add(parser);
             }
             finally {
@@ -326,6 +345,10 @@ namespace System.Net.FtpClient {
         public static void ClearParsers() {
             try {
                 m_parserLock.WaitOne();
+
+                if (m_parsers == null)
+                    InitParsers();
+
                 m_parsers.Clear();
             }
             finally {
@@ -340,6 +363,10 @@ namespace System.Net.FtpClient {
         public static void RemoveParser(Parser parser) {
             try {
                 m_parserLock.WaitOne();
+
+                if (m_parsers == null)
+                    InitParsers();
+
                 m_parsers.Remove(parser);
             }
             finally {
