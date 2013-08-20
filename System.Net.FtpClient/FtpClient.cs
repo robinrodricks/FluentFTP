@@ -3008,10 +3008,13 @@ namespace System.Net.FtpClient {
             FtpHash hash = new FtpHash();
             Match m;
 
+            if (path == null)
+                throw new ArgumentException("GetHash(path) argument can't be null");
+
             try {
                 m_lock.WaitOne();
 
-                if (!(reply = Execute("HASH {0}", path)).Success)
+                if (!(reply = Execute("HASH {0}", path.GetFtpPath())).Success)
                     throw new FtpCommandException(reply);
             }
             finally {
