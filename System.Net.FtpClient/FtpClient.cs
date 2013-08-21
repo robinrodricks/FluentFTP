@@ -770,7 +770,7 @@ namespace System.Net.FtpClient {
 
                 if (EncryptionMode == FtpEncryptionMode.Explicit) {
                     if (!(reply = Execute("AUTH TLS")).Success)
-                        throw new FtpSecrutiyNotAvailableException("AUTH TLS command failed.");
+                        throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
                     m_stream.ActivateEncryption(Host,
                         m_clientCerts.Count > 0 ? m_clientCerts : null);
                 }

@@ -68,11 +68,11 @@ namespace System.Net.FtpClient {
     /// <summary>
     /// Exception is thrown when encryption could not be negotiated by the server
     /// </summary>
-    public class FtpSecrutiyNotAvailableException : FtpException {
+    public class FtpSecurityNotAvailableException : FtpException {
         /// <summary>
         /// Default constructor
         /// </summary>
-        public FtpSecrutiyNotAvailableException()
+        public FtpSecurityNotAvailableException()
             : base("Security is not available on the server.") {
         }
 
@@ -80,7 +80,7 @@ namespace System.Net.FtpClient {
         /// Custom error message
         /// </summary>
         /// <param name="message">Error message</param>
-        public FtpSecrutiyNotAvailableException(string message)
+        public FtpSecurityNotAvailableException(string message)
             : base(message) {
         }
     }
