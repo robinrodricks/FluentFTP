@@ -452,8 +452,12 @@ namespace Tests {
         }
 
         static void DoUpload(FtpClient cl, string root, string s) {
+            FtpDataType type = FtpDataType.Binary;
             string path = Path.GetDirectoryName(s).Replace(root, "");
             string name = Path.GetFileName(s);
+
+            if (Path.GetExtension(s).ToLower() == ".cs" || Path.GetExtension(s).ToLower() == ".txt")
+                type = FtpDataType.ASCII;
 
             if (!cl.DirectoryExists(path))
                 cl.CreateDirectory(path, true);
@@ -462,7 +466,7 @@ namespace Tests {
 
             using (
                 Stream istream = new FileStream(s, FileMode.Open, FileAccess.Read),
-                        ostream = cl.OpenWrite(s.Replace(root, ""))) {
+                        ostream = cl.OpenWrite(s.Replace(root, ""), type)) {
                 byte[] buf = new byte[8192];
                 int read = 0;
 

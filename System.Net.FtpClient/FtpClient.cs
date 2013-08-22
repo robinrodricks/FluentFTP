@@ -2081,14 +2081,14 @@ namespace System.Net.FtpClient {
                     case FtpDataType.ASCII:
                         if (!(reply = Execute("TYPE A")).Success)
                             throw new FtpCommandException(reply);
-                        if (!(reply = Execute("STRU R")).Success)
-                            FtpTrace.WriteLine(reply.Message);
+                        /*if (!(reply = Execute("STRU R")).Success)
+                            FtpTrace.WriteLine(reply.Message);*/
                         break;
                     case FtpDataType.Binary:
                         if (!(reply = Execute("TYPE I")).Success)
                             throw new FtpCommandException(reply);
-                        if (!(reply = Execute("STRU F")).Success)
-                            FtpTrace.WriteLine(reply.Message);
+                        /*if (!(reply = Execute("STRU F")).Success)
+                            FtpTrace.WriteLine(reply.Message);*/
                         break;
                     default:
                         throw new FtpException("Unsupported data type: " + type.ToString());
