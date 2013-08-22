@@ -278,8 +278,8 @@ namespace System.Net.FtpClient {
         /// </summary>
         [FtpControlConnectionClone]
         public int MaximumDereferenceCount {
-            get { 
-                return m_maxDerefCount; 
+            get {
+                return m_maxDerefCount;
             }
             set {
                 m_maxDerefCount = value;
@@ -903,7 +903,7 @@ namespace System.Net.FtpClient {
         }
 
         delegate void AsyncConnect();
-        
+
         /// <summary>
         /// Initiates a connection to the server
         /// </summary>
@@ -2079,17 +2079,20 @@ namespace System.Net.FtpClient {
 
                 switch (type) {
                     case FtpDataType.ASCII:
-                        reply = Execute("TYPE A");
+                        if (!(reply = Execute("TYPE A")).Success)
+                            throw new FtpCommandException(reply);
+                        if (!(reply = Execute("STRU R")).Success)
+                            FtpTrace.WriteLine(reply.Message);
                         break;
                     case FtpDataType.Binary:
-                        reply = Execute("TYPE I");
+                        if (!(reply = Execute("TYPE I")).Success)
+                            throw new FtpCommandException(reply);
+                        if (!(reply = Execute("STRU F")).Success)
+                            FtpTrace.WriteLine(reply.Message);
                         break;
                     default:
                         throw new FtpException("Unsupported data type: " + type.ToString());
                 }
-
-                if (!reply.Success)
-                    throw new FtpCommandException(reply);
             }
             finally {
                 m_lock.ReleaseMutex();
