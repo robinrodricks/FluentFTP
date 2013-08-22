@@ -48,7 +48,6 @@
     <Compile Include="BeginOpenAppend.cs" />
     <Compile Include="BeginOpenWrite.cs" />
     <Compile Include="BeginRename.cs" />
-    <Compile Include="BeginSetDataType.cs" />
     <Compile Include="BeginSetWorkingDirectory.cs" />
     <Compile Include="Connect.cs" />
     <Compile Include="CreateDirectory.cs" />

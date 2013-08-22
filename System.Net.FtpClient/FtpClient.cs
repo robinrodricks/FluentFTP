@@ -2071,7 +2071,7 @@ namespace System.Net.FtpClient {
         /// Sets the data type of information sent over the data stream
         /// </summary>
         /// <param name="type">ASCII/Binary</param>
-        public void SetDataType(FtpDataType type) {
+        protected void SetDataType(FtpDataType type) {
             FtpReply reply;
 
             try {
@@ -2108,8 +2108,7 @@ namespace System.Net.FtpClient {
         /// <param name="callback">Async callback</param>
         /// <param name="state">State object</param>
         /// <returns>IAsyncResult</returns>
-        /// <example><code source="..\Examples\BeginSetDataType.cs" lang="cs" /></example>
-        public IAsyncResult BeginSetDataType(FtpDataType type, AsyncCallback callback, object state) {
+        protected IAsyncResult BeginSetDataType(FtpDataType type, AsyncCallback callback, object state) {
             IAsyncResult ar;
             AsyncSetDataType func;
 
@@ -2125,8 +2124,7 @@ namespace System.Net.FtpClient {
         /// Ends a call to BeginSetDataType()
         /// </summary>
         /// <param name="ar">IAsyncResult returned from BeginSetDataType()</param>
-        /// <example><code source="..\Examples\BeginSetDataType.cs" lang="cs" /></example>
-        public void EndSetDataType(IAsyncResult ar) {
+        protected void EndSetDataType(IAsyncResult ar) {
             GetAsyncDelegate<AsyncSetDataType>(ar).EndInvoke(ar);
         }
 

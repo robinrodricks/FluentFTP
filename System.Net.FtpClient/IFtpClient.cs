@@ -318,12 +318,6 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Added for the MoQ unit testing framework
         /// </summary>
-        /// <param name="type"></param>
-        void SetDataType(FtpDataType type);
-
-        /// <summary>
-        /// Added for the MoQ unit testing framework
-        /// </summary>
         /// <param name="path"></param>
         void SetWorkingDirectory(string path);
 
@@ -708,21 +702,6 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="ar"></param>
         void EndRename(IAsyncResult ar);
-        
-        /// <summary>
-        /// Added for the MoQ unit testing framework
-        /// </summary>
-        /// <param name="type"></param>
-        /// <param name="callback"></param>
-        /// <param name="state"></param>
-        /// <returns></returns>
-        IAsyncResult BeginSetDataType(FtpDataType type, AsyncCallback callback, object state);
-
-        /// <summary>
-        /// Added for the MoQ unit testing framework
-        /// </summary>
-        /// <param name="ar"></param>
-        void EndSetDataType(IAsyncResult ar);
         
         /// <summary>
         /// Added for the MoQ unit testing framework
