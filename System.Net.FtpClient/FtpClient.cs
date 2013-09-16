@@ -319,6 +319,18 @@ namespace System.Net.FtpClient {
             }
         }
 
+        bool m_ungracefullDisconnect = false;
+        /// <summary>
+        /// Disconnect from the server without sending QUIT. This helps
+        /// work around IOExceptions caused by buggy connection resets
+        /// when closing the control connection.
+        /// </summary>
+        [FtpControlConnectionClone]
+        public bool UngracefullDisconnection {
+            get { return m_ungracefullDisconnect; }
+            set { m_ungracefullDisconnect = value; }
+        }
+
         int m_connectTimeout = 15000;
         /// <summary>
         /// Gets or sets the length of time in miliseconds to wait for a connection 
@@ -952,7 +964,9 @@ namespace System.Net.FtpClient {
 
                 if (m_stream != null && m_stream.IsConnected) {
                     try {
-                        Execute("QUIT");
+                        if (!UngracefullDisconnection) {
+                            Execute("QUIT");
+                        }
                     }
                     catch (SocketException sockex) {
                         FtpTrace.WriteLine("FtpClient.Disconnect(): SocketException caught and discarded while closing control connection: {0}", sockex.ToString());
