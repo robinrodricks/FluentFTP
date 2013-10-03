@@ -567,13 +567,13 @@ namespace System.Net.FtpClient {
 
             for (int i = 0; i < addresses.Length; i++) {
 #if DEBUG
-                FtpTrace.WriteLine("{0}: {1}", addresses[0].AddressFamily.ToString(), addresses[0].ToString());
+                FtpTrace.WriteLine("{0}: {1}", addresses[i].AddressFamily.ToString(), addresses[i].ToString());
 #endif
                 // we don't need to do this check unless
                 // a particular version of IP has been
                 // omitted so we won't.
                 if (ipVersions != FtpIpVersion.ANY) {
-                    switch (addresses[0].AddressFamily) {
+                    switch (addresses[i].AddressFamily) {
                         case AddressFamily.InterNetwork:
                             if ((ipVersions & FtpIpVersion.IPv4) != FtpIpVersion.IPv4) {
 #if DEBUG
