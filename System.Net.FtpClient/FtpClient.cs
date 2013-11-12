@@ -787,15 +787,15 @@ namespace System.Net.FtpClient {
                         m_clientCerts.Count > 0 ? m_clientCerts : null);
                 }
 
+                if (m_credentials != null) {
+                    Authenticate();
+                }
+
                 if (m_stream.IsEncrypted && DataConnectionEncryption) {
                     if (!(reply = Execute("PBSZ 0")).Success)
                         throw new FtpCommandException(reply);
                     if (!(reply = Execute("PROT P")).Success)
                         throw new FtpCommandException(reply);
-                }
-
-                if (m_credentials != null) {
-                    Authenticate();
                 }
 
                 // if this is a clone these values

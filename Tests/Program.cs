@@ -21,7 +21,7 @@ namespace Tests {
         static void Main(string[] args) {
             FtpTrace.FlushOnWrite = true;
             FtpTrace.AddListener(new ConsoleTraceListener());
-
+			
             try {
                 foreach (int i in new int[] {
                      (int)FtpDataConnectionType.EPSV,
@@ -32,6 +32,8 @@ namespace Tests {
                      using (FtpClient cl = new FtpClient()) {
                          cl.Credentials = new NetworkCredential(m_user, m_pass);
                          cl.Host = m_host;
+                         cl.EncryptionMode = FtpEncryptionMode.Explicit;
+                         cl.ValidateCertificate += new FtpSslValidation(cl_ValidateCertificate);
                          cl.DataConnectionType = (FtpDataConnectionType)i;
                          cl.Connect();
                          Upload(cl);
@@ -70,6 +72,10 @@ namespace Tests {
 
             Console.WriteLine("--DONE--");
             Console.ReadKey();
+        }
+
+        static void cl_ValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
+            e.Accept = true;
         }
 
         static void TestDisposeWithMultipleThreads() {
