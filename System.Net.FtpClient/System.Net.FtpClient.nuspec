@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<package >
+<package>
   <metadata>
     <id>$id$</id>
     <version>$version$</version>
-    <title>system.Net.FtpClient</title>
+    <title>System.Net.FtpClient</title>
     <authors>J.P. Trosclair</authors>
     <owners>J.P. Trosclair</owners>
     <licenseUrl>https://netftp.codeplex.com/license</licenseUrl>
