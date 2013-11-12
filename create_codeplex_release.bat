@@ -18,20 +18,9 @@ md "%release%\examples"
 md "%release%\help"
 
 rd /q /s System.Net.FtpClient\bin
-rd /q /s Sandcastle\Help
 
 %msbuild% /p:Configuration=Debug "System.Net.FtpClient\System.Net.FtpClient.csproj"
 %msbuild% /p:Configuration=Release "System.Net.FtpClient\System.Net.FtpClient.csproj"
-
-:: Build API Reference
-cd Sandcastle
-if exist CHM rd /q /s CHM
-if exist HTML rd /q /s HTML
-%msbuild% /p:Configuration=Release "API_Reference_CHM.shfbproj"
-%msbuild% /p:Configuration=Release "API_Reference_HTML.shfbproj"
-if exist CHM/LastBuild.log del /q /s CHM/LastBuild.log
-if exist HTML/LastBuild.log del /q /s HTML/LastBuild.log
-cd ..
 
 xcopy /s "System.Net.FtpClient\bin" "%release%\bin\"
 xcopy "System.Net.FtpClient\*.cs" "%release%\source\"

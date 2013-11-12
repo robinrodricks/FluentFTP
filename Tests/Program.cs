@@ -21,7 +21,7 @@ namespace Tests {
         static void Main(string[] args) {
             FtpTrace.FlushOnWrite = true;
             FtpTrace.AddListener(new ConsoleTraceListener());
-			
+
             try {
                 foreach (int i in new int[] {
                      (int)FtpDataConnectionType.EPSV,
@@ -29,18 +29,18 @@ namespace Tests {
                      (int)FtpDataConnectionType.PASV,
                      (int)FtpDataConnectionType.PORT
                  }) {
-                     using (FtpClient cl = new FtpClient()) {
-                         cl.Credentials = new NetworkCredential(m_user, m_pass);
-                         cl.Host = m_host;
-                         cl.EncryptionMode = FtpEncryptionMode.Explicit;
-                         cl.ValidateCertificate += new FtpSslValidation(cl_ValidateCertificate);
-                         cl.DataConnectionType = (FtpDataConnectionType)i;
-                         cl.Connect();
-                         Upload(cl);
-                         Download(cl);
-                         Delete(cl);
-                     }
-                 }
+                    using (FtpClient cl = new FtpClient()) {
+                        cl.Credentials = new NetworkCredential(m_user, m_pass);
+                        cl.Host = m_host;
+                        cl.EncryptionMode = FtpEncryptionMode.Explicit;
+                        cl.ValidateCertificate += new FtpSslValidation(cl_ValidateCertificate);
+                        cl.DataConnectionType = (FtpDataConnectionType)i;
+                        cl.Connect();
+                        Upload(cl);
+                        Download(cl);
+                        Delete(cl);
+                    }
+                }
 
                 //TestDisposeWithMultipleThreads();
 
@@ -59,12 +59,12 @@ namespace Tests {
 
                 //TestUnixListParser();
 
-               // TestFileZillaKick();
+                // TestFileZillaKick();
 
                 //TestUnixList();
                 //TestNetBSDServer();
 
-               // TestConnectionFailure();
+                // TestConnectionFailure();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -119,7 +119,7 @@ namespace Tests {
                 client.Credentials = new NetworkCredential("ftp", "ftp");
                 client.Host = "ftp.netbsd.org";
 
-                foreach (FtpListItem item in client.GetListing(null, 
+                foreach (FtpListItem item in client.GetListing(null,
                     FtpListOption.ForceList | FtpListOption.Modify | FtpListOption.DerefLinks)) {
                     Console.WriteLine(item);
 
@@ -135,7 +135,7 @@ namespace Tests {
                 client.Host = "localhost";
 
                 Console.WriteLine("Connected!");
-                
+
                 FtpListItem[] items = client.GetListing("./TEST", FtpListOption.ForceList | FtpListOption.Modify);
                 DirectoryInfo ftproot = new DirectoryInfo(@"C:\FTPTEST\TEST");
 
@@ -145,7 +145,7 @@ namespace Tests {
                     foreach (FtpListItem item in items) {
                         if (item.Name.ToUpper() == dir.Name.ToUpper()) {
                             found = true;
-                                                       
+
                             if (item.Modified.ToString() != dir.LastWriteTime.ToString())
                                 throw new Exception(string.Format("The last write time for {0} is not right! FtpListItem: {1} FileInfo: {2}",
                                    dir.Name, item.Modified.ToString(), dir.LastAccessTime.ToString()));
@@ -168,11 +168,11 @@ namespace Tests {
                             found = true;
 
                             if (item.Modified.ToString() != file.LastWriteTime.ToString())
-                                throw new Exception(string.Format("The last write time for {0} is not right! FtpListItem: {1} FileInfo: {2}", 
+                                throw new Exception(string.Format("The last write time for {0} is not right! FtpListItem: {1} FileInfo: {2}",
                                     file.Name, item.Modified.ToString(), file.LastAccessTime.ToString()));
 
                             if (item.Size != file.Length)
-                                throw new Exception(string.Format("The file size for {0} is not right! FtpListItem: {1} FileInfo: {2}", 
+                                throw new Exception(string.Format("The file size for {0} is not right! FtpListItem: {1} FileInfo: {2}",
                                     file.Name, item.Size, file.Length));
                         }
 

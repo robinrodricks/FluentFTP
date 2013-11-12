@@ -3,13 +3,13 @@
   <metadata>
     <id>$id$</id>
     <version>$version$</version>
-    <title>$title$</title>
+    <title>system.Net.FtpClient</title>
     <authors>J.P. Trosclair</authors>
     <owners>J.P. Trosclair</owners>
     <licenseUrl>https://netftp.codeplex.com/license</licenseUrl>
     <projectUrl>https://netftp.codeplex.com/</projectUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>FTP Client Implementation</description>
     <copyright>Copyright 2013</copyright>
     <tags>FTP FTPS .net SSL TLS</tags>
   </metadata>
