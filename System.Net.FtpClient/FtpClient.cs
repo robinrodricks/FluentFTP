@@ -1799,7 +1799,8 @@ namespace System.Net.FtpClient {
             string pwd = GetWorkingDirectory();
             string buf = null;
 
-            path = path.GetFtpPath();
+            // old path cleanup code
+            /*path = path.GetFtpPath();
             if (path == null || path.GetFtpPath().Trim().Length == 0 || path.StartsWith(".")) {
                 if (pwd == null || pwd.Length == 0) // couldn't get the working directory
                     path = "./";
@@ -1807,6 +1808,19 @@ namespace System.Net.FtpClient {
                     path = string.Format("{0}/{1}", pwd, path.Remove(0, 2));
                 else
                     path = pwd;
+            }*/
+
+            path = path.GetFtpPath();
+            if (path == null || path.Trim().Length == 0) {
+                if (pwd != null && pwd.Trim().Length > 0)
+                    path = pwd;
+                else
+                    path = "./";
+            }
+            else if (!path.StartsWith("/") && pwd != null && pwd.Trim().Length > 0) {
+                if (path.StartsWith("./"))
+                    path = path.Remove(0, 2);
+                path = string.Format("{0}/{1}", pwd, path).GetFtpPath();
             }
 
             // MLSD provides a machine parsable format with more

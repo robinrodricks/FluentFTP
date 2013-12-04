@@ -23,7 +23,7 @@ namespace Tests {
             FtpTrace.AddListener(new ConsoleTraceListener());
 
             try {
-                foreach (int i in new int[] {
+                /*foreach (int i in new int[] {
                      (int)FtpDataConnectionType.EPSV,
                      (int)FtpDataConnectionType.EPRT,
                      (int)FtpDataConnectionType.PASV,
@@ -32,7 +32,7 @@ namespace Tests {
                     using (FtpClient cl = new FtpClient()) {
                         cl.Credentials = new NetworkCredential(m_user, m_pass);
                         cl.Host = m_host;
-                        cl.EncryptionMode = FtpEncryptionMode.Explicit;
+                        cl.EncryptionMode = FtpEncryptionMode.None;
                         cl.ValidateCertificate += new FtpSslValidation(cl_ValidateCertificate);
                         cl.DataConnectionType = (FtpDataConnectionType)i;
                         cl.Connect();
@@ -40,7 +40,9 @@ namespace Tests {
                         Download(cl);
                         Delete(cl);
                     }
-                }
+                }*/
+
+                TestServer();
 
                 //TestDisposeWithMultipleThreads();
 
@@ -72,6 +74,48 @@ namespace Tests {
 
             Console.WriteLine("--DONE--");
             Console.ReadKey();
+        }
+
+        static void TestServer() {
+            using (FtpClient cl = new FtpClient()) {
+                cl.Host = "localhost";
+                cl.Credentials = new NetworkCredential("ftptest", "ftptest");
+                foreach (FtpListItem i in cl.GetListing("/")) {
+                    Console.WriteLine(i.FullName);
+                }
+            }
+        }
+
+        static void TestServerDownload(FtpClient client, string path) {
+            foreach (FtpListItem i in client.GetListing(path)) {
+                switch (i.Type) {
+                    case FtpFileSystemObjectType.Directory:
+                        TestServerDownload(client, i.FullName);
+                        break;
+                    case FtpFileSystemObjectType.File:
+                        using (Stream s = client.OpenRead(i.FullName)) {
+                            byte[] b = new byte[8192];
+                            int read = 0;
+                            long total = 0;
+
+                            try {
+                                while ((read = s.Read(b, 0, b.Length)) > 0) {
+                                    total += read;
+
+                                    Console.Write("\r{0}/{1} {2:p}          ",
+                                        total, s.Length, (double)total / (double)s.Length);
+                                }
+
+                                Console.Write("\r{0}/{1} {2:p}       ",
+                                        total, s.Length, (double)total / (double)s.Length);
+                            }
+                            finally {
+                                Console.WriteLine();
+                            }
+                        }
+                        break;
+                }
+            }
         }
 
         static void cl_ValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {

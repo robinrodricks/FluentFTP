@@ -243,8 +243,9 @@ namespace System.Net.FtpClient {
                         if (parser == (new Parser(ParseVaxList)))
                             item.FullName = path + item.Name;
                         else {
-                            item.FullName = path.GetFtpPath(item.Name);
-                            
+                            FtpTrace.WriteLine(item.Name);
+                            item.FullName = Regex.Replace(path, @"\*.*/?", "").GetFtpPath(item.Name);
+
                             // if a link target is set and it doesn't include an absolute path
                             // then try to resolve it.
                             if (item.LinkTarget != null && !item.LinkTarget.StartsWith("/")) {
