@@ -244,7 +244,14 @@ namespace System.Net.FtpClient {
                             item.FullName = path + item.Name;
                         else {
                             FtpTrace.WriteLine(item.Name);
-                            item.FullName = Regex.Replace(path, @"\*.*/?", "").GetFtpPath(item.Name);
+
+                            // remove globbing/wildcard from path
+                            if (path.GetFtpFileName().Contains("*")) {
+                                path = path.GetFtpDirectoryName();
+                            }
+
+                            item.FullName = path.GetFtpPath(item.Name); //.GetFtpPathWithoutGlob();
+                            
 
                             // if a link target is set and it doesn't include an absolute path
                             // then try to resolve it.

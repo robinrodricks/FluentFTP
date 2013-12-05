@@ -80,7 +80,7 @@ namespace Tests {
             using (FtpClient cl = new FtpClient()) {
                 cl.Host = "localhost";
                 cl.Credentials = new NetworkCredential("ftptest", "ftptest");
-                foreach (FtpListItem i in cl.GetListing("/")) {
+                foreach (FtpListItem i in cl.GetListing("/Examples/bin/")) {
                     Console.WriteLine(i.FullName);
                 }
             }
