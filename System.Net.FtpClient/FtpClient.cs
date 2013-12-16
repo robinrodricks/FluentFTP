@@ -545,6 +545,10 @@ namespace System.Net.FtpClient {
             T func;
 
             lock (m_asyncmethods) {
+                if (m_isDisposed) {
+                    throw new ObjectDisposedException("This connection object has already been disposed.");
+                }
+
                 if (!m_asyncmethods.ContainsKey(ar))
                     throw new InvalidOperationException("The specified IAsyncResult could not be located.");
 

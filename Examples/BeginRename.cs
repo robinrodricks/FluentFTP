@@ -8,6 +8,10 @@ namespace Examples {
         static ManualResetEvent m_reset = new ManualResetEvent(false);
 
         public static void BeginRename() {
+            // The using statement here is OK _only_ because m_reset.WaitOne()
+            // causes the code to block until the async process finishes, otherwise
+            // the connection object would be disposed early. In practice, you
+            // typically would not wrap the following code with a using statement.
             using (FtpClient conn = new FtpClient()) {
                 m_reset.Reset();
                 
