@@ -15,7 +15,7 @@ namespace System.Net.FtpClient {
         /// <param name="path">The file system path</param>
         /// <returns>A path formatted for FTP</returns>
         public static string GetFtpPath(this string path) {
-            if (path == null || path.Length == 0)
+            if (String.IsNullOrEmpty(path))
                 return "./";
 
             path = Regex.Replace(path.Replace('\\', '/'), "[/]+", "/").TrimEnd('/');
