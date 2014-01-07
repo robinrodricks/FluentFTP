@@ -32,6 +32,9 @@ namespace System.Net.FtpClient {
         /// <param name="segments">The path segments to append</param>
         /// <returns>A valid FTP path</returns>
         public static string GetFtpPath(this string path, params string[] segments) {
+            if (String.IsNullOrEmpty(path))
+                path = "./";
+
             foreach (string part in segments) {
                 if (part != null) {
                     if (path.Length > 0 && !path.EndsWith("/"))
