@@ -9,7 +9,8 @@ namespace System.Net.FtpClient {
     /// This interfaces was added for users using the MoQ framework
     /// for unit testing.
     /// </summary>
-    public interface IFtpClient {
+    public interface IFtpClient : IDisposable
+    {
         /// <summary>
         /// Added for the MoQ unit testing framework
         /// </summary>
