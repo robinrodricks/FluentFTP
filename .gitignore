@@ -1,2 +1,16 @@
-/System.Net.FtpClient/bin
-/System.Net.FtpClient/obj
+bin
+obj
+
+API Reference.shfbproj_jp
+Help
+
+*.suo
+*.nupkg
+.gitignore
+NuGetPackages
+
+API_Reference_HTML.shfbproj_jp
+CHM
+HTML
+API_Reference_CHM.shfbproj_jp
+.DS_Store
