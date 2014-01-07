@@ -2,7 +2,7 @@
 
 set msbuild=%SystemRoot%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe
 set packages=NuGetPackages
-set snk=..\..\..\Dropbox\Documents\System.Net.FtpClient-SNK\System.Net.FtpClient.snk
+set snk=..\..\Documents\System.Net.FtpClient-SNK\System.Net.FtpClient.snk
 
 if not exist "%packages%" md "%packages%"
 
