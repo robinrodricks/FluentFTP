@@ -17,9 +17,6 @@
     <file src="..\LICENSE.TXT" target="" />
     <file src="*.cs" target="source\" />
     <file src="*.csproj" target="source\" />
-    <file src="..\Sandcastle\CHM\System.Net.FtpClient.chm" target="help\" />
-    <file src="..\Sandcastle\README.txt" target="help\" />
-    <file src="..\Sandcastle\HTML\**" target="help\html\" />
     <file src="..\Examples\*.cs" target="examples\" />
     <file src="..\Examples\*.csproj" target="examples\" />
   </files>
