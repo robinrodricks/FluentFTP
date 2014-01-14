@@ -9,8 +9,7 @@ namespace System.Net.FtpClient {
     /// This interfaces was added for users using the MoQ framework
     /// for unit testing.
     /// </summary>
-    public interface IFtpClient : IDisposable
-    {
+    public interface IFtpClient : IDisposable {
         /// <summary>
         /// Added for the MoQ unit testing framework
         /// </summary>
@@ -614,7 +613,7 @@ namespace System.Net.FtpClient {
         /// <param name="ar"></param>
         /// <returns></returns>
         Stream EndOpenAppend(IAsyncResult ar);
-        
+
         /// <summary>
         /// Added for the MoQ unit testing framework
         /// </summary>
@@ -661,7 +660,7 @@ namespace System.Net.FtpClient {
         /// <param name="ar"></param>
         /// <returns></returns>
         Stream EndOpenRead(IAsyncResult ar);
-        
+
         /// <summary>
         /// Added for the MoQ unit testing framework
         /// </summary>
@@ -687,7 +686,7 @@ namespace System.Net.FtpClient {
         /// <param name="ar"></param>
         /// <returns></returns>
         Stream EndOpenWrite(IAsyncResult ar);
-        
+
         /// <summary>
         /// Added for the MoQ unit testing framework
         /// </summary>
@@ -703,7 +702,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="ar"></param>
         void EndRename(IAsyncResult ar);
-        
+
         /// <summary>
         /// Added for the MoQ unit testing framework
         /// </summary>
@@ -732,14 +731,14 @@ namespace System.Net.FtpClient {
         /// <param name="state"></param>
         /// <returns></returns>
         IAsyncResult BeginGetHashAlgorithm(AsyncCallback callback, object state);
-        
+
         /// <summary>
         /// Added for the MoQ unit testing framework
         /// </summary>
         /// <param name="ar"></param>
         /// <returns></returns>
         FtpHashAlgorithm EndGetHashAlgorithm(IAsyncResult ar);
-        
+
         /// <summary>
         /// Added for the MoQ unit testing framework
         /// </summary>
@@ -760,7 +759,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="ar"></param>
         void EndSetHashAlgorithm(IAsyncResult ar);
-       
+
         /// <summary>
         /// Added for the MoQ unit testing framework
         /// </summary>
