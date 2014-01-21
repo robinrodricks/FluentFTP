@@ -327,8 +327,12 @@ namespace System.Net.FtpClient {
         /// </summary>
         [FtpControlConnectionClone]
         public bool UngracefullDisconnection {
-            get { return m_ungracefullDisconnect; }
-            set { m_ungracefullDisconnect = value; }
+            get {
+                return m_ungracefullDisconnect;
+            }
+            set {
+                m_ungracefullDisconnect = value;
+            }
         }
 
         int m_connectTimeout = 15000;
@@ -2030,15 +2034,13 @@ namespace System.Net.FtpClient {
             }*/
 
             path = path.GetFtpPath();
-            if (path == null || path.Trim().Length == 0)
-            {
+            if (path == null || path.Trim().Length == 0) {
                 if (pwd != null && pwd.Trim().Length > 0)
                     path = pwd;
                 else
                     path = "./";
             }
-            else if (!path.StartsWith("/") && pwd != null && pwd.Trim().Length > 0)
-            {
+            else if (!path.StartsWith("/") && pwd != null && pwd.Trim().Length > 0) {
                 if (path.StartsWith("./"))
                     path = path.Remove(0, 2);
                 path = string.Format("{0}/{1}", pwd, path).GetFtpPath();
