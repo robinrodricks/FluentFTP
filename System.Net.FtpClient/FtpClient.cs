@@ -1840,7 +1840,10 @@ namespace System.Net.FtpClient {
                 listcmd = "MLSD";
             }
             else {
-                if ((options & FtpListOption.NameList) == FtpListOption.NameList) {
+                if ((options & FtpListOption.UseLS) == FtpListOption.UseLS) {
+                    listcmd = "LS";
+                }
+                else if ((options & FtpListOption.NameList) == FtpListOption.NameList) {
                     listcmd = "NLST";
                 }
                 else {

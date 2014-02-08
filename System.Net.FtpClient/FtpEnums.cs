@@ -392,6 +392,12 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Try to dereference symbolic links
         /// </summary>
-        DerefLinks = 32
+        DerefLinks = 32,
+        /// <summary>
+        /// Sets the ForceList flag and uses `LS' instead of `LIST' as the
+        /// command for getting a directory listing. This option overrides
+        /// ForceNameList and ignores the AllFiles flag.
+        /// </summary>
+        UseLS = 64 | ForceList
     }
 }
