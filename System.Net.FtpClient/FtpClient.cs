@@ -194,19 +194,33 @@ namespace System.Net.FtpClient {
             }
         }
 
+        Encoding m_overrideEncoding = null;
+
         Encoding m_textEncoding = Encoding.ASCII;
         /// <summary>
-        /// Gets the text encoding being used when talking with the server. The default
+        /// Gets or sets the text encoding being used when talking with the server. The default
         /// value is Encoding.ASCII however upon connection, the client checks
         /// for UTF8 support and if it's there this property is switched over to
-        /// Encoding.UTF8.
+        /// Encoding.UTF8. Manually setting this value overrides automatic detection
+        /// based on the FEAT list; if you change this value it's always used
+        /// regardless of what the server advertises, if anything.
         /// </summary>
+        [FtpControlConnectionClone]
         public Encoding Encoding {
             get {
                 return m_textEncoding;
             }
-            private set {
-                m_textEncoding = value;
+            set {
+                try {
+                    m_lock.WaitOne();
+
+                    if (IsConnected)
+                        m_textEncoding = value;
+                    m_overrideEncoding = value;
+                }
+                finally {
+                    m_lock.ReleaseMutex();
+                }
             }
         }
 
@@ -762,7 +776,10 @@ namespace System.Net.FtpClient {
                 if (Credentials == null)
                     throw new FtpException("No credentials have been specified");
 
-                m_textEncoding = Encoding.ASCII;
+                if (m_overrideEncoding == null)
+                    m_textEncoding = Encoding.ASCII;
+                else
+                    m_textEncoding = m_overrideEncoding;
 
                 if (!IsClone) {
                     m_caps = FtpCapability.NONE;
@@ -821,8 +838,10 @@ namespace System.Net.FtpClient {
                     // If the server supports UTF8 it should already be enabled and this
                     // command should not matter however there are conflicting drafts
                     // about this so we'll just execute it to be safe. 
-                    Execute("OPTS UTF8 ON");
-                    m_textEncoding = Encoding.UTF8;
+                    if (m_overrideEncoding == null || m_overrideEncoding == Encoding.UTF8) {
+                        Execute("OPTS UTF8 ON");
+                        m_textEncoding = Encoding.UTF8;
+                    }
                 }
 
                 FtpTrace.WriteLine("Text encoding: " + m_textEncoding.ToString());

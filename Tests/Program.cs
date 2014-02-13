@@ -36,6 +36,7 @@ namespace Tests {
                         cl.EncryptionMode = FtpEncryptionMode.None;
                         cl.ValidateCertificate += new FtpSslValidation(cl_ValidateCertificate);
                         cl.DataConnectionType = (FtpDataConnectionType)i;
+                        //cl.Encoding = System.Text.Encoding.Default;
                         cl.Connect();
                         Upload(cl);
                         Download(cl);

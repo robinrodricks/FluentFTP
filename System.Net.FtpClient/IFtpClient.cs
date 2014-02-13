@@ -78,7 +78,7 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Added for the MoQ unit testing framework
         /// </summary>
-        Encoding Encoding { get; }
+        Encoding Encoding { get; set; }
 
         /// <summary>
         /// Added for the MoQ unit testing framework
