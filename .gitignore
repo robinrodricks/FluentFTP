@@ -8,6 +8,7 @@ Help
 *.nupkg
 .gitignore
 NuGetPackages
+Releases
 
 API_Reference_HTML.shfbproj_jp
 CHM
