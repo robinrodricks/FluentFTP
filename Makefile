@@ -2,11 +2,15 @@ BUILD = xbuild
 RELEASEDIR = Releases
 RELEASE = System.Net.FtpClient.$(shell date +%y.%m.%d)
 RELEASEPATH = $(RELEASEDIR)/$(RELEASE)
+SNK = $(HOME)/Dropbox/Documents/System.Net.FtpClient-SNK/System.Net.FtpClient.snk
 
 all: debug
 
 release:
 	$(BUILD) /p:Configuration=Release System.Net.FtpClient/System.Net.FtpClient.csproj
+
+release-signed: 
+	$(BUILD) /p:Configuration=Release /p:SignAssembly=true /p:AssemblyOriginatorKeyFile="$(SNK)" System.Net.FtpClient/System.Net.FtpClient.csproj
 
 debug:
 	$(BUILD) /p:Configuration=Debug System.Net.FtpClient/System.Net.FtpClient.csproj
@@ -22,9 +26,9 @@ clean:
 	rm -rf System.Net.FtpClient/obj
 	rm -rf Tests/bin
 	rm -rf Tests/obj
-	rm -rf $(RELEASEDIR)
+	rm -rf $(RELEASEPATH)
 
-codeplex: release debug
+codeplex: clean release debug
 	rm -rf $(RELEASEPATH)
 	mkdir -p $(RELEASEPATH)
 	mkdir -p $(RELEASEPATH)/bin
@@ -36,5 +40,9 @@ codeplex: release debug
 	cp LICENSE.TXT $(RELEASEPATH)
 	cd $(RELEASEDIR); zip -r $(RELEASE).zip $(RELEASE)/
 	rm -rf $(RELEASEPATH)
+
+nuget: clean release-signed
+	nuget pack System.Net.FtpClient/System.Net.FtpClient.csproj -Prop Configuration=Release -OutputDirectory $(RELEASEDIR)
+
 
 packages: codeplex
