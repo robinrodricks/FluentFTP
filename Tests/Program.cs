@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using System.Threading.Tasks;
 using System.IO.Compression;
+using System.Text;
 
 namespace Tests {
     /// <summary>
@@ -24,7 +25,7 @@ namespace Tests {
             FtpTrace.AddListener(new ConsoleTraceListener());
 
             try {
-                foreach (int i in new int[] {
+				/*foreach (int i in new int[] {
                      (int)FtpDataConnectionType.EPSV,
                      (int)FtpDataConnectionType.EPRT,
                      (int)FtpDataConnectionType.PASV,
@@ -42,7 +43,9 @@ namespace Tests {
                         Download(cl);
                         Delete(cl);
                     }
-                }
+                }*/
+
+				TestManualEncoding();
 
                 //TestServer();
 
@@ -77,6 +80,18 @@ namespace Tests {
             Console.WriteLine("--DONE--");
             Console.ReadKey();
         }
+
+		static void TestManualEncoding() {
+			using (FtpClient cl = new FtpClient()) {
+				cl.Host = "ftptest";
+				cl.Credentials = new NetworkCredential("ftptest", "ftptest");
+				cl.Encoding = Encoding.UTF8;
+
+				foreach (FtpListItem i in cl.GetListing("/")) {
+					Console.WriteLine(i.FullName);
+				}
+			}
+		}
 
         static void TestServer() {
             using (FtpClient cl = new FtpClient()) {

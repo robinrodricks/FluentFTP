@@ -85,7 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\System.Net.FtpClient\System.Net.FtpClient.csproj">
-      <Project>{e963b766-56bf-4966-8917-88c1ee69d61a}</Project>
+      <Project>{E963B766-56BF-4966-8917-88C1EE69D61A}</Project>
       <Name>System.Net.FtpClient</Name>
     </ProjectReference>
   </ItemGroup>
