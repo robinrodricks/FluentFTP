@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Web;
 using System.Security.Cryptography.X509Certificates;
 using System.Globalization;
+using System.Net.FtpClient.Extensions;
 
 namespace System.Net.FtpClient {
     /// <summary>
@@ -146,6 +147,28 @@ namespace System.Net.FtpClient {
                     m_stream.SocketPollInterval = value;
             }
         }
+
+		bool m_staleDataTest = true;
+		/// <summary>
+		/// Gets or sets a value indicating whether a test should be performed to
+		/// see if there is stale (unrequested data) sitting on the socket. In some
+		/// cases the control connection may time out but before the server closes
+		/// the connection it might send a 4xx response that was unexpected and
+		/// can cause synchronization errors with transactions. To avoid this
+		/// problem the Execute() method checks to see if there is any data
+		/// available on the socket before executing a command. On Azure hosting
+		/// platforms this check can cause an exception to be thrown. In order
+		/// to work around the exception you can set this property to false
+		/// which will skip the test entirely however doing so eliminates the
+		/// best effort attempt of detecting such scenarios. See this thread
+		/// for more details about the Azure problem:
+		/// https://netftp.codeplex.com/discussions/535879
+		/// </summary>
+		[FtpControlConnectionClone]
+		public bool StaleDataCheck {
+			get { return m_staleDataTest; }
+			set { m_staleDataTest = true; }
+		}
 
         /// <summary>
         /// Gets a value indicating if the connection is alive
@@ -678,21 +701,23 @@ namespace System.Net.FtpClient {
             try {
                 m_lock.WaitOne();
 
-                if (m_stream != null && m_stream.SocketDataAvailable > 0) {
-                    // Data shouldn't be on the socket, if it is it probably
-                    // means we've been disconnected. Read and discard
-                    // whatever is there and close the connection.
+				if(StaleDataCheck) {
+	                if (m_stream != null && m_stream.SocketDataAvailable > 0) {
+	                    // Data shouldn't be on the socket, if it is it probably
+	                    // means we've been disconnected. Read and discard
+	                    // whatever is there and close the connection.
 
-                    FtpTrace.WriteLine("There is stale data on the socket, maybe our connection timed out. Re-connecting.");
-                    if (m_stream.IsConnected && !m_stream.IsEncrypted) {
-                        byte[] buf = new byte[m_stream.SocketDataAvailable];
-                        m_stream.RawSocketRead(buf);
-                        FtpTrace.Write("The data was: ");
-                        FtpTrace.WriteLine(Encoding.GetString(buf).TrimEnd('\r', '\n'));
-                    }
+	                    FtpTrace.WriteLine("There is stale data on the socket, maybe our connection timed out. Re-connecting.");
+	                    if (m_stream.IsConnected && !m_stream.IsEncrypted) {
+	                        byte[] buf = new byte[m_stream.SocketDataAvailable];
+	                        m_stream.RawSocketRead(buf);
+	                        FtpTrace.Write("The data was: ");
+	                        FtpTrace.WriteLine(Encoding.GetString(buf).TrimEnd('\r', '\n'));
+	                    }
 
-                    m_stream.Close();
-                }
+	                    m_stream.Close();
+	                }
+				}
 
                 if (!IsConnected) {
                     if (command == "QUIT") {
