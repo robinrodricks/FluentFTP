@@ -87,11 +87,11 @@ namespace Tests {
 			using (FtpClient cl = new FtpClient()) {
 				cl.Host = "ftptest";
 				cl.Credentials = new NetworkCredential("ftptest", "ftptest");
-				cl.Encoding = Encoding.UTF8;
+				cl.Encoding = Encoding.Default;
 
-				foreach (FtpListItem i in cl.GetListing("/")) {
-					Console.WriteLine(i.FullName);
-				}
+                using (Stream s = cl.OpenWrite("test.txt")) {
+                    s.Close();
+                }
 			}
 		}
 
