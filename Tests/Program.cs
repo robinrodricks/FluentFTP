@@ -16,7 +16,7 @@ namespace Tests {
     /// Torture test
     /// </summary>
     class Program {
-        static readonly string m_host = "localhost";
+		static readonly string m_host = "ftptest";
         static readonly string m_user = "ftptest";
         static readonly string m_pass = "ftptest";
 
@@ -45,7 +45,9 @@ namespace Tests {
                     }
                 }*/
 
-				TestManualEncoding();
+				TestServer();
+
+				//TestManualEncoding();
 
                 //TestServer();
 
@@ -95,9 +97,14 @@ namespace Tests {
 
         static void TestServer() {
             using (FtpClient cl = new FtpClient()) {
-                cl.Host = "localhost";
+				cl.Host = "ftptest";
                 cl.Credentials = new NetworkCredential("ftptest", "ftptest");
-                foreach (FtpListItem i in cl.GetListing("/Examples/bin/")) {
+				cl.EncryptionMode = FtpEncryptionMode.Explicit;
+				cl.ValidateCertificate += (control, e) => {
+					e.Accept = true;
+				};
+
+                foreach (FtpListItem i in cl.GetListing("/")) {
                     Console.WriteLine(i.FullName);
                 }
             }
