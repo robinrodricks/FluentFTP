@@ -793,9 +793,6 @@ namespace System.Net.FtpClient {
                 if (Host == null)
                     throw new FtpException("No host has been specified");
 
-                if (Credentials == null)
-                    throw new FtpException("No credentials have been specified");
-
                 if (!IsClone) {
                     m_caps = FtpCapability.NONE;
                 }
