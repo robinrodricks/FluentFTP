@@ -217,8 +217,6 @@ namespace System.Net.FtpClient {
             }
         }
 
-        Encoding m_overrideEncoding = null;
-
         Encoding m_textEncoding = Encoding.ASCII;
         /// <summary>
         /// Gets or sets the text encoding being used when talking with the server. The default
@@ -236,10 +234,7 @@ namespace System.Net.FtpClient {
             set {
                 try {
                     m_lock.WaitOne();
-
-                    if (IsConnected)
-                        m_textEncoding = value;
-                    m_overrideEncoding = value;
+					m_textEncoding = value;
                 }
                 finally {
                     m_lock.ReleaseMutex();
@@ -801,11 +796,6 @@ namespace System.Net.FtpClient {
                 if (Credentials == null)
                     throw new FtpException("No credentials have been specified");
 
-                if (m_overrideEncoding == null)
-                    m_textEncoding = Encoding.ASCII;
-                else
-                    m_textEncoding = m_overrideEncoding;
-
                 if (!IsClone) {
                     m_caps = FtpCapability.NONE;
                 }
@@ -858,15 +848,13 @@ namespace System.Net.FtpClient {
                     }
                 }
 
-                // Enable UTF8 if it's available
-                if (HasFeature(FtpCapability.UTF8)) {
+				// Enable UTF8 if the encoding is ASCII and UTF8 is supported
+				if (m_textEncoding == Encoding.ASCII && HasFeature(FtpCapability.UTF8)) {
                     // If the server supports UTF8 it should already be enabled and this
                     // command should not matter however there are conflicting drafts
                     // about this so we'll just execute it to be safe. 
-                    if (m_overrideEncoding == null || m_overrideEncoding == Encoding.UTF8) {
-                        Execute("OPTS UTF8 ON");
-                        m_textEncoding = Encoding.UTF8;
-                    }
+                    Execute("OPTS UTF8 ON");
+					m_textEncoding = Encoding.UTF8;
                 }
 
                 FtpTrace.WriteLine("Text encoding: " + m_textEncoding.ToString());
