@@ -793,9 +793,8 @@ namespace System.Net.FtpClient {
                 if (Host == null)
                     throw new FtpException("No host has been specified");
 
-                if (!IsClone) {
+                if (!IsClone)
                     m_caps = FtpCapability.NONE;
-                }
 
                 m_hashAlgorithms = FtpHashAlgorithm.NONE;
                 m_stream.ConnectTimeout = m_connectTimeout;
