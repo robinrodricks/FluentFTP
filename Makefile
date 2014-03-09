@@ -40,6 +40,7 @@ codeplex: clean release debug
 	cp LICENSE.TXT $(RELEASEPATH)
 	cd $(RELEASEDIR); zip -r $(RELEASE).zip $(RELEASE)/
 	rm -rf $(RELEASEPATH)
+	@echo Release: $(RELEASEDIR)/$(RELEASE).zip
 
 nuget: clean release-signed
 	nuget pack System.Net.FtpClient/System.Net.FtpClient.csproj -Prop Configuration=Release -OutputDirectory $(RELEASEDIR)
