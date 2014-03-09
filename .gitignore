@@ -4,6 +4,7 @@ obj
 API Reference.shfbproj_jp
 Help
 
+*.sublime-workspace
 *.suo
 *.nupkg
 .gitignore
