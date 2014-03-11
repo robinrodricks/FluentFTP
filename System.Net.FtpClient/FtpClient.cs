@@ -167,7 +167,7 @@ namespace System.Net.FtpClient {
 		[FtpControlConnectionClone]
 		public bool StaleDataCheck {
 			get { return m_staleDataTest; }
-			set { m_staleDataTest = true; }
+			set { m_staleDataTest = value; }
 		}
 
         /// <summary>
