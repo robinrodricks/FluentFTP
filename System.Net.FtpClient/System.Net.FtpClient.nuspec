@@ -16,6 +16,7 @@
   <files>
     <file src="..\LICENSE.TXT" target="" />
     <file src="*.cs" target="source\" />
+    <file src="Extensions\*.cs" target="source\Extensions\" />
     <file src="*.csproj" target="source\" />
     <file src="..\Examples\*.cs" target="examples\" />
     <file src="..\Examples\*.csproj" target="examples\" />
