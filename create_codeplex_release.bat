@@ -14,6 +14,7 @@ if exist "%archive%" del /q "%archive%"
 md "%release%"
 md "%release%\bin"
 md "%release%\source"
+md "%release%\source\Extensions"
 md "%release%\examples"
 md "%release%\help"
 
@@ -24,6 +25,7 @@ rd /q /s System.Net.FtpClient\bin
 
 xcopy /s "System.Net.FtpClient\bin" "%release%\bin\"
 xcopy "System.Net.FtpClient\*.cs" "%release%\source\"
+xcopy "System.Net.FtpClient\Extensions\*.cs" "%release%\source\Extensions\"
 xcopy "System.Net.FtpClient\*.csproj" "%release%\source\"
 xcopy "Examples\*.cs" "%release%\examples\"
 xcopy "Examples\*.csproj" "%release%\examples\"
@@ -33,7 +35,7 @@ xcopy /s "Sandcastle\HTML\*" "%release%\help\html\"
 xcopy "LICENSE.TXT" "%release%\"
 
 cd "%release%" 
-7za.exe a -tzip "..\%archive%" *
+"C:\Program Files\7-Zip\7z.exe" a -tzip "..\%archive%" *
 cd ..
 rd /s /q "%release%"
 
