@@ -1875,10 +1875,18 @@ namespace System.Net.FtpClient {
                     listcmd = "NLST";
                 }
                 else {
+                    string listopts = "";
+
+                    listcmd = "LIST";
+
                     if ((options & FtpListOption.AllFiles) == FtpListOption.AllFiles)
-                        listcmd = "LIST -a";
-                    else
-                        listcmd = "LIST";
+                        listopts += "a";
+
+                    if ((options & FtpListOption.Recursive) == FtpListOption.Recursive)
+                        listopts += "R";
+
+                    if (listopts.Length > 0)
+                        listcmd += " -" + listopts;
                 }
             }
 
@@ -1924,6 +1932,15 @@ namespace System.Net.FtpClient {
                     lst.Add(item);
                 }
                 else {
+                    // if this is a result of LIST -R then the path will be spit out
+                    // before each block of objects
+                    if (listcmd.StartsWith("LIST") && (options & FtpListOption.Recursive) == FtpListOption.Recursive) {
+                        if (buf.StartsWith("/") && buf.EndsWith(":")) {
+                            path = buf.TrimEnd(':');
+                            continue;
+                        }
+                    }
+
                     // if the next line in the listing starts with spaces
                     // it is assumed to be a continuation of the current line
                     if (i + 1 < rawlisting.Count && (rawlisting[i + 1].StartsWith("\t") || rawlisting[i + 1].StartsWith(" ")))

@@ -398,6 +398,11 @@ namespace System.Net.FtpClient {
         /// command for getting a directory listing. This option overrides
         /// ForceNameList and ignores the AllFiles flag.
         /// </summary>
-        UseLS = 64 | ForceList
+        UseLS = 64 | ForceList,
+        /// <summary>
+        /// Adds the -r option to the list command. Some servers may not
+        /// support this feature.
+        /// </summary>
+        Recursive = 128
     }
 }

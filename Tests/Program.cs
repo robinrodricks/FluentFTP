@@ -45,7 +45,7 @@ namespace Tests {
                     }
                 }*/
 
-				TestServer();
+				//TestServer();
 
 				//TestManualEncoding();
 
@@ -70,7 +70,7 @@ namespace Tests {
 
                 // TestFileZillaKick();
 
-                //TestUnixList();
+                TestUnixList();
                 //TestNetBSDServer();
 
                 // TestConnectionFailure();
@@ -200,57 +200,9 @@ namespace Tests {
         static void TestUnixList() {
             using (FtpClient client = new FtpClient()) {
                 client.Credentials = new NetworkCredential("ftptest", "ftptest");
-                client.Host = "localhost";
-
-                Console.WriteLine("Connected!");
-
-                FtpListItem[] items = client.GetListing("./TEST", FtpListOption.ForceList | FtpListOption.Modify);
-                DirectoryInfo ftproot = new DirectoryInfo(@"C:\FTPTEST\TEST");
-
-                foreach (DirectoryInfo dir in ftproot.GetDirectories()) {
-                    bool found = false;
-
-                    foreach (FtpListItem item in items) {
-                        if (item.Name.ToUpper() == dir.Name.ToUpper()) {
-                            found = true;
-
-                            if (item.Modified.ToString() != dir.LastWriteTime.ToString())
-                                throw new Exception(string.Format("The last write time for {0} is not right! FtpListItem: {1} FileInfo: {2}",
-                                   dir.Name, item.Modified.ToString(), dir.LastAccessTime.ToString()));
-                        }
-
-                        if (found)
-                            break;
-                    }
-
-                    if (!found) {
-                        throw new Exception(string.Format("Couldn't locate directory {0} in listing.", dir.Name));
-                    }
-                }
-
-                foreach (FileInfo file in ftproot.GetFiles()) {
-                    bool found = false;
-
-                    foreach (FtpListItem item in items) {
-                        if (item.Name == file.Name) {
-                            found = true;
-
-                            if (item.Modified.ToString() != file.LastWriteTime.ToString())
-                                throw new Exception(string.Format("The last write time for {0} is not right! FtpListItem: {1} FileInfo: {2}",
-                                    file.Name, item.Modified.ToString(), file.LastAccessTime.ToString()));
-
-                            if (item.Size != file.Length)
-                                throw new Exception(string.Format("The file size for {0} is not right! FtpListItem: {1} FileInfo: {2}",
-                                    file.Name, item.Size, file.Length));
-                        }
-
-                        if (found)
-                            break;
-                    }
-
-                    if (!found) {
-                        throw new Exception(string.Format("Couldn't locate file {0} in listing.", file.Name));
-                    }
+                client.Host = "ftptest";
+                foreach (FtpListItem i in client.GetListing(null, FtpListOption.ForceList | FtpListOption.Recursive)) {
+                    Console.WriteLine(i.FullName);
                 }
             }
         }
