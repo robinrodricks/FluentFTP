@@ -1787,6 +1787,81 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
+        /// Returns information about a file system object. You should check the Capabilities
+        /// flags for the FtpCapability.MLSD flag before calling this method. Failing to do
+        /// so will result in an InvalidOperationException being thrown when the server
+        /// does not support machine listings. Returns null if the server response can't
+        /// be parsed or the server returns a failure completion code. The error for a failure
+        /// is logged with FtpTrace. No exception is thrown on error because that would negate
+        /// the usefullness of this method for checking for the existence of an object.
+        /// </summary>
+        /// <param name="path">The path of the object to retrieve information about</param>
+        /// <returns>A FtpListItem object</returns>
+        public FtpListItem GetObjectInfo(string path) {
+            FtpReply reply;
+            string[] res;
+
+            if ((Capabilities & FtpCapability.MLSD) != FtpCapability.MLSD) {
+                throw new InvalidOperationException("The GetObjectInfo method only works on servers that support machine listings. " +
+                    "Please check the Capabilities flags for FtpCapability.MLSD before calling this method.");
+            }
+
+            if ((reply = Execute("MLST {0}", path)).Success) {
+                res = reply.InfoMessages.Split('\n');
+                if (res.Length > 1) {
+                    string info = "";
+
+                    for (int i = 1; i < res.Length; i++) {
+                        info += res[i];
+                    }
+
+                    return FtpListItem.Parse(null, info, Capabilities);
+                }
+            }
+            else {
+                FtpTrace.WriteLine("Failed to get object info for path {0} with error {1}", path, reply.ErrorMessage);
+            }
+
+            return null;
+        }
+
+        delegate FtpListItem AsyncGetObjectInfo(string path);
+
+        /// <summary>
+        /// Returns information about a file system object. You should check the Capabilities
+        /// flags for the FtpCapability.MLSD flag before calling this method. Failing to do
+        /// so will result in an InvalidOperationException being thrown when the server
+        /// does not support machine listings. Returns null if the server response can't
+        /// be parsed or the server returns a failure completion code. The error for a failure
+        /// is logged with FtpTrace. No exception is thrown on error because that would negate
+        /// the usefullness of this method for checking for the existence of an object.
+        /// </summary>
+        /// <param name="path">Path of the item to retrieve information about</param>
+        /// <param name="callback">Async Callback</param>
+        /// <param name="state">State object</param>
+        /// <returns>IAsyncResult</returns>
+        public IAsyncResult BeginGetObjectInfo(string path, AsyncCallback callback, object state) {
+            IAsyncResult ar;
+            AsyncGetObjectInfo func;
+
+            ar = (func = new AsyncGetObjectInfo(GetObjectInfo)).BeginInvoke(path, callback, state);
+            lock (m_asyncmethods) {
+                m_asyncmethods.Add(ar, func);
+            }
+
+            return ar;
+        }
+
+        /// <summary>
+        /// Ends a call to BeginGetObjectInfo
+        /// </summary>
+        /// <param name="ar">IAsyncResult returned from BeginGetObjectInfo</param>
+        /// <returns>FtpListItem if the command succeeded, null if there was a problem.</returns>
+        public FtpListItem EndGetObjectInfo(IAsyncResult ar) {
+            return GetAsyncDelegate<AsyncGetObjectInfo>(ar).EndInvoke(ar);
+        }
+
+        /// <summary>
         /// Gets a file listing from the server. Each FtpListItem object returned
         /// contains information about the file that was able to be retrieved. If
         /// a DateTime property is equal to DateTime.MinValue then it means the 
@@ -1949,7 +2024,7 @@ namespace System.Net.FtpClient {
                     item = FtpListItem.Parse(path, buf, Capabilities);
                     // FtpListItem.Parse() returns null if the line
                     // could not be parsed
-                    if (item != null)
+                    if (item != null && (item.Name != "." && item.Name != ".."))
                         lst.Add(item);
                     else
                         FtpTrace.WriteLine("Failed to parse file listing: " + buf);

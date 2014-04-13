@@ -70,10 +70,12 @@ namespace Tests {
 
                 // TestFileZillaKick();
 
-                TestUnixList();
+                //TestUnixList();
                 //TestNetBSDServer();
 
                 // TestConnectionFailure();
+
+                //TestGetObjectInfo();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -81,6 +83,19 @@ namespace Tests {
 
             Console.WriteLine("--DONE--");
             Console.ReadKey();
+        }
+
+        static void TestGetObjectInfo() {
+            using (FtpClient cl = new FtpClient()) {
+                FtpListItem item;
+
+                cl.Host = "ftptest";
+                cl.Credentials = new NetworkCredential("ftptest", "ftptest");
+                cl.Encoding = Encoding.Default;
+
+                item = cl.GetObjectInfo("/Examples/OpenRead.cs");
+                Console.WriteLine(item.ToString());
+            }
         }
 
 		static void TestManualEncoding() {

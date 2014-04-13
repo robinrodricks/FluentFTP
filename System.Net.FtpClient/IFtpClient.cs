@@ -202,6 +202,29 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Added for the MoQ unit testing framework
         /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        FtpListItem GetObjectInfo(string path);
+
+        /// <summary>
+        /// Added for the MoQ unit testing framework
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="callback"></param>
+        /// <param name="state"></param>
+        /// <returns></returns>
+        IAsyncResult BeginGetObjectInfo(string path, AsyncCallback callback, object state);
+
+        /// <summary>
+        /// Added for the MoQ unit testing framework
+        /// </summary>
+        /// <param name="ar"></param>
+        /// <returns></returns>
+        FtpListItem EndGetObjectInfo(IAsyncResult ar);
+
+        /// <summary>
+        /// Added for the MoQ unit testing framework
+        /// </summary>
         /// <returns></returns>
         FtpListItem[] GetListing();
 

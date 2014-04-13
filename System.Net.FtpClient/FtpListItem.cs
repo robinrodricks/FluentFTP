@@ -250,7 +250,20 @@ namespace System.Net.FtpClient {
                                 path = path.GetFtpDirectoryName();
                             }
 
-                            item.FullName = path.GetFtpPath(item.Name); //.GetFtpPathWithoutGlob();
+                            if (item.Name != null) {
+                                // absolute path? then ignore the path input to this method.
+                                if (item.Name.StartsWith("/") || item.Name.StartsWith("./") || item.Name.StartsWith("../")) {
+                                    item.FullName = item.Name;
+                                    item.Name = item.Name.GetFtpFileName();
+                                }
+                                else if(path != null) {
+                                    item.FullName = path.GetFtpPath(item.Name); //.GetFtpPathWithoutGlob();
+                                }
+                                else {
+                                    FtpTrace.WriteLine("Couldn't determine the full path of this object:{0}{1}",
+                                        Environment.NewLine, item.ToString());
+                                }
+                            }
                             
 
                             // if a link target is set and it doesn't include an absolute path
@@ -397,6 +410,8 @@ namespace System.Net.FtpClient {
 
             switch (m.Groups["type"].Value.ToLower()) {
                 case "dir":
+                case "pdir":
+                case "cdir":
                     item.Type = FtpFileSystemObjectType.Directory;
                     break;
                 case "file":
