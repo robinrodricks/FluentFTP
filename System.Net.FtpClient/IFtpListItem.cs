@@ -1,62 +1,107 @@
-﻿using System;
-namespace System.Net.FtpClient {
+﻿namespace System.Net.FtpClient
+{
     /// <summary>
-    /// Added for the MoQ unit testing framework
+    /// Represents a file system object on the server
     /// </summary>
-    public interface IFtpListItem {
+    /// <example><code source="..\Examples\CustomParser.cs" lang="cs" /></example>
+    public interface IFtpListItem
+    {
         /// <summary>
-        /// Added for the MoQ unit testing framework
+        /// Gets the type of file system object. This property can be
+        /// set however this functionality is intended to be done by
+        /// custom parsers.
         /// </summary>
-        DateTime Created { get; set; }
+        FtpFileSystemObjectType Type { get; set; }
 
         /// <summary>
-        /// Added for the MoQ unit testing framework
+        /// Gets the full path name to the object. This property can be
+        /// set however this functionality is intended to be done by
+        /// custom parsers.
         /// </summary>
         string FullName { get; set; }
 
         /// <summary>
-        /// Added for the MoQ unit testing framework
-        /// </summary>
-        FtpPermission GroupPermissions { get; set; }
-
-        /// <summary>
-        /// Added for the MoQ unit testing framework
-        /// </summary>
-        string Input { get; }
-
-        /// <summary>
-        /// Added for the MoQ unit testing framework
-        /// </summary>
-        DateTime Modified { get; set; }
-
-        /// <summary>
-        /// Added for the MoQ unit testing framework
+        /// Gets the name of the object. This property can be
+        /// set however this functionality is intended to be done by
+        /// custom parsers.
         /// </summary>
         string Name { get; set; }
 
         /// <summary>
-        /// Added for the MoQ unit testing framework
+        /// Gets the target a symbolic link points to. This property can be
+        /// set however this functionality is intended to be done by
+        /// custom parsers.
         /// </summary>
-        FtpPermission OthersPermissions { get; set; }
+        string LinkTarget { get; set; }
 
         /// <summary>
-        /// Added for the MoQ unit testing framework
+        /// Gets the object the LinkTarget points to. This property is null unless pass the
+        /// FtpListOption.DerefLink flag in which case GetListing() will try to resolve
+        /// the target itself.
         /// </summary>
-        FtpPermission OwnerPermissions { get; set; }
+        FtpListItem LinkObject { get; set; }
 
         /// <summary>
-        /// Added for the MoQ unit testing framework
+        /// Gets the last write time of the object. This property can be
+        /// set however this functionality is intended to be done by
+        /// custom parsers.
+        /// </summary>
+        DateTime Modified { get; set; }
+
+        /// <summary>
+        /// Gets the created date of the object. This property can be
+        /// set however this functionality is intended to be done by
+        /// custom parsers.
+        /// </summary>
+        DateTime Created { get; set; }
+
+        /// <summary>
+        /// Gets the size of the object. This property can be
+        /// set however this functionality is intended to be done by
+        /// custom parsers.
         /// </summary>
         long Size { get; set; }
 
         /// <summary>
-        /// Added for the MoQ unit testing framework
+        /// Gets special UNIX permissions such as Stiky, SUID and SGID. This property can be
+        /// set however this functionality is intended to be done by
+        /// custom parsers.
         /// </summary>
         FtpSpecialPermissions SpecialPermissions { get; set; }
 
         /// <summary>
-        /// Added for the MoQ unit testing framework
+        /// Gets the owner permissions. This property can be
+        /// set however this functionality is intended to be done by
+        /// custom parsers.
         /// </summary>
-        FtpFileSystemObjectType Type { get; set; }
+        FtpPermission OwnerPermissions { get; set; }
+
+        /// <summary>
+        /// Gets the group permissions. This property can be
+        /// set however this functionality is intended to be done by
+        /// custom parsers.
+        /// </summary>
+        FtpPermission GroupPermissions { get; set; }
+
+        /// <summary>
+        /// Gets the others permissions. This property can be
+        /// set however this functionality is intended to be done by
+        /// custom parsers.
+        /// </summary>
+        FtpPermission OthersPermissions { get; set; }
+
+        /// <summary>
+        /// Gets the input string that was parsed to generate the
+        /// values in this object. This property can be
+        /// set however this functionality is intended to be done by
+        /// custom parsers.
+        /// </summary>
+        string Input { get; }
+
+        /// <summary>
+        /// Returns a string representation of this object and its properties
+        /// </summary>
+        /// <returns>A string value</returns>
+        string ToString();
     }
 }
