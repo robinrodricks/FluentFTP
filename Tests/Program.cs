@@ -25,7 +25,7 @@ namespace Tests {
             FtpTrace.AddListener(new ConsoleTraceListener());
 
             try {
-				/*foreach (int i in new int[] {
+				foreach (int i in new int[] {
                      (int)FtpDataConnectionType.EPSV,
                      (int)FtpDataConnectionType.EPRT,
                      (int)FtpDataConnectionType.PASV,
@@ -43,7 +43,7 @@ namespace Tests {
                         Download(cl);
                         Delete(cl);
                     }
-                }*/
+                }
 
 				//TestServer();
 
@@ -76,6 +76,8 @@ namespace Tests {
                 // TestConnectionFailure();
 
                 //TestGetObjectInfo();
+
+                //TestFtpPath();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -83,6 +85,20 @@ namespace Tests {
 
             Console.WriteLine("--DONE--");
             Console.ReadKey();
+        }
+
+        static void TestFtpPath() {
+            string path = "/home/sigurdhj/errors/16.05.2014/asdasd/asd asd asd aa asd/Kooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo::asdasd";
+
+            Console.WriteLine(path.GetFtpDirectoryName());
+            Console.WriteLine("./foobar".GetFtpDirectoryName());
+            Console.WriteLine("foobar".GetFtpDirectoryName());
+            Console.WriteLine(path.GetFtpFileName());
+            Console.WriteLine("/foo/bar".GetFtpFileName());
+            Console.WriteLine("./foo/bar".GetFtpFileName());
+            Console.WriteLine("./bar".GetFtpFileName());
+            Console.WriteLine("/bar".GetFtpFileName());
+            Console.WriteLine("bar".GetFtpFileName());
         }
 
         static void TestGetObjectInfo() {
