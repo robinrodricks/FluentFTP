@@ -47,8 +47,8 @@ namespace System.Net.FtpClient {
             if (path.Length == 0)
                 path = "/";
 
-            if (!path.StartsWith("/") || !path.StartsWith("./"))
-                path = "./" + path;
+            /*if (!path.StartsWith("/") || !path.StartsWith("./"))
+                path = "./" + path;*/
 
             return path;
         }
