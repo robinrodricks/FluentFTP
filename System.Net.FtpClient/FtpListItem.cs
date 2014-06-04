@@ -528,8 +528,20 @@ namespace System.Net.FtpClient {
             // so if a modify time was parsed from the listing we will try
             // to convert it to a DateTime object and use it for directories.
             ////
-            if (((capabilities & FtpCapability.MDTM) != FtpCapability.MDTM || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0)
+            if (((capabilities & FtpCapability.MDTM) != FtpCapability.MDTM || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0) {
                 item.Modified = m.Groups["modify"].Value.GetFtpDate(DateTimeStyles.AssumeLocal);
+                if (item.Modified == DateTime.MinValue) {
+                    FtpTrace.WriteLine("GetFtpDate() failed on {0}", m.Groups["modify"].Value);
+                }
+            }
+            else {
+                if (m.Groups["modify"].Value.Length == 0)
+                    FtpTrace.WriteLine("RegEx failed to parse modified date from {0}.", buf);
+                else if (item.Type == FtpFileSystemObjectType.Directory)
+                    FtpTrace.WriteLine("Modified times of directories are ignored in UNIX long listings.");
+                else if ((capabilities & FtpCapability.MDTM) == FtpCapability.MDTM)
+                    FtpTrace.WriteLine("Ignoring modified date, use MDTM instead or pass the SizeModify flag to GetListing().");
+            }
 
             if (m.Groups["size"].Value.Length > 0) {
                 long size;

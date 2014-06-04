@@ -25,7 +25,7 @@ namespace Tests {
             FtpTrace.AddListener(new ConsoleTraceListener());
 
             try {
-				foreach (int i in new int[] {
+				/*foreach (int i in new int[] {
                      (int)FtpDataConnectionType.EPSV,
                      (int)FtpDataConnectionType.EPRT,
                      (int)FtpDataConnectionType.PASV,
@@ -43,7 +43,7 @@ namespace Tests {
                         Download(cl);
                         Delete(cl);
                     }
-                }
+                }*/
 
 				//TestServer();
 
@@ -78,6 +78,8 @@ namespace Tests {
                 //TestGetObjectInfo();
 
                 //TestFtpPath();
+
+                TestUnixListing();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -85,6 +87,23 @@ namespace Tests {
 
             Console.WriteLine("--DONE--");
             Console.ReadKey();
+        }
+
+        static void TestUnixListing() {
+            using (FtpClient cl = new FtpClient()) {
+                cl.Host = "ftptest";
+                cl.Credentials = new NetworkCredential("ftptest", "ftptest");
+
+                if (!cl.FileExists("test.txt")) {
+                    using (Stream s = cl.OpenWrite("test.txt")) {
+                        s.Close();
+                    }
+                }
+
+                foreach (FtpListItem i in cl.GetListing(null, FtpListOption.ForceList | FtpListOption.SizeModify)) {
+                    Console.WriteLine(i);
+                }
+            }
         }
 
         static void TestFtpPath() {
