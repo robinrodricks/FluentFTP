@@ -100,7 +100,7 @@ namespace Tests {
                     }
                 }
 
-                foreach (FtpListItem i in cl.GetListing(null, FtpListOption.ForceList | FtpListOption.SizeModify)) {
+                foreach (FtpListItem i in cl.GetListing(null, FtpListOption.ForceList)) {
                     Console.WriteLine(i);
                 }
             }

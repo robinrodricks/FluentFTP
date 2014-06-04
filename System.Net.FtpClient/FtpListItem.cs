@@ -520,6 +520,9 @@ namespace System.Net.FtpClient {
                     break;
             }
 
+            // for date parser testing only
+            //capabilities = ~(capabilities & FtpCapability.MDTM);
+
             ////
             // Ignore the Modify times sent in LIST format for files
             // when the server has support for the MDTM command
@@ -540,7 +543,7 @@ namespace System.Net.FtpClient {
                 else if (item.Type == FtpFileSystemObjectType.Directory)
                     FtpTrace.WriteLine("Modified times of directories are ignored in UNIX long listings.");
                 else if ((capabilities & FtpCapability.MDTM) == FtpCapability.MDTM)
-                    FtpTrace.WriteLine("Ignoring modified date, use MDTM instead or pass the SizeModify flag to GetListing().");
+                    FtpTrace.WriteLine("Ignoring modified date because MDTM feature is present. If you aren't already, pass FtpListOption.Modify or FtpListOption.SizeModify to GetListing() to retrieve the modification time.");
             }
 
             if (m.Groups["size"].Value.Length > 0) {

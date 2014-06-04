@@ -116,8 +116,10 @@ namespace System.Net.FtpClient {
             string[] formats = new string[] { 
                 "yyyyMMddHHmmss", 
                 "yyyyMMddHHmmss.fff",
-                "MMM dd  yyyy", 
-                "MMM dd HH:mm"
+                "MMM dd  yyyy",
+                "MMM  d  yyyy",
+                "MMM dd HH:mm",
+                "MMM  d HH:mm"
             };
             DateTime parsed;
 
