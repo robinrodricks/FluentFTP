@@ -25,7 +25,7 @@ namespace Tests {
             FtpTrace.AddListener(new ConsoleTraceListener());
 
             try {
-				/*foreach (int i in new int[] {
+				foreach (int i in new int[] {
                      (int)FtpDataConnectionType.EPSV,
                      (int)FtpDataConnectionType.EPRT,
                      (int)FtpDataConnectionType.PASV,
@@ -43,7 +43,7 @@ namespace Tests {
                         Download(cl);
                         Delete(cl);
                     }
-                }*/
+                }
 
 				//TestServer();
 
@@ -79,7 +79,7 @@ namespace Tests {
 
                 //TestFtpPath();
 
-                TestUnixListing();
+                //TestUnixListing();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());

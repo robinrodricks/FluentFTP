@@ -846,14 +846,17 @@ namespace System.Net.FtpClient {
 
 				// Enable UTF8 if the encoding is ASCII and UTF8 is supported
 				if (m_textEncoding == Encoding.ASCII && HasFeature(FtpCapability.UTF8)) {
-                    // If the server supports UTF8 it should already be enabled and this
-                    // command should not matter however there are conflicting drafts
-                    // about this so we'll just execute it to be safe. 
-                    Execute("OPTS UTF8 ON");
 					m_textEncoding = Encoding.UTF8;
                 }
 
                 FtpTrace.WriteLine("Text encoding: " + m_textEncoding.ToString());
+
+                if (m_textEncoding == Encoding.UTF8) {
+                    // If the server supports UTF8 it should already be enabled and this
+                    // command should not matter however there are conflicting drafts
+                    // about this so we'll just execute it to be safe. 
+                    Execute("OPTS UTF8 ON");
+                }
             }
             finally {
                 m_lock.ReleaseMutex();
