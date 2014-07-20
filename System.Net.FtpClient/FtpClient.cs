@@ -327,7 +327,7 @@ namespace System.Net.FtpClient {
             get {
                 return m_clientCerts;
             }
-            private set {
+            protected set {
                 m_clientCerts = value;
             }
         }
