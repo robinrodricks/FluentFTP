@@ -609,7 +609,7 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <returns>A new control connection with the same property settings as this one</returns>
         /// <example><code source="..\Examples\CloneConnection.cs" lang="cs" /></example>
-        internal FtpClient CloneConnection() {
+        protected FtpClient CloneConnection() {
             FtpClient conn = new FtpClient();
 
             conn.m_isClone = true;
