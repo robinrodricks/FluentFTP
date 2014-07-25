@@ -121,17 +121,19 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Closes the connection and reads the server's reply
         /// </summary>
-        public override void Close() {
+        public new FtpReply Close() {
             base.Close();
 
             try {
                 if (ControlConnection != null)
-                    ControlConnection.CloseDataStream(this);
+                    return ControlConnection.CloseDataStream(this);
             }
             finally {
                 m_commandStatus = new FtpReply();
                 m_control = null;
             }
+
+            return new FtpReply();
         }
 
         /// <summary>

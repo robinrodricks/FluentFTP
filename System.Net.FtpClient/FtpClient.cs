@@ -1127,6 +1127,11 @@ namespace System.Net.FtpClient {
             stream = new FtpDataStream(this);
             stream.ConnectTimeout = DataConnectionConnectTimeout;
             stream.ReadTimeout = DataConnectionReadTimeout;
+            // the command status is used to determine
+            // if a reply needs to be read from the server
+            // when the stream is closed so always set it
+            // otherwise things can get out of sync.
+            stream.CommandStatus = reply;
             stream.Connect(host, port, InternetProtocolVersions);
             stream.SetSocketOption(Sockets.SocketOptionLevel.Socket, Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
@@ -1144,12 +1149,6 @@ namespace System.Net.FtpClient {
             if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
                 stream.ActivateEncryption(m_host,
                     this.ClientCertificates.Count > 0 ? this.ClientCertificates : null);
-
-            // the command status is used to determine
-            // if a reply needs to be read from the server
-            // when the stream is closed so always set it
-            // otherwise things can get out of sync.
-            stream.CommandStatus = reply;
 
             return stream;
         }
@@ -1214,6 +1213,8 @@ namespace System.Net.FtpClient {
                 }
             }
 
+            stream.CommandStatus = reply;
+
             if (restart > 0) {
                 if (!(reply = Execute("REST {0}", restart)).Success)
                     throw new FtpCommandException(reply);
@@ -1238,7 +1239,6 @@ namespace System.Net.FtpClient {
 
             stream.SetSocketOption(Sockets.SocketOptionLevel.Socket, Sockets.SocketOptionName.KeepAlive, m_keepAlive);
             stream.ReadTimeout = m_dataConnectionReadTimeout;
-            stream.CommandStatus = reply;
 
             return stream;
         }
@@ -1304,7 +1304,9 @@ namespace System.Net.FtpClient {
         /// Disconnects a data stream
         /// </summary>
         /// <param name="stream">The data stream to close</param>
-        internal void CloseDataStream(FtpDataStream stream) {
+        internal FtpReply CloseDataStream(FtpDataStream stream) {
+            FtpReply reply = new FtpReply();
+
             if (stream == null)
                 throw new ArgumentException("The data stream parameter was null");
 
@@ -1319,8 +1321,6 @@ namespace System.Net.FtpClient {
                         // the server will send a reply when the data connection
                         // is closed.
                         if (stream.CommandStatus.Type == FtpResponseType.PositivePreliminary) {
-                            FtpReply reply;
-
                             if (!(reply = GetReply()).Success) {
                                 throw new FtpCommandException(reply);
                             }
@@ -1339,6 +1339,8 @@ namespace System.Net.FtpClient {
             finally {
                 m_lock.ReleaseMutex();
             }
+
+            return reply;
         }
 
         /// <summary>
