@@ -1127,11 +1127,6 @@ namespace System.Net.FtpClient {
             stream = new FtpDataStream(this);
             stream.ConnectTimeout = DataConnectionConnectTimeout;
             stream.ReadTimeout = DataConnectionReadTimeout;
-            // the command status is used to determine
-            // if a reply needs to be read from the server
-            // when the stream is closed so always set it
-            // otherwise things can get out of sync.
-            stream.CommandStatus = reply;
             stream.Connect(host, port, InternetProtocolVersions);
             stream.SetSocketOption(Sockets.SocketOptionLevel.Socket, Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
@@ -1144,6 +1139,12 @@ namespace System.Net.FtpClient {
                 stream.Close();
                 throw new FtpCommandException(reply);
             }
+
+            // the command status is used to determine
+            // if a reply needs to be read from the server
+            // when the stream is closed so always set it
+            // otherwise things can get out of sync.
+            stream.CommandStatus = reply;
 
             // this needs to take place after the command is executed
             if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
@@ -1213,8 +1214,6 @@ namespace System.Net.FtpClient {
                 }
             }
 
-            stream.CommandStatus = reply;
-
             if (restart > 0) {
                 if (!(reply = Execute("REST {0}", restart)).Success)
                     throw new FtpCommandException(reply);
@@ -1224,6 +1223,12 @@ namespace System.Net.FtpClient {
                 stream.Close();
                 throw new FtpCommandException(reply);
             }
+
+            // the command status is used to determine
+            // if a reply needs to be read from the server
+            // when the stream is closed so always set it
+            // otherwise things can get out of sync.
+            stream.CommandStatus = reply;
 
             ar.AsyncWaitHandle.WaitOne(m_dataConnectionConnectTimeout);
             if (!ar.IsCompleted) {

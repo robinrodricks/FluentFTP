@@ -10,11 +10,12 @@ using System.Diagnostics;
 
 namespace System.Net.FtpClient {
     /// <summary>
-    /// Event fired if a bad SSL certificate is encountered
+    /// Event fired if a bad SSL certificate is encountered. This even is used internally; if you
+    /// don't have a specific reason for using it you are probably looking for FtpSslValidation.
     /// </summary>
     /// <param name="stream"></param>
     /// <param name="e"></param>
-    delegate void FtpSocketStreamSslValidation(FtpSocketStream stream, FtpSslValidationEventArgs e);
+    public delegate void FtpSocketStreamSslValidation(FtpSocketStream stream, FtpSslValidationEventArgs e);
 
     /// <summary>
     /// Event args for the FtpSslValidationError delegate
@@ -76,9 +77,9 @@ namespace System.Net.FtpClient {
     }
 
     /// <summary>
-    /// Stream class used for talking to 
+    /// Stream class used for talking. Used by FtpClient, extended by FtpDataStream
     /// </summary>
-    class FtpSocketStream : Stream, IDisposable {
+    public class FtpSocketStream : Stream, IDisposable {
         /// <summary>
         /// Used for tacking read/write activity on the socket
         /// to determine if Poll() should be used to test for
@@ -484,6 +485,9 @@ namespace System.Net.FtpClient {
             Write(data, 0, data.Length);
         }
 
+        /// <summary>
+        /// Disposes the stream
+        /// </summary>
         public new void Dispose() {
             FtpTrace.WriteLine("Disposing FtpSocketStream...");
             Close();

@@ -7,7 +7,7 @@ namespace System.Net.FtpClient {
     /// <summary>
     /// Base class for data stream connections
     /// </summary>
-    class FtpDataStream : FtpSocketStream {
+    public class FtpDataStream : FtpSocketStream {
         FtpReply m_commandStatus;
         /// <summary>
         /// Gets the status of the command that was used to open

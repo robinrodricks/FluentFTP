@@ -25,7 +25,7 @@ namespace Tests {
             FtpTrace.AddListener(new ConsoleTraceListener());
 
             try {
-				foreach (int i in new int[] {
+				/*foreach (int i in new int[] {
                      (int)FtpDataConnectionType.EPSV,
                      (int)FtpDataConnectionType.EPRT,
                      (int)FtpDataConnectionType.PASV,
@@ -43,7 +43,9 @@ namespace Tests {
                         Download(cl);
                         Delete(cl);
                     }
-                }
+                }*/
+
+                StreamResponses();
 
 				//TestServer();
 
@@ -87,6 +89,31 @@ namespace Tests {
 
             Console.WriteLine("--DONE--");
             Console.ReadKey();
+        }
+
+        static void StreamResponses() {
+            using (FtpClient cl = new FtpClient()) {
+                cl.Credentials = new NetworkCredential(m_user, m_pass);
+                cl.Host = m_host;
+                cl.EncryptionMode = FtpEncryptionMode.None;
+
+                using (FtpDataStream s = (FtpDataStream)cl.OpenWrite("test.txt")) {
+                    FtpReply r = s.CommandStatus;
+
+                    Console.WriteLine();
+                    Console.WriteLine("Response to STOR:");
+                    Console.WriteLine("Code: {0}", r.Code);
+                    Console.WriteLine("Message: {0}", r.Message);
+                    Console.WriteLine("Informational: {0}", r.InfoMessages);
+
+                    r = s.Close();
+                    Console.WriteLine();
+                    Console.WriteLine("Response after close:");
+                    Console.WriteLine("Code: {0}", r.Code);
+                    Console.WriteLine("Message: {0}", r.Message);
+                    Console.WriteLine("Informational: {0}", r.InfoMessages);
+                }
+            }
         }
 
         static void TestUnixListing() {
