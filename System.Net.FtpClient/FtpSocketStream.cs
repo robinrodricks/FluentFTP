@@ -663,8 +663,7 @@ namespace System.Net.FtpClient {
                     }));
 
                 auth_start = DateTime.Now;
-                m_sslStream.AuthenticateAsClient(targethost, clientCerts,
-                    SslProtocols.Tls | SslProtocols.Ssl2 | SslProtocols.Ssl3, true);
+                m_sslStream.AuthenticateAsClient(targethost, clientCerts, SslProtocols.Default, true);
 
                 auth_time_total = DateTime.Now.Subtract(auth_start);
                 FtpTrace.WriteLine("Time to activate encryption: {0}h {1}m {2}s, Total Seconds: {3}.",
