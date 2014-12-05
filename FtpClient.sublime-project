@@ -40,5 +40,6 @@
 			"cmd": ["make", "test"],
 			"working_dir": "$project_path"
 		}
-	]
+	],
+	"solution_file": "./FtpClient.sln"
 }

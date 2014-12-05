@@ -96,6 +96,9 @@ namespace Tests {
                 cl.Credentials = new NetworkCredential(m_user, m_pass);
                 cl.Host = m_host;
                 cl.EncryptionMode = FtpEncryptionMode.None;
+                cl.ValidateCertificate += new FtpSslValidation(delegate(FtpClient control, FtpSslValidationEventArgs e) {
+                        e.Accept = true;
+                    });
 
                 using (FtpDataStream s = (FtpDataStream)cl.OpenWrite("test.txt")) {
                     FtpReply r = s.CommandStatus;
