@@ -1931,17 +1931,19 @@ namespace System.Net.FtpClient {
                     path = pwd;
             }*/
 
-            path = path.GetFtpPath();
-            if (path == null || path.Trim().Length == 0) {
-                if (pwd != null && pwd.Trim().Length > 0)
-                    path = pwd;
-                else
-                    path = "./";
-            }
-            else if (!path.StartsWith("/") && pwd != null && pwd.Trim().Length > 0) {
-                if (path.StartsWith("./"))
-                    path = path.Remove(0, 2);
-                path = string.Format("{0}/{1}", pwd, path).GetFtpPath();
+            if ((options & FtpListOption.NoPath) == FtpListOption.NoPath) {
+                if (path == null || path.Trim().Length == 0) {
+                    pwd = GetWorkingDirectory();
+                    if (pwd != null && pwd.Trim().Length > 0)
+                        path = pwd;
+                    else
+                        path = "./";
+                }
+                else if (!path.StartsWith("/") && pwd != null && pwd.Trim().Length > 0) {
+                    if (path.StartsWith("./"))
+                        path = path.Remove(0, 2);
+                    path = string.Format("{0}/{1}", pwd, path).GetFtpPath();
+                }
             }
 
             // MLSD provides a machine parsable format with more
@@ -1975,13 +1977,17 @@ namespace System.Net.FtpClient {
                 }
             }
 
+            if((options & FtpListOption.NoPath) != FtpListOption.NoPath) {
+                listcmd = string.Format("{0} {1}", listcmd, path.GetFtpPath());
+            }
+
             try {
                 m_lock.WaitOne();
 
                 Execute("TYPE I");
 
                 // read in raw file listing
-                using (FtpDataStream stream = OpenDataStream(string.Format("{0} {1}", listcmd, path.GetFtpPath()), 0)) {
+                using (FtpDataStream stream = OpenDataStream(listcmd, 0)) {
                     try {
                         while ((buf = stream.ReadLine(Encoding)) != null) {
                             if (buf.Length > 0) {

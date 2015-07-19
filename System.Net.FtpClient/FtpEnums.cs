@@ -403,6 +403,11 @@ namespace System.Net.FtpClient {
         /// Adds the -r option to the list command. Some servers may not
         /// support this feature.
         /// </summary>
-        Recursive = 128
+        Recursive = 128,
+        /// <summary>
+        /// Do not retrieve path when no path is supplied to GetListing(),
+        /// instead just execute LIST with no path argument.
+        /// </summary>
+        NoPath = 256
     }
 }
