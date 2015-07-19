@@ -26,7 +26,7 @@ clean:
 	rm -rf System.Net.FtpClient/obj
 	rm -rf Tests/bin
 	rm -rf Tests/obj
-	rm -rf $(RELEASEPATH)
+	rm -rf $(RELEASEDIR)/*
 
 codeplex: clean release debug
 	rm -rf $(RELEASEPATH)
@@ -43,7 +43,8 @@ codeplex: clean release debug
 	@echo Release: $(RELEASEDIR)/$(RELEASE).zip
 
 nuget: clean release-signed
-	nuget pack System.Net.FtpClient/System.Net.FtpClient.csproj -Prop Configuration=Release -OutputDirectory $(RELEASEDIR)
+	#nuget pack System.Net.FtpClient/System.Net.FtpClient.csproj -Prop Configuration=Release -OutputDirectory $(RELEASEDIR)
+	nuget pack System.Net.FtpClient/System.Net.FtpClient.nuspec -Version $(shell monodis --assembly System.Net.FtpClient/bin/Release/System.Net.FtpClient.dll | awk '/Version/ {print $$2}') -OutputDirectory $(RELEASEDIR)
 
 
-packages: codeplex
+packages: codeplex nuget
