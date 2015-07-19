@@ -1920,18 +1920,7 @@ namespace System.Net.FtpClient {
             string pwd = GetWorkingDirectory();
             string buf = null;
 
-            // old path cleanup code
-            /*path = path.GetFtpPath();
-            if (path == null || path.GetFtpPath().Trim().Length == 0 || path.StartsWith(".")) {
-                if (pwd == null || pwd.Length == 0) // couldn't get the working directory
-                    path = "./";
-                else if (path.StartsWith("./"))
-                    path = string.Format("{0}/{1}", pwd, path.Remove(0, 2));
-                else
-                    path = pwd;
-            }*/
-
-            if ((options & FtpListOption.NoPath) == FtpListOption.NoPath) {
+            if ((options & FtpListOption.NoPath) != FtpListOption.NoPath) {
                 if (path == null || path.Trim().Length == 0) {
                     pwd = GetWorkingDirectory();
                     if (pwd != null && pwd.Trim().Length > 0)
