@@ -45,7 +45,7 @@ namespace Tests {
                     }
                 }*/
 
-                StreamResponses();
+                //StreamResponses();
 
 				//TestServer();
 
@@ -82,6 +82,8 @@ namespace Tests {
                 //TestFtpPath();
 
                 //TestUnixListing();
+
+                TestListPath();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -89,6 +91,19 @@ namespace Tests {
 
             Console.WriteLine("--DONE--");
             Console.ReadKey();
+        }
+
+        static void TestListPath() {
+            using(FtpClient cl = new FtpClient()) {
+                cl.Credentials = new NetworkCredential(m_user, m_pass);
+                cl.Host = m_host;
+                cl.EncryptionMode = FtpEncryptionMode.None;
+
+                cl.GetListing();
+                Console.WriteLine("Path listing succeeded");
+                cl.GetListing(null, FtpListOption.NoPath);
+                Console.WriteLine("No path listing succeeded");
+            }
         }
 
         static void StreamResponses() {
