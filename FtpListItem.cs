@@ -107,7 +107,7 @@ namespace System.Net.FtpClient {
         #region MLS* Parsing
         private void ParseMachineListing(string listing) {
             List<string> matches = new List<string>();
-            Regex re = new Regex(@"(.+?)=(.*?);|  ?(.+?)$");
+            Regex re = new Regex(@"(.+?)=(.*?);| ?(.+?)$");
             Match m;
 
             if (Regex.Match(listing, "^[0-9]+").Success) {
