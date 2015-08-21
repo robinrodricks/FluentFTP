@@ -11,6 +11,7 @@ using System.Web;
 using System.Security.Cryptography.X509Certificates;
 using System.Globalization;
 using System.Net.FtpClient.Extensions;
+using System.Security.Authentication;
 
 namespace System.Net.FtpClient {
     /// <summary>
@@ -517,6 +518,22 @@ namespace System.Net.FtpClient {
             }
         }
 
+        private SslProtocols m_SslProtocols = SslProtocols.Default;
+        /// <summary>
+        /// Encryption protocols to use. Only valid if EncryptionMode property is not equal to FtpSslMode.None.
+        /// Default value is .NET Framework defaults from SslStream class.
+        /// </summary>
+        [FtpControlConnectionClone]
+        public SslProtocols SslProtocols
+        {
+            get { 
+                return m_SslProtocols; 
+            }
+            set {
+                m_SslProtocols = value;
+            }
+        }
+        
         FtpSslValidation m_sslvalidate = null;
         /// <summary>
         /// Event is fired to validate SSL certificates. If this event is
@@ -805,7 +822,8 @@ namespace System.Net.FtpClient {
 
                 if (EncryptionMode == FtpEncryptionMode.Implicit)
                     m_stream.ActivateEncryption(Host,
-                        m_clientCerts.Count > 0 ? m_clientCerts : null);
+                        m_clientCerts.Count > 0 ? m_clientCerts : null,
+                        m_SslProtocols);
 
                 if (!(reply = GetReply()).Success) {
                     if (reply.Code == null) {
@@ -820,7 +838,8 @@ namespace System.Net.FtpClient {
                     if (!(reply = Execute("AUTH TLS")).Success)
                         throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
                     m_stream.ActivateEncryption(Host,
-                        m_clientCerts.Count > 0 ? m_clientCerts : null);
+                        m_clientCerts.Count > 0 ? m_clientCerts : null,
+                        m_SslProtocols);
                 }
 
                 if (m_credentials != null) {
@@ -1149,7 +1168,8 @@ namespace System.Net.FtpClient {
             // this needs to take place after the command is executed
             if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
                 stream.ActivateEncryption(m_host,
-                    this.ClientCertificates.Count > 0 ? this.ClientCertificates : null);
+                    this.ClientCertificates.Count > 0 ? this.ClientCertificates : null,
+                    m_SslProtocols);
 
             return stream;
         }
@@ -1240,7 +1260,8 @@ namespace System.Net.FtpClient {
 
             if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
                 stream.ActivateEncryption(m_host,
-                    this.ClientCertificates.Count > 0 ? this.ClientCertificates : null);
+                    this.ClientCertificates.Count > 0 ? this.ClientCertificates : null,
+                    m_SslProtocols);
 
             stream.SetSocketOption(Sockets.SocketOptionLevel.Socket, Sockets.SocketOptionName.KeepAlive, m_keepAlive);
             stream.ReadTimeout = m_dataConnectionReadTimeout;

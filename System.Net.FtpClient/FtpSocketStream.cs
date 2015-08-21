@@ -627,23 +627,35 @@ namespace System.Net.FtpClient {
         }
 
         /// <summary>
-        /// Activates SSL on this stream. Fires the ValidateCertificate event. If this event is
-        /// not handled and there are SslPolicyErrors present, the certificate will not be
-        /// accepted.
+        /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event. 
+        /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
+        /// not be accepted.
         /// </summary>
         /// <param name="targethost">The host to authenticate the certiciate against</param>
         public void ActivateEncryption(string targethost) {
-            ActivateEncryption(targethost, null);
+            ActivateEncryption(targethost, null, SslProtocols.Default);
         }
 
         /// <summary>
-        /// Activates SSL on this stream. Fires the ValidateCertificate event. If this event is
-        /// not handled and there are SslPolicyErrors present, the certificate will not be
-        /// accepted.
+        /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
+        /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
+        /// not be accepted.
         /// </summary>
         /// <param name="targethost">The host to authenticate the certiciate against</param>
         /// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
         public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts) {
+            ActivateEncryption(targethost, clientCerts, SslProtocols.Default);
+        }
+
+        /// <summary>
+        /// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
+        /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
+        /// not be accepted.
+        /// </summary>
+        /// <param name="targethost">The host to authenticate the certiciate against</param>
+        /// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
+        /// <param name="sslProtocols">A bitwise parameter for supported encryption protocols.</param>
+        public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols) {
             if (!IsConnected)
                 throw new InvalidOperationException("The FtpSocketStream object is not connected.");
 
@@ -663,7 +675,7 @@ namespace System.Net.FtpClient {
                     }));
 
                 auth_start = DateTime.Now;
-                m_sslStream.AuthenticateAsClient(targethost, clientCerts, SslProtocols.Default, true);
+                m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, true);
 
                 auth_time_total = DateTime.Now.Subtract(auth_start);
                 FtpTrace.WriteLine("Time to activate encryption: {0}h {1}m {2}s, Total Seconds: {3}.",
