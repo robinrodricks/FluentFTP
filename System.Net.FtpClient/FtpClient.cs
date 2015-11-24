@@ -3329,6 +3329,7 @@ namespace System.Net.FtpClient {
             finally {
                 IsDisposed = true;
                 m_lock.ReleaseMutex();
+                m_lock.Dispose();
             }
         }
 
@@ -3336,7 +3337,8 @@ namespace System.Net.FtpClient {
         /// Finalizer
         /// </summary>
         ~FtpClient() {
-            Dispose();
+            if (!IsDisposed)
+                Dispose();
         }
 
         /// <summary>
