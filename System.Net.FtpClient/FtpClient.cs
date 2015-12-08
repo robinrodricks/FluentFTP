@@ -3329,7 +3329,7 @@ namespace System.Net.FtpClient {
             finally {
                 IsDisposed = true;
                 m_lock.ReleaseMutex();
-                m_lock.Dispose();
+                ((IDisposable)m_lock).Dispose();
             }
         }
 
