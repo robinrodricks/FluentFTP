@@ -288,15 +288,14 @@ namespace System.Net.FtpClient {
         /// <summary>
         /// Used for synchronizing access to the Parsers collection
         /// </summary>
-        static Mutex m_parserLock = new Mutex();
+        static Object m_parserLock = new Object();
 
         /// <summary>
         /// Initalizes the default list of parsers
         /// </summary>
         static void InitParsers() {
-            try {
-                m_parserLock.WaitOne();
-
+            lock (m_parserLock)
+            {
                 if (m_parsers == null) {
                     m_parsers = new List<Parser>();
                     m_parsers.Add(new Parser(ParseMachineList));
@@ -304,9 +303,6 @@ namespace System.Net.FtpClient {
                     m_parsers.Add(new Parser(ParseDosList));
                     m_parsers.Add(new Parser(ParseVaxList));
                 }
-            }
-            finally {
-                m_parserLock.ReleaseMutex();
             }
         }
 
@@ -325,16 +321,12 @@ namespace System.Net.FtpClient {
             get {
                 Parser[] parsers;
 
-                try {
-                    m_parserLock.WaitOne();
-
+                lock (m_parserLock)
+                {
                     if (m_parsers == null)
                         InitParsers();
 
                     parsers = m_parsers.ToArray();
-                }
-                finally {
-                    m_parserLock.ReleaseMutex();
                 }
 
                 return parsers;
@@ -347,16 +339,12 @@ namespace System.Net.FtpClient {
         /// <param name="parser">The parser delegate to add</param>
         /// <example><code source="..\Examples\CustomParser.cs" lang="cs" /></example>
         public static void AddParser(Parser parser) {
-            try {
-                m_parserLock.WaitOne();
-
+            lock (m_parserLock)
+            {
                 if (m_parsers == null)
                     InitParsers();
 
                 m_parsers.Add(parser);
-            }
-            finally {
-                m_parserLock.ReleaseMutex();
             }
         }
 
@@ -364,16 +352,12 @@ namespace System.Net.FtpClient {
         /// Removes all parser delegates
         /// </summary>
         public static void ClearParsers() {
-            try {
-                m_parserLock.WaitOne();
-
+            lock (m_parserLock)
+            {
                 if (m_parsers == null)
                     InitParsers();
 
                 m_parsers.Clear();
-            }
-            finally {
-                m_parserLock.ReleaseMutex();
             }
         }
 
@@ -382,16 +366,12 @@ namespace System.Net.FtpClient {
         /// </summary>
         /// <param name="parser">The parser delegate to remove</param>
         public static void RemoveParser(Parser parser) {
-            try {
-                m_parserLock.WaitOne();
-
+            lock (m_parserLock)
+            {
                 if (m_parsers == null)
                     InitParsers();
 
                 m_parsers.Remove(parser);
-            }
-            finally {
-                m_parserLock.ReleaseMutex();
             }
         }
 

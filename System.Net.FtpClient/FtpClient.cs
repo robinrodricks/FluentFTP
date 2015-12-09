@@ -73,7 +73,7 @@ namespace System.Net.FtpClient {
         /// Used for internally syncrhonizing access to this
         /// object from multiple threads
         /// </summary>
-        readonly Mutex m_lock = new Mutex();
+        readonly Object m_lock = new Object();
 
         /// <summary>
         /// A list of asynchronoous methods that are in progress
@@ -232,12 +232,9 @@ namespace System.Net.FtpClient {
                 return m_textEncoding;
             }
             set {
-                try {
-                    m_lock.WaitOne();
+                lock (m_lock)
+                {
 					m_textEncoding = value;
-                }
-                finally {
-                    m_lock.ReleaseMutex();
                 }
             }
         }
@@ -645,9 +642,8 @@ namespace System.Net.FtpClient {
             FtpReply reply = new FtpReply();
             string buf;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (!IsConnected)
                     throw new InvalidOperationException("No connection to the server has been established.");
 
@@ -665,9 +661,6 @@ namespace System.Net.FtpClient {
 
                     reply.InfoMessages += string.Format("{0}\n", buf);
                 }
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
 
             return reply;
@@ -693,9 +686,8 @@ namespace System.Net.FtpClient {
         public FtpReply Execute(string command) {
             FtpReply reply;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
 				if(StaleDataCheck) {
 	                if (m_stream != null && m_stream.SocketDataAvailable > 0) {
 	                    // Data shouldn't be on the socket, if it is it probably
@@ -729,9 +721,6 @@ namespace System.Net.FtpClient {
                 FtpTrace.WriteLine(command.StartsWith("PASS") ? "PASS <omitted>" : command);
                 m_stream.WriteLine(m_textEncoding, command);
                 reply = GetReply();
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
 
             return reply;
@@ -776,9 +765,8 @@ namespace System.Net.FtpClient {
         public virtual void Connect() {
             FtpReply reply;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (IsDisposed)
                     throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
 
@@ -857,9 +845,6 @@ namespace System.Net.FtpClient {
                     // about this so we'll just execute it to be safe. 
                     Execute("OPTS UTF8 ON");
                 }
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
         }
 
@@ -998,9 +983,8 @@ namespace System.Net.FtpClient {
         /// Disconnect from the server
         /// </summary>
         public virtual void Disconnect() {
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (m_stream != null && m_stream.IsConnected) {
                     try {
                         if (!UngracefullDisconnection) {
@@ -1023,9 +1007,6 @@ namespace System.Net.FtpClient {
                         m_stream.Close();
                     }
                 }
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
         }
 
@@ -1258,9 +1239,8 @@ namespace System.Net.FtpClient {
             FtpDataConnectionType type = m_dataConnectionType;
             FtpDataStream stream = null;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (!IsConnected)
                     Connect();
 
@@ -1298,9 +1278,6 @@ namespace System.Net.FtpClient {
                 if (stream == null)
                     throw new InvalidOperationException("The specified data channel type is not implemented.");
             }
-            finally {
-                m_lock.ReleaseMutex();
-            }
 
             return stream;
         }
@@ -1315,10 +1292,10 @@ namespace System.Net.FtpClient {
             if (stream == null)
                 throw new ArgumentException("The data stream parameter was null");
 
-            try {
-                m_lock.WaitOne();
-
-                try {
+            lock (m_lock)
+            {
+                try
+                {
                     if (IsConnected) {
                         // if the command that required the data connection was
                         // not successful then there will be no reply from
@@ -1340,9 +1317,6 @@ namespace System.Net.FtpClient {
                         Dispose();
                     }
                 }
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
 
             return reply;
@@ -1393,9 +1367,8 @@ namespace System.Net.FtpClient {
             FtpDataStream stream = null;
             long length = 0;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (m_threadSafeDataChannels) {
                     client = CloneConnection();
                     client.Connect();
@@ -1408,9 +1381,6 @@ namespace System.Net.FtpClient {
                 client.SetDataType(type);
                 length = client.GetFileSize(path);
                 stream = client.OpenDataStream(string.Format("RETR {0}", path.GetFtpPath()), restart);
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
 
             if (stream != null) {
@@ -1518,9 +1488,8 @@ namespace System.Net.FtpClient {
             FtpDataStream stream = null;
             long length = 0;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (m_threadSafeDataChannels) {
                     client = CloneConnection();
                     client.Connect();
@@ -1536,9 +1505,6 @@ namespace System.Net.FtpClient {
 
                 if (length > 0 && stream != null)
                     stream.SetLength(length);
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
 
             return stream;
@@ -1611,9 +1577,8 @@ namespace System.Net.FtpClient {
             FtpDataStream stream = null;
             long length = 0;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (m_threadSafeDataChannels) {
                     client = CloneConnection();
                     client.Connect();
@@ -1631,9 +1596,6 @@ namespace System.Net.FtpClient {
                     stream.SetLength(length);
                     stream.SetPosition(length);
                 }
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
 
             return stream;
@@ -1968,9 +1930,8 @@ namespace System.Net.FtpClient {
                 listcmd = string.Format("{0} {1}", listcmd, path.GetFtpPath());
             }
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 Execute("TYPE I");
 
                 // read in raw file listing
@@ -1987,9 +1948,6 @@ namespace System.Net.FtpClient {
                         stream.Close();
                     }
                 }
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
 
             for (int i = 0; i < rawlisting.Count; i++) {
@@ -2172,9 +2130,8 @@ namespace System.Net.FtpClient {
                 path = string.Format("{0}/{1}", pwd, path).GetFtpPath();
             }
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 // always get the file listing in binary
                 // to avoid any potential character translation
                 // problems that would happen if in ASCII.
@@ -2191,9 +2148,6 @@ namespace System.Net.FtpClient {
                         stream.Close();
                     }
                 }
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
 
             return lst.ToArray();
@@ -2249,9 +2203,8 @@ namespace System.Net.FtpClient {
         protected void SetDataType(FtpDataType type) {
             FtpReply reply;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 switch (type) {
                     case FtpDataType.ASCII:
                         if (!(reply = Execute("TYPE A")).Success)
@@ -2268,9 +2221,6 @@ namespace System.Net.FtpClient {
                     default:
                         throw new FtpException("Unsupported data type: " + type.ToString());
                 }
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
         }
 
@@ -2315,14 +2265,10 @@ namespace System.Net.FtpClient {
             if (ftppath == "." || ftppath == "./")
                 return;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (!(reply = Execute("CWD {0}", ftppath)).Success)
                     throw new FtpCommandException(reply);
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
         }
 
@@ -2366,14 +2312,10 @@ namespace System.Net.FtpClient {
             FtpReply reply;
             Match m;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (!(reply = Execute("PWD")).Success)
                     throw new FtpCommandException(reply);
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
 
             if ((m = Regex.Match(reply.Message, "\"(?<pwd>.*)\"")).Success) {
@@ -2431,17 +2373,13 @@ namespace System.Net.FtpClient {
             FtpReply reply;
             long length = 0;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (!(reply = Execute("SIZE {0}", path.GetFtpPath())).Success)
                     return -1;
 
                 if (!long.TryParse(reply.Message, out length))
                     return -1;
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
 
             return length;
@@ -2489,14 +2427,10 @@ namespace System.Net.FtpClient {
             DateTime modify = DateTime.MinValue;
             FtpReply reply;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if ((reply = Execute("MDTM {0}", path.GetFtpPath())).Success)
                     modify = reply.Message.GetFtpDate(DateTimeStyles.AssumeUniversal);
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
 
             return modify;
@@ -2542,14 +2476,10 @@ namespace System.Net.FtpClient {
         public void DeleteFile(string path) {
             FtpReply reply;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (!(reply = Execute("DELE {0}", path.GetFtpPath())).Success)
                     throw new FtpCommandException(reply);
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
         }
 
@@ -2616,9 +2546,8 @@ namespace System.Net.FtpClient {
             FtpReply reply;
             string ftppath = path.GetFtpPath();
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (force) {
                     foreach (FtpListItem item in GetListing(path, options)) {
                         switch (item.Type) {
@@ -2641,9 +2570,6 @@ namespace System.Net.FtpClient {
 
                 if (!(reply = Execute("RMD {0}", ftppath)).Success)
                     throw new FtpCommandException(reply);
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
         }
 
@@ -2725,8 +2651,8 @@ namespace System.Net.FtpClient {
             if (ftppath == "." || ftppath == "./" || ftppath == "/")
                 return true;
 
-            try {
-                m_lock.WaitOne();
+            lock (m_lock)
+            {
                 pwd = GetWorkingDirectory();
 
                 if (Execute("CWD {0}", ftppath).Success) {
@@ -2737,9 +2663,6 @@ namespace System.Net.FtpClient {
 
                     return true;
                 }
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
 
             return false;
@@ -2802,18 +2725,14 @@ namespace System.Net.FtpClient {
         public bool FileExists(string path, FtpListOption options) {
             string dirname = path.GetFtpDirectoryName();
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (!DirectoryExists(dirname))
                     return false;
 
                 foreach (FtpListItem item in GetListing(dirname, options))
                     if (item.Type == FtpFileSystemObjectType.File && item.Name == path.GetFtpFileName())
                         return true;
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
 
             return false;
@@ -2892,9 +2811,8 @@ namespace System.Net.FtpClient {
             if (ftppath == "." || ftppath == "./" || ftppath == "/")
                 return;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 path = path.GetFtpPath().TrimEnd('/');
 
                 if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
@@ -2911,9 +2829,6 @@ namespace System.Net.FtpClient {
 
                 if (!(reply = Execute("MKD {0}", ftppath)).Success)
                     throw new FtpCommandException(reply);
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
         }
 
@@ -2970,17 +2885,14 @@ namespace System.Net.FtpClient {
         public void Rename(string path, string dest) {
             FtpReply reply;
 
-            try {
-                m_lock.WaitOne();
+            lock (m_lock)
+            {
 
                 if (!(reply = Execute("RNFR {0}", path.GetFtpPath())).Success)
                     throw new FtpCommandException(reply);
 
                 if (!(reply = Execute("RNTO {0}", dest.GetFtpPath())).Success)
                     throw new FtpCommandException(reply);
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
         }
 
@@ -3028,9 +2940,8 @@ namespace System.Net.FtpClient {
             FtpReply reply;
             FtpHashAlgorithm type = FtpHashAlgorithm.NONE;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if ((reply = Execute("OPTS HASH")).Success) {
                     switch (reply.Message) {
                         case "SHA-1":
@@ -3047,9 +2958,6 @@ namespace System.Net.FtpClient {
                             break;
                     }
                 }
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
 
             return type;
@@ -3100,9 +3008,8 @@ namespace System.Net.FtpClient {
             FtpReply reply;
             string algorithm;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if ((HashAlgorithms & type) != type)
                     throw new NotImplementedException(string.Format("The hash algorithm {0} was not advertised by the server.", type.ToString()));
 
@@ -3126,9 +3033,6 @@ namespace System.Net.FtpClient {
 
                 if (!(reply = Execute("OPTS HASH {0}", algorithm)).Success)
                     throw new FtpCommandException(reply);
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
         }
 
@@ -3187,14 +3091,10 @@ namespace System.Net.FtpClient {
             if (path == null)
                 throw new ArgumentException("GetHash(path) argument can't be null");
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (!(reply = Execute("HASH {0}", path.GetFtpPath())).Success)
                     throw new FtpCommandException(reply);
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
 
             // Current draft says the server should return this:
@@ -3274,16 +3174,12 @@ namespace System.Net.FtpClient {
         public void DisableUTF8() {
             FtpReply reply;
 
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (!(reply = Execute("OPTS UTF8 OFF")).Success)
                     throw new FtpCommandException(reply);
 
                 m_textEncoding = Encoding.ASCII;
-            }
-            finally {
-                m_lock.ReleaseMutex();
             }
         }
 
@@ -3292,31 +3188,37 @@ namespace System.Net.FtpClient {
         /// object.
         /// </summary>
         public void Dispose() {
-            FtpTrace.WriteLine("Disposing FtpClient object...");
-
-            try {
-                m_lock.WaitOne();
-
+            lock (m_lock)
+            {
                 if (IsDisposed)
                     return;
 
-                try {
-                    if (IsConnected) {
+                FtpTrace.WriteLine("Disposing FtpClient object...");
+
+                try
+                {
+                    if (IsConnected)
+                    {
                         Disconnect();
                     }
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disconnecting from host: {0}", ex.ToString());
                 }
 
-                if (m_stream != null) {
-                    try {
+                if (m_stream != null)
+                {
+                    try
+                    {
                         m_stream.Dispose();
                     }
-                    catch (Exception ex) {
+                    catch (Exception ex)
+                    {
                         FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: {0}", ex.ToString());
                     }
-                    finally {
+                    finally
+                    {
                         m_stream = null;
                     }
                 }
@@ -3325,11 +3227,8 @@ namespace System.Net.FtpClient {
                 m_textEncoding = null;
                 m_host = null;
                 m_asyncmethods.Clear();
-            }
-            finally {
                 IsDisposed = true;
-                m_lock.ReleaseMutex();
-                ((IDisposable)m_lock).Dispose();
+                GC.SuppressFinalize(this);
             }
         }
 
@@ -3337,8 +3236,7 @@ namespace System.Net.FtpClient {
         /// Finalizer
         /// </summary>
         ~FtpClient() {
-            if (!IsDisposed)
-                Dispose();
+            Dispose();
         }
 
         /// <summary>
