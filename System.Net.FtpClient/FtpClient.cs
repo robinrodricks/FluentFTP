@@ -1787,7 +1787,7 @@ namespace System.Net.FtpClient {
                         info += res[i];
                     }
 
-                    return FtpListItem.Parse(null, info, Capabilities);
+                    return FtpListItem.Parse(null, info, m_caps);
                 }
             }
             else {
@@ -1982,7 +1982,7 @@ namespace System.Net.FtpClient {
                     if (i + 1 < rawlisting.Count && (rawlisting[i + 1].StartsWith("\t") || rawlisting[i + 1].StartsWith(" ")))
                         buf += rawlisting[++i];
 
-                    item = FtpListItem.Parse(path, buf, Capabilities);
+                    item = FtpListItem.Parse(path, buf, m_caps);
                     // FtpListItem.Parse() returns null if the line
                     // could not be parsed
                     if (item != null && (item.Name != "." && item.Name != ".."))
