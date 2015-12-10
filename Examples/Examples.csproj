@@ -79,6 +79,7 @@
     <Compile Include="OpenWrite.cs" />
     <Compile Include="OpenWriteURI.cs" />
     <Compile Include="Rename.cs" />
+    <Compile Include="SetEncryptionProtocols.cs" />
     <Compile Include="SetHashAlgorithm.cs" />
     <Compile Include="SetWorkingDirectory.cs" />
     <Compile Include="ValidateCertificate.cs" />
