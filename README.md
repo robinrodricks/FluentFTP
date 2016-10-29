@@ -24,7 +24,7 @@ FluentFTP is a fully managed client implementation of the FTP protocol that is d
 
 ## Reporting issues
 
-Please use the Issue tracker to issue bugs if you think you have found one. When you encounter a bug there are a few important things that you can include that will go a long way in helping to resolve the matter. Aside from a good description of how to reproduce the problem, include with your report the transaction log, the exact revision number, and the exact version of the server OS and ftp software tat you were connected to when the problem occurred. I realize that some of this information may not be available but if it is please be sure to include it.
+Please use the Issue tracker to report bugs if you think you have found one. Aside from a good description of how to reproduce the problem, include with your report the transaction log, the exact revision number of the library, and the exact version of the server OS and FTP software that you were connected to when the problem occurred.
 
 ## Documentation
 ### Stream Handling
