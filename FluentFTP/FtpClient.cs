@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Web;
 using System.Security.Cryptography.X509Certificates;
 using System.Globalization;
+using System.Linq;
 using FluentFTP.Extensions;
 using System.Security.Authentication;
 using System.Net;
@@ -2570,14 +2571,30 @@ namespace FluentFTP {
 
             lock (m_lock)
             {
-                if (force) {
-                    foreach (FtpListItem item in GetListing(path, options)) {
+                if (force)
+                {
+                    // when GetListing is called with recursive option, then it does not
+                    // make any sense to call another DeleteDirectory with force flag set.
+                    // however this requires always delete files first.
+                    var forceAgain = !WasGetListingRecursive(options);
+
+                    // items, that are deeper in directory tree, are listed first, 
+                    // then files will  be listed before directories. This matters
+                    // only if GetListing was called with recursive option.
+                    FtpListItem[] itemList;
+                    if (forceAgain)
+                        itemList = GetListing(path, options);                
+                    else
+                        itemList = GetListing(path, options).OrderByDescending(x => x.FullName.Count(c => c.Equals('/'))).ThenBy(x => x.Type).ToArray();
+
+
+                    foreach (FtpListItem item in itemList) {
                         switch (item.Type) {
                             case FtpFileSystemObjectType.File:
                                 DeleteFile(item.FullName);
                                 break;
                             case FtpFileSystemObjectType.Directory:
-                                DeleteDirectory(item.FullName, true, options);
+                                DeleteDirectory(item.FullName, forceAgain, options);
                                 break;
                             default:
                                 throw new FtpException("Don't know how to delete object type: " + item.Type);
@@ -2593,6 +2610,25 @@ namespace FluentFTP {
                 if (!(reply = Execute("RMD {0}", ftppath)).Success)
                     throw new FtpCommandException(reply);
             }
+        }
+
+        /// <summary>
+        /// Checks wether GetListing will be called recursively or not.
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        private bool WasGetListingRecursive(FtpListOption options)
+        {
+            if (HasFeature(FtpCapability.MLSD) && (options & FtpListOption.ForceList) != FtpListOption.ForceList)
+                return false;
+
+            if ((options & FtpListOption.UseLS) == FtpListOption.UseLS || (options & FtpListOption.NameList) == FtpListOption.NameList)
+                return false;
+
+            if ((options & FtpListOption.Recursive) == FtpListOption.Recursive)
+                return true;
+
+            return false;
         }
 
         delegate void AsyncDeleteDirectory(string path, bool force, FtpListOption options);
