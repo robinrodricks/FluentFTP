@@ -4,23 +4,23 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 
 ## Features
 
-- Explicit and Implicit SSL connections for the control and data connections using .net's SslStream
-- Support for adding client certificates (please read the documentation page!)
-- File listing parsers for various formats
+- Explicit and Implicit SSL connections for the control and data connections using .NET's `SslStream`
+- Support for adding [client certificates](#client-certificates)
+- File listing parsers for [various formats](#file-listings)
   - UNIX long listings
   - Machine listings
   - IIS DOS listings
   - Ability to add your own parsers
 - Passive and Active data connections (PASV, EPSV, PORT and EPRT)
 - Support for DrFTPD's (non-standard) PRET command
-- Returns Stream objects for reading or writing files on the server
+- Returns `Stream` objects for reading or writing files on the server
 - Attempts to make the FTP protocol safer with threads by cloning the control connection for file transfers (can be disabled)
   - Implements its own internal locking in an effort to keep transactions synchronized
-- Implements the IAsyncResult pattern for almost all methods
+- Implements the `IAsyncResult` pattern for almost all methods
 - Includes support for non-standard hashing/checksum commands when supported by the server
 - Examples included in documentation and as source code for nearly all methods
-- Easily issue any command using the `Execute()` method with the exception of those requiring a data connection (file listings and transfers).
-- Transaction logging using TraceListeners (passwords are automatically omitted)
+- Easily issue any unsupported FTP command using the `Execute()` method with the exception of those requiring a data connection (file listings and transfers).
+- Transaction logging using `TraceListeners` (passwords are automatically omitted)
 
 ## Reporting issues
 
@@ -85,13 +85,13 @@ When you are using Client Certificates, be sure that:
 
 ### Slow SSL Negotiation
 
-FluentFTP uses SslStream under the hood which is part of the .net framework. SslStream uses a feature of windows for updating root CA's on the fly, at least that's the way I understand it. These updates can cause a long delay in the certificate authentication process which can cause issues in FluentFTP related to the SocketPollInterval property used for checking for ungraceful disconnections between the client and server. This [MSDN Blog](http://blogs.msdn.com/b/alejacma/archive/2011/09/27/big-delay-when-calling-sslstream-authenticateasclient.aspx) covers the issue with SslStream and talks about how to disable the auto-updating of the root CA's.
+FluentFTP uses `SslStream` under the hood which is part of the .NET framework. `SslStream` uses a feature of windows for updating root CA's on the fly, at least that's the way I understand it. These updates can cause a long delay in the certificate authentication process which can cause issues in FluentFTP related to the SocketPollInterval property used for checking for ungraceful disconnections between the client and server. This [MSDN Blog](http://blogs.msdn.com/b/alejacma/archive/2011/09/27/big-delay-when-calling-sslstream-authenticateasclient.aspx) covers the issue with SslStream and talks about how to disable the auto-updating of the root CA's.
 
 The latest builds of FluentFTP log the time it takes to authenticate. If you think you are suffering from this problem then have a look at Examples\Debug.cs for information on retrieving debug information.
 
 ### Handling Ungraceful Interruptions in the Control Connection
 
-FluentFTP uses Socket.Poll() to test for connectivity after a user-definable period of time has passed since the last activity on the control connection. When the remote host closes the connection there is no way to know, without triggering an exception, other than using Poll() to make an educated guess. When the connectivity test fails the connection is automatically re-established. This process helps a great deal in gracefully reconnecting however it does not eliminate your responsibility for catching IOExceptions related to an ungraceful interruption in the connection. Usually, maybe always, when this occurs the InnerException will be a SocketException. How you want to handle the situation from there is up to you.
+FluentFTP uses `Socket.Poll()` to test for connectivity after a user-definable period of time has passed since the last activity on the control connection. When the remote host closes the connection there is no way to know, without triggering an exception, other than using `Poll()` to make an educated guess. When the connectivity test fails the connection is automatically re-established. This process helps a great deal in gracefully reconnecting however it does not eliminate your responsibility for catching IOExceptions related to an ungraceful interruption in the connection. Usually, maybe always, when this occurs the InnerException will be a SocketException. How you want to handle the situation from there is up to you.
 
 ```````
 try {
