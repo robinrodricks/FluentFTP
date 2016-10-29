@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{49B11591-C942-479F-A864-AB2738E50EF0}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Examples</RootNamespace>
+    <AssemblyName>Examples</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Externalconsole>true</Externalconsole>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Externalconsole>true</Externalconsole>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BeginConnect.cs" />
+    <Compile Include="BeginDeleteDirectory.cs" />
+    <Compile Include="BeginDeleteFile.cs" />
+    <Compile Include="BeginDereferenceLink.cs" />
+    <Compile Include="BeginDirectoryExists.cs" />
+    <Compile Include="BeginDisconnect.cs" />
+    <Compile Include="BeginExecute.cs" />
+    <Compile Include="BeginFileExists.cs" />
+    <Compile Include="BeginGetFileSize.cs" />
+    <Compile Include="BeginGetListing.cs" />
+    <Compile Include="BeginGetModifiedTime.cs" />
+    <Compile Include="BeginGetNameListing.cs" />
+    <Compile Include="BeginGetWorkingDirectory.cs" />
+    <Compile Include="BeginOpenAppend.cs" />
+    <Compile Include="BeginOpenWrite.cs" />
+    <Compile Include="BeginRename.cs" />
+    <Compile Include="BeginSetWorkingDirectory.cs" />
+    <Compile Include="Connect.cs" />
+    <Compile Include="CreateDirectory.cs" />
+    <Compile Include="BeginCreateDirectory.cs" />
+    <Compile Include="BeginOpenRead.cs" />
+    <Compile Include="CustomParser.cs" />
+    <Compile Include="Debug.cs" />
+    <Compile Include="DeleteDirectory.cs" />
+    <Compile Include="DeleteFile.cs" />
+    <Compile Include="DereferenceLink.cs" />
+    <Compile Include="DirectoryExists.cs" />
+    <Compile Include="Execute.cs" />
+    <Compile Include="FileExists.cs" />
+    <Compile Include="GetChecksum.cs" />
+    <Compile Include="GetFileSize.cs" />
+    <Compile Include="GetHash.cs" />
+    <Compile Include="GetHashAlgorithm.cs" />
+    <Compile Include="GetListing.cs" />
+    <Compile Include="GetModifiedTime.cs" />
+    <Compile Include="GetNameListing.cs" />
+    <Compile Include="GetWorkingDirectory.cs" />
+    <Compile Include="Main.cs" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="OpenAppend.cs" />
+    <Compile Include="OpenAppendURI.cs" />
+    <Compile Include="OpenRead.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="OpenReadURI.cs" />
+    <Compile Include="OpenWrite.cs" />
+    <Compile Include="OpenWriteURI.cs" />
+    <Compile Include="Rename.cs" />
+    <Compile Include="SetEncryptionProtocols.cs" />
+    <Compile Include="SetHashAlgorithm.cs" />
+    <Compile Include="SetWorkingDirectory.cs" />
+    <Compile Include="ValidateCertificate.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FluentFTP\FluentFTP.csproj">
+      <Project>{E963B766-56BF-4966-8917-88C1EE69D61A}</Project>
+      <Name>FluentFTP</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>

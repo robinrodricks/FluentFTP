@@ -2,17 +2,17 @@
 
 set msbuild=%SystemRoot%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe
 set packages=NuGetPackages
-set snk=%USERPROFILE%\Dropbox\Documents\System.Net.FtpClient-SNK\System.Net.FtpClient.snk
+set snk=%USERPROFILE%\Dropbox\Documents\FluentFTP-SNK\FluentFTP.snk
 
 if not exist "%packages%" md "%packages%"
 
-rd /q /s System.Net.FtpClient\bin
+rd /q /s FluentFTP\bin
 
 :: Build dll without strong name
-rem %msbuild% /p:Configuration=Release System.Net.FtpClient\System.Net.FtpClient.csproj
+rem %msbuild% /p:Configuration=Release FluentFTP\FluentFTP.csproj
 
 :: Build signed DLL
-%msbuild% /p:Configuration=Release /p:SignAssembly=true /p:AssemblyOriginatorKeyFile="%snk%" System.Net.FtpClient\System.Net.FtpClient.csproj
+%msbuild% /p:Configuration=Release /p:SignAssembly=true /p:AssemblyOriginatorKeyFile="%snk%" FluentFTP\FluentFTP.csproj
 
-nuget pack System.Net.FtpClient\System.Net.FtpClient.csproj -Prop Configuration=Release -OutputDirectory "%packages%"
+nuget pack FluentFTP\FluentFTP.csproj -Prop Configuration=Release -OutputDirectory "%packages%"
 pause

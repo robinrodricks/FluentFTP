@@ -2,8 +2,8 @@
 setlocal
 set msbuild=C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe
 
-if exist System.Net.FtpClient\bin rd /q /s System.Net.FtpClient\bin
-%msbuild% /p:Configuration=Release System.Net.FtpClient\System.Net.FtpClient.csproj
+if exist FluentFTP\bin rd /q /s FluentFTP\bin
+%msbuild% /p:Configuration=Release FluentFTP\FluentFTP.csproj
 
 cd Sandcastle
 if exist CHM rd /q /s CHM
