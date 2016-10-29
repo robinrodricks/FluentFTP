@@ -2589,6 +2589,13 @@ namespace FluentFTP {
 
 
                     foreach (FtpListItem item in itemList) {
+
+						// This check prevents infinity recursion, 
+                        // when FtpListItem is actual parent or current directory.
+                        // This could happen only when MLSD command is used for GetListing method.
+                        if (!item.FullName.ToLower().Contains(path.ToLower()) || string.Equals(item.FullName.ToLower(), path.ToLower()))
+                            continue;
+
                         switch (item.Type) {
                             case FtpFileSystemObjectType.File:
                                 DeleteFile(item.FullName);
