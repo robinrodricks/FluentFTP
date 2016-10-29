@@ -1,6 +1,6 @@
 
 # FluentFTP
-FluentFTP is a fully managed client implementation of the FTP protocol that is designed to be easy to use and easy to extend. Aside from normal FTP client features, it supports SSL/TLS connections for command and data channels and parsing various file listing formats. This project is entirely developed in managed C#. All credits go to [J.P. Trosclair](https://github.com/jptrosclair) for developing and maintaining the library till 2016.
+FluentFTP is a fully managed FTP client that is designed to be easy to use and easy to extend. It supports file and directory listing, uploading and dowloading files and SSL/TLS connections. It can connect to Unix and Windows/IIS based FTP servers. This project is entirely developed in managed C#. All credits go to [J.P. Trosclair](https://github.com/jptrosclair) for developing and maintaining the library till 2016.
 
 ## Features
 
