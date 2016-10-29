@@ -4,13 +4,13 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 
 ## Features
 
-- Explicit and Implicit SSL connections for the control and data connections using .NET's `SslStream`
-- Support for adding [client certificates](#client-certificates)
 - File listing parsers for [various formats](#file-listings)
   - UNIX long listings
   - Machine listings
   - IIS DOS listings
   - Ability to add your own parsers
+- Explicit and Implicit SSL connections for the control and data connections using .NET's `SslStream`
+- Support for adding [client certificates](#client-certificates)
 - Passive and Active data connections (PASV, EPSV, PORT and EPRT)
 - Support for DrFTPD's (non-standard) PRET command
 - Returns `Stream` objects for reading or writing files on the server
@@ -24,7 +24,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 
 ## Reporting issues
 
-Please use the Issue tracker to report bugs if you think you have found one. Aside from a good description of how to reproduce the problem, include with your report the transaction log, the exact revision number of the library, and the exact version of the server OS and FTP software that you were connected to when the problem occurred.
+Please use the [Issue tracker](https://github.com/hgupta9/FluentFTP/issues) to report bugs if you think you have found one. Aside from a good description of how to reproduce the problem, include the transaction log, the exact revision number of the library, and the exact version of the server OS and FTP software that you were connected to when the problem occurred.
 
 ## Documentation
 ### Stream Handling
