@@ -1,23 +1,21 @@
-<?xml version="1.0"?>
-<package>
-  <metadata>
-    <id>FluentFTP</id>
-    <version>$version$</version>
-    <title>FluentFTP</title>
-    <authors>J.P. Trosclair</authors>
-    <owners>J.P. Trosclair</owners>
-    <licenseUrl>https://netftp.codeplex.com/license</licenseUrl>
-    <projectUrl>https://netftp.codeplex.com/</projectUrl>
-    <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>FTP Client Implementation</description>
-    <copyright>Copyright 2013</copyright>
-    <tags>FTP FTPS .net SSL TLS</tags>
-  </metadata>
-  <files>
-    <file src="bin/Release/*" target="lib/net40" />
-    <file src="../LICENSE.TXT" target="" />
-    <file src="*.cs" target="source/" />
-    <file src="Extensions/*.cs" target="source/Extensions/" />
-    <file src="*.csproj" target="source/" />
-  </files>
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>FluentFTP</id>
+        <version>$version$</version>
+        <title>FluentFTP</title>
+        <authors>J.P. Trosclair, Harsh Gupta</authors>
+        <owners>Harsh Gupta</owners>
+        <projectUrl>https://github.com/hgupta9/FluentFTP</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Easy to use FTP client supporting FTP, SSL and TLS</description>
+        <copyright>MIT License</copyright>
+        <language>en-US</language>
+		<frameworkAssemblies>
+		  <frameworkAssembly assemblyName="System.Web"  />
+		</frameworkAssemblies>
+    </metadata>
+    <files>
+        <file src="bin\Release\FluentFTP.dll" target="lib\net40\FluentFTP.dll" />
+    </files>
 </package>
