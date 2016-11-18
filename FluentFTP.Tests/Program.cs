@@ -25,7 +25,7 @@ namespace Tests {
             FtpTrace.AddListener(new ConsoleTraceListener());
 
             try {
-				/*foreach (int i in new int[] {
+                /*foreach (int i in new int[] {
                      (int)FtpDataConnectionType.EPSV,
                      (int)FtpDataConnectionType.EPRT,
                      (int)FtpDataConnectionType.PASV,
@@ -47,9 +47,9 @@ namespace Tests {
 
                 //StreamResponses();
 
-				//TestServer();
+                //TestServer();
 
-				//TestManualEncoding();
+                //TestManualEncoding();
 
                 //TestServer();
 
@@ -84,6 +84,8 @@ namespace Tests {
                 //TestUnixListing();
 
                 TestListPath();
+
+                TestListPathWithHttp11Proxy();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -91,6 +93,24 @@ namespace Tests {
 
             Console.WriteLine("--DONE--");
             Console.ReadKey();
+        }
+
+        static void TestListPathWithHttp11Proxy()
+        {
+            using (FtpClient cl = new FtpClientHttp11Proxy(new Proxy { Host = "127.0.0.1", Port = 3128, })) // Credential = new NetworkCredential() 
+            {
+                cl.Credentials = new NetworkCredential(m_user, m_pass);
+                cl.Host = m_host;
+                cl.ValidateCertificate += OnValidateCertificate;
+                cl.DataConnectionType = FtpDataConnectionType.PASV;
+                cl.Connect();
+
+                foreach (FtpListItem item in cl.GetListing(null, FtpListOption.SizeModify | FtpListOption.ForceNameList))
+                {
+                    Console.WriteLine(item.Modified.Kind);
+                    Console.WriteLine(item.Modified);
+                }
+            }
         }
 
         static void TestListPath() {
@@ -112,8 +132,8 @@ namespace Tests {
                 cl.Host = m_host;
                 cl.EncryptionMode = FtpEncryptionMode.None;
                 cl.ValidateCertificate += new FtpSslValidation(delegate(FtpClient control, FtpSslValidationEventArgs e) {
-                        e.Accept = true;
-                    });
+                    e.Accept = true;
+                });
 
                 using (FtpDataStream s = (FtpDataStream)cl.OpenWrite("test.txt")) {
                     FtpReply r = s.CommandStatus;
@@ -180,24 +200,24 @@ namespace Tests {
 
 		static void TestManualEncoding() {
 			using (FtpClient cl = new FtpClient()) {
-				cl.Host = "ftptest";
-				cl.Credentials = new NetworkCredential("ftptest", "ftptest");
-				cl.Encoding = Encoding.Default;
+                cl.Host = "ftptest";
+                cl.Credentials = new NetworkCredential("ftptest", "ftptest");
+                cl.Encoding = Encoding.Default;
 
                 using (Stream s = cl.OpenWrite("test.txt")) {
                     s.Close();
                 }
-			}
-		}
+            }
+        }
 
         static void TestServer() {
             using (FtpClient cl = new FtpClient()) {
-				cl.Host = "ftptest";
+                cl.Host = "ftptest";
                 cl.Credentials = new NetworkCredential("ftptest", "ftptest");
-				cl.EncryptionMode = FtpEncryptionMode.Explicit;
+                cl.EncryptionMode = FtpEncryptionMode.Explicit;
 				cl.ValidateCertificate += (control, e) => {
-					e.Accept = true;
-				};
+                    e.Accept = true;
+                };
 
                 foreach (FtpListItem i in cl.GetListing("/")) {
                     Console.WriteLine(i.FullName);
