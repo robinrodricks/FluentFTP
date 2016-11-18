@@ -150,8 +150,8 @@ namespace FluentFTP {
             }
         }
 
-		bool m_staleDataTest = true;
-		/// <summary>
+        bool m_staleDataTest = true;
+        /// <summary>
 		/// Gets or sets a value indicating whether a test should be performed to
 		/// see if there is stale (unrequested data) sitting on the socket. In some
 		/// cases the control connection may time out but before the server closes
@@ -166,11 +166,11 @@ namespace FluentFTP {
 		/// for more details about the Azure problem:
 		/// https://netftp.codeplex.com/discussions/535879
 		/// </summary>
-		[FtpControlConnectionClone]
+        [FtpControlConnectionClone]
 		public bool StaleDataCheck {
-			get { return m_staleDataTest; }
-			set { m_staleDataTest = value; }
-		}
+            get { return m_staleDataTest; }
+            set { m_staleDataTest = value; }
+        }
 
         /// <summary>
         /// Gets a value indicating if the connection is alive
@@ -236,7 +236,7 @@ namespace FluentFTP {
             set {
                 lock (m_lock)
                 {
-					m_textEncoding = value;
+                    m_textEncoding = value;
                 }
             }
         }
@@ -525,13 +525,13 @@ namespace FluentFTP {
         public SslProtocols SslProtocols
         {
             get { 
-                return m_SslProtocols; 
+                return m_SslProtocols;
             }
             set {
                 m_SslProtocols = value;
             }
         }
-        
+
         FtpSslValidation m_sslvalidate = null;
         /// <summary>
         /// Event is fired to validate SSL certificates. If this event is
@@ -656,7 +656,8 @@ namespace FluentFTP {
         /// </summary>
         /// <returns>FtpReply representing the response from the server</returns>
         /// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
-        internal FtpReply GetReply() {
+        protected FtpReply GetReply()
+        {
             FtpReply reply = new FtpReply();
             string buf;
 
@@ -708,21 +709,21 @@ namespace FluentFTP {
             {
 				if(StaleDataCheck) {
 	                if (m_stream != null && m_stream.SocketDataAvailable > 0) {
-	                    // Data shouldn't be on the socket, if it is it probably
-	                    // means we've been disconnected. Read and discard
-	                    // whatever is there and close the connection.
+                        // Data shouldn't be on the socket, if it is it probably
+                        // means we've been disconnected. Read and discard
+                        // whatever is there and close the connection.
 
-	                    FtpTrace.WriteLine("There is stale data on the socket, maybe our connection timed out. Re-connecting.");
+                        FtpTrace.WriteLine("There is stale data on the socket, maybe our connection timed out. Re-connecting.");
 	                    if (m_stream.IsConnected && !m_stream.IsEncrypted) {
-	                        byte[] buf = new byte[m_stream.SocketDataAvailable];
-	                        m_stream.RawSocketRead(buf);
-	                        FtpTrace.Write("The data was: ");
-	                        FtpTrace.WriteLine(Encoding.GetString(buf).TrimEnd('\r', '\n'));
-	                    }
+                            byte[] buf = new byte[m_stream.SocketDataAvailable];
+                            m_stream.RawSocketRead(buf);
+                            FtpTrace.Write("The data was: ");
+                            FtpTrace.WriteLine(Encoding.GetString(buf).TrimEnd('\r', '\n'));
+                        }
 
-	                    m_stream.Close();
-	                }
-				}
+                        m_stream.Close();
+                    }
+                }
 
                 if (!IsConnected) {
                     if (command == "QUIT") {
@@ -794,7 +795,7 @@ namespace FluentFTP {
                 }
                 else
                     if (IsConnected)
-                        Disconnect();
+                    Disconnect();
 
                 if (Host == null)
                     throw new FtpException("No host has been specified");
@@ -805,7 +806,8 @@ namespace FluentFTP {
                 m_hashAlgorithms = FtpHashAlgorithm.NONE;
                 m_stream.ConnectTimeout = m_connectTimeout;
                 m_stream.SocketPollInterval = m_socketPollInterval;
-                m_stream.Connect(Host, Port, InternetProtocolVersions);
+                Connect(m_stream);
+
                 m_stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket,
                     System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
@@ -814,14 +816,7 @@ namespace FluentFTP {
                         m_clientCerts.Count > 0 ? m_clientCerts : null,
                         m_SslProtocols);
 
-                if (!(reply = GetReply()).Success) {
-                    if (reply.Code == null) {
-                        throw new IOException("The connection was terminated before a greeting could be read.");
-                    }
-                    else {
-                        throw new FtpCommandException(reply);
-                    }
-                }
+                Handshake();
 
                 if (EncryptionMode == FtpEncryptionMode.Explicit) {
                     if (!(reply = Execute("AUTH TLS")).Success)
@@ -852,9 +847,9 @@ namespace FluentFTP {
                     }
                 }
 
-				// Enable UTF8 if the encoding is ASCII and UTF8 is supported
+                // Enable UTF8 if the encoding is ASCII and UTF8 is supported
 				if (m_textEncoding == Encoding.ASCII && HasFeature(FtpCapability.UTF8)) {
-					m_textEncoding = Encoding.UTF8;
+                    m_textEncoding = Encoding.UTF8;
                 }
 
                 FtpTrace.WriteLine("Text encoding: " + m_textEncoding.ToString());
@@ -868,12 +863,44 @@ namespace FluentFTP {
             }
         }
 
+        protected virtual void Connect(FtpSocketStream stream)
+        {
+            stream.Connect(Host, Port, InternetProtocolVersions);
+        }
+
+        protected virtual void Handshake()
+        {
+            FtpReply reply;
+            if (!(reply = GetReply()).Success)
+            {
+                if (reply.Code == null)
+                {
+                    throw new IOException("The connection was terminated before a greeting could be read.");
+                }
+                else
+                {
+                    throw new FtpCommandException(reply);
+                }
+            }
+        }
+        
         /// <summary>
         /// Performs a login on the server. This method is overridable so
         /// that the login procedure can be changed to support, for example,
         /// a FTP proxy.
         /// </summary>
-        protected virtual void Authenticate() {
+        protected virtual void Authenticate()
+        {
+            Authenticate(Credentials.UserName, Credentials.Password);
+        }
+
+        /// <summary>
+        /// Performs a login on the server. This method is overridable so
+        /// that the login procedure can be changed to support, for example,
+        /// a FTP proxy.
+        /// </summary>
+        protected virtual void Authenticate(string userName, string password)
+        {
             FtpReply reply;
 
             if (!(reply = Execute("USER {0}", Credentials.UserName)).Success)
@@ -2077,7 +2104,6 @@ namespace FluentFTP {
         public IAsyncResult BeginGetListing(string path, AsyncCallback callback, Object state) {
             return BeginGetListing(path, FtpListOption.Modify | FtpListOption.Size, callback, state);
         }
-
 
         delegate FtpListItem[] AsyncGetListing(string path, FtpListOption options);
 
