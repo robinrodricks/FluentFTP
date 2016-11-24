@@ -8,6 +8,7 @@ namespace FluentFTP
         public FtpClientUserAtHostProxy(Proxy proxy) 
             : base(proxy)
         {
+            ConnectionType = "User@Host";
         }
 
         /// <summary> Redefine the first dialog: auth with proxy information </summary>
