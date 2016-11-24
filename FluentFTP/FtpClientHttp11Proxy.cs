@@ -10,6 +10,7 @@ namespace FluentFTP
         /// <param name="proxy">Proxy informations</param>
         public FtpClientHttp11Proxy(Proxy proxy) : base(proxy)
         {
+            ConnectionType = "HTTP 1.1 Proxy";
         }
 
         /// <summary> Redefine the first dialog: HTTP Trame for the HTTP 1.1 Proxy </summary>

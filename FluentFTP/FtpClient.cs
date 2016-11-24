@@ -563,6 +563,14 @@ namespace FluentFTP {
             }
         }
 
+        private string m_connectionType = "Default";
+        /// <summary> Gets the connection type </summary>
+        public string ConnectionType
+        {
+            get { return m_connectionType; }
+            protected set { m_connectionType = value; }
+        }
+
         /// <summary>
         /// Performs a bitwise and to check if the specified
         /// flag is set on the Capabilities enum property.
