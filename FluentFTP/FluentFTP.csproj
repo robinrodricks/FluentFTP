@@ -41,6 +41,10 @@
     <Compile Include="Extensions\GetChecksum.cs" />
     <Compile Include="Extensions\MD5.cs" />
     <Compile Include="FtpClient.cs" />
+    <Compile Include="FtpClientHttp11Proxy.cs" />
+    <Compile Include="FtpClientProxy.cs" />
+    <Compile Include="FtpClientUserAtHostProxy.cs" />
+    <Compile Include="Proxy.cs" />
     <Compile Include="FtpDataStream.cs" />
     <Compile Include="FtpEnums.cs" />
     <Compile Include="FtpExceptions.cs" />
