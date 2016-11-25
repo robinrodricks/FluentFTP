@@ -41,10 +41,6 @@
     <Compile Include="Extensions\GetChecksum.cs" />
     <Compile Include="Extensions\MD5.cs" />
     <Compile Include="FtpClient.cs" />
-    <Compile Include="FtpClientHttp11Proxy.cs" />
-    <Compile Include="FtpClientProxy.cs" />
-    <Compile Include="FtpClientUserAtHostProxy.cs" />
-    <Compile Include="Proxy.cs" />
     <Compile Include="FtpDataStream.cs" />
     <Compile Include="FtpEnums.cs" />
     <Compile Include="FtpExceptions.cs" />
@@ -54,14 +50,15 @@
     <Compile Include="FtpReply.cs" />
     <Compile Include="FtpSocketStream.cs" />
     <Compile Include="FtpTrace.cs" />
-    <Compile Include="IFtpClient.cs" />
-    <Compile Include="IFtpListItem.cs" />
-    <Compile Include="IFtpReply.cs" />
     <Compile Include="Extensions\XCRC.cs" />
     <Compile Include="Extensions\XMD5.cs" />
     <Compile Include="Extensions\XSHA1.cs" />
     <Compile Include="Extensions\XSHA256.cs" />
     <Compile Include="Extensions\XSHA512.cs" />
+    <Compile Include="Proxy\FtpClientHttp11Proxy.cs" />
+    <Compile Include="Proxy\FtpClientProxy.cs" />
+    <Compile Include="Proxy\FtpClientUserAtHostProxy.cs" />
+    <Compile Include="Proxy\ProxyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FluentFTP.nuspec" />

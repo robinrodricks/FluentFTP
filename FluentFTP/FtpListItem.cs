@@ -10,7 +10,7 @@ namespace FluentFTP {
     /// Represents a file system object on the server
     /// </summary>
     /// <example><code source="..\Examples\CustomParser.cs" lang="cs" /></example>
-    public class FtpListItem : IFtpListItem {
+    public class FtpListItem {
         FtpFileSystemObjectType m_type = 0;
         /// <summary>
         /// Gets the type of file system object. This property can be

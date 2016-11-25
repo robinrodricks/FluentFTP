@@ -6,7 +6,7 @@ namespace FluentFTP {
     /// <summary>
     /// Represents a reply to an event on the server
     /// </summary>
-    public struct FtpReply : IFtpReply {
+    public struct FtpReply {
         /// <summary>
         /// The type of response received from the last command executed
         /// </summary>
