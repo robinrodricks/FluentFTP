@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.IO.Compression;
 using System.Text;
+using FluentFTP.Proxy;
 
 namespace Tests {
     /// <summary>
@@ -97,9 +98,9 @@ namespace Tests {
 
         static void TestListPathWithHttp11Proxy()
         {
-            using (FtpClient cl = new FtpClientHttp11Proxy(new Proxy { Host = "127.0.0.1", Port = 3128, })) // Credential = new NetworkCredential() 
+            using (FtpClient cl = new FtpClientHttp11Proxy(new ProxyInfo { Host = "127.0.0.1", Port = 3128, })) // Credential = new NetworkCredential() 
             {
-                Console.WriteLine($"FTPClient::ConnectionType = '{cl.ConnectionType}'");
+                Console.WriteLine("FTPClient::ConnectionType = '" + cl.ConnectionType + "'");
 
                 cl.Credentials = new NetworkCredential(m_user, m_pass);
                 cl.Host = m_host;

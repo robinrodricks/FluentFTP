@@ -8,6 +8,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Web;
+using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Globalization;
 using FluentFTP.Extensions;
@@ -70,7 +71,7 @@ namespace FluentFTP {
     /// listing from the server.
     /// <code source="..\Examples\GetListing.cs" lang="cs" />
     /// </example>
-    public class FtpClient : IFtpClient {
+	public class FtpClient : IDisposable {
         /// <summary>
         /// Used for internally syncrhonizing access to this
         /// object from multiple threads
@@ -2574,9 +2575,10 @@ namespace FluentFTP {
         /// Deletes the specified directory on the server.
         /// </summary>
         /// <param name="path">The full or relative path of the directory to delete</param>
-        /// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
-        public void DeleteDirectory(string path) {
-            DeleteDirectory(path, false);
+		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
+		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
+		public void DeleteDirectory(string path, bool fastMode = false) {
+            DeleteDirectory(path, false, 0, fastMode);
         }
 
         /// <summary>
@@ -2584,59 +2586,114 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="path">The full or relative path of the directory to delete</param>
         /// <param name="force">If the directory is not empty, remove its contents</param>
-        /// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
-        public void DeleteDirectory(string path, bool force) {
-            DeleteDirectory(path, force, 0);
+		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
+		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
+		public void DeleteDirectory(string path, bool force, bool fastMode = false) {
+            DeleteDirectory(path, force, 0, fastMode);
         }
 
         /// <summary>
         /// Deletes the specified directory on the server
         /// </summary>
         /// <param name="path">The full or relative path of the directory to delete</param>
-        /// <param name="force">If the directory is not empty, remove its contents</param>
-        /// <param name="options">FtpListOptions for controlling how the directory
+		/// <param name="force">If the directory is not empty, remove its contents</param>
+		/// <param name="options">FtpListOptions for controlling how the directory
         /// contents are retrieved with the force option is true. If you experience problems
-        /// the file listing can be fine tuned through this parameter.</param>
+		/// the file listing can be fine tuned through this parameter.</param>
+		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
         /// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
-        public void DeleteDirectory(string path, bool force, FtpListOption options) {
-            FtpReply reply;
-            string ftppath = path.GetFtpPath();
+		public void DeleteDirectory(string path, bool force, FtpListOption options, bool fastMode = false) {
+			FtpReply reply;
+			string ftppath = path.GetFtpPath();
 
-            lock (m_lock)
-            {
-                if (force) {
-                    foreach (FtpListItem item in GetListing(path, options)) {
+			lock (m_lock) {
+				if (force) {
 
-                        // This check prevents infinity recursion, 
-                        // when FtpListItem is actual parent or current directory.
-                        // This could happen only when MLSD command is used for GetListing method.
-                        if (!item.FullName.ToLower().Contains(path.ToLower()) || string.Equals(item.FullName.ToLower(), path.ToLower()))
-                            continue;
+					// experimental fast mode
+					if (fastMode) {
 
-                        switch (item.Type) {
-                            case FtpFileSystemObjectType.File:
-                                DeleteFile(item.FullName);
-                                break;
-                            case FtpFileSystemObjectType.Directory:
-                                DeleteDirectory(item.FullName, true, options);
-                                break;
-                            default:
-                                throw new FtpException("Don't know how to delete object type: " + item.Type);
-                        }
-                    }
-                }
+						// when GetListing is called with recursive option, then it does not
+						// make any sense to call another DeleteDirectory with force flag set.
+						// however this requires always delete files first.
+						var forceAgain = !WasGetListingRecursive(options);
 
-                // can't delete the working directory and
-                // can't delete the server root.
-                if (ftppath == "." || ftppath == "./" || ftppath == "/")
-                    return;
+						// items, that are deeper in directory tree, are listed first, 
+						// then files will  be listed before directories. This matters
+						// only if GetListing was called with recursive option.
+						FtpListItem[] itemList;
+						if (forceAgain)
+							itemList = GetListing(path, options);
+						else
+							itemList = GetListing(path, options).OrderByDescending(x => x.FullName.Count(c => c.Equals('/'))).ThenBy(x => x.Type).ToArray();
 
-                if (!(reply = Execute("RMD {0}", ftppath)).Success)
-                    throw new FtpCommandException(reply);
-            }
+
+						foreach (FtpListItem item in itemList) {
+							switch (item.Type) {
+								case FtpFileSystemObjectType.File:
+									DeleteFile(item.FullName);
+									break;
+								case FtpFileSystemObjectType.Directory:
+									DeleteDirectory(item.FullName, forceAgain, options, fastMode);
+									break;
+								default:
+									throw new FtpException("Don't know how to delete object type: " + item.Type);
+							}
+						}
+					} else {
+
+						// standard mode
+						foreach (FtpListItem item in GetListing(path, options)) {
+
+							// This check prevents infinity recursion, 
+							// when FtpListItem is actual parent or current directory.
+							// This could happen only when MLSD command is used for GetListing method.
+							if (!item.FullName.ToLower().Contains(path.ToLower()) || string.Equals(item.FullName.ToLower(), path.ToLower()))
+								continue;
+
+							switch (item.Type) {
+								case FtpFileSystemObjectType.File:
+									DeleteFile(item.FullName);
+									break;
+								case FtpFileSystemObjectType.Directory:
+									DeleteDirectory(item.FullName, true, options, fastMode);
+									break;
+								default:
+									throw new FtpException("Don't know how to delete object type: " + item.Type);
+							}
+						}
+					}
+				}
+
+				// can't delete the working directory and
+				// can't delete the server root.
+				if (ftppath == "." || ftppath == "./" || ftppath == "/")
+					return;
+
+				if (!(reply = Execute("RMD {0}", ftppath)).Success)
+					throw new FtpCommandException(reply);
+			}
+		}
+
+        /// <summary>
+        /// Checks wether GetListing will be called recursively or not.
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        private bool WasGetListingRecursive(FtpListOption options)
+        {
+            if (HasFeature(FtpCapability.MLSD) && (options & FtpListOption.ForceList) != FtpListOption.ForceList)
+                return false;
+
+            if ((options & FtpListOption.UseLS) == FtpListOption.UseLS || (options & FtpListOption.NameList) == FtpListOption.NameList)
+                return false;
+
+            if ((options & FtpListOption.Recursive) == FtpListOption.Recursive)
+                return true;
+
+            return false;
         }
 
-        delegate void AsyncDeleteDirectory(string path, bool force, FtpListOption options);
+        delegate void AsyncDeleteDirectory(string path, bool force, FtpListOption options, bool fastMode = false);
 
         /// <summary>
         /// Asynchronously removes a directory from the server
@@ -2644,10 +2701,11 @@ namespace FluentFTP {
         /// <param name="path">The full or relative path of the directory to delete</param>
         /// <param name="callback">Async callback</param>
         /// <param name="state">State object</param>
-        /// <returns>IAsyncResult</returns>
+		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
+		/// <returns>IAsyncResult</returns>
         /// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
-        public IAsyncResult BeginDeleteDirectory(string path, AsyncCallback callback, object state) {
-            return BeginDeleteDirectory(path, true, 0, callback, state);
+		public IAsyncResult BeginDeleteDirectory(string path, AsyncCallback callback, object state, bool fastMode = false) {
+            return BeginDeleteDirectory(path, true, 0, fastMode, callback, state);
         }
 
         /// <summary>
@@ -2657,10 +2715,11 @@ namespace FluentFTP {
         /// <param name="force">If the directory is not empty, remove its contents</param>
         /// <param name="callback">Async callback</param>
         /// <param name="state">State object</param>
-        /// <returns>IAsyncResult</returns>
+		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
+		/// <returns>IAsyncResult</returns>
         /// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
-        public IAsyncResult BeginDeleteDirectory(string path, bool force, AsyncCallback callback, object state) {
-            return BeginDeleteDirectory(path, force, 0, callback, state);
+		public IAsyncResult BeginDeleteDirectory(string path, bool force, AsyncCallback callback, object state, bool fastMode = false) {
+            return BeginDeleteDirectory(path, force, 0, fastMode, callback, state);
         }
 
         /// <summary>
@@ -2675,11 +2734,11 @@ namespace FluentFTP {
         /// <param name="state">State object</param>
         /// <returns>IAsyncResult</returns>
         /// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
-        public IAsyncResult BeginDeleteDirectory(string path, bool force, FtpListOption options, AsyncCallback callback, object state) {
+        public IAsyncResult BeginDeleteDirectory(string path, bool force, FtpListOption options, bool fastMode, AsyncCallback callback, object state) {
             AsyncDeleteDirectory func;
             IAsyncResult ar;
 
-            ar = (func = new AsyncDeleteDirectory(DeleteDirectory)).BeginInvoke(path, force, options, callback, state);
+            ar = (func = new AsyncDeleteDirectory(DeleteDirectory)).BeginInvoke(path, force, options, fastMode, callback, state);
             lock (m_asyncmethods) {
                 m_asyncmethods.Add(ar, func);
             }
