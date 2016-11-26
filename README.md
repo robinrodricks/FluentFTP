@@ -17,6 +17,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Support for adding [client certificates](#client-certificates)
 - Passive and Active data connections (PASV, EPSV, PORT and EPRT)
 - Support for DrFTPD's (non-standard) PRET command
+- Support for FTP Proxies (User@Host, HTTP 1.1)
 - Returns `Stream` objects for reading or writing files on the server
 - Attempts to make the FTP protocol safer with threads by cloning the control connection for file transfers (can be disabled)
   - Implements its own internal locking in an effort to keep transactions synchronized
