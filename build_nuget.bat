@@ -11,5 +11,5 @@ rd /q /s FluentFTP\bin
 :: Build signed DLL
 rem %msbuild% /p:Configuration=Release /p:SignAssembly=true /p:AssemblyOriginatorKeyFile="%snk%" FluentFTP\FluentFTP.csproj
 
-%nuget% pack FluentFTP\FluentFTP.csproj -Prop Configuration=Release -OutputDirectory "Q:\Code\CS-OSS\FluentFTP-Nuget"
+%nuget% pack FluentFTP\FluentFTP.csproj -Prop Configuration=Release -OutputDirectory FluentFTP\nuget\
 pause
