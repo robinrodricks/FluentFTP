@@ -17,9 +17,11 @@ namespace Tests {
     /// Torture test
     /// </summary>
     class Program {
-		static readonly string m_host = "ftptest";
-        static readonly string m_user = "ftptest";
-        static readonly string m_pass = "ftptest";
+
+		//static readonly string m_host = "127.0.0.1";
+		static readonly string m_host = "127.0.0.1";
+        static readonly string m_user = "anonymous";
+        static readonly string m_pass = "";
 
         static void Main(string[] args) {
             FtpTrace.FlushOnWrite = true;
@@ -84,9 +86,9 @@ namespace Tests {
 
                 //TestUnixListing();
 
-                TestListPath();
+                //TestListPath();
 
-                TestListPathWithHttp11Proxy();
+                //TestListPathWithHttp11Proxy();
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());
@@ -159,7 +161,7 @@ namespace Tests {
 
         static void TestUnixListing() {
             using (FtpClient cl = new FtpClient()) {
-                cl.Host = "ftptest";
+				cl.Host = m_host;
                 cl.Credentials = new NetworkCredential("ftptest", "ftptest");
 
                 if (!cl.FileExists("test.txt")) {
@@ -192,7 +194,7 @@ namespace Tests {
             using (FtpClient cl = new FtpClient()) {
                 FtpListItem item;
 
-                cl.Host = "ftptest";
+                cl.Host = m_host;
                 cl.Credentials = new NetworkCredential("ftptest", "ftptest");
                 cl.Encoding = Encoding.Default;
 
@@ -203,7 +205,7 @@ namespace Tests {
 
 		static void TestManualEncoding() {
 			using (FtpClient cl = new FtpClient()) {
-                cl.Host = "ftptest";
+                cl.Host = m_host;
                 cl.Credentials = new NetworkCredential("ftptest", "ftptest");
                 cl.Encoding = Encoding.Default;
 
@@ -215,7 +217,7 @@ namespace Tests {
 
         static void TestServer() {
             using (FtpClient cl = new FtpClient()) {
-                cl.Host = "ftptest";
+                cl.Host = m_host;
                 cl.Credentials = new NetworkCredential("ftptest", "ftptest");
                 cl.EncryptionMode = FtpEncryptionMode.Explicit;
 				cl.ValidateCertificate += (control, e) => {
@@ -318,7 +320,7 @@ namespace Tests {
         static void TestUnixList() {
             using (FtpClient client = new FtpClient()) {
                 client.Credentials = new NetworkCredential("ftptest", "ftptest");
-                client.Host = "ftptest";
+                client.Host = m_host;
                 foreach (FtpListItem i in client.GetListing(null, FtpListOption.ForceList | FtpListOption.Recursive)) {
                     Console.WriteLine(i.FullName);
                 }
@@ -515,8 +517,8 @@ namespace Tests {
 
         static void TestNameListing() {
             using (FtpClient cl = new FtpClient()) {
-                cl.Credentials = new NetworkCredential(m_user, m_pass);
-                cl.Host = "127.0.0.1";
+                //cl.Credentials = new NetworkCredential(m_user, m_pass);
+				cl.Host = m_host;
                 cl.ValidateCertificate += OnValidateCertificate;
                 cl.DataConnectionType = FtpDataConnectionType.PASV;
                 //cl.EncryptionMode = FtpEncryptionMode.Explicit;
@@ -526,9 +528,10 @@ namespace Tests {
                 //Console.WriteLine("Sleeping for 10 seconds to force timeout.");
                 //Thread.Sleep(10000);
 
-                foreach (FtpListItem item in cl.GetListing(null, FtpListOption.SizeModify | FtpListOption.ForceNameList)) {
-                    Console.WriteLine(item.Modified.Kind);
-                    Console.WriteLine(item.Modified);
+                foreach (FtpListItem item in cl.GetListing()) {
+					//Console.WriteLine(item.FullName);
+                    //Console.WriteLine(item.Modified.Kind);
+                    //Console.WriteLine(item.Modified);
                 }
             }
         }
