@@ -18,7 +18,7 @@ namespace FluentFTP.Proxy
 
         /// <summary> Redefine connect for FtpClient : authentication on the Proxy  </summary>
         /// <param name="stream">The socket stream.</param>
-        protected override void Connect(FtpSocketStream stream)
+		protected override void Connect( FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions )
         {
             stream.Connect(Proxy.Host, Proxy.Port, InternetProtocolVersions);
         }
