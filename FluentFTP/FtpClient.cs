@@ -876,11 +876,15 @@ namespace FluentFTP {
             }
         }
 
-        protected virtual void Connect(FtpSocketStream stream)
+        void Connect(FtpSocketStream stream)
         {
-            stream.Connect(Host, Port, InternetProtocolVersions);
+            Connect(stream,Host, Port, InternetProtocolVersions);
         }
 
+		protected virtual void Connect( FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions ) {
+			stream.Connect( host, port, ipVersions );
+		}
+		
         protected virtual void Handshake()
         {
             FtpReply reply;
@@ -1168,7 +1172,7 @@ namespace FluentFTP {
             stream = new FtpDataStream(this);
             stream.ConnectTimeout = DataConnectionConnectTimeout;
             stream.ReadTimeout = DataConnectionReadTimeout;
-            stream.Connect(host, port, InternetProtocolVersions);
+			Connect( stream, host, port, InternetProtocolVersions);
             stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
             if (restart > 0) {
