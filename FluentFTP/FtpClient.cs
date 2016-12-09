@@ -1138,7 +1138,7 @@ namespace FluentFTP {
                 port = int.Parse(m.Groups["port"].Value);
             }
             else {
-                if (m_stream.LocalEndPoint.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
+				if (m_stream.LocalEndPoint!=null && m_stream.LocalEndPoint.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
                     throw new FtpException("Only IPv4 is supported by the PASV command. Use EPSV instead.");
 
                 if (!(reply = Execute("PASV")).Success)
@@ -1313,7 +1313,7 @@ namespace FluentFTP {
                 // The PORT and PASV commands do not work with IPv6 so
                 // if either one of those types are set change them
                 // to EPSV or EPRT appropriately.
-                if (m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6) {
+				if (m_stream.LocalEndPoint!=null && m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6) {
                     switch (type) {
                         case FtpDataConnectionType.PORT:
                             type = FtpDataConnectionType.EPRT;
