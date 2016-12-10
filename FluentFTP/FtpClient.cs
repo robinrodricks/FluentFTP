@@ -78,7 +78,13 @@ namespace FluentFTP {
         /// </summary>
         readonly Object m_lock = new Object();
 
-        /// <summary>
+	    protected Object Lock {
+		    get {
+			    return m_lock;
+		    }
+	    }
+
+	    /// <summary>
         /// A list of asynchronoous methods that are in progress
         /// </summary>
         readonly Dictionary<IAsyncResult, object> m_asyncmethods = new Dictionary<IAsyncResult, object>();
@@ -284,11 +290,7 @@ namespace FluentFTP {
             }
         }
 
-		/// <summary>
-		/// use anonymous credentials by default, instead of implicit credentials
-		/// </summary>
-        NetworkCredential m_credentials = new NetworkCredential("anonymous", "");
-
+        NetworkCredential m_credentials = null;
         /// <summary>
         /// Credentials used for authentication
         /// </summary>
@@ -632,40 +634,44 @@ namespace FluentFTP {
             return func;
         }
 
-        /// <summary>
-        /// Clones the control connection for opening multipe data streams
-        /// </summary>
-        /// <returns>A new control connection with the same property settings as this one</returns>
-        /// <example><code source="..\Examples\CloneConnection.cs" lang="cs" /></example>
-        protected FtpClient CloneConnection() {
-            FtpClient conn = new FtpClient();
+	    /// <summary>
+	    /// Clones the control connection for opening multiple data streams
+	    /// </summary>
+	    /// <returns>A new control connection with the same property settings as this one</returns>
+	    /// <example><code source="..\Examples\CloneConnection.cs" lang="cs" /></example>
+	    protected FtpClient CloneConnection() {
+		    FtpClient conn = Create();
 
-            conn.m_isClone = true;
+		    conn.m_isClone = true;
 
-            foreach (PropertyInfo prop in GetType().GetProperties()) {
-                object[] attributes = prop.GetCustomAttributes(typeof(FtpControlConnectionClone), true);
+			foreach( PropertyInfo prop in GetType().GetProperties() ) {
+			    object[] attributes = prop.GetCustomAttributes( typeof( FtpControlConnectionClone ), true );
 
-                if (attributes != null && attributes.Length > 0) {
-                    prop.SetValue(conn, prop.GetValue(this, null), null);
-                }
-            }
+			    if( attributes.Length > 0 ) {
+				    prop.SetValue( conn, prop.GetValue( this, null ), null );
+			    }
+		    }
 
-            // always accept certficate no matter what because if code execution ever
-            // gets here it means the certificate on the control connection object being
-            // cloned was already accepted.
-            conn.ValidateCertificate += new FtpSslValidation(
-                delegate(FtpClient obj, FtpSslValidationEventArgs e) {
-                    e.Accept = true;
-                });
+		    // always accept certificate no matter what because if code execution ever
+		    // gets here it means the certificate on the control connection object being
+		    // cloned was already accepted.
+		    conn.ValidateCertificate += new FtpSslValidation(
+			    delegate( FtpClient obj, FtpSslValidationEventArgs e ) {
+				    e.Accept = true;
+			    } );
 
-            return conn;
-        }
+		    return conn;
+	    }
 
-        /// <summary>
-        /// Retreives a reply from the server. Do not execute this method
+	    protected virtual FtpClient Create() {
+		    return new FtpClient();
+	    }
+
+	    /// <summary>
+        /// Retrieves a reply from the server. Do not execute this method
         /// unless you are sure that a reply has been sent, i.e., you
         /// executed a command. Doing so will cause the code to hang
-        /// indefinitely waiting for a server reply that is never comming.
+        /// indefinitely waiting for a server reply that is never coming.
         /// </summary>
         /// <returns>FtpReply representing the response from the server</returns>
         /// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
@@ -876,16 +882,16 @@ namespace FluentFTP {
             }
         }
 
-        void Connect(FtpSocketStream stream)
+        protected virtual void Connect(FtpSocketStream stream)
         {
-            Connect(stream,Host, Port, InternetProtocolVersions);
+            stream.Connect(Host, Port, InternetProtocolVersions);
         }
 
-		protected virtual void Connect( FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions ) {
-			stream.Connect( host, port, ipVersions );
-		}
-		
-        protected virtual void Handshake()
+	    protected virtual void Connect( FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions ) {
+		    stream.Connect( host, port, ipVersions );
+	    }
+
+	    protected virtual void Handshake()
         {
             FtpReply reply;
             if (!(reply = GetReply()).Success)
@@ -920,11 +926,11 @@ namespace FluentFTP {
         {
             FtpReply reply;
 
-            if (!(reply = Execute("USER {0}", Credentials.UserName)).Success)
+            if (!(reply = Execute("USER {0}", userName)).Success)
                 throw new FtpCommandException(reply);
 
             if (reply.Type == FtpResponseType.PositiveIntermediate
-                && !(reply = Execute("PASS {0}", Credentials.Password)).Success)
+                && !(reply = Execute("PASS {0}", password)).Success)
                 throw new FtpCommandException(reply);
         }
 
@@ -1138,7 +1144,7 @@ namespace FluentFTP {
                 port = int.Parse(m.Groups["port"].Value);
             }
             else {
-				if (m_stream.LocalEndPoint!=null && m_stream.LocalEndPoint.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
+                if (m_stream.LocalEndPoint.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
                     throw new FtpException("Only IPv4 is supported by the PASV command. Use EPSV instead.");
 
                 if (!(reply = Execute("PASV")).Success)
@@ -1172,7 +1178,7 @@ namespace FluentFTP {
             stream = new FtpDataStream(this);
             stream.ConnectTimeout = DataConnectionConnectTimeout;
             stream.ReadTimeout = DataConnectionReadTimeout;
-			Connect( stream, host, port, InternetProtocolVersions);
+	        Connect( stream, host, port, InternetProtocolVersions );
             stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
             if (restart > 0) {
@@ -1313,7 +1319,7 @@ namespace FluentFTP {
                 // The PORT and PASV commands do not work with IPv6 so
                 // if either one of those types are set change them
                 // to EPSV or EPRT appropriately.
-				if (m_stream.LocalEndPoint!=null && m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6) {
+                if (m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6) {
                     switch (type) {
                         case FtpDataConnectionType.PORT:
                             type = FtpDataConnectionType.EPRT;
@@ -1944,34 +1950,22 @@ namespace FluentFTP {
             FtpListItem item = null;
             List<FtpListItem> lst = new List<FtpListItem>();
             List<string> rawlisting = new List<string>();
-			string listcmd = null;
-			string pwd;
-
-			// try to get the current working directory
-			//try {
-				pwd = GetWorkingDirectory();
-				
-				if (path == null || path.Trim().Length == 0) {
-				   // pwd = GetWorkingDirectory();
-					if (pwd != null && pwd.Trim().Length > 0)
-						path = pwd;
-					else
-						path = "./";
-				}
-				else if (!path.StartsWith("/") && pwd != null && pwd.Trim().Length > 0) {
-					if (path.StartsWith("./"))
-						path = path.Remove(0, 2);
-					path = string.Format("{0}/{1}", pwd, path).GetFtpPath();
-				}
-			/*} catch (Exception ex) {
-
-				// if it fails for some reason (often on 'anonymous' login)
-				// then simply use a default path
-				if (path == null || path.Trim().Length == 0) {
-					path = "/";
-				}
-			}*/
+            string listcmd = null;
+            string pwd = GetWorkingDirectory();
             string buf = null;
+
+            if (path == null || path.Trim().Length == 0) {
+                pwd = GetWorkingDirectory();
+                if (pwd != null && pwd.Trim().Length > 0)
+                    path = pwd;
+                else
+                    path = "./";
+            }
+            else if (!path.StartsWith("/") && pwd != null && pwd.Trim().Length > 0) {
+                if (path.StartsWith("./"))
+                    path = path.Remove(0, 2);
+                path = string.Format("{0}/{1}", pwd, path).GetFtpPath();
+            }
 
             // MLSD provides a machine parsable format with more
             // accurate information than most of the UNIX long list
