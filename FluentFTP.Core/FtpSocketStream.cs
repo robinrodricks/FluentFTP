@@ -434,14 +434,6 @@ namespace FluentFTP {
 
             m_lastActivity = DateTime.Now;
 
-            //TODO : 这里修改源代码
-            //ar = BaseStream.BeginRead(buffer, offset, count, null, null);
-            //if (!ar.AsyncWaitHandle.WaitOne(m_readTimeout, true)) {
-            //    Close();
-            //    throw new TimeoutException("Timed out trying to read data from the socket stream!");
-            //}
-
-            //TODO : 可能用异步更好
             return BaseStream.ReadAsync(buffer, offset, count).Result;
         }
 
@@ -504,18 +496,15 @@ namespace FluentFTP {
         public void Close() {
             if (m_socket != null) {
                 try {
-                    //TODO : 这里修改源代码
                     if (m_socket.Connected)
                     {
-                        //    ////
-                        //    // Calling Shutdown() with mono causes an
-                        //    // exception if the remote host closed first
-                        //    //m_socket.Shutdown(SocketShutdown.Both);
+                        ////
+                        // Calling Shutdown() with mono causes an
+                        // exception if the remote host closed first
+                        //m_socket.Shutdown(SocketShutdown.Both);
                         m_socket.Dispose();
                     }
-                    //#if !NET2
                     m_socket.Dispose();
-                    //#endif
                 }
                 catch (SocketException ex) {
                     FtpTrace.WriteLine("Caught and discarded a SocketException while cleaning up the Socket: {0}", ex.ToString());
@@ -570,8 +559,6 @@ namespace FluentFTP {
         /// <param name="ipVersions">Internet Protocol versions to support durring the connection phase</param>
         public void Connect(string host, int port, FtpIpVersion ipVersions) {
             IAsyncResult ar = null;
-            //TODO : 这里修改源代码
-            //TODO : 可能用异步更好
             IPAddress[] addresses = Dns.GetHostAddressesAsync(host).Result;
 
             if (ipVersions == 0)
@@ -606,23 +593,6 @@ namespace FluentFTP {
                 }
 
                 m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                //ar = m_socket.BeginConnect(addresses[i], port, null, null);
-                //if (!ar.AsyncWaitHandle.WaitOne(m_connectTimeout, true)) {
-                //    Close();
-
-                //    // check to see if we're out of addresses
-                //    // and if we are throw a TimeoutException
-                //    if (i + 1 == addresses.Length)
-                //        throw new TimeoutException("Timed out trying to connect!");
-                //}
-                //else {
-                //    m_socket.EndConnect(ar);
-                //    // we got a connection, break out
-                //    // of the loop.
-                //    break;
-                //}
-                //TODO : 这里修改源代码
-                //TODO : 可能用异步更好
                 m_socket.ConnectAsync(addresses[i], port).Wait();
             }
 
@@ -644,7 +614,6 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="targethost">The host to authenticate the certiciate against</param>
         public void ActivateEncryption(string targethost) {
-            //TODO : 这里修改源代码
             ActivateEncryption(targethost, null, SslProtocols.Tls11 | SslProtocols.Ssl3);
         }
 
@@ -656,7 +625,6 @@ namespace FluentFTP {
         /// <param name="targethost">The host to authenticate the certiciate against</param>
         /// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
         public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts) {
-            //TODO : 这里修改源代码
             ActivateEncryption(targethost, clientCerts, SslProtocols.Tls11 | SslProtocols.Ssl3);
         }
 
@@ -688,8 +656,6 @@ namespace FluentFTP {
                     }));
 
                 auth_start = DateTime.Now;
-                //TODO : 这里修改源代码
-                //TODO : 可能异步更好
                 m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, true).Wait();
                 auth_time_total = DateTime.Now.Subtract(auth_start);
                 FtpTrace.WriteLine("Time to activate encryption: {0}h {1}m {2}s, Total Seconds: {3}.",
@@ -734,7 +700,6 @@ namespace FluentFTP {
             }
         }
 
-        //TODO : 这里修改源代码，新加方法
         public async Task AcceptAsync()
         {
             if (m_socket != null)
@@ -742,29 +707,5 @@ namespace FluentFTP {
                 m_socket = await m_socket.AcceptAsync();
             }
         }
-
-        //TODO : 这里修改源代码
-        ///// <summary>
-        ///// Asynchronously accepts a connection from a listening socket
-        ///// </summary>
-        ///// <param name="callback"></param>
-        ///// <param name="state"></param>
-        ///// <returns></returns>
-        //public IAsyncResult BeginAccept(AsyncCallback callback, object state) {
-        //    if (m_socket != null)
-        //        return m_socket.BeginAccept(callback, state);
-        //    return null;
-        //}
-
-        ///// <summary>
-        ///// Completes a BeginAccept() operation
-        ///// </summary>
-        ///// <param name="ar">IAsyncResult returned from BeginAccept</param>
-        //public void EndAccept(IAsyncResult ar) {
-        //    if (m_socket != null) {
-        //        m_socket = m_socket.EndAccept(ar);
-        //        m_netStream = new NetworkStream(m_socket);
-        //    }
-        //}
     }
 }

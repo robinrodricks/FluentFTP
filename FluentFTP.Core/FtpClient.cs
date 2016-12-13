@@ -634,17 +634,6 @@ namespace FluentFTP {
             FtpClient conn = new FtpClient();
 
             conn.m_isClone = true;
-            //foreach (PropertyInfo prop in GetType().GetProperties())
-            //{
-            //    object[] attributes = prop.GetCustomAttributes(typeof(FtpControlConnectionClone), true);
-
-            //    if (attributes != null && attributes.Length > 0)
-            //    {
-            //        prop.SetValue(conn, prop.GetValue(this, null), null);
-            //    }
-            //}
-
-            //TODO : 更好的实现，最好替换为上面的实现
             conn.InternetProtocolVersions = InternetProtocolVersions;
             conn.SocketPollInterval = SocketPollInterval;
             conn.StaleDataCheck = StaleDataCheck;
@@ -1224,17 +1213,12 @@ namespace FluentFTP {
         FtpDataStream OpenActiveDataStream(FtpDataConnectionType type, string command, long restart) {
             FtpDataStream stream = new FtpDataStream(this);
             FtpReply reply;
-            //TODO : 这里修改源代码
-            //IAsyncResult ar;
-
+           
             if (m_stream == null)
                 throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open an active data stream.");
 
             stream.Listen(m_stream.LocalEndPoint.Address, 0);
-
-            //TODO : 这里修改源代码，可能有问题
-            //ar = stream.BeginAccept(null, null);
-
+            
             if (type == FtpDataConnectionType.EPRT || type == FtpDataConnectionType.AutoActive) {
                 int ipver = 0;
 
@@ -1571,7 +1555,6 @@ namespace FluentFTP {
             FtpClient client = null;
             FtpDataStream stream = null;
             long length = 0;
-            //TODO : 这里修改源代码
             string dirname = FtpPathExtensions.GetFtpDirectoryName(path);
             if (!DirectoryExists(dirname))
             {
@@ -3648,7 +3631,6 @@ namespace FluentFTP {
         }
     }
 
-    //TODO : 这里修改源代码，新加的类
     public static class FtpPathExtensions
     {
         public static string GetFtpDirectoryName(string path)

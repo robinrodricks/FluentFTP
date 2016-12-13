@@ -215,13 +215,7 @@ namespace FluentFTP {
         /// <returns>A string value</returns>
         public override string ToString() {
             StringBuilder sb = new StringBuilder();
-
-            //TODO : 这里修改源代码
-            //foreach (System.Reflection.PropertyInfo p in GetType().GetProperties()) {
-            //    sb.AppendLine(string.Format("{0}: {1}", p.Name, p.GetValue(this, null)));
-            //}
-
-            //TODO : 这里可以有更好的实现，即采用上面的方法
+            
             sb.AppendLine(string.Format("{0}: {1}", "FullName", FullName));
 
             return sb.ToString();

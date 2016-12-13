@@ -66,24 +66,19 @@ namespace FluentFTP {
             if (IsValid) {
                 HashAlgorithm hashAlg = null;
 
-                //TODO : 这里修改源代码
                 switch (m_algorithm) {
                     case FtpHashAlgorithm.SHA1:
-                        //hashAlg = new SHA1CryptoServiceProvider();
                         hashAlg = SHA1.Create();
                         break;
 #if !NET2
                     case FtpHashAlgorithm.SHA256:
-                        //hashAlg = new SHA256CryptoServiceProvider();
                         hashAlg = SHA256.Create();
                         break;
                     case FtpHashAlgorithm.SHA512:
-                        //hashAlg = new SHA512CryptoServiceProvider();
                         hashAlg = SHA512.Create();
                         break;
 #endif
                     case FtpHashAlgorithm.MD5:
-                        //hashAlg = new MD5CryptoServiceProvider();
                         hashAlg = MD5.Create();
                         break;
                     case FtpHashAlgorithm.CRC:
