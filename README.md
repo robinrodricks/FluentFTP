@@ -97,11 +97,74 @@ client.Disconnect();
 	
 See more examples [here](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples).
 
+## API
+
+Note: All methods support synchronous and asynchronous versions. Simply add the "Begin" prefix to a method for the async version.
+
+**Basic API**
+
+- **new FtpClient()** - Creates and returns a new FTP client instance.
+- **Host** - The server IP or hostname. Required.
+- **Port** - The FTP port to connect to. **Default:** Auto (21 or 990 depending on FTPS config)
+- **Credentials** - The username & password to use. **Default:** `anonymous/anonymous`
+- **Connect** - Connects to an FTP server (uses TLS/SSL if configured).
+- **Disconnect** - Closes the connection to the server immediately.
+- **Execute** - Execute a custom or unspported command.
+- **SystemType** - Gets the type of system/server that we're connected to.
+- **HasFeature** - Checks if a specific feature (`FtpCapability`) is supported by the server.
+- **GetDataType** - Checks if the transfer data type is ASCII or binary.
+- **SetDataType** - Sets the transfer data type to ASCII or binary. Internally called whenever during file reads, writes and appends.
+- **IsConnected** - Checks if the connection is still alive.
+
+**File I/O**
+
+- **OpenRead**
+- **OpenWrite**
+- **OpenAppend**
+
+**File Management**
+
+- **GetListing**
+- **GetNameListing**
+- **GetWorkingDirectory**
+- **SetWorkingDirectory**
+- **CreateDirectory**
+- **DeleteDirectory**
+- **DeleteFile**
+- **Rename**
+- **GetModifiedTime**
+- **DereferenceLink**
+- **GetFileSize**
+- **GetHash**
+- **GetHashAlgorithm**
+- **SetHashAlgorithm**
+
+**Optional Config**
+
+- **DataConnectionType** - Active or Passive connection. **Default:** FtpDataConnectionType.AutoPassive (tries EPSV then PASV then gives up)
+- **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
+- **Encoding** - Text encoding (ASCII or UTF8) used when talking with the server. ASCII is default, but upon connection, we switch to UTF8 if supported by the server. Manually setting this value overrides automatic detection. **Default:** Auto
+- **InternetProtocolVersions** - Whether to use IPV4 and/or IPV6 when making a connection. All addresses returned during name resolution are tried until a successful connection is made. **Default:** Any.
+- **SocketPollInterval** - Time that must pass (in milliseconds) since the last socket activity before calling `Poll()` on the socket to test for connectivity. Setting this interval too low will have a negative impact on perfomance. Setting this interval to 0 disables Poll()'ing all together. **Default:** 15000 (15 seconds).
+- **StaleDataCheck** - Check if there is stale (unrequested data) sitting on the socket or not. In some cases the control connection may time out but before the server closes the connection it might send a 4xx response that was unexpected and can cause synchronization errors with transactions. To avoid this problem the Execute() method checks to see if there is any data available on the socket before executing a command. **Default:** true.
+- **EnableThreadSafeDataConnections** - Clone the control connection and establish another connection to the server for the data channel operation. This is a thread safe approach to make asynchronous operations on a single control connection transparent. **Default:** true.
+- **IsClone** - Checks if this control connection is a clone. **Default:** false.
+- **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
+
+**FTPS Config**
+
+- **EncryptionMode** - Type of SSL to use, or none. Explicit is TLS, Implicit is SSL. **Default:** FtpEncryptionMode.None.
+- **DataConnectionEncryption** - Indicates if data channel transfers should be encrypted. **Default:** true.
+- **SslProtocols** - Encryption protocols to use. **Default:** SslProtocols.Default.
+- **ClientCertificates** - X509 client certificates to be used in SSL authentication process.
+- **ValidateCertificate** - Event is fired to validate SSL certificates. If this event is not handled and there are errors validating the certificate the connection will be aborted.
+
+
 ## Submitting issues
 
 Please use the [Issue tracker](https://github.com/hgupta9/FluentFTP/issues) to report bugs if you think you have found one. Aside from a good description of how to reproduce the problem, include the transaction log, the exact revision number of the library, and the exact version of the server OS and FTP software that you were connected to when the problem occurred.
 
-## Documentation
+## Notes
 ### Stream Handling
 
 FluentFTP returns a `Stream` object for file transfers. This stream **must** be properly closed when you are done. Do not leave it for the GC to cleanup otherwise you can end up with uncatchable exceptions, i.e., a program crash. The stream objects are actually wrappers around `NetworkStream` and `SslStream` which perform cleanup routines on the control connection when the stream is closed. These cleanup routines can trigger exceptions so it's vital that you properly dispose the objects when you are done, no matter what. A proper implementation should go along the lines of:
