@@ -98,21 +98,21 @@ client.Disconnect();
 See more examples [here](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples).
 
 
-## API
+# API
 
 Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS functionality.
 
 **Note:** All methods support synchronous and asynchronous versions. Simply add the "Begin" prefix to a method for the async version.
 
-### Basic API
+## Connection
 
 - **new FtpClient**() - Creates and returns a new FTP client instance.
 
-- **Host** - The server IP or hostname. Required.
+- **Host** - The FTP server IP or hostname. Required.
 
 - **Port** - The FTP port to connect to. **Default:** Auto (21 or 990 depending on FTPS config)
 
-- **Credentials** - The username & password to use. **Default:** `anonymous/anonymous`
+- **Credentials** - The FTP username & password to use. Must be a valid user account registered with the server. **Default:** `anonymous/anonymous`
 
 - **Connect**() - Connects to an FTP server (uses TLS/SSL if configured).
 
@@ -128,7 +128,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **HasFeature**() - Checks if a specific feature (`FtpCapability`) is supported by the server.
 
-### File I/O
+## File I/O
 
 - **OpenRead**() - Opens the specified file for reading. Returns a standard `Stream`.
 
@@ -136,7 +136,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **OpenAppend**() - Opens the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file.
 
-### File Management
+## File Management
 
 - **GetListing**() - Get a file listing of the given directory. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
 
@@ -186,7 +186,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **GetFileSize**() - Gets the size of the file in bytes.
 
-### File Hashing
+## File Hashing
 
 - **HashAlgorithms** - Get the hash types supported by the server, if any (represented by flags).
 
@@ -196,7 +196,19 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **SetHashAlgorithm**() - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
 
-### Optional Config
+## FTPS
+
+- **EncryptionMode** - Type of SSL to use, or none. Explicit is TLS, Implicit is SSL. **Default:** FtpEncryptionMode.None.
+
+- **DataConnectionEncryption** - Indicates if data channel transfers should be encrypted. **Default:** true.
+
+- **SslProtocols** - Encryption protocols to use. **Default:** SslProtocols.Default.
+
+- **ClientCertificates** - X509 client certificates to be used in SSL authentication process.
+
+- **ValidateCertificate** - Event is fired to validate SSL certificates. If this event is not handled and there are errors validating the certificate the connection will be aborted.
+
+## Advanced Config
 
 - **GetDataType**() - Checks if the transfer data type is ASCII or binary.
 
@@ -229,18 +241,6 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **IsClone** - Checks if this control connection is a clone. **Default:** false.
 
 - **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
-
-### FTPS Config
-
-- **EncryptionMode** - Type of SSL to use, or none. Explicit is TLS, Implicit is SSL. **Default:** FtpEncryptionMode.None.
-
-- **DataConnectionEncryption** - Indicates if data channel transfers should be encrypted. **Default:** true.
-
-- **SslProtocols** - Encryption protocols to use. **Default:** SslProtocols.Default.
-
-- **ClientCertificates** - X509 client certificates to be used in SSL authentication process.
-
-- **ValidateCertificate** - Event is fired to validate SSL certificates. If this event is not handled and there are errors validating the certificate the connection will be aborted.
 
 
 ## Submitting issues
