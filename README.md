@@ -52,7 +52,7 @@ FtpClient client = new FtpClient();
 client.Host = "123.123.123.123";
 
 // if you don't specify login credentials, we use the "anonymous" user account
-client.Credentials = new NetworkCredential("ftptest", "ftptest");
+client.Credentials = new NetworkCredential("david", "pass123");
 
 // begin connecting to the server
 client.Connect();
