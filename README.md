@@ -14,8 +14,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Passive and Active data connections (PASV, EPSV, PORT and EPRT)
 - Supports DrFTPD's (non-standard) PRET command
 - Supports FTP Proxies (User@Host, HTTP 1.1)
-- Synchronous and Asynchronous methods for all operations
-  - Implements the `IAsyncResult` pattern for almost all methods
+- Synchronous and Asynchronous methods (`IAsyncResult` pattern) for all operations 
 
 ### File Management Features
 
