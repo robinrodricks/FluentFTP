@@ -7,7 +7,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 
 ## Features
 
-***Main Features***
+**Main Features**
 
 - Supports plaintext FTP
 - Supports FTP over SSL (FTPS)
@@ -20,11 +20,10 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Synchronous and Asynchronous methods for all operations
   - Implements the `IAsyncResult` pattern for almost all methods
 
-***Basic API***
+**Basic API**
 
 - Upload and download files from the local file system to the server
 - File and directory listing for [various servers](#file-listings) (UNIX, IIS, DOS, etc)
-- Get the hash/checksum of a file (SHA-1, SHA-256, SHA-512, and MD5)
 - Returns `Stream` objects for reading and writing files on the server
 - Rename files and folders on the server
 - Delete files and folders (recursively deletes the contents of the folder)
@@ -33,68 +32,69 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Check if file or folder exists
 - Get file/folder info (file size, security flags, modified date/time)
 - Get and set working directory
+- Get the hash/checksum of a file (SHA-1, SHA-256, SHA-512, and MD5)
 - Dereferencing of symbolic links
 
-***Implementation Notes***
+**Implementation Notes**
 
-- Attempts to make the FTP protocol safer with threads by cloning the control connection for file transfers (can be disabled)
+- Improves thread safety by cloning the FTP control connection for file transfers (can be disabled)
 - Implements its own internal locking in an effort to keep transactions synchronized
 - Includes support for non-standard hashing/checksum commands when supported by the server
 - Easily issue any unsupported FTP command using the `Execute()` method with the exception of those requiring a data connection (file listings and transfers).
 - Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/hgupta9/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
 - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/hgupta9/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
 - Transaction logging using `TraceListeners` (passwords are automatically omitted)
-- Examples for nearly all methods (see [Examples](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples)
+- Examples for nearly all methods (see [Examples](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples))
 
 ## Example Usage
 
 ```csharp
-	// create an FTP client
-	FtpClient client = new FtpClient();
-	client.Host = "123.123.123.123";
+// create an FTP client
+FtpClient client = new FtpClient();
+client.Host = "123.123.123.123";
+
+// if you don't specify login credentials, we use the "anonymous" user account
+client.Credentials = new NetworkCredential("ftptest", "ftptest");
+
+// begin connecting to the server
+client.Connect();
+
+// get a list of files and directories in the "/htdocs" folder
+foreach (FtpListItem item in client.GetListing("/htdocs") {
 	
-	// if you don't specify login credentials, we use the "anonymous" user account
-	client.Credentials = new NetworkCredential("ftptest", "ftptest");
-	
-	// begin connecting to the server
-	client.Connect();
-	
-	// get a list of files and directories in the "/htdocs" folder
-	foreach (FtpListItem item in client.GetListing("/htdocs") {
+	// if this is a file
+	if (item.Type == FtpFileSystemObjectType.File){
 		
-		// if this is a file
-		if (item.Type == FtpFileSystemObjectType.File){
-			
-			// get the file size
-			long size = client.GetFileSize(item.FullName);
-			
-		}
-		
-		// get modified date/time of the file or folder
-		DateTime time = client.GetModifiedTime(item.FullName);
-		
-		// calculate a hash for the file on the server side (default algorithm)
-		FtpHash hash = client.GetHash(item.FullName);
+		// get the file size
+		long size = client.GetFileSize(item.FullName);
 		
 	}
 	
-	// rename a file
-	client.Rename("/htdocs/index.html", "/htdocs/index2.html");
+	// get modified date/time of the file or folder
+	DateTime time = client.GetModifiedTime(item.FullName);
 	
-	// delete a file
-	client.DeleteFile("/htdocs/index3.html");
+	// calculate a hash for the file on the server side (default algorithm)
+	FtpHash hash = client.GetHash(item.FullName);
 	
-	// delete a folder recursively
-	client.DeleteDirectory("/htdocs/extras/", true);
-	
-	// check if a file exists
-	if (client.FileExists("/htdocs/index3.html")){ }
-	
-	// check if a folder exists
-	if (client.DirectoryExists("/htdocs/extras/")){ }
-	
-	// disconnect! good bye!
-	client.Disconnect();
+}
+
+// rename a file
+client.Rename("/htdocs/index.html", "/htdocs/index2.html");
+
+// delete a file
+client.DeleteFile("/htdocs/index3.html");
+
+// delete a folder recursively
+client.DeleteDirectory("/htdocs/extras/", true);
+
+// check if a file exists
+if (client.FileExists("/htdocs/index3.html")){ }
+
+// check if a folder exists
+if (client.DirectoryExists("/htdocs/extras/")){ }
+
+// disconnect! good bye!
+client.Disconnect();
 ```
 	
 See more examples [here](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples).
