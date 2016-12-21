@@ -107,6 +107,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 ### Basic API
 
 - **new FtpClient()** - Creates and returns a new FTP client instance.
+
 - **Host** - The server IP or hostname. Required.
 - **Port** - The FTP port to connect to. **Default:** Auto (21 or 990 depending on FTPS config)
 - **Credentials** - The username & password to use. **Default:** `anonymous/anonymous`
@@ -121,6 +122,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 ### File I/O
 
 - **OpenRead** - Opens the specified file for reading. Returns a standard `Stream`.
+
 - **OpenWrite** - Opens the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist.
 - **OpenAppend** - Opens the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file.
 
@@ -129,6 +131,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **GetListing** - Get a file listing of the given directory. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
 
 	- `Type` : The type of the object. (File, Directory or Link)
+	
 	- `Name` : The name of the object. (minus the path)
 	- `FullName` : The full file path of the object.
 	- `Created ` : The created date/time of the object. **Default:** `DateTime.MinValue` if not provided by server.
@@ -143,6 +146,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 	- `Input` : The raw string that the server returned for this object.
 
 - **GetNameListing** - A simple command that only returns the list of file paths in the given directory, using the NLST command.
+
 - **GetWorkingDirectory** - Gets the full path of the current working directory.
 - **SetWorkingDirectory** - Sets the full path of the current working directory.
 - **CreateDirectory** - Creates a directory on the server. If the parent directories do not exist they are also created.
@@ -156,6 +160,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 ### File Hashing
 
 - **HashAlgorithms** - Get the hash types supported by the server, if any (represented by flags).
+
 - **GetHash** - Gets the hash of an object on the server using the currently selected hash algorithm. Supported algorithms are available in the `HashAlgorithms` property. You should confirm that it's not equal to `FtpHashAlgorithm.NONE` (which means the server does not support the HASH command).
 - **GetHashAlgorithm** - Query the server for the currently selected hash algorithm for the HASH command. 
 - **SetHashAlgorithm** - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
@@ -163,6 +168,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 ### Optional Config
 
 - **GetDataType** - Checks if the transfer data type is ASCII or binary.
+
 - **SetDataType** - Sets the transfer data type to ASCII or binary. Internally called during file reads, writes and appends.
 - **DataConnectionType** - Active or Passive connection. **Default:** FtpDataConnectionType.AutoPassive (tries EPSV then PASV then gives up)
 - **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
@@ -182,6 +188,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 ### FTPS Config
 
 - **EncryptionMode** - Type of SSL to use, or none. Explicit is TLS, Implicit is SSL. **Default:** FtpEncryptionMode.None.
+
 - **DataConnectionEncryption** - Indicates if data channel transfers should be encrypted. **Default:** true.
 - **SslProtocols** - Encryption protocols to use. **Default:** SslProtocols.Default.
 - **ClientCertificates** - X509 client certificates to be used in SSL authentication process.
