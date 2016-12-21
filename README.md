@@ -7,7 +7,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 
 ## Features
 
-**Main Features**
+### Main Features
 
 - Supports FTP and FTPS (FTP over SSL)
   - Explicit and Implicit SSL connections for the control and data connections using .NET's `SslStream`
@@ -19,7 +19,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Synchronous and Asynchronous methods for all operations
   - Implements the `IAsyncResult` pattern for almost all methods
 
-**Basic API**
+### File Management Features
 
 - File and directory listing for [various servers](#file-listings) (UNIX, IIS, DOS, etc)
 - Returns `Stream` objects for reading and writing files on the server
@@ -33,7 +33,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Get the hash/checksum of a file (SHA-1, SHA-256, SHA-512, and MD5)
 - Dereferencing of symbolic links
 
-**Implementation Notes**
+### Implementation Notes
 
 - Improves thread safety by cloning the FTP control connection for file transfers (can be disabled)
 - Implements its own internal locking in an effort to keep transactions synchronized
@@ -97,11 +97,14 @@ client.Disconnect();
 	
 See more examples [here](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples).
 
+
 ## API
 
-Note: All methods support synchronous and asynchronous versions. Simply add the "Begin" prefix to a method for the async version.
+Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS functionality.
 
-**Basic API**
+**Note:** All methods support synchronous and asynchronous versions. Simply add the "Begin" prefix to a method for the async version.
+
+### Basic API
 
 - **new FtpClient()** - Creates and returns a new FTP client instance.
 - **Host** - The server IP or hostname. Required.
@@ -111,47 +114,72 @@ Note: All methods support synchronous and asynchronous versions. Simply add the 
 - **Disconnect** - Closes the connection to the server immediately.
 - **Execute** - Execute a custom or unspported command.
 - **SystemType** - Gets the type of system/server that we're connected to.
-- **HasFeature** - Checks if a specific feature (`FtpCapability`) is supported by the server.
-- **GetDataType** - Checks if the transfer data type is ASCII or binary.
-- **SetDataType** - Sets the transfer data type to ASCII or binary. Internally called whenever during file reads, writes and appends.
 - **IsConnected** - Checks if the connection is still alive.
+- **Capabilities** - Gets the server capabilties (represented by flags).
+- **HasFeature** - Checks if a specific feature (`FtpCapability`) is supported by the server.
 
-**File I/O**
+### File I/O
 
-- **OpenRead**
-- **OpenWrite**
-- **OpenAppend**
+- **OpenRead** - Opens the specified file for reading. Returns a standard `Stream`.
+- **OpenWrite** - Opens the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist.
+- **OpenAppend** - Opens the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file.
 
-**File Management**
+### File Management
 
-- **GetListing**
-- **GetNameListing**
-- **GetWorkingDirectory**
-- **SetWorkingDirectory**
-- **CreateDirectory**
-- **DeleteDirectory**
-- **DeleteFile**
-- **Rename**
-- **GetModifiedTime**
-- **DereferenceLink**
-- **GetFileSize**
-- **GetHash**
-- **GetHashAlgorithm**
-- **SetHashAlgorithm**
+- **GetListing** - Get a file listing of the given directory. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
 
-**Optional Config**
+	- `Type` : The type of the object. (File, Directory or Link)
+	- `Name` : The name of the object. (minus the path)
+	- `FullName` : The full file path of the object.
+	- `Created ` : The created date/time of the object. **Default:** `DateTime.MinValue` if not provided by server.
+	- `Modified` : The last modified date/time of the object. **Default:** `DateTime.MinValue` if not provided by server.
+	- `Size` : The size of the file in bytes. **Default:** `0` if not provided by server.
+	- `LinkTarget` : The full file path the link points to. Only filled for symbolic links. 
+	- `LinkObject` : The file/folder the link points to. Only filled for symbolic links and if `FtpListOption.DerefLink` passed to `GetListing()`.
+	- `SpecialPermissions` : Gets special permissions such as Stiky, SUID and SGID. **(*NIX only)**
+	- `OwnerPermissions` : User rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **(*NIX only)**
+	- `GroupPermissions` : Group rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **(*NIX only)**
+	- `OtherPermissions` : Other rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **(*NIX only)**
+	- `Input` : The raw string that the server returned for this object.
 
+- **GetNameListing** - A simple command that only returns the list of file paths in the given directory, using the NLST command.
+- **GetWorkingDirectory** - Gets the full path of the current working directory.
+- **SetWorkingDirectory** - Sets the full path of the current working directory.
+- **CreateDirectory** - Creates a directory on the server. If the parent directories do not exist they are also created.
+- **DeleteDirectory** - Deletes the specified directory on the server. If it is not empty then all subdirectories and files are recursively deleted.
+- **DeleteFile** - Deletes the specified file on the server.
+- **Rename** - Renames the file/directory on the server.
+- **GetModifiedTime** - Gets the last modified date/time of the file or folder.
+- **DereferenceLink** - Recursively dereferences a symbolic link and returns the full path if found. The `MaximumDereferenceCount` property controls how deep we recurse before giving up.
+- **GetFileSize** - Gets the size of the file in bytes.
+
+### File Hashing
+
+- **HashAlgorithms** - Get the hash types supported by the server, if any (represented by flags).
+- **GetHash** - Gets the hash of an object on the server using the currently selected hash algorithm. Supported algorithms are available in the `HashAlgorithms` property. You should confirm that it's not equal to `FtpHashAlgorithm.NONE` (which means the server does not support the HASH command).
+- **GetHashAlgorithm** - Query the server for the currently selected hash algorithm for the HASH command. 
+- **SetHashAlgorithm** - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
+
+### Optional Config
+
+- **GetDataType** - Checks if the transfer data type is ASCII or binary.
+- **SetDataType** - Sets the transfer data type to ASCII or binary. Internally called during file reads, writes and appends.
 - **DataConnectionType** - Active or Passive connection. **Default:** FtpDataConnectionType.AutoPassive (tries EPSV then PASV then gives up)
 - **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
-- **Encoding** - Text encoding (ASCII or UTF8) used when talking with the server. ASCII is default, but upon connection, we switch to UTF8 if supported by the server. Manually setting this value overrides automatic detection. **Default:** Auto
+- **Encoding** - Text encoding (ASCII or UTF8) used when talking with the server. ASCII is default, but upon connection, we switch to UTF8 if supported by the server. Manually setting this value overrides automatic detection. **Default:** Auto.
 - **InternetProtocolVersions** - Whether to use IPV4 and/or IPV6 when making a connection. All addresses returned during name resolution are tried until a successful connection is made. **Default:** Any.
 - **SocketPollInterval** - Time that must pass (in milliseconds) since the last socket activity before calling `Poll()` on the socket to test for connectivity. Setting this interval too low will have a negative impact on perfomance. Setting this interval to 0 disables Poll()'ing all together. **Default:** 15000 (15 seconds).
+- **ConnectTimeout** - Time to wait (in milliseconds) for a connection attempt to succeed, before giving up. **Default:** 15000 (15 seconds).
+- **ReadTimeout** - Time to wait (in milliseconds) for data to be read from the underlying stream, before giving up. **Default:** 15000 (15 seconds).
+- **DataConnectionConnectTimeout** - Time to wait (in milliseconds) for a data connection to be established, before giving up. **Default:** 15000 (15 seconds).
+- **DataConnectionReadTimeout** - Time to wait (in milliseconds) for the server to send data on the data channel, before giving up. **Default:** 15000 (15 seconds).
+- **SocketKeepAlive** - Set `SocketOption.KeepAlive` on all future stream sockets. **Default:** false.
 - **StaleDataCheck** - Check if there is stale (unrequested data) sitting on the socket or not. In some cases the control connection may time out but before the server closes the connection it might send a 4xx response that was unexpected and can cause synchronization errors with transactions. To avoid this problem the Execute() method checks to see if there is any data available on the socket before executing a command. **Default:** true.
 - **EnableThreadSafeDataConnections** - Clone the control connection and establish another connection to the server for the data channel operation. This is a thread safe approach to make asynchronous operations on a single control connection transparent. **Default:** true.
 - **IsClone** - Checks if this control connection is a clone. **Default:** false.
 - **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
 
-**FTPS Config**
+### FTPS Config
 
 - **EncryptionMode** - Type of SSL to use, or none. Explicit is TLS, Implicit is SSL. **Default:** FtpEncryptionMode.None.
 - **DataConnectionEncryption** - Indicates if data channel transfers should be encrypted. **Default:** true.
