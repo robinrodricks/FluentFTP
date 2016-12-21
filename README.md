@@ -106,7 +106,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 ### Basic API
 
-- **new FtpClient()** - Creates and returns a new FTP client instance.
+- **new FtpClient**() - Creates and returns a new FTP client instance.
 
 - **Host** - The server IP or hostname. Required.
 
@@ -114,11 +114,11 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **Credentials** - The username & password to use. **Default:** `anonymous/anonymous`
 
-- **Connect** - Connects to an FTP server (uses TLS/SSL if configured).
+- **Connect**() - Connects to an FTP server (uses TLS/SSL if configured).
 
-- **Disconnect** - Closes the connection to the server immediately.
+- **Disconnect**() - Closes the connection to the server immediately.
 
-- **Execute** - Execute a custom or unspported command.
+- **Execute**() - Execute a custom or unspported command.
 
 - **SystemType** - Gets the type of system/server that we're connected to.
 
@@ -126,19 +126,19 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **Capabilities** - Gets the server capabilties (represented by flags).
 
-- **HasFeature** - Checks if a specific feature (`FtpCapability`) is supported by the server.
+- **HasFeature**() - Checks if a specific feature (`FtpCapability`) is supported by the server.
 
 ### File I/O
 
-- **OpenRead** - Opens the specified file for reading. Returns a standard `Stream`.
+- **OpenRead**() - Opens the specified file for reading. Returns a standard `Stream`.
 
-- **OpenWrite** - Opens the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist.
+- **OpenWrite**() - Opens the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist.
 
-- **OpenAppend** - Opens the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file.
+- **OpenAppend**() - Opens the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file.
 
 ### File Management
 
-- **GetListing** - Get a file listing of the given directory. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
+- **GetListing**() - Get a file listing of the given directory. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
 
 	- `Type` : The type of the object. (File, Directory or Link)
 	
@@ -166,41 +166,41 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 	- `Input` : The raw string that the server returned for this object.
 
-- **GetNameListing** - A simple command that only returns the list of file paths in the given directory, using the NLST command.
+- **GetNameListing**() - A simple command that only returns the list of file paths in the given directory, using the NLST command.
 
-- **GetWorkingDirectory** - Gets the full path of the current working directory.
+- **GetWorkingDirectory**() - Gets the full path of the current working directory.
 
-- **SetWorkingDirectory** - Sets the full path of the current working directory.
+- **SetWorkingDirectory**() - Sets the full path of the current working directory.
 
-- **CreateDirectory** - Creates a directory on the server. If the parent directories do not exist they are also created.
+- **CreateDirectory**() - Creates a directory on the server. If the parent directories do not exist they are also created.
 
-- **DeleteDirectory** - Deletes the specified directory on the server. If it is not empty then all subdirectories and files are recursively deleted.
+- **DeleteDirectory**() - Deletes the specified directory on the server. If it is not empty then all subdirectories and files are recursively deleted.
 
-- **DeleteFile** - Deletes the specified file on the server.
+- **DeleteFile**() - Deletes the specified file on the server.
 
-- **Rename** - Renames the file/directory on the server.
+- **Rename**() - Renames the file/directory on the server.
 
-- **GetModifiedTime** - Gets the last modified date/time of the file or folder.
+- **GetModifiedTime**() - Gets the last modified date/time of the file or folder.
 
-- **DereferenceLink** - Recursively dereferences a symbolic link and returns the full path if found. The `MaximumDereferenceCount` property controls how deep we recurse before giving up.
+- **DereferenceLink**() - Recursively dereferences a symbolic link and returns the full path if found. The `MaximumDereferenceCount` property controls how deep we recurse before giving up.
 
-- **GetFileSize** - Gets the size of the file in bytes.
+- **GetFileSize**() - Gets the size of the file in bytes.
 
 ### File Hashing
 
 - **HashAlgorithms** - Get the hash types supported by the server, if any (represented by flags).
 
-- **GetHash** - Gets the hash of an object on the server using the currently selected hash algorithm. Supported algorithms are available in the `HashAlgorithms` property. You should confirm that it's not equal to `FtpHashAlgorithm.NONE` (which means the server does not support the HASH command).
+- **GetHash**() - Gets the hash of an object on the server using the currently selected hash algorithm. Supported algorithms are available in the `HashAlgorithms` property. You should confirm that it's not equal to `FtpHashAlgorithm.NONE` (which means the server does not support the HASH command).
 
-- **GetHashAlgorithm** - Query the server for the currently selected hash algorithm for the HASH command. 
+- **GetHashAlgorithm**() - Query the server for the currently selected hash algorithm for the HASH command. 
 
-- **SetHashAlgorithm** - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
+- **SetHashAlgorithm**() - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
 
 ### Optional Config
 
-- **GetDataType** - Checks if the transfer data type is ASCII or binary.
+- **GetDataType**() - Checks if the transfer data type is ASCII or binary.
 
-- **SetDataType** - Sets the transfer data type to ASCII or binary. Internally called during file reads, writes and appends.
+- **SetDataType**() - Sets the transfer data type to ASCII or binary. Internally called during file reads, writes and appends.
 
 - **DataConnectionType** - Active or Passive connection. **Default:** FtpDataConnectionType.AutoPassive (tries EPSV then PASV then gives up)
 
