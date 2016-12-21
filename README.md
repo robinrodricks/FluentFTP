@@ -44,6 +44,10 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Transaction logging using `TraceListeners` (passwords are automatically omitted)
 - Examples for nearly all methods (see [Examples](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples))
 
+## Submitting issues
+
+Please use the [Issue tracker](https://github.com/hgupta9/FluentFTP/issues) to report bugs if you think you have found one. Aside from a good description of how to reproduce the problem, include the transaction log, the exact revision number of the library, and the exact version of the server OS and FTP software that you were connected to when the problem occurred.
+
 ## Example Usage
 
 ```csharp
@@ -242,10 +246,6 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
 
-
-## Submitting issues
-
-Please use the [Issue tracker](https://github.com/hgupta9/FluentFTP/issues) to report bugs if you think you have found one. Aside from a good description of how to reproduce the problem, include the transaction log, the exact revision number of the library, and the exact version of the server OS and FTP software that you were connected to when the problem occurred.
 
 ## Notes
 ### Stream Handling
