@@ -131,14 +131,6 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **HasFeature**() - Checks if a specific feature (`FtpCapability`) is supported by the server.
 
-## File I/O
-
-- **OpenRead**() - Opens the specified file for reading. Returns a standard `Stream`.
-
-- **OpenWrite**() - Opens the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist.
-
-- **OpenAppend**() - Opens the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file.
-
 ## File Management
 
 - **GetListing**() - Get a file listing of the given directory. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
@@ -170,6 +162,12 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 	- `Input` : The raw string that the server returned for this object.
 
 - **GetNameListing**() - A simple command that only returns the list of file paths in the given directory, using the NLST command.
+
+- **OpenRead**() - Opens the specified file for reading. Returns a standard `Stream`.
+
+- **OpenWrite**() - Opens the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist.
+
+- **OpenAppend**() - Opens the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file.
 
 - **GetWorkingDirectory**() - Gets the full path of the current working directory.
 
