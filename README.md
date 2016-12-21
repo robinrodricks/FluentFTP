@@ -10,8 +10,6 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 ### Main Features
 
 - Supports FTP and FTPS (FTP over SSL)
-  - Explicit and Implicit SSL connections for the control and data connections using .NET's `SslStream`
-  - Support for adding [client certificates](#client-certificates)
 - SFTP is not supported as it is a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
 - Passive and Active data connections (PASV, EPSV, PORT and EPRT)
 - Supports DrFTPD's (non-standard) PRET command
@@ -42,8 +40,10 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/hgupta9/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
 - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/hgupta9/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
 - Transaction logging using `TraceListeners` (passwords are automatically omitted)
+- FTPS : Explicit and Implicit SSL connections are supported for the control and data connections using .NET's `SslStream`
+- FTPS : Support for adding [client certificates](#client-certificates)
 - Examples for nearly all methods (see [Examples](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples))
-
+  
 ## Submitting issues
 
 Please use the [Issue tracker](https://github.com/hgupta9/FluentFTP/issues) to report bugs if you think you have found one. Aside from a good description of how to reproduce the problem, include the transaction log, the exact revision number of the library, and the exact version of the server OS and FTP software that you were connected to when the problem occurred.
