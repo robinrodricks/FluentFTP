@@ -19,9 +19,9 @@ namespace Tests {
     class Program {
 
 		//static readonly string m_host = "127.0.0.1";
-		static readonly string m_host = "127.0.0.1";
-        static readonly string m_user = "anonymous";
-        static readonly string m_pass = "";
+		static readonly string m_host = "";
+		static readonly string m_user = "";
+		static readonly string m_pass = "";
 
         static void Main(string[] args) {
             FtpTrace.FlushOnWrite = true;
@@ -517,7 +517,7 @@ namespace Tests {
 
         static void TestNameListing() {
             using (FtpClient cl = new FtpClient()) {
-                //cl.Credentials = new NetworkCredential(m_user, m_pass);
+                cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Host = m_host;
                 cl.ValidateCertificate += OnValidateCertificate;
                 cl.DataConnectionType = FtpDataConnectionType.PASV;
