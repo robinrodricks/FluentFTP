@@ -9,8 +9,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 
 **Main Features**
 
-- Supports plaintext FTP
-- Supports FTP over SSL (FTPS)
+- Supports FTP and FTPS (FTP over SSL)
   - Explicit and Implicit SSL connections for the control and data connections using .NET's `SslStream`
   - Support for adding [client certificates](#client-certificates)
 - SFTP is not supported as it is a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
@@ -22,7 +21,6 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 
 **Basic API**
 
-- Upload and download files from the local file system to the server
 - File and directory listing for [various servers](#file-listings) (UNIX, IIS, DOS, etc)
 - Returns `Stream` objects for reading and writing files on the server
 - Rename files and folders on the server
