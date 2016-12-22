@@ -4,6 +4,7 @@ namespace FluentFTP {
     /// <summary>
     /// FTP related error
     /// </summary>
+    [Serializable]
     public class FtpException : Exception {
         /// <summary>
         /// Initializes the exception object
@@ -15,6 +16,7 @@ namespace FluentFTP {
     /// <summary>
     /// Exception triggered on command failures
     /// </summary>
+    [Serializable]
     public class FtpCommandException : FtpException {
         string _code = null;
         /// <summary>
@@ -68,6 +70,7 @@ namespace FluentFTP {
     /// <summary>
     /// Exception is thrown when encryption could not be negotiated by the server
     /// </summary>
+    [Serializable]
     public class FtpSecurityNotAvailableException : FtpException {
         /// <summary>
         /// Default constructor
