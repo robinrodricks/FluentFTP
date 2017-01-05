@@ -9,8 +9,9 @@ namespace FluentFTP {
         /// <summary>
         /// Initializes the exception object
         /// </summary>
-        /// <param name="message">The error message</param>
-        public FtpException(string message) : base(message) { }
+		/// <param name="message">The error message</param>
+		public FtpException(string message) : base(message) { }
+		public FtpException(string message, Exception innerException) : base(message, innerException) { }
     }
 
     /// <summary>

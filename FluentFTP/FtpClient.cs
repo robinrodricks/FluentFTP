@@ -72,7 +72,10 @@ namespace FluentFTP {
     /// <code source="..\Examples\GetListing.cs" lang="cs" />
     /// </example>
 	public class FtpClient : IDisposable {
-        /// <summary>
+
+		#region Properties
+
+		/// <summary>
         /// Used for internally syncrhonizing access to this
         /// object from multiple threads
         /// </summary>
@@ -576,9 +579,13 @@ namespace FluentFTP {
         {
             get { return m_connectionType; }
             protected set { m_connectionType = value; }
-        }
+		}
 
-        /// <summary>
+		#endregion
+
+		#region Core
+
+		/// <summary>
         /// Performs a bitwise and to check if the specified
         /// flag is set on the Capabilities enum property.
         /// </summary>
@@ -794,7 +801,11 @@ namespace FluentFTP {
         /// <example><code source="..\Examples\BeginExecute.cs" lang="cs" /></example>
         public FtpReply EndExecute(IAsyncResult ar) {
             return GetAsyncDelegate<AsyncExecute>(ar).EndInvoke(ar);
-        }
+		}
+
+		#endregion
+
+		#region Connection
 
         /// <summary>
         /// Connect to the server. Throws ObjectDisposedException if this object has been disposed.
@@ -1110,7 +1121,11 @@ namespace FluentFTP {
             GetAsyncDelegate<AsyncDisconnect>(ar).EndInvoke(ar);
         }
 
-        /// <summary>
+		#endregion
+
+		#region File I/O
+		
+		/// <summary>
         /// Opens the specified type of passive data stream
         /// </summary>
         /// <param name="type">Type of passive data stream to open</param>
@@ -1150,27 +1165,16 @@ namespace FluentFTP {
                 if (!(reply = Execute("PASV")).Success)
                     throw new FtpCommandException(reply);
 
-                m = Regex.Match(reply.Message,
-                    @"(?<quad1>\d+)," +
-                    @"(?<quad2>\d+)," +
-                    @"(?<quad3>\d+)," +
-                    @"(?<quad4>\d+)," +
-                    @"(?<port1>\d+)," +
-                    @"(?<port2>\d+)"
-                );
+				m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
 
                 if (!m.Success || m.Groups.Count != 7)
                     throw new FtpException(string.Format("Malformed PASV response: {0}", reply.Message));
 
                 // PASVEX mode ignores the host supplied in the PASV response
-                if (type == FtpDataConnectionType.PASVEX)
-                    host = m_host;
-                else
-                    host = string.Format("{0}.{1}.{2}.{3}",
-                        m.Groups["quad1"].Value,
-                        m.Groups["quad2"].Value,
-                        m.Groups["quad3"].Value,
-                        m.Groups["quad4"].Value);
+				if (type == FtpDataConnectionType.PASVEX)
+					host = m_host;
+				else
+					host = string.Format("{0}.{1}.{2}.{3}", m.Groups["quad1"].Value, m.Groups["quad2"].Value, m.Groups["quad3"].Value, m.Groups["quad4"].Value);
 
                 port = (int.Parse(m.Groups["port1"].Value) << 8) + int.Parse(m.Groups["port2"].Value);
             }
@@ -1718,7 +1722,650 @@ namespace FluentFTP {
             return GetAsyncDelegate<AsyncOpenAppend>(ar).EndInvoke(ar);
         }
 
-        /// <summary>
+		/// <summary>
+		/// Uploads the specified file directly onto the server.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it uploads data in chunks of 65KB.
+		/// </summary>
+		/// <param name="localPath">The full or relative path to the file on the local file system</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <returns>If true then the file was uploaded, false otherwise.</returns>
+		public bool UploadFile(string localPath, string remotePath, bool overwrite = true) {
+
+			// skip uploading if the local file does not exist
+			if (!File.Exists(localPath)) {
+				return false;
+			}
+
+			// skip uploading if the remote file exists
+			if (!overwrite && FileExists(remotePath)) {
+				return false;
+			}
+
+			try {
+
+				// write the file onto the server
+				byte[] fileData = File.ReadAllBytes(localPath);
+				Stream stream = OpenWrite(remotePath);
+				int pos = 0;
+				int len = fileData.Length;
+				int chunkLen = 65536; // write data in 65KB chunks
+				while (pos < len) {
+					stream.Write(fileData, pos, Math.Min(chunkLen, len-pos));
+					stream.Flush();
+					pos += chunkLen;
+				}
+				stream.Close();
+				return true;
+
+			} catch (Exception ex1) {
+
+				// catch errors during upload
+				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
+			}
+		}
+
+		/// <summary>
+		/// Downloads the specified file onto the local file system.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks of 65KB.
+		/// </summary>
+		/// <param name="localPath">The full or relative path to the file on the local file system</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		public bool DownloadFile(string localPath, string remotePath, bool overwrite = true) {
+
+			// skip downloading if the local file exists
+			if (!overwrite && File.Exists(localPath)) {
+				return false;
+			}
+
+			// skip downloading if the remote file does not exist
+			if (!FileExists(remotePath)) {
+				return false;
+			}
+
+			byte[] data;
+			try {
+
+				// read the file from the server
+				Stream stream = OpenRead(remotePath);
+				if (stream.Length == 0) {
+					throw new FtpException("Cannot download file since file has length of 0.");
+				}
+				int chunkLen = 65536; // read data in 65KB chunks
+				data = ReadToEnd(stream, stream.Length, chunkLen);
+				stream.Close();
+
+			} catch (Exception ex1) {
+
+				// catch errors during upload
+				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
+			}
+
+			try {
+
+				// write the file to the disk
+				string dirPath = Path.GetDirectoryName(localPath);
+				if (!Directory.Exists(dirPath)) {
+					Directory.CreateDirectory(dirPath);
+				}
+				File.WriteAllBytes(localPath, data);
+				return true;
+			
+
+			} catch (Exception ex1) {
+
+				// catch errors during upload
+				throw new FtpException("Error while saving the downloaded file to disk. See InnerException for more info.", ex1);
+			}
+		}
+
+		private static byte[] ReadToEnd(Stream stream, long maxLength, int chunkLen) {
+			int read = 1;
+			byte[] buffer = new byte[chunkLen];
+			using (var mem = new MemoryStream()) {
+				do {
+					long length = maxLength == 0 ? buffer.Length : Math.Min(maxLength - (int)mem.Length, buffer.Length);
+					read = stream.Read(buffer, 0, (int)length);
+					mem.Write(buffer, 0, read);
+					if (maxLength > 0 && mem.Length == maxLength) break;
+				} while (read > 0);
+
+				return mem.ToArray();
+			}
+		}
+
+		#endregion
+
+		#region File Management
+
+		/// <summary>
+		/// Deletes a file on the server
+		/// </summary>
+		/// <param name="path">The full or relative path to the file</param>
+		/// <example><code source="..\Examples\DeleteFile.cs" lang="cs" /></example>
+		public void DeleteFile(string path) {
+			FtpReply reply;
+
+			lock (m_lock) {
+				if (!(reply = Execute("DELE {0}", path.GetFtpPath())).Success)
+					throw new FtpCommandException(reply);
+			}
+		}
+
+		delegate void AsyncDeleteFile(string path);
+
+		/// <summary>
+		/// Asynchronously deletes a file from the server
+		/// </summary>
+		/// <param name="path">The full or relative path to the file</param>
+		/// <param name="callback">Async callback</param>
+		/// <param name="state">State object</param>
+		/// <returns>IAsyncResult</returns>
+		/// <example><code source="..\Examples\BeginDeleteFile.cs" lang="cs" /></example>
+		public IAsyncResult BeginDeleteFile(string path, AsyncCallback callback, object state) {
+			IAsyncResult ar;
+			AsyncDeleteFile func;
+
+			ar = (func = new AsyncDeleteFile(DeleteFile)).BeginInvoke(path, callback, state);
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends a call to BeginDeleteFile
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from BeginDeleteFile</param>
+		/// <example><code source="..\Examples\BeginDeleteFile.cs" lang="cs" /></example>
+		public void EndDeleteFile(IAsyncResult ar) {
+			GetAsyncDelegate<AsyncDeleteFile>(ar).EndInvoke(ar);
+		}
+
+		/// <summary>
+		/// Deletes the specified directory on the server.
+		/// </summary>
+		/// <param name="path">The full or relative path of the directory to delete</param>
+		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
+		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
+		public void DeleteDirectory(string path, bool fastMode = false) {
+			DeleteDirectory(path, false, 0, fastMode);
+		}
+
+		/// <summary>
+		/// Delets the specified directory on the server
+		/// </summary>
+		/// <param name="path">The full or relative path of the directory to delete</param>
+		/// <param name="force">If the directory is not empty, remove its contents</param>
+		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
+		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
+		public void DeleteDirectory(string path, bool force, bool fastMode = false) {
+			DeleteDirectory(path, force, 0, fastMode);
+		}
+
+		/// <summary>
+		/// Deletes the specified directory on the server
+		/// </summary>
+		/// <param name="path">The full or relative path of the directory to delete</param>
+		/// <param name="force">If the directory is not empty, remove its contents</param>
+		/// <param name="options">FtpListOptions for controlling how the directory
+		/// contents are retrieved with the force option is true. If you experience problems
+		/// the file listing can be fine tuned through this parameter.</param>
+		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
+		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
+		public void DeleteDirectory(string path, bool force, FtpListOption options, bool fastMode = false) {
+			FtpReply reply;
+			string ftppath = path.GetFtpPath();
+
+			lock (m_lock) {
+				if (force) {
+
+					// experimental fast mode
+					if (fastMode) {
+
+						// when GetListing is called with recursive option, then it does not
+						// make any sense to call another DeleteDirectory with force flag set.
+						// however this requires always delete files first.
+						var forceAgain = !WasGetListingRecursive(options);
+
+						// items, that are deeper in directory tree, are listed first, 
+						// then files will  be listed before directories. This matters
+						// only if GetListing was called with recursive option.
+						FtpListItem[] itemList;
+						if (forceAgain)
+							itemList = GetListing(path, options);
+						else
+							itemList = GetListing(path, options).OrderByDescending(x => x.FullName.Count(c => c.Equals('/'))).ThenBy(x => x.Type).ToArray();
+
+
+						foreach (FtpListItem item in itemList) {
+							switch (item.Type) {
+								case FtpFileSystemObjectType.File:
+									DeleteFile(item.FullName);
+									break;
+								case FtpFileSystemObjectType.Directory:
+									DeleteDirectory(item.FullName, forceAgain, options, fastMode);
+									break;
+								default:
+									throw new FtpException("Don't know how to delete object type: " + item.Type);
+							}
+						}
+					} else {
+
+						// standard mode
+						foreach (FtpListItem item in GetListing(path, options)) {
+
+							// This check prevents infinity recursion, 
+							// when FtpListItem is actual parent or current directory.
+							// This could happen only when MLSD command is used for GetListing method.
+							if (!item.FullName.ToLower().Contains(path.ToLower()) || string.Equals(item.FullName.ToLower(), path.ToLower()))
+								continue;
+
+							switch (item.Type) {
+								case FtpFileSystemObjectType.File:
+									DeleteFile(item.FullName);
+									break;
+								case FtpFileSystemObjectType.Directory:
+									DeleteDirectory(item.FullName, true, options, fastMode);
+									break;
+								default:
+									throw new FtpException("Don't know how to delete object type: " + item.Type);
+							}
+						}
+					}
+				}
+
+				// can't delete the working directory and
+				// can't delete the server root.
+				if (ftppath == "." || ftppath == "./" || ftppath == "/")
+					return;
+
+				if (!(reply = Execute("RMD {0}", ftppath)).Success)
+					throw new FtpCommandException(reply);
+			}
+		}
+
+		/// <summary>
+		/// Checks wether GetListing will be called recursively or not.
+		/// </summary>
+		/// <param name="options"></param>
+		/// <returns></returns>
+		private bool WasGetListingRecursive(FtpListOption options) {
+			if (HasFeature(FtpCapability.MLSD) && (options & FtpListOption.ForceList) != FtpListOption.ForceList)
+				return false;
+
+			if ((options & FtpListOption.UseLS) == FtpListOption.UseLS || (options & FtpListOption.NameList) == FtpListOption.NameList)
+				return false;
+
+			if ((options & FtpListOption.Recursive) == FtpListOption.Recursive)
+				return true;
+
+			return false;
+		}
+
+		delegate void AsyncDeleteDirectory(string path, bool force, FtpListOption options, bool fastMode = false);
+
+		/// <summary>
+		/// Asynchronously removes a directory from the server
+		/// </summary>
+		/// <param name="path">The full or relative path of the directory to delete</param>
+		/// <param name="callback">Async callback</param>
+		/// <param name="state">State object</param>
+		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
+		/// <returns>IAsyncResult</returns>
+		/// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
+		public IAsyncResult BeginDeleteDirectory(string path, AsyncCallback callback, object state, bool fastMode = false) {
+			return BeginDeleteDirectory(path, true, 0, fastMode, callback, state);
+		}
+
+		/// <summary>
+		/// Asynchronously removes a directory from the server
+		/// </summary>
+		/// <param name="path">The full or relative path of the directory to delete</param>
+		/// <param name="force">If the directory is not empty, remove its contents</param>
+		/// <param name="callback">Async callback</param>
+		/// <param name="state">State object</param>
+		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
+		/// <returns>IAsyncResult</returns>
+		/// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
+		public IAsyncResult BeginDeleteDirectory(string path, bool force, AsyncCallback callback, object state, bool fastMode = false) {
+			return BeginDeleteDirectory(path, force, 0, fastMode, callback, state);
+		}
+
+		/// <summary>
+		/// Asynchronously removes a directory from the server
+		/// </summary>
+		/// <param name="path">The full or relative path of the directory to delete</param>
+		/// <param name="force">If the directory is not empty, remove its contents</param>
+		/// <param name="options">FtpListOptions for controlling how the directory
+		/// contents are retrieved with the force option is true. If you experience problems
+		/// the file listing can be fine tuned through this parameter.</param>
+		/// <param name="callback">Async callback</param>
+		/// <param name="state">State object</param>
+		/// <returns>IAsyncResult</returns>
+		/// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
+		public IAsyncResult BeginDeleteDirectory(string path, bool force, FtpListOption options, bool fastMode, AsyncCallback callback, object state) {
+			AsyncDeleteDirectory func;
+			IAsyncResult ar;
+
+			ar = (func = new AsyncDeleteDirectory(DeleteDirectory)).BeginInvoke(path, force, options, fastMode, callback, state);
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends a call to BeginDeleteDirectory()
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from BeginDeleteDirectory</param>
+		/// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
+		public void EndDeleteDirectory(IAsyncResult ar) {
+			GetAsyncDelegate<AsyncDeleteDirectory>(ar).EndInvoke(ar);
+		}
+
+		/// <summary>
+		/// Tests if the specified directory exists on the server. This
+		/// method works by trying to change the working directory to
+		/// the path specified. If it succeeds, the directory is changed
+		/// back to the old working directory and true is returned. False
+		/// is returned otherwise and since the CWD failed it is assumed
+		/// the working directory is still the same.
+		/// </summary>
+		/// <param name="path">The path of the directory</param>
+		/// <returns>True if it exists, false otherwise.</returns>
+		/// <example><code source="..\Examples\DirectoryExists.cs" lang="cs" /></example>
+		public bool DirectoryExists(string path) {
+			string pwd;
+			string ftppath = path.GetFtpPath();
+
+			if (ftppath == "." || ftppath == "./" || ftppath == "/")
+				return true;
+
+			lock (m_lock) {
+				pwd = GetWorkingDirectory();
+
+				if (Execute("CWD {0}", ftppath).Success) {
+					FtpReply reply = Execute("CWD {0}", pwd.GetFtpPath());
+
+					if (!reply.Success)
+						throw new FtpException("DirectoryExists(): Failed to restore the working directory.");
+
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		delegate bool AsyncDirectoryExists(string path);
+
+		/// <summary>
+		/// Checks if a directory exists on the server asynchronously.
+		/// </summary>
+		/// <returns>IAsyncResult</returns>
+		/// <param name='path'>The full or relative path of the directory to check for</param>
+		/// <param name='callback'>Async callback</param>
+		/// <param name='state'>State object</param>
+		/// <example><code source="..\Examples\BeginDirectoryExists.cs" lang="cs" /></example>
+		public IAsyncResult BeginDirectoryExists(string path, AsyncCallback callback, object state) {
+			AsyncDirectoryExists func;
+			IAsyncResult ar;
+
+			ar = (func = new AsyncDirectoryExists(DirectoryExists)).BeginInvoke(path, callback, state);
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends a call to BeginDirectoryExists
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from BeginDirectoryExists</param>
+		/// <returns>True if the directory exists. False otherwise.</returns>
+		/// <example><code source="..\Examples\BeginDirectoryExists.cs" lang="cs" /></example>
+		public bool EndDirectoryExists(IAsyncResult ar) {
+			return GetAsyncDelegate<AsyncDirectoryExists>(ar).EndInvoke(ar);
+		}
+
+		/// <summary>
+		/// Checks if a file exsts on the server by taking a 
+		/// file listing of the parent directory in the path
+		/// and comparing the results the path supplied.
+		/// </summary>
+		/// <param name="path">The full or relative path to the file</param>
+		/// <returns>True if the file exists</returns>
+		/// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
+		public bool FileExists(string path) {
+			return FileExists(path, 0);
+		}
+
+		/// <summary>
+		/// Checks if a file exsts on the server by taking a 
+		/// file listing of the parent directory in the path
+		/// and comparing the results the path supplied.
+		/// </summary>
+		/// <param name="path">The full or relative path to the file</param>
+		/// <param name="options">Options for controling the file listing used to
+		/// determine if the file exists.</param>
+		/// <returns>True if the file exists</returns>
+		/// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
+		public bool FileExists(string path, FtpListOption options) {
+			string dirname = path.GetFtpDirectoryName();
+
+			lock (m_lock) {
+				if (!DirectoryExists(dirname))
+					return false;
+
+				foreach (FtpListItem item in GetListing(dirname, options))
+					if (item.Type == FtpFileSystemObjectType.File && item.Name == path.GetFtpFileName())
+						return true;
+			}
+
+			return false;
+		}
+
+		delegate bool AsyncFileExists(string path, FtpListOption options);
+
+		/// <summary>
+		/// Checks if a file exsts on the server by taking a 
+		/// file listing of the parent directory in the path
+		/// and comparing the results the path supplied.
+		/// </summary>
+		/// <param name="path">The full or relative path to the file</param>
+		/// <param name="callback">Async callback</param>
+		/// <param name="state">State object</param>
+		/// <returns>IAsyncResult</returns>
+		/// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
+		public IAsyncResult BeginFileExists(string path, AsyncCallback callback, object state) {
+			return BeginFileExists(path, 0, callback, state);
+		}
+
+		/// <summary>
+		/// Checks if a file exsts on the server by taking a 
+		/// file listing of the parent directory in the path
+		/// and comparing the results the path supplied.
+		/// </summary>
+		/// <param name="path">The full or relative path to the file</param>
+		/// <param name="options">Options for controling the file listing used to
+		/// determine if the file exists.</param>
+		/// <param name="callback">Async callback</param>
+		/// <param name="state">State object</param>
+		/// <returns>IAsyncResult</returns>
+		/// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
+		public IAsyncResult BeginFileExists(string path, FtpListOption options, AsyncCallback callback, object state) {
+			AsyncFileExists func;
+			IAsyncResult ar;
+
+			ar = (func = new AsyncFileExists(FileExists)).BeginInvoke(path, options, callback, state);
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends a call to BeginFileExists
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from BeginFileExists</param>
+		/// <returns>True if the file exists</returns>
+		/// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
+		public bool EndFileExists(IAsyncResult ar) {
+			return GetAsyncDelegate<AsyncFileExists>(ar).EndInvoke(ar);
+		}
+
+		/// <summary>
+		/// Creates a directory on the server. If the preceding
+		/// directories do not exist they are created.
+		/// </summary>
+		/// <param name="path">The full or relative path to the new directory</param>
+		/// <example><code source="..\Examples\CreateDirectory.cs" lang="cs" /></example>
+		public void CreateDirectory(string path) {
+			CreateDirectory(path, true);
+		}
+
+		/// <summary>
+		/// Creates a directory on the server
+		/// </summary>
+		/// <param name="path">The full or relative path to the directory to create</param>
+		/// <param name="force">Try to force all non-existant pieces of the path to be created</param>
+		/// <example><code source="..\Examples\CreateDirectory.cs" lang="cs" /></example>
+		public void CreateDirectory(string path, bool force) {
+			FtpReply reply;
+			string ftppath = path.GetFtpPath();
+
+			if (ftppath == "." || ftppath == "./" || ftppath == "/")
+				return;
+
+			lock (m_lock) {
+				path = path.GetFtpPath().TrimEnd('/');
+
+				if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
+					FtpTrace.WriteLine(string.Format(
+						"CreateDirectory(\"{0}\", {1}): Create non-existent parent: {2}",
+						path, force, path.GetFtpDirectoryName()));
+					CreateDirectory(path.GetFtpDirectoryName(), true);
+				} else if (DirectoryExists(path))
+					return;
+
+				FtpTrace.WriteLine(string.Format("CreateDirectory(\"{0}\", {1})",
+					ftppath, force));
+
+				if (!(reply = Execute("MKD {0}", ftppath)).Success)
+					throw new FtpCommandException(reply);
+			}
+		}
+
+		delegate void AsyncCreateDirectory(string path, bool force);
+
+		/// <summary>
+		/// Creates a directory asynchronously
+		/// </summary>
+		/// <param name="path">The full or relative path to the directory to create</param>
+		/// <param name="callback">Async callback</param>
+		/// <param name="state">State object</param>
+		/// <returns>IAsyncResult</returns>
+		/// <example><code source="..\Examples\BeginCreateDirectory.cs" lang="cs" /></example>
+		public IAsyncResult BeginCreateDirectory(string path, AsyncCallback callback, object state) {
+			return BeginCreateDirectory(path, true, callback, state);
+		}
+
+		/// <summary>
+		/// Creates a directory asynchronously
+		/// </summary>
+		/// <param name="path">The full or relative path to the directory to create</param>
+		/// <param name="force">Try to create the whole path if the preceding directories do not exist</param>
+		/// <param name="callback">Async callback</param>
+		/// <param name="state">State object</param>
+		/// <returns>IAsyncResult</returns>
+		/// <example><code source="..\Examples\BeginCreateDirectory.cs" lang="cs" /></example>
+		public IAsyncResult BeginCreateDirectory(string path, bool force, AsyncCallback callback, object state) {
+			AsyncCreateDirectory func;
+			IAsyncResult ar;
+
+			ar = (func = new AsyncCreateDirectory(CreateDirectory)).BeginInvoke(path, force, callback, state);
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends a call to BeginCreateDirectory
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from BeginCreateDirectory</param>
+		/// <example><code source="..\Examples\BeginCreateDirectory.cs" lang="cs" /></example>
+		public void EndCreateDirectory(IAsyncResult ar) {
+			GetAsyncDelegate<AsyncCreateDirectory>(ar).EndInvoke(ar);
+		}
+
+		/// <summary>
+		/// Renames an object on the remote file system.
+		/// </summary>
+		/// <param name="path">The full or relative path to the object</param>
+		/// <param name="dest">The old or new full or relative path including the new name of the object</param>
+		/// <example><code source="..\Examples\Rename.cs" lang="cs" /></example>
+		public void Rename(string path, string dest) {
+			FtpReply reply;
+
+			lock (m_lock) {
+
+				if (!(reply = Execute("RNFR {0}", path.GetFtpPath())).Success)
+					throw new FtpCommandException(reply);
+
+				if (!(reply = Execute("RNTO {0}", dest.GetFtpPath())).Success)
+					throw new FtpCommandException(reply);
+			}
+		}
+
+		delegate void AsyncRename(string path, string dest);
+
+		/// <summary>
+		/// Asynchronously renames an object on the server
+		/// </summary>
+		/// <param name="path">The full or relative path to the object</param>
+		/// <param name="dest">The old or new full or relative path including the new name of the object</param>
+		/// <param name="callback">Async callback</param>
+		/// <param name="state">State object</param>
+		/// <returns>IAsyncResult</returns>
+		/// <example><code source="..\Examples\BeginRename.cs" lang="cs" /></example>
+		public IAsyncResult BeginRename(string path, string dest, AsyncCallback callback, object state) {
+			AsyncRename func;
+			IAsyncResult ar;
+
+			ar = (func = new AsyncRename(Rename)).BeginInvoke(path, dest, callback, state);
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends a call to BeginRename
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from BeginRename</param>
+		/// <example><code source="..\Examples\BeginRename.cs" lang="cs" /></example>
+		public void EndRename(IAsyncResult ar) {
+			GetAsyncDelegate<AsyncRename>(ar).EndInvoke(ar);
+		}
+
+
+		#endregion
+
+		#region Link Dereferencing
+
+		/// <summary>
         /// Recursively dereferences a symbolic link. See the
         /// MaximumDereferenceCount property for controlling
         /// how deep this method will recurse before giving up.
@@ -1830,7 +2477,11 @@ namespace FluentFTP {
             return GetAsyncDelegate<AsyncDereferenceLink>(ar).EndInvoke(ar);
         }
 
-        /// <summary>
+		#endregion
+
+		#region File Listing
+
+		/// <summary>
         /// Returns information about a file system object. You should check the Capabilities
         /// flags for the FtpCapability.MLSD flag before calling this method. Failing to do
         /// so will result in an InvalidOperationException being thrown when the server
@@ -2161,7 +2812,11 @@ namespace FluentFTP {
             return GetAsyncDelegate<AsyncGetListing>(ar).EndInvoke(ar);
         }
 
-        /// <summary>
+		#endregion
+
+		#region Name Listing
+		
+		/// <summary>
         /// Returns a file/directory listing using the NLST command.
         /// </summary>
         /// <returns>A string array of file and directory names if any were returned.</returns>
@@ -2267,7 +2922,11 @@ namespace FluentFTP {
             return GetAsyncDelegate<AsyncGetNameListing>(ar).EndInvoke(ar);
         }
 
-        /// <summary>
+		#endregion
+
+		#region Misc Methods
+		
+		/// <summary>
         /// Sets the data type of information sent over the data stream
         /// </summary>
         /// <param name="type">ASCII/Binary</param>
@@ -2537,531 +3196,6 @@ namespace FluentFTP {
         /// <example><code source="..\Examples\BeginGetModifiedTime.cs" lang="cs" /></example>
         public DateTime EndGetModifiedTime(IAsyncResult ar) {
             return GetAsyncDelegate<AsyncGetModifiedTime>(ar).EndInvoke(ar);
-        }
-
-        /// <summary>
-        /// Deletes a file on the server
-        /// </summary>
-        /// <param name="path">The full or relative path to the file</param>
-        /// <example><code source="..\Examples\DeleteFile.cs" lang="cs" /></example>
-        public void DeleteFile(string path) {
-            FtpReply reply;
-
-            lock (m_lock)
-            {
-                if (!(reply = Execute("DELE {0}", path.GetFtpPath())).Success)
-                    throw new FtpCommandException(reply);
-            }
-        }
-
-        delegate void AsyncDeleteFile(string path);
-
-        /// <summary>
-        /// Asynchronously deletes a file from the server
-        /// </summary>
-        /// <param name="path">The full or relative path to the file</param>
-        /// <param name="callback">Async callback</param>
-        /// <param name="state">State object</param>
-        /// <returns>IAsyncResult</returns>
-        /// <example><code source="..\Examples\BeginDeleteFile.cs" lang="cs" /></example>
-        public IAsyncResult BeginDeleteFile(string path, AsyncCallback callback, object state) {
-            IAsyncResult ar;
-            AsyncDeleteFile func;
-
-            ar = (func = new AsyncDeleteFile(DeleteFile)).BeginInvoke(path, callback, state);
-            lock (m_asyncmethods) {
-                m_asyncmethods.Add(ar, func);
-            }
-
-            return ar;
-        }
-
-        /// <summary>
-        /// Ends a call to BeginDeleteFile
-        /// </summary>
-        /// <param name="ar">IAsyncResult returned from BeginDeleteFile</param>
-        /// <example><code source="..\Examples\BeginDeleteFile.cs" lang="cs" /></example>
-        public void EndDeleteFile(IAsyncResult ar) {
-            GetAsyncDelegate<AsyncDeleteFile>(ar).EndInvoke(ar);
-        }
-
-        /// <summary>
-        /// Deletes the specified directory on the server.
-        /// </summary>
-        /// <param name="path">The full or relative path of the directory to delete</param>
-		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
-		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
-		public void DeleteDirectory(string path, bool fastMode = false) {
-            DeleteDirectory(path, false, 0, fastMode);
-        }
-
-        /// <summary>
-        /// Delets the specified directory on the server
-        /// </summary>
-        /// <param name="path">The full or relative path of the directory to delete</param>
-        /// <param name="force">If the directory is not empty, remove its contents</param>
-		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
-		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
-		public void DeleteDirectory(string path, bool force, bool fastMode = false) {
-            DeleteDirectory(path, force, 0, fastMode);
-        }
-
-        /// <summary>
-        /// Deletes the specified directory on the server
-        /// </summary>
-        /// <param name="path">The full or relative path of the directory to delete</param>
-		/// <param name="force">If the directory is not empty, remove its contents</param>
-		/// <param name="options">FtpListOptions for controlling how the directory
-        /// contents are retrieved with the force option is true. If you experience problems
-		/// the file listing can be fine tuned through this parameter.</param>
-		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
-        /// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
-		public void DeleteDirectory(string path, bool force, FtpListOption options, bool fastMode = false) {
-			FtpReply reply;
-			string ftppath = path.GetFtpPath();
-
-			lock (m_lock) {
-				if (force) {
-
-					// experimental fast mode
-					if (fastMode) {
-
-						// when GetListing is called with recursive option, then it does not
-						// make any sense to call another DeleteDirectory with force flag set.
-						// however this requires always delete files first.
-						var forceAgain = !WasGetListingRecursive(options);
-
-						// items, that are deeper in directory tree, are listed first, 
-						// then files will  be listed before directories. This matters
-						// only if GetListing was called with recursive option.
-						FtpListItem[] itemList;
-						if (forceAgain)
-							itemList = GetListing(path, options);
-						else
-							itemList = GetListing(path, options).OrderByDescending(x => x.FullName.Count(c => c.Equals('/'))).ThenBy(x => x.Type).ToArray();
-
-
-						foreach (FtpListItem item in itemList) {
-							switch (item.Type) {
-								case FtpFileSystemObjectType.File:
-									DeleteFile(item.FullName);
-									break;
-								case FtpFileSystemObjectType.Directory:
-									DeleteDirectory(item.FullName, forceAgain, options, fastMode);
-									break;
-								default:
-									throw new FtpException("Don't know how to delete object type: " + item.Type);
-							}
-						}
-					} else {
-
-						// standard mode
-						foreach (FtpListItem item in GetListing(path, options)) {
-
-							// This check prevents infinity recursion, 
-							// when FtpListItem is actual parent or current directory.
-							// This could happen only when MLSD command is used for GetListing method.
-							if (!item.FullName.ToLower().Contains(path.ToLower()) || string.Equals(item.FullName.ToLower(), path.ToLower()))
-								continue;
-
-							switch (item.Type) {
-								case FtpFileSystemObjectType.File:
-									DeleteFile(item.FullName);
-									break;
-								case FtpFileSystemObjectType.Directory:
-									DeleteDirectory(item.FullName, true, options, fastMode);
-									break;
-								default:
-									throw new FtpException("Don't know how to delete object type: " + item.Type);
-							}
-						}
-					}
-				}
-
-				// can't delete the working directory and
-				// can't delete the server root.
-				if (ftppath == "." || ftppath == "./" || ftppath == "/")
-					return;
-
-				if (!(reply = Execute("RMD {0}", ftppath)).Success)
-					throw new FtpCommandException(reply);
-			}
-		}
-
-        /// <summary>
-        /// Checks wether GetListing will be called recursively or not.
-        /// </summary>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        private bool WasGetListingRecursive(FtpListOption options)
-        {
-            if (HasFeature(FtpCapability.MLSD) && (options & FtpListOption.ForceList) != FtpListOption.ForceList)
-                return false;
-
-            if ((options & FtpListOption.UseLS) == FtpListOption.UseLS || (options & FtpListOption.NameList) == FtpListOption.NameList)
-                return false;
-
-            if ((options & FtpListOption.Recursive) == FtpListOption.Recursive)
-                return true;
-
-            return false;
-        }
-
-        delegate void AsyncDeleteDirectory(string path, bool force, FtpListOption options, bool fastMode = false);
-
-        /// <summary>
-        /// Asynchronously removes a directory from the server
-        /// </summary>
-        /// <param name="path">The full or relative path of the directory to delete</param>
-        /// <param name="callback">Async callback</param>
-        /// <param name="state">State object</param>
-		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
-		/// <returns>IAsyncResult</returns>
-        /// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
-		public IAsyncResult BeginDeleteDirectory(string path, AsyncCallback callback, object state, bool fastMode = false) {
-            return BeginDeleteDirectory(path, true, 0, fastMode, callback, state);
-        }
-
-        /// <summary>
-        /// Asynchronously removes a directory from the server
-        /// </summary>
-        /// <param name="path">The full or relative path of the directory to delete</param>
-        /// <param name="force">If the directory is not empty, remove its contents</param>
-        /// <param name="callback">Async callback</param>
-        /// <param name="state">State object</param>
-		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
-		/// <returns>IAsyncResult</returns>
-        /// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
-		public IAsyncResult BeginDeleteDirectory(string path, bool force, AsyncCallback callback, object state, bool fastMode = false) {
-            return BeginDeleteDirectory(path, force, 0, fastMode, callback, state);
-        }
-
-        /// <summary>
-        /// Asynchronously removes a directory from the server
-        /// </summary>
-        /// <param name="path">The full or relative path of the directory to delete</param>
-        /// <param name="force">If the directory is not empty, remove its contents</param>
-        /// <param name="options">FtpListOptions for controlling how the directory
-        /// contents are retrieved with the force option is true. If you experience problems
-        /// the file listing can be fine tuned through this parameter.</param>
-        /// <param name="callback">Async callback</param>
-        /// <param name="state">State object</param>
-        /// <returns>IAsyncResult</returns>
-        /// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
-        public IAsyncResult BeginDeleteDirectory(string path, bool force, FtpListOption options, bool fastMode, AsyncCallback callback, object state) {
-            AsyncDeleteDirectory func;
-            IAsyncResult ar;
-
-            ar = (func = new AsyncDeleteDirectory(DeleteDirectory)).BeginInvoke(path, force, options, fastMode, callback, state);
-            lock (m_asyncmethods) {
-                m_asyncmethods.Add(ar, func);
-            }
-
-            return ar;
-        }
-
-        /// <summary>
-        /// Ends a call to BeginDeleteDirectory()
-        /// </summary>
-        /// <param name="ar">IAsyncResult returned from BeginDeleteDirectory</param>
-        /// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
-        public void EndDeleteDirectory(IAsyncResult ar) {
-            GetAsyncDelegate<AsyncDeleteDirectory>(ar).EndInvoke(ar);
-        }
-
-        /// <summary>
-        /// Tests if the specified directory exists on the server. This
-        /// method works by trying to change the working directory to
-        /// the path specified. If it succeeds, the directory is changed
-        /// back to the old working directory and true is returned. False
-        /// is returned otherwise and since the CWD failed it is assumed
-        /// the working directory is still the same.
-        /// </summary>
-        /// <param name="path">The path of the directory</param>
-        /// <returns>True if it exists, false otherwise.</returns>
-        /// <example><code source="..\Examples\DirectoryExists.cs" lang="cs" /></example>
-        public bool DirectoryExists(string path) {
-            string pwd;
-            string ftppath = path.GetFtpPath();
-
-            if (ftppath == "." || ftppath == "./" || ftppath == "/")
-                return true;
-
-            lock (m_lock)
-            {
-                pwd = GetWorkingDirectory();
-
-                if (Execute("CWD {0}", ftppath).Success) {
-                    FtpReply reply = Execute("CWD {0}", pwd.GetFtpPath());
-
-                    if (!reply.Success)
-                        throw new FtpException("DirectoryExists(): Failed to restore the working directory.");
-
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        delegate bool AsyncDirectoryExists(string path);
-
-        /// <summary>
-        /// Checks if a directory exists on the server asynchronously.
-        /// </summary>
-        /// <returns>IAsyncResult</returns>
-        /// <param name='path'>The full or relative path of the directory to check for</param>
-        /// <param name='callback'>Async callback</param>
-        /// <param name='state'>State object</param>
-        /// <example><code source="..\Examples\BeginDirectoryExists.cs" lang="cs" /></example>
-        public IAsyncResult BeginDirectoryExists(string path, AsyncCallback callback, object state) {
-            AsyncDirectoryExists func;
-            IAsyncResult ar;
-
-            ar = (func = new AsyncDirectoryExists(DirectoryExists)).BeginInvoke(path, callback, state);
-            lock (m_asyncmethods) {
-                m_asyncmethods.Add(ar, func);
-            }
-
-            return ar;
-        }
-
-        /// <summary>
-        /// Ends a call to BeginDirectoryExists
-        /// </summary>
-        /// <param name="ar">IAsyncResult returned from BeginDirectoryExists</param>
-        /// <returns>True if the directory exists. False otherwise.</returns>
-        /// <example><code source="..\Examples\BeginDirectoryExists.cs" lang="cs" /></example>
-        public bool EndDirectoryExists(IAsyncResult ar) {
-            return GetAsyncDelegate<AsyncDirectoryExists>(ar).EndInvoke(ar);
-        }
-
-        /// <summary>
-        /// Checks if a file exsts on the server by taking a 
-        /// file listing of the parent directory in the path
-        /// and comparing the results the path supplied.
-        /// </summary>
-        /// <param name="path">The full or relative path to the file</param>
-        /// <returns>True if the file exists</returns>
-        /// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
-        public bool FileExists(string path) {
-            return FileExists(path, 0);
-        }
-
-        /// <summary>
-        /// Checks if a file exsts on the server by taking a 
-        /// file listing of the parent directory in the path
-        /// and comparing the results the path supplied.
-        /// </summary>
-        /// <param name="path">The full or relative path to the file</param>
-        /// <param name="options">Options for controling the file listing used to
-        /// determine if the file exists.</param>
-        /// <returns>True if the file exists</returns>
-        /// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
-        public bool FileExists(string path, FtpListOption options) {
-            string dirname = path.GetFtpDirectoryName();
-
-            lock (m_lock)
-            {
-                if (!DirectoryExists(dirname))
-                    return false;
-
-                foreach (FtpListItem item in GetListing(dirname, options))
-                    if (item.Type == FtpFileSystemObjectType.File && item.Name == path.GetFtpFileName())
-                        return true;
-            }
-
-            return false;
-        }
-
-        delegate bool AsyncFileExists(string path, FtpListOption options);
-
-        /// <summary>
-        /// Checks if a file exsts on the server by taking a 
-        /// file listing of the parent directory in the path
-        /// and comparing the results the path supplied.
-        /// </summary>
-        /// <param name="path">The full or relative path to the file</param>
-        /// <param name="callback">Async callback</param>
-        /// <param name="state">State object</param>
-        /// <returns>IAsyncResult</returns>
-        /// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
-        public IAsyncResult BeginFileExists(string path, AsyncCallback callback, object state) {
-            return BeginFileExists(path, 0, callback, state);
-        }
-
-        /// <summary>
-        /// Checks if a file exsts on the server by taking a 
-        /// file listing of the parent directory in the path
-        /// and comparing the results the path supplied.
-        /// </summary>
-        /// <param name="path">The full or relative path to the file</param>
-        /// <param name="options">Options for controling the file listing used to
-        /// determine if the file exists.</param>
-        /// <param name="callback">Async callback</param>
-        /// <param name="state">State object</param>
-        /// <returns>IAsyncResult</returns>
-        /// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
-        public IAsyncResult BeginFileExists(string path, FtpListOption options, AsyncCallback callback, object state) {
-            AsyncFileExists func;
-            IAsyncResult ar;
-
-            ar = (func = new AsyncFileExists(FileExists)).BeginInvoke(path, options, callback, state);
-            lock (m_asyncmethods) {
-                m_asyncmethods.Add(ar, func);
-            }
-
-            return ar;
-        }
-
-        /// <summary>
-        /// Ends a call to BeginFileExists
-        /// </summary>
-        /// <param name="ar">IAsyncResult returned from BeginFileExists</param>
-        /// <returns>True if the file exists</returns>
-        /// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
-        public bool EndFileExists(IAsyncResult ar) {
-            return GetAsyncDelegate<AsyncFileExists>(ar).EndInvoke(ar);
-        }
-
-        /// <summary>
-        /// Creates a directory on the server. If the preceding
-        /// directories do not exist they are created.
-        /// </summary>
-        /// <param name="path">The full or relative path to the new directory</param>
-        /// <example><code source="..\Examples\CreateDirectory.cs" lang="cs" /></example>
-        public void CreateDirectory(string path) {
-            CreateDirectory(path, true);
-        }
-
-        /// <summary>
-        /// Creates a directory on the server
-        /// </summary>
-        /// <param name="path">The full or relative path to the directory to create</param>
-        /// <param name="force">Try to force all non-existant pieces of the path to be created</param>
-        /// <example><code source="..\Examples\CreateDirectory.cs" lang="cs" /></example>
-        public void CreateDirectory(string path, bool force) {
-            FtpReply reply;
-            string ftppath = path.GetFtpPath();
-
-            if (ftppath == "." || ftppath == "./" || ftppath == "/")
-                return;
-
-            lock (m_lock)
-            {
-                path = path.GetFtpPath().TrimEnd('/');
-
-                if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
-                    FtpTrace.WriteLine(string.Format(
-                        "CreateDirectory(\"{0}\", {1}): Create non-existent parent: {2}",
-                        path, force, path.GetFtpDirectoryName()));
-                    CreateDirectory(path.GetFtpDirectoryName(), true);
-                }
-                else if (DirectoryExists(path))
-                    return;
-
-                FtpTrace.WriteLine(string.Format("CreateDirectory(\"{0}\", {1})",
-                    ftppath, force));
-
-                if (!(reply = Execute("MKD {0}", ftppath)).Success)
-                    throw new FtpCommandException(reply);
-            }
-        }
-
-        delegate void AsyncCreateDirectory(string path, bool force);
-
-        /// <summary>
-        /// Creates a directory asynchronously
-        /// </summary>
-        /// <param name="path">The full or relative path to the directory to create</param>
-        /// <param name="callback">Async callback</param>
-        /// <param name="state">State object</param>
-        /// <returns>IAsyncResult</returns>
-        /// <example><code source="..\Examples\BeginCreateDirectory.cs" lang="cs" /></example>
-        public IAsyncResult BeginCreateDirectory(string path, AsyncCallback callback, object state) {
-            return BeginCreateDirectory(path, true, callback, state);
-        }
-
-        /// <summary>
-        /// Creates a directory asynchronously
-        /// </summary>
-        /// <param name="path">The full or relative path to the directory to create</param>
-        /// <param name="force">Try to create the whole path if the preceding directories do not exist</param>
-        /// <param name="callback">Async callback</param>
-        /// <param name="state">State object</param>
-        /// <returns>IAsyncResult</returns>
-        /// <example><code source="..\Examples\BeginCreateDirectory.cs" lang="cs" /></example>
-        public IAsyncResult BeginCreateDirectory(string path, bool force, AsyncCallback callback, object state) {
-            AsyncCreateDirectory func;
-            IAsyncResult ar;
-
-            ar = (func = new AsyncCreateDirectory(CreateDirectory)).BeginInvoke(path, force, callback, state);
-            lock (m_asyncmethods) {
-                m_asyncmethods.Add(ar, func);
-            }
-
-            return ar;
-        }
-
-        /// <summary>
-        /// Ends a call to BeginCreateDirectory
-        /// </summary>
-        /// <param name="ar">IAsyncResult returned from BeginCreateDirectory</param>
-        /// <example><code source="..\Examples\BeginCreateDirectory.cs" lang="cs" /></example>
-        public void EndCreateDirectory(IAsyncResult ar) {
-            GetAsyncDelegate<AsyncCreateDirectory>(ar).EndInvoke(ar);
-        }
-
-        /// <summary>
-        /// Renames an object on the remote file system.
-        /// </summary>
-        /// <param name="path">The full or relative path to the object</param>
-        /// <param name="dest">The old or new full or relative path including the new name of the object</param>
-        /// <example><code source="..\Examples\Rename.cs" lang="cs" /></example>
-        public void Rename(string path, string dest) {
-            FtpReply reply;
-
-            lock (m_lock)
-            {
-
-                if (!(reply = Execute("RNFR {0}", path.GetFtpPath())).Success)
-                    throw new FtpCommandException(reply);
-
-                if (!(reply = Execute("RNTO {0}", dest.GetFtpPath())).Success)
-                    throw new FtpCommandException(reply);
-            }
-        }
-
-        delegate void AsyncRename(string path, string dest);
-
-        /// <summary>
-        /// Asynchronously renames an object on the server
-        /// </summary>
-        /// <param name="path">The full or relative path to the object</param>
-        /// <param name="dest">The old or new full or relative path including the new name of the object</param>
-        /// <param name="callback">Async callback</param>
-        /// <param name="state">State object</param>
-        /// <returns>IAsyncResult</returns>
-        /// <example><code source="..\Examples\BeginRename.cs" lang="cs" /></example>
-        public IAsyncResult BeginRename(string path, string dest, AsyncCallback callback, object state) {
-            AsyncRename func;
-            IAsyncResult ar;
-
-            ar = (func = new AsyncRename(Rename)).BeginInvoke(path, dest, callback, state);
-            lock (m_asyncmethods) {
-                m_asyncmethods.Add(ar, func);
-            }
-
-            return ar;
-        }
-
-        /// <summary>
-        /// Ends a call to BeginRename
-        /// </summary>
-        /// <param name="ar">IAsyncResult returned from BeginRename</param>
-        /// <example><code source="..\Examples\BeginRename.cs" lang="cs" /></example>
-        public void EndRename(IAsyncResult ar) {
-            GetAsyncDelegate<AsyncRename>(ar).EndInvoke(ar);
         }
 
         /// <summary>
@@ -3380,6 +3514,11 @@ namespace FluentFTP {
         /// </summary>
         public FtpClient() { }
 
+
+		#endregion
+
+		#region Static API
+
         /// <summary>
         /// Connects to the specified URI. If the path specified by the URI ends with a
         /// / then the working directory is changed to the path specified.
@@ -3459,11 +3598,7 @@ namespace FluentFTP {
         public static Stream OpenRead(Uri uri, bool checkcertificate, FtpDataType datatype, long restart) {
             FtpClient cl = null;
 
-            if (uri.PathAndQuery == null || uri.PathAndQuery.Length == 0)
-                throw new UriFormatException("The supplied URI does not contain a valid path.");
-
-            if (uri.PathAndQuery.EndsWith("/"))
-                throw new UriFormatException("The supplied URI points at a directory.");
+			CheckURI(uri);
 
             cl = Connect(uri, checkcertificate);
             cl.EnableThreadSafeDataConnections = false;
@@ -3515,11 +3650,7 @@ namespace FluentFTP {
         public static Stream OpenWrite(Uri uri, bool checkcertificate, FtpDataType datatype) {
             FtpClient cl = null;
 
-            if (uri.PathAndQuery == null || uri.PathAndQuery.Length == 0)
-                throw new UriFormatException("The supplied URI does not contain a valid path.");
-
-            if (uri.PathAndQuery.EndsWith("/"))
-                throw new UriFormatException("The supplied URI points at a directory.");
+			CheckURI(uri);
 
             cl = Connect(uri, checkcertificate);
             cl.EnableThreadSafeDataConnections = false;
@@ -3559,11 +3690,7 @@ namespace FluentFTP {
         public static Stream OpenAppend(Uri uri, bool checkcertificate, FtpDataType datatype) {
             FtpClient cl = null;
 
-            if (uri.PathAndQuery == null || uri.PathAndQuery.Length == 0)
-                throw new UriFormatException("The supplied URI does not contain a valid path.");
-
-            if (uri.PathAndQuery.EndsWith("/"))
-                throw new UriFormatException("The supplied URI points at a directory.");
+			CheckURI(uri);
 
             cl = Connect(uri, checkcertificate);
             cl.EnableThreadSafeDataConnections = false;
@@ -3592,11 +3719,25 @@ namespace FluentFTP {
             return OpenAppend(uri, true, FtpDataType.Binary);
         }
 
+		private static void CheckURI(Uri uri) {
+
+			if (uri.PathAndQuery == null || uri.PathAndQuery.Length == 0) {
+				throw new UriFormatException("The supplied URI does not contain a valid path.");
+			}
+
+			if (uri.PathAndQuery.EndsWith("/")) {
+				throw new UriFormatException("The supplied URI points at a directory.");
+			}
+		}
+
         /// <summary>
         /// Used internally to mark properties in the control connection that
         /// should be cloned when opening a data connection.
         /// </summary>
         sealed class FtpControlConnectionClone : Attribute {
-        }
-    }
+		}
+
+		#endregion
+
+	}
 }
