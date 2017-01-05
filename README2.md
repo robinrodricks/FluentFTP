@@ -19,8 +19,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 ### File Management Features
 
 - File and directory listing for [various servers](#file-listings) (UNIX, IIS, DOS, etc)
-- High-level API to easily upload and download a file from the server
-- Low-level API that returns `Stream` objects for reading and writing files on the server
+- Returns `Stream` objects for reading and writing files on the server
 - Rename files and folders on the server
 - Delete files and folders (recursively deletes the contents of the folder)
 - Append data to an existing file on the server
@@ -80,23 +79,17 @@ foreach (FtpListItem item in client.GetListing("/htdocs") {
 	
 }
 
-// upload a file
-cl.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt");
+// rename a file
+client.Rename("/htdocs/index.html", "/htdocs/index2.html");
 
-// rename the uploaded file
-cl.Rename("/htdocs/big.txt", "/htdocs/big2.txt");
-
-// download the file again
-cl.DownloadFile(@"C:\MyVideo_2.mp4", "/htdocs/big2.txt");
-
-// delete the file
-client.DeleteFile("/htdocs/big2.txt");
+// delete a file
+client.DeleteFile("/htdocs/index3.html");
 
 // delete a folder recursively
 client.DeleteDirectory("/htdocs/extras/", true);
 
 // check if a file exists
-if (client.FileExists("/htdocs/big2.txt")){ }
+if (client.FileExists("/htdocs/index3.html")){ }
 
 // check if a folder exists
 if (client.DirectoryExists("/htdocs/extras/")){ }
@@ -170,9 +163,11 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **GetNameListing**() - A simple command that only returns the list of file paths in the given directory, using the NLST command.
 
-- **UploadFile**() - Uploads a file from the local file system to the server. Returns true if succeeded, false if failed or file does not exist. Supports very large files since it uploads data in chunks of 65KB. Remote directories are NOT created if they do not exist.
+- **OpenRead**() - Opens the specified file for reading. Returns a standard `Stream`.
 
-- **DownloadFile**() - Downloads a file from the server to the local file system. Returns true if succeeded, false if failed or file does not exist. Supports very large files since it downloads data in chunks of 65KB. Local directories are created if they do not exist.
+- **OpenWrite**() - Opens the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist.
+
+- **OpenAppend**() - Opens the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file.
 
 - **GetWorkingDirectory**() - Gets the full path of the current working directory.
 
@@ -186,17 +181,11 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **Rename**() - Renames the file/directory on the server.
 
-- **OpenRead**() - Low level. Open a stream to the specified file for reading. Returns a standard `Stream`.
-
-- **OpenWrite**() - Low level. Opens a stream to the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist.
-
-- **OpenAppend**() - Low level. Opens a stream to the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file.
-
 - **GetModifiedTime**() - Gets the last modified date/time of the file or folder.
 
-- **GetFileSize**() - Gets the size of the file in bytes.
-
 - **DereferenceLink**() - Recursively dereferences a symbolic link and returns the full path if found. The `MaximumDereferenceCount` property controls how deep we recurse before giving up.
+
+- **GetFileSize**() - Gets the size of the file in bytes.
 
 ## File Hashing
 
