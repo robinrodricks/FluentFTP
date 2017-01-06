@@ -156,7 +156,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 	- `LinkTarget` : The full file path the link points to. Only filled for symbolic links. 
 
-	- `LinkObject` : The file/folder the link points to. Only filled for symbolic links if `FtpListOption.DerefLink` passed to `GetListing()`.
+	- `LinkObject` : The file/folder the link points to. Only filled for symbolic links if `FtpListOption.DerefLink` flag is used.
 
 	- `SpecialPermissions` : Gets special permissions such as Stiky, SUID and SGID. **(*NIX only)**
 
@@ -166,7 +166,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 	- `OtherPermissions` : Other rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **(*NIX only)**
 
-	- `Input` : The raw string that the server returned for this object.
+	- `Input` : The raw string that the server returned for this object. Helps debug if the above properties have been correctly parsed.
 
 - **GetNameListing**() - A simple command that only returns the list of file paths in the given directory, using the NLST command.
 
