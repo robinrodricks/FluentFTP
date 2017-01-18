@@ -17,9 +17,9 @@ namespace Tests {
 
 
 		// SET THESE BEFORE RUNNING ANY TESTS!
-		static readonly string m_host = "";
-		static readonly string m_user = "";
-		static readonly string m_pass = "";
+		static readonly string m_host = "spreadbs.ddns.net";
+		static readonly string m_user = "ftpuser";
+		static readonly string m_pass = "password";
 
 
 		static void Main(string[] args) {
@@ -62,6 +62,8 @@ namespace Tests {
 				//TestHash();
 
 				//TestNameListing();
+				TestNameListingFTPS();
+
 				//TestOpenVMSParser();
 				// TestIISParser();
 				//GetMicrosoftFTPListing();
@@ -89,7 +91,7 @@ namespace Tests {
 
 				//TestListPathWithHttp11Proxy();
 
-				TestUploadDownloadFile();
+				//TestUploadDownloadFile();
 
 			} catch (Exception ex) {
 				Console.WriteLine(ex.ToString());
@@ -531,6 +533,28 @@ namespace Tests {
 				}
 			}
 		}
+
+		static void TestNameListingFTPS() {
+			using (FtpClient cl = new FtpClient()) {
+
+				cl.Credentials = new NetworkCredential(m_user, m_pass);
+				cl.Host = m_host;
+				cl.ValidateCertificate += OnValidateCertificate;
+				cl.DataConnectionType = FtpDataConnectionType.PASV;
+				cl.EncryptionMode = FtpEncryptionMode.Explicit;
+				cl.Connect();
+
+				//Console.WriteLine("Sleeping for 10 seconds to force timeout.");
+				//Thread.Sleep(10000);
+
+				foreach (FtpListItem item in cl.GetListing()) {
+					Console.WriteLine(item.FullName);
+					//Console.WriteLine(item.Modified.Kind);
+					//Console.WriteLine(item.Modified);
+				}
+			}
+		}
+
 
 		static FtpClient Connect() {
 			List<Thread> threads = new List<Thread>();
