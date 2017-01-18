@@ -1743,16 +1743,81 @@ namespace FluentFTP {
 				return false;
 			}
 
+			// read the file data
+			byte[] fileData;
+			try {
+				fileData = File.ReadAllBytes(localPath);
+			} catch (Exception ex1) {
+
+				// catch errors during upload
+				throw new FtpException("Error while reading the file from the local file system. See InnerException for more info.", ex1);
+			}
+
+			// write the file onto the server
+			return UploadFileInternal(fileData, remotePath);
+		}
+
+		/// <summary>
+		/// Uploads the specified file directly onto the server.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it uploads data in chunks of 65KB.
+		/// </summary>
+		/// <param name="fileData">The full data of the file, as a bytearray</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <returns>If true then the file was uploaded, false otherwise.</returns>
+		public bool UploadFile(byte[] fileData, string remotePath, bool overwrite = true) {
+
+			// skip uploading if the remote file exists
+			if (!overwrite && FileExists(remotePath)) {
+				return false;
+			}
+
+			// write the file onto the server
+			return UploadFileInternal(fileData, remotePath);
+		}
+
+		/// <summary>
+		/// Uploads the specified file directly onto the server.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it uploads data in chunks of 65KB.
+		/// </summary>
+		/// <param name="fileStream">The full data of the file, as a stream</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <returns>If true then the file was uploaded, false otherwise.</returns>
+		public bool UploadFile(Stream fileStream, string remotePath, bool overwrite = true) {
+
+			// skip uploading if the remote file exists
+			if (!overwrite && FileExists(remotePath)) {
+				return false;
+			}
+
+			// read the file stream
+			byte[] fileData;
+			try {
+				int chunkLen = 65536; // read data in 65KB chunks
+				fileData = ReadToEnd(fileStream, fileStream.Length, chunkLen);
+			} catch (Exception ex1) {
+
+				// catch errors during upload
+				throw new FtpException("Error while reading the file stream. See InnerException for more info.", ex1);
+			}
+
+			// write the file onto the server
+			return UploadFileInternal(fileData, remotePath);
+		}
+
+		private bool UploadFileInternal(byte[] fileData, string remotePath) {
 			try {
 
 				// write the file onto the server
-				byte[] fileData = File.ReadAllBytes(localPath);
 				Stream stream = OpenWrite(remotePath);
 				int pos = 0;
 				int len = fileData.Length;
 				int chunkLen = 65536; // write data in 65KB chunks
 				while (pos < len) {
-					stream.Write(fileData, pos, Math.Min(chunkLen, len-pos));
+					stream.Write(fileData, pos, Math.Min(chunkLen, len - pos));
 					stream.Flush();
 					pos += chunkLen;
 				}
@@ -1765,7 +1830,7 @@ namespace FluentFTP {
 				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
 			}
 		}
-
+		
 		/// <summary>
 		/// Downloads the specified file onto the local file system.
 		/// High-level API that takes care of various edge cases internally.
