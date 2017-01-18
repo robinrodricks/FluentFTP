@@ -17,9 +17,9 @@ namespace Tests {
 
 
 		// SET THESE BEFORE RUNNING ANY TESTS!
-		static readonly string m_host = "spreadbs.ddns.net";
-		static readonly string m_user = "ftpuser";
-		static readonly string m_pass = "password";
+		static readonly string m_host = "";
+		static readonly string m_user = "";
+		static readonly string m_pass = "";
 
 
 		static void Main(string[] args) {
@@ -554,6 +554,9 @@ namespace Tests {
 				}
 			}
 		}
+		static void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
+			e.Accept = true;
+		}
 
 
 		static FtpClient Connect() {
@@ -590,9 +593,6 @@ namespace Tests {
 			return cl;
 		}
 
-		static void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
-			e.Accept = true;
-		}
 
 		static void Upload(FtpClient cl) {
 			string root = @"..\..\..";
