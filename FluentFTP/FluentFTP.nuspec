@@ -8,7 +8,7 @@
         <owners>Harsh Gupta</owners>
         <projectUrl>https://github.com/hgupta9/FluentFTP</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>Easy to use FTP client supporting FTP, SSL and TLS</description>
+        <description>Easy to use FTP client supporting FTP and FTPS</description>
         <copyright>MIT License</copyright>
         <language>en-US</language>
 		<frameworkAssemblies>

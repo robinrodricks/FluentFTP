@@ -124,7 +124,7 @@ namespace Tests {
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Host = m_host;
 				cl.EncryptionMode = FtpEncryptionMode.None;
-
+				
 				cl.GetListing();
 				Console.WriteLine("Path listing succeeded");
 				cl.GetListing(null, FtpListOption.NoPath);

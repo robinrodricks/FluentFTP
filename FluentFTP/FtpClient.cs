@@ -581,6 +581,21 @@ namespace FluentFTP {
             protected set { m_connectionType = value; }
 		}
 
+		int m_transferChunkSize = 65536;
+		/// <summary>
+		/// Gets or sets the number of bytes transfered in a single chunk (a single FTP command).
+		/// Used by UploadFile() and DownloadFile() to transfer large files in multiple chunks.
+		/// </summary>
+		[FtpControlConnectionClone]
+		public int TransferChunkSize {
+			get {
+				return m_transferChunkSize;
+			}
+			set {
+				m_transferChunkSize = value;
+			}
+		}
+
 		#endregion
 
 		#region Core
@@ -1722,10 +1737,14 @@ namespace FluentFTP {
             return GetAsyncDelegate<AsyncOpenAppend>(ar).EndInvoke(ar);
         }
 
+		#endregion
+
+		#region File Upload/Download
+
 		/// <summary>
 		/// Uploads the specified file directly onto the server.
 		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it uploads data in chunks of 65KB.
+		/// Supports very large files since it uploads data in chunks.
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
@@ -1758,9 +1777,9 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Uploads the specified file directly onto the server.
+		/// Uploads the specified byte array as a file onto the server.
 		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it uploads data in chunks of 65KB.
+		/// Supports very large files since it uploads data in chunks.
 		/// </summary>
 		/// <param name="fileData">The full data of the file, as a bytearray</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
@@ -1778,9 +1797,9 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Uploads the specified file directly onto the server.
+		/// Uploads the specified stream as a file onto the server.
 		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it uploads data in chunks of 65KB.
+		/// Supports very large files since it uploads data in chunks.
 		/// </summary>
 		/// <param name="fileStream">The full data of the file, as a stream</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
@@ -1796,8 +1815,7 @@ namespace FluentFTP {
 			// read the file stream
 			byte[] fileData;
 			try {
-				int chunkLen = 65536; // read data in 65KB chunks
-				fileData = ReadToEnd(fileStream, fileStream.Length, chunkLen);
+				fileData = ReadToEnd(fileStream, fileStream.Length, TransferChunkSize);
 			} catch (Exception ex1) {
 
 				// catch errors during upload
@@ -1808,6 +1826,9 @@ namespace FluentFTP {
 			return UploadFileInternal(fileData, remotePath);
 		}
 
+		/// <summary>
+		/// Upload a file from the server given the raw bytes. Writes data in chunks.
+		/// </summary>
 		private bool UploadFileInternal(byte[] fileData, string remotePath) {
 			try {
 
@@ -1815,11 +1836,10 @@ namespace FluentFTP {
 				Stream stream = OpenWrite(remotePath);
 				int pos = 0;
 				int len = fileData.Length;
-				int chunkLen = 65536; // write data in 65KB chunks
 				while (pos < len) {
-					stream.Write(fileData, pos, Math.Min(chunkLen, len - pos));
+					stream.Write(fileData, pos, Math.Min(TransferChunkSize, len - pos));
 					stream.Flush();
-					pos += chunkLen;
+					pos += TransferChunkSize;
 				}
 				stream.Close();
 				return true;
@@ -1830,17 +1850,18 @@ namespace FluentFTP {
 				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
 			}
 		}
-		
+
 		/// <summary>
 		/// Downloads the specified file onto the local file system.
 		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks of 65KB.
+		/// Supports very large files since it downloads data in chunks.
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="checkExistence">Check if the file exists on the server before downloading? Pass false for a slight speedup if you're sure the file exists.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool DownloadFile(string localPath, string remotePath, bool overwrite = true) {
+		public bool DownloadFile(string localPath, string remotePath, bool overwrite = true, bool checkExistence = true) {
 
 			// skip downloading if the local file exists
 			if (!overwrite && File.Exists(localPath)) {
@@ -1848,11 +1869,99 @@ namespace FluentFTP {
 			}
 
 			// skip downloading if the remote file does not exist
-			if (!FileExists(remotePath)) {
+			if (checkExistence && !FileExists(remotePath)) {
 				return false;
 			}
 
-			byte[] data;
+			// download the file from the server
+			byte[] data = DownloadFileInternal(remotePath);
+
+			try {
+
+				// write the file to the disk
+				if (data != null) {
+					string dirPath = Path.GetDirectoryName(localPath);
+					if (!Directory.Exists(dirPath)) {
+						Directory.CreateDirectory(dirPath);
+					}
+					File.WriteAllBytes(localPath, data);
+					return true;
+				}
+				return false;
+
+
+			} catch (Exception ex1) {
+
+				// catch errors during upload
+				throw new FtpException("Error while saving the downloaded file to disk. See InnerException for more info.", ex1);
+			}
+		}
+
+		/// <summary>
+		/// Downloads the specified file into a new MemoryStream.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="checkExistence">Check if the file exists on the server before downloading? Pass false for a slight speedup if you're sure the file exists.</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		public bool DownloadFile(Stream outStream, string remotePath, bool overwrite = true, bool checkExistence = true) {
+
+			// skip downloading if the remote file does not exist
+			if (checkExistence && !FileExists(remotePath)) {
+				return false;
+			}
+
+			// download the file from the server
+			byte[] data = DownloadFileInternal(remotePath);
+
+			try {
+
+				// write the data to the stream
+				if (data != null) {
+					outStream.Write(data, 0, data.Length);
+					return true;
+				}
+				return false;
+
+
+			} catch (Exception ex1) {
+
+				// catch errors during upload
+				throw new FtpException("Error while writing the downloaded file to the new stream. See InnerException for more info.", ex1);
+			}
+		}
+
+		/// <summary>
+		/// Downloads the specified file and return the raw byte array.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="outBytes">The variable that will recieve the bytes.</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="checkExistence">Check if the file exists on the server before downloading? Pass false for a slight speedup if you're sure the file exists.</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		public bool DownloadFile(out byte[] outBytes, string remotePath, bool overwrite = true, bool checkExistence = true) {
+
+			// skip downloading if the remote file does not exist
+			if (checkExistence && !FileExists(remotePath)) {
+				outBytes = null;
+				return false;
+			}
+
+			// download the file from the server
+			outBytes = DownloadFileInternal(remotePath);
+			return outBytes != null;
+		}
+
+		/// <summary>
+		/// Download a file from the server and return the raw bytes. Reads data in chunks.
+		/// </summary>
+		private byte[] DownloadFileInternal(string remotePath) {
+			byte[] data = null;
 			try {
 
 				// read the file from the server
@@ -1860,8 +1969,7 @@ namespace FluentFTP {
 				if (stream.Length == 0) {
 					throw new FtpException("Cannot download file since file has length of 0.");
 				}
-				int chunkLen = 65536; // read data in 65KB chunks
-				data = ReadToEnd(stream, stream.Length, chunkLen);
+				data = ReadToEnd(stream, stream.Length, TransferChunkSize);
 				stream.Close();
 
 			} catch (Exception ex1) {
@@ -1869,23 +1977,7 @@ namespace FluentFTP {
 				// catch errors during upload
 				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
 			}
-
-			try {
-
-				// write the file to the disk
-				string dirPath = Path.GetDirectoryName(localPath);
-				if (!Directory.Exists(dirPath)) {
-					Directory.CreateDirectory(dirPath);
-				}
-				File.WriteAllBytes(localPath, data);
-				return true;
-			
-
-			} catch (Exception ex1) {
-
-				// catch errors during upload
-				throw new FtpException("Error while saving the downloaded file to disk. See InnerException for more info.", ex1);
-			}
+			return data;
 		}
 
 		private static byte[] ReadToEnd(Stream stream, long maxLength, int chunkLen) {
