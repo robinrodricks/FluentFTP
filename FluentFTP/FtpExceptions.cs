@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Serialization;
 
 namespace FluentFTP {
     /// <summary>
@@ -6,12 +7,18 @@ namespace FluentFTP {
     /// </summary>
     [Serializable]
     public class FtpException : Exception {
+
         /// <summary>
         /// Initializes the exception object
         /// </summary>
 		/// <param name="message">The error message</param>
 		public FtpException(string message) : base(message) { }
 		public FtpException(string message, Exception innerException) : base(message, innerException) { }
+
+		/// <summary>
+		/// Must be implemented so every Serializer can Deserialize the Exception
+		/// </summary>
+		protected FtpException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 
     /// <summary>
@@ -66,6 +73,11 @@ namespace FluentFTP {
         public FtpCommandException(FtpReply reply)
             : this(reply.Code, reply.ErrorMessage) {
         }
+
+		/// <summary>
+		/// Must be implemented so every Serializer can Deserialize the Exception
+		/// </summary>
+		protected FtpCommandException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 
     /// <summary>
@@ -87,5 +99,10 @@ namespace FluentFTP {
         public FtpSecurityNotAvailableException(string message)
             : base(message) {
         }
+
+		/// <summary>
+		/// Must be implemented so every Serializer can Deserialize the Exception
+		/// </summary>
+		protected FtpSecurityNotAvailableException(SerializationInfo info, StreamingContext context) : base(info, context) { }
     }
 }
