@@ -17,9 +17,9 @@ namespace Tests {
 
 
 		// SET THESE BEFORE RUNNING ANY TESTS!
-		static readonly string m_host = "";
-		static readonly string m_user = "";
-		static readonly string m_pass = "";
+		static string m_host = "";
+		static string m_user = "";
+		static string m_pass = "";
 
 
 		static void Main(string[] args) {
@@ -540,7 +540,7 @@ namespace Tests {
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Host = m_host;
 				cl.ValidateCertificate += OnValidateCertificate;
-				cl.DataConnectionType = FtpDataConnectionType.PASV;
+				//cl.DataConnectionType = FtpDataConnectionType.PASV;
 				cl.EncryptionMode = FtpEncryptionMode.Explicit;
 				cl.Connect();
 
