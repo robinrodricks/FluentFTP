@@ -251,6 +251,8 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **EnableThreadSafeDataConnections** - Clone the control connection and establish another connection to the server for the data channel operation. This is a thread safe approach to make asynchronous operations on a single control connection transparent. Set this to `false` if your FTP server allows only one connection per username. **Default:** true.
 
+- **TransferChunkSize** - Chunk size (in bytes) used during upload/download of files. **Default:** 65536 (65 KB).
+
 - **IsClone** - Checks if this control connection is a clone. **Default:** false.
 
 - **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
