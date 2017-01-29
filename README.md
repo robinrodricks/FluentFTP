@@ -8,7 +8,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 
 ## Features
 
-- Supports FTP and FTPS (FTP over SSL)
+- Supports FTP, FTPS (FTP over SSL) and [FTPS with client certificates](#client-certificates)
 - File and directory listing for [various servers](#file-listings) (UNIX, IIS, DOS, etc)
 - Easily upload and download a file from the server
 - Easily read and write file data from the server using standard streams
@@ -22,6 +22,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Dereferencing of symbolic links
 - Passive and active data connections (PASV, EPSV, PORT and EPRT)
 - Synchronous and asynchronous methods (`IAsyncResult` pattern) for all operations 
+- Explicit and Implicit SSL connections are supported for the control and data connections using .NET's `SslStream`
 - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
 
 ### Implementation Notes
@@ -33,8 +34,6 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/hgupta9/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
 - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/hgupta9/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
 - Transaction logging using `TraceListeners` (passwords are automatically omitted)
-- FTPS : Explicit and Implicit SSL connections are supported for the control and data connections using .NET's `SslStream`
-- FTPS : Support for adding [client certificates](#client-certificates)
 - Examples for nearly all methods (see [Examples](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples))
 
 ## Example Usage
