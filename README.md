@@ -12,22 +12,16 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
 - Passive and active data connections (PASV, EPSV, PORT and EPRT)
 - Synchronous and asynchronous methods (`IAsyncResult` pattern) for all operations 
-- Supports DrFTPD's (non-standard) PRET command
-- Supports FTP Proxies (User@Host, HTTP 1.1)
-
-### File Management Features
-
 - File and directory listing for [various servers](#file-listings) (UNIX, IIS, DOS, etc)
-- High-level API to easily upload and download a file from the server
-- Low-level API that returns `Stream` objects for reading and writing files on the server
-- Rename files and folders on the server
-- Delete files and folders (recursively deletes the contents of the folder)
-- Append data to an existing file on the server
-- Create new directory on the server
-- Check if file or folder exists
-- Get file/folder info (file size, security flags, modified date/time)
-- Get and set working directory
+- Easily upload and download a file from the server
+- Easily read and write file data from the server using standard streams
+- Create, append, read, write, rename and delete files and folders
+- Recursively deletes folders and all its contents
+- Get file/folder info (exists, size, security flags, modified date/time)
+- Absolute or relative paths (relative to the "working directory")
 - Get the hash/checksum of a file (SHA-1, SHA-256, SHA-512, and MD5)
+- Supports DrFTPD's PRET command
+- Supports FTP Proxies (User@Host, HTTP 1.1)
 - Dereferencing of symbolic links
 
 ### Implementation Notes
