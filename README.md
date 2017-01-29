@@ -8,7 +8,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 
 ## Features
 
-- Supports FTP, FTPS (FTP over SSL) and [FTPS with client certificates](#client-certificates)
+- Full support for FTP, FTPS (FTP over SSL) and [FTPS with client certificates](#client-certificates)
 - File and directory listing for [various servers](#file-listings) (UNIX, IIS, DOS, etc)
 - Easily upload and download a file from the server
 - Easily read and write file data from the server using standard streams
