@@ -22,7 +22,7 @@ namespace FluentFTP {
     /// <param name="control">The contol connection that triggered the event</param>
     /// <param name="e">Event args</param>
     public delegate void FtpSslValidation(FtpClient control, FtpSslValidationEventArgs e);
-
+	
     /// <summary>
     /// FTP Control Connection. Speaks the FTP protocol with the server and
     /// provides facilities for performing basic transactions.
@@ -1762,18 +1762,26 @@ namespace FluentFTP {
 				return false;
 			}
 
-			// read the file data
-			byte[] fileData;
+			FileStream fileStream;
 			try {
-				fileData = File.ReadAllBytes(localPath);
+
+				// connect to the file
+				fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+
 			} catch (Exception ex1) {
 
 				// catch errors during upload
-				throw new FtpException("Error while reading the file from the local file system. See InnerException for more info.", ex1);
+				throw new FtpException("Error while reading the file from the disk. See InnerException for more info.", ex1);
 			}
 
 			// write the file onto the server
-			return UploadFileInternal(fileData, remotePath);
+			bool ok = UploadFileInternal(fileStream, remotePath);
+
+			// close the file stream
+			try {
+				fileStream.Close();
+			} catch (Exception ex) { }
+			return ok;
 		}
 
 		/// <summary>
@@ -1793,7 +1801,9 @@ namespace FluentFTP {
 			}
 
 			// write the file onto the server
-			return UploadFileInternal(fileData, remotePath);
+			MemoryStream ms = new MemoryStream(fileData);
+			ms.Position = 0;
+			return UploadFileInternal(ms, remotePath);
 		}
 
 		/// <summary>
@@ -1812,43 +1822,8 @@ namespace FluentFTP {
 				return false;
 			}
 
-			// read the file stream
-			byte[] fileData;
-			try {
-				fileData = ReadToEnd(fileStream, fileStream.Length, TransferChunkSize);
-			} catch (Exception ex1) {
-
-				// catch errors during upload
-				throw new FtpException("Error while reading the file stream. See InnerException for more info.", ex1);
-			}
-
 			// write the file onto the server
-			return UploadFileInternal(fileData, remotePath);
-		}
-
-		/// <summary>
-		/// Upload a file from the server given the raw bytes. Writes data in chunks.
-		/// </summary>
-		private bool UploadFileInternal(byte[] fileData, string remotePath) {
-			try {
-
-				// write the file onto the server
-				Stream stream = OpenWrite(remotePath);
-				int pos = 0;
-				int len = fileData.Length;
-				while (pos < len) {
-					stream.Write(fileData, pos, Math.Min(TransferChunkSize, len - pos));
-					stream.Flush();
-					pos += TransferChunkSize;
-				}
-				stream.Close();
-				return true;
-
-			} catch (Exception ex1) {
-
-				// catch errors during upload
-				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
-			}
+			return UploadFileInternal(fileStream, remotePath);
 		}
 
 		/// <summary>
@@ -1859,42 +1834,40 @@ namespace FluentFTP {
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="overwrite">Overwrite the file if it already exists?</param>
-		/// <param name="checkExistence">Check if the file exists on the server before downloading? Pass false for a slight speedup if you're sure the file exists.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool DownloadFile(string localPath, string remotePath, bool overwrite = true, bool checkExistence = true) {
+		public bool DownloadFile(string localPath, string remotePath, bool overwrite = true) {
 
 			// skip downloading if the local file exists
 			if (!overwrite && File.Exists(localPath)) {
 				return false;
 			}
 
-			// skip downloading if the remote file does not exist
-			if (checkExistence && !FileExists(remotePath)) {
-				return false;
-			}
-
-			// download the file from the server
-			byte[] data = DownloadFileInternal(remotePath);
-
+			FileStream outStream;
 			try {
 
-				// write the file to the disk
-				if (data != null) {
-					string dirPath = Path.GetDirectoryName(localPath);
-					if (!Directory.Exists(dirPath)) {
-						Directory.CreateDirectory(dirPath);
-					}
-					File.WriteAllBytes(localPath, data);
-					return true;
+				// create the folders
+				string dirPath = Path.GetDirectoryName(localPath);
+				if (!Directory.Exists(dirPath)) {
+					Directory.CreateDirectory(dirPath);
 				}
-				return false;
 
-
+				// connect to the file
+				outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None);
+			
 			} catch (Exception ex1) {
 
 				// catch errors during upload
-				throw new FtpException("Error while saving the downloaded file to disk. See InnerException for more info.", ex1);
+				throw new FtpException("Error while saving the file to disk. See InnerException for more info.", ex1);
 			}
+
+			// download the file straight to a file stream
+			bool ok = DownloadFileInternal(remotePath, outStream);
+
+			// close the file stream
+			try {
+				outStream.Close();
+			} catch (Exception ex) {}
+			return ok;
 		}
 
 		/// <summary>
@@ -1904,34 +1877,11 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists?</param>
-		/// <param name="checkExistence">Check if the file exists on the server before downloading? Pass false for a slight speedup if you're sure the file exists.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool DownloadFile(Stream outStream, string remotePath, bool overwrite = true, bool checkExistence = true) {
-
-			// skip downloading if the remote file does not exist
-			if (checkExistence && !FileExists(remotePath)) {
-				return false;
-			}
+		public bool DownloadFile(Stream outStream, string remotePath) {
 
 			// download the file from the server
-			byte[] data = DownloadFileInternal(remotePath);
-
-			try {
-
-				// write the data to the stream
-				if (data != null) {
-					outStream.Write(data, 0, data.Length);
-					return true;
-				}
-				return false;
-
-
-			} catch (Exception ex1) {
-
-				// catch errors during upload
-				throw new FtpException("Error while writing the downloaded file to the new stream. See InnerException for more info.", ex1);
-			}
+			return DownloadFileInternal(remotePath, outStream);
 		}
 
 		/// <summary>
@@ -1941,58 +1891,158 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="outBytes">The variable that will recieve the bytes.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists?</param>
-		/// <param name="checkExistence">Check if the file exists on the server before downloading? Pass false for a slight speedup if you're sure the file exists.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool DownloadFile(out byte[] outBytes, string remotePath, bool overwrite = true, bool checkExistence = true) {
+		public bool DownloadFile(out byte[] outBytes, string remotePath) {
 
-			// skip downloading if the remote file does not exist
-			if (checkExistence && !FileExists(remotePath)) {
-				outBytes = null;
-				return false;
-			}
+			outBytes = null;
 
 			// download the file from the server
-			outBytes = DownloadFileInternal(remotePath);
-			return outBytes != null;
+			MemoryStream outStream = new MemoryStream();
+			bool ok = DownloadFileInternal(remotePath, outStream);
+			if (ok) {
+				outBytes = outStream.ToArray();
+				outStream.Dispose();
+			}
+			return ok;
+		}
+
+
+		/// <summary>
+		/// Upload the given stream to the server as a new file. Overwrites the file if it exists.
+		/// Writes data in chunks. Retries if server disconnects midway.
+		/// </summary>
+		private bool UploadFileInternal(Stream fileData, string remotePath) {
+			Stream upStream = null;
+
+			try {
+
+				// open a file write connection
+				upStream = OpenWrite(remotePath);
+
+				// loop till entire file uploaded
+				long offset = 0;
+				long len = fileData.Length;
+				byte[] buffer = new byte[TransferChunkSize];
+				while (offset < len) {
+					try {
+
+						// read a chunk of bytes from the file
+						int readBytes;
+						while ((readBytes = fileData.Read(buffer, 0, buffer.Length)) > 0) {
+
+							// write chunk to the FTP stream
+							upStream.Write(buffer, 0, readBytes);
+							upStream.Flush();
+							offset += readBytes;
+						}
+
+					} catch (IOException ex) {
+
+						// resume if server disconnects midway (fixes #39)
+						if (ex.InnerException != null) {
+							var iex = ex.InnerException as System.Net.Sockets.SocketException;
+							if (iex != null && iex.ErrorCode == 10054) {
+								upStream.Close();
+								upStream = OpenAppend(remotePath);
+								upStream.Position = offset;
+							} else throw;
+						} else throw;
+
+					}
+				}
+
+				// disconnect FTP stream before exiting
+				upStream.Close();
+				return true;
+
+			} catch (Exception ex1) {
+
+				// close stream before throwing error
+				try {
+					upStream.Close();
+				} catch (Exception ex) { }
+
+				// catch errors during upload
+				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
+			}
+			return false;
 		}
 
 		/// <summary>
-		/// Download a file from the server and return the raw bytes. Reads data in chunks.
+		/// Download a file from the server and write the data into the given stream.
+		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private byte[] DownloadFileInternal(string remotePath) {
-			byte[] data = null;
+		private bool DownloadFileInternal(string remotePath, Stream outStream) {
+
+			Stream downStream = null;
+
 			try {
 
-				// read the file from the server
-				Stream stream = OpenRead(remotePath);
-				if (stream.Length == 0) {
-					throw new FtpException("Cannot download file since file has length of 0.");
+				// exit if file length not available
+				downStream = OpenRead(remotePath);
+				long fileLen = downStream.Length;
+				if (fileLen == 0) {
+
+					// close stream before throwing error
+					try {
+						downStream.Close();
+					} catch (Exception ex) { }
+
+					throw new FtpException("Cannot download file since file has length of 0. Switch to binary mode using SetDataType() and try again.");
 				}
-				data = ReadToEnd(stream, stream.Length, TransferChunkSize);
-				stream.Close();
+
+				// loop till entire file downloaded
+				byte[] buffer = new byte[TransferChunkSize];
+				long offset = 0;
+				while (offset < fileLen){
+					try {
+
+						// read a chunk of bytes from the FTP stream
+						int readBytes = 1;
+						while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
+
+							// write chunk to output stream
+							outStream.Write(buffer, 0, readBytes);
+							offset += readBytes;
+						}
+
+					} catch (IOException ex) {
+
+						// resume if server disconnects midway (fixes #39)
+						if (ex.InnerException != null) {
+							var ie = ex.InnerException as System.Net.Sockets.SocketException;
+							if (ie != null && ie.ErrorCode == 10054) {
+								downStream.Close();
+								downStream = OpenRead(remotePath, restart: offset);
+							} else throw;
+						} else throw;
+
+					}
+
+				}
+
+				// disconnect FTP stream before exiting
+				outStream.Flush();
+				downStream.Close();
+				return true;
+
 
 			} catch (Exception ex1) {
+
+				// close stream before throwing error
+				try {
+					downStream.Close();
+				} catch (Exception ex) {}
+
+				// absorb "file does not exist" exceptions and simply return false
+				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
+					return false;
+				}
 
 				// catch errors during upload
 				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
 			}
-			return data;
-		}
-
-		private static byte[] ReadToEnd(Stream stream, long maxLength, int chunkLen) {
-			int read = 1;
-			byte[] buffer = new byte[chunkLen];
-			using (var mem = new MemoryStream()) {
-				do {
-					long length = maxLength == 0 ? buffer.Length : Math.Min(maxLength - (int)mem.Length, buffer.Length);
-					read = stream.Read(buffer, 0, (int)length);
-					mem.Write(buffer, 0, read);
-					if (maxLength > 0 && mem.Length == maxLength) break;
-				} while (read > 0);
-
-				return mem.ToArray();
-			}
+			return false;
 		}
 
 		#endregion
@@ -3082,7 +3132,22 @@ namespace FluentFTP {
 		#endregion
 
 		#region Misc Methods
-		
+
+		private static byte[] ReadToEnd(Stream stream, long maxLength, int chunkLen) {
+			int read = 1;
+			byte[] buffer = new byte[chunkLen];
+			using (var mem = new MemoryStream()) {
+				do {
+					long length = maxLength == 0 ? buffer.Length : Math.Min(maxLength - (int)mem.Length, buffer.Length);
+					read = stream.Read(buffer, 0, (int)length);
+					mem.Write(buffer, 0, read);
+					if (maxLength > 0 && mem.Length == maxLength) break;
+				} while (read > 0);
+
+				return mem.ToArray();
+			}
+		}
+
 		/// <summary>
         /// Sets the data type of information sent over the data stream
         /// </summary>
