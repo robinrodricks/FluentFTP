@@ -8,8 +8,6 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 
 ## Features
 
-### Main Features
-
 - Supports FTP and FTPS (FTP over SSL)
 - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
 - Passive and active data connections (PASV, EPSV, PORT and EPRT)
