@@ -62,7 +62,7 @@ namespace Tests {
 				//TestHash();
 
 				//TestNameListing();
-				TestNameListingFTPS();
+				//TestNameListingFTPS();
 
 				//TestOpenVMSParser();
 				// TestIISParser();
@@ -91,7 +91,7 @@ namespace Tests {
 
 				//TestListPathWithHttp11Proxy();
 
-				//TestUploadDownloadFile();
+				//TestUploadDownloadManyFiles();
 
 			} catch (Exception ex) {
 				Console.WriteLine(ex.ToString());
@@ -743,13 +743,32 @@ namespace Tests {
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 
 				// 100 K file
-				//cl.UploadFile(@"D:\FluentFTP\README.md", "/public_html/temp/README.md");
-				//cl.DownloadFile(@"D:\FluentFTP\README2.md", "/public_html/temp/README.md");
-
+				cl.UploadFile(@"D:\Github\hgupta\FluentFTP\README.md", "/public_html/temp/README.md");
+				cl.DownloadFile(@"D:\Github\hgupta\FluentFTP\README2.md", "/public_html/temp/README.md");
+				
 				// 10 M file
 				cl.UploadFile(@"D:\Drivers\mb_driver_intel_irst_6series.exe", "/public_html/temp/big.txt");
 				cl.Rename("/public_html/temp/big.txt", "/public_html/temp/big2.txt");
 				cl.DownloadFile(@"D:\Drivers\mb_driver_intel_irst_6series_2.exe", "/public_html/temp/big2.txt");
+
+			}
+		}
+
+		static void TestUploadDownloadManyFiles() {
+
+			using (FtpClient cl = new FtpClient()) {
+				cl.Host = m_host;
+				cl.Credentials = new NetworkCredential(m_user, m_pass);
+
+				// 100 K file
+				for (int i = 0; i < 10; i++) {
+					cl.UploadFile(@"D:\Drivers\mb_driver_intel_bootdisk_irst_64_6series.exe", "/public_html/temp/small.txt");
+				}
+
+				// 100 K file
+				for (int i = 0; i < 10; i++) {
+					cl.DownloadFile(@"D:\Drivers\test\file" + i + ".exe", "/public_html/temp/small.txt");
+				}
 
 			}
 		}
