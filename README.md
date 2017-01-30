@@ -1,10 +1,9 @@
 
 # FluentFTP
-FluentFTP is a fully managed FTP client that is designed to be easy to use and easy to extend. It supports file and directory listing, uploading and dowloading files and SSL/TLS connections. It can connect to Unix and Windows/IIS based FTP servers. This project is entirely developed in managed C#. All credits go to [J.P. Trosclair](https://github.com/jptrosclair) for developing and maintaining the library till 2016. FluentFTP is released under the permissive MIT License.
 
-## Latest Release
-- [Nuget](https://www.nuget.org/packages/FluentFTP) (latest version)
-- [Releases](https://github.com/hgupta9/FluentFTP/releases) (not updated very often)
+[![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP)
+
+FluentFTP is a fully managed FTP client that is designed to be easy to use and easy to extend. It supports file and directory listing, uploading and dowloading files and SSL/TLS connections. It can connect to Unix and Windows/IIS based FTP servers. This project is entirely developed in managed C#. All credits go to [J.P. Trosclair](https://github.com/jptrosclair) for developing and maintaining the library till 2016. FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 
 ## Features
 
@@ -35,6 +34,13 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/hgupta9/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
 - Transaction logging using `TraceListeners` (passwords are automatically omitted)
 - Examples for nearly all methods (see [Examples](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples))
+
+## Releases
+
+Stable binaries are released on NuGet, and contain everything you need to use FTP/FTPS in your .Net/CLR application. For usage see the [Example Usage](#example-usage) section and the [Documentation](#documentation) section below.
+
+- [Nuget](https://www.nuget.org/packages/FluentFTP) (latest)
+- [Releases](https://github.com/hgupta9/FluentFTP/releases) (occasionally updated)
 
 ## Example Usage
 
@@ -96,7 +102,7 @@ client.Disconnect();
 See more examples [here](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples).
 
 
-# API
+# Documentation
 
 Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS functionality.
 
