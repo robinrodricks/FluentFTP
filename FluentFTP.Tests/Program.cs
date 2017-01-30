@@ -17,9 +17,9 @@ namespace Tests {
 
 
 		// SET THESE BEFORE RUNNING ANY TESTS!
-		static string m_host = "";
-		static string m_user = "";
-		static string m_pass = "";
+		static string m_host = "nayidisha.in";
+		static string m_user = "nayidish";
+		static string m_pass = "fIqzAusahpoCp8LXBHhN";
 
 
 		static void Main(string[] args) {
@@ -90,6 +90,8 @@ namespace Tests {
 				//TestListPath();
 
 				//TestListPathWithHttp11Proxy();
+
+				TestUploadDownloadFile();
 
 				//TestUploadDownloadManyFiles();
 
@@ -759,16 +761,22 @@ namespace Tests {
 			using (FtpClient cl = new FtpClient()) {
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
+				cl.EnableThreadSafeDataConnections = false;
+				cl.Connect();
 
 				// 100 K file
-				for (int i = 0; i < 10; i++) {
+				for (int i = 0; i < 3; i++) {
+					Console.WriteLine(" ------------- UPLOAD " + i + " ------------------");
 					cl.UploadFile(@"D:\Drivers\mb_driver_intel_bootdisk_irst_64_6series.exe", "/public_html/temp/small.txt");
 				}
 
 				// 100 K file
-				for (int i = 0; i < 10; i++) {
+				for (int i = 0; i < 3; i++) {
+					Console.WriteLine(" ------------- DOWNLOAD " + i + " ------------------");
 					cl.DownloadFile(@"D:\Drivers\test\file" + i + ".exe", "/public_html/temp/small.txt");
 				}
+
+				Console.WriteLine(" ------------- ALL DONE! ------------------");
 
 			}
 		}

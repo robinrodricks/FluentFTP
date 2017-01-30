@@ -7,13 +7,16 @@ using System.Reflection;
 using System.Threading;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Web;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Globalization;
 using FluentFTP.Extensions;
 using System.Security.Authentication;
 using System.Net;
+using System.Threading.Tasks;
+#if !CORE
+using System.Web;
+#endif
 
 namespace FluentFTP {
     /// <summary>
@@ -81,6 +84,9 @@ namespace FluentFTP {
         /// </summary>
         readonly Object m_lock = new Object();
 
+		/// <summary>
+		/// For usage by FTP proxies only
+		/// </summary>
 	    protected Object Lock {
 		    get {
 			    return m_lock;
@@ -193,7 +199,7 @@ namespace FluentFTP {
             }
         }
 
-        bool m_threadSafeDataChannels = true;
+        bool m_threadSafeDataChannels = false;
         /// <summary>
         /// When this value is set to true (default) the control connection
         /// is cloned and a new connection the server is established for the
@@ -1235,13 +1241,17 @@ namespace FluentFTP {
         FtpDataStream OpenActiveDataStream(FtpDataConnectionType type, string command, long restart) {
             FtpDataStream stream = new FtpDataStream(this);
             FtpReply reply;
+#if !CORE
             IAsyncResult ar;
+#endif
 
             if (m_stream == null)
                 throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open an active data stream.");
 
             stream.Listen(m_stream.LocalEndPoint.Address, 0);
-            ar = stream.BeginAccept(null, null);
+#if !CORE
+			ar = stream.BeginAccept(null, null);
+#endif
 
             if (type == FtpDataConnectionType.EPRT || type == FtpDataConnectionType.AutoActive) {
                 int ipver = 0;
@@ -1300,7 +1310,8 @@ namespace FluentFTP {
             // when the stream is closed so always set it
             // otherwise things can get out of sync.
             stream.CommandStatus = reply;
-
+			
+#if !CORE
             ar.AsyncWaitHandle.WaitOne(m_dataConnectionConnectTimeout);
             if (!ar.IsCompleted) {
                 stream.Close();
@@ -1308,8 +1319,12 @@ namespace FluentFTP {
             }
 
             stream.EndAccept(ar);
+#endif
+#if CORE
+			stream.AcceptAsync().Wait();
+#endif
 
-            if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
+			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
                 stream.ActivateEncryption(m_host,
                     this.ClientCertificates.Count > 0 ? this.ClientCertificates : null,
                     m_SslProtocols);
@@ -1418,7 +1433,8 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="path">The full or relative path of the file</param>
         /// <returns>A stream for reading the file on the server</returns>
-        /// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
+		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
+		[Obsolete("OpenRead is deprecated, please use DownloadFile instead.")]
         public Stream OpenRead(string path) {
             return OpenRead(path, FtpDataType.Binary, 0);
         }
@@ -1429,7 +1445,8 @@ namespace FluentFTP {
         /// <param name="path">The full or relative path of the file</param>
         /// <param name="type">ASCII/Binary</param>
         /// <returns>A stream for reading the file on the server</returns>
-        /// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
+		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
+		[Obsolete("OpenRead is deprecated, please use DownloadFile instead.")]
         public Stream OpenRead(string path, FtpDataType type) {
             return OpenRead(path, type, 0);
         }
@@ -1440,7 +1457,8 @@ namespace FluentFTP {
         /// <param name="path">The full or relative path of the file</param>
         /// <param name="restart">Resume location</param>
         /// <returns>A stream for reading the file on the server</returns>
-        /// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
+		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
+		[Obsolete("OpenRead is deprecated, please use DownloadFile instead.")]
         public Stream OpenRead(string path, long restart) {
             return OpenRead(path, FtpDataType.Binary, restart);
         }
@@ -1452,7 +1470,8 @@ namespace FluentFTP {
         /// <param name="type">ASCII/Binary</param>
         /// <param name="restart">Resume location</param>
         /// <returns>A stream for reading the file on the server</returns>
-        /// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
+		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
+		[Obsolete("OpenRead is deprecated, please use DownloadFile instead.")]
         public virtual Stream OpenRead(string path, FtpDataType type, long restart) {
             FtpClient client = null;
             FtpDataStream stream = null;
@@ -1562,7 +1581,8 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="path">Full or relative path of the file</param>
         /// <returns>A stream for writing to the file on the server</returns>
-        /// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
+		/// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
+		[Obsolete("OpenWrite is deprecated, please use UploadFile instead.")]
         public Stream OpenWrite(string path) {
             return OpenWrite(path, FtpDataType.Binary);
         }
@@ -1573,7 +1593,8 @@ namespace FluentFTP {
         /// <param name="path">Full or relative path of the file</param>
         /// <param name="type">ASCII/Binary</param>
         /// <returns>A stream for writing to the file on the server</returns>
-        /// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
+		/// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
+		[Obsolete("OpenWrite is deprecated, please use UploadFile instead.")]
         public virtual Stream OpenWrite(string path, FtpDataType type) {
             FtpClient client = null;
             FtpDataStream stream = null;
@@ -1651,7 +1672,8 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="path">The full or relative path to the file to be opened</param>
         /// <returns>A stream for writing to the file on the server</returns>
-        /// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
+		/// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
+		[Obsolete("OpenAppend is deprecated, please use UploadFile instead, or set EnableThreadSafeDataConnections = true to improve reliability.")]
         public Stream OpenAppend(string path) {
             return OpenAppend(path, FtpDataType.Binary);
         }
@@ -1662,7 +1684,8 @@ namespace FluentFTP {
         /// <param name="path">The full or relative path to the file to be opened</param>
         /// <param name="type">ASCII/Binary</param>
         /// <returns>A stream for writing to the file on the server</returns>
-        /// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
+		/// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
+		[Obsolete("OpenAppend is deprecated, please use UploadFile instead, or set EnableThreadSafeDataConnections = true to improve reliability.")]
         public virtual Stream OpenAppend(string path, FtpDataType type) {
             FtpClient client = null;
             FtpDataStream stream = null;
@@ -1780,7 +1803,7 @@ namespace FluentFTP {
 			// close the file stream
 			try {
 				fileStream.Close();
-			} catch (Exception ex) { }
+			} catch (Exception) { }
 			return ok;
 		}
 
@@ -1866,7 +1889,7 @@ namespace FluentFTP {
 			// close the file stream
 			try {
 				outStream.Close();
-			} catch (Exception ex) {}
+			} catch (Exception) {}
 			return ok;
 		}
 
@@ -1952,7 +1975,16 @@ namespace FluentFTP {
 				}
 
 				// disconnect FTP stream before exiting
+				while (upStream.Position < upStream.Length) {
+				}
 				upStream.Close();
+
+				// FIX : if this is not added, there appears to be "stale data" on the socket
+				// listen for a success/failure reply
+				if (!m_threadSafeDataChannels) {
+					FtpReply status = GetReply();
+				}
+
 				return true;
 
 			} catch (Exception ex1) {
@@ -1960,12 +1992,11 @@ namespace FluentFTP {
 				// close stream before throwing error
 				try {
 					upStream.Close();
-				} catch (Exception ex) { }
+				} catch (Exception) { }
 
 				// catch errors during upload
 				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
 			}
-			return false;
 		}
 
 		/// <summary>
@@ -1986,7 +2017,7 @@ namespace FluentFTP {
 					// close stream before throwing error
 					try {
 						downStream.Close();
-					} catch (Exception ex) { }
+					} catch (Exception) { }
 
 					throw new FtpException("Cannot download file since file has length of 0. Switch to binary mode using SetDataType() and try again.");
 				}
@@ -2024,6 +2055,12 @@ namespace FluentFTP {
 				// disconnect FTP stream before exiting
 				outStream.Flush();
 				downStream.Close();
+
+				// FIX : if this is not added, there appears to be "stale data" on the socket
+				// listen for a success/failure reply
+				if (!m_threadSafeDataChannels) {
+					FtpReply status = GetReply();
+				}
 				return true;
 
 
@@ -2032,7 +2069,7 @@ namespace FluentFTP {
 				// close stream before throwing error
 				try {
 					downStream.Close();
-				} catch (Exception ex) {}
+				} catch (Exception) {}
 
 				// absorb "file does not exist" exceptions and simply return false
 				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
@@ -2042,7 +2079,6 @@ namespace FluentFTP {
 				// catch errors during upload
 				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
 			}
-			return false;
 		}
 
 		#endregion
@@ -2254,6 +2290,7 @@ namespace FluentFTP {
 		/// the file listing can be fine tuned through this parameter.</param>
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
+		/// <param name="fastMode">An experimental fast mode that file listing is only requested for once. This improves bandwidth usage and response time.</param>
 		/// <returns>IAsyncResult</returns>
 		/// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
 		public IAsyncResult BeginDeleteDirectory(string path, bool force, FtpListOption options, bool fastMode, AsyncCallback callback, object state) {
@@ -3133,6 +3170,14 @@ namespace FluentFTP {
 
 		#region Misc Methods
 
+		private static string DecodeUrl(string url) {
+#if CORE
+			return WebUtility.UrlDecode(url);
+#else
+			return HttpUtility.UrlDecode(url);
+#endif
+		}
+
 		private static byte[] ReadToEnd(Stream stream, long maxLength, int chunkLen) {
 			int read = 1;
 			byte[] buffer = new byte[chunkLen];
@@ -3736,6 +3781,16 @@ namespace FluentFTP {
         /// </summary>
         public FtpClient() { }
 
+		private void ReadStaleData() {
+			if (m_stream != null && m_stream.SocketDataAvailable > 0) {
+				if (m_stream.IsConnected && !m_stream.IsEncrypted) {
+					byte[] buf = new byte[m_stream.SocketDataAvailable];
+					m_stream.RawSocketRead(buf);
+					FtpTrace.Write("The data was: ");
+					FtpTrace.WriteLine(Encoding.GetString(buf).TrimEnd('\r', '\n'));
+				}
+			}
+		}
 
 		#endregion
 
@@ -3772,10 +3827,10 @@ namespace FluentFTP {
                     if (parts.Length != 2)
                         throw new UriFormatException("The user info portion of the URI contains more than 1 colon. The username and password portion of the URI should be URL encoded.");
 
-                    cl.Credentials = new NetworkCredential(HttpUtility.UrlDecode(parts[0]), HttpUtility.UrlDecode(parts[1]));
+					cl.Credentials = new NetworkCredential(DecodeUrl(parts[0]), DecodeUrl(parts[1]));
                 }
                 else
-                    cl.Credentials = new NetworkCredential(HttpUtility.UrlDecode(uri.UserInfo), "");
+					cl.Credentials = new NetworkCredential(DecodeUrl(uri.UserInfo), "");
             }
             else {
                 // if no credentials were supplied just make up
