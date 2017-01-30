@@ -22,11 +22,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Passive and active data connections (PASV, EPSV, PORT and EPRT)
 - Synchronous and asynchronous methods (`IAsyncResult` pattern) for all operations 
 - Explicit and Implicit SSL connections are supported for the control and data connections using .NET's `SslStream`
-- SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
-
-### Implementation Notes
-
-- Improves thread safety by cloning the FTP control connection for file transfers (can be disabled)
+- Improves thread safety by cloning the FTP control connection for file transfers (optional)
 - Implements its own internal locking in an effort to keep transactions synchronized
 - Includes support for non-standard hashing/checksum commands when supported by the server
 - Easily issue any unsupported FTP command using the `Execute()` method with the exception of those requiring a data connection (file listings and transfers).
@@ -34,6 +30,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/hgupta9/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
 - Transaction logging using `TraceListeners` (passwords are automatically omitted)
 - Examples for nearly all methods (see [Examples](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples))
+- SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
 
 ## Releases
 
@@ -249,6 +246,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **IsClone** - Checks if this control connection is a clone. **Default:** false.
 
 - **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
+
 
 
 # Notes
