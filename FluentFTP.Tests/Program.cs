@@ -17,9 +17,9 @@ namespace Tests {
 
 
 		// SET THESE BEFORE RUNNING ANY TESTS!
-		static string m_host = "nayidisha.in";
-		static string m_user = "nayidish";
-		static string m_pass = "fIqzAusahpoCp8LXBHhN";
+		static string m_host = "";
+		static string m_user = "";
+		static string m_pass = "";
 
 
 		static void Main(string[] args) {
