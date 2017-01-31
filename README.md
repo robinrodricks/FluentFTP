@@ -195,6 +195,8 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 ## File Hashing
 
+**Standard commands supported by most servers**
+
 - **HashAlgorithms** - Get the hash types supported by the server, if any (represented by flags).
 
 - **GetHash**() - Gets the hash of an object on the server using the currently selected hash algorithm. Supported algorithms are available in the `HashAlgorithms` property. You should confirm that it's not equal to `FtpHashAlgorithm.NONE` (which means the server does not support the HASH command).
@@ -203,9 +205,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **SetHashAlgorithm**() - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
 
-**Non-standard commands supported by certain servers only**
-
-Please import `FluentFTP.Extensions` to use these.
+**Non-standard commands supported by certain servers only** <br> Please import `FluentFTP.Extensions` to use these.
 
 - **GetChecksum**() - Retrieves a checksum of the given file using a checksumming method that the server supports, if any. The algorithm used goes in this order : HASH, MD5, XMD5, XSHA1, XSHA256, XSHA512, XCRC.
 
