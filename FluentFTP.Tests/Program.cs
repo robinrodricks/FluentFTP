@@ -126,7 +126,7 @@ namespace Tests {
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Host = m_host;
 				cl.EncryptionMode = FtpEncryptionMode.None;
-				
+
 				cl.GetListing();
 				Console.WriteLine("Path listing succeeded");
 				cl.GetListing(null, FtpListOption.NoPath);
@@ -747,7 +747,7 @@ namespace Tests {
 				// 100 K file
 				cl.UploadFile(@"D:\Github\hgupta\FluentFTP\README.md", "/public_html/temp/README.md");
 				cl.DownloadFile(@"D:\Github\hgupta\FluentFTP\README2.md", "/public_html/temp/README.md");
-				
+
 				// 10 M file
 				cl.UploadFile(@"D:\Drivers\mb_driver_intel_irst_6series.exe", "/public_html/temp/big.txt");
 				cl.Rename("/public_html/temp/big.txt", "/public_html/temp/big2.txt");
