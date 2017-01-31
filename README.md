@@ -204,6 +204,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **SetHashAlgorithm**() - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
 
 **Non-standard commands supported by certain servers only**
+
 Please import `FluentFTP.Extensions` to use these.
 
 - **GetChecksum**() - Retrieves a checksum of the given file using a checksumming method that the server supports, if any. The algorithm used goes in this order : HASH, MD5, XMD5, XSHA1, XSHA256, XSHA512, XCRC.
@@ -261,14 +262,13 @@ Please import `FluentFTP.Extensions` to use these.
 
 - **StaleDataCheck** - Check if there is stale (unrequested data) sitting on the socket or not. In some cases the control connection may time out but before the server closes the connection it might send a 4xx response that was unexpected and can cause synchronization errors with transactions. To avoid this problem the Execute() method checks to see if there is any data available on the socket before executing a command. **Default:** true.
 
-- **EnableThreadSafeDataConnections** - Clone the control connection and establish another connection to the server for the data channel operation. This is a thread safe approach to make asynchronous operations on a single control connection transparent. Set this to `false` if your FTP server allows only one connection per username. **Default:** true.
-
 - **TransferChunkSize** - Chunk size (in bytes) used during upload/download of files. **Default:** 65536 (65 KB).
-
-- **IsClone** - Checks if this control connection is a clone. **Default:** false.
 
 - **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
 
+- **EnableThreadSafeDataConnections** - Creates a new FTP connection for every file download and upload. This is slower but is a thread safe approach to make asynchronous operations on a single control connection transparent. Set this to `false` if your FTP server allows only one connection per username. **Default:** false.
+
+- **IsClone** - Checks if this control connection is a clone. **Default:** false.
 
 
 # Notes
