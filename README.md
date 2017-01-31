@@ -177,17 +177,21 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **Rename**() - Renames the file/directory on the server.
 
-- **OpenRead**() - Low level. Open a stream to the specified file for reading. Returns a standard `Stream`.
+- **FileExists**() - Check if a file exists on the server.
 
-- **OpenWrite**() - Low level. Opens a stream to the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist.
-
-- **OpenAppend**() - Low level. Opens a stream to the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file.
+- **DirectoryExists**() - Check if a directory exists on the server.
 
 - **GetModifiedTime**() - Gets the last modified date/time of the file or folder.
 
-- **GetFileSize**() - Gets the size of the file in bytes.
+- **GetFileSize**() - Gets the size of the file in bytes, or -1 if not found.
 
 - **DereferenceLink**() - Recursively dereferences a symbolic link and returns the full path if found. The `MaximumDereferenceCount` property controls how deep we recurse before giving up.
+
+- **OpenRead**() - Low level. Not recommended for general usage. Open a stream to the specified file for reading. Returns a standard `Stream`.
+
+- **OpenWrite**() - Low level. Not recommended for general usage. Opens a stream to the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist.
+
+- **OpenAppend**() - Low level. Not recommended for general usage. Opens a stream to the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file.
 
 ## File Hashing
 
@@ -198,6 +202,24 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **GetHashAlgorithm**() - Query the server for the currently selected hash algorithm for the HASH command. 
 
 - **SetHashAlgorithm**() - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
+
+**Non-standard commands supported by certain servers only**
+Please import `FluentFTP.Extensions` to use these.
+
+- **GetChecksum**() - Retrieves a checksum of the given file using a checksumming method that the server supports, if any. The algorithm used goes in this order : HASH, MD5, XMD5, XSHA1, XSHA256, XSHA512, XCRC.
+
+- **GetMD5**() - Retrieves the MD5 checksum of the given file, if the server supports it.
+
+- **GetXMD5**() - Retrieves the MD5 checksum of the given file, if the server supports it.
+
+- **GetXSHA1**() - Retrieves the SHA1 checksum of the given file, if the server supports it.
+
+- **GetXSHA256**() - Retrieves the SHA256 checksum of the given file, if the server supports it.
+
+- **GetXSHA512**() - Retrieves the SHA512 checksum of the given file, if the server supports it.
+
+- **GetXCRC**() - Retrieves the CRC32 checksum of the given file, if the server supports it.
+
 
 ## FTPS
 
