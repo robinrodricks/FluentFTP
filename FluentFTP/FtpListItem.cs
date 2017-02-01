@@ -215,11 +215,31 @@ namespace FluentFTP {
 		/// <returns>A string value</returns>
 		public override string ToString() {
 			StringBuilder sb = new StringBuilder();
-
-			foreach (System.Reflection.PropertyInfo p in GetType().GetProperties()) {
-				sb.AppendLine(string.Format("{0}: {1}", p.Name, p.GetValue(this, null)));
+			if (Type == FtpFileSystemObjectType.File) {
+				sb.Append("FILE");
+			} else if (Type == FtpFileSystemObjectType.Directory) {
+				sb.Append("DIR ");
+			} else if (Type == FtpFileSystemObjectType.Link) {
+				sb.Append("LINK");
 			}
-
+			sb.Append("   ");
+			sb.Append(Name);
+			if (Type == FtpFileSystemObjectType.File) {
+				sb.Append("      ");
+				sb.Append("(");
+				sb.Append(FtpUtils.BytesToString(Size));
+				sb.Append(")");
+			}
+			if (Created != null && Created != DateTime.MinValue) {
+				sb.Append("      ");
+				sb.Append("Created : ");
+				sb.Append(Created.ToString());
+			}
+			if (Modified != null && Modified != DateTime.MinValue) {
+				sb.Append("      ");
+				sb.Append("Modified : ");
+				sb.Append(Modified.ToString());
+			}
 			return sb.ToString();
 		}
 
