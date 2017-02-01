@@ -2910,8 +2910,12 @@ namespace FluentFTP {
 					item = FtpListItem.Parse(path, buf, m_caps);
 					// FtpListItem.Parse() returns null if the line
 					// could not be parsed
-					if (item != null && (includeSelf || !(item.Name == "." || item.Name == ".."))) {
-						lst.Add(item);
+					if (item != null) {
+						if (includeSelf || !(item.Name == "." || item.Name == "..")) {
+							lst.Add(item);
+						} else {
+							FtpTrace.WriteLine("Skipped self or parent item: " + item.Name);
+						}
 					}else{
 						FtpTrace.WriteLine("Failed to parse file listing: " + buf);
 					}
