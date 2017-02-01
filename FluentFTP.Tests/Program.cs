@@ -61,7 +61,7 @@ namespace Tests {
 				//TestDispose();
 				//TestHash();
 
-				//TestNameListing();
+				TestNameListing();
 				//TestNameListingFTPS();
 
 				//TestOpenVMSParser();
@@ -91,7 +91,7 @@ namespace Tests {
 
 				//TestListPathWithHttp11Proxy();
 
-				TestUploadDownloadFile();
+				//TestUploadDownloadFile();
 
 				//TestUploadDownloadManyFiles();
 
