@@ -55,6 +55,7 @@
     <Compile Include="Extensions\XSHA1.cs" />
     <Compile Include="Extensions\XSHA256.cs" />
     <Compile Include="Extensions\XSHA512.cs" />
+    <Compile Include="FtpUtils.cs" />
     <Compile Include="Proxy\FtpClientHttp11Proxy.cs" />
     <Compile Include="Proxy\FtpClientProxy.cs" />
     <Compile Include="Proxy\FtpClientUserAtHostProxy.cs" />

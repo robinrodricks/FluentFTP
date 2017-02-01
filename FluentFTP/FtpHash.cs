@@ -68,18 +68,34 @@ namespace FluentFTP {
 
 				switch (m_algorithm) {
 					case FtpHashAlgorithm.SHA1:
+#if CORE
+						hashAlg = SHA1.Create();
+#else
 						hashAlg = new SHA1CryptoServiceProvider();
+#endif
 						break;
 #if !NET2
 					case FtpHashAlgorithm.SHA256:
+#if CORE
+						hashAlg = SHA256.Create();
+#else
 						hashAlg = new SHA256CryptoServiceProvider();
+#endif
 						break;
 					case FtpHashAlgorithm.SHA512:
+#if CORE
+						hashAlg = SHA512.Create();
+#else
 						hashAlg = new SHA512CryptoServiceProvider();
+#endif
 						break;
 #endif
 					case FtpHashAlgorithm.MD5:
+#if CORE
+						hashAlg = MD5.Create();
+#else
 						hashAlg = new MD5CryptoServiceProvider();
+#endif
 						break;
 					case FtpHashAlgorithm.CRC:
 						throw new NotImplementedException("There is no built in support for computing CRC hashes.");
