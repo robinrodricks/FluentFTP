@@ -2812,6 +2812,7 @@ namespace FluentFTP {
 			string listcmd = null;
 			string pwd = GetWorkingDirectory();
 			string buf = null;
+			bool includeSelf = (options & FtpListOption.IncludeSelfAndParent) == FtpListOption.IncludeSelfAndParent;
 
 			if (path == null || path.Trim().Length == 0) {
 				pwd = GetWorkingDirectory();
@@ -2909,10 +2910,11 @@ namespace FluentFTP {
 					item = FtpListItem.Parse(path, buf, m_caps);
 					// FtpListItem.Parse() returns null if the line
 					// could not be parsed
-					if (item != null && (item.Name != "." && item.Name != ".."))
+					if (item != null && (includeSelf || !(item.Name == "." || item.Name == ".."))) {
 						lst.Add(item);
-					else
+					}else{
 						FtpTrace.WriteLine("Failed to parse file listing: " + buf);
+					}
 				}
 
 				// load extended information that wasn't available if the list options flags say to do so.

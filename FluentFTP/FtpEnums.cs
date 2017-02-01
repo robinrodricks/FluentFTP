@@ -408,6 +408,12 @@ namespace FluentFTP {
 		/// Do not retrieve path when no path is supplied to GetListing(),
 		/// instead just execute LIST with no path argument.
 		/// </summary>
-		NoPath = 256
+		NoPath = 256,
+		/// <summary>
+		/// Include two extra items into the listing, for the current directory (".")
+		/// and the parent directory (".."). Meaningless unless you want these two
+		/// items for some reason.
+		/// </summary>
+		IncludeSelfAndParent = 512
 	}
 }
