@@ -8,7 +8,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 ## Features
 
 - Full support for FTP, FTPS (FTP over SSL) and [FTPS with client certificates](#client-certificates)
-- File and directory listing for [various servers](#file-listings) (UNIX, IIS, DOS, etc)
+- File and directory listing for [all major server types](#file-listings) (UNIX, IIS, DOS, etc)
 - Easily upload and download a file from the server
 - Easily read and write file data from the server using standard streams
 - Create, append, read, write, rename and delete files and folders
@@ -284,6 +284,8 @@ Please import `FluentFTP` to use these extension methods, or access them directl
 - **GetFtpFileName**(path) - Gets the file name and extension (if any) from the path
 
 - **GetFtpDate**(date, styles) - Tries to convert the string FTP date representation into a date time object
+
+- **FileSizeToString**(bytes) - Converts a file size in bytes to a string representation (eg. `12345` becomes `12.3 KB`)
 
 
 # Notes
