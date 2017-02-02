@@ -227,7 +227,7 @@ namespace FluentFTP {
 			if (Type == FtpFileSystemObjectType.File) {
 				sb.Append("      ");
 				sb.Append("(");
-				sb.Append(FtpUtils.BytesToString(Size));
+				sb.Append(Size.FileSizeToString());
 				sb.Append(")");
 			}
 			if (Created != null && Created != DateTime.MinValue) {
