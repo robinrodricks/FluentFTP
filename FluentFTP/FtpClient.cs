@@ -136,7 +136,6 @@ namespace FluentFTP {
 		/// to FtpIpVersion.IPv4 will cause the connection process to
 		/// ignore IPv6 addresses. The default value is ANY version.
 		/// </summary>
-		[FtpControlConnectionClone]
 		public FtpIpVersion InternetProtocolVersions {
 			get {
 				return m_ipVersions;
@@ -156,7 +155,6 @@ namespace FluentFTP {
 		/// interval to 0 disables Poll()'ing all together.
 		/// The default value is 15 seconds.
 		/// </summary>
-		[FtpControlConnectionClone]
 		public int SocketPollInterval {
 			get { return m_socketPollInterval; }
 			set {
@@ -182,7 +180,6 @@ namespace FluentFTP {
 		/// for more details about the Azure problem:
 		/// https://netftp.codeplex.com/discussions/535879
 		/// </summary>
-		[FtpControlConnectionClone]
 		public bool StaleDataCheck {
 			get { return m_staleDataTest; }
 			set { m_staleDataTest = value; }
@@ -207,7 +204,6 @@ namespace FluentFTP {
 		/// asynchronous operations on a single control connection transparent
 		/// to the developer.
 		/// </summary>
-		[FtpControlConnectionClone]
 		public bool EnableThreadSafeDataConnections {
 			get {
 				return m_threadSafeDataChannels;
@@ -244,7 +240,6 @@ namespace FluentFTP {
 		/// based on the FEAT list; if you change this value it's always used
 		/// regardless of what the server advertises, if anything.
 		/// </summary>
-		[FtpControlConnectionClone]
 		public Encoding Encoding {
 			get {
 				return m_textEncoding;
@@ -260,7 +255,6 @@ namespace FluentFTP {
 		/// <summary>
 		/// The server to connect to
 		/// </summary>
-		[FtpControlConnectionClone]
 		public string Host {
 			get {
 				return m_host;
@@ -276,7 +270,6 @@ namespace FluentFTP {
 		/// will be determined by the type of SSL used or if no SSL is to be used it 
 		/// will automatically connect to port 21.
 		/// </summary>
-		[FtpControlConnectionClone]
 		public int Port {
 			get {
 				// automatically determine port
@@ -302,7 +295,6 @@ namespace FluentFTP {
 		/// <summary>
 		/// Credentials used for authentication
 		/// </summary>
-		[FtpControlConnectionClone]
 		public NetworkCredential Credentials {
 			get {
 				return m_credentials;
@@ -322,7 +314,6 @@ namespace FluentFTP {
 		/// -1 here means inifinitly try to resolve a link. This is
 		/// not recommended for obvious reasons (stack overflow).
 		/// </summary>
-		[FtpControlConnectionClone]
 		public int MaximumDereferenceCount {
 			get {
 				return m_maxDerefCount;
@@ -336,7 +327,6 @@ namespace FluentFTP {
 		/// <summary>
 		/// Client certificates to be used in SSL authentication process
 		/// </summary>
-		[FtpControlConnectionClone]
 		public X509CertificateCollection ClientCertificates {
 			get {
 				return m_clientCerts;
@@ -355,7 +345,6 @@ namespace FluentFTP {
 		/// by defining a speicific type of passive or active data
 		/// connection here.
 		/// </summary>
-		[FtpControlConnectionClone]
 		public FtpDataConnectionType DataConnectionType {
 			get {
 				return m_dataConnectionType;
@@ -371,7 +360,6 @@ namespace FluentFTP {
 		/// work around IOExceptions caused by buggy connection resets
 		/// when closing the control connection.
 		/// </summary>
-		[FtpControlConnectionClone]
 		public bool UngracefullDisconnection {
 			get {
 				return m_ungracefullDisconnect;
@@ -386,7 +374,6 @@ namespace FluentFTP {
 		/// Gets or sets the length of time in miliseconds to wait for a connection 
 		/// attempt to succeed before giving up. Default is 15000 (15 seconds).
 		/// </summary>
-		[FtpControlConnectionClone]
 		public int ConnectTimeout {
 			get {
 				return m_connectTimeout;
@@ -401,7 +388,6 @@ namespace FluentFTP {
 		/// Gets or sets the length of time wait in miliseconds for data to be
 		/// read from the underlying stream. The default value is 15000 (15 seconds).
 		/// </summary>
-		[FtpControlConnectionClone]
 		public int ReadTimeout {
 			get {
 				return m_readTimeout;
@@ -416,7 +402,6 @@ namespace FluentFTP {
 		/// Gets or sets the length of time in miliseconds for a data connection
 		/// to be established before giving up. Default is 15000 (15 seconds).
 		/// </summary>
-		[FtpControlConnectionClone]
 		public int DataConnectionConnectTimeout {
 			get {
 				return m_dataConnectionConnectTimeout;
@@ -432,7 +417,6 @@ namespace FluentFTP {
 		/// should wait for the server to send data. Default value is 
 		/// 15000 (15 seconds).
 		/// </summary>
-		[FtpControlConnectionClone]
 		public int DataConnectionReadTimeout {
 			get {
 				return m_dataConnectionReadTimeout;
@@ -451,7 +435,6 @@ namespace FluentFTP {
 		/// all future data streams. It has no affect on cloned control connections or
 		/// data connections already in progress. The default value is false.
 		/// </summary>
-		[FtpControlConnectionClone]
 		public bool SocketKeepAlive {
 			get {
 				return m_keepAlive;
@@ -467,7 +450,6 @@ namespace FluentFTP {
 		/// <summary>
 		/// Gets the server capabilties represented by flags
 		/// </summary>
-		[FtpControlConnectionClone]
 		public FtpCapability Capabilities {
 			get {
 				if (m_stream == null || !m_stream.IsConnected) {
@@ -506,7 +488,6 @@ namespace FluentFTP {
 		/// <summary>
 		/// Type of SSL to use, or none. Default is none. Explicit is TLS, Implicit is SSL.
 		/// </summary>
-		[FtpControlConnectionClone]
 		public FtpEncryptionMode EncryptionMode {
 			get {
 				return m_encryptionmode;
@@ -521,7 +502,6 @@ namespace FluentFTP {
 		/// Indicates if data channel transfers should be encrypted. Only valid if EncryptionMode
 		/// property is not equal to FtpSslMode.None.
 		/// </summary>
-		[FtpControlConnectionClone]
 		public bool DataConnectionEncryption {
 			get {
 				return m_dataConnectionEncryption;
@@ -536,7 +516,6 @@ namespace FluentFTP {
 		/// Encryption protocols to use. Only valid if EncryptionMode property is not equal to FtpSslMode.None.
 		/// Default value is .NET Framework defaults from SslStream class.
 		/// </summary>
-		[FtpControlConnectionClone]
 		public SslProtocols SslProtocols {
 			get {
 				return m_SslProtocols;
@@ -589,7 +568,6 @@ namespace FluentFTP {
 		/// Gets or sets the number of bytes transfered in a single chunk (a single FTP command).
 		/// Used by UploadFile() and DownloadFile() to transfer large files in multiple chunks.
 		/// </summary>
-		[FtpControlConnectionClone]
 		public int TransferChunkSize {
 			get {
 				return m_transferChunkSize;
@@ -598,6 +576,9 @@ namespace FluentFTP {
 				m_transferChunkSize = value;
 			}
 		}
+
+		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
+		// FtpClient.CloneConnection()
 
 		#endregion
 
@@ -669,13 +650,38 @@ namespace FluentFTP {
 
 			conn.m_isClone = true;
 
-			foreach (PropertyInfo prop in GetType().GetProperties()) {
+			// configure new connection as clone of self
+			conn.InternetProtocolVersions = InternetProtocolVersions;
+			conn.SocketPollInterval = SocketPollInterval;
+			conn.StaleDataCheck = StaleDataCheck;
+			conn.EnableThreadSafeDataConnections = EnableThreadSafeDataConnections;
+			conn.Encoding = Encoding;
+			conn.Host = Host;
+			conn.Port = Port;
+			conn.Credentials = Credentials;
+			conn.MaximumDereferenceCount = MaximumDereferenceCount;
+			conn.ClientCertificates = ClientCertificates;
+			conn.DataConnectionType = DataConnectionType;
+			conn.UngracefullDisconnection = UngracefullDisconnection;
+			conn.ConnectTimeout = ConnectTimeout;
+			conn.ReadTimeout = ReadTimeout;
+			conn.DataConnectionConnectTimeout = DataConnectionConnectTimeout;
+			conn.DataConnectionReadTimeout = DataConnectionReadTimeout;
+			conn.SocketKeepAlive = SocketKeepAlive;
+			conn.Capabilities = Capabilities;
+			conn.EncryptionMode = EncryptionMode;
+			conn.DataConnectionEncryption = DataConnectionEncryption;
+			conn.SslProtocols = SslProtocols;
+			conn.TransferChunkSize = TransferChunkSize;
+
+			// copy props using attributes (slower, not .NET core compatible)
+			/*foreach (PropertyInfo prop in GetType().GetProperties()) {
 				object[] attributes = prop.GetCustomAttributes(typeof(FtpControlConnectionClone), true);
 
 				if (attributes.Length > 0) {
 					prop.SetValue(conn, prop.GetValue(this, null), null);
 				}
-			}
+			}*/
 
 			// always accept certificate no matter what because if code execution ever
 			// gets here it means the certificate on the control connection object being
@@ -1286,7 +1292,9 @@ namespace FluentFTP {
 			// otherwise things can get out of sync.
 			stream.CommandStatus = reply;
 
-#if !CORE
+#if CORE
+			stream.AcceptAsync().Wait();
+#else
 			ar.AsyncWaitHandle.WaitOne(m_dataConnectionConnectTimeout);
 			if (!ar.IsCompleted) {
 				stream.Close();
@@ -1294,9 +1302,6 @@ namespace FluentFTP {
 			}
 
 			stream.EndAccept(ar);
-#endif
-#if CORE
-			stream.AcceptAsync().Wait();
 #endif
 
 			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
@@ -1737,8 +1742,9 @@ namespace FluentFTP {
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public bool UploadFile(string localPath, string remotePath, bool overwrite = true) {
+		public bool UploadFile(string localPath, string remotePath, bool overwrite = true, bool createRemoteDir = false) {
 
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
@@ -1763,7 +1769,7 @@ namespace FluentFTP {
 			}
 
 			// write the file onto the server
-			bool ok = UploadFileInternal(fileStream, remotePath);
+			bool ok = UploadFileInternal(fileStream, remotePath, createRemoteDir);
 
 			// close the file stream
 			try {
@@ -1780,8 +1786,9 @@ namespace FluentFTP {
 		/// <param name="fileData">The full data of the file, as a bytearray</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public bool UploadFile(byte[] fileData, string remotePath, bool overwrite = true) {
+		public bool UploadFile(byte[] fileData, string remotePath, bool overwrite = true, bool createRemoteDir = false) {
 
 			// skip uploading if the remote file exists
 			if (!overwrite && FileExists(remotePath)) {
@@ -1791,7 +1798,7 @@ namespace FluentFTP {
 			// write the file onto the server
 			MemoryStream ms = new MemoryStream(fileData);
 			ms.Position = 0;
-			return UploadFileInternal(ms, remotePath);
+			return UploadFileInternal(ms, remotePath, createRemoteDir);
 		}
 
 		/// <summary>
@@ -1802,8 +1809,9 @@ namespace FluentFTP {
 		/// <param name="fileStream">The full data of the file, as a stream</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public bool UploadFile(Stream fileStream, string remotePath, bool overwrite = true) {
+		public bool UploadFile(Stream fileStream, string remotePath, bool overwrite = true, bool createRemoteDir = false) {
 
 			// skip uploading if the remote file exists
 			if (!overwrite && FileExists(remotePath)) {
@@ -1811,7 +1819,7 @@ namespace FluentFTP {
 			}
 
 			// write the file onto the server
-			return UploadFileInternal(fileStream, remotePath);
+			return UploadFileInternal(fileStream, remotePath, createRemoteDir);
 		}
 
 		/// <summary>
@@ -1899,10 +1907,18 @@ namespace FluentFTP {
 		/// Upload the given stream to the server as a new file. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private bool UploadFileInternal(Stream fileData, string remotePath) {
+		private bool UploadFileInternal(Stream fileData, string remotePath, bool createRemoteDir) {
 			Stream upStream = null;
 
 			try {
+
+				// ensure the remote dir exists
+				if (createRemoteDir) {
+					string dirname = remotePath.GetFtpDirectoryName();
+					if (!DirectoryExists(dirname)) {
+						CreateDirectory(dirname);
+					}
+				}
 
 				// open a file write connection
 				upStream = OpenWrite(remotePath);
@@ -3941,13 +3957,6 @@ namespace FluentFTP {
 			if (uri.PathAndQuery.EndsWith("/")) {
 				throw new UriFormatException("The supplied URI points at a directory.");
 			}
-		}
-
-		/// <summary>
-		/// Used internally to mark properties in the control connection that
-		/// should be cloned when opening a data connection.
-		/// </summary>
-		sealed class FtpControlConnectionClone : Attribute {
 		}
 
 		#endregion

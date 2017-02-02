@@ -8,6 +8,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace FluentFTP {
 	/// <summary>
@@ -430,13 +431,16 @@ namespace FluentFTP {
 				return 0;
 
 			m_lastActivity = DateTime.Now;
+#if CORE
+			return BaseStream.ReadAsync(buffer, offset, count).Result;
+#else
 			ar = BaseStream.BeginRead(buffer, offset, count, null, null);
 			if (!ar.AsyncWaitHandle.WaitOne(m_readTimeout, true)) {
 				Close();
 				throw new TimeoutException("Timed out trying to read data from the socket stream!");
 			}
-
 			return BaseStream.EndRead(ar);
+#endif
 		}
 
 		/// <summary>
@@ -495,7 +499,11 @@ namespace FluentFTP {
 		/// <summary>
 		/// Disconnects from server
 		/// </summary>
+#if CORE
+		public void Close() {
+#else
 		public override void Close() {
+#endif
 			if (m_socket != null) {
 				try {
 					if (m_socket.Connected) {
@@ -503,7 +511,11 @@ namespace FluentFTP {
 						// Calling Shutdown() with mono causes an
 						// exception if the remote host closed first
 						//m_socket.Shutdown(SocketShutdown.Both);
+#if CORE
+						m_socket.Dispose();
+#else
 						m_socket.Close();
+#endif
 					}
 
 #if !NET2
@@ -557,7 +569,11 @@ namespace FluentFTP {
 		/// <param name="ipVersions">Internet Protocol versions to support durring the connection phase</param>
 		public void Connect(string host, int port, FtpIpVersion ipVersions) {
 			IAsyncResult ar = null;
+#if CORE
+			IPAddress[] addresses = Dns.GetHostAddressesAsync(host).Result;
+#else
 			IPAddress[] addresses = Dns.GetHostAddresses(host);
+#endif
 
 			if (ipVersions == 0)
 				throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.");
@@ -591,6 +607,9 @@ namespace FluentFTP {
 				}
 
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+#if CORE
+				m_socket.ConnectAsync(addresses[i], port).Wait();
+#else
 				ar = m_socket.BeginConnect(addresses[i], port, null, null);
 				if (!ar.AsyncWaitHandle.WaitOne(m_connectTimeout, true)) {
 					Close();
@@ -605,6 +624,7 @@ namespace FluentFTP {
 					// of the loop.
 					break;
 				}
+#endif
 			}
 
 			// make sure that we actually connected to
@@ -625,7 +645,11 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="targethost">The host to authenticate the certiciate against</param>
 		public void ActivateEncryption(string targethost) {
+#if CORE
+			ActivateEncryption(targethost, null, SslProtocols.Tls11 | SslProtocols.Ssl3);
+#else
 			ActivateEncryption(targethost, null, SslProtocols.Default);
+#endif
 		}
 
 		/// <summary>
@@ -636,7 +660,11 @@ namespace FluentFTP {
 		/// <param name="targethost">The host to authenticate the certiciate against</param>
 		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
 		public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts) {
+#if CORE
+			ActivateEncryption(targethost, clientCerts, SslProtocols.Tls11 | SslProtocols.Ssl3);
+#else
 			ActivateEncryption(targethost, clientCerts, SslProtocols.Default);
+#endif
 		}
 
 		/// <summary>
@@ -667,7 +695,11 @@ namespace FluentFTP {
 					}));
 
 				auth_start = DateTime.Now;
+#if CORE
+				m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, true).Wait();
+#else
 				m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, true);
+#endif
 
 				auth_time_total = DateTime.Now.Subtract(auth_start);
 				FtpTrace.WriteLine("Time to activate encryption: {0}h {1}m {2}s, Total Seconds: {3}.",
@@ -708,6 +740,13 @@ namespace FluentFTP {
 				m_socket = m_socket.Accept();
 		}
 
+#if CORE
+		public async Task AcceptAsync() {
+			if (m_socket != null) {
+				m_socket = await m_socket.AcceptAsync();
+			}
+		}
+#else
 		/// <summary>
 		/// Asynchronously accepts a connection from a listening socket
 		/// </summary>
@@ -730,5 +769,8 @@ namespace FluentFTP {
 				m_netStream = new NetworkStream(m_socket);
 			}
 		}
+#endif
+
+
 	}
 }
