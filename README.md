@@ -271,6 +271,21 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **IsClone** - Checks if this control connection is a clone. **Default:** false.
 
 
+## Utilities
+
+Please import `FluentFTP` to use these extension methods, or access them directly under the `FtpExtensions` class.
+
+- **GetFtpPath**(path) - Converts the specified local file/directory path into a valid FTP file system path
+
+- **GetFtpPath**(path, segments) - Creates a valid FTP path by appending the specified segments to this string
+
+- **GetFtpDirectoryName**(path) - Gets the directory name of a path formatted for a FTP server
+
+- **GetFtpFileName**(path) - Gets the file name and extension (if any) from the path
+
+- **GetFtpDate**(date, styles) - Tries to convert the string FTP date representation into a date time object
+
+
 # Notes
 ## Stream Handling
 
