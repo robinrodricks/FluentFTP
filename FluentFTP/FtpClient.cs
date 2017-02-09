@@ -1410,7 +1410,6 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the file</param>
 		/// <returns>A stream for reading the file on the server</returns>
 		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
-		[Obsolete("OpenRead is deprecated, please use DownloadFile instead.")]
 		public Stream OpenRead(string path) {
 			return OpenRead(path, FtpDataType.Binary, 0);
 		}
@@ -1422,7 +1421,6 @@ namespace FluentFTP {
 		/// <param name="type">ASCII/Binary</param>
 		/// <returns>A stream for reading the file on the server</returns>
 		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
-		[Obsolete("OpenRead is deprecated, please use DownloadFile instead.")]
 		public Stream OpenRead(string path, FtpDataType type) {
 			return OpenRead(path, type, 0);
 		}
@@ -1434,7 +1432,6 @@ namespace FluentFTP {
 		/// <param name="restart">Resume location</param>
 		/// <returns>A stream for reading the file on the server</returns>
 		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
-		[Obsolete("OpenRead is deprecated, please use DownloadFile instead.")]
 		public Stream OpenRead(string path, long restart) {
 			return OpenRead(path, FtpDataType.Binary, restart);
 		}
@@ -1447,7 +1444,6 @@ namespace FluentFTP {
 		/// <param name="restart">Resume location</param>
 		/// <returns>A stream for reading the file on the server</returns>
 		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
-		[Obsolete("OpenRead is deprecated, please use DownloadFile instead.")]
 		public virtual Stream OpenRead(string path, FtpDataType type, long restart) {
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1556,7 +1552,6 @@ namespace FluentFTP {
 		/// <param name="path">Full or relative path of the file</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		/// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
-		[Obsolete("OpenWrite is deprecated, please use UploadFile instead.")]
 		public Stream OpenWrite(string path) {
 			return OpenWrite(path, FtpDataType.Binary);
 		}
@@ -1568,7 +1563,6 @@ namespace FluentFTP {
 		/// <param name="type">ASCII/Binary</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		/// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
-		[Obsolete("OpenWrite is deprecated, please use UploadFile instead.")]
 		public virtual Stream OpenWrite(string path, FtpDataType type) {
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1645,7 +1639,6 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the file to be opened</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		/// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
-		[Obsolete("OpenAppend is deprecated, please use UploadFile instead, or set EnableThreadSafeDataConnections = true to improve reliability.")]
 		public Stream OpenAppend(string path) {
 			return OpenAppend(path, FtpDataType.Binary);
 		}
@@ -1657,7 +1650,6 @@ namespace FluentFTP {
 		/// <param name="type">ASCII/Binary</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		/// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
-		[Obsolete("OpenAppend is deprecated, please use UploadFile instead, or set EnableThreadSafeDataConnections = true to improve reliability.")]
 		public virtual Stream OpenAppend(string path, FtpDataType type) {
 			FtpClient client = null;
 			FtpDataStream stream = null;
