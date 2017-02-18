@@ -61,7 +61,7 @@ namespace Tests {
 				//TestDispose();
 				//TestHash();
 
-				TestNameListing();
+				//TestNameListing();
 				//TestNameListingFTPS();
 
 				//TestOpenVMSParser();
@@ -94,6 +94,8 @@ namespace Tests {
 				//TestUploadDownloadFile();
 
 				//TestUploadDownloadManyFiles();
+
+				TestUploadDownloadZeroLenFile();
 
 			} catch (Exception ex) {
 				Console.WriteLine(ex.ToString());
@@ -778,6 +780,19 @@ namespace Tests {
 				}
 
 				Console.WriteLine(" ------------- ALL DONE! ------------------");
+
+			}
+		}
+
+		static void TestUploadDownloadZeroLenFile() {
+
+			using (FtpClient cl = new FtpClient()) {
+				cl.Host = m_host;
+				cl.Credentials = new NetworkCredential(m_user, m_pass);
+
+				// 0 KB file
+				cl.UploadFile(@"D:\zerolen.txt", "/public_html/temp/zerolen.txt");
+				cl.DownloadFile(@"D:\zerolen2.txt", "/public_html/temp/zerolen.txt");
 
 			}
 		}
