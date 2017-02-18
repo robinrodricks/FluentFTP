@@ -577,6 +577,8 @@ namespace FluentFTP {
 			}
 		}
 
+		private FtpDataType CurrentDataType;
+
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
 		// FtpClient.CloneConnection()
 
@@ -1985,41 +1987,46 @@ namespace FluentFTP {
 				// exit if file length not available
 				downStream = OpenRead(remotePath);
 				long fileLen = downStream.Length;
-				if (fileLen == 0) {
+				if (fileLen == 0 && CurrentDataType == FtpDataType.ASCII) {
 
 					// close stream before throwing error
 					try {
 						downStream.Close();
 					} catch (Exception) { }
 
-					throw new FtpException("Cannot download file since file has length of 0. Switch to binary mode using SetDataType() and try again.");
+					throw new FtpException("Cannot download file since file has length of 0. Use the FtpDataType.Binary data type and try again.");
 				}
 
-				// loop till entire file downloaded
-				byte[] buffer = new byte[TransferChunkSize];
-				long offset = 0;
-				while (offset < fileLen) {
-					try {
+				// only write data if we have any
+				if (fileLen > 0) {
 
-						// read a chunk of bytes from the FTP stream
-						int readBytes = 1;
-						while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
+					// loop till entire file downloaded
+					byte[] buffer = new byte[TransferChunkSize];
+					long offset = 0;
+					while (offset < fileLen) {
+						try {
 
-							// write chunk to output stream
-							outStream.Write(buffer, 0, readBytes);
-							offset += readBytes;
-						}
+							// read a chunk of bytes from the FTP stream
+							int readBytes = 1;
+							while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
 
-					} catch (IOException ex) {
+								// write chunk to output stream
+								outStream.Write(buffer, 0, readBytes);
+								offset += readBytes;
+							}
 
-						// resume if server disconnects midway (fixes #39)
-						if (ex.InnerException != null) {
-							var ie = ex.InnerException as System.Net.Sockets.SocketException;
-							if (ie != null && ie.ErrorCode == 10054) {
-								downStream.Close();
-								downStream = OpenRead(remotePath, restart: offset);
+						} catch (IOException ex) {
+
+							// resume if server disconnects midway (fixes #39)
+							if (ex.InnerException != null) {
+								var ie = ex.InnerException as System.Net.Sockets.SocketException;
+								if (ie != null && ie.ErrorCode == 10054) {
+									downStream.Close();
+									downStream = OpenRead(remotePath, restart: offset);
+								} else throw;
 							} else throw;
-						} else throw;
+
+						}
 
 					}
 
@@ -3185,6 +3192,9 @@ namespace FluentFTP {
 						throw new FtpException("Unsupported data type: " + type.ToString());
 				}
 			}
+
+			CurrentDataType = type;
+
 		}
 
 		delegate void AsyncSetDataType(FtpDataType type);
