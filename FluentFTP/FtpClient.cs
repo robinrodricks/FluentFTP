@@ -14,6 +14,7 @@ using FluentFTP.Extensions;
 using System.Security.Authentication;
 using System.Net;
 using System.Threading.Tasks;
+using FluentFTP.Proxy;
 #if !CORE
 using System.Web;
 #endif
@@ -1745,11 +1746,18 @@ namespace FluentFTP {
 				return false;
 			}
 
-			// skip uploading if the remote file exists
-			if (!overwrite && FileExists(remotePath)) {
-				return false;
-			}
+			// check if the remote file exists (always)
+			if (FileExists(remotePath)) {
 
+				// skip uploading if the remote file exists
+				if (!overwrite) {
+					return false;
+				}
+
+				// delete file before uploading (also fixes #46)
+				DeleteFile(remotePath);
+			}
+			
 			FileStream fileStream;
 			try {
 
@@ -1784,15 +1792,24 @@ namespace FluentFTP {
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
 		public bool UploadFile(byte[] fileData, string remotePath, bool overwrite = true, bool createRemoteDir = false) {
 
-			// skip uploading if the remote file exists
-			if (!overwrite && FileExists(remotePath)) {
-				return false;
+			// check if the remote file exists (always)
+			if (FileExists(remotePath)) {
+
+				// skip uploading if the remote file exists
+				if (!overwrite) {
+					return false;
+				}
+
+				// delete file before uploading (also fixes #46)
+				DeleteFile(remotePath);
 			}
 
 			// write the file onto the server
 			MemoryStream ms = new MemoryStream(fileData);
 			ms.Position = 0;
-			return UploadFileInternal(ms, remotePath, createRemoteDir);
+			bool ok = UploadFileInternal(ms, remotePath, createRemoteDir);
+            ms.Dispose();
+            return ok;
 		}
 
 		/// <summary>
@@ -1807,9 +1824,16 @@ namespace FluentFTP {
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
 		public bool UploadFile(Stream fileStream, string remotePath, bool overwrite = true, bool createRemoteDir = false) {
 
-			// skip uploading if the remote file exists
-			if (!overwrite && FileExists(remotePath)) {
-				return false;
+			// check if the remote file exists (always)
+			if (FileExists(remotePath)) {
+
+				// skip uploading if the remote file exists
+				if (!overwrite) {
+					return false;
+				}
+
+				// delete file before uploading (also fixes #46)
+				DeleteFile(remotePath);
 			}
 
 			// write the file onto the server
@@ -1949,9 +1973,32 @@ namespace FluentFTP {
 					}
 				}
 
-				// disconnect FTP stream before exiting
+				// wait for while transfer to get over
 				while (upStream.Position < upStream.Length) {
 				}
+
+				// fixes #30. the file can have some bytes at the end missing
+				// on proxy servers, so we write those missing bytes now.
+				if (IsProxy()) {
+					if (upStream.Position < len && fileData.CanSeek) {
+
+						// seek to the point of the file
+						fileData.Seek(upStream.Position, SeekOrigin.Begin);
+
+						// read a chunk of bytes from the file
+						offset = upStream.Position;
+						int readBytes;
+						while ((readBytes = fileData.Read(buffer, 0, buffer.Length)) > 0) {
+
+							// write chunk to the FTP stream
+							upStream.Write(buffer, 0, readBytes);
+							upStream.Flush();
+							offset += readBytes;
+						}
+					}
+				}
+
+				// disconnect FTP stream before exiting
 				upStream.Close();
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
@@ -1997,40 +2044,48 @@ namespace FluentFTP {
 					throw new FtpException("Cannot download file since file has length of 0. Use the FtpDataType.Binary data type and try again.");
 				}
 
-				// only write data if we have any
-				if (fileLen > 0) {
 
-					// loop till entire file downloaded
-					byte[] buffer = new byte[TransferChunkSize];
-					long offset = 0;
-					while (offset < fileLen) {
-						try {
+				// if the server has not reported a length for this file
+				// we use an alternate method to download it - read until EOF
+				bool readToEnd = (fileLen == 0);
 
-							// read a chunk of bytes from the FTP stream
-							int readBytes = 1;
-							while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
 
-								// write chunk to output stream
-								outStream.Write(buffer, 0, readBytes);
-								offset += readBytes;
-							}
+				// loop till entire file downloaded
+				byte[] buffer = new byte[TransferChunkSize];
+				long offset = 0;
+				while (offset < fileLen || readToEnd) {
+					try {
 
-						} catch (IOException ex) {
+						// read a chunk of bytes from the FTP stream
+						int readBytes = 1;
+						while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
 
-							// resume if server disconnects midway (fixes #39)
-							if (ex.InnerException != null) {
-								var ie = ex.InnerException as System.Net.Sockets.SocketException;
-								if (ie != null && ie.ErrorCode == 10054) {
-									downStream.Close();
-									downStream = OpenRead(remotePath, restart: offset);
-								} else throw;
-							} else throw;
-
+							// write chunk to output stream
+							outStream.Write(buffer, 0, readBytes);
+							offset += readBytes;
 						}
+
+						// if we reach here means EOF encountered
+						// stop if we are in "read until EOF" mode
+						if (readToEnd) {
+							break;
+						}
+
+					} catch (IOException ex) {
+
+						// resume if server disconnects midway (fixes #39)
+						if (ex.InnerException != null) {
+							var ie = ex.InnerException as System.Net.Sockets.SocketException;
+							if (ie != null && ie.ErrorCode == 10054) {
+								downStream.Close();
+								downStream = OpenRead(remotePath, restart: offset);
+							} else throw;
+						} else throw;
 
 					}
 
 				}
+					
 
 				// disconnect FTP stream before exiting
 				outStream.Flush();
@@ -3746,6 +3801,10 @@ namespace FluentFTP {
 					FtpTrace.WriteLine(Encoding.GetString(buf).TrimEnd('\r', '\n'));
 				}
 			}
+		}
+
+		private bool IsProxy() {
+			return (this is FtpClientProxy);
 		}
 
 		#endregion
