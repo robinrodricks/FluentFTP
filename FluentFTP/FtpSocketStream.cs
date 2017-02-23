@@ -425,7 +425,9 @@ namespace FluentFTP {
 		/// <param name="count">Number of bytes to be read</param>
 		/// <returns></returns>
 		public override int Read(byte[] buffer, int offset, int count) {
+#if !CORE
 			IAsyncResult ar = null;
+#endif
 
 			if (BaseStream == null)
 				return 0;
@@ -568,7 +570,9 @@ namespace FluentFTP {
 		/// <param name="port">The port to connect to</param>
 		/// <param name="ipVersions">Internet Protocol versions to support durring the connection phase</param>
 		public void Connect(string host, int port, FtpIpVersion ipVersions) {
+#if !CORE
 			IAsyncResult ar = null;
+#endif
 #if CORE
 			IPAddress[] addresses = Dns.GetHostAddressesAsync(host).Result;
 #else

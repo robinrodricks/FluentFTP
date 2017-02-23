@@ -512,7 +512,11 @@ namespace FluentFTP {
 			}
 		}
 
+#if CORE
+		private SslProtocols m_SslProtocols = SslProtocols.Tls11 | SslProtocols.Ssl3;
+#else
 		private SslProtocols m_SslProtocols = SslProtocols.Default;
+#endif
 		/// <summary>
 		/// Encryption protocols to use. Only valid if EncryptionMode property is not equal to FtpSslMode.None.
 		/// Default value is .NET Framework defaults from SslStream class.
@@ -583,9 +587,9 @@ namespace FluentFTP {
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
 		// FtpClient.CloneConnection()
 
-		#endregion
+#endregion
 
-		#region Core
+#region Core
 
 		/// <summary>
 		/// Performs a bitwise and to check if the specified
@@ -628,12 +632,16 @@ namespace FluentFTP {
 					throw new InvalidOperationException("The specified IAsyncResult could not be located.");
 
 				if (!(m_asyncmethods[ar] is T)) {
+#if CORE
+					throw new InvalidCastException("The AsyncResult cannot be matched to the specified delegate. ");
+#else
 					StackTrace st = new StackTrace(1);
 
 					throw new InvalidCastException("The AsyncResult cannot be matched to the specified delegate. " +
 						string.Format("Are you sure you meant to call {0} and not another method?",
 						st.GetFrame(0).GetMethod().Name)
 					);
+#endif
 				}
 
 				func = (T)m_asyncmethods[ar];
@@ -697,6 +705,10 @@ namespace FluentFTP {
 			return conn;
 		}
 
+		/// <summary>
+		/// Creates a new instance of this class. Useful in FTP proxy classes.
+		/// </summary>
+		/// <returns></returns>
 		protected virtual FtpClient Create() {
 			return new FtpClient();
 		}
@@ -827,9 +839,9 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncExecute>(ar).EndInvoke(ar);
 		}
 
-		#endregion
+#endregion
 
-		#region Connection
+#region Connection
 
 		/// <summary>
 		/// Connect to the server. Throws ObjectDisposedException if this object has been disposed.
@@ -915,10 +927,17 @@ namespace FluentFTP {
 			}
 		}
 
+		/// <summary>
+		/// Connect to the FTP server. Overwritten in proxy classes.
+		/// </summary>
+		/// <param name="stream"></param>
 		protected virtual void Connect(FtpSocketStream stream) {
 			stream.Connect(Host, Port, InternetProtocolVersions);
 		}
 
+		/// <summary>
+		/// Connect to the FTP server. Overwritten in proxy classes.
+		/// </summary>
 		protected virtual void Connect(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions) {
 			stream.Connect(host, port, ipVersions);
 		}
@@ -1129,9 +1148,9 @@ namespace FluentFTP {
 			GetAsyncDelegate<AsyncDisconnect>(ar).EndInvoke(ar);
 		}
 
-		#endregion
+#endregion
 
-		#region File I/O
+#region File I/O
 
 		/// <summary>
 		/// Opens the specified type of passive data stream
@@ -1725,9 +1744,9 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncOpenAppend>(ar).EndInvoke(ar);
 		}
 
-		#endregion
+#endregion
 
-		#region File Upload/Download
+#region File Upload/Download
 
 		/// <summary>
 		/// Uploads the specified file directly onto the server.
@@ -1775,7 +1794,7 @@ namespace FluentFTP {
 
 			// close the file stream
 			try {
-				fileStream.Close();
+				fileStream.Dispose();
 			} catch (Exception) { }
 			return ok;
 		}
@@ -1879,7 +1898,7 @@ namespace FluentFTP {
 
 			// close the file stream
 			try {
-				outStream.Close();
+				outStream.Dispose();
 			} catch (Exception) { }
 			return ok;
 		}
@@ -1963,8 +1982,13 @@ namespace FluentFTP {
 						// resume if server disconnects midway (fixes #39)
 						if (ex.InnerException != null) {
 							var iex = ex.InnerException as System.Net.Sockets.SocketException;
-							if (iex != null && iex.ErrorCode == 10054) {
-								upStream.Close();
+#if CORE
+							int code = (int)iex.SocketErrorCode;
+#else
+							int code = iex.ErrorCode;
+#endif
+							if (iex != null && code == 10054) {
+								upStream.Dispose();
 								upStream = OpenAppend(remotePath);
 								upStream.Position = offset;
 							} else throw;
@@ -1977,16 +2001,33 @@ namespace FluentFTP {
 				while (upStream.Position < upStream.Length) {
 				}
 
+				// disconnect FTP stream before exiting
+				upStream.Dispose();
+
+				// FIX : if this is not added, there appears to be "stale data" on the socket
+				// listen for a success/failure reply
+				if (!m_threadSafeDataChannels) {
+					FtpReply status = GetReply();
+				}
+
 				// fixes #30. the file can have some bytes at the end missing
 				// on proxy servers, so we write those missing bytes now.
 				if (IsProxy()) {
-					if (upStream.Position < len && fileData.CanSeek) {
 
-						// seek to the point of the file
-						fileData.Seek(upStream.Position, SeekOrigin.Begin);
+					// get the current length of the remote file
+					// and check if any bytes are missing
+					long curLen = GetFileSize(remotePath);
+					if (curLen > 0 && curLen < len && fileData.CanSeek) {
+
+						// seek to the point of the local file
+						offset = curLen;
+						fileData.Position = offset;
+
+						// open the remote file for appending
+						upStream = OpenAppend(remotePath, FtpDataType.Binary);
+						upStream.Position = offset;
 
 						// read a chunk of bytes from the file
-						offset = upStream.Position;
 						int readBytes;
 						while ((readBytes = fileData.Read(buffer, 0, buffer.Length)) > 0) {
 
@@ -1995,16 +2036,16 @@ namespace FluentFTP {
 							upStream.Flush();
 							offset += readBytes;
 						}
+
+						// disconnect FTP stream before exiting
+						upStream.Dispose();
+
+						// FIX : if this is not added, there appears to be "stale data" on the socket
+						// listen for a success/failure reply
+						if (!m_threadSafeDataChannels) {
+							FtpReply status = GetReply();
+						}
 					}
-				}
-
-				// disconnect FTP stream before exiting
-				upStream.Close();
-
-				// FIX : if this is not added, there appears to be "stale data" on the socket
-				// listen for a success/failure reply
-				if (!m_threadSafeDataChannels) {
-					FtpReply status = GetReply();
 				}
 
 				return true;
@@ -2013,7 +2054,7 @@ namespace FluentFTP {
 
 				// close stream before throwing error
 				try {
-					upStream.Close();
+					upStream.Dispose();
 				} catch (Exception) { }
 
 				// catch errors during upload
@@ -2038,7 +2079,7 @@ namespace FluentFTP {
 
 					// close stream before throwing error
 					try {
-						downStream.Close();
+						downStream.Dispose();
 					} catch (Exception) { }
 
 					throw new FtpException("Cannot download file since file has length of 0. Use the FtpDataType.Binary data type and try again.");
@@ -2076,8 +2117,13 @@ namespace FluentFTP {
 						// resume if server disconnects midway (fixes #39)
 						if (ex.InnerException != null) {
 							var ie = ex.InnerException as System.Net.Sockets.SocketException;
-							if (ie != null && ie.ErrorCode == 10054) {
-								downStream.Close();
+#if CORE
+							int code = (int)ie.SocketErrorCode;
+#else
+							int code = ie.ErrorCode;
+#endif
+							if (ie != null && code == 10054) {
+								downStream.Dispose();
 								downStream = OpenRead(remotePath, restart: offset);
 							} else throw;
 						} else throw;
@@ -2089,7 +2135,7 @@ namespace FluentFTP {
 
 				// disconnect FTP stream before exiting
 				outStream.Flush();
-				downStream.Close();
+				downStream.Dispose();
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
@@ -2103,7 +2149,7 @@ namespace FluentFTP {
 
 				// close stream before throwing error
 				try {
-					downStream.Close();
+					downStream.Dispose();
 				} catch (Exception) { }
 
 				// absorb "file does not exist" exceptions and simply return false
@@ -2116,9 +2162,9 @@ namespace FluentFTP {
 			}
 		}
 
-		#endregion
+#endregion
 
-		#region File Management
+#region File Management
 
 		/// <summary>
 		/// Deletes a file on the server
@@ -2640,9 +2686,9 @@ namespace FluentFTP {
 		}
 
 
-		#endregion
+#endregion
 
-		#region Link Dereferencing
+#region Link Dereferencing
 
 		/// <summary>
 		/// Recursively dereferences a symbolic link. See the
@@ -2756,9 +2802,9 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncDereferenceLink>(ar).EndInvoke(ar);
 		}
 
-		#endregion
+#endregion
 
-		#region File Listing
+#region File Listing
 
 		/// <summary>
 		/// Returns information about a file system object. You should check the Capabilities
@@ -3088,9 +3134,9 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetListing>(ar).EndInvoke(ar);
 		}
 
-		#endregion
+#endregion
 
-		#region Name Listing
+#region Name Listing
 
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command.
@@ -3195,9 +3241,9 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetNameListing>(ar).EndInvoke(ar);
 		}
 
-		#endregion
+#endregion
 
-		#region Misc Methods
+#region Misc Methods
 
 		private static string DecodeUrl(string url) {
 #if CORE
@@ -3807,9 +3853,9 @@ namespace FluentFTP {
 			return (this is FtpClientProxy);
 		}
 
-		#endregion
+#endregion
 
-		#region Static API
+#region Static API
 
 		/// <summary>
 		/// Connects to the specified URI. If the path specified by the URI ends with a
@@ -4020,7 +4066,7 @@ namespace FluentFTP {
 			}
 		}
 
-		#endregion
+#endregion
 
 	}
 }
