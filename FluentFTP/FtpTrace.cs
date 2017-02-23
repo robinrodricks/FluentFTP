@@ -11,7 +11,11 @@ namespace FluentFTP {
 	/// <code source="..\Examples\Debug.cs" lang="cs" />
 	/// </example>
 	public static class FtpTrace {
+
+
+#if !CORE
 		static List<TraceListener> m_listeners = new List<TraceListener>();
+
 
 		static bool m_flushOnWrite = false;
 
@@ -27,6 +31,7 @@ namespace FluentFTP {
 				m_flushOnWrite = value;
 			}
 		}
+
 
 		/// <summary>
 		/// Add a TraceListner to the collection. You can use one of the predefined
@@ -51,6 +56,8 @@ namespace FluentFTP {
 			}
 		}
 
+#endif
+
 		/// <summary>
 		/// Write to the TraceListeners.
 		/// </summary>
@@ -65,16 +72,19 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="message">The message to write</param>
 		public static void Write(string message) {
+#if !CORE
 			TraceListener[] listeners;
 
 			lock (m_listeners) {
 				listeners = m_listeners.ToArray();
 			}
+#endif
 
 #if DEBUG
 			Debug.Write(message);
 #endif
 
+#if !CORE
 			foreach (TraceListener t in listeners) {
 				t.Write(message);
 
@@ -82,6 +92,7 @@ namespace FluentFTP {
 					t.Flush();
 				}
 			}
+#endif
 		}
 
 		/// <summary>
