@@ -180,7 +180,11 @@ namespace FluentFTP {
 		/// </summary>
 		public bool IsEncrypted {
 			get {
+#if CORE
+				return false;
+#else
 				return m_sslStream != null;
+#endif
 			}
 		}
 
@@ -197,6 +201,7 @@ namespace FluentFTP {
 			}
 		}
 
+#if !CORE
 		SslStream m_sslStream = null;
 		/// <summary>
 		/// The encrypted stream
@@ -209,16 +214,22 @@ namespace FluentFTP {
 				m_sslStream = value;
 			}
 		}
+#endif
 
 		/// <summary>
 		/// Underlying stream, could be a NetworkStream or SslStream
 		/// </summary>
 		protected Stream BaseStream {
 			get {
+#if CORE
+				if (m_netStream != null)
+					return m_netStream;
+#else
 				if (m_sslStream != null)
 					return m_sslStream;
 				else if (m_netStream != null)
 					return m_netStream;
+#endif
 
 				return null;
 			}
@@ -540,6 +551,7 @@ namespace FluentFTP {
 				}
 			}
 
+#if !CORE
 			if (m_sslStream != null) {
 				try {
 					m_sslStream.Dispose();
@@ -549,6 +561,7 @@ namespace FluentFTP {
 					m_sslStream = null;
 				}
 			}
+#endif
 		}
 
 		/// <summary>
@@ -570,12 +583,10 @@ namespace FluentFTP {
 		/// <param name="port">The port to connect to</param>
 		/// <param name="ipVersions">Internet Protocol versions to support durring the connection phase</param>
 		public void Connect(string host, int port, FtpIpVersion ipVersions) {
-#if !CORE
-			IAsyncResult ar = null;
-#endif
 #if CORE
 			IPAddress[] addresses = Dns.GetHostAddressesAsync(host).Result;
 #else
+			IAsyncResult ar = null;
 			IPAddress[] addresses = Dns.GetHostAddresses(host);
 #endif
 
@@ -642,6 +653,7 @@ namespace FluentFTP {
 			m_lastActivity = DateTime.Now;
 		}
 
+#if !CORE
 		/// <summary>
 		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event. 
 		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -649,13 +661,15 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="targethost">The host to authenticate the certiciate against</param>
 		public void ActivateEncryption(string targethost) {
-#if CORE
+//#if CORE
 			ActivateEncryption(targethost, null, SslProtocols.Tls11 | SslProtocols.Ssl3);
-#else
+//#else
 			ActivateEncryption(targethost, null, SslProtocols.Default);
-#endif
+//#endif
 		}
+#endif
 
+#if !CORE
 		/// <summary>
 		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
 		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -664,13 +678,15 @@ namespace FluentFTP {
 		/// <param name="targethost">The host to authenticate the certiciate against</param>
 		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
 		public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts) {
-#if CORE
+//#if CORE
 			ActivateEncryption(targethost, clientCerts, SslProtocols.Tls11 | SslProtocols.Ssl3);
-#else
+//#else
 			ActivateEncryption(targethost, clientCerts, SslProtocols.Default);
-#endif
+			//#endif
 		}
+#endif
 
+#if !CORE
 		/// <summary>
 		/// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
 		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -699,11 +715,11 @@ namespace FluentFTP {
 					}));
 
 				auth_start = DateTime.Now;
-#if CORE
+//#if CORE
 				m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, true).Wait();
-#else
+//#else
 				m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, true);
-#endif
+//#endif
 
 				auth_time_total = DateTime.Now.Subtract(auth_start);
 				FtpTrace.WriteLine("Time to activate encryption: {0}h {1}m {2}s, Total Seconds: {3}.",
@@ -720,6 +736,7 @@ namespace FluentFTP {
 				throw ex;
 			}
 		}
+#endif
 
 		/// <summary>
 		/// Instructs this stream to listen for connections on the specified address and port
