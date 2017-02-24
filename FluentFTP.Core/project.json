@@ -1,0 +1,25 @@
+﻿{
+  "id": "FluentFTP.Core",
+  "version": "1.0.0-*",
+  "title": "FluentFTP",
+  "authors": [ "J.P. Trosclair", "Harsh Gupta" ],
+  "owners": [ "Harsh Gupta" ],
+  "projectUrl": "https://github.com/hgupta9/FluentFTP",
+  "description": "Easy to use FTP client supporting FTP, SSL and TLS",
+  "copyright": "MIT License",
+  "language": "en-US",
+
+  "dependencies": {
+    "NETStandard.Library": "1.6.0",
+    "Microsoft.Extensions.Logging.TraceSource": "1.0.0",
+    "System.Net.Security": "4.3.0",
+    "System.Net.NameResolution": "4.3.0",
+    "System.Security.Cryptography.Algorithms": "4.3.0"
+  },
+
+  "frameworks": {
+    "netstandard1.6": {
+      "imports": "dnxcore50"
+    }
+  }
+}
