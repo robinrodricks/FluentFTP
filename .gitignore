@@ -11,9 +11,12 @@ Help
 .gitignore
 NuGetPackages
 Releases
+project.lock.json
+project.multitarget.json
 
 API_Reference_HTML.shfbproj_jp
 CHM
 HTML
 API_Reference_CHM.shfbproj_jp
 .DS_Store
+.vs

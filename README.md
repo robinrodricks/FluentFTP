@@ -39,6 +39,15 @@ Stable binaries are released on NuGet, and contain everything you need to use FT
 - [Nuget](https://www.nuget.org/packages/FluentFTP) (latest)
 - [Releases](https://github.com/hgupta9/FluentFTP/releases) (occasionally updated)
 
+FluentFTP works on .NET and .NET Core.
+
+| Platform      		| Binaries Folder	| Solution                  	|
+|---------------		|-----------		|---------------------------	|
+| **.NET 2.0**      	| net20     		| FluentFTP_NET_VS2012.sln  	|
+| **.NET 4.0**      	| net40     		| FluentFTP_NET_VS2012.sln  	|
+| **.NET Core 5.0** 	| dnxcore50 		| FluentFTP_Core_VS2015.sln 	|
+| **.NET Standard 1.6** | netstandard1.6	| FluentFTP_Core_VS2015.sln 	|
+
 ## Example Usage
 
 ```csharp
@@ -97,6 +106,12 @@ client.Disconnect();
 ```
 	
 See more examples [here](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples).
+
+## Credits
+
+- [J.P. Trosclair](https://github.com/jptrosclair) - Original creator, owner upto 2016
+- [Harsh Gupta](https://github.com/hgupta9) - Owner from 2016 onwards
+- Atif Aziz & Joseph Albahari - LINQBridge (allows LINQ in .NET 2.0)
 
 
 # Documentation

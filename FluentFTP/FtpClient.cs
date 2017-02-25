@@ -13,7 +13,6 @@ using System.Globalization;
 using FluentFTP.Extensions;
 using System.Security.Authentication;
 using System.Net;
-using System.Threading.Tasks;
 using FluentFTP.Proxy;
 #if !CORE
 using System.Web;
@@ -875,7 +874,7 @@ namespace FluentFTP {
 				m_stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket,
 					System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
-#if !CORE
+#if !NO_SSL
 				if (EncryptionMode == FtpEncryptionMode.Implicit)
 					m_stream.ActivateEncryption(Host,
 						m_clientCerts.Count > 0 ? m_clientCerts : null,
@@ -884,7 +883,7 @@ namespace FluentFTP {
 
 				Handshake();
 
-#if !CORE
+#if !NO_SSL
 				if (EncryptionMode == FtpEncryptionMode.Explicit) {
 					if (!(reply = Execute("AUTH TLS")).Success)
 						throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
@@ -1231,7 +1230,7 @@ namespace FluentFTP {
 			// otherwise things can get out of sync.
 			stream.CommandStatus = reply;
 
-#if !CORE
+#if !NO_SSL
 			// this needs to take place after the command is executed
 			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
 				stream.ActivateEncryption(m_host,
@@ -1332,7 +1331,7 @@ namespace FluentFTP {
 			stream.EndAccept(ar);
 #endif
 
-#if !CORE
+#if !NO_SSL
 			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
 				stream.ActivateEncryption(m_host,
 					this.ClientCertificates.Count > 0 ? this.ClientCertificates : null,
