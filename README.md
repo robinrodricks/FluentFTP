@@ -107,13 +107,6 @@ client.Disconnect();
 	
 See more examples [here](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples).
 
-## Credits
-
-- [J.P. Trosclair](https://github.com/jptrosclair) - Original creator, owner upto 2016
-- [Harsh Gupta](https://github.com/hgupta9) - Owner from 2016 onwards
-- Atif Aziz & Joseph Albahari - LINQBridge (allows LINQ in .NET 2.0)
-
-
 # Documentation
 
 Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS functionality.
@@ -442,3 +435,10 @@ When doing a large number of transfers, one needs to be aware of some inherit is
 This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is signaled by closing the connection. On downloads and file listings, the sockets being used on the server will stay in the TIME WAIT state because the server closes the socket when it's done sending the data. On uploads, the client sockets will go into the TIME WAIT state because the client closes the connection to signal EOF to the server.
 
 RFC959 defines another data mode called block that allows persistent data connections but it is not implemented by this library and will not be in the foreseeable future. Support for block transfers on the server side of things is not that common. I know IIS supports them however I cannot name a single other server that implements MODE B. I cannot justify making an already complicated process more so by adding in a feature that just isn't that likely to be used.
+
+
+# Credits
+
+- [J.P. Trosclair](https://github.com/jptrosclair) - Original creator, owner upto 2016
+- [Harsh Gupta](https://github.com/hgupta9) - Owner and maintainer from 2016 onwards
+- [Atif Aziz](https://github.com/atifaziz) & Joseph Albahari - LINQBridge (allows LINQ in .NET 2.0)
