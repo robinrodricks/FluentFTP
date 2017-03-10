@@ -1,6 +1,6 @@
 @echo off
 
-set msbuild=%SystemRoot%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe
+REM set msbuild=%SystemRoot%\Microsoft.NET\Framework\v4.0.30319\msbuild.exe
 set nuget=C:\Tools\Nuget\nuget.exe
 
 REM rd /q /s FluentFTP\bin

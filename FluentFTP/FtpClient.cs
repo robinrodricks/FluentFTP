@@ -232,6 +232,7 @@ namespace FluentFTP {
 		}
 
 		Encoding m_textEncoding = Encoding.ASCII;
+		bool m_textEncodingAutoUTF = true;
 		/// <summary>
 		/// Gets or sets the text encoding being used when talking with the server. The default
 		/// value is Encoding.ASCII however upon connection, the client checks
@@ -247,6 +248,7 @@ namespace FluentFTP {
 			set {
 				lock (m_lock) {
 					m_textEncoding = value;
+					m_textEncodingAutoUTF = false;
 				}
 			}
 		}
@@ -915,7 +917,7 @@ namespace FluentFTP {
 				}
 
 				// Enable UTF8 if the encoding is ASCII and UTF8 is supported
-				if (m_textEncoding == Encoding.ASCII && HasFeature(FtpCapability.UTF8)) {
+				if (m_textEncodingAutoUTF && m_textEncoding == Encoding.ASCII && HasFeature(FtpCapability.UTF8)) {
 					m_textEncoding = Encoding.UTF8;
 				}
 
@@ -1753,6 +1755,138 @@ namespace FluentFTP {
 
 #endregion
 
+#region Multi File Upload/Download
+
+		/// <summary>
+		/// Uploads the given file paths to a single folder on the server.
+		/// All files are placed directly into the given folder regardless of their path on the local filesystem.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it uploads data in chunks.
+		/// Faster than uploading single files with UploadFile() since it performs a single "file exists" check rather than one check per file.
+		/// </summary>
+		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
+		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
+		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
+		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
+		public int UploadFiles(string[] localPaths, string remoteDir, bool overwrite = true, bool createRemoteDir = true) {
+
+			int count = 0;
+
+			// ensure ends with slash
+			remoteDir = !remoteDir.EndsWith("/") ? remoteDir + "/" : remoteDir;
+
+			// create remote dir if wanted
+			if (createRemoteDir) {
+				if (!DirectoryExists(remoteDir)) {
+					CreateDirectory(remoteDir);
+				}
+			}
+
+			// get all the already existing files
+			string[] existingFiles = GetNameListing(remoteDir);
+
+			// per local file
+			foreach (string localPath in localPaths) {
+
+				// calc remote path
+				string fileExt = Path.GetFileName(localPath);
+				string remotePath = remoteDir + fileExt;
+
+				// check if the remote file exists (always)
+				if (existingFiles.Contains(fileExt)) {
+
+					// skip uploading if the remote file exists
+					if (!overwrite) {
+						continue;
+					}
+
+					// delete file before uploading (also fixes #46)
+					DeleteFile(remotePath);
+				}
+
+				// try to upload it
+				try {
+					bool ok = UploadFileFromFile(localPath, remotePath, false);
+					if (ok) {
+						count++;
+					}
+				} catch (Exception ex) {
+				}
+
+			}
+
+			return count;
+		}
+
+		/// <summary>
+		/// Uploads the given file paths to a single folder on the server.
+		/// All files are placed directly into the given folder regardless of their path on the local filesystem.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it uploads data in chunks.
+		/// Faster than uploading single files with UploadFile() since it performs a single "file exists" check rather than one check per file.
+		/// </summary>
+		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
+		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
+		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
+		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
+		public int UploadFiles(List<string> localPaths, string remoteDir, bool overwrite = true, bool createRemoteDir = true) {
+			return UploadFiles(localPaths.ToArray(), remoteDir, overwrite, createRemoteDir);
+		}
+
+		/// <summary>
+		/// Downloads the specified files into a local single directory.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// Same speed as DownloadFile().
+		/// </summary>
+		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
+		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
+		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
+		public int DownloadFiles(string localDir, string[] remotePaths, bool overwrite = true) {
+			
+			int count = 0;
+
+			// ensure ends with slash
+			localDir = !localDir.EndsWith(Path.DirectorySeparatorChar.ToString()) ? localDir + Path.DirectorySeparatorChar.ToString() : localDir;
+
+			foreach (string remotePath in remotePaths) {
+
+				// calc local path
+				string localPath = localDir + remotePath.GetFtpFileName();
+				
+				// try to download it
+				try {
+					bool ok = DownloadFileToFile(localPath, remotePath, overwrite);
+					if (ok) {
+						count++;
+					}
+				} catch (Exception ex) {
+				}
+
+			}
+			
+			return count;
+		}
+
+		/// <summary>
+		/// Downloads the specified files into a local single directory.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// Same speed as DownloadFile().
+		/// </summary>
+		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
+		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
+		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
+		public int DownloadFiles(string localDir, List<string> remotePaths, bool overwrite = true) {
+			return DownloadFiles(localDir, remotePaths.ToArray(), overwrite);
+		}
+
+#endregion
+
 #region File Upload/Download
 
 		/// <summary>
@@ -1764,8 +1898,9 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="overwrite">Overwrite the file if it already exists?</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+		/// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public bool UploadFile(string localPath, string remotePath, bool overwrite = true, bool createRemoteDir = false) {
+		public bool UploadFile(string localPath, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
 
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
@@ -1773,7 +1908,7 @@ namespace FluentFTP {
 			}
 
 			// check if the remote file exists (always)
-			if (FileExists(remotePath)) {
+			if (checkFileExistance && FileExists(remotePath)) {
 
 				// skip uploading if the remote file exists
 				if (!overwrite) {
@@ -1783,7 +1918,11 @@ namespace FluentFTP {
 				// delete file before uploading (also fixes #46)
 				DeleteFile(remotePath);
 			}
-			
+
+			return UploadFileFromFile(localPath, remotePath, createRemoteDir);
+		}
+
+		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir) {
 			FileStream fileStream;
 			try {
 
@@ -1815,11 +1954,12 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="overwrite">Overwrite the file if it already exists?</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+		/// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public bool UploadFile(byte[] fileData, string remotePath, bool overwrite = true, bool createRemoteDir = false) {
+		public bool UploadFile(byte[] fileData, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
 
 			// check if the remote file exists (always)
-			if (FileExists(remotePath)) {
+			if (checkFileExistance && FileExists(remotePath)) {
 
 				// skip uploading if the remote file exists
 				if (!overwrite) {
@@ -1847,11 +1987,12 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="overwrite">Overwrite the file if it already exists?</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+		/// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public bool UploadFile(Stream fileStream, string remotePath, bool overwrite = true, bool createRemoteDir = false) {
+		public bool UploadFile(Stream fileStream, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
 
 			// check if the remote file exists (always)
-			if (FileExists(remotePath)) {
+			if (checkFileExistance && FileExists(remotePath)) {
 
 				// skip uploading if the remote file exists
 				if (!overwrite) {
@@ -1876,6 +2017,10 @@ namespace FluentFTP {
 		/// <param name="overwrite">Overwrite the file if it already exists?</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public bool DownloadFile(string localPath, string remotePath, bool overwrite = true) {
+			return DownloadFileToFile(localPath, remotePath, overwrite);
+		}
+
+		private bool DownloadFileToFile(string localPath, string remotePath, bool overwrite) {
 
 			// skip downloading if the local file exists
 			if (!overwrite && File.Exists(localPath)) {
@@ -3792,6 +3937,7 @@ namespace FluentFTP {
 					throw new FtpCommandException(reply);
 
 				m_textEncoding = Encoding.ASCII;
+				m_textEncodingAutoUTF = false;
 			}
 		}
 

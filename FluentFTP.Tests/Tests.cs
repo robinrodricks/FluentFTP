@@ -95,7 +95,11 @@ namespace Tests {
 
 				//TestUploadDownloadManyFiles();
 
-				TestUploadDownloadZeroLenFile();
+				//TestUploadDownloadZeroLenFile();
+
+				//TestListSpacedPath();
+
+				TestUploadDownloadManyFiles2();
 
 			} catch (Exception ex) {
 				Console.WriteLine(ex.ToString());
@@ -751,11 +755,12 @@ namespace Tests {
 				cl.UploadFile(@"D:\Github\hgupta\FluentFTP\README.md", "/public_html/temp/README.md");
 				cl.DownloadFile(@"D:\Github\hgupta\FluentFTP\README2.md", "/public_html/temp/README.md");
 
+				/*
 				// 10 M file
 				cl.UploadFile(@"D:\Drivers\mb_driver_intel_irst_6series.exe", "/public_html/temp/big.txt");
 				cl.Rename("/public_html/temp/big.txt", "/public_html/temp/big2.txt");
 				cl.DownloadFile(@"D:\Drivers\mb_driver_intel_irst_6series_2.exe", "/public_html/temp/big2.txt");
-
+				*/
 			}
 		}
 
@@ -784,6 +789,26 @@ namespace Tests {
 			}
 		}
 
+		static void TestUploadDownloadManyFiles2() {
+
+			using (FtpClient cl = new FtpClient()) {
+				cl.Host = m_host;
+				cl.Credentials = new NetworkCredential(m_user, m_pass);
+				cl.EnableThreadSafeDataConnections = false;
+				cl.Connect();
+
+				// upload many
+				cl.UploadFiles(new string[] { @"D:\Drivers\test\file0.exe", @"D:\Drivers\test\file1.exe", @"D:\Drivers\test\file2.exe", @"D:\Drivers\test\file3.exe", @"D:\Drivers\test\file4.exe" }, "/public_html/temp/", false);
+
+				// download many
+				cl.DownloadFiles(@"D:\Drivers\test\", new string[] { @"/public_html/temp/file0.exe", @"/public_html/temp/file1.exe", @"/public_html/temp/file2.exe", @"/public_html/temp/file3.exe", @"/public_html/temp/file4.exe" }, false);
+
+				Console.WriteLine(" ------------- ALL DONE! ------------------");
+
+				cl.Dispose();
+			}
+		}
+
 		static void TestUploadDownloadZeroLenFile() {
 
 			using (FtpClient cl = new FtpClient()) {
@@ -796,5 +821,22 @@ namespace Tests {
 
 			}
 		}
+
+
+		static void TestListSpacedPath() {
+			using (FtpClient cl = new FtpClient()) {
+				cl.Host = m_host;
+				cl.Credentials = new NetworkCredential(m_user, m_pass);
+				cl.EncryptionMode = FtpEncryptionMode.Explicit;
+				cl.ValidateCertificate += (control, e) => {
+					e.Accept = true;
+				};
+
+				foreach (FtpListItem i in cl.GetListing("/public_html/temp/spaced folder/")) {
+					Console.WriteLine(i.FullName);
+				}
+			}
+		}
+
 	}
 }

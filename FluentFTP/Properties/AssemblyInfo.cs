@@ -20,7 +20,7 @@ using System.Resources;
 // - Change MINOR when new features are added
 // - CHANGE REVISION when fixes / very minor features are made
 
-[assembly: AssemblyVersion("16.2.4")]
+[assembly: AssemblyVersion("16.2.5")]
 
 // The following attributes are used to specify the signing key for the assembly, 
 // if desired. See the Mono documentation for more information about signing.

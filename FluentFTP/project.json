@@ -1,7 +1,7 @@
 {
   "authors": [ "J.P. Trosclair", "Harsh Gupta" ],
   "description": "An FTP and FTPS library for .NET, optimized for speed. Provides extensive FTP commands, file uploads/downloads, SSL/TLS connections and FTP proxies.",
-  "version": "16.2.3",
+  "version": "16.2.5",
   "dependencies": {
 	"NETStandard.Library": "1.6.0",
 	"System.IO": "4.3.0.0",

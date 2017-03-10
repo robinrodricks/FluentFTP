@@ -80,7 +80,7 @@ namespace FluentFTP {
 		}*/
 
 		/// <summary>
-		/// Gets the file name from the path
+		/// Gets the file name and extension from the path
 		/// </summary>
 		/// <param name="path">The full path to the file</param>
 		/// <returns>The file name</returns>
