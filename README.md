@@ -161,7 +161,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 	- `SpecialPermissions` : Gets special permissions such as Stiky, SUID and SGID. **(*NIX only)**
 
-	- `Chmod` : All file permissions in a single 'chmod' style number. For example 644 or 755. **Default:** `0` if not provided by server. **(*NIX only)**
+	- `Chmod` : The CHMOD permissions of the object. For example 644 or 755. **Default:** `0` if not provided by server. **(*NIX only)**
 
 	- `OwnerPermissions` : User rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server. **(*NIX only)**
 
@@ -217,7 +217,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **GetFilePermissions**() - Gets the permissions of the given file/folder as an FtpListItem object with all "Permission" properties set, or null if not found.
 
-*Only supported by UNIX servers* <br> *Please ensure that the CHMOD extension is installed and enabled on your FTP server to use these.*
+*Only supported by UNIX FTP servers which have the CHMOD extension installed and enabled.*
 
 - **Chmod**() - Modifies the permissions of the given file/folder, given the CHMOD value.
 
