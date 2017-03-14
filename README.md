@@ -14,10 +14,12 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Create, append, read, write, rename and delete files and folders
 - Recursively deletes folders and all its contents
 - Get file/folder info (exists, size, security flags, modified date/time)
+- Get and set file permissions (owner, group, other)
 - Absolute or relative paths (relative to the "working directory")
 - Get the hash/checksum of a file (SHA-1, SHA-256, SHA-512, and MD5)
 - Supports DrFTPD's PRET command
 - Supports FTP Proxies (User@Host, HTTP 1.1)
+- Supports SITE CHMOD command (Unix only)
 - Dereferencing of symbolic links
 - Passive and active data connections (PASV, EPSV, PORT and EPRT)
 - Synchronous and asynchronous methods (`IAsyncResult` pattern) for all operations 
@@ -45,8 +47,8 @@ FluentFTP works on .NET and .NET Core.
 |---------------		|-----------		|---------------------------	|
 | **.NET 2.0**      	| net20     		| FluentFTP_NET_VS2012.sln  	|
 | **.NET 4.0**      	| net40     		| FluentFTP_NET_VS2012.sln  	|
-| **.NET Core 5.0** 	| dnxcore50 		| FluentFTP_Core_VS2015.sln 	|
-| **.NET Standard 1.6** | netstandard1.6	| FluentFTP_Core_VS2015.sln 	|
+| **.NET Core 5.0** 	| dnxcore50 		| FluentFTP_Core_VS2017.sln 	|
+| **.NET Standard 1.6** | netstandard1.6	| FluentFTP_Core_VS2017.sln 	|
 
 ## Example Usage
 

@@ -28,7 +28,16 @@
 			<group targetFramework=".NETFramework4.0">
 			</group>
 			
-			<group targetFramework=".NETStandard1.5">
+			<group targetFramework="DNXCore5.0">
+				<dependency id="System.Runtime" version="4.3.0" />
+				<dependency id="System.Collections" version="4.3.0" />
+				<dependency id="System.IO" version="4.3.0" />
+				<dependency id="System.Net.NameResolution" version="4.3.0" />
+				<dependency id="System.Net.Sockets" version="4.3.0" />
+				<dependency id="System.Net.Security" version="4.3.0" />
+			</group>
+			
+			<group targetFramework=".NETStandard1.6">
 				<dependency id="System.Runtime" version="4.3.0" />
 				<dependency id="System.Collections" version="4.3.0" />
 				<dependency id="System.IO" version="4.3.0" />
