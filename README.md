@@ -211,13 +211,11 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 ## File Permissions
 
-*Standard commands supported by most servers*
+*Only supported by UNIX FTP servers which have the CHMOD extension installed and enabled.*
 
 - **GetChmod**() - Gets the CHMOD permissions of the file/folder, or 0 if not found.
 
 - **GetFilePermissions**() - Gets the permissions of the given file/folder as an FtpListItem object with all "Permission" properties set, or null if not found.
-
-*Only supported by UNIX FTP servers which have the CHMOD extension installed and enabled.*
 
 - **Chmod**() - Modifies the permissions of the given file/folder, given the CHMOD value.
 
