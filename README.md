@@ -211,13 +211,13 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 ## File Permissions
 
-**Standard commands supported by most servers**
+*Standard commands supported by most servers*
 
 - **GetChmod**() - Gets the CHMOD permissions of the file/folder, or 0 if not found.
 
 - **GetFilePermissions**() - Gets the permissions of the given file/folder as an FtpListItem object with all "Permission" properties set, or null if not found.
 
-**Only supported by UNIX servers** <br> Please ensure that the CHMOD extension is installed and enabled on your FTP server to use these.
+*Only supported by UNIX servers* <br> *Please ensure that the CHMOD extension is installed and enabled on your FTP server to use these.*
 
 - **Chmod**() - Modifies the permissions of the given file/folder, given the CHMOD value.
 
@@ -226,7 +226,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 ## File Hashing
 
-**Standard commands supported by most servers**
+*Standard commands supported by most servers*
 
 - **HashAlgorithms** - Get the hash types supported by the server, if any (represented by flags).
 
@@ -236,7 +236,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **SetHashAlgorithm**() - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
 
-**Non-standard commands supported by certain servers only** <br> Please import `FluentFTP.Extensions` to use these.
+*Non-standard commands supported by certain servers only* <br> *Please import `FluentFTP.Extensions` to use these.*
 
 - **GetChecksum**() - Retrieves a checksum of the given file using a checksumming method that the server supports, if any. The algorithm used goes in this order : HASH, MD5, XMD5, XSHA1, XSHA256, XSHA512, XCRC.
 
