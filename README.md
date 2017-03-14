@@ -169,9 +169,13 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **GetNameListing**() - A simple command that only returns the list of file paths in the given directory, using the NLST command.
 
-- **UploadFile**() - Uploads a file from the local file system to the server. Returns true if succeeded, false if failed or file does not exist. Supports very large files since it uploads data in chunks of 65KB. Remote directories are NOT created if they do not exist.
+- **UploadFile**() - Uploads a file from the local file system to the server. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB. Remote directories are NOT created if they do not exist.
 
-- **DownloadFile**() - Downloads a file from the server to the local file system. Returns true if succeeded, false if failed or file does not exist. Supports very large files since it downloads data in chunks of 65KB. Local directories are created if they do not exist.
+- **DownloadFile**() - Downloads a file from the server to the local file system. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB. Local directories are created if they do not exist.
+
+- **UploadFiles**() - Uploads multiple files from the local file system to a single folder on the server. Returns the number of files uploaded. Skipped files are not counted. Prefer using this method over `UploadFile()` since it performs a single `GetListing()` to check for file existance.
+
+- **DownloadFiles**() - Downloads multiple files from server to a single directory on the local file system. Returns the number of files downloaded. Skipped files are not counted.
 
 - **GetWorkingDirectory**() - Gets the full path of the current working directory.
 
