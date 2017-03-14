@@ -3078,17 +3078,17 @@ namespace FluentFTP {
 			List<FtpListItem> lst = new List<FtpListItem>();
 			List<string> rawlisting = new List<string>();
 			string listcmd = null;
-			string pwd = GetWorkingDirectory();
 			string buf = null;
 			bool includeSelf = (options & FtpListOption.IncludeSelfAndParent) == FtpListOption.IncludeSelfAndParent;
 
 			if (path == null || path.Trim().Length == 0) {
-				pwd = GetWorkingDirectory();
+				string pwd = GetWorkingDirectory();
 				if (pwd != null && pwd.Trim().Length > 0)
 					path = pwd;
 				else
 					path = "./";
 			} else if (!path.StartsWith("/") && pwd != null && pwd.Trim().Length > 0) {
+				string pwd = GetWorkingDirectory();
 				if (path.StartsWith("./"))
 					path = path.Remove(0, 2);
 				path = string.Format("{0}/{1}", pwd, path).GetFtpPath();
