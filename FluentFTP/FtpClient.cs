@@ -588,9 +588,9 @@ namespace FluentFTP {
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
 		// FtpClient.CloneConnection()
 
-#endregion
+		#endregion
 
-#region Core
+		#region Core
 
 		/// <summary>
 		/// Performs a bitwise and to check if the specified
@@ -840,9 +840,9 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncExecute>(ar).EndInvoke(ar);
 		}
 
-#endregion
+		#endregion
 
-#region Connection
+		#region Connection
 
 		/// <summary>
 		/// Connect to the server. Throws ObjectDisposedException if this object has been disposed.
@@ -1153,9 +1153,9 @@ namespace FluentFTP {
 			GetAsyncDelegate<AsyncDisconnect>(ar).EndInvoke(ar);
 		}
 
-#endregion
+		#endregion
 
-#region File I/O
+		#region File I/O
 
 		/// <summary>
 		/// Opens the specified type of passive data stream
@@ -1753,9 +1753,9 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncOpenAppend>(ar).EndInvoke(ar);
 		}
 
-#endregion
+		#endregion
 
-#region Multi File Upload/Download
+		#region Multi File Upload/Download
 
 		/// <summary>
 		/// Uploads the given file paths to a single folder on the server.
@@ -1846,7 +1846,7 @@ namespace FluentFTP {
 		/// <param name="overwrite">Overwrite the file if it already exists?</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		public int DownloadFiles(string localDir, string[] remotePaths, bool overwrite = true) {
-			
+
 			int count = 0;
 
 			// ensure ends with slash
@@ -1856,7 +1856,7 @@ namespace FluentFTP {
 
 				// calc local path
 				string localPath = localDir + remotePath.GetFtpFileName();
-				
+
 				// try to download it
 				try {
 					bool ok = DownloadFileToFile(localPath, remotePath, overwrite);
@@ -1867,7 +1867,7 @@ namespace FluentFTP {
 				}
 
 			}
-			
+
 			return count;
 		}
 
@@ -1885,9 +1885,9 @@ namespace FluentFTP {
 			return DownloadFiles(localDir, remotePaths.ToArray(), overwrite);
 		}
 
-#endregion
+		#endregion
 
-#region File Upload/Download
+		#region File Upload/Download
 
 		/// <summary>
 		/// Uploads the specified file directly onto the server.
@@ -1974,8 +1974,8 @@ namespace FluentFTP {
 			MemoryStream ms = new MemoryStream(fileData);
 			ms.Position = 0;
 			bool ok = UploadFileInternal(ms, remotePath, createRemoteDir);
-            ms.Dispose();
-            return ok;
+			ms.Dispose();
+			return ok;
 		}
 
 		/// <summary>
@@ -2283,7 +2283,7 @@ namespace FluentFTP {
 					}
 
 				}
-					
+
 
 				// disconnect FTP stream before exiting
 				outStream.Flush();
@@ -2314,9 +2314,9 @@ namespace FluentFTP {
 			}
 		}
 
-#endregion
+		#endregion
 
-#region File Management
+		#region File Management
 
 		/// <summary>
 		/// Deletes a file on the server
@@ -2838,9 +2838,103 @@ namespace FluentFTP {
 		}
 
 
-#endregion
+		#endregion
 
-#region Link Dereferencing
+		#region File Permissions
+
+		/// <summary>
+		/// Modify the permissions of the given file/folder.
+		/// Only works on *NIX systems, and not on Windows/IIS servers.
+		/// Only works if the FTP server supports the SITE CHMOD command
+		/// (requires the CHMOD extension to be installed and enabled).
+		/// Throws FtpCommandException if there is an issue.
+		/// </summary>
+		/// <param name="path">The full or relative path to the item</param>
+		/// <param name="permissions">The permissions in CHMOD format</param>
+		public void SetFilePermissions(string path, int permissions) {
+			FtpReply reply;
+
+			lock (m_lock) {
+				if (!(reply = Execute("SITE CHMOD {0} {1}", permissions.ToString(), path.GetFtpPath())).Success)
+					throw new FtpCommandException(reply);
+			}
+		}
+
+		/// <summary>
+		/// Modify the permissions of the given file/folder.
+		/// Only works on *NIX systems, and not on Windows/IIS servers.
+		/// Only works if the FTP server supports the SITE CHMOD command
+		/// (requires the CHMOD extension to be installed and enabled).
+		/// Throws FtpCommandException if there is an issue.
+		/// </summary>
+		/// <param name="path">The full or relative path to the item</param>
+		/// <param name="permissions">The permissions in CHMOD format</param>
+		public void Chmod(string path, int permissions) {
+			SetFilePermissions(path, permissions);
+		}
+
+		/// <summary>
+		/// Modify the permissions of the given file/folder.
+		/// Only works on *NIX systems, and not on Windows/IIS servers.
+		/// Only works if the FTP server supports the SITE CHMOD command
+		/// (requires the CHMOD extension to be installed and enabled).
+		/// Throws FtpCommandException if there is an issue.
+		/// </summary>
+		/// <param name="path">The full or relative path to the item</param>
+		/// <param name="owner">The owner permissions</param>
+		/// <param name="group">The group permissions</param>
+		/// <param name="other">The other permissions</param>
+		public void SetFilePermissions(string path, FtpPermission owner, FtpPermission group, FtpPermission other) {
+			SetFilePermissions(path, CalcChmod(owner, group, other));
+		}
+
+		/// <summary>
+		/// Modify the permissions of the given file/folder.
+		/// Only works on *NIX systems, and not on Windows/IIS servers.
+		/// Only works if the FTP server supports the SITE CHMOD command
+		/// (requires the CHMOD extension to be installed and enabled).
+		/// Throws FtpCommandException if there is an issue.
+		/// </summary>
+		/// <param name="path">The full or relative path to the item</param>
+		/// <param name="owner">The owner permissions</param>
+		/// <param name="group">The group permissions</param>
+		/// <param name="other">The other permissions</param>
+		public void Chmod(string path, FtpPermission owner, FtpPermission group, FtpPermission other) {
+			SetFilePermissions(path, owner, group, other);
+		}
+
+		/// <summary>
+		/// Retrieve the permissions of the given file/folder as an FtpListItem object with all "Permission" properties set.
+		/// Throws FtpCommandException if there is an issue.
+		/// Returns null if the server did not specify a permission value.
+		/// Use `GetChmod` if you required the integer value instead.
+		/// </summary>
+		/// <param name="path">The full or relative path to the item</param>
+		public FtpListItem GetFilePermissions(string path) {
+			string fullPath = path.GetFtpPath();
+			foreach (FtpListItem i in GetListing(path)) {
+				if (i.FullName == fullPath) {
+					return i;
+				}
+			}
+			return null;
+		}
+
+		/// <summary>
+		/// Retrieve the permissions of the given file/folder as an integer in the CHMOD format.
+		/// Throws FtpCommandException if there is an issue.
+		/// Returns 0 if the server did not specify a permission value.
+		/// Use `GetFilePermissions` if you required the permissions in the FtpPermission format.
+		/// </summary>
+		/// <param name="path">The full or relative path to the item</param>
+		public int GetChmod(string path) {
+			FtpListItem item = GetFilePermissions(path);
+			return item != null ? item.Chmod : 0;
+		}
+
+		#endregion
+
+		#region Link Dereferencing
 
 		/// <summary>
 		/// Recursively dereferences a symbolic link. See the
@@ -2954,9 +3048,9 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncDereferenceLink>(ar).EndInvoke(ar);
 		}
 
-#endregion
+		#endregion
 
-#region File Listing
+		#region File Listing
 
 		/// <summary>
 		/// Returns information about a file system object. You should check the Capabilities
@@ -3087,11 +3181,13 @@ namespace FluentFTP {
 					path = pwd;
 				else
 					path = "./";
-			} else if (!path.StartsWith("/") && pwd != null && pwd.Trim().Length > 0) {
+			} else if (!path.StartsWith("/")) {
 				string pwd = GetWorkingDirectory();
-				if (path.StartsWith("./"))
-					path = path.Remove(0, 2);
-				path = string.Format("{0}/{1}", pwd, path).GetFtpPath();
+				if (pwd != null && pwd.Trim().Length > 0) {
+					if (path.StartsWith("./"))
+						path = path.Remove(0, 2);
+					path = string.Format("{0}/{1}", pwd, path).GetFtpPath();
+				}
 			}
 
 			// MLSD provides a machine parsable format with more
@@ -3184,7 +3280,7 @@ namespace FluentFTP {
 						} else {
 							FtpTrace.WriteLine("Skipped self or parent item: " + item.Name);
 						}
-					}else{
+					} else {
 						FtpTrace.WriteLine("Failed to parse file listing: " + buf);
 					}
 				}
@@ -3286,9 +3382,9 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetListing>(ar).EndInvoke(ar);
 		}
 
-#endregion
+		#endregion
 
-#region Name Listing
+		#region Name Listing
 
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command.
@@ -3393,9 +3489,9 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetNameListing>(ar).EndInvoke(ar);
 		}
 
-#endregion
+		#endregion
 
-#region Misc Methods
+		#region Misc Methods
 
 		private static string DecodeUrl(string url) {
 #if CORE
@@ -4006,9 +4102,53 @@ namespace FluentFTP {
 			return (this is FtpClientProxy);
 		}
 
-#endregion
+		#endregion
 
-#region Static API
+		#region Static API
+
+		/// <summary>
+		/// Calculate the CHMOD integer value given a set of permissions.
+		/// </summary>
+		public static int CalcChmod(FtpPermission owner, FtpPermission group, FtpPermission other) {
+
+			int chmod = 0;
+
+			if (HasPermission(owner, FtpPermission.Read)) {
+				chmod += 400;
+			}
+			if (HasPermission(owner, FtpPermission.Write)) {
+				chmod += 200;
+			}
+			if (HasPermission(owner, FtpPermission.Execute)) {
+				chmod += 100;
+			}
+
+			if (HasPermission(group, FtpPermission.Read)) {
+				chmod += 40;
+			}
+			if (HasPermission(group, FtpPermission.Write)) {
+				chmod += 20;
+			}
+			if (HasPermission(group, FtpPermission.Execute)) {
+				chmod += 10;
+			}
+
+			if (HasPermission(other, FtpPermission.Read)) {
+				chmod += 4;
+			}
+			if (HasPermission(other, FtpPermission.Write)) {
+				chmod += 2;
+			}
+			if (HasPermission(other, FtpPermission.Execute)) {
+				chmod += 1;
+			}
+
+			return chmod;
+		}
+
+		private static bool HasPermission(FtpPermission owner, FtpPermission flag) {
+			return (owner & flag) == flag;
+		}
 
 		/// <summary>
 		/// Connects to the specified URI. If the path specified by the URI ends with a
@@ -4219,7 +4359,7 @@ namespace FluentFTP {
 			}
 		}
 
-#endregion
+		#endregion
 
 	}
 }

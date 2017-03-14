@@ -193,6 +193,19 @@ namespace FluentFTP {
 			}
 		}
 
+		int m_chmod = 0;
+		/// <summary>
+		/// Gets the file permissions in the CHMOD format.
+		/// </summary>
+		public int Chmod {
+			get {
+				return m_chmod;
+			}
+			set {
+				m_chmod = value;
+			}
+		}
+
 		string m_input = null;
 		/// <summary>
 		/// Gets the input string that was parsed to generate the
@@ -441,10 +454,12 @@ namespace FluentFTP {
 					item.OwnerPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[1].ToString());
 					item.GroupPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[2].ToString());
 					item.OthersPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[3].ToString());
+					CalcChmod(item);
 				} else if (m.Groups["mode"].Value.Length == 3) {
 					item.OwnerPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[0].ToString());
 					item.GroupPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[1].ToString());
 					item.OthersPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[2].ToString());
+					CalcChmod(item);
 				}
 			}
 
@@ -550,42 +565,61 @@ namespace FluentFTP {
 					RegexOptions.IgnoreCase);
 
 				if (perms.Success) {
+
 					if (perms.Groups["owner"].Value.Length == 3) {
-						if (perms.Groups["owner"].Value[0] == 'r')
+						if (perms.Groups["owner"].Value[0] == 'r') {
 							item.OwnerPermissions |= FtpPermission.Read;
-						if (perms.Groups["owner"].Value[1] == 'w')
+						}
+						if (perms.Groups["owner"].Value[1] == 'w') {
 							item.OwnerPermissions |= FtpPermission.Write;
-						if (perms.Groups["owner"].Value[2] == 'x' || perms.Groups["owner"].Value[2] == 's')
+						}
+						if (perms.Groups["owner"].Value[2] == 'x' || perms.Groups["owner"].Value[2] == 's') {
 							item.OwnerPermissions |= FtpPermission.Execute;
-						if (perms.Groups["owner"].Value[2] == 's' || perms.Groups["owner"].Value[2] == 'S')
+						}
+						if (perms.Groups["owner"].Value[2] == 's' || perms.Groups["owner"].Value[2] == 'S') {
 							item.SpecialPermissions |= FtpSpecialPermissions.SetUserID;
+						}
 					}
 
 					if (perms.Groups["group"].Value.Length == 3) {
-						if (perms.Groups["group"].Value[0] == 'r')
+						if (perms.Groups["group"].Value[0] == 'r') {
 							item.GroupPermissions |= FtpPermission.Read;
-						if (perms.Groups["group"].Value[1] == 'w')
+						}
+						if (perms.Groups["group"].Value[1] == 'w'){
 							item.GroupPermissions |= FtpPermission.Write;
-						if (perms.Groups["group"].Value[2] == 'x' || perms.Groups["group"].Value[2] == 's')
+						}
+						if (perms.Groups["group"].Value[2] == 'x' || perms.Groups["group"].Value[2] == 's'){
 							item.GroupPermissions |= FtpPermission.Execute;
-						if (perms.Groups["group"].Value[2] == 's' || perms.Groups["group"].Value[2] == 'S')
+						}
+						if (perms.Groups["group"].Value[2] == 's' || perms.Groups["group"].Value[2] == 'S'){
 							item.SpecialPermissions |= FtpSpecialPermissions.SetGroupID;
+						}
 					}
 
 					if (perms.Groups["others"].Value.Length == 3) {
-						if (perms.Groups["others"].Value[0] == 'r')
+						if (perms.Groups["others"].Value[0] == 'r') {
 							item.OthersPermissions |= FtpPermission.Read;
-						if (perms.Groups["others"].Value[1] == 'w')
+						}
+						if (perms.Groups["others"].Value[1] == 'w'){
 							item.OthersPermissions |= FtpPermission.Write;
-						if (perms.Groups["others"].Value[2] == 'x' || perms.Groups["others"].Value[2] == 't')
+						}
+						if (perms.Groups["others"].Value[2] == 'x' || perms.Groups["others"].Value[2] == 't'){
 							item.OthersPermissions |= FtpPermission.Execute;
-						if (perms.Groups["others"].Value[2] == 't' || perms.Groups["others"].Value[2] == 'T')
+						}
+						if (perms.Groups["others"].Value[2] == 't' || perms.Groups["others"].Value[2] == 'T'){
 							item.SpecialPermissions |= FtpSpecialPermissions.Sticky;
+						}
 					}
+
+					CalcChmod(item);
 				}
 			}
 
 			return item;
+		}
+
+		public static void CalcChmod(FtpListItem item) {
+			item.Chmod = FtpClient.CalcChmod(item.OwnerPermissions, item.GroupPermissions, item.OthersPermissions);
 		}
 
 		/// <summary>

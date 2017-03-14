@@ -99,7 +99,9 @@ namespace Tests {
 
 				//TestListSpacedPath();
 
-				TestUploadDownloadManyFiles2();
+				//TestUploadDownloadManyFiles2();
+
+				TestFilePermissions();
 
 			} catch (Exception ex) {
 				Console.WriteLine(ex.ToString());
@@ -835,6 +837,25 @@ namespace Tests {
 				foreach (FtpListItem i in cl.GetListing("/public_html/temp/spaced folder/")) {
 					Console.WriteLine(i.FullName);
 				}
+			}
+		}
+
+		static void TestFilePermissions() {
+			using (FtpClient cl = new FtpClient()) {
+				cl.Host = m_host;
+				cl.Credentials = new NetworkCredential(m_user, m_pass);
+
+				foreach (FtpListItem i in cl.GetListing("/public_html/temp/")) {
+					Console.WriteLine(i.Name + " - " + i.Chmod);
+				}
+
+				FtpListItem o = cl.GetFilePermissions("/public_html/temp/file3.exe");
+				FtpListItem o2 = cl.GetFilePermissions("/public_html/temp/README.md");
+
+				cl.SetFilePermissions("/public_html/temp/file3.exe", 646);
+
+				int o22 = cl.GetChmod("/public_html/temp/file3.exe");
+
 			}
 		}
 

@@ -159,11 +159,13 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 	- `SpecialPermissions` : Gets special permissions such as Stiky, SUID and SGID. **(*NIX only)**
 
-	- `OwnerPermissions` : User rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **(*NIX only)**
+	- `Chmod` : All file permissions in a single 'chmod' style number. For example 644 or 755. **Default:** `0` if not provided by server. **(*NIX only)**
 
-	- `GroupPermissions` : Group rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **(*NIX only)**
+	- `OwnerPermissions` : User rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server. **(*NIX only)**
 
-	- `OtherPermissions` : Other rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **(*NIX only)**
+	- `GroupPermissions` : Group rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server. **(*NIX only)**
+
+	- `OtherPermissions` : Other rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server. **(*NIX only)**
 
 	- `Input` : The raw string that the server returned for this object. Helps debug if the above properties have been correctly parsed.
 
@@ -204,6 +206,21 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **OpenWrite**() - Low level. Not recommended for general usage. Opens a stream to the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist.
 
 - **OpenAppend**() - Low level. Not recommended for general usage. Opens a stream to the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file.
+
+## File Permissions
+
+**Standard commands supported by most servers**
+
+- **GetChmod**() - Gets the CHMOD permissions of the file/folder, or 0 if not found.
+
+- **GetFilePermissions**() - Gets the permissions of the given file/folder as an FtpListItem object with all "Permission" properties set, or null if not found.
+
+**Only supported by UNIX servers** <br> Please ensure that the CHMOD extension is installed and enabled on your FTP server to use these.
+
+- **Chmod**() - Modifies the permissions of the given file/folder, given the CHMOD value.
+
+- **SetFilePermissions**() - Modifies the permissions of the given file/folder, given seperate owner/group/other values (`FtpPermission` enum).
+
 
 ## File Hashing
 
