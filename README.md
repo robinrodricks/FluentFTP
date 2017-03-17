@@ -209,13 +209,16 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **OpenAppend**() - Low level. Not recommended for general usage. Opens a stream to the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file.
 
+
 ## File Permissions
 
-*Only supported by UNIX FTP servers which have the CHMOD extension installed and enabled.*
+*Standard commands supported by most servers*
 
 - **GetChmod**() - Gets the CHMOD permissions of the file/folder, or 0 if not found.
 
 - **GetFilePermissions**() - Gets the permissions of the given file/folder as an FtpListItem object with all "Permission" properties set, or null if not found.
+
+*Only supported by UNIX FTP servers which have the CHMOD extension installed and enabled.*
 
 - **Chmod**() - Modifies the permissions of the given file/folder, given the CHMOD value.
 
@@ -234,7 +237,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **SetHashAlgorithm**() - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
 
-*Non-standard commands supported by certain servers only* <br> *Please import `FluentFTP.Extensions` to use these.*
+*Non-standard commands supported by certain servers only. Import `FluentFTP.Extensions` to use these.*
 
 - **GetChecksum**() - Retrieves a checksum of the given file using a checksumming method that the server supports, if any. The algorithm used goes in this order : HASH, MD5, XMD5, XSHA1, XSHA256, XSHA512, XCRC.
 
