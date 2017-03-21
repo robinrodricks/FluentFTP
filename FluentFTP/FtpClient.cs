@@ -78,7 +78,7 @@ namespace FluentFTP {
 
 		#region Properties
 
-		/// <summary>
+        /// <summary>
 		/// Used for internally syncrhonizing access to this
 		/// object from multiple threads
 		/// </summary>
@@ -338,7 +338,18 @@ namespace FluentFTP {
 			}
 		}
 
-		FtpDataConnectionType m_dataConnectionType = FtpDataConnectionType.AutoPassive;
+	    IEnumerable<int> m_ActivePorts;
+
+        /// <summary>
+        /// Ports used for Active Data Connection
+        /// </summary>
+	    public IEnumerable<int> ActivePorts
+	    {
+	        get { return m_ActivePorts; }
+            set { m_ActivePorts = value; }
+	    }
+            
+        FtpDataConnectionType m_dataConnectionType = FtpDataConnectionType.AutoPassive;
 		/// <summary>
 		/// Data connection type, default is AutoPassive which tries
 		/// a connection with EPSV first and if it fails then tries
@@ -1260,7 +1271,34 @@ namespace FluentFTP {
 			if (m_stream == null)
 				throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open an active data stream.");
 
-			stream.Listen(m_stream.LocalEndPoint.Address, 0);
+		    if (m_ActivePorts == null || !m_ActivePorts.Any())
+		    {
+                // Use random port
+		        stream.Listen(m_stream.LocalEndPoint.Address, 0);
+		    }
+		    else
+		    {
+		        var success = false;
+                // Use one of the specified ports
+		        foreach (var port in m_ActivePorts)
+		        {
+		            try
+		            {
+                        stream.Listen(m_stream.LocalEndPoint.Address, port);
+		                success = true;
+		            }
+		            catch (SocketException se)
+		            {
+                        // Already in use
+		                if (se.ErrorCode != 10048)
+                            throw;
+		            }
+		        }
+
+                // No usable port found
+                if (!success)
+                    throw new Exception("No valid active data port available!");
+		    }
 #if !CORE
 			ar = stream.BeginAccept(null, null);
 #endif
