@@ -564,7 +564,11 @@ namespace FluentFTP {
 				}
 			}
 #endif
-		}
+
+#if CORE
+            base.Dispose();
+#endif
+        }
 
 		/// <summary>
 		/// Sets socket options on the underlying socket
