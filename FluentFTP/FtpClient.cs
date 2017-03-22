@@ -346,8 +346,8 @@ namespace FluentFTP {
         /// <summary>
         /// Delegate used for resolving local address, used for active data connections
         /// This can be used in case you're behind a router, but port forwarding is configured to forward the
-        /// ports from your router to your internal ip. In that case, we need to send the router's ip instead of our internal ip.
-        /// See example: FtpClient.IpifyResolve -> This uses Ipify api to find external ip
+        /// ports from your router to your internal IP. In that case, we need to send the router's ip instead of our internal IP.
+        /// See example: FtpClient.GetPublicIP -> This uses Ipify api to find external IP
         /// </summary>
         public Func<string> AddressResolver
 	    {
@@ -4432,10 +4432,10 @@ namespace FluentFTP {
 		}
 
         /// <summary>
-        /// Static method used to resolve internet ip
+        /// Static method used to resolve internet IP
         /// </summary>
         /// <returns>ip</returns>
-	    public static string IpifyResolve()
+	    public static string GetPublicIP()
 	    {
 	        var request = WebRequest.Create("https://api.ipify.org/");
 	        request.Method = "GET";
