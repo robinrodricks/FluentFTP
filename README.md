@@ -280,6 +280,8 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **InternetProtocolVersions** - Whether to use IPV4 and/or IPV6 when making a connection. All addresses returned during name resolution are tried until a successful connection is made. **Default:** Any.
 
+- **ActivePorts** - List of ports to try using for Active FTP connections, or null to automatically select a port. **Default:** null.
+
 - **SocketPollInterval** - Time that must pass (in milliseconds) since the last socket activity before calling `Poll()` on the socket to test for connectivity. Setting this interval too low will have a negative impact on perfomance. Setting this interval to 0 disables Poll()'ing all together. **Default:** 15000 (15 seconds).
 
 - **ConnectTimeout** - Time to wait (in milliseconds) for a connection attempt to succeed, before giving up. **Default:** 15000 (15 seconds).
