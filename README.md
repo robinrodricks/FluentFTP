@@ -268,6 +268,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 ## Advanced Settings
 
+*FTP Protocol*
 
 - **GetDataType**() - Checks if the transfer data type is ASCII or binary.
 
@@ -279,9 +280,9 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **InternetProtocolVersions** - Whether to use IPV4 and/or IPV6 when making a connection. All addresses returned during name resolution are tried until a successful connection is made. **Default:** Any.
 
-- **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
-
 - **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
+
+- **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
 
 - **IsClone** - Checks if this control connection is a clone. **Default:** false.
 
