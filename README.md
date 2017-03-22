@@ -268,6 +268,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 ## Advanced Settings
 
+
 - **GetDataType**() - Checks if the transfer data type is ASCII or binary.
 
 - **SetDataType**() - Sets the transfer data type to ASCII or binary. Internally called during file reads, writes and appends.
@@ -280,15 +281,19 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
 
+- **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
 
-##### Active FTP
+- **IsClone** - Checks if this control connection is a clone. **Default:** false.
+
+
+*Active FTP*
 
 - **ActivePorts** - List of ports to try using for Active FTP connections, or null to automatically select a port. **Default:** null.
 
 - **AddressResolver** - Delegate used for resolving local address, used for active data connections. This can be used in case you're behind a router, but port forwarding is configured to forward the ports from your router to your internal IP. In that case, we need to send the router's IP instead of our internal IP.
 
 
-##### Timeouts
+*Timeouts*
 
 - **ConnectTimeout** - Time to wait (in milliseconds) for a connection attempt to succeed, before giving up. **Default:** 15000 (15 seconds).
 
@@ -299,7 +304,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **DataConnectionReadTimeout** - Time to wait (in milliseconds) for the server to send data on the data channel, before giving up. **Default:** 15000 (15 seconds).
 
 
-##### Socket Settings
+*Socket Settings*
 
 - **SocketKeepAlive** - Set `SocketOption.KeepAlive` on all future stream sockets. **Default:** false.
 
@@ -310,13 +315,6 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **TransferChunkSize** - Chunk size (in bytes) used during upload/download of files. **Default:** 65536 (65 KB).
 
 - **EnableThreadSafeDataConnections** - Creates a new FTP connection for every file download and upload. This is slower but is a thread safe approach to make asynchronous operations on a single control connection transparent. Set this to `false` if your FTP server allows only one connection per username. **Default:** false.
-
-
-##### Misc Settings
-
-- **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
-
-- **IsClone** - Checks if this control connection is a clone. **Default:** false.
 
 
 ## Utilities
