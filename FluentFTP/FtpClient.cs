@@ -338,7 +338,24 @@ namespace FluentFTP {
 			}
 		}
 
-	    IEnumerable<int> m_ActivePorts;
+        // Holds the cached resolved address
+	    string m_Address;
+
+	    Func<string> m_AddressResolver;
+
+        /// <summary>
+        /// Delegate used for resolving local address, used for active data connections
+        /// This can be used in case you're behind a router, but port forwarding is configured to forward the
+        /// ports from your router to your internal IP. In that case, we need to send the router's ip instead of our internal IP.
+        /// See example: FtpClient.GetPublicIP -> This uses Ipify api to find external IP
+        /// </summary>
+        public Func<string> AddressResolver
+	    {
+	        get { return m_AddressResolver; }
+            set { m_AddressResolver = value; }
+	    }
+        
+        IEnumerable<int> m_ActivePorts;
 
         /// <summary>
         /// Ports used for Active Data Connection
@@ -1254,6 +1271,23 @@ namespace FluentFTP {
 			return stream;
 		}
 
+        /// <summary>
+        /// Returns the ip address to be sent to the server for the active connection
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <returns></returns>
+	    string GetLocalAddress(IPAddress ip)
+	    {
+            // Use resolver
+	        if (m_AddressResolver != null)
+	        {
+	            return m_Address ?? (m_Address = m_AddressResolver());
+	        }
+
+            // Use supplied ip
+	        return ip.ToString();
+	    }
+
 		/// <summary>
 		/// Opens the specified type of active data stream
 		/// </summary>
@@ -1318,7 +1352,7 @@ namespace FluentFTP {
 				}
 
 				if (!(reply = Execute("EPRT |{0}|{1}|{2}|", ipver,
-					stream.LocalEndPoint.Address.ToString(), stream.LocalEndPoint.Port)).Success) {
+                    GetLocalAddress(stream.LocalEndPoint.Address), stream.LocalEndPoint.Port)).Success) {
 
 					// if we're connected with IPv4 and the data channel type is AutoActive then try to fall back to the PORT command
 					if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) {
@@ -1335,7 +1369,7 @@ namespace FluentFTP {
 					throw new FtpException("Only IPv4 is supported by the PORT command. Use EPRT instead.");
 
 				if (!(reply = Execute("PORT {0},{1},{2}",
-						stream.LocalEndPoint.Address.ToString().Replace('.', ','),
+                        GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ','),
 						stream.LocalEndPoint.Port / 256,
 						stream.LocalEndPoint.Port % 256)).Success) {
 					stream.Close();
@@ -4396,6 +4430,24 @@ namespace FluentFTP {
 				throw new UriFormatException("The supplied URI points at a directory.");
 			}
 		}
+
+        /// <summary>
+        /// Static method used to resolve internet IP
+        /// </summary>
+        /// <returns>ip</returns>
+	    public static string GetPublicIP()
+	    {
+	        var request = WebRequest.Create("https://api.ipify.org/");
+	        request.Method = "GET";
+
+            using (var response = request.GetResponse())
+            {
+                using (var stream = new StreamReader(response.GetResponseStream()))
+                {
+                    return stream.ReadToEnd();
+                }
+            }
+        }
 
 		#endregion
 
