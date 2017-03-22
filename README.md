@@ -336,7 +336,7 @@ Please import `FluentFTP` to use these extension methods, or access them directl
 
 Please access these static methods directly under the `FtpClient` class.
 
-- **GetPublicIP**() - Use the Ipify service to calculate your public IP, useful if you are behind a router, or using a DHCP internet connection (dynamic IP).
+- **GetPublicIP**() - Use the Ipify service to calculate your public IP. Useful if you are behind a router or don't have a static IP.
 
 
 # Notes
