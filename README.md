@@ -274,15 +274,21 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **DataConnectionType** - Active or Passive connection. **Default:** FtpDataConnectionType.AutoPassive (tries EPSV then PASV then gives up)
 
-- **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
-
 - **Encoding** - Text encoding (ASCII or UTF8) used when talking with the server. ASCII is default, but upon connection, we switch to UTF8 if supported by the server. Manually setting this value overrides automatic detection. **Default:** Auto.
 
 - **InternetProtocolVersions** - Whether to use IPV4 and/or IPV6 when making a connection. All addresses returned during name resolution are tried until a successful connection is made. **Default:** Any.
 
+- **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
+
+
+### Active FTP
+
 - **ActivePorts** - List of ports to try using for Active FTP connections, or null to automatically select a port. **Default:** null.
 
-- **SocketPollInterval** - Time that must pass (in milliseconds) since the last socket activity before calling `Poll()` on the socket to test for connectivity. Setting this interval too low will have a negative impact on perfomance. Setting this interval to 0 disables Poll()'ing all together. **Default:** 15000 (15 seconds).
+- **AddressResolver** - Delegate used for resolving local address, used for active data connections. This can be used in case you're behind a router, but port forwarding is configured to forward the ports from your router to your internal IP. In that case, we need to send the router's IP instead of our internal IP.
+
+
+### Timeouts
 
 - **ConnectTimeout** - Time to wait (in milliseconds) for a connection attempt to succeed, before giving up. **Default:** 15000 (15 seconds).
 
@@ -292,15 +298,23 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **DataConnectionReadTimeout** - Time to wait (in milliseconds) for the server to send data on the data channel, before giving up. **Default:** 15000 (15 seconds).
 
+
+### Socket Settings
+
 - **SocketKeepAlive** - Set `SocketOption.KeepAlive` on all future stream sockets. **Default:** false.
+
+- **SocketPollInterval** - Time that must pass (in milliseconds) since the last socket activity before calling `Poll()` on the socket to test for connectivity. Setting this interval too low will have a negative impact on perfomance. Setting this interval to 0 disables Poll()'ing all together. **Default:** 15000 (15 seconds).
 
 - **StaleDataCheck** - Check if there is stale (unrequested data) sitting on the socket or not. In some cases the control connection may time out but before the server closes the connection it might send a 4xx response that was unexpected and can cause synchronization errors with transactions. To avoid this problem the Execute() method checks to see if there is any data available on the socket before executing a command. **Default:** true.
 
 - **TransferChunkSize** - Chunk size (in bytes) used during upload/download of files. **Default:** 65536 (65 KB).
 
-- **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
-
 - **EnableThreadSafeDataConnections** - Creates a new FTP connection for every file download and upload. This is slower but is a thread safe approach to make asynchronous operations on a single control connection transparent. Set this to `false` if your FTP server allows only one connection per username. **Default:** false.
+
+
+### Misc Settings
+
+- **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
 
 - **IsClone** - Checks if this control connection is a clone. **Default:** false.
 
@@ -320,6 +334,10 @@ Please import `FluentFTP` to use these extension methods, or access them directl
 - **GetFtpDate**(date, styles) - Tries to convert the string FTP date representation into a date time object
 
 - **FileSizeToString**(bytes) - Converts a file size in bytes to a string representation (eg. `12345` becomes `12.3 KB`)
+
+Please access these static methods directly under the `FtpClient` class.
+
+- **GetPublicIP**() - Use the Ipify service to calculate your public IP, useful if you are behind a router, or using a DHCP internet connection (dynamic IP).
 
 
 # Notes
