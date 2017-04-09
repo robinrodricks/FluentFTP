@@ -101,7 +101,11 @@ namespace Tests {
 
 				//TestUploadDownloadManyFiles2();
 
-				TestFilePermissions();
+				TestUploadDownloadFile_UTF();
+
+				//TestUploadDownloadFile_ANSI();
+
+				//TestFilePermissions();
 
 			} catch (Exception ex) {
 				Console.WriteLine(ex.ToString());
@@ -756,6 +760,46 @@ namespace Tests {
 				// 100 K file
 				cl.UploadFile(@"D:\Github\hgupta\FluentFTP\README.md", "/public_html/temp/README.md");
 				cl.DownloadFile(@"D:\Github\hgupta\FluentFTP\README2.md", "/public_html/temp/README.md");
+
+				/*
+				// 10 M file
+				cl.UploadFile(@"D:\Drivers\mb_driver_intel_irst_6series.exe", "/public_html/temp/big.txt");
+				cl.Rename("/public_html/temp/big.txt", "/public_html/temp/big2.txt");
+				cl.DownloadFile(@"D:\Drivers\mb_driver_intel_irst_6series_2.exe", "/public_html/temp/big2.txt");
+				*/
+			}
+		}
+
+		static void TestUploadDownloadFile_UTF() {
+
+			using (FtpClient cl = new FtpClient()) {
+				cl.Host = m_host;
+				cl.Credentials = new NetworkCredential(m_user, m_pass);
+
+				// 100 K file
+				cl.UploadFile(@"D:\Tests\Caffè.jpg", "/public_html/temp/Caffè.jpg");
+				cl.DownloadFile(@"D:\Tests\Caffè2.jpg", "/public_html/temp/Caffè.jpg");
+
+				/*
+				// 10 M file
+				cl.UploadFile(@"D:\Drivers\mb_driver_intel_irst_6series.exe", "/public_html/temp/big.txt");
+				cl.Rename("/public_html/temp/big.txt", "/public_html/temp/big2.txt");
+				cl.DownloadFile(@"D:\Drivers\mb_driver_intel_irst_6series_2.exe", "/public_html/temp/big2.txt");
+				*/
+			}
+
+		}
+		static void TestUploadDownloadFile_ANSI() {
+
+			using (FtpClient cl = new FtpClient()) {
+				cl.Host = m_host;
+				cl.Credentials = new NetworkCredential(m_user, m_pass);
+				cl.Encoding = Encoding.GetEncoding(1252);
+
+				// 100 K file
+				string rpath = "/public_html/temp/Caffè.jpg";
+				cl.UploadFile(@"D:\Tests\Caffè.jpg", rpath);
+				cl.DownloadFile(@"D:\Tests\Caffè2.jpg", rpath);
 
 				/*
 				// 10 M file

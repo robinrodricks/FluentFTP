@@ -15,7 +15,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\net40\</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
+    <DefineConstants>DEBUG;NETFX</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -32,11 +32,12 @@
     <DocumentationFile>bin\Release\net40\FluentFTP.xml</DocumentationFile>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <DefineConstants>NETFX</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugNET2|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Debug\net20\</OutputPath>
-    <DefineConstants>DEBUG;NET2</DefineConstants>
+    <DefineConstants>DEBUG;NET2,NETFX,LINQBRIDGE_LIB</DefineConstants>
     <DocumentationFile>bin\Debug\net20\FluentFTP.xml</DocumentationFile>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -52,7 +53,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DefineConstants>NET2</DefineConstants>
+    <DefineConstants>NET2,NETFX,LINQBRIDGE_LIB</DefineConstants>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>

@@ -1323,10 +1323,14 @@ namespace FluentFTP {
 		            }
 		            catch (SocketException se)
 		            {
+#if NETFX
                         // Already in use
-		                if (se.ErrorCode != 10048)
+                        if (se.ErrorCode != 10048)
                             throw;
-		            }
+#else
+                        throw;
+#endif
+                    }
 		        }
 
                 // No usable port found
@@ -1825,9 +1829,9 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncOpenAppend>(ar).EndInvoke(ar);
 		}
 
-		#endregion
+#endregion
 
-		#region Multi File Upload/Download
+#region Multi File Upload/Download
 
 		/// <summary>
 		/// Uploads the given file paths to a single folder on the server.
@@ -1957,9 +1961,9 @@ namespace FluentFTP {
 			return DownloadFiles(localDir, remotePaths.ToArray(), overwrite);
 		}
 
-		#endregion
+#endregion
 
-		#region File Upload/Download
+#region File Upload/Download
 
 		/// <summary>
 		/// Uploads the specified file directly onto the server.
@@ -2386,9 +2390,9 @@ namespace FluentFTP {
 			}
 		}
 
-		#endregion
+#endregion
 
-		#region File Management
+#region File Management
 
 		/// <summary>
 		/// Deletes a file on the server
@@ -2470,7 +2474,12 @@ namespace FluentFTP {
 			FtpReply reply;
 			string ftppath = path.GetFtpPath();
 
+
 			lock (m_lock) {
+
+
+
+				// DELETE CONTENTS OF THE DIRECTORY
 				if (force) {
 
 					// experimental fast mode
@@ -2528,18 +2537,29 @@ namespace FluentFTP {
 					}
 				}
 
+
+
+				// SKIP DELETING ROOT DIRS
+
 				// can't delete the working directory and
 				// can't delete the server root.
-				if (ftppath == "." || ftppath == "./" || ftppath == "/")
+				if (ftppath == "." || ftppath == "./" || ftppath == "/") {
 					return;
+				}
 
-				if (!(reply = Execute("RMD {0}", ftppath)).Success)
+
+
+				// DELETE ACTUAL DIRECTORY
+
+				if (!(reply = Execute("RMD {0}", ftppath)).Success) {
 					throw new FtpCommandException(reply);
+				}
+
 			}
 		}
 
 		/// <summary>
-		/// Checks wether GetListing will be called recursively or not.
+		/// Checks whether GetListing will be called recursively or not.
 		/// </summary>
 		/// <param name="options"></param>
 		/// <returns></returns>
@@ -2910,9 +2930,9 @@ namespace FluentFTP {
 		}
 
 
-		#endregion
+#endregion
 
-		#region File Permissions
+#region File Permissions
 
 		/// <summary>
 		/// Modify the permissions of the given file/folder.
@@ -3004,9 +3024,9 @@ namespace FluentFTP {
 			return item != null ? item.Chmod : 0;
 		}
 
-		#endregion
+#endregion
 
-		#region Link Dereferencing
+#region Link Dereferencing
 
 		/// <summary>
 		/// Recursively dereferences a symbolic link. See the
@@ -3120,9 +3140,9 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncDereferenceLink>(ar).EndInvoke(ar);
 		}
 
-		#endregion
+#endregion
 
-		#region File Listing
+#region File Listing
 
 		/// <summary>
 		/// Returns information about a file system object. You should check the Capabilities
@@ -3454,9 +3474,9 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetListing>(ar).EndInvoke(ar);
 		}
 
-		#endregion
+#endregion
 
-		#region Name Listing
+#region Name Listing
 
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command.
@@ -3561,9 +3581,9 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetNameListing>(ar).EndInvoke(ar);
 		}
 
-		#endregion
+#endregion
 
-		#region Misc Methods
+#region Misc Methods
 
 		private static string DecodeUrl(string url) {
 #if CORE
@@ -4174,9 +4194,9 @@ namespace FluentFTP {
 			return (this is FtpClientProxy);
 		}
 
-		#endregion
+#endregion
 
-		#region Static API
+#region Static API
 
 		/// <summary>
 		/// Calculate the CHMOD integer value given a set of permissions.
@@ -4437,7 +4457,8 @@ namespace FluentFTP {
         /// <returns>ip</returns>
 	    public static string GetPublicIP()
 	    {
-	        var request = WebRequest.Create("https://api.ipify.org/");
+#if NETFX
+            var request = WebRequest.Create("https://api.ipify.org/");
 	        request.Method = "GET";
 
             using (var response = request.GetResponse())
@@ -4447,9 +4468,11 @@ namespace FluentFTP {
                     return stream.ReadToEnd();
                 }
             }
+#endif
+            return null;
         }
 
-		#endregion
+#endregion
 
 	}
 }
