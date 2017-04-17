@@ -56,6 +56,10 @@
     <DefineConstants>NET2,NETFX,LINQBRIDGE_LIB</DefineConstants>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Web" />
@@ -88,5 +92,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="FluentFTP.nuspec" />
+    <None Include="sn.snk" />
   </ItemGroup>
 </Project>
