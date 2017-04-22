@@ -65,7 +65,7 @@ client.Credentials = new NetworkCredential("david", "pass123");
 client.Connect();
 
 // get a list of files and directories in the "/htdocs" folder
-foreach (FtpListItem item in client.GetListing("/htdocs") {
+foreach (FtpListItem item in client.GetListing("/htdocs")) {
 	
 	// if this is a file
 	if (item.Type == FtpFileSystemObjectType.File){
@@ -84,13 +84,13 @@ foreach (FtpListItem item in client.GetListing("/htdocs") {
 }
 
 // upload a file
-cl.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt");
+client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt");
 
 // rename the uploaded file
-cl.Rename("/htdocs/big.txt", "/htdocs/big2.txt");
+client.Rename("/htdocs/big.txt", "/htdocs/big2.txt");
 
 // download the file again
-cl.DownloadFile(@"C:\MyVideo_2.mp4", "/htdocs/big2.txt");
+client.DownloadFile(@"C:\MyVideo_2.mp4", "/htdocs/big2.txt");
 
 // delete the file
 client.DeleteFile("/htdocs/big2.txt");
