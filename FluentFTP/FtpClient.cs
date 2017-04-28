@@ -4100,8 +4100,8 @@ namespace FluentFTP {
 		/// Ends an asynchronous call to BeginGetHash
 		/// </summary>
 		/// <param name="ar">IAsyncResult returned from BeginGetHash</param>
-		public void EndGetHash(IAsyncResult ar) {
-			GetAsyncDelegate<AsyncGetHash>(ar).EndInvoke(ar);
+		public FtpHash EndGetHash(IAsyncResult ar) {
+			return GetAsyncDelegate<AsyncGetHash>(ar).EndInvoke(ar);
 		}
 
 		/// <summary>
