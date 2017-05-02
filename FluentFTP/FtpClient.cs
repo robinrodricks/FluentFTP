@@ -2012,13 +2012,9 @@ namespace FluentFTP {
 			}
 
 			// write the file onto the server
-			bool ok = UploadFileInternal(fileStream, remotePath, createRemoteDir);
-
-			// close the file stream
-			try {
-				fileStream.Dispose();
-			} catch (Exception) { }
-			return ok;
+			using (fileStream) {
+				return UploadFileInternal(fileStream, remotePath, createRemoteDir);
+			}
 		}
 
 		/// <summary>
@@ -2047,11 +2043,10 @@ namespace FluentFTP {
 			}
 
 			// write the file onto the server
-			MemoryStream ms = new MemoryStream(fileData);
-			ms.Position = 0;
-			bool ok = UploadFileInternal(ms, remotePath, createRemoteDir);
-			ms.Dispose();
-			return ok;
+			using (MemoryStream ms = new MemoryStream(fileData)) {
+				ms.Position = 0;
+				return UploadFileInternal(ms, remotePath, createRemoteDir);
+			}
 		}
 
 		/// <summary>
@@ -2122,13 +2117,9 @@ namespace FluentFTP {
 			}
 
 			// download the file straight to a file stream
-			bool ok = DownloadFileInternal(remotePath, outStream);
-
-			// close the file stream
-			try {
-				outStream.Dispose();
-			} catch (Exception) { }
-			return ok;
+			using (outStream) {
+				return DownloadFileInternal(remotePath, outStream);
+			}
 		}
 
 		/// <summary>
@@ -2158,11 +2149,12 @@ namespace FluentFTP {
 			outBytes = null;
 
 			// download the file from the server
-			MemoryStream outStream = new MemoryStream();
-			bool ok = DownloadFileInternal(remotePath, outStream);
-			if (ok) {
-				outBytes = outStream.ToArray();
-				outStream.Dispose();
+			bool ok;
+			using (MemoryStream outStream = new MemoryStream()) {
+				ok = DownloadFileInternal(remotePath, outStream);
+				if (ok) {
+					outBytes = outStream.ToArray();
+				}
 			}
 			return ok;
 		}
