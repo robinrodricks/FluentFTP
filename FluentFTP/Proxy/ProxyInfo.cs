@@ -1,7 +1,7 @@
 using System.Net;
 
 namespace FluentFTP.Proxy {
-	/// <summary> POCO holding proxy informations </summary>
+	/// <summary> POCO holding proxy information</summary>
 	public class ProxyInfo {
 		/// <summary> Proxy host name </summary>
 		public string Host { get; set; }

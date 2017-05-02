@@ -33,11 +33,11 @@ namespace FluentFTP {
 		/// </summary>
 		PositivePreliminary = 1,
 		/// <summary>
-		/// Successs
+		/// Success
 		/// </summary>
 		PositiveCompletion = 2,
 		/// <summary>
-		/// Succcess
+		/// Success
 		/// </summary>
 		PositiveIntermediate = 3,
 		/// <summary>

@@ -322,7 +322,7 @@ namespace FluentFTP {
 		static Object m_parserLock = new Object();
 
 		/// <summary>
-		/// Initalizes the default list of parsers
+		/// Initializes the default list of parsers
 		/// </summary>
 		static void InitParsers() {
 			lock (m_parserLock) {

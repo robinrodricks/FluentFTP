@@ -611,7 +611,6 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="encoding">Encoding used for writing the line</param>
         /// <param name="buf">The data to write</param>
-        /// <param name="token">The cancellation token for this task</param>
         public async Task WriteLineAsync(System.Text.Encoding encoding, string buf) {
             await WriteLineAsync(encoding, buf, CancellationToken.None);
         }
