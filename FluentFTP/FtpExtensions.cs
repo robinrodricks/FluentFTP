@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace FluentFTP {
 	/// <summary>
@@ -163,5 +164,30 @@ namespace FluentFTP {
 			return String.Format("{0:0.#} {1}", len, sizePostfix[order]);
 		}
 
+	    public static Task<TResult> FromAsync<TArg1, TArg2, TArg3, TArg4, TResult>(this TaskFactory factory,
+	        Func<TArg1, TArg2, TArg3, TArg4, AsyncCallback, object, IAsyncResult> beginMethod,
+	        Func<IAsyncResult, TResult> endMethod,
+	        TArg1 arg1, TArg2 arg2, TArg3 arg3, TArg4 arg4, object state) {
+	        if (beginMethod == null)
+	            throw new ArgumentNullException("beginMethod");
+
+	        if (endMethod == null)
+	            throw new ArgumentNullException("endMethod");
+
+	        TaskCompletionSource<TResult> tcs = new TaskCompletionSource<TResult>(state, factory.CreationOptions);
+	        try {
+	            AsyncCallback callback = delegate(IAsyncResult asyncResult) {
+	                tcs.TrySetResult(endMethod(asyncResult));
+	            };
+
+	            beginMethod(arg1, arg2, arg3, arg4, callback, state);
+	        }
+	        catch {
+	            tcs.TrySetResult(default(TResult));
+                throw;
+	        }
+
+	        return tcs.Task;
+	    }
 	}
 }

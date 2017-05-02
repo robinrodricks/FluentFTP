@@ -2,6 +2,11 @@
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Threading;
+
+#if (CORE || NETFX45)
+using System.Threading.Tasks;
+#endif
 
 namespace FluentFTP {
 	/// <summary>
@@ -25,9 +30,9 @@ namespace FluentFTP {
 		FtpClient m_control = null;
 		/// <summary>
 		/// Gets or sets the control connection for this data stream. Setting
-		/// the control connection causes the object to be clonded and a new
+		/// the control connection causes the object to be cloned and a new
 		/// connection is made to the server to carry out the task. This ensures
-		/// that multiple streams can be opened simultainously.
+		/// that multiple streams can be opened simultaneously.
 		/// </summary>
 		public FtpClient ControlConnection {
 			get {
@@ -75,6 +80,22 @@ namespace FluentFTP {
 			return read;
 		}
 
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Reads data off the stream asynchronously
+        /// </summary>
+        /// <param name="buffer">The buffer to read into</param>
+        /// <param name="offset">Where to start in the buffer</param>
+        /// <param name="count">Number of bytes to read</param>
+        /// <param name="token">The cancellation token for this task</param>
+        /// <returns>The number of bytes read</returns>
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken token) {
+            int read = await base.ReadAsync(buffer, offset, count, token);
+            m_position += read;
+            return read;
+        }
+#endif
+
 		/// <summary>
 		/// Writes data to the stream
 		/// </summary>
@@ -86,6 +107,20 @@ namespace FluentFTP {
 			m_position += count;
 		}
 
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Writes data to the stream asynchronously
+        /// </summary>
+        /// <param name="buffer">The buffer to write to the stream</param>
+        /// <param name="offset">Where to start in the buffer</param>
+        /// <param name="count">The number of bytes to write to the buffer</param>
+        /// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken token) {
+            await base.WriteAsync(buffer, offset, count, token);
+            m_position += count;
+        }
+#endif
+
 		/// <summary>
 		/// Sets the length of this stream
 		/// </summary>
@@ -95,7 +130,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Sets the position of the stream. Inteneded to be used
+		/// Sets the position of the stream. Intended to be used
 		/// internally by FtpControlConnection.
 		/// </summary>
 		/// <param name="pos">The position</param>
@@ -144,7 +179,7 @@ namespace FluentFTP {
 				throw new ArgumentException("The control connection cannot be null.");
 
 			ControlConnection = conn;
-			// always accept certficate no matter what because if code execution ever
+			// always accept certificate no matter what because if code execution ever
 			// gets here it means the certificate on the control connection object being
 			// cloned was already accepted.
 			ValidateCertificate += new FtpSocketStreamSslValidation(delegate(FtpSocketStream obj, FtpSslValidationEventArgs e) {

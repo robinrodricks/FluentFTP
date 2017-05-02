@@ -8,7 +8,8 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
-#if CORE
+
+#if (CORE || NETFX45)
 using System.Threading.Tasks;
 #endif
 
@@ -87,7 +88,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Used for tacking read/write activity on the socket
 		/// to determine if Poll() should be used to test for
-		/// socket conenctivity. The socket in this class will
+		/// socket connectivity. The socket in this class will
 		/// not know it has been disconnected if the remote host
 		/// closes the connection first. Using Poll() avoids 
 		/// the exception that would be thrown when trying to
@@ -110,11 +111,11 @@ namespace FluentFTP {
 
 		int m_socketPollInterval = 15000;
 		/// <summary>
-		/// Gets or sets the length of time in miliseconds
+		/// Gets or sets the length of time in milliseconds
 		/// that must pass since the last socket activity
 		/// before calling Poll() on the socket to test for
 		/// connectivity. Setting this interval too low will
-		/// have a negative impact on perfomance. Setting this
+		/// have a negative impact on performance. Setting this
 		/// interval to 0 disables Poll()'ing all together.
 		/// The default value is 15 seconds.
 		/// </summary>
@@ -125,7 +126,7 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Gets the number of available bytes on the socket, 0 if the
-		/// socket has not been initalized. This property is used internally
+		/// socket has not been initialized. This property is used internally
 		/// by FtpClient in an effort to detect disconnections and gracefully
 		/// reconnect the control connection.
 		/// </summary>
@@ -219,7 +220,7 @@ namespace FluentFTP {
 #endif
 
 		/// <summary>
-		/// Underlying stream, could be a NetworkStream or SslStream
+		/// Gets the underlying stream, could be a NetworkStream or SslStream
 		/// </summary>
 		protected Stream BaseStream {
 			get {
@@ -322,7 +323,7 @@ namespace FluentFTP {
 
 		int m_connectTimeout = 30000;
 		/// <summary>
-		/// Gets or sets the length of time miliseconds to wait
+		/// Gets or sets the length of time milliseconds to wait
 		/// for a connection succeed before giving up. The default
 		/// is 30000 (30 seconds).
 		/// </summary>
@@ -415,6 +416,24 @@ namespace FluentFTP {
 			BaseStream.Flush();
 		}
 
+#if (CORE || NETFX45)
+
+        /// <summary>
+        /// Flushes the stream asynchronously
+        /// </summary>
+        /// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+        public override async Task FlushAsync(CancellationToken token) {
+            if (!IsConnected)
+                throw new InvalidOperationException("The FtpSocketStream object is not connected.");
+
+            if (BaseStream == null)
+                throw new InvalidOperationException("The base stream of the FtpSocketStream object is null.");
+
+            await BaseStream.FlushAsync(token);
+        }
+
+#endif
+
 		/// <summary>
 		/// Bypass the stream and read directly off the socket.
 		/// </summary>
@@ -436,7 +455,7 @@ namespace FluentFTP {
 		/// <param name="buffer">Buffer to read into</param>
 		/// <param name="offset">Where in the buffer to start</param>
 		/// <param name="count">Number of bytes to be read</param>
-		/// <returns></returns>
+		/// <returns>The amount of bytes read from the stream</returns>
 		public override int Read(byte[] buffer, int offset, int count) {
 #if !CORE
 			IAsyncResult ar = null;
@@ -458,9 +477,29 @@ namespace FluentFTP {
 #endif
 		}
 
+#if (CORE || NETFX45)
+
+        /// <summary>
+        /// Reads data from the stream
+        /// </summary>
+        /// <param name="buffer">Buffer to read into</param>
+        /// <param name="offset">Where in the buffer to start</param>
+        /// <param name="count">Number of bytes to be read</param>
+        /// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+        /// <returns>The amount of bytes read from the stream</returns>
+        public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken token) {
+            if (BaseStream == null)
+                return 0;
+
+            m_lastActivity = DateTime.Now;
+            return await BaseStream.ReadAsync(buffer, offset, count, token);
+        }
+#endif
+
 		/// <summary>
 		/// Reads a line from the socket
 		/// </summary>
+		/// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
 		/// <returns>A line from the stream, null if there is nothing to read</returns>
 		public string ReadLine(System.Text.Encoding encoding) {
 			List<byte> data = new List<byte>();
@@ -478,6 +517,41 @@ namespace FluentFTP {
 			return line;
 		}
 
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Reads a line from the socket asynchronously
+        /// </summary>
+        /// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
+        /// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+        /// <returns>A line from the stream, null if there is nothing to read</returns>
+        public async Task<string> ReadLineAsync(System.Text.Encoding encoding, CancellationToken token) {
+            List<byte> data = new List<byte>();
+            byte[] buf = new byte[1];
+            string line = null;
+
+            while (await ReadAsync(buf, 0, buf.Length, token) > 0)
+            {
+                data.Add(buf[0]);
+                if ((char)buf[0] == '\n')
+                {
+                    line = encoding.GetString(data.ToArray()).Trim('\r', '\n');
+                    break;
+                }
+            }
+
+            return line;
+        }
+
+        /// <summary>
+        /// Reads a line from the socket asynchronously
+        /// </summary>
+        /// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
+        /// <returns>A line from the stream, null if there is nothing to read</returns>
+        public async Task<string> ReadLineAsync(System.Text.Encoding encoding) {
+            return await ReadLineAsync(encoding, CancellationToken.None);
+        }
+#endif
+
 		/// <summary>
 		/// Writes data to the stream
 		/// </summary>
@@ -492,6 +566,23 @@ namespace FluentFTP {
 			m_lastActivity = DateTime.Now;
 		}
 
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Writes data to the stream asynchronously
+        /// </summary>
+        /// <param name="buffer">Buffer to write to stream</param>
+        /// <param name="offset">Where in the buffer to start</param>
+        /// <param name="count">Number of bytes to be read</param>
+        /// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken token) {
+            if (BaseStream == null)
+                return;
+
+            await BaseStream.WriteAsync(buffer, offset, count, token);
+            m_lastActivity = DateTime.Now;
+        }
+#endif
+
 		/// <summary>
 		/// Writes a line to the stream using the specified encoding
 		/// </summary>
@@ -502,6 +593,29 @@ namespace FluentFTP {
 			data = encoding.GetBytes(string.Format("{0}\r\n", buf));
 			Write(data, 0, data.Length);
 		}
+
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Writes a line to the stream using the specified encoding asynchronously
+        /// </summary>
+        /// <param name="encoding">Encoding used for writing the line</param>
+        /// <param name="buf">The data to write</param>
+        /// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+        public async Task WriteLineAsync(System.Text.Encoding encoding, string buf, CancellationToken token) {
+            byte[] data = encoding.GetBytes(string.Format("{0}\r\n", buf));
+            await WriteAsync(data, 0, data.Length, token);
+        }
+
+        /// <summary>
+        /// Writes a line to the stream using the specified encoding asynchronously
+        /// </summary>
+        /// <param name="encoding">Encoding used for writing the line</param>
+        /// <param name="buf">The data to write</param>
+        /// <param name="token">The cancellation token for this task</param>
+        public async Task WriteLineAsync(System.Text.Encoding encoding, string buf) {
+            await WriteLineAsync(encoding, buf, CancellationToken.None);
+        }
+#endif
 
 		/// <summary>
 		/// Disposes the stream
@@ -587,7 +701,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="host">The host to connect to</param>
 		/// <param name="port">The port to connect to</param>
-		/// <param name="ipVersions">Internet Protocol versions to support durring the connection phase</param>
+		/// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
 		public void Connect(string host, int port, FtpIpVersion ipVersions) {
 #if CORE
 			IPAddress[] addresses = Dns.GetHostAddressesAsync(host).Result;
@@ -665,7 +779,7 @@ namespace FluentFTP {
 		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
 		/// not be accepted.
 		/// </summary>
-		/// <param name="targethost">The host to authenticate the certiciate against</param>
+		/// <param name="targethost">The host to authenticate the certificate against</param>
 		public void ActivateEncryption(string targethost) {
 #if CORE
 			ActivateEncryption(targethost, null, SslProtocols.Tls11 | SslProtocols.Ssl3);
@@ -679,7 +793,7 @@ namespace FluentFTP {
 		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
 		/// not be accepted.
 		/// </summary>
-		/// <param name="targethost">The host to authenticate the certiciate against</param>
+		/// <param name="targethost">The host to authenticate the certificate against</param>
 		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
 		public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts) {
 #if CORE
@@ -694,7 +808,7 @@ namespace FluentFTP {
 		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
 		/// not be accepted.
 		/// </summary>
-		/// <param name="targethost">The host to authenticate the certiciate against</param>
+		/// <param name="targethost">The host to authenticate the certificate against</param>
 		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
 		/// <param name="sslProtocols">A bitwise parameter for supported encryption protocols.</param>
 		public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols) {
@@ -731,7 +845,7 @@ namespace FluentFTP {
 					auth_time_total.TotalSeconds);
 			} catch (AuthenticationException ex) {
 				// authentication failed and in addition it left our 
-				// ssl stream in an unsuable state so cleanup needs
+				// ssl stream in an unusable state so cleanup needs
 				// to be done and the exception can be re-thrown for
 				// handling down the chain.
 				Close();
