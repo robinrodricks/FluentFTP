@@ -18,6 +18,7 @@ using System.Web;
 #endif
 
 #if (CORE || NETFX45)
+using System.Threading;
 using System.Threading.Tasks;
 #endif
 
@@ -878,7 +879,8 @@ namespace FluentFTP {
         /// <param name="command">The command to execute</param>
         /// <returns>The servers reply to the command</returns>
 	    public async Task<FtpReply> ExecuteAsync(string command) {
-	        return await Task.Factory.FromAsync<string, FtpReply>(
+            //TODO:  Rewrite as true async method with cancellation support
+            return await Task.Factory.FromAsync<string, FtpReply>(
 	            (c, ac, state) => BeginExecute(c, ac, state),
 	            ar => EndExecute(ar),
 	            command, null);
@@ -1140,7 +1142,8 @@ namespace FluentFTP {
         /// </summary>
         /// <returns></returns>
 	    public async Task ConnectAsync() {
-	        await Task.Factory.FromAsync(
+            //TODO:  Rewrite as true async method with cancellation support
+            await Task.Factory.FromAsync(
 	            (c, s) => BeginConnect(c, s),
 	            ar => EndConnect(ar),
 	            null);
@@ -1217,7 +1220,8 @@ namespace FluentFTP {
         /// Disconnects from the server asynchronously
         /// </summary>
 	    public async Task DisconnectAsync() {
-	        await Task.Factory.FromAsync(
+            //TODO:  Rewrite as true async method with cancellation support
+            await Task.Factory.FromAsync(
 	            (c, s) => BeginDisconnect(c, s),
 	            ar => EndDisconnect(ar),
 	            null);
@@ -1705,6 +1709,7 @@ namespace FluentFTP {
         /// <param name="restart">Resume location</param>
         /// <returns>A readable stream of the remote file</returns>
 	    public async Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart) {
+            //TODO:  Rewrite as true async method with cancellation support
 	        return await Task.Factory.FromAsync<string, FtpDataType, long, Stream>(
 	            (p, t, r, ac, s) => BeginOpenRead(p, t, r, ac, s),
 	            ar => EndOpenRead(ar),
@@ -1718,6 +1723,7 @@ namespace FluentFTP {
         /// <param name="type">ASCII/Binary</param>
         /// <returns>A readable stream of the remote file</returns>
 	    public async Task<Stream> OpenReadAsync(string path, FtpDataType type) {
+            //TODO:  Rewrite as true async method with cancellation support
 	        return await Task.Factory.FromAsync<string, FtpDataType, Stream>(
 	            (p, t, ac, s) => BeginOpenRead(p, t, ac, s),
 	            ar => EndOpenRead(ar),
@@ -1731,6 +1737,7 @@ namespace FluentFTP {
         /// <param name="restart">Resume location</param>
         /// <returns>A readable stream of the remote file</returns>
 	    public async Task<Stream> OpenReadAsync(string path, long restart) {
+            //TODO:  Rewrite as true async method with cancellation support
 	        return await Task.Factory.FromAsync<string, long, Stream>(
 	            (p, r, ac, s) => BeginOpenRead(p, r, ac, s),
 	            ar => EndOpenRead(ar),
@@ -1743,6 +1750,7 @@ namespace FluentFTP {
         /// <param name="path">The full or relative path of the file</param>
         /// <returns>A readable stream of the remote file</returns>
         public async Task<Stream> OpenReadAsync(string path) {
+            //TODO:  Rewrite as true async method with cancellation support
             return await Task.Factory.FromAsync<string, Stream>(
                 (p, ac, s) => BeginOpenRead(p, ac, s),
                 ar => EndOpenRead(ar),
@@ -1845,6 +1853,7 @@ namespace FluentFTP {
         /// <param name="type">ASCII/Binary</param>
         /// <returns>A stream for writing to the file on the server</returns>
 	    public async Task<Stream> OpenWriteAsync(string path, FtpDataType type) {
+            //TODO:  Rewrite as true async method with cancellation support
 	        return await Task.Factory.FromAsync<string, FtpDataType, Stream>(
 	            (p, t, ac, s) => BeginOpenWrite(p, t, ac, s),
 	            ar => EndOpenWrite(ar),
@@ -1857,6 +1866,7 @@ namespace FluentFTP {
         /// <param name="path">Full or relative path of the file</param>
         /// <returns>A stream for writing to the file on the server</returns>
         public async Task<Stream> OpenWriteAsync(string path) {
+            //TODO:  Rewrite as true async method with cancellation support
             return await Task.Factory.FromAsync<string, Stream>(
                 (p, ac, s) => BeginOpenWrite(p, ac, s),
                 ar => EndOpenWrite(ar),
@@ -1960,8 +1970,8 @@ namespace FluentFTP {
         /// <param name="path">Full or relative path of the file</param>
         /// <param name="type">ASCII/Binary</param>
         /// <returns>A stream for writing to the file on the server</returns>
-        public async Task<Stream> OpenAppendAsync(string path, FtpDataType type)
-        {
+        public async Task<Stream> OpenAppendAsync(string path, FtpDataType type){
+            //TODO:  Rewrite as true async method with cancellation support
             return await Task.Factory.FromAsync<string, FtpDataType, Stream>(
                 (p, t, ac, s) => BeginOpenAppend(p, t, ac, s),
                 ar => EndOpenAppend(ar),
@@ -1974,6 +1984,7 @@ namespace FluentFTP {
         /// <param name="path">Full or relative path of the file</param>
         /// <returns>A stream for writing to the file on the server</returns>
         public async Task<Stream> OpenAppendAsync(string path) {
+            //TODO:  Rewrite as true async method with cancellation support
             return await Task.Factory.FromAsync<string, Stream>(
                 (p, ac, s) => BeginOpenAppend(p, ac, s),
                 ar => EndOpenAppend(ar),
@@ -1990,11 +2001,11 @@ namespace FluentFTP {
 		/// All files are placed directly into the given folder regardless of their path on the local filesystem.
 		/// High-level API that takes care of various edge cases internally.
 		/// Supports very large files since it uploads data in chunks.
-		/// Faster than uploading single files with UploadFile() since it performs a single "file exists" check rather than one check per file.
+        /// Faster than uploading single files with <see cref="o:UploadFile"/> since it performs a single "file exists" check rather than one check per file.
 		/// </summary>
 		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
 		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="overwrite">Overwrite the file if it already exists</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
 		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
 		public int UploadFiles(string[] localPaths, string remoteDir, bool overwrite = true, bool createRemoteDir = true) {
@@ -2052,26 +2063,116 @@ namespace FluentFTP {
 		/// All files are placed directly into the given folder regardless of their path on the local filesystem.
 		/// High-level API that takes care of various edge cases internally.
 		/// Supports very large files since it uploads data in chunks.
-		/// Faster than uploading single files with UploadFile() since it performs a single "file exists" check rather than one check per file.
+        /// Faster than uploading single files with <see cref="o:UploadFile"/> since it performs a single "file exists" check rather than one check per file.
 		/// </summary>
 		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
 		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="overwrite">Overwrite the file if it already exists</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		public int UploadFiles(List<string> localPaths, string remoteDir, bool overwrite = true, bool createRemoteDir = true) {
 			return UploadFiles(localPaths.ToArray(), remoteDir, overwrite, createRemoteDir);
 		}
 
+#if (CORE || NETFX45)
+        /// <summary>
+		/// Uploads the given file paths to a single folder on the server asynchronously.
+		/// All files are placed directly into the given folder regardless of their path on the local filesystem.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it uploads data in chunks.
+        /// Faster than uploading single files with <see cref="o:UploadFile"/> since it performs a single "file exists" check rather than one check per file.
+		/// </summary>
+		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
+		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
+		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
+		/// <param name="token">The token to monitor for cancelation requests</param>
+		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
+		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, bool overwrite, bool createRemoteDir, CancellationToken token) {
+            //check if cancellation was requested and throw to set TaskStatus state to Canceled
+            token.ThrowIfCancellationRequested();
+
+			int count = 0;
+			// ensure ends with slash
+			remoteDir = !remoteDir.EndsWith("/") ? remoteDir + "/" : remoteDir;
+
+			//flag to determine if existence checks are required
+            bool checkFileExistence = true;
+            // create remote dir if wanted
+			if (createRemoteDir) {
+				if (!await DirectoryExistsAsync(remoteDir)) {
+					await CreateDirectoryAsync(remoteDir);
+                    checkFileExistence = false;
+				}
+			}
+
+			// get all the already existing files (if directory was created just create an empty array)
+			string[] existingFiles = checkFileExistence ? await GetNameListingAsync(remoteDir) : new string[0];
+
+			// per local file
+			foreach (string localPath in localPaths) {
+                //check if cancellation was requested and throw to set TaskStatus state to Canceled
+			    token.ThrowIfCancellationRequested();
+				// calc remote path
+				string fileName = Path.GetFileName(localPath);
+				string remotePath = remoteDir + fileName;
+
+				// check if the remote file exists (if required)
+				if (checkFileExistence && existingFiles.Contains(fileName)) {
+					// skip uploading if the remote file exists
+					if (!overwrite) {
+						continue;
+					}
+
+					// delete file before uploading (also fixes #46)
+					await DeleteFileAsync(remotePath);
+				}
+
+				// try to upload it
+			    try {
+			        bool ok = await UploadFileFromFileAsync(localPath, remotePath, false, token);
+			        if (ok) {
+			            count++;
+			        }
+			    }
+                catch (Exception ex) {
+                    if (ex is OperationCanceledException) {
+                        //DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
+                        throw;
+                    }
+                    //suppress all other upload exceptions (errors are still written to FtpTrace)
+				}
+			}
+
+			return count;
+		}
+
+        /// <summary>
+        /// Uploads the given file paths to a single folder on the server asynchronously.
+        /// All files are placed directly into the given folder regardless of their path on the local filesystem.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it uploads data in chunks.
+        /// Faster than uploading single files with <see cref="o:UploadFile"/> since it performs a single "file exists" check rather than one check per file.
+        /// </summary>
+        /// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
+        /// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
+        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
+        /// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
+	    public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, bool overwrite = true, bool createRemoteDir = true) {
+	        return await UploadFilesAsync(localPaths, remoteDir, overwrite, createRemoteDir, CancellationToken.None);
+	    }
+#endif
+
 		/// <summary>
 		/// Downloads the specified files into a local single directory.
 		/// High-level API that takes care of various edge cases internally.
 		/// Supports very large files since it downloads data in chunks.
-		/// Same speed as DownloadFile().
+        /// Same speed as <see cref="o:DownloadFile"/>.
 		/// </summary>
 		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
 		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="overwrite">Overwrite the file if it already exists</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		public int DownloadFiles(string localDir, string[] remotePaths, bool overwrite = true) {
 
@@ -2103,15 +2204,75 @@ namespace FluentFTP {
 		/// Downloads the specified files into a local single directory.
 		/// High-level API that takes care of various edge cases internally.
 		/// Supports very large files since it downloads data in chunks.
-		/// Same speed as DownloadFile().
+        /// Same speed as <see cref="o:DownloadFile"/>.
 		/// </summary>
 		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
 		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="overwrite">Overwrite the file if it already exists</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		public int DownloadFiles(string localDir, List<string> remotePaths, bool overwrite = true) {
 			return DownloadFiles(localDir, remotePaths.ToArray(), overwrite);
 		}
+
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Downloads the specified files into a local single directory.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it downloads data in chunks.
+        /// Same speed as <see cref="o:DownloadFile"/>.
+        /// </summary>
+        /// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
+        /// <param name="remotePaths">The full or relative paths to the files on the server</param>
+        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="token">The token to monitor for cancelation requests</param>
+        /// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
+        public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite, CancellationToken token) {
+            //check if cancellation was requested and throw to set TaskStatus state to Canceled
+            token.ThrowIfCancellationRequested();
+            int count = 0;
+
+            // ensure ends with slash
+            localDir = !localDir.EndsWith(Path.DirectorySeparatorChar.ToString()) ? localDir + Path.DirectorySeparatorChar.ToString() : localDir;
+
+            foreach (string remotePath in remotePaths) {
+                //check if cancellation was requested and throw to set TaskStatus state to Canceled
+                token.ThrowIfCancellationRequested();
+                // calc local path
+                string localPath = localDir + remotePath.GetFtpFileName();
+
+                // try to download it
+                try {
+                    bool ok = await DownloadFileToFileAsync(localPath, remotePath, overwrite, token);
+                    if (ok) {
+                        count++;
+                    }
+                }
+                catch (Exception ex) {
+                    if (ex is OperationCanceledException) {
+                        //DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
+                        throw;
+                    }
+                    //suppress all other upload exceptions (errors are still written to FtpTrace)
+                }
+            }
+
+            return count;
+        }
+
+        /// <summary>
+        /// Downloads the specified files into a local single directory.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it downloads data in chunks.
+        /// Same speed as <see cref="o:DownloadFile"/>.
+        /// </summary>
+        /// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
+        /// <param name="remotePaths">The full or relative paths to the files on the server</param>
+        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
+        public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite = true) {
+            return await DownloadFilesAsync(localDir, remotePaths, overwrite, CancellationToken.None);
+        }
+#endif
 
 #endregion
 
@@ -2124,7 +2285,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="overwrite">Overwrite the file if it already exists</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
@@ -2150,16 +2311,65 @@ namespace FluentFTP {
 			return UploadFileFromFile(localPath, remotePath, createRemoteDir);
 		}
 
+#if (CORE || NETFX45)
+
+        /// <summary>
+        /// Uploads the specified file directly onto the server asynchronously.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it uploads data in chunks.
+        /// </summary>
+        /// <param name="localPath">The full or relative path to the file on the local file system</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+        /// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
+        /// <param name="token">The token to monitor for cancellation requests.</param>
+        /// <returns>If true then the file was uploaded, false otherwise.</returns>
+        public async Task<bool> UploadFileAsync(string localPath, string remotePath, bool overwrite, bool createRemoteDir, bool checkFileExistance, CancellationToken token) {
+            // skip uploading if the local file does not exist
+            if (!File.Exists(localPath)) {
+                return false;
+            }
+
+            // check if the remote file exists (always)
+            if (checkFileExistance && await FileExistsAsync(remotePath)) {
+                // skip uploading if the remote file exists
+                if (!overwrite) {
+                    return false;
+                }
+
+                // delete file before uploading (also fixes #46)
+                await DeleteFileAsync(remotePath);
+            }
+
+            return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, token);
+        }
+        
+        /// <summary>
+		/// Uploads the specified file directly onto the server asynchronously.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it uploads data in chunks.
+		/// </summary>
+		/// <param name="localPath">The full or relative path to the file on the local file system</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+		/// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
+		/// <returns>If true then the file was uploaded, false otherwise.</returns>
+		public async Task<bool> UploadFileAsync(string localPath, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
+            return await UploadFileAsync(localPath, remotePath, overwrite, createRemoteDir, checkFileExistance,
+                CancellationToken.None);
+        }
+#endif
+
 		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir) {
 			FileStream fileStream;
 			try {
-
 				// connect to the file
 				fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read);
 
 			} catch (Exception ex1) {
-
-				// catch errors during upload
+				// catch errors opening file stream
 				throw new FtpException("Error while reading the file from the disk. See InnerException for more info.", ex1);
 			}
 
@@ -2169,6 +2379,28 @@ namespace FluentFTP {
 			}
 		}
 
+#if (CORE || NETFX45)
+	    private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, CancellationToken token) {
+	        FileStream fileStream;
+	        try {
+	            //Connect to the file
+	            fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+	        }
+	        catch (Exception ex1) {
+                // catch errors opening file stream
+                throw new FtpException("Error while reading the file from the disk. See InnerException for more info.", ex1);
+	        }
+
+	        bool ok = await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, token);
+	        try {
+	            fileStream.Dispose();
+	        }
+	        catch (Exception) {
+	            // suppress exceptions during stream close
+	        }
+            return ok;
+	    }
+#endif
 		/// <summary>
 		/// Uploads the specified byte array as a file onto the server.
 		/// High-level API that takes care of various edge cases internally.
@@ -2176,7 +2408,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="fileData">The full data of the file, as a bytearray</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="overwrite">Overwrite the file if it already exists</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
@@ -2208,7 +2440,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="fileStream">The full data of the file, as a stream</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="overwrite">Overwrite the file if it already exists</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
@@ -2230,6 +2462,100 @@ namespace FluentFTP {
 			return UploadFileInternal(fileStream, remotePath, createRemoteDir);
 		}
 
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Uploads the specified byte array as a file onto the server asynchronously.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it uploads data in chunks.
+        /// </summary>
+        /// <param name="fileData">The full data of the file, as a byte array</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+        /// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
+        /// <param name="token">The token to monitor for cancellation requests.</param>
+        /// <returns>If true then the file was uploaded, false otherwise.</returns>
+        public async Task<bool> UploadFileAsync(byte[] fileData, string remotePath, bool overwrite, bool createRemoteDir, bool checkFileExistance, CancellationToken token)
+        {
+            // check if the remote file exists (always)
+            if (checkFileExistance && await FileExistsAsync(remotePath)) {
+                // skip uploading if the remote file exists
+                if (!overwrite) {
+                    return false;
+                }
+
+                // delete file before uploading (also fixes #46)
+                await DeleteFileAsync(remotePath);
+            }
+
+            // write the file onto the server
+            using (MemoryStream ms = new MemoryStream(fileData)) {
+                ms.Position = 0;
+                bool ok = await UploadFileInternalAsync(ms, remotePath, createRemoteDir, token);
+                return ok;
+            }
+        }
+
+        /// <summary>
+        /// Uploads the specified stream as a file onto the server asynchronously.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it uploads data in chunks.
+        /// </summary>
+        /// <param name="fileStream">The full data of the file, as a stream</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+        /// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
+        /// <param name="token">The token to monitor for cancellation requests.</param>
+        /// <returns>If true then the file was uploaded, false otherwise.</returns>
+        public async Task<bool> UploadFileAsync(Stream fileStream, string remotePath, bool overwrite, bool createRemoteDir, bool checkFileExistance, CancellationToken token) {
+            // check if the remote file exists (always)
+            if (checkFileExistance && await FileExistsAsync(remotePath))
+            {
+                // skip uploading if the remote file exists
+                if (!overwrite) {
+                    return false;
+                }
+
+                // delete file before uploading (also fixes #46)
+                await DeleteFileAsync(remotePath);
+            }
+
+            // write the file onto the server
+            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, token);
+        }
+
+        /// <summary>
+        /// Uploads the specified byte array as a file onto the server asynchronously.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it uploads data in chunks.
+        /// </summary>
+        /// <param name="fileData">The full data of the file, as a byte array</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+        /// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
+        /// <returns>If true then the file was uploaded, false otherwise.</returns>
+        public async Task<bool> UploadFileAsync(byte[] fileData, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
+            return await UploadFileAsync(fileData, remotePath, overwrite, createRemoteDir, checkFileExistance, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Uploads the specified stream as a file onto the server asynchronously.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it uploads data in chunks.
+        /// </summary>
+        /// <param name="fileStream">The full data of the file, as a stream</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+        /// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
+        /// <returns>If true then the file was uploaded, false otherwise.</returns>
+        public async Task<bool> UploadFileAsync(Stream fileStream, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
+            return await UploadFileAsync(fileStream, remotePath, overwrite, createRemoteDir, checkFileExistance, CancellationToken.None);
+        }
+#endif
+
 		/// <summary>
 		/// Downloads the specified file onto the local file system.
 		/// High-level API that takes care of various edge cases internally.
@@ -2237,7 +2563,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists?</param>
+		/// <param name="overwrite">Overwrite the file if it already exists</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public bool DownloadFile(string localPath, string remotePath, bool overwrite = true) {
 			return DownloadFileToFile(localPath, remotePath, overwrite);
@@ -2264,7 +2590,7 @@ namespace FluentFTP {
 
 			} catch (Exception ex1) {
 
-				// catch errors during upload
+				// catch errors creating local file
 				throw new FtpException("Error while saving the file to disk. See InnerException for more info.", ex1);
 			}
 
@@ -2274,8 +2600,76 @@ namespace FluentFTP {
 			}
 		}
 
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Downloads the specified file onto the local file system asynchronously.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it downloads data in chunks.
+        /// </summary>
+        /// <param name="localPath">The full or relative path to the file on the local file system</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="token">The token to monitor for cancellation requests</param>
+        /// <returns>If true then the file was downloaded, false otherwise.</returns>
+        public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite, CancellationToken token) {
+            return await DownloadFileToFileAsync(localPath, remotePath, overwrite, token);
+        }
+
+        /// <summary>
+        /// Downloads the specified file onto the local file system asynchronously.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it downloads data in chunks.
+        /// </summary>
+        /// <param name="localPath">The full or relative path to the file on the local file system</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <returns>If true then the file was downloaded, false otherwise.</returns>
+        public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite = true) {
+            return await DownloadFileToFileAsync(localPath, remotePath, overwrite, CancellationToken.None);
+        }
+
+        private async Task<bool> DownloadFileToFileAsync(string localPath, string remotePath, bool overwrite, CancellationToken token) {
+            if (string.IsNullOrWhiteSpace(localPath))
+                throw new ArgumentNullException("localPath");
+
+            // skip downloading if the local file exists
+            if (!overwrite && File.Exists(localPath)) {
+                return false;
+            }
+
+            FileStream outStream;
+            try {
+                // create the folders
+                string dirPath = Path.GetDirectoryName(localPath);
+                if (!Directory.Exists(dirPath)) {
+                    Directory.CreateDirectory(dirPath);
+                }
+
+                // connect to the file
+                outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None);
+
+            }
+            catch (Exception ex1){
+                // catch errors creating local file
+                throw new FtpException("Error while saving the file to disk. See InnerException for more info.", ex1);
+            }
+
+            // download the file straight to a file stream
+            bool ok = await DownloadFileInternalAsync(remotePath, outStream, token);
+
+            // close the file stream
+            try {
+                outStream.Dispose();
+            }
+            catch (Exception) {
+                //Suppress any errors closing the local file stream
+            }
+            return ok;
+        }
+#endif
+
 		/// <summary>
-		/// Downloads the specified file into a new MemoryStream.
+        /// Downloads the specified file into the specified stream.
 		/// High-level API that takes care of various edge cases internally.
 		/// Supports very large files since it downloads data in chunks.
 		/// </summary>
@@ -2311,6 +2705,62 @@ namespace FluentFTP {
 			return ok;
 		}
 
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Downloads the specified file into the specified stream asynchronously .
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it downloads data in chunks.
+        /// </summary>
+        /// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="token">The token to monitor cancellation requests</param>
+        /// <returns>If true then the file was downloaded, false otherwise.</returns>
+        public async Task<bool> DownloadFileAsync(Stream outStream, string remotePath, CancellationToken token) {
+            // download the file from the server
+            return await DownloadFileInternalAsync(remotePath, outStream, token);
+        }
+
+        /// <summary>
+        /// Downloads the specified file into the specified stream asynchronously .
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it downloads data in chunks.
+        /// </summary>
+        /// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <returns>If true then the file was downloaded, false otherwise.</returns>
+        public async Task<bool> DownloadFileAsync(Stream outStream, string remotePath) {
+            // download the file from the server
+            return await DownloadFileInternalAsync(remotePath, outStream, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Downloads the specified file and return the raw byte array.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it downloads data in chunks.
+        /// </summary>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="token">The token to monitor cancellation requests</param>
+        /// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
+        public async Task<byte[]> DownloadFileAsync(string remotePath, CancellationToken token) {
+            // download the file from the server
+            using (MemoryStream outStream = new MemoryStream()) {
+                bool ok = await DownloadFileInternalAsync(remotePath, outStream, token);
+                return ok ? outStream.ToArray() : null;
+            }
+        }
+
+        /// <summary>
+        /// Downloads the specified file into the specified stream asynchronously .
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it downloads data in chunks.
+        /// </summary>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
+        public async Task<byte[]> DownloadFileAsync(string remotePath) {
+            // download the file from the server
+            return await DownloadFileAsync(remotePath, CancellationToken.None);
+        }
+#endif
 
 		/// <summary>
 		/// Upload the given stream to the server as a new file. Overwrites the file if it exists.
@@ -2433,7 +2883,128 @@ namespace FluentFTP {
 				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
 			}
 		}
+        
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
+        /// Writes data in chunks. Retries if server disconnects midway.
+        /// </summary>
+	    private async Task<bool> UploadFileInternalAsync(Stream fileData, string remotePath, bool createRemoteDir, CancellationToken token) {
+            Stream upStream = null;
+            try {
+                // ensure the remote dir exists
+                if (createRemoteDir) {
+                    string dirname = remotePath.GetFtpDirectoryName();
+                    if (!await DirectoryExistsAsync(dirname)) {
+                        await CreateDirectoryAsync(dirname);
+                    }
+                }
 
+                // open a file write connection
+                upStream = await OpenWriteAsync(remotePath);
+
+                // loop till entire file uploaded
+                long offset = 0;
+                long len = fileData.Length;
+                byte[] buffer = new byte[TransferChunkSize];
+                while (offset < len) {
+                    try {
+                        // read a chunk of bytes from the file
+                        int readBytes;
+                        while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
+                            // write chunk to the FTP stream
+                            await upStream.WriteAsync(buffer, 0, readBytes, token);
+                            await upStream.FlushAsync(token);
+                            offset += readBytes;
+                        }
+                    }
+                    catch (IOException ex) {
+                        // resume if server disconnects midway (fixes #39)
+                        if (ex.InnerException != null) {
+                            var iex = ex.InnerException as System.Net.Sockets.SocketException;
+
+                            if (iex != null) {
+#if CORE
+							    int code = (int)iex.SocketErrorCode;
+#else
+                                int code = iex.ErrorCode;
+#endif
+                                if (code == 10054) {
+                                    upStream.Dispose();
+                                    //Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
+                                    upStream = OpenAppend(remotePath);
+                                    upStream.Position = offset;
+                                }
+                            }
+                            else throw;
+                        }
+                        else throw;
+                    }
+                }
+
+                // wait for while transfer to get over
+                while (upStream.Position < upStream.Length) {
+                }
+
+                // disconnect FTP stream before exiting
+                upStream.Dispose();
+
+                // FIX : if this is not added, there appears to be "stale data" on the socket
+                // listen for a success/failure reply
+                if (!m_threadSafeDataChannels) {
+                    FtpReply status = GetReply();
+                }
+
+                // fixes #30. the file can have some bytes at the end missing
+                // on proxy servers, so we write those missing bytes now.
+                if (IsProxy()) {
+                    // get the current length of the remote file
+                    // and check if any bytes are missing
+                    long curLen = GetFileSize(remotePath);
+                    if (curLen > 0 && curLen < len && fileData.CanSeek) {
+                        // seek to the point of the local file
+                        offset = curLen;
+                        fileData.Position = offset;
+
+                        // open the remote file for appending
+                        upStream = await OpenAppendAsync(remotePath, FtpDataType.Binary);
+                        upStream.Position = offset;
+
+                        // read a chunk of bytes from the file
+                        int readBytes;
+                        while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
+                            // write chunk to the FTP stream
+                            upStream.Write(buffer, 0, readBytes);
+                            upStream.Flush();
+                            offset += readBytes;
+                        }
+
+                        // disconnect FTP stream before exiting
+                        upStream.Dispose();
+
+                        // FIX : if this is not added, there appears to be "stale data" on the socket
+                        // listen for a success/failure reply
+                        if (!m_threadSafeDataChannels) {
+                            FtpReply status = GetReply();
+                        }
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex1) {
+                // close stream before throwing error
+                try {
+                    if(upStream != null)
+                        upStream.Dispose();
+                }
+                catch (Exception) { }
+
+                // catch errors during upload
+                throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
+            }
+	    }
+#endif
 		/// <summary>
 		/// Download a file from the server and write the data into the given stream.
 		/// Reads data in chunks. Retries if server disconnects midway.
@@ -2533,6 +3104,102 @@ namespace FluentFTP {
 				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
 			}
 		}
+
+#if (CORE || NETFX45)
+        /// <summary>
+		/// Download a file from the server and write the data into the given stream asynchronously.
+		/// Reads data in chunks. Retries if server disconnects midway.
+		/// </summary>
+		private async Task<bool> DownloadFileInternalAsync(string remotePath, Stream outStream, CancellationToken token) {
+			Stream downStream = null;
+			try {
+				// exit if file length not available
+				downStream = await OpenReadAsync(remotePath);
+				long fileLen = downStream.Length;
+				if (fileLen == 0 && CurrentDataType == FtpDataType.ASCII) {
+					// close stream before throwing error
+					try {
+						downStream.Dispose();
+					} catch (Exception) { }
+
+					throw new FtpException("Cannot download file since file has length of 0. Use the FtpDataType.Binary data type and try again.");
+				}
+
+				// if the server has not reported a length for this file
+				// we use an alternate method to download it - read until EOF
+				bool readToEnd = (fileLen == 0);
+
+				// loop till entire file downloaded
+				byte[] buffer = new byte[TransferChunkSize];
+				long offset = 0;
+				while (offset < fileLen || readToEnd) {
+					try {
+						// read a chunk of bytes from the FTP stream
+						int readBytes = 1;
+						while ((readBytes = await downStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
+							// write chunk to output stream
+							await outStream.WriteAsync(buffer, 0, readBytes, token);
+							offset += readBytes;
+						}
+
+						// if we reach here means EOF encountered
+						// stop if we are in "read until EOF" mode
+						if (readToEnd) {
+							break;
+						}
+
+					} catch (IOException ex) {
+
+						// resume if server disconnects midway (fixes #39)
+						if (ex.InnerException != null) {
+							var ie = ex.InnerException as System.Net.Sockets.SocketException;
+							if (ie != null) {
+#if CORE
+		    					int code = (int)ie.SocketErrorCode;
+#else
+                                int code = ie.ErrorCode;
+#endif
+							    if (code == 10054) {
+                                    downStream.Dispose();
+                                    //Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
+                                    downStream = OpenRead(remotePath, restart: offset);
+							    }
+							} else throw;
+						} else throw;
+
+					}
+
+				}
+
+
+				// disconnect FTP stream before exiting
+				await outStream.FlushAsync(token);
+				downStream.Dispose();
+
+				// FIX : if this is not added, there appears to be "stale data" on the socket
+				// listen for a success/failure reply
+				if (!m_threadSafeDataChannels) {
+					FtpReply status = GetReply();
+				}
+				return true;
+
+			} 
+            catch (Exception ex1) {
+				// close stream before throwing error
+				try {
+					downStream.Dispose();
+				} catch (Exception) { }
+
+				// absorb "file does not exist" exceptions and simply return false
+				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
+					return false;
+				}
+
+				// catch errors during upload
+				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
+			}
+		}
+#endif
 
 #endregion
 
@@ -3432,6 +4099,7 @@ namespace FluentFTP {
         /// <param name="recMax">Maximum recursive calls</param>
         /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
 	    public async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax) {
+            //TODO:  Rewrite as true async method with cancellation support
             return await Task.Factory.FromAsync<FtpListItem, int, FtpListItem>(
                 (i, r, ac, s) => BeginDereferenceLink(i, r, ac, s),
                 ar => EndDereferenceLink(ar),
@@ -3443,8 +4111,8 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="item">The item to dereference</param>
         /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-        public async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item)
-        {
+        public async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item){
+            //TODO:  Rewrite as true async method with cancellation support
             return await Task.Factory.FromAsync<FtpListItem, FtpListItem>(
                 (i, ac, s) => BeginDereferenceLink(i, ac, s),
                 ar => EndDereferenceLink(ar),
@@ -3541,7 +4209,8 @@ namespace FluentFTP {
         /// <param name="path">Path of the item to retrieve information about</param>
         /// <returns>FtpListItem if the command succeeded, null if there was a problem.</returns>
 	    public async Task<FtpListItem> GetObjectInfoAsync(string path) {
-	        return await Task.Factory.FromAsync<string, FtpListItem>(
+            //TODO:  Rewrite as true async method with cancellation support
+            return await Task.Factory.FromAsync<string, FtpListItem>(
 	            (p, ac, s) => BeginGetObjectInfo(p, ac, s),
 	            ar => EndGetObjectInfo(ar),
 	            path, null);
@@ -3810,7 +4479,8 @@ namespace FluentFTP {
         /// <param name="options">Options that dictate how the list operation is performed</param>
         /// <returns>An array of items retrieved in the listing</returns>
 	    public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options) {
-	        return await Task.Factory.FromAsync<string, FtpListOption, FtpListItem[]>(
+            //TODO:  Rewrite as true async method with cancellation support
+            return await Task.Factory.FromAsync<string, FtpListOption, FtpListItem[]>(
 	            (p, o, ac, s) => BeginGetListing(p, o, ac, s),
 	            ar => EndGetListing(ar),
 	            path, options, null);
@@ -3821,8 +4491,8 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="path">The path to list</param>
         /// <returns>An array of items retrieved in the listing</returns>
-        public async Task<FtpListItem[]> GetListingAsync(string path)
-        {
+        public async Task<FtpListItem[]> GetListingAsync(string path) {
+            //TODO:  Rewrite as true async method with cancellation support
             return await Task.Factory.FromAsync<string, FtpListItem[]>(
                 (p, ac, s) => BeginGetListing(p, ac, s),
                 ar => EndGetListing(ar),
@@ -3834,6 +4504,7 @@ namespace FluentFTP {
         /// </summary>
         /// <returns>An array of items retrieved in the listing</returns>
         public async Task<FtpListItem[]> GetListingAsync() {
+            //TODO:  Rewrite as true async method with cancellation support
             return await Task.Factory.FromAsync<FtpListItem[]>(
                 (ac, s) => BeginGetListing(ac, s),
                 ar => EndGetListing(ar),
@@ -3953,7 +4624,8 @@ namespace FluentFTP {
         /// <param name="path">The path of the directory to list</param>
         /// <returns>An array of file and directory names if any were returned.</returns>
 	    public async Task<string[]> GetNameListingAsync(string path) {
-	        return await Task.Factory.FromAsync<string, string[]>(
+            //TODO:  Rewrite as true async method with cancellation support
+            return await Task.Factory.FromAsync<string, string[]>(
 	            (p, ac, s) => BeginGetNameListing(p, ac, s),
 	            ar => EndGetNameListing(ar),
 	            path, null);
@@ -3964,6 +4636,7 @@ namespace FluentFTP {
         /// </summary>
         /// <returns>An array of file and directory names if any were returned.</returns>
         public async Task<string[]> GetNameListingAsync() {
+            //TODO:  Rewrite as true async method with cancellation support
             return await Task.Factory.FromAsync<string[]>(
                 (ac, s) => BeginGetNameListing(ac, s),
                 ar => EndGetNameListing(ar),
@@ -4061,7 +4734,8 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="type">ASCII/Binary</param>
 	    protected async Task SetDataTypeAsync(FtpDataType type) {
-	        await Task.Factory.FromAsync<FtpDataType>(
+            //TODO:  Rewrite as true async method with cancellation support
+            await Task.Factory.FromAsync<FtpDataType>(
 	            (t, ac, s) => BeginSetDataType(t, ac, s),
 	            ar => EndSetDataType(ar),
 	            type, null);
@@ -4121,7 +4795,8 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="path">The directory to change to</param>
 	    public async Task SetWorkingDirectoryAsync(string path) {
-	        await Task.Factory.FromAsync<string>(
+            //TODO:  Rewrite as true async method with cancellation support
+            await Task.Factory.FromAsync<string>(
 	            (p, ac, s) => BeginSetWorkingDirectory(p, ac, s),
 	            ar => EndSetWorkingDirectory(ar),
 	            path, null);
@@ -4186,8 +4861,13 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetWorkingDirectory>(ar).EndInvoke(ar);
 		}
 
+        /// <summary>
+        /// Gets the current working directory asynchronously
+        /// </summary>
+        /// <returns>The current working directory, ./ if the response couldn't be parsed.</returns>
 	    public async Task<string> GetWorkingDirectoryAsync() {
-	        return await Task.Factory.FromAsync<string>(
+            //TODO:  Rewrite as true async method with cancellation support
+            return await Task.Factory.FromAsync<string>(
 	            (ac, s) => BeginGetWorkingDirectory(ac, s),
 	            ar => EndGetWorkingDirectory(ar), null);
 	    }
@@ -4251,6 +4931,7 @@ namespace FluentFTP {
         /// <param name="path">The full or relative path of the file</param>
         /// <returns>The size of the file, -1 if there was a problem.</returns>
 	    public async Task<long> GetFileSizeAsync(string path) {
+            //TODO:  Rewrite as true async method with cancellation support
 	        return await Task.Factory.FromAsync<string, long>(
 	            (p, ac, s) => BeginGetFileSize(p, ac, s),
 	            ar => EndGetFileSize(ar),
@@ -4313,6 +4994,7 @@ namespace FluentFTP {
         /// <param name="path">The full path to the file</param>
         /// <returns>The modified time, DateTime.MinValue if there was a problem</returns>
 	    public async Task<DateTime> GetModifiedTimeAsync(string path) {
+            //TODO:  Rewrite as true async method with cancellation support
 	        return await Task.Factory.FromAsync<string, DateTime>(
 	            (p, ac, s) => BeginGetModifiedTime(p, ac, s),
 	            ar => EndGetModifiedTime(ar),
@@ -4386,6 +5068,7 @@ namespace FluentFTP {
         /// </summary>
         /// <returns>The FtpHashType flag or FtpHashType.NONE if there was a problem.</returns>
 	    public async Task<FtpHashAlgorithm> GetHashAlgorithmAsync() {
+            //TODO:  Rewrite as true async method with cancellation support
 	        return await Task.Factory.FromAsync<FtpHashAlgorithm>(
 	            (ac, s) => BeginGetHashAlgorithm(ac, s),
 	            ar => EndGetHashAlgorithm(ar), null);
@@ -4469,6 +5152,7 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="type">Hash algorithm to use</param>
 	    public async Task SetHashAlgorithmAsync(FtpHashAlgorithm type) {
+            //TODO:  Rewrite as true async method with cancellation support
 	        await Task.Factory.FromAsync<FtpHashAlgorithm>(
 	            (t, ac, s) => BeginSetHashAlgorithm(t, ac, s),
 	            ar => EndSetHashAlgorithm(ar),
@@ -4580,6 +5264,7 @@ namespace FluentFTP {
         /// <param name="path">The file you want the server to compute the hash for</param>
         /// <returns>The hash of the file.</returns>
 	    public async Task<FtpHash> GetHashAsync(string path) {
+            //TODO:  Rewrite as true async method with cancellation support
 	        return await Task.Factory.FromAsync<string, FtpHash>(
 	            (p, ac, s) => BeginGetHash(p, ac, s),
 	            ar => EndGetHash(ar),
@@ -4715,6 +5400,8 @@ namespace FluentFTP {
 		private static bool HasPermission(FtpPermission owner, FtpPermission flag) {
 			return (owner & flag) == flag;
 		}
+
+        //TODO:  Create async versions of static methods
 
 		/// <summary>
 		/// Connects to the specified URI. If the path specified by the URI ends with a
