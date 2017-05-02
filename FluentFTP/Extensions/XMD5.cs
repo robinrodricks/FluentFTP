@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using FluentFTP;
 
+#if (CORE || NETFX45)
+using System.Threading.Tasks;
+#endif
+
 namespace FluentFTP.Extensions {
 	/// <summary>
 	/// Implementation of non-standard XMD5 command.
@@ -28,7 +32,7 @@ namespace FluentFTP.Extensions {
 		}
 
 		/// <summary>
-		/// Asynchronusly retrieve a MD5 hash. The XMD5 command is non-standard
+        /// Begins an asynchronous operation to retrieve a XMD5 hash. The XMD5 command is non-standard
 		/// and not guaranteed to work.
 		/// </summary>
 		/// <param name="client">FtpClient Object</param>
@@ -48,9 +52,9 @@ namespace FluentFTP.Extensions {
 		}
 
 		/// <summary>
-		/// Ends an asynchronous call to BeginGetXMD5()
+        /// Ends an asynchronous call to <see cref="BeginGetXMD5"/>
 		/// </summary>
-		/// <param name="ar">IAsyncResult returned from BeginGetXMD5()</param>
+        /// <param name="ar">IAsyncResult returned from <see cref="BeginGetXMD5"/></param>
 		/// <returns>The MD5 hash of the specified file.</returns>
 		public static string EndGetXMD5(IAsyncResult ar) {
 			AsyncGetXMD5 func = null;
@@ -65,5 +69,22 @@ namespace FluentFTP.Extensions {
 
 			return func.EndInvoke(ar);
 		}
+
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Gets the MD5 hash of the specified file using XMD5 asynchronously. This is a non-standard extension
+        /// to the protocol and may or may not work. A FtpCommandException will be
+        /// thrown if the command fails.
+        /// </summary>
+        /// <param name="client">FtpClient Object</param>
+        /// <param name="path">Full or relative path to remote file</param>
+        /// <returns>Server response, presumably the MD5 hash.</returns>
+        public static async Task<string> GetXMD5Async(this FtpClient client, string path) {
+            return await Task.Factory.FromAsync<FtpClient, string, string>(
+                (c, p, ac, s) => BeginGetXMD5(c, p, ac, s),
+                ar => EndGetXMD5(ar),
+                client, path, null);
+        }
+#endif
 	}
 }

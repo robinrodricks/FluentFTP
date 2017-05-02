@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using FluentFTP;
 
+#if (CORE || NETFX45)
+using System.Threading.Tasks;
+#endif
+
 namespace FluentFTP.Extensions {
 	/// <summary>
 	/// Implementation of the non-standard XSHA256 command
@@ -28,7 +32,7 @@ namespace FluentFTP.Extensions {
 		}
 
 		/// <summary>
-		/// Asynchronusly retrieve a SHA256 hash. The XSHA256 command is non-standard
+        /// Begins an asynchronous operation to retrieve a SHA256 hash. The XSHA256 command is non-standard
 		/// and not guaranteed to work.
 		/// </summary>
 		/// <param name="client">FtpClient Object</param>
@@ -48,9 +52,9 @@ namespace FluentFTP.Extensions {
 		}
 
 		/// <summary>
-		/// Ends an asynchronous call to BeginGetXSHA256()
+        /// Ends an asynchronous call to <see cref="BeginGetXSHA256"/>
 		/// </summary>
-		/// <param name="ar">IAsyncResult returned from BeginGetXSHA256()</param>
+        /// <param name="ar">IAsyncResult returned from <see cref="BeginGetXSHA256"/></param>
 		/// <returns>The SHA-256 hash of the specified file.</returns>
 		public static string EndGetXSHA256(IAsyncResult ar) {
 			AsyncGetXSHA256 func = null;
@@ -65,5 +69,22 @@ namespace FluentFTP.Extensions {
 
 			return func.EndInvoke(ar);
 		}
+
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Gets the SHA-256 hash of the specified file using XSHA256 asynchronously. This is a non-standard extension
+        /// to the protocol and may or may not work. A FtpCommandException will be
+        /// thrown if the command fails.
+        /// </summary>
+        /// <param name="client">FtpClient Object</param>
+        /// <param name="path">Full or relative path to remote file</param>
+        /// <returns>Server response, presumably the SHA-256 hash.</returns>
+        public static async Task<string> GetXSHA256Async(this FtpClient client, string path) {
+            return await Task.Factory.FromAsync<FtpClient, string, string>(
+                (c, p, ac, s) => BeginGetXSHA256(c, p, ac, s),
+                ar => EndGetXSHA256(ar),
+                client, path, null);
+        }
+#endif
 	}
 }
