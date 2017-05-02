@@ -2393,14 +2393,9 @@ namespace FluentFTP {
                 throw new FtpException("Error while reading the file from the disk. See InnerException for more info.", ex1);
 	        }
 
-	        bool ok = await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, token);
-	        try {
-	            fileStream.Dispose();
+	        using (fileStream) {
+	            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, token);
 	        }
-	        catch (Exception) {
-	            // suppress exceptions during stream close
-	        }
-            return ok;
 	    }
 #endif
 		/// <summary>
@@ -2408,7 +2403,7 @@ namespace FluentFTP {
 		/// High-level API that takes care of various edge cases internally.
 		/// Supports very large files since it uploads data in chunks.
 		/// </summary>
-		/// <param name="fileData">The full data of the file, as a bytearray</param>
+		/// <param name="fileData">The full data of the file, as a byte array</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="overwrite">Overwrite the file if it already exists</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
@@ -2493,8 +2488,7 @@ namespace FluentFTP {
             // write the file onto the server
             using (MemoryStream ms = new MemoryStream(fileData)) {
                 ms.Position = 0;
-                bool ok = await UploadFileInternalAsync(ms, remotePath, createRemoteDir, token);
-                return ok;
+                return await UploadFileInternalAsync(ms, remotePath, createRemoteDir, token);
             }
         }
 
@@ -2657,16 +2651,9 @@ namespace FluentFTP {
             }
 
             // download the file straight to a file stream
-            bool ok = await DownloadFileInternalAsync(remotePath, outStream, token);
-
-            // close the file stream
-            try {
-                outStream.Dispose();
+            using (outStream) {
+                return await DownloadFileInternalAsync(remotePath, outStream, token);
             }
-            catch (Exception) {
-                //Suppress any errors closing the local file stream
-            }
-            return ok;
         }
 #endif
 
@@ -2679,7 +2666,6 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public bool DownloadFile(Stream outStream, string remotePath) {
-
 			// download the file from the server
 			return DownloadFileInternal(remotePath, outStream);
 		}
@@ -2689,7 +2675,7 @@ namespace FluentFTP {
 		/// High-level API that takes care of various edge cases internally.
 		/// Supports very large files since it downloads data in chunks.
 		/// </summary>
-		/// <param name="outBytes">The variable that will recieve the bytes.</param>
+		/// <param name="outBytes">The variable that will receive the bytes.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public bool DownloadFile(out byte[] outBytes, string remotePath) {
