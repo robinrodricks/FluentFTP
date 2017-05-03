@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
+#if (CORE || NETFX45)
 using System.Threading.Tasks;
+#endif
 
 namespace FluentFTP {
 	/// <summary>
@@ -163,7 +165,8 @@ namespace FluentFTP {
 			}
 			return String.Format("{0:0.#} {1}", len, sizePostfix[order]);
 		}
-
+		
+#if (CORE || NETFX45)
         /// <summary>
         /// This creates a <see cref="System.Threading.Tasks.Task{TResult}"/> that represents a pair of begin and end methods
         /// that conform to the Asynchronous Programming Model pattern.  This extends the maximum amount of arguments from
@@ -213,5 +216,6 @@ namespace FluentFTP {
 
 	        return tcs.Task;
 	    }
+#endif
 	}
 }

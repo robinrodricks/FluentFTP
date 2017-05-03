@@ -119,7 +119,7 @@ namespace Tests {
 			using (FtpClient cl = new FtpClientHttp11Proxy(new ProxyInfo { Host = "127.0.0.1", Port = 3128, })) // Credential = new NetworkCredential() 
             {
 				Console.WriteLine("FTPClient::ConnectionType = '" + cl.ConnectionType + "'");
-
+				
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Host = m_host;
 				cl.ValidateCertificate += OnValidateCertificate;
