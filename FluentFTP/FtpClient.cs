@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 
 namespace FluentFTP {
 	/// <summary>
-	/// Event is fired when a ssl certificate needs to be validated
+	/// Event is fired when a SSL certificate needs to be validated
 	/// </summary>
 	/// <param name="control">The control connection that triggered the event</param>
 	/// <param name="e">Event args</param>
@@ -32,7 +32,7 @@ namespace FluentFTP {
 
 	/// <summary>
 	/// FTP Control Connection. Speaks the FTP protocol with the server and
-	/// provides facilities for performing basic transactions.
+	/// provides facilities for performing transactions.
 	/// 
 	/// Debugging problems with FTP transactions is much easier to do when
 	/// you can see exactly what is sent to the server and the reply 
@@ -1996,7 +1996,7 @@ namespace FluentFTP {
 
 #endregion
 
-#region Multi File Upload/Download
+		#region Multi File Upload/Download
 
 		/// <summary>
 		/// Uploads the given file paths to a single folder on the server.
@@ -2278,7 +2278,7 @@ namespace FluentFTP {
 
 #endregion
 
-#region File Upload/Download
+		#region File Upload/Download
 
 		/// <summary>
 		/// Uploads the specified file directly onto the server.
@@ -3191,7 +3191,7 @@ namespace FluentFTP {
 
 #endregion
 
-#region File Management
+		#region File Management
 
 		/// <summary>
 		/// Deletes a file on the server
@@ -3894,7 +3894,7 @@ namespace FluentFTP {
 
 #endregion
 
-#region File Permissions
+		#region File Permissions
 
 		/// <summary>
 		/// Modify the permissions of the given file/folder.
@@ -3988,7 +3988,7 @@ namespace FluentFTP {
 
 #endregion
 
-#region Link Dereferencing
+		#region Link Dereferencing
 
 		/// <summary>
 		/// Recursively dereferences a symbolic link. See the
@@ -4133,7 +4133,7 @@ namespace FluentFTP {
 
 #endregion
 
-#region File Listing
+		#region File Listing
 
 		/// <summary>
 		/// Returns information about a file system object. You should check the Capabilities
@@ -4210,7 +4210,8 @@ namespace FluentFTP {
 		public FtpListItem EndGetObjectInfo(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncGetObjectInfo>(ar).EndInvoke(ar);
 		}
-
+		
+#if (CORE || NETFX45)
         /// <summary>
         /// Return information about a remote file system object asynchronously. 
         /// </summary>
@@ -4231,6 +4232,7 @@ namespace FluentFTP {
 	            ar => EndGetObjectInfo(ar),
 	            path, null);
 	    }
+#endif
 
 		/// <summary>
         /// Gets a file listing from the server from the current working directory. Each <see cref="FtpListItem"/> object returned
@@ -4572,7 +4574,7 @@ namespace FluentFTP {
 
 #endregion
 
-#region Name Listing
+		#region Name Listing
 
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command.
@@ -4706,7 +4708,7 @@ namespace FluentFTP {
 
 #endregion
 
-#region Misc Methods
+		#region Misc Methods
 
 		private static string DecodeUrl(string url) {
 #if CORE
@@ -5483,7 +5485,7 @@ namespace FluentFTP {
 
 #endregion
 
-#region Static API
+		#region Static API
 
 		/// <summary>
 		/// Calculate the CHMOD integer value given a set of permissions.

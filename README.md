@@ -22,7 +22,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Supports SITE CHMOD command (Unix only)
 - Dereferencing of symbolic links
 - Passive and active data connections (PASV, EPSV, PORT and EPRT)
-- Synchronous and asynchronous methods (`IAsyncResult` pattern) for all operations 
+- Synchronous and asynchronous methods (`async`/`await` pattern) for all operations 
 - Explicit and Implicit SSL connections are supported for the control and data connections using .NET's `SslStream`
 - Improves thread safety by cloning the FTP control connection for file transfers (optional)
 - Implements its own internal locking in an effort to keep transactions synchronized
@@ -47,6 +47,7 @@ FluentFTP works on .NET and .NET Core.
 |---------------		|-----------		|---------------------------	|
 | **.NET 2.0**      	| net20     		| FluentFTP_NET_VS2012.sln  	|
 | **.NET 4.0**      	| net40     		| FluentFTP_NET_VS2012.sln  	|
+| **.NET 4.5**      	| net45     		| FluentFTP_NET_VS2012.sln  	|
 | **.NET Core 5.0** 	| dnxcore50 		| FluentFTP_Core_VS2017.sln 	|
 | **.NET Standard 1.4** | netstandard1.4	| FluentFTP_Core_VS2017.sln 	|
 | **.NET Standard 1.6** | netstandard1.6	| FluentFTP_Core_VS2017.sln 	|
@@ -114,7 +115,7 @@ See more examples [here](https://github.com/hgupta9/FluentFTP/tree/master/Fluent
 
 Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS functionality.
 
-**Note:** All methods support synchronous and asynchronous versions. Simply add the "Begin" prefix to a method for the async version.
+**Note:** All methods support synchronous and asynchronous versions. Simply add the "Async" postfix to a method for `async`/`await` syntax in .NET 4.5+, or add the "Begin"/"End" prefix to a method for .NET 4.0 and below.
 
 ## Connection
 
@@ -485,4 +486,5 @@ RFC959 defines another data mode called block that allows persistent data connec
 
 - [J.P. Trosclair](https://github.com/jptrosclair) - Original creator, owner upto 2016
 - [Harsh Gupta](https://github.com/hgupta9) - Owner and maintainer from 2016 onwards
+- [Jordan Blacker](https://github.com/jblacker) - `async`/`await` support for all methods
 - [Atif Aziz](https://github.com/atifaziz) & Joseph Albahari - LINQBridge (allows LINQ in .NET 2.0)

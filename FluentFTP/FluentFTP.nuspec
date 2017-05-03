@@ -3,7 +3,7 @@
 	<metadata>
 	
 		<id>FluentFTP</id>
-		<version>16.4.1</version>
+		<version>16.5.0</version>
 		<title>FluentFTP</title>
 		<authors>J.P. Trosclair, Harsh Gupta</authors>
 		<owners>Harsh Gupta</owners>
@@ -18,6 +18,7 @@
 		<frameworkAssemblies>
 		  <frameworkAssembly assemblyName="System.Web" targetFramework="net20"  />
 		  <frameworkAssembly assemblyName="System.Web" targetFramework="net40"  />
+		  <frameworkAssembly assemblyName="System.Web" targetFramework="net45"  />
 		</frameworkAssemblies>
 		
 		<dependencies>
@@ -26,6 +27,9 @@
 			</group>
 			
 			<group targetFramework=".NETFramework4.0">
+			</group>
+			
+			<group targetFramework=".NETFramework4.5">
 			</group>
 			
 			<group targetFramework="DNXCore5.0">
