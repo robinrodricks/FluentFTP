@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using FluentFTP;
 
+#if (CORE || NETFX45)
+using System.Threading.Tasks;
+#endif
+
 namespace FluentFTP.Extensions {
 	/// <summary>
 	/// Implementation of the non-standard XSHA512 command
@@ -28,7 +32,7 @@ namespace FluentFTP.Extensions {
 		}
 
 		/// <summary>
-		/// Asynchronusly retrieve a SHA512 hash. The XSHA512 command is non-standard
+        /// Begins an asynchronous operation to retrieve a SHA512 hash. The XSHA512 command is non-standard
 		/// and not guaranteed to work.
 		/// </summary>
 		/// <param name="client">FtpClient Object</param>
@@ -48,9 +52,9 @@ namespace FluentFTP.Extensions {
 		}
 
 		/// <summary>
-		/// Ends an asynchronous call to BeginGetXSHA512()
+        /// Ends an asynchronous call to <see cref="BeginGetXSHA512"/>
 		/// </summary>
-		/// <param name="ar">IAsyncResult returned from BeginGetXSHA512()</param>
+        /// <param name="ar">IAsyncResult returned from <see cref="BeginGetXSHA512"/></param>
 		/// <returns>The SHA-512 hash of the specified file.</returns>
 		public static string EndGetXSHA512(IAsyncResult ar) {
 			AsyncGetXSHA512 func = null;
@@ -65,5 +69,22 @@ namespace FluentFTP.Extensions {
 
 			return func.EndInvoke(ar);
 		}
+
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Gets the SHA-512 hash of the specified file using XSHA512 asynchronously. This is a non-standard extension
+        /// to the protocol and may or may not work. A FtpCommandException will be
+        /// thrown if the command fails.
+        /// </summary>
+        /// <param name="client">FtpClient Object</param>
+        /// <param name="path">Full or relative path to remote file</param>
+        /// <returns>Server response, presumably the SHA-512 hash.</returns>
+        public static async Task<string> GetXSHA512Async(this FtpClient client, string path) {
+            return await Task.Factory.FromAsync<FtpClient, string, string>(
+                (c, p, ac, s) => BeginGetXSHA512(c, p, ac, s),
+                ar => EndGetXSHA512(ar),
+                client, path, null);
+        }
+#endif
 	}
 }

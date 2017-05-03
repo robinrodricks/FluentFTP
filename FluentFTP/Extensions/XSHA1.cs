@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using FluentFTP;
 
+#if (CORE || NETFX45)
+using System.Threading.Tasks;
+#endif
+
 namespace FluentFTP.Extensions {
 	/// <summary>
 	/// Implementation of the non-standard XSHA1 command
@@ -28,7 +32,7 @@ namespace FluentFTP.Extensions {
 		}
 
 		/// <summary>
-		/// Asynchronusly retrieve a SHA1 hash. The XSHA1 command is non-standard
+        /// Begins an asynchronous operation to retrieve a SHA1 hash. The XSHA1 command is non-standard
 		/// and not guaranteed to work.
 		/// </summary>
 		/// <param name="client">FtpClient Object</param>
@@ -48,9 +52,9 @@ namespace FluentFTP.Extensions {
 		}
 
 		/// <summary>
-		/// Ends an asynchronous call to BeginGetXSHA1()
+        /// Ends an asynchronous call to <see cref="BeginGetXSHA1"/>
 		/// </summary>
-		/// <param name="ar">IAsyncResult returned from BeginGetXSHA1()</param>
+        /// <param name="ar">IAsyncResult returned from <see cref="BeginGetXSHA1"/></param>
 		/// <returns>The SHA-1 hash of the specified file.</returns>
 		public static string EndGetXSHA1(IAsyncResult ar) {
 			AsyncGetXSHA1 func = null;
@@ -65,5 +69,22 @@ namespace FluentFTP.Extensions {
 
 			return func.EndInvoke(ar);
 		}
+
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Gets the SHA-1 hash of the specified file using XSHA1 asynchronously. This is a non-standard extension
+        /// to the protocol and may or may not work. A FtpCommandException will be
+        /// thrown if the command fails.
+        /// </summary>
+        /// <param name="client">FtpClient Object</param>
+        /// <param name="path">Full or relative path to remote file</param>
+        /// <returns>Server response, presumably the SHA-1 hash.</returns>
+        public static async Task<string> GetXSHA1sync(this FtpClient client, string path) {
+            return await Task.Factory.FromAsync<FtpClient, string, string>(
+                (c, p, ac, s) => BeginGetXSHA1(c, p, ac, s),
+                ar => EndGetXSHA1(ar),
+                client, path, null);
+        }
+#endif
 	}
 }

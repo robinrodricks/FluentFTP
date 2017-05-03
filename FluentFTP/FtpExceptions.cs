@@ -65,7 +65,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Initalizes a new instance of a FtpResponseException
+		/// Initializes a new instance of a FtpResponseException
 		/// </summary>
 		/// <param name="code">Status code</param>
 		/// <param name="message">Associated message</param>
@@ -75,7 +75,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Initalizes a new instance of a FtpResponseException
+		/// Initializes a new instance of a FtpResponseException
 		/// </summary>
 		/// <param name="reply">The FtpReply to build the exception from</param>
 		public FtpCommandException(FtpReply reply)

@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using FluentFTP;
 
+#if (CORE || NETFX45)
+using System.Threading.Tasks;
+#endif
+
 namespace FluentFTP.Extensions {
 	/// <summary>
 	/// Implementation of the non-standard XCRC command
@@ -16,7 +20,7 @@ namespace FluentFTP.Extensions {
 		/// </summary>
 		/// <param name="client">FtpClient object</param>
 		/// <param name="path">The path of the file you'd like the server to compute the CRC value for.</param>
-		/// <returns>The response from the server, typically the CRC value. FtpCommandException thrown on error</returns>
+		/// <returns>The response from the server, typically the XCRC value. FtpCommandException thrown on error</returns>
 		public static string GetXCRC(this FtpClient client, string path) {
 			FtpReply reply;
 
@@ -27,7 +31,7 @@ namespace FluentFTP.Extensions {
 		}
 
 		/// <summary>
-		/// Asynchronusly retrieve a CRC hash. The XCRC command is non-standard
+        /// Begins an asynchronous operation to retrieve a CRC hash. The XCRC command is non-standard
 		/// and not guaranteed to work.
 		/// </summary>
 		/// <param name="client">FtpClient Object</param>
@@ -47,9 +51,9 @@ namespace FluentFTP.Extensions {
 		}
 
 		/// <summary>
-		/// Ends an asynchronous call to BeginGetXCRC()
+        /// Ends an asynchronous call to <see cref="BeginGetXCRC"/>
 		/// </summary>
-		/// <param name="ar">IAsyncResult returned from BeginGetXCRC()</param>
+        /// <param name="ar">IAsyncResult returned from <see cref="BeginGetXCRC"/></param>
 		/// <returns>The CRC hash of the specified file.</returns>
 		public static string EndGetXCRC(IAsyncResult ar) {
 			AsyncGetXCRC func = null;
@@ -64,5 +68,22 @@ namespace FluentFTP.Extensions {
 
 			return func.EndInvoke(ar);
 		}
+
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Gets the CRC hash of the specified file using XCRC asynchronously. This is a non-standard extension
+        /// to the protocol and may or may not work. A FtpCommandException will be
+        /// thrown if the command fails.
+        /// </summary>
+        /// <param name="client">FtpClient Object</param>
+        /// <param name="path">Full or relative path to remote file</param>
+        /// <returns>Server response, presumably the CRC hash.</returns>
+        public static async Task<string> GetXCRCAsync(this FtpClient client, string path){
+            return await Task.Factory.FromAsync<FtpClient, string, string>(
+                (c, p, ac, s) => BeginGetXCRC(c, p, ac, s),
+                ar => EndGetXCRC(ar),
+                client, path, null);
+        }
+#endif
 	}
 }
