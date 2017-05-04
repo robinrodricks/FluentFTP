@@ -21,18 +21,20 @@ namespace Tests {
 		static string m_user = "";
 		static string m_pass = "";
 
+	    private static readonly int[] connectionTypes = new int[] {
+	        (int) FtpDataConnectionType.EPSV,
+	        (int) FtpDataConnectionType.EPRT,
+	        (int) FtpDataConnectionType.PASV,
+	        (int) FtpDataConnectionType.PORT
+	    };
+
 
 		static void Main(string[] args) {
 			FtpTrace.FlushOnWrite = true;
 			FtpTrace.AddListener(new ConsoleTraceListener());
 
 			try {
-				/*foreach (int i in new int[] {
-					 (int)FtpDataConnectionType.EPSV,
-					 (int)FtpDataConnectionType.EPRT,
-					 (int)FtpDataConnectionType.PASV,
-					 (int)FtpDataConnectionType.PORT
-				 }) {
+				/*foreach (int i in connectionTypes) {
 					using (FtpClient cl = new FtpClient()) {
 						cl.Credentials = new NetworkCredential(m_user, m_pass);
 						cl.Host = m_host;
@@ -107,6 +109,33 @@ namespace Tests {
 
 				//TestFilePermissions();
 
+                //Async Tests
+			    Console.WriteLine("Running Async Tests");
+			    List<Task> tasks = new List<Task>() {
+			        TestListPathAsync(),
+			        StreamResponsesAsync(),
+			        TestGetObjectInfoAsync(),
+			        TestHashAsync(),
+			        TestUploadDownloadFileAsync(),
+			        TestUploadDownloadManyFilesAsync(),
+			        TestUploadDownloadManyFiles2Async()
+			    };
+
+			    Task.WhenAll(tasks).ContinueWith(t => {
+			        Console.Write("Async Tests Completed: ");
+			        if (t.IsFaulted) {
+			            var exceptions = FlattenExceptions(t.Exception);
+			            Console.WriteLine("With {0} Error{1}.", exceptions.Length, exceptions.Length > 1 ? "s" : "");
+			            for (int i = 0; i > exceptions.Length; i++) {
+			                var ex = exceptions[i];
+			                Console.WriteLine("\nException {0}: {1} - {2}", i, ex.GetType().Name, ex.Message);
+			                Console.WriteLine(ex.StackTrace);
+			            }
+			        }
+			        else {
+			            Console.WriteLine("Successfully");
+			        }
+			    }).Wait();
 			} catch (Exception ex) {
 				Console.WriteLine(ex.ToString());
 			}
@@ -114,6 +143,18 @@ namespace Tests {
 			Console.WriteLine("--DONE--");
 			// Console.ReadKey();
 		}
+
+	    static Exception[] FlattenExceptions(AggregateException aggEx) {
+	        AggregateException flattened = aggEx.Flatten();
+	        return flattened.InnerExceptions.Select(e => GetInnerMostException(e)).ToArray();
+	    }
+
+	    static Exception GetInnerMostException(Exception ex) {
+            if (ex.InnerException != null)
+                return GetInnerMostException(ex.InnerException);
+            
+            return ex;
+	    }
 
 		static void TestListPathWithHttp11Proxy() {
 			using (FtpClient cl = new FtpClientHttp11Proxy(new ProxyInfo { Host = "127.0.0.1", Port = 3128, })) // Credential = new NetworkCredential() 
