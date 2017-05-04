@@ -21,18 +21,20 @@ namespace Tests {
 		static string m_user = "";
 		static string m_pass = "";
 
+	    private static readonly int[] connectionTypes = new int[] {
+	        (int) FtpDataConnectionType.EPSV,
+	        (int) FtpDataConnectionType.EPRT,
+	        (int) FtpDataConnectionType.PASV,
+	        (int) FtpDataConnectionType.PORT
+	    };
+
 
 		static void Main(string[] args) {
 			FtpTrace.FlushOnWrite = true;
 			FtpTrace.AddListener(new ConsoleTraceListener());
 
 			try {
-				/*foreach (int i in new int[] {
-					 (int)FtpDataConnectionType.EPSV,
-					 (int)FtpDataConnectionType.EPRT,
-					 (int)FtpDataConnectionType.PASV,
-					 (int)FtpDataConnectionType.PORT
-				 }) {
+				/*foreach (int i in connectionTypes) {
 					using (FtpClient cl = new FtpClient()) {
 						cl.Credentials = new NetworkCredential(m_user, m_pass);
 						cl.Host = m_host;
@@ -107,6 +109,33 @@ namespace Tests {
 
 				//TestFilePermissions();
 
+                //Async Tests
+			    Console.WriteLine("Running Async Tests");
+			    List<Task> tasks = new List<Task>() {
+			        TestListPathAsync(),
+			        StreamResponsesAsync(),
+			        TestGetObjectInfoAsync(),
+			        TestHashAsync(),
+			        TestUploadDownloadFileAsync(),
+			        TestUploadDownloadManyFilesAsync(),
+			        TestUploadDownloadManyFiles2Async()
+			    };
+
+			    Task.WhenAll(tasks).ContinueWith(t => {
+			        Console.Write("Async Tests Completed: ");
+			        if (t.IsFaulted) {
+			            var exceptions = FlattenExceptions(t.Exception);
+			            Console.WriteLine("With {0} Error{1}.", exceptions.Length, exceptions.Length > 1 ? "s" : "");
+			            for (int i = 0; i > exceptions.Length; i++) {
+			                var ex = exceptions[i];
+			                Console.WriteLine("\nException {0}: {1} - {2}", i, ex.GetType().Name, ex.Message);
+			                Console.WriteLine(ex.StackTrace);
+			            }
+			        }
+			        else {
+			            Console.WriteLine("Successfully");
+			        }
+			    }).Wait();
 			} catch (Exception ex) {
 				Console.WriteLine(ex.ToString());
 			}
@@ -114,6 +143,18 @@ namespace Tests {
 			Console.WriteLine("--DONE--");
 			// Console.ReadKey();
 		}
+
+	    static Exception[] FlattenExceptions(AggregateException aggEx) {
+	        AggregateException flattened = aggEx.Flatten();
+	        return flattened.InnerExceptions.Select(e => GetInnerMostException(e)).ToArray();
+	    }
+
+	    static Exception GetInnerMostException(Exception ex) {
+            if (ex.InnerException != null)
+                return GetInnerMostException(ex.InnerException);
+            
+            return ex;
+	    }
 
 		static void TestListPathWithHttp11Proxy() {
 			using (FtpClient cl = new FtpClientHttp11Proxy(new ProxyInfo { Host = "127.0.0.1", Port = 3128, })) // Credential = new NetworkCredential() 
@@ -146,6 +187,21 @@ namespace Tests {
 			}
 		}
 
+        static async Task TestListPathAsync()
+        {
+            using (FtpClient cl = new FtpClient())
+            {
+                cl.Credentials = new NetworkCredential(m_user, m_pass);
+                cl.Host = m_host;
+                cl.EncryptionMode = FtpEncryptionMode.None;
+
+                await cl.GetListingAsync();
+                Console.WriteLine("Path listing succeeded");
+                await cl.GetListingAsync(null, FtpListOption.NoPath);
+                Console.WriteLine("No path listing succeeded");
+            }
+        }
+
 		static void StreamResponses() {
 			using (FtpClient cl = new FtpClient()) {
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
@@ -173,6 +229,38 @@ namespace Tests {
 				}
 			}
 		}
+
+        static async Task StreamResponsesAsync()
+        {
+            using (FtpClient cl = new FtpClient())
+            {
+                cl.Credentials = new NetworkCredential(m_user, m_pass);
+                cl.Host = m_host;
+                cl.EncryptionMode = FtpEncryptionMode.None;
+                cl.ValidateCertificate += new FtpSslValidation(delegate(FtpClient control, FtpSslValidationEventArgs e)
+                {
+                    e.Accept = true;
+                });
+
+                using (FtpDataStream s = (FtpDataStream)await cl.OpenWriteAsync("test.txt"))
+                {
+                    FtpReply r = s.CommandStatus;
+
+                    Console.WriteLine();
+                    Console.WriteLine("Response to STOR:");
+                    Console.WriteLine("Code: {0}", r.Code);
+                    Console.WriteLine("Message: {0}", r.Message);
+                    Console.WriteLine("Informational: {0}", r.InfoMessages);
+
+                    r = s.Close();
+                    Console.WriteLine();
+                    Console.WriteLine("Response after close:");
+                    Console.WriteLine("Code: {0}", r.Code);
+                    Console.WriteLine("Message: {0}", r.Message);
+                    Console.WriteLine("Informational: {0}", r.InfoMessages);
+                }
+            }
+        }
 
 		static void TestUnixListing() {
 			using (FtpClient cl = new FtpClient()) {
@@ -217,6 +305,21 @@ namespace Tests {
 				Console.WriteLine(item.ToString());
 			}
 		}
+
+        static async Task TestGetObjectInfoAsync()
+        {
+            using (FtpClient cl = new FtpClient())
+            {
+                FtpListItem item;
+
+                cl.Host = m_host;
+                cl.Credentials = new NetworkCredential(m_user, m_pass);
+                cl.Encoding = Encoding.Default;
+
+                item = await cl.GetObjectInfoAsync("/Examples/OpenRead.cs");
+                Console.WriteLine(item.ToString());
+            }
+        }
 
 		static void TestManualEncoding() {
 			using (FtpClient cl = new FtpClient()) {
@@ -275,6 +378,45 @@ namespace Tests {
 				}
 			}
 		}
+
+        static async Task TestServerDownloadAsync(FtpClient client, string path)
+        {
+            foreach (FtpListItem i in await client.GetListingAsync(path))
+            {
+                switch (i.Type)
+                {
+                    case FtpFileSystemObjectType.Directory:
+                        await TestServerDownloadAsync(client, i.FullName);
+                        break;
+                    case FtpFileSystemObjectType.File:
+                        using (Stream s = await client.OpenReadAsync(i.FullName))
+                        {
+                            byte[] b = new byte[8192];
+                            int read = 0;
+                            long total = 0;
+
+                            try
+                            {
+                                while ((read = await s.ReadAsync(b, 0, b.Length)) > 0)
+                                {
+                                    total += read;
+
+                                    Console.Write("\r{0}/{1} {2:p}          ",
+                                        total, s.Length, (double)total / (double)s.Length);
+                                }
+
+                                Console.Write("\r{0}/{1} {2:p}       ",
+                                        total, s.Length, (double)total / (double)s.Length);
+                            }
+                            finally
+                            {
+                                Console.WriteLine();
+                            }
+                        }
+                        break;
+                }
+            }
+        }
 
 		static void cl_ValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
 			e.Accept = true;
@@ -433,6 +575,35 @@ namespace Tests {
 				}
 			}
 		}
+
+        static async Task TestHashAsync()
+        {
+            using (FtpClient cl = new FtpClient())
+            {
+                cl.Credentials = new NetworkCredential(m_user, m_pass);
+                cl.Host = m_host;
+                await cl.ConnectAsync();
+
+                Console.WriteLine("Supported HASH algorithms: {0}", cl.HashAlgorithms);
+                Console.WriteLine("Current HASH algorithm: {0}", await cl.GetHashAlgorithmAsync());
+
+                foreach (FtpHashAlgorithm alg in Enum.GetValues(typeof(FtpHashAlgorithm)))
+                {
+                    if (alg != FtpHashAlgorithm.NONE && cl.HashAlgorithms.HasFlag(alg))
+                    {
+                        FtpHash hash = null;
+
+                        await cl.SetHashAlgorithmAsync(alg);
+                        hash = await cl.GetHashAsync("LICENSE.TXT");
+
+                        if (hash.IsValid)
+                        {
+                            Debug.Assert(hash.Verify(@"C:\FTPTEST\LICENSE.TXT"), "The computed hash didn't match or the hash object was invalid!");
+                        }
+                    }
+                }
+            }
+        }
 
 		static void TestReset() {
 			using (FtpClient cl = new FtpClient()) {
@@ -770,6 +941,27 @@ namespace Tests {
 			}
 		}
 
+        static async Task TestUploadDownloadFileAsync()
+        {
+
+            using (FtpClient cl = new FtpClient())
+            {
+                cl.Host = m_host;
+                cl.Credentials = new NetworkCredential(m_user, m_pass);
+
+                // 100 K file
+                await cl.UploadFileAsync(@"D:\Github\hgupta\FluentFTP\README.md", "/public_html/temp/README.md");
+                await cl.DownloadFileAsync(@"D:\Github\hgupta\FluentFTP\README2.md", "/public_html/temp/README.md");
+
+                /*
+                // 10 M file
+                await cl.UploadFileAsync(@"D:\Drivers\mb_driver_intel_irst_6series.exe", "/public_html/temp/big.txt");
+                await cl.RenameAsync("/public_html/temp/big.txt", "/public_html/temp/big2.txt");
+                await cl.DownloadFileAsync(@"D:\Drivers\mb_driver_intel_irst_6series_2.exe", "/public_html/temp/big2.txt");
+                */
+            }
+        }
+
 		static void TestUploadDownloadFile_UTF() {
 
 			using (FtpClient cl = new FtpClient()) {
@@ -835,6 +1027,35 @@ namespace Tests {
 			}
 		}
 
+        static async Task TestUploadDownloadManyFilesAsync()
+        {
+
+            using (FtpClient cl = new FtpClient())
+            {
+                cl.Host = m_host;
+                cl.Credentials = new NetworkCredential(m_user, m_pass);
+                cl.EnableThreadSafeDataConnections = false;
+                await cl.ConnectAsync();
+
+                // 100 K file
+                for (int i = 0; i < 3; i++)
+                {
+                    Console.WriteLine(" ------------- UPLOAD " + i + " ------------------");
+                    await cl.UploadFileAsync(@"D:\Drivers\mb_driver_intel_bootdisk_irst_64_6series.exe", "/public_html/temp/small.txt");
+                }
+
+                // 100 K file
+                for (int i = 0; i < 3; i++)
+                {
+                    Console.WriteLine(" ------------- DOWNLOAD " + i + " ------------------");
+                    await cl.DownloadFileAsync(@"D:\Drivers\test\file" + i + ".exe", "/public_html/temp/small.txt");
+                }
+
+                Console.WriteLine(" ------------- ALL DONE! ------------------");
+
+            }
+        }
+
 		static void TestUploadDownloadManyFiles2() {
 
 			using (FtpClient cl = new FtpClient()) {
@@ -854,6 +1075,28 @@ namespace Tests {
 				cl.Dispose();
 			}
 		}
+
+        static async Task TestUploadDownloadManyFiles2Async()
+        {
+
+            using (FtpClient cl = new FtpClient())
+            {
+                cl.Host = m_host;
+                cl.Credentials = new NetworkCredential(m_user, m_pass);
+                cl.EnableThreadSafeDataConnections = false;
+                await cl.ConnectAsync();
+
+                // upload many
+                await cl.UploadFilesAsync(new string[] { @"D:\Drivers\test\file0.exe", @"D:\Drivers\test\file1.exe", @"D:\Drivers\test\file2.exe", @"D:\Drivers\test\file3.exe", @"D:\Drivers\test\file4.exe" }, "/public_html/temp/", false);
+
+                // download many
+                await cl.DownloadFilesAsync(@"D:\Drivers\test\", new string[] { @"/public_html/temp/file0.exe", @"/public_html/temp/file1.exe", @"/public_html/temp/file2.exe", @"/public_html/temp/file3.exe", @"/public_html/temp/file4.exe" }, false);
+
+                Console.WriteLine(" ------------- ALL DONE! ------------------");
+
+                cl.Dispose();
+            }
+        }
 
 		static void TestUploadDownloadZeroLenFile() {
 
