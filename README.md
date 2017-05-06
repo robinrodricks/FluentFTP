@@ -8,7 +8,7 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 ## Features
 
 - Full support for FTP, FTPS (FTP over SSL) and [FTPS with client certificates](#client-certificates)
-- File and directory listing for [all major server types](#file-listings) (UNIX, IIS, DOS, etc)
+- File and directory listing for [all major server types](#file-listings) (Unix, Windows/IIS, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, etc)
 - Easily upload and download a file from the server
 - Easily read and write file data from the server using standard streams
 - Create, append, read, write, rename and delete files and folders
@@ -161,15 +161,17 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 	- `LinkObject` : The file/folder the link points to. Only filled for symbolic links if `FtpListOption.DerefLink` flag is used.
 
-	- `SpecialPermissions` : Gets special permissions such as Stiky, SUID and SGID. **(*NIX only)**
+	- `SpecialPermissions` : Gets special permissions such as Stiky, SUID and SGID.
 
-	- `Chmod` : The CHMOD permissions of the object. For example 644 or 755. **Default:** `0` if not provided by server. **(*NIX only)**
+	- `Chmod` : The CHMOD permissions of the object. For example 644 or 755. **Default:** `0` if not provided by server.
 
-	- `OwnerPermissions` : User rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server. **(*NIX only)**
+	- `OwnerPermissions` : User rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server.
 
-	- `GroupPermissions` : Group rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server. **(*NIX only)**
+	- `GroupPermissions` : Group rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server.
 
-	- `OtherPermissions` : Other rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server. **(*NIX only)**
+	- `OtherPermissions` : Other rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server.
+
+	- `RawPermissions` : The raw permissions string recieved for this object. Use this if other permission properties are blank or invalid.
 
 	- `Input` : The raw string that the server returned for this object. Helps debug if the above properties have been correctly parsed.
 
@@ -289,6 +291,15 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **IsClone** - Checks if this control connection is a clone. **Default:** false.
 
 
+*File Listings*
+
+- **ListingParser** - File listing parser to be used. Automatically calculated based on the type of the server, unless changed. File listing parsing has improved in 2017, but to use the older parsing routines please use `FtpParser.Legacy`. **Default:** `FtpParser.Auto`.
+
+- **ListingCulture** - Culture used to parse file listings. **Default:** `CultureInfo.InvariantCulture`.
+
+- **TimeOffset** - Time difference between server and client, in hours. If the server is located in New York and you are in London then the time difference is -5 hours. **Default:** 0.
+
+
 *Active FTP*
 
 - **ActivePorts** - List of ports to try using for Active FTP connections, or null to automatically select a port. **Default:** null.
@@ -382,15 +393,21 @@ The exception that propagates back to your code should be the root of the proble
 
 ## File Listings
 
-Some of you may already be aware that RFC959 does not specify any particular format for file listings (LIST). As time has passed extensions have been added to address this problem. Here's what you need to know about the situation:
+1. When you call `GetListing()`, FluentFTP first attempts to use **machine listings** (MLSD command) if they are supported by the server. These are most accurate and you can expect correct file size and modification date (UTC). You may also force this mode using `client.ListingParser = FtpParser.Machine`. You should also include the `FtpListOption.Modify` flag for the most accurate modification dates (down to the second). 
 
-1. **UNIX File Listings :** UNIX style file listings are NOT reliable. Most FTP servers respond to LIST with a format that strongly resembles the output of ls -l on UNIX and UNIX-like operating systems. This format is difficult to parse and has shortcomings with date/time values in which assumptions have to made in order to try to guess an as accurate as possible value. FluentFTP provides a LIST parser but there is no guarantee that it will work right 100% of the time. You can add your own parser if it doesn't. See the examples project in the source code. You should include the `FtpListOption.Modify` flag for the most accurate modification dates (down to the second). MDTM will fail on directories on most but not all servers. An attempt is made by FluentFTP to get the modification time of directories using this command but do not be surprised if it fails. Modification times of directories should not be important most of the time. If you think they are you might want to reconsider your reasoning or upgrade the server software to one that supports MLSD (machine listings: the best option).
+2. If machine listings are not supported we fallback to the appropriate **OS-specific parser** (LIST command), listed below:
 
-2. **DOS/IIS File Listings :** DOS style file listings (default IIS LIST response) are mostly supported. There is one issue where a file or directory that begins with a space won't be correctly parsed because of the arbitrary amount of spacing IIS throws in its directory listings. IIS can be configured to throw out UNIX style listings so if this is an issue for you, you might consider enabling that option. If you know a better way to parse the listing you can roll your own parser per the examples included with the downloads. If it works share it! It's also worth noting that date/times in DOS style listings don't include seconds. As mentioned above, if you pass the `FtpListOption.Modify` flag to GetListing() MDTM will be used to get the accurate (to the second) date/time however MDTM on directories does not work with IIS.
+- **Unix** parser : Works for Pure-FTPd, ProFTPD, vsftpd, etc. If you encounter errors you can always try the alternate Unix parser `client.ListingParser = FtpParser.UnixAlt`.
 
-3. **Machine Listings :** FluentFTP prefers machine listings (MLST/MLSD) which are an extension added to the protocol. This format is reliable and is always used over LIST when the server advertises it in its FEATure list unless you override the behavior with `FtpListOption` flags. With machine listings you can expect a correct file size and modification date (UTC). If you run across a case that you are not it's very possible it's due to a bug in the machine listing parser and you should report the issue along with a sample of the file listing (see the debugging example in the source).
+- **Windows** parser : Works for IIS, DOS, FileZilla, etc.
 
-4. **Name Listings :** Name Listings (NLST) are the next best thing when machine listings are not available however they are MUCH slower than either LIST or MLSD. This is because NLST sends a list of objects in the directory and the server has to be queried for the rest of the information on file-by-file basis, such as the file size, the modification time and an attempt to determine if the object is a file or directory. Name listings can be forced using `FtpListOption` flags. The best way to handle falling back to NLST is to query the server features (FtpClient.Capabilities) for the FtpCapability.MLSD flag. If it's not there, then pass the necessary flags to GetListing() to force a name listing.
+- **VMS** parser : Works for Vax, VMS, OpenVMS, etc.
+
+- **Nonstop** parser : Works for Tandem, HP NonStop Guardian, etc.
+
+- **IBM** parser : Works for IBM OS/400, etc.
+
+3. And if none of these satisfy you, you can fallback to **Name Listings** (NLST command), which are MUCH slower than either LIST or MLSD. This is because NLST sends a list of objects in the directory and the server has to be queried for the rest of the information on file-by-file basis, such as the file size, the modification time and an attempt to determine if the object is a file or directory. Name listings can be forced using `FtpListOption.ForceList` flags.
 
 ## Client Certificates
 

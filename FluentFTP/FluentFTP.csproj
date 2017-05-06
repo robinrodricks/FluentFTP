@@ -90,6 +90,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <Compile Include="FtpListParser.cs" />
     <Compile Include="NET2Compatibility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Extensions\GetChecksum.cs" />

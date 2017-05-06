@@ -50,33 +50,52 @@ namespace FluentFTP.Proxy {
 			if (!proxyConnectionReply.Success)
 				throw new FtpException("Can't connect " + Host + " via proxy " + Proxy.Host + ".\nMessage : " + proxyConnectionReply.ErrorMessage);
 		}
-
-		private FtpReply GetProxyReply(FtpSocketStream stream) {
-
+		
+		private FtpReply GetProxyReply( FtpSocketStream stream ) {
+			
 			FtpReply reply = new FtpReply();
 			string buf;
-
-			lock (Lock) {
-				if (!IsConnected)
-					throw new InvalidOperationException("No connection to the server has been established.");
-
+			
+			lock( Lock ) {
+				if( !IsConnected )
+					throw new InvalidOperationException( "No connection to the server has been established." );
+				
 				stream.ReadTimeout = ReadTimeout;
-				while ((buf = stream.ReadLine(Encoding)) != null) {
+				while( ( buf = stream.ReadLine( Encoding ) ) != null ) {
 					Match m;
-
-					FtpTrace.WriteLine(buf);
-
-					if ((m = Regex.Match(buf, @"^HTTP/.*\s(?<code>[0-9]{3}) (?<message>.*)$")).Success) {
-						reply.Code = m.Groups["code"].Value;
-						reply.Message = m.Groups["message"].Value;
+					
+					FtpTrace.WriteLine( buf );
+					
+					if( ( m = Regex.Match( buf, @"^HTTP/.*\s(?<code>[0-9]{3}) (?<message>.*)$" ) ).Success ) {
+						reply.Code = m.Groups[ "code" ].Value;
+						reply.Message = m.Groups[ "message" ].Value;
 						break;
 					}
-
-					reply.InfoMessages += string.Format("{0}\n", buf);
+					
+					reply.InfoMessages += string.Format( "{0}\n", buf );
 				}
+				
+				// fixes #84 (missing bytes when downloading/uploading files thru proxy)
+				while( ( buf = stream.ReadLine( Encoding ) ) != null ) {
+					
+					FtpTrace.WriteLine( buf );
+
+					if (IsNullOrWhiteSpace(buf)) {
+						break;
+					}
+					
+					reply.InfoMessages += string.Format( "{0}\n", buf );
+				}
+
 			}
 
 			return reply;
 		}
+
+		private static bool IsNullOrWhiteSpace(string value) {
+			if (value == null) return true;
+			return string.IsNullOrEmpty(value.Trim());
+		}
+
 	}
 }

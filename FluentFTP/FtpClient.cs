@@ -267,6 +267,15 @@ namespace FluentFTP {
 				return m_host;
 			}
 			set {
+
+				// remove unwanted prefix/postfix
+				if (value.StartsWith("ftp://")) {
+					value = value.Substring(value.IndexOf("ftp://") + ("ftp://").Length);
+				}
+				if (value.EndsWith("/")) {
+					value = value.Replace("/", "");
+				}
+
 				m_host = value;
 			}
 		}
@@ -298,7 +307,7 @@ namespace FluentFTP {
 			}
 		}
 
-		NetworkCredential m_credentials = null;
+		NetworkCredential m_credentials = new NetworkCredential("anonymous", "anonymous");
 		/// <summary>
 		/// Credentials used for authentication
 		/// </summary>
@@ -584,14 +593,10 @@ namespace FluentFTP {
 		/// Gets the type of system/server that we're
 		/// connected to.
 		/// </summary>
+		private string m_systemType = "UNKNOWN";
 		public string SystemType {
 			get {
-				FtpReply reply = Execute("SYST");
-
-				if (reply.Success)
-					return reply.Message;
-
-				return null;
+				return m_systemType;
 			}
 		}
 
@@ -602,7 +607,7 @@ namespace FluentFTP {
 			protected set { m_connectionType = value; }
 		}
 
-		int m_transferChunkSize = 65536;
+		private int m_transferChunkSize = 65536;
 		/// <summary>
 		/// Gets or sets the number of bytes transferred in a single chunk (a single FTP command).
         /// Used by <see cref="o:UploadFile"/>/<see cref="o:UploadFileAsync"/> and <see cref="o:DownloadFile"/>/<see cref="o:DownloadFileAsync"/>
@@ -619,12 +624,93 @@ namespace FluentFTP {
 
 		private FtpDataType CurrentDataType;
 
+		private FtpParser m_parser = FtpParser.Auto;
+		/// <summary>
+		/// File listing parser to be used. 
+		/// Automatically calculated based on the type of the server, unless changed.
+		/// </summary>
+		public FtpParser ListingParser {
+			get { return m_parser; }
+			set {
+				m_parser = value;
+
+				// configure parser
+				m_listParser.parser = value;
+				m_listParser.parserConfirmed = false;
+			}
+		}
+
+		private CultureInfo m_parserCulture = CultureInfo.InvariantCulture;
+		/// <summary>
+		/// Culture used to parse file listings
+		/// </summary>
+		public CultureInfo ListingCulture {
+			get { return m_parserCulture; }
+			set {
+				m_parserCulture = value;
+
+				// configure parser
+				m_listParser.parserCulture = value;
+			}
+		}
+
+		private double m_timeDiff = 0;
+		/// <summary>
+		/// Time difference between server and client, in hours.
+		/// If the server is located in New York and you are in London then the time difference is -5 hours.
+		/// </summary>
+		public double TimeOffset {
+			get { return m_timeDiff; }
+			set {
+				m_timeDiff = value;
+
+				// configure parser
+				int hours = (int)Math.Floor(m_timeDiff);
+				int mins = (int)Math.Floor((m_timeDiff - Math.Floor(m_timeDiff)) * 60);
+				m_listParser.timeOffset = new TimeSpan(hours, mins, 0);
+				m_listParser.hasTimeOffset = m_timeDiff != 0;
+			}
+		}
+
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
 		// FtpClient.CloneConnection()
 
 		#endregion
 
 		#region Core
+
+		/// <summary>
+		/// Creates a new instance of an FTP Client.
+		/// </summary>
+		public FtpClient() {
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host.
+		/// </summary>
+		public FtpClient(string host) {
+			Host = host;
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host and credentials.
+		/// </summary>
+		public FtpClient(string host, NetworkCredential credentials) {
+			Host = host;
+			Credentials = credentials;
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host, username and password.
+		/// </summary>
+		public FtpClient(string host, string user, string pass) {
+			Host = host;
+			Credentials = new NetworkCredential(user, pass);
+			m_listParser = new FtpListParser(this);
+		}
 
 		/// <summary>
 		/// Performs a bitwise and to check if the specified
@@ -719,6 +805,9 @@ namespace FluentFTP {
 			conn.DataConnectionEncryption = DataConnectionEncryption;
 			conn.SslProtocols = SslProtocols;
 			conn.TransferChunkSize = TransferChunkSize;
+			conn.ListingParser = ListingParser;
+			conn.ListingCulture = ListingCulture;
+			conn.TimeOffset = TimeOffset;
 
 			// copy props using attributes (slower, not .NET core compatible)
 			/*foreach (PropertyInfo prop in GetType().GetProperties()) {
@@ -893,6 +982,8 @@ namespace FluentFTP {
 
 		#region Connection
 
+		private FtpListParser m_listParser;
+
 		/// <summary>
 		/// Connect to the server
 		/// </summary>
@@ -979,6 +1070,15 @@ namespace FluentFTP {
 					// about this so we'll just execute it to be safe. 
 					Execute("OPTS UTF8 ON");
 				}
+
+				// Get the system type - Needed to auto-detect file listing parser
+				if ((reply = Execute("SYST")).Success) {
+					m_systemType = reply.Message;
+				}
+
+				// Create the parser even if the auto-OS detection failed
+				m_listParser.Init(m_systemType);
+
 			}
 		}
 
@@ -4164,7 +4264,7 @@ namespace FluentFTP {
 						info += res[i];
 					}
 
-					return FtpListItem.Parse(null, info, m_caps);
+					return m_listParser.ParseSingleLine(null, info, m_caps, true);
 				}
 			} else {
 				FtpTrace.WriteLine("Failed to get object info for path {0} with error {1}", path, reply.ErrorMessage);
@@ -4304,13 +4404,17 @@ namespace FluentFTP {
 				}
 			}
 
-			// MLSD provides a machine parsable format with more
+			bool forceLIST = (options & FtpListOption.ForceList) == FtpListOption.ForceList;
+
+			// MLSD provides a machine readable format with more
 			// accurate information than most of the UNIX long list
-			// formats which translates to more effcient file listings
+			// formats which translates to more efficient and reliable file listings
 			// so always prefer MLSD over LIST unless the caller of this
 			// method overrides it with the ForceList option
-			if ((options & FtpListOption.ForceList) != FtpListOption.ForceList && HasFeature(FtpCapability.MLSD)) {
+			bool machineList = false;
+			if ((!forceLIST || m_parser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
 				listcmd = "MLSD";
+				machineList = true;
 			} else {
 				if ((options & FtpListOption.UseLS) == FtpListOption.UseLS) {
 					listcmd = "LS";
@@ -4385,7 +4489,8 @@ namespace FluentFTP {
 					if (i + 1 < rawlisting.Count && (rawlisting[i + 1].StartsWith("\t") || rawlisting[i + 1].StartsWith(" ")))
 						buf += rawlisting[++i];
 
-					item = FtpListItem.Parse(path, buf, m_caps);
+					item = m_listParser.ParseSingleLine(path, buf, m_caps, machineList);
+
 					// FtpListItem.Parse() returns null if the line
 					// could not be parsed
 					if (item != null) {
@@ -5462,11 +5567,6 @@ namespace FluentFTP {
 		~FtpClient() {
 			Dispose();
 		}
-
-		/// <summary>
-		/// Creates a new instance of FtpClient
-		/// </summary>
-		public FtpClient() { }
 
 		private void ReadStaleData() {
 			if (m_stream != null && m_stream.SocketDataAvailable > 0) {

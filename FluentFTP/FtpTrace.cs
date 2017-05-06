@@ -108,8 +108,8 @@ namespace FluentFTP {
 		/// Write to the TraceListeners
 		/// </summary>
 		/// <param name="message">The message to write</param>
-		public static void WriteLine(string message) {
-			Write(string.Format("{0}{1}", message, Environment.NewLine));
+		public static void WriteLine(object message) {
+			Write(string.Format("{0}{1}", message.ToString(), Environment.NewLine));
 		}
 	}
 }

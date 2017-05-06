@@ -14,7 +14,7 @@ namespace Examples {
         /// Adds a custom file listing parser
         /// </summary>
         public static void AddCustomParser() {
-            FtpListItem.AddParser(new FtpListItem.Parser(ParseUnixList));
+			FtpListParser.AddParser(new FtpListParser.Parser(ParseUnixList));
         }
 
         /// <summary>
