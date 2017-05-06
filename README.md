@@ -397,17 +397,17 @@ The exception that propagates back to your code should be the root of the proble
 
 2. If machine listings are not supported we fallback to the appropriate **OS-specific parser** (LIST command), listed below:
 
-   - **Unix** parser : Works for Pure-FTPd, ProFTPD, vsftpd, etc. If you encounter errors you can always try the alternate Unix parser `client.ListingParser = FtpParser.UnixAlt`.
+   - **Unix** parser : Works for Pure-FTPd, ProFTPD, vsftpd, etc. If you encounter errors you can always try the alternate Unix parser using `client.ListingParser = FtpParser.UnixAlt`.
    
-   - **Windows** parser : Works for IIS, DOS, FileZilla, etc.
+   - **Windows** parser : Works for IIS, DOS, FileZilla Server, etc.
    
    - **VMS** parser : Works for Vax, VMS, OpenVMS, etc.
    
-   - **Nonstop** parser : Works for Tandem, HP NonStop Guardian, etc.
+   - **NonStop** parser : Works for Tandem, HP NonStop Guardian, etc.
    
    - **IBM** parser : Works for IBM OS/400, etc.
 
-3. And if none of these satisfy you, you can fallback to **Name Listings** (NLST command), which are MUCH slower than either LIST or MLSD. This is because NLST sends a list of objects in the directory and the server has to be queried for the rest of the information on file-by-file basis, such as the file size, the modification time and an attempt to determine if the object is a file or directory. Name listings can be forced using `FtpListOption.ForceList` flags.
+3. And if none of these satisfy you, you can fallback to **Name Listings** (NLST command), which are MUCH slower than either LIST or MLSD. This is because NLST only sends a list of filenames, without any properties. The server has to be queried for the file size, modification date, and type (file/folder) on a file-by-file basis. Name listings can be forced using the `FtpListOption.ForceList` flag.
 
 ## Client Certificates
 
