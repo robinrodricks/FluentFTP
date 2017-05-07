@@ -267,9 +267,17 @@ namespace FluentFTP {
 				}
 			}
 
-			// apply time difference between server/client
-			if (result != null && hasTimeOffset) {
-				result.Modified = result.Modified - timeOffset;
+			// if parsed file successfully
+			if (result != null) {
+
+				// apply time difference between server/client
+				if (hasTimeOffset) {
+					result.Modified = result.Modified - timeOffset;
+				}
+
+				// calc absolute file paths
+				CalcFullPaths(result, path, false);
+
 			}
 
 			return result;
@@ -360,42 +368,6 @@ namespace FluentFTP {
 
 				foreach (Parser parser in Parsers) {
 					if ((item = parser(buf, capabilities)) != null) {
-						// if this is a vax/openvms file listing
-						// there are no slashes in the path name
-						if (parser == (new Parser(ParseVMSList)))
-							item.FullName = path + item.Name;
-						else {
-							FtpTrace.WriteLine(item.Name);
-
-							// remove globbing/wildcard from path
-							if (path.GetFtpFileName().Contains("*")) {
-								path = path.GetFtpDirectoryName();
-							}
-
-							if (item.Name != null) {
-								// absolute path? then ignore the path input to this method.
-								if (item.Name.StartsWith("/") || item.Name.StartsWith("./") || item.Name.StartsWith("../")) {
-									item.FullName = item.Name;
-									item.Name = item.Name.GetFtpFileName();
-								} else if (path != null) {
-									item.FullName = path.GetFtpPath(item.Name); //.GetFtpPathWithoutGlob();
-								} else {
-									FtpTrace.WriteLine("Couldn't determine the full path of this object:{0}{1}",
-										Environment.NewLine, item.ToString());
-								}
-							}
-
-
-							// if a link target is set and it doesn't include an absolute path
-							// then try to resolve it.
-							if (item.LinkTarget != null && !item.LinkTarget.StartsWith("/")) {
-								if (item.LinkTarget.StartsWith("./"))
-									item.LinkTarget = path.GetFtpPath(item.LinkTarget.Remove(0, 2));
-								else
-									item.LinkTarget = path.GetFtpPath(item.LinkTarget);
-							}
-						}
-
 						item.Input = buf;
 						return item;
 					}
@@ -404,6 +376,7 @@ namespace FluentFTP {
 
 			return null;
 		}
+
 
 		/// <summary>
 		/// Used for synchronizing access to the Parsers collection
@@ -587,70 +560,10 @@ namespace FluentFTP {
 			}
 
 			if (m.Groups["permissions"].Value.Length > 0) {
-				ParseUnixPermissions(item, m.Groups["permissions"].Value);
+				CalcUnixPermissions(item, m.Groups["permissions"].Value);
 			}
 
 			return item;
-		}
-
-		private static void ParseUnixPermissions(FtpListItem item, string permissions) {
-			Match perms = Regex.Match(permissions,
-							@"[\w-]{1}(?<owner>[\w-]{3})(?<group>[\w-]{3})(?<others>[\w-]{3})",
-							RegexOptions.IgnoreCase);
-
-			if (perms.Success) {
-
-				if (perms.Groups["owner"].Value.Length == 3) {
-					if (perms.Groups["owner"].Value[0] == 'r') {
-						item.OwnerPermissions |= FtpPermission.Read;
-					}
-					if (perms.Groups["owner"].Value[1] == 'w') {
-						item.OwnerPermissions |= FtpPermission.Write;
-					}
-					if (perms.Groups["owner"].Value[2] == 'x' || perms.Groups["owner"].Value[2] == 's') {
-						item.OwnerPermissions |= FtpPermission.Execute;
-					}
-					if (perms.Groups["owner"].Value[2] == 's' || perms.Groups["owner"].Value[2] == 'S') {
-						item.SpecialPermissions |= FtpSpecialPermissions.SetUserID;
-					}
-				}
-
-				if (perms.Groups["group"].Value.Length == 3) {
-					if (perms.Groups["group"].Value[0] == 'r') {
-						item.GroupPermissions |= FtpPermission.Read;
-					}
-					if (perms.Groups["group"].Value[1] == 'w') {
-						item.GroupPermissions |= FtpPermission.Write;
-					}
-					if (perms.Groups["group"].Value[2] == 'x' || perms.Groups["group"].Value[2] == 's') {
-						item.GroupPermissions |= FtpPermission.Execute;
-					}
-					if (perms.Groups["group"].Value[2] == 's' || perms.Groups["group"].Value[2] == 'S') {
-						item.SpecialPermissions |= FtpSpecialPermissions.SetGroupID;
-					}
-				}
-
-				if (perms.Groups["others"].Value.Length == 3) {
-					if (perms.Groups["others"].Value[0] == 'r') {
-						item.OthersPermissions |= FtpPermission.Read;
-					}
-					if (perms.Groups["others"].Value[1] == 'w') {
-						item.OthersPermissions |= FtpPermission.Write;
-					}
-					if (perms.Groups["others"].Value[2] == 'x' || perms.Groups["others"].Value[2] == 't') {
-						item.OthersPermissions |= FtpPermission.Execute;
-					}
-					if (perms.Groups["others"].Value[2] == 't' || perms.Groups["others"].Value[2] == 'T') {
-						item.SpecialPermissions |= FtpSpecialPermissions.Sticky;
-					}
-				}
-
-				CalcChmod(item);
-			}
-		}
-
-		public static void CalcChmod(FtpListItem item) {
-			item.Chmod = FtpClient.CalcChmod(item.OwnerPermissions, item.GroupPermissions, item.OthersPermissions);
 		}
 
 		/// <summary>
@@ -851,22 +764,6 @@ namespace FluentFTP {
 			return false;
 		}
 
-		private static bool IsUnixListing(string raw) {
-			char ch = raw[0];
-			if (ch == ORDINARY_FILE_CHAR || ch == DIRECTORY_CHAR || ch == SYMLINK_CHAR)
-				return true;
-			return false;
-		}
-
-		private bool IsNumeric(string field) {
-			field = field.Replace(".", ""); // strip dots
-			for (int i = 0; i < field.Length; i++) {
-				if (!Char.IsDigit(field[i]))
-					return false;
-			}
-			return true;
-		}
-
 		/// <summary>
 		/// Parses Unix format listings
 		/// </summary>
@@ -1060,7 +957,7 @@ namespace FluentFTP {
 			file.RawGroup = group;
 			file.RawOwner = owner;
 			file.RawPermissions = permissions;
-			ParseUnixPermissions(file, permissions);
+			CalcUnixPermissions(file, permissions);
 			return file;
 		}
 
@@ -1198,7 +1095,7 @@ namespace FluentFTP {
 			file.RawGroup = group;
 			file.RawOwner = owner;
 			file.RawPermissions = permissions;
-			ParseUnixPermissions(file, permissions);
+			CalcUnixPermissions(file, permissions);
 			return file;
 		}
 
@@ -1446,37 +1343,15 @@ namespace FluentFTP {
 			return file;
 		}
 
-		/// <summary> Fix the date string to make the month camel case</summary>
-		/// <param name="fields">array of fields</param>
-		private string FixDateVMS(string[] fields) {
-			// convert the last 2 chars of month to lower case
-			StringBuilder lastModifiedStr = new StringBuilder();
-			bool monthFound = false;
-			for (int i = 0; i < fields[2].Length; i++) {
-				if (!Char.IsLetter(fields[2][i])) {
-					lastModifiedStr.Append(fields[2][i]);
-				} else {
-					if (!monthFound) {
-						lastModifiedStr.Append(fields[2][i]);
-						monthFound = true;
-					} else {
-						lastModifiedStr.Append(Char.ToLower(fields[2][i]));
-					}
-				}
-			}
-			lastModifiedStr.Append(" ").Append(fields[3]);
-			return lastModifiedStr.ToString();
-		}
-
 		#endregion
 
 		#region NonStop Parser
 
 		private bool IsNonstopValid(string[] listing) {
-			return IsHeader(listing[0]);
+			return IsNonstopHeader(listing[0]);
 		}
 
-		private bool IsHeader(string line) {
+		private bool IsNonstopHeader(string line) {
 			if (line.IndexOf("Code") > 0 && line.IndexOf("EOF") > 0 &&
 				line.IndexOf("RWEP") > 0)
 				return true;
@@ -1497,7 +1372,7 @@ namespace FluentFTP {
 			// JENNYCB2      101            16384 10-Jul-08 11:44:56 244, 10 "nnnn"
 			//-----------------------------------------------------
 
-			if (IsHeader(raw))
+			if (IsNonstopHeader(raw))
 				return null;
 
 			string[] fields = SplitString(raw);
@@ -1613,7 +1488,7 @@ namespace FluentFTP {
 			long size = Int64.Parse(fields[1]);
 
 			string lastModifiedStr = fields[2] + " " + fields[3];
-			DateTime lastModified = GetLastModified(lastModifiedStr);
+			DateTime lastModified = GetLastModifiedIBM(lastModifiedStr);
 
 			// test is dir
 			bool isDir = false;
@@ -1631,9 +1506,172 @@ namespace FluentFTP {
 			return file;
 		}
 
+		#endregion
+
+		#region Utils
+
+
+		// COMMON UTILS
+
+		public static void LogDebug(string text) {
+			FtpTrace.WriteLine(text);
+		}
+		public static void LogWarn(string text) {
+			FtpTrace.WriteLine("WARNING : " + text);
+		}
+
+		/// <summary>
+		/// Split into fields by splitting on strings
+		/// </summary>
+		private static string[] SplitString(string str) {
+			ArrayList allTokens = new ArrayList(str.Split(null));
+			for (int i = allTokens.Count - 1; i >= 0; i--)
+				if (((string)allTokens[i]).Trim().Length == 0)
+					allTokens.RemoveAt(i);
+			return (string[])allTokens.ToArray(typeof(string));
+		}
+
 		private int formatIndex = 0;
 
-		private DateTime GetLastModified(string lastModifiedStr) {
+		private static void CalcFullPaths(FtpListItem item, string path, bool isVMS) {
+
+
+			// EXIT IF NO DIR PATH PROVIDED
+			if (path == null) {
+
+				// check if the path is absolute
+				if (IsAbsolutePath(item.Name)) {
+					item.FullName = item.Name;
+					item.Name = item.Name.GetFtpFileName();
+				}
+
+				return;
+			}
+
+
+			// ONLY IF DIR PATH PROVIDED
+
+			// if this is a vax/openvms file listing
+			// there are no slashes in the path name
+			if (isVMS)
+				item.FullName = path + item.Name;
+			else {
+				//FtpTrace.WriteLine(item.Name);
+
+				// remove globbing/wildcard from path
+				if (path.GetFtpFileName().Contains("*")) {
+					path = path.GetFtpDirectoryName();
+				}
+
+				if (item.Name != null) {
+					// absolute path? then ignore the path input to this method.
+					if (IsAbsolutePath(item.Name)) {
+						item.FullName = item.Name;
+						item.Name = item.Name.GetFtpFileName();
+					} else if (path != null) {
+						item.FullName = path.GetFtpPath(item.Name); //.GetFtpPathWithoutGlob();
+					} else {
+						FtpTrace.WriteLine("Couldn't determine the full path of this object:{0}{1}",
+							Environment.NewLine, item.ToString());
+					}
+				}
+
+
+				// if a link target is set and it doesn't include an absolute path
+				// then try to resolve it.
+				if (item.LinkTarget != null && !item.LinkTarget.StartsWith("/")) {
+					if (item.LinkTarget.StartsWith("./"))
+						item.LinkTarget = path.GetFtpPath(item.LinkTarget.Remove(0, 2));
+					else
+						item.LinkTarget = path.GetFtpPath(item.LinkTarget);
+				}
+			}
+		}
+
+		private static bool IsAbsolutePath(string path) {
+			return path.StartsWith("/") || path.StartsWith("./") || path.StartsWith("../");
+		}
+
+		private static void CalcChmod(FtpListItem item) {
+			item.Chmod = FtpClient.CalcChmod(item.OwnerPermissions, item.GroupPermissions, item.OthersPermissions);
+		}
+
+		private static void CalcUnixPermissions(FtpListItem item, string permissions) {
+			Match perms = Regex.Match(permissions,
+							@"[\w-]{1}(?<owner>[\w-]{3})(?<group>[\w-]{3})(?<others>[\w-]{3})",
+							RegexOptions.IgnoreCase);
+
+			if (perms.Success) {
+
+				if (perms.Groups["owner"].Value.Length == 3) {
+					if (perms.Groups["owner"].Value[0] == 'r') {
+						item.OwnerPermissions |= FtpPermission.Read;
+					}
+					if (perms.Groups["owner"].Value[1] == 'w') {
+						item.OwnerPermissions |= FtpPermission.Write;
+					}
+					if (perms.Groups["owner"].Value[2] == 'x' || perms.Groups["owner"].Value[2] == 's') {
+						item.OwnerPermissions |= FtpPermission.Execute;
+					}
+					if (perms.Groups["owner"].Value[2] == 's' || perms.Groups["owner"].Value[2] == 'S') {
+						item.SpecialPermissions |= FtpSpecialPermissions.SetUserID;
+					}
+				}
+
+				if (perms.Groups["group"].Value.Length == 3) {
+					if (perms.Groups["group"].Value[0] == 'r') {
+						item.GroupPermissions |= FtpPermission.Read;
+					}
+					if (perms.Groups["group"].Value[1] == 'w') {
+						item.GroupPermissions |= FtpPermission.Write;
+					}
+					if (perms.Groups["group"].Value[2] == 'x' || perms.Groups["group"].Value[2] == 's') {
+						item.GroupPermissions |= FtpPermission.Execute;
+					}
+					if (perms.Groups["group"].Value[2] == 's' || perms.Groups["group"].Value[2] == 'S') {
+						item.SpecialPermissions |= FtpSpecialPermissions.SetGroupID;
+					}
+				}
+
+				if (perms.Groups["others"].Value.Length == 3) {
+					if (perms.Groups["others"].Value[0] == 'r') {
+						item.OthersPermissions |= FtpPermission.Read;
+					}
+					if (perms.Groups["others"].Value[1] == 'w') {
+						item.OthersPermissions |= FtpPermission.Write;
+					}
+					if (perms.Groups["others"].Value[2] == 'x' || perms.Groups["others"].Value[2] == 't') {
+						item.OthersPermissions |= FtpPermission.Execute;
+					}
+					if (perms.Groups["others"].Value[2] == 't' || perms.Groups["others"].Value[2] == 'T') {
+						item.SpecialPermissions |= FtpSpecialPermissions.Sticky;
+					}
+				}
+
+				CalcChmod(item);
+			}
+		}
+
+
+		// OS-SPECIFIC PARSERS
+
+		private static bool IsUnixListing(string raw) {
+			char ch = raw[0];
+			if (ch == ORDINARY_FILE_CHAR || ch == DIRECTORY_CHAR || ch == SYMLINK_CHAR)
+				return true;
+			return false;
+		}
+
+		private static bool IsNumeric(string field) {
+			field = field.Replace(".", ""); // strip dots
+			for (int i = 0; i < field.Length; i++) {
+				if (!Char.IsDigit(field[i]))
+					return false;
+			}
+			return true;
+		}
+
+		private DateTime GetLastModifiedIBM(string lastModifiedStr) {
 			DateTime lastModified = DateTime.MinValue;
 			if (formatIndex >= ibmDateFormats.Length) {
 				LogDebug("Exhausted formats - failed to parse date");
@@ -1664,28 +1702,28 @@ namespace FluentFTP {
 			return lastModified;
 		}
 
-		#endregion
-
-		#region Utils
-
-
-		public static void LogDebug(string text) {
-			FtpTrace.WriteLine(text);
+		/// <summary> Fix the date string to make the month camel case</summary>
+		/// <param name="fields">array of fields</param>
+		private string FixDateVMS(string[] fields) {
+			// convert the last 2 chars of month to lower case
+			StringBuilder lastModifiedStr = new StringBuilder();
+			bool monthFound = false;
+			for (int i = 0; i < fields[2].Length; i++) {
+				if (!Char.IsLetter(fields[2][i])) {
+					lastModifiedStr.Append(fields[2][i]);
+				} else {
+					if (!monthFound) {
+						lastModifiedStr.Append(fields[2][i]);
+						monthFound = true;
+					} else {
+						lastModifiedStr.Append(Char.ToLower(fields[2][i]));
+					}
+				}
+			}
+			lastModifiedStr.Append(" ").Append(fields[3]);
+			return lastModifiedStr.ToString();
 		}
-		public static void LogWarn(string text) {
-			FtpTrace.WriteLine("WARNING : " + text);
-		}
 
-		/// <summary>
-		/// Split into fields by splitting on strings
-		/// </summary>
-		public static string[] SplitString(string str) {
-			ArrayList allTokens = new ArrayList(str.Split(null));
-			for (int i = allTokens.Count - 1; i >= 0; i--)
-				if (((string)allTokens[i]).Trim().Length == 0)
-					allTokens.RemoveAt(i);
-			return (string[])allTokens.ToArray(typeof(string));
-		}
 
 		#endregion
 

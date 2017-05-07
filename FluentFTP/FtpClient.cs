@@ -4236,10 +4236,7 @@ namespace FluentFTP {
 		#region File Listing
 
 		/// <summary>
-		/// Returns information about a file system object. You should check the Capabilities
-		/// flags for the FtpCapability.MLSD flag before calling this method. Failing to do
-		/// so will result in an InvalidOperationException being thrown when the server
-		/// does not support machine listings. Returns null if the server response can't
+		/// Returns information about a file system object. Returns null if the server response can't
 		/// be parsed or the server returns a failure completion code. The error for a failure
 		/// is logged with FtpTrace. No exception is thrown on error because that would negate
 		/// the usefullness of this method for checking for the existence of an object.
@@ -4250,25 +4247,42 @@ namespace FluentFTP {
 			FtpReply reply;
 			string[] res;
 
-			if ((Capabilities & FtpCapability.MLSD) != FtpCapability.MLSD) {
-				throw new InvalidOperationException("The GetObjectInfo method only works on servers that support machine listings. " +
-					"Please check the Capabilities flags for FtpCapability.MLSD before calling this method.");
-			}
+			bool supportsMachineList = (Capabilities & FtpCapability.MLSD) == FtpCapability.MLSD;
 
-			if ((reply = Execute("MLST {0}", path)).Success) {
-				res = reply.InfoMessages.Split('\n');
-				if (res.Length > 1) {
-					string info = "";
+			if (supportsMachineList) {
 
-					for (int i = 1; i < res.Length; i++) {
-						info += res[i];
+				// USE MACHINE LISTING TO GET INFO FOR A SINGLE FILE
+
+				if ((reply = Execute("MLST {0}", path)).Success) {
+					res = reply.InfoMessages.Split('\n');
+					if (res.Length > 1) {
+						string info = "";
+
+						for (int i = 1; i < res.Length; i++) {
+							info += res[i];
+						}
+
+						return m_listParser.ParseSingleLine(null, info, m_caps, true);
 					}
-
-					return m_listParser.ParseSingleLine(null, info, m_caps, true);
+				} else {
+					FtpTrace.WriteLine("Failed to get object info for path {0} with error {1}", path, reply.ErrorMessage);
 				}
 			} else {
-				FtpTrace.WriteLine("Failed to get object info for path {0} with error {1}", path, reply.ErrorMessage);
+
+				// USE GETLISTING TO GET ALL FILES IN DIR .. SLOWER BUT AT LEAST IT WORKS
+
+				string dirPath = path.GetFtpDirectoryName();
+				FtpListItem[] dirItems = GetListing(dirPath);
+
+				foreach (var dirItem in dirItems) {
+					if (dirItem.FullName == path) {
+						return dirItem;
+					}
+				}
+
+				FtpTrace.WriteLine("Failed to get object info for path {0} since MLST not supported and GetListing() fails to list file/folder.", path);
 			}
+
 
 			return null;
 		}

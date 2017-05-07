@@ -72,7 +72,6 @@ namespace Tests {
 				//TestUnixList();
 				//TestNetBSDServer();
 				// TestConnectionFailure();
-				//TestGetObjectInfo();
 				//TestFtpPath();
 				//TestListPath();
 				//TestListPathWithHttp11Proxy();
@@ -92,6 +91,7 @@ namespace Tests {
 				//--------------------------------
 				// FILE LISTING
 				//--------------------------------
+				TestGetObjectInfo();
 				//TestGetListing();
 				//TestGetMachineListing();
 				//GetPublicFTPServerListing();
@@ -314,15 +314,9 @@ namespace Tests {
 		}
 
 		static void TestGetObjectInfo() {
-			using (FtpClient cl = new FtpClient()) {
-				FtpListItem item;
+			using (FtpClient client = new FtpClient(m_host, m_user, m_pass)) {
+				FtpTrace.WriteLine(client.GetObjectInfo("/public_html/temp/README.md"));
 
-				cl.Host = m_host;
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
-				cl.Encoding = Encoding.Default;
-
-				item = cl.GetObjectInfo("/Examples/OpenRead.cs");
-				FtpTrace.WriteLine(item.ToString());
 			}
 		}
 		
