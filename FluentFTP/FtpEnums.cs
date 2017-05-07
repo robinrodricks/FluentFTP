@@ -420,7 +420,7 @@ namespace FluentFTP {
 		/// </summary>
 		AllFiles = 4,
 		/// <summary>
-		/// Force the use of the NLST command even if MLSD
+		/// Force the use of the NLST command even if MLSD (machine listings)
 		/// is supported by the server
 		/// </summary>
 		ForceList = 8,

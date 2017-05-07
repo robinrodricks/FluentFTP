@@ -4401,15 +4401,32 @@ namespace FluentFTP {
 			List<string> rawlisting = new List<string>();
 			string listcmd = null;
 			string buf = null;
-			bool includeSelf = (options & FtpListOption.IncludeSelfAndParent) == FtpListOption.IncludeSelfAndParent;
 
+			// read flags
+			bool isIncludeSelf = (options & FtpListOption.IncludeSelfAndParent) == FtpListOption.IncludeSelfAndParent;
+			bool isForceList = (options & FtpListOption.ForceList) == FtpListOption.ForceList;
+			bool isNoPath = (options & FtpListOption.NoPath) == FtpListOption.NoPath;
+			bool isNameList = (options & FtpListOption.NameList) == FtpListOption.NameList;
+			bool isUseLS = (options & FtpListOption.UseLS) == FtpListOption.UseLS;
+			bool isAllFiles = (options & FtpListOption.AllFiles) == FtpListOption.AllFiles;
+			bool isRecursive = (options & FtpListOption.Recursive) == FtpListOption.Recursive;
+			bool isDerefLinks = (options & FtpListOption.DerefLinks) == FtpListOption.DerefLinks;
+			bool isGetModified = (options & FtpListOption.Modify) == FtpListOption.Modify;
+			bool isGetSize = (options & FtpListOption.Size) == FtpListOption.Size;
+
+			// calc path to request
 			if (path == null || path.Trim().Length == 0) {
+
+				// if path not given, then use working dir
 				string pwd = GetWorkingDirectory();
 				if (pwd != null && pwd.Trim().Length > 0)
 					path = pwd;
 				else
 					path = "./";
+
 			} else if (!path.StartsWith("/")) {
+
+				// if relative path given then add working dir to calc full path
 				string pwd = GetWorkingDirectory();
 				if (pwd != null && pwd.Trim().Length > 0) {
 					if (path.StartsWith("./"))
@@ -4418,31 +4435,26 @@ namespace FluentFTP {
 				}
 			}
 
-			bool forceLIST = (options & FtpListOption.ForceList) == FtpListOption.ForceList;
-
-			// MLSD provides a machine readable format with more
-			// accurate information than most of the UNIX long list
-			// formats which translates to more efficient and reliable file listings
-			// so always prefer MLSD over LIST unless the caller of this
-			// method overrides it with the ForceList option
+			// MLSD provides a machine readable format with 100% accurate information
+			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
 			bool machineList = false;
-			if ((!forceLIST || m_parser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
+			if ((!isForceList || m_parser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
 				listcmd = "MLSD";
 				machineList = true;
 			} else {
-				if ((options & FtpListOption.UseLS) == FtpListOption.UseLS) {
+				if (isUseLS) {
 					listcmd = "LS";
-				} else if ((options & FtpListOption.NameList) == FtpListOption.NameList) {
+				} else if (isNameList) {
 					listcmd = "NLST";
 				} else {
 					string listopts = "";
 
 					listcmd = "LIST";
 
-					if ((options & FtpListOption.AllFiles) == FtpListOption.AllFiles)
+					if (isAllFiles)
 						listopts += "a";
 
-					if ((options & FtpListOption.Recursive) == FtpListOption.Recursive)
+					if (isRecursive)
 						listopts += "R";
 
 					if (listopts.Length > 0)
@@ -4450,7 +4462,7 @@ namespace FluentFTP {
 				}
 			}
 
-			if ((options & FtpListOption.NoPath) != FtpListOption.NoPath) {
+			if (!isNoPath) {
 				listcmd = string.Format("{0} {1}", listcmd, path.GetFtpPath());
 			}
 
@@ -4475,7 +4487,8 @@ namespace FluentFTP {
 			for (int i = 0; i < rawlisting.Count; i++) {
 				buf = rawlisting[i];
 
-				if ((options & FtpListOption.NameList) == FtpListOption.NameList) {
+				if (isNameList) {
+					
 					// if NLST was used we only have a file name so
 					// there is nothing to parse.
 					item = new FtpListItem() {
@@ -4488,10 +4501,12 @@ namespace FluentFTP {
 						item.Type = FtpFileSystemObjectType.File;
 
 					lst.Add(item);
+
 				} else {
+
 					// if this is a result of LIST -R then the path will be spit out
 					// before each block of objects
-					if (listcmd.StartsWith("LIST") && (options & FtpListOption.Recursive) == FtpListOption.Recursive) {
+					if (listcmd.StartsWith("LIST") && isRecursive) {
 						if (buf.StartsWith("/") && buf.EndsWith(":")) {
 							path = buf.TrimEnd(':');
 							continue;
@@ -4508,7 +4523,7 @@ namespace FluentFTP {
 					// FtpListItem.Parse() returns null if the line
 					// could not be parsed
 					if (item != null) {
-						if (includeSelf || !(item.Name == "." || item.Name == "..")) {
+						if (isIncludeSelf || !(item.Name == "." || item.Name == "..")) {
 							lst.Add(item);
 						} else {
 							FtpTrace.WriteLine("Skipped self or parent item: " + item.Name);
@@ -4520,13 +4535,16 @@ namespace FluentFTP {
 
 				// load extended information that wasn't available if the list options flags say to do so.
 				if (item != null) {
+
 					// try to dereference symbolic links if the appropriate list
 					// option was passed
-					if (item.Type == FtpFileSystemObjectType.Link && (options & FtpListOption.DerefLinks) == FtpListOption.DerefLinks) {
+					if (item.Type == FtpFileSystemObjectType.Link && isDerefLinks) {
 						item.LinkObject = DereferenceLink(item);
 					}
 
-					if ((options & FtpListOption.Modify) == FtpListOption.Modify && HasFeature(FtpCapability.MDTM)) {
+					// if need to get file modified date
+					if (isGetModified && HasFeature(FtpCapability.MDTM)) {
+
 						// if the modified date was not loaded or the modified date is more than a day in the future 
 						// and the server supports the MDTM command, load the modified date.
 						// most servers do not support retrieving the modified date
@@ -4542,7 +4560,9 @@ namespace FluentFTP {
 						}
 					}
 
-					if ((options & FtpListOption.Size) == FtpListOption.Size && HasFeature(FtpCapability.SIZE)) {
+					// if need to get file size
+					if (isGetSize && HasFeature(FtpCapability.SIZE)) {
+
 						// if no size was parsed, the object is a file and the server
 						// supports the SIZE command, then load the file size
 						if (item.Size == -1) {
