@@ -358,7 +358,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 
 ## Connection
 
-| FTP Command      		| API					| Description                  	|
+| Command  	    		| API					| Description                  	|
 |---------------		|-----------			|---------------------------	|
 | **USER, PASS**  		| Credentials			| Login with username & password	|
 | **QUIT**  			| Disconnect()			| Disconnect	|
@@ -375,7 +375,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 
 ## File Management
 
-| FTP Command      		| API					| Description                  	|
+| Command      			| API					| Description                  	|
 |---------------		|-----------			|---------------------------	|
 | **MLSD, LIST, NLST**  | GetListing()			| Directory file listing 	|
 | **DELE**      		| DeleteFile() / DeleteDirectory() | Delete a file |
@@ -388,7 +388,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 
 ## File Hashing
 
-| FTP Command      		| API					| Description                  	|
+| Command      			| API					| Description                  	|
 |---------------		|-----------			|---------------------------	|
 | **HASH**  			| GetHash() | Gets the hash of a file	|
 | **OPTS HASH**  		| GetHashAlgorithm() / SetHashAlgorithm() | Selects a hash algorithm	for HASH command |
