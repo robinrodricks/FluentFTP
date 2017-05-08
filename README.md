@@ -3,7 +3,7 @@
 
 [![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP)
 
-FluentFTP is a fully managed FTP client that supports [all major server types](#file-listings). It provides file and directory listing, uploading and dowloading files, permissions, hashing and SSL/TLS connections. This project is entirely developed in managed C#. All credits go to [J.P. Trosclair](https://github.com/jptrosclair) for developing and maintaining the library till 2016. FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
+FluentFTP is a fully managed FTP client that supports file and directory listing, uploading and dowloading files, permissions, hashing and SSL/TLS connections for [all major server types](#file-listings). This project is entirely developed in managed C#. All credits go to [J.P. Trosclair](https://github.com/jptrosclair) for developing and maintaining the library till 2016. FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 
 ## Features
 
