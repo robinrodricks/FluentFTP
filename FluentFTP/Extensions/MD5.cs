@@ -28,7 +28,7 @@ namespace FluentFTP.Extensions {
             FtpReply reply;
             string response;
 
-            if (!(reply = client.Execute("MD5 {0}", path)).Success)
+            if (!(reply = client.Execute("MD5 " + path)).Success)
                 throw new FtpCommandException(reply);
 
             response = reply.Message;

@@ -93,7 +93,7 @@ namespace Tests {
 				//--------------------------------
 				//TestGetObjectInfo();
 				TestGetListing();
-				//TestGetMachineListing();
+				TestGetMachineListing();
 				//GetPublicFTPServerListing();
 				//TestListSpacedPath();
 				//TestFilePermissions();
@@ -234,16 +234,16 @@ namespace Tests {
 
 					FtpTrace.WriteLine("");
 					FtpTrace.WriteLine("Response to STOR:");
-					FtpTrace.WriteLine("Code: {0}", r.Code);
-					FtpTrace.WriteLine("Message: {0}", r.Message);
-					FtpTrace.WriteLine("Informational: {0}", r.InfoMessages);
+					FtpTrace.WriteLine("Code: "+ r.Code);
+					FtpTrace.WriteLine("Message: "+ r.Message);
+					FtpTrace.WriteLine("Informational: "+ r.InfoMessages);
 
 					r = s.Close();
 					FtpTrace.WriteLine("");
 					FtpTrace.WriteLine("Response after close:");
-					FtpTrace.WriteLine("Code: {0}", r.Code);
-					FtpTrace.WriteLine("Message: {0}", r.Message);
-					FtpTrace.WriteLine("Informational: {0}", r.InfoMessages);
+					FtpTrace.WriteLine("Code: "+ r.Code);
+					FtpTrace.WriteLine("Message: "+ r.Message);
+					FtpTrace.WriteLine("Informational: "+ r.InfoMessages);
 				}
 			}
 		}
@@ -267,16 +267,16 @@ namespace Tests {
 
                     FtpTrace.WriteLine();
                     FtpTrace.WriteLine("Response to STOR:");
-                    FtpTrace.WriteLine("Code: {0}", r.Code);
-                    FtpTrace.WriteLine("Message: {0}", r.Message);
-                    FtpTrace.WriteLine("Informational: {0}", r.InfoMessages);
+                    FtpTrace.WriteLine("Code: "+ r.Code);
+                    FtpTrace.WriteLine("Message: "+ r.Message);
+                    FtpTrace.WriteLine("Informational: "+ r.InfoMessages);
 
                     r = s.Close();
                     FtpTrace.WriteLine();
                     FtpTrace.WriteLine("Response after close:");
-                    FtpTrace.WriteLine("Code: {0}", r.Code);
-                    FtpTrace.WriteLine("Message: {0}", r.Message);
-                    FtpTrace.WriteLine("Informational: {0}", r.InfoMessages);
+                    FtpTrace.WriteLine("Code: "+ r.Code);
+                    FtpTrace.WriteLine("Message: "+ r.Message);
+                    FtpTrace.WriteLine("Informational: "+ r.InfoMessages);
                 }
             }
         }
@@ -471,7 +471,7 @@ namespace Tests {
 					cl.Connect();
 				}
 			} catch (Exception e) {
-				FtpTrace.WriteLine("Caught connection faillure: {0}", e.Message);
+				FtpTrace.WriteLine("Caught connection faillure: "+ e.Message);
 			}
 		}
 
@@ -655,8 +655,8 @@ namespace Tests {
 				cl.Host = m_host;
 				cl.Connect();
 
-				FtpTrace.WriteLine("Supported HASH algorithms: {0}", cl.HashAlgorithms);
-				FtpTrace.WriteLine("Current HASH algorithm: {0}", cl.GetHashAlgorithm());
+				FtpTrace.WriteLine("Supported HASH algorithms: "+ cl.HashAlgorithms);
+				FtpTrace.WriteLine("Current HASH algorithm: "+ cl.GetHashAlgorithm());
 
 				foreach (FtpHashAlgorithm alg in Enum.GetValues(typeof(FtpHashAlgorithm))) {
 					if (alg != FtpHashAlgorithm.NONE && cl.HashAlgorithms.HasFlag(alg)) {
@@ -682,8 +682,8 @@ namespace Tests {
                 cl.Host = m_host;
                 await cl.ConnectAsync();
 
-                FtpTrace.WriteLine("Supported HASH algorithms: {0}", cl.HashAlgorithms);
-                FtpTrace.WriteLine("Current HASH algorithm: {0}", await cl.GetHashAlgorithmAsync());
+                FtpTrace.WriteLine("Supported HASH algorithms: "+ cl.HashAlgorithms);
+                FtpTrace.WriteLine("Current HASH algorithm: "+ await cl.GetHashAlgorithmAsync());
 
                 foreach (FtpHashAlgorithm alg in Enum.GetValues(typeof(FtpHashAlgorithm)))
                 {
@@ -733,7 +733,7 @@ namespace Tests {
 			Match m;
 
 			if ((m = Regex.Match(response, "PWD = (?<pwd>.*)")).Success)
-				FtpTrace.WriteLine("PWD: {0}", m.Groups["pwd"].Value);
+				FtpTrace.WriteLine("PWD: "+ m.Groups["pwd"].Value);
 		}
 
 		static void TestNameListing() {

@@ -25,7 +25,7 @@ namespace FluentFTP.Extensions {
 		public static string GetXSHA1(this FtpClient client, string path) {
 			FtpReply reply;
 
-			if (!(reply = client.Execute("XSHA1 {0}", path)).Success)
+			if (!(reply = client.Execute("XSHA1 " + path)).Success)
 				throw new FtpCommandException(reply);
 
 			return reply.Message;

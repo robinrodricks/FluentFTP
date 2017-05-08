@@ -35,8 +35,8 @@ namespace FluentFTP.Proxy {
 			writer.WriteLine("CONNECT {0}:{1} HTTP/1.1", host, port);
 			writer.WriteLine("Host: {0}:{1}", host, port);
 			if (Proxy.Credentials != null) {
-				var credentialsHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(string.Format("{0}:{1}", Proxy.Credentials.UserName, Proxy.Credentials.Password)));
-				writer.WriteLine("Proxy-Authorization: Basic {0}", credentialsHash);
+				var credentialsHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Proxy.Credentials.UserName + ":"+ Proxy.Credentials.Password));
+				writer.WriteLine("Proxy-Authorization: Basic "+ credentialsHash);
 			}
 			writer.WriteLine("User-Agent: custom-ftp-client");
 			writer.WriteLine();
@@ -72,7 +72,7 @@ namespace FluentFTP.Proxy {
 						break;
 					}
 					
-					reply.InfoMessages += string.Format( "{0}\n", buf );
+					reply.InfoMessages += ( buf+"\n" );
 				}
 				
 				// fixes #84 (missing bytes when downloading/uploading files thru proxy)
@@ -84,7 +84,7 @@ namespace FluentFTP.Proxy {
 						break;
 					}
 					
-					reply.InfoMessages += string.Format( "{0}\n", buf );
+					reply.InfoMessages += ( buf+"\n" );
 				}
 
 			}

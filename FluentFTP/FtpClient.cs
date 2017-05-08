@@ -759,8 +759,7 @@ namespace FluentFTP {
 					StackTrace st = new StackTrace(1);
 
 					throw new InvalidCastException("The AsyncResult cannot be matched to the specified delegate. " +
-						string.Format("Are you sure you meant to call {0} and not another method?",
-						st.GetFrame(0).GetMethod().Name)
+						("Are you sure you meant to call " + st.GetFrame(0).GetMethod().Name + " and not another method?")
 					);
 #endif
 				}
@@ -865,22 +864,11 @@ namespace FluentFTP {
 						break;
 					}
 
-					reply.InfoMessages += string.Format("{0}\n", buf);
+					reply.InfoMessages += (buf + "\n");
 				}
 			}
 
 			return reply;
-		}
-
-		/// <summary>
-		/// Executes a command
-		/// </summary>
-		/// <param name="command">The command to execute with optional format place holders</param>
-		/// <param name="args">Format parameters to the command</param>
-		/// <returns>The servers reply to the command</returns>
-		/// <example><code source="..\Examples\Execute.cs" lang="cs" /></example>
-		public FtpReply Execute(string command, params object[] args) {
-			return Execute(string.Format(command, args));
 		}
 
 		/// <summary>
@@ -1126,11 +1114,11 @@ namespace FluentFTP {
 		protected virtual void Authenticate(string userName, string password) {
 			FtpReply reply;
 
-			if (!(reply = Execute("USER {0}", userName)).Success)
+			if (!(reply = Execute("USER " + userName)).Success)
 				throw new FtpCommandException(reply);
 
 			if (reply.Type == FtpResponseType.PositiveIntermediate
-				&& !(reply = Execute("PASS {0}", password)).Success)
+				&& !(reply = Execute("PASS " + password)).Success)
 				throw new FtpCommandException(reply);
 		}
 
@@ -1273,13 +1261,13 @@ namespace FluentFTP {
 							Execute("QUIT");
 						}
 					} catch (SocketException sockex) {
-						FtpTrace.WriteLine("FtpClient.Disconnect(): SocketException caught and discarded while closing control connection: {0}", sockex.ToString());
+						FtpTrace.WriteLine("FtpClient.Disconnect(): SocketException caught and discarded while closing control connection: "+ sockex.ToString());
 					} catch (IOException ioex) {
-						FtpTrace.WriteLine("FtpClient.Disconnect(): IOException caught and discarded while closing control connection: {0}", ioex.ToString());
+						FtpTrace.WriteLine("FtpClient.Disconnect(): IOException caught and discarded while closing control connection: "+ ioex.ToString());
 					} catch (FtpCommandException cmdex) {
-						FtpTrace.WriteLine("FtpClient.Disconnect(): FtpCommandException caught and discarded while closing control connection: {0}", cmdex.ToString());
+						FtpTrace.WriteLine("FtpClient.Disconnect(): FtpCommandException caught and discarded while closing control connection: "+ cmdex.ToString());
 					} catch (FtpException ftpex) {
-						FtpTrace.WriteLine("FtpClient.Disconnect(): FtpException caught and discarded while closing control connection: {0}", ftpex.ToString());
+						FtpTrace.WriteLine("FtpClient.Disconnect(): FtpException caught and discarded while closing control connection: "+ ftpex.ToString());
 					} finally {
 						m_stream.Close();
 					}
@@ -1376,13 +1364,13 @@ namespace FluentFTP {
 				m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
 
 				if (!m.Success || m.Groups.Count != 7)
-					throw new FtpException(string.Format("Malformed PASV response: {0}", reply.Message));
+					throw new FtpException(("Malformed PASV response: " + reply.Message));
 
 				// PASVEX mode ignores the host supplied in the PASV response
 				if (type == FtpDataConnectionType.PASVEX)
 					host = m_host;
 				else
-					host = string.Format("{0}.{1}.{2}.{3}", m.Groups["quad1"].Value, m.Groups["quad2"].Value, m.Groups["quad3"].Value, m.Groups["quad4"].Value);
+					host = (m.Groups["quad1"].Value + "." + m.Groups["quad2"].Value + "." + m.Groups["quad3"].Value + "." + m.Groups["quad4"].Value);
 
 				port = (int.Parse(m.Groups["port1"].Value) << 8) + int.Parse(m.Groups["port2"].Value);
 			}
@@ -1394,7 +1382,7 @@ namespace FluentFTP {
 			stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
 			if (restart > 0) {
-				if (!(reply = Execute("REST {0}", restart)).Success)
+				if (!(reply = Execute("REST " + restart)).Success)
 					throw new FtpCommandException(reply);
 			}
 
@@ -1504,8 +1492,7 @@ namespace FluentFTP {
 						throw new InvalidOperationException("The IP protocol being used is not supported.");
 				}
 
-				if (!(reply = Execute("EPRT |{0}|{1}|{2}|", ipver,
-                    GetLocalAddress(stream.LocalEndPoint.Address), stream.LocalEndPoint.Port)).Success) {
+				if (!(reply = Execute("EPRT |" + ipver + "|" + GetLocalAddress(stream.LocalEndPoint.Address) + "|" + stream.LocalEndPoint.Port + "|")).Success) {
 
 					// if we're connected with IPv4 and the data channel type is AutoActive then try to fall back to the PORT command
 					if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) {
@@ -1521,9 +1508,9 @@ namespace FluentFTP {
 				if (m_stream.LocalEndPoint.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
 					throw new FtpException("Only IPv4 is supported by the PORT command. Use EPRT instead.");
 
-				if (!(reply = Execute("PORT {0},{1},{2}",
-                        GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ','),
-						stream.LocalEndPoint.Port / 256,
+				if (!(reply = Execute("PORT " +
+                        GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ',') + "," +
+						stream.LocalEndPoint.Port / 256 + "," +
 						stream.LocalEndPoint.Port % 256)).Success) {
 					stream.Close();
 					throw new FtpCommandException(reply);
@@ -1531,7 +1518,7 @@ namespace FluentFTP {
 			}
 
 			if (restart > 0) {
-				if (!(reply = Execute("REST {0}", restart)).Success)
+				if (!(reply = Execute("REST " + restart)).Success)
 					throw new FtpCommandException(reply);
 			}
 
@@ -1716,7 +1703,7 @@ namespace FluentFTP {
 
 				client.SetDataType(type);
 				length = client.GetFileSize(path);
-				stream = client.OpenDataStream(string.Format("RETR {0}", path.GetFtpPath()), restart);
+				stream = client.OpenDataStream(("RETR " + path.GetFtpPath()), restart);
 			}
 
 			if (stream != null) {
@@ -1893,7 +1880,7 @@ namespace FluentFTP {
 
 				client.SetDataType(type);
 				length = client.GetFileSize(path);
-				stream = client.OpenDataStream(string.Format("STOR {0}", path.GetFtpPath()), 0);
+				stream = client.OpenDataStream(("STOR " + path.GetFtpPath()), 0);
 
 				if (length > 0 && stream != null)
 					stream.SetLength(length);
@@ -2009,7 +1996,7 @@ namespace FluentFTP {
 
 				client.SetDataType(type);
 				length = client.GetFileSize(path);
-				stream = client.OpenDataStream(string.Format("APPE {0}", path.GetFtpPath()), 0);
+				stream = client.OpenDataStream(("APPE " + path.GetFtpPath()), 0);
 
 				if (length > 0 && stream != null) {
 					stream.SetLength(length);
@@ -3302,7 +3289,7 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			lock (m_lock) {
-				if (!(reply = Execute("DELE {0}", path.GetFtpPath())).Success)
+				if (!(reply = Execute("DELE" + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
 			}
 		}
@@ -3463,7 +3450,7 @@ namespace FluentFTP {
 
 				// DELETE ACTUAL DIRECTORY
 
-				if (!(reply = Execute("RMD {0}", ftppath)).Success) {
+				if (!(reply = Execute("RMD " + ftppath)).Success) {
 					throw new FtpCommandException(reply);
 				}
 
@@ -3625,8 +3612,8 @@ namespace FluentFTP {
 			lock (m_lock) {
 				pwd = GetWorkingDirectory();
 
-				if (Execute("CWD {0}", ftppath).Success) {
-					FtpReply reply = Execute("CWD {0}", pwd.GetFtpPath());
+				if (Execute("CWD " + ftppath).Success) {
+					FtpReply reply = Execute("CWD " + pwd.GetFtpPath());
 
 					if (!reply.Success)
 						throw new FtpException("DirectoryExists(): Failed to restore the working directory.");
@@ -3841,17 +3828,14 @@ namespace FluentFTP {
 				path = path.GetFtpPath().TrimEnd('/');
 
 				if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
-					FtpTrace.WriteLine(string.Format(
-						"CreateDirectory(\"{0}\", {1}): Create non-existent parent: {2}",
-						path, force, path.GetFtpDirectoryName()));
+					FtpTrace.WriteLine("CreateDirectory(\"" +path+ "\", " +force+ "): Create non-existent parent: " +path.GetFtpDirectoryName());
 					CreateDirectory(path.GetFtpDirectoryName(), true);
 				} else if (DirectoryExists(path))
 					return;
 
-				FtpTrace.WriteLine(string.Format("CreateDirectory(\"{0}\", {1})",
-					ftppath, force));
-
-				if (!(reply = Execute("MKD {0}", ftppath)).Success)
+				FtpTrace.WriteLine("CreateDirectory(\"" + ftppath + "\", " + force + ")");
+				
+				if (!(reply = Execute("MKD " + ftppath)).Success)
 					throw new FtpCommandException(reply);
 			}
 		}
@@ -3938,10 +3922,10 @@ namespace FluentFTP {
 
 			lock (m_lock) {
 
-				if (!(reply = Execute("RNFR {0}", path.GetFtpPath())).Success)
+				if (!(reply = Execute("RNFR " + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
 
-				if (!(reply = Execute("RNTO {0}", dest.GetFtpPath())).Success)
+				if (!(reply = Execute("RNTO " + dest.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
 			}
 		}
@@ -4009,7 +3993,7 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			lock (m_lock) {
-				if (!(reply = Execute("SITE CHMOD {0} {1}", permissions.ToString(), path.GetFtpPath())).Success)
+				if (!(reply = Execute("SITE CHMOD " + permissions.ToString() + " " + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
 			}
 		}
@@ -4253,7 +4237,7 @@ namespace FluentFTP {
 
 				// USE MACHINE LISTING TO GET INFO FOR A SINGLE FILE
 
-				if ((reply = Execute("MLST {0}", path)).Success) {
+				if ((reply = Execute("MLST " + path)).Success) {
 					res = reply.InfoMessages.Split('\n');
 					if (res.Length > 1) {
 						string info = "";
@@ -4265,7 +4249,7 @@ namespace FluentFTP {
 						return m_listParser.ParseSingleLine(null, info, m_caps, true);
 					}
 				} else {
-					FtpTrace.WriteLine("Failed to get object info for path {0} with error {1}", path, reply.ErrorMessage);
+					FtpTrace.WriteLine("Failed to get object info for path " + path + " with error "+ reply.ErrorMessage);
 				}
 			} else {
 
@@ -4280,7 +4264,7 @@ namespace FluentFTP {
 					}
 				}
 
-				FtpTrace.WriteLine("Failed to get object info for path {0} since MLST not supported and GetListing() fails to list file/folder.", path);
+				FtpTrace.WriteLine("Failed to get object info for path " + path + " since MLST not supported and GetListing() fails to list file/folder.");
 			}
 
 
@@ -4431,7 +4415,7 @@ namespace FluentFTP {
 				if (pwd != null && pwd.Trim().Length > 0) {
 					if (path.StartsWith("./"))
 						path = path.Remove(0, 2);
-					path = string.Format("{0}/{1}", pwd, path).GetFtpPath();
+					path = (pwd + "/" + path).GetFtpPath();
 				}
 			}
 
@@ -4463,7 +4447,7 @@ namespace FluentFTP {
 			}
 
 			if (!isNoPath) {
-				listcmd = string.Format("{0} {1}", listcmd, path.GetFtpPath());
+				listcmd = (listcmd + " " + path.GetFtpPath());
 			}
 
 			lock (m_lock) {
@@ -4733,15 +4717,6 @@ namespace FluentFTP {
 			List<string> lst = new List<string>();
 			string pwd = GetWorkingDirectory();
 
-			/*if (path == null || path.GetFtpPath().Trim().Length == 0 || path.StartsWith(".")) {
-				if (pwd == null || pwd.Length == 0) // couldn't get the working directory
-					path = "./";
-				else if (path.StartsWith("./"))
-					path = string.Format("{0}/{1}", pwd, path.Remove(0, 2));
-				else
-					path = pwd;
-			}*/
-
 			path = path.GetFtpPath();
 			if (path == null || path.Trim().Length == 0) {
 				if (pwd != null && pwd.Trim().Length > 0)
@@ -4751,7 +4726,7 @@ namespace FluentFTP {
 			} else if (!path.StartsWith("/") && pwd != null && pwd.Trim().Length > 0) {
 				if (path.StartsWith("./"))
 					path = path.Remove(0, 2);
-				path = string.Format("{0}/{1}", pwd, path).GetFtpPath();
+				path = (pwd + "/" + path).GetFtpPath();
 			}
 
 			lock (m_lock) {
@@ -4760,7 +4735,7 @@ namespace FluentFTP {
 				// problems that would happen if in ASCII.
 				Execute("TYPE I");
 
-				using (FtpDataStream stream = OpenDataStream(string.Format("NLST {0}", path.GetFtpPath()), 0)) {
+				using (FtpDataStream stream = OpenDataStream(("NLST " + path.GetFtpPath()), 0)) {
 					string buf;
 
 					try {
@@ -4958,7 +4933,7 @@ namespace FluentFTP {
 				return;
 
 			lock (m_lock) {
-				if (!(reply = Execute("CWD {0}", ftppath)).Success)
+				if (!(reply = Execute("CWD " + ftppath)).Success)
 					throw new FtpCommandException(reply);
 			}
 		}
@@ -5091,7 +5066,7 @@ namespace FluentFTP {
 			long length = 0;
 
 			lock (m_lock) {
-				if (!(reply = Execute("SIZE {0}", path.GetFtpPath())).Success)
+				if (!(reply = Execute("SIZE " + path.GetFtpPath())).Success)
 					return -1;
 
 				if (!long.TryParse(reply.Message, out length))
@@ -5159,7 +5134,7 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			lock (m_lock) {
-				if ((reply = Execute("MDTM {0}", path.GetFtpPath())).Success)
+				if ((reply = Execute("MDTM " + path.GetFtpPath())).Success)
 					modify = reply.Message.GetFtpDate(DateTimeStyles.AssumeUniversal);
 			}
 
@@ -5319,7 +5294,7 @@ namespace FluentFTP {
 
 			lock (m_lock) {
 				if ((HashAlgorithms & type) != type)
-					throw new NotImplementedException(string.Format("The hash algorithm {0} was not advertised by the server.", type.ToString()));
+					throw new NotImplementedException(("The hash algorithm " + type.ToString() + " was not advertised by the server."));
 
 				switch (type) {
 					case FtpHashAlgorithm.SHA1:
@@ -5339,7 +5314,7 @@ namespace FluentFTP {
 						break;
 				}
 
-				if (!(reply = Execute("OPTS HASH {0}", algorithm)).Success)
+				if (!(reply = Execute("OPTS HASH " + algorithm)).Success)
 					throw new FtpCommandException(reply);
 			}
 		}
@@ -5426,7 +5401,7 @@ namespace FluentFTP {
 				throw new ArgumentException("GetHash(path) argument can't be null");
 
 			lock (m_lock) {
-				if (!(reply = Execute("HASH {0}", path.GetFtpPath())).Success)
+				if (!(reply = Execute("HASH " + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
 			}
 
@@ -5463,7 +5438,7 @@ namespace FluentFTP {
 
 				hash.Value = m.Groups["hash"].Value;
 			} else {
-				FtpTrace.WriteLine("Failed to parse hash from: {0}", reply.Message);
+				FtpTrace.WriteLine("Failed to parse hash from: "+ reply.Message);
 			}
 
 			return hash;
@@ -5573,14 +5548,14 @@ namespace FluentFTP {
 						Disconnect();
 					}
 				} catch (Exception ex) {
-					FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disconnecting from host: {0}", ex.ToString());
+					FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disconnecting from host: "+ ex.ToString());
 				}
 
 				if (m_stream != null) {
 					try {
 						m_stream.Dispose();
 					} catch (Exception ex) {
-						FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: {0}", ex.ToString());
+						FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: "+ ex.ToString());
 					} finally {
 						m_stream = null;
 					}

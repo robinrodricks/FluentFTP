@@ -196,7 +196,7 @@ namespace FluentFTP {
 			try {
 				Dispose();
 			} catch (Exception ex) {
-				FtpTrace.WriteLine("[Finalizer] Caught and discarded an exception while disposing the FtpDataStream: {0}", ex.ToString());
+				FtpTrace.WriteLine("[Finalizer] Caught and discarded an exception while disposing the FtpDataStream: "+ ex.ToString());
 			}
 		}
 	}

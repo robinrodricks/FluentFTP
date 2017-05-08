@@ -541,11 +541,11 @@ namespace FluentFTP {
 			if (((capabilities & FtpCapability.MDTM) != FtpCapability.MDTM || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0) {
 				item.Modified = m.Groups["modify"].Value.GetFtpDate(DateTimeStyles.AssumeLocal);
 				if (item.Modified == DateTime.MinValue) {
-					FtpTrace.WriteLine("GetFtpDate() failed on {0}", m.Groups["modify"].Value);
+					FtpTrace.WriteLine("GetFtpDate() failed on "+ m.Groups["modify"].Value);
 				}
 			} else {
 				if (m.Groups["modify"].Value.Length == 0)
-					FtpTrace.WriteLine("RegEx failed to parse modified date from {0}.", buf);
+					FtpTrace.WriteLine("RegEx failed to parse modified date from "+buf);
 				else if (item.Type == FtpFileSystemObjectType.Directory)
 					FtpTrace.WriteLine("Modified times of directories are ignored in UNIX long listings.");
 				else if ((capabilities & FtpCapability.MDTM) == FtpCapability.MDTM)
@@ -621,9 +621,8 @@ namespace FluentFTP {
 			if ((m = Regex.Match(buf, regex)).Success) {
 				FtpListItem item = new FtpListItem();
 
-				item.Name = string.Format("{0}.{1};{2}",
-					m.Groups["name"].Value,
-					m.Groups["extension"].Value,
+				item.Name = (m.Groups["name"].Value + "." +
+					m.Groups["extension"].Value + ";" +
 					m.Groups["version"].Value);
 
 				if (m.Groups["extension"].Value.ToUpper() == "DIR")
@@ -1571,8 +1570,8 @@ namespace FluentFTP {
 					} else if (path != null) {
 						item.FullName = path.GetFtpPath(item.Name); //.GetFtpPathWithoutGlob();
 					} else {
-						FtpTrace.WriteLine("Couldn't determine the full path of this object:{0}{1}",
-							Environment.NewLine, item.ToString());
+						FtpTrace.WriteLine("Couldn't determine the full path of this object: "+
+							Environment.NewLine + item.ToString());
 					}
 				}
 

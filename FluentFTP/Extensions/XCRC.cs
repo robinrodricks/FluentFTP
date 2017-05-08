@@ -24,7 +24,7 @@ namespace FluentFTP.Extensions {
 		public static string GetXCRC(this FtpClient client, string path) {
 			FtpReply reply;
 
-			if (!(reply = client.Execute("XCRC {0}", path)).Success)
+			if (!(reply = client.Execute("XCRC " + path)).Success)
 				throw new FtpCommandException(reply);
 
 			return reply.Message;

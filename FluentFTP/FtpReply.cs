@@ -100,7 +100,7 @@ namespace FluentFTP {
 				if (InfoMessages != null && InfoMessages.Length > 0) {
 					foreach (string s in InfoMessages.Split('\n')) {
 						string m = Regex.Replace(s, "^[0-9]{3}-", "");
-						message += string.Format("{0}; ", m.Trim());
+						message += (m.Trim() + "; ");
 					}
 				}
 

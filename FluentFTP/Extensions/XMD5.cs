@@ -25,7 +25,7 @@ namespace FluentFTP.Extensions {
 		public static string GetXMD5(this FtpClient client, string path) {
 			FtpReply reply;
 
-			if (!(reply = client.Execute("XMD5 {0}", path)).Success)
+			if (!(reply = client.Execute("XMD5 " + path)).Success)
 				throw new FtpCommandException(reply);
 
 			return reply.Message;
