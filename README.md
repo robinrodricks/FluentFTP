@@ -174,8 +174,10 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 	- `RawPermissions` : The raw permissions string recieved for this object. Use this if other permission properties are blank or invalid.
 
 	- `Input` : The raw string that the server returned for this object. Helps debug if the above properties have been correctly parsed.
-
+	
 - **GetNameListing**() - A simple command that only returns the list of file paths in the given directory, using the NLST command.
+
+- **GetObjectInfo()** - Get information for a single file or directory as an `FtpListItem`. It includes the type, date created, date modified, file size, permissions/chmod and link target (if any).
 
 - **UploadFile**() - Uploads a file from the local file system to the server. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB. Remote directories are NOT created if they do not exist.
 
