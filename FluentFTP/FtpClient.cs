@@ -4224,13 +4224,16 @@ namespace FluentFTP {
 		/// is logged with FtpTrace. No exception is thrown on error because that would negate
 		/// the usefullness of this method for checking for the existence of an object.
 		/// </summary>
-		/// <param name="path">The path of the object to retrieve information about</param>
+		/// <param name="path">The path of the file or folder</param>
+		/// <param name="dateModified">Get the accurate modified date using another MDTM command</param>
 		/// <returns>A FtpListItem object</returns>
-		public FtpListItem GetObjectInfo(string path) {
+		public FtpListItem GetObjectInfo(string path, bool dateModified = false) {
 			FtpReply reply;
 			string[] res;
 
 			bool supportsMachineList = (Capabilities & FtpCapability.MLSD) == FtpCapability.MLSD;
+			
+			FtpListItem result = null;
 
 			if (supportsMachineList) {
 
@@ -4245,7 +4248,7 @@ namespace FluentFTP {
 							info += res[i];
 						}
 
-						return m_listParser.ParseSingleLine(null, info, m_caps, true);
+						result = m_listParser.ParseSingleLine(null, info, m_caps, true);
 					}
 				} else {
 					FtpTrace.WriteLine("Failed to get object info for path " + path + " with error "+ reply.ErrorMessage);
@@ -4259,18 +4262,23 @@ namespace FluentFTP {
 
 				foreach (var dirItem in dirItems) {
 					if (dirItem.FullName == path) {
-						return dirItem;
+						result = dirItem;
+						break;
 					}
 				}
 
 				FtpTrace.WriteLine("Failed to get object info for path " + path + " since MLST not supported and GetListing() fails to list file/folder.");
 			}
 
+			// Get the accurate date modified using another MDTM command
+			if (result != null && dateModified && HasFeature(FtpCapability.MDTM)){
+				result.Modified = GetModifiedTime(path);
+			}
 
-			return null;
+			return result;
 		}
 
-		delegate FtpListItem AsyncGetObjectInfo(string path);
+		delegate FtpListItem AsyncGetObjectInfo(string path, bool dateModified);
 
 		/// <summary>
 		/// Begins an asynchronous operation to return information about a remote file system object. 
@@ -4283,15 +4291,16 @@ namespace FluentFTP {
         /// is logged with FtpTrace. No exception is thrown on error because that would negate
         /// the usefulness of this method for checking for the existence of an object.
 		/// </remarks>
-		/// <param name="path">Path of the item to retrieve information about</param>
+		/// <param name="path">Path of the file or folder</param>
+		/// <param name="dateModified">Get the accurate modified date using another MDTM command</param>
 		/// <param name="callback">Async Callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetObjectInfo(string path, AsyncCallback callback, object state) {
+		public IAsyncResult BeginGetObjectInfo(string path, bool dateModified, AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncGetObjectInfo func;
 
-			ar = (func = new AsyncGetObjectInfo(GetObjectInfo)).BeginInvoke(path, callback, state);
+			ar = (func = new AsyncGetObjectInfo(GetObjectInfo)).BeginInvoke(path, dateModified, callback, state);
 			lock (m_asyncmethods) {
 				m_asyncmethods.Add(ar, func);
 			}
@@ -4320,14 +4329,15 @@ namespace FluentFTP {
         /// is logged with FtpTrace. No exception is thrown on error because that would negate
         /// the usefulness of this method for checking for the existence of an object.</remarks>
         /// <param name="path">Path of the item to retrieve information about</param>
-        /// <exception cref="InvalidOperationException">Thrown if the server does not support this Capability</exception>
+		/// <param name="dateModified">Get the accurate modified date using another MDTM command</param>
+		/// <exception cref="InvalidOperationException">Thrown if the server does not support this Capability</exception>
         /// <returns>A <see cref="FtpListItem"/> if the command succeeded, or null if there was a problem.</returns>
-	    public async Task<FtpListItem> GetObjectInfoAsync(string path) {
+		public async Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false) {
             //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<string, FtpListItem>(
-	            (p, ac, s) => BeginGetObjectInfo(p, ac, s),
+            return await Task.Factory.FromAsync<string, bool, FtpListItem>(
+	            (p, dm, ac, s) => BeginGetObjectInfo(p, dm, ac, s),
 	            ar => EndGetObjectInfo(ar),
-	            path, null);
+	            path, dateModified, null);
 	    }
 #endif
 
