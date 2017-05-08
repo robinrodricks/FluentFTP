@@ -3,7 +3,7 @@
 
 [![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP)
 
-FluentFTP is a fully managed FTP client that is designed to be easy to use and easy to extend. It supports file and directory listing, uploading and dowloading files and SSL/TLS connections. It can connect to Unix and Windows/IIS based FTP servers. This project is entirely developed in managed C#. All credits go to [J.P. Trosclair](https://github.com/jptrosclair) for developing and maintaining the library till 2016. FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
+FluentFTP is a fully managed FTP client that supports [all major server types](#file-listings). It provides file and directory listing, uploading and dowloading files, permissions, hashing and SSL/TLS connections. This project is entirely developed in managed C#. All credits go to [J.P. Trosclair](https://github.com/jptrosclair) for developing and maintaining the library till 2016. FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 
 ## Features
 
@@ -17,9 +17,8 @@ FluentFTP is a fully managed FTP client that is designed to be easy to use and e
 - Get and set file permissions (owner, group, other)
 - Absolute or relative paths (relative to the "working directory")
 - Get the hash/checksum of a file (SHA-1, SHA-256, SHA-512, and MD5)
-- Supports DrFTPD's PRET command
+- Supports DrFTPD's PRET command, and the Unix CHMOD command
 - Supports FTP Proxies (User@Host, HTTP 1.1)
-- Supports SITE CHMOD command (Unix only)
 - Dereferencing of symbolic links
 - Passive and active data connections (PASV, EPSV, PORT and EPRT)
 - Synchronous and asynchronous methods (`async`/`await` pattern) for all operations 
@@ -110,6 +109,7 @@ client.Disconnect();
 ```
 	
 See more examples [here](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples).
+
 
 # Documentation
 
@@ -241,7 +241,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **SetHashAlgorithm**() - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
 
-*Non-standard commands supported by certain servers only. Import `FluentFTP.Extensions` to use these.*
+*Non-standard commands supported by certain servers only.*
 
 - **GetChecksum**() - Retrieves a checksum of the given file using a checksumming method that the server supports, if any. The algorithm used goes in this order : HASH, MD5, XMD5, XSHA1, XSHA256, XSHA512, XCRC.
 
@@ -352,6 +352,53 @@ Please access these static methods directly under the `FtpClient` class.
 - **GetPublicIP**() - Use the Ipify service to calculate your public IP. Useful if you are behind a router or don't have a static IP.
 
 
+# FTP Support
+
+Mapping table documenting supported FTP commands and the corresponding API..
+
+## Connection
+
+| FTP Command      		| API					| Description                  	|
+|---------------		|-----------			|---------------------------	|
+| **USER, PASS**  		| Credentials			| Login with username & password	|
+| **QUIT**  			| Disconnect()			| Disconnect	|
+| **PASV, EPSV, EPRT**  | DataConnectionType	| Passive & Active FTP modes	|
+| **FEAT**  			| HasFeature()			| Get the features supported by server 	|
+| **SYST**  			| GetSystem()			| Get the server system type 	|
+| **SITE CHMOD**      	| Chmod() or SetFilePermissions() | Modify file permissions |
+| **OPTS UTF8 ON**  	| Encoding 					| Enables UTF-8 filenames	|
+| **OPTS UTF8 OFF**  	| Encoding, DisableUTF8() 	| Disables UTF-8 filenames	|
+| **AUTH TLS**  		| EncryptionMode			| Switch to TLS/FTPS 	|
+| **PRET**      		| *Automatic* 			| Pre-transfer file information |
+| **TYPE A**  			| *Automatic* 				| Transfer data in ASCII	|
+| **TYPE I**  			| *Automatic* 				| Transfer data in Binary	|
+
+## File Management
+
+| FTP Command      		| API					| Description                  	|
+|---------------		|-----------			|---------------------------	|
+| **MLSD, LIST, NLST**  | GetListing()			| Directory file listing 	|
+| **DELE**      		| DeleteFile() / DeleteDirectory() | Delete a file |
+| **RMD**      			| DeleteDirectory() | Delete a directory |
+| **CWD**      			| SetWorkingDirectory() | Change the working directory |
+| **PWD**      			| GetWorkingDirectory() | Get the working directory |
+| **SIZE**      		| GetFileSize() | Get the filesize in bytes |
+| **MDTM**   			| GetModifiedTime() or FtpListOption.Modify | Get the file modified date  |
+| **SITE CHMOD**      	| Chmod() or SetFilePermissions() | Modify file permissions |
+
+## File Hashing
+
+| FTP Command      		| API					| Description                  	|
+|---------------		|-----------			|---------------------------	|
+| **HASH**  			| GetHash() | Gets the hash of a file	|
+| **OPTS HASH**  		| GetHashAlgorithm() / SetHashAlgorithm() | Selects a hash algorithm	for HASH command |
+| **MD5**  				| GetChecksum() or GetMD5()	| Gets the MD5 hash of a file	|
+| **XMD5**  			| GetChecksum() or GetXMD5()	| Gets the MD5 hash of a file	|
+| **XSHA1**  			| GetChecksum() or GetXSHA1()	| Gets the SHA-1 hash of a file	|
+| **XSHA256**  			| GetChecksum() or GetXSHA256()	| Gets the SHA-256 hash of a file	|
+| **XSHA512**  			| GetChecksum() or GetXSHA512()	| Gets the SHA-512 hash of a file	|
+
+
 # Notes
 ## Stream Handling
 
@@ -407,7 +454,7 @@ The exception that propagates back to your code should be the root of the proble
    
    - **IBM** parser : Works for IBM OS/400, etc.
 
-3. And if none of these satisfy you, you can fallback to **Name Listings** (NLST command), which are MUCH slower than either LIST or MLSD. This is because NLST only sends a list of filenames, without any properties. The server has to be queried for the file size, modification date, and type (file/folder) on a file-by-file basis. Name listings can be forced using the `FtpListOption.ForceList` flag.
+3. And if none of these satisfy you, you can fallback to **name listings** (NLST command), which are MUCH slower than either LIST or MLSD. This is because NLST only sends a list of filenames, without any properties. The server has to be queried for the file size, modification date, and type (file/folder) on a file-by-file basis. Name listings can be forced using the `FtpListOption.ForceList` flag.
 
 ## Client Certificates
 

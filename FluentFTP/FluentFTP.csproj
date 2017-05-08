@@ -93,8 +93,6 @@
     <Compile Include="FtpListParser.cs" />
     <Compile Include="NET2Compatibility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Extensions\GetChecksum.cs" />
-    <Compile Include="Extensions\MD5.cs" />
     <Compile Include="FtpClient.cs" />
     <Compile Include="FtpDataStream.cs" />
     <Compile Include="FtpEnums.cs" />
@@ -105,11 +103,6 @@
     <Compile Include="FtpReply.cs" />
     <Compile Include="FtpSocketStream.cs" />
     <Compile Include="FtpTrace.cs" />
-    <Compile Include="Extensions\XCRC.cs" />
-    <Compile Include="Extensions\XMD5.cs" />
-    <Compile Include="Extensions\XSHA1.cs" />
-    <Compile Include="Extensions\XSHA256.cs" />
-    <Compile Include="Extensions\XSHA512.cs" />
     <Compile Include="Proxy\FtpClientHttp11Proxy.cs" />
     <Compile Include="Proxy\FtpClientProxy.cs" />
     <Compile Include="Proxy\FtpClientUserAtHostProxy.cs" />
