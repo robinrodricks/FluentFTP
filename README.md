@@ -3,7 +3,7 @@
 
 [![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP)
 
-FluentFTP is a fully managed FTP and FTPS library for .NET &amp; .NET Core, optimized for speed. Provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic [directory listing parsing](#file-listings), File [hashing/checksums](#file-hashing), File [permissions/CHMOD](#file-permissions), FTP proxies, UTF-8 support, Async/await support and more. Written entirely in C#, with no external dependencies.
+FluentFTP is a fully managed FTP and FTPS library for .NET & .NET Core, optimized for speed. Provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic [directory listing parsing](#file-listings), File [hashing/checksums](#file-hashing), File [permissions/CHMOD](#file-permissions), FTP proxies, UTF-8 support, Async/await support and more. Written entirely in C#, with no external dependencies.
 
 FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 
