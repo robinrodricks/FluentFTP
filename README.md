@@ -352,7 +352,7 @@ Please access these static methods directly under the `FtpClient` class.
 - **GetPublicIP**() - Use the Ipify service to calculate your public IP. Useful if you are behind a router or don't have a static IP.
 
 
-# FTP Support
+## FTP Support
 
 Mapping table documenting supported FTP commands and the corresponding API..
 
