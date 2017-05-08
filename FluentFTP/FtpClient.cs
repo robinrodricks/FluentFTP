@@ -3288,7 +3288,7 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			lock (m_lock) {
-				if (!(reply = Execute("DELE" + path.GetFtpPath())).Success)
+				if (!(reply = Execute("DELE " + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
 			}
 		}
