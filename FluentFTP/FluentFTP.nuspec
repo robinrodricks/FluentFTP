@@ -10,7 +10,6 @@
 		<licenseUrl>https://github.com/hgupta9/FluentFTP/blob/master/LICENSE.TXT</licenseUrl>
 		<projectUrl>https://github.com/hgupta9/FluentFTP</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<description>An FTP and FTPS library for .NET &amp; .NET Core, optimized for speed. Provides extensive FTP commands, file uploads/downloads, SSL/TLS connections and FTP proxies.</description>
 		<copyright>MIT License</copyright>
 		<language>en-US</language>
 		<tags>ftp,ftp-client,ftps,ssl,tls,unix,iis</tags>
