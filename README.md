@@ -3,7 +3,7 @@
 
 [![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP)
 
-FluentFTP is a fully managed FTP client that supports file and directory listing, uploading and dowloading files, permissions, hashing and SSL/TLS connections for [all major server types](#file-listings). This project is entirely developed in managed C#. All credits go to [J.P. Trosclair](https://github.com/jptrosclair) for developing and maintaining the library till 2016. FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
+FluentFTP is a fully managed FTP client that supports file and directory listing, uploading and dowloading files, permissions, hashing and SSL/TLS connections for [all major server types](#file-listings). This project is entirely developed in managed C#. FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 
 ## Features
 
@@ -400,6 +400,25 @@ Mapping table documenting supported FTP commands and the corresponding API..
 
 
 # Notes
+
+## File Listings
+
+1. When you call `GetListing()`, FluentFTP first attempts to use **machine listings** (MLSD command) if they are supported by the server. These are most accurate and you can expect correct file size and modification date (UTC). You may also force this mode using `client.ListingParser = FtpParser.Machine`. You should also include the `FtpListOption.Modify` flag for the most accurate modification dates (down to the second). 
+
+2. If machine listings are not supported we fallback to the appropriate **OS-specific parser** (LIST command), listed below:
+
+   - **Unix** parser : Works for Pure-FTPd, ProFTPD, vsftpd, etc. If you encounter errors you can always try the alternate Unix parser using `client.ListingParser = FtpParser.UnixAlt`.
+   
+   - **Windows** parser : Works for IIS, DOS, FileZilla Server, etc.
+   
+   - **VMS** parser : Works for Vax, VMS, OpenVMS, etc.
+   
+   - **NonStop** parser : Works for Tandem, HP NonStop Guardian, etc.
+   
+   - **IBM** parser : Works for IBM OS/400, etc.
+
+3. And if none of these satisfy you, you can fallback to **name listings** (NLST command), which are *much* slower than either LIST or MLSD. This is because NLST only sends a list of filenames, without any properties. The server has to be queried for the file size, modification date, and type (file/folder) on a file-by-file basis. Name listings can be forced using the `FtpListOption.ForceList` flag.
+
 ## Stream Handling
 
 FluentFTP returns a `Stream` object for file transfers. This stream **must** be properly closed when you are done. Do not leave it for the GC to cleanup otherwise you can end up with uncatchable exceptions, i.e., a program crash. The stream objects are actually wrappers around `NetworkStream` and `SslStream` which perform cleanup routines on the control connection when the stream is closed. These cleanup routines can trigger exceptions so it's vital that you properly dispose the objects when you are done, no matter what. A proper implementation should go along the lines of:
@@ -438,24 +457,6 @@ FluentFTP includes exception handling in key places where uncatchable exceptions
 
 The exception that propagates back to your code should be the root of the problem and any exception caught while disposing would be a side affect however while testing your project pay close attention to what's being logged via FtpTrace. See the Debugging example for more information about using `TraceListener` objects with FluentFTP.
 
-## File Listings
-
-1. When you call `GetListing()`, FluentFTP first attempts to use **machine listings** (MLSD command) if they are supported by the server. These are most accurate and you can expect correct file size and modification date (UTC). You may also force this mode using `client.ListingParser = FtpParser.Machine`. You should also include the `FtpListOption.Modify` flag for the most accurate modification dates (down to the second). 
-
-2. If machine listings are not supported we fallback to the appropriate **OS-specific parser** (LIST command), listed below:
-
-   - **Unix** parser : Works for Pure-FTPd, ProFTPD, vsftpd, etc. If you encounter errors you can always try the alternate Unix parser using `client.ListingParser = FtpParser.UnixAlt`.
-   
-   - **Windows** parser : Works for IIS, DOS, FileZilla Server, etc.
-   
-   - **VMS** parser : Works for Vax, VMS, OpenVMS, etc.
-   
-   - **NonStop** parser : Works for Tandem, HP NonStop Guardian, etc.
-   
-   - **IBM** parser : Works for IBM OS/400, etc.
-
-3. And if none of these satisfy you, you can fallback to **name listings** (NLST command), which are MUCH slower than either LIST or MLSD. This is because NLST only sends a list of filenames, without any properties. The server has to be queried for the file size, modification date, and type (file/folder) on a file-by-file basis. Name listings can be forced using the `FtpListOption.ForceList` flag.
-
 ## Client Certificates
 
 When you are using Client Certificates, be sure that:
@@ -487,11 +488,11 @@ catch(IOException e) {
 
 ## XCRC / XMD5 / XSHA
 
-XCRC, XMD5, and XSHA are non standard commands and to the best that I can tell contain no kind of formal specification. Support for them exists as extension methods in the FluentFTP.Extensions namespace as of the latest revision. They are not guaranteed to work and you are strongly encouraged to check the FtpClient.Capabilities flags for the respective flag (XCRC, XMD5, XSHA1, XSHA256, XSHA512) before calling these methods.
+XCRC, XMD5, and XSHA are non standard commands and contain no kind of formal specification. They are not guaranteed to work and you are strongly encouraged to check the FtpClient.Capabilities flags for the respective flag (XCRC, XMD5, XSHA1, XSHA256, XSHA512) before calling these methods.
 
 Support for the MD5 command as described [here](http://tools.ietf.org/html/draft-twine-ftpmd5-00#section-3.1) has also been added. Again, check for FtpFeature.MD5 before executing the command.
 
-Experimental support for the HASH command has been added to FluentFTP. It supports retrieving SHA-1, SHA-256, SHA-512, and MD5 hashes from servers that support this feature. The returned object, FtpHash, has a method to check the result against a given stream or local file. You can read more about HASH in [this draft](http://tools.ietf.org/html/draft-bryan-ftpext-hash-02).
+Support for the HASH command has been added to FluentFTP. It supports retrieving SHA-1, SHA-256, SHA-512, and MD5 hashes from servers that support this feature. The returned object, FtpHash, has a method to check the result against a given stream or local file. You can read more about HASH in [this draft](http://tools.ietf.org/html/draft-bryan-ftpext-hash-02).
 
 ## Pipelining
 
@@ -542,8 +543,6 @@ When doing a large number of transfers, one needs to be aware of some inherit is
   - Close Data Stream
 
 This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is signaled by closing the connection. On downloads and file listings, the sockets being used on the server will stay in the TIME WAIT state because the server closes the socket when it's done sending the data. On uploads, the client sockets will go into the TIME WAIT state because the client closes the connection to signal EOF to the server.
-
-RFC959 defines another data mode called block that allows persistent data connections but it is not implemented by this library and will not be in the foreseeable future. Support for block transfers on the server side of things is not that common. I know IIS supports them however I cannot name a single other server that implements MODE B. I cannot justify making an already complicated process more so by adding in a feature that just isn't that likely to be used.
 
 
 # Credits
