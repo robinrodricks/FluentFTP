@@ -14,19 +14,18 @@ FluentFTP is a fully managed FTP client that supports file and directory listing
 - Create, append, read, write, rename and delete files and folders
 - Recursively deletes folders and all its contents
 - Get file/folder info (exists, size, security flags, modified date/time)
-- Get and set file permissions (owner, group, other)
+- Get and set [file permissions](#file-permissions) (owner, group, other)
 - Absolute or relative paths (relative to the "working directory")
-- Get the hash/checksum of a file (SHA-1, SHA-256, SHA-512, and MD5)
+- Get the [hash/checksum](#file-hashing) of a file (SHA-1, SHA-256, SHA-512, and MD5)
 - Supports DrFTPD's PRET command, and the Unix CHMOD command
 - Supports FTP Proxies (User@Host, HTTP 1.1)
 - Dereferencing of symbolic links
 - Passive and active data connections (PASV, EPSV, PORT and EPRT)
 - Synchronous and asynchronous methods (`async`/`await` pattern) for all operations 
 - Explicit and Implicit SSL connections are supported for the control and data connections using .NET's `SslStream`
+- Easily send server-specific FTP commands using the `Execute()` method
 - Improves thread safety by cloning the FTP control connection for file transfers (optional)
 - Implements its own internal locking in an effort to keep transactions synchronized
-- Includes support for non-standard hashing/checksum commands when supported by the server
-- Easily issue any unsupported FTP command using the `Execute()` method with the exception of those requiring a data connection (file listings and transfers).
 - Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/hgupta9/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
 - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/hgupta9/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
 - Transaction logging using `TraceListeners` (passwords are automatically omitted)
