@@ -356,7 +356,7 @@ Please access these static methods directly under the `FtpClient` class.
 
 Mapping table documenting supported FTP commands and the corresponding API..
 
-**Connection**
+*Connection*
 
 | Command  	    		| API					| Description                  	|
 |---------------		|-----------			|---------------------------	|
@@ -373,7 +373,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **TYPE A**  			| *Automatic* 				| Transfer data in ASCII	|
 | **TYPE I**  			| *Automatic* 				| Transfer data in Binary	|
 
-**File Management**
+*File Management*
 
 | Command      			| API					| Description                  	|
 |---------------		|-----------			|---------------------------	|
@@ -386,7 +386,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **MDTM**   			| GetModifiedTime() or<br>GetListing() with FtpListOption.Modify | Get the file modified date  |
 | **SITE CHMOD**      	| Chmod() or SetFilePermissions() | Modify file permissions |
 
-**File Hashing**
+*File Hashing*
 
 | Command      			| API					| Description                  	|
 |---------------		|-----------			|---------------------------	|
