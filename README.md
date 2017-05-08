@@ -360,18 +360,18 @@ Mapping table documenting supported FTP commands and the corresponding API..
 
 *Connection commands*
 
-| Command  	    		| API					| Description                  	|
-|---------------		|-----------			|---------------------------	|
-| **USER, PASS**  		| Credentials			| Login with username & password	|
-| **QUIT**  			| Disconnect()			| Disconnect	|
-| **PASV, EPSV, EPRT**  | DataConnectionType	| Passive & Active FTP modes	|
-| **FEAT**  			| HasFeature()			| Get the features supported by server 	|
-| **SYST**  			| GetSystem()			| Get the server system type 	|
+| Command  	    		| API						| Description                  	|
+|---------------		|-----------				|---------------------------	|
+| **USER, PASS**  		| Credentials				| Login with username & password|
+| **QUIT**  			| Disconnect()				| Disconnect	|
+| **PASV, EPSV, EPRT**  | DataConnectionType		| Passive & Active FTP modes	|
+| **FEAT**  			| HasFeature()				| Get the features supported by server |
+| **SYST**  			| GetSystem()				| Get the server system type 	|
 | **SITE CHMOD**      	| Chmod() or SetFilePermissions() | Modify file permissions |
 | **OPTS UTF8 ON**  	| Encoding 					| Enables UTF-8 filenames	|
 | **OPTS UTF8 OFF**  	| Encoding, DisableUTF8() 	| Disables UTF-8 filenames	|
 | **AUTH TLS**  		| EncryptionMode			| Switch to TLS/FTPS 	|
-| **PRET**      		| *Automatic* 			| Pre-transfer file information |
+| **PRET**      		| *Automatic* 				| Pre-transfer file information |
 | **TYPE A**  			| *Automatic* 				| Transfer data in ASCII	|
 | **TYPE I**  			| *Automatic* 				| Transfer data in Binary	|
 
@@ -379,22 +379,23 @@ Mapping table documenting supported FTP commands and the corresponding API..
 
 | Command      			| API					| Description                  	|
 |---------------		|-----------			|---------------------------	|
-| **MLSD, LIST, NLST**  | GetListing()			| Directory file listing 	|
-| **DELE**      		| DeleteFile()			 | Delete a file |
-| **RMD**      			| DeleteDirectory() | Delete a directory |
+| **MLSD, LIST, NLST**  | GetListing()			| Get directory file listing 	|
+| **MLST**				| GetObjectInfo()		| Get file information			|
+| **DELE**      		| DeleteFile()			| Delete a file |
+| **RMD**      			| DeleteDirectory() 	| Delete a directory |
 | **CWD**      			| SetWorkingDirectory() | Change the working directory |
 | **PWD**      			| GetWorkingDirectory() | Get the working directory |
-| **SIZE**      		| GetFileSize() | Get the filesize in bytes |
+| **SIZE**      		| GetFileSize() 		| Get the filesize in bytes |
 | **MDTM**   			| GetModifiedTime() or<br>GetListing() with FtpListOption.Modify | Get the file modified date  |
 | **SITE CHMOD**      	| Chmod() or SetFilePermissions() | Modify file permissions |
 
 *File Hashing commands*
 
-| Command      			| API					| Description                  	|
-|---------------		|-----------			|---------------------------	|
-| **HASH**  			| GetHash() | Gets the hash of a file	|
+| Command      			| API							| Description                  	|
+|---------------		|-----------					|---------------------------	|
+| **HASH**  			| GetHash() 					| Gets the hash of a file	|
 | **OPTS HASH**  		| GetHashAlgorithm() / SetHashAlgorithm() | Selects a hash algorithm	for HASH command |
-| **MD5**  				| GetChecksum() or GetMD5()	| Gets the MD5 hash of a file	|
+| **MD5**  				| GetChecksum() or GetMD5()		| Gets the MD5 hash of a file	|
 | **XMD5**  			| GetChecksum() or GetXMD5()	| Gets the MD5 hash of a file	|
 | **XSHA1**  			| GetChecksum() or GetXSHA1()	| Gets the SHA-1 hash of a file	|
 | **XSHA256**  			| GetChecksum() or GetXSHA256()	| Gets the SHA-256 hash of a file	|
