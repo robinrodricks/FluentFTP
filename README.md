@@ -383,7 +383,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **CWD**      			| SetWorkingDirectory() | Change the working directory |
 | **PWD**      			| GetWorkingDirectory() | Get the working directory |
 | **SIZE**      		| GetFileSize() | Get the filesize in bytes |
-| **MDTM**   			| GetModifiedTime() or FtpListOption.Modify | Get the file modified date  |
+| **MDTM**   			| GetModifiedTime() or<br>GetListing() with FtpListOption.Modify | Get the file modified date  |
 | **SITE CHMOD**      	| Chmod() or SetFilePermissions() | Modify file permissions |
 
 ## File Hashing
