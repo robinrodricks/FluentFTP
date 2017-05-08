@@ -143,7 +143,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 ## File Management
 
-- **GetListing**() - Get a file listing of the given directory. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
+- **GetListing**() - Get a [file listing](#file-listings) of the given directory. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
 
 	- `Type` : The type of the object. (File, Directory or Link)
 	
@@ -207,11 +207,11 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **DereferenceLink**() - Recursively dereferences a symbolic link and returns the full path if found. The `MaximumDereferenceCount` property controls how deep we recurse before giving up.
 
-- **OpenRead**() - Low level. Not recommended for general usage. Open a stream to the specified file for reading. Returns a standard `Stream`.
+- **OpenRead**() - Low level. Not recommended for general usage. Open a stream to the specified file for reading. Returns a standard `Stream`. [Learn more.](#stream-handling)
 
-- **OpenWrite**() - Low level. Not recommended for general usage. Opens a stream to the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist.
+- **OpenWrite**() - Low level. Not recommended for general usage. Opens a stream to the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist. [Learn more.](#stream-handling)
 
-- **OpenAppend**() - Low level. Not recommended for general usage. Opens a stream to the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file.
+- **OpenAppend**() - Low level. Not recommended for general usage. Opens a stream to the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file. [Learn more.](#stream-handling)
 
 
 ## File Permissions
@@ -266,7 +266,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **SslProtocols** - Encryption protocols to use. **Default:** SslProtocols.Default.
 
-- **ClientCertificates** - X509 client certificates to be used in SSL authentication process.
+- **ClientCertificates** - X509 client certificates to be used in SSL authentication process. [Learn more.](#client-certificates)
 
 - **ValidateCertificate** - Event is fired to validate SSL certificates. If this event is not handled and there are errors validating the certificate the connection will be aborted.
 
@@ -356,7 +356,7 @@ Please access these static methods directly under the `FtpClient` class.
 
 Mapping table documenting supported FTP commands and the corresponding API..
 
-*Connection*
+*Connection commands*
 
 | Command  	    		| API					| Description                  	|
 |---------------		|-----------			|---------------------------	|
@@ -373,7 +373,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **TYPE A**  			| *Automatic* 				| Transfer data in ASCII	|
 | **TYPE I**  			| *Automatic* 				| Transfer data in Binary	|
 
-*File Management*
+*File Management commands*
 
 | Command      			| API					| Description                  	|
 |---------------		|-----------			|---------------------------	|
@@ -386,7 +386,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **MDTM**   			| GetModifiedTime() or<br>GetListing() with FtpListOption.Modify | Get the file modified date  |
 | **SITE CHMOD**      	| Chmod() or SetFilePermissions() | Modify file permissions |
 
-*File Hashing*
+*File Hashing commands*
 
 | Command      			| API					| Description                  	|
 |---------------		|-----------			|---------------------------	|
