@@ -241,7 +241,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **SetHashAlgorithm**() - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
 
-*Non-standard commands supported by certain servers only.*
+*Non-standard commands supported by certain servers only. [Learn more](#hashing-commands)*
 
 - **GetChecksum**() - Retrieves a checksum of the given file using a checksumming method that the server supports, if any. The algorithm used goes in this order : HASH, MD5, XMD5, XSHA1, XSHA256, XSHA512, XCRC.
 
@@ -297,7 +297,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **ListingCulture** - Culture used to parse file listings. **Default:** `CultureInfo.InvariantCulture`.
 
-- **TimeOffset** - Time difference between server and client, in hours. If the server is located in New York and you are in London then the time difference is -5 hours. **Default:** 0.
+- **TimeOffset** - Time difference between server and client, in hours. If the server is located in Amsterdam and you are in Los Angeles then the time difference is 9 hours. **Default:** 0.
 
 
 *Active FTP*
@@ -486,7 +486,7 @@ catch(IOException e) {
 }
 ```````
 
-## XCRC / XMD5 / XSHA
+## Hashing Commands
 
 XCRC, XMD5, and XSHA are non standard commands and contain no kind of formal specification. They are not guaranteed to work and you are strongly encouraged to check the FtpClient.Capabilities flags for the respective flag (XCRC, XMD5, XSHA1, XSHA256, XSHA512) before calling these methods.
 
