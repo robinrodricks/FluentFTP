@@ -378,7 +378,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | Command      			| API					| Description                  	|
 |---------------		|-----------			|---------------------------	|
 | **MLSD, LIST, NLST**  | GetListing()			| Directory file listing 	|
-| **DELE**      		| DeleteFile() / DeleteDirectory() | Delete a file |
+| **DELE**      		| DeleteFile()			 | Delete a file |
 | **RMD**      			| DeleteDirectory() | Delete a directory |
 | **CWD**      			| SetWorkingDirectory() | Change the working directory |
 | **PWD**      			| GetWorkingDirectory() | Get the working directory |
