@@ -459,4 +459,28 @@ namespace FluentFTP {
 		/// </summary>
 		IncludeSelfAndParent = 512
 	}
+
+	/// <summary>
+	/// Defines the behavior for uploading/downloading files that already exist
+	/// </summary>
+	public enum FtpExists {
+		/// <summary>
+		/// Do not check if the file exists. Only use this if you are SURE that the file does not exist on the server.
+		/// Else it can cause the UploadFile method to hang due to filesize mismatch.
+		/// </summary>
+		None,
+		/// <summary>
+		/// Skip the file if it exists, without any more checks.
+		/// </summary>
+		Skip,
+		/// <summary>
+		/// Overwrite the file if it exists, by deleting it before uploading/downloading.
+		/// </summary>
+		Overwrite,
+		/// <summary>
+		/// Append to the file if it exists, by checking the length and adding missing data.
+		/// </summary>
+		Append
+	}
+
 }

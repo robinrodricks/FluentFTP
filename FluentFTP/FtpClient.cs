@@ -2093,48 +2093,40 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
 		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
 		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
-		public int UploadFiles(string[] localPaths, string remoteDir, bool overwrite = true, bool createRemoteDir = true) {
+		public int UploadFiles(string[] localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true) {
 
 			int count = 0;
 
 			// ensure ends with slash
 			remoteDir = !remoteDir.EndsWith("/") ? remoteDir + "/" : remoteDir;
 
+			//flag to determine if existence checks are required
+			bool checkFileExistence = true;
+
 			// create remote dir if wanted
 			if (createRemoteDir) {
 				if (!DirectoryExists(remoteDir)) {
 					CreateDirectory(remoteDir);
+					checkFileExistence = false;
 				}
 			}
 
 			// get all the already existing files
-			string[] existingFiles = GetNameListing(remoteDir);
+			string[] existingFiles = checkFileExistence ? GetNameListing(remoteDir) : new string[0];
 
 			// per local file
 			foreach (string localPath in localPaths) {
 
 				// calc remote path
-				string fileExt = Path.GetFileName(localPath);
-				string remotePath = remoteDir + fileExt;
-
-				// check if the remote file exists (always)
-				if (existingFiles.Contains(fileExt)) {
-
-					// skip uploading if the remote file exists
-					if (!overwrite) {
-						continue;
-					}
-
-					// delete file before uploading (also fixes #46)
-					DeleteFile(remotePath);
-				}
+				string fileName = Path.GetFileName(localPath);
+				string remotePath = remoteDir + fileName;
 
 				// try to upload it
 				try {
-					bool ok = UploadFileFromFile(localPath, remotePath, false);
+					bool ok = UploadFileFromFile(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true);
 					if (ok) {
 						count++;
 					}
@@ -2155,11 +2147,11 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
 		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
-		public int UploadFiles(List<string> localPaths, string remoteDir, bool overwrite = true, bool createRemoteDir = true) {
-			return UploadFiles(localPaths.ToArray(), remoteDir, overwrite, createRemoteDir);
+		public int UploadFiles(List<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true) {
+			return UploadFiles(localPaths.ToArray(), remoteDir, existsMode, createRemoteDir);
 		}
 
 #if (CORE || NETFX45)
@@ -2172,11 +2164,11 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
 		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
 		/// <param name="token">The token to monitor for cancelation requests</param>
 		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
-		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, bool overwrite, bool createRemoteDir, CancellationToken token) {
+		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
             //check if cancellation was requested and throw to set TaskStatus state to Canceled
             token.ThrowIfCancellationRequested();
 
@@ -2186,6 +2178,7 @@ namespace FluentFTP {
 
 			//flag to determine if existence checks are required
             bool checkFileExistence = true;
+
             // create remote dir if wanted
 			if (createRemoteDir) {
 				if (!await DirectoryExistsAsync(remoteDir)) {
@@ -2199,26 +2192,17 @@ namespace FluentFTP {
 
 			// per local file
 			foreach (string localPath in localPaths) {
-                //check if cancellation was requested and throw to set TaskStatus state to Canceled
+
+                // check if cancellation was requested and throw to set TaskStatus state to Canceled
 			    token.ThrowIfCancellationRequested();
+
 				// calc remote path
 				string fileName = Path.GetFileName(localPath);
 				string remotePath = remoteDir + fileName;
 
-				// check if the remote file exists (if required)
-				if (checkFileExistence && existingFiles.Contains(fileName)) {
-					// skip uploading if the remote file exists
-					if (!overwrite) {
-						continue;
-					}
-
-					// delete file before uploading (also fixes #46)
-					await DeleteFileAsync(remotePath);
-				}
-
 				// try to upload it
 			    try {
-			        bool ok = await UploadFileFromFileAsync(localPath, remotePath, false, token);
+					bool ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true, token);
 			        if (ok) {
 			            count++;
 			        }
@@ -2244,11 +2228,11 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
         /// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
         /// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
-	    public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, bool overwrite = true, bool createRemoteDir = true) {
-	        return await UploadFilesAsync(localPaths, remoteDir, overwrite, createRemoteDir, CancellationToken.None);
+		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true) {
+			return await UploadFilesAsync(localPaths, remoteDir, existsMode, createRemoteDir, CancellationToken.None);
 	    }
 #endif
 
@@ -2260,7 +2244,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
 		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		public int DownloadFiles(string localDir, string[] remotePaths, bool overwrite = true) {
 
@@ -2296,7 +2280,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
 		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		public int DownloadFiles(string localDir, List<string> remotePaths, bool overwrite = true) {
 			return DownloadFiles(localDir, remotePaths.ToArray(), overwrite);
@@ -2311,7 +2295,7 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
         /// <param name="remotePaths">The full or relative paths to the files on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="token">The token to monitor for cancelation requests</param>
         /// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
         public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite, CancellationToken token) {
@@ -2355,7 +2339,7 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
         /// <param name="remotePaths">The full or relative paths to the files on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
         public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite = true) {
             return await DownloadFilesAsync(localDir, remotePaths, overwrite, CancellationToken.None);
@@ -2373,30 +2357,17 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public bool UploadFile(string localPath, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
+		public bool UploadFile(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
 				return false;
 			}
 
-			// check if the remote file exists (always)
-			if (checkFileExistance && FileExists(remotePath)) {
-
-				// skip uploading if the remote file exists
-				if (!overwrite) {
-					return false;
-				}
-
-				// delete file before uploading (also fixes #46)
-				DeleteFile(remotePath);
-			}
-
-			return UploadFileFromFile(localPath, remotePath, createRemoteDir);
+			return UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false);
 		}
 
 #if (CORE || NETFX45)
@@ -2408,29 +2379,17 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="localPath">The full or relative path to the file on the local file system</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
         /// <param name="token">The token to monitor for cancellation requests.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-        public async Task<bool> UploadFileAsync(string localPath, string remotePath, bool overwrite, bool createRemoteDir, bool checkFileExistance, CancellationToken token) {
+		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
             // skip uploading if the local file does not exist
             if (!File.Exists(localPath)) {
                 return false;
             }
 
-            // check if the remote file exists (always)
-            if (checkFileExistance && await FileExistsAsync(remotePath)) {
-                // skip uploading if the remote file exists
-                if (!overwrite) {
-                    return false;
-                }
-
-                // delete file before uploading (also fixes #46)
-                await DeleteFileAsync(remotePath);
-            }
-
-            return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, token);
+            return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, existsMode, false, false, token);
         }
         
         /// <summary>
@@ -2440,17 +2399,15 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public async Task<bool> UploadFileAsync(string localPath, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
-            return await UploadFileAsync(localPath, remotePath, overwrite, createRemoteDir, checkFileExistance,
-                CancellationToken.None);
+		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+			return await UploadFileAsync(localPath, remotePath, existsMode, createRemoteDir, CancellationToken.None);
         }
 #endif
 
-		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir) {
+		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown) {
 			FileStream fileStream;
 			try {
 				// connect to the file
@@ -2463,12 +2420,12 @@ namespace FluentFTP {
 
 			// write the file onto the server
 			using (fileStream) {
-				return UploadFileInternal(fileStream, remotePath, createRemoteDir);
+				return UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown);
 			}
 		}
 
 #if (CORE || NETFX45)
-	    private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, CancellationToken token) {
+	    private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, CancellationToken token) {
 	        FileStream fileStream;
 	        try {
 	            //Connect to the file
@@ -2480,7 +2437,7 @@ namespace FluentFTP {
 	        }
 
 	        using (fileStream) {
-	            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, token);
+	            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, token);
 	        }
 	    }
 #endif
@@ -2491,28 +2448,14 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="fileData">The full data of the file, as a byte array</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
-		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public bool UploadFile(byte[] fileData, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
-
-			// check if the remote file exists (always)
-			if (checkFileExistance && FileExists(remotePath)) {
-
-				// skip uploading if the remote file exists
-				if (!overwrite) {
-					return false;
-				}
-
-				// delete file before uploading (also fixes #46)
-				DeleteFile(remotePath);
-			}
+		public bool UploadFile(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 
 			// write the file onto the server
 			using (MemoryStream ms = new MemoryStream(fileData)) {
 				ms.Position = 0;
-				return UploadFileInternal(ms, remotePath, createRemoteDir);
+				return UploadFileInternal(ms, remotePath, createRemoteDir, existsMode, false, false);
 			}
 		}
 
@@ -2523,26 +2466,12 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="fileStream">The full data of the file, as a stream</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
-		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public bool UploadFile(Stream fileStream, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
-
-			// check if the remote file exists (always)
-			if (checkFileExistance && FileExists(remotePath)) {
-
-				// skip uploading if the remote file exists
-				if (!overwrite) {
-					return false;
-				}
-
-				// delete file before uploading (also fixes #46)
-				DeleteFile(remotePath);
-			}
+		public bool UploadFile(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 
 			// write the file onto the server
-			return UploadFileInternal(fileStream, remotePath, createRemoteDir);
+			return UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, false, false);
 		}
 
 #if (CORE || NETFX45)
@@ -2553,28 +2482,16 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="fileData">The full data of the file, as a byte array</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
         /// <param name="token">The token to monitor for cancellation requests.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-        public async Task<bool> UploadFileAsync(byte[] fileData, string remotePath, bool overwrite, bool createRemoteDir, bool checkFileExistance, CancellationToken token)
+		public async Task<bool> UploadFileAsync(byte[] fileData, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token)
         {
-            // check if the remote file exists (always)
-            if (checkFileExistance && await FileExistsAsync(remotePath)) {
-                // skip uploading if the remote file exists
-                if (!overwrite) {
-                    return false;
-                }
-
-                // delete file before uploading (also fixes #46)
-                await DeleteFileAsync(remotePath);
-            }
-
             // write the file onto the server
             using (MemoryStream ms = new MemoryStream(fileData)) {
                 ms.Position = 0;
-                return await UploadFileInternalAsync(ms, remotePath, createRemoteDir, token);
+				return await UploadFileInternalAsync(ms, remotePath, createRemoteDir, existsMode, false, false, token);
             }
         }
 
@@ -2585,26 +2502,14 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="fileStream">The full data of the file, as a stream</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
-        /// <param name="token">The token to monitor for cancellation requests.</param>
+         /// <param name="token">The token to monitor for cancellation requests.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-        public async Task<bool> UploadFileAsync(Stream fileStream, string remotePath, bool overwrite, bool createRemoteDir, bool checkFileExistance, CancellationToken token) {
-            // check if the remote file exists (always)
-            if (checkFileExistance && await FileExistsAsync(remotePath))
-            {
-                // skip uploading if the remote file exists
-                if (!overwrite) {
-                    return false;
-                }
-
-                // delete file before uploading (also fixes #46)
-                await DeleteFileAsync(remotePath);
-            }
-
+		public async Task<bool> UploadFileAsync(Stream fileStream, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
+            
             // write the file onto the server
-            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, token);
+            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, false, false, token);
         }
 
         /// <summary>
@@ -2614,12 +2519,11 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="fileData">The full data of the file, as a byte array</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-        public async Task<bool> UploadFileAsync(byte[] fileData, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
-            return await UploadFileAsync(fileData, remotePath, overwrite, createRemoteDir, checkFileExistance, CancellationToken.None);
+		public async Task<bool> UploadFileAsync(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+			return await UploadFileAsync(fileData, remotePath, existsMode, createRemoteDir, CancellationToken.None);
         }
 
         /// <summary>
@@ -2629,12 +2533,11 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="fileStream">The full data of the file, as a stream</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-        public async Task<bool> UploadFileAsync(Stream fileStream, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
-            return await UploadFileAsync(fileStream, remotePath, overwrite, createRemoteDir, checkFileExistance, CancellationToken.None);
+		public async Task<bool> UploadFileAsync(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+			return await UploadFileAsync(fileStream, remotePath, existsMode, createRemoteDir, CancellationToken.None);
         }
 #endif
 
@@ -2645,7 +2548,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public bool DownloadFile(string localPath, string remotePath, bool overwrite = true) {
 			return DownloadFileToFile(localPath, remotePath, overwrite);
@@ -2690,7 +2593,7 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="localPath">The full or relative path to the file on the local file system</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="token">The token to monitor for cancellation requests</param>
         /// <returns>If true then the file was downloaded, false otherwise.</returns>
         public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite, CancellationToken token) {
@@ -2704,7 +2607,7 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="localPath">The full or relative path to the file on the local file system</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <returns>If true then the file was downloaded, false otherwise.</returns>
         public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite = true) {
             return await DownloadFileToFileAsync(localPath, remotePath, overwrite, CancellationToken.None);
@@ -2840,24 +2743,59 @@ namespace FluentFTP {
 		/// Upload the given stream to the server as a new file. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private bool UploadFileInternal(Stream fileData, string remotePath, bool createRemoteDir) {
+		private bool UploadFileInternal(Stream fileData, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown) {
 			Stream upStream = null;
 
 			try {
 
-				// ensure the remote dir exists
-				if (createRemoteDir) {
+				long offset = 0;
+
+				// check if the file exists, and skip, overwrite or append
+				if (existsMode != FtpExists.None) {
+					if (!fileExistsKnown) {
+						fileExists = FileExists(remotePath);
+					}
+					switch (existsMode) {
+						case FtpExists.Skip:
+							if (fileExists) {
+								return false;
+							}
+							break;
+						case FtpExists.Overwrite:
+							if (fileExists) {
+								DeleteFile(remotePath);
+							}
+							break;
+						case FtpExists.Append:
+							if (fileExists) {
+								offset = GetFileSize(remotePath);
+								if (offset == -1) {
+									offset = 0; // start from the beginning
+								}
+							}
+							break;
+					}
+				}
+
+				// ensure the remote dir exists .. only if the file does not already exist!
+				if (createRemoteDir && !fileExists) {
 					string dirname = remotePath.GetFtpDirectoryName();
 					if (!DirectoryExists(dirname)) {
 						CreateDirectory(dirname);
 					}
 				}
 
-				// open a file write connection
-				upStream = OpenWrite(remotePath);
+				// seek to offset
+				fileData.Position = offset;
+
+				// open a file connection
+				if (offset == 0) {
+					upStream = OpenWrite(remotePath);
+				} else {
+					upStream = OpenAppend(remotePath);
+				}
 
 				// loop till entire file uploaded
-				long offset = 0;
 				long len = fileData.Length;
 				byte[] buffer = new byte[TransferChunkSize];
 				while (offset < len) {
@@ -2893,6 +2831,124 @@ namespace FluentFTP {
 					}
 				}
 
+				// wait for transfer to get over
+				while (upStream.Position < upStream.Length) {
+				}
+
+				// disconnect FTP stream before exiting
+				upStream.Dispose();
+
+				// FIX : if this is not added, there appears to be "stale data" on the socket
+				// listen for a success/failure reply
+				if (!EnableThreadSafeDataConnections) {
+					FtpReply status = GetReply();
+				}
+
+				return true;
+
+			} catch (Exception ex1) {
+
+				// close stream before throwing error
+				try {
+					if (upStream != null)
+						upStream.Dispose();
+				} catch (Exception) { }
+
+				// catch errors during upload
+				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
+			}
+		}
+
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
+        /// Writes data in chunks. Retries if server disconnects midway.
+        /// </summary>
+		private async Task<bool> UploadFileInternalAsync(Stream fileData, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, CancellationToken token) {
+			Stream upStream = null;
+			try {
+				long offset = 0;
+
+				// check if the file exists, and skip, overwrite or append
+				if (existsMode != FtpExists.None) {
+					if (!fileExistsKnown) {
+						fileExists = await FileExistsAsync(remotePath);
+					}
+					switch (existsMode) {
+						case FtpExists.Skip:
+							if (fileExists) {
+								return false;
+							}
+							break;
+						case FtpExists.Overwrite:
+							if (fileExists) {
+								await DeleteFileAsync(remotePath);
+							}
+							break;
+						case FtpExists.Append:
+							if (fileExists) {
+								offset = await GetFileSizeAsync(remotePath);
+								if (offset == -1) {
+									offset = 0; // start from the beginning
+								}
+							}
+							break;
+					}
+				}
+
+				// ensure the remote dir exists .. only if the file does not already exist!
+				if (createRemoteDir && !fileExists) {
+					string dirname = remotePath.GetFtpDirectoryName();
+					if (!await DirectoryExistsAsync(dirname)) {
+						await CreateDirectoryAsync(dirname);
+					}
+				}
+
+				// seek to offset
+				fileData.Position = offset;
+
+				// open a file connection
+				if (offset == 0) {
+					upStream = await OpenWriteAsync(remotePath);
+				} else {
+					upStream = await OpenAppendAsync(remotePath);
+				}
+
+				// loop till entire file uploaded
+				long len = fileData.Length;
+				byte[] buffer = new byte[TransferChunkSize];
+				while (offset < len) {
+					try {
+						// read a chunk of bytes from the file
+						int readBytes;
+						while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
+							// write chunk to the FTP stream
+							await upStream.WriteAsync(buffer, 0, readBytes, token);
+							await upStream.FlushAsync(token);
+							offset += readBytes;
+						}
+					} catch (IOException ex) {
+						// resume if server disconnects midway (fixes #39)
+						if (ex.InnerException != null) {
+							var iex = ex.InnerException as System.Net.Sockets.SocketException;
+
+							if (iex != null) {
+#if CORE
+							    int code = (int)iex.SocketErrorCode;
+#else
+								int code = iex.ErrorCode;
+#endif
+								if (code == 10054) {
+									upStream.Dispose();
+									//Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
+									upStream = OpenAppend(remotePath);
+									upStream.Position = offset;
+								}
+							} else throw;
+						} else throw;
+					}
+				}
+
 				// wait for while transfer to get over
 				while (upStream.Position < upStream.Length) {
 				}
@@ -2906,178 +2962,18 @@ namespace FluentFTP {
 					FtpReply status = GetReply();
 				}
 
-				// fixes #30. the file can have some bytes at the end missing
-				// on proxy servers, so we write those missing bytes now.
-				if (IsProxy()) {
-
-					// get the current length of the remote file
-					// and check if any bytes are missing
-					long curLen = GetFileSize(remotePath);
-					if (curLen > 0 && curLen < len && fileData.CanSeek) {
-
-						// seek to the point of the local file
-						offset = curLen;
-						fileData.Position = offset;
-
-						// open the remote file for appending
-						upStream = OpenAppend(remotePath, FtpDataType.Binary);
-						upStream.Position = offset;
-
-						// read a chunk of bytes from the file
-						int readBytes;
-						while ((readBytes = fileData.Read(buffer, 0, buffer.Length)) > 0) {
-
-							// write chunk to the FTP stream
-							upStream.Write(buffer, 0, readBytes);
-							upStream.Flush();
-							offset += readBytes;
-						}
-
-						// disconnect FTP stream before exiting
-						upStream.Dispose();
-
-						// FIX : if this is not added, there appears to be "stale data" on the socket
-						// listen for a success/failure reply
-						if (!m_threadSafeDataChannels) {
-							FtpReply status = GetReply();
-						}
-					}
-				}
-
 				return true;
-
 			} catch (Exception ex1) {
-
 				// close stream before throwing error
 				try {
-					upStream.Dispose();
+					if (upStream != null)
+						upStream.Dispose();
 				} catch (Exception) { }
 
 				// catch errors during upload
 				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
 			}
 		}
-        
-#if (CORE || NETFX45)
-        /// <summary>
-        /// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
-        /// Writes data in chunks. Retries if server disconnects midway.
-        /// </summary>
-	    private async Task<bool> UploadFileInternalAsync(Stream fileData, string remotePath, bool createRemoteDir, CancellationToken token) {
-            Stream upStream = null;
-            try {
-                // ensure the remote dir exists
-                if (createRemoteDir) {
-                    string dirname = remotePath.GetFtpDirectoryName();
-                    if (!await DirectoryExistsAsync(dirname)) {
-                        await CreateDirectoryAsync(dirname);
-                    }
-                }
-
-                // open a file write connection
-                upStream = await OpenWriteAsync(remotePath);
-
-                // loop till entire file uploaded
-                long offset = 0;
-                long len = fileData.Length;
-                byte[] buffer = new byte[TransferChunkSize];
-                while (offset < len) {
-                    try {
-                        // read a chunk of bytes from the file
-                        int readBytes;
-                        while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
-                            // write chunk to the FTP stream
-                            await upStream.WriteAsync(buffer, 0, readBytes, token);
-                            await upStream.FlushAsync(token);
-                            offset += readBytes;
-                        }
-                    }
-                    catch (IOException ex) {
-                        // resume if server disconnects midway (fixes #39)
-                        if (ex.InnerException != null) {
-                            var iex = ex.InnerException as System.Net.Sockets.SocketException;
-
-                            if (iex != null) {
-#if CORE
-							    int code = (int)iex.SocketErrorCode;
-#else
-                                int code = iex.ErrorCode;
-#endif
-                                if (code == 10054) {
-                                    upStream.Dispose();
-                                    //Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
-                                    upStream = OpenAppend(remotePath);
-                                    upStream.Position = offset;
-                                }
-                            }
-                            else throw;
-                        }
-                        else throw;
-                    }
-                }
-
-                // wait for while transfer to get over
-                while (upStream.Position < upStream.Length) {
-                }
-
-                // disconnect FTP stream before exiting
-                upStream.Dispose();
-
-                // FIX : if this is not added, there appears to be "stale data" on the socket
-                // listen for a success/failure reply
-                if (!m_threadSafeDataChannels) {
-                    FtpReply status = GetReply();
-                }
-
-                // fixes #30. the file can have some bytes at the end missing
-                // on proxy servers, so we write those missing bytes now.
-                if (IsProxy()) {
-                    // get the current length of the remote file
-                    // and check if any bytes are missing
-                    long curLen = GetFileSize(remotePath);
-                    if (curLen > 0 && curLen < len && fileData.CanSeek) {
-                        // seek to the point of the local file
-                        offset = curLen;
-                        fileData.Position = offset;
-
-                        // open the remote file for appending
-                        upStream = await OpenAppendAsync(remotePath, FtpDataType.Binary);
-                        upStream.Position = offset;
-
-                        // read a chunk of bytes from the file
-                        int readBytes;
-                        while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
-                            // write chunk to the FTP stream
-                            upStream.Write(buffer, 0, readBytes);
-                            upStream.Flush();
-                            offset += readBytes;
-                        }
-
-                        // disconnect FTP stream before exiting
-                        upStream.Dispose();
-
-                        // FIX : if this is not added, there appears to be "stale data" on the socket
-                        // listen for a success/failure reply
-                        if (!m_threadSafeDataChannels) {
-                            FtpReply status = GetReply();
-                        }
-                    }
-                }
-
-                return true;
-            }
-            catch (Exception ex1) {
-                // close stream before throwing error
-                try {
-                    if(upStream != null)
-                        upStream.Dispose();
-                }
-                catch (Exception) { }
-
-                // catch errors during upload
-                throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
-            }
-	    }
 #endif
 		/// <summary>
 		/// Download a file from the server and write the data into the given stream.
