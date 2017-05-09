@@ -59,15 +59,6 @@ namespace FluentFTP {
 #endif
 
 		/// <summary>
-		/// Write to the TraceListeners.
-		/// </summary>
-		/// <param name="message">The message to write</param>
-		/// <param name="args">Optional variables if using a format string similar to string.Format()</param>
-		public static void Write(string message, params object[] args) {
-			Write(string.Format(message, args));
-		}
-
-		/// <summary>
 		/// Write to the TraceListeners
 		/// </summary>
 		/// <param name="message">The message to write</param>
@@ -96,20 +87,11 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Write to the TraceListeners.
-		/// </summary>
-		/// <param name="message">The message to write</param>
-		/// <param name="args">Optional variables if using a format string similar to string.Format()</param>
-		public static void WriteLine(string message, params object[] args) {
-			Write(string.Format("{0}{1}", string.Format(message, args), Environment.NewLine));
-		}
-
-		/// <summary>
 		/// Write to the TraceListeners
 		/// </summary>
 		/// <param name="message">The message to write</param>
-		public static void WriteLine(string message) {
-			Write(string.Format("{0}{1}", message, Environment.NewLine));
+		public static void WriteLine(object message) {
+			Write(message.ToString() + Environment.NewLine);
 		}
 	}
 }

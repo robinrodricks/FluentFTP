@@ -32,7 +32,7 @@ namespace Examples {
                 if (conn == null)
                     throw new InvalidOperationException("The FtpControlConnection object is null!");
 
-                Console.WriteLine("Working directory: {0}", conn.EndGetWorkingDirectory(ar));
+                Console.WriteLine("Working directory: "+ conn.EndGetWorkingDirectory(ar));
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());

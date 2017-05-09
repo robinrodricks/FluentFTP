@@ -32,7 +32,7 @@ namespace Examples {
                 if (conn == null)
                     throw new InvalidOperationException("The FtpControlConnection object is null!");
 
-                Console.WriteLine("Modify time: {0}", conn.EndGetModifiedTime(ar));
+                Console.WriteLine("Modify time: "+ conn.EndGetModifiedTime(ar));
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());

@@ -9,7 +9,7 @@ namespace Examples {
                 cl.Credentials = new NetworkCredential("user", "pass");
                 cl.Host = "some.ftpserver.on.the.internet.com";
 
-                Console.WriteLine("The server is using the following algorithm for computing hashes: {0}", 
+                Console.WriteLine("The server is using the following algorithm for computing hashes: "+ 
                     cl.GetHashAlgorithm());   
             }
         }

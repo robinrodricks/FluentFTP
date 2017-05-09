@@ -31,7 +31,7 @@ namespace Examples {
                 if (conn == null)
                     throw new InvalidOperationException("The FtpControlConnection object is null!");
 
-                Console.WriteLine("Directory Exiss: {0}", conn.EndDirectoryExists(ar));
+                Console.WriteLine("Directory Exiss: "+ conn.EndDirectoryExists(ar));
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());

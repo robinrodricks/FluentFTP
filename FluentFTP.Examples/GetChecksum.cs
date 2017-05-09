@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using FluentFTP;
-using FluentFTP.Extensions;
 
 namespace Examples {
     public static class GetChecksumExample {

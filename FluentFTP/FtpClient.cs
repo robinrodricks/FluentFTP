@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Globalization;
-using FluentFTP.Extensions;
 using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Proxy;
@@ -267,6 +266,15 @@ namespace FluentFTP {
 				return m_host;
 			}
 			set {
+
+				// remove unwanted prefix/postfix
+				if (value.StartsWith("ftp://")) {
+					value = value.Substring(value.IndexOf("ftp://") + ("ftp://").Length);
+				}
+				if (value.EndsWith("/")) {
+					value = value.Replace("/", "");
+				}
+
 				m_host = value;
 			}
 		}
@@ -298,7 +306,7 @@ namespace FluentFTP {
 			}
 		}
 
-		NetworkCredential m_credentials = null;
+		NetworkCredential m_credentials = new NetworkCredential("anonymous", "anonymous");
 		/// <summary>
 		/// Credentials used for authentication
 		/// </summary>
@@ -584,14 +592,10 @@ namespace FluentFTP {
 		/// Gets the type of system/server that we're
 		/// connected to.
 		/// </summary>
+		private string m_systemType = "UNKNOWN";
 		public string SystemType {
 			get {
-				FtpReply reply = Execute("SYST");
-
-				if (reply.Success)
-					return reply.Message;
-
-				return null;
+				return m_systemType;
 			}
 		}
 
@@ -602,7 +606,7 @@ namespace FluentFTP {
 			protected set { m_connectionType = value; }
 		}
 
-		int m_transferChunkSize = 65536;
+		private int m_transferChunkSize = 65536;
 		/// <summary>
 		/// Gets or sets the number of bytes transferred in a single chunk (a single FTP command).
         /// Used by <see cref="o:UploadFile"/>/<see cref="o:UploadFileAsync"/> and <see cref="o:DownloadFile"/>/<see cref="o:DownloadFileAsync"/>
@@ -619,12 +623,93 @@ namespace FluentFTP {
 
 		private FtpDataType CurrentDataType;
 
+		private FtpParser m_parser = FtpParser.Auto;
+		/// <summary>
+		/// File listing parser to be used. 
+		/// Automatically calculated based on the type of the server, unless changed.
+		/// </summary>
+		public FtpParser ListingParser {
+			get { return m_parser; }
+			set {
+				m_parser = value;
+
+				// configure parser
+				m_listParser.parser = value;
+				m_listParser.parserConfirmed = false;
+			}
+		}
+
+		private CultureInfo m_parserCulture = CultureInfo.InvariantCulture;
+		/// <summary>
+		/// Culture used to parse file listings
+		/// </summary>
+		public CultureInfo ListingCulture {
+			get { return m_parserCulture; }
+			set {
+				m_parserCulture = value;
+
+				// configure parser
+				m_listParser.parserCulture = value;
+			}
+		}
+
+		private double m_timeDiff = 0;
+		/// <summary>
+		/// Time difference between server and client, in hours.
+		/// If the server is located in New York and you are in London then the time difference is -5 hours.
+		/// </summary>
+		public double TimeOffset {
+			get { return m_timeDiff; }
+			set {
+				m_timeDiff = value;
+
+				// configure parser
+				int hours = (int)Math.Floor(m_timeDiff);
+				int mins = (int)Math.Floor((m_timeDiff - Math.Floor(m_timeDiff)) * 60);
+				m_listParser.timeOffset = new TimeSpan(hours, mins, 0);
+				m_listParser.hasTimeOffset = m_timeDiff != 0;
+			}
+		}
+
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
 		// FtpClient.CloneConnection()
 
 		#endregion
 
 		#region Core
+
+		/// <summary>
+		/// Creates a new instance of an FTP Client.
+		/// </summary>
+		public FtpClient() {
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host.
+		/// </summary>
+		public FtpClient(string host) {
+			Host = host;
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host and credentials.
+		/// </summary>
+		public FtpClient(string host, NetworkCredential credentials) {
+			Host = host;
+			Credentials = credentials;
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host, username and password.
+		/// </summary>
+		public FtpClient(string host, string user, string pass) {
+			Host = host;
+			Credentials = new NetworkCredential(user, pass);
+			m_listParser = new FtpListParser(this);
+		}
 
 		/// <summary>
 		/// Performs a bitwise and to check if the specified
@@ -673,8 +758,7 @@ namespace FluentFTP {
 					StackTrace st = new StackTrace(1);
 
 					throw new InvalidCastException("The AsyncResult cannot be matched to the specified delegate. " +
-						string.Format("Are you sure you meant to call {0} and not another method?",
-						st.GetFrame(0).GetMethod().Name)
+						("Are you sure you meant to call " + st.GetFrame(0).GetMethod().Name + " and not another method?")
 					);
 #endif
 				}
@@ -719,6 +803,9 @@ namespace FluentFTP {
 			conn.DataConnectionEncryption = DataConnectionEncryption;
 			conn.SslProtocols = SslProtocols;
 			conn.TransferChunkSize = TransferChunkSize;
+			conn.ListingParser = ListingParser;
+			conn.ListingCulture = ListingCulture;
+			conn.TimeOffset = TimeOffset;
 
 			// copy props using attributes (slower, not .NET core compatible)
 			/*foreach (PropertyInfo prop in GetType().GetProperties()) {
@@ -776,22 +863,11 @@ namespace FluentFTP {
 						break;
 					}
 
-					reply.InfoMessages += string.Format("{0}\n", buf);
+					reply.InfoMessages += (buf + "\n");
 				}
 			}
 
 			return reply;
-		}
-
-		/// <summary>
-		/// Executes a command
-		/// </summary>
-		/// <param name="command">The command to execute with optional format place holders</param>
-		/// <param name="args">Format parameters to the command</param>
-		/// <returns>The servers reply to the command</returns>
-		/// <example><code source="..\Examples\Execute.cs" lang="cs" /></example>
-		public FtpReply Execute(string command, params object[] args) {
-			return Execute(string.Format(command, args));
 		}
 
 		/// <summary>
@@ -893,6 +969,8 @@ namespace FluentFTP {
 
 		#region Connection
 
+		private FtpListParser m_listParser;
+
 		/// <summary>
 		/// Connect to the server
 		/// </summary>
@@ -979,6 +1057,15 @@ namespace FluentFTP {
 					// about this so we'll just execute it to be safe. 
 					Execute("OPTS UTF8 ON");
 				}
+
+				// Get the system type - Needed to auto-detect file listing parser
+				if ((reply = Execute("SYST")).Success) {
+					m_systemType = reply.Message;
+				}
+
+				// Create the parser even if the auto-OS detection failed
+				m_listParser.Init(m_systemType);
+
 			}
 		}
 
@@ -1026,11 +1113,11 @@ namespace FluentFTP {
 		protected virtual void Authenticate(string userName, string password) {
 			FtpReply reply;
 
-			if (!(reply = Execute("USER {0}", userName)).Success)
+			if (!(reply = Execute("USER " + userName)).Success)
 				throw new FtpCommandException(reply);
 
 			if (reply.Type == FtpResponseType.PositiveIntermediate
-				&& !(reply = Execute("PASS {0}", password)).Success)
+				&& !(reply = Execute("PASS " + password)).Success)
 				throw new FtpCommandException(reply);
 		}
 
@@ -1173,13 +1260,13 @@ namespace FluentFTP {
 							Execute("QUIT");
 						}
 					} catch (SocketException sockex) {
-						FtpTrace.WriteLine("FtpClient.Disconnect(): SocketException caught and discarded while closing control connection: {0}", sockex.ToString());
+						FtpTrace.WriteLine("FtpClient.Disconnect(): SocketException caught and discarded while closing control connection: "+ sockex.ToString());
 					} catch (IOException ioex) {
-						FtpTrace.WriteLine("FtpClient.Disconnect(): IOException caught and discarded while closing control connection: {0}", ioex.ToString());
+						FtpTrace.WriteLine("FtpClient.Disconnect(): IOException caught and discarded while closing control connection: "+ ioex.ToString());
 					} catch (FtpCommandException cmdex) {
-						FtpTrace.WriteLine("FtpClient.Disconnect(): FtpCommandException caught and discarded while closing control connection: {0}", cmdex.ToString());
+						FtpTrace.WriteLine("FtpClient.Disconnect(): FtpCommandException caught and discarded while closing control connection: "+ cmdex.ToString());
 					} catch (FtpException ftpex) {
-						FtpTrace.WriteLine("FtpClient.Disconnect(): FtpException caught and discarded while closing control connection: {0}", ftpex.ToString());
+						FtpTrace.WriteLine("FtpClient.Disconnect(): FtpException caught and discarded while closing control connection: "+ ftpex.ToString());
 					} finally {
 						m_stream.Close();
 					}
@@ -1276,13 +1363,13 @@ namespace FluentFTP {
 				m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
 
 				if (!m.Success || m.Groups.Count != 7)
-					throw new FtpException(string.Format("Malformed PASV response: {0}", reply.Message));
+					throw new FtpException(("Malformed PASV response: " + reply.Message));
 
 				// PASVEX mode ignores the host supplied in the PASV response
 				if (type == FtpDataConnectionType.PASVEX)
 					host = m_host;
 				else
-					host = string.Format("{0}.{1}.{2}.{3}", m.Groups["quad1"].Value, m.Groups["quad2"].Value, m.Groups["quad3"].Value, m.Groups["quad4"].Value);
+					host = (m.Groups["quad1"].Value + "." + m.Groups["quad2"].Value + "." + m.Groups["quad3"].Value + "." + m.Groups["quad4"].Value);
 
 				port = (int.Parse(m.Groups["port1"].Value) << 8) + int.Parse(m.Groups["port2"].Value);
 			}
@@ -1294,7 +1381,7 @@ namespace FluentFTP {
 			stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
 			if (restart > 0) {
-				if (!(reply = Execute("REST {0}", restart)).Success)
+				if (!(reply = Execute("REST " + restart)).Success)
 					throw new FtpCommandException(reply);
 			}
 
@@ -1404,8 +1491,7 @@ namespace FluentFTP {
 						throw new InvalidOperationException("The IP protocol being used is not supported.");
 				}
 
-				if (!(reply = Execute("EPRT |{0}|{1}|{2}|", ipver,
-                    GetLocalAddress(stream.LocalEndPoint.Address), stream.LocalEndPoint.Port)).Success) {
+				if (!(reply = Execute("EPRT |" + ipver + "|" + GetLocalAddress(stream.LocalEndPoint.Address) + "|" + stream.LocalEndPoint.Port + "|")).Success) {
 
 					// if we're connected with IPv4 and the data channel type is AutoActive then try to fall back to the PORT command
 					if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) {
@@ -1421,9 +1507,9 @@ namespace FluentFTP {
 				if (m_stream.LocalEndPoint.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
 					throw new FtpException("Only IPv4 is supported by the PORT command. Use EPRT instead.");
 
-				if (!(reply = Execute("PORT {0},{1},{2}",
-                        GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ','),
-						stream.LocalEndPoint.Port / 256,
+				if (!(reply = Execute("PORT " +
+                        GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ',') + "," +
+						stream.LocalEndPoint.Port / 256 + "," +
 						stream.LocalEndPoint.Port % 256)).Success) {
 					stream.Close();
 					throw new FtpCommandException(reply);
@@ -1431,7 +1517,7 @@ namespace FluentFTP {
 			}
 
 			if (restart > 0) {
-				if (!(reply = Execute("REST {0}", restart)).Success)
+				if (!(reply = Execute("REST " + restart)).Success)
 					throw new FtpCommandException(reply);
 			}
 
@@ -1616,7 +1702,7 @@ namespace FluentFTP {
 
 				client.SetDataType(type);
 				length = client.GetFileSize(path);
-				stream = client.OpenDataStream(string.Format("RETR {0}", path.GetFtpPath()), restart);
+				stream = client.OpenDataStream(("RETR " + path.GetFtpPath()), restart);
 			}
 
 			if (stream != null) {
@@ -1793,7 +1879,7 @@ namespace FluentFTP {
 
 				client.SetDataType(type);
 				length = client.GetFileSize(path);
-				stream = client.OpenDataStream(string.Format("STOR {0}", path.GetFtpPath()), 0);
+				stream = client.OpenDataStream(("STOR " + path.GetFtpPath()), 0);
 
 				if (length > 0 && stream != null)
 					stream.SetLength(length);
@@ -1909,7 +1995,7 @@ namespace FluentFTP {
 
 				client.SetDataType(type);
 				length = client.GetFileSize(path);
-				stream = client.OpenDataStream(string.Format("APPE {0}", path.GetFtpPath()), 0);
+				stream = client.OpenDataStream(("APPE " + path.GetFtpPath()), 0);
 
 				if (length > 0 && stream != null) {
 					stream.SetLength(length);
@@ -2007,48 +2093,40 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
 		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
 		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
-		public int UploadFiles(string[] localPaths, string remoteDir, bool overwrite = true, bool createRemoteDir = true) {
+		public int UploadFiles(string[] localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true) {
 
 			int count = 0;
 
 			// ensure ends with slash
 			remoteDir = !remoteDir.EndsWith("/") ? remoteDir + "/" : remoteDir;
 
+			//flag to determine if existence checks are required
+			bool checkFileExistence = true;
+
 			// create remote dir if wanted
 			if (createRemoteDir) {
 				if (!DirectoryExists(remoteDir)) {
 					CreateDirectory(remoteDir);
+					checkFileExistence = false;
 				}
 			}
 
 			// get all the already existing files
-			string[] existingFiles = GetNameListing(remoteDir);
+			string[] existingFiles = checkFileExistence ? GetNameListing(remoteDir) : new string[0];
 
 			// per local file
 			foreach (string localPath in localPaths) {
 
 				// calc remote path
-				string fileExt = Path.GetFileName(localPath);
-				string remotePath = remoteDir + fileExt;
-
-				// check if the remote file exists (always)
-				if (existingFiles.Contains(fileExt)) {
-
-					// skip uploading if the remote file exists
-					if (!overwrite) {
-						continue;
-					}
-
-					// delete file before uploading (also fixes #46)
-					DeleteFile(remotePath);
-				}
+				string fileName = Path.GetFileName(localPath);
+				string remotePath = remoteDir + fileName;
 
 				// try to upload it
 				try {
-					bool ok = UploadFileFromFile(localPath, remotePath, false);
+					bool ok = UploadFileFromFile(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true);
 					if (ok) {
 						count++;
 					}
@@ -2069,11 +2147,11 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
 		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
-		public int UploadFiles(List<string> localPaths, string remoteDir, bool overwrite = true, bool createRemoteDir = true) {
-			return UploadFiles(localPaths.ToArray(), remoteDir, overwrite, createRemoteDir);
+		public int UploadFiles(List<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true) {
+			return UploadFiles(localPaths.ToArray(), remoteDir, existsMode, createRemoteDir);
 		}
 
 #if (CORE || NETFX45)
@@ -2086,11 +2164,11 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
 		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
 		/// <param name="token">The token to monitor for cancelation requests</param>
 		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
-		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, bool overwrite, bool createRemoteDir, CancellationToken token) {
+		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
             //check if cancellation was requested and throw to set TaskStatus state to Canceled
             token.ThrowIfCancellationRequested();
 
@@ -2100,6 +2178,7 @@ namespace FluentFTP {
 
 			//flag to determine if existence checks are required
             bool checkFileExistence = true;
+
             // create remote dir if wanted
 			if (createRemoteDir) {
 				if (!await DirectoryExistsAsync(remoteDir)) {
@@ -2113,26 +2192,17 @@ namespace FluentFTP {
 
 			// per local file
 			foreach (string localPath in localPaths) {
-                //check if cancellation was requested and throw to set TaskStatus state to Canceled
+
+                // check if cancellation was requested and throw to set TaskStatus state to Canceled
 			    token.ThrowIfCancellationRequested();
+
 				// calc remote path
 				string fileName = Path.GetFileName(localPath);
 				string remotePath = remoteDir + fileName;
 
-				// check if the remote file exists (if required)
-				if (checkFileExistence && existingFiles.Contains(fileName)) {
-					// skip uploading if the remote file exists
-					if (!overwrite) {
-						continue;
-					}
-
-					// delete file before uploading (also fixes #46)
-					await DeleteFileAsync(remotePath);
-				}
-
 				// try to upload it
 			    try {
-			        bool ok = await UploadFileFromFileAsync(localPath, remotePath, false, token);
+					bool ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true, token);
 			        if (ok) {
 			            count++;
 			        }
@@ -2158,11 +2228,11 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
         /// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
         /// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
-	    public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, bool overwrite = true, bool createRemoteDir = true) {
-	        return await UploadFilesAsync(localPaths, remoteDir, overwrite, createRemoteDir, CancellationToken.None);
+		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true) {
+			return await UploadFilesAsync(localPaths, remoteDir, existsMode, createRemoteDir, CancellationToken.None);
 	    }
 #endif
 
@@ -2174,7 +2244,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
 		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		public int DownloadFiles(string localDir, string[] remotePaths, bool overwrite = true) {
 
@@ -2210,7 +2280,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
 		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		public int DownloadFiles(string localDir, List<string> remotePaths, bool overwrite = true) {
 			return DownloadFiles(localDir, remotePaths.ToArray(), overwrite);
@@ -2225,7 +2295,7 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
         /// <param name="remotePaths">The full or relative paths to the files on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="token">The token to monitor for cancelation requests</param>
         /// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
         public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite, CancellationToken token) {
@@ -2269,7 +2339,7 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
         /// <param name="remotePaths">The full or relative paths to the files on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
         public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite = true) {
             return await DownloadFilesAsync(localDir, remotePaths, overwrite, CancellationToken.None);
@@ -2287,30 +2357,17 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public bool UploadFile(string localPath, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
+		public bool UploadFile(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
 				return false;
 			}
 
-			// check if the remote file exists (always)
-			if (checkFileExistance && FileExists(remotePath)) {
-
-				// skip uploading if the remote file exists
-				if (!overwrite) {
-					return false;
-				}
-
-				// delete file before uploading (also fixes #46)
-				DeleteFile(remotePath);
-			}
-
-			return UploadFileFromFile(localPath, remotePath, createRemoteDir);
+			return UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false);
 		}
 
 #if (CORE || NETFX45)
@@ -2322,29 +2379,17 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="localPath">The full or relative path to the file on the local file system</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
         /// <param name="token">The token to monitor for cancellation requests.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-        public async Task<bool> UploadFileAsync(string localPath, string remotePath, bool overwrite, bool createRemoteDir, bool checkFileExistance, CancellationToken token) {
+		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
             // skip uploading if the local file does not exist
             if (!File.Exists(localPath)) {
                 return false;
             }
 
-            // check if the remote file exists (always)
-            if (checkFileExistance && await FileExistsAsync(remotePath)) {
-                // skip uploading if the remote file exists
-                if (!overwrite) {
-                    return false;
-                }
-
-                // delete file before uploading (also fixes #46)
-                await DeleteFileAsync(remotePath);
-            }
-
-            return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, token);
+            return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, existsMode, false, false, token);
         }
         
         /// <summary>
@@ -2354,17 +2399,15 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public async Task<bool> UploadFileAsync(string localPath, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
-            return await UploadFileAsync(localPath, remotePath, overwrite, createRemoteDir, checkFileExistance,
-                CancellationToken.None);
+		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+			return await UploadFileAsync(localPath, remotePath, existsMode, createRemoteDir, CancellationToken.None);
         }
 #endif
 
-		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir) {
+		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown) {
 			FileStream fileStream;
 			try {
 				// connect to the file
@@ -2377,12 +2420,12 @@ namespace FluentFTP {
 
 			// write the file onto the server
 			using (fileStream) {
-				return UploadFileInternal(fileStream, remotePath, createRemoteDir);
+				return UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown);
 			}
 		}
 
 #if (CORE || NETFX45)
-	    private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, CancellationToken token) {
+	    private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, CancellationToken token) {
 	        FileStream fileStream;
 	        try {
 	            //Connect to the file
@@ -2394,7 +2437,7 @@ namespace FluentFTP {
 	        }
 
 	        using (fileStream) {
-	            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, token);
+	            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, token);
 	        }
 	    }
 #endif
@@ -2405,28 +2448,14 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="fileData">The full data of the file, as a byte array</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
-		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public bool UploadFile(byte[] fileData, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
-
-			// check if the remote file exists (always)
-			if (checkFileExistance && FileExists(remotePath)) {
-
-				// skip uploading if the remote file exists
-				if (!overwrite) {
-					return false;
-				}
-
-				// delete file before uploading (also fixes #46)
-				DeleteFile(remotePath);
-			}
+		public bool UploadFile(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 
 			// write the file onto the server
 			using (MemoryStream ms = new MemoryStream(fileData)) {
 				ms.Position = 0;
-				return UploadFileInternal(ms, remotePath, createRemoteDir);
+				return UploadFileInternal(ms, remotePath, createRemoteDir, existsMode, false, false);
 			}
 		}
 
@@ -2437,26 +2466,12 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="fileStream">The full data of the file, as a stream</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
-		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public bool UploadFile(Stream fileStream, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
-
-			// check if the remote file exists (always)
-			if (checkFileExistance && FileExists(remotePath)) {
-
-				// skip uploading if the remote file exists
-				if (!overwrite) {
-					return false;
-				}
-
-				// delete file before uploading (also fixes #46)
-				DeleteFile(remotePath);
-			}
+		public bool UploadFile(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 
 			// write the file onto the server
-			return UploadFileInternal(fileStream, remotePath, createRemoteDir);
+			return UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, false, false);
 		}
 
 #if (CORE || NETFX45)
@@ -2467,28 +2482,16 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="fileData">The full data of the file, as a byte array</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
         /// <param name="token">The token to monitor for cancellation requests.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-        public async Task<bool> UploadFileAsync(byte[] fileData, string remotePath, bool overwrite, bool createRemoteDir, bool checkFileExistance, CancellationToken token)
+		public async Task<bool> UploadFileAsync(byte[] fileData, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token)
         {
-            // check if the remote file exists (always)
-            if (checkFileExistance && await FileExistsAsync(remotePath)) {
-                // skip uploading if the remote file exists
-                if (!overwrite) {
-                    return false;
-                }
-
-                // delete file before uploading (also fixes #46)
-                await DeleteFileAsync(remotePath);
-            }
-
             // write the file onto the server
             using (MemoryStream ms = new MemoryStream(fileData)) {
                 ms.Position = 0;
-                return await UploadFileInternalAsync(ms, remotePath, createRemoteDir, token);
+				return await UploadFileInternalAsync(ms, remotePath, createRemoteDir, existsMode, false, false, token);
             }
         }
 
@@ -2499,26 +2502,14 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="fileStream">The full data of the file, as a stream</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
-        /// <param name="token">The token to monitor for cancellation requests.</param>
+         /// <param name="token">The token to monitor for cancellation requests.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-        public async Task<bool> UploadFileAsync(Stream fileStream, string remotePath, bool overwrite, bool createRemoteDir, bool checkFileExistance, CancellationToken token) {
-            // check if the remote file exists (always)
-            if (checkFileExistance && await FileExistsAsync(remotePath))
-            {
-                // skip uploading if the remote file exists
-                if (!overwrite) {
-                    return false;
-                }
-
-                // delete file before uploading (also fixes #46)
-                await DeleteFileAsync(remotePath);
-            }
-
+		public async Task<bool> UploadFileAsync(Stream fileStream, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
+            
             // write the file onto the server
-            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, token);
+            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, false, false, token);
         }
 
         /// <summary>
@@ -2528,12 +2519,11 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="fileData">The full data of the file, as a byte array</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-        public async Task<bool> UploadFileAsync(byte[] fileData, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
-            return await UploadFileAsync(fileData, remotePath, overwrite, createRemoteDir, checkFileExistance, CancellationToken.None);
+		public async Task<bool> UploadFileAsync(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+			return await UploadFileAsync(fileData, remotePath, existsMode, createRemoteDir, CancellationToken.None);
         }
 
         /// <summary>
@@ -2543,12 +2533,11 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="fileStream">The full data of the file, as a stream</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <param name="checkFileExistance">Check if the file exists before uploaded. Keep it on if you might have partially uploaded files on the server. Turn this off to increase performance.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-        public async Task<bool> UploadFileAsync(Stream fileStream, string remotePath, bool overwrite = true, bool createRemoteDir = false, bool checkFileExistance = true) {
-            return await UploadFileAsync(fileStream, remotePath, overwrite, createRemoteDir, checkFileExistance, CancellationToken.None);
+		public async Task<bool> UploadFileAsync(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+			return await UploadFileAsync(fileStream, remotePath, existsMode, createRemoteDir, CancellationToken.None);
         }
 #endif
 
@@ -2559,7 +2548,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">Overwrite the file if it already exists</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public bool DownloadFile(string localPath, string remotePath, bool overwrite = true) {
 			return DownloadFileToFile(localPath, remotePath, overwrite);
@@ -2604,7 +2593,7 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="localPath">The full or relative path to the file on the local file system</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="token">The token to monitor for cancellation requests</param>
         /// <returns>If true then the file was downloaded, false otherwise.</returns>
         public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite, CancellationToken token) {
@@ -2618,7 +2607,7 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="localPath">The full or relative path to the file on the local file system</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">Overwrite the file if it already exists</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <returns>If true then the file was downloaded, false otherwise.</returns>
         public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite = true) {
             return await DownloadFileToFileAsync(localPath, remotePath, overwrite, CancellationToken.None);
@@ -2754,24 +2743,59 @@ namespace FluentFTP {
 		/// Upload the given stream to the server as a new file. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private bool UploadFileInternal(Stream fileData, string remotePath, bool createRemoteDir) {
+		private bool UploadFileInternal(Stream fileData, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown) {
 			Stream upStream = null;
 
 			try {
 
-				// ensure the remote dir exists
-				if (createRemoteDir) {
+				long offset = 0;
+
+				// check if the file exists, and skip, overwrite or append
+				if (existsMode != FtpExists.None) {
+					if (!fileExistsKnown) {
+						fileExists = FileExists(remotePath);
+					}
+					switch (existsMode) {
+						case FtpExists.Skip:
+							if (fileExists) {
+								return false;
+							}
+							break;
+						case FtpExists.Overwrite:
+							if (fileExists) {
+								DeleteFile(remotePath);
+							}
+							break;
+						case FtpExists.Append:
+							if (fileExists) {
+								offset = GetFileSize(remotePath);
+								if (offset == -1) {
+									offset = 0; // start from the beginning
+								}
+							}
+							break;
+					}
+				}
+
+				// ensure the remote dir exists .. only if the file does not already exist!
+				if (createRemoteDir && !fileExists) {
 					string dirname = remotePath.GetFtpDirectoryName();
 					if (!DirectoryExists(dirname)) {
 						CreateDirectory(dirname);
 					}
 				}
 
-				// open a file write connection
-				upStream = OpenWrite(remotePath);
+				// seek to offset
+				fileData.Position = offset;
+
+				// open a file connection
+				if (offset == 0) {
+					upStream = OpenWrite(remotePath);
+				} else {
+					upStream = OpenAppend(remotePath);
+				}
 
 				// loop till entire file uploaded
-				long offset = 0;
 				long len = fileData.Length;
 				byte[] buffer = new byte[TransferChunkSize];
 				while (offset < len) {
@@ -2807,6 +2831,124 @@ namespace FluentFTP {
 					}
 				}
 
+				// wait for transfer to get over
+				while (upStream.Position < upStream.Length) {
+				}
+
+				// disconnect FTP stream before exiting
+				upStream.Dispose();
+
+				// FIX : if this is not added, there appears to be "stale data" on the socket
+				// listen for a success/failure reply
+				if (!EnableThreadSafeDataConnections) {
+					FtpReply status = GetReply();
+				}
+
+				return true;
+
+			} catch (Exception ex1) {
+
+				// close stream before throwing error
+				try {
+					if (upStream != null)
+						upStream.Dispose();
+				} catch (Exception) { }
+
+				// catch errors during upload
+				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
+			}
+		}
+
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
+        /// Writes data in chunks. Retries if server disconnects midway.
+        /// </summary>
+		private async Task<bool> UploadFileInternalAsync(Stream fileData, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, CancellationToken token) {
+			Stream upStream = null;
+			try {
+				long offset = 0;
+
+				// check if the file exists, and skip, overwrite or append
+				if (existsMode != FtpExists.None) {
+					if (!fileExistsKnown) {
+						fileExists = await FileExistsAsync(remotePath);
+					}
+					switch (existsMode) {
+						case FtpExists.Skip:
+							if (fileExists) {
+								return false;
+							}
+							break;
+						case FtpExists.Overwrite:
+							if (fileExists) {
+								await DeleteFileAsync(remotePath);
+							}
+							break;
+						case FtpExists.Append:
+							if (fileExists) {
+								offset = await GetFileSizeAsync(remotePath);
+								if (offset == -1) {
+									offset = 0; // start from the beginning
+								}
+							}
+							break;
+					}
+				}
+
+				// ensure the remote dir exists .. only if the file does not already exist!
+				if (createRemoteDir && !fileExists) {
+					string dirname = remotePath.GetFtpDirectoryName();
+					if (!await DirectoryExistsAsync(dirname)) {
+						await CreateDirectoryAsync(dirname);
+					}
+				}
+
+				// seek to offset
+				fileData.Position = offset;
+
+				// open a file connection
+				if (offset == 0) {
+					upStream = await OpenWriteAsync(remotePath);
+				} else {
+					upStream = await OpenAppendAsync(remotePath);
+				}
+
+				// loop till entire file uploaded
+				long len = fileData.Length;
+				byte[] buffer = new byte[TransferChunkSize];
+				while (offset < len) {
+					try {
+						// read a chunk of bytes from the file
+						int readBytes;
+						while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
+							// write chunk to the FTP stream
+							await upStream.WriteAsync(buffer, 0, readBytes, token);
+							await upStream.FlushAsync(token);
+							offset += readBytes;
+						}
+					} catch (IOException ex) {
+						// resume if server disconnects midway (fixes #39)
+						if (ex.InnerException != null) {
+							var iex = ex.InnerException as System.Net.Sockets.SocketException;
+
+							if (iex != null) {
+#if CORE
+							    int code = (int)iex.SocketErrorCode;
+#else
+								int code = iex.ErrorCode;
+#endif
+								if (code == 10054) {
+									upStream.Dispose();
+									//Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
+									upStream = OpenAppend(remotePath);
+									upStream.Position = offset;
+								}
+							} else throw;
+						} else throw;
+					}
+				}
+
 				// wait for while transfer to get over
 				while (upStream.Position < upStream.Length) {
 				}
@@ -2820,178 +2962,18 @@ namespace FluentFTP {
 					FtpReply status = GetReply();
 				}
 
-				// fixes #30. the file can have some bytes at the end missing
-				// on proxy servers, so we write those missing bytes now.
-				if (IsProxy()) {
-
-					// get the current length of the remote file
-					// and check if any bytes are missing
-					long curLen = GetFileSize(remotePath);
-					if (curLen > 0 && curLen < len && fileData.CanSeek) {
-
-						// seek to the point of the local file
-						offset = curLen;
-						fileData.Position = offset;
-
-						// open the remote file for appending
-						upStream = OpenAppend(remotePath, FtpDataType.Binary);
-						upStream.Position = offset;
-
-						// read a chunk of bytes from the file
-						int readBytes;
-						while ((readBytes = fileData.Read(buffer, 0, buffer.Length)) > 0) {
-
-							// write chunk to the FTP stream
-							upStream.Write(buffer, 0, readBytes);
-							upStream.Flush();
-							offset += readBytes;
-						}
-
-						// disconnect FTP stream before exiting
-						upStream.Dispose();
-
-						// FIX : if this is not added, there appears to be "stale data" on the socket
-						// listen for a success/failure reply
-						if (!m_threadSafeDataChannels) {
-							FtpReply status = GetReply();
-						}
-					}
-				}
-
 				return true;
-
 			} catch (Exception ex1) {
-
 				// close stream before throwing error
 				try {
-					upStream.Dispose();
+					if (upStream != null)
+						upStream.Dispose();
 				} catch (Exception) { }
 
 				// catch errors during upload
 				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
 			}
 		}
-        
-#if (CORE || NETFX45)
-        /// <summary>
-        /// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
-        /// Writes data in chunks. Retries if server disconnects midway.
-        /// </summary>
-	    private async Task<bool> UploadFileInternalAsync(Stream fileData, string remotePath, bool createRemoteDir, CancellationToken token) {
-            Stream upStream = null;
-            try {
-                // ensure the remote dir exists
-                if (createRemoteDir) {
-                    string dirname = remotePath.GetFtpDirectoryName();
-                    if (!await DirectoryExistsAsync(dirname)) {
-                        await CreateDirectoryAsync(dirname);
-                    }
-                }
-
-                // open a file write connection
-                upStream = await OpenWriteAsync(remotePath);
-
-                // loop till entire file uploaded
-                long offset = 0;
-                long len = fileData.Length;
-                byte[] buffer = new byte[TransferChunkSize];
-                while (offset < len) {
-                    try {
-                        // read a chunk of bytes from the file
-                        int readBytes;
-                        while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
-                            // write chunk to the FTP stream
-                            await upStream.WriteAsync(buffer, 0, readBytes, token);
-                            await upStream.FlushAsync(token);
-                            offset += readBytes;
-                        }
-                    }
-                    catch (IOException ex) {
-                        // resume if server disconnects midway (fixes #39)
-                        if (ex.InnerException != null) {
-                            var iex = ex.InnerException as System.Net.Sockets.SocketException;
-
-                            if (iex != null) {
-#if CORE
-							    int code = (int)iex.SocketErrorCode;
-#else
-                                int code = iex.ErrorCode;
-#endif
-                                if (code == 10054) {
-                                    upStream.Dispose();
-                                    //Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
-                                    upStream = OpenAppend(remotePath);
-                                    upStream.Position = offset;
-                                }
-                            }
-                            else throw;
-                        }
-                        else throw;
-                    }
-                }
-
-                // wait for while transfer to get over
-                while (upStream.Position < upStream.Length) {
-                }
-
-                // disconnect FTP stream before exiting
-                upStream.Dispose();
-
-                // FIX : if this is not added, there appears to be "stale data" on the socket
-                // listen for a success/failure reply
-                if (!m_threadSafeDataChannels) {
-                    FtpReply status = GetReply();
-                }
-
-                // fixes #30. the file can have some bytes at the end missing
-                // on proxy servers, so we write those missing bytes now.
-                if (IsProxy()) {
-                    // get the current length of the remote file
-                    // and check if any bytes are missing
-                    long curLen = GetFileSize(remotePath);
-                    if (curLen > 0 && curLen < len && fileData.CanSeek) {
-                        // seek to the point of the local file
-                        offset = curLen;
-                        fileData.Position = offset;
-
-                        // open the remote file for appending
-                        upStream = await OpenAppendAsync(remotePath, FtpDataType.Binary);
-                        upStream.Position = offset;
-
-                        // read a chunk of bytes from the file
-                        int readBytes;
-                        while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
-                            // write chunk to the FTP stream
-                            upStream.Write(buffer, 0, readBytes);
-                            upStream.Flush();
-                            offset += readBytes;
-                        }
-
-                        // disconnect FTP stream before exiting
-                        upStream.Dispose();
-
-                        // FIX : if this is not added, there appears to be "stale data" on the socket
-                        // listen for a success/failure reply
-                        if (!m_threadSafeDataChannels) {
-                            FtpReply status = GetReply();
-                        }
-                    }
-                }
-
-                return true;
-            }
-            catch (Exception ex1) {
-                // close stream before throwing error
-                try {
-                    if(upStream != null)
-                        upStream.Dispose();
-                }
-                catch (Exception) { }
-
-                // catch errors during upload
-                throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
-            }
-	    }
 #endif
 		/// <summary>
 		/// Download a file from the server and write the data into the given stream.
@@ -3202,7 +3184,7 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			lock (m_lock) {
-				if (!(reply = Execute("DELE {0}", path.GetFtpPath())).Success)
+				if (!(reply = Execute("DELE " + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
 			}
 		}
@@ -3363,7 +3345,7 @@ namespace FluentFTP {
 
 				// DELETE ACTUAL DIRECTORY
 
-				if (!(reply = Execute("RMD {0}", ftppath)).Success) {
+				if (!(reply = Execute("RMD " + ftppath)).Success) {
 					throw new FtpCommandException(reply);
 				}
 
@@ -3525,8 +3507,8 @@ namespace FluentFTP {
 			lock (m_lock) {
 				pwd = GetWorkingDirectory();
 
-				if (Execute("CWD {0}", ftppath).Success) {
-					FtpReply reply = Execute("CWD {0}", pwd.GetFtpPath());
+				if (Execute("CWD " + ftppath).Success) {
+					FtpReply reply = Execute("CWD " + pwd.GetFtpPath());
 
 					if (!reply.Success)
 						throw new FtpException("DirectoryExists(): Failed to restore the working directory.");
@@ -3741,17 +3723,14 @@ namespace FluentFTP {
 				path = path.GetFtpPath().TrimEnd('/');
 
 				if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
-					FtpTrace.WriteLine(string.Format(
-						"CreateDirectory(\"{0}\", {1}): Create non-existent parent: {2}",
-						path, force, path.GetFtpDirectoryName()));
+					FtpTrace.WriteLine("CreateDirectory(\"" +path+ "\", " +force+ "): Create non-existent parent: " +path.GetFtpDirectoryName());
 					CreateDirectory(path.GetFtpDirectoryName(), true);
 				} else if (DirectoryExists(path))
 					return;
 
-				FtpTrace.WriteLine(string.Format("CreateDirectory(\"{0}\", {1})",
-					ftppath, force));
-
-				if (!(reply = Execute("MKD {0}", ftppath)).Success)
+				FtpTrace.WriteLine("CreateDirectory(\"" + ftppath + "\", " + force + ")");
+				
+				if (!(reply = Execute("MKD " + ftppath)).Success)
 					throw new FtpCommandException(reply);
 			}
 		}
@@ -3838,10 +3817,10 @@ namespace FluentFTP {
 
 			lock (m_lock) {
 
-				if (!(reply = Execute("RNFR {0}", path.GetFtpPath())).Success)
+				if (!(reply = Execute("RNFR " + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
 
-				if (!(reply = Execute("RNTO {0}", dest.GetFtpPath())).Success)
+				if (!(reply = Execute("RNTO " + dest.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
 			}
 		}
@@ -3909,7 +3888,7 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			lock (m_lock) {
-				if (!(reply = Execute("SITE CHMOD {0} {1}", permissions.ToString(), path.GetFtpPath())).Success)
+				if (!(reply = Execute("SITE CHMOD " + permissions.ToString() + " " + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
 			}
 		}
@@ -4136,44 +4115,66 @@ namespace FluentFTP {
 		#region File Listing
 
 		/// <summary>
-		/// Returns information about a file system object. You should check the Capabilities
-		/// flags for the FtpCapability.MLSD flag before calling this method. Failing to do
-		/// so will result in an InvalidOperationException being thrown when the server
-		/// does not support machine listings. Returns null if the server response can't
+		/// Returns information about a file system object. Returns null if the server response can't
 		/// be parsed or the server returns a failure completion code. The error for a failure
 		/// is logged with FtpTrace. No exception is thrown on error because that would negate
 		/// the usefullness of this method for checking for the existence of an object.
 		/// </summary>
-		/// <param name="path">The path of the object to retrieve information about</param>
+		/// <param name="path">The path of the file or folder</param>
+		/// <param name="dateModified">Get the accurate modified date using another MDTM command</param>
 		/// <returns>A FtpListItem object</returns>
-		public FtpListItem GetObjectInfo(string path) {
+		public FtpListItem GetObjectInfo(string path, bool dateModified = false) {
 			FtpReply reply;
 			string[] res;
 
-			if ((Capabilities & FtpCapability.MLSD) != FtpCapability.MLSD) {
-				throw new InvalidOperationException("The GetObjectInfo method only works on servers that support machine listings. " +
-					"Please check the Capabilities flags for FtpCapability.MLSD before calling this method.");
-			}
+			bool supportsMachineList = (Capabilities & FtpCapability.MLSD) == FtpCapability.MLSD;
+			
+			FtpListItem result = null;
 
-			if ((reply = Execute("MLST {0}", path)).Success) {
-				res = reply.InfoMessages.Split('\n');
-				if (res.Length > 1) {
-					string info = "";
+			if (supportsMachineList) {
 
-					for (int i = 1; i < res.Length; i++) {
-						info += res[i];
+				// USE MACHINE LISTING TO GET INFO FOR A SINGLE FILE
+
+				if ((reply = Execute("MLST " + path)).Success) {
+					res = reply.InfoMessages.Split('\n');
+					if (res.Length > 1) {
+						string info = "";
+
+						for (int i = 1; i < res.Length; i++) {
+							info += res[i];
+						}
+
+						result = m_listParser.ParseSingleLine(null, info, m_caps, true);
 					}
-
-					return FtpListItem.Parse(null, info, m_caps);
+				} else {
+					FtpTrace.WriteLine("Failed to get object info for path " + path + " with error "+ reply.ErrorMessage);
 				}
 			} else {
-				FtpTrace.WriteLine("Failed to get object info for path {0} with error {1}", path, reply.ErrorMessage);
+
+				// USE GETLISTING TO GET ALL FILES IN DIR .. SLOWER BUT AT LEAST IT WORKS
+
+				string dirPath = path.GetFtpDirectoryName();
+				FtpListItem[] dirItems = GetListing(dirPath);
+
+				foreach (var dirItem in dirItems) {
+					if (dirItem.FullName == path) {
+						result = dirItem;
+						break;
+					}
+				}
+
+				FtpTrace.WriteLine("Failed to get object info for path " + path + " since MLST not supported and GetListing() fails to list file/folder.");
 			}
 
-			return null;
+			// Get the accurate date modified using another MDTM command
+			if (result != null && dateModified && HasFeature(FtpCapability.MDTM)){
+				result.Modified = GetModifiedTime(path);
+			}
+
+			return result;
 		}
 
-		delegate FtpListItem AsyncGetObjectInfo(string path);
+		delegate FtpListItem AsyncGetObjectInfo(string path, bool dateModified);
 
 		/// <summary>
 		/// Begins an asynchronous operation to return information about a remote file system object. 
@@ -4186,15 +4187,16 @@ namespace FluentFTP {
         /// is logged with FtpTrace. No exception is thrown on error because that would negate
         /// the usefulness of this method for checking for the existence of an object.
 		/// </remarks>
-		/// <param name="path">Path of the item to retrieve information about</param>
+		/// <param name="path">Path of the file or folder</param>
+		/// <param name="dateModified">Get the accurate modified date using another MDTM command</param>
 		/// <param name="callback">Async Callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetObjectInfo(string path, AsyncCallback callback, object state) {
+		public IAsyncResult BeginGetObjectInfo(string path, bool dateModified, AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncGetObjectInfo func;
 
-			ar = (func = new AsyncGetObjectInfo(GetObjectInfo)).BeginInvoke(path, callback, state);
+			ar = (func = new AsyncGetObjectInfo(GetObjectInfo)).BeginInvoke(path, dateModified, callback, state);
 			lock (m_asyncmethods) {
 				m_asyncmethods.Add(ar, func);
 			}
@@ -4223,14 +4225,15 @@ namespace FluentFTP {
         /// is logged with FtpTrace. No exception is thrown on error because that would negate
         /// the usefulness of this method for checking for the existence of an object.</remarks>
         /// <param name="path">Path of the item to retrieve information about</param>
-        /// <exception cref="InvalidOperationException">Thrown if the server does not support this Capability</exception>
+		/// <param name="dateModified">Get the accurate modified date using another MDTM command</param>
+		/// <exception cref="InvalidOperationException">Thrown if the server does not support this Capability</exception>
         /// <returns>A <see cref="FtpListItem"/> if the command succeeded, or null if there was a problem.</returns>
-	    public async Task<FtpListItem> GetObjectInfoAsync(string path) {
+		public async Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false) {
             //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<string, FtpListItem>(
-	            (p, ac, s) => BeginGetObjectInfo(p, ac, s),
+            return await Task.Factory.FromAsync<string, bool, FtpListItem>(
+	            (p, dm, ac, s) => BeginGetObjectInfo(p, dm, ac, s),
 	            ar => EndGetObjectInfo(ar),
-	            path, null);
+	            path, dateModified, null);
 	    }
 #endif
 
@@ -4287,44 +4290,60 @@ namespace FluentFTP {
 			List<string> rawlisting = new List<string>();
 			string listcmd = null;
 			string buf = null;
-			bool includeSelf = (options & FtpListOption.IncludeSelfAndParent) == FtpListOption.IncludeSelfAndParent;
 
+			// read flags
+			bool isIncludeSelf = (options & FtpListOption.IncludeSelfAndParent) == FtpListOption.IncludeSelfAndParent;
+			bool isForceList = (options & FtpListOption.ForceList) == FtpListOption.ForceList;
+			bool isNoPath = (options & FtpListOption.NoPath) == FtpListOption.NoPath;
+			bool isNameList = (options & FtpListOption.NameList) == FtpListOption.NameList;
+			bool isUseLS = (options & FtpListOption.UseLS) == FtpListOption.UseLS;
+			bool isAllFiles = (options & FtpListOption.AllFiles) == FtpListOption.AllFiles;
+			bool isRecursive = (options & FtpListOption.Recursive) == FtpListOption.Recursive;
+			bool isDerefLinks = (options & FtpListOption.DerefLinks) == FtpListOption.DerefLinks;
+			bool isGetModified = (options & FtpListOption.Modify) == FtpListOption.Modify;
+			bool isGetSize = (options & FtpListOption.Size) == FtpListOption.Size;
+
+			// calc path to request
 			if (path == null || path.Trim().Length == 0) {
+
+				// if path not given, then use working dir
 				string pwd = GetWorkingDirectory();
 				if (pwd != null && pwd.Trim().Length > 0)
 					path = pwd;
 				else
 					path = "./";
+
 			} else if (!path.StartsWith("/")) {
+
+				// if relative path given then add working dir to calc full path
 				string pwd = GetWorkingDirectory();
 				if (pwd != null && pwd.Trim().Length > 0) {
 					if (path.StartsWith("./"))
 						path = path.Remove(0, 2);
-					path = string.Format("{0}/{1}", pwd, path).GetFtpPath();
+					path = (pwd + "/" + path).GetFtpPath();
 				}
 			}
 
-			// MLSD provides a machine parsable format with more
-			// accurate information than most of the UNIX long list
-			// formats which translates to more effcient file listings
-			// so always prefer MLSD over LIST unless the caller of this
-			// method overrides it with the ForceList option
-			if ((options & FtpListOption.ForceList) != FtpListOption.ForceList && HasFeature(FtpCapability.MLSD)) {
+			// MLSD provides a machine readable format with 100% accurate information
+			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
+			bool machineList = false;
+			if ((!isForceList || m_parser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
 				listcmd = "MLSD";
+				machineList = true;
 			} else {
-				if ((options & FtpListOption.UseLS) == FtpListOption.UseLS) {
+				if (isUseLS) {
 					listcmd = "LS";
-				} else if ((options & FtpListOption.NameList) == FtpListOption.NameList) {
+				} else if (isNameList) {
 					listcmd = "NLST";
 				} else {
 					string listopts = "";
 
 					listcmd = "LIST";
 
-					if ((options & FtpListOption.AllFiles) == FtpListOption.AllFiles)
+					if (isAllFiles)
 						listopts += "a";
 
-					if ((options & FtpListOption.Recursive) == FtpListOption.Recursive)
+					if (isRecursive)
 						listopts += "R";
 
 					if (listopts.Length > 0)
@@ -4332,8 +4351,8 @@ namespace FluentFTP {
 				}
 			}
 
-			if ((options & FtpListOption.NoPath) != FtpListOption.NoPath) {
-				listcmd = string.Format("{0} {1}", listcmd, path.GetFtpPath());
+			if (!isNoPath) {
+				listcmd = (listcmd + " " + path.GetFtpPath());
 			}
 
 			lock (m_lock) {
@@ -4357,7 +4376,8 @@ namespace FluentFTP {
 			for (int i = 0; i < rawlisting.Count; i++) {
 				buf = rawlisting[i];
 
-				if ((options & FtpListOption.NameList) == FtpListOption.NameList) {
+				if (isNameList) {
+					
 					// if NLST was used we only have a file name so
 					// there is nothing to parse.
 					item = new FtpListItem() {
@@ -4370,10 +4390,12 @@ namespace FluentFTP {
 						item.Type = FtpFileSystemObjectType.File;
 
 					lst.Add(item);
+
 				} else {
+
 					// if this is a result of LIST -R then the path will be spit out
 					// before each block of objects
-					if (listcmd.StartsWith("LIST") && (options & FtpListOption.Recursive) == FtpListOption.Recursive) {
+					if (listcmd.StartsWith("LIST") && isRecursive) {
 						if (buf.StartsWith("/") && buf.EndsWith(":")) {
 							path = buf.TrimEnd(':');
 							continue;
@@ -4385,11 +4407,12 @@ namespace FluentFTP {
 					if (i + 1 < rawlisting.Count && (rawlisting[i + 1].StartsWith("\t") || rawlisting[i + 1].StartsWith(" ")))
 						buf += rawlisting[++i];
 
-					item = FtpListItem.Parse(path, buf, m_caps);
+					item = m_listParser.ParseSingleLine(path, buf, m_caps, machineList);
+
 					// FtpListItem.Parse() returns null if the line
 					// could not be parsed
 					if (item != null) {
-						if (includeSelf || !(item.Name == "." || item.Name == "..")) {
+						if (isIncludeSelf || !(item.Name == "." || item.Name == "..")) {
 							lst.Add(item);
 						} else {
 							FtpTrace.WriteLine("Skipped self or parent item: " + item.Name);
@@ -4401,13 +4424,16 @@ namespace FluentFTP {
 
 				// load extended information that wasn't available if the list options flags say to do so.
 				if (item != null) {
+
 					// try to dereference symbolic links if the appropriate list
 					// option was passed
-					if (item.Type == FtpFileSystemObjectType.Link && (options & FtpListOption.DerefLinks) == FtpListOption.DerefLinks) {
+					if (item.Type == FtpFileSystemObjectType.Link && isDerefLinks) {
 						item.LinkObject = DereferenceLink(item);
 					}
 
-					if ((options & FtpListOption.Modify) == FtpListOption.Modify && HasFeature(FtpCapability.MDTM)) {
+					// if need to get file modified date
+					if (isGetModified && HasFeature(FtpCapability.MDTM)) {
+
 						// if the modified date was not loaded or the modified date is more than a day in the future 
 						// and the server supports the MDTM command, load the modified date.
 						// most servers do not support retrieving the modified date
@@ -4423,7 +4449,9 @@ namespace FluentFTP {
 						}
 					}
 
-					if ((options & FtpListOption.Size) == FtpListOption.Size && HasFeature(FtpCapability.SIZE)) {
+					// if need to get file size
+					if (isGetSize && HasFeature(FtpCapability.SIZE)) {
+
 						// if no size was parsed, the object is a file and the server
 						// supports the SIZE command, then load the file size
 						if (item.Size == -1) {
@@ -4594,15 +4622,6 @@ namespace FluentFTP {
 			List<string> lst = new List<string>();
 			string pwd = GetWorkingDirectory();
 
-			/*if (path == null || path.GetFtpPath().Trim().Length == 0 || path.StartsWith(".")) {
-				if (pwd == null || pwd.Length == 0) // couldn't get the working directory
-					path = "./";
-				else if (path.StartsWith("./"))
-					path = string.Format("{0}/{1}", pwd, path.Remove(0, 2));
-				else
-					path = pwd;
-			}*/
-
 			path = path.GetFtpPath();
 			if (path == null || path.Trim().Length == 0) {
 				if (pwd != null && pwd.Trim().Length > 0)
@@ -4612,7 +4631,7 @@ namespace FluentFTP {
 			} else if (!path.StartsWith("/") && pwd != null && pwd.Trim().Length > 0) {
 				if (path.StartsWith("./"))
 					path = path.Remove(0, 2);
-				path = string.Format("{0}/{1}", pwd, path).GetFtpPath();
+				path = (pwd + "/" + path).GetFtpPath();
 			}
 
 			lock (m_lock) {
@@ -4621,7 +4640,7 @@ namespace FluentFTP {
 				// problems that would happen if in ASCII.
 				Execute("TYPE I");
 
-				using (FtpDataStream stream = OpenDataStream(string.Format("NLST {0}", path.GetFtpPath()), 0)) {
+				using (FtpDataStream stream = OpenDataStream(("NLST " + path.GetFtpPath()), 0)) {
 					string buf;
 
 					try {
@@ -4707,6 +4726,943 @@ namespace FluentFTP {
 #endif
 
 #endregion
+
+		#region File Hashing - HASH
+
+		/// <summary>
+		/// Gets the currently selected hash algorithm for the HASH command.
+		/// </summary>
+		/// <remarks>
+		///  This feature is experimental. See this link for details:
+		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
+		/// </remarks>
+		/// <returns>The <see cref="FtpHashAlgorithm"/> flag or <see cref="FtpHashAlgorithm.None"/> if there was a problem.</returns>
+		/// <example><code source="..\Examples\GetHashAlgorithm.cs" lang="cs" /></example>
+		public FtpHashAlgorithm GetHashAlgorithm() {
+			FtpReply reply;
+			FtpHashAlgorithm type = FtpHashAlgorithm.NONE;
+
+			lock (m_lock) {
+				if ((reply = Execute("OPTS HASH")).Success) {
+					switch (reply.Message) {
+						case "SHA-1":
+							type = FtpHashAlgorithm.SHA1;
+							break;
+						case "SHA-256":
+							type = FtpHashAlgorithm.SHA256;
+							break;
+						case "SHA-512":
+							type = FtpHashAlgorithm.SHA512;
+							break;
+						case "MD5":
+							type = FtpHashAlgorithm.MD5;
+							break;
+					}
+				}
+			}
+
+			return type;
+		}
+
+		delegate FtpHashAlgorithm AsyncGetHashAlgorithm();
+
+		/// <summary>
+		/// Begins an asynchronous operation to get the currently selected hash algorithm for the HASH command.
+		/// </summary>
+		/// <remarks>
+		///  This feature is experimental. See this link for details:
+		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
+		/// </remarks>
+		/// <param name="callback">Async callback</param>
+		/// <param name="state">State object</param>
+		/// <returns>IAsyncResult</returns>
+		public IAsyncResult BeginGetHashAlgorithm(AsyncCallback callback, object state) {
+			AsyncGetHashAlgorithm func;
+			IAsyncResult ar;
+
+			ar = (func = new AsyncGetHashAlgorithm(GetHashAlgorithm)).BeginInvoke(callback, state);
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends a call to <see cref="BeginGetHashAlgorithm"/>
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetHashAlgorithm"/></param>
+		/// <returns>The <see cref="FtpHashAlgorithm"/> flag or <see cref="FtpHashAlgorithm.None"/> if there was a problem.</returns>
+		public FtpHashAlgorithm EndGetHashAlgorithm(IAsyncResult ar) {
+			return GetAsyncDelegate<AsyncGetHashAlgorithm>(ar).EndInvoke(ar);
+		}
+
+#if (CORE || NETFX45)
+		/// <summary>
+		/// Gets the currently selected hash algorithm for the HASH command asynchronously.
+		/// </summary>
+		/// <remarks>
+		///  This feature is experimental. See this link for details:
+		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
+		/// </remarks>
+		/// <returns>The <see cref="FtpHashAlgorithm"/> flag or <see cref="FtpHashAlgorithm.None"/> if there was a problem.</returns>
+		public async Task<FtpHashAlgorithm> GetHashAlgorithmAsync() {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<FtpHashAlgorithm>(
+				(ac, s) => BeginGetHashAlgorithm(ac, s),
+				ar => EndGetHashAlgorithm(ar), null);
+		}
+#endif
+
+		/// <summary>
+		/// Sets the hash algorithm on the server to use for the HASH command. 
+		/// </summary>
+		/// <remarks>
+		/// If you specify an algorithm not listed in <see cref="FtpClient.HashAlgorithms"/>
+		/// a <see cref="NotImplementedException"/> will be thrown
+		/// so be sure to query that list of Flags before
+		/// selecting a hash algorithm. Support for the
+		/// HASH command is experimental. Please see
+		/// the following link for more details:
+		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
+		/// </remarks>
+		/// <param name="type">Hash Algorithm</param>
+		/// <exception cref="System.NotImplementedException">Thrown if the selected algorithm is not available on the server</exception>
+		/// <example><code source="..\Examples\SetHashAlgorithm.cs" lang="cs" /></example>
+		public void SetHashAlgorithm(FtpHashAlgorithm type) {
+			FtpReply reply;
+			string algorithm;
+
+			lock (m_lock) {
+				if ((HashAlgorithms & type) != type)
+					throw new NotImplementedException(("The hash algorithm " + type.ToString() + " was not advertised by the server."));
+
+				switch (type) {
+					case FtpHashAlgorithm.SHA1:
+						algorithm = "SHA-1";
+						break;
+					case FtpHashAlgorithm.SHA256:
+						algorithm = "SHA-256";
+						break;
+					case FtpHashAlgorithm.SHA512:
+						algorithm = "SHA-512";
+						break;
+					case FtpHashAlgorithm.MD5:
+						algorithm = "MD5";
+						break;
+					default:
+						algorithm = type.ToString();
+						break;
+				}
+
+				if (!(reply = Execute("OPTS HASH " + algorithm)).Success)
+					throw new FtpCommandException(reply);
+			}
+		}
+
+		delegate void AsyncSetHashAlgorithm(FtpHashAlgorithm type);
+
+		/// <summary>
+		/// Begins an asynchronous operation to set the hash algorithm on the server to use for the HASH command. 
+		/// </summary>
+		/// <remarks>
+		/// If you specify an algorithm not listed in <see cref="FtpClient.HashAlgorithms"/>
+		/// a <see cref="NotImplementedException"/> will be thrown
+		/// so be sure to query that list of Flags before
+		/// selecting a hash algorithm. Support for the
+		/// HASH command is experimental. Please see
+		/// the following link for more details:
+		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
+		/// </remarks>
+		/// <param name="type">Hash algorithm to use</param>
+		/// <param name="callback">Async Callback</param>
+		/// <param name="state">State object</param>
+		/// <returns>IAsyncResult</returns>
+		public IAsyncResult BeginSetHashAlgorithm(FtpHashAlgorithm type, AsyncCallback callback, object state) {
+			AsyncSetHashAlgorithm func;
+			IAsyncResult ar;
+
+			ar = (func = new AsyncSetHashAlgorithm(SetHashAlgorithm)).BeginInvoke(type, callback, state);
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends an asynchronous call to <see cref="BeginSetHashAlgorithm"/>
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginSetHashAlgorithm"/></param>
+		public void EndSetHashAlgorithm(IAsyncResult ar) {
+			GetAsyncDelegate<AsyncSetHashAlgorithm>(ar).EndInvoke(ar);
+		}
+
+#if (CORE || NETFX45)
+		/// <summary>
+		/// Sets the hash algorithm on the server to be used with the HASH command asynchronously.
+		/// </summary>
+		/// <param name="type">Hash algorithm to use</param>
+		/// <exception cref="System.NotImplementedException">Thrown if the selected algorithm is not available on the server</exception>
+		public async Task SetHashAlgorithmAsync(FtpHashAlgorithm type) {
+			//TODO:  Rewrite as true async method with cancellation support
+			await Task.Factory.FromAsync<FtpHashAlgorithm>(
+				(t, ac, s) => BeginSetHashAlgorithm(t, ac, s),
+				ar => EndSetHashAlgorithm(ar),
+				type, null);
+		}
+#endif
+
+		/// <summary>
+		/// Gets the hash of an object on the server using the currently selected hash algorithm. 
+		/// </summary>
+		/// <remarks>
+		/// Supported algorithms, if any, are available in the <see cref="HashAlgorithms"/>
+		/// property. You should confirm that it's not equal
+		/// to <see cref="FtpHashAlgorithm.NONE"/> before calling this method
+		/// otherwise the server trigger a <see cref="FtpCommandException"/>
+		/// due to a lack of support for the HASH command. You can
+		/// set the algorithm using the <see cref="SetHashAlgorithm"/> method and
+		/// you can query the server for the current hash algorithm
+		/// using the <see cref="GetHashAlgorithm"/> method.
+		/// 
+		/// This feature is experimental and based on the following draft:
+		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
+		/// </remarks>
+		/// <param name="path">Full or relative path of the object to compute the hash for.</param>
+		/// <returns>The hash of the file.</returns>
+		/// <exception cref="FtpCommandException">Thrown if the <see cref="HashAlgorithms"/> property is <see cref="FtpHashAlgorithm.NONE"/></exception>
+		/// <example><code source="..\Examples\GetHash.cs" lang="cs" /></example>
+		public FtpHash GetHash(string path) {
+			FtpReply reply;
+			FtpHash hash = new FtpHash();
+			Match m;
+
+			if (path == null)
+				throw new ArgumentException("GetHash(path) argument can't be null");
+
+			lock (m_lock) {
+				if (!(reply = Execute("HASH " + path.GetFtpPath())).Success)
+					throw new FtpCommandException(reply);
+			}
+
+			// Current draft says the server should return this:
+			// SHA-256 0-49 169cd22282da7f147cb491e559e9dd filename.ext
+			if (!(m = Regex.Match(reply.Message,
+					@"(?<algorithm>.+)\s" +
+					@"(?<bytestart>\d+)-(?<byteend>\d+)\s" +
+					@"(?<hash>.+)\s" +
+					@"(?<filename>.+)")).Success) {
+
+				// Current version of FileZilla returns this:
+				// SHA-1 21c2ca15cf570582949eb59fb78038b9c27ffcaf 
+				m = Regex.Match(reply.Message, @"(?<algorithm>.+)\s(?<hash>.+)\s");
+			}
+
+			if (m != null && m.Success) {
+				switch (m.Groups["algorithm"].Value) {
+					case "SHA-1":
+						hash.Algorithm = FtpHashAlgorithm.SHA1;
+						break;
+					case "SHA-256":
+						hash.Algorithm = FtpHashAlgorithm.SHA256;
+						break;
+					case "SHA-512":
+						hash.Algorithm = FtpHashAlgorithm.SHA512;
+						break;
+					case "MD5":
+						hash.Algorithm = FtpHashAlgorithm.MD5;
+						break;
+					default:
+						throw new NotImplementedException("Unknown hash algorithm: " + m.Groups["algorithm"].Value);
+				}
+
+				hash.Value = m.Groups["hash"].Value;
+			} else {
+				FtpTrace.WriteLine("Failed to parse hash from: " + reply.Message);
+			}
+
+			return hash;
+		}
+
+		delegate FtpHash AsyncGetHash(string path);
+
+		/// <summary>
+		/// Begins an asynchronous operation to get the hash of an object on the server using the currently selected hash algorithm. 
+		/// </summary>
+		/// <remarks>
+		/// Supported algorithms, if any, are available in the <see cref="HashAlgorithms"/>
+		/// property. You should confirm that it's not equal
+		/// to <see cref="FtpHashAlgorithm.NONE"/> before calling this method
+		/// otherwise the server trigger a <see cref="FtpCommandException"/>
+		/// due to a lack of support for the HASH command. You can
+		/// set the algorithm using the <see cref="SetHashAlgorithm"/> method and
+		/// you can query the server for the current hash algorithm
+		/// using the <see cref="GetHashAlgorithm"/> method.
+		/// 
+		/// This feature is experimental and based on the following draft:
+		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
+		/// </remarks>
+		/// <param name="path">The file you want the server to compute the hash for</param>
+		/// <param name="callback">AsyncCallback</param>
+		/// <param name="state">State object</param>
+		/// <returns>IAsyncResult</returns>
+		public IAsyncResult BeginGetHash(string path, AsyncCallback callback, object state) {
+			AsyncGetHash func;
+			IAsyncResult ar;
+
+			ar = (func = new AsyncGetHash(GetHash)).BeginInvoke(path, callback, state);
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends an asynchronous call to <see cref="BeginGetHash"/>
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetHash"/></param>
+		public FtpHash EndGetHash(IAsyncResult ar) {
+			return GetAsyncDelegate<AsyncGetHash>(ar).EndInvoke(ar);
+		}
+
+#if (CORE || NETFX45)
+		/// <summary>
+		/// Gets the hash of an object on the server using the currently selected hash algorithm asynchronously. 
+		/// </summary>
+		/// <remarks>
+		/// Supported algorithms, if any, are available in the <see cref="HashAlgorithms"/>
+		/// property. You should confirm that it's not equal
+		/// to <see cref="FtpHashAlgorithm.NONE"/> before calling this method
+		/// otherwise the server trigger a <see cref="FtpCommandException"/>
+		/// due to a lack of support for the HASH command. You can
+		/// set the algorithm using the <see cref="SetHashAlgorithm"/> method and
+		/// you can query the server for the current hash algorithm
+		/// using the <see cref="GetHashAlgorithm"/> method.
+		/// 
+		/// This feature is experimental and based on the following draft:
+		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
+		/// </remarks>
+		/// <param name="path">The file you want the server to compute the hash for</param>
+		/// <exception cref="FtpCommandException">Thrown if the <see cref="HashAlgorithms"/> property is <see cref="FtpHashAlgorithm.NONE"/></exception>
+		/// <returns>The hash of the file.</returns>
+		public async Task<FtpHash> GetHashAsync(string path) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, FtpHash>(
+				(p, ac, s) => BeginGetHash(p, ac, s),
+				ar => EndGetHash(ar),
+				path, null);
+		}
+#endif
+
+		#endregion
+
+		#region File Checksum
+
+		delegate FtpHash AsyncGetChecksum(string path);
+
+		/// <summary>
+		/// Retrieves a checksum of the given file using a checksum method that the server supports, if any. 
+		/// </summary>
+		/// <remarks>
+		/// The algorithm used goes in this order:
+		/// 1. HASH command; server preferred algorithm. See <see cref="FtpClient.SetHashAlgorithm"/>
+		/// 2. MD5 / XMD5 commands
+		/// 3. XSHA1 command
+		/// 4. XSHA256 command
+		/// 5. XSHA512 command
+		/// 6. XCRC command
+		/// </remarks>
+		/// <param name="client"><see cref="FtpClient"/> Object</param>
+		/// <param name="path">Full or relative path of the file to checksum</param>
+		/// <returns><see cref="FtpHash"/> object containing the value and algorithm. Use the <see cref="FtpHash.IsValid"/> property to
+		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
+		/// the underlying calls.</returns>
+		/// <example><code source="..\Examples\GetChecksum.cs" lang="cs" /></example>
+		public FtpHash GetChecksum(string path) {
+			if (HasFeature(FtpCapability.HASH)) {
+				return GetHash(path);
+			} else {
+				FtpHash res = new FtpHash();
+
+				if (HasFeature(FtpCapability.MD5)) {
+					res.Value = GetMD5(path);
+					res.Algorithm = FtpHashAlgorithm.MD5;
+				} else if (HasFeature(FtpCapability.XMD5)) {
+					res.Value = GetXMD5(path);
+					res.Algorithm = FtpHashAlgorithm.MD5;
+				} else if (HasFeature(FtpCapability.XSHA1)) {
+					res.Value = GetXSHA1(path);
+					res.Algorithm = FtpHashAlgorithm.SHA1;
+				} else if (HasFeature(FtpCapability.XSHA256)) {
+					res.Value = GetXSHA256(path);
+					res.Algorithm = FtpHashAlgorithm.SHA256;
+				} else if (HasFeature(FtpCapability.XSHA512)) {
+					res.Value = GetXSHA512(path);
+					res.Algorithm = FtpHashAlgorithm.SHA512;
+				} else if (HasFeature(FtpCapability.XCRC)) {
+					res.Value = GetXCRC(path);
+					res.Algorithm = FtpHashAlgorithm.CRC;
+				}
+
+				return res;
+			}
+		}
+
+		/// <summary>
+		/// Begins an asynchronous operation to retrieve a checksum of the given file using a checksum method that the server supports, if any. 
+		/// </summary>
+		/// <remarks>
+		/// The algorithm used goes in this order:
+		/// 1. HASH command; server preferred algorithm. See <see cref="FtpClient.SetHashAlgorithm"/>
+		/// 2. MD5 / XMD5 commands
+		/// 3. XSHA1 command
+		/// 4. XSHA256 command
+		/// 5. XSHA512 command
+		/// 6. XCRC command
+		/// </remarks>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <param name="callback">AsyncCallback</param>
+		/// <param name="state">State Object</param>
+		/// <returns>IAsyncResult</returns>
+		public IAsyncResult BeginGetChecksum(string path, AsyncCallback callback,
+			object state) {
+			AsyncGetChecksum func = new AsyncGetChecksum(GetChecksum);
+			IAsyncResult ar = func.BeginInvoke(path, callback, state);
+			;
+
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends an asynchronous call to <see cref="BeginGetChecksum"/>
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetChecksum"/></param>
+		/// <returns><see cref="FtpHash"/> object containing the value and algorithm. Use the <see cref="FtpHash.IsValid"/> property to
+		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
+		/// the underlying calls.</returns>
+		public FtpHash EndGetChecksum(IAsyncResult ar) {
+			AsyncGetChecksum func = null;
+
+			lock (m_asyncmethods) {
+				if (!m_asyncmethods.ContainsKey(ar))
+					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
+
+				func = (AsyncGetChecksum)m_asyncmethods[ar];
+				m_asyncmethods.Remove(ar);
+			}
+
+			return func.EndInvoke(ar);
+		}
+
+#if (CORE || NETFX45)
+		/// <summary>
+		/// Retrieves a checksum of the given file using a checksum method that the server supports, if any. 
+		/// </summary>
+		/// <remarks>
+		/// The algorithm used goes in this order:
+		/// 1. HASH command; server preferred algorithm. See <see cref="FtpClient.SetHashAlgorithm"/>
+		/// 2. MD5 / XMD5 commands
+		/// 3. XSHA1 command
+		/// 4. XSHA256 command
+		/// 5. XSHA512 command
+		/// 6. XCRC command
+		/// </remarks>
+		/// <param name="client"><see cref="FtpClient"/> Object</param>
+		/// <param name="path">Full or relative path of the file to checksum</param>
+		/// <returns><see cref="FtpHash"/> object containing the value and algorithm. Use the <see cref="FtpHash.IsValid"/> property to
+		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
+		/// the underlying calls.</returns>
+		/// <example><code source="..\Examples\GetChecksum.cs" lang="cs" /></example>
+		public async Task<FtpHash> GetChecksumAsync(string path) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, FtpHash>(
+				(p, ac, s) => BeginGetChecksum(p, ac, s),
+				ar => EndGetChecksum(ar), path, null);
+		}
+#endif
+
+		#endregion
+
+		#region File Checksum - MD5
+		delegate string AsyncGetMD5(string path);
+
+		/// <summary>
+		/// Gets the MD5 hash of the specified file using MD5. This is a non-standard extension
+		/// to the protocol and may or may not work. A FtpCommandException will be
+		/// thrown if the command fails.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <returns>Server response, presumably the MD5 hash.</returns>
+		public string GetMD5(string path) {
+			// http://tools.ietf.org/html/draft-twine-ftpmd5-00#section-3.1
+			FtpReply reply;
+			string response;
+
+			if (!(reply = Execute("MD5 " + path)).Success)
+				throw new FtpCommandException(reply);
+
+			response = reply.Message;
+			if (response.StartsWith(path)) {
+				response = response.Remove(0, path.Length).Trim();
+			}
+
+			return response;
+		}
+
+		/// <summary>
+		/// Begins an asynchronous operation to retrieve a MD5 hash. The MD5 command is non-standard
+		/// and not guaranteed to work.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <param name="callback">AsyncCallback</param>
+		/// <param name="state">State Object</param>
+		/// <returns>IAsyncResult</returns>
+		public IAsyncResult BeginGetMD5(string path, AsyncCallback callback, object state) {
+			AsyncGetMD5 func = new AsyncGetMD5(GetMD5);
+			IAsyncResult ar = func.BeginInvoke(path, callback, state);
+			;
+
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends an asynchronous call to <see cref="BeginGetMD5"/>
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetMD5"/></param>
+		/// <returns>The MD5 hash of the specified file.</returns>
+		public string EndGetMD5(IAsyncResult ar) {
+			AsyncGetMD5 func = null;
+
+			lock (m_asyncmethods) {
+				if (!m_asyncmethods.ContainsKey(ar))
+					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
+
+				func = (AsyncGetMD5)m_asyncmethods[ar];
+				m_asyncmethods.Remove(ar);
+			}
+
+			return func.EndInvoke(ar);
+		}
+
+#if (CORE || NETFX45)
+		/// <summary>
+		/// Gets the MD5 hash of the specified file using MD5 asynchronously. This is a non-standard extension
+		/// to the protocol and may or may not work. A FtpCommandException will be
+		/// thrown if the command fails.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <returns>Server response, presumably the MD5 hash.</returns>
+		public async Task<string> GetMD5Async(string path) {
+			return await Task.Factory.FromAsync<string, string>(
+				(p, ac, s) => BeginGetMD5(p, ac, s),
+				ar => EndGetMD5(ar),
+				path, null);
+		}
+#endif
+		#endregion
+
+		#region File Checksum - XCRC
+
+
+		delegate string AsyncGetXCRC(string path);
+		/// <summary>
+		/// Get the CRC value of the specified file. This is a non-standard extension of the protocol 
+		/// and may throw a FtpCommandException if the server does not support it.
+		/// </summary>
+		/// <param name="client">FtpClient object</param>
+		/// <param name="path">The path of the file you'd like the server to compute the CRC value for.</param>
+		/// <returns>The response from the server, typically the XCRC value. FtpCommandException thrown on error</returns>
+		public string GetXCRC(string path) {
+			FtpReply reply;
+
+			if (!(reply = Execute("XCRC " + path)).Success)
+				throw new FtpCommandException(reply);
+
+			return reply.Message;
+		}
+
+		/// <summary>
+		/// Begins an asynchronous operation to retrieve a CRC hash. The XCRC command is non-standard
+		/// and not guaranteed to work.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <param name="callback">AsyncCallback</param>
+		/// <param name="state">State Object</param>
+		/// <returns>IAsyncResult</returns>
+		public IAsyncResult BeginGetXCRC(string path, AsyncCallback callback, object state) {
+			AsyncGetXCRC func = new AsyncGetXCRC(GetXCRC);
+			IAsyncResult ar = func.BeginInvoke(path, callback, state); ;
+
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends an asynchronous call to <see cref="BeginGetXCRC"/>
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetXCRC"/></param>
+		/// <returns>The CRC hash of the specified file.</returns>
+		public string EndGetXCRC(IAsyncResult ar) {
+			AsyncGetXCRC func = null;
+
+			lock (m_asyncmethods) {
+				if (!m_asyncmethods.ContainsKey(ar))
+					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
+
+				func = (AsyncGetXCRC)m_asyncmethods[ar];
+				m_asyncmethods.Remove(ar);
+			}
+
+			return func.EndInvoke(ar);
+		}
+
+#if (CORE || NETFX45)
+		/// <summary>
+		/// Gets the CRC hash of the specified file using XCRC asynchronously. This is a non-standard extension
+		/// to the protocol and may or may not work. A FtpCommandException will be
+		/// thrown if the command fails.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <returns>Server response, presumably the CRC hash.</returns>
+		public async Task<string> GetXCRCAsync(string path) {
+			return await Task.Factory.FromAsync<string, string>(
+				(p, ac, s) => BeginGetXCRC(p, ac, s),
+				ar => EndGetXCRC(ar), path, null);
+		}
+#endif
+
+		#endregion
+
+		#region File Checksum - XMD5
+		delegate string AsyncGetXMD5(string path);
+
+		/// <summary>
+		/// Gets the MD5 hash of the specified file using XMD5. This is a non-standard extension
+		/// to the protocol and may or may not work. A FtpCommandException will be
+		/// thrown if the command fails.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <returns>Server response, presumably the MD5 hash.</returns>
+		public string GetXMD5(string path) {
+			FtpReply reply;
+
+			if (!(reply = Execute("XMD5 " + path)).Success)
+				throw new FtpCommandException(reply);
+
+			return reply.Message;
+		}
+
+		/// <summary>
+		/// Begins an asynchronous operation to retrieve a XMD5 hash. The XMD5 command is non-standard
+		/// and not guaranteed to work.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <param name="callback">AsyncCallback</param>
+		/// <param name="state">State Object</param>
+		/// <returns>IAsyncResult</returns>
+		public IAsyncResult BeginGetXMD5(string path, AsyncCallback callback, object state) {
+			AsyncGetXMD5 func = new AsyncGetXMD5(GetXMD5);
+			IAsyncResult ar = func.BeginInvoke(path, callback, state); ;
+
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends an asynchronous call to <see cref="BeginGetXMD5"/>
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetXMD5"/></param>
+		/// <returns>The MD5 hash of the specified file.</returns>
+		public string EndGetXMD5(IAsyncResult ar) {
+			AsyncGetXMD5 func = null;
+
+			lock (m_asyncmethods) {
+				if (!m_asyncmethods.ContainsKey(ar))
+					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
+
+				func = (AsyncGetXMD5)m_asyncmethods[ar];
+				m_asyncmethods.Remove(ar);
+			}
+
+			return func.EndInvoke(ar);
+		}
+
+#if (CORE || NETFX45)
+		/// <summary>
+		/// Gets the MD5 hash of the specified file using XMD5 asynchronously. This is a non-standard extension
+		/// to the protocol and may or may not work. A FtpCommandException will be
+		/// thrown if the command fails.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <returns>Server response, presumably the MD5 hash.</returns>
+		public async Task<string> GetXMD5Async(string path) {
+			return await Task.Factory.FromAsync<string, string>(
+				(p, ac, s) => BeginGetXMD5(p, ac, s),
+				ar => EndGetXMD5(ar), path, null);
+		}
+#endif
+
+		#endregion
+
+		#region File Checksum - XSHA1
+
+		delegate string AsyncGetXSHA1(string path);
+
+		/// <summary>
+		/// Gets the SHA-1 hash of the specified file using XSHA1. This is a non-standard extension
+		/// to the protocol and may or may not work. A FtpCommandException will be
+		/// thrown if the command fails.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <returns>Server response, presumably the SHA-1 hash.</returns>
+		public string GetXSHA1(string path) {
+			FtpReply reply;
+
+			if (!(reply = Execute("XSHA1 " + path)).Success)
+				throw new FtpCommandException(reply);
+
+			return reply.Message;
+		}
+
+		/// <summary>
+		/// Begins an asynchronous operation to retrieve a SHA1 hash. The XSHA1 command is non-standard
+		/// and not guaranteed to work.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <param name="callback">AsyncCallback</param>
+		/// <param name="state">State Object</param>
+		/// <returns>IAsyncResult</returns>
+		public IAsyncResult BeginGetXSHA1(string path, AsyncCallback callback, object state) {
+			AsyncGetXSHA1 func = new AsyncGetXSHA1(GetXSHA1);
+			IAsyncResult ar = func.BeginInvoke(path, callback, state); ;
+
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends an asynchronous call to <see cref="BeginGetXSHA1"/>
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetXSHA1"/></param>
+		/// <returns>The SHA-1 hash of the specified file.</returns>
+		public string EndGetXSHA1(IAsyncResult ar) {
+			AsyncGetXSHA1 func = null;
+
+			lock (m_asyncmethods) {
+				if (!m_asyncmethods.ContainsKey(ar))
+					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
+
+				func = (AsyncGetXSHA1)m_asyncmethods[ar];
+				m_asyncmethods.Remove(ar);
+			}
+
+			return func.EndInvoke(ar);
+		}
+
+#if (CORE || NETFX45)
+		/// <summary>
+		/// Gets the SHA-1 hash of the specified file using XSHA1 asynchronously. This is a non-standard extension
+		/// to the protocol and may or may not work. A FtpCommandException will be
+		/// thrown if the command fails.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <returns>Server response, presumably the SHA-1 hash.</returns>
+		public async Task<string> GetXSHA1sync(string path) {
+			return await Task.Factory.FromAsync<string, string>(
+				(p, ac, s) => BeginGetXSHA1(p, ac, s),
+				ar => EndGetXSHA1(ar),
+				path, null);
+		}
+#endif
+
+		#endregion
+
+		#region File Checksum - XSHA256
+
+		delegate string AsyncGetXSHA256(string path);
+
+		/// <summary>
+		/// Gets the SHA-256 hash of the specified file using XSHA256. This is a non-standard extension
+		/// to the protocol and may or may not work. A FtpCommandException will be
+		/// thrown if the command fails.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <returns>Server response, presumably the SHA-256 hash.</returns>
+		public string GetXSHA256(string path) {
+			FtpReply reply;
+
+			if (!(reply = Execute("XSHA256 " + path)).Success)
+				throw new FtpCommandException(reply);
+
+			return reply.Message;
+		}
+
+		/// <summary>
+		/// Begins an asynchronous operation to retrieve a SHA256 hash. The XSHA256 command is non-standard
+		/// and not guaranteed to work.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <param name="callback">AsyncCallback</param>
+		/// <param name="state">State Object</param>
+		/// <returns>IAsyncResult</returns>
+		public IAsyncResult BeginGetXSHA256(string path, AsyncCallback callback, object state) {
+			AsyncGetXSHA256 func = new AsyncGetXSHA256(GetXSHA256);
+			IAsyncResult ar = func.BeginInvoke(path, callback, state); ;
+
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends an asynchronous call to <see cref="BeginGetXSHA256"/>
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetXSHA256"/></param>
+		/// <returns>The SHA-256 hash of the specified file.</returns>
+		public string EndGetXSHA256(IAsyncResult ar) {
+			AsyncGetXSHA256 func = null;
+
+			lock (m_asyncmethods) {
+				if (!m_asyncmethods.ContainsKey(ar))
+					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
+
+				func = (AsyncGetXSHA256)m_asyncmethods[ar];
+				m_asyncmethods.Remove(ar);
+			}
+
+			return func.EndInvoke(ar);
+		}
+
+#if (CORE || NETFX45)
+		/// <summary>
+		/// Gets the SHA-256 hash of the specified file using XSHA256 asynchronously. This is a non-standard extension
+		/// to the protocol and may or may not work. A FtpCommandException will be
+		/// thrown if the command fails.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <returns>Server response, presumably the SHA-256 hash.</returns>
+		public async Task<string> GetXSHA256Async(string path) {
+			return await Task.Factory.FromAsync<string, string>(
+				(p, ac, s) => BeginGetXSHA256(p, ac, s),
+				ar => EndGetXSHA256(ar),
+				path, null);
+		}
+#endif
+
+		#endregion
+
+		#region File Checksum - XSHA512
+
+		delegate string AsyncGetXSHA512(string path);
+
+		/// <summary>
+		/// Gets the SHA-512 hash of the specified file using XSHA512. This is a non-standard extension
+		/// to the protocol and may or may not work. A FtpCommandException will be
+		/// thrown if the command fails.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <returns>Server response, presumably the SHA-512 hash.</returns>
+		public string GetXSHA512(string path) {
+			FtpReply reply;
+
+			if (!(reply = Execute("XSHA512 " + path)).Success)
+				throw new FtpCommandException(reply);
+
+			return reply.Message;
+		}
+
+		/// <summary>
+		/// Begins an asynchronous operation to retrieve a SHA512 hash. The XSHA512 command is non-standard
+		/// and not guaranteed to work.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <param name="callback">AsyncCallback</param>
+		/// <param name="state">State Object</param>
+		/// <returns>IAsyncResult</returns>
+		public IAsyncResult BeginGetXSHA512(string path, AsyncCallback callback, object state) {
+			AsyncGetXSHA512 func = new AsyncGetXSHA512(GetXSHA512);
+			IAsyncResult ar = func.BeginInvoke(path, callback, state); ;
+
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends an asynchronous call to <see cref="BeginGetXSHA512"/>
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetXSHA512"/></param>
+		/// <returns>The SHA-512 hash of the specified file.</returns>
+		public string EndGetXSHA512(IAsyncResult ar) {
+			AsyncGetXSHA512 func = null;
+
+			lock (m_asyncmethods) {
+				if (!m_asyncmethods.ContainsKey(ar))
+					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
+
+				func = (AsyncGetXSHA512)m_asyncmethods[ar];
+				m_asyncmethods.Remove(ar);
+			}
+
+			return func.EndInvoke(ar);
+		}
+
+#if (CORE || NETFX45)
+		/// <summary>
+		/// Gets the SHA-512 hash of the specified file using XSHA512 asynchronously. This is a non-standard extension
+		/// to the protocol and may or may not work. A FtpCommandException will be
+		/// thrown if the command fails.
+		/// </summary>
+		/// <param name="client">FtpClient Object</param>
+		/// <param name="path">Full or relative path to remote file</param>
+		/// <returns>Server response, presumably the SHA-512 hash.</returns>
+		public async Task<string> GetXSHA512Async(string path) {
+			return await Task.Factory.FromAsync<string, string>(
+				(p, ac, s) => BeginGetXSHA512(p, ac, s),
+				ar => EndGetXSHA512(ar), path, null);
+		}
+#endif
+		#endregion
 
 		#region Misc Methods
 
@@ -4819,7 +5775,7 @@ namespace FluentFTP {
 				return;
 
 			lock (m_lock) {
-				if (!(reply = Execute("CWD {0}", ftppath)).Success)
+				if (!(reply = Execute("CWD " + ftppath)).Success)
 					throw new FtpCommandException(reply);
 			}
 		}
@@ -4952,7 +5908,7 @@ namespace FluentFTP {
 			long length = 0;
 
 			lock (m_lock) {
-				if (!(reply = Execute("SIZE {0}", path.GetFtpPath())).Success)
+				if (!(reply = Execute("SIZE " + path.GetFtpPath())).Success)
 					return -1;
 
 				if (!long.TryParse(reply.Message, out length))
@@ -5020,7 +5976,7 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			lock (m_lock) {
-				if ((reply = Execute("MDTM {0}", path.GetFtpPath())).Success)
+				if ((reply = Execute("MDTM " + path.GetFtpPath())).Success)
 					modify = reply.Message.GetFtpDate(DateTimeStyles.AssumeUniversal);
 			}
 
@@ -5075,333 +6031,6 @@ namespace FluentFTP {
 #endif
 
 		/// <summary>
-		/// Gets the currently selected hash algorithm for the HASH command.
-		/// </summary>
-		/// <remarks>
-        ///  This feature is experimental. See this link for details:
-        /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
-		/// </remarks>
-        /// <returns>The <see cref="FtpHashAlgorithm"/> flag or <see cref="FtpHashAlgorithm.None"/> if there was a problem.</returns>
-		/// <example><code source="..\Examples\GetHashAlgorithm.cs" lang="cs" /></example>
-		public FtpHashAlgorithm GetHashAlgorithm() {
-			FtpReply reply;
-			FtpHashAlgorithm type = FtpHashAlgorithm.NONE;
-
-			lock (m_lock) {
-				if ((reply = Execute("OPTS HASH")).Success) {
-					switch (reply.Message) {
-						case "SHA-1":
-							type = FtpHashAlgorithm.SHA1;
-							break;
-						case "SHA-256":
-							type = FtpHashAlgorithm.SHA256;
-							break;
-						case "SHA-512":
-							type = FtpHashAlgorithm.SHA512;
-							break;
-						case "MD5":
-							type = FtpHashAlgorithm.MD5;
-							break;
-					}
-				}
-			}
-
-			return type;
-		}
-
-		delegate FtpHashAlgorithm AsyncGetHashAlgorithm();
-
-        /// <summary>
-        /// Begins an asynchronous operation to get the currently selected hash algorithm for the HASH command.
-        /// </summary>
-        /// <remarks>
-        ///  This feature is experimental. See this link for details:
-        /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
-        /// </remarks>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetHashAlgorithm(AsyncCallback callback, object state) {
-			AsyncGetHashAlgorithm func;
-			IAsyncResult ar;
-
-			ar = (func = new AsyncGetHashAlgorithm(GetHashAlgorithm)).BeginInvoke(callback, state);
-			lock (m_asyncmethods) {
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-        /// Ends a call to <see cref="BeginGetHashAlgorithm"/>
-		/// </summary>
-        /// <param name="ar">IAsyncResult returned from <see cref="BeginGetHashAlgorithm"/></param>
-        /// <returns>The <see cref="FtpHashAlgorithm"/> flag or <see cref="FtpHashAlgorithm.None"/> if there was a problem.</returns>
-		public FtpHashAlgorithm EndGetHashAlgorithm(IAsyncResult ar) {
-			return GetAsyncDelegate<AsyncGetHashAlgorithm>(ar).EndInvoke(ar);
-		}
-
-#if (CORE || NETFX45)
-        /// <summary>
-        /// Gets the currently selected hash algorithm for the HASH command asynchronously.
-        /// </summary>
-        /// <remarks>
-        ///  This feature is experimental. See this link for details:
-        /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
-        /// </remarks>
-        /// <returns>The <see cref="FtpHashAlgorithm"/> flag or <see cref="FtpHashAlgorithm.None"/> if there was a problem.</returns>
-	    public async Task<FtpHashAlgorithm> GetHashAlgorithmAsync() {
-            //TODO:  Rewrite as true async method with cancellation support
-	        return await Task.Factory.FromAsync<FtpHashAlgorithm>(
-	            (ac, s) => BeginGetHashAlgorithm(ac, s),
-	            ar => EndGetHashAlgorithm(ar), null);
-	    }
-#endif
-
-		/// <summary>
-		/// Sets the hash algorithm on the server to use for the HASH command. 
-		/// </summary>
-		/// <remarks>
-        /// If you specify an algorithm not listed in <see cref="FtpClient.HashAlgorithms"/>
-        /// a <see cref="NotImplementedException"/> will be thrown
-        /// so be sure to query that list of Flags before
-        /// selecting a hash algorithm. Support for the
-        /// HASH command is experimental. Please see
-        /// the following link for more details:
-        /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
-		/// </remarks>
-		/// <param name="type">Hash Algorithm</param>
-        /// <exception cref="System.NotImplementedException">Thrown if the selected algorithm is not available on the server</exception>
-		/// <example><code source="..\Examples\SetHashAlgorithm.cs" lang="cs" /></example>
-		public void SetHashAlgorithm(FtpHashAlgorithm type) {
-			FtpReply reply;
-			string algorithm;
-
-			lock (m_lock) {
-				if ((HashAlgorithms & type) != type)
-					throw new NotImplementedException(string.Format("The hash algorithm {0} was not advertised by the server.", type.ToString()));
-
-				switch (type) {
-					case FtpHashAlgorithm.SHA1:
-						algorithm = "SHA-1";
-						break;
-					case FtpHashAlgorithm.SHA256:
-						algorithm = "SHA-256";
-						break;
-					case FtpHashAlgorithm.SHA512:
-						algorithm = "SHA-512";
-						break;
-					case FtpHashAlgorithm.MD5:
-						algorithm = "MD5";
-						break;
-					default:
-						algorithm = type.ToString();
-						break;
-				}
-
-				if (!(reply = Execute("OPTS HASH {0}", algorithm)).Success)
-					throw new FtpCommandException(reply);
-			}
-		}
-
-		delegate void AsyncSetHashAlgorithm(FtpHashAlgorithm type);
-
-        /// <summary>
-        /// Begins an asynchronous operation to set the hash algorithm on the server to use for the HASH command. 
-        /// </summary>
-        /// <remarks>
-        /// If you specify an algorithm not listed in <see cref="FtpClient.HashAlgorithms"/>
-        /// a <see cref="NotImplementedException"/> will be thrown
-        /// so be sure to query that list of Flags before
-        /// selecting a hash algorithm. Support for the
-        /// HASH command is experimental. Please see
-        /// the following link for more details:
-        /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
-        /// </remarks>
-		/// <param name="type">Hash algorithm to use</param>
-		/// <param name="callback">Async Callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginSetHashAlgorithm(FtpHashAlgorithm type, AsyncCallback callback, object state) {
-			AsyncSetHashAlgorithm func;
-			IAsyncResult ar;
-
-			ar = (func = new AsyncSetHashAlgorithm(SetHashAlgorithm)).BeginInvoke(type, callback, state);
-			lock (m_asyncmethods) {
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-        /// Ends an asynchronous call to <see cref="BeginSetHashAlgorithm"/>
-		/// </summary>
-        /// <param name="ar">IAsyncResult returned from <see cref="BeginSetHashAlgorithm"/></param>
-		public void EndSetHashAlgorithm(IAsyncResult ar) {
-			GetAsyncDelegate<AsyncSetHashAlgorithm>(ar).EndInvoke(ar);
-		}
-
-#if (CORE || NETFX45)
-        /// <summary>
-        /// Sets the hash algorithm on the server to be used with the HASH command asynchronously.
-        /// </summary>
-        /// <param name="type">Hash algorithm to use</param>
-        /// <exception cref="System.NotImplementedException">Thrown if the selected algorithm is not available on the server</exception>
-	    public async Task SetHashAlgorithmAsync(FtpHashAlgorithm type) {
-            //TODO:  Rewrite as true async method with cancellation support
-	        await Task.Factory.FromAsync<FtpHashAlgorithm>(
-	            (t, ac, s) => BeginSetHashAlgorithm(t, ac, s),
-	            ar => EndSetHashAlgorithm(ar),
-	            type, null);
-	    }
-#endif
-
-		/// <summary>
-		/// Gets the hash of an object on the server using the currently selected hash algorithm. 
-		/// </summary>
-		/// <remarks>
-        /// Supported algorithms, if any, are available in the <see cref="HashAlgorithms"/>
-        /// property. You should confirm that it's not equal
-        /// to <see cref="FtpHashAlgorithm.NONE"/> before calling this method
-        /// otherwise the server trigger a <see cref="FtpCommandException"/>
-        /// due to a lack of support for the HASH command. You can
-        /// set the algorithm using the <see cref="SetHashAlgorithm"/> method and
-        /// you can query the server for the current hash algorithm
-        /// using the <see cref="GetHashAlgorithm"/> method.
-        /// 
-        /// This feature is experimental and based on the following draft:
-        /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
-		/// </remarks>
-		/// <param name="path">Full or relative path of the object to compute the hash for.</param>
-		/// <returns>The hash of the file.</returns>
-        /// <exception cref="FtpCommandException">Thrown if the <see cref="HashAlgorithms"/> property is <see cref="FtpHashAlgorithm.NONE"/></exception>
-		/// <example><code source="..\Examples\GetHash.cs" lang="cs" /></example>
-		public FtpHash GetHash(string path) {
-			FtpReply reply;
-			FtpHash hash = new FtpHash();
-			Match m;
-
-			if (path == null)
-				throw new ArgumentException("GetHash(path) argument can't be null");
-
-			lock (m_lock) {
-				if (!(reply = Execute("HASH {0}", path.GetFtpPath())).Success)
-					throw new FtpCommandException(reply);
-			}
-
-			// Current draft says the server should return this:
-			// SHA-256 0-49 169cd22282da7f147cb491e559e9dd filename.ext
-			if (!(m = Regex.Match(reply.Message,
-					@"(?<algorithm>.+)\s" +
-					@"(?<bytestart>\d+)-(?<byteend>\d+)\s" +
-					@"(?<hash>.+)\s" +
-					@"(?<filename>.+)")).Success) {
-
-				// Current version of FileZilla returns this:
-				// SHA-1 21c2ca15cf570582949eb59fb78038b9c27ffcaf 
-				m = Regex.Match(reply.Message, @"(?<algorithm>.+)\s(?<hash>.+)\s");
-			}
-
-			if (m != null && m.Success) {
-				switch (m.Groups["algorithm"].Value) {
-					case "SHA-1":
-						hash.Algorithm = FtpHashAlgorithm.SHA1;
-						break;
-					case "SHA-256":
-						hash.Algorithm = FtpHashAlgorithm.SHA256;
-						break;
-					case "SHA-512":
-						hash.Algorithm = FtpHashAlgorithm.SHA512;
-						break;
-					case "MD5":
-						hash.Algorithm = FtpHashAlgorithm.MD5;
-						break;
-					default:
-						throw new NotImplementedException("Unknown hash algorithm: " + m.Groups["algorithm"].Value);
-				}
-
-				hash.Value = m.Groups["hash"].Value;
-			} else {
-				FtpTrace.WriteLine("Failed to parse hash from: {0}", reply.Message);
-			}
-
-			return hash;
-		}
-
-		delegate FtpHash AsyncGetHash(string path);
-
-        /// <summary>
-        /// Begins an asynchronous operation to get the hash of an object on the server using the currently selected hash algorithm. 
-        /// </summary>
-        /// <remarks>
-        /// Supported algorithms, if any, are available in the <see cref="HashAlgorithms"/>
-        /// property. You should confirm that it's not equal
-        /// to <see cref="FtpHashAlgorithm.NONE"/> before calling this method
-        /// otherwise the server trigger a <see cref="FtpCommandException"/>
-        /// due to a lack of support for the HASH command. You can
-        /// set the algorithm using the <see cref="SetHashAlgorithm"/> method and
-        /// you can query the server for the current hash algorithm
-        /// using the <see cref="GetHashAlgorithm"/> method.
-        /// 
-        /// This feature is experimental and based on the following draft:
-        /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
-        /// </remarks>
-		/// <param name="path">The file you want the server to compute the hash for</param>
-		/// <param name="callback">AsyncCallback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetHash(string path, AsyncCallback callback, object state) {
-			AsyncGetHash func;
-			IAsyncResult ar;
-
-			ar = (func = new AsyncGetHash(GetHash)).BeginInvoke(path, callback, state);
-			lock (m_asyncmethods) {
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-        /// Ends an asynchronous call to <see cref="BeginGetHash"/>
-		/// </summary>
-        /// <param name="ar">IAsyncResult returned from <see cref="BeginGetHash"/></param>
-		public FtpHash EndGetHash(IAsyncResult ar) {
-			return GetAsyncDelegate<AsyncGetHash>(ar).EndInvoke(ar);
-		}
-
-#if (CORE || NETFX45)
-        /// <summary>
-        /// Gets the hash of an object on the server using the currently selected hash algorithm asynchronously. 
-        /// </summary>
-        /// <remarks>
-        /// Supported algorithms, if any, are available in the <see cref="HashAlgorithms"/>
-        /// property. You should confirm that it's not equal
-        /// to <see cref="FtpHashAlgorithm.NONE"/> before calling this method
-        /// otherwise the server trigger a <see cref="FtpCommandException"/>
-        /// due to a lack of support for the HASH command. You can
-        /// set the algorithm using the <see cref="SetHashAlgorithm"/> method and
-        /// you can query the server for the current hash algorithm
-        /// using the <see cref="GetHashAlgorithm"/> method.
-        /// 
-        /// This feature is experimental and based on the following draft:
-        /// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
-        /// </remarks>
-        /// <param name="path">The file you want the server to compute the hash for</param>
-        /// <exception cref="FtpCommandException">Thrown if the <see cref="HashAlgorithms"/> property is <see cref="FtpHashAlgorithm.NONE"/></exception>
-        /// <returns>The hash of the file.</returns>
-	    public async Task<FtpHash> GetHashAsync(string path) {
-            //TODO:  Rewrite as true async method with cancellation support
-	        return await Task.Factory.FromAsync<string, FtpHash>(
-	            (p, ac, s) => BeginGetHash(p, ac, s),
-	            ar => EndGetHash(ar),
-	            path, null);
-	    }
-#endif
-
-		/// <summary>
 		/// Disables UTF8 support and changes the Encoding property
 		/// back to ASCII. If the server returns an error when trying
 		/// to turn UTF8 off a FtpCommandException will be thrown.
@@ -5434,14 +6063,14 @@ namespace FluentFTP {
 						Disconnect();
 					}
 				} catch (Exception ex) {
-					FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disconnecting from host: {0}", ex.ToString());
+					FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disconnecting from host: "+ ex.ToString());
 				}
 
 				if (m_stream != null) {
 					try {
 						m_stream.Dispose();
 					} catch (Exception ex) {
-						FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: {0}", ex.ToString());
+						FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: "+ ex.ToString());
 					} finally {
 						m_stream = null;
 					}
@@ -5462,11 +6091,6 @@ namespace FluentFTP {
 		~FtpClient() {
 			Dispose();
 		}
-
-		/// <summary>
-		/// Creates a new instance of FtpClient
-		/// </summary>
-		public FtpClient() { }
 
 		private void ReadStaleData() {
 			if (m_stream != null && m_stream.SocketDataAvailable > 0) {

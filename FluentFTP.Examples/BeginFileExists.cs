@@ -32,7 +32,7 @@ namespace Examples {
                 if (conn == null)
                     throw new InvalidOperationException("The FtpControlConnection object is null!");
 
-                Console.WriteLine("File exists: {0}", conn.EndFileExists(ar));
+                Console.WriteLine("File exists: "+ conn.EndFileExists(ar));
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());

@@ -3,31 +3,31 @@
 
 [![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP)
 
-FluentFTP is a fully managed FTP client that is designed to be easy to use and easy to extend. It supports file and directory listing, uploading and dowloading files and SSL/TLS connections. It can connect to Unix and Windows/IIS based FTP servers. This project is entirely developed in managed C#. All credits go to [J.P. Trosclair](https://github.com/jptrosclair) for developing and maintaining the library till 2016. FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
+FluentFTP is a fully managed FTP and FTPS library for .NET & .NET Core, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, UTF-8 support, Async/await support and more.
+
+It is written entirely in C#, with no external dependencies. FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 
 ## Features
 
-- Full support for FTP, FTPS (FTP over SSL) and [FTPS with client certificates](#client-certificates)
-- File and directory listing for [all major server types](#file-listings) (UNIX, IIS, DOS, etc)
+- Full support for [FTP](#ftp-support), FTPS (FTP over SSL) and [FTPS with client certificates](#client-certificates)
+- File and directory listing for [all major server types](#file-listings) (Unix, Windows/IIS, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, etc)
 - Easily upload and download a file from the server
 - Easily read and write file data from the server using standard streams
 - Create, append, read, write, rename and delete files and folders
 - Recursively deletes folders and all its contents
 - Get file/folder info (exists, size, security flags, modified date/time)
-- Get and set file permissions (owner, group, other)
+- Get and set [file permissions](#file-permissions) (owner, group, other)
 - Absolute or relative paths (relative to the "working directory")
-- Get the hash/checksum of a file (SHA-1, SHA-256, SHA-512, and MD5)
-- Supports DrFTPD's PRET command
+- Get the [hash/checksum](#file-hashing) of a file (SHA-1, SHA-256, SHA-512, and MD5)
+- Supports DrFTPD's PRET command, and the Unix CHMOD command
 - Supports FTP Proxies (User@Host, HTTP 1.1)
-- Supports SITE CHMOD command (Unix only)
 - Dereferencing of symbolic links
 - Passive and active data connections (PASV, EPSV, PORT and EPRT)
 - Synchronous and asynchronous methods (`async`/`await` pattern) for all operations 
 - Explicit and Implicit SSL connections are supported for the control and data connections using .NET's `SslStream`
+- Easily send server-specific FTP commands using the `Execute()` method
 - Improves thread safety by cloning the FTP control connection for file transfers (optional)
 - Implements its own internal locking in an effort to keep transactions synchronized
-- Includes support for non-standard hashing/checksum commands when supported by the server
-- Easily issue any unsupported FTP command using the `Execute()` method with the exception of those requiring a data connection (file listings and transfers).
 - Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/hgupta9/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
 - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/hgupta9/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
 - Transaction logging using `TraceListeners` (passwords are automatically omitted)
@@ -111,6 +111,7 @@ client.Disconnect();
 	
 See more examples [here](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples).
 
+
 # Documentation
 
 Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS functionality.
@@ -143,7 +144,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 ## File Management
 
-- **GetListing**() - Get a file listing of the given directory. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
+- **GetListing**() - Get a [file listing](#file-listings) of the given directory. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
 
 	- `Type` : The type of the object. (File, Directory or Link)
 	
@@ -161,19 +162,23 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 	- `LinkObject` : The file/folder the link points to. Only filled for symbolic links if `FtpListOption.DerefLink` flag is used.
 
-	- `SpecialPermissions` : Gets special permissions such as Stiky, SUID and SGID. **(*NIX only)**
+	- `SpecialPermissions` : Gets special permissions such as Stiky, SUID and SGID.
 
-	- `Chmod` : The CHMOD permissions of the object. For example 644 or 755. **Default:** `0` if not provided by server. **(*NIX only)**
+	- `Chmod` : The CHMOD permissions of the object. For example 644 or 755. **Default:** `0` if not provided by server.
 
-	- `OwnerPermissions` : User rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server. **(*NIX only)**
+	- `OwnerPermissions` : User rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server.
 
-	- `GroupPermissions` : Group rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server. **(*NIX only)**
+	- `GroupPermissions` : Group rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server.
 
-	- `OtherPermissions` : Other rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server. **(*NIX only)**
+	- `OtherPermissions` : Other rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server.
+
+	- `RawPermissions` : The raw permissions string recieved for this object. Use this if other permission properties are blank or invalid.
 
 	- `Input` : The raw string that the server returned for this object. Helps debug if the above properties have been correctly parsed.
-
+	
 - **GetNameListing**() - A simple command that only returns the list of file paths in the given directory, using the NLST command.
+
+- **GetObjectInfo()** - Get information for a single file or directory as an `FtpListItem`. It includes the type, date created, date modified, file size, permissions/chmod and link target (if any).
 
 - **UploadFile**() - Uploads a file from the local file system to the server. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB. Remote directories are NOT created if they do not exist.
 
@@ -205,11 +210,11 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **DereferenceLink**() - Recursively dereferences a symbolic link and returns the full path if found. The `MaximumDereferenceCount` property controls how deep we recurse before giving up.
 
-- **OpenRead**() - Low level. Not recommended for general usage. Open a stream to the specified file for reading. Returns a standard `Stream`.
+- **OpenRead**() - Low level. Not recommended for general usage. Open a stream to the specified file for reading. Returns a standard `Stream`. [Learn more.](#stream-handling)
 
-- **OpenWrite**() - Low level. Not recommended for general usage. Opens a stream to the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist.
+- **OpenWrite**() - Low level. Not recommended for general usage. Opens a stream to the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist. [Learn more.](#stream-handling)
 
-- **OpenAppend**() - Low level. Not recommended for general usage. Opens a stream to the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file.
+- **OpenAppend**() - Low level. Not recommended for general usage. Opens a stream to the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file. [Learn more.](#stream-handling)
 
 
 ## File Permissions
@@ -239,7 +244,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **SetHashAlgorithm**() - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
 
-*Non-standard commands supported by certain servers only. Import `FluentFTP.Extensions` to use these.*
+*Non-standard commands supported by certain servers only. [Learn more](#hashing-commands)*
 
 - **GetChecksum**() - Retrieves a checksum of the given file using a checksumming method that the server supports, if any. The algorithm used goes in this order : HASH, MD5, XMD5, XSHA1, XSHA256, XSHA512, XCRC.
 
@@ -264,7 +269,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **SslProtocols** - Encryption protocols to use. **Default:** SslProtocols.Default.
 
-- **ClientCertificates** - X509 client certificates to be used in SSL authentication process.
+- **ClientCertificates** - X509 client certificates to be used in SSL authentication process. [Learn more.](#client-certificates)
 
 - **ValidateCertificate** - Event is fired to validate SSL certificates. If this event is not handled and there are errors validating the certificate the connection will be aborted.
 
@@ -287,6 +292,15 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
 
 - **IsClone** - Checks if this control connection is a clone. **Default:** false.
+
+
+*File Listings*
+
+- **ListingParser** - File listing parser to be used. Automatically calculated based on the type of the server, unless changed. File listing parsing has improved in 2017, but to use the older parsing routines please use `FtpParser.Legacy`. **Default:** `FtpParser.Auto`.
+
+- **ListingCulture** - Culture used to parse file listings. **Default:** `CultureInfo.InvariantCulture`.
+
+- **TimeOffset** - Time difference between server and client, in hours. If the server is located in Amsterdam and you are in Los Angeles then the time difference is 9 hours. **Default:** 0.
 
 
 *Active FTP*
@@ -341,7 +355,74 @@ Please access these static methods directly under the `FtpClient` class.
 - **GetPublicIP**() - Use the Ipify service to calculate your public IP. Useful if you are behind a router or don't have a static IP.
 
 
+## FTP Support
+
+Mapping table documenting supported FTP commands and the corresponding API..
+
+*Connection commands*
+
+| Command  	    		| API						| Description                  	|
+|---------------		|-----------				|---------------------------	|
+| **USER, PASS**  		| Credentials				| Login with username & password|
+| **QUIT**  			| Disconnect()				| Disconnect	|
+| **PASV, EPSV, EPRT**  | DataConnectionType		| Passive & Active FTP modes	|
+| **FEAT**  			| HasFeature()				| Get the features supported by server |
+| **SYST**  			| GetSystem()				| Get the server system type 	|
+| **SITE CHMOD**      	| Chmod() or SetFilePermissions() | Modify file permissions |
+| **OPTS UTF8 ON**  	| Encoding 					| Enables UTF-8 filenames	|
+| **OPTS UTF8 OFF**  	| Encoding, DisableUTF8() 	| Disables UTF-8 filenames	|
+| **AUTH TLS**  		| EncryptionMode			| Switch to TLS/FTPS 	|
+| **PRET**      		| *Automatic* 				| Pre-transfer file information |
+| **TYPE A**  			| *Automatic* 				| Transfer data in ASCII	|
+| **TYPE I**  			| *Automatic* 				| Transfer data in Binary	|
+
+*File Management commands*
+
+| Command      			| API					| Description                  	|
+|---------------		|-----------			|---------------------------	|
+| **MLSD, LIST, NLST**  | GetListing()			| Get directory file listing 	|
+| **MLST**				| GetObjectInfo()		| Get file information			|
+| **DELE**      		| DeleteFile()			| Delete a file |
+| **RMD**      			| DeleteDirectory() 	| Delete a directory |
+| **CWD**      			| SetWorkingDirectory() | Change the working directory |
+| **PWD**      			| GetWorkingDirectory() | Get the working directory |
+| **SIZE**      		| GetFileSize() 		| Get the filesize in bytes |
+| **MDTM**   			| GetModifiedTime()<br>GetListing() with FtpListOption.Modify<br>GetObjectInfo() with dateModified | Get the file modified date  |
+| **SITE CHMOD**      	| Chmod() or SetFilePermissions() | Modify file permissions |
+
+*File Hashing commands*
+
+| Command      			| API							| Description                  	|
+|---------------		|-----------					|---------------------------	|
+| **HASH**  			| GetHash() 					| Gets the hash of a file	|
+| **OPTS HASH**  		| GetHashAlgorithm() / SetHashAlgorithm() | Selects a hash algorithm	for HASH command |
+| **MD5**  				| GetChecksum() or GetMD5()		| Gets the MD5 hash of a file	|
+| **XMD5**  			| GetChecksum() or GetXMD5()	| Gets the MD5 hash of a file	|
+| **XSHA1**  			| GetChecksum() or GetXSHA1()	| Gets the SHA-1 hash of a file	|
+| **XSHA256**  			| GetChecksum() or GetXSHA256()	| Gets the SHA-256 hash of a file	|
+| **XSHA512**  			| GetChecksum() or GetXSHA512()	| Gets the SHA-512 hash of a file	|
+
+
 # Notes
+
+## File Listings
+
+1. When you call `GetListing()`, FluentFTP first attempts to use **machine listings** (MLSD command) if they are supported by the server. These are most accurate and you can expect correct file size and modification date (UTC). You may also force this mode using `client.ListingParser = FtpParser.Machine`, and disable it with the `FtpListOption.ForceList` flag. You should also include the `FtpListOption.Modify` flag for the most accurate modification dates (down to the second). 
+
+2. If machine listings are not supported we fallback to the appropriate **OS-specific parser** (LIST command), listed below. You may force usage of a specific parser using `client.ListingParser = FtpParser.*`.
+
+   - **Unix** parser : Works for Pure-FTPd, ProFTPD, vsftpd, etc. If you encounter errors you can always try the alternate Unix parser using `client.ListingParser = FtpParser.UnixAlt`.
+   
+   - **Windows** parser : Works for IIS, DOS, FileZilla Server, etc.
+   
+   - **VMS** parser : Works for Vax, VMS, OpenVMS, etc.
+   
+   - **NonStop** parser : Works for Tandem, HP NonStop Guardian, etc.
+   
+   - **IBM** parser : Works for IBM OS/400, etc.
+
+3. And if none of these satisfy you, you can fallback to **name listings** (NLST command), which are *much* slower than either LIST or MLSD. This is because NLST only sends a list of filenames, without any properties. The server has to be queried for the file size, modification date, and type (file/folder) on a file-by-file basis. Name listings can be forced using the `FtpListOption.ForceNameList` flag.
+
 ## Stream Handling
 
 FluentFTP returns a `Stream` object for file transfers. This stream **must** be properly closed when you are done. Do not leave it for the GC to cleanup otherwise you can end up with uncatchable exceptions, i.e., a program crash. The stream objects are actually wrappers around `NetworkStream` and `SslStream` which perform cleanup routines on the control connection when the stream is closed. These cleanup routines can trigger exceptions so it's vital that you properly dispose the objects when you are done, no matter what. A proper implementation should go along the lines of:
@@ -380,18 +461,6 @@ FluentFTP includes exception handling in key places where uncatchable exceptions
 
 The exception that propagates back to your code should be the root of the problem and any exception caught while disposing would be a side affect however while testing your project pay close attention to what's being logged via FtpTrace. See the Debugging example for more information about using `TraceListener` objects with FluentFTP.
 
-## File Listings
-
-Some of you may already be aware that RFC959 does not specify any particular format for file listings (LIST). As time has passed extensions have been added to address this problem. Here's what you need to know about the situation:
-
-1. **UNIX File Listings :** UNIX style file listings are NOT reliable. Most FTP servers respond to LIST with a format that strongly resembles the output of ls -l on UNIX and UNIX-like operating systems. This format is difficult to parse and has shortcomings with date/time values in which assumptions have to made in order to try to guess an as accurate as possible value. FluentFTP provides a LIST parser but there is no guarantee that it will work right 100% of the time. You can add your own parser if it doesn't. See the examples project in the source code. You should include the `FtpListOption.Modify` flag for the most accurate modification dates (down to the second). MDTM will fail on directories on most but not all servers. An attempt is made by FluentFTP to get the modification time of directories using this command but do not be surprised if it fails. Modification times of directories should not be important most of the time. If you think they are you might want to reconsider your reasoning or upgrade the server software to one that supports MLSD (machine listings: the best option).
-
-2. **DOS/IIS File Listings :** DOS style file listings (default IIS LIST response) are mostly supported. There is one issue where a file or directory that begins with a space won't be correctly parsed because of the arbitrary amount of spacing IIS throws in its directory listings. IIS can be configured to throw out UNIX style listings so if this is an issue for you, you might consider enabling that option. If you know a better way to parse the listing you can roll your own parser per the examples included with the downloads. If it works share it! It's also worth noting that date/times in DOS style listings don't include seconds. As mentioned above, if you pass the `FtpListOption.Modify` flag to GetListing() MDTM will be used to get the accurate (to the second) date/time however MDTM on directories does not work with IIS.
-
-3. **Machine Listings :** FluentFTP prefers machine listings (MLST/MLSD) which are an extension added to the protocol. This format is reliable and is always used over LIST when the server advertises it in its FEATure list unless you override the behavior with `FtpListOption` flags. With machine listings you can expect a correct file size and modification date (UTC). If you run across a case that you are not it's very possible it's due to a bug in the machine listing parser and you should report the issue along with a sample of the file listing (see the debugging example in the source).
-
-4. **Name Listings :** Name Listings (NLST) are the next best thing when machine listings are not available however they are MUCH slower than either LIST or MLSD. This is because NLST sends a list of objects in the directory and the server has to be queried for the rest of the information on file-by-file basis, such as the file size, the modification time and an attempt to determine if the object is a file or directory. Name listings can be forced using `FtpListOption` flags. The best way to handle falling back to NLST is to query the server features (FtpClient.Capabilities) for the FtpCapability.MLSD flag. If it's not there, then pass the necessary flags to GetListing() to force a name listing.
-
 ## Client Certificates
 
 When you are using Client Certificates, be sure that:
@@ -421,13 +490,13 @@ catch(IOException e) {
 }
 ```````
 
-## XCRC / XMD5 / XSHA
+## Hashing Commands
 
-XCRC, XMD5, and XSHA are non standard commands and to the best that I can tell contain no kind of formal specification. Support for them exists as extension methods in the FluentFTP.Extensions namespace as of the latest revision. They are not guaranteed to work and you are strongly encouraged to check the FtpClient.Capabilities flags for the respective flag (XCRC, XMD5, XSHA1, XSHA256, XSHA512) before calling these methods.
+XCRC, XMD5, and XSHA are non standard commands and contain no kind of formal specification. They are not guaranteed to work and you are strongly encouraged to check the FtpClient.Capabilities flags for the respective flag (XCRC, XMD5, XSHA1, XSHA256, XSHA512) before calling these methods.
 
 Support for the MD5 command as described [here](http://tools.ietf.org/html/draft-twine-ftpmd5-00#section-3.1) has also been added. Again, check for FtpFeature.MD5 before executing the command.
 
-Experimental support for the HASH command has been added to FluentFTP. It supports retrieving SHA-1, SHA-256, SHA-512, and MD5 hashes from servers that support this feature. The returned object, FtpHash, has a method to check the result against a given stream or local file. You can read more about HASH in [this draft](http://tools.ietf.org/html/draft-bryan-ftpext-hash-02).
+Support for the HASH command has been added to FluentFTP. It supports retrieving SHA-1, SHA-256, SHA-512, and MD5 hashes from servers that support this feature. The returned object, FtpHash, has a method to check the result against a given stream or local file. You can read more about HASH in [this draft](http://tools.ietf.org/html/draft-bryan-ftpext-hash-02).
 
 ## Pipelining
 
@@ -478,8 +547,6 @@ When doing a large number of transfers, one needs to be aware of some inherit is
   - Close Data Stream
 
 This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is signaled by closing the connection. On downloads and file listings, the sockets being used on the server will stay in the TIME WAIT state because the server closes the socket when it's done sending the data. On uploads, the client sockets will go into the TIME WAIT state because the client closes the connection to signal EOF to the server.
-
-RFC959 defines another data mode called block that allows persistent data connections but it is not implemented by this library and will not be in the foreseeable future. Support for block transfers on the server side of things is not that common. I know IIS supports them however I cannot name a single other server that implements MODE B. I cannot justify making an already complicated process more so by adding in a feature that just isn't that likely to be used.
 
 
 # Credits

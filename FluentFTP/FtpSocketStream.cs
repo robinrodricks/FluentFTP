@@ -166,11 +166,11 @@ namespace FluentFTP {
 					}
 				} catch (SocketException sockex) {
 					Close();
-					FtpTrace.WriteLine("FtpSocketStream.IsConnected: Caught and discarded SocketException while testing for connectivity: {0}", sockex.ToString());
+					FtpTrace.WriteLine("FtpSocketStream.IsConnected: Caught and discarded SocketException while testing for connectivity: "+ sockex.ToString());
 					return false;
 				} catch (IOException ioex) {
 					Close();
-					FtpTrace.WriteLine("FtpSocketStream.IsConnected: Caught and discarded IOException while testing for connectivity: {0}", ioex.ToString());
+					FtpTrace.WriteLine("FtpSocketStream.IsConnected: Caught and discarded IOException while testing for connectivity: "+ ioex.ToString());
 					return false;
 				}
 
@@ -590,7 +590,7 @@ namespace FluentFTP {
 		/// <param name="buf">The data to write</param>
 		public void WriteLine(System.Text.Encoding encoding, string buf) {
 			byte[] data;
-			data = encoding.GetBytes(string.Format("{0}\r\n", buf));
+			data = encoding.GetBytes((buf + "\r\n"));
 			Write(data, 0, data.Length);
 		}
 
@@ -602,7 +602,7 @@ namespace FluentFTP {
         /// <param name="buf">The data to write</param>
         /// <param name="token">The <see cref="CancellationToken"/> for this task</param>
         public async Task WriteLineAsync(System.Text.Encoding encoding, string buf, CancellationToken token) {
-            byte[] data = encoding.GetBytes(string.Format("{0}\r\n", buf));
+            byte[] data = encoding.GetBytes(buf + "\r\n");
             await WriteAsync(data, 0, data.Length, token);
         }
 
@@ -650,7 +650,7 @@ namespace FluentFTP {
 					m_socket.Dispose();
 #endif
 				} catch (SocketException ex) {
-					FtpTrace.WriteLine("Caught and discarded a SocketException while cleaning up the Socket: {0}", ex.ToString());
+					FtpTrace.WriteLine("Caught and discarded a SocketException while cleaning up the Socket: "+ ex.ToString());
 				} finally {
 					m_socket = null;
 				}
@@ -660,7 +660,7 @@ namespace FluentFTP {
 				try {
 					m_netStream.Dispose();
 				} catch (IOException ex) {
-					FtpTrace.WriteLine("Caught and discarded an IOException while cleaning up the NetworkStream: {0}", ex.ToString());
+					FtpTrace.WriteLine("Caught and discarded an IOException while cleaning up the NetworkStream: "+ ex.ToString());
 				} finally {
 					m_netStream = null;
 				}
@@ -671,7 +671,7 @@ namespace FluentFTP {
 				try {
 					m_sslStream.Dispose();
 				} catch (IOException ex) {
-					FtpTrace.WriteLine("Caught and discarded an IOException while cleaning up the SslStream: {0}", ex.ToString());
+					FtpTrace.WriteLine("Caught and discarded an IOException while cleaning up the SslStream: "+ ex.ToString());
 				} finally {
 					m_sslStream = null;
 				}
@@ -714,7 +714,7 @@ namespace FluentFTP {
 
 			for (int i = 0; i < addresses.Length; i++) {
 #if DEBUG
-				FtpTrace.WriteLine("{0}: {1}", addresses[i].AddressFamily.ToString(), addresses[i].ToString());
+				FtpTrace.WriteLine(addresses[i].AddressFamily.ToString() + ": " + addresses[i].ToString());
 #endif
 				// we don't need to do this check unless
 				// a particular version of IP has been
@@ -837,11 +837,7 @@ namespace FluentFTP {
 #endif
 
 				auth_time_total = DateTime.Now.Subtract(auth_start);
-				FtpTrace.WriteLine("Time to activate encryption: {0}h {1}m {2}s, Total Seconds: {3}.",
-					auth_time_total.Hours,
-					auth_time_total.Minutes,
-					auth_time_total.Seconds,
-					auth_time_total.TotalSeconds);
+				FtpTrace.WriteLine("Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s, Total Seconds: " + auth_time_total.TotalSeconds + ".");
 			} catch (AuthenticationException ex) {
 				// authentication failed and in addition it left our 
 				// ssl stream in an unusable state so cleanup needs
