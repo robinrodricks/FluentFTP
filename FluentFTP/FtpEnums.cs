@@ -465,10 +465,10 @@ namespace FluentFTP {
 	/// </summary>
 	public enum FtpExists {
 		/// <summary>
-		/// Do not check if the file exists. Only use this if you are SURE that the file does not exist on the server.
-		/// Else it can cause the UploadFile method to hang due to filesize mismatch.
+		/// Do not check if the file exists. A bit faster than the other options. Only use this if you are SURE that the file does not exist on the server.
+		/// Otherwise it can cause the UploadFile method to hang due to filesize mismatch.
 		/// </summary>
-		None,
+		NoCheck,
 		/// <summary>
 		/// Skip the file if it exists, without any more checks.
 		/// </summary>

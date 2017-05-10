@@ -212,9 +212,9 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **OpenRead**() - Low level. Not recommended for general usage. Open a stream to the specified file for reading. Returns a standard `Stream`. [Learn more.](#stream-handling)
 
-- **OpenWrite**() - Low level. Not recommended for general usage. Opens a stream to the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist. [Learn more.](#stream-handling)
+- **OpenWrite**() - Low level. Not recommended for general usage. Opens a stream to the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist. Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. [Learn more.](#stream-handling)
 
-- **OpenAppend**() - Low level. Not recommended for general usage. Opens a stream to the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file. [Learn more.](#stream-handling)
+- **OpenAppend**() - Low level. Not recommended for general usage. Opens a stream to the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file. Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. [Learn more.](#stream-handling)
 
 
 ## File Permissions
@@ -380,7 +380,9 @@ Mapping table documenting supported FTP commands and the corresponding API..
 
 | Command      			| API					| Description                  	|
 |---------------		|-----------			|---------------------------	|
-| **MLSD, LIST, NLST**  | GetListing()			| Get directory file listing 	|
+| **MLSD**  			| GetListing()			| Get directory machine list 	|
+| **LIST**  			| GetListing() with FtpListOption.ForceList		| Get directory file list 	|
+| **NLST**  			| GetListing() with FtpListOption.ForceNameList<br>GetNameListing()	| Get directory name list 	|
 | **MLST**				| GetObjectInfo()		| Get file information			|
 | **DELE**      		| DeleteFile()			| Delete a file |
 | **RMD**      			| DeleteDirectory() 	| Delete a directory |

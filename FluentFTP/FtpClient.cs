@@ -676,7 +676,7 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region Core
+		#region Constructor / Connection
 
 		/// <summary>
 		/// Creates a new instance of an FTP Client.
@@ -834,6 +834,10 @@ namespace FluentFTP {
 		protected virtual FtpClient Create() {
 			return new FtpClient();
 		}
+
+		#endregion
+
+		#region Execute Command
 
 		/// <summary>
 		/// Retrieves a reply from the server. Do not execute this method
@@ -1319,7 +1323,7 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region File I/O
+		#region Active/Passive Streams
 
 		/// <summary>
 		/// Opens the specified type of passive data stream
@@ -1646,6 +1650,10 @@ namespace FluentFTP {
 			return reply;
 		}
 
+		#endregion
+
+		#region Open Read
+
 		/// <summary>
 		/// Opens the specified file for reading
 		/// </summary>
@@ -1846,8 +1854,12 @@ namespace FluentFTP {
         }
 #endif
 
+		#endregion
+
+		#region Open Write
+
 		/// <summary>
-		/// Opens the specified file for writing
+		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <returns>A stream for writing to the file on the server</returns>
@@ -1857,7 +1869,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Opens the specified file for writing
+		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
@@ -1935,7 +1947,7 @@ namespace FluentFTP {
 
 #if (CORE || NETFX45)
         /// <summary>
-        /// Opens the specified file for writing asynchronously
+        /// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. asynchronously
         /// </summary>
         /// <param name="path">Full or relative path of the file</param>
         /// <param name="type">ASCII/Binary</param>
@@ -1949,7 +1961,7 @@ namespace FluentFTP {
 	    }
 
         /// <summary>
-        /// Opens the specified file for writing asynchronously
+        /// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. asynchronously
         /// </summary>
         /// <param name="path">Full or relative path of the file</param>
         /// <returns>A stream for writing to the file on the server</returns>
@@ -1962,8 +1974,12 @@ namespace FluentFTP {
         }
 #endif
 
+		#endregion
+
+		#region Open Append
+
 		/// <summary>
-		/// Opens the specified file to be appended to
+		/// Opens the specified file for appending. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// </summary>
 		/// <param name="path">The full or relative path to the file to be opened</param>
 		/// <returns>A stream for writing to the file on the server</returns>
@@ -1973,7 +1989,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Opens the specified file to be appended to
+		/// Opens the specified file for appending. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// </summary>
 		/// <param name="path">The full or relative path to the file to be opened</param>
 		/// <param name="type">ASCII/Binary</param>
@@ -2751,7 +2767,7 @@ namespace FluentFTP {
 				long offset = 0;
 
 				// check if the file exists, and skip, overwrite or append
-				if (existsMode != FtpExists.None) {
+				if (existsMode != FtpExists.NoCheck) {
 					if (!fileExistsKnown) {
 						fileExists = FileExists(remotePath);
 					}
@@ -2870,7 +2886,7 @@ namespace FluentFTP {
 				long offset = 0;
 
 				// check if the file exists, and skip, overwrite or append
-				if (existsMode != FtpExists.None) {
+				if (existsMode != FtpExists.NoCheck) {
 					if (!fileExistsKnown) {
 						fileExists = await FileExistsAsync(remotePath);
 					}
@@ -3173,7 +3189,7 @@ namespace FluentFTP {
 
 #endregion
 
-		#region File Management
+		#region Delete File
 
 		/// <summary>
 		/// Deletes a file on the server
@@ -3232,6 +3248,10 @@ namespace FluentFTP {
 	            path, null);
 	    }
 #endif
+
+		#endregion
+
+		#region Delete Directory
 
 		/// <summary>
 		/// Deletes the specified directory on the server.
@@ -3486,6 +3506,10 @@ namespace FluentFTP {
         }
 #endif
 
+		#endregion
+
+		#region Directory Exists
+
 		/// <summary>
 		/// Tests if the specified directory exists on the server. This
 		/// method works by trying to change the working directory to
@@ -3575,6 +3599,10 @@ namespace FluentFTP {
 	            path, null);
 	    }
 #endif
+
+		#endregion
+
+		#region File Exists
 
 		/// <summary>
 		/// Checks if a file exists on the server by taking a 
@@ -3696,6 +3724,10 @@ namespace FluentFTP {
         }
 #endif
 
+		#endregion
+
+		#region Create Directory
+
 		/// <summary>
 		/// Creates a directory on the server. If the preceding
 		/// directories do not exist, then they are created.
@@ -3806,6 +3838,10 @@ namespace FluentFTP {
         }
 #endif
 
+		#endregion
+
+		#region Rename File/Directory
+
 		/// <summary>
 		/// Renames an object on the remote file system.
 		/// </summary>
@@ -3873,7 +3909,7 @@ namespace FluentFTP {
 
 #endregion
 
-		#region File Permissions
+		#region File Permissions / Chmod
 
 		/// <summary>
 		/// Modify the permissions of the given file/folder.
@@ -3967,7 +4003,7 @@ namespace FluentFTP {
 
 #endregion
 
-		#region Link Dereferencing
+		#region Dereference Link
 
 		/// <summary>
 		/// Recursively dereferences a symbolic link. See the
@@ -4112,7 +4148,7 @@ namespace FluentFTP {
 
 #endregion
 
-		#region File Listing
+		#region Get File Info
 
 		/// <summary>
 		/// Returns information about a file system object. Returns null if the server response can't
@@ -4236,6 +4272,10 @@ namespace FluentFTP {
 	            path, dateModified, null);
 	    }
 #endif
+
+		#endregion
+
+		#region Get Listing
 
 		/// <summary>
         /// Gets a file listing from the server from the current working directory. Each <see cref="FtpListItem"/> object returned
@@ -4602,7 +4642,7 @@ namespace FluentFTP {
 
 #endregion
 
-		#region Name Listing
+		#region Get Name Listing
 
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command.
