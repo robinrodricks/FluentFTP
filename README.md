@@ -382,7 +382,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 |---------------		|-----------			|---------------------------	|
 | **MLSD**  			| GetListing()			| Get directory machine list 	|
 | **LIST**  			| GetListing() with FtpListOption.ForceList		| Get directory file list 	|
-| **NLST**  			| GetListing() with FtpListOption.ForceNameList<br>GetNameListing()	| Get directory name list 	|
+| **NLST**  			| GetNameListing()<br>GetListing() with FtpListOption.ForceNameList	| Get directory name list 	|
 | **MLST**				| GetObjectInfo()		| Get file information			|
 | **DELE**      		| DeleteFile()			| Delete a file |
 | **RMD**      			| DeleteDirectory() 	| Delete a directory |
