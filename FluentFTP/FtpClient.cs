@@ -835,6 +835,51 @@ namespace FluentFTP {
 			return new FtpClient();
 		}
 
+		/// <summary>
+		/// Disconnects from the server, releases resources held by this
+		/// object.
+		/// </summary>
+		public void Dispose() {
+			lock (m_lock) {
+				if (IsDisposed)
+					return;
+
+				FtpTrace.WriteLine("Disposing FtpClient object...");
+
+				try {
+					if (IsConnected) {
+						Disconnect();
+					}
+				} catch (Exception ex) {
+					FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disconnecting from host: " + ex.ToString());
+				}
+
+				if (m_stream != null) {
+					try {
+						m_stream.Dispose();
+					} catch (Exception ex) {
+						FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: " + ex.ToString());
+					} finally {
+						m_stream = null;
+					}
+				}
+
+				m_credentials = null;
+				m_textEncoding = null;
+				m_host = null;
+				m_asyncmethods.Clear();
+				IsDisposed = true;
+				GC.SuppressFinalize(this);
+			}
+		}
+
+		/// <summary>
+		/// Finalizer
+		/// </summary>
+		~FtpClient() {
+			Dispose();
+		}
+
 		#endregion
 
 		#region Execute Command
@@ -3523,11 +3568,14 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\DirectoryExists.cs" lang="cs" /></example>
 		public bool DirectoryExists(string path) {
 			string pwd;
+
+			// quickly check if root path, then it always exists!
 			string ftppath = path.GetFtpPath();
-
-			if (ftppath == "." || ftppath == "./" || ftppath == "/")
+			if (ftppath == "." || ftppath == "./" || ftppath == "/") {
 				return true;
+			}
 
+			// check if a folder exists by changing the working dir to it
 			lock (m_lock) {
 				pwd = GetWorkingDirectory();
 
@@ -3605,43 +3653,74 @@ namespace FluentFTP {
 		#region File Exists
 
 		/// <summary>
-		/// Checks if a file exists on the server by taking a 
-		/// file listing of the parent directory in the path
-		/// and comparing the results the path supplied.
+		/// Checks if a file exists on the server.
 		/// </summary>
 		/// <param name="path">The full or relative path to the file</param>
 		/// <returns>True if the file exists</returns>
 		/// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
 		public bool FileExists(string path) {
-			return FileExists(path, 0);
-		}
-
-		/// <summary>
-		/// Checks if a file exists on the server by taking a 
-		/// file listing of the parent directory in the path
-		/// and comparing the results the path supplied.
-		/// </summary>
-		/// <param name="path">The full or relative path to the file</param>
-		/// <param name="options">Options for controlling the file listing used to
-		/// determine if the file exists.</param>
-		/// <returns>True if the file exists</returns>
-		/// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
-		public bool FileExists(string path, FtpListOption options) {
-			string dirname = path.GetFtpDirectoryName();
 
 			lock (m_lock) {
-				if (!DirectoryExists(dirname))
-					return false;
 
-				foreach (FtpListItem item in GetListing(dirname, options))
-					if (item.Type == FtpFileSystemObjectType.File && item.Name == path.GetFtpFileName())
+				// calc the absolute filepath
+				path = GetAbsolutePath(path.GetFtpPath());
+
+				// since FTP does not include a specific command to check if a file exists
+				// here we check if file exists by attempting to get its filesize (SIZE)
+				if (HasFeature(FtpCapability.SIZE)) {
+					FtpReply reply = Execute("SIZE " + path);
+					char ch = reply.Code[0];
+					if (ch == '2') {
 						return true;
-			}
+					}
+					if (ch == '5' && IsNotFoundError(reply.Message)) {
+						return false;
+					}
+				}
 
+				// check if file exists by attempting to get its date modified (MDTM)
+				if (HasFeature(FtpCapability.MDTM)) {
+					FtpReply reply = Execute("MDTM " + path);
+					char ch = reply.Code[0];
+					if (ch == '2') {
+						return true;
+					}
+					if (ch == '5' && IsNotFoundError(reply.Message)) {
+						return false;
+					}
+				}
+
+				// check if file exists by getting a name listing (NLST)
+				string[] fileList = GetNameListing(path.GetFtpDirectoryName());
+				string pathName = path.GetFtpFileName();
+				if (fileList.Contains(pathName)) {
+					return true;
+				}
+
+				// check if file exists by attempting to download it (RETR)
+				/*try {
+					Stream stream = OpenRead(path);
+					stream.Close();
+					return true;
+				} catch (FtpException ex) {
+				}*/
+
+				return false;
+			}
+		}
+
+		private static string[] notFoundStrings = new string[]{"not found", "no such file", "cannot find the file", "cannot find", "failed to open file", "could not get file", "does not exist", "not a regular file", "can't check for file existence"};
+		private bool IsNotFoundError(string reply) {
+			reply = reply.ToLower();
+			foreach (string msg in notFoundStrings) {
+				if (reply.Contains(msg)) {
+					return true;
+				}
+			}
 			return false;
 		}
 
-		delegate bool AsyncFileExists(string path, FtpListOption options);
+		delegate bool AsyncFileExists(string path);
 
 		/// <summary>
 		/// Begins an asynchronous operation to check if a file exists on the 
@@ -3654,31 +3733,7 @@ namespace FluentFTP {
 		/// <returns>IAsyncResult</returns>
 		/// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
 		public IAsyncResult BeginFileExists(string path, AsyncCallback callback, object state) {
-			return BeginFileExists(path, 0, callback, state);
-		}
-
-		/// <summary>
-        /// Begins an asynchronous operation to check if a file exists on the 
-        /// server by taking a  file listing of the parent directory in the path
-        /// and comparing the results the path supplied.
-		/// </summary>
-		/// <param name="path">The full or relative path to the file</param>
-		/// <param name="options"><see cref="FtpListOption"/>s for controlling the file listing used to
-		/// determine if the file exists.</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
-		public IAsyncResult BeginFileExists(string path, FtpListOption options, AsyncCallback callback, object state) {
-			AsyncFileExists func;
-			IAsyncResult ar;
-
-			ar = (func = new AsyncFileExists(FileExists)).BeginInvoke(path, options, callback, state);
-			lock (m_asyncmethods) {
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
+			return BeginFileExists(path, callback, state);
 		}
 
 		/// <summary>
@@ -3692,22 +3747,6 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Checks if a file exists on the server asynchronously by taking a 
-        /// file listing of the parent directory in the path
-        /// and comparing the results the path supplied.
-        /// </summary>
-        /// <param name="path">The full or relative path to the file</param>
-        /// <param name="options">Options for controlling the file listing used to
-        /// determine if the file exists.</param>
-        /// <returns>True if the file exists, false otherwise</returns>
-	    public async Task<bool> FileExistsAsync(string path, FtpListOption options) {
-	        return await Task.Factory.FromAsync<string, FtpListOption, bool>(
-	            (p, o, ac, s) => BeginFileExists(p, o, ac, s),
-	            ar => EndFileExists(ar),
-	            path, options, null);
-	    }
-
         /// <summary>
         /// Checks if a file exists on the server asynchronously by taking a 
         /// file listing of the parent directory in the path
@@ -4344,25 +4383,7 @@ namespace FluentFTP {
 			bool isGetSize = (options & FtpListOption.Size) == FtpListOption.Size;
 
 			// calc path to request
-			if (path == null || path.Trim().Length == 0) {
-
-				// if path not given, then use working dir
-				string pwd = GetWorkingDirectory();
-				if (pwd != null && pwd.Trim().Length > 0)
-					path = pwd;
-				else
-					path = "./";
-
-			} else if (!path.StartsWith("/")) {
-
-				// if relative path given then add working dir to calc full path
-				string pwd = GetWorkingDirectory();
-				if (pwd != null && pwd.Trim().Length > 0) {
-					if (path.StartsWith("./"))
-						path = path.Remove(0, 2);
-					path = (pwd + "/" + path).GetFtpPath();
-				}
-			}
+			path = GetAbsolutePath(path);
 
 			// MLSD provides a machine readable format with 100% accurate information
 			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
@@ -4659,20 +4680,10 @@ namespace FluentFTP {
 		/// <returns>A string array of file and directory names if any were returned.</returns>
 		/// <example><code source="..\Examples\GetNameListing.cs" lang="cs" /></example>
 		public string[] GetNameListing(string path) {
-			List<string> lst = new List<string>();
-			string pwd = GetWorkingDirectory();
+			List<string> listing = new List<string>();
 
-			path = path.GetFtpPath();
-			if (path == null || path.Trim().Length == 0) {
-				if (pwd != null && pwd.Trim().Length > 0)
-					path = pwd;
-				else
-					path = "./";
-			} else if (!path.StartsWith("/") && pwd != null && pwd.Trim().Length > 0) {
-				if (path.StartsWith("./"))
-					path = path.Remove(0, 2);
-				path = (pwd + "/" + path).GetFtpPath();
-			}
+			// calc path to request
+			path = GetAbsolutePath(path);
 
 			lock (m_lock) {
 				// always get the file listing in binary
@@ -4685,14 +4696,14 @@ namespace FluentFTP {
 
 					try {
 						while ((buf = stream.ReadLine(Encoding)) != null)
-							lst.Add(buf);
+							listing.Add(buf);
 					} finally {
 						stream.Close();
 					}
 				}
 			}
 
-			return lst.ToArray();
+			return listing.ToArray();
 		}
 
 		delegate string[] AsyncGetNameListing(string path);
@@ -5704,30 +5715,7 @@ namespace FluentFTP {
 #endif
 		#endregion
 
-		#region Misc Methods
-
-		private static string DecodeUrl(string url) {
-#if CORE
-			return WebUtility.UrlDecode(url);
-#else
-			return HttpUtility.UrlDecode(url);
-#endif
-		}
-
-		private static byte[] ReadToEnd(Stream stream, long maxLength, int chunkLen) {
-			int read = 1;
-			byte[] buffer = new byte[chunkLen];
-			using (var mem = new MemoryStream()) {
-				do {
-					long length = maxLength == 0 ? buffer.Length : Math.Min(maxLength - (int)mem.Length, buffer.Length);
-					read = stream.Read(buffer, 0, (int)length);
-					mem.Write(buffer, 0, read);
-					if (maxLength > 0 && mem.Length == maxLength) break;
-				} while (read > 0);
-
-				return mem.ToArray();
-			}
-		}
+		#region Set Data Type
 
 		/// <summary>
 		/// Sets the data type of information sent over the data stream
@@ -5801,7 +5789,10 @@ namespace FluentFTP {
 	            type, null);
 	    }
 #endif
+		#endregion
 
+		#region Set Working Dir
+		
 		/// <summary>
 		/// Sets the work directory on the server
 		/// </summary>
@@ -5864,6 +5855,9 @@ namespace FluentFTP {
 	            path, null);
 	    }
 #endif
+		#endregion
+
+		#region Get Working Dir
 
 		/// <summary>
 		/// Gets the current working directory
@@ -5936,7 +5930,10 @@ namespace FluentFTP {
 	            ar => EndGetWorkingDirectory(ar), null);
 	    }
 #endif
+		#endregion
 
+		#region Get File Size
+		
 		/// <summary>
 		/// Gets the size of a remote file
 		/// </summary>
@@ -6004,6 +6001,9 @@ namespace FluentFTP {
 	            path, null);
 	    }
 #endif
+		#endregion
+
+		#region Get Modified Time
 
 		/// <summary>
         /// Gets the modified time of a remote file
@@ -6070,6 +6070,59 @@ namespace FluentFTP {
 	    }
 #endif
 
+		#endregion
+
+		#region Utils
+
+		/// <summary>
+		/// Ensure a relative path is absolute by appending the working dir
+		/// </summary>
+		private string GetAbsolutePath(string path) {
+			if (path == null || path.Trim().Length == 0) {
+
+				// if path not given, then use working dir
+				string pwd = GetWorkingDirectory();
+				if (pwd != null && pwd.Trim().Length > 0)
+					path = pwd;
+				else
+					path = "./";
+
+			} else if (!path.StartsWith("/")) {
+
+				// if relative path given then add working dir to calc full path
+				string pwd = GetWorkingDirectory();
+				if (pwd != null && pwd.Trim().Length > 0) {
+					if (path.StartsWith("./"))
+						path = path.Remove(0, 2);
+					path = (pwd + "/" + path).GetFtpPath();
+				}
+			}
+			return path;
+		}
+
+		private static string DecodeUrl(string url) {
+#if CORE
+			return WebUtility.UrlDecode(url);
+#else
+			return HttpUtility.UrlDecode(url);
+#endif
+		}
+
+		private static byte[] ReadToEnd(Stream stream, long maxLength, int chunkLen) {
+			int read = 1;
+			byte[] buffer = new byte[chunkLen];
+			using (var mem = new MemoryStream()) {
+				do {
+					long length = maxLength == 0 ? buffer.Length : Math.Min(maxLength - (int)mem.Length, buffer.Length);
+					read = stream.Read(buffer, 0, (int)length);
+					mem.Write(buffer, 0, read);
+					if (maxLength > 0 && mem.Length == maxLength) break;
+				} while (read > 0);
+
+				return mem.ToArray();
+			}
+		}
+
 		/// <summary>
 		/// Disables UTF8 support and changes the Encoding property
 		/// back to ASCII. If the server returns an error when trying
@@ -6085,51 +6138,6 @@ namespace FluentFTP {
 				m_textEncoding = Encoding.ASCII;
 				m_textEncodingAutoUTF = false;
 			}
-		}
-
-		/// <summary>
-		/// Disconnects from the server, releases resources held by this
-		/// object.
-		/// </summary>
-		public void Dispose() {
-			lock (m_lock) {
-				if (IsDisposed)
-					return;
-
-				FtpTrace.WriteLine("Disposing FtpClient object...");
-
-				try {
-					if (IsConnected) {
-						Disconnect();
-					}
-				} catch (Exception ex) {
-					FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disconnecting from host: "+ ex.ToString());
-				}
-
-				if (m_stream != null) {
-					try {
-						m_stream.Dispose();
-					} catch (Exception ex) {
-						FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: "+ ex.ToString());
-					} finally {
-						m_stream = null;
-					}
-				}
-
-				m_credentials = null;
-				m_textEncoding = null;
-				m_host = null;
-				m_asyncmethods.Clear();
-				IsDisposed = true;
-				GC.SuppressFinalize(this);
-			}
-		}
-
-		/// <summary>
-		/// Finalizer
-		/// </summary>
-		~FtpClient() {
-			Dispose();
 		}
 
 		private void ReadStaleData() {
