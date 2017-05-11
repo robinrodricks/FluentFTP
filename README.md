@@ -56,8 +56,7 @@ FluentFTP works on .NET and .NET Core.
 
 ```csharp
 // create an FTP client
-FtpClient client = new FtpClient();
-client.Host = "123.123.123.123";
+FtpClient client = new FtpClient("123.123.123.123");
 
 // if you don't specify login credentials, we use the "anonymous" user account
 client.Credentials = new NetworkCredential("david", "pass123");
