@@ -441,7 +441,7 @@ SFTP is not supported as it is FTP over SSH, a completely different protocol. Us
 
 **How can I upload data created on the fly?**
 
-Use UploadFile() for uploading a `Stream` or `byte[]`.
+Use Upload() for uploading a `Stream` or `byte[]`.
 
 **How can I download data without saving it to disk?**
 
