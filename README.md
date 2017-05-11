@@ -187,9 +187,13 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **GetObjectInfo()** - Get information for a single file or directory as an `FtpListItem`. It includes the type, date created, date modified, file size, permissions/chmod and link target (if any).
 
-- **UploadFile**() - Uploads a file from the local file system to the server. Has overloaded methods for uploading a `Stream` or `byte[]`. Use `FtpExists.Append` to append to a file. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB. Remote directories are NOT created if they do not exist.
+- **Upload**() - Uploads a Stream or byte[] to the server. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB. Remote directories are NOT created if they do not exist.
 
-- **DownloadFile**() - Downloads a file from the server to the local file system. Has overloaded methods for downloading to a `Stream` or `byte[]`. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB. Local directories are created if they do not exist.
+- **Download**() - Downloads a file from the server to a Stream or byte[]. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB.
+
+- **UploadFile**() - Uploads a file from the local file system to the server. Use `FtpExists.Append` to append to a file. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB. Remote directories are NOT created if they do not exist.
+
+- **DownloadFile**() - Downloads a file from the server to the local file system. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB. Local directories are created if they do not exist.
 
 - **UploadFiles**() - Uploads multiple files from the local file system to a single folder on the server. Returns the number of files uploaded. Skipped files are not counted. All exceptions during file upload are absorbed internally. Prefer using this method over calling `UploadFile()` multiple times, as this method performs a single `GetListing()` to check for file existance.
 
@@ -217,11 +221,11 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **DereferenceLink**() - Recursively dereferences a symbolic link and returns the full path if found. The `MaximumDereferenceCount` property controls how deep we recurse before giving up.
 
-- **OpenRead**() - *(Prefer using `DownloadFile()` which has overloads for downloading to a `Stream` or `byte[]`)* Open a stream to the specified file for reading. Returns a [standard `Stream`](#stream-handling). Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
+- **OpenRead**() - *(Prefer using `Download()` for downloading to a `Stream` or `byte[]`)* Open a stream to the specified file for reading. Returns a [standard `Stream`](#stream-handling). Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 
-- **OpenWrite**() - *(Prefer using `UploadFile()` which has overloads for uploading a `Stream` or `byte[]`)* Opens a stream to the specified file for writing. Returns a [standard `Stream`](#stream-handling), any data written will overwrite the file, or create the file if it does not exist. Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
+- **OpenWrite**() - *(Prefer using `Upload()` for uploading a `Stream` or `byte[]`)* Opens a stream to the specified file for writing. Returns a [standard `Stream`](#stream-handling), any data written will overwrite the file, or create the file if it does not exist. Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 
-- **OpenAppend**() - *(Prefer using `UploadFile()` with `FtpExists.Append` which has overloads for uploading a `Stream` or `byte[]`)* Opens a stream to the specified file for appending. Returns a [standard `Stream`](#stream-handling), any data written wil be appended to the end of the file. Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
+- **OpenAppend**() - *(Prefer using `Upload()` with `FtpExists.Append` for uploading a `Stream` or `byte[]`)* Opens a stream to the specified file for appending. Returns a [standard `Stream`](#stream-handling), any data written wil be appended to the end of the file. Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 
 
 ### File Permissions
@@ -437,11 +441,11 @@ SFTP is not supported as it is FTP over SSH, a completely different protocol. Us
 
 **How can I upload data created on the fly?**
 
-UploadFile() has overloads for uploading a `Stream` or `byte[]`.
+Use UploadFile() for uploading a `Stream` or `byte[]`.
 
 **How can I download data without saving it to disk?**
 
-DownloadFile() has overloads for downloading to a `Stream` or `byte[]`.
+Use Download() for downloading to a `Stream` or `byte[]`.
 
 **How do I upload only the missing part of a file?**
 
@@ -735,7 +739,7 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
-#### 17.0.0
+#### 17.1.0
 - Greatly improve performance of FileExists() and GetNameListing()
 - Add new OS-specific directory listing parsers to GetListing() and GetObjectInfo()
 - Support GetObjectInfo() even if machine listings are not supported by the server
@@ -743,6 +747,7 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 - Remove all usages of string.Format to fix reliability issues caused with UTF filenames
 - Fix issue of broken files when uploading/downloading through a FTP proxy
 - GetReply() is now public so users of OpenRead/OpenAppend/OpenWrite can call it after
+- Split stream API into Upload()/UploadFile() and Download()/DownloadFile()
 
 #### 16.5.0
 - Add async/await support to all methods for .NET 4.5 and onwards (Thank you [jblacker](https://github.com/jblacker))

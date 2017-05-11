@@ -2502,24 +2502,7 @@ namespace FluentFTP {
 	        }
 	    }
 #endif
-		/// <summary>
-		/// Uploads the specified byte array as a file onto the server.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it uploads data in chunks.
-		/// </summary>
-		/// <param name="fileData">The full data of the file, as a byte array</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
-		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		public bool UploadFile(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
-
-			// write the file onto the server
-			using (MemoryStream ms = new MemoryStream(fileData)) {
-				ms.Position = 0;
-				return UploadFileInternal(ms, remotePath, createRemoteDir, existsMode, false, false);
-			}
-		}
-
+		
 		/// <summary>
 		/// Uploads the specified stream as a file onto the server.
 		/// High-level API that takes care of various edge cases internally.
@@ -2529,13 +2512,48 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		public bool UploadFile(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+		public bool Upload(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 
 			// write the file onto the server
 			return UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, false, false);
 		}
+		/// <summary>
+		/// Uploads the specified byte array as a file onto the server.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it uploads data in chunks.
+		/// </summary>
+		/// <param name="fileData">The full data of the file, as a byte array</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
+		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+		public bool Upload(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+
+			// write the file onto the server
+			using (MemoryStream ms = new MemoryStream(fileData)) {
+				ms.Position = 0;
+				return UploadFileInternal(ms, remotePath, createRemoteDir, existsMode, false, false);
+			}
+		}
+
 
 #if (CORE || NETFX45)
+
+        /// <summary>
+        /// Uploads the specified stream as a file onto the server asynchronously.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it uploads data in chunks.
+        /// </summary>
+        /// <param name="fileStream">The full data of the file, as a stream</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
+        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+         /// <param name="token">The token to monitor for cancellation requests.</param>
+        /// <returns>If true then the file was uploaded, false otherwise.</returns>
+		public async Task<bool> UploadAsync(Stream fileStream, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
+            
+            // write the file onto the server
+            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, false, false, token);
+        }
         /// <summary>
         /// Uploads the specified byte array as a file onto the server asynchronously.
         /// High-level API that takes care of various edge cases internally.
@@ -2547,7 +2565,7 @@ namespace FluentFTP {
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
         /// <param name="token">The token to monitor for cancellation requests.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public async Task<bool> UploadFileAsync(byte[] fileData, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token)
+		public async Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token)
         {
             // write the file onto the server
             using (MemoryStream ms = new MemoryStream(fileData)) {
@@ -2565,12 +2583,9 @@ namespace FluentFTP {
         /// <param name="remotePath">The full or relative path to the file on the server</param>
         /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-         /// <param name="token">The token to monitor for cancellation requests.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public async Task<bool> UploadFileAsync(Stream fileStream, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
-            
-            // write the file onto the server
-            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, false, false, token);
+		public async Task<bool> UploadAsync(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+			return await UploadAsync(fileStream, remotePath, existsMode, createRemoteDir, CancellationToken.None);
         }
 
         /// <summary>
@@ -2583,22 +2598,8 @@ namespace FluentFTP {
         /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public async Task<bool> UploadFileAsync(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
-			return await UploadFileAsync(fileData, remotePath, existsMode, createRemoteDir, CancellationToken.None);
-        }
-
-        /// <summary>
-        /// Uploads the specified stream as a file onto the server asynchronously.
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it uploads data in chunks.
-        /// </summary>
-        /// <param name="fileStream">The full data of the file, as a stream</param>
-        /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
-        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public async Task<bool> UploadFileAsync(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
-			return await UploadFileAsync(fileStream, remotePath, existsMode, createRemoteDir, CancellationToken.None);
+		public async Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+			return await UploadAsync(fileData, remotePath, existsMode, createRemoteDir, CancellationToken.None);
         }
 #endif
 
@@ -2715,7 +2716,7 @@ namespace FluentFTP {
 		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool DownloadFile(Stream outStream, string remotePath) {
+		public bool Download(Stream outStream, string remotePath) {
 			// download the file from the server
 			return DownloadFileInternal(remotePath, outStream);
 		}
@@ -2728,7 +2729,7 @@ namespace FluentFTP {
 		/// <param name="outBytes">The variable that will receive the bytes.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool DownloadFile(out byte[] outBytes, string remotePath) {
+		public bool Download(out byte[] outBytes, string remotePath) {
 
 			outBytes = null;
 
@@ -2753,7 +2754,7 @@ namespace FluentFTP {
         /// <param name="remotePath">The full or relative path to the file on the server</param>
         /// <param name="token">The token to monitor cancellation requests</param>
         /// <returns>If true then the file was downloaded, false otherwise.</returns>
-        public async Task<bool> DownloadFileAsync(Stream outStream, string remotePath, CancellationToken token) {
+        public async Task<bool> DownloadAsync(Stream outStream, string remotePath, CancellationToken token) {
             // download the file from the server
             return await DownloadFileInternalAsync(remotePath, outStream, token);
         }
@@ -2766,7 +2767,7 @@ namespace FluentFTP {
         /// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
         /// <returns>If true then the file was downloaded, false otherwise.</returns>
-        public async Task<bool> DownloadFileAsync(Stream outStream, string remotePath) {
+        public async Task<bool> DownloadAsync(Stream outStream, string remotePath) {
             // download the file from the server
             return await DownloadFileInternalAsync(remotePath, outStream, CancellationToken.None);
         }
@@ -2779,7 +2780,7 @@ namespace FluentFTP {
         /// <param name="remotePath">The full or relative path to the file on the server</param>
         /// <param name="token">The token to monitor cancellation requests</param>
         /// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
-        public async Task<byte[]> DownloadFileAsync(string remotePath, CancellationToken token) {
+        public async Task<byte[]> DownloadAsync(string remotePath, CancellationToken token) {
             // download the file from the server
             using (MemoryStream outStream = new MemoryStream()) {
                 bool ok = await DownloadFileInternalAsync(remotePath, outStream, token);
@@ -2794,9 +2795,9 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
         /// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
-        public async Task<byte[]> DownloadFileAsync(string remotePath) {
+        public async Task<byte[]> DownloadAsync(string remotePath) {
             // download the file from the server
-            return await DownloadFileAsync(remotePath, CancellationToken.None);
+            return await DownloadAsync(remotePath, CancellationToken.None);
         }
 #endif
 
