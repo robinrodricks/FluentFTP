@@ -428,6 +428,23 @@ void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
 
 SFTP is not supported as it is FTP over SSH, a completely different protocol. Use [SSH.NET](https://github.com/sshnet/SSH.NET) for that.
 
+**How can I upload data created on the fly?**
+
+UploadFile() has overloads for uploading a `Stream` or `byte[]`.
+
+**How can I download data without saving it to disk?**
+
+DownloadFile() has overloads for downloading to a `Stream` or `byte[]`.
+
+**How do I upload only the missing part of a file?**
+
+Using the new UploadFile() API:
+```cs
+// we compare the length of the offline file vs the online file,
+// and only write the missing part to the server
+client.UploadFile("C:\bigfile.iso", "/htdocs/bigfile.iso", FtpExists.Append);
+```
+
 **How do I append to a file?**
 
 Using the new UploadFile() API:
@@ -469,21 +486,6 @@ client.Credentials = new NetworkCredential("anonymous", "anonymous");
 
 Create a new instance of `FtpClientHttp11Proxy` or `FtpClientUserAtHostProxy` and use FTP properties/methods like normal.
 
-**I want to contribute some changes to FluentFTP. How can I do that? / How do I submit a pull request?**
-
-First you must "fork" FluentFTP, then make changes on your local version, then submit a "pull request" to request me to merge your changes. To do this:
-
-1. Click **Fork** on the top right
-2. Open your version here : https://github.com/YOUR_GITHUB_USERNAME/FluentFTP
-3. Download [Github Desktop](https://desktop.github.com/) and login to your account
-4. Click **+** (top left) then **Clone** and select FluentFTP and click Clone/OK
-5. Select a folder on your PC to place the files
-6. Edit the files using any editor
-7. Click **FluentFTP** on the list (left pane) in Github Desktop
-8. Click **Changes** (top)
-9. Type a Summary, and click **Commit** (bottom)
-10. Click **Sync** (top right)
-
 **FluentFTP fails to install in Visual Studio 2010 (VS2010) > 'System.Runtime' already has a dependency defined for 'FluentFTP'.**
 
 Your VS has an older version of `nuget.exe` so it cannot properly install the latest FluentFTP. You must download nuget.exe` manually and run these commands:
@@ -505,6 +507,21 @@ You need to call `FtpReply status = GetReply()` after you finish transfering a f
 **What does `EnableThreadSafeDataConnections` do?**
 
 EnableThreadSafeDataConnections is an older feature built by the original author. If true, it opens a new FTP client instance (and reconnects to the server) every time you try to upload/download a file. It used to be the default setting, but it affects performance terribly so I disabled it and found many issues were solved as well as performance was restored. I believe if devs want multi-threaded uploading they should just start a new BackgroundWorker and create/use FtpClient within that thread. Try that if you want concurrent uploading, it should work fine.
+
+**I want to contribute some changes to FluentFTP. How can I do that? / How do I submit a pull request?**
+
+First you must "fork" FluentFTP, then make changes on your local version, then submit a "pull request" to request me to merge your changes. To do this:
+
+1. Click **Fork** on the top right
+2. Open your version here : https://github.com/YOUR_GITHUB_USERNAME/FluentFTP
+3. Download [Github Desktop](https://desktop.github.com/) and login to your account
+4. Click **+** (top left) then **Clone** and select FluentFTP and click Clone/OK
+5. Select a folder on your PC to place the files
+6. Edit the files using any editor
+7. Click **FluentFTP** on the list (left pane) in Github Desktop
+8. Click **Changes** (top)
+9. Type a Summary, and click **Commit** (bottom)
+10. Click **Sync** (top right)
 
 **Is there a way to bundle an X509 certificate (from a file) or do I have to register it in the X509Store, and if so, which one?**
 
