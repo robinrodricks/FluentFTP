@@ -210,11 +210,11 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **DereferenceLink**() - Recursively dereferences a symbolic link and returns the full path if found. The `MaximumDereferenceCount` property controls how deep we recurse before giving up.
 
-- **OpenRead**() - Low level. Not recommended for general usage. Open a stream to the specified file for reading. Returns a standard `Stream`. [Learn more.](#stream-handling)
+- **OpenRead**() - *(Prefer using `DownloadFile()` which has overloads for downloading to a `Stream` or `byte[]`)* Open a stream to the specified file for reading. Returns a [standard `Stream`](#stream-handling). Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 
-- **OpenWrite**() - Low level. Not recommended for general usage. Opens a stream to the specified file for writing. Returns a standard `Stream`, any data written will overwrite the file, or create the file if it does not exist. Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. [Learn more.](#stream-handling)
+- **OpenWrite**() - *(Prefer using `UploadFile()` which has overloads for uploading a `Stream` or `byte[]`)* Opens a stream to the specified file for writing. Returns a [standard `Stream`](#stream-handling), any data written will overwrite the file, or create the file if it does not exist. Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 
-- **OpenAppend**() - Low level. Not recommended for general usage. Opens a stream to the specified file for appending. Returns a standard `Stream`, any data written wil be appended to the end of the file. Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. [Learn more.](#stream-handling)
+- **OpenAppend**() - *(Prefer using `UploadFile()` with `FtpExists.Append` which has overloads for uploading a `Stream` or `byte[]`)* Opens a stream to the specified file for appending. Returns a [standard `Stream`](#stream-handling), any data written wil be appended to the end of the file. Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 
 
 ## File Permissions
