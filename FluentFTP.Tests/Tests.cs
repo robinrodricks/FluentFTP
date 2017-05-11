@@ -75,7 +75,7 @@ namespace Tests {
 				//TestFtpPath();
 				//TestListPath();
 				//TestListPathWithHttp11Proxy();
-				TestFileExists();
+				//TestFileExists();
 
 
 
@@ -93,7 +93,7 @@ namespace Tests {
 				// FILE LISTING
 				//--------------------------------
 				//TestGetObjectInfo();
-				//TestGetListing();
+				TestGetListing();
 				//TestGetMachineListing();
 				//GetPublicFTPServerListing();
 				//TestListSpacedPath();

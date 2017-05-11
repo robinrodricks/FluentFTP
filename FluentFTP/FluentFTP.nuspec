@@ -3,7 +3,7 @@
 	<metadata>
 	
 		<id>FluentFTP</id>
-		<version>16.5.0</version>
+		<version>17.0.0</version>
 		<title>FluentFTP</title>
 		<authors>J.P. Trosclair, Harsh Gupta, FluentFTP Contributors</authors>
 		<owners>Harsh Gupta</owners>
@@ -11,6 +11,7 @@
 		<projectUrl>https://github.com/hgupta9/FluentFTP</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>An FTP and FTPS library for .NET &amp; .NET Core, optimized for speed. Provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, UTF-8 support, Async/await support and more. Written entirely in C#, with no external dependencies.</description>
+		<summary>An FTP and FTPS library for .NET &amp; .NET Core, optimized for speed. Provides extensive FTP commands, SSL/TLS, hashing, checksums, permissions, FTP proxies, UTF-8, async/await and more.</summary>
 		<copyright>MIT License</copyright>
 		<language>en-US</language>
 		<tags>ftp,ftp-client,ftps,ssl,tls,unix,iis</tags>

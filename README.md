@@ -550,6 +550,19 @@ When doing a large number of transfers, one needs to be aware of some inherit is
 
 This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is signaled by closing the connection. On downloads and file listings, the sockets being used on the server will stay in the TIME WAIT state because the server closes the socket when it's done sending the data. On uploads, the client sockets will go into the TIME WAIT state because the client closes the connection to signal EOF to the server.
 
+# Release Notes
+
+#### 17.0.0
+- Greatly improve performance of FileExists() and GetNameListing()
+- Add new OS-specific directory listing parsers to GetListing() and GetObjectInfo()
+- Support GetObjectInfo() even if machine listings are not supported by the server
+- Add `existsMode` to UploadFile() and UploadFiles() allowing for skip/overwrite and append
+- Remove all usages of string.Format to fix reliability issues caused with UTF filenames
+- Fix issue of broken files when uploading/downloading through a FTP proxy
+- GetReply() is now public so users of OpenRead/OpenAppend/OpenWrite can call it after
+
+#### 16.5.0
+- Add async/await support to all methods for .NET 4.5 and onwards (Thank you [jblacker](https://github.com/jblacker))
 
 # Credits
 
