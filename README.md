@@ -109,16 +109,23 @@ if (client.DirectoryExists("/htdocs/extras/")){ }
 client.Disconnect();
 ```
 	
-See more examples [here](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples).
+## Documentation
 
+- [API Documentation](#api)
+- [FAQ](#faq)
+- [FTP Support Table](#ftp-support)
+- [Examples](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples)
+- [Release Notes](#release-notes)
+- [Misc Notes](#notes)
+- [Credits](#credits)
 
-# Documentation
+## API
 
 Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS functionality.
 
 **Note:** All methods support synchronous and asynchronous versions. Simply add the "Async" postfix to a method for `async`/`await` syntax in .NET 4.5+, or add the "Begin"/"End" prefix to a method for .NET 4.0 and below.
 
-## Connection
+### Connection
 
 - **new FtpClient**() - Creates and returns a new FTP client instance.
 
@@ -142,7 +149,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **HasFeature**() - Checks if a specific feature (`FtpCapability`) is supported by the server.
 
-## File Management
+### File Management
 
 - **GetListing**() - Get a [file listing](#file-listings) of the given directory. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
 
@@ -217,7 +224,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **OpenAppend**() - *(Prefer using `UploadFile()` with `FtpExists.Append` which has overloads for uploading a `Stream` or `byte[]`)* Opens a stream to the specified file for appending. Returns a [standard `Stream`](#stream-handling), any data written wil be appended to the end of the file. Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 
 
-## File Permissions
+### File Permissions
 
 *Standard commands supported by most servers*
 
@@ -232,7 +239,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **SetFilePermissions**() - Modifies the permissions of the given file/folder, given seperate owner/group/other values (`FtpPermission` enum).
 
 
-## File Hashing
+### File Hashing
 
 *Standard commands supported by most servers*
 
@@ -261,7 +268,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **GetXCRC**() - Retrieves the CRC32 checksum of the given file, if the server supports it.
 
 
-## FTPS
+### FTPS
 
 - **EncryptionMode** - Type of SSL to use, or none. Explicit is TLS, Implicit is SSL. **Default:** FtpEncryptionMode.None.
 
@@ -273,7 +280,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **ValidateCertificate** - Event is fired to validate SSL certificates. If this event is not handled and there are errors validating the certificate the connection will be aborted.
 
-## Advanced Settings
+### Advanced Settings
 
 *FTP Protocol*
 
@@ -334,7 +341,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **EnableThreadSafeDataConnections** - Creates a new FTP connection for every file download and upload. This is slower but is a thread safe approach to make asynchronous operations on a single control connection transparent. Set this to `false` if your FTP server allows only one connection per username. **Default:** false.
 
 
-## Utilities
+### Utilities
 
 Please import `FluentFTP` to use these extension methods, or access them directly under the `FtpExtensions` class.
 
@@ -581,9 +588,9 @@ private void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs 
 }
 ```
 
-# Notes
+## Notes
 
-## File Listings
+### File Listings
 
 1. When you call `GetListing()`, FluentFTP first attempts to use **machine listings** (MLSD command) if they are supported by the server. These are most accurate and you can expect correct file size and modification date (UTC). You may also force this mode using `client.ListingParser = FtpParser.Machine`, and disable it with the `FtpListOption.ForceList` flag. You should also include the `FtpListOption.Modify` flag for the most accurate modification dates (down to the second). 
 
@@ -601,7 +608,7 @@ private void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs 
 
 3. And if none of these satisfy you, you can fallback to **name listings** (NLST command), which are *much* slower than either LIST or MLSD. This is because NLST only sends a list of filenames, without any properties. The server has to be queried for the file size, modification date, and type (file/folder) on a file-by-file basis. Name listings can be forced using the `FtpListOption.ForceNameList` flag.
 
-## Stream Handling
+### Stream Handling
 
 FluentFTP returns a `Stream` object for file transfers. This stream **must** be properly closed when you are done. Do not leave it for the GC to cleanup otherwise you can end up with uncatchable exceptions, i.e., a program crash. The stream objects are actually wrappers around `NetworkStream` and `SslStream` which perform cleanup routines on the control connection when the stream is closed. These cleanup routines can trigger exceptions so it's vital that you properly dispose the objects when you are done, no matter what. A proper implementation should go along the lines of:
 
@@ -633,13 +640,13 @@ finally {
 
 The finally block above ensures that `Close()` is always called on the stream even if a problem occurs. When `Close()` is called any resulting exceptions can be caught and handled accordingly.
 
-## Exception Handling during Dispose()
+### Exception Handling during Dispose()
 
 FluentFTP includes exception handling in key places where uncatchable exceptions could occur, such as the `Dispose()` methods. The problem is that part of the cleanup process involves closing out the internal sockets and streams. If `Dispose()` was called because of an exception and triggers another exception while trying to clean-up you could end up with an un-catchable exception resulting in an application crash. To deal with this `FtpClient.Dispose()` and `FtpSocketStream.Dispose()` are setup to handle `SocketException` and `IOException` and discard them. The exceptions are written to the FtpTrace `TraceListeners` for debugging purposes, in an effort to not hide important errors while debugging problems with the code.
 
 The exception that propagates back to your code should be the root of the problem and any exception caught while disposing would be a side affect however while testing your project pay close attention to what's being logged via FtpTrace. See the Debugging example for more information about using `TraceListener` objects with FluentFTP.
 
-## Client Certificates
+### Client Certificates
 
 When you are using Client Certificates, be sure that:
 
@@ -647,13 +654,13 @@ When you are using Client Certificates, be sure that:
 
 2. You do not use pem certificates, use p12 instead. See this [Stack Overflow thread](http://stackoverflow.com/questions/13697230/ssl-stream-failed-to-authenticate-as-client-in-apns-sharp) for more information. If you get SPPI exceptions with an inner exception about an unexpected or badly formatted message, you are probably using the wrong type of certificate.
 
-## Slow SSL Negotiation
+### Slow SSL Negotiation
 
 FluentFTP uses `SslStream` under the hood which is part of the .NET framework. `SslStream` uses a feature of windows for updating root CA's on the fly, at least that's the way I understand it. These updates can cause a long delay in the certificate authentication process which can cause issues in FluentFTP related to the SocketPollInterval property used for checking for ungraceful disconnections between the client and server. This [MSDN Blog](http://blogs.msdn.com/b/alejacma/archive/2011/09/27/big-delay-when-calling-sslstream-authenticateasclient.aspx) covers the issue with SslStream and talks about how to disable the auto-updating of the root CA's.
 
 The latest builds of FluentFTP log the time it takes to authenticate. If you think you are suffering from this problem then have a look at Examples\Debug.cs for information on retrieving debug information.
 
-## Handling Ungraceful Interruptions in the Control Connection
+### Handling Ungraceful Interruptions in the Control Connection
 
 FluentFTP uses `Socket.Poll()` to test for connectivity after a user-definable period of time has passed since the last activity on the control connection. When the remote host closes the connection there is no way to know, without triggering an exception, other than using `Poll()` to make an educated guess. When the connectivity test fails the connection is automatically re-established. This process helps a great deal in gracefully reconnecting however it does not eliminate your responsibility for catching IOExceptions related to an ungraceful interruption in the connection. Usually, maybe always, when this occurs the InnerException will be a SocketException. How you want to handle the situation from there is up to you.
 
@@ -668,7 +675,7 @@ catch(IOException e) {
 }
 ```````
 
-## Hashing Commands
+### Hashing Commands
 
 XCRC, XMD5, and XSHA are non standard commands and contain no kind of formal specification. They are not guaranteed to work and you are strongly encouraged to check the FtpClient.Capabilities flags for the respective flag (XCRC, XMD5, XSHA1, XSHA256, XSHA512) before calling these methods.
 
@@ -676,11 +683,11 @@ Support for the MD5 command as described [here](http://tools.ietf.org/html/draft
 
 Support for the HASH command has been added to FluentFTP. It supports retrieving SHA-1, SHA-256, SHA-512, and MD5 hashes from servers that support this feature. The returned object, FtpHash, has a method to check the result against a given stream or local file. You can read more about HASH in [this draft](http://tools.ietf.org/html/draft-bryan-ftpext-hash-02).
 
-## Pipelining
+### Pipelining
 
 If you just wanting to enable pipelining (in `FtpClient` and `FtpControlConnection`), set the `EnablePipelining` property to true. Hopefully this is all you need but it may not be. Some servers will drop the control connection if you flood it with a lot of commands. This is where the `MaxPipelineExecute` property comes into play. The default value here is 20, meaning that if you have 100 commands queued, 20 of the commands will be written to the underlying socket and 20 responses will be read, then the next 20 will be executed, and so forth until the command queue is empty. The value 20 is not a magic number, it's just the number that I deemed stable in most scenarios. If you increase the value, do so knowing that it could break your control connection.
 
-## Pipelining your own Commands
+### Pipelining your own Commands
 
 Pipelining your own commands is not dependent on the `EnablePipelining` feature. The `EnablePipelining` property only applies to internal pipelining performed by FtpClient and FtpControlConnection. You can use the facilities for creating pipelines at your own discretion. 
 
@@ -716,7 +723,7 @@ foreach(FtpCommandResult r in res) {
 }
 ``````
 
-## Bulk Downloads
+### Bulk Downloads
 
 When doing a large number of transfers, one needs to be aware of some inherit issues with data streams. When a socket is opened and then closed, the socket is left in a linger state for a period of time defined by the operating system. The socket cannot reliably be re-used until the operating system takes it out of the TIME WAIT state. This matters because a data stream is opened when it's needed and closed as soon as that specific task is done:
 - Download File
@@ -726,7 +733,7 @@ When doing a large number of transfers, one needs to be aware of some inherit is
 
 This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is signaled by closing the connection. On downloads and file listings, the sockets being used on the server will stay in the TIME WAIT state because the server closes the socket when it's done sending the data. On uploads, the client sockets will go into the TIME WAIT state because the client closes the connection to signal EOF to the server.
 
-# Release Notes
+## Release Notes
 
 #### 17.0.0
 - Greatly improve performance of FileExists() and GetNameListing()
@@ -740,7 +747,7 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 #### 16.5.0
 - Add async/await support to all methods for .NET 4.5 and onwards (Thank you [jblacker](https://github.com/jblacker))
 
-# Credits
+## Credits
 
 - [J.P. Trosclair](https://github.com/jptrosclair) - Original creator, owner upto 2016
 - [Harsh Gupta](https://github.com/hgupta9) - Owner and maintainer from 2016 onwards
