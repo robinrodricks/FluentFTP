@@ -10,7 +10,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 ## Features
 
 - Full support for [FTP](#ftp-support), FTPS (FTP over SSL) and [FTPS with client certificates](#client-certificates)
-- File and directory listing for [all major server types](#file-listings) (Unix, Windows/IIS, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, etc)
+- File and directory listing for [all major server types](#file-listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, etc)
 - Easily upload and download a file from the server
 - Easily read and write file data from the server using standard streams
 - Create, append, read, write, rename and delete files and folders
@@ -113,6 +113,7 @@ client.Disconnect();
 
 - [API Documentation](#api)
 - [FAQ](#faq)
+- [Troubleshooting](#troubleshooting)
 - [FTP Support Table](#ftp-support)
 - [Examples](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples)
 - [Release Notes](#release-notes)
@@ -437,7 +438,7 @@ client.ValidateCertificate += new FtpSslValidation(OnValidateCertificate);
 client.Connect();
 
 void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
-	// add logic to test if certificate is valid here
+    // add logic to test if certificate is valid here
     e.Accept = true;
 }
 ```
@@ -504,24 +505,6 @@ client.Credentials = new NetworkCredential("anonymous", "anonymous");
 
 Create a new instance of `FtpClientHttp11Proxy` or `FtpClientUserAtHostProxy` and use FTP properties/methods like normal.
 
-**FluentFTP fails to install in Visual Studio 2010 (VS2010) > 'System.Runtime' already has a dependency defined for 'FluentFTP'.**
-
-Your VS has an older version of `nuget.exe` so it cannot properly install the latest FluentFTP. You must download nuget.exe` manually and run these commands:
-
-> cd D:\Projects\MyProjectDir\
-> C:\Nuget\nuget.exe install FluentFTP
-
-**After uploading a file with special characters like "Caffè.png" it appears as "Caff?.bmp" on the FTP server. The server supports only ASCII but "è" is ASCII. FileZilla can upload this file without problems.**
-
-Set the connection encoding manually to ensure that special characters work properly
-```cs
-client.Encoding = System.Text.Encoding.GetEncoding(1252); // ANSI codepage 1252
-```
-
-**After one file successfully transfers with OpenWrite/OpenAppend, the subsequent files fail with some random error, like "Malformed PASV response"**
-
-You need to call `FtpReply status = GetReply()` after you finish transfering a file to ensure no stale data is left over, which can mess up subsequent commands.
-
 **What does `EnableThreadSafeDataConnections` do?**
 
 EnableThreadSafeDataConnections is an older feature built by the original author. If true, it opens a new FTP client instance (and reconnects to the server) every time you try to upload/download a file. It used to be the default setting, but it affects performance terribly so I disabled it and found many issues were solved as well as performance was restored. I believe if devs want multi-threaded uploading they should just start a new BackgroundWorker and create/use FtpClient within that thread. Try that if you want concurrent uploading, it should work fine.
@@ -541,17 +524,14 @@ First you must "fork" FluentFTP, then make changes on your local version, then s
 9. Type a Summary, and click **Commit** (bottom)
 10. Click **Sync** (top right)
 
-**Is there a way to bundle an X509 certificate (from a file) or do I have to register it in the X509Store, and if so, which one?**
+**How do I bundle an X509 certificate from a file?**
 
 Firstly see this FAQ entry - https://github.com/hgupta9/FluentFTP#client-certificates
 
 You need the certificate added into your local store, and then do something like this:
 
 ```cs
-FluentFTP.FtpClient client = new FluentFTP.FtpClient();
-client.Host = "WWW.MYSITE.COM";
-//client.Port = 6371;
-client.Credentials = new NetworkCredential("USER","PASS");
+FluentFTP.FtpClient client = new FluentFTP.FtpClient("WWW.MYSITE.COM", "USER","PASS");
 
 // Select certificate and add to client
 X509Store store = new X509Store("MY", StoreLocation.LocalMachine);
@@ -579,15 +559,11 @@ This is another way. And use X509Certificate2. I've been unable to get X509Certi
 ```cs
 public void InitSFTP(){
 
-    FluentFTP.FtpClient client = new FluentFTP.FtpClient();
+    FluentFTP.FtpClient client = new FluentFTP.FtpClient("WWW.MYSITE.COM", "USER", "PASS");
     X509Certificate2 cert_grt = new X509Certificate2("C:\mycert.xyz"); 
-    conn.Host = "WWW.MYSITE.COM";
-    //conn.Port = 123;
-    conn.Credentials = new NetworkCredential("USER", ""PASS""); 
     conn.EncryptionMode = FtpEncryptionMode.Explicit; 
     conn.DataConnectionType = FtpDataConnectionType.PASV; 
     conn.DataConnectionEncryption = true; 
-    conn.EnableThreadSafeDataConnections = false; 
     conn.ClientCertificates.Add(cert_grt); 
     conn.ValidateCertificate += new FtpSslValidation(OnValidateCertificate); 
     conn.Connect();
@@ -599,6 +575,41 @@ private void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs 
 }
 ```
 
+## Troubleshooting
+
+**FluentFTP fails to install in Visual Studio 2010 (VS2010) > 'System.Runtime' already has a dependency defined for 'FluentFTP'.**
+
+Your VS has an older version of `nuget.exe` so it cannot properly install the latest FluentFTP. You must download nuget.exe` manually and run these commands:
+
+> cd D:\Projects\MyProjectDir\
+> C:\Nuget\nuget.exe install FluentFTP
+
+**After uploading a file with special characters like "Caffè.png" it appears as "Caff?.bmp" on the FTP server. The server supports only ASCII but "è" is ASCII. FileZilla can upload this file without problems.**
+
+Set the connection encoding manually to ensure that special characters work properly
+```cs
+client.Encoding = System.Text.Encoding.GetEncoding(1252); // ANSI codepage 1252
+```
+
+**I keep getting TimeoutException's in my Azure WebApp**
+First try reducing the socket polling interval, which Azure needs.
+```cs
+client.SocketPollInterval = 1000;
+```
+
+If that doesn't work then try reducing the timeouts too.
+```cs
+client.SocketPollInterval = 1000;
+client.ConnectTimeout = 2000;
+client.ReadTimeout = 2000;
+client.DataConnectionConnectTimeout = 2000;
+client.DataConnectionReadTimeout = 2000;
+```
+
+**After successfully transfering a single file with OpenWrite/OpenAppend, the subsequent files fail with some random error, like "Malformed PASV response"**
+
+You need to call `FtpReply status = GetReply()` after you finish transfering a file to ensure no stale data is left over, which can mess up subsequent commands.
+
 ## Notes
 
 ### File Listings
@@ -609,7 +620,7 @@ private void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs 
 
    - **Unix** parser : Works for Pure-FTPd, ProFTPD, vsftpd, etc. If you encounter errors you can always try the alternate Unix parser using `client.ListingParser = FtpParser.UnixAlt`.
    
-   - **Windows** parser : Works for IIS, DOS, FileZilla Server, etc.
+   - **Windows** parser : Works for IIS, DOS, Azure, FileZilla Server, etc.
    
    - **VMS** parser : Works for Vax, VMS, OpenVMS, etc.
    
