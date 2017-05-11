@@ -404,6 +404,165 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **XSHA256**  			| GetChecksum() or GetXSHA256()	| Gets the SHA-256 hash of a file	|
 | **XSHA512**  			| GetChecksum() or GetXSHA512()	| Gets the SHA-512 hash of a file	|
 
+## FAQ
+
+**How do I connect with SSL/TLS? / How do I use FTPS?**
+
+Use this code:
+```cs
+FtpClient client = new FtpClient();
+client.Host = hostname;
+client.Credentials = new NetworkCredential(username, password);
+client.EncryptionMode = FtpEncryptionMode.Explicit;
+client.SslProtocols = SslProtocols.Tls;
+client.ValidateCertificate += new FtpSslValidation(OnValidateCertificate);
+client.Connect();
+
+void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
+	// add logic to test if certificate is valid here
+    e.Accept = true;
+}
+```
+
+**How do I connect with SFTP?**
+
+SFTP is not supported as it is FTP over SSH, a completely different protocol. Use [SSH.NET](https://github.com/sshnet/SSH.NET) for that.
+
+**How do I append to a file?**
+
+Using the new UploadFile() API:
+```cs
+// append data to an existing copy of the file
+File.AppendAllText(@"C:\readme.txt", "text to be appended" + Environment.NewLine);
+
+// only the new part of readme.txt will be written to the server
+client.UploadFile("C:\readme.txt", "/htdocs/readme.txt", FtpExists.Append);
+```
+
+Using the older OpenAppend() API:
+```cs
+using (FtpClient conn = new FtpClient()) {
+	conn.Host = "localhost";
+	conn.Credentials = new NetworkCredential("ftptest", "ftptest");
+	
+	using (Stream ostream = conn.OpenAppend("/full/or/relative/path/to/file")) {
+		try {
+			ostream.Position = ostream.Length;
+			var sr = new StreamWriter(ostream);
+			sr.WriteLine(...);
+		}
+		finally {
+			ostream.Close();
+			conn.GetReply(); // to read the success/failure response from the server
+		}
+	}
+}
+```
+
+**How do I login with an anonymous FTP account? / I'm getting login errors but I can login fine in Firefox/Filezilla**
+
+Do NOT set the `Credentials` property, so we can login anonymously. Or you can manually specify the following:
+```cs
+client.Credentials = new NetworkCredential("anonymous", "anonymous");
+```
+**How do I login with an FTP proxy?**
+
+Create a new instance of `FtpClientHttp11Proxy` or `FtpClientUserAtHostProxy` and use FTP properties/methods like normal.
+
+**I want to contribute some changes to FluentFTP. How can I do that? / How do I submit a pull request?**
+
+First you must "fork" FluentFTP, then make changes on your local version, then submit a "pull request" to request me to merge your changes. To do this:
+
+1. Click **Fork** on the top right
+2. Open your version here : https://github.com/YOUR_GITHUB_USERNAME/FluentFTP
+3. Download [Github Desktop](https://desktop.github.com/) and login to your account
+4. Click **+** (top left) then **Clone** and select FluentFTP and click Clone/OK
+5. Select a folder on your PC to place the files
+6. Edit the files using any editor
+7. Click **FluentFTP** on the list (left pane) in Github Desktop
+8. Click **Changes** (top)
+9. Type a Summary, and click **Commit** (bottom)
+10. Click **Sync** (top right)
+
+**FluentFTP fails to install in Visual Studio 2010 (VS2010) > 'System.Runtime' already has a dependency defined for 'FluentFTP'.**
+
+Your VS has an older version of `nuget.exe` so it cannot properly install the latest FluentFTP. You must download nuget.exe` manually and run these commands:
+
+> cd D:\Projects\MyProjectDir\
+> C:\Nuget\nuget.exe install FluentFTP
+
+**After uploading a file with special characters like "Caffè.png" it appears as "Caff?.bmp" on the FTP server. The server supports only ASCII but "è" is ASCII. FileZilla can upload this file without problems.**
+
+Set the connection encoding manually to ensure that special characters work properly
+```cs
+client.Encoding = System.Text.Encoding.GetEncoding(1252); // ANSI codepage 1252
+```
+
+**After one file successfully transfers with OpenWrite/OpenAppend, the subsequent files fail with some random error, like "Malformed PASV response"**
+
+You need to call `FtpReply status = GetReply()` after you finish transfering a file to ensure no stale data is left over, which can mess up subsequent commands.
+
+**What does `EnableThreadSafeDataConnections` do?**
+
+EnableThreadSafeDataConnections is an older feature built by the original author. If true, it opens a new FTP client instance (and reconnects to the server) every time you try to upload/download a file. It used to be the default setting, but it affects performance terribly so I disabled it and found many issues were solved as well as performance was restored. I believe if devs want multi-threaded uploading they should just start a new BackgroundWorker and create/use FtpClient within that thread. Try that if you want concurrent uploading, it should work fine.
+
+**Is there a way to bundle an X509 certificate (from a file) or do I have to register it in the X509Store, and if so, which one?**
+
+Firstly see this FAQ entry - https://github.com/hgupta9/FluentFTP#client-certificates
+
+You need the certificate added into your local store, and then do something like this:
+
+```cs
+FluentFTP.FtpClient client = new FluentFTP.FtpClient();
+client.Host = "WWW.MYSITE.COM";
+//client.Port = 6371;
+client.Credentials = new NetworkCredential("USER","PASS");
+
+// Select certificate and add to client
+X509Store store = new X509Store("MY", StoreLocation.LocalMachine);
+store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
+X509Certificate2Collection collection = (X509Certificate2Collection)store.Certificates;
+X509Certificate2Collection fcollection = (X509Certificate2Collection)collection.Find(X509FindType.FindByTimeValid, DateTime.Now, false);
+X509Certificate2Collection scollection = X509Certificate2UI.SelectFromCollection(fcollection, "Select a certificate", "Select a certificate", X509SelectionFlag.MultiSelection); 
+
+if (scollection.Count != 1)
+{
+    throw new Exception("Error: You have not chosen exactly one certificate");
+ }
+foreach (X509Certificate2 x509 in scollection)
+{
+    client.ClientCertificates.Add(x509);
+}
+store.Close();
+
+//client.ReadTimeout = 10000;
+client.Connect();
+```
+
+This is another way. And use X509Certificate2. I've been unable to get X509Certificate to work and from my reading it's because it's an incomplete implementation.
+
+```cs
+public void InitSFTP(){
+
+    FluentFTP.FtpClient client = new FluentFTP.FtpClient();
+    X509Certificate2 cert_grt = new X509Certificate2("C:\mycert.xyz"); 
+    conn.Host = "WWW.MYSITE.COM";
+    //conn.Port = 123;
+    conn.Credentials = new NetworkCredential("USER", ""PASS""); 
+    conn.EncryptionMode = FtpEncryptionMode.Explicit; 
+    conn.DataConnectionType = FtpDataConnectionType.PASV; 
+    conn.DataConnectionEncryption = true; 
+    conn.EnableThreadSafeDataConnections = false; 
+    conn.ClientCertificates.Add(cert_grt); 
+    conn.ValidateCertificate += new FtpSslValidation(OnValidateCertificate); 
+    conn.Connect();
+}       
+
+private void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e)
+{
+    e.Accept = true;
+}
+```
 
 # Notes
 
