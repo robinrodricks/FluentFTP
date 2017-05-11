@@ -214,7 +214,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **GetWorkingDirectory**() - Gets the full path of the current working directory.
 
-- **SetWorkingDirectory**() - Sets the full path of the current working directory.
+- **SetWorkingDirectory**() - Sets the full path of the current working directory. All relative paths are relative to the working directory.
 
 - **CreateDirectory**() - Creates a directory on the server. If the parent directories do not exist they are also created.
 
