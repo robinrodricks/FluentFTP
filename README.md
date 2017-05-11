@@ -342,7 +342,7 @@ Please import `FluentFTP` to use these extension methods, or access them directl
 
 - **GetFtpPath**(path, segments) - Creates a valid FTP path by appending the specified segments to this string
 
-- **GetFtpDirectoryName**(path) - Gets the directory name of a path formatted for a FTP server
+- **GetFtpDirectoryName**(path) - Gets the parent directory path of the given file path
 
 - **GetFtpFileName**(path) - Gets the file name and extension (if any) from the path
 
