@@ -892,7 +892,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <returns>FtpReply representing the response from the server</returns>
 		/// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
-		protected FtpReply GetReply() {
+		public FtpReply GetReply() {
 			FtpReply reply = new FtpReply();
 			string buf;
 
@@ -3709,7 +3709,7 @@ namespace FluentFTP {
 			}
 		}
 
-		private static string[] notFoundStrings = new string[]{"not found", "no such file", "cannot find the file", "cannot find", "failed to open file", "could not get file", "does not exist", "not a regular file", "can't check for file existence"};
+		private static string[] notFoundStrings = new string[] { "can't check for file existence", "does not exist", "failed to open file", "not found", "no such file", "cannot find the file", "cannot find", "could not get file", "not a regular file" };
 		private bool IsNotFoundError(string reply) {
 			reply = reply.ToLower();
 			foreach (string msg in notFoundStrings) {
