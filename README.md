@@ -591,6 +591,7 @@ client.Encoding = System.Text.Encoding.GetEncoding(1252); // ANSI codepage 1252
 ```
 
 **I keep getting TimeoutException's in my Azure WebApp**
+
 First try reducing the socket polling interval, which Azure needs.
 ```cs
 client.SocketPollInterval = 1000;
