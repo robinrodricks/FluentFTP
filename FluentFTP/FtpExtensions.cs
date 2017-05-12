@@ -217,5 +217,15 @@ namespace FluentFTP {
 	        return tcs.Task;
 	    }
 #endif
+
+        /// <summary>
+        /// Validates that the FtpErrorHandling flags set are not in an invalid combination.
+        /// </summary>
+        /// <param name="options">The error handling options set</param>
+        /// <returns>True if a valid combination, otherwise false</returns>
+	    public static bool ValidFtpErrorHandlingCombination(this FtpErrorHandling options) {
+	        return options != (FtpErrorHandling.Stop | FtpErrorHandling.Throw) &&
+	               options != (FtpErrorHandling.Throw | FtpErrorHandling.Stop | FtpErrorHandling.DeleteProcessed);
+	    }
 	}
 }
