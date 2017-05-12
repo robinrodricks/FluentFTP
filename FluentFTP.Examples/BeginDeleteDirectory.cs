@@ -18,7 +18,7 @@ namespace Examples {
                 conn.Host = "localhost";
                 conn.Credentials = new NetworkCredential("ftptest", "ftptest");
                 conn.CreateDirectory("/some/test/directory");
-                conn.BeginDeleteDirectory("/some", true, new AsyncCallback(DeleteDirectoryCallback), conn);
+                conn.BeginDeleteDirectory("/some", new AsyncCallback(DeleteDirectoryCallback), conn);
 
                 m_reset.WaitOne();
                 conn.Disconnect();
