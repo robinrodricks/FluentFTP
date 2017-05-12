@@ -49,7 +49,6 @@ FluentFTP works on .NET and .NET Core.
 | **.NET 4.0**      	| net40     		| FluentFTP_NET_VS2012.sln  	|
 | **.NET 4.5**      	| net45     		| FluentFTP_NET_VS2012.sln  	|
 | **.NET Core 5.0** 	| dnxcore50 		| FluentFTP_Core_VS2017.sln 	|
-| **.NET Standard 1.4** | netstandard1.4	| FluentFTP_Core_VS2017.sln 	|
 | **.NET Standard 1.6** | netstandard1.6	| FluentFTP_Core_VS2017.sln 	|
 
 ## Example Usage
@@ -762,6 +761,7 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 #### 17.2.0
 - Simplify DeleteDirectory() API - the `force` and `fastMode` args are no longer required
 - DeleteDirectory() is faster since it uses one recursive file listing instead of many
+- Remove .NET Standard 1.4 to improve nuget update reliability, since we need 1.6 anyway
 
 #### 17.1.0
 - Greatly improve performance of FileExists() and GetNameListing()
