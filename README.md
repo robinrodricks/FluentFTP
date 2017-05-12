@@ -606,6 +606,8 @@ client.DataConnectionConnectTimeout = 2000;
 client.DataConnectionReadTimeout = 2000;
 ```
 
+If none of these work, remember that Azure has in intermittent bug wherein it changes the IP-address during a FTP request. The connection is established with IP-address A and for the data transfer Azure uses IP-address B and this isn't allowed on many firewalls. This is a known Azure bug.
+
 **After successfully transfering a single file with OpenWrite/OpenAppend, the subsequent files fail with some random error, like "Malformed PASV response"**
 
 You need to call `FtpReply status = GetReply()` after you finish transfering a file to ensure no stale data is left over, which can mess up subsequent commands.
@@ -756,6 +758,10 @@ When doing a large number of transfers, one needs to be aware of some inherit is
 This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is signaled by closing the connection. On downloads and file listings, the sockets being used on the server will stay in the TIME WAIT state because the server closes the socket when it's done sending the data. On uploads, the client sockets will go into the TIME WAIT state because the client closes the connection to signal EOF to the server.
 
 ## Release Notes
+
+#### 17.2.0
+- Simplify DeleteDirectory() API - the `force` and `fastMode` args are no longer required
+- DeleteDirectory() is faster since it uses one recursive file listing instead of many
 
 #### 17.1.0
 - Greatly improve performance of FileExists() and GetNameListing()
