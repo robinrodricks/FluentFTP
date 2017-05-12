@@ -57,7 +57,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Gets the directory name of a path formatted for a FTP server
+		/// Gets the parent directory path (formatted for a FTP server)
 		/// </summary>
 		/// <param name="path">The path</param>
 		/// <returns>The parent directory path</returns>

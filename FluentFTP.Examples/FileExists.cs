@@ -11,8 +11,7 @@ namespace Examples {
 
                 // The last parameter forces FluentFTP to use LIST -a 
                 // for getting a list of objects in the parent directory.
-                if (conn.FileExists("/full/or/relative/path", 
-                    FtpListOption.ForceList | FtpListOption.AllFiles)) {
+                if (conn.FileExists("/full/or/relative/path")) {
                     // dome something
                 }
             }

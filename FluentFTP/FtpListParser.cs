@@ -1523,11 +1523,11 @@ namespace FluentFTP {
 		/// Split into fields by splitting on strings
 		/// </summary>
 		private static string[] SplitString(string str) {
-			ArrayList allTokens = new ArrayList(str.Split(null));
+			List<string> allTokens = new List<string>(str.Split(null));
 			for (int i = allTokens.Count - 1; i >= 0; i--)
 				if (((string)allTokens[i]).Trim().Length == 0)
 					allTokens.RemoveAt(i);
-			return (string[])allTokens.ToArray(typeof(string));
+			return (string[])allTokens.ToArray();
 		}
 
 		private int formatIndex = 0;

@@ -75,6 +75,7 @@ namespace Tests {
 				//TestFtpPath();
 				//TestListPath();
 				//TestListPathWithHttp11Proxy();
+				//TestFileExists();
 
 
 
@@ -93,7 +94,7 @@ namespace Tests {
 				//--------------------------------
 				//TestGetObjectInfo();
 				TestGetListing();
-				TestGetMachineListing();
+				//TestGetMachineListing();
 				//GetPublicFTPServerListing();
 				//TestListSpacedPath();
 				//TestFilePermissions();
@@ -1190,5 +1191,33 @@ namespace Tests {
 			}
 		}
 
+		static void TestFileExists() {
+			using (FtpClient cl = new FtpClient()) {
+				cl.Host = m_host;
+				cl.Credentials = new NetworkCredential(m_user, m_pass);
+
+				bool f1_yes = cl.FileExists("/public_html");
+				bool f2_yes = cl.FileExists("/public_html/temp");
+				bool f3_yes = cl.FileExists("/public_html/temp/");
+				bool f3_no = cl.FileExists("/public_html/tempa/");
+				bool f4_yes = cl.FileExists("/public_html/temp/README.md");
+				bool f4_no = cl.FileExists("/public_html/temp/README");
+				bool f5_yes = cl.FileExists("/public_html/temp/Caffè.jpg");
+				bool f5_no = cl.FileExists("/public_html/temp/Caffèoo.jpg");
+
+				int o = 4;
+
+				cl.SetWorkingDirectory("/public_html/");
+
+				bool z_f2_yes = cl.FileExists("temp");
+				bool z_f3_yes = cl.FileExists("temp/");
+				bool z_f3_no = cl.FileExists("tempa/");
+				bool z_f4_yes = cl.FileExists("temp/README.md");
+				bool z_f4_no = cl.FileExists("temp/README");
+				bool z_f5_yes = cl.FileExists("temp/Caffè.jpg");
+				bool z_f5_no = cl.FileExists("temp/Caffèoo.jpg");
+
+			}
+		}
 	}
 }

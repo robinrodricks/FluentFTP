@@ -676,7 +676,7 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region Core
+		#region Constructor / Connection
 
 		/// <summary>
 		/// Creates a new instance of an FTP Client.
@@ -836,6 +836,55 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Disconnects from the server, releases resources held by this
+		/// object.
+		/// </summary>
+		public void Dispose() {
+			lock (m_lock) {
+				if (IsDisposed)
+					return;
+
+				FtpTrace.WriteLine("Disposing FtpClient object...");
+
+				try {
+					if (IsConnected) {
+						Disconnect();
+					}
+				} catch (Exception ex) {
+					FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disconnecting from host: " + ex.ToString());
+				}
+
+				if (m_stream != null) {
+					try {
+						m_stream.Dispose();
+					} catch (Exception ex) {
+						FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: " + ex.ToString());
+					} finally {
+						m_stream = null;
+					}
+				}
+
+				m_credentials = null;
+				m_textEncoding = null;
+				m_host = null;
+				m_asyncmethods.Clear();
+				IsDisposed = true;
+				GC.SuppressFinalize(this);
+			}
+		}
+
+		/// <summary>
+		/// Finalizer
+		/// </summary>
+		~FtpClient() {
+			Dispose();
+		}
+
+		#endregion
+
+		#region Execute Command
+
+		/// <summary>
 		/// Retrieves a reply from the server. Do not execute this method
 		/// unless you are sure that a reply has been sent, i.e., you
 		/// executed a command. Doing so will cause the code to hang
@@ -843,7 +892,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <returns>FtpReply representing the response from the server</returns>
 		/// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
-		protected FtpReply GetReply() {
+		public FtpReply GetReply() {
 			FtpReply reply = new FtpReply();
 			string buf;
 
@@ -1319,7 +1368,7 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region File I/O
+		#region Active/Passive Streams
 
 		/// <summary>
 		/// Opens the specified type of passive data stream
@@ -1646,6 +1695,10 @@ namespace FluentFTP {
 			return reply;
 		}
 
+		#endregion
+
+		#region Open Read
+
 		/// <summary>
 		/// Opens the specified file for reading
 		/// </summary>
@@ -1846,8 +1899,12 @@ namespace FluentFTP {
         }
 #endif
 
+		#endregion
+
+		#region Open Write
+
 		/// <summary>
-		/// Opens the specified file for writing
+		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <returns>A stream for writing to the file on the server</returns>
@@ -1857,7 +1914,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Opens the specified file for writing
+		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
@@ -1935,7 +1992,7 @@ namespace FluentFTP {
 
 #if (CORE || NETFX45)
         /// <summary>
-        /// Opens the specified file for writing asynchronously
+        /// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. asynchronously
         /// </summary>
         /// <param name="path">Full or relative path of the file</param>
         /// <param name="type">ASCII/Binary</param>
@@ -1949,7 +2006,7 @@ namespace FluentFTP {
 	    }
 
         /// <summary>
-        /// Opens the specified file for writing asynchronously
+        /// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. asynchronously
         /// </summary>
         /// <param name="path">Full or relative path of the file</param>
         /// <returns>A stream for writing to the file on the server</returns>
@@ -1962,8 +2019,12 @@ namespace FluentFTP {
         }
 #endif
 
+		#endregion
+
+		#region Open Append
+
 		/// <summary>
-		/// Opens the specified file to be appended to
+		/// Opens the specified file for appending. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// </summary>
 		/// <param name="path">The full or relative path to the file to be opened</param>
 		/// <returns>A stream for writing to the file on the server</returns>
@@ -1973,7 +2034,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Opens the specified file to be appended to
+		/// Opens the specified file for appending. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// </summary>
 		/// <param name="path">The full or relative path to the file to be opened</param>
 		/// <param name="type">ASCII/Binary</param>
@@ -2441,24 +2502,7 @@ namespace FluentFTP {
 	        }
 	    }
 #endif
-		/// <summary>
-		/// Uploads the specified byte array as a file onto the server.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it uploads data in chunks.
-		/// </summary>
-		/// <param name="fileData">The full data of the file, as a byte array</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
-		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		public bool UploadFile(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
-
-			// write the file onto the server
-			using (MemoryStream ms = new MemoryStream(fileData)) {
-				ms.Position = 0;
-				return UploadFileInternal(ms, remotePath, createRemoteDir, existsMode, false, false);
-			}
-		}
-
+		
 		/// <summary>
 		/// Uploads the specified stream as a file onto the server.
 		/// High-level API that takes care of various edge cases internally.
@@ -2468,13 +2512,48 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		public bool UploadFile(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+		public bool Upload(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 
 			// write the file onto the server
 			return UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, false, false);
 		}
+		/// <summary>
+		/// Uploads the specified byte array as a file onto the server.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it uploads data in chunks.
+		/// </summary>
+		/// <param name="fileData">The full data of the file, as a byte array</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
+		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+		public bool Upload(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+
+			// write the file onto the server
+			using (MemoryStream ms = new MemoryStream(fileData)) {
+				ms.Position = 0;
+				return UploadFileInternal(ms, remotePath, createRemoteDir, existsMode, false, false);
+			}
+		}
+
 
 #if (CORE || NETFX45)
+
+        /// <summary>
+        /// Uploads the specified stream as a file onto the server asynchronously.
+        /// High-level API that takes care of various edge cases internally.
+        /// Supports very large files since it uploads data in chunks.
+        /// </summary>
+        /// <param name="fileStream">The full data of the file, as a stream</param>
+        /// <param name="remotePath">The full or relative path to the file on the server</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
+        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+         /// <param name="token">The token to monitor for cancellation requests.</param>
+        /// <returns>If true then the file was uploaded, false otherwise.</returns>
+		public async Task<bool> UploadAsync(Stream fileStream, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
+            
+            // write the file onto the server
+            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, false, false, token);
+        }
         /// <summary>
         /// Uploads the specified byte array as a file onto the server asynchronously.
         /// High-level API that takes care of various edge cases internally.
@@ -2486,7 +2565,7 @@ namespace FluentFTP {
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
         /// <param name="token">The token to monitor for cancellation requests.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public async Task<bool> UploadFileAsync(byte[] fileData, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token)
+		public async Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token)
         {
             // write the file onto the server
             using (MemoryStream ms = new MemoryStream(fileData)) {
@@ -2504,12 +2583,9 @@ namespace FluentFTP {
         /// <param name="remotePath">The full or relative path to the file on the server</param>
         /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-         /// <param name="token">The token to monitor for cancellation requests.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public async Task<bool> UploadFileAsync(Stream fileStream, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
-            
-            // write the file onto the server
-            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, false, false, token);
+		public async Task<bool> UploadAsync(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+			return await UploadAsync(fileStream, remotePath, existsMode, createRemoteDir, CancellationToken.None);
         }
 
         /// <summary>
@@ -2522,22 +2598,8 @@ namespace FluentFTP {
         /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public async Task<bool> UploadFileAsync(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
-			return await UploadFileAsync(fileData, remotePath, existsMode, createRemoteDir, CancellationToken.None);
-        }
-
-        /// <summary>
-        /// Uploads the specified stream as a file onto the server asynchronously.
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it uploads data in chunks.
-        /// </summary>
-        /// <param name="fileStream">The full data of the file, as a stream</param>
-        /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
-        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public async Task<bool> UploadFileAsync(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
-			return await UploadFileAsync(fileStream, remotePath, existsMode, createRemoteDir, CancellationToken.None);
+		public async Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+			return await UploadAsync(fileData, remotePath, existsMode, createRemoteDir, CancellationToken.None);
         }
 #endif
 
@@ -2654,7 +2716,7 @@ namespace FluentFTP {
 		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool DownloadFile(Stream outStream, string remotePath) {
+		public bool Download(Stream outStream, string remotePath) {
 			// download the file from the server
 			return DownloadFileInternal(remotePath, outStream);
 		}
@@ -2667,7 +2729,7 @@ namespace FluentFTP {
 		/// <param name="outBytes">The variable that will receive the bytes.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool DownloadFile(out byte[] outBytes, string remotePath) {
+		public bool Download(out byte[] outBytes, string remotePath) {
 
 			outBytes = null;
 
@@ -2692,7 +2754,7 @@ namespace FluentFTP {
         /// <param name="remotePath">The full or relative path to the file on the server</param>
         /// <param name="token">The token to monitor cancellation requests</param>
         /// <returns>If true then the file was downloaded, false otherwise.</returns>
-        public async Task<bool> DownloadFileAsync(Stream outStream, string remotePath, CancellationToken token) {
+        public async Task<bool> DownloadAsync(Stream outStream, string remotePath, CancellationToken token) {
             // download the file from the server
             return await DownloadFileInternalAsync(remotePath, outStream, token);
         }
@@ -2705,7 +2767,7 @@ namespace FluentFTP {
         /// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
         /// <returns>If true then the file was downloaded, false otherwise.</returns>
-        public async Task<bool> DownloadFileAsync(Stream outStream, string remotePath) {
+        public async Task<bool> DownloadAsync(Stream outStream, string remotePath) {
             // download the file from the server
             return await DownloadFileInternalAsync(remotePath, outStream, CancellationToken.None);
         }
@@ -2718,7 +2780,7 @@ namespace FluentFTP {
         /// <param name="remotePath">The full or relative path to the file on the server</param>
         /// <param name="token">The token to monitor cancellation requests</param>
         /// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
-        public async Task<byte[]> DownloadFileAsync(string remotePath, CancellationToken token) {
+        public async Task<byte[]> DownloadAsync(string remotePath, CancellationToken token) {
             // download the file from the server
             using (MemoryStream outStream = new MemoryStream()) {
                 bool ok = await DownloadFileInternalAsync(remotePath, outStream, token);
@@ -2733,9 +2795,9 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
         /// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
-        public async Task<byte[]> DownloadFileAsync(string remotePath) {
+        public async Task<byte[]> DownloadAsync(string remotePath) {
             // download the file from the server
-            return await DownloadFileAsync(remotePath, CancellationToken.None);
+            return await DownloadAsync(remotePath, CancellationToken.None);
         }
 #endif
 
@@ -2751,7 +2813,7 @@ namespace FluentFTP {
 				long offset = 0;
 
 				// check if the file exists, and skip, overwrite or append
-				if (existsMode != FtpExists.None) {
+				if (existsMode != FtpExists.NoCheck) {
 					if (!fileExistsKnown) {
 						fileExists = FileExists(remotePath);
 					}
@@ -2870,7 +2932,7 @@ namespace FluentFTP {
 				long offset = 0;
 
 				// check if the file exists, and skip, overwrite or append
-				if (existsMode != FtpExists.None) {
+				if (existsMode != FtpExists.NoCheck) {
 					if (!fileExistsKnown) {
 						fileExists = await FileExistsAsync(remotePath);
 					}
@@ -3173,7 +3235,7 @@ namespace FluentFTP {
 
 #endregion
 
-		#region File Management
+		#region Delete File
 
 		/// <summary>
 		/// Deletes a file on the server
@@ -3232,6 +3294,10 @@ namespace FluentFTP {
 	            path, null);
 	    }
 #endif
+
+		#endregion
+
+		#region Delete Directory
 
 		/// <summary>
 		/// Deletes the specified directory on the server.
@@ -3486,6 +3552,10 @@ namespace FluentFTP {
         }
 #endif
 
+		#endregion
+
+		#region Directory Exists
+
 		/// <summary>
 		/// Tests if the specified directory exists on the server. This
 		/// method works by trying to change the working directory to
@@ -3499,11 +3569,14 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\DirectoryExists.cs" lang="cs" /></example>
 		public bool DirectoryExists(string path) {
 			string pwd;
+
+			// quickly check if root path, then it always exists!
 			string ftppath = path.GetFtpPath();
-
-			if (ftppath == "." || ftppath == "./" || ftppath == "/")
+			if (ftppath == "." || ftppath == "./" || ftppath == "/") {
 				return true;
+			}
 
+			// check if a folder exists by changing the working dir to it
 			lock (m_lock) {
 				pwd = GetWorkingDirectory();
 
@@ -3576,44 +3649,79 @@ namespace FluentFTP {
 	    }
 #endif
 
+		#endregion
+
+		#region File Exists
+
 		/// <summary>
-		/// Checks if a file exists on the server by taking a 
-		/// file listing of the parent directory in the path
-		/// and comparing the results the path supplied.
+		/// Checks if a file exists on the server.
 		/// </summary>
 		/// <param name="path">The full or relative path to the file</param>
 		/// <returns>True if the file exists</returns>
 		/// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
 		public bool FileExists(string path) {
-			return FileExists(path, 0);
-		}
-
-		/// <summary>
-		/// Checks if a file exists on the server by taking a 
-		/// file listing of the parent directory in the path
-		/// and comparing the results the path supplied.
-		/// </summary>
-		/// <param name="path">The full or relative path to the file</param>
-		/// <param name="options">Options for controlling the file listing used to
-		/// determine if the file exists.</param>
-		/// <returns>True if the file exists</returns>
-		/// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
-		public bool FileExists(string path, FtpListOption options) {
-			string dirname = path.GetFtpDirectoryName();
 
 			lock (m_lock) {
-				if (!DirectoryExists(dirname))
-					return false;
 
-				foreach (FtpListItem item in GetListing(dirname, options))
-					if (item.Type == FtpFileSystemObjectType.File && item.Name == path.GetFtpFileName())
+				// calc the absolute filepath
+				path = GetAbsolutePath(path.GetFtpPath());
+
+				// since FTP does not include a specific command to check if a file exists
+				// here we check if file exists by attempting to get its filesize (SIZE)
+				if (HasFeature(FtpCapability.SIZE)) {
+					FtpReply reply = Execute("SIZE " + path);
+					char ch = reply.Code[0];
+					if (ch == '2') {
 						return true;
-			}
+					}
+					if (ch == '5' && IsNotFoundError(reply.Message)) {
+						return false;
+					}
+				}
 
+				// check if file exists by attempting to get its date modified (MDTM)
+				if (HasFeature(FtpCapability.MDTM)) {
+					FtpReply reply = Execute("MDTM " + path);
+					char ch = reply.Code[0];
+					if (ch == '2') {
+						return true;
+					}
+					if (ch == '5' && IsNotFoundError(reply.Message)) {
+						return false;
+					}
+				}
+
+				// check if file exists by getting a name listing (NLST)
+				string[] fileList = GetNameListing(path.GetFtpDirectoryName());
+				string pathName = path.GetFtpFileName();
+				if (fileList.Contains(pathName)) {
+					return true;
+				}
+
+				// check if file exists by attempting to download it (RETR)
+				/*try {
+					Stream stream = OpenRead(path);
+					stream.Close();
+					return true;
+				} catch (FtpException ex) {
+				}*/
+
+				return false;
+			}
+		}
+
+		private static string[] notFoundStrings = new string[] { "can't check for file existence", "does not exist", "failed to open file", "not found", "no such file", "cannot find the file", "cannot find", "could not get file", "not a regular file" };
+		private bool IsNotFoundError(string reply) {
+			reply = reply.ToLower();
+			foreach (string msg in notFoundStrings) {
+				if (reply.Contains(msg)) {
+					return true;
+				}
+			}
 			return false;
 		}
 
-		delegate bool AsyncFileExists(string path, FtpListOption options);
+		delegate bool AsyncFileExists(string path);
 
 		/// <summary>
 		/// Begins an asynchronous operation to check if a file exists on the 
@@ -3626,31 +3734,7 @@ namespace FluentFTP {
 		/// <returns>IAsyncResult</returns>
 		/// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
 		public IAsyncResult BeginFileExists(string path, AsyncCallback callback, object state) {
-			return BeginFileExists(path, 0, callback, state);
-		}
-
-		/// <summary>
-        /// Begins an asynchronous operation to check if a file exists on the 
-        /// server by taking a  file listing of the parent directory in the path
-        /// and comparing the results the path supplied.
-		/// </summary>
-		/// <param name="path">The full or relative path to the file</param>
-		/// <param name="options"><see cref="FtpListOption"/>s for controlling the file listing used to
-		/// determine if the file exists.</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
-		public IAsyncResult BeginFileExists(string path, FtpListOption options, AsyncCallback callback, object state) {
-			AsyncFileExists func;
-			IAsyncResult ar;
-
-			ar = (func = new AsyncFileExists(FileExists)).BeginInvoke(path, options, callback, state);
-			lock (m_asyncmethods) {
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
+			return BeginFileExists(path, callback, state);
 		}
 
 		/// <summary>
@@ -3670,22 +3754,6 @@ namespace FluentFTP {
         /// and comparing the results the path supplied.
         /// </summary>
         /// <param name="path">The full or relative path to the file</param>
-        /// <param name="options">Options for controlling the file listing used to
-        /// determine if the file exists.</param>
-        /// <returns>True if the file exists, false otherwise</returns>
-	    public async Task<bool> FileExistsAsync(string path, FtpListOption options) {
-	        return await Task.Factory.FromAsync<string, FtpListOption, bool>(
-	            (p, o, ac, s) => BeginFileExists(p, o, ac, s),
-	            ar => EndFileExists(ar),
-	            path, options, null);
-	    }
-
-        /// <summary>
-        /// Checks if a file exists on the server asynchronously by taking a 
-        /// file listing of the parent directory in the path
-        /// and comparing the results the path supplied.
-        /// </summary>
-        /// <param name="path">The full or relative path to the file</param>
         /// <returns>True if the file exists, false otherwise</returns>
         public async Task<bool> FileExistsAsync(string path)
         {
@@ -3695,6 +3763,10 @@ namespace FluentFTP {
                 path, null);
         }
 #endif
+
+		#endregion
+
+		#region Create Directory
 
 		/// <summary>
 		/// Creates a directory on the server. If the preceding
@@ -3806,6 +3878,10 @@ namespace FluentFTP {
         }
 #endif
 
+		#endregion
+
+		#region Rename File/Directory
+
 		/// <summary>
 		/// Renames an object on the remote file system.
 		/// </summary>
@@ -3873,7 +3949,7 @@ namespace FluentFTP {
 
 #endregion
 
-		#region File Permissions
+		#region File Permissions / Chmod
 
 		/// <summary>
 		/// Modify the permissions of the given file/folder.
@@ -3967,7 +4043,7 @@ namespace FluentFTP {
 
 #endregion
 
-		#region Link Dereferencing
+		#region Dereference Link
 
 		/// <summary>
 		/// Recursively dereferences a symbolic link. See the
@@ -4112,7 +4188,7 @@ namespace FluentFTP {
 
 #endregion
 
-		#region File Listing
+		#region Get File Info
 
 		/// <summary>
 		/// Returns information about a file system object. Returns null if the server response can't
@@ -4237,6 +4313,10 @@ namespace FluentFTP {
 	    }
 #endif
 
+		#endregion
+
+		#region Get Listing
+
 		/// <summary>
         /// Gets a file listing from the server from the current working directory. Each <see cref="FtpListItem"/> object returned
 		/// contains information about the file that was able to be retrieved. 
@@ -4304,25 +4384,7 @@ namespace FluentFTP {
 			bool isGetSize = (options & FtpListOption.Size) == FtpListOption.Size;
 
 			// calc path to request
-			if (path == null || path.Trim().Length == 0) {
-
-				// if path not given, then use working dir
-				string pwd = GetWorkingDirectory();
-				if (pwd != null && pwd.Trim().Length > 0)
-					path = pwd;
-				else
-					path = "./";
-
-			} else if (!path.StartsWith("/")) {
-
-				// if relative path given then add working dir to calc full path
-				string pwd = GetWorkingDirectory();
-				if (pwd != null && pwd.Trim().Length > 0) {
-					if (path.StartsWith("./"))
-						path = path.Remove(0, 2);
-					path = (pwd + "/" + path).GetFtpPath();
-				}
-			}
+			path = GetAbsolutePath(path);
 
 			// MLSD provides a machine readable format with 100% accurate information
 			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
@@ -4602,7 +4664,7 @@ namespace FluentFTP {
 
 #endregion
 
-		#region Name Listing
+		#region Get Name Listing
 
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command.
@@ -4619,20 +4681,10 @@ namespace FluentFTP {
 		/// <returns>A string array of file and directory names if any were returned.</returns>
 		/// <example><code source="..\Examples\GetNameListing.cs" lang="cs" /></example>
 		public string[] GetNameListing(string path) {
-			List<string> lst = new List<string>();
-			string pwd = GetWorkingDirectory();
+			List<string> listing = new List<string>();
 
-			path = path.GetFtpPath();
-			if (path == null || path.Trim().Length == 0) {
-				if (pwd != null && pwd.Trim().Length > 0)
-					path = pwd;
-				else
-					path = "./";
-			} else if (!path.StartsWith("/") && pwd != null && pwd.Trim().Length > 0) {
-				if (path.StartsWith("./"))
-					path = path.Remove(0, 2);
-				path = (pwd + "/" + path).GetFtpPath();
-			}
+			// calc path to request
+			path = GetAbsolutePath(path);
 
 			lock (m_lock) {
 				// always get the file listing in binary
@@ -4645,14 +4697,14 @@ namespace FluentFTP {
 
 					try {
 						while ((buf = stream.ReadLine(Encoding)) != null)
-							lst.Add(buf);
+							listing.Add(buf);
 					} finally {
 						stream.Close();
 					}
 				}
 			}
 
-			return lst.ToArray();
+			return listing.ToArray();
 		}
 
 		delegate string[] AsyncGetNameListing(string path);
@@ -5664,30 +5716,7 @@ namespace FluentFTP {
 #endif
 		#endregion
 
-		#region Misc Methods
-
-		private static string DecodeUrl(string url) {
-#if CORE
-			return WebUtility.UrlDecode(url);
-#else
-			return HttpUtility.UrlDecode(url);
-#endif
-		}
-
-		private static byte[] ReadToEnd(Stream stream, long maxLength, int chunkLen) {
-			int read = 1;
-			byte[] buffer = new byte[chunkLen];
-			using (var mem = new MemoryStream()) {
-				do {
-					long length = maxLength == 0 ? buffer.Length : Math.Min(maxLength - (int)mem.Length, buffer.Length);
-					read = stream.Read(buffer, 0, (int)length);
-					mem.Write(buffer, 0, read);
-					if (maxLength > 0 && mem.Length == maxLength) break;
-				} while (read > 0);
-
-				return mem.ToArray();
-			}
-		}
+		#region Set Data Type
 
 		/// <summary>
 		/// Sets the data type of information sent over the data stream
@@ -5761,7 +5790,10 @@ namespace FluentFTP {
 	            type, null);
 	    }
 #endif
+		#endregion
 
+		#region Set Working Dir
+		
 		/// <summary>
 		/// Sets the work directory on the server
 		/// </summary>
@@ -5824,6 +5856,9 @@ namespace FluentFTP {
 	            path, null);
 	    }
 #endif
+		#endregion
+
+		#region Get Working Dir
 
 		/// <summary>
 		/// Gets the current working directory
@@ -5896,7 +5931,10 @@ namespace FluentFTP {
 	            ar => EndGetWorkingDirectory(ar), null);
 	    }
 #endif
+		#endregion
 
+		#region Get File Size
+		
 		/// <summary>
 		/// Gets the size of a remote file
 		/// </summary>
@@ -5964,6 +6002,9 @@ namespace FluentFTP {
 	            path, null);
 	    }
 #endif
+		#endregion
+
+		#region Get Modified Time
 
 		/// <summary>
         /// Gets the modified time of a remote file
@@ -6030,6 +6071,59 @@ namespace FluentFTP {
 	    }
 #endif
 
+		#endregion
+
+		#region Utils
+
+		/// <summary>
+		/// Ensure a relative path is absolute by appending the working dir
+		/// </summary>
+		private string GetAbsolutePath(string path) {
+			if (path == null || path.Trim().Length == 0) {
+
+				// if path not given, then use working dir
+				string pwd = GetWorkingDirectory();
+				if (pwd != null && pwd.Trim().Length > 0)
+					path = pwd;
+				else
+					path = "./";
+
+			} else if (!path.StartsWith("/")) {
+
+				// if relative path given then add working dir to calc full path
+				string pwd = GetWorkingDirectory();
+				if (pwd != null && pwd.Trim().Length > 0) {
+					if (path.StartsWith("./"))
+						path = path.Remove(0, 2);
+					path = (pwd + "/" + path).GetFtpPath();
+				}
+			}
+			return path;
+		}
+
+		private static string DecodeUrl(string url) {
+#if CORE
+			return WebUtility.UrlDecode(url);
+#else
+			return HttpUtility.UrlDecode(url);
+#endif
+		}
+
+		private static byte[] ReadToEnd(Stream stream, long maxLength, int chunkLen) {
+			int read = 1;
+			byte[] buffer = new byte[chunkLen];
+			using (var mem = new MemoryStream()) {
+				do {
+					long length = maxLength == 0 ? buffer.Length : Math.Min(maxLength - (int)mem.Length, buffer.Length);
+					read = stream.Read(buffer, 0, (int)length);
+					mem.Write(buffer, 0, read);
+					if (maxLength > 0 && mem.Length == maxLength) break;
+				} while (read > 0);
+
+				return mem.ToArray();
+			}
+		}
+
 		/// <summary>
 		/// Disables UTF8 support and changes the Encoding property
 		/// back to ASCII. If the server returns an error when trying
@@ -6045,51 +6139,6 @@ namespace FluentFTP {
 				m_textEncoding = Encoding.ASCII;
 				m_textEncodingAutoUTF = false;
 			}
-		}
-
-		/// <summary>
-		/// Disconnects from the server, releases resources held by this
-		/// object.
-		/// </summary>
-		public void Dispose() {
-			lock (m_lock) {
-				if (IsDisposed)
-					return;
-
-				FtpTrace.WriteLine("Disposing FtpClient object...");
-
-				try {
-					if (IsConnected) {
-						Disconnect();
-					}
-				} catch (Exception ex) {
-					FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disconnecting from host: "+ ex.ToString());
-				}
-
-				if (m_stream != null) {
-					try {
-						m_stream.Dispose();
-					} catch (Exception ex) {
-						FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: "+ ex.ToString());
-					} finally {
-						m_stream = null;
-					}
-				}
-
-				m_credentials = null;
-				m_textEncoding = null;
-				m_host = null;
-				m_asyncmethods.Clear();
-				IsDisposed = true;
-				GC.SuppressFinalize(this);
-			}
-		}
-
-		/// <summary>
-		/// Finalizer
-		/// </summary>
-		~FtpClient() {
-			Dispose();
 		}
 
 		private void ReadStaleData() {
