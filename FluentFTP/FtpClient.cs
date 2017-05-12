@@ -672,6 +672,16 @@ namespace FluentFTP {
 			}
 		}
 
+	    private int m_attemptsAllowed = 3;
+        /// <summary>
+        /// Gets or sets the numbers retry attempts allowed when a verification failure occurs during download or upload.  This value must be greater than 0.
+        /// Attempts to use a negative number or zero will cause the value to be set to 1.
+        /// </summary>
+	    public int AttemptsAllowed {
+            get { return m_attemptsAllowed; }
+	        set { m_attemptsAllowed = value > 0 ? value : 1; }
+	    }
+
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
 		// FtpClient.CloneConnection()
 
@@ -2160,7 +2170,7 @@ namespace FluentFTP {
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
 		public int UploadFiles(string[] localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true, 
-            FtpErrorHandling errorHandling = FtpErrorHandling.None) {
+            FtpVerifyOptions verifyOptions = FtpVerifyOptions.None, FtpErrorHandling errorHandling = FtpErrorHandling.None) {
 		    if (!errorHandling.ValidFtpErrorHandlingCombination())
 		        throw new ArgumentException("Invalid combination of FtpErrorHandling flags.  Throw & Stop cannot be combined");
 			
@@ -2194,7 +2204,7 @@ namespace FluentFTP {
 
 				// try to upload it
 				try {
-					bool ok = UploadFileFromFile(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true);
+					bool ok = UploadFileFromFile(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true, verifyOptions);
 					if (ok) {
 					    successfulUploads.Add(remotePath);
 						//count++;
@@ -2256,8 +2266,8 @@ namespace FluentFTP {
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
-		public int UploadFiles(List<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true, FtpErrorHandling errorHandling = FtpErrorHandling.None) {
-			return UploadFiles(localPaths.ToArray(), remoteDir, existsMode, createRemoteDir, errorHandling);
+		public int UploadFiles(List<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true, FtpVerifyOptions verifyOptions = FtpVerifyOptions.None, FtpErrorHandling errorHandling = FtpErrorHandling.None) {
+			return UploadFiles(localPaths.ToArray(), remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling);
 		}
 
 #if (CORE || NETFX45)
@@ -2272,10 +2282,18 @@ namespace FluentFTP {
 		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
+        /// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
         /// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <param name="token">The token to monitor for cancellation requests</param>
 		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
-		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode, bool createRemoteDir, FtpErrorHandling errorHandling, CancellationToken token) {
+        /// <remarks>
+        /// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
+        /// If <see cref="FtpVerifyOptions.Throw"/> is set and <see cref="FtpErrorHandling.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+        /// to propagate from this method.
+        /// </remarks>
+		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode, bool createRemoteDir, FtpVerifyOptions verifyOptions, FtpErrorHandling errorHandling, CancellationToken token) {
             if (!errorHandling.ValidFtpErrorHandlingCombination())
                 throw new ArgumentException("Invalid combination of FtpErrorHandling flags.  Throw & Stop cannot be combined");
 
@@ -2314,7 +2332,7 @@ namespace FluentFTP {
 
 				// try to upload it
 			    try {
-					bool ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true, token);
+					bool ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true, verifyOptions, token);
 			        if (ok) {
 			            successfulUploads.Add(remotePath);
 			        }
@@ -2379,10 +2397,18 @@ namespace FluentFTP {
         /// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
         /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
+        /// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
         /// <param name="errorHandling">Used to determine how errors are handled</param>
         /// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
-		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true, FtpErrorHandling errorHandling = FtpErrorHandling.None) {
-            return await UploadFilesAsync(localPaths, remoteDir, existsMode, createRemoteDir, errorHandling, CancellationToken.None);
+        /// <remarks>
+        /// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
+        /// If <see cref="FtpVerifyOptions.Throw"/> is set and <see cref="FtpErrorHandling.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+        /// to propagate from this method.
+        /// </remarks>
+		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true, FtpVerifyOptions verifyOptions = FtpVerifyOptions.None, FtpErrorHandling errorHandling = FtpErrorHandling.None) {
+            return await UploadFilesAsync(localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling, CancellationToken.None);
 	    }
 #endif
 
@@ -2582,10 +2608,18 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to  <see cref="FtpExists.NoCheck"/> for fastest performance 
+        /// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public bool UploadFile(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
+		/// </remarks>
+		public bool UploadFile(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, 
+            FtpVerifyOptions verifyOptions = FtpVerifyOptions.None) {
 
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
@@ -2593,7 +2627,7 @@ namespace FluentFTP {
 				return false;
 			}
 
-			return UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false);
+			return UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions);
 		}
 
 #if (CORE || NETFX45)
@@ -2605,18 +2639,26 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="localPath">The full or relative path to the file on the local file system</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to  <see cref="FtpExists.NoCheck"/> for fastest performance
+        ///  but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+        /// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
         /// <param name="token">The token to monitor for cancellation requests.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
+        /// <remarks>
+        /// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
+        /// </remarks>
+		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode, bool createRemoteDir, 
+            FtpVerifyOptions verifyOptions, CancellationToken token) {
             // skip uploading if the local file does not exist
             if (!File.Exists(localPath)) {
                 FtpTrace.WriteLine(FtpTraceLevel.Error, "File does not exist.");
                 return false;
             }
 
-            return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, existsMode, false, false, token);
+            return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token);
         }
         
         /// <summary>
@@ -2626,15 +2668,22 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance 
+		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
-			return await UploadFileAsync(localPath, remotePath, existsMode, createRemoteDir, CancellationToken.None);
+        /// <remarks>
+        /// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
+        /// </remarks>
+		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, FtpVerifyOptions verifyOptions = FtpVerifyOptions.None) {
+			return await UploadFileAsync(localPath, remotePath, existsMode, createRemoteDir, verifyOptions, CancellationToken.None);
         }
 #endif
 
-		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown) {
+		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, FtpVerifyOptions verifyOptions) {
 			FileStream fileStream;
 			try {
 				// connect to the file
@@ -2645,14 +2694,44 @@ namespace FluentFTP {
 				throw new FtpException("Error while reading the file from the disk. See InnerException for more info.", ex1);
 			}
 
+            //If retries are allowed set the retry counter to the allowed count
+		    int attemptsLeft = verifyOptions.HasFlag(FtpVerifyOptions.Retry) ? m_attemptsAllowed : 1;
+            //Default validation to true (if verification isn't needed it'll allow a pass-through)
+		    bool verified = true;
+		    bool uploadSuccess;
 			// write the file onto the server
 			using (fileStream) {
-				return UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown);
+			    do {
+                    //Upload file
+                    uploadSuccess = UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown);
+			        attemptsLeft--;
+                    //If verification is needed update the validated flag
+			        if (uploadSuccess && verifyOptions != FtpVerifyOptions.None){
+			            verified = ValidateTransfer(localPath, remotePath);
+                        FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
+			            if (!verified && attemptsLeft > 0) {
+                            //Force overwrite if a retry is required
+			                existsMode = FtpExists.Overwrite;
+			            }
+			        }
+                //Loop if attempts are available and validation failed
+			    } while (!verified && attemptsLeft > 0);
 			}
+
+		    if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerifyOptions.Delete)) {
+		        this.DeleteFile(remotePath);
+		    }
+
+		    if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerifyOptions.Throw)) {
+		        throw new FtpException("Uploaded file checksum value does not match local file");
+		    }
+
+            return uploadSuccess && verified; 
 		}
 
 #if (CORE || NETFX45)
-	    private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, CancellationToken token) {
+	    private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, 
+            bool fileExists, bool fileExistsKnown, FtpVerifyOptions verifyOptions, CancellationToken token) {
 	        FileStream fileStream;
 	        try {
 	            //Connect to the file
@@ -2663,9 +2742,36 @@ namespace FluentFTP {
                 throw new FtpException("Error while reading the file from the disk. See InnerException for more info.", ex1);
 	        }
 
+	        //If retries are allowed set the retry counter to the allowed count
+	        int attemptsLeft = verifyOptions.HasFlag(FtpVerifyOptions.Retry) ? m_attemptsAllowed : 1;
+	        //Default validation to true (if verification isn't needed it'll allow a pass-through)
+	        bool verified = true;
+	        bool uploadSuccess;
 	        using (fileStream) {
-	            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, token);
+	            do {
+	                uploadSuccess = await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode,fileExists, fileExistsKnown, token);
+	                attemptsLeft--;
+
+	                if (verifyOptions != FtpVerifyOptions.None) {
+	                    verified = await ValidateTransferAsync(localPath, remotePath);
+	                    FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
+	                    if (!verified && attemptsLeft > 0){
+	                        //Force overwrite if a retry is required
+	                        existsMode = FtpExists.Overwrite;
+	                    }
+	                }
+	            } while (!verified && attemptsLeft > 0);
 	        }
+
+	        if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerifyOptions.Delete)) {
+	            await this.DeleteFileAsync(remotePath);
+	        }
+
+	        if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerifyOptions.Throw)) {
+	            throw new FtpException("Uploaded file checksum value does not match local file");
+	        }
+
+            return uploadSuccess && verified;
 	    }
 #endif
 		
@@ -2676,7 +2782,8 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="fileStream">The full data of the file, as a stream</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance
+        /// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		public bool Upload(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 
@@ -2690,7 +2797,8 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="fileData">The full data of the file, as a byte array</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance 
+        /// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		public bool Upload(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 
@@ -2711,7 +2819,8 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="fileStream">The full data of the file, as a stream</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance,
+        ///  but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
          /// <param name="token">The token to monitor for cancellation requests.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
@@ -2727,7 +2836,8 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="fileData">The full data of the file, as a byte array</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance,
+        ///  but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
         /// <param name="token">The token to monitor for cancellation requests.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
@@ -2747,7 +2857,8 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="fileStream">The full data of the file, as a stream</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance,
+        ///  but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
 		public async Task<bool> UploadAsync(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
@@ -2761,7 +2872,8 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="fileData">The full data of the file, as a byte array</param>
         /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
+        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance,
+        ///  but only if you are SURE that the files do not exist on the server.</param>
         /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
 		public async Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
@@ -6262,6 +6374,39 @@ namespace FluentFTP {
 		private bool IsProxy() {
 			return (this is FtpClientProxy);
 		}
+
+	    private bool ValidateTransfer(string localPath, string remotePath) {
+	        if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
+	            this.HasFeature(FtpCapability.XMD5)|| this.HasFeature(FtpCapability.XCRC) || 
+                this.HasFeature(FtpCapability.XSHA1) || this.HasFeature(FtpCapability.XSHA256) ||
+	            this.HasFeature(FtpCapability.XSHA512)) {
+	            FtpHash hash = this.GetChecksum(remotePath);
+                if (!hash.IsValid)
+                    return false;
+
+	            return hash.Verify(localPath);
+	        }
+
+            //Not supported return true to ignore validation
+            return true;
+	    }
+
+	    private async Task<bool> ValidateTransferAsync(string localPath, string remotePath) {
+	        if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
+	            this.HasFeature(FtpCapability.XMD5) || this.HasFeature(FtpCapability.XCRC) ||
+	            this.HasFeature(FtpCapability.XSHA1) || this.HasFeature(FtpCapability.XSHA256) ||
+	            this.HasFeature(FtpCapability.XSHA512))
+	        {
+	            FtpHash hash = await this.GetChecksumAsync(remotePath);
+	            if (!hash.IsValid)
+	                return false;
+
+	            return hash.Verify(localPath);
+	        }
+
+	        //Not supported return true to ignore validation
+	        return true;
+	    }
 
 #endregion
 

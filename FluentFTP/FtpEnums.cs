@@ -536,4 +536,39 @@ namespace FluentFTP {
         Throw = 4,
         
     }
+
+    /// <summary>
+    /// Defines if additional verification and actions upon failure that 
+    /// should be performed when uploading/downloading files using the high-level APIs.  Ignored if the 
+    /// FTP server does not support any hashing algorithms.
+    /// </summary>
+    [Flags]
+    public enum FtpVerifyOptions {
+        /// <summary>
+        /// No verification of the file is performed
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// A checksum / hash calculation is performed.  Without being combined with other flags no action is taken
+        /// at time of failure, however the calling method will return false since there was at least one failure.  If no 
+        /// hash algorithms are available this is ignored.
+        /// </summary>
+        Checksum = 1,
+        /// <summary>
+        /// If a checksum/hash comparison fails then the calling method will attempt to retry the download/upload a specified
+        /// amount of times.
+        /// </summary>
+        Retry = 2,
+        /// <summary>
+        /// If a checksum/hash comparison fails the failed file will be deleted.  If combined with <see cref="FtpVerifyOptions.Retry"/>, then
+        /// the deletion will occur if it fails upon the final retry.
+        /// </summary>
+        Delete = 4,
+        /// <summary>
+        /// If a checksum/hash comparison fails then an exception will be thrown.  If combined with <see cref="FtpVerifyOptions.Retry"/>, then
+        /// the throw will occur upon the failure of the final retry, and/or if combined with <see cref="FtpVerifyOptions.Delete"/> the method
+        /// will throw after the deletion is processed.
+        /// </summary>
+        Throw = 8
+    }
 }
