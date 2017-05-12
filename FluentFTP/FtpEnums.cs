@@ -491,18 +491,18 @@ namespace FluentFTP {
         /// <summary>
         /// Used for logging Debug or Verbose level messages
         /// </summary>
-        DEBUG,
+        Debug,
         /// <summary>
         /// Used for logging Informational messages
         /// </summary>
-        INFO,
+        Info,
         /// <summary>
         /// Used for logging non-fatal or ignorable error messages
         /// </summary>
-        WARN,
+        Warn,
         /// <summary>
         /// Used for logging Error messages that may need investigation 
         /// </summary>
-        ERROR
+        Error
     }
 }

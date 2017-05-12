@@ -64,7 +64,7 @@ namespace FluentFTP {
 		/// <param name="message">The message to write</param>
 		[Obsolete("Use overloads with FtpTraceLevel")]
 		public static void Write(string message) {
-		    Write(FtpTraceLevel.DEBUG, message);
+		    Write(FtpTraceLevel.Debug, message);
 		}
 
 		/// <summary>
@@ -125,13 +125,13 @@ namespace FluentFTP {
 
 	    private static TraceEventType TraceLevelTranslation(FtpTraceLevel level) {
 	        switch(level) {
-	            case FtpTraceLevel.DEBUG:
+	            case FtpTraceLevel.Debug:
 	                return TraceEventType.Verbose;
-                case FtpTraceLevel.INFO:
+                case FtpTraceLevel.Info:
                     return TraceEventType.Information;
-                case FtpTraceLevel.WARN:
+                case FtpTraceLevel.Warn:
                     return TraceEventType.Warning;
-                case FtpTraceLevel.ERROR:
+                case FtpTraceLevel.Error:
                     return TraceEventType.Error;
                 default:
                     return TraceEventType.Verbose;
