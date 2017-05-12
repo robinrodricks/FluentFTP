@@ -443,7 +443,7 @@ namespace FluentFTP {
 		/// </summary>
 		UseLS = 64 | ForceList,
 		/// <summary>
-		/// Adds the -r option to the list command. Some servers may not
+		/// Adds the -r option to the LIST command. Some servers may not
 		/// support this feature.
 		/// </summary>
 		Recursive = 128,

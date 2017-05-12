@@ -12,7 +12,7 @@ namespace Examples {
                 // Remove the directory and all objects beneath it. The last parameter
                 // forces FluentFTP to use LIST -a for getting a list of objects
                 // beneath the specified directory.
-                conn.DeleteDirectory("/path/to/directory", true, 
+                conn.DeleteDirectory("/path/to/directory", 
                     FtpListOption.AllFiles | FtpListOption.ForceList);
             }
         }
