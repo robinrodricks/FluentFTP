@@ -844,21 +844,21 @@ namespace FluentFTP {
 				if (IsDisposed)
 					return;
 
-				FtpTrace.WriteLine("Disposing FtpClient object...");
+                FtpTrace.WriteLine(FtpTraceLevel.DEBUG, "Disposing FtpClient object...");
 
 				try {
 					if (IsConnected) {
 						Disconnect();
 					}
 				} catch (Exception ex) {
-					FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disconnecting from host: " + ex.ToString());
+                    FtpTrace.WriteLine(FtpTraceLevel.WARN, "FtpClient.Dispose(): Caught and discarded an exception while disconnecting from host: " + ex.ToString());
 				}
 
 				if (m_stream != null) {
 					try {
 						m_stream.Dispose();
 					} catch (Exception ex) {
-						FtpTrace.WriteLine("FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: " + ex.ToString());
+                        FtpTrace.WriteLine(FtpTraceLevel.WARN, "FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: " + ex.ToString());
 					} finally {
 						m_stream = null;
 					}
@@ -904,7 +904,7 @@ namespace FluentFTP {
 				while ((buf = m_stream.ReadLine(Encoding)) != null) {
 					Match m;
 
-					FtpTrace.WriteLine(buf);
+                    FtpTrace.WriteLine(FtpTraceLevel.DEBUG, buf);
 
 					if ((m = Regex.Match(buf, "^(?<code>[0-9]{3}) (?<message>.*)$")).Success) {
 						reply.Code = m.Groups["code"].Value;
@@ -935,12 +935,12 @@ namespace FluentFTP {
 						// means we've been disconnected. Read and discard
 						// whatever is there and close the connection.
 
-						FtpTrace.WriteLine("There is stale data on the socket, maybe our connection timed out. Re-connecting.");
+                        FtpTrace.WriteLine(FtpTraceLevel.INFO, "There is stale data on the socket, maybe our connection timed out. Re-connecting.");
 						if (m_stream.IsConnected && !m_stream.IsEncrypted) {
 							byte[] buf = new byte[m_stream.SocketDataAvailable];
 							m_stream.RawSocketRead(buf);
-							FtpTrace.Write("The data was: ");
-							FtpTrace.WriteLine(Encoding.GetString(buf).TrimEnd('\r', '\n'));
+                            FtpTrace.Write(FtpTraceLevel.DEBUG, "The data was: ");
+                            FtpTrace.WriteLine(FtpTraceLevel.DEBUG, Encoding.GetString(buf).TrimEnd('\r', '\n'));
 						}
 
 						m_stream.Close();
@@ -949,7 +949,7 @@ namespace FluentFTP {
 
 				if (!IsConnected) {
 					if (command == "QUIT") {
-						FtpTrace.WriteLine("Not sending QUIT because the connection has already been closed.");
+                        FtpTrace.WriteLine(FtpTraceLevel.INFO, "Not sending QUIT because the connection has already been closed.");
 						return new FtpReply() {
 							Code = "200",
 							Message = "Connection already closed."
@@ -959,7 +959,7 @@ namespace FluentFTP {
 					Connect();
 				}
 
-				FtpTrace.WriteLine(command.StartsWith("PASS") ? "PASS <omitted>" : command);
+                FtpTrace.WriteLine(FtpTraceLevel.INFO, command.StartsWith("PASS") ? "PASS <omitted>" : command);
 				m_stream.WriteLine(m_textEncoding, command);
 				reply = GetReply();
 			}
@@ -1098,7 +1098,7 @@ namespace FluentFTP {
 					m_textEncoding = Encoding.UTF8;
 				}
 
-				FtpTrace.WriteLine("Text encoding: " + m_textEncoding.ToString());
+                FtpTrace.WriteLine(FtpTraceLevel.INFO, "Text encoding: " + m_textEncoding.ToString());
 
 				if (m_textEncoding == Encoding.UTF8) {
 					// If the server supports UTF8 it should already be enabled and this
@@ -1293,7 +1293,7 @@ namespace FluentFTP {
 		/// attached to this object for validating SSL certificates
 		/// </summary>
 		/// <param name="stream">The stream that fired the event</param>
-		/// <param name="e">The event args used to validate the certficate</param>
+		/// <param name="e">The event args used to validate the certificate</param>
 		void FireValidateCertficate(FtpSocketStream stream, FtpSslValidationEventArgs e) {
 			OnValidateCertficate(e);
 		}
@@ -1309,13 +1309,13 @@ namespace FluentFTP {
 							Execute("QUIT");
 						}
 					} catch (SocketException sockex) {
-						FtpTrace.WriteLine("FtpClient.Disconnect(): SocketException caught and discarded while closing control connection: "+ sockex.ToString());
+                        FtpTrace.WriteLine(FtpTraceLevel.WARN, "FtpClient.Disconnect(): SocketException caught and discarded while closing control connection: " + sockex.ToString());
 					} catch (IOException ioex) {
-						FtpTrace.WriteLine("FtpClient.Disconnect(): IOException caught and discarded while closing control connection: "+ ioex.ToString());
+                        FtpTrace.WriteLine(FtpTraceLevel.WARN, "FtpClient.Disconnect(): IOException caught and discarded while closing control connection: " + ioex.ToString());
 					} catch (FtpCommandException cmdex) {
-						FtpTrace.WriteLine("FtpClient.Disconnect(): FtpCommandException caught and discarded while closing control connection: "+ cmdex.ToString());
+                        FtpTrace.WriteLine(FtpTraceLevel.WARN, "FtpClient.Disconnect(): FtpCommandException caught and discarded while closing control connection: " + cmdex.ToString());
 					} catch (FtpException ftpex) {
-						FtpTrace.WriteLine("FtpClient.Disconnect(): FtpException caught and discarded while closing control connection: "+ ftpex.ToString());
+                        FtpTrace.WriteLine(FtpTraceLevel.WARN, "FtpClient.Disconnect(): FtpException caught and discarded while closing control connection: " + ftpex.ToString());
 					} finally {
 						m_stream.Close();
 					}
@@ -1627,12 +1627,12 @@ namespace FluentFTP {
 					switch (type) {
 						case FtpDataConnectionType.PORT:
 							type = FtpDataConnectionType.EPRT;
-							FtpTrace.WriteLine("Changed data connection type to EPRT because we are connected with IPv6.");
+                            FtpTrace.WriteLine(FtpTraceLevel.INFO, "Changed data connection type to EPRT because we are connected with IPv6.");
 							break;
 						case FtpDataConnectionType.PASV:
 						case FtpDataConnectionType.PASVEX:
 							type = FtpDataConnectionType.EPSV;
-							FtpTrace.WriteLine("Changed data connection type to EPSV because we are connected with IPv6.");
+                            FtpTrace.WriteLine(FtpTraceLevel.INFO, "Changed data connection type to EPSV because we are connected with IPv6.");
 							break;
 					}
 				}
@@ -2192,6 +2192,7 @@ namespace FluentFTP {
 						count++;
 					}
 				} catch (Exception ex) {
+				    FtpTrace.WriteLine(FtpTraceLevel.ERROR, "Upload Failure for {0}: {1}", localPath, ex);
 				}
 
 			}
@@ -2271,9 +2272,11 @@ namespace FluentFTP {
                 catch (Exception ex) {
                     if (ex is OperationCanceledException) {
                         //DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
+                        FtpTrace.WriteLine(FtpTraceLevel.INFO, "Upload cancellation requested");
                         throw;
                     }
                     //suppress all other upload exceptions (errors are still written to FtpTrace)
+                    FtpTrace.WriteLine(FtpTraceLevel.ERROR, "Upload Failure for {0}: {1}", localPath, ex);
 				}
 			}
 
@@ -2326,6 +2329,7 @@ namespace FluentFTP {
 						count++;
 					}
 				} catch (Exception ex) {
+				    FtpTrace.WriteLine(FtpTraceLevel.ERROR, "Failed to download {0}. Error: {1}", remotePath, ex);
 				}
 
 			}
@@ -2382,10 +2386,12 @@ namespace FluentFTP {
                 }
                 catch (Exception ex) {
                     if (ex is OperationCanceledException) {
+                        FtpTrace.WriteLine(FtpTraceLevel.INFO, "Download cancellation requested");
                         //DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
                         throw;
                     }
-                    //suppress all other upload exceptions (errors are still written to FtpTrace)
+                    
+                    FtpTrace.WriteLine(FtpTraceLevel.ERROR, "Failed to download {0}. Error: {1}", remotePath, ex);
                 }
             }
 
@@ -2425,6 +2431,7 @@ namespace FluentFTP {
 
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
+			    FtpTrace.WriteLine(FtpTraceLevel.ERROR, "File does not exist.");
 				return false;
 			}
 
@@ -2447,6 +2454,7 @@ namespace FluentFTP {
 		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
             // skip uploading if the local file does not exist
             if (!File.Exists(localPath)) {
+                FtpTrace.WriteLine(FtpTraceLevel.ERROR, "File does not exist.");
                 return false;
             }
 
@@ -2620,6 +2628,7 @@ namespace FluentFTP {
 
 			// skip downloading if the local file exists
 			if (!overwrite && File.Exists(localPath)) {
+			    FtpTrace.WriteLine(FtpTraceLevel.ERROR, "Overwrite is false and local file already exists.");
 				return false;
 			}
 
@@ -2681,6 +2690,7 @@ namespace FluentFTP {
 
             // skip downloading if the local file exists
             if (!overwrite && File.Exists(localPath)) {
+                FtpTrace.WriteLine(FtpTraceLevel.ERROR, "Overwrite is false and local file already exists");
                 return false;
             }
 
@@ -3129,6 +3139,7 @@ namespace FluentFTP {
 
 				// absorb "file does not exist" exceptions and simply return false
 				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
+				    FtpTrace.WriteLine(FtpTraceLevel.ERROR, "File does not exist: {0}", ex1);
 					return false;
 				}
 
@@ -3224,6 +3235,7 @@ namespace FluentFTP {
 
 				// absorb "file does not exist" exceptions and simply return false
 				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
+				    FtpTrace.WriteLine(FtpTraceLevel.ERROR, "File does not exist: {0}", ex1);
 					return false;
 				}
 
@@ -3795,12 +3807,12 @@ namespace FluentFTP {
 				path = path.GetFtpPath().TrimEnd('/');
 
 				if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
-					FtpTrace.WriteLine("CreateDirectory(\"" +path+ "\", " +force+ "): Create non-existent parent: " +path.GetFtpDirectoryName());
+                    FtpTrace.WriteLine(FtpTraceLevel.DEBUG, "CreateDirectory(\"{0}\", {1}): Create non-existent parent: {2}", path, force, path.GetFtpDirectoryName());
 					CreateDirectory(path.GetFtpDirectoryName(), true);
 				} else if (DirectoryExists(path))
 					return;
 
-				FtpTrace.WriteLine("CreateDirectory(\"" + ftppath + "\", " + force + ")");
+                FtpTrace.WriteLine(FtpTraceLevel.DEBUG, "CreateDirectory(\"{0}\", {1})", ftppath, force);
 				
 				if (!(reply = Execute("MKD " + ftppath)).Success)
 					throw new FtpCommandException(reply);
@@ -4223,7 +4235,7 @@ namespace FluentFTP {
 						result = m_listParser.ParseSingleLine(null, info, m_caps, true);
 					}
 				} else {
-					FtpTrace.WriteLine("Failed to get object info for path " + path + " with error "+ reply.ErrorMessage);
+					FtpTrace.WriteLine(FtpTraceLevel.WARN, "Failed to get object info for path {0} with error {1}", path, reply.ErrorMessage);
 				}
 			} else {
 
@@ -4239,7 +4251,7 @@ namespace FluentFTP {
 					}
 				}
 
-				FtpTrace.WriteLine("Failed to get object info for path " + path + " since MLST not supported and GetListing() fails to list file/folder.");
+				FtpTrace.WriteLine(FtpTraceLevel.WARN, "Failed to get object info for path {0} since MLST not supported and GetListing() fails to list file/folder.", path);
 			}
 
 			// Get the accurate date modified using another MDTM command
@@ -4426,7 +4438,7 @@ namespace FluentFTP {
 						while ((buf = stream.ReadLine(Encoding)) != null) {
 							if (buf.Length > 0) {
 								rawlisting.Add(buf);
-								FtpTrace.WriteLine(buf);
+                                FtpTrace.WriteLine(FtpTraceLevel.DEBUG, buf);
 							}
 						}
 					} finally {
@@ -4477,10 +4489,10 @@ namespace FluentFTP {
 						if (isIncludeSelf || !(item.Name == "." || item.Name == "..")) {
 							lst.Add(item);
 						} else {
-							FtpTrace.WriteLine("Skipped self or parent item: " + item.Name);
+                            FtpTrace.WriteLine(FtpTraceLevel.DEBUG, "Skipped self or parent item: " + item.Name);
 						}
 					} else {
-						FtpTrace.WriteLine("Failed to parse file listing: " + buf);
+                        FtpTrace.WriteLine(FtpTraceLevel.WARN, "Failed to parse file listing: " + buf);
 					}
 				}
 
@@ -4504,7 +4516,7 @@ namespace FluentFTP {
 							DateTime modify;
 
 							if (item.Type == FtpFileSystemObjectType.Directory)
-								FtpTrace.WriteLine("Trying to retrieve modification time of a directory, some servers don't like this...");
+                                FtpTrace.WriteLine(FtpTraceLevel.DEBUG, "Trying to retrieve modification time of a directory, some servers don't like this...");
 
 							if ((modify = GetModifiedTime(item.FullName)) != DateTime.MinValue)
 								item.Modified = modify;
@@ -5031,7 +5043,7 @@ namespace FluentFTP {
 
 				hash.Value = m.Groups["hash"].Value;
 			} else {
-				FtpTrace.WriteLine("Failed to parse hash from: " + reply.Message);
+                FtpTrace.WriteLine(FtpTraceLevel.WARN, "Failed to parse hash from: " + reply.Message);
 			}
 
 			return hash;
@@ -5883,7 +5895,7 @@ namespace FluentFTP {
 				return m.Groups["pwd"].Value;
 			}
 
-			FtpTrace.WriteLine("Failed to parse working directory from: " + reply.Message);
+			FtpTrace.WriteLine(FtpTraceLevel.WARN, "Failed to parse working directory from: " + reply.Message);
 
 			return "./";
 		}
@@ -6146,8 +6158,8 @@ namespace FluentFTP {
 				if (m_stream.IsConnected && !m_stream.IsEncrypted) {
 					byte[] buf = new byte[m_stream.SocketDataAvailable];
 					m_stream.RawSocketRead(buf);
-					FtpTrace.Write("The data was: ");
-					FtpTrace.WriteLine(Encoding.GetString(buf).TrimEnd('\r', '\n'));
+                    FtpTrace.Write(FtpTraceLevel.DEBUG, "The data was: ");
+                    FtpTrace.WriteLine(FtpTraceLevel.DEBUG, Encoding.GetString(buf).TrimEnd('\r', '\n'));
 				}
 			}
 		}

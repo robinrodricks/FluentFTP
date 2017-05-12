@@ -64,7 +64,7 @@ namespace FluentFTP.Proxy {
 				while( ( buf = stream.ReadLine( Encoding ) ) != null ) {
 					Match m;
 					
-					FtpTrace.WriteLine( buf );
+					FtpTrace.WriteLine(FtpTraceLevel.INFO, buf);
 					
 					if( ( m = Regex.Match( buf, @"^HTTP/.*\s(?<code>[0-9]{3}) (?<message>.*)$" ) ).Success ) {
 						reply.Code = m.Groups[ "code" ].Value;
@@ -77,10 +77,10 @@ namespace FluentFTP.Proxy {
 				
 				// fixes #84 (missing bytes when downloading/uploading files thru proxy)
 				while( ( buf = stream.ReadLine( Encoding ) ) != null ) {
-					
-					FtpTrace.WriteLine( buf );
 
-					if (IsNullOrWhiteSpace(buf)) {
+                    FtpTrace.WriteLine(FtpTraceLevel.INFO, buf);
+
+					if (string.IsNullOrWhiteSpace(buf)) {
 						break;
 					}
 					
@@ -91,11 +91,5 @@ namespace FluentFTP.Proxy {
 
 			return reply;
 		}
-
-		private static bool IsNullOrWhiteSpace(string value) {
-			if (value == null) return true;
-			return string.IsNullOrEmpty(value.Trim());
-		}
-
 	}
 }
