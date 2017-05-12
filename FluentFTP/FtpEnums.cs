@@ -86,7 +86,7 @@ namespace FluentFTP {
 		PRET = 32,
 		/// <summary>
 		/// Server supports the MFMT command for setting the
-		/// modifid date of an object on the server
+		/// modified date of an object on the server
 		/// </summary>
 		MFMT = 64,
 		/// <summary>
@@ -96,7 +96,7 @@ namespace FluentFTP {
 		MFCT = 128,
 		/// <summary>
 		/// Server supports the MFF command for setting certain facts
-		/// about file sytem objects. If you need this command, it would
+		/// about file system objects. If you need this command, it would
 		/// probably be handy to query FEAT your self and have a look at
 		/// the FtpReply.InfoMessages property to see which facts the server
 		/// allows you to modify.
@@ -201,7 +201,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Passive data connection. EPSV is a better
 		/// option if it's supported. Passive connections
-		/// connect to the IP address dicated by the server
+		/// connect to the IP address dictated by the server
 		/// which may or may not be accessible by the client
 		/// for example a server behind a NAT device may
 		/// give an IP address on its local network that
@@ -213,7 +213,7 @@ namespace FluentFTP {
 		PASV,
 		/// <summary>
 		/// Same as PASV except the host supplied by the server is ignored
-		/// and the data conncetion is made to the same address that the control
+		/// and the data connection is made to the same address that the control
 		/// connection is connected to. This is useful in scenarios where the
 		/// server supplies a private/non-routable network address in the
 		/// PASV response. It's functionally identical to EPSV except some
@@ -261,7 +261,7 @@ namespace FluentFTP {
 		/// which requires firewall exceptions on the client
 		/// as well as client network when connecting to a 
 		/// server outside of the client's network. The server
-		/// connects to the IP address it sees the client comming
+		/// connects to the IP address it sees the client coming
 		/// from. This type of data connection supports IPv4 and IPv6.
 		/// </summary>
 		EPRT
@@ -313,7 +313,7 @@ namespace FluentFTP {
 		/// </summary>
 		Execute = 1,
 		/// <summary>
-		/// Writeable
+		/// Writable
 		/// </summary>
 		Write = 2,
 		/// <summary>
@@ -388,7 +388,7 @@ namespace FluentFTP {
 	}
 
 	/// <summary>
-	/// Flags that can dicate how a file listing is performed
+	/// Flags that can dictate how a file listing is performed
 	/// </summary>
 	[Flags]
 	public enum FtpListOption {

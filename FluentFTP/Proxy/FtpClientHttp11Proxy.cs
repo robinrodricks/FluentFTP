@@ -20,14 +20,28 @@ namespace FluentFTP.Proxy {
 										proxyConnectionReply.ErrorMessage);
 		}
 
+	    /// <summary>
+	    /// Creates a new instance of this class. Useful in FTP proxy classes.
+	    /// </summary>
 		protected override FtpClient Create() {
 			return new FtpClientHttp11Proxy(Proxy);
 		}
 
+        /// <summary>
+        /// Connects to the server using an existing <see cref="FtpSocketStream"/>
+        /// </summary>
+        /// <param name="stream">The existing socket stream</param>
 		protected override void Connect(FtpSocketStream stream) {
 			Connect(stream, Host, Port, FtpIpVersion.ANY);
 		}
 
+        /// <summary>
+        /// Connects to the server using an existing <see cref="FtpSocketStream"/>
+        /// </summary>
+        /// <param name="stream">The existing socket stream</param>
+        /// <param name="host">Host name</param>
+        /// <param name="port">Port number</param>
+        /// <param name="ipVersions">IP version to use</param>
 		protected override void Connect(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions) {
 			base.Connect(stream);
 
@@ -75,7 +89,7 @@ namespace FluentFTP.Proxy {
 					reply.InfoMessages += ( buf+"\n" );
 				}
 				
-				// fixes #84 (missing bytes when downloading/uploading files thru proxy)
+				// fixes #84 (missing bytes when downloading/uploading files through proxy)
 				while( ( buf = stream.ReadLine( Encoding ) ) != null ) {
 
                     FtpTrace.WriteLine(FtpTraceLevel.INFO, buf);

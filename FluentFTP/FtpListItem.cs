@@ -89,7 +89,7 @@ namespace FluentFTP {
 
 		int m_linkCount = 0;
 		/// <summary>
-		/// Gets the number of links pointing to the file. Only supplied by Unix servers.
+		/// Gets the number of links pointing to this file. Only supplied by Unix servers.
 		/// </summary>
 		public int LinkCount {
 			get {
@@ -102,8 +102,8 @@ namespace FluentFTP {
 
 		FtpListItem m_linkObject = null;
 		/// <summary>
-		/// Gets the object the LinkTarget points to. This property is null unless pass the
-		/// FtpListOption.DerefLink flag in which case GetListing() will try to resolve
+		/// Gets the object that the LinkTarget points to. This property is null unless you pass the
+        /// <see cref="FtpListOption.DerefLinks"/> flag in which case GetListing() will try to resolve
 		/// the target itself.
 		/// </summary>
 		public FtpListItem LinkObject {
@@ -143,7 +143,7 @@ namespace FluentFTP {
 
 		long m_size = -1;
 		/// <summary>
-		/// Gets the size of the object. This property can be
+		/// Gets the size of the object.
 		/// </summary>
 		public long Size {
 			get {
@@ -156,7 +156,7 @@ namespace FluentFTP {
 
 		FtpSpecialPermissions m_specialPermissions = FtpSpecialPermissions.None;
 		/// <summary>
-		/// Gets special UNIX permissions such as Stiky, SUID and SGID.
+		/// Gets special UNIX permissions such as Sticky, SUID and SGID.
 		/// </summary>
 		public FtpSpecialPermissions SpecialPermissions {
 			get {
@@ -208,7 +208,7 @@ namespace FluentFTP {
 
 		string m_rawPermissions = null;
 		/// <summary>
-		/// Gets the raw string recieved for the file permissions.
+		/// Gets the raw string received for the file permissions.
 		/// Use this if the other properties are blank/invalid.
 		/// </summary>
 		public string RawPermissions {
@@ -234,12 +234,12 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Gets the raw string recieved for the file's GROUP permissions.
+		/// Gets the raw string received for the file's GROUP permissions.
 		/// Use this if the other properties are blank/invalid.
 		/// </summary>
 		public string RawGroup = null;
 		/// <summary>
-		/// Gets the raw string recieved for the file's OWNER permissions.
+		/// Gets the raw string received for the file's OWNER permissions.
 		/// Use this if the other properties are blank/invalid.
 		/// </summary>
 		public string RawOwner = null;
@@ -262,7 +262,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Returns a string representation of this object and its properties
 		/// </summary>
-		/// <returns>A string value</returns>
+		/// <returns>A string representing this object</returns>
 		public override string ToString() {
 			StringBuilder sb = new StringBuilder();
 			if (Type == FtpFileSystemObjectType.File) {
@@ -280,12 +280,12 @@ namespace FluentFTP {
 				sb.Append(Size.FileSizeToString());
 				sb.Append(")");
 			}
-			if (Created != null && Created != DateTime.MinValue) {
+			if (Created != DateTime.MinValue) {
 				sb.Append("      ");
 				sb.Append("Created : ");
 				sb.Append(Created.ToString());
 			}
-			if (Modified != null && Modified != DateTime.MinValue) {
+			if (Modified != DateTime.MinValue) {
 				sb.Append("      ");
 				sb.Append("Modified : ");
 				sb.Append(Modified.ToString());

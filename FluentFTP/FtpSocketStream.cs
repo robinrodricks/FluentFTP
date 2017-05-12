@@ -846,7 +846,7 @@ namespace FluentFTP {
 				// to be done and the exception can be re-thrown for
 				// handling down the chain. (Add logging?)
 				Close();
-				throw ex;
+				throw;
 			}
 		}
 #endif

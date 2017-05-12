@@ -8,6 +8,9 @@ namespace FluentFTP.Proxy {
 			ConnectionType = "User@Host";
 		}
 
+	    /// <summary>
+	    /// Creates a new instance of this class. Useful in FTP proxy classes.
+	    /// </summary>
 		protected override FtpClient Create() {
 			return new FtpClientUserAtHostProxy(Proxy);
 		}
