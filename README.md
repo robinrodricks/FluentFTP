@@ -758,6 +758,11 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 17.3.0
+- Automatically verify checksum of a file after upload/download (thanks [jblacker](https://github.com/jblacker))
+- Ability to cancel async file transfers using `CancellationToken`s (thanks [jblacker](https://github.com/jblacker))
+- Configurable error handling (abort/throw/ignore) for file transfer (thanks [jblacker](https://github.com/jblacker))
+
 #### 17.2.0
 - Simplify DeleteDirectory() API - the `force` and `fastMode` args are no longer required
 - DeleteDirectory() is faster since it uses one recursive file listing instead of many
@@ -769,12 +774,29 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 - Support GetObjectInfo() even if machine listings are not supported by the server
 - Add `existsMode` to UploadFile() and UploadFiles() allowing for skip/overwrite and append
 - Remove all usages of string.Format to fix reliability issues caused with UTF filenames
-- Fix issue of broken files when uploading/downloading through a FTP proxy
+- Fix issue of broken files when uploading/downloading through a proxy (thanks [Zoltan666](https://github.com/Zoltan666))
 - GetReply() is now public so users of OpenRead/OpenAppend/OpenWrite can call it after
 - Split stream API into Upload()/UploadFile() and Download()/DownloadFile()
 
 #### 16.5.0
-- Add async/await support to all methods for .NET 4.5 and onwards (Thank you [jblacker](https://github.com/jblacker))
+- Add async/await support to all methods for .NET 4.5 and onwards (thanks [jblacker](https://github.com/jblacker))
+
+#### 16.4.0
+- Support for .NET Standard 1.4 added.
+
+#### 16.2.5
+- Add UploadFiles() and DownloadFiles() which is faster than single file transfers
+- Allow disabling UTF mode using DisableUTF8 API
+
+#### 16.2.4
+- First .NET Core release (DNXCore5.0) using Visual Studio 2017 project.
+- Support for .NET 2.0 also added with shims for LINQ commands needed.
+
+#### 16.2.1
+- Add FtpListOption.IncludeSelfAndParent to GetListing()
+
+#### 16.1.0
+- Use streams during upload/download of files to improve performance with large files
 
 ## Credits
 
