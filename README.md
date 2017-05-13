@@ -769,6 +769,9 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 - Remove .NET Standard 1.4 to improve nuget update reliability, since we need 1.6 anyway
 
 #### 17.1.0
+- Split stream API into Upload()/UploadFile() and Download()/DownloadFile()
+
+#### 17.0.0
 - Greatly improve performance of FileExists() and GetNameListing()
 - Add new OS-specific directory listing parsers to GetListing() and GetObjectInfo()
 - Support GetObjectInfo() even if machine listings are not supported by the server
@@ -776,7 +779,6 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 - Remove all usages of string.Format to fix reliability issues caused with UTF filenames
 - Fix issue of broken files when uploading/downloading through a proxy (thanks [Zoltan666](https://github.com/Zoltan666))
 - GetReply() is now public so users of OpenRead/OpenAppend/OpenWrite can call it after
-- Split stream API into Upload()/UploadFile() and Download()/DownloadFile()
 
 #### 16.5.0
 - Add async/await support to all methods for .NET 4.5 and onwards (thanks [jblacker](https://github.com/jblacker))
@@ -789,7 +791,7 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 - Allow disabling UTF mode using DisableUTF8 API
 
 #### 16.2.4
-- First .NET Core release (DNXCore5.0) using Visual Studio 2017 project.
+- First .NET Core release (DNXCore5.0) using Visual Studio 2017 project and shared codebase.
 - Support for .NET 2.0 also added with shims for LINQ commands needed.
 
 #### 16.2.1
