@@ -553,7 +553,7 @@ EnableThreadSafeDataConnections is an older feature built by the original author
 
 
 <a name="faq_fork"></a>
-**I want to contribute some changes to FluentFTP. How can I do that? / How do I submit a pull request?**
+**How can I contribute some changes to FluentFTP? / How do I submit a pull request?**
 
 First you must "fork" FluentFTP, then make changes on your local version, then submit a "pull request" to request me to merge your changes. To do this:
 
@@ -581,8 +581,6 @@ When you are using Client Certificates, be sure that:
 
 <a name="faq_x509"></a>
 **How do I bundle an X509 certificate from a file?**
-
-Firstly see this FAQ entry - https://github.com/hgupta9/FluentFTP#faq_certs
 
 You need the certificate added into your local store, and then do something like this:
 
