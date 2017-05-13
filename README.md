@@ -536,7 +536,7 @@ using (FtpClient conn = new FtpClient()) {
 
 
 <a name="faq_hashing"></a>
-**What kind of hashing commands are supporting?**
+**What kind of hashing commands are supported?**
 
 We support XCRC, XMD5, and XSHA which are non-standard commands and contain no kind of formal specification. They are not guaranteed to work and you are strongly encouraged to check the FtpClient.Capabilities flags for the respective flag (XCRC, XMD5, XSHA1, XSHA256, XSHA512) before calling these methods.
 
