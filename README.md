@@ -9,8 +9,8 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 
 ## Features
 
-- Full support for [FTP](#ftp-support), FTPS (FTP over SSL) and [FTPS with client certificates](#client-certificates)
-- File and directory listing for [all major server types](#file-listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, etc)
+- Full support for [FTP](#ftp-support), FTPS (FTP over SSL) and [FTPS with client certificates](#faq_certs)
+- File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, etc)
 - Easily upload and download a file from the server
 - Easily read and write file data from the server using standard streams
 - Create, append, read, write, rename and delete files and folders
@@ -151,7 +151,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 ### Directory Listing
 
-- **GetListing**() - Get a [file listing](#file-listings) of the given directory. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
+- **GetListing**() - Get a [file listing](#faq_listings) of the given directory. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
 
 	- `Type` : The type of the object. (File, Directory or Link)
 	
@@ -261,7 +261,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **SetHashAlgorithm**() - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
 
-*Non-standard commands supported by certain servers only. [Learn more](#hashing-commands)*
+*Non-standard commands supported by certain servers only. [Learn more](#faq_hashing)*
 
 - **GetChecksum**() - Retrieves a checksum of the given file using a checksumming method that the server supports, if any. The algorithm used goes in this order : HASH, MD5, XMD5, XSHA1, XSHA256, XSHA512, XCRC.
 
@@ -286,7 +286,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **SslProtocols** - Encryption protocols to use. **Default:** SslProtocols.Default.
 
-- **ClientCertificates** - X509 client certificates to be used in SSL authentication process. [Learn more.](#client-certificates)
+- **ClientCertificates** - X509 client certificates to be used in SSL authentication process. [Learn more.](#faq_certs)
 
 - **ValidateCertificate** - Event is fired to validate SSL certificates. If this event is not handled and there are errors validating the certificate the connection will be aborted.
 
@@ -423,6 +423,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 
 ## FAQ
 
+<a name="faq_ftps"></a>
 **How do I connect with SSL/TLS? / How do I use FTPS?**
 
 Use this code:
@@ -441,18 +442,37 @@ void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
 }
 ```
 
+<a name="faq_sftp"></a>
 **How do I connect with SFTP?**
 
 SFTP is not supported as it is FTP over SSH, a completely different protocol. Use [SSH.NET](https://github.com/sshnet/SSH.NET) for that.
 
+
+<a name="faq_loginanon"></a>
+**How do I login with an anonymous FTP account? / I'm getting login errors but I can login fine in Firefox/Filezilla**
+
+Do NOT set the `Credentials` property, so we can login anonymously. Or you can manually specify the following:
+```cs
+client.Credentials = new NetworkCredential("anonymous", "anonymous");
+```
+
+<a name="faq_loginproxy"></a>
+**How do I login with an FTP proxy?**
+
+Create a new instance of `FtpClientHttp11Proxy` or `FtpClientUserAtHostProxy` and use FTP properties/methods like normal.
+
+
+<a name="faq_uploadbytes"></a>
 **How can I upload data created on the fly?**
 
 Use Upload() for uploading a `Stream` or `byte[]`.
 
+<a name="faq_downloadbytes"></a>
 **How can I download data without saving it to disk?**
 
 Use Download() for downloading to a `Stream` or `byte[]`.
 
+<a name="faq_uploadmissing"></a>
 **How do I upload only the missing part of a file?**
 
 Using the new UploadFile() API:
@@ -462,6 +482,7 @@ Using the new UploadFile() API:
 client.UploadFile("C:\bigfile.iso", "/htdocs/bigfile.iso", FtpExists.Append);
 ```
 
+<a name="faq_append"></a>
 **How do I append to a file?**
 
 Using the new UploadFile() API:
@@ -493,20 +514,45 @@ using (FtpClient conn = new FtpClient()) {
 }
 ```
 
-**How do I login with an anonymous FTP account? / I'm getting login errors but I can login fine in Firefox/Filezilla**
 
-Do NOT set the `Credentials` property, so we can login anonymously. Or you can manually specify the following:
-```cs
-client.Credentials = new NetworkCredential("anonymous", "anonymous");
-```
-**How do I login with an FTP proxy?**
+<a name="faq_listings"></a>
+**How does GetListing() work internally?**
 
-Create a new instance of `FtpClientHttp11Proxy` or `FtpClientUserAtHostProxy` and use FTP properties/methods like normal.
+1. When you call `GetListing()`, FluentFTP first attempts to use **machine listings** (MLSD command) if they are supported by the server. These are most accurate and you can expect correct file size and modification date (UTC). You may also force this mode using `client.ListingParser = FtpParser.Machine`, and disable it with the `FtpListOption.ForceList` flag. You should also include the `FtpListOption.Modify` flag for the most accurate modification dates (down to the second). 
 
+2. If machine listings are not supported we fallback to the appropriate **OS-specific parser** (LIST command), listed below. You may force usage of a specific parser using `client.ListingParser = FtpParser.*`.
+
+   - **Unix** parser : Works for Pure-FTPd, ProFTPD, vsftpd, etc. If you encounter errors you can always try the alternate Unix parser using `client.ListingParser = FtpParser.UnixAlt`.
+   
+   - **Windows** parser : Works for IIS, DOS, Azure, FileZilla Server, etc.
+   
+   - **VMS** parser : Works for Vax, VMS, OpenVMS, etc.
+   
+   - **NonStop** parser : Works for Tandem, HP NonStop Guardian, etc.
+   
+   - **IBM** parser : Works for IBM OS/400, etc.
+
+3. And if none of these satisfy you, you can fallback to **name listings** (NLST command), which are *much* slower than either LIST or MLSD. This is because NLST only sends a list of filenames, without any properties. The server has to be queried for the file size, modification date, and type (file/folder) on a file-by-file basis. Name listings can be forced using the `FtpListOption.ForceNameList` flag.
+
+
+<a name="faq_hashing"></a>
+**What kind of hashing commands are supporting?**
+
+We support XCRC, XMD5, and XSHA which are non-standard commands and contain no kind of formal specification. They are not guaranteed to work and you are strongly encouraged to check the FtpClient.Capabilities flags for the respective flag (XCRC, XMD5, XSHA1, XSHA256, XSHA512) before calling these methods.
+
+Support for the MD5 command as described [here](http://tools.ietf.org/html/draft-twine-ftpmd5-00#section-3.1) has also been added. Again, check for FtpFeature.MD5 before executing the command.
+
+Support for the HASH command has been added to FluentFTP. It supports retrieving SHA-1, SHA-256, SHA-512, and MD5 hashes from servers that support this feature. The returned object, FtpHash, has a method to check the result against a given stream or local file. You can read more about HASH in [this draft](http://tools.ietf.org/html/draft-bryan-ftpext-hash-02).
+
+
+
+<a name="faq_etsdc"></a>
 **What does `EnableThreadSafeDataConnections` do?**
 
 EnableThreadSafeDataConnections is an older feature built by the original author. If true, it opens a new FTP client instance (and reconnects to the server) every time you try to upload/download a file. It used to be the default setting, but it affects performance terribly so I disabled it and found many issues were solved as well as performance was restored. I believe if devs want multi-threaded uploading they should just start a new BackgroundWorker and create/use FtpClient within that thread. Try that if you want concurrent uploading, it should work fine.
 
+
+<a name="faq_fork"></a>
 **I want to contribute some changes to FluentFTP. How can I do that? / How do I submit a pull request?**
 
 First you must "fork" FluentFTP, then make changes on your local version, then submit a "pull request" to request me to merge your changes. To do this:
@@ -522,9 +568,21 @@ First you must "fork" FluentFTP, then make changes on your local version, then s
 9. Type a Summary, and click **Commit** (bottom)
 10. Click **Sync** (top right)
 
+
+<a name="faq_certs"></a>
+**How do I use client certificates to login with FTPS?**
+
+When you are using Client Certificates, be sure that:
+
+1. You use `X509Certificate2` objects, not the incomplete `X509Certificate` implementation.
+
+2. You do not use pem certificates, use p12 instead. See this [Stack Overflow thread](http://stackoverflow.com/questions/13697230/ssl-stream-failed-to-authenticate-as-client-in-apns-sharp) for more information. If you get SPPI exceptions with an inner exception about an unexpected or badly formatted message, you are probably using the wrong type of certificate.
+
+
+<a name="faq_x509"></a>
 **How do I bundle an X509 certificate from a file?**
 
-Firstly see this FAQ entry - https://github.com/hgupta9/FluentFTP#client-certificates
+Firstly see this FAQ entry - https://github.com/hgupta9/FluentFTP#faq_certs
 
 You need the certificate added into your local store, and then do something like this:
 
@@ -575,6 +633,7 @@ private void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs 
 
 ## Troubleshooting
 
+<a name="trouble_install"></a>
 **FluentFTP fails to install in Visual Studio 2010 (VS2010) > 'System.Runtime' already has a dependency defined for 'FluentFTP'.**
 
 Your VS has an older version of `nuget.exe` so it cannot properly install the latest FluentFTP. You must download nuget.exe` manually and run these commands:
@@ -582,6 +641,7 @@ Your VS has an older version of `nuget.exe` so it cannot properly install the la
 > cd D:\Projects\MyProjectDir\
 > C:\Nuget\nuget.exe install FluentFTP
 
+<a name="trouble_specialchars"></a>
 **After uploading a file with special characters like "Caffè.png" it appears as "Caff?.bmp" on the FTP server. The server supports only ASCII but "è" is ASCII. FileZilla can upload this file without problems.**
 
 Set the connection encoding manually to ensure that special characters work properly
@@ -589,6 +649,7 @@ Set the connection encoding manually to ensure that special characters work prop
 client.Encoding = System.Text.Encoding.GetEncoding(1252); // ANSI codepage 1252
 ```
 
+<a name="trouble_azure"></a>
 **I keep getting TimeoutException's in my Azure WebApp**
 
 First try reducing the socket polling interval, which Azure needs.
@@ -607,29 +668,20 @@ client.DataConnectionReadTimeout = 2000;
 
 If none of these work, remember that Azure has in intermittent bug wherein it changes the IP-address during a FTP request. The connection is established with IP-address A and for the data transfer Azure uses IP-address B and this isn't allowed on many firewalls. This is a known Azure bug.
 
+<a name="trouble_getreply"></a>
 **After successfully transfering a single file with OpenWrite/OpenAppend, the subsequent files fail with some random error, like "Malformed PASV response"**
 
 You need to call `FtpReply status = GetReply()` after you finish transfering a file to ensure no stale data is left over, which can mess up subsequent commands.
 
+
+<a name="trouble_ssl"></a>
+***SSL Negotiation is very slow during FTPS login***
+FluentFTP uses `SslStream` under the hood which is part of the .NET framework. `SslStream` uses a feature of windows for updating root CA's on the fly, which can cause a long delay in the certificate authentication process. This can cause issues in FluentFTP related to the `SocketPollInterval` property used for checking for ungraceful disconnections between the client and server. This [MSDN Blog](http://blogs.msdn.com/b/alejacma/archive/2011/09/27/big-delay-when-calling-sslstream-authenticateasclient.aspx) covers the issue with `SslStream` and talks about how to disable the auto-updating of the root CA's.
+
+FluentFTP logs the time it takes to authenticate. If you think you are suffering from this problem then have a look at Examples\Debug.cs for information on retrieving debug information.
+
+
 ## Notes
-
-### File Listings
-
-1. When you call `GetListing()`, FluentFTP first attempts to use **machine listings** (MLSD command) if they are supported by the server. These are most accurate and you can expect correct file size and modification date (UTC). You may also force this mode using `client.ListingParser = FtpParser.Machine`, and disable it with the `FtpListOption.ForceList` flag. You should also include the `FtpListOption.Modify` flag for the most accurate modification dates (down to the second). 
-
-2. If machine listings are not supported we fallback to the appropriate **OS-specific parser** (LIST command), listed below. You may force usage of a specific parser using `client.ListingParser = FtpParser.*`.
-
-   - **Unix** parser : Works for Pure-FTPd, ProFTPD, vsftpd, etc. If you encounter errors you can always try the alternate Unix parser using `client.ListingParser = FtpParser.UnixAlt`.
-   
-   - **Windows** parser : Works for IIS, DOS, Azure, FileZilla Server, etc.
-   
-   - **VMS** parser : Works for Vax, VMS, OpenVMS, etc.
-   
-   - **NonStop** parser : Works for Tandem, HP NonStop Guardian, etc.
-   
-   - **IBM** parser : Works for IBM OS/400, etc.
-
-3. And if none of these satisfy you, you can fallback to **name listings** (NLST command), which are *much* slower than either LIST or MLSD. This is because NLST only sends a list of filenames, without any properties. The server has to be queried for the file size, modification date, and type (file/folder) on a file-by-file basis. Name listings can be forced using the `FtpListOption.ForceNameList` flag.
 
 ### Stream Handling
 
@@ -669,20 +721,6 @@ FluentFTP includes exception handling in key places where uncatchable exceptions
 
 The exception that propagates back to your code should be the root of the problem and any exception caught while disposing would be a side affect however while testing your project pay close attention to what's being logged via FtpTrace. See the Debugging example for more information about using `TraceListener` objects with FluentFTP.
 
-### Client Certificates
-
-When you are using Client Certificates, be sure that:
-
-1. You use X509Certificate2 objects, not the incomplete X509Certificate implementation.
-
-2. You do not use pem certificates, use p12 instead. See this [Stack Overflow thread](http://stackoverflow.com/questions/13697230/ssl-stream-failed-to-authenticate-as-client-in-apns-sharp) for more information. If you get SPPI exceptions with an inner exception about an unexpected or badly formatted message, you are probably using the wrong type of certificate.
-
-### Slow SSL Negotiation
-
-FluentFTP uses `SslStream` under the hood which is part of the .NET framework. `SslStream` uses a feature of windows for updating root CA's on the fly, at least that's the way I understand it. These updates can cause a long delay in the certificate authentication process which can cause issues in FluentFTP related to the SocketPollInterval property used for checking for ungraceful disconnections between the client and server. This [MSDN Blog](http://blogs.msdn.com/b/alejacma/archive/2011/09/27/big-delay-when-calling-sslstream-authenticateasclient.aspx) covers the issue with SslStream and talks about how to disable the auto-updating of the root CA's.
-
-The latest builds of FluentFTP log the time it takes to authenticate. If you think you are suffering from this problem then have a look at Examples\Debug.cs for information on retrieving debug information.
-
 ### Handling Ungraceful Interruptions in the Control Connection
 
 FluentFTP uses `Socket.Poll()` to test for connectivity after a user-definable period of time has passed since the last activity on the control connection. When the remote host closes the connection there is no way to know, without triggering an exception, other than using `Poll()` to make an educated guess. When the connectivity test fails the connection is automatically re-established. This process helps a great deal in gracefully reconnecting however it does not eliminate your responsibility for catching IOExceptions related to an ungraceful interruption in the connection. Usually, maybe always, when this occurs the InnerException will be a SocketException. How you want to handle the situation from there is up to you.
@@ -697,14 +735,6 @@ catch(IOException e) {
     }
 }
 ```````
-
-### Hashing Commands
-
-XCRC, XMD5, and XSHA are non standard commands and contain no kind of formal specification. They are not guaranteed to work and you are strongly encouraged to check the FtpClient.Capabilities flags for the respective flag (XCRC, XMD5, XSHA1, XSHA256, XSHA512) before calling these methods.
-
-Support for the MD5 command as described [here](http://tools.ietf.org/html/draft-twine-ftpmd5-00#section-3.1) has also been added. Again, check for FtpFeature.MD5 before executing the command.
-
-Support for the HASH command has been added to FluentFTP. It supports retrieving SHA-1, SHA-256, SHA-512, and MD5 hashes from servers that support this feature. The returned object, FtpHash, has a method to check the result against a given stream or local file. You can read more about HASH in [this draft](http://tools.ietf.org/html/draft-bryan-ftpext-hash-02).
 
 ### Pipelining
 
@@ -760,8 +790,8 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 #### 17.3.0
 - Automatically verify checksum of a file after upload/download (thanks [jblacker](https://github.com/jblacker))
-- Ability to cancel async file transfers using `CancellationToken`s (thanks [jblacker](https://github.com/jblacker))
-- Configurable error handling (abort/throw/ignore) for file transfer (thanks [jblacker](https://github.com/jblacker))
+- Ability to cancel async file transfers using `CancellationToken` (thanks [jblacker](https://github.com/jblacker))
+- Configurable error handling (abort/throw/ignore) for file transfers (thanks [jblacker](https://github.com/jblacker))
 
 #### 17.2.0
 - Simplify DeleteDirectory() API - the `force` and `fastMode` args are no longer required
