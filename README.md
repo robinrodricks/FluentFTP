@@ -800,6 +800,15 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 #### 16.1.0
 - Use streams during upload/download of files to improve performance with large files
 
+#### 16.0.18
+- Support for uploading/downloading to Streams and byte[] with UploadFile() and DownloadFile()
+
+#### 16.0.17
+- Added high-level UploadFile() and DownloadFile() API. Fixed some race conditions.
+
+#### 16.0.14
+- Added support for FTP proxies using HTTP 1.1 and User@Host modes. (thanks [L3Z4](https://github.com/L3Z4))
+
 ## Credits
 
 - [J.P. Trosclair](https://github.com/jptrosclair) - Original creator, owner upto 2016
