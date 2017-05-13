@@ -9,7 +9,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 
 ## Features
 
-- Full support for [FTP](#ftp-support), FTPS (FTP over SSL) and [FTPS with client certificates](#faq_certs)
+- Full support for [FTP](#ftp-support), [FTPS](#faq_ftps) (FTP over SSL) and [FTPS with client certificates](#faq_certs)
 - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, etc)
 - Easily upload and download a file from the server
 - Easily read and write file data from the server using standard streams
