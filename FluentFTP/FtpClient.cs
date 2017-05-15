@@ -2752,7 +2752,7 @@ namespace FluentFTP {
 			        attemptsLeft--;
                     //If verification is needed update the validated flag
 			        if (uploadSuccess && verifyOptions != FtpVerifyOptions.None){
-			            verified = ValidateTransfer(localPath, remotePath);
+			            verified = VerifyTransfer(localPath, remotePath);
                         FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
 			            if (!verified && attemptsLeft > 0) {
                             //Force overwrite if a retry is required
@@ -2798,7 +2798,7 @@ namespace FluentFTP {
 	                attemptsLeft--;
 
 	                if (verifyOptions != FtpVerifyOptions.None) {
-	                    verified = await ValidateTransferAsync(localPath, remotePath);
+	                    verified = await VerifyTransferAsync(localPath, remotePath);
 	                    FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
 	                    if (!verified && attemptsLeft > 0){
 	                        //Force overwrite if a retry is required
@@ -2974,7 +2974,7 @@ namespace FluentFTP {
 		        }
 
 		        if (downloadSuccess && verifyOptions != FtpVerifyOptions.None) {
-		            verified = ValidateTransfer(localPath, remotePath);
+		            verified = VerifyTransfer(localPath, remotePath);
 		            FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
 		        }
 		    } while (!verified && attemptsLeft > 0);
@@ -3063,7 +3063,7 @@ namespace FluentFTP {
                 }
 
                 if (downloadSuccess && verifyOptions != FtpVerifyOptions.None){
-                    verified = await ValidateTransferAsync(localPath, remotePath);
+                    verified = await VerifyTransferAsync(localPath, remotePath);
                     FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
                 }
             } while (!verified && attemptsLeft > 0);
@@ -6467,7 +6467,7 @@ namespace FluentFTP {
 			return (this is FtpClientProxy);
 		}
 
-	    private bool ValidateTransfer(string localPath, string remotePath) {
+	    private bool VerifyTransfer(string localPath, string remotePath) {
 	        if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
 	            this.HasFeature(FtpCapability.XMD5)|| this.HasFeature(FtpCapability.XCRC) || 
                 this.HasFeature(FtpCapability.XSHA1) || this.HasFeature(FtpCapability.XSHA256) ||
@@ -6483,7 +6483,7 @@ namespace FluentFTP {
             return true;
 	    }
 
-	    private async Task<bool> ValidateTransferAsync(string localPath, string remotePath) {
+	    private async Task<bool> VerifyTransferAsync(string localPath, string remotePath) {
 	        if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
 	            this.HasFeature(FtpCapability.XMD5) || this.HasFeature(FtpCapability.XCRC) ||
 	            this.HasFeature(FtpCapability.XSHA1) || this.HasFeature(FtpCapability.XSHA256) ||
