@@ -4068,7 +4068,14 @@ namespace FluentFTP {
 		/// <returns>IAsyncResult</returns>
 		/// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
 		public IAsyncResult BeginFileExists(string path, AsyncCallback callback, object state) {
-			return BeginFileExists(path, callback, state);
+		    AsyncFileExists func;
+
+		    IAsyncResult ar = (func = new AsyncFileExists(FileExists)).BeginInvoke(path, callback, state);
+		    lock (m_asyncmethods){
+		        m_asyncmethods.Add(ar, func);
+		    }
+
+		    return ar;
 		}
 
 		/// <summary>
