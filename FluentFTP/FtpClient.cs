@@ -2178,7 +2178,7 @@ namespace FluentFTP {
 		/// If <see cref="FtpVerifyOptions.Throw"/> is set and <see cref="FtpErrorHandling.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
-		public int UploadFiles(string[] localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true, 
+		public int UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true, 
             FtpVerifyOptions verifyOptions = FtpVerifyOptions.None, FtpErrorHandling errorHandling = FtpErrorHandling.None) {
 		    if (!errorHandling.ValidFtpErrorHandlingCombination())
 		        throw new ArgumentException("Invalid combination of FtpErrorHandling flags.  Throw & Stop cannot be combined");
@@ -2269,7 +2269,7 @@ namespace FluentFTP {
 		/// Supports very large files since it uploads data in chunks.
         /// Faster than uploading single files with <see cref="o:UploadFile"/> since it performs a single "file exists" check rather than one check per file.
 		/// </summary>
-		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
+		/// <param name="localFiles">Files to be uploaded</param>
 		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
@@ -2283,9 +2283,9 @@ namespace FluentFTP {
 		/// If <see cref="FtpVerifyOptions.Throw"/> is set and <see cref="FtpErrorHandling.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
-		public int UploadFiles(List<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true,
+		public int UploadFiles(IEnumerable<FileInfo> localFiles, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true,
             FtpVerifyOptions verifyOptions = FtpVerifyOptions.None, FtpErrorHandling errorHandling = FtpErrorHandling.None) {
-			return UploadFiles(localPaths.ToArray(), remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling);
+			return UploadFiles(localFiles.Select(f => f.FullName), remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling);
 		}
 
 #if (CORE || NETFX45)
@@ -2449,7 +2449,7 @@ namespace FluentFTP {
 		/// If <see cref="FtpVerifyOptions.Throw"/> is set and <see cref="FtpErrorHandling.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
-		public int DownloadFiles(string localDir, string[] remotePaths, bool overwrite = true, FtpVerifyOptions verifyOptions = FtpVerifyOptions.None,
+		public int DownloadFiles(string localDir, IEnumerable<string> remotePaths, bool overwrite = true, FtpVerifyOptions verifyOptions = FtpVerifyOptions.None,
             FtpErrorHandling errorHandling = FtpErrorHandling.None) {
 		    if (!errorHandling.ValidFtpErrorHandlingCombination())
 		        throw new ArgumentException("Invalid combination of FtpErrorHandling flags.  Throw & Stop cannot be combined");
@@ -2508,6 +2508,7 @@ namespace FluentFTP {
 			return successfulDownloads.Count;
 		}
 
+        /*
 		/// <summary>
 		/// Downloads the specified files into a local single directory.
 		/// High-level API that takes care of various edge cases internally.
@@ -2521,7 +2522,7 @@ namespace FluentFTP {
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		public int DownloadFiles(string localDir, List<string> remotePaths, bool overwrite = true, FtpErrorHandling errorHandling = FtpErrorHandling.None) {
 			return DownloadFiles(localDir, remotePaths.ToArray(), overwrite);
-		}
+		}*/
 
 	    private void PurgeSuccessfulDownloads(IEnumerable<string> localFiles) {
 	        foreach (string localFile in localFiles) {
@@ -2536,7 +2537,7 @@ namespace FluentFTP {
         /// Supports very large files since it downloads data in chunks.
         /// Same speed as <see cref="o:DownloadFile"/>.
         /// </summary>
-        /// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
+        /// <param name="localDir">The full or relative path to the directory that files will be downloaded.</param>
         /// <param name="remotePaths">The full or relative paths to the files on the server</param>
         /// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
         /// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
@@ -2756,6 +2757,10 @@ namespace FluentFTP {
                         FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
 			            if (!verified && attemptsLeft > 0) {
                             //Force overwrite if a retry is required
+			                FtpTrace.WriteLine(FtpTraceLevel.Debug,
+			                    "Retrying due to failed verification.{0}  {1} attempts remaining",
+			                    existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode." : "",
+                                attemptsLeft);
 			                existsMode = FtpExists.Overwrite;
 			            }
 			        }
@@ -2802,6 +2807,10 @@ namespace FluentFTP {
 	                    FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
 	                    if (!verified && attemptsLeft > 0){
 	                        //Force overwrite if a retry is required
+	                        FtpTrace.WriteLine(FtpTraceLevel.Debug,
+	                            "Retrying due to failed verification.{0}  {1} attempts remaining",
+	                            existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode." : "",
+	                            attemptsLeft);
 	                        existsMode = FtpExists.Overwrite;
 	                    }
 	                }
@@ -2976,6 +2985,14 @@ namespace FluentFTP {
 		        if (downloadSuccess && verifyOptions != FtpVerifyOptions.None) {
 		            verified = VerifyTransfer(localPath, remotePath);
 		            FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
+#if DEBUG
+		            if (!verified && attemptsLeft > 0) {
+		                FtpTrace.WriteLine(FtpTraceLevel.Debug,
+		                    "Retrying due to failed verification.{0}  {1} attempts remaining",
+		                    overwrite ? "  Overwrite will occur." : "",
+		                    attemptsLeft);
+		            }
+#endif
 		        }
 		    } while (!verified && attemptsLeft > 0);
 
@@ -3065,6 +3082,15 @@ namespace FluentFTP {
                 if (downloadSuccess && verifyOptions != FtpVerifyOptions.None){
                     verified = await VerifyTransferAsync(localPath, remotePath);
                     FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
+#if DEBUG
+                    if (!verified && attemptsLeft > 0)
+                    {
+                        FtpTrace.WriteLine(FtpTraceLevel.Debug,
+                            "Retrying due to failed verification.{0}  {1} attempts remaining",
+                            overwrite ? "  Overwrite will occur." : "",
+                            attemptsLeft);
+                    }
+#endif
                 }
             } while (!verified && attemptsLeft > 0);
 
