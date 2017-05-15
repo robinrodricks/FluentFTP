@@ -402,6 +402,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **NLST**  			| GetNameListing()<br>GetListing() with FtpListOption.ForceNameList	| Get directory name list 	|
 | **MLST**				| GetObjectInfo()		| Get file information			|
 | **DELE**      		| DeleteFile()			| Delete a file |
+| **MKD**      			| CreateDirectory() 	| Create a directory |
 | **RMD**      			| DeleteDirectory() 	| Delete a directory |
 | **CWD**      			| SetWorkingDirectory() | Change the working directory |
 | **PWD**      			| GetWorkingDirectory() | Get the working directory |
@@ -485,7 +486,7 @@ client.UploadFile("C:\bigfile.iso", "/htdocs/bigfile.iso", FtpExists.Append);
 <a name="faq_append"></a>
 **How do I append to a file?**
 
-Using the new UploadFile() API:
+Using the UploadFile() API:
 ```cs
 // append data to an existing copy of the file
 File.AppendAllText(@"C:\readme.txt", "text to be appended" + Environment.NewLine);
@@ -494,7 +495,7 @@ File.AppendAllText(@"C:\readme.txt", "text to be appended" + Environment.NewLine
 client.UploadFile("C:\readme.txt", "/htdocs/readme.txt", FtpExists.Append);
 ```
 
-Using the older OpenAppend() API:
+Using the stream-based OpenAppend() API:
 ```cs
 using (FtpClient conn = new FtpClient()) {
 	conn.Host = "localhost";
