@@ -76,15 +76,17 @@ namespace FluentFTP {
 			Write(string.Concat(message, Environment.NewLine));
 		}
 
+
 	    /// <summary>
 	    /// Write to the TraceListeners
 	    /// </summary>
 	    /// <param name="eventType">The type of tracing event</param>
-	    /// <param name="message">The message to write</param>
-	    public static void Write(FtpTraceLevel eventType, string message)
-	    {
+	    /// <param name="message">A formattable string to write</param>
+	    /// <param name="args">Arguments to insert into the formattable string</param>
+	    public static void Write(FtpTraceLevel eventType, string message, params object[] args) {
+	        string msg = string.Format(message, args);
 #if CORE && DEBUG
-		    Debug.Write(message);
+		    Debug.Write(msg);
 #elif !CORE
 	        var diagTraceLvl = TraceLevelTranslation(eventType);
 	        m_traceSource.TraceEvent(diagTraceLvl, 0, message);
@@ -97,28 +99,8 @@ namespace FluentFTP {
 	    /// <param name="eventType">The type of tracing event</param>
 	    /// <param name="message">A formattable string to write</param>
 	    /// <param name="args">Arguments to insert into the formattable string</param>
-	    public static void Write(FtpTraceLevel eventType, string message, params object[] args) {
-	        Write(eventType, string.Format(message, args));
-	    }
-
-	    /// <summary>
-	    /// Write to the TraceListeners
-	    /// </summary>
-	    /// <param name="eventType">The type of tracing event</param>
-	    /// <param name="message">The message to write</param>
-        public static void WriteLine(FtpTraceLevel eventType, object message)
-	    {
-	        Write(eventType, string.Concat(message, Environment.NewLine));
-	    }
-
-	    /// <summary>
-	    /// Write to the TraceListeners
-	    /// </summary>
-	    /// <param name="eventType">The type of tracing event</param>
-	    /// <param name="message">A formattable string to write</param>
-	    /// <param name="args">Arguments to insert into the formattable string</param>
 	    public static void WriteLine(FtpTraceLevel eventType, string message, params object[] args) {
-	        WriteLine(eventType, string.Format(message, args));
+	        Write(eventType, string.Concat(message, Environment.NewLine), args);
 	    }
 
 #if !CORE
