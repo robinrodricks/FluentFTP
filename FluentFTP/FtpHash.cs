@@ -41,11 +41,12 @@ namespace FluentFTP {
 		/// it to the value in this object. CRC hashes are not supported 
 		/// because there is no built-in support in the .net framework and
 		/// a CRC implementation exceeds the scope of this project. If you
-		/// attempt to Verify() a CRC hash a NotImplemented() exception will
+        /// attempt to call this on a CRC hash a <see cref="NotImplementedException"/> will
 		/// be thrown.
 		/// </summary>
 		/// <param name="file">The file to compute the hash for</param>
 		/// <returns>True if the computed hash matches what's stored in this object.</returns>
+        /// <exception cref="NotImplementedException">Thrown if called on a CRC Hash</exception>
 		public bool Verify(string file) {
 			using (FileStream istream = new FileStream(file, FileMode.Open, FileAccess.Read)) {
 				return Verify(istream);
@@ -57,11 +58,12 @@ namespace FluentFTP {
 		/// it to the value in this object. CRC hashes are not supported 
 		/// because there is no built-in support in the .net framework and
 		/// a CRC implementation exceeds the scope of this project. If you
-		/// attempt to Verify() a CRC hash a NotImplemented() exception will
+		/// attempt to call this on a CRC hash a <see cref="NotImplementedException"/> will
 		/// be thrown.
 		/// </summary>
 		/// <param name="istream">The stream to compute the hash for</param>
 		/// <returns>True if the computed hash matches what's stored in this object.</returns>
+        /// <exception cref="NotImplementedException">Thrown if called on a CRC Hash</exception>
 		public bool Verify(Stream istream) {
 			if (IsValid) {
 				HashAlgorithm hashAlg = null;

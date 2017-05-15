@@ -20,14 +20,28 @@ namespace FluentFTP.Proxy {
 										proxyConnectionReply.ErrorMessage);
 		}
 
+	    /// <summary>
+	    /// Creates a new instance of this class. Useful in FTP proxy classes.
+	    /// </summary>
 		protected override FtpClient Create() {
 			return new FtpClientHttp11Proxy(Proxy);
 		}
 
+        /// <summary>
+        /// Connects to the server using an existing <see cref="FtpSocketStream"/>
+        /// </summary>
+        /// <param name="stream">The existing socket stream</param>
 		protected override void Connect(FtpSocketStream stream) {
 			Connect(stream, Host, Port, FtpIpVersion.ANY);
 		}
 
+        /// <summary>
+        /// Connects to the server using an existing <see cref="FtpSocketStream"/>
+        /// </summary>
+        /// <param name="stream">The existing socket stream</param>
+        /// <param name="host">Host name</param>
+        /// <param name="port">Port number</param>
+        /// <param name="ipVersions">IP version to use</param>
 		protected override void Connect(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions) {
 			base.Connect(stream);
 
@@ -64,7 +78,7 @@ namespace FluentFTP.Proxy {
 				while( ( buf = stream.ReadLine( Encoding ) ) != null ) {
 					Match m;
 					
-					FtpTrace.WriteLine( buf );
+					FtpTrace.WriteLine(FtpTraceLevel.Info, buf);
 					
 					if( ( m = Regex.Match( buf, @"^HTTP/.*\s(?<code>[0-9]{3}) (?<message>.*)$" ) ).Success ) {
 						reply.Code = m.Groups[ "code" ].Value;
@@ -75,12 +89,12 @@ namespace FluentFTP.Proxy {
 					reply.InfoMessages += ( buf+"\n" );
 				}
 				
-				// fixes #84 (missing bytes when downloading/uploading files thru proxy)
+				// fixes #84 (missing bytes when downloading/uploading files through proxy)
 				while( ( buf = stream.ReadLine( Encoding ) ) != null ) {
-					
-					FtpTrace.WriteLine( buf );
 
-					if (IsNullOrWhiteSpace(buf)) {
+                    FtpTrace.WriteLine(FtpTraceLevel.Info, buf);
+
+					if (string.IsNullOrWhiteSpace(buf)) {
 						break;
 					}
 					
@@ -91,11 +105,5 @@ namespace FluentFTP.Proxy {
 
 			return reply;
 		}
-
-		private static bool IsNullOrWhiteSpace(string value) {
-			if (value == null) return true;
-			return string.IsNullOrEmpty(value.Trim());
-		}
-
 	}
 }

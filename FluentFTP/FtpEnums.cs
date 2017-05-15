@@ -86,7 +86,7 @@ namespace FluentFTP {
 		PRET = 32,
 		/// <summary>
 		/// Server supports the MFMT command for setting the
-		/// modifid date of an object on the server
+		/// modified date of an object on the server
 		/// </summary>
 		MFMT = 64,
 		/// <summary>
@@ -96,7 +96,7 @@ namespace FluentFTP {
 		MFCT = 128,
 		/// <summary>
 		/// Server supports the MFF command for setting certain facts
-		/// about file sytem objects. If you need this command, it would
+		/// about file system objects. If you need this command, it would
 		/// probably be handy to query FEAT your self and have a look at
 		/// the FtpReply.InfoMessages property to see which facts the server
 		/// allows you to modify.
@@ -201,7 +201,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Passive data connection. EPSV is a better
 		/// option if it's supported. Passive connections
-		/// connect to the IP address dicated by the server
+		/// connect to the IP address dictated by the server
 		/// which may or may not be accessible by the client
 		/// for example a server behind a NAT device may
 		/// give an IP address on its local network that
@@ -213,7 +213,7 @@ namespace FluentFTP {
 		PASV,
 		/// <summary>
 		/// Same as PASV except the host supplied by the server is ignored
-		/// and the data conncetion is made to the same address that the control
+		/// and the data connection is made to the same address that the control
 		/// connection is connected to. This is useful in scenarios where the
 		/// server supplies a private/non-routable network address in the
 		/// PASV response. It's functionally identical to EPSV except some
@@ -261,7 +261,7 @@ namespace FluentFTP {
 		/// which requires firewall exceptions on the client
 		/// as well as client network when connecting to a 
 		/// server outside of the client's network. The server
-		/// connects to the IP address it sees the client comming
+		/// connects to the IP address it sees the client coming
 		/// from. This type of data connection supports IPv4 and IPv6.
 		/// </summary>
 		EPRT
@@ -313,7 +313,7 @@ namespace FluentFTP {
 		/// </summary>
 		Execute = 1,
 		/// <summary>
-		/// Writeable
+		/// Writable
 		/// </summary>
 		Write = 2,
 		/// <summary>
@@ -388,7 +388,7 @@ namespace FluentFTP {
 	}
 
 	/// <summary>
-	/// Flags that can dicate how a file listing is performed
+	/// Flags that can dictate how a file listing is performed
 	/// </summary>
 	[Flags]
 	public enum FtpListOption {
@@ -483,4 +483,92 @@ namespace FluentFTP {
 		Append
 	}
 
+    /// <summary>
+    /// Defines the level of the tracing message.  Depending on the framework version this is translated
+    /// to an equivalent logging level in System.Diagnostices (if available)
+    /// </summary>
+    public enum FtpTraceLevel {
+        /// <summary>
+        /// Used for logging Debug or Verbose level messages
+        /// </summary>
+        Debug,
+        /// <summary>
+        /// Used for logging Informational messages
+        /// </summary>
+        Info,
+        /// <summary>
+        /// Used for logging non-fatal or ignorable error messages
+        /// </summary>
+        Warn,
+        /// <summary>
+        /// Used for logging Error messages that may need investigation 
+        /// </summary>
+        Error
+    }
+
+    /// <summary>
+    /// Defines how multi-file processes should handle a processing error.
+    /// </summary>
+    /// <remarks><see cref="FtpErrorHandling.Stop"/> &amp; <see cref="FtpErrorHandling.Throw"/> Cannot Be Combined</remarks>
+    [Flags]
+    public enum FtpErrorHandling {
+        /// <summary>
+        /// No action is taken upon errors.  The method absorbs the error and continues.
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// If any files have completed successfully (or failed after a partial download/upload) then should be deleted.  
+        /// This will simulate an all-or-nothing transaction downloading or uploading multiple files.  If this option is not
+        /// combined with <see cref="FtpErrorHandling.Stop"/> or <see cref="FtpErrorHandling.Throw"/> then the method will
+        /// continue to process all items whether if they are successful or not and then delete everything if a failure was
+        /// encountered at any point.
+        /// </summary>
+        DeleteProcessed = 1,
+        /// <summary>
+        /// The method should stop processing any additional files and immediately return upon encountering an error.
+        /// Cannot be combined with <see cref="FtpErrorHandling.Throw"/>
+        /// </summary>
+        Stop = 2,
+        /// <summary>
+        /// The method should stop processing any additional files and immediately throw the current error.
+        /// Cannot be combined with <see cref="FtpErrorHandling.Stop"/>
+        /// </summary>
+        Throw = 4,
+        
+    }
+
+    /// <summary>
+    /// Defines if additional verification and actions upon failure that 
+    /// should be performed when uploading/downloading files using the high-level APIs.  Ignored if the 
+    /// FTP server does not support any hashing algorithms.
+    /// </summary>
+    [Flags]
+    public enum FtpVerifyOptions {
+        /// <summary>
+        /// No verification of the file is performed
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// A checksum / hash calculation is performed.  Without being combined with other flags no action is taken
+        /// at time of failure, however the calling method will return false since there was at least one failure.  If no 
+        /// hash algorithms are available this is ignored.
+        /// </summary>
+        Checksum = 1,
+        /// <summary>
+        /// If a checksum/hash comparison fails then the calling method will attempt to retry the download/upload a specified
+        /// amount of times.
+        /// </summary>
+        Retry = 2,
+        /// <summary>
+        /// If a checksum/hash comparison fails the failed file will be deleted.  If combined with <see cref="FtpVerifyOptions.Retry"/>, then
+        /// the deletion will occur if it fails upon the final retry.
+        /// </summary>
+        Delete = 4,
+        /// <summary>
+        /// If a checksum/hash comparison fails then an exception will be thrown.  If combined with <see cref="FtpVerifyOptions.Retry"/>, then
+        /// the throw will occur upon the failure of the final retry, and/or if combined with <see cref="FtpVerifyOptions.Delete"/> the method
+        /// will throw after the deletion is processed.
+        /// </summary>
+        Throw = 8
+    }
 }
