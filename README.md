@@ -103,13 +103,17 @@ client.DownloadFile(@"C:\MyVideo_2.mp4", "/htdocs/big2.txt");
 client.DeleteFile("/htdocs/big2.txt");
 
 // delete a folder recursively
-client.DeleteDirectory("/htdocs/extras/", true);
+client.DeleteDirectory("/htdocs/extras/");
 
 // check if a file exists
 if (client.FileExists("/htdocs/big2.txt")){ }
 
 // check if a folder exists
 if (client.DirectoryExists("/htdocs/extras/")){ }
+
+// upload a file and retry 3 times before giving up
+client.RetryAttempts = 3;
+client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt", FtpExists.Overwrite, false, FtpVerify.Retry);
 
 // disconnect! good bye!
 client.Disconnect();
@@ -204,13 +208,13 @@ High-level API:
 
 - **Download**() - Downloads a file from the server to a Stream or byte[]. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB.
 
-- **UploadFile**() - Uploads a file from the local file system to the server. Use `FtpExists.Append` to append to a file. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB. Optionally verifies the hash of a file & retries transfer if hash mismatches (enabled using `FtpVerify` flags).
+- **UploadFile**() - Uploads a file from the local file system to the server. Use `FtpExists.Append` to append to a file. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB. Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
 
-- **DownloadFile**() - Downloads a file from the server to the local file system. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB. Local directories are created if they do not exist. Optionally verifies the hash of a file & retries transfer if hash mismatches (enabled using `FtpVerify` flags).
+- **DownloadFile**() - Downloads a file from the server to the local file system. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB. Local directories are created if they do not exist. Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
 
-- **UploadFiles**() - Uploads multiple files from the local file system to a single folder on the server. Returns the number of files uploaded. Skipped files are not counted. User-defined error handling for exceptions during file upload (ignore/abort/throw).  Optionally verifies the hash of a file & retries transfer if hash mismatches (enabled using `FtpVerify` flags). Faster than calling `UploadFile()` multiple times.
+- **UploadFiles**() - Uploads multiple files from the local file system to a single folder on the server. Returns the number of files uploaded. Skipped files are not counted. User-defined error handling for exceptions during file upload (ignore/abort/throw).  Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches. Faster than calling `UploadFile()` multiple times.
 
-- **DownloadFiles**() - Downloads multiple files from server to a single directory on the local file system. Returns the number of files downloaded. Skipped files are not counted. User-defined error handling for exceptions during file download (ignore/abort/throw). Optionally verifies the hash of a file & retries transfer if hash mismatches (enabled using `FtpVerify` flags).
+- **DownloadFiles**() - Downloads multiple files from server to a single directory on the local file system. Returns the number of files downloaded. Skipped files are not counted. User-defined error handling for exceptions during file download (ignore/abort/throw). Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
 
 Low-level API:
 
@@ -262,6 +266,8 @@ Low-level API:
 
 
 ### File Hashing
+
+*(Note: The [high-level file transfer API](#file-transfer) supports automatic hashing after upload/download).*
 
 *Standard commands supported by most servers*
 
@@ -486,6 +492,24 @@ Use Upload() for uploading a `Stream` or `byte[]`.
 **How can I download data without saving it to disk?**
 
 Use Download() for downloading to a `Stream` or `byte[]`.
+
+<a name="faq_verifyhash"></a>
+**How do I verify the hash/checksum of a file and retry uploading/downloading if the hash mismatches?**
+
+Use UploadFile() or DownloadFile() in one of these ways:
+```cs
+// retry 3 times when uploading a file
+client.RetryAttempts = 3;
+
+// upload a file and retry 3 times before giving up
+client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt", FtpExists.Overwrite, false, FtpVerify.Retry);
+
+// upload a file and retry 3 times before throwing an error
+client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt", FtpExists.Overwrite, false, FtpVerify.Retry | FtpVerify.Throw);
+
+// upload a file and retry 3 times before deleting the file from the server
+client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt", FtpExists.Overwrite, false, FtpVerify.Retry | FtpVerify.Delete);
+```
 
 <a name="faq_uploadmissing"></a>
 **How do I upload only the missing part of a file?**

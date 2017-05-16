@@ -76,7 +76,7 @@ namespace Tests {
 				//TestListPath();
 				//TestListPathWithHttp11Proxy();
 				//TestFileExists();
-				TestDeleteDirectory();
+				//TestDeleteDirectory();
 
 
 

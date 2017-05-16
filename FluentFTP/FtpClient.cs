@@ -817,6 +817,7 @@ namespace FluentFTP {
 			conn.ListingParser = ListingParser;
 			conn.ListingCulture = ListingCulture;
 			conn.TimeOffset = TimeOffset;
+			conn.RetryAttempts = RetryAttempts;
 
 			// copy props using attributes (slower, not .NET core compatible)
 			/*foreach (PropertyInfo prop in GetType().GetProperties()) {
