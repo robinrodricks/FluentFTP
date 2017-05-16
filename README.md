@@ -663,11 +663,63 @@ finally {
 
 The finally block above ensures that `Close()` is always called on the stream even if a problem occurs. When `Close()` is called any resulting exceptions can be caught and handled accordingly.
 
-### Exception Handling during Dispose()
+### Exception Handling
 
 FluentFTP includes exception handling in key places where uncatchable exceptions could occur, such as the `Dispose()` methods. The problem is that part of the cleanup process involves closing out the internal sockets and streams. If `Dispose()` was called because of an exception and triggers another exception while trying to clean-up you could end up with an un-catchable exception resulting in an application crash. To deal with this `FtpClient.Dispose()` and `FtpSocketStream.Dispose()` are setup to handle `SocketException` and `IOException` and discard them. The exceptions are written to the FtpTrace `TraceListeners` for debugging purposes, in an effort to not hide important errors while debugging problems with the code.
 
 The exception that propagates back to your code should be the root of the problem and any exception caught while disposing would be a side affect however while testing your project pay close attention to what's being logged via FtpTrace. See the Debugging example for more information about using `TraceListener` objects with FluentFTP.
+
+### Debugging & Logging
+
+FluentFTP has a built-in [`TraceSource`](https://msdn.microsoft.com/en-us/library/system.diagnostics.tracesource(v=vs.110).aspx) named "FluentFTP" that can be used for debugging and logging purposes.  This is currently available for all .NET Framework versions except for .NET Core.  Any implementation of [`TraceListener`](https://msdn.microsoft.com/en-us/library/system.diagnostics.tracelistener(v=vs.110).aspx) can be attached to the library either programmatically or via configuration in your app.config or web.config file.  This will allow for direct logging or forwarding to third-party logging frameworks.
+
+Most tracing messages are of type `Verbose` or `Information` and can typically be ignored unless debugging.  Most ignored exceptions are classified as `Warning`, but methods that return boolean for success/failure will log the failure reasons with the `Error` level.  If you are using .NET Core and the DEBUG flag is set, then all logging messages will be issued via `Debug.Write(message)`.
+
+Attaching TraceListener in code:
+
+```cs
+TraceListener console = ConsoleTraceListener() {
+	Filter = new EventTypeFilter(SourceLevels.Verbose | SourceLevels.ActivityTracking)
+};
+
+FtpTrace.AddListener(console);
+```
+Attaching via configuration file:
+
+```xml
+<system.diagnostics>
+    <trace autoflush="true"></trace>
+    <sources>
+        <source name="FluentFTP">
+	    <listeners>
+	        <clear />
+	        <!-- Attach a Console Listener -->
+		<add name="console />
+		<!-- Attach a File Trace Listener -->
+		<add name="file" />
+		<!-- Attach a Custom Listener -->
+		<add name="myLogger" />
+		<!--Attach NLog Trace Listener -->
+		<add name="nlog" />	
+	    </listeners>
+	</source>
+    </sources>
+    <sharedListeners>
+        <!--Define Console Listener -->
+	<add name="console" type="System.Diagnostics.ConsoleTraceListener" />
+	<!--Define File Listener -->
+	<add name="file" type="System.Diagnostics.TextWriterTraceListener
+	 initializeData="outputFile.log">
+	    <!--Only write errors -->
+	    <filter type="System.Diagnostics.EventTypeFilter" initializeData="Error" />
+	</add>
+	<!--Define Custom Listener -->
+	<add name="custom" type="MyNamespace.MyCustomTraceListener />
+	<!-- Define NLog Logger -->
+	<add name="nlog" type="NLog.NLogTraceListener, NLog" />
+    </sharedListeners>
+</system.diagnostics>
+```
 
 ### Client Certificates
 
