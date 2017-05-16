@@ -198,17 +198,21 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 ### File Transfer
 
+High-level API:
+
 - **Upload**() - Uploads a Stream or byte[] to the server. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB.
 
 - **Download**() - Downloads a file from the server to a Stream or byte[]. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB.
 
-- **UploadFile**() - Uploads a file from the local file system to the server. Use `FtpExists.Append` to append to a file. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB. Optionally verifies the hash of a file & retries transfer if hash mismatches (enabled using `FtpVerify.Checksum | FtpVerify.Retry/Delete/Throw` flags)
+- **UploadFile**() - Uploads a file from the local file system to the server. Use `FtpExists.Append` to append to a file. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB. Optionally verifies the hash of a file & retries transfer if hash mismatches (enabled using `FtpVerify` flags).
 
-- **DownloadFile**() - Downloads a file from the server to the local file system. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB. Local directories are created if they do not exist. Optionally verifies the hash of a file & retries transfer if hash mismatches (enabled using `FtpVerify.Checksum | FtpVerify.Retry/Delete/Throw` flags)
+- **DownloadFile**() - Downloads a file from the server to the local file system. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB. Local directories are created if they do not exist. Optionally verifies the hash of a file & retries transfer if hash mismatches (enabled using `FtpVerify` flags).
 
-- **UploadFiles**() - Uploads multiple files from the local file system to a single folder on the server. Returns the number of files uploaded. Skipped files are not counted. User-defined error handling for exceptions during file upload (ignore/abort/throw). Prefer using this method over calling `UploadFile()` multiple times, as this method performs a single `GetListing()` to check for file existance.
+- **UploadFiles**() - Uploads multiple files from the local file system to a single folder on the server. Returns the number of files uploaded. Skipped files are not counted. User-defined error handling for exceptions during file upload (ignore/abort/throw).  Optionally verifies the hash of a file & retries transfer if hash mismatches (enabled using `FtpVerify` flags). Faster than calling `UploadFile()` multiple times.
 
-- **DownloadFiles**() - Downloads multiple files from server to a single directory on the local file system. Returns the number of files downloaded. Skipped files are not counted. User-defined error handling for exceptions during file download (ignore/abort/throw). All exceptions during file download are absorbed internally.
+- **DownloadFiles**() - Downloads multiple files from server to a single directory on the local file system. Returns the number of files downloaded. Skipped files are not counted. User-defined error handling for exceptions during file download (ignore/abort/throw). Optionally verifies the hash of a file & retries transfer if hash mismatches (enabled using `FtpVerify` flags).
+
+Low-level API:
 
 - **OpenRead**() - *(Prefer using `Download()` for downloading to a `Stream` or `byte[]`)* Open a stream to the specified file for reading. Returns a [standard `Stream`](#stream-handling). Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 
@@ -316,6 +320,8 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
 
+- **RetryAttempts** - The retry attempts allowed when a verification failure occurs during download or upload. **Default:** 1.
+
 - **IsClone** - Checks if this control connection is a clone. **Default:** false.
 
 
@@ -345,12 +351,12 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **DataConnectionReadTimeout** - Time to wait (in milliseconds) for the server to send data on the data channel, before giving up. **Default:** 15000 (15 seconds).
 
+- **SocketPollInterval** - Time that must pass (in milliseconds) since the last socket activity before calling `Poll()` on the socket to test for connectivity. Setting this interval too low will have a negative impact on perfomance. Setting this interval to 0 disables Poll()'ing all together. **Default:** 15000 (15 seconds).
+
 
 *Socket Settings*
 
 - **SocketKeepAlive** - Set `SocketOption.KeepAlive` on all future stream sockets. **Default:** false.
-
-- **SocketPollInterval** - Time that must pass (in milliseconds) since the last socket activity before calling `Poll()` on the socket to test for connectivity. Setting this interval too low will have a negative impact on perfomance. Setting this interval to 0 disables Poll()'ing all together. **Default:** 15000 (15 seconds).
 
 - **StaleDataCheck** - Check if there is stale (unrequested data) sitting on the socket or not. In some cases the control connection may time out but before the server closes the connection it might send a 4xx response that was unexpected and can cause synchronization errors with transactions. To avoid this problem the Execute() method checks to see if there is any data available on the socket before executing a command. **Default:** true.
 
