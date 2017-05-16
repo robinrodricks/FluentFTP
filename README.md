@@ -24,7 +24,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
   - Get the [hash/checksum](#file-hashing) of a file (SHA-1, SHA-256, SHA-512, and MD5)
   - Dereference of symbolic links to calculate the linked file/folder
 - **FTP protocol:**
-  - Extensive support for FTP commands, including some server-specific commands
+  - Extensive support for [FTP commands](#ftp-support), including some server-specific commands
   - Easily send server-specific FTP commands using the `Execute()` method
   - Explicit and Implicit SSL connections are supported for the control and data connections using .NET's `SslStream`
   - Passive and active data connections (PASV, EPSV, PORT and EPRT)
