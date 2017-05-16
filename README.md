@@ -502,19 +502,19 @@ Use UploadFile() or DownloadFile() in one of these ways:
 client.RetryAttempts = 3;
 
 // upload a file and retry 3 times before giving up
-client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt", FtpExists.Overwrite, false, FtpVerify.Retry);
+client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4", FtpExists.Overwrite, false, FtpVerify.Retry);
 
 // upload a file and retry 3 times before throwing an error
-client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt", FtpExists.Overwrite, false, FtpVerify.Retry | FtpVerify.Throw);
+client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4", FtpExists.Overwrite, false, FtpVerify.Retry | FtpVerify.Throw);
 
 // upload a file and retry 3 times before deleting the file from the server
-client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt", FtpExists.Overwrite, false, FtpVerify.Retry | FtpVerify.Delete);
+client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4", FtpExists.Overwrite, false, FtpVerify.Retry | FtpVerify.Delete);
 
 // upload a file and throw an error if hash fails
-client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt", FtpExists.Overwrite, false, FtpVerify.Throw);
+client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4", FtpExists.Overwrite, false, FtpVerify.Throw);
 
 // upload a file and delete the file from the server if hash fails
-client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt", FtpExists.Overwrite, false, FtpVerify.Delete);
+client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4", FtpExists.Overwrite, false, FtpVerify.Delete);
 ```
 
 <a name="faq_uploadmissing"></a>
