@@ -832,9 +832,11 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 17.4.0
+- Ability to cancel async file transfers using `CancellationToken` (thanks [jblacker](https://github.com/jblacker))
+
 #### 17.3.0
 - Automatically verify checksum of a file after upload/download (thanks [jblacker](https://github.com/jblacker))
-- Ability to cancel async file transfers using `CancellationToken` (thanks [jblacker](https://github.com/jblacker))
 - Configurable error handling (abort/throw/ignore) for file transfers (thanks [jblacker](https://github.com/jblacker))
 - Multiple log levels for tracing/logging debug output in FtpTrace (thanks [jblacker](https://github.com/jblacker))
 
@@ -888,5 +890,5 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 - [J.P. Trosclair](https://github.com/jptrosclair) - Original creator, owner upto 2016
 - [Harsh Gupta](https://github.com/hgupta9) - Owner and maintainer from 2016 onwards
-- [Jordan Blacker](https://github.com/jblacker) - `async`/`await` support for all methods
+- [Jordan Blacker](https://github.com/jblacker) - `async`/`await` support for all methods, post-transfer hash verification, configurable error handling, multiple log levels
 - [Atif Aziz](https://github.com/atifaziz) & Joseph Albahari - LINQBridge (allows LINQ in .NET 2.0)
