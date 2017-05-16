@@ -2172,16 +2172,16 @@ namespace FluentFTP {
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
-		/// If <see cref="FtpVerifyOptions.Throw"/> is set and <see cref="FtpErrorHandling.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
 		public int UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true, 
-            FtpVerifyOptions verifyOptions = FtpVerifyOptions.None, FtpErrorHandling errorHandling = FtpErrorHandling.None) {
+            FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None) {
 		    if (!errorHandling.ValidFtpErrorHandlingCombination())
-		        throw new ArgumentException("Invalid combination of FtpErrorHandling flags.  Throw & Stop cannot be combined");
+		        throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
 			
             //int count = 0;
             bool errorEncountered = false;
@@ -2224,13 +2224,13 @@ namespace FluentFTP {
 					}
 				} catch (Exception ex) {
 				    FtpTrace.WriteLine(FtpTraceLevel.Error, "Upload Failure for {0}: {1}", localPath, ex);
-				    if (errorHandling.HasFlag(FtpErrorHandling.Stop)) {
+				    if (errorHandling.HasFlag(FtpError.Stop)) {
                         errorEncountered = true;
                         break;
 				    }
                     
-                    if (errorHandling.HasFlag(FtpErrorHandling.Throw)) {
-				        if (errorHandling.HasFlag(FtpErrorHandling.DeleteProcessed)) {
+                    if (errorHandling.HasFlag(FtpError.Throw)) {
+				        if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
 				            PurgeSuccessfulUploads(successfulUploads);
 				        }
 
@@ -2241,13 +2241,13 @@ namespace FluentFTP {
 
 		    if (errorEncountered) {
                 //Delete any successful uploads if needed
-		        if (errorHandling.HasFlag(FtpErrorHandling.DeleteProcessed)) {
+		        if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
 		            PurgeSuccessfulUploads(successfulUploads);
 		            successfulUploads.Clear(); //forces return of 0
 		        }
 
                 //Throw generic error because requested
-		        if (errorHandling.HasFlag(FtpErrorHandling.Throw)) {
+		        if (errorHandling.HasFlag(FtpError.Throw)) {
 		            throw new FtpException("An error occurred uploading one or more files.  Refer to trace output if available.");
 		        }
 		    }
@@ -2277,14 +2277,14 @@ namespace FluentFTP {
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
-		/// If <see cref="FtpVerifyOptions.Throw"/> is set and <see cref="FtpErrorHandling.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
 		public int UploadFiles(IEnumerable<FileInfo> localFiles, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true,
-            FtpVerifyOptions verifyOptions = FtpVerifyOptions.None, FtpErrorHandling errorHandling = FtpErrorHandling.None) {
+            FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None) {
 			return UploadFiles(localFiles.Select(f => f.FullName), remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling);
 		}
 
@@ -2305,15 +2305,15 @@ namespace FluentFTP {
 		/// <param name="token">The token to monitor for cancellation requests</param>
 		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
         /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
         /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
-        /// If <see cref="FtpVerifyOptions.Throw"/> is set and <see cref="FtpErrorHandling.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+        /// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
         /// to propagate from this method.
         /// </remarks>
-		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode, bool createRemoteDir, FtpVerifyOptions verifyOptions, FtpErrorHandling errorHandling, CancellationToken token) {
+		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode, bool createRemoteDir, FtpVerify verifyOptions, FtpError errorHandling, CancellationToken token) {
             if (!errorHandling.ValidFtpErrorHandlingCombination())
-                throw new ArgumentException("Invalid combination of FtpErrorHandling flags.  Throw & Stop cannot be combined");
+                throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
 
             //check if cancellation was requested and throw to set TaskStatus state to Canceled
             token.ThrowIfCancellationRequested();
@@ -2367,13 +2367,13 @@ namespace FluentFTP {
                     }
                     //suppress all other upload exceptions (errors are still written to FtpTrace)
                     FtpTrace.WriteLine(FtpTraceLevel.Error, "Upload Failure for {0}: {1}", localPath, ex);
-                    if (errorHandling.HasFlag(FtpErrorHandling.Stop)){
+                    if (errorHandling.HasFlag(FtpError.Stop)){
                         errorEncountered = true;
                         break;
                     }
 
-                    if (errorHandling.HasFlag(FtpErrorHandling.Throw)){
-                        if (errorHandling.HasFlag(FtpErrorHandling.DeleteProcessed)){
+                    if (errorHandling.HasFlag(FtpError.Throw)){
+                        if (errorHandling.HasFlag(FtpError.DeleteProcessed)){
                             PurgeSuccessfulUploads(successfulUploads);
                         }
 
@@ -2384,13 +2384,13 @@ namespace FluentFTP {
 
             if (errorEncountered){
                 //Delete any successful uploads if needed
-                if (errorHandling.HasFlag(FtpErrorHandling.DeleteProcessed)){
+                if (errorHandling.HasFlag(FtpError.DeleteProcessed)){
                     await PurgeSuccessfulUploadsAsync(successfulUploads);
                     successfulUploads.Clear(); //forces return of 0
                 }
 
                 //Throw generic error because requested
-                if (errorHandling.HasFlag(FtpErrorHandling.Throw)){
+                if (errorHandling.HasFlag(FtpError.Throw)){
                     throw new FtpException("An error occurred uploading one or more files.  Refer to trace output if available.");
                 }
             }
@@ -2419,13 +2419,13 @@ namespace FluentFTP {
         /// <param name="errorHandling">Used to determine how errors are handled</param>
         /// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
         /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
         /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
-        /// If <see cref="FtpVerifyOptions.Throw"/> is set and <see cref="FtpErrorHandling.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+        /// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
         /// to propagate from this method.
         /// </remarks>
-		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true, FtpVerifyOptions verifyOptions = FtpVerifyOptions.None, FtpErrorHandling errorHandling = FtpErrorHandling.None) {
+		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None) {
             return await UploadFilesAsync(localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling, CancellationToken.None);
 	    }
 #endif
@@ -2443,16 +2443,16 @@ namespace FluentFTP {
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
-		/// If <see cref="FtpVerifyOptions.Throw"/> is set and <see cref="FtpErrorHandling.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
-		public int DownloadFiles(string localDir, IEnumerable<string> remotePaths, bool overwrite = true, FtpVerifyOptions verifyOptions = FtpVerifyOptions.None,
-            FtpErrorHandling errorHandling = FtpErrorHandling.None) {
+		public int DownloadFiles(string localDir, IEnumerable<string> remotePaths, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None,
+            FtpError errorHandling = FtpError.None) {
 		    if (!errorHandling.ValidFtpErrorHandlingCombination())
-		        throw new ArgumentException("Invalid combination of FtpErrorHandling flags.  Throw & Stop cannot be combined");
+		        throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
 
             bool errorEncountered = false;
 		    List<string> successfulDownloads = new List<string>();
@@ -2477,13 +2477,13 @@ namespace FluentFTP {
 				    }
 				} catch (Exception ex) {
 				    FtpTrace.WriteLine(FtpTraceLevel.Error, "Failed to download {0}. Error: {1}", remotePath, ex);
-				    if (errorHandling.HasFlag(FtpErrorHandling.Stop)){
+				    if (errorHandling.HasFlag(FtpError.Stop)){
 				        errorEncountered = true;
 				        break;
 				    }
 
-				    if (errorHandling.HasFlag(FtpErrorHandling.Throw)){
-				        if (errorHandling.HasFlag(FtpErrorHandling.DeleteProcessed)){
+				    if (errorHandling.HasFlag(FtpError.Throw)){
+				        if (errorHandling.HasFlag(FtpError.DeleteProcessed)){
                             PurgeSuccessfulDownloads(successfulDownloads);
 				        }
 
@@ -2494,13 +2494,13 @@ namespace FluentFTP {
 
 		    if (errorEncountered) {
 		        //Delete any successful uploads if needed
-		        if (errorHandling.HasFlag(FtpErrorHandling.DeleteProcessed)){
+		        if (errorHandling.HasFlag(FtpError.DeleteProcessed)){
                     PurgeSuccessfulDownloads(successfulDownloads);
 		            successfulDownloads.Clear(); //forces return of 0
 		        }
 
 		        //Throw generic error because requested
-		        if (errorHandling.HasFlag(FtpErrorHandling.Throw)){
+		        if (errorHandling.HasFlag(FtpError.Throw)){
 		            throw new FtpException("An error occurred downloading one or more files.  Refer to trace output if available.");
 		        }
 		    }
@@ -2520,7 +2520,7 @@ namespace FluentFTP {
 		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
         /// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
-		public int DownloadFiles(string localDir, List<string> remotePaths, bool overwrite = true, FtpErrorHandling errorHandling = FtpErrorHandling.None) {
+		public int DownloadFiles(string localDir, List<string> remotePaths, bool overwrite = true, FtpError errorHandling = FtpError.None) {
 			return DownloadFiles(localDir, remotePaths.ToArray(), overwrite);
 		}*/
 
@@ -2545,16 +2545,16 @@ namespace FluentFTP {
         /// <param name="token">The token to monitor for cancellation requests</param>
         /// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
         /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
         /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
-        /// If <see cref="FtpVerifyOptions.Throw"/> is set and <see cref="FtpErrorHandling.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+        /// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
         /// to propagate from this method.
         /// </remarks>
-        public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite, FtpVerifyOptions verifyOptions, 
-            FtpErrorHandling errorHandling, CancellationToken token) {
+        public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite, FtpVerify verifyOptions, 
+            FtpError errorHandling, CancellationToken token) {
             if (!errorHandling.ValidFtpErrorHandlingCombination())
-                throw new ArgumentException("Invalid combination of FtpErrorHandling flags.  Throw & Stop cannot be combined");
+                throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
 
             //check if cancellation was requested and throw to set TaskStatus state to Canceled
             token.ThrowIfCancellationRequested();
@@ -2587,13 +2587,13 @@ namespace FluentFTP {
                         //DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
                         throw;
                     }
-                    if (errorHandling.HasFlag(FtpErrorHandling.Stop)){
+                    if (errorHandling.HasFlag(FtpError.Stop)){
                         errorEncountered = true;
                         break;
                     }
 
-                    if (errorHandling.HasFlag(FtpErrorHandling.Throw)){
-                        if (errorHandling.HasFlag(FtpErrorHandling.DeleteProcessed)){
+                    if (errorHandling.HasFlag(FtpError.Throw)){
+                        if (errorHandling.HasFlag(FtpError.DeleteProcessed)){
                             PurgeSuccessfulDownloads(successfulDownloads);
                         }
 
@@ -2604,13 +2604,13 @@ namespace FluentFTP {
 
             if (errorEncountered){
                 //Delete any successful uploads if needed
-                if (errorHandling.HasFlag(FtpErrorHandling.DeleteProcessed)){
+                if (errorHandling.HasFlag(FtpError.DeleteProcessed)){
                     PurgeSuccessfulDownloads(successfulDownloads);
                     successfulDownloads.Clear(); //forces return of 0
                 }
 
                 //Throw generic error because requested
-                if (errorHandling.HasFlag(FtpErrorHandling.Throw)){
+                if (errorHandling.HasFlag(FtpError.Throw)){
                     throw new FtpException("An error occurred downloading one or more files.  Refer to trace output if available.");
                 }
             }
@@ -2631,14 +2631,14 @@ namespace FluentFTP {
         /// <param name="errorHandling">Used to determine how errors are handled</param>
         /// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
         /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
         /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
-        /// If <see cref="FtpVerifyOptions.Throw"/> is set and <see cref="FtpErrorHandling.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+        /// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
         /// to propagate from this method.
         /// </remarks>
         public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite = true, 
-            FtpVerifyOptions verifyOptions = FtpVerifyOptions.None, FtpErrorHandling errorHandling = FtpErrorHandling.None) {
+            FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None) {
             return await DownloadFilesAsync(localDir, remotePaths, overwrite, verifyOptions, errorHandling, CancellationToken.None);
         }
 #endif
@@ -2660,12 +2660,12 @@ namespace FluentFTP {
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
 		/// </remarks>
 		public bool UploadFile(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, 
-            FtpVerifyOptions verifyOptions = FtpVerifyOptions.None) {
+            FtpVerify verifyOptions = FtpVerify.None) {
 
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
@@ -2692,12 +2692,12 @@ namespace FluentFTP {
         /// <param name="token">The token to monitor for cancellation requests.</param>
         /// <returns>If true then the file was uploaded, false otherwise.</returns>
         /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
         /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
         /// </remarks>
 		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode, bool createRemoteDir, 
-            FtpVerifyOptions verifyOptions, CancellationToken token) {
+            FtpVerify verifyOptions, CancellationToken token) {
             // skip uploading if the local file does not exist
             if (!File.Exists(localPath)) {
                 FtpTrace.WriteLine(FtpTraceLevel.Error, "File does not exist.");
@@ -2720,16 +2720,16 @@ namespace FluentFTP {
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
         /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
         /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
         /// </remarks>
-		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, FtpVerifyOptions verifyOptions = FtpVerifyOptions.None) {
+		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None) {
 			return await UploadFileAsync(localPath, remotePath, existsMode, createRemoteDir, verifyOptions, CancellationToken.None);
         }
 #endif
 
-		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, FtpVerifyOptions verifyOptions) {
+		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions) {
 			FileStream fileStream;
 			try {
 				// connect to the file
@@ -2741,7 +2741,7 @@ namespace FluentFTP {
 			}
 
             //If retries are allowed set the retry counter to the allowed count
-		    int attemptsLeft = verifyOptions.HasFlag(FtpVerifyOptions.Retry) ? m_attemptsAllowed : 1;
+		    int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_attemptsAllowed : 1;
             //Default validation to true (if verification isn't needed it'll allow a pass-through)
 		    bool verified = true;
 		    bool uploadSuccess;
@@ -2752,7 +2752,7 @@ namespace FluentFTP {
                     uploadSuccess = UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown);
 			        attemptsLeft--;
                     //If verification is needed update the validated flag
-			        if (uploadSuccess && verifyOptions != FtpVerifyOptions.None){
+			        if (uploadSuccess && verifyOptions != FtpVerify.None){
 			            verified = VerifyTransfer(localPath, remotePath);
                         FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
 			            if (!verified && attemptsLeft > 0) {
@@ -2768,11 +2768,11 @@ namespace FluentFTP {
 			    } while (!verified && attemptsLeft > 0);
 			}
 
-		    if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerifyOptions.Delete)) {
+		    if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
 		        this.DeleteFile(remotePath);
 		    }
 
-		    if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerifyOptions.Throw)) {
+		    if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
 		        throw new FtpException("Uploaded file checksum value does not match local file");
 		    }
 
@@ -2781,7 +2781,7 @@ namespace FluentFTP {
 
 #if (CORE || NETFX45)
 	    private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, 
-            bool fileExists, bool fileExistsKnown, FtpVerifyOptions verifyOptions, CancellationToken token) {
+            bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token) {
 	        FileStream fileStream;
 	        try {
 	            //Connect to the file
@@ -2793,7 +2793,7 @@ namespace FluentFTP {
 	        }
 
 	        //If retries are allowed set the retry counter to the allowed count
-	        int attemptsLeft = verifyOptions.HasFlag(FtpVerifyOptions.Retry) ? m_attemptsAllowed : 1;
+	        int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_attemptsAllowed : 1;
 	        //Default validation to true (if verification isn't needed it'll allow a pass-through)
 	        bool verified = true;
 	        bool uploadSuccess;
@@ -2802,7 +2802,7 @@ namespace FluentFTP {
 	                uploadSuccess = await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode,fileExists, fileExistsKnown, token);
 	                attemptsLeft--;
 
-	                if (verifyOptions != FtpVerifyOptions.None) {
+	                if (verifyOptions != FtpVerify.None) {
 	                    verified = await VerifyTransferAsync(localPath, remotePath);
 	                    FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
 	                    if (!verified && attemptsLeft > 0){
@@ -2817,11 +2817,11 @@ namespace FluentFTP {
 	            } while (!verified && attemptsLeft > 0);
 	        }
 
-	        if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerifyOptions.Delete)) {
+	        if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
 	            await this.DeleteFileAsync(remotePath);
 	        }
 
-	        if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerifyOptions.Throw)) {
+	        if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
 	            throw new FtpException("Uploaded file checksum value does not match local file");
 	        }
 
@@ -2945,15 +2945,15 @@ namespace FluentFTP {
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-        public bool DownloadFile(string localPath, string remotePath, bool overwrite = true, FtpVerifyOptions verifyOptions = FtpVerifyOptions.None) {
+        public bool DownloadFile(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None) {
 			return DownloadFileToFile(localPath, remotePath, overwrite, verifyOptions);
 		}
 
-		private bool DownloadFileToFile(string localPath, string remotePath, bool overwrite, FtpVerifyOptions verifyOptions) {
+		private bool DownloadFileToFile(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions) {
 			// skip downloading if the local file exists
 			if (!overwrite && File.Exists(localPath)) {
 			    FtpTrace.WriteLine(FtpTraceLevel.Error, "Overwrite is false and local file already exists.");
@@ -2974,7 +2974,7 @@ namespace FluentFTP {
 
 		    bool downloadSuccess;
             bool verified = true;
-		    int attemptsLeft = verifyOptions.HasFlag(FtpVerifyOptions.Retry) ? m_attemptsAllowed : 1;
+		    int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_attemptsAllowed : 1;
 		    do {
 		        using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)) {
 		            // download the file straight to a file stream
@@ -2982,7 +2982,7 @@ namespace FluentFTP {
 		            attemptsLeft--;
 		        }
 
-		        if (downloadSuccess && verifyOptions != FtpVerifyOptions.None) {
+		        if (downloadSuccess && verifyOptions != FtpVerify.None) {
 		            verified = VerifyTransfer(localPath, remotePath);
 		            FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
 #if DEBUG
@@ -2996,11 +2996,11 @@ namespace FluentFTP {
 		        }
 		    } while (!verified && attemptsLeft > 0);
 
-		    if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerifyOptions.Delete)) {
+		    if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
 		        File.Delete(localPath);
 		    }
 
-		    if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerifyOptions.Throw)){
+		    if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)){
 		        throw new FtpException("Downloaded file checksum value does not match remote file");
 		    }
 
@@ -3020,11 +3020,11 @@ namespace FluentFTP {
         /// <param name="token">The token to monitor for cancellation requests</param>
         /// <returns>If true then the file was downloaded, false otherwise.</returns>
         /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
         /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
         /// </remarks>
-        public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite, FtpVerifyOptions verifyOptions, CancellationToken token) {
+        public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token) {
             return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, token);
         }
 
@@ -3039,15 +3039,15 @@ namespace FluentFTP {
         /// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
         /// <returns>If true then the file was downloaded, false otherwise.</returns>
         /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerifyOptions.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerifyOptions.Checksum"/> is set then the return of this method depends on both a successful 
+        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
         /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
         /// </remarks>
-        public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite = true, FtpVerifyOptions verifyOptions = FtpVerifyOptions.None) {
+        public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None) {
             return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, CancellationToken.None);
         }
 
-        private async Task<bool> DownloadFileToFileAsync(string localPath, string remotePath, bool overwrite, FtpVerifyOptions verifyOptions, CancellationToken token) {
+        private async Task<bool> DownloadFileToFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token) {
             if (string.IsNullOrWhiteSpace(localPath))
                 throw new ArgumentNullException("localPath");
 
@@ -3071,7 +3071,7 @@ namespace FluentFTP {
 
             bool downloadSuccess;
             bool verified = true;
-            int attemptsLeft = verifyOptions.HasFlag(FtpVerifyOptions.Retry) ? m_attemptsAllowed : 1;
+            int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_attemptsAllowed : 1;
             do{
                 using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)){
                     // download the file straight to a file stream
@@ -3079,7 +3079,7 @@ namespace FluentFTP {
                     attemptsLeft--;
                 }
 
-                if (downloadSuccess && verifyOptions != FtpVerifyOptions.None){
+                if (downloadSuccess && verifyOptions != FtpVerify.None){
                     verified = await VerifyTransferAsync(localPath, remotePath);
                     FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
 #if DEBUG
@@ -3094,11 +3094,11 @@ namespace FluentFTP {
                 }
             } while (!verified && attemptsLeft > 0);
 
-            if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerifyOptions.Delete)){
+            if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)){
                 File.Delete(localPath);
             }
 
-            if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerifyOptions.Throw)){
+            if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)){
                 throw new FtpException("Downloaded file checksum value does not match remote file");
             }
 
@@ -4008,7 +4008,7 @@ namespace FluentFTP {
 					if (ch == '2') {
 						return true;
 					}
-					if (ch == '5' && IsNotFoundError(reply.Message)) {
+					if (ch == '5' && IsKnownError(reply.Message, fileNotFoundStrings)) {
 						return false;
 					}
 				}
@@ -4020,7 +4020,7 @@ namespace FluentFTP {
 					if (ch == '2') {
 						return true;
 					}
-					if (ch == '5' && IsNotFoundError(reply.Message)) {
+					if (ch == '5' && IsKnownError(reply.Message, fileNotFoundStrings)) {
 						return false;
 					}
 				}
@@ -4042,17 +4042,6 @@ namespace FluentFTP {
 
 				return false;
 			}
-		}
-
-		private static string[] notFoundStrings = new string[] { "can't check for file existence", "does not exist", "failed to open file", "not found", "no such file", "cannot find the file", "cannot find", "could not get file", "not a regular file" };
-		private bool IsNotFoundError(string reply) {
-			reply = reply.ToLower();
-			foreach (string msg in notFoundStrings) {
-				if (reply.Contains(msg)) {
-					return true;
-				}
-			}
-			return false;
 		}
 
 		delegate bool AsyncFileExists(string path);
@@ -6532,6 +6521,17 @@ namespace FluentFTP {
 	        //Not supported return true to ignore validation
 	        return true;
 	    }
+
+		private static string[] fileNotFoundStrings = new string[] { "can't check for file existence", "does not exist", "failed to open file", "not found", "no such file", "cannot find the file", "cannot find", "could not get file", "not a regular file" };
+		private bool IsKnownError(string reply, string[] strings) {
+			reply = reply.ToLower();
+			foreach (string msg in strings) {
+				if (reply.Contains(msg)) {
+					return true;
+				}
+			}
+			return false;
+		}
 
 #endregion
 

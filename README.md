@@ -10,29 +10,36 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 ## Features
 
 - Full support for [FTP](#ftp-support), [FTPS](#faq_ftps) (FTP over SSL) and [FTPS with client certificates](#faq_certs)
-- File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, etc)
-- Easily upload and download a file from the server
-- Easily read and write file data from the server using standard streams
-- Create, append, read, write, rename and delete files and folders
-- Recursively deletes folders and all its contents
-- Get file/folder info (exists, size, security flags, modified date/time)
-- Get and set [file permissions](#file-permissions) (owner, group, other)
-- Absolute or relative paths (relative to the "working directory")
-- Get the [hash/checksum](#file-hashing) of a file (SHA-1, SHA-256, SHA-512, and MD5)
-- Supports DrFTPD's PRET command, and the Unix CHMOD command
-- Supports FTP Proxies (User@Host, HTTP 1.1)
-- Dereferencing of symbolic links
-- Passive and active data connections (PASV, EPSV, PORT and EPRT)
-- Synchronous and asynchronous methods (`async`/`await` pattern) for all operations 
-- Explicit and Implicit SSL connections are supported for the control and data connections using .NET's `SslStream`
-- Easily send server-specific FTP commands using the `Execute()` method
-- Improves thread safety by cloning the FTP control connection for file transfers (optional)
-- Implements its own internal locking in an effort to keep transactions synchronized
-- Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/hgupta9/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
-- Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/hgupta9/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
-- Transaction logging using `TraceListeners` (passwords are automatically omitted)
-- Examples for nearly all methods (see [Examples](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples))
-- SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
+- **File management:**
+  - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, etc)
+  - Easily upload and download a file from the server
+  - Automatically verify the hash of a file & retry transfer if hash mismatches
+  - Configurable error handling (ignore/abort/throw) for multi-file transfers
+  - Easily read and write file data from the server using standard streams
+  - Create, append, read, write, rename and delete files and folders
+  - Recursively deletes folders and all its contents
+  - Get file/folder info (exists, size, security flags, modified date/time)
+  - Get and set [file permissions](#file-permissions) (owner, group, other)
+  - Absolute or relative paths (relative to the "working directory")
+  - Get the [hash/checksum](#file-hashing) of a file (SHA-1, SHA-256, SHA-512, and MD5)
+  - Dereference of symbolic links to calculate the linked file/folder
+- **FTP protocol:**
+  - Extensive support for FTP commands, including some server-specific commands
+  - Easily send server-specific FTP commands using the `Execute()` method
+  - Explicit and Implicit SSL connections are supported for the control and data connections using .NET's `SslStream`
+  - Passive and active data connections (PASV, EPSV, PORT and EPRT)
+  - Supports DrFTPD's PRET command, and the Unix CHMOD command
+  - Supports FTP Proxies (User@Host, HTTP 1.1)
+  - FTP command logging using `TraceListeners` (passwords omitted) to trace or log output to a file
+  - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
+- **Asynchronous support:**
+  - Synchronous and asynchronous methods using `async`/`await` for all operations 
+  - Asynchronous methods for .NET 4.0 and below using `IAsyncResult` pattern (Begin*/End*)
+  - Improves thread safety by cloning the FTP control connection for file transfers (optional)
+  - Implements its own internal locking in an effort to keep transactions synchronized
+- **Extensible:**
+  - Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/hgupta9/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
+  - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/hgupta9/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
 
 ## Releases
 
@@ -792,6 +799,7 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 - Automatically verify checksum of a file after upload/download (thanks [jblacker](https://github.com/jblacker))
 - Ability to cancel async file transfers using `CancellationToken` (thanks [jblacker](https://github.com/jblacker))
 - Configurable error handling (abort/throw/ignore) for file transfers (thanks [jblacker](https://github.com/jblacker))
+- Multiple log levels for tracing/logging debug output in FtpTrace (thanks [jblacker](https://github.com/jblacker))
 
 #### 17.2.0
 - Simplify DeleteDirectory() API - the `force` and `fastMode` args are no longer required

@@ -76,6 +76,7 @@ namespace Tests {
 				//TestListPath();
 				//TestListPathWithHttp11Proxy();
 				//TestFileExists();
+				TestDeleteDirectory();
 
 
 
@@ -93,7 +94,7 @@ namespace Tests {
 				// FILE LISTING
 				//--------------------------------
 				//TestGetObjectInfo();
-				TestGetListing();
+				//TestGetListing();
 				//TestGetMachineListing();
 				//GetPublicFTPServerListing();
 				//TestListSpacedPath();
@@ -1216,6 +1217,14 @@ namespace Tests {
 				bool z_f4_no = cl.FileExists("temp/README");
 				bool z_f5_yes = cl.FileExists("temp/Caffè.jpg");
 				bool z_f5_no = cl.FileExists("temp/Caffèoo.jpg");
+
+			}
+		}
+		static void TestDeleteDirectory() {
+			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass)) {
+
+				cl.DeleteDirectory("/public_html/temp/otherdir/");
+				cl.DeleteDirectory("/public_html/temp/spaced folder/");
 
 			}
 		}
