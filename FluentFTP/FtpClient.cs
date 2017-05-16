@@ -672,14 +672,14 @@ namespace FluentFTP {
 			}
 		}
 
-	    private int m_attemptsAllowed = 3;
+	    private int m_retryAttempts = 3;
         /// <summary>
-        /// Gets or sets the numbers retry attempts allowed when a verification failure occurs during download or upload.  This value must be greater than 0.
-        /// Attempts to use a negative number or zero will cause the value to be set to 1.
+        /// Gets or sets the retry attempts allowed when a verification failure occurs during download or upload.
+		/// This value must be set to 1 or more.
         /// </summary>
-	    public int AttemptsAllowed {
-            get { return m_attemptsAllowed; }
-	        set { m_attemptsAllowed = value > 0 ? value : 1; }
+	    public int RetryAttempts {
+            get { return m_retryAttempts; }
+	        set { m_retryAttempts = value > 0 ? value : 1; }
 	    }
 
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
@@ -2741,7 +2741,7 @@ namespace FluentFTP {
 			}
 
             //If retries are allowed set the retry counter to the allowed count
-		    int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_attemptsAllowed : 1;
+		    int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
             //Default validation to true (if verification isn't needed it'll allow a pass-through)
 		    bool verified = true;
 		    bool uploadSuccess;
@@ -2793,7 +2793,7 @@ namespace FluentFTP {
 	        }
 
 	        //If retries are allowed set the retry counter to the allowed count
-	        int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_attemptsAllowed : 1;
+	        int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 	        //Default validation to true (if verification isn't needed it'll allow a pass-through)
 	        bool verified = true;
 	        bool uploadSuccess;
@@ -2974,7 +2974,7 @@ namespace FluentFTP {
 
 		    bool downloadSuccess;
             bool verified = true;
-		    int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_attemptsAllowed : 1;
+		    int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 		    do {
 		        using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)) {
 		            // download the file straight to a file stream
@@ -3071,7 +3071,7 @@ namespace FluentFTP {
 
             bool downloadSuccess;
             bool verified = true;
-            int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_attemptsAllowed : 1;
+            int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
             do{
                 using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)){
                     // download the file straight to a file stream

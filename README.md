@@ -29,7 +29,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
   - Explicit and Implicit SSL connections are supported for the control and data connections using .NET's `SslStream`
   - Passive and active data connections (PASV, EPSV, PORT and EPRT)
   - Supports DrFTPD's PRET command, and the Unix CHMOD command
-  - Supports FTP Proxies (User@Host, HTTP 1.1)
+  - Supports [FTP Proxies](#faq_loginproxy) (User@Host, HTTP 1.1)
   - FTP command logging using `TraceListeners` (passwords omitted) to trace or log output to a file
   - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
 - **Asynchronous support:**
@@ -202,13 +202,13 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **Download**() - Downloads a file from the server to a Stream or byte[]. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB.
 
-- **UploadFile**() - Uploads a file from the local file system to the server. Use `FtpExists.Append` to append to a file. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB.
+- **UploadFile**() - Uploads a file from the local file system to the server. Use `FtpExists.Append` to append to a file. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB. Optionally verifies the hash of a file & retries transfer if hash mismatches (enabled using `FtpVerify.Checksum | FtpVerify.Retry/Delete/Throw` flags)
 
-- **DownloadFile**() - Downloads a file from the server to the local file system. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB. Local directories are created if they do not exist.
+- **DownloadFile**() - Downloads a file from the server to the local file system. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB. Local directories are created if they do not exist. Optionally verifies the hash of a file & retries transfer if hash mismatches (enabled using `FtpVerify.Checksum | FtpVerify.Retry/Delete/Throw` flags)
 
-- **UploadFiles**() - Uploads multiple files from the local file system to a single folder on the server. Returns the number of files uploaded. Skipped files are not counted. All exceptions during file upload are absorbed internally. Prefer using this method over calling `UploadFile()` multiple times, as this method performs a single `GetListing()` to check for file existance.
+- **UploadFiles**() - Uploads multiple files from the local file system to a single folder on the server. Returns the number of files uploaded. Skipped files are not counted. User-defined error handling for exceptions during file upload (ignore/abort/throw). Prefer using this method over calling `UploadFile()` multiple times, as this method performs a single `GetListing()` to check for file existance.
 
-- **DownloadFiles**() - Downloads multiple files from server to a single directory on the local file system. Returns the number of files downloaded. Skipped files are not counted. All exceptions during file download are absorbed internally.
+- **DownloadFiles**() - Downloads multiple files from server to a single directory on the local file system. Returns the number of files downloaded. Skipped files are not counted. User-defined error handling for exceptions during file download (ignore/abort/throw). All exceptions during file download are absorbed internally.
 
 - **OpenRead**() - *(Prefer using `Download()` for downloading to a `Stream` or `byte[]`)* Open a stream to the specified file for reading. Returns a [standard `Stream`](#stream-handling). Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 
