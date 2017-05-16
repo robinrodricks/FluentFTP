@@ -40,6 +40,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 - **Extensible:**
   - Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/hgupta9/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
   - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/hgupta9/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
+  - Easily add custom logging/tracing functionality using `FtpTrace.AddListener`
 
 ## Releases
 
