@@ -9,30 +9,38 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 
 ## Features
 
-- Full support for [FTP](#ftp-support), FTPS (FTP over SSL) and [FTPS with client certificates](#client-certificates)
-- File and directory listing for [all major server types](#file-listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, etc)
-- Easily upload and download a file from the server
-- Easily read and write file data from the server using standard streams
-- Create, append, read, write, rename and delete files and folders
-- Recursively deletes folders and all its contents
-- Get file/folder info (exists, size, security flags, modified date/time)
-- Get and set [file permissions](#file-permissions) (owner, group, other)
-- Absolute or relative paths (relative to the "working directory")
-- Get the [hash/checksum](#file-hashing) of a file (SHA-1, SHA-256, SHA-512, and MD5)
-- Supports DrFTPD's PRET command, and the Unix CHMOD command
-- Supports FTP Proxies (User@Host, HTTP 1.1)
-- Dereferencing of symbolic links
-- Passive and active data connections (PASV, EPSV, PORT and EPRT)
-- Synchronous and asynchronous methods (`async`/`await` pattern) for all operations 
-- Explicit and Implicit SSL connections are supported for the control and data connections using .NET's `SslStream`
-- Easily send server-specific FTP commands using the `Execute()` method
-- Improves thread safety by cloning the FTP control connection for file transfers (optional)
-- Implements its own internal locking in an effort to keep transactions synchronized
-- Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/hgupta9/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
-- Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/hgupta9/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
-- Transaction logging using `TraceListeners` (passwords are automatically omitted)
-- Examples for nearly all methods (see [Examples](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples))
-- SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
+- Full support for [FTP](#ftp-support), [FTPS](#faq_ftps) (FTP over SSL) and [FTPS with client certificates](#faq_certs)
+- **File management:**
+  - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, etc)
+  - Easily upload and download a file from the server
+  - Automatically [verify the hash](#faq_verifyhash) of a file & retry transfer if hash mismatches
+  - Configurable error handling (ignore/abort/throw) for multi-file transfers
+  - Easily read and write file data from the server using standard streams
+  - Create, append, read, write, rename and delete files and folders
+  - Recursively deletes folders and all its contents
+  - Get file/folder info (exists, size, security flags, modified date/time)
+  - Get and set [file permissions](#file-permissions) (owner, group, other)
+  - Absolute or relative paths (relative to the "working directory")
+  - Get the [hash/checksum](#file-hashing) of a file (SHA-1, SHA-256, SHA-512, and MD5)
+  - Dereference of symbolic links to calculate the linked file/folder
+- **FTP protocol:**
+  - Extensive support for [FTP commands](#ftp-support), including some server-specific commands
+  - Easily send server-specific FTP commands using the `Execute()` method
+  - Explicit and Implicit SSL connections are supported for the control and data connections using .NET's `SslStream`
+  - Passive and active data connections (PASV, EPSV, PORT and EPRT)
+  - Supports DrFTPD's PRET command, and the Unix CHMOD command
+  - Supports [FTP Proxies](#faq_loginproxy) (User@Host, HTTP 1.1)
+  - FTP command logging using `TraceListeners` (passwords omitted) to trace or log output to a file
+  - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
+- **Asynchronous support:**
+  - Synchronous and asynchronous methods using `async`/`await` for all operations 
+  - Asynchronous methods for .NET 4.0 and below using `IAsyncResult` pattern (Begin*/End*)
+  - Improves thread safety by cloning the FTP control connection for file transfers (optional)
+  - Implements its own internal locking in an effort to keep transactions synchronized
+- **Extensible:**
+  - Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/hgupta9/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
+  - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/hgupta9/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
+  - Easily add custom logging/tracing functionality using `FtpTrace.AddListener`
 
 ## Releases
 
@@ -95,13 +103,17 @@ client.DownloadFile(@"C:\MyVideo_2.mp4", "/htdocs/big2.txt");
 client.DeleteFile("/htdocs/big2.txt");
 
 // delete a folder recursively
-client.DeleteDirectory("/htdocs/extras/", true);
+client.DeleteDirectory("/htdocs/extras/");
 
 // check if a file exists
 if (client.FileExists("/htdocs/big2.txt")){ }
 
 // check if a folder exists
 if (client.DirectoryExists("/htdocs/extras/")){ }
+
+// upload a file and retry 3 times before giving up
+client.RetryAttempts = 3;
+client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt", FtpExists.Overwrite, false, FtpVerify.Retry);
 
 // disconnect! good bye!
 client.Disconnect();
@@ -151,7 +163,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 ### Directory Listing
 
-- **GetListing**() - Get a [file listing](#file-listings) of the given directory. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
+- **GetListing**() - Get a [file listing](#faq_listings) of the given directory. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
 
 	- `Type` : The type of the object. (File, Directory or Link)
 	
@@ -190,17 +202,21 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 ### File Transfer
 
+High-level API:
+
 - **Upload**() - Uploads a Stream or byte[] to the server. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB.
 
 - **Download**() - Downloads a file from the server to a Stream or byte[]. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB.
 
-- **UploadFile**() - Uploads a file from the local file system to the server. Use `FtpExists.Append` to append to a file. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB.
+- **UploadFile**() - Uploads a file from the local file system to the server. Use `FtpExists.Append` to append to a file. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB. Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
 
-- **DownloadFile**() - Downloads a file from the server to the local file system. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB. Local directories are created if they do not exist.
+- **DownloadFile**() - Downloads a file from the server to the local file system. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks of 65KB. Local directories are created if they do not exist. Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
 
-- **UploadFiles**() - Uploads multiple files from the local file system to a single folder on the server. Returns the number of files uploaded. Skipped files are not counted. All exceptions during file upload are absorbed internally. Prefer using this method over calling `UploadFile()` multiple times, as this method performs a single `GetListing()` to check for file existance.
+- **UploadFiles**() - Uploads multiple files from the local file system to a single folder on the server. Returns the number of files uploaded. Skipped files are not counted. User-defined error handling for exceptions during file upload (ignore/abort/throw).  Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches. Faster than calling `UploadFile()` multiple times.
 
-- **DownloadFiles**() - Downloads multiple files from server to a single directory on the local file system. Returns the number of files downloaded. Skipped files are not counted. All exceptions during file download are absorbed internally.
+- **DownloadFiles**() - Downloads multiple files from server to a single directory on the local file system. Returns the number of files downloaded. Skipped files are not counted. User-defined error handling for exceptions during file download (ignore/abort/throw). Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
+
+Low-level API:
 
 - **OpenRead**() - *(Prefer using `Download()` for downloading to a `Stream` or `byte[]`)* Open a stream to the specified file for reading. Returns a [standard `Stream`](#stream-handling). Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 
@@ -251,6 +267,8 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 ### File Hashing
 
+*(Note: The [high-level file transfer API](#file-transfer) supports automatic hashing after upload/download).*
+
 *Standard commands supported by most servers*
 
 - **HashAlgorithms** - Get the hash types supported by the server, if any (represented by flags).
@@ -261,7 +279,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **SetHashAlgorithm**() - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
 
-*Non-standard commands supported by certain servers only. [Learn more](#hashing-commands)*
+*Non-standard commands supported by certain servers only. [Learn more](#faq_hashing)*
 
 - **GetChecksum**() - Retrieves a checksum of the given file using a checksumming method that the server supports, if any. The algorithm used goes in this order : HASH, MD5, XMD5, XSHA1, XSHA256, XSHA512, XCRC.
 
@@ -286,7 +304,7 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **SslProtocols** - Encryption protocols to use. **Default:** SslProtocols.Default.
 
-- **ClientCertificates** - X509 client certificates to be used in SSL authentication process. [Learn more.](#client-certificates)
+- **ClientCertificates** - X509 client certificates to be used in SSL authentication process. [Learn more.](#faq_certs)
 
 - **ValidateCertificate** - Event is fired to validate SSL certificates. If this event is not handled and there are errors validating the certificate the connection will be aborted.
 
@@ -307,6 +325,8 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 - **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
 
 - **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
+
+- **RetryAttempts** - The retry attempts allowed when a verification failure occurs during download or upload. **Default:** 1.
 
 - **IsClone** - Checks if this control connection is a clone. **Default:** false.
 
@@ -337,12 +357,12 @@ Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS fu
 
 - **DataConnectionReadTimeout** - Time to wait (in milliseconds) for the server to send data on the data channel, before giving up. **Default:** 15000 (15 seconds).
 
+- **SocketPollInterval** - Time that must pass (in milliseconds) since the last socket activity before calling `Poll()` on the socket to test for connectivity. Setting this interval too low will have a negative impact on perfomance. Setting this interval to 0 disables Poll()'ing all together. **Default:** 15000 (15 seconds).
+
 
 *Socket Settings*
 
 - **SocketKeepAlive** - Set `SocketOption.KeepAlive` on all future stream sockets. **Default:** false.
-
-- **SocketPollInterval** - Time that must pass (in milliseconds) since the last socket activity before calling `Poll()` on the socket to test for connectivity. Setting this interval too low will have a negative impact on perfomance. Setting this interval to 0 disables Poll()'ing all together. **Default:** 15000 (15 seconds).
 
 - **StaleDataCheck** - Check if there is stale (unrequested data) sitting on the socket or not. In some cases the control connection may time out but before the server closes the connection it might send a 4xx response that was unexpected and can cause synchronization errors with transactions. To avoid this problem the Execute() method checks to see if there is any data available on the socket before executing a command. **Default:** true.
 
@@ -402,6 +422,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **NLST**  			| GetNameListing()<br>GetListing() with FtpListOption.ForceNameList	| Get directory name list 	|
 | **MLST**				| GetObjectInfo()		| Get file information			|
 | **DELE**      		| DeleteFile()			| Delete a file |
+| **MKD**      			| CreateDirectory() 	| Create a directory |
 | **RMD**      			| DeleteDirectory() 	| Delete a directory |
 | **CWD**      			| SetWorkingDirectory() | Change the working directory |
 | **PWD**      			| GetWorkingDirectory() | Get the working directory |
@@ -423,6 +444,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 
 ## FAQ
 
+<a name="faq_ftps"></a>
 **How do I connect with SSL/TLS? / How do I use FTPS?**
 
 Use this code:
@@ -441,18 +463,66 @@ void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
 }
 ```
 
+<a name="faq_sftp"></a>
 **How do I connect with SFTP?**
 
 SFTP is not supported as it is FTP over SSH, a completely different protocol. Use [SSH.NET](https://github.com/sshnet/SSH.NET) for that.
 
+
+<a name="faq_loginanon"></a>
+**How do I login with an anonymous FTP account? / I'm getting login errors but I can login fine in Firefox/Filezilla**
+
+Do NOT set the `Credentials` property, so we can login anonymously. Or you can manually specify the following:
+```cs
+client.Credentials = new NetworkCredential("anonymous", "anonymous");
+```
+
+<a name="faq_loginproxy"></a>
+**How do I login with an FTP proxy?**
+
+Create a new instance of `FtpClientHttp11Proxy` or `FtpClientUserAtHostProxy` and use FTP properties/methods like normal.
+
+
+<a name="faq_uploadbytes"></a>
 **How can I upload data created on the fly?**
 
 Use Upload() for uploading a `Stream` or `byte[]`.
 
+
+<a name="faq_downloadbytes"></a>
 **How can I download data without saving it to disk?**
 
 Use Download() for downloading to a `Stream` or `byte[]`.
 
+
+<a name="faq_verifyhash"></a>
+**How do I verify the hash/checksum of a file and retry if the checksum mismatches?**
+
+Add the `FtpVerify` options to UploadFile() or DownloadFile() to enable automatic checksum verification.
+```cs
+// retry 3 times when uploading a file
+client.RetryAttempts = 3;
+
+// upload a file and retry 3 times before giving up
+client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4", FtpExists.Overwrite, false, FtpVerify.Retry);
+```
+
+All the possible configurations are:
+
+- `FtpVerify.OnlyChecksum` - Verify checksum, return true/false based on success.
+
+- `FtpVerify.Delete` - Verify checksum, delete target file if mismatch.
+
+- `FtpVerify.Retry` - Verify checksum, retry copying X times and then give up.
+
+- `FtpVerify.Retry | FtpVerify.Throw` - Verify checksum, retry copying X times, then throw an error if still mismatching.
+
+- `FtpVerify.Retry | FtpVerify.Delete` - Verify checksum, retry copying X times, then delete target file if still mismatching.
+
+- `FtpVerify.Retry | FtpVerify.Delete | FtpVerify.Throw - Verify checksum, retry copying X times, delete target file if still mismatching, then throw an error
+
+
+<a name="faq_uploadmissing"></a>
 **How do I upload only the missing part of a file?**
 
 Using the new UploadFile() API:
@@ -462,9 +532,10 @@ Using the new UploadFile() API:
 client.UploadFile("C:\bigfile.iso", "/htdocs/bigfile.iso", FtpExists.Append);
 ```
 
+<a name="faq_append"></a>
 **How do I append to a file?**
 
-Using the new UploadFile() API:
+Using the UploadFile() API:
 ```cs
 // append data to an existing copy of the file
 File.AppendAllText(@"C:\readme.txt", "text to be appended" + Environment.NewLine);
@@ -473,7 +544,7 @@ File.AppendAllText(@"C:\readme.txt", "text to be appended" + Environment.NewLine
 client.UploadFile("C:\readme.txt", "/htdocs/readme.txt", FtpExists.Append);
 ```
 
-Using the older OpenAppend() API:
+Using the stream-based OpenAppend() API:
 ```cs
 using (FtpClient conn = new FtpClient()) {
 	conn.Host = "localhost";
@@ -493,21 +564,63 @@ using (FtpClient conn = new FtpClient()) {
 }
 ```
 
-**How do I login with an anonymous FTP account? / I'm getting login errors but I can login fine in Firefox/Filezilla**
 
-Do NOT set the `Credentials` property, so we can login anonymously. Or you can manually specify the following:
+<a name="faq_listings"></a>
+**How does GetListing() work internally?**
+
+1. When you call `GetListing()`, FluentFTP first attempts to use **machine listings** (MLSD command) if they are supported by the server. These are most accurate and you can expect correct file size and modification date (UTC). You may also force this mode using `client.ListingParser = FtpParser.Machine`, and disable it with the `FtpListOption.ForceList` flag. You should also include the `FtpListOption.Modify` flag for the most accurate modification dates (down to the second). 
+
+2. If machine listings are not supported we fallback to the appropriate **OS-specific parser** (LIST command), listed below. You may force usage of a specific parser using `client.ListingParser = FtpParser.*`.
+
+   - **Unix** parser : Works for Pure-FTPd, ProFTPD, vsftpd, etc. If you encounter errors you can always try the alternate Unix parser using `client.ListingParser = FtpParser.UnixAlt`.
+   
+   - **Windows** parser : Works for IIS, DOS, Azure, FileZilla Server, etc.
+   
+   - **VMS** parser : Works for Vax, VMS, OpenVMS, etc.
+   
+   - **NonStop** parser : Works for Tandem, HP NonStop Guardian, etc.
+   
+   - **IBM** parser : Works for IBM OS/400, etc.
+
+3. And if none of these satisfy you, you can fallback to **name listings** (NLST command), which are *much* slower than either LIST or MLSD. This is because NLST only sends a list of filenames, without any properties. The server has to be queried for the file size, modification date, and type (file/folder) on a file-by-file basis. Name listings can be forced using the `FtpListOption.ForceNameList` flag.
+
+
+<a name="faq_hashing"></a>
+**What kind of hashing commands are supported?**
+
+We support XCRC, XMD5, and XSHA which are non-standard commands and contain no kind of formal specification. They are not guaranteed to work and you are strongly encouraged to check the FtpClient.Capabilities flags for the respective flag (XCRC, XMD5, XSHA1, XSHA256, XSHA512) before calling these methods.
+
+Support for the MD5 command as described [here](http://tools.ietf.org/html/draft-twine-ftpmd5-00#section-3.1) has also been added. Again, check for FtpFeature.MD5 before executing the command.
+
+Support for the HASH command has been added to FluentFTP. It supports retrieving SHA-1, SHA-256, SHA-512, and MD5 hashes from servers that support this feature. The returned object, FtpHash, has a method to check the result against a given stream or local file. You can read more about HASH in [this draft](http://tools.ietf.org/html/draft-bryan-ftpext-hash-02).
+
+
+<a name="faq_trace"></a>
+**How do I trace FTP commands for debugging?**
+Do this at program startup (since its static it takes effect for all FtpClient instances.)
 ```cs
-client.Credentials = new NetworkCredential("anonymous", "anonymous");
+FtpTrace.FlushOnWrite = true;
+FtpTrace.AddListener(new ConsoleTraceListener());
 ```
-**How do I login with an FTP proxy?**
 
-Create a new instance of `FtpClientHttp11Proxy` or `FtpClientUserAtHostProxy` and use FTP properties/methods like normal.
 
+<a name="faq_logfile"></a>
+**How do I log critical errors to a file?**
+Do this at program startup (since its static it takes effect for all FtpClient instances.)
+```cs
+FtpTrace.FlushOnWrite = true;
+FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"));
+```
+
+
+<a name="faq_etsdc"></a>
 **What does `EnableThreadSafeDataConnections` do?**
 
 EnableThreadSafeDataConnections is an older feature built by the original author. If true, it opens a new FTP client instance (and reconnects to the server) every time you try to upload/download a file. It used to be the default setting, but it affects performance terribly so I disabled it and found many issues were solved as well as performance was restored. I believe if devs want multi-threaded uploading they should just start a new BackgroundWorker and create/use FtpClient within that thread. Try that if you want concurrent uploading, it should work fine.
 
-**I want to contribute some changes to FluentFTP. How can I do that? / How do I submit a pull request?**
+
+<a name="faq_fork"></a>
+**How can I contribute some changes to FluentFTP? / How do I submit a pull request?**
 
 First you must "fork" FluentFTP, then make changes on your local version, then submit a "pull request" to request me to merge your changes. To do this:
 
@@ -522,9 +635,19 @@ First you must "fork" FluentFTP, then make changes on your local version, then s
 9. Type a Summary, and click **Commit** (bottom)
 10. Click **Sync** (top right)
 
-**How do I bundle an X509 certificate from a file?**
 
-Firstly see this FAQ entry - https://github.com/hgupta9/FluentFTP#client-certificates
+<a name="faq_certs"></a>
+**How do I use client certificates to login with FTPS?**
+
+When you are using Client Certificates, be sure that:
+
+1. You use `X509Certificate2` objects, not the incomplete `X509Certificate` implementation.
+
+2. You do not use pem certificates, use p12 instead. See this [Stack Overflow thread](http://stackoverflow.com/questions/13697230/ssl-stream-failed-to-authenticate-as-client-in-apns-sharp) for more information. If you get SPPI exceptions with an inner exception about an unexpected or badly formatted message, you are probably using the wrong type of certificate.
+
+
+<a name="faq_x509"></a>
+**How do I bundle an X509 certificate from a file?**
 
 You need the certificate added into your local store, and then do something like this:
 
@@ -575,6 +698,7 @@ private void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs 
 
 ## Troubleshooting
 
+<a name="trouble_install"></a>
 **FluentFTP fails to install in Visual Studio 2010 (VS2010) > 'System.Runtime' already has a dependency defined for 'FluentFTP'.**
 
 Your VS has an older version of `nuget.exe` so it cannot properly install the latest FluentFTP. You must download nuget.exe` manually and run these commands:
@@ -582,6 +706,7 @@ Your VS has an older version of `nuget.exe` so it cannot properly install the la
 > cd D:\Projects\MyProjectDir\
 > C:\Nuget\nuget.exe install FluentFTP
 
+<a name="trouble_specialchars"></a>
 **After uploading a file with special characters like "Caffè.png" it appears as "Caff?.bmp" on the FTP server. The server supports only ASCII but "è" is ASCII. FileZilla can upload this file without problems.**
 
 Set the connection encoding manually to ensure that special characters work properly
@@ -589,6 +714,7 @@ Set the connection encoding manually to ensure that special characters work prop
 client.Encoding = System.Text.Encoding.GetEncoding(1252); // ANSI codepage 1252
 ```
 
+<a name="trouble_azure"></a>
 **I keep getting TimeoutException's in my Azure WebApp**
 
 First try reducing the socket polling interval, which Azure needs.
@@ -607,29 +733,21 @@ client.DataConnectionReadTimeout = 2000;
 
 If none of these work, remember that Azure has in intermittent bug wherein it changes the IP-address during a FTP request. The connection is established with IP-address A and for the data transfer Azure uses IP-address B and this isn't allowed on many firewalls. This is a known Azure bug.
 
+<a name="trouble_getreply"></a>
 **After successfully transfering a single file with OpenWrite/OpenAppend, the subsequent files fail with some random error, like "Malformed PASV response"**
 
 You need to call `FtpReply status = GetReply()` after you finish transfering a file to ensure no stale data is left over, which can mess up subsequent commands.
 
+
+<a name="trouble_ssl"></a>
+**SSL Negotiation is very slow during FTPS login**
+
+FluentFTP uses `SslStream` under the hood which is part of the .NET framework. `SslStream` uses a feature of windows for updating root CA's on the fly, which can cause a long delay in the certificate authentication process. This can cause issues in FluentFTP related to the `SocketPollInterval` property used for checking for ungraceful disconnections between the client and server. This [MSDN Blog](http://blogs.msdn.com/b/alejacma/archive/2011/09/27/big-delay-when-calling-sslstream-authenticateasclient.aspx) covers the issue with `SslStream` and talks about how to disable the auto-updating of the root CA's.
+
+FluentFTP logs the time it takes to authenticate. If you think you are suffering from this problem then have a look at Examples\Debug.cs for information on retrieving debug information.
+
+
 ## Notes
-
-### File Listings
-
-1. When you call `GetListing()`, FluentFTP first attempts to use **machine listings** (MLSD command) if they are supported by the server. These are most accurate and you can expect correct file size and modification date (UTC). You may also force this mode using `client.ListingParser = FtpParser.Machine`, and disable it with the `FtpListOption.ForceList` flag. You should also include the `FtpListOption.Modify` flag for the most accurate modification dates (down to the second). 
-
-2. If machine listings are not supported we fallback to the appropriate **OS-specific parser** (LIST command), listed below. You may force usage of a specific parser using `client.ListingParser = FtpParser.*`.
-
-   - **Unix** parser : Works for Pure-FTPd, ProFTPD, vsftpd, etc. If you encounter errors you can always try the alternate Unix parser using `client.ListingParser = FtpParser.UnixAlt`.
-   
-   - **Windows** parser : Works for IIS, DOS, Azure, FileZilla Server, etc.
-   
-   - **VMS** parser : Works for Vax, VMS, OpenVMS, etc.
-   
-   - **NonStop** parser : Works for Tandem, HP NonStop Guardian, etc.
-   
-   - **IBM** parser : Works for IBM OS/400, etc.
-
-3. And if none of these satisfy you, you can fallback to **name listings** (NLST command), which are *much* slower than either LIST or MLSD. This is because NLST only sends a list of filenames, without any properties. The server has to be queried for the file size, modification date, and type (file/folder) on a file-by-file basis. Name listings can be forced using the `FtpListOption.ForceNameList` flag.
 
 ### Stream Handling
 
@@ -721,20 +839,6 @@ Attaching via configuration file:
 </system.diagnostics>
 ```
 
-### Client Certificates
-
-When you are using Client Certificates, be sure that:
-
-1. You use X509Certificate2 objects, not the incomplete X509Certificate implementation.
-
-2. You do not use pem certificates, use p12 instead. See this [Stack Overflow thread](http://stackoverflow.com/questions/13697230/ssl-stream-failed-to-authenticate-as-client-in-apns-sharp) for more information. If you get SPPI exceptions with an inner exception about an unexpected or badly formatted message, you are probably using the wrong type of certificate.
-
-### Slow SSL Negotiation
-
-FluentFTP uses `SslStream` under the hood which is part of the .NET framework. `SslStream` uses a feature of windows for updating root CA's on the fly, at least that's the way I understand it. These updates can cause a long delay in the certificate authentication process which can cause issues in FluentFTP related to the SocketPollInterval property used for checking for ungraceful disconnections between the client and server. This [MSDN Blog](http://blogs.msdn.com/b/alejacma/archive/2011/09/27/big-delay-when-calling-sslstream-authenticateasclient.aspx) covers the issue with SslStream and talks about how to disable the auto-updating of the root CA's.
-
-The latest builds of FluentFTP log the time it takes to authenticate. If you think you are suffering from this problem then have a look at Examples\Debug.cs for information on retrieving debug information.
-
 ### Handling Ungraceful Interruptions in the Control Connection
 
 FluentFTP uses `Socket.Poll()` to test for connectivity after a user-definable period of time has passed since the last activity on the control connection. When the remote host closes the connection there is no way to know, without triggering an exception, other than using `Poll()` to make an educated guess. When the connectivity test fails the connection is automatically re-established. This process helps a great deal in gracefully reconnecting however it does not eliminate your responsibility for catching IOExceptions related to an ungraceful interruption in the connection. Usually, maybe always, when this occurs the InnerException will be a SocketException. How you want to handle the situation from there is up to you.
@@ -749,14 +853,6 @@ catch(IOException e) {
     }
 }
 ```````
-
-### Hashing Commands
-
-XCRC, XMD5, and XSHA are non standard commands and contain no kind of formal specification. They are not guaranteed to work and you are strongly encouraged to check the FtpClient.Capabilities flags for the respective flag (XCRC, XMD5, XSHA1, XSHA256, XSHA512) before calling these methods.
-
-Support for the MD5 command as described [here](http://tools.ietf.org/html/draft-twine-ftpmd5-00#section-3.1) has also been added. Again, check for FtpFeature.MD5 before executing the command.
-
-Support for the HASH command has been added to FluentFTP. It supports retrieving SHA-1, SHA-256, SHA-512, and MD5 hashes from servers that support this feature. The returned object, FtpHash, has a method to check the result against a given stream or local file. You can read more about HASH in [this draft](http://tools.ietf.org/html/draft-bryan-ftpext-hash-02).
 
 ### Pipelining
 
@@ -810,27 +906,63 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 17.4.0
+- Ability to cancel async file transfers using `CancellationToken` (thanks [jblacker](https://github.com/jblacker))
+
+#### 17.3.0
+- Automatically verify checksum of a file after upload/download (thanks [jblacker](https://github.com/jblacker))
+- Configurable error handling (abort/throw/ignore) for file transfers (thanks [jblacker](https://github.com/jblacker))
+- Multiple log levels for tracing/logging debug output in FtpTrace (thanks [jblacker](https://github.com/jblacker))
+
 #### 17.2.0
 - Simplify DeleteDirectory() API - the `force` and `fastMode` args are no longer required
 - DeleteDirectory() is faster since it uses one recursive file listing instead of many
 - Remove .NET Standard 1.4 to improve nuget update reliability, since we need 1.6 anyway
 
 #### 17.1.0
+- Split stream API into Upload()/UploadFile() and Download()/DownloadFile()
+
+#### 17.0.0
 - Greatly improve performance of FileExists() and GetNameListing()
 - Add new OS-specific directory listing parsers to GetListing() and GetObjectInfo()
 - Support GetObjectInfo() even if machine listings are not supported by the server
 - Add `existsMode` to UploadFile() and UploadFiles() allowing for skip/overwrite and append
 - Remove all usages of string.Format to fix reliability issues caused with UTF filenames
-- Fix issue of broken files when uploading/downloading through a FTP proxy
+- Fix issue of broken files when uploading/downloading through a proxy (thanks [Zoltan666](https://github.com/Zoltan666))
 - GetReply() is now public so users of OpenRead/OpenAppend/OpenWrite can call it after
-- Split stream API into Upload()/UploadFile() and Download()/DownloadFile()
 
 #### 16.5.0
-- Add async/await support to all methods for .NET 4.5 and onwards (Thank you [jblacker](https://github.com/jblacker))
+- Add async/await support to all methods for .NET 4.5 and onwards (thanks [jblacker](https://github.com/jblacker))
+
+#### 16.4.0
+- Support for .NET Standard 1.4 added.
+
+#### 16.2.5
+- Add UploadFiles() and DownloadFiles() which is faster than single file transfers
+- Allow disabling UTF mode using DisableUTF8 API
+
+#### 16.2.4
+- First .NET Core release (DNXCore5.0) using Visual Studio 2017 project and shared codebase.
+- Support for .NET 2.0 also added with shims for LINQ commands needed.
+
+#### 16.2.1
+- Add FtpListOption.IncludeSelfAndParent to GetListing()
+
+#### 16.1.0
+- Use streams during upload/download of files to improve performance with large files
+
+#### 16.0.18
+- Support for uploading/downloading to Streams and byte[] with UploadFile() and DownloadFile()
+
+#### 16.0.17
+- Added high-level UploadFile() and DownloadFile() API. Fixed some race conditions.
+
+#### 16.0.14
+- Added support for FTP proxies using HTTP 1.1 and User@Host modes. (thanks [L3Z4](https://github.com/L3Z4))
 
 ## Credits
 
 - [J.P. Trosclair](https://github.com/jptrosclair) - Original creator, owner upto 2016
 - [Harsh Gupta](https://github.com/hgupta9) - Owner and maintainer from 2016 onwards
-- [Jordan Blacker](https://github.com/jblacker) - `async`/`await` support for all methods
+- [Jordan Blacker](https://github.com/jblacker) - `async`/`await` support for all methods, post-transfer hash verification, configurable error handling, multiple log levels
 - [Atif Aziz](https://github.com/atifaziz) & Joseph Albahari - LINQBridge (allows LINQ in .NET 2.0)
