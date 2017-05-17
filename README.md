@@ -488,34 +488,37 @@ Create a new instance of `FtpClientHttp11Proxy` or `FtpClientUserAtHostProxy` an
 
 Use Upload() for uploading a `Stream` or `byte[]`.
 
+
 <a name="faq_downloadbytes"></a>
 **How can I download data without saving it to disk?**
 
 Use Download() for downloading to a `Stream` or `byte[]`.
 
-<a name="faq_verifyhash"></a>
-**How do I verify the hash/checksum of a file and retry uploading/downloading if the hash mismatches?**
 
-Use UploadFile() or DownloadFile() in one of these ways:
+<a name="faq_verifyhash"></a>
+**How do I verify the hash/checksum of a file and retry if the checksum mismatches?**
+
+Add the `FtpVerify` options to UploadFile() or DownloadFile() to enable automatic checksum verification.
 ```cs
 // retry 3 times when uploading a file
 client.RetryAttempts = 3;
 
 // upload a file and retry 3 times before giving up
 client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4", FtpExists.Overwrite, false, FtpVerify.Retry);
-
-// upload a file and retry 3 times before throwing an error
-client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4", FtpExists.Overwrite, false, FtpVerify.Retry | FtpVerify.Throw);
-
-// upload a file and retry 3 times before deleting the file from the server
-client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4", FtpExists.Overwrite, false, FtpVerify.Retry | FtpVerify.Delete);
-
-// upload a file and throw an error if hash fails
-client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4", FtpExists.Overwrite, false, FtpVerify.Throw);
-
-// upload a file and delete the file from the server if hash fails
-client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4", FtpExists.Overwrite, false, FtpVerify.Delete);
 ```
+
+All the possible configurations are:
+
+- `FtpVerify.OnlyChecksum` - Verify checksum, return true/false based on success.
+
+- `FtpVerify.Delete` - Verify checksum, delete target file if mismatch.
+
+- `FtpVerify.Retry` - Verify checksum, retry copying X times and then give up.
+
+- `FtpVerify.Retry | FtpVerify.Throw` - Verify checksum, retry copying X times, then throw an error if still mismatching.
+
+- `FtpVerify.Retry | FtpVerify.Delete` - Verify checksum, retry copying X times, then delete target file if still mismatching.
+
 
 <a name="faq_uploadmissing"></a>
 **How do I upload only the missing part of a file?**
@@ -589,6 +592,23 @@ Support for the MD5 command as described [here](http://tools.ietf.org/html/draft
 
 Support for the HASH command has been added to FluentFTP. It supports retrieving SHA-1, SHA-256, SHA-512, and MD5 hashes from servers that support this feature. The returned object, FtpHash, has a method to check the result against a given stream or local file. You can read more about HASH in [this draft](http://tools.ietf.org/html/draft-bryan-ftpext-hash-02).
 
+
+<a name="faq_trace"></a>
+**How do I trace FTP commands for debugging?**
+Do this at program startup (since its static it takes effect for all FtpClient instances.)
+```cs
+FtpTrace.FlushOnWrite = true;
+FtpTrace.AddListener(new ConsoleTraceListener());
+```
+
+
+<a name="faq_logfile"></a>
+**How do I log critical errors to a file?**
+Do this at program startup (since its static it takes effect for all FtpClient instances.)
+```cs
+FtpTrace.FlushOnWrite = true;
+FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"));
+```
 
 
 <a name="faq_etsdc"></a>

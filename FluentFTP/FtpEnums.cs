@@ -474,11 +474,11 @@ namespace FluentFTP {
 		/// </summary>
 		Skip,
 		/// <summary>
-		/// Overwrite the file if it exists, by deleting it before uploading/downloading.
+		/// Overwrite the file if it exists.
 		/// </summary>
 		Overwrite,
 		/// <summary>
-		/// Append to the file if it exists, by checking the length and adding missing data.
+		/// Append to the file if it exists, by checking the length and adding the missing data.
 		/// </summary>
 		Append
 	}
