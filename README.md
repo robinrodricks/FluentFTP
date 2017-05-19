@@ -463,6 +463,27 @@ void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
 }
 ```
 
+<a name="faq_ftps"></a>
+**How do I verify the server's certificate when using FTPS?**
+
+First you must discover the string of the valid certificate. Use this code to save the the valid certificate string to a file:
+```cs
+void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
+    File.WriteAllText(@"C:\cert.txt", e.Certificate.GetRawCertDataString());
+}
+```
+Then finally use this code to check if the recieved certificate matches the one you trust:
+```cs
+string ValidCert = "<insert contents of cert.txt>";
+void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e)  {
+    if (e.PolicyErrors == SslPolicyErrors.None || e.Certificate.GetRawCertDataString() == ValidCert) {
+        e.Accept = true;
+    }else{
+        throw new Exception("Invalid certificate : " + e.PolicyErrors);
+    }
+}
+```
+
 <a name="faq_sftp"></a>
 **How do I connect with SFTP?**
 
