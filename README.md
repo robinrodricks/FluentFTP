@@ -519,7 +519,7 @@ All the possible configurations are:
 
 - `FtpVerify.Retry | FtpVerify.Delete` - Verify checksum, retry copying X times, then delete target file if still mismatching.
 
-- `FtpVerify.Retry | FtpVerify.Delete | FtpVerify.Throw - Verify checksum, retry copying X times, delete target file if still mismatching, then throw an error
+- `FtpVerify.Retry | FtpVerify.Delete | FtpVerify.Throw` - Verify checksum, retry copying X times, delete target file if still mismatching, then throw an error
 
 
 <a name="faq_uploadmissing"></a>
