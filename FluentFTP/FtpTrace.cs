@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define TRACE
+using System;
 using System.Diagnostics;
 
 namespace FluentFTP {
@@ -11,11 +12,11 @@ namespace FluentFTP {
 	/// </example>
 	public static class FtpTrace {
 
-
 #if !CORE
 		//static List<TraceListener> m_listeners = new List<TraceListener>();
-	    private static readonly TraceSource m_traceSource = new TraceSource("FluentFTP");
-
+	    private static readonly TraceSource m_traceSource = new TraceSource("FluentFTP") {
+	        Switch = new SourceSwitch("sourceSwitch", "Verbose") { Level = SourceLevels.All }
+	    };
 
 		static bool m_flushOnWrite = false;
 
@@ -89,7 +90,9 @@ namespace FluentFTP {
 		    Debug.Write(msg);
 #elif !CORE
 	        var diagTraceLvl = TraceLevelTranslation(eventType);
-	        m_traceSource.TraceEvent(diagTraceLvl, 0, message);
+	        m_traceSource.TraceEvent(diagTraceLvl, 0, msg);
+	        if (m_flushOnWrite)
+	            m_traceSource.Flush();
 #endif
 	    }
 

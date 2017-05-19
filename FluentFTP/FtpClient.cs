@@ -2731,25 +2731,15 @@ namespace FluentFTP {
 #endif
 
 		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions) {
-			FileStream fileStream;
-			try {
-				// connect to the file
-				fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-
-			} catch (Exception ex1) {
-				// catch errors opening file stream
-				throw new FtpException("Error while reading the file from the disk. See InnerException for more info.", ex1);
-			}
-
-            //If retries are allowed set the retry counter to the allowed count
+			//If retries are allowed set the retry counter to the allowed count
 		    int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
             //Default validation to true (if verification isn't needed it'll allow a pass-through)
 		    bool verified = true;
 		    bool uploadSuccess;
-			// write the file onto the server
-			using (fileStream) {
-			    do {
-                    //Upload file
+		    do {
+			    // write the file onto the server
+		        using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+			        //Upload file
                     uploadSuccess = UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown);
 			        attemptsLeft--;
                     //If verification is needed update the validated flag
@@ -2765,9 +2755,9 @@ namespace FluentFTP {
 			                existsMode = FtpExists.Overwrite;
 			            }
 			        }
-                //Loop if attempts are available and validation failed
-			    } while (!verified && attemptsLeft > 0);
-			}
+		        }
+            } while (!verified && attemptsLeft > 0);//Loop if attempts are available and validation failed
+			
 
 		    if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
 		        this.DeleteFile(remotePath);
@@ -2783,23 +2773,15 @@ namespace FluentFTP {
 #if (CORE || NETFX45)
 	    private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, 
             bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token) {
-	        FileStream fileStream;
-	        try {
-	            //Connect to the file
-	            fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read);
-	        }
-	        catch (Exception ex1) {
-                // catch errors opening file stream
-                throw new FtpException("Error while reading the file from the disk. See InnerException for more info.", ex1);
-	        }
+	        
 
 	        //If retries are allowed set the retry counter to the allowed count
 	        int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 	        //Default validation to true (if verification isn't needed it'll allow a pass-through)
 	        bool verified = true;
 	        bool uploadSuccess;
-	        using (fileStream) {
-	            do {
+	        do {
+	            using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
 	                uploadSuccess = await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode,fileExists, fileExistsKnown, token);
 	                attemptsLeft--;
 
@@ -2815,8 +2797,8 @@ namespace FluentFTP {
 	                        existsMode = FtpExists.Overwrite;
 	                    }
 	                }
-	            } while (!verified && attemptsLeft > 0);
-	        }
+	            }
+	        } while (!verified && attemptsLeft > 0);
 
 	        if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
 	            await this.DeleteFileAsync(remotePath);

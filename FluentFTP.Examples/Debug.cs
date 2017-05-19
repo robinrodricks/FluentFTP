@@ -4,9 +4,7 @@ using FluentFTP;
 
 namespace Examples {
     /// <summary>
-    /// Example for logging server transactions for use in debugging problems. If DEBUG
-    /// is defined this information is logged via System.Diagnostics.Debug.Write() as well 
-    /// so you'll the same information in your Visual Studio Output window
+    /// Example for logging server transactions for use in debugging problems.
     /// </summary>
     public static class DebugExample {
         /// <summary>
@@ -49,5 +47,41 @@ namespace Examples {
         static void LogToCustomListener() {
             FtpTrace.AddListener(new CustomTraceListener());
         }
+
+        //Listeners can also be attached via app.config, web.config, or machine.config files
+        /*
+         * <system.diagnostics>
+         *      <trace autoflush="true"></trace>
+         *      <sources>
+         *        <source name="FluentFTP">
+         *          <listeners>
+         *            <clear />
+         *            <!--Attach NLog Trace Listener -->
+         *            <add name="nlog" />
+         *            <!-- Attach a Console Listener -->
+         *            <add name="console />
+         *            <!-- Attach a File Trace Listener -->
+         *            <add name="file" />
+         *            <!-- Attach a Custom Listener -->
+         *            <add name="myLogger" />
+         *         </listeners>
+         *        </source>
+         *      </sources>
+         *      <sharedListeners>
+         *         <!--Define Console Listener -->
+         *         <add name="console" type="System.Diagnostics.ConsoleTraceListener" />
+         *         <!--Define File Listener -->
+         *         <add name="file" type="System.Diagnostics.TextWriterTraceListener
+         *          initializeData="outputFile.log">
+         *              <!--Only write errors -->
+         *              <filter type="System.Diagnostics.EventTypeFilter" initializeData="Error" />
+         *          </add>
+         *         <!--Define Custom Listener -->
+         *         <add name="custom" type="MyNamespace.MyCustomTraceListener />
+         *        <!-- Define NLog Logger -->
+         *        <add name="nlog" type="NLog.NLogTraceListener, NLog" />
+         *      </sharedListeners>
+         *    </system.diagnostics>
+         */
     }
 }
