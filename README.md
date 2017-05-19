@@ -26,11 +26,11 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 - **FTP protocol:**
   - Extensive support for [FTP commands](#ftp-support), including some server-specific commands
   - Easily send server-specific FTP commands using the `Execute()` method
-  - Explicit and Implicit SSL connections are supported for the control and data connections using .NET's `SslStream`
+  - Explicit and Implicit [SSL connections](#faq_ftps) are supported for the control and data connections using .NET's `SslStream`
   - Passive and active data connections (PASV, EPSV, PORT and EPRT)
   - Supports DrFTPD's PRET command, and the Unix CHMOD command
   - Supports [FTP Proxies](#faq_loginproxy) (User@Host, HTTP 1.1)
-  - FTP command logging using `TraceListeners` (passwords omitted) to trace or log output to a file
+  - FTP command logging using `TraceListeners` (passwords omitted) to [trace](#faq_trace) or [log output](#faq_logfile) to a file
   - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
 - **Asynchronous support:**
   - Synchronous and asynchronous methods using `async`/`await` for all operations 
