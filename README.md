@@ -132,7 +132,7 @@ client.Disconnect();
 
 ## API
 
-Quick API documentation for the `FtpClient` class, which handles all FTP/FTPS functionality.
+Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS functionality.
 
 **Note:** All methods support synchronous and asynchronous versions. Simply add the "Async" postfix to a method for `async`/`await` syntax in .NET 4.5+, or add the "Begin"/"End" prefix to a method for .NET 4.0 and below.
 
