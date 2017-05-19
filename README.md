@@ -11,7 +11,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 
 - Full support for [FTP](#ftp-support), [FTPS](#faq_ftps) (FTP over SSL) and [FTPS with client certificates](#faq_certs)
 - **File management:**
-  - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, etc)
+  - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, Windows CE, etc)
   - Easily upload and download a file from the server
   - Automatically [verify the hash](#faq_verifyhash) of a file & retry transfer if hash mismatches
   - Configurable error handling (ignore/abort/throw) for multi-file transfers
@@ -731,6 +731,13 @@ client.DataConnectionReadTimeout = 2000;
 
 If none of these work, remember that Azure has in intermittent bug wherein it changes the IP-address during a FTP request. The connection is established with IP-address A and for the data transfer Azure uses IP-address B and this isn't allowed on many firewalls. This is a known Azure bug.
 
+
+<a name="trouble_windowsce"></a>
+**Many commands don't work on Windows CE**
+
+According to [this](https://msdn.microsoft.com/en-us/library/ms881872.aspx) from MSDN the Windows CE implementation of FTP is the bare minimum, and open to customization via source code. Many advanced commands such as CHMOD are unsupported.
+
+
 <a name="trouble_getreply"></a>
 **After successfully transfering a single file with OpenWrite/OpenAppend, the subsequent files fail with some random error, like "Malformed PASV response"**
 
@@ -743,6 +750,12 @@ You need to call `FtpReply status = GetReply()` after you finish transfering a f
 FluentFTP uses `SslStream` under the hood which is part of the .NET framework. `SslStream` uses a feature of windows for updating root CA's on the fly, which can cause a long delay in the certificate authentication process. This can cause issues in FluentFTP related to the `SocketPollInterval` property used for checking for ungraceful disconnections between the client and server. This [MSDN Blog](http://blogs.msdn.com/b/alejacma/archive/2011/09/27/big-delay-when-calling-sslstream-authenticateasclient.aspx) covers the issue with `SslStream` and talks about how to disable the auto-updating of the root CA's.
 
 FluentFTP logs the time it takes to authenticate. If you think you are suffering from this problem then have a look at Examples\Debug.cs for information on retrieving debug information.
+
+
+<a name="trouble_closedhost"></a>
+**Unable to read data from the transport connection : An existing connection was forcibly closed by the remote host**
+
+This means that on the server the [FTP daemon] service isn't running (probably not the case) or the service is currently still busy performing another operation. It almost sounds like the server is returning a message indicating it has completed an operation that's actually still currently processing, so when FluentFTP attempts to issue the next command the service says "um...I'm not done. Go away!".
 
 
 ## Notes
