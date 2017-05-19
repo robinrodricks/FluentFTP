@@ -692,7 +692,15 @@ First you must "fork" FluentFTP, then make changes on your local version, then s
 8. Click **Changes** (top)
 9. Type a Summary, and click **Commit** (bottom)
 10. Click **Sync** (top right)
-
+11. Open the [pull requests](https://github.com/hgupta9/FluentFTP/pulls) page to create a PR
+12. Click **New pull request** (top right)
+13. Click **compare across forks** (blue link, top right)
+14. On the right "head fork" select the fork with your username
+15. Click **Create pull request**
+16. Summarize the changes you made in the title
+17. Type details about the changes you made in the description
+18. Click **Create pull request**
+19. Thank you!
 
 <a name="faq_certs"></a>
 **How do I use client certificates to login with FTPS?**
