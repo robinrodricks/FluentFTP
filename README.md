@@ -823,8 +823,13 @@ FluentFTP logs the time it takes to authenticate. If you think you are suffering
 <a name="trouble_closedhost"></a>
 **Unable to read data from the transport connection : An existing connection was forcibly closed by the remote host**
 
-This means that on the server the [FTP daemon] service isn't running (probably not the case) or the service is currently still busy performing another operation. It almost sounds like the server is returning a message indicating it has completed an operation that's actually still currently processing, so when FluentFTP attempts to issue the next command the service says "um...I'm not done. Go away!".
+This means that on the server the [FTP daemon] service isn't running (probably not the case) or the service is currently still busy performing another operation. It almost sounds like the server is returning a message indicating it is still performing the last operation.
 
+Try reducing the polling interval to ensure that the connection does not time-out.
+
+```cs
+client.SocketPollInterval = 1000;
+```
 
 ## Notes
 
