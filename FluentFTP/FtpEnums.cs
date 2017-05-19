@@ -568,6 +568,11 @@ namespace FluentFTP {
 		/// occur upon the failure of the final retry, and/or if combined with <see cref="FtpVerify.Delete"/>
 		/// the method will throw after the deletion is processed.
         /// </summary>
-        Throw = 4
+		Throw = 4,
+		/// <summary>
+		/// The checksum of the file is verified, if supported by the server.
+		/// If the checksum comparison fails then the method returns false and no other action is taken.
+		/// </summary>
+		OnlyChecksum = 8,
     }
 }

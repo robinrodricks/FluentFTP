@@ -6487,7 +6487,8 @@ namespace FluentFTP {
             //Not supported return true to ignore validation
             return true;
 	    }
-
+		
+#if (CORE || NETFX45)
 	    private async Task<bool> VerifyTransferAsync(string localPath, string remotePath) {
 	        if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
 	            this.HasFeature(FtpCapability.XMD5) || this.HasFeature(FtpCapability.XCRC) ||
@@ -6504,6 +6505,7 @@ namespace FluentFTP {
 	        //Not supported return true to ignore validation
 	        return true;
 	    }
+#endif
 
 		private static string[] fileNotFoundStrings = new string[] { "can't check for file existence", "does not exist", "failed to open file", "not found", "no such file", "cannot find the file", "cannot find", "could not get file", "not a regular file" };
 		private bool IsKnownError(string reply, string[] strings) {

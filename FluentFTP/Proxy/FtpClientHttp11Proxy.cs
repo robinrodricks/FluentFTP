@@ -94,7 +94,7 @@ namespace FluentFTP.Proxy {
 
                     FtpTrace.WriteLine(FtpTraceLevel.Info, buf);
 
-					if (string.IsNullOrWhiteSpace(buf)) {
+					if (FtpExtensions.IsNullOrWhiteSpace(buf)) {
 						break;
 					}
 					
@@ -105,5 +105,6 @@ namespace FluentFTP.Proxy {
 
 			return reply;
 		}
+
 	}
 }

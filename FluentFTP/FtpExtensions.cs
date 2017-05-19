@@ -227,5 +227,24 @@ namespace FluentFTP {
 	        return options != (FtpError.Stop | FtpError.Throw) &&
 	               options != (FtpError.Throw | FtpError.Stop | FtpError.DeleteProcessed);
 	    }
+
+		public static bool IsNullOrWhiteSpace(string value) {
+			if (value == null) return true;
+
+			for (int i = 0; i < value.Length; i++) {
+				if (!Char.IsWhiteSpace(value[i])) return false;
+			}
+
+			return true;
+		}
+
+#if NET2
+		public static bool HasFlag(this FtpVerify flags, FtpVerify flag) {
+			return (flags & flag) == flag;
+		}
+		public static bool HasFlag(this FtpError flags, FtpError flag) {
+			return (flags & flag) == flag;
+		}
+#endif
 	}
 }
