@@ -597,6 +597,7 @@ Support for the HASH command has been added to FluentFTP. It supports retrieving
 
 <a name="faq_trace"></a>
 **How do I trace FTP commands for debugging?**
+
 Do this at program startup (since its static it takes effect for all FtpClient instances.)
 ```cs
 FtpTrace.FlushOnWrite = true;
@@ -606,6 +607,7 @@ FtpTrace.AddListener(new ConsoleTraceListener());
 
 <a name="faq_logfile"></a>
 **How do I log critical errors to a file?**
+
 Do this at program startup (since its static it takes effect for all FtpClient instances.)
 ```cs
 FtpTrace.FlushOnWrite = true;
