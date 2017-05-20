@@ -231,17 +231,21 @@ Low-level API:
 
 - **SetWorkingDirectory**() - Sets the full path of the current working directory. All relative paths are relative to the working directory.
 
+- **DirectoryExists**() - Check if a directory exists on the server.
+
+- **FileExists**() - Check if a file exists on the server.
+
 - **CreateDirectory**() - Creates a directory on the server. If the parent directories do not exist they are also created.
 
 - **DeleteDirectory**() - Deletes the specified directory on the server. If it is not empty then all subdirectories and files are recursively deleted.
 
 - **DeleteFile**() - Deletes the specified file on the server.
 
-- **Rename**() - Renames the file/directory on the server.
+- **MoveDirectory**() - Moves a directory from one place to another on the server. The destination directory is deleted before moving if `FtpExists.Overwrite` is used. Only throws exceptions for critical errors.
 
-- **FileExists**() - Check if a file exists on the server.
+- **MoveFile**() - Moves a file from one directory to another on the server. The destination file is deleted before moving if `FtpExists.Overwrite` is used. Only throws exceptions for critical errors.
 
-- **DirectoryExists**() - Check if a directory exists on the server.
+- **Rename**() - Renames the file/directory on the server. Low level method that should NOT be used in most cases. Prefer `MoveFile()` and `MoveDirectory()`. Throws exceptions if the file does not exist, or if the destination file already exists.
 
 - **GetModifiedTime**() - Gets the last modified date/time of the file or folder.
 
