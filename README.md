@@ -202,7 +202,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 ### File Transfer
 
-High-level API:
+*High-level API:*
 
 - **Upload**() - Uploads a Stream or byte[] to the server. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks of 65KB.
 
@@ -216,7 +216,7 @@ High-level API:
 
 - **DownloadFiles**() - Downloads multiple files from server to a single directory on the local file system. Returns the number of files downloaded. Skipped files are not counted. User-defined error handling for exceptions during file download (ignore/abort/throw). Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
 
-Low-level API:
+*Low-level API:*
 
 - **OpenRead**() - *(Prefer using `Download()` for downloading to a `Stream` or `byte[]`)* Open a stream to the specified file for reading. Returns a [standard `Stream`](#stream-handling). Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 
@@ -227,21 +227,27 @@ Low-level API:
 
 ### File Management
 
+*Working directory (relative paths are relative to this directory):*
+
 - **GetWorkingDirectory**() - Gets the full path of the current working directory.
 
 - **SetWorkingDirectory**() - Sets the full path of the current working directory. All relative paths are relative to the working directory.
 
-- **DirectoryExists**() - Check if a directory exists on the server.
+*Directories:*
 
-- **FileExists**() - Check if a file exists on the server.
+- **DirectoryExists**() - Check if a directory exists on the server.
 
 - **CreateDirectory**() - Creates a directory on the server. If the parent directories do not exist they are also created.
 
 - **DeleteDirectory**() - Deletes the specified directory on the server. If it is not empty then all subdirectories and files are recursively deleted.
 
-- **DeleteFile**() - Deletes the specified file on the server.
-
 - **MoveDirectory**() - Moves a directory from one place to another on the server. The destination directory is deleted before moving if `FtpExists.Overwrite` is used. Only throws exceptions for critical errors.
+
+*Files:*
+
+- **FileExists**() - Check if a file exists on the server.
+
+- **DeleteFile**() - Deletes the specified file on the server.
 
 - **MoveFile**() - Moves a file from one directory to another on the server. The destination file is deleted before moving if `FtpExists.Overwrite` is used. Only throws exceptions for critical errors.
 
