@@ -16,7 +16,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
   - Automatically [verify the hash](#faq_verifyhash) of a file & retry transfer if hash mismatches
   - Configurable error handling (ignore/abort/throw) for multi-file transfers
   - Easily read and write file data from the server using standard streams
-  - Create, append, read, write, rename and delete files and folders
+  - Create, append, read, write, rename, move and delete files and folders
   - Recursively deletes folders and all its contents
   - Get file/folder info (exists, size, security flags, modified date/time)
   - Get and set [file permissions](#file-permissions) (owner, group, other)
