@@ -245,7 +245,7 @@ Low-level API:
 
 - **MoveFile**() - Moves a file from one directory to another on the server. The destination file is deleted before moving if `FtpExists.Overwrite` is used. Only throws exceptions for critical errors.
 
-- **Rename**() - Renames the file/directory on the server. Low level method that should NOT be used in most cases. Prefer `MoveFile()` and `MoveDirectory()`. Throws exceptions if the file does not exist, or if the destination file already exists.
+- **Rename**() - Renames the file/directory on the server. Low level method that should NOT be used in most cases. Prefer `MoveFile()` and `MoveDirectory()`. Throws exceptions if the source does not exist, or if the destination already exists.
 
 - **GetModifiedTime**() - Gets the last modified date/time of the file or folder.
 
