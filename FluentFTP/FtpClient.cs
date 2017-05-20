@@ -4271,6 +4271,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Moves a file on the remote file system from one directory to another.
 		/// Always checks if the source file exists. Checks if the dest file exists based on the `existsMode` parameter.
+		/// Only throws exceptions for critical errors.
 		/// </summary>
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
@@ -4301,7 +4302,9 @@ namespace FluentFTP {
 		delegate bool AsyncMoveFile(string path, string dest, FtpExists existsMode);
 
 		/// <summary>
-		/// Begins an asynchronous operation to move a file on the remote file system
+		/// Begins an asynchronous operation to move a file on the remote file system, from one directory to another.
+		/// Always checks if the source file exists. Checks if the dest file exists based on the `existsMode` parameter.
+		/// Only throws exceptions for critical errors.
 		/// </summary>
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
@@ -4333,6 +4336,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Moves a file asynchronously on the remote file system from one directory to another.
 		/// Always checks if the source file exists. Checks if the dest file exists based on the `existsMode` parameter.
+		/// Only throws exceptions for critical errors.
 		/// </summary>
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
@@ -4352,6 +4356,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Moves a directory on the remote file system from one directory to another.
 		/// Always checks if the source directory exists. Checks if the dest directory exists based on the `existsMode` parameter.
+		/// Only throws exceptions for critical errors.
 		/// </summary>
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
@@ -4382,7 +4387,9 @@ namespace FluentFTP {
 		delegate bool AsyncMoveDirectory(string path, string dest, FtpExists existsMode);
 
 		/// <summary>
-		/// Begins an asynchronous operation to move a directory on the remote file system
+		/// Begins an asynchronous operation to move a directory on the remote file system, from one directory to another.
+		/// Always checks if the source directory exists. Checks if the dest directory exists based on the `existsMode` parameter.
+		/// Only throws exceptions for critical errors.
 		/// </summary>
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
@@ -4414,6 +4421,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Moves a directory asynchronously on the remote file system from one directory to another.
 		/// Always checks if the source directory exists. Checks if the dest directory exists based on the `existsMode` parameter.
+		/// Only throws exceptions for critical errors.
 		/// </summary>
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
