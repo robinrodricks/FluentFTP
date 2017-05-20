@@ -4283,6 +4283,7 @@ namespace FluentFTP {
 					bool destExists = FileExists(dest);
 					switch (existsMode) {
 						case FtpExists.Overwrite:
+							DeleteFile(dest);
 							break;
 						case FtpExists.Skip:
 							return false;
@@ -4363,6 +4364,7 @@ namespace FluentFTP {
 					bool destExists = DirectoryExists(dest);
 					switch (existsMode) {
 						case FtpExists.Overwrite:
+							DeleteDirectory(dest);
 							break;
 						case FtpExists.Skip:
 							return false;
