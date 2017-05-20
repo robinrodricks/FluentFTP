@@ -322,10 +322,6 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 *FTP Protocol*
 
-- **GetDataType**() - Checks if the transfer data type is ASCII or binary.
-
-- **SetDataType**() - Sets the transfer data type to ASCII or binary. Internally called during file reads, writes and appends.
-
 - **DataConnectionType** - Active or Passive connection. **Default:** FtpDataConnectionType.AutoPassive (tries EPSV then PASV then gives up)
 
 - **Encoding** - Text encoding (ASCII or UTF8) used when talking with the server. ASCII is default, but upon connection, we switch to UTF8 if supported by the server. Manually setting this value overrides automatic detection. **Default:** Auto.
@@ -982,7 +978,7 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 ## Release Notes
 
 #### 17.4.0
-- Ability to cancel async file transfers using `CancellationToken` (thanks [jblacker](https://github.com/jblacker))
+- Add MoveFile() and MoveDirectory() to move files and directories safely
 
 #### 17.3.0
 - Automatically verify checksum of a file after upload/download (thanks [jblacker](https://github.com/jblacker))
