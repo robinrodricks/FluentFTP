@@ -464,7 +464,7 @@ void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
 ```
 
 <a name="faq_ftps"></a>
-**How do I verify the server's certificate when using FTPS?**
+**How do I validate the server's certificate when using FTPS?**
 
 First you must discover the string of the valid certificate. Use this code to save the the valid certificate string to a file:
 ```cs
@@ -627,7 +627,17 @@ FtpTrace.AddListener(new ConsoleTraceListener());
 
 
 <a name="faq_logfile"></a>
-**How do I log critical errors to a file?**
+**How do I log all FTP commands to a file for debugging?**
+
+Do this at program startup (since its static it takes effect for all FtpClient instances.)
+```cs
+FtpTrace.FlushOnWrite = true;
+FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"));
+```
+
+
+<a name="faq_logfile2"></a>
+**How do I log only critical errors to a file?**
 
 Do this at program startup (since its static it takes effect for all FtpClient instances.)
 ```cs

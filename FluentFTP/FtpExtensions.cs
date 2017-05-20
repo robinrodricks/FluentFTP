@@ -21,7 +21,10 @@ namespace FluentFTP {
 			if (String.IsNullOrEmpty(path))
 				return "./";
 
-			path = Regex.Replace(path.Replace('\\', '/'), "[/]+", "/").TrimEnd('/');
+			path = path.Replace('\\', '/');
+			path = Regex.Replace(path, "[/]+", "/");
+			path = path.TrimEnd('/');
+
 			if (path.Length == 0)
 				path = "/";
 

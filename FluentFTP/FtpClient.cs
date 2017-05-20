@@ -4199,17 +4199,21 @@ namespace FluentFTP {
 		/// Renames an object on the remote file system.
 		/// </summary>
 		/// <param name="path">The full or relative path to the object</param>
-		/// <param name="dest">The old or new full or relative path including the new name of the object</param>
+		/// <param name="dest">The new full or relative path including the new name of the object</param>
 		/// <example><code source="..\Examples\Rename.cs" lang="cs" /></example>
 		public void Rename(string path, string dest) {
 			FtpReply reply;
 
 			lock (m_lock) {
 
-				if (!(reply = Execute("RNFR " + path.GetFtpPath())).Success)
+				// calc the absolute filepaths
+				path = GetAbsolutePath(path.GetFtpPath());
+				dest = GetAbsolutePath(dest.GetFtpPath());
+
+				if (!(reply = Execute("RNFR " + path)).Success)
 					throw new FtpCommandException(reply);
 
-				if (!(reply = Execute("RNTO " + dest.GetFtpPath())).Success)
+				if (!(reply = Execute("RNTO " + dest)).Success)
 					throw new FtpCommandException(reply);
 			}
 		}
@@ -4220,7 +4224,7 @@ namespace FluentFTP {
 		/// Begins an asynchronous operation to rename an object on the remote file system
 		/// </summary>
 		/// <param name="path">The full or relative path to the object</param>
-		/// <param name="dest">The old or new full or relative path including the new name of the object</param>
+		/// <param name="dest">The new full or relative path including the new name of the object</param>
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
@@ -4251,7 +4255,7 @@ namespace FluentFTP {
 	    /// Renames an object on the remote file system asynchronously
 	    /// </summary>
 	    /// <param name="path">The full or relative path to the object</param>
-	    /// <param name="dest">The old or new full or relative path including the new name of the object</param>
+	    /// <param name="dest">The new full or relative path including the new name of the object</param>
 	    public async Task RenameAsync(string path, string dest) {
 	        await Task.Factory.FromAsync<string, string>(
 	            (p, d, ac, s) => BeginRename(p, d, ac, s),
@@ -4261,6 +4265,166 @@ namespace FluentFTP {
 #endif
 
 #endregion
+
+		#region Move File
+
+		/// <summary>
+		/// Moves a file on the remote file system from one directory to another.
+		/// Always checks if the source file exists. Checks if the dest file exists based on the `existsMode` parameter.
+		/// </summary>
+		/// <param name="path">The full or relative path to the object</param>
+		/// <param name="dest">The new full or relative path including the new name of the object</param>
+		/// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
+		public bool MoveFile(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
+			if (FileExists(path)) {
+				
+				// check if dest file exists and act accordingly
+				if (existsMode != FtpExists.NoCheck){
+					bool destExists = FileExists(dest);
+					switch (existsMode) {
+						case FtpExists.Overwrite:
+							break;
+						case FtpExists.Skip:
+							return false;
+					}
+				}
+
+				// move the file
+				Rename(path, dest);
+
+				return true;
+			}
+			return false;
+		}
+
+		delegate bool AsyncMoveFile(string path, string dest, FtpExists existsMode);
+
+		/// <summary>
+		/// Begins an asynchronous operation to move a file on the remote file system
+		/// </summary>
+		/// <param name="path">The full or relative path to the object</param>
+		/// <param name="dest">The new full or relative path including the new name of the object</param>
+		/// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
+		/// <param name="callback">Async callback</param>
+		/// <param name="state">State object</param>
+		/// <returns>IAsyncResult</returns>
+		public IAsyncResult BeginMoveFile(string path, string dest, FtpExists existsMode, AsyncCallback callback, object state) {
+			AsyncMoveFile func;
+			IAsyncResult ar;
+
+			ar = (func = new AsyncMoveFile(MoveFile)).BeginInvoke(path, dest, existsMode, callback, state);
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends a call to <see cref="BeginMove"/>
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginMove"/></param>
+		public void EndMoveFile(IAsyncResult ar) {
+			GetAsyncDelegate<AsyncMoveFile>(ar).EndInvoke(ar);
+		}
+
+#if (CORE || NETFX45)
+		/// <summary>
+		/// Moves a file asynchronously on the remote file system from one directory to another.
+		/// Always checks if the source file exists. Checks if the dest file exists based on the `existsMode` parameter.
+		/// </summary>
+		/// <param name="path">The full or relative path to the object</param>
+		/// <param name="dest">The new full or relative path including the new name of the object</param>
+		/// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
+		public async Task MoveFileAsync(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
+			await Task.Factory.FromAsync<string, string, FtpExists>(
+				(p, d, e, ac, s) => BeginMoveFile(p, d, e, ac, s),
+				ar => EndMoveFile(ar),
+				path, dest, existsMode, null);
+		}
+#endif
+
+		#endregion
+
+		#region Move Directory
+
+		/// <summary>
+		/// Moves a directory on the remote file system from one directory to another.
+		/// Always checks if the source directory exists. Checks if the dest directory exists based on the `existsMode` parameter.
+		/// </summary>
+		/// <param name="path">The full or relative path to the object</param>
+		/// <param name="dest">The new full or relative path including the new name of the object</param>
+		/// <param name="existsMode">Should we check if the dest directory exists? And if it does should we overwrite/skip the operation?</param>
+		public bool MoveDirectory(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
+			if (DirectoryExists(path)) {
+
+				// check if dest directory exists and act accordingly
+				if (existsMode != FtpExists.NoCheck) {
+					bool destExists = DirectoryExists(dest);
+					switch (existsMode) {
+						case FtpExists.Overwrite:
+							break;
+						case FtpExists.Skip:
+							return false;
+					}
+				}
+
+				// move the directory
+				Rename(path, dest);
+
+				return true;
+			}
+			return false;
+		}
+
+		delegate bool AsyncMoveDirectory(string path, string dest, FtpExists existsMode);
+
+		/// <summary>
+		/// Begins an asynchronous operation to move a directory on the remote file system
+		/// </summary>
+		/// <param name="path">The full or relative path to the object</param>
+		/// <param name="dest">The new full or relative path including the new name of the object</param>
+		/// <param name="existsMode">Should we check if the dest directory exists? And if it does should we overwrite/skip the operation?</param>
+		/// <param name="callback">Async callback</param>
+		/// <param name="state">State object</param>
+		/// <returns>IAsyncResult</returns>
+		public IAsyncResult BeginMoveDirectory(string path, string dest, FtpExists existsMode, AsyncCallback callback, object state) {
+			AsyncMoveDirectory func;
+			IAsyncResult ar;
+
+			ar = (func = new AsyncMoveDirectory(MoveDirectory)).BeginInvoke(path, dest, existsMode, callback, state);
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
+
+			return ar;
+		}
+
+		/// <summary>
+		/// Ends a call to <see cref="BeginMove"/>
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginMove"/></param>
+		public void EndMoveDirectory(IAsyncResult ar) {
+			GetAsyncDelegate<AsyncMoveDirectory>(ar).EndInvoke(ar);
+		}
+
+#if (CORE || NETFX45)
+		/// <summary>
+		/// Moves a directory asynchronously on the remote file system from one directory to another.
+		/// Always checks if the source directory exists. Checks if the dest directory exists based on the `existsMode` parameter.
+		/// </summary>
+		/// <param name="path">The full or relative path to the object</param>
+		/// <param name="dest">The new full or relative path including the new name of the object</param>
+		/// <param name="existsMode">Should we check if the dest directory exists? And if it does should we overwrite/skip the operation?</param>
+		public async Task MoveDirectoryAsync(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
+			await Task.Factory.FromAsync<string, string, FtpExists>(
+				(p, d, e, ac, s) => BeginMoveDirectory(p, d, e, ac, s),
+				ar => EndMoveDirectory(ar),
+				path, dest, existsMode, null);
+		}
+#endif
+
+		#endregion
 
 		#region File Permissions / Chmod
 
