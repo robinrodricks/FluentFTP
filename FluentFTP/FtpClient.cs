@@ -4197,6 +4197,8 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Renames an object on the remote file system.
+		/// Low level method that should NOT be used in most cases. Prefer MoveFile() and MoveDirectory().
+		/// Throws exceptions if the file does not exist, or if the destination file already exists.
 		/// </summary>
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
@@ -4221,7 +4223,9 @@ namespace FluentFTP {
 		delegate void AsyncRename(string path, string dest);
 
 		/// <summary>
-		/// Begins an asynchronous operation to rename an object on the remote file system
+		/// Begins an asynchronous operation to rename an object on the remote file system.
+		/// Low level method that should NOT be used in most cases. Prefer MoveFile() and MoveDirectory().
+		/// Throws exceptions if the file does not exist, or if the destination file already exists.
 		/// </summary>
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
@@ -4252,7 +4256,9 @@ namespace FluentFTP {
 
 #if (CORE || NETFX45)
 	    /// <summary>
-	    /// Renames an object on the remote file system asynchronously
+		/// Renames an object on the remote file system asynchronously.
+		/// Low level method that should NOT be used in most cases. Prefer MoveFile() and MoveDirectory().
+		/// Throws exceptions if the file does not exist, or if the destination file already exists.
 	    /// </summary>
 	    /// <param name="path">The full or relative path to the object</param>
 	    /// <param name="dest">The new full or relative path including the new name of the object</param>
