@@ -16,10 +16,6 @@ namespace Tests {
 	class Tests {
 
 
-		// SET THESE BEFORE RUNNING ANY TESTS!
-		static string m_host = "";
-		static string m_user = "";
-		static string m_pass = "";
 
 	    private static readonly int[] connectionTypes = new int[] {
 	        (int) FtpDataConnectionType.EPSV,
@@ -77,6 +73,7 @@ namespace Tests {
 				//TestListPathWithHttp11Proxy();
 				//TestFileExists();
 				//TestDeleteDirectory();
+				TestMoveFiles();
 
 
 
@@ -1225,6 +1222,17 @@ namespace Tests {
 
 				cl.DeleteDirectory("/public_html/temp/otherdir/");
 				cl.DeleteDirectory("/public_html/temp/spaced folder/");
+
+			}
+		}
+		static void TestMoveFiles() {
+			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass)) {
+
+				cl.MoveFile("/public_html/temp/README.md", "/public_html/temp/README_moved.md");
+
+				//cl.MoveFile("/public_html/temp/README.md", "/public_html/temp/README_moved.md");
+
+				//cl.DeleteDirectory("/public_html/temp/spaced folder/");
 
 			}
 		}

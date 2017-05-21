@@ -14,15 +14,14 @@ namespace FluentFTP {
 
 #if !CORE
 		//static List<TraceListener> m_listeners = new List<TraceListener>();
-	    private static readonly TraceSource m_traceSource = new TraceSource("FluentFTP") {
-	        Switch = new SourceSwitch("sourceSwitch", "Verbose") { Level = SourceLevels.All }
-	    };
+		private static readonly TraceSource m_traceSource = new TraceSource("FluentFTP") {
+			Switch = new SourceSwitch("sourceSwitch", "Verbose") { Level = SourceLevels.All }
+		};
 
-		static bool m_flushOnWrite = false;
+		static bool m_flushOnWrite = true;
 
 		/// <summary>
-		/// Gets or sets whether the trace listeners should be flushed or not
-		/// after writing to them. Default value is false.
+		/// Gets or sets whether the trace listeners should be flushed immediately after writing to them. Default value is true.
 		/// </summary>
 		public static bool FlushOnWrite {
 			get {
@@ -42,8 +41,8 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="listener">The TraceListener to add to the collection</param>
 		public static void AddListener(TraceListener listener) {
-		    lock (m_traceSource) {
-                m_traceSource.Listeners.Add(listener);
+			lock (m_traceSource) {
+				m_traceSource.Listeners.Add(listener);
 			}
 		}
 
@@ -52,8 +51,8 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="listener">The TraceListener to remove from the collection.</param>
 		public static void RemoveListener(TraceListener listener) {
-		    lock (m_traceSource) {
-                m_traceSource.Listeners.Remove(listener);
+			lock (m_traceSource) {
+				m_traceSource.Listeners.Remove(listener);
 			}
 		}
 
@@ -65,63 +64,61 @@ namespace FluentFTP {
 		/// <param name="message">The message to write</param>
 		[Obsolete("Use overloads with FtpTraceLevel")]
 		public static void Write(string message) {
-		    Write(FtpTraceLevel.Debug, message);
+			Write(FtpTraceLevel.Debug, message);
 		}
 
 		/// <summary>
 		/// Write to the TraceListeners
 		/// </summary>
 		/// <param name="message">The message to write</param>
-        [Obsolete("Use overloads with FtpTraceLevel")]
+		[Obsolete("Use overloads with FtpTraceLevel")]
 		public static void WriteLine(object message) {
-			Write(string.Concat(message, Environment.NewLine));
+			Write(FtpTraceLevel.Debug, string.Concat(message, Environment.NewLine));
+		}
+
+		/// <summary>
+		/// Write to the TraceListeners
+		/// </summary>
+		/// <param name="message">The message to write</param>
+		[Obsolete("Use overloads with FtpTraceLevel")]
+		public static void WriteLine(FtpTraceLevel eventType, object message) {
+			Write(eventType, string.Concat(message, Environment.NewLine));
 		}
 
 
-	    /// <summary>
-	    /// Write to the TraceListeners
-	    /// </summary>
-	    /// <param name="eventType">The type of tracing event</param>
-	    /// <param name="message">A formattable string to write</param>
-	    /// <param name="args">Arguments to insert into the formattable string</param>
-	    public static void Write(FtpTraceLevel eventType, string message, params object[] args) {
-	        string msg = string.Format(message, args);
+		/// <summary>
+		/// Write to the TraceListeners
+		/// </summary>
+		/// <param name="eventType">The type of tracing event</param>
+		/// <param name="message">A formattable string to write</param>
+		/// <param name="args">Arguments to insert into the formattable string</param>
+		public static void Write(FtpTraceLevel eventType, string msg) {
 #if CORE && DEBUG
 		    Debug.Write(msg);
 #elif !CORE
-	        var diagTraceLvl = TraceLevelTranslation(eventType);
-	        m_traceSource.TraceEvent(diagTraceLvl, 0, msg);
-	        if (m_flushOnWrite)
-	            m_traceSource.Flush();
+			var diagTraceLvl = TraceLevelTranslation(eventType);
+			m_traceSource.TraceEvent(diagTraceLvl, 0, msg);
+			if (m_flushOnWrite)
+				m_traceSource.Flush();
 #endif
-	    }
-
-	    /// <summary>
-	    /// Write to the TraceListeners
-	    /// </summary>
-	    /// <param name="eventType">The type of tracing event</param>
-	    /// <param name="message">A formattable string to write</param>
-	    /// <param name="args">Arguments to insert into the formattable string</param>
-	    public static void WriteLine(FtpTraceLevel eventType, string message, params object[] args) {
-	        Write(eventType, string.Concat(message, Environment.NewLine), args);
-	    }
+		}
 
 #if !CORE
 
-	    private static TraceEventType TraceLevelTranslation(FtpTraceLevel level) {
-	        switch(level) {
-	            case FtpTraceLevel.Debug:
-	                return TraceEventType.Verbose;
-                case FtpTraceLevel.Info:
-                    return TraceEventType.Information;
-                case FtpTraceLevel.Warn:
-                    return TraceEventType.Warning;
-                case FtpTraceLevel.Error:
-                    return TraceEventType.Error;
-                default:
-                    return TraceEventType.Verbose;
-	        }
-	    }
+		private static TraceEventType TraceLevelTranslation(FtpTraceLevel level) {
+			switch (level) {
+				case FtpTraceLevel.Debug:
+					return TraceEventType.Verbose;
+				case FtpTraceLevel.Info:
+					return TraceEventType.Information;
+				case FtpTraceLevel.Warn:
+					return TraceEventType.Warning;
+				case FtpTraceLevel.Error:
+					return TraceEventType.Error;
+				default:
+					return TraceEventType.Verbose;
+			}
+		}
 #endif
 	}
 }

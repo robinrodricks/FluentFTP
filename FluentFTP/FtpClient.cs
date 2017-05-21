@@ -36,7 +36,7 @@ namespace FluentFTP {
 	/// Debugging problems with FTP transactions is much easier to do when
 	/// you can see exactly what is sent to the server and the reply 
 	/// FluentFTP gets in return. Please review the Debug example
-    /// below for information on how to add <see cref="System.Diagnostics.TraceListener"/>s for capturing
+	/// below for information on how to add <see cref="System.Diagnostics.TraceListener"/>s for capturing
 	/// the conversation between FluentFTP and the server.
 	/// </summary>
 	/// <example>The following example illustrates how to assist in debugging
@@ -81,7 +81,7 @@ namespace FluentFTP {
 
 		#region Properties
 
-        /// <summary>
+		/// <summary>
 		/// Used for internally synchronizing access to this
 		/// object from multiple threads
 		/// </summary>
@@ -322,10 +322,10 @@ namespace FluentFTP {
 		int m_maxDerefCount = 20;
 		/// <summary>
 		/// Gets or sets a value that controls the maximum depth
-        /// of recursion that <see cref="o:DereferenceLink"/> will follow symbolic
+		/// of recursion that <see cref="o:DereferenceLink"/> will follow symbolic
 		/// links before giving up. You can also specify the value
 		/// to be used as one of the overloaded parameters to the
-        /// <see cref="o:DereferenceLink"/> method. The default value is 20. Specifying
+		/// <see cref="o:DereferenceLink"/> method. The default value is 20. Specifying
 		/// -1 here means indefinitely try to resolve a link. This is
 		/// not recommended for obvious reasons (stack overflow).
 		/// </summary>
@@ -351,35 +351,33 @@ namespace FluentFTP {
 			}
 		}
 
-        // Holds the cached resolved address
-	    string m_Address;
+		// Holds the cached resolved address
+		string m_Address;
 
-	    Func<string> m_AddressResolver;
+		Func<string> m_AddressResolver;
 
-        /// <summary>
-        /// Delegate used for resolving local address, used for active data connections
-        /// This can be used in case you're behind a router, but port forwarding is configured to forward the
-        /// ports from your router to your internal IP. In that case, we need to send the router's IP instead of our internal IP.
-        /// See example: FtpClient.GetPublicIP -> This uses Ipify api to find external IP
-        /// </summary>
-        public Func<string> AddressResolver
-	    {
-	        get { return m_AddressResolver; }
-            set { m_AddressResolver = value; }
-	    }
-        
-        IEnumerable<int> m_ActivePorts;
+		/// <summary>
+		/// Delegate used for resolving local address, used for active data connections
+		/// This can be used in case you're behind a router, but port forwarding is configured to forward the
+		/// ports from your router to your internal IP. In that case, we need to send the router's IP instead of our internal IP.
+		/// See example: FtpClient.GetPublicIP -> This uses Ipify api to find external IP
+		/// </summary>
+		public Func<string> AddressResolver {
+			get { return m_AddressResolver; }
+			set { m_AddressResolver = value; }
+		}
 
-        /// <summary>
-        /// Ports used for Active Data Connection
-        /// </summary>
-	    public IEnumerable<int> ActivePorts
-	    {
-	        get { return m_ActivePorts; }
-            set { m_ActivePorts = value; }
-	    }
-            
-        FtpDataConnectionType m_dataConnectionType = FtpDataConnectionType.AutoPassive;
+		IEnumerable<int> m_ActivePorts;
+
+		/// <summary>
+		/// Ports used for Active Data Connection
+		/// </summary>
+		public IEnumerable<int> ActivePorts {
+			get { return m_ActivePorts; }
+			set { m_ActivePorts = value; }
+		}
+
+		FtpDataConnectionType m_dataConnectionType = FtpDataConnectionType.AutoPassive;
 		/// <summary>
 		/// Data connection type, default is AutoPassive which tries
 		/// a connection with EPSV first and if it fails then tries
@@ -543,7 +541,7 @@ namespace FluentFTP {
 		bool m_dataConnectionEncryption = true;
 		/// <summary>
 		/// Indicates if data channel transfers should be encrypted. Only valid if <see cref="EncryptionMode"/>
-        /// property is not equal to <see cref="FtpEncryptionMode.None"/>.
+		/// property is not equal to <see cref="FtpEncryptionMode.None"/>.
 		/// </summary>
 		public bool DataConnectionEncryption {
 			get {
@@ -560,7 +558,7 @@ namespace FluentFTP {
 		private SslProtocols m_SslProtocols = SslProtocols.Default;
 #endif
 		/// <summary>
-        /// Encryption protocols to use. Only valid if EncryptionMode property is not equal to <see cref="FtpEncryptionMode.None"/>.
+		/// Encryption protocols to use. Only valid if EncryptionMode property is not equal to <see cref="FtpEncryptionMode.None"/>.
 		/// Default value is .NET Framework defaults from the <see cref="System.Net.Security.SslStream"/> class.
 		/// </summary>
 		public SslProtocols SslProtocols {
@@ -588,12 +586,12 @@ namespace FluentFTP {
 			}
 		}
 
-		
+
 		private string m_systemType = "UNKNOWN";
-	    /// <summary>
-	    /// Gets the type of system/server that we're
-	    /// connected to.
-	    /// </summary>
+		/// <summary>
+		/// Gets the type of system/server that we're
+		/// connected to.
+		/// </summary>
 		public string SystemType {
 			get {
 				return m_systemType;
@@ -610,8 +608,8 @@ namespace FluentFTP {
 		private int m_transferChunkSize = 65536;
 		/// <summary>
 		/// Gets or sets the number of bytes transferred in a single chunk (a single FTP command).
-        /// Used by <see cref="o:UploadFile"/>/<see cref="o:UploadFileAsync"/> and <see cref="o:DownloadFile"/>/<see cref="o:DownloadFileAsync"/>
-        /// to transfer large files in multiple chunks.
+		/// Used by <see cref="o:UploadFile"/>/<see cref="o:UploadFileAsync"/> and <see cref="o:DownloadFile"/>/<see cref="o:DownloadFileAsync"/>
+		/// to transfer large files in multiple chunks.
 		/// </summary>
 		public int TransferChunkSize {
 			get {
@@ -672,15 +670,15 @@ namespace FluentFTP {
 			}
 		}
 
-	    private int m_retryAttempts = 3;
-        /// <summary>
-        /// Gets or sets the retry attempts allowed when a verification failure occurs during download or upload.
+		private int m_retryAttempts = 3;
+		/// <summary>
+		/// Gets or sets the retry attempts allowed when a verification failure occurs during download or upload.
 		/// This value must be set to 1 or more.
-        /// </summary>
-	    public int RetryAttempts {
-            get { return m_retryAttempts; }
-	        set { m_retryAttempts = value > 0 ? value : 1; }
-	    }
+		/// </summary>
+		public int RetryAttempts {
+			get { return m_retryAttempts; }
+			set { m_retryAttempts = value > 0 ? value : 1; }
+		}
 
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
 		// FtpClient.CloneConnection()
@@ -724,9 +722,9 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Performs a bitwise and to check if the specified
-        /// flag is set on the <see cref="Capabilities"/>  property.
+		/// flag is set on the <see cref="Capabilities"/>  property.
 		/// </summary>
-        /// <param name="cap">The <see cref="FtpCapability"/> to check for</param>
+		/// <param name="cap">The <see cref="FtpCapability"/> to check for</param>
 		/// <returns>True if the feature was found, false otherwise</returns>
 		public bool HasFeature(FtpCapability cap) {
 			return ((this.Capabilities & cap) == cap);
@@ -856,21 +854,21 @@ namespace FluentFTP {
 				if (IsDisposed)
 					return;
 
-                FtpTrace.WriteLine(FtpTraceLevel.Debug, "Disposing FtpClient object...");
+				FtpTrace.WriteLine(FtpTraceLevel.Debug, "Disposing FtpClient object...");
 
 				try {
 					if (IsConnected) {
 						Disconnect();
 					}
 				} catch (Exception ex) {
-                    FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Dispose(): Caught and discarded an exception while disconnecting from host: " + ex.ToString());
+					FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Dispose(): Caught and discarded an exception while disconnecting from host: " + ex.ToString());
 				}
 
 				if (m_stream != null) {
 					try {
 						m_stream.Dispose();
 					} catch (Exception ex) {
-                        FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: " + ex.ToString());
+						FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: " + ex.ToString());
 					} finally {
 						m_stream = null;
 					}
@@ -916,7 +914,7 @@ namespace FluentFTP {
 				while ((buf = m_stream.ReadLine(Encoding)) != null) {
 					Match m;
 
-                    FtpTrace.WriteLine(FtpTraceLevel.Debug, buf);
+					FtpTrace.WriteLine(FtpTraceLevel.Debug, buf);
 
 					if ((m = Regex.Match(buf, "^(?<code>[0-9]{3}) (?<message>.*)$")).Success) {
 						reply.Code = m.Groups["code"].Value;
@@ -947,12 +945,12 @@ namespace FluentFTP {
 						// means we've been disconnected. Read and discard
 						// whatever is there and close the connection.
 
-                        FtpTrace.WriteLine(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out. Re-connecting.");
+						FtpTrace.WriteLine(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out. Re-connecting.");
 						if (m_stream.IsConnected && !m_stream.IsEncrypted) {
 							byte[] buf = new byte[m_stream.SocketDataAvailable];
 							m_stream.RawSocketRead(buf);
-                            FtpTrace.Write(FtpTraceLevel.Debug, "The data was: ");
-                            FtpTrace.WriteLine(FtpTraceLevel.Debug, Encoding.GetString(buf).TrimEnd('\r', '\n'));
+							FtpTrace.Write(FtpTraceLevel.Debug, "The data was: ");
+							FtpTrace.WriteLine(FtpTraceLevel.Debug, Encoding.GetString(buf).TrimEnd('\r', '\n'));
 						}
 
 						m_stream.Close();
@@ -961,7 +959,7 @@ namespace FluentFTP {
 
 				if (!IsConnected) {
 					if (command == "QUIT") {
-                        FtpTrace.WriteLine(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
+						FtpTrace.WriteLine(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
 						return new FtpReply() {
 							Code = "200",
 							Message = "Connection already closed."
@@ -971,7 +969,7 @@ namespace FluentFTP {
 					Connect();
 				}
 
-                FtpTrace.WriteLine(FtpTraceLevel.Info, command.StartsWith("PASS") ? "PASS <omitted>" : command);
+				FtpTrace.WriteLine(FtpTraceLevel.Info, command.StartsWith("PASS") ? "PASS <omitted>" : command);
 				m_stream.WriteLine(m_textEncoding, command);
 				reply = GetReply();
 			}
@@ -982,10 +980,10 @@ namespace FluentFTP {
 		delegate FtpReply AsyncExecute(string command);
 
 		/// <summary>
-        /// Performs execution of the specified command asynchronously
+		/// Performs execution of the specified command asynchronously
 		/// </summary>
 		/// <param name="command">The command to execute</param>
-        /// <param name="callback">The <see cref="AsyncCallback"/> method</param>
+		/// <param name="callback">The <see cref="AsyncCallback"/> method</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
 		/// <example><code source="..\Examples\BeginExecute.cs" lang="cs" /></example>
@@ -1012,18 +1010,18 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Performs an asynchronous execution of the specified command
-        /// </summary>
-        /// <param name="command">The command to execute</param>
-        /// <returns>The servers reply to the command</returns>
-	    public async Task<FtpReply> ExecuteAsync(string command) {
-            //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<string, FtpReply>(
-	            (c, ac, state) => BeginExecute(c, ac, state),
-	            ar => EndExecute(ar),
-	            command, null);
-	    }
+		/// <summary>
+		/// Performs an asynchronous execution of the specified command
+		/// </summary>
+		/// <param name="command">The command to execute</param>
+		/// <returns>The servers reply to the command</returns>
+		public async Task<FtpReply> ExecuteAsync(string command) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, FtpReply>(
+				(c, ac, state) => BeginExecute(c, ac, state),
+				ar => EndExecute(ar),
+				command, null);
+		}
 #endif
 
 		#endregion
@@ -1035,7 +1033,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Connect to the server
 		/// </summary>
-        /// <exception cref="ObjectDisposedException">Thrown if this object has been disposed.</exception>
+		/// <exception cref="ObjectDisposedException">Thrown if this object has been disposed.</exception>
 		/// <example><code source="..\Examples\Connect.cs" lang="cs" /></example>
 		public virtual void Connect() {
 			FtpReply reply;
@@ -1110,7 +1108,7 @@ namespace FluentFTP {
 					m_textEncoding = Encoding.UTF8;
 				}
 
-                FtpTrace.WriteLine(FtpTraceLevel.Info, "Text encoding: " + m_textEncoding.ToString());
+				FtpTrace.WriteLine(FtpTraceLevel.Info, "Text encoding: " + m_textEncoding.ToString());
 
 				if (m_textEncoding == Encoding.UTF8) {
 					// If the server supports UTF8 it should already be enabled and this
@@ -1281,23 +1279,23 @@ namespace FluentFTP {
 		/// <summary>
 		/// Ends an asynchronous connection attempt to the server from <see cref="BeginConnect"/>
 		/// </summary>
-        /// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="BeginConnect"/></param>
+		/// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="BeginConnect"/></param>
 		/// <example><code source="..\Examples\BeginConnect.cs" lang="cs" /></example>
 		public void EndConnect(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncConnect>(ar).EndInvoke(ar);
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Connects to the server asynchronously
-        /// </summary>
-	    public async Task ConnectAsync() {
-            //TODO:  Rewrite as true async method with cancellation support
-            await Task.Factory.FromAsync(
-	            (c, s) => BeginConnect(c, s),
-	            ar => EndConnect(ar),
-	            null);
-	    }
+		/// <summary>
+		/// Connects to the server asynchronously
+		/// </summary>
+		public async Task ConnectAsync() {
+			//TODO:  Rewrite as true async method with cancellation support
+			await Task.Factory.FromAsync(
+				(c, s) => BeginConnect(c, s),
+				ar => EndConnect(ar),
+				null);
+		}
 #endif
 
 		/// <summary>
@@ -1321,13 +1319,13 @@ namespace FluentFTP {
 							Execute("QUIT");
 						}
 					} catch (SocketException sockex) {
-                        FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Disconnect(): SocketException caught and discarded while closing control connection: " + sockex.ToString());
+						FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Disconnect(): SocketException caught and discarded while closing control connection: " + sockex.ToString());
 					} catch (IOException ioex) {
-                        FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Disconnect(): IOException caught and discarded while closing control connection: " + ioex.ToString());
+						FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Disconnect(): IOException caught and discarded while closing control connection: " + ioex.ToString());
 					} catch (FtpCommandException cmdex) {
-                        FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Disconnect(): FtpCommandException caught and discarded while closing control connection: " + cmdex.ToString());
+						FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Disconnect(): FtpCommandException caught and discarded while closing control connection: " + cmdex.ToString());
 					} catch (FtpException ftpex) {
-                        FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Disconnect(): FtpException caught and discarded while closing control connection: " + ftpex.ToString());
+						FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Disconnect(): FtpException caught and discarded while closing control connection: " + ftpex.ToString());
 					} finally {
 						m_stream.Close();
 					}
@@ -1340,7 +1338,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Initiates a disconnection on the server
 		/// </summary>
-        /// <param name="callback"><see cref="AsyncCallback"/> method</param>
+		/// <param name="callback"><see cref="AsyncCallback"/> method</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
 		/// <example><code source="..\Examples\BeginDisconnect.cs" lang="cs" /></example>
@@ -1357,25 +1355,25 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Ends a call to <see cref="BeginDisconnect"/>
+		/// Ends a call to <see cref="BeginDisconnect"/>
 		/// </summary>
-        /// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="BeginDisconnect"/></param>
+		/// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="BeginDisconnect"/></param>
 		/// <example><code source="..\Examples\BeginConnect.cs" lang="cs" /></example>
 		public void EndDisconnect(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncDisconnect>(ar).EndInvoke(ar);
 		}
-        
+
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Disconnects from the server asynchronously
-        /// </summary>
-	    public async Task DisconnectAsync() {
-            //TODO:  Rewrite as true async method with cancellation support
-            await Task.Factory.FromAsync(
-	            (c, s) => BeginDisconnect(c, s),
-	            ar => EndDisconnect(ar),
-	            null);
-	    }
+		/// <summary>
+		/// Disconnects from the server asynchronously
+		/// </summary>
+		public async Task DisconnectAsync() {
+			//TODO:  Rewrite as true async method with cancellation support
+			await Task.Factory.FromAsync(
+				(c, s) => BeginDisconnect(c, s),
+				ar => EndDisconnect(ar),
+				null);
+		}
 #endif
 
 		#endregion
@@ -1468,22 +1466,20 @@ namespace FluentFTP {
 			return stream;
 		}
 
-        /// <summary>
-        /// Returns the ip address to be sent to the server for the active connection
-        /// </summary>
-        /// <param name="ip"></param>
-        /// <returns></returns>
-	    string GetLocalAddress(IPAddress ip)
-	    {
-            // Use resolver
-	        if (m_AddressResolver != null)
-	        {
-	            return m_Address ?? (m_Address = m_AddressResolver());
-	        }
+		/// <summary>
+		/// Returns the ip address to be sent to the server for the active connection
+		/// </summary>
+		/// <param name="ip"></param>
+		/// <returns></returns>
+		string GetLocalAddress(IPAddress ip) {
+			// Use resolver
+			if (m_AddressResolver != null) {
+				return m_Address ?? (m_Address = m_AddressResolver());
+			}
 
-            // Use supplied ip
-	        return ip.ToString();
-	    }
+			// Use supplied ip
+			return ip.ToString();
+		}
 
 		/// <summary>
 		/// Opens the specified type of active data stream
@@ -1502,38 +1498,31 @@ namespace FluentFTP {
 			if (m_stream == null)
 				throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open an active data stream.");
 
-		    if (m_ActivePorts == null || !m_ActivePorts.Any())
-		    {
-                // Use random port
-		        stream.Listen(m_stream.LocalEndPoint.Address, 0);
-		    }
-		    else
-		    {
-		        var success = false;
-                // Use one of the specified ports
-		        foreach (var port in m_ActivePorts)
-		        {
-		            try
-		            {
-                        stream.Listen(m_stream.LocalEndPoint.Address, port);
-		                success = true;
-		            }
-		            catch (SocketException se)
-		            {
+			if (m_ActivePorts == null || !m_ActivePorts.Any()) {
+				// Use random port
+				stream.Listen(m_stream.LocalEndPoint.Address, 0);
+			} else {
+				var success = false;
+				// Use one of the specified ports
+				foreach (var port in m_ActivePorts) {
+					try {
+						stream.Listen(m_stream.LocalEndPoint.Address, port);
+						success = true;
+					} catch (SocketException se) {
 #if NETFX
-                        // Already in use
-                        if (se.ErrorCode != 10048)
-                            throw;
+						// Already in use
+						if (se.ErrorCode != 10048)
+							throw;
 #else
                         throw;
 #endif
-                    }
-		        }
+					}
+				}
 
-                // No usable port found
-                if (!success)
-                    throw new Exception("No valid active data port available!");
-		    }
+				// No usable port found
+				if (!success)
+					throw new Exception("No valid active data port available!");
+			}
 #if !CORE
 			ar = stream.BeginAccept(null, null);
 #endif
@@ -1569,7 +1558,7 @@ namespace FluentFTP {
 					throw new FtpException("Only IPv4 is supported by the PORT command. Use EPRT instead.");
 
 				if (!(reply = Execute("PORT " +
-                        GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ',') + "," +
+						GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ',') + "," +
 						stream.LocalEndPoint.Port / 256 + "," +
 						stream.LocalEndPoint.Port % 256)).Success) {
 					stream.Close();
@@ -1639,12 +1628,12 @@ namespace FluentFTP {
 					switch (type) {
 						case FtpDataConnectionType.PORT:
 							type = FtpDataConnectionType.EPRT;
-                            FtpTrace.WriteLine(FtpTraceLevel.Info, "Changed data connection type to EPRT because we are connected with IPv6.");
+							FtpTrace.WriteLine(FtpTraceLevel.Info, "Changed data connection type to EPRT because we are connected with IPv6.");
 							break;
 						case FtpDataConnectionType.PASV:
 						case FtpDataConnectionType.PASVEX:
 							type = FtpDataConnectionType.EPSV;
-                            FtpTrace.WriteLine(FtpTraceLevel.Info, "Changed data connection type to EPSV because we are connected with IPv6.");
+							FtpTrace.WriteLine(FtpTraceLevel.Info, "Changed data connection type to EPSV because we are connected with IPv6.");
 							break;
 					}
 				}
@@ -1782,7 +1771,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Begins an asynchronous operation to open the specified file for reading
+		/// Begins an asynchronous operation to open the specified file for reading
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="callback">Async Callback</param>
@@ -1807,7 +1796,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Begins an asynchronous operation to open the specified file for reading
+		/// Begins an asynchronous operation to open the specified file for reading
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="restart">Resume location</param>
@@ -1844,9 +1833,9 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Ends a call to <see cref="o:BeginOpenRead"/>
+		/// Ends a call to <see cref="o:BeginOpenRead"/>
 		/// </summary>
-        /// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="o:BeginOpenRead"/></param>
+		/// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="o:BeginOpenRead"/></param>
 		/// <returns>A readable stream of the remote file</returns>
 		/// <example><code source="..\Examples\BeginOpenRead.cs" lang="cs" /></example>
 		public Stream EndOpenRead(IAsyncResult ar) {
@@ -1854,61 +1843,61 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Opens the specified file for reading asynchronously
-        /// </summary>
-        /// <param name="path">The full or relative path of the file</param>
-        /// <param name="type">ASCII/Binary</param>
-        /// <param name="restart">Resume location</param>
-        /// <returns>A readable stream of the remote file</returns>
-	    public async Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart) {
-            //TODO:  Rewrite as true async method with cancellation support
-	        return await Task.Factory.FromAsync<string, FtpDataType, long, Stream>(
-	            (p, t, r, ac, s) => BeginOpenRead(p, t, r, ac, s),
-	            ar => EndOpenRead(ar),
-	            path, type, restart, null);
-	    }
+		/// <summary>
+		/// Opens the specified file for reading asynchronously
+		/// </summary>
+		/// <param name="path">The full or relative path of the file</param>
+		/// <param name="type">ASCII/Binary</param>
+		/// <param name="restart">Resume location</param>
+		/// <returns>A readable stream of the remote file</returns>
+		public async Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, FtpDataType, long, Stream>(
+				(p, t, r, ac, s) => BeginOpenRead(p, t, r, ac, s),
+				ar => EndOpenRead(ar),
+				path, type, restart, null);
+		}
 
-        /// <summary>
-        /// Opens the specified file for reading asynchronously
-        /// </summary>
-        /// <param name="path">The full or relative path of the file</param>
-        /// <param name="type">ASCII/Binary</param>
-        /// <returns>A readable stream of the remote file</returns>
-	    public async Task<Stream> OpenReadAsync(string path, FtpDataType type) {
-            //TODO:  Rewrite as true async method with cancellation support
-	        return await Task.Factory.FromAsync<string, FtpDataType, Stream>(
-	            (p, t, ac, s) => BeginOpenRead(p, t, ac, s),
-	            ar => EndOpenRead(ar),
-	            path, type, null);
-	    }
+		/// <summary>
+		/// Opens the specified file for reading asynchronously
+		/// </summary>
+		/// <param name="path">The full or relative path of the file</param>
+		/// <param name="type">ASCII/Binary</param>
+		/// <returns>A readable stream of the remote file</returns>
+		public async Task<Stream> OpenReadAsync(string path, FtpDataType type) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, FtpDataType, Stream>(
+				(p, t, ac, s) => BeginOpenRead(p, t, ac, s),
+				ar => EndOpenRead(ar),
+				path, type, null);
+		}
 
-        /// <summary>
-        /// Opens the specified file for reading asynchronously
-        /// </summary>
-        /// <param name="path">The full or relative path of the file</param>
-        /// <param name="restart">Resume location</param>
-        /// <returns>A readable stream of the remote file</returns>
-	    public async Task<Stream> OpenReadAsync(string path, long restart) {
-            //TODO:  Rewrite as true async method with cancellation support
-	        return await Task.Factory.FromAsync<string, long, Stream>(
-	            (p, r, ac, s) => BeginOpenRead(p, r, ac, s),
-	            ar => EndOpenRead(ar),
-	            path, restart, null);
-	    }
+		/// <summary>
+		/// Opens the specified file for reading asynchronously
+		/// </summary>
+		/// <param name="path">The full or relative path of the file</param>
+		/// <param name="restart">Resume location</param>
+		/// <returns>A readable stream of the remote file</returns>
+		public async Task<Stream> OpenReadAsync(string path, long restart) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, long, Stream>(
+				(p, r, ac, s) => BeginOpenRead(p, r, ac, s),
+				ar => EndOpenRead(ar),
+				path, restart, null);
+		}
 
-        /// <summary>
-        /// Opens the specified file for reading asynchronously
-        /// </summary>
-        /// <param name="path">The full or relative path of the file</param>
-        /// <returns>A readable stream of the remote file</returns>
-        public async Task<Stream> OpenReadAsync(string path) {
-            //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<string, Stream>(
-                (p, ac, s) => BeginOpenRead(p, ac, s),
-                ar => EndOpenRead(ar),
-                path, null);
-        }
+		/// <summary>
+		/// Opens the specified file for reading asynchronously
+		/// </summary>
+		/// <param name="path">The full or relative path of the file</param>
+		/// <returns>A readable stream of the remote file</returns>
+		public async Task<Stream> OpenReadAsync(string path) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, Stream>(
+				(p, ac, s) => BeginOpenRead(p, ac, s),
+				ar => EndOpenRead(ar),
+				path, null);
+		}
 #endif
 
 		#endregion
@@ -1958,7 +1947,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Begins an asynchronous operation to open the specified file for writing
+		/// Begins an asynchronous operation to open the specified file for writing
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="callback">Async callback</param>
@@ -1972,7 +1961,7 @@ namespace FluentFTP {
 		delegate Stream AsyncOpenWrite(string path, FtpDataType type);
 
 		/// <summary>
-        /// Begins an asynchronous operation to open the specified file for writing
+		/// Begins an asynchronous operation to open the specified file for writing
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
@@ -1993,9 +1982,9 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Ends a call to <see cref="o:BeginOpenWrite"/>
+		/// Ends a call to <see cref="o:BeginOpenWrite"/>
 		/// </summary>
-        /// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="o:BeginOpenWrite"/></param>
+		/// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="o:BeginOpenWrite"/></param>
 		/// <returns>A writable stream</returns>
 		/// <example><code source="..\Examples\BeginOpenWrite.cs" lang="cs" /></example>
 		public Stream EndOpenWrite(IAsyncResult ar) {
@@ -2003,32 +1992,32 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. asynchronously
-        /// </summary>
-        /// <param name="path">Full or relative path of the file</param>
-        /// <param name="type">ASCII/Binary</param>
-        /// <returns>A stream for writing to the file on the server</returns>
-	    public async Task<Stream> OpenWriteAsync(string path, FtpDataType type) {
-            //TODO:  Rewrite as true async method with cancellation support
-	        return await Task.Factory.FromAsync<string, FtpDataType, Stream>(
-	            (p, t, ac, s) => BeginOpenWrite(p, t, ac, s),
-	            ar => EndOpenWrite(ar),
-	            path, type, null);
-	    }
+		/// <summary>
+		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. asynchronously
+		/// </summary>
+		/// <param name="path">Full or relative path of the file</param>
+		/// <param name="type">ASCII/Binary</param>
+		/// <returns>A stream for writing to the file on the server</returns>
+		public async Task<Stream> OpenWriteAsync(string path, FtpDataType type) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, FtpDataType, Stream>(
+				(p, t, ac, s) => BeginOpenWrite(p, t, ac, s),
+				ar => EndOpenWrite(ar),
+				path, type, null);
+		}
 
-        /// <summary>
-        /// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. asynchronously
-        /// </summary>
-        /// <param name="path">Full or relative path of the file</param>
-        /// <returns>A stream for writing to the file on the server</returns>
-        public async Task<Stream> OpenWriteAsync(string path) {
-            //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<string, Stream>(
-                (p, ac, s) => BeginOpenWrite(p, ac, s),
-                ar => EndOpenWrite(ar),
-                path, null);
-        }
+		/// <summary>
+		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. asynchronously
+		/// </summary>
+		/// <param name="path">Full or relative path of the file</param>
+		/// <returns>A stream for writing to the file on the server</returns>
+		public async Task<Stream> OpenWriteAsync(string path) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, Stream>(
+				(p, ac, s) => BeginOpenWrite(p, ac, s),
+				ar => EndOpenWrite(ar),
+				path, null);
+		}
 #endif
 
 		#endregion
@@ -2080,7 +2069,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Begins an asynchronous operation to open the specified file for appending
+		/// Begins an asynchronous operation to open the specified file for appending
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="callback">Async callback</param>
@@ -2094,7 +2083,7 @@ namespace FluentFTP {
 		delegate Stream AsyncOpenAppend(string path, FtpDataType type);
 
 		/// <summary>
-        /// Begins an asynchronous operation to open the specified file for appending
+		/// Begins an asynchronous operation to open the specified file for appending
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
@@ -2115,9 +2104,9 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Ends a call to <see cref="o:BeginOpenAppend"/>
+		/// Ends a call to <see cref="o:BeginOpenAppend"/>
 		/// </summary>
-        /// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="o:BeginOpenAppend"/></param>
+		/// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="o:BeginOpenAppend"/></param>
 		/// <returns>A writable stream</returns>
 		/// <example><code source="..\Examples\BeginOpenAppend.cs" lang="cs" /></example>
 		public Stream EndOpenAppend(IAsyncResult ar) {
@@ -2125,35 +2114,35 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Opens the specified file to be appended asynchronously
-        /// </summary>
-        /// <param name="path">Full or relative path of the file</param>
-        /// <param name="type">ASCII/Binary</param>
-        /// <returns>A stream for writing to the file on the server</returns>
-        public async Task<Stream> OpenAppendAsync(string path, FtpDataType type){
-            //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<string, FtpDataType, Stream>(
-                (p, t, ac, s) => BeginOpenAppend(p, t, ac, s),
-                ar => EndOpenAppend(ar),
-                path, type, null);
-        }
+		/// <summary>
+		/// Opens the specified file to be appended asynchronously
+		/// </summary>
+		/// <param name="path">Full or relative path of the file</param>
+		/// <param name="type">ASCII/Binary</param>
+		/// <returns>A stream for writing to the file on the server</returns>
+		public async Task<Stream> OpenAppendAsync(string path, FtpDataType type) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, FtpDataType, Stream>(
+				(p, t, ac, s) => BeginOpenAppend(p, t, ac, s),
+				ar => EndOpenAppend(ar),
+				path, type, null);
+		}
 
-        /// <summary>
-        /// Opens the specified file to be appended asynchronously
-        /// </summary>
-        /// <param name="path">Full or relative path of the file</param>
-        /// <returns>A stream for writing to the file on the server</returns>
-        public async Task<Stream> OpenAppendAsync(string path) {
-            //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<string, Stream>(
-                (p, ac, s) => BeginOpenAppend(p, ac, s),
-                ar => EndOpenAppend(ar),
-                path, null);
-        }
+		/// <summary>
+		/// Opens the specified file to be appended asynchronously
+		/// </summary>
+		/// <param name="path">Full or relative path of the file</param>
+		/// <returns>A stream for writing to the file on the server</returns>
+		public async Task<Stream> OpenAppendAsync(string path) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, Stream>(
+				(p, ac, s) => BeginOpenAppend(p, ac, s),
+				ar => EndOpenAppend(ar),
+				path, null);
+		}
 #endif
 
-#endregion
+		#endregion
 
 		#region Multi File Upload/Download
 
@@ -2162,31 +2151,31 @@ namespace FluentFTP {
 		/// All files are placed directly into the given folder regardless of their path on the local filesystem.
 		/// High-level API that takes care of various edge cases internally.
 		/// Supports very large files since it uploads data in chunks.
-        /// Faster than uploading single files with <see cref="o:UploadFile"/> since it performs a single "file exists" check rather than one check per file.
+		/// Faster than uploading single files with <see cref="o:UploadFile"/> since it performs a single "file exists" check rather than one check per file.
 		/// </summary>
 		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
 		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance,
-        ///  but only if you are SURE that the files do not exist on the server.</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance,
+		///  but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
-		public int UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true, 
-            FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None) {
-		    if (!errorHandling.ValidFtpErrorHandlingCombination())
-		        throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
-			
-            //int count = 0;
-            bool errorEncountered = false;
-		    List<string> successfulUploads = new List<string>();
+		public int UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true,
+			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None) {
+			if (!errorHandling.ValidFtpErrorHandlingCombination())
+				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
+
+			//int count = 0;
+			bool errorEncountered = false;
+			List<string> successfulUploads = new List<string>();
 
 			// ensure ends with slash
 			remoteDir = !remoteDir.EndsWith("/") ? remoteDir + "/" : remoteDir;
@@ -2216,59 +2205,57 @@ namespace FluentFTP {
 				try {
 					bool ok = UploadFileFromFile(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true, verifyOptions);
 					if (ok) {
-					    successfulUploads.Add(remotePath);
+						successfulUploads.Add(remotePath);
 						//count++;
-					}
-                    else if ((int)errorHandling > 1) {
-                        errorEncountered = true;
-                        break;
+					} else if ((int)errorHandling > 1) {
+						errorEncountered = true;
+						break;
 					}
 				} catch (Exception ex) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Error, "Upload Failure for {0}: {1}", localPath, ex);
-				    if (errorHandling.HasFlag(FtpError.Stop)) {
-                        errorEncountered = true;
-                        break;
-				    }
-                    
-                    if (errorHandling.HasFlag(FtpError.Throw)) {
-				        if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
-				            PurgeSuccessfulUploads(successfulUploads);
-				        }
+					FtpTrace.WriteLine(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
+					if (errorHandling.HasFlag(FtpError.Stop)) {
+						errorEncountered = true;
+						break;
+					}
 
-				        throw new FtpException("An error occurred uploading file(s).  See inner exception for more info.", ex);
-				    }
+					if (errorHandling.HasFlag(FtpError.Throw)) {
+						if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
+							PurgeSuccessfulUploads(successfulUploads);
+						}
+
+						throw new FtpException("An error occurred uploading file(s).  See inner exception for more info.", ex);
+					}
 				}
 			}
 
-		    if (errorEncountered) {
-                //Delete any successful uploads if needed
-		        if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
-		            PurgeSuccessfulUploads(successfulUploads);
-		            successfulUploads.Clear(); //forces return of 0
-		        }
+			if (errorEncountered) {
+				//Delete any successful uploads if needed
+				if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
+					PurgeSuccessfulUploads(successfulUploads);
+					successfulUploads.Clear(); //forces return of 0
+				}
 
-                //Throw generic error because requested
-		        if (errorHandling.HasFlag(FtpError.Throw)) {
-		            throw new FtpException("An error occurred uploading one or more files.  Refer to trace output if available.");
-		        }
-		    }
+				//Throw generic error because requested
+				if (errorHandling.HasFlag(FtpError.Throw)) {
+					throw new FtpException("An error occurred uploading one or more files.  Refer to trace output if available.");
+				}
+			}
 
 			return successfulUploads.Count;
 		}
 
-	    private void PurgeSuccessfulUploads(IEnumerable<string> remotePaths) {
-            foreach (string remotePath in remotePaths)
-	        {
-                this.DeleteFile(remotePath);
-	        }
-	    }
+		private void PurgeSuccessfulUploads(IEnumerable<string> remotePaths) {
+			foreach (string remotePath in remotePaths) {
+				this.DeleteFile(remotePath);
+			}
+		}
 
 		/// <summary>
 		/// Uploads the given file paths to a single folder on the server.
 		/// All files are placed directly into the given folder regardless of their path on the local filesystem.
 		/// High-level API that takes care of various edge cases internally.
 		/// Supports very large files since it uploads data in chunks.
-        /// Faster than uploading single files with <see cref="o:UploadFile"/> since it performs a single "file exists" check rather than one check per file.
+		/// Faster than uploading single files with <see cref="o:UploadFile"/> since it performs a single "file exists" check rather than one check per file.
 		/// </summary>
 		/// <param name="localFiles">Files to be uploaded</param>
 		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
@@ -2279,60 +2266,60 @@ namespace FluentFTP {
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
 		public int UploadFiles(IEnumerable<FileInfo> localFiles, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true,
-            FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None) {
+			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None) {
 			return UploadFiles(localFiles.Select(f => f.FullName), remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling);
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
+		/// <summary>
 		/// Uploads the given file paths to a single folder on the server asynchronously.
 		/// All files are placed directly into the given folder regardless of their path on the local filesystem.
 		/// High-level API that takes care of various edge cases internally.
 		/// Supports very large files since it uploads data in chunks.
-        /// Faster than uploading single files with <see cref="o:UploadFile"/> since it performs a single "file exists" check rather than one check per file.
+		/// Faster than uploading single files with <see cref="o:UploadFile"/> since it performs a single "file exists" check rather than one check per file.
 		/// </summary>
 		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
 		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
-        /// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
-        /// <param name="errorHandling">Used to determine how errors are handled</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
+		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <param name="token">The token to monitor for cancellation requests</param>
 		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
-        /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
-        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
-        /// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
-        /// to propagate from this method.
-        /// </remarks>
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
+		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+		/// to propagate from this method.
+		/// </remarks>
 		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode, bool createRemoteDir, FtpVerify verifyOptions, FtpError errorHandling, CancellationToken token) {
-            if (!errorHandling.ValidFtpErrorHandlingCombination())
-                throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
+			if (!errorHandling.ValidFtpErrorHandlingCombination())
+				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
 
-            //check if cancellation was requested and throw to set TaskStatus state to Canceled
-            token.ThrowIfCancellationRequested();
+			//check if cancellation was requested and throw to set TaskStatus state to Canceled
+			token.ThrowIfCancellationRequested();
 
 			//int count = 0;
-            bool errorEncountered = false;
-            List<string> successfulUploads = new List<string>();
+			bool errorEncountered = false;
+			List<string> successfulUploads = new List<string>();
 			// ensure ends with slash
 			remoteDir = !remoteDir.EndsWith("/") ? remoteDir + "/" : remoteDir;
 
 			//flag to determine if existence checks are required
-            bool checkFileExistence = true;
+			bool checkFileExistence = true;
 
-            // create remote dir if wanted
+			// create remote dir if wanted
 			if (createRemoteDir) {
 				if (!await DirectoryExistsAsync(remoteDir)) {
 					await CreateDirectoryAsync(remoteDir);
-                    checkFileExistence = false;
+					checkFileExistence = false;
 				}
 			}
 
@@ -2342,100 +2329,98 @@ namespace FluentFTP {
 			// per local file
 			foreach (string localPath in localPaths) {
 
-                // check if cancellation was requested and throw to set TaskStatus state to Canceled
-			    token.ThrowIfCancellationRequested();
+				// check if cancellation was requested and throw to set TaskStatus state to Canceled
+				token.ThrowIfCancellationRequested();
 
 				// calc remote path
 				string fileName = Path.GetFileName(localPath);
 				string remotePath = remoteDir + fileName;
 
 				// try to upload it
-			    try {
+				try {
 					bool ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true, verifyOptions, token);
-			        if (ok) {
-			            successfulUploads.Add(remotePath);
-			        }
-			        else if ((int)errorHandling > 1) {
-			            errorEncountered = true;
-			            break;
-			        }
-			    }
-                catch (Exception ex) {
-                    if (ex is OperationCanceledException) {
-                        //DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
-                        FtpTrace.WriteLine(FtpTraceLevel.Info, "Upload cancellation requested");
-                        throw;
-                    }
-                    //suppress all other upload exceptions (errors are still written to FtpTrace)
-                    FtpTrace.WriteLine(FtpTraceLevel.Error, "Upload Failure for {0}: {1}", localPath, ex);
-                    if (errorHandling.HasFlag(FtpError.Stop)){
-                        errorEncountered = true;
-                        break;
-                    }
+					if (ok) {
+						successfulUploads.Add(remotePath);
+					} else if ((int)errorHandling > 1) {
+						errorEncountered = true;
+						break;
+					}
+				} catch (Exception ex) {
+					if (ex is OperationCanceledException) {
+						//DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
+						FtpTrace.WriteLine(FtpTraceLevel.Info, "Upload cancellation requested");
+						throw;
+					}
+					//suppress all other upload exceptions (errors are still written to FtpTrace)
+					FtpTrace.WriteLine(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
+					if (errorHandling.HasFlag(FtpError.Stop)) {
+						errorEncountered = true;
+						break;
+					}
 
-                    if (errorHandling.HasFlag(FtpError.Throw)){
-                        if (errorHandling.HasFlag(FtpError.DeleteProcessed)){
-                            PurgeSuccessfulUploads(successfulUploads);
-                        }
+					if (errorHandling.HasFlag(FtpError.Throw)) {
+						if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
+							PurgeSuccessfulUploads(successfulUploads);
+						}
 
-                        throw new FtpException("An error occurred uploading file(s).  See inner exception for more info.", ex);
-                    }
+						throw new FtpException("An error occurred uploading file(s).  See inner exception for more info.", ex);
+					}
 				}
 			}
 
-            if (errorEncountered){
-                //Delete any successful uploads if needed
-                if (errorHandling.HasFlag(FtpError.DeleteProcessed)){
-                    await PurgeSuccessfulUploadsAsync(successfulUploads);
-                    successfulUploads.Clear(); //forces return of 0
-                }
+			if (errorEncountered) {
+				//Delete any successful uploads if needed
+				if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
+					await PurgeSuccessfulUploadsAsync(successfulUploads);
+					successfulUploads.Clear(); //forces return of 0
+				}
 
-                //Throw generic error because requested
-                if (errorHandling.HasFlag(FtpError.Throw)){
-                    throw new FtpException("An error occurred uploading one or more files.  Refer to trace output if available.");
-                }
-            }
+				//Throw generic error because requested
+				if (errorHandling.HasFlag(FtpError.Throw)) {
+					throw new FtpException("An error occurred uploading one or more files.  Refer to trace output if available.");
+				}
+			}
 
-            return successfulUploads.Count;
+			return successfulUploads.Count;
 		}
 
-	    private async Task PurgeSuccessfulUploadsAsync(IEnumerable<string> remotePaths) {
-	        foreach (string remotePath in remotePaths) {
-	            await this.DeleteDirectoryAsync(remotePath);
-	        }
-	    }
+		private async Task PurgeSuccessfulUploadsAsync(IEnumerable<string> remotePaths) {
+			foreach (string remotePath in remotePaths) {
+				await this.DeleteDirectoryAsync(remotePath);
+			}
+		}
 
-        /// <summary>
-        /// Uploads the given file paths to a single folder on the server asynchronously.
-        /// All files are placed directly into the given folder regardless of their path on the local filesystem.
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it uploads data in chunks.
-        /// Faster than uploading single files with <see cref="o:UploadFile"/> since it performs a single "file exists" check rather than one check per file.
-        /// </summary>
-        /// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
-        /// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
-        /// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
-        /// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
-        /// <param name="errorHandling">Used to determine how errors are handled</param>
-        /// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
-        /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
-        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
-        /// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
-        /// to propagate from this method.
-        /// </remarks>
+		/// <summary>
+		/// Uploads the given file paths to a single folder on the server asynchronously.
+		/// All files are placed directly into the given folder regardless of their path on the local filesystem.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it uploads data in chunks.
+		/// Faster than uploading single files with <see cref="o:UploadFile"/> since it performs a single "file exists" check rather than one check per file.
+		/// </summary>
+		/// <param name="localPaths">The full or relative paths to the files on the local file system. Files can be from multiple folders.</param>
+		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
+		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
+		/// <param name="errorHandling">Used to determine how errors are handled</param>
+		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
+		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+		/// to propagate from this method.
+		/// </remarks>
 		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None) {
-            return await UploadFilesAsync(localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling, CancellationToken.None);
-	    }
+			return await UploadFilesAsync(localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling, CancellationToken.None);
+		}
 #endif
 
 		/// <summary>
 		/// Downloads the specified files into a local single directory.
 		/// High-level API that takes care of various edge cases internally.
 		/// Supports very large files since it downloads data in chunks.
-        /// Same speed as <see cref="o:DownloadFile"/>.
+		/// Same speed as <see cref="o:DownloadFile"/>.
 		/// </summary>
 		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
 		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
@@ -2445,18 +2430,18 @@ namespace FluentFTP {
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
 		public int DownloadFiles(string localDir, IEnumerable<string> remotePaths, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None,
-            FtpError errorHandling = FtpError.None) {
-		    if (!errorHandling.ValidFtpErrorHandlingCombination())
-		        throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
+			FtpError errorHandling = FtpError.None) {
+			if (!errorHandling.ValidFtpErrorHandlingCombination())
+				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
 
-            bool errorEncountered = false;
-		    List<string> successfulDownloads = new List<string>();
+			bool errorEncountered = false;
+			List<string> successfulDownloads = new List<string>();
 
 			// ensure ends with slash
 			localDir = !localDir.EndsWith(Path.DirectorySeparatorChar.ToString()) ? localDir + Path.DirectorySeparatorChar.ToString() : localDir;
@@ -2469,182 +2454,179 @@ namespace FluentFTP {
 				// try to download it
 				try {
 					bool ok = DownloadFileToFile(localPath, remotePath, overwrite, verifyOptions);
-				    if (ok) {
-				        successfulDownloads.Add(localPath);
-				    }
-				    else if ((int)errorHandling > 1){
-                        errorEncountered = true;
-                        break;
-				    }
+					if (ok) {
+						successfulDownloads.Add(localPath);
+					} else if ((int)errorHandling > 1) {
+						errorEncountered = true;
+						break;
+					}
 				} catch (Exception ex) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Error, "Failed to download {0}. Error: {1}", remotePath, ex);
-				    if (errorHandling.HasFlag(FtpError.Stop)){
-				        errorEncountered = true;
-				        break;
-				    }
+					FtpTrace.WriteLine(FtpTraceLevel.Error, "Failed to download " + remotePath + ". Error: " + ex);
+					if (errorHandling.HasFlag(FtpError.Stop)) {
+						errorEncountered = true;
+						break;
+					}
 
-				    if (errorHandling.HasFlag(FtpError.Throw)){
-				        if (errorHandling.HasFlag(FtpError.DeleteProcessed)){
-                            PurgeSuccessfulDownloads(successfulDownloads);
-				        }
+					if (errorHandling.HasFlag(FtpError.Throw)) {
+						if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
+							PurgeSuccessfulDownloads(successfulDownloads);
+						}
 
-				        throw new FtpException("An error occurred downloading file(s).  See inner exception for more info.", ex);
-				    }
+						throw new FtpException("An error occurred downloading file(s).  See inner exception for more info.", ex);
+					}
 				}
 			}
 
-		    if (errorEncountered) {
-		        //Delete any successful uploads if needed
-		        if (errorHandling.HasFlag(FtpError.DeleteProcessed)){
-                    PurgeSuccessfulDownloads(successfulDownloads);
-		            successfulDownloads.Clear(); //forces return of 0
-		        }
+			if (errorEncountered) {
+				//Delete any successful uploads if needed
+				if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
+					PurgeSuccessfulDownloads(successfulDownloads);
+					successfulDownloads.Clear(); //forces return of 0
+				}
 
-		        //Throw generic error because requested
-		        if (errorHandling.HasFlag(FtpError.Throw)){
-		            throw new FtpException("An error occurred downloading one or more files.  Refer to trace output if available.");
-		        }
-		    }
+				//Throw generic error because requested
+				if (errorHandling.HasFlag(FtpError.Throw)) {
+					throw new FtpException("An error occurred downloading one or more files.  Refer to trace output if available.");
+				}
+			}
 
 			return successfulDownloads.Count;
 		}
 
-        /*
+		/*
 		/// <summary>
 		/// Downloads the specified files into a local single directory.
 		/// High-level API that takes care of various edge cases internally.
 		/// Supports very large files since it downloads data in chunks.
-        /// Same speed as <see cref="o:DownloadFile"/>.
+		/// Same speed as <see cref="o:DownloadFile"/>.
 		/// </summary>
 		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
 		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
 		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
-        /// <param name="errorHandling">Used to determine how errors are handled</param>
+		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		public int DownloadFiles(string localDir, List<string> remotePaths, bool overwrite = true, FtpError errorHandling = FtpError.None) {
 			return DownloadFiles(localDir, remotePaths.ToArray(), overwrite);
 		}*/
 
-	    private void PurgeSuccessfulDownloads(IEnumerable<string> localFiles) {
-	        foreach (string localFile in localFiles) {
-	            File.Delete(localFile);
-	        }
-	    }
+		private void PurgeSuccessfulDownloads(IEnumerable<string> localFiles) {
+			foreach (string localFile in localFiles) {
+				File.Delete(localFile);
+			}
+		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Downloads the specified files into a local single directory.
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it downloads data in chunks.
-        /// Same speed as <see cref="o:DownloadFile"/>.
-        /// </summary>
-        /// <param name="localDir">The full or relative path to the directory that files will be downloaded.</param>
-        /// <param name="remotePaths">The full or relative paths to the files on the server</param>
-        /// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
-        /// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
-        /// <param name="errorHandling">Used to determine how errors are handled</param>
-        /// <param name="token">The token to monitor for cancellation requests</param>
-        /// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
-        /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
-        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
-        /// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
-        /// to propagate from this method.
-        /// </remarks>
-        public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite, FtpVerify verifyOptions, 
-            FtpError errorHandling, CancellationToken token) {
-            if (!errorHandling.ValidFtpErrorHandlingCombination())
-                throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
+		/// <summary>
+		/// Downloads the specified files into a local single directory.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// Same speed as <see cref="o:DownloadFile"/>.
+		/// </summary>
+		/// <param name="localDir">The full or relative path to the directory that files will be downloaded.</param>
+		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
+		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="errorHandling">Used to determine how errors are handled</param>
+		/// <param name="token">The token to monitor for cancellation requests</param>
+		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
+		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+		/// to propagate from this method.
+		/// </remarks>
+		public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite, FtpVerify verifyOptions,
+			FtpError errorHandling, CancellationToken token) {
+			if (!errorHandling.ValidFtpErrorHandlingCombination())
+				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
 
-            //check if cancellation was requested and throw to set TaskStatus state to Canceled
-            token.ThrowIfCancellationRequested();
-            bool errorEncountered = false;
-            List<string> successfulDownloads = new List<string>();
+			//check if cancellation was requested and throw to set TaskStatus state to Canceled
+			token.ThrowIfCancellationRequested();
+			bool errorEncountered = false;
+			List<string> successfulDownloads = new List<string>();
 
-            // ensure ends with slash
-            localDir = !localDir.EndsWith(Path.DirectorySeparatorChar.ToString()) ? localDir + Path.DirectorySeparatorChar.ToString() : localDir;
+			// ensure ends with slash
+			localDir = !localDir.EndsWith(Path.DirectorySeparatorChar.ToString()) ? localDir + Path.DirectorySeparatorChar.ToString() : localDir;
 
-            foreach (string remotePath in remotePaths) {
-                //check if cancellation was requested and throw to set TaskStatus state to Canceled
-                token.ThrowIfCancellationRequested();
-                // calc local path
-                string localPath = localDir + remotePath.GetFtpFileName();
+			foreach (string remotePath in remotePaths) {
+				//check if cancellation was requested and throw to set TaskStatus state to Canceled
+				token.ThrowIfCancellationRequested();
+				// calc local path
+				string localPath = localDir + remotePath.GetFtpFileName();
 
-                // try to download it
-                try {
-                    bool ok = await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, token);
-                    if (ok) {
-                        successfulDownloads.Add(localPath);
-                    }
-                    else if ((int)errorHandling > 1){
-                        errorEncountered = true;
-                        break;
-                    }
-                }
-                catch (Exception ex) {
-                    if (ex is OperationCanceledException) {
-                        FtpTrace.WriteLine(FtpTraceLevel.Info, "Download cancellation requested");
-                        //DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
-                        throw;
-                    }
-                    if (errorHandling.HasFlag(FtpError.Stop)){
-                        errorEncountered = true;
-                        break;
-                    }
+				// try to download it
+				try {
+					bool ok = await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, token);
+					if (ok) {
+						successfulDownloads.Add(localPath);
+					} else if ((int)errorHandling > 1) {
+						errorEncountered = true;
+						break;
+					}
+				} catch (Exception ex) {
+					if (ex is OperationCanceledException) {
+						FtpTrace.WriteLine(FtpTraceLevel.Info, "Download cancellation requested");
+						//DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
+						throw;
+					}
+					if (errorHandling.HasFlag(FtpError.Stop)) {
+						errorEncountered = true;
+						break;
+					}
 
-                    if (errorHandling.HasFlag(FtpError.Throw)){
-                        if (errorHandling.HasFlag(FtpError.DeleteProcessed)){
-                            PurgeSuccessfulDownloads(successfulDownloads);
-                        }
+					if (errorHandling.HasFlag(FtpError.Throw)) {
+						if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
+							PurgeSuccessfulDownloads(successfulDownloads);
+						}
 
-                        throw new FtpException("An error occurred downloading file(s).  See inner exception for more info.", ex);
-                    }
-                }
-            }
+						throw new FtpException("An error occurred downloading file(s).  See inner exception for more info.", ex);
+					}
+				}
+			}
 
-            if (errorEncountered){
-                //Delete any successful uploads if needed
-                if (errorHandling.HasFlag(FtpError.DeleteProcessed)){
-                    PurgeSuccessfulDownloads(successfulDownloads);
-                    successfulDownloads.Clear(); //forces return of 0
-                }
+			if (errorEncountered) {
+				//Delete any successful uploads if needed
+				if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
+					PurgeSuccessfulDownloads(successfulDownloads);
+					successfulDownloads.Clear(); //forces return of 0
+				}
 
-                //Throw generic error because requested
-                if (errorHandling.HasFlag(FtpError.Throw)){
-                    throw new FtpException("An error occurred downloading one or more files.  Refer to trace output if available.");
-                }
-            }
+				//Throw generic error because requested
+				if (errorHandling.HasFlag(FtpError.Throw)) {
+					throw new FtpException("An error occurred downloading one or more files.  Refer to trace output if available.");
+				}
+			}
 
-            return successfulDownloads.Count;
-        }
+			return successfulDownloads.Count;
+		}
 
-        /// <summary>
-        /// Downloads the specified files into a local single directory.
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it downloads data in chunks.
-        /// Same speed as <see cref="o:DownloadFile"/>.
-        /// </summary>
-        /// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
-        /// <param name="remotePaths">The full or relative paths to the files on the server</param>
-        /// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
-        /// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
-        /// <param name="errorHandling">Used to determine how errors are handled</param>
-        /// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
-        /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
-        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
-        /// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
-        /// to propagate from this method.
-        /// </remarks>
-        public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite = true, 
-            FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None) {
-            return await DownloadFilesAsync(localDir, remotePaths, overwrite, verifyOptions, errorHandling, CancellationToken.None);
-        }
+		/// <summary>
+		/// Downloads the specified files into a local single directory.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// Same speed as <see cref="o:DownloadFile"/>.
+		/// </summary>
+		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
+		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
+		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="errorHandling">Used to determine how errors are handled</param>
+		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
+		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+		/// to propagate from this method.
+		/// </remarks>
+		public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite = true,
+			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None) {
+			return await DownloadFilesAsync(localDir, remotePaths, overwrite, verifyOptions, errorHandling, CancellationToken.None);
+		}
 #endif
 
-#endregion
+		#endregion
 
 		#region File Upload/Download
 
@@ -2655,22 +2637,22 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to  <see cref="FtpExists.NoCheck"/> for fastest performance 
-        /// but only if you are SURE that the files do not exist on the server.</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to  <see cref="FtpExists.NoCheck"/> for fastest performance 
+		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
 		/// </remarks>
-		public bool UploadFile(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, 
-            FtpVerify verifyOptions = FtpVerify.None) {
+		public bool UploadFile(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false,
+			FtpVerify verifyOptions = FtpVerify.None) {
 
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
-			    FtpTrace.WriteLine(FtpTraceLevel.Error, "File does not exist.");
+				FtpTrace.WriteLine(FtpTraceLevel.Error, "File does not exist.");
 				return false;
 			}
 
@@ -2679,139 +2661,133 @@ namespace FluentFTP {
 
 #if (CORE || NETFX45)
 
-        /// <summary>
-        /// Uploads the specified file directly onto the server asynchronously.
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it uploads data in chunks.
-        /// </summary>
-        /// <param name="localPath">The full or relative path to the file on the local file system</param>
-        /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to  <see cref="FtpExists.NoCheck"/> for fastest performance
-        ///  but only if you are SURE that the files do not exist on the server.</param>
-        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
-        /// <param name="token">The token to monitor for cancellation requests.</param>
-        /// <returns>If true then the file was uploaded, false otherwise.</returns>
-        /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
-        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
-        /// </remarks>
-		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode, bool createRemoteDir, 
-            FtpVerify verifyOptions, CancellationToken token) {
-            // skip uploading if the local file does not exist
-            if (!File.Exists(localPath)) {
-                FtpTrace.WriteLine(FtpTraceLevel.Error, "File does not exist.");
-                return false;
-            }
-
-            return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token);
-        }
-        
-        /// <summary>
+		/// <summary>
 		/// Uploads the specified file directly onto the server asynchronously.
 		/// High-level API that takes care of various edge cases internally.
 		/// Supports very large files since it uploads data in chunks.
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance 
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to  <see cref="FtpExists.NoCheck"/> for fastest performance
+		///  but only if you are SURE that the files do not exist on the server.</param>
+		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
+		/// <param name="token">The token to monitor for cancellation requests.</param>
+		/// <returns>If true then the file was uploaded, false otherwise.</returns>
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
+		/// </remarks>
+		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode, bool createRemoteDir,
+			FtpVerify verifyOptions, CancellationToken token) {
+			// skip uploading if the local file does not exist
+			if (!File.Exists(localPath)) {
+				FtpTrace.WriteLine(FtpTraceLevel.Error, "File does not exist.");
+				return false;
+			}
+
+			return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token);
+		}
+
+		/// <summary>
+		/// Uploads the specified file directly onto the server asynchronously.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it uploads data in chunks.
+		/// </summary>
+		/// <param name="localPath">The full or relative path to the file on the local file system</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance 
 		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-        /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
-        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
-        /// </remarks>
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
+		/// </remarks>
 		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None) {
 			return await UploadFileAsync(localPath, remotePath, existsMode, createRemoteDir, verifyOptions, CancellationToken.None);
-        }
+		}
 #endif
 
 		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions) {
 			//If retries are allowed set the retry counter to the allowed count
-		    int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
-            //Default validation to true (if verification isn't needed it'll allow a pass-through)
-		    bool verified = true;
-		    bool uploadSuccess;
-		    do {
-			    // write the file onto the server
-		        using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-			        //Upload file
-                    uploadSuccess = UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown);
-			        attemptsLeft--;
-                    //If verification is needed update the validated flag
-			        if (uploadSuccess && verifyOptions != FtpVerify.None){
-			            verified = VerifyTransfer(localPath, remotePath);
-                        FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
-			            if (!verified && attemptsLeft > 0) {
-                            //Force overwrite if a retry is required
-			                FtpTrace.WriteLine(FtpTraceLevel.Debug,
-			                    "Retrying due to failed verification.{0}  {1} attempts remaining",
-			                    existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode." : "",
-                                attemptsLeft);
-			                existsMode = FtpExists.Overwrite;
-			            }
-			        }
-		        }
-            } while (!verified && attemptsLeft > 0);//Loop if attempts are available and validation failed
-			
+			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+			//Default validation to true (if verification isn't needed it'll allow a pass-through)
+			bool verified = true;
+			bool uploadSuccess;
+			do {
+				// write the file onto the server
+				using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+					//Upload file
+					uploadSuccess = UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown);
+					attemptsLeft--;
+					//If verification is needed update the validated flag
+					if (uploadSuccess && verifyOptions != FtpVerify.None) {
+						verified = VerifyTransfer(localPath, remotePath);
+						FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+						if (!verified && attemptsLeft > 0) {
+							//Force overwrite if a retry is required
+							FtpTrace.WriteLine(FtpTraceLevel.Debug, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
+							existsMode = FtpExists.Overwrite;
+						}
+					}
+				}
+			} while (!verified && attemptsLeft > 0);//Loop if attempts are available and validation failed
 
-		    if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
-		        this.DeleteFile(remotePath);
-		    }
 
-		    if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
-		        throw new FtpException("Uploaded file checksum value does not match local file");
-		    }
+			if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
+				this.DeleteFile(remotePath);
+			}
 
-            return uploadSuccess && verified; 
+			if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
+				throw new FtpException("Uploaded file checksum value does not match local file");
+			}
+
+			return uploadSuccess && verified;
 		}
 
 #if (CORE || NETFX45)
-	    private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, 
-            bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token) {
-	        
+		private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode,
+			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token) {
 
-	        //If retries are allowed set the retry counter to the allowed count
-	        int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
-	        //Default validation to true (if verification isn't needed it'll allow a pass-through)
-	        bool verified = true;
-	        bool uploadSuccess;
-	        do {
-	            using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-	                uploadSuccess = await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode,fileExists, fileExistsKnown, token);
-	                attemptsLeft--;
 
-	                if (verifyOptions != FtpVerify.None) {
-	                    verified = await VerifyTransferAsync(localPath, remotePath);
-	                    FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
-	                    if (!verified && attemptsLeft > 0){
-	                        //Force overwrite if a retry is required
-	                        FtpTrace.WriteLine(FtpTraceLevel.Debug,
-	                            "Retrying due to failed verification.{0}  {1} attempts remaining",
-	                            existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode." : "",
-	                            attemptsLeft);
-	                        existsMode = FtpExists.Overwrite;
-	                    }
-	                }
-	            }
-	        } while (!verified && attemptsLeft > 0);
+			//If retries are allowed set the retry counter to the allowed count
+			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+			//Default validation to true (if verification isn't needed it'll allow a pass-through)
+			bool verified = true;
+			bool uploadSuccess;
+			do {
+				using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+					uploadSuccess = await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, token);
+					attemptsLeft--;
 
-	        if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
-	            await this.DeleteFileAsync(remotePath);
-	        }
+					if (verifyOptions != FtpVerify.None) {
+						verified = await VerifyTransferAsync(localPath, remotePath);
+						FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+						if (!verified && attemptsLeft > 0) {
+							//Force overwrite if a retry is required
+							FtpTrace.WriteLine(FtpTraceLevel.Debug, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
+							existsMode = FtpExists.Overwrite;
+						}
+					}
+				}
+			} while (!verified && attemptsLeft > 0);
 
-	        if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
-	            throw new FtpException("Uploaded file checksum value does not match local file");
-	        }
+			if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
+				await this.DeleteFileAsync(remotePath);
+			}
 
-            return uploadSuccess && verified;
-	    }
+			if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
+				throw new FtpException("Uploaded file checksum value does not match local file");
+			}
+
+			return uploadSuccess && verified;
+		}
 #endif
-		
+
 		/// <summary>
 		/// Uploads the specified stream as a file onto the server.
 		/// High-level API that takes care of various edge cases internally.
@@ -2819,8 +2795,8 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="fileStream">The full data of the file, as a stream</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance
-        /// but only if you are SURE that the files do not exist on the server.</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance
+		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		public bool Upload(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 
@@ -2834,8 +2810,8 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="fileData">The full data of the file, as a byte array</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance 
-        /// but only if you are SURE that the files do not exist on the server.</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance 
+		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		public bool Upload(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 
@@ -2849,72 +2825,72 @@ namespace FluentFTP {
 
 #if (CORE || NETFX45)
 
-        /// <summary>
-        /// Uploads the specified stream as a file onto the server asynchronously.
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it uploads data in chunks.
-        /// </summary>
-        /// <param name="fileStream">The full data of the file, as a stream</param>
-        /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance,
-        ///  but only if you are SURE that the files do not exist on the server.</param>
-        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-         /// <param name="token">The token to monitor for cancellation requests.</param>
-        /// <returns>If true then the file was uploaded, false otherwise.</returns>
+		/// <summary>
+		/// Uploads the specified stream as a file onto the server asynchronously.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it uploads data in chunks.
+		/// </summary>
+		/// <param name="fileStream">The full data of the file, as a stream</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance,
+		///  but only if you are SURE that the files do not exist on the server.</param>
+		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+		/// <param name="token">The token to monitor for cancellation requests.</param>
+		/// <returns>If true then the file was uploaded, false otherwise.</returns>
 		public async Task<bool> UploadAsync(Stream fileStream, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
-            
-            // write the file onto the server
-            return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, false, false, token);
-        }
-        /// <summary>
-        /// Uploads the specified byte array as a file onto the server asynchronously.
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it uploads data in chunks.
-        /// </summary>
-        /// <param name="fileData">The full data of the file, as a byte array</param>
-        /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance,
-        ///  but only if you are SURE that the files do not exist on the server.</param>
-        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <param name="token">The token to monitor for cancellation requests.</param>
-        /// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public async Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
-            // write the file onto the server
-            using (MemoryStream ms = new MemoryStream(fileData)) {
-                ms.Position = 0;
-				return await UploadFileInternalAsync(ms, remotePath, createRemoteDir, existsMode, false, false, token);
-            }
-        }
 
-        /// <summary>
-        /// Uploads the specified stream as a file onto the server asynchronously.
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it uploads data in chunks.
-        /// </summary>
-        /// <param name="fileStream">The full data of the file, as a stream</param>
-        /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance,
-        ///  but only if you are SURE that the files do not exist on the server.</param>
-        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <returns>If true then the file was uploaded, false otherwise.</returns>
+			// write the file onto the server
+			return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, false, false, token);
+		}
+		/// <summary>
+		/// Uploads the specified byte array as a file onto the server asynchronously.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it uploads data in chunks.
+		/// </summary>
+		/// <param name="fileData">The full data of the file, as a byte array</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance,
+		///  but only if you are SURE that the files do not exist on the server.</param>
+		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+		/// <param name="token">The token to monitor for cancellation requests.</param>
+		/// <returns>If true then the file was uploaded, false otherwise.</returns>
+		public async Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
+			// write the file onto the server
+			using (MemoryStream ms = new MemoryStream(fileData)) {
+				ms.Position = 0;
+				return await UploadFileInternalAsync(ms, remotePath, createRemoteDir, existsMode, false, false, token);
+			}
+		}
+
+		/// <summary>
+		/// Uploads the specified stream as a file onto the server asynchronously.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it uploads data in chunks.
+		/// </summary>
+		/// <param name="fileStream">The full data of the file, as a stream</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance,
+		///  but only if you are SURE that the files do not exist on the server.</param>
+		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+		/// <returns>If true then the file was uploaded, false otherwise.</returns>
 		public async Task<bool> UploadAsync(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 			return await UploadAsync(fileStream, remotePath, existsMode, createRemoteDir, CancellationToken.None);
-        }
+		}
 
-        /// <summary>
-        /// Uploads the specified byte array as a file onto the server asynchronously.
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it uploads data in chunks.
-        /// </summary>
-        /// <param name="fileData">The full data of the file, as a byte array</param>
-        /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance,
-        ///  but only if you are SURE that the files do not exist on the server.</param>
-        /// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-        /// <returns>If true then the file was uploaded, false otherwise.</returns>
+		/// <summary>
+		/// Uploads the specified byte array as a file onto the server asynchronously.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it uploads data in chunks.
+		/// </summary>
+		/// <param name="fileData">The full data of the file, as a byte array</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance,
+		///  but only if you are SURE that the files do not exist on the server.</param>
+		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
+		/// <returns>If true then the file was uploaded, false otherwise.</returns>
 		public async Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 			return await UploadAsync(fileData, remotePath, existsMode, createRemoteDir, CancellationToken.None);
-        }
+		}
 #endif
 
 		/// <summary>
@@ -2929,21 +2905,21 @@ namespace FluentFTP {
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-        public bool DownloadFile(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None) {
+		public bool DownloadFile(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None) {
 			return DownloadFileToFile(localPath, remotePath, overwrite, verifyOptions);
 		}
 
 		private bool DownloadFileToFile(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions) {
 			// skip downloading if the local file exists
 			if (!overwrite && File.Exists(localPath)) {
-			    FtpTrace.WriteLine(FtpTraceLevel.Error, "Overwrite is false and local file already exists.");
+				FtpTrace.WriteLine(FtpTraceLevel.Error, "Overwrite is false and local file already exists.");
 				return false;
 			}
 
-			
+
 			try {
 				// create the folders
 				string dirPath = Path.GetDirectoryName(localPath);
@@ -2955,142 +2931,134 @@ namespace FluentFTP {
 				throw new FtpException("Error while crated directories. See InnerException for more info.", ex1);
 			}
 
-		    bool downloadSuccess;
-            bool verified = true;
-		    int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
-		    do {
-		        using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)) {
-		            // download the file straight to a file stream
-		            downloadSuccess = DownloadFileInternal(remotePath, outStream);
-		            attemptsLeft--;
-		        }
+			bool downloadSuccess;
+			bool verified = true;
+			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+			do {
+				using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)) {
+					// download the file straight to a file stream
+					downloadSuccess = DownloadFileInternal(remotePath, outStream);
+					attemptsLeft--;
+				}
 
-		        if (downloadSuccess && verifyOptions != FtpVerify.None) {
-		            verified = VerifyTransfer(localPath, remotePath);
-		            FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
+				if (downloadSuccess && verifyOptions != FtpVerify.None) {
+					verified = VerifyTransfer(localPath, remotePath);
+					FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 #if DEBUG
-		            if (!verified && attemptsLeft > 0) {
-		                FtpTrace.WriteLine(FtpTraceLevel.Debug,
-		                    "Retrying due to failed verification.{0}  {1} attempts remaining",
-		                    overwrite ? "  Overwrite will occur." : "",
-		                    attemptsLeft);
-		            }
+					if (!verified && attemptsLeft > 0) {
+						FtpTrace.WriteLine(FtpTraceLevel.Debug, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+					}
 #endif
-		        }
-		    } while (!verified && attemptsLeft > 0);
+				}
+			} while (!verified && attemptsLeft > 0);
 
-		    if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
-		        File.Delete(localPath);
-		    }
+			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
+				File.Delete(localPath);
+			}
 
-		    if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)){
-		        throw new FtpException("Downloaded file checksum value does not match remote file");
-		    }
+			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
+				throw new FtpException("Downloaded file checksum value does not match remote file");
+			}
 
-            return downloadSuccess && verified;
+			return downloadSuccess && verified;
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Downloads the specified file onto the local file system asynchronously.
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it downloads data in chunks.
-        /// </summary>
-        /// <param name="localPath">The full or relative path to the file on the local file system</param>
-        /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
-        /// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
-        /// <param name="token">The token to monitor for cancellation requests</param>
-        /// <returns>If true then the file was downloaded, false otherwise.</returns>
-        /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
-        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
-        /// </remarks>
-        public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token) {
-            return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, token);
-        }
+		/// <summary>
+		/// Downloads the specified file onto the local file system asynchronously.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="localPath">The full or relative path to the file on the local file system</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="token">The token to monitor for cancellation requests</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
+		/// </remarks>
+		public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token) {
+			return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, token);
+		}
 
-        /// <summary>
-        /// Downloads the specified file onto the local file system asynchronously.
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it downloads data in chunks.
-        /// </summary>
-        /// <param name="localPath">The full or relative path to the file on the local file system</param>
-        /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
-        /// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
-        /// <returns>If true then the file was downloaded, false otherwise.</returns>
-        /// <remarks>
-        /// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-        /// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.Checksum"/> is set then the return of this method depends on both a successful 
-        /// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
-        /// </remarks>
-        public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None) {
-            return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, CancellationToken.None);
-        }
+		/// <summary>
+		/// Downloads the specified file onto the local file system asynchronously.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="localPath">The full or relative path to the file on the local file system</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
+		/// </remarks>
+		public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None) {
+			return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, CancellationToken.None);
+		}
 
-        private async Task<bool> DownloadFileToFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token) {
-            if (string.IsNullOrWhiteSpace(localPath))
-                throw new ArgumentNullException("localPath");
+		private async Task<bool> DownloadFileToFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token) {
+			if (string.IsNullOrWhiteSpace(localPath))
+				throw new ArgumentNullException("localPath");
 
-            // skip downloading if the local file exists
-            if (!overwrite && File.Exists(localPath)) {
-                FtpTrace.WriteLine(FtpTraceLevel.Error, "Overwrite is false and local file already exists");
-                return false;
-            }
-            
-            try{
-                // create the folders
-                string dirPath = Path.GetDirectoryName(localPath);
-                if (!Directory.Exists(dirPath)){
-                    Directory.CreateDirectory(dirPath);
-                }
-            }
-            catch (Exception ex1){
-                // catch errors creating directory
-                throw new FtpException("Error while crated directories. See InnerException for more info.", ex1);
-            }
+			// skip downloading if the local file exists
+			if (!overwrite && File.Exists(localPath)) {
+				FtpTrace.WriteLine(FtpTraceLevel.Error, "Overwrite is false and local file already exists");
+				return false;
+			}
 
-            bool downloadSuccess;
-            bool verified = true;
-            int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
-            do{
-                using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)){
-                    // download the file straight to a file stream
-                    downloadSuccess = await DownloadFileInternalAsync(remotePath, outStream, token);
-                    attemptsLeft--;
-                }
+			try {
+				// create the folders
+				string dirPath = Path.GetDirectoryName(localPath);
+				if (!Directory.Exists(dirPath)) {
+					Directory.CreateDirectory(dirPath);
+				}
+			} catch (Exception ex1) {
+				// catch errors creating directory
+				throw new FtpException("Error while crated directories. See InnerException for more info.", ex1);
+			}
 
-                if (downloadSuccess && verifyOptions != FtpVerify.None){
-                    verified = await VerifyTransferAsync(localPath, remotePath);
-                    FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: {0}", verified ? "PASS" : "FAIL");
+			bool downloadSuccess;
+			bool verified = true;
+			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+			do {
+				using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)) {
+					// download the file straight to a file stream
+					downloadSuccess = await DownloadFileInternalAsync(remotePath, outStream, token);
+					attemptsLeft--;
+				}
+
+				if (downloadSuccess && verifyOptions != FtpVerify.None) {
+					verified = await VerifyTransferAsync(localPath, remotePath);
+					FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 #if DEBUG
-                    if (!verified && attemptsLeft > 0)
-                    {
-                        FtpTrace.WriteLine(FtpTraceLevel.Debug,
-                            "Retrying due to failed verification.{0}  {1} attempts remaining",
-                            overwrite ? "  Overwrite will occur." : "",
-                            attemptsLeft);
-                    }
+					if (!verified && attemptsLeft > 0) {
+						FtpTrace.WriteLine(FtpTraceLevel.Debug, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+					}
 #endif
-                }
-            } while (!verified && attemptsLeft > 0);
+				}
+			} while (!verified && attemptsLeft > 0);
 
-            if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)){
-                File.Delete(localPath);
-            }
+			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
+				File.Delete(localPath);
+			}
 
-            if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)){
-                throw new FtpException("Downloaded file checksum value does not match remote file");
-            }
+			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
+				throw new FtpException("Downloaded file checksum value does not match remote file");
+			}
 
-            return downloadSuccess && verified;
-        }
+			return downloadSuccess && verified;
+		}
 #endif
 
 		/// <summary>
-        /// Downloads the specified file into the specified stream.
+		/// Downloads the specified file into the specified stream.
 		/// High-level API that takes care of various edge cases internally.
 		/// Supports very large files since it downloads data in chunks.
 		/// </summary>
@@ -3126,60 +3094,60 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Downloads the specified file into the specified stream asynchronously .
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it downloads data in chunks.
-        /// </summary>
-        /// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
-        /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="token">The token to monitor cancellation requests</param>
-        /// <returns>If true then the file was downloaded, false otherwise.</returns>
-        public async Task<bool> DownloadAsync(Stream outStream, string remotePath, CancellationToken token) {
-            // download the file from the server
-            return await DownloadFileInternalAsync(remotePath, outStream, token);
-        }
+		/// <summary>
+		/// Downloads the specified file into the specified stream asynchronously .
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="token">The token to monitor cancellation requests</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		public async Task<bool> DownloadAsync(Stream outStream, string remotePath, CancellationToken token) {
+			// download the file from the server
+			return await DownloadFileInternalAsync(remotePath, outStream, token);
+		}
 
-        /// <summary>
-        /// Downloads the specified file into the specified stream asynchronously .
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it downloads data in chunks.
-        /// </summary>
-        /// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
-        /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <returns>If true then the file was downloaded, false otherwise.</returns>
-        public async Task<bool> DownloadAsync(Stream outStream, string remotePath) {
-            // download the file from the server
-            return await DownloadFileInternalAsync(remotePath, outStream, CancellationToken.None);
-        }
+		/// <summary>
+		/// Downloads the specified file into the specified stream asynchronously .
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		public async Task<bool> DownloadAsync(Stream outStream, string remotePath) {
+			// download the file from the server
+			return await DownloadFileInternalAsync(remotePath, outStream, CancellationToken.None);
+		}
 
-        /// <summary>
-        /// Downloads the specified file and return the raw byte array.
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it downloads data in chunks.
-        /// </summary>
-        /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="token">The token to monitor cancellation requests</param>
-        /// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
-        public async Task<byte[]> DownloadAsync(string remotePath, CancellationToken token) {
-            // download the file from the server
-            using (MemoryStream outStream = new MemoryStream()) {
-                bool ok = await DownloadFileInternalAsync(remotePath, outStream, token);
-                return ok ? outStream.ToArray() : null;
-            }
-        }
+		/// <summary>
+		/// Downloads the specified file and return the raw byte array.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="token">The token to monitor cancellation requests</param>
+		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
+		public async Task<byte[]> DownloadAsync(string remotePath, CancellationToken token) {
+			// download the file from the server
+			using (MemoryStream outStream = new MemoryStream()) {
+				bool ok = await DownloadFileInternalAsync(remotePath, outStream, token);
+				return ok ? outStream.ToArray() : null;
+			}
+		}
 
-        /// <summary>
-        /// Downloads the specified file into the specified stream asynchronously .
-        /// High-level API that takes care of various edge cases internally.
-        /// Supports very large files since it downloads data in chunks.
-        /// </summary>
-        /// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
-        public async Task<byte[]> DownloadAsync(string remotePath) {
-            // download the file from the server
-            return await DownloadAsync(remotePath, CancellationToken.None);
-        }
+		/// <summary>
+		/// Downloads the specified file into the specified stream asynchronously .
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
+		public async Task<byte[]> DownloadAsync(string remotePath) {
+			// download the file from the server
+			return await DownloadAsync(remotePath, CancellationToken.None);
+		}
 #endif
 
 		/// <summary>
@@ -3201,8 +3169,7 @@ namespace FluentFTP {
 					switch (existsMode) {
 						case FtpExists.Skip:
 							if (fileExists) {
-							    FtpTrace.WriteLine(FtpTraceLevel.Warn, "File {0} exists on server & existsMode is set to FileExists.Skip",
-							        remotePath);
+								FtpTrace.WriteLine(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
 								return false;
 							}
 							break;
@@ -3305,10 +3272,10 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
-        /// Writes data in chunks. Retries if server disconnects midway.
-        /// </summary>
+		/// <summary>
+		/// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
+		/// Writes data in chunks. Retries if server disconnects midway.
+		/// </summary>
 		private async Task<bool> UploadFileInternalAsync(Stream fileData, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, CancellationToken token) {
 			Stream upStream = null;
 			try {
@@ -3512,7 +3479,7 @@ namespace FluentFTP {
 
 				// absorb "file does not exist" exceptions and simply return false
 				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Error, "File does not exist: {0}", ex1);
+					FtpTrace.WriteLine(FtpTraceLevel.Error, "File does not exist: " + ex1);
 					return false;
 				}
 
@@ -3522,7 +3489,7 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
+		/// <summary>
 		/// Download a file from the server and write the data into the given stream asynchronously.
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
@@ -3573,13 +3540,13 @@ namespace FluentFTP {
 #if CORE
 		    					int code = (int)ie.SocketErrorCode;
 #else
-                                int code = ie.ErrorCode;
+								int code = ie.ErrorCode;
 #endif
-							    if (code == 10054) {
-                                    downStream.Dispose();
-                                    //Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
-                                    downStream = OpenRead(remotePath, restart: offset);
-							    }
+								if (code == 10054) {
+									downStream.Dispose();
+									//Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
+									downStream = OpenRead(remotePath, restart: offset);
+								}
 							} else throw;
 						} else throw;
 
@@ -3599,8 +3566,7 @@ namespace FluentFTP {
 				}
 				return true;
 
-			} 
-            catch (Exception ex1) {
+			} catch (Exception ex1) {
 				// close stream before throwing error
 				try {
 					downStream.Dispose();
@@ -3608,7 +3574,7 @@ namespace FluentFTP {
 
 				// absorb "file does not exist" exceptions and simply return false
 				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Error, "File does not exist: {0}", ex1);
+					FtpTrace.WriteLine(FtpTraceLevel.Error, "File does not exist: " + ex1);
 					return false;
 				}
 
@@ -3618,7 +3584,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
 		#region Delete File
 
@@ -3639,7 +3605,7 @@ namespace FluentFTP {
 		delegate void AsyncDeleteFile(string path);
 
 		/// <summary>
-        /// Begins an asynchronous operation to delete the specified file on the server
+		/// Begins an asynchronous operation to delete the specified file on the server
 		/// </summary>
 		/// <param name="path">The full or relative path to the file</param>
 		/// <param name="callback">Async callback</param>
@@ -3659,7 +3625,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Ends a call to <see cref="BeginDeleteFile"/>
+		/// Ends a call to <see cref="BeginDeleteFile"/>
 		/// </summary>
 		/// <param name="ar">IAsyncResult returned from BeginDeleteFile</param>
 		/// <example><code source="..\Examples\BeginDeleteFile.cs" lang="cs" /></example>
@@ -3668,16 +3634,16 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Deletes a file from the server asynchronously
-        /// </summary>
-        /// <param name="path">The full or relative path to the file</param>
-	    public async Task DeleteFileAsync(string path) {
-	        await Task.Factory.FromAsync<string>(
-	            (p, ac, s) => BeginDeleteFile(p, ac, s),
-	            ar => EndDeleteFile(ar),
-	            path, null);
-	    }
+		/// <summary>
+		/// Deletes a file from the server asynchronously
+		/// </summary>
+		/// <param name="path">The full or relative path to the file</param>
+		public async Task DeleteFileAsync(string path) {
+			await Task.Factory.FromAsync<string>(
+				(p, ac, s) => BeginDeleteFile(p, ac, s),
+				ar => EndDeleteFile(ar),
+				path, null);
+		}
 #endif
 
 		#endregion
@@ -3731,9 +3697,9 @@ namespace FluentFTP {
 					// then files will be listed before directories. This matters
 					// only if GetListing was called with recursive option.
 					FtpListItem[] itemList;
-					if (forceAgain){
+					if (forceAgain) {
 						itemList = GetListing(path, options);
-					}else{
+					} else {
 						itemList = GetListing(path, options).OrderByDescending(x => x.FullName.Count(c => c.Equals('/'))).ThenBy(x => x.Type).ToArray();
 					}
 
@@ -3836,36 +3802,36 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
+		/// <summary>
 		/// Asynchronously removes a directory and all its contents.
-        /// </summary>
-        /// <param name="path">The full or relative path of the directory to delete</param>
-        public async Task DeleteDirectoryAsync(string path){
-            await Task.Factory.FromAsync<string>(
-                (p, ac, s) => BeginDeleteDirectory(p, ac, s),
-                ar => EndDeleteDirectory(ar),
-                path, null);
-        }
+		/// </summary>
+		/// <param name="path">The full or relative path of the directory to delete</param>
+		public async Task DeleteDirectoryAsync(string path) {
+			await Task.Factory.FromAsync<string>(
+				(p, ac, s) => BeginDeleteDirectory(p, ac, s),
+				ar => EndDeleteDirectory(ar),
+				path, null);
+		}
 
-        /// <summary>
+		/// <summary>
 		/// Asynchronously removes a directory and all its contents.
-        /// </summary>
-        /// <param name="path">The full or relative path of the directory to delete</param>
-        /// <param name="options">Useful to delete hidden files or dot-files.</param>
-	    public async Task DeleteDirectoryAsync(string path, FtpListOption options) {
-	        var throwAway = await Task.Factory.FromAsync<string, FtpListOption, bool>(
-	            (p, o, ac, s) => BeginDeleteDirectory(p, o, ac, s),
-	            ar => {
-	                var invoked = GetAsyncDelegate<AsyncDeleteDirectory>(ar);
-	                if (invoked != null) {
-	                    invoked.EndInvoke(ar);
-                        return true;
-	                }
+		/// </summary>
+		/// <param name="path">The full or relative path of the directory to delete</param>
+		/// <param name="options">Useful to delete hidden files or dot-files.</param>
+		public async Task DeleteDirectoryAsync(string path, FtpListOption options) {
+			var throwAway = await Task.Factory.FromAsync<string, FtpListOption, bool>(
+				(p, o, ac, s) => BeginDeleteDirectory(p, o, ac, s),
+				ar => {
+					var invoked = GetAsyncDelegate<AsyncDeleteDirectory>(ar);
+					if (invoked != null) {
+						invoked.EndInvoke(ar);
+						return true;
+					}
 
-                    return false;
-	            },
-                path, options, null);
-	    }
+					return false;
+				},
+				path, options, null);
+		}
 
 #endif
 
@@ -3913,12 +3879,12 @@ namespace FluentFTP {
 		delegate bool AsyncDirectoryExists(string path);
 
 		/// <summary>
-        /// Begins an asynchronous operation to test if the specified directory exists on the server. 
-        /// This method works by trying to change the working directory to
-        /// the path specified. If it succeeds, the directory is changed
-        /// back to the old working directory and true is returned. False
-        /// is returned otherwise and since the CWD failed it is assumed
-        /// the working directory is still the same.
+		/// Begins an asynchronous operation to test if the specified directory exists on the server. 
+		/// This method works by trying to change the working directory to
+		/// the path specified. If it succeeds, the directory is changed
+		/// back to the old working directory and true is returned. False
+		/// is returned otherwise and since the CWD failed it is assumed
+		/// the working directory is still the same.
 		/// </summary>
 		/// <returns>IAsyncResult</returns>
 		/// <param name='path'>The full or relative path of the directory to check for</param>
@@ -3948,22 +3914,22 @@ namespace FluentFTP {
 		}
 
 #if (CORE ||NETFX45)
-        /// <summary>
-        /// Tests if the specified directory exists on the server asynchronously. This
-        /// method works by trying to change the working directory to
-        /// the path specified. If it succeeds, the directory is changed
-        /// back to the old working directory and true is returned. False
-        /// is returned otherwise and since the CWD failed it is assumed
-        /// the working directory is still the same.
-        /// </summary>
-        /// <param name='path'>The full or relative path of the directory to check for</param>
-        /// <returns>True if the directory exists. False otherwise.</returns>
-	    public async Task<bool> DirectoryExistsAsync(string path) {
-	        return await Task.Factory.FromAsync<string, bool>(
-	            (p, ac, s) => BeginDirectoryExists(p, ac, s),
-	            ar => EndDirectoryExists(ar),
-	            path, null);
-	    }
+		/// <summary>
+		/// Tests if the specified directory exists on the server asynchronously. This
+		/// method works by trying to change the working directory to
+		/// the path specified. If it succeeds, the directory is changed
+		/// back to the old working directory and true is returned. False
+		/// is returned otherwise and since the CWD failed it is assumed
+		/// the working directory is still the same.
+		/// </summary>
+		/// <param name='path'>The full or relative path of the directory to check for</param>
+		/// <returns>True if the directory exists. False otherwise.</returns>
+		public async Task<bool> DirectoryExistsAsync(string path) {
+			return await Task.Factory.FromAsync<string, bool>(
+				(p, ac, s) => BeginDirectoryExists(p, ac, s),
+				ar => EndDirectoryExists(ar),
+				path, null);
+		}
 #endif
 
 		#endregion
@@ -4040,20 +4006,20 @@ namespace FluentFTP {
 		/// <returns>IAsyncResult</returns>
 		/// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
 		public IAsyncResult BeginFileExists(string path, AsyncCallback callback, object state) {
-		    AsyncFileExists func;
+			AsyncFileExists func;
 
-		    IAsyncResult ar = (func = new AsyncFileExists(FileExists)).BeginInvoke(path, callback, state);
-		    lock (m_asyncmethods){
-		        m_asyncmethods.Add(ar, func);
-		    }
+			IAsyncResult ar = (func = new AsyncFileExists(FileExists)).BeginInvoke(path, callback, state);
+			lock (m_asyncmethods) {
+				m_asyncmethods.Add(ar, func);
+			}
 
-		    return ar;
+			return ar;
 		}
 
 		/// <summary>
 		/// Ends a call to <see cref="o:BeginFileExists"/>
 		/// </summary>
-        /// <param name="ar">IAsyncResult returned from <see cref="o:BeginFileExists"/></param>
+		/// <param name="ar">IAsyncResult returned from <see cref="o:BeginFileExists"/></param>
 		/// <returns>True if the file exists, false otherwise</returns>
 		/// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
 		public bool EndFileExists(IAsyncResult ar) {
@@ -4061,20 +4027,19 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Checks if a file exists on the server asynchronously by taking a 
-        /// file listing of the parent directory in the path
-        /// and comparing the results the path supplied.
-        /// </summary>
-        /// <param name="path">The full or relative path to the file</param>
-        /// <returns>True if the file exists, false otherwise</returns>
-        public async Task<bool> FileExistsAsync(string path)
-        {
-            return await Task.Factory.FromAsync<string, bool>(
-                (p, ac, s) => BeginFileExists(p, ac, s),
-                ar => EndFileExists(ar),
-                path, null);
-        }
+		/// <summary>
+		/// Checks if a file exists on the server asynchronously by taking a 
+		/// file listing of the parent directory in the path
+		/// and comparing the results the path supplied.
+		/// </summary>
+		/// <param name="path">The full or relative path to the file</param>
+		/// <returns>True if the file exists, false otherwise</returns>
+		public async Task<bool> FileExistsAsync(string path) {
+			return await Task.Factory.FromAsync<string, bool>(
+				(p, ac, s) => BeginFileExists(p, ac, s),
+				ar => EndFileExists(ar),
+				path, null);
+		}
 #endif
 
 		#endregion
@@ -4094,7 +4059,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Creates a directory on the server
 		/// </summary>
-        /// <param name="path">The full or relative path to the new remote directory</param>
+		/// <param name="path">The full or relative path to the new remote directory</param>
 		/// <param name="force">Try to force all non-existent pieces of the path to be created</param>
 		/// <example><code source="..\Examples\CreateDirectory.cs" lang="cs" /></example>
 		public void CreateDirectory(string path, bool force) {
@@ -4108,13 +4073,13 @@ namespace FluentFTP {
 				path = path.GetFtpPath().TrimEnd('/');
 
 				if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
-                    FtpTrace.WriteLine(FtpTraceLevel.Debug, "CreateDirectory(\"{0}\", {1}): Create non-existent parent: {2}", path, force, path.GetFtpDirectoryName());
+					FtpTrace.WriteLine(FtpTraceLevel.Debug, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
 					CreateDirectory(path.GetFtpDirectoryName(), true);
 				} else if (DirectoryExists(path))
 					return;
 
-                FtpTrace.WriteLine(FtpTraceLevel.Debug, "CreateDirectory(\"{0}\", {1})", ftppath, force);
-				
+				FtpTrace.WriteLine(FtpTraceLevel.Debug, "CreateDirectory " + ftppath);
+
 				if (!(reply = Execute("MKD " + ftppath)).Success)
 					throw new FtpCommandException(reply);
 			}
@@ -4124,9 +4089,9 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Begins an asynchronous operation to create a remote directory. If the preceding
-        /// directories do not exist, then they are created.
+		/// directories do not exist, then they are created.
 		/// </summary>
-        /// <param name="path">The full or relative path to the new remote directory</param>
+		/// <param name="path">The full or relative path to the new remote directory</param>
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
@@ -4136,9 +4101,9 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Begins an asynchronous operation to create a remote directory
+		/// Begins an asynchronous operation to create a remote directory
 		/// </summary>
-        /// <param name="path">The full or relative path to the new remote directory</param>
+		/// <param name="path">The full or relative path to the new remote directory</param>
 		/// <param name="force">Try to create the whole path if the preceding directories do not exist</param>
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
@@ -4166,29 +4131,29 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Creates a remote directory asynchronously
-        /// </summary>
-        /// <param name="path">The full or relative path to the new remote directory</param>
-        /// <param name="force">Try to create the whole path if the preceding directories do not exist</param>
-	    public async Task CreateDirectoryAsync(string path, bool force) {
-	        await Task.Factory.FromAsync<string, bool>(
-	            (p, f, ac, s) => BeginCreateDirectory(p, f, ac, s),
-	            ar => EndCreateDirectory(ar),
-	            path, force, null);
-	    }
+		/// <summary>
+		/// Creates a remote directory asynchronously
+		/// </summary>
+		/// <param name="path">The full or relative path to the new remote directory</param>
+		/// <param name="force">Try to create the whole path if the preceding directories do not exist</param>
+		public async Task CreateDirectoryAsync(string path, bool force) {
+			await Task.Factory.FromAsync<string, bool>(
+				(p, f, ac, s) => BeginCreateDirectory(p, f, ac, s),
+				ar => EndCreateDirectory(ar),
+				path, force, null);
+		}
 
-        /// <summary>
-        /// Creates a remote directory asynchronously. If the preceding
-        /// directories do not exist, then they are created.
-        /// </summary>
-        /// <param name="path">The full or relative path to the new remote directory</param>
-        public async Task CreateDirectoryAsync(string path) {
-            await Task.Factory.FromAsync<string>(
-                (p, ac, s) => BeginCreateDirectory(p, ac, s),
-                ar => EndCreateDirectory(ar),
-                path, null);
-        }
+		/// <summary>
+		/// Creates a remote directory asynchronously. If the preceding
+		/// directories do not exist, then they are created.
+		/// </summary>
+		/// <param name="path">The full or relative path to the new remote directory</param>
+		public async Task CreateDirectoryAsync(string path) {
+			await Task.Factory.FromAsync<string>(
+				(p, ac, s) => BeginCreateDirectory(p, ac, s),
+				ar => EndCreateDirectory(ar),
+				path, null);
+		}
 #endif
 
 		#endregion
@@ -4248,29 +4213,29 @@ namespace FluentFTP {
 		/// <summary>
 		/// Ends a call to <see cref="BeginRename"/>
 		/// </summary>
-        /// <param name="ar">IAsyncResult returned from <see cref="BeginRename"/></param>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginRename"/></param>
 		/// <example><code source="..\Examples\BeginRename.cs" lang="cs" /></example>
 		public void EndRename(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncRename>(ar).EndInvoke(ar);
 		}
 
 #if (CORE || NETFX45)
-	    /// <summary>
+		/// <summary>
 		/// Renames an object on the remote file system asynchronously.
 		/// Low level method that should NOT be used in most cases. Prefer MoveFile() and MoveDirectory().
 		/// Throws exceptions if the file does not exist, or if the destination file already exists.
-	    /// </summary>
-	    /// <param name="path">The full or relative path to the object</param>
-	    /// <param name="dest">The new full or relative path including the new name of the object</param>
-	    public async Task RenameAsync(string path, string dest) {
-	        await Task.Factory.FromAsync<string, string>(
-	            (p, d, ac, s) => BeginRename(p, d, ac, s),
-	            ar => EndRename(ar),
-	            path, dest, null);
-	    }
+		/// </summary>
+		/// <param name="path">The full or relative path to the object</param>
+		/// <param name="dest">The new full or relative path including the new name of the object</param>
+		public async Task RenameAsync(string path, string dest) {
+			await Task.Factory.FromAsync<string, string>(
+				(p, d, ac, s) => BeginRename(p, d, ac, s),
+				ar => EndRename(ar),
+				path, dest, null);
+		}
 #endif
 
-#endregion
+		#endregion
 
 		#region Move File
 
@@ -4284,16 +4249,18 @@ namespace FluentFTP {
 		/// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
 		public bool MoveFile(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
 			if (FileExists(path)) {
-				
+
 				// check if dest file exists and act accordingly
-				if (existsMode != FtpExists.NoCheck){
+				if (existsMode != FtpExists.NoCheck) {
 					bool destExists = FileExists(dest);
-					switch (existsMode) {
-						case FtpExists.Overwrite:
-							DeleteFile(dest);
-							break;
-						case FtpExists.Skip:
-							return false;
+					if (destExists) {
+						switch (existsMode) {
+							case FtpExists.Overwrite:
+								DeleteFile(dest);
+								break;
+							case FtpExists.Skip:
+								return false;
+						}
 					}
 				}
 
@@ -4373,12 +4340,14 @@ namespace FluentFTP {
 				// check if dest directory exists and act accordingly
 				if (existsMode != FtpExists.NoCheck) {
 					bool destExists = DirectoryExists(dest);
-					switch (existsMode) {
-						case FtpExists.Overwrite:
-							DeleteDirectory(dest);
-							break;
-						case FtpExists.Skip:
-							return false;
+					if (destExists) {
+						switch (existsMode) {
+							case FtpExists.Overwrite:
+								DeleteDirectory(dest);
+								break;
+							case FtpExists.Skip:
+								return false;
+						}
 					}
 				}
 
@@ -4534,7 +4503,7 @@ namespace FluentFTP {
 			return item != null ? item.Chmod : 0;
 		}
 
-#endregion
+		#endregion
 
 		#region Dereference Link
 
@@ -4627,8 +4596,8 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Begins an asynchronous operation to dereference a <see cref="FtpListItem"/> object. See the
-        /// <see cref="MaximumDereferenceCount"/> property for controlling
+		/// Begins an asynchronous operation to dereference a <see cref="FtpListItem"/> object. See the
+		/// <see cref="MaximumDereferenceCount"/> property for controlling
 		/// how deep this method will recurse before giving up.
 		/// </summary>
 		/// <param name="item">The item to dereference</param>
@@ -4641,7 +4610,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Ends a call to <see cref="o:BeginDereferenceLink"/>
+		/// Ends a call to <see cref="o:BeginDereferenceLink"/>
 		/// </summary>
 		/// <param name="ar">IAsyncResult</param>
 		/// <returns>A <see cref="FtpListItem"/>, or null if the link can't be dereferenced</returns>
@@ -4651,35 +4620,35 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Dereference a <see cref="FtpListItem"/> object asynchronously
-        /// </summary>
-        /// <param name="item">The item to dereference</param>
-        /// <param name="recMax">Maximum recursive calls</param>
-        /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-	    public async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax) {
-            //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<FtpListItem, int, FtpListItem>(
-                (i, r, ac, s) => BeginDereferenceLink(i, r, ac, s),
-                ar => EndDereferenceLink(ar),
-                item, recMax, null);
-        }
+		/// <summary>
+		/// Dereference a <see cref="FtpListItem"/> object asynchronously
+		/// </summary>
+		/// <param name="item">The item to dereference</param>
+		/// <param name="recMax">Maximum recursive calls</param>
+		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
+		public async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<FtpListItem, int, FtpListItem>(
+				(i, r, ac, s) => BeginDereferenceLink(i, r, ac, s),
+				ar => EndDereferenceLink(ar),
+				item, recMax, null);
+		}
 
-        /// <summary>
-        /// Dereference a <see cref="FtpListItem"/> object asynchronously
-        /// </summary>
-        /// <param name="item">The item to dereference</param>
-        /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-        public async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item){
-            //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<FtpListItem, FtpListItem>(
-                (i, ac, s) => BeginDereferenceLink(i, ac, s),
-                ar => EndDereferenceLink(ar),
-                item, null);
-        }
+		/// <summary>
+		/// Dereference a <see cref="FtpListItem"/> object asynchronously
+		/// </summary>
+		/// <param name="item">The item to dereference</param>
+		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
+		public async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<FtpListItem, FtpListItem>(
+				(i, ac, s) => BeginDereferenceLink(i, ac, s),
+				ar => EndDereferenceLink(ar),
+				item, null);
+		}
 #endif
 
-#endregion
+		#endregion
 
 		#region Get File Info
 
@@ -4697,7 +4666,7 @@ namespace FluentFTP {
 			string[] res;
 
 			bool supportsMachineList = (Capabilities & FtpCapability.MLSD) == FtpCapability.MLSD;
-			
+
 			FtpListItem result = null;
 
 			if (supportsMachineList) {
@@ -4716,7 +4685,7 @@ namespace FluentFTP {
 						result = m_listParser.ParseSingleLine(null, info, m_caps, true);
 					}
 				} else {
-					FtpTrace.WriteLine(FtpTraceLevel.Warn, "Failed to get object info for path {0} with error {1}", path, reply.ErrorMessage);
+					FtpTrace.WriteLine(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " with error " + reply.ErrorMessage);
 				}
 			} else {
 
@@ -4732,11 +4701,11 @@ namespace FluentFTP {
 					}
 				}
 
-				FtpTrace.WriteLine(FtpTraceLevel.Warn, "Failed to get object info for path {0} since MLST not supported and GetListing() fails to list file/folder.", path);
+				FtpTrace.WriteLine(FtpTraceLevel.Warn, "Failed to get object info for path "+path+" since MLST not supported and GetListing() fails to list file/folder.");
 			}
 
 			// Get the accurate date modified using another MDTM command
-			if (result != null && dateModified && HasFeature(FtpCapability.MDTM)){
+			if (result != null && dateModified && HasFeature(FtpCapability.MDTM)) {
 				result.Modified = GetModifiedTime(path);
 			}
 
@@ -4749,12 +4718,12 @@ namespace FluentFTP {
 		/// Begins an asynchronous operation to return information about a remote file system object. 
 		/// </summary>
 		/// <remarks>
-        /// You should check the <see cref="Capabilities"/> property for the <see cref="FtpCapability.MLSD"/> 
-        /// flag before calling this method. Failing to do so will result in an InvalidOperationException
-        ///  being thrown when the server does not support machine listings. Returns null if the server response can't
-        /// be parsed or the server returns a failure completion code. The error for a failure
-        /// is logged with FtpTrace. No exception is thrown on error because that would negate
-        /// the usefulness of this method for checking for the existence of an object.
+		/// You should check the <see cref="Capabilities"/> property for the <see cref="FtpCapability.MLSD"/> 
+		/// flag before calling this method. Failing to do so will result in an InvalidOperationException
+		///  being thrown when the server does not support machine listings. Returns null if the server response can't
+		/// be parsed or the server returns a failure completion code. The error for a failure
+		/// is logged with FtpTrace. No exception is thrown on error because that would negate
+		/// the usefulness of this method for checking for the existence of an object.
 		/// </remarks>
 		/// <param name="path">Path of the file or folder</param>
 		/// <param name="dateModified">Get the accurate modified date using another MDTM command</param>
@@ -4774,36 +4743,36 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Ends a call to <see cref="BeginGetObjectInfo"/>
+		/// Ends a call to <see cref="BeginGetObjectInfo"/>
 		/// </summary>
-        /// <param name="ar">IAsyncResult returned from <see cref="BeginGetObjectInfo"/></param>
-        /// <returns>A <see cref="FtpListItem"/> if the command succeeded, or null if there was a problem.</returns>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetObjectInfo"/></param>
+		/// <returns>A <see cref="FtpListItem"/> if the command succeeded, or null if there was a problem.</returns>
 		public FtpListItem EndGetObjectInfo(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncGetObjectInfo>(ar).EndInvoke(ar);
 		}
-		
+
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Return information about a remote file system object asynchronously. 
-        /// </summary>
-        /// <remarks>
-        /// You should check the <see cref="Capabilities"/> property for the <see cref="FtpCapability.MLSD"/> 
-        /// flag before calling this method. Failing to do so will result in an InvalidOperationException
-        /// being thrown when the server does not support machine listings. Returns null if the server response can't
-        /// be parsed or the server returns a failure completion code. The error for a failure
-        /// is logged with FtpTrace. No exception is thrown on error because that would negate
-        /// the usefulness of this method for checking for the existence of an object.</remarks>
-        /// <param name="path">Path of the item to retrieve information about</param>
+		/// <summary>
+		/// Return information about a remote file system object asynchronously. 
+		/// </summary>
+		/// <remarks>
+		/// You should check the <see cref="Capabilities"/> property for the <see cref="FtpCapability.MLSD"/> 
+		/// flag before calling this method. Failing to do so will result in an InvalidOperationException
+		/// being thrown when the server does not support machine listings. Returns null if the server response can't
+		/// be parsed or the server returns a failure completion code. The error for a failure
+		/// is logged with FtpTrace. No exception is thrown on error because that would negate
+		/// the usefulness of this method for checking for the existence of an object.</remarks>
+		/// <param name="path">Path of the item to retrieve information about</param>
 		/// <param name="dateModified">Get the accurate modified date using another MDTM command</param>
 		/// <exception cref="InvalidOperationException">Thrown if the server does not support this Capability</exception>
-        /// <returns>A <see cref="FtpListItem"/> if the command succeeded, or null if there was a problem.</returns>
+		/// <returns>A <see cref="FtpListItem"/> if the command succeeded, or null if there was a problem.</returns>
 		public async Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false) {
-            //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<string, bool, FtpListItem>(
-	            (p, dm, ac, s) => BeginGetObjectInfo(p, dm, ac, s),
-	            ar => EndGetObjectInfo(ar),
-	            path, dateModified, null);
-	    }
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, bool, FtpListItem>(
+				(p, dm, ac, s) => BeginGetObjectInfo(p, dm, ac, s),
+				ar => EndGetObjectInfo(ar),
+				path, dateModified, null);
+		}
 #endif
 
 		#endregion
@@ -4811,31 +4780,31 @@ namespace FluentFTP {
 		#region Get Listing
 
 		/// <summary>
-        /// Gets a file listing from the server from the current working directory. Each <see cref="FtpListItem"/> object returned
+		/// Gets a file listing from the server from the current working directory. Each <see cref="FtpListItem"/> object returned
 		/// contains information about the file that was able to be retrieved. 
 		/// </summary>
 		/// <remarks>
-        /// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-        /// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-        /// is equal to 0, then it means the size of the object could also not
-        /// be retrieved.
-        /// </remarks>
+		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+		/// is equal to 0, then it means the size of the object could also not
+		/// be retrieved.
+		/// </remarks>
 		/// <returns>An array of FtpListItem objects</returns>
 		/// <example><code source="..\Examples\GetListing.cs" lang="cs" /></example>
 		public FtpListItem[] GetListing() {
 			return GetListing(null);
 		}
 
-        /// <summary>
-        /// Gets a file listing from the server. Each <see cref="FtpListItem"/> object returned
-        /// contains information about the file that was able to be retrieved. 
-        /// </summary>
-        /// <remarks>
-        /// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-        /// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-        /// is equal to 0, then it means the size of the object could also not
-        /// be retrieved.
-        /// </remarks>
+		/// <summary>
+		/// Gets a file listing from the server. Each <see cref="FtpListItem"/> object returned
+		/// contains information about the file that was able to be retrieved. 
+		/// </summary>
+		/// <remarks>
+		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+		/// is equal to 0, then it means the size of the object could also not
+		/// be retrieved.
+		/// </remarks>
 		/// <param name="path">The path of the directory to list</param>
 		/// <returns>An array of FtpListItem objects</returns>
 		/// <example><code source="..\Examples\GetListing.cs" lang="cs" /></example>
@@ -4843,16 +4812,16 @@ namespace FluentFTP {
 			return GetListing(path, 0);
 		}
 
-        /// <summary>
-        /// Gets a file listing from the server. Each <see cref="FtpListItem"/> object returned
-        /// contains information about the file that was able to be retrieved. 
-        /// </summary>
-        /// <remarks>
-        /// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-        /// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-        /// is equal to 0, then it means the size of the object could also not
-        /// be retrieved.
-        /// </remarks>
+		/// <summary>
+		/// Gets a file listing from the server. Each <see cref="FtpListItem"/> object returned
+		/// contains information about the file that was able to be retrieved. 
+		/// </summary>
+		/// <remarks>
+		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+		/// is equal to 0, then it means the size of the object could also not
+		/// be retrieved.
+		/// </remarks>
 		/// <param name="path">The path of the directory to list</param>
 		/// <param name="options">Options that dictacte how a list is performed and what information is gathered.</param>
 		/// <returns>An array of FtpListItem objects</returns>
@@ -4919,7 +4888,7 @@ namespace FluentFTP {
 						while ((buf = stream.ReadLine(Encoding)) != null) {
 							if (buf.Length > 0) {
 								rawlisting.Add(buf);
-                                FtpTrace.WriteLine(FtpTraceLevel.Debug, buf);
+								FtpTrace.WriteLine(FtpTraceLevel.Debug, buf);
 							}
 						}
 					} finally {
@@ -4932,7 +4901,7 @@ namespace FluentFTP {
 				buf = rawlisting[i];
 
 				if (isNameList) {
-					
+
 					// if NLST was used we only have a file name so
 					// there is nothing to parse.
 					item = new FtpListItem() {
@@ -4970,10 +4939,10 @@ namespace FluentFTP {
 						if (isIncludeSelf || !(item.Name == "." || item.Name == "..")) {
 							lst.Add(item);
 						} else {
-                            FtpTrace.WriteLine(FtpTraceLevel.Debug, "Skipped self or parent item: " + item.Name);
+							FtpTrace.WriteLine(FtpTraceLevel.Debug, "Skipped self or parent item: " + item.Name);
 						}
 					} else {
-                        FtpTrace.WriteLine(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
+						FtpTrace.WriteLine(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
 					}
 				}
 
@@ -4997,7 +4966,7 @@ namespace FluentFTP {
 							DateTime modify;
 
 							if (item.Type == FtpFileSystemObjectType.Directory)
-                                FtpTrace.WriteLine(FtpTraceLevel.Debug, "Trying to retrieve modification time of a directory, some servers don't like this...");
+								FtpTrace.WriteLine(FtpTraceLevel.Debug, "Trying to retrieve modification time of a directory, some servers don't like this...");
 
 							if ((modify = GetModifiedTime(item.FullName)) != DateTime.MinValue)
 								item.Modified = modify;
@@ -5024,15 +4993,15 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Begins an asynchronous operation to get a file listing from the server. 
-        /// Each <see cref="FtpListItem"/> object returned contains information about the file that was able to be retrieved. 
-        /// </summary>
-        /// <remarks>
-        /// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-        /// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-        /// is equal to 0, then it means the size of the object could also not
-        /// be retrieved.
-        /// </remarks>
+		/// Begins an asynchronous operation to get a file listing from the server. 
+		/// Each <see cref="FtpListItem"/> object returned contains information about the file that was able to be retrieved. 
+		/// </summary>
+		/// <remarks>
+		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+		/// is equal to 0, then it means the size of the object could also not
+		/// be retrieved.
+		/// </remarks>
 		/// <param name="callback">AsyncCallback method</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
@@ -5041,16 +5010,16 @@ namespace FluentFTP {
 			return BeginGetListing(null, callback, state);
 		}
 
-        /// <summary>
-        /// Begins an asynchronous operation to get a file listing from the server. 
-        /// Each <see cref="FtpListItem"/> object returned contains information about the file that was able to be retrieved. 
-        /// </summary>
-        /// <remarks>
-        /// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-        /// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-        /// is equal to 0, then it means the size of the object could also not
-        /// be retrieved.
-        /// </remarks>
+		/// <summary>
+		/// Begins an asynchronous operation to get a file listing from the server. 
+		/// Each <see cref="FtpListItem"/> object returned contains information about the file that was able to be retrieved. 
+		/// </summary>
+		/// <remarks>
+		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+		/// is equal to 0, then it means the size of the object could also not
+		/// be retrieved.
+		/// </remarks>
 		/// <param name="path">The path to list</param>
 		/// <param name="callback">AsyncCallback method</param>
 		/// <param name="state">State object</param>
@@ -5094,68 +5063,68 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
-        /// contains information about the file that was able to be retrieved. 
-        /// </summary>
-        /// <remarks>
-        /// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-        /// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-        /// is equal to 0, then it means the size of the object could also not
-        /// be retrieved.
-        /// </remarks>
-        /// <param name="path">The path to list</param>
-        /// <param name="options">Options that dictate how the list operation is performed</param>
-        /// <returns>An array of items retrieved in the listing</returns>
-	    public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options) {
-            //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<string, FtpListOption, FtpListItem[]>(
-	            (p, o, ac, s) => BeginGetListing(p, o, ac, s),
-	            ar => EndGetListing(ar),
-	            path, options, null);
-	    }
+		/// <summary>
+		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
+		/// contains information about the file that was able to be retrieved. 
+		/// </summary>
+		/// <remarks>
+		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+		/// is equal to 0, then it means the size of the object could also not
+		/// be retrieved.
+		/// </remarks>
+		/// <param name="path">The path to list</param>
+		/// <param name="options">Options that dictate how the list operation is performed</param>
+		/// <returns>An array of items retrieved in the listing</returns>
+		public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, FtpListOption, FtpListItem[]>(
+				(p, o, ac, s) => BeginGetListing(p, o, ac, s),
+				ar => EndGetListing(ar),
+				path, options, null);
+		}
 
-        /// <summary>
-        /// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
-        /// contains information about the file that was able to be retrieved. 
-        /// </summary>
-        /// <remarks>
-        /// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-        /// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-        /// is equal to 0, then it means the size of the object could also not
-        /// be retrieved.
-        /// </remarks>
-        /// <param name="path">The path to list</param>
-        /// <returns>An array of items retrieved in the listing</returns>
-        public async Task<FtpListItem[]> GetListingAsync(string path) {
-            //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<string, FtpListItem[]>(
-                (p, ac, s) => BeginGetListing(p, ac, s),
-                ar => EndGetListing(ar),
-                path, null);
-        }
+		/// <summary>
+		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
+		/// contains information about the file that was able to be retrieved. 
+		/// </summary>
+		/// <remarks>
+		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+		/// is equal to 0, then it means the size of the object could also not
+		/// be retrieved.
+		/// </remarks>
+		/// <param name="path">The path to list</param>
+		/// <returns>An array of items retrieved in the listing</returns>
+		public async Task<FtpListItem[]> GetListingAsync(string path) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, FtpListItem[]>(
+				(p, ac, s) => BeginGetListing(p, ac, s),
+				ar => EndGetListing(ar),
+				path, null);
+		}
 
-        /// <summary>
-        /// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
-        /// contains information about the file that was able to be retrieved. 
-        /// </summary>
-        /// <remarks>
-        /// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-        /// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-        /// is equal to 0, then it means the size of the object could also not
-        /// be retrieved.
-        /// </remarks>
-        /// <returns>An array of items retrieved in the listing</returns>
-        public async Task<FtpListItem[]> GetListingAsync() {
-            //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<FtpListItem[]>(
-                (ac, s) => BeginGetListing(ac, s),
-                ar => EndGetListing(ar),
-                null);
-        }
+		/// <summary>
+		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
+		/// contains information about the file that was able to be retrieved. 
+		/// </summary>
+		/// <remarks>
+		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+		/// is equal to 0, then it means the size of the object could also not
+		/// be retrieved.
+		/// </remarks>
+		/// <returns>An array of items retrieved in the listing</returns>
+		public async Task<FtpListItem[]> GetListingAsync() {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<FtpListItem[]>(
+				(ac, s) => BeginGetListing(ac, s),
+				ar => EndGetListing(ar),
+				null);
+		}
 #endif
 
-#endregion
+		#endregion
 
 		#region Get Name Listing
 
@@ -5203,7 +5172,7 @@ namespace FluentFTP {
 		delegate string[] AsyncGetNameListing(string path);
 
 		/// <summary>
-        /// Begin an asynchronous operation to return a file/directory listing using the NLST command.
+		/// Begin an asynchronous operation to return a file/directory listing using the NLST command.
 		/// </summary>
 		/// <param name="path">The path of the directory to list</param>
 		/// <param name="callback">Async Callback</param>
@@ -5223,7 +5192,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Begin an asynchronous operation to return a file/directory listing using the NLST command.
+		/// Begin an asynchronous operation to return a file/directory listing using the NLST command.
 		/// </summary>
 		/// <param name="callback">Async Callback</param>
 		/// <param name="state">State object</param>
@@ -5234,9 +5203,9 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Ends a call to <see cref="o:BeginGetNameListing"/>
+		/// Ends a call to <see cref="o:BeginGetNameListing"/>
 		/// </summary>
-        /// <param name="ar">IAsyncResult object returned from <see cref="o:BeginGetNameListing"/></param>
+		/// <param name="ar">IAsyncResult object returned from <see cref="o:BeginGetNameListing"/></param>
 		/// <returns>An array of file and directory names if any were returned.</returns>
 		/// <example><code source="..\Examples\BeginGetNameListing.cs" lang="cs" /></example>
 		public string[] EndGetNameListing(IAsyncResult ar) {
@@ -5244,33 +5213,33 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Returns a file/directory listing using the NLST command asynchronously
-        /// </summary>
-        /// <param name="path">The path of the directory to list</param>
-        /// <returns>An array of file and directory names if any were returned.</returns>
-	    public async Task<string[]> GetNameListingAsync(string path) {
-            //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<string, string[]>(
-	            (p, ac, s) => BeginGetNameListing(p, ac, s),
-	            ar => EndGetNameListing(ar),
-	            path, null);
-	    }
+		/// <summary>
+		/// Returns a file/directory listing using the NLST command asynchronously
+		/// </summary>
+		/// <param name="path">The path of the directory to list</param>
+		/// <returns>An array of file and directory names if any were returned.</returns>
+		public async Task<string[]> GetNameListingAsync(string path) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, string[]>(
+				(p, ac, s) => BeginGetNameListing(p, ac, s),
+				ar => EndGetNameListing(ar),
+				path, null);
+		}
 
-        /// <summary>
-        /// Returns a file/directory listing using the NLST command asynchronously
-        /// </summary>
-        /// <returns>An array of file and directory names if any were returned.</returns>
-        public async Task<string[]> GetNameListingAsync() {
-            //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<string[]>(
-                (ac, s) => BeginGetNameListing(ac, s),
-                ar => EndGetNameListing(ar),
-                null);
-        }
+		/// <summary>
+		/// Returns a file/directory listing using the NLST command asynchronously
+		/// </summary>
+		/// <returns>An array of file and directory names if any were returned.</returns>
+		public async Task<string[]> GetNameListingAsync() {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string[]>(
+				(ac, s) => BeginGetNameListing(ac, s),
+				ar => EndGetNameListing(ar),
+				null);
+		}
 #endif
 
-#endregion
+		#endregion
 
 		#region File Hashing - HASH
 
@@ -5529,7 +5498,7 @@ namespace FluentFTP {
 
 				hash.Value = m.Groups["hash"].Value;
 			} else {
-                FtpTrace.WriteLine(FtpTraceLevel.Warn, "Failed to parse hash from: " + reply.Message);
+				FtpTrace.WriteLine(FtpTraceLevel.Warn, "Failed to parse hash from: " + reply.Message);
 			}
 
 			return hash;
@@ -6247,7 +6216,7 @@ namespace FluentFTP {
 		delegate void AsyncSetDataType(FtpDataType type);
 
 		/// <summary>
-        /// Begins an asynchronous operation to set the data type of information sent over the data stream
+		/// Begins an asynchronous operation to set the data type of information sent over the data stream
 		/// </summary>
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="callback">Async callback</param>
@@ -6266,30 +6235,30 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Ends a call to <see cref="BeginSetDataType"/>
+		/// Ends a call to <see cref="BeginSetDataType"/>
 		/// </summary>
-        /// <param name="ar">IAsyncResult returned from <see cref="BeginSetDataType"/></param>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginSetDataType"/></param>
 		protected void EndSetDataType(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncSetDataType>(ar).EndInvoke(ar);
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Sets the data type of information sent over the data stream asynchronously
-        /// </summary>
-        /// <param name="type">ASCII/Binary</param>
-	    protected async Task SetDataTypeAsync(FtpDataType type) {
-            //TODO:  Rewrite as true async method with cancellation support
-            await Task.Factory.FromAsync<FtpDataType>(
-	            (t, ac, s) => BeginSetDataType(t, ac, s),
-	            ar => EndSetDataType(ar),
-	            type, null);
-	    }
+		/// <summary>
+		/// Sets the data type of information sent over the data stream asynchronously
+		/// </summary>
+		/// <param name="type">ASCII/Binary</param>
+		protected async Task SetDataTypeAsync(FtpDataType type) {
+			//TODO:  Rewrite as true async method with cancellation support
+			await Task.Factory.FromAsync<FtpDataType>(
+				(t, ac, s) => BeginSetDataType(t, ac, s),
+				ar => EndSetDataType(ar),
+				type, null);
+		}
 #endif
 		#endregion
 
 		#region Set Working Dir
-		
+
 		/// <summary>
 		/// Sets the work directory on the server
 		/// </summary>
@@ -6333,24 +6302,24 @@ namespace FluentFTP {
 		/// <summary>
 		/// Ends a call to <see cref="BeginSetWorkingDirectory"/>
 		/// </summary>
-        /// <param name="ar">IAsyncResult returned from <see cref="BeginSetWorkingDirectory"/></param>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginSetWorkingDirectory"/></param>
 		/// <example><code source="..\Examples\BeginSetWorkingDirectory.cs" lang="cs" /></example>
 		public void EndSetWorkingDirectory(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncSetWorkingDirectory>(ar).EndInvoke(ar);
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Sets the working directory on the server asynchronously
-        /// </summary>
-        /// <param name="path">The directory to change to</param>
-	    public async Task SetWorkingDirectoryAsync(string path) {
-            //TODO:  Rewrite as true async method with cancellation support
-            await Task.Factory.FromAsync<string>(
-	            (p, ac, s) => BeginSetWorkingDirectory(p, ac, s),
-	            ar => EndSetWorkingDirectory(ar),
-	            path, null);
-	    }
+		/// <summary>
+		/// Sets the working directory on the server asynchronously
+		/// </summary>
+		/// <param name="path">The directory to change to</param>
+		public async Task SetWorkingDirectoryAsync(string path) {
+			//TODO:  Rewrite as true async method with cancellation support
+			await Task.Factory.FromAsync<string>(
+				(p, ac, s) => BeginSetWorkingDirectory(p, ac, s),
+				ar => EndSetWorkingDirectory(ar),
+				path, null);
+		}
 #endif
 		#endregion
 
@@ -6408,7 +6377,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Ends a call to <see cref="BeginGetWorkingDirectory"/>
 		/// </summary>
-        /// <param name="ar">IAsyncResult returned from <see cref="BeginGetWorkingDirectory"/></param>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetWorkingDirectory"/></param>
 		/// <returns>The current working directory</returns>
 		/// <example><code source="..\Examples\BeginGetWorkingDirectory.cs" lang="cs" /></example>
 		public string EndGetWorkingDirectory(IAsyncResult ar) {
@@ -6416,21 +6385,21 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Gets the current working directory asynchronously
-        /// </summary>
-        /// <returns>The current working directory, ./ if the response couldn't be parsed.</returns>
-	    public async Task<string> GetWorkingDirectoryAsync() {
-            //TODO:  Rewrite as true async method with cancellation support
-            return await Task.Factory.FromAsync<string>(
-	            (ac, s) => BeginGetWorkingDirectory(ac, s),
-	            ar => EndGetWorkingDirectory(ar), null);
-	    }
+		/// <summary>
+		/// Gets the current working directory asynchronously
+		/// </summary>
+		/// <returns>The current working directory, ./ if the response couldn't be parsed.</returns>
+		public async Task<string> GetWorkingDirectoryAsync() {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string>(
+				(ac, s) => BeginGetWorkingDirectory(ac, s),
+				ar => EndGetWorkingDirectory(ar), null);
+		}
 #endif
 		#endregion
 
 		#region Get File Size
-		
+
 		/// <summary>
 		/// Gets the size of a remote file
 		/// </summary>
@@ -6455,7 +6424,7 @@ namespace FluentFTP {
 		delegate long AsyncGetFileSize(string path);
 
 		/// <summary>
-        /// Begins an asynchronous operation to retrieve the size of a remote file
+		/// Begins an asynchronous operation to retrieve the size of a remote file
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="callback">Async callback</param>
@@ -6475,9 +6444,9 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Ends a call to <see cref="BeginGetFileSize"/>
+		/// Ends a call to <see cref="BeginGetFileSize"/>
 		/// </summary>
-        /// <param name="ar">IAsyncResult returned from <see cref="BeginGetFileSize"/></param>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetFileSize"/></param>
 		/// <returns>The size of the file, -1 if there was a problem.</returns>
 		/// <example><code source="..\Examples\BeginGetFileSize.cs" lang="cs" /></example>
 		public long EndGetFileSize(IAsyncResult ar) {
@@ -6485,28 +6454,28 @@ namespace FluentFTP {
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Retrieve the size of a remote file asynchronously
-        /// </summary>
-        /// <param name="path">The full or relative path of the file</param>
-        /// <returns>The size of the file, -1 if there was a problem.</returns>
-	    public async Task<long> GetFileSizeAsync(string path) {
-            //TODO:  Rewrite as true async method with cancellation support
-	        return await Task.Factory.FromAsync<string, long>(
-	            (p, ac, s) => BeginGetFileSize(p, ac, s),
-	            ar => EndGetFileSize(ar),
-	            path, null);
-	    }
+		/// <summary>
+		/// Retrieve the size of a remote file asynchronously
+		/// </summary>
+		/// <param name="path">The full or relative path of the file</param>
+		/// <returns>The size of the file, -1 if there was a problem.</returns>
+		public async Task<long> GetFileSizeAsync(string path) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, long>(
+				(p, ac, s) => BeginGetFileSize(p, ac, s),
+				ar => EndGetFileSize(ar),
+				path, null);
+		}
 #endif
 		#endregion
 
 		#region Get Modified Time
 
 		/// <summary>
-        /// Gets the modified time of a remote file
+		/// Gets the modified time of a remote file
 		/// </summary>
 		/// <param name="path">The full path to the file</param>
-        /// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
+		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
 		/// <example><code source="..\Examples\GetModifiedTime.cs" lang="cs" /></example>
 		public virtual DateTime GetModifiedTime(string path) {
 			DateTime modify = DateTime.MinValue;
@@ -6543,28 +6512,28 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-        /// Ends a call to <see cref="BeginGetModifiedTime"/>
+		/// Ends a call to <see cref="BeginGetModifiedTime"/>
 		/// </summary>
-        /// <param name="ar">IAsyncResult returned from <see cref="BeginGetModifiedTime"/></param>
-        /// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetModifiedTime"/></param>
+		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
 		/// <example><code source="..\Examples\BeginGetModifiedTime.cs" lang="cs" /></example>
 		public DateTime EndGetModifiedTime(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncGetModifiedTime>(ar).EndInvoke(ar);
 		}
 
 #if (CORE || NETFX45)
-        /// <summary>
-        /// Gets the modified time of a remote file asynchronously
-        /// </summary>
-        /// <param name="path">The full path to the file</param>
-        /// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
-	    public async Task<DateTime> GetModifiedTimeAsync(string path) {
-            //TODO:  Rewrite as true async method with cancellation support
-	        return await Task.Factory.FromAsync<string, DateTime>(
-	            (p, ac, s) => BeginGetModifiedTime(p, ac, s),
-	            ar => EndGetModifiedTime(ar),
-	            path, null);
-	    }
+		/// <summary>
+		/// Gets the modified time of a remote file asynchronously
+		/// </summary>
+		/// <param name="path">The full path to the file</param>
+		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
+		public async Task<DateTime> GetModifiedTimeAsync(string path) {
+			//TODO:  Rewrite as true async method with cancellation support
+			return await Task.Factory.FromAsync<string, DateTime>(
+				(p, ac, s) => BeginGetModifiedTime(p, ac, s),
+				ar => EndGetModifiedTime(ar),
+				path, null);
+		}
 #endif
 
 		#endregion
@@ -6642,8 +6611,8 @@ namespace FluentFTP {
 				if (m_stream.IsConnected && !m_stream.IsEncrypted) {
 					byte[] buf = new byte[m_stream.SocketDataAvailable];
 					m_stream.RawSocketRead(buf);
-                    FtpTrace.Write(FtpTraceLevel.Debug, "The data was: ");
-                    FtpTrace.WriteLine(FtpTraceLevel.Debug, Encoding.GetString(buf).TrimEnd('\r', '\n'));
+					FtpTrace.Write(FtpTraceLevel.Debug, "The data was: ");
+					FtpTrace.WriteLine(FtpTraceLevel.Debug, Encoding.GetString(buf).TrimEnd('\r', '\n'));
 				}
 			}
 		}
@@ -6652,39 +6621,38 @@ namespace FluentFTP {
 			return (this is FtpClientProxy);
 		}
 
-	    private bool VerifyTransfer(string localPath, string remotePath) {
-	        if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
-	            this.HasFeature(FtpCapability.XMD5)|| this.HasFeature(FtpCapability.XCRC) || 
-                this.HasFeature(FtpCapability.XSHA1) || this.HasFeature(FtpCapability.XSHA256) ||
-	            this.HasFeature(FtpCapability.XSHA512)) {
-	            FtpHash hash = this.GetChecksum(remotePath);
-                if (!hash.IsValid)
-                    return false;
+		private bool VerifyTransfer(string localPath, string remotePath) {
+			if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
+				this.HasFeature(FtpCapability.XMD5) || this.HasFeature(FtpCapability.XCRC) ||
+				this.HasFeature(FtpCapability.XSHA1) || this.HasFeature(FtpCapability.XSHA256) ||
+				this.HasFeature(FtpCapability.XSHA512)) {
+				FtpHash hash = this.GetChecksum(remotePath);
+				if (!hash.IsValid)
+					return false;
 
-	            return hash.Verify(localPath);
-	        }
+				return hash.Verify(localPath);
+			}
 
-            //Not supported return true to ignore validation
-            return true;
-	    }
-		
+			//Not supported return true to ignore validation
+			return true;
+		}
+
 #if (CORE || NETFX45)
-	    private async Task<bool> VerifyTransferAsync(string localPath, string remotePath) {
-	        if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
-	            this.HasFeature(FtpCapability.XMD5) || this.HasFeature(FtpCapability.XCRC) ||
-	            this.HasFeature(FtpCapability.XSHA1) || this.HasFeature(FtpCapability.XSHA256) ||
-	            this.HasFeature(FtpCapability.XSHA512))
-	        {
-	            FtpHash hash = await this.GetChecksumAsync(remotePath);
-	            if (!hash.IsValid)
-	                return false;
+		private async Task<bool> VerifyTransferAsync(string localPath, string remotePath) {
+			if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
+				this.HasFeature(FtpCapability.XMD5) || this.HasFeature(FtpCapability.XCRC) ||
+				this.HasFeature(FtpCapability.XSHA1) || this.HasFeature(FtpCapability.XSHA256) ||
+				this.HasFeature(FtpCapability.XSHA512)) {
+				FtpHash hash = await this.GetChecksumAsync(remotePath);
+				if (!hash.IsValid)
+					return false;
 
-	            return hash.Verify(localPath);
-	        }
+				return hash.Verify(localPath);
+			}
 
-	        //Not supported return true to ignore validation
-	        return true;
-	    }
+			//Not supported return true to ignore validation
+			return true;
+		}
 #endif
 
 		private static string[] fileNotFoundStrings = new string[] { "can't check for file existence", "does not exist", "failed to open file", "not found", "no such file", "cannot find the file", "cannot find", "could not get file", "not a regular file", "file unavailable", "file is unavailable", "file not unavailable", "file is not available" };
@@ -6698,7 +6666,7 @@ namespace FluentFTP {
 			return false;
 		}
 
-#endregion
+		#endregion
 
 		#region Static API
 
@@ -6746,7 +6714,7 @@ namespace FluentFTP {
 			return (owner & flag) == flag;
 		}
 
-        //TODO:  Create async versions of static methods
+		//TODO:  Create async versions of static methods
 
 		/// <summary>
 		/// Connects to the specified URI. If the path specified by the URI ends with a
@@ -6957,28 +6925,25 @@ namespace FluentFTP {
 			}
 		}
 
-        /// <summary>
-        /// Static method used to resolve internet IP
-        /// </summary>
-        /// <returns>Public IP Address</returns>
-	    public static string GetPublicIP()
-	    {
+		/// <summary>
+		/// Static method used to resolve internet IP
+		/// </summary>
+		/// <returns>Public IP Address</returns>
+		public static string GetPublicIP() {
 #if NETFX
-            var request = WebRequest.Create("https://api.ipify.org/");
-	        request.Method = "GET";
+			var request = WebRequest.Create("https://api.ipify.org/");
+			request.Method = "GET";
 
-            using (var response = request.GetResponse())
-            {
-                using (var stream = new StreamReader(response.GetResponseStream()))
-                {
-                    return stream.ReadToEnd();
-                }
-            }
+			using (var response = request.GetResponse()) {
+				using (var stream = new StreamReader(response.GetResponseStream())) {
+					return stream.ReadToEnd();
+				}
+			}
 #endif
-            return null;
-        }
+			return null;
+		}
 
-#endregion
+		#endregion
 
 	}
 }

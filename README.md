@@ -627,7 +627,6 @@ Support for the HASH command has been added to FluentFTP. It supports retrieving
 
 Do this at program startup (since its static it takes effect for all FtpClient instances.)
 ```cs
-FtpTrace.FlushOnWrite = true;
 FtpTrace.AddListener(new ConsoleTraceListener());
 ```
 
@@ -637,7 +636,6 @@ FtpTrace.AddListener(new ConsoleTraceListener());
 
 Do this at program startup (since its static it takes effect for all FtpClient instances.)
 ```cs
-FtpTrace.FlushOnWrite = true;
 FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"));
 ```
 
@@ -647,7 +645,6 @@ FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"));
 
 Do this at program startup (since its static it takes effect for all FtpClient instances.)
 ```cs
-FtpTrace.FlushOnWrite = true;
 FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"){
 	Filter = new EventTypeFilter(SourceLevels.Error)
 });
