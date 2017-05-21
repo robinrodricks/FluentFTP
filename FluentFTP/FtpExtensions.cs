@@ -231,6 +231,9 @@ namespace FluentFTP {
 	               options != (FtpError.Throw | FtpError.Stop | FtpError.DeleteProcessed);
 	    }
 
+		/// <summary>
+		/// Checks if every character in the string is whitespace, or the string is null.
+		/// </summary>
 		public static bool IsNullOrWhiteSpace(string value) {
 			if (value == null) return true;
 

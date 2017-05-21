@@ -4298,9 +4298,9 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Ends a call to <see cref="BeginMove"/>
+		/// Ends a call to <see cref="BeginMoveFile"/>
 		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginMove"/></param>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginMoveFile"/></param>
 		public void EndMoveFile(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncMoveFile>(ar).EndInvoke(ar);
 		}
@@ -4385,9 +4385,9 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Ends a call to <see cref="BeginMove"/>
+		/// Ends a call to <see cref="BeginMoveDirectory"/>
 		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginMove"/></param>
+		/// <param name="ar">IAsyncResult returned from <see cref="BeginMoveDirectory"/></param>
 		public void EndMoveDirectory(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncMoveDirectory>(ar).EndInvoke(ar);
 		}

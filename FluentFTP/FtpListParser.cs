@@ -1513,17 +1513,6 @@ namespace FluentFTP {
 
 		#region Utils
 
-
-		// COMMON UTILS
-        [Obsolete("Use FtpTrace.WriteLine(FtpTraceLevel.DEBUG, message)")]
-		public static void LogDebug(string text) {
-            FtpTrace.WriteLine(FtpTraceLevel.Debug, text);
-		}
-	    [Obsolete("Use FtpTrace.WriteLine(FtpTraceLevel.WARN, message)")]
-		public static void LogWarn(string text) {
-			FtpTrace.WriteLine(FtpTraceLevel.Warn, "WARNING : " + text);
-		}
-
 		/// <summary>
 		/// Split into fields by splitting on strings
 		/// </summary>
@@ -1728,12 +1717,12 @@ namespace FluentFTP {
 			return lastModifiedStr.ToString();
 		}
 
-
-		#endregion
-
 		internal class CriticalListParseException : Exception {
 
 		}
+
+
+		#endregion
 
 	}
 }

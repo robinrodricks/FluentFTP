@@ -1228,11 +1228,9 @@ namespace Tests {
 		static void TestMoveFiles() {
 			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass)) {
 
-				cl.MoveFile("/public_html/temp/README.md", "/public_html/temp/README_moved.md");
-
 				//cl.MoveFile("/public_html/temp/README.md", "/public_html/temp/README_moved.md");
 
-				//cl.DeleteDirectory("/public_html/temp/spaced folder/");
+				cl.MoveDirectory("/public_html/temp/php/js/", "/public_html/temp/php/js_moved/");
 
 			}
 		}

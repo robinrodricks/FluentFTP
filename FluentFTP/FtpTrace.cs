@@ -20,6 +20,7 @@ namespace FluentFTP {
 
 		static bool m_flushOnWrite = true;
 
+
 		/// <summary>
 		/// Gets or sets whether the trace listeners should be flushed immediately after writing to them. Default value is true.
 		/// </summary>
@@ -73,16 +74,15 @@ namespace FluentFTP {
 		/// <param name="message">The message to write</param>
 		[Obsolete("Use overloads with FtpTraceLevel")]
 		public static void WriteLine(object message) {
-			Write(FtpTraceLevel.Debug, string.Concat(message, Environment.NewLine));
+			Write(FtpTraceLevel.Debug, message.ToString());
 		}
 
 		/// <summary>
 		/// Write to the TraceListeners
 		/// </summary>
 		/// <param name="message">The message to write</param>
-		[Obsolete("Use overloads with FtpTraceLevel")]
 		public static void WriteLine(FtpTraceLevel eventType, object message) {
-			Write(eventType, string.Concat(message, Environment.NewLine));
+			Write(eventType, message.ToString());
 		}
 
 
@@ -91,15 +91,15 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="eventType">The type of tracing event</param>
 		/// <param name="message">A formattable string to write</param>
-		/// <param name="args">Arguments to insert into the formattable string</param>
-		public static void Write(FtpTraceLevel eventType, string msg) {
+		public static void Write(FtpTraceLevel eventType, string message) {
 #if CORE && DEBUG
-		    Debug.Write(msg);
+		    Debug.WriteLine(message);
 #elif !CORE
 			var diagTraceLvl = TraceLevelTranslation(eventType);
-			m_traceSource.TraceEvent(diagTraceLvl, 0, msg);
-			if (m_flushOnWrite)
+			m_traceSource.TraceEvent(TraceLevelTranslation(eventType), 0, message);
+			if (m_flushOnWrite) {
 				m_traceSource.Flush();
+			}
 #endif
 		}
 
