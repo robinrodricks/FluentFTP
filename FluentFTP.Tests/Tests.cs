@@ -16,6 +16,10 @@ namespace Tests {
 	class Tests {
 
 
+		// SET THESE BEFORE RUNNING ANY TESTS!
+		static string m_host = "";
+		static string m_user = "";
+		static string m_pass = "";
 
 	    private static readonly int[] connectionTypes = new int[] {
 	        (int) FtpDataConnectionType.EPSV,
@@ -27,7 +31,9 @@ namespace Tests {
 
 		static void Main(string[] args) {
 			FtpTrace.FlushOnWrite = true;
+
 			FtpTrace.AddListener(new ConsoleTraceListener());
+			FtpTrace.AddListener(new TextWriterTraceListener(@"C:\log_file.txt"));
 
 			try {
 
@@ -1202,8 +1208,6 @@ namespace Tests {
 				bool f4_no = cl.FileExists("/public_html/temp/README");
 				bool f5_yes = cl.FileExists("/public_html/temp/Caffè.jpg");
 				bool f5_no = cl.FileExists("/public_html/temp/Caffèoo.jpg");
-
-				int o = 4;
 
 				cl.SetWorkingDirectory("/public_html/");
 

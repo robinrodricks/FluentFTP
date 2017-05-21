@@ -1143,7 +1143,9 @@ namespace FluentFTP {
 			stream.Connect(host, port, ipVersions);
 		}
 
-
+		/// <summary>
+		/// Called during Connect(). Typically extended by FTP proxies.
+		/// </summary>
 		protected virtual void Handshake() {
 			FtpReply reply;
 			if (!(reply = GetReply()).Success) {
@@ -2144,7 +2146,7 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region Multi File Upload/Download
+		#region Upload Multiple Files
 
 		/// <summary>
 		/// Uploads the given file paths to a single folder on the server.
@@ -2416,6 +2418,10 @@ namespace FluentFTP {
 		}
 #endif
 
+		#endregion
+
+		#region Download Multiple Files
+
 		/// <summary>
 		/// Downloads the specified files into a local single directory.
 		/// High-level API that takes care of various edge cases internally.
@@ -2628,7 +2634,7 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region File Upload/Download
+		#region Upload File
 
 		/// <summary>
 		/// Uploads the specified file directly onto the server.
@@ -3056,6 +3062,10 @@ namespace FluentFTP {
 			return downloadSuccess && verified;
 		}
 #endif
+
+		#endregion
+
+		#region Download File
 
 		/// <summary>
 		/// Downloads the specified file into the specified stream.
@@ -6926,21 +6936,24 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Static method used to resolve internet IP
+		/// Calculate you public internet IP using the ipify service. Returns null if cannot be calculated.
 		/// </summary>
 		/// <returns>Public IP Address</returns>
 		public static string GetPublicIP() {
 #if NETFX
-			var request = WebRequest.Create("https://api.ipify.org/");
-			request.Method = "GET";
+			try {
+				var request = WebRequest.Create("https://api.ipify.org/");
+				request.Method = "GET";
 
-			using (var response = request.GetResponse()) {
-				using (var stream = new StreamReader(response.GetResponseStream())) {
-					return stream.ReadToEnd();
+				using (var response = request.GetResponse()) {
+					using (var stream = new StreamReader(response.GetResponseStream())) {
+						return stream.ReadToEnd();
+					}
 				}
+			} catch (Exception) {
+				return null;
 			}
 #endif
-			return null;
 		}
 
 		#endregion

@@ -6,14 +6,9 @@ namespace FluentFTP {
 	/// <summary>
 	/// Used for transaction logging and debug information.
 	/// </summary>
-	/// <example>The following example illustrates how to assist in debugging
-	/// FluentFTP by getting a transaction log from the server.
-	/// <code source="..\Examples\Debug.cs" lang="cs" />
-	/// </example>
 	public static class FtpTrace {
 
 #if !CORE
-		//static List<TraceListener> m_listeners = new List<TraceListener>();
 		private static readonly TraceSource m_traceSource = new TraceSource("FluentFTP") {
 			Switch = new SourceSwitch("sourceSwitch", "Verbose") { Level = SourceLevels.All }
 		};
@@ -63,7 +58,7 @@ namespace FluentFTP {
 		/// Write to the TraceListeners
 		/// </summary>
 		/// <param name="message">The message to write</param>
-		[Obsolete("Use overloads with FtpTraceLevel")]
+		//[Obsolete("Use overloads with FtpTraceLevel")]
 		public static void Write(string message) {
 			Write(FtpTraceLevel.Debug, message);
 		}
@@ -72,7 +67,7 @@ namespace FluentFTP {
 		/// Write to the TraceListeners
 		/// </summary>
 		/// <param name="message">The message to write</param>
-		[Obsolete("Use overloads with FtpTraceLevel")]
+		//[Obsolete("Use overloads with FtpTraceLevel")]
 		public static void WriteLine(object message) {
 			Write(FtpTraceLevel.Debug, message.ToString());
 		}
@@ -80,6 +75,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Write to the TraceListeners
 		/// </summary>
+		/// <param name="eventType">The type of tracing event</param>
 		/// <param name="message">The message to write</param>
 		public static void WriteLine(FtpTraceLevel eventType, object message) {
 			Write(eventType, message.ToString());
