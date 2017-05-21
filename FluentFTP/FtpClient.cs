@@ -6950,10 +6950,9 @@ namespace FluentFTP {
 						return stream.ReadToEnd();
 					}
 				}
-			} catch (Exception) {
-				return null;
-			}
+			} catch (Exception) {}
 #endif
+            return null;
 		}
 
 		#endregion

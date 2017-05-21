@@ -88,16 +88,20 @@ namespace FluentFTP {
 		/// <param name="eventType">The type of tracing event</param>
 		/// <param name="message">A formattable string to write</param>
 		public static void Write(FtpTraceLevel eventType, string message) {
-#if CORE && DEBUG
-		    Debug.WriteLine(message);
+#if CORE
+#if DEBUG
+            Debug.WriteLine(message);
+#else
+            Console.WriteLine(message);
+#endif
 #elif !CORE
-			var diagTraceLvl = TraceLevelTranslation(eventType);
+            var diagTraceLvl = TraceLevelTranslation(eventType);
 			m_traceSource.TraceEvent(TraceLevelTranslation(eventType), 0, message);
 			if (m_flushOnWrite) {
 				m_traceSource.Flush();
 			}
 #endif
-		}
+        }
 
 #if !CORE
 
