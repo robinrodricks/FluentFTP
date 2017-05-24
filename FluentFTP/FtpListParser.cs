@@ -526,7 +526,7 @@ namespace FluentFTP {
 				case FtpFileSystemObjectType.Link:
 					if (!item.Name.Contains(" -> "))
 						return null;
-					item.LinkTarget = item.Name.Remove(0, item.Name.IndexOf("-> ") + 3);
+					item.LinkTarget = item.Name.Remove(0, item.Name.IndexOf("-> ") + 3).Trim();
 					item.Name = item.Name.Remove(item.Name.IndexOf(" -> "));
 					break;
 			}
@@ -955,7 +955,7 @@ namespace FluentFTP {
 			if (isLink) {
 				file.Type = FtpFileSystemObjectType.Link;
 				file.LinkCount = linkCount;
-				file.LinkTarget = linkedname;
+				file.LinkTarget = linkedname.Trim();
 			}
 			file.RawGroup = group;
 			file.RawOwner = owner;
@@ -1574,9 +1574,9 @@ namespace FluentFTP {
 				// then try to resolve it.
 				if (item.LinkTarget != null && !item.LinkTarget.StartsWith("/")) {
 					if (item.LinkTarget.StartsWith("./"))
-						item.LinkTarget = path.GetFtpPath(item.LinkTarget.Remove(0, 2));
+						item.LinkTarget = path.GetFtpPath(item.LinkTarget.Remove(0, 2)).Trim();
 					else
-						item.LinkTarget = path.GetFtpPath(item.LinkTarget);
+						item.LinkTarget = path.GetFtpPath(item.LinkTarget).Trim();
 				}
 			}
 		}

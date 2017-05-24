@@ -398,6 +398,21 @@ Please access these static methods directly under the `FtpClient` class.
 - **GetPublicIP**() - Use the Ipify service to calculate your public IP. Useful if you are behind a router or don't have a static IP.
 
 
+### Logging
+
+Please see these [FAQ entries](#faq_trace) for help on logging & debugging.
+
+- FtpTrace.**FlushOnWrite** - Flush trace listeners after writing each command. **Default:** true.
+
+- FtpTrace.**Prefix** - Log all messages prefixed with "FluentFTP". **Default:** false.
+
+- FtpTrace.**AddListener** - Add a logger to the system. [Learn more](#faq_trace)
+
+- FtpTrace.**RemoveListener** - Remove a logger from the system.
+
+- FtpTrace.**WriteLine** - Log a message or error to all registered listeners.
+
+
 ## FTP Support
 
 Mapping table documenting supported FTP commands and the corresponding API..
@@ -973,6 +988,10 @@ When doing a large number of transfers, one needs to be aware of some inherit is
 This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is signaled by closing the connection. On downloads and file listings, the sockets being used on the server will stay in the TIME WAIT state because the server closes the socket when it's done sending the data. On uploads, the client sockets will go into the TIME WAIT state because the client closes the connection to signal EOF to the server.
 
 ## Release Notes
+
+#### 17.4.1
+- Fix parsing of LinkTarget during GetListing() on Unix FTP servers
+- Improve logging clarity by removing "FluentFTP" prefix in TraceSource
 
 #### 17.4.0
 - Add MoveFile() and MoveDirectory() to move files and directories safely

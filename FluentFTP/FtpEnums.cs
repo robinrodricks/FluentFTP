@@ -433,7 +433,7 @@ namespace FluentFTP {
 		/// </summary>
 		ForceNameList = ForceList | NameList,
 		/// <summary>
-		/// Try to dereference symbolic links
+		/// Try to dereference symbolic links, and stored the linked file/directory in FtpListItem.LinkObject
 		/// </summary>
 		DerefLinks = 32,
 		/// <summary>

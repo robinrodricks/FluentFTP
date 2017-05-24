@@ -15,9 +15,8 @@ namespace FluentFTP {
 
 		static bool m_flushOnWrite = true;
 
-
 		/// <summary>
-		/// Gets or sets whether the trace listeners should be flushed immediately after writing to them. Default value is true.
+		/// Should the trace listeners be flushed immediately after writing to them?
 		/// </summary>
 		public static bool FlushOnWrite {
 			get {
@@ -25,6 +24,21 @@ namespace FluentFTP {
 			}
 			set {
 				m_flushOnWrite = value;
+			}
+		}
+
+		static bool m_prefix = false;
+
+		/// <summary>
+		/// Should the log entries be written with a prefix of "FluentFTP"?
+		/// Useful if you have a single TraceListener shared across multiple libraries.
+		/// </summary>
+		public static bool Prefix {
+			get {
+				return m_prefix;
+			}
+			set {
+				m_prefix = value;
 			}
 		}
 
@@ -96,7 +110,17 @@ namespace FluentFTP {
 #endif
 #elif !CORE
             var diagTraceLvl = TraceLevelTranslation(eventType);
-			m_traceSource.TraceEvent(TraceLevelTranslation(eventType), 0, message);
+			if (m_prefix) {
+
+				// if prefix is wanted then use TraceEvent()
+				m_traceSource.TraceEvent(TraceLevelTranslation(eventType), 0, message);
+
+			} else {
+
+				// if prefix is NOT wanted then write manually
+				EmitEvent(m_traceSource, TraceLevelTranslation(eventType), message);
+
+			}
 			if (m_flushOnWrite) {
 				m_traceSource.Flush();
 			}
@@ -117,6 +141,24 @@ namespace FluentFTP {
 					return TraceEventType.Error;
 				default:
 					return TraceEventType.Verbose;
+			}
+		}
+
+		static object traceSync = new object();
+		static int traceMessageNumber;
+		private static void EmitEvent(TraceSource traceSource, TraceEventType eventType, string message) {
+			try {
+				lock (traceSync) {
+					if (traceSource.Switch.ShouldTrace(eventType)) {
+						foreach (TraceListener listener in traceSource.Listeners) {
+							try {
+								listener.WriteLine(message);
+								listener.Flush();
+							} catch { }
+						}
+					}
+				}
+			} catch {
 			}
 		}
 #endif
