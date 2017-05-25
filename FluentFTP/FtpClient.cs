@@ -2900,267 +2900,6 @@ namespace FluentFTP {
 #endif
 
 		/// <summary>
-		/// Downloads the specified file onto the local file system.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="localPath">The full or relative path to the file on the local file system</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
-		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
-		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
-		/// </remarks>
-		public bool DownloadFile(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None) {
-			return DownloadFileToFile(localPath, remotePath, overwrite, verifyOptions);
-		}
-
-		private bool DownloadFileToFile(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions) {
-			// skip downloading if the local file exists
-			if (!overwrite && File.Exists(localPath)) {
-				FtpTrace.WriteLine(FtpTraceLevel.Error, "Overwrite is false and local file already exists.");
-				return false;
-			}
-
-
-			try {
-				// create the folders
-				string dirPath = Path.GetDirectoryName(localPath);
-				if (!Directory.Exists(dirPath)) {
-					Directory.CreateDirectory(dirPath);
-				}
-			} catch (Exception ex1) {
-				// catch errors creating directory
-				throw new FtpException("Error while crated directories. See InnerException for more info.", ex1);
-			}
-
-			bool downloadSuccess;
-			bool verified = true;
-			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
-			do {
-				using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)) {
-					// download the file straight to a file stream
-					downloadSuccess = DownloadFileInternal(remotePath, outStream);
-					attemptsLeft--;
-				}
-
-				if (downloadSuccess && verifyOptions != FtpVerify.None) {
-					verified = VerifyTransfer(localPath, remotePath);
-					FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
-#if DEBUG
-					if (!verified && attemptsLeft > 0) {
-						FtpTrace.WriteLine(FtpTraceLevel.Debug, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
-					}
-#endif
-				}
-			} while (!verified && attemptsLeft > 0);
-
-			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
-				File.Delete(localPath);
-			}
-
-			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
-				throw new FtpException("Downloaded file checksum value does not match remote file");
-			}
-
-			return downloadSuccess && verified;
-		}
-
-#if (CORE || NETFX45)
-		/// <summary>
-		/// Downloads the specified file onto the local file system asynchronously.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="localPath">The full or relative path to the file on the local file system</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
-		/// <param name="token">The token to monitor for cancellation requests</param>
-		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
-		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
-		/// </remarks>
-		public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token) {
-			return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, token);
-		}
-
-		/// <summary>
-		/// Downloads the specified file onto the local file system asynchronously.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="localPath">The full or relative path to the file on the local file system</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
-		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
-		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
-		/// </remarks>
-		public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None) {
-			return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, CancellationToken.None);
-		}
-
-		private async Task<bool> DownloadFileToFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token) {
-			if (string.IsNullOrWhiteSpace(localPath))
-				throw new ArgumentNullException("localPath");
-
-			// skip downloading if the local file exists
-			if (!overwrite && File.Exists(localPath)) {
-				FtpTrace.WriteLine(FtpTraceLevel.Error, "Overwrite is false and local file already exists");
-				return false;
-			}
-
-			try {
-				// create the folders
-				string dirPath = Path.GetDirectoryName(localPath);
-				if (!Directory.Exists(dirPath)) {
-					Directory.CreateDirectory(dirPath);
-				}
-			} catch (Exception ex1) {
-				// catch errors creating directory
-				throw new FtpException("Error while crated directories. See InnerException for more info.", ex1);
-			}
-
-			bool downloadSuccess;
-			bool verified = true;
-			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
-			do {
-				using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)) {
-					// download the file straight to a file stream
-					downloadSuccess = await DownloadFileInternalAsync(remotePath, outStream, token);
-					attemptsLeft--;
-				}
-
-				if (downloadSuccess && verifyOptions != FtpVerify.None) {
-					verified = await VerifyTransferAsync(localPath, remotePath);
-					FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
-#if DEBUG
-					if (!verified && attemptsLeft > 0) {
-						FtpTrace.WriteLine(FtpTraceLevel.Debug, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
-					}
-#endif
-				}
-			} while (!verified && attemptsLeft > 0);
-
-			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
-				File.Delete(localPath);
-			}
-
-			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
-				throw new FtpException("Downloaded file checksum value does not match remote file");
-			}
-
-			return downloadSuccess && verified;
-		}
-#endif
-
-		#endregion
-
-		#region Download File
-
-		/// <summary>
-		/// Downloads the specified file into the specified stream.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool Download(Stream outStream, string remotePath) {
-			// download the file from the server
-			return DownloadFileInternal(remotePath, outStream);
-		}
-
-		/// <summary>
-		/// Downloads the specified file and return the raw byte array.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="outBytes">The variable that will receive the bytes.</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool Download(out byte[] outBytes, string remotePath) {
-
-			outBytes = null;
-
-			// download the file from the server
-			bool ok;
-			using (MemoryStream outStream = new MemoryStream()) {
-				ok = DownloadFileInternal(remotePath, outStream);
-				if (ok) {
-					outBytes = outStream.ToArray();
-				}
-			}
-			return ok;
-		}
-
-#if (CORE || NETFX45)
-		/// <summary>
-		/// Downloads the specified file into the specified stream asynchronously .
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="token">The token to monitor cancellation requests</param>
-		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public async Task<bool> DownloadAsync(Stream outStream, string remotePath, CancellationToken token) {
-			// download the file from the server
-			return await DownloadFileInternalAsync(remotePath, outStream, token);
-		}
-
-		/// <summary>
-		/// Downloads the specified file into the specified stream asynchronously .
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public async Task<bool> DownloadAsync(Stream outStream, string remotePath) {
-			// download the file from the server
-			return await DownloadFileInternalAsync(remotePath, outStream, CancellationToken.None);
-		}
-
-		/// <summary>
-		/// Downloads the specified file and return the raw byte array.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="token">The token to monitor cancellation requests</param>
-		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
-		public async Task<byte[]> DownloadAsync(string remotePath, CancellationToken token) {
-			// download the file from the server
-			using (MemoryStream outStream = new MemoryStream()) {
-				bool ok = await DownloadFileInternalAsync(remotePath, outStream, token);
-				return ok ? outStream.ToArray() : null;
-			}
-		}
-
-		/// <summary>
-		/// Downloads the specified file into the specified stream asynchronously .
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
-		public async Task<byte[]> DownloadAsync(string remotePath) {
-			// download the file from the server
-			return await DownloadAsync(remotePath, CancellationToken.None);
-		}
-#endif
-
-		/// <summary>
 		/// Upload the given stream to the server as a new file. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
 		/// </summary>
@@ -3397,6 +3136,268 @@ namespace FluentFTP {
 			}
 		}
 #endif
+
+		#endregion
+
+		#region Download File
+
+		/// <summary>
+		/// Downloads the specified file onto the local file system.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="localPath">The full or relative path to the file on the local file system</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
+		/// </remarks>
+		public bool DownloadFile(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None) {
+			return DownloadFileToFile(localPath, remotePath, overwrite, verifyOptions);
+		}
+
+		private bool DownloadFileToFile(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions) {
+			// skip downloading if the local file exists
+			if (!overwrite && File.Exists(localPath)) {
+				FtpTrace.WriteLine(FtpTraceLevel.Error, "Overwrite is false and local file already exists.");
+				return false;
+			}
+
+
+			try {
+				// create the folders
+				string dirPath = Path.GetDirectoryName(localPath);
+				if (!Directory.Exists(dirPath)) {
+					Directory.CreateDirectory(dirPath);
+				}
+			} catch (Exception ex1) {
+				// catch errors creating directory
+				throw new FtpException("Error while crated directories. See InnerException for more info.", ex1);
+			}
+
+			bool downloadSuccess;
+			bool verified = true;
+			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+			do {
+				using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)) {
+					// download the file straight to a file stream
+					downloadSuccess = DownloadFileInternal(remotePath, outStream);
+					attemptsLeft--;
+				}
+
+				if (downloadSuccess && verifyOptions != FtpVerify.None) {
+					verified = VerifyTransfer(localPath, remotePath);
+					FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+#if DEBUG
+					if (!verified && attemptsLeft > 0) {
+						FtpTrace.WriteLine(FtpTraceLevel.Debug, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+					}
+#endif
+				}
+			} while (!verified && attemptsLeft > 0);
+
+			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
+				File.Delete(localPath);
+			}
+
+			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
+				throw new FtpException("Downloaded file checksum value does not match remote file");
+			}
+
+			return downloadSuccess && verified;
+		}
+
+#if (CORE || NETFX45)
+		/// <summary>
+		/// Downloads the specified file onto the local file system asynchronously.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="localPath">The full or relative path to the file on the local file system</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="token">The token to monitor for cancellation requests</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
+		/// </remarks>
+		public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token) {
+			return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, token);
+		}
+
+		/// <summary>
+		/// Downloads the specified file onto the local file system asynchronously.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="localPath">The full or relative path to the file on the local file system</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
+		/// </remarks>
+		public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None) {
+			return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, CancellationToken.None);
+		}
+
+		private async Task<bool> DownloadFileToFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token) {
+			if (string.IsNullOrWhiteSpace(localPath))
+				throw new ArgumentNullException("localPath");
+
+			// skip downloading if the local file exists
+			if (!overwrite && File.Exists(localPath)) {
+				FtpTrace.WriteLine(FtpTraceLevel.Error, "Overwrite is false and local file already exists");
+				return false;
+			}
+
+			try {
+				// create the folders
+				string dirPath = Path.GetDirectoryName(localPath);
+				if (!Directory.Exists(dirPath)) {
+					Directory.CreateDirectory(dirPath);
+				}
+			} catch (Exception ex1) {
+				// catch errors creating directory
+				throw new FtpException("Error while crated directories. See InnerException for more info.", ex1);
+			}
+
+			bool downloadSuccess;
+			bool verified = true;
+			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+			do {
+				using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)) {
+					// download the file straight to a file stream
+					downloadSuccess = await DownloadFileInternalAsync(remotePath, outStream, token);
+					attemptsLeft--;
+				}
+
+				if (downloadSuccess && verifyOptions != FtpVerify.None) {
+					verified = await VerifyTransferAsync(localPath, remotePath);
+					FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+#if DEBUG
+					if (!verified && attemptsLeft > 0) {
+						FtpTrace.WriteLine(FtpTraceLevel.Debug, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+					}
+#endif
+				}
+			} while (!verified && attemptsLeft > 0);
+
+			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
+				File.Delete(localPath);
+			}
+
+			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
+				throw new FtpException("Downloaded file checksum value does not match remote file");
+			}
+
+			return downloadSuccess && verified;
+		}
+#endif
+
+		/// <summary>
+		/// Downloads the specified file into the specified stream.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		public bool Download(Stream outStream, string remotePath) {
+			// download the file from the server
+			return DownloadFileInternal(remotePath, outStream);
+		}
+
+		/// <summary>
+		/// Downloads the specified file and return the raw byte array.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="outBytes">The variable that will receive the bytes.</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		public bool Download(out byte[] outBytes, string remotePath) {
+
+			outBytes = null;
+
+			// download the file from the server
+			bool ok;
+			using (MemoryStream outStream = new MemoryStream()) {
+				ok = DownloadFileInternal(remotePath, outStream);
+				if (ok) {
+					outBytes = outStream.ToArray();
+				}
+			}
+			return ok;
+		}
+
+#if (CORE || NETFX45)
+		/// <summary>
+		/// Downloads the specified file into the specified stream asynchronously .
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="token">The token to monitor cancellation requests</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		public async Task<bool> DownloadAsync(Stream outStream, string remotePath, CancellationToken token) {
+			// download the file from the server
+			return await DownloadFileInternalAsync(remotePath, outStream, token);
+		}
+
+		/// <summary>
+		/// Downloads the specified file into the specified stream asynchronously .
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		public async Task<bool> DownloadAsync(Stream outStream, string remotePath) {
+			// download the file from the server
+			return await DownloadFileInternalAsync(remotePath, outStream, CancellationToken.None);
+		}
+
+		/// <summary>
+		/// Downloads the specified file and return the raw byte array.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="token">The token to monitor cancellation requests</param>
+		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
+		public async Task<byte[]> DownloadAsync(string remotePath, CancellationToken token) {
+			// download the file from the server
+			using (MemoryStream outStream = new MemoryStream()) {
+				bool ok = await DownloadFileInternalAsync(remotePath, outStream, token);
+				return ok ? outStream.ToArray() : null;
+			}
+		}
+
+		/// <summary>
+		/// Downloads the specified file into the specified stream asynchronously .
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
+		public async Task<byte[]> DownloadAsync(string remotePath) {
+			// download the file from the server
+			return await DownloadAsync(remotePath, CancellationToken.None);
+		}
+#endif
+
 		/// <summary>
 		/// Download a file from the server and write the data into the given stream.
 		/// Reads data in chunks. Retries if server disconnects midway.
@@ -6027,7 +6028,7 @@ namespace FluentFTP {
 		/// <param name="path">Full or relative path to remote file</param>
 		/// <returns>Server response, presumably the SHA-1 hash.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<string> GetXSHA1sync(string path) {
+		public async Task<string> GetXSHA1Async(string path) {
 			return await Task.Factory.FromAsync<string, string>(
 				(p, ac, s) => BeginGetXSHA1(p, ac, s),
 				ar => EndGetXSHA1(ar),

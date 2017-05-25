@@ -1233,7 +1233,7 @@ namespace Tests {
 			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass)) {
 
 				cl.MoveFile("/public_html/temp/README.md", "/public_html/temp/README_moved.md");
-
+				
 				cl.MoveDirectory("/public_html/temp/dir/", "/public_html/temp/dir_moved/");
 
 			}
