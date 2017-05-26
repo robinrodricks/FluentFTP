@@ -679,7 +679,28 @@ namespace FluentFTP {
 			get { return m_retryAttempts; }
 			set { m_retryAttempts = value > 0 ? value : 1; }
 		}
+		
+		uint m_uploadRateLimit = 0;
 
+		/// <summary>
+		/// Rate limit for uploads in kbyte/s. Set this to 0 for unlimited speed.
+		/// Honored by high-level API such as Upload(), Download(), UploadFile(), DownloadFile()..
+		/// </summary>
+		public uint UploadRateLimit {
+			get { return m_uploadRateLimit; }
+			set { m_uploadRateLimit = value; }
+		}
+
+		uint m_downloadRateLimit = 0;
+
+		/// <summary>
+		/// Rate limit for downloads in kbytes/s. Set this to 0 for unlimited speed.
+		/// Honored by high-level API such as Upload(), Download(), UploadFile(), DownloadFile()..
+		/// </summary>
+		public uint DownloadRateLimit {
+			get { return m_downloadRateLimit; }
+			set { m_downloadRateLimit = value; }
+		}
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
 		// FtpClient.CloneConnection()
 
@@ -816,6 +837,8 @@ namespace FluentFTP {
 			conn.ListingCulture = ListingCulture;
 			conn.TimeOffset = TimeOffset;
 			conn.RetryAttempts = RetryAttempts;
+			conn.UploadRateLimit = UploadRateLimit;
+			conn.DownloadRateLimit = DownloadRateLimit;
 
 			// copy props using attributes (slower, not .NET core compatible)
 			/*foreach (PropertyInfo prop in GetType().GetProperties()) {
@@ -2959,37 +2982,95 @@ namespace FluentFTP {
 				// loop till entire file uploaded
 				long len = fileData.Length;
 				byte[] buffer = new byte[TransferChunkSize];
-				while (offset < len) {
-					try {
 
-						// read a chunk of bytes from the file
-						int readBytes;
-						while ((readBytes = fileData.Read(buffer, 0, buffer.Length)) > 0) {
+				if (UploadRateLimit == 0) {
+					while (offset < len) {
+						try {
 
-							// write chunk to the FTP stream
-							upStream.Write(buffer, 0, readBytes);
-							upStream.Flush();
-							offset += readBytes;
-						}
+							// read a chunk of bytes from the file
+							int readBytes;
+							while ((readBytes = fileData.Read(buffer, 0, buffer.Length)) > 0) {
 
-					} catch (IOException ex) {
+								// write chunk to the FTP stream
+								upStream.Write(buffer, 0, readBytes);
+								upStream.Flush();
+								offset += readBytes;
+							}
 
-						// resume if server disconnects midway (fixes #39)
-						if (ex.InnerException != null) {
-							var iex = ex.InnerException as System.Net.Sockets.SocketException;
+						} catch (IOException ex) {
+
+							// resume if server disconnects midway (fixes #39)
+							if (ex.InnerException != null) {
+								var iex = ex.InnerException as System.Net.Sockets.SocketException;
 #if CORE
-							int code = (int)iex.SocketErrorCode;
+								int code = (int)iex.SocketErrorCode;
 #else
-							int code = iex.ErrorCode;
+								int code = iex.ErrorCode;
 #endif
-							if (iex != null && code == 10054) {
-								upStream.Dispose();
-								upStream = OpenAppend(remotePath);
-								upStream.Position = offset;
+								if (iex != null && code == 10054) {
+									upStream.Dispose();
+									upStream = OpenAppend(remotePath);
+									upStream.Position = offset;
+								} else throw;
 							} else throw;
-						} else throw;
 
+						}
 					}
+				} else {
+					Stopwatch sw = new Stopwatch();
+					double rateLimitBytes = UploadRateLimit * 1024;
+					while (offset < len) {
+						try {
+
+							// read a chunk of bytes from the file
+							int readBytes;
+							double limitCheckBytes = 0;
+							sw.Start();
+							while ((readBytes = fileData.Read(buffer, 0, buffer.Length)) > 0) {
+
+								// write chunk to the FTP stream
+								upStream.Write(buffer, 0, readBytes);
+								upStream.Flush();
+								offset += readBytes;
+								limitCheckBytes += readBytes;
+								int swTime = (int)sw.ElapsedMilliseconds;
+								if (swTime >= 1000) {
+									double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
+									if (timeShouldTake > swTime) {
+										Thread.Sleep((int)(timeShouldTake - swTime));
+									}
+									limitCheckBytes = 0;
+									sw.Restart();
+								}
+							}
+
+						} catch (IOException ex) {
+
+							// resume if server disconnects midway (fixes #39)
+							if (ex.InnerException != null) {
+								var iex = ex.InnerException as System.Net.Sockets.SocketException;
+#if CORE
+								int code = (int)iex.SocketErrorCode;
+#else
+								int code = iex.ErrorCode;
+#endif
+								if (iex != null && code == 10054) {
+									upStream.Dispose();
+									upStream = OpenAppend(remotePath);
+									upStream.Position = offset;
+								} else {
+									sw.Stop();
+									throw;
+								}
+							} else {
+								sw.Stop();
+								throw;
+							}
+
+						}
+					}
+
+					sw.Stop();
 				}
 
 				// wait for transfer to get over
@@ -3078,36 +3159,91 @@ namespace FluentFTP {
 				// loop till entire file uploaded
 				long len = fileData.Length;
 				byte[] buffer = new byte[TransferChunkSize];
-				while (offset < len) {
-					try {
-						// read a chunk of bytes from the file
-						int readBytes;
-						while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
-							// write chunk to the FTP stream
-							await upStream.WriteAsync(buffer, 0, readBytes, token);
-							await upStream.FlushAsync(token);
-							offset += readBytes;
-						}
-					} catch (IOException ex) {
-						// resume if server disconnects midway (fixes #39)
-						if (ex.InnerException != null) {
-							var iex = ex.InnerException as System.Net.Sockets.SocketException;
+				if (UploadRateLimit == 0) {
+					while (offset < len) {
+						try {
+							// read a chunk of bytes from the file
+							int readBytes;
+							while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
+								// write chunk to the FTP stream
+								await upStream.WriteAsync(buffer, 0, readBytes, token);
+								await upStream.FlushAsync(token);
+								offset += readBytes;
+							}
+						} catch (IOException ex) {
+							// resume if server disconnects midway (fixes #39)
+							if (ex.InnerException != null) {
+								var iex = ex.InnerException as System.Net.Sockets.SocketException;
 
-							if (iex != null) {
+								if (iex != null) {
 #if CORE
 							    int code = (int)iex.SocketErrorCode;
 #else
-								int code = iex.ErrorCode;
+									int code = iex.ErrorCode;
 #endif
-								if (code == 10054) {
-									upStream.Dispose();
-									//Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
-									upStream = OpenAppend(remotePath);
-									upStream.Position = offset;
-								}
+									if (code == 10054) {
+										upStream.Dispose();
+										//Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
+										upStream = OpenAppend(remotePath);
+										upStream.Position = offset;
+									}
+								} else throw;
 							} else throw;
-						} else throw;
+						}
 					}
+				} else {
+					Stopwatch sw = new Stopwatch();
+					double rateLimitBytes = UploadRateLimit * 1024;
+					while (offset < len) {
+						try {
+							// read a chunk of bytes from the file
+							int readBytes;
+							double limitCheckBytes = 0;
+							sw.Start();
+							while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
+								// write chunk to the FTP stream
+								await upStream.WriteAsync(buffer, 0, readBytes, token);
+								await upStream.FlushAsync(token);
+								offset += readBytes;
+								limitCheckBytes += readBytes;
+								int swTime = (int)sw.ElapsedMilliseconds;
+								if (swTime >= 1000) {
+									double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
+									if (timeShouldTake > swTime) {
+										Thread.Sleep((int)(timeShouldTake - swTime));
+									}
+									limitCheckBytes = 0;
+									sw.Restart();
+								}
+							}
+						} catch (IOException ex) {
+							// resume if server disconnects midway (fixes #39)
+							if (ex.InnerException != null) {
+								var iex = ex.InnerException as System.Net.Sockets.SocketException;
+
+								if (iex != null) {
+#if CORE
+							    int code = (int)iex.SocketErrorCode;
+#else
+									int code = iex.ErrorCode;
+#endif
+									if (code == 10054) {
+										upStream.Dispose();
+										//Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
+										upStream = OpenAppend(remotePath);
+										upStream.Position = offset;
+									}
+								} else {
+									sw.Stop();
+									throw;
+								}
+							} else {
+								sw.Stop();
+								throw;
+							}
+						}
+					}
+					sw.Stop();
 				}
 
 				// wait for while transfer to get over
@@ -3135,6 +3271,7 @@ namespace FluentFTP {
 				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
 			}
 		}
+
 #endif
 
 		#endregion
@@ -3430,44 +3567,105 @@ namespace FluentFTP {
 				// loop till entire file downloaded
 				byte[] buffer = new byte[TransferChunkSize];
 				long offset = 0;
-				while (offset < fileLen || readToEnd) {
-					try {
+				if (DownloadRateLimit == 0) {
+					while (offset < fileLen || readToEnd) {
+						try {
 
-						// read a chunk of bytes from the FTP stream
-						int readBytes = 1;
-						while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
+							// read a chunk of bytes from the FTP stream
+							int readBytes = 1;
+							while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
 
-							// write chunk to output stream
-							outStream.Write(buffer, 0, readBytes);
-							offset += readBytes;
-						}
+								// write chunk to output stream
+								outStream.Write(buffer, 0, readBytes);
+								offset += readBytes;
+							}
 
-						// if we reach here means EOF encountered
-						// stop if we are in "read until EOF" mode
-						if (readToEnd) {
-							break;
-						}
+							// if we reach here means EOF encountered
+							// stop if we are in "read until EOF" mode
+							if (readToEnd) {
+								break;
+							}
 
-					} catch (IOException ex) {
+						} catch (IOException ex) {
 
-						// resume if server disconnects midway (fixes #39)
-						if (ex.InnerException != null) {
-							var ie = ex.InnerException as System.Net.Sockets.SocketException;
+							// resume if server disconnects midway (fixes #39)
+							if (ex.InnerException != null) {
+								var ie = ex.InnerException as System.Net.Sockets.SocketException;
 #if CORE
 							int code = (int)ie.SocketErrorCode;
 #else
-							int code = ie.ErrorCode;
+								int code = ie.ErrorCode;
 #endif
-							if (ie != null && code == 10054) {
-								downStream.Dispose();
-								downStream = OpenRead(remotePath, restart: offset);
+								if (ie != null && code == 10054) {
+									downStream.Dispose();
+									downStream = OpenRead(remotePath, restart: offset);
+								} else throw;
 							} else throw;
-						} else throw;
+
+						}
+
+					}
+				} else {
+					Stopwatch sw = new Stopwatch();
+					double rateLimitBytes = DownloadRateLimit * 1024;
+					while (offset < fileLen || readToEnd) {
+						try {
+
+							// read a chunk of bytes from the FTP stream
+							int readBytes = 1;
+							double limitCheckBytes = 0;
+							sw.Start();
+							while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
+
+								// write chunk to output stream
+								outStream.Write(buffer, 0, readBytes);
+								offset += readBytes;
+								limitCheckBytes += readBytes;
+								int swTime = (int)sw.ElapsedMilliseconds;
+								if (swTime >= 1000) {
+									double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
+									if (timeShouldTake > swTime) {
+										Thread.Sleep((int)(timeShouldTake - swTime));
+									}
+									limitCheckBytes = 0;
+									sw.Restart();
+								}
+							}
+
+							// if we reach here means EOF encountered
+							// stop if we are in "read until EOF" mode
+							if (readToEnd) {
+								break;
+							}
+
+						} catch (IOException ex) {
+
+							// resume if server disconnects midway (fixes #39)
+							if (ex.InnerException != null) {
+								var ie = ex.InnerException as System.Net.Sockets.SocketException;
+#if CORE
+							int code = (int)ie.SocketErrorCode;
+#else
+								int code = ie.ErrorCode;
+#endif
+								if (ie != null && code == 10054) {
+									downStream.Dispose();
+									downStream = OpenRead(remotePath, restart: offset);
+								} else {
+									sw.Stop();
+									throw;
+								}
+							} else {
+								sw.Stop();
+								throw;
+							}
+
+						}
 
 					}
 
+					sw.Stop();
 				}
-
 
 				// disconnect FTP stream before exiting
 				outStream.Flush();
@@ -3526,45 +3724,107 @@ namespace FluentFTP {
 				// loop till entire file downloaded
 				byte[] buffer = new byte[TransferChunkSize];
 				long offset = 0;
-				while (offset < fileLen || readToEnd) {
-					try {
-						// read a chunk of bytes from the FTP stream
-						int readBytes = 1;
-						while ((readBytes = await downStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
-							// write chunk to output stream
-							await outStream.WriteAsync(buffer, 0, readBytes, token);
-							offset += readBytes;
-						}
+				if (DownloadRateLimit == 0) {
+					while (offset < fileLen || readToEnd) {
+						try {
+							// read a chunk of bytes from the FTP stream
+							int readBytes = 1;
+							while ((readBytes = await downStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
+								// write chunk to output stream
+								await outStream.WriteAsync(buffer, 0, readBytes, token);
+								offset += readBytes;
+							}
 
-						// if we reach here means EOF encountered
-						// stop if we are in "read until EOF" mode
-						if (readToEnd) {
-							break;
-						}
+							// if we reach here means EOF encountered
+							// stop if we are in "read until EOF" mode
+							if (readToEnd) {
+								break;
+							}
 
-					} catch (IOException ex) {
+						} catch (IOException ex) {
 
-						// resume if server disconnects midway (fixes #39)
-						if (ex.InnerException != null) {
-							var ie = ex.InnerException as System.Net.Sockets.SocketException;
-							if (ie != null) {
+							// resume if server disconnects midway (fixes #39)
+							if (ex.InnerException != null) {
+								var ie = ex.InnerException as System.Net.Sockets.SocketException;
+								if (ie != null) {
 #if CORE
 		    					int code = (int)ie.SocketErrorCode;
 #else
-								int code = ie.ErrorCode;
+									int code = ie.ErrorCode;
 #endif
-								if (code == 10054) {
-									downStream.Dispose();
-									//Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
-									downStream = OpenRead(remotePath, restart: offset);
-								}
+									if (code == 10054) {
+										downStream.Dispose();
+										//Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
+										downStream = OpenRead(remotePath, restart: offset);
+									}
+								} else throw;
 							} else throw;
-						} else throw;
+
+						}
+
+					}
+				} else {
+					Stopwatch sw = new Stopwatch();
+					double rateLimitBytes = DownloadRateLimit * 1024;
+					while (offset < fileLen || readToEnd) {
+						try {
+							// read a chunk of bytes from the FTP stream
+							int readBytes = 1;
+							double limitCheckBytes = 0;
+							sw.Start();
+							while ((readBytes = await downStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
+								// write chunk to output stream
+								await outStream.WriteAsync(buffer, 0, readBytes, token);
+								offset += readBytes;
+								limitCheckBytes += readBytes;
+								int swTime = (int)sw.ElapsedMilliseconds;
+								if (swTime >= 1000) {
+									double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
+									if (timeShouldTake > swTime) {
+										Thread.Sleep((int)(timeShouldTake - swTime));
+									}
+									limitCheckBytes = 0;
+									sw.Restart();
+								}
+							}
+
+							// if we reach here means EOF encountered
+							// stop if we are in "read until EOF" mode
+							if (readToEnd) {
+								break;
+							}
+
+						} catch (IOException ex) {
+
+							// resume if server disconnects midway (fixes #39)
+							if (ex.InnerException != null) {
+								var ie = ex.InnerException as System.Net.Sockets.SocketException;
+								if (ie != null) {
+#if CORE
+		    					int code = (int)ie.SocketErrorCode;
+#else
+									int code = ie.ErrorCode;
+#endif
+									if (code == 10054) {
+										downStream.Dispose();
+										//Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
+										downStream = OpenRead(remotePath, restart: offset);
+									}
+								} else {
+									sw.Stop();
+									throw;
+								}
+							} else {
+								sw.Stop();
+								throw;
+							}
+
+						}
 
 					}
 
+					sw.Stop();
 				}
-
 
 				// disconnect FTP stream before exiting
 				await outStream.FlushAsync(token);

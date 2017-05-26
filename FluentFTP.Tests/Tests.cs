@@ -1223,7 +1223,7 @@ namespace Tests {
 		}
 		static void TestDeleteDirectory() {
 			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass)) {
-
+				
 				cl.DeleteDirectory("/public_html/temp/otherdir/");
 				cl.DeleteDirectory("/public_html/temp/spaced folder/");
 
