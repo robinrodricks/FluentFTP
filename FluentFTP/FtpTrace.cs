@@ -145,7 +145,6 @@ namespace FluentFTP {
 		}
 
 		static object traceSync = new object();
-		static int traceMessageNumber;
 		private static void EmitEvent(TraceSource traceSource, TraceEventType eventType, string message) {
 			try {
 				lock (traceSync) {

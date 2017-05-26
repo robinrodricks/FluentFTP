@@ -16,8 +16,10 @@ using FluentFTP.Proxy;
 using System.Web;
 #endif
 
-#if (CORE || NETFX45)
+#if (CORE || NETFX)
 using System.Threading;
+#endif
+#if (CORE || NETFX45)
 using System.Threading.Tasks;
 #endif
 

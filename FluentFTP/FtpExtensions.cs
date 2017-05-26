@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
+#if (CORE || NETFX)
+using System.Diagnostics;
+#endif
 #if (CORE || NETFX45)
 using System.Threading.Tasks;
 #endif
@@ -250,6 +253,10 @@ namespace FluentFTP {
 		}
 		public static bool HasFlag(this FtpError flags, FtpError flag) {
 			return (flags & flag) == flag;
+		}
+		public static void Restart(this Stopwatch watch) {
+			watch.Stop();
+			watch.Start();
 		}
 #endif
 	}

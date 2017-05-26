@@ -40,6 +40,8 @@
 				<dependency id="System.Net.NameResolution" version="4.3.0" />
 				<dependency id="System.Net.Sockets" version="4.3.0" />
 				<dependency id="System.Net.Security" version="4.3.0" />
+				<dependency id="System.Threading.Thread" version="4.3.0" />
+				<dependency id="System.Threading.Tasks" version="4.3.0" />
 			</group>
 			
 			<group targetFramework=".NETStandard1.6">
@@ -49,6 +51,8 @@
 				<dependency id="System.Net.NameResolution" version="4.3.0" />
 				<dependency id="System.Net.Sockets" version="4.3.0" />
 				<dependency id="System.Net.Security" version="4.3.0" />
+				<dependency id="System.Threading.Thread" version="4.3.0" />
+				<dependency id="System.Threading.Tasks" version="4.3.0" />
 			</group>
 			
 		</dependencies>
