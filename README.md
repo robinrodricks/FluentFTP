@@ -25,7 +25,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
   - Dereference of symbolic links to calculate the linked file/folder
 - **FTP protocol:**
   - Extensive support for [FTP commands](#ftp-support), including some server-specific commands
-  - Easily send [server-specific](#https://github.com/hgupta9/FluentFTP/issues/88) FTP commands using the `Execute()` method
+  - Easily send [server-specific](https://github.com/hgupta9/FluentFTP/issues/88) FTP commands using the `Execute()` method
   - Explicit and Implicit [SSL connections](#faq_ftps) are supported for the control and data connections using .NET's `SslStream`
   - Passive and active data connections (PASV, EPSV, PORT and EPRT)
   - Supports DrFTPD's PRET command, and the Unix CHMOD command
