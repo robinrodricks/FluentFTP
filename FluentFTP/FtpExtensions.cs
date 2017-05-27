@@ -15,6 +15,7 @@ namespace FluentFTP {
 	/// Extension methods related to FTP tasks
 	/// </summary>
 	public static class FtpExtensions {
+
 		/// <summary>
 		/// Converts the specified path into a valid FTP file system path
 		/// </summary>
@@ -229,7 +230,7 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="options">The error handling options set</param>
         /// <returns>True if a valid combination, otherwise false</returns>
-	    public static bool ValidFtpErrorHandlingCombination(this FtpError options) {
+	    public static bool IsValidCombination(this FtpError options) {
 	        return options != (FtpError.Stop | FtpError.Throw) &&
 	               options != (FtpError.Throw | FtpError.Stop | FtpError.DeleteProcessed);
 	    }

@@ -2197,7 +2197,7 @@ namespace FluentFTP {
 		/// </remarks>
 		public int UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true,
 			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None) {
-			if (!errorHandling.ValidFtpErrorHandlingCombination())
+			if (!errorHandling.IsValidCombination())
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
 
 			//int count = 0;
@@ -2327,7 +2327,7 @@ namespace FluentFTP {
 		/// to propagate from this method.
 		/// </remarks>
 		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode, bool createRemoteDir, FtpVerify verifyOptions, FtpError errorHandling, CancellationToken token) {
-			if (!errorHandling.ValidFtpErrorHandlingCombination())
+			if (!errorHandling.IsValidCombination())
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
@@ -2468,7 +2468,7 @@ namespace FluentFTP {
 		/// </remarks>
 		public int DownloadFiles(string localDir, IEnumerable<string> remotePaths, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None,
 			FtpError errorHandling = FtpError.None) {
-			if (!errorHandling.ValidFtpErrorHandlingCombination())
+			if (!errorHandling.IsValidCombination())
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
 
 			bool errorEncountered = false;
@@ -2569,7 +2569,7 @@ namespace FluentFTP {
 		/// </remarks>
 		public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite, FtpVerify verifyOptions,
 			FtpError errorHandling, CancellationToken token) {
-			if (!errorHandling.ValidFtpErrorHandlingCombination())
+			if (!errorHandling.IsValidCombination())
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
