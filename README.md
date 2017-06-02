@@ -441,7 +441,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **OPTS UTF8 ON**  	| Encoding 					| Enables UTF-8 filenames	|
 | **OPTS UTF8 OFF**  	| Encoding, DisableUTF8() 	| Disables UTF-8 filenames	|
 | **AUTH TLS**  		| EncryptionMode			| Switch to TLS/FTPS 	|
-| **PBSZ, PROT**  		| EncryptionMode and DataConnectionEncryption | Configure TLS/FTPS connection 	|
+| **PBSZ, PROT**  		| EncryptionMode and<br>DataConnectionEncryption | Configure TLS/FTPS connection 	|
 | **PRET**      		| *Automatic* 				| Pre-transfer file information |
 | **TYPE A**  			| *Automatic* 				| Transfer data in ASCII	|
 | **TYPE I**  			| *Automatic* 				| Transfer data in Binary	|
