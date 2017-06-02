@@ -3310,7 +3310,7 @@ namespace FluentFTP {
 			try {
 				// create the folders
 				string dirPath = Path.GetDirectoryName(localPath);
-				if (!Directory.Exists(dirPath)) {
+				if (!String.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
 					Directory.CreateDirectory(dirPath);
 				}
 			} catch (Exception ex1) {
@@ -3403,7 +3403,7 @@ namespace FluentFTP {
 			try {
 				// create the folders
 				string dirPath = Path.GetDirectoryName(localPath);
-				if (!Directory.Exists(dirPath)) {
+				if (!String.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
 					Directory.CreateDirectory(dirPath);
 				}
 			} catch (Exception ex1) {
