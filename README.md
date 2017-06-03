@@ -20,7 +20,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
   - Recursively deletes folders and all its contents
   - Get file/folder info (exists, size, security flags, modified date/time)
   - Get and set [file permissions](#file-permissions) (owner, group, other)
-  - Absolute or relative paths (relative to the "working directory")
+  - Absolute or relative paths (relative to the ["working directory"](#file-management))
   - Get the [hash/checksum](#file-hashing) of a file (SHA-1, SHA-256, SHA-512, and MD5)
   - Dereference of symbolic links to calculate the linked file/folder
 - **FTP protocol:**
@@ -437,7 +437,6 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **PASV, EPSV, EPRT**  | DataConnectionType		| Passive & Active FTP modes	|
 | **FEAT**  			| HasFeature()				| Get the features supported by server |
 | **SYST**  			| GetSystem()				| Get the server system type 	|
-| **SITE CHMOD**      	| Chmod() or SetFilePermissions() | Modify file permissions |
 | **OPTS UTF8 ON**  	| Encoding 					| Enables UTF-8 filenames	|
 | **OPTS UTF8 OFF**  	| Encoding, DisableUTF8() 	| Disables UTF-8 filenames	|
 | **AUTH TLS**  		| EncryptionMode			| Switch to TLS/FTPS 	|
@@ -753,7 +752,7 @@ EnableThreadSafeDataConnections is an older feature built by the original author
 
 First you must "fork" FluentFTP, then make changes on your local version, then submit a "pull request" to request me to merge your changes. To do this:
 
-1. Click **Fork** on the top right
+1. Click **Fork** on the top right of this page
 2. Open your version here : https://github.com/YOUR_GITHUB_USERNAME/FluentFTP
 3. Download [Github Desktop](https://desktop.github.com/) and login to your account
 4. Click **+** (top left) then **Clone** and select FluentFTP and click Clone/OK
