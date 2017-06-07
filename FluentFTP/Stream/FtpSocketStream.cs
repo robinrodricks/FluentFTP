@@ -669,7 +669,11 @@ namespace FluentFTP {
 					}
 				}
 
-				FtpTrace.WriteStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
+				if (FtpTrace.LogIP) {
+					FtpTrace.WriteStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
+				} else {
+					FtpTrace.WriteStatus(FtpTraceLevel.Info, "Connecting to ***:" + port);
+				}
 
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 #if CORE

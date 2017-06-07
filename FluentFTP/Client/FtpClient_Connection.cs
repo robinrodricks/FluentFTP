@@ -898,9 +898,17 @@ namespace FluentFTP {
 					Connect();
 				}
 
-				string commandTxt = command.StartsWith("PASS") ? "PASS <omitted>" : command;
+				// hide sensitive data from logs
+				string commandTxt = command;
+				if (!FtpTrace.LogUserName && command.StartsWith("USER", StringComparison.Ordinal)) {
+					commandTxt = "USER ***";
+				}
+				if (!FtpTrace.LogPassword && command.StartsWith("PASS", StringComparison.Ordinal)) {
+					commandTxt = "PASSS ***";
+				}
 				FtpTrace.WriteLine(FtpTraceLevel.Info, "Command:  " + commandTxt);
 				
+				// send command to FTP server
 				m_stream.WriteLine(m_textEncoding, command);
 				reply = GetReply();
 			}
@@ -989,9 +997,17 @@ namespace FluentFTP {
 					reply.InfoMessages += (buf + "\n");
 				}
 
-				// log response code + message
+				// if reply received
 				if (reply.Code != null) {
-					FtpTrace.WriteLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + reply.Message);
+
+					// hide sensitive data from logs
+					string logMsg = reply.Message;
+					if (!FtpTrace.LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK")) {
+						logMsg = logMsg.Replace(Credentials.UserName, "***");
+					}
+
+					// log response code + message
+					FtpTrace.WriteLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
 				}
 
 				// log multiline response messages

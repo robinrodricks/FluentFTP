@@ -15,16 +15,13 @@ namespace FluentFTP {
 
 		static bool m_flushOnWrite = true;
 
+
 		/// <summary>
 		/// Should the trace listeners be flushed immediately after writing to them?
 		/// </summary>
 		public static bool FlushOnWrite {
-			get {
-				return m_flushOnWrite;
-			}
-			set {
-				m_flushOnWrite = value;
-			}
+			get { return m_flushOnWrite; }
+			set { m_flushOnWrite = value; }
 		}
 
 		static bool m_prefix = false;
@@ -33,27 +30,9 @@ namespace FluentFTP {
 		/// Should the log entries be written with a prefix of "FluentFTP"?
 		/// Useful if you have a single TraceListener shared across multiple libraries.
 		/// </summary>
-		public static bool Prefix {
-			get {
-				return m_prefix;
-			}
-			set {
-				m_prefix = value;
-			}
-		}
-
-		static bool m_functions = true;
-
-		/// <summary>
-		/// Should the function calls be logged in Verbose mode?
-		/// </summary>
-		public static bool Functions {
-			get {
-				return m_functions;
-			}
-			set {
-				m_functions = value;
-			}
+		public static bool LogPrefix {
+			get { return m_prefix; }
+			set { m_prefix = value; }
 		}
 
 
@@ -81,6 +60,46 @@ namespace FluentFTP {
 		}
 
 #endif
+		static bool m_functions = true;
+
+		/// <summary>
+		/// Should the function calls be logged in Verbose mode?
+		/// </summary>
+		public static bool LogFunctions {
+			get { return m_functions; }
+			set { m_functions = value; }
+		}
+
+		static bool m_IP = true;
+
+		/// <summary>
+		/// Should the FTP server IP addresses be included in the logs?
+		/// </summary>
+		public static bool LogIP {
+			get { return m_IP; }
+			set { m_IP = value; }
+		}
+
+		static bool m_username = true;
+
+		/// <summary>
+		/// Should the FTP usernames be included in the logs?
+		/// </summary>
+		public static bool LogUserName {
+			get { return m_username; }
+			set { m_username = value; }
+		}
+
+		static bool m_password = false;
+
+		/// <summary>
+		/// Should the FTP passwords be included in the logs?
+		/// </summary>
+		public static bool LogPassword {
+			get { return m_password; }
+			set { m_password = value; }
+		}
+
 
 		/// <summary>
 		/// Write to the TraceListeners
@@ -162,6 +181,20 @@ namespace FluentFTP {
 #endif
         }
 
+		private static string TraceLevelPrefix(FtpTraceLevel level) {
+			switch (level) {
+				case FtpTraceLevel.Verbose:
+					return "Status:   ";
+				case FtpTraceLevel.Info:
+					return "Status:   ";
+				case FtpTraceLevel.Warn:
+					return "Warning:  ";
+				case FtpTraceLevel.Error:
+					return "Error:    ";
+			}
+			return "Status:   ";
+		}
+
 #if !CORE
 
 		private static TraceEventType TraceLevelTranslation(FtpTraceLevel level) {
@@ -177,20 +210,6 @@ namespace FluentFTP {
 				default:
 					return TraceEventType.Verbose;
 			}
-		}
-
-		private static string TraceLevelPrefix(FtpTraceLevel level) {
-			switch (level) {
-				case FtpTraceLevel.Verbose:
-					return "Status:   ";
-				case FtpTraceLevel.Info:
-					return "Status:   ";
-				case FtpTraceLevel.Warn:
-					return "Warning:  ";
-				case FtpTraceLevel.Error:
-					return "Error:    ";
-			}
-			return "Status:   ";
 		}
 
 		static object traceSync = new object();

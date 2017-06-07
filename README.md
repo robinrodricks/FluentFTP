@@ -413,9 +413,11 @@ Please access these static methods directly under the `FtpClient` class.
 
 Please see these [FAQ entries](#faq_trace) for help on logging & debugging.
 
-- FtpTrace.**Functions** - Log all high-level function calls. **Default:** true.
+- FtpTrace.**LogFunctions** - Log all high-level function calls. **Default:** true.
 
-- FtpTrace.**Prefix** - Log all messages prefixed with "FluentFTP". **Default:** false.
+- FtpTrace.**LogIP** - Include server IP addresses in logs? **Default:** true.
+
+- FtpTrace.**LogPrefix** - Log all messages prefixed with "FluentFTP". **Default:** false.
 
 - FtpTrace.**FlushOnWrite** - Flush trace listeners after writing each command. **Default:** true.
 
@@ -685,7 +687,7 @@ This is the recommended configuration for a production server.
 
 Do this at program startup (since its static it takes effect for all FtpClient instances.)
 ```cs
-FtpTrace.Functions = false;
+FtpTrace.LogFunctions = false;
 FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"){
 	Filter = new EventTypeFilter(SourceLevels.Error)
 });
@@ -697,8 +699,17 @@ FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"){
 
 Do this at program startup (since its static it takes effect for all FtpClient instances.)
 ```cs
-FtpTrace.Functions = false;
+FtpTrace.LogFunctions = false;
 ```
+
+
+<a name="faq_hidelog"></a>
+**How do I omit sensitive information from the logs?**
+
+Use these settings to control what data is included in the logs:
+- `FtpTrace.LogUserName` - Log FTP user names?
+- `FtpTrace.LogPassword` - Log FTP passwords?
+- `FtpTrace.LogIP` - Log FTP server IP addresses?
 
 
 <a name="faq_log"></a>
@@ -1025,7 +1036,8 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 ## Release Notes
 
 #### 17.4.3
-- Add logging for high-level function calls to improve remote debugging (FtpTrace.Functions)
+- Add logging for high-level function calls to improve remote debugging (FtpTrace.LogFunctions)
+- Add settings to hide sensitive data from logs (FtpTrace.LogIP, LogUserName, LogPassword)
 
 #### 17.4.2
 - Add UploadRateLimit and DownloadRateLimit to control the speed of data transfer (thanks [Danie-Brink](https://github.com/Danie-Brink))
