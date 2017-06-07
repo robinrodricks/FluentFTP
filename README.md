@@ -413,9 +413,11 @@ Please access these static methods directly under the `FtpClient` class.
 
 Please see these [FAQ entries](#faq_trace) for help on logging & debugging.
 
-- FtpTrace.**FlushOnWrite** - Flush trace listeners after writing each command. **Default:** true.
+- FtpTrace.**Functions** - Log all high-level function calls. **Default:** true.
 
 - FtpTrace.**Prefix** - Log all messages prefixed with "FluentFTP". **Default:** false.
+
+- FtpTrace.**FlushOnWrite** - Flush trace listeners after writing each command. **Default:** true.
 
 - FtpTrace.**AddListener** - Add a logger to the system. [Learn more](#faq_trace)
 
@@ -681,6 +683,7 @@ FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"));
 
 Do this at program startup (since its static it takes effect for all FtpClient instances.)
 ```cs
+FtpTrace.Functions = false;
 FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"){
 	Filter = new EventTypeFilter(SourceLevels.Error)
 });
@@ -1009,6 +1012,9 @@ When doing a large number of transfers, one needs to be aware of some inherit is
 This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is signaled by closing the connection. On downloads and file listings, the sockets being used on the server will stay in the TIME WAIT state because the server closes the socket when it's done sending the data. On uploads, the client sockets will go into the TIME WAIT state because the client closes the connection to signal EOF to the server.
 
 ## Release Notes
+
+#### 17.4.3
+- Add logging for high-level function calls to improve remote debugging (FtpTrace.Functions)
 
 #### 17.4.2
 - Add UploadRateLimit and DownloadRateLimit to control the speed of data transfer (thanks [Danie-Brink](https://github.com/Danie-Brink))
