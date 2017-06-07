@@ -87,6 +87,9 @@ namespace FluentFTP {
 		/// <param name="dateModified">Get the accurate modified date using another MDTM command</param>
 		/// <returns>A FtpListItem object</returns>
 		public FtpListItem GetObjectInfo(string path, bool dateModified = false) {
+
+			FtpTrace.WriteFunc("GetObjectInfo", new object[] { path, dateModified });
+
 			FtpReply reply;
 			string[] res;
 
@@ -252,6 +255,9 @@ namespace FluentFTP {
 		/// <returns>An array of FtpListItem objects</returns>
 		/// <example><code source="..\Examples\GetListing.cs" lang="cs" /></example>
 		public FtpListItem[] GetListing(string path, FtpListOption options) {
+
+			FtpTrace.WriteFunc("GetListing", new object[] { path, options });
+
 			FtpListItem item = null;
 			List<FtpListItem> lst = new List<FtpListItem>();
 			List<string> rawlisting = new List<string>();
@@ -570,6 +576,9 @@ namespace FluentFTP {
 		/// <returns>A string array of file and directory names if any were returned.</returns>
 		/// <example><code source="..\Examples\GetNameListing.cs" lang="cs" /></example>
 		public string[] GetNameListing(string path) {
+
+			FtpTrace.WriteFunc("GetNameListing", new object[] { path });
+
 			List<string> listing = new List<string>();
 
 			// calc path to request

@@ -645,9 +645,6 @@ namespace FluentFTP {
 				throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.");
 
 			for (int i = 0; i < addresses.Length; i++) {
-#if DEBUG
-				FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Checking : " + addresses[i].AddressFamily + ": " + addresses[i].ToString());
-#endif
 				// we don't need to do this check unless
 				// a particular version of IP has been
 				// omitted so we won't.
@@ -671,6 +668,8 @@ namespace FluentFTP {
 							break;
 					}
 				}
+
+				FtpTrace.WriteStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
 
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 #if CORE

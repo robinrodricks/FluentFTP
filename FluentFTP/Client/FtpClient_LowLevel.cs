@@ -438,6 +438,9 @@ namespace FluentFTP {
 		/// <returns>A stream for reading the file on the server</returns>
 		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
 		public virtual Stream OpenRead(string path, FtpDataType type, long restart) {
+
+			FtpTrace.WriteFunc("OpenRead", new object[]{path, type, restart});
+
 			FtpClient client = null;
 			FtpDataStream stream = null;
 			long length = 0;
@@ -619,6 +622,9 @@ namespace FluentFTP {
 		/// <returns>A stream for writing to the file on the server</returns>
 		/// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
 		public virtual Stream OpenWrite(string path, FtpDataType type) {
+
+			FtpTrace.WriteFunc("OpenWrite", new object[] { path, type });
+
 			FtpClient client = null;
 			FtpDataStream stream = null;
 			long length = 0;
@@ -739,6 +745,9 @@ namespace FluentFTP {
 		/// <returns>A stream for writing to the file on the server</returns>
 		/// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
 		public virtual Stream OpenAppend(string path, FtpDataType type) {
+
+			FtpTrace.WriteFunc("OpenAppend", new object[] { path, type });
+
 			FtpClient client = null;
 			FtpDataStream stream = null;
 			long length = 0;

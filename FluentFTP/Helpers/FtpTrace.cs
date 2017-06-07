@@ -42,6 +42,20 @@ namespace FluentFTP {
 			}
 		}
 
+		static bool m_functions = true;
+
+		/// <summary>
+		/// Should the function calls be logged in Verbose mode?
+		/// </summary>
+		public static bool Functions {
+			get {
+				return m_functions;
+			}
+			set {
+				m_functions = value;
+			}
+		}
+
 
 		/// <summary>
 		/// Add a TraceListner to the collection. You can use one of the predefined
@@ -102,6 +116,18 @@ namespace FluentFTP {
 		/// <param name="message">The message to write</param>
 		public static void WriteStatus(FtpTraceLevel eventType, object message) {
 			Write(eventType, TraceLevelPrefix(eventType) + message.ToString());
+		}
+
+		/// <summary>
+		/// Write to the TraceListeners, for the purpose of logging a API function call
+		/// </summary>
+		/// <param name="function">The name of the API function</param>
+		/// <param name="args">The args passed to the function</param>
+		public static void WriteFunc(string function, object[] args = null) {
+			if (m_functions) {
+				Write(FtpTraceLevel.Verbose, "");
+				Write(FtpTraceLevel.Verbose, "# " + function + "(" + args.ItemsToString().Join(", ") + ")");
+			}
 		}
 
 

@@ -86,6 +86,9 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			lock (m_lock) {
+
+				FtpTrace.WriteFunc("DeleteFile", new object[] { path });
+
 				if (!(reply = Execute("DELE " + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
 			}
@@ -145,6 +148,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the directory to delete</param>
 		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
 		public void DeleteDirectory(string path) {
+			FtpTrace.WriteFunc("DeleteDirectory", new object[] { path });
 			DeleteDirInternal(path, true, FtpListOption.ForceList | FtpListOption.Recursive);
 		}
 
@@ -155,6 +159,7 @@ namespace FluentFTP {
 		/// <param name="options">Useful to delete hidden files or dot-files.</param>
 		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
 		public void DeleteDirectory(string path, FtpListOption options) {
+			FtpTrace.WriteFunc("DeleteDirectory", new object[] { path, options });
 			DeleteDirInternal(path, true, FtpListOption.ForceList | FtpListOption.Recursive);
 		}
 
@@ -342,6 +347,8 @@ namespace FluentFTP {
 		public bool DirectoryExists(string path) {
 			string pwd;
 
+			FtpTrace.WriteFunc("DirectoryExists", new object[] { path });
+
 			// quickly check if root path, then it always exists!
 			string ftppath = path.GetFtpPath();
 			if (ftppath == "." || ftppath == "./" || ftppath == "/") {
@@ -434,6 +441,8 @@ namespace FluentFTP {
 		public bool FileExists(string path) {
 
 			lock (m_lock) {
+
+				FtpTrace.WriteFunc("FileExists", new object[] { path });
 
 				// calc the absolute filepath
 				path = GetAbsolutePath(path.GetFtpPath());
@@ -552,6 +561,9 @@ namespace FluentFTP {
 		/// <param name="force">Try to force all non-existent pieces of the path to be created</param>
 		/// <example><code source="..\Examples\CreateDirectory.cs" lang="cs" /></example>
 		public void CreateDirectory(string path, bool force) {
+
+			FtpTrace.WriteFunc("CreateDirectory", new object[] { path, force });
+
 			FtpReply reply;
 			string ftppath = path.GetFtpPath();
 
@@ -662,6 +674,8 @@ namespace FluentFTP {
 
 			lock (m_lock) {
 
+				FtpTrace.WriteFunc("Rename", new object[] { path, dest });
+
 				// calc the absolute filepaths
 				path = GetAbsolutePath(path.GetFtpPath());
 				dest = GetAbsolutePath(dest.GetFtpPath());
@@ -737,6 +751,9 @@ namespace FluentFTP {
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
 		/// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
 		public bool MoveFile(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
+
+			FtpTrace.WriteFunc("MoveFile", new object[] { path, dest, existsMode });
+
 			if (FileExists(path)) {
 
 				// check if dest file exists and act accordingly
@@ -824,6 +841,9 @@ namespace FluentFTP {
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
 		/// <param name="existsMode">Should we check if the dest directory exists? And if it does should we overwrite/skip the operation?</param>
 		public bool MoveDirectory(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
+
+			FtpTrace.WriteFunc("MoveDirectory", new object[] { path, dest, existsMode });
+			
 			if (DirectoryExists(path)) {
 
 				// check if dest directory exists and act accordingly
@@ -915,6 +935,9 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			lock (m_lock) {
+
+				FtpTrace.WriteFunc("SetFilePermissions", new object[] { path, permissions });
+
 				if (!(reply = Execute("SITE CHMOD " + permissions.ToString() + " " + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
 			}
@@ -971,6 +994,9 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the item</param>
 		public FtpListItem GetFilePermissions(string path) {
+
+			FtpTrace.WriteFunc("GetFilePermissions", new object[] { path });
+
 			string fullPath = path.GetFtpPath();
 			foreach (FtpListItem i in GetListing(path)) {
 				if (i.FullName == fullPath) {
@@ -1016,6 +1042,9 @@ namespace FluentFTP {
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
 		/// <example><code source="..\Examples\DereferenceLink.cs" lang="cs" /></example>
 		public FtpListItem DereferenceLink(FtpListItem item, int recMax) {
+
+			FtpTrace.WriteFunc("DereferenceLink", new object[] { item.FullName, recMax });
+
 			int count = 0;
 			return DereferenceLink(item, recMax, ref count);
 		}
@@ -1147,6 +1176,9 @@ namespace FluentFTP {
 		/// <param name="path">The path of the directory to change to</param>
 		/// <example><code source="..\Examples\SetWorkingDirectory.cs" lang="cs" /></example>
 		public void SetWorkingDirectory(string path) {
+
+			FtpTrace.WriteFunc("SetWorkingDirectory", new object[] { path });
+
 			FtpReply reply;
 			string ftppath = path.GetFtpPath();
 
@@ -1213,6 +1245,9 @@ namespace FluentFTP {
 		/// <returns>The current working directory, ./ if the response couldn't be parsed.</returns>
 		/// <example><code source="..\Examples\GetWorkingDirectory.cs" lang="cs" /></example>
 		public string GetWorkingDirectory() {
+
+			FtpTrace.WriteFunc("GetWorkingDirectory");
+
 			FtpReply reply;
 			Match m;
 
@@ -1289,6 +1324,9 @@ namespace FluentFTP {
 		/// <returns>-1 if the command fails, otherwise the file size</returns>
 		/// <example><code source="..\Examples\GetFileSize.cs" lang="cs" /></example>
 		public virtual long GetFileSize(string path) {
+
+			FtpTrace.WriteFunc("GetFileSize", new object[] { path });
+
 			FtpReply reply;
 			long length = 0;
 
@@ -1360,6 +1398,9 @@ namespace FluentFTP {
 		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
 		/// <example><code source="..\Examples\GetModifiedTime.cs" lang="cs" /></example>
 		public virtual DateTime GetModifiedTime(string path) {
+
+			FtpTrace.WriteFunc("GetModifiedTime", new object[] { path });
+
 			DateTime modify = DateTime.MinValue;
 			FtpReply reply;
 

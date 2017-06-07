@@ -754,6 +754,7 @@ namespace FluentFTP {
 				if (IsDisposed)
 					return;
 
+				FtpTrace.WriteFunc("Dispose");
 				FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Disposing FtpClient object...");
 
 				try {
@@ -1022,6 +1023,9 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			lock (m_lock) {
+
+				FtpTrace.WriteFunc("Connect");
+
 				if (IsDisposed)
 					throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
 

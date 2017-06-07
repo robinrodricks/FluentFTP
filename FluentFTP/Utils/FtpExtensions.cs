@@ -289,6 +289,21 @@ namespace FluentFTP {
 			return results;
 		}
 
+		/// <summary>
+		/// Adds a prefix to the given strings, returns a new array.
+		/// </summary>
+		public static List<string> ItemsToString(this object[] args) {
+			List<string> results = new List<string>();
+			if (args == null) {
+				return results;
+			}
+			foreach (object v in args) {
+				string txt = v is string ? ("\"" + v as string + "\"") : v.ToString();
+				results.Add(txt);
+			}
+			return results;
+		}
+
 #if NET2
 		public static bool HasFlag(this FtpVerify flags, FtpVerify flag) {
 			return (flags & flag) == flag;
