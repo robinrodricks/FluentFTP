@@ -1015,40 +1015,41 @@ namespace FluentFTP {
 				if (m_stream == null) {
 					m_stream = new FtpSocketStream();
 					m_stream.ValidateCertificate += new FtpSocketStreamSslValidation(FireValidateCertficate);
-				} else
-					if (IsConnected)
+				} else {
+					if (IsConnected) {
 						Disconnect();
+					}
+				}
 
-				if (Host == null)
+				if (Host == null) {
 					throw new FtpException("No host has been specified");
+				}
 
-				if (!IsClone)
+				if (!IsClone) {
 					m_caps = FtpCapability.NONE;
+				}
 
 				m_hashAlgorithms = FtpHashAlgorithm.NONE;
 				m_stream.ConnectTimeout = m_connectTimeout;
 				m_stream.SocketPollInterval = m_socketPollInterval;
 				Connect(m_stream);
 
-				m_stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket,
-					System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);
+				m_stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
 #if !NO_SSL
-				if (EncryptionMode == FtpEncryptionMode.Implicit)
-					m_stream.ActivateEncryption(Host,
-						m_clientCerts.Count > 0 ? m_clientCerts : null,
-						m_SslProtocols);
+				if (EncryptionMode == FtpEncryptionMode.Implicit) {
+					m_stream.ActivateEncryption(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
+				}
 #endif
 
 				Handshake();
 
 #if !NO_SSL
 				if (EncryptionMode == FtpEncryptionMode.Explicit) {
-					if (!(reply = Execute("AUTH TLS")).Success)
+					if (!(reply = Execute("AUTH TLS")).Success) {
 						throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
-					m_stream.ActivateEncryption(Host,
-						m_clientCerts.Count > 0 ? m_clientCerts : null,
-						m_SslProtocols);
+					}
+					m_stream.ActivateEncryption(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
 				}
 #endif
 
@@ -1063,10 +1064,8 @@ namespace FluentFTP {
 						throw new FtpCommandException(reply);
 				}
 
-				// if this is a clone these values
-				// should have already been loaded
-				// so save some bandwidth and CPU
-				// time and skip executing this again.
+				// if this is a clone these values should have already been loaded
+				// so save some bandwidth and CPU time and skip executing this again.
 				if (!IsClone) {
 					if ((reply = Execute("FEAT")).Success && reply.InfoMessages != null) {
 						GetFeatures(reply);
@@ -1247,6 +1246,35 @@ namespace FluentFTP {
 		
 		#endregion
 
+		#region Authenticate / Login
+
+		/// <summary>
+		/// Performs a login on the server. This method is overridable so
+		/// that the login procedure can be changed to support, for example,
+		/// a FTP proxy.
+		/// </summary>
+		protected virtual void Authenticate() {
+			Authenticate(Credentials.UserName, Credentials.Password);
+		}
+
+		/// <summary>
+		/// Performs a login on the server. This method is overridable so
+		/// that the login procedure can be changed to support, for example,
+		/// a FTP proxy.
+		/// </summary>
+		protected virtual void Authenticate(string userName, string password) {
+			FtpReply reply;
+
+			if (!(reply = Execute("USER " + userName)).Success)
+				throw new FtpCommandException(reply);
+
+			if (reply.Type == FtpResponseType.PositiveIntermediate
+				&& !(reply = Execute("PASS " + password)).Success)
+				throw new FtpCommandException(reply);
+		}
+
+		#endregion
+
 		#region Disconnect
 
 		/// <summary>
@@ -1320,31 +1348,6 @@ namespace FluentFTP {
 		#endregion
 
 		#region FTPS
-
-		/// <summary>
-		/// Performs a login on the server. This method is overridable so
-		/// that the login procedure can be changed to support, for example,
-		/// a FTP proxy.
-		/// </summary>
-		protected virtual void Authenticate() {
-			Authenticate(Credentials.UserName, Credentials.Password);
-		}
-
-		/// <summary>
-		/// Performs a login on the server. This method is overridable so
-		/// that the login procedure can be changed to support, for example,
-		/// a FTP proxy.
-		/// </summary>
-		protected virtual void Authenticate(string userName, string password) {
-			FtpReply reply;
-
-			if (!(reply = Execute("USER " + userName)).Success)
-				throw new FtpCommandException(reply);
-
-			if (reply.Type == FtpResponseType.PositiveIntermediate
-				&& !(reply = Execute("PASS " + password)).Success)
-				throw new FtpCommandException(reply);
-		}
 
 		/// <summary>
 		/// Catches the socket stream ssl validation event and fires the event handlers

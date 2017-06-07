@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP {
+
 	/// <summary>
 	/// Base class for data stream connections
 	/// </summary>
