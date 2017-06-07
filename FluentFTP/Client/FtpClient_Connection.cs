@@ -898,7 +898,7 @@ namespace FluentFTP {
 				}
 
 				string commandTxt = command.StartsWith("PASS") ? "PASS <omitted>" : command;
-				FtpTrace.WriteLine(FtpTraceLevel.Info, "Command : " + commandTxt);
+				FtpTrace.WriteLine(FtpTraceLevel.Info, "Command: " + commandTxt);
 				
 				m_stream.WriteLine(m_textEncoding, command);
 				reply = GetReply();
@@ -990,12 +990,17 @@ namespace FluentFTP {
 
 				// log response code + message
 				if (reply.Code != null) {
-					FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Response : " + reply.Code + " " + reply.Message);
+					FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Response: " + reply.Code + " " + reply.Message);
 				}
 
-				// log response
-				if (reply.InfoMessages.Trim().Length > 0) {
-					FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Response : " + reply.InfoMessages);
+				// log multiline response messages
+				if (reply.InfoMessages != null) {
+					reply.InfoMessages = reply.InfoMessages.Trim();
+				}
+				if (!string.IsNullOrEmpty(reply.InfoMessages)) {
+					FtpTrace.WriteLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+					FtpTrace.WriteLine(FtpTraceLevel.Verbose, reply.InfoMessages);
+					FtpTrace.WriteLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 				}
 			}
 

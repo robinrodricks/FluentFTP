@@ -646,7 +646,7 @@ namespace FluentFTP {
 
 			for (int i = 0; i < addresses.Length; i++) {
 #if DEBUG
-				FtpTrace.WriteLine(FtpTraceLevel.Verbose, addresses[i].AddressFamily + ": " + addresses[i].ToString());
+				FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Checking : " + addresses[i].AddressFamily + ": " + addresses[i].ToString());
 #endif
 				// we don't need to do this check unless
 				// a particular version of IP has been
@@ -680,10 +680,10 @@ namespace FluentFTP {
 				if (!ar.AsyncWaitHandle.WaitOne(m_connectTimeout, true)) {
 					Close();
 
-					// check to see if we're out of addresses
-					// and if we are throw a TimeoutException
-					if (i + 1 == addresses.Length)
+					// check to see if we're out of addresses, and throw a TimeoutException
+					if ((i + 1) == addresses.Length) {
 						throw new TimeoutException("Timed out trying to connect!");
+					}
 				} else {
 					m_socket.EndConnect(ar);
 					// we got a connection, break out

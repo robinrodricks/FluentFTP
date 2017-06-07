@@ -364,7 +364,7 @@ namespace FluentFTP {
 						if (isIncludeSelf || !(item.Name == "." || item.Name == "..")) {
 							lst.Add(item);
 						} else {
-							FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Skipped self or parent item: " + item.Name);
+							//FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Skipped self or parent item: " + item.Name);
 						}
 					} else {
 						FtpTrace.WriteLine(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
