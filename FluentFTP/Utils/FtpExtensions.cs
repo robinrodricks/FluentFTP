@@ -248,6 +248,9 @@ namespace FluentFTP {
 			return true;
 		}
 
+		/// <summary>
+		/// Adds a prefix to the given strings, returns a new array.
+		/// </summary>
 		public static List<string> AddPrefix(this string[] values, string prefix) {
 			List<string> results = new List<string>();
 			foreach (string v in values) {
@@ -255,6 +258,9 @@ namespace FluentFTP {
 			}
 			return results;
 		}
+		/// <summary>
+		/// Adds a prefix to the given strings, returns a new array.
+		/// </summary>
 		public static List<string> AddPrefix(this List<string> values, string prefix) {
 			List<string> results = new List<string>();
 			foreach (string v in values) {
