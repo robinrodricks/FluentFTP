@@ -259,7 +259,11 @@ namespace FluentFTP {
 		/// Join the given strings by a delimiter.
 		/// </summary>
 		public static string Join(this List<string> values, string delimiter) {
+#if NET2
+			return string.Join(delimiter, values.ToArray());
+#else
 			return string.Join(delimiter, values);
+#endif
 		}
 
 		/// <summary>
