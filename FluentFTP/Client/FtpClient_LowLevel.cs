@@ -85,6 +85,9 @@ namespace FluentFTP {
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <returns>A data stream ready to be used</returns>
 		FtpDataStream OpenPassiveDataStream(FtpDataConnectionType type, string command, long restart) {
+
+			FtpTrace.WriteFunc("OpenPassiveDataStream", new object[] { type, command, restart });
+			
 			FtpDataStream stream = null;
 			FtpReply reply;
 			Match m;
@@ -186,6 +189,9 @@ namespace FluentFTP {
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <returns>A data stream ready to be used</returns>
 		FtpDataStream OpenActiveDataStream(FtpDataConnectionType type, string command, long restart) {
+
+			FtpTrace.WriteFunc("OpenActiveDataStream", new object[] { type, command, restart });
+			
 			FtpDataStream stream = new FtpDataStream(this);
 			FtpReply reply;
 #if !CORE
@@ -311,6 +317,7 @@ namespace FluentFTP {
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <returns>The data stream.</returns>
 		FtpDataStream OpenDataStream(string command, long restart) {
+
 			FtpDataConnectionType type = m_dataConnectionType;
 			FtpDataStream stream = null;
 
@@ -361,6 +368,9 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="stream">The data stream to close</param>
 		internal FtpReply CloseDataStream(FtpDataStream stream) {
+
+			FtpTrace.WriteFunc("CloseDataStream");
+			
 			FtpReply reply = new FtpReply();
 
 			if (stream == null)
