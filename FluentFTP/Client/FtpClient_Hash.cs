@@ -547,7 +547,7 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region File Checksum - MD5
+		#region MD5
 		delegate string AsyncGetMD5(string path);
 
 		/// <summary>
@@ -631,7 +631,7 @@ namespace FluentFTP {
 #endif
 		#endregion
 
-		#region File Checksum - XCRC
+		#region XCRC
 
 
 		delegate string AsyncGetXCRC(string path);
@@ -707,7 +707,7 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region File Checksum - XMD5
+		#region XMD5
 		delegate string AsyncGetXMD5(string path);
 
 		/// <summary>
@@ -783,7 +783,7 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region File Checksum - XSHA1
+		#region XSHA1
 
 		delegate string AsyncGetXSHA1(string path);
 
@@ -861,7 +861,7 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region File Checksum - XSHA256
+		#region XSHA256
 
 		delegate string AsyncGetXSHA256(string path);
 
@@ -939,7 +939,7 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region File Checksum - XSHA512
+		#region XSHA512
 
 		delegate string AsyncGetXSHA512(string path);
 

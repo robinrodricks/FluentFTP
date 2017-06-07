@@ -446,7 +446,11 @@ namespace FluentFTP {
 
 		private void PurgeSuccessfulDownloads(IEnumerable<string> localFiles) {
 			foreach (string localFile in localFiles) {
-				File.Delete(localFile);
+				// absorb any errors because we don't want this to throw more errors!
+				try {
+					File.Delete(localFile);
+				} catch (Exception ex) {
+				}
 			}
 		}
 
@@ -827,6 +831,10 @@ namespace FluentFTP {
 			return await UploadAsync(fileData, remotePath, existsMode, createRemoteDir, CancellationToken.None);
 		}
 #endif
+
+		#endregion
+
+		#region Upload File Internal
 
 		/// <summary>
 		/// Upload the given stream to the server as a new file. Overwrites the file if it exists.
@@ -1440,6 +1448,10 @@ namespace FluentFTP {
 			return await DownloadAsync(remotePath, CancellationToken.None);
 		}
 #endif
+
+		#endregion
+
+		#region Download File Internal
 
 		/// <summary>
 		/// Download a file from the server and write the data into the given stream.

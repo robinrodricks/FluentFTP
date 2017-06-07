@@ -24,13 +24,7 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP {
-	/// <summary>
-	/// Event is fired when a SSL certificate needs to be validated
-	/// </summary>
-	/// <param name="control">The control connection that triggered the event</param>
-	/// <param name="e">Event args</param>
-	public delegate void FtpSslValidation(FtpClient control, FtpSslValidationEventArgs e);
-
+	
 	/// <summary>
 	/// FTP Control Connection. Speaks the FTP protocol with the server and
 	/// provides facilities for performing transactions.
@@ -1246,7 +1240,7 @@ namespace FluentFTP {
 		
 		#endregion
 
-		#region Authenticate / Login
+		#region Login
 
 		/// <summary>
 		/// Performs a login on the server. This method is overridable so
