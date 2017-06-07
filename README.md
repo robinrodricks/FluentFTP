@@ -417,6 +417,10 @@ Please see these [FAQ entries](#faq_trace) for help on logging & debugging.
 
 - FtpTrace.**LogIP** - Include server IP addresses in logs? **Default:** true.
 
+- FtpTrace.**LogUserName** - Include FTP usernames in logs? **Default:** true.
+
+- FtpTrace.**LogPassword** - Include FTP passwords in logs? **Default:** false.
+
 - FtpTrace.**LogPrefix** - Log all messages prefixed with "FluentFTP". **Default:** false.
 
 - FtpTrace.**FlushOnWrite** - Flush trace listeners after writing each command. **Default:** true.
