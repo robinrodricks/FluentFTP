@@ -90,19 +90,24 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Compile Include="FtpListParser.cs" />
-    <Compile Include="NET2Compatibility.cs" />
+    <Compile Include="Client\FtpClient_Listing.cs" />
+    <Compile Include="Client\FtpClient_Management.cs" />
+    <Compile Include="Client\FtpClient_Hash.cs" />
+    <Compile Include="Client\FtpClient_HighLevel.cs" />
+    <Compile Include="Client\FtpClient_LowLevel.cs" />
+    <Compile Include="Helpers\FtpListParser.cs" />
+    <Compile Include="Utils\NET2Compatibility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="FtpClient.cs" />
-    <Compile Include="FtpDataStream.cs" />
-    <Compile Include="FtpEnums.cs" />
-    <Compile Include="FtpExceptions.cs" />
-    <Compile Include="FtpExtensions.cs" />
-    <Compile Include="FtpHash.cs" />
-    <Compile Include="FtpListItem.cs" />
-    <Compile Include="FtpReply.cs" />
-    <Compile Include="FtpSocketStream.cs" />
-    <Compile Include="FtpTrace.cs" />
+    <Compile Include="Client\FtpClient_Connection.cs" />
+    <Compile Include="Helpers\FtpDataStream.cs" />
+    <Compile Include="Helpers\FtpEnums.cs" />
+    <Compile Include="Helpers\FtpExceptions.cs" />
+    <Compile Include="Utils\FtpExtensions.cs" />
+    <Compile Include="Helpers\FtpHash.cs" />
+    <Compile Include="Helpers\FtpListItem.cs" />
+    <Compile Include="Helpers\FtpReply.cs" />
+    <Compile Include="Helpers\FtpSocketStream.cs" />
+    <Compile Include="Helpers\FtpTrace.cs" />
     <Compile Include="Proxy\FtpClientHttp11Proxy.cs" />
     <Compile Include="Proxy\FtpClientProxy.cs" />
     <Compile Include="Proxy\FtpClientUserAtHostProxy.cs" />
@@ -112,4 +117,5 @@
     <None Include="FluentFTP.nuspec" />
     <None Include="sn.snk" />
   </ItemGroup>
+  <ItemGroup />
 </Project>
