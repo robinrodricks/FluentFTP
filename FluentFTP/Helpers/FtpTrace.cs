@@ -96,7 +96,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Write to the TraceListeners adding an automatic prefix based on the `eventType`
+		/// Write to the TraceListeners, adding an automatic prefix to the message based on the `eventType`
 		/// </summary>
 		/// <param name="eventType">The type of tracing event</param>
 		/// <param name="message">The message to write</param>
@@ -156,15 +156,15 @@ namespace FluentFTP {
 		private static string TraceLevelPrefix(FtpTraceLevel level) {
 			switch (level) {
 				case FtpTraceLevel.Verbose:
-					return "Status: ";
+					return "Status:   ";
 				case FtpTraceLevel.Info:
-					return "Status: ";
+					return "Status:   ";
 				case FtpTraceLevel.Warn:
-					return "Warning: ";
+					return "Warning:  ";
 				case FtpTraceLevel.Error:
-					return "Error: ";
+					return "Error:    ";
 			}
-			return "Status: ";
+			return "Status:   ";
 		}
 
 		static object traceSync = new object();

@@ -874,7 +874,7 @@ namespace FluentFTP {
 						// means we've been disconnected. Read and discard
 						// whatever is there and close the connection.
 
-						FtpTrace.WriteLine(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out or you did not call GetReply(). Re-connecting...");
+						FtpTrace.WriteStatus(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out or you did not call GetReply(). Re-connecting...");
 						if (m_stream.IsConnected && !m_stream.IsEncrypted) {
 							byte[] buf = new byte[m_stream.SocketDataAvailable];
 							m_stream.RawSocketRead(buf);
@@ -887,7 +887,7 @@ namespace FluentFTP {
 
 				if (!IsConnected) {
 					if (command == "QUIT") {
-						FtpTrace.WriteLine(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
+						FtpTrace.WriteStatus(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
 						return new FtpReply() {
 							Code = "200",
 							Message = "Connection already closed."
@@ -898,7 +898,7 @@ namespace FluentFTP {
 				}
 
 				string commandTxt = command.StartsWith("PASS") ? "PASS <omitted>" : command;
-				FtpTrace.WriteLine(FtpTraceLevel.Info, "Command: " + commandTxt);
+				FtpTrace.WriteLine(FtpTraceLevel.Info, "Command:  " + commandTxt);
 				
 				m_stream.WriteLine(m_textEncoding, command);
 				reply = GetReply();
@@ -999,7 +999,7 @@ namespace FluentFTP {
 				}
 				if (!string.IsNullOrEmpty(reply.InfoMessages)) {
 					//FtpTrace.WriteLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
-					FtpTrace.WriteLine(FtpTraceLevel.Verbose, string.Join("\n", reply.InfoMessages.Split('\n').AddPrefix("Response: ").ToArray()));
+					FtpTrace.WriteLine(FtpTraceLevel.Verbose, reply.InfoMessages.Split('\n').AddPrefix("Response: ", true).Join("\n"));
 					//FtpTrace.WriteLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 				}
 			}

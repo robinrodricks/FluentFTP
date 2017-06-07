@@ -249,22 +249,38 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Join the given strings by a delimiter.
+		/// </summary>
+		public static string Join(this string[] values, string delimiter) {
+			return string.Join(delimiter, values);
+		}
+
+		/// <summary>
+		/// Join the given strings by a delimiter.
+		/// </summary>
+		public static string Join(this List<string> values, string delimiter) {
+			return string.Join(delimiter, values);
+		}
+
+		/// <summary>
 		/// Adds a prefix to the given strings, returns a new array.
 		/// </summary>
-		public static List<string> AddPrefix(this string[] values, string prefix) {
+		public static string[] AddPrefix(this string[] values, string prefix, bool trim = false) {
 			List<string> results = new List<string>();
 			foreach (string v in values) {
-				results.Add(prefix + v);
+				string txt = prefix + (trim ? v.Trim() : v);
+				results.Add(txt);
 			}
-			return results;
+			return results.ToArray();
 		}
 		/// <summary>
 		/// Adds a prefix to the given strings, returns a new array.
 		/// </summary>
-		public static List<string> AddPrefix(this List<string> values, string prefix) {
+		public static List<string> AddPrefix(this List<string> values, string prefix, bool trim = false) {
 			List<string> results = new List<string>();
 			foreach (string v in values) {
-				results.Add(prefix + v);
+				string txt = prefix + (trim ? v.Trim() : v);
+				results.Add(txt);
 			}
 			return results;
 		}

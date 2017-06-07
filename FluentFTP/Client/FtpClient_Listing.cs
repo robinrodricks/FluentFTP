@@ -314,7 +314,7 @@ namespace FluentFTP {
 						while ((buf = stream.ReadLine(Encoding)) != null) {
 							if (buf.Length > 0) {
 								rawlisting.Add(buf);
-								FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Listing: " + buf);
+								FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
 							}
 						}
 						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "-----------------------------------------");
