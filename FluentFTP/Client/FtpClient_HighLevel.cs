@@ -450,6 +450,7 @@ namespace FluentFTP {
 				try {
 					File.Delete(localFile);
 				} catch (Exception ex) {
+					FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient : Exception caught and discarded while attempting to delete file '"+localFile+"' : " + ex.ToString());
 				}
 			}
 		}

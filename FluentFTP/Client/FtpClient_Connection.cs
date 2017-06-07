@@ -859,41 +859,6 @@ namespace FluentFTP {
 		#region Execute Command
 
 		/// <summary>
-		/// Retrieves a reply from the server. Do not execute this method
-		/// unless you are sure that a reply has been sent, i.e., you
-		/// executed a command. Doing so will cause the code to hang
-		/// indefinitely waiting for a server reply that is never coming.
-		/// </summary>
-		/// <returns>FtpReply representing the response from the server</returns>
-		/// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
-		public FtpReply GetReply() {
-			FtpReply reply = new FtpReply();
-			string buf;
-
-			lock (m_lock) {
-				if (!IsConnected)
-					throw new InvalidOperationException("No connection to the server has been established.");
-
-				m_stream.ReadTimeout = m_readTimeout;
-				while ((buf = m_stream.ReadLine(Encoding)) != null) {
-					Match m;
-
-					FtpTrace.WriteLine(FtpTraceLevel.Verbose, buf);
-
-					if ((m = Regex.Match(buf, "^(?<code>[0-9]{3}) (?<message>.*)$")).Success) {
-						reply.Code = m.Groups["code"].Value;
-						reply.Message = m.Groups["message"].Value;
-						break;
-					}
-
-					reply.InfoMessages += (buf + "\n");
-				}
-			}
-
-			return reply;
-		}
-
-		/// <summary>
 		/// Executes a command
 		/// </summary>
 		/// <param name="command">The command to execute</param>
@@ -909,12 +874,11 @@ namespace FluentFTP {
 						// means we've been disconnected. Read and discard
 						// whatever is there and close the connection.
 
-						FtpTrace.WriteLine(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out. Re-connecting.");
+						FtpTrace.WriteLine(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out or you did not call GetReply(). Re-connecting...");
 						if (m_stream.IsConnected && !m_stream.IsEncrypted) {
 							byte[] buf = new byte[m_stream.SocketDataAvailable];
 							m_stream.RawSocketRead(buf);
-							FtpTrace.Write(FtpTraceLevel.Verbose, "The data was: ");
-							FtpTrace.WriteLine(FtpTraceLevel.Verbose, Encoding.GetString(buf).TrimEnd('\r', '\n'));
+							FtpTrace.Write(FtpTraceLevel.Verbose, "The data was: " + Encoding.GetString(buf).TrimEnd('\r', '\n'));
 						}
 
 						m_stream.Close();
@@ -933,7 +897,9 @@ namespace FluentFTP {
 					Connect();
 				}
 
-				FtpTrace.WriteLine(FtpTraceLevel.Info, command.StartsWith("PASS") ? "PASS <omitted>" : command);
+				string commandTxt = command.StartsWith("PASS") ? "PASS <omitted>" : command;
+				FtpTrace.WriteLine(FtpTraceLevel.Info, "Command : " + commandTxt);
+				
 				m_stream.WriteLine(m_textEncoding, command);
 				reply = GetReply();
 			}
@@ -987,6 +953,54 @@ namespace FluentFTP {
 				command, null);
 		}
 #endif
+
+		#endregion
+
+		#region Get Reply
+
+		/// <summary>
+		/// Retrieves a reply from the server. Do not execute this method
+		/// unless you are sure that a reply has been sent, i.e., you
+		/// executed a command. Doing so will cause the code to hang
+		/// indefinitely waiting for a server reply that is never coming.
+		/// </summary>
+		/// <returns>FtpReply representing the response from the server</returns>
+		/// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
+		public FtpReply GetReply() {
+			FtpReply reply = new FtpReply();
+			string buf;
+
+			lock (m_lock) {
+				if (!IsConnected)
+					throw new InvalidOperationException("No connection to the server has been established.");
+
+				m_stream.ReadTimeout = m_readTimeout;
+				while ((buf = m_stream.ReadLine(Encoding)) != null) {
+					Match m;
+
+
+					if ((m = Regex.Match(buf, "^(?<code>[0-9]{3}) (?<message>.*)$")).Success) {
+						reply.Code = m.Groups["code"].Value;
+						reply.Message = m.Groups["message"].Value;
+						break;
+					}
+
+					reply.InfoMessages += (buf + "\n");
+				}
+
+				// log response code + message
+				if (reply.Code != null) {
+					FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Response : " + reply.Code + " " + reply.Message);
+				}
+
+				// log response
+				if (reply.InfoMessages.Trim().Length > 0) {
+					FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Response : " + reply.InfoMessages);
+				}
+			}
+
+			return reply;
+		}
 
 		#endregion
 
