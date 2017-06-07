@@ -681,12 +681,23 @@ FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"));
 <a name="faq_logfile2"></a>
 **How do I log only critical errors to a file?**
 
+This is the recommended configuration for a production server.
+
 Do this at program startup (since its static it takes effect for all FtpClient instances.)
 ```cs
 FtpTrace.Functions = false;
 FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"){
 	Filter = new EventTypeFilter(SourceLevels.Error)
 });
+```
+
+
+<a name="faq_logfunc"></a>
+**How do I disable logging of function calls?**
+
+Do this at program startup (since its static it takes effect for all FtpClient instances.)
+```cs
+FtpTrace.Functions = false;
 ```
 
 
