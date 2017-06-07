@@ -760,7 +760,7 @@ namespace FluentFTP {
 				if (IsDisposed)
 					return;
 
-				FtpTrace.WriteLine(FtpTraceLevel.Debug, "Disposing FtpClient object...");
+				FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Disposing FtpClient object...");
 
 				try {
 					if (IsConnected) {
@@ -884,7 +884,7 @@ namespace FluentFTP {
 				while ((buf = m_stream.ReadLine(Encoding)) != null) {
 					Match m;
 
-					FtpTrace.WriteLine(FtpTraceLevel.Debug, buf);
+					FtpTrace.WriteLine(FtpTraceLevel.Verbose, buf);
 
 					if ((m = Regex.Match(buf, "^(?<code>[0-9]{3}) (?<message>.*)$")).Success) {
 						reply.Code = m.Groups["code"].Value;
@@ -919,8 +919,8 @@ namespace FluentFTP {
 						if (m_stream.IsConnected && !m_stream.IsEncrypted) {
 							byte[] buf = new byte[m_stream.SocketDataAvailable];
 							m_stream.RawSocketRead(buf);
-							FtpTrace.Write(FtpTraceLevel.Debug, "The data was: ");
-							FtpTrace.WriteLine(FtpTraceLevel.Debug, Encoding.GetString(buf).TrimEnd('\r', '\n'));
+							FtpTrace.Write(FtpTraceLevel.Verbose, "The data was: ");
+							FtpTrace.WriteLine(FtpTraceLevel.Verbose, Encoding.GetString(buf).TrimEnd('\r', '\n'));
 						}
 
 						m_stream.Close();
@@ -1493,8 +1493,8 @@ namespace FluentFTP {
 				if (m_stream.IsConnected && !m_stream.IsEncrypted) {
 					byte[] buf = new byte[m_stream.SocketDataAvailable];
 					m_stream.RawSocketRead(buf);
-					FtpTrace.Write(FtpTraceLevel.Debug, "The data was: ");
-					FtpTrace.WriteLine(FtpTraceLevel.Debug, Encoding.GetString(buf).TrimEnd('\r', '\n'));
+					FtpTrace.Write(FtpTraceLevel.Verbose, "The data was: ");
+					FtpTrace.WriteLine(FtpTraceLevel.Verbose, Encoding.GetString(buf).TrimEnd('\r', '\n'));
 				}
 			}
 		}

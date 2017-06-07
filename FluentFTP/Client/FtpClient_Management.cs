@@ -562,12 +562,12 @@ namespace FluentFTP {
 				path = path.GetFtpPath().TrimEnd('/');
 
 				if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
-					FtpTrace.WriteLine(FtpTraceLevel.Debug, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
+					FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
 					CreateDirectory(path.GetFtpDirectoryName(), true);
 				} else if (DirectoryExists(path))
 					return;
 
-				FtpTrace.WriteLine(FtpTraceLevel.Debug, "CreateDirectory " + ftppath);
+				FtpTrace.WriteLine(FtpTraceLevel.Verbose, "CreateDirectory " + ftppath);
 
 				if (!(reply = Execute("MKD " + ftppath)).Success)
 					throw new FtpCommandException(reply);

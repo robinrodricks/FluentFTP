@@ -92,7 +92,7 @@ namespace FluentFTP {
 					}
 
 					if (m_socketPollInterval > 0 && DateTime.Now.Subtract(m_lastActivity).TotalMilliseconds > m_socketPollInterval) {
-						FtpTrace.WriteLine(FtpTraceLevel.Debug, "Testing connectivity using Socket.Poll()...");
+						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Testing connectivity using Socket.Poll()...");
 						if (m_socket.Poll(500000, SelectMode.SelectRead) && m_socket.Available == 0) {
 							Close();
 							return false;
@@ -552,7 +552,7 @@ namespace FluentFTP {
 		/// Disposes the stream
 		/// </summary>
 		public new void Dispose() {
-			FtpTrace.WriteLine(FtpTraceLevel.Debug, "Disposing FtpSocketStream...");
+			FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Disposing FtpSocketStream...");
 			Close();
 		}
 
@@ -646,7 +646,7 @@ namespace FluentFTP {
 
 			for (int i = 0; i < addresses.Length; i++) {
 #if DEBUG
-				FtpTrace.WriteLine(FtpTraceLevel.Debug, addresses[i].AddressFamily + ": " + addresses[i].ToString());
+				FtpTrace.WriteLine(FtpTraceLevel.Verbose, addresses[i].AddressFamily + ": " + addresses[i].ToString());
 #endif
 				// we don't need to do this check unless
 				// a particular version of IP has been
@@ -656,7 +656,7 @@ namespace FluentFTP {
 						case AddressFamily.InterNetwork:
 							if ((ipVersions & FtpIpVersion.IPv4) != FtpIpVersion.IPv4) {
 #if DEBUG
-								FtpTrace.WriteLine(FtpTraceLevel.Debug, "SKIPPED!");
+								FtpTrace.WriteLine(FtpTraceLevel.Verbose, "SKIPPED!");
 #endif
 								continue;
 							}
@@ -664,7 +664,7 @@ namespace FluentFTP {
 						case AddressFamily.InterNetworkV6:
 							if ((ipVersions & FtpIpVersion.IPv6) != FtpIpVersion.IPv6) {
 #if DEBUG
-								FtpTrace.WriteLine(FtpTraceLevel.Debug, "SKIPPED!");
+								FtpTrace.WriteLine(FtpTraceLevel.Verbose, "SKIPPED!");
 #endif
 								continue;
 							}
@@ -772,7 +772,7 @@ namespace FluentFTP {
 
 				auth_time_total = DateTime.Now.Subtract(auth_start);
 				FtpTrace.WriteLine(FtpTraceLevel.Info, "FTPS Authentication Successful");
-				FtpTrace.WriteLine(FtpTraceLevel.Debug, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
+				FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
 
 			} catch (AuthenticationException) {
 				// authentication failed and in addition it left our 

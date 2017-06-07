@@ -491,7 +491,7 @@ namespace FluentFTP {
         /// <summary>
         /// Used for logging Debug or Verbose level messages
         /// </summary>
-        Debug,
+        Verbose,
         /// <summary>
         /// Used for logging Informational messages
         /// </summary>

@@ -313,7 +313,7 @@ namespace FluentFTP {
 						while ((buf = stream.ReadLine(Encoding)) != null) {
 							if (buf.Length > 0) {
 								rawlisting.Add(buf);
-								FtpTrace.WriteLine(FtpTraceLevel.Debug, buf);
+								FtpTrace.WriteLine(FtpTraceLevel.Verbose, buf);
 							}
 						}
 					} finally {
@@ -364,7 +364,7 @@ namespace FluentFTP {
 						if (isIncludeSelf || !(item.Name == "." || item.Name == "..")) {
 							lst.Add(item);
 						} else {
-							FtpTrace.WriteLine(FtpTraceLevel.Debug, "Skipped self or parent item: " + item.Name);
+							FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Skipped self or parent item: " + item.Name);
 						}
 					} else {
 						FtpTrace.WriteLine(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
@@ -391,7 +391,7 @@ namespace FluentFTP {
 							DateTime modify;
 
 							if (item.Type == FtpFileSystemObjectType.Directory)
-								FtpTrace.WriteLine(FtpTraceLevel.Debug, "Trying to retrieve modification time of a directory, some servers don't like this...");
+								FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Trying to retrieve modification time of a directory, some servers don't like this...");
 
 							if ((modify = GetModifiedTime(item.FullName)) != DateTime.MinValue)
 								item.Modified = modify;

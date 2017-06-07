@@ -665,7 +665,7 @@ namespace FluentFTP {
 						FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 						if (!verified && attemptsLeft > 0) {
 							//Force overwrite if a retry is required
-							FtpTrace.WriteLine(FtpTraceLevel.Debug, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
+							FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
 							existsMode = FtpExists.Overwrite;
 						}
 					}
@@ -704,7 +704,7 @@ namespace FluentFTP {
 						FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 						if (!verified && attemptsLeft > 0) {
 							//Force overwrite if a retry is required
-							FtpTrace.WriteLine(FtpTraceLevel.Debug, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
+							FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
 							existsMode = FtpExists.Overwrite;
 						}
 					}
@@ -1237,7 +1237,7 @@ namespace FluentFTP {
 					FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 #if DEBUG
 					if (!verified && attemptsLeft > 0) {
-						FtpTrace.WriteLine(FtpTraceLevel.Debug, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
 					}
 #endif
 				}
@@ -1330,7 +1330,7 @@ namespace FluentFTP {
 					FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 #if DEBUG
 					if (!verified && attemptsLeft > 0) {
-						FtpTrace.WriteLine(FtpTraceLevel.Debug, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
 					}
 #endif
 				}
