@@ -248,6 +248,21 @@ namespace FluentFTP {
 			return true;
 		}
 
+		public static List<string> AddPrefix(this string[] values, string prefix) {
+			List<string> results = new List<string>();
+			foreach (string v in values) {
+				results.Add(prefix + v);
+			}
+			return results;
+		}
+		public static List<string> AddPrefix(this List<string> values, string prefix) {
+			List<string> results = new List<string>();
+			foreach (string v in values) {
+				results.Add(prefix + v);
+			}
+			return results;
+		}
+
 #if NET2
 		public static bool HasFlag(this FtpVerify flags, FtpVerify flag) {
 			return (flags & flag) == flag;

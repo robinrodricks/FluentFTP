@@ -754,7 +754,7 @@ namespace FluentFTP {
 				if (IsDisposed)
 					return;
 
-				FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Disposing FtpClient object...");
+				FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Disposing FtpClient object...");
 
 				try {
 					if (IsConnected) {
@@ -990,7 +990,7 @@ namespace FluentFTP {
 
 				// log response code + message
 				if (reply.Code != null) {
-					FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Response: " + reply.Code + " " + reply.Message);
+					FtpTrace.WriteLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + reply.Message);
 				}
 
 				// log multiline response messages
@@ -998,9 +998,9 @@ namespace FluentFTP {
 					reply.InfoMessages = reply.InfoMessages.Trim();
 				}
 				if (!string.IsNullOrEmpty(reply.InfoMessages)) {
-					FtpTrace.WriteLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
-					FtpTrace.WriteLine(FtpTraceLevel.Verbose, reply.InfoMessages);
-					FtpTrace.WriteLine(FtpTraceLevel.Verbose, "-----------------------------------------");
+					//FtpTrace.WriteLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+					FtpTrace.WriteLine(FtpTraceLevel.Verbose, string.Join("\n", reply.InfoMessages.Split('\n').AddPrefix("Response: ").ToArray()));
+					//FtpTrace.WriteLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 				}
 			}
 
@@ -1090,7 +1090,7 @@ namespace FluentFTP {
 					m_textEncoding = Encoding.UTF8;
 				}
 
-				FtpTrace.WriteLine(FtpTraceLevel.Info, "Text encoding: " + m_textEncoding.ToString());
+				FtpTrace.WriteStatus(FtpTraceLevel.Info, "Text encoding: " + m_textEncoding.ToString());
 
 				if (m_textEncoding == Encoding.UTF8) {
 					// If the server supports UTF8 it should already be enabled and this
@@ -1301,13 +1301,13 @@ namespace FluentFTP {
 							Execute("QUIT");
 						}
 					} catch (SocketException sockex) {
-						FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Disconnect(): SocketException caught and discarded while closing control connection: " + sockex.ToString());
+						FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): SocketException caught and discarded while closing control connection: " + sockex.ToString());
 					} catch (IOException ioex) {
-						FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Disconnect(): IOException caught and discarded while closing control connection: " + ioex.ToString());
+						FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): IOException caught and discarded while closing control connection: " + ioex.ToString());
 					} catch (FtpCommandException cmdex) {
-						FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Disconnect(): FtpCommandException caught and discarded while closing control connection: " + cmdex.ToString());
+						FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): FtpCommandException caught and discarded while closing control connection: " + cmdex.ToString());
 					} catch (FtpException ftpex) {
-						FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient.Disconnect(): FtpException caught and discarded while closing control connection: " + ftpex.ToString());
+						FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): FtpException caught and discarded while closing control connection: " + ftpex.ToString());
 					} finally {
 						m_stream.Close();
 					}

@@ -110,7 +110,7 @@ namespace FluentFTP {
 						result = m_listParser.ParseSingleLine(null, info, m_caps, true);
 					}
 				} else {
-					FtpTrace.WriteLine(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " with error " + reply.ErrorMessage);
+					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " with error " + reply.ErrorMessage);
 				}
 			} else {
 
@@ -126,7 +126,7 @@ namespace FluentFTP {
 					}
 				}
 
-				FtpTrace.WriteLine(FtpTraceLevel.Warn, "Failed to get object info for path "+path+" since MLST not supported and GetListing() fails to list file/folder.");
+				FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Failed to get object info for path "+path+" since MLST not supported and GetListing() fails to list file/folder.");
 			}
 
 			// Get the accurate date modified using another MDTM command
@@ -310,12 +310,14 @@ namespace FluentFTP {
 				// read in raw file listing
 				using (FtpDataStream stream = OpenDataStream(listcmd, 0)) {
 					try {
+						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 						while ((buf = stream.ReadLine(Encoding)) != null) {
 							if (buf.Length > 0) {
 								rawlisting.Add(buf);
-								FtpTrace.WriteLine(FtpTraceLevel.Verbose, buf);
+								FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Listing: " + buf);
 							}
 						}
+						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 					} finally {
 						stream.Close();
 					}
@@ -364,10 +366,10 @@ namespace FluentFTP {
 						if (isIncludeSelf || !(item.Name == "." || item.Name == "..")) {
 							lst.Add(item);
 						} else {
-							//FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Skipped self or parent item: " + item.Name);
+							//FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Skipped self or parent item: " + item.Name);
 						}
 					} else {
-						FtpTrace.WriteLine(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
+						FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
 					}
 				}
 
@@ -391,7 +393,7 @@ namespace FluentFTP {
 							DateTime modify;
 
 							if (item.Type == FtpFileSystemObjectType.Directory)
-								FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Trying to retrieve modification time of a directory, some servers don't like this...");
+								FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Trying to retrieve modification time of a directory, some servers don't like this...");
 
 							if ((modify = GetModifiedTime(item.FullName)) != DateTime.MinValue)
 								item.Modified = modify;

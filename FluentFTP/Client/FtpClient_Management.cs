@@ -562,12 +562,12 @@ namespace FluentFTP {
 				path = path.GetFtpPath().TrimEnd('/');
 
 				if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
-					FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
+					FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
 					CreateDirectory(path.GetFtpDirectoryName(), true);
 				} else if (DirectoryExists(path))
 					return;
 
-				FtpTrace.WriteLine(FtpTraceLevel.Verbose, "CreateDirectory " + ftppath);
+				FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "CreateDirectory " + ftppath);
 
 				if (!(reply = Execute("MKD " + ftppath)).Success)
 					throw new FtpCommandException(reply);
@@ -1230,7 +1230,7 @@ namespace FluentFTP {
 				return m.Groups["pwd"].Value;
 			}
 
-			FtpTrace.WriteLine(FtpTraceLevel.Warn, "Failed to parse working directory from: " + reply.Message);
+			FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Failed to parse working directory from: " + reply.Message);
 
 			return "./";
 		}

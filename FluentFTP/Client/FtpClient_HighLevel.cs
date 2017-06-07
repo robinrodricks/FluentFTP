@@ -143,7 +143,7 @@ namespace FluentFTP {
 						break;
 					}
 				} catch (Exception ex) {
-					FtpTrace.WriteLine(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
+					FtpTrace.WriteStatus(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
 					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;
@@ -279,11 +279,11 @@ namespace FluentFTP {
 				} catch (Exception ex) {
 					if (ex is OperationCanceledException) {
 						//DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
-						FtpTrace.WriteLine(FtpTraceLevel.Info, "Upload cancellation requested");
+						FtpTrace.WriteStatus(FtpTraceLevel.Info, "Upload cancellation requested");
 						throw;
 					}
 					//suppress all other upload exceptions (errors are still written to FtpTrace)
-					FtpTrace.WriteLine(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
+					FtpTrace.WriteStatus(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
 					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;
@@ -396,7 +396,7 @@ namespace FluentFTP {
 						break;
 					}
 				} catch (Exception ex) {
-					FtpTrace.WriteLine(FtpTraceLevel.Error, "Failed to download " + remotePath + ". Error: " + ex);
+					FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to download " + remotePath + ". Error: " + ex);
 					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;
@@ -450,7 +450,7 @@ namespace FluentFTP {
 				try {
 					File.Delete(localFile);
 				} catch (Exception ex) {
-					FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpClient : Exception caught and discarded while attempting to delete file '"+localFile+"' : " + ex.ToString());
+					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpClient : Exception caught and discarded while attempting to delete file '"+localFile+"' : " + ex.ToString());
 				}
 			}
 		}
@@ -506,7 +506,7 @@ namespace FluentFTP {
 					}
 				} catch (Exception ex) {
 					if (ex is OperationCanceledException) {
-						FtpTrace.WriteLine(FtpTraceLevel.Info, "Download cancellation requested");
+						FtpTrace.WriteStatus(FtpTraceLevel.Info, "Download cancellation requested");
 						//DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
 						throw;
 					}
@@ -592,7 +592,7 @@ namespace FluentFTP {
 
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
-				FtpTrace.WriteLine(FtpTraceLevel.Error, "File does not exist.");
+				FtpTrace.WriteStatus(FtpTraceLevel.Error, "File does not exist.");
 				return false;
 			}
 
@@ -623,7 +623,7 @@ namespace FluentFTP {
 			FtpVerify verifyOptions, CancellationToken token) {
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
-				FtpTrace.WriteLine(FtpTraceLevel.Error, "File does not exist.");
+				FtpTrace.WriteStatus(FtpTraceLevel.Error, "File does not exist.");
 				return false;
 			}
 
@@ -667,10 +667,10 @@ namespace FluentFTP {
 					//If verification is needed update the validated flag
 					if (uploadSuccess && verifyOptions != FtpVerify.None) {
 						verified = VerifyTransfer(localPath, remotePath);
-						FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+						FtpTrace.WriteStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 						if (!verified && attemptsLeft > 0) {
 							//Force overwrite if a retry is required
-							FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
+							FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
 							existsMode = FtpExists.Overwrite;
 						}
 					}
@@ -706,10 +706,10 @@ namespace FluentFTP {
 
 					if (verifyOptions != FtpVerify.None) {
 						verified = await VerifyTransferAsync(localPath, remotePath);
-						FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+						FtpTrace.WriteStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 						if (!verified && attemptsLeft > 0) {
 							//Force overwrite if a retry is required
-							FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
+							FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
 							existsMode = FtpExists.Overwrite;
 						}
 					}
@@ -856,7 +856,7 @@ namespace FluentFTP {
 					switch (existsMode) {
 						case FtpExists.Skip:
 							if (fileExists) {
-								FtpTrace.WriteLine(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
+								FtpTrace.WriteStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
 								return false;
 							}
 							break;
@@ -1215,7 +1215,7 @@ namespace FluentFTP {
 		private bool DownloadFileToFile(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions) {
 			// skip downloading if the local file exists
 			if (!overwrite && File.Exists(localPath)) {
-				FtpTrace.WriteLine(FtpTraceLevel.Error, "Overwrite is false and local file already exists.");
+				FtpTrace.WriteStatus(FtpTraceLevel.Error, "Overwrite is false and local file already exists.");
 				return false;
 			}
 
@@ -1223,7 +1223,7 @@ namespace FluentFTP {
 			try {
 				// create the folders
 				string dirPath = Path.GetDirectoryName(localPath);
-				if (!String.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
+				if (!FtpExtensions.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
 					Directory.CreateDirectory(dirPath);
 				}
 			} catch (Exception ex1) {
@@ -1246,7 +1246,7 @@ namespace FluentFTP {
 					FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 #if DEBUG
 					if (!verified && attemptsLeft > 0) {
-						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
 					}
 #endif
 				}
@@ -1309,7 +1309,7 @@ namespace FluentFTP {
 
 			// skip downloading if the local file exists
 			if (!overwrite && File.Exists(localPath)) {
-				FtpTrace.WriteLine(FtpTraceLevel.Error, "Overwrite is false and local file already exists");
+				FtpTrace.WriteStatus(FtpTraceLevel.Error, "Overwrite is false and local file already exists");
 				return false;
 			}
 
@@ -1336,10 +1336,10 @@ namespace FluentFTP {
 
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
 					verified = await VerifyTransferAsync(localPath, remotePath);
-					FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+					FtpTrace.WriteStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 #if DEBUG
 					if (!verified && attemptsLeft > 0) {
-						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
 					}
 #endif
 				}
@@ -1607,7 +1607,7 @@ namespace FluentFTP {
 
 				// absorb "file does not exist" exceptions and simply return false
 				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
-					FtpTrace.WriteLine(FtpTraceLevel.Error, "File does not exist: " + ex1);
+					FtpTrace.WriteStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
 					return false;
 				}
 
@@ -1764,7 +1764,7 @@ namespace FluentFTP {
 
 				// absorb "file does not exist" exceptions and simply return false
 				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
-					FtpTrace.WriteLine(FtpTraceLevel.Error, "File does not exist: " + ex1);
+					FtpTrace.WriteStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
 					return false;
 				}
 

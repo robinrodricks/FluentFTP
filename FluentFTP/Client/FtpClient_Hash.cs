@@ -332,7 +332,7 @@ namespace FluentFTP {
 
 				hash.Value = m.Groups["hash"].Value;
 			} else {
-				FtpTrace.WriteLine(FtpTraceLevel.Warn, "Failed to parse hash from: " + reply.Message);
+				FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Failed to parse hash from: " + reply.Message);
 			}
 
 			return hash;

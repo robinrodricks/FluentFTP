@@ -142,20 +142,20 @@ namespace FluentFTP {
 
 			if (system != null) {
 				if (system.ToUpper().StartsWith("WINDOWS")) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Auto-detected Windows parser");
+					FtpTrace.WriteStatus(FtpTraceLevel.Info, "Auto-detected Windows listing parser");
 					parser = FtpParser.Windows;
 				} else if (system.ToUpper().IndexOf("UNIX") >= 0 || system.ToUpper().IndexOf("AIX") >= 0) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Auto-detected UNIX parser");
+					FtpTrace.WriteStatus(FtpTraceLevel.Info, "Auto-detected UNIX listing parser");
 					parser = FtpParser.Unix;
 				} else if (system.ToUpper().IndexOf("VMS") >= 0) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Auto-detected VMS parser");
+					FtpTrace.WriteStatus(FtpTraceLevel.Info, "Auto-detected VMS listing parser");
 					parser = FtpParser.VMS;
 				} else if (system.ToUpper().IndexOf("OS/400") >= 0) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Auto-detected OS/400 parser");
+					FtpTrace.WriteStatus(FtpTraceLevel.Info, "Auto-detected OS/400 listing parser");
 					parser = FtpParser.IBM;
 				} else {
 					parser = FtpParser.Unix;
-				    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Cannot auto-detect system '" + system + "', using Unix parser");
+				    FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Cannot auto-detect listing parser for system '" + system + "', using Unix parser");
 				}
 			}
 
@@ -173,7 +173,7 @@ namespace FluentFTP {
 				return files;
 			}
 
-		    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Parse() called using culture: " + parserCulture.EnglishName);
+		    FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Parse() called using culture: " + parserCulture.EnglishName);
 
 			ValidateParser(fileStrings);
 
@@ -205,7 +205,7 @@ namespace FluentFTP {
 					}
 
 				} catch (CriticalListParseException) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
+				    FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
 					i = -1;
 					count = 0;
 					continue;
@@ -309,20 +309,20 @@ namespace FluentFTP {
 
 				// use the initially set parser (from SYST)
 				if (IsParserValid(parser, files)) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Confirmed format " + parser.ToString());
+				    FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Confirmed format " + parser.ToString());
 					parserConfirmed = true;
 					return;
 				}
 				foreach (FtpParser p in parsers) {
 					if (IsParserValid(p, files)) {
 						parser = p;
-					    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Detected format " + parser.ToString());
+					    FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Detected format " + parser.ToString());
 						parserConfirmed = true;
 						return;
 					}
 				}
 				parser = FtpParser.Unix;
-			    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Could not detect format. Using default " + parser.ToString());
+			    FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Could not detect format. Using default " + parser.ToString());
 
 			}
 		}
@@ -545,15 +545,15 @@ namespace FluentFTP {
 			if (((capabilities & FtpCapability.MDTM) != FtpCapability.MDTM || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0) {
 				item.Modified = m.Groups["modify"].Value.GetFtpDate(DateTimeStyles.AssumeLocal);
 				if (item.Modified == DateTime.MinValue) {
-                    FtpTrace.WriteLine(FtpTraceLevel.Warn, "GetFtpDate() failed on " + m.Groups["modify"].Value);
+                    FtpTrace.WriteStatus(FtpTraceLevel.Warn, "GetFtpDate() failed on " + m.Groups["modify"].Value);
 				}
 			} else {
 				if (m.Groups["modify"].Value.Length == 0)
-                    FtpTrace.WriteLine(FtpTraceLevel.Warn, "RegEx failed to parse modified date from " + buf);
+                    FtpTrace.WriteStatus(FtpTraceLevel.Warn, "RegEx failed to parse modified date from " + buf);
 				else if (item.Type == FtpFileSystemObjectType.Directory)
-                    FtpTrace.WriteLine(FtpTraceLevel.Warn, "Modified times of directories are ignored in UNIX long listings.");
+                    FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Modified times of directories are ignored in UNIX long listings.");
 				else if ((capabilities & FtpCapability.MDTM) == FtpCapability.MDTM)
-                    FtpTrace.WriteLine(FtpTraceLevel.Warn, "Ignoring modified date because MDTM feature is present. If you aren't already, pass FtpListOption.Modify or FtpListOption.SizeModify to GetListing() to retrieve the modification time.");
+                    FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Ignoring modified date because MDTM feature is present. If you aren't already, pass FtpListOption.Modify or FtpListOption.SizeModify to GetListing() to retrieve the modification time.");
 			}
 
 			if (m.Groups["size"].Value.Length > 0) {
@@ -763,7 +763,7 @@ namespace FluentFTP {
 			}
 			if (perms1 && perms2)
 				return true;
-		    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Not in UNIX format");
+		    FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Not in UNIX format");
 			return false;
 		}
 
@@ -792,7 +792,7 @@ namespace FluentFTP {
 				StringBuilder msg = new StringBuilder("Unexpected number of fields in listing '");
 				msg.Append(raw).Append("' - expected minimum ").Append(MIN_EXPECTED_FIELD_COUNT_UNIX).
 						Append(" fields but found ").Append(fields.Length).Append(" fields");
-			    FtpTrace.WriteLine(FtpTraceLevel.Verbose, msg.ToString());
+			    FtpTrace.WriteStatus(FtpTraceLevel.Verbose, msg.ToString());
 				return null;
 			}
 
@@ -817,7 +817,7 @@ namespace FluentFTP {
 				try {
 					linkCount = System.Int32.Parse(linkCountStr);
 				} catch (FormatException) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to parse link count: " + linkCountStr);
+				    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to parse link count: " + linkCountStr);
 				}
 			} else if (fields[index][0] == '-') // IPXOS Treck FTP server
             {
@@ -844,7 +844,7 @@ namespace FluentFTP {
 			try {
 				size = Int64.Parse(sizeStr);
 			} catch (FormatException) {
-			    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to parse size: " + sizeStr);
+			    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to parse size: " + sizeStr);
 			}
 
 			// next 3 fields are the date time
@@ -889,7 +889,7 @@ namespace FluentFTP {
 					lastModified = DateTime.ParseExact(stamp.ToString(), unixDateFormats1,
 												parserCulture.DateTimeFormat, DateTimeStyles.None);
 				} catch (FormatException) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to parse date string '" + stamp.ToString() + "'");
+				    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
 				}
 			} else {
 				// add the year ourselves as not present
@@ -900,7 +900,7 @@ namespace FluentFTP {
 					lastModified = DateTime.ParseExact(stamp.ToString(), unixDateFormats2,
 												parserCulture.DateTimeFormat, DateTimeStyles.None);
 				} catch (FormatException) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to parse date string '" + stamp.ToString() + "'");
+				    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
 				}
 
 				// can't be in the future - must be the previous year
@@ -948,7 +948,7 @@ namespace FluentFTP {
 					}
 				}
 			} else {
-			    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to retrieve name: " + raw);
+			    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to retrieve name: " + raw);
 			}
 
 			FtpListItem file = new FtpListItem(raw, name, size, isDir, ref lastModified);
@@ -1014,7 +1014,7 @@ namespace FluentFTP {
 				try {
 					linkCount = System.Int32.Parse(linkCountStr);
 				} catch (FormatException) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to parse link count: " + linkCountStr);
+				    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to parse link count: " + linkCountStr);
 				}
 			}
 
@@ -1027,7 +1027,7 @@ namespace FluentFTP {
 			try {
 				size = Int64.Parse(sizeStr);
 			} catch (FormatException) {
-			    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to parse size: " + sizeStr);
+			    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to parse size: " + sizeStr);
 			}
 
 			// next 3 fields are the date time
@@ -1045,7 +1045,7 @@ namespace FluentFTP {
 					lastModified = DateTime.ParseExact(stamp.ToString(), unixAltDateFormats1,
 												parserCulture.DateTimeFormat, DateTimeStyles.None);
 				} catch (FormatException) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to parse date string '" + stamp.ToString() + "'");
+				    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
 				}
 			} else {
 				// add the year ourselves as not present
@@ -1056,7 +1056,7 @@ namespace FluentFTP {
 					lastModified = DateTime.ParseExact(stamp.ToString(), unixAltDateFormats2,
 												parserCulture.DateTimeFormat, DateTimeStyles.None);
 				} catch (FormatException) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to parse date string '" + stamp.ToString() + "'");
+				    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
 				}
 
 				// can't be in the future - must be the previous year
@@ -1087,7 +1087,7 @@ namespace FluentFTP {
 			if (ok) {
 				name = raw.Substring(pos).Trim();
 			} else {
-			    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to retrieve name: " + raw);
+			    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to retrieve name: " + raw);
 			}
 
 			FtpListItem file = new FtpListItem(raw, name, size, isDir, ref lastModified);
@@ -1129,7 +1129,7 @@ namespace FluentFTP {
 			}
 			if (dateStart && timeColon && dirOrFile)
 				return true;
-		    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Not in Windows format");
+		    FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Not in Windows format");
 			return false;
 		}
 
@@ -1158,7 +1158,7 @@ namespace FluentFTP {
 				lastModified = DateTime.ParseExact(lastModifiedStr, windowsDateFormats,
 									parserCulture.DateTimeFormat, DateTimeStyles.None);
 			} catch (FormatException) {
-			    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to parse date string '" + lastModifiedStr + "'");
+			    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
 			}
 
 			// dir flag
@@ -1170,7 +1170,7 @@ namespace FluentFTP {
 				try {
 					size = Int64.Parse(fields[2]);
 				} catch (FormatException) {
-				    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to parse size: " + fields[2]);
+				    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to parse size: " + fields[2]);
 				}
 			}
 
@@ -1193,7 +1193,7 @@ namespace FluentFTP {
 			if (ok) {
 				name = raw.Substring(pos).Trim();
 			} else {
-			    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to retrieve name: " + raw);
+			    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to retrieve name: " + raw);
 			}
 			return new FtpListItem(raw, name, size, isDir, ref lastModified);
 		}
@@ -1222,7 +1222,7 @@ namespace FluentFTP {
 			}
 			if (semiColonName && squareBracketStart && squareBracketEnd)
 				return true;
-		    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Not in VMS format");
+		    FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Not in VMS format");
 			return false;
 		}
 
@@ -1264,7 +1264,7 @@ namespace FluentFTP {
 			int semiPos = name.LastIndexOf(';');
 			// check for ;
 			if (semiPos <= 0) {
-			    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "File version number not found in name '" + name + "'");
+			    FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "File version number not found in name '" + name + "'");
 				return null;
 			}
 
@@ -1312,7 +1312,7 @@ namespace FluentFTP {
 			try {
 				lastModified = DateTime.Parse(lastModifiedStr.ToString(), parserCulture.DateTimeFormat);
 			} catch (FormatException) {
-			    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to parse date string '" + lastModifiedStr + "'");
+			    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
 			}
 
 			// 5th field is [group,owner]
@@ -1392,7 +1392,7 @@ namespace FluentFTP {
 				lastModified = DateTime.ParseExact(lastModifiedStr, nonstopDateFormats,
 									parserCulture.DateTimeFormat, DateTimeStyles.None);
 			} catch (FormatException) {
-			    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to parse date string '" + lastModifiedStr + "'");
+			    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
 			}
 
 			// dir flag
@@ -1401,7 +1401,7 @@ namespace FluentFTP {
 			try {
 				size = Int64.Parse(fields[2]);
 			} catch (FormatException) {
-			    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Failed to parse size: " + fields[2]);
+			    FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to parse size: " + fields[2]);
 			}
 
 			string owner = fields[5] + fields[6];
@@ -1443,7 +1443,7 @@ namespace FluentFTP {
 			}
 			if (dir || file || ddir || lib || stmf || flr)
 				return true;
-		    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Not in OS/400 format");
+		    FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Not in OS/400 format");
 			return false;
 		}
 
@@ -1549,7 +1549,7 @@ namespace FluentFTP {
 			if (isVMS)
 				item.FullName = path + item.Name;
 			else {
-				//FtpTrace.WriteLine(item.Name);
+				//FtpTrace.WriteStatus(item.Name);
 
 				// remove globbing/wildcard from path
 				if (path.GetFtpFileName().Contains("*")) {
@@ -1564,7 +1564,7 @@ namespace FluentFTP {
 					} else if (path != null) {
 						item.FullName = path.GetFtpPath(item.Name); //.GetFtpPathWithoutGlob();
 					} else {
-                        FtpTrace.WriteLine(FtpTraceLevel.Warn, "Couldn't determine the full path of this object: " +
+                        FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Couldn't determine the full path of this object: " +
 							Environment.NewLine + item.ToString());
 					}
 				}
@@ -1667,7 +1667,7 @@ namespace FluentFTP {
 		private DateTime GetLastModifiedIBM(string lastModifiedStr) {
 			DateTime lastModified = DateTime.MinValue;
 			if (formatIndex >= ibmDateFormats.Length) {
-			    FtpTrace.WriteLine(FtpTraceLevel.Warn, "Exhausted formats - failed to parse date");
+			    FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Exhausted formats - failed to parse date");
 				return DateTime.MinValue;
 			}
 			int prevIndex = formatIndex;
@@ -1676,7 +1676,7 @@ namespace FluentFTP {
 					lastModified = DateTime.ParseExact(lastModifiedStr, ibmDateFormats[formatIndex],
 						parserCulture.DateTimeFormat, DateTimeStyles.None);
 					if (lastModified > DateTime.Now.AddDays(2)) {
-					    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Swapping to alternate format (found date in future)");
+					    FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Swapping to alternate format (found date in future)");
 						continue;
 					} else // all ok, exit loop
 						break;
@@ -1685,7 +1685,7 @@ namespace FluentFTP {
 				}
 			}
 			if (formatIndex >= ibmDateFormats.Length) {
-			    FtpTrace.WriteLine(FtpTraceLevel.Warn, "Exhausted formats - failed to parse date");
+			    FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Exhausted formats - failed to parse date");
 				return DateTime.MinValue;
 			}
 			if (formatIndex > prevIndex) // we've changed formatters so redo

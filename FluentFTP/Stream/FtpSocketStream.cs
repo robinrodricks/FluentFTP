@@ -92,7 +92,7 @@ namespace FluentFTP {
 					}
 
 					if (m_socketPollInterval > 0 && DateTime.Now.Subtract(m_lastActivity).TotalMilliseconds > m_socketPollInterval) {
-						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Testing connectivity using Socket.Poll()...");
+						FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Testing connectivity using Socket.Poll()...");
 						if (m_socket.Poll(500000, SelectMode.SelectRead) && m_socket.Available == 0) {
 							Close();
 							return false;
@@ -100,11 +100,11 @@ namespace FluentFTP {
 					}
 				} catch (SocketException sockex) {
 					Close();
-					FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpSocketStream.IsConnected: Caught and discarded SocketException while testing for connectivity: " + sockex.ToString());
+					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpSocketStream.IsConnected: Caught and discarded SocketException while testing for connectivity: " + sockex.ToString());
 					return false;
 				} catch (IOException ioex) {
 					Close();
-					FtpTrace.WriteLine(FtpTraceLevel.Warn, "FtpSocketStream.IsConnected: Caught and discarded IOException while testing for connectivity: " + ioex.ToString());
+					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpSocketStream.IsConnected: Caught and discarded IOException while testing for connectivity: " + ioex.ToString());
 					return false;
 				}
 
@@ -552,7 +552,7 @@ namespace FluentFTP {
 		/// Disposes the stream
 		/// </summary>
 		public new void Dispose() {
-			FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Disposing FtpSocketStream...");
+			FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Disposing FtpSocketStream...");
 			Close();
 		}
 
@@ -582,7 +582,7 @@ namespace FluentFTP {
 					m_socket.Dispose();
 #endif
 				} catch (SocketException ex) {
-					FtpTrace.WriteLine(FtpTraceLevel.Warn, "Caught and discarded a SocketException while cleaning up the Socket: " + ex.ToString());
+					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Caught and discarded a SocketException while cleaning up the Socket: " + ex.ToString());
 				} finally {
 					m_socket = null;
 				}
@@ -592,7 +592,7 @@ namespace FluentFTP {
 				try {
 					m_netStream.Dispose();
 				} catch (IOException ex) {
-					FtpTrace.WriteLine(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the NetworkStream: " + ex.ToString());
+					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the NetworkStream: " + ex.ToString());
 				} finally {
 					m_netStream = null;
 				}
@@ -603,7 +603,7 @@ namespace FluentFTP {
 				try {
 					m_sslStream.Dispose();
 				} catch (IOException ex) {
-					FtpTrace.WriteLine(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the SslStream: " + ex.ToString());
+					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the SslStream: " + ex.ToString());
 				} finally {
 					m_sslStream = null;
 				}
@@ -646,7 +646,7 @@ namespace FluentFTP {
 
 			for (int i = 0; i < addresses.Length; i++) {
 #if DEBUG
-				FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Checking : " + addresses[i].AddressFamily + ": " + addresses[i].ToString());
+				FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Checking : " + addresses[i].AddressFamily + ": " + addresses[i].ToString());
 #endif
 				// we don't need to do this check unless
 				// a particular version of IP has been
@@ -656,7 +656,7 @@ namespace FluentFTP {
 						case AddressFamily.InterNetwork:
 							if ((ipVersions & FtpIpVersion.IPv4) != FtpIpVersion.IPv4) {
 #if DEBUG
-								FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Skipped IPV4 address : " + addresses[i].ToString());
+								FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Skipped IPV4 address : " + addresses[i].ToString());
 #endif
 								continue;
 							}
@@ -664,7 +664,7 @@ namespace FluentFTP {
 						case AddressFamily.InterNetworkV6:
 							if ((ipVersions & FtpIpVersion.IPv6) != FtpIpVersion.IPv6) {
 #if DEBUG
-								FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Skipped IPV6 address : " + addresses[i].ToString());
+								FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Skipped IPV6 address : " + addresses[i].ToString());
 #endif
 								continue;
 							}
@@ -771,8 +771,8 @@ namespace FluentFTP {
 #endif
 
 				auth_time_total = DateTime.Now.Subtract(auth_start);
-				FtpTrace.WriteLine(FtpTraceLevel.Info, "FTPS Authentication Successful");
-				FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
+				FtpTrace.WriteStatus(FtpTraceLevel.Info, "FTPS Authentication Successful");
+				FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
 
 			} catch (AuthenticationException) {
 				// authentication failed and in addition it left our 
@@ -780,7 +780,7 @@ namespace FluentFTP {
 				// to be done and the exception can be re-thrown for
 				// handling down the chain. (Add logging?)
 				Close();
-				FtpTrace.WriteLine(FtpTraceLevel.Error, "FTPS Authentication Failed");
+				FtpTrace.WriteStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
 				throw;
 			}
 		}
