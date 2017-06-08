@@ -75,6 +75,76 @@ namespace FluentFTP {
 	/// </example>
 	public partial class FtpClient : IDisposable {
 
+		#region Properties
+
+		private FtpParser m_parser = FtpParser.Auto;
+		/// <summary>
+		/// File listing parser to be used. 
+		/// Automatically calculated based on the type of the server, unless changed.
+		/// </summary>
+		public FtpParser ListingParser {
+			get { return m_parser; }
+			set {
+				m_parser = value;
+
+				// configure parser
+				m_listParser.parser = value;
+				m_listParser.parserConfirmed = false;
+			}
+		}
+
+		private CultureInfo m_parserCulture = CultureInfo.InvariantCulture;
+		/// <summary>
+		/// Culture used to parse file listings
+		/// </summary>
+		public CultureInfo ListingCulture {
+			get { return m_parserCulture; }
+			set {
+				m_parserCulture = value;
+
+				// configure parser
+				m_listParser.parserCulture = value;
+			}
+		}
+
+		private double m_timeDiff = 0;
+		/// <summary>
+		/// Time difference between server and client, in hours.
+		/// If the server is located in New York and you are in London then the time difference is -5 hours.
+		/// </summary>
+		public double TimeOffset {
+			get { return m_timeDiff; }
+			set {
+				m_timeDiff = value;
+
+				// configure parser
+				int hours = (int)Math.Floor(m_timeDiff);
+				int mins = (int)Math.Floor((m_timeDiff - Math.Floor(m_timeDiff)) * 60);
+				m_listParser.timeOffset = new TimeSpan(hours, mins, 0);
+				m_listParser.hasTimeOffset = m_timeDiff != 0;
+			}
+		}
+
+		private bool m_recursiveList = true;
+
+		/// <summary>
+		/// Check if your server supports a recursive LIST command (LIST -R).
+		/// If you know for sure that this is unsupported, set it to false.
+		/// </summary>
+		public bool RecursiveList {
+			get {
+				if (SystemType.StartsWith("Windows_CE")) {
+					return false;
+				}
+				return m_recursiveList;
+			}
+			set {
+				m_recursiveList = value;
+			}
+		}
+
+		#endregion
+
 		#region Get File Info
 
 		/// <summary>
@@ -271,7 +341,7 @@ namespace FluentFTP {
 			bool isNameList = (options & FtpListOption.NameList) == FtpListOption.NameList;
 			bool isUseLS = (options & FtpListOption.UseLS) == FtpListOption.UseLS;
 			bool isAllFiles = (options & FtpListOption.AllFiles) == FtpListOption.AllFiles;
-			bool isRecursive = (options & FtpListOption.Recursive) == FtpListOption.Recursive;
+			bool isRecursive = (options & FtpListOption.Recursive) == FtpListOption.Recursive && RecursiveList;
 			bool isDerefLinks = (options & FtpListOption.DerefLinks) == FtpListOption.DerefLinks;
 			bool isGetModified = (options & FtpListOption.Modify) == FtpListOption.Modify;
 			bool isGetSize = (options & FtpListOption.Size) == FtpListOption.Size;

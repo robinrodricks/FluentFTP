@@ -601,105 +601,6 @@ namespace FluentFTP {
 			protected set { m_connectionType = value; }
 		}
 
-		private int m_transferChunkSize = 65536;
-		/// <summary>
-		/// Gets or sets the number of bytes transferred in a single chunk (a single FTP command).
-		/// Used by <see cref="o:UploadFile"/>/<see cref="o:UploadFileAsync"/> and <see cref="o:DownloadFile"/>/<see cref="o:DownloadFileAsync"/>
-		/// to transfer large files in multiple chunks.
-		/// </summary>
-		public int TransferChunkSize {
-			get {
-				return m_transferChunkSize;
-			}
-			set {
-				m_transferChunkSize = value;
-			}
-		}
-
-		private FtpDataType CurrentDataType;
-
-		private FtpParser m_parser = FtpParser.Auto;
-		/// <summary>
-		/// File listing parser to be used. 
-		/// Automatically calculated based on the type of the server, unless changed.
-		/// </summary>
-		public FtpParser ListingParser {
-			get { return m_parser; }
-			set {
-				m_parser = value;
-
-				// configure parser
-				m_listParser.parser = value;
-				m_listParser.parserConfirmed = false;
-			}
-		}
-
-		private CultureInfo m_parserCulture = CultureInfo.InvariantCulture;
-		/// <summary>
-		/// Culture used to parse file listings
-		/// </summary>
-		public CultureInfo ListingCulture {
-			get { return m_parserCulture; }
-			set {
-				m_parserCulture = value;
-
-				// configure parser
-				m_listParser.parserCulture = value;
-			}
-		}
-
-		private double m_timeDiff = 0;
-		/// <summary>
-		/// Time difference between server and client, in hours.
-		/// If the server is located in New York and you are in London then the time difference is -5 hours.
-		/// </summary>
-		public double TimeOffset {
-			get { return m_timeDiff; }
-			set {
-				m_timeDiff = value;
-
-				// configure parser
-				int hours = (int)Math.Floor(m_timeDiff);
-				int mins = (int)Math.Floor((m_timeDiff - Math.Floor(m_timeDiff)) * 60);
-				m_listParser.timeOffset = new TimeSpan(hours, mins, 0);
-				m_listParser.hasTimeOffset = m_timeDiff != 0;
-			}
-		}
-
-		private int m_retryAttempts = 3;
-		/// <summary>
-		/// Gets or sets the retry attempts allowed when a verification failure occurs during download or upload.
-		/// This value must be set to 1 or more.
-		/// </summary>
-		public int RetryAttempts {
-			get { return m_retryAttempts; }
-			set { m_retryAttempts = value > 0 ? value : 1; }
-		}
-		
-		uint m_uploadRateLimit = 0;
-
-		/// <summary>
-		/// Rate limit for uploads in kbyte/s. Set this to 0 for unlimited speed.
-		/// Honored by high-level API such as Upload(), Download(), UploadFile(), DownloadFile()..
-		/// </summary>
-		public uint UploadRateLimit {
-			get { return m_uploadRateLimit; }
-			set { m_uploadRateLimit = value; }
-		}
-
-		uint m_downloadRateLimit = 0;
-
-		/// <summary>
-		/// Rate limit for downloads in kbytes/s. Set this to 0 for unlimited speed.
-		/// Honored by high-level API such as Upload(), Download(), UploadFile(), DownloadFile()..
-		/// </summary>
-		public uint DownloadRateLimit {
-			get { return m_downloadRateLimit; }
-			set { m_downloadRateLimit = value; }
-		}
-		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
-		// FtpClient.CloneConnection()
-
 		#endregion
 
 		#region Constructor / Destructor
@@ -834,6 +735,7 @@ namespace FluentFTP {
 			conn.RetryAttempts = RetryAttempts;
 			conn.UploadRateLimit = UploadRateLimit;
 			conn.DownloadRateLimit = DownloadRateLimit;
+			conn.RecursiveList = RecursiveList;
 
 			// copy props using attributes (slower, not .NET core compatible)
 			/*foreach (PropertyInfo prop in GetType().GetProperties()) {

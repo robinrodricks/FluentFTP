@@ -348,6 +348,9 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 - **TimeOffset** - Time difference between server and client, in hours. If the server is located in Amsterdam and you are in Los Angeles then the time difference is 9 hours. **Default:** 0.
 
+- **RecursiveList** - Check if your server supports a recursive LIST command (`LIST -R`). If you know for sure that this is unsupported, set it to false. **Default:** true.
+
+
 
 *File Transfer*
 

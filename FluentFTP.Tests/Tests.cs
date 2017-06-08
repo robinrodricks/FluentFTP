@@ -30,7 +30,9 @@ namespace Tests {
 
 
 		static void Main(string[] args) {
-			FtpTrace.FlushOnWrite = true;
+
+			FtpTrace.LogIP = false;
+			FtpTrace.LogUserName = false;
 
 			FtpTrace.AddListener(new ConsoleTraceListener());
 			FtpTrace.AddListener(new TextWriterTraceListener(@"C:\log_file.txt"));
@@ -79,7 +81,7 @@ namespace Tests {
 				//TestListPathWithHttp11Proxy();
 				//TestFileExists();
 				//TestDeleteDirectory();
-				TestMoveFiles();
+				//TestMoveFiles();
 
 
 
@@ -97,7 +99,7 @@ namespace Tests {
 				// FILE LISTING
 				//--------------------------------
 				//TestGetObjectInfo();
-				//TestGetListing();
+				TestGetListing();
 				//TestGetMachineListing();
 				//GetPublicFTPServerListing();
 				//TestListSpacedPath();
@@ -499,8 +501,9 @@ namespace Tests {
 			using (FtpClient client = new FtpClient()) {
 				client.Credentials = new NetworkCredential(m_user, m_pass);
 				client.Host = m_host;
+				client.Connect();
 				foreach (FtpListItem i in client.GetListing("/public_html/temp/", FtpListOption.ForceList | FtpListOption.Recursive)) {
-					FtpTrace.WriteLine(i);
+					//FtpTrace.WriteLine(i);
 				}
 			}
 		}
@@ -509,8 +512,9 @@ namespace Tests {
 				client.Credentials = new NetworkCredential(m_user, m_pass);
 				client.Host = m_host;
 				client.ListingParser = FtpParser.Machine;
+				client.Connect();
 				foreach (FtpListItem i in client.GetListing("/public_html/temp/", FtpListOption.Recursive)) {
-					FtpTrace.WriteLine(i);
+					//FtpTrace.WriteLine(i);
 				}
 			}
 		}
@@ -971,6 +975,8 @@ namespace Tests {
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 
+				cl.Connect();
+
 				// 100 K file
 				cl.UploadFile(@"D:\Github\hgupta\FluentFTP\README.md", "/public_html/temp/README.md");
 				cl.DownloadFile(@"D:\Github\hgupta\FluentFTP\README2.md", "/public_html/temp/README.md");
@@ -1226,7 +1232,7 @@ namespace Tests {
 				
 				cl.DeleteDirectory("/public_html/temp/otherdir/");
 				cl.DeleteDirectory("/public_html/temp/spaced folder/");
-
+				
 			}
 		}
 		static void TestMoveFiles() {

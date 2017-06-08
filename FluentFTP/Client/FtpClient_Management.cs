@@ -160,7 +160,7 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
 		public void DeleteDirectory(string path, FtpListOption options) {
 			FtpTrace.WriteFunc("DeleteDirectory", new object[] { path, options });
-			DeleteDirInternal(path, true, FtpListOption.ForceList | FtpListOption.Recursive);
+			DeleteDirInternal(path, true, options);
 		}
 
 		/// <summary>
