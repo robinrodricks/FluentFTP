@@ -1045,6 +1045,8 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 #### 17.4.3
 - Add logging for high-level function calls to improve remote debugging (FtpTrace.LogFunctions)
 - Add settings to hide sensitive data from logs (FtpTrace.LogIP, LogUserName, LogPassword)
+- Add RecursiveList to control if recursive listing should be used
+- Auto-detect Windows CE and disable recursive listing during DeleteDirectory()
 
 #### 17.4.2
 - Add UploadRateLimit and DownloadRateLimit to control the speed of data transfer (thanks [Danie-Brink](https://github.com/Danie-Brink))
