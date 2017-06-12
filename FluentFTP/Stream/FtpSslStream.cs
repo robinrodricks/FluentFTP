@@ -53,7 +53,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="sslStream"></param>
 		public static void CloseNotify(SslStream sslStream) {
-			if (sslStream.IsAuthenticated) {
+			if (sslStream.IsAuthenticated && sslStream.CanWrite) {
 				bool isServer = sslStream.IsServer;
 
 				byte[] result;
