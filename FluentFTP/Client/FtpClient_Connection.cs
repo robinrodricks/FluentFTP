@@ -548,7 +548,8 @@ namespace FluentFTP {
 			}
 		}
 
-		bool m_plainTextEncryption = false;
+#if !CORE
+        bool m_plainTextEncryption = false;
 		/// <summary>
 		/// Indicates if the encryption should be disabled immediately after connecting using a CCC command.
 		/// This is useful when you have a FTP firewall that requires plaintext FTP, but your server mandates FTPS connections.
@@ -561,6 +562,7 @@ namespace FluentFTP {
 				m_plainTextEncryption = value;
 			}
 		}
+#endif
 
 #if CORE
 		private SslProtocols m_SslProtocols = SslProtocols.Tls11 | SslProtocols.Ssl3;
@@ -615,9 +617,9 @@ namespace FluentFTP {
 			protected set { m_connectionType = value; }
 		}
 
-		#endregion
+#endregion
 
-		#region Constructor / Destructor
+#region Constructor / Destructor
 
 		/// <summary>
 		/// Creates a new instance of an FTP Client.
@@ -726,9 +728,9 @@ namespace FluentFTP {
 			Dispose();
 		}
 
-		#endregion
+#endregion
 
-		#region Clone
+#region Clone
 
 		/// <summary>
 		/// Clones the control connection for opening multiple data streams
@@ -770,7 +772,9 @@ namespace FluentFTP {
 			conn.UploadRateLimit = UploadRateLimit;
 			conn.DownloadRateLimit = DownloadRateLimit;
 			conn.RecursiveList = RecursiveList;
-			conn.PlainTextEncryption = PlainTextEncryption;
+#if !CORE
+            conn.PlainTextEncryption = PlainTextEncryption;
+#endif
 
 			// copy props using attributes (slower, not .NET core compatible)
 			/*foreach (PropertyInfo prop in GetType().GetProperties()) {
@@ -792,9 +796,9 @@ namespace FluentFTP {
 			return conn;
 		}
 		
-		#endregion
+#endregion
 
-		#region Execute Command
+#region Execute Command
 
 		/// <summary>
 		/// Executes a command
@@ -888,9 +892,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Get Reply
+#region Get Reply
 
 		/// <summary>
 		/// Retrieves a reply from the server. Do not execute this method
@@ -949,9 +953,9 @@ namespace FluentFTP {
 			return reply;
 		}
 
-		#endregion
+#endregion
 
-		#region Connect
+#region Connect
 
 		private FtpListParser m_listParser;
 
@@ -1049,7 +1053,7 @@ namespace FluentFTP {
 					m_systemType = reply.Message;
 				}
 
-#if !NO_SSL
+#if !NO_SSL && !CORE
 				if (m_stream.IsEncrypted && PlainTextEncryption) {
 					if (!(reply = Execute("CCC")).Success) {
 						throw new FtpSecurityNotAvailableException("Failed to disable encryption with CCC command. Perhaps your server does not support it or is not configured to allow it.");
@@ -1217,9 +1221,9 @@ namespace FluentFTP {
 		}
 #endif
 		
-		#endregion
+#endregion
 
-		#region Login
+#region Login
 
 		/// <summary>
 		/// Performs a login on the server. This method is overridable so
@@ -1246,9 +1250,9 @@ namespace FluentFTP {
 				throw new FtpCommandException(reply);
 		}
 
-		#endregion
+#endregion
 
-		#region Disconnect
+#region Disconnect
 
 		/// <summary>
 		/// Disconnects from the server
@@ -1318,9 +1322,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region FTPS
+#region FTPS
 
 		/// <summary>
 		/// Catches the socket stream ssl validation event and fires the event handlers
@@ -1344,9 +1348,9 @@ namespace FluentFTP {
 				evt(this, e);
 		}
 
-		#endregion
+#endregion
 
-		#region Utils
+#region Utils
 
 		/// <summary>
 		/// Performs a bitwise and to check if the specified
@@ -1503,9 +1507,9 @@ namespace FluentFTP {
 			return false;
 		}
 
-		#endregion
+#endregion
 
-		#region Static API
+#region Static API
 
 		/// <summary>
 		/// Calculate the CHMOD integer value given a set of permissions.
@@ -1782,7 +1786,7 @@ namespace FluentFTP {
 			return null;
 		}
 
-		#endregion
+#endregion
 
 	}
 }

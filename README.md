@@ -1055,6 +1055,8 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 #### 17.5.0
 - Add PlainTextEncryption API to support FTPS servers and plain-text FTP firewalls (CCC command)
+- FluentFTP now uses unsafe code to support the CCC command (inside FtpSslStream)
+- If you need a "non unsafe" version of the library please add an issue
 
 #### 17.4.4
 - Add logging for high-level function calls to improve remote debugging (FtpTrace.LogFunctions)
