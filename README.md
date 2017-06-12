@@ -9,7 +9,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 
 ## Features
 
-- Full support for [FTP](#ftp-support), [FTPS](#faq_ftps) (FTP over SSL) and [FTPS with client certificates](#faq_certs)
+- Full support for [FTP](#ftp-support), [FTPS](#faq_ftps) (FTP over SSL), [FTPS with client certificates](#faq_certs) and [FTPS with CCC](#faq_ccc) (for FTP firewalls)
 - **File management:**
   - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, Windows CE, etc)
   - Easily upload and download a file from the server
@@ -532,6 +532,8 @@ void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e)  {
 **How do I connect with FTPS and then switch back down to plaintext FTP?**
 
 This is useful when you have a FTP firewall that requires plaintext FTP, but your server mandates FTPS connections. We use the CCC command to instruct the server to revert back to FTP.
+
+Set this option before calling Connect() or any other method on the FtpClient class.
 
 ```cs
 client.PlainTextEncryption = true;
