@@ -548,6 +548,20 @@ namespace FluentFTP {
 			}
 		}
 
+		bool m_plainTextEncryption = false;
+		/// <summary>
+		/// Indicates if the encryption should be disabled immediately after connecting using a CCC command.
+		/// This is useful when you have a FTP firewall that requires plaintext FTP, but your server mandates FTPS connections.
+		/// </summary>
+		public bool PlainTextEncryption {
+			get {
+				return m_plainTextEncryption;
+			}
+			set {
+				m_plainTextEncryption = value;
+			}
+		}
+
 #if CORE
 		private SslProtocols m_SslProtocols = SslProtocols.Tls11 | SslProtocols.Ssl3;
 #else
@@ -630,10 +644,30 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host, port and credentials.
+		/// </summary>
+		public FtpClient(string host, int port, NetworkCredential credentials) {
+			Host = host;
+			Port = port;
+			Credentials = credentials;
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
 		/// Creates a new instance of an FTP Client, with the given host, username and password.
 		/// </summary>
 		public FtpClient(string host, string user, string pass) {
 			Host = host;
+			Credentials = new NetworkCredential(user, pass);
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host, port, username and password.
+		/// </summary>
+		public FtpClient(string host, int port, string user, string pass) {
+			Host = host;
+			Port = port;
 			Credentials = new NetworkCredential(user, pass);
 			m_listParser = new FtpListParser(this);
 		}
@@ -736,6 +770,7 @@ namespace FluentFTP {
 			conn.UploadRateLimit = UploadRateLimit;
 			conn.DownloadRateLimit = DownloadRateLimit;
 			conn.RecursiveList = RecursiveList;
+			conn.PlainTextEncryption = PlainTextEncryption;
 
 			// copy props using attributes (slower, not .NET core compatible)
 			/*foreach (PropertyInfo prop in GetType().GetProperties()) {
@@ -771,21 +806,9 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			lock (m_lock) {
+
 				if (StaleDataCheck) {
-					if (m_stream != null && m_stream.SocketDataAvailable > 0) {
-						// Data shouldn't be on the socket, if it is it probably
-						// means we've been disconnected. Read and discard
-						// whatever is there and close the connection.
-
-						FtpTrace.WriteStatus(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out or you did not call GetReply(). Re-connecting...");
-						if (m_stream.IsConnected && !m_stream.IsEncrypted) {
-							byte[] buf = new byte[m_stream.SocketDataAvailable];
-							m_stream.RawSocketRead(buf);
-							FtpTrace.Write(FtpTraceLevel.Verbose, "The data was: " + Encoding.GetString(buf).TrimEnd('\r', '\n'));
-						}
-
-						m_stream.Close();
-					}
+					ReadStaleData(true, false, true);
 				}
 
 				if (!IsConnected) {
@@ -806,7 +829,7 @@ namespace FluentFTP {
 					commandTxt = "USER ***";
 				}
 				if (!FtpTrace.LogPassword && command.StartsWith("PASS", StringComparison.Ordinal)) {
-					commandTxt = "PASSS ***";
+					commandTxt = "PASS ***";
 				}
 				FtpTrace.WriteLine(FtpTraceLevel.Info, "Command:  " + commandTxt);
 				
@@ -998,7 +1021,7 @@ namespace FluentFTP {
 					if (!(reply = Execute("PROT P")).Success)
 						throw new FtpCommandException(reply);
 				}
-
+				
 				// if this is a clone these values should have already been loaded
 				// so save some bandwidth and CPU time and skip executing this again.
 				if (!IsClone) {
@@ -1025,6 +1048,21 @@ namespace FluentFTP {
 				if ((reply = Execute("SYST")).Success) {
 					m_systemType = reply.Message;
 				}
+
+#if !NO_SSL
+				if (m_stream.IsEncrypted && PlainTextEncryption) {
+					if (!(reply = Execute("CCC")).Success) {
+						throw new FtpSecurityNotAvailableException("Failed to disable encryption with CCC command. Perhaps your server does not support it or is not configured to allow it.");
+					} else {
+
+						// close the SslStream and send close_notify command to server
+						m_stream.DeactivateEncryption();
+
+						// read stale data (server's reply?)
+						ReadStaleData(false, true, false);
+					}
+				}
+#endif
 
 				// Create the parser even if the auto-OS detection failed
 				m_listParser.Init(m_systemType);
@@ -1423,13 +1461,29 @@ namespace FluentFTP {
 			}
 		}
 
-		private void ReadStaleData() {
+		/// <summary>
+		/// Data shouldn't be on the socket, if it is it probably
+		/// means we've been disconnected. Read and discard
+		/// whatever is there and close the connection (optional).
+		/// </summary>
+		/// <param name="closeStream">close the connection?</param>
+		/// <param name="evenEncrypted">even read encrypted data?</param>
+		/// <param name="traceData">trace data to logs?</param>
+		private void ReadStaleData(bool closeStream, bool evenEncrypted, bool traceData) {
 			if (m_stream != null && m_stream.SocketDataAvailable > 0) {
-				if (m_stream.IsConnected && !m_stream.IsEncrypted) {
+				if (traceData) {
+					FtpTrace.WriteStatus(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out or you did not call GetReply(). Re-connecting...");
+				}
+				if (m_stream.IsConnected && (!m_stream.IsEncrypted || evenEncrypted)) {
 					byte[] buf = new byte[m_stream.SocketDataAvailable];
 					m_stream.RawSocketRead(buf);
-					FtpTrace.Write(FtpTraceLevel.Verbose, "The data was: ");
-					FtpTrace.WriteLine(FtpTraceLevel.Verbose, Encoding.GetString(buf).TrimEnd('\r', '\n'));
+					if (traceData) {
+						FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "The stale data was: " + Encoding.GetString(buf).TrimEnd('\r', '\n'));
+					}
+				}
+
+				if (closeStream) {
+					m_stream.Close();
 				}
 			}
 		}

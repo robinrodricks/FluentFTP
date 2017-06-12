@@ -185,13 +185,13 @@ namespace FluentFTP {
 					// when GetListing is called with recursive option, then it does not
 					// make any sense to call another DeleteDirectory with force flag set.
 					// however this requires always delete files first.
-					bool forceAgain = !WasGetListingRecursive(options);
+					bool recurse = !WasGetListingRecursive(options);
 
 					// items that are deeper in directory tree are listed first, 
 					// then files will be listed before directories. This matters
 					// only if GetListing was called with recursive option.
 					FtpListItem[] itemList;
-					if (forceAgain) {
+					if (recurse) {
 						itemList = GetListing(path, options);
 					} else {
 						itemList = GetListing(path, options).OrderByDescending(x => x.FullName.Count(c => c.Equals('/'))).ThenBy(x => x.Type).ToArray();
@@ -204,7 +204,7 @@ namespace FluentFTP {
 								DeleteFile(item.FullName);
 								break;
 							case FtpFileSystemObjectType.Directory:
-								DeleteDirInternal(item.FullName, forceAgain, options);
+								DeleteDirInternal(item.FullName, recurse, options);
 								break;
 							default:
 								throw new FtpException("Don't know how to delete object type: " + item.Type);
@@ -239,15 +239,28 @@ namespace FluentFTP {
 		/// <param name="options"></param>
 		/// <returns></returns>
 		private bool WasGetListingRecursive(FtpListOption options) {
-			if (HasFeature(FtpCapability.MLSD) && (options & FtpListOption.ForceList) != FtpListOption.ForceList)
-				return false;
 
-			if ((options & FtpListOption.UseLS) == FtpListOption.UseLS || (options & FtpListOption.NameList) == FtpListOption.NameList)
+			// if recursive listings not supported by the server then obviously NO
+			if (!RecursiveList) {
 				return false;
+			}
 
-			if ((options & FtpListOption.Recursive) == FtpListOption.Recursive)
+			// if machine listings and not force list then NO
+			if (HasFeature(FtpCapability.MLSD) && (options & FtpListOption.ForceList) != FtpListOption.ForceList) {
+				return false;
+			}
+
+			// if name listings then NO
+			if ((options & FtpListOption.UseLS) == FtpListOption.UseLS || (options & FtpListOption.NameList) == FtpListOption.NameList) {
+				return false;
+			}
+
+			// lastly if recursive is enabled then YES
+			if ((options & FtpListOption.Recursive) == FtpListOption.Recursive) {
 				return true;
+			}
 
+			// in all other cases NO
 			return false;
 		}
 

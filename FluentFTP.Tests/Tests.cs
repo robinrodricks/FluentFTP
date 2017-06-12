@@ -11,15 +11,15 @@ using System.Threading.Tasks;
 using System.IO.Compression;
 using System.Text;
 using FluentFTP.Proxy;
+using System.Security.Authentication;
 
 namespace Tests {
 	class Tests {
 
-
 		// SET THESE BEFORE RUNNING ANY TESTS!
-		static string m_host = "";
-		static string m_user = "";
-		static string m_pass = "";
+		static string m_host = "nayidisha.in";
+		static string m_user = "nayidish";
+		static string m_pass = "fIqzAusahpoCp8LXBHhN";
 
 	    private static readonly int[] connectionTypes = new int[] {
 	        (int) FtpDataConnectionType.EPSV,
@@ -99,7 +99,8 @@ namespace Tests {
 				// FILE LISTING
 				//--------------------------------
 				//TestGetObjectInfo();
-				TestGetListing();
+				//TestGetListing();
+				TestGetListingCCC();
 				//TestGetMachineListing();
 				//GetPublicFTPServerListing();
 				//TestListSpacedPath();
@@ -501,6 +502,20 @@ namespace Tests {
 			using (FtpClient client = new FtpClient()) {
 				client.Credentials = new NetworkCredential(m_user, m_pass);
 				client.Host = m_host;
+				client.Connect();
+				foreach (FtpListItem i in client.GetListing("/public_html/temp/", FtpListOption.ForceList | FtpListOption.Recursive)) {
+					//FtpTrace.WriteLine(i);
+				}
+			}
+		}
+		static void TestGetListingCCC() {
+			using (FtpClient client = new FtpClient()) {
+				client.Credentials = new NetworkCredential(m_user, m_pass);
+				client.Host = m_host;
+				client.EncryptionMode = FtpEncryptionMode.Explicit;
+				client.PlainTextEncryption = true;
+				client.SslProtocols = SslProtocols.Tls;
+				client.ValidateCertificate += new FtpSslValidation(OnValidateCertificate);
 				client.Connect();
 				foreach (FtpListItem i in client.GetListing("/public_html/temp/", FtpListOption.ForceList | FtpListOption.Recursive)) {
 					//FtpTrace.WriteLine(i);

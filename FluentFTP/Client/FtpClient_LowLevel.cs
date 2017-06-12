@@ -157,10 +157,11 @@ namespace FluentFTP {
 
 #if !NO_SSL
 			// this needs to take place after the command is executed
-			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
+			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None) {
 				stream.ActivateEncryption(m_host,
 					this.ClientCertificates.Count > 0 ? this.ClientCertificates : null,
 					m_SslProtocols);
+			}
 #endif
 
 			return stream;
@@ -298,10 +299,11 @@ namespace FluentFTP {
 #endif
 
 #if !NO_SSL
-			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
+			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None) {
 				stream.ActivateEncryption(m_host,
 					this.ClientCertificates.Count > 0 ? this.ClientCertificates : null,
 					m_SslProtocols);
+			}
 #endif
 
 			stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);

@@ -320,6 +320,8 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 - **ValidateCertificate** - Event is fired to validate SSL certificates. If this event is not handled and there are errors validating the certificate the connection will be aborted.
 
+- **PlainTextEncryption** - Disable encryption immediately after connecting with FTPS, using the CCC command. This is useful when you have a FTP firewall that requires plaintext FTP, but your server mandates FTPS connections. **Default:** false.
+
 
 ### Advanced Settings
 
@@ -452,6 +454,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **OPTS UTF8 OFF**  	| Encoding, DisableUTF8() 	| Disables UTF-8 filenames	|
 | **AUTH TLS**  		| EncryptionMode			| Switch to TLS/FTPS 	|
 | **PBSZ, PROT**  		| EncryptionMode and<br>DataConnectionEncryption | Configure TLS/FTPS connection 	|
+| **CCC**				| PlainTextEncryption		| Switch to plaintext FTP |
 | **PRET**      		| *Automatic* 				| Pre-transfer file information |
 | **TYPE A**  			| *Automatic* 				| Transfer data in ASCII	|
 | **TYPE I**  			| *Automatic* 				| Transfer data in Binary	|
@@ -492,9 +495,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 
 Use this code:
 ```cs
-FtpClient client = new FtpClient();
-client.Host = hostname;
-client.Credentials = new NetworkCredential(username, password);
+FtpClient client = new FtpClient(hostname, username, password); // or set Host & Credentials
 client.EncryptionMode = FtpEncryptionMode.Explicit;
 client.SslProtocols = SslProtocols.Tls;
 client.ValidateCertificate += new FtpSslValidation(OnValidateCertificate);
@@ -526,6 +527,16 @@ void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e)  {
     }
 }
 ```
+
+<a name="faq_ccc"></a>
+**How do I connect with FTPS and then switch back down to plaintext FTP?**
+
+This is useful when you have a FTP firewall that requires plaintext FTP, but your server mandates FTPS connections. We use the CCC command to instruct the server to revert back to FTP.
+
+```cs
+client.PlainTextEncryption = true;
+```
+
 
 <a name="faq_sftp"></a>
 **How do I connect with SFTP?**
@@ -1042,7 +1053,10 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
-#### 17.4.3
+#### 17.5.0
+- Add PlainTextEncryption API to support FTPS servers and plain-text FTP firewalls (CCC command)
+
+#### 17.4.4
 - Add logging for high-level function calls to improve remote debugging (FtpTrace.LogFunctions)
 - Add settings to hide sensitive data from logs (FtpTrace.LogIP, LogUserName, LogPassword)
 - Add RecursiveList to control if recursive listing should be used

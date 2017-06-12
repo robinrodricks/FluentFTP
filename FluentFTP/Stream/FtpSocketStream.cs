@@ -760,11 +760,19 @@ namespace FluentFTP {
 				DateTime auth_start;
 				TimeSpan auth_time_total;
 
+#if CORE
 				m_sslStream = new SslStream(NetworkStream, true, new RemoteCertificateValidationCallback(
 					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
 						return OnValidateCertificate(certificate, chain, sslPolicyErrors);
 					}
 				));
+#else
+				m_sslStream = new FtpSslStream(NetworkStream, true, new RemoteCertificateValidationCallback(
+					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
+						return OnValidateCertificate(certificate, chain, sslPolicyErrors);
+					}
+				));
+#endif
 
 				auth_start = DateTime.Now;
 #if CORE
@@ -788,6 +796,20 @@ namespace FluentFTP {
 			}
 		}
 #endif
+		
+		/// <summary>
+		/// Deactivates SSL on this stream using the specified protocols and reverts back to plain-text FTP.
+		/// </summary>
+		public void DeactivateEncryption() {
+			if (!IsConnected)
+				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
+
+			if (m_sslStream == null)
+				throw new InvalidOperationException("SSL Encryption has not been enabled on this stream.");
+
+			m_sslStream.Close();
+			m_sslStream = null;
+		}
 
 		/// <summary>
 		/// Instructs this stream to listen for connections on the specified address and port
