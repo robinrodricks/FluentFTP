@@ -510,6 +510,7 @@ namespace Tests {
 		}
 		static void TestGetListingCCC() {
 			using (FtpClient client = new FtpClient()) {
+				
 				client.Credentials = new NetworkCredential(m_user, m_pass);
 				client.Host = m_host;
 				client.EncryptionMode = FtpEncryptionMode.Explicit;
@@ -517,9 +518,15 @@ namespace Tests {
 				client.SslProtocols = SslProtocols.Tls;
 				client.ValidateCertificate += new FtpSslValidation(OnValidateCertificate);
 				client.Connect();
+
 				foreach (FtpListItem i in client.GetListing("/public_html/temp/", FtpListOption.ForceList | FtpListOption.Recursive)) {
 					//FtpTrace.WriteLine(i);
 				}
+
+				// 100 K file
+				client.UploadFile(@"D:\Github\hgupta\FluentFTP\README.md", "/public_html/temp/README.md");
+				client.DownloadFile(@"D:\Github\hgupta\FluentFTP\README2.md", "/public_html/temp/README.md");
+
 			}
 		}
 		static void TestGetMachineListing() {

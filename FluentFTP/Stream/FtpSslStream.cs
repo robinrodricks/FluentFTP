@@ -21,6 +21,8 @@ namespace FluentFTP {
 	/// </summary>
 	internal class FtpSslStream : SslStream {
 
+		private bool sentCloseNotify = false;
+
 		public FtpSslStream(Stream innerStream)
 			: base(innerStream) {
 		}
@@ -40,7 +42,10 @@ namespace FluentFTP {
 #endif
 		public override void Close() {
 			try {
-				SslDirectCall.CloseNotify(this);
+				if (!sentCloseNotify) {
+					SslDirectCall.CloseNotify(this);
+					sentCloseNotify = true;
+				}
 			} finally {
 				base.Close();
 			}
