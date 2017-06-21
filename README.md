@@ -122,6 +122,16 @@ client.Disconnect();
 ## Documentation
 
 - [API Documentation](#api)
+ - [Connection](#connection)
+ - [Directory Listing](#directory-listing)
+ - [File Transfer](#file-transfer)
+ - [File Management](#file-management)
+ - [File Permissions](#file-permissions)
+ - [File Hashing](#file-hashing)
+ - [FTPS](#ftps)
+ - [Settings](#advanced-settings)
+ - [Utilities](#utilities)
+ - [Logging](#logging)
 - [FAQ](#faq)
 - [Troubleshooting](#troubleshooting)
 - [FTP Support Table](#ftp-support)
