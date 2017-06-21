@@ -428,13 +428,21 @@ Please see these [FAQ entries](#faq_trace) for help on logging & debugging.
 
 - FtpTrace.**LogPrefix** - Log all messages prefixed with "FluentFTP". **Default:** false.
 
+- FtpTrace.**WriteLine** - Log a message or error to all registered listeners.
+
+*.NET Core only*
+
+- FtpTrace.**LogToConsole** - Should FTP communication be be logged to the console? **Default:** false.
+
+- FtpTrace.**LogToFile** - Set this to a file path to append all FTP communication to it. **Default:** false.
+
+*.NET Framework only*
+
 - FtpTrace.**FlushOnWrite** - Flush trace listeners after writing each command. **Default:** true.
 
 - FtpTrace.**AddListener** - Add a logger to the system. [Learn more](#faq_trace)
 
 - FtpTrace.**RemoveListener** - Remove a logger from the system.
-
-- FtpTrace.**WriteLine** - Log a message or error to all registered listeners.
 
 
 ## FTP Support
@@ -686,8 +694,15 @@ Support for the HASH command has been added to FluentFTP. It supports retrieving
 **How do I trace FTP commands for debugging?**
 
 Do this at program startup (since its static it takes effect for all FtpClient instances.)
+
+*.NET Framework version*
 ```cs
 FtpTrace.AddListener(new ConsoleTraceListener());
+```
+
+*.NET Core version*
+```cs
+FtpTrace.LogToConsole = true;
 ```
 
 
@@ -695,15 +710,22 @@ FtpTrace.AddListener(new ConsoleTraceListener());
 **How do I log all FTP commands to a file for debugging?**
 
 Do this at program startup (since its static it takes effect for all FtpClient instances.)
+
+*.NET Framework version*
 ```cs
 FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"));
+```
+
+*.NET Core version*
+```cs
+FtpTrace.LogToFile = "log_file.txt";
 ```
 
 
 <a name="faq_logfile2"></a>
 **How do I log only critical errors to a file?**
 
-This is the recommended configuration for a production server.
+This is the recommended configuration for a production server. Only supported in .NET Framework version.
 
 Do this at program startup (since its static it takes effect for all FtpClient instances.)
 ```cs
@@ -1054,6 +1076,9 @@ When doing a large number of transfers, one needs to be aware of some inherit is
 This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is signaled by closing the connection. On downloads and file listings, the sockets being used on the server will stay in the TIME WAIT state because the server closes the socket when it's done sending the data. On uploads, the client sockets will go into the TIME WAIT state because the client closes the connection to signal EOF to the server.
 
 ## Release Notes
+
+#### 17.5.1
+- Add FtpTrace.LogToConsole and LogToFile to control logging in .NET core version
 
 #### 17.5.0
 - Add PlainTextEncryption API to support FTPS servers and plain-text FTP firewalls (CCC command)

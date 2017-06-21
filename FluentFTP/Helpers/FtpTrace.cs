@@ -1,12 +1,13 @@
 ﻿#define TRACE
 using System;
 using System.Diagnostics;
+using System.IO;
 
 namespace FluentFTP {
-	/// <summary>
-	/// Used for transaction logging and debug information.
-	/// </summary>
-	public static class FtpTrace {
+    /// <summary>
+    /// Used for transaction logging and debug information.
+    /// </summary>
+    public static class FtpTrace {
 
 #if !CORE
 		private static readonly TraceSource m_traceSource = new TraceSource("FluentFTP") {
@@ -60,107 +61,136 @@ namespace FluentFTP {
 		}
 
 #endif
-		static bool m_functions = true;
 
-		/// <summary>
-		/// Should the function calls be logged in Verbose mode?
-		/// </summary>
-		public static bool LogFunctions {
-			get { return m_functions; }
-			set { m_functions = value; }
-		}
+#if CORE
 
-		static bool m_IP = true;
+        static bool m_LogToConsole = false;
 
-		/// <summary>
-		/// Should the FTP server IP addresses be included in the logs?
-		/// </summary>
-		public static bool LogIP {
-			get { return m_IP; }
-			set { m_IP = value; }
-		}
+        /// <summary>
+        /// Should FTP communication be be logged to console?
+        /// </summary>
+        public static bool LogToConsole {
+            get { return m_LogToConsole; }
+            set { m_LogToConsole = value; }
+        }
 
-		static bool m_username = true;
+        static string m_LogToFile = null;
 
-		/// <summary>
-		/// Should the FTP usernames be included in the logs?
-		/// </summary>
-		public static bool LogUserName {
-			get { return m_username; }
-			set { m_username = value; }
-		}
+        /// <summary>
+        /// Set this to a file path to append all FTP communication to it.
+        /// </summary>
+        public static string LogToFile {
+            get { return m_LogToFile; }
+            set { m_LogToFile = value; }
+        }
 
-		static bool m_password = false;
+#endif
+        static bool m_functions = true;
 
-		/// <summary>
-		/// Should the FTP passwords be included in the logs?
-		/// </summary>
-		public static bool LogPassword {
-			get { return m_password; }
-			set { m_password = value; }
-		}
+        /// <summary>
+        /// Should the function calls be logged in Verbose mode?
+        /// </summary>
+        public static bool LogFunctions {
+            get { return m_functions; }
+            set { m_functions = value; }
+        }
 
+        static bool m_IP = true;
 
-		/// <summary>
-		/// Write to the TraceListeners
-		/// </summary>
-		/// <param name="message">The message to write</param>
-		//[Obsolete("Use overloads with FtpTraceLevel")]
-		public static void Write(string message) {
-			Write(FtpTraceLevel.Verbose, message);
-		}
+        /// <summary>
+        /// Should the FTP server IP addresses be included in the logs?
+        /// </summary>
+        public static bool LogIP {
+            get { return m_IP; }
+            set { m_IP = value; }
+        }
 
-		/// <summary>
-		/// Write to the TraceListeners
-		/// </summary>
-		/// <param name="message">The message to write</param>
-		//[Obsolete("Use overloads with FtpTraceLevel")]
-		public static void WriteLine(object message) {
-			Write(FtpTraceLevel.Verbose, message.ToString());
-		}
+        static bool m_username = true;
 
-		/// <summary>
-		/// Write to the TraceListeners
-		/// </summary>
-		/// <param name="eventType">The type of tracing event</param>
-		/// <param name="message">The message to write</param>
-		public static void WriteLine(FtpTraceLevel eventType, object message) {
-			Write(eventType, message.ToString());
-		}
+        /// <summary>
+        /// Should the FTP usernames be included in the logs?
+        /// </summary>
+        public static bool LogUserName {
+            get { return m_username; }
+            set { m_username = value; }
+        }
 
-		/// <summary>
-		/// Write to the TraceListeners, adding an automatic prefix to the message based on the `eventType`
-		/// </summary>
-		/// <param name="eventType">The type of tracing event</param>
-		/// <param name="message">The message to write</param>
-		public static void WriteStatus(FtpTraceLevel eventType, object message) {
-			Write(eventType, TraceLevelPrefix(eventType) + message.ToString());
-		}
+        static bool m_password = false;
 
-		/// <summary>
-		/// Write to the TraceListeners, for the purpose of logging a API function call
-		/// </summary>
-		/// <param name="function">The name of the API function</param>
-		/// <param name="args">The args passed to the function</param>
-		public static void WriteFunc(string function, object[] args = null) {
-			if (m_functions) {
-				Write(FtpTraceLevel.Verbose, "");
-				Write(FtpTraceLevel.Verbose, "# " + function + "(" + args.ItemsToString().Join(", ") + ")");
-			}
-		}
+        /// <summary>
+        /// Should the FTP passwords be included in the logs?
+        /// </summary>
+        public static bool LogPassword {
+            get { return m_password; }
+            set { m_password = value; }
+        }
 
 
-		/// <summary>
-		/// Write to the TraceListeners
-		/// </summary>
-		/// <param name="eventType">The type of tracing event</param>
-		/// <param name="message">A formattable string to write</param>
-		public static void Write(FtpTraceLevel eventType, string message) {
+        /// <summary>
+        /// Write to the TraceListeners
+        /// </summary>
+        /// <param name="message">The message to write</param>
+        //[Obsolete("Use overloads with FtpTraceLevel")]
+        public static void Write(string message) {
+            Write(FtpTraceLevel.Verbose, message);
+        }
+
+        /// <summary>
+        /// Write to the TraceListeners
+        /// </summary>
+        /// <param name="message">The message to write</param>
+        //[Obsolete("Use overloads with FtpTraceLevel")]
+        public static void WriteLine(object message) {
+            Write(FtpTraceLevel.Verbose, message.ToString());
+        }
+
+        /// <summary>
+        /// Write to the TraceListeners
+        /// </summary>
+        /// <param name="eventType">The type of tracing event</param>
+        /// <param name="message">The message to write</param>
+        public static void WriteLine(FtpTraceLevel eventType, object message) {
+            Write(eventType, message.ToString());
+        }
+
+        /// <summary>
+        /// Write to the TraceListeners, adding an automatic prefix to the message based on the `eventType`
+        /// </summary>
+        /// <param name="eventType">The type of tracing event</param>
+        /// <param name="message">The message to write</param>
+        public static void WriteStatus(FtpTraceLevel eventType, object message) {
+            Write(eventType, TraceLevelPrefix(eventType) + message.ToString());
+        }
+
+        /// <summary>
+        /// Write to the TraceListeners, for the purpose of logging a API function call
+        /// </summary>
+        /// <param name="function">The name of the API function</param>
+        /// <param name="args">The args passed to the function</param>
+        public static void WriteFunc(string function, object[] args = null) {
+            if (m_functions) {
+                Write(FtpTraceLevel.Verbose, "");
+                Write(FtpTraceLevel.Verbose, "# " + function + "(" + args.ItemsToString().Join(", ") + ")");
+            }
+        }
+
+
+        /// <summary>
+        /// Write to the TraceListeners
+        /// </summary>
+        /// <param name="eventType">The type of tracing event</param>
+        /// <param name="message">A formattable string to write</param>
+        public static void Write(FtpTraceLevel eventType, string message) {
 #if CORE
 #if DEBUG
             Debug.WriteLine(message);
 #else
-            Console.WriteLine(message);
+            if (m_LogToConsole) {
+                Console.WriteLine(message);
+            }
+            if (m_LogToFile != null) {
+                File.AppendAllText(m_LogToFile, message + "\n");
+            }
 #endif
 #elif !CORE
             var diagTraceLvl = TraceLevelTranslation(eventType);
@@ -181,19 +211,19 @@ namespace FluentFTP {
 #endif
         }
 
-		private static string TraceLevelPrefix(FtpTraceLevel level) {
-			switch (level) {
-				case FtpTraceLevel.Verbose:
-					return "Status:   ";
-				case FtpTraceLevel.Info:
-					return "Status:   ";
-				case FtpTraceLevel.Warn:
-					return "Warning:  ";
-				case FtpTraceLevel.Error:
-					return "Error:    ";
-			}
-			return "Status:   ";
-		}
+        private static string TraceLevelPrefix(FtpTraceLevel level) {
+            switch (level) {
+                case FtpTraceLevel.Verbose:
+                    return "Status:   ";
+                case FtpTraceLevel.Info:
+                    return "Status:   ";
+                case FtpTraceLevel.Warn:
+                    return "Warning:  ";
+                case FtpTraceLevel.Error:
+                    return "Error:    ";
+            }
+            return "Status:   ";
+        }
 
 #if !CORE
 
@@ -229,5 +259,5 @@ namespace FluentFTP {
 			}
 		}
 #endif
-	}
+    }
 }
