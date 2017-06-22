@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>An FTP and FTPS library for .NET, optimized for speed. Provides extensive FTP commands, file uploads/downloads, SSL/TLS connections and FTP proxies.</Description>
-    <VersionPrefix>17.5.2</VersionPrefix>
+    <VersionPrefix>17.5.3</VersionPrefix>
     <Authors>J.P. Trosclair;Harsh Gupta</Authors>
     <TargetFrameworks>netstandard1.6;dnxcore50</TargetFrameworks>
     <DefineConstants>$(DefineConstants);CORE</DefineConstants>

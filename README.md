@@ -381,6 +381,10 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 - **DownloadRateLimit** - Rate limit for downloads (in kbyte/s), honored by [high level API](#highlevel). **Default:** 0 (Unlimited).
 
+- **UploadDataType** - Upload files in ASCII or Binary mode? **Default:** FtpDataType.Binary.
+
+- **DownloadDataType** - Download files in ASCII or Binary mode? **Default:** FtpDataType.Binary.
+
 
 
 *Active FTP*
@@ -483,8 +487,8 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **PBSZ, PROT**  		| EncryptionMode and<br>DataConnectionEncryption | Configure TLS/FTPS connection 	|
 | **CCC**				| PlainTextEncryption		| Switch to plaintext FTP |
 | **PRET**      		| *Automatic* 				| Pre-transfer file information |
-| **TYPE A**  			| *Automatic* 				| Transfer data in ASCII	|
-| **TYPE I**  			| *Automatic* 				| Transfer data in Binary	|
+| **TYPE A**  			| UploadDataType and<br>DownloadDataType	| Transfer data in ASCII	|
+| **TYPE I**  			| UploadDataType and<br>DownloadDataType 	| Transfer data in Binary	|
 
 *File Management commands*
 
@@ -1095,6 +1099,9 @@ When doing a large number of transfers, one needs to be aware of some inherit is
 This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is signaled by closing the connection. On downloads and file listings, the sockets being used on the server will stay in the TIME WAIT state because the server closes the socket when it's done sending the data. On uploads, the client sockets will go into the TIME WAIT state because the client closes the connection to signal EOF to the server.
 
 ## Release Notes
+
+#### 17.5.3
+- Allow transferring files in ASCII/Binary mode with the high-level API (UploadDataType, DownloadDataType)
 
 #### 17.5.2
 - Add support for .NET 3.5 and .NET Standard 1.4 (supports Universal Windows Platform 10.0)

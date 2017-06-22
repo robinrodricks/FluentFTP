@@ -125,6 +125,26 @@ namespace FluentFTP {
 			get { return m_downloadRateLimit; }
 			set { m_downloadRateLimit = value; }
 		}
+
+		public FtpDataType m_UploadDataType = FtpDataType.Binary;
+		/// <summary>
+		/// Controls if the high-level API uploads files in Binary or ASCII mode.
+		/// </summary>
+		public FtpDataType UploadDataType {
+			get { return m_UploadDataType; }
+			set { m_UploadDataType = value; }
+		}
+
+		public FtpDataType m_DownloadDataType = FtpDataType.Binary;
+		/// <summary>
+		/// Controls if the high-level API downloads files in Binary or ASCII mode.
+		/// </summary>
+		public FtpDataType DownloadDataType {
+			get { return m_DownloadDataType; }
+			set { m_DownloadDataType = value; }
+		}
+		
+		
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
 		// FtpClient.CloneConnection()
 
@@ -968,9 +988,9 @@ namespace FluentFTP {
 
 				// open a file connection
 				if (offset == 0) {
-					upStream = OpenWrite(remotePath);
+					upStream = OpenWrite(remotePath, UploadDataType);
 				} else {
-					upStream = OpenAppend(remotePath);
+					upStream = OpenAppend(remotePath, UploadDataType);
 				}
 
 				// loop till entire file uploaded
@@ -1623,7 +1643,7 @@ namespace FluentFTP {
 #endif
 								if (ie != null && code == 10054) {
 									downStream.Dispose();
-									downStream = OpenRead(remotePath, restart: offset);
+									downStream = OpenRead(remotePath, DownloadDataType, restart: offset);
 								} else throw;
 							} else throw;
 
@@ -1675,7 +1695,7 @@ namespace FluentFTP {
 #endif
 								if (ie != null && code == 10054) {
 									downStream.Dispose();
-									downStream = OpenRead(remotePath, restart: offset);
+									downStream = OpenRead(remotePath, DownloadDataType, restart: offset);
 								} else {
 									sw.Stop();
 									throw;
