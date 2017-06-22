@@ -259,10 +259,10 @@ namespace FluentFTP {
 		/// Join the given strings by a delimiter.
 		/// </summary>
 		public static string Join(this List<string> values, string delimiter) {
-#if NET2
+#if NET2 || NET35
 			return string.Join(delimiter, values.ToArray());
 #else
-			return string.Join(delimiter, values);
+            return string.Join(delimiter, values);
 #endif
 		}
 
@@ -304,7 +304,7 @@ namespace FluentFTP {
 			return results;
 		}
 
-#if NET2
+#if NET2 || NET35
 		public static bool HasFlag(this FtpVerify flags, FtpVerify flag) {
 			return (flags & flag) == flag;
 		}
@@ -316,7 +316,7 @@ namespace FluentFTP {
 			watch.Start();
 		}
 #endif
-		
 
-	}
+
+    }
 }
