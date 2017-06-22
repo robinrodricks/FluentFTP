@@ -1090,7 +1090,7 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 ## Release Notes
 
 #### 17.5.2
-- Add support for .NET Standard 1.4 to support UWP (Universal Windows Platform 10.0)
+- Add support for .NET 3.5 and .NET Standard 1.4 (supports Universal Windows Platform 10.0)
 
 #### 17.5.1
 - Add FtpTrace.LogToConsole and LogToFile to control logging in .NET core version
