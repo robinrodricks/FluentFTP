@@ -61,7 +61,12 @@ FluentFTP works on .NET and .NET Standard/.NET Core.
 | **.NET Standard 1.6** | netstandard1.6	| FluentFTP_Core16_VS2017.sln 	|
 | **.NET Core 5.0** 	| dnxcore50 		| FluentFTP_Core16_VS2017.sln 	|
 
+FluentFTP is also supported on these platforms: (via .NET Standard)
 
+- **Mono** 4.6
+- **Xamarin.iOS** 10.0
+- **Xamarin.Android** 10.0
+- **Universal Windows Platform** 10.0
 
 ## Example Usage
 
