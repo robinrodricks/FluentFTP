@@ -5,7 +5,7 @@
     <VersionPrefix>17.5.1</VersionPrefix>
     <Authors>J.P. Trosclair;Harsh Gupta</Authors>
     <TargetFrameworks>netstandard1.6;dnxcore50</TargetFrameworks>
-    <DefineConstants>$(DefineConstants);CORE;CORE16</DefineConstants>
+    <DefineConstants>$(DefineConstants);CORE</DefineConstants>
     <RootNamespace>FluentFTP</RootNamespace>
     <AssemblyName>FluentFTP</AssemblyName>
 	<OutputType>Library</OutputType>

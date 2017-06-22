@@ -5,14 +5,11 @@
     <VersionPrefix>17.5.1</VersionPrefix>
     <Authors>J.P. Trosclair;Harsh Gupta</Authors>
     <TargetFrameworks>netstandard1.4</TargetFrameworks>
-    <DefineConstants>$(DefineConstants);CORE</DefineConstants>
+    <DefineConstants>$(DefineConstants);CORE;CORE14;NO_SSL</DefineConstants>
     <RootNamespace>FluentFTP</RootNamespace>
     <AssemblyName>FluentFTP</AssemblyName>
 	<OutputType>Library</OutputType>
     <PackageId>FluentFTP</PackageId>
-    <NetStandardImplicitPackageVersion>1.4.0</NetStandardImplicitPackageVersion>
-    <TargetFrameworkIdentifier>.NETStandard</TargetFrameworkIdentifier>
-    <TargetFrameworkVersion>v1.4</TargetFrameworkVersion>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -30,7 +27,6 @@
     <PackageReference Include="System.IO" Version="4.3.0.0" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0.0" />
     <PackageReference Include="System.Net.Sockets" Version="4.3.0.0" />
-    <PackageReference Include="System.Net.Security" Version="4.3.0.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0.0" />
     <PackageReference Include="System.Threading.Tasks" Version="4.3.0.0" />
   </ItemGroup>

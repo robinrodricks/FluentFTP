@@ -3,7 +3,7 @@
 
 [![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP)
 
-FluentFTP is a fully managed FTP and FTPS library for .NET & .NET Core, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, UTF-8 support, Async/await support and more.
+FluentFTP is a fully managed FTP and FTPS library for .NET & .NET Standard, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, UTF-8 support, Async/await support and more.
 
 It is written entirely in C#, with no external dependencies. FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 
@@ -49,7 +49,7 @@ Stable binaries are released on NuGet, and contain everything you need to use FT
 - [Nuget](https://www.nuget.org/packages/FluentFTP) (latest)
 - [Releases](https://github.com/hgupta9/FluentFTP/releases) (occasionally updated)
 
-FluentFTP works on .NET and .NET Core.
+FluentFTP works on .NET and .NET Standard/.NET Core.
 
 | Platform      		| Binaries Folder	| Solution                  	|
 |---------------		|-----------		|---------------------------	|
@@ -58,7 +58,8 @@ FluentFTP works on .NET and .NET Core.
 | **.NET 4.0**      	| net40     		| FluentFTP_NET_VS2012.sln  	|
 | **.NET 4.5**      	| net45     		| FluentFTP_NET_VS2012.sln  	|
 | **.NET Core 5.0** 	| dnxcore50 		| FluentFTP_Core_VS2017.sln 	|
-| **.NET Standard 1.6** | netstandard1.6	| FluentFTP_Core_VS2017.sln 	|
+| **.NET Standard 1.4** | netstandard1.4	| FluentFTP_Core14_VS2017.sln 	|
+| **.NET Standard 1.6** | netstandard1.6	| FluentFTP_Core16_VS2017.sln 	|
 
 ## Example Usage
 
@@ -441,7 +442,7 @@ Please see these [FAQ entries](#faq_trace) for help on logging & debugging.
 
 - FtpTrace.**WriteLine** - Log a message or error to all registered listeners.
 
-*.NET Core only*
+*.NET Standard only*
 
 - FtpTrace.**LogToConsole** - Should FTP communication be be logged to the console? **Default:** false.
 
@@ -711,7 +712,7 @@ Do this at program startup (since its static it takes effect for all FtpClient i
 FtpTrace.AddListener(new ConsoleTraceListener());
 ```
 
-*.NET Core version*
+*.NET Standard version*
 ```cs
 FtpTrace.LogToConsole = true;
 ```
@@ -727,7 +728,7 @@ Do this at program startup (since its static it takes effect for all FtpClient i
 FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"));
 ```
 
-*.NET Core version*
+*.NET Standard version*
 ```cs
 FtpTrace.LogToFile = "log_file.txt";
 ```
@@ -768,9 +769,9 @@ Use these settings to control what data is included in the logs:
 <a name="faq_log"></a>
 **How do I use third-party logging frameworks like NLog?**
 
-FluentFTP has a built-in [`TraceSource`](https://msdn.microsoft.com/en-us/library/system.diagnostics.tracesource(v=vs.110).aspx) named "FluentFTP" that can be used for debugging and logging purposes.  This is currently available for all .NET Framework versions except for .NET Core.  Any implementation of [`TraceListener`](https://msdn.microsoft.com/en-us/library/system.diagnostics.tracelistener(v=vs.110).aspx) can be attached to the library either programmatically or via configuration in your app.config or web.config file.  This will allow for direct logging or forwarding to third-party logging frameworks.
+FluentFTP has a built-in [`TraceSource`](https://msdn.microsoft.com/en-us/library/system.diagnostics.tracesource(v=vs.110).aspx) named "FluentFTP" that can be used for debugging and logging purposes.  This is currently available for all .NET Framework versions except for .NET Standard.  Any implementation of [`TraceListener`](https://msdn.microsoft.com/en-us/library/system.diagnostics.tracelistener(v=vs.110).aspx) can be attached to the library either programmatically or via configuration in your app.config or web.config file.  This will allow for direct logging or forwarding to third-party logging frameworks.
 
-Most tracing messages are of type `Verbose` or `Information` and can typically be ignored unless debugging.  Most ignored exceptions are classified as `Warning`, but methods that return boolean for success/failure will log the failure reasons with the `Error` level.  If you are using .NET Core and the DEBUG flag is set, then all logging messages will be issued via `Debug.Write(message)`.
+Most tracing messages are of type `Verbose` or `Information` and can typically be ignored unless debugging.  Most ignored exceptions are classified as `Warning`, but methods that return boolean for success/failure will log the failure reasons with the `Error` level.  If you are using .NET Standard and the DEBUG flag is set, then all logging messages will be issued via `Debug.Write(message)`.
 
 Attaching TraceListener in code:
 
@@ -1087,6 +1088,9 @@ When doing a large number of transfers, one needs to be aware of some inherit is
 This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is signaled by closing the connection. On downloads and file listings, the sockets being used on the server will stay in the TIME WAIT state because the server closes the socket when it's done sending the data. On uploads, the client sockets will go into the TIME WAIT state because the client closes the connection to signal EOF to the server.
 
 ## Release Notes
+
+#### 17.5.2
+- Add support for .NET Standard 1.4 to support UWP (Universal Windows Platform 10.0)
 
 #### 17.5.1
 - Add FtpTrace.LogToConsole and LogToFile to control logging in .NET core version
