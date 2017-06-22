@@ -118,7 +118,7 @@ namespace FluentFTP {
 						return (hash.ToUpper() == m_value.ToUpper());
 					}
 				} finally {
-#if !NET2 // .NET 2.0 doesn't provide access to Dispose() for HashAlgorithm
+#if !NET2 && !NET35 // .NET 2.0 doesn't provide access to Dispose() for HashAlgorithm
 					if (hashAlg != null)
 						hashAlg.Dispose();
 #endif

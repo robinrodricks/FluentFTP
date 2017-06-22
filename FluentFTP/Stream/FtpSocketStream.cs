@@ -578,10 +578,11 @@ namespace FluentFTP {
 #endif
 					}
 
-#if !NET2
+#if !NET2 && !NET35
 					m_socket.Dispose();
 #endif
-				} catch (SocketException ex) {
+                }
+                catch (SocketException ex) {
 					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Caught and discarded a SocketException while cleaning up the Socket: " + ex.ToString());
 				} finally {
 					m_socket = null;
