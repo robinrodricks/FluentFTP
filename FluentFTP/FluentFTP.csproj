@@ -65,7 +65,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugNET2|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Debug\net20\</OutputPath>
-    <DefineConstants>DEBUG;NET2,NETFX,LINQBRIDGE_LIB</DefineConstants>
+    <DefineConstants>DEBUG;NET2;NETFX;LINQBRIDGE_LIB</DefineConstants>
     <DocumentationFile>bin\Debug\net20\FluentFTP.xml</DocumentationFile>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -82,7 +82,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DefineConstants>NET2,NETFX,LINQBRIDGE_LIB</DefineConstants>
+    <DefineConstants>NET2;NETFX;LINQBRIDGE_LIB</DefineConstants>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -92,8 +92,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugNET35|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\DebugNET35\</OutputPath>
-    <DefineConstants>DEBUG;NET35,NETFX,LINQBRIDGE_LIB</DefineConstants>
+    <OutputPath>bin\Debug\net35\</OutputPath>
+    <DefineConstants>DEBUG;NET35;NETFX</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\Debug\net35\FluentFTP.xml</DocumentationFile>
     <DebugType>full</DebugType>
@@ -103,8 +103,8 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ReleaseNET35|AnyCPU'">
-    <OutputPath>bin\ReleaseNET35\</OutputPath>
-    <DefineConstants>NET35,NETFX,LINQBRIDGE_LIB</DefineConstants>
+    <OutputPath>bin\Release\net35\</OutputPath>
+    <DefineConstants>NET35;NETFX</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DocumentationFile>bin\Release\net35\FluentFTP.xml</DocumentationFile>
     <Optimize>true</Optimize>

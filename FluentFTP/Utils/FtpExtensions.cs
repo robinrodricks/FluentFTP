@@ -305,6 +305,12 @@ namespace FluentFTP {
 		}
 
 #if NET2 || NET35
+		public static bool HasFlag(this FtpHashAlgorithm flags, FtpHashAlgorithm flag) {
+			return (flags & flag) == flag;
+		}
+		public static bool HasFlag(this FtpCapability flags, FtpCapability flag) {
+			return (flags & flag) == flag;
+		}
 		public static bool HasFlag(this FtpVerify flags, FtpVerify flag) {
 			return (flags & flag) == flag;
 		}

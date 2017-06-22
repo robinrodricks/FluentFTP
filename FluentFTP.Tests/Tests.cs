@@ -7,7 +7,9 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
+#if (CORE || NETFX45)
 using System.Threading.Tasks;
+#endif
 using System.IO.Compression;
 using System.Text;
 using FluentFTP.Proxy;
