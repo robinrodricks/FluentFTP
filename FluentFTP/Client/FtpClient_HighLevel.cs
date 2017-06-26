@@ -1051,8 +1051,12 @@ namespace FluentFTP {
 								if (swTime >= 1000) {
 									double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
 									if (timeShouldTake > swTime) {
-										Thread.Sleep((int)(timeShouldTake - swTime));
-									}
+#if CORE14
+                                        Task.Delay((int)(timeShouldTake - swTime)).Wait();
+#else
+                                        Thread.Sleep((int)(timeShouldTake - swTime));
+#endif
+                                    }
 									limitCheckBytes = 0;
 									sw.Restart();
 								}
@@ -1224,7 +1228,11 @@ namespace FluentFTP {
 								if (swTime >= 1000) {
 									double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
 									if (timeShouldTake > swTime) {
-										Thread.Sleep((int)(timeShouldTake - swTime));
+#if CORE14
+                                        Task.Delay((int)(timeShouldTake - swTime)).Wait();
+#else
+                                        Thread.Sleep((int)(timeShouldTake - swTime));
+#endif
 									}
 									limitCheckBytes = 0;
 									sw.Restart();
@@ -1288,9 +1296,9 @@ namespace FluentFTP {
 
 #endif
 
-		#endregion
+#endregion
 
-		#region Download File
+#region Download File
 
 		/// <summary>
 		/// Downloads the specified file onto the local file system.
@@ -1464,9 +1472,9 @@ namespace FluentFTP {
 			return downloadSuccess && verified;
 		}
 #endif
-		#endregion
+#endregion
 
-		#region	Download Bytes/Stream
+#region	Download Bytes/Stream
 
 		/// <summary>
 		/// Downloads the specified file into the specified stream.
@@ -1576,9 +1584,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Download File Internal
+#region Download File Internal
 
 		/// <summary>
 		/// Download a file from the server and write the data into the given stream.
@@ -1670,7 +1678,11 @@ namespace FluentFTP {
 								if (swTime >= 1000) {
 									double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
 									if (timeShouldTake > swTime) {
-										Thread.Sleep((int)(timeShouldTake - swTime));
+#if CORE14
+                                        Task.Delay((int)(timeShouldTake - swTime)).Wait();
+#else
+                                        Thread.Sleep((int)(timeShouldTake - swTime));
+#endif
 									}
 									limitCheckBytes = 0;
 									sw.Restart();
@@ -1826,9 +1838,13 @@ namespace FluentFTP {
 								if (swTime >= 1000) {
 									double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
 									if (timeShouldTake > swTime) {
-										Thread.Sleep((int)(timeShouldTake - swTime));
-									}
-									limitCheckBytes = 0;
+#if CORE14
+                                        Task.Delay((int)(timeShouldTake - swTime)).Wait();
+#else
+                                        Thread.Sleep((int)(timeShouldTake - swTime));
+#endif
+                                    }
+                                    limitCheckBytes = 0;
 									sw.Restart();
 								}
 							}
@@ -1900,9 +1916,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Verification
+#region Verification
 
 		private bool VerifyTransfer(string localPath, string remotePath) {
 			if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
@@ -1938,7 +1954,7 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
 	}
 }

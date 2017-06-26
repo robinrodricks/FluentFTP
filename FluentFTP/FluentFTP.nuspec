@@ -3,7 +3,7 @@
 	<metadata>
 	
 		<id>FluentFTP</id>
-		<version>17.5.3</version>
+		<version>17.5.4</version>
 		<title>FluentFTP</title>
 		<authors>J.P. Trosclair, Harsh Gupta, FluentFTP Contributors</authors>
 		<owners>Harsh Gupta</owners>
@@ -54,7 +54,6 @@
 				<dependency id="System.IO" version="4.3.0" />
 				<dependency id="System.Net.NameResolution" version="4.3.0" />
 				<dependency id="System.Net.Sockets" version="4.3.0" />
-				<dependency id="System.Threading.Thread" version="4.3.0" />
 				<dependency id="System.Threading.Tasks" version="4.3.0" />
 			</group>
 			

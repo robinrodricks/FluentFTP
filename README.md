@@ -1100,6 +1100,9 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 17.5.4
+- Remove dependency on System.Threading.Thread for .NET Standard 1.4 version (for UWP)
+
 #### 17.5.3
 - Allow transferring files in ASCII/Binary mode with the high-level API (UploadDataType, DownloadDataType)
 

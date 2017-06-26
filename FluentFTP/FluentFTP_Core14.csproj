@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <Description>An FTP and FTPS library for .NET, optimized for speed. Provides extensive FTP commands, file uploads/downloads, SSL/TLS connections and FTP proxies.</Description>
-    <VersionPrefix>17.5.3</VersionPrefix>
+    <VersionPrefix>17.5.4</VersionPrefix>
     <Authors>J.P. Trosclair;Harsh Gupta</Authors>
     <TargetFrameworks>netstandard1.4</TargetFrameworks>
     <DefineConstants>$(DefineConstants);CORE;CORE14;NO_SSL</DefineConstants>
@@ -27,7 +27,6 @@
     <PackageReference Include="System.IO" Version="4.3.0.0" />
     <PackageReference Include="System.Net.NameResolution" Version="4.3.0.0" />
     <PackageReference Include="System.Net.Sockets" Version="4.3.0.0" />
-    <PackageReference Include="System.Threading.Thread" Version="4.3.0.0" />
     <PackageReference Include="System.Threading.Tasks" Version="4.3.0.0" />
   </ItemGroup>
   
