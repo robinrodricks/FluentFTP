@@ -90,7 +90,9 @@ namespace FluentFTP {
 			FtpReply reply;
 			FtpHashAlgorithm type = FtpHashAlgorithm.NONE;
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if ((reply = Execute("OPTS HASH")).Success) {
 					switch (reply.Message) {
 						case "SHA-1":
@@ -107,7 +109,9 @@ namespace FluentFTP {
 							break;
 					}
 				}
-			}
+#if !CORE14
+            }
+#endif
 
 			return type;
 		}
@@ -181,7 +185,9 @@ namespace FluentFTP {
 			FtpReply reply;
 			string algorithm;
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if ((HashAlgorithms & type) != type)
 					throw new NotImplementedException(("The hash algorithm " + type.ToString() + " was not advertised by the server."));
 
@@ -205,7 +211,9 @@ namespace FluentFTP {
 
 				if (!(reply = Execute("OPTS HASH " + algorithm)).Success)
 					throw new FtpCommandException(reply);
-			}
+#if !CORE14
+            }
+#endif
 		}
 
 		delegate void AsyncSetHashAlgorithm(FtpHashAlgorithm type);
@@ -294,10 +302,14 @@ namespace FluentFTP {
 			if (path == null)
 				throw new ArgumentException("GetHash(path) argument can't be null");
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if (!(reply = Execute("HASH " + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
-			}
+#if !CORE14
+            }
+#endif
 
 			// Current draft says the server should return this:
 			// SHA-256 0-49 169cd22282da7f147cb491e559e9dd filename.ext

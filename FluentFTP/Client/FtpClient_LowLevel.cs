@@ -323,7 +323,9 @@ namespace FluentFTP {
 			FtpDataConnectionType type = m_dataConnectionType;
 			FtpDataStream stream = null;
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if (!IsConnected)
 					Connect();
 
@@ -360,7 +362,9 @@ namespace FluentFTP {
 
 				if (stream == null)
 					throw new InvalidOperationException("The specified data channel type is not implemented.");
-			}
+#if !CORE14
+            }
+#endif
 
 			return stream;
 		}
@@ -378,7 +382,9 @@ namespace FluentFTP {
 			if (stream == null)
 				throw new ArgumentException("The data stream parameter was null");
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				try {
 					if (IsConnected) {
 						// if the command that required the data connection was
@@ -400,7 +406,9 @@ namespace FluentFTP {
 						Dispose();
 					}
 				}
-			}
+#if !CORE14
+            }
+#endif
 
 			return reply;
 		}
@@ -457,7 +465,9 @@ namespace FluentFTP {
 			FtpDataStream stream = null;
 			long length = 0;
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if (m_threadSafeDataChannels) {
 					client = CloneConnection();
 					client.Connect();
@@ -469,7 +479,9 @@ namespace FluentFTP {
 				client.SetDataType(type);
 				length = client.GetFileSize(path);
 				stream = client.OpenDataStream(("RETR " + path.GetFtpPath()), restart);
-			}
+#if !CORE14
+            }
+#endif
 
 			if (stream != null) {
 				if (length > 0)
@@ -641,7 +653,9 @@ namespace FluentFTP {
 			FtpDataStream stream = null;
 			long length = 0;
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if (m_threadSafeDataChannels) {
 					client = CloneConnection();
 					client.Connect();
@@ -656,7 +670,9 @@ namespace FluentFTP {
 
 				if (length > 0 && stream != null)
 					stream.SetLength(length);
-			}
+#if !CORE14
+            }
+#endif
 
 			return stream;
 		}
@@ -764,7 +780,9 @@ namespace FluentFTP {
 			FtpDataStream stream = null;
 			long length = 0;
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if (m_threadSafeDataChannels) {
 					client = CloneConnection();
 					client.Connect();
@@ -781,7 +799,9 @@ namespace FluentFTP {
 					stream.SetLength(length);
 					stream.SetPosition(length);
 				}
-			}
+#if !CORE14
+            }
+#endif
 
 			return stream;
 		}
@@ -871,7 +891,9 @@ namespace FluentFTP {
 		protected void SetDataType(FtpDataType type) {
 			FtpReply reply;
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				switch (type) {
 					case FtpDataType.ASCII:
 						if (!(reply = Execute("TYPE A")).Success)
@@ -888,7 +910,9 @@ namespace FluentFTP {
 					default:
 						throw new FtpException("Unsupported data type: " + type.ToString());
 				}
-			}
+#if !CORE14
+            }
+#endif
 
 			CurrentDataType = type;
 

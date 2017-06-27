@@ -85,13 +85,16 @@ namespace FluentFTP {
 		public void DeleteFile(string path) {
 			FtpReply reply;
 
-			lock (m_lock) {
-
+#if !CORE14
+            lock (m_lock) {
+#endif
 				FtpTrace.WriteFunc("DeleteFile", new object[] { path });
 
 				if (!(reply = Execute("DELE " + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
-			}
+#if !CORE14
+            }
+#endif
 		}
 
 		delegate void AsyncDeleteFile(string path);
@@ -175,7 +178,9 @@ namespace FluentFTP {
 			string ftppath = path.GetFtpPath();
 
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 
 
 
@@ -229,16 +234,18 @@ namespace FluentFTP {
 				if (!(reply = Execute("RMD " + ftppath)).Success) {
 					throw new FtpCommandException(reply);
 				}
+                
+#if !CORE14
+             }
+#endif
+    }
 
-			}
-		}
-
-		/// <summary>
-		/// Checks whether <see cref="o:GetListing"/> will be called recursively or not.
-		/// </summary>
-		/// <param name="options"></param>
-		/// <returns></returns>
-		private bool WasGetListingRecursive(FtpListOption options) {
+    /// <summary>
+    /// Checks whether <see cref="o:GetListing"/> will be called recursively or not.
+    /// </summary>
+    /// <param name="options"></param>
+    /// <returns></returns>
+    private bool WasGetListingRecursive(FtpListOption options) {
 
 			// if recursive listings not supported by the server then obviously NO
 			if (!RecursiveList) {
@@ -368,8 +375,10 @@ namespace FluentFTP {
 				return true;
 			}
 
-			// check if a folder exists by changing the working dir to it
-			lock (m_lock) {
+            // check if a folder exists by changing the working dir to it
+#if !CORE14
+            lock (m_lock) {
+#endif
 				pwd = GetWorkingDirectory();
 
 				if (Execute("CWD " + ftppath).Success) {
@@ -380,7 +389,9 @@ namespace FluentFTP {
 
 					return true;
 				}
-			}
+#if !CORE14
+            }
+#endif
 
 			return false;
 		}
@@ -453,7 +464,9 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
 		public bool FileExists(string path) {
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 
 				FtpTrace.WriteFunc("FileExists", new object[] { path });
 
@@ -501,7 +514,9 @@ namespace FluentFTP {
 				}*/
 
 				return false;
-			}
+#if !CORE14
+            }
+#endif
 		}
 
 		delegate bool AsyncFileExists(string path);
@@ -583,7 +598,9 @@ namespace FluentFTP {
 			if (ftppath == "." || ftppath == "./" || ftppath == "/")
 				return;
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				path = path.GetFtpPath().TrimEnd('/');
 
 				if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
@@ -596,7 +613,9 @@ namespace FluentFTP {
 
 				if (!(reply = Execute("MKD " + ftppath)).Success)
 					throw new FtpCommandException(reply);
-			}
+#if !CORE14
+            }
+#endif
 		}
 
 		delegate void AsyncCreateDirectory(string path, bool force);
@@ -685,8 +704,9 @@ namespace FluentFTP {
 		public void Rename(string path, string dest) {
 			FtpReply reply;
 
-			lock (m_lock) {
-
+#if !CORE14
+            lock (m_lock) {
+#endif
 				FtpTrace.WriteFunc("Rename", new object[] { path, dest });
 
 				// calc the absolute filepaths
@@ -698,7 +718,9 @@ namespace FluentFTP {
 
 				if (!(reply = Execute("RNTO " + dest)).Success)
 					throw new FtpCommandException(reply);
-			}
+#if !CORE14
+            }
+#endif
 		}
 
 		delegate void AsyncRename(string path, string dest);
@@ -947,25 +969,28 @@ namespace FluentFTP {
 		public void SetFilePermissions(string path, int permissions) {
 			FtpReply reply;
 
-			lock (m_lock) {
-
+#if !CORE14
+            lock (m_lock) {
+#endif
 				FtpTrace.WriteFunc("SetFilePermissions", new object[] { path, permissions });
 
 				if (!(reply = Execute("SITE CHMOD " + permissions.ToString() + " " + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
-			}
-		}
+#if !CORE14
+            }
+#endif
+        }
 
-		/// <summary>
-		/// Modify the permissions of the given file/folder.
-		/// Only works on *NIX systems, and not on Windows/IIS servers.
-		/// Only works if the FTP server supports the SITE CHMOD command
-		/// (requires the CHMOD extension to be installed and enabled).
-		/// Throws FtpCommandException if there is an issue.
-		/// </summary>
-		/// <param name="path">The full or relative path to the item</param>
-		/// <param name="permissions">The permissions in CHMOD format</param>
-		public void Chmod(string path, int permissions) {
+        /// <summary>
+        /// Modify the permissions of the given file/folder.
+        /// Only works on *NIX systems, and not on Windows/IIS servers.
+        /// Only works if the FTP server supports the SITE CHMOD command
+        /// (requires the CHMOD extension to be installed and enabled).
+        /// Throws FtpCommandException if there is an issue.
+        /// </summary>
+        /// <param name="path">The full or relative path to the item</param>
+        /// <param name="permissions">The permissions in CHMOD format</param>
+        public void Chmod(string path, int permissions) {
 			SetFilePermissions(path, permissions);
 		}
 
@@ -1198,10 +1223,14 @@ namespace FluentFTP {
 			if (ftppath == "." || ftppath == "./")
 				return;
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if (!(reply = Execute("CWD " + ftppath)).Success)
 					throw new FtpCommandException(reply);
-			}
+#if !CORE14
+            }
+#endif
 		}
 
 		delegate void AsyncSetWorkingDirectory(string path);
@@ -1264,10 +1293,14 @@ namespace FluentFTP {
 			FtpReply reply;
 			Match m;
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if (!(reply = Execute("PWD")).Success)
 					throw new FtpCommandException(reply);
-			}
+#if !CORE14
+            }
+#endif
 
 			if ((m = Regex.Match(reply.Message, "\"(?<pwd>.*)\"")).Success) {
 				return m.Groups["pwd"].Value;
@@ -1343,13 +1376,17 @@ namespace FluentFTP {
 			FtpReply reply;
 			long length = 0;
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if (!(reply = Execute("SIZE " + path.GetFtpPath())).Success)
 					return -1;
 
 				if (!long.TryParse(reply.Message, out length))
 					return -1;
-			}
+#if !CORE14
+            }
+#endif
 
 			return length;
 		}
@@ -1417,12 +1454,16 @@ namespace FluentFTP {
 			DateTime modify = DateTime.MinValue;
 			FtpReply reply;
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if ((reply = Execute("MDTM " + path.GetFtpPath())).Success)
 					modify = reply.Message.GetFtpDate(DateTimeStyles.AssumeUniversal);
-			}
+#if !CORE14
+            }
+#endif
 
-			return modify;
+            return modify;
 		}
 
 		delegate DateTime AsyncGetModifiedTime(string path);

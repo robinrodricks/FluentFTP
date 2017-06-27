@@ -75,13 +75,14 @@ namespace FluentFTP {
 	/// </example>
 	public partial class FtpClient : IDisposable {
 
-		#region Properties
+        #region Properties
 
-		/// <summary>
-		/// Used for internally synchronizing access to this
-		/// object from multiple threads
-		/// </summary>
-		readonly Object m_lock = new Object();
+#if !CORE14
+        /// <summary>
+        /// Used for internally synchronizing access to this
+        /// object from multiple threads
+        /// </summary>
+        readonly Object m_lock = new Object();
 
 		/// <summary>
 		/// For usage by FTP proxies only
@@ -91,6 +92,7 @@ namespace FluentFTP {
 				return m_lock;
 			}
 		}
+#endif
 
 		/// <summary>
 		/// A list of asynchronous methods that are in progress
@@ -246,11 +248,15 @@ namespace FluentFTP {
 				return m_textEncoding;
 			}
 			set {
-				lock (m_lock) {
+#if !CORE14
+                lock (m_lock) {
+#endif
 					m_textEncoding = value;
 					m_textEncodingAutoUTF = false;
-				}
-			}
+#if !CORE14
+                }
+#endif
+        }
 		}
 
 		string m_host = null;
@@ -617,9 +623,9 @@ namespace FluentFTP {
 			protected set { m_connectionType = value; }
 		}
 
-		#endregion
+#endregion
 
-		#region Constructor / Destructor
+#region Constructor / Destructor
 
 		/// <summary>
 		/// Creates a new instance of an FTP Client.
@@ -687,7 +693,9 @@ namespace FluentFTP {
 		/// object.
 		/// </summary>
 		public void Dispose() {
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if (IsDisposed)
 					return;
 
@@ -718,7 +726,9 @@ namespace FluentFTP {
 				m_asyncmethods.Clear();
 				IsDisposed = true;
 				GC.SuppressFinalize(this);
-			}
+#if !CORE14
+            }
+#endif
 		}
 
 		/// <summary>
@@ -728,9 +738,9 @@ namespace FluentFTP {
 			Dispose();
 		}
 
-		#endregion
+#endregion
 
-		#region Clone
+#region Clone
 
 		/// <summary>
 		/// Clones the control connection for opening multiple data streams
@@ -796,9 +806,9 @@ namespace FluentFTP {
 			return conn;
 		}
 
-		#endregion
+#endregion
 
-		#region Execute Command
+#region Execute Command
 
 		/// <summary>
 		/// Executes a command
@@ -809,8 +819,9 @@ namespace FluentFTP {
 		public FtpReply Execute(string command) {
 			FtpReply reply;
 
-			lock (m_lock) {
-
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if (StaleDataCheck) {
 					ReadStaleData(true, false, true);
 				}
@@ -840,7 +851,9 @@ namespace FluentFTP {
 				// send command to FTP server
 				m_stream.WriteLine(m_textEncoding, command);
 				reply = GetReply();
-			}
+#if !CORE14
+            }
+#endif
 
 			return reply;
 		}
@@ -892,9 +905,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Get Reply
+#region Get Reply
 
 		/// <summary>
 		/// Retrieves a reply from the server. Do not execute this method
@@ -908,7 +921,9 @@ namespace FluentFTP {
 			FtpReply reply = new FtpReply();
 			string buf;
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if (!IsConnected)
 					throw new InvalidOperationException("No connection to the server has been established.");
 
@@ -948,14 +963,16 @@ namespace FluentFTP {
 					FtpTrace.WriteLine(FtpTraceLevel.Verbose, reply.InfoMessages.Split('\n').AddPrefix("Response: ", true).Join("\n"));
 					//FtpTrace.WriteLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 				}
-			}
+#if !CORE14
+            }
+#endif
 
 			return reply;
 		}
 
-		#endregion
+#endregion
 
-		#region Connect
+#region Connect
 
 		private FtpListParser m_listParser;
 
@@ -967,7 +984,9 @@ namespace FluentFTP {
 		public virtual void Connect() {
 			FtpReply reply;
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 
 				FtpTrace.WriteFunc("Connect");
 
@@ -1070,8 +1089,10 @@ namespace FluentFTP {
 
 				// Create the parser even if the auto-OS detection failed
 				m_listParser.Init(m_systemType);
-
-			}
+                
+#if !CORE14
+            }
+#endif
 		}
 
 		/// <summary>
@@ -1221,9 +1242,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Login
+#region Login
 
 		/// <summary>
 		/// Performs a login on the server. This method is overridable so
@@ -1250,15 +1271,17 @@ namespace FluentFTP {
 				throw new FtpCommandException(reply);
 		}
 
-		#endregion
+#endregion
 
-		#region Disconnect
+#region Disconnect
 
 		/// <summary>
 		/// Disconnects from the server
 		/// </summary>
 		public virtual void Disconnect() {
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if (m_stream != null && m_stream.IsConnected) {
 					try {
 						if (!UngracefullDisconnection) {
@@ -1276,7 +1299,9 @@ namespace FluentFTP {
 						m_stream.Close();
 					}
 				}
-			}
+#if !CORE14
+            }
+#endif
 		}
 
 		delegate void AsyncDisconnect();
@@ -1322,9 +1347,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region FTPS
+#region FTPS
 
 		/// <summary>
 		/// Catches the socket stream ssl validation event and fires the event handlers
@@ -1348,9 +1373,9 @@ namespace FluentFTP {
 				evt(this, e);
 		}
 
-		#endregion
+#endregion
 
-		#region Utils
+#region Utils
 
 		/// <summary>
 		/// Performs a bitwise and to check if the specified
@@ -1456,13 +1481,17 @@ namespace FluentFTP {
 		public void DisableUTF8() {
 			FtpReply reply;
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				if (!(reply = Execute("OPTS UTF8 OFF")).Success)
 					throw new FtpCommandException(reply);
 
 				m_textEncoding = Encoding.ASCII;
 				m_textEncodingAutoUTF = false;
-			}
+#if !CORE14
+            }
+#endif
 		}
 
 		/// <summary>
@@ -1507,9 +1536,9 @@ namespace FluentFTP {
 			return false;
 		}
 
-		#endregion
+#endregion
 
-		#region Static API
+#region Static API
 
 		/// <summary>
 		/// Calculate the CHMOD integer value given a set of permissions.
@@ -1786,7 +1815,7 @@ namespace FluentFTP {
 			return null;
 		}
 
-		#endregion
+#endregion
 
 	}
 }

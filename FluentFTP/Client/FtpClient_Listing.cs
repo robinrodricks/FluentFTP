@@ -380,7 +380,9 @@ namespace FluentFTP {
 				listcmd = (listcmd + " " + path.GetFtpPath());
 			}
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				Execute("TYPE I");
 
 				// read in raw file listing
@@ -398,7 +400,9 @@ namespace FluentFTP {
 						stream.Close();
 					}
 				}
-			}
+#if !CORE14
+            }
+#endif
 
 			for (int i = 0; i < rawlisting.Count; i++) {
 				buf = rawlisting[i];
@@ -654,7 +658,9 @@ namespace FluentFTP {
 			// calc path to request
 			path = GetAbsolutePath(path);
 
-			lock (m_lock) {
+#if !CORE14
+            lock (m_lock) {
+#endif
 				// always get the file listing in binary
 				// to avoid any potential character translation
 				// problems that would happen if in ASCII.
@@ -670,7 +676,9 @@ namespace FluentFTP {
 						stream.Close();
 					}
 				}
-			}
+#if !CORE14
+            }
+#endif
 
 			return listing.ToArray();
 		}
