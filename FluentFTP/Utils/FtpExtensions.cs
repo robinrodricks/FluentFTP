@@ -298,7 +298,14 @@ namespace FluentFTP {
 				return results;
 			}
 			foreach (object v in args) {
-				string txt = v is string ? ("\"" + v as string + "\"") : v.ToString();
+				string txt;
+				if (v == null){
+					txt = "null";
+				} else if (v is string) {
+					txt = ("\"" + v as string + "\"");
+				} else {
+					txt = v.ToString();
+				}
 				results.Add(txt);
 			}
 			return results;

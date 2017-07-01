@@ -1100,6 +1100,9 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 17.5.6
+- Fix NullReferenceException when arguments are null during FtpTrace.WriteFunc
+
 #### 17.5.5
 - Remove internal locking for .NET Standard 1.4 version since unsupported on UWP
 
