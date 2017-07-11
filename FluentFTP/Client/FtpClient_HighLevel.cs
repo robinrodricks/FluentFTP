@@ -1169,9 +1169,9 @@ namespace FluentFTP {
 
 				// open a file connection
 				if (offset == 0) {
-					upStream = await OpenWriteAsync(remotePath);
+					upStream = await OpenWriteAsync(remotePath, UploadDataType);
 				} else {
-					upStream = await OpenAppendAsync(remotePath);
+					upStream = await OpenAppendAsync(remotePath, UploadDataType);
 				}
 
 				// loop till entire file uploaded
@@ -1599,7 +1599,7 @@ namespace FluentFTP {
 			try {
 
 				// exit if file length not available
-				downStream = OpenRead(remotePath);
+				downStream = OpenRead(remotePath, DownloadDataType);
 				long fileLen = downStream.Length;
 				if (fileLen == 0 && CurrentDataType == FtpDataType.ASCII) {
 
@@ -1763,7 +1763,7 @@ namespace FluentFTP {
 			Stream downStream = null;
 			try {
 				// exit if file length not available
-				downStream = await OpenReadAsync(remotePath);
+				downStream = await OpenReadAsync(remotePath, DownloadDataType);
 				long fileLen = downStream.Length;
 				if (fileLen == 0 && CurrentDataType == FtpDataType.ASCII) {
 					// close stream before throwing error
