@@ -1598,9 +1598,10 @@ namespace FluentFTP {
 
 			try {
 
-				// exit if file length not available
-				downStream = OpenRead(remotePath, DownloadDataType);
-				long fileLen = downStream.Length;
+                // exit if file length == 0
+			    long fileLen = GetFileSize(remotePath);
+			    downStream = OpenRead(remotePath, DownloadDataType);
+
 				if (fileLen == 0 && CurrentDataType == FtpDataType.ASCII) {
 
 					// close stream before throwing error
@@ -1608,13 +1609,13 @@ namespace FluentFTP {
 						downStream.Dispose();
 					} catch (Exception) { }
 
-					throw new FtpException("Cannot download file since file has length of 0. Use the FtpDataType.Binary data type and try again.");
+					throw new FtpException("Cannot download file with 0 length in ASCII mode. Use the FtpDataType.Binary data type and try again.");
 				}
 
 
 				// if the server has not reported a length for this file
 				// we use an alternate method to download it - read until EOF
-				bool readToEnd = (fileLen == 0);
+				bool readToEnd = (fileLen <= 0);
 
 
 				// loop till entire file downloaded
@@ -1762,21 +1763,21 @@ namespace FluentFTP {
 		private async Task<bool> DownloadFileInternalAsync(string remotePath, Stream outStream, CancellationToken token) {
 			Stream downStream = null;
 			try {
-				// exit if file length not available
+			    // exit if file length == 0
+                long fileLen = GetFileSize(remotePath);
 				downStream = await OpenReadAsync(remotePath, DownloadDataType);
-				long fileLen = downStream.Length;
 				if (fileLen == 0 && CurrentDataType == FtpDataType.ASCII) {
 					// close stream before throwing error
 					try {
 						downStream.Dispose();
 					} catch (Exception) { }
 
-					throw new FtpException("Cannot download file since file has length of 0. Use the FtpDataType.Binary data type and try again.");
+				    throw new FtpException("Cannot download file with 0 length in ASCII mode. Use the FtpDataType.Binary data type and try again.");
 				}
 
-				// if the server has not reported a length for this file
-				// we use an alternate method to download it - read until EOF
-				bool readToEnd = (fileLen == 0);
+                // if the server has not reported a length for this file
+                // we use an alternate method to download it - read until EOF
+                bool readToEnd = (fileLen <= 0);
 
 				// loop till entire file downloaded
 				byte[] buffer = new byte[TransferChunkSize];
@@ -1916,11 +1917,11 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+        #endregion
 
-#region Verification
+        #region Verification
 
-		private bool VerifyTransfer(string localPath, string remotePath) {
+        private bool VerifyTransfer(string localPath, string remotePath) {
 			if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
 				this.HasFeature(FtpCapability.XMD5) || this.HasFeature(FtpCapability.XCRC) ||
 				this.HasFeature(FtpCapability.XSHA1) || this.HasFeature(FtpCapability.XSHA256) ||
