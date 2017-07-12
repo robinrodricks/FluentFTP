@@ -889,27 +889,10 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="type">ASCII/Binary</param>
 		protected void SetDataType(FtpDataType type) {
-			FtpReply reply;
-
 #if !CORE14
             lock (m_lock) {
 #endif
-				switch (type) {
-					case FtpDataType.ASCII:
-						if (!(reply = Execute("TYPE A")).Success)
-							throw new FtpCommandException(reply);
-						/*if (!(reply = Execute("STRU R")).Success)
-							FtpTrace.WriteLine(reply.Message);*/
-						break;
-					case FtpDataType.Binary:
-						if (!(reply = Execute("TYPE I")).Success)
-							throw new FtpCommandException(reply);
-						/*if (!(reply = Execute("STRU F")).Success)
-							FtpTrace.WriteLine(reply.Message);*/
-						break;
-					default:
-						throw new FtpException("Unsupported data type: " + type.ToString());
-				}
+                this.SetDataTypeInternal(type);
 #if !CORE14
             }
 #endif
@@ -917,6 +900,33 @@ namespace FluentFTP {
 			CurrentDataType = type;
 
 		}
+
+        /// <summary>Internal method that handles actually setting the data type.</summary>
+        /// <exception cref="FtpCommandException">Thrown when a FTP Command error condition occurs.</exception>
+        /// <exception cref="FtpException">Thrown when a FTP error condition occurs.</exception>
+        /// <param name="type">ASCII/Binary.</param>
+        /// <remarks>This method doesn't do any locking to prevent recursive lock scenarios.  Callers must do their own locking.</remarks>
+	    private void SetDataTypeInternal(FtpDataType type)
+	    {
+	        FtpReply reply;
+	        switch (type)
+	        {
+	            case FtpDataType.ASCII:
+	                if (!(reply = Execute("TYPE A")).Success)
+	                    throw new FtpCommandException(reply);
+	                /*if (!(reply = Execute("STRU R")).Success)
+                        FtpTrace.WriteLine(reply.Message);*/
+	                break;
+	            case FtpDataType.Binary:
+	                if (!(reply = Execute("TYPE I")).Success)
+	                    throw new FtpCommandException(reply);
+	                /*if (!(reply = Execute("STRU F")).Success)
+                        FtpTrace.WriteLine(reply.Message);*/
+	                break;
+	            default:
+	                throw new FtpException("Unsupported data type: " + type.ToString());
+	        }
+	    }
 
 		delegate void AsyncSetDataType(FtpDataType type);
 
