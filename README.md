@@ -1100,6 +1100,11 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 17.5.7
+- Honor UploadDataType and DownloadDataType in all sync/async cases
+- Force file transfers in BINARY mode for known 0 byte files
+- Allow file transfers in ASCII mode if the server doesn't support the SIZE command
+
 #### 17.5.6
 - Fix NullReferenceException when arguments are null during FtpTrace.WriteFunc
 
