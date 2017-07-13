@@ -11,7 +11,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 
 - Full support for [FTP](#ftp-support), [FTPS](#faq_ftps) (FTP over SSL), [FTPS with client certificates](#faq_certs) and [FTPS with CCC](#faq_ccc) (for FTP firewalls)
 - **File management:**
-  - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, Windows CE, etc)
+  - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, AS400, Windows CE, etc)
   - Easily upload and download a file from the server
   - Automatically [verify the hash](#faq_verifyhash) of a file & retry transfer if hash mismatches
   - Configurable error handling (ignore/abort/throw) for multi-file transfers
@@ -1100,10 +1100,15 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 17.5.8
+- Add support for parsing AS400 listings inside a file (5 fields) (thanks [rharrisxtheta](https://github.com/rharrisxtheta))
+- Retry interpreting file listings after encountered invalid date format (thanks [rharrisxtheta](https://github.com/rharrisxtheta))
+- Always switch into binary mode when running SIZE command (thanks [rharrisxtheta](https://github.com/rharrisxtheta))
+
 #### 17.5.7
-- Honor UploadDataType and DownloadDataType in all sync/async cases
-- Force file transfers in BINARY mode for known 0 byte files
-- Allow file transfers in ASCII mode if the server doesn't support the SIZE command
+- Honor UploadDataType and DownloadDataType in all sync/async cases (thanks [rharrisxtheta](https://github.com/rharrisxtheta))
+- Force file transfers in BINARY mode for known 0 byte files (thanks [rharrisxtheta](https://github.com/rharrisxtheta))
+- Allow file transfers in ASCII mode if the server doesn't support the SIZE command (thanks [rharrisxtheta](https://github.com/rharrisxtheta))
 
 #### 17.5.6
 - Fix NullReferenceException when arguments are null during FtpTrace.WriteFunc
