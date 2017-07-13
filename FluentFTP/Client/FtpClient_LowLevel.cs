@@ -87,7 +87,7 @@ namespace FluentFTP {
 		FtpDataStream OpenPassiveDataStream(FtpDataConnectionType type, string command, long restart) {
 
 			FtpTrace.WriteFunc("OpenPassiveDataStream", new object[] { type, command, restart });
-			
+
 			FtpDataStream stream = null;
 			FtpReply reply;
 			Match m;
@@ -192,7 +192,7 @@ namespace FluentFTP {
 		FtpDataStream OpenActiveDataStream(FtpDataConnectionType type, string command, long restart) {
 
 			FtpTrace.WriteFunc("OpenActiveDataStream", new object[] { type, command, restart });
-			
+
 			FtpDataStream stream = new FtpDataStream(this);
 			FtpReply reply;
 #if !CORE
@@ -324,7 +324,7 @@ namespace FluentFTP {
 			FtpDataStream stream = null;
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				if (!IsConnected)
 					Connect();
@@ -363,7 +363,7 @@ namespace FluentFTP {
 				if (stream == null)
 					throw new InvalidOperationException("The specified data channel type is not implemented.");
 #if !CORE14
-            }
+			}
 #endif
 
 			return stream;
@@ -376,14 +376,14 @@ namespace FluentFTP {
 		internal FtpReply CloseDataStream(FtpDataStream stream) {
 
 			FtpTrace.WriteFunc("CloseDataStream");
-			
+
 			FtpReply reply = new FtpReply();
 
 			if (stream == null)
 				throw new ArgumentException("The data stream parameter was null");
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				try {
 					if (IsConnected) {
@@ -407,7 +407,7 @@ namespace FluentFTP {
 					}
 				}
 #if !CORE14
-            }
+			}
 #endif
 
 			return reply;
@@ -459,14 +459,14 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
 		public virtual Stream OpenRead(string path, FtpDataType type, long restart) {
 
-			FtpTrace.WriteFunc("OpenRead", new object[]{path, type, restart});
+			FtpTrace.WriteFunc("OpenRead", new object[] { path, type, restart });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
 			long length = 0;
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				if (m_threadSafeDataChannels) {
 					client = CloneConnection();
@@ -480,7 +480,7 @@ namespace FluentFTP {
 				length = client.GetFileSize(path);
 				stream = client.OpenDataStream(("RETR " + path.GetFtpPath()), restart);
 #if !CORE14
-            }
+			}
 #endif
 
 			if (stream != null) {
@@ -654,7 +654,7 @@ namespace FluentFTP {
 			long length = 0;
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				if (m_threadSafeDataChannels) {
 					client = CloneConnection();
@@ -671,7 +671,7 @@ namespace FluentFTP {
 				if (length > 0 && stream != null)
 					stream.SetLength(length);
 #if !CORE14
-            }
+			}
 #endif
 
 			return stream;
@@ -781,7 +781,7 @@ namespace FluentFTP {
 			long length = 0;
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				if (m_threadSafeDataChannels) {
 					client = CloneConnection();
@@ -800,7 +800,7 @@ namespace FluentFTP {
 					stream.SetPosition(length);
 				}
 #if !CORE14
-            }
+			}
 #endif
 
 			return stream;
@@ -890,43 +890,41 @@ namespace FluentFTP {
 		/// <param name="type">ASCII/Binary</param>
 		protected void SetDataType(FtpDataType type) {
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
-                this.SetDataTypeInternal(type);
+				this.SetDataTypeInternal(type);
 #if !CORE14
-            }
+			}
 #endif
 
 			CurrentDataType = type;
 
 		}
 
-        /// <summary>Internal method that handles actually setting the data type.</summary>
-        /// <exception cref="FtpCommandException">Thrown when a FTP Command error condition occurs.</exception>
-        /// <exception cref="FtpException">Thrown when a FTP error condition occurs.</exception>
-        /// <param name="type">ASCII/Binary.</param>
-        /// <remarks>This method doesn't do any locking to prevent recursive lock scenarios.  Callers must do their own locking.</remarks>
-	    private void SetDataTypeInternal(FtpDataType type)
-	    {
-	        FtpReply reply;
-	        switch (type)
-	        {
-	            case FtpDataType.ASCII:
-	                if (!(reply = Execute("TYPE A")).Success)
-	                    throw new FtpCommandException(reply);
-	                /*if (!(reply = Execute("STRU R")).Success)
-                        FtpTrace.WriteLine(reply.Message);*/
-	                break;
-	            case FtpDataType.Binary:
-	                if (!(reply = Execute("TYPE I")).Success)
-	                    throw new FtpCommandException(reply);
-	                /*if (!(reply = Execute("STRU F")).Success)
-                        FtpTrace.WriteLine(reply.Message);*/
-	                break;
-	            default:
-	                throw new FtpException("Unsupported data type: " + type.ToString());
-	        }
-	    }
+		/// <summary>Internal method that handles actually setting the data type.</summary>
+		/// <exception cref="FtpCommandException">Thrown when a FTP Command error condition occurs.</exception>
+		/// <exception cref="FtpException">Thrown when a FTP error condition occurs.</exception>
+		/// <param name="type">ASCII/Binary.</param>
+		/// <remarks>This method doesn't do any locking to prevent recursive lock scenarios.  Callers must do their own locking.</remarks>
+		private void SetDataTypeInternal(FtpDataType type) {
+			FtpReply reply;
+			switch (type) {
+				case FtpDataType.ASCII:
+					if (!(reply = Execute("TYPE A")).Success)
+						throw new FtpCommandException(reply);
+					/*if (!(reply = Execute("STRU R")).Success)
+						FtpTrace.WriteLine(reply.Message);*/
+					break;
+				case FtpDataType.Binary:
+					if (!(reply = Execute("TYPE I")).Success)
+						throw new FtpCommandException(reply);
+					/*if (!(reply = Execute("STRU F")).Success)
+						FtpTrace.WriteLine(reply.Message);*/
+					break;
+				default:
+					throw new FtpException("Unsupported data type: " + type.ToString());
+			}
+		}
 
 		delegate void AsyncSetDataType(FtpDataType type);
 

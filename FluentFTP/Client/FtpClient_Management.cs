@@ -86,14 +86,14 @@ namespace FluentFTP {
 			FtpReply reply;
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				FtpTrace.WriteFunc("DeleteFile", new object[] { path });
 
 				if (!(reply = Execute("DELE " + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
 #if !CORE14
-            }
+			}
 #endif
 		}
 
@@ -179,7 +179,7 @@ namespace FluentFTP {
 
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 
 
@@ -234,18 +234,18 @@ namespace FluentFTP {
 				if (!(reply = Execute("RMD " + ftppath)).Success) {
 					throw new FtpCommandException(reply);
 				}
-                
-#if !CORE14
-             }
-#endif
-    }
 
-    /// <summary>
-    /// Checks whether <see cref="o:GetListing"/> will be called recursively or not.
-    /// </summary>
-    /// <param name="options"></param>
-    /// <returns></returns>
-    private bool WasGetListingRecursive(FtpListOption options) {
+#if !CORE14
+			}
+#endif
+		}
+
+		/// <summary>
+		/// Checks whether <see cref="o:GetListing"/> will be called recursively or not.
+		/// </summary>
+		/// <param name="options"></param>
+		/// <returns></returns>
+		private bool WasGetListingRecursive(FtpListOption options) {
 
 			// if recursive listings not supported by the server then obviously NO
 			if (!RecursiveList) {
@@ -375,9 +375,9 @@ namespace FluentFTP {
 				return true;
 			}
 
-            // check if a folder exists by changing the working dir to it
+			// check if a folder exists by changing the working dir to it
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				pwd = GetWorkingDirectory();
 
@@ -390,7 +390,7 @@ namespace FluentFTP {
 					return true;
 				}
 #if !CORE14
-            }
+			}
 #endif
 
 			return false;
@@ -465,7 +465,7 @@ namespace FluentFTP {
 		public bool FileExists(string path) {
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 
 				FtpTrace.WriteFunc("FileExists", new object[] { path });
@@ -515,7 +515,7 @@ namespace FluentFTP {
 
 				return false;
 #if !CORE14
-            }
+			}
 #endif
 		}
 
@@ -571,7 +571,7 @@ namespace FluentFTP {
 		#endregion
 
 		#region Create Directory
-		
+
 		/// <summary>
 		/// Creates a directory on the server. If the preceding
 		/// directories do not exist, then they are created.
@@ -599,7 +599,7 @@ namespace FluentFTP {
 				return;
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				path = path.GetFtpPath().TrimEnd('/');
 
@@ -614,7 +614,7 @@ namespace FluentFTP {
 				if (!(reply = Execute("MKD " + ftppath)).Success)
 					throw new FtpCommandException(reply);
 #if !CORE14
-            }
+			}
 #endif
 		}
 
@@ -705,7 +705,7 @@ namespace FluentFTP {
 			FtpReply reply;
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				FtpTrace.WriteFunc("Rename", new object[] { path, dest });
 
@@ -719,7 +719,7 @@ namespace FluentFTP {
 				if (!(reply = Execute("RNTO " + dest)).Success)
 					throw new FtpCommandException(reply);
 #if !CORE14
-            }
+			}
 #endif
 		}
 
@@ -878,7 +878,7 @@ namespace FluentFTP {
 		public bool MoveDirectory(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
 
 			FtpTrace.WriteFunc("MoveDirectory", new object[] { path, dest, existsMode });
-			
+
 			if (DirectoryExists(path)) {
 
 				// check if dest directory exists and act accordingly
@@ -970,27 +970,27 @@ namespace FluentFTP {
 			FtpReply reply;
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				FtpTrace.WriteFunc("SetFilePermissions", new object[] { path, permissions });
 
 				if (!(reply = Execute("SITE CHMOD " + permissions.ToString() + " " + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
 #if !CORE14
-            }
+			}
 #endif
-        }
+		}
 
-        /// <summary>
-        /// Modify the permissions of the given file/folder.
-        /// Only works on *NIX systems, and not on Windows/IIS servers.
-        /// Only works if the FTP server supports the SITE CHMOD command
-        /// (requires the CHMOD extension to be installed and enabled).
-        /// Throws FtpCommandException if there is an issue.
-        /// </summary>
-        /// <param name="path">The full or relative path to the item</param>
-        /// <param name="permissions">The permissions in CHMOD format</param>
-        public void Chmod(string path, int permissions) {
+		/// <summary>
+		/// Modify the permissions of the given file/folder.
+		/// Only works on *NIX systems, and not on Windows/IIS servers.
+		/// Only works if the FTP server supports the SITE CHMOD command
+		/// (requires the CHMOD extension to be installed and enabled).
+		/// Throws FtpCommandException if there is an issue.
+		/// </summary>
+		/// <param name="path">The full or relative path to the item</param>
+		/// <param name="permissions">The permissions in CHMOD format</param>
+		public void Chmod(string path, int permissions) {
 			SetFilePermissions(path, permissions);
 		}
 
@@ -1224,12 +1224,12 @@ namespace FluentFTP {
 				return;
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				if (!(reply = Execute("CWD " + ftppath)).Success)
 					throw new FtpCommandException(reply);
 #if !CORE14
-            }
+			}
 #endif
 		}
 
@@ -1294,12 +1294,12 @@ namespace FluentFTP {
 			Match m;
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				if (!(reply = Execute("PWD")).Success)
 					throw new FtpCommandException(reply);
 #if !CORE14
-            }
+			}
 #endif
 
 			if ((m = Regex.Match(reply.Message, "\"(?<pwd>.*)\"")).Success) {
@@ -1377,31 +1377,30 @@ namespace FluentFTP {
 			long length = 0;
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
-                // Switch to binary mode since some servers don't support SIZE command for ASCII files.
-                // 
-                // NOTE: We do this inside the lock so we're guaranteed to switch it back to the original
-                // type in a thread-safe manner
-                var savedDataType = CurrentDataType;
-                if (savedDataType != FtpDataType.Binary)
-                {
-                    this.SetDataTypeInternal(FtpDataType.Binary);
-                }
+				// Switch to binary mode since some servers don't support SIZE command for ASCII files.
+				// 
+				// NOTE: We do this inside the lock so we're guaranteed to switch it back to the original
+				// type in a thread-safe manner
+				var savedDataType = CurrentDataType;
+				if (savedDataType != FtpDataType.Binary) {
+					this.SetDataTypeInternal(FtpDataType.Binary);
+				}
 
-                if (!(reply = Execute("SIZE " + path.GetFtpPath())).Success)
-                    length = -1;
-                else if (!long.TryParse(reply.Message, out length))
-                    length = -1;
+				if (!(reply = Execute("SIZE " + path.GetFtpPath())).Success)
+					length = -1;
+				else if (!long.TryParse(reply.Message, out length))
+					length = -1;
 
-                if (savedDataType != FtpDataType.Binary)
-                    this.SetDataTypeInternal(savedDataType);
+				if (savedDataType != FtpDataType.Binary)
+					this.SetDataTypeInternal(savedDataType);
 #if !CORE14
-            }
+			}
 #endif
 
 
-            return length;
+			return length;
 		}
 
 		delegate long AsyncGetFileSize(string path);
@@ -1468,15 +1467,15 @@ namespace FluentFTP {
 			FtpReply reply;
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				if ((reply = Execute("MDTM " + path.GetFtpPath())).Success)
 					modify = reply.Message.GetFtpDate(DateTimeStyles.AssumeUniversal);
 #if !CORE14
-            }
+			}
 #endif
 
-            return modify;
+			return modify;
 		}
 
 		delegate DateTime AsyncGetModifiedTime(string path);

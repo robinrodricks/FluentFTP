@@ -143,8 +143,8 @@ namespace FluentFTP {
 			get { return m_DownloadDataType; }
 			set { m_DownloadDataType = value; }
 		}
-		
-		
+
+
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
 		// FtpClient.CloneConnection()
 
@@ -180,7 +180,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
 
 			FtpTrace.WriteFunc("UploadFiles", new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
-			
+
 			//int count = 0;
 			bool errorEncountered = false;
 			List<string> successfulUploads = new List<string>();
@@ -531,7 +531,7 @@ namespace FluentFTP {
 				try {
 					File.Delete(localFile);
 				} catch (Exception ex) {
-					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpClient : Exception caught and discarded while attempting to delete file '"+localFile+"' : " + ex.ToString());
+					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpClient : Exception caught and discarded while attempting to delete file '" + localFile + "' : " + ex.ToString());
 				}
 			}
 		}
@@ -831,7 +831,7 @@ namespace FluentFTP {
 		public bool Upload(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 
 			FtpTrace.WriteFunc("Upload", new object[] { remotePath, existsMode, createRemoteDir });
-			
+
 			// write the file onto the server
 			return UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, false, false);
 		}
@@ -1054,9 +1054,9 @@ namespace FluentFTP {
 #if CORE14
                                         Task.Delay((int)(timeShouldTake - swTime)).Wait();
 #else
-                                        Thread.Sleep((int)(timeShouldTake - swTime));
+										Thread.Sleep((int)(timeShouldTake - swTime));
 #endif
-                                    }
+									}
 									limitCheckBytes = 0;
 									sw.Restart();
 								}
@@ -1296,9 +1296,9 @@ namespace FluentFTP {
 
 #endif
 
-#endregion
+		#endregion
 
-#region Download File
+		#region Download File
 
 		/// <summary>
 		/// Downloads the specified file onto the local file system.
@@ -1472,9 +1472,9 @@ namespace FluentFTP {
 			return downloadSuccess && verified;
 		}
 #endif
-#endregion
+		#endregion
 
-#region	Download Bytes/Stream
+		#region	Download Bytes/Stream
 
 		/// <summary>
 		/// Downloads the specified file into the specified stream.
@@ -1485,9 +1485,9 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public bool Download(Stream outStream, string remotePath) {
-			
+
 			FtpTrace.WriteFunc("Download", new object[] { remotePath });
-			
+
 			// download the file from the server
 			return DownloadFileInternal(remotePath, outStream);
 		}
@@ -1584,9 +1584,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region Download File Internal
+		#region Download File Internal
 
 		/// <summary>
 		/// Download a file from the server and write the data into the given stream.
@@ -1598,9 +1598,9 @@ namespace FluentFTP {
 
 			try {
 
-                // exit if file length == 0
-			    long fileLen = GetFileSize(remotePath);
-			    downStream = OpenRead(remotePath, DownloadDataType);
+				// exit if file length == 0
+				long fileLen = GetFileSize(remotePath);
+				downStream = OpenRead(remotePath, DownloadDataType);
 
 				if (fileLen == 0 && CurrentDataType == FtpDataType.ASCII) {
 
@@ -1682,7 +1682,7 @@ namespace FluentFTP {
 #if CORE14
                                         Task.Delay((int)(timeShouldTake - swTime)).Wait();
 #else
-                                        Thread.Sleep((int)(timeShouldTake - swTime));
+										Thread.Sleep((int)(timeShouldTake - swTime));
 #endif
 									}
 									limitCheckBytes = 0;
@@ -1917,11 +1917,11 @@ namespace FluentFTP {
 		}
 #endif
 
-        #endregion
+		#endregion
 
-        #region Verification
+		#region Verification
 
-        private bool VerifyTransfer(string localPath, string remotePath) {
+		private bool VerifyTransfer(string localPath, string remotePath) {
 			if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
 				this.HasFeature(FtpCapability.XMD5) || this.HasFeature(FtpCapability.XCRC) ||
 				this.HasFeature(FtpCapability.XSHA1) || this.HasFeature(FtpCapability.XSHA256) ||
@@ -1955,7 +1955,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
 	}
 }

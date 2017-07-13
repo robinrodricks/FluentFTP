@@ -199,7 +199,7 @@ namespace FluentFTP {
 					}
 				}
 
-				FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Failed to get object info for path "+path+" since MLST not supported and GetListing() fails to list file/folder.");
+				FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " since MLST not supported and GetListing() fails to list file/folder.");
 			}
 
 			// Get the accurate date modified using another MDTM command
@@ -381,7 +381,7 @@ namespace FluentFTP {
 			}
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				Execute("TYPE I");
 
@@ -401,7 +401,7 @@ namespace FluentFTP {
 					}
 				}
 #if !CORE14
-            }
+			}
 #endif
 
 			for (int i = 0; i < rawlisting.Count; i++) {
@@ -438,19 +438,16 @@ namespace FluentFTP {
 					if (i + 1 < rawlisting.Count && (rawlisting[i + 1].StartsWith("\t") || rawlisting[i + 1].StartsWith(" ")))
 						buf += rawlisting[++i];
 
-				    try
-				    {
-				        item = m_listParser.ParseSingleLine(path, buf, m_caps, machineList);
-				    }
-				    catch (FtpListParser.CriticalListParseException)
-				    {
-				        FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
-				        i = -1;
-				        lst.Clear();
-				        continue;
-                    }
+					try {
+						item = m_listParser.ParseSingleLine(path, buf, m_caps, machineList);
+					} catch (FtpListParser.CriticalListParseException) {
+						FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
+						i = -1;
+						lst.Clear();
+						continue;
+					}
 
-				    // FtpListItem.Parse() returns null if the line
+					// FtpListItem.Parse() returns null if the line
 					// could not be parsed
 					if (item != null) {
 						if (isIncludeSelf || !(item.Name == "." || item.Name == "..")) {
@@ -669,7 +666,7 @@ namespace FluentFTP {
 			path = GetAbsolutePath(path);
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				// always get the file listing in binary
 				// to avoid any potential character translation
@@ -687,7 +684,7 @@ namespace FluentFTP {
 					}
 				}
 #if !CORE14
-            }
+			}
 #endif
 
 			return listing.ToArray();
