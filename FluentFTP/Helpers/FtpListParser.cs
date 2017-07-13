@@ -33,7 +33,7 @@ namespace FluentFTP {
 		private static int MIN_EXPECTED_FIELD_COUNT_UNIX = 7;
 		private static int MIN_EXPECTED_FIELD_COUNT_UNIXALT = 8;
 		private static int MIN_EXPECTED_FIELD_COUNT_VMS = 4;
-		private static int MIN_EXPECTED_FIELD_COUNT_OS400 = 6;
+		private static int MIN_EXPECTED_FIELD_COUNT_OS400 = 5;
 		private static int MIN_EXPECTED_FIELD_COUNT_TANDEM = 7;
 
 		// UNIX
@@ -57,9 +57,10 @@ namespace FluentFTP {
 		private static string IBM_DIR = "*DIR";
 		private static string IBM_DDIR = "*DDIR";
 		private static string IBM_MEM = "*MEM";
+	    private static string IBM_FILE = "*FILE";
 
-		// NONSTOP
-		private static char[] NONSTOP_TRIM = { '"' };
+        // NONSTOP
+        private static char[] NONSTOP_TRIM = { '"' };
 
 		#endregion
 
@@ -1454,20 +1455,26 @@ namespace FluentFTP {
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
 		private FtpListItem ParseIBM(string raw) {
 
-			//-----------------------------------------------------
-			// EXAMPLES
+            //-----------------------------------------------------
+            // EXAMPLES
+            // 
+            // In a library:
+            //        CFT             45056 04/12/06 14:19:31 *FILE AFTFRE1.FILE
+            //        CFT                                     *MEM AFTFRE1.FILE/AFTFRE1.MBR
+            //        CFT             36864 28/11/06 15:19:30 *FILE AFTFRE2.FILE
+            //        CFT                                     *MEM AFTFRE2.FILE/AFTFRE2.MBR
+            //        CFT             45056 04/12/06 14:19:37 *FILE AFTFRE6.FILE
+            //        CFT                                     *MEM  AFTFRE6.FILE/AFTFRE6.MBR
+            //        QSYSOPR         28672 01/12/06 20:08:04 *FILE FPKI45POK5.FILE
+            //        QSYSOPR                                 *MEM FPKI45POK5.FILE/FPKI45POK5.MBR    
+            //        
+		    // Inside a file:
+		    //        DEREK           76128 07/11/17 14:25:46 *FILE
+		    //        DEREK                                   *MEM AAR.MBR
+		    //        DEREK                                   *MEM AAS.MBR
+            //-----------------------------------------------------
 
-			//        CFT             45056 04/12/06 14:19:31 *FILE AFTFRE1.FILE
-			//        CFT                                     *MEM AFTFRE1.FILE/AFTFRE1.MBR
-			//        CFT             36864 28/11/06 15:19:30 *FILE AFTFRE2.FILE
-			//        CFT                                     *MEM AFTFRE2.FILE/AFTFRE2.MBR
-			//        CFT             45056 04/12/06 14:19:37 *FILE AFTFRE6.FILE
-			//        CFT                                     *MEM  AFTFRE6.FILE/AFTFRE6.MBR
-			//        QSYSOPR         28672 01/12/06 20:08:04 *FILE FPKI45POK5.FILE
-			//        QSYSOPR                                 *MEM FPKI45POK5.FILE/FPKI45POK5.MBR        
-			//-----------------------------------------------------
-
-			string[] fields = SplitString(raw);
+            string[] fields = SplitString(raw);
 
 			// skip blank lines
 			if (fields.Length <= 0)
@@ -1495,15 +1502,18 @@ namespace FluentFTP {
 
 			// test is dir
 			bool isDir = false;
-			if (fields[4] == IBM_DIR || fields[4] == IBM_DDIR)
+			if (fields[4] == IBM_DIR || fields[4] == IBM_DDIR || (fields.Length == 5 && fields[4] == IBM_FILE))
 				isDir = true;
 
-			string name = fields[5];
+            // If there's no name, it's because we're inside a file.  Fake out a "current directory" name instead.
+			string name = fields.Length >= 6 
+                ? fields[5] 
+                : ".";
 			if (name.EndsWith("/")) {
 				isDir = true;
 				name = name.Substring(0, name.Length - 1);
 			}
-
+            
 			FtpListItem file = new FtpListItem(raw, name, size, isDir, ref lastModified);
 			file.RawOwner = owner;
 			return file;

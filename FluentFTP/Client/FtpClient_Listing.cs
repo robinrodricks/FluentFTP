@@ -438,9 +438,19 @@ namespace FluentFTP {
 					if (i + 1 < rawlisting.Count && (rawlisting[i + 1].StartsWith("\t") || rawlisting[i + 1].StartsWith(" ")))
 						buf += rawlisting[++i];
 
-					item = m_listParser.ParseSingleLine(path, buf, m_caps, machineList);
+				    try
+				    {
+				        item = m_listParser.ParseSingleLine(path, buf, m_caps, machineList);
+				    }
+				    catch (FtpListParser.CriticalListParseException)
+				    {
+				        FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
+				        i = -1;
+				        lst.Clear();
+				        continue;
+                    }
 
-					// FtpListItem.Parse() returns null if the line
+				    // FtpListItem.Parse() returns null if the line
 					// could not be parsed
 					if (item != null) {
 						if (isIncludeSelf || !(item.Name == "." || item.Name == "..")) {
