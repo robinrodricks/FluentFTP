@@ -1379,16 +1379,29 @@ namespace FluentFTP {
 #if !CORE14
             lock (m_lock) {
 #endif
-				if (!(reply = Execute("SIZE " + path.GetFtpPath())).Success)
-					return -1;
+                // Switch to binary mode since some servers don't support SIZE command for ASCII files.
+                // 
+                // NOTE: We do this inside the lock so we're guaranteed to switch it back to the original
+                // type in a thread-safe manner
+                var savedDataType = CurrentDataType;
+                if (savedDataType != FtpDataType.Binary)
+                {
+                    this.SetDataTypeInternal(FtpDataType.Binary);
+                }
 
-				if (!long.TryParse(reply.Message, out length))
-					return -1;
+                if (!(reply = Execute("SIZE " + path.GetFtpPath())).Success)
+                    length = -1;
+                else if (!long.TryParse(reply.Message, out length))
+                    length = -1;
+
+                if (savedDataType != FtpDataType.Binary)
+                    this.SetDataTypeInternal(savedDataType);
 #if !CORE14
             }
 #endif
 
-			return length;
+
+            return length;
 		}
 
 		delegate long AsyncGetFileSize(string path);
