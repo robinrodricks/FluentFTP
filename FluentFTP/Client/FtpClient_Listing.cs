@@ -389,12 +389,9 @@ namespace FluentFTP {
 				using (FtpDataStream stream = OpenDataStream(listcmd, 0)) {
 					try {
 						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
-						while ((buf = stream.ReadLine(Encoding)) != null) {
-							if (buf.Length > 0) {
-								rawlisting.Add(buf);
-								FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
-							}
-						}
+
+                        rawlisting = stream.ReadAllLines(Encoding).Where(l => l.Length > 0).ToList();
+
 						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 					} finally {
 						stream.Close();

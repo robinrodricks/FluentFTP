@@ -8,6 +8,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using System.Linq;
 
 #if (CORE || NETFX45)
 using System.Threading.Tasks;
@@ -451,14 +452,49 @@ namespace FluentFTP {
 			return line;
 		}
 
-#if (CORE || NETFX45)
-		/// <summary>
-		/// Reads a line from the socket asynchronously
+        /// <summary>
+		/// Reads all line from the socket
 		/// </summary>
 		/// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
-		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
-		/// <returns>A line from the stream, null if there is nothing to read</returns>
-		public async Task<string> ReadLineAsync(System.Text.Encoding encoding, CancellationToken token) {
+		/// <returns>A list of lines from the stream</returns>
+		public IEnumerable<string> ReadAllLines(System.Text.Encoding encoding)
+        {
+            int charRead;
+            List<byte> data = new List<byte>();
+            byte[] buf = new byte[100]; //read 50 char
+
+            while ((charRead = Read(buf, 0, buf.Length)) > 0)
+            {
+                var firstByteToReadIdx = 0;
+
+                var separatorIdx = Array.IndexOf(buf, (byte)'\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array readed
+               
+                
+                while(separatorIdx >= 0) // at least one '\n' returned
+                {
+                    data.AddRange(buf.Skip(firstByteToReadIdx).Take(separatorIdx+1 - firstByteToReadIdx)); // add characters to data till separator character
+
+                    var line =  encoding.GetString(data.ToArray()).Trim('\r', '\n'); // convert data to string
+                    yield return line;
+                    data.Clear();
+
+                    firstByteToReadIdx = separatorIdx + 1;
+                    separatorIdx = Array.IndexOf(buf, (byte)'\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array readed
+                }
+                
+                data.AddRange(buf.Skip(firstByteToReadIdx).Take(charRead - firstByteToReadIdx)); // add all characters to data
+                
+            }
+        }
+
+#if (CORE || NETFX45)
+        /// <summary>
+        /// Reads a line from the socket asynchronously
+        /// </summary>
+        /// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
+        /// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+        /// <returns>A line from the stream, null if there is nothing to read</returns>
+        public async Task<string> ReadLineAsync(System.Text.Encoding encoding, CancellationToken token) {
 			List<byte> data = new List<byte>();
 			byte[] buf = new byte[1];
 			string line = null;
