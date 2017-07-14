@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Globalization;
 using System.Security.Authentication;
@@ -390,7 +389,11 @@ namespace FluentFTP {
 					try {
 						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
-                        rawlisting = stream.ReadAllLines(Encoding).Where(l => l.Length > 0).ToList();
+                        foreach (var line in stream.ReadAllLines(Encoding))
+                        {
+                            if (!string.IsNullOrWhiteSpace(line))
+                                rawlisting.Add(line);
+                        }
 
 						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 					} finally {

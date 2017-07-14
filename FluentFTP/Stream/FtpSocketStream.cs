@@ -8,7 +8,6 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
-using System.Linq;
 
 #if (CORE || NETFX45)
 using System.Threading.Tasks;
@@ -472,18 +471,18 @@ namespace FluentFTP {
                 
                 while(separatorIdx >= 0) // at least one '\n' returned
                 {
-                    data.AddRange(buf.Skip(firstByteToReadIdx).Take(separatorIdx+1 - firstByteToReadIdx)); // add characters to data till separator character
-
+                    while (firstByteToReadIdx <= separatorIdx)
+                        data.Add(buf[firstByteToReadIdx++]);
+                    
                     var line =  encoding.GetString(data.ToArray()).Trim('\r', '\n'); // convert data to string
                     yield return line;
                     data.Clear();
-
-                    firstByteToReadIdx = separatorIdx + 1;
+                    
                     separatorIdx = Array.IndexOf(buf, (byte)'\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array readed
                 }
-                
-                data.AddRange(buf.Skip(firstByteToReadIdx).Take(charRead - firstByteToReadIdx)); // add all characters to data
-                
+
+                while (firstByteToReadIdx < charRead)  // add all remainings characters to data
+                    data.Add(buf[firstByteToReadIdx++]);
             }
         }
 
