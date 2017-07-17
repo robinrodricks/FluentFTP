@@ -142,20 +142,55 @@ namespace FluentFTP {
 			}
 		}
 
-		#endregion
+        private bool m_bulkListing = true;
 
-		#region Get File Info
+        /// <summary>
+        /// True to read the server response using a buffer of <see cref="BulkListingLength"/> bytes.
+        /// False to read the server response byte by byte
+        /// </summary>
+        public bool BulkListing
+        {
+            get
+            {
+                return m_bulkListing;
+            }
+            set
+            {
+                m_bulkListing = value;
+            }
+        }
 
-		/// <summary>
-		/// Returns information about a file system object. Returns null if the server response can't
-		/// be parsed or the server returns a failure completion code. The error for a failure
-		/// is logged with FtpTrace. No exception is thrown on error because that would negate
-		/// the usefulness of this method for checking for the existence of an object.
-		/// </summary>
-		/// <param name="path">The path of the file or folder</param>
-		/// <param name="dateModified">Get the accurate modified date using another MDTM command</param>
-		/// <returns>A FtpListItem object</returns>
-		public FtpListItem GetObjectInfo(string path, bool dateModified = false) {
+        private int m_bulkListingLength = 128;
+
+        /// <summary>
+        /// The size of the buffer used to read ftp server response. Only useful if <see cref="BulkListing"/> is True
+        /// </summary>
+        public int BulkListingLength
+        {
+            get
+            {
+                return m_bulkListingLength;
+            }
+            set
+            {
+                m_bulkListingLength = value;
+            }
+        }
+
+        #endregion
+
+        #region Get File Info
+
+        /// <summary>
+        /// Returns information about a file system object. Returns null if the server response can't
+        /// be parsed or the server returns a failure completion code. The error for a failure
+        /// is logged with FtpTrace. No exception is thrown on error because that would negate
+        /// the usefulness of this method for checking for the existence of an object.
+        /// </summary>
+        /// <param name="path">The path of the file or folder</param>
+        /// <param name="dateModified">Get the accurate modified date using another MDTM command</param>
+        /// <returns>A FtpListItem object</returns>
+        public FtpListItem GetObjectInfo(string path, bool dateModified = false) {
 
 			FtpTrace.WriteFunc("GetObjectInfo", new object[] { path, dateModified });
 
@@ -389,10 +424,27 @@ namespace FluentFTP {
 					try {
 						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
-                        foreach (var line in stream.ReadAllLines(Encoding))
+                        if (this.BulkListing)
                         {
-                            if (!string.IsNullOrWhiteSpace(line))
-                                rawlisting.Add(line);
+                            foreach (var line in stream.ReadAllLines(Encoding, this.BulkListingLength))
+                            {
+                                if (!string.IsNullOrWhiteSpace(line))
+                                {
+                                    rawlisting.Add(line);
+                                    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            while ((buf = stream.ReadLine(Encoding)) != null)
+                            {
+                                if (buf.Length > 0)
+                                {
+                                    rawlisting.Add(buf);
+                                    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
+                                }
+                            }
                         }
 
 						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "-----------------------------------------");

@@ -520,12 +520,13 @@ namespace FluentFTP
 		/// Reads all line from the socket
 		/// </summary>
 		/// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
+        /// <param name="bufferSize">The size of the buffer</param>
 		/// <returns>A list of lines from the stream</returns>
-		public IEnumerable<string> ReadAllLines(System.Text.Encoding encoding)
+		public IEnumerable<string> ReadAllLines(System.Text.Encoding encoding, int bufferSize)
         {
             int charRead;
             List<byte> data = new List<byte>();
-            byte[] buf = new byte[100]; //read 100 char
+            byte[] buf = new byte[bufferSize];
 
             while ((charRead = Read(buf, 0, buf.Length)) > 0)
             {
