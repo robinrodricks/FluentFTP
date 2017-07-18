@@ -361,6 +361,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 - **IsClone** - Checks if this control connection is a clone. **Default:** false.
 
 
+
 *File Listings*
 
 - **ListingParser** - File listing parser to be used. Automatically calculated based on the type of the server, unless changed. File listing parsing has improved in 2017, but to use the older parsing routines please use `FtpParser.Legacy`. **Default:** `FtpParser.Auto`.
@@ -370,6 +371,10 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 - **TimeOffset** - Time difference between server and client, in hours. If the server is located in Amsterdam and you are in Los Angeles then the time difference is 9 hours. **Default:** 0.
 
 - **RecursiveList** - Check if your server supports a recursive LIST command (`LIST -R`). If you know for sure that this is unsupported, set it to false. **Default:** true.
+
+- **BulkListing** - Increase performance of GetListing by reading multiple lines at once. If GetListing is having issues with your serve, set it to false. **Default:** true.
+
+- **BulkListingLength** - Bytes to read during GetListing. Only honored if BulkListing is true. **Default:** 128.
 
 
 
@@ -1099,6 +1104,9 @@ When doing a large number of transfers, one needs to be aware of some inherit is
 This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is signaled by closing the connection. On downloads and file listings, the sockets being used on the server will stay in the TIME WAIT state because the server closes the socket when it's done sending the data. On uploads, the client sockets will go into the TIME WAIT state because the client closes the connection to signal EOF to the server.
 
 ## Release Notes
+
+#### 17.5.9
+- Increase performance of GetListing by reading multiple lines at once (thanks [sierrodc](https://github.com/sierrodc))
 
 #### 17.5.8
 - Add support for parsing AS400 listings inside a file (5 fields) (thanks [rharrisxtheta](https://github.com/rharrisxtheta))
