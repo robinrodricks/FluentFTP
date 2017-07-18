@@ -1214,3 +1214,9 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 - [Harsh Gupta](https://github.com/hgupta9) - Owner and maintainer from 2016 onwards
 - [Jordan Blacker](https://github.com/jblacker) - `async`/`await` support for all methods, post-transfer hash verification, configurable error handling, multiple log levels
 - [Atif Aziz](https://github.com/atifaziz) & Joseph Albahari - LINQBridge (allows LINQ in .NET 2.0)
+- [R. Harris](https://github.com/rharrisxtheta)
+- [Roberto Sarati](https://github.com/sierrodc)
+- [Amer Koleci](https://github.com/amerkoleci)
+- [Tim Horemans](https://github.com/worstenbrood)
+- [Nerijus Dzindzeleta](https://github.com/NerijusD)
+- [Rune Ibsen](https://github.com/ibsenrune)
