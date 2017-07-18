@@ -101,8 +101,8 @@ namespace Tests {
 				// FILE LISTING
 				//--------------------------------
 				//TestGetObjectInfo();
-				//TestGetListing();
-				TestGetListingCCC();
+				TestGetListing();
+				//TestGetListingCCC();
 				//TestGetMachineListing();
 				//GetPublicFTPServerListing();
 				//TestListSpacedPath();
