@@ -372,7 +372,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 - **RecursiveList** - Check if your server supports a recursive LIST command (`LIST -R`). If you know for sure that this is unsupported, set it to false. **Default:** true.
 
-- **BulkListing** - Increase performance of GetListing by reading multiple lines at once. If GetListing is having issues with your serve, set it to false. **Default:** true.
+- **BulkListing** - If true, increases performance of GetListing by reading multiple lines of the file listing at once. If false then GetListing will read file listings line-by-line. If GetListing is having issues with your server, set it to false. **Default:** true.
 
 - **BulkListingLength** - Bytes to read during GetListing. Only honored if BulkListing is true. **Default:** 128.
 
@@ -1106,7 +1106,7 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 ## Release Notes
 
 #### 17.5.9
-- Increase performance of GetListing by reading multiple lines at once (thanks [sierrodc](https://github.com/sierrodc))
+- Increase performance of GetListing by reading multiple lines at once (BulkListing property, thanks [sierrodc](https://github.com/sierrodc))
 
 #### 17.5.8
 - Add support for parsing AS400 listings inside a file (5 fields) (thanks [rharrisxtheta](https://github.com/rharrisxtheta))
