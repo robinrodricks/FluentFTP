@@ -462,7 +462,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if (CORE ||NETFX45)
+#if NETFX45
 		/// <summary>
 		/// Tests if the specified directory exists on the server asynchronously. This
 		/// method works by trying to change the working directory to

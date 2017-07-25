@@ -256,6 +256,7 @@ namespace FluentFTP {
 			return value == null || value.Length == 0;
 		}
 
+#if NETFX45
 		/// <summary>
 		/// Checks if the array is null or 0 length.
 		/// </summary>
@@ -278,6 +279,7 @@ namespace FluentFTP {
 			}
 			return false;
 		}
+#endif
 
 		/// <summary>
 		/// Join the given strings by a delimiter.

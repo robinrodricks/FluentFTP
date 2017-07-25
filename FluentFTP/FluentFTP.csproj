@@ -41,7 +41,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\net40\</OutputPath>
-    <DefineConstants>DEBUG;NETFX</DefineConstants>
+    <DefineConstants>DEBUG;NETFX;NETFX40</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -59,7 +59,7 @@
     <DocumentationFile>bin\Release\net40\FluentFTP.xml</DocumentationFile>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <DefineConstants>NETFX</DefineConstants>
+    <DefineConstants>NETFX;NETFX40</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DebugNET2|AnyCPU'">
