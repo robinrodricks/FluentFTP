@@ -1105,6 +1105,12 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 17.5.11
+- Disable all async methods on .NET core due to persistant PlatformUnsupported exception (if you need async you are free to contribute a non-blocking version of the methods)
+
+#### 17.5.10
+- Add argument validation for missing/blank arguments in : Upload, Download, UploadFile(s), DownloadFile(s), GetObjectInfo, DeleteFile, DeleteDirectory, FileExists, DirectoryExists, CreateDirectory, Rename, MoveFile, MoveDirectory, SetFilePermissions, Chmod, GetFilePermissions, GetChmod, GetFileSize, GetModifiedTime, VerifyTransfer, OpenRead, OpenWrite, OpenAppend
+
 #### 17.5.9
 - Increase performance of GetListing by reading multiple lines at once (BulkListing property, thanks [sierrodc](https://github.com/sierrodc))
 

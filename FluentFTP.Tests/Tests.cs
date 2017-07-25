@@ -7,7 +7,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
-#if (CORE || NETFX45)
+#if NETFX45
 using System.Threading.Tasks;
 #endif
 using System.IO.Compression;
@@ -127,7 +127,7 @@ namespace Tests {
 
 
                 //Async Tests
-#if (CORE || NETFX45)
+#if NETFX45
 				TestAsyncMethods();
 #endif
 
@@ -139,7 +139,7 @@ namespace Tests {
 			// Console.ReadKey();
 		}
 
-#if (CORE || NETFX45)
+#if NETFX45
 		private static void TestAsyncMethods() {
 			FtpTrace.WriteLine("Running Async Tests");
 			List<Task> tasks = new List<Task>() {
@@ -213,7 +213,7 @@ namespace Tests {
 			}
 		}
 
-#if (CORE || NETFX45)
+#if NETFX45
         static async Task TestListPathAsync()
         {
             using (FtpClient cl = new FtpClient())
@@ -258,7 +258,7 @@ namespace Tests {
 			}
 		}
 		
-#if (CORE || NETFX45)
+#if NETFX45
         static async Task StreamResponsesAsync()
         {
             using (FtpClient cl = new FtpClient())
@@ -330,7 +330,7 @@ namespace Tests {
 			}
 		}
 		
-#if (CORE || NETFX45)
+#if NETFX45
         static async Task TestGetObjectInfoAsync()
         {
             using (FtpClient cl = new FtpClient())
@@ -405,7 +405,7 @@ namespace Tests {
 			}
 		}
 		
-#if (CORE || NETFX45)
+#if NETFX45
         static async Task TestServerDownloadAsync(FtpClient client, string path)
         {
             foreach (FtpListItem i in await client.GetListingAsync(path))
@@ -706,7 +706,7 @@ namespace Tests {
 			}
 		}
 		
-#if (CORE || NETFX45)
+#if NETFX45
         static async Task TestHashAsync()
         {
             using (FtpClient cl = new FtpClient())
@@ -1014,7 +1014,7 @@ namespace Tests {
 			}
 		}
 		
-#if (CORE || NETFX45)
+#if NETFX45
         static async Task TestUploadDownloadFileAsync()
         {
 
@@ -1102,7 +1102,7 @@ namespace Tests {
 			}
 		}
 		
-#if (CORE || NETFX45)
+#if NETFX45
         static async Task TestUploadDownloadManyFilesAsync()
         {
 
@@ -1153,7 +1153,7 @@ namespace Tests {
 			}
 		}
 		
-#if (CORE || NETFX45)
+#if NETFX45
         static async Task TestUploadDownloadManyFiles2Async()
         {
 

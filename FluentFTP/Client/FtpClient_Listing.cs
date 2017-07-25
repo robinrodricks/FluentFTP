@@ -18,7 +18,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if (CORE || NETFX45)
+#if NETFX45
 using System.Threading.Tasks;
 #endif
 
@@ -190,6 +190,10 @@ namespace FluentFTP {
 		/// <returns>A FtpListItem object</returns>
 		public FtpListItem GetObjectInfo(string path, bool dateModified = false) {
 
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			
 			FtpTrace.WriteFunc("GetObjectInfo", new object[] { path, dateModified });
 
 			FtpReply reply;
@@ -242,6 +246,7 @@ namespace FluentFTP {
 			return result;
 		}
 
+#if !CORE
 		delegate FtpListItem AsyncGetObjectInfo(string path, bool dateModified);
 
 		/// <summary>
@@ -261,6 +266,7 @@ namespace FluentFTP {
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
 		public IAsyncResult BeginGetObjectInfo(string path, bool dateModified, AsyncCallback callback, object state) {
+
 			IAsyncResult ar;
 			AsyncGetObjectInfo func;
 
@@ -281,7 +287,8 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetObjectInfo>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Return information about a remote file system object asynchronously. 
 		/// </summary>
@@ -297,6 +304,7 @@ namespace FluentFTP {
 		/// <exception cref="InvalidOperationException">Thrown if the server does not support this Capability</exception>
 		/// <returns>A <see cref="FtpListItem"/> if the command succeeded, or null if there was a problem.</returns>
 		public async Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false) {
+
 			//TODO:  Rewrite as true async method with cancellation support
 			return await Task.Factory.FromAsync<string, bool, FtpListItem>(
 				(p, dm, ac, s) => BeginGetObjectInfo(p, dm, ac, s),
@@ -555,6 +563,7 @@ namespace FluentFTP {
 			return lst.ToArray();
 		}
 
+#if !CORE
 		/// <summary>
 		/// Begins an asynchronous operation to get a file listing from the server. 
 		/// Each <see cref="FtpListItem"/> object returned contains information about the file that was able to be retrieved. 
@@ -625,7 +634,8 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetListing>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
 		/// contains information about the file that was able to be retrieved. 
@@ -739,6 +749,7 @@ namespace FluentFTP {
 			return listing.ToArray();
 		}
 
+#if !CORE
 		delegate string[] AsyncGetNameListing(string path);
 
 		/// <summary>
@@ -782,7 +793,8 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetNameListing>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command asynchronously
 		/// </summary>

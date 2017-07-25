@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 
-#if (CORE || NETFX45)
+#if NETFX45
 using System.Threading.Tasks;
 #endif
 
@@ -408,7 +408,7 @@ namespace FluentFTP
             BaseStream.Flush();
         }
 
-#if (CORE || NETFX45)
+#if NETFX45
 
 		/// <summary>
 		/// Flushes the stream asynchronously
@@ -473,7 +473,7 @@ namespace FluentFTP
 #endif
         }
 
-#if (CORE || NETFX45)
+#if NETFX45
 
 		/// <summary>
 		/// Reads data from the stream
@@ -551,7 +551,7 @@ namespace FluentFTP
             }
         }
 
-#if (CORE || NETFX45)
+#if NETFX45
         /// <summary>
         /// Reads a line from the socket asynchronously
         /// </summary>
@@ -599,7 +599,7 @@ namespace FluentFTP
             m_lastActivity = DateTime.Now;
         }
 
-#if (CORE || NETFX45)
+#if NETFX45
 		/// <summary>
 		/// Writes data to the stream asynchronously
 		/// </summary>
@@ -628,7 +628,7 @@ namespace FluentFTP
             Write(data, 0, data.Length);
         }
 
-#if (CORE || NETFX45)
+#if NETFX45
 		/// <summary>
 		/// Writes a line to the stream using the specified encoding asynchronously
 		/// </summary>

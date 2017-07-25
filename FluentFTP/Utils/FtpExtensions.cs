@@ -6,8 +6,9 @@ using System.Globalization;
 #if (CORE || NETFX)
 using System.Diagnostics;
 #endif
-#if (CORE || NETFX45)
+#if NETFX45
 using System.Threading.Tasks;
+using System.Collections;
 #endif
 
 namespace FluentFTP {
@@ -173,7 +174,7 @@ namespace FluentFTP {
 			return String.Format("{0:0.#} {1}", len, sizePostfix[order]);
 		}
 		
-#if (CORE || NETFX45)
+#if NETFX45
         /// <summary>
         /// This creates a <see cref="System.Threading.Tasks.Task{TResult}"/> that represents a pair of begin and end methods
         /// that conform to the Asynchronous Programming Model pattern.  This extends the maximum amount of arguments from
@@ -246,6 +247,36 @@ namespace FluentFTP {
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		/// Checks if the string is null or 0 length.
+		/// </summary>
+		public static bool IsBlank(this string value) {
+			return value == null || value.Length == 0;
+		}
+
+		/// <summary>
+		/// Checks if the array is null or 0 length.
+		/// </summary>
+		public static bool IsBlank(this IList value) {
+			return value == null || value.Count == 0;
+		}
+
+		/// <summary>
+		/// Checks if the array is null or 0 length.
+		/// </summary>
+		public static bool IsBlank(this IEnumerable value) {
+			if (value == null){
+				return true;
+			}
+			if (value is IList){
+				return ((IList)value).Count == 0;
+			}
+			if (value is byte[]){
+				return ((byte[])value).Length == 0;
+			}
+			return false;
 		}
 
 		/// <summary>

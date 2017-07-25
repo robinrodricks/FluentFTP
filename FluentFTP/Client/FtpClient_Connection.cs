@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if (CORE || NETFX45)
+#if NETFX45
 using System.Threading.Tasks;
 #endif
 
@@ -858,6 +858,7 @@ namespace FluentFTP {
 			return reply;
 		}
 
+#if !CORE
 		delegate FtpReply AsyncExecute(string command);
 
 		/// <summary>
@@ -889,8 +890,9 @@ namespace FluentFTP {
 		public FtpReply EndExecute(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncExecute>(ar).EndInvoke(ar);
 		}
+#endif
 
-#if (CORE || NETFX45)
+#if NETFX45
 		/// <summary>
 		/// Performs an asynchronous execution of the specified command
 		/// </summary>
@@ -1198,6 +1200,7 @@ namespace FluentFTP {
 			}
 		}
 
+#if !CORE
 		delegate void AsyncConnect();
 
 		/// <summary>
@@ -1228,8 +1231,9 @@ namespace FluentFTP {
 		public void EndConnect(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncConnect>(ar).EndInvoke(ar);
 		}
+#endif
 
-#if (CORE || NETFX45)
+#if NETFX45
 		/// <summary>
 		/// Connects to the server asynchronously
 		/// </summary>
@@ -1304,6 +1308,7 @@ namespace FluentFTP {
 #endif
 		}
 
+#if !CORE
 		delegate void AsyncDisconnect();
 
 		/// <summary>
@@ -1334,7 +1339,8 @@ namespace FluentFTP {
 			GetAsyncDelegate<AsyncDisconnect>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Disconnects from the server asynchronously
 		/// </summary>

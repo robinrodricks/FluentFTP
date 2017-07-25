@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if (CORE || NETFX45)
+#if NETFX45
 using System.Threading.Tasks;
 #endif
 
@@ -85,6 +85,10 @@ namespace FluentFTP {
 		public void DeleteFile(string path) {
 			FtpReply reply;
 
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			
 #if !CORE14
 			lock (m_lock) {
 #endif
@@ -97,6 +101,7 @@ namespace FluentFTP {
 #endif
 		}
 
+#if !CORE
 		delegate void AsyncDeleteFile(string path);
 
 		/// <summary>
@@ -128,12 +133,14 @@ namespace FluentFTP {
 			GetAsyncDelegate<AsyncDeleteFile>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Deletes a file from the server asynchronously
 		/// </summary>
 		/// <param name="path">The full or relative path to the file</param>
 		public async Task DeleteFileAsync(string path) {
+
 			await Task.Factory.FromAsync<string>(
 				(p, ac, s) => BeginDeleteFile(p, ac, s),
 				ar => EndDeleteFile(ar),
@@ -151,6 +158,11 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the directory to delete</param>
 		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
 		public void DeleteDirectory(string path) {
+
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			
 			FtpTrace.WriteFunc("DeleteDirectory", new object[] { path });
 			DeleteDirInternal(path, true, FtpListOption.ForceList | FtpListOption.Recursive);
 		}
@@ -162,6 +174,11 @@ namespace FluentFTP {
 		/// <param name="options">Useful to delete hidden files or dot-files.</param>
 		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
 		public void DeleteDirectory(string path, FtpListOption options) {
+
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			
 			FtpTrace.WriteFunc("DeleteDirectory", new object[] { path, options });
 			DeleteDirInternal(path, true, options);
 		}
@@ -271,6 +288,7 @@ namespace FluentFTP {
 			return false;
 		}
 
+#if !CORE
 		delegate void AsyncDeleteDirectory(string path, FtpListOption options);
 
 		/// <summary>
@@ -282,6 +300,7 @@ namespace FluentFTP {
 		/// <returns>IAsyncResult</returns>
 		/// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
 		public IAsyncResult BeginDeleteDirectory(string path, AsyncCallback callback, object state) {
+
 			return BeginDeleteDirectory(path, FtpListOption.ForceList | FtpListOption.Recursive, callback, state);
 		}
 
@@ -295,6 +314,7 @@ namespace FluentFTP {
 		/// <returns>IAsyncResult</returns>
 		/// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
 		public IAsyncResult BeginDeleteDirectory(string path, FtpListOption options, AsyncCallback callback, object state) {
+
 			AsyncDeleteDirectory func;
 			IAsyncResult ar;
 
@@ -315,12 +335,14 @@ namespace FluentFTP {
 			GetAsyncDelegate<AsyncDeleteDirectory>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Asynchronously removes a directory and all its contents.
 		/// </summary>
 		/// <param name="path">The full or relative path of the directory to delete</param>
 		public async Task DeleteDirectoryAsync(string path) {
+
 			await Task.Factory.FromAsync<string>(
 				(p, ac, s) => BeginDeleteDirectory(p, ac, s),
 				ar => EndDeleteDirectory(ar),
@@ -333,6 +355,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the directory to delete</param>
 		/// <param name="options">Useful to delete hidden files or dot-files.</param>
 		public async Task DeleteDirectoryAsync(string path, FtpListOption options) {
+
 			var throwAway = await Task.Factory.FromAsync<string, FtpListOption, bool>(
 				(p, o, ac, s) => BeginDeleteDirectory(p, o, ac, s),
 				ar => {
@@ -367,6 +390,10 @@ namespace FluentFTP {
 		public bool DirectoryExists(string path) {
 			string pwd;
 
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			
 			FtpTrace.WriteFunc("DirectoryExists", new object[] { path });
 
 			// quickly check if root path, then it always exists!
@@ -396,6 +423,7 @@ namespace FluentFTP {
 			return false;
 		}
 
+#if !CORE
 		delegate bool AsyncDirectoryExists(string path);
 
 		/// <summary>
@@ -433,6 +461,7 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncDirectoryExists>(ar).EndInvoke(ar);
 		}
 
+#endif
 #if (CORE ||NETFX45)
 		/// <summary>
 		/// Tests if the specified directory exists on the server asynchronously. This
@@ -445,6 +474,7 @@ namespace FluentFTP {
 		/// <param name='path'>The full or relative path of the directory to check for</param>
 		/// <returns>True if the directory exists. False otherwise.</returns>
 		public async Task<bool> DirectoryExistsAsync(string path) {
+
 			return await Task.Factory.FromAsync<string, bool>(
 				(p, ac, s) => BeginDirectoryExists(p, ac, s),
 				ar => EndDirectoryExists(ar),
@@ -464,6 +494,10 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
 		public bool FileExists(string path) {
 
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			
 #if !CORE14
 			lock (m_lock) {
 #endif
@@ -519,6 +553,7 @@ namespace FluentFTP {
 #endif
 		}
 
+#if !CORE
 		delegate bool AsyncFileExists(string path);
 
 		/// <summary>
@@ -552,7 +587,8 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncFileExists>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Checks if a file exists on the server asynchronously by taking a 
 		/// file listing of the parent directory in the path
@@ -561,6 +597,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the file</param>
 		/// <returns>True if the file exists, false otherwise</returns>
 		public async Task<bool> FileExistsAsync(string path) {
+
 			return await Task.Factory.FromAsync<string, bool>(
 				(p, ac, s) => BeginFileExists(p, ac, s),
 				ar => EndFileExists(ar),
@@ -590,6 +627,10 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\CreateDirectory.cs" lang="cs" /></example>
 		public void CreateDirectory(string path, bool force) {
 
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			
 			FtpTrace.WriteFunc("CreateDirectory", new object[] { path, force });
 
 			FtpReply reply;
@@ -618,6 +659,7 @@ namespace FluentFTP {
 #endif
 		}
 
+#if !CORE
 		delegate void AsyncCreateDirectory(string path, bool force);
 
 		/// <summary>
@@ -630,6 +672,7 @@ namespace FluentFTP {
 		/// <returns>IAsyncResult</returns>
 		/// <example><code source="..\Examples\BeginCreateDirectory.cs" lang="cs" /></example>
 		public IAsyncResult BeginCreateDirectory(string path, AsyncCallback callback, object state) {
+
 			return BeginCreateDirectory(path, true, callback, state);
 		}
 
@@ -663,13 +706,15 @@ namespace FluentFTP {
 			GetAsyncDelegate<AsyncCreateDirectory>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Creates a remote directory asynchronously
 		/// </summary>
 		/// <param name="path">The full or relative path to the new remote directory</param>
 		/// <param name="force">Try to create the whole path if the preceding directories do not exist</param>
 		public async Task CreateDirectoryAsync(string path, bool force) {
+
 			await Task.Factory.FromAsync<string, bool>(
 				(p, f, ac, s) => BeginCreateDirectory(p, f, ac, s),
 				ar => EndCreateDirectory(ar),
@@ -682,6 +727,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the new remote directory</param>
 		public async Task CreateDirectoryAsync(string path) {
+
 			await Task.Factory.FromAsync<string>(
 				(p, ac, s) => BeginCreateDirectory(p, ac, s),
 				ar => EndCreateDirectory(ar),
@@ -704,6 +750,12 @@ namespace FluentFTP {
 		public void Rename(string path, string dest) {
 			FtpReply reply;
 
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			if (dest.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "dest");
+			
 #if !CORE14
 			lock (m_lock) {
 #endif
@@ -723,6 +775,7 @@ namespace FluentFTP {
 #endif
 		}
 
+#if !CORE
 		delegate void AsyncRename(string path, string dest);
 
 		/// <summary>
@@ -757,7 +810,8 @@ namespace FluentFTP {
 			GetAsyncDelegate<AsyncRename>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Renames an object on the remote file system asynchronously.
 		/// Low level method that should NOT be used in most cases. Prefer MoveFile() and MoveDirectory().
@@ -766,6 +820,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
 		public async Task RenameAsync(string path, string dest) {
+
 			await Task.Factory.FromAsync<string, string>(
 				(p, d, ac, s) => BeginRename(p, d, ac, s),
 				ar => EndRename(ar),
@@ -787,6 +842,12 @@ namespace FluentFTP {
 		/// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
 		public bool MoveFile(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
 
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			if (dest.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "dest");
+			
 			FtpTrace.WriteFunc("MoveFile", new object[] { path, dest, existsMode });
 
 			if (FileExists(path)) {
@@ -813,6 +874,7 @@ namespace FluentFTP {
 			return false;
 		}
 
+#if !CORE
 		delegate bool AsyncMoveFile(string path, string dest, FtpExists existsMode);
 
 		/// <summary>
@@ -846,7 +908,8 @@ namespace FluentFTP {
 			GetAsyncDelegate<AsyncMoveFile>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Moves a file asynchronously on the remote file system from one directory to another.
 		/// Always checks if the source file exists. Checks if the dest file exists based on the `existsMode` parameter.
@@ -877,6 +940,12 @@ namespace FluentFTP {
 		/// <param name="existsMode">Should we check if the dest directory exists? And if it does should we overwrite/skip the operation?</param>
 		public bool MoveDirectory(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
 
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			if (dest.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "dest");
+			
 			FtpTrace.WriteFunc("MoveDirectory", new object[] { path, dest, existsMode });
 
 			if (DirectoryExists(path)) {
@@ -903,6 +972,7 @@ namespace FluentFTP {
 			return false;
 		}
 
+#if !CORE
 		delegate bool AsyncMoveDirectory(string path, string dest, FtpExists existsMode);
 
 		/// <summary>
@@ -936,7 +1006,8 @@ namespace FluentFTP {
 			GetAsyncDelegate<AsyncMoveDirectory>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Moves a directory asynchronously on the remote file system from one directory to another.
 		/// Always checks if the source directory exists. Checks if the dest directory exists based on the `existsMode` parameter.
@@ -969,6 +1040,10 @@ namespace FluentFTP {
 		public void SetFilePermissions(string path, int permissions) {
 			FtpReply reply;
 
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			
 #if !CORE14
 			lock (m_lock) {
 #endif
@@ -1033,6 +1108,10 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the item</param>
 		public FtpListItem GetFilePermissions(string path) {
 
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			
 			FtpTrace.WriteFunc("GetFilePermissions", new object[] { path });
 
 			string fullPath = path.GetFtpPath();
@@ -1128,6 +1207,7 @@ namespace FluentFTP {
 			return null;
 		}
 
+#if !CORE
 		delegate FtpListItem AsyncDereferenceLink(FtpListItem item, int recMax);
 
 		/// <summary>
@@ -1175,7 +1255,8 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncDereferenceLink>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Dereference a <see cref="FtpListItem"/> object asynchronously
 		/// </summary>
@@ -1233,6 +1314,7 @@ namespace FluentFTP {
 #endif
 		}
 
+#if !CORE
 		delegate void AsyncSetWorkingDirectory(string path);
 
 		/// <summary>
@@ -1264,7 +1346,8 @@ namespace FluentFTP {
 			GetAsyncDelegate<AsyncSetWorkingDirectory>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Sets the working directory on the server asynchronously
 		/// </summary>
@@ -1316,6 +1399,7 @@ namespace FluentFTP {
 			return "./";
 		}
 
+#if !CORE
 		delegate string AsyncGetWorkingDirectory();
 
 		/// <summary>
@@ -1347,7 +1431,8 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetWorkingDirectory>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Gets the current working directory asynchronously
 		/// </summary>
@@ -1371,6 +1456,10 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\GetFileSize.cs" lang="cs" /></example>
 		public virtual long GetFileSize(string path) {
 
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			
 			FtpTrace.WriteFunc("GetFileSize", new object[] { path });
 
 			FtpReply reply;
@@ -1403,6 +1492,7 @@ namespace FluentFTP {
 			return length;
 		}
 
+#if !CORE
 		delegate long AsyncGetFileSize(string path);
 
 		/// <summary>
@@ -1435,7 +1525,8 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetFileSize>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Retrieve the size of a remote file asynchronously
 		/// </summary>
@@ -1461,6 +1552,10 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\GetModifiedTime.cs" lang="cs" /></example>
 		public virtual DateTime GetModifiedTime(string path) {
 
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			
 			FtpTrace.WriteFunc("GetModifiedTime", new object[] { path });
 
 			DateTime modify = DateTime.MinValue;
@@ -1478,6 +1573,7 @@ namespace FluentFTP {
 			return modify;
 		}
 
+#if !CORE
 		delegate DateTime AsyncGetModifiedTime(string path);
 
 		/// <summary>
@@ -1510,7 +1606,8 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetModifiedTime>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Gets the modified time of a remote file asynchronously
 		/// </summary>

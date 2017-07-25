@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if (CORE || NETFX45)
+#if NETFX45
 using System.Threading.Tasks;
 #endif
 
@@ -176,9 +176,13 @@ namespace FluentFTP {
 		/// </remarks>
 		public int UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true,
 			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None) {
+
+			// verify args
 			if (!errorHandling.IsValidCombination())
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
-
+			if (remoteDir.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remoteDir");
+			
 			FtpTrace.WriteFunc("UploadFiles", new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
 			//int count = 0;
@@ -284,7 +288,7 @@ namespace FluentFTP {
 			return UploadFiles(localFiles.Select(f => f.FullName), remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling);
 		}
 
-#if (CORE || NETFX45)
+#if NETFX45
 		/// <summary>
 		/// Uploads the given file paths to a single folder on the server asynchronously.
 		/// All files are placed directly into the given folder regardless of their path on the local filesystem.
@@ -308,9 +312,13 @@ namespace FluentFTP {
 		/// to propagate from this method.
 		/// </remarks>
 		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode, bool createRemoteDir, FtpVerify verifyOptions, FtpError errorHandling, CancellationToken token) {
+
+			// verify args
 			if (!errorHandling.IsValidCombination())
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
-
+			if (remoteDir.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remoteDir");
+			
 			FtpTrace.WriteFunc("UploadFilesAsync", new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
@@ -451,9 +459,13 @@ namespace FluentFTP {
 		/// </remarks>
 		public int DownloadFiles(string localDir, IEnumerable<string> remotePaths, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None,
 			FtpError errorHandling = FtpError.None) {
+
+			// verify args
 			if (!errorHandling.IsValidCombination())
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
-
+			if (localDir.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "localDir");
+			
 			FtpTrace.WriteFunc("DownloadFiles", new object[] { localDir, remotePaths, overwrite, verifyOptions });
 
 			bool errorEncountered = false;
@@ -536,7 +548,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if (CORE || NETFX45)
+#if NETFX45
 		/// <summary>
 		/// Downloads the specified files into a local single directory.
 		/// High-level API that takes care of various edge cases internally.
@@ -559,9 +571,13 @@ namespace FluentFTP {
 		/// </remarks>
 		public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite, FtpVerify verifyOptions,
 			FtpError errorHandling, CancellationToken token) {
+
+			// verify args
 			if (!errorHandling.IsValidCombination())
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
-
+			if (localDir.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "localDir");
+			
 			FtpTrace.WriteFunc("DownloadFilesAsync", new object[] { localDir, remotePaths, overwrite, verifyOptions });
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
@@ -673,6 +689,12 @@ namespace FluentFTP {
 		public bool UploadFile(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false,
 			FtpVerify verifyOptions = FtpVerify.None) {
 
+			// verify args
+			if (localPath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "localPath");
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			
 			FtpTrace.WriteFunc("UploadFile", new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 
 			// skip uploading if the local file does not exist
@@ -684,7 +706,7 @@ namespace FluentFTP {
 			return UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions);
 		}
 
-#if (CORE || NETFX45)
+#if NETFX45
 
 		/// <summary>
 		/// Uploads the specified file directly onto the server asynchronously.
@@ -706,6 +728,13 @@ namespace FluentFTP {
 		/// </remarks>
 		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode, bool createRemoteDir,
 			FtpVerify verifyOptions, CancellationToken token) {
+
+			// verify args
+			if (localPath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "localPath");
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
 				FtpTrace.WriteStatus(FtpTraceLevel.Error, "File does not exist.");
@@ -776,7 +805,7 @@ namespace FluentFTP {
 			return uploadSuccess && verified;
 		}
 
-#if (CORE || NETFX45)
+#if NETFX45
 		private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode,
 			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token) {
 
@@ -830,6 +859,12 @@ namespace FluentFTP {
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		public bool Upload(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 
+			// verify args
+			if (fileStream == null)
+				throw new ArgumentException("Required parameter is null or blank.", "fileStream");
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			
 			FtpTrace.WriteFunc("Upload", new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
@@ -847,6 +882,12 @@ namespace FluentFTP {
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		public bool Upload(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
 
+			// verify args
+			if (fileData == null)
+				throw new ArgumentException("Required parameter is null or blank.", "fileData");
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			
 			FtpTrace.WriteFunc("Upload", new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
@@ -857,7 +898,7 @@ namespace FluentFTP {
 		}
 
 
-#if (CORE || NETFX45)
+#if NETFX45
 
 		/// <summary>
 		/// Uploads the specified stream as a file onto the server asynchronously.
@@ -873,6 +914,12 @@ namespace FluentFTP {
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
 		public async Task<bool> UploadAsync(Stream fileStream, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
 
+			// verify args
+			if (fileStream == null)
+				throw new ArgumentException("Required parameter is null or blank.", "fileStream");
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			
 			FtpTrace.WriteFunc("UploadAsync", new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
@@ -892,8 +939,14 @@ namespace FluentFTP {
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
 		public async Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
 
+			// verify args
+			if (fileData == null)
+				throw new ArgumentException("Required parameter is null or blank.", "fileData");
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+
 			FtpTrace.WriteFunc("UploadAsync", new object[] { remotePath, existsMode, createRemoteDir });
-			
+
 			// write the file onto the server
 			using (MemoryStream ms = new MemoryStream(fileData)) {
 				ms.Position = 0;
@@ -1119,7 +1172,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if (CORE || NETFX45)
+#if NETFX45
 		/// <summary>
 		/// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
@@ -1317,6 +1370,12 @@ namespace FluentFTP {
 		/// </remarks>
 		public bool DownloadFile(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None) {
 
+			// verify args
+			if (localPath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "localPath");
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			
 			FtpTrace.WriteFunc("DownloadFile", new object[] { localPath, remotePath, overwrite, verifyOptions });
 
 			return DownloadFileToFile(localPath, remotePath, overwrite, verifyOptions);
@@ -1373,7 +1432,7 @@ namespace FluentFTP {
 			return downloadSuccess && verified;
 		}
 
-#if (CORE || NETFX45)
+#if NETFX45
 		/// <summary>
 		/// Downloads the specified file onto the local file system asynchronously.
 		/// High-level API that takes care of various edge cases internally.
@@ -1391,6 +1450,12 @@ namespace FluentFTP {
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
 		public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token) {
+
+			// verify args
+			if (localPath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "localPath");
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			
 			FtpTrace.WriteFunc("DownloadFileAsync", new object[] { localPath, remotePath, overwrite, verifyOptions });
 
@@ -1413,6 +1478,12 @@ namespace FluentFTP {
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
 		public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None) {
+
+			// verify args
+			if (localPath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "localPath");
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			
 			FtpTrace.WriteFunc("DownloadFileAsync", new object[] { localPath, remotePath, overwrite, verifyOptions });
 
@@ -1486,6 +1557,12 @@ namespace FluentFTP {
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public bool Download(Stream outStream, string remotePath) {
 
+			// verify args
+			if (outStream == null)
+				throw new ArgumentException("Required parameter is null or blank.", "outStream");
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			
 			FtpTrace.WriteFunc("Download", new object[] { remotePath });
 
 			// download the file from the server
@@ -1502,6 +1579,10 @@ namespace FluentFTP {
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public bool Download(out byte[] outBytes, string remotePath) {
 
+			// verify args
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			
 			FtpTrace.WriteFunc("Download", new object[] { remotePath });
 
 			outBytes = null;
@@ -1517,7 +1598,7 @@ namespace FluentFTP {
 			return ok;
 		}
 
-#if (CORE || NETFX45)
+#if NETFX45
 		/// <summary>
 		/// Downloads the specified file into the specified stream asynchronously .
 		/// High-level API that takes care of various edge cases internally.
@@ -1529,6 +1610,12 @@ namespace FluentFTP {
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public async Task<bool> DownloadAsync(Stream outStream, string remotePath, CancellationToken token) {
 
+			// verify args
+			if (outStream == null)
+				throw new ArgumentException("Required parameter is null or blank.", "outStream");
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			
 			FtpTrace.WriteFunc("DownloadAsync", new object[] { remotePath });
 			
 			// download the file from the server
@@ -1545,6 +1632,12 @@ namespace FluentFTP {
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public async Task<bool> DownloadAsync(Stream outStream, string remotePath) {
 
+			// verify args
+			if (outStream == null)
+				throw new ArgumentException("Required parameter is null or blank.", "outStream");
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			
 			FtpTrace.WriteFunc("DownloadAsync", new object[] { remotePath });
 			
 			// download the file from the server
@@ -1561,6 +1654,10 @@ namespace FluentFTP {
 		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
 		public async Task<byte[]> DownloadAsync(string remotePath, CancellationToken token) {
 
+			// verify args
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			
 			FtpTrace.WriteFunc("DownloadAsync", new object[] { remotePath });
 			
 			// download the file from the server
@@ -1755,7 +1852,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if (CORE || NETFX45)
+#if NETFX45
 		/// <summary>
 		/// Download a file from the server and write the data into the given stream asynchronously.
 		/// Reads data in chunks. Retries if server disconnects midway.
@@ -1922,6 +2019,13 @@ namespace FluentFTP {
 		#region Verification
 
 		private bool VerifyTransfer(string localPath, string remotePath) {
+
+			// verify args
+			if (localPath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "localPath");
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			
 			if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
 				this.HasFeature(FtpCapability.XMD5) || this.HasFeature(FtpCapability.XCRC) ||
 				this.HasFeature(FtpCapability.XSHA1) || this.HasFeature(FtpCapability.XSHA256) ||
@@ -1937,8 +2041,15 @@ namespace FluentFTP {
 			return true;
 		}
 
-#if (CORE || NETFX45)
+#if NETFX45
 		private async Task<bool> VerifyTransferAsync(string localPath, string remotePath) {
+
+			// verify args
+			if (localPath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "localPath");
+			if (remotePath.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			
 			if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
 				this.HasFeature(FtpCapability.XMD5) || this.HasFeature(FtpCapability.XCRC) ||
 				this.HasFeature(FtpCapability.XSHA1) || this.HasFeature(FtpCapability.XSHA256) ||

@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Threading;
 
-#if (CORE || NETFX45)
+#if NETFX45
 using System.Threading.Tasks;
 #endif
 
@@ -81,7 +81,7 @@ namespace FluentFTP {
 			return read;
 		}
 
-#if (CORE || NETFX45)
+#if NETFX45
         /// <summary>
         /// Reads data off the stream asynchronously
         /// </summary>
@@ -108,7 +108,7 @@ namespace FluentFTP {
 			m_position += count;
 		}
 
-#if (CORE || NETFX45)
+#if NETFX45
         /// <summary>
         /// Writes data to the stream asynchronously
         /// </summary>

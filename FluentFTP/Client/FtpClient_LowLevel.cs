@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if (CORE || NETFX45)
+#if NETFX45
 using System.Threading.Tasks;
 #endif
 
@@ -459,6 +459,10 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
 		public virtual Stream OpenRead(string path, FtpDataType type, long restart) {
 
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			
 			FtpTrace.WriteFunc("OpenRead", new object[] { path, type, restart });
 
 			FtpClient client = null;
@@ -494,6 +498,7 @@ namespace FluentFTP {
 			return stream;
 		}
 
+#if !CORE
 		/// <summary>
 		/// Begins an asynchronous operation to open the specified file for reading
 		/// </summary>
@@ -566,7 +571,8 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncOpenRead>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Opens the specified file for reading asynchronously
 		/// </summary>
@@ -647,6 +653,10 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
 		public virtual Stream OpenWrite(string path, FtpDataType type) {
 
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			
 			FtpTrace.WriteFunc("OpenWrite", new object[] { path, type });
 
 			FtpClient client = null;
@@ -677,6 +687,7 @@ namespace FluentFTP {
 			return stream;
 		}
 
+#if !CORE
 		/// <summary>
 		/// Begins an asynchronous operation to open the specified file for writing
 		/// </summary>
@@ -722,7 +733,8 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncOpenWrite>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. asynchronously
 		/// </summary>
@@ -774,6 +786,10 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
 		public virtual Stream OpenAppend(string path, FtpDataType type) {
 
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			
 			FtpTrace.WriteFunc("OpenAppend", new object[] { path, type });
 
 			FtpClient client = null;
@@ -806,6 +822,7 @@ namespace FluentFTP {
 			return stream;
 		}
 
+#if !CORE
 		/// <summary>
 		/// Begins an asynchronous operation to open the specified file for appending
 		/// </summary>
@@ -851,7 +868,8 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncOpenAppend>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Opens the specified file to be appended asynchronously
 		/// </summary>
@@ -926,6 +944,7 @@ namespace FluentFTP {
 			}
 		}
 
+#if !CORE
 		delegate void AsyncSetDataType(FtpDataType type);
 
 		/// <summary>
@@ -955,7 +974,8 @@ namespace FluentFTP {
 			GetAsyncDelegate<AsyncSetDataType>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Sets the data type of information sent over the data stream asynchronously
 		/// </summary>

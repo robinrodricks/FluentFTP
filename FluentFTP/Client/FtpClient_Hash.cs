@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if (CORE || NETFX45)
+#if NETFX45
 using System.Threading.Tasks;
 #endif
 
@@ -116,6 +116,7 @@ namespace FluentFTP {
 			return type;
 		}
 
+#if !CORE
 		delegate FtpHashAlgorithm AsyncGetHashAlgorithm();
 
 		/// <summary>
@@ -149,7 +150,8 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetHashAlgorithm>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Gets the currently selected hash algorithm for the HASH command asynchronously.
 		/// </summary>
@@ -216,6 +218,7 @@ namespace FluentFTP {
 #endif
 		}
 
+#if !CORE
 		delegate void AsyncSetHashAlgorithm(FtpHashAlgorithm type);
 
 		/// <summary>
@@ -254,7 +257,8 @@ namespace FluentFTP {
 			GetAsyncDelegate<AsyncSetHashAlgorithm>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Sets the hash algorithm on the server to be used with the HASH command asynchronously.
 		/// </summary>
@@ -350,6 +354,7 @@ namespace FluentFTP {
 			return hash;
 		}
 
+#if !CORE
 		delegate FtpHash AsyncGetHash(string path);
 
 		/// <summary>
@@ -392,7 +397,8 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetHash>(ar).EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Gets the hash of an object on the server using the currently selected hash algorithm asynchronously. 
 		/// </summary>
@@ -429,8 +435,6 @@ namespace FluentFTP {
 		#endregion
 
 		#region File Checksum
-
-		delegate FtpHash AsyncGetChecksum(string path);
 
 		/// <summary>
 		/// Retrieves a checksum of the given file using a checksum method that the server supports, if any. 
@@ -479,6 +483,9 @@ namespace FluentFTP {
 				return res;
 			}
 		}
+
+#if !CORE
+		delegate FtpHash AsyncGetChecksum(string path);
 
 		/// <summary>
 		/// Begins an asynchronous operation to retrieve a checksum of the given file using a checksum method that the server supports, if any. 
@@ -530,7 +537,8 @@ namespace FluentFTP {
 			return func.EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Retrieves a checksum of the given file using a checksum method that the server supports, if any. 
 		/// </summary>
@@ -560,8 +568,6 @@ namespace FluentFTP {
 		#endregion
 
 		#region MD5
-		delegate string AsyncGetMD5(string path);
-
 		/// <summary>
 		/// Gets the MD5 hash of the specified file using MD5. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be
@@ -585,6 +591,9 @@ namespace FluentFTP {
 
 			return response;
 		}
+
+#if !CORE
+		delegate string AsyncGetMD5(string path);
 
 		/// <summary>
 		/// Begins an asynchronous operation to retrieve a MD5 hash. The MD5 command is non-standard
@@ -625,7 +634,8 @@ namespace FluentFTP {
 			return func.EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Gets the MD5 hash of the specified file using MD5 asynchronously. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be
@@ -645,8 +655,6 @@ namespace FluentFTP {
 
 		#region XCRC
 
-
-		delegate string AsyncGetXCRC(string path);
 		/// <summary>
 		/// Get the CRC value of the specified file. This is a non-standard extension of the protocol 
 		/// and may throw a FtpCommandException if the server does not support it.
@@ -662,6 +670,9 @@ namespace FluentFTP {
 
 			return reply.Message;
 		}
+
+#if !CORE
+		delegate string AsyncGetXCRC(string path);
 
 		/// <summary>
 		/// Begins an asynchronous operation to retrieve a CRC hash. The XCRC command is non-standard
@@ -701,7 +712,8 @@ namespace FluentFTP {
 			return func.EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Gets the CRC hash of the specified file using XCRC asynchronously. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be
@@ -720,7 +732,6 @@ namespace FluentFTP {
 		#endregion
 
 		#region XMD5
-		delegate string AsyncGetXMD5(string path);
 
 		/// <summary>
 		/// Gets the MD5 hash of the specified file using XMD5. This is a non-standard extension
@@ -739,6 +750,8 @@ namespace FluentFTP {
 			return reply.Message;
 		}
 
+#if !CORE
+		delegate string AsyncGetXMD5(string path);
 		/// <summary>
 		/// Begins an asynchronous operation to retrieve a XMD5 hash. The XMD5 command is non-standard
 		/// and not guaranteed to work.
@@ -777,7 +790,8 @@ namespace FluentFTP {
 			return func.EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Gets the MD5 hash of the specified file using XMD5 asynchronously. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be
@@ -797,8 +811,6 @@ namespace FluentFTP {
 
 		#region XSHA1
 
-		delegate string AsyncGetXSHA1(string path);
-
 		/// <summary>
 		/// Gets the SHA-1 hash of the specified file using XSHA1. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be
@@ -816,6 +828,8 @@ namespace FluentFTP {
 			return reply.Message;
 		}
 
+#if !CORE
+		delegate string AsyncGetXSHA1(string path);
 		/// <summary>
 		/// Begins an asynchronous operation to retrieve a SHA1 hash. The XSHA1 command is non-standard
 		/// and not guaranteed to work.
@@ -854,7 +868,8 @@ namespace FluentFTP {
 			return func.EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Gets the SHA-1 hash of the specified file using XSHA1 asynchronously. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be
@@ -875,8 +890,6 @@ namespace FluentFTP {
 
 		#region XSHA256
 
-		delegate string AsyncGetXSHA256(string path);
-
 		/// <summary>
 		/// Gets the SHA-256 hash of the specified file using XSHA256. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be
@@ -893,6 +906,9 @@ namespace FluentFTP {
 
 			return reply.Message;
 		}
+
+#if !CORE
+		delegate string AsyncGetXSHA256(string path);
 
 		/// <summary>
 		/// Begins an asynchronous operation to retrieve a SHA256 hash. The XSHA256 command is non-standard
@@ -932,7 +948,8 @@ namespace FluentFTP {
 			return func.EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Gets the SHA-256 hash of the specified file using XSHA256 asynchronously. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be
@@ -953,8 +970,6 @@ namespace FluentFTP {
 
 		#region XSHA512
 
-		delegate string AsyncGetXSHA512(string path);
-
 		/// <summary>
 		/// Gets the SHA-512 hash of the specified file using XSHA512. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be
@@ -971,6 +986,9 @@ namespace FluentFTP {
 
 			return reply.Message;
 		}
+
+#if !CORE
+		delegate string AsyncGetXSHA512(string path);
 
 		/// <summary>
 		/// Begins an asynchronous operation to retrieve a SHA512 hash. The XSHA512 command is non-standard
@@ -1010,7 +1028,8 @@ namespace FluentFTP {
 			return func.EndInvoke(ar);
 		}
 
-#if (CORE || NETFX45)
+#endif
+#if NETFX45
 		/// <summary>
 		/// Gets the SHA-512 hash of the specified file using XSHA512 asynchronously. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be
