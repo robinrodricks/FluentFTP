@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if (CORE || NETFX)
+#if (CORE || NETFX45)
 using System.Threading.Tasks;
 #endif
 
