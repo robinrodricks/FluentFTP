@@ -688,6 +688,31 @@ using (FtpClient conn = new FtpClient()) {
 ```
 
 
+<a name="faq_specialchars"></a>
+**How can I upload/download files with Unicode filenames when my server does not support UTF8?**
+
+Set the connection encoding manually to ensure that special characters work properly.
+
+The default codepage that you should use is `1252 Windows Western`. It has support for English + European characters (accented chars).
+
+```cs
+client.Encoding = System.Text.Encoding.GetEncoding(1252); // ANSI codepage 1252 (Windows Western)
+```
+
+Here is the full list of codepages based on the charar you need:
+
+- 874 – English + Thai
+- 1250 – English + Central Europe
+- 1251 – English + Cyrillic (Russian)
+- 1252 – English + European (accented characters)
+- 1253 – English + Greek
+- 1254 – English + Turkish
+- 1255 – English + Hebrew
+- 1256 – English + Arabic
+- 1257 – English + Baltic
+- 1258 – English + Vietnamese
+
+
 <a name="faq_listings"></a>
 **How does GetListing() work internally?**
 
@@ -958,19 +983,6 @@ For Russian you need to use the codepage [`1251 Windows Cyrillic`](https://en.wi
 ```cs
 client.Encoding = System.Text.Encoding.GetEncoding(1251); // ANSI codepage 1251 (Windows Cyrillic)
 ```
-
-Here is the full list of codepages based on the charset you need:
-
-- 874 – English + Thai
-- 1250 – English + Central Europe
-- 1251 – English + Cyrillic (Russian)
-- 1252 – English + European (accented characters)
-- 1253 – English + Greek
-- 1254 – English + Turkish
-- 1255 – English + Hebrew
-- 1256 – English + Arabic
-- 1257 – English + Baltic
-- 1258 – English + Vietnamese
 
 <a name="trouble_azure"></a>
 **I keep getting TimeoutException's in my Azure WebApp**
