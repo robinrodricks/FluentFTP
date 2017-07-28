@@ -71,14 +71,15 @@ namespace FluentFTP {
 		/// <returns>The parent directory path</returns>
 		public static string GetFtpDirectoryName(this string path) {
 			string tpath = (path == null ? "" : path.GetFtpPath());
-			int lastslash = -1;
 
 			if (tpath.Length == 0 || tpath == "/")
 				return "/";
 
-			lastslash = tpath.LastIndexOf('/');
+			int lastslash = tpath.LastIndexOf('/');
 			if (lastslash < 0)
 				return ".";
+			if (lastslash == 0)
+				return "/";
 
 			return tpath.Substring(0, lastslash);
 		}
