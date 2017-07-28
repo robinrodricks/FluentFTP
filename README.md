@@ -688,7 +688,7 @@ using (FtpClient conn = new FtpClient()) {
 ```
 
 
-<a name="faq_specialchars"></a>
+<a name="faq_utf"></a>
 **How can I upload/download files with Unicode filenames when my server does not support UTF8?**
 
 Set the connection encoding manually to ensure that special characters work properly.
@@ -699,7 +699,7 @@ The default codepage that you should use is `1252 Windows Western`. It has suppo
 client.Encoding = System.Text.Encoding.GetEncoding(1252); // ANSI codepage 1252 (Windows Western)
 ```
 
-Here is the full list of codepages based on the charar you need:
+Here is the full list of codepages based on the charset you need:
 
 - 874 – English + Thai
 - 1250 – English + Central Europe
