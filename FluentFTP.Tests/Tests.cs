@@ -313,7 +313,10 @@ namespace Tests {
 			string path = "/home/sigurdhj/errors/16.05.2014/asdasd/asd asd asd aa asd/Kooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo::asdasd";
 
 			FtpTrace.WriteLine(path.GetFtpDirectoryName());
+			FtpTrace.WriteLine("/foobar/boo".GetFtpDirectoryName());
+			FtpTrace.WriteLine("./foobar/boo".GetFtpDirectoryName());
 			FtpTrace.WriteLine("./foobar".GetFtpDirectoryName());
+			FtpTrace.WriteLine("/foobar".GetFtpDirectoryName());
 			FtpTrace.WriteLine("foobar".GetFtpDirectoryName());
 			FtpTrace.WriteLine(path.GetFtpFileName());
 			FtpTrace.WriteLine("/foo/bar".GetFtpFileName());
