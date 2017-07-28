@@ -940,10 +940,37 @@ Your VS has an older version of `nuget.exe` so it cannot properly install the la
 <a name="trouble_specialchars"></a>
 **After uploading a file with special characters like "Caffè.png" it appears as "Caff?.bmp" on the FTP server. The server supports only ASCII but "è" is ASCII. FileZilla can upload this file without problems.**
 
-Set the connection encoding manually to ensure that special characters work properly
+Set the connection encoding manually to ensure that special characters work properly.
+
+The default codepage that you should use is `1252 Windows Western`. It has support for English + European characters (accented characters).
+
 ```cs
-client.Encoding = System.Text.Encoding.GetEncoding(1252); // ANSI codepage 1252
+client.Encoding = System.Text.Encoding.GetEncoding(1252); // ANSI codepage 1252 (Windows Western)
 ```
+
+<a name="trouble_specialchars2"></a>
+**I cannot delete a file if the filename contains Russian letters. FileZilla can delete this file without problems.**
+
+Set the connection encoding manually to ensure that special characters work properly.
+
+For Russian you need to use the codepage [`1251 Windows Cyrillic`](https://en.wikipedia.org/wiki/Code_page#Windows_code_pages)
+
+```cs
+client.Encoding = System.Text.Encoding.GetEncoding(1251); // ANSI codepage 1251 (Windows Cyrillic)
+```
+
+Here is the full list of codepages based on the charset you need:
+
+- 874 – English + Thai
+- 1250 – English + Central Europe
+- 1251 – English + Cyrillic (Russian)
+- 1252 – English + European (accented characters)
+- 1253 – English + Greek
+- 1254 – English + Turkish
+- 1255 – English + Hebrew
+- 1256 – English + Arabic
+- 1257 – English + Baltic
+- 1258 – English + Vietnamese
 
 <a name="trouble_azure"></a>
 **I keep getting TimeoutException's in my Azure WebApp**
