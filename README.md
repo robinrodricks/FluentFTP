@@ -1144,6 +1144,10 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 17.6.1
+- Fix for CreateDirectory and DirectoryExists to allow null/blank input path values
+- Fix for GetFtpDirectoryName to return correct parent folder of simple folder paths (thanks [ww898](https://github.com/ww898))
+
 #### 17.6.0
 - Add argument validation for missing/blank arguments in : Upload, Download, UploadFile(s), DownloadFile(s), GetObjectInfo, DeleteFile, DeleteDirectory, FileExists, DirectoryExists, CreateDirectory, Rename, MoveFile, MoveDirectory, SetFilePermissions, Chmod, GetFilePermissions, GetChmod, GetFileSize, GetModifiedTime, VerifyTransfer, OpenRead, OpenWrite, OpenAppend
 - Disable all async methods on .NET core due to persistant PlatformUnsupported exception (if you need async you are free to contribute a non-blocking version of the methods)

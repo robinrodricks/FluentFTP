@@ -390,9 +390,9 @@ namespace FluentFTP {
 		public bool DirectoryExists(string path) {
 			string pwd;
 
-			// verify args
-			if (path.IsBlank())
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+			// dont verify args as blank/null path is OK
+			//if (path.IsBlank())
+			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 			
 			FtpTrace.WriteFunc("DirectoryExists", new object[] { path });
 
@@ -627,9 +627,9 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\CreateDirectory.cs" lang="cs" /></example>
 		public void CreateDirectory(string path, bool force) {
 
-			// verify args
-			if (path.IsBlank())
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+			// dont verify args as blank/null path is OK
+			//if (path.IsBlank())
+			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 			
 			FtpTrace.WriteFunc("CreateDirectory", new object[] { path, force });
 
