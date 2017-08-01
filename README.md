@@ -141,8 +141,6 @@ client.Disconnect();
     - [Settings](#advanced-settings)
     - [Utilities](#utilities)
     - [Logging](#logging)
-- [FAQ](#faq)
-- [Troubleshooting](#troubleshooting)
 - [FTP Support Table](#ftp-support)
 - [Examples](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples)
 - [Release Notes](#release-notes)
