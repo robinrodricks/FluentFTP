@@ -149,6 +149,57 @@ client.Disconnect();
 - [Misc Notes](#notes)
 - [Credits](#credits)
 
+## FAQs
+
+**Connection FAQs**
+- [How do I connect with SSL/TLS? / How do I use FTPS?](#faq_ftps)
+- [How do I validate the server's certificate when using FTPS?](#faq_ftps)
+- [How do I connect with FTPS and then switch back down to plaintext FTP?](#faq_ccc)
+- [How do I connect with SFTP?](#faq_sftp)
+- [How do I login with an anonymous FTP account?](#faq_loginanon)
+- [How do I login with an FTP proxy?](#faq_loginproxy)
+- [How do I use client certificates to login with FTPS?](#faq_certs)
+- [How do I bundle an X509 certificate from a file?](#faq_x509)
+
+**File Transfer FAQs**
+- [How can I upload data created on the fly?](#faq_uploadbytes)
+- [How can I download data without saving it to disk?](#faq_downloadbytes)
+- [How can I throttle the speed of upload/download?](#faq_throttle)
+- [How do I verify the hash/checksum of a file and retry if the checksum mismatches?](#faq_verifyhash)
+- [How do I upload only the missing part of a file?](#faq_uploadmissing)
+- [How do I append to a file?](#faq_append)
+- [How do I download files using the low-level API?](#faq_downloadlow)
+- [How can I upload/download files with Unicode filenames when my server does not support UTF8?](#faq_utf)
+
+**File Management FAQs**
+- [How does GetListing() work internally?](#faq_listings)
+- [What kind of hashing commands are supported?](#faq_hashing)
+
+**Logging FAQs**
+- [How do I trace FTP commands for debugging?](#faq_trace)
+- [How do I log all FTP commands to a file for debugging?](#faq_logfile)
+- [How do I log only critical errors to a file?](#faq_logfile2)
+- [How do I disable logging of function calls?](#faq_logfunc)
+- [How do I omit sensitive information from the logs?](#faq_hidelog)
+- [How do I use third-party logging frameworks like NLog?](#faq_log)
+
+**Misc FAQs**
+- [What does `EnableThreadSafeDataConnections` do?](#faq_etsdc)
+- [How can I contribute some changes to FluentFTP?](#faq_fork)
+- [How do I submit a pull request?](#faq_fork)
+
+**Common Issues**
+- [I'm getting login errors but I can login fine in Firefox/Filezilla](#faq_loginanon)
+- [FluentFTP fails to install in Visual Studio 2010 (VS2010) > 'System.Runtime' already has a dependency defined for 'FluentFTP'.](#trouble_install)
+- [After uploading a file with special characters like "Caffè.png" it appears as "Caff?.bmp" on the FTP server. The server supports only ASCII but "è" is ASCII. FileZilla can upload this file without problems.](#trouble_specialchars)
+- [I cannot delete a file if the filename contains Russian letters. FileZilla can delete this file without problems.](#trouble_specialchars2)
+- [I keep getting TimeoutException's in my Azure WebApp](#trouble_azure)
+- [Many commands don't work on Windows CE](#trouble_windowsce)
+- [After successfully transfering a single file with OpenWrite/OpenAppend, the subsequent files fail with some random error, like "Malformed PASV response"](#trouble_getreply)
+- [SSL Negotiation is very slow during FTPS login](#trouble_ssl)
+- [Unable to read data from the transport connection : An existing connection was forcibly closed by the remote host](#trouble_closedhost)
+
+
 ## API
 
 Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS functionality.
@@ -687,6 +738,28 @@ using (FtpClient conn = new FtpClient()) {
 }
 ```
 
+
+<a name="faq_downloadlow"></a>
+**How do I download files using the low-level API?**
+
+Using the OpenRead() API:
+
+```cs
+// create remote FTP stream and local file stream
+using (var remoteFileStream = client.OpenRead(remotePath, FtpDataType.Binary)){
+	using (var newFileStream = File.Create(localPath)){
+	
+		// read 8KB at a time (you can increase this)
+		byte[] buffer = new byte[8 * 1024];
+
+		// download file to local stream
+		int len;
+		while ((len = remoteFileStream.Read(buffer, 0, buffer.Length)) > 0){
+			newFileStream.Write(buffer, 0, len);
+		}
+	}
+}
+```
 
 <a name="faq_utf"></a>
 **How can I upload/download files with Unicode filenames when my server does not support UTF8?**
