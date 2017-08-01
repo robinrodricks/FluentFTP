@@ -188,7 +188,7 @@ client.Disconnect();
 
 **Common Issues**
 - [I'm getting login errors but I can login fine in Firefox/Filezilla](#faq_loginanon)
-- [FluentFTP fails to install in Visual Studio 2010 (VS2010) > 'System.Runtime' already has a dependency defined for 'FluentFTP'.](#trouble_install)
+- [FluentFTP fails to install in Visual Studio 2010 : 'System.Runtime' already has a dependency defined for 'FluentFTP'.](#trouble_install)
 - [After uploading a file with special characters like "Caffè.png" it appears as "Caff?.bmp" on the FTP server. The server supports only ASCII but "è" is ASCII. FileZilla can upload this file without problems.](#trouble_specialchars)
 - [I cannot delete a file if the filename contains Russian letters. FileZilla can delete this file without problems.](#trouble_specialchars2)
 - [I keep getting TimeoutException's in my Azure WebApp](#trouble_azure)
