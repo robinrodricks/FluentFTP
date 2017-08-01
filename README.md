@@ -757,6 +757,9 @@ using (var remoteFileStream = client.OpenRead(remotePath, FtpDataType.Binary)){
 		}
 	}
 }
+
+// read the FTP response and prevent stale data on the socket
+client.GetReply();
 ```
 
 <a name="faq_utf"></a>
