@@ -769,23 +769,29 @@ namespace FluentFTP {
 #endif
 
 		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions) {
-			//If retries are allowed set the retry counter to the allowed count
+			
+			// If retries are allowed set the retry counter to the allowed count
 			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
-			//Default validation to true (if verification isn't needed it'll allow a pass-through)
+			
+			// Default validation to true (if verification isn't needed it'll allow a pass-through)
 			bool verified = true;
 			bool uploadSuccess;
 			do {
+				
 				// write the file onto the server
 				using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-					//Upload file
+					
+					// Upload file
 					uploadSuccess = UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown);
 					attemptsLeft--;
-					//If verification is needed update the validated flag
+
+					// If verification is needed, update the validated flag
 					if (uploadSuccess && verifyOptions != FtpVerify.None) {
 						verified = VerifyTransfer(localPath, remotePath);
 						FtpTrace.WriteStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 						if (!verified && attemptsLeft > 0) {
-							//Force overwrite if a retry is required
+							
+							// Force overwrite if a retry is required
 							FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
 							existsMode = FtpExists.Overwrite;
 						}
@@ -809,22 +815,26 @@ namespace FluentFTP {
 		private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode,
 			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token) {
 
-
-			//If retries are allowed set the retry counter to the allowed count
+			// If retries are allowed set the retry counter to the allowed count
 			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
-			//Default validation to true (if verification isn't needed it'll allow a pass-through)
+			
+			// Default validation to true (if verification isn't needed it'll allow a pass-through)
 			bool verified = true;
 			bool uploadSuccess;
 			do {
+
+				// write the file onto the server
 				using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
 					uploadSuccess = await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, token);
 					attemptsLeft--;
 
+					// If verification is needed, update the validated flag
 					if (verifyOptions != FtpVerify.None) {
 						verified = await VerifyTransferAsync(localPath, remotePath);
 						FtpTrace.WriteStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 						if (!verified && attemptsLeft > 0) {
-							//Force overwrite if a retry is required
+							
+							// Force overwrite if a retry is required
 							FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
 							existsMode = FtpExists.Overwrite;
 						}
@@ -1355,14 +1365,15 @@ namespace FluentFTP {
 				return false;
 			}
 
-
 			try {
+				
 				// create the folders
 				string dirPath = Path.GetDirectoryName(localPath);
 				if (!FtpExtensions.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
 					Directory.CreateDirectory(dirPath);
 				}
 			} catch (Exception ex1) {
+				
 				// catch errors creating directory
 				throw new FtpException("Error while creating directories. See InnerException for more info.", ex1);
 			}
@@ -1371,12 +1382,16 @@ namespace FluentFTP {
 			bool verified = true;
 			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 			do {
+
+				// download the file from server
 				using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)) {
+					
 					// download the file straight to a file stream
 					downloadSuccess = DownloadFileInternal(remotePath, outStream);
 					attemptsLeft--;
 				}
 
+				// if verification is needed
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
 					verified = VerifyTransfer(localPath, remotePath);
 					FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
@@ -1468,12 +1483,14 @@ namespace FluentFTP {
 			}
 
 			try {
+				
 				// create the folders
 				string dirPath = Path.GetDirectoryName(localPath);
 				if (!String.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
 					Directory.CreateDirectory(dirPath);
 				}
 			} catch (Exception ex1) {
+				
 				// catch errors creating directory
 				throw new FtpException("Error while crated directories. See InnerException for more info.", ex1);
 			}
@@ -1482,12 +1499,16 @@ namespace FluentFTP {
 			bool verified = true;
 			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 			do {
+
+				// download the file from server
 				using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)) {
+					
 					// download the file straight to a file stream
 					downloadSuccess = await DownloadFileInternalAsync(remotePath, outStream, token);
 					attemptsLeft--;
 				}
 
+				// if verification is needed
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
 					verified = await VerifyTransferAsync(localPath, remotePath);
 					FtpTrace.WriteStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));

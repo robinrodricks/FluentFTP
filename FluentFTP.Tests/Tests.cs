@@ -101,7 +101,7 @@ namespace Tests {
 				// FILE LISTING
 				//--------------------------------
 				//TestGetObjectInfo();
-				TestGetListing();
+				//TestGetListing();
 				//TestGetListingCCC();
 				//TestGetMachineListing();
 				//GetPublicFTPServerListing();
@@ -113,7 +113,7 @@ namespace Tests {
 				//--------------------------------
 				// UPLOAD / DOWNLOAD
 				//--------------------------------
-				//TestUploadDownloadFile();
+				TestUploadDownloadFile();
 				//TestUploadDownloadManyFiles();
 				//TestUploadDownloadZeroLenFile();
 				//TestUploadDownloadManyFiles2();
