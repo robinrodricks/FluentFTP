@@ -1149,24 +1149,6 @@ namespace FluentFTP {
 			}
 		}
 
-		private bool ResumeUpload(string remotePath, ref Stream upStream, long offset, IOException ex) {
-			// resume if server disconnects midway (fixes #39)
-			if (ex.InnerException != null) {
-				var iex = ex.InnerException as System.Net.Sockets.SocketException;
-#if CORE
-				if (iex != null && (int)iex.SocketErrorCode == 10054) {
-#else
-				if (iex != null && iex.ErrorCode == 10054) {
-#endif
-					upStream.Dispose();
-					upStream = OpenAppend(remotePath, UploadDataType, true);
-					upStream.Position = offset;
-					return true;
-				}
-			}
-			return false;
-		}
-
 #if NETFX45
 		/// <summary>
 		/// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
@@ -1312,6 +1294,24 @@ namespace FluentFTP {
 				// catch errors during upload
 				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
 			}
+		}
+
+		private bool ResumeUpload(string remotePath, ref Stream upStream, long offset, IOException ex) {
+			// resume if server disconnects midway (fixes #39)
+			if (ex.InnerException != null) {
+				var iex = ex.InnerException as System.Net.Sockets.SocketException;
+#if CORE
+				if (iex != null && (int)iex.SocketErrorCode == 10054) {
+#else
+				if (iex != null && iex.ErrorCode == 10054) {
+#endif
+					upStream.Dispose();
+					upStream = OpenAppend(remotePath, UploadDataType, true);
+					upStream.Position = offset;
+					return true;
+				}
+			}
+			return false;
 		}
 
 #endif
@@ -1663,9 +1663,8 @@ namespace FluentFTP {
 			try {
 
 				// exit if file length == 0
-				bool checkFileExistsAgain = false;
 				long fileLen = GetFileSize(remotePath);
-				downStream = OpenRead(remotePath, DownloadDataType);
+				downStream = OpenRead(remotePath, DownloadDataType, fileLen > 0);
 
 				if (fileLen == 0 && CurrentDataType == FtpDataType.ASCII) {
 
@@ -1794,23 +1793,6 @@ namespace FluentFTP {
 				// catch errors during upload
 				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
 			}
-		}
-
-		private bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
-			// resume if server disconnects midway (fixes #39)
-			if (ex.InnerException != null) {
-				var ie = ex.InnerException as System.Net.Sockets.SocketException;
-#if CORE
-								if (ie != null && (int)ie.SocketErrorCode == 10054) {
-#else
-				if (ie != null && ie.ErrorCode == 10054) {
-#endif
-					downStream.Dispose();
-					downStream = OpenRead(remotePath, DownloadDataType, restart: offset);
-					return true;
-				}
-			}
-			return false;
 		}
 
 #if NETFX45
@@ -1943,6 +1925,23 @@ namespace FluentFTP {
 			}
 		}
 #endif
+
+		private bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
+			// resume if server disconnects midway (fixes #39)
+			if (ex.InnerException != null) {
+				var ie = ex.InnerException as System.Net.Sockets.SocketException;
+#if CORE
+				if (ie != null && (int)ie.SocketErrorCode == 10054) {
+#else
+				if (ie != null && ie.ErrorCode == 10054) {
+#endif
+					downStream.Dispose();
+					downStream = OpenRead(remotePath, DownloadDataType, restart: offset);
+					return true;
+				}
+			}
+			return false;
+		}
 
 		#endregion
 
