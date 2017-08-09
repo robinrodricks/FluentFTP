@@ -1127,6 +1127,19 @@ client.SocketPollInterval = 1000;
 
 ## Notes
 
+### Semantic Versioning
+
+FluentFTP uses [semantic versioning](http://semver.org/), a package numbering scheme that indicates API compatibility between releases. A version consists of `MAJOR.MINOR.PATCH`, that use this scheme:
+
+ - **Major** version changed when incompatible/breaking changes are made to the API
+   - eg: Methods/properties are removed, Method arguments are removed/refactored
+	
+ - **Minor** version changed when functionality has been added in a backwards-compatible manner
+   - eg: Methods/properties are added, New arguments added into methods
+	
+ - **Patch** version changed when backwards-compatible bug fixes are released 
+   - eg: Fixes/minor features are added
+
 ### Stream Handling
 
 FluentFTP returns a `Stream` object for file transfers. This stream **must** be properly closed when you are done. Do not leave it for the GC to cleanup otherwise you can end up with uncatchable exceptions, i.e., a program crash. The stream objects are actually wrappers around `NetworkStream` and `SslStream` which perform cleanup routines on the control connection when the stream is closed. These cleanup routines can trigger exceptions so it's vital that you properly dispose the objects when you are done, no matter what. A proper implementation should go along the lines of:
