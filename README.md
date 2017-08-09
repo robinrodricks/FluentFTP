@@ -1247,6 +1247,11 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 17.6.2
+- Add checkIfFileExists to OpenRead, OpenAppend and OpenWrite to skip GetFileSize check
+- Fix issue where InnerException is null during a file transfer (upload/download)
+- Improve performance of typical uploads/downloads by skipping the extra file exists check
+
 #### 17.6.1
 - Fix for CreateDirectory and DirectoryExists to allow null/blank input path values
 - Fix for GetFtpDirectoryName to return correct parent folder of simple folder paths (thanks [ww898](https://github.com/ww898))

@@ -999,9 +999,12 @@ namespace FluentFTP {
 			try {
 
 				long offset = 0;
+				bool checkFileExistsAgain = false;
 
 				// check if the file exists, and skip, overwrite or append
-				if (existsMode != FtpExists.NoCheck) {
+				if (existsMode == FtpExists.NoCheck) {
+					checkFileExistsAgain = true;
+				}else{
 					if (!fileExistsKnown) {
 						fileExists = FileExists(remotePath);
 					}
@@ -1041,9 +1044,9 @@ namespace FluentFTP {
 
 				// open a file connection
 				if (offset == 0) {
-					upStream = OpenWrite(remotePath, UploadDataType);
+					upStream = OpenWrite(remotePath, UploadDataType, checkFileExistsAgain);
 				} else {
-					upStream = OpenAppend(remotePath, UploadDataType);
+					upStream = OpenAppend(remotePath, UploadDataType, checkFileExistsAgain);
 				}
 
 				// loop till entire file uploaded
@@ -1066,21 +1069,10 @@ namespace FluentFTP {
 
 						} catch (IOException ex) {
 
-							// resume if server disconnects midway (fixes #39)
-							if (ex.InnerException != null) {
-								var iex = ex.InnerException as System.Net.Sockets.SocketException;
-#if CORE
-								int code = (int)iex.SocketErrorCode;
-#else
-								int code = iex.ErrorCode;
-#endif
-								if (iex != null && code == 10054) {
-									upStream.Dispose();
-									upStream = OpenAppend(remotePath);
-									upStream.Position = offset;
-								} else throw;
-							} else throw;
-
+							// resume if server disconnected midway, or throw if there is an exception doing that as well
+							if (!ResumeUpload(remotePath, ref upStream, offset, ex)) {
+								throw;
+							}
 						}
 					}
 				} else {
@@ -1117,23 +1109,8 @@ namespace FluentFTP {
 
 						} catch (IOException ex) {
 
-							// resume if server disconnects midway (fixes #39)
-							if (ex.InnerException != null) {
-								var iex = ex.InnerException as System.Net.Sockets.SocketException;
-#if CORE
-								int code = (int)iex.SocketErrorCode;
-#else
-								int code = iex.ErrorCode;
-#endif
-								if (iex != null && code == 10054) {
-									upStream.Dispose();
-									upStream = OpenAppend(remotePath);
-									upStream.Position = offset;
-								} else {
-									sw.Stop();
-									throw;
-								}
-							} else {
+							// resume if server disconnected midway, or throw if there is an exception doing that as well
+							if (!ResumeUpload(remotePath, ref upStream, offset, ex)) {
 								sw.Stop();
 								throw;
 							}
@@ -1172,6 +1149,24 @@ namespace FluentFTP {
 			}
 		}
 
+		private bool ResumeUpload(string remotePath, ref Stream upStream, long offset, IOException ex) {
+			// resume if server disconnects midway (fixes #39)
+			if (ex.InnerException != null) {
+				var iex = ex.InnerException as System.Net.Sockets.SocketException;
+#if CORE
+				if (iex != null && (int)iex.SocketErrorCode == 10054) {
+#else
+				if (iex != null && iex.ErrorCode == 10054) {
+#endif
+					upStream.Dispose();
+					upStream = OpenAppend(remotePath, UploadDataType, true);
+					upStream.Position = offset;
+					return true;
+				}
+			}
+			return false;
+		}
+
 #if NETFX45
 		/// <summary>
 		/// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
@@ -1181,9 +1176,12 @@ namespace FluentFTP {
 			Stream upStream = null;
 			try {
 				long offset = 0;
+				bool checkFileExistsAgain = false;
 
 				// check if the file exists, and skip, overwrite or append
-				if (existsMode != FtpExists.NoCheck) {
+				if (existsMode == FtpExists.NoCheck) {
+					checkFileExistsAgain = true;
+				} else {
 					if (!fileExistsKnown) {
 						fileExists = await FileExistsAsync(remotePath);
 					}
@@ -1242,24 +1240,11 @@ namespace FluentFTP {
 								offset += readBytes;
 							}
 						} catch (IOException ex) {
-							// resume if server disconnects midway (fixes #39)
-							if (ex.InnerException != null) {
-								var iex = ex.InnerException as System.Net.Sockets.SocketException;
 
-								if (iex != null) {
-#if CORE
-							    int code = (int)iex.SocketErrorCode;
-#else
-									int code = iex.ErrorCode;
-#endif
-									if (code == 10054) {
-										upStream.Dispose();
-										//Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
-										upStream = OpenAppend(remotePath);
-										upStream.Position = offset;
-									}
-								} else throw;
-							} else throw;
+							// resume if server disconnected midway, or throw if there is an exception doing that as well
+							if (!ResumeUpload(remotePath, ref upStream, offset, ex)) {
+								throw;
+							}
 						}
 					}
 				} else {
@@ -1292,27 +1277,9 @@ namespace FluentFTP {
 								}
 							}
 						} catch (IOException ex) {
-							// resume if server disconnects midway (fixes #39)
-							if (ex.InnerException != null) {
-								var iex = ex.InnerException as System.Net.Sockets.SocketException;
 
-								if (iex != null) {
-#if CORE
-							    int code = (int)iex.SocketErrorCode;
-#else
-									int code = iex.ErrorCode;
-#endif
-									if (code == 10054) {
-										upStream.Dispose();
-										//Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
-										upStream = OpenAppend(remotePath);
-										upStream.Position = offset;
-									}
-								} else {
-									sw.Stop();
-									throw;
-								}
-							} else {
+							// resume if server disconnected midway, or throw if there is an exception doing that as well
+							if (!ResumeUpload(remotePath, ref upStream, offset, ex)) {
 								sw.Stop();
 								throw;
 							}
@@ -1696,6 +1663,7 @@ namespace FluentFTP {
 			try {
 
 				// exit if file length == 0
+				bool checkFileExistsAgain = false;
 				long fileLen = GetFileSize(remotePath);
 				downStream = OpenRead(remotePath, DownloadDataType);
 
@@ -1739,20 +1707,10 @@ namespace FluentFTP {
 
 						} catch (IOException ex) {
 
-							// resume if server disconnects midway (fixes #39)
-							if (ex.InnerException != null) {
-								var ie = ex.InnerException as System.Net.Sockets.SocketException;
-#if CORE
-							int code = (int)ie.SocketErrorCode;
-#else
-								int code = ie.ErrorCode;
-#endif
-								if (ie != null && code == 10054) {
-									downStream.Dispose();
-									downStream = OpenRead(remotePath, DownloadDataType, restart: offset);
-								} else throw;
-							} else throw;
-
+							// resume if server disconnected midway, or throw if there is an exception doing that as well
+							if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
+								throw;
+							}
 						}
 
 					}
@@ -1795,22 +1753,8 @@ namespace FluentFTP {
 
 						} catch (IOException ex) {
 
-							// resume if server disconnects midway (fixes #39)
-							if (ex.InnerException != null) {
-								var ie = ex.InnerException as System.Net.Sockets.SocketException;
-#if CORE
-							int code = (int)ie.SocketErrorCode;
-#else
-								int code = ie.ErrorCode;
-#endif
-								if (ie != null && code == 10054) {
-									downStream.Dispose();
-									downStream = OpenRead(remotePath, DownloadDataType, restart: offset);
-								} else {
-									sw.Stop();
-									throw;
-								}
-							} else {
+							// resume if server disconnected midway, or throw if there is an exception doing that as well
+							if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
 								sw.Stop();
 								throw;
 							}
@@ -1850,6 +1794,23 @@ namespace FluentFTP {
 				// catch errors during upload
 				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
 			}
+		}
+
+		private bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
+			// resume if server disconnects midway (fixes #39)
+			if (ex.InnerException != null) {
+				var ie = ex.InnerException as System.Net.Sockets.SocketException;
+#if CORE
+								if (ie != null && (int)ie.SocketErrorCode == 10054) {
+#else
+				if (ie != null && ie.ErrorCode == 10054) {
+#endif
+					downStream.Dispose();
+					downStream = OpenRead(remotePath, DownloadDataType, restart: offset);
+					return true;
+				}
+			}
+			return false;
 		}
 
 #if NETFX45
@@ -1898,23 +1859,10 @@ namespace FluentFTP {
 
 						} catch (IOException ex) {
 
-							// resume if server disconnects midway (fixes #39)
-							if (ex.InnerException != null) {
-								var ie = ex.InnerException as System.Net.Sockets.SocketException;
-								if (ie != null) {
-#if CORE
-		    					int code = (int)ie.SocketErrorCode;
-#else
-									int code = ie.ErrorCode;
-#endif
-									if (code == 10054) {
-										downStream.Dispose();
-										//Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
-										downStream = OpenRead(remotePath, restart: offset);
-									}
-								} else throw;
-							} else throw;
-
+							// resume if server disconnected midway, or throw if there is an exception doing that as well
+							if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
+								throw;
+							}
 						}
 
 					}
@@ -1955,29 +1903,11 @@ namespace FluentFTP {
 
 						} catch (IOException ex) {
 
-							// resume if server disconnects midway (fixes #39)
-							if (ex.InnerException != null) {
-								var ie = ex.InnerException as System.Net.Sockets.SocketException;
-								if (ie != null) {
-#if CORE
-		    					int code = (int)ie.SocketErrorCode;
-#else
-									int code = ie.ErrorCode;
-#endif
-									if (code == 10054) {
-										downStream.Dispose();
-										//Async not allowed in catch block until C# version 6.0.  Use Synchronous Method
-										downStream = OpenRead(remotePath, restart: offset);
-									}
-								} else {
-									sw.Stop();
-									throw;
-								}
-							} else {
+							// resume if server disconnected midway, or throw if there is an exception doing that as well
+							if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
 								sw.Stop();
 								throw;
 							}
-
 						}
 
 					}

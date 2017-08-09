@@ -424,7 +424,7 @@ namespace FluentFTP {
 		/// <returns>A stream for reading the file on the server</returns>
 		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
 		public Stream OpenRead(string path) {
-			return OpenRead(path, FtpDataType.Binary, 0);
+			return OpenRead(path, FtpDataType.Binary, 0, true);
 		}
 
 		/// <summary>
@@ -435,18 +435,19 @@ namespace FluentFTP {
 		/// <returns>A stream for reading the file on the server</returns>
 		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
 		public Stream OpenRead(string path, FtpDataType type) {
-			return OpenRead(path, type, 0);
+			return OpenRead(path, type, 0, true);
 		}
 
 		/// <summary>
 		/// Opens the specified file for reading
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="restart">Resume location</param>
+		/// <param name="type">ASCII/Binary</param>
+		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
 		/// <returns>A stream for reading the file on the server</returns>
 		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
-		public Stream OpenRead(string path, long restart) {
-			return OpenRead(path, FtpDataType.Binary, restart);
+		public Stream OpenRead(string path, FtpDataType type, bool checkIfFileExists) {
+			return OpenRead(path, type, 0, checkIfFileExists);
 		}
 
 		/// <summary>
@@ -458,6 +459,42 @@ namespace FluentFTP {
 		/// <returns>A stream for reading the file on the server</returns>
 		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
 		public virtual Stream OpenRead(string path, FtpDataType type, long restart) {
+			return OpenRead(path, type, restart, true);
+		}
+
+		/// <summary>
+		/// Opens the specified file for reading
+		/// </summary>
+		/// <param name="path">The full or relative path of the file</param>
+		/// <param name="restart">Resume location</param>
+		/// <returns>A stream for reading the file on the server</returns>
+		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
+		public Stream OpenRead(string path, long restart) {
+			return OpenRead(path, FtpDataType.Binary, restart, true);
+		}
+		
+		/// <summary>
+		/// Opens the specified file for reading
+		/// </summary>
+		/// <param name="path">The full or relative path of the file</param>
+		/// <param name="restart">Resume location</param>
+		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
+		/// <returns>A stream for reading the file on the server</returns>
+		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
+		public Stream OpenRead(string path, long restart, bool checkIfFileExists) {
+			return OpenRead(path, FtpDataType.Binary, restart, checkIfFileExists);
+		}
+
+		/// <summary>
+		/// Opens the specified file for reading
+		/// </summary>
+		/// <param name="path">The full or relative path of the file</param>
+		/// <param name="type">ASCII/Binary</param>
+		/// <param name="restart">Resume location</param>
+		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
+		/// <returns>A stream for reading the file on the server</returns>
+		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
+		public virtual Stream OpenRead(string path, FtpDataType type, long restart, bool checkIfFileExists) {
 
 			// verify args
 			if (path.IsBlank())
@@ -481,7 +518,7 @@ namespace FluentFTP {
 				}
 
 				client.SetDataType(type);
-				length = client.GetFileSize(path);
+				length = checkIfFileExists ? client.GetFileSize(path) : 0;
 				stream = client.OpenDataStream(("RETR " + path.GetFtpPath()), restart);
 #if !CORE14
 			}
@@ -641,9 +678,9 @@ namespace FluentFTP {
 		/// <returns>A stream for writing to the file on the server</returns>
 		/// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
 		public Stream OpenWrite(string path) {
-			return OpenWrite(path, FtpDataType.Binary);
+			return OpenWrite(path, FtpDataType.Binary, true);
 		}
-
+		
 		/// <summary>
 		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// </summary>
@@ -652,6 +689,18 @@ namespace FluentFTP {
 		/// <returns>A stream for writing to the file on the server</returns>
 		/// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
 		public virtual Stream OpenWrite(string path, FtpDataType type) {
+			return OpenWrite(path, type, true);
+		}
+
+		/// <summary>
+		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
+		/// </summary>
+		/// <param name="path">Full or relative path of the file</param>
+		/// <param name="type">ASCII/Binary</param>
+		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
+		/// <returns>A stream for writing to the file on the server</returns>
+		/// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
+		public virtual Stream OpenWrite(string path, FtpDataType type, bool checkIfFileExists) {
 
 			// verify args
 			if (path.IsBlank())
@@ -675,7 +724,7 @@ namespace FluentFTP {
 				}
 
 				client.SetDataType(type);
-				length = client.GetFileSize(path);
+				length = checkIfFileExists ? client.GetFileSize(path) : 0;
 				stream = client.OpenDataStream(("STOR " + path.GetFtpPath()), 0);
 
 				if (length > 0 && stream != null)
@@ -774,7 +823,19 @@ namespace FluentFTP {
 		/// <returns>A stream for writing to the file on the server</returns>
 		/// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
 		public Stream OpenAppend(string path) {
-			return OpenAppend(path, FtpDataType.Binary);
+			return OpenAppend(path, FtpDataType.Binary, true);
+		}
+		
+		/// <summary>
+		/// Opens the specified file for appending. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
+		/// </summary>
+		/// <param name="path">The full or relative path to the file to be opened</param>
+		/// <param name="type">ASCII/Binary</param>
+		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
+		/// <returns>A stream for writing to the file on the server</returns>
+		/// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
+		public virtual Stream OpenAppend(string path, FtpDataType type) {
+			return OpenAppend(path, type, true);
 		}
 
 		/// <summary>
@@ -782,9 +843,10 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the file to be opened</param>
 		/// <param name="type">ASCII/Binary</param>
+		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		/// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
-		public virtual Stream OpenAppend(string path, FtpDataType type) {
+		public virtual Stream OpenAppend(string path, FtpDataType type, bool checkIfFileExists) {
 
 			// verify args
 			if (path.IsBlank())
@@ -808,7 +870,7 @@ namespace FluentFTP {
 				}
 
 				client.SetDataType(type);
-				length = client.GetFileSize(path);
+				length = checkIfFileExists ? client.GetFileSize(path) : 0;
 				stream = client.OpenDataStream(("APPE " + path.GetFtpPath()), 0);
 
 				if (length > 0 && stream != null) {
