@@ -828,7 +828,7 @@ FtpTrace.AddListener(new ConsoleTraceListener());
 
 FtpTrace.LogUserName = false; 	// hide FTP user names
 FtpTrace.LogPassword = false; 	// hide FTP passwords
-FtpTrace.LogIP = false; 		// hide FTP server IP addresses
+FtpTrace.LogIP = false; 	// hide FTP server IP addresses
 ```
 
 *.NET Standard version*
@@ -837,7 +837,7 @@ FtpTrace.LogToConsole = true;
 
 FtpTrace.LogUserName = false; 	// hide FTP user names
 FtpTrace.LogPassword = false; 	// hide FTP passwords
-FtpTrace.LogIP = false; 		// hide FTP server IP addresses
+FtpTrace.LogIP = false; 	// hide FTP server IP addresses
 ```
 
 
@@ -852,7 +852,7 @@ FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"));
 
 FtpTrace.LogUserName = false; 	// hide FTP user names
 FtpTrace.LogPassword = false; 	// hide FTP passwords
-FtpTrace.LogIP = false; 		// hide FTP server IP addresses
+FtpTrace.LogIP = false; 	// hide FTP server IP addresses
 ```
 
 *.NET Standard version*
@@ -861,7 +861,7 @@ FtpTrace.LogToFile = "log_file.txt";
 
 FtpTrace.LogUserName = false; 	// hide FTP user names
 FtpTrace.LogPassword = false; 	// hide FTP passwords
-FtpTrace.LogIP = false; 		// hide FTP server IP addresses
+FtpTrace.LogIP = false; 	// hide FTP server IP addresses
 ```
 
 
