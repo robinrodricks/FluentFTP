@@ -149,6 +149,14 @@ client.Disconnect();
 
 ## FAQs
 
+**Logging FAQs**
+- [How do I trace FTP commands for debugging?](#faq_trace)
+- [How do I log all FTP commands to a file for debugging?](#faq_logfile)
+- [How do I log only critical errors to a file?](#faq_logfile2)
+- [How do I disable logging of function calls?](#faq_logfunc)
+- [How do I omit sensitive information from the logs?](#faq_hidelog)
+- [How do I use third-party logging frameworks like NLog?](#faq_log)
+
 **Connection FAQs**
 - [How do I connect with SSL/TLS? / How do I use FTPS?](#faq_ftps)
 - [How do I validate the server's certificate when using FTPS?](#faq_ftps)
@@ -172,14 +180,6 @@ client.Disconnect();
 **File Management FAQs**
 - [How does GetListing() work internally?](#faq_listings)
 - [What kind of hashing commands are supported?](#faq_hashing)
-
-**Logging FAQs**
-- [How do I trace FTP commands for debugging?](#faq_trace)
-- [How do I log all FTP commands to a file for debugging?](#faq_logfile)
-- [How do I log only critical errors to a file?](#faq_logfile2)
-- [How do I disable logging of function calls?](#faq_logfunc)
-- [How do I omit sensitive information from the logs?](#faq_hidelog)
-- [How do I use third-party logging frameworks like NLog?](#faq_log)
 
 **Misc FAQs**
 - [What does `EnableThreadSafeDataConnections` do?](#faq_etsdc)
