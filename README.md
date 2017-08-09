@@ -1149,7 +1149,7 @@ try {
    using(Stream s = ftpClient.OpenRead()) {
        // perform your transfer
    }
-   ftpClient.GetReply() // read success/failure messages from server
+   ftpClient.GetReply(); // read success/failure messages from server
 }
 catch(Exception) {
    // Typical exceptions here are IOException, SocketException, or a FtpCommandException
@@ -1167,8 +1167,8 @@ try {
 }
 finally {
 	if(s != null)
-		s.Close()
-	ftpClient.GetReply() // read success/failure messages from server
+		s.Close();
+	ftpClient.GetReply(); // read success/failure messages from server
 }
 ``````
 
