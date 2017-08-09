@@ -825,11 +825,19 @@ Do this at program startup (since its static it takes effect for all FtpClient i
 *.NET Framework version*
 ```cs
 FtpTrace.AddListener(new ConsoleTraceListener());
+
+FtpTrace.LogUserName = false; 	// hide FTP user names
+FtpTrace.LogPassword = false; 	// hide FTP passwords
+FtpTrace.LogIP = false; 		// hide FTP server IP addresses
 ```
 
 *.NET Standard version*
 ```cs
 FtpTrace.LogToConsole = true;
+
+FtpTrace.LogUserName = false; 	// hide FTP user names
+FtpTrace.LogPassword = false; 	// hide FTP passwords
+FtpTrace.LogIP = false; 		// hide FTP server IP addresses
 ```
 
 
@@ -841,11 +849,19 @@ Do this at program startup (since its static it takes effect for all FtpClient i
 *.NET Framework version*
 ```cs
 FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"));
+
+FtpTrace.LogUserName = false; 	// hide FTP user names
+FtpTrace.LogPassword = false; 	// hide FTP passwords
+FtpTrace.LogIP = false; 		// hide FTP server IP addresses
 ```
 
 *.NET Standard version*
 ```cs
 FtpTrace.LogToFile = "log_file.txt";
+
+FtpTrace.LogUserName = false; 	// hide FTP user names
+FtpTrace.LogPassword = false; 	// hide FTP passwords
+FtpTrace.LogIP = false; 		// hide FTP server IP addresses
 ```
 
 
