@@ -323,7 +323,9 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 - **Rename**() - Renames the file/directory on the server. Low level method that should NOT be used in most cases. Prefer `MoveFile()` and `MoveDirectory()`. Throws exceptions if the source does not exist, or if the destination already exists.
 
-- **GetModifiedTime**() - Gets the last modified date/time of the file or folder.
+- **GetModifiedTime**() - Gets the last modified date/time of the file or folder. Result may be in server timezone, local timezone or UTC, depending on `type` argument.
+
+- **SetModifiedTime**() - Modifies the last modified date/time of the file or folder. Input may be in server timezone, local timezone or UTC, depending on `type` argument.
 
 - **GetFileSize**() - Gets the size of the file in bytes, or -1 if not found.
 
@@ -559,6 +561,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **PWD**      			| GetWorkingDirectory() | Get the working directory |
 | **SIZE**      		| GetFileSize() 		| Get the filesize in bytes |
 | **MDTM**   			| GetModifiedTime()<br>GetListing() with FtpListOption.Modify<br>GetObjectInfo() with dateModified | Get the file modified date  |
+| **MFMT**   			| SetModifiedTime()		 | Modify file modified date  |
 | **SITE CHMOD**      	| Chmod() or SetFilePermissions() | Modify file permissions |
 
 *File Hashing commands*
