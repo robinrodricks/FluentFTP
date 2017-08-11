@@ -581,4 +581,20 @@ namespace FluentFTP {
 		/// </summary>
 		OnlyChecksum = 8,
     }
+
+    /// <summary>
+    /// Defines if additional verification and actions upon failure that 
+    /// should be performed when uploading/downloading files using the high-level APIs.  Ignored if the 
+    /// FTP server does not support any hashing algorithms.
+    /// </summary>
+	public enum FtpDateType {
+        /// <summary>
+        /// The date is in UTC, which is what the server provides/is given.
+        /// </summary>
+        UTC = 0,
+        /// <summary>
+		/// The date is converted to/provided in the local timezone.
+        /// </summary>
+        Local = 1
+    }
 }
