@@ -1574,16 +1574,18 @@ namespace FluentFTP {
 						date = (date - m_listParser.timeOffset);
 					}
 
-					// convert to local time if wanted
+                // convert to local time if wanted
+#if !CORE
 					if (type == FtpDate.Local) {
 						date = TimeZone.CurrentTimeZone.ToLocalTime(date);
 					}
-				}
+#endif
+            }
 #if !CORE14
 			}
 #endif
 
-			return date;
+            return date;
 		}
 
 #if !CORE
@@ -1637,9 +1639,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Set Modified Time
+#region Set Modified Time
 
 		/// <summary>
 		/// Changes the modified time of a remote file
@@ -1663,13 +1665,15 @@ namespace FluentFTP {
 			lock (m_lock) {
 #endif
 
-				// convert local to UTC if wanted
+            // convert local to UTC if wanted
+#if !CORE
 				if (type == FtpDate.Local) {
 					date = TimeZone.CurrentTimeZone.ToUniversalTime(date);
 				}
+#endif
 
-				// convert UTC to server timezone, based on the TimeOffset property
-				if (type != FtpDate.Original && m_listParser.hasTimeOffset) {
+            // convert UTC to server timezone, based on the TimeOffset property
+            if (type != FtpDate.Original && m_listParser.hasTimeOffset) {
 					date = (date + m_listParser.timeOffset);
 				}
 
@@ -1733,7 +1737,7 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
 	}
 }

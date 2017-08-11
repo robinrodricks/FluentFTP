@@ -593,9 +593,11 @@ namespace FluentFTP {
         /// </summary>
         Original = 0,
         /// <summary>
+#if !CORE
 		/// The date is converted to the local timezone, based on the TimeOffset property in FtpClient.
         /// </summary>
         Local = 1,
+#endif
         /// <summary>
         /// The date is converted to UTC, based on the TimeOffset property in FtpClient.
         /// </summary>
