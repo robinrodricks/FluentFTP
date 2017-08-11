@@ -1306,6 +1306,8 @@ namespace FluentFTP {
 			}
 		}
 
+#endif
+
 		private bool ResumeUpload(string remotePath, ref Stream upStream, long offset, IOException ex) {
 			// resume if server disconnects midway (fixes #39)
 			if (ex.InnerException != null) {
@@ -1323,8 +1325,6 @@ namespace FluentFTP {
 			}
 			return false;
 		}
-
-#endif
 
 		#endregion
 
