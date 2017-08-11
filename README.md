@@ -1251,6 +1251,7 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 - New SetModifiedTime API to change modified date of a server file in local timezone/UTC
 - Add type argument to GetModifiedTime, allowing for getting dates in UTC/Local timezone
 - Breaking changes to Async API of GetModifiedTime (addition of type argument)
+- GetModifiedTime and SetModifiedTime now honor the TimeOffset property in FtpClient
 - Add checkIfFileExists to OpenRead, OpenAppend and OpenWrite to skip GetFileSize check
 - Fix issue where InnerException is null during a file transfer (upload/download)
 - Improve performance of typical uploads/downloads by skipping the extra file exists check

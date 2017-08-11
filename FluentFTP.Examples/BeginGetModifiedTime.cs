@@ -18,7 +18,7 @@ namespace Examples {
                 conn.Host = "localhost";
                 conn.Credentials = new NetworkCredential("ftptest", "ftptest");
                 conn.Connect();
-                conn.BeginGetModifiedTime("foobar", FtpDateType.UTC, new AsyncCallback(BeginGetModifiedTimeCallback), conn);
+                conn.BeginGetModifiedTime("foobar", FtpDate.UTC, new AsyncCallback(BeginGetModifiedTimeCallback), conn);
 
                 m_reset.WaitOne();
                 conn.Disconnect();

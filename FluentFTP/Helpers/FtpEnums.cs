@@ -587,14 +587,18 @@ namespace FluentFTP {
     /// should be performed when uploading/downloading files using the high-level APIs.  Ignored if the 
     /// FTP server does not support any hashing algorithms.
     /// </summary>
-	public enum FtpDateType {
+	public enum FtpDate {
         /// <summary>
-        /// The date is in UTC, which is what the server provides/is given.
+        /// The date is whatever the server returns, with no conversion performed.
         /// </summary>
-        UTC = 0,
+        Original = 0,
         /// <summary>
-		/// The date is converted to/provided in the local timezone.
+		/// The date is converted to the local timezone, based on the TimeOffset property in FtpClient.
         /// </summary>
-        Local = 1
+        Local = 1,
+        /// <summary>
+        /// The date is converted to UTC, based on the TimeOffset property in FtpClient.
+        /// </summary>
+        UTC = 2,
     }
 }

@@ -1551,7 +1551,7 @@ namespace FluentFTP {
 		/// <param name="type">Returns the date in local timezone or UTC</param>
 		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
 		/// <example><code source="..\Examples\GetModifiedTime.cs" lang="cs" /></example>
-		public virtual DateTime GetModifiedTime(string path, FtpDateType type = FtpDateType.UTC) {
+		public virtual DateTime GetModifiedTime(string path, FtpDate type = FtpDate.Original) {
 
 			// verify args
 			if (path.IsBlank())
@@ -1559,7 +1559,7 @@ namespace FluentFTP {
 			
 			FtpTrace.WriteFunc("GetModifiedTime", new object[] { path, type });
 
-			DateTime modify = DateTime.MinValue;
+			DateTime date = DateTime.MinValue;
 			FtpReply reply;
 
 #if !CORE14
@@ -1567,22 +1567,27 @@ namespace FluentFTP {
 #endif
 				// get modified date of a file
 				if ((reply = Execute("MDTM " + path.GetFtpPath())).Success) {
-					modify = reply.Message.GetFtpDate(DateTimeStyles.AssumeUniversal);
+					date = reply.Message.GetFtpDate(DateTimeStyles.AssumeUniversal);
+
+					// convert server timezone to UTC, based on the TimeOffset property
+					if (type != FtpDate.Original && m_listParser.hasTimeOffset) {
+						date = (date - m_listParser.timeOffset);
+					}
 
 					// convert to local time if wanted
-					if (type == FtpDateType.Local) {
-						modify = TimeZone.CurrentTimeZone.ToLocalTime(modify);
+					if (type == FtpDate.Local) {
+						date = TimeZone.CurrentTimeZone.ToLocalTime(date);
 					}
 				}
 #if !CORE14
 			}
 #endif
 
-			return modify;
+			return date;
 		}
 
 #if !CORE
-		delegate DateTime AsyncGetModifiedTime(string path, FtpDateType type);
+		delegate DateTime AsyncGetModifiedTime(string path, FtpDate type);
 
 		/// <summary>
 		/// Begins an asynchronous operation to get the modified time of a remote file
@@ -1593,7 +1598,7 @@ namespace FluentFTP {
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
 		/// <example><code source="..\Examples\BeginGetModifiedTime.cs" lang="cs" /></example>
-		public IAsyncResult BeginGetModifiedTime(string path, FtpDateType type, AsyncCallback callback, object state) {
+		public IAsyncResult BeginGetModifiedTime(string path, FtpDate type, AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncGetModifiedTime func;
 
@@ -1623,9 +1628,9 @@ namespace FluentFTP {
 		/// <param name="path">The full path to the file</param>
 		/// <param name="type">Returns the date in local timezone or UTC</param>
 		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
-		public async Task<DateTime> GetModifiedTimeAsync(string path, FtpDateType type = FtpDateType.UTC) {
+		public async Task<DateTime> GetModifiedTimeAsync(string path, FtpDate type = FtpDate.Original) {
 			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<string, FtpDateType, DateTime>(
+			return await Task.Factory.FromAsync<string, FtpDate, DateTime>(
 				(p, t, ac, s) => BeginGetModifiedTime(p, t, ac, s),
 				ar => EndGetModifiedTime(ar),
 				path, type, null);
@@ -1642,7 +1647,7 @@ namespace FluentFTP {
 		/// <param name="path">The full path to the file</param>
 		/// <param name="date">The new modified date/time value</param>
 		/// <param name="type">Is the date provided in local timezone or UTC?</param>
-		public virtual void SetModifiedTime(string path, DateTime date, FtpDateType type = FtpDateType.UTC) {
+		public virtual void SetModifiedTime(string path, DateTime date, FtpDate type = FtpDate.Original) {
 
 			// verify args
 			if (path.IsBlank())
@@ -1659,8 +1664,13 @@ namespace FluentFTP {
 #endif
 
 				// convert local to UTC if wanted
-				if (type == FtpDateType.Local) {
+				if (type == FtpDate.Local) {
 					date = TimeZone.CurrentTimeZone.ToUniversalTime(date);
+				}
+
+				// convert UTC to server timezone, based on the TimeOffset property
+				if (type != FtpDate.Original && m_listParser.hasTimeOffset) {
+					date = (date + m_listParser.timeOffset);
 				}
 
 				// set modified date of a file
@@ -1674,7 +1684,7 @@ namespace FluentFTP {
 		}
 
 #if !CORE
-		delegate void AsyncSetModifiedTime(string path, DateTime date, FtpDateType type);
+		delegate void AsyncSetModifiedTime(string path, DateTime date, FtpDate type);
 
 		/// <summary>
 		/// Begins an asynchronous operation to get the modified time of a remote file
@@ -1685,7 +1695,7 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginSetModifiedTime(string path, DateTime date, FtpDateType type, AsyncCallback callback, object state) {
+		public IAsyncResult BeginSetModifiedTime(string path, DateTime date, FtpDate type, AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncSetModifiedTime func;
 
@@ -1714,9 +1724,9 @@ namespace FluentFTP {
 		/// <param name="path">The full path to the file</param>
 		/// <param name="date">The new modified date/time value</param>
 		/// <param name="type">Is the date provided in local timezone or UTC?</param>
-		public async Task SetModifiedTimeAsync(string path, DateTime date, FtpDateType type = FtpDateType.UTC) {
+		public async Task SetModifiedTimeAsync(string path, DateTime date, FtpDate type = FtpDate.Original) {
 			//TODO:  Rewrite as true async method with cancellation support
-			await Task.Factory.FromAsync<string, DateTime, FtpDateType>(
+			await Task.Factory.FromAsync<string, DateTime, FtpDate>(
 				(p, dt, t, ac, s) => BeginSetModifiedTime(p, dt, t, ac, s),
 				ar => EndSetModifiedTime(ar),
 				path, date, type, null);
