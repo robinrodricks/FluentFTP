@@ -5,7 +5,7 @@
 		<id>FluentFTP</id>
 		<version>18.0.0</version>
 		<title>FluentFTP</title>
-		<authors>J.P. Trosclair, Harsh Gupta, FluentFTP Contributors</authors>
+		<authors>Harsh Gupta, J.P. Trosclair, FluentFTP Contributors</authors>
 		<owners>Harsh Gupta</owners>
 		<licenseUrl>https://github.com/hgupta9/FluentFTP/blob/master/LICENSE.TXT</licenseUrl>
 		<projectUrl>https://github.com/hgupta9/FluentFTP</projectUrl>

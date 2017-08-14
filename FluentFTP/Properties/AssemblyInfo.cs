@@ -11,7 +11,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("FluentFTP")]
-[assembly: AssemblyCopyright("J.P. Trosclair and Harsh Gupta")]
+[assembly: AssemblyCopyright("Harsh Gupta, J.P. Trosclair")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
