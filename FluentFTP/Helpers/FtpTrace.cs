@@ -10,7 +10,7 @@ namespace FluentFTP {
     public static class FtpTrace {
 
 #if !CORE
-		private static readonly TraceSource m_traceSource = new TraceSource("FluentFTP") {
+		private static volatile TraceSource m_traceSource = new TraceSource("FluentFTP") {
 			Switch = new SourceSwitch("sourceSwitch", "Verbose") { Level = SourceLevels.All }
 		};
 
