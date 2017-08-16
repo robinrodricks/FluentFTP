@@ -73,7 +73,7 @@ namespace FluentFTP {
 	/// listing from the server.
 	/// <code source="..\Examples\GetListing.cs" lang="cs" />
 	/// </example>
-	public partial class FtpClient : IDisposable {
+	public partial class FtpClient : IFtpClient, IDisposable {
 
 		#region Delete File
 
