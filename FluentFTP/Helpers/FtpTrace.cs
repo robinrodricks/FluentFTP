@@ -10,7 +10,7 @@ namespace FluentFTP {
     public static class FtpTrace {
 
 #if !CORE
-		private static readonly TraceSource m_traceSource = new TraceSource("FluentFTP") {
+		private static volatile TraceSource m_traceSource = new TraceSource("FluentFTP") {
 			Switch = new SourceSwitch("sourceSwitch", "Verbose") { Level = SourceLevels.All }
 		};
 
@@ -125,6 +125,16 @@ namespace FluentFTP {
             set { m_password = value; }
         }
 
+        static bool m_tracing = true;
+
+        /// <summary>
+        /// Should we trace at all?
+        /// </summary>
+        public static bool EnableTracing
+        {
+            get { return m_tracing; }
+            set { m_tracing = value; }
+        }
 
         /// <summary>
         /// Write to the TraceListeners
@@ -181,6 +191,8 @@ namespace FluentFTP {
         /// <param name="eventType">The type of tracing event</param>
         /// <param name="message">A formattable string to write</param>
         public static void Write(FtpTraceLevel eventType, string message) {
+            if(!EnableTracing)
+                return;
 #if CORE
 #if DEBUG
             Debug.WriteLine(message);
@@ -193,7 +205,7 @@ namespace FluentFTP {
             }
 #endif
 #elif !CORE
-            var diagTraceLvl = TraceLevelTranslation(eventType);
+
 			if (m_prefix) {
 
 				// if prefix is wanted then use TraceEvent()
