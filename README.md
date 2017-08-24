@@ -1250,6 +1250,10 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 18.0.1
+- Add IFtpClient interface to build unit tests upon main FtpClient class (thanks [Kris0](https://github.com/Kris0))
+- Disposing FtpDataStream reads server reply and closes the underlying stream (thanks [Lukazoid](https://github.com/Lukazoid))
+
 #### 18.0.0
 - New SetModifiedTime API to change modified date of a server file in local timezone/UTC
 - Add type argument to GetModifiedTime, allowing for getting dates in UTC/Local timezone
@@ -1382,3 +1386,4 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 - [Tim Horemans](https://github.com/worstenbrood) - Fixes and improvements
 - [Nerijus Dzindzeleta](https://github.com/NerijusD) - Fixes and improvements
 - [Rune Ibsen](https://github.com/ibsenrune) - Fixes and improvements
+- [Lukazoid](https://github.com/Lukazoid) - Fixes to FtpDataStream
