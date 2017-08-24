@@ -139,28 +139,55 @@ namespace FluentFTP {
 			m_position = pos;
 		}
 
+		private FtpReply m_closedDataStreamReply;
+
 		/// <summary>
 		/// Disconnects (if necessary) and releases associated resources
 		/// </summary>
 		/// <param name="disposing">Disposing</param>
-		protected override void Dispose(bool disposing) {
-			if (disposing) {
-				if (IsConnected)
-					Close();
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				// If we were connected then we need to handle the response 
+				// from the control connection after closing the data
+				// connection
+				var wasConnected = IsConnected;
+
+				// Calling base dispose first to actually terminate the
+				// network streams before we handle the reply from the control
+				// connection
+				base.Dispose(true);
+
+				if (wasConnected)
+				{
+					m_closedDataStreamReply = HandleClosedDataStreamReply();
+				}
 
 				m_control = null;
 			}
-
-			base.Dispose(disposing);
+			else
+			{
+				base.Dispose(false);
+			}
 		}
 
-		/// <summary>
-		/// Closes the connection and reads the server's reply
-		/// </summary>
-		public new FtpReply Close() {
+		/// <summary> 
+		/// Closes the connection and reads the server's reply 
+		/// </summary> 
+		public new FtpReply Close()
+		{
+			// This will eventually invoke our Dispose(bool) method
+			// and assign m_closedDataStreamReply
 			base.Close();
 
-			try {
+			return m_closedDataStreamReply;
+		}
+
+		private FtpReply HandleClosedDataStreamReply()
+		{
+			try
+			{
 				if (ControlConnection != null)
 					return ControlConnection.CloseDataStream(this);
 			} finally {
