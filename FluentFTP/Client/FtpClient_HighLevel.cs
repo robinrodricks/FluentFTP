@@ -1137,7 +1137,13 @@ namespace FluentFTP {
 
 				// disconnect FTP stream before exiting
 				upStream.Dispose();
-                
+
+				// FIX : if this is not added, there appears to be "stale data" on the socket
+				// listen for a success/failure reply
+				if (!EnableThreadSafeDataConnections) {
+					FtpReply status = GetReply();
+				}
+
 				return true;
 
 			} catch (Exception ex1) {
@@ -1280,7 +1286,13 @@ namespace FluentFTP {
 
 				// disconnect FTP stream before exiting
 				upStream.Dispose();
-                
+
+				// FIX : if this is not added, there appears to be "stale data" on the socket
+				// listen for a success/failure reply
+				if (!m_threadSafeDataChannels) {
+					FtpReply status = GetReply();
+				}
+
 				return true;
 			} catch (Exception ex1) {
 				// close stream before throwing error
@@ -1777,7 +1789,12 @@ namespace FluentFTP {
 				// disconnect FTP stream before exiting
 				outStream.Flush();
 				downStream.Dispose();
-                
+
+				// FIX : if this is not added, there appears to be "stale data" on the socket
+				// listen for a success/failure reply
+				if (!m_threadSafeDataChannels) {
+					FtpReply status = GetReply();
+				}
 				return true;
 
 
@@ -1904,7 +1921,12 @@ namespace FluentFTP {
 				// disconnect FTP stream before exiting
 				await outStream.FlushAsync(token);
 				downStream.Dispose();
-                
+
+				// FIX : if this is not added, there appears to be "stale data" on the socket
+				// listen for a success/failure reply
+				if (!m_threadSafeDataChannels) {
+					FtpReply status = GetReply();
+				}
 				return true;
 
 			} catch (Exception ex1) {
