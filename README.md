@@ -988,7 +988,19 @@ First you must "fork" FluentFTP, then make changes on your local version, then s
 <a name="faq_certs"></a>
 **How do I use client certificates to login with FTPS?**
 
-When you are using Client Certificates, be sure that:
+Add your certificate into `ClientCertificates` and then `Connect()`.
+```cs
+client.EncryptionMode = FtpEncryptionMode.Explicit;
+client.SslProtocols = SslProtocols.Tls | SslProtocols.Tls11 | SslProtocols.Tls12;
+client.SocketKeepAlive = false;
+client.ClientCertificates.Add(new X509Certificate2("C:\mycert.cer"));
+client.ValidateCertificate += (control, e) => {
+	e.Accept = e.PolicyErrors == SslPolicyErrors.None;
+};
+client.Connect();
+```
+
+And ensure that:
 
 1. You use `X509Certificate2` objects, not the incomplete `X509Certificate` implementation.
 
