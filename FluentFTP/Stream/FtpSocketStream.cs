@@ -656,7 +656,7 @@ namespace FluentFTP
         public new void Dispose()
         {
             FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Disposing FtpSocketStream...");
-            base.Dispose();
+            Close();
         }
 
         /// <summary>
@@ -664,28 +664,10 @@ namespace FluentFTP
         /// </summary>
 #if CORE
 		public void Close() {
-            // We only implement Close for .NET Core so the API surface does not change
-            // The full .NET framework already has Close defined on Stream
-            Dispose();
-        }
 #else
         public override void Close()
         {
-            base.Close();
-        }
 #endif
-
-        /// <summary>
-        /// Disposes the stream
-        /// </summary>
-        protected override void Dispose(bool disposing)
-        {
-            if (!disposing)
-            {
-                base.Dispose(false);
-                return;
-            }
-
             if (m_socket != null)
             {
                 try
@@ -751,7 +733,9 @@ namespace FluentFTP
             }
 #endif
 
-            base.Dispose(true);
+#if CORE
+            base.Dispose();
+#endif
         }
 
         /// <summary>
