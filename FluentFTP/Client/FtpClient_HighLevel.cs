@@ -1077,6 +1077,8 @@ namespace FluentFTP {
 								offset += readBytes;
 							}
 
+							// zero return value (with no Exception) indicates EOS; so we should terminate the outer loop here
+							break;
 						} catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
@@ -1117,7 +1119,9 @@ namespace FluentFTP {
 								}
 							}
 
-						} catch (IOException ex) {
+							// zero return value (with no Exception) indicates EOS; so we should terminate the outer loop here
+							break;
+                        } catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
 							if (!ResumeUpload(remotePath, ref upStream, offset, ex)) {
@@ -1231,7 +1235,10 @@ namespace FluentFTP {
 								await upStream.FlushAsync(token);
 								offset += readBytes;
 							}
-						} catch (IOException ex) {
+
+							// zero return value (with no Exception) indicates EOS; so we should terminate the outer loop here
+							break;
+                        } catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
 							if (!ResumeUpload(remotePath, ref upStream, offset, ex)) {
@@ -1267,8 +1274,11 @@ namespace FluentFTP {
 									limitCheckBytes = 0;
 									sw.Restart();
 								}
-							}
-						} catch (IOException ex) {
+                            }
+
+                            // zero return value (with no Exception) indicates EOS; so we should terminate the outer loop here
+                            break;
+                        } catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
 							if (!ResumeUpload(remotePath, ref upStream, offset, ex)) {
@@ -1725,7 +1735,9 @@ namespace FluentFTP {
 								break;
 							}
 
-						} catch (IOException ex) {
+							// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
+							throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
+                        } catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
 							if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
@@ -1771,7 +1783,9 @@ namespace FluentFTP {
 								break;
 							}
 
-						} catch (IOException ex) {
+							// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
+							throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
+                        } catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
 							if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
@@ -1860,7 +1874,9 @@ namespace FluentFTP {
 								break;
 							}
 
-						} catch (IOException ex) {
+							// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
+							throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
+                        } catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
 							if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
@@ -1904,6 +1920,8 @@ namespace FluentFTP {
 								break;
 							}
 
+							// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
+							throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
 						} catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
