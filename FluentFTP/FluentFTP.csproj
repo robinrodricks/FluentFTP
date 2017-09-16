@@ -37,8 +37,6 @@
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
   </PropertyGroup>
 
   <ItemGroup Condition="$(DefineConstants.Contains('NETFX'))">
