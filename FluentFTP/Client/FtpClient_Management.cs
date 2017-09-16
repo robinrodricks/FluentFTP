@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if NETFX45
+#if NET45
 using System.Threading.Tasks;
 #endif
 
@@ -134,7 +134,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Deletes a file from the server asynchronously
 		/// </summary>
@@ -336,7 +336,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Asynchronously removes a directory and all its contents.
 		/// </summary>
@@ -462,7 +462,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Tests if the specified directory exists on the server asynchronously. This
 		/// method works by trying to change the working directory to
@@ -588,7 +588,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Checks if a file exists on the server asynchronously by taking a 
 		/// file listing of the parent directory in the path
@@ -707,7 +707,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Creates a remote directory asynchronously
 		/// </summary>
@@ -811,7 +811,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Renames an object on the remote file system asynchronously.
 		/// Low level method that should NOT be used in most cases. Prefer MoveFile() and MoveDirectory().
@@ -909,7 +909,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Moves a file asynchronously on the remote file system from one directory to another.
 		/// Always checks if the source file exists. Checks if the dest file exists based on the `existsMode` parameter.
@@ -1007,7 +1007,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Moves a directory asynchronously on the remote file system from one directory to another.
 		/// Always checks if the source directory exists. Checks if the dest directory exists based on the `existsMode` parameter.
@@ -1256,7 +1256,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Dereference a <see cref="FtpListItem"/> object asynchronously
 		/// </summary>
@@ -1347,7 +1347,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Sets the working directory on the server asynchronously
 		/// </summary>
@@ -1432,7 +1432,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Gets the current working directory asynchronously
 		/// </summary>
@@ -1526,7 +1526,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Retrieve the size of a remote file asynchronously
 		/// </summary>
@@ -1623,7 +1623,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Gets the modified time of a remote file asynchronously
 		/// </summary>
@@ -1721,7 +1721,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Gets the modified time of a remote file asynchronously
 		/// </summary>

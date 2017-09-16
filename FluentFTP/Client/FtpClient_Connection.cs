@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if NETFX45
+#if NET45
 using System.Threading.Tasks;
 #endif
 
@@ -892,7 +892,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Performs an asynchronous execution of the specified command
 		/// </summary>
@@ -1233,7 +1233,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Connects to the server asynchronously
 		/// </summary>
@@ -1340,7 +1340,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Disconnects from the server asynchronously
 		/// </summary>

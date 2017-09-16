@@ -6,6 +6,7 @@ API Reference.shfbproj_jp
 Help
 
 *.sublime-workspace
+*.user
 *.suo
 *.nupkg
 .gitignore

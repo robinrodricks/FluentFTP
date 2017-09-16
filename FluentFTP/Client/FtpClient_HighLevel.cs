@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if (CORE || NETFX45)
+#if (CORE || NET45)
 using System.Threading.Tasks;
 #endif
 
@@ -288,7 +288,7 @@ namespace FluentFTP {
 			return UploadFiles(localFiles.Select(f => f.FullName), remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling);
 		}
 
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Uploads the given file paths to a single folder on the server asynchronously.
 		/// All files are placed directly into the given folder regardless of their path on the local filesystem.
@@ -548,7 +548,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Downloads the specified files into a local single directory.
 		/// High-level API that takes care of various edge cases internally.
@@ -706,7 +706,7 @@ namespace FluentFTP {
 			return UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions);
 		}
 
-#if NETFX45
+#if NET45
 
 		/// <summary>
 		/// Uploads the specified file directly onto the server asynchronously.
@@ -811,7 +811,7 @@ namespace FluentFTP {
 			return uploadSuccess && verified;
 		}
 
-#if NETFX45
+#if NET45
 		private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode,
 			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token) {
 
@@ -908,7 +908,7 @@ namespace FluentFTP {
 		}
 
 
-#if NETFX45
+#if NET45
 
 		/// <summary>
 		/// Uploads the specified stream as a file onto the server asynchronously.
@@ -1159,7 +1159,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
@@ -1414,7 +1414,7 @@ namespace FluentFTP {
 			return downloadSuccess && verified;
 		}
 
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Downloads the specified file onto the local file system asynchronously.
 		/// High-level API that takes care of various edge cases internally.
@@ -1586,7 +1586,7 @@ namespace FluentFTP {
 			return ok;
 		}
 
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Downloads the specified file into the specified stream asynchronously .
 		/// High-level API that takes care of various edge cases internally.
@@ -1816,7 +1816,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Download a file from the server and write the data into the given stream asynchronously.
 		/// Reads data in chunks. Retries if server disconnects midway.
@@ -1991,7 +1991,7 @@ namespace FluentFTP {
 			return true;
 		}
 
-#if NETFX45
+#if NET45
 		private async Task<bool> VerifyTransferAsync(string localPath, string remotePath) {
 
 			// verify args
