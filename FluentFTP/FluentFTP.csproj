@@ -23,17 +23,13 @@
 
   <PropertyGroup>
     <PackageId>FluentFTP</PackageId>
-    <Description>An FTP and FTPS library for .NET, optimized for speed. Provides extensive FTP commands, file uploads/downloads, SSL/TLS connections and FTP proxies.</Description>
+    <Description>An FTP and FTPS client for .NET &amp; .NET Standard, optimized for speed. Provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, UTF-8 support, Async/await support and more. Written entirely in C#, with no external dependencies.</Description>
+    <Authors>Harsh Gupta, J.P. Trosclair, FluentFTP Contributors</Authors>
+    <PackageLicenseUrl>https://github.com/hgupta9/FluentFTP/blob/master/LICENSE.TXT</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/hgupta9/FluentFTP</PackageProjectUrl>
+    <Copyright>MIT License</Copyright>
+    <PackageTags>ftp,ftp-client,ftps,ssl,tls,unix,iis</PackageTags>
     <VersionPrefix>18.0.2</VersionPrefix>
-    <Authors>Harsh Gupta;J.P. Trosclair</Authors>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateNeutralResourcesLanguageAttribute>false</GenerateNeutralResourcesLanguageAttribute>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
@@ -41,6 +37,8 @@
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
   </PropertyGroup>
 
   <ItemGroup Condition="$(DefineConstants.Contains('NETFX'))">
@@ -58,11 +56,6 @@
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
     <PackageReference Include="System.Net.Security" Version="4.3.0.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="FluentFTP.nuspec" />
-    <None Include="sn.snk" />
   </ItemGroup>
 
 </Project>
