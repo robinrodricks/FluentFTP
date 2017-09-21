@@ -18,7 +18,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if NETFX45
+#if NETFX45 || CORE
 using System.Threading.Tasks;
 #endif
 
@@ -564,21 +564,21 @@ namespace FluentFTP {
 		}
 
 #if !CORE
-		/// <summary>
-		/// Begins an asynchronous operation to get a file listing from the server. 
-		/// Each <see cref="FtpListItem"/> object returned contains information about the file that was able to be retrieved. 
-		/// </summary>
-		/// <remarks>
-		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-		/// is equal to 0, then it means the size of the object could also not
-		/// be retrieved.
-		/// </remarks>
-		/// <param name="callback">AsyncCallback method</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginGetListing.cs" lang="cs" /></example>
-		public IAsyncResult BeginGetListing(AsyncCallback callback, Object state) {
+        /// <summary>
+        /// Begins an asynchronous operation to get a file listing from the server. 
+        /// Each <see cref="FtpListItem"/> object returned contains information about the file that was able to be retrieved. 
+        /// </summary>
+        /// <remarks>
+        /// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+        /// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+        /// is equal to 0, then it means the size of the object could also not
+        /// be retrieved.
+        /// </remarks>
+        /// <param name="callback">AsyncCallback method</param>
+        /// <param name="state">State object</param>
+        /// <returns>IAsyncResult</returns>
+        /// <example><code source="..\Examples\BeginGetListing.cs" lang="cs" /></example>
+        public IAsyncResult BeginGetListing(AsyncCallback callback, Object state) {
 			return BeginGetListing(null, callback, state);
 		}
 
@@ -635,26 +635,274 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
-		/// <summary>
-		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
-		/// contains information about the file that was able to be retrieved. 
-		/// </summary>
-		/// <remarks>
-		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-		/// is equal to 0, then it means the size of the object could also not
-		/// be retrieved.
-		/// </remarks>
-		/// <param name="path">The path to list</param>
-		/// <param name="options">Options that dictate how the list operation is performed</param>
-		/// <returns>An array of items retrieved in the listing</returns>
-		public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options) {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<string, FtpListOption, FtpListItem[]>(
-				(p, o, ac, s) => BeginGetListing(p, o, ac, s),
-				ar => EndGetListing(ar),
-				path, options, null);
+#if NETFX45 || CORE
+        /// <summary>
+        /// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
+        /// contains information about the file that was able to be retrieved. 
+        /// </summary>
+        /// <remarks>
+        /// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+        /// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+        /// is equal to 0, then it means the size of the object could also not
+        /// be retrieved.
+        /// </remarks>
+        /// <param name="path">The path to list</param>
+        /// <param name="options">Options that dictate how the list operation is performed</param>
+        /// <returns>An array of items retrieved in the listing</returns>
+        public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options)
+        {
+            //TODO:  Add cancellation support
+            FtpTrace.WriteFunc("GetListing", new object[] { path, options });
+
+            FtpListItem item = null;
+            List<FtpListItem> lst = new List<FtpListItem>();
+            List<string> rawlisting = new List<string>();
+            string listcmd = null;
+            string buf = null;
+
+            // read flags
+            bool isIncludeSelf = (options & FtpListOption.IncludeSelfAndParent) == FtpListOption.IncludeSelfAndParent;
+            bool isForceList = (options & FtpListOption.ForceList) == FtpListOption.ForceList;
+            bool isNoPath = (options & FtpListOption.NoPath) == FtpListOption.NoPath;
+            bool isNameList = (options & FtpListOption.NameList) == FtpListOption.NameList;
+            bool isUseLS = (options & FtpListOption.UseLS) == FtpListOption.UseLS;
+            bool isAllFiles = (options & FtpListOption.AllFiles) == FtpListOption.AllFiles;
+            bool isRecursive = (options & FtpListOption.Recursive) == FtpListOption.Recursive && RecursiveList;
+            bool isDerefLinks = (options & FtpListOption.DerefLinks) == FtpListOption.DerefLinks;
+            bool isGetModified = (options & FtpListOption.Modify) == FtpListOption.Modify;
+            bool isGetSize = (options & FtpListOption.Size) == FtpListOption.Size;
+
+            // calc path to request
+            path = await GetAbsolutePathAsync(path);
+
+            // MLSD provides a machine readable format with 100% accurate information
+            // so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
+            bool machineList = false;
+            if ((!isForceList || m_parser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD))
+            {
+                listcmd = "MLSD";
+                machineList = true;
+            }
+            else
+            {
+                if (isUseLS)
+                {
+                    listcmd = "LS";
+                }
+                else if (isNameList)
+                {
+                    listcmd = "NLST";
+                }
+                else
+                {
+                    string listopts = "";
+
+                    listcmd = "LIST";
+
+                    if (isAllFiles)
+                        listopts += "a";
+
+                    if (isRecursive)
+                        listopts += "R";
+
+                    if (listopts.Length > 0)
+                        listcmd += " -" + listopts;
+                }
+            }
+
+            if (!isNoPath)
+            {
+                listcmd = (listcmd + " " + path.GetFtpPath());
+            }
+
+            await ExecuteAsync("TYPE I");
+
+            // read in raw file listing
+            using (FtpDataStream stream = await OpenDataStreamAsync(listcmd, 0))
+            {
+                try
+                {
+                    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+
+                    if (this.BulkListing)
+                    {
+
+                        // increases performance of GetListing by reading multiple lines of the file listing at once
+                        foreach (var line in await stream.ReadAllLinesAsync(Encoding, this.BulkListingLength))
+                        {
+                            if (!FtpExtensions.IsNullOrWhiteSpace(line))
+                            {
+                                rawlisting.Add(line);
+                                FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Listing:  " + line);
+                            }
+                        }
+
+                    }
+                    else
+                    {
+
+                        // GetListing will read file listings line-by-line (actually byte-by-byte)
+                        while ((buf = await stream.ReadLineAsync(Encoding)) != null)
+                        {
+                            if (buf.Length > 0)
+                            {
+                                rawlisting.Add(buf);
+                                FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
+                            }
+                        }
+                    }
+
+                    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "-----------------------------------------");
+
+                }
+                finally
+                {
+                    stream.Close();
+                }
+            }
+
+            for (int i = 0; i < rawlisting.Count; i++)
+            {
+                buf = rawlisting[i];
+
+                if (isNameList)
+                {
+
+                    // if NLST was used we only have a file name so
+                    // there is nothing to parse.
+                    item = new FtpListItem()
+                    {
+                        FullName = buf
+                    };
+
+                    if (await DirectoryExistsAsync(item.FullName))
+                        item.Type = FtpFileSystemObjectType.Directory;
+                    else
+                        item.Type = FtpFileSystemObjectType.File;
+
+                    lst.Add(item);
+
+                }
+                else
+                {
+
+                    // if this is a result of LIST -R then the path will be spit out
+                    // before each block of objects
+                    if (listcmd.StartsWith("LIST") && isRecursive)
+                    {
+                        if (buf.StartsWith("/") && buf.EndsWith(":"))
+                        {
+                            path = buf.TrimEnd(':');
+                            continue;
+                        }
+                    }
+
+                    // if the next line in the listing starts with spaces
+                    // it is assumed to be a continuation of the current line
+                    if (i + 1 < rawlisting.Count && (rawlisting[i + 1].StartsWith("\t") || rawlisting[i + 1].StartsWith(" ")))
+                        buf += rawlisting[++i];
+
+                    try
+                    {
+                        item = m_listParser.ParseSingleLine(path, buf, m_caps, machineList);
+                    }
+                    catch (FtpListParser.CriticalListParseException)
+                    {
+                        FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
+                        i = -1;
+                        lst.Clear();
+                        continue;
+                    }
+
+                    // FtpListItem.Parse() returns null if the line
+                    // could not be parsed
+                    if (item != null)
+                    {
+                        if (isIncludeSelf || !(item.Name == "." || item.Name == ".."))
+                        {
+                            lst.Add(item);
+                        }
+                        else
+                        {
+                            //FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Skipped self or parent item: " + item.Name);
+                        }
+                    }
+                    else
+                    {
+                        FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
+                    }
+                }
+
+                // load extended information that wasn't available if the list options flags say to do so.
+                if (item != null)
+                {
+
+                    // try to dereference symbolic links if the appropriate list
+                    // option was passed
+                    if (item.Type == FtpFileSystemObjectType.Link && isDerefLinks)
+                    {
+                        item.LinkObject = await DereferenceLinkAsync(item);
+                    }
+
+                    // if need to get file modified date
+                    if (isGetModified && HasFeature(FtpCapability.MDTM))
+                    {
+
+                        // if the modified date was not loaded or the modified date is more than a day in the future 
+                        // and the server supports the MDTM command, load the modified date.
+                        // most servers do not support retrieving the modified date
+                        // of a directory but we try any way.
+                        if (item.Modified == DateTime.MinValue || listcmd.StartsWith("LIST"))
+                        {
+                            DateTime modify;
+
+                            if (item.Type == FtpFileSystemObjectType.Directory)
+                                FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Trying to retrieve modification time of a directory, some servers don't like this...");
+
+                            if ((modify = await GetModifiedTimeAsync(item.FullName)) != DateTime.MinValue)
+                                item.Modified = modify;
+                        }
+                    }
+
+                    // if need to get file size
+                    if (isGetSize && HasFeature(FtpCapability.SIZE))
+                    {
+
+                        // if no size was parsed, the object is a file and the server
+                        // supports the SIZE command, then load the file size
+                        if (item.Size == -1)
+                        {
+                            if (item.Type != FtpFileSystemObjectType.Directory)
+                            {
+                                item.Size = await GetFileSizeAsync(item.FullName);
+                            }
+                            else
+                            {
+                                item.Size = 0;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return lst.ToArray();
+        }
+
+        /// <summary>
+        /// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
+        /// contains information about the file that was able to be retrieved. 
+        /// </summary>
+        /// <remarks>
+        /// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+        /// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+        /// is equal to 0, then it means the size of the object could also not
+        /// be retrieved.
+        /// </remarks>
+        /// <param name="path">The path to list</param>
+        /// <returns>An array of items retrieved in the listing</returns>
+        public Task<FtpListItem[]> GetListingAsync(string path) {
+            //TODO:  Add cancellation support
+            return GetListingAsync(path, 0);
 		}
 
 		/// <summary>
@@ -667,33 +915,10 @@ namespace FluentFTP {
 		/// is equal to 0, then it means the size of the object could also not
 		/// be retrieved.
 		/// </remarks>
-		/// <param name="path">The path to list</param>
 		/// <returns>An array of items retrieved in the listing</returns>
-		public async Task<FtpListItem[]> GetListingAsync(string path) {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<string, FtpListItem[]>(
-				(p, ac, s) => BeginGetListing(p, ac, s),
-				ar => EndGetListing(ar),
-				path, null);
-		}
-
-		/// <summary>
-		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
-		/// contains information about the file that was able to be retrieved. 
-		/// </summary>
-		/// <remarks>
-		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-		/// is equal to 0, then it means the size of the object could also not
-		/// be retrieved.
-		/// </remarks>
-		/// <returns>An array of items retrieved in the listing</returns>
-		public async Task<FtpListItem[]> GetListingAsync() {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<FtpListItem[]>(
-				(ac, s) => BeginGetListing(ac, s),
-				ar => EndGetListing(ar),
-				null);
+		public Task<FtpListItem[]> GetListingAsync() {
+            //TODO:  Add cancellation support
+            return GetListingAsync(null);
 		}
 #endif
 

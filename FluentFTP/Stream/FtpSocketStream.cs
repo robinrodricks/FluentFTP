@@ -621,14 +621,52 @@ namespace FluentFTP
 		public async Task<string> ReadLineAsync(System.Text.Encoding encoding) {
 			return await ReadLineAsync(encoding, CancellationToken.None);
 		}
-#endif
 
         /// <summary>
-        /// Writes data to the stream
+        /// Reads all line from the socket
         /// </summary>
-        /// <param name="buffer">Buffer to write to stream</param>
-        /// <param name="offset">Where in the buffer to start</param>
-        /// <param name="count">Number of bytes to be read</param>
+        /// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
+        /// <param name="bufferSize">The size of the buffer</param>
+        /// <returns>A list of lines from the stream</returns>
+        public async Task<IEnumerable<string>> ReadAllLinesAsync(System.Text.Encoding encoding, int bufferSize)
+        {
+            int charRead;
+            List<byte> data = new List<byte>();
+            List<string> lines = new List<string>();
+            byte[] buf = new byte[bufferSize];
+
+            while ((charRead = await ReadAsync(buf, 0, buf.Length)) > 0)
+            {
+                var firstByteToReadIdx = 0;
+
+                var separatorIdx = Array.IndexOf(buf, (byte)'\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array readed
+
+                while (separatorIdx >= 0) // at least one '\n' returned
+                {
+                    while (firstByteToReadIdx <= separatorIdx)
+                        data.Add(buf[firstByteToReadIdx++]);
+
+                    var line = encoding.GetString(data.ToArray()).Trim('\r', '\n'); // convert data to string
+                    lines.Add(line);
+                    data.Clear();
+
+                    separatorIdx = Array.IndexOf(buf, (byte)'\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array readed
+                }
+
+                while (firstByteToReadIdx < charRead)  // add all remainings characters to data
+                    data.Add(buf[firstByteToReadIdx++]);
+            }
+
+            return lines;
+        }
+#endif
+
+            /// <summary>
+            /// Writes data to the stream
+            /// </summary>
+            /// <param name="buffer">Buffer to write to stream</param>
+            /// <param name="offset">Where in the buffer to start</param>
+            /// <param name="count">Number of bytes to be read</param>
         public override void Write(byte[] buffer, int offset, int count)
         {
             if (BaseStream == null)
@@ -1200,7 +1238,24 @@ namespace FluentFTP
                 m_socket = m_socket.Accept();
         }
 
+#if NETFX45
+        /// <summary>
+        /// Accepts a connection from a listening socket
+        /// </summary>
+        public async Task AcceptAsync()
+        {
+            if (m_socket!=null)
+            {
+                var iar = m_socket.BeginAccept(null, null);
+                await Task.Factory.FromAsync(iar, m_socket.EndAccept);
+            }
+        }
+#endif
+
 #if CORE
+        /// <summary>
+        /// Accepts a connection from a listening socket
+        /// </summary>
 		public async Task AcceptAsync() {
 			if (m_socket != null) {
                 m_socket = await m_socket.AcceptAsync();

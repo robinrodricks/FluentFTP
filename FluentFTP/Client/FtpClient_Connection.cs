@@ -1338,7 +1338,7 @@ namespace FluentFTP {
 			stream.Connect(Host, Port, InternetProtocolVersions);
 		}
 
-#if NETFX || CORE
+#if NETFX45 || CORE
         /// <summary>
         /// Connect to the FTP server. Overwritten in proxy classes.
         /// </summary>
@@ -1356,10 +1356,20 @@ namespace FluentFTP {
 			stream.Connect(host, port, ipVersions);
 		}
 
-		/// <summary>
-		/// Called during Connect(). Typically extended by FTP proxies.
-		/// </summary>
-		protected virtual void Handshake() {
+#if NETFX45 || CORE
+        /// <summary>
+        /// Connect to the FTP server. Overwritten in proxy classes.
+        /// </summary>
+        protected virtual Task ConnectAsync(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions)
+        {
+            return stream.ConnectAsync(host, port, ipVersions);
+        }
+#endif
+
+        /// <summary>
+        /// Called during Connect(). Typically extended by FTP proxies.
+        /// </summary>
+        protected virtual void Handshake() {
 			FtpReply reply;
 			if (!(reply = GetReply()).Success) {
 				if (reply.Code == null) {
@@ -1739,7 +1749,40 @@ namespace FluentFTP {
 			return path;
 		}
 
-		private static string DecodeUrl(string url) {
+#if NETFX45 || CORE
+        /// <summary>
+        /// Ensure a relative path is absolute by appending the working dir
+        /// </summary>
+        private async Task<string> GetAbsolutePathAsync(string path)
+        {
+            if (path == null || path.Trim().Length == 0)
+            {
+
+                // if path not given, then use working dir
+                string pwd = await GetWorkingDirectoryAsync();
+                if (pwd != null && pwd.Trim().Length > 0)
+                    path = pwd;
+                else
+                    path = "./";
+
+            }
+            else if (!path.StartsWith("/"))
+            {
+
+                // if relative path given then add working dir to calc full path
+                string pwd = await GetWorkingDirectoryAsync();
+                if (pwd != null && pwd.Trim().Length > 0)
+                {
+                    if (path.StartsWith("./"))
+                        path = path.Remove(0, 2);
+                    path = (pwd + "/" + path).GetFtpPath();
+                }
+            }
+            return path;
+        }
+#endif
+
+        private static string DecodeUrl(string url) {
 #if CORE
 			return WebUtility.UrlDecode(url);
 #else

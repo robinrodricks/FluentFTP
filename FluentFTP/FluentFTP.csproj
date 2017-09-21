@@ -127,6 +127,7 @@
     <Compile Include="Helpers\FtpEvents.cs" />
     <Compile Include="Helpers\FtpListParser.cs" />
     <Compile Include="Client\IFtpClient.cs" />
+    <Compile Include="Helpers\IntRef.cs" />
     <Compile Include="Stream\FtpSslStream.cs" />
     <Compile Include="Utils\FtpReflection.cs" />
     <Compile Include="Utils\NET2Compatibility.cs" />
