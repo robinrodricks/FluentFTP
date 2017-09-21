@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if NETFX45
+#if NETFX45 || CORE
 using System.Threading.Tasks;
 #endif
 
@@ -892,34 +892,73 @@ namespace FluentFTP {
 		}
 #endif
 
-#if NETFX45
+#if NETFX45 || CORE
+        // TODO: Add cencellation support
 		/// <summary>
 		/// Performs an asynchronous execution of the specified command
 		/// </summary>
 		/// <param name="command">The command to execute</param>
 		/// <returns>The servers reply to the command</returns>
 		public async Task<FtpReply> ExecuteAsync(string command) {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<string, FtpReply>(
-				(c, ac, state) => BeginExecute(c, ac, state),
-				ar => EndExecute(ar),
-				command, null);
-		}
+            FtpReply reply;
+
+            if (StaleDataCheck)
+            {
+#if CORE
+                await ReadStaleDataAsync(true, false, true);
+#else
+                ReadStaleData(true, false, true);
+#endif
+            }
+
+            if (!IsConnected)
+            {
+                if (command == "QUIT")
+                {
+                    FtpTrace.WriteStatus(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
+                    return new FtpReply()
+                    {
+                        Code = "200",
+                        Message = "Connection already closed."
+                    };
+                }
+
+                await ConnectAsync();
+            }
+
+            // hide sensitive data from logs
+            string commandTxt = command;
+            if (!FtpTrace.LogUserName && command.StartsWith("USER", StringComparison.Ordinal))
+            {
+                commandTxt = "USER ***";
+            }
+            if (!FtpTrace.LogPassword && command.StartsWith("PASS", StringComparison.Ordinal))
+            {
+                commandTxt = "PASS ***";
+            }
+            FtpTrace.WriteLine(FtpTraceLevel.Info, "Command:  " + commandTxt);
+
+            // send command to FTP server
+            await m_stream.WriteLineAsync(m_textEncoding, command);
+            reply = await GetReplyAsync();
+
+            return reply;
+        }
 #endif
 
-		#endregion
+#endregion
 
-		#region Get Reply
+        #region Get Reply
 
-		/// <summary>
-		/// Retrieves a reply from the server. Do not execute this method
-		/// unless you are sure that a reply has been sent, i.e., you
-		/// executed a command. Doing so will cause the code to hang
-		/// indefinitely waiting for a server reply that is never coming.
-		/// </summary>
-		/// <returns>FtpReply representing the response from the server</returns>
-		/// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
-		public FtpReply GetReply() {
+        /// <summary>
+        /// Retrieves a reply from the server. Do not execute this method
+        /// unless you are sure that a reply has been sent, i.e., you
+        /// executed a command. Doing so will cause the code to hang
+        /// indefinitely waiting for a server reply that is never coming.
+        /// </summary>
+        /// <returns>FtpReply representing the response from the server</returns>
+        /// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
+        public FtpReply GetReply() {
 			FtpReply reply = new FtpReply();
 			string buf;
 
@@ -972,11 +1011,76 @@ namespace FluentFTP {
 			return reply;
 		}
 
-		#endregion
+#if NETFX45 || CORE
+        // TODO: add example
+        /// <summary>
+        /// Retrieves a reply from the server. Do not execute this method
+        /// unless you are sure that a reply has been sent, i.e., you
+        /// executed a command. Doing so will cause the code to hang
+        /// indefinitely waiting for a server reply that is never coming.
+        /// </summary>
+        /// <returns>FtpReply representing the response from the server</returns>
+        /// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
+        public async Task<FtpReply> GetReplyAsync()
+        {
+            FtpReply reply = new FtpReply();
+            string buf;
 
-		#region Connect
+            if (!IsConnected)
+                throw new InvalidOperationException("No connection to the server has been established.");
 
-		private FtpListParser m_listParser;
+            m_stream.ReadTimeout = m_readTimeout;
+            while ((buf = await m_stream.ReadLineAsync(Encoding)) != null)
+            {
+                Match m;
+
+
+                if ((m = Regex.Match(buf, "^(?<code>[0-9]{3}) (?<message>.*)$")).Success)
+                {
+                    reply.Code = m.Groups["code"].Value;
+                    reply.Message = m.Groups["message"].Value;
+                    break;
+                }
+
+                reply.InfoMessages += (buf + "\n");
+            }
+
+            // if reply received
+            if (reply.Code != null)
+            {
+
+                // hide sensitive data from logs
+                string logMsg = reply.Message;
+                if (!FtpTrace.LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK"))
+                {
+                    logMsg = logMsg.Replace(Credentials.UserName, "***");
+                }
+
+                // log response code + message
+                FtpTrace.WriteLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
+            }
+
+            // log multiline response messages
+            if (reply.InfoMessages != null)
+            {
+                reply.InfoMessages = reply.InfoMessages.Trim();
+            }
+            if (!string.IsNullOrEmpty(reply.InfoMessages))
+            {
+                //FtpTrace.WriteLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+                FtpTrace.WriteLine(FtpTraceLevel.Verbose, reply.InfoMessages.Split('\n').AddPrefix("Response: ", true).Join("\n"));
+                //FtpTrace.WriteLine(FtpTraceLevel.Verbose, "-----------------------------------------");
+            }
+
+            return reply;
+        }
+#endif
+
+        #endregion
+
+        #region Connect
+
+        private FtpListParser m_listParser;
 
 		/// <summary>
 		/// Connect to the server
@@ -1097,18 +1201,162 @@ namespace FluentFTP {
 #endif
 		}
 
-		/// <summary>
-		/// Connect to the FTP server. Overwritten in proxy classes.
-		/// </summary>
-		/// <param name="stream"></param>
-		protected virtual void Connect(FtpSocketStream stream) {
+#if CORE
+        // TODO: add example
+        /// <summary>
+        /// Connect to the server
+        /// </summary>
+        /// <exception cref="ObjectDisposedException">Thrown if this object has been disposed.</exception>
+        /// <example><code source="..\Examples\Connect.cs" lang="cs" /></example>
+        public virtual async Task ConnectAsync()
+        {
+            FtpReply reply;
+
+            FtpTrace.WriteFunc("Connect");
+
+            if (IsDisposed)
+                throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
+
+            if (m_stream == null)
+            {
+                m_stream = new FtpSocketStream();
+                m_stream.ValidateCertificate += new FtpSocketStreamSslValidation(FireValidateCertficate);
+            }
+            else
+            {
+                if (IsConnected)
+                {
+                    Disconnect();
+                }
+            }
+
+            if (Host == null)
+            {
+                throw new FtpException("No host has been specified");
+            }
+
+            if (!IsClone)
+            {
+                m_caps = FtpCapability.NONE;
+            }
+
+            m_hashAlgorithms = FtpHashAlgorithm.NONE;
+            m_stream.ConnectTimeout = m_connectTimeout;
+            m_stream.SocketPollInterval = m_socketPollInterval;
+            await ConnectAsync(m_stream);
+
+            m_stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);
+
+#if !NO_SSL
+				if (EncryptionMode == FtpEncryptionMode.Implicit) {
+					await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
+				}
+#endif
+
+            await HandshakeAsync();
+
+#if !NO_SSL
+				if (EncryptionMode == FtpEncryptionMode.Explicit) {
+					if (!(reply = await ExecuteAsync("AUTH TLS")).Success) {
+						throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
+					}
+					await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
+				}
+#endif
+
+            if (m_credentials != null)
+            {
+                await AuthenticateAsync();
+            }
+
+            if (m_stream.IsEncrypted && DataConnectionEncryption)
+            {
+                if (!(reply = await ExecuteAsync("PBSZ 0")).Success)
+                    throw new FtpCommandException(reply);
+                if (!(reply = await ExecuteAsync("PROT P")).Success)
+                    throw new FtpCommandException(reply);
+            }
+
+            // if this is a clone these values should have already been loaded
+            // so save some bandwidth and CPU time and skip executing this again.
+            if (!IsClone)
+            {
+                if ((reply = await ExecuteAsync("FEAT")).Success && reply.InfoMessages != null)
+                {
+                    GetFeatures(reply);
+                }
+            }
+
+            // Enable UTF8 if the encoding is ASCII and UTF8 is supported
+            if (m_textEncodingAutoUTF && m_textEncoding == Encoding.ASCII && HasFeature(FtpCapability.UTF8))
+            {
+                m_textEncoding = Encoding.UTF8;
+            }
+
+            FtpTrace.WriteStatus(FtpTraceLevel.Info, "Text encoding: " + m_textEncoding.ToString());
+
+            if (m_textEncoding == Encoding.UTF8)
+            {
+                // If the server supports UTF8 it should already be enabled and this
+                // command should not matter however there are conflicting drafts
+                // about this so we'll just execute it to be safe. 
+                await ExecuteAsync("OPTS UTF8 ON");
+            }
+
+            // Get the system type - Needed to auto-detect file listing parser
+            if ((reply = await ExecuteAsync("SYST")).Success)
+            {
+                m_systemType = reply.Message;
+            }
+
+#if !NO_SSL && !CORE
+			if (m_stream.IsEncrypted && PlainTextEncryption) {
+				if (!(reply = await ExecuteAsync("CCC")).Success) {
+					throw new FtpSecurityNotAvailableException("Failed to disable encryption with CCC command. Perhaps your server does not support it or is not configured to allow it.");
+				} else {
+
+					// close the SslStream and send close_notify command to server
+					m_stream.DeactivateEncryption();
+
+                    // read stale data (server's reply?)
+#if CORE
+                    await ReadStaleDataAsync(false, true, false);
+#else
+                    // TODO: Rewrite in async call
+                    ReadStaleData(false, true, false);
+#endif
+                }
+			}
+#endif
+
+                    // Create the parser even if the auto-OS detection failed
+                    m_listParser.Init(m_systemType);
+        }
+#endif
+
+        /// <summary>
+            /// Connect to the FTP server. Overwritten in proxy classes.
+            /// </summary>
+            /// <param name="stream"></param>
+        protected virtual void Connect(FtpSocketStream stream) {
 			stream.Connect(Host, Port, InternetProtocolVersions);
 		}
 
-		/// <summary>
-		/// Connect to the FTP server. Overwritten in proxy classes.
-		/// </summary>
-		protected virtual void Connect(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions) {
+#if CORE
+        /// <summary>
+        /// Connect to the FTP server. Overwritten in proxy classes.
+        /// </summary>
+        /// <param name="stream"></param>
+        protected virtual async Task ConnectAsync(FtpSocketStream stream)
+        {
+            await stream.ConnectAsync(Host, Port, InternetProtocolVersions);
+        }
+#endif
+
+        /// <summary>
+        /// Connect to the FTP server. Overwritten in proxy classes.
+        /// </summary>
+        protected virtual void Connect(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions) {
 			stream.Connect(host, port, ipVersions);
 		}
 
@@ -1126,14 +1374,35 @@ namespace FluentFTP {
 			}
 		}
 
-		/// <summary>
-		/// Populates the capabilities flags based on capabilities
-		/// supported by this server. This method is overridable
-		/// so that new features can be supported
-		/// </summary>
-		/// <param name="reply">The reply object from the FEAT command. The InfoMessages property will
-		/// contain a list of the features the server supported delimited by a new line '\n' character.</param>
-		protected virtual void GetFeatures(FtpReply reply) {
+#if NETFX45 || CORE
+        /// <summary>
+        /// Called during <see cref="ConnectAsync"/>. Typically extended by FTP proxies.
+        /// </summary>
+        protected virtual async Task HandshakeAsync()
+        {
+            FtpReply reply;
+            if (!(reply = await GetReplyAsync()).Success)
+            {
+                if (reply.Code == null)
+                {
+                    throw new IOException("The connection was terminated before a greeting could be read.");
+                }
+                else
+                {
+                    throw new FtpCommandException(reply);
+                }
+            }
+        }
+#endif
+
+        /// <summary>
+        /// Populates the capabilities flags based on capabilities
+        /// supported by this server. This method is overridable
+        /// so that new features can be supported
+        /// </summary>
+        /// <param name="reply">The reply object from the FEAT command. The InfoMessages property will
+        /// contain a list of the features the server supported delimited by a new line '\n' character.</param>
+        protected virtual void GetFeatures(FtpReply reply) {
 			foreach (string feat in reply.InfoMessages.Split('\n')) {
 				if (feat.ToUpper().Trim().StartsWith("MLST") || feat.ToUpper().Trim().StartsWith("MLSD"))
 					m_caps |= FtpCapability.MLSD;
@@ -1234,37 +1503,49 @@ namespace FluentFTP {
 #endif
 
 #if NETFX45
-		/// <summary>
-		/// Connects to the server asynchronously
-		/// </summary>
-		public async Task ConnectAsync() {
-			//TODO:  Rewrite as true async method with cancellation support
-			await Task.Factory.FromAsync(
-				(c, s) => BeginConnect(c, s),
-				ar => EndConnect(ar),
-				null);
-		}
+        /// <summary>
+        /// Connects to the server asynchronously
+        /// </summary>
+        public async Task ConnectAsync() {
+            //TODO:  Rewrite as true async method with cancellation support
+            await Task.Factory.FromAsync(
+                (c, s) => BeginConnect(c, s),
+                ar => EndConnect(ar),
+                null);
+        }
 #endif
 
-		#endregion
+        #endregion
 
-		#region Login
+        #region Login
 
-		/// <summary>
-		/// Performs a login on the server. This method is overridable so
-		/// that the login procedure can be changed to support, for example,
-		/// a FTP proxy.
-		/// </summary>
-		protected virtual void Authenticate() {
+        /// <summary>
+        /// Performs a login on the server. This method is overridable so
+        /// that the login procedure can be changed to support, for example,
+        /// a FTP proxy.
+        /// </summary>
+        protected virtual void Authenticate() {
 			Authenticate(Credentials.UserName, Credentials.Password);
 		}
 
-		/// <summary>
-		/// Performs a login on the server. This method is overridable so
-		/// that the login procedure can be changed to support, for example,
-		/// a FTP proxy.
-		/// </summary>
-		protected virtual void Authenticate(string userName, string password) {
+#if NETFX45 || CORE
+        /// <summary>
+        /// Performs a login on the server. This method is overridable so
+        /// that the login procedure can be changed to support, for example,
+        /// a FTP proxy.
+        /// </summary>
+        protected virtual async Task AuthenticateAsync()
+        {
+            await AuthenticateAsync(Credentials.UserName, Credentials.Password);
+        }
+#endif
+
+        /// <summary>
+        /// Performs a login on the server. This method is overridable so
+        /// that the login procedure can be changed to support, for example,
+        /// a FTP proxy.
+        /// </summary>
+        protected virtual void Authenticate(string userName, string password) {
 			FtpReply reply;
 
 			if (!(reply = Execute("USER " + userName)).Success)
@@ -1275,14 +1556,33 @@ namespace FluentFTP {
 				throw new FtpCommandException(reply);
 		}
 
-		#endregion
+#if NETFX45 || CORE
+        /// <summary>
+        /// Performs a login on the server. This method is overridable so
+        /// that the login procedure can be changed to support, for example,
+        /// a FTP proxy.
+        /// </summary>
+        protected virtual async Task AuthenticateAsync(string userName, string password)
+        {
+            FtpReply reply;
 
-		#region Disconnect
+            if (!(reply = await ExecuteAsync("USER " + userName)).Success)
+                throw new FtpCommandException(reply);
 
-		/// <summary>
-		/// Disconnects from the server
-		/// </summary>
-		public virtual void Disconnect() {
+            if (reply.Type == FtpResponseType.PositiveIntermediate
+                && !(reply = await ExecuteAsync("PASS " + password)).Success)
+                throw new FtpCommandException(reply);
+        }
+#endif
+
+#endregion
+
+#region Disconnect
+
+        /// <summary>
+        /// Disconnects from the server
+        /// </summary>
+        public virtual void Disconnect() {
 #if !CORE14
 			lock (m_lock) {
 #endif
@@ -1353,9 +1653,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region FTPS
+#region FTPS
 
 		/// <summary>
 		/// Catches the socket stream ssl validation event and fires the event handlers
@@ -1379,9 +1679,9 @@ namespace FluentFTP {
 				evt(this, e);
 		}
 
-		#endregion
+#endregion
 
-		#region Utils
+#region Utils
 
 		/// <summary>
 		/// Performs a bitwise and to check if the specified
@@ -1527,7 +1827,43 @@ namespace FluentFTP {
 			}
 		}
 
-		private bool IsProxy() {
+        // TODO: Write NETFX45 version
+#if CORE
+        /// <summary>
+        /// Data shouldn't be on the socket, if it is it probably
+        /// means we've been disconnected. Read and discard
+        /// whatever is there and close the connection (optional).
+        /// </summary>
+        /// <param name="closeStream">close the connection?</param>
+        /// <param name="evenEncrypted">even read encrypted data?</param>
+        /// <param name="traceData">trace data to logs?</param>
+        private async Task ReadStaleDataAsync(bool closeStream, bool evenEncrypted, bool traceData)
+        {
+            if (m_stream != null && m_stream.SocketDataAvailable > 0)
+            {
+                if (traceData)
+                {
+                    FtpTrace.WriteStatus(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out or you did not call GetReply(). Re-connecting...");
+                }
+                if (m_stream.IsConnected && (!m_stream.IsEncrypted || evenEncrypted))
+                {
+                    byte[] buf = new byte[m_stream.SocketDataAvailable];
+                    await m_stream.RawSocketReadAsync(buf);
+                    if (traceData)
+                    {
+                        FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "The stale data was: " + Encoding.GetString(buf).TrimEnd('\r', '\n'));
+                    }
+                }
+
+                if (closeStream)
+                {
+                    m_stream.Close();
+                }
+            }
+        }
+#endif
+
+        private bool IsProxy() {
 			return (this is FtpClientProxy);
 		}
 
@@ -1542,9 +1878,9 @@ namespace FluentFTP {
 			return false;
 		}
 
-		#endregion
+#endregion
 
-		#region Static API
+#region Static API
 
 		/// <summary>
 		/// Calculate the CHMOD integer value given a set of permissions.
@@ -1821,7 +2157,7 @@ namespace FluentFTP {
 			return null;
 		}
 
-		#endregion
+#endregion
 
 	}
 }
