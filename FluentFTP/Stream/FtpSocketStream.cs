@@ -408,7 +408,7 @@ namespace FluentFTP
             BaseStream.Flush();
         }
 
-#if NETFX45
+#if NETFX45 || CORE
 
 		/// <summary>
 		/// Flushes the stream asynchronously
@@ -443,6 +443,26 @@ namespace FluentFTP
             return read;
         }
 
+        // TODO: needs NETFX45 version
+#if CORE
+        /// <summary>
+        /// Bypass the stream and read directly off the socket.
+        /// </summary>
+        /// <param name="buffer">The buffer to read into</param>
+        /// <returns>The number of bytes read</returns>
+        internal async Task<int> RawSocketReadAsync(byte[] buffer)
+        {
+            int read = 0;
+
+            if (m_socket != null && m_socket.Connected)
+            {
+                read = await m_socket.ReceiveAsync(new ArraySegment<byte>(buffer), 0);
+            }
+
+            return read;
+        }
+#endif
+
         /// <summary>
         /// Reads data from the stream
         /// </summary>
@@ -473,7 +493,7 @@ namespace FluentFTP
 #endif
         }
 
-#if NETFX45
+#if NETFX45 || CORE
 
 		/// <summary>
 		/// Reads data from the stream
@@ -551,7 +571,7 @@ namespace FluentFTP
             }
         }
 
-#if NETFX45
+#if NETFX45 || CORE
         /// <summary>
         /// Reads a line from the socket asynchronously
         /// </summary>
@@ -599,7 +619,7 @@ namespace FluentFTP
             m_lastActivity = DateTime.Now;
         }
 
-#if NETFX45
+#if NETFX45 || CORE
 		/// <summary>
 		/// Writes data to the stream asynchronously
 		/// </summary>
@@ -628,7 +648,7 @@ namespace FluentFTP
             Write(data, 0, data.Length);
         }
 
-#if NETFX45
+#if NETFX45 || CORE
 		/// <summary>
 		/// Writes a line to the stream using the specified encoding asynchronously
 		/// </summary>
@@ -845,6 +865,72 @@ namespace FluentFTP
             m_lastActivity = DateTime.Now;
         }
 
+        // TODO: needs NETFX45 version
+#if CORE
+        public async Task ConnectAsync(string host, int port, FtpIpVersion ipVersions)
+        {
+            IPAddress[] addresses = Dns.GetHostAddressesAsync(host).Result;
+
+            if (ipVersions == 0)
+                throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.");
+
+            for (int i = 0; i < addresses.Length; i++)
+            {
+                // we don't need to do this check unless
+                // a particular version of IP has been
+                // omitted so we won't.
+                if (ipVersions != FtpIpVersion.ANY)
+                {
+                    switch (addresses[i].AddressFamily)
+                    {
+                        case AddressFamily.InterNetwork:
+                            if ((ipVersions & FtpIpVersion.IPv4) != FtpIpVersion.IPv4)
+                            {
+#if DEBUG
+                                FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Skipped IPV4 address : " + addresses[i].ToString());
+#endif
+                                continue;
+                            }
+                            break;
+                        case AddressFamily.InterNetworkV6:
+                            if ((ipVersions & FtpIpVersion.IPv6) != FtpIpVersion.IPv6)
+                            {
+#if DEBUG
+                                FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Skipped IPV6 address : " + addresses[i].ToString());
+#endif
+                                continue;
+                            }
+                            break;
+                    }
+                }
+
+                if (FtpTrace.LogIP)
+                {
+                    FtpTrace.WriteStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
+                }
+                else
+                {
+                    FtpTrace.WriteStatus(FtpTraceLevel.Info, "Connecting to ***:" + port);
+                }
+
+                m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+                await m_socket.ConnectAsync(addresses[i], port);
+            }
+
+            // make sure that we actually connected to
+            // one of the addresses returned from GetHostAddresses()
+            if (m_socket == null || !m_socket.Connected)
+            {
+                Close();
+                throw new IOException("Failed to connect to host.");
+            }
+
+            m_netStream = new NetworkStream(m_socket);
+            m_lastActivity = DateTime.Now;
+        }
+#endif
+
 #if !NO_SSL
         /// <summary>
         /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event. 
@@ -861,6 +947,24 @@ namespace FluentFTP
 #endif
         }
 
+#if NETFX45 || CORE
+        /// <summary>
+        /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event. 
+        /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
+        /// not be accepted.
+        /// </summary>
+        /// <param name="targethost">The host to authenticate the certificate against</param>
+        public async Task ActivateEncryptionAsync(string targethost)
+        {
+#if CORE
+			await ActivateEncryptionAsync(targethost, null, SslProtocols.Tls11 | SslProtocols.Ssl3);
+#else
+            await ActivateEncryptionAsync(targethost, null, SslProtocols.Default);
+#endif
+        }
+#endif
+
+
         /// <summary>
         /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
         /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -876,6 +980,24 @@ namespace FluentFTP
             ActivateEncryption(targethost, clientCerts, SslProtocols.Default);
 #endif
         }
+
+#if NETFX45 || CORE
+        /// <summary>
+        /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
+        /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
+        /// not be accepted.
+        /// </summary>
+        /// <param name="targethost">The host to authenticate the certificate against</param>
+        /// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
+        public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts)
+        {
+#if CORE
+			await ActivateEncryptionAsync(targethost, clientCerts, SslProtocols.Tls11 | SslProtocols.Ssl3);
+#else
+            await ActivateEncryptionAsync(targethost, clientCerts, SslProtocols.Default);
+#endif
+        }
+#endif
 
         /// <summary>
         /// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
@@ -939,6 +1061,68 @@ namespace FluentFTP
                 throw;
             }
         }
+
+#if NETFX45 || CORE
+        /// <summary>
+        /// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
+        /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
+        /// not be accepted.
+        /// </summary>
+        /// <param name="targethost">The host to authenticate the certificate against</param>
+        /// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
+        /// <param name="sslProtocols">A bitwise parameter for supported encryption protocols.</param>
+        /// <exception cref="AuthenticationException">Thrown when authentication fails</exception>
+        public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols)
+        {
+            if (!IsConnected)
+                throw new InvalidOperationException("The FtpSocketStream object is not connected.");
+
+            if (m_netStream == null)
+                throw new InvalidOperationException("The base network stream is null.");
+
+            if (m_sslStream != null)
+                throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
+
+            try
+            {
+                DateTime auth_start;
+                TimeSpan auth_time_total;
+
+#if CORE
+				m_sslStream = new SslStream(NetworkStream, true, new RemoteCertificateValidationCallback(
+					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
+						return OnValidateCertificate(certificate, chain, sslPolicyErrors);
+					}
+				));
+#else
+                m_sslStream = new FtpSslStream(NetworkStream, true, new RemoteCertificateValidationCallback(
+                    delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+                    {
+                        return OnValidateCertificate(certificate, chain, sslPolicyErrors);
+                    }
+                ));
+#endif
+
+                auth_start = DateTime.Now;
+                await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, true);
+
+                auth_time_total = DateTime.Now.Subtract(auth_start);
+                FtpTrace.WriteStatus(FtpTraceLevel.Info, "FTPS Authentication Successful");
+                FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
+            }
+            catch (AuthenticationException)
+            {
+                // authentication failed and in addition it left our 
+                // ssl stream in an unusable state so cleanup needs
+                // to be done and the exception can be re-thrown for
+                // handling down the chain. (Add logging?)
+                Close();
+                FtpTrace.WriteStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
+                throw;
+            }
+        }
+#endif
+
 #endif
 
 #if !CORE
@@ -987,7 +1171,7 @@ namespace FluentFTP
 #if CORE
 		public async Task AcceptAsync() {
 			if (m_socket != null) {
-				m_socket = await m_socket.AcceptAsync();
+                m_socket = await m_socket.AcceptAsync();
 			}
 		}
 #else
