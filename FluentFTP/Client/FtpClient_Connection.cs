@@ -1201,7 +1201,7 @@ namespace FluentFTP {
 #endif
 		}
 
-#if CORE
+#if NETFX45 || CORE
         // TODO: add example
         /// <summary>
         /// Connect to the server
@@ -1248,20 +1248,20 @@ namespace FluentFTP {
             m_stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
 #if !NO_SSL
-				if (EncryptionMode == FtpEncryptionMode.Implicit) {
-					await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
-				}
+            if (EncryptionMode == FtpEncryptionMode.Implicit) {
+                await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
+            }
 #endif
 
             await HandshakeAsync();
 
 #if !NO_SSL
-				if (EncryptionMode == FtpEncryptionMode.Explicit) {
-					if (!(reply = await ExecuteAsync("AUTH TLS")).Success) {
-						throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
-					}
-					await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
-				}
+            if (EncryptionMode == FtpEncryptionMode.Explicit) {
+                if (!(reply = await ExecuteAsync("AUTH TLS")).Success) {
+                    throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
+                }
+                await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
+            }
 #endif
 
             if (m_credentials != null)
@@ -1310,27 +1310,23 @@ namespace FluentFTP {
             }
 
 #if !NO_SSL && !CORE
-			if (m_stream.IsEncrypted && PlainTextEncryption) {
-				if (!(reply = await ExecuteAsync("CCC")).Success) {
-					throw new FtpSecurityNotAvailableException("Failed to disable encryption with CCC command. Perhaps your server does not support it or is not configured to allow it.");
-				} else {
+            if (m_stream.IsEncrypted && PlainTextEncryption) {
+                if (!(reply = await ExecuteAsync("CCC")).Success)
+                {
+                    throw new FtpSecurityNotAvailableException("Failed to disable encryption with CCC command. Perhaps your server does not support it or is not configured to allow it.");
+                } else {
 
-					// close the SslStream and send close_notify command to server
-					m_stream.DeactivateEncryption();
+                    // close the SslStream and send close_notify command to server
+                    m_stream.DeactivateEncryption();
 
                     // read stale data (server's reply?)
-#if CORE
                     await ReadStaleDataAsync(false, true, false);
-#else
-                    // TODO: Rewrite in async call
-                    ReadStaleData(false, true, false);
-#endif
                 }
-			}
+            }
 #endif
 
-                    // Create the parser even if the auto-OS detection failed
-                    m_listParser.Init(m_systemType);
+            // Create the parser even if the auto-OS detection failed
+            m_listParser.Init(m_systemType);
         }
 #endif
 
@@ -1342,7 +1338,7 @@ namespace FluentFTP {
 			stream.Connect(Host, Port, InternetProtocolVersions);
 		}
 
-#if CORE
+#if NETFX || CORE
         /// <summary>
         /// Connect to the FTP server. Overwritten in proxy classes.
         /// </summary>
@@ -1376,7 +1372,7 @@ namespace FluentFTP {
 
 #if NETFX45 || CORE
         /// <summary>
-        /// Called during <see cref="ConnectAsync"/>. Typically extended by FTP proxies.
+        /// Called during <see cref="ConnectAsync()"/>. Typically extended by FTP proxies.
         /// </summary>
         protected virtual async Task HandshakeAsync()
         {
@@ -1500,19 +1496,6 @@ namespace FluentFTP {
 		public void EndConnect(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncConnect>(ar).EndInvoke(ar);
 		}
-#endif
-
-#if NETFX45
-        /// <summary>
-        /// Connects to the server asynchronously
-        /// </summary>
-        public async Task ConnectAsync() {
-            //TODO:  Rewrite as true async method with cancellation support
-            await Task.Factory.FromAsync(
-                (c, s) => BeginConnect(c, s),
-                ar => EndConnect(ar),
-                null);
-        }
 #endif
 
         #endregion
@@ -1827,8 +1810,7 @@ namespace FluentFTP {
 			}
 		}
 
-        // TODO: Write NETFX45 version
-#if CORE
+#if NETFX45 || CORE
         /// <summary>
         /// Data shouldn't be on the socket, if it is it probably
         /// means we've been disconnected. Read and discard

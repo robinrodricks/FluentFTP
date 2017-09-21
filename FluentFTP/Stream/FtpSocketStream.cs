@@ -443,7 +443,26 @@ namespace FluentFTP
             return read;
         }
 
-        // TODO: needs NETFX45 version
+#if NETFX45
+        /// <summary>
+        /// Bypass the stream and read directly off the socket.
+        /// </summary>
+        /// <param name="buffer">The buffer to read into</param>
+        /// <returns>The number of bytes read</returns>
+        internal async Task<int> RawSocketReadAsync(byte[] buffer)
+        {
+            int read = 0;
+
+            if (m_socket != null && m_socket.Connected)
+            {
+                var asyncResult = m_socket.BeginReceive(buffer, 0, buffer.Length, 0, null, null);
+                read = await Task.Factory.FromAsync(asyncResult, m_socket.EndReceive);
+            }
+
+            return read;
+        }
+#endif
+
 #if CORE
         /// <summary>
         /// Bypass the stream and read directly off the socket.
@@ -831,6 +850,7 @@ namespace FluentFTP
                 m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 #if CORE
 				m_socket.ConnectAsync(addresses[i], port).Wait();
+                break;
 #else
                 ar = m_socket.BeginConnect(addresses[i], port, null, null);
                 if (!ar.AsyncWaitHandle.WaitOne(m_connectTimeout, true))
@@ -865,11 +885,16 @@ namespace FluentFTP
             m_lastActivity = DateTime.Now;
         }
 
-        // TODO: needs NETFX45 version
-#if CORE
+#if NETFX45 || CORE
+        /// <summary>
+        /// Connect to the specified host
+        /// </summary>
+        /// <param name="host">The host to connect to</param>
+        /// <param name="port">The port to connect to</param>
+        /// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
         public async Task ConnectAsync(string host, int port, FtpIpVersion ipVersions)
         {
-            IPAddress[] addresses = Dns.GetHostAddressesAsync(host).Result;
+            IPAddress[] addresses = await Dns.GetHostAddressesAsync(host);
 
             if (ipVersions == 0)
                 throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.");
@@ -915,7 +940,14 @@ namespace FluentFTP
 
                 m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
+#if CORE
                 await m_socket.ConnectAsync(addresses[i], port);
+                break;
+#else
+                var connectResult = m_socket.BeginConnect(addresses[i], port, null, null);
+                await Task.Factory.FromAsync(connectResult, m_socket.EndConnect);
+                break;
+#endif
             }
 
             // make sure that we actually connected to
