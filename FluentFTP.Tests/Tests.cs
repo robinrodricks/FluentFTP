@@ -7,31 +7,40 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
-#if NETFX45
+#if !NOASYNC
 using System.Threading.Tasks;
 #endif
 using System.IO.Compression;
 using System.Text;
 using FluentFTP.Proxy;
 using System.Security.Authentication;
+using Xunit;
 
-namespace Tests {
-	class Tests {
+namespace Tests
+{
+	public class Tests
+	{
 
 		// SET THESE BEFORE RUNNING ANY TESTS!
-		static string m_host = "";
-		static string m_user = "";
-		static string m_pass = "";
+		const string m_host = "test.rebex.net";
+		const string m_user = "demo";
+		const string m_pass = "password";
 
-	    private static readonly int[] connectionTypes = new int[] {
-	        (int) FtpDataConnectionType.EPSV,
-	        (int) FtpDataConnectionType.EPRT,
-	        (int) FtpDataConnectionType.PASV,
-	        (int) FtpDataConnectionType.PORT
-	    };
+		private static readonly int[] connectionTypes = new int[] {
+			(int) FtpDataConnectionType.EPSV,
+			(int) FtpDataConnectionType.EPRT,
+			(int) FtpDataConnectionType.PASV,
+			(int) FtpDataConnectionType.PORT
+		};
+
+		private void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e)
+		{
+			e.Accept = true;
+		}
 
 
-		static void Main(string[] args) {
+		static void Main(string[] args)
+		{
 
 			FtpTrace.LogIP = false;
 			FtpTrace.LogUserName = false;
@@ -39,7 +48,8 @@ namespace Tests {
 			FtpTrace.AddListener(new ConsoleTraceListener());
 			FtpTrace.AddListener(new TextWriterTraceListener(@"C:\log_file.txt"));
 
-			try {
+			try
+			{
 
 				/*foreach (int i in connectionTypes) {
 					using (FtpClient cl = new FtpClient()) {
@@ -113,7 +123,7 @@ namespace Tests {
 				//--------------------------------
 				// UPLOAD / DOWNLOAD
 				//--------------------------------
-				TestUploadDownloadFile();
+				//TestUploadDownloadFile();
 				//TestUploadDownloadManyFiles();
 				//TestUploadDownloadZeroLenFile();
 				//TestUploadDownloadManyFiles2();
@@ -126,12 +136,14 @@ namespace Tests {
 
 
 
-                //Async Tests
-#if NETFX45
-				TestAsyncMethods();
+				//Async Tests
+#if !NOASYNC
+				//TestAsyncMethods();
 #endif
 
-			} catch (Exception ex) {
+			}
+			catch (Exception ex)
+			{
 				FtpTrace.WriteLine(ex.ToString());
 			}
 
@@ -139,48 +151,49 @@ namespace Tests {
 			// Console.ReadKey();
 		}
 
-#if NETFX45
-		private static void TestAsyncMethods() {
-			FtpTrace.WriteLine("Running Async Tests");
-			List<Task> tasks = new List<Task>() {
-			        TestListPathAsync(),
-			        StreamResponsesAsync(),
-			        TestGetObjectInfoAsync(),
-			        TestHashAsync(),
-			        TestUploadDownloadFileAsync(),
-			        TestUploadDownloadManyFilesAsync(),
-			        TestUploadDownloadManyFiles2Async()
-			    };
+#if !NOASYNC
+		//private static void TestAsyncMethods() {
+		//	FtpTrace.WriteLine("Running Async Tests");
+		//	List<Task> tasks = new List<Task>() {
+		//	        TestListPathAsync(),
+		//	        StreamResponsesAsync(),
+		//	        TestGetObjectInfoAsync(),
+		//	        TestHashAsync(),
+		//	        TestUploadDownloadFileAsync(),
+		//	        TestUploadDownloadManyFilesAsync(),
+		//	        TestUploadDownloadManyFiles2Async()
+		//	    };
 
-			Task.WhenAll(tasks).ContinueWith(t => {
-				Console.Write("Async Tests Completed: ");
-				if (t.IsFaulted) {
-					var exceptions = FlattenExceptions(t.Exception);
-					FtpTrace.WriteLine("With {0} Error{1}.", exceptions.Length, exceptions.Length > 1 ? "s" : "");
-					for (int i = 0; i > exceptions.Length; i++) {
-						var ex = exceptions[i];
-						FtpTrace.WriteLine("\nException {0}: {1} - {2}", i, ex.GetType().Name, ex.Message);
-						FtpTrace.WriteLine(ex.StackTrace);
-					}
-				} else {
-					FtpTrace.WriteLine("Successfully");
-				}
-			}).Wait();
-		}
+		//	Task.WhenAll(tasks).ContinueWith(t => {
+		//		Console.Write("Async Tests Completed: ");
+		//		if (t.IsFaulted) {
+		//			var exceptions = FlattenExceptions(t.Exception);
+		//			FtpTrace.WriteLine("With {0} Error{1}.", exceptions.Length, exceptions.Length > 1 ? "s" : "");
+		//			for (int i = 0; i > exceptions.Length; i++) {
+		//				var ex = exceptions[i];
+		//				FtpTrace.WriteLine("\nException {0}: {1} - {2}", i, ex.GetType().Name, ex.Message);
+		//				FtpTrace.WriteLine(ex.StackTrace);
+		//			}
+		//		} else {
+		//			FtpTrace.WriteLine("Successfully");
+		//		}
+		//	}).Wait();
+		//}
 
-	    static Exception[] FlattenExceptions(AggregateException aggEx) {
+	    public Exception[] FlattenExceptions(AggregateException aggEx) {
 	        AggregateException flattened = aggEx.Flatten();
 	        return flattened.InnerExceptions.Select(e => GetInnerMostException(e)).ToArray();
 	    }
 
-	    static Exception GetInnerMostException(Exception ex) {
+	    public Exception GetInnerMostException(Exception ex) {
             if (ex.InnerException != null)
                 return GetInnerMostException(ex.InnerException);
             
             return ex;
 	    }
 #endif
-		static void ExampleCode() {
+		public void ExampleCode()
+		{
 			// create an FTP client
 			FtpClient client = new FtpClient("123.123.123.123");
 
@@ -191,10 +204,12 @@ namespace Tests {
 			client.Connect();
 
 			// get a list of files and directories in the "/htdocs" folder
-			foreach (FtpListItem item in client.GetListing("/htdocs")) {
+			foreach (FtpListItem item in client.GetListing("/htdocs"))
+			{
 
 				// if this is a file
-				if (item.Type == FtpFileSystemObjectType.File) {
+				if (item.Type == FtpFileSystemObjectType.File)
+				{
 
 					// get the file size
 					long size = client.GetFileSize(item.FullName);
@@ -238,26 +253,31 @@ namespace Tests {
 			client.Disconnect();
 		}
 
-		static void TestListPathWithHttp11Proxy() {
+		public void TestListPathWithHttp11Proxy()
+		{
 			using (FtpClient cl = new FtpClientHttp11Proxy(new ProxyInfo { Host = "127.0.0.1", Port = 3128, })) // Credential = new NetworkCredential() 
-            {
+			{
 				FtpTrace.WriteLine("FTPClient::ConnectionType = '" + cl.ConnectionType + "'");
-				
+
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Host = m_host;
 				cl.ValidateCertificate += OnValidateCertificate;
 				cl.DataConnectionType = FtpDataConnectionType.PASV;
 				cl.Connect();
 
-				foreach (FtpListItem item in cl.GetListing(null, FtpListOption.SizeModify | FtpListOption.ForceNameList)) {
+				foreach (FtpListItem item in cl.GetListing(null, FtpListOption.SizeModify | FtpListOption.ForceNameList))
+				{
 					FtpTrace.WriteLine(item.Modified.Kind);
 					FtpTrace.WriteLine(item.Modified);
 				}
 			}
 		}
 
-		static void TestListPath() {
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestListPath()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Host = m_host;
 				cl.EncryptionMode = FtpEncryptionMode.None;
@@ -269,8 +289,9 @@ namespace Tests {
 			}
 		}
 
-#if NETFX45
-        static async Task TestListPathAsync()
+#if !NOASYNC
+		[Fact]
+		public async Task TestListPathAsync()
         {
             using (FtpClient cl = new FtpClient())
             {
@@ -286,36 +307,42 @@ namespace Tests {
         }
 #endif
 
-		static void StreamResponses() {
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void StreamResponses()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Host = m_host;
 				cl.EncryptionMode = FtpEncryptionMode.None;
-				cl.ValidateCertificate += new FtpSslValidation(delegate(FtpClient control, FtpSslValidationEventArgs e) {
+				cl.ValidateCertificate += new FtpSslValidation(delegate (FtpClient control, FtpSslValidationEventArgs e)
+				{
 					e.Accept = true;
 				});
 
-				using (FtpDataStream s = (FtpDataStream)cl.OpenWrite("test.txt")) {
+				using (FtpDataStream s = (FtpDataStream)cl.OpenWrite("test.txt"))
+				{
 					FtpReply r = s.CommandStatus;
 
 					FtpTrace.WriteLine("");
 					FtpTrace.WriteLine("Response to STOR:");
-					FtpTrace.WriteLine("Code: "+ r.Code);
-					FtpTrace.WriteLine("Message: "+ r.Message);
-					FtpTrace.WriteLine("Informational: "+ r.InfoMessages);
+					FtpTrace.WriteLine("Code: " + r.Code);
+					FtpTrace.WriteLine("Message: " + r.Message);
+					FtpTrace.WriteLine("Informational: " + r.InfoMessages);
 
 					r = s.Close();
 					FtpTrace.WriteLine("");
 					FtpTrace.WriteLine("Response after close:");
-					FtpTrace.WriteLine("Code: "+ r.Code);
-					FtpTrace.WriteLine("Message: "+ r.Message);
-					FtpTrace.WriteLine("Informational: "+ r.InfoMessages);
+					FtpTrace.WriteLine("Code: " + r.Code);
+					FtpTrace.WriteLine("Message: " + r.Message);
+					FtpTrace.WriteLine("Informational: " + r.InfoMessages);
 				}
 			}
 		}
-		
-#if NETFX45
-        static async Task StreamResponsesAsync()
+
+#if !NOASYNC
+		[Fact]
+		public async Task StreamResponsesAsync()
         {
             using (FtpClient cl = new FtpClient())
             {
@@ -331,14 +358,14 @@ namespace Tests {
                 {
                     FtpReply r = s.CommandStatus;
 
-                    FtpTrace.WriteLine();
+                    FtpTrace.WriteLine("");
                     FtpTrace.WriteLine("Response to STOR:");
                     FtpTrace.WriteLine("Code: "+ r.Code);
                     FtpTrace.WriteLine("Message: "+ r.Message);
                     FtpTrace.WriteLine("Informational: "+ r.InfoMessages);
 
                     r = s.Close();
-                    FtpTrace.WriteLine();
+                    FtpTrace.WriteLine("");
                     FtpTrace.WriteLine("Response after close:");
                     FtpTrace.WriteLine("Code: "+ r.Code);
                     FtpTrace.WriteLine("Message: "+ r.Message);
@@ -348,24 +375,32 @@ namespace Tests {
         }
 #endif
 
-		static void TestUnixListing() {
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestUnixListing()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 
-				if (!cl.FileExists("test.txt")) {
-					using (Stream s = cl.OpenWrite("test.txt")) {
+				if (!cl.FileExists("test.txt"))
+				{
+					using (Stream s = cl.OpenWrite("test.txt"))
+					{
 						s.Close();
 					}
 				}
 
-				foreach (FtpListItem i in cl.GetListing(null, FtpListOption.ForceList)) {
+				foreach (FtpListItem i in cl.GetListing(null, FtpListOption.ForceList))
+				{
 					FtpTrace.WriteLine(i);
 				}
 			}
 		}
 
-		static void TestFtpPath() {
+		[Fact]
+		public void TestFtpPath()
+		{
 			string path = "/home/sigurdhj/errors/16.05.2014/asdasd/asd asd asd aa asd/Kooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo::asdasd";
 
 			FtpTrace.WriteLine(path.GetFtpDirectoryName());
@@ -382,15 +417,18 @@ namespace Tests {
 			FtpTrace.WriteLine("bar".GetFtpFileName());
 		}
 
-		static void TestGetObjectInfo() {
-			using (FtpClient client = new FtpClient(m_host, m_user, m_pass)) {
+		[Fact]
+		public void TestGetObjectInfo()
+		{
+			using (FtpClient client = new FtpClient(m_host, m_user, m_pass))
+			{
 				FtpTrace.WriteLine(client.GetObjectInfo("/public_html/temp/README.md"));
-
 			}
 		}
-		
-#if NETFX45
-        static async Task TestGetObjectInfoAsync()
+
+#if !NOASYNC
+		[Fact]
+        public async Task TestGetObjectInfoAsync()
         {
             using (FtpClient cl = new FtpClient())
             {
@@ -406,47 +444,62 @@ namespace Tests {
         }
 #endif
 
-		static void TestManualEncoding() {
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestManualEncoding()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Encoding = Encoding.Default;
 
-				using (Stream s = cl.OpenWrite("test.txt")) {
+				using (Stream s = cl.OpenWrite("test.txt"))
+				{
 					s.Close();
 				}
 			}
 		}
 
-		static void TestServer() {
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestServer()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.EncryptionMode = FtpEncryptionMode.Explicit;
-				cl.ValidateCertificate += (control, e) => {
+				cl.ValidateCertificate += (control, e) =>
+				{
 					e.Accept = true;
 				};
 
-				foreach (FtpListItem i in cl.GetListing("/")) {
+				foreach (FtpListItem i in cl.GetListing("/"))
+				{
 					FtpTrace.WriteLine(i.FullName);
 				}
 			}
 		}
 
-		static void TestServerDownload(FtpClient client, string path) {
-			foreach (FtpListItem i in client.GetListing(path)) {
-				switch (i.Type) {
+		private void TestServerDownload(FtpClient client, string path)
+		{
+			foreach (FtpListItem i in client.GetListing(path))
+			{
+				switch (i.Type)
+				{
 					case FtpFileSystemObjectType.Directory:
 						TestServerDownload(client, i.FullName);
 						break;
 					case FtpFileSystemObjectType.File:
-						using (Stream s = client.OpenRead(i.FullName)) {
+						using (Stream s = client.OpenRead(i.FullName))
+						{
 							byte[] b = new byte[8192];
 							int read = 0;
 							long total = 0;
 
-							try {
-								while ((read = s.Read(b, 0, b.Length)) > 0) {
+							try
+							{
+								while ((read = s.Read(b, 0, b.Length)) > 0)
+								{
 									total += read;
 
 									Console.Write("\r{0}/{1} {2:p}          ",
@@ -455,7 +508,9 @@ namespace Tests {
 
 								Console.Write("\r{0}/{1} {2:p}       ",
 										total, s.Length, (double)total / (double)s.Length);
-							} finally {
+							}
+							finally
+							{
 								FtpTrace.WriteLine("");
 							}
 						}
@@ -463,9 +518,9 @@ namespace Tests {
 				}
 			}
 		}
-		
-#if NETFX45
-        static async Task TestServerDownloadAsync(FtpClient client, string path)
+
+#if !NOASYNC
+        private async Task TestServerDownloadAsync(FtpClient client, string path)
         {
             foreach (FtpListItem i in await client.GetListingAsync(path))
             {
@@ -496,7 +551,7 @@ namespace Tests {
                             }
                             finally
                             {
-                                FtpTrace.WriteLine();
+                                FtpTrace.WriteLine("");
                             }
                         }
                         break;
@@ -505,20 +560,21 @@ namespace Tests {
         }
 #endif
 
-		static void cl_ValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
-			e.Accept = true;
-		}
-
-		static void TestDisposeWithMultipleThreads() {
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestDisposeWithMultipleThreads()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Host = "ftp.netbsd.org";
 				cl.Credentials = new NetworkCredential("ftp", "ftp");
 
-				Thread t1 = new Thread(() => {
+				Thread t1 = new Thread(() =>
+				{
 					cl.GetListing();
 				});
 
-				Thread t2 = new Thread(() => {
+				Thread t2 = new Thread(() =>
+				{
 					cl.Dispose();
 				});
 
@@ -531,26 +587,36 @@ namespace Tests {
 			}
 		}
 
-		static void TestConnectionFailure() {
-			try {
-				using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestConnectionFailure()
+		{
+			try
+			{
+				using (FtpClient cl = new FtpClient())
+				{
 					cl.Credentials = new NetworkCredential("ftp", "ftp");
 					cl.Host = "somefakehost";
 					cl.ConnectTimeout = 5000;
 					cl.Connect();
 				}
-			} catch (Exception e) {
-				FtpTrace.WriteLine("Caught connection faillure: "+ e.Message);
+			}
+			catch (Exception e)
+			{
+				FtpTrace.WriteLine("Caught connection faillure: " + e.Message);
 			}
 		}
 
-		static void TestNetBSDServer() {
-			using (FtpClient client = new FtpClient()) {
+		[Fact]
+		public void TestNetBSDServer()
+		{
+			using (FtpClient client = new FtpClient())
+			{
 				client.Credentials = new NetworkCredential("ftp", "ftp");
 				client.Host = "ftp.netbsd.org";
 
 				foreach (FtpListItem item in client.GetListing(null,
-					FtpListOption.ForceList | FtpListOption.Modify | FtpListOption.DerefLinks)) {
+					FtpListOption.ForceList | FtpListOption.Modify | FtpListOption.DerefLinks))
+				{
 					FtpTrace.WriteLine(item);
 
 					if (item.Type == FtpFileSystemObjectType.Link && item.LinkObject != null)
@@ -559,19 +625,26 @@ namespace Tests {
 			}
 		}
 
-		static void TestGetListing() {
-			using (FtpClient client = new FtpClient()) {
+		[Fact]
+		public void TestGetListing()
+		{
+			using (FtpClient client = new FtpClient())
+			{
 				client.Credentials = new NetworkCredential(m_user, m_pass);
 				client.Host = m_host;
 				client.Connect();
-				foreach (FtpListItem i in client.GetListing("/public_html/temp/", FtpListOption.ForceList | FtpListOption.Recursive)) {
+				foreach (FtpListItem i in client.GetListing("/public_html/temp/", FtpListOption.ForceList | FtpListOption.Recursive))
+				{
 					//FtpTrace.WriteLine(i);
 				}
 			}
 		}
-		static void TestGetListingCCC() {
-			using (FtpClient client = new FtpClient()) {
-				
+
+		[Fact]
+		public void TestGetListingCCC()
+		{
+			using (FtpClient client = new FtpClient())
+			{
 				client.Credentials = new NetworkCredential(m_user, m_pass);
 				client.Host = m_host;
 				client.EncryptionMode = FtpEncryptionMode.Explicit;
@@ -580,30 +653,38 @@ namespace Tests {
 				client.ValidateCertificate += new FtpSslValidation(OnValidateCertificate);
 				client.Connect();
 
-				foreach (FtpListItem i in client.GetListing("/public_html/temp/", FtpListOption.ForceList | FtpListOption.Recursive)) {
+				foreach (FtpListItem i in client.GetListing("/public_html/temp/", FtpListOption.ForceList | FtpListOption.Recursive))
+				{
 					//FtpTrace.WriteLine(i);
 				}
 
 				// 100 K file
 				client.UploadFile(@"D:\Github\hgupta\FluentFTP\README.md", "/public_html/temp/README.md");
 				client.DownloadFile(@"D:\Github\hgupta\FluentFTP\README2.md", "/public_html/temp/README.md");
-
 			}
 		}
-		static void TestGetMachineListing() {
-			using (FtpClient client = new FtpClient()) {
+
+		[Fact]
+		public void TestGetMachineListing()
+		{
+			using (FtpClient client = new FtpClient())
+			{
 				client.Credentials = new NetworkCredential(m_user, m_pass);
 				client.Host = m_host;
 				client.ListingParser = FtpParser.Machine;
 				client.Connect();
-				foreach (FtpListItem i in client.GetListing("/public_html/temp/", FtpListOption.Recursive)) {
+				foreach (FtpListItem i in client.GetListing("/public_html/temp/", FtpListOption.Recursive))
+				{
 					//FtpTrace.WriteLine(i);
 				}
 			}
 		}
 
-		static void TestFileZillaKick() {
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestFileZillaKick()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.EnableThreadSafeDataConnections = false;
@@ -611,37 +692,43 @@ namespace Tests {
 				if (cl.FileExists("TestFile.txt"))
 					cl.DeleteFile("TestFile.txt");
 
-				try {
+				try
+				{
 					Stream s = cl.OpenWrite("TestFile.txt");
-					for (int i = 0; true; i++) {
+					for (int i = 0; true; i++)
+					{
 						s.WriteByte((byte)i);
 						Thread.Sleep(100);
 					}
 
 					//s.Close();
-				} catch (FtpCommandException ex) {
+				}
+				catch (FtpCommandException ex)
+				{
 					FtpTrace.WriteLine("Exception caught!");
 					FtpTrace.WriteLine(ex.ToString());
 				}
 			}
 		}
 
-		static void TestUnixListParser() {
-
+		[Fact]
+		public void TestUnixListParser()
+		{
 			FtpListParser parser = new FtpListParser();
 			parser.Init("UNIX");
 			//parser.parser = FtpParser.Legacy;
 
 			string[] sample = new string[] {
-                "drwxr-xr-x   7  user1 user1       512 Sep 27  2011 .",
-                "drwxr-xr-x  31 user1  user1      1024 Sep 27  2011 ..",
-                "lrwxrwxrwx   1 user1  user1      9 Sep 27  2011 data.0000 -> data.6460",
-                "drwxr-xr-x  10 user1  user1      512 Jun 29  2012 data.6460",
-                "lrwxrwxrwx   1 user1 user1       8 Sep 27  2011 sys.0000 -> sys.6460",
-                "drwxr-xr-x 133 user1  user1     4096 Jun 25 16:26 sys.6460"
-            };
+				"drwxr-xr-x   7  user1 user1       512 Sep 27  2011 .",
+				"drwxr-xr-x  31 user1  user1      1024 Sep 27  2011 ..",
+				"lrwxrwxrwx   1 user1  user1      9 Sep 27  2011 data.0000 -> data.6460",
+				"drwxr-xr-x  10 user1  user1      512 Jun 29  2012 data.6460",
+				"lrwxrwxrwx   1 user1 user1       8 Sep 27  2011 sys.0000 -> sys.6460",
+				"drwxr-xr-x 133 user1  user1     4096 Jun 25 16:26 sys.6460"
+			};
 
-			foreach (string s in sample) {
+			foreach (string s in sample)
+			{
 				FtpListItem item = parser.ParseSingleLine("/", s, 0, false);
 
 				if (item != null)
@@ -649,74 +736,83 @@ namespace Tests {
 			}
 		}
 
-		static void TestIISParser() {
-
+		[Fact]
+		public void TestIISParser()
+		{
 			FtpListParser parser = new FtpListParser();
 			parser.Init("WINDOWS");
 			//parser.parser = FtpParser.Legacy;
 
 			string[] sample = new string[] {
-                "03-07-13  10:02AM                  901 File01.xml",
-                "03-07-13  10:03AM                  921 File02.xml",
-                "03-07-13  10:04AM                  904 File03.xml",
-                "03-07-13  10:04AM                  912 File04.xml",
-                "03-08-13  11:10AM                  912 File05.xml",
-                "03-15-13  02:38PM                  912 File06.xml",
-                "03-07-13  10:16AM                  909 File07.xml",
-                "03-07-13  10:16AM                  899 File08.xml",
-                "03-08-13  10:22AM                  904 File09.xml",
-                "03-25-13  07:27AM                  895 File10.xml",
-                "03-08-13  10:22AM                 6199 File11.txt",
-                "03-25-13  07:22AM                31444 File12.txt",
-                "03-25-13  07:24AM                24537 File13.txt"
-            };
+				"03-07-13  10:02AM                  901 File01.xml",
+				"03-07-13  10:03AM                  921 File02.xml",
+				"03-07-13  10:04AM                  904 File03.xml",
+				"03-07-13  10:04AM                  912 File04.xml",
+				"03-08-13  11:10AM                  912 File05.xml",
+				"03-15-13  02:38PM                  912 File06.xml",
+				"03-07-13  10:16AM                  909 File07.xml",
+				"03-07-13  10:16AM                  899 File08.xml",
+				"03-08-13  10:22AM                  904 File09.xml",
+				"03-25-13  07:27AM                  895 File10.xml",
+				"03-08-13  10:22AM                 6199 File11.txt",
+				"03-25-13  07:22AM                31444 File12.txt",
+				"03-25-13  07:24AM                24537 File13.txt"
+			};
 
-			foreach (string s in sample) {
+			foreach (string s in sample)
+			{
 				FtpListItem item = parser.ParseSingleLine("/", s, 0, false);
 
-				if (item != null) {
+				if (item != null)
+				{
 					FtpTrace.WriteLine(item);
 				}
 			}
 		}
 
-		static void TestOpenVMSParser() {
-
+		[Fact]
+		public void TestOpenVMSParser()
+		{
 			FtpListParser parser = new FtpListParser();
 			parser.Init("VMS");
 
 			string[] sample = new string[] {
-                "411_4114.TXT;1             11  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "ACT_CC_NAME_4114.TXT;1    30  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "ACT_CC_NUM_4114.TXT;1     30  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "ACT_CELL_NAME_4114.TXT;1 113  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "ACT_CELL_NUM_4114.TXT;1  113  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "AGCY_BUDG_4114.TXT;1      63  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "CELL_SUMM_4114.TXT;1     125  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "CELL_SUMM_CHART_4114.PDF;2 95  21-MAR-2012 10:58 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "DET_4114.TXT;1          17472  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "DET_4114_000.TXT;1        777  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "DET_4114_001.TXT;1        254  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "DET_4114_003.TXT;1         21  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "DET_4114_006.TXT;1         22  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "DET_4114_101.TXT;1        431  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "DET_4114_121.TXT;1       2459  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "DET_4114_124.TXT;1       4610  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "DET_4114_200.TXT;1        936  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-                "TEL_4114.TXT;1           1178  21-MAR-2012 15:19 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)"
-            };
+				"411_4114.TXT;1             11  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"ACT_CC_NAME_4114.TXT;1    30  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"ACT_CC_NUM_4114.TXT;1     30  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"ACT_CELL_NAME_4114.TXT;1 113  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"ACT_CELL_NUM_4114.TXT;1  113  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"AGCY_BUDG_4114.TXT;1      63  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"CELL_SUMM_4114.TXT;1     125  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"CELL_SUMM_CHART_4114.PDF;2 95  21-MAR-2012 10:58 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"DET_4114.TXT;1          17472  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"DET_4114_000.TXT;1        777  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"DET_4114_001.TXT;1        254  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"DET_4114_003.TXT;1         21  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"DET_4114_006.TXT;1         22  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"DET_4114_101.TXT;1        431  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"DET_4114_121.TXT;1       2459  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"DET_4114_124.TXT;1       4610  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"DET_4114_200.TXT;1        936  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
+				"TEL_4114.TXT;1           1178  21-MAR-2012 15:19 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)"
+			};
 
-			foreach (string s in sample) {
+			foreach (string s in sample)
+			{
 				FtpListItem item = parser.ParseSingleLine("disk$user520:[4114.2012.Jan]", s, 0, false);
 
-				if (item != null) {
+				if (item != null)
+				{
 					FtpTrace.WriteLine(item);
 				}
 			}
 		}
 
-		static void TestDirectoryWithDots() {
-			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass)) {
+		[Fact]
+		public void TestDirectoryWithDots()
+		{
+			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass))
+			{
 				cl.Connect();
 				// FTP server set to timeout after 5 seconds.
 				//Thread.Sleep(6000);
@@ -727,46 +823,57 @@ namespace Tests {
 			}
 		}
 
-		static void TestDispose() {
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestDispose()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Host = m_host;
 				cl.Connect();
 				// FTP server set to timeout after 5 seconds.
 				//Thread.Sleep(6000);
 
-				foreach (FtpListItem item in cl.GetListing()) {
+				foreach (FtpListItem item in cl.GetListing())
+				{
 
 				}
 			}
 		}
 
-		static void TestHash() {
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestHash()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Host = m_host;
 				cl.Connect();
 
-				FtpTrace.WriteLine("Supported HASH algorithms: "+ cl.HashAlgorithms);
-				FtpTrace.WriteLine("Current HASH algorithm: "+ cl.GetHashAlgorithm());
+				FtpTrace.WriteLine("Supported HASH algorithms: " + cl.HashAlgorithms);
+				FtpTrace.WriteLine("Current HASH algorithm: " + cl.GetHashAlgorithm());
 
-				foreach (FtpHashAlgorithm alg in Enum.GetValues(typeof(FtpHashAlgorithm))) {
-					if (alg != FtpHashAlgorithm.NONE && cl.HashAlgorithms.HasFlag(alg)) {
+				foreach (FtpHashAlgorithm alg in Enum.GetValues(typeof(FtpHashAlgorithm)))
+				{
+					if (alg != FtpHashAlgorithm.NONE && cl.HashAlgorithms.HasFlag(alg))
+					{
 						FtpHash hash = null;
 
 						cl.SetHashAlgorithm(alg);
 						hash = cl.GetHash("LICENSE.TXT");
 
-						if (hash.IsValid) {
+						if (hash.IsValid)
+						{
 							Debug.Assert(hash.Verify(@"C:\FTPTEST\LICENSE.TXT"), "The computed hash didn't match or the hash object was invalid!");
 						}
 					}
 				}
 			}
 		}
-		
-#if NETFX45
-        static async Task TestHashAsync()
+
+#if !NOASYNC
+		[Fact]
+        public async Task TestHashAsync()
         {
             using (FtpClient cl = new FtpClient())
             {
@@ -796,40 +903,53 @@ namespace Tests {
         }
 #endif
 
-		static void TestReset() {
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestReset()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Host = m_host;
 				cl.Connect();
 
-				using (Stream istream = cl.OpenRead("LICENSE.TXT", 10)) {
+				using (Stream istream = cl.OpenRead("LICENSE.TXT", 10))
+				{
 					istream.Close();
 				}
 			}
 		}
 
-		static void GetPublicFTPServerListing() {
-			using (FtpClient cl = new FtpClient("ftp://speedtest.tele2.net/")) {
+		[Fact]
+		public void GetPublicFTPServerListing()
+		{
+			using (FtpClient cl = new FtpClient("ftp://speedtest.tele2.net/"))
+			{
 				cl.Connect();
 
 				FtpTrace.WriteLine(cl.Capabilities);
 
-				foreach (FtpListItem item in cl.GetListing(null)) {
+				foreach (FtpListItem item in cl.GetListing(null))
+				{
 					FtpTrace.WriteLine(item);
 				}
 			}
 		}
 
-		static void TestMODCOMP_PWD_Parser() {
+		[Fact]
+		public void TestMODCOMP_PWD_Parser()
+		{
 			string response = "PWD = ~TNA=AMP,VNA=VOL03,FNA=U-ED-B2-USL";
 			Match m;
 
 			if ((m = Regex.Match(response, "PWD = (?<pwd>.*)")).Success)
-				FtpTrace.WriteLine("PWD: "+ m.Groups["pwd"].Value);
+				FtpTrace.WriteLine("PWD: " + m.Groups["pwd"].Value);
 		}
 
-		static void TestNameListing() {
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestNameListing()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Host = m_host;
 				cl.ValidateCertificate += OnValidateCertificate;
@@ -842,7 +962,8 @@ namespace Tests {
 				//Thread.Sleep(10000);
 
 				var items = cl.GetListing();
-				foreach (FtpListItem item in items) {
+				foreach (FtpListItem item in items)
+				{
 					//FtpTrace.WriteLine(item.FullName);
 					//FtpTrace.WriteLine(item.Modified.Kind);
 					//FtpTrace.WriteLine(item.Modified);
@@ -850,9 +971,11 @@ namespace Tests {
 			}
 		}
 
-		static void TestNameListingFTPS() {
-			using (FtpClient cl = new FtpClient()) {
-
+		[Fact]
+		public void TestNameListingFTPS()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Host = m_host;
 				cl.ValidateCertificate += OnValidateCertificate;
@@ -863,29 +986,30 @@ namespace Tests {
 				//FtpTrace.WriteLine("Sleeping for 10 seconds to force timeout.");
 				//Thread.Sleep(10000);
 
-				foreach (FtpListItem item in cl.GetListing()) {
+				foreach (FtpListItem item in cl.GetListing())
+				{
 					FtpTrace.WriteLine(item.FullName);
 					//FtpTrace.WriteLine(item.Modified.Kind);
 					//FtpTrace.WriteLine(item.Modified);
 				}
 			}
 		}
-		static void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
-			e.Accept = true;
-		}
 
-
-		static FtpClient Connect() {
+		[Fact]
+		public FtpClient Connect()
+		{
 			List<Thread> threads = new List<Thread>();
 			FtpClient cl = new FtpClient();
 
 			cl.ValidateCertificate += OnValidateCertificate;
 			//cl.EncryptionMode = FtpEncryptionMode.Explicit;
 
-			for (int i = 0; i < 10; i++) {
+			for (int i = 0; i < 10; i++)
+			{
 				int count = i;
 
-				Thread t = new Thread(new ThreadStart(delegate() {
+				Thread t = new Thread(new ThreadStart(delegate ()
+				{
 					cl.Credentials = new NetworkCredential(m_user, m_pass);
 					cl.Host = m_host;
 					cl.Connect();
@@ -901,7 +1025,8 @@ namespace Tests {
 				threads.Add(t);
 			}
 
-			while (threads.Count > 0) {
+			while (threads.Count > 0)
+			{
 				threads[0].Join();
 				threads.RemoveAt(0);
 			}
@@ -910,17 +1035,20 @@ namespace Tests {
 		}
 
 
-		static void Upload(FtpClient cl) {
+		public void Upload(FtpClient cl)
+		{
 			string root = @"..\..\..";
 			List<Thread> threads = new List<Thread>();
 
-			foreach (string s in Directory.GetFiles(root, "*", SearchOption.AllDirectories)) {
+			foreach (string s in Directory.GetFiles(root, "*", SearchOption.AllDirectories))
+			{
 				string file = s;
 
 				if (file.Contains(@"\.git"))
 					continue;
 
-				Thread t = new Thread(new ThreadStart(delegate() {
+				Thread t = new Thread(new ThreadStart(delegate ()
+				{
 					DoUpload(cl, root, file);
 				}));
 
@@ -928,13 +1056,15 @@ namespace Tests {
 				threads.Add(t);
 			}
 
-			while (threads.Count > 0) {
+			while (threads.Count > 0)
+			{
 				threads[0].Join();
 				threads.RemoveAt(0);
 			}
 		}
 
-		static void DoUpload(FtpClient cl, string root, string s) {
+		public void DoUpload(FtpClient cl, string root, string s)
+		{
 			FtpDataType type = FtpDataType.Binary;
 			string path = Path.GetDirectoryName(s).Replace(root, "");
 			string name = Path.GetFileName(s);
@@ -949,20 +1079,26 @@ namespace Tests {
 
 			using (
 				Stream istream = new FileStream(s, FileMode.Open, FileAccess.Read),
-						ostream = cl.OpenWrite(s.Replace(root, ""), type)) {
+						ostream = cl.OpenWrite(s.Replace(root, ""), type))
+			{
 				byte[] buf = new byte[8192];
 				int read = 0;
 
-				try {
-					while ((read = istream.Read(buf, 0, buf.Length)) > 0) {
+				try
+				{
+					while ((read = istream.Read(buf, 0, buf.Length)) > 0)
+					{
 						ostream.Write(buf, 0, read);
 					}
-				} finally {
+				}
+				finally
+				{
 					ostream.Close();
 					istream.Close();
 				}
 
-				if (cl.HashAlgorithms != FtpHashAlgorithm.NONE) {
+				if (cl.HashAlgorithms != FtpHashAlgorithm.NONE)
+				{
 					Debug.Assert(cl.GetHash(s.Replace(root, "")).Verify(s), "The computed hashes don't match!");
 				}
 			}
@@ -971,80 +1107,103 @@ namespace Tests {
 				throw new Exception("Hashes didn't match!");*/
 		}
 
-		static void Download(FtpClient cl) {
+		public void Download(FtpClient cl)
+		{
 			List<Thread> threads = new List<Thread>();
 
 			Download(threads, cl, "/");
 
-			while (threads.Count > 0) {
+			while (threads.Count > 0)
+			{
 				threads[0].Join();
 
-				lock (threads) {
+				lock (threads)
+				{
 					threads.RemoveAt(0);
 				}
 			}
 		}
 
-		static void Download(List<Thread> threads, FtpClient cl, string path) {
-			foreach (FtpListItem item in cl.GetListing(path)) {
+		public void Download(List<Thread> threads, FtpClient cl, string path)
+		{
+			foreach (FtpListItem item in cl.GetListing(path))
+			{
 				if (item.Type == FtpFileSystemObjectType.Directory)
 					Download(threads, cl, item.FullName);
-				else if (item.Type == FtpFileSystemObjectType.File) {
+				else if (item.Type == FtpFileSystemObjectType.File)
+				{
 					string file = item.FullName;
 
-					Thread t = new Thread(new ThreadStart(delegate() {
+					Thread t = new Thread(new ThreadStart(delegate ()
+					{
 						DoDownload(cl, file);
 					}));
 
 					t.Start();
 
-					lock (threads) {
+					lock (threads)
+					{
 						threads.Add(t);
 					}
 				}
 			}
 		}
 
-		static void DoDownload(FtpClient cl, string file) {
-			using (Stream s = cl.OpenRead(file)) {
+		public void DoDownload(FtpClient cl, string file)
+		{
+			using (Stream s = cl.OpenRead(file))
+			{
 				byte[] buf = new byte[8192];
 
-				try {
+				try
+				{
 					while (s.Read(buf, 0, buf.Length) > 0) ;
-				} finally {
+				}
+				finally
+				{
 					s.Close();
 				}
 			}
 		}
 
-		static void Delete(FtpClient cl) {
+		public void Delete(FtpClient cl)
+		{
 			DeleteDirectory(cl, "/");
 		}
 
-		static void DeleteDirectory(FtpClient cl, string path) {
-			foreach (FtpListItem item in cl.GetListing(path)) {
-				if (item.Type == FtpFileSystemObjectType.File) {
+		public void DeleteDirectory(FtpClient cl, string path)
+		{
+			foreach (FtpListItem item in cl.GetListing(path))
+			{
+				if (item.Type == FtpFileSystemObjectType.File)
+				{
 					cl.DeleteFile(item.FullName);
-				} else if (item.Type == FtpFileSystemObjectType.Directory) {
+				}
+				else if (item.Type == FtpFileSystemObjectType.Directory)
+				{
 					DeleteDirectory(cl, item.FullName);
 					cl.DeleteDirectory(item.FullName);
 				}
 			}
 		}
 
-		static void TestUTF8() {
+		[Fact]
+		public void TestUTF8()
+		{
 			// the following file name was reported in the discussions as having
 			// problems:
 			// https://netftp.codeplex.com/discussions/445090
 			string filename = "Verbundmörtel Zubehör + Technische Daten DE.pdf";
 
-			using (FtpClient cl = new FtpClient()) {
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.DataConnectionType = FtpDataConnectionType.PASV;
 				cl.InternetProtocolVersions = FtpIpVersion.ANY;
 
-				using (Stream ostream = cl.OpenWrite(filename)) {
+				using (Stream ostream = cl.OpenWrite(filename))
+				{
 					StreamWriter writer = new StreamWriter(filename);
 					writer.WriteLine(filename);
 					writer.Close();
@@ -1052,9 +1211,11 @@ namespace Tests {
 			}
 		}
 
-		static void TestUploadDownloadFile() {
-
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestUploadDownloadFile()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 
@@ -1072,11 +1233,11 @@ namespace Tests {
 				*/
 			}
 		}
-		
-#if NETFX45
-        static async Task TestUploadDownloadFileAsync()
-        {
 
+#if !NOASYNC
+		[Fact]
+        public async Task TestUploadDownloadFileAsync()
+        {
             using (FtpClient cl = new FtpClient())
             {
                 cl.Host = m_host;
@@ -1096,9 +1257,11 @@ namespace Tests {
         }
 #endif
 
-		static void TestUploadDownloadFile_UTF() {
-
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestUploadDownloadFile_UTF()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 
@@ -1115,9 +1278,12 @@ namespace Tests {
 			}
 
 		}
-		static void TestUploadDownloadFile_ANSI() {
 
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestUploadDownloadFile_ANSI()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Encoding = Encoding.GetEncoding(1252);
@@ -1136,35 +1302,38 @@ namespace Tests {
 			}
 		}
 
-		static void TestUploadDownloadManyFiles() {
-
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestUploadDownloadManyFiles()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.EnableThreadSafeDataConnections = false;
 				cl.Connect();
 
 				// 100 K file
-				for (int i = 0; i < 3; i++) {
+				for (int i = 0; i < 3; i++)
+				{
 					FtpTrace.WriteLine(" ------------- UPLOAD " + i + " ------------------");
 					cl.UploadFile(@"D:\Drivers\mb_driver_intel_bootdisk_irst_64_6series.exe", "/public_html/temp/small.txt");
 				}
 
 				// 100 K file
-				for (int i = 0; i < 3; i++) {
+				for (int i = 0; i < 3; i++)
+				{
 					FtpTrace.WriteLine(" ------------- DOWNLOAD " + i + " ------------------");
 					cl.DownloadFile(@"D:\Drivers\test\file" + i + ".exe", "/public_html/temp/small.txt");
 				}
 
 				FtpTrace.WriteLine(" ------------- ALL DONE! ------------------");
-
 			}
 		}
-		
-#if NETFX45
-        static async Task TestUploadDownloadManyFilesAsync()
-        {
 
+#if !NOASYNC
+		[Fact]
+        public async Task TestUploadDownloadManyFilesAsync()
+        {
             using (FtpClient cl = new FtpClient())
             {
                 cl.Host = m_host;
@@ -1187,14 +1356,15 @@ namespace Tests {
                 }
 
                 FtpTrace.WriteLine(" ------------- ALL DONE! ------------------");
-
             }
         }
 #endif
 
-		static void TestUploadDownloadManyFiles2() {
-
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestUploadDownloadManyFiles2()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.EnableThreadSafeDataConnections = false;
@@ -1211,11 +1381,11 @@ namespace Tests {
 				cl.Dispose();
 			}
 		}
-		
-#if NETFX45
-        static async Task TestUploadDownloadManyFiles2Async()
-        {
 
+#if !NOASYNC
+		[Fact]
+        public async Task TestUploadDownloadManyFiles2Async()
+        {
             using (FtpClient cl = new FtpClient())
             {
                 cl.Host = m_host;
@@ -1224,7 +1394,7 @@ namespace Tests {
                 await cl.ConnectAsync();
 
                 // upload many
-                await cl.UploadFilesAsync(new string[] { @"D:\Drivers\test\file0.exe", @"D:\Drivers\test\file1.exe", @"D:\Drivers\test\file2.exe", @"D:\Drivers\test\file3.exe", @"D:\Drivers\test\file4.exe" }, "/public_html/temp/", false);
+                await cl.UploadFilesAsync(new string[] { @"D:\Drivers\test\file0.exe", @"D:\Drivers\test\file1.exe", @"D:\Drivers\test\file2.exe", @"D:\Drivers\test\file3.exe", @"D:\Drivers\test\file4.exe" }, "/public_html/temp/", createRemoteDir: false);
 
                 // download many
                 await cl.DownloadFilesAsync(@"D:\Drivers\test\", new string[] { @"/public_html/temp/file0.exe", @"/public_html/temp/file1.exe", @"/public_html/temp/file2.exe", @"/public_html/temp/file3.exe", @"/public_html/temp/file4.exe" }, false);
@@ -1236,41 +1406,50 @@ namespace Tests {
         }
 #endif
 
-		static void TestUploadDownloadZeroLenFile() {
-
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestUploadDownloadZeroLenFile()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 
 				// 0 KB file
 				cl.UploadFile(@"D:\zerolen.txt", "/public_html/temp/zerolen.txt");
 				cl.DownloadFile(@"D:\zerolen2.txt", "/public_html/temp/zerolen.txt");
-
 			}
 		}
 
-
-		static void TestListSpacedPath() {
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestListSpacedPath()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.EncryptionMode = FtpEncryptionMode.Explicit;
-				cl.ValidateCertificate += (control, e) => {
+				cl.ValidateCertificate += (control, e) =>
+				{
 					e.Accept = true;
 				};
 
-				foreach (FtpListItem i in cl.GetListing("/public_html/temp/spaced folder/")) {
+				foreach (FtpListItem i in cl.GetListing("/public_html/temp/spaced folder/"))
+				{
 					FtpTrace.WriteLine(i.FullName);
 				}
 			}
 		}
 
-		static void TestFilePermissions() {
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestFilePermissions()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 
-				foreach (FtpListItem i in cl.GetListing("/public_html/temp/")) {
+				foreach (FtpListItem i in cl.GetListing("/public_html/temp/"))
+				{
 					FtpTrace.WriteLine(i.Name + " - " + i.Chmod);
 				}
 
@@ -1280,12 +1459,14 @@ namespace Tests {
 				cl.SetFilePermissions("/public_html/temp/file3.exe", 646);
 
 				int o22 = cl.GetChmod("/public_html/temp/file3.exe");
-
 			}
 		}
 
-		static void TestFileExists() {
-			using (FtpClient cl = new FtpClient()) {
+		[Fact]
+		public void TestFileExists()
+		{
+			using (FtpClient cl = new FtpClient())
+			{
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
 
@@ -1307,24 +1488,27 @@ namespace Tests {
 				bool z_f4_no = cl.FileExists("temp/README");
 				bool z_f5_yes = cl.FileExists("temp/Caffè.jpg");
 				bool z_f5_no = cl.FileExists("temp/Caffèoo.jpg");
-
 			}
 		}
-		static void TestDeleteDirectory() {
-			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass)) {
-				
+
+		[Fact]
+		public void TestDeleteDirectory()
+		{
+			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass))
+			{
 				cl.DeleteDirectory("/public_html/temp/otherdir/");
 				cl.DeleteDirectory("/public_html/temp/spaced folder/");
-				
 			}
 		}
-		static void TestMoveFiles() {
-			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass)) {
 
+		[Fact]
+		public void TestMoveFiles()
+		{
+			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass))
+			{
 				cl.MoveFile("/public_html/temp/README.md", "/public_html/temp/README_moved.md");
-				
-				cl.MoveDirectory("/public_html/temp/dir/", "/public_html/temp/dir_moved/");
 
+				cl.MoveDirectory("/public_html/temp/dir/", "/public_html/temp/dir_moved/");
 			}
 		}
 	}

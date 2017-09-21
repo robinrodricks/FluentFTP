@@ -1,0 +1,16 @@
+version: 1.0.0.{build}
+
+image: Visual Studio 2017
+
+configuration: Release
+
+before_build:
+- ps: dotnet --info
+- ps: dotnet restore -v Minimal
+
+build_script:
+- ps: dotnet build -c $Env:CONFIGURATION
+- ps: dotnet pack FluentFTP -c $Env:CONFIGURATION
+
+artifacts:
+- path: '**\*.nupkg'
