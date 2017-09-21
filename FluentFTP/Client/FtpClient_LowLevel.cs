@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if NETFX45
+#if NET45
 using System.Threading.Tasks;
 #endif
 
@@ -609,7 +609,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Opens the specified file for reading asynchronously
 		/// </summary>
@@ -783,7 +783,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. asynchronously
 		/// </summary>
@@ -931,7 +931,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Opens the specified file to be appended asynchronously
 		/// </summary>
@@ -1037,7 +1037,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Sets the data type of information sent over the data stream asynchronously
 		/// </summary>

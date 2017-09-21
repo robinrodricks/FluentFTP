@@ -6,7 +6,7 @@ using System.Globalization;
 #if (CORE || NETFX)
 using System.Diagnostics;
 #endif
-#if NETFX45
+#if NET45
 using System.Threading.Tasks;
 using System.Collections;
 #endif
@@ -169,7 +169,7 @@ namespace FluentFTP {
 			return String.Format("{0:0.#} {1}", len, sizePostfix[order]);
 		}
 		
-#if NETFX45
+#if NET45
         /// <summary>
         /// This creates a <see cref="System.Threading.Tasks.Task{TResult}"/> that represents a pair of begin and end methods
         /// that conform to the Asynchronous Programming Model pattern.  This extends the maximum amount of arguments from
@@ -251,7 +251,7 @@ namespace FluentFTP {
 			return value == null || value.Length == 0;
 		}
 
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Checks if the array is null or 0 length.
 		/// </summary>
@@ -287,7 +287,7 @@ namespace FluentFTP {
 		/// Join the given strings by a delimiter.
 		/// </summary>
 		public static string Join(this List<string> values, string delimiter) {
-#if NET2 || NET35
+#if NET20 || NET35
 			return string.Join(delimiter, values.ToArray());
 #else
             return string.Join(delimiter, values);
@@ -339,7 +339,7 @@ namespace FluentFTP {
 			return results;
 		}
 
-#if NET2 || NET35
+#if NET20 || NET35
 		public static bool HasFlag(this FtpHashAlgorithm flags, FtpHashAlgorithm flag) {
 			return (flags & flag) == flag;
 		}

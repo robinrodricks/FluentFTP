@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-#if NETFX45
+#if NET45
 using System.Threading.Tasks;
 #endif
 
