@@ -1633,16 +1633,42 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Disconnects from the server asynchronously
 		/// </summary>
 		public async Task DisconnectAsync() {
-			//TODO:  Rewrite as true async method with cancellation support
-			await Task.Factory.FromAsync(
-				(c, s) => BeginDisconnect(c, s),
-				ar => EndDisconnect(ar),
-				null);
+			//TODO:  Add cancellation support
+			if (m_stream != null && m_stream.IsConnected)
+			{
+				try
+				{
+					if (!UngracefullDisconnection)
+					{
+						await ExecuteAsync("QUIT");
+					}
+				}
+				catch (SocketException sockex)
+				{
+					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): SocketException caught and discarded while closing control connection: " + sockex.ToString());
+				}
+				catch (IOException ioex)
+				{
+					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): IOException caught and discarded while closing control connection: " + ioex.ToString());
+				}
+				catch (FtpCommandException cmdex)
+				{
+					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): FtpCommandException caught and discarded while closing control connection: " + cmdex.ToString());
+				}
+				catch (FtpException ftpex)
+				{
+					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): FtpException caught and discarded while closing control connection: " + ftpex.ToString());
+				}
+				finally
+				{
+					m_stream.Close();
+				}
+			}
 		}
 #endif
 

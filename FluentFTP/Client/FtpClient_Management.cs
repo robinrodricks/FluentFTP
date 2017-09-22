@@ -134,17 +134,23 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Deletes a file from the server asynchronously
 		/// </summary>
 		/// <param name="path">The full or relative path to the file</param>
-		public async Task DeleteFileAsync(string path) {
+		public async Task DeleteFileAsync(string path)
+		{
+			FtpReply reply;
 
-			await Task.Factory.FromAsync<string>(
-				(p, ac, s) => BeginDeleteFile(p, ac, s),
-				ar => EndDeleteFile(ar),
-				path, null);
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+
+			FtpTrace.WriteFunc("DeleteFile", new object[] { path });
+
+			if (!(reply = await ExecuteAsync("DELE " + path.GetFtpPath())).Success)
+				throw new FtpCommandException(reply);
 		}
 #endif
 
@@ -613,20 +619,72 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45
+#if NET45 || CORE
 		/// <summary>
-		/// Checks if a file exists on the server asynchronously by taking a 
-		/// file listing of the parent directory in the path
-		/// and comparing the results the path supplied.
+		/// Checks if a file exists on the server asynchronously.
 		/// </summary>
 		/// <param name="path">The full or relative path to the file</param>
 		/// <returns>True if the file exists, false otherwise</returns>
-		public async Task<bool> FileExistsAsync(string path) {
+		public async Task<bool> FileExistsAsync(string path)
+		{
 
-			return await Task.Factory.FromAsync<string, bool>(
-				(p, ac, s) => BeginFileExists(p, ac, s),
-				ar => EndFileExists(ar),
-				path, null);
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+
+			FtpTrace.WriteFunc("FileExists", new object[] { path });
+
+			// calc the absolute filepath
+			path = await GetAbsolutePathAsync(path.GetFtpPath());
+
+			// since FTP does not include a specific command to check if a file exists
+			// here we check if file exists by attempting to get its filesize (SIZE)
+			if (HasFeature(FtpCapability.SIZE))
+			{
+				FtpReply reply = await ExecuteAsync("SIZE " + path);
+				char ch = reply.Code[0];
+				if (ch == '2')
+				{
+					return true;
+				}
+				if (ch == '5' && IsKnownError(reply.Message, fileNotFoundStrings))
+				{
+					return false;
+				}
+			}
+
+			// check if file exists by attempting to get its date modified (MDTM)
+			if (HasFeature(FtpCapability.MDTM))
+			{
+				FtpReply reply = await ExecuteAsync("MDTM " + path);
+				char ch = reply.Code[0];
+				if (ch == '2')
+				{
+					return true;
+				}
+				if (ch == '5' && IsKnownError(reply.Message, fileNotFoundStrings))
+				{
+					return false;
+				}
+			}
+
+			// check if file exists by getting a name listing (NLST)
+			string[] fileList = await GetNameListingAsync(path.GetFtpDirectoryName());
+			string pathName = path.GetFtpFileName();
+			if (fileList.Contains(pathName))
+			{
+				return true;
+			}
+
+			// check if file exists by attempting to download it (RETR)
+			/*try {
+				Stream stream = OpenRead(path);
+				stream.Close();
+				return true;
+			} catch (FtpException ex) {
+			}*/
+
+			return false;
 		}
 #endif
 
@@ -732,18 +790,40 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Creates a remote directory asynchronously
 		/// </summary>
 		/// <param name="path">The full or relative path to the new remote directory</param>
 		/// <param name="force">Try to create the whole path if the preceding directories do not exist</param>
-		public async Task CreateDirectoryAsync(string path, bool force) {
+		public async Task CreateDirectoryAsync(string path, bool force)
+		{
+			// dont verify args as blank/null path is OK
+			//if (path.IsBlank())
+			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			await Task.Factory.FromAsync<string, bool>(
-				(p, f, ac, s) => BeginCreateDirectory(p, f, ac, s),
-				ar => EndCreateDirectory(ar),
-				path, force, null);
+			FtpTrace.WriteFunc("CreateDirectory", new object[] { path, force });
+
+			FtpReply reply;
+			string ftppath = path.GetFtpPath();
+
+			if (ftppath == "." || ftppath == "./" || ftppath == "/")
+				return;
+
+			path = path.GetFtpPath().TrimEnd('/');
+
+			if (force && !await DirectoryExistsAsync(path.GetFtpDirectoryName()))
+			{
+				FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
+				await CreateDirectoryAsync(path.GetFtpDirectoryName(), true);
+			}
+			else if (await DirectoryExistsAsync(path))
+				return;
+
+			FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "CreateDirectory " + ftppath);
+
+			if (!(reply = await ExecuteAsync("MKD " + ftppath)).Success)
+				throw new FtpCommandException(reply);
 		}
 
 		/// <summary>
@@ -751,12 +831,8 @@ namespace FluentFTP {
 		/// directories do not exist, then they are created.
 		/// </summary>
 		/// <param name="path">The full or relative path to the new remote directory</param>
-		public async Task CreateDirectoryAsync(string path) {
-
-			await Task.Factory.FromAsync<string>(
-				(p, ac, s) => BeginCreateDirectory(p, ac, s),
-				ar => EndCreateDirectory(ar),
-				path, null);
+		public Task CreateDirectoryAsync(string path) {
+			return CreateDirectoryAsync(path, true);
 		}
 #endif
 
@@ -1414,17 +1490,25 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Sets the working directory on the server asynchronously
 		/// </summary>
 		/// <param name="path">The directory to change to</param>
-		public async Task SetWorkingDirectoryAsync(string path) {
-			//TODO:  Rewrite as true async method with cancellation support
-			await Task.Factory.FromAsync<string>(
-				(p, ac, s) => BeginSetWorkingDirectory(p, ac, s),
-				ar => EndSetWorkingDirectory(ar),
-				path, null);
+		public async Task SetWorkingDirectoryAsync(string path)
+		{
+			//TODO:  Add cancellation support
+
+			FtpTrace.WriteFunc("SetWorkingDirectory", new object[] { path });
+
+			FtpReply reply;
+			string ftppath = path.GetFtpPath();
+
+			if (ftppath == "." || ftppath == "./")
+				return;
+
+			if (!(reply = await ExecuteAsync("CWD " + ftppath)).Success)
+				throw new FtpCommandException(reply);
 		}
 #endif
 		#endregion

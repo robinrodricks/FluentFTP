@@ -905,20 +905,45 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45
-		/// <summary>
-		/// Opens the specified file for reading asynchronously
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="restart">Resume location</param>
-		/// <returns>A readable stream of the remote file</returns>
-		public async Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart) {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<string, FtpDataType, long, Stream>(
-				(p, t, r, ac, s) => BeginOpenRead(p, t, r, ac, s),
-				ar => EndOpenRead(ar),
-				path, type, restart, null);
+#if NET45 || CORE
+		public virtual async Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, bool checkIfFileExists)
+		{
+			// TODO:  Add cancellation support
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+
+			FtpTrace.WriteFunc("OpenRead", new object[] { path, type, restart });
+
+			FtpClient client = null;
+			FtpDataStream stream = null;
+			long length = 0;
+
+			if (m_threadSafeDataChannels)
+			{
+				client = CloneConnection();
+				await client.ConnectAsync();
+				await client.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync());
+			}
+			else
+			{
+				client = this;
+			}
+
+			await client.SetDataTypeAsync(type);
+			length = checkIfFileExists ? await client.GetFileSizeAsync(path) : 0;
+			stream = await client.OpenDataStreamAsync(("RETR " + path.GetFtpPath()), restart);
+
+			if (stream != null)
+			{
+				if (length > 0)
+					stream.SetLength(length);
+
+				if (restart > 0)
+					stream.SetPosition(restart);
+			}
+
+			return stream;
 		}
 
 		/// <summary>
@@ -926,13 +951,22 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
+		/// <param name="restart">Resume location</param>
 		/// <returns>A readable stream of the remote file</returns>
-		public async Task<Stream> OpenReadAsync(string path, FtpDataType type) {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<string, FtpDataType, Stream>(
-				(p, t, ac, s) => BeginOpenRead(p, t, ac, s),
-				ar => EndOpenRead(ar),
-				path, type, null);
+		public Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart) {
+			//TODO:  Add cancellation support
+			return OpenReadAsync(path, type, restart, true);
+		}
+
+		/// <summary>
+		/// Opens the specified file for reading asynchronously
+		/// </summary>
+		/// <param name="path">The full or relative path of the file</param>
+		/// <param name="type">ASCII/Binary</param>
+		/// <returns>A readable stream of the remote file</returns>
+		public Task<Stream> OpenReadAsync(string path, FtpDataType type) {
+			//TODO:  Add cancellation support
+			return OpenReadAsync(path, type, 0, true);
 		}
 
 		/// <summary>
@@ -941,12 +975,9 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="restart">Resume location</param>
 		/// <returns>A readable stream of the remote file</returns>
-		public async Task<Stream> OpenReadAsync(string path, long restart) {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<string, long, Stream>(
-				(p, r, ac, s) => BeginOpenRead(p, r, ac, s),
-				ar => EndOpenRead(ar),
-				path, restart, null);
+		public Task<Stream> OpenReadAsync(string path, long restart) {
+			//TODO:  Add cancellation support
+			return OpenReadAsync(path, FtpDataType.Binary, restart, true);
 		}
 
 		/// <summary>
@@ -954,12 +985,9 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
 		/// <returns>A readable stream of the remote file</returns>
-		public async Task<Stream> OpenReadAsync(string path) {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<string, Stream>(
-				(p, ac, s) => BeginOpenRead(p, ac, s),
-				ar => EndOpenRead(ar),
-				path, null);
+		public Task<Stream> OpenReadAsync(string path) {
+			//TODO:  Add cancellation support
+			return OpenReadAsync(path, FtpDataType.Binary, 0, true);
 		}
 #endif
 
@@ -1079,19 +1107,56 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45
+#if NET45 || CORE
+		/// <summary>
+		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
+		/// </summary>
+		/// <param name="path">Full or relative path of the file</param>
+		/// <param name="type">ASCII/Binary</param>
+		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
+		/// <returns>A stream for writing to the file on the server</returns>
+		public virtual async Task<Stream> OpenWriteAsync(string path, FtpDataType type, bool checkIfFileExists)
+		{
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+
+			FtpTrace.WriteFunc("OpenWrite", new object[] { path, type });
+
+			FtpClient client = null;
+			FtpDataStream stream = null;
+			long length = 0;
+
+			if (m_threadSafeDataChannels)
+			{
+				client = CloneConnection();
+				await client.ConnectAsync();
+				await client.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync());
+			}
+			else
+			{
+				client = this;
+			}
+
+			await client.SetDataTypeAsync(type);
+			length = checkIfFileExists ? await client.GetFileSizeAsync(path) : 0;
+			stream = await client.OpenDataStreamAsync(("STOR " + path.GetFtpPath()), 0);
+
+			if (length > 0 && stream != null)
+				stream.SetLength(length);
+
+			return stream;
+		}
+
 		/// <summary>
 		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. asynchronously
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
 		/// <returns>A stream for writing to the file on the server</returns>
-		public async Task<Stream> OpenWriteAsync(string path, FtpDataType type) {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<string, FtpDataType, Stream>(
-				(p, t, ac, s) => BeginOpenWrite(p, t, ac, s),
-				ar => EndOpenWrite(ar),
-				path, type, null);
+		public Task<Stream> OpenWriteAsync(string path, FtpDataType type) {
+			//TODO:  Add cancellation support
+			return OpenWriteAsync(path, type, true);
 		}
 
 		/// <summary>
@@ -1099,12 +1164,9 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <returns>A stream for writing to the file on the server</returns>
-		public async Task<Stream> OpenWriteAsync(string path) {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<string, Stream>(
-				(p, ac, s) => BeginOpenWrite(p, ac, s),
-				ar => EndOpenWrite(ar),
-				path, null);
+		public Task<Stream> OpenWriteAsync(string path) {
+			//TODO:  Add cancellation support
+			return OpenWriteAsync(path, FtpDataType.Binary, true);
 		}
 #endif
 
@@ -1227,19 +1289,61 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45
+#if NET45 || CORE
+		/// <summary>
+		/// Opens the specified file to be appended asynchronously
+		/// </summary>
+		/// <param name="path">Full or relative path of the file</param>
+		/// <param name="type">ASCII/Binary</param>
+		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
+		/// <returns>A stream for writing to the file on the server</returns>
+		public virtual async Task<Stream> OpenAppendAsync(string path, FtpDataType type, bool checkIfFileExists)
+		{
+			// TODO:  Add cancellation support
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+
+			FtpTrace.WriteFunc("OpenAppend", new object[] { path, type });
+
+			FtpClient client = null;
+			FtpDataStream stream = null;
+			long length = 0;
+
+
+			if (m_threadSafeDataChannels)
+			{
+				client = CloneConnection();
+				await client.ConnectAsync();
+				await client.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync());
+			}
+			else
+			{
+				client = this;
+			}
+
+			await client.SetDataTypeAsync(type);
+			length = checkIfFileExists ? await client.GetFileSizeAsync(path) : 0;
+			stream = await client.OpenDataStreamAsync(("APPE " + path.GetFtpPath()), 0);
+
+			if (length > 0 && stream != null)
+			{
+				stream.SetLength(length);
+				stream.SetPosition(length);
+			}
+
+			return stream;
+		}
+
 		/// <summary>
 		/// Opens the specified file to be appended asynchronously
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
 		/// <returns>A stream for writing to the file on the server</returns>
-		public async Task<Stream> OpenAppendAsync(string path, FtpDataType type) {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<string, FtpDataType, Stream>(
-				(p, t, ac, s) => BeginOpenAppend(p, t, ac, s),
-				ar => EndOpenAppend(ar),
-				path, type, null);
+		public Task<Stream> OpenAppendAsync(string path, FtpDataType type) {
+			//TODO:  Add cancellation support
+			return OpenAppendAsync(path, type, true);
 		}
 
 		/// <summary>
@@ -1247,12 +1351,9 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <returns>A stream for writing to the file on the server</returns>
-		public async Task<Stream> OpenAppendAsync(string path) {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<string, Stream>(
-				(p, ac, s) => BeginOpenAppend(p, ac, s),
-				ar => EndOpenAppend(ar),
-				path, null);
+		public Task<Stream> OpenAppendAsync(string path) {
+			//TODO:  Add cancellation support
+			return OpenAppendAsync(path, FtpDataType.Binary, true);
 		}
 #endif
 

@@ -1019,30 +1019,52 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command asynchronously
 		/// </summary>
 		/// <param name="path">The path of the directory to list</param>
 		/// <returns>An array of file and directory names if any were returned.</returns>
-		public async Task<string[]> GetNameListingAsync(string path) {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<string, string[]>(
-				(p, ac, s) => BeginGetNameListing(p, ac, s),
-				ar => EndGetNameListing(ar),
-				path, null);
+		public async Task<string[]> GetNameListingAsync(string path)
+		{
+			//TODO:  Add cancellation support
+			FtpTrace.WriteFunc("GetNameListing", new object[] { path });
+
+			List<string> listing = new List<string>();
+
+			// calc path to request
+			path = await GetAbsolutePathAsync(path);
+
+			// always get the file listing in binary
+			// to avoid any potential character translation
+			// problems that would happen if in ASCII.
+			await ExecuteAsync("TYPE I");
+
+			using (FtpDataStream stream = await OpenDataStreamAsync(("NLST " + path.GetFtpPath()), 0))
+			{
+				string buf;
+
+				try
+				{
+					while ((buf = await stream.ReadLineAsync(Encoding)) != null)
+						listing.Add(buf);
+				}
+				finally
+				{
+					stream.Close();
+				}
+			}
+
+			return listing.ToArray();
 		}
 
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command asynchronously
 		/// </summary>
 		/// <returns>An array of file and directory names if any were returned.</returns>
-		public async Task<string[]> GetNameListingAsync() {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<string[]>(
-				(ac, s) => BeginGetNameListing(ac, s),
-				ar => EndGetNameListing(ar),
-				null);
+		public Task<string[]> GetNameListingAsync() {
+			//TODO:  Add cancellation support
+			return GetNameListingAsync(null);
 		}
 #endif
 

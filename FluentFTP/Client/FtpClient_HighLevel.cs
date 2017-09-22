@@ -908,8 +908,7 @@ namespace FluentFTP {
 		}
 
 
-#if NET45
-
+#if NET45 || CORE
 		/// <summary>
 		/// Uploads the specified stream as a file onto the server asynchronously.
 		/// High-level API that takes care of various edge cases internally.
@@ -935,6 +934,7 @@ namespace FluentFTP {
 			// write the file onto the server
 			return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, false, false, token);
 		}
+
 		/// <summary>
 		/// Uploads the specified byte array as a file onto the server asynchronously.
 		/// High-level API that takes care of various edge cases internally.
@@ -1163,7 +1163,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
@@ -1215,6 +1215,7 @@ namespace FluentFTP {
 				fileData.Position = offset;
 
 				// open a file connection
+				// TODO:  Here is differrent from synchronous version. Needs confirm
 				if (offset == 0) {
 					upStream = await OpenWriteAsync(remotePath, UploadDataType);
 				} else {
@@ -1265,11 +1266,7 @@ namespace FluentFTP {
 								if (swTime >= 1000) {
 									double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
 									if (timeShouldTake > swTime) {
-#if CORE14
-                                        Task.Delay((int)(timeShouldTake - swTime)).Wait();
-#else
-                                        Thread.Sleep((int)(timeShouldTake - swTime));
-#endif
+                                        await Task.Delay((int)(timeShouldTake - swTime));
 									}
 									limitCheckBytes = 0;
 									sw.Restart();
@@ -1424,7 +1421,7 @@ namespace FluentFTP {
 			return downloadSuccess && verified;
 		}
 
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Downloads the specified file onto the local file system asynchronously.
 		/// High-level API that takes care of various edge cases internally.
@@ -1596,7 +1593,7 @@ namespace FluentFTP {
 			return ok;
 		}
 
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Downloads the specified file into the specified stream asynchronously .
 		/// High-level API that takes care of various edge cases internally.
@@ -1830,7 +1827,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Download a file from the server and write the data into the given stream asynchronously.
 		/// Reads data in chunks. Retries if server disconnects midway.
@@ -1903,11 +1900,7 @@ namespace FluentFTP {
 								if (swTime >= 1000) {
 									double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
 									if (timeShouldTake > swTime) {
-#if CORE14
-                                        Task.Delay((int)(timeShouldTake - swTime)).Wait();
-#else
-                                        Thread.Sleep((int)(timeShouldTake - swTime));
-#endif
+                                        await Task.Delay((int)(timeShouldTake - swTime));
                                     }
                                     limitCheckBytes = 0;
 									sw.Restart();
@@ -2009,7 +2002,7 @@ namespace FluentFTP {
 			return true;
 		}
 
-#if NET45
+#if NET45 || CORE
 		private async Task<bool> VerifyTransferAsync(string localPath, string remotePath) {
 
 			// verify args
