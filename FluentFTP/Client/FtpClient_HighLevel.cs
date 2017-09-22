@@ -1731,7 +1731,7 @@ namespace FluentFTP {
 
 							// if we reach here means EOF encountered
 							// stop if we are in "read until EOF" mode
-							if (readToEnd) {
+							if (readToEnd || offset == fileLen) {
 								break;
 							}
 
@@ -1779,7 +1779,7 @@ namespace FluentFTP {
 
 							// if we reach here means EOF encountered
 							// stop if we are in "read until EOF" mode
-							if (readToEnd) {
+							if (readToEnd || offset == fileLen) {
 								break;
 							}
 
@@ -1870,7 +1870,7 @@ namespace FluentFTP {
 
 							// if we reach here means EOF encountered
 							// stop if we are in "read until EOF" mode
-							if (readToEnd) {
+							if (readToEnd || offset == fileLen) {
 								break;
 							}
 
@@ -1916,7 +1916,7 @@ namespace FluentFTP {
 
 							// if we reach here means EOF encountered
 							// stop if we are in "read until EOF" mode
-							if (readToEnd) {
+							if (readToEnd || offset == fileLen) {
 								break;
 							}
 
