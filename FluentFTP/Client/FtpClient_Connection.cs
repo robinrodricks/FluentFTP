@@ -1212,7 +1212,7 @@ namespace FluentFTP {
         {
             FtpReply reply;
 
-            FtpTrace.WriteFunc("Connect");
+            FtpTrace.WriteFunc(nameof(ConnectAsync));
 
             if (IsDisposed)
                 throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");

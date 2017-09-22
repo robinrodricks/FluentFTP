@@ -652,7 +652,7 @@ namespace FluentFTP {
         public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options)
         {
             //TODO:  Add cancellation support
-            FtpTrace.WriteFunc("GetListing", new object[] { path, options });
+            FtpTrace.WriteFunc(nameof(GetListingAsync), new object[] { path, options });
 
             FtpListItem item = null;
             List<FtpListItem> lst = new List<FtpListItem>();
@@ -1028,7 +1028,7 @@ namespace FluentFTP {
 		public async Task<string[]> GetNameListingAsync(string path)
 		{
 			//TODO:  Add cancellation support
-			FtpTrace.WriteFunc("GetNameListing", new object[] { path });
+			FtpTrace.WriteFunc(nameof(GetNameListingAsync), new object[] { path });
 
 			List<string> listing = new List<string>();
 

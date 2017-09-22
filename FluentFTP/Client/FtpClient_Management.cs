@@ -147,7 +147,7 @@ namespace FluentFTP {
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			FtpTrace.WriteFunc("DeleteFile", new object[] { path });
+			FtpTrace.WriteFunc(nameof(DeleteFileAsync), new object[] { path });
 
 			if (!(reply = await ExecuteAsync("DELE " + path.GetFtpPath())).Success)
 				throw new FtpCommandException(reply);
@@ -487,7 +487,7 @@ namespace FluentFTP {
             //if (path.IsBlank())
             //	throw new ArgumentException("Required parameter is null or blank.", "path");
 
-            FtpTrace.WriteFunc("DirectoryExists", new object[] { path });
+            FtpTrace.WriteFunc(nameof(DirectoryExistsAsync), new object[] { path });
 
             // quickly check if root path, then it always exists!
             string ftppath = path.GetFtpPath();
@@ -632,7 +632,7 @@ namespace FluentFTP {
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			FtpTrace.WriteFunc("FileExists", new object[] { path });
+			FtpTrace.WriteFunc(nameof(FileExistsAsync), new object[] { path });
 
 			// calc the absolute filepath
 			path = await GetAbsolutePathAsync(path.GetFtpPath());
@@ -802,7 +802,7 @@ namespace FluentFTP {
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			FtpTrace.WriteFunc("CreateDirectory", new object[] { path, force });
+			FtpTrace.WriteFunc(nameof(CreateDirectoryAsync), new object[] { path, force });
 
 			FtpReply reply;
 			string ftppath = path.GetFtpPath();
@@ -1411,7 +1411,7 @@ namespace FluentFTP {
         /// <returns>FtpListItem, null if the link can't be dereferenced</returns>
         public Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax) {
             //TODO:  Add cancellation support
-            FtpTrace.WriteFunc("DereferenceLink", new object[] { item.FullName, recMax });
+            FtpTrace.WriteFunc(nameof(DereferenceLinkAsync), new object[] { item.FullName, recMax });
 
             IntRef count = new IntRef { Value = 0 };
             return DereferenceLinkAsync(item, recMax, count);
@@ -1499,7 +1499,7 @@ namespace FluentFTP {
 		{
 			//TODO:  Add cancellation support
 
-			FtpTrace.WriteFunc("SetWorkingDirectory", new object[] { path });
+			FtpTrace.WriteFunc(nameof(SetWorkingDirectoryAsync), new object[] { path });
 
 			FtpReply reply;
 			string ftppath = path.GetFtpPath();
@@ -1590,7 +1590,7 @@ namespace FluentFTP {
 		/// <returns>The current working directory, ./ if the response couldn't be parsed.</returns>
 		public async Task<string> GetWorkingDirectoryAsync() {
             //TODO:  Add cancellation support
-            FtpTrace.WriteFunc("GetWorkingDirectory");
+            FtpTrace.WriteFunc(nameof(GetWorkingDirectoryAsync));
 
             FtpReply reply;
             Match m;
@@ -1709,7 +1709,7 @@ namespace FluentFTP {
             if (path.IsBlank())
                 throw new ArgumentException("Required parameter is null or blank.", "path");
 
-            FtpTrace.WriteFunc("GetFileSize", new object[] { path });
+            FtpTrace.WriteFunc(nameof(GetFileSizeAsync), new object[] { path });
 
             FtpReply reply;
             long length = 0;
@@ -1829,7 +1829,7 @@ namespace FluentFTP {
             if (path.IsBlank())
                 throw new ArgumentException("Required parameter is null or blank.", "path");
 
-            FtpTrace.WriteFunc("GetModifiedTime", new object[] { path, type });
+            FtpTrace.WriteFunc(nameof(GetModifiedTimeAsync), new object[] { path, type });
 
             DateTime date = DateTime.MinValue;
             FtpReply reply;

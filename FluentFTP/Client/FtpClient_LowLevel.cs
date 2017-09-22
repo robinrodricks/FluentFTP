@@ -178,7 +178,7 @@ namespace FluentFTP {
         async Task<FtpDataStream> OpenPassiveDataStreamAsync(FtpDataConnectionType type, string command, long restart)
         {
 
-            FtpTrace.WriteFunc("OpenPassiveDataStream", new object[] { type, command, restart });
+            FtpTrace.WriteFunc(nameof(OpenPassiveDataStreamAsync), new object[] { type, command, restart });
 
             FtpDataStream stream = null;
             FtpReply reply;
@@ -424,7 +424,7 @@ namespace FluentFTP {
         async Task<FtpDataStream> OpenActiveDataStreamAsync(FtpDataConnectionType type, string command, long restart)
         {
 
-            FtpTrace.WriteFunc("OpenActiveDataStream", new object[] { type, command, restart });
+            FtpTrace.WriteFunc(nameof(OpenActiveDataStreamAsync), new object[] { type, command, restart });
 
             FtpDataStream stream = new FtpDataStream(this);
             FtpReply reply;
@@ -906,6 +906,14 @@ namespace FluentFTP {
 
 #endif
 #if NET45 || CORE
+		/// <summary>
+		/// Opens the specified file for reading asynchronously
+		/// </summary>
+		/// <param name="path">The full or relative path of the file</param>
+		/// <param name="type">ASCII/Binary</param>
+		/// <param name="restart">Resume location</param>
+		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
+		/// <returns>A stream for reading the file on the server</returns>
 		public virtual async Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, bool checkIfFileExists)
 		{
 			// TODO:  Add cancellation support
@@ -913,7 +921,7 @@ namespace FluentFTP {
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			FtpTrace.WriteFunc("OpenRead", new object[] { path, type, restart });
+			FtpTrace.WriteFunc(nameof(OpenReadAsync), new object[] { path, type, restart });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1121,7 +1129,7 @@ namespace FluentFTP {
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			FtpTrace.WriteFunc("OpenWrite", new object[] { path, type });
+			FtpTrace.WriteFunc(nameof(OpenWriteAsync), new object[] { path, type });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1304,7 +1312,7 @@ namespace FluentFTP {
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			FtpTrace.WriteFunc("OpenAppend", new object[] { path, type });
+			FtpTrace.WriteFunc(nameof(OpenAppendAsync), new object[] { path, type });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
