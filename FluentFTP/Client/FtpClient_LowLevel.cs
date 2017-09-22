@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if NETFX45 || CORE
+#if NET45 || CORE
 using System.Threading.Tasks;
 #endif
 
@@ -167,7 +167,7 @@ namespace FluentFTP {
 			return stream;
 		}
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Opens the specified type of passive data stream
         /// </summary>
@@ -268,12 +268,12 @@ namespace FluentFTP {
         }
 #endif
 
-        /// <summary>
-        /// Returns the ip address to be sent to the server for the active connection
-        /// </summary>
-        /// <param name="ip"></param>
-        /// <returns></returns>
-        string GetLocalAddress(IPAddress ip) {
+		/// <summary>
+		/// Returns the ip address to be sent to the server for the active connection
+		/// </summary>
+		/// <param name="ip"></param>
+		/// <returns></returns>
+		string GetLocalAddress(IPAddress ip) {
 			// Use resolver
 			if (m_AddressResolver != null) {
 				return m_Address ?? (m_Address = m_AddressResolver());
@@ -413,7 +413,7 @@ namespace FluentFTP {
 			return stream;
 		}
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Opens the specified type of active data stream
         /// </summary>
@@ -551,13 +551,13 @@ namespace FluentFTP {
         }
 #endif
 
-        /// <summary>
-        /// Opens a data stream.
-        /// </summary>
-        /// <param name='command'>The command to execute that requires a data stream</param>
-        /// <param name="restart">Restart location in bytes for file transfer</param>
-        /// <returns>The data stream.</returns>
-        FtpDataStream OpenDataStream(string command, long restart) {
+		/// <summary>
+		/// Opens a data stream.
+		/// </summary>
+		/// <param name='command'>The command to execute that requires a data stream</param>
+		/// <param name="restart">Restart location in bytes for file transfer</param>
+		/// <returns>The data stream.</returns>
+		FtpDataStream OpenDataStream(string command, long restart) {
 
 			FtpDataConnectionType type = m_dataConnectionType;
 			FtpDataStream stream = null;
@@ -608,7 +608,7 @@ namespace FluentFTP {
 			return stream;
 		}
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Opens a data stream.
         /// </summary>
@@ -665,11 +665,11 @@ namespace FluentFTP {
         }
 #endif
 
-        /// <summary>
-        /// Disconnects a data stream
-        /// </summary>
-        /// <param name="stream">The data stream to close</param>
-        internal FtpReply CloseDataStream(FtpDataStream stream) {
+		/// <summary>
+		/// Disconnects a data stream
+		/// </summary>
+		/// <param name="stream">The data stream to close</param>
+		internal FtpReply CloseDataStream(FtpDataStream stream) {
 
 			FtpTrace.WriteFunc("CloseDataStream");
 
@@ -905,7 +905,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Opens the specified file for reading asynchronously
 		/// </summary>
@@ -1079,7 +1079,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. asynchronously
 		/// </summary>
@@ -1227,7 +1227,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Opens the specified file to be appended asynchronously
 		/// </summary>
@@ -1277,12 +1277,12 @@ namespace FluentFTP {
 
 		}
 
-        /// <summary>Internal method that handles actually setting the data type.</summary>
-        /// <exception cref="FtpCommandException">Thrown when a FTP Command error condition occurs.</exception>
-        /// <exception cref="FtpException">Thrown when a FTP error condition occurs.</exception>
-        /// <param name="type">ASCII/Binary.</param>
-        /// <remarks>This method doesn't do any locking to prevent recursive lock scenarios.  Callers must do their own locking.</remarks>
-        private void SetDataTypeInternal(FtpDataType type) {
+		/// <summary>Internal method that handles actually setting the data type.</summary>
+		/// <exception cref="FtpCommandException">Thrown when a FTP Command error condition occurs.</exception>
+		/// <exception cref="FtpException">Thrown when a FTP error condition occurs.</exception>
+		/// <param name="type">ASCII/Binary.</param>
+		/// <remarks>This method doesn't do any locking to prevent recursive lock scenarios.  Callers must do their own locking.</remarks>
+		private void SetDataTypeInternal(FtpDataType type) {
 			FtpReply reply;
 			switch (type) {
 				case FtpDataType.ASCII:
@@ -1333,7 +1333,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45 || CORE
+#if NET45 || CORE
 		/// <summary>
 		/// Sets the data type of information sent over the data stream asynchronously
 		/// </summary>
@@ -1356,7 +1356,7 @@ namespace FluentFTP {
             }
         }
 #endif
-        #endregion
+		#endregion
 
-    }
+	}
 }

@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if NETFX45 || CORE
+#if NET45 || CORE
 using System.Threading.Tasks;
 #endif
 
@@ -134,7 +134,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Deletes a file from the server asynchronously
 		/// </summary>
@@ -336,7 +336,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Asynchronously removes a directory and all its contents.
 		/// </summary>
@@ -462,7 +462,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45 || CORE
+#if NET45 || CORE
 		/// <summary>
 		/// Tests if the specified directory exists on the server asynchronously. This
 		/// method works by trying to change the working directory to
@@ -507,17 +507,17 @@ namespace FluentFTP {
         }
 #endif
 
-        #endregion
+		#endregion
 
-        #region File Exists
+		#region File Exists
 
-        /// <summary>
-        /// Checks if a file exists on the server.
-        /// </summary>
-        /// <param name="path">The full or relative path to the file</param>
-        /// <returns>True if the file exists</returns>
-        /// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
-        public bool FileExists(string path) {
+		/// <summary>
+		/// Checks if a file exists on the server.
+		/// </summary>
+		/// <param name="path">The full or relative path to the file</param>
+		/// <returns>True if the file exists</returns>
+		/// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
+		public bool FileExists(string path) {
 
 			// verify args
 			if (path.IsBlank())
@@ -613,7 +613,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Checks if a file exists on the server asynchronously by taking a 
 		/// file listing of the parent directory in the path
@@ -732,7 +732,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Creates a remote directory asynchronously
 		/// </summary>
@@ -836,7 +836,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Renames an object on the remote file system asynchronously.
 		/// Low level method that should NOT be used in most cases. Prefer MoveFile() and MoveDirectory().
@@ -934,7 +934,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Moves a file asynchronously on the remote file system from one directory to another.
 		/// Always checks if the source file exists. Checks if the dest file exists based on the `existsMode` parameter.
@@ -1032,7 +1032,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Moves a directory asynchronously on the remote file system from one directory to another.
 		/// Always checks if the source directory exists. Checks if the dest directory exists based on the `existsMode` parameter.
@@ -1281,7 +1281,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Derefence a FtpListItem object
         /// </summary>
@@ -1352,16 +1352,16 @@ namespace FluentFTP {
         }
 #endif
 
-        #endregion
+		#endregion
 
-        #region Set Working Dir
+		#region Set Working Dir
 
-        /// <summary>
-        /// Sets the work directory on the server
-        /// </summary>
-        /// <param name="path">The path of the directory to change to</param>
-        /// <example><code source="..\Examples\SetWorkingDirectory.cs" lang="cs" /></example>
-        public void SetWorkingDirectory(string path) {
+		/// <summary>
+		/// Sets the work directory on the server
+		/// </summary>
+		/// <param name="path">The path of the directory to change to</param>
+		/// <example><code source="..\Examples\SetWorkingDirectory.cs" lang="cs" /></example>
+		public void SetWorkingDirectory(string path) {
 
 			FtpTrace.WriteFunc("SetWorkingDirectory", new object[] { path });
 
@@ -1414,7 +1414,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Sets the working directory on the server asynchronously
 		/// </summary>
@@ -1499,7 +1499,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45 || CORE
+#if NET45 || CORE
 		/// <summary>
 		/// Gets the current working directory asynchronously
 		/// </summary>
@@ -1612,7 +1612,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45 || CORE
+#if NET45 || CORE
 		/// <summary>
 		/// Retrieve the size of a remote file asynchronously
 		/// </summary>
@@ -1649,18 +1649,18 @@ namespace FluentFTP {
             return length;
         }
 #endif
-        #endregion
+		#endregion
 
-        #region Get Modified Time
+		#region Get Modified Time
 
-        /// <summary>
-        /// Gets the modified time of a remote file
-        /// </summary>
-        /// <param name="path">The full path to the file</param>
-        /// <param name="type">Return the date in local timezone or UTC?  Use FtpDate.Original to disable timezone conversion.</param>
-        /// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
-        /// <example><code source="..\Examples\GetModifiedTime.cs" lang="cs" /></example>
-        public virtual DateTime GetModifiedTime(string path, FtpDate type = FtpDate.Original) {
+		/// <summary>
+		/// Gets the modified time of a remote file
+		/// </summary>
+		/// <param name="path">The full path to the file</param>
+		/// <param name="type">Return the date in local timezone or UTC?  Use FtpDate.Original to disable timezone conversion.</param>
+		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
+		/// <example><code source="..\Examples\GetModifiedTime.cs" lang="cs" /></example>
+		public virtual DateTime GetModifiedTime(string path, FtpDate type = FtpDate.Original) {
 
 			// verify args
 			if (path.IsBlank())
@@ -1732,7 +1732,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45 || CORE
+#if NET45 || CORE
 		/// <summary>
 		/// Gets the modified time of a remote file asynchronously
 		/// </summary>
@@ -1773,17 +1773,17 @@ namespace FluentFTP {
         }
 #endif
 
-        #endregion
+#endregion
 
-        #region Set Modified Time
+#region Set Modified Time
 
-        /// <summary>
-        /// Changes the modified time of a remote file
-        /// </summary>
-        /// <param name="path">The full path to the file</param>
-        /// <param name="date">The new modified date/time value</param>
-        /// <param name="type">Is the date provided in local timezone or UTC? Use FtpDate.Original to disable timezone conversion.</param>
-        public virtual void SetModifiedTime(string path, DateTime date, FtpDate type = FtpDate.Original) {
+		/// <summary>
+		/// Changes the modified time of a remote file
+		/// </summary>
+		/// <param name="path">The full path to the file</param>
+		/// <param name="date">The new modified date/time value</param>
+		/// <param name="type">Is the date provided in local timezone or UTC? Use FtpDate.Original to disable timezone conversion.</param>
+		public virtual void SetModifiedTime(string path, DateTime date, FtpDate type = FtpDate.Original) {
 
 			// verify args
 			if (path.IsBlank())
@@ -1855,7 +1855,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Gets the modified time of a remote file asynchronously
 		/// </summary>

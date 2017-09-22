@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if NETFX45 || CORE
+#if NET45 || CORE
 using System.Threading.Tasks;
 #endif
 
@@ -892,7 +892,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         // TODO: Add cencellation support
 		/// <summary>
 		/// Performs an asynchronous execution of the specified command
@@ -1011,7 +1011,7 @@ namespace FluentFTP {
 			return reply;
 		}
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         // TODO: add example
         /// <summary>
         /// Retrieves a reply from the server. Do not execute this method
@@ -1201,7 +1201,7 @@ namespace FluentFTP {
 #endif
 		}
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         // TODO: add example
         /// <summary>
         /// Connect to the server
@@ -1338,7 +1338,7 @@ namespace FluentFTP {
 			stream.Connect(Host, Port, InternetProtocolVersions);
 		}
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Connect to the FTP server. Overwritten in proxy classes.
         /// </summary>
@@ -1356,7 +1356,7 @@ namespace FluentFTP {
 			stream.Connect(host, port, ipVersions);
 		}
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Connect to the FTP server. Overwritten in proxy classes.
         /// </summary>
@@ -1380,7 +1380,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Called during <see cref="ConnectAsync()"/>. Typically extended by FTP proxies.
         /// </summary>
@@ -1510,18 +1510,18 @@ namespace FluentFTP {
 
         #endregion
 
-        #region Login
+		#region Login
 
-        /// <summary>
-        /// Performs a login on the server. This method is overridable so
-        /// that the login procedure can be changed to support, for example,
-        /// a FTP proxy.
-        /// </summary>
-        protected virtual void Authenticate() {
+		/// <summary>
+		/// Performs a login on the server. This method is overridable so
+		/// that the login procedure can be changed to support, for example,
+		/// a FTP proxy.
+		/// </summary>
+		protected virtual void Authenticate() {
 			Authenticate(Credentials.UserName, Credentials.Password);
 		}
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Performs a login on the server. This method is overridable so
         /// that the login procedure can be changed to support, for example,
@@ -1549,7 +1549,7 @@ namespace FluentFTP {
 				throw new FtpCommandException(reply);
 		}
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Performs a login on the server. This method is overridable so
         /// that the login procedure can be changed to support, for example,
@@ -1568,14 +1568,14 @@ namespace FluentFTP {
         }
 #endif
 
-#endregion
+		#endregion
 
-#region Disconnect
+		#region Disconnect
 
-        /// <summary>
-        /// Disconnects from the server
-        /// </summary>
-        public virtual void Disconnect() {
+		/// <summary>
+		/// Disconnects from the server
+		/// </summary>
+		public virtual void Disconnect() {
 #if !CORE14
 			lock (m_lock) {
 #endif
@@ -1633,7 +1633,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Disconnects from the server asynchronously
 		/// </summary>
@@ -1646,9 +1646,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region FTPS
+		#region FTPS
 
 		/// <summary>
 		/// Catches the socket stream ssl validation event and fires the event handlers
@@ -1672,9 +1672,9 @@ namespace FluentFTP {
 				evt(this, e);
 		}
 
-#endregion
+		#endregion
 
-#region Utils
+		#region Utils
 
 		/// <summary>
 		/// Performs a bitwise and to check if the specified
@@ -1749,7 +1749,7 @@ namespace FluentFTP {
 			return path;
 		}
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Ensure a relative path is absolute by appending the working dir
         /// </summary>
@@ -1782,7 +1782,7 @@ namespace FluentFTP {
         }
 #endif
 
-        private static string DecodeUrl(string url) {
+		private static string DecodeUrl(string url) {
 #if CORE
 			return WebUtility.UrlDecode(url);
 #else
@@ -1853,7 +1853,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Data shouldn't be on the socket, if it is it probably
         /// means we've been disconnected. Read and discard
@@ -1888,7 +1888,7 @@ namespace FluentFTP {
         }
 #endif
 
-        private bool IsProxy() {
+		private bool IsProxy() {
 			return (this is FtpClientProxy);
 		}
 
@@ -1903,9 +1903,9 @@ namespace FluentFTP {
 			return false;
 		}
 
-#endregion
+		#endregion
 
-#region Static API
+		#region Static API
 
 		/// <summary>
 		/// Calculate the CHMOD integer value given a set of permissions.
@@ -2182,7 +2182,7 @@ namespace FluentFTP {
 			return null;
 		}
 
-#endregion
+		#endregion
 
 	}
 }

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 
-#if CORE || NETFX45
+#if CORE || NET45
 using System.Threading.Tasks;
 #endif
 
@@ -408,7 +408,7 @@ namespace FluentFTP
             BaseStream.Flush();
         }
 
-#if NETFX45 || CORE
+#if NET45 || CORE
 
 		/// <summary>
 		/// Flushes the stream asynchronously
@@ -443,7 +443,7 @@ namespace FluentFTP
             return read;
         }
 
-#if NETFX45
+#if NET45
         /// <summary>
         /// Bypass the stream and read directly off the socket.
         /// </summary>
@@ -512,7 +512,7 @@ namespace FluentFTP
 #endif
         }
 
-#if NETFX45 || CORE
+#if NET45 || CORE
 
 		/// <summary>
 		/// Reads data from the stream
@@ -590,7 +590,7 @@ namespace FluentFTP
             }
         }
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Reads a line from the socket asynchronously
         /// </summary>
@@ -661,12 +661,12 @@ namespace FluentFTP
         }
 #endif
 
-            /// <summary>
-            /// Writes data to the stream
-            /// </summary>
-            /// <param name="buffer">Buffer to write to stream</param>
-            /// <param name="offset">Where in the buffer to start</param>
-            /// <param name="count">Number of bytes to be read</param>
+        /// <summary>
+        /// Writes data to the stream
+        /// </summary>
+        /// <param name="buffer">Buffer to write to stream</param>
+        /// <param name="offset">Where in the buffer to start</param>
+        /// <param name="count">Number of bytes to be read</param>
         public override void Write(byte[] buffer, int offset, int count)
         {
             if (BaseStream == null)
@@ -676,7 +676,7 @@ namespace FluentFTP
             m_lastActivity = DateTime.Now;
         }
 
-#if NETFX45 || CORE
+#if NET45 || CORE
 		/// <summary>
 		/// Writes data to the stream asynchronously
 		/// </summary>
@@ -705,7 +705,7 @@ namespace FluentFTP
             Write(data, 0, data.Length);
         }
 
-#if NETFX45 || CORE
+#if NET45 || CORE
 		/// <summary>
 		/// Writes a line to the stream using the specified encoding asynchronously
 		/// </summary>
@@ -762,7 +762,7 @@ namespace FluentFTP
 #endif
                     }
 
-#if !NET2 && !NET35
+#if !NET20 && !NET35
                     m_socket.Dispose();
 #endif
                 }
@@ -923,7 +923,7 @@ namespace FluentFTP
             m_lastActivity = DateTime.Now;
         }
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Connect to the specified host
         /// </summary>
@@ -1017,7 +1017,7 @@ namespace FluentFTP
 #endif
         }
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event. 
         /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -1033,7 +1033,6 @@ namespace FluentFTP
 #endif
         }
 #endif
-
 
         /// <summary>
         /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
@@ -1051,7 +1050,7 @@ namespace FluentFTP
 #endif
         }
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
         /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -1132,7 +1131,7 @@ namespace FluentFTP
             }
         }
 
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
         /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -1238,7 +1237,7 @@ namespace FluentFTP
                 m_socket = m_socket.Accept();
         }
 
-#if NETFX45
+#if NET45
         /// <summary>
         /// Accepts a connection from a listening socket
         /// </summary>

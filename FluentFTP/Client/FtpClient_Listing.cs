@@ -18,7 +18,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if NETFX45 || CORE
+#if NET45 || CORE
 using System.Threading.Tasks;
 #endif
 
@@ -288,7 +288,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Return information about a remote file system object asynchronously. 
 		/// </summary>
@@ -564,21 +564,21 @@ namespace FluentFTP {
 		}
 
 #if !CORE
-        /// <summary>
-        /// Begins an asynchronous operation to get a file listing from the server. 
-        /// Each <see cref="FtpListItem"/> object returned contains information about the file that was able to be retrieved. 
-        /// </summary>
-        /// <remarks>
-        /// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-        /// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-        /// is equal to 0, then it means the size of the object could also not
-        /// be retrieved.
-        /// </remarks>
-        /// <param name="callback">AsyncCallback method</param>
-        /// <param name="state">State object</param>
-        /// <returns>IAsyncResult</returns>
-        /// <example><code source="..\Examples\BeginGetListing.cs" lang="cs" /></example>
-        public IAsyncResult BeginGetListing(AsyncCallback callback, Object state) {
+		/// <summary>
+		/// Begins an asynchronous operation to get a file listing from the server. 
+		/// Each <see cref="FtpListItem"/> object returned contains information about the file that was able to be retrieved. 
+		/// </summary>
+		/// <remarks>
+		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+		/// is equal to 0, then it means the size of the object could also not
+		/// be retrieved.
+		/// </remarks>
+		/// <param name="callback">AsyncCallback method</param>
+		/// <param name="state">State object</param>
+		/// <returns>IAsyncResult</returns>
+		/// <example><code source="..\Examples\BeginGetListing.cs" lang="cs" /></example>
+		public IAsyncResult BeginGetListing(AsyncCallback callback, Object state) {
 			return BeginGetListing(null, callback, state);
 		}
 
@@ -635,7 +635,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45 || CORE
+#if NET45 || CORE
         /// <summary>
         /// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
         /// contains information about the file that was able to be retrieved. 
@@ -1019,7 +1019,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NETFX45
+#if NET45
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command asynchronously
 		/// </summary>
