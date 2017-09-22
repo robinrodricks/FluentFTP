@@ -4,7 +4,7 @@ using System.Text;
 
 #region Extension Methods for .NET 2
 
-#if NET2
+#if NET20
 
 // you need this once (only), and it must be in this namespace
 namespace System.Runtime.CompilerServices {
@@ -19,7 +19,7 @@ namespace System.Runtime.CompilerServices {
 
 #region LINQBridge - LINQ for .NET 2
 
-#if NET2
+#if NET20
 
 // LINQBridge
 // Atif Aziz, Joseph Albahari. All rights reserved.

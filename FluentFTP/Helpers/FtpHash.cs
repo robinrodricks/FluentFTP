@@ -76,7 +76,7 @@ namespace FluentFTP {
 						hashAlg = new SHA1CryptoServiceProvider();
 #endif
 						break;
-#if !NET2
+#if !NET20
 					case FtpHashAlgorithm.SHA256:
 #if CORE
 						hashAlg = SHA256.Create();
@@ -118,7 +118,7 @@ namespace FluentFTP {
 						return (hash.ToUpper() == m_value.ToUpper());
 					}
 				} finally {
-#if !NET2 && !NET35 // .NET 2.0 doesn't provide access to Dispose() for HashAlgorithm
+#if !NET20 && !NET35 // .NET 2.0 doesn't provide access to Dispose() for HashAlgorithm
 					if (hashAlg != null)
 						hashAlg.Dispose();
 #endif
