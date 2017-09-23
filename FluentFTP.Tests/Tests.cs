@@ -20,11 +20,14 @@ namespace Tests
 {
 	public class Tests
 	{
+		private const string Category_Code = "Code";
+		private const string Category_PublicFTP = "PublicFTP";
+		private const string Category_CustomFTP = "CustomerFTP";
 
 		// SET THESE BEFORE RUNNING ANY TESTS!
-		const string m_host = "test.rebex.net";
-		const string m_user = "demo";
-		const string m_pass = "password";
+		const string m_host = "";
+		const string m_user = "";
+		const string m_pass = "";
 
 		private static readonly int[] connectionTypes = new int[] {
 			(int) FtpDataConnectionType.EPSV,
@@ -273,7 +276,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestListPath()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -290,7 +293,7 @@ namespace Tests
 		}
 
 #if !NOASYNC
-		[Fact]
+		//[Fact]
 		public async Task TestListPathAsync()
         {
             using (FtpClient cl = new FtpClient())
@@ -307,7 +310,7 @@ namespace Tests
         }
 #endif
 
-		[Fact]
+		//[Fact]
 		public void StreamResponses()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -341,7 +344,7 @@ namespace Tests
 		}
 
 #if !NOASYNC
-		[Fact]
+		//[Fact]
 		public async Task StreamResponsesAsync()
         {
             using (FtpClient cl = new FtpClient())
@@ -375,7 +378,7 @@ namespace Tests
         }
 #endif
 
-		[Fact]
+		//[Fact]
 		public void TestUnixListing()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -398,7 +401,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		[Fact, Trait("Category", Category_Code)]
 		public void TestFtpPath()
 		{
 			string path = "/home/sigurdhj/errors/16.05.2014/asdasd/asd asd asd aa asd/Kooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo::asdasd";
@@ -417,7 +420,7 @@ namespace Tests
 			FtpTrace.WriteLine("bar".GetFtpFileName());
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestGetObjectInfo()
 		{
 			using (FtpClient client = new FtpClient(m_host, m_user, m_pass))
@@ -427,7 +430,7 @@ namespace Tests
 		}
 
 #if !NOASYNC
-		[Fact]
+		//[Fact]
         public async Task TestGetObjectInfoAsync()
         {
             using (FtpClient cl = new FtpClient())
@@ -444,7 +447,7 @@ namespace Tests
         }
 #endif
 
-		[Fact]
+		//[Fact]
 		public void TestManualEncoding()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -460,7 +463,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestServer()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -560,7 +563,7 @@ namespace Tests
         }
 #endif
 
-		[Fact]
+		[Fact, Trait("Category", Category_PublicFTP)]
 		public void TestDisposeWithMultipleThreads()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -587,10 +590,10 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		[Fact, Trait("Category", Category_Code)]
 		public void TestConnectionFailure()
 		{
-			try
+			Assert.Throws<System.Net.Sockets.SocketException>(delegate
 			{
 				using (FtpClient cl = new FtpClient())
 				{
@@ -599,14 +602,10 @@ namespace Tests
 					cl.ConnectTimeout = 5000;
 					cl.Connect();
 				}
-			}
-			catch (Exception e)
-			{
-				FtpTrace.WriteLine("Caught connection faillure: " + e.Message);
-			}
+			});
 		}
 
-		[Fact]
+		[Fact, Trait("Category", Category_PublicFTP)]
 		public void TestNetBSDServer()
 		{
 			using (FtpClient client = new FtpClient())
@@ -625,7 +624,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestGetListing()
 		{
 			using (FtpClient client = new FtpClient())
@@ -640,7 +639,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestGetListingCCC()
 		{
 			using (FtpClient client = new FtpClient())
@@ -664,7 +663,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestGetMachineListing()
 		{
 			using (FtpClient client = new FtpClient())
@@ -680,7 +679,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestFileZillaKick()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -711,7 +710,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		[Fact, Trait("Category", Category_Code)]
 		public void TestUnixListParser()
 		{
 			FtpListParser parser = new FtpListParser();
@@ -736,7 +735,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		[Fact, Trait("Category", Category_Code)]
 		public void TestIISParser()
 		{
 			FtpListParser parser = new FtpListParser();
@@ -770,7 +769,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		[Fact, Trait("Category", Category_Code)]
 		public void TestOpenVMSParser()
 		{
 			FtpListParser parser = new FtpListParser();
@@ -808,7 +807,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestDirectoryWithDots()
 		{
 			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass))
@@ -823,7 +822,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestDispose()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -841,7 +840,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestHash()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -872,7 +871,7 @@ namespace Tests
 		}
 
 #if !NOASYNC
-		[Fact]
+		//[Fact]
         public async Task TestHashAsync()
         {
             using (FtpClient cl = new FtpClient())
@@ -903,7 +902,7 @@ namespace Tests
         }
 #endif
 
-		[Fact]
+		//[Fact]
 		public void TestReset()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -919,7 +918,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		[Fact, Trait("Category", Category_PublicFTP)]
 		public void GetPublicFTPServerListing()
 		{
 			using (FtpClient cl = new FtpClient("ftp://speedtest.tele2.net/"))
@@ -935,7 +934,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		[Fact, Trait("Category", Category_Code)]
 		public void TestMODCOMP_PWD_Parser()
 		{
 			string response = "PWD = ~TNA=AMP,VNA=VOL03,FNA=U-ED-B2-USL";
@@ -945,7 +944,7 @@ namespace Tests
 				FtpTrace.WriteLine("PWD: " + m.Groups["pwd"].Value);
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestNameListing()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -971,7 +970,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestNameListingFTPS()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -995,7 +994,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact] // Beware: Completely ignores thrown exceptions - Doesn't actually test anything!
 		public FtpClient Connect()
 		{
 			List<Thread> threads = new List<Thread>();
@@ -1004,7 +1003,7 @@ namespace Tests
 			cl.ValidateCertificate += OnValidateCertificate;
 			//cl.EncryptionMode = FtpEncryptionMode.Explicit;
 
-			for (int i = 0; i < 10; i++)
+			for (int i = 0; i < 1; i++)
 			{
 				int count = i;
 
@@ -1033,7 +1032,6 @@ namespace Tests
 
 			return cl;
 		}
-
 
 		public void Upload(FtpClient cl)
 		{
@@ -1187,7 +1185,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestUTF8()
 		{
 			// the following file name was reported in the discussions as having
@@ -1211,7 +1209,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestUploadDownloadFile()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -1235,7 +1233,7 @@ namespace Tests
 		}
 
 #if !NOASYNC
-		[Fact]
+		//[Fact]
         public async Task TestUploadDownloadFileAsync()
         {
             using (FtpClient cl = new FtpClient())
@@ -1257,7 +1255,7 @@ namespace Tests
         }
 #endif
 
-		[Fact]
+		//[Fact]
 		public void TestUploadDownloadFile_UTF()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -1279,7 +1277,7 @@ namespace Tests
 
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestUploadDownloadFile_ANSI()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -1302,7 +1300,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestUploadDownloadManyFiles()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -1331,7 +1329,7 @@ namespace Tests
 		}
 
 #if !NOASYNC
-		[Fact]
+		//[Fact]
         public async Task TestUploadDownloadManyFilesAsync()
         {
             using (FtpClient cl = new FtpClient())
@@ -1360,7 +1358,7 @@ namespace Tests
         }
 #endif
 
-		[Fact]
+		//[Fact]
 		public void TestUploadDownloadManyFiles2()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -1383,7 +1381,7 @@ namespace Tests
 		}
 
 #if !NOASYNC
-		[Fact]
+		//[Fact]
         public async Task TestUploadDownloadManyFiles2Async()
         {
             using (FtpClient cl = new FtpClient())
@@ -1406,7 +1404,7 @@ namespace Tests
         }
 #endif
 
-		[Fact]
+		//[Fact]
 		public void TestUploadDownloadZeroLenFile()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -1420,7 +1418,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestListSpacedPath()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -1440,7 +1438,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestFilePermissions()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -1462,7 +1460,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestFileExists()
 		{
 			using (FtpClient cl = new FtpClient())
@@ -1491,7 +1489,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestDeleteDirectory()
 		{
 			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass))
@@ -1501,7 +1499,7 @@ namespace Tests
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestMoveFiles()
 		{
 			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass))

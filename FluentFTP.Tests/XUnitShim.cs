@@ -9,5 +9,14 @@ namespace Xunit
 	{
 		public InlineDataAttribute(params object[] data) { }
 	}
+	public sealed class TraitAttribute : Attribute
+	{
+		public TraitAttribute(string name, string value) { }
+	}
+
+	public static class Assert
+	{
+		public static T Throws<T>(Action testCode) where T : Exception => default(T);
+	}
 }
 #endif
