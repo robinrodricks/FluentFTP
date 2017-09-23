@@ -1,15 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;net20;net35;net40;net45</TargetFrameworks>
+    <TargetFrameworks>net452;netstandard1.4;netstandard1.6;net20;net35;net40;net45</TargetFrameworks>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net20' Or '$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40' Or '$(TargetFramework)'=='net45'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='net20' Or '$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40' Or '$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='netstandard1.4'">
     <DefineConstants>$(DefineConstants);SHIM_XUNIT</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net20' Or '$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40'">
     <DefineConstants>$(DefineConstants);NOASYNC</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netstandard1.4'">
+    <DefineConstants>$(DefineConstants);CORE</DefineConstants>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.4'">
+    <DefineConstants>$(DefineConstants);CORE14</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="!$(DefineConstants.Contains('SHIM_XUNIT'))">
@@ -18,12 +26,24 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0-beta5-build3769" />
   </ItemGroup>
 
+  <ItemGroup Condition="$(DefineConstants.Contains('CORE'))">
+    <PackageReference Include="System.Console" Version="4.3.0.0" />
+    <PackageReference Include="System.IO" Version="4.3.0.0" />
+    <PackageReference Include="System.Net.NameResolution" Version="4.3.0.0" />
+    <PackageReference Include="System.Net.Sockets" Version="4.3.0.0" />
+    <PackageReference Include="System.Runtime" Version="4.3.0.0" />
+    <PackageReference Include="System.Threading.Tasks" Version="4.3.0.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\FluentFTP\FluentFTP.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+    <None Update="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

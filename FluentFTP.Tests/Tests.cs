@@ -47,9 +47,10 @@ namespace Tests
 
 			FtpTrace.LogIP = false;
 			FtpTrace.LogUserName = false;
-
+#if !CORE
 			FtpTrace.AddListener(new ConsoleTraceListener());
 			FtpTrace.AddListener(new TextWriterTraceListener(@"C:\log_file.txt"));
+#endif
 
 			try
 			{
@@ -429,7 +430,7 @@ namespace Tests
 			}
 		}
 
-#if !NOASYNC
+#if !NOASYNC && !CORE
 		//[Fact]
         public async Task TestGetObjectInfoAsync()
         {
@@ -439,7 +440,7 @@ namespace Tests
 
                 cl.Host = m_host;
                 cl.Credentials = new NetworkCredential(m_user, m_pass);
-                cl.Encoding = Encoding.Default;
+                cl.Encoding = Encoding.UTF8;
 
                 item = await cl.GetObjectInfoAsync("/Examples/OpenRead.cs");
                 FtpTrace.WriteLine(item.ToString());
@@ -454,7 +455,7 @@ namespace Tests
 			{
 				cl.Host = m_host;
 				cl.Credentials = new NetworkCredential(m_user, m_pass);
-				cl.Encoding = Encoding.Default;
+				cl.Encoding = Encoding.UTF8;
 
 				using (Stream s = cl.OpenWrite("test.txt"))
 				{
@@ -563,6 +564,7 @@ namespace Tests
         }
 #endif
 
+#if !CORE14
 		[Fact, Trait("Category", Category_PublicFTP)]
 		public void TestDisposeWithMultipleThreads()
 		{
@@ -589,6 +591,7 @@ namespace Tests
 				t2.Join();
 			}
 		}
+#endif
 
 		[Fact, Trait("Category", Category_Code)]
 		public void TestConnectionFailure()
@@ -697,7 +700,11 @@ namespace Tests
 					for (int i = 0; true; i++)
 					{
 						s.WriteByte((byte)i);
+#if CORE14
+						Task.Delay(100).Wait();
+#else
 						Thread.Sleep(100);
+#endif
 					}
 
 					//s.Close();
@@ -994,6 +1001,7 @@ namespace Tests
 			}
 		}
 
+#if !CORE14
 		//[Fact] // Beware: Completely ignores thrown exceptions - Doesn't actually test anything!
 		public FtpClient Connect()
 		{
@@ -1060,6 +1068,7 @@ namespace Tests
 				threads.RemoveAt(0);
 			}
 		}
+#endif
 
 		public void DoUpload(FtpClient cl, string root, string s)
 		{
@@ -1105,6 +1114,7 @@ namespace Tests
 				throw new Exception("Hashes didn't match!");*/
 		}
 
+#if !CORE14
 		public void Download(FtpClient cl)
 		{
 			List<Thread> threads = new List<Thread>();
@@ -1146,6 +1156,7 @@ namespace Tests
 				}
 			}
 		}
+#endif
 
 		public void DoDownload(FtpClient cl, string file)
 		{
