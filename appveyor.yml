@@ -12,3 +12,6 @@ build:
 
 after_build:
 - cmd: msbuild FluentFTP.sln /t:FluentFTP:Pack /p:Configuration=Release
+
+artifacts:
+- path: '**\*.nupkg'
