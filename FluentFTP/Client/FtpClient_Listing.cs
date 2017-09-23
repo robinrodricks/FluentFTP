@@ -246,7 +246,6 @@ namespace FluentFTP {
 			return result;
 		}
 
-#if !CORE
 		delegate FtpListItem AsyncGetObjectInfo(string path, bool dateModified);
 
 		/// <summary>
@@ -287,8 +286,7 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetObjectInfo>(ar).EndInvoke(ar);
 		}
 
-#endif
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Return information about a remote file system object asynchronously. 
 		/// </summary>

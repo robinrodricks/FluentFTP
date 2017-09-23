@@ -391,7 +391,6 @@ namespace Tests
 				{
 					using (Stream s = cl.OpenWrite("test.txt"))
 					{
-						s.Close();
 					}
 				}
 
@@ -459,7 +458,6 @@ namespace Tests
 
 				using (Stream s = cl.OpenWrite("test.txt"))
 				{
-					s.Close();
 				}
 			}
 		}
@@ -642,6 +640,7 @@ namespace Tests
 			}
 		}
 
+#if !CORE
 		//[Fact]
 		public void TestGetListingCCC()
 		{
@@ -665,6 +664,7 @@ namespace Tests
 				client.DownloadFile(@"D:\Github\hgupta\FluentFTP\README2.md", "/public_html/temp/README.md");
 			}
 		}
+#endif
 
 		//[Fact]
 		public void TestGetMachineListing()
@@ -920,7 +920,6 @@ namespace Tests
 
 				using (Stream istream = cl.OpenRead("LICENSE.TXT", 10))
 				{
-					istream.Close();
 				}
 			}
 		}
@@ -1091,17 +1090,9 @@ namespace Tests
 				byte[] buf = new byte[8192];
 				int read = 0;
 
-				try
+				while ((read = istream.Read(buf, 0, buf.Length)) > 0)
 				{
-					while ((read = istream.Read(buf, 0, buf.Length)) > 0)
-					{
-						ostream.Write(buf, 0, read);
-					}
-				}
-				finally
-				{
-					ostream.Close();
-					istream.Close();
+					ostream.Write(buf, 0, read);
 				}
 
 				if (cl.HashAlgorithms != FtpHashAlgorithm.NONE)
@@ -1164,14 +1155,7 @@ namespace Tests
 			{
 				byte[] buf = new byte[8192];
 
-				try
-				{
-					while (s.Read(buf, 0, buf.Length) > 0) ;
-				}
-				finally
-				{
-					s.Close();
-				}
+				while (s.Read(buf, 0, buf.Length) > 0) ;
 			}
 		}
 
@@ -1212,10 +1196,9 @@ namespace Tests
 				cl.InternetProtocolVersions = FtpIpVersion.ANY;
 
 				using (Stream ostream = cl.OpenWrite(filename))
+				using (StreamWriter writer = new StreamWriter(ostream))
 				{
-					StreamWriter writer = new StreamWriter(filename);
 					writer.WriteLine(filename);
-					writer.Close();
 				}
 			}
 		}

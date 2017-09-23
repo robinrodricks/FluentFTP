@@ -288,7 +288,7 @@ namespace FluentFTP {
 			return UploadFiles(localFiles.Select(f => f.FullName), remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling);
 		}
 
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Uploads the given file paths to a single folder on the server asynchronously.
 		/// All files are placed directly into the given folder regardless of their path on the local filesystem.
@@ -548,7 +548,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Downloads the specified files into a local single directory.
 		/// High-level API that takes care of various edge cases internally.
@@ -706,7 +706,7 @@ namespace FluentFTP {
 			return UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions);
 		}
 
-#if NET45
+#if NET45 || CORE
 
 		/// <summary>
 		/// Uploads the specified file directly onto the server asynchronously.
@@ -811,7 +811,7 @@ namespace FluentFTP {
 			return uploadSuccess && verified;
 		}
 
-#if NET45
+#if NET45 || CORE
 		private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode,
 			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token) {
 
