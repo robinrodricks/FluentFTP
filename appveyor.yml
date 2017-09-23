@@ -5,12 +5,10 @@ image: Visual Studio 2017
 configuration: Release
 
 before_build:
-- ps: dotnet --info
-- ps: dotnet restore -v Minimal
+- cmd: msbuild FluentFTP.sln /t:Restore
 
-build_script:
-- ps: dotnet build -c $Env:CONFIGURATION
-- ps: dotnet pack FluentFTP -c $Env:CONFIGURATION
+build:
+  verbosity: minimal
 
-artifacts:
-- path: '**\*.nupkg'
+after_build:
+- cmd: msbuild FluentFTP.sln /t:FluentFTP:Pack /p:Configuration=Release
