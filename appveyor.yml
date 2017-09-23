@@ -17,7 +17,7 @@ test:
   assemblies:
     only:
     - FluentFTP.Tests\bin\Release\net452\Tests.dll
-    - FluentFTP.Tests\bin\Release\netstandard1.6\Tests.dll
+    - FluentFTP.Tests\bin\Release\netcoreapp1.0\Tests.dll
 
 artifacts:
 - path: '**\*.nupkg'

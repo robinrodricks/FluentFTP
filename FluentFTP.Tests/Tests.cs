@@ -42,7 +42,7 @@ namespace Tests
 		}
 
 
-		static void Main(string[] args)
+		private void Mainz()
 		{
 
 			FtpTrace.LogIP = false;

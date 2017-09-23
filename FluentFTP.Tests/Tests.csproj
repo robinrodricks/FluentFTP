@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netstandard1.4;netstandard1.6;net20;net35;net40;net45</TargetFrameworks>
+    <TargetFrameworks>net452;netstandard1.4;netstandard1.6;netcoreapp1.0;net20;net35;net40;net45</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net20' Or '$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40' Or '$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='netstandard1.4'">
@@ -12,7 +12,7 @@
     <DefineConstants>$(DefineConstants);NOASYNC</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netstandard1.4'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netstandard1.4' Or '$(TargetFramework)'=='netcoreapp1.0'">
     <DefineConstants>$(DefineConstants);CORE</DefineConstants>
   </PropertyGroup>
   
