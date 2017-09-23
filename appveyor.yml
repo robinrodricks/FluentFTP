@@ -1,0 +1,14 @@
+version: 1.0.0.{build}
+
+image: Visual Studio 2017
+
+configuration: Release
+
+before_build:
+- cmd: msbuild FluentFTP.sln /t:Restore
+
+build:
+  verbosity: minimal
+
+after_build:
+- cmd: msbuild FluentFTP.sln /t:FluentFTP:Pack /p:Configuration=Release
