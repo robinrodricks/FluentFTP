@@ -973,7 +973,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Renames an object on the remote file system asynchronously.
 		/// Low level method that should NOT be used in most cases. Prefer MoveFile() and MoveDirectory().
@@ -981,12 +981,27 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
-		public async Task RenameAsync(string path, string dest) {
+		public async Task RenameAsync(string path, string dest)
+		{
+			FtpReply reply;
 
-			await Task.Factory.FromAsync<string, string>(
-				(p, d, ac, s) => BeginRename(p, d, ac, s),
-				ar => EndRename(ar),
-				path, dest, null);
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			if (dest.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "dest");
+
+			FtpTrace.WriteFunc(nameof(RenameAsync), new object[] { path, dest });
+
+			// calc the absolute filepaths
+			path = await GetAbsolutePathAsync(path.GetFtpPath());
+			dest = await GetAbsolutePathAsync(dest.GetFtpPath());
+
+			if (!(reply = await ExecuteAsync("RNFR " + path)).Success)
+				throw new FtpCommandException(reply);
+
+			if (!(reply = await ExecuteAsync("RNTO " + dest)).Success)
+				throw new FtpCommandException(reply);
 		}
 #endif
 
@@ -1002,6 +1017,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
 		/// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
+		/// <returns>Whether the file was moved</returns>
 		public bool MoveFile(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
 
 			// verify args
@@ -1071,7 +1087,8 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45
+#if NET45 || CORE
+
 		/// <summary>
 		/// Moves a file asynchronously on the remote file system from one directory to another.
 		/// Always checks if the source file exists. Checks if the dest file exists based on the `existsMode` parameter.
@@ -1080,17 +1097,48 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
 		/// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
-		public async Task MoveFileAsync(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
-			await Task.Factory.FromAsync<string, string, FtpExists>(
-				(p, d, e, ac, s) => BeginMoveFile(p, d, e, ac, s),
-				ar => EndMoveFile(ar),
-				path, dest, existsMode, null);
+		/// <returns>Whether the file was moved</returns>
+		public async Task<bool> MoveFileAsync(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			if (dest.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "dest");
+
+			FtpTrace.WriteFunc(nameof(MoveFileAsync), new object[] { path, dest, existsMode });
+
+			if (await FileExistsAsync(path))
+			{
+
+				// check if dest file exists and act accordingly
+				if (existsMode != FtpExists.NoCheck)
+				{
+					bool destExists = await FileExistsAsync(dest);
+					if (destExists)
+					{
+						switch (existsMode)
+						{
+							case FtpExists.Overwrite:
+								await DeleteFileAsync(dest);
+								break;
+							case FtpExists.Skip:
+								return false;
+						}
+					}
+				}
+
+				// move the file
+				await RenameAsync(path, dest);
+
+				return true;
+			}
+			return false;
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Move Directory
+#region Move Directory
 
 		/// <summary>
 		/// Moves a directory on the remote file system from one directory to another.
@@ -1100,6 +1148,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
 		/// <param name="existsMode">Should we check if the dest directory exists? And if it does should we overwrite/skip the operation?</param>
+		/// <returns>Whether the directory was moved</returns>
 		public bool MoveDirectory(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
 
 			// verify args
@@ -1169,7 +1218,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Moves a directory asynchronously on the remote file system from one directory to another.
 		/// Always checks if the source directory exists. Checks if the dest directory exists based on the `existsMode` parameter.
@@ -1178,11 +1227,43 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
 		/// <param name="existsMode">Should we check if the dest directory exists? And if it does should we overwrite/skip the operation?</param>
-		public async Task MoveDirectoryAsync(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
-			await Task.Factory.FromAsync<string, string, FtpExists>(
-				(p, d, e, ac, s) => BeginMoveDirectory(p, d, e, ac, s),
-				ar => EndMoveDirectory(ar),
-				path, dest, existsMode, null);
+		/// <returns>Whether the directory was moved</returns>
+		public async Task<bool> MoveDirectoryAsync(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			if (dest.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "dest");
+
+			FtpTrace.WriteFunc(nameof(MoveDirectoryAsync), new object[] { path, dest, existsMode });
+
+			if (await DirectoryExistsAsync(path))
+			{
+
+				// check if dest directory exists and act accordingly
+				if (existsMode != FtpExists.NoCheck)
+				{
+					bool destExists = await DirectoryExistsAsync(dest);
+					if (destExists)
+					{
+						switch (existsMode)
+						{
+							case FtpExists.Overwrite:
+								await DeleteDirectoryAsync(dest);
+								break;
+							case FtpExists.Skip:
+								return false;
+						}
+					}
+				}
+
+				// move the directory
+				await RenameAsync(path, dest);
+
+				return true;
+			}
+			return false;
+
 		}
 #endif
 
@@ -1218,6 +1299,31 @@ namespace FluentFTP {
 #endif
 		}
 
+#if NET45 || CORE
+		/// <summary>
+		/// Modify the permissions of the given file/folder.
+		/// Only works on *NIX systems, and not on Windows/IIS servers.
+		/// Only works if the FTP server supports the SITE CHMOD command
+		/// (requires the CHMOD extension to be installed and enabled).
+		/// Throws FtpCommandException if there is an issue.
+		/// </summary>
+		/// <param name="path">The full or relative path to the item</param>
+		/// <param name="permissions">The permissions in CHMOD format</param>
+		public async Task SetFilePermissionsAsync(string path, int permissions)
+		{
+			FtpReply reply;
+
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+
+			FtpTrace.WriteFunc(nameof(SetFilePermissionsAsync), new object[] { path, permissions });
+
+			if (!(reply = await ExecuteAsync("SITE CHMOD " + permissions.ToString() + " " + path.GetFtpPath())).Success)
+				throw new FtpCommandException(reply);
+		}
+#endif
+
 		/// <summary>
 		/// Modify the permissions of the given file/folder.
 		/// Only works on *NIX systems, and not on Windows/IIS servers.
@@ -1230,6 +1336,22 @@ namespace FluentFTP {
 		public void Chmod(string path, int permissions) {
 			SetFilePermissions(path, permissions);
 		}
+
+#if NET45 || CORE
+		/// <summary>
+		/// Modify the permissions of the given file/folder.
+		/// Only works on *NIX systems, and not on Windows/IIS servers.
+		/// Only works if the FTP server supports the SITE CHMOD command
+		/// (requires the CHMOD extension to be installed and enabled).
+		/// Throws FtpCommandException if there is an issue.
+		/// </summary>
+		/// <param name="path">The full or relative path to the item</param>
+		/// <param name="permissions">The permissions in CHMOD format</param>
+		public Task ChmodAsync(string path, int permissions)
+		{
+			return SetFilePermissionsAsync(path, permissions);
+		}
+#endif
 
 		/// <summary>
 		/// Modify the permissions of the given file/folder.
@@ -1246,6 +1368,24 @@ namespace FluentFTP {
 			SetFilePermissions(path, CalcChmod(owner, group, other));
 		}
 
+#if NET45 || CORE
+		/// <summary>
+		/// Modify the permissions of the given file/folder.
+		/// Only works on *NIX systems, and not on Windows/IIS servers.
+		/// Only works if the FTP server supports the SITE CHMOD command
+		/// (requires the CHMOD extension to be installed and enabled).
+		/// Throws FtpCommandException if there is an issue.
+		/// </summary>
+		/// <param name="path">The full or relative path to the item</param>
+		/// <param name="owner">The owner permissions</param>
+		/// <param name="group">The group permissions</param>
+		/// <param name="other">The other permissions</param>
+		public Task SetFilePermissionsAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other)
+		{
+			return SetFilePermissionsAsync(path, CalcChmod(owner, group, other));
+		}
+#endif
+
 		/// <summary>
 		/// Modify the permissions of the given file/folder.
 		/// Only works on *NIX systems, and not on Windows/IIS servers.
@@ -1260,6 +1400,24 @@ namespace FluentFTP {
 		public void Chmod(string path, FtpPermission owner, FtpPermission group, FtpPermission other) {
 			SetFilePermissions(path, owner, group, other);
 		}
+
+#if NET45 || CORE
+		/// <summary>
+		/// Modify the permissions of the given file/folder.
+		/// Only works on *NIX systems, and not on Windows/IIS servers.
+		/// Only works if the FTP server supports the SITE CHMOD command
+		/// (requires the CHMOD extension to be installed and enabled).
+		/// Throws FtpCommandException if there is an issue.
+		/// </summary>
+		/// <param name="path">The full or relative path to the item</param>
+		/// <param name="owner">The owner permissions</param>
+		/// <param name="group">The group permissions</param>
+		/// <param name="other">The other permissions</param>
+		public Task ChmodAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other)
+		{
+			return SetFilePermissionsAsync(path, owner, group, other);
+		}
+#endif
 
 		/// <summary>
 		/// Retrieve the permissions of the given file/folder as an FtpListItem object with all "Permission" properties set.
@@ -1285,6 +1443,34 @@ namespace FluentFTP {
 			return null;
 		}
 
+#if NET45 || CORE
+		/// <summary>
+		/// Retrieve the permissions of the given file/folder as an FtpListItem object with all "Permission" properties set.
+		/// Throws FtpCommandException if there is an issue.
+		/// Returns null if the server did not specify a permission value.
+		/// Use `GetChmod` if you required the integer value instead.
+		/// </summary>
+		/// <param name="path">The full or relative path to the item</param>
+		public async Task<FtpListItem> GetFilePermissionsAsync(string path)
+		{
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+
+			FtpTrace.WriteFunc(nameof(GetFilePermissionsAsync), new object[] { path });
+
+			string fullPath = path.GetFtpPath();
+			foreach (FtpListItem i in await GetListingAsync(path))
+			{
+				if (i.FullName == fullPath)
+				{
+					return i;
+				}
+			}
+			return null;
+		}
+#endif
+
 		/// <summary>
 		/// Retrieve the permissions of the given file/folder as an integer in the CHMOD format.
 		/// Throws FtpCommandException if there is an issue.
@@ -1297,7 +1483,22 @@ namespace FluentFTP {
 			return item != null ? item.Chmod : 0;
 		}
 
-		#endregion
+#if NET45 || CORE
+		/// <summary>
+		/// Retrieve the permissions of the given file/folder as an integer in the CHMOD format.
+		/// Throws FtpCommandException if there is an issue.
+		/// Returns 0 if the server did not specify a permission value.
+		/// Use `GetFilePermissions` if you required the permissions in the FtpPermission format.
+		/// </summary>
+		/// <param name="path">The full or relative path to the item</param>
+		public async Task<int> GetChmodAsync(string path)
+		{
+			FtpListItem item = await GetFilePermissionsAsync(path);
+			return item != null ? item.Chmod : 0;
+		}
+#endif
+
+#endregion
 
 		#region Dereference Link
 
@@ -1489,9 +1690,9 @@ namespace FluentFTP {
         }
 #endif
 
-		#endregion
+#endregion
 
-		#region Set Working Dir
+#region Set Working Dir
 
 		/// <summary>
 		/// Sets the work directory on the server
@@ -1572,9 +1773,9 @@ namespace FluentFTP {
 				throw new FtpCommandException(reply);
 		}
 #endif
-		#endregion
+#endregion
 
-		#region Get Working Dir
+#region Get Working Dir
 
 		/// <summary>
 		/// Gets the current working directory
@@ -1675,9 +1876,9 @@ namespace FluentFTP {
             return "./";
         }
 #endif
-		#endregion
+#endregion
 
-		#region Get File Size
+#region Get File Size
 
 		/// <summary>
 		/// Gets the size of a remote file
@@ -1794,9 +1995,9 @@ namespace FluentFTP {
             return length;
         }
 #endif
-		#endregion
+#endregion
 
-		#region Get Modified Time
+#region Get Modified Time
 
 		/// <summary>
 		/// Gets the modified time of a remote file
@@ -2000,23 +2201,49 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Gets the modified time of a remote file asynchronously
 		/// </summary>
 		/// <param name="path">The full path to the file</param>
 		/// <param name="date">The new modified date/time value</param>
 		/// <param name="type">Is the date provided in local timezone or UTC? Use FtpDate.Original to disable timezone conversion.</param>
-		public async Task SetModifiedTimeAsync(string path, DateTime date, FtpDate type = FtpDate.Original) {
-			//TODO:  Rewrite as true async method with cancellation support
-			await Task.Factory.FromAsync<string, DateTime, FtpDate>(
-				(p, dt, t, ac, s) => BeginSetModifiedTime(p, dt, t, ac, s),
-				ar => EndSetModifiedTime(ar),
-				path, date, type, null);
+		public async Task SetModifiedTimeAsync(string path, DateTime date, FtpDate type = FtpDate.Original)
+		{
+			//TODO:  Add cancellation support
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			if (date == null)
+				throw new ArgumentException("Required parameter is null or blank.", "date");
+
+			FtpTrace.WriteFunc(nameof(SetModifiedTimeAsync), new object[] { path, date, type });
+
+			FtpReply reply;
+
+			// convert local to UTC if wanted
+#if !CORE
+			if (type == FtpDate.Local) {
+				date = TimeZone.CurrentTimeZone.ToUniversalTime(date);
+			}
+#endif
+
+			// convert UTC to server timezone, based on the TimeOffset property
+			if (type != FtpDate.Original && m_listParser.hasTimeOffset)
+			{
+				date = (date + m_listParser.timeOffset);
+			}
+
+			// set modified date of a file
+			string timeStr = date.ToString("yyyyMMddHHmmss");
+			if ((reply = await ExecuteAsync("MFMT " + timeStr + " " + path.GetFtpPath())).Success)
+			{
+
+			}
 		}
 #endif
 
-#endregion
+		#endregion
 
 	}
 }
