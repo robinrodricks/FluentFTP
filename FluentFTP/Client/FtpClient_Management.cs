@@ -342,17 +342,18 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Asynchronously removes a directory and all its contents.
 		/// </summary>
 		/// <param name="path">The full or relative path of the directory to delete</param>
-		public async Task DeleteDirectoryAsync(string path) {
+		public Task DeleteDirectoryAsync(string path) {
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			await Task.Factory.FromAsync<string>(
-				(p, ac, s) => BeginDeleteDirectory(p, ac, s),
-				ar => EndDeleteDirectory(ar),
-				path, null);
+			FtpTrace.WriteFunc(nameof(DeleteDirectoryAsync), new object[] { path });
+			return DeleteDirInternalAsync(path, true, FtpListOption.ForceList | FtpListOption.Recursive);
 		}
 
 		/// <summary>
@@ -360,22 +361,82 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path of the directory to delete</param>
 		/// <param name="options">Useful to delete hidden files or dot-files.</param>
-		public async Task DeleteDirectoryAsync(string path, FtpListOption options) {
+		public Task DeleteDirectoryAsync(string path, FtpListOption options) {
+			// verify args
+			if (path.IsBlank())
+				throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			var throwAway = await Task.Factory.FromAsync<string, FtpListOption, bool>(
-				(p, o, ac, s) => BeginDeleteDirectory(p, o, ac, s),
-				ar => {
-					var invoked = GetAsyncDelegate<AsyncDeleteDirectory>(ar);
-					if (invoked != null) {
-						invoked.EndInvoke(ar);
-						return true;
-					}
-
-					return false;
-				},
-				path, options, null);
+			FtpTrace.WriteFunc(nameof(DeleteDirectoryAsync), new object[] { path, options });
+			return DeleteDirInternalAsync(path, true, options);
 		}
 
+		/// <summary>
+		/// Asynchronously removes a directory. Used by <see cref="DeleteDirectoryAsync(string)"/> and
+		/// <see cref="DeleteDirectoryAsync(string, FtpListOption)"/>.
+		/// </summary>
+		/// <param name="path">The full or relative path of the directory to delete</param>
+		/// <param name="deleteContents">Delete the contents before deleting the folder</param>
+		/// <param name="options">Useful to delete hidden files or dot-files.</param>
+		/// <returns></returns>
+		private async Task DeleteDirInternalAsync(string path, bool deleteContents, FtpListOption options)
+		{
+			FtpReply reply;
+			string ftppath = path.GetFtpPath();
+
+			// DELETE CONTENTS OF THE DIRECTORY
+			if (deleteContents)
+			{
+				// when GetListing is called with recursive option, then it does not
+				// make any sense to call another DeleteDirectory with force flag set.
+				// however this requires always delete files first.
+				bool recurse = !WasGetListingRecursive(options);
+
+				// items that are deeper in directory tree are listed first, 
+				// then files will be listed before directories. This matters
+				// only if GetListing was called with recursive option.
+				FtpListItem[] itemList;
+				if (recurse)
+				{
+					itemList = await GetListingAsync(path, options);
+				}
+				else
+				{
+					itemList = (await GetListingAsync(path, options)).OrderByDescending(x => x.FullName.Count(c => c.Equals('/'))).ThenBy(x => x.Type).ToArray();
+				}
+
+				// delete the item based on the type
+				foreach (FtpListItem item in itemList)
+				{
+					switch (item.Type)
+					{
+						case FtpFileSystemObjectType.File:
+							await DeleteFileAsync(item.FullName);
+							break;
+						case FtpFileSystemObjectType.Directory:
+							await DeleteDirInternalAsync(item.FullName, recurse, options);
+							break;
+						default:
+							throw new FtpException("Don't know how to delete object type: " + item.Type);
+					}
+				}
+			}
+
+			// SKIP DELETING ROOT DIRS
+
+			// can't delete the working directory and
+			// can't delete the server root.
+			if (ftppath == "." || ftppath == "./" || ftppath == "/")
+			{
+				return;
+			}
+
+			// DELETE ACTUAL DIRECTORY
+
+			if (!(reply = await ExecuteAsync("RMD " + ftppath)).Success)
+			{
+				throw new FtpCommandException(reply);
+			}
+		}
 #endif
 
 		#endregion
