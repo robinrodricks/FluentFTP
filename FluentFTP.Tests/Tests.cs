@@ -594,7 +594,7 @@ namespace Tests
 		[Fact, Trait("Category", Category_Code)]
 		public void TestConnectionFailure()
 		{
-			Assert.Throws<System.Net.Sockets.SocketException>(delegate
+			try
 			{
 				using (FtpClient cl = new FtpClient())
 				{
@@ -603,7 +603,9 @@ namespace Tests
 					cl.ConnectTimeout = 5000;
 					cl.Connect();
 				}
-			});
+			}
+			catch (System.Net.Sockets.SocketException) { } // Expecting this
+			catch (AggregateException ex) when (ex.InnerException is System.Net.Sockets.SocketException) { }
 		}
 
 		[Fact, Trait("Category", Category_PublicFTP)]

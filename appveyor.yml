@@ -13,11 +13,10 @@ build:
 after_build:
 - cmd: msbuild FluentFTP.sln /t:FluentFTP:Pack /p:Configuration=Release
 
-test:
-  assemblies:
-    only:
-    - FluentFTP.Tests\bin\Release\net452\Tests.dll
-    - FluentFTP.Tests\bin\Release\netcoreapp1.0\Tests.dll
+test_script:
+- cmd: >-
+    dotnet test fluentftp.tests -f net452
+    dotnet test fluentftp.tests -f netcoreapp1.0
 
 artifacts:
 - path: '**\*.nupkg'
