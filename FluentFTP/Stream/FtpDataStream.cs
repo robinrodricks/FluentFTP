@@ -140,21 +140,6 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Disconnects (if necessary) and releases associated resources
-		/// </summary>
-		/// <param name="disposing">Disposing</param>
-		protected override void Dispose(bool disposing) {
-			if (disposing) {
-				if (IsConnected)
-					Close();
-
-				m_control = null;
-			}
-
-			base.Dispose(disposing);
-		}
-
-		/// <summary>
 		/// Closes the connection and reads the server's reply
 		/// </summary>
 		public new FtpReply Close() {

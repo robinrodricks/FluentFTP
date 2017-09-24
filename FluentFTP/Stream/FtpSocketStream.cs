@@ -740,10 +740,13 @@ namespace FluentFTP
         /// Disconnects from server
         /// </summary>
 #if CORE
-		public void Close() {
+		public void Close()
+		{
+			base.Dispose(true);
 #else
         public override void Close()
         {
+            base.Close();
 #endif
             if (m_socket != null)
             {
@@ -808,10 +811,6 @@ namespace FluentFTP
                     m_sslStream = null;
                 }
             }
-#endif
-
-#if CORE
-            base.Dispose();
 #endif
         }
 
