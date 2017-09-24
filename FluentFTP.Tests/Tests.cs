@@ -605,7 +605,9 @@ namespace Tests
 				}
 			}
 			catch (System.Net.Sockets.SocketException) { } // Expecting this
+#if !NOASYNC
 			catch (AggregateException ex) when (ex.InnerException is System.Net.Sockets.SocketException) { }
+#endif
 		}
 
 		[Fact, Trait("Category", Category_PublicFTP)]
