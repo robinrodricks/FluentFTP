@@ -344,7 +344,7 @@ namespace Tests
 				});
 
 				t1.Start();
-				Thread.Sleep(500);
+				Thread.Sleep(2000);
 				t2.Start();
 
 				t1.Join();
