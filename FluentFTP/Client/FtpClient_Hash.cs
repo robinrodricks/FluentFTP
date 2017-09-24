@@ -116,7 +116,6 @@ namespace FluentFTP {
 			return type;
 		}
 
-#if !CORE
 		delegate FtpHashAlgorithm AsyncGetHashAlgorithm();
 
 		/// <summary>
@@ -150,8 +149,7 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetHashAlgorithm>(ar).EndInvoke(ar);
 		}
 
-#endif
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Gets the currently selected hash algorithm for the HASH command asynchronously.
 		/// </summary>
@@ -218,7 +216,6 @@ namespace FluentFTP {
 #endif
 		}
 
-#if !CORE
 		delegate void AsyncSetHashAlgorithm(FtpHashAlgorithm type);
 
 		/// <summary>
@@ -257,8 +254,7 @@ namespace FluentFTP {
 			GetAsyncDelegate<AsyncSetHashAlgorithm>(ar).EndInvoke(ar);
 		}
 
-#endif
-#if NET45
+#if NET45 || CORE
 		/// <summary>
 		/// Sets the hash algorithm on the server to be used with the HASH command asynchronously.
 		/// </summary>
