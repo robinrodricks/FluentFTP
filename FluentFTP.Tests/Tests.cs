@@ -36,227 +36,20 @@ namespace Tests
 			(int) FtpDataConnectionType.PORT
 		};
 
-		private void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e)
-		{
-			e.Accept = true;
-		}
+		#region Helpers
 
+		private void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) => e.Accept = true;
 
-		private void Mainz()
-		{
+		private static FtpClient NewFtpClient(string host = m_host, string username = m_user, string password = m_pass)
+			=> new FtpClient(host, new NetworkCredential(username, password));
 
-			FtpTrace.LogIP = false;
-			FtpTrace.LogUserName = false;
-#if !CORE
-			FtpTrace.AddListener(new ConsoleTraceListener());
-			FtpTrace.AddListener(new TextWriterTraceListener(@"C:\log_file.txt"));
-#endif
+		private static FtpClient NewFtpClient_NetBsd() => NewFtpClient("ftp.netbsd.org", "ftp", "ftp");
 
-			try
-			{
+		private static FtpClient NewFtpClient_Tele2SpeedTest() => new FtpClient("ftp://speedtest.tele2.net/");
 
-				/*foreach (int i in connectionTypes) {
-					using (FtpClient cl = new FtpClient()) {
-						cl.Credentials = new NetworkCredential(m_user, m_pass);
-						cl.Host = m_host;
-						cl.EncryptionMode = FtpEncryptionMode.None;
-						cl.ValidateCertificate += new FtpSslValidation(cl_ValidateCertificate);
-						cl.DataConnectionType = (FtpDataConnectionType)i;
-						//cl.Encoding = System.Text.Encoding.Default;
-						cl.Connect();
-						Upload(cl);
-						Download(cl);
-						Delete(cl);
-					}
-				}*/
+		#endregion
 
-
-
-				//--------------------------------
-				// MISC
-				//--------------------------------
-				//StreamResponses();
-				//TestServer();
-				//TestManualEncoding();
-				//TestServer();
-				//TestDisposeWithMultipleThreads();
-				//TestMODCOMP_PWD_Parser();
-				//TestDispose();
-				//TestHash();
-				//TestReset();
-				//TestUTF8();
-				//TestDirectoryWithDots();
-				//TestNameListing();
-				//TestNameListingFTPS();
-				// TestFileZillaKick();
-				//TestUnixList();
-				//TestNetBSDServer();
-				// TestConnectionFailure();
-				//TestFtpPath();
-				//TestListPath();
-				//TestListPathWithHttp11Proxy();
-				//TestFileExists();
-				//TestDeleteDirectory();
-				//TestMoveFiles();
-
-
-
-
-				//--------------------------------
-				// PARSING
-				//--------------------------------
-				//TestUnixListParser();
-				//TestIISParser();
-				//TestOpenVMSParser();
-
-
-
-				//--------------------------------
-				// FILE LISTING
-				//--------------------------------
-				//TestGetObjectInfo();
-				//TestGetListing();
-				//TestGetListingCCC();
-				//TestGetMachineListing();
-				//GetPublicFTPServerListing();
-				//TestListSpacedPath();
-				//TestFilePermissions();
-
-
-
-				//--------------------------------
-				// UPLOAD / DOWNLOAD
-				//--------------------------------
-				//TestUploadDownloadFile();
-				//TestUploadDownloadManyFiles();
-				//TestUploadDownloadZeroLenFile();
-				//TestUploadDownloadManyFiles2();
-				//TestUploadDownloadFile_UTF();
-				//TestUploadDownloadFile_ANSI();
-
-
-
-
-
-
-
-				//Async Tests
-#if !NOASYNC
-				//TestAsyncMethods();
-#endif
-
-			}
-			catch (Exception ex)
-			{
-				FtpTrace.WriteLine(ex.ToString());
-			}
-
-			FtpTrace.WriteLine("--DONE--");
-			// Console.ReadKey();
-		}
-
-#if !NOASYNC
-		//private static void TestAsyncMethods() {
-		//	FtpTrace.WriteLine("Running Async Tests");
-		//	List<Task> tasks = new List<Task>() {
-		//	        TestListPathAsync(),
-		//	        StreamResponsesAsync(),
-		//	        TestGetObjectInfoAsync(),
-		//	        TestHashAsync(),
-		//	        TestUploadDownloadFileAsync(),
-		//	        TestUploadDownloadManyFilesAsync(),
-		//	        TestUploadDownloadManyFiles2Async()
-		//	    };
-
-		//	Task.WhenAll(tasks).ContinueWith(t => {
-		//		Console.Write("Async Tests Completed: ");
-		//		if (t.IsFaulted) {
-		//			var exceptions = FlattenExceptions(t.Exception);
-		//			FtpTrace.WriteLine("With {0} Error{1}.", exceptions.Length, exceptions.Length > 1 ? "s" : "");
-		//			for (int i = 0; i > exceptions.Length; i++) {
-		//				var ex = exceptions[i];
-		//				FtpTrace.WriteLine("\nException {0}: {1} - {2}", i, ex.GetType().Name, ex.Message);
-		//				FtpTrace.WriteLine(ex.StackTrace);
-		//			}
-		//		} else {
-		//			FtpTrace.WriteLine("Successfully");
-		//		}
-		//	}).Wait();
-		//}
-
-	    public Exception[] FlattenExceptions(AggregateException aggEx) {
-	        AggregateException flattened = aggEx.Flatten();
-	        return flattened.InnerExceptions.Select(e => GetInnerMostException(e)).ToArray();
-	    }
-
-	    public Exception GetInnerMostException(Exception ex) {
-            if (ex.InnerException != null)
-                return GetInnerMostException(ex.InnerException);
-            
-            return ex;
-	    }
-#endif
-		public void ExampleCode()
-		{
-			// create an FTP client
-			FtpClient client = new FtpClient("123.123.123.123");
-
-			// if you don't specify login credentials, we use the "anonymous" user account
-			client.Credentials = new NetworkCredential("david", "pass123");
-
-			// begin connecting to the server
-			client.Connect();
-
-			// get a list of files and directories in the "/htdocs" folder
-			foreach (FtpListItem item in client.GetListing("/htdocs"))
-			{
-
-				// if this is a file
-				if (item.Type == FtpFileSystemObjectType.File)
-				{
-
-					// get the file size
-					long size = client.GetFileSize(item.FullName);
-
-				}
-
-				// get modified date/time of the file or folder
-				DateTime time = client.GetModifiedTime(item.FullName);
-
-				// calculate a hash for the file on the server side (default algorithm)
-				FtpHash hash = client.GetHash(item.FullName);
-
-			}
-
-			// upload a file
-			client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt");
-
-			// rename the uploaded file
-			client.Rename("/htdocs/big.txt", "/htdocs/big2.txt");
-
-			// download the file again
-			client.DownloadFile(@"C:\MyVideo_2.mp4", "/htdocs/big2.txt");
-
-			// delete the file
-			client.DeleteFile("/htdocs/big2.txt");
-
-			// delete a folder recursively
-			client.DeleteDirectory("/htdocs/extras/");
-
-			// check if a file exists
-			if (client.FileExists("/htdocs/big2.txt")) { }
-
-			// check if a folder exists
-			if (client.DirectoryExists("/htdocs/extras/")) { }
-
-			// upload a file and retry 3 times before giving up
-			client.RetryAttempts = 3;
-			client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt", FtpExists.Overwrite, false, FtpVerify.Retry);
-
-			// disconnect! good bye!
-			client.Disconnect();
-		}
-
+		//[Fact]
 		public void TestListPathWithHttp11Proxy()
 		{
 			using (FtpClient cl = new FtpClientHttp11Proxy(new ProxyInfo { Host = "127.0.0.1", Port = 3128, })) // Credential = new NetworkCredential() 
@@ -280,10 +73,8 @@ namespace Tests
 		//[Fact]
 		public void TestListPath()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
-				cl.Host = m_host;
 				cl.EncryptionMode = FtpEncryptionMode.None;
 
 				cl.GetListing();
@@ -297,10 +88,8 @@ namespace Tests
 		//[Fact]
 		public async Task TestListPathAsync()
         {
-            using (FtpClient cl = new FtpClient())
+            using (FtpClient cl = NewFtpClient())
             {
-                cl.Credentials = new NetworkCredential(m_user, m_pass);
-                cl.Host = m_host;
                 cl.EncryptionMode = FtpEncryptionMode.None;
 
                 await cl.GetListingAsync();
@@ -314,15 +103,10 @@ namespace Tests
 		//[Fact]
 		public void StreamResponses()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
-				cl.Host = m_host;
 				cl.EncryptionMode = FtpEncryptionMode.None;
-				cl.ValidateCertificate += new FtpSslValidation(delegate (FtpClient control, FtpSslValidationEventArgs e)
-				{
-					e.Accept = true;
-				});
+				cl.ValidateCertificate += OnValidateCertificate;
 
 				using (FtpDataStream s = (FtpDataStream)cl.OpenWrite("test.txt"))
 				{
@@ -348,15 +132,10 @@ namespace Tests
 		//[Fact]
 		public async Task StreamResponsesAsync()
         {
-            using (FtpClient cl = new FtpClient())
+            using (FtpClient cl = NewFtpClient())
             {
-                cl.Credentials = new NetworkCredential(m_user, m_pass);
-                cl.Host = m_host;
                 cl.EncryptionMode = FtpEncryptionMode.None;
-                cl.ValidateCertificate += new FtpSslValidation(delegate(FtpClient control, FtpSslValidationEventArgs e)
-                {
-                    e.Accept = true;
-                });
+                cl.ValidateCertificate += OnValidateCertificate;
 
                 using (FtpDataStream s = (FtpDataStream)await cl.OpenWriteAsync("test.txt"))
                 {
@@ -382,11 +161,8 @@ namespace Tests
 		//[Fact]
 		public void TestUnixListing()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Host = m_host;
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
-
 				if (!cl.FileExists("test.txt"))
 				{
 					using (Stream s = cl.OpenWrite("test.txt"))
@@ -423,7 +199,7 @@ namespace Tests
 		//[Fact]
 		public void TestGetObjectInfo()
 		{
-			using (FtpClient client = new FtpClient(m_host, m_user, m_pass))
+			using (FtpClient client = NewFtpClient())
 			{
 				FtpTrace.WriteLine(client.GetObjectInfo("/public_html/temp/README.md"));
 			}
@@ -433,15 +209,11 @@ namespace Tests
 		//[Fact]
         public async Task TestGetObjectInfoAsync()
         {
-            using (FtpClient cl = new FtpClient())
+            using (FtpClient cl = NewFtpClient())
             {
-                FtpListItem item;
-
-                cl.Host = m_host;
-                cl.Credentials = new NetworkCredential(m_user, m_pass);
                 cl.Encoding = Encoding.UTF8;
 
-                item = await cl.GetObjectInfoAsync("/Examples/OpenRead.cs");
+                var item = await cl.GetObjectInfoAsync("/Examples/OpenRead.cs");
                 FtpTrace.WriteLine(item.ToString());
             }
         }
@@ -450,10 +222,8 @@ namespace Tests
 		//[Fact]
 		public void TestManualEncoding()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Host = m_host;
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Encoding = Encoding.UTF8;
 
 				using (Stream s = cl.OpenWrite("test.txt"))
@@ -465,15 +235,10 @@ namespace Tests
 		//[Fact]
 		public void TestServer()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Host = m_host;
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.EncryptionMode = FtpEncryptionMode.Explicit;
-				cl.ValidateCertificate += (control, e) =>
-				{
-					e.Accept = true;
-				};
+				cl.ValidateCertificate += OnValidateCertificate;
 
 				foreach (FtpListItem i in cl.GetListing("/"))
 				{
@@ -566,11 +331,8 @@ namespace Tests
 		[Fact, Trait("Category", Category_PublicFTP)]
 		public void TestDisposeWithMultipleThreads()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient_NetBsd())
 			{
-				cl.Host = "ftp.netbsd.org";
-				cl.Credentials = new NetworkCredential("ftp", "ftp");
-
 				Thread t1 = new Thread(() =>
 				{
 					cl.GetListing();
@@ -596,10 +358,8 @@ namespace Tests
 		{
 			try
 			{
-				using (FtpClient cl = new FtpClient())
+				using (FtpClient cl = NewFtpClient(host: "somefakehost"))
 				{
-					cl.Credentials = new NetworkCredential("ftp", "ftp");
-					cl.Host = "somefakehost";
 					cl.ConnectTimeout = 5000;
 					cl.Connect();
 				}
@@ -613,11 +373,8 @@ namespace Tests
 		[Fact, Trait("Category", Category_PublicFTP)]
 		public void TestNetBSDServer()
 		{
-			using (FtpClient client = new FtpClient())
+			using (FtpClient client = NewFtpClient_NetBsd())
 			{
-				client.Credentials = new NetworkCredential("ftp", "ftp");
-				client.Host = "ftp.netbsd.org";
-
 				foreach (FtpListItem item in client.GetListing(null,
 					FtpListOption.ForceList | FtpListOption.Modify | FtpListOption.DerefLinks))
 				{
@@ -632,10 +389,8 @@ namespace Tests
 		//[Fact]
 		public void TestGetListing()
 		{
-			using (FtpClient client = new FtpClient())
+			using (FtpClient client = NewFtpClient())
 			{
-				client.Credentials = new NetworkCredential(m_user, m_pass);
-				client.Host = m_host;
 				client.Connect();
 				foreach (FtpListItem i in client.GetListing("/public_html/temp/", FtpListOption.ForceList | FtpListOption.Recursive))
 				{
@@ -648,14 +403,12 @@ namespace Tests
 		//[Fact]
 		public void TestGetListingCCC()
 		{
-			using (FtpClient client = new FtpClient())
+			using (FtpClient client = NewFtpClient())
 			{
-				client.Credentials = new NetworkCredential(m_user, m_pass);
-				client.Host = m_host;
 				client.EncryptionMode = FtpEncryptionMode.Explicit;
 				client.PlainTextEncryption = true;
 				client.SslProtocols = SslProtocols.Tls;
-				client.ValidateCertificate += new FtpSslValidation(OnValidateCertificate);
+				client.ValidateCertificate += OnValidateCertificate;
 				client.Connect();
 
 				foreach (FtpListItem i in client.GetListing("/public_html/temp/", FtpListOption.ForceList | FtpListOption.Recursive))
@@ -673,10 +426,8 @@ namespace Tests
 		//[Fact]
 		public void TestGetMachineListing()
 		{
-			using (FtpClient client = new FtpClient())
+			using (FtpClient client = NewFtpClient())
 			{
-				client.Credentials = new NetworkCredential(m_user, m_pass);
-				client.Host = m_host;
 				client.ListingParser = FtpParser.Machine;
 				client.Connect();
 				foreach (FtpListItem i in client.GetListing("/public_html/temp/", FtpListOption.Recursive))
@@ -689,10 +440,8 @@ namespace Tests
 		//[Fact]
 		public void TestFileZillaKick()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Host = m_host;
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.EnableThreadSafeDataConnections = false;
 
 				if (cl.FileExists("TestFile.txt"))
@@ -821,7 +570,7 @@ namespace Tests
 		//[Fact]
 		public void TestDirectoryWithDots()
 		{
-			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass))
+			using (FtpClient cl = NewFtpClient())
 			{
 				cl.Connect();
 				// FTP server set to timeout after 5 seconds.
@@ -836,10 +585,8 @@ namespace Tests
 		//[Fact]
 		public void TestDispose()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
-				cl.Host = m_host;
 				cl.Connect();
 				// FTP server set to timeout after 5 seconds.
 				//Thread.Sleep(6000);
@@ -854,10 +601,8 @@ namespace Tests
 		//[Fact]
 		public void TestHash()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
-				cl.Host = m_host;
 				cl.Connect();
 
 				FtpTrace.WriteLine("Supported HASH algorithms: " + cl.HashAlgorithms);
@@ -885,10 +630,8 @@ namespace Tests
 		//[Fact]
         public async Task TestHashAsync()
         {
-            using (FtpClient cl = new FtpClient())
+            using (FtpClient cl = NewFtpClient())
             {
-                cl.Credentials = new NetworkCredential(m_user, m_pass);
-                cl.Host = m_host;
                 await cl.ConnectAsync();
 
                 FtpTrace.WriteLine("Supported HASH algorithms: "+ cl.HashAlgorithms);
@@ -916,10 +659,8 @@ namespace Tests
 		//[Fact]
 		public void TestReset()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
-				cl.Host = m_host;
 				cl.Connect();
 
 				using (Stream istream = cl.OpenRead("LICENSE.TXT", 10))
@@ -931,7 +672,7 @@ namespace Tests
 		[Fact, Trait("Category", Category_PublicFTP)]
 		public void GetPublicFTPServerListing()
 		{
-			using (FtpClient cl = new FtpClient("ftp://speedtest.tele2.net/"))
+			using (FtpClient cl = NewFtpClient_Tele2SpeedTest())
 			{
 				cl.Connect();
 
@@ -957,10 +698,8 @@ namespace Tests
 		//[Fact]
 		public void TestNameListing()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
-				cl.Host = m_host;
 				cl.ValidateCertificate += OnValidateCertificate;
 				cl.DataConnectionType = FtpDataConnectionType.PASV;
 				//cl.EncryptionMode = FtpEncryptionMode.Explicit;
@@ -983,10 +722,8 @@ namespace Tests
 		//[Fact]
 		public void TestNameListingFTPS()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
-				cl.Host = m_host;
 				cl.ValidateCertificate += OnValidateCertificate;
 				//cl.DataConnectionType = FtpDataConnectionType.PASV;
 				cl.EncryptionMode = FtpEncryptionMode.Explicit;
@@ -1192,10 +929,8 @@ namespace Tests
 			// https://netftp.codeplex.com/discussions/445090
 			string filename = "Verbundmörtel Zubehör + Technische Daten DE.pdf";
 
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Host = m_host;
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.DataConnectionType = FtpDataConnectionType.PASV;
 				cl.InternetProtocolVersions = FtpIpVersion.ANY;
 
@@ -1210,11 +945,8 @@ namespace Tests
 		//[Fact]
 		public void TestUploadDownloadFile()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Host = m_host;
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
-
 				cl.Connect();
 
 				// 100 K file
@@ -1234,11 +966,8 @@ namespace Tests
 		//[Fact]
         public async Task TestUploadDownloadFileAsync()
         {
-            using (FtpClient cl = new FtpClient())
+            using (FtpClient cl = NewFtpClient())
             {
-                cl.Host = m_host;
-                cl.Credentials = new NetworkCredential(m_user, m_pass);
-
                 // 100 K file
                 await cl.UploadFileAsync(@"D:\Github\hgupta\FluentFTP\README.md", "/public_html/temp/README.md");
                 await cl.DownloadFileAsync(@"D:\Github\hgupta\FluentFTP\README2.md", "/public_html/temp/README.md");
@@ -1256,11 +985,8 @@ namespace Tests
 		//[Fact]
 		public void TestUploadDownloadFile_UTF()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Host = m_host;
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
-
 				// 100 K file
 				cl.UploadFile(@"D:\Tests\Caffè.jpg", "/public_html/temp/Caffè.jpg");
 				cl.DownloadFile(@"D:\Tests\Caffè2.jpg", "/public_html/temp/Caffè.jpg");
@@ -1278,10 +1004,8 @@ namespace Tests
 		//[Fact]
 		public void TestUploadDownloadFile_ANSI()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Host = m_host;
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.Encoding = Encoding.GetEncoding(1252);
 
 				// 100 K file
@@ -1301,10 +1025,8 @@ namespace Tests
 		//[Fact]
 		public void TestUploadDownloadManyFiles()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Host = m_host;
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.EnableThreadSafeDataConnections = false;
 				cl.Connect();
 
@@ -1330,10 +1052,8 @@ namespace Tests
 		//[Fact]
         public async Task TestUploadDownloadManyFilesAsync()
         {
-            using (FtpClient cl = new FtpClient())
+            using (FtpClient cl = NewFtpClient())
             {
-                cl.Host = m_host;
-                cl.Credentials = new NetworkCredential(m_user, m_pass);
                 cl.EnableThreadSafeDataConnections = false;
                 await cl.ConnectAsync();
 
@@ -1359,10 +1079,8 @@ namespace Tests
 		//[Fact]
 		public void TestUploadDownloadManyFiles2()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Host = m_host;
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.EnableThreadSafeDataConnections = false;
 				cl.Connect();
 
@@ -1382,10 +1100,8 @@ namespace Tests
 		//[Fact]
         public async Task TestUploadDownloadManyFiles2Async()
         {
-            using (FtpClient cl = new FtpClient())
+            using (FtpClient cl = NewFtpClient())
             {
-                cl.Host = m_host;
-                cl.Credentials = new NetworkCredential(m_user, m_pass);
                 cl.EnableThreadSafeDataConnections = false;
                 await cl.ConnectAsync();
 
@@ -1405,11 +1121,8 @@ namespace Tests
 		//[Fact]
 		public void TestUploadDownloadZeroLenFile()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Host = m_host;
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
-
 				// 0 KB file
 				cl.UploadFile(@"D:\zerolen.txt", "/public_html/temp/zerolen.txt");
 				cl.DownloadFile(@"D:\zerolen2.txt", "/public_html/temp/zerolen.txt");
@@ -1419,15 +1132,10 @@ namespace Tests
 		//[Fact]
 		public void TestListSpacedPath()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Host = m_host;
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
 				cl.EncryptionMode = FtpEncryptionMode.Explicit;
-				cl.ValidateCertificate += (control, e) =>
-				{
-					e.Accept = true;
-				};
+				cl.ValidateCertificate += OnValidateCertificate;
 
 				foreach (FtpListItem i in cl.GetListing("/public_html/temp/spaced folder/"))
 				{
@@ -1439,11 +1147,8 @@ namespace Tests
 		//[Fact]
 		public void TestFilePermissions()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Host = m_host;
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
-
 				foreach (FtpListItem i in cl.GetListing("/public_html/temp/"))
 				{
 					FtpTrace.WriteLine(i.Name + " - " + i.Chmod);
@@ -1461,11 +1166,8 @@ namespace Tests
 		//[Fact]
 		public void TestFileExists()
 		{
-			using (FtpClient cl = new FtpClient())
+			using (FtpClient cl = NewFtpClient())
 			{
-				cl.Host = m_host;
-				cl.Credentials = new NetworkCredential(m_user, m_pass);
-
 				bool f1_yes = cl.FileExists("/public_html");
 				bool f2_yes = cl.FileExists("/public_html/temp");
 				bool f3_yes = cl.FileExists("/public_html/temp/");
@@ -1490,7 +1192,7 @@ namespace Tests
 		//[Fact]
 		public void TestDeleteDirectory()
 		{
-			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass))
+			using (FtpClient cl = NewFtpClient())
 			{
 				cl.DeleteDirectory("/public_html/temp/otherdir/");
 				cl.DeleteDirectory("/public_html/temp/spaced folder/");
@@ -1500,7 +1202,7 @@ namespace Tests
 		//[Fact]
 		public void TestMoveFiles()
 		{
-			using (FtpClient cl = new FtpClient(m_host, m_user, m_pass))
+			using (FtpClient cl = NewFtpClient())
 			{
 				cl.MoveFile("/public_html/temp/README.md", "/public_html/temp/README_moved.md");
 
