@@ -706,7 +706,7 @@ namespace FluentFTP {
 			return UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions);
 		}
 
-#if NET45
+#if NET45 || CORE
 
 		/// <summary>
 		/// Uploads the specified file directly onto the server asynchronously.
@@ -811,7 +811,7 @@ namespace FluentFTP {
 			return uploadSuccess && verified;
 		}
 
-#if NET45
+#if NET45 || CORE
 		private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode,
 			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token) {
 
