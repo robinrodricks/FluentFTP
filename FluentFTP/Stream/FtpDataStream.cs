@@ -160,7 +160,7 @@ namespace FluentFTP {
 		/// Creates a new data stream object
 		/// </summary>
 		/// <param name="conn">The control connection to be used for carrying out this operation</param>
-		public FtpDataStream(FtpClient conn) {
+		public FtpDataStream(FtpClient conn) : base(conn.SslProtocols) {
 			if (conn == null)
 				throw new ArgumentException("The control connection cannot be null.");
 

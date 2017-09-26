@@ -571,7 +571,7 @@ namespace FluentFTP {
 #endif
 
 #if CORE
-		private SslProtocols m_SslProtocols = SslProtocols.Tls11 | SslProtocols.Ssl3;
+		private SslProtocols m_SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
 #else
 		private SslProtocols m_SslProtocols = SslProtocols.Default;
 #endif
@@ -1102,7 +1102,7 @@ namespace FluentFTP {
 					throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
 
 				if (m_stream == null) {
-					m_stream = new FtpSocketStream();
+					m_stream = new FtpSocketStream(m_SslProtocols);
 					m_stream.ValidateCertificate += new FtpSocketStreamSslValidation(FireValidateCertficate);
 				} else {
 					if (IsConnected) {
@@ -1221,7 +1221,7 @@ namespace FluentFTP {
 
             if (m_stream == null)
             {
-                m_stream = new FtpSocketStream();
+                m_stream = new FtpSocketStream(m_SslProtocols);
                 m_stream.ValidateCertificate += new FtpSocketStreamSslValidation(FireValidateCertficate);
             }
             else
