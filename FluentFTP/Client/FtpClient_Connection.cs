@@ -782,6 +782,8 @@ namespace FluentFTP {
 			conn.UploadRateLimit = UploadRateLimit;
 			conn.DownloadRateLimit = DownloadRateLimit;
 			conn.RecursiveList = RecursiveList;
+            conn.DownloadDataType = DownloadDataType;
+            conn.UploadDataType = UploadDataType;
 #if !CORE
 			conn.PlainTextEncryption = PlainTextEncryption;
 #endif
