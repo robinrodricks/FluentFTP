@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if NET45 || CORE
+#if ASYNC
 using System.Threading.Tasks;
 #endif
 
@@ -167,7 +167,7 @@ namespace FluentFTP {
 			return stream;
 		}
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Opens the specified type of passive data stream
         /// </summary>
@@ -413,7 +413,7 @@ namespace FluentFTP {
 			return stream;
 		}
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Opens the specified type of active data stream
         /// </summary>
@@ -608,7 +608,7 @@ namespace FluentFTP {
 			return stream;
 		}
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Opens a data stream.
         /// </summary>
@@ -905,7 +905,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Opens the specified file for reading asynchronously
 		/// </summary>
@@ -1115,7 +1115,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// </summary>
@@ -1297,7 +1297,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Opens the specified file to be appended asynchronously
 		/// </summary>
@@ -1442,7 +1442,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Sets the data type of information sent over the data stream asynchronously
 		/// </summary>

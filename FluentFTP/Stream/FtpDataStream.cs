@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Threading;
 
-#if NET45 || CORE
+#if ASYNC
 using System.Threading.Tasks;
 #endif
 
@@ -81,7 +81,7 @@ namespace FluentFTP {
 			return read;
 		}
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Reads data off the stream asynchronously
         /// </summary>
@@ -108,7 +108,7 @@ namespace FluentFTP {
 			m_position += count;
 		}
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Writes data to the stream asynchronously
         /// </summary>
@@ -160,7 +160,7 @@ namespace FluentFTP {
 		/// Creates a new data stream object
 		/// </summary>
 		/// <param name="conn">The control connection to be used for carrying out this operation</param>
-		public FtpDataStream(FtpClient conn) {
+		public FtpDataStream(FtpClient conn) : base(conn.SslProtocols) {
 			if (conn == null)
 				throw new ArgumentException("The control connection cannot be null.");
 

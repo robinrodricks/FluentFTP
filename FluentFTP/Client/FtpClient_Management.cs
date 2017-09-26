@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if NET45 || CORE
+#if ASYNC
 using System.Threading.Tasks;
 #endif
 
@@ -134,7 +134,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Deletes a file from the server asynchronously
 		/// </summary>
@@ -342,7 +342,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Asynchronously removes a directory and all its contents.
 		/// </summary>
@@ -529,7 +529,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Tests if the specified directory exists on the server asynchronously. This
 		/// method works by trying to change the working directory to
@@ -680,7 +680,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Checks if a file exists on the server asynchronously.
 		/// </summary>
@@ -851,7 +851,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Creates a remote directory asynchronously
 		/// </summary>
@@ -973,7 +973,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Renames an object on the remote file system asynchronously.
 		/// Low level method that should NOT be used in most cases. Prefer MoveFile() and MoveDirectory().
@@ -1087,7 +1087,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 
 		/// <summary>
 		/// Moves a file asynchronously on the remote file system from one directory to another.
@@ -1218,7 +1218,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Moves a directory asynchronously on the remote file system from one directory to another.
 		/// Always checks if the source directory exists. Checks if the dest directory exists based on the `existsMode` parameter.
@@ -1299,7 +1299,7 @@ namespace FluentFTP {
 #endif
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Modify the permissions of the given file/folder.
 		/// Only works on *NIX systems, and not on Windows/IIS servers.
@@ -1337,7 +1337,7 @@ namespace FluentFTP {
 			SetFilePermissions(path, permissions);
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Modify the permissions of the given file/folder.
 		/// Only works on *NIX systems, and not on Windows/IIS servers.
@@ -1368,7 +1368,7 @@ namespace FluentFTP {
 			SetFilePermissions(path, CalcChmod(owner, group, other));
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Modify the permissions of the given file/folder.
 		/// Only works on *NIX systems, and not on Windows/IIS servers.
@@ -1401,7 +1401,7 @@ namespace FluentFTP {
 			SetFilePermissions(path, owner, group, other);
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Modify the permissions of the given file/folder.
 		/// Only works on *NIX systems, and not on Windows/IIS servers.
@@ -1443,7 +1443,7 @@ namespace FluentFTP {
 			return null;
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Retrieve the permissions of the given file/folder as an FtpListItem object with all "Permission" properties set.
 		/// Throws FtpCommandException if there is an issue.
@@ -1483,7 +1483,7 @@ namespace FluentFTP {
 			return item != null ? item.Chmod : 0;
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Retrieve the permissions of the given file/folder as an integer in the CHMOD format.
 		/// Throws FtpCommandException if there is an issue.
@@ -1619,7 +1619,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Derefence a FtpListItem object
         /// </summary>
@@ -1752,7 +1752,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Sets the working directory on the server asynchronously
 		/// </summary>
@@ -1845,7 +1845,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Gets the current working directory asynchronously
 		/// </summary>
@@ -1958,7 +1958,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Retrieve the size of a remote file asynchronously
 		/// </summary>
@@ -2078,7 +2078,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Gets the modified time of a remote file asynchronously
 		/// </summary>
@@ -2201,7 +2201,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Gets the modified time of a remote file asynchronously
 		/// </summary>

@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if NET45 || CORE
+#if ASYNC
 using System.Threading.Tasks;
 #endif
 
@@ -149,7 +149,7 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetHashAlgorithm>(ar).EndInvoke(ar);
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Gets the currently selected hash algorithm for the HASH command asynchronously.
 		/// </summary>
@@ -254,7 +254,7 @@ namespace FluentFTP {
 			GetAsyncDelegate<AsyncSetHashAlgorithm>(ar).EndInvoke(ar);
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Sets the hash algorithm on the server to be used with the HASH command asynchronously.
 		/// </summary>
@@ -394,7 +394,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Gets the hash of an object on the server using the currently selected hash algorithm asynchronously. 
 		/// </summary>
@@ -582,7 +582,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Retrieves a checksum of the given file using a checksum method that the server supports, if any. 
 		/// </summary>
@@ -717,7 +717,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Gets the MD5 hash of the specified file using MD5 asynchronously. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be
@@ -804,7 +804,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Gets the CRC hash of the specified file using XCRC asynchronously. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be
@@ -892,7 +892,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Gets the MD5 hash of the specified file using XMD5 asynchronously. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be
@@ -973,7 +973,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Gets the SHA-1 hash of the specified file using XSHA1 asynchronously. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be
@@ -1055,7 +1055,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Gets the SHA-256 hash of the specified file using XSHA256 asynchronously. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be
@@ -1137,7 +1137,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Gets the SHA-512 hash of the specified file using XSHA512 asynchronously. This is a non-standard extension
 		/// to the protocol and may or may not work. A FtpCommandException will be

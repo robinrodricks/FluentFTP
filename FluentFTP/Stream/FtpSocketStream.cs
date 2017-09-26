@@ -20,6 +20,12 @@ namespace FluentFTP
     /// </summary>
     public class FtpSocketStream : Stream, IDisposable
     {
+		private SslProtocols m_SslProtocols;
+		public FtpSocketStream(SslProtocols defaultSslProtocols)
+		{
+			m_SslProtocols = defaultSslProtocols;
+		}
+
         /// <summary>
         /// Used for tacking read/write activity on the socket
         /// to determine if Poll() should be used to test for
@@ -408,7 +414,7 @@ namespace FluentFTP
             BaseStream.Flush();
         }
 
-#if NET45 || CORE
+#if ASYNC
 
 		/// <summary>
 		/// Flushes the stream asynchronously
@@ -463,7 +469,7 @@ namespace FluentFTP
         }
 #endif
 
-#if CORE
+#if ASYNC && !NET45
         /// <summary>
         /// Bypass the stream and read directly off the socket.
         /// </summary>
@@ -512,7 +518,7 @@ namespace FluentFTP
 #endif
         }
 
-#if NET45 || CORE
+#if ASYNC
 
 		/// <summary>
 		/// Reads data from the stream
@@ -590,7 +596,7 @@ namespace FluentFTP
             }
         }
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Reads a line from the socket asynchronously
         /// </summary>
@@ -676,7 +682,7 @@ namespace FluentFTP
             m_lastActivity = DateTime.Now;
         }
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Writes data to the stream asynchronously
 		/// </summary>
@@ -705,7 +711,7 @@ namespace FluentFTP
             Write(data, 0, data.Length);
         }
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Writes a line to the stream using the specified encoding asynchronously
 		/// </summary>
@@ -922,7 +928,7 @@ namespace FluentFTP
             m_lastActivity = DateTime.Now;
         }
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Connect to the specified host
         /// </summary>
@@ -1009,14 +1015,10 @@ namespace FluentFTP
         /// <param name="targethost">The host to authenticate the certificate against</param>
         public void ActivateEncryption(string targethost)
         {
-#if CORE
-			ActivateEncryption(targethost, null, SslProtocols.Tls11 | SslProtocols.Ssl3);
-#else
-            ActivateEncryption(targethost, null, SslProtocols.Default);
-#endif
+            ActivateEncryption(targethost, null, m_SslProtocols);
         }
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event. 
         /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -1025,11 +1027,7 @@ namespace FluentFTP
         /// <param name="targethost">The host to authenticate the certificate against</param>
         public async Task ActivateEncryptionAsync(string targethost)
         {
-#if CORE
-			await ActivateEncryptionAsync(targethost, null, SslProtocols.Tls11 | SslProtocols.Ssl3);
-#else
-            await ActivateEncryptionAsync(targethost, null, SslProtocols.Default);
-#endif
+            await ActivateEncryptionAsync(targethost, null, m_SslProtocols);
         }
 #endif
 
@@ -1042,14 +1040,10 @@ namespace FluentFTP
         /// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
         public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts)
         {
-#if CORE
-			ActivateEncryption(targethost, clientCerts, SslProtocols.Tls11 | SslProtocols.Ssl3);
-#else
-            ActivateEncryption(targethost, clientCerts, SslProtocols.Default);
-#endif
+            ActivateEncryption(targethost, clientCerts, m_SslProtocols);
         }
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
         /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -1059,11 +1053,7 @@ namespace FluentFTP
         /// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
         public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts)
         {
-#if CORE
-			await ActivateEncryptionAsync(targethost, clientCerts, SslProtocols.Tls11 | SslProtocols.Ssl3);
-#else
-            await ActivateEncryptionAsync(targethost, clientCerts, SslProtocols.Default);
-#endif
+            await ActivateEncryptionAsync(targethost, clientCerts, m_SslProtocols);
         }
 #endif
 
@@ -1130,7 +1120,7 @@ namespace FluentFTP
             }
         }
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
         /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -1250,7 +1240,7 @@ namespace FluentFTP
         }
 #endif
 
-#if CORE
+#if ASYNC && !NET45
         /// <summary>
         /// Accepts a connection from a listening socket
         /// </summary>
