@@ -18,7 +18,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if NET45 || CORE
+#if ASYNC
 using System.Threading.Tasks;
 #endif
 
@@ -286,7 +286,7 @@ namespace FluentFTP {
 			return GetAsyncDelegate<AsyncGetObjectInfo>(ar).EndInvoke(ar);
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Return information about a remote file system object asynchronously. 
 		/// </summary>
@@ -633,7 +633,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
         /// contains information about the file that was able to be retrieved. 
@@ -1017,7 +1017,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command asynchronously
 		/// </summary>

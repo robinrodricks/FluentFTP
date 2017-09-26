@@ -19,7 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
-#if NET45 || CORE
+#if ASYNC
 using System.Threading.Tasks;
 #endif
 
@@ -894,7 +894,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#if NET45 || CORE
+#if ASYNC
         // TODO: Add cencellation support
 		/// <summary>
 		/// Performs an asynchronous execution of the specified command
@@ -1013,7 +1013,7 @@ namespace FluentFTP {
 			return reply;
 		}
 
-#if NET45 || CORE
+#if ASYNC
         // TODO: add example
         /// <summary>
         /// Retrieves a reply from the server. Do not execute this method
@@ -1203,7 +1203,7 @@ namespace FluentFTP {
 #endif
 		}
 
-#if NET45 || CORE
+#if ASYNC
         // TODO: add example
         /// <summary>
         /// Connect to the server
@@ -1340,7 +1340,7 @@ namespace FluentFTP {
 			stream.Connect(Host, Port, InternetProtocolVersions);
 		}
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Connect to the FTP server. Overwritten in proxy classes.
         /// </summary>
@@ -1358,7 +1358,7 @@ namespace FluentFTP {
 			stream.Connect(host, port, ipVersions);
 		}
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Connect to the FTP server. Overwritten in proxy classes.
         /// </summary>
@@ -1382,7 +1382,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Called during <see cref="ConnectAsync()"/>. Typically extended by FTP proxies.
         /// </summary>
@@ -1523,7 +1523,7 @@ namespace FluentFTP {
 			Authenticate(Credentials.UserName, Credentials.Password);
 		}
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Performs a login on the server. This method is overridable so
         /// that the login procedure can be changed to support, for example,
@@ -1551,7 +1551,7 @@ namespace FluentFTP {
 				throw new FtpCommandException(reply);
 		}
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Performs a login on the server. This method is overridable so
         /// that the login procedure can be changed to support, for example,
@@ -1635,7 +1635,7 @@ namespace FluentFTP {
 		}
 
 #endif
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Disconnects from the server asynchronously
 		/// </summary>
@@ -1777,7 +1777,7 @@ namespace FluentFTP {
 			return path;
 		}
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Ensure a relative path is absolute by appending the working dir
         /// </summary>
@@ -1881,7 +1881,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Data shouldn't be on the socket, if it is it probably
         /// means we've been disconnected. Read and discard

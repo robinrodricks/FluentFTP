@@ -288,7 +288,7 @@ namespace FluentFTP {
 			return UploadFiles(localFiles.Select(f => f.FullName), remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling);
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Uploads the given file paths to a single folder on the server asynchronously.
 		/// All files are placed directly into the given folder regardless of their path on the local filesystem.
@@ -548,7 +548,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Downloads the specified files into a local single directory.
 		/// High-level API that takes care of various edge cases internally.
@@ -706,7 +706,7 @@ namespace FluentFTP {
 			return UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions);
 		}
 
-#if NET45 || CORE
+#if ASYNC
 
 		/// <summary>
 		/// Uploads the specified file directly onto the server asynchronously.
@@ -811,7 +811,7 @@ namespace FluentFTP {
 			return uploadSuccess && verified;
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode,
 			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token) {
 
@@ -908,7 +908,7 @@ namespace FluentFTP {
 		}
 
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Uploads the specified stream as a file onto the server asynchronously.
 		/// High-level API that takes care of various edge cases internally.
@@ -1163,7 +1163,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
@@ -1421,7 +1421,7 @@ namespace FluentFTP {
 			return downloadSuccess && verified;
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Downloads the specified file onto the local file system asynchronously.
 		/// High-level API that takes care of various edge cases internally.
@@ -1593,7 +1593,7 @@ namespace FluentFTP {
 			return ok;
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Downloads the specified file into the specified stream asynchronously .
 		/// High-level API that takes care of various edge cases internally.
@@ -1827,7 +1827,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Download a file from the server and write the data into the given stream asynchronously.
 		/// Reads data in chunks. Retries if server disconnects midway.
@@ -2002,7 +2002,7 @@ namespace FluentFTP {
 			return true;
 		}
 
-#if NET45 || CORE
+#if ASYNC
 		private async Task<bool> VerifyTransferAsync(string localPath, string remotePath) {
 
 			// verify args

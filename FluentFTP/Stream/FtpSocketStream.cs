@@ -408,7 +408,7 @@ namespace FluentFTP
             BaseStream.Flush();
         }
 
-#if NET45 || CORE
+#if ASYNC
 
 		/// <summary>
 		/// Flushes the stream asynchronously
@@ -512,7 +512,7 @@ namespace FluentFTP
 #endif
         }
 
-#if NET45 || CORE
+#if ASYNC
 
 		/// <summary>
 		/// Reads data from the stream
@@ -590,7 +590,7 @@ namespace FluentFTP
             }
         }
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Reads a line from the socket asynchronously
         /// </summary>
@@ -676,7 +676,7 @@ namespace FluentFTP
             m_lastActivity = DateTime.Now;
         }
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Writes data to the stream asynchronously
 		/// </summary>
@@ -705,7 +705,7 @@ namespace FluentFTP
             Write(data, 0, data.Length);
         }
 
-#if NET45 || CORE
+#if ASYNC
 		/// <summary>
 		/// Writes a line to the stream using the specified encoding asynchronously
 		/// </summary>
@@ -922,7 +922,7 @@ namespace FluentFTP
             m_lastActivity = DateTime.Now;
         }
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Connect to the specified host
         /// </summary>
@@ -1016,7 +1016,7 @@ namespace FluentFTP
 #endif
         }
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event. 
         /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -1049,7 +1049,7 @@ namespace FluentFTP
 #endif
         }
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
         /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -1130,7 +1130,7 @@ namespace FluentFTP
             }
         }
 
-#if NET45 || CORE
+#if ASYNC
         /// <summary>
         /// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
         /// If this event is not handled and there are SslPolicyErrors present, the certificate will 
