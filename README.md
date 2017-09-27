@@ -1403,6 +1403,7 @@ with EnableThreadSafeConnections (thanks @bgroenks96)
 
 - [J.P. Trosclair](https://github.com/jptrosclair) - Original creator, owner upto 2016, FTP/FTPS support, User authentication, Low level upload/download/append API, Basic file management commands, File hashing & checksums
 - [Robin Rodricks](https://github.com/robinrodricks) - Owner and maintainer from 2016 onwards, Nuget package, .NET 2.0 version, .NET core version, documentation (API docs, FTP support table, FAQ), MSBuild automation, High level upload/download API, Reliable chunked file transfer, Byte/stream upload/download API, Multi file upload/download, OS-specific directory listing parsers, Chmod/file permissions, CCC command support, New commands (SetModifiedTime, MoveFile, MoveDirectory), Rewritte DeleteDirectory & FileExists, Server timezone conversion, Hiding sensitive data from logs, Argument validation, Numerous fixes and maintainance
+- [Artiom Chilaru](https://github.com/artiomchi) - Migrate to a single VS 2017 solution, Continuous Integration using AppVeyor, New async methods for UploadFile/DownloadFile/UploadFiles/DownloadFiles, Numerous fixes and improvements for .NET core
 - [Jordan Blacker](https://github.com/jblacker) - `async`/`await` support for all methods, post-transfer hash verification, configurable error handling, multiple log levels
 - [Zhaoquan Huang](https://github.com/taoyouh) - Async methods for .NET Standard, Some fixes
 - [Atif Aziz](https://github.com/atifaziz) & Joseph Albahari - LINQBridge (allows LINQ in .NET 2.0)
