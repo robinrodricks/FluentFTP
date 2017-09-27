@@ -1262,6 +1262,19 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 19.0.0
+- New Task-based async methods for .NET Standard and .NET Fx 4.5 (thanks @taoyouh)
+- New async methods for UploadFile, DownloadFile, UploadFiles & DownloadFiles (thanks @artiomchi)
+- (UWP) Fix: FileNotFoundException with reference System.Console (thanks @artiomchi)
+- (.NET core) Fix: Thread suspends when calling UploadFile or DownloadFile (thanks @artiomchi)
+- (.NET core) Fix: File download hangs inconsistently when reading data from stream (thanks @artiomchi, @bgroenks96)
+- (.NET core) Fix: Stream does not dispose due to wrong handling of closing/disposing (thanks @artiomchi)
+- Fix: File upload EOS bug when calling Stream.Read (thanks @bgroenks96, @artiomchi, @taoyouh)
+- Fix: DownloadFileInternal not recognizing the download data type
+with EnableThreadSafeConnections (thanks @bgroenks96)
+- (Backend) Migrate to a single VS 2017 solution for all frameworks (thanks @artiomchi)
+- (Backend) Continuous Integration using AppVeyor  (thanks @artiomchi)
+
 #### 18.0.1
 - Add IFtpClient interface to build unit tests upon main FtpClient class (thanks [Kris0](https://github.com/Kris0))
 - Disposing FtpDataStream reads server reply and closes the underlying stream (thanks [Lukazoid](https://github.com/Lukazoid))

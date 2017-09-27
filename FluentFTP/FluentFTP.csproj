@@ -27,13 +27,14 @@
 
   <PropertyGroup>
     <PackageId>FluentFTP</PackageId>
+    <Title>FluentFTP</Title>
     <Description>An FTP and FTPS client for .NET &amp; .NET Standard, optimized for speed. Provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, UTF-8 support, Async/await support and more. Written entirely in C#, with no external dependencies.</Description>
-    <Authors>Harsh Gupta, J.P. Trosclair, FluentFTP Contributors</Authors>
-    <PackageLicenseUrl>https://github.com/hgupta9/FluentFTP/blob/master/LICENSE.TXT</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/hgupta9/FluentFTP</PackageProjectUrl>
+    <Authors>Robin Rodricks, J.P. Trosclair, FluentFTP Contributors</Authors>
+    <PackageLicenseUrl>https://github.com/robinrodricks/FluentFTP/blob/master/LICENSE.TXT</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/robinrodricks/FluentFTP</PackageProjectUrl>
     <Copyright>MIT License</Copyright>
     <PackageTags>ftp,ftp-client,ftps,ssl,tls,unix,iis</PackageTags>
-    <VersionPrefix>18.0.2</VersionPrefix>
+    <VersionPrefix>19.0.0</VersionPrefix>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
