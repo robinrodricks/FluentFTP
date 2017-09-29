@@ -10,7 +10,7 @@ using System.Text;
 #endif
 
 namespace FluentFTP {
-	
+
 #if !CORE
 	/// <summary>
 	/// .NET SslStream doesn't close TLS connection properly.

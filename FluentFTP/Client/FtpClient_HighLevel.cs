@@ -182,7 +182,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
 			if (remoteDir.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remoteDir");
-			
+
 			FtpTrace.WriteFunc("UploadFiles", new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
 			//int count = 0;
@@ -465,7 +465,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
 			if (localDir.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "localDir");
-			
+
 			FtpTrace.WriteFunc("DownloadFiles", new object[] { localDir, remotePaths, overwrite, verifyOptions });
 
 			bool errorEncountered = false;
@@ -694,7 +694,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			
+
 			FtpTrace.WriteFunc("UploadFile", new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 
 			// skip uploading if the local file does not exist
@@ -769,18 +769,18 @@ namespace FluentFTP {
 #endif
 
 		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions) {
-			
+
 			// If retries are allowed set the retry counter to the allowed count
 			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
-			
+
 			// Default validation to true (if verification isn't needed it'll allow a pass-through)
 			bool verified = true;
 			bool uploadSuccess;
 			do {
-				
+
 				// write the file onto the server
 				using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-					
+
 					// Upload file
 					uploadSuccess = UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown);
 					attemptsLeft--;
@@ -790,7 +790,7 @@ namespace FluentFTP {
 						verified = VerifyTransfer(localPath, remotePath);
 						FtpTrace.WriteStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 						if (!verified && attemptsLeft > 0) {
-							
+
 							// Force overwrite if a retry is required
 							FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
 							existsMode = FtpExists.Overwrite;
@@ -874,7 +874,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "fileStream");
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			
+
 			FtpTrace.WriteFunc("Upload", new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
@@ -897,7 +897,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "fileData");
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			
+
 			FtpTrace.WriteFunc("Upload", new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
@@ -1014,7 +1014,7 @@ namespace FluentFTP {
 				// check if the file exists, and skip, overwrite or append
 				if (existsMode == FtpExists.NoCheck) {
 					checkFileExistsAgain = true;
-				}else{
+				} else {
 					if (!fileExistsKnown) {
 						fileExists = FileExists(remotePath);
 					}
@@ -1121,7 +1121,7 @@ namespace FluentFTP {
 
 							// zero return value (with no Exception) indicates EOS; so we should terminate the outer loop here
 							break;
-                        } catch (IOException ex) {
+						} catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
 							if (!ResumeUpload(remotePath, ref upStream, offset, ex)) {
@@ -1359,7 +1359,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			
+
 			FtpTrace.WriteFunc("DownloadFile", new object[] { localPath, remotePath, overwrite, verifyOptions });
 
 			return DownloadFileToFile(localPath, remotePath, overwrite, verifyOptions);
@@ -1373,14 +1373,14 @@ namespace FluentFTP {
 			}
 
 			try {
-				
+
 				// create the folders
 				string dirPath = Path.GetDirectoryName(localPath);
 				if (!FtpExtensions.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
 					Directory.CreateDirectory(dirPath);
 				}
 			} catch (Exception ex1) {
-				
+
 				// catch errors creating directory
 				throw new FtpException("Error while creating directories. See InnerException for more info.", ex1);
 			}
@@ -1392,7 +1392,7 @@ namespace FluentFTP {
 
 				// download the file from server
 				using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)) {
-					
+
 					// download the file straight to a file stream
 					downloadSuccess = DownloadFileInternal(remotePath, outStream);
 					attemptsLeft--;
@@ -1557,7 +1557,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "outStream");
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			
+
 			FtpTrace.WriteFunc("Download", new object[] { remotePath });
 
 			// download the file from the server
@@ -1577,7 +1577,7 @@ namespace FluentFTP {
 			// verify args
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			
+
 			FtpTrace.WriteFunc("Download", new object[] { remotePath });
 
 			outBytes = null;
@@ -1734,7 +1734,7 @@ namespace FluentFTP {
 
 							// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
 							throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
-                        } catch (IOException ex) {
+						} catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
 							if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
@@ -1782,7 +1782,7 @@ namespace FluentFTP {
 
 							// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
 							throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
-                        } catch (IOException ex) {
+						} catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
 							if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
@@ -1986,7 +1986,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			
+
 			if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
 				this.HasFeature(FtpCapability.XMD5) || this.HasFeature(FtpCapability.XCRC) ||
 				this.HasFeature(FtpCapability.XSHA1) || this.HasFeature(FtpCapability.XSHA256) ||

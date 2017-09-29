@@ -91,7 +91,7 @@ namespace FluentFTP {
 			FtpHashAlgorithm type = FtpHashAlgorithm.NONE;
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				if ((reply = Execute("OPTS HASH")).Success) {
 					switch (reply.Message) {
@@ -110,7 +110,7 @@ namespace FluentFTP {
 					}
 				}
 #if !CORE14
-            }
+			}
 #endif
 
 			return type;
@@ -186,7 +186,7 @@ namespace FluentFTP {
 			string algorithm;
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				if ((HashAlgorithms & type) != type)
 					throw new NotImplementedException(("The hash algorithm " + type.ToString() + " was not advertised by the server."));
@@ -212,7 +212,7 @@ namespace FluentFTP {
 				if (!(reply = Execute("OPTS HASH " + algorithm)).Success)
 					throw new FtpCommandException(reply);
 #if !CORE14
-            }
+			}
 #endif
 		}
 
@@ -303,12 +303,12 @@ namespace FluentFTP {
 				throw new ArgumentException("GetHash(path) argument can't be null");
 
 #if !CORE14
-            lock (m_lock) {
+			lock (m_lock) {
 #endif
 				if (!(reply = Execute("HASH " + path.GetFtpPath())).Success)
 					throw new FtpCommandException(reply);
 #if !CORE14
-            }
+			}
 #endif
 
 			// Current draft says the server should return this:

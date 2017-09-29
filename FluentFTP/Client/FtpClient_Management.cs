@@ -88,7 +88,7 @@ namespace FluentFTP {
 			// verify args
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			
+
 #if !CORE14
 			lock (m_lock) {
 #endif
@@ -168,7 +168,7 @@ namespace FluentFTP {
 			// verify args
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			
+
 			FtpTrace.WriteFunc("DeleteDirectory", new object[] { path });
 			DeleteDirInternal(path, true, FtpListOption.ForceList | FtpListOption.Recursive);
 		}
@@ -184,7 +184,7 @@ namespace FluentFTP {
 			// verify args
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			
+
 			FtpTrace.WriteFunc("DeleteDirectory", new object[] { path, options });
 			DeleteDirInternal(path, true, options);
 		}
@@ -460,7 +460,7 @@ namespace FluentFTP {
 			// dont verify args as blank/null path is OK
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
-			
+
 			FtpTrace.WriteFunc("DirectoryExists", new object[] { path });
 
 			// quickly check if root path, then it always exists!
@@ -589,7 +589,7 @@ namespace FluentFTP {
 			// verify args
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			
+
 #if !CORE14
 			lock (m_lock) {
 #endif
@@ -774,7 +774,7 @@ namespace FluentFTP {
 			// dont verify args as blank/null path is OK
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
-			
+
 			FtpTrace.WriteFunc("CreateDirectory", new object[] { path, force });
 
 			FtpReply reply;
@@ -917,7 +917,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			if (dest.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "dest");
-			
+
 #if !CORE14
 			lock (m_lock) {
 #endif
@@ -1025,7 +1025,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			if (dest.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "dest");
-			
+
 			FtpTrace.WriteFunc("MoveFile", new object[] { path, dest, existsMode });
 
 			if (FileExists(path)) {
@@ -1136,9 +1136,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region Move Directory
+		#region Move Directory
 
 		/// <summary>
 		/// Moves a directory on the remote file system from one directory to another.
@@ -1156,7 +1156,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			if (dest.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "dest");
-			
+
 			FtpTrace.WriteFunc("MoveDirectory", new object[] { path, dest, existsMode });
 
 			if (DirectoryExists(path)) {
@@ -1286,7 +1286,7 @@ namespace FluentFTP {
 			// verify args
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			
+
 #if !CORE14
 			lock (m_lock) {
 #endif
@@ -1431,7 +1431,7 @@ namespace FluentFTP {
 			// verify args
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			
+
 			FtpTrace.WriteFunc("GetFilePermissions", new object[] { path });
 
 			string fullPath = path.GetFtpPath();
@@ -1498,7 +1498,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
 		#region Dereference Link
 
@@ -1690,9 +1690,9 @@ namespace FluentFTP {
         }
 #endif
 
-#endregion
+		#endregion
 
-#region Set Working Dir
+		#region Set Working Dir
 
 		/// <summary>
 		/// Sets the work directory on the server
@@ -1773,9 +1773,9 @@ namespace FluentFTP {
 				throw new FtpCommandException(reply);
 		}
 #endif
-#endregion
+		#endregion
 
-#region Get Working Dir
+		#region Get Working Dir
 
 		/// <summary>
 		/// Gets the current working directory
@@ -1876,9 +1876,9 @@ namespace FluentFTP {
             return "./";
         }
 #endif
-#endregion
+		#endregion
 
-#region Get File Size
+		#region Get File Size
 
 		/// <summary>
 		/// Gets the size of a remote file
@@ -1891,7 +1891,7 @@ namespace FluentFTP {
 			// verify args
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			
+
 			FtpTrace.WriteFunc("GetFileSize", new object[] { path });
 
 			FtpReply reply;
@@ -1995,9 +1995,9 @@ namespace FluentFTP {
             return length;
         }
 #endif
-#endregion
+		#endregion
 
-#region Get Modified Time
+		#region Get Modified Time
 
 		/// <summary>
 		/// Gets the modified time of a remote file
@@ -2011,7 +2011,7 @@ namespace FluentFTP {
 			// verify args
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			
+
 			FtpTrace.WriteFunc("GetModifiedTime", new object[] { path, type });
 
 			DateTime date = DateTime.MinValue;
@@ -2029,18 +2029,18 @@ namespace FluentFTP {
 						date = (date - m_listParser.timeOffset);
 					}
 
-                // convert to local time if wanted
+					// convert to local time if wanted
 #if !CORE
 					if (type == FtpDate.Local) {
 						date = TimeZone.CurrentTimeZone.ToLocalTime(date);
 					}
 #endif
-            }
+				}
 #if !CORE14
 			}
 #endif
 
-            return date;
+			return date;
 		}
 
 #if !CORE
@@ -2119,9 +2119,9 @@ namespace FluentFTP {
         }
 #endif
 
-#endregion
+		#endregion
 
-#region Set Modified Time
+		#region Set Modified Time
 
 		/// <summary>
 		/// Changes the modified time of a remote file
@@ -2145,22 +2145,22 @@ namespace FluentFTP {
 			lock (m_lock) {
 #endif
 
-            // convert local to UTC if wanted
+				// convert local to UTC if wanted
 #if !CORE
 				if (type == FtpDate.Local) {
 					date = TimeZone.CurrentTimeZone.ToUniversalTime(date);
 				}
 #endif
 
-            // convert UTC to server timezone, based on the TimeOffset property
-            if (type != FtpDate.Original && m_listParser.hasTimeOffset) {
+				// convert UTC to server timezone, based on the TimeOffset property
+				if (type != FtpDate.Original && m_listParser.hasTimeOffset) {
 					date = (date + m_listParser.timeOffset);
 				}
 
 				// set modified date of a file
 				string timeStr = date.ToString("yyyyMMddHHmmss");
 				if ((reply = Execute("MFMT " + timeStr + " " + path.GetFtpPath())).Success) {
-					
+
 				}
 #if !CORE14
 			}

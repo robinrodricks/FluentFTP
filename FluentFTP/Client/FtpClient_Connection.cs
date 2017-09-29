@@ -782,8 +782,8 @@ namespace FluentFTP {
 			conn.UploadRateLimit = UploadRateLimit;
 			conn.DownloadRateLimit = DownloadRateLimit;
 			conn.RecursiveList = RecursiveList;
-            conn.DownloadDataType = DownloadDataType;
-            conn.UploadDataType = UploadDataType;
+			conn.DownloadDataType = DownloadDataType;
+			conn.UploadDataType = UploadDataType;
 #if !CORE
 			conn.PlainTextEncryption = PlainTextEncryption;
 #endif
@@ -801,7 +801,7 @@ namespace FluentFTP {
 			// gets here it means the certificate on the control connection object being
 			// cloned was already accepted.
 			conn.ValidateCertificate += new FtpSslValidation(
-				delegate(FtpClient obj, FtpSslValidationEventArgs e) {
+				delegate (FtpClient obj, FtpSslValidationEventArgs e) {
 					e.Accept = true;
 				});
 
@@ -948,19 +948,19 @@ namespace FluentFTP {
         }
 #endif
 
-#endregion
+		#endregion
 
-        #region Get Reply
+		#region Get Reply
 
-        /// <summary>
-        /// Retrieves a reply from the server. Do not execute this method
-        /// unless you are sure that a reply has been sent, i.e., you
-        /// executed a command. Doing so will cause the code to hang
-        /// indefinitely waiting for a server reply that is never coming.
-        /// </summary>
-        /// <returns>FtpReply representing the response from the server</returns>
-        /// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
-        public FtpReply GetReply() {
+		/// <summary>
+		/// Retrieves a reply from the server. Do not execute this method
+		/// unless you are sure that a reply has been sent, i.e., you
+		/// executed a command. Doing so will cause the code to hang
+		/// indefinitely waiting for a server reply that is never coming.
+		/// </summary>
+		/// <returns>FtpReply representing the response from the server</returns>
+		/// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
+		public FtpReply GetReply() {
 			FtpReply reply = new FtpReply();
 			string buf;
 
@@ -1078,11 +1078,11 @@ namespace FluentFTP {
         }
 #endif
 
-        #endregion
+		#endregion
 
-        #region Connect
+		#region Connect
 
-        private FtpListParser m_listParser;
+		private FtpListParser m_listParser;
 
 		/// <summary>
 		/// Connect to the server
@@ -1332,11 +1332,11 @@ namespace FluentFTP {
         }
 #endif
 
-        /// <summary>
-            /// Connect to the FTP server. Overwritten in proxy classes.
-            /// </summary>
-            /// <param name="stream"></param>
-        protected virtual void Connect(FtpSocketStream stream) {
+		/// <summary>
+		/// Connect to the FTP server. Overwritten in proxy classes.
+		/// </summary>
+		/// <param name="stream"></param>
+		protected virtual void Connect(FtpSocketStream stream) {
 			stream.Connect(Host, Port, InternetProtocolVersions);
 		}
 
@@ -1351,10 +1351,10 @@ namespace FluentFTP {
         }
 #endif
 
-        /// <summary>
-        /// Connect to the FTP server. Overwritten in proxy classes.
-        /// </summary>
-        protected virtual void Connect(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions) {
+		/// <summary>
+		/// Connect to the FTP server. Overwritten in proxy classes.
+		/// </summary>
+		protected virtual void Connect(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions) {
 			stream.Connect(host, port, ipVersions);
 		}
 
@@ -1368,10 +1368,10 @@ namespace FluentFTP {
         }
 #endif
 
-        /// <summary>
-        /// Called during Connect(). Typically extended by FTP proxies.
-        /// </summary>
-        protected virtual void Handshake() {
+		/// <summary>
+		/// Called during Connect(). Typically extended by FTP proxies.
+		/// </summary>
+		protected virtual void Handshake() {
 			FtpReply reply;
 			if (!(reply = GetReply()).Success) {
 				if (reply.Code == null) {
@@ -1403,14 +1403,14 @@ namespace FluentFTP {
         }
 #endif
 
-        /// <summary>
-        /// Populates the capabilities flags based on capabilities
-        /// supported by this server. This method is overridable
-        /// so that new features can be supported
-        /// </summary>
-        /// <param name="reply">The reply object from the FEAT command. The InfoMessages property will
-        /// contain a list of the features the server supported delimited by a new line '\n' character.</param>
-        protected virtual void GetFeatures(FtpReply reply) {
+		/// <summary>
+		/// Populates the capabilities flags based on capabilities
+		/// supported by this server. This method is overridable
+		/// so that new features can be supported
+		/// </summary>
+		/// <param name="reply">The reply object from the FEAT command. The InfoMessages property will
+		/// contain a list of the features the server supported delimited by a new line '\n' character.</param>
+		protected virtual void GetFeatures(FtpReply reply) {
 			foreach (string feat in reply.InfoMessages.Split('\n')) {
 				if (feat.ToUpper().Trim().StartsWith("MLST") || feat.ToUpper().Trim().StartsWith("MLSD"))
 					m_caps |= FtpCapability.MLSD;
@@ -1510,7 +1510,7 @@ namespace FluentFTP {
 		}
 #endif
 
-        #endregion
+		#endregion
 
 		#region Login
 
@@ -1535,12 +1535,12 @@ namespace FluentFTP {
         }
 #endif
 
-        /// <summary>
-        /// Performs a login on the server. This method is overridable so
-        /// that the login procedure can be changed to support, for example,
-        /// a FTP proxy.
-        /// </summary>
-        protected virtual void Authenticate(string userName, string password) {
+		/// <summary>
+		/// Performs a login on the server. This method is overridable so
+		/// that the login procedure can be changed to support, for example,
+		/// a FTP proxy.
+		/// </summary>
+		protected virtual void Authenticate(string userName, string password) {
 			FtpReply reply;
 
 			if (!(reply = Execute("USER " + userName)).Success)
@@ -2021,7 +2021,7 @@ namespace FluentFTP {
 				cl.Credentials = new NetworkCredential("ftp", "ftp");
 			}
 
-			cl.ValidateCertificate += new FtpSslValidation(delegate(FtpClient control, FtpSslValidationEventArgs e) {
+			cl.ValidateCertificate += new FtpSslValidation(delegate (FtpClient control, FtpSslValidationEventArgs e) {
 				if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None && checkcertificate)
 					e.Accept = false;
 				else

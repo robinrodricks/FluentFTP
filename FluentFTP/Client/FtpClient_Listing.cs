@@ -193,7 +193,7 @@ namespace FluentFTP {
 			// verify args
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			
+
 			FtpTrace.WriteFunc("GetObjectInfo", new object[] { path, dateModified });
 
 			FtpReply reply;

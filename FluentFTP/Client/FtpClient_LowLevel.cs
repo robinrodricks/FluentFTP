@@ -768,7 +768,7 @@ namespace FluentFTP {
 		public Stream OpenRead(string path, long restart) {
 			return OpenRead(path, FtpDataType.Binary, restart, true);
 		}
-		
+
 		/// <summary>
 		/// Opens the specified file for reading
 		/// </summary>
@@ -795,7 +795,7 @@ namespace FluentFTP {
 			// verify args
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			
+
 			FtpTrace.WriteFunc("OpenRead", new object[] { path, type, restart });
 
 			FtpClient client = null;
@@ -805,8 +805,8 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-                this.SetDataType(type);
-                if (m_threadSafeDataChannels) {
+				this.SetDataType(type);
+				if (m_threadSafeDataChannels) {
 					client = CloneConnection();
 					client.Connect();
 					client.SetWorkingDirectory(GetWorkingDirectory());
@@ -1012,7 +1012,7 @@ namespace FluentFTP {
 		public Stream OpenWrite(string path) {
 			return OpenWrite(path, FtpDataType.Binary, true);
 		}
-		
+
 		/// <summary>
 		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// </summary>
@@ -1037,7 +1037,7 @@ namespace FluentFTP {
 			// verify args
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			
+
 			FtpTrace.WriteFunc("OpenWrite", new object[] { path, type });
 
 			FtpClient client = null;
@@ -1191,7 +1191,7 @@ namespace FluentFTP {
 		public Stream OpenAppend(string path) {
 			return OpenAppend(path, FtpDataType.Binary, true);
 		}
-		
+
 		/// <summary>
 		/// Opens the specified file for appending. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// </summary>
@@ -1217,7 +1217,7 @@ namespace FluentFTP {
 			// verify args
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			
+
 			FtpTrace.WriteFunc("OpenAppend", new object[] { path, type });
 
 			FtpClient client = null;

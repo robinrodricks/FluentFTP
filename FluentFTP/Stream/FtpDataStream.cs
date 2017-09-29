@@ -168,7 +168,7 @@ namespace FluentFTP {
 			// always accept certificate no matter what because if code execution ever
 			// gets here it means the certificate on the control connection object being
 			// cloned was already accepted.
-			ValidateCertificate += new FtpSocketStreamSslValidation(delegate(FtpSocketStream obj, FtpSslValidationEventArgs e) {
+			ValidateCertificate += new FtpSocketStreamSslValidation(delegate (FtpSocketStream obj, FtpSslValidationEventArgs e) {
 				e.Accept = true;
 			});
 
@@ -182,7 +182,7 @@ namespace FluentFTP {
 			try {
 				Dispose();
 			} catch (Exception ex) {
-				FtpTrace.WriteLine(FtpTraceLevel.Warn, "[Finalizer] Caught and discarded an exception while disposing the FtpDataStream: "+ ex.ToString());
+				FtpTrace.WriteLine(FtpTraceLevel.Warn, "[Finalizer] Caught and discarded an exception while disposing the FtpDataStream: " + ex.ToString());
 			}
 		}
 	}
