@@ -215,7 +215,7 @@ namespace FluentFTP {
 
 				// try to upload it
 				try {
-					bool ok = UploadFileFromFile(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true, verifyOptions);
+					bool ok = UploadFileFromFile(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true, verifyOptions, null);
 					if (ok) {
 						successfulUploads.Add(remotePath);
 						//count++;
@@ -356,7 +356,7 @@ namespace FluentFTP {
 
 				// try to upload it
 				try {
-					bool ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true, verifyOptions, token);
+					bool ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true, verifyOptions, token, null);
 					if (ok) {
 						successfulUploads.Add(remotePath);
 					} else if ((int)errorHandling > 1) {
@@ -481,7 +481,7 @@ namespace FluentFTP {
 
 				// try to download it
 				try {
-					bool ok = DownloadFileToFile(localPath, remotePath, overwrite, verifyOptions);
+					bool ok = DownloadFileToFile(localPath, remotePath, overwrite, verifyOptions, null);
 					if (ok) {
 						successfulDownloads.Add(localPath);
 					} else if ((int)errorHandling > 1) {
@@ -596,7 +596,7 @@ namespace FluentFTP {
 
 				// try to download it
 				try {
-					bool ok = await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, token);
+					bool ok = await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, token, null);
 					if (ok) {
 						successfulDownloads.Add(localPath);
 					} else if ((int)errorHandling > 1) {
@@ -687,7 +687,7 @@ namespace FluentFTP {
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
 		/// </remarks>
 		public bool UploadFile(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false,
-			FtpVerify verifyOptions = FtpVerify.None) {
+			FtpVerify verifyOptions = FtpVerify.None, IProgress<double> progress = null) {
 
 			// verify args
 			if (localPath.IsBlank())
@@ -703,7 +703,7 @@ namespace FluentFTP {
 				return false;
 			}
 
-			return UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions);
+			return UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, progress);
 		}
 
 #if ASYNC
@@ -727,7 +727,7 @@ namespace FluentFTP {
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
 		/// </remarks>
 		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode, bool createRemoteDir,
-			FtpVerify verifyOptions, CancellationToken token) {
+			FtpVerify verifyOptions, CancellationToken token, IProgress<double> progress) {
 
 			// verify args
 			if (localPath.IsBlank())
@@ -743,7 +743,7 @@ namespace FluentFTP {
 
 			FtpTrace.WriteFunc("UploadFileAsync", new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 
-			return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token);
+			return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token, progress);
 		}
 
 		/// <summary>
@@ -764,11 +764,11 @@ namespace FluentFTP {
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpExists.Overwrite"/>.
 		/// </remarks>
 		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None) {
-			return await UploadFileAsync(localPath, remotePath, existsMode, createRemoteDir, verifyOptions, CancellationToken.None);
+			return await UploadFileAsync(localPath, remotePath, existsMode, createRemoteDir, verifyOptions, CancellationToken.None, null);
 		}
 #endif
 
-		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions) {
+		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, IProgress<double> progress) {
 
 			// If retries are allowed set the retry counter to the allowed count
 			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
@@ -782,7 +782,7 @@ namespace FluentFTP {
 				using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
 
 					// Upload file
-					uploadSuccess = UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown);
+					uploadSuccess = UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, progress);
 					attemptsLeft--;
 
 					// If verification is needed, update the validated flag
@@ -813,7 +813,7 @@ namespace FluentFTP {
 
 #if ASYNC
 		private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode,
-			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token) {
+			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token, IProgress<double> progress) {
 
 			// If retries are allowed set the retry counter to the allowed count
 			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
@@ -825,7 +825,7 @@ namespace FluentFTP {
 
 				// write the file onto the server
 				using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-					uploadSuccess = await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, token);
+					uploadSuccess = await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, token, progress);
 					attemptsLeft--;
 
 					// If verification is needed, update the validated flag
@@ -867,7 +867,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance
 		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		public bool Upload(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+		public bool Upload(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, IProgress<double> progress = null) {
 
 			// verify args
 			if (fileStream == null)
@@ -878,7 +878,7 @@ namespace FluentFTP {
 			FtpTrace.WriteFunc("Upload", new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
-			return UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, false, false);
+			return UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, false, false, progress);
 		}
 		/// <summary>
 		/// Uploads the specified byte array as a file onto the server.
@@ -890,7 +890,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance 
 		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		public bool Upload(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
+		public bool Upload(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, IProgress<double> progress = null) {
 
 			// verify args
 			if (fileData == null)
@@ -903,7 +903,7 @@ namespace FluentFTP {
 			// write the file onto the server
 			using (MemoryStream ms = new MemoryStream(fileData)) {
 				ms.Position = 0;
-				return UploadFileInternal(ms, remotePath, createRemoteDir, existsMode, false, false);
+				return UploadFileInternal(ms, remotePath, createRemoteDir, existsMode, false, false, progress);
 			}
 		}
 
@@ -921,7 +921,7 @@ namespace FluentFTP {
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="token">The token to monitor for cancellation requests.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public async Task<bool> UploadAsync(Stream fileStream, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
+		public async Task<bool> UploadAsync(Stream fileStream, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token, IProgress<double> progress) {
 
 			// verify args
 			if (fileStream == null)
@@ -932,7 +932,7 @@ namespace FluentFTP {
 			FtpTrace.WriteFunc("UploadAsync", new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
-			return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, false, false, token);
+			return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, false, false, token, progress);
 		}
 
 		/// <summary>
@@ -947,7 +947,7 @@ namespace FluentFTP {
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="token">The token to monitor for cancellation requests.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
-		public async Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token) {
+		public async Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token, IProgress<double> progress) {
 
 			// verify args
 			if (fileData == null)
@@ -960,7 +960,7 @@ namespace FluentFTP {
 			// write the file onto the server
 			using (MemoryStream ms = new MemoryStream(fileData)) {
 				ms.Position = 0;
-				return await UploadFileInternalAsync(ms, remotePath, createRemoteDir, existsMode, false, false, token);
+				return await UploadFileInternalAsync(ms, remotePath, createRemoteDir, existsMode, false, false, token, progress);
 			}
 		}
 
@@ -976,7 +976,7 @@ namespace FluentFTP {
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
 		public async Task<bool> UploadAsync(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
-			return await UploadAsync(fileStream, remotePath, existsMode, createRemoteDir, CancellationToken.None);
+			return await UploadAsync(fileStream, remotePath, existsMode, createRemoteDir, CancellationToken.None, null);
 		}
 
 		/// <summary>
@@ -991,7 +991,7 @@ namespace FluentFTP {
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
 		public async Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false) {
-			return await UploadAsync(fileData, remotePath, existsMode, createRemoteDir, CancellationToken.None);
+			return await UploadAsync(fileData, remotePath, existsMode, createRemoteDir, CancellationToken.None, null);
 		}
 #endif
 
@@ -1003,7 +1003,7 @@ namespace FluentFTP {
 		/// Upload the given stream to the server as a new file. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private bool UploadFileInternal(Stream fileData, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown) {
+		private bool UploadFileInternal(Stream fileData, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, IProgress<double> progress) {
 			Stream upStream = null;
 
 			try {
@@ -1083,6 +1083,11 @@ namespace FluentFTP {
 								upStream.Write(buffer, 0, readBytes);
 								upStream.Flush();
 								offset += readBytes;
+
+								// send progress reports
+								if (progress != null) {
+									progress.Report(((double)offset / (double)len) * 100);
+								}
 							}
 
 							// zero return value (with no Exception) indicates EOS; so we should terminate the outer loop here
@@ -1112,6 +1117,13 @@ namespace FluentFTP {
 								upStream.Flush();
 								offset += readBytes;
 								limitCheckBytes += readBytes;
+
+								// send progress reports
+								if (progress != null) {
+									progress.Report(((double)offset / (double)len) * 100);
+								}
+
+								// honor the speed limit
 								int swTime = (int)sw.ElapsedMilliseconds;
 								if (swTime >= 1000) {
 									double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
@@ -1147,6 +1159,11 @@ namespace FluentFTP {
 				while (upStream.Position < upStream.Length) {
 				}
 
+				// send progress reports
+				if (progress != null) {
+					progress.Report(100.0);
+				}
+
 				// disconnect FTP stream before exiting
 				upStream.Dispose();
 
@@ -1176,7 +1193,7 @@ namespace FluentFTP {
 		/// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private async Task<bool> UploadFileInternalAsync(Stream fileData, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, CancellationToken token) {
+		private async Task<bool> UploadFileInternalAsync(Stream fileData, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, CancellationToken token, IProgress<double> progress) {
 			Stream upStream = null;
 			try {
 				long offset = 0;
@@ -1247,10 +1264,16 @@ namespace FluentFTP {
 							// read a chunk of bytes from the file
 							int readBytes;
 							while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
+
 								// write chunk to the FTP stream
 								await upStream.WriteAsync(buffer, 0, readBytes, token);
 								await upStream.FlushAsync(token);
 								offset += readBytes;
+
+								// send progress reports
+								if (progress != null) {
+									progress.Report(((double)offset / (double)len) * 100);
+								}
 							}
 
 							// zero return value (with no Exception) indicates EOS; so we should terminate the outer loop here
@@ -1264,20 +1287,30 @@ namespace FluentFTP {
 						}
 					}
 				} else {
+
 					Stopwatch sw = new Stopwatch();
 					double rateLimitBytes = UploadRateLimit * 1024;
 					while (offset < len) {
 						try {
+
 							// read a chunk of bytes from the file
 							int readBytes;
 							double limitCheckBytes = 0;
 							sw.Start();
 							while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
+
 								// write chunk to the FTP stream
 								await upStream.WriteAsync(buffer, 0, readBytes, token);
 								await upStream.FlushAsync(token);
 								offset += readBytes;
 								limitCheckBytes += readBytes;
+
+								// send progress reports
+								if (progress != null) {
+									progress.Report(((double)offset / (double)len) * 100);
+								}
+
+								// honor the rate limit
 								int swTime = (int)sw.ElapsedMilliseconds;
 								if (swTime >= 1000) {
 									double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
@@ -1368,7 +1401,7 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-		public bool DownloadFile(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None) {
+		public bool DownloadFile(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None, IProgress<double> progress = null) {
 
 			// verify args
 			if (localPath.IsBlank())
@@ -1378,10 +1411,10 @@ namespace FluentFTP {
 
 			FtpTrace.WriteFunc("DownloadFile", new object[] { localPath, remotePath, overwrite, verifyOptions });
 
-			return DownloadFileToFile(localPath, remotePath, overwrite, verifyOptions);
+			return DownloadFileToFile(localPath, remotePath, overwrite, verifyOptions, progress);
 		}
 
-		private bool DownloadFileToFile(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions) {
+		private bool DownloadFileToFile(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, IProgress<double> progress) {
 			// skip downloading if the local file exists
 			if (!overwrite && File.Exists(localPath)) {
 				FtpTrace.WriteStatus(FtpTraceLevel.Error, "Overwrite is false and local file already exists.");
@@ -1410,7 +1443,7 @@ namespace FluentFTP {
 				using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)) {
 
 					// download the file straight to a file stream
-					downloadSuccess = DownloadFileInternal(remotePath, outStream);
+					downloadSuccess = DownloadFileInternal(remotePath, outStream, progress);
 					attemptsLeft--;
 				}
 
@@ -1454,7 +1487,7 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-		public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token) {
+		public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token, IProgress<double> progress) {
 
 			// verify args
 			if (localPath.IsBlank())
@@ -1464,7 +1497,7 @@ namespace FluentFTP {
 			
 			FtpTrace.WriteFunc("DownloadFileAsync", new object[] { localPath, remotePath, overwrite, verifyOptions });
 
-			return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, token);
+			return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, token, progress);
 		}
 
 		/// <summary>
@@ -1482,7 +1515,7 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-		public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None) {
+		public async Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None, IProgress<double> progress = null) {
 
 			// verify args
 			if (localPath.IsBlank())
@@ -1492,10 +1525,10 @@ namespace FluentFTP {
 			
 			FtpTrace.WriteFunc("DownloadFileAsync", new object[] { localPath, remotePath, overwrite, verifyOptions });
 
-			return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, CancellationToken.None);
+			return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, CancellationToken.None, progress);
 		}
 
-		private async Task<bool> DownloadFileToFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token) {
+		private async Task<bool> DownloadFileToFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token, IProgress<double> progress) {
 			if (string.IsNullOrWhiteSpace(localPath))
 				throw new ArgumentNullException("localPath");
 
@@ -1527,7 +1560,7 @@ namespace FluentFTP {
 				using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)) {
 					
 					// download the file straight to a file stream
-					downloadSuccess = await DownloadFileInternalAsync(remotePath, outStream, token);
+					downloadSuccess = await DownloadFileInternalAsync(remotePath, outStream, token, progress);
 					attemptsLeft--;
 				}
 
@@ -1566,7 +1599,7 @@ namespace FluentFTP {
 		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool Download(Stream outStream, string remotePath) {
+		public bool Download(Stream outStream, string remotePath, IProgress<double> progress = null) {
 
 			// verify args
 			if (outStream == null)
@@ -1577,7 +1610,7 @@ namespace FluentFTP {
 			FtpTrace.WriteFunc("Download", new object[] { remotePath });
 
 			// download the file from the server
-			return DownloadFileInternal(remotePath, outStream);
+			return DownloadFileInternal(remotePath, outStream, progress);
 		}
 
 		/// <summary>
@@ -1588,7 +1621,7 @@ namespace FluentFTP {
 		/// <param name="outBytes">The variable that will receive the bytes.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool Download(out byte[] outBytes, string remotePath) {
+		public bool Download(out byte[] outBytes, string remotePath, IProgress<double> progress = null) {
 
 			// verify args
 			if (remotePath.IsBlank())
@@ -1601,7 +1634,7 @@ namespace FluentFTP {
 			// download the file from the server
 			bool ok;
 			using (MemoryStream outStream = new MemoryStream()) {
-				ok = DownloadFileInternal(remotePath, outStream);
+				ok = DownloadFileInternal(remotePath, outStream, progress);
 				if (ok) {
 					outBytes = outStream.ToArray();
 				}
@@ -1619,7 +1652,7 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="token">The token to monitor cancellation requests</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public async Task<bool> DownloadAsync(Stream outStream, string remotePath, CancellationToken token) {
+		public async Task<bool> DownloadAsync(Stream outStream, string remotePath, CancellationToken token, IProgress<double> progress = null) {
 
 			// verify args
 			if (outStream == null)
@@ -1630,7 +1663,7 @@ namespace FluentFTP {
 			FtpTrace.WriteFunc("DownloadAsync", new object[] { remotePath });
 			
 			// download the file from the server
-			return await DownloadFileInternalAsync(remotePath, outStream, token);
+			return await DownloadFileInternalAsync(remotePath, outStream, token, progress);
 		}
 
 		/// <summary>
@@ -1652,7 +1685,7 @@ namespace FluentFTP {
 			FtpTrace.WriteFunc("DownloadAsync", new object[] { remotePath });
 			
 			// download the file from the server
-			return await DownloadFileInternalAsync(remotePath, outStream, CancellationToken.None);
+			return await DownloadFileInternalAsync(remotePath, outStream, CancellationToken.None, null);
 		}
 
 		/// <summary>
@@ -1663,7 +1696,7 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="token">The token to monitor cancellation requests</param>
 		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
-		public async Task<byte[]> DownloadAsync(string remotePath, CancellationToken token) {
+		public async Task<byte[]> DownloadAsync(string remotePath, CancellationToken token, IProgress<double> progress = null) {
 
 			// verify args
 			if (remotePath.IsBlank())
@@ -1673,7 +1706,7 @@ namespace FluentFTP {
 			
 			// download the file from the server
 			using (MemoryStream outStream = new MemoryStream()) {
-				bool ok = await DownloadFileInternalAsync(remotePath, outStream, token);
+				bool ok = await DownloadFileInternalAsync(remotePath, outStream, token, progress);
 				return ok ? outStream.ToArray() : null;
 			}
 		}
@@ -1688,7 +1721,7 @@ namespace FluentFTP {
 		public async Task<byte[]> DownloadAsync(string remotePath) {
 
 			// download the file from the server
-			return await DownloadAsync(remotePath, CancellationToken.None);
+			return await DownloadAsync(remotePath, CancellationToken.None, null);
 		}
 #endif
 
@@ -1700,7 +1733,7 @@ namespace FluentFTP {
 		/// Download a file from the server and write the data into the given stream.
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private bool DownloadFileInternal(string remotePath, Stream outStream) {
+		private bool DownloadFileInternal(string remotePath, Stream outStream, IProgress<double> progress) {
 
 			Stream downStream = null;
 
@@ -1740,6 +1773,11 @@ namespace FluentFTP {
 								// write chunk to output stream
 								outStream.Write(buffer, 0, readBytes);
 								offset += readBytes;
+
+								// send progress reports
+								if (progress != null) {
+									progress.Report(((double)offset / (double)fileLen) * 100);
+								}
 							}
 
 							// if we reach here means EOF encountered
@@ -1775,6 +1813,13 @@ namespace FluentFTP {
 								outStream.Write(buffer, 0, readBytes);
 								offset += readBytes;
 								limitCheckBytes += readBytes;
+
+								// send progress reports
+								if (progress != null) {
+									progress.Report(((double)offset / (double)fileLen) * 100);
+								}
+
+								// honor the rate limit
 								int swTime = (int)sw.ElapsedMilliseconds;
 								if (swTime >= 1000) {
 									double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
@@ -1848,7 +1893,7 @@ namespace FluentFTP {
 		/// Download a file from the server and write the data into the given stream asynchronously.
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private async Task<bool> DownloadFileInternalAsync(string remotePath, Stream outStream, CancellationToken token) {
+		private async Task<bool> DownloadFileInternalAsync(string remotePath, Stream outStream, CancellationToken token, IProgress<double> progress) {
 			Stream downStream = null;
 			try {
 			    // exit if file length == 0
@@ -1873,12 +1918,19 @@ namespace FluentFTP {
 				if (DownloadRateLimit == 0) {
 					while (offset < fileLen || readToEnd) {
 						try {
+
 							// read a chunk of bytes from the FTP stream
 							int readBytes = 1;
 							while ((readBytes = await downStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
+								
 								// write chunk to output stream
 								await outStream.WriteAsync(buffer, 0, readBytes, token);
 								offset += readBytes;
+
+								// send progress reports
+								if (progress != null) {
+									progress.Report(((double)offset / (double)fileLen) * 100);
+								}
 							}
 
 							// if we reach here means EOF encountered
@@ -1903,15 +1955,24 @@ namespace FluentFTP {
 					double rateLimitBytes = DownloadRateLimit * 1024;
 					while (offset < fileLen || readToEnd) {
 						try {
+
 							// read a chunk of bytes from the FTP stream
 							int readBytes = 1;
 							double limitCheckBytes = 0;
 							sw.Start();
 							while ((readBytes = await downStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
+								
 								// write chunk to output stream
 								await outStream.WriteAsync(buffer, 0, readBytes, token);
 								offset += readBytes;
 								limitCheckBytes += readBytes;
+
+								// send progress reports
+								if (progress != null) {
+									progress.Report(((double)offset / (double)fileLen) * 100);
+								}
+
+								// honor the rate limit
 								int swTime = (int)sw.ElapsedMilliseconds;
 								if (swTime >= 1000) {
 									double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;

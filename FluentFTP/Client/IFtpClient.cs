@@ -14,29 +14,9 @@ namespace FluentFTP {
 	/// </summary>
 	public interface IFtpClient {
 
-		void DeleteFile(string path);
-		void DeleteDirectory(string path);
-		void DeleteDirectory(string path, FtpListOption options);
-		bool DirectoryExists(string path);
-		bool FileExists(string path);
-		void CreateDirectory(string path);
-		void CreateDirectory(string path, bool force);
-		void Rename(string path, string dest);
-		bool MoveFile(string path, string dest, FtpExists existsMode = FtpExists.Overwrite);
-		bool MoveDirectory(string path, string dest, FtpExists existsMode = FtpExists.Overwrite);
-		void SetFilePermissions(string path, int permissions);
-		void Chmod(string path, int permissions);
-		void SetFilePermissions(string path, FtpPermission owner, FtpPermission group, FtpPermission other);
-		void Chmod(string path, FtpPermission owner, FtpPermission group, FtpPermission other);
-		FtpListItem GetFilePermissions(string path);
-		int GetChmod(string path);
-		FtpListItem DereferenceLink(FtpListItem item);
-		FtpListItem DereferenceLink(FtpListItem item, int recMax);
-		void SetWorkingDirectory(string path);
-		string GetWorkingDirectory();
-		long GetFileSize(string path);
-		DateTime GetModifiedTime(string path, FtpDate type = FtpDate.Original);
-		void SetModifiedTime(string path, DateTime date, FtpDate type = FtpDate.Original);
+
+		// CONNECTION
+
 		bool IsDisposed { get; }
 		FtpIpVersion InternetProtocolVersions { get; set; }
 		int SocketPollInterval { get; set; }
@@ -85,12 +65,47 @@ namespace FluentFTP {
 		void Disconnect();
 		bool HasFeature(FtpCapability cap);
 		void DisableUTF8();
+
+
+		// MANAGEMENT
+
+		void DeleteFile(string path);
+		void DeleteDirectory(string path);
+		void DeleteDirectory(string path, FtpListOption options);
+		bool DirectoryExists(string path);
+		bool FileExists(string path);
+		void CreateDirectory(string path);
+		void CreateDirectory(string path, bool force);
+		void Rename(string path, string dest);
+		bool MoveFile(string path, string dest, FtpExists existsMode = FtpExists.Overwrite);
+		bool MoveDirectory(string path, string dest, FtpExists existsMode = FtpExists.Overwrite);
+		void SetFilePermissions(string path, int permissions);
+		void Chmod(string path, int permissions);
+		void SetFilePermissions(string path, FtpPermission owner, FtpPermission group, FtpPermission other);
+		void Chmod(string path, FtpPermission owner, FtpPermission group, FtpPermission other);
+		FtpListItem GetFilePermissions(string path);
+		int GetChmod(string path);
+		FtpListItem DereferenceLink(FtpListItem item);
+		FtpListItem DereferenceLink(FtpListItem item, int recMax);
+		void SetWorkingDirectory(string path);
+		string GetWorkingDirectory();
+		long GetFileSize(string path);
+		DateTime GetModifiedTime(string path, FtpDate type = FtpDate.Original);
+		void SetModifiedTime(string path, DateTime date, FtpDate type = FtpDate.Original);
+
+
+		// LISTING
+
 		FtpListItem GetObjectInfo(string path, bool dateModified = false);
 		FtpListItem[] GetListing();
 		FtpListItem[] GetListing(string path);
 		FtpListItem[] GetListing(string path, FtpListOption options);
 		string[] GetNameListing();
 		string[] GetNameListing(string path);
+
+
+		// LOW LEVEL
+
 		Stream OpenRead(string path);
 		Stream OpenRead(string path, FtpDataType type);
 		Stream OpenRead(string path, FtpDataType type, bool checkIfFileExists);
@@ -104,19 +119,25 @@ namespace FluentFTP {
 		Stream OpenAppend(string path);
 		Stream OpenAppend(string path, FtpDataType type);
 		Stream OpenAppend(string path, FtpDataType type, bool checkIfFileExists);
-		int UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true,
-			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None);
-		int UploadFiles(IEnumerable<FileInfo> localFiles, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true,
-			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None);
-		int DownloadFiles(string localDir, IEnumerable<string> remotePaths, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None,
-			FtpError errorHandling = FtpError.None);
-		bool UploadFile(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false,
-			FtpVerify verifyOptions = FtpVerify.None);
-		bool Upload(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false);
-		bool Upload(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false);
-		bool DownloadFile(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None);
-		bool Download(Stream outStream, string remotePath);
-		bool Download(out byte[] outBytes, string remotePath);
+
+
+		// HIGH LEVEL
+
+		int UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None);
+		int UploadFiles(IEnumerable<FileInfo> localFiles, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None);
+		int DownloadFiles(string localDir, IEnumerable<string> remotePaths, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None);
+
+		bool UploadFile(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None, IProgress<double> progress = null);
+		bool Upload(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, IProgress<double> progress = null);
+		bool Upload(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, IProgress<double> progress = null);
+
+		bool DownloadFile(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None, IProgress<double> progress = null);
+		bool Download(Stream outStream, string remotePath, IProgress<double> progress = null);
+		bool Download(out byte[] outBytes, string remotePath, IProgress<double> progress = null);
+
+
+		// HASH
+
 		FtpHashAlgorithm GetHashAlgorithm();
 		void SetHashAlgorithm(FtpHashAlgorithm type);
 		FtpHash GetHash(string path);

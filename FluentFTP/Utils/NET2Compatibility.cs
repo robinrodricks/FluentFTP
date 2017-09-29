@@ -15,6 +15,22 @@ namespace System.Runtime.CompilerServices {
 
 #endif
 
+#if NET20 || NET35 || NET40
+
+/// <summary>
+/// To support progress reporting in .NET 3.5 and .NET 4.0
+/// </summary>
+public interface IProgress<T> {
+
+	/// <summary>
+	/// To support progress reporting in .NET 3.5 and .NET 4.0
+	/// </summary>
+	void Report(T value);
+
+}
+
+#endif
+
 #endregion
 
 #region LINQBridge - LINQ for .NET 2
