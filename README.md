@@ -1262,6 +1262,9 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 19.0.1
+- Fix: Stream.Position should not be set in UploadFileInternal unless supported
+
 #### 19.0.0
 - New Task-based async methods for .NET Standard and .NET Fx 4.5 (thanks @taoyouh)
 - New async methods for UploadFile, DownloadFile, UploadFiles & DownloadFiles (thanks @artiomchi)

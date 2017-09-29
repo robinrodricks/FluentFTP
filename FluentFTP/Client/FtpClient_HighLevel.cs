@@ -1049,8 +1049,16 @@ namespace FluentFTP {
 					}
 				}
 
-				// seek to offset
-				fileData.Position = offset;
+				// FIX #213 : Do not change Stream.Position if not supported
+				if (fileData.CanSeek) {
+					try {
+
+						// seek to required offset
+						fileData.Position = offset;
+
+					} catch (Exception ex2) {
+					}
+				}
 
 				// open a file connection
 				if (offset == 0) {
@@ -1210,9 +1218,17 @@ namespace FluentFTP {
 						await CreateDirectoryAsync(dirname);
 					}
 				}
+				
+				// FIX #213 : Do not change Stream.Position if not supported
+				if (fileData.CanSeek) {
+					try {
 
-				// seek to offset
-				fileData.Position = offset;
+						// seek to required offset
+						fileData.Position = offset;
+
+					} catch (Exception ex2) {
+					}
+				}
 
 				// open a file connection
 				// TODO:  Here is differrent from synchronous version. Needs confirm
