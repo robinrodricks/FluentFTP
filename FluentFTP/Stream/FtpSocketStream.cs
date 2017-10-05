@@ -1129,6 +1129,9 @@ namespace FluentFTP {
 		public async Task AcceptAsync() {
 			if (m_socket != null) {
                 m_socket = await m_socket.AcceptAsync();
+#if CORE
+				m_netStream = new NetworkStream(m_socket);
+#endif
 			}
 		}
 #else
