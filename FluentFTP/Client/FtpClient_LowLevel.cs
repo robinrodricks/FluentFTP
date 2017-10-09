@@ -1463,6 +1463,8 @@ namespace FluentFTP {
                 default:
                     throw new FtpException("Unsupported data type: " + type.ToString());
             }
+
+			CurrentDataType = type;
         }
 #endif
 		#endregion
