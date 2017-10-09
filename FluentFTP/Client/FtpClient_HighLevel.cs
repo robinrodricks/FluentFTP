@@ -1769,7 +1769,7 @@ namespace FluentFTP {
 
 				// if the server has not reported a length for this file
 				// we use an alternate method to download it - read until EOF
-				bool readToEnd = (fileLen <= 0);
+				bool readToEnd = (fileLen <= 0) || CurrentDataType != FtpDataType.Binary;
 
 
 				// loop till entire file downloaded
@@ -1795,13 +1795,16 @@ namespace FluentFTP {
 
 							// if we reach here means EOF encountered
 							// stop if we are in "read until EOF" mode
-							if (readToEnd || offset == fileLen) {
-								break;
-							}
-
-							// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
-							throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
-						} catch (IOException ex) {
+							FtpReply reply = GetReply();
+							if (!readToEnd && offset != fileLen)
+								throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
+							if (!reply.Code.StartsWith("2", StringComparison.Ordinal))
+								throw new IOException(
+									$"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]",
+									new FtpCommandException(reply));
+							break;
+						}
+						catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
 							if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
@@ -1850,13 +1853,16 @@ namespace FluentFTP {
 
 							// if we reach here means EOF encountered
 							// stop if we are in "read until EOF" mode
-							if (readToEnd || offset == fileLen) {
-								break;
-							}
-
-							// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
-							throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
-						} catch (IOException ex) {
+							FtpReply reply = GetReply();
+							if (!readToEnd && offset != fileLen)
+								throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
+							if (!reply.Code.StartsWith("2", StringComparison.Ordinal))
+								throw new IOException(
+									$"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]",
+									new FtpCommandException(reply));
+							break;
+						}
+						catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
 							if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
@@ -1875,11 +1881,6 @@ namespace FluentFTP {
 				outStream.Flush();
 				downStream.Dispose();
 
-				// FIX : if this is not added, there appears to be "stale data" on the socket
-				// listen for a success/failure reply
-				if (!m_threadSafeDataChannels) {
-					FtpReply status = GetReply();
-				}
 				return true;
 
 
@@ -1923,7 +1924,7 @@ namespace FluentFTP {
 
                 // if the server has not reported a length for this file
                 // we use an alternate method to download it - read until EOF
-                bool readToEnd = (fileLen <= 0);
+                bool readToEnd = (fileLen <= 0) || CurrentDataType != FtpDataType.Binary;
 
 				// loop till entire file downloaded
 				byte[] buffer = new byte[TransferChunkSize];
@@ -1948,13 +1949,16 @@ namespace FluentFTP {
 
 							// if we reach here means EOF encountered
 							// stop if we are in "read until EOF" mode
-							if (readToEnd || offset == fileLen) {
-								break;
-							}
-
-							// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
-							throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
-                        } catch (IOException ex) {
+							FtpReply reply = await GetReplyAsync();
+							if (!readToEnd && offset != fileLen)
+								throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
+							if (!reply.Code.StartsWith("2", StringComparison.Ordinal))
+								throw new IOException(
+									$"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]",
+									new FtpCommandException(reply));
+							break;
+						}
+						catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
 							if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
@@ -1999,13 +2003,16 @@ namespace FluentFTP {
 
 							// if we reach here means EOF encountered
 							// stop if we are in "read until EOF" mode
-							if (readToEnd || offset == fileLen) {
-								break;
-							}
-
-							// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
-							throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
-						} catch (IOException ex) {
+							FtpReply reply = await GetReplyAsync();
+							if (!readToEnd && offset != fileLen)
+								throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
+							if (!reply.Code.StartsWith("2", StringComparison.Ordinal))
+								throw new IOException(
+									$"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]",
+									new FtpCommandException(reply));
+							break;
+						}
+						catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
 							if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
@@ -2023,11 +2030,6 @@ namespace FluentFTP {
 				await outStream.FlushAsync(token);
 				downStream.Dispose();
 
-				// FIX : if this is not added, there appears to be "stale data" on the socket
-				// listen for a success/failure reply
-				if (!m_threadSafeDataChannels) {
-					FtpReply status = GetReply();
-				}
 				return true;
 
 			} catch (Exception ex1) {
