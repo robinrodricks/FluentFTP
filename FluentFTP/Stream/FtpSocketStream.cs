@@ -665,7 +665,8 @@ namespace FluentFTP {
 		/// <summary>
 		/// Disposes the stream
 		/// </summary>
-		public new void Dispose() {
+		protected override void Dispose(bool disposing)
+		{
 			FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Disposing FtpSocketStream...");
 			Close();
 		}

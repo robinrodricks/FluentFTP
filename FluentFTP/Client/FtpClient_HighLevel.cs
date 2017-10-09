@@ -1795,6 +1795,8 @@ namespace FluentFTP {
 
 							// if we reach here means EOF encountered
 							// stop if we are in "read until EOF" mode
+							downStream.Dispose();
+
 							FtpReply reply = GetReply();
 							if (!readToEnd && offset != fileLen)
 								throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
@@ -1853,6 +1855,8 @@ namespace FluentFTP {
 
 							// if we reach here means EOF encountered
 							// stop if we are in "read until EOF" mode
+							downStream.Dispose();
+
 							FtpReply reply = GetReply();
 							if (!readToEnd && offset != fileLen)
 								throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
@@ -1879,7 +1883,6 @@ namespace FluentFTP {
 
 				// disconnect FTP stream before exiting
 				outStream.Flush();
-				downStream.Dispose();
 
 				return true;
 
@@ -1949,6 +1952,8 @@ namespace FluentFTP {
 
 							// if we reach here means EOF encountered
 							// stop if we are in "read until EOF" mode
+							downStream.Dispose();
+
 							FtpReply reply = await GetReplyAsync();
 							if (!readToEnd && offset != fileLen)
 								throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
@@ -2003,6 +2008,8 @@ namespace FluentFTP {
 
 							// if we reach here means EOF encountered
 							// stop if we are in "read until EOF" mode
+							downStream.Dispose();
+
 							FtpReply reply = await GetReplyAsync();
 							if (!readToEnd && offset != fileLen)
 								throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
@@ -2028,7 +2035,6 @@ namespace FluentFTP {
 
 				// disconnect FTP stream before exiting
 				await outStream.FlushAsync(token);
-				downStream.Dispose();
 
 				return true;
 
