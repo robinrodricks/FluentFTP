@@ -1795,7 +1795,7 @@ namespace FluentFTP {
 								throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
 							if (!reply.Code.StartsWith("2", StringComparison.Ordinal))
 								throw new IOException(
-									$"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]",
+									$"Unexpected EOF for remote file {remotePath} [{offset} bytes read but {reply.Code} received]",
 									new FtpCommandException(reply));
 							break;
 						}
@@ -1855,7 +1855,7 @@ namespace FluentFTP {
 								throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
 							if (!reply.Code.StartsWith("2", StringComparison.Ordinal))
 								throw new IOException(
-									$"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]",
+									$"Unexpected EOF for remote file {remotePath} [{offset} bytes read but {reply.Code} received]",
 									new FtpCommandException(reply));
 							break;
 						}
@@ -1950,7 +1950,7 @@ namespace FluentFTP {
 								throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
 							if (!reply.Code.StartsWith("2", StringComparison.Ordinal))
 								throw new IOException(
-									$"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]",
+									$"Unexpected EOF for remote file {remotePath} [{offset} bytes read but {reply.Code} received]",
 									new FtpCommandException(reply));
 							break;
 						}
@@ -2006,7 +2006,7 @@ namespace FluentFTP {
 								throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
 							if (!reply.Code.StartsWith("2", StringComparison.Ordinal))
 								throw new IOException(
-									$"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]",
+									$"Unexpected EOF for remote file {remotePath} [{offset} bytes read but {reply.Code} received]",
 									new FtpCommandException(reply));
 							break;
 						}
