@@ -1751,27 +1751,20 @@ namespace FluentFTP {
 			Stream downStream = null;
 
 			try {
-
-				// exit if file length == 0
-				long fileLen = GetFileSize(remotePath);
-				downStream = OpenRead(remotePath, DownloadDataType, fileLen > 0);
-
-				if (fileLen == 0 && CurrentDataType == FtpDataType.ASCII) {
-
-					// close stream before throwing error
-					try {
-						downStream.Dispose();
-					} catch (Exception) { }
-
-					throw new FtpException("Cannot download file with 0 length in ASCII mode. Use the FtpDataType.Binary data type and try again.");
+				
+				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
+				long fileLen = 0;
+				if (CurrentDataType == FtpDataType.Binary){
+					fileLen = GetFileSize(remotePath);
 				}
-
-
-				// if the server has not reported a length for this file
-				// we use an alternate method to download it - read until EOF
+				
+				// open the file for reading
+				downStream = OpenRead(remotePath, DownloadDataType, 0, fileLen > 0);
+				
+				// if the server has not provided a length for this file
+				// we read until EOF instead of reading a specific number of bytes
 				bool readToEnd = (fileLen <= 0);
-
-
+				
 				// loop till entire file downloaded
 				byte[] buffer = new byte[TransferChunkSize];
 				long offset = 0;
@@ -1782,7 +1775,7 @@ namespace FluentFTP {
 							// read a chunk of bytes from the FTP stream
 							int readBytes = 1;
 							while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
-
+								
 								// write chunk to output stream
 								outStream.Write(buffer, 0, readBytes);
 								offset += readBytes;
@@ -1909,22 +1902,20 @@ namespace FluentFTP {
 		private async Task<bool> DownloadFileInternalAsync(string remotePath, Stream outStream, CancellationToken token, IProgress<double> progress) {
 			Stream downStream = null;
 			try {
-			    // exit if file length == 0
-                long fileLen = GetFileSize(remotePath);
-				downStream = await OpenReadAsync(remotePath, DownloadDataType);
-				if (fileLen == 0 && CurrentDataType == FtpDataType.ASCII) {
-					// close stream before throwing error
-					try {
-						downStream.Dispose();
-					} catch (Exception) { }
-
-				    throw new FtpException("Cannot download file with 0 length in ASCII mode. Use the FtpDataType.Binary data type and try again.");
+				
+				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
+				long fileLen = 0;
+				if (CurrentDataType == FtpDataType.Binary){
+					fileLen = await GetFileSizeAsync(remotePath);
 				}
-
-                // if the server has not reported a length for this file
-                // we use an alternate method to download it - read until EOF
-                bool readToEnd = (fileLen <= 0);
-
+				
+				// open the file for reading
+				downStream = await OpenReadAsync(remotePath, DownloadDataType, 0, fileLen > 0);
+				
+				// if the server has not provided a length for this file
+				// we read until EOF instead of reading a specific number of bytes
+				bool readToEnd = (fileLen <= 0);
+				
 				// loop till entire file downloaded
 				byte[] buffer = new byte[TransferChunkSize];
 				long offset = 0;
