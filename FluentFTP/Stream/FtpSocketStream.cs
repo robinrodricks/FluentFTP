@@ -666,14 +666,6 @@ namespace FluentFTP {
 		/// <summary>
 		/// Disconnects from server
 		/// </summary>
-		public new void Dispose()
-		{
-			Dispose(true);
-		}
-
-		/// <summary>
-		/// Disconnects from server
-		/// </summary>
 		public void Close()
 		{
 			Dispose(true);
