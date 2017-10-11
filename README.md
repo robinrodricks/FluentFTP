@@ -12,7 +12,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 - Full support for [FTP](#ftp-support), [FTPS](#faq_ftps) (FTP over SSL), [FTPS with client certificates](#faq_certs) and [FTPS with CCC](#faq_ccc) (for FTP firewalls)
 - **File management:**
   - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, AS400, Windows CE, etc)
-  - Easily upload and download a file from the server
+  - Easily upload and download a file from the server, with [progress tracking](#faq_progress)
   - Automatically [verify the hash](#faq_verifyhash) of a file & retry transfer if hash mismatches
   - Configurable error handling (ignore/abort/throw) for multi-file transfers
   - Easily read and write file data from the server using standard streams
@@ -169,6 +169,7 @@ client.Disconnect();
 - [How do I bundle an X509 certificate from a file?](#faq_x509)
 
 **File Transfer FAQs**
+- [How can I track the progress of file transfers?](#faq_progress)
 - [How can I upload data created on the fly?](#faq_uploadbytes)
 - [How can I download data without saving it to disk?](#faq_downloadbytes)
 - [How can I throttle the speed of upload/download?](#faq_throttle)
@@ -647,6 +648,38 @@ client.Credentials = new NetworkCredential("anonymous", "anonymous");
 **How do I login with an FTP proxy?**
 
 Create a new instance of `FtpClientHttp11Proxy` or `FtpClientUserAtHostProxy` and use FTP properties/methods like normal.
+
+
+<a name="faq_progress"></a>
+**How can I track the progress of file transfers?**
+
+Pass an `IProgress` object into any of the [high-level methods](#highlevel). The `Report()` method of the object you pass will be called with a `double`, where 0 to 100 indicate the percentage transfered, and -1 indicates indeterminate/unknown progress.
+
+First create and configure a `ProgressBar` such that the `Minimum` is 0 and `Maximum` is 100. Then create a callback to provide to the Upload/Download method:
+
+```cs
+Progress<double> progress = new Progress<double>(x => {
+	// When progress in indeterminate/unknown, -1 will be sent
+	if (x < 0){
+		progressBar.IsIndeterminate = true;
+	}else{
+		progressBar.IsIndeterminate = false;
+		progressBar.Value = x;
+	}
+});
+```
+
+Now call the Upload/Download method providing the new `progress` object that you just created.
+
+Using the async/await API:
+```cs
+await client.DownloadFileAsync(localPath, remotePath, true, FluentFTP.FtpVerify.Retry, progress);
+```
+
+Using the synchronous API:
+```cs
+client.DownloadFile(localPath, remotePath, true, FluentFTP.FtpVerify.Retry, progress);
+```
 
 
 <a name="faq_uploadbytes"></a>
