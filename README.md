@@ -52,7 +52,7 @@ Stable binaries are released on NuGet, and contain everything you need to use FT
 FluentFTP works on .NET and .NET Standard/.NET Core.
 
 | Platform      		| Binaries Folder	| 
-|---------------		|-----------		|-
+|---------------		|-----------		|
 | **.NET 2.0**      	| net20     		| 
 | **.NET 3.5**      	| net35     		| 
 | **.NET 4.0**      	| net40     		| 
