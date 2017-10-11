@@ -51,15 +51,14 @@ Stable binaries are released on NuGet, and contain everything you need to use FT
 
 FluentFTP works on .NET and .NET Standard/.NET Core.
 
-| Platform      		| Binaries Folder	| Solution                  	|
-|---------------		|-----------		|---------------------------	|
-| **.NET 2.0**      	| net20     		| FluentFTP_NET_VS2012.sln  	|
-| **.NET 3.5**      	| net35     		| FluentFTP_NET_VS2012.sln  	|
-| **.NET 4.0**      	| net40     		| FluentFTP_NET_VS2012.sln  	|
-| **.NET 4.5**      	| net45     		| FluentFTP_NET_VS2012.sln  	|
-| **.NET Standard 1.4** | netstandard1.4	| FluentFTP_Core14_VS2017.sln 	|
-| **.NET Standard 1.6** | netstandard1.6	| FluentFTP_Core16_VS2017.sln 	|
-| **.NET Core 5.0** 	| dnxcore50 		| FluentFTP_Core16_VS2017.sln 	|
+| Platform      		| Binaries Folder	| 
+|---------------		|-----------		|-
+| **.NET 2.0**      	| net20     		| 
+| **.NET 3.5**      	| net35     		| 
+| **.NET 4.0**      	| net40     		| 
+| **.NET 4.5**      	| net45     		| 
+| **.NET Standard 1.4** | netstandard1.4	| 
+| **.NET Standard 1.6** | netstandard1.6	| 
 
 FluentFTP is also supported on these platforms: (via .NET Standard)
 
@@ -67,6 +66,8 @@ FluentFTP is also supported on these platforms: (via .NET Standard)
 - **Xamarin.iOS** 10.0
 - **Xamarin.Android** 10.0
 - **Universal Windows Platform** 10.0
+
+Binaries for all platforms are built from a single VS 2017 Project. You will need VS 2017 to build or contribute to FluentFTP.
 
 ## Example Usage
 
