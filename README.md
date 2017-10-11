@@ -1264,8 +1264,10 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 #### 19.1.1
 - Fix: When downloading files in ASCII mode, file length is unreliable therefore we read until EOF
+- Fix: When upload/download progress is indeterminate, send -1 instead of NaN or Infinity
 - Fix: NetStream was not assigned in FtpSocketStream for .NET Standard in active FTP mode (thanks @ralftar)
 - Fix: CurrentDataType was not set for ASCII transfers in DownloadFileAsync/UploadFileAsync (thanks @taoyouh)
+- Fix: Sometimes FtpSocketStream and FtpDataStream are not disposed in FtpSocketStream.Dispose (thanks @taoyouh)
 
 #### 19.1.0
 - New Progress reporting for UploadFile & DownloadFile methods via IProgress

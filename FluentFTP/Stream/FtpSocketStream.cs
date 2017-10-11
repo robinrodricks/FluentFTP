@@ -662,25 +662,21 @@ namespace FluentFTP {
 		}
 #endif
 
+#if CORE
 		/// <summary>
-		/// Disposes the stream
+		/// Disconnects from server
 		/// </summary>
-		public new void Dispose() {
-			FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Disposing FtpSocketStream...");
-			Close();
+		public void Close()
+		{
+			Dispose(true);
 		}
+#endif
 
 		/// <summary>
 		/// Disconnects from server
 		/// </summary>
-#if CORE
-		public void Close()
-		{
-			base.Dispose(true);
-#else
-		public override void Close() {
-			base.Close();
-#endif
+		protected override void Dispose(bool disposing) {
+			FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Disposing FtpSocketStream...");
 			if (m_socket != null) {
 				try {
 					if (m_socket.Connected) {
