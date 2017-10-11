@@ -1754,7 +1754,7 @@ namespace FluentFTP {
 				
 				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
 				long fileLen = 0;
-				if (CurrentDataType == FtpDataType.Binary){
+				if (DownloadDataType == FtpDataType.Binary){
 					fileLen = GetFileSize(remotePath);
 				}
 				
@@ -1905,7 +1905,8 @@ namespace FluentFTP {
 				
 				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
 				long fileLen = 0;
-				if (CurrentDataType == FtpDataType.Binary){
+
+				if (DownloadDataType == FtpDataType.Binary){
 					fileLen = await GetFileSizeAsync(remotePath);
 				}
 				
