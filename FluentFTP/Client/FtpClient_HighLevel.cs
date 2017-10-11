@@ -680,7 +680,7 @@ namespace FluentFTP {
 		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
-		/// <param name="progress">Provide an implementation of IProgress to track upload progress. The value provided is in the range 0 to 100, representing a percentage. It is calculated based on bytes transferred vs the length of the file.</param>
+		/// <param name="progress">Provide an implementation of IProgress to track upload progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
@@ -721,7 +721,7 @@ namespace FluentFTP {
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
 		/// <param name="token">The token to monitor for cancellation requests.</param>
-		/// <param name="progress">Provide an implementation of IProgress to track upload progress. The value provided is in the range 0 to 100, representing a percentage. It is calculated based on bytes transferred vs the length of the file.</param>
+		/// <param name="progress">Provide an implementation of IProgress to track upload progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
@@ -869,7 +869,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance
 		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="progress">Provide an implementation of IProgress to track upload progress. The value provided is in the range 0 to 100, representing a percentage. It is calculated based on bytes transferred vs the length of the file.</param>
+		/// <param name="progress">Provide an implementation of IProgress to track upload progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		public bool Upload(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, IProgress<double> progress = null) {
 
 			// verify args
@@ -893,7 +893,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpExists.NoCheck"/> for fastest performance 
 		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="progress">Provide an implementation of IProgress to track upload progress. The value provided is in the range 0 to 100, representing a percentage. It is calculated based on bytes transferred vs the length of the file.</param>
+		/// <param name="progress">Provide an implementation of IProgress to track upload progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		public bool Upload(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, IProgress<double> progress = null) {
 
 			// verify args
@@ -924,7 +924,7 @@ namespace FluentFTP {
 		///  but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="token">The token to monitor for cancellation requests.</param>
-		/// <param name="progress">Provide an implementation of IProgress to track upload progress. The value provided is in the range 0 to 100, representing a percentage. It is calculated based on bytes transferred vs the length of the file.</param>
+		/// <param name="progress">Provide an implementation of IProgress to track upload progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
 		public async Task<bool> UploadAsync(Stream fileStream, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token, IProgress<double> progress) {
 
@@ -951,7 +951,7 @@ namespace FluentFTP {
 		///  but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="token">The token to monitor for cancellation requests.</param>
-		/// <param name="progress">Provide an implementation of IProgress to track upload progress. The value provided is in the range 0 to 100, representing a percentage. It is calculated based on bytes transferred vs the length of the file.</param>
+		/// <param name="progress">Provide an implementation of IProgress to track upload progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was uploaded, false otherwise.</returns>
 		public async Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token, IProgress<double> progress) {
 
@@ -1092,7 +1092,7 @@ namespace FluentFTP {
 
 								// send progress reports
 								if (progress != null) {
-									progress.Report(((double)offset / (double)len) * 100);
+									ReportProgress(progress, len, offset);
 								}
 							}
 
@@ -1126,7 +1126,7 @@ namespace FluentFTP {
 
 								// send progress reports
 								if (progress != null) {
-									progress.Report(((double)offset / (double)len) * 100);
+									ReportProgress(progress, len, offset);
 								}
 
 								// honor the speed limit
@@ -1278,7 +1278,7 @@ namespace FluentFTP {
 
 								// send progress reports
 								if (progress != null) {
-									progress.Report(((double)offset / (double)len) * 100);
+									ReportProgress(progress, len, offset);
 								}
 							}
 
@@ -1313,7 +1313,7 @@ namespace FluentFTP {
 
 								// send progress reports
 								if (progress != null) {
-									progress.Report(((double)offset / (double)len) * 100);
+									ReportProgress(progress, len, offset);
 								}
 
 								// honor the rate limit
@@ -1401,7 +1401,7 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, representing a percentage. It is calculated based on bytes transferred vs the length of the file.</param>
+		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
@@ -1488,7 +1488,7 @@ namespace FluentFTP {
 		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="token">The token to monitor for cancellation requests</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, representing a percentage. It is calculated based on bytes transferred vs the length of the file.</param>
+		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
@@ -1517,7 +1517,7 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, representing a percentage. It is calculated based on bytes transferred vs the length of the file.</param>
+		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
@@ -1607,7 +1607,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, representing a percentage. It is calculated based on bytes transferred vs the length of the file.</param>
+		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public bool Download(Stream outStream, string remotePath, IProgress<double> progress = null) {
 
@@ -1630,7 +1630,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="outBytes">The variable that will receive the bytes.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, representing a percentage. It is calculated based on bytes transferred vs the length of the file.</param>
+		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public bool Download(out byte[] outBytes, string remotePath, IProgress<double> progress = null) {
 
@@ -1662,7 +1662,7 @@ namespace FluentFTP {
 		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="token">The token to monitor cancellation requests</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, representing a percentage. It is calculated based on bytes transferred vs the length of the file.</param>
+		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public async Task<bool> DownloadAsync(Stream outStream, string remotePath, CancellationToken token, IProgress<double> progress = null) {
 
@@ -1707,7 +1707,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="token">The token to monitor cancellation requests</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, representing a percentage. It is calculated based on bytes transferred vs the length of the file.</param>
+		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
 		public async Task<byte[]> DownloadAsync(string remotePath, CancellationToken token, IProgress<double> progress = null) {
 
@@ -1782,7 +1782,7 @@ namespace FluentFTP {
 
 								// send progress reports
 								if (progress != null) {
-									progress.Report(((double)offset / (double)fileLen) * 100);
+									ReportProgress(progress, fileLen, offset);
 								}
 							}
 
@@ -1822,7 +1822,7 @@ namespace FluentFTP {
 
 								// send progress reports
 								if (progress != null) {
-									progress.Report(((double)offset / (double)fileLen) * 100);
+									ReportProgress(progress, fileLen, offset);
 								}
 
 								// honor the rate limit
@@ -1934,7 +1934,7 @@ namespace FluentFTP {
 
 								// send progress reports
 								if (progress != null) {
-									progress.Report(((double)offset / (double)fileLen) * 100);
+									ReportProgress(progress, fileLen, offset);
 								}
 							}
 
@@ -1974,7 +1974,7 @@ namespace FluentFTP {
 
 								// send progress reports
 								if (progress != null) {
-									progress.Report(((double)offset / (double)fileLen) * 100);
+									ReportProgress(progress, fileLen, offset);
 								}
 
 								// honor the rate limit
@@ -2108,6 +2108,28 @@ namespace FluentFTP {
 			return true;
 		}
 #endif
+
+		#endregion
+
+		#region Utilities
+
+		/// <summary>
+		/// Sends progress to the user, either a value between 0-100 indicating percentage complete, or -1 for indeterminate.
+		/// </summary>
+		private void ReportProgress(IProgress<double> progress, long fileSize, long position) {
+
+			// calculate % based on file len vs file offset
+			double value = ((double)position / (double)fileSize) * 100;
+
+			// suppress invalid values and send -1 instead
+			if (double.IsNaN(value) || double.IsInfinity(value)) {
+				progress.Report(-1);
+			} else {
+
+				// send a value between 0-100 indicating percentage complete
+				progress.Report(value);
+			}
+		}
 
 		#endregion
 
