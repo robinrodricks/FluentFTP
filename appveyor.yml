@@ -16,6 +16,7 @@ after_build:
 test_script:
 - cmd: >-
     dotnet test fluentftp.tests -f net452
+    
     dotnet test fluentftp.tests -f netcoreapp1.0
 
 artifacts:
