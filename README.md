@@ -658,13 +658,13 @@ Create a new instance of `FtpClientHttp11Proxy` or `FtpClientUserAtHostProxy` an
 <a name="faq_progress"></a>
 **How can I track the progress of file transfers?**
 
-Pass an `IProgress` object into any of the [high-level methods](#highlevel). The `Report()` method of the object you pass will be called with a value, where 0 to 100 indicate the percentage transfered, and -1 indicates indeterminate/unknown progress.
+All of the [high-level methods](#highlevel) provide a `progress` argument that can be used to track upload/download progress.
 
-First create and configure a `ProgressBar` such that the `Minimum` is 0 and `Maximum` is 100. Then create a callback to provide to the Upload/Download method:
+First create and configure a `ProgressBar` such that the `Minimum` is 0 and `Maximum` is 100. Then create a callback to provide to the Upload/Download method. This will be called with a value, where 0 to 100 indicates the percentage transfered, and -1 indicates unknown progress.
 
 ```cs
 Progress<double> progress = new Progress<double>(x => {
-	// When progress in indeterminate/unknown, -1 will be sent
+	// When progress in unknown, -1 will be sent
 	if (x < 0){
 		progressBar.IsIndeterminate = true;
 	}else{
@@ -676,7 +676,7 @@ Progress<double> progress = new Progress<double>(x => {
 
 Now call the Upload/Download method providing the new `progress` object that you just created.
 
-*Using the async/await API:*
+*Using the asynchronous API:*
 ```cs
 await client.DownloadFileAsync(localPath, remotePath, true, FluentFTP.FtpVerify.Retry, progress);
 ```
@@ -685,6 +685,8 @@ await client.DownloadFileAsync(localPath, remotePath, true, FluentFTP.FtpVerify.
 ```cs
 client.DownloadFile(localPath, remotePath, true, FluentFTP.FtpVerify.Retry, progress);
 ```
+
+For .NET 2.0 users, pass an implementation of the `IProgress` class. The `Report()` method of the object you pass will be called with the progress value.
 
 
 --------------------------------------------------------
