@@ -12,7 +12,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 - Full support for [FTP](#ftp-support), [FTPS](#faq_ftps) (FTP over SSL), [FTPS with client certificates](#faq_certs) and [FTPS with CCC](#faq_ccc) (for FTP firewalls)
 - **File management:**
   - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, AS400, Windows CE, etc)
-  - Easily upload and download a file from the server
+  - Easily upload and download a file from the server with [progress tracking](#faq_progress)
   - Automatically [verify the hash](#faq_verifyhash) of a file & retry transfer if hash mismatches
   - Configurable error handling (ignore/abort/throw) for multi-file transfers
   - Easily read and write file data from the server using standard streams
@@ -51,15 +51,14 @@ Stable binaries are released on NuGet, and contain everything you need to use FT
 
 FluentFTP works on .NET and .NET Standard/.NET Core.
 
-| Platform      		| Binaries Folder	| Solution                  	|
-|---------------		|-----------		|---------------------------	|
-| **.NET 2.0**      	| net20     		| FluentFTP_NET_VS2012.sln  	|
-| **.NET 3.5**      	| net35     		| FluentFTP_NET_VS2012.sln  	|
-| **.NET 4.0**      	| net40     		| FluentFTP_NET_VS2012.sln  	|
-| **.NET 4.5**      	| net45     		| FluentFTP_NET_VS2012.sln  	|
-| **.NET Standard 1.4** | netstandard1.4	| FluentFTP_Core14_VS2017.sln 	|
-| **.NET Standard 1.6** | netstandard1.6	| FluentFTP_Core16_VS2017.sln 	|
-| **.NET Core 5.0** 	| dnxcore50 		| FluentFTP_Core16_VS2017.sln 	|
+| Platform      		| Binaries Folder	| 
+|---------------		|-----------		|
+| **.NET 2.0**      	| net20     		| 
+| **.NET 3.5**      	| net35     		| 
+| **.NET 4.0**      	| net40     		| 
+| **.NET 4.5**      	| net45     		| 
+| **.NET Standard 1.4** | netstandard1.4	| 
+| **.NET Standard 1.6** | netstandard1.6	| 
 
 FluentFTP is also supported on these platforms: (via .NET Standard)
 
@@ -67,6 +66,8 @@ FluentFTP is also supported on these platforms: (via .NET Standard)
 - **Xamarin.iOS** 10.0
 - **Xamarin.Android** 10.0
 - **Universal Windows Platform** 10.0
+
+Binaries for all platforms are built from a single VS 2017 Project. You will need VS 2017 to build or contribute to FluentFTP.
 
 ## Example Usage
 
@@ -168,6 +169,7 @@ client.Disconnect();
 - [How do I bundle an X509 certificate from a file?](#faq_x509)
 
 **File Transfer FAQs**
+- [How can I track the progress of file transfers?](#faq_progress)
 - [How can I upload data created on the fly?](#faq_uploadbytes)
 - [How can I download data without saving it to disk?](#faq_downloadbytes)
 - [How can I throttle the speed of upload/download?](#faq_throttle)
@@ -595,6 +597,7 @@ void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
 }
 ```
 
+--------------------------------------------------------
 <a name="faq_ftps"></a>
 **How do I validate the server's certificate when using FTPS?**
 
@@ -616,6 +619,7 @@ void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e)  {
 }
 ```
 
+--------------------------------------------------------
 <a name="faq_ccc"></a>
 **How do I connect with FTPS and then switch back down to plaintext FTP?**
 
@@ -627,13 +631,14 @@ Set this option before calling Connect() or any other method on the FtpClient cl
 client.PlainTextEncryption = true;
 ```
 
-
+--------------------------------------------------------
 <a name="faq_sftp"></a>
 **How do I connect with SFTP?**
 
 SFTP is not supported as it is FTP over SSH, a completely different protocol. Use [SSH.NET](https://github.com/sshnet/SSH.NET) for that.
 
 
+--------------------------------------------------------
 <a name="faq_loginanon"></a>
 **How do I login with an anonymous FTP account? / I'm getting login errors but I can login fine in Firefox/Filezilla**
 
@@ -642,24 +647,63 @@ Do NOT set the `Credentials` property, so we can login anonymously. Or you can m
 client.Credentials = new NetworkCredential("anonymous", "anonymous");
 ```
 
+--------------------------------------------------------
 <a name="faq_loginproxy"></a>
 **How do I login with an FTP proxy?**
 
 Create a new instance of `FtpClientHttp11Proxy` or `FtpClientUserAtHostProxy` and use FTP properties/methods like normal.
 
 
+--------------------------------------------------------
+<a name="faq_progress"></a>
+**How can I track the progress of file transfers?**
+
+All of the [high-level methods](#highlevel) provide a `progress` argument that can be used to track upload/download progress.
+
+First create and configure a `ProgressBar` such that the `Minimum` is 0 and `Maximum` is 100. Then create a callback to provide to the Upload/Download method. This will be called with a value, where 0 to 100 indicates the percentage transfered, and -1 indicates unknown progress.
+
+```cs
+Progress<double> progress = new Progress<double>(x => {
+	// When progress in unknown, -1 will be sent
+	if (x < 0){
+		progressBar.IsIndeterminate = true;
+	}else{
+		progressBar.IsIndeterminate = false;
+		progressBar.Value = x;
+	}
+});
+```
+
+Now call the Upload/Download method providing the new `progress` object that you just created.
+
+*Using the asynchronous API:*
+```cs
+await client.DownloadFileAsync(localPath, remotePath, true, FluentFTP.FtpVerify.Retry, progress);
+```
+
+*Using the synchronous API:*
+```cs
+client.DownloadFile(localPath, remotePath, true, FluentFTP.FtpVerify.Retry, progress);
+```
+
+For .NET 2.0 users, pass an implementation of the `IProgress` class. The `Report()` method of the object you pass will be called with the progress value.
+
+
+--------------------------------------------------------
 <a name="faq_uploadbytes"></a>
 **How can I upload data created on the fly?**
 
 Use Upload() for uploading a `Stream` or `byte[]`.
 
 
+--------------------------------------------------------
 <a name="faq_downloadbytes"></a>
 **How can I download data without saving it to disk?**
 
 Use Download() for downloading to a `Stream` or `byte[]`.
 
 
+--------------------------------------------------------
 <a name="faq_throttle"></a>
 **How can I throttle the speed of upload/download?**
 
@@ -670,6 +714,7 @@ Set the `UploadRateLimit` and `DownloadRateLimit` properties to control the spee
 - UploadFiles() / DownloadFiles()
 
 
+--------------------------------------------------------
 <a name="faq_verifyhash"></a>
 **How do I verify the hash/checksum of a file and retry if the checksum mismatches?**
 
@@ -697,6 +742,7 @@ All the possible configurations are:
 - `FtpVerify.Retry | FtpVerify.Delete | FtpVerify.Throw` - Verify checksum, retry copying X times, delete target file if still mismatching, then throw an error
 
 
+--------------------------------------------------------
 <a name="faq_uploadmissing"></a>
 **How do I upload only the missing part of a file?**
 
@@ -707,6 +753,7 @@ Using the new UploadFile() API:
 client.UploadFile("C:\bigfile.iso", "/htdocs/bigfile.iso", FtpExists.Append);
 ```
 
+--------------------------------------------------------
 <a name="faq_append"></a>
 **How do I append to a file?**
 
@@ -740,6 +787,7 @@ using (FtpClient conn = new FtpClient()) {
 ```
 
 
+--------------------------------------------------------
 <a name="faq_downloadlow"></a>
 **How do I download files using the low-level API?**
 
@@ -765,6 +813,8 @@ using (var remoteFileStream = client.OpenRead(remotePath, FtpDataType.Binary)){
 client.GetReply();
 ```
 
+
+--------------------------------------------------------
 <a name="faq_utf"></a>
 **How can I upload/download files with Unicode filenames when my server does not support UTF8?**
 
@@ -790,6 +840,7 @@ Here is the full list of codepages based on the charset you need:
 - 1258 – English + Vietnamese
 
 
+--------------------------------------------------------
 <a name="faq_listings"></a>
 **How does GetListing() work internally?**
 
@@ -810,6 +861,7 @@ Here is the full list of codepages based on the charset you need:
 3. And if none of these satisfy you, you can fallback to **name listings** (NLST command), which are *much* slower than either LIST or MLSD. This is because NLST only sends a list of filenames, without any properties. The server has to be queried for the file size, modification date, and type (file/folder) on a file-by-file basis. Name listings can be forced using the `FtpListOption.ForceNameList` flag.
 
 
+--------------------------------------------------------
 <a name="faq_hashing"></a>
 **What kind of hashing commands are supported?**
 
@@ -820,6 +872,7 @@ Support for the MD5 command as described [here](http://tools.ietf.org/html/draft
 Support for the HASH command has been added to FluentFTP. It supports retrieving SHA-1, SHA-256, SHA-512, and MD5 hashes from servers that support this feature. The returned object, FtpHash, has a method to check the result against a given stream or local file. You can read more about HASH in [this draft](http://tools.ietf.org/html/draft-bryan-ftpext-hash-02).
 
 
+--------------------------------------------------------
 <a name="faq_trace"></a>
 **How do I trace FTP commands for debugging?**
 
@@ -844,6 +897,7 @@ FtpTrace.LogIP = false; 	// hide FTP server IP addresses
 ```
 
 
+--------------------------------------------------------
 <a name="faq_logfile"></a>
 **How do I log all FTP commands to a file for debugging?**
 
@@ -868,6 +922,7 @@ FtpTrace.LogIP = false; 	// hide FTP server IP addresses
 ```
 
 
+--------------------------------------------------------
 <a name="faq_logfile2"></a>
 **How do I log only critical errors to a file?**
 
@@ -882,6 +937,7 @@ FtpTrace.AddListener(new TextWriterTraceListener("log_file.txt"){
 ```
 
 
+--------------------------------------------------------
 <a name="faq_logfunc"></a>
 **How do I disable logging of function calls?**
 
@@ -891,6 +947,7 @@ FtpTrace.LogFunctions = false;
 ```
 
 
+--------------------------------------------------------
 <a name="faq_hidelog"></a>
 **How do I omit sensitive information from the logs?**
 
@@ -900,6 +957,7 @@ Use these settings to control what data is included in the logs:
 - `FtpTrace.LogIP` - Log FTP server IP addresses?
 
 
+--------------------------------------------------------
 <a name="faq_log"></a>
 **How do I use third-party logging frameworks like NLog?**
 
@@ -954,12 +1012,14 @@ Attaching via configuration file:
 ```
 
 
+--------------------------------------------------------
 <a name="faq_etsdc"></a>
 **What does `EnableThreadSafeDataConnections` do?**
 
 EnableThreadSafeDataConnections is an older feature built by the original author. If true, it opens a new FTP client instance (and reconnects to the server) every time you try to upload/download a file. It used to be the default setting, but it affects performance terribly so I disabled it and found many issues were solved as well as performance was restored. I believe if devs want multi-threaded uploading they should just start a new BackgroundWorker and create/use FtpClient within that thread. Try that if you want concurrent uploading, it should work fine.
 
 
+--------------------------------------------------------
 <a name="faq_fork"></a>
 **How can I contribute some changes to FluentFTP? / How do I submit a pull request?**
 
@@ -985,6 +1045,8 @@ First you must "fork" FluentFTP, then make changes on your local version, then s
 18. Click **Create pull request**
 19. Thank you!
 
+
+--------------------------------------------------------
 <a name="faq_certs"></a>
 **How do I use client certificates to login with FTPS?**
 
@@ -1007,6 +1069,8 @@ And ensure that:
 2. You do not use pem certificates, use p12 instead. See this [Stack Overflow thread](http://stackoverflow.com/questions/13697230/ssl-stream-failed-to-authenticate-as-client-in-apns-sharp) for more information. If you get SPPI exceptions with an inner exception about an unexpected or badly formatted message, you are probably using the wrong type of certificate.
 
 
+
+--------------------------------------------------------
 <a name="faq_x509"></a>
 **How do I bundle an X509 certificate from a file?**
 
@@ -1067,6 +1131,8 @@ Your VS has an older version of `nuget.exe` so it cannot properly install the la
 > cd D:\Projects\MyProjectDir\
 > C:\Nuget\nuget.exe install FluentFTP
 
+
+--------------------------------------------------------
 <a name="trouble_specialchars"></a>
 **After uploading a file with special characters like "Caffè.png" it appears as "Caff?.bmp" on the FTP server. The server supports only ASCII but "è" is ASCII. FileZilla can upload this file without problems.**
 
@@ -1078,6 +1144,8 @@ The default codepage that you should use is `1252 Windows Western`. It has suppo
 client.Encoding = System.Text.Encoding.GetEncoding(1252); // ANSI codepage 1252 (Windows Western)
 ```
 
+
+--------------------------------------------------------
 <a name="trouble_specialchars2"></a>
 **I cannot delete a file if the filename contains Russian letters. FileZilla can delete this file without problems.**
 
@@ -1089,6 +1157,8 @@ For Russian you need to use the codepage [`1251 Windows Cyrillic`](https://en.wi
 client.Encoding = System.Text.Encoding.GetEncoding(1251); // ANSI codepage 1251 (Windows Cyrillic)
 ```
 
+
+--------------------------------------------------------
 <a name="trouble_azure"></a>
 **I keep getting TimeoutException's in my Azure WebApp**
 
@@ -1109,18 +1179,23 @@ client.DataConnectionReadTimeout = 2000;
 If none of these work, remember that Azure has in intermittent bug wherein it changes the IP-address during a FTP request. The connection is established with IP-address A and for the data transfer Azure uses IP-address B and this isn't allowed on many firewalls. This is a known Azure bug.
 
 
+
+--------------------------------------------------------
 <a name="trouble_windowsce"></a>
 **Many commands don't work on Windows CE**
 
 According to [this](https://msdn.microsoft.com/en-us/library/ms881872.aspx) from MSDN the Windows CE implementation of FTP is the bare minimum, and open to customization via source code. Many advanced commands such as CHMOD are unsupported.
 
 
+
+--------------------------------------------------------
 <a name="trouble_getreply"></a>
 **After successfully transfering a single file with OpenWrite/OpenAppend, the subsequent files fail with some random error, like "Malformed PASV response"**
 
 You need to call `FtpReply status = GetReply()` after you finish transfering a file to ensure no stale data is left over, which can mess up subsequent commands.
 
 
+--------------------------------------------------------
 <a name="trouble_ssl"></a>
 **SSL Negotiation is very slow during FTPS login**
 
@@ -1129,6 +1204,7 @@ FluentFTP uses `SslStream` under the hood which is part of the .NET framework. `
 FluentFTP logs the time it takes to authenticate. If you think you are suffering from this problem then have a look at Examples\Debug.cs for information on retrieving debug information.
 
 
+--------------------------------------------------------
 <a name="trouble_closedhost"></a>
 **Unable to read data from the transport connection : An existing connection was forcibly closed by the remote host**
 
