@@ -736,9 +736,9 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			
+
 			// skip uploading if the local file does not exist
-			if (!File.Exists(localPath)) {
+			if (!await Task.Run(()=>File.Exists(localPath))) {
 				FtpTrace.WriteStatus(FtpTraceLevel.Error, "File does not exist.");
 				return false;
 			}
@@ -1542,7 +1542,7 @@ namespace FluentFTP {
 				throw new ArgumentNullException("localPath");
 
 			// skip downloading if the local file exists
-			if (!overwrite && File.Exists(localPath)) {
+			if (!overwrite && await Task.Run(() => File.Exists(localPath))) {
 				FtpTrace.WriteStatus(FtpTraceLevel.Error, "Overwrite is false and local file already exists");
 				return false;
 			}
