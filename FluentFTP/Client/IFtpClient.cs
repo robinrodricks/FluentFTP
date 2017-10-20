@@ -12,7 +12,7 @@ namespace FluentFTP {
 	/// <summary>
 	/// Interface for the FtpClient class. For detailed documentation of the methods, please see the FtpClient class.
 	/// </summary>
-	public interface IFtpClient {
+	public interface IFtpClient : IDisposable {
 
 
 		// CONNECTION
@@ -58,7 +58,6 @@ namespace FluentFTP {
 		FtpDataType UploadDataType { get; set; }
 		FtpDataType DownloadDataType { get; set; }
 		event FtpSslValidation ValidateCertificate;
-		void Dispose();
 		FtpReply Execute(string command);
 		FtpReply GetReply();
 		void Connect();
