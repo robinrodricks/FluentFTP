@@ -1551,7 +1551,7 @@ namespace FluentFTP {
 				
 				// create the folders
 				string dirPath = Path.GetDirectoryName(localPath);
-				if (!String.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
+				if (!String.IsNullOrWhiteSpace(dirPath) && !await Task.Run(() => Directory.Exists(dirPath))) {
 					Directory.CreateDirectory(dirPath);
 				}
 			} catch (Exception ex1) {
