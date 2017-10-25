@@ -736,9 +736,13 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			
+
 			// skip uploading if the local file does not exist
+#if CORE
+			if (!await Task.Run(()=>File.Exists(localPath))) {
+#else
 			if (!File.Exists(localPath)) {
+#endif
 				FtpTrace.WriteStatus(FtpTraceLevel.Error, "File does not exist.");
 				return false;
 			}
@@ -770,7 +774,7 @@ namespace FluentFTP {
 		}
 #endif
 
-		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, IProgress<double> progress) {
+			private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, IProgress<double> progress) {
 
 			// If retries are allowed set the retry counter to the allowed count
 			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
@@ -1542,7 +1546,11 @@ namespace FluentFTP {
 				throw new ArgumentNullException("localPath");
 
 			// skip downloading if the local file exists
+#if CORE
+			if (!overwrite && await Task.Run(() => File.Exists(localPath))) {
+#else
 			if (!overwrite && File.Exists(localPath)) {
+#endif
 				FtpTrace.WriteStatus(FtpTraceLevel.Error, "Overwrite is false and local file already exists");
 				return false;
 			}
@@ -1551,7 +1559,11 @@ namespace FluentFTP {
 				
 				// create the folders
 				string dirPath = Path.GetDirectoryName(localPath);
+#if CORE
+				if (!String.IsNullOrWhiteSpace(dirPath) && !await Task.Run(() => Directory.Exists(dirPath))) {
+#else
 				if (!String.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
+#endif
 					Directory.CreateDirectory(dirPath);
 				}
 			} catch (Exception ex1) {
@@ -1596,20 +1608,20 @@ namespace FluentFTP {
 			return downloadSuccess && verified;
 		}
 #endif
-		#endregion
+#endregion
 
-		#region	Download Bytes/Stream
+				#region	Download Bytes/Stream
 
-		/// <summary>
-		/// Downloads the specified file into the specified stream.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
-		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool Download(Stream outStream, string remotePath, IProgress<double> progress = null) {
+				/// <summary>
+				/// Downloads the specified file into the specified stream.
+				/// High-level API that takes care of various edge cases internally.
+				/// Supports very large files since it downloads data in chunks.
+				/// </summary>
+				/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
+				/// <param name="remotePath">The full or relative path to the file on the server</param>
+				/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
+				/// <returns>If true then the file was downloaded, false otherwise.</returns>
+				public bool Download(Stream outStream, string remotePath, IProgress<double> progress = null) {
 
 			// verify args
 			if (outStream == null)
