@@ -11,7 +11,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 
 - Full support for [FTP](#ftp-support), [FTPS](#faq_ftps) (FTP over SSL), [FTPS with client certificates](#faq_certs) and [FTPS with CCC](#faq_ccc) (for FTP firewalls)
 - **File management:**
-  - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, AS400, Windows CE, etc)
+  - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, AS400, Windows CE, Serv-U, etc)
   - Easily upload and download a file from the server with [progress tracking](#faq_progress)
   - Automatically [verify the hash](#faq_verifyhash) of a file & retry transfer if hash mismatches
   - Configurable error handling (ignore/abort/throw) for multi-file transfers
@@ -1337,6 +1337,11 @@ When doing a large number of transfers, one needs to be aware of some inherit is
 This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is signaled by closing the connection. On downloads and file listings, the sockets being used on the server will stay in the TIME WAIT state because the server closes the socket when it's done sending the data. On uploads, the client sockets will go into the TIME WAIT state because the client closes the connection to signal EOF to the server.
 
 ## Release Notes
+
+#### 19.1.2
+- Fix: Add support for checking if file exists on Serv-U FTP Server
+- Fix: Make IFtpClient inherit from IDisposable (thanks @repl-andrew-ovens)
+- (UWP) Fix: UWP does not allow File.Exists() to run in UI thread (thanks @taoyouh)
 
 #### 19.1.1
 - Fix: When downloading files in ASCII mode, file length is unreliable therefore we read until EOF
