@@ -774,7 +774,7 @@ namespace FluentFTP {
 		}
 #endif
 
-			private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, IProgress<double> progress) {
+		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpExists existsMode, bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, IProgress<double> progress) {
 
 			// If retries are allowed set the retry counter to the allowed count
 			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
@@ -1608,20 +1608,20 @@ namespace FluentFTP {
 			return downloadSuccess && verified;
 		}
 #endif
-#endregion
+		#endregion
 
-				#region	Download Bytes/Stream
+		#region	Download Bytes/Stream
 
-				/// <summary>
-				/// Downloads the specified file into the specified stream.
-				/// High-level API that takes care of various edge cases internally.
-				/// Supports very large files since it downloads data in chunks.
-				/// </summary>
-				/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
-				/// <param name="remotePath">The full or relative path to the file on the server</param>
-				/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
-				/// <returns>If true then the file was downloaded, false otherwise.</returns>
-				public bool Download(Stream outStream, string remotePath, IProgress<double> progress = null) {
+		/// <summary>
+		/// Downloads the specified file into the specified stream.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		public bool Download(Stream outStream, string remotePath, IProgress<double> progress = null) {
 
 			// verify args
 			if (outStream == null)
@@ -1763,20 +1763,20 @@ namespace FluentFTP {
 			Stream downStream = null;
 
 			try {
-				
+
 				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
 				long fileLen = 0;
-				if (DownloadDataType == FtpDataType.Binary){
+				if (DownloadDataType == FtpDataType.Binary) {
 					fileLen = GetFileSize(remotePath);
 				}
-				
+
 				// open the file for reading
 				downStream = OpenRead(remotePath, DownloadDataType, 0, fileLen > 0);
-				
+
 				// if the server has not provided a length for this file
 				// we read until EOF instead of reading a specific number of bytes
 				bool readToEnd = (fileLen <= 0);
-				
+
 				// loop till entire file downloaded
 				byte[] buffer = new byte[TransferChunkSize];
 				long offset = 0;
@@ -1787,7 +1787,7 @@ namespace FluentFTP {
 							// read a chunk of bytes from the FTP stream
 							int readBytes = 1;
 							while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
-								
+
 								// write chunk to output stream
 								outStream.Write(buffer, 0, readBytes);
 								offset += readBytes;

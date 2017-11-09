@@ -14,5 +14,5 @@ See this link for steps : https://github.com/robinrodricks/FluentFTP#faq_trace
 -->
 
 ```
-<paste logs here>
+<paste logs here but DO NOT delete the lines above and below this line>
 ```
