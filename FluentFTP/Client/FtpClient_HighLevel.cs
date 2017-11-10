@@ -1367,6 +1367,12 @@ namespace FluentFTP {
 						upStream.Dispose();
 				} catch (Exception) { }
 
+				if(ex1 is OperationCanceledException)
+				{
+					FtpTrace.WriteStatus(FtpTraceLevel.Info, "Upload cancellation requested");
+					throw;
+				}
+
 				// catch errors during upload
 				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
 			}
@@ -2039,6 +2045,12 @@ namespace FluentFTP {
 				try {
 					downStream.Dispose();
 				} catch (Exception) { }
+
+				if (ex1 is OperationCanceledException)
+				{
+					FtpTrace.WriteStatus(FtpTraceLevel.Info, "Upload cancellation requested");
+					throw;
+				}
 
 				// absorb "file does not exist" exceptions and simply return false
 				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
