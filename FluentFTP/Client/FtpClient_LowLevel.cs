@@ -313,6 +313,7 @@ namespace FluentFTP {
 					try {
 						stream.Listen(m_stream.LocalEndPoint.Address, port);
 						success = true;
+						break;
 					} catch (SocketException se) {
 #if NETFX
 						// Already in use
