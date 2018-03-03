@@ -784,6 +784,7 @@ namespace FluentFTP {
 			conn.RecursiveList = RecursiveList;
 			conn.DownloadDataType = DownloadDataType;
 			conn.UploadDataType = UploadDataType;
+			conn.ActivePorts = ActivePorts;
 #if !CORE
 			conn.PlainTextEncryption = PlainTextEncryption;
 #endif
