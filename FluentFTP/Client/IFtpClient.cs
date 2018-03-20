@@ -7,6 +7,13 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
+#if (CORE || NETFX)
+using System.Threading;
+#endif
+#if (CORE || NET45)
+using System.Threading.Tasks;
+#endif
+
 namespace FluentFTP {
 
 	/// <summary>
@@ -134,6 +141,24 @@ namespace FluentFTP {
 		bool Download(Stream outStream, string remotePath, IProgress<double> progress = null);
 		bool Download(out byte[] outBytes, string remotePath, IProgress<double> progress = null);
 
+#if ASYNC
+		Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode, bool createRemoteDir, FtpVerify verifyOptions, FtpError errorHandling, CancellationToken token);
+		Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = true, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None);
+		Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite, FtpVerify verifyOptions, FtpError errorHandling, CancellationToken token);
+		Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None);
+		Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode, bool createRemoteDir, FtpVerify verifyOptions, CancellationToken token, IProgress<double> progress);
+		Task<bool> UploadFileAsync(string localPath, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None);
+		Task<bool> UploadAsync(Stream fileStream, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token, IProgress<double> progress);
+		Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode, bool createRemoteDir, CancellationToken token, IProgress<double> progress);
+		Task<bool> UploadAsync(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false);
+		Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false);
+		Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, CancellationToken token, IProgress<double> progress);
+		Task<bool> DownloadFileAsync(string localPath, string remotePath, bool overwrite = true, FtpVerify verifyOptions = FtpVerify.None, IProgress<double> progress = null);
+		Task<bool> DownloadAsync(Stream outStream, string remotePath, CancellationToken token, IProgress<double> progress = null);
+		Task<bool> DownloadAsync(Stream outStream, string remotePath);
+		Task<byte[]> DownloadAsync(string remotePath, CancellationToken token, IProgress<double> progress = null);
+		Task<byte[]> DownloadAsync(string remotePath);
+#endif
 
 		// HASH
 
