@@ -72,6 +72,13 @@ namespace FluentFTP {
 		bool HasFeature(FtpCapability cap);
 		void DisableUTF8();
 
+#if ASYNC
+		Task<FtpReply> ExecuteAsync(string command);
+		Task<FtpReply> GetReplyAsync();
+		Task ConnectAsync();
+		Task DisconnectAsync();
+#endif
+
 
 		// MANAGEMENT
 
@@ -99,6 +106,24 @@ namespace FluentFTP {
 		DateTime GetModifiedTime(string path, FtpDate type = FtpDate.Original);
 		void SetModifiedTime(string path, DateTime date, FtpDate type = FtpDate.Original);
 
+#if ASYNC
+		Task DeleteFileAsync(string path);
+		Task<bool> DirectoryExistsAsync(string path);
+		Task<bool> FileExistsAsync(string path);
+		Task CreateDirectoryAsync(string path, bool force);
+		Task RenameAsync(string path, string dest);
+		Task<bool> MoveFileAsync(string path, string dest, FtpExists existsMode = FtpExists.Overwrite);
+		Task<bool> MoveDirectoryAsync(string path, string dest, FtpExists existsMode = FtpExists.Overwrite);
+		Task SetFilePermissionsAsync(string path, int permissions);
+		Task<FtpListItem> GetFilePermissionsAsync(string path);
+		Task<int> GetChmodAsync(string path);
+		Task SetWorkingDirectoryAsync(string path);
+		Task<string> GetWorkingDirectoryAsync();
+		Task<long> GetFileSizeAsync(string path);
+		Task<DateTime> GetModifiedTimeAsync(string path, FtpDate type = FtpDate.Original);
+		Task SetModifiedTimeAsync(string path, DateTime date, FtpDate type = FtpDate.Original);
+#endif
+
 
 		// LISTING
 
@@ -108,6 +133,12 @@ namespace FluentFTP {
 		FtpListItem[] GetListing(string path, FtpListOption options);
 		string[] GetNameListing();
 		string[] GetNameListing(string path);
+
+#if ASYNC
+		Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false);
+		Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options);
+		Task<string[]> GetNameListingAsync(string path);
+#endif
 
 
 		// LOW LEVEL
@@ -125,6 +156,12 @@ namespace FluentFTP {
 		Stream OpenAppend(string path);
 		Stream OpenAppend(string path, FtpDataType type);
 		Stream OpenAppend(string path, FtpDataType type, bool checkIfFileExists);
+
+#if ASYNC
+		Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, bool checkIfFileExists);
+		Task<Stream> OpenWriteAsync(string path, FtpDataType type, bool checkIfFileExists);
+		Task<Stream> OpenAppendAsync(string path, FtpDataType type, bool checkIfFileExists);
+#endif
 
 
 		// HIGH LEVEL
@@ -173,5 +210,17 @@ namespace FluentFTP {
 		string GetXSHA256(string path);
 		string GetXSHA512(string path);
 
+#if ASYNC
+		Task<FtpHashAlgorithm> GetHashAlgorithmAsync();
+		Task SetHashAlgorithmAsync(FtpHashAlgorithm type);
+		Task<FtpHash> GetHashAsync(string path);
+		Task<FtpHash> GetChecksumAsync(string path);
+		Task<string> GetMD5Async(string path);
+		Task<string> GetXCRCAsync(string path);
+		Task<string> GetXMD5Async(string path);
+		Task<string> GetXSHA1Async(string path);
+		Task<string> GetXSHA256Async(string path);
+		Task<string> GetXSHA512Async(string path);
+#endif
 	}
 }
