@@ -1338,6 +1338,11 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 19.1.3
+- Fix: Added async versions of FTP methods to IFtpClient (thanks @peterfortuin)
+- Fix: Fixes when ActivePorts is specified in active FTP mode (thanks @ToniMontana)
+- Fix: Throw OperationCanceledException instead of FtpException when cancellation is requested (thanks @taoyouh)
+
 #### 19.1.2
 - Fix: Add support for checking if file exists on Serv-U FTP Server
 - Fix: Make IFtpClient inherit from IDisposable (thanks @repl-andrew-ovens)
