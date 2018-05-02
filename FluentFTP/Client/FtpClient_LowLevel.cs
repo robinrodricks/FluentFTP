@@ -1452,9 +1452,10 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="type">ASCII/Binary</param>
 		protected async Task SetDataTypeAsync(FtpDataType type) {
+			
 			// FIX : #291 only change the data type if different
 			if (CurrentDataType == type)
-				return
+				return;
 
 			//TODO:  Add cancellation support
 			FtpReply reply;
