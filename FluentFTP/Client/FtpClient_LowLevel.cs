@@ -1452,24 +1452,28 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="type">ASCII/Binary</param>
 		protected async Task SetDataTypeAsync(FtpDataType type) {
-            //TODO:  Add cancellation support
-            FtpReply reply;
-            switch (type)
-            {
-                case FtpDataType.ASCII:
-                    if (!(reply = await ExecuteAsync("TYPE A")).Success)
-                        throw new FtpCommandException(reply);
-                    break;
-                case FtpDataType.Binary:
-                    if (!(reply = await ExecuteAsync("TYPE I")).Success)
-                        throw new FtpCommandException(reply);
-                    break;
-                default:
-                    throw new FtpException("Unsupported data type: " + type.ToString());
-            }
+			// FIX : #291 only change the data type if different
+			if (CurrentDataType == type)
+				return
+
+			//TODO:  Add cancellation support
+			FtpReply reply;
+			switch (type)
+			{
+				case FtpDataType.ASCII:
+					if (!(reply = await ExecuteAsync("TYPE A")).Success)
+						throw new FtpCommandException(reply);
+					break;
+				case FtpDataType.Binary:
+					if (!(reply = await ExecuteAsync("TYPE I")).Success)
+						throw new FtpCommandException(reply);
+					break;
+				default:
+					throw new FtpException("Unsupported data type: " + type.ToString());
+			}
 
 			CurrentDataType = type;
-        }
+		}
 #endif
 		#endregion
 
