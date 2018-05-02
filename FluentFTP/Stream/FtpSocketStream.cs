@@ -97,6 +97,10 @@ namespace FluentFTP {
 
 					if (m_socketPollInterval > 0 && DateTime.Now.Subtract(m_lastActivity).TotalMilliseconds > m_socketPollInterval) {
 						FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Testing connectivity using Socket.Poll()...");
+
+						// FIX : #273 update m_lastActivity to the current time
+						m_lastActivity = DateTime.Now;
+
 						if (m_socket.Poll(500000, SelectMode.SelectRead) && m_socket.Available == 0) {
 							Close();
 							return false;

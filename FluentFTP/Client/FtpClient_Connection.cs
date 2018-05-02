@@ -1765,7 +1765,8 @@ namespace FluentFTP {
 				else
 					path = "./";
 
-			} else if (!path.StartsWith("/")) {
+			// FIX : #153 ensure this check works with unix & windows
+			} else if (!path.StartsWith("/") && path.Substring(1, 1) != ":") {
 
 				// if relative path given then add working dir to calc full path
 				string pwd = GetWorkingDirectory();

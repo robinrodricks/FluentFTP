@@ -1379,7 +1379,9 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				this.SetDataTypeInternal(type);
+				// FIX : #291 only change the data type if different
+				if (CurrentDataType != type)
+					this.SetDataTypeInternal(type);
 #if !CORE14
 			}
 #endif
