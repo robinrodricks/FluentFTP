@@ -256,6 +256,8 @@ namespace FluentFTP {
 			}
 			set {
 				m_readTimeout = value;
+				if (m_netStream != null)
+					m_netStream.ReadTimeout = m_readTimeout;
 			}
 		}
 
@@ -814,6 +816,7 @@ namespace FluentFTP {
 			}
 
 			m_netStream = new NetworkStream(m_socket);
+			m_netStream.ReadTimeout = m_readTimeout;
 			m_lastActivity = DateTime.Now;
 		}
 
@@ -891,6 +894,7 @@ namespace FluentFTP {
             }
 
             m_netStream = new NetworkStream(m_socket);
+            m_netStream.ReadTimeout = m_readTimeout;
             m_lastActivity = DateTime.Now;
         }
 #endif
@@ -1127,6 +1131,7 @@ namespace FluentFTP {
                 m_socket = await m_socket.AcceptAsync();
 #if CORE
 				m_netStream = new NetworkStream(m_socket);
+				m_netStream.ReadTimeout = m_readTimeout;
 #endif
 			}
 		}
@@ -1151,6 +1156,7 @@ namespace FluentFTP {
 			if (m_socket != null) {
 				m_socket = m_socket.EndAccept(ar);
 				m_netStream = new NetworkStream(m_socket);
+				m_netStream.ReadTimeout = m_readTimeout;
 			}
 		}
 #endif
