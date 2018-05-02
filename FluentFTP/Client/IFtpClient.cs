@@ -108,15 +108,23 @@ namespace FluentFTP {
 
 #if ASYNC
 		Task DeleteFileAsync(string path);
+		Task DeleteDirectoryAsync(string path);
+		Task DeleteDirectoryAsync(string path, FtpListOption options);
 		Task<bool> DirectoryExistsAsync(string path);
 		Task<bool> FileExistsAsync(string path);
 		Task CreateDirectoryAsync(string path, bool force);
+		Task CreateDirectoryAsync(string path);
 		Task RenameAsync(string path, string dest);
 		Task<bool> MoveFileAsync(string path, string dest, FtpExists existsMode = FtpExists.Overwrite);
 		Task<bool> MoveDirectoryAsync(string path, string dest, FtpExists existsMode = FtpExists.Overwrite);
 		Task SetFilePermissionsAsync(string path, int permissions);
+		Task ChmodAsync(string path, int permissions);
+		Task SetFilePermissionsAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other);
+		Task ChmodAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other);
 		Task<FtpListItem> GetFilePermissionsAsync(string path);
 		Task<int> GetChmodAsync(string path);
+		Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax);
+		Task<FtpListItem> DereferenceLinkAsync(FtpListItem item);
 		Task SetWorkingDirectoryAsync(string path);
 		Task<string> GetWorkingDirectoryAsync();
 		Task<long> GetFileSizeAsync(string path);
@@ -137,7 +145,10 @@ namespace FluentFTP {
 #if ASYNC
 		Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false);
 		Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options);
+		Task<FtpListItem[]> GetListingAsync(string path);
+		Task<FtpListItem[]> GetListingAsync();
 		Task<string[]> GetNameListingAsync(string path);
+		Task<string[]> GetNameListingAsync();
 #endif
 
 
@@ -159,8 +170,16 @@ namespace FluentFTP {
 
 #if ASYNC
 		Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, bool checkIfFileExists);
+		Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart);
+		Task<Stream> OpenReadAsync(string path, FtpDataType type);
+		Task<Stream> OpenReadAsync(string path, long restart);
+		Task<Stream> OpenReadAsync(string path);
 		Task<Stream> OpenWriteAsync(string path, FtpDataType type, bool checkIfFileExists);
+		Task<Stream> OpenWriteAsync(string path, FtpDataType type);
+		Task<Stream> OpenWriteAsync(string path);
 		Task<Stream> OpenAppendAsync(string path, FtpDataType type, bool checkIfFileExists);
+		Task<Stream> OpenAppendAsync(string path, FtpDataType type);
+		Task<Stream> OpenAppendAsync(string path);
 #endif
 
 

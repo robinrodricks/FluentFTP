@@ -1342,6 +1342,7 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 - Fix: Prevent socket poll from hammering the server multiple times per second
 - Fix: Allow using absolute paths that include drive letters (Windows servers)
 - Performance improvement: Only change the FTP data type if different from required type
+- Added all missing async versions of FTP methods to IFtpClient
 
 #### 19.1.4
 - Fix: Fix hang in TLS activation because no timeout is set on the underlying NetworkStream (thanks @iamjay)
