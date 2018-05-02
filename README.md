@@ -1338,6 +1338,9 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 19.1.4
+- Fix: Fix hang in TLS activation because no timeout is set on the underlying NetworkStream (thanks @iamjay)
+
 #### 19.1.3
 - Fix: Added async versions of FTP methods to IFtpClient (thanks @peterfortuin)
 - Fix: Fixes when ActivePorts is specified in active FTP mode (thanks @ToniMontana)
