@@ -269,8 +269,8 @@ namespace FluentFTP {
 			IAsyncResult ar;
 			AsyncGetObjectInfo func;
 
-			ar = (func = new AsyncGetObjectInfo(GetObjectInfo)).BeginInvoke(path, dateModified, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncGetObjectInfo(GetObjectInfo)).BeginInvoke(path, dateModified, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -614,8 +614,8 @@ namespace FluentFTP {
 			IAsyncResult ar;
 			AsyncGetListing func;
 
-			ar = (func = new AsyncGetListing(GetListing)).BeginInvoke(path, options, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncGetListing(GetListing)).BeginInvoke(path, options, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -987,8 +987,8 @@ namespace FluentFTP {
 			IAsyncResult ar;
 			AsyncGetNameListing func;
 
-			ar = (func = new AsyncGetNameListing(GetNameListing)).BeginInvoke(path, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncGetNameListing(GetNameListing)).BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 

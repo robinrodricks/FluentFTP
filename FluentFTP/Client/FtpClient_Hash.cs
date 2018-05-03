@@ -132,8 +132,8 @@ namespace FluentFTP {
 			AsyncGetHashAlgorithm func;
 			IAsyncResult ar;
 
-			ar = (func = new AsyncGetHashAlgorithm(GetHashAlgorithm)).BeginInvoke(callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncGetHashAlgorithm(GetHashAlgorithm)).BeginInvoke(callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -238,8 +238,8 @@ namespace FluentFTP {
 			AsyncSetHashAlgorithm func;
 			IAsyncResult ar;
 
-			ar = (func = new AsyncSetHashAlgorithm(SetHashAlgorithm)).BeginInvoke(type, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncSetHashAlgorithm(SetHashAlgorithm)).BeginInvoke(type, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -377,8 +377,8 @@ namespace FluentFTP {
 			AsyncGetHash func;
 			IAsyncResult ar;
 
-			ar = (func = new AsyncGetHash(GetHash)).BeginInvoke(path, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncGetHash(GetHash)).BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -550,10 +550,10 @@ namespace FluentFTP {
 		public IAsyncResult BeginGetChecksum(string path, AsyncCallback callback,
 			object state) {
 			AsyncGetChecksum func = new AsyncGetChecksum(GetChecksum);
-			IAsyncResult ar = func.BeginInvoke(path, callback, state);
-			;
+			IAsyncResult ar;
 
 			lock (m_asyncmethods) {
+				ar = func.BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -687,10 +687,10 @@ namespace FluentFTP {
 		/// <returns>IAsyncResult</returns>
 		public IAsyncResult BeginGetMD5(string path, AsyncCallback callback, object state) {
 			AsyncGetMD5 func = new AsyncGetMD5(GetMD5);
-			IAsyncResult ar = func.BeginInvoke(path, callback, state);
-			;
+			IAsyncResult ar;
 
 			lock (m_asyncmethods) {
+				ar = func.BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -775,9 +775,10 @@ namespace FluentFTP {
 		/// <returns>IAsyncResult</returns>
 		public IAsyncResult BeginGetXCRC(string path, AsyncCallback callback, object state) {
 			AsyncGetXCRC func = new AsyncGetXCRC(GetXCRC);
-			IAsyncResult ar = func.BeginInvoke(path, callback, state); ;
-
+			IAsyncResult ar;
+			
 			lock (m_asyncmethods) {
+				ar = func.BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -863,9 +864,10 @@ namespace FluentFTP {
 		/// <returns>IAsyncResult</returns>
 		public IAsyncResult BeginGetXMD5(string path, AsyncCallback callback, object state) {
 			AsyncGetXMD5 func = new AsyncGetXMD5(GetXMD5);
-			IAsyncResult ar = func.BeginInvoke(path, callback, state); ;
-
+			IAsyncResult ar;
+			
 			lock (m_asyncmethods) {
+				ar = func.BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -944,9 +946,10 @@ namespace FluentFTP {
 		/// <returns>IAsyncResult</returns>
 		public IAsyncResult BeginGetXSHA1(string path, AsyncCallback callback, object state) {
 			AsyncGetXSHA1 func = new AsyncGetXSHA1(GetXSHA1);
-			IAsyncResult ar = func.BeginInvoke(path, callback, state); ;
+			IAsyncResult ar;
 
 			lock (m_asyncmethods) {
+				ar = func.BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1026,9 +1029,10 @@ namespace FluentFTP {
 		/// <returns>IAsyncResult</returns>
 		public IAsyncResult BeginGetXSHA256(string path, AsyncCallback callback, object state) {
 			AsyncGetXSHA256 func = new AsyncGetXSHA256(GetXSHA256);
-			IAsyncResult ar = func.BeginInvoke(path, callback, state); ;
+			IAsyncResult ar;
 
 			lock (m_asyncmethods) {
+				ar = func.BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1108,9 +1112,10 @@ namespace FluentFTP {
 		/// <returns>IAsyncResult</returns>
 		public IAsyncResult BeginGetXSHA512(string path, AsyncCallback callback, object state) {
 			AsyncGetXSHA512 func = new AsyncGetXSHA512(GetXSHA512);
-			IAsyncResult ar = func.BeginInvoke(path, callback, state); ;
+			IAsyncResult ar;
 
 			lock (m_asyncmethods) {
+				ar = func.BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 

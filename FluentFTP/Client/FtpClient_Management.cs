@@ -116,8 +116,8 @@ namespace FluentFTP {
 			IAsyncResult ar;
 			AsyncDeleteFile func;
 
-			ar = (func = new AsyncDeleteFile(DeleteFile)).BeginInvoke(path, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncDeleteFile(DeleteFile)).BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -324,8 +324,8 @@ namespace FluentFTP {
 			AsyncDeleteDirectory func;
 			IAsyncResult ar;
 
-			ar = (func = new AsyncDeleteDirectory(DeleteDirectory)).BeginInvoke(path, options, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncDeleteDirectory(DeleteDirectory)).BeginInvoke(path, options, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -510,8 +510,8 @@ namespace FluentFTP {
 			AsyncDirectoryExists func;
 			IAsyncResult ar;
 
-			ar = (func = new AsyncDirectoryExists(DirectoryExists)).BeginInvoke(path, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncDirectoryExists(DirectoryExists)).BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -660,9 +660,10 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
 		public IAsyncResult BeginFileExists(string path, AsyncCallback callback, object state) {
 			AsyncFileExists func;
+			IAsyncResult ar;
 
-			IAsyncResult ar = (func = new AsyncFileExists(FileExists)).BeginInvoke(path, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncFileExists(FileExists)).BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -833,8 +834,8 @@ namespace FluentFTP {
 			AsyncCreateDirectory func;
 			IAsyncResult ar;
 
-			ar = (func = new AsyncCreateDirectory(CreateDirectory)).BeginInvoke(path, force, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncCreateDirectory(CreateDirectory)).BeginInvoke(path, force, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -955,8 +956,8 @@ namespace FluentFTP {
 			AsyncRename func;
 			IAsyncResult ar;
 
-			ar = (func = new AsyncRename(Rename)).BeginInvoke(path, dest, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncRename(Rename)).BeginInvoke(path, dest, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1070,8 +1071,8 @@ namespace FluentFTP {
 			AsyncMoveFile func;
 			IAsyncResult ar;
 
-			ar = (func = new AsyncMoveFile(MoveFile)).BeginInvoke(path, dest, existsMode, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncMoveFile(MoveFile)).BeginInvoke(path, dest, existsMode, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1201,8 +1202,8 @@ namespace FluentFTP {
 			AsyncMoveDirectory func;
 			IAsyncResult ar;
 
-			ar = (func = new AsyncMoveDirectory(MoveDirectory)).BeginInvoke(path, dest, existsMode, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncMoveDirectory(MoveDirectory)).BeginInvoke(path, dest, existsMode, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1586,8 +1587,8 @@ namespace FluentFTP {
 			IAsyncResult ar;
 			AsyncDereferenceLink func;
 
-			ar = (func = new AsyncDereferenceLink(DereferenceLink)).BeginInvoke(item, recMax, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncDereferenceLink(DereferenceLink)).BeginInvoke(item, recMax, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1734,8 +1735,8 @@ namespace FluentFTP {
 			IAsyncResult ar;
 			AsyncSetWorkingDirectory func;
 
-			ar = (func = new AsyncSetWorkingDirectory(SetWorkingDirectory)).BeginInvoke(path, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncSetWorkingDirectory(SetWorkingDirectory)).BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1826,8 +1827,8 @@ namespace FluentFTP {
 			IAsyncResult ar;
 			AsyncGetWorkingDirectory func;
 
-			ar = (func = new AsyncGetWorkingDirectory(GetWorkingDirectory)).BeginInvoke(callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncGetWorkingDirectory(GetWorkingDirectory)).BeginInvoke(callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1939,8 +1940,8 @@ namespace FluentFTP {
 			IAsyncResult ar;
 			AsyncGetFileSize func;
 
-			ar = (func = new AsyncGetFileSize(GetFileSize)).BeginInvoke(path, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncGetFileSize(GetFileSize)).BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -2059,8 +2060,8 @@ namespace FluentFTP {
 			IAsyncResult ar;
 			AsyncGetModifiedTime func;
 
-			ar = (func = new AsyncGetModifiedTime(GetModifiedTime)).BeginInvoke(path, type, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncGetModifiedTime(GetModifiedTime)).BeginInvoke(path, type, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -2183,8 +2184,8 @@ namespace FluentFTP {
 			IAsyncResult ar;
 			AsyncSetModifiedTime func;
 
-			ar = (func = new AsyncSetModifiedTime(SetModifiedTime)).BeginInvoke(path, date, type, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncSetModifiedTime(SetModifiedTime)).BeginInvoke(path, date, type, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 

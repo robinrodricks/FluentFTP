@@ -876,8 +876,8 @@ namespace FluentFTP {
 			AsyncExecute func;
 			IAsyncResult ar;
 
-			ar = (func = new AsyncExecute(Execute)).BeginInvoke(command, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncExecute(Execute)).BeginInvoke(command, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1492,9 +1492,8 @@ namespace FluentFTP {
 			AsyncConnect func;
 			IAsyncResult ar;
 
-			ar = (func = new AsyncConnect(Connect)).BeginInvoke(callback, state);
-
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncConnect(Connect)).BeginInvoke(callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1618,8 +1617,8 @@ namespace FluentFTP {
 			IAsyncResult ar;
 			AsyncDisconnect func;
 
-			ar = (func = new AsyncDisconnect(Disconnect)).BeginInvoke(callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncDisconnect(Disconnect)).BeginInvoke(callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 

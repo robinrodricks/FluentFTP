@@ -888,8 +888,8 @@ namespace FluentFTP {
 			AsyncOpenRead func;
 			IAsyncResult ar;
 
-			ar = (func = new AsyncOpenRead(OpenRead)).BeginInvoke(path, type, restart, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncOpenRead(OpenRead)).BeginInvoke(path, type, restart, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1098,8 +1098,8 @@ namespace FluentFTP {
 			AsyncOpenWrite func;
 			IAsyncResult ar;
 
-			ar = (func = new AsyncOpenWrite(OpenWrite)).BeginInvoke(path, type, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncOpenWrite(OpenWrite)).BeginInvoke(path, type, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1280,8 +1280,8 @@ namespace FluentFTP {
 			IAsyncResult ar;
 			AsyncOpenAppend func;
 
-			ar = (func = new AsyncOpenAppend(OpenAppend)).BeginInvoke(path, type, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncOpenAppend(OpenAppend)).BeginInvoke(path, type, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1429,8 +1429,8 @@ namespace FluentFTP {
 			IAsyncResult ar;
 			AsyncSetDataType func;
 
-			ar = (func = new AsyncSetDataType(SetDataType)).BeginInvoke(type, callback, state);
 			lock (m_asyncmethods) {
+				ar = (func = new AsyncSetDataType(SetDataType)).BeginInvoke(type, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
