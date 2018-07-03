@@ -2066,12 +2066,12 @@ namespace FluentFTP {
 
 		private bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
 			// resume if server disconnects midway (fixes #39)
-			if (ex.InnerException != null) {
+			if (ex.InnerException != null || ex.Message.StartsWith("Unexpected EOF for remote file")) {
 				var ie = ex.InnerException as System.Net.Sockets.SocketException;
 #if CORE
-				if (ie != null && (int)ie.SocketErrorCode == 10054) {
+				if (ie == null || (ie != null && (int)ie.SocketErrorCode == 10054)) {
 #else
-				if (ie != null && ie.ErrorCode == 10054) {
+				if (ie == null || (ie != null && ie.ErrorCode == 10054)) {
 #endif
 					downStream.Dispose();
 					downStream = OpenRead(remotePath, DownloadDataType, restart: offset);
