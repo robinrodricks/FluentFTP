@@ -145,8 +145,13 @@ namespace FluentFTP {
 			}
 
 			if (!(reply = Execute(command)).Success) {
-				stream.Close();
-				throw new FtpCommandException(reply);
+				if(command.StartsWith("NLST ") && reply.Code=="550" && reply.Message== "No files found.") {
+					//workaround for ftpd which response "550 No files found" when folder exists but is empty
+				}
+				else {
+					stream.Close();
+					throw new FtpCommandException(reply);
+				}
 			}
 
 			// the command status is used to determine
