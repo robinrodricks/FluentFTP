@@ -1,3 +1,7 @@
+#if ASYNC
+using System.Threading.Tasks;
+#endif
+
 namespace FluentFTP.Proxy {
 	/// <summary>
 	/// Abstraction of an FtpClient with a proxy
@@ -18,5 +22,14 @@ namespace FluentFTP.Proxy {
 		protected override void Connect(FtpSocketStream stream) {
 			stream.Connect(Proxy.Host, Proxy.Port, InternetProtocolVersions);
 		}
+
+#if ASYNC
+		/// <summary> Redefine connect for FtpClient : authentication on the Proxy  </summary>
+		/// <param name="stream">The socket stream.</param>
+		protected override Task ConnectAsync(FtpSocketStream stream)
+		{
+			return stream.ConnectAsync(Proxy.Host, Proxy.Port, InternetProtocolVersions);
+		}
+#endif
 	}
 }
