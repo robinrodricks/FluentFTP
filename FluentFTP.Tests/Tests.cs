@@ -25,9 +25,9 @@ namespace Tests
 		private const string Category_CustomFTP = "CustomerFTP";
 
 		// SET THESE BEFORE RUNNING ANY TESTS!
-		const string m_host = "";
-		const string m_user = "";
-		const string m_pass = "";
+		const string m_host = "test.deposits.jailatm.com";
+		const string m_user = "WebDeposits";
+		const string m_pass = "IJosh<3JohnCena&AlexRocks!";
 
 		private static readonly int[] connectionTypes = new int[] {
 			(int) FtpDataConnectionType.EPSV,
@@ -437,6 +437,22 @@ namespace Tests
 			}
 		}
 
+
+		[Fact]
+		public void TestGetFileSRecursiveFallback()
+		{
+			using (FtpClient client = NewFtpClient())
+			{
+				client.ListingParser = FtpParser.Machine;
+#if !NETSTANDARD1_6 && !NETSTANDARD1_0 && !NETSTANDARD1_4 && !NETCOREAPP1_0
+				FtpTrace.AddListener(new TextWriterTraceListener(@"C:\Users\ccarter\Downloads\Logs\ftp.txt"));
+#endif
+				client.Connect();
+				client.GetListing("/Ranorex", FtpListOption.Recursive | FtpListOption.AllFiles | FtpListOption.ForceList);
+
+			}
+		}
+
 		//[Fact]
 		public void TestFileZillaKick()
 		{
@@ -530,7 +546,7 @@ namespace Tests
 		}
 
 		[Fact, Trait("Category", Category_Code)]
-		public void TestOpenVMSParser()
+ 		public void TestOpenVMSParser()
 		{
 			FtpListParser parser = new FtpListParser();
 			parser.Init("VMS");
@@ -1189,13 +1205,13 @@ namespace Tests
 			}
 		}
 
-		//[Fact]
+		[Fact]
 		public void TestDeleteDirectory()
 		{
 			using (FtpClient cl = NewFtpClient())
 			{
-				cl.DeleteDirectory("/public_html/temp/otherdir/");
-				cl.DeleteDirectory("/public_html/temp/spaced folder/");
+				cl.DeleteDirectory("/Ranorex/Ranorex_Webdeposits");
+
 			}
 		}
 
