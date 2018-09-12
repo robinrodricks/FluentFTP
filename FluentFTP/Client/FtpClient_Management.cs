@@ -231,8 +231,11 @@ namespace FluentFTP {
 							case FtpFileSystemObjectType.File:
 								DeleteFile(item.FullName);
 								break;
-							case FtpFileSystemObjectType.Directory:
-								DeleteDirInternal(item.FullName, recurse, options);
+							case FtpFileSystemObjectType.Directory:								
+								if (recurse || (!(item.FullName == "." || item.FullName == "./" || item.FullName == "/") && !(reply = Execute("RMD " + item.FullName)).Success))
+								{
+									DeleteDirInternal(item.FullName, true, options);
+								}
 								break;
 							default:
 								throw new FtpException("Don't know how to delete object type: " + item.Type);
