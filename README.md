@@ -261,7 +261,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 	- `OtherPermissions` : Other rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server.
 
-	- `RawPermissions` : The raw permissions string recieved for this object. Use this if other permission properties are blank or invalid.
+	- `RawPermissions` : The raw permissions string received for this object. Use this if other permission properties are blank or invalid.
 
 	- `Input` : The raw string that the server returned for this object. Helps debug if the above properties have been correctly parsed.
 	
@@ -601,13 +601,13 @@ void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
 <a name="faq_ftps"></a>
 **How do I validate the server's certificate when using FTPS?**
 
-First you must discover the string of the valid certificate. Use this code to save the the valid certificate string to a file:
+First you must discover the string of the valid certificate. Use this code to save the valid certificate string to a file:
 ```cs
 void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
     File.WriteAllText(@"C:\cert.txt", e.Certificate.GetRawCertDataString());
 }
 ```
-Then finally use this code to check if the recieved certificate matches the one you trust:
+Then finally use this code to check if the received certificate matches the one you trust:
 ```cs
 string ValidCert = "<insert contents of cert.txt>";
 void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e)  {
