@@ -830,7 +830,7 @@ namespace FluentFTP {
 			do {
 
 				// write the file onto the server
-				using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+				using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true)) {
 					uploadSuccess = await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, token, progress);
 					attemptsLeft--;
 
@@ -1584,7 +1584,7 @@ namespace FluentFTP {
 			do {
 
 				// download the file from server
-				using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None)) {
+				using (var outStream = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true)) {
 					
 					// download the file straight to a file stream
 					downloadSuccess = await DownloadFileInternalAsync(remotePath, outStream, token, progress);
