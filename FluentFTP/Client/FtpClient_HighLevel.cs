@@ -1258,11 +1258,10 @@ namespace FluentFTP {
 				}
 
 				// open a file connection
-				// TODO:  Here is differrent from synchronous version. Needs confirm
 				if (offset == 0) {
-					upStream = await OpenWriteAsync(remotePath, UploadDataType);
+					upStream = await OpenWriteAsync(remotePath, UploadDataType, checkFileExistsAgain);
 				} else {
-					upStream = await OpenAppendAsync(remotePath, UploadDataType);
+					upStream = await OpenAppendAsync(remotePath, UploadDataType, checkFileExistsAgain);
 				}
 
 				// loop till entire file uploaded
@@ -1347,6 +1346,7 @@ namespace FluentFTP {
 				}
 
 				// wait for while transfer to get over
+				// TODO implement some mechanism other than this busy wait, or at least use SpinWait.SpinUntil with a timeout
 				while (upStream.Position < upStream.Length) {
 				}
 
