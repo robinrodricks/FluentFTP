@@ -1290,7 +1290,11 @@ namespace FluentFTP {
                         } catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
-							if (!ResumeUpload(remotePath, ref upStream, offset, ex)) {
+							var resumeResult = await ResumeUploadAsync(remotePath, upStream, offset, ex);
+							if (resumeResult.Item1) {
+								upStream = resumeResult.Item2;
+							}
+							else { 
 								throw;
 							}
 						}
@@ -1336,7 +1340,11 @@ namespace FluentFTP {
                         } catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
-							if (!ResumeUpload(remotePath, ref upStream, offset, ex)) {
+							var resumeResult = await ResumeUploadAsync(remotePath, upStream, offset, ex);
+							if (resumeResult.Item1) {
+								upStream = resumeResult.Item2;
+							}
+							else { 
 								sw.Stop();
 								throw;
 							}
@@ -1346,7 +1354,6 @@ namespace FluentFTP {
 				}
 
 				// wait for while transfer to get over
-				// TODO implement some mechanism other than this busy wait, or at least use SpinWait.SpinUntil with a timeout
 				while (upStream.Position < upStream.Length) {
 				}
 
@@ -1356,7 +1363,7 @@ namespace FluentFTP {
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
 				if (!m_threadSafeDataChannels) {
-					FtpReply status = GetReply();
+					FtpReply status = await GetReplyAsync();
 				}
 
 				return true;
@@ -1397,6 +1404,26 @@ namespace FluentFTP {
 			}
 			return false;
 		}
+
+#if ASYNC
+		private async Task<Tuple<bool, Stream>> ResumeUploadAsync(string remotePath, Stream upStream, long offset, IOException ex) {
+			// resume if server disconnects midway (fixes #39)
+			if (ex.InnerException != null) {
+				var iex = ex.InnerException as System.Net.Sockets.SocketException;
+#if CORE
+				if (iex != null && (int)iex.SocketErrorCode == 10054) {
+#else
+				if (iex != null && iex.ErrorCode == 10054) {
+#endif
+					upStream.Dispose();
+					var returnStream = await OpenAppendAsync(remotePath, UploadDataType, true);
+					returnStream.Position = offset;
+					return Tuple.Create(true, returnStream);
+				}
+			}
+			return Tuple.Create(false, (Stream)null);
+		}
+#endif
 
 		#endregion
 
@@ -1967,7 +1994,10 @@ namespace FluentFTP {
                         } catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
-							if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
+							var resumeResult = await ResumeDownloadAsync(remotePath, downStream, offset, ex);
+							if (resumeResult.Item1) {
+								downStream = resumeResult.Item2;
+							} else { 
 								throw;
 							}
 						}
@@ -2018,7 +2048,10 @@ namespace FluentFTP {
 						} catch (IOException ex) {
 
 							// resume if server disconnected midway, or throw if there is an exception doing that as well
-							if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
+							var resumeResult = await ResumeDownloadAsync(remotePath, downStream, offset, ex);
+							if (resumeResult.Item1) {
+								downStream = resumeResult.Item2;
+							} else { 
 								sw.Stop();
 								throw;
 							}
@@ -2036,7 +2069,7 @@ namespace FluentFTP {
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
 				if (!m_threadSafeDataChannels) {
-					FtpReply status = GetReply();
+					FtpReply status = await GetReplyAsync();
 				}
 				return true;
 
@@ -2080,6 +2113,24 @@ namespace FluentFTP {
 			}
 			return false;
 		}
+
+#if ASYNC
+		private async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex) {
+			// resume if server disconnects midway (fixes #39)
+			if (ex.InnerException != null || ex.Message.StartsWith("Unexpected EOF for remote file")) {
+				var ie = ex.InnerException as System.Net.Sockets.SocketException;
+#if CORE
+				if (ie == null || (ie != null && (int)ie.SocketErrorCode == 10054)) {
+#else
+				if (ie == null || (ie != null && ie.ErrorCode == 10054)) {
+#endif
+					downStream.Dispose();
+					return Tuple.Create(true, await OpenReadAsync(remotePath, DownloadDataType, restart: offset));
+				}
+			}
+			return Tuple.Create(false, (Stream)null);
+		}
+#endif
 
 		#endregion
 
