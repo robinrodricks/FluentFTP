@@ -100,7 +100,7 @@ namespace FluentFTP {
 			if (type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) {
 				if (!(reply = Execute("EPSV")).Success) {
 					// if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
-					if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoPassive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+					if ((reply.Type == FtpResponseType.TransientNegativeCompletion || reply.Type == FtpResponseType.PermanentNegativeCompletion) && type == FtpDataConnectionType.AutoPassive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
 						return OpenPassiveDataStream(FtpDataConnectionType.PASV, command, restart);
 					throw new FtpCommandException(reply);
 				}
@@ -199,7 +199,7 @@ namespace FluentFTP {
                 if (!(reply = await ExecuteAsync("EPSV")).Success)
                 {
                     // if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
-                    if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoPassive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                    if ((reply.Type == FtpResponseType.TransientNegativeCompletion || reply.Type == FtpResponseType.PermanentNegativeCompletion) && type == FtpDataConnectionType.AutoPassive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                         return await OpenPassiveDataStreamAsync(FtpDataConnectionType.PASV, command, restart);
                     throw new FtpCommandException(reply);
                 }
