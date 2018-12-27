@@ -1181,6 +1181,11 @@ namespace FluentFTP {
 				// listen for a success/failure reply
 				if (!EnableThreadSafeDataConnections) {
 					FtpReply status = GetReply();
+					if (status.Code != null && status.Code == "550")
+					{
+						//FIX: if server sends 550 the transfer was received but on could not be confirmed by the server when closing the stream.
+						return false;
+					}
 				}
 
 				return true;
