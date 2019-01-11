@@ -692,7 +692,7 @@ namespace FluentFTP {
 		/// Disconnects from the server, releases resources held by this
 		/// object.
 		/// </summary>
-		public void Dispose() {
+		public virtual void Dispose() {
 #if !CORE14
 			lock (m_lock) {
 #endif
