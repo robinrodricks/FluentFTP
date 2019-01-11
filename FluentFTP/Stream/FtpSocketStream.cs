@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Net.Security;
@@ -147,6 +147,8 @@ namespace FluentFTP {
 		}
 
 #if !NO_SSL
+		BufferedStream m_bufStream = null;
+		
 		SslStream m_sslStream = null;
 		/// <summary>
 		/// The encrypted stream
@@ -683,6 +685,15 @@ namespace FluentFTP {
 		/// </summary>
 		protected override void Dispose(bool disposing) {
 			FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Disposing FtpSocketStream...");
+
+#if !NO_SSL
+			if (m_bufStream != null) {
+				// ensure the last of the buffered bytes are flushed
+				// before we close the socket and network stream
+				m_bufStream.Flush();
+			}
+#endif
+
 			if (m_socket != null) {
 				try {
 					if (m_socket.Connected) {
@@ -725,6 +736,16 @@ namespace FluentFTP {
 					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the SslStream: " + ex.ToString());
 				} finally {
 					m_sslStream = null;
+				}
+			}
+
+			if (m_bufStream != null) {
+				try {
+					m_bufStream.Dispose();
+				} catch (IOException ex) {
+					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the BufferedStream: " + ex.ToString());
+				} finally {
+					m_bufStream = null;
 				}
 			}
 #endif
@@ -975,14 +996,16 @@ namespace FluentFTP {
 				DateTime auth_start;
 				TimeSpan auth_time_total;
 
+				m_bufStream = new BufferedStream(NetworkStream, 81920);
+
 #if CORE
-				m_sslStream = new SslStream(NetworkStream, true, new RemoteCertificateValidationCallback(
+				m_sslStream = new SslStream(m_bufStream, true, new RemoteCertificateValidationCallback(
 					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
 						return OnValidateCertificate(certificate, chain, sslPolicyErrors);
 					}
 				));
 #else
-				m_sslStream = new FtpSslStream(NetworkStream, true, new RemoteCertificateValidationCallback(
+				m_sslStream = new FtpSslStream(m_bufStream, true, new RemoteCertificateValidationCallback(
 					delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
 						return OnValidateCertificate(certificate, chain, sslPolicyErrors);
 					}
@@ -1036,14 +1059,16 @@ namespace FluentFTP {
                 DateTime auth_start;
                 TimeSpan auth_time_total;
 
+	            m_bufStream = new BufferedStream(NetworkStream, 81920);
+
 #if CORE
-				m_sslStream = new SslStream(NetworkStream, true, new RemoteCertificateValidationCallback(
+				m_sslStream = new SslStream(m_bufStream, true, new RemoteCertificateValidationCallback(
 					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
 						return OnValidateCertificate(certificate, chain, sslPolicyErrors);
 					}
 				));
 #else
-                m_sslStream = new FtpSslStream(NetworkStream, true, new RemoteCertificateValidationCallback(
+                m_sslStream = new FtpSslStream(m_bufStream, true, new RemoteCertificateValidationCallback(
                     delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
                     {
                         return OnValidateCertificate(certificate, chain, sslPolicyErrors);
