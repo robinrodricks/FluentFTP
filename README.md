@@ -101,16 +101,16 @@ foreach (FtpListItem item in client.GetListing("/htdocs")) {
 }
 
 // upload a file
-client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt");
+client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4");
 
 // rename the uploaded file
-client.Rename("/htdocs/big.txt", "/htdocs/big2.txt");
+client.Rename("/htdocs/MyVideo.mp4", "/htdocs/MyVideo_2.mp4");
 
 // download the file again
-client.DownloadFile(@"C:\MyVideo_2.mp4", "/htdocs/big2.txt");
+client.DownloadFile(@"C:\MyVideo_2.mp4", "/htdocs/MyVideo_2.mp4");
 
 // delete the file
-client.DeleteFile("/htdocs/big2.txt");
+client.DeleteFile("/htdocs/MyVideo_2.mp4");
 
 // delete a folder recursively
 client.DeleteDirectory("/htdocs/extras/");
