@@ -1338,14 +1338,25 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 19.2.3
+- Fix: UploadFile() or UploadFiles() sometimes fails to create the remote directory if it doesn't exist
+- Fix: DownloadDataType Binary value ignored on ASCII-configured FTP servers
+- Performance improvement: Added BufferedStream between SslStream and NetworkStream (thanks @Lukazoid)
+- Fix: When the FTP server sends 550, transfer is received but not confirmed (thanks @stengnath)
+- Fix: Make Dispose method of FTPClient virtual (thanks @martinbu)
+- Fix: OpenPassiveDataStream/Async() uses the target FTP host instead of the configured proxy (thanks @rmja)
+- Fix: FileExists() for Xlight FTP Server (thanks @oldpepper)
+- Fix: FTPD "550 No files found" when folder exists but is empty, only in PASV mode (thanks @olivierSOW)
+- Fix: Many unexpected EOF for remote file IOException on Android (thanks @jersiovic)
+- Fix: Race condition when BeginInvoke calls the callback before the IAsyncResult is added (thanks @Lukazoid)
+
 #### 19.2.2
 - Fix: Prevent socket poll from hammering the server multiple times per second
 - Fix: Allow using absolute paths that include drive letters (Windows servers)
 - Performance improvement: Only change the FTP data type if different from required type
 - Performance improvement: Download all files in EOF mode and skip the file size check, unless download progress is required
 - Added all missing async versions of FTP methods to IFtpClient
-
-NOTE: If you have any issues with this please try version 19.1.4. Certain core FTP socket handling operations have been changed to improve reliability & performance.
+- System: Certain core FTP socket handling operations have been changed to improve reliability & performance.
 
 #### 19.1.4
 - Fix: Fix hang in TLS activation because no timeout is set on the underlying NetworkStream (thanks @iamjay)
