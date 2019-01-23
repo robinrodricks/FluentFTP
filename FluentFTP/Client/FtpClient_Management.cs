@@ -610,6 +610,11 @@ namespace FluentFTP {
 					if (ch == '5' && IsKnownError(reply.Message, fileNotFoundStrings)) {
 						return false;
 					}
+
+					// Fix #179: Server returns 550 if file not found or no access to file
+					if (reply.Code.Substring(0, 3) == "550") {
+						return false;
+					}
 				}
 
 				// check if file exists by attempting to get its date modified (MDTM)

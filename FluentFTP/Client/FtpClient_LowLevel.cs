@@ -1376,6 +1376,8 @@ namespace FluentFTP {
 
 		#region Set Data Type
 
+		protected bool ForceSetDataType = false;
+
 		/// <summary>
 		/// Sets the data type of information sent over the data stream
 		/// </summary>
@@ -1385,8 +1387,13 @@ namespace FluentFTP {
 			lock (m_lock) {
 #endif
 				// FIX : #291 only change the data type if different
-				if (CurrentDataType != type)
+				if (CurrentDataType != type || ForceSetDataType) {
+
+					// FIX : #318 always set the type when we create a new connection
+					ForceSetDataType = false;
+
 					this.SetDataTypeInternal(type);
+				}
 #if !CORE14
 			}
 #endif

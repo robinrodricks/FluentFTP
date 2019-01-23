@@ -692,7 +692,7 @@ namespace FluentFTP {
 		/// Disconnects from the server, releases resources held by this
 		/// object.
 		/// </summary>
-		public void Dispose() {
+		public virtual void Dispose() {
 #if !CORE14
 			lock (m_lock) {
 #endif
@@ -1198,6 +1198,9 @@ namespace FluentFTP {
 
 				// Create the parser even if the auto-OS detection failed
 				m_listParser.Init(m_systemType);
+
+				// FIX : #318 always set the type when we create a new connection
+				ForceSetDataType = true;
 
 #if !CORE14
 			}

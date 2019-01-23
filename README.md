@@ -101,16 +101,16 @@ foreach (FtpListItem item in client.GetListing("/htdocs")) {
 }
 
 // upload a file
-client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt");
+client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4");
 
 // rename the uploaded file
-client.Rename("/htdocs/big.txt", "/htdocs/big2.txt");
+client.Rename("/htdocs/MyVideo.mp4", "/htdocs/MyVideo_2.mp4");
 
 // download the file again
-client.DownloadFile(@"C:\MyVideo_2.mp4", "/htdocs/big2.txt");
+client.DownloadFile(@"C:\MyVideo_2.mp4", "/htdocs/MyVideo_2.mp4");
 
 // delete the file
-client.DeleteFile("/htdocs/big2.txt");
+client.DeleteFile("/htdocs/MyVideo_2.mp4");
 
 // delete a folder recursively
 client.DeleteDirectory("/htdocs/extras/");
@@ -261,7 +261,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 	- `OtherPermissions` : Other rights. Any combination of 'r', 'w', 'x' (using the `FtpPermission` enum). **Default:** `FtpPermission.None` if not provided by server.
 
-	- `RawPermissions` : The raw permissions string recieved for this object. Use this if other permission properties are blank or invalid.
+	- `RawPermissions` : The raw permissions string received for this object. Use this if other permission properties are blank or invalid.
 
 	- `Input` : The raw string that the server returned for this object. Helps debug if the above properties have been correctly parsed.
 	
@@ -601,13 +601,13 @@ void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
 <a name="faq_ftps"></a>
 **How do I validate the server's certificate when using FTPS?**
 
-First you must discover the string of the valid certificate. Use this code to save the the valid certificate string to a file:
+First you must discover the string of the valid certificate. Use this code to save the valid certificate string to a file:
 ```cs
 void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
     File.WriteAllText(@"C:\cert.txt", e.Certificate.GetRawCertDataString());
 }
 ```
-Then finally use this code to check if the recieved certificate matches the one you trust:
+Then finally use this code to check if the received certificate matches the one you trust:
 ```cs
 string ValidCert = "<insert contents of cert.txt>";
 void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e)  {
@@ -1338,14 +1338,25 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 19.2.3
+- Fix: UploadFile() or UploadFiles() sometimes fails to create the remote directory if it doesn't exist
+- Fix: DownloadDataType Binary value ignored on ASCII-configured FTP servers
+- Performance improvement: Added BufferedStream between SslStream and NetworkStream (thanks @Lukazoid)
+- Fix: When the FTP server sends 550, transfer is received but not confirmed (thanks @stengnath)
+- Fix: Make Dispose method of FTPClient virtual (thanks @martinbu)
+- Fix: OpenPassiveDataStream/Async() uses the target FTP host instead of the configured proxy (thanks @rmja)
+- Fix: FileExists() for Xlight FTP Server (thanks @oldpepper)
+- Fix: FTPD "550 No files found" when folder exists but is empty, only in PASV mode (thanks @olivierSOW)
+- Fix: Many unexpected EOF for remote file IOException on Android (thanks @jersiovic)
+- Fix: Race condition when BeginInvoke calls the callback before the IAsyncResult is added (thanks @Lukazoid)
+
 #### 19.2.2
 - Fix: Prevent socket poll from hammering the server multiple times per second
 - Fix: Allow using absolute paths that include drive letters (Windows servers)
 - Performance improvement: Only change the FTP data type if different from required type
 - Performance improvement: Download all files in EOF mode and skip the file size check, unless download progress is required
 - Added all missing async versions of FTP methods to IFtpClient
-
-NOTE: If you have any issues with this please try version 19.1.4. Certain core FTP socket handling operations have been changed to improve reliability & performance.
+- System: Certain core FTP socket handling operations have been changed to improve reliability & performance.
 
 #### 19.1.4
 - Fix: Fix hang in TLS activation because no timeout is set on the underlying NetworkStream (thanks @iamjay)
