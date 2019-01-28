@@ -1338,6 +1338,12 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 ## Release Notes
 
+#### 19.2.4
+- Fix: UploadFilesAsync with errorHandling deletes the entire directory instead of specific files
+- Fix: Server responds to EPSV with 425 "Data connection failed" but connects with PASV (thanks @ejohnsonTKTNET)
+- Fix: Use proper async configuration for .NET Async methods (thanks @ejohnsonTKTNET)
+- Fix: Improve implementation of upload and download resuming in Async methods (thanks @ejohnsonTKTNET)
+
 #### 19.2.3
 - Fix: UploadFile() or UploadFiles() sometimes fails to create the remote directory if it doesn't exist
 - Fix: DownloadDataType Binary value ignored on ASCII-configured FTP servers
