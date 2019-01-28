@@ -1900,6 +1900,10 @@ namespace FluentFTP {
 
 			FtpTrace.WriteFunc("GetFileSize", new object[] { path });
 
+			if (!HasFeature(FtpCapability.SIZE)) { 
+				return -1;
+			}
+
 			FtpReply reply;
 			long length = 0;
 
@@ -1978,6 +1982,10 @@ namespace FluentFTP {
                 throw new ArgumentException("Required parameter is null or blank.", "path");
 
             FtpTrace.WriteFunc(nameof(GetFileSizeAsync), new object[] { path });
+
+			if (!HasFeature(FtpCapability.SIZE)) { 
+				return -1;
+			}
 
             FtpReply reply;
             long length = 0;
