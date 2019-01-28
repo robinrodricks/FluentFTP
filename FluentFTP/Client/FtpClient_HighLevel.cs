@@ -404,7 +404,7 @@ namespace FluentFTP {
 
 		private async Task PurgeSuccessfulUploadsAsync(IEnumerable<string> remotePaths) {
 			foreach (string remotePath in remotePaths) {
-				await this.DeleteDirectoryAsync(remotePath);
+				await this.DeleteFileAsync(remotePath);
 			}
 		}
 
