@@ -1573,6 +1573,11 @@ namespace FluentFTP {
 					m_serverType = FtpServer.WuFTPd;
 				}
 
+				// trace it
+				if (m_serverType != FtpServer.Unknown) {
+					FtpTrace.WriteLine(FtpTraceLevel.Info, "Detected FTP server: " + m_serverType.ToString());
+				}
+
 			}
 
 		}
@@ -1593,6 +1598,11 @@ namespace FluentFTP {
 				// SYST type: "Windows_CE version 7.0"
 				if (m_systemType.Contains("Windows_CE")) {
 					m_serverType = FtpServer.WindowsCE;
+				}
+
+				// trace it
+				if (m_serverType != FtpServer.Unknown) {
+					FtpTrace.WriteLine("Detected FTP server: " + m_serverType.ToString());
 				}
 
 			}
