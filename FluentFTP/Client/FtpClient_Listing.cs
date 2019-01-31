@@ -385,6 +385,11 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\GetListing.cs" lang="cs" /></example>
 		public FtpListItem[] GetListing(string path, FtpListOption options) {
 
+			// start recursive process if needed and unsupported by the server
+			if ((options & FtpListOption.Recursive) == FtpListOption.Recursive && !RecursiveList) {
+				return GetListingRecursive(path, options);
+			}
+
 			FtpTrace.WriteFunc("GetListing", new object[] { path, options });
 
 			FtpListItem item = null;
@@ -670,6 +675,11 @@ namespace FluentFTP {
         /// <returns>An array of items retrieved in the listing</returns>
         public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options)
         {
+			// start recursive process if needed and unsupported by the server
+			if ((options & FtpListOption.Recursive) == FtpListOption.Recursive && !RecursiveList) {
+				return await GetListingRecursiveAsync(path, options);
+			}
+
             //TODO:  Add cancellation support
             FtpTrace.WriteFunc(nameof(GetListingAsync), new object[] { path, options });
 
@@ -943,7 +953,105 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region Get Name Listing
+		#region Get Listing Recursive
+
+		/// <summary>
+		/// Recursive method of GetListing, to recurse through directories on servers that do not natively support recursion.
+		/// Automatically called by GetListing where required.
+		/// Uses flat recursion instead of head recursion.
+		/// </summary>
+		/// <param name="path">The path of the directory to list</param>
+		/// <param name="options">Options that dictacte how a list is performed and what information is gathered.</param>
+		/// <returns>An array of FtpListItem objects</returns>
+		protected FtpListItem[] GetListingRecursive(string path, FtpListOption options) {
+
+			// remove the recursive flag
+			options &= ~FtpListOption.Recursive;
+
+			// add initial path to list of folders to explore
+			Stack<string> stack = new Stack<string>();
+			stack.Push(path);
+			List<FtpListItem> allFiles = new List<FtpListItem>();
+
+			// explore folders
+			while (stack.Count > 0) {
+
+				// get path of folder to list
+				string currentPath = stack.Pop();
+				if (!currentPath.EndsWith("/")) currentPath += "/";
+
+				// list it
+				FtpListItem[] items = GetListing(currentPath, options);
+
+				// add it to the final listing
+				allFiles.AddRange(items);
+
+				// extract the directories
+				foreach (FtpListItem item in items) {
+					if (item.Type == FtpFileSystemObjectType.Directory) {
+						stack.Push(item.FullName);
+					}
+				}
+				items = null;
+
+				// recurse
+			}
+
+			// final list of all files and dirs
+			return allFiles.ToArray();
+		}
+
+#if ASYNC
+		/// <summary>
+		/// Recursive method of GetListingAsync, to recurse through directories on servers that do not natively support recursion.
+		/// Automatically called by GetListingAsync where required.
+		/// Uses flat recursion instead of head recursion.
+		/// </summary>
+		/// <param name="path">The path of the directory to list</param>
+		/// <param name="options">Options that dictacte how a list is performed and what information is gathered.</param>
+		/// <returns>An array of FtpListItem objects</returns>
+		protected async Task<FtpListItem[]> GetListingRecursiveAsync(string path, FtpListOption options) {
+
+			// remove the recursive flag
+			options &= ~FtpListOption.Recursive;
+
+			// add initial path to list of folders to explore
+			Stack<string> stack = new Stack<string>();
+			stack.Push(path);
+			List<FtpListItem> allFiles = new List<FtpListItem>();
+
+			// explore folders
+			while (stack.Count > 0) {
+
+				// get path of folder to list
+				string currentPath = stack.Pop();
+				if (!currentPath.EndsWith("/")) currentPath += "/";
+
+				// list it
+				FtpListItem[] items = await GetListingAsync(currentPath, options);
+
+				// add it to the final listing
+				allFiles.AddRange(items);
+
+				// extract the directories
+				foreach (FtpListItem item in items) {
+					if (item.Type == FtpFileSystemObjectType.Directory) {
+						stack.Push(item.FullName);
+					}
+				}
+				items = null;
+
+				// recurse
+			}
+
+			// final list of all files and dirs
+			return allFiles.ToArray();
+		}
+#endif
+
+#endregion
+
+#region Get Name Listing
 
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command.
@@ -1087,7 +1195,7 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
 	}
 }
