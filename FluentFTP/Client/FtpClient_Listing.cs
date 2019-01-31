@@ -1051,7 +1051,7 @@ namespace FluentFTP {
 
 #endregion
 
-#region Get Name Listing
+		#region Get Name Listing
 
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command.
