@@ -1217,69 +1217,6 @@ namespace FluentFTP {
 #endif
 		}
 
-		/// <summary>
-		/// Detect the FTP Server based on the welcome message sent by the server after getting the 220 connection command.
-		/// Its the primary method.
-		/// </summary>
-		private void DetectFtpServer() {
-
-			if (HandshakeReply.Success && HandshakeReply.Message != null) {
-
-				// Detect Pure-FTPd server
-				// Welcome message: "---------- Welcome to Pure-FTPd [privsep] [TLS] ----------"
-				if (HandshakeReply.Message.Contains("Pure-FTPd")) {
-					m_serverType = FtpServer.PureFTPd;
-				}
-
-				// Detect vsFTPd server
-				// Welcome message: "(vsFTPd 3.0.3)"
-				if (HandshakeReply.Message.Contains("(vsFTPd")) {
-					m_serverType = FtpServer.VsFTPd;
-				}
-
-				// Detect ProFTPd server
-				// Welcome message: "ProFTPD 1.3.5rc3 Server (***) [::ffff:***]"
-				if (HandshakeReply.Message.Contains("ProFTPD")) {
-					m_serverType = FtpServer.ProFTPD;
-				}
-
-				// Detect FileZilla server
-				// Welcome message: "FileZilla Server 0.9.60 beta"
-				if (HandshakeReply.Message.Contains("FileZilla Server")) {
-					m_serverType = FtpServer.FileZilla;
-				}
-
-				// Detect WuFTPd server
-				// Welcome message: "FTP server (Revision 9.0 Version wuftpd-2.6.1 Mon Jun 30 09:28:28 GMT 2014) ready"
-				if (HandshakeReply.Message.Contains(" wuftpd")) {
-					m_serverType = FtpServer.WuFTPd;
-				}
-
-			}
-
-		}
-		/// <summary>
-		/// Detect the FTP Server based on the response to the SYST connection command.
-		/// Its a fallback method if the server did not send an identifying welcome message.
-		/// </summary>
-		private void DetectFtpServerBySyst() {
-			if (m_serverType == FtpServer.Unknown) {
-
-				// Detect OpenVMS server
-				// SYST type: "VMS OpenVMS V8.4"
-				if (m_systemType.Contains("OpenVMS")) {
-					m_serverType = FtpServer.OpenVMS;
-				}
-
-				// Detect WindowsCE server
-				// SYST type: "Windows_CE version 7.0"
-				if (m_systemType.Contains("Windows_CE")) {
-					m_serverType = FtpServer.WindowsCE;
-				}
-
-			}
-		}
-
 #if ASYNC
         // TODO: add example
         /// <summary>
@@ -1591,6 +1528,75 @@ namespace FluentFTP {
 			GetAsyncDelegate<AsyncConnect>(ar).EndInvoke(ar);
 		}
 #endif
+
+		#endregion
+
+		#region Detect Server
+
+		/// <summary>
+		/// Detect the FTP Server based on the welcome message sent by the server after getting the 220 connection command.
+		/// Its the primary method.
+		/// </summary>
+		private void DetectFtpServer() {
+
+			if (HandshakeReply.Success && (HandshakeReply.Message != null || HandshakeReply.InfoMessages != null)) {
+
+				string welcome = HandshakeReply.ErrorMessage;
+
+				// Detect Pure-FTPd server
+				// Welcome message: "---------- Welcome to Pure-FTPd [privsep] [TLS] ----------"
+				if (welcome.Contains("Pure-FTPd")) {
+					m_serverType = FtpServer.PureFTPd;
+				}
+
+				// Detect vsFTPd server
+				// Welcome message: "(vsFTPd 3.0.3)"
+				if (welcome.Contains("(vsFTPd")) {
+					m_serverType = FtpServer.VsFTPd;
+				}
+
+				// Detect ProFTPd server
+				// Welcome message: "ProFTPD 1.3.5rc3 Server (***) [::ffff:***]"
+				if (welcome.Contains("ProFTPD")) {
+					m_serverType = FtpServer.ProFTPD;
+				}
+
+				// Detect FileZilla server
+				// Welcome message: "FileZilla Server 0.9.60 beta"
+				if (welcome.Contains("FileZilla Server")) {
+					m_serverType = FtpServer.FileZilla;
+				}
+
+				// Detect WuFTPd server
+				// Welcome message: "FTP server (Revision 9.0 Version wuftpd-2.6.1 Mon Jun 30 09:28:28 GMT 2014) ready"
+				if (welcome.Contains(" wuftpd")) {
+					m_serverType = FtpServer.WuFTPd;
+				}
+
+			}
+
+		}
+		/// <summary>
+		/// Detect the FTP Server based on the response to the SYST connection command.
+		/// Its a fallback method if the server did not send an identifying welcome message.
+		/// </summary>
+		private void DetectFtpServerBySyst() {
+			if (m_serverType == FtpServer.Unknown) {
+
+				// Detect OpenVMS server
+				// SYST type: "VMS OpenVMS V8.4"
+				if (m_systemType.Contains("OpenVMS")) {
+					m_serverType = FtpServer.OpenVMS;
+				}
+
+				// Detect WindowsCE server
+				// SYST type: "Windows_CE version 7.0"
+				if (m_systemType.Contains("Windows_CE")) {
+					m_serverType = FtpServer.WindowsCE;
+				}
+
+			}
+		}
 
 		#endregion
 
