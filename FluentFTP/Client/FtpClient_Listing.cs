@@ -123,22 +123,41 @@ namespace FluentFTP {
 				m_listParser.hasTimeOffset = m_timeDiff != 0;
 			}
 		}
-
-		private bool m_recursiveList = true;
-
+		
 		/// <summary>
-		/// Check if your server supports a recursive LIST command (LIST -R).
-		/// If you know for sure that this is unsupported, set it to false.
+		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
+		/// If you know for sure that this is supported, return true here.
 		/// </summary>
 		public bool RecursiveList {
 			get {
-				if (SystemType.StartsWith("Windows_CE")) {
+
+				// Has support, per https://download.pureftpd.org/pub/pure-ftpd/doc/README
+				if (ServerType == FtpServer.PureFTPd) {
+					return true;
+				}
+
+				// Has support, per: http://www.proftpd.org/docs/howto/ListOptions.html
+				if (ServerType == FtpServer.ProFTPD) {
+					return true;
+				}
+
+				// Has support, but OFF by default, per: https://linux.die.net/man/5/vsftpd.conf
+				if (ServerType == FtpServer.VsFTPd) {
+					return false; // impossible to detect on a server-by-server basis
+				}
+
+				// No support, per: https://trac.filezilla-project.org/ticket/1848
+				if (ServerType == FtpServer.FileZilla) {
 					return false;
 				}
-				return m_recursiveList;
-			}
-			set {
-				m_recursiveList = value;
+
+				// No support, per: http://wu-ftpd.therockgarden.ca/man/ftpd.html
+				if (ServerType == FtpServer.WuFTPd) {
+					return false;
+				}
+
+				// Unknown, so assume server does not support recursive listing
+				return false;
 			}
 		}
 
