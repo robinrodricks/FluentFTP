@@ -21,6 +21,9 @@ namespace FluentFTP.Proxy {
 			if (!proxyConnectionReply.Success)
 				throw new FtpException("Can't connect " + Host + " via proxy " + Proxy.Host + ".\nMessage : " +
 										proxyConnectionReply.ErrorMessage);
+
+			// TO TEST: if we are able to detect the actual FTP server software from this reply
+			HandshakeReply = proxyConnectionReply;
 		}
 
 	    /// <summary>

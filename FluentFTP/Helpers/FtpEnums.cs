@@ -603,4 +603,44 @@ namespace FluentFTP {
         /// </summary>
         UTC = 2,
     }
+
+	/// <summary>
+	/// Defines the type of the FTP server software.
+	/// Add constants here as you add detection scripts for individual server types.
+	/// </summary>
+	public enum FtpServer {
+		/// <summary>
+		/// Unknown FTP server software
+		/// </summary>
+		Unknown,
+		/// <summary>
+		/// Definitely PureFTPd server
+		/// </summary>
+		PureFTPd,
+		/// <summary>
+		/// Definitely VsFTPd server
+		/// </summary>
+		VsFTPd,
+		/// <summary>
+		/// Definitely ProFTPD server
+		/// </summary>
+		ProFTPD,
+		/// <summary>
+		/// Definitely FileZilla server
+		/// </summary>
+		FileZilla,
+		/// <summary>
+		/// Definitely OpenVMS server
+		/// </summary>
+		OpenVMS,
+		/// <summary>
+		/// Definitely WindowsCE server
+		/// </summary>
+		WindowsCE,
+		/// <summary>
+		/// Definitely WuFTPd server
+		/// </summary>
+		WuFTPd
+	}
+
 }

@@ -181,6 +181,7 @@ client.Disconnect();
 
 **File Management FAQs**
 - [How does GetListing() work internally?](#faq_listings)
+- [How does GetListing() return a recursive file listing?](#faq_recursivelist)
 - [What kind of hashing commands are supported?](#faq_hashing)
 
 **Misc FAQs**
@@ -223,6 +224,8 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 - **Execute**() - Execute a custom or unspported command.
 
 - **SystemType** - Gets the type of system/server that we're connected to.
+
+- **ServerType** - Gets the type of the FTP server software that we're connected to, using the `FtpServer` enum. If it does not detect your specific server software, add a value in the `FtpServer` enum and write a detection script in `DetectFtpServer()`. **Default:** `FtpServer.Unknown`
 
 - **IsConnected** - Checks if the connection is still alive.
 
@@ -862,6 +865,24 @@ Here is the full list of codepages based on the charset you need:
 
 
 --------------------------------------------------------
+<a name="faq_recursivelist"></a>
+**How does GetListing() return a recursive file listing?**
+
+In older versions of FluentFTP, we assumed that all servers supported recursive listings via the `LIST -R` command. However this caused numerous issues with various FTP servers that did not support recursive listings: The `GetListing()` call would simply return the contents of the first directory without any of the child directories included.
+
+Therefore, since version 20.0.0, we try to detect the FTP server software and if we determine that it does not support recursive listing, we do our own manual recursion. We begin by assuming that all servers do not support recursive listing, and then whitelist specific server types.
+
+If you feel that `GetListing()` is too slow when using recursive listings, and you know that your FTP server software supports the `LIST -R` command, then please contribute support for your server:
+
+1. Add your FTP server type in the `FtpServer` enum.
+
+2. Add code in `FtpClient.DetectFtpServer()` to detect your FTP server software.
+
+3. Add code in `FtpClient.RecursiveList()` to return `true` for the detected server.
+
+
+
+--------------------------------------------------------
 <a name="faq_hashing"></a>
 **What kind of hashing commands are supported?**
 
@@ -1337,6 +1358,10 @@ When doing a large number of transfers, one needs to be aware of some inherit is
 This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is signaled by closing the connection. On downloads and file listings, the sockets being used on the server will stay in the TIME WAIT state because the server closes the socket when it's done sending the data. On uploads, the client sockets will go into the TIME WAIT state because the client closes the connection to signal EOF to the server.
 
 ## Release Notes
+
+#### 20.0.0
+- New: FTP Server software detection (PureFTPd, VsFTPd, ProFTPD, FileZilla, OpenVMS, WindowsCE, WuFTPd)
+- New: Detect if the FTP server supports recursive file listing (LIST -R) command using whitelist
 
 #### 19.2.4
 - Fix: UploadFilesAsync with errorHandling deletes the entire directory instead of specific files

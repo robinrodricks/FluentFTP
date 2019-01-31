@@ -607,12 +607,21 @@ namespace FluentFTP {
 
 		private string m_systemType = "UNKNOWN";
 		/// <summary>
-		/// Gets the type of system/server that we're
-		/// connected to.
+		/// Gets the type of system/server that we're connected to. Typically begins with "WINDOWS" or "UNIX".
 		/// </summary>
 		public string SystemType {
 			get {
 				return m_systemType;
+			}
+		}
+
+		private FtpServer m_serverType = FtpServer.Unknown;
+		/// <summary>
+		/// Gets the type of the FTP server software that we're connected to.
+		/// </summary>
+		public FtpServer ServerType {
+			get {
+				return m_serverType;
 			}
 		}
 
@@ -781,7 +790,6 @@ namespace FluentFTP {
 			conn.RetryAttempts = RetryAttempts;
 			conn.UploadRateLimit = UploadRateLimit;
 			conn.DownloadRateLimit = DownloadRateLimit;
-			conn.RecursiveList = RecursiveList;
 			conn.DownloadDataType = DownloadDataType;
 			conn.UploadDataType = UploadDataType;
 			conn.ActivePorts = ActivePorts;
@@ -1133,6 +1141,7 @@ namespace FluentFTP {
 #endif
 
 				Handshake();
+				DetectFtpServer();
 
 #if !NO_SSL
 				if (EncryptionMode == FtpEncryptionMode.Explicit) {
@@ -1179,6 +1188,7 @@ namespace FluentFTP {
 				// Get the system type - Needed to auto-detect file listing parser
 				if ((reply = Execute("SYST")).Success) {
 					m_systemType = reply.Message;
+					DetectFtpServerBySyst();
 				}
 
 #if !NO_SSL && !CORE
@@ -1205,6 +1215,69 @@ namespace FluentFTP {
 #if !CORE14
 			}
 #endif
+		}
+
+		/// <summary>
+		/// Detect the FTP Server based on the welcome message sent by the server after getting the 220 connection command.
+		/// Its the primary method.
+		/// </summary>
+		private void DetectFtpServer() {
+
+			if (HandshakeReply.Success && HandshakeReply.Message != null) {
+
+				// Detect Pure-FTPd server
+				// Welcome message: "---------- Welcome to Pure-FTPd [privsep] [TLS] ----------"
+				if (HandshakeReply.Message.Contains("Pure-FTPd")) {
+					m_serverType = FtpServer.PureFTPd;
+				}
+
+				// Detect vsFTPd server
+				// Welcome message: "(vsFTPd 3.0.3)"
+				if (HandshakeReply.Message.Contains("(vsFTPd")) {
+					m_serverType = FtpServer.VsFTPd;
+				}
+
+				// Detect ProFTPd server
+				// Welcome message: "ProFTPD 1.3.5rc3 Server (***) [::ffff:***]"
+				if (HandshakeReply.Message.Contains("ProFTPD")) {
+					m_serverType = FtpServer.ProFTPD;
+				}
+
+				// Detect FileZilla server
+				// Welcome message: "FileZilla Server 0.9.60 beta"
+				if (HandshakeReply.Message.Contains("FileZilla Server")) {
+					m_serverType = FtpServer.FileZilla;
+				}
+
+				// Detect WuFTPd server
+				// Welcome message: "FTP server (Revision 9.0 Version wuftpd-2.6.1 Mon Jun 30 09:28:28 GMT 2014) ready"
+				if (HandshakeReply.Message.Contains(" wuftpd")) {
+					m_serverType = FtpServer.WuFTPd;
+				}
+
+			}
+
+		}
+		/// <summary>
+		/// Detect the FTP Server based on the response to the SYST connection command.
+		/// Its a fallback method if the server did not send an identifying welcome message.
+		/// </summary>
+		private void DetectFtpServerBySyst() {
+			if (m_serverType == FtpServer.Unknown) {
+
+				// Detect OpenVMS server
+				// SYST type: "VMS OpenVMS V8.4"
+				if (m_systemType.Contains("OpenVMS")) {
+					m_serverType = FtpServer.OpenVMS;
+				}
+
+				// Detect WindowsCE server
+				// SYST type: "Windows_CE version 7.0"
+				if (m_systemType.Contains("Windows_CE")) {
+					m_serverType = FtpServer.WindowsCE;
+				}
+
+			}
 		}
 
 #if ASYNC
@@ -1260,6 +1333,7 @@ namespace FluentFTP {
 #endif
 
             await HandshakeAsync();
+			DetectFtpServer();
 
 #if !NO_SSL
             if (EncryptionMode == FtpEncryptionMode.Explicit) {
@@ -1313,6 +1387,7 @@ namespace FluentFTP {
             if ((reply = await ExecuteAsync("SYST")).Success)
             {
                 m_systemType = reply.Message;
+				DetectFtpServerBySyst();
             }
 
 #if !NO_SSL && !CORE
@@ -1372,6 +1447,8 @@ namespace FluentFTP {
         }
 #endif
 
+		protected FtpReply HandshakeReply;
+
 		/// <summary>
 		/// Called during Connect(). Typically extended by FTP proxies.
 		/// </summary>
@@ -1384,6 +1461,7 @@ namespace FluentFTP {
 					throw new FtpCommandException(reply);
 				}
 			}
+			HandshakeReply = reply;
 		}
 
 #if ASYNC
@@ -1404,6 +1482,7 @@ namespace FluentFTP {
                     throw new FtpCommandException(reply);
                 }
             }
+			HandshakeReply = reply;
         }
 #endif
 
