@@ -159,6 +159,8 @@ namespace FluentFTP {
 				// Unknown, so assume server does not support recursive listing
 				return false;
 			}
+			set {
+			}
 		}
 
 		private bool m_bulkListing = true;
