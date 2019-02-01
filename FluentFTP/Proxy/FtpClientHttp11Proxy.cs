@@ -18,6 +18,10 @@ namespace FluentFTP.Proxy {
 		/// <summary> Redefine the first dialog: HTTP Frame for the HTTP 1.1 Proxy </summary>
 		protected override void Handshake() {
 			var proxyConnectionReply = GetReply();
+
+			//Added new poperty set
+			FtpReply = proxyConnectionReply;
+
 			if (!proxyConnectionReply.Success)
 				throw new FtpException("Can't connect " + Host + " via proxy " + Proxy.Host + ".\nMessage : " +
 										proxyConnectionReply.ErrorMessage);

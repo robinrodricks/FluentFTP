@@ -697,7 +697,15 @@ namespace FluentFTP {
 						// is closed.
 						if (stream.CommandStatus.Type == FtpResponseType.PositivePreliminary) {
 							if (!(reply = GetReply()).Success) {
+
+								//Added new poperty set
+								FtpReply = reply;
 								throw new FtpCommandException(reply);
+							}
+							else
+							{
+								//Added new poperty set
+								FtpReply = reply;
 							}
 						}
 					}
