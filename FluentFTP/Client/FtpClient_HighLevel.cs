@@ -1084,6 +1084,7 @@ namespace FluentFTP
 				bool checkFileExistsAgain = false;
 
 				// check if the file exists, and skip, overwrite or append
+<<<<<<< HEAD
 				if (existsMode == FtpExists.NoCheck)
 				{
 					checkFileExistsAgain = true;
@@ -1092,6 +1093,22 @@ namespace FluentFTP
 				{
 					if (!fileExistsKnown)
 					{
+=======
+				if (existsMode == FtpExists.NoCheck) {
+					checkFileExistsAgain = true;	
+				}
+				else if (existsMode == FtpExists.AppendNoCheck) {
+					checkFileExistsAgain = true;
+					
+					offset = GetFileSize(remotePath);
+					if (offset == -1)
+					{
+						offset = 0; // start from the beginning
+					}
+				}
+				else {
+					if (!fileExistsKnown) {
+>>>>>>> 8b86a488435e2a3fcb5bd2103373f954619ba428
 						fileExists = FileExists(remotePath);
 					}
 					switch (existsMode)
@@ -1288,8 +1305,12 @@ namespace FluentFTP
 					FtpReply = status;
 
 					// Fix #353: if server sends 550 the transfer was received but could not be confirmed by the server
+<<<<<<< HEAD
 					if (status.Code != null && status.Code == "550")
 					{
+=======
+					if (status.Code != null && status.Code != "" && status.Code.StartsWith("5")) {
+>>>>>>> 8b86a488435e2a3fcb5bd2103373f954619ba428
 						return false;
 					}
 				}
