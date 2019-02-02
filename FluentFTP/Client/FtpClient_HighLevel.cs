@@ -1183,7 +1183,7 @@ namespace FluentFTP {
 					FtpReply status = GetReply();
 
 					// Fix #353: if server sends 550 the transfer was received but could not be confirmed by the server
-					if (status.Code != null && status.Code == "550") {
+					if (status.Code != null && status.Code != "" && status.Code.StartsWith("5")) {
 						return false;
 					}
 				}
