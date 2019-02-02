@@ -486,7 +486,12 @@ namespace FluentFTP {
 		/// <summary>
 		/// Append to the file if it exists, by checking the length and adding the missing data.
 		/// </summary>
-		Append
+		Append,
+		/// <summary>
+		/// Append to the file, but don't check if it exists and add missing data.   This might be required if you don't have permissions on the server to list files in the folder.
+		/// Only use this if you are SURE that the file does not exist on the server otherwise it can cause the UploadFile method to hang due to filesize mismatch.
+		/// </summary>
+		AppendNoCheck
 	}
 
     /// <summary>

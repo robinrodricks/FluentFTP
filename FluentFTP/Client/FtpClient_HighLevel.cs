@@ -1023,8 +1023,18 @@ namespace FluentFTP {
 
 				// check if the file exists, and skip, overwrite or append
 				if (existsMode == FtpExists.NoCheck) {
+					checkFileExistsAgain = true;	
+				}
+				else if (existsMode == FtpExists.AppendNoCheck) {
 					checkFileExistsAgain = true;
-				} else {
+					
+					offset = GetFileSize(remotePath);
+					if (offset == -1)
+					{
+						offset = 0; // start from the beginning
+					}
+				}
+				else {
 					if (!fileExistsKnown) {
 						fileExists = FileExists(remotePath);
 					}
