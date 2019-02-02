@@ -997,6 +997,8 @@ namespace FluentFTP
 				m_stream.WriteLine(m_textEncoding, command);
 				reply = GetReply();
 
+				//Added new poperty set
+				FtpReply = reply;
 #if !CORE14
 			}
 #endif
@@ -1571,6 +1573,9 @@ namespace FluentFTP
 			FtpReply reply;
 			if (!(reply = GetReply()).Success)
 			{
+
+				//Added new property set
+				FtpReply = reply;
 
 				if (reply.Code == null)
 				{

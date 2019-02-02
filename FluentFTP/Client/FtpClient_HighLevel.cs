@@ -1284,6 +1284,8 @@ namespace FluentFTP
 				{
 					FtpReply status = GetReply();
 
+					//Added new poperty set
+					FtpReply = status;
 
 					// Fix #353: if server sends 550 the transfer was received but could not be confirmed by the server
 					if (status.Code != null && status.Code == "550")
