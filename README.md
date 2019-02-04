@@ -1363,11 +1363,11 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 #### 20.0.0
 - New: FTP Server software detection (PureFTPd, VsFTPd, ProFTPD, FileZilla, OpenVMS, WindowsCE, WuFTPd)
 - New: Detect if the FTP server supports recursive file listing (LIST -R) command using whitelist
-- New: Manually recurse through directory if `FtpListOption.Recursive` is set and server does not support recursion
+- New: `GetListing` will manually recurse through directories if `FtpListOption.Recursive` is set and server does not support recursion
 - New: Added `LastReply` property which returns the last `FtpReply` recieved from the server.
 - New: Added new upload option `AppendNoCheck` to append to a file on the server without checking if it exists (thanks @everbalovas)
 - Fix: During upload, respond to any error in 5xx series, not just 550 (thanks @stengnath)
-- Fix: Various fixes to UploadFileAsync based on fixes already implemented in UploadFile
+- Fix: Various fixes to `UploadFileAsync` based on fixes already implemented in `UploadFile`
 
 #### 19.2.4
 - Fix: UploadFilesAsync with errorHandling deletes the entire directory instead of specific files
