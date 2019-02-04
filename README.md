@@ -225,7 +225,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 - **SystemType** - Gets the type of system/server that we're connected to.
 
-- **ServerType** - Gets the type of the FTP server software that we're connected to, using the `FtpServer` enum. If it does not detect your specific server software, add a value in the `FtpServer` enum and write a detection script in `DetectFtpServer()`. **Default:** `FtpServer.Unknown`
+- **ServerType** - Gets the type of the FTP server software that we're connected to, using the `FtpServer` enum. If it does not detect your specific server software, please contribute a [detection script](#faq_recursivelist). **Default:** `FtpServer.Unknown`
 
 - **IsConnected** - Checks if the connection is still alive.
 
