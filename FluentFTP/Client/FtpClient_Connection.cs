@@ -632,6 +632,13 @@ namespace FluentFTP {
 			protected set { m_connectionType = value; }
 		}
 
+		private FtpReply m_lastReply;
+		/// <summary> Gets the last reply recieved from the server</summary>
+		public FtpReply LastReply {
+			get { return m_lastReply; }
+			protected set { m_lastReply = value; }
+		}
+
 		#endregion
 
 		#region Constructor / Destructor
@@ -1018,6 +1025,7 @@ namespace FluentFTP {
 #if !CORE14
 			}
 #endif
+			LastReply = reply;
 
 			return reply;
 		}
@@ -1541,7 +1549,7 @@ namespace FluentFTP {
 
 			if (HandshakeReply.Success && (HandshakeReply.Message != null || HandshakeReply.InfoMessages != null)) {
 
-				string welcome = HandshakeReply.ErrorMessage;
+				string welcome = (HandshakeReply.Message ?? "") + (HandshakeReply.InfoMessages ?? "");
 
 				// Detect Pure-FTPd server
 				// Welcome message: "---------- Welcome to Pure-FTPd [privsep] [TLS] ----------"
@@ -1575,7 +1583,7 @@ namespace FluentFTP {
 
 				// trace it
 				if (m_serverType != FtpServer.Unknown) {
-					FtpTrace.WriteLine(FtpTraceLevel.Info, "Detected FTP server: " + m_serverType.ToString());
+					FtpTrace.WriteLine(FtpTraceLevel.Info, "Status:   Detected FTP server: " + m_serverType.ToString());
 				}
 
 			}
