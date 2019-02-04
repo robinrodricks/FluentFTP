@@ -1023,18 +1023,15 @@ namespace FluentFTP {
 
 				// check if the file exists, and skip, overwrite or append
 				if (existsMode == FtpExists.NoCheck) {
-					checkFileExistsAgain = true;	
-				}
-				else if (existsMode == FtpExists.AppendNoCheck) {
 					checkFileExistsAgain = true;
-					
+				} else if (existsMode == FtpExists.AppendNoCheck) {
+					checkFileExistsAgain = true;
+
 					offset = GetFileSize(remotePath);
-					if (offset == -1)
-					{
+					if (offset == -1) {
 						offset = 0; // start from the beginning
 					}
-				}
-				else {
+				} else {
 					if (!fileExistsKnown) {
 						fileExists = FileExists(remotePath);
 					}
@@ -1227,6 +1224,12 @@ namespace FluentFTP {
 				// check if the file exists, and skip, overwrite or append
 				if (existsMode == FtpExists.NoCheck) {
 					checkFileExistsAgain = true;
+				} else if (existsMode == FtpExists.AppendNoCheck) {
+					checkFileExistsAgain = true;
+					offset = await GetFileSizeAsync(remotePath);
+					if (offset == -1) {
+						offset = 0; // start from the beginning
+					}
 				} else {
 					if (!fileExistsKnown) {
 						fileExists = await FileExistsAsync(remotePath);
@@ -1234,6 +1237,7 @@ namespace FluentFTP {
 					switch (existsMode) {
 						case FtpExists.Skip:
 							if (fileExists) {
+								FtpTrace.WriteStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
 								return false;
 							}
 							break;
@@ -1368,8 +1372,13 @@ namespace FluentFTP {
 					sw.Stop();
 				}
 
-				// wait for while transfer to get over
+				// wait for transfer to get over
 				while (upStream.Position < upStream.Length) {
+				}
+
+				// send progress reports
+				if (progress != null) {
+					progress.Report(100.0);
 				}
 
 				// disconnect FTP stream before exiting
@@ -1379,6 +1388,11 @@ namespace FluentFTP {
 				// listen for a success/failure reply
 				if (!m_threadSafeDataChannels) {
 					FtpReply status = await GetReplyAsync();
+
+					// Fix #353: if server sends 550 the transfer was received but could not be confirmed by the server
+					if (status.Code != null && status.Code != "" && status.Code.StartsWith("5")) {
+						return false;
+					}
 				}
 
 				return true;
@@ -1399,7 +1413,6 @@ namespace FluentFTP {
 				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
 			}
 		}
-
 #endif
 
 		private bool ResumeUpload(string remotePath, ref Stream upStream, long offset, IOException ex) {
