@@ -387,7 +387,7 @@ namespace FluentFTP {
 
 			// start recursive process if needed and unsupported by the server
 			if ((options & FtpListOption.Recursive) == FtpListOption.Recursive && !RecursiveList) {
-				return GetListingRecursive(path, options);
+				return GetListingRecursive(GetAbsolutePath(path), options);
 			}
 
 			FtpTrace.WriteFunc("GetListing", new object[] { path, options });
@@ -677,7 +677,7 @@ namespace FluentFTP {
         {
 			// start recursive process if needed and unsupported by the server
 			if ((options & FtpListOption.Recursive) == FtpListOption.Recursive && !RecursiveList) {
-				return await GetListingRecursiveAsync(path, options);
+				return await GetListingRecursiveAsync(GetAbsolutePath(path), options);
 			}
 
             //TODO:  Add cancellation support

@@ -678,7 +678,7 @@ namespace Tests
 
 				FtpTrace.WriteLine(cl.Capabilities);
 
-				foreach (FtpListItem item in cl.GetListing(null))
+				foreach (FtpListItem item in cl.GetListing(null, FtpListOption.Recursive))
 				{
 					FtpTrace.WriteLine(item);
 				}
