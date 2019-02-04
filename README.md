@@ -233,6 +233,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 - **HasFeature**() - Checks if a specific feature (`FtpCapability`) is supported by the server.
 
+- **LastReply** - Returns the last `FtpReply` recieved from the server.
 
 ### Directory Listing
 
@@ -426,7 +427,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 - **TimeOffset** - Time difference between server and client, in hours. If the server is located in Amsterdam and you are in Los Angeles then the time difference is 9 hours. **Default:** 0.
 
-- **RecursiveList** - Check if your server supports a recursive LIST command (`LIST -R`). If you know for sure that this is unsupported, set it to false. **Default:** true.
+- **RecursiveList** - Check if your server supports a recursive LIST command (`LIST -R`).
 
 - **BulkListing** - If true, increases performance of GetListing by reading multiple lines of the file listing at once. If false then GetListing will read file listings line-by-line. If GetListing is having issues with your server, set it to false. **Default:** true.
 
@@ -1362,6 +1363,10 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 #### 20.0.0
 - New: FTP Server software detection (PureFTPd, VsFTPd, ProFTPD, FileZilla, OpenVMS, WindowsCE, WuFTPd)
 - New: Detect if the FTP server supports recursive file listing (LIST -R) command using whitelist
+- New: Manually recurse through directory if `FtpListOption.Recursive` is set and server does not support recursion
+- New: Added `LastReply` property which returns the last `FtpReply` recieved from the server.
+- New: Added new upload option `AppendNoCheck` to append to a file on the server without checking if it exists (thanks @everbalovas)
+- Fix: During upload, respond to any error in 5xx series, not just 550 (thanks @stengnath)
 
 #### 19.2.4
 - Fix: UploadFilesAsync with errorHandling deletes the entire directory instead of specific files
