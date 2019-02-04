@@ -24,6 +24,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
   - Get the [hash/checksum](#file-hashing) of a file (SHA-1, SHA-256, SHA-512, and MD5)
   - Dereference of symbolic links to calculate the linked file/folder
 - **FTP protocol:**
+  - Automatic detection of the [FTP server software](#faq_servertype) and its [capabilities](#faq_recursivelist)
   - Extensive support for [FTP commands](#ftp-support), including some server-specific commands
   - Easily send [server-specific](https://github.com/hgupta9/FluentFTP/issues/88) FTP commands using the `Execute()` method
   - Explicit and Implicit [SSL connections](#faq_ftps) are supported for the control and data connections using .NET's `SslStream`
@@ -165,6 +166,7 @@ client.Disconnect();
 - [How do I connect with SFTP?](#faq_sftp)
 - [How do I login with an anonymous FTP account?](#faq_loginanon)
 - [How do I login with an FTP proxy?](#faq_loginproxy)
+- [How do I detect the type of server I'm connecting to?](#faq_servertype)
 - [How do I use client certificates to login with FTPS?](#faq_certs)
 - [How do I bundle an X509 certificate from a file?](#faq_x509)
 
@@ -1066,6 +1068,39 @@ First you must "fork" FluentFTP, then make changes on your local version, then s
 17. Type details about the changes you made in the description
 18. Click **Create pull request**
 19. Thank you!
+
+
+
+--------------------------------------------------------
+<a name="faq_servertype"></a>
+**How do I detect the type of server I'm connecting to?**
+
+You can read `ServerType` to get the exact type of FTP server software that you've connected to. We dynamically detect the FTP server software based on the welcome message it sends when you've just connected to it. We can currently detect:
+
+- PureFTPd
+- VsFTPd
+- ProFTPD
+- WuFTPd
+- FileZilla Server
+- OpenVMS
+- Windows CE
+
+You can also read `SystemType` to get the operating system string returned by the server. It will typically begin with the operating system category. Use the following snippet to detect the OS:
+
+	var system = client.SystemType.ToUpper();
+	
+	if (system.StartsWith("WINDOWS")) {
+		// Windows OS
+	} else if (system.IndexOf("UNIX") >= 0 || system.IndexOf("AIX") >= 0) {
+		// Unix OS
+	} else if (system.IndexOf("VMS") >= 0) {
+		// VMS or OpenVMS
+	} else if (system.IndexOf("OS/400") >= 0) {
+		// IBM OS/400
+	} else {
+		// assume Unix OS
+	}
+
 
 
 --------------------------------------------------------
