@@ -921,6 +921,9 @@ FtpTrace.LogPassword = false; 	// hide FTP passwords
 FtpTrace.LogIP = false; 	// hide FTP server IP addresses
 ```
 
+Alternatively you can hook onto `client.OnLogEvent` to get a callback every time a message is logged in the context of an individual `FtpClient` instance.
+
+
 
 --------------------------------------------------------
 <a name="faq_logfile"></a>
