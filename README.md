@@ -504,7 +504,9 @@ Please access these static methods directly under the `FtpClient` class.
 
 Please see these [FAQ entries](#faq_trace) for help on logging & debugging.
 
-- FtpTrace.**LogFunctions** - Log all high-level function calls. **Default:** true.
+- client.**OnLogEvent** - A property of `FtpClient`. Assign this to a callback that will be fired every time a message is logged.
+
+- FtpTrace.**LogFunctions** - Include high-level function calls in logs? **Default:** true.
 
 - FtpTrace.**LogIP** - Include server IP addresses in logs? **Default:** true.
 

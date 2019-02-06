@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 21.0.0
+- New: `OnLogEvent` callback to get logs in the context of indivivdual FtpClient connections
+- Fix: All logging is done in the context of an `FtpClient` and then passed to `FtpTrace` listeners
+- Signature for custom list parsers has changed, `FtpClient` argument added to the end
+
 #### 20.0.0
 - New: FTP Server software detection (PureFTPd, VsFTPd, ProFTPD, FileZilla, OpenVMS, WindowsCE, WuFTPd)
 - New: Detect if the FTP server supports recursive file listing (LIST -R) command using whitelist
