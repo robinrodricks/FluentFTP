@@ -35,7 +35,7 @@ namespace FluentFTP.Proxy {
 
             FtpReply reply = GetReply();
             if (reply.Code == "220")
-                FtpTrace.WriteLine(FtpTraceLevel.Info, "Status: Server is ready for the new client");
+                this.LogLine(FtpTraceLevel.Info, "Status: Server is ready for the new client");
 
 			// TO TEST: if we are able to detect the actual FTP server software from this reply
 			HandshakeReply = reply;

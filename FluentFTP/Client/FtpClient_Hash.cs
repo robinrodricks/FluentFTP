@@ -344,7 +344,7 @@ namespace FluentFTP {
 
 				hash.Value = m.Groups["hash"].Value;
 			} else {
-				FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Failed to parse hash from: " + reply.Message);
+				this.LogStatus(FtpTraceLevel.Warn, "Failed to parse hash from: " + reply.Message);
 			}
 
 			return hash;
@@ -469,7 +469,7 @@ namespace FluentFTP {
 			}
 			else
 			{
-				FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Failed to parse hash from: " + reply.Message);
+				this.LogStatus(FtpTraceLevel.Warn, "Failed to parse hash from: " + reply.Message);
 			}
 
 			return hash;

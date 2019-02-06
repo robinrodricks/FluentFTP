@@ -473,7 +473,7 @@ namespace Tests
 		[Fact, Trait("Category", Category_Code)]
 		public void TestUnixListParser()
 		{
-			FtpListParser parser = new FtpListParser();
+			FtpListParser parser = new FtpListParser(new FtpClient());
 			parser.Init("UNIX");
 			//parser.parser = FtpParser.Legacy;
 
@@ -498,7 +498,7 @@ namespace Tests
 		[Fact, Trait("Category", Category_Code)]
 		public void TestIISParser()
 		{
-			FtpListParser parser = new FtpListParser();
+			FtpListParser parser = new FtpListParser(new FtpClient());
 			parser.Init("WINDOWS");
 			//parser.parser = FtpParser.Legacy;
 
@@ -532,7 +532,7 @@ namespace Tests
 		[Fact, Trait("Category", Category_Code)]
 		public void TestOpenVMSParser()
 		{
-			FtpListParser parser = new FtpListParser();
+			FtpListParser parser = new FtpListParser(new FtpClient());
 			parser.Init("VMS");
 
 			string[] sample = new string[] {

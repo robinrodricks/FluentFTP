@@ -162,16 +162,7 @@ namespace FluentFTP {
         public static void WriteLine(FtpTraceLevel eventType, object message) {
             Write(eventType, message.ToString());
         }
-
-        /// <summary>
-        /// Write to the TraceListeners, adding an automatic prefix to the message based on the `eventType`
-        /// </summary>
-        /// <param name="eventType">The type of tracing event</param>
-        /// <param name="message">The message to write</param>
-        public static void WriteStatus(FtpTraceLevel eventType, object message) {
-            Write(eventType, TraceLevelPrefix(eventType) + message.ToString());
-        }
-
+		
         /// <summary>
         /// Write to the TraceListeners, for the purpose of logging a API function call
         /// </summary>
@@ -223,19 +214,6 @@ namespace FluentFTP {
 #endif
         }
 
-        private static string TraceLevelPrefix(FtpTraceLevel level) {
-            switch (level) {
-                case FtpTraceLevel.Verbose:
-                    return "Status:   ";
-                case FtpTraceLevel.Info:
-                    return "Status:   ";
-                case FtpTraceLevel.Warn:
-                    return "Warning:  ";
-                case FtpTraceLevel.Error:
-                    return "Error:    ";
-            }
-            return "Status:   ";
-        }
 
 #if !CORE
 

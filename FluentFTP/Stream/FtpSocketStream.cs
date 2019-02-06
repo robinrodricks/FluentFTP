@@ -19,6 +19,8 @@ namespace FluentFTP {
 	/// </summary>
 	public class FtpSocketStream : Stream, IDisposable {
 		private SslProtocols m_SslProtocols;
+		public FtpClient Client;
+
 		public FtpSocketStream(SslProtocols defaultSslProtocols) {
 			m_SslProtocols = defaultSslProtocols;
 		}
@@ -96,7 +98,7 @@ namespace FluentFTP {
 					}
 
 					if (m_socketPollInterval > 0 && DateTime.Now.Subtract(m_lastActivity).TotalMilliseconds > m_socketPollInterval) {
-						FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Testing connectivity using Socket.Poll()...");
+						this.Client.LogStatus(FtpTraceLevel.Verbose, "Testing connectivity using Socket.Poll()...");
 
 						// FIX : #273 update m_lastActivity to the current time
 						m_lastActivity = DateTime.Now;
@@ -108,11 +110,11 @@ namespace FluentFTP {
 					}
 				} catch (SocketException sockex) {
 					Close();
-					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpSocketStream.IsConnected: Caught and discarded SocketException while testing for connectivity: " + sockex.ToString());
+					this.Client.LogStatus(FtpTraceLevel.Warn, "FtpSocketStream.IsConnected: Caught and discarded SocketException while testing for connectivity: " + sockex.ToString());
 					return false;
 				} catch (IOException ioex) {
 					Close();
-					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpSocketStream.IsConnected: Caught and discarded IOException while testing for connectivity: " + ioex.ToString());
+					this.Client.LogStatus(FtpTraceLevel.Warn, "FtpSocketStream.IsConnected: Caught and discarded IOException while testing for connectivity: " + ioex.ToString());
 					return false;
 				}
 
@@ -684,7 +686,7 @@ namespace FluentFTP {
 		/// Disconnects from server
 		/// </summary>
 		protected override void Dispose(bool disposing) {
-			FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Disposing FtpSocketStream...");
+			this.Client.LogStatus(FtpTraceLevel.Verbose, "Disposing FtpSocketStream...");
 
 #if !NO_SSL
 			if (m_bufStream != null) {
@@ -712,7 +714,7 @@ namespace FluentFTP {
                     m_socket.Dispose();
 #endif
 				} catch (SocketException ex) {
-					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Caught and discarded a SocketException while cleaning up the Socket: " + ex.ToString());
+					this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded a SocketException while cleaning up the Socket: " + ex.ToString());
 				} finally {
 					m_socket = null;
 				}
@@ -722,7 +724,7 @@ namespace FluentFTP {
 				try {
 					m_netStream.Dispose();
 				} catch (IOException ex) {
-					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the NetworkStream: " + ex.ToString());
+					this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the NetworkStream: " + ex.ToString());
 				} finally {
 					m_netStream = null;
 				}
@@ -733,7 +735,7 @@ namespace FluentFTP {
 				try {
 					m_sslStream.Dispose();
 				} catch (IOException ex) {
-					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the SslStream: " + ex.ToString());
+					this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the SslStream: " + ex.ToString());
 				} finally {
 					m_sslStream = null;
 				}
@@ -743,7 +745,7 @@ namespace FluentFTP {
 				try {
 					m_bufStream.Dispose();
 				} catch (IOException ex) {
-					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the BufferedStream: " + ex.ToString());
+					this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the BufferedStream: " + ex.ToString());
 				} finally {
 					m_bufStream = null;
 				}
@@ -789,7 +791,7 @@ namespace FluentFTP {
 						case AddressFamily.InterNetwork:
 							if ((ipVersions & FtpIpVersion.IPv4) != FtpIpVersion.IPv4) {
 #if DEBUG
-								FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Skipped IPV4 address : " + addresses[i].ToString());
+								this.Client.LogStatus(FtpTraceLevel.Verbose, "Skipped IPV4 address : " + addresses[i].ToString());
 #endif
 								continue;
 							}
@@ -797,7 +799,7 @@ namespace FluentFTP {
 						case AddressFamily.InterNetworkV6:
 							if ((ipVersions & FtpIpVersion.IPv6) != FtpIpVersion.IPv6) {
 #if DEBUG
-								FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Skipped IPV6 address : " + addresses[i].ToString());
+								this.Client.LogStatus(FtpTraceLevel.Verbose, "Skipped IPV6 address : " + addresses[i].ToString());
 #endif
 								continue;
 							}
@@ -806,9 +808,9 @@ namespace FluentFTP {
 				}
 
 				if (FtpTrace.LogIP) {
-					FtpTrace.WriteStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
+					this.Client.LogStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
 				} else {
-					FtpTrace.WriteStatus(FtpTraceLevel.Info, "Connecting to ***:" + port);
+					this.Client.LogStatus(FtpTraceLevel.Info, "Connecting to ***:" + port);
 				}
 
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -872,7 +874,7 @@ namespace FluentFTP {
                             if ((ipVersions & FtpIpVersion.IPv4) != FtpIpVersion.IPv4)
                             {
 #if DEBUG
-                                FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Skipped IPV4 address : " + addresses[i].ToString());
+                                this.Client.LogStatus(FtpTraceLevel.Verbose, "Skipped IPV4 address : " + addresses[i].ToString());
 #endif
                                 continue;
                             }
@@ -881,7 +883,7 @@ namespace FluentFTP {
                             if ((ipVersions & FtpIpVersion.IPv6) != FtpIpVersion.IPv6)
                             {
 #if DEBUG
-                                FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Skipped IPV6 address : " + addresses[i].ToString());
+                                this.Client.LogStatus(FtpTraceLevel.Verbose, "Skipped IPV6 address : " + addresses[i].ToString());
 #endif
                                 continue;
                             }
@@ -891,11 +893,11 @@ namespace FluentFTP {
 
                 if (FtpTrace.LogIP)
                 {
-                    FtpTrace.WriteStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
+                    this.Client.LogStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
                 }
                 else
                 {
-                    FtpTrace.WriteStatus(FtpTraceLevel.Info, "Connecting to ***:" + port);
+                    this.Client.LogStatus(FtpTraceLevel.Info, "Connecting to ***:" + port);
                 }
 
                 m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -1020,15 +1022,15 @@ namespace FluentFTP {
 #endif
 
 				auth_time_total = DateTime.Now.Subtract(auth_start);
-				FtpTrace.WriteStatus(FtpTraceLevel.Info, "FTPS Authentication Successful");
-				FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
+				this.Client.LogStatus(FtpTraceLevel.Info, "FTPS Authentication Successful");
+				this.Client.LogStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
 			} catch (AuthenticationException) {
 				// authentication failed and in addition it left our 
 				// ssl stream in an unusable state so cleanup needs
 				// to be done and the exception can be re-thrown for
 				// handling down the chain. (Add logging?)
 				Close();
-				FtpTrace.WriteStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
+				this.Client.LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
 				throw;
 			}
 		}
@@ -1080,8 +1082,8 @@ namespace FluentFTP {
                 await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, true);
 
                 auth_time_total = DateTime.Now.Subtract(auth_start);
-                FtpTrace.WriteStatus(FtpTraceLevel.Info, "FTPS Authentication Successful");
-                FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
+                this.Client.LogStatus(FtpTraceLevel.Info, "FTPS Authentication Successful");
+                this.Client.LogStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
             }
             catch (AuthenticationException)
             {
@@ -1090,7 +1092,7 @@ namespace FluentFTP {
                 // to be done and the exception can be re-thrown for
                 // handling down the chain. (Add logging?)
                 Close();
-                FtpTrace.WriteStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
+                this.Client.LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
                 throw;
             }
         }

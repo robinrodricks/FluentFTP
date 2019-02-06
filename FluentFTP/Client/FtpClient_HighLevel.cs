@@ -183,7 +183,7 @@ namespace FluentFTP {
 			if (remoteDir.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remoteDir");
 
-			FtpTrace.WriteFunc("UploadFiles", new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
+			this.LogFunc("UploadFiles", new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
 			//int count = 0;
 			bool errorEncountered = false;
@@ -224,7 +224,7 @@ namespace FluentFTP {
 						break;
 					}
 				} catch (Exception ex) {
-					FtpTrace.WriteStatus(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
+					this.LogStatus(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
 					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;
@@ -319,7 +319,7 @@ namespace FluentFTP {
 			if (remoteDir.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remoteDir");
 			
-			FtpTrace.WriteFunc("UploadFilesAsync", new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
+			this.LogFunc("UploadFilesAsync", new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
 			token.ThrowIfCancellationRequested();
@@ -366,11 +366,11 @@ namespace FluentFTP {
 				} catch (Exception ex) {
 					if (ex is OperationCanceledException) {
 						//DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
-						FtpTrace.WriteStatus(FtpTraceLevel.Info, "Upload cancellation requested");
+						this.LogStatus(FtpTraceLevel.Info, "Upload cancellation requested");
 						throw;
 					}
 					//suppress all other upload exceptions (errors are still written to FtpTrace)
-					FtpTrace.WriteStatus(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
+					this.LogStatus(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
 					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;
@@ -466,7 +466,7 @@ namespace FluentFTP {
 			if (localDir.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "localDir");
 
-			FtpTrace.WriteFunc("DownloadFiles", new object[] { localDir, remotePaths, overwrite, verifyOptions });
+			this.LogFunc("DownloadFiles", new object[] { localDir, remotePaths, overwrite, verifyOptions });
 
 			bool errorEncountered = false;
 			List<string> successfulDownloads = new List<string>();
@@ -489,7 +489,7 @@ namespace FluentFTP {
 						break;
 					}
 				} catch (Exception ex) {
-					FtpTrace.WriteStatus(FtpTraceLevel.Error, "Failed to download " + remotePath + ". Error: " + ex);
+					this.LogStatus(FtpTraceLevel.Error, "Failed to download " + remotePath + ". Error: " + ex);
 					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;
@@ -543,7 +543,7 @@ namespace FluentFTP {
 				try {
 					File.Delete(localFile);
 				} catch (Exception ex) {
-					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "FtpClient : Exception caught and discarded while attempting to delete file '" + localFile + "' : " + ex.ToString());
+					this.LogStatus(FtpTraceLevel.Warn, "FtpClient : Exception caught and discarded while attempting to delete file '" + localFile + "' : " + ex.ToString());
 				}
 			}
 		}
@@ -578,7 +578,7 @@ namespace FluentFTP {
 			if (localDir.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "localDir");
 			
-			FtpTrace.WriteFunc("DownloadFilesAsync", new object[] { localDir, remotePaths, overwrite, verifyOptions });
+			this.LogFunc("DownloadFilesAsync", new object[] { localDir, remotePaths, overwrite, verifyOptions });
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
 			token.ThrowIfCancellationRequested();
@@ -605,7 +605,7 @@ namespace FluentFTP {
 					}
 				} catch (Exception ex) {
 					if (ex is OperationCanceledException) {
-						FtpTrace.WriteStatus(FtpTraceLevel.Info, "Download cancellation requested");
+						this.LogStatus(FtpTraceLevel.Info, "Download cancellation requested");
 						//DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
 						throw;
 					}
@@ -696,11 +696,11 @@ namespace FluentFTP {
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 
-			FtpTrace.WriteFunc("UploadFile", new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
+			this.LogFunc("UploadFile", new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
-				FtpTrace.WriteStatus(FtpTraceLevel.Error, "File does not exist.");
+				this.LogStatus(FtpTraceLevel.Error, "File does not exist.");
 				return false;
 			}
 
@@ -743,11 +743,11 @@ namespace FluentFTP {
 #else
 			if (!File.Exists(localPath)) {
 #endif
-				FtpTrace.WriteStatus(FtpTraceLevel.Error, "File does not exist.");
+				this.LogStatus(FtpTraceLevel.Error, "File does not exist.");
 				return false;
 			}
 
-			FtpTrace.WriteFunc("UploadFileAsync", new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
+			this.LogFunc("UploadFileAsync", new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 
 			return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token, progress);
 		}
@@ -794,11 +794,11 @@ namespace FluentFTP {
 					// If verification is needed, update the validated flag
 					if (uploadSuccess && verifyOptions != FtpVerify.None) {
 						verified = VerifyTransfer(localPath, remotePath);
-						FtpTrace.WriteStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+						this.LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 						if (!verified && attemptsLeft > 0) {
 
 							// Force overwrite if a retry is required
-							FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
+							this.LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
 							existsMode = FtpExists.Overwrite;
 						}
 					}
@@ -837,11 +837,11 @@ namespace FluentFTP {
 					// If verification is needed, update the validated flag
 					if (verifyOptions != FtpVerify.None) {
 						verified = await VerifyTransferAsync(localPath, remotePath);
-						FtpTrace.WriteStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+						this.LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 						if (!verified && attemptsLeft > 0) {
 							
 							// Force overwrite if a retry is required
-							FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
+							this.LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
 							existsMode = FtpExists.Overwrite;
 						}
 					}
@@ -882,7 +882,7 @@ namespace FluentFTP {
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 
-			FtpTrace.WriteFunc("Upload", new object[] { remotePath, existsMode, createRemoteDir });
+			this.LogFunc("Upload", new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			return UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, false, false, progress);
@@ -906,7 +906,7 @@ namespace FluentFTP {
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 
-			FtpTrace.WriteFunc("Upload", new object[] { remotePath, existsMode, createRemoteDir });
+			this.LogFunc("Upload", new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			using (MemoryStream ms = new MemoryStream(fileData)) {
@@ -938,7 +938,7 @@ namespace FluentFTP {
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			
-			FtpTrace.WriteFunc("UploadAsync", new object[] { remotePath, existsMode, createRemoteDir });
+			this.LogFunc("UploadAsync", new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, false, false, token, progress);
@@ -965,7 +965,7 @@ namespace FluentFTP {
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 
-			FtpTrace.WriteFunc("UploadAsync", new object[] { remotePath, existsMode, createRemoteDir });
+			this.LogFunc("UploadAsync", new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			using (MemoryStream ms = new MemoryStream(fileData)) {
@@ -1038,7 +1038,7 @@ namespace FluentFTP {
 					switch (existsMode) {
 						case FtpExists.Skip:
 							if (fileExists) {
-								FtpTrace.WriteStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
+								this.LogStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
 								return false;
 							}
 							break;
@@ -1237,7 +1237,7 @@ namespace FluentFTP {
 					switch (existsMode) {
 						case FtpExists.Skip:
 							if (fileExists) {
-								FtpTrace.WriteStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
+								this.LogStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
 								return false;
 							}
 							break;
@@ -1405,7 +1405,7 @@ namespace FluentFTP {
 
 				if(ex1 is OperationCanceledException)
 				{
-					FtpTrace.WriteStatus(FtpTraceLevel.Info, "Upload cancellation requested");
+					this.LogStatus(FtpTraceLevel.Info, "Upload cancellation requested");
 					throw;
 				}
 
@@ -1481,7 +1481,7 @@ namespace FluentFTP {
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 
-			FtpTrace.WriteFunc("DownloadFile", new object[] { localPath, remotePath, overwrite, verifyOptions });
+			this.LogFunc("DownloadFile", new object[] { localPath, remotePath, overwrite, verifyOptions });
 
 			return DownloadFileToFile(localPath, remotePath, overwrite, verifyOptions, progress);
 		}
@@ -1489,7 +1489,7 @@ namespace FluentFTP {
 		private bool DownloadFileToFile(string localPath, string remotePath, bool overwrite, FtpVerify verifyOptions, IProgress<double> progress) {
 			// skip downloading if the local file exists
 			if (!overwrite && File.Exists(localPath)) {
-				FtpTrace.WriteStatus(FtpTraceLevel.Error, "Overwrite is false and local file already exists.");
+				this.LogStatus(FtpTraceLevel.Error, "Overwrite is false and local file already exists.");
 				return false;
 			}
 
@@ -1522,10 +1522,10 @@ namespace FluentFTP {
 				// if verification is needed
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
 					verified = VerifyTransfer(localPath, remotePath);
-					FtpTrace.WriteLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+					this.LogLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 #if DEBUG
 					if (!verified && attemptsLeft > 0) {
-						FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						this.LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
 					}
 #endif
 				}
@@ -1568,7 +1568,7 @@ namespace FluentFTP {
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			
-			FtpTrace.WriteFunc("DownloadFileAsync", new object[] { localPath, remotePath, overwrite, verifyOptions });
+			this.LogFunc("DownloadFileAsync", new object[] { localPath, remotePath, overwrite, verifyOptions });
 
 			return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, token, progress);
 		}
@@ -1597,7 +1597,7 @@ namespace FluentFTP {
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			
-			FtpTrace.WriteFunc("DownloadFileAsync", new object[] { localPath, remotePath, overwrite, verifyOptions });
+			this.LogFunc("DownloadFileAsync", new object[] { localPath, remotePath, overwrite, verifyOptions });
 
 			return await DownloadFileToFileAsync(localPath, remotePath, overwrite, verifyOptions, CancellationToken.None, progress);
 		}
@@ -1612,7 +1612,7 @@ namespace FluentFTP {
 #else
 			if (!overwrite && File.Exists(localPath)) {
 #endif
-				FtpTrace.WriteStatus(FtpTraceLevel.Error, "Overwrite is false and local file already exists");
+				this.LogStatus(FtpTraceLevel.Error, "Overwrite is false and local file already exists");
 				return false;
 			}
 
@@ -1649,10 +1649,10 @@ namespace FluentFTP {
 				// if verification is needed
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
 					verified = await VerifyTransferAsync(localPath, remotePath);
-					FtpTrace.WriteStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+					this.LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 #if DEBUG
 					if (!verified && attemptsLeft > 0) {
-						FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						this.LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
 					}
 #endif
 				}
@@ -1690,7 +1690,7 @@ namespace FluentFTP {
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 
-			FtpTrace.WriteFunc("Download", new object[] { remotePath });
+			this.LogFunc("Download", new object[] { remotePath });
 
 			// download the file from the server
 			return DownloadFileInternal(remotePath, outStream, progress);
@@ -1711,7 +1711,7 @@ namespace FluentFTP {
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 
-			FtpTrace.WriteFunc("Download", new object[] { remotePath });
+			this.LogFunc("Download", new object[] { remotePath });
 
 			outBytes = null;
 
@@ -1745,7 +1745,7 @@ namespace FluentFTP {
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			
-			FtpTrace.WriteFunc("DownloadAsync", new object[] { remotePath });
+			this.LogFunc("DownloadAsync", new object[] { remotePath });
 			
 			// download the file from the server
 			return await DownloadFileInternalAsync(remotePath, outStream, token, progress);
@@ -1767,7 +1767,7 @@ namespace FluentFTP {
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			
-			FtpTrace.WriteFunc("DownloadAsync", new object[] { remotePath });
+			this.LogFunc("DownloadAsync", new object[] { remotePath });
 			
 			// download the file from the server
 			return await DownloadFileInternalAsync(remotePath, outStream, CancellationToken.None, null);
@@ -1788,7 +1788,7 @@ namespace FluentFTP {
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			
-			FtpTrace.WriteFunc("DownloadAsync", new object[] { remotePath });
+			this.LogFunc("DownloadAsync", new object[] { remotePath });
 			
 			// download the file from the server
 			using (MemoryStream outStream = new MemoryStream()) {
@@ -1958,7 +1958,7 @@ namespace FluentFTP {
 
 				// absorb "file does not exist" exceptions and simply return false
 				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
-					FtpTrace.WriteStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
+					this.LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
 					return false;
 				}
 
@@ -2109,13 +2109,13 @@ namespace FluentFTP {
 
 				if (ex1 is OperationCanceledException)
 				{
-					FtpTrace.WriteStatus(FtpTraceLevel.Info, "Upload cancellation requested");
+					this.LogStatus(FtpTraceLevel.Info, "Upload cancellation requested");
 					throw;
 				}
 
 				// absorb "file does not exist" exceptions and simply return false
 				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
-					FtpTrace.WriteStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
+					this.LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
 					return false;
 				}
 

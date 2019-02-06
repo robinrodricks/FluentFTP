@@ -215,7 +215,7 @@ namespace FluentFTP {
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			FtpTrace.WriteFunc("GetObjectInfo", new object[] { path, dateModified });
+			this.LogFunc("GetObjectInfo", new object[] { path, dateModified });
 
 			FtpReply reply;
 			string[] res;
@@ -240,7 +240,7 @@ namespace FluentFTP {
 						result = m_listParser.ParseSingleLine(null, info, m_caps, true);
 					}
 				} else {
-					FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " with error " + reply.ErrorMessage);
+					this.LogStatus(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " with error " + reply.ErrorMessage);
 				}
 			} else {
 
@@ -256,7 +256,7 @@ namespace FluentFTP {
 					}
 				}
 
-				FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " since MLST not supported and GetListing() fails to list file/folder.");
+				this.LogStatus(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " since MLST not supported and GetListing() fails to list file/folder.");
 			}
 
 			// Get the accurate date modified using another MDTM command
@@ -390,7 +390,7 @@ namespace FluentFTP {
 				return GetListingRecursive(GetAbsolutePath(path), options);
 			}
 
-			FtpTrace.WriteFunc("GetListing", new object[] { path, options });
+			this.LogFunc("GetListing", new object[] { path, options });
 
 			FtpListItem item = null;
 			List<FtpListItem> lst = new List<FtpListItem>();
@@ -452,7 +452,7 @@ namespace FluentFTP {
 				// read in raw file listing
 				using (FtpDataStream stream = OpenDataStream(listcmd, 0)) {
 					try {
-						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+						this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
 						if (this.BulkListing) {
 
@@ -460,7 +460,7 @@ namespace FluentFTP {
 							foreach (var line in stream.ReadAllLines(Encoding, this.BulkListingLength)) {
 								if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
 									rawlisting.Add(line);
-									FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Listing:  " + line);
+									this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
 								}
 							}
 
@@ -470,12 +470,12 @@ namespace FluentFTP {
 							while ((buf = stream.ReadLine(Encoding)) != null) {
 								if (buf.Length > 0) {
 									rawlisting.Add(buf);
-									FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
+									this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
 								}
 							}
 						}
 
-						FtpTrace.WriteLine(FtpTraceLevel.Verbose, "-----------------------------------------");
+						this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 
 					} finally {
 						stream.Close();
@@ -522,7 +522,7 @@ namespace FluentFTP {
 					try {
 						item = m_listParser.ParseSingleLine(path, buf, m_caps, machineList);
 					} catch (FtpListParser.CriticalListParseException) {
-						FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
+						this.LogStatus(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
 						i = -1;
 						lst.Clear();
 						continue;
@@ -534,10 +534,10 @@ namespace FluentFTP {
 						if (isIncludeSelf || !(item.Name == "." || item.Name == "..")) {
 							lst.Add(item);
 						} else {
-							//FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Skipped self or parent item: " + item.Name);
+							//this.LogStatus(FtpTraceLevel.Verbose, "Skipped self or parent item: " + item.Name);
 						}
 					} else {
-						FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
+						this.LogStatus(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
 					}
 				}
 
@@ -561,7 +561,7 @@ namespace FluentFTP {
 							DateTime modify;
 
 							if (item.Type == FtpFileSystemObjectType.Directory)
-								FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Trying to retrieve modification time of a directory, some servers don't like this...");
+								this.LogStatus(FtpTraceLevel.Verbose, "Trying to retrieve modification time of a directory, some servers don't like this...");
 
 							if ((modify = GetModifiedTime(item.FullName)) != DateTime.MinValue)
 								item.Modified = modify;
@@ -681,7 +681,7 @@ namespace FluentFTP {
 			}
 
             //TODO:  Add cancellation support
-            FtpTrace.WriteFunc(nameof(GetListingAsync), new object[] { path, options });
+            this.LogFunc(nameof(GetListingAsync), new object[] { path, options });
 
             FtpListItem item = null;
             List<FtpListItem> lst = new List<FtpListItem>();
@@ -751,7 +751,7 @@ namespace FluentFTP {
             {
                 try
                 {
-                    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+                    this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
                     if (this.BulkListing)
                     {
@@ -762,7 +762,7 @@ namespace FluentFTP {
                             if (!FtpExtensions.IsNullOrWhiteSpace(line))
                             {
                                 rawlisting.Add(line);
-                                FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Listing:  " + line);
+                                this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
                             }
                         }
 
@@ -776,12 +776,12 @@ namespace FluentFTP {
                             if (buf.Length > 0)
                             {
                                 rawlisting.Add(buf);
-                                FtpTrace.WriteLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
+                                this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
                             }
                         }
                     }
 
-                    FtpTrace.WriteLine(FtpTraceLevel.Verbose, "-----------------------------------------");
+                    this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 
                 }
                 finally
@@ -837,7 +837,7 @@ namespace FluentFTP {
                     }
                     catch (FtpListParser.CriticalListParseException)
                     {
-                        FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
+                        this.LogStatus(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
                         i = -1;
                         lst.Clear();
                         continue;
@@ -853,12 +853,12 @@ namespace FluentFTP {
                         }
                         else
                         {
-                            //FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Skipped self or parent item: " + item.Name);
+                            //this.LogStatus(FtpTraceLevel.Verbose, "Skipped self or parent item: " + item.Name);
                         }
                     }
                     else
                     {
-                        FtpTrace.WriteStatus(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
+                        this.LogStatus(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
                     }
                 }
 
@@ -886,7 +886,7 @@ namespace FluentFTP {
                             DateTime modify;
 
                             if (item.Type == FtpFileSystemObjectType.Directory)
-                                FtpTrace.WriteStatus(FtpTraceLevel.Verbose, "Trying to retrieve modification time of a directory, some servers don't like this...");
+                                this.LogStatus(FtpTraceLevel.Verbose, "Trying to retrieve modification time of a directory, some servers don't like this...");
 
                             if ((modify = await GetModifiedTimeAsync(item.FullName)) != DateTime.MinValue)
                                 item.Modified = modify;
@@ -1069,7 +1069,7 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\GetNameListing.cs" lang="cs" /></example>
 		public string[] GetNameListing(string path) {
 
-			FtpTrace.WriteFunc("GetNameListing", new object[] { path });
+			this.LogFunc("GetNameListing", new object[] { path });
 
 			List<string> listing = new List<string>();
 
@@ -1155,7 +1155,7 @@ namespace FluentFTP {
 		public async Task<string[]> GetNameListingAsync(string path)
 		{
 			//TODO:  Add cancellation support
-			FtpTrace.WriteFunc(nameof(GetNameListingAsync), new object[] { path });
+			this.LogFunc(nameof(GetNameListingAsync), new object[] { path });
 
 			List<string> listing = new List<string>();
 

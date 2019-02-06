@@ -86,7 +86,7 @@ namespace FluentFTP {
 		/// <returns>A data stream ready to be used</returns>
 		FtpDataStream OpenPassiveDataStream(FtpDataConnectionType type, string command, long restart) {
 
-			FtpTrace.WriteFunc("OpenPassiveDataStream", new object[] { type, command, restart });
+			this.LogFunc("OpenPassiveDataStream", new object[] { type, command, restart });
 
 			FtpDataStream stream = null;
 			FtpReply reply;
@@ -134,6 +134,7 @@ namespace FluentFTP {
 			}
 
 			stream = new FtpDataStream(this);
+			stream.Client = this;
 			stream.ConnectTimeout = DataConnectionConnectTimeout;
 			stream.ReadTimeout = DataConnectionReadTimeout;
 			Connect(stream, host, port, InternetProtocolVersions);
@@ -183,7 +184,7 @@ namespace FluentFTP {
         async Task<FtpDataStream> OpenPassiveDataStreamAsync(FtpDataConnectionType type, string command, long restart)
         {
 
-            FtpTrace.WriteFunc(nameof(OpenPassiveDataStreamAsync), new object[] { type, command, restart });
+            this.LogFunc(nameof(OpenPassiveDataStreamAsync), new object[] { type, command, restart });
 
             FtpDataStream stream = null;
             FtpReply reply;
@@ -236,6 +237,7 @@ namespace FluentFTP {
             }
 
             stream = new FtpDataStream(this);
+			stream.Client = this;
             stream.ConnectTimeout = DataConnectionConnectTimeout;
             stream.ReadTimeout = DataConnectionReadTimeout;
             await ConnectAsync(stream, host, port, InternetProtocolVersions);
@@ -297,9 +299,10 @@ namespace FluentFTP {
 		/// <returns>A data stream ready to be used</returns>
 		FtpDataStream OpenActiveDataStream(FtpDataConnectionType type, string command, long restart) {
 
-			FtpTrace.WriteFunc("OpenActiveDataStream", new object[] { type, command, restart });
+			this.LogFunc("OpenActiveDataStream", new object[] { type, command, restart });
 
 			FtpDataStream stream = new FtpDataStream(this);
+			stream.Client = this;
 			FtpReply reply;
 #if !CORE
 			IAsyncResult ar;
@@ -430,9 +433,10 @@ namespace FluentFTP {
         async Task<FtpDataStream> OpenActiveDataStreamAsync(FtpDataConnectionType type, string command, long restart)
         {
 
-            FtpTrace.WriteFunc(nameof(OpenActiveDataStreamAsync), new object[] { type, command, restart });
+            this.LogFunc(nameof(OpenActiveDataStreamAsync), new object[] { type, command, restart });
 
             FtpDataStream stream = new FtpDataStream(this);
+			stream.Client = this;
             FtpReply reply;
 
             if (m_stream == null)
@@ -582,12 +586,12 @@ namespace FluentFTP {
 					switch (type) {
 						case FtpDataConnectionType.PORT:
 							type = FtpDataConnectionType.EPRT;
-							FtpTrace.WriteLine(FtpTraceLevel.Info, "Changed data connection type to EPRT because we are connected with IPv6.");
+							this.LogLine(FtpTraceLevel.Info, "Changed data connection type to EPRT because we are connected with IPv6.");
 							break;
 						case FtpDataConnectionType.PASV:
 						case FtpDataConnectionType.PASVEX:
 							type = FtpDataConnectionType.EPSV;
-							FtpTrace.WriteLine(FtpTraceLevel.Info, "Changed data connection type to EPSV because we are connected with IPv6.");
+							this.LogLine(FtpTraceLevel.Info, "Changed data connection type to EPSV because we are connected with IPv6.");
 							break;
 					}
 				}
@@ -640,12 +644,12 @@ namespace FluentFTP {
                 {
                     case FtpDataConnectionType.PORT:
                         type = FtpDataConnectionType.EPRT;
-                        FtpTrace.WriteLine(FtpTraceLevel.Info, "Changed data connection type to EPRT because we are connected with IPv6.");
+                        this.LogLine(FtpTraceLevel.Info, "Changed data connection type to EPRT because we are connected with IPv6.");
                         break;
                     case FtpDataConnectionType.PASV:
                     case FtpDataConnectionType.PASVEX:
                         type = FtpDataConnectionType.EPSV;
-                        FtpTrace.WriteLine(FtpTraceLevel.Info, "Changed data connection type to EPSV because we are connected with IPv6.");
+                        this.LogLine(FtpTraceLevel.Info, "Changed data connection type to EPSV because we are connected with IPv6.");
                         break;
                 }
             }
@@ -678,7 +682,7 @@ namespace FluentFTP {
 		/// <param name="stream">The data stream to close</param>
 		internal FtpReply CloseDataStream(FtpDataStream stream) {
 
-			FtpTrace.WriteFunc("CloseDataStream");
+			this.LogFunc("CloseDataStream");
 
 			FtpReply reply = new FtpReply();
 
@@ -803,7 +807,7 @@ namespace FluentFTP {
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			FtpTrace.WriteFunc("OpenRead", new object[] { path, type, restart });
+			this.LogFunc("OpenRead", new object[] { path, type, restart });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -928,7 +932,7 @@ namespace FluentFTP {
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			FtpTrace.WriteFunc(nameof(OpenReadAsync), new object[] { path, type, restart });
+			this.LogFunc(nameof(OpenReadAsync), new object[] { path, type, restart });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1045,7 +1049,7 @@ namespace FluentFTP {
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			FtpTrace.WriteFunc("OpenWrite", new object[] { path, type });
+			this.LogFunc("OpenWrite", new object[] { path, type });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1136,7 +1140,7 @@ namespace FluentFTP {
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			FtpTrace.WriteFunc(nameof(OpenWriteAsync), new object[] { path, type });
+			this.LogFunc(nameof(OpenWriteAsync), new object[] { path, type });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1225,7 +1229,7 @@ namespace FluentFTP {
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			FtpTrace.WriteFunc("OpenAppend", new object[] { path, type });
+			this.LogFunc("OpenAppend", new object[] { path, type });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1319,7 +1323,7 @@ namespace FluentFTP {
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			FtpTrace.WriteFunc(nameof(OpenAppendAsync), new object[] { path, type });
+			this.LogFunc(nameof(OpenAppendAsync), new object[] { path, type });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1414,13 +1418,13 @@ namespace FluentFTP {
 					if (!(reply = Execute("TYPE A")).Success)
 						throw new FtpCommandException(reply);
 					/*if (!(reply = Execute("STRU R")).Success)
-						FtpTrace.WriteLine(reply.Message);*/
+						this.LogLine(reply.Message);*/
 					break;
 				case FtpDataType.Binary:
 					if (!(reply = Execute("TYPE I")).Success)
 						throw new FtpCommandException(reply);
 					/*if (!(reply = Execute("STRU F")).Success)
-						FtpTrace.WriteLine(reply.Message);*/
+						this.LogLine(reply.Message);*/
 					break;
 				default:
 					throw new FtpException("Unsupported data type: " + type.ToString());

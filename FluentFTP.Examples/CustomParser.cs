@@ -23,7 +23,7 @@ namespace Examples {
         /// <param name="buf">A line from the listing</param>
         /// <param name="capabilities">Server capabilities</param>
         /// <returns>FtpListItem if the item is able to be parsed</returns>
-        static FtpListItem ParseUnixList(string buf, FtpCapability capabilities) {
+        static FtpListItem ParseUnixList(string buf, FtpCapability capabilities, FtpClient client) {
             FtpListItem item = new FtpListItem();
             Match m = null;
             string regex =
