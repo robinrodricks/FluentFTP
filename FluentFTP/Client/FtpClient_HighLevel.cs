@@ -446,7 +446,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
 		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
-        /// <param name="existsMode">Append will resume or create a new File. Overwrite will always create a new file (Default: Append)</param>
+        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
@@ -457,7 +457,7 @@ namespace FluentFTP {
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
-        public int DownloadFiles(string localDir, IEnumerable<string> remotePaths, LocalFileExists existsMode = LocalFileExists.Append, FtpVerify verifyOptions = FtpVerify.None,
+        public int DownloadFiles(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Append, FtpVerify verifyOptions = FtpVerify.None,
 			FtpError errorHandling = FtpError.None) {
 
 			// verify args
@@ -557,7 +557,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localDir">The full or relative path to the directory that files will be downloaded.</param>
 		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
-        /// <param name="existsMode">Append will resume or create a new File. Overwrite will always create a new file (Default: Append)</param>
+        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <param name="token">The token to monitor for cancellation requests</param>
@@ -569,7 +569,7 @@ namespace FluentFTP {
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
-        public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, LocalFileExists existsMode, FtpVerify verifyOptions,
+        public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode, FtpVerify verifyOptions,
 			FtpError errorHandling, CancellationToken token) {
 
 			// verify args
@@ -648,7 +648,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
 		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
-        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Appen will also create a new file if it dosen't exists (Default value is Append)</param>
+        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
@@ -659,7 +659,7 @@ namespace FluentFTP {
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
-        public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, LocalFileExists existsMode = LocalFileExists.Append,
+        public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Append,
 			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None) {
             return await DownloadFilesAsync(localDir, remotePaths, existsMode, verifyOptions, errorHandling, CancellationToken.None);
 		}
@@ -1464,7 +1464,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Appen will also create a new file if it dosen't exists (Default value is Append)</param>
+        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
@@ -1473,7 +1473,7 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-        public bool DownloadFile(string localPath, string remotePath, LocalFileExists existsMode = LocalFileExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<double> progress = null) {
+        public bool DownloadFile(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<double> progress = null) {
 
 			// verify args
 			if (localPath.IsBlank())
@@ -1486,21 +1486,23 @@ namespace FluentFTP {
             return DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, progress);
 		}
 
-        private bool DownloadFileToFile(string localPath, string remotePath, LocalFileExists existsMode, FtpVerify verifyOptions, IProgress<double> progress)
+        private bool DownloadFileToFile(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<double> progress)
         {
             FileMode outStreamFileMode = FileMode.Create;
             // skip downloading if local file size matches
-            if (existsMode == LocalFileExists.Append && File.Exists(localPath))
-            {
-                if (GetFileSize(remotePath).Equals(new FileInfo(localPath).Length))
-                {
-                    this.LogStatus(FtpTraceLevel.Info, "Append is enabled => Local file size matches size on server => skipping");
-				return false;
-			}
-                else{
+            if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
+                if (GetFileSize(remotePath).Equals(new FileInfo(localPath).Length)) {
+					this.LogStatus(FtpTraceLevel.Info, "Append is selected => Local file size matches size on server => skipping");
+					return false;
+				}
+                else {
                     outStreamFileMode = FileMode.Append;
                 }
             }
+			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
+				this.LogStatus(FtpTraceLevel.Info, "Skip is selected => Local file exists => skipping");
+				return false;
+			}
 
             try {
 
@@ -1534,7 +1536,7 @@ namespace FluentFTP {
 					this.LogLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 #if DEBUG
 					if (!verified && attemptsLeft > 0) {
-						this.LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == LocalFileExists.Overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						this.LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
 					}
 #endif
 				}
@@ -1559,7 +1561,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Appen will also create a new file if it dosen't exists (Default value is Append)</param>
+        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="token">The token to monitor for cancellation requests</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
@@ -1569,7 +1571,7 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-        public async Task<bool> DownloadFileAsync(string localPath, string remotePath, LocalFileExists existsMode, FtpVerify verifyOptions, CancellationToken token, IProgress<double> progress) {
+        public async Task<bool> DownloadFileAsync(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, CancellationToken token, IProgress<double> progress) {
 
 			// verify args
 			if (localPath.IsBlank())
@@ -1589,7 +1591,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Appen will also create a new file if it dosen't exists (Default value is Append)</param>
+        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
@@ -1598,7 +1600,7 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-        public async Task<bool> DownloadFileAsync(string localPath, string remotePath, LocalFileExists existsMode = LocalFileExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<double> progress = null) {
+        public async Task<bool> DownloadFileAsync(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<double> progress = null) {
 
 			// verify args
 			if (localPath.IsBlank())
@@ -1611,26 +1613,34 @@ namespace FluentFTP {
             return await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, CancellationToken.None, progress);
 		}
 
-        private async Task<bool> DownloadFileToFileAsync(string localPath, string remotePath, LocalFileExists existsMode, FtpVerify verifyOptions, CancellationToken token, IProgress<double> progress) {
+        private async Task<bool> DownloadFileToFileAsync(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, CancellationToken token, IProgress<double> progress) {
 			if (string.IsNullOrWhiteSpace(localPath))
 				throw new ArgumentNullException("localPath");
 
             FileMode outStreamFileMode = FileMode.Create;
 			// skip downloading if the local file exists
 #if CORE
-            if (existsMode == LocalFileExists.Append && await Task.Run(() => File.Exists(localPath))) {
+            if (existsMode == FtpLocalExists.Append && await Task.Run(() => File.Exists(localPath))) {
                 if ((await GetFileSizeAsync(remotePath)).Equals((await Task.Run(() => new FileInfo(localPath))).Length)) {
 #else
-			if (existsMode == LocalFileExists.Append && File.Exists(localPath)) {
+			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
 				if ((await GetFileSizeAsync(remotePath)).Equals(new FileInfo(localPath).Length) {
 #endif
-                    this.LogStatus(FtpTraceLevel.Info, "Append is enabled => Local file size matches size on server => skipping");
-				return false;
-			}
+					this.LogStatus(FtpTraceLevel.Info, "Append is enabled => Local file size matches size on server => skipping");
+					return false;
+				}
                 else {
                     outStreamFileMode = FileMode.Append;
                 }
             }
+#if CORE		
+			else if (existsMode == FtpLocalExists.Skip && await Task.Run(() => File.Exists(localPath))) {
+#else
+			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
+#endif
+				this.LogStatus(FtpTraceLevel.Info, "Skip is selected => Local file exists => skipping");
+				return false;
+			}
 
 			try {
 				
@@ -1668,7 +1678,7 @@ namespace FluentFTP {
 					this.LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 #if DEBUG
 					if (!verified && attemptsLeft > 0) {
-                        this.LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == LocalFileExists.Append ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+                        this.LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Append ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
 					}
 #endif
 				}
