@@ -1,4 +1,5 @@
 #if ASYNC
+using System.Threading;
 using System.Threading.Tasks;
 #endif
 
@@ -26,9 +27,10 @@ namespace FluentFTP.Proxy {
 #if ASYNC
 		/// <summary> Redefine connect for FtpClient : authentication on the Proxy  </summary>
 		/// <param name="stream">The socket stream.</param>
-		protected override Task ConnectAsync(FtpSocketStream stream)
+		/// <param name="token">Cancellation token.</param>
+		protected override Task ConnectAsync(FtpSocketStream stream, CancellationToken token)
 		{
-			return stream.ConnectAsync(Proxy.Host, Proxy.Port, InternetProtocolVersions);
+			return stream.ConnectAsync(Proxy.Host, Proxy.Port, InternetProtocolVersions, token);
 		}
 #endif
 	}

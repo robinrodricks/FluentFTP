@@ -412,6 +412,7 @@ namespace FluentFTP {
 		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
 		/// </remarks>
 		/// <param name="path">The file you want the server to compute the hash for</param>
+		/// <param name="token">Cancellation Token</param>
 		/// <exception cref="FtpCommandException">
 		/// Thrown if the <see cref="HashAlgorithms"/> property is <see cref="FtpHashAlgorithm.NONE"/>, 
 		/// the remote path does not exist, or the command cannot be executed.
@@ -419,8 +420,7 @@ namespace FluentFTP {
 		/// <exception cref="ArgumentException">Path argument is null</exception>
 		/// <exception cref="NotImplementedException">Thrown when an unknown hash algorithm type is returned by the server</exception>
 		/// <returns>The hash of the file.</returns>
-		public async Task<FtpHash> GetHashAsync(string path) {
-			//TODO:  Add cancellation support
+		public async Task<FtpHash> GetHashAsync(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 			FtpHash hash = new FtpHash();
 			Match m;
@@ -428,7 +428,7 @@ namespace FluentFTP {
 			if (path == null)
 				throw new ArgumentException("GetHash(path) argument can't be null");
 
-			if (!(reply = await ExecuteAsync("HASH " + path.GetFtpPath())).Success)
+			if (!(reply = await ExecuteAsync("HASH " + path.GetFtpPath(), token)).Success)
 				throw new FtpCommandException(reply);
 
 			// Current draft says the server should return this:
@@ -596,16 +596,16 @@ namespace FluentFTP {
 		/// 6. XCRC command
 		/// </remarks>
 		/// <param name="path">Full or relative path of the file to checksum</param>
+		/// <param name="token">Cancellation Token</param>
 		/// <returns><see cref="FtpHash"/> object containing the value and algorithm. Use the <see cref="FtpHash.IsValid"/> property to
 		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
 		/// the underlying calls.</returns>
 		/// <example><code source="..\Examples\GetChecksum.cs" lang="cs" /></example>
 		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<FtpHash> GetChecksumAsync(string path) {
-			//TODO:  Add cancellation support
+		public async Task<FtpHash> GetChecksumAsync(string path, CancellationToken token = default(CancellationToken)) {
 			if (HasFeature(FtpCapability.HASH))
 			{
-				return await GetHashAsync(path);
+				return await GetHashAsync(path, token);
 			}
 			else
 			{
@@ -613,32 +613,32 @@ namespace FluentFTP {
 
 				if (HasFeature(FtpCapability.MD5))
 				{
-					res.Value = await GetMD5Async(path);
+					res.Value = await GetMD5Async(path, token);
 					res.Algorithm = FtpHashAlgorithm.MD5;
 				}
 				else if (HasFeature(FtpCapability.XMD5))
 				{
-					res.Value = await GetXMD5Async(path);
+					res.Value = await GetXMD5Async(path, token);
 					res.Algorithm = FtpHashAlgorithm.MD5;
 				}
 				else if (HasFeature(FtpCapability.XSHA1))
 				{
-					res.Value = await GetXSHA1Async(path);
+					res.Value = await GetXSHA1Async(path, token);
 					res.Algorithm = FtpHashAlgorithm.SHA1;
 				}
 				else if (HasFeature(FtpCapability.XSHA256))
 				{
-					res.Value = await GetXSHA256Async(path);
+					res.Value = await GetXSHA256Async(path, token);
 					res.Algorithm = FtpHashAlgorithm.SHA256;
 				}
 				else if (HasFeature(FtpCapability.XSHA512))
 				{
-					res.Value = await GetXSHA512Async(path);
+					res.Value = await GetXSHA512Async(path, token);
 					res.Algorithm = FtpHashAlgorithm.SHA512;
 				}
 				else if (HasFeature(FtpCapability.XCRC))
 				{
-					res.Value = await GetXCRCAsync(path);
+					res.Value = await GetXCRCAsync(path, token);
 					res.Algorithm = FtpHashAlgorithm.CRC;
 				}
 
@@ -724,13 +724,14 @@ namespace FluentFTP {
 		/// thrown if the command fails.
 		/// </summary>
 		/// <param name="path">Full or relative path to remote file</param>
+		/// <param name="token">Cancellation Token</param>
 		/// <returns>Server response, presumably the MD5 hash.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<string> GetMD5Async(string path) {
+		public async Task<string> GetMD5Async(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 			string response;
 
-			if (!(reply = await ExecuteAsync("MD5 " + path)).Success)
+			if (!(reply = await ExecuteAsync("MD5 " + path, token)).Success)
 				throw new FtpCommandException(reply);
 
 			response = reply.Message;
@@ -812,13 +813,14 @@ namespace FluentFTP {
 		/// thrown if the command fails.
 		/// </summary>
 		/// <param name="path">Full or relative path to remote file</param>
+		/// <param name="token">Cancellation Token</param>
 		/// <returns>Server response, presumably the CRC hash.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<string> GetXCRCAsync(string path) {
+		public async Task<string> GetXCRCAsync(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 			string response;
 
-			if (!(reply = await ExecuteAsync("MD5 " + path)).Success)
+			if (!(reply = await ExecuteAsync("MD5 " + path, token)).Success)
 				throw new FtpCommandException(reply);
 
 			response = reply.Message;
@@ -901,12 +903,13 @@ namespace FluentFTP {
 		/// thrown if the command fails.
 		/// </summary>
 		/// <param name="path">Full or relative path to remote file</param>
+		/// <param name="token">Cancellation Token</param>
 		/// <returns>Server response, presumably the MD5 hash.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<string> GetXMD5Async(string path) {
+		public async Task<string> GetXMD5Async(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
-			if (!(reply = await ExecuteAsync("XMD5 " + path)).Success)
+			if (!(reply = await ExecuteAsync("XMD5 " + path, token)).Success)
 				throw new FtpCommandException(reply);
 
 			return reply.Message;
@@ -983,12 +986,13 @@ namespace FluentFTP {
 		/// thrown if the command fails.
 		/// </summary>
 		/// <param name="path">Full or relative path to remote file</param>
+		/// <param name="token">Cancellation Token</param>
 		/// <returns>Server response, presumably the SHA-1 hash.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<string> GetXSHA1Async(string path) {
+		public async Task<string> GetXSHA1Async(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
-			if (!(reply = await ExecuteAsync("XSHA1 " + path)).Success)
+			if (!(reply = await ExecuteAsync("XSHA1 " + path, token)).Success)
 				throw new FtpCommandException(reply);
 
 			return reply.Message;
@@ -1066,12 +1070,13 @@ namespace FluentFTP {
 		/// thrown if the command fails.
 		/// </summary>
 		/// <param name="path">Full or relative path to remote file</param>
+		/// <param name="token">Cancellation Token</param>
 		/// <returns>Server response, presumably the SHA-256 hash.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<string> GetXSHA256Async(string path) {
+		public async Task<string> GetXSHA256Async(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
-			if (!(reply = await ExecuteAsync("XSHA256 " + path)).Success)
+			if (!(reply = await ExecuteAsync("XSHA256 " + path, token)).Success)
 				throw new FtpCommandException(reply);
 
 			return reply.Message;
@@ -1149,12 +1154,13 @@ namespace FluentFTP {
 		/// thrown if the command fails.
 		/// </summary>
 		/// <param name="path">Full or relative path to remote file</param>
+		/// <param name="token">Cancellation Token</param>
 		/// <returns>Server response, presumably the SHA-512 hash.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<string> GetXSHA512Async(string path) {
+		public async Task<string> GetXSHA512Async(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
-			if (!(reply = await ExecuteAsync("XSHA512 " + path)).Success)
+			if (!(reply = await ExecuteAsync("XSHA512 " + path, token)).Success)
 				throw new FtpCommandException(reply);
 
 			return reply.Message;
