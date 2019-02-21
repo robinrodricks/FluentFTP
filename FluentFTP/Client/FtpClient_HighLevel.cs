@@ -1624,7 +1624,7 @@ namespace FluentFTP {
                 if ((await GetFileSizeAsync(remotePath)).Equals((await Task.Run(() => new FileInfo(localPath))).Length)) {
 #else
 			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
-				if ((await GetFileSizeAsync(remotePath)).Equals(new FileInfo(localPath).Length) {
+				if ((await GetFileSizeAsync(remotePath)).Equals(new FileInfo(localPath).Length)) {
 #endif
 					this.LogStatus(FtpTraceLevel.Info, "Append is enabled => Local file size matches size on server => skipping");
 					return false;
