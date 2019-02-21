@@ -215,21 +215,21 @@ namespace FluentFTP {
 			}
 		}
 
-		bool m_requestSupportedFeatures = true;
+		bool m_checkCapabilities = true;
 		/// <summary>
 		/// When this value is set to true (default) the control connection
 		/// will set which features are avaiable by executing the FEAT command
 		/// when the connect method is called.
 		/// </summary>
-		public bool RequestSupportedFeatures
+		public bool CheckCapabilities
 		{
 			get
 			{
-				return m_requestSupportedFeatures;
+				return m_checkCapabilities;
 			}
 			set
 			{
-				m_requestSupportedFeatures = value;
+				m_checkCapabilities = value;
 			}
 		}
 
@@ -1192,7 +1192,7 @@ namespace FluentFTP {
 
 				// if this is a clone these values should have already been loaded
 				// so save some bandwidth and CPU time and skip executing this again.
-				if (!IsClone && m_requestSupportedFeatures) {
+				if (!IsClone && m_checkCapabilities) {
 					if ((reply = Execute("FEAT")).Success && reply.InfoMessages != null) {
 						GetFeatures(reply);
 					}
@@ -1324,7 +1324,7 @@ namespace FluentFTP {
 
 			// if this is a clone these values should have already been loaded
 			// so save some bandwidth and CPU time and skip executing this again.
-			if (!IsClone && m_requestSupportedFeatures) {
+			if (!IsClone && m_checkCapabilities) {
 					if ((reply = await ExecuteAsync("FEAT")).Success && reply.InfoMessages != null)
                 {
                     GetFeatures(reply);

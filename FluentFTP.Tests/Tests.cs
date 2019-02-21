@@ -85,11 +85,11 @@ namespace Tests
 		}
 
 		//[Fact]
-		public void TestSupportedFeatures()
+		public void TestCheckCapabilities()
 		{
 			using (FtpClient cl = NewFtpClient())
 			{
-				cl.RequestSupportedFeatures = false;
+				cl.CheckCapabilities = false;
 				Debug.Assert(cl.HasFeature(FtpCapability.NONE), "Excepted FTP capabilities to be NONE.");
 			}
 		}
