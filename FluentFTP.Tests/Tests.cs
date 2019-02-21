@@ -84,6 +84,16 @@ namespace Tests
 			}
 		}
 
+		//[Fact]
+		public void TestSupportedFeatures()
+		{
+			using (FtpClient cl = NewFtpClient())
+			{
+				cl.RequestSupportedFeatures = false;
+				Assert.True(cl.HasFeature(FtpCapability.NONE));
+			}
+		}
+
 #if !NOASYNC
 		//[Fact]
 		public async Task TestListPathAsync()
