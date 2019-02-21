@@ -242,7 +242,7 @@ namespace FluentFTP {
 
                 port = (int.Parse(m.Groups["port1"].Value) << 8) + int.Parse(m.Groups["port2"].Value);
 
-								//use host ip if server advertises a non-routeable IP
+				//use host ip if server advertises a non-routeable IP
 				m = Regex.Match(host,@"(^10\.)|(^172\.1[6-9]\.)|(^172\\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)|(^127\.0\.0\.1)|(^0\.0\.0\.0)");
 
 				if(m.Success){			
