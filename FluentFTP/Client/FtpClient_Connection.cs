@@ -215,6 +215,24 @@ namespace FluentFTP {
 			}
 		}
 
+		bool m_requestSupportedFeatures = true;
+		/// <summary>
+		/// When this value is set to true (default) the control connection
+		/// will set which features are avaiable by executing the FEAT command
+		/// when the connect method is called.
+		/// </summary>
+		public bool RequestSupportedFeatures
+		{
+			get
+			{
+				return m_requestSupportedFeatures;
+			}
+			set
+			{
+				m_requestSupportedFeatures = value;
+			}
+		}
+
 		bool m_isClone = false;
 		/// <summary>
 		/// Gets a value indicating if this control connection is a clone. This property
@@ -1174,7 +1192,7 @@ namespace FluentFTP {
 
 				// if this is a clone these values should have already been loaded
 				// so save some bandwidth and CPU time and skip executing this again.
-				if (!IsClone) {
+				if (!IsClone && m_requestSupportedFeatures) {
 					if ((reply = Execute("FEAT")).Success && reply.InfoMessages != null) {
 						GetFeatures(reply);
 					}
@@ -1304,11 +1322,10 @@ namespace FluentFTP {
                     throw new FtpCommandException(reply);
             }
 
-            // if this is a clone these values should have already been loaded
-            // so save some bandwidth and CPU time and skip executing this again.
-            if (!IsClone)
-            {
-                if ((reply = await ExecuteAsync("FEAT")).Success && reply.InfoMessages != null)
+			// if this is a clone these values should have already been loaded
+			// so save some bandwidth and CPU time and skip executing this again.
+			if (!IsClone && m_requestSupportedFeatures) {
+					if ((reply = await ExecuteAsync("FEAT")).Success && reply.InfoMessages != null)
                 {
                     GetFeatures(reply);
                 }
