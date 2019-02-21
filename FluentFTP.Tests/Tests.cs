@@ -84,6 +84,16 @@ namespace Tests
 			}
 		}
 
+		//[Fact]
+		public void TestCheckCapabilities()
+		{
+			using (FtpClient cl = NewFtpClient())
+			{
+				cl.CheckCapabilities = false;
+				Debug.Assert(cl.HasFeature(FtpCapability.NONE), "Excepted FTP capabilities to be NONE.");
+			}
+		}
+
 #if !NOASYNC
 		//[Fact]
 		public async Task TestListPathAsync()
