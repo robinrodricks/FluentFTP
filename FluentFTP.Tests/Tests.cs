@@ -90,7 +90,7 @@ namespace Tests
 			using (FtpClient cl = NewFtpClient())
 			{
 				cl.RequestSupportedFeatures = false;
-				Assert.True(cl.HasFeature(FtpCapability.NONE));
+				Debug.Assert(cl.HasFeature(FtpCapability.NONE), "Excepted FTP capabilities to be NONE.");
 			}
 		}
 
