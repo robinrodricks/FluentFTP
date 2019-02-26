@@ -494,120 +494,120 @@ namespace FluentFTP {
 		AppendNoCheck
 	}
 
-    /// <summary>
-    /// Defines the level of the tracing message.  Depending on the framework version this is translated
-    /// to an equivalent logging level in System.Diagnostices (if available)
-    /// </summary>
-    public enum FtpTraceLevel {
-        /// <summary>
-        /// Used for logging Debug or Verbose level messages
-        /// </summary>
-        Verbose,
-        /// <summary>
-        /// Used for logging Informational messages
-        /// </summary>
-        Info,
-        /// <summary>
-        /// Used for logging non-fatal or ignorable error messages
-        /// </summary>
-        Warn,
-        /// <summary>
-        /// Used for logging Error messages that may need investigation 
-        /// </summary>
-        Error
-    }
+	/// <summary>
+	/// Defines the level of the tracing message.  Depending on the framework version this is translated
+	/// to an equivalent logging level in System.Diagnostices (if available)
+	/// </summary>
+	public enum FtpTraceLevel {
+		/// <summary>
+		/// Used for logging Debug or Verbose level messages
+		/// </summary>
+		Verbose,
+		/// <summary>
+		/// Used for logging Informational messages
+		/// </summary>
+		Info,
+		/// <summary>
+		/// Used for logging non-fatal or ignorable error messages
+		/// </summary>
+		Warn,
+		/// <summary>
+		/// Used for logging Error messages that may need investigation 
+		/// </summary>
+		Error
+	}
 
-    /// <summary>
-    /// Defines how multi-file processes should handle a processing error.
-    /// </summary>
-    /// <remarks><see cref="FtpError.Stop"/> &amp; <see cref="FtpError.Throw"/> Cannot Be Combined</remarks>
-    [Flags]
-    public enum FtpError {
-        /// <summary>
-        /// No action is taken upon errors.  The method absorbs the error and continues.
-        /// </summary>
-        None = 0,
-        /// <summary>
-        /// If any files have completed successfully (or failed after a partial download/upload) then should be deleted.  
-        /// This will simulate an all-or-nothing transaction downloading or uploading multiple files.  If this option is not
-        /// combined with <see cref="FtpError.Stop"/> or <see cref="FtpError.Throw"/> then the method will
-        /// continue to process all items whether if they are successful or not and then delete everything if a failure was
-        /// encountered at any point.
-        /// </summary>
-        DeleteProcessed = 1,
-        /// <summary>
-        /// The method should stop processing any additional files and immediately return upon encountering an error.
-        /// Cannot be combined with <see cref="FtpError.Throw"/>
-        /// </summary>
-        Stop = 2,
-        /// <summary>
-        /// The method should stop processing any additional files and immediately throw the current error.
-        /// Cannot be combined with <see cref="FtpError.Stop"/>
-        /// </summary>
-        Throw = 4,
-        
-    }
-
-    /// <summary>
-    /// Defines if additional verification and actions upon failure that 
-    /// should be performed when uploading/downloading files using the high-level APIs.  Ignored if the 
-    /// FTP server does not support any hashing algorithms.
-    /// </summary>
+	/// <summary>
+	/// Defines how multi-file processes should handle a processing error.
+	/// </summary>
+	/// <remarks><see cref="FtpError.Stop"/> &amp; <see cref="FtpError.Throw"/> Cannot Be Combined</remarks>
 	[Flags]
-    public enum FtpVerify {
-        /// <summary>
-        /// No verification of the file is performed
-        /// </summary>
-        None = 0,
-        /// <summary>
+	public enum FtpError {
+		/// <summary>
+		/// No action is taken upon errors.  The method absorbs the error and continues.
+		/// </summary>
+		None = 0,
+		/// <summary>
+		/// If any files have completed successfully (or failed after a partial download/upload) then should be deleted.  
+		/// This will simulate an all-or-nothing transaction downloading or uploading multiple files.  If this option is not
+		/// combined with <see cref="FtpError.Stop"/> or <see cref="FtpError.Throw"/> then the method will
+		/// continue to process all items whether if they are successful or not and then delete everything if a failure was
+		/// encountered at any point.
+		/// </summary>
+		DeleteProcessed = 1,
+		/// <summary>
+		/// The method should stop processing any additional files and immediately return upon encountering an error.
+		/// Cannot be combined with <see cref="FtpError.Throw"/>
+		/// </summary>
+		Stop = 2,
+		/// <summary>
+		/// The method should stop processing any additional files and immediately throw the current error.
+		/// Cannot be combined with <see cref="FtpError.Stop"/>
+		/// </summary>
+		Throw = 4,
+
+	}
+
+	/// <summary>
+	/// Defines if additional verification and actions upon failure that 
+	/// should be performed when uploading/downloading files using the high-level APIs.  Ignored if the 
+	/// FTP server does not support any hashing algorithms.
+	/// </summary>
+	[Flags]
+	public enum FtpVerify {
+		/// <summary>
+		/// No verification of the file is performed
+		/// </summary>
+		None = 0,
+		/// <summary>
 		/// The checksum of the file is verified, if supported by the server.
 		/// If the checksum comparison fails then we retry the download/upload
 		/// a specified amount of times before giving up. (See <see cref="FtpClient.RetryAttempts"/>)
-        /// </summary>
-        Retry = 1,
-        /// <summary>
+		/// </summary>
+		Retry = 1,
+		/// <summary>
 		/// The checksum of the file is verified, if supported by the server.
 		/// If the checksum comparison fails then the failed file will be deleted.
 		/// If combined with <see cref="FtpVerify.Retry"/>, then
-        /// the deletion will occur if it fails upon the final retry.
-        /// </summary>
-        Delete = 2,
+		/// the deletion will occur if it fails upon the final retry.
+		/// </summary>
+		Delete = 2,
 		/// <summary>
 		/// The checksum of the file is verified, if supported by the server.
 		/// If the checksum comparison fails then an exception will be thrown.
 		/// If combined with <see cref="FtpVerify.Retry"/>, then the throw will
 		/// occur upon the failure of the final retry, and/or if combined with <see cref="FtpVerify.Delete"/>
 		/// the method will throw after the deletion is processed.
-        /// </summary>
+		/// </summary>
 		Throw = 4,
 		/// <summary>
 		/// The checksum of the file is verified, if supported by the server.
 		/// If the checksum comparison fails then the method returns false and no other action is taken.
 		/// </summary>
 		OnlyChecksum = 8,
-    }
+	}
 
-    /// <summary>
-    /// Defines if additional verification and actions upon failure that 
-    /// should be performed when uploading/downloading files using the high-level APIs.  Ignored if the 
-    /// FTP server does not support any hashing algorithms.
-    /// </summary>
+	/// <summary>
+	/// Defines if additional verification and actions upon failure that 
+	/// should be performed when uploading/downloading files using the high-level APIs.  Ignored if the 
+	/// FTP server does not support any hashing algorithms.
+	/// </summary>
 	public enum FtpDate {
-        /// <summary>
-        /// The date is whatever the server returns, with no conversion performed.
-        /// </summary>
-        Original = 0,
+		/// <summary>
+		/// The date is whatever the server returns, with no conversion performed.
+		/// </summary>
+		Original = 0,
 #if !CORE
-        /// <summary>
+		/// <summary>
 		/// The date is converted to the local timezone, based on the TimeOffset property in FtpClient.
-        /// </summary>
-        Local = 1,
+		/// </summary>
+		Local = 1,
 #endif
-        /// <summary>
-        /// The date is converted to UTC, based on the TimeOffset property in FtpClient.
-        /// </summary>
-        UTC = 2,
-    }
+		/// <summary>
+		/// The date is converted to UTC, based on the TimeOffset property in FtpClient.
+		/// </summary>
+		UTC = 2,
+	}
 
 	/// <summary>
 	/// Defines the type of the FTP server software.
@@ -648,24 +648,27 @@ namespace FluentFTP {
 		WuFTPd
 	}
 
-    /// <summary>
-    /// Defines the type of encryption to use
-    /// </summary>
-    public enum FtpLocalExists
-    {
-        /// <summary>
-        /// Overwrite the file if it exists.
-        /// </summary>
-        Overwrite,
-        /// <summary>
-        /// Append to the file if it exists, by checking the length and adding the missing data. If it doesent exits a new file will be created
-        /// </summary>
-        Append,
+	/// <summary>
+	/// Determines how we handle resuming partially downloaded files
+	/// </summary>
+	public enum FtpLocalExists {
 
 		/// <summary>
-        /// Blindly skip if the file exists.
-        /// </summary>
-		Skip
+		/// Overwrite the file if it exists. Restart the download of a file if it is partially downloaded.
+		/// </summary>
+		Overwrite,
 
-    }
+		/// <summary>
+		/// Append to the file if it exists, by checking the length and adding the missing data.
+		/// If the file doesn't exits, a new file will be created.
+		/// </summary>
+		Append,
+
+		/// <summary>
+		/// Blindly skip downloading the file if it exists on disk, without any more checks.
+		/// This is only included to be compatible with legacy behaviour.
+		/// </summary>
+		Skip
+	}
+
 }
