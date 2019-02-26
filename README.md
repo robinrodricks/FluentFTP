@@ -717,6 +717,12 @@ Use Download() for downloading to a `Stream` or `byte[]`.
 
 Use DownloadFile() or DownloadFiles() with the `existsMode` set to `FtpLocalExists.Append`.
 
+```cs
+// download only the missing part of the file
+// by comparing its file size to the size of the local file
+client.DownloadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4", FtpLocalExists.Append);
+```
+
 Other options are:
 
 - `FtpLocalExists.Skip` - If the local file exists, we blindly skip downloading it without any more checks.
