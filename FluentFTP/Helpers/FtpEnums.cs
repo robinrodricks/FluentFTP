@@ -660,7 +660,8 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Append to the file if it exists, by checking the length and adding the missing data.
-		/// If the file doesn't exits, a new file will be created.
+		/// Resumes the download of a file if it is partially downloaded.
+		/// If the file doesn't exist on disk, a new file will be created.
 		/// </summary>
 		Append,
 
