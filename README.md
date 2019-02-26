@@ -173,7 +173,7 @@ client.Disconnect();
 - [How can I track the progress of file transfers?](#faq_progress)
 - [How can I upload data created on the fly?](#faq_uploadbytes)
 - [How can I download data without saving it to disk?](#faq_downloadbytes)
-- [How can I resume a partially downloaded file?](#faq_resumedownload)
+- [How can I resume downloading a partially downloaded file?](#faq_resumedownload)
 - [How can I throttle the speed of upload/download?](#faq_throttle)
 - [How do I verify the hash/checksum of a file and retry if the checksum mismatches?](#faq_verifyhash)
 - [How do I upload only the missing part of a file?](#faq_uploadmissing)
@@ -713,9 +713,9 @@ Use Download() for downloading to a `Stream` or `byte[]`.
 
 --------------------------------------------------------
 <a name="faq_resumedownload"></a>
-**How can I resume a partially downloaded file?**
+**How can I resume downloading a partially downloaded file?**
 
-Use DownloadFile() or DownloadFiles() with the `existsMode` set to `FtpLocalExists.Append`. The various settings for `existsMode` behave as follows:
+Use DownloadFile() or DownloadFiles() with the `existsMode` set to `FtpLocalExists.Append`. Other options are:
 
 - `FtpLocalExists.Skip` - If the local file exists, we blindly skip downloading it without any more checks.
 
