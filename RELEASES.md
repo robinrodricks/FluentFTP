@@ -1,10 +1,10 @@
 # Release Notes
 
 #### 22.0.0
-- New: Ability to resume a download to High Level API via FtpLocalExists setting (thanks [n0ix](/n0ix))
+- New: Ability to resume a download via `existsMode` on `DownloadFile()` and `DownloadFiles()` (thanks [n0ix](/n0ix))
 - New: Ability to turn off checking for server capabilities using FEAT command (thanks @[nhh-softwarehuset](/nhh-softwarehuset))
 - Fix: Add workaround if a server advertises a non-routeable IP in PASV Mode (thanks [n0ix](/n0ix))
-- Fix: Recursive Directory Deletion tries to delete file twice (because GetListing is also recursive)
+- Fix: Recursive directory deletion tries to delete the same file twice (because GetListing is also recursive)
 
 #### 21.0.0
 - New: `OnLogEvent` callback to get logs in the context of indivivdual FtpClient connections

@@ -446,7 +446,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
 		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
-        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
+		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
@@ -457,7 +457,7 @@ namespace FluentFTP {
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
-        public int DownloadFiles(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Append, FtpVerify verifyOptions = FtpVerify.None,
+		public int DownloadFiles(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None,
 			FtpError errorHandling = FtpError.None) {
 
 			// verify args
@@ -648,7 +648,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
 		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
-        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
+        /// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
@@ -659,7 +659,7 @@ namespace FluentFTP {
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
-        public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Append,
+        public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite,
 			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None) {
             return await DownloadFilesAsync(localDir, remotePaths, existsMode, verifyOptions, errorHandling, CancellationToken.None);
 		}
@@ -1464,7 +1464,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
+		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
@@ -1473,7 +1473,7 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-        public bool DownloadFile(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<double> progress = null) {
+		public bool DownloadFile(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None, IProgress<double> progress = null) {
 
 			// verify args
 			if (localPath.IsBlank())
@@ -1591,7 +1591,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
+        /// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
@@ -1600,7 +1600,7 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-        public async Task<bool> DownloadFileAsync(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<double> progress = null) {
+        public async Task<bool> DownloadFileAsync(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None, IProgress<double> progress = null) {
 
 			// verify args
 			if (localPath.IsBlank())
@@ -1633,7 +1633,7 @@ namespace FluentFTP {
                     outStreamFileMode = FileMode.Append;
                 }
             }
-#if CORE		
+#if CORE
 			else if (existsMode == FtpLocalExists.Skip && await Task.Run(() => File.Exists(localPath))) {
 #else
 			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
@@ -1709,7 +1709,7 @@ namespace FluentFTP {
 		/// <param name="restartPosition">Local File Size of existing file which you want to resume</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-        public bool Download(Stream outStream, string remotePath, long restartPosition, IProgress<double> progress = null) {
+		public bool Download(Stream outStream, string remotePath, long restartPosition, IProgress<double> progress = null) {
 
 			// verify args
 			if (outStream == null)
