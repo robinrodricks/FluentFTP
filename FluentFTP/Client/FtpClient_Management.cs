@@ -270,28 +270,9 @@ namespace FluentFTP {
 		/// <returns></returns>
 		private bool WasGetListingRecursive(FtpListOption options) {
 
-			// if recursive listings not supported by the server then obviously NO
-			if (!RecursiveList) {
-				return false;
-			}
-
-			// if machine listings and not force list then NO
-			if (HasFeature(FtpCapability.MLSD) && (options & FtpListOption.ForceList) != FtpListOption.ForceList) {
-				return false;
-			}
-
-			// if name listings then NO
-			if ((options & FtpListOption.UseLS) == FtpListOption.UseLS || (options & FtpListOption.NameList) == FtpListOption.NameList) {
-				return false;
-			}
-
-			// lastly if recursive is enabled then YES
-			if ((options & FtpListOption.Recursive) == FtpListOption.Recursive) {
-				return true;
-			}
-
-			// in all other cases NO
-			return false;
+			// FIX: GetListing() now supports recursive listing for all types of lists (name list, file list, machine list)
+			//		even if the server does not support recursive listing, because it does its own internal recursion.
+			return ((options & FtpListOption.Recursive) == FtpListOption.Recursive);
 		}
 
 #if !CORE
