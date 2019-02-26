@@ -715,7 +715,9 @@ Use Download() for downloading to a `Stream` or `byte[]`.
 <a name="faq_resumedownload"></a>
 **How can I resume downloading a partially downloaded file?**
 
-Use DownloadFile() or DownloadFiles() with the `existsMode` set to `FtpLocalExists.Append`. Other options are:
+Use DownloadFile() or DownloadFiles() with the `existsMode` set to `FtpLocalExists.Append`.
+
+Other options are:
 
 - `FtpLocalExists.Skip` - If the local file exists, we blindly skip downloading it without any more checks.
 
