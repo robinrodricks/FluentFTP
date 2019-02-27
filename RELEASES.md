@@ -3,7 +3,7 @@
 #### 23.0.0
 - New: Ability to cancel all async methods via `CancellationToken` (thanks [WolfspiritM](/WolfspiritM))
 - New: `ReadTimeout` is now honored by all async methods (thanks [WolfspiritM](/WolfspiritM))
-- New: FTP Server operating system detection and new `ServerOS` property
+- New: FTP Server operating system detection (Windows, Unix, VMS, IBM/OS400)
 - (.NET core) Fix: GetListing blocking with no timeout (thanks [WolfspiritM](/WolfspiritM))
 - (.NET core) Fix async methods by not using the the async read function (thanks [WolfspiritM](/WolfspiritM))
 

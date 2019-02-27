@@ -74,7 +74,7 @@ namespace FluentFTP {
 	/// <code source="..\Examples\GetListing.cs" lang="cs" />
 	/// </example>
 	public partial class FtpClient : IFtpClient, IDisposable {
-
+		
 		#region Delete File
 
 		/// <summary>
@@ -84,7 +84,7 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\DeleteFile.cs" lang="cs" /></example>
 		public void DeleteFile(string path) {
 			FtpReply reply;
-
+			
 			// verify args
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");

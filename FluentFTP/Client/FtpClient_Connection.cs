@@ -642,7 +642,7 @@ namespace FluentFTP {
 
 		private FtpOperatingSystem m_serverOS = FtpOperatingSystem.Unknown;
 		/// <summary>
-		/// Gets the type of the FTP server software that we're connected to.
+		/// Gets the operating system of the FTP server that we're connected to.
 		/// </summary>
 		public FtpOperatingSystem ServerOS {
 			get {
