@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
 #if ASYNC
 using System.Threading.Tasks;
 #endif
@@ -46,9 +47,9 @@ namespace FluentFTP.Proxy {
 		/// Connects to the server using an existing <see cref="FtpSocketStream"/>
 		/// </summary>
 		/// <param name="stream">The existing socket stream</param>
-		protected override Task ConnectAsync(FtpSocketStream stream)
+		protected override Task ConnectAsync(FtpSocketStream stream, CancellationToken token)
 		{
-			return ConnectAsync(stream, Host, Port, FtpIpVersion.ANY);
+			return ConnectAsync(stream, Host, Port, FtpIpVersion.ANY, token);
 		}
 #endif
 
@@ -84,9 +85,10 @@ namespace FluentFTP.Proxy {
 		/// <param name="host">Host name</param>
 		/// <param name="port">Port number</param>
 		/// <param name="ipVersions">IP version to use</param>
-		protected override async Task ConnectAsync(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions)
+		/// <param name="token">IP version to use</param>
+		protected override async Task ConnectAsync(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions, CancellationToken token)
 		{
-			await base.ConnectAsync(stream);
+			await base.ConnectAsync(stream,token);
 
 			var writer = new StreamWriter(stream);
 			await writer.WriteLineAsync(string.Format("CONNECT {0}:{1} HTTP/1.1", host, port));
@@ -100,7 +102,7 @@ namespace FluentFTP.Proxy {
 			await writer.WriteLineAsync();
 			await writer.FlushAsync();
 
-			await ProxyHandshakeAsync(stream);
+			await ProxyHandshakeAsync(stream, token);
 		}
 #endif
 
@@ -111,15 +113,15 @@ namespace FluentFTP.Proxy {
 		}
 
 #if ASYNC
-		private async Task ProxyHandshakeAsync(FtpSocketStream stream)
+		private async Task ProxyHandshakeAsync(FtpSocketStream stream, CancellationToken token = default(CancellationToken))
 		{
-			var proxyConnectionReply = await GetProxyReplyAsync(stream);
+			var proxyConnectionReply = await GetProxyReplyAsync(stream, token);
 			if (!proxyConnectionReply.Success)
 				throw new FtpException("Can't connect " + Host + " via proxy " + Proxy.Host + ".\nMessage : " + proxyConnectionReply.ErrorMessage);
 		}
 #endif
 
-		private FtpReply GetProxyReply( FtpSocketStream stream ) {
+		private FtpReply GetProxyReply( FtpSocketStream stream) {
 			
 			FtpReply reply = new FtpReply();
 			string buf;
@@ -165,7 +167,7 @@ namespace FluentFTP.Proxy {
 		}
 
 #if ASYNC
-		private async Task<FtpReply> GetProxyReplyAsync(FtpSocketStream stream)
+		private async Task<FtpReply> GetProxyReplyAsync(FtpSocketStream stream, CancellationToken token = default(CancellationToken))
 		{
 			FtpReply reply = new FtpReply();
 			string buf;
@@ -174,7 +176,7 @@ namespace FluentFTP.Proxy {
 				throw new InvalidOperationException("No connection to the server has been established.");
 
 			stream.ReadTimeout = ReadTimeout;
-			while ((buf = await stream.ReadLineAsync(Encoding)) != null)
+			while ((buf = await stream.ReadLineAsync(Encoding, token)) != null)
 			{
 				Match m;
 
@@ -191,7 +193,7 @@ namespace FluentFTP.Proxy {
 			}
 
 			// fixes #84 (missing bytes when downloading/uploading files through proxy)
-			while ((buf = await stream.ReadLineAsync(Encoding)) != null)
+			while ((buf = await stream.ReadLineAsync(Encoding, token)) != null)
 			{
 
 				this.LogLine(FtpTraceLevel.Info, buf);

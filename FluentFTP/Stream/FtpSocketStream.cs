@@ -397,20 +397,42 @@ namespace FluentFTP {
 			return read;
 		}
 
+#if ASYNC
+		internal async Task EnableCancellation(Task task, CancellationToken token, Action action)
+		{
+			var registration = token.Register(action);
+			_ = task.ContinueWith(x => registration.Dispose(), CancellationToken.None);
+			await task;
+		}
+
+		internal async Task<T> EnableCancellation<T>(Task<T> task, CancellationToken token, Action action)
+		{
+			var registration = token.Register(action);
+			_ = task.ContinueWith(x => registration.Dispose(), CancellationToken.None);
+			return await task;
+		}
+
+#endif
+
 #if NET45
-        /// <summary>
-        /// Bypass the stream and read directly off the socket.
-        /// </summary>
-        /// <param name="buffer">The buffer to read into</param>
-        /// <returns>The number of bytes read</returns>
-        internal async Task<int> RawSocketReadAsync(byte[] buffer)
+		/// <summary>
+		/// Bypass the stream and read directly off the socket.
+		/// </summary>
+		/// <param name="buffer">The buffer to read into</param>
+		/// <param name="token">Cancellation Token</param>
+		/// <returns>The number of bytes read</returns>
+		internal async Task<int> RawSocketReadAsync(byte[] buffer, CancellationToken token)
         {
             int read = 0;
 
             if (m_socket != null && m_socket.Connected)
             {
                 var asyncResult = m_socket.BeginReceive(buffer, 0, buffer.Length, 0, null, null);
-                read = await Task.Factory.FromAsync(asyncResult, m_socket.EndReceive);
+                read = await EnableCancellation(
+	                Task.Factory.FromAsync(asyncResult, m_socket.EndReceive),
+	                token,
+	                () => m_socket.Close()
+	            );
             }
 
             return read;
@@ -423,11 +445,11 @@ namespace FluentFTP {
         /// </summary>
         /// <param name="buffer">The buffer to read into</param>
         /// <returns>The number of bytes read</returns>
-        internal async Task<int> RawSocketReadAsync(byte[] buffer)
+        internal async Task<int> RawSocketReadAsync(byte[] buffer, CancellationToken token)
         {
             int read = 0;
 
-            if (m_socket != null && m_socket.Connected)
+            if (m_socket != null && m_socket.Connected && !token.IsCancellationRequested)
             {
                 read = await m_socket.ReceiveAsync(new ArraySegment<byte>(buffer), 0);
             }
@@ -453,7 +475,7 @@ namespace FluentFTP {
 
 			m_lastActivity = DateTime.Now;
 #if CORE
-			return BaseStream.ReadAsync(buffer, offset, count).Result;
+			return BaseStream.Read(buffer, offset, count);
 #else
 			ar = BaseStream.BeginRead(buffer, offset, count, null, null);
 			if (!ar.AsyncWaitHandle.WaitOne(m_readTimeout, true)) {
@@ -479,8 +501,35 @@ namespace FluentFTP {
 				return 0;
 
 			m_lastActivity = DateTime.Now;
-			return await BaseStream.ReadAsync(buffer, offset, count, token);
+			using (var cts = CancellationTokenSource.CreateLinkedTokenSource(token))
+			{
+				cts.CancelAfter(this.ReadTimeout);
+				cts.Token.Register(() => this.Close());
+				try
+				{
+					var res =  await BaseStream.ReadAsync(buffer, offset, count, cts.Token);
+					return res;
+				}
+				catch
+				{
+					// CTS for Cancellation triggered and caused the exception
+					if (token.IsCancellationRequested)
+					{
+						throw new OperationCanceledException("Cancelled read from socket stream");
+					}
+
+					// CTS for Timeout triggered and caused the exception
+					if (cts.IsCancellationRequested)
+					{
+						throw new TimeoutException("Timed out trying to read data from the socket stream!");
+					}
+
+					// Nothing of the above. So we rethrow the exception.
+					throw;
+				}
+			}
 		}
+
 #endif
 
 		/// <summary>
@@ -560,29 +609,20 @@ namespace FluentFTP {
 			return line;
 		}
 
-		/// <summary>
-		/// Reads a line from the socket asynchronously
-		/// </summary>
-		/// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
-		/// <returns>A line from the stream, null if there is nothing to read</returns>
-		public async Task<string> ReadLineAsync(System.Text.Encoding encoding) {
-			return await ReadLineAsync(encoding, CancellationToken.None);
-		}
-
         /// <summary>
         /// Reads all line from the socket
         /// </summary>
         /// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
         /// <param name="bufferSize">The size of the buffer</param>
         /// <returns>A list of lines from the stream</returns>
-        public async Task<IEnumerable<string>> ReadAllLinesAsync(System.Text.Encoding encoding, int bufferSize)
+        public async Task<IEnumerable<string>> ReadAllLinesAsync(System.Text.Encoding encoding, int bufferSize, CancellationToken token)
         {
             int charRead;
             List<byte> data = new List<byte>();
             List<string> lines = new List<string>();
             byte[] buf = new byte[bufferSize];
 
-            while ((charRead = await ReadAsync(buf, 0, buf.Length)) > 0)
+            while ((charRead = await ReadAsync(buf, 0, buf.Length, token)) > 0)
             {
                 var firstByteToReadIdx = 0;
 
@@ -661,22 +701,13 @@ namespace FluentFTP {
 			byte[] data = encoding.GetBytes(buf + "\r\n");
 			await WriteAsync(data, 0, data.Length, token);
 		}
-
-		/// <summary>
-		/// Writes a line to the stream using the specified encoding asynchronously
-		/// </summary>
-		/// <param name="encoding">Encoding used for writing the line</param>
-		/// <param name="buf">The data to write</param>
-		public async Task WriteLineAsync(System.Text.Encoding encoding, string buf) {
-			await WriteLineAsync(encoding, buf, CancellationToken.None);
-		}
 #endif
 
 #if CORE
 		/// <summary>
 		/// Disconnects from server
 		/// </summary>
-		public void Close()
+		public virtual void Close()
 		{
 			Dispose(true);
 		}
@@ -848,13 +879,14 @@ namespace FluentFTP {
 		}
 
 #if ASYNC
-        /// <summary>
-        /// Connect to the specified host
-        /// </summary>
-        /// <param name="host">The host to connect to</param>
-        /// <param name="port">The port to connect to</param>
-        /// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
-        public async Task ConnectAsync(string host, int port, FtpIpVersion ipVersions)
+		/// <summary>
+		/// Connect to the specified host
+		/// </summary>
+		/// <param name="host">The host to connect to</param>
+		/// <param name="port">The port to connect to</param>
+		/// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
+		/// <param name="token">Cancellation Token</param>
+		public async Task ConnectAsync(string host, int port, FtpIpVersion ipVersions, CancellationToken token)
         {
             IPAddress[] addresses = await Dns.GetHostAddressesAsync(host);
 
@@ -901,13 +933,12 @@ namespace FluentFTP {
                 }
 
                 m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
 #if CORE
-                await m_socket.ConnectAsync(addresses[i], port);
+                await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), token, () => m_socket.Dispose());
                 break;
 #else
-                var connectResult = m_socket.BeginConnect(addresses[i], port, null, null);
-                await Task.Factory.FromAsync(connectResult, m_socket.EndConnect);
+				var connectResult = m_socket.BeginConnect(addresses[i], port, null, null);
+                await EnableCancellation(Task.Factory.FromAsync(connectResult, m_socket.EndConnect), token, () => m_socket.Close());
                 break;
 #endif
             }

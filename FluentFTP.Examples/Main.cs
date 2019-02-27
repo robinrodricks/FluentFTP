@@ -1,12 +1,14 @@
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Examples {
     class MainClass {
-        public static void Main(string[] args) {
+        public static async Task Main(string[] args) {
             Debug.Listeners.Add(new ConsoleTraceListener());
 
             try {
+                // await AsyncConnectExample.AsyncConnectAsync();
                 //BeginConnectExample.BeginConnect();
                 //BeginCreateDirectoryExample.BeginCreateDirectory();
                 //BeginDeleteDirectoryExample.BeginDeleteDirectory();

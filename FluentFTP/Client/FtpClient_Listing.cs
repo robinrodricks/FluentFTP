@@ -660,27 +660,27 @@ namespace FluentFTP {
 
 #endif
 #if ASYNC
-        /// <summary>
-        /// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
-        /// contains information about the file that was able to be retrieved. 
-        /// </summary>
-        /// <remarks>
-        /// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-        /// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-        /// is equal to 0, then it means the size of the object could also not
-        /// be retrieved.
-        /// </remarks>
-        /// <param name="path">The path to list</param>
-        /// <param name="options">Options that dictate how the list operation is performed</param>
-        /// <returns>An array of items retrieved in the listing</returns>
-        public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options)
+		/// <summary>
+		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
+		/// contains information about the file that was able to be retrieved. 
+		/// </summary>
+		/// <remarks>
+		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+		/// is equal to 0, then it means the size of the object could also not
+		/// be retrieved.
+		/// </remarks>
+		/// <param name="path">The path to list</param>
+		/// <param name="options">Options that dictate how the list operation is performed</param>
+		/// <param name="token">Cancellation Token</param>
+		/// <returns>An array of items retrieved in the listing</returns>
+		public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken))
         {
 			// start recursive process if needed and unsupported by the server
 			if ((options & FtpListOption.Recursive) == FtpListOption.Recursive && !RecursiveList) {
 				return await GetListingRecursiveAsync(GetAbsolutePath(path), options);
 			}
 
-            //TODO:  Add cancellation support
             this.LogFunc(nameof(GetListingAsync), new object[] { path, options });
 
             FtpListItem item = null;
@@ -702,7 +702,7 @@ namespace FluentFTP {
             bool isGetSize = (options & FtpListOption.Size) == FtpListOption.Size;
 
             // calc path to request
-            path = await GetAbsolutePathAsync(path);
+            path = await GetAbsolutePathAsync(path, token);
 
             // MLSD provides a machine readable format with 100% accurate information
             // so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
@@ -744,10 +744,10 @@ namespace FluentFTP {
                 listcmd = (listcmd + " " + path.GetFtpPath());
             }
 
-            await ExecuteAsync("TYPE I");
+            await ExecuteAsync("TYPE I", token);
 
             // read in raw file listing
-            using (FtpDataStream stream = await OpenDataStreamAsync(listcmd, 0))
+            using (FtpDataStream stream = await OpenDataStreamAsync(listcmd, 0, token))
             {
                 try
                 {
@@ -757,7 +757,7 @@ namespace FluentFTP {
                     {
 
                         // increases performance of GetListing by reading multiple lines of the file listing at once
-                        foreach (var line in await stream.ReadAllLinesAsync(Encoding, this.BulkListingLength))
+                        foreach (var line in await stream.ReadAllLinesAsync(Encoding, this.BulkListingLength, token))
                         {
                             if (!FtpExtensions.IsNullOrWhiteSpace(line))
                             {
@@ -771,7 +771,7 @@ namespace FluentFTP {
                     {
 
                         // GetListing will read file listings line-by-line (actually byte-by-byte)
-                        while ((buf = await stream.ReadLineAsync(Encoding)) != null)
+                        while ((buf = await stream.ReadLineAsync(Encoding, token)) != null)
                         {
                             if (buf.Length > 0)
                             {
@@ -804,7 +804,7 @@ namespace FluentFTP {
                         FullName = buf
                     };
 
-                    if (await DirectoryExistsAsync(item.FullName))
+                    if (await DirectoryExistsAsync(item.FullName, token))
                         item.Type = FtpFileSystemObjectType.Directory;
                     else
                         item.Type = FtpFileSystemObjectType.File;
@@ -870,7 +870,7 @@ namespace FluentFTP {
                     // option was passed
                     if (item.Type == FtpFileSystemObjectType.Link && isDerefLinks)
                     {
-                        item.LinkObject = await DereferenceLinkAsync(item);
+                        item.LinkObject = await DereferenceLinkAsync(item, token);
                     }
 
                     // if need to get file modified date
@@ -888,7 +888,7 @@ namespace FluentFTP {
                             if (item.Type == FtpFileSystemObjectType.Directory)
                                 this.LogStatus(FtpTraceLevel.Verbose, "Trying to retrieve modification time of a directory, some servers don't like this...");
 
-                            if ((modify = await GetModifiedTimeAsync(item.FullName)) != DateTime.MinValue)
+                            if ((modify = await GetModifiedTimeAsync(item.FullName, token: token)) != DateTime.MinValue)
                                 item.Modified = modify;
                         }
                     }
@@ -903,7 +903,7 @@ namespace FluentFTP {
                         {
                             if (item.Type != FtpFileSystemObjectType.Directory)
                             {
-                                item.Size = await GetFileSizeAsync(item.FullName);
+                                item.Size = await GetFileSizeAsync(item.FullName, token);
                             }
                             else
                             {
@@ -917,21 +917,21 @@ namespace FluentFTP {
             return lst.ToArray();
         }
 
-        /// <summary>
-        /// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
-        /// contains information about the file that was able to be retrieved. 
-        /// </summary>
-        /// <remarks>
-        /// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-        /// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-        /// is equal to 0, then it means the size of the object could also not
-        /// be retrieved.
-        /// </remarks>
-        /// <param name="path">The path to list</param>
-        /// <returns>An array of items retrieved in the listing</returns>
-        public Task<FtpListItem[]> GetListingAsync(string path) {
-            //TODO:  Add cancellation support
-            return GetListingAsync(path, 0);
+		/// <summary>
+		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
+		/// contains information about the file that was able to be retrieved. 
+		/// </summary>
+		/// <remarks>
+		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+		/// is equal to 0, then it means the size of the object could also not
+		/// be retrieved.
+		/// </remarks>
+		/// <param name="path">The path to list</param>
+		/// <param name="token">Cancellation Token</param>
+		/// <returns>An array of items retrieved in the listing</returns>
+		public Task<FtpListItem[]> GetListingAsync(string path, CancellationToken token = default(CancellationToken)) {
+            return GetListingAsync(path, 0, token);
 		}
 
 		/// <summary>
@@ -945,9 +945,8 @@ namespace FluentFTP {
 		/// be retrieved.
 		/// </remarks>
 		/// <returns>An array of items retrieved in the listing</returns>
-		public Task<FtpListItem[]> GetListingAsync() {
-            //TODO:  Add cancellation support
-            return GetListingAsync(null);
+		public Task<FtpListItem[]> GetListingAsync(CancellationToken token = default(CancellationToken)) {
+            return GetListingAsync(null, token);
 		}
 #endif
 
@@ -1151,29 +1150,29 @@ namespace FluentFTP {
 		/// Returns a file/directory listing using the NLST command asynchronously
 		/// </summary>
 		/// <param name="path">The path of the directory to list</param>
+		/// <param name="token">Cancellation Token</param>
 		/// <returns>An array of file and directory names if any were returned.</returns>
-		public async Task<string[]> GetNameListingAsync(string path)
+		public async Task<string[]> GetNameListingAsync(string path, CancellationToken token = default(CancellationToken))
 		{
-			//TODO:  Add cancellation support
 			this.LogFunc(nameof(GetNameListingAsync), new object[] { path });
 
 			List<string> listing = new List<string>();
 
 			// calc path to request
-			path = await GetAbsolutePathAsync(path);
+			path = await GetAbsolutePathAsync(path, token);
 
 			// always get the file listing in binary
 			// to avoid any potential character translation
 			// problems that would happen if in ASCII.
-			await ExecuteAsync("TYPE I");
+			await ExecuteAsync("TYPE I", token);
 
-			using (FtpDataStream stream = await OpenDataStreamAsync(("NLST " + path.GetFtpPath()), 0))
+			using (FtpDataStream stream = await OpenDataStreamAsync(("NLST " + path.GetFtpPath()), 0, token))
 			{
 				string buf;
 
 				try
 				{
-					while ((buf = await stream.ReadLineAsync(Encoding)) != null)
+					while ((buf = await stream.ReadLineAsync(Encoding, token)) != null)
 						listing.Add(buf);
 				}
 				finally
@@ -1189,9 +1188,8 @@ namespace FluentFTP {
 		/// Returns a file/directory listing using the NLST command asynchronously
 		/// </summary>
 		/// <returns>An array of file and directory names if any were returned.</returns>
-		public Task<string[]> GetNameListingAsync() {
-			//TODO:  Add cancellation support
-			return GetNameListingAsync(null);
+		public Task<string[]> GetNameListingAsync(CancellationToken token = default(CancellationToken)) {
+			return GetNameListingAsync(null, token);
 		}
 #endif
 
