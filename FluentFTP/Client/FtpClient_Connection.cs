@@ -1638,6 +1638,13 @@ namespace FluentFTP {
 					m_serverType = FtpServer.CrushFTP;
 				}
 
+				// Detect glFTPd server
+				// Welcome message: "220 W 00 T (glFTPd 2.01 Linux+TLS) ready."
+				// Welcome message: "220 <hostname> (glFTPd 2.01 Linux+TLS) ready."
+				else if (welcome.Contains("glFTPd ")) {
+					m_serverType = FtpServer.glFTPd;
+				}
+
 				// Detect Tandem/NonStop server
 				// Welcome message: "220 tdm-QWERTY-fp00.itc.intranet FTP SERVER T9552H02 (Version H02 TANDEM 11SEP2008) ready."
 				// Welcome message: "220 FTP SERVER T9552G08 (Version G08 TANDEM 15JAN2008) ready."

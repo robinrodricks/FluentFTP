@@ -671,7 +671,11 @@ namespace FluentFTP {
 		/// <summary>
 		/// Definitely CrushFTP server
 		/// </summary>
-		CrushFTP
+		CrushFTP,
+		/// <summary>
+		/// Definitely glFTPd server
+		/// </summary>
+		glFTPd
 	}
 
 	/// <summary>
