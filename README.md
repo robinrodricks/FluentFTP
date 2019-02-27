@@ -34,8 +34,10 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
   - [FTP command logging](#faq_log) using `TraceListeners` (passwords omitted) to [trace](#faq_trace) or [log output](#faq_logfile) to a file
   - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
 - **Asynchronous support:**
-  - Synchronous and asynchronous methods using `async`/`await` for all operations 
+  - Synchronous and asynchronous methods using `async`/`await` for all operations
   - Asynchronous methods for .NET 4.0 and below using `IAsyncResult` pattern (Begin*/End*)
+  - All asynchronous methods can be cancelled midway by passing a `CancellationToken`
+  - All asynchronous methods honor the `ReadTimeout` and automatically cancel themselves if timed out
   - Improves thread safety by cloning the FTP control connection for file transfers (optional)
   - Implements its own internal locking in an effort to keep transactions synchronized
 - **Extensible:**
@@ -173,10 +175,10 @@ client.Disconnect();
 - [How can I track the progress of file transfers?](#faq_progress)
 - [How can I upload data created on the fly?](#faq_uploadbytes)
 - [How can I download data without saving it to disk?](#faq_downloadbytes)
-- [How can I resume downloading a partially downloaded file?](#faq_resumedownload)
+- [How can I resume downloading a file?](#faq_resumedownload)
+- [How can I resume uploading a file?](#faq_uploadmissing)
 - [How can I throttle the speed of upload/download?](#faq_throttle)
 - [How do I verify the hash/checksum of a file and retry if the checksum mismatches?](#faq_verifyhash)
-- [How do I upload only the missing part of a file?](#faq_uploadmissing)
 - [How do I append to a file?](#faq_append)
 - [How do I download files using the low-level API?](#faq_downloadlow)
 - [How can I upload/download files with Unicode filenames when my server does not support UTF8?](#faq_utf)
@@ -228,6 +230,8 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 - **SystemType** - Gets the type of system/server that we're connected to.
 
 - **ServerType** - Gets the type of the FTP server software that we're connected to, using the `FtpServer` enum. If it does not detect your specific server software, please contribute a [detection script](#faq_recursivelist). **Default:** `FtpServer.Unknown`
+
+- **ServerOS** - Gets the operating system of the FTP server software that we're connected to, using the `FtpOS` enum. **Default:** `FtpOS.Unknown`
 
 - **IsConnected** - Checks if the connection is still alive.
 
@@ -285,9 +289,9 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 - **Download**() - Downloads a file from the server to a Stream or byte[]. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks.
 
-- **UploadFile**() - Uploads a file from the local file system to the server. Use `FtpExists.Append` to append to a file. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks. Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
+- **UploadFile**() - Uploads a file from the local file system to the server. Use `FtpExists.Append` to resume a partial upload. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks. Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
 
-- **DownloadFile**() - Downloads a file from the server to the local file system. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks. Local directories are created if they do not exist. Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
+- **DownloadFile**() - Downloads a file from the server to the local file system. Use `FtpLocalExists.Append` to resume a partial download. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks. Local directories are created if they do not exist. Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
 
 - **UploadFiles**() - Uploads multiple files from the local file system to a single folder on the server. Returns the number of files uploaded. Skipped files are not counted. User-defined error handling for exceptions during file upload (ignore/abort/throw).  Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches. Faster than calling `UploadFile()` multiple times.
 
@@ -462,7 +466,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 - **ConnectTimeout** - Time to wait (in milliseconds) for a connection attempt to succeed, before giving up. **Default:** 15000 (15 seconds).
 
-- **ReadTimeout** - Time to wait (in milliseconds) for data to be read from the underlying stream, before giving up. **Default:** 15000 (15 seconds).
+- **ReadTimeout** - Time to wait (in milliseconds) for data to be read from the underlying stream, before giving up. Honored by all asynchronous methods as well. **Default:** 15000 (15 seconds).
 
 - **DataConnectionConnectTimeout** - Time to wait (in milliseconds) for a data connection to be established, before giving up. **Default:** 15000 (15 seconds).
 
@@ -686,12 +690,12 @@ Now call the Upload/Download method providing the new `progress` object that you
 
 *Using the asynchronous API:*
 ```cs
-await client.DownloadFileAsync(localPath, remotePath, true, FluentFTP.FtpVerify.Retry, progress);
+await client.DownloadFileAsync(localPath, remotePath, FtpLocalExists.Overwrite, FluentFTP.FtpVerify.Retry, progress);
 ```
 
 *Using the synchronous API:*
 ```cs
-client.DownloadFile(localPath, remotePath, true, FluentFTP.FtpVerify.Retry, progress);
+client.DownloadFile(localPath, remotePath, FtpLocalExists.Overwrite, FluentFTP.FtpVerify.Retry, progress);
 ```
 
 For .NET 2.0 users, pass an implementation of the `IProgress` class. The `Report()` method of the object you pass will be called with the progress value.
@@ -713,7 +717,7 @@ Use Download() for downloading to a `Stream` or `byte[]`.
 
 --------------------------------------------------------
 <a name="faq_resumedownload"></a>
-**How can I resume downloading a partially downloaded file?**
+**How can I resume downloading a file?**
 
 Use DownloadFile() or DownloadFiles() with the `existsMode` set to `FtpLocalExists.Append`.
 
@@ -731,6 +735,17 @@ Other options are:
 
 - `FtpLocalExists.Append` - If the local file exists, we resume the download by checking the local file size, and append the missing data to the file.
 
+
+--------------------------------------------------------
+<a name="faq_uploadmissing"></a>
+**How can I resume uploading a file?**
+
+Using the new UploadFile() API:
+```cs
+// we compare the length of the offline file vs the online file,
+// and only write the missing part to the server
+client.UploadFile("C:\bigfile.iso", "/htdocs/bigfile.iso", FtpExists.Append);
+```
 
 
 --------------------------------------------------------
@@ -771,17 +786,6 @@ All the possible configurations are:
 
 - `FtpVerify.Retry | FtpVerify.Delete | FtpVerify.Throw` - Verify checksum, retry copying X times, delete target file if still mismatching, then throw an error
 
-
---------------------------------------------------------
-<a name="faq_uploadmissing"></a>
-**How do I upload only the missing part of a file?**
-
-Using the new UploadFile() API:
-```cs
-// we compare the length of the offline file vs the online file,
-// and only write the missing part to the server
-client.UploadFile("C:\bigfile.iso", "/htdocs/bigfile.iso", FtpExists.Append);
-```
 
 --------------------------------------------------------
 <a name="faq_append"></a>
@@ -1112,22 +1116,12 @@ You can read `ServerType` to get the exact type of FTP server software that you'
 - OpenVMS
 - Windows CE
 
-You can also read `SystemType` to get the operating system string returned by the server. It will typically begin with the operating system category. Use the following snippet to detect the OS:
+You can also read `ServerOS` to get the operating system string returned by the server. We can detect:
 
-	var system = client.SystemType.ToUpper();
-	
-	if (system.StartsWith("WINDOWS")) {
-		// Windows OS
-	} else if (system.IndexOf("UNIX") >= 0 || system.IndexOf("AIX") >= 0) {
-		// Unix OS
-	} else if (system.IndexOf("VMS") >= 0) {
-		// VMS or OpenVMS
-	} else if (system.IndexOf("OS/400") >= 0) {
-		// IBM OS/400
-	} else {
-		// assume Unix OS
-	}
-
+- Windows
+- Unix
+- VMS
+- IBM OS/400
 
 
 --------------------------------------------------------
