@@ -647,7 +647,11 @@ namespace FluentFTP {
 		/// <summary>
 		/// Definitely WuFTPd server
 		/// </summary>
-		WuFTPd
+		WuFTPd,
+		/// <summary>
+		/// Definitely GlobalScape EFT server
+		/// </summary>
+		GlobalScapeEFT
 	}
 
 	/// <summary>

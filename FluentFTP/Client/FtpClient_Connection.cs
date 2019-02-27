@@ -1608,6 +1608,12 @@ namespace FluentFTP {
 					m_serverType = FtpServer.WuFTPd;
 				}
 
+				// Detect GlobalScape EFT server
+				// Welcome message: "EFT Server Enterprise 7.4.5.6"
+				if (welcome.Contains("EFT Server")) {
+					m_serverType = FtpServer.GlobalScapeEFT;
+				}
+
 				// trace it
 				if (m_serverType != FtpServer.Unknown) {
 					this.LogLine(FtpTraceLevel.Info, "Status:   Detected FTP server: " + m_serverType.ToString());
