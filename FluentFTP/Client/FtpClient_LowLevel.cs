@@ -133,9 +133,9 @@ namespace FluentFTP {
 				port = (int.Parse(m.Groups["port1"].Value) << 8) + int.Parse(m.Groups["port2"].Value);
 
 				//use host ip if server advertises a non-routeable IP
-				m = Regex.Match(host,@"(^10\.)|(^172\.1[6-9]\.)|(^172\\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)|(^127\.0\.0\.1)|(^0\.0\.0\.0)");
+				m = Regex.Match(host, @"(^10\.)|(^172\.1[6-9]\.)|(^172\\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)|(^127\.0\.0\.1)|(^0\.0\.0\.0)");
 
-				if(m.Success){			
+				if (m.Success) {
 					host = m_host;
 				}
 			}
@@ -154,10 +154,9 @@ namespace FluentFTP {
 
 			if (!(reply = Execute(command)).Success) {
 				stream.Close();
-				if(command.StartsWith("NLST ") && reply.Code=="550" && reply.Message== "No files found.") {
+				if (command.StartsWith("NLST ") && reply.Code == "550" && reply.Message == "No files found.") {
 					//workaround for ftpd which responses "550 No files found." when folder exists but is empty
-				}
-				else {
+				} else {
 					throw new FtpCommandException(reply);
 				}
 			}

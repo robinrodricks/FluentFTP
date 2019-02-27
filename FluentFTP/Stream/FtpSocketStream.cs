@@ -150,7 +150,7 @@ namespace FluentFTP {
 
 #if !NO_SSL
 		BufferedStream m_bufStream = null;
-		
+
 		SslStream m_sslStream = null;
 		/// <summary>
 		/// The encrypted stream

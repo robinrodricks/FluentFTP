@@ -123,7 +123,7 @@ namespace FluentFTP {
 				m_listParser.hasTimeOffset = m_timeDiff != 0;
 			}
 		}
-		
+
 		/// <summary>
 		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
 		/// If you know for sure that this is supported, return true here.
@@ -1048,7 +1048,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
 		#region Get Name Listing
 
@@ -1193,7 +1193,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
 	}
 }

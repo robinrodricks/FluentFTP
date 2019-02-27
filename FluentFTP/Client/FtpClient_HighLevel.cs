@@ -441,7 +441,7 @@ namespace FluentFTP {
 			if (localDir.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "localDir");
 
-            this.LogFunc("DownloadFiles", new object[] { localDir, remotePaths, existsMode, verifyOptions });
+			this.LogFunc("DownloadFiles", new object[] { localDir, remotePaths, existsMode, verifyOptions });
 
 			bool errorEncountered = false;
 			List<string> successfulDownloads = new List<string>();
@@ -456,7 +456,7 @@ namespace FluentFTP {
 
 				// try to download it
 				try {
-                    bool ok = DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, null);
+					bool ok = DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, null);
 					if (ok) {
 						successfulDownloads.Add(localPath);
 					} else if ((int)errorHandling > 1) {
@@ -1381,30 +1381,27 @@ namespace FluentFTP {
 			if (remotePath.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 
-            this.LogFunc("DownloadFile", new object[] { localPath, remotePath, existsMode, verifyOptions });
+			this.LogFunc("DownloadFile", new object[] { localPath, remotePath, existsMode, verifyOptions });
 
-            return DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, progress);
+			return DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, progress);
 		}
 
-        private bool DownloadFileToFile(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<double> progress)
-        {
-            FileMode outStreamFileMode = FileMode.Create;
-            // skip downloading if local file size matches
-            if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
-                if (GetFileSize(remotePath).Equals(new FileInfo(localPath).Length)) {
+		private bool DownloadFileToFile(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<double> progress) {
+			FileMode outStreamFileMode = FileMode.Create;
+			// skip downloading if local file size matches
+			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
+				if (GetFileSize(remotePath).Equals(new FileInfo(localPath).Length)) {
 					this.LogStatus(FtpTraceLevel.Info, "Append is selected => Local file size matches size on server => skipping");
 					return false;
+				} else {
+					outStreamFileMode = FileMode.Append;
 				}
-                else {
-                    outStreamFileMode = FileMode.Append;
-                }
-            }
-			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
+			} else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
 				this.LogStatus(FtpTraceLevel.Info, "Skip is selected => Local file exists => skipping");
 				return false;
 			}
 
-            try {
+			try {
 
 				// create the folders
 				string dirPath = Path.GetDirectoryName(localPath);
@@ -1423,10 +1420,10 @@ namespace FluentFTP {
 			do {
 
 				// download the file from server
-                using (var outStream = new FileStream(localPath, outStreamFileMode, FileAccess.Write, FileShare.None)) {
+				using (var outStream = new FileStream(localPath, outStreamFileMode, FileAccess.Write, FileShare.None)) {
 
 					// download the file straight to a file stream
-                    downloadSuccess = DownloadFileInternal(remotePath, outStream, File.Exists(localPath) ? new FileInfo(localPath).Length : 0, progress);
+					downloadSuccess = DownloadFileInternal(remotePath, outStream, File.Exists(localPath) ? new FileInfo(localPath).Length : 0, progress);
 					attemptsLeft--;
 				}
 
@@ -1600,7 +1597,7 @@ namespace FluentFTP {
 			this.LogFunc("Download", new object[] { remotePath });
 
 			// download the file from the server
-            return DownloadFileInternal(remotePath, outStream, restartPosition, progress);
+			return DownloadFileInternal(remotePath, outStream, restartPosition, progress);
 		}
 
 		/// <summary>
@@ -1613,7 +1610,7 @@ namespace FluentFTP {
 		/// <param name="restartPosition">Local File Size of existing file which you want to resume</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-        public bool Download(out byte[] outBytes, string remotePath, long restartPosition, IProgress<double> progress = null) {
+		public bool Download(out byte[] outBytes, string remotePath, long restartPosition, IProgress<double> progress = null) {
 
 			// verify args
 			if (remotePath.IsBlank())
@@ -1626,7 +1623,7 @@ namespace FluentFTP {
 			// download the file from the server
 			bool ok;
 			using (MemoryStream outStream = new MemoryStream()) {
-                ok = DownloadFileInternal(remotePath, outStream, restartPosition, progress);
+				ok = DownloadFileInternal(remotePath, outStream, restartPosition, progress);
 				if (ok) {
 					outBytes = outStream.ToArray();
 				}
@@ -1708,7 +1705,7 @@ namespace FluentFTP {
 		/// Download a file from the server and write the data into the given stream.
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
-        private bool DownloadFileInternal(string remotePath, Stream outStream, long restartPosition, IProgress<double> progress) {
+		private bool DownloadFileInternal(string remotePath, Stream outStream, long restartPosition, IProgress<double> progress) {
 
 			Stream downStream = null;
 
@@ -1721,7 +1718,7 @@ namespace FluentFTP {
 				}
 
 				// open the file for reading
-                downStream = OpenRead(remotePath, DownloadDataType, restartPosition, fileLen > 0);
+				downStream = OpenRead(remotePath, DownloadDataType, restartPosition, fileLen > 0);
 
 				// if the server has not provided a length for this file
 				// we read until EOF instead of reading a specific number of bytes

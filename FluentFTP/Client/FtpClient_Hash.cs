@@ -777,7 +777,7 @@ namespace FluentFTP {
 		public IAsyncResult BeginGetXCRC(string path, AsyncCallback callback, object state) {
 			AsyncGetXCRC func = new AsyncGetXCRC(GetXCRC);
 			IAsyncResult ar;
-			
+
 			lock (m_asyncmethods) {
 				ar = func.BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
@@ -867,7 +867,7 @@ namespace FluentFTP {
 		public IAsyncResult BeginGetXMD5(string path, AsyncCallback callback, object state) {
 			AsyncGetXMD5 func = new AsyncGetXMD5(GetXMD5);
 			IAsyncResult ar;
-			
+
 			lock (m_asyncmethods) {
 				ar = func.BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
