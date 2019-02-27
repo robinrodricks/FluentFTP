@@ -641,7 +641,7 @@ namespace FluentFTP {
 		/// </summary>
 		OpenVMS,
 		/// <summary>
-		/// Definitely WindowsCE server
+		/// Definitely Windows CE FTP server
 		/// </summary>
 		WindowsCE,
 		/// <summary>
@@ -663,7 +663,15 @@ namespace FluentFTP {
 		/// <summary>
 		/// Definitely Cerberus FTP server
 		/// </summary>
-		Cerberus
+		Cerberus,
+		/// <summary>
+		/// Definitely Windows Server/IIS FTP server
+		/// </summary>
+		WindowsServerIIS,
+		/// <summary>
+		/// Definitely CrushFTP server
+		/// </summary>
+		CrushFTP
 	}
 
 	/// <summary>

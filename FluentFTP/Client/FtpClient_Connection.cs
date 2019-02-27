@@ -1614,7 +1614,7 @@ namespace FluentFTP {
 					m_serverType = FtpServer.GlobalScapeEFT;
 				}
 
-				// Detect Serv-U server
+				// Detect Cerberus server
 				// Welcome message: "220-Cerberus FTP Server Personal Edition"
 				else if (welcome.Contains("Cerberus FTP")) {
 					m_serverType = FtpServer.Cerberus;
@@ -1624,6 +1624,18 @@ namespace FluentFTP {
 				// Welcome message: "220 Serv-U FTP Server v5.0 for WinSock ready."
 				else if (welcome.Contains("Serv-U FTP")) {
 					m_serverType = FtpServer.ServU;
+				}
+
+				// Detect Windows Server/IIS FTP server
+				// Welcome message: "220-Microsoft FTP Service."
+				else if (welcome.Contains("Microsoft FTP Service")) {
+					m_serverType = FtpServer.WindowsServerIIS;
+				}
+
+				// Detect CrushFTP server
+				// Welcome message: "220 CrushFTP Server Ready!"
+				else if (welcome.Contains("CrushFTP Server")) {
+					m_serverType = FtpServer.CrushFTP;
 				}
 
 				// Detect Tandem/NonStop server

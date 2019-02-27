@@ -1119,6 +1119,7 @@ You can read `ServerType` to get the exact type of FTP server software that you'
 - HP NonStop/Tandem
 - Serv-U
 - Cerberus
+- CrushFTP
 
 You can also read `ServerOS` to get the operating system of the FTP server you've connected to. We can detect:
 
