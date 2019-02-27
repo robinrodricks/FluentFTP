@@ -1,7 +1,7 @@
 # Release Notes
 
 #### Unreleased
-- New: FTP Server software detection (HP NonStop/Tandem, GlobalScape EFT, Serv-U)
+- New: Additional FTP Server software detection (HP NonStop/Tandem, GlobalScape EFT, Serv-U, Cerberus)
 
 #### 23.0.0
 - New: Ability to cancel all async methods via `CancellationToken` (thanks [WolfspiritM](/WolfspiritM))

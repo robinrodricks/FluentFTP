@@ -1615,6 +1615,12 @@ namespace FluentFTP {
 				}
 
 				// Detect Serv-U server
+				// Welcome message: "220-Cerberus FTP Server Personal Edition"
+				else if (welcome.Contains("Cerberus FTP")) {
+					m_serverType = FtpServer.Cerberus;
+				}
+
+				// Detect Serv-U server
 				// Welcome message: "220 Serv-U FTP Server v5.0 for WinSock ready."
 				else if (welcome.Contains("Serv-U FTP")) {
 					m_serverType = FtpServer.ServU;

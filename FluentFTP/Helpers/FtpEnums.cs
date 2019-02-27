@@ -659,7 +659,11 @@ namespace FluentFTP {
 		/// <summary>
 		/// Definitely Serv-U server
 		/// </summary>
-		ServU
+		ServU,
+		/// <summary>
+		/// Definitely Cerberus FTP server
+		/// </summary>
+		Cerberus
 	}
 
 	/// <summary>
