@@ -1,5 +1,12 @@
 # Release Notes
 
+#### 23.0.0
+- New: Ability to cancel all async methods via `CancellationToken` (thanks [WolfspiritM](/WolfspiritM))
+- New: `ReadTimeout` is now honored by all async methods (thanks [WolfspiritM](/WolfspiritM))
+- New: FTP Server operating system detection and new `ServerOS` property
+- (.NET core) Fix: GetListing blocking with no timeout (thanks [WolfspiritM](/WolfspiritM))
+- (.NET core) Fix async methods by not using the the async read function (thanks [WolfspiritM](/WolfspiritM))
+
 #### 22.0.0
 - New: Ability to resume a download via `existsMode` on `DownloadFile()` and `DownloadFiles()` (thanks [n0ix](/n0ix))
 - New: Ability to turn off checking for server capabilities using FEAT command (thanks @[nhh-softwarehuset](/nhh-softwarehuset))
