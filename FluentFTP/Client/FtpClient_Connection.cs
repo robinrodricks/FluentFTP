@@ -221,14 +221,11 @@ namespace FluentFTP {
 		/// will set which features are avaiable by executing the FEAT command
 		/// when the connect method is called.
 		/// </summary>
-		public bool CheckCapabilities
-		{
-			get
-			{
+		public bool CheckCapabilities {
+			get {
 				return m_checkCapabilities;
 			}
-			set
-			{
+			set {
 				m_checkCapabilities = value;
 			}
 		}
@@ -640,6 +637,16 @@ namespace FluentFTP {
 		public FtpServer ServerType {
 			get {
 				return m_serverType;
+			}
+		}
+
+		private FtpOperatingSystem m_serverOS = FtpOperatingSystem.Unknown;
+		/// <summary>
+		/// Gets the type of the FTP server software that we're connected to.
+		/// </summary>
+		public FtpOperatingSystem ServerOS {
+			get {
+				return m_serverOS;
 			}
 		}
 
@@ -1614,6 +1621,41 @@ namespace FluentFTP {
 		/// Its a fallback method if the server did not send an identifying welcome message.
 		/// </summary>
 		private void DetectFtpServerBySyst() {
+
+
+
+			// detect OS type
+			var system = m_systemType.ToUpper();
+
+			if (system.StartsWith("WINDOWS")) {
+
+				// Windows OS
+				m_serverOS = FtpOperatingSystem.Windows;
+
+			} else if (system.Contains("UNIX") || system.Contains("AIX")) {
+
+				// Unix OS
+				m_serverOS = FtpOperatingSystem.Unix;
+
+			} else if (system.Contains("VMS")) {
+
+				// VMS or OpenVMS
+				m_serverOS = FtpOperatingSystem.VMS;
+
+			} else if (system.Contains("OS/400")) {
+
+				// IBM OS/400
+				m_serverOS = FtpOperatingSystem.IBMOS400;
+
+			} else {
+
+				// assume Unix OS
+				m_serverOS = FtpOperatingSystem.Unknown;
+			}
+
+
+
+			// detect server type
 			if (m_serverType == FtpServer.Unknown) {
 
 				// Detect OpenVMS server
@@ -1889,7 +1931,7 @@ namespace FluentFTP {
 				else
 					path = "./";
 
-			// FIX : #153 ensure this check works with unix & windows
+				// FIX : #153 ensure this check works with unix & windows
 			} else if (!path.StartsWith("/") && path.Substring(1, 1) != ":") {
 
 				// if relative path given then add working dir to calc full path
