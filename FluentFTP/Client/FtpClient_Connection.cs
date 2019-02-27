@@ -1586,32 +1586,45 @@ namespace FluentFTP {
 
 				// Detect vsFTPd server
 				// Welcome message: "(vsFTPd 3.0.3)"
-				if (welcome.Contains("(vsFTPd")) {
+				else if (welcome.Contains("(vsFTPd")) {
 					m_serverType = FtpServer.VsFTPd;
 				}
 
 				// Detect ProFTPd server
 				// Welcome message: "ProFTPD 1.3.5rc3 Server (***) [::ffff:***]"
-				if (welcome.Contains("ProFTPD")) {
+				else if (welcome.Contains("ProFTPD")) {
 					m_serverType = FtpServer.ProFTPD;
 				}
 
 				// Detect FileZilla server
 				// Welcome message: "FileZilla Server 0.9.60 beta"
-				if (welcome.Contains("FileZilla Server")) {
+				else if (welcome.Contains("FileZilla Server")) {
 					m_serverType = FtpServer.FileZilla;
 				}
 
 				// Detect WuFTPd server
 				// Welcome message: "FTP server (Revision 9.0 Version wuftpd-2.6.1 Mon Jun 30 09:28:28 GMT 2014) ready"
-				if (welcome.Contains(" wuftpd")) {
+				else if (welcome.Contains(" wuftpd")) {
 					m_serverType = FtpServer.WuFTPd;
 				}
 
 				// Detect GlobalScape EFT server
 				// Welcome message: "EFT Server Enterprise 7.4.5.6"
-				if (welcome.Contains("EFT Server")) {
+				else if (welcome.Contains("EFT Server")) {
 					m_serverType = FtpServer.GlobalScapeEFT;
+				}
+
+				// Detect Serv-U server
+				// Welcome message: "220 Serv-U FTP Server v5.0 for WinSock ready."
+				else if (welcome.Contains("Serv-U FTP")) {
+					m_serverType = FtpServer.ServU;
+				}
+
+				// Detect Tandem/NonStop server
+				// Welcome message: "220 tdm-QWERTY-fp00.itc.intranet FTP SERVER T9552H02 (Version H02 TANDEM 11SEP2008) ready."
+				// Welcome message: "220 FTP SERVER T9552G08 (Version G08 TANDEM 15JAN2008) ready."
+				else if (welcome.Contains("FTP SERVER ") && welcome.Contains(" TANDEM ")) {
+					m_serverType = FtpServer.TandemNonStop;
 				}
 
 				// trace it

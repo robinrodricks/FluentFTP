@@ -651,7 +651,15 @@ namespace FluentFTP {
 		/// <summary>
 		/// Definitely GlobalScape EFT server
 		/// </summary>
-		GlobalScapeEFT
+		GlobalScapeEFT,
+		/// <summary>
+		/// Definitely Tandem/NonStop server
+		/// </summary>
+		TandemNonStop,
+		/// <summary>
+		/// Definitely Serv-U server
+		/// </summary>
+		ServU
 	}
 
 	/// <summary>
