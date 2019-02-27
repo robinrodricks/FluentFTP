@@ -1624,7 +1624,7 @@ namespace FluentFTP {
 				// Welcome message: "220 tdm-QWERTY-fp00.itc.intranet FTP SERVER T9552H02 (Version H02 TANDEM 11SEP2008) ready."
 				// Welcome message: "220 FTP SERVER T9552G08 (Version G08 TANDEM 15JAN2008) ready."
 				else if (welcome.Contains("FTP SERVER ") && welcome.Contains(" TANDEM ")) {
-					m_serverType = FtpServer.TandemNonStop;
+					m_serverType = FtpServer.NonStopTandem;
 				}
 
 				// trace it

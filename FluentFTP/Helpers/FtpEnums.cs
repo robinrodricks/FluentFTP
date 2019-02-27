@@ -653,9 +653,9 @@ namespace FluentFTP {
 		/// </summary>
 		GlobalScapeEFT,
 		/// <summary>
-		/// Definitely Tandem/NonStop server
+		/// Definitely HP NonStop/Tandem server
 		/// </summary>
-		TandemNonStop,
+		NonStopTandem,
 		/// <summary>
 		/// Definitely Serv-U server
 		/// </summary>

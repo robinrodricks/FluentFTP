@@ -1116,7 +1116,8 @@ You can read `ServerType` to get the exact type of FTP server software that you'
 - OpenVMS
 - Windows CE
 - GlobalScape EFT
-- Tandem/NonStop
+- HP NonStop/Tandem
+- Serv-U
 
 You can also read `ServerOS` to get the operating system of the FTP server you've connected to. We can detect:
 

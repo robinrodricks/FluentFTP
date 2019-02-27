@@ -1,5 +1,8 @@
 # Release Notes
 
+#### Unreleased
+- New: FTP Server software detection (HP NonStop/Tandem, GlobalScape EFT, Serv-U)
+
 #### 23.0.0
 - New: Ability to cancel all async methods via `CancellationToken` (thanks [WolfspiritM](/WolfspiritM))
 - New: `ReadTimeout` is now honored by all async methods (thanks [WolfspiritM](/WolfspiritM))
