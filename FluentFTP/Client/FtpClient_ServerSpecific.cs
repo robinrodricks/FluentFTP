@@ -106,6 +106,12 @@ namespace FluentFTP {
 					m_serverType = FtpServer.glFTPd;
 				}
 
+				// Detect OpenVMS server
+				// Welcome message: "220 ftp.bedrock.net FTP-OpenVMS FTPD V5.5-3 (c) 2001 Process Software"
+				else if (welcome.Contains("OpenVMS FTPD")) {
+					m_serverType = FtpServer.OpenVMS;
+				}
+
 				// Detect Tandem/NonStop server
 				// Welcome message: "220 tdm-QWERTY-fp00.itc.intranet FTP SERVER T9552H02 (Version H02 TANDEM 11SEP2008) ready."
 				// Welcome message: "220 FTP SERVER T9552G08 (Version G08 TANDEM 15JAN2008) ready."
