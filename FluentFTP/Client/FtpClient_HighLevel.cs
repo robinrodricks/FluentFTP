@@ -215,7 +215,7 @@ namespace FluentFTP {
 
 				// try to upload it
 				try {
-					bool ok = UploadFileFromFile(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true, verifyOptions, null);
+					bool ok = UploadFileFromFile(localPath, remotePath, false, existsMode, FtpExtensions.FileExistsInNameListing(existingFiles, remotePath), true, verifyOptions, null);
 					if (ok) {
 						successfulUploads.Add(remotePath);
 						//count++;
@@ -356,7 +356,7 @@ namespace FluentFTP {
 
 				// try to upload it
 				try {
-					bool ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, existingFiles.Contains(fileName), true, verifyOptions, token, null);
+					bool ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, FtpExtensions.FileExistsInNameListing(existingFiles, remotePath), true, verifyOptions, token, null);
 					if (ok) {
 						successfulUploads.Add(remotePath);
 					} else if ((int)errorHandling > 1) {

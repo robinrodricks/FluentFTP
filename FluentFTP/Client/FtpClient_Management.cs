@@ -616,10 +616,8 @@ namespace FluentFTP {
 
 				// check if file exists by getting a name listing (NLST)
 				string[] fileList = GetNameListing(path.GetFtpDirectoryName());
-				string pathName = path.GetFtpFileName();
-				if (fileList.Contains(pathName)) {
-					return true;
-				}
+				return FtpExtensions.FileExistsInNameListing(fileList, path);
+				
 
 				// check if file exists by attempting to download it (RETR)
 				/*try {
@@ -720,14 +718,10 @@ namespace FluentFTP {
 					return false;
 				}
 			}
-
+		
 			// check if file exists by getting a name listing (NLST)
 			string[] fileList = await GetNameListingAsync(path.GetFtpDirectoryName(), token);
-			string pathName = path.GetFtpFileName();
-			if (fileList.Contains(pathName))
-			{
-				return true;
-			}
+			return FtpExtensions.FileExistsInNameListing(fileList, path);
 
 			// check if file exists by attempting to download it (RETR)
 			/*try {

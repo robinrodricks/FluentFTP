@@ -318,6 +318,26 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Ensure a string has the given prefix
+		/// </summary>
+		public static string EnsurePrefix(this string text, string prefix) {
+			if (!text.StartsWith(prefix)) {
+				return prefix + text;
+			}
+			return text;
+		}
+
+		/// <summary>
+		/// Ensure a string has the given postfix
+		/// </summary>
+		public static string EnsurePostfix(this string text, string postfix) {
+			if (!text.EndsWith(postfix)) {
+				return text + postfix;
+			}
+			return text;
+		}
+
+		/// <summary>
 		/// Adds a prefix to the given strings, returns a new array.
 		/// </summary>
 		public static List<string> ItemsToString(this object[] args) {
@@ -358,6 +378,35 @@ namespace FluentFTP {
 		}
 #endif
 
+		/// <summary>
+		/// Checks if the given file exists in the given file listing.
+		/// Supports servers that return:  1) full paths,  2) only filenames,  3) full paths without slash prefixed
+		/// </summary>
+		/// <param name="fileList">The listing returned by GetNameListing</param>
+		/// <param name="path">The full file path you want to check</param>
+		/// <returns></returns>
+		public static bool FileExistsInNameListing(string[] fileList, string path) {
 
-    }
+			// exit quickly if no paths
+			if (fileList.Length == 0) {
+				return false;
+			}
+
+			// cleanup file path, get file name
+			string pathName = path.GetFtpFileName();
+			string pathPrefixed = path.EnsurePrefix("/");
+
+			// per entry in the name list
+			foreach (string fileListEntry in fileList) {
+
+				// FIX: support servers that return:  1) full paths,  2) only filenames,  3) full paths without slash prefixed
+				if (fileListEntry == pathName || fileListEntry == path || fileListEntry.EnsurePrefix("/") == pathPrefixed) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+
+	}
 }
