@@ -2,6 +2,8 @@
 
 #### Unreleased
 - New: Additional FTP Server software detection (HP NonStop/Tandem, GlobalScape EFT, Serv-U, Cerberus, CrushFTP, glFTPd)
+- New: Assume capabilities for servers that don't support FEAT (wuFTPd)
+- Fix: FileExists returns false if name listing is used and server lists filenames with the path
 
 #### 23.0.0
 - New: Ability to cancel all async methods via `CancellationToken` (thanks [WolfspiritM](/WolfspiritM))

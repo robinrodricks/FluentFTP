@@ -1202,6 +1202,8 @@ namespace FluentFTP {
 				if (!IsClone && m_checkCapabilities) {
 					if ((reply = Execute("FEAT")).Success && reply.InfoMessages != null) {
 						GetFeatures(reply);
+					} else {
+						AssumeCapabilities();
 					}
 				}
 
@@ -1332,10 +1334,12 @@ namespace FluentFTP {
 			// if this is a clone these values should have already been loaded
 			// so save some bandwidth and CPU time and skip executing this again.
 			if (!IsClone && m_checkCapabilities) {
-					if ((reply = await ExecuteAsync("FEAT", token)).Success && reply.InfoMessages != null)
+				if ((reply = await ExecuteAsync("FEAT", token)).Success && reply.InfoMessages != null)
                 {
                     GetFeatures(reply);
-                }
+                }else {
+						AssumeCapabilities();
+				}
             }
 
             // Enable UTF8 if the encoding is ASCII and UTF8 is supported
@@ -1466,43 +1470,53 @@ namespace FluentFTP {
 		/// <param name="reply">The reply object from the FEAT command. The InfoMessages property will
 		/// contain a list of the features the server supported delimited by a new line '\n' character.</param>
 		protected virtual void GetFeatures(FtpReply reply) {
-			foreach (string feat in reply.InfoMessages.Split('\n')) {
-				if (feat.ToUpper().Trim().StartsWith("MLST") || feat.ToUpper().Trim().StartsWith("MLSD"))
+			GetFeatures(reply.InfoMessages.Split('\n'));
+		}
+
+		/// <summary>
+		/// Populates the capabilities flags based on capabilities given in the list of strings.
+		/// </summary>
+		protected virtual void GetFeatures(string[] features) {
+			foreach (string feat in features) {
+
+				string featName = feat.Trim().ToUpper();
+
+				if (featName.StartsWith("MLST") || featName.StartsWith("MLSD"))
 					m_caps |= FtpCapability.MLSD;
-				else if (feat.ToUpper().Trim().StartsWith("MDTM"))
+				else if (featName.StartsWith("MDTM"))
 					m_caps |= FtpCapability.MDTM;
-				else if (feat.ToUpper().Trim().StartsWith("REST STREAM"))
+				else if (featName.StartsWith("REST STREAM"))
 					m_caps |= FtpCapability.REST;
-				else if (feat.ToUpper().Trim().StartsWith("SIZE"))
+				else if (featName.StartsWith("SIZE"))
 					m_caps |= FtpCapability.SIZE;
-				else if (feat.ToUpper().Trim().StartsWith("UTF8"))
+				else if (featName.StartsWith("UTF8"))
 					m_caps |= FtpCapability.UTF8;
-				else if (feat.ToUpper().Trim().StartsWith("PRET"))
+				else if (featName.StartsWith("PRET"))
 					m_caps |= FtpCapability.PRET;
-				else if (feat.ToUpper().Trim().StartsWith("MFMT"))
+				else if (featName.StartsWith("MFMT"))
 					m_caps |= FtpCapability.MFMT;
-				else if (feat.ToUpper().Trim().StartsWith("MFCT"))
+				else if (featName.StartsWith("MFCT"))
 					m_caps |= FtpCapability.MFCT;
-				else if (feat.ToUpper().Trim().StartsWith("MFF"))
+				else if (featName.StartsWith("MFF"))
 					m_caps |= FtpCapability.MFF;
-				else if (feat.ToUpper().Trim().StartsWith("MD5"))
+				else if (featName.StartsWith("MD5"))
 					m_caps |= FtpCapability.MD5;
-				else if (feat.ToUpper().Trim().StartsWith("XMD5"))
+				else if (featName.StartsWith("XMD5"))
 					m_caps |= FtpCapability.XMD5;
-				else if (feat.ToUpper().Trim().StartsWith("XCRC"))
+				else if (featName.StartsWith("XCRC"))
 					m_caps |= FtpCapability.XCRC;
-				else if (feat.ToUpper().Trim().StartsWith("XSHA1"))
+				else if (featName.StartsWith("XSHA1"))
 					m_caps |= FtpCapability.XSHA1;
-				else if (feat.ToUpper().Trim().StartsWith("XSHA256"))
+				else if (featName.StartsWith("XSHA256"))
 					m_caps |= FtpCapability.XSHA256;
-				else if (feat.ToUpper().Trim().StartsWith("XSHA512"))
+				else if (featName.StartsWith("XSHA512"))
 					m_caps |= FtpCapability.XSHA512;
-				else if (feat.ToUpper().Trim().StartsWith("HASH")) {
+				else if (featName.StartsWith("HASH")) {
 					Match m;
 
 					m_caps |= FtpCapability.HASH;
 
-					if ((m = Regex.Match(feat.ToUpper().Trim(), @"^HASH\s+(?<types>.*)$")).Success) {
+					if ((m = Regex.Match(featName, @"^HASH\s+(?<types>.*)$")).Success) {
 						foreach (string type in m.Groups["types"].Value.Split(';')) {
 							switch (type.ToUpper().Trim()) {
 								case "SHA-1":
@@ -1565,165 +1579,7 @@ namespace FluentFTP {
 #endif
 
 		#endregion
-
-		#region Detect Server
-
-		/// <summary>
-		/// Detect the FTP Server based on the welcome message sent by the server after getting the 220 connection command.
-		/// Its the primary method.
-		/// </summary>
-		private void DetectFtpServer() {
-
-			if (HandshakeReply.Success && (HandshakeReply.Message != null || HandshakeReply.InfoMessages != null)) {
-
-				string welcome = (HandshakeReply.Message ?? "") + (HandshakeReply.InfoMessages ?? "");
-
-				// Detect Pure-FTPd server
-				// Welcome message: "---------- Welcome to Pure-FTPd [privsep] [TLS] ----------"
-				if (welcome.Contains("Pure-FTPd")) {
-					m_serverType = FtpServer.PureFTPd;
-				}
-
-				// Detect vsFTPd server
-				// Welcome message: "(vsFTPd 3.0.3)"
-				else if (welcome.Contains("(vsFTPd")) {
-					m_serverType = FtpServer.VsFTPd;
-				}
-
-				// Detect ProFTPd server
-				// Welcome message: "ProFTPD 1.3.5rc3 Server (***) [::ffff:***]"
-				else if (welcome.Contains("ProFTPD")) {
-					m_serverType = FtpServer.ProFTPD;
-				}
-
-				// Detect FileZilla server
-				// Welcome message: "FileZilla Server 0.9.60 beta"
-				else if (welcome.Contains("FileZilla Server")) {
-					m_serverType = FtpServer.FileZilla;
-				}
-
-				// Detect WuFTPd server
-				// Welcome message: "FTP server (Revision 9.0 Version wuftpd-2.6.1 Mon Jun 30 09:28:28 GMT 2014) ready"
-				else if (welcome.Contains(" wuftpd")) {
-					m_serverType = FtpServer.WuFTPd;
-				}
-
-				// Detect GlobalScape EFT server
-				// Welcome message: "EFT Server Enterprise 7.4.5.6"
-				else if (welcome.Contains("EFT Server")) {
-					m_serverType = FtpServer.GlobalScapeEFT;
-				}
-
-				// Detect Cerberus server
-				// Welcome message: "220-Cerberus FTP Server Personal Edition"
-				else if (welcome.Contains("Cerberus FTP")) {
-					m_serverType = FtpServer.Cerberus;
-				}
-
-				// Detect Serv-U server
-				// Welcome message: "220 Serv-U FTP Server v5.0 for WinSock ready."
-				else if (welcome.Contains("Serv-U FTP")) {
-					m_serverType = FtpServer.ServU;
-				}
-
-				// Detect Windows Server/IIS FTP server
-				// Welcome message: "220-Microsoft FTP Service."
-				else if (welcome.Contains("Microsoft FTP Service")) {
-					m_serverType = FtpServer.WindowsServerIIS;
-				}
-
-				// Detect CrushFTP server
-				// Welcome message: "220 CrushFTP Server Ready!"
-				else if (welcome.Contains("CrushFTP Server")) {
-					m_serverType = FtpServer.CrushFTP;
-				}
-
-				// Detect glFTPd server
-				// Welcome message: "220 W 00 T (glFTPd 2.01 Linux+TLS) ready."
-				// Welcome message: "220 <hostname> (glFTPd 2.01 Linux+TLS) ready."
-				else if (welcome.Contains("glFTPd ")) {
-					m_serverType = FtpServer.glFTPd;
-				}
-
-				// Detect Tandem/NonStop server
-				// Welcome message: "220 tdm-QWERTY-fp00.itc.intranet FTP SERVER T9552H02 (Version H02 TANDEM 11SEP2008) ready."
-				// Welcome message: "220 FTP SERVER T9552G08 (Version G08 TANDEM 15JAN2008) ready."
-				else if (welcome.Contains("FTP SERVER ") && welcome.Contains(" TANDEM ")) {
-					m_serverType = FtpServer.NonStopTandem;
-				}
-
-				// trace it
-				if (m_serverType != FtpServer.Unknown) {
-					this.LogLine(FtpTraceLevel.Info, "Status:   Detected FTP server: " + m_serverType.ToString());
-				}
-
-			}
-
-		}
-		/// <summary>
-		/// Detect the FTP Server based on the response to the SYST connection command.
-		/// Its a fallback method if the server did not send an identifying welcome message.
-		/// </summary>
-		private void DetectFtpServerBySyst() {
-
-
-
-			// detect OS type
-			var system = m_systemType.ToUpper();
-
-			if (system.StartsWith("WINDOWS")) {
-
-				// Windows OS
-				m_serverOS = FtpOperatingSystem.Windows;
-
-			} else if (system.Contains("UNIX") || system.Contains("AIX")) {
-
-				// Unix OS
-				m_serverOS = FtpOperatingSystem.Unix;
-
-			} else if (system.Contains("VMS")) {
-
-				// VMS or OpenVMS
-				m_serverOS = FtpOperatingSystem.VMS;
-
-			} else if (system.Contains("OS/400")) {
-
-				// IBM OS/400
-				m_serverOS = FtpOperatingSystem.IBMOS400;
-
-			} else {
-
-				// assume Unix OS
-				m_serverOS = FtpOperatingSystem.Unknown;
-			}
-
-
-
-			// detect server type
-			if (m_serverType == FtpServer.Unknown) {
-
-				// Detect OpenVMS server
-				// SYST type: "VMS OpenVMS V8.4"
-				if (m_systemType.Contains("OpenVMS")) {
-					m_serverType = FtpServer.OpenVMS;
-				}
-
-				// Detect WindowsCE server
-				// SYST type: "Windows_CE version 7.0"
-				if (m_systemType.Contains("Windows_CE")) {
-					m_serverType = FtpServer.WindowsCE;
-				}
-
-				// trace it
-				if (m_serverType != FtpServer.Unknown) {
-					this.LogStatus(FtpTraceLevel.Info, "Detected FTP server: " + m_serverType.ToString());
-				}
-
-			}
-		}
-
-		#endregion
-
+		
 		#region Login
 
 		/// <summary>
