@@ -24,55 +24,7 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP {
-
-	/// <summary>
-	/// FTP Control Connection. Speaks the FTP protocol with the server and
-	/// provides facilities for performing transactions.
-	/// 
-	/// Debugging problems with FTP transactions is much easier to do when
-	/// you can see exactly what is sent to the server and the reply 
-	/// FluentFTP gets in return. Please review the Debug example
-	/// below for information on how to add <see cref="System.Diagnostics.TraceListener"/>s for capturing
-	/// the conversation between FluentFTP and the server.
-	/// </summary>
-	/// <example>The following example illustrates how to assist in debugging
-	/// FluentFTP by getting a transaction log from the server.
-	/// <code source="..\Examples\Debug.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates adding a custom file
-	/// listing parser in the event that you encounter a list format
-	/// not already supported.
-	/// <code source="..\Examples\CustomParser.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to validate
-	/// a SSL certificate when using SSL/TLS.
-	/// <code source="..\Examples\ValidateCertificate.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to download a file.
-	/// <code source="..\Examples\OpenRead.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to download a file
-	/// using a URI object.
-	/// <code source="..\Examples\OpenReadURI.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to upload a file.
-	/// <code source="..\Examples\OpenWrite.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to upload a file
-	/// using a URI object.
-	/// <code source="..\Examples\OpenWriteURI.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to append to a file.
-	/// <code source="..\Examples\OpenAppend.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to append to a file
-	/// using a URI object.
-	/// <code source="..\Examples\OpenAppendURI.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to get a file
-	/// listing from the server.
-	/// <code source="..\Examples\GetListing.cs" lang="cs" />
-	/// </example>
+	
 	public partial class FtpClient : IDisposable {
 
 		#region Properties
@@ -1583,10 +1535,10 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="restartPosition">Local File Size of existing file which you want to resume</param>
+		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool Download(Stream outStream, string remotePath, long restartPosition, IProgress<double> progress = null) {
+		public bool Download(Stream outStream, string remotePath, long restartPosition = 0, IProgress<double> progress = null) {
 
 			// verify args
 			if (outStream == null)
@@ -1607,10 +1559,10 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="outBytes">The variable that will receive the bytes.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="restartPosition">Local File Size of existing file which you want to resume</param>
+		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool Download(out byte[] outBytes, string remotePath, long restartPosition, IProgress<double> progress = null) {
+		public bool Download(out byte[] outBytes, string remotePath, long restartPosition = 0, IProgress<double> progress = null) {
 
 			// verify args
 			if (remotePath.IsBlank())
@@ -1639,7 +1591,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="restartPosition">Local File Size of existing file which you want to resume</param>
+		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
 		/// <param name="token">The token to monitor cancellation requests</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
@@ -1663,11 +1615,11 @@ namespace FluentFTP {
 		/// Supports very large files since it downloads data in chunks.
 		/// </summary>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="restartPosition">Local File Size of existing file which you want to resume</param>
+		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
 		/// <param name="token">The token to monitor cancellation requests</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
-        public async Task<byte[]> DownloadAsync(string remotePath, long restartPosition, IProgress<double> progress = null, CancellationToken token = default(CancellationToken)) {
+        public async Task<byte[]> DownloadAsync(string remotePath, long restartPosition = 0, IProgress<double> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			// verify args
 			if (remotePath.IsBlank())

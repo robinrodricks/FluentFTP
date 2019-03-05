@@ -1,10 +1,11 @@
 # Release Notes
 
-#### Unreleased
+#### 23.1.0
 - New: Additional FTP Server software detection (HP NonStop/Tandem, GlobalScape EFT, Serv-U, Cerberus, CrushFTP, glFTPd)
 - New: Assume capabilities for servers that don't support FEAT (wuFTPd)
 - Fix: FileExists returns false if name listing is used and server lists filenames with the path
 - Fix: For OpenVMS absolute paths may not contain slashes but are still absolute
+- Fix: For `Download()` methods `restartPosition` should not be mandatory
 
 #### 23.0.0
 - New: Ability to cancel all async methods via `CancellationToken` (thanks [WolfspiritM](/WolfspiritM))
