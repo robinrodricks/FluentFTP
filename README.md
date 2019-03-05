@@ -1114,7 +1114,7 @@ You can read `ServerType` to get the exact type of FTP server software that you'
 - WuFTPd
 - FileZilla Server
 - OpenVMS
-- Windows Server IIS
+- Windows Server/IIS
 - Windows CE
 - GlobalScape EFT
 - HP NonStop/Tandem
