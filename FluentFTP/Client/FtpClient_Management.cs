@@ -24,55 +24,7 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP {
-
-	/// <summary>
-	/// FTP Control Connection. Speaks the FTP protocol with the server and
-	/// provides facilities for performing transactions.
-	/// 
-	/// Debugging problems with FTP transactions is much easier to do when
-	/// you can see exactly what is sent to the server and the reply 
-	/// FluentFTP gets in return. Please review the Debug example
-	/// below for information on how to add <see cref="System.Diagnostics.TraceListener"/>s for capturing
-	/// the conversation between FluentFTP and the server.
-	/// </summary>
-	/// <example>The following example illustrates how to assist in debugging
-	/// FluentFTP by getting a transaction log from the server.
-	/// <code source="..\Examples\Debug.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates adding a custom file
-	/// listing parser in the event that you encounter a list format
-	/// not already supported.
-	/// <code source="..\Examples\CustomParser.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to validate
-	/// a SSL certificate when using SSL/TLS.
-	/// <code source="..\Examples\ValidateCertificate.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to download a file.
-	/// <code source="..\Examples\OpenRead.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to download a file
-	/// using a URI object.
-	/// <code source="..\Examples\OpenReadURI.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to upload a file.
-	/// <code source="..\Examples\OpenWrite.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to upload a file
-	/// using a URI object.
-	/// <code source="..\Examples\OpenWriteURI.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to append to a file.
-	/// <code source="..\Examples\OpenAppend.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to append to a file
-	/// using a URI object.
-	/// <code source="..\Examples\OpenAppendURI.cs" lang="cs" />
-	/// </example>
-	/// <example>The following example demonstrates how to get a file
-	/// listing from the server.
-	/// <code source="..\Examples\GetListing.cs" lang="cs" />
-	/// </example>
+	
 	public partial class FtpClient : IFtpClient, IDisposable {
 
 		#region Delete File
@@ -570,7 +522,7 @@ namespace FluentFTP {
 		/// <returns>True if the file exists</returns>
 		/// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
 		public bool FileExists(string path) {
-
+			
 			// verify args
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");

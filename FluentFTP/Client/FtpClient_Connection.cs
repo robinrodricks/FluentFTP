@@ -26,14 +26,12 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 
 	/// <summary>
-	/// FTP Control Connection. Speaks the FTP protocol with the server and
+	/// FTP Control Connection. Speaks the FTP/FTPS protocol with the server and
 	/// provides facilities for performing transactions.
 	/// 
 	/// Debugging problems with FTP transactions is much easier to do when
-	/// you can see exactly what is sent to the server and the reply 
-	/// FluentFTP gets in return. Please review the Debug example
-	/// below for information on how to add <see cref="System.Diagnostics.TraceListener"/>s for capturing
-	/// the conversation between FluentFTP and the server.
+	/// you can see the commands exchanged between FluentFTP and the FTP Server.
+	/// Please read the FAQ on our Github project page to see how to enable logging.
 	/// </summary>
 	/// <example>The following example illustrates how to assist in debugging
 	/// FluentFTP by getting a transaction log from the server.
