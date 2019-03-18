@@ -929,7 +929,7 @@ namespace FluentFTP {
 				}
 
 				// open a file connection
-				if (offset == 0) {
+				if (offset == 0 && existsMode != FtpExists.AppendNoCheck) {
 					upStream = OpenWrite(remotePath, UploadDataType, checkFileExistsAgain);
 				} else {
 					upStream = OpenAppend(remotePath, UploadDataType, checkFileExistsAgain);
