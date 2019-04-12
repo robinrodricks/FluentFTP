@@ -35,7 +35,7 @@ namespace FluentFTP {
         /// <summary>
 	    /// Convert Transfer Speed (bytes per second) in human readable format
 	    /// </summary>
-        public string toTransferSpeedHumanReadable(){
+        public string TransferSpeedToString(){
 
             double value = TransferSpeed / 1024; //get KB/s
 
