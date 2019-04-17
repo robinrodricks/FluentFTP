@@ -11,7 +11,7 @@ namespace FluentFTP {
 	/// </summary>
 	/// <example><code source="..\Examples\CustomParser.cs" lang="cs" /></example>
 	public class FtpListItem {
-		
+
 		/// <summary>
 		/// Blank constructor; Fill args manually.
 		/// 
@@ -103,7 +103,7 @@ namespace FluentFTP {
 		FtpListItem m_linkObject = null;
 		/// <summary>
 		/// Gets the object that the LinkTarget points to. This property is null unless you pass the
-        /// <see cref="FtpListOption.DerefLinks"/> flag in which case GetListing() will try to resolve
+		/// <see cref="FtpListOption.DerefLinks"/> flag in which case GetListing() will try to resolve
 		/// the target itself.
 		/// </summary>
 		public FtpListItem LinkObject {

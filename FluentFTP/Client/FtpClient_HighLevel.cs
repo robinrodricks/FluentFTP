@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP {
-	
+
 	public partial class FtpClient : IDisposable {
 
 		#region Properties
@@ -935,68 +935,68 @@ namespace FluentFTP {
 					upStream = OpenAppend(remotePath, UploadDataType, checkFileExistsAgain);
 				}
 
-                // loop till entire file uploaded
-                long fileLen = fileData.Length;
-                byte[] buffer = new byte[TransferChunkSize];
+				// loop till entire file uploaded
+				long fileLen = fileData.Length;
+				byte[] buffer = new byte[TransferChunkSize];
 
-                DateTime transferStarted = DateTime.Now;
+				DateTime transferStarted = DateTime.Now;
 				Stopwatch sw = new Stopwatch();
-                long rateLimitBytes = UploadRateLimit != 0 ? UploadRateLimit * 1024 : 0;
-				
-                while (offset < fileLen) {
-                    try {
+				long rateLimitBytes = UploadRateLimit != 0 ? UploadRateLimit * 1024 : 0;
 
-                        // read a chunk of bytes from the file
-                        int readBytes;
-                        double limitCheckBytes = 0;
+				while (offset < fileLen) {
+					try {
+
+						// read a chunk of bytes from the file
+						int readBytes;
+						double limitCheckBytes = 0;
 						long bytesProcessed = 0;
 
-                        sw.Start();
-                        while ((readBytes = fileData.Read(buffer, 0, buffer.Length)) > 0) {
+						sw.Start();
+						while ((readBytes = fileData.Read(buffer, 0, buffer.Length)) > 0) {
 
-                            // write chunk to the FTP stream
-                            upStream.Write(buffer, 0, readBytes);
-                            upStream.Flush();
-                            offset += readBytes;
+							// write chunk to the FTP stream
+							upStream.Write(buffer, 0, readBytes);
+							upStream.Flush();
+							offset += readBytes;
 							bytesProcessed += readBytes;
-                            limitCheckBytes += readBytes;
+							limitCheckBytes += readBytes;
 
-                            // send progress reports
-                            if (progress != null) {
-								 ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted);
-                            }
+							// send progress reports
+							if (progress != null) {
+								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted);
+							}
 
-                            // honor the speed limit
-                            int swTime = (int)sw.ElapsedMilliseconds;
-                            if (rateLimitBytes > 0 && swTime >= 1000) {
-                                double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
-                                if (timeShouldTake > swTime) {
+							// honor the speed limit
+							int swTime = (int)sw.ElapsedMilliseconds;
+							if (rateLimitBytes > 0 && swTime >= 1000) {
+								double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
+								if (timeShouldTake > swTime) {
 #if CORE14
                                     Task.Delay((int)(timeShouldTake - swTime)).Wait();
 #else
 									Thread.Sleep((int)(timeShouldTake - swTime));
 #endif
-                                }
-                                limitCheckBytes = 0;
-                                sw.Restart();
-                            }
-                        }
-
-							// zero return value (with no Exception) indicates EOS; so we should terminate the outer loop here
-							break;
-						} catch (IOException ex) {
-
-							// resume if server disconnected midway, or throw if there is an exception doing that as well
-							if (!ResumeUpload(remotePath, ref upStream, offset, ex)) {
-								sw.Stop();
-								throw;
+								}
+								limitCheckBytes = 0;
+								sw.Restart();
 							}
-
 						}
-					}
 
-					sw.Stop();
-				
+						// zero return value (with no Exception) indicates EOS; so we should terminate the outer loop here
+						break;
+					} catch (IOException ex) {
+
+						// resume if server disconnected midway, or throw if there is an exception doing that as well
+						if (!ResumeUpload(remotePath, ref upStream, offset, ex)) {
+							sw.Stop();
+							throw;
+						}
+
+					}
+				}
+
+				sw.Stop();
+
 
 				// wait for transfer to get over
 				while (upStream.Position < upStream.Length) {
@@ -1004,7 +1004,7 @@ namespace FluentFTP {
 
 				// send progress reports
 				if (progress != null) {
-					progress.Report(new FtpProgress(100.0,0,TimeSpan.FromSeconds(0)));
+					progress.Report(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0)));
 				}
 
 				// disconnect FTP stream before exiting
@@ -1626,77 +1626,73 @@ namespace FluentFTP {
 				// we read until EOF instead of reading a specific number of bytes
 				bool readToEnd = (fileLen <= 0);
 
-                // loop till entire file downloaded
-                byte[] buffer = new byte[TransferChunkSize];
-                long offset = restartPosition;
+				// loop till entire file downloaded
+				byte[] buffer = new byte[TransferChunkSize];
+				long offset = restartPosition;
 
 				DateTime transferStarted = DateTime.Now;
-                Stopwatch sw = new Stopwatch();
-                long rateLimitBytes = DownloadRateLimit != 0 ? DownloadRateLimit * 1024 : 0;
-                while (offset < fileLen || readToEnd) {
-                    try {
+				Stopwatch sw = new Stopwatch();
+				long rateLimitBytes = DownloadRateLimit != 0 ? DownloadRateLimit * 1024 : 0;
+				while (offset < fileLen || readToEnd) {
+					try {
 
-                        // read a chunk of bytes from the FTP stream
-                        int readBytes = 1;
-                        double limitCheckBytes = 0;
+						// read a chunk of bytes from the FTP stream
+						int readBytes = 1;
+						double limitCheckBytes = 0;
 						long bytesProcessed = 0;
 
-                        sw.Start();
-                        while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
+						sw.Start();
+						while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
 
-                            // write chunk to output stream
-                            outStream.Write(buffer, 0, readBytes);
-                            offset += readBytes;
+							// write chunk to output stream
+							outStream.Write(buffer, 0, readBytes);
+							offset += readBytes;
 							bytesProcessed += readBytes;
-                            limitCheckBytes += readBytes;
+							limitCheckBytes += readBytes;
 
-                            // send progress reports
-                            if (progress != null) {
+							// send progress reports
+							if (progress != null) {
 								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted);
-                            }
+							}
 
-                            // honor the rate limit
-                            int swTime = (int)sw.ElapsedMilliseconds;
-                            if (rateLimitBytes > 0 && swTime >= 1000) {
-                                double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
-                                if (timeShouldTake > swTime) {
+							// honor the rate limit
+							int swTime = (int)sw.ElapsedMilliseconds;
+							if (rateLimitBytes > 0 && swTime >= 1000) {
+								double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
+								if (timeShouldTake > swTime) {
 #if CORE14
                                     Task.Delay((int)(timeShouldTake - swTime)).Wait();
 #else
 									Thread.Sleep((int)(timeShouldTake - swTime));
 #endif
-                                }
-                                limitCheckBytes = 0;
-                                sw.Restart();
-                            }
-                        }
+								}
+								limitCheckBytes = 0;
+								sw.Restart();
+							}
+						}
 
-                        // if we reach here means EOF encountered
-                        // stop if we are in "read until EOF" mode
-                        if (readToEnd || offset == fileLen)
-                        {
-                            break;
-                        }
+						// if we reach here means EOF encountered
+						// stop if we are in "read until EOF" mode
+						if (readToEnd || offset == fileLen) {
+							break;
+						}
 
-                        // zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
-                        throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
-                    }
-                    catch (IOException ex)
-                    {
+						// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
+						throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
+					} catch (IOException ex) {
 
-                        // resume if server disconnected midway, or throw if there is an exception doing that as well
-                        if (!ResumeDownload(remotePath, ref downStream, offset, ex))
-                        {
-                            sw.Stop();
-                            throw;
-                        }
+						// resume if server disconnected midway, or throw if there is an exception doing that as well
+						if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
+							sw.Stop();
+							throw;
+						}
 
-                    }
+					}
 
-                }
+				}
 
-                sw.Stop();
-				
+				sw.Stop();
+
 
 				// disconnect FTP stream before exiting
 				outStream.Flush();
@@ -1942,44 +1938,41 @@ namespace FluentFTP {
 		}
 #endif
 
-        #endregion
+		#endregion
 
-        #region Utilities
+		#region Utilities
 
-        /// <summary>
-        /// Sends progress to the user, either a value between 0-100 indicating percentage complete, or -1 for indeterminate.
-        /// </summary>
-        private void ReportProgress(IProgress<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime)
-        {
+		/// <summary>
+		/// Sends progress to the user, either a value between 0-100 indicating percentage complete, or -1 for indeterminate.
+		/// </summary>
+		private void ReportProgress(IProgress<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime) {
 
-            if (fileSize <= 0 || position <= 0) {
-                // suppress invalid values and send -1 instead
-                progress.Report(new FtpProgress(-1, 0, TimeSpan.FromSeconds(0)));
-            }
-            else {
+			if (fileSize <= 0 || position <= 0) {
+				// suppress invalid values and send -1 instead
+				progress.Report(new FtpProgress(-1, 0, TimeSpan.FromSeconds(0)));
+			} else {
 
-                // calculate % based on file len vs file offset
-                double value = ((double)position / (double)fileSize) * 100;
+				// calculate % based on file len vs file offset
+				double value = ((double)position / (double)fileSize) * 100;
 
-                // calcute raw transferSpeed (bytes per second)
-                double transferSpeed = bytesProcessed / elapsedtime.TotalSeconds;
+				// calcute raw transferSpeed (bytes per second)
+				double transferSpeed = bytesProcessed / elapsedtime.TotalSeconds;
 
-                //calculate reaming time			
-                TimeSpan estimatedRemaingTime = TimeSpan.FromSeconds(((fileSize - position) / transferSpeed));
+				//calculate reaming time			
+				TimeSpan estimatedRemaingTime = TimeSpan.FromSeconds(((fileSize - position) / transferSpeed));
 
 				//Console.WriteLine(string.Format("Rest: {0} | Total: {1} | Rest 2: {2} | ETA: {3}",fileSize - position,fileSize,fileSize - bytesProcessed,estimatedRemaingTime.TotalSeconds));
 
-                // suppress invalid values and send -1 instead
-                if (double.IsNaN(value) || double.IsInfinity(value) || double.IsNaN(transferSpeed) || double.IsInfinity(transferSpeed)) {
-                    progress.Report(new FtpProgress(-1, 0, TimeSpan.FromSeconds(0)));
-                }
-                else {
-                    // send a value between 0-100 indicating percentage complete
-                    progress.Report(new FtpProgress(value, transferSpeed, estimatedRemaingTime));
-                }
+				// suppress invalid values and send -1 instead
+				if (double.IsNaN(value) || double.IsInfinity(value) || double.IsNaN(transferSpeed) || double.IsInfinity(transferSpeed)) {
+					progress.Report(new FtpProgress(-1, 0, TimeSpan.FromSeconds(0)));
+				} else {
+					// send a value between 0-100 indicating percentage complete
+					progress.Report(new FtpProgress(value, transferSpeed, estimatedRemaingTime));
+				}
 
-            }
-        }
+			}
+		}
 
 		#endregion
 

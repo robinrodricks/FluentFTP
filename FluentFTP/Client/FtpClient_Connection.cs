@@ -1577,7 +1577,7 @@ namespace FluentFTP {
 #endif
 
 		#endregion
-		
+
 		#region Login
 
 		/// <summary>

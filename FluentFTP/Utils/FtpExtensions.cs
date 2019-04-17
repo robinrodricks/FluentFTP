@@ -118,7 +118,7 @@ namespace FluentFTP {
 			return System.IO.Path.GetFileName(path).GetFtpPath();
 		}*/
 
-		private static string[] FtpDateFormats = { "yyyyMMddHHmmss", "yyyyMMddHHmmss'.'f", "yyyyMMddHHmmss'.'ff", "yyyyMMddHHmmss'.'fff", "MMM dd  yyyy","MMM  d  yyyy","MMM dd HH:mm","MMM  d HH:mm" };
+		private static string[] FtpDateFormats = { "yyyyMMddHHmmss", "yyyyMMddHHmmss'.'f", "yyyyMMddHHmmss'.'ff", "yyyyMMddHHmmss'.'fff", "MMM dd  yyyy", "MMM  d  yyyy", "MMM dd HH:mm", "MMM  d HH:mm" };
 
 		/// <summary>
 		/// Tries to convert the string FTP date representation into a <see cref="DateTime"/> object
@@ -168,7 +168,7 @@ namespace FluentFTP {
 			}
 			return String.Format("{0:0.#} {1}", len, sizePostfix[order]);
 		}
-		
+
 #if NET45
         /// <summary>
         /// This creates a <see cref="System.Threading.Tasks.Task{TResult}"/> that represents a pair of begin and end methods
@@ -221,15 +221,15 @@ namespace FluentFTP {
 	    }
 #endif
 
-        /// <summary>
-        /// Validates that the FtpError flags set are not in an invalid combination.
-        /// </summary>
-        /// <param name="options">The error handling options set</param>
-        /// <returns>True if a valid combination, otherwise false</returns>
-	    public static bool IsValidCombination(this FtpError options) {
-	        return options != (FtpError.Stop | FtpError.Throw) &&
-	               options != (FtpError.Throw | FtpError.Stop | FtpError.DeleteProcessed);
-	    }
+		/// <summary>
+		/// Validates that the FtpError flags set are not in an invalid combination.
+		/// </summary>
+		/// <param name="options">The error handling options set</param>
+		/// <returns>True if a valid combination, otherwise false</returns>
+		public static bool IsValidCombination(this FtpError options) {
+			return options != (FtpError.Stop | FtpError.Throw) &&
+				   options != (FtpError.Throw | FtpError.Stop | FtpError.DeleteProcessed);
+		}
 
 		/// <summary>
 		/// Checks if every character in the string is whitespace, or the string is null.
@@ -347,7 +347,7 @@ namespace FluentFTP {
 			}
 			foreach (object v in args) {
 				string txt;
-				if (v == null){
+				if (v == null) {
 					txt = "null";
 				} else if (v is string) {
 					txt = ("\"" + v as string + "\"");

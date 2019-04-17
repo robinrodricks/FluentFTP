@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP {
-	
+
 	public partial class FtpClient : IFtpClient, IDisposable {
 
 		#region Delete File
@@ -522,7 +522,7 @@ namespace FluentFTP {
 		/// <returns>True if the file exists</returns>
 		/// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
 		public bool FileExists(string path) {
-			
+
 			// verify args
 			if (path.IsBlank())
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -569,7 +569,7 @@ namespace FluentFTP {
 				// check if file exists by getting a name listing (NLST)
 				string[] fileList = GetNameListing(path.GetFtpDirectoryName());
 				return FtpExtensions.FileExistsInNameListing(fileList, path);
-				
+
 
 				// check if file exists by attempting to download it (RETR)
 				/*try {

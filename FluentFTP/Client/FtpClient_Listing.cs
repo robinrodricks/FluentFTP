@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP {
-	
+
 	public partial class FtpClient : IDisposable {
 
 		#region Properties

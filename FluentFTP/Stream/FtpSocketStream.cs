@@ -762,8 +762,7 @@ namespace FluentFTP {
 			}
 
 #if !NO_SSL
-			if (m_bufStream != null)
-			{
+			if (m_bufStream != null) {
 				try {
 					m_bufStream.Dispose();
 				} catch (IOException ex) {
