@@ -1,5 +1,11 @@
 # Release Notes
 
+#### 24.0.0
+- New: Get detailed progress information for uploads/downloads via the `FtpProgress` object (thanks [n0ix](/n0ix))
+- New: Get transfer speed and ETA (estimated time of arrival) for uploads/downloads (thanks [n0ix](/n0ix))
+- Fix: Files were uploaded in Write mode instead of Append mode when the exists mode is `AppendNoCheck` and we couldn't read the offset position (thanks @everbalovas)
+- Fix: Swap `SslStream` and `BufferedStream` so proxied connections with `FtpClientHttp11Proxy` are to connect (thanks @rmja)
+
 #### 23.1.0
 - New: Additional FTP Server software detection (HP NonStop/Tandem, GlobalScape EFT, Serv-U, Cerberus, CrushFTP, glFTPd)
 - New: Assume capabilities for servers that don't support FEAT (wuFTPd)
@@ -8,16 +14,16 @@
 - Fix: For `Download()` methods `restartPosition` should not be mandatory
 
 #### 23.0.0
-- New: Ability to cancel all async methods via `CancellationToken` (thanks [WolfspiritM](/WolfspiritM))
-- New: `ReadTimeout` is now honored by all async methods (thanks [WolfspiritM](/WolfspiritM))
+- New: Ability to cancel all async methods via `CancellationToken` (thanks [WolfspiritM](https://github.com/WolfspiritM))
+- New: `ReadTimeout` is now honored by all async methods (thanks [WolfspiritM](https://github.com/WolfspiritM))
 - New: FTP Server operating system detection (Windows, Unix, VMS, IBM/OS400)
-- (.NET core) Fix: GetListing blocking with no timeout (thanks [WolfspiritM](/WolfspiritM))
-- (.NET core) Fix async methods by not using the the async read function (thanks [WolfspiritM](/WolfspiritM))
+- (.NET core) Fix: GetListing blocking with no timeout (thanks [WolfspiritM](https://github.com/WolfspiritM))
+- (.NET core) Fix async methods by not using the the async read function (thanks [WolfspiritM](https://github.com/WolfspiritM))
 
 #### 22.0.0
-- New: Ability to resume a download via `existsMode` on `DownloadFile()` and `DownloadFiles()` (thanks [n0ix](/n0ix))
-- New: Ability to turn off checking for server capabilities using FEAT command (thanks @[nhh-softwarehuset](/nhh-softwarehuset))
-- Fix: Add workaround if a server advertises a non-routeable IP in PASV Mode (thanks [n0ix](/n0ix))
+- New: Ability to resume a download via `existsMode` on `DownloadFile()` and `DownloadFiles()` (thanks [n0ix](https://github.com/n0ix))
+- New: Ability to turn off checking for server capabilities using FEAT command (thanks [nhh-softwarehuset](https://github.com/nhh-softwarehuset))
+- Fix: Add workaround if a server advertises a non-routeable IP in PASV Mode (thanks [n0ix](https://github.com/n0ix))
 - Fix: Recursive directory deletion tries to delete the same file twice (because GetListing is also recursive)
 
 #### 21.0.0
@@ -31,26 +37,26 @@
 - New: `GetListing` will manually recurse through directories if `FtpListOption.Recursive` is set and server does not support recursion
 - New: Added `LastReply` property which returns the last `FtpReply` recieved from the server.
 - New: Added new upload option `AppendNoCheck` to append to a file on the server without checking if it exists (thanks @everbalovas)
-- Fix: During upload, respond to any error in 5xx series, not just 550 (thanks @stengnath)
+- Fix: During upload, respond to any error in 5xx series, not just 550 (thanks [stengnath](https://github.com/stengnath))
 - Fix: Various fixes to `UploadFileAsync` based on fixes already implemented in `UploadFile`
 
 #### 19.2.4
 - Fix: `UploadFilesAsync` with `errorHandling` deletes the entire directory instead of specific files
-- Fix: Server responds to EPSV with 425 "Data connection failed" but connects with PASV (thanks @ejohnsonTKTNET)
-- Fix: Use proper async configuration for .NET Async methods (thanks @ejohnsonTKTNET)
-- Fix: Improve implementation of upload and download resuming in Async methods (thanks @ejohnsonTKTNET)
+- Fix: Server responds to EPSV with 425 "Data connection failed" but connects with PASV (thanks [ejohnsonTKTNET](https://github.com/ejohnsonTKTNET))
+- Fix: Use proper async configuration for .NET Async methods (thanks [ejohnsonTKTNET](https://github.com/ejohnsonTKTNET))
+- Fix: Improve implementation of upload and download resuming in Async methods (thanks [ejohnsonTKTNET](https://github.com/ejohnsonTKTNET))
 
 #### 19.2.3
 - Fix: `UploadFile()` or `UploadFiles()` sometimes fails to create the remote directory if it doesn't exist
 - Fix: `DownloadDataType` Binary value ignored on ASCII-configured FTP servers
-- Performance improvement: Added `BufferedStream` between `SslStream` and `NetworkStream` (thanks @Lukazoid)
-- Fix: When the FTP server sends 550, transfer is received but not confirmed (thanks @stengnath)
+- Performance improvement: Added `BufferedStream` between `SslStream` and `NetworkStream` (thanks [stengnath](https://github.com/Lukazoid))
+- Fix: When the FTP server sends 550, transfer is received but not confirmed (thanks [stengnath](https://github.com/stengnath))
 - Fix: Make `Dispose` method of `FTPClient` virtual (thanks @martinbu)
 - Fix: `OpenPassiveDataStream`/`Async()` uses the target FTP host instead of the configured proxy (thanks @rmja)
 - Fix: `FileExists()` for Xlight FTP Server (thanks @oldpepper)
-- Fix: FTPD "550 No files found" when folder exists but is empty, only in PASV mode (thanks @olivierSOW)
+- Fix: FTPD "550 No files found" when folder exists but is empty, only in PASV mode (thanks [stengnath](https://github.com/olivierSOW))
 - Fix: Many unexpected EOF for remote file `IOException` on Android (thanks @jersiovic)
-- Fix: Race condition when `BeginInvoke` calls the callback before the `IAsyncResult` is added (thanks @Lukazoid)
+- Fix: Race condition when `BeginInvoke` calls the callback before the `IAsyncResult` is added (thanks [stengnath](https://github.com/Lukazoid))
 
 #### 19.2.2
 - Fix: Prevent socket poll from hammering the server multiple times per second
@@ -66,36 +72,36 @@
 #### 19.1.3
 - Added async versions of FTP methods to `IFtpClient` (thanks @peterfortuin)
 - Fix: Fixes when `ActivePorts` is specified in active FTP mode (thanks @ToniMontana)
-- Fix: Throw `OperationCanceledException` instead of `FtpException` when cancellation is requested (thanks @taoyouh)
+- Fix: Throw `OperationCanceledException` instead of `FtpException` when cancellation is requested (thanks [taoyouh](https://github.com/taoyouh))
 
 #### 19.1.2
 - Fix: Add support for checking if file exists on Serv-U FTP Server
 - Fix: Make `IFtpClient` inherit from `IDisposable` (thanks @repl-andrew-ovens)
-- (UWP) Fix: UWP does not allow `File.Exists()` to run in UI thread (thanks @taoyouh)
+- (UWP) Fix: UWP does not allow `File.Exists()` to run in UI thread (thanks [taoyouh](https://github.com/taoyouh))
 
 #### 19.1.1
 - Fix: When downloading files in ASCII mode, file length is unreliable therefore we read until EOF
 - Fix: When upload/download progress is indeterminate, send -1 instead of NaN or Infinity
 - Fix: `NetStream` was not assigned in `FtpSocketStream` for .NET Standard in active FTP mode (thanks @ralftar)
-- Fix: `CurrentDataType` was not set for ASCII transfers in `DownloadFileAsync`/`UploadFileAsync` (thanks @taoyouh)
-- Fix: Sometimes `FtpSocketStream` and `FtpDataStream` are not disposed in `FtpSocketStream.Dispose` (thanks @taoyouh)
+- Fix: `CurrentDataType` was not set for ASCII transfers in `DownloadFileAsync`/`UploadFileAsync` (thanks [taoyouh](https://github.com/taoyouh))
+- Fix: Sometimes `FtpSocketStream` and `FtpDataStream` are not disposed in `FtpSocketStream.Dispose` (thanks [taoyouh](https://github.com/taoyouh))
 
 #### 19.1.0
 - New Progress reporting for `UploadFile` & `DownloadFile` methods via `IProgress`
 - Fix: `Stream.Position` should not be set in `UploadFileInternal` unless supported
 
 #### 19.0.0
-- New Task-based async methods for .NET Standard and .NET Fx 4.5 (thanks @taoyouh)
-- New async methods for `UploadFile`, `DownloadFile`, `UploadFiles` & `DownloadFiles` (thanks @artiomchi)
-- (UWP) Fix: `FileNotFoundException` with reference `System.Console` (thanks @artiomchi)
-- (.NET core) Fix: Thread suspends when calling `UploadFile` or `DownloadFile` (thanks @artiomchi)
-- (.NET core) Fix: File download hangs inconsistently when reading data from stream (thanks @artiomchi, @bgroenks96)
-- (.NET core) Fix: Stream does not dispose due to wrong handling of closing/disposing (thanks @artiomchi)
-- Fix: File upload EOS bug when calling `Stream.Read` (thanks @bgroenks96, @artiomchi, @taoyouh)
+- New Task-based async methods for .NET Standard and .NET Fx 4.5 (thanks [taoyouh](https://github.com/taoyouh))
+- New async methods for `UploadFile`, `DownloadFile`, `UploadFiles` & `DownloadFiles` (thanks [artiomchi](https://github.com/artiomchi))
+- (UWP) Fix: `FileNotFoundException` with reference `System.Console` (thanks [artiomchi](https://github.com/artiomchi))
+- (.NET core) Fix: Thread suspends when calling `UploadFile` or `DownloadFile` (thanks [artiomchi](https://github.com/artiomchi))
+- (.NET core) Fix: File download hangs inconsistently when reading data from stream (thanks @artiomchi, [bgroenks96](https://github.com/bgroenks96))
+- (.NET core) Fix: Stream does not dispose due to wrong handling of closing/disposing (thanks [artiomchi](https://github.com/artiomchi))
+- Fix: File upload EOS bug when calling `Stream.Read` (thanks [bgroenks96](https://github.com/bgroenks96), @artiomchi, @taoyouh)
 - Fix: `DownloadFileInternal` not recognizing the download data type
-with `EnableThreadSafeConnections` (thanks @bgroenks96)
-- (Backend) Migrate to a single VS 2017 solution for all frameworks (thanks @artiomchi)
-- (Backend) Continuous Integration using AppVeyor  (thanks @artiomchi)
+with `EnableThreadSafeConnections` (thanks [bgroenks96](https://github.com/bgroenks96))
+- (Backend) Migrate to a single VS 2017 solution for all frameworks (thanks [artiomchi](https://github.com/artiomchi))
+- (Backend) Continuous Integration using AppVeyor  (thanks [artiomchi](https://github.com/artiomchi))
 
 #### 18.0.1
 - Add `IFtpClient` interface to build unit tests upon main `FtpClient` class (thanks [Kris0](https://github.com/Kris0))
