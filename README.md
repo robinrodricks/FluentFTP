@@ -3,9 +3,9 @@
 
 [![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP)
 [![Downloads](https://img.shields.io/nuget/dt/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP)
+![GitHub contributors](https://img.shields.io/github/contributors/robinrodricks/FluentFTP.svg)
 ![Codacy grade](https://img.shields.io/codacy/grade/2d6bb3604aae4c1e892a8386363a5bfc.svg)
 ![License](https://img.shields.io/github/license/robinrodricks/FluentFTP.svg)
-![GitHub contributors](https://img.shields.io/github/contributors/robinrodricks/FluentFTP.svg)
 
 FluentFTP is a fully managed FTP and FTPS library for .NET & .NET Standard, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, UTF-8 support, Async/await support and more.
 
