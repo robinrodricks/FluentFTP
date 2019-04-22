@@ -19,9 +19,10 @@ namespace FluentFTP.Proxy {
 		/// <summary> Redefine the first dialog: HTTP Frame for the HTTP 1.1 Proxy </summary>
 		protected override void Handshake() {
 			var proxyConnectionReply = GetReply();
-			if (!proxyConnectionReply.Success)
+			if (!proxyConnectionReply.Success) {
 				throw new FtpException("Can't connect " + Host + " via proxy " + Proxy.Host + ".\nMessage : " +
 										proxyConnectionReply.ErrorMessage);
+			}
 
 			// TO TEST: if we are able to detect the actual FTP server software from this reply
 			HandshakeReply = proxyConnectionReply;
@@ -129,9 +130,9 @@ namespace FluentFTP.Proxy {
 #if !CORE14
 			lock (Lock) {
 #endif
-				if (!IsConnected)
+				if (!IsConnected) {
 					throw new InvalidOperationException("No connection to the server has been established.");
-
+				}
 				stream.ReadTimeout = ReadTimeout;
 				while ((buf = stream.ReadLine(Encoding)) != null) {
 					Match m;
@@ -172,9 +173,9 @@ namespace FluentFTP.Proxy {
 			FtpReply reply = new FtpReply();
 			string buf;
 
-			if (!IsConnected)
+			if (!IsConnected){
 				throw new InvalidOperationException("No connection to the server has been established.");
-
+			}
 			stream.ReadTimeout = ReadTimeout;
 			while ((buf = await stream.ReadLineAsync(Encoding, token)) != null)
 			{

@@ -84,8 +84,9 @@ namespace FluentFTP {
 		public bool IsConnected {
 			get {
 				try {
-					if (m_socket == null)
+					if (m_socket == null) {
 						return false;
+					}
 
 					if (!m_socket.Connected) {
 						Close();
@@ -174,10 +175,11 @@ namespace FluentFTP {
 				if (m_netStream != null)
 					return m_netStream;
 #else
-				if (m_bufStream != null)
+				if (m_bufStream != null) {
 					return m_bufStream;
-				else if (m_netStream != null)
+				} else if (m_netStream != null) {
 					return m_netStream;
+				}
 #endif
 
 				return null;
@@ -189,8 +191,9 @@ namespace FluentFTP {
 		/// </summary>
 		public override bool CanRead {
 			get {
-				if (m_netStream != null)
+				if (m_netStream != null) {
 					return m_netStream.CanRead;
+				}
 				return false;
 			}
 		}
@@ -209,8 +212,9 @@ namespace FluentFTP {
 		/// </summary>
 		public override bool CanWrite {
 			get {
-				if (m_netStream != null)
+				if (m_netStream != null) {
 					return m_netStream.CanWrite;
+				}
 
 				return false;
 			}
@@ -231,8 +235,9 @@ namespace FluentFTP {
 		/// </summary>
 		public override long Position {
 			get {
-				if (BaseStream != null)
+				if (BaseStream != null) {
 					return BaseStream.Position;
+				}
 				return 0;
 			}
 			set {
@@ -264,8 +269,9 @@ namespace FluentFTP {
 			}
 			set {
 				m_readTimeout = value;
-				if (m_netStream != null)
+				if (m_netStream != null) {
 					m_netStream.ReadTimeout = m_readTimeout;
+				}
 			}
 		}
 
@@ -289,8 +295,9 @@ namespace FluentFTP {
 		/// </summary>
 		public IPEndPoint LocalEndPoint {
 			get {
-				if (m_socket == null)
+				if (m_socket == null) {
 					return null;
+				}
 				return (IPEndPoint)m_socket.LocalEndPoint;
 			}
 		}
@@ -300,8 +307,9 @@ namespace FluentFTP {
 		/// </summary>
 		public IPEndPoint RemoteEndPoint {
 			get {
-				if (m_socket == null)
+				if (m_socket == null) {
 					return null;
+				}
 				return (IPEndPoint)m_socket.RemoteEndPoint;
 			}
 		}
@@ -355,12 +363,12 @@ namespace FluentFTP {
 		/// Flushes the stream
 		/// </summary>
 		public override void Flush() {
-			if (!IsConnected)
+			if (!IsConnected) {
 				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
-
-			if (BaseStream == null)
+			}
+			if (BaseStream == null) {
 				throw new InvalidOperationException("The base stream of the FtpSocketStream object is null.");
-
+			}
 			BaseStream.Flush();
 		}
 
@@ -371,12 +379,12 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
 		public override async Task FlushAsync(CancellationToken token) {
-			if (!IsConnected)
+			if (!IsConnected){
 				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
-
-			if (BaseStream == null)
+			}
+			if (BaseStream == null){
 				throw new InvalidOperationException("The base stream of the FtpSocketStream object is null.");
-
+			}
 			await BaseStream.FlushAsync(token);
 		}
 
@@ -470,9 +478,9 @@ namespace FluentFTP {
 			IAsyncResult ar = null;
 #endif
 
-			if (BaseStream == null)
+			if (BaseStream == null) {
 				return 0;
-
+			}
 			m_lastActivity = DateTime.Now;
 #if CORE
 			return BaseStream.Read(buffer, offset, count);
@@ -497,9 +505,9 @@ namespace FluentFTP {
 		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
 		/// <returns>The amount of bytes read from the stream</returns>
 		public override async Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken token) {
-			if (BaseStream == null)
+			if (BaseStream == null){
 				return 0;
-
+			}
 			m_lastActivity = DateTime.Now;
 			using (var cts = CancellationTokenSource.CreateLinkedTokenSource(token))
 			{
@@ -655,9 +663,9 @@ namespace FluentFTP {
 		/// <param name="offset">Where in the buffer to start</param>
 		/// <param name="count">Number of bytes to be read</param>
 		public override void Write(byte[] buffer, int offset, int count) {
-			if (BaseStream == null)
+			if (BaseStream == null) {
 				return;
-
+			}
 			BaseStream.Write(buffer, offset, count);
 			m_lastActivity = DateTime.Now;
 		}
@@ -671,9 +679,9 @@ namespace FluentFTP {
 		/// <param name="count">Number of bytes to be read</param>
 		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
 		public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken token) {
-			if (BaseStream == null)
+			if (BaseStream == null){
 				return;
-
+			}
 			await BaseStream.WriteAsync(buffer, offset, count, token);
 			m_lastActivity = DateTime.Now;
 		}
@@ -791,8 +799,9 @@ namespace FluentFTP {
 		/// <param name="name">SocketOptionName</param>
 		/// <param name="value">SocketOptionValue</param>
 		public void SetSocketOption(SocketOptionLevel level, SocketOptionName name, bool value) {
-			if (m_socket == null)
+			if (m_socket == null) {
 				throw new InvalidOperationException("The underlying socket is null. Have you established a connection?");
+			}
 			m_socket.SetSocketOption(level, name, value);
 		}
 
@@ -890,9 +899,9 @@ namespace FluentFTP {
         {
             IPAddress[] addresses = await Dns.GetHostAddressesAsync(host);
 
-            if (ipVersions == 0)
+            if (ipVersions == 0){
                 throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.");
-
+			}
             for (int i = 0; i < addresses.Length; i++)
             {
                 // we don't need to do this check unless
@@ -1016,14 +1025,15 @@ namespace FluentFTP {
 		/// <param name="sslProtocols">A bitwise parameter for supported encryption protocols.</param>
 		/// <exception cref="AuthenticationException">Thrown when authentication fails</exception>
 		public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols) {
-			if (!IsConnected)
+			if (!IsConnected) {
 				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
-
-			if (m_netStream == null)
+			}
+			if (m_netStream == null) {
 				throw new InvalidOperationException("The base network stream is null.");
-
-			if (m_sslStream != null)
+			}
+			if (m_sslStream != null) {
 				throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
+			}
 
 			try {
 				DateTime auth_start;
@@ -1078,15 +1088,15 @@ namespace FluentFTP {
         /// <exception cref="AuthenticationException">Thrown when authentication fails</exception>
         public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols)
         {
-            if (!IsConnected)
+            if (!IsConnected){
                 throw new InvalidOperationException("The FtpSocketStream object is not connected.");
-
-            if (m_netStream == null)
+			}
+            if (m_netStream == null){
                 throw new InvalidOperationException("The base network stream is null.");
-
-            if (m_sslStream != null)
+			}
+            if (m_sslStream != null){
                 throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
-
+			}
             try
             {
                 DateTime auth_start;
@@ -1135,12 +1145,12 @@ namespace FluentFTP {
 		/// Deactivates SSL on this stream using the specified protocols and reverts back to plain-text FTP.
 		/// </summary>
 		public void DeactivateEncryption() {
-			if (!IsConnected)
+			if (!IsConnected) {
 				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
-
-			if (m_sslStream == null)
+			}
+			if (m_sslStream == null) {
 				throw new InvalidOperationException("SSL Encryption has not been enabled on this stream.");
-
+			}
 			m_sslStream.Close();
 			m_sslStream = null;
 		}
@@ -1153,9 +1163,9 @@ namespace FluentFTP {
 		/// <param name="port">The port to listen on</param>
 		public void Listen(IPAddress address, int port) {
 			if (!IsConnected) {
-				if (m_socket == null)
+				if (m_socket == null) {
 					m_socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
+				}
 				m_socket.Bind(new IPEndPoint(address, port));
 				m_socket.Listen(1);
 			}
@@ -1165,8 +1175,9 @@ namespace FluentFTP {
 		/// Accepts a connection from a listening socket
 		/// </summary>
 		public void Accept() {
-			if (m_socket != null)
+			if (m_socket != null) {
 				m_socket = m_socket.Accept();
+			}
 		}
 
 #if NET45
@@ -1204,8 +1215,9 @@ namespace FluentFTP {
 		/// <param name="state"></param>
 		/// <returns></returns>
 		public IAsyncResult BeginAccept(AsyncCallback callback, object state) {
-			if (m_socket != null)
+			if (m_socket != null) {
 				return m_socket.BeginAccept(callback, state);
+			}
 			return null;
 		}
 

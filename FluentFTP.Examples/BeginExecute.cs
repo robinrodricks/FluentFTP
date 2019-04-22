@@ -30,8 +30,9 @@ namespace Examples {
             FtpReply reply;
 
             try {
-                if (conn == null)
-                    throw new InvalidOperationException("The FtpControlConnection object is null!");
+				if (conn == null) {
+					throw new InvalidOperationException("The FtpControlConnection object is null!");
+				}
 
                 reply = conn.EndExecute(ar);
                 if (!reply.Success)

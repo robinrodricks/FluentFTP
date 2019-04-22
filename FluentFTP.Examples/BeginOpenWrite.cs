@@ -33,8 +33,9 @@ namespace Examples {
             int read = 0;
 
             try {
-                if (conn == null)
-                    throw new InvalidOperationException("The FtpControlConnection object is null!");
+				if (conn == null) {
+					throw new InvalidOperationException("The FtpControlConnection object is null!");
+				}
 
                 ostream = conn.EndOpenWrite(ar);
                 istream = new FileStream("input_file", FileMode.Open, FileAccess.Read);

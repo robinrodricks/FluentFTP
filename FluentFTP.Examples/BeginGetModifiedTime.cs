@@ -29,8 +29,9 @@ namespace Examples {
             FtpClient conn = ar.AsyncState as FtpClient;
 
             try {
-                if (conn == null)
-                    throw new InvalidOperationException("The FtpControlConnection object is null!");
+				if (conn == null) {
+					throw new InvalidOperationException("The FtpControlConnection object is null!");
+				}
 
                 Console.WriteLine("Modify time: "+ conn.EndGetModifiedTime(ar));
             }

@@ -42,8 +42,9 @@ namespace Examples {
             FtpListItem target;
 
             try {
-                if (conn == null)
-                    throw new InvalidOperationException("The FtpControlConnection object is null!");
+				if (conn == null) {
+					throw new InvalidOperationException("The FtpControlConnection object is null!");
+				}
 
                 target = conn.EndDereferenceLink(ar);
                 if (target != null) {

@@ -146,8 +146,9 @@ namespace FluentFTP {
 			base.Close();
 
 			try {
-				if (ControlConnection != null)
+				if (ControlConnection != null) {
 					return ControlConnection.CloseDataStream(this);
+				}
 			} finally {
 				m_commandStatus = new FtpReply();
 				m_control = null;
@@ -161,8 +162,9 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="conn">The control connection to be used for carrying out this operation</param>
 		public FtpDataStream(FtpClient conn) : base(conn.SslProtocols) {
-			if (conn == null)
+			if (conn == null) {
 				throw new ArgumentException("The control connection cannot be null.");
+			}
 
 			ControlConnection = conn;
 			// always accept certificate no matter what because if code execution ever

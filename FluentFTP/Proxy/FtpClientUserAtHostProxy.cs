@@ -18,9 +18,9 @@ namespace FluentFTP.Proxy {
 		/// <summary> Redefine the first dialog: auth with proxy information </summary>
 		protected override void Handshake() {
 			// Proxy authentication eventually needed.
-			if (Proxy.Credentials != null)
+			if (Proxy.Credentials != null) {
 				Authenticate(Proxy.Credentials.UserName, Proxy.Credentials.Password);
-
+			}
 			// Connection USER@Host means to change user name to add host.
 			Credentials.UserName = Credentials.UserName + "@" + Host;
 		}

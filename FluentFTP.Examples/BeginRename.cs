@@ -29,10 +29,10 @@ namespace Examples {
             FtpClient conn = ar.AsyncState as FtpClient;
 
             try {
-                if (conn == null)
-                    throw new InvalidOperationException("The FtpControlConnection object is null!");
-
-                conn.EndRename(ar);
+				if (conn == null) {
+					throw new InvalidOperationException("The FtpControlConnection object is null!");
+				}
+				conn.EndRename(ar);
             }
             catch (Exception ex) {
                 Console.WriteLine(ex.ToString());

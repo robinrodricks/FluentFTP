@@ -23,16 +23,16 @@ namespace FluentFTP.Proxy {
 		/// <summary> Redefine the first dialog: auth with proxy information </summary>
 		protected override void Handshake() {
 			// Proxy authentication eventually needed.
-			if (Proxy.Credentials != null)
+			if (Proxy.Credentials != null) {
 				Authenticate(Proxy.Credentials.UserName, Proxy.Credentials.Password);
-
+			}
 			// Connection USER@Host means to change user name to add host.
 			Credentials.UserName = Credentials.UserName + "@" + Host;
 
 			FtpReply reply = GetReply();
-			if (reply.Code == "220")
+			if (reply.Code == "220") {
 				this.LogLine(FtpTraceLevel.Info, "Status: Server is ready for the new client");
-
+			}
 			// TO TEST: if we are able to detect the actual FTP server software from this reply
 			HandshakeReply = reply;
 		}
