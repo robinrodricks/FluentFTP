@@ -257,8 +257,9 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				if (!(reply = Execute("HASH " + path.GetFtpPath())).Success)
+				if (!(reply = Execute("HASH " + path.GetFtpPath())).Success) {
 					throw new FtpCommandException(reply);
+				}
 #if !CORE14
 			}
 #endif

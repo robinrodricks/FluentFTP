@@ -35,41 +35,47 @@ namespace Examples {
                 @"(?<modify>\w+\s+\d+\s+\d+:\d+|\w+\s+\d+\s+\d+)\s+" +
                 @"(?<name>.*)$";
 
-            if (!(m = Regex.Match(buf, regex, RegexOptions.IgnoreCase)).Success)
-                return null;
+			if (!(m = Regex.Match(buf, regex, RegexOptions.IgnoreCase)).Success) {
+				return null;
+			}
 
-            if (m.Groups["permissions"].Value.StartsWith("d"))
-                item.Type = FtpFileSystemObjectType.Directory;
-            else if (m.Groups["permissions"].Value.StartsWith("-"))
-                item.Type = FtpFileSystemObjectType.File;
-            else
-                return null;
+			if (m.Groups["permissions"].Value.StartsWith("d")) {
+				item.Type = FtpFileSystemObjectType.Directory;
+			} else if (m.Groups["permissions"].Value.StartsWith("-")) {
+				item.Type = FtpFileSystemObjectType.File;
+			} else {
+				return null;
+			}
 
-            // if we can't determine a file name then
-            // we are not considering this a successful parsing operation.
-            if (m.Groups["name"].Value.Length < 1)
-                return null;
+			// if we can't determine a file name then
+			// we are not considering this a successful parsing operation.
+			if (m.Groups["name"].Value.Length < 1) {
+				return null;
+			}
             item.Name = m.Groups["name"].Value;
 
-            if (item.Type == FtpFileSystemObjectType.Directory && (item.Name == "." || item.Name == ".."))
-                return null;
+			if (item.Type == FtpFileSystemObjectType.Directory && (item.Name == "." || item.Name == "..")) {
+				return null;
+			}
 
-            ////
-            // Ignore the Modify times sent in LIST format for files
-            // when the server has support for the MDTM command
-            // because they will never be as accurate as what can be had 
-            // by using the MDTM command. MDTM does not work on directories
-            // so if a modify time was parsed from the listing we will try
-            // to convert it to a DateTime object and use it for directories.
-            ////
-            if ((!capabilities.HasFlag(FtpCapability.MDTM) || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0)
-                item.Modified = m.Groups["modify"].Value.GetFtpDate(DateTimeStyles.AssumeUniversal);
+			////
+			// Ignore the Modify times sent in LIST format for files
+			// when the server has support for the MDTM command
+			// because they will never be as accurate as what can be had 
+			// by using the MDTM command. MDTM does not work on directories
+			// so if a modify time was parsed from the listing we will try
+			// to convert it to a DateTime object and use it for directories.
+			////
+			if ((!capabilities.HasFlag(FtpCapability.MDTM) || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0) {
+				item.Modified = m.Groups["modify"].Value.GetFtpDate(DateTimeStyles.AssumeUniversal);
+			}
 
             if (m.Groups["size"].Value.Length > 0) {
                 long size;
 
-                if (long.TryParse(m.Groups["size"].Value, out size))
-                    item.Size = size;
+				if (long.TryParse(m.Groups["size"].Value, out size)) {
+					item.Size = size;
+				}
             }
 
             if (m.Groups["permissions"].Value.Length > 0) {

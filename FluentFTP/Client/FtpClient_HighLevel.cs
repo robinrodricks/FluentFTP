@@ -782,10 +782,12 @@ namespace FluentFTP {
 		public bool Upload(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null) {
 
 			// verify args
-			if (fileData == null)
+			if (fileData == null) {
 				throw new ArgumentException("Required parameter is null or blank.", "fileData");
-			if (remotePath.IsBlank())
+			}
+			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
 
 			this.LogFunc("Upload", new object[] { remotePath, existsMode, createRemoteDir });
 
@@ -814,10 +816,12 @@ namespace FluentFTP {
 		public async Task<bool> UploadAsync(Stream fileStream, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			// verify args
-			if (fileStream == null)
+			if (fileStream == null){
 				throw new ArgumentException("Required parameter is null or blank.", "fileStream");
-			if (remotePath.IsBlank())
+			}
+			if (remotePath.IsBlank()){
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
 			
 			this.LogFunc("UploadAsync", new object[] { remotePath, existsMode, createRemoteDir });
 
@@ -841,10 +845,12 @@ namespace FluentFTP {
 		public async Task<bool> UploadAsync(byte[] fileData, string remotePath, FtpExists existsMode = FtpExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			// verify args
-			if (fileData == null)
+			if (fileData == null){
 				throw new ArgumentException("Required parameter is null or blank.", "fileData");
-			if (remotePath.IsBlank())
+			}
+			if (remotePath.IsBlank()){
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
 
 			this.LogFunc("UploadAsync", new object[] { remotePath, existsMode, createRemoteDir });
 
@@ -1278,10 +1284,12 @@ namespace FluentFTP {
 		public bool DownloadFile(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null) {
 
 			// verify args
-			if (localPath.IsBlank())
+			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
-			if (remotePath.IsBlank())
+			}
+			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
 
 			this.LogFunc("DownloadFile", new object[] { localPath, remotePath, existsMode, verifyOptions });
 
@@ -1373,10 +1381,12 @@ namespace FluentFTP {
         public async Task<bool> DownloadFileAsync(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			// verify args
-			if (localPath.IsBlank())
+			if (localPath.IsBlank()){
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
-			if (remotePath.IsBlank())
+			}
+			if (remotePath.IsBlank()){
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
 			
             this.LogFunc("DownloadFileAsync", new object[] { localPath, remotePath, existsMode, verifyOptions });
 
@@ -1388,10 +1398,12 @@ namespace FluentFTP {
 
 
 			// verify args
-			if (localPath.IsBlank())
+			if (localPath.IsBlank()){
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
-			if (remotePath.IsBlank())
+			}
+			if (remotePath.IsBlank()){
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
 
             this.LogFunc("DownloadFileAsync", new object[] { localPath, remotePath, existsMode, verifyOptions });
 
@@ -1491,10 +1503,12 @@ namespace FluentFTP {
 		public bool Download(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null) {
 
 			// verify args
-			if (outStream == null)
+			if (outStream == null) {
 				throw new ArgumentException("Required parameter is null or blank.", "outStream");
-			if (remotePath.IsBlank())
+			}
+			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
 
 			this.LogFunc("Download", new object[] { remotePath });
 
@@ -1515,8 +1529,9 @@ namespace FluentFTP {
 		public bool Download(out byte[] outBytes, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null) {
 
 			// verify args
-			if (remotePath.IsBlank())
+			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
 
 			this.LogFunc("Download", new object[] { remotePath });
 
@@ -1548,10 +1563,12 @@ namespace FluentFTP {
         public async Task<bool> DownloadAsync(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			// verify args
-			if (outStream == null)
+			if (outStream == null){
 				throw new ArgumentException("Required parameter is null or blank.", "outStream");
-			if (remotePath.IsBlank())
+			}
+			if (remotePath.IsBlank()){
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
 			
 			this.LogFunc("DownloadAsync", new object[] { remotePath });
 			
@@ -1572,8 +1589,9 @@ namespace FluentFTP {
         public async Task<byte[]> DownloadAsync(string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			// verify args
-			if (remotePath.IsBlank())
+			if (remotePath.IsBlank()){
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
 			
 			this.LogFunc("DownloadAsync", new object[] { remotePath });
 			
@@ -1893,10 +1911,12 @@ namespace FluentFTP {
 		private bool VerifyTransfer(string localPath, string remotePath) {
 
 			// verify args
-			if (localPath.IsBlank())
+			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
-			if (remotePath.IsBlank())
+			}
+			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
 
 			if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
 				this.HasFeature(FtpCapability.XMD5) || this.HasFeature(FtpCapability.XCRC) ||
@@ -1917,10 +1937,12 @@ namespace FluentFTP {
 		private async Task<bool> VerifyTransferAsync(string localPath, string remotePath, CancellationToken token = default(CancellationToken)) {
 
 			// verify args
-			if (localPath.IsBlank())
+			if (localPath.IsBlank()){
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
-			if (remotePath.IsBlank())
+			}
+			if (remotePath.IsBlank()){
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
 			
 			if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
 				this.HasFeature(FtpCapability.XMD5) || this.HasFeature(FtpCapability.XCRC) ||

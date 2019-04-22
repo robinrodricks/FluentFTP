@@ -1479,37 +1479,37 @@ namespace FluentFTP {
 
 				string featName = feat.Trim().ToUpper();
 
-				if (featName.StartsWith("MLST") || featName.StartsWith("MLSD"))
+				if (featName.StartsWith("MLST") || featName.StartsWith("MLSD")) {
 					m_caps |= FtpCapability.MLSD;
-				else if (featName.StartsWith("MDTM"))
+				} else if (featName.StartsWith("MDTM")) {
 					m_caps |= FtpCapability.MDTM;
-				else if (featName.StartsWith("REST STREAM"))
+				} else if (featName.StartsWith("REST STREAM")) {
 					m_caps |= FtpCapability.REST;
-				else if (featName.StartsWith("SIZE"))
+				} else if (featName.StartsWith("SIZE")) {
 					m_caps |= FtpCapability.SIZE;
-				else if (featName.StartsWith("UTF8"))
+				} else if (featName.StartsWith("UTF8")) {
 					m_caps |= FtpCapability.UTF8;
-				else if (featName.StartsWith("PRET"))
+				} else if (featName.StartsWith("PRET")) {
 					m_caps |= FtpCapability.PRET;
-				else if (featName.StartsWith("MFMT"))
+				} else if (featName.StartsWith("MFMT")) {
 					m_caps |= FtpCapability.MFMT;
-				else if (featName.StartsWith("MFCT"))
+				} else if (featName.StartsWith("MFCT")) {
 					m_caps |= FtpCapability.MFCT;
-				else if (featName.StartsWith("MFF"))
+				} else if (featName.StartsWith("MFF")) {
 					m_caps |= FtpCapability.MFF;
-				else if (featName.StartsWith("MD5"))
+				} else if (featName.StartsWith("MD5")) {
 					m_caps |= FtpCapability.MD5;
-				else if (featName.StartsWith("XMD5"))
+				} else if (featName.StartsWith("XMD5")) {
 					m_caps |= FtpCapability.XMD5;
-				else if (featName.StartsWith("XCRC"))
+				} else if (featName.StartsWith("XCRC")) {
 					m_caps |= FtpCapability.XCRC;
-				else if (featName.StartsWith("XSHA1"))
+				} else if (featName.StartsWith("XSHA1")) {
 					m_caps |= FtpCapability.XSHA1;
-				else if (featName.StartsWith("XSHA256"))
+				} else if (featName.StartsWith("XSHA256")) {
 					m_caps |= FtpCapability.XSHA256;
-				else if (featName.StartsWith("XSHA512"))
+				} else if (featName.StartsWith("XSHA512")) {
 					m_caps |= FtpCapability.XSHA512;
-				else if (featName.StartsWith("HASH")) {
+				} else if (featName.StartsWith("HASH")) {
 					Match m;
 
 					m_caps |= FtpCapability.HASH;
