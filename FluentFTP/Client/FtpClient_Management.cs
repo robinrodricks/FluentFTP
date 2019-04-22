@@ -46,8 +46,9 @@ namespace FluentFTP {
 #endif
 				this.LogFunc("DeleteFile", new object[] { path });
 
-				if (!(reply = Execute("DELE " + path.GetFtpPath())).Success)
+				if (!(reply = Execute("DELE " + path.GetFtpPath())).Success) {
 					throw new FtpCommandException(reply);
+				}
 #if !CORE14
 			}
 #endif
@@ -102,8 +103,9 @@ namespace FluentFTP {
 
 			this.LogFunc(nameof(DeleteFileAsync), new object[] { path });
 
-			if (!(reply = await ExecuteAsync("DELE " + path.GetFtpPath(), token)).Success)
+			if (!(reply = await ExecuteAsync("DELE " + path.GetFtpPath(), token)).Success){
 				throw new FtpCommandException(reply);
+			}
 		}
 #endif
 
@@ -734,8 +736,9 @@ namespace FluentFTP {
 
 				this.LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + ftppath);
 
-				if (!(reply = Execute("MKD " + ftppath)).Success)
+				if (!(reply = Execute("MKD " + ftppath)).Success) {
 					throw new FtpCommandException(reply);
+				}
 #if !CORE14
 			}
 #endif
@@ -822,8 +825,9 @@ namespace FluentFTP {
 
 			this.LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + ftppath);
 
-			if (!(reply = await ExecuteAsync("MKD " + ftppath, token)).Success)
+			if (!(reply = await ExecuteAsync("MKD " + ftppath, token)).Success){
 				throw new FtpCommandException(reply);
+			}
 		}
 
 		/// <summary>
@@ -867,11 +871,13 @@ namespace FluentFTP {
 				path = GetAbsolutePath(path.GetFtpPath());
 				dest = GetAbsolutePath(dest.GetFtpPath());
 
-				if (!(reply = Execute("RNFR " + path)).Success)
+				if (!(reply = Execute("RNFR " + path)).Success) {
 					throw new FtpCommandException(reply);
+				}
 
-				if (!(reply = Execute("RNTO " + dest)).Success)
+				if (!(reply = Execute("RNTO " + dest)).Success) {
 					throw new FtpCommandException(reply);
+				}
 #if !CORE14
 			}
 #endif
@@ -938,11 +944,13 @@ namespace FluentFTP {
 			path = await GetAbsolutePathAsync(path.GetFtpPath(), token);
 			dest = await GetAbsolutePathAsync(dest.GetFtpPath(), token);
 
-			if (!(reply = await ExecuteAsync("RNFR " + path, token)).Success)
+			if (!(reply = await ExecuteAsync("RNFR " + path, token)).Success){
 				throw new FtpCommandException(reply);
+			}
 
-			if (!(reply = await ExecuteAsync("RNTO " + dest, token)).Success)
+			if (!(reply = await ExecuteAsync("RNTO " + dest, token)).Success){
 				throw new FtpCommandException(reply);
+			}
 		}
 #endif
 
@@ -1235,8 +1243,9 @@ namespace FluentFTP {
 #endif
 				this.LogFunc("SetFilePermissions", new object[] { path, permissions });
 
-				if (!(reply = Execute("SITE CHMOD " + permissions.ToString() + " " + path.GetFtpPath())).Success)
+				if (!(reply = Execute("SITE CHMOD " + permissions.ToString() + " " + path.GetFtpPath())).Success) {
 					throw new FtpCommandException(reply);
+				}
 #if !CORE14
 			}
 #endif
@@ -1263,8 +1272,9 @@ namespace FluentFTP {
 
 			this.LogFunc(nameof(SetFilePermissionsAsync), new object[] { path, permissions });
 
-			if (!(reply = await ExecuteAsync("SITE CHMOD " + permissions.ToString() + " " + path.GetFtpPath(), token)).Success)
+			if (!(reply = await ExecuteAsync("SITE CHMOD " + permissions.ToString() + " " + path.GetFtpPath(), token)).Success){
 				throw new FtpCommandException(reply);
+			}
 		}
 #endif
 
@@ -1664,8 +1674,9 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				if (!(reply = Execute("CWD " + ftppath)).Success)
+				if (!(reply = Execute("CWD " + ftppath)).Success) {
 					throw new FtpCommandException(reply);
+				}
 #if !CORE14
 			}
 #endif
@@ -1720,8 +1731,9 @@ namespace FluentFTP {
 			if (ftppath == "." || ftppath == "./")
 				return;
 
-			if (!(reply = await ExecuteAsync("CWD " + ftppath, token)).Success)
+			if (!(reply = await ExecuteAsync("CWD " + ftppath, token)).Success){
 				throw new FtpCommandException(reply);
+			}
 		}
 #endif
 		#endregion
@@ -1743,8 +1755,9 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				if (!(reply = Execute("PWD")).Success)
+				if (!(reply = Execute("PWD")).Success) {
 					throw new FtpCommandException(reply);
+				}
 #if !CORE14
 			}
 #endif
@@ -1807,8 +1820,9 @@ namespace FluentFTP {
             FtpReply reply;
             Match m;
 
-            if (!(reply = await ExecuteAsync("PWD", token)).Success)
+            if (!(reply = await ExecuteAsync("PWD", token)).Success){
                 throw new FtpCommandException(reply);
+			}
 
             if ((m = Regex.Match(reply.Message, "\"(?<pwd>.*)\"")).Success)
             {
@@ -1863,13 +1877,15 @@ namespace FluentFTP {
 					this.SetDataTypeInternal(FtpDataType.Binary);
 				}
 
-				if (!(reply = Execute("SIZE " + path.GetFtpPath())).Success)
+				if (!(reply = Execute("SIZE " + path.GetFtpPath())).Success) {
 					length = -1;
-				else if (!long.TryParse(reply.Message, out length))
+				} else if (!long.TryParse(reply.Message, out length)) {
 					length = -1;
+				}
 
-				if (savedDataType != FtpDataType.Binary)
+				if (savedDataType != FtpDataType.Binary) {
 					this.SetDataTypeInternal(savedDataType);
+				}
 #if !CORE14
 			}
 #endif
@@ -1941,13 +1957,15 @@ namespace FluentFTP {
                 await this.SetDataTypeAsync(FtpDataType.Binary, token);
             }
 
-            if (!(reply = await ExecuteAsync("SIZE " + path.GetFtpPath(), token)).Success)
+            if (!(reply = await ExecuteAsync("SIZE " + path.GetFtpPath(), token)).Success){
                 length = -1;
-            else if (!long.TryParse(reply.Message, out length))
+            } else if (!long.TryParse(reply.Message, out length)){
                 length = -1;
+			}
 
-            if (savedDataType != FtpDataType.Binary)
+            if (savedDataType != FtpDataType.Binary){
                 await this.SetDataTypeAsync(savedDataType, token);
+			}
 
             return length;
         }

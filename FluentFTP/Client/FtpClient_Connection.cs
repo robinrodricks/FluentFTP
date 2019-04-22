@@ -1189,10 +1189,12 @@ namespace FluentFTP {
 				}
 
 				if (m_stream.IsEncrypted && DataConnectionEncryption) {
-					if (!(reply = Execute("PBSZ 0")).Success)
+					if (!(reply = Execute("PBSZ 0")).Success) {
 						throw new FtpCommandException(reply);
-					if (!(reply = Execute("PROT P")).Success)
+					}
+					if (!(reply = Execute("PROT P")).Success) {
 						throw new FtpCommandException(reply);
+					}
 				}
 
 				// if this is a clone these values should have already been loaded
@@ -1323,10 +1325,12 @@ namespace FluentFTP {
 
             if (m_stream.IsEncrypted && DataConnectionEncryption)
             {
-                if (!(reply = await ExecuteAsync("PBSZ 0", token)).Success)
+                if (!(reply = await ExecuteAsync("PBSZ 0", token)).Success){
                     throw new FtpCommandException(reply);
-                if (!(reply = await ExecuteAsync("PROT P", token)).Success)
+				}
+                if (!(reply = await ExecuteAsync("PROT P", token)).Success){
                     throw new FtpCommandException(reply);
+				}
             }
 
 			// if this is a clone these values should have already been loaded
@@ -1609,12 +1613,14 @@ namespace FluentFTP {
 		protected virtual void Authenticate(string userName, string password) {
 			FtpReply reply;
 
-			if (!(reply = Execute("USER " + userName)).Success)
+			if (!(reply = Execute("USER " + userName)).Success) {
 				throw new FtpCommandException(reply);
+			}
 
-			if (reply.Type == FtpResponseType.PositiveIntermediate
-				&& !(reply = Execute("PASS " + password)).Success)
+			if (reply.Type == FtpResponseType.PositiveIntermediate &&
+				!(reply = Execute("PASS " + password)).Success) {
 				throw new FtpCommandException(reply);
+			}
 		}
 
 #if ASYNC
@@ -1627,12 +1633,14 @@ namespace FluentFTP {
         {
             FtpReply reply;
 
-            if (!(reply = await ExecuteAsync("USER " + userName, token)).Success)
+            if (!(reply = await ExecuteAsync("USER " + userName, token)).Success){
                 throw new FtpCommandException(reply);
+			}
 
             if (reply.Type == FtpResponseType.PositiveIntermediate
-                && !(reply = await ExecuteAsync("PASS " + password, token)).Success)
+                && !(reply = await ExecuteAsync("PASS " + password, token)).Success){
                 throw new FtpCommandException(reply);
+			}
         }
 #endif
 
@@ -1917,8 +1925,9 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				if (!(reply = Execute("OPTS UTF8 OFF")).Success)
+				if (!(reply = Execute("OPTS UTF8 OFF")).Success) {
 					throw new FtpCommandException(reply);
+				}
 
 				m_textEncoding = Encoding.ASCII;
 				m_textEncodingAutoUTF = false;

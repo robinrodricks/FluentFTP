@@ -68,8 +68,9 @@ namespace FluentFTP {
 				if (m_stream.LocalEndPoint.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
 					throw new FtpException("Only IPv4 is supported by the PASV command. Use EPSV instead.");
 
-				if (!(reply = Execute("PASV")).Success)
+				if (!(reply = Execute("PASV")).Success) {
 					throw new FtpCommandException(reply);
+				}
 
 				m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
 
@@ -100,8 +101,9 @@ namespace FluentFTP {
 			stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);
 
 			if (restart > 0) {
-				if (!(reply = Execute("REST " + restart)).Success)
+				if (!(reply = Execute("REST " + restart)).Success) {
 					throw new FtpCommandException(reply);
+				}
 			}
 
 			if (!(reply = Execute(command)).Success) {
@@ -177,8 +179,9 @@ namespace FluentFTP {
                 if (m_stream.LocalEndPoint.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
                     throw new FtpException("Only IPv4 is supported by the PASV command. Use EPSV instead.");
 
-                if (!(reply = await ExecuteAsync("PASV", token)).Success)
+                if (!(reply = await ExecuteAsync("PASV", token)).Success){
                     throw new FtpCommandException(reply);
+				}
 
                 m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
 
@@ -210,8 +213,9 @@ namespace FluentFTP {
 
             if (restart > 0)
             {
-                if (!(reply = await ExecuteAsync("REST " + restart, token)).Success)
+                if (!(reply = await ExecuteAsync("REST " + restart, token)).Success){
                     throw new FtpCommandException(reply);
+				}
             }
 
             if (!(reply = await ExecuteAsync(command, token)).Success)
@@ -346,8 +350,9 @@ namespace FluentFTP {
 			}
 
 			if (restart > 0) {
-				if (!(reply = Execute("REST " + restart)).Success)
+				if (!(reply = Execute("REST " + restart)).Success) {
 					throw new FtpCommandException(reply);
+				}
 			}
 
 			if (!(reply = Execute(command)).Success) {
@@ -1385,16 +1390,14 @@ namespace FluentFTP {
 			FtpReply reply;
 			switch (type) {
 				case FtpDataType.ASCII:
-					if (!(reply = Execute("TYPE A")).Success)
+					if (!(reply = Execute("TYPE A")).Success) {
 						throw new FtpCommandException(reply);
-					/*if (!(reply = Execute("STRU R")).Success)
-						this.LogLine(reply.Message);*/
+					}
 					break;
 				case FtpDataType.Binary:
-					if (!(reply = Execute("TYPE I")).Success)
+					if (!(reply = Execute("TYPE I")).Success) {
 						throw new FtpCommandException(reply);
-					/*if (!(reply = Execute("STRU F")).Success)
-						this.LogLine(reply.Message);*/
+					}
 					break;
 				default:
 					throw new FtpException("Unsupported data type: " + type.ToString());
@@ -1447,12 +1450,14 @@ namespace FluentFTP {
 			switch (type)
 			{
 				case FtpDataType.ASCII:
-					if (!(reply = await ExecuteAsync("TYPE A", token)).Success)
+					if (!(reply = await ExecuteAsync("TYPE A", token)).Success){
 						throw new FtpCommandException(reply);
+					}
 					break;
 				case FtpDataType.Binary:
-					if (!(reply = await ExecuteAsync("TYPE I", token)).Success)
+					if (!(reply = await ExecuteAsync("TYPE I", token)).Success){
 						throw new FtpCommandException(reply);
+					}
 					break;
 				default:
 					throw new FtpException("Unsupported data type: " + type.ToString());

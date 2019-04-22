@@ -381,14 +381,17 @@ namespace FluentFTP {
 
 					listcmd = "LIST";
 
-					if (isAllFiles)
+					if (isAllFiles) {
 						listopts += "a";
+					}
 
-					if (isRecursive)
+					if (isRecursive) {
 						listopts += "R";
+					}
 
-					if (listopts.Length > 0)
+					if (listopts.Length > 0) {
 						listcmd += " -" + listopts;
+					}
 				}
 			}
 
@@ -448,10 +451,11 @@ namespace FluentFTP {
 						FullName = buf
 					};
 
-					if (DirectoryExists(item.FullName))
+					if (DirectoryExists(item.FullName)) {
 						item.Type = FtpFileSystemObjectType.Directory;
-					else
+					} else {
 						item.Type = FtpFileSystemObjectType.File;
+					}
 
 					lst.Add(item);
 
@@ -680,14 +684,17 @@ namespace FluentFTP {
 
                     listcmd = "LIST";
 
-                    if (isAllFiles)
+                    if (isAllFiles){
                         listopts += "a";
+					}
 
-                    if (isRecursive)
+                    if (isRecursive){
                         listopts += "R";
+					}
 
-                    if (listopts.Length > 0)
+                    if (listopts.Length > 0){
                         listcmd += " -" + listopts;
+					}
                 }
             }
 
@@ -756,10 +763,11 @@ namespace FluentFTP {
                         FullName = buf
                     };
 
-                    if (await DirectoryExistsAsync(item.FullName, token))
+                    if (await DirectoryExistsAsync(item.FullName, token)){
                         item.Type = FtpFileSystemObjectType.Directory;
-                    else
+                    } else{
                         item.Type = FtpFileSystemObjectType.File;
+					}
 
                     lst.Add(item);
 

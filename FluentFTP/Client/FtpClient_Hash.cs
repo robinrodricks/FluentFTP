@@ -161,8 +161,9 @@ namespace FluentFTP {
 						break;
 				}
 
-				if (!(reply = Execute("OPTS HASH " + algorithm)).Success)
+				if (!(reply = Execute("OPTS HASH " + algorithm)).Success) {
 					throw new FtpCommandException(reply);
+				}
 #if !CORE14
 			}
 #endif
@@ -381,8 +382,9 @@ namespace FluentFTP {
 			if (path == null)
 				throw new ArgumentException("GetHash(path) argument can't be null");
 
-			if (!(reply = await ExecuteAsync("HASH " + path.GetFtpPath(), token)).Success)
+			if (!(reply = await ExecuteAsync("HASH " + path.GetFtpPath(), token)).Success){
 				throw new FtpCommandException(reply);
+			}
 
 			// Current draft says the server should return this:
 			// SHA-256 0-49 169cd22282da7f147cb491e559e9dd filename.ext
@@ -616,8 +618,9 @@ namespace FluentFTP {
 			FtpReply reply;
 			string response;
 
-			if (!(reply = Execute("MD5 " + path)).Success)
+			if (!(reply = Execute("MD5 " + path)).Success) {
 				throw new FtpCommandException(reply);
+			}
 
 			response = reply.Message;
 			if (response.StartsWith(path)) {
@@ -684,8 +687,9 @@ namespace FluentFTP {
 			FtpReply reply;
 			string response;
 
-			if (!(reply = await ExecuteAsync("MD5 " + path, token)).Success)
+			if (!(reply = await ExecuteAsync("MD5 " + path, token)).Success){
 				throw new FtpCommandException(reply);
+			}
 
 			response = reply.Message;
 			if (response.StartsWith(path))
@@ -710,8 +714,9 @@ namespace FluentFTP {
 		public string GetXCRC(string path) {
 			FtpReply reply;
 
-			if (!(reply = Execute("XCRC " + path)).Success)
+			if (!(reply = Execute("XCRC " + path)).Success) {
 				throw new FtpCommandException(reply);
+			}
 
 			return reply.Message;
 		}
@@ -773,8 +778,9 @@ namespace FluentFTP {
 			FtpReply reply;
 			string response;
 
-			if (!(reply = await ExecuteAsync("MD5 " + path, token)).Success)
+			if (!(reply = await ExecuteAsync("MD5 " + path, token)).Success){
 				throw new FtpCommandException(reply);
+			}
 
 			response = reply.Message;
 			if (response.StartsWith(path))
@@ -801,8 +807,9 @@ namespace FluentFTP {
 		public string GetXMD5(string path) {
 			FtpReply reply;
 
-			if (!(reply = Execute("XMD5 " + path)).Success)
+			if (!(reply = Execute("XMD5 " + path)).Success) {
 				throw new FtpCommandException(reply);
+			}
 
 			return reply.Message;
 		}
@@ -862,8 +869,9 @@ namespace FluentFTP {
 		public async Task<string> GetXMD5Async(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
-			if (!(reply = await ExecuteAsync("XMD5 " + path, token)).Success)
+			if (!(reply = await ExecuteAsync("XMD5 " + path, token)).Success){
 				throw new FtpCommandException(reply);
+			}
 
 			return reply.Message;
 		}
@@ -884,8 +892,9 @@ namespace FluentFTP {
 		public string GetXSHA1(string path) {
 			FtpReply reply;
 
-			if (!(reply = Execute("XSHA1 " + path)).Success)
+			if (!(reply = Execute("XSHA1 " + path)).Success) {
 				throw new FtpCommandException(reply);
+			}
 
 			return reply.Message;
 		}
@@ -945,8 +954,9 @@ namespace FluentFTP {
 		public async Task<string> GetXSHA1Async(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
-			if (!(reply = await ExecuteAsync("XSHA1 " + path, token)).Success)
+			if (!(reply = await ExecuteAsync("XSHA1 " + path, token)).Success){
 				throw new FtpCommandException(reply);
+			}
 
 			return reply.Message;
 		}
@@ -967,8 +977,9 @@ namespace FluentFTP {
 		public string GetXSHA256(string path) {
 			FtpReply reply;
 
-			if (!(reply = Execute("XSHA256 " + path)).Success)
+			if (!(reply = Execute("XSHA256 " + path)).Success) {
 				throw new FtpCommandException(reply);
+			}
 
 			return reply.Message;
 		}
@@ -1029,8 +1040,9 @@ namespace FluentFTP {
 		public async Task<string> GetXSHA256Async(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
-			if (!(reply = await ExecuteAsync("XSHA256 " + path, token)).Success)
+			if (!(reply = await ExecuteAsync("XSHA256 " + path, token)).Success){
 				throw new FtpCommandException(reply);
+			}
 
 			return reply.Message;
 		}
@@ -1051,8 +1063,9 @@ namespace FluentFTP {
 		public string GetXSHA512(string path) {
 			FtpReply reply;
 
-			if (!(reply = Execute("XSHA512 " + path)).Success)
+			if (!(reply = Execute("XSHA512 " + path)).Success) {
 				throw new FtpCommandException(reply);
+			}
 
 			return reply.Message;
 		}
@@ -1113,8 +1126,9 @@ namespace FluentFTP {
 		public async Task<string> GetXSHA512Async(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
-			if (!(reply = await ExecuteAsync("XSHA512 " + path, token)).Success)
+			if (!(reply = await ExecuteAsync("XSHA512 " + path, token)).Success){
 				throw new FtpCommandException(reply);
+			}
 
 			return reply.Message;
 
