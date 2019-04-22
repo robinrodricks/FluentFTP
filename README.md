@@ -3,6 +3,7 @@
 
 [![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP)
 [![Downloads](https://img.shields.io/nuget/dt/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP)
+![Codacy grade](https://img.shields.io/codacy/grade/2d6bb3604aae4c1e892a8386363a5bfc.svg)
 
 FluentFTP is a fully managed FTP and FTPS library for .NET & .NET Standard, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, UTF-8 support, Async/await support and more.
 
@@ -10,48 +11,48 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 
 ## Features
 
-- Full support for [FTP](#ftp-support), [FTPS](#faq_ftps) (FTP over SSL), [FTPS with client certificates](#faq_certs) and [FTPS with CCC](#faq_ccc) (for FTP firewalls)
-- **File management:**
-  - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, AS400, Windows CE, Serv-U, etc)
-  - Easily upload and download a file from the server with [progress tracking](#faq_progress)
-  - Automatically [verify the hash](#faq_verifyhash) of a file & retry transfer if hash mismatches
-  - Configurable error handling (ignore/abort/throw) for multi-file transfers
-  - Easily read and write file data from the server using standard streams
-  - Create, append, read, write, rename, move and delete files and folders
-  - Recursively deletes folders and all its contents
-  - Get file/folder info (exists, size, security flags, modified date/time)
-  - Get and set [file permissions](#file-permissions) (owner, group, other)
-  - Absolute or relative paths (relative to the ["working directory"](#file-management))
-  - Get the [hash/checksum](#file-hashing) of a file (SHA-1, SHA-256, SHA-512, and MD5)
-  - Dereference of symbolic links to calculate the linked file/folder
-- **FTP protocol:**
-  - Automatic detection of the [FTP server software](#faq_servertype) and its [capabilities](#faq_recursivelist)
-  - Extensive support for [FTP commands](#ftp-support), including some server-specific commands
-  - Easily send [server-specific](https://github.com/hgupta9/FluentFTP/issues/88) FTP commands using the `Execute()` method
-  - Explicit and Implicit [SSL connections](#faq_ftps) are supported for the control and data connections using .NET's `SslStream`
-  - Passive and active data connections (PASV, EPSV, PORT and EPRT)
-  - Supports DrFTPD's PRET command, and the Unix CHMOD command
-  - Supports [FTP Proxies](#faq_loginproxy) (User@Host, HTTP 1.1)
-  - [FTP command logging](#faq_log) using `TraceListeners` (passwords omitted) to [trace](#faq_trace) or [log output](#faq_logfile) to a file
-  - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
-- **Asynchronous support:**
-  - Synchronous and asynchronous methods using `async`/`await` for all operations
-  - Asynchronous methods for .NET 4.0 and below using `IAsyncResult` pattern (Begin*/End*)
-  - All asynchronous methods can be cancelled midway by passing a `CancellationToken`
-  - All asynchronous methods honor the `ReadTimeout` and automatically cancel themselves if timed out
-  - Improves thread safety by cloning the FTP control connection for file transfers (optional)
-  - Implements its own internal locking in an effort to keep transactions synchronized
-- **Extensible:**
-  - Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/hgupta9/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
-  - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/hgupta9/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
-  - Easily add custom logging/tracing functionality using [`FtpTrace.AddListener`](#faq_log)
+  - Full support for [FTP](#ftp-support), [FTPS](#faq_ftps) (FTP over SSL), [FTPS with client certificates](#faq_certs) and [FTPS with CCC](#faq_ccc) (for FTP firewalls)
+  - **File management:**
+    - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, AS400, Windows CE, Serv-U, etc)
+    - Easily upload and download a file from the server with [progress tracking](#faq_progress)
+    - Automatically [verify the hash](#faq_verifyhash) of a file & retry transfer if hash mismatches
+    - Configurable error handling (ignore/abort/throw) for multi-file transfers
+    - Easily read and write file data from the server using standard streams
+    - Create, append, read, write, rename, move and delete files and folders
+    - Recursively deletes folders and all its contents
+    - Get file/folder info (exists, size, security flags, modified date/time)
+    - Get and set [file permissions](#file-permissions) (owner, group, other)
+    - Absolute or relative paths (relative to the ["working directory"](#file-management))
+    - Get the [hash/checksum](#file-hashing) of a file (SHA-1, SHA-256, SHA-512, and MD5)
+    - Dereference of symbolic links to calculate the linked file/folder
+  - **FTP protocol:**
+    - Automatic detection of the [FTP server software](#faq_servertype) and its [capabilities](#faq_recursivelist)
+    - Extensive support for [FTP commands](#ftp-support), including some server-specific commands
+    - Easily send [server-specific](https://github.com/hgupta9/FluentFTP/issues/88) FTP commands using the `Execute()` method
+    - Explicit and Implicit [SSL connections](#faq_ftps) are supported for the control and data connections using .NET's `SslStream`
+    - Passive and active data connections (PASV, EPSV, PORT and EPRT)
+    - Supports DrFTPD's PRET command, and the Unix CHMOD command
+    - Supports [FTP Proxies](#faq_loginproxy) (User@Host, HTTP 1.1)
+    - [FTP command logging](#faq_log) using `TraceListeners` (passwords omitted) to [trace](#faq_trace) or [log output](#faq_logfile) to a file
+    - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
+  - **Asynchronous support:**
+    - Synchronous and asynchronous methods using `async`/`await` for all operations
+    - Asynchronous methods for .NET 4.0 and below using `IAsyncResult` pattern (Begin*/End*)
+    - All asynchronous methods can be cancelled midway by passing a `CancellationToken`
+    - All asynchronous methods honor the `ReadTimeout` and automatically cancel themselves if timed out
+    - Improves thread safety by cloning the FTP control connection for file transfers (optional)
+    - Implements its own internal locking in an effort to keep transactions synchronized
+  - **Extensible:**
+    - Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/hgupta9/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
+    - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/hgupta9/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
+    - Easily add custom logging/tracing functionality using [`FtpTrace.AddListener`](#faq_log)
 
 ## Releases
 
 Stable binaries are released on NuGet, and contain everything you need to use FTP/FTPS in your .Net/CLR application. For usage see the [Example Usage](#example-usage) section and the [Documentation](#documentation) section below.
 
-- [Nuget](https://www.nuget.org/packages/FluentFTP) (latest)
-- [Releases](https://github.com/hgupta9/FluentFTP/releases) (occasionally updated)
+  - [Nuget](https://www.nuget.org/packages/FluentFTP) (latest)
+  - [Releases](https://github.com/hgupta9/FluentFTP/releases) (occasionally updated)
 
 FluentFTP works on .NET and .NET Standard/.NET Core.
 
@@ -66,10 +67,10 @@ FluentFTP works on .NET and .NET Standard/.NET Core.
 
 FluentFTP is also supported on these platforms: (via .NET Standard)
 
-- **Mono** 4.6
-- **Xamarin.iOS** 10.0
-- **Xamarin.Android** 10.0
-- **Universal Windows Platform** 10.0
+  - **Mono** 4.6
+  - **Xamarin.iOS** 10.0
+  - **Xamarin.Android** 10.0
+  - **Universal Windows Platform** 10.0
 
 Binaries for all platforms are built from a single VS 2017 Project. You will need VS 2017 to build or contribute to FluentFTP.
 
@@ -154,56 +155,56 @@ client.Disconnect();
 ## FAQs
 
 **Logging FAQs**
-- [How do I trace FTP commands for debugging?](#faq_trace)
-- [How do I log all FTP commands to a file for debugging?](#faq_logfile)
-- [How do I log only critical errors to a file?](#faq_logfile2)
-- [How do I disable logging of function calls?](#faq_logfunc)
-- [How do I omit sensitive information from the logs?](#faq_hidelog)
-- [How do I use third-party logging frameworks like NLog?](#faq_log)
+  - [How do I trace FTP commands for debugging?](#faq_trace)
+  - [How do I log all FTP commands to a file for debugging?](#faq_logfile)
+  - [How do I log only critical errors to a file?](#faq_logfile2)
+  - [How do I disable logging of function calls?](#faq_logfunc)
+  - [How do I omit sensitive information from the logs?](#faq_hidelog)
+  - [How do I use third-party logging frameworks like NLog?](#faq_log)
 
 **Connection FAQs**
-- [How do I connect with SSL/TLS? / How do I use FTPS?](#faq_ftps)
-- [How do I validate the server's certificate when using FTPS?](#faq_ftps)
-- [How do I connect with FTPS and then switch back down to plaintext FTP?](#faq_ccc)
-- [How do I connect with SFTP?](#faq_sftp)
-- [How do I login with an anonymous FTP account?](#faq_loginanon)
-- [How do I login with an FTP proxy?](#faq_loginproxy)
-- [How do I detect the type of server I'm connecting to?](#faq_servertype)
-- [How do I use client certificates to login with FTPS?](#faq_certs)
-- [How do I bundle an X509 certificate from a file?](#faq_x509)
+  - [How do I connect with SSL/TLS? / How do I use FTPS?](#faq_ftps)
+  - [How do I validate the server's certificate when using FTPS?](#faq_ftps)
+  - [How do I connect with FTPS and then switch back down to plaintext FTP?](#faq_ccc)
+  - [How do I connect with SFTP?](#faq_sftp)
+  - [How do I login with an anonymous FTP account?](#faq_loginanon)
+  - [How do I login with an FTP proxy?](#faq_loginproxy)
+  - [How do I detect the type of server I'm connecting to?](#faq_servertype)
+  - [How do I use client certificates to login with FTPS?](#faq_certs)
+  - [How do I bundle an X509 certificate from a file?](#faq_x509)
 
 **File Transfer FAQs**
-- [How can I track the progress of file transfers?](#faq_progress)
-- [How can I upload data created on the fly?](#faq_uploadbytes)
-- [How can I download data without saving it to disk?](#faq_downloadbytes)
-- [How can I resume downloading a file?](#faq_resumedownload)
-- [How can I resume uploading a file?](#faq_uploadmissing)
-- [How can I throttle the speed of upload/download?](#faq_throttle)
-- [How do I verify the hash/checksum of a file and retry if the checksum mismatches?](#faq_verifyhash)
-- [How do I append to a file?](#faq_append)
-- [How do I download files using the low-level API?](#faq_downloadlow)
-- [How can I upload/download files with Unicode filenames when my server does not support UTF8?](#faq_utf)
+  - [How can I track the progress of file transfers?](#faq_progress)
+  - [How can I upload data created on the fly?](#faq_uploadbytes)
+  - [How can I download data without saving it to disk?](#faq_downloadbytes)
+  - [How can I resume downloading a file?](#faq_resumedownload)
+  - [How can I resume uploading a file?](#faq_uploadmissing)
+  - [How can I throttle the speed of upload/download?](#faq_throttle)
+  - [How do I verify the hash/checksum of a file and retry if the checksum mismatches?](#faq_verifyhash)
+  - [How do I append to a file?](#faq_append)
+  - [How do I download files using the low-level API?](#faq_downloadlow)
+  - [How can I upload/download files with Unicode filenames when my server does not support UTF8?](#faq_utf)
 
 **File Management FAQs**
-- [How does GetListing() work internally?](#faq_listings)
-- [How does GetListing() return a recursive file listing?](#faq_recursivelist)
-- [What kind of hashing commands are supported?](#faq_hashing)
+  - [How does GetListing() work internally?](#faq_listings)
+  - [How does GetListing() return a recursive file listing?](#faq_recursivelist)
+  - [What kind of hashing commands are supported?](#faq_hashing)
 
 **Misc FAQs**
-- [What does `EnableThreadSafeDataConnections` do?](#faq_etsdc)
-- [How can I contribute some changes to FluentFTP?](#faq_fork)
-- [How do I submit a pull request?](#faq_fork)
+  - [What does `EnableThreadSafeDataConnections` do?](#faq_etsdc)
+  - [How can I contribute some changes to FluentFTP?](#faq_fork)
+  - [How do I submit a pull request?](#faq_fork)
 
 **Common Issues**
-- [I'm getting login errors but I can login fine in Firefox/Filezilla](#faq_loginanon)
-- [FluentFTP fails to install in Visual Studio 2010 : 'System.Runtime' already has a dependency defined for 'FluentFTP'.](#trouble_install)
-- [After uploading a file with special characters like "Caffè.png" it appears as "Caff?.bmp" on the FTP server. The server supports only ASCII but "è" is ASCII. FileZilla can upload this file without problems.](#trouble_specialchars)
-- [I cannot delete a file if the filename contains Russian letters. FileZilla can delete this file without problems.](#trouble_specialchars2)
-- [I keep getting TimeoutException's in my Azure WebApp](#trouble_azure)
-- [Many commands don't work on Windows CE](#trouble_windowsce)
-- [After successfully transfering a single file with OpenWrite/OpenAppend, the subsequent files fail with some random error, like "Malformed PASV response"](#trouble_getreply)
-- [SSL Negotiation is very slow during FTPS login](#trouble_ssl)
-- [Unable to read data from the transport connection : An existing connection was forcibly closed by the remote host](#trouble_closedhost)
+  - [I'm getting login errors but I can login fine in Firefox/Filezilla](#faq_loginanon)
+  - [FluentFTP fails to install in Visual Studio 2010 : 'System.Runtime' already has a dependency defined for 'FluentFTP'.](#trouble_install)
+  - [After uploading a file with special characters like "Caffè.png" it appears as "Caff?.bmp" on the FTP server. The server supports only ASCII but "è" is ASCII. FileZilla can upload this file without problems.](#trouble_specialchars)
+  - [I cannot delete a file if the filename contains Russian letters. FileZilla can delete this file without problems.](#trouble_specialchars2)
+  - [I keep getting TimeoutException's in my Azure WebApp](#trouble_azure)
+  - [Many commands don't work on Windows CE](#trouble_windowsce)
+  - [After successfully transfering a single file with OpenWrite/OpenAppend, the subsequent files fail with some random error, like "Malformed PASV response"](#trouble_getreply)
+  - [SSL Negotiation is very slow during FTPS login](#trouble_ssl)
+  - [Unable to read data from the transport connection : An existing connection was forcibly closed by the remote host](#trouble_closedhost)
 
 
 ## API
@@ -214,37 +215,37 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 ### Connection
 
-- **new FtpClient**() - Creates and returns a new FTP client instance.
-
-- **Host** - The FTP server IP or hostname. Required.
-
-- **Port** - The FTP port to connect to. **Default:** Auto (21 or 990 depending on FTPS config)
-
-- **Credentials** - The FTP username & password to use. Must be a valid user account registered with the server. **Default:** `anonymous/anonymous`
-
-- **Connect**() - Connects to an FTP server (uses TLS/SSL if configured).
-
-- **Disconnect**() - Closes the connection to the server immediately.
-
-- **Execute**() - Execute a custom or unspported command.
-
-- **SystemType** - Gets the type of system/server that we're connected to.
-
-- **ServerType** - Gets the type of the FTP server software that we're connected to, using the `FtpServer` enum. If it does not detect your specific server software, please contribute a [detection script](#faq_recursivelist). **Default:** `FtpServer.Unknown`
-
-- **ServerOS** - Gets the operating system of the FTP server software that we're connected to, using the `FtpOS` enum. **Default:** `FtpOS.Unknown`
-
-- **IsConnected** - Checks if the connection is still alive.
-
-- **Capabilities** - Gets the server capabilties (represented by flags).
-
-- **HasFeature**() - Checks if a specific feature (`FtpCapability`) is supported by the server.
-
-- **LastReply** - Returns the last `FtpReply` recieved from the server.
+  - **new FtpClient**() - Creates and returns a new FTP client instance.
+  
+  - **Host** - The FTP server IP or hostname. Required.
+  
+  - **Port** - The FTP port to connect to. **Default:** Auto (21 or 990 depending on FTPS config)
+  
+  - **Credentials** - The FTP username & password to use. Must be a valid user account registered with the server. **Default:** `anonymous/anonymous`
+  
+  - **Connect**() - Connects to an FTP server (uses TLS/SSL if configured).
+  
+  - **Disconnect**() - Closes the connection to the server immediately.
+  
+  - **Execute**() - Execute a custom or unspported command.
+  
+  - **SystemType** - Gets the type of system/server that we're connected to.
+  
+  - **ServerType** - Gets the type of the FTP server software that we're connected to, using the `FtpServer` enum. If it does not detect your specific server software, please contribute a [detection script](#faq_recursivelist). **Default:** `FtpServer.Unknown`
+  
+  - **ServerOS** - Gets the operating system of the FTP server software that we're connected to, using the `FtpOS` enum. **Default:** `FtpOS.Unknown`
+  
+  - **IsConnected** - Checks if the connection is still alive.
+  
+  - **Capabilities** - Gets the server capabilties (represented by flags).
+  
+  - **HasFeature**() - Checks if a specific feature (`FtpCapability`) is supported by the server.
+  
+  - **LastReply** - Returns the last `FtpReply` recieved from the server.
 
 ### Directory Listing
 
-- **GetListing**() - Get a [file listing](#faq_listings) of the given directory. Add `FtpListOption.Recursive` to recursively list all the sub-directories as well. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
+  - **GetListing**() - Get a [file listing](#faq_listings) of the given directory. Add `FtpListOption.Recursive` to recursively list all the sub-directories as well. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
 
 	- `Type` : The type of the object. (File, Directory or Link)
 	
@@ -276,9 +277,9 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 	- `Input` : The raw string that the server returned for this object. Helps debug if the above properties have been correctly parsed.
 	
-- **GetNameListing**() - A simple command that only returns the list of file paths in the given directory, using the NLST command.
+  - **GetNameListing**() - A simple command that only returns the list of file paths in the given directory, using the NLST command.
 
-- **GetObjectInfo()** - Get information for a single file or directory as an `FtpListItem`. It includes the type, date created, date modified, file size, permissions/chmod and link target (if any).
+  - **GetObjectInfo()** - Get information for a single file or directory as an `FtpListItem`. It includes the type, date created, date modified, file size, permissions/chmod and link target (if any).
 
 
 ### File Transfer
@@ -286,78 +287,78 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 <a name="highlevel"></a>
 *High-level API:*
 
-- **Upload**() - Uploads a Stream or byte[] to the server. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks.
+  - **Upload**() - Uploads a Stream or byte[] to the server. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks.
 
-- **Download**() - Downloads a file from the server to a Stream or byte[]. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks.
+  - **Download**() - Downloads a file from the server to a Stream or byte[]. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks.
 
-- **UploadFile**() - Uploads a file from the local file system to the server. Use `FtpExists.Append` to resume a partial upload. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks. Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
+  - **UploadFile**() - Uploads a file from the local file system to the server. Use `FtpExists.Append` to resume a partial upload. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it uploads data in chunks. Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
 
-- **DownloadFile**() - Downloads a file from the server to the local file system. Use `FtpLocalExists.Append` to resume a partial download. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks. Local directories are created if they do not exist. Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
+  - **DownloadFile**() - Downloads a file from the server to the local file system. Use `FtpLocalExists.Append` to resume a partial download. Returns true if succeeded, false if failed or file does not exist. Exceptions are thrown for critical errors. Supports very large files since it downloads data in chunks. Local directories are created if they do not exist. Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
 
-- **UploadFiles**() - Uploads multiple files from the local file system to a single folder on the server. Returns the number of files uploaded. Skipped files are not counted. User-defined error handling for exceptions during file upload (ignore/abort/throw).  Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches. Faster than calling `UploadFile()` multiple times.
+  - **UploadFiles**() - Uploads multiple files from the local file system to a single folder on the server. Returns the number of files uploaded. Skipped files are not counted. User-defined error handling for exceptions during file upload (ignore/abort/throw).  Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches. Faster than calling `UploadFile()` multiple times.
 
-- **DownloadFiles**() - Downloads multiple files from server to a single directory on the local file system. Returns the number of files downloaded. Skipped files are not counted. User-defined error handling for exceptions during file download (ignore/abort/throw). Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
+  - **DownloadFiles**() - Downloads multiple files from server to a single directory on the local file system. Returns the number of files downloaded. Skipped files are not counted. User-defined error handling for exceptions during file download (ignore/abort/throw). Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
 
 <a name="lowlevel"></a>
 *Low-level API:*
 
-- **OpenRead**() - *(Prefer using `Download()` for downloading to a `Stream` or `byte[]`)* Open a stream to the specified file for reading. Returns a [standard `Stream`](#stream-handling). Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
-
-- **OpenWrite**() - *(Prefer using `Upload()` for uploading a `Stream` or `byte[]`)* Opens a stream to the specified file for writing. Returns a [standard `Stream`](#stream-handling), any data written will overwrite the file, or create the file if it does not exist. Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
-
-- **OpenAppend**() - *(Prefer using `Upload()` with `FtpExists.Append` for uploading a `Stream` or `byte[]`)* Opens a stream to the specified file for appending. Returns a [standard `Stream`](#stream-handling), any data written wil be appended to the end of the file. Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
+  - **OpenRead**() - *(Prefer using `Download()` for downloading to a `Stream` or `byte[]`)* Open a stream to the specified file for reading. Returns a [standard `Stream`](#stream-handling). Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
+  
+  - **OpenWrite**() - *(Prefer using `Upload()` for uploading a `Stream` or `byte[]`)* Opens a stream to the specified file for writing. Returns a [standard `Stream`](#stream-handling), any data written will overwrite the file, or create the file if it does not exist. Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
+  
+  - **OpenAppend**() - *(Prefer using `Upload()` with `FtpExists.Append` for uploading a `Stream` or `byte[]`)* Opens a stream to the specified file for appending. Returns a [standard `Stream`](#stream-handling), any data written wil be appended to the end of the file. Please call `GetReply()` after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 
 
 ### File Management
 
 *Working directory (relative paths are relative to this directory):*
 
-- **GetWorkingDirectory**() - Gets the full path of the current working directory.
-
-- **SetWorkingDirectory**() - Sets the full path of the current working directory. All relative paths are relative to the working directory.
+  - **GetWorkingDirectory**() - Gets the full path of the current working directory.
+  
+  - **SetWorkingDirectory**() - Sets the full path of the current working directory. All relative paths are relative to the working directory.
 
 *Directories:*
 
-- **DirectoryExists**() - Check if a directory exists on the server.
-
-- **CreateDirectory**() - Creates a directory on the server. If the parent directories do not exist they are also created.
-
-- **DeleteDirectory**() - Deletes the specified directory on the server. If it is not empty then all subdirectories and files are recursively deleted.
-
-- **MoveDirectory**() - Moves a directory from one place to another on the server. The destination directory is deleted before moving if `FtpExists.Overwrite` is used. Only throws exceptions for critical errors.
+  - **DirectoryExists**() - Check if a directory exists on the server.
+  
+  - **CreateDirectory**() - Creates a directory on the server. If the parent directories do not exist they are also created.
+  
+  - **DeleteDirectory**() - Deletes the specified directory on the server. If it is not empty then all subdirectories and files are recursively deleted.
+  
+  - **MoveDirectory**() - Moves a directory from one place to another on the server. The destination directory is deleted before moving if `FtpExists.Overwrite` is used. Only throws exceptions for critical errors.
 
 *Files:*
 
-- **FileExists**() - Check if a file exists on the server.
-
-- **DeleteFile**() - Deletes the specified file on the server.
-
-- **MoveFile**() - Moves a file from one directory to another on the server. The destination file is deleted before moving if `FtpExists.Overwrite` is used. Only throws exceptions for critical errors.
-
-- **Rename**() - Renames the file/directory on the server. Low level method that should NOT be used in most cases. Prefer `MoveFile()` and `MoveDirectory()`. Throws exceptions if the source does not exist, or if the destination already exists.
-
-- **GetModifiedTime**() - Gets the last modified date/time of the file or folder. Result may be in server timezone, local timezone or UTC, depending on `type` argument.
-
-- **SetModifiedTime**() - Modifies the last modified date/time of the file or folder. Input may be in server timezone, local timezone or UTC, depending on `type` argument.
-
-- **GetFileSize**() - Gets the size of the file in bytes, or -1 if not found.
-
-- **DereferenceLink**() - Recursively dereferences a symbolic link and returns the full path if found. The `MaximumDereferenceCount` property controls how deep we recurse before giving up.
+  - **FileExists**() - Check if a file exists on the server.
+  
+  - **DeleteFile**() - Deletes the specified file on the server.
+  
+  - **MoveFile**() - Moves a file from one directory to another on the server. The destination file is deleted before moving if `FtpExists.Overwrite` is used. Only throws exceptions for critical errors.
+  
+  - **Rename**() - Renames the file/directory on the server. Low level method that should NOT be used in most cases. Prefer `MoveFile()` and `MoveDirectory()`. Throws exceptions if the source does not exist, or if the destination already exists.
+  
+  - **GetModifiedTime**() - Gets the last modified date/time of the file or folder. Result may be in server timezone, local timezone or UTC, depending on `type` argument.
+  
+  - **SetModifiedTime**() - Modifies the last modified date/time of the file or folder. Input may be in server timezone, local timezone or UTC, depending on `type` argument.
+  
+  - **GetFileSize**() - Gets the size of the file in bytes, or -1 if not found.
+  
+  - **DereferenceLink**() - Recursively dereferences a symbolic link and returns the full path if found. The `MaximumDereferenceCount` property controls how deep we recurse before giving up.
 
 
 ### File Permissions
 
 *Standard commands supported by most servers*
 
-- **GetChmod**() - Gets the CHMOD permissions of the file/folder, or 0 if not found.
-
-- **GetFilePermissions**() - Gets the permissions of the given file/folder as an FtpListItem object with all "Permission" properties set, or null if not found.
+  - **GetChmod**() - Gets the CHMOD permissions of the file/folder, or 0 if not found.
+  
+  - **GetFilePermissions**() - Gets the permissions of the given file/folder as an FtpListItem object with all "Permission" properties set, or null if not found.
 
 *Only supported by UNIX FTP servers which have the CHMOD extension installed and enabled.*
 
-- **Chmod**() - Modifies the permissions of the given file/folder, given the CHMOD value.
-
-- **SetFilePermissions**() - Modifies the permissions of the given file/folder, given seperate owner/group/other values (`FtpPermission` enum).
+  - **Chmod**() - Modifies the permissions of the given file/folder, given the CHMOD value.
+  
+  - **SetFilePermissions**() - Modifies the permissions of the given file/folder, given seperate owner/group/other values (`FtpPermission` enum).
 
 
 ### File Hashing
@@ -366,177 +367,177 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 *Standard commands supported by most servers*
 
-- **HashAlgorithms** - Get the hash types supported by the server, if any (represented by flags).
-
-- **GetHash**() - Gets the hash of an object on the server using the currently selected hash algorithm. Supported algorithms are available in the `HashAlgorithms` property. You should confirm that it's not equal to `FtpHashAlgorithm.NONE` (which means the server does not support the HASH command).
-
-- **GetHashAlgorithm**() - Query the server for the currently selected hash algorithm for the HASH command. 
-
-- **SetHashAlgorithm**() - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
+  - **HashAlgorithms** - Get the hash types supported by the server, if any (represented by flags).
+  
+  - **GetHash**() - Gets the hash of an object on the server using the currently selected hash algorithm. Supported algorithms are available in the `HashAlgorithms` property. You should confirm that it's not equal to `FtpHashAlgorithm.NONE` (which means the server does not support the HASH command).
+  
+  - **GetHashAlgorithm**() - Query the server for the currently selected hash algorithm for the HASH command. 
+  
+  - **SetHashAlgorithm**() - Selects a hash algorithm for the HASH command, and stores this selection on the server. 
 
 *Non-standard commands supported by certain servers only. [Learn more](#faq_hashing)*
 
-- **GetChecksum**() - Retrieves a checksum of the given file using a checksumming method that the server supports, if any. The algorithm used goes in this order : HASH, MD5, XMD5, XSHA1, XSHA256, XSHA512, XCRC.
-
-- **GetMD5**() - Retrieves the MD5 checksum of the given file, if the server supports it.
-
-- **GetXMD5**() - Retrieves the MD5 checksum of the given file, if the server supports it.
-
-- **GetXSHA1**() - Retrieves the SHA1 checksum of the given file, if the server supports it.
-
-- **GetXSHA256**() - Retrieves the SHA256 checksum of the given file, if the server supports it.
-
-- **GetXSHA512**() - Retrieves the SHA512 checksum of the given file, if the server supports it.
-
-- **GetXCRC**() - Retrieves the CRC32 checksum of the given file, if the server supports it.
+  - **GetChecksum**() - Retrieves a checksum of the given file using a checksumming method that the server supports, if any. The algorithm used goes in this order : HASH, MD5, XMD5, XSHA1, XSHA256, XSHA512, XCRC.
+  
+  - **GetMD5**() - Retrieves the MD5 checksum of the given file, if the server supports it.
+  
+  - **GetXMD5**() - Retrieves the MD5 checksum of the given file, if the server supports it.
+  
+  - **GetXSHA1**() - Retrieves the SHA1 checksum of the given file, if the server supports it.
+  
+  - **GetXSHA256**() - Retrieves the SHA256 checksum of the given file, if the server supports it.
+  
+  - **GetXSHA512**() - Retrieves the SHA512 checksum of the given file, if the server supports it.
+  
+  - **GetXCRC**() - Retrieves the CRC32 checksum of the given file, if the server supports it.
 
 
 ### FTPS
 
-- **EncryptionMode** - Type of SSL to use, or none. Explicit is TLS, Implicit is SSL. **Default:** FtpEncryptionMode.None.
-
-- **DataConnectionEncryption** - Indicates if data channel transfers should be encrypted. **Default:** true.
-
-- **SslProtocols** - Encryption protocols to use. **Default:** SslProtocols.Default.
-
-- **ClientCertificates** - X509 client certificates to be used in SSL authentication process. [Learn more.](#faq_certs)
-
-- **ValidateCertificate** - Event is fired to validate SSL certificates. If this event is not handled and there are errors validating the certificate the connection will be aborted.
-
-- **PlainTextEncryption** - Disable encryption immediately after connecting with FTPS, using the CCC command. This is useful when you have a FTP firewall that requires plaintext FTP, but your server mandates FTPS connections. **Default:** false.
+  - **EncryptionMode** - Type of SSL to use, or none. Explicit is TLS, Implicit is SSL. **Default:** FtpEncryptionMode.None.
+  
+  - **DataConnectionEncryption** - Indicates if data channel transfers should be encrypted. **Default:** true.
+  
+  - **SslProtocols** - Encryption protocols to use. **Default:** SslProtocols.Default.
+  
+  - **ClientCertificates** - X509 client certificates to be used in SSL authentication process. [Learn more.](#faq_certs)
+  
+  - **ValidateCertificate** - Event is fired to validate SSL certificates. If this event is not handled and there are errors validating the certificate the connection will be aborted.
+  
+  - **PlainTextEncryption** - Disable encryption immediately after connecting with FTPS, using the CCC command. This is useful when you have a FTP firewall that requires plaintext FTP, but your server mandates FTPS connections. **Default:** false.
 
 
 ### Advanced Settings
 
 *FTP Protocol*
 
-- **DataConnectionType** - Active or Passive connection. **Default:** FtpDataConnectionType.AutoPassive (tries EPSV then PASV then gives up)
-
-- **Encoding** - Text encoding (ASCII or UTF8) used when talking with the server. ASCII is default, but upon connection, we switch to UTF8 if supported by the server. Manually setting this value overrides automatic detection. **Default:** Auto.
-
-- **InternetProtocolVersions** - Whether to use IPV4 and/or IPV6 when making a connection. All addresses returned during name resolution are tried until a successful connection is made. **Default:** Any.
-
-- **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
-
-- **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
-
-- **RetryAttempts** - The retry attempts allowed when a verification failure occurs during download or upload. **Default:** 1.
-
-- **IsClone** - Checks if this control connection is a clone. **Default:** false.
+  - **DataConnectionType** - Active or Passive connection. **Default:** FtpDataConnectionType.AutoPassive (tries EPSV then PASV then gives up)
+  
+  - **Encoding** - Text encoding (ASCII or UTF8) used when talking with the server. ASCII is default, but upon connection, we switch to UTF8 if supported by the server. Manually setting this value overrides automatic detection. **Default:** Auto.
+  
+  - **InternetProtocolVersions** - Whether to use IPV4 and/or IPV6 when making a connection. All addresses returned during name resolution are tried until a successful connection is made. **Default:** Any.
+  
+  - **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
+  
+  - **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
+  
+  - **RetryAttempts** - The retry attempts allowed when a verification failure occurs during download or upload. **Default:** 1.
+  
+  - **IsClone** - Checks if this control connection is a clone. **Default:** false.
 
 
 
 *File Listings*
 
-- **ListingParser** - File listing parser to be used. Automatically calculated based on the type of the server, unless changed. File listing parsing has improved in 2017, but to use the older parsing routines please use `FtpParser.Legacy`. **Default:** `FtpParser.Auto`.
-
-- **ListingCulture** - Culture used to parse file listings. **Default:** `CultureInfo.InvariantCulture`.
-
-- **TimeOffset** - Time difference between server and client, in hours. If the server is located in Amsterdam and you are in Los Angeles then the time difference is 9 hours. **Default:** 0.
-
-- **RecursiveList** - Check if your server supports a recursive LIST command (`LIST -R`).
-
-- **BulkListing** - If true, increases performance of GetListing by reading multiple lines of the file listing at once. If false then GetListing will read file listings line-by-line. If GetListing is having issues with your server, set it to false. **Default:** true.
-
-- **BulkListingLength** - Bytes to read during GetListing. Only honored if BulkListing is true. **Default:** 128.
+  - **ListingParser** - File listing parser to be used. Automatically calculated based on the type of the server, unless changed. File listing parsing has improved in 2017, but to use the older parsing routines please use `FtpParser.Legacy`. **Default:** `FtpParser.Auto`.
+  
+  - **ListingCulture** - Culture used to parse file listings. **Default:** `CultureInfo.InvariantCulture`.
+  
+  - **TimeOffset** - Time difference between server and client, in hours. If the server is located in Amsterdam and you are in Los Angeles then the time difference is 9 hours. **Default:** 0.
+  
+  - **RecursiveList** - Check if your server supports a recursive LIST command (`LIST -R`).
+  
+  - **BulkListing** - If true, increases performance of GetListing by reading multiple lines of the file listing at once. If false then GetListing will read file listings line-by-line. If GetListing is having issues with your server, set it to false. **Default:** true.
+  
+  - **BulkListingLength** - Bytes to read during GetListing. Only honored if BulkListing is true. **Default:** 128.
 
 
 
 *File Transfer*
 
-- **TransferChunkSize** - Chunk size (in bytes) used during upload/download of files. **Default:** 65536 (65 KB).
-
-- **UploadRateLimit** - Rate limit for uploads (in kbyte/s), honored by [high level API](#highlevel). **Default:** 0 (Unlimited).
-
-- **DownloadRateLimit** - Rate limit for downloads (in kbyte/s), honored by [high level API](#highlevel). **Default:** 0 (Unlimited).
-
-- **UploadDataType** - Upload files in ASCII or Binary mode? **Default:** FtpDataType.Binary.
-
-- **DownloadDataType** - Download files in ASCII or Binary mode? **Default:** FtpDataType.Binary.
+  - **TransferChunkSize** - Chunk size (in bytes) used during upload/download of files. **Default:** 65536 (65 KB).
+  
+  - **UploadRateLimit** - Rate limit for uploads (in kbyte/s), honored by [high level API](#highlevel). **Default:** 0 (Unlimited).
+  
+  - **DownloadRateLimit** - Rate limit for downloads (in kbyte/s), honored by [high level API](#highlevel). **Default:** 0 (Unlimited).
+  
+  - **UploadDataType** - Upload files in ASCII or Binary mode? **Default:** FtpDataType.Binary.
+  
+  - **DownloadDataType** - Download files in ASCII or Binary mode? **Default:** FtpDataType.Binary.
 
 
 
 *Active FTP*
 
-- **ActivePorts** - List of ports to try using for Active FTP connections, or null to automatically select a port. **Default:** null.
-
-- **AddressResolver** - Delegate used for resolving local address, used for active data connections. This can be used in case you're behind a router, but port forwarding is configured to forward the ports from your router to your internal IP. In that case, we need to send the router's IP instead of our internal IP.
+  - **ActivePorts** - List of ports to try using for Active FTP connections, or null to automatically select a port. **Default:** null.
+  
+  - **AddressResolver** - Delegate used for resolving local address, used for active data connections. This can be used in case you're behind a router, but port forwarding is configured to forward the ports from your router to your internal IP. In that case, we need to send the router's IP instead of our internal IP.
 
 
 *Timeouts*
 
-- **ConnectTimeout** - Time to wait (in milliseconds) for a connection attempt to succeed, before giving up. **Default:** 15000 (15 seconds).
-
-- **ReadTimeout** - Time to wait (in milliseconds) for data to be read from the underlying stream, before giving up. Honored by all asynchronous methods as well. **Default:** 15000 (15 seconds).
-
-- **DataConnectionConnectTimeout** - Time to wait (in milliseconds) for a data connection to be established, before giving up. **Default:** 15000 (15 seconds).
-
-- **DataConnectionReadTimeout** - Time to wait (in milliseconds) for the server to send data on the data channel, before giving up. **Default:** 15000 (15 seconds).
-
-- **SocketPollInterval** - Time that must pass (in milliseconds) since the last socket activity before calling `Poll()` on the socket to test for connectivity. Setting this interval too low will have a negative impact on perfomance. Setting this interval to 0 disables Poll()'ing all together. **Default:** 15000 (15 seconds).
+  - **ConnectTimeout** - Time to wait (in milliseconds) for a connection attempt to succeed, before giving up. **Default:** 15000 (15 seconds).
+  
+  - **ReadTimeout** - Time to wait (in milliseconds) for data to be read from the underlying stream, before giving up. Honored by all asynchronous methods as well. **Default:** 15000 (15 seconds).
+  
+  - **DataConnectionConnectTimeout** - Time to wait (in milliseconds) for a data connection to be established, before giving up. **Default:** 15000 (15 seconds).
+  
+  - **DataConnectionReadTimeout** - Time to wait (in milliseconds) for the server to send data on the data channel, before giving up. **Default:** 15000 (15 seconds).
+  
+  - **SocketPollInterval** - Time that must pass (in milliseconds) since the last socket activity before calling `Poll()` on the socket to test for connectivity. Setting this interval too low will have a negative impact on perfomance. Setting this interval to 0 disables Poll()'ing all together. **Default:** 15000 (15 seconds).
 
 
 *Socket Settings*
 
-- **SocketKeepAlive** - Set `SocketOption.KeepAlive` on all future stream sockets. **Default:** false.
-
-- **StaleDataCheck** - Check if there is stale (unrequested data) sitting on the socket or not. In some cases the control connection may time out but before the server closes the connection it might send a 4xx response that was unexpected and can cause synchronization errors with transactions. To avoid this problem the Execute() method checks to see if there is any data available on the socket before executing a command. **Default:** true.
-
-- **EnableThreadSafeDataConnections** - Creates a new FTP connection for every file download and upload. This is slower but is a thread safe approach to make asynchronous operations on a single control connection transparent. Set this to `false` if your FTP server allows only one connection per username. [Learn more](#faq_etsdc)  **Default:** false.
+  - **SocketKeepAlive** - Set `SocketOption.KeepAlive` on all future stream sockets. **Default:** false.
+  
+  - **StaleDataCheck** - Check if there is stale (unrequested data) sitting on the socket or not. In some cases the control connection may time out but before the server closes the connection it might send a 4xx response that was unexpected and can cause synchronization errors with transactions. To avoid this problem the Execute() method checks to see if there is any data available on the socket before executing a command. **Default:** true.
+  
+  - **EnableThreadSafeDataConnections** - Creates a new FTP connection for every file download and upload. This is slower but is a thread safe approach to make asynchronous operations on a single control connection transparent. Set this to `false` if your FTP server allows only one connection per username. [Learn more](#faq_etsdc)  **Default:** false.
 
 
 ### Utilities
 
 Please import `FluentFTP` to use these extension methods, or access them directly under the `FtpExtensions` class.
 
-- **GetFtpPath**(path) - Converts the specified local file/directory path into a valid FTP file system path
-
-- **GetFtpPath**(path, segments) - Creates a valid FTP path by appending the specified segments to this string
-
-- **GetFtpDirectoryName**(path) - Gets the parent directory path of the given file path
-
-- **GetFtpFileName**(path) - Gets the file name and extension (if any) from the path
-
-- **GetFtpDate**(date, styles) - Tries to convert the string FTP date representation into a date time object
-
-- **FileSizeToString**(bytes) - Converts a file size in bytes to a string representation (eg. `12345` becomes `12.3 KB`)
+  - **GetFtpPath**(path) - Converts the specified local file/directory path into a valid FTP file system path
+  
+  - **GetFtpPath**(path, segments) - Creates a valid FTP path by appending the specified segments to this string
+  
+  - **GetFtpDirectoryName**(path) - Gets the parent directory path of the given file path
+  
+  - **GetFtpFileName**(path) - Gets the file name and extension (if any) from the path
+  
+  - **GetFtpDate**(date, styles) - Tries to convert the string FTP date representation into a date time object
+  
+  - **FileSizeToString**(bytes) - Converts a file size in bytes to a string representation (eg. `12345` becomes `12.3 KB`)
 
 Please access these static methods directly under the `FtpClient` class.
 
-- **GetPublicIP**() - Use the Ipify service to calculate your public IP. Useful if you are behind a router or don't have a static IP.
+  - **GetPublicIP**() - Use the Ipify service to calculate your public IP. Useful if you are behind a router or don't have a static IP.
 
 
 ### Logging
 
 Please see these [FAQ entries](#faq_trace) for help on logging & debugging.
 
-- client.**OnLogEvent** - A property of `FtpClient`. Assign this to a callback that will be fired every time a message is logged.
-
-- FtpTrace.**LogFunctions** - Include high-level function calls in logs? **Default:** true.
-
-- FtpTrace.**LogIP** - Include server IP addresses in logs? **Default:** true.
-
-- FtpTrace.**LogUserName** - Include FTP usernames in logs? **Default:** true.
-
-- FtpTrace.**LogPassword** - Include FTP passwords in logs? **Default:** false.
-
-- FtpTrace.**LogPrefix** - Log all messages prefixed with "FluentFTP". **Default:** false.
-
-- FtpTrace.**WriteLine** - Log a message or error to all registered listeners.
+  - client.**OnLogEvent** - A property of `FtpClient`. Assign this to a callback that will be fired every time a message is logged.
+  
+  - FtpTrace.**LogFunctions** - Include high-level function calls in logs? **Default:** true.
+  
+  - FtpTrace.**LogIP** - Include server IP addresses in logs? **Default:** true.
+  
+  - FtpTrace.**LogUserName** - Include FTP usernames in logs? **Default:** true.
+  
+  - FtpTrace.**LogPassword** - Include FTP passwords in logs? **Default:** false.
+  
+  - FtpTrace.**LogPrefix** - Log all messages prefixed with "FluentFTP". **Default:** false.
+  
+  - FtpTrace.**WriteLine** - Log a message or error to all registered listeners.
 
 *.NET Standard only*
 
-- FtpTrace.**LogToConsole** - Should FTP communication be be logged to the console? **Default:** false.
-
-- FtpTrace.**LogToFile** - Set this to a file path to append all FTP communication to it. **Default:** false.
+  - FtpTrace.**LogToConsole** - Should FTP communication be be logged to the console? **Default:** false.
+  
+  - FtpTrace.**LogToFile** - Set this to a file path to append all FTP communication to it. **Default:** false.
 
 *.NET Framework only*
 
-- FtpTrace.**FlushOnWrite** - Flush trace listeners after writing each command. **Default:** true.
-
-- FtpTrace.**AddListener** - Add a logger to the system. [Learn more](#faq_trace)
-
-- FtpTrace.**RemoveListener** - Remove a logger from the system.
+  - FtpTrace.**FlushOnWrite** - Flush trace listeners after writing each command. **Default:** true.
+  
+  - FtpTrace.**AddListener** - Add a logger to the system. [Learn more](#faq_trace)
+  
+  - FtpTrace.**RemoveListener** - Remove a logger from the system.
 
 
 ## FTP Support
@@ -730,11 +731,11 @@ client.DownloadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4", FtpLocalExists.App
 
 Other options are:
 
-- `FtpLocalExists.Skip` - If the local file exists, we blindly skip downloading it without any more checks.
-
-- `FtpLocalExists.Overwrite` - If the local file exists, we restart the download and overwrite the file. 
-
-- `FtpLocalExists.Append` - If the local file exists, we resume the download by checking the local file size, and append the missing data to the file.
+  - `FtpLocalExists.Skip` - If the local file exists, we blindly skip downloading it without any more checks.
+  
+  - `FtpLocalExists.Overwrite` - If the local file exists, we restart the download and overwrite the file. 
+  
+  - `FtpLocalExists.Append` - If the local file exists, we resume the download by checking the local file size, and append the missing data to the file.
 
 
 --------------------------------------------------------
@@ -775,17 +776,17 @@ client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4", FtpExists.Overwrite,
 
 All the possible configurations are:
 
-- `FtpVerify.OnlyChecksum` - Verify checksum, return true/false based on success.
-
-- `FtpVerify.Delete` - Verify checksum, delete target file if mismatch.
-
-- `FtpVerify.Retry` - Verify checksum, retry copying X times and then give up.
-
-- `FtpVerify.Retry | FtpVerify.Throw` - Verify checksum, retry copying X times, then throw an error if still mismatching.
-
-- `FtpVerify.Retry | FtpVerify.Delete` - Verify checksum, retry copying X times, then delete target file if still mismatching.
-
-- `FtpVerify.Retry | FtpVerify.Delete | FtpVerify.Throw` - Verify checksum, retry copying X times, delete target file if still mismatching, then throw an error
+  - `FtpVerify.OnlyChecksum` - Verify checksum, return true/false based on success.
+  
+  - `FtpVerify.Delete` - Verify checksum, delete target file if mismatch.
+  
+  - `FtpVerify.Retry` - Verify checksum, retry copying X times and then give up.
+  
+  - `FtpVerify.Retry | FtpVerify.Throw` - Verify checksum, retry copying X times, then throw an error if still mismatching.
+  
+  - `FtpVerify.Retry | FtpVerify.Delete` - Verify checksum, retry copying X times, then delete target file if still mismatching.
+  
+  - `FtpVerify.Retry | FtpVerify.Delete | FtpVerify.Throw` - Verify checksum, retry copying X times, delete target file if still mismatching, then throw an error
 
 
 --------------------------------------------------------
@@ -863,16 +864,16 @@ client.Encoding = System.Text.Encoding.GetEncoding(1252); // ANSI codepage 1252 
 
 Here is the full list of codepages based on the charset you need:
 
-- 874 – English + Thai
-- 1250 – English + Central Europe
-- 1251 – English + Cyrillic (Russian)
-- 1252 – English + European (accented characters)
-- 1253 – English + Greek
-- 1254 – English + Turkish
-- 1255 – English + Hebrew
-- 1256 – English + Arabic
-- 1257 – English + Baltic
-- 1258 – English + Vietnamese
+  - 874 – English + Thai
+  - 1250 – English + Central Europe
+  - 1251 – English + Cyrillic (Russian)
+  - 1252 – English + European (accented characters)
+  - 1253 – English + Greek
+  - 1254 – English + Turkish
+  - 1255 – English + Hebrew
+  - 1256 – English + Arabic
+  - 1257 – English + Baltic
+  - 1258 – English + Vietnamese
 
 
 --------------------------------------------------------
@@ -1008,9 +1009,10 @@ FtpTrace.LogFunctions = false;
 **How do I omit sensitive information from the logs?**
 
 Use these settings to control what data is included in the logs:
-- `FtpTrace.LogUserName` - Log FTP user names?
-- `FtpTrace.LogPassword` - Log FTP passwords?
-- `FtpTrace.LogIP` - Log FTP server IP addresses?
+
+  - `FtpTrace.LogUserName` - Log FTP user names?
+  - `FtpTrace.LogPassword` - Log FTP passwords?
+  - `FtpTrace.LogIP` - Log FTP server IP addresses?
 
 
 --------------------------------------------------------

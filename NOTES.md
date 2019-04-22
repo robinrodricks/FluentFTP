@@ -4,14 +4,14 @@
 
 FluentFTP uses [semantic versioning](http://semver.org/), a package numbering scheme that indicates API compatibility between releases. A version consists of `MAJOR.MINOR.PATCH`, that use this scheme:
 
- - **Major** version changed when incompatible/breaking changes are made to the API
-   - eg: Methods/properties are removed, Method arguments are removed/refactored
-	
- - **Minor** version changed when functionality has been added in a backwards-compatible manner
-   - eg: Methods/properties are added, New arguments added into methods
-	
- - **Patch** version changed when backwards-compatible bug fixes are released 
-   - eg: Fixes/minor features are added
+  - **Major** version changed when incompatible/breaking changes are made to the API
+    - eg: Methods/properties are removed, Method arguments are removed/refactored
+ 	
+  - **Minor** version changed when functionality has been added in a backwards-compatible manner
+    - eg: Methods/properties are added, New arguments added into methods
+ 	
+  - **Patch** version changed when backwards-compatible bug fixes are released 
+    - eg: Fixes/minor features are added
 
 ### Stream Handling
 
@@ -122,16 +122,16 @@ This is not a bug in FluentFTP. RFC959 says that EOF on stream mode transfers is
 
 # Credits
 
-- [J.P. Trosclair](https://github.com/jptrosclair) - Original creator, owner upto 2016, FTP/FTPS support, User authentication, Low level upload/download/append API, Basic file management commands, File hashing & checksums
-- [Robin Rodricks](https://github.com/robinrodricks) - Owner and maintainer from 2016 onwards, Nuget package, .NET 2.0 version, .NET core version, documentation (API docs, FTP support table, FAQ), MSBuild automation, High level upload/download API, Reliable chunked file transfer, Byte/stream upload/download API, Multi file upload/download, OS-specific directory listing parsers, Chmod/file permissions, CCC command support, New commands (SetModifiedTime, MoveFile, MoveDirectory), Rewritte DeleteDirectory & FileExists, Server timezone conversion, Hiding sensitive data from logs, Argument validation, Numerous fixes and maintainance
-- [Artiom Chilaru](https://github.com/artiomchi) - Migrate to a single VS 2017 solution, Continuous Integration using AppVeyor, New async methods for UploadFile/DownloadFile/UploadFiles/DownloadFiles, Numerous fixes and improvements for .NET core
-- [Jordan Blacker](https://github.com/jblacker) - `async`/`await` support for all methods, post-transfer hash verification, configurable error handling, multiple log levels
-- [Zhaoquan Huang](https://github.com/taoyouh) - Async methods for .NET Standard, Fixes and improvements
-- [Atif Aziz](https://github.com/atifaziz) & Joseph Albahari - LINQBridge (allows LINQ in .NET 2.0)
-- [R. Harris](https://github.com/rharrisxtheta) - Fixes and improvements
-- [Roberto Sarati](https://github.com/sierrodc) - Fixes and improvements
-- [Amer Koleci](https://github.com/amerkoleci) - Fixes and improvements
-- [Tim Horemans](https://github.com/worstenbrood) - Fixes and improvements
-- [Nerijus Dzindzeleta](https://github.com/NerijusD) - Fixes and improvements
-- [Rune Ibsen](https://github.com/ibsenrune) - Fixes and improvements
-- [Lukazoid](https://github.com/Lukazoid) - Fixes to FtpDataStream
+  - [J.P. Trosclair](https://github.com/jptrosclair) - Original creator, owner upto 2016, FTP/FTPS support, User authentication, Low level upload/download/append API, Basic file management commands, File hashing & checksums
+  - [Robin Rodricks](https://github.com/robinrodricks) - Owner and maintainer from 2016 onwards, Nuget package, .NET 2.0 version, .NET core version, documentation (API docs, FTP support table, FAQ), MSBuild automation, High level upload/download API, Reliable chunked file transfer, Byte/stream upload/download API, Multi file upload/download, OS-specific directory listing parsers, Chmod/file permissions, CCC command support, New commands (SetModifiedTime, MoveFile, MoveDirectory), Rewritte DeleteDirectory & FileExists, Server timezone conversion, Hiding sensitive data from logs, Argument validation, Numerous fixes and maintainance
+  - [Artiom Chilaru](https://github.com/artiomchi) - Migrate to a single VS 2017 solution, Continuous Integration using AppVeyor, New async methods for UploadFile/DownloadFile/UploadFiles/DownloadFiles, Numerous fixes and improvements for .NET core
+  - [Jordan Blacker](https://github.com/jblacker) - `async`/`await` support for all methods, post-transfer hash verification, configurable error handling, multiple log levels
+  - [Zhaoquan Huang](https://github.com/taoyouh) - Async methods for .NET Standard, Fixes and improvements
+  - [Atif Aziz](https://github.com/atifaziz) & Joseph Albahari - LINQBridge (allows LINQ in .NET 2.0)
+  - [R. Harris](https://github.com/rharrisxtheta) - Fixes and improvements
+  - [Roberto Sarati](https://github.com/sierrodc) - Fixes and improvements
+  - [Amer Koleci](https://github.com/amerkoleci) - Fixes and improvements
+  - [Tim Horemans](https://github.com/worstenbrood) - Fixes and improvements
+  - [Nerijus Dzindzeleta](https://github.com/NerijusD) - Fixes and improvements
+  - [Rune Ibsen](https://github.com/ibsenrune) - Fixes and improvements
+  - [Lukazoid](https://github.com/Lukazoid) - Fixes to FtpDataStream
