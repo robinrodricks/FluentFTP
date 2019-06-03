@@ -297,7 +297,8 @@ namespace FluentFTP {
 						if (se.ErrorCode != 10048)
 							throw;
 #else
-                        throw;
+						if (se.SocketErrorCode != SocketError.AddressAlreadyInUse)
+							throw;
 #endif
 					}
 				}
@@ -437,7 +438,8 @@ namespace FluentFTP {
                         if (se.ErrorCode != 10048)
                             throw;
 #else
-                        throw;
+						if (se.SocketErrorCode != SocketError.AddressAlreadyInUse)
+							throw;
 #endif
                     }
                 }
