@@ -855,8 +855,26 @@ namespace FluentFTP {
 
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 #if CORE
-				m_socket.ConnectAsync(addresses[i], port).Wait();
-                break;
+				var args = new SocketAsyncEventArgs {
+					RemoteEndPoint = new IPEndPoint(addresses[i], port)
+				};
+				var connectEvent = new ManualResetEvent(false);
+				args.Completed += (s, e) => {
+					connectEvent.Set();
+				};
+
+				if (m_socket.ConnectAsync(args)) {
+					if (!connectEvent.WaitOne(m_connectTimeout)) {
+						Close();
+						if ((i + 1) == addresses.Length) {
+							throw new TimeoutException("Timed out trying to connect!");
+						}
+					}
+				}
+				if (args.SocketError != SocketError.Success)
+					throw new SocketException((int)args.SocketError);
+
+				break;
 #else
 				ar = m_socket.BeginConnect(addresses[i], port, null, null);
 				if (!ar.AsyncWaitHandle.WaitOne(m_connectTimeout, true)) {
