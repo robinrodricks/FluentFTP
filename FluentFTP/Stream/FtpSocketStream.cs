@@ -1261,11 +1261,7 @@ namespace FluentFTP {
 				connectEvent.Set();
 			};
 			if (!m_socket.AcceptAsync(args)) {
-				if (args.SocketError != SocketError.Success)
-					throw new SocketException((int)args.SocketError);
-
-				m_netStream = new NetworkStream(args.AcceptSocket);
-				m_netStream.ReadTimeout = m_readTimeout;
+				CheckResult(args);
 				return null;
 			}
 			return args;
@@ -1280,12 +1276,17 @@ namespace FluentFTP {
 				Close();
 				throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
 			}
+			CheckResult(args);
+		}
+
+		private void CheckResult(SocketAsyncEventArgs args)
+		{
 			if (args.SocketError != SocketError.Success)
 				throw new SocketException((int)args.SocketError);
+			m_socket = args.AcceptSocket;
 			m_netStream = new NetworkStream(args.AcceptSocket);
 			m_netStream.ReadTimeout = m_readTimeout;
 		}
-
 #endif
 	}
 }
