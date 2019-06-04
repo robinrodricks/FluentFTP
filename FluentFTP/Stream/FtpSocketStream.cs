@@ -1251,5 +1251,41 @@ namespace FluentFTP {
 			}
 		}
 #endif
+
+#if CORE
+		internal SocketAsyncEventArgs BeginAccept() {
+			var args = new SocketAsyncEventArgs();
+			var connectEvent = new ManualResetEvent(false);
+			args.UserToken = connectEvent;
+			args.Completed += (s, e) => {
+				connectEvent.Set();
+			};
+			if (!m_socket.AcceptAsync(args)) {
+				if (args.SocketError != SocketError.Success)
+					throw new SocketException((int)args.SocketError);
+
+				m_netStream = new NetworkStream(args.AcceptSocket);
+				m_netStream.ReadTimeout = m_readTimeout;
+				return null;
+			}
+			return args;
+		}
+
+		internal void EndAccept(SocketAsyncEventArgs args, int timeout)
+		{
+			if (args == null)
+				return;
+			var connectEvent = (ManualResetEvent)args.UserToken;
+			if (!connectEvent.WaitOne(timeout)) {
+				Close();
+				throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
+			}
+			if (args.SocketError != SocketError.Success)
+				throw new SocketException((int)args.SocketError);
+			m_netStream = new NetworkStream(args.AcceptSocket);
+			m_netStream.ReadTimeout = m_readTimeout;
+		}
+
+#endif
 	}
 }

@@ -307,7 +307,9 @@ namespace FluentFTP {
 				if (!success)
 					throw new Exception("No valid active data port available!");
 			}
-#if !CORE
+#if CORE
+			var args = stream.BeginAccept();
+#else
 			ar = stream.BeginAccept(null, null);
 #endif
 
@@ -368,7 +370,7 @@ namespace FluentFTP {
 			stream.CommandStatus = reply;
 
 #if CORE
-			stream.AcceptAsync().Wait();
+			stream.EndAccept(args, m_dataConnectionConnectTimeout);
 #else
 			ar.AsyncWaitHandle.WaitOne(m_dataConnectionConnectTimeout);
 			if (!ar.IsCompleted) {
