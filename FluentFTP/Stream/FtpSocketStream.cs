@@ -175,9 +175,9 @@ namespace FluentFTP {
 				if (m_netStream != null)
 					return m_netStream;
 #else
-				if (m_bufStream != null) {
-					return m_bufStream;
-				} else if (m_netStream != null) {
+				if (m_sslStream != null){
+					return m_sslStream;
+				}else if (m_netStream != null){
 					return m_netStream;
 				}
 #endif
@@ -770,16 +770,6 @@ namespace FluentFTP {
 			}
 
 #if !NO_SSL
-			if (m_bufStream != null) {
-				try {
-					m_bufStream.Dispose();
-				} catch (IOException ex) {
-					this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the BufferedStream: " + ex.ToString());
-				} finally {
-					m_bufStream = null;
-				}
-			}
-
 			if (m_sslStream != null) {
 				try {
 					m_sslStream.Dispose();
@@ -787,6 +777,16 @@ namespace FluentFTP {
 					this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the SslStream: " + ex.ToString());
 				} finally {
 					m_sslStream = null;
+				}
+			}
+
+			if (m_bufStream != null) {
+				try {
+					m_bufStream.Dispose();
+				} catch (IOException ex) {
+					this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the BufferedStream: " + ex.ToString());
+				} finally {
+					m_bufStream = null;
 				}
 			}
 #endif
@@ -799,9 +799,8 @@ namespace FluentFTP {
 		/// <param name="name">SocketOptionName</param>
 		/// <param name="value">SocketOptionValue</param>
 		public void SetSocketOption(SocketOptionLevel level, SocketOptionName name, bool value) {
-			if (m_socket == null) {
+			if (m_socket == null)
 				throw new InvalidOperationException("The underlying socket is null. Have you established a connection?");
-			}
 			m_socket.SetSocketOption(level, name, value);
 		}
 
@@ -1039,14 +1038,16 @@ namespace FluentFTP {
 				DateTime auth_start;
 				TimeSpan auth_time_total;
 
+				CreateBufferStream();
+
 #if CORE
-				m_sslStream = new SslStream(NetworkStream, true, new RemoteCertificateValidationCallback(
+				m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
 					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
 						return OnValidateCertificate(certificate, chain, sslPolicyErrors);
 					}
 				));
 #else
-				m_sslStream = new FtpSslStream(NetworkStream, true, new RemoteCertificateValidationCallback(
+				m_sslStream = new FtpSslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
 					delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
 						return OnValidateCertificate(certificate, chain, sslPolicyErrors);
 					}
@@ -1060,8 +1061,6 @@ namespace FluentFTP {
 				m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, true);
 #endif
 
-				m_bufStream = new BufferedStream(m_sslStream, 81920);
-
 				auth_time_total = DateTime.Now.Subtract(auth_start);
 				this.Client.LogStatus(FtpTraceLevel.Info, "FTPS Authentication Successful");
 				this.Client.LogStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
@@ -1074,6 +1073,28 @@ namespace FluentFTP {
 				this.Client.LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
 				throw;
 			}
+		}
+
+		/// <summary>
+		/// Conditionally create a SSL BufferStream based on the configuration in FtpClient.SslBuffering.
+		/// </summary>
+		private void CreateBufferStream() {
+
+			// Fix: SSL BufferStream is automatically disabled when using FTP proxies, and enabled in all other cases
+			if (this.Client.SslBuffering == FtpsBuffering.On ||
+				(this.Client.SslBuffering == FtpsBuffering.Auto && !this.Client.IsProxy())) {
+				m_bufStream = new BufferedStream(NetworkStream, 81920);
+			} else {
+				m_bufStream = null;
+			}
+		}
+
+		/// <summary>
+		/// If SSL Buffering is enabled it returns the BufferStream, else returns the internal NetworkStream.
+		/// </summary>
+		/// <returns></returns>
+		private Stream GetBufferStream() {
+			return m_bufStream != null ? (Stream)m_bufStream : (Stream)NetworkStream;
 		}
 
 #if ASYNC
@@ -1102,15 +1123,18 @@ namespace FluentFTP {
                 DateTime auth_start;
                 TimeSpan auth_time_total;
 
+	           CreateBufferStream();
+
 #if CORE
-                m_sslStream = new SslStream(NetworkStream, true, new RemoteCertificateValidationCallback(
-                    delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
-                        return OnValidateCertificate(certificate, chain, sslPolicyErrors);
-                    }
-                ));
+				m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
+					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
+						return OnValidateCertificate(certificate, chain, sslPolicyErrors);
+					}
+				));
 #else
-                m_sslStream = new FtpSslStream(NetworkStream, true, new RemoteCertificateValidationCallback(
-                    delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
+                m_sslStream = new FtpSslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
+                    delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+                    {
                         return OnValidateCertificate(certificate, chain, sslPolicyErrors);
                     }
                 ));
@@ -1118,8 +1142,6 @@ namespace FluentFTP {
 
                 auth_start = DateTime.Now;
                 await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, true);
-
-                m_bufStream = new BufferedStream(m_sslStream, 81920);
 
                 auth_time_total = DateTime.Now.Subtract(auth_start);
                 this.Client.LogStatus(FtpTraceLevel.Info, "FTPS Authentication Successful");
