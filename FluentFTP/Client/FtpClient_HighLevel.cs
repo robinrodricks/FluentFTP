@@ -1109,7 +1109,7 @@ namespace FluentFTP {
 				}
 
 				// open a file connection
-				if (offset == 0) {
+				if (offset == 0 && existsMode != FtpExists.AppendNoCheck) {
 					upStream = await OpenWriteAsync(remotePath, UploadDataType, checkFileExistsAgain, token);
 				} else {
 					upStream = await OpenAppendAsync(remotePath, UploadDataType, checkFileExistsAgain, token);
@@ -1221,6 +1221,7 @@ namespace FluentFTP {
 				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
 			}
 		}
+
 #endif
 
 		private bool ResumeUpload(string remotePath, ref Stream upStream, long offset, IOException ex) {
