@@ -5,10 +5,10 @@ namespace FluentFTP.Proxy {
 	/// The 'blue coat variant' forces the client to wait for a 220 FTP response code in 
 	/// the handshake phase.
 	/// </summary>
-	public class FtpClientUserAtHostProxyBlueCoat : FtpClientProxy {
+	public class FtpClientBlueCoatProxy : FtpClientProxy {
 		/// <summary> A FTP client with a user@host proxy identification. </summary>
 		/// <param name="proxy">Proxy information</param>
-		public FtpClientUserAtHostProxyBlueCoat(ProxyInfo proxy)
+		public FtpClientBlueCoatProxy(ProxyInfo proxy)
 			: base(proxy) {
 			ConnectionType = "User@Host";
 		}
@@ -17,7 +17,7 @@ namespace FluentFTP.Proxy {
 		/// Creates a new instance of this class. Useful in FTP proxy classes.
 		/// </summary>
 		protected override FtpClient Create() {
-			return new FtpClientUserAtHostProxyBlueCoat(Proxy);
+			return new FtpClientBlueCoatProxy(Proxy);
 		}
 
 		/// <summary> Redefine the first dialog: auth with proxy information </summary>
