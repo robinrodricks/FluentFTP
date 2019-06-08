@@ -601,6 +601,19 @@ namespace FluentFTP {
 			}
 		}
 
+		private FtpsBuffering m_SslBuffering = FtpsBuffering.Auto;
+		/// <summary>
+		/// Whether to use SSL Buffering to speed up data transfer during FTP operations
+		/// </summary>
+		public FtpsBuffering SslBuffering {
+			get {
+				return m_SslBuffering;
+			}
+			set {
+				m_SslBuffering = value;
+			}
+		}
+
 		FtpSslValidation m_sslvalidate = null;
 		/// <summary>
 		/// Event is fired to validate SSL certificates. If this event is
@@ -813,6 +826,7 @@ namespace FluentFTP {
 			conn.EncryptionMode = EncryptionMode;
 			conn.DataConnectionEncryption = DataConnectionEncryption;
 			conn.SslProtocols = SslProtocols;
+			conn.SslBuffering = SslBuffering;
 			conn.TransferChunkSize = TransferChunkSize;
 			conn.ListingParser = ListingParser;
 			conn.ListingCulture = ListingCulture;
@@ -1841,8 +1855,11 @@ namespace FluentFTP {
 			} else if (!path.StartsWith("/") && path.Substring(1, 1) != ":") {
 
 				// FIX : #380 for OpenVMS absolute paths are "SYS$SYSDEVICE:[USERS.mylogin]"
+				// FIX : #402 for OpenVMS absolute paths are "SYSDEVICE:[USERS.mylogin]"
 				if (ServerType == FtpServer.OpenVMS) {
-					if (path.Contains("$") && path.Contains(":[") && path.Contains("]")) {
+					if (path.Contains("SYS$SYSDEVICE:[") ||
+						path.Contains("SYSDEVICE:[") ||
+						(path.Contains("$") && path.Contains(":[") && path.Contains("]"))){
 						return path;
 					}
 				}
@@ -2000,11 +2017,14 @@ namespace FluentFTP {
         }
 #endif
 
-		private bool IsProxy() {
+		/// <summary>
+		/// Checks if this FTP/FTPS connection is made through a proxy.
+		/// </summary>
+		public bool IsProxy() {
 			return (this is FtpClientProxy);
 		}
 
-		private static string[] fileNotFoundStrings = new string[] { "can't find file, can't check for file existence", "does not exist", "failed to open file", "not found", "no such file", "cannot find the file", "cannot find", "could not get file", "not a regular file", "file unavailable", "file is unavailable", "file not unavailable", "file is not available", "no files found", "no file found" };
+		private static string[] fileNotFoundStrings = new string[] { "can't find file", "can't check for file existence", "does not exist", "failed to open file", "not found", "no such file", "cannot find the file", "cannot find", "could not get file", "not a regular file", "file unavailable", "file is unavailable", "file not unavailable", "file is not available", "no files found", "no file found" };
 		private bool IsKnownError(string reply, string[] strings) {
 			reply = reply.ToLower();
 			foreach (string msg in strings) {
