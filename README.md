@@ -396,11 +396,15 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 ### FTPS
 
+*Set these properties before you call Connect() to enable FTPS*
+
   - **EncryptionMode** - Type of SSL to use, or none. Explicit is TLS, Implicit is SSL. **Default:** FtpEncryptionMode.None.
   
   - **DataConnectionEncryption** - Indicates if data channel transfers should be encrypted. **Default:** true.
   
   - **SslProtocols** - Encryption protocols to use. **Default:** SslProtocols.Default.
+  
+  - **SslBuffering** - Whether to use SSL Buffering to speed up data transfer during FTP operations. Turn this off if you are having random issues with FTPS/SSL file transfer. **Default:** FtpsBuffering.Auto.
   
   - **ClientCertificates** - X509 client certificates to be used in SSL authentication process. [Learn more.](#faq_certs)
   
@@ -1283,6 +1287,7 @@ According to [this](https://msdn.microsoft.com/en-us/library/ms881872.aspx) from
 **After successfully transfering a single file with OpenWrite/OpenAppend, the subsequent files fail with some random error, like "Malformed PASV response"**
 
 You need to call `FtpReply status = GetReply()` after you finish transfering a file to ensure no stale data is left over, which can mess up subsequent commands.
+
 
 
 --------------------------------------------------------

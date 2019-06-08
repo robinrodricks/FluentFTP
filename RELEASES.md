@@ -1,5 +1,16 @@
 # Release Notes
 
+#### 25.0.0
+  - New: SSL Buffering is now switchable via the `SslBuffering` parameter
+  - Fix: SSL Buffering is automatically disabled when using FTP proxies, and enabled in all other cases
+  - Fix: Revert PR #383 as it was causing regression issues in SSL connectivity
+  - Fix: Disable automatic IP correction to fix connectivity issues via BlueCoat proxy servers
+  - Refactor: Rename `FtpClientUserAtHostProxyBlueCoat` to `FtpClientBlueCoatProxy`
+  - Fix: For OpenVMS absolute paths may not contain slashes but are still absolute (2nd revision)
+  - Fix: Detect file existence string `"Can't find file"` to fix FileExists check on some servers
+  - Fix: Feature parity between `FileExists` and `FileExistsAsync` methods (added support for FtpReply 550 check)
+  - Fix: Feature parity between `UploadFile` and `UploadFileAsync` methods (added support for AppendNoCheck handling)
+
 #### 24.0.0
   - New: Get detailed progress information for uploads/downloads via the `FtpProgress` object (thanks [n0ix](/n0ix))
   - New: Get transfer speed and ETA (estimated time of arrival) for uploads/downloads (thanks [n0ix](/n0ix))
