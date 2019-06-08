@@ -34,7 +34,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
     - Explicit and Implicit [SSL connections](#faq_ftps) are supported for the control and data connections using .NET's `SslStream`
     - Passive and active data connections (PASV, EPSV, PORT and EPRT)
     - Supports DrFTPD's PRET command, and the Unix CHMOD command
-    - Supports [FTP Proxies](#faq_loginproxy) (User@Host, HTTP 1.1)
+    - Supports [FTP Proxies](#faq_loginproxy) (User@Host, HTTP 1.1, BlueCoat)
     - [FTP command logging](#faq_log) using `TraceListeners` (passwords omitted) to [trace](#faq_trace) or [log output](#faq_logfile) to a file
     - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
   - **Asynchronous support:**
@@ -680,12 +680,16 @@ Create a new instance of `FtpClientHttp11Proxy` or `FtpClientUserAtHostProxy` an
 
 All of the [high-level methods](#highlevel) provide a `progress` argument that can be used to track upload/download progress.
 
-First create and configure a `ProgressBar` such that the `Minimum` is 0 and `Maximum` is 100. Then create a callback to provide to the Upload/Download method. This will be called with a value, where 0 to 100 indicates the percentage transfered, and -1 indicates unknown progress.
+To use this, first create a callback method to provide to the Upload/Download method. This will be called with an `FtpProgress` object, containing the percentage transferred as well as various statistics.
+
+If you are creating an UI in WinForms, create and configure a `ProgressBar` with the `Minimum` set to 0 and `Maximum` set to 100.
 
 ```cs
-Progress<double> progress = new Progress<double>(x => {
+// Callback method that accepts a FtpProgress object
+Progress<FtpProgress> progress = new Progress<FtpProgress>(x => {
+
 	// When progress in unknown, -1 will be sent
-	if (x < 0){
+	if (x.Progress < 0){
 		progressBar.IsIndeterminate = true;
 	}else{
 		progressBar.IsIndeterminate = false;
