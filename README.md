@@ -621,17 +621,19 @@ void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
 }
 ```
 
-If you have issues connecting to the server, try using either of these settings:
+If you have issues connecting to the server, try using either of these:
 
-*Method 1 - In .NET 4.7.2 if we just select None, the OS will pick the highest and most relevant one based on the OS setting.*
+*Let the OS pick the highest and most relevant TLS protocol.*
 ```cs
 client.SslProtocols = Security.Authentication.SslProtocols.None;
 ```
 
-*Method 2 - Prevent the OS from using TLS 1.0 which has issues on .NET Framework.*
+*Prevent the OS from using TLS 1.0 which has issues in .NET Framework.*
 ```cs
 client.SslProtocols = SslProtocols.Default | SslProtocols.Tls11 | SslProtocols.Tls12;
 ```
+
+If you are on Linux and failing to connect via SSL/TLS, you may be [having this issue](https://github.com/robinrodricks/FluentFTP/issues/347).
 
 
 --------------------------------------------------------
