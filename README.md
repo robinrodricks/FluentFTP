@@ -197,6 +197,11 @@ client.Disconnect();
   - [How can I contribute some changes to FluentFTP?](#faq_fork)
   - [How do I submit a pull request?](#faq_fork)
 
+**Very Common Issues**
+  - [Unable to read data from the transport connection : An existing connection was forcibly closed by the remote host](https://github.com/robinrodricks/FluentFTP/issues/104)
+  - [Timed out trying to read data from the socket stream!](https://github.com/robinrodricks/FluentFTP/issues/122)
+  - [FTPS not working on Linux since SSL session resumption is not supported](https://github.com/robinrodricks/FluentFTP/issues/347)
+
 **Common Issues**
   - [I'm getting login errors but I can login fine in Firefox/Filezilla](#faq_loginanon)
   - [FluentFTP fails to install in Visual Studio 2010 : 'System.Runtime' already has a dependency defined for 'FluentFTP'.](#trouble_install)
@@ -206,7 +211,6 @@ client.Disconnect();
   - [Many commands don't work on Windows CE](#trouble_windowsce)
   - [After successfully transfering a single file with OpenWrite/OpenAppend, the subsequent files fail with some random error, like "Malformed PASV response"](#trouble_getreply)
   - [SSL Negotiation is very slow during FTPS login](#trouble_ssl)
-  - [Unable to read data from the transport connection : An existing connection was forcibly closed by the remote host](#trouble_closedhost)
 
 
 ## API
@@ -617,6 +621,19 @@ void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
 }
 ```
 
+If you have issues connecting to the server, try using either of these settings:
+
+*Method 1 - In .NET 4.7.2 if we just select None, the OS will pick the highest and most relevant one based on the OS setting.*
+```cs
+client.SslProtocols = Security.Authentication.SslProtocols.None;
+```
+
+*Method 2 - Prevent the OS from using TLS 1.0 which has issues on .NET Framework.*
+```cs
+client.SslProtocols = SslProtocols.Default | SslProtocols.Tls11 | SslProtocols.Tls12;
+```
+
+
 --------------------------------------------------------
 <a name="faq_ftps"></a>
 **How do I validate the server's certificate when using FTPS?**
@@ -682,7 +699,7 @@ All of the [high-level methods](#highlevel) provide a `progress` argument that c
 
 To use this, first create a callback method to provide to the Upload/Download method. This will be called with an `FtpProgress` object, containing the percentage transferred as well as various statistics.
 
-If you are creating an UI in WinForms, create and configure a `ProgressBar` with the `Minimum` set to 0 and `Maximum` set to 100.
+If you are creating your UI in WinForms, create a `ProgressBar` with the `Minimum` = 0 and `Maximum` = 100.
 
 ```cs
 // Callback method that accepts a FtpProgress object
