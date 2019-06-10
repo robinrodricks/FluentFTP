@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 25.0.1
+  - New: `FtpAuthenticationException` for authentication errors (thanks [erik-wramner](/erik-wramner))
+
 #### 25.0.0
   - New: SSL Buffering is now switchable via the `SslBuffering` parameter
   - Fix: SSL Buffering is automatically disabled when using FTP proxies, and enabled in all other cases
