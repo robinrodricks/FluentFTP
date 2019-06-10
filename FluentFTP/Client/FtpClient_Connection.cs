@@ -1624,16 +1624,20 @@ namespace FluentFTP {
 		/// that the login procedure can be changed to support, for example,
 		/// a FTP proxy.
 		/// </summary>
+		/// <exception cref="FtpAuthenticationException">On authentication failures</exception>
+		/// <remarks>
+		/// To handle authentication failures without retries, catch FtpAuthenticationException.
+		/// </remarks>
 		protected virtual void Authenticate(string userName, string password) {
 			FtpReply reply;
 
 			if (!(reply = Execute("USER " + userName)).Success) {
-				throw new FtpCommandException(reply);
+				throw new FtpAuthenticationException(reply);
 			}
 
 			if (reply.Type == FtpResponseType.PositiveIntermediate &&
 				!(reply = Execute("PASS " + password)).Success) {
-				throw new FtpCommandException(reply);
+				throw new FtpAuthenticationException(reply);
 			}
 		}
 
@@ -1643,17 +1647,21 @@ namespace FluentFTP {
         /// that the login procedure can be changed to support, for example,
         /// a FTP proxy.
         /// </summary>
+		/// <exception cref="FtpAuthenticationException">On authentication failures</exception>
+		/// <remarks>
+		/// To handle authentication failures without retries, catch FtpAuthenticationException.
+		/// </remarks>
         protected virtual async Task AuthenticateAsync(string userName, string password, CancellationToken token)
         {
             FtpReply reply;
 
             if (!(reply = await ExecuteAsync("USER " + userName, token)).Success){
-                throw new FtpCommandException(reply);
+                throw new FtpAuthenticationException(reply);
 			}
 
             if (reply.Type == FtpResponseType.PositiveIntermediate
                 && !(reply = await ExecuteAsync("PASS " + password, token)).Success){
-                throw new FtpCommandException(reply);
+                throw new FtpAuthenticationException(reply);
 			}
         }
 #endif
