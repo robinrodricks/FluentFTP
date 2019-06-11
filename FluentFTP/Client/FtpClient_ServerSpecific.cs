@@ -112,6 +112,12 @@ namespace FluentFTP {
 					m_serverType = FtpServer.OpenVMS;
 				}
 
+				// Detect Homegate FTP server
+				// Welcome message: "220 Homegate FTP Server ready"
+				else if (welcome.Contains("Homegate FTP Server")) {
+					m_serverType = FtpServer.HomegateFTP;
+				}
+
 				// Detect Tandem/NonStop server
 				// Welcome message: "220 tdm-QWERTY-fp00.itc.intranet FTP SERVER T9552H02 (Version H02 TANDEM 11SEP2008) ready."
 				// Welcome message: "220 FTP SERVER T9552G08 (Version G08 TANDEM 15JAN2008) ready."

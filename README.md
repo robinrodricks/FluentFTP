@@ -1154,6 +1154,7 @@ You can read `ServerType` to get the exact type of FTP server software that you'
 - Cerberus
 - CrushFTP
 - glFTPd
+- Homegate FTP
 
 You can also read `ServerOS` to get the operating system of the FTP server you've connected to. We can detect:
 

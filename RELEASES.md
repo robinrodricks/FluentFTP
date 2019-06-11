@@ -2,6 +2,7 @@
 
 #### 25.0.1
   - New: `FtpAuthenticationException` for authentication errors (thanks [erik-wramner](/erik-wramner))
+  - New: Added support to detect Homegate FTP Server
 
 #### 25.0.0
   - New: SSL Buffering is now switchable via the `SslBuffering` parameter

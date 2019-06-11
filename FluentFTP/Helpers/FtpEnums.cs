@@ -675,7 +675,11 @@ namespace FluentFTP {
 		/// <summary>
 		/// Definitely glFTPd server
 		/// </summary>
-		glFTPd
+		glFTPd,
+		/// <summary>
+		/// Definitely Homegate FTP server
+		/// </summary>
+		HomegateFTP
 	}
 
 	/// <summary>
