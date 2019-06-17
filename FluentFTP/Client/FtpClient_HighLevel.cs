@@ -896,6 +896,13 @@ namespace FluentFTP {
 						case FtpExists.Skip:
 							if (fileExists) {
 								this.LogStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
+
+								// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
+								// send progress reports
+								if (progress != null) {
+									progress.Report(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0)));
+								}
+
 								return false;
 							}
 							break;
@@ -1075,6 +1082,13 @@ namespace FluentFTP {
 						case FtpExists.Skip:
 							if (fileExists) {
 								this.LogStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
+		
+								// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
+								// send progress reports
+								if (progress != null) {
+									progress.Report(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0)));
+								}
+
 								return false;
 							}
 							break;
