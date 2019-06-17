@@ -1929,7 +1929,7 @@ namespace FluentFTP {
 		}
 #endif
 
-		private static string[] unexpectedEOFStrings = new string[] { "Unexpected EOF for remote file", "Received an unexpected EOF", "Unexpected EOF" };
+		private static string[] unexpectedEOFStrings = new string[] { "unexpected eof for remote file", "received an unexpected eof", "unexpected eof" };
 
 		#endregion
 

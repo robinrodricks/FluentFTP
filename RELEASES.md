@@ -1,10 +1,10 @@
 # Release Notes
 
-#### 25.0.2
-  - Fix: Regression of #288 where upload hangs with only a few bytes left (thanks [cw-andrews](/cw-andrews))
+#### 25.0.3
   - Fix: Received an unexpected EOF or 0 bytes from the transport stream (thanks [mikemeinz](/mikemeinz))
   - Fix: `UploadFile()` progress callback is not called if the file already exists on the server
   - (.NET core) Fix: `Connect()` method sometimes causes the thread to hang indefinitely (thanks [radiy](/radiy))
+  - Fix: Regression of #288 where upload hangs with only a few bytes left (thanks [cw-andrews](/cw-andrews))
 
 #### 25.0.1
   - New: `FtpAuthenticationException` for authentication errors (thanks [erik-wramner](/erik-wramner))
