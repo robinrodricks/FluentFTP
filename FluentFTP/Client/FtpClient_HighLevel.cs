@@ -1882,7 +1882,7 @@ namespace FluentFTP {
 
 		private bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
 			// resume if server disconnects midway (fixes #39)
-			if (ex.InnerException != null || ex.Message.StartsWith("Unexpected EOF for remote file")) {
+			if (ex.InnerException != null || ex.Message.IsKnownError(unexpectedEOFStrings)) {
 				var ie = ex.InnerException as System.Net.Sockets.SocketException;
 #if CORE
 				if (ie == null || (ie != null && (int)ie.SocketErrorCode == 10054)) {
@@ -1900,7 +1900,7 @@ namespace FluentFTP {
 #if ASYNC
 		private async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex) {
 			// resume if server disconnects midway (fixes #39)
-			if (ex.InnerException != null || ex.Message.StartsWith("Unexpected EOF for remote file")) {
+			if (ex.InnerException != null || ex.Message.IsKnownError(unexpectedEOFStrings)) {
 				var ie = ex.InnerException as System.Net.Sockets.SocketException;
 #if CORE
 				if (ie == null || (ie != null && (int)ie.SocketErrorCode == 10054)) {
@@ -1914,6 +1914,8 @@ namespace FluentFTP {
 			return Tuple.Create(false, (Stream)null);
 		}
 #endif
+
+		private static string[] unexpectedEOFStrings = new string[] { "Unexpected EOF for remote file", "Received an unexpected EOF", "Unexpected EOF" };
 
 		#endregion
 

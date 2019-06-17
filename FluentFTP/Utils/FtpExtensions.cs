@@ -18,6 +18,19 @@ namespace FluentFTP {
 	public static class FtpExtensions {
 
 		/// <summary>
+		/// Checks if the reply contains any of the known error strings
+		/// </summary>
+		public static bool IsKnownError(this string reply, string[] strings) {
+			reply = reply.ToLower();
+			foreach (string msg in strings) {
+				if (reply.Contains(msg)) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		/// <summary>
 		/// Converts the specified path into a valid FTP file system path
 		/// </summary>
 		/// <param name="path">The file system path</param>

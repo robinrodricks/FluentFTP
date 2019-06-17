@@ -2033,16 +2033,7 @@ namespace FluentFTP {
 		}
 
 		private static string[] fileNotFoundStrings = new string[] { "can't find file", "can't check for file existence", "does not exist", "failed to open file", "not found", "no such file", "cannot find the file", "cannot find", "could not get file", "not a regular file", "file unavailable", "file is unavailable", "file not unavailable", "file is not available", "no files found", "no file found" };
-		private bool IsKnownError(string reply, string[] strings) {
-			reply = reply.ToLower();
-			foreach (string msg in strings) {
-				if (reply.Contains(msg)) {
-					return true;
-				}
-			}
-			return false;
-		}
-
+		
 		#endregion
 
 		#region Logging

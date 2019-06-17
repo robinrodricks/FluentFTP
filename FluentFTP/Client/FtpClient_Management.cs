@@ -546,7 +546,7 @@ namespace FluentFTP {
 					if (ch == '2') {
 						return true;
 					}
-					if (ch == '5' && IsKnownError(reply.Message, fileNotFoundStrings)) {
+					if (ch == '5' && reply.Message.IsKnownError(fileNotFoundStrings)) {
 						return false;
 					}
 
@@ -563,7 +563,7 @@ namespace FluentFTP {
 					if (ch == '2') {
 						return true;
 					}
-					if (ch == '5' && IsKnownError(reply.Message, fileNotFoundStrings)) {
+					if (ch == '5' && reply.Message.IsKnownError(fileNotFoundStrings)) {
 						return false;
 					}
 				}
@@ -652,7 +652,7 @@ namespace FluentFTP {
 				{
 					return true;
 				}
-				if (ch == '5' && IsKnownError(reply.Message, fileNotFoundStrings))
+				if (ch == '5' && reply.Message.IsKnownError(fileNotFoundStrings))
 				{
 					return false;
 				}
@@ -672,7 +672,7 @@ namespace FluentFTP {
 				{
 					return true;
 				}
-				if (ch == '5' && IsKnownError(reply.Message, fileNotFoundStrings))
+				if (ch == '5' && reply.Message.IsKnownError(fileNotFoundStrings))
 				{
 					return false;
 				}
