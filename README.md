@@ -259,7 +259,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 	- `FullName` : The full file path of the object.
 
-	- `Created ` : The created date/time of the object. **Default:** `DateTime.MinValue` if not provided by server.
+	- `Created` : The created date/time of the object. **Default:** `DateTime.MinValue` if not provided by server.
 
 	- `Modified` : The last modified date/time of the object. If you get incorrect values, try adding the `FtpListOption.Modify` flag which loads the modified date/time using another `MDTM` command. **Default:** `DateTime.MinValue` if not provided by server.
 
