@@ -949,6 +949,11 @@ namespace FluentFTP {
 				Stopwatch sw = new Stopwatch();
 				long rateLimitBytes = UploadRateLimit != 0 ? UploadRateLimit * 1024 : 0;
 
+				if (fileLen < upStream.Length)
+				{
+					upStream.SetLength(fileLen);
+				}
+				
 				while (offset < fileLen) {
 					try {
 
