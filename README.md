@@ -54,7 +54,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 Stable binaries are released on NuGet, and contain everything you need to use FTP/FTPS in your .Net/CLR application. For usage see the [Example Usage](#example-usage) section and the [Documentation](#documentation) section below.
 
   - [Nuget](https://www.nuget.org/packages/FluentFTP) (latest)
-  - [Releases](https://github.com/hgupta9/FluentFTP/releases) (occasionally updated)
+  - [Release Notes](https://github.com/robinrodricks/FluentFTP/blob/master/RELEASES.md) (features and fixes per release)
 
 FluentFTP works on .NET and .NET Standard/.NET Core.
 
@@ -155,6 +155,8 @@ client.Disconnect();
 - [Notes](https://github.com/robinrodricks/FluentFTP/blob/master/NOTES.md)
 
 ## FAQs
+
+**Note:** Check these [FAQs and commonly asked questions](https://github.com/robinrodricks/FluentFTP/issues?q=label%3Afaq+is%3Aclosed) that have already been solved.
 
 **Logging FAQs**
   - [How do I trace FTP commands for debugging?](#faq_trace)
