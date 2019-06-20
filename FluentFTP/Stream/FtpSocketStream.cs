@@ -725,13 +725,23 @@ namespace FluentFTP {
 		/// Disconnects from server
 		/// </summary>
 		protected override void Dispose(bool disposing) {
-			this.Client.LogStatus(FtpTraceLevel.Verbose, "Disposing FtpSocketStream...");
+
+			// ensure null exceptions don't occur here
+			if (Client != null){
+				this.Client.LogStatus(FtpTraceLevel.Verbose, "Disposing FtpSocketStream...");
+			}
 
 #if !NO_SSL
 			if (m_bufStream != null) {
-				// ensure the last of the buffered bytes are flushed
-				// before we close the socket and network stream
-				m_bufStream.Flush();
+				try {
+					// ensure the last of the buffered bytes are flushed
+					// before we close the socket and network stream
+					m_bufStream.Flush();
+				} catch (Exception ex) {
+					if (Client != null) {
+						this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded an Exception while cleaning up the Socket: " + ex.ToString());
+					}
+				}
 			}
 #endif
 
@@ -752,8 +762,10 @@ namespace FluentFTP {
 #if !NET20 && !NET35
                     m_socket.Dispose();
 #endif
-				} catch (SocketException ex) {
-					this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded a SocketException while cleaning up the Socket: " + ex.ToString());
+				} catch (Exception ex) {
+					if (Client != null) {
+						this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded an Exception while cleaning up the Socket: " + ex.ToString());
+					}
 				} finally {
 					m_socket = null;
 				}
@@ -762,8 +774,10 @@ namespace FluentFTP {
 			if (m_netStream != null) {
 				try {
 					m_netStream.Dispose();
-				} catch (IOException ex) {
-					this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the NetworkStream: " + ex.ToString());
+				} catch (Exception ex) {
+					if (Client != null) {
+						this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded an Exception while cleaning up the NetworkStream: " + ex.ToString());
+					}
 				} finally {
 					m_netStream = null;
 				}
@@ -773,8 +787,10 @@ namespace FluentFTP {
 			if (m_sslStream != null) {
 				try {
 					m_sslStream.Dispose();
-				} catch (IOException ex) {
-					this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the SslStream: " + ex.ToString());
+				} catch (Exception ex) {
+					if (Client != null) {
+						this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded an Exception while cleaning up the SslStream: " + ex.ToString());
+					}
 				} finally {
 					m_sslStream = null;
 				}
@@ -783,8 +799,10 @@ namespace FluentFTP {
 			if (m_bufStream != null) {
 				try {
 					m_bufStream.Dispose();
-				} catch (IOException ex) {
-					this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded an IOException while cleaning up the BufferedStream: " + ex.ToString());
+				} catch (Exception ex) {
+					if (Client != null) {
+						this.Client.LogStatus(FtpTraceLevel.Warn, "Caught and discarded an Exception while cleaning up the BufferedStream: " + ex.ToString());
+					}
 				} finally {
 					m_bufStream = null;
 				}

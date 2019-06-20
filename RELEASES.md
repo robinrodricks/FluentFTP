@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 25.0.4
+  - Fix: Supress all exceptions when Disposing the underlying FtpSocketStream
+
 #### 25.0.3
   - Fix: Received an unexpected EOF or 0 bytes from the transport stream (thanks [mikemeinz](/mikemeinz))
   - Fix: `UploadFile()` progress callback is not called if the file already exists on the server
