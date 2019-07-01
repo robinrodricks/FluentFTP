@@ -71,9 +71,6 @@ namespace FluentFTP {
 			if (path.Length == 0)
 				path = "/";
 
-			/*if (!path.StartsWith("/") || !path.StartsWith("./"))
-				path = "./" + path;*/
-
 			return path;
 		}
 
@@ -97,13 +94,6 @@ namespace FluentFTP {
 			return tpath.Substring(0, lastslash);
 		}
 
-		/*public static string GetFtpDirectoryName(this string path) {
-			if (path == null || path.Length == 0 || path.GetFtpPath() == "/")
-				return "/";
-
-			return System.IO.Path.GetDirectoryName(path).GetFtpPath();
-		}*/
-
 		/// <summary>
 		/// Gets the file name and extension from the path
 		/// </summary>
@@ -126,10 +116,6 @@ namespace FluentFTP {
 
 			return tpath.Substring(lastslash, tpath.Length - lastslash);
 		}
-
-		/*public static string GetFtpFileName(this string path) {
-			return System.IO.Path.GetFileName(path).GetFtpPath();
-		}*/
 
 		private static string[] FtpDateFormats = { "yyyyMMddHHmmss", "yyyyMMddHHmmss'.'f", "yyyyMMddHHmmss'.'ff", "yyyyMMddHHmmss'.'fff", "MMM dd  yyyy", "MMM  d  yyyy", "MMM dd HH:mm", "MMM  d HH:mm" };
 
