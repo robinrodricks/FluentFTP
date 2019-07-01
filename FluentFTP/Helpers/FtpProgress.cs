@@ -37,7 +37,7 @@ namespace FluentFTP {
 		/// </summary>
 		public string TransferSpeedToString() {
 
-			double value = TransferSpeed / 1024; //get KB/s
+			double value = TransferSpeed > 0 ? (TransferSpeed / 1024) : 0; //get KB/s
 
 			if (value < 1024) {
 				return string.Format("{0} KB/s", Math.Round(value, 2));

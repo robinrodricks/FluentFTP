@@ -1996,31 +1996,38 @@ namespace FluentFTP {
 		/// </summary>
 		private void ReportProgress(IProgress<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime) {
 
-			if (fileSize <= 0 || position <= 0) {
-				// suppress invalid values and send -1 instead
-				progress.Report(new FtpProgress(-1, 0, TimeSpan.FromSeconds(0)));
-			} else {
+			// default values to send
+			double progressValue = -1; 
+			double transferSpeed = 0;
+			TimeSpan estimatedRemaingTime = TimeSpan.Zero;
+
+			// catch any divide-by-zero errors
+			try {
 
 				// calculate % based on file len vs file offset
-				double value = ((double)position / (double)fileSize) * 100;
+				// send a value between 0-100 indicating percentage complete
+				progressValue = ((double)position / (double)fileSize) * 100;
 
 				// calcute raw transferSpeed (bytes per second)
-				double transferSpeed = bytesProcessed / elapsedtime.TotalSeconds;
+				transferSpeed = bytesProcessed / elapsedtime.TotalSeconds;
 
-				//calculate reaming time			
-				TimeSpan estimatedRemaingTime = TimeSpan.FromSeconds(((fileSize - position) / transferSpeed));
+				//calculate remaining time			
+				estimatedRemaingTime = TimeSpan.FromSeconds(((fileSize - position) / transferSpeed));
 
-				//Console.WriteLine(string.Format("Rest: {0} | Total: {1} | Rest 2: {2} | ETA: {3}",fileSize - position,fileSize,fileSize - bytesProcessed,estimatedRemaingTime.TotalSeconds));
-
-				// suppress invalid values and send -1 instead
-				if (double.IsNaN(value) || double.IsInfinity(value) || double.IsNaN(transferSpeed) || double.IsInfinity(transferSpeed)) {
-					progress.Report(new FtpProgress(-1, 0, TimeSpan.FromSeconds(0)));
-				} else {
-					// send a value between 0-100 indicating percentage complete
-					progress.Report(new FtpProgress(value, transferSpeed, estimatedRemaingTime));
-				}
-
+			} catch (Exception) {
 			}
+
+			// suppress invalid values and send -1 instead
+			if (double.IsNaN(progressValue) && double.IsInfinity(progressValue)) {
+				progressValue = -1;
+			}
+			if (double.IsNaN(transferSpeed) && double.IsInfinity(transferSpeed)) {
+				transferSpeed = 0;
+			}
+
+			// send progress to parent
+			progress.Report(new FtpProgress(progressValue, transferSpeed, estimatedRemaingTime));
+
 		}
 
 		#endregion
