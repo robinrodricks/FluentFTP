@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 25.0.5
+  - Fix: Divide-by-zero exceptions while calculating progress of file uploads/downloads
+
 #### 25.0.4
   - Fix: Supress all exceptions when Disposing the underlying FtpSocketStream
 

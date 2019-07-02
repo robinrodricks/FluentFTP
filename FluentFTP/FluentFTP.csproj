@@ -34,11 +34,11 @@
     <PackageProjectUrl>https://github.com/robinrodricks/FluentFTP</PackageProjectUrl>
     <Copyright>MIT License</Copyright>
     <PackageTags>ftp,ftp-client,ftps,ssl,tls,unix,iis</PackageTags>
-    <VersionPrefix>25.0.4</VersionPrefix>
+    <VersionPrefix>25.0.5</VersionPrefix>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
-    <Version>25.0.4</Version>
+    <Version>25.0.5</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
