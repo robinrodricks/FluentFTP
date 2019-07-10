@@ -421,6 +421,10 @@ namespace FluentFTP {
 			stream.Client = this;
             FtpReply reply;
 
+#if !CORE
+			IAsyncResult ar;
+#endif
+
             if (m_stream == null)
                 throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open an active data stream.");
 
@@ -459,7 +463,11 @@ namespace FluentFTP {
                     throw new Exception("No valid active data port available!");
             }
 
-            var ar = stream.BeginAccept(null, null);
+#if CORE
+            var args = stream.BeginAccept();
+#else
+            ar = stream.BeginAccept(null, null);
+#endif
 
             if (type == FtpDataConnectionType.EPRT || type == FtpDataConnectionType.AutoActive)
             {
