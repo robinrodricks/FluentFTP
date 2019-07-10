@@ -459,7 +459,7 @@ namespace FluentFTP {
                     throw new Exception("No valid active data port available!");
             }
 
-            var result = stream.AcceptAsync();
+            var ar = stream.BeginAccept(null, null);
 
             if (type == FtpDataConnectionType.EPRT || type == FtpDataConnectionType.AutoActive)
             {
@@ -527,7 +527,18 @@ namespace FluentFTP {
             // otherwise things can get out of sync.
             stream.CommandStatus = reply;
 
-            await result;
+#if CORE
+            stream.EndAccept(args, m_dataConnectionConnectTimeout);
+#else
+            ar.AsyncWaitHandle.WaitOne(m_dataConnectionConnectTimeout);
+            if (!ar.IsCompleted)
+	    {
+            	stream.Close();
+		throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
+            }
+
+            stream.EndAccept(ar);
+#endif
 
 #if !NO_SSL
             if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
