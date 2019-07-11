@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 25.0.6
+  - Fix: Async methods do not work with Active FTP mode and SSL/encryption (thanks [Mortens4444](/Mortens4444))
+  - Fix: For OpenVMS absolute paths may not contain slashes but are still absolute (3rd revision)
+
 #### 25.0.5
   - Fix: Divide-by-zero exceptions while calculating progress of file uploads/downloads
 
