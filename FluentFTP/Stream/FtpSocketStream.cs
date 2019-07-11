@@ -6,9 +6,10 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
-
+using FluentFTP.Exceptions;
 #if CORE || NET45
 using System.Threading.Tasks;
 #endif
@@ -1091,11 +1092,25 @@ namespace FluentFTP {
 #endif
 
 				auth_start = DateTime.Now;
+				try
+				{
 #if CORE
-				m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, true).Wait();
+					m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, true).Wait();
 #else
-				m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, true);
+					m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, true);
 #endif
+				}
+				catch (IOException ex)
+				{
+					if (ex.InnerException is Win32Exception socketException)
+					{
+						if (socketException.NativeErrorCode == 10053)
+						{
+							throw new EmtyFolderListingWithEncryptionException();
+						}
+					}
+					throw;
+				}
 
 				auth_time_total = DateTime.Now.Subtract(auth_start);
 				this.Client.LogStatus(FtpTraceLevel.Info, "FTPS Authentication Successful");
