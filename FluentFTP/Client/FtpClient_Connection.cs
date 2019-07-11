@@ -1861,15 +1861,10 @@ namespace FluentFTP {
 
 				// FIX : #153 ensure this check works with unix & windows
 			} else if (!path.StartsWith("/") && path.Substring(1, 1) != ":") {
-
-				// FIX : #380 for OpenVMS absolute paths are "SYS$SYSDEVICE:[USERS.mylogin]"
-				// FIX : #402 for OpenVMS absolute paths are "SYSDEVICE:[USERS.mylogin]"
-				if (ServerType == FtpServer.OpenVMS) {
-					if (path.Contains("SYS$SYSDEVICE:[") ||
-						path.Contains("SYSDEVICE:[") ||
-						(path.Contains("$") && path.Contains(":[") && path.Contains("]"))){
-						return path;
-					}
+				
+				// if its a server-specific absolute path then don't add base dir
+				if (IsAbsolutePath(path)) {
+					return path;
 				}
 
 				// if relative path given then add working dir to calc full path

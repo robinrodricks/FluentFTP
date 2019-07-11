@@ -217,5 +217,26 @@ namespace FluentFTP {
 
 		#endregion
 
+		#region Absolute Path
+
+		/// <summary>
+		/// Checks for server-specific absolute paths
+		/// </summary>
+		private bool IsAbsolutePath(string path) {
+
+			// FIX : #380 for OpenVMS absolute paths are "SYS$SYSDEVICE:[USERS.mylogin]"
+			// FIX : #402 for OpenVMS absolute paths are "SYSDEVICE:[USERS.mylogin]"
+			// FIX : #424 for OpenVMS absolute paths are "FTP_DEFAULT:[WAGN_IN]"
+			if (ServerType == FtpServer.OpenVMS) {
+				if (new Regex("[A-Za-z$._]*:\\[[A-Za-z$_.]*\\]").Match(path).Success) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		#endregion
+
 	}
 }
