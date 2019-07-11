@@ -421,6 +421,10 @@ namespace FluentFTP {
 			stream.Client = this;
             FtpReply reply;
 
+#if !CORE
+			IAsyncResult ar;
+#endif
+
             if (m_stream == null)
                 throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open an active data stream.");
 
@@ -459,7 +463,11 @@ namespace FluentFTP {
                     throw new Exception("No valid active data port available!");
             }
 
-            var result = stream.AcceptAsync();
+#if CORE
+            var args = stream.BeginAccept();
+#else
+            ar = stream.BeginAccept(null, null);
+#endif
 
             if (type == FtpDataConnectionType.EPRT || type == FtpDataConnectionType.AutoActive)
             {
@@ -527,7 +535,18 @@ namespace FluentFTP {
             // otherwise things can get out of sync.
             stream.CommandStatus = reply;
 
-            await result;
+#if CORE
+            stream.EndAccept(args, m_dataConnectionConnectTimeout);
+#else
+            ar.AsyncWaitHandle.WaitOne(m_dataConnectionConnectTimeout);
+            if (!ar.IsCompleted)
+	    {
+            	stream.Close();
+		throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
+            }
+
+            stream.EndAccept(ar);
+#endif
 
 #if !NO_SSL
             if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
