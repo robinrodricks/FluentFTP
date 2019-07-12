@@ -70,7 +70,11 @@ namespace FluentFTP {
 		/// <summary>
 		/// Definitely Homegate FTP server
 		/// </summary>
-		HomegateFTP
+		HomegateFTP,
+		/// <summary>
+		/// Definitely BFTPd server
+		/// </summary>
+		BFTPd
 	}
 
 }

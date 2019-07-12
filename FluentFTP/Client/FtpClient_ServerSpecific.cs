@@ -118,6 +118,12 @@ namespace FluentFTP {
 					m_serverType = FtpServer.HomegateFTP;
 				}
 
+				// Detect BFTPd server
+				// Welcome message: "220 bftpd 2.2.1 at 192.168.1.1 ready"
+				else if (welcome.Contains("bftpd ")) {
+					m_serverType = FtpServer.BFTPd;
+				}
+
 				// Detect Tandem/NonStop server
 				// Welcome message: "220 tdm-QWERTY-fp00.itc.intranet FTP SERVER T9552H02 (Version H02 TANDEM 11SEP2008) ready."
 				// Welcome message: "220 FTP SERVER T9552G08 (Version G08 TANDEM 15JAN2008) ready."

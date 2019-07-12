@@ -5,6 +5,7 @@
   - New: Improve transfer performance by only attempting EPSV once and then never using it again for that connection
   - New: Support MKDIR & RMDIR commands specially for ProFTPd to quickly create and delete a directory on the server-side
   - New: Support PRET command before downloading or uploading files for servers like ProFTPd & DrFTPd
+  - New: Support detection of BFTPd server software (allows for server specific commands)
   - Fix: When uploading files in `FtpExists.NoCheck` mode, file size check should not be done
   - Fix: Some FTP servers return no answer when listing an empty folder (thanks [Mortens4444](/Mortens4444))
   - Fix: `OpenRead` with `EnableThreadSafeDataConnections` always transfers in ASCII (thanks [ts678](/ts678))
