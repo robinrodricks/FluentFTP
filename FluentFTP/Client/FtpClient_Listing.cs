@@ -441,8 +441,10 @@ namespace FluentFTP {
 						}
 					}
 				}
-				catch (EmtyFolderListingWithEncryptionException)
+				catch (FtpConnectionLostException)
 				{
+					// Some FTP server does not send any response when listing an empty directory
+					// and the authentication fails, if no communication socket is provided by the server
 				}
 #if !CORE14
 			}

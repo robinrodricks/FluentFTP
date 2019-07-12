@@ -1102,11 +1102,12 @@ namespace FluentFTP {
 				}
 				catch (IOException ex)
 				{
-					if (ex.InnerException is Win32Exception socketException)
+					if (ex.InnerException is Win32Exception)
 					{
-						if (socketException.NativeErrorCode == 10053)
+						var win32Exception = (Win32Exception)ex.InnerException;
+						if (win32Exception.NativeErrorCode == 10053)
 						{
-							throw new EmtyFolderListingWithEncryptionException();
+							throw new FtpConnectionLostException(ex);
 						}
 					}
 					throw;
