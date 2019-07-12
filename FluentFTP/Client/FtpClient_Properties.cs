@@ -1,27 +1,11 @@
 ﻿using System;
 using System.IO;
-using System.Net.Sockets;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Globalization;
 using System.Security.Authentication;
 using System.Net;
-using FluentFTP.Proxy;
-#if !CORE
-using System.Web;
-#endif
-
-#if (CORE || NETFX)
-using System.Threading;
-#endif
-#if ASYNC
-using System.Threading.Tasks;
-#endif
 
 namespace FluentFTP {
 	
@@ -673,45 +657,6 @@ namespace FluentFTP {
 				int mins = (int)Math.Floor((m_timeDiff - Math.Floor(m_timeDiff)) * 60);
 				m_listParser.timeOffset = new TimeSpan(hours, mins, 0);
 				m_listParser.hasTimeOffset = m_timeDiff != 0;
-			}
-		}
-
-		/// <summary>
-		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
-		/// If you know for sure that this is supported, return true here.
-		/// </summary>
-		public bool RecursiveList {
-			get {
-
-				// Has support, per https://download.pureftpd.org/pub/pure-ftpd/doc/README
-				if (ServerType == FtpServer.PureFTPd) {
-					return true;
-				}
-
-				// Has support, per: http://www.proftpd.org/docs/howto/ListOptions.html
-				if (ServerType == FtpServer.ProFTPD) {
-					return true;
-				}
-
-				// Has support, but OFF by default, per: https://linux.die.net/man/5/vsftpd.conf
-				if (ServerType == FtpServer.VsFTPd) {
-					return false; // impossible to detect on a server-by-server basis
-				}
-
-				// No support, per: https://trac.filezilla-project.org/ticket/1848
-				if (ServerType == FtpServer.FileZilla) {
-					return false;
-				}
-
-				// No support, per: http://wu-ftpd.therockgarden.ca/man/ftpd.html
-				if (ServerType == FtpServer.WuFTPd) {
-					return false;
-				}
-
-				// Unknown, so assume server does not support recursive listing
-				return false;
-			}
-			set {
 			}
 		}
 

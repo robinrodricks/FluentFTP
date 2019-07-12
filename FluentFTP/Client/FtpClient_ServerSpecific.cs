@@ -27,103 +27,6 @@ namespace FluentFTP {
 
 	public partial class FtpClient : IDisposable {
 
-		#region Detect Capabilities
-
-
-		/// <summary>
-		/// Populates the capabilities flags based on capabilities given in the list of strings.
-		/// </summary>
-		protected virtual void GetFeatures(string[] features) {
-			foreach (string feat in features) {
-
-				string featName = feat.Trim().ToUpper();
-
-				if (featName.StartsWith("MLST") || featName.StartsWith("MLSD")) {
-					m_caps |= FtpCapability.MLSD;
-				} else if (featName.StartsWith("MDTM")) {
-					m_caps |= FtpCapability.MDTM;
-				} else if (featName.StartsWith("REST STREAM")) {
-					m_caps |= FtpCapability.REST;
-				} else if (featName.StartsWith("SIZE")) {
-					m_caps |= FtpCapability.SIZE;
-				} else if (featName.StartsWith("UTF8")) {
-					m_caps |= FtpCapability.UTF8;
-				} else if (featName.StartsWith("PRET")) {
-					m_caps |= FtpCapability.PRET;
-				} else if (featName.StartsWith("MFMT")) {
-					m_caps |= FtpCapability.MFMT;
-				} else if (featName.StartsWith("MFCT")) {
-					m_caps |= FtpCapability.MFCT;
-				} else if (featName.StartsWith("MFF")) {
-					m_caps |= FtpCapability.MFF;
-				} else if (featName.StartsWith("MD5")) {
-					m_caps |= FtpCapability.MD5;
-				} else if (featName.StartsWith("XMD5")) {
-					m_caps |= FtpCapability.XMD5;
-				} else if (featName.StartsWith("XCRC")) {
-					m_caps |= FtpCapability.XCRC;
-				} else if (featName.StartsWith("XSHA1")) {
-					m_caps |= FtpCapability.XSHA1;
-				} else if (featName.StartsWith("XSHA256")) {
-					m_caps |= FtpCapability.XSHA256;
-				} else if (featName.StartsWith("XSHA512")) {
-					m_caps |= FtpCapability.XSHA512;
-				} else if (featName.StartsWith("EPSV")) {
-					m_caps |= FtpCapability.EPSV;
-				} else if (featName.StartsWith("CPSV")) {
-					m_caps |= FtpCapability.CPSV;
-				} else if (featName.StartsWith("NOOP")) {
-					m_caps |= FtpCapability.NOOP;
-				} else if (featName.StartsWith("CLNT")) {
-					m_caps |= FtpCapability.CLNT;
-				} else if (featName.StartsWith("SSCN")) {
-					m_caps |= FtpCapability.SSCN;
-				} else if (featName.StartsWith("SITE MKDIR")) {
-					m_caps |= FtpCapability.SITE_MKDIR;
-				} else if (featName.StartsWith("SITE RMDIR")) {
-					m_caps |= FtpCapability.SITE_RMDIR;
-				} else if (featName.StartsWith("SITE UTIME")) {
-					m_caps |= FtpCapability.SITE_UTIME;
-				} else if (featName.StartsWith("SITE SYMLINK")) {
-					m_caps |= FtpCapability.SITE_SYMLINK;
-
-				} else if (featName.StartsWith("HASH")) {
-					Match m;
-
-					m_caps |= FtpCapability.HASH;
-
-					if ((m = Regex.Match(featName, @"^HASH\s+(?<types>.*)$")).Success) {
-						foreach (string type in m.Groups["types"].Value.Split(';')) {
-							switch (type.ToUpper().Trim()) {
-								case "SHA-1":
-								case "SHA-1*":
-									m_hashAlgorithms |= FtpHashAlgorithm.SHA1;
-									break;
-								case "SHA-256":
-								case "SHA-256*":
-									m_hashAlgorithms |= FtpHashAlgorithm.SHA256;
-									break;
-								case "SHA-512":
-								case "SHA-512*":
-									m_hashAlgorithms |= FtpHashAlgorithm.SHA512;
-									break;
-								case "MD5":
-								case "MD5*":
-									m_hashAlgorithms |= FtpHashAlgorithm.MD5;
-									break;
-								case "CRC":
-								case "CRC*":
-									m_hashAlgorithms |= FtpHashAlgorithm.CRC;
-									break;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		#endregion
-
 		#region Detect Server
 
 		/// <summary>
@@ -291,6 +194,148 @@ namespace FluentFTP {
 
 			}
 		}
+
+		#endregion
+
+		#region Detect Capabilities
+
+
+		/// <summary>
+		/// Populates the capabilities flags based on capabilities given in the list of strings.
+		/// </summary>
+		protected virtual void GetFeatures(string[] features) {
+			foreach (string feat in features) {
+
+				string featName = feat.Trim().ToUpper();
+
+				if (featName.StartsWith("MLST") || featName.StartsWith("MLSD")) {
+					m_caps |= FtpCapability.MLSD;
+				} else if (featName.StartsWith("MDTM")) {
+					m_caps |= FtpCapability.MDTM;
+				} else if (featName.StartsWith("REST STREAM")) {
+					m_caps |= FtpCapability.REST;
+				} else if (featName.StartsWith("SIZE")) {
+					m_caps |= FtpCapability.SIZE;
+				} else if (featName.StartsWith("UTF8")) {
+					m_caps |= FtpCapability.UTF8;
+				} else if (featName.StartsWith("PRET")) {
+					m_caps |= FtpCapability.PRET;
+				} else if (featName.StartsWith("MFMT")) {
+					m_caps |= FtpCapability.MFMT;
+				} else if (featName.StartsWith("MFCT")) {
+					m_caps |= FtpCapability.MFCT;
+				} else if (featName.StartsWith("MFF")) {
+					m_caps |= FtpCapability.MFF;
+				} else if (featName.StartsWith("MD5")) {
+					m_caps |= FtpCapability.MD5;
+				} else if (featName.StartsWith("XMD5")) {
+					m_caps |= FtpCapability.XMD5;
+				} else if (featName.StartsWith("XCRC")) {
+					m_caps |= FtpCapability.XCRC;
+				} else if (featName.StartsWith("XSHA1")) {
+					m_caps |= FtpCapability.XSHA1;
+				} else if (featName.StartsWith("XSHA256")) {
+					m_caps |= FtpCapability.XSHA256;
+				} else if (featName.StartsWith("XSHA512")) {
+					m_caps |= FtpCapability.XSHA512;
+				} else if (featName.StartsWith("EPSV")) {
+					m_caps |= FtpCapability.EPSV;
+				} else if (featName.StartsWith("CPSV")) {
+					m_caps |= FtpCapability.CPSV;
+				} else if (featName.StartsWith("NOOP")) {
+					m_caps |= FtpCapability.NOOP;
+				} else if (featName.StartsWith("CLNT")) {
+					m_caps |= FtpCapability.CLNT;
+				} else if (featName.StartsWith("SSCN")) {
+					m_caps |= FtpCapability.SSCN;
+				} else if (featName.StartsWith("SITE MKDIR")) {
+					m_caps |= FtpCapability.SITE_MKDIR;
+				} else if (featName.StartsWith("SITE RMDIR")) {
+					m_caps |= FtpCapability.SITE_RMDIR;
+				} else if (featName.StartsWith("SITE UTIME")) {
+					m_caps |= FtpCapability.SITE_UTIME;
+				} else if (featName.StartsWith("SITE SYMLINK")) {
+					m_caps |= FtpCapability.SITE_SYMLINK;
+
+				} else if (featName.StartsWith("HASH")) {
+					Match m;
+
+					m_caps |= FtpCapability.HASH;
+
+					if ((m = Regex.Match(featName, @"^HASH\s+(?<types>.*)$")).Success) {
+						foreach (string type in m.Groups["types"].Value.Split(';')) {
+							switch (type.ToUpper().Trim()) {
+								case "SHA-1":
+								case "SHA-1*":
+									m_hashAlgorithms |= FtpHashAlgorithm.SHA1;
+									break;
+								case "SHA-256":
+								case "SHA-256*":
+									m_hashAlgorithms |= FtpHashAlgorithm.SHA256;
+									break;
+								case "SHA-512":
+								case "SHA-512*":
+									m_hashAlgorithms |= FtpHashAlgorithm.SHA512;
+									break;
+								case "MD5":
+								case "MD5*":
+									m_hashAlgorithms |= FtpHashAlgorithm.MD5;
+									break;
+								case "CRC":
+								case "CRC*":
+									m_hashAlgorithms |= FtpHashAlgorithm.CRC;
+									break;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		#endregion
+
+		#region Detect Recursive List
+
+
+		/// <summary>
+		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
+		/// If you know for sure that this is supported, return true here.
+		/// </summary>
+		public bool RecursiveList {
+			get {
+
+				// Has support, per https://download.pureftpd.org/pub/pure-ftpd/doc/README
+				if (ServerType == FtpServer.PureFTPd) {
+					return true;
+				}
+
+				// Has support, per: http://www.proftpd.org/docs/howto/ListOptions.html
+				if (ServerType == FtpServer.ProFTPD) {
+					return true;
+				}
+
+				// Has support, but OFF by default, per: https://linux.die.net/man/5/vsftpd.conf
+				if (ServerType == FtpServer.VsFTPd) {
+					return false; // impossible to detect on a server-by-server basis
+				}
+
+				// No support, per: https://trac.filezilla-project.org/ticket/1848
+				if (ServerType == FtpServer.FileZilla) {
+					return false;
+				}
+
+				// No support, per: http://wu-ftpd.therockgarden.ca/man/ftpd.html
+				if (ServerType == FtpServer.WuFTPd) {
+					return false;
+				}
+
+				// Unknown, so assume server does not support recursive listing
+				return false;
+			}
+			set {
+			}
+		}
+
 
 		#endregion
 
