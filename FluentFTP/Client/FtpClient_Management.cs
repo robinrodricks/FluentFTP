@@ -162,7 +162,7 @@ namespace FluentFTP {
 
 
 				// server-specific directory deletion
-				if (!IsRootDirectory(ftppath)) {
+				if (!ftppath.IsFtpRootDirectory()) {
 					if (ServerDeleteDirectory(path, ftppath, deleteContents, options)) {
 						return;
 					}
@@ -208,7 +208,7 @@ namespace FluentFTP {
 
 				// can't delete the working directory and
 				// can't delete the server root.
-				if (IsRootDirectory(ftppath)) {
+				if (ftppath.IsFtpRootDirectory()) {
 					return;
 				}
 
@@ -223,15 +223,6 @@ namespace FluentFTP {
 #if !CORE14
 			}
 #endif
-		}
-
-		/// <summary>
-		/// Checks if the given path is a root directory or working directory path
-		/// </summary>
-		/// <param name="ftppath"></param>
-		/// <returns></returns>
-		private static bool IsRootDirectory(string ftppath) {
-			return ftppath == "." || ftppath == "./" || ftppath == "/";
 		}
 
 		/// <summary>
@@ -339,7 +330,7 @@ namespace FluentFTP {
 			string ftppath = path.GetFtpPath();
 		
 			// server-specific directory deletion
-			if (!IsRootDirectory(ftppath)) {
+			if (!ftppath.IsFtpRootDirectory()) {
 				if (await ServerDeleteDirectoryAsync(path, deleteContents, options, token)) {
 					return;
 				}
@@ -387,7 +378,7 @@ namespace FluentFTP {
 
 			// can't delete the working directory and
 			// can't delete the server root.
-			if (IsRootDirectory(ftppath)) {
+			if (ftppath.IsFtpRootDirectory()) {
 				return;
 			}
 
@@ -747,12 +738,19 @@ namespace FluentFTP {
 			FtpReply reply;
 			string ftppath = path.GetFtpPath();
 
-			if (ftppath == "." || ftppath == "./" || ftppath == "/")
+			// cannot create root or working directory
+			if (ftppath.IsFtpRootDirectory()) {
 				return;
+			}
 
 #if !CORE14
 			lock (m_lock) {
 #endif
+				// server-specific directory creation
+				if (ServerCreateDirectory(path, ftppath, force)) {
+					return;
+				}
+
 				path = path.GetFtpPath().TrimEnd('/');
 
 				if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
@@ -836,9 +834,16 @@ namespace FluentFTP {
 
 			FtpReply reply;
 			string ftppath = path.GetFtpPath();
-
-			if (ftppath == "." || ftppath == "./" || ftppath == "/")
+		
+			// cannot create root or working directory
+			if (ftppath.IsFtpRootDirectory()) {
 				return;
+			}
+		
+			// server-specific directory creation
+			if (await ServerCreateDirectoryAsync(path, ftppath, force, token)) {
+				return;
+			}
 
 			path = path.GetFtpPath().TrimEnd('/');
 

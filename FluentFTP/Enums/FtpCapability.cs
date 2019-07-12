@@ -104,7 +104,23 @@ namespace FluentFTP {
 		/// <summary>
 		/// Support for the SSCN command
 		/// </summary>
-		SSCN = 0b0010_0000_0000_0000_0000_0000
+		SSCN = 0b0010_0000_0000_0000_0000_0000,
+		/// <summary>
+		/// Support for the SITE MKDIR server-specific command (ProFTPd)
+		/// </summary>
+		SITE_MKDIR = 0b0100_0000_0000_0000_0000_0000,
+		/// <summary>
+		/// Support for the SITE RMDIR server-specific command (ProFTPd)
+		/// </summary>
+		SITE_RMDIR = 0b1000_0000_0000_0000_0000_0000,
+		/// <summary>
+		/// Support for the SITE UTIME server-specific command (ProFTPd)
+		/// </summary>
+		SITE_UTIME = 0b0001_0000_0000_0000_0000_0000_0000,
+		/// <summary>
+		/// Support for the SITE SYMLINK server-specific command (ProFTPd)
+		/// </summary>
+		SITE_SYMLINK = 0b0010_0000_0000_0000_0000_0000_0000
 	}
 
 }

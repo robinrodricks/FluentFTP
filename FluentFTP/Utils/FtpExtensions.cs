@@ -407,5 +407,14 @@ namespace FluentFTP {
 		}
 
 
+		/// <summary>
+		/// Checks if the given path is a root directory or working directory path
+		/// </summary>
+		/// <param name="ftppath"></param>
+		/// <returns></returns>
+		public static bool IsFtpRootDirectory(this string ftppath) {
+			return ftppath == "." || ftppath == "./" || ftppath == "/";
+		}
+
 	}
 }
