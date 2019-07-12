@@ -173,7 +173,7 @@ namespace FluentFTP {
 			FtpReply reply;
 			string[] res;
 
-			bool supportsMachineList = (Capabilities & FtpCapability.MLSD) == FtpCapability.MLSD;
+			bool supportsMachineList = HasFeature(FtpCapability.MLSD);
 
 			FtpListItem result = null;
 
