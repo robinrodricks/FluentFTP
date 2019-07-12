@@ -2,6 +2,7 @@
 
 #### 25.0.7
   - New: Support more capability detection commands: EPSV, CPSV, NOOP, CLNT, SSCN
+  - New: Improve transfer performance by only attempting EPSV once and then never using it again for that connection
   - Fix: When uploading files in `FtpExists.NoCheck` mode, file size check should not be done
   - Fix: Some FTP servers return no answer when listing an empty folder (thanks [Mortens4444](/Mortens4444))
 
