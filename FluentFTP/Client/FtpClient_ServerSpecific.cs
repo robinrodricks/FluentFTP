@@ -386,6 +386,32 @@ namespace FluentFTP {
 
 		#endregion
 
+		#region File Exists
+
+		/// <summary>
+		/// Error messages returned by various when a file does not exist.
+		/// Instead of throwing an error, we use these to detect and handle the file detection properly.
+		/// </summary>
+		private static string[] fileNotFoundStrings = new string[] {
+			"can't find file",
+			"can't check for file existence",
+			"does not exist",
+			"failed to open file",
+			"not found",
+			"no such file",
+			"cannot find the file",
+			"cannot find",
+			"could not get file",
+			"not a regular file",
+			"file unavailable",
+			"file is unavailable",
+			"file not unavailable",
+			"file is not available",
+			"no files found",
+			"no file found" };
+
+		#endregion
+
 		#region Delete Directory
 
 		private bool ServerDeleteDirectory(string path, string ftppath, bool deleteContents, FtpListOption options) {
