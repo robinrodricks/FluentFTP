@@ -288,33 +288,7 @@ namespace FluentFTP {
 			if (m_stream == null)
 				throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open an active data stream.");
 
-			if (m_ActivePorts == null || !m_ActivePorts.Any()) {
-				// Use random port
-				stream.Listen(m_stream.LocalEndPoint.Address, 0);
-			} else {
-				var success = false;
-				// Use one of the specified ports
-				foreach (var port in m_ActivePorts) {
-					try {
-						stream.Listen(m_stream.LocalEndPoint.Address, port);
-						success = true;
-						break;
-					} catch (SocketException se) {
-#if NETFX
-						// Already in use
-						if (se.ErrorCode != 10048)
-							throw;
-#else
-						if (se.SocketErrorCode != SocketError.AddressAlreadyInUse)
-							throw;
-#endif
-					}
-				}
-
-				// No usable port found
-				if (!success)
-					throw new Exception("No valid active data port available!");
-			}
+			StartListeningOnPort(stream);
 #if CORE
 			var args = stream.BeginAccept();
 #else
@@ -428,40 +402,7 @@ namespace FluentFTP {
             if (m_stream == null)
                 throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open an active data stream.");
 
-            if (m_ActivePorts == null || !m_ActivePorts.Any())
-            {
-                // Use random port
-                stream.Listen(m_stream.LocalEndPoint.Address, 0);
-            }
-            else
-            {
-                var success = false;
-                // Use one of the specified ports
-                foreach (var port in m_ActivePorts)
-                {
-                    try
-                    {
-                        stream.Listen(m_stream.LocalEndPoint.Address, port);
-                        success = true;
-	                    break;
-                    }
-                    catch (SocketException se)
-                    {
-#if NETFX
-                        // Already in use
-                        if (se.ErrorCode != 10048)
-                            throw;
-#else
-						if (se.SocketErrorCode != SocketError.AddressAlreadyInUse)
-							throw;
-#endif
-                    }
-                }
-
-                // No usable port found
-                if (!success)
-                    throw new Exception("No valid active data port available!");
-            }
+			StartListeningOnPort(stream);
 
 #if CORE
             var args = stream.BeginAccept();
@@ -721,6 +662,44 @@ namespace FluentFTP {
 #endif
 
 			return reply;
+		}
+
+		private void StartListeningOnPort(FtpDataStream stream)
+		{
+			if (m_ActivePorts == null || !m_ActivePorts.Any())
+			{
+				// Use random port
+				stream.Listen(m_stream.LocalEndPoint.Address, 0);
+			}
+			else
+			{
+				var success = false;
+				// Use one of the specified ports
+				foreach (var port in m_ActivePorts)
+				{
+					try
+					{
+						stream.Listen(m_stream.LocalEndPoint.Address, port);
+						success = true;
+						break;
+					}
+					catch (SocketException se)
+					{
+#if NETFX
+						// Already in use
+						if (se.ErrorCode != 10048)
+							throw;
+#else
+						if (se.SocketErrorCode != SocketError.AddressAlreadyInUse)
+							throw;
+#endif
+					}
+				}
+
+				// No usable port found
+				if (!success)
+					throw new Exception("No valid active data port available!");
+			}
 		}
 
 		#endregion

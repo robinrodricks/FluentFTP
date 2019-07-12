@@ -10,6 +10,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Globalization;
 using System.Security.Authentication;
 using System.Net;
+using FluentFTP.Exceptions;
 using FluentFTP.Proxy;
 #if !CORE
 using System.Web;
@@ -404,37 +405,46 @@ namespace FluentFTP {
 #endif
 				Execute("TYPE I");
 
-				// read in raw file listing
-				using (FtpDataStream stream = OpenDataStream(listcmd, 0)) {
-					try {
-						this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+				try
+				{
 
-						if (this.BulkListing) {
+					// read in raw file listing
+					using (FtpDataStream stream = OpenDataStream(listcmd, 0)) {
+						try {
+							this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
-							// increases performance of GetListing by reading multiple lines of the file listing at once
-							foreach (var line in stream.ReadAllLines(Encoding, this.BulkListingLength)) {
-								if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
-									rawlisting.Add(line);
-									this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
+							if (this.BulkListing) {
+
+								// increases performance of GetListing by reading multiple lines of the file listing at once
+								foreach (var line in stream.ReadAllLines(Encoding, this.BulkListingLength)) {
+									if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
+										rawlisting.Add(line);
+										this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
+									}
+								}
+
+							} else {
+
+								// GetListing will read file listings line-by-line (actually byte-by-byte)
+								while ((buf = stream.ReadLine(Encoding)) != null) {
+									if (buf.Length > 0) {
+										rawlisting.Add(buf);
+										this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
+									}
 								}
 							}
 
-						} else {
+							this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 
-							// GetListing will read file listings line-by-line (actually byte-by-byte)
-							while ((buf = stream.ReadLine(Encoding)) != null) {
-								if (buf.Length > 0) {
-									rawlisting.Add(buf);
-									this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
-								}
-							}
+						} finally {
+							stream.Close();
 						}
-
-						this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
-
-					} finally {
-						stream.Close();
 					}
+				}
+				catch (FtpMissingSocketException)
+				{
+					// Some FTP server does not send any response when listing an empty directory
+					// and the authentication fails, if no communication socket is provided by the server
 				}
 #if !CORE14
 			}
@@ -706,48 +716,56 @@ namespace FluentFTP {
             await ExecuteAsync("TYPE I", token);
 
             // read in raw file listing
-            using (FtpDataStream stream = await OpenDataStreamAsync(listcmd, 0, token))
-            {
-                try
-                {
-                    this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+	        try
+	        {
+				using (FtpDataStream stream = await OpenDataStreamAsync(listcmd, 0, token))
+	            {
+	                try
+	                {
+	                    this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
-                    if (this.BulkListing)
-                    {
+	                    if (this.BulkListing)
+	                    {
 
-                        // increases performance of GetListing by reading multiple lines of the file listing at once
-                        foreach (var line in await stream.ReadAllLinesAsync(Encoding, this.BulkListingLength, token))
-                        {
-                            if (!FtpExtensions.IsNullOrWhiteSpace(line))
-                            {
-                                rawlisting.Add(line);
-                                this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
-                            }
-                        }
+	                        // increases performance of GetListing by reading multiple lines of the file listing at once
+	                        foreach (var line in await stream.ReadAllLinesAsync(Encoding, this.BulkListingLength, token))
+	                        {
+	                            if (!FtpExtensions.IsNullOrWhiteSpace(line))
+	                            {
+	                                rawlisting.Add(line);
+	                                this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
+	                            }
+	                        }
 
-                    }
-                    else
-                    {
+	                    }
+	                    else
+	                    {
 
-                        // GetListing will read file listings line-by-line (actually byte-by-byte)
-                        while ((buf = await stream.ReadLineAsync(Encoding, token)) != null)
-                        {
-                            if (buf.Length > 0)
-                            {
-                                rawlisting.Add(buf);
-                                this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
-                            }
-                        }
-                    }
+	                        // GetListing will read file listings line-by-line (actually byte-by-byte)
+	                        while ((buf = await stream.ReadLineAsync(Encoding, token)) != null)
+	                        {
+	                            if (buf.Length > 0)
+	                            {
+	                                rawlisting.Add(buf);
+	                                this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
+	                            }
+	                        }
+	                    }
 
-                    this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
+	                    this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 
-                }
-                finally
-                {
-                    stream.Close();
-                }
-            }
+	                }
+	                finally
+	                {
+	                    stream.Close();
+	                }
+	            }
+	        }
+	        catch (FtpMissingSocketException)
+	        {
+		        // Some FTP server does not send any response when listing an empty directory
+		        // and the authentication fails, if no communication socket is provided by the server
+	        }
 
             for (int i = 0; i < rawlisting.Count; i++)
             {
