@@ -83,6 +83,11 @@ namespace FluentFTP {
 				if (m_stream.LocalEndPoint.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
 					throw new FtpException("Only IPv4 is supported by the PASV command. Use EPSV instead.");
 
+				// excute PRET before passive if server requires it
+				if (HasFeature(FtpCapability.PRET)) {
+					reply = Execute("PRET " + command);
+				}
+
 				// execute PASV to try passive mode
 				if (!(reply = Execute("PASV")).Success) {
 					throw new FtpCommandException(reply);
@@ -209,6 +214,11 @@ namespace FluentFTP {
                 if (m_stream.LocalEndPoint.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
                     throw new FtpException("Only IPv4 is supported by the PASV command. Use EPSV instead.");
 		
+				// excute PRET before passive if server requires it
+				if (HasFeature(FtpCapability.PRET)) {
+					reply = await ExecuteAsync("PRET " + command, token);
+				}
+
 				// execute PASV to try passive mode
                 if (!(reply = await ExecuteAsync("PASV", token)).Success){
                     throw new FtpCommandException(reply);
