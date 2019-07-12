@@ -16,6 +16,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
   - Full support for [FTP](#ftp-support), [FTPS](#faq_ftps) (FTP over SSL), [FTPS with client certificates](#faq_certs) and [FTPS with CCC](#faq_ccc) (for FTP firewalls)
   - **File management:**
     - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, AS400, Windows CE, Serv-U, etc)
+	- Fully recursive directory listing and directory deletion (manual recursion and server-side recursion)
     - Easily upload and download a file from the server with [progress tracking](#faq_progress)
     - Automatically [verify the hash](#faq_verifyhash) of a file & retry transfer if hash mismatches
     - Configurable error handling (ignore/abort/throw) for multi-file transfers
@@ -33,7 +34,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
     - Easily send [server-specific](https://github.com/hgupta9/FluentFTP/issues/88) FTP commands using the `Execute()` method
     - Explicit and Implicit [SSL connections](#faq_ftps) are supported for the control and data connections using .NET's `SslStream`
     - Passive and active data connections (PASV, EPSV, PORT and EPRT)
-    - Supports DrFTPD's PRET command, and the Unix CHMOD command
+    - Supports Unix CHMOD command, DrFTPD's PRET command, ProFTPD's SITE MKDIR and RMDIR commands
     - Supports [FTP Proxies](#faq_loginproxy) (User@Host, HTTP 1.1, BlueCoat)
     - [FTP command logging](#faq_log) using `TraceListeners` (passwords omitted) to [trace](#faq_trace) or [log output](#faq_logfile) to a file
     - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
@@ -584,7 +585,9 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **MLST**				| GetObjectInfo()		| Get file information			|
 | **DELE**      		| DeleteFile()			| Delete a file |
 | **MKD**      			| CreateDirectory() 	| Create a directory |
+| **SITE MKDIR**      	| CreateDirectory() 	| Create a directory with server-side recursion (ProFTPD only) |
 | **RMD**      			| DeleteDirectory() 	| Delete a directory |
+| **SITE RMDIR**      	| DeleteDirectory() 	| Delete a directory with server-side recursion (ProFTPD only) |
 | **CWD**      			| SetWorkingDirectory() | Change the working directory |
 | **PWD**      			| GetWorkingDirectory() | Get the working directory |
 | **SIZE**      		| GetFileSize() 		| Get the filesize in bytes |
