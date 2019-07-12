@@ -344,7 +344,10 @@ namespace FluentFTP {
 			// Support #378 - Support RMDIR command for ProFTPd
 			if (deleteContents && ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_RMDIR)) {
 				if ((reply = Execute("SITE RMDIR " + ftppath)).Success) {
+					this.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete: " + ftppath);
 					return true;
+				} else {
+					this.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete: " + ftppath);
 				}
 			}
 
@@ -358,7 +361,10 @@ namespace FluentFTP {
 			// Support #378 - Support RMDIR command for ProFTPd
 			if (deleteContents && ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_RMDIR)) {
 				if ((reply = await ExecuteAsync("SITE RMDIR " + ftppath, token)).Success){
+					this.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete: " + ftppath);
 					return true;
+				} else {
+					this.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete: " + ftppath);
 				}
 			}
 
@@ -377,7 +383,10 @@ namespace FluentFTP {
 			// Support #378 - Support MKDIR command for ProFTPd
 			if (ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_MKDIR)) {
 				if ((reply = Execute("SITE MKDIR " + ftppath)).Success) {
+					this.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
 					return true;
+				} else {
+					this.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
 				}
 			}
 
@@ -391,7 +400,10 @@ namespace FluentFTP {
 			// Support #378 - Support MKDIR command for ProFTPd
 			if (ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_MKDIR)) {
 				if ((reply = await ExecuteAsync("SITE MKDIR " + ftppath, token)).Success){
+					this.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
 					return true;
+				} else {
+					this.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
 				}
 			}
 
