@@ -1596,7 +1596,7 @@ namespace FluentFTP {
 		}
 
 		private static void CalcChmod(FtpListItem item) {
-			item.Chmod = FtpClient.CalcChmod(item.OwnerPermissions, item.GroupPermissions, item.OthersPermissions);
+			item.Chmod = FtpExtensions.CalcChmod(item.OwnerPermissions, item.GroupPermissions, item.OthersPermissions);
 		}
 
 		private static void CalcUnixPermissions(FtpListItem item, string permissions) {

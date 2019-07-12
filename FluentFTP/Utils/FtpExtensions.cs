@@ -431,5 +431,52 @@ namespace FluentFTP {
 			return ftppath == "." || ftppath == "./" || ftppath == "/";
 		}
 
+		/// <summary>
+		/// Calculate the CHMOD integer value given a set of permissions.
+		/// </summary>
+		public static int CalcChmod(FtpPermission owner, FtpPermission group, FtpPermission other) {
+
+			int chmod = 0;
+
+			if (HasPermission(owner, FtpPermission.Read)) {
+				chmod += 400;
+			}
+			if (HasPermission(owner, FtpPermission.Write)) {
+				chmod += 200;
+			}
+			if (HasPermission(owner, FtpPermission.Execute)) {
+				chmod += 100;
+			}
+
+			if (HasPermission(group, FtpPermission.Read)) {
+				chmod += 40;
+			}
+			if (HasPermission(group, FtpPermission.Write)) {
+				chmod += 20;
+			}
+			if (HasPermission(group, FtpPermission.Execute)) {
+				chmod += 10;
+			}
+
+			if (HasPermission(other, FtpPermission.Read)) {
+				chmod += 4;
+			}
+			if (HasPermission(other, FtpPermission.Write)) {
+				chmod += 2;
+			}
+			if (HasPermission(other, FtpPermission.Execute)) {
+				chmod += 1;
+			}
+
+			return chmod;
+		}
+
+		/// <summary>
+		/// Checks if the permission value has the given flag
+		/// </summary>
+		public static bool HasPermission(FtpPermission owner, FtpPermission flag) {
+			return (owner & flag) == flag;
+		}
+
 	}
 }

@@ -1352,7 +1352,7 @@ namespace FluentFTP {
 		/// <param name="group">The group permissions</param>
 		/// <param name="other">The other permissions</param>
 		public void SetFilePermissions(string path, FtpPermission owner, FtpPermission group, FtpPermission other) {
-			SetFilePermissions(path, CalcChmod(owner, group, other));
+			SetFilePermissions(path, FtpExtensions.CalcChmod(owner, group, other));
 		}
 
 #if ASYNC
@@ -1370,7 +1370,7 @@ namespace FluentFTP {
 		/// <param name="token">Cancellation Token</param>
 		public Task SetFilePermissionsAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken))
 		{
-			return SetFilePermissionsAsync(path, CalcChmod(owner, group, other), token);
+			return SetFilePermissionsAsync(path, FtpExtensions.CalcChmod(owner, group, other), token);
 		}
 #endif
 
@@ -1489,48 +1489,6 @@ namespace FluentFTP {
 		}
 #endif
 
-		/// <summary>
-		/// Calculate the CHMOD integer value given a set of permissions.
-		/// </summary>
-		public static int CalcChmod(FtpPermission owner, FtpPermission group, FtpPermission other) {
-
-			int chmod = 0;
-
-			if (HasPermission(owner, FtpPermission.Read)) {
-				chmod += 400;
-			}
-			if (HasPermission(owner, FtpPermission.Write)) {
-				chmod += 200;
-			}
-			if (HasPermission(owner, FtpPermission.Execute)) {
-				chmod += 100;
-			}
-
-			if (HasPermission(group, FtpPermission.Read)) {
-				chmod += 40;
-			}
-			if (HasPermission(group, FtpPermission.Write)) {
-				chmod += 20;
-			}
-			if (HasPermission(group, FtpPermission.Execute)) {
-				chmod += 10;
-			}
-
-			if (HasPermission(other, FtpPermission.Read)) {
-				chmod += 4;
-			}
-			if (HasPermission(other, FtpPermission.Write)) {
-				chmod += 2;
-			}
-			if (HasPermission(other, FtpPermission.Execute)) {
-				chmod += 1;
-			}
-
-			return chmod;
-		}
-		private static bool HasPermission(FtpPermission owner, FtpPermission flag) {
-			return (owner & flag) == flag;
-		}
 
 		#endregion
 

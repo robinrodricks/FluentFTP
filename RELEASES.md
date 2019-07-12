@@ -10,6 +10,7 @@
   - Fix: Some FTP servers return no answer when listing an empty folder (thanks [Mortens4444](/Mortens4444))
   - Fix: `OpenRead` with `EnableThreadSafeDataConnections` always transfers in ASCII (thanks [ts678](/ts678))
   - Fix: Delete legacy static methods: `OpenRead`, `OpenWrite`, `OpenAppend` (dynamic versions still exist)
+  - Fix: Refactor move `CalcChmod` from `FtpClient` to `FtpExtensions` (part of repository cleanup task)
 
 #### 25.0.6
   - Fix: Async methods do not work with Active FTP mode and SSL/encryption (thanks [Mortens4444](/Mortens4444))
