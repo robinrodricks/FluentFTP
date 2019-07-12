@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Proxy;
+using SysSslProtocols = System.Security.Authentication.SslProtocols;
 #if !CORE
 using System.Web;
 #endif
@@ -611,7 +612,113 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region Login
+		#region Auto Connect
+
+		private static List<FtpEncryptionMode> autoConnectEncryption = new List<FtpEncryptionMode> {
+			FtpEncryptionMode.None, FtpEncryptionMode.Implicit, FtpEncryptionMode.Explicit
+		};
+		private static List<SysSslProtocols> autoConnectProtocols = new List<SysSslProtocols> {
+			SysSslProtocols.None, SysSslProtocols.Ssl2, SysSslProtocols.Ssl3, SysSslProtocols.Tls,
+#if !CORE
+			SysSslProtocols.Default, 
+#endif
+#if ASYNC
+			SysSslProtocols.Tls11, SysSslProtocols.Tls12,
+#endif
+		};
+		private static List<FtpDataConnectionType> autoConnectData = new List<FtpDataConnectionType> {
+			FtpDataConnectionType.EPRT,FtpDataConnectionType.EPSV, FtpDataConnectionType.PASV, FtpDataConnectionType.PASVEX, FtpDataConnectionType.PORT
+		};
+		private static List<Encoding> autoConnectEncoding = new List<Encoding> {
+			Encoding.ASCII, Encoding.UTF8
+		};
+
+		/// <summary>
+		/// Automatic FTP and FTPS connection negociation.
+		/// This method tries every possible combination of the FTP connection properties, and returns the list of successful connection profiles.
+		/// You can configure it to stop after finding the first successful profile, or to collect all successful profiles.
+		/// If no successful profiles are found, a blank list is returned.
+		/// </summary>
+		public List<FtpConnectionProfile> AutoConnect() {
+			FtpReply reply;
+			var results = new List<FtpConnectionProfile>();
+
+#if !CORE14
+			lock (m_lock) {
+#endif
+				this.LogFunc("AutoConnect");
+
+				if (IsDisposed)
+					throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
+
+				if (Host == null) {
+					throw new FtpException("No host has been specified. Please set the 'Host' property before trying to auto connect.");
+				}
+				if (Credentials == null) {
+					throw new FtpException("No username and password has been specified. Please set the 'Credentials' property before trying to auto connect.");
+				}
+
+				// try each encryption mode
+				encryption: foreach (var encryption in autoConnectEncryption) {
+
+					// try each SSL protocol
+					protocol: foreach (var protocol in autoConnectProtocols) {
+
+						// try each data connection type
+						dataType: foreach (var dataType in autoConnectData) {
+
+							// try each encoding
+							encoding: foreach (var encoding in autoConnectEncoding) {
+
+								// clone this connection
+								var conn = this.CloneConnection();
+
+								// set basic props
+								conn.Host = this.Host;
+								conn.Credentials = this.Credentials;
+
+								// set rolled props
+								conn.EncryptionMode = encryption;
+								conn.SslProtocols = protocol;
+								conn.DataConnectionType = dataType;
+								conn.Encoding = encoding;
+
+								// try to connect
+								var connected = false;
+								try {
+									conn.Connect();
+									connected = true;
+								} catch (Exception ex) {
+									
+								}
+
+								// if it worked, add the profile
+								if (connected) {
+									results.Add(new FtpConnectionProfile {
+										Encryption = encryption,
+										Protocols = protocol,
+										DataConnection = dataType,
+										Encoding = encoding
+									});
+								}
+
+
+							}
+						}
+					}
+				}
+
+
+#if !CORE14
+			}
+#endif
+
+			return results;
+		}
+
+#endregion
+
+#region Login
 
 		/// <summary>
 		/// Performs a login on the server. This method is overridable so
@@ -681,9 +788,9 @@ namespace FluentFTP {
         }
 #endif
 
-		#endregion
+#endregion
 
-		#region Disconnect
+#region Disconnect
 
 		/// <summary>
 		/// Disconnects from the server
@@ -784,9 +891,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region FTPS
+#region FTPS
 
 		/// <summary>
 		/// Catches the socket stream ssl validation event and fires the event handlers
@@ -810,9 +917,9 @@ namespace FluentFTP {
 				evt(this, e);
 		}
 
-		#endregion
+#endregion
 
-		#region Utils
+#region Utils
 
 		/// <summary>
 		/// Performs a bitwise and to check if the specified
@@ -1028,9 +1135,9 @@ namespace FluentFTP {
 		}
 
 
-		#endregion
+#endregion
 
-		#region Logging
+#region Logging
 
 		/// <summary>
 		/// Add a custom listener here to get events every time a message is logged.
@@ -1099,7 +1206,7 @@ namespace FluentFTP {
 			}
 			return "Status:   ";
 		}
-		#endregion
+#endregion
 
 	}
 }
