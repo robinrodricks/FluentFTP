@@ -648,7 +648,7 @@ If you are on Linux and failing to connect via SSL/TLS, you may be [having this 
 *Method 1: Connect if the SSL certificate has no errors.*
 
 ```cs
-client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient control, FtpSslValidationEventArgs e) {
+client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
 	if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None && checkcertificate)
 		e.Accept = false;
 	else
@@ -660,14 +660,14 @@ client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient control, 
 
 First you must discover the string of the valid certificate. Use this code to save the valid certificate string to a file:
 ```cs
-client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient control, FtpSslValidationEventArgs e) {
+client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
     File.WriteAllText(@"C:\cert.txt", e.Certificate.GetRawCertDataString());
 });
 ```
 Then finally use this code to check if the received certificate matches the one you trust:
 ```cs
 string ValidCert = "<insert contents of cert.txt>";
-client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient control, FtpSslValidationEventArgs e) {
+client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
     if (e.PolicyErrors == SslPolicyErrors.None || e.Certificate.GetRawCertDataString() == ValidCert) {
         e.Accept = true;
     }else{
