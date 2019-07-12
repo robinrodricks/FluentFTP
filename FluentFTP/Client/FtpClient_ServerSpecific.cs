@@ -27,6 +27,103 @@ namespace FluentFTP {
 
 	public partial class FtpClient : IDisposable {
 
+		#region Detect Capabilities
+
+
+		/// <summary>
+		/// Populates the capabilities flags based on capabilities given in the list of strings.
+		/// </summary>
+		protected virtual void GetFeatures(string[] features) {
+			foreach (string feat in features) {
+
+				string featName = feat.Trim().ToUpper();
+
+				if (featName.StartsWith("MLST") || featName.StartsWith("MLSD")) {
+					m_caps |= FtpCapability.MLSD;
+				} else if (featName.StartsWith("MDTM")) {
+					m_caps |= FtpCapability.MDTM;
+				} else if (featName.StartsWith("REST STREAM")) {
+					m_caps |= FtpCapability.REST;
+				} else if (featName.StartsWith("SIZE")) {
+					m_caps |= FtpCapability.SIZE;
+				} else if (featName.StartsWith("UTF8")) {
+					m_caps |= FtpCapability.UTF8;
+				} else if (featName.StartsWith("PRET")) {
+					m_caps |= FtpCapability.PRET;
+				} else if (featName.StartsWith("MFMT")) {
+					m_caps |= FtpCapability.MFMT;
+				} else if (featName.StartsWith("MFCT")) {
+					m_caps |= FtpCapability.MFCT;
+				} else if (featName.StartsWith("MFF")) {
+					m_caps |= FtpCapability.MFF;
+				} else if (featName.StartsWith("MD5")) {
+					m_caps |= FtpCapability.MD5;
+				} else if (featName.StartsWith("XMD5")) {
+					m_caps |= FtpCapability.XMD5;
+				} else if (featName.StartsWith("XCRC")) {
+					m_caps |= FtpCapability.XCRC;
+				} else if (featName.StartsWith("XSHA1")) {
+					m_caps |= FtpCapability.XSHA1;
+				} else if (featName.StartsWith("XSHA256")) {
+					m_caps |= FtpCapability.XSHA256;
+				} else if (featName.StartsWith("XSHA512")) {
+					m_caps |= FtpCapability.XSHA512;
+				} else if (featName.StartsWith("EPSV")) {
+					m_caps |= FtpCapability.EPSV;
+				} else if (featName.StartsWith("CPSV")) {
+					m_caps |= FtpCapability.CPSV;
+				} else if (featName.StartsWith("NOOP")) {
+					m_caps |= FtpCapability.NOOP;
+				} else if (featName.StartsWith("CLNT")) {
+					m_caps |= FtpCapability.CLNT;
+				} else if (featName.StartsWith("SSCN")) {
+					m_caps |= FtpCapability.SSCN;
+				} else if (featName.StartsWith("SITE MKDIR")) {
+					m_caps |= FtpCapability.SITE_MKDIR;
+				} else if (featName.StartsWith("SITE RMDIR")) {
+					m_caps |= FtpCapability.SITE_RMDIR;
+				} else if (featName.StartsWith("SITE UTIME")) {
+					m_caps |= FtpCapability.SITE_UTIME;
+				} else if (featName.StartsWith("SITE SYMLINK")) {
+					m_caps |= FtpCapability.SITE_SYMLINK;
+
+				} else if (featName.StartsWith("HASH")) {
+					Match m;
+
+					m_caps |= FtpCapability.HASH;
+
+					if ((m = Regex.Match(featName, @"^HASH\s+(?<types>.*)$")).Success) {
+						foreach (string type in m.Groups["types"].Value.Split(';')) {
+							switch (type.ToUpper().Trim()) {
+								case "SHA-1":
+								case "SHA-1*":
+									m_hashAlgorithms |= FtpHashAlgorithm.SHA1;
+									break;
+								case "SHA-256":
+								case "SHA-256*":
+									m_hashAlgorithms |= FtpHashAlgorithm.SHA256;
+									break;
+								case "SHA-512":
+								case "SHA-512*":
+									m_hashAlgorithms |= FtpHashAlgorithm.SHA512;
+									break;
+								case "MD5":
+								case "MD5*":
+									m_hashAlgorithms |= FtpHashAlgorithm.MD5;
+									break;
+								case "CRC":
+								case "CRC*":
+									m_hashAlgorithms |= FtpHashAlgorithm.CRC;
+									break;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		#endregion
+
 		#region Detect Server
 
 		/// <summary>
@@ -244,8 +341,8 @@ namespace FluentFTP {
 
 			FtpReply reply;
 
-			// Support #378 - Support MKDIR and RMDIR commands for ProFTPd
-			if (deleteContents && ServerType == FtpServer.ProFTPD) {
+			// Support #378 - Support RMDIR command for ProFTPd
+			if (deleteContents && ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_RMDIR)) {
 				if ((reply = Execute("SITE RMDIR " + ftppath)).Success) {
 					return true;
 				}
@@ -258,9 +355,42 @@ namespace FluentFTP {
 			
 			FtpReply reply;
 
-			// Support #378 - Support MKDIR and RMDIR commands for ProFTPd
-			if (deleteContents && ServerType == FtpServer.ProFTPD) {
+			// Support #378 - Support RMDIR command for ProFTPd
+			if (deleteContents && ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_RMDIR)) {
 				if ((reply = await ExecuteAsync("SITE RMDIR " + ftppath, token)).Success){
+					return true;
+				}
+			}
+
+			return false;
+		}
+#endif
+
+		#endregion
+
+		#region Create Directory
+
+		private bool ServerCreateDirectory(string path, string ftppath, bool force) {
+
+			FtpReply reply;
+
+			// Support #378 - Support MKDIR command for ProFTPd
+			if (ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_MKDIR)) {
+				if ((reply = Execute("SITE MKDIR " + ftppath)).Success) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+#if ASYNC
+		private async Task<bool> ServerCreateDirectoryAsync(string path, string ftppath, bool force, CancellationToken token) {
+			
+			FtpReply reply;
+
+			// Support #378 - Support MKDIR command for ProFTPd
+			if (ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_MKDIR)) {
+				if ((reply = await ExecuteAsync("SITE MKDIR " + ftppath, token)).Success){
 					return true;
 				}
 			}
