@@ -1527,6 +1527,17 @@ namespace FluentFTP {
 					m_caps |= FtpCapability.XSHA256;
 				} else if (featName.StartsWith("XSHA512")) {
 					m_caps |= FtpCapability.XSHA512;
+				} else if (featName.StartsWith("EPSV")) {
+					m_caps |= FtpCapability.EPSV;
+				} else if (featName.StartsWith("CPSV")) {
+					m_caps |= FtpCapability.CPSV;
+				} else if (featName.StartsWith("NOOP")) {
+					m_caps |= FtpCapability.NOOP;
+				} else if (featName.StartsWith("CLNT")) {
+					m_caps |= FtpCapability.CLNT;
+				} else if (featName.StartsWith("SSCN")) {
+					m_caps |= FtpCapability.SSCN;
+
 				} else if (featName.StartsWith("HASH")) {
 					Match m;
 
@@ -2029,6 +2040,7 @@ namespace FluentFTP {
 
 		private static string[] fileNotFoundStrings = new string[] { "can't find file", "can't check for file existence", "does not exist", "failed to open file", "not found", "no such file", "cannot find the file", "cannot find", "could not get file", "not a regular file", "file unavailable", "file is unavailable", "file not unavailable", "file is not available", "no files found", "no file found" };
 		
+
 		#endregion
 
 		#region Logging

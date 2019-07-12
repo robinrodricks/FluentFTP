@@ -1,6 +1,7 @@
 # Release Notes
 
 #### 25.0.7
+  - New: Support more capability detection commands: EPSV, CPSV, NOOP, CLNT, SSCN
   - Fix: When uploading files in `FtpExists.NoCheck` mode, file size check should not be done
   - Fix: Some FTP servers return no answer when listing an empty folder (thanks [Mortens4444](/Mortens4444))
 
