@@ -645,22 +645,35 @@ If you are on Linux and failing to connect via SSL/TLS, you may be [having this 
 <a name="faq_ftps"></a>
 **How do I validate the server's certificate when using FTPS?**
 
+*Method 1: Connect if the SSL certificate has no errors.*
+
+```cs
+client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient control, FtpSslValidationEventArgs e) {
+	if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None && checkcertificate)
+		e.Accept = false;
+	else
+		e.Accept = true;
+});
+```
+
+*Method 2: Connect if the certificate matches a whitelisted certificate.*
+
 First you must discover the string of the valid certificate. Use this code to save the valid certificate string to a file:
 ```cs
-void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
+client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient control, FtpSslValidationEventArgs e) {
     File.WriteAllText(@"C:\cert.txt", e.Certificate.GetRawCertDataString());
-}
+});
 ```
 Then finally use this code to check if the received certificate matches the one you trust:
 ```cs
 string ValidCert = "<insert contents of cert.txt>";
-void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e)  {
+client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient control, FtpSslValidationEventArgs e) {
     if (e.PolicyErrors == SslPolicyErrors.None || e.Certificate.GetRawCertDataString() == ValidCert) {
         e.Accept = true;
     }else{
         throw new Exception("Invalid certificate : " + e.PolicyErrors);
     }
-}
+});
 ```
 
 --------------------------------------------------------
