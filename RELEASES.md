@@ -3,7 +3,7 @@
 #### 25.1.0
   - New: Support more capability detection commands: EPSV, CPSV, NOOP, CLNT, SSCN, SITE commands for ProFTPd
   - New: Improve transfer performance by only attempting EPSV once and then never using it again for that connection
-  - New: Support RMDIR commands specially for ProFTPd to quickly recursively delete a directory on the server-side
+  - New: Support MKDIR & RMDIR commands specially for ProFTPd to quickly create and delete a directory on the server-side
   - New: Support PRET command before downloading or uploading files for servers like ProFTPd & DrFTPd
   - Fix: When uploading files in `FtpExists.NoCheck` mode, file size check should not be done
   - Fix: Some FTP servers return no answer when listing an empty folder (thanks [Mortens4444](/Mortens4444))
