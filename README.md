@@ -927,6 +927,8 @@ Here is the full list of codepages based on the charset you need:
 
 3. And if none of these satisfy you, you can fallback to **name listings** (NLST command), which are *much* slower than either LIST or MLSD. This is because NLST only sends a list of filenames, without any properties. The server has to be queried for the file size, modification date, and type (file/folder) on a file-by-file basis. Name listings can be forced using the `FtpListOption.ForceNameList` flag.
 
+*Note: Some FTP servers return no answer when listing an empty folder, so the authentication has no socket on the other side to communicate with. These exceptions are internally caught and an empty file listing is returned. If you need to check the implementation of this, search for all instances of `FtpMissingSocketException` in the FluentFTP project.*
+
 
 --------------------------------------------------------
 <a name="faq_recursivelist"></a>
