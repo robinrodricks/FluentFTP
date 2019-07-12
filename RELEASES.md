@@ -1,6 +1,6 @@
 # Release Notes
 
-#### 25.1.0
+#### 26.0.0
   - New: Support more capability detection commands: EPSV, CPSV, NOOP, CLNT, SSCN, SITE commands for ProFTPd
   - New: Improve transfer performance by only attempting EPSV once and then never using it again for that connection
   - New: Support MKDIR & RMDIR commands specially for ProFTPd to quickly create and delete a directory on the server-side
@@ -9,6 +9,7 @@
   - Fix: When uploading files in `FtpExists.NoCheck` mode, file size check should not be done
   - Fix: Some FTP servers return no answer when listing an empty folder (thanks [Mortens4444](/Mortens4444))
   - Fix: `OpenRead` with `EnableThreadSafeDataConnections` always transfers in ASCII (thanks [ts678](/ts678))
+  - Fix: Delete legacy static methods: `OpenRead`, `OpenWrite`, `OpenAppend` (dynamic versions still exist)
 
 #### 25.0.6
   - Fix: Async methods do not work with Active FTP mode and SSL/encryption (thanks [Mortens4444](/Mortens4444))
