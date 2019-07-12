@@ -18,6 +18,21 @@ namespace FluentFTP {
 	public static class FtpExtensions {
 
 		/// <summary>
+		/// Ensures that the URI points to a server, and not a directory or invalid path.
+		/// </summary>
+		/// <param name="uri"></param>
+		public static void ValidateFtpServer(this Uri uri) {
+
+			if (string.IsNullOrEmpty(uri.PathAndQuery)) {
+				throw new UriFormatException("The supplied URI does not contain a valid path.");
+			}
+
+			if (uri.PathAndQuery.EndsWith("/")) {
+				throw new UriFormatException("The supplied URI points at a directory.");
+			}
+		}
+
+		/// <summary>
 		/// Checks if the reply contains any of the known error strings
 		/// </summary>
 		public static bool IsKnownError(this string reply, string[] strings) {

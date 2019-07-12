@@ -71,17 +71,6 @@ namespace FluentFTP {
 			return Connect(uri, true);
 		}
 
-		private static void CheckURI(Uri uri) {
-
-			if (string.IsNullOrEmpty(uri.PathAndQuery)) {
-				throw new UriFormatException("The supplied URI does not contain a valid path.");
-			}
-
-			if (uri.PathAndQuery.EndsWith("/")) {
-				throw new UriFormatException("The supplied URI points at a directory.");
-			}
-		}
-
 		/// <summary>
 		/// Calculate you public internet IP using the ipify service. Returns null if cannot be calculated.
 		/// </summary>
