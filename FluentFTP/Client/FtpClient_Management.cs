@@ -331,7 +331,7 @@ namespace FluentFTP {
 		
 			// server-specific directory deletion
 			if (!ftppath.IsFtpRootDirectory()) {
-				if (await ServerDeleteDirectoryAsync(path, deleteContents, options, token)) {
+				if (await ServerDeleteDirectoryAsync(path, ftppath, deleteContents, options, token)) {
 					return;
 				}
 			}
