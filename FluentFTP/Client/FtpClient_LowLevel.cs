@@ -831,7 +831,6 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				this.SetDataType(type);
 				if (m_threadSafeDataChannels) {
 					client = CloneConnection();
 					client.Connect();
@@ -839,6 +838,8 @@ namespace FluentFTP {
 				} else {
 					client = this;
 				}
+
+				this.SetDataType(type);
 
 				length = checkIfFileExists ? client.GetFileSize(path) : 0;
 				stream = client.OpenDataStream(("RETR " + path.GetFtpPath()), restart);
