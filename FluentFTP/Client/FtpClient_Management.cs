@@ -161,6 +161,13 @@ namespace FluentFTP {
 #endif
 
 
+				// server-specific directory deletion
+				if (!IsRootDirectory(ftppath)) {
+					if (ServerDeleteDirectory(path, ftppath, deleteContents, options)) {
+						return;
+					}
+				}
+
 
 				// DELETE CONTENTS OF THE DIRECTORY
 				if (deleteContents) {
@@ -201,7 +208,7 @@ namespace FluentFTP {
 
 				// can't delete the working directory and
 				// can't delete the server root.
-				if (ftppath == "." || ftppath == "./" || ftppath == "/") {
+				if (IsRootDirectory(ftppath)) {
 					return;
 				}
 
@@ -216,6 +223,15 @@ namespace FluentFTP {
 #if !CORE14
 			}
 #endif
+		}
+
+		/// <summary>
+		/// Checks if the given path is a root directory or working directory path
+		/// </summary>
+		/// <param name="ftppath"></param>
+		/// <returns></returns>
+		private static bool IsRootDirectory(string ftppath) {
+			return ftppath == "." || ftppath == "./" || ftppath == "/";
 		}
 
 		/// <summary>
@@ -321,6 +337,13 @@ namespace FluentFTP {
 		{
 			FtpReply reply;
 			string ftppath = path.GetFtpPath();
+		
+			// server-specific directory deletion
+			if (!IsRootDirectory(ftppath)) {
+				if (await ServerDeleteDirectoryAsync(path, deleteContents, options, token)) {
+					return;
+				}
+			}
 
 			// DELETE CONTENTS OF THE DIRECTORY
 			if (deleteContents)
@@ -364,8 +387,7 @@ namespace FluentFTP {
 
 			// can't delete the working directory and
 			// can't delete the server root.
-			if (ftppath == "." || ftppath == "./" || ftppath == "/")
-			{
+			if (IsRootDirectory(ftppath)) {
 				return;
 			}
 

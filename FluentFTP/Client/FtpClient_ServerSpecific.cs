@@ -238,5 +238,38 @@ namespace FluentFTP {
 
 		#endregion
 
+		#region Delete Directory
+
+		private bool ServerDeleteDirectory(string path, string ftppath, bool deleteContents, FtpListOption options) {
+
+			FtpReply reply;
+
+			// Support #378 - Support MKDIR and RMDIR commands for ProFTPd
+			if (deleteContents && ServerType == FtpServer.ProFTPD) {
+				if ((reply = Execute("SITE RMDIR " + ftppath)).Success) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+#if ASYNC
+		private async Task<bool> ServerDeleteDirectoryAsync(string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
+			
+			FtpReply reply;
+
+			// Support #378 - Support MKDIR and RMDIR commands for ProFTPd
+			if (deleteContents && ServerType == FtpServer.ProFTPD) {
+				if ((reply = await ExecuteAsync("SITE RMDIR " + ftppath, token)).Success){
+					return true;
+				}
+			}
+
+			return false;
+		}
+#endif
+
+		#endregion
+
 	}
 }
