@@ -1107,7 +1107,7 @@ namespace FluentFTP {
 						var win32Exception = (Win32Exception)ex.InnerException;
 						if (win32Exception.NativeErrorCode == 10053)
 						{
-							throw new FtpConnectionLostException(ex);
+							throw new FtpMissingSocketException(ex);
 						}
 					}
 					throw;
@@ -1193,7 +1193,22 @@ namespace FluentFTP {
 #endif
 
                 auth_start = DateTime.Now;
-                await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, true);
+	            try
+	            {
+		            await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, true);
+	            }
+	            catch (IOException ex)
+	            {
+		            if (ex.InnerException is Win32Exception)
+		            {
+			            var win32Exception = (Win32Exception)ex.InnerException;
+			            if (win32Exception.NativeErrorCode == 10053)
+			            {
+				            throw new FtpMissingSocketException(ex);
+			            }
+		            }
+		            throw;
+	            }
 
                 auth_time_total = DateTime.Now.Subtract(auth_start);
                 this.Client.LogStatus(FtpTraceLevel.Info, "FTPS Authentication Successful");
