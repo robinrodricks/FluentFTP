@@ -7,6 +7,7 @@
   - New: Support PRET command before downloading or uploading files for servers like ProFTPd & DrFTPd
   - Fix: When uploading files in `FtpExists.NoCheck` mode, file size check should not be done
   - Fix: Some FTP servers return no answer when listing an empty folder (thanks [Mortens4444](/Mortens4444))
+  - Fix: `OpenRead` with `EnableThreadSafeDataConnections` always transfers in ASCII (thanks [ts678](/ts678))
 
 #### 25.0.6
   - Fix: Async methods do not work with Active FTP mode and SSL/encryption (thanks [Mortens4444](/Mortens4444))
