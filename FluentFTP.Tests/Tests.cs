@@ -1219,5 +1219,15 @@ namespace Tests
 				cl.MoveDirectory("/public_html/temp/dir/", "/public_html/temp/dir_moved/");
 			}
 		}
+
+		//[Fact]
+		public void TestAutoConnect() {
+			using (FtpClient cl = NewFtpClient()) {
+				var profiles = cl.AutoConnect();
+				if (profiles.Count > 0) {
+					var code = profiles[0].ToCode();
+				}
+			}
+		}
 	}
 }
