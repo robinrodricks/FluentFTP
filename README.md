@@ -410,7 +410,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 ### FTPS
 
-*Set these properties before you call Connect() to enable FTPS*
+*Set these properties before you call Connect() to enable FTPS. You can [automatically detect FTPS connection settings](#faq_autodetect) that work with your server.*
 
   - **EncryptionMode** - Type of SSL to use, or none. Explicit is TLS, Implicit is SSL. **Default:** FtpEncryptionMode.None.
   
@@ -429,7 +429,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 ### Advanced Settings
 
-*FTP Protocol*
+*FTP Protocol. You can [automatically detect FTP connection settings](#faq_autodetect) that work with your server.*
 
   - **DataConnectionType** - Active or Passive connection. **Default:** FtpDataConnectionType.AutoPassive (tries EPSV then PASV then gives up)
   
