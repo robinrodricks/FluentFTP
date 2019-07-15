@@ -1220,7 +1220,7 @@ namespace Tests
 			}
 		}
 
-		//[Fact]
+		[Fact]
 		public void TestAutoDetect() {
 			using (FtpClient cl = NewFtpClient()) {
 				var profiles = cl.AutoDetect(false);
@@ -1230,7 +1230,7 @@ namespace Tests
 			}
 		}
 
-		//[Fact]
+		[Fact]
 		public void TestAutoConnect() {
 			using (FtpClient cl = NewFtpClient()) {
 				var profile = cl.AutoConnect();
