@@ -29,6 +29,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
     - Get the [hash/checksum](#file-hashing) of a file (SHA-1, SHA-256, SHA-512, and MD5)
     - Dereference of symbolic links to calculate the linked file/folder
   - **FTP protocol:**
+    - Automatic detection of [working connection settings](#faq_autodetect) and automatic [connection negotiation](#faq_autoconnect)
     - Automatic detection of the [FTP server software](#faq_servertype) and its [capabilities](#faq_recursivelist)
     - Extensive support for [FTP commands](#ftp-support), including some server-specific commands
     - Easily send [server-specific](https://github.com/hgupta9/FluentFTP/issues/88) FTP commands using the `Execute()` method
@@ -168,6 +169,8 @@ client.Disconnect();
   - [How do I use third-party logging frameworks like NLog?](#faq_log)
 
 **Connection FAQs**
+  - [How do I auto-detect the correct connection settings?](#faq_autodetect)
+  - [How do I auto-connect to an FTP server?](#faq_autoconnect)
   - [How do I connect with SSL/TLS? / How do I use FTPS?](#faq_ftps)
   - [How do I validate the server's certificate when using FTPS?](#faq_ftps)
   - [How do I connect with FTPS and then switch back down to plaintext FTP?](#faq_ccc)
@@ -235,6 +238,10 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
   - **Connect**() - Connects to an FTP server (uses TLS/SSL if configured).
   
   - **Disconnect**() - Closes the connection to the server immediately.
+  
+  - **AutoDetect**() - Automatically discover working FTP connection settings and return those connection profiles.
+  
+  - **AutoConnect**() - Automatically discover working FTP connection settings and use those to connect to the server.
   
   - **Execute**() - Execute a custom or unspported command.
   
@@ -607,7 +614,34 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **XSHA256**  			| GetChecksum() or GetXSHA256()	| Gets the SHA-256 hash of a file	|
 | **XSHA512**  			| GetChecksum() or GetXSHA512()	| Gets the SHA-512 hash of a file	|
 
+
 ## FAQ
+
+<a name="faq_autodetect"></a>
+**How do I auto-detect the correct connection settings?**
+
+Use this code:
+
+```cs
+FtpClient client = new FtpClient(hostname, username, password); // or set Host & Credentials
+var profiles = client.AutoDetect();
+
+// if any profiles are found, print the code to the console
+if (profiles.Count > 1){
+	var code = profiles[0].ToCode();
+	Console.WriteLine(code);
+}
+```
+
+<a name="faq_autoconnect"></a>
+**How do I auto-connect to an FTP server?**
+
+Use this code:
+```cs
+FtpClient client = new FtpClient(hostname, username, password); // or set Host & Credentials
+client.AutoConnect();
+```
+
 
 <a name="faq_ftps"></a>
 **How do I connect with SSL/TLS? / How do I use FTPS?**
@@ -649,10 +683,11 @@ If you are on Linux and failing to connect via SSL/TLS, you may be [having this 
 
 ```cs
 client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
-	if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None && checkcertificate)
+	if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None){
 		e.Accept = false;
-	else
+	}else{
 		e.Accept = true;
+	}
 });
 ```
 
