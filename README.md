@@ -983,7 +983,7 @@ Here is the full list of codepages based on the charset you need:
 
 3. And if none of these satisfy you, you can fallback to **name listings** (NLST command), which are *much* slower than either LIST or MLSD. This is because NLST only sends a list of filenames, without any properties. The server has to be queried for the file size, modification date, and type (file/folder) on a file-by-file basis. Name listings can be forced using the `FtpListOption.ForceNameList` flag.
 
-*Note: Some FTP servers return no answer when listing an empty folder, so the authentication has no socket on the other side to communicate with. These exceptions are internally caught and an empty file listing is returned. If you need to check the implementation of this, search for all instances of `FtpMissingSocketException` in the FluentFTP project.*
+***Note:** Some FTP servers return no answer when listing an empty folder, so the authentication has no socket on the other side to communicate with. These exceptions are internally caught and an empty file listing is returned. If you need to check the implementation of this, search for all instances of `FtpMissingSocketException` in the FluentFTP project.*
 
 
 --------------------------------------------------------
@@ -996,11 +996,9 @@ Therefore, since version 20.0.0, we try to detect the FTP server software and if
 
 If you feel that `GetListing()` is too slow when using recursive listings, and you know that your FTP server software supports the `LIST -R` command, then please contribute support for your server:
 
-1. Add your FTP server type in the `FtpServer` enum.
+1. Locate your FTP server type exists in the `FtpServer` enum.
 
-2. Add code in `FtpClient.DetectFtpServer()` to detect your FTP server software.
-
-3. Add code in `FtpClient.RecursiveList()` to return `true` for the detected server.
+3. Update `FtpClient.RecursiveList()` to return `true` for your server type.
 
 
 
