@@ -437,11 +437,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
   
   - **InternetProtocolVersions** - Whether to use IPV4 and/or IPV6 when making a connection. All addresses returned during name resolution are tried until a successful connection is made. **Default:** Any.
   
-  - **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
-  
   - **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
-  
-  - **RetryAttempts** - The retry attempts allowed when a verification failure occurs during download or upload. **Default:** 1.
   
   - **IsClone** - Checks if this control connection is a clone. **Default:** false.
 
@@ -461,10 +457,14 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
   
   - **BulkListingLength** - Bytes to read during GetListing. Only honored if BulkListing is true. **Default:** 128.
 
+  - **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
+  
 
 
 *File Transfer*
 
+  - **RetryAttempts** - The retry attempts allowed when a verification failure occurs during download or upload. **Default:** 1.
+  
   - **TransferChunkSize** - Chunk size (in bytes) used during upload/download of files. **Default:** 65536 (65 KB).
   
   - **UploadRateLimit** - Rate limit for uploads (in kbyte/s), honored by [high level API](#highlevel). **Default:** 0 (Unlimited).
