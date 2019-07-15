@@ -170,7 +170,7 @@ client.Disconnect();
 
 **Connection FAQs**
   - [How do I auto-detect the correct connection settings?](#faq_autodetect)
-  - [How do I auto-connect to an FTP server?](#faq_autoconnect)
+  - [How do I auto-connect to an FTP or FTPS server?](#faq_autoconnect)
   - [How do I connect with SSL/TLS? / How do I use FTPS?](#faq_ftps)
   - [How do I validate the server's certificate when using FTPS?](#faq_ftps)
   - [How do I connect with FTPS and then switch back down to plaintext FTP?](#faq_ccc)
@@ -638,7 +638,7 @@ Once you find a working connection profile, use the generated code to quickly co
 
 --------------------------------------------------------
 <a name="faq_autoconnect"></a>
-**How do I auto-connect to an FTP server?**
+**How do I auto-connect to an FTP or FTPS server?**
 
 Use this code:
 ```cs
