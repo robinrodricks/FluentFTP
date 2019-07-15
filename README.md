@@ -941,7 +941,7 @@ client.GetReply();
 <a name="faq_utf"></a>
 **How can I upload/download files with Unicode filenames when my server does not support UTF8?**
 
-Set the connection encoding manually to ensure that special characters work properly.
+Set the [connection encoding](#faq_utf) manually to ensure that special characters work properly.
 
 The default codepage that you should use is `1252 Windows Western`. It has support for English + European characters (accented chars).
 
