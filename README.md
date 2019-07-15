@@ -247,13 +247,13 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
   
   - **SystemType** - Gets the type of system/server that we're connected to.
   
-  - **ServerType** - Gets the type of the FTP server software that we're connected to, using the `FtpServer` enum. If it does not detect your specific server software, please contribute a [detection script](#faq_recursivelist). **Default:** `FtpServer.Unknown`
+  - **ServerType** - Gets the type of the FTP server software that we're connected to, using the `FtpServer` enum. See the [supported FTP servers](#faq_servertype). **Default:** `FtpServer.Unknown`
   
-  - **ServerOS** - Gets the operating system of the FTP server software that we're connected to, using the `FtpOS` enum. **Default:** `FtpOS.Unknown`
+  - **ServerOS** - Gets the operating system of the FTP server software that we're connected to, using the `FtpOS` enum. See the [supported operating systems](#faq_servertype). **Default:** `FtpOS.Unknown`
   
   - **IsConnected** - Checks if the connection is still alive.
   
-  - **Capabilities** - Gets the server capabilties (represented by flags).
+  - **Capabilities** - Gets the server capabilities (represented by flags).
   
   - **HasFeature**() - Checks if a specific feature (`FtpCapability`) is supported by the server.
   
