@@ -32,7 +32,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
     - Automatic detection of [working connection settings](#faq_autodetect) and automatic [connection negotiation](#faq_autoconnect)
     - Automatic detection of the [FTP server software](#faq_servertype) and its [capabilities](#faq_recursivelist)
     - Extensive support for [FTP commands](#ftp-support), including some server-specific commands
-    - Easily send [server-specific](https://github.com/hgupta9/FluentFTP/issues/88) FTP commands using the `Execute()` method
+    - Easily send [server-specific](https://github.com/robinrodricks/FluentFTP/issues/88) FTP commands using the `Execute()` method
     - Explicit and Implicit [SSL connections](#faq_ftps) are supported for the control and data connections using .NET's `SslStream`
     - Passive and active data connections (PASV, EPSV, PORT and EPRT)
     - Supports Unix CHMOD command, PRET command, ProFTPD's SITE MKDIR and RMDIR commands
@@ -47,8 +47,8 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
     - Improves thread safety by cloning the FTP control connection for file transfers (optional)
     - Implements its own internal locking in an effort to keep transactions synchronized
   - **Extensible:**
-    - Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/hgupta9/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
-    - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/hgupta9/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
+    - Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/robinrodricks/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
+    - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/robinrodricks/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
     - Easily add custom logging/tracing functionality using [`FtpTrace.AddListener`](#faq_log)
 
 ## Releases
@@ -152,7 +152,7 @@ client.Disconnect();
     - [Utilities](#utilities)
     - [Logging](#logging)
 - [FTP Support Table](#ftp-support)
-- [Examples](https://github.com/hgupta9/FluentFTP/tree/master/FluentFTP.Examples)
+- [Examples](https://github.com/robinrodricks/FluentFTP/tree/master/FluentFTP.Examples)
 - [Release Notes](https://github.com/robinrodricks/FluentFTP/blob/master/RELEASES.md)
 - [Notes](https://github.com/robinrodricks/FluentFTP/blob/master/NOTES.md)
 
@@ -267,7 +267,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 	
 	- `Name` : The name of the object. (minus the path)
 
-	- `FullName` : The full file path of the object.
+	- `FullName` : The full file path of the object. If filenames look wrong, select the [correct encoding](#faq_utf).
 
 	- `Created` : The created date/time of the object. **Default:** `DateTime.MinValue` if not provided by server.
 
@@ -1173,14 +1173,13 @@ First you must "fork" FluentFTP, then make changes on your local version, then s
 1. Click **Fork** on the top right of this page
 2. Open your version here : https://github.com/YOUR_GITHUB_USERNAME/FluentFTP
 3. Download [Github Desktop](https://desktop.github.com/) and login to your account
-4. Click **+** (top left) then **Clone** and select FluentFTP and click Clone/OK
-5. Select a folder on your PC to place the files
-6. Edit the files using any editor
-7. Click **FluentFTP** on the list (left pane) in Github Desktop
-8. Click **Changes** (top)
-9. Type a Summary, and click **Commit** (bottom)
-10. Click **Sync** (top right)
-11. Open the [pull requests](https://github.com/hgupta9/FluentFTP/pulls) page to create a PR
+4. Click **File > Clone repository...** and select FluentFTP in the list
+5. Edit "Local path" with the folder where you want to place the source code and press **Clone**
+6. Edit the project using [Visual Studio 2017 Community](https://visualstudio.microsoft.com/downloads/) or better
+7. Switch to Github Desktop, which should now show a list of the changed files
+9. Type a Commit Summary (bottom left), and click **Commit**
+10. Click **Push to origin** (top right)
+11. Open the [pull requests](https://github.com/robinrodricks/FluentFTP/pulls) page to create a PR
 12. Click **New pull request** (top right)
 13. Click **compare across forks** (blue link, top right)
 14. On the right "head fork" select the fork with your username
