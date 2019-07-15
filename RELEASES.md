@@ -3,7 +3,7 @@
 #### 26.0.0
   - New: Automatic FTP connection negotiation using `AutoConnect()`
   - New: Automatic detection of working FTP connection settings using `AutoDetect()`
-  - New: C# code generation of working connection settings using `FtpProfile.ToCode`
+  - New: C# code generation of working connection settings using `FtpProfile.ToCode()`
   - New: Support more capability detection commands: EPSV, CPSV, NOOP, CLNT, SSCN, SITE commands for ProFTPd
   - New: Improve transfer performance by only attempting EPSV once and then never using it again for that connection
   - New: Support MKDIR & RMDIR commands specially for ProFTPd to quickly create and delete a directory on the server-side
