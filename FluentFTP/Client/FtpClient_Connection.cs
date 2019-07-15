@@ -612,7 +612,7 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region Auto Connect
+		#region Auto Detect
 
 		private static List<FtpEncryptionMode> autoConnectEncryption = new List<FtpEncryptionMode> {
 			FtpEncryptionMode.None, FtpEncryptionMode.Implicit, FtpEncryptionMode.Explicit
@@ -632,43 +632,6 @@ namespace FluentFTP {
 		private static List<Encoding> autoConnectEncoding = new List<Encoding> {
 			Encoding.UTF8, Encoding.ASCII
 		};
-
-
-		/// <summary>
-		/// Connect to the given server profile.
-		/// </summary>
-		public void Connect(FtpProfile profile) {
-
-			// copy over the profile properties to this instance
-			this.Host = profile.Host;
-			this.Credentials = profile.Credentials;
-			this.EncryptionMode = profile.Encryption;
-			this.SslProtocols = profile.Protocols;
-			this.DataConnectionType = profile.DataConnection;
-			this.Encoding = profile.Encoding;
-
-			// begin connection
-			this.Connect();
-		}
-
-#if ASYNC
-		/// <summary>
-		/// Connect to the given server profile.
-		/// </summary>
-		public async Task ConnectAsync(FtpProfile profile) {
-
-			// copy over the profile properties to this instance
-			this.Host = profile.Host;
-			this.Credentials = profile.Credentials;
-			this.EncryptionMode = profile.Encryption;
-			this.SslProtocols = profile.Protocols;
-			this.DataConnectionType = profile.DataConnection;
-			this.Encoding = profile.Encoding;
-
-			// begin connection
-			await this.ConnectAsync();
-		}
-#endif
 
 		/// <summary>
 		/// Automatic FTP and FTPS connection negotiation.
@@ -768,6 +731,46 @@ namespace FluentFTP {
 			return results;
 		}
 
+		#endregion
+
+		#region Auto Connect
+		
+		/// <summary>
+		/// Connect to the given server profile.
+		/// </summary>
+		public void Connect(FtpProfile profile) {
+
+			// copy over the profile properties to this instance
+			this.Host = profile.Host;
+			this.Credentials = profile.Credentials;
+			this.EncryptionMode = profile.Encryption;
+			this.SslProtocols = profile.Protocols;
+			this.DataConnectionType = profile.DataConnection;
+			this.Encoding = profile.Encoding;
+
+			// begin connection
+			this.Connect();
+		}
+
+#if ASYNC
+		/// <summary>
+		/// Connect to the given server profile.
+		/// </summary>
+		public async Task ConnectAsync(FtpProfile profile, CancellationToken token = default(CancellationToken)) {
+
+			// copy over the profile properties to this instance
+			this.Host = profile.Host;
+			this.Credentials = profile.Credentials;
+			this.EncryptionMode = profile.Encryption;
+			this.SslProtocols = profile.Protocols;
+			this.DataConnectionType = profile.DataConnection;
+			this.Encoding = profile.Encoding;
+
+			// begin connection
+			await this.ConnectAsync(token);
+		}
+#endif
+
 		/// <summary>
 		/// Automatic FTP and FTPS connection negotiation.
 		/// This method tries every possible combination of the FTP connection properties, and connects to the first successful profile.
@@ -775,36 +778,30 @@ namespace FluentFTP {
 		/// </summary>
 		public FtpProfile AutoConnect() {
 
-#if !CORE14
-			lock (m_lock) {
-#endif
-				this.LogFunc("AutoConnect");
+			this.LogFunc("AutoConnect");
 
-				// detect the first available connection profile
-				var results = this.AutoDetect();
-				if (results.Count > 1) {
-					var profile = results[0];
+			// detect the first available connection profile
+			var results = this.AutoDetect();
+			if (results.Count > 1) {
+				var profile = results[0];
 
-					// if we are using SSL, set a basic server acceptance function
-					if (profile.Encryption != FtpEncryptionMode.None) {
-						this.ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
-							if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
-								e.Accept = false;
-							} else {
-								e.Accept = true;
-							}
-						});
-					}
-
-					// connect to the first found profile
-					this.Connect(profile);
-
-					// return the working profile
-					return profile;
+				// if we are using SSL, set a basic server acceptance function
+				if (profile.Encryption != FtpEncryptionMode.None) {
+					this.ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
+						if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
+							e.Accept = false;
+						} else {
+							e.Accept = true;
+						}
+					});
 				}
-#if !CORE14
+
+				// connect to the first found profile
+				this.Connect(profile);
+
+				// return the working profile
+				return profile;
 			}
-#endif
 
 			return null;
 		}
@@ -815,46 +812,40 @@ namespace FluentFTP {
 		/// This method tries every possible combination of the FTP connection properties, and connects to the first successful profile.
 		/// Returns the FtpProfile if the connection succeeded, or null if it failed.
 		/// </summary>
-		public async Task<FtpProfile> AutoConnect() {
+		public async Task<FtpProfile> AutoConnectAsync(CancellationToken token = default(CancellationToken)) {
+		
+			this.LogFunc("AutoConnectAsync");
 
-#if !CORE14
-			lock (m_lock) {
-#endif
-				this.LogFunc("AutoConnect");
+			// detect the first available connection profile
+			var results = this.AutoDetect();
+			if (results.Count > 1) {
+				var profile = results[0];
 
-				// detect the first available connection profile
-				var results = this.AutoDetect();
-				if (results.Count > 1) {
-					var profile = results[0];
-
-					// if we are using SSL, set a basic server acceptance function
-					if (profile.Encryption != FtpEncryptionMode.None) {
-						this.ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
-							if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
-								e.Accept = false;
-							} else {
-								e.Accept = true;
-							}
-						});
-					}
-
-					// connect to the first found profile
-					await this.ConnectAsync(profile);
-
-					// return the working profile
-					return profile;
+				// if we are using SSL, set a basic server acceptance function
+				if (profile.Encryption != FtpEncryptionMode.None) {
+					this.ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
+						if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
+							e.Accept = false;
+						} else {
+							e.Accept = true;
+						}
+					});
 				}
-#if !CORE14
+
+				// connect to the first found profile
+				await this.ConnectAsync(profile, token);
+
+				// return the working profile
+				return profile;
 			}
-#endif
 
 			return null;
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region Login
+		#region Login
 
 		/// <summary>
 		/// Performs a login on the server. This method is overridable so
@@ -926,7 +917,7 @@ namespace FluentFTP {
 
 #endregion
 
-#region Disconnect
+		#region Disconnect
 
 		/// <summary>
 		/// Disconnects from the server
@@ -1029,7 +1020,7 @@ namespace FluentFTP {
 
 #endregion
 
-#region FTPS
+		#region FTPS
 
 		/// <summary>
 		/// Catches the socket stream ssl validation event and fires the event handlers
@@ -1055,7 +1046,7 @@ namespace FluentFTP {
 
 #endregion
 
-#region Utils
+		#region Utils
 
 		/// <summary>
 		/// Performs a bitwise and to check if the specified
@@ -1273,7 +1264,7 @@ namespace FluentFTP {
 
 #endregion
 
-#region Logging
+		#region Logging
 
 		/// <summary>
 		/// Add a custom listener here to get events every time a message is logged.

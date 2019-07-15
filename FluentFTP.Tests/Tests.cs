@@ -1221,11 +1221,21 @@ namespace Tests
 		}
 
 		//[Fact]
-		public void TestAutoConnect() {
+		public void TestAutoDetect() {
 			using (FtpClient cl = NewFtpClient()) {
-				var profiles = cl.AutoConnect();
+				var profiles = cl.AutoDetect(false);
 				if (profiles.Count > 0) {
 					var code = profiles[0].ToCode();
+				}
+			}
+		}
+
+		//[Fact]
+		public void TestAutoConnect() {
+			using (FtpClient cl = NewFtpClient()) {
+				var profile = cl.AutoConnect();
+				if (profile != null) {
+					var code = profile.ToCode();
 				}
 			}
 		}
