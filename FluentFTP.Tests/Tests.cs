@@ -1222,7 +1222,7 @@ namespace Tests
 
 		[Fact]
 		public void TestAutoDetect() {
-			using (FtpClient cl = NewFtpClient()) {
+			using (FtpClient cl = NewFtpClient_Tele2SpeedTest()) {
 				var profiles = cl.AutoDetect(false);
 				if (profiles.Count > 0) {
 					var code = profiles[0].ToCode();
@@ -1232,7 +1232,7 @@ namespace Tests
 
 		[Fact]
 		public void TestAutoConnect() {
-			using (FtpClient cl = NewFtpClient()) {
+			using (FtpClient cl = NewFtpClient_Tele2SpeedTest()) {
 				var profile = cl.AutoConnect();
 				if (profile != null) {
 					var code = profile.ToCode();

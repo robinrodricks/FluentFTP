@@ -215,58 +215,58 @@ namespace FluentFTP {
 				string featName = feat.Trim().ToUpper();
 
 				if (featName.StartsWith("MLST") || featName.StartsWith("MLSD")) {
-					m_caps |= FtpCapability.MLSD;
+					m_capabilities |= FtpCapability.MLSD;
 				} else if (featName.StartsWith("MDTM")) {
-					m_caps |= FtpCapability.MDTM;
+					m_capabilities |= FtpCapability.MDTM;
 				} else if (featName.StartsWith("REST STREAM")) {
-					m_caps |= FtpCapability.REST;
+					m_capabilities |= FtpCapability.REST;
 				} else if (featName.StartsWith("SIZE")) {
-					m_caps |= FtpCapability.SIZE;
+					m_capabilities |= FtpCapability.SIZE;
 				} else if (featName.StartsWith("UTF8")) {
-					m_caps |= FtpCapability.UTF8;
+					m_capabilities |= FtpCapability.UTF8;
 				} else if (featName.StartsWith("PRET")) {
-					m_caps |= FtpCapability.PRET;
+					m_capabilities |= FtpCapability.PRET;
 				} else if (featName.StartsWith("MFMT")) {
-					m_caps |= FtpCapability.MFMT;
+					m_capabilities |= FtpCapability.MFMT;
 				} else if (featName.StartsWith("MFCT")) {
-					m_caps |= FtpCapability.MFCT;
+					m_capabilities |= FtpCapability.MFCT;
 				} else if (featName.StartsWith("MFF")) {
-					m_caps |= FtpCapability.MFF;
+					m_capabilities |= FtpCapability.MFF;
 				} else if (featName.StartsWith("MD5")) {
-					m_caps |= FtpCapability.MD5;
+					m_capabilities |= FtpCapability.MD5;
 				} else if (featName.StartsWith("XMD5")) {
-					m_caps |= FtpCapability.XMD5;
+					m_capabilities |= FtpCapability.XMD5;
 				} else if (featName.StartsWith("XCRC")) {
-					m_caps |= FtpCapability.XCRC;
+					m_capabilities |= FtpCapability.XCRC;
 				} else if (featName.StartsWith("XSHA1")) {
-					m_caps |= FtpCapability.XSHA1;
+					m_capabilities |= FtpCapability.XSHA1;
 				} else if (featName.StartsWith("XSHA256")) {
-					m_caps |= FtpCapability.XSHA256;
+					m_capabilities |= FtpCapability.XSHA256;
 				} else if (featName.StartsWith("XSHA512")) {
-					m_caps |= FtpCapability.XSHA512;
+					m_capabilities |= FtpCapability.XSHA512;
 				} else if (featName.StartsWith("EPSV")) {
-					m_caps |= FtpCapability.EPSV;
+					m_capabilities |= FtpCapability.EPSV;
 				} else if (featName.StartsWith("CPSV")) {
-					m_caps |= FtpCapability.CPSV;
+					m_capabilities |= FtpCapability.CPSV;
 				} else if (featName.StartsWith("NOOP")) {
-					m_caps |= FtpCapability.NOOP;
+					m_capabilities |= FtpCapability.NOOP;
 				} else if (featName.StartsWith("CLNT")) {
-					m_caps |= FtpCapability.CLNT;
+					m_capabilities |= FtpCapability.CLNT;
 				} else if (featName.StartsWith("SSCN")) {
-					m_caps |= FtpCapability.SSCN;
+					m_capabilities |= FtpCapability.SSCN;
 				} else if (featName.StartsWith("SITE MKDIR")) {
-					m_caps |= FtpCapability.SITE_MKDIR;
+					m_capabilities |= FtpCapability.SITE_MKDIR;
 				} else if (featName.StartsWith("SITE RMDIR")) {
-					m_caps |= FtpCapability.SITE_RMDIR;
+					m_capabilities |= FtpCapability.SITE_RMDIR;
 				} else if (featName.StartsWith("SITE UTIME")) {
-					m_caps |= FtpCapability.SITE_UTIME;
+					m_capabilities |= FtpCapability.SITE_UTIME;
 				} else if (featName.StartsWith("SITE SYMLINK")) {
-					m_caps |= FtpCapability.SITE_SYMLINK;
+					m_capabilities |= FtpCapability.SITE_SYMLINK;
 
 				} else if (featName.StartsWith("HASH")) {
 					Match m;
 
-					m_caps |= FtpCapability.HASH;
+					m_capabilities |= FtpCapability.HASH;
 
 					if ((m = Regex.Match(featName, @"^HASH\s+(?<types>.*)$")).Success) {
 						foreach (string type in m.Groups["types"].Value.Split(';')) {

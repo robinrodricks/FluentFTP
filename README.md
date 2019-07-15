@@ -627,11 +627,14 @@ FtpClient client = new FtpClient(hostname, username, password); // or set Host &
 var profiles = client.AutoDetect();
 
 // if any profiles are found, print the code to the console
-if (profiles.Count > 1){
+if (profiles.Count > 0){
 	var code = profiles[0].ToCode();
 	Console.WriteLine(code);
 }
 ```
+
+Once you find a working connection profile, use the generated code to quickly connect to your FTP server.
+
 
 --------------------------------------------------------
 <a name="faq_autoconnect"></a>

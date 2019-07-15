@@ -66,7 +66,7 @@ namespace FluentFTP {
 							info += res[i];
 						}
 
-						result = m_listParser.ParseSingleLine(null, info, m_caps, true);
+						result = m_listParser.ParseSingleLine(null, info, m_capabilities, true);
 					}
 				} else {
 					this.LogStatus(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " with error " + reply.ErrorMessage);
@@ -362,7 +362,7 @@ namespace FluentFTP {
 						buf += rawlisting[++i];
 
 					try {
-						item = m_listParser.ParseSingleLine(path, buf, m_caps, machineList);
+						item = m_listParser.ParseSingleLine(path, buf, m_capabilities, machineList);
 					} catch (FtpListParser.CriticalListParseException) {
 						this.LogStatus(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
 						i = -1;
@@ -687,7 +687,7 @@ namespace FluentFTP {
 
                     try
                     {
-                        item = m_listParser.ParseSingleLine(path, buf, m_caps, machineList);
+                        item = m_listParser.ParseSingleLine(path, buf, m_capabilities, machineList);
                     }
                     catch (FtpListParser.CriticalListParseException)
                     {

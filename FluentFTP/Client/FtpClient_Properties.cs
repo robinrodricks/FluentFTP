@@ -438,7 +438,7 @@ namespace FluentFTP {
 			}
 		}
 
-		FtpCapability m_caps = FtpCapability.NONE;
+		FtpCapability m_capabilities = FtpCapability.NONE;
 		/// <summary>
 		/// Gets the server capabilities represented by flags
 		/// </summary>
@@ -448,10 +448,10 @@ namespace FluentFTP {
 					Connect();
 				}
 
-				return m_caps;
+				return m_capabilities;
 			}
 			protected set {
-				m_caps = value;
+				m_capabilities = value;
 			}
 		}
 

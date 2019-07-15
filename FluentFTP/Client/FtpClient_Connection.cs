@@ -178,7 +178,7 @@ namespace FluentFTP {
 			conn.DataConnectionConnectTimeout = DataConnectionConnectTimeout;
 			conn.DataConnectionReadTimeout = DataConnectionReadTimeout;
 			conn.SocketKeepAlive = SocketKeepAlive;
-			conn.Capabilities = Capabilities;
+			conn.m_capabilities = m_capabilities;
 			conn.EncryptionMode = EncryptionMode;
 			conn.DataConnectionEncryption = DataConnectionEncryption;
 			conn.SslProtocols = SslProtocols;
@@ -259,7 +259,7 @@ namespace FluentFTP {
 				}
 
 				if (!IsClone) {
-					m_caps = FtpCapability.NONE;
+					m_capabilities = FtpCapability.NONE;
 				}
 
 				m_hashAlgorithms = FtpHashAlgorithm.NONE;
@@ -393,7 +393,7 @@ namespace FluentFTP {
 
             if (!IsClone)
             {
-                m_caps = FtpCapability.NONE;
+                m_capabilities = FtpCapability.NONE;
             }
 
             m_hashAlgorithms = FtpHashAlgorithm.NONE;
@@ -696,6 +696,7 @@ namespace FluentFTP {
 								try {
 									conn.Connect();
 									connected = true;
+									conn.Dispose();
 								} catch (Exception ex) {
 
 								}
@@ -782,7 +783,7 @@ namespace FluentFTP {
 
 			// detect the first available connection profile
 			var results = this.AutoDetect();
-			if (results.Count > 1) {
+			if (results.Count > 0) {
 				var profile = results[0];
 
 				// if we are using SSL, set a basic server acceptance function
@@ -818,7 +819,7 @@ namespace FluentFTP {
 
 			// detect the first available connection profile
 			var results = this.AutoDetect();
-			if (results.Count > 1) {
+			if (results.Count > 0) {
 				var profile = results[0];
 
 				// if we are using SSL, set a basic server acceptance function

@@ -28,7 +28,7 @@ namespace FluentFTP {
 			sb.AppendLine("var client = new FtpClient();");
 
 			sb.AppendLine("client.Host = " + Host.EscapeStringLiteral() + ";");
-			
+
 			sb.AppendLine("client.Credentials = new NetworkCredential(" + Credentials.UserName.EscapeStringLiteral() + ", " + Credentials.Password.EscapeStringLiteral() + ");");
 
 			sb.Append("client.EncryptionMode = FtpEncryptionMode.");
@@ -43,27 +43,20 @@ namespace FluentFTP {
 			sb.Append(DataConnection.ToString());
 			sb.AppendLine(";");
 
-			sb.Append("client.Encoding = Encoding.");
+			sb.Append("client.Encoding = ");
 			sb.Append(Encoding.ToString());
 			sb.AppendLine(";");
 
 			if (Encryption != FtpEncryptionMode.None) {
-				sb.AppendLine("client.ValidateCertificate += new FtpSslValidation(OnValidateCertificate);");
+				sb.AppendLine("client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient control, FtpSslValidationEventArgs e) {");
+				sb.AppendLine("	// add your logic to test if the SSL certificate is valid (see the FAQ for examples)");
+				sb.AppendLine("	e.Accept = true;");
+				sb.AppendLine("});");
 			}
 
 			sb.AppendLine("client.Connect();");
 
-			sb.AppendLine();
-
-			if (Encryption != FtpEncryptionMode.None) {
-				sb.AppendLine("// add your logic to test if the SSL certificate is valid (see the FAQ for examples)");
-				sb.AppendLine("private void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {");
-				sb.AppendLine("	e.Accept = true;");
-				sb.AppendLine("}");
-			}
-
 			return sb.ToString();
 		}
-
 	}
 }
