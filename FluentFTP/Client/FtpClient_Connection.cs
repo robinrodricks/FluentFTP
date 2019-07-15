@@ -630,23 +630,62 @@ namespace FluentFTP {
 			FtpDataConnectionType.EPRT,FtpDataConnectionType.EPSV, FtpDataConnectionType.PASV, FtpDataConnectionType.PASVEX, FtpDataConnectionType.PORT
 		};
 		private static List<Encoding> autoConnectEncoding = new List<Encoding> {
-			Encoding.ASCII, Encoding.UTF8
+			Encoding.UTF8, Encoding.ASCII
 		};
 
+
 		/// <summary>
-		/// Automatic FTP and FTPS connection negociation.
+		/// Connect to the given server profile.
+		/// </summary>
+		public void Connect(FtpProfile profile) {
+
+			// copy over the profile properties to this instance
+			this.Host = profile.Host;
+			this.Credentials = profile.Credentials;
+			this.EncryptionMode = profile.Encryption;
+			this.SslProtocols = profile.Protocols;
+			this.DataConnectionType = profile.DataConnection;
+			this.Encoding = profile.Encoding;
+
+			// begin connection
+			this.Connect();
+		}
+
+#if ASYNC
+		/// <summary>
+		/// Connect to the given server profile.
+		/// </summary>
+		public async Task ConnectAsync(FtpProfile profile) {
+
+			// copy over the profile properties to this instance
+			this.Host = profile.Host;
+			this.Credentials = profile.Credentials;
+			this.EncryptionMode = profile.Encryption;
+			this.SslProtocols = profile.Protocols;
+			this.DataConnectionType = profile.DataConnection;
+			this.Encoding = profile.Encoding;
+
+			// begin connection
+			await this.ConnectAsync();
+		}
+#endif
+
+		/// <summary>
+		/// Automatic FTP and FTPS connection negotiation.
 		/// This method tries every possible combination of the FTP connection properties, and returns the list of successful connection profiles.
 		/// You can configure it to stop after finding the first successful profile, or to collect all successful profiles.
+		/// You can then generate code for the profile using the FtpProfile.ToCode method.
 		/// If no successful profiles are found, a blank list is returned.
 		/// </summary>
-		public List<FtpConnectionProfile> AutoConnect() {
-			FtpReply reply;
-			var results = new List<FtpConnectionProfile>();
+		/// <param name="firstOnly">Find all successful profiles (false) or stop after finding the first successful profile (true)?</param>
+		/// <returns></returns>
+		public List<FtpProfile> AutoDetect(bool firstOnly = true) {
+			var results = new List<FtpProfile>();
 
 #if !CORE14
 			lock (m_lock) {
 #endif
-				this.LogFunc("AutoConnect");
+				this.LogFunc("AutoDetect", new object[] { firstOnly });
 
 				if (IsDisposed)
 					throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
@@ -658,23 +697,29 @@ namespace FluentFTP {
 					throw new FtpException("No username and password has been specified. Please set the 'Credentials' property before trying to auto connect.");
 				}
 
-				// try each encryption mode
-				encryption: foreach (var encryption in autoConnectEncryption) {
+				// try each encoding
+				encoding: foreach (var encoding in autoConnectEncoding) {
 
-					// try each SSL protocol
-					protocol: foreach (var protocol in autoConnectProtocols) {
+					// try each encryption mode
+					encryption: foreach (var encryption in autoConnectEncryption) {
 
-						// try each data connection type
-						dataType: foreach (var dataType in autoConnectData) {
+						// try each SSL protocol
+						protocol: foreach (var protocol in autoConnectProtocols) {
 
-							// try each encoding
-							encoding: foreach (var encoding in autoConnectEncoding) {
+							// skip secure protocols if testing plain FTP
+							if (encryption == FtpEncryptionMode.None && protocol != SysSslProtocols.None) {
+								continue;
+							}
+
+							// try each data connection type
+							dataType: foreach (var dataType in autoConnectData) {
 
 								// clone this connection
 								var conn = this.CloneConnection();
 
 								// set basic props
 								conn.Host = this.Host;
+								conn.Port = this.Port;
 								conn.Credentials = this.Credentials;
 
 								// set rolled props
@@ -689,17 +734,24 @@ namespace FluentFTP {
 									conn.Connect();
 									connected = true;
 								} catch (Exception ex) {
-									
+
 								}
 
 								// if it worked, add the profile
 								if (connected) {
-									results.Add(new FtpConnectionProfile {
+									results.Add(new FtpProfile {
+										Host = this.Host,
+										Credentials = this.Credentials,
 										Encryption = encryption,
 										Protocols = protocol,
 										DataConnection = dataType,
 										Encoding = encoding
 									});
+
+									// stop if only 1 wanted
+									if (firstOnly) {
+										return results;
+									}
 								}
 
 
@@ -715,6 +767,90 @@ namespace FluentFTP {
 
 			return results;
 		}
+
+		/// <summary>
+		/// Automatic FTP and FTPS connection negotiation.
+		/// This method tries every possible combination of the FTP connection properties, and connects to the first successful profile.
+		/// Returns the FtpProfile if the connection succeeded, or null if it failed.
+		/// </summary>
+		public FtpProfile AutoConnect() {
+
+#if !CORE14
+			lock (m_lock) {
+#endif
+				this.LogFunc("AutoConnect");
+
+				// detect the first available connection profile
+				var results = this.AutoDetect();
+				if (results.Count > 1) {
+					var profile = results[0];
+
+					// if we are using SSL, set a basic server acceptance function
+					if (profile.Encryption != FtpEncryptionMode.None) {
+						this.ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
+							if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
+								e.Accept = false;
+							} else {
+								e.Accept = true;
+							}
+						});
+					}
+
+					// connect to the first found profile
+					this.Connect(profile);
+
+					// return the working profile
+					return profile;
+				}
+#if !CORE14
+			}
+#endif
+
+			return null;
+		}
+
+#if ASYNC
+		/// <summary>
+		/// Automatic FTP and FTPS connection negotiation.
+		/// This method tries every possible combination of the FTP connection properties, and connects to the first successful profile.
+		/// Returns the FtpProfile if the connection succeeded, or null if it failed.
+		/// </summary>
+		public async Task<FtpProfile> AutoConnect() {
+
+#if !CORE14
+			lock (m_lock) {
+#endif
+				this.LogFunc("AutoConnect");
+
+				// detect the first available connection profile
+				var results = this.AutoDetect();
+				if (results.Count > 1) {
+					var profile = results[0];
+
+					// if we are using SSL, set a basic server acceptance function
+					if (profile.Encryption != FtpEncryptionMode.None) {
+						this.ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
+							if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
+								e.Accept = false;
+							} else {
+								e.Accept = true;
+							}
+						});
+					}
+
+					// connect to the first found profile
+					await this.ConnectAsync(profile);
+
+					// return the working profile
+					return profile;
+				}
+#if !CORE14
+			}
+#endif
+
+			return null;
+		}
+#endif
 
 #endregion
 
