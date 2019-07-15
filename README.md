@@ -633,6 +633,7 @@ if (profiles.Count > 1){
 }
 ```
 
+--------------------------------------------------------
 <a name="faq_autoconnect"></a>
 **How do I auto-connect to an FTP server?**
 
@@ -643,6 +644,7 @@ client.AutoConnect();
 ```
 
 
+--------------------------------------------------------
 <a name="faq_ftps"></a>
 **How do I connect with SSL/TLS? / How do I use FTPS?**
 
