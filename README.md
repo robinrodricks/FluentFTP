@@ -261,7 +261,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 ### Directory Listing
 
-  - **GetListing**() - Get a [file listing](#faq_listings) of the given directory. Add `FtpListOption.Recursive` to recursively list all the sub-directories as well. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
+  - **GetListing**() - Get a [file listing](#faq_listings) of the given directory. Add `FtpListOption.Recursive` to [recursively list](#faq_recursivelist) all the sub-directories as well. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
 
 	- `Type` : The type of the object. (File, Directory or Link)
 	
