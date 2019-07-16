@@ -623,8 +623,8 @@ namespace FluentFTP {
 				m_parser = value;
 
 				// configure parser
-				m_listParser.parser = value;
-				m_listParser.parserConfirmed = false;
+				m_listParser.CurrentParser = value;
+				m_listParser.ParserConfirmed = false;
 			}
 		}
 
@@ -636,9 +636,6 @@ namespace FluentFTP {
 			get { return m_parserCulture; }
 			set {
 				m_parserCulture = value;
-
-				// configure parser
-				m_listParser.parserCulture = value;
 			}
 		}
 
@@ -655,8 +652,8 @@ namespace FluentFTP {
 				// configure parser
 				int hours = (int)Math.Floor(m_timeDiff);
 				int mins = (int)Math.Floor((m_timeDiff - Math.Floor(m_timeDiff)) * 60);
-				m_listParser.timeOffset = new TimeSpan(hours, mins, 0);
-				m_listParser.hasTimeOffset = m_timeDiff != 0;
+				m_listParser.TimeOffset = new TimeSpan(hours, mins, 0);
+				m_listParser.HasTimeOffset = m_timeDiff != 0;
 			}
 		}
 

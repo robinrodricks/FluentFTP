@@ -25,8 +25,8 @@ namespace FluentFTP {
 		/// 
 		/// NOTE TO USER : You should not need to construct this class manually except in advanced cases. Typically constructed by GetListing().
 		/// </summary>
-		public FtpListItem(string raw, string name, long size, bool isDir, ref DateTime lastModifiedTime) {
-			m_input = raw;
+		public FtpListItem(string record, string name, long size, bool isDir, ref DateTime lastModifiedTime) {
+			m_input = record;
 			m_name = name;
 			m_size = size;
 			m_type = isDir ? FtpFileSystemObjectType.Directory : FtpFileSystemObjectType.File;

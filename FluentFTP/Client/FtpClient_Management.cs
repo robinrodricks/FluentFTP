@@ -2033,8 +2033,8 @@ namespace FluentFTP {
 					date = reply.Message.GetFtpDate(DateTimeStyles.AssumeUniversal);
 
 					// convert server timezone to UTC, based on the TimeOffset property
-					if (type != FtpDate.Original && m_listParser.hasTimeOffset) {
-						date = (date - m_listParser.timeOffset);
+					if (type != FtpDate.Original && m_listParser.HasTimeOffset) {
+						date = (date - m_listParser.TimeOffset);
 					}
 
 					// convert to local time if wanted
@@ -2110,9 +2110,9 @@ namespace FluentFTP {
                 date = reply.Message.GetFtpDate(DateTimeStyles.AssumeUniversal);
 
                 // convert server timezone to UTC, based on the TimeOffset property
-                if (type != FtpDate.Original && m_listParser.hasTimeOffset)
+                if (type != FtpDate.Original && m_listParser.HasTimeOffset)
                 {
-                    date = (date - m_listParser.timeOffset);
+                    date = (date - m_listParser.TimeOffset);
                 }
 
                 // convert to local time if wanted
@@ -2161,8 +2161,8 @@ namespace FluentFTP {
 #endif
 
 				// convert UTC to server timezone, based on the TimeOffset property
-				if (type != FtpDate.Original && m_listParser.hasTimeOffset) {
-					date = (date + m_listParser.timeOffset);
+				if (type != FtpDate.Original && m_listParser.HasTimeOffset) {
+					date = (date + m_listParser.TimeOffset);
 				}
 
 				// set modified date of a file
@@ -2237,9 +2237,9 @@ namespace FluentFTP {
 #endif
 
 			// convert UTC to server timezone, based on the TimeOffset property
-			if (type != FtpDate.Original && m_listParser.hasTimeOffset)
+			if (type != FtpDate.Original && m_listParser.HasTimeOffset)
 			{
-				date = (date + m_listParser.timeOffset);
+				date = (date + m_listParser.TimeOffset);
 			}
 
 			// set modified date of a file

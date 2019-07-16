@@ -516,5 +516,173 @@ namespace FluentFTP {
 			return literal.ToString();
 		}
 
+
+		/// <summary>
+		/// Split into fields by splitting on tokens
+		/// </summary>
+		public static string[] SplitString(this string str) {
+			List<string> allTokens = new List<string>(str.Split(null));
+			for (int i = allTokens.Count - 1; i >= 0; i--)
+				if (((string)allTokens[i]).Trim().Length == 0)
+					allTokens.RemoveAt(i);
+			return (string[])allTokens.ToArray();
+		}
+
+		/// <summary>
+		/// Get the full path of a given FTP Listing entry
+		/// </summary>
+		public static void CalculateFullFtpPath(this FtpListItem item, FtpClient client, string path, bool isVMS) {
+
+
+			// EXIT IF NO DIR PATH PROVIDED
+			if (path == null) {
+
+				// check if the path is absolute
+				if (IsAbsolutePath(item.Name)) {
+					item.FullName = item.Name;
+					item.Name = item.Name.GetFtpFileName();
+				}
+
+				return;
+			}
+
+
+			// ONLY IF DIR PATH PROVIDED
+
+			// if this is a vax/openvms file listing
+			// there are no slashes in the path name
+			if (isVMS)
+				item.FullName = path + item.Name;
+			else {
+				//this.client.LogStatus(item.Name);
+
+				// remove globbing/wildcard from path
+				if (path.GetFtpFileName().Contains("*")) {
+					path = path.GetFtpDirectoryName();
+				}
+
+				if (item.Name != null) {
+					// absolute path? then ignore the path input to this method.
+					if (IsAbsolutePath(item.Name)) {
+						item.FullName = item.Name;
+						item.Name = item.Name.GetFtpFileName();
+					} else if (path != null) {
+						item.FullName = path.GetFtpPath(item.Name); //.GetFtpPathWithoutGlob();
+					} else {
+						client.LogStatus(FtpTraceLevel.Warn, "Couldn't determine the full path of this object: " +
+							Environment.NewLine + item.ToString());
+					}
+				}
+
+
+				// if a link target is set and it doesn't include an absolute path
+				// then try to resolve it.
+				if (item.LinkTarget != null && !item.LinkTarget.StartsWith("/")) {
+					if (item.LinkTarget.StartsWith("./"))
+						item.LinkTarget = path.GetFtpPath(item.LinkTarget.Remove(0, 2)).Trim();
+					else
+						item.LinkTarget = path.GetFtpPath(item.LinkTarget).Trim();
+				}
+			}
+		}
+
+		/// <summary>
+		/// Checks if this FTP path is a top level path
+		/// </summary>
+		public static bool IsAbsolutePath(this string path) {
+			return path.StartsWith("/") || path.StartsWith("./") || path.StartsWith("../");
+		}
+
+		/// <summary>
+		/// Calculates the CHMOD value from the permissions flags
+		/// </summary>
+		public static void CalculateChmod(this FtpListItem item) {
+			item.Chmod = FtpExtensions.CalcChmod(item.OwnerPermissions, item.GroupPermissions, item.OthersPermissions);
+		}
+
+		/// <summary>
+		/// Calculates the permissions flags from the CHMOD value
+		/// </summary>
+		public static void CalculateUnixPermissions(this FtpListItem item, string permissions) {
+			Match perms = Regex.Match(permissions,
+							@"[\w-]{1}(?<owner>[\w-]{3})(?<group>[\w-]{3})(?<others>[\w-]{3})",
+							RegexOptions.IgnoreCase);
+
+			if (perms.Success) {
+
+				if (perms.Groups["owner"].Value.Length == 3) {
+					if (perms.Groups["owner"].Value[0] == 'r') {
+						item.OwnerPermissions |= FtpPermission.Read;
+					}
+					if (perms.Groups["owner"].Value[1] == 'w') {
+						item.OwnerPermissions |= FtpPermission.Write;
+					}
+					if (perms.Groups["owner"].Value[2] == 'x' || perms.Groups["owner"].Value[2] == 's') {
+						item.OwnerPermissions |= FtpPermission.Execute;
+					}
+					if (perms.Groups["owner"].Value[2] == 's' || perms.Groups["owner"].Value[2] == 'S') {
+						item.SpecialPermissions |= FtpSpecialPermissions.SetUserID;
+					}
+				}
+
+				if (perms.Groups["group"].Value.Length == 3) {
+					if (perms.Groups["group"].Value[0] == 'r') {
+						item.GroupPermissions |= FtpPermission.Read;
+					}
+					if (perms.Groups["group"].Value[1] == 'w') {
+						item.GroupPermissions |= FtpPermission.Write;
+					}
+					if (perms.Groups["group"].Value[2] == 'x' || perms.Groups["group"].Value[2] == 's') {
+						item.GroupPermissions |= FtpPermission.Execute;
+					}
+					if (perms.Groups["group"].Value[2] == 's' || perms.Groups["group"].Value[2] == 'S') {
+						item.SpecialPermissions |= FtpSpecialPermissions.SetGroupID;
+					}
+				}
+
+				if (perms.Groups["others"].Value.Length == 3) {
+					if (perms.Groups["others"].Value[0] == 'r') {
+						item.OthersPermissions |= FtpPermission.Read;
+					}
+					if (perms.Groups["others"].Value[1] == 'w') {
+						item.OthersPermissions |= FtpPermission.Write;
+					}
+					if (perms.Groups["others"].Value[2] == 'x' || perms.Groups["others"].Value[2] == 't') {
+						item.OthersPermissions |= FtpPermission.Execute;
+					}
+					if (perms.Groups["others"].Value[2] == 't' || perms.Groups["others"].Value[2] == 'T') {
+						item.SpecialPermissions |= FtpSpecialPermissions.Sticky;
+					}
+				}
+
+				CalculateChmod(item);
+			}
+		}
+
+		/// <summary>
+		/// Checks if all the characters in this string are digits or dots
+		/// </summary>
+		public static bool IsNumeric(this string field) {
+			field = field.Replace(".", ""); // strip dots
+			for (int i = 0; i < field.Length; i++) {
+				if (!Char.IsDigit(field[i]))
+					return false;
+			}
+			return true;
+		}
+
+		/// <summary>
+		/// Checks if the string contains any of the given values
+		/// </summary>
+		public static bool ContainsAny(this string field, string[] values, int afterChar = -1) {
+			foreach (var value in values) {
+				if (field.IndexOf(value, StringComparison.Ordinal) > afterChar) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+
 	}
 }

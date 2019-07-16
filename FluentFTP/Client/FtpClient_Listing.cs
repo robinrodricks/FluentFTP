@@ -363,7 +363,7 @@ namespace FluentFTP {
 
 					try {
 						item = m_listParser.ParseSingleLine(path, buf, m_capabilities, machineList);
-					} catch (FtpListParser.CriticalListParseException) {
+					} catch (FtpListParseException) {
 						this.LogStatus(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
 						i = -1;
 						lst.Clear();
@@ -689,7 +689,7 @@ namespace FluentFTP {
                     {
                         item = m_listParser.ParseSingleLine(path, buf, m_capabilities, machineList);
                     }
-                    catch (FtpListParser.CriticalListParseException)
+                    catch (FtpListParseException)
                     {
                         this.LogStatus(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
                         i = -1;

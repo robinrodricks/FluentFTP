@@ -346,7 +346,7 @@ namespace FluentFTP {
 #endif
 
 				// Create the parser even if the auto-OS detection failed
-				m_listParser.Init(m_systemType);
+				m_listParser.Init(m_serverOS);
 
 				// FIX : #318 always set the type when we create a new connection
 				ForceSetDataType = true;
@@ -486,8 +486,8 @@ namespace FluentFTP {
             }
 #endif
 
-			// Create the parser even if the auto-OS detection failed
-			m_listParser.Init(m_systemType);
+			// Create the parser after OS auto-detection
+			m_listParser.Init(m_serverOS);
         }
 #endif
 
