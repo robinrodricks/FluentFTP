@@ -484,7 +484,7 @@ namespace Tests
 		public void TestUnixListParser()
 		{
 			FtpListParser parser = new FtpListParser(new FtpClient());
-			parser.Init("UNIX");
+			parser.Init(FtpOperatingSystem.Unix);
 			//parser.parser = FtpParser.Legacy;
 
 			string[] sample = new string[] {
@@ -509,7 +509,7 @@ namespace Tests
 		public void TestIISParser()
 		{
 			FtpListParser parser = new FtpListParser(new FtpClient());
-			parser.Init("WINDOWS");
+			parser.Init(FtpOperatingSystem.Windows);
 			//parser.parser = FtpParser.Legacy;
 
 			string[] sample = new string[] {
@@ -543,7 +543,7 @@ namespace Tests
 		public void TestOpenVMSParser()
 		{
 			FtpListParser parser = new FtpListParser(new FtpClient());
-			parser.Init("VMS");
+			parser.Init(FtpOperatingSystem.VMS);
 
 			string[] sample = new string[] {
 				"411_4114.TXT;1             11  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
