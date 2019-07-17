@@ -320,7 +320,9 @@ namespace FluentFTP {
 				catch (FtpMissingSocketException)
 				{
 					// Some FTP server does not send any response when listing an empty directory
-					// and the authentication fails, if no communication socket is provided by the server
+					// and the connection fails because no communication socket is provided by the server
+				} catch (IOException) {
+					// Some FTP servers forcibly close the connection, we absorb these errors
 				}
 #if !CORE14
 			}
@@ -640,8 +642,10 @@ namespace FluentFTP {
 	        catch (FtpMissingSocketException)
 	        {
 		        // Some FTP server does not send any response when listing an empty directory
-		        // and the authentication fails, if no communication socket is provided by the server
-	        }
+		        // and the connection fails because no communication socket is provided by the server
+	        } catch (IOException) {
+				// Some FTP servers forcibly close the connection, we absorb these errors
+			}
 
             for (int i = 0; i < rawlisting.Count; i++)
             {
@@ -937,15 +941,23 @@ namespace FluentFTP {
 				// problems that would happen if in ASCII.
 				Execute("TYPE I");
 
-				using (FtpDataStream stream = OpenDataStream(("NLST " + path.GetFtpPath()), 0)) {
-					string buf;
+				// read in raw listing
+				try {
+					using (FtpDataStream stream = OpenDataStream(("NLST " + path.GetFtpPath()), 0)) {
+						string buf;
 
-					try {
-						while ((buf = stream.ReadLine(Encoding)) != null)
-							listing.Add(buf);
-					} finally {
-						stream.Close();
+						try {
+							while ((buf = stream.ReadLine(Encoding)) != null)
+								listing.Add(buf);
+						} finally {
+							stream.Close();
+						}
 					}
+				} catch (FtpMissingSocketException) {
+					// Some FTP server does not send any response when listing an empty directory
+					// and the connection fails because no communication socket is provided by the server
+				} catch (IOException) {
+					// Some FTP servers forcibly close the connection, we absorb these errors
 				}
 #if !CORE14
 			}
@@ -1019,20 +1031,28 @@ namespace FluentFTP {
 			// to avoid any potential character translation
 			// problems that would happen if in ASCII.
 			await ExecuteAsync("TYPE I", token);
-
-			using (FtpDataStream stream = await OpenDataStreamAsync(("NLST " + path.GetFtpPath()), 0, token))
-			{
-				string buf;
-
-				try
+		
+			// read in raw listing
+			try {
+				using (FtpDataStream stream = await OpenDataStreamAsync(("NLST " + path.GetFtpPath()), 0, token))
 				{
-					while ((buf = await stream.ReadLineAsync(Encoding, token)) != null)
-						listing.Add(buf);
+					string buf;
+
+					try
+					{
+						while ((buf = await stream.ReadLineAsync(Encoding, token)) != null)
+							listing.Add(buf);
+					}
+					finally
+					{
+						stream.Close();
+					}
 				}
-				finally
-				{
-					stream.Close();
-				}
+			} catch (FtpMissingSocketException) {
+				// Some FTP server does not send any response when listing an empty directory
+				// and the connection fails because no communication socket is provided by the server
+			} catch (IOException) {
+				// Some FTP servers forcibly close the connection, we absorb these errors
 			}
 
 			return listing.ToArray();
