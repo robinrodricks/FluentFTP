@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 26.0.1
+  - Fix: Prefer using Passive/Active modes rather than Enhanced Active/Passive during auto-detection
+  - Fix: Some FTP servers do not open a port when listing an empty folder with `GetNameListing`
+  - Fix: Hard catch and suppress all exceptions during disposing to solve all random exceptions
+
 #### 26.0.0
   - New: Automatic FTP connection negotiation using `AutoConnect()`
   - New: Automatic detection of working FTP connection settings using `AutoDetect()`
@@ -10,7 +15,7 @@
   - New: Support PRET command before downloading or uploading files for servers like ProFTPd & DrFTPd
   - New: Support detection of BFTPd server software (allows for server specific commands)
   - Fix: When uploading files in `FtpExists.NoCheck` mode, file size check should not be done
-  - Fix: Some FTP servers return no answer when listing an empty folder (thanks [Mortens4444](/Mortens4444))
+  - Fix: Some FTP servers do not open a port when listing an empty folder (thanks [Mortens4444](/Mortens4444))
   - Fix: `OpenRead` with `EnableThreadSafeDataConnections` always transfers in ASCII (thanks [ts678](/ts678))
   - Refactor: Delete legacy static methods: `OpenRead`, `OpenWrite`, `OpenAppend` (dynamic versions still exist)
   - Refactor: Move `CalcChmod` from `FtpClient` to `FtpExtensions` (as part of repository cleanup task)

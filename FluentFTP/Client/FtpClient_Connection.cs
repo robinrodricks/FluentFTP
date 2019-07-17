@@ -104,34 +104,39 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				if (IsDisposed)
+				if (IsDisposed) {
 					return;
+				}
 
-				this.LogFunc("Dispose");
-				this.LogStatus(FtpTraceLevel.Verbose, "Disposing FtpClient object...");
+				// Fix: Hard catch and supress all exceptions during disposing as there are constant issues with this method
+				try {
+					this.LogFunc("Dispose");
+					this.LogStatus(FtpTraceLevel.Verbose, "Disposing FtpClient object...");
+				} catch (Exception ex) {
+				}
 
 				try {
 					if (IsConnected) {
 						Disconnect();
 					}
 				} catch (Exception ex) {
-					this.LogLine(FtpTraceLevel.Warn, "FtpClient.Dispose(): Caught and discarded an exception while disconnecting from host: " + ex.ToString());
 				}
 
 				if (m_stream != null) {
 					try {
 						m_stream.Dispose();
 					} catch (Exception ex) {
-						this.LogLine(FtpTraceLevel.Warn, "FtpClient.Dispose(): Caught and discarded an exception while disposing FtpStream object: " + ex.ToString());
-					} finally {
-						m_stream = null;
 					}
+					m_stream = null;
 				}
 
-				m_credentials = null;
-				m_textEncoding = null;
-				m_host = null;
-				m_asyncmethods.Clear();
+				try {
+					m_credentials = null;
+					m_textEncoding = null;
+					m_host = null;
+					m_asyncmethods.Clear();
+				} catch (Exception ex) {
+				}
 				IsDisposed = true;
 				GC.SuppressFinalize(this);
 #if !CORE14
@@ -627,7 +632,7 @@ namespace FluentFTP {
 #endif
 		};
 		private static List<FtpDataConnectionType> autoConnectData = new List<FtpDataConnectionType> {
-			FtpDataConnectionType.EPRT,FtpDataConnectionType.EPSV, FtpDataConnectionType.PASV, FtpDataConnectionType.PASVEX, FtpDataConnectionType.PORT
+			FtpDataConnectionType.PASV, FtpDataConnectionType.EPSV, FtpDataConnectionType.PORT, FtpDataConnectionType.EPRT, FtpDataConnectionType.PASVEX
 		};
 		private static List<Encoding> autoConnectEncoding = new List<Encoding> {
 			Encoding.UTF8, Encoding.ASCII
@@ -932,14 +937,8 @@ namespace FluentFTP {
 						if (!UngracefullDisconnection) {
 							Execute("QUIT");
 						}
-					} catch (SocketException sockex) {
-						this.LogStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): SocketException caught and discarded while closing control connection: " + sockex.ToString());
-					} catch (IOException ioex) {
-						this.LogStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): IOException caught and discarded while closing control connection: " + ioex.ToString());
-					} catch (FtpCommandException cmdex) {
-						this.LogStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): FtpCommandException caught and discarded while closing control connection: " + cmdex.ToString());
-					} catch (FtpException ftpex) {
-						this.LogStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): FtpException caught and discarded while closing control connection: " + ftpex.ToString());
+					} catch (Exception ex) {
+						this.LogStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): Exception caught and discarded while closing control connection: " + ex.ToString());
 					} finally {
 						m_stream.Close();
 					}
@@ -995,21 +994,9 @@ namespace FluentFTP {
 						await ExecuteAsync("QUIT", token);
 					}
 				}
-				catch (SocketException sockex)
+				catch (Exception ex)
 				{
-					this.LogStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): SocketException caught and discarded while closing control connection: " + sockex.ToString());
-				}
-				catch (IOException ioex)
-				{
-					this.LogStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): IOException caught and discarded while closing control connection: " + ioex.ToString());
-				}
-				catch (FtpCommandException cmdex)
-				{
-					this.LogStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): FtpCommandException caught and discarded while closing control connection: " + cmdex.ToString());
-				}
-				catch (FtpException ftpex)
-				{
-					this.LogStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): FtpException caught and discarded while closing control connection: " + ftpex.ToString());
+					this.LogStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): Exception caught and discarded while closing control connection: " + ex.ToString());
 				}
 				finally
 				{
@@ -1019,7 +1006,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
 		#region FTPS
 

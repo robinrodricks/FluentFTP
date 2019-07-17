@@ -181,10 +181,11 @@ namespace FluentFTP {
 		/// Finalizer
 		/// </summary>
 		~FtpDataStream() {
+
+			// Fix: Hard catch and supress all exceptions during disposing as there are constant issues with this method
 			try {
 				Dispose(false);
 			} catch (Exception ex) {
-				this.Client.LogLine(FtpTraceLevel.Warn, "[Finalizer] Caught and discarded an exception while disposing the FtpDataStream: " + ex.ToString());
 			}
 		}
 	}
