@@ -1,5 +1,12 @@
 # Release Notes
 
+#### 26.0.2
+  - Fix: Improve performance of `GetFileSize` to only switch to Binary for servers that require it
+  - Fix: Ensure data type (ASCII/Binary) is correctly flipped during `GetFileSize` for servers that require it
+  - Fix: Ensure data type (ASCII/Binary) is correctly set for cloned connections
+  - Fix: Reset server detection state flags whenever we connect to a server, to allow for reuse of `FtpClient`
+  - Fix: Copy server detection state flags to cloned connections to improve performance
+
 #### 26.0.1
   - Fix: Prefer using Passive/Active modes rather than Enhanced Active/Passive during auto-detection
   - Fix: Some FTP servers do not open a port when listing an empty folder with `GetNameListing`
