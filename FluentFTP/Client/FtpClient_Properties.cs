@@ -10,7 +10,41 @@ using System.Net;
 namespace FluentFTP {
 	
 	public partial class FtpClient : IDisposable {
-		
+
+		#region Internal State Flags
+
+		/// <summary>
+		/// Used to improve performance of OpenPassiveDataStream.
+		/// Enhanced-passive mode is tried once, and if not supported, is not tried again.
+		/// </summary>
+		private bool _EPSVNotSupported = false;
+
+		/// <summary>
+		/// Used to improve performance of GetFileSize.
+		/// SIZE command is tried, and if the server cannot send it in ASCII mode, we switch to binary each time you call GetFileSize.
+		/// However most servers will support ASCII, so we can get the file size without switching to binary, improving performance.
+		/// </summary>
+		private bool _FileSizeASCIINotSupported = false;
+
+		/// <summary>
+		/// These flags must be reset every time we connect, to allow for users to connect to
+		/// different FTP servers with the same client object.
+		/// </summary>
+		private void ResetStateFlags() {
+			_EPSVNotSupported = false;
+			_FileSizeASCIINotSupported = false;
+		}
+
+		/// <summary>
+		/// These flags must be copied when we quickly clone the connection.
+		/// </summary>
+		private void CopyStateFlags(FtpClient original) {
+			this._EPSVNotSupported = original._EPSVNotSupported;
+			this._FileSizeASCIINotSupported = original._FileSizeASCIINotSupported;
+		}
+
+		#endregion
+
 #if !CORE14
 		/// <summary>
 		/// Used for internally synchronizing access to this

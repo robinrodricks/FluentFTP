@@ -412,6 +412,17 @@ namespace FluentFTP {
 
 		#endregion
 
+		#region File Size
+
+		/// <summary>
+		/// Error messages returned by various when a file size is not supported in ASCII mode.
+		/// </summary>
+		private static string[] fileSizeNotInASCIIStrings = new string[] {
+			"size not allowed in ascii"
+		};
+
+		#endregion
+
 		#region Delete Directory
 
 		private bool ServerDeleteDirectory(string path, string ftppath, bool deleteContents, FtpListOption options) {

@@ -201,19 +201,11 @@ namespace FluentFTP {
 
 			// fix for #428: OpenRead with EnableThreadSafeDataConnections always uses ASCII
 			conn.CurrentDataType = CurrentDataType;
+			conn.ForceSetDataType = true;
 
 #if !CORE
 			conn.PlainTextEncryption = PlainTextEncryption;
 #endif
-
-			// copy props using attributes (slower, not .NET core compatible)
-			/*foreach (PropertyInfo prop in GetType().GetProperties()) {
-				object[] attributes = prop.GetCustomAttributes(typeof(FtpControlConnectionClone), true);
-
-				if (attributes.Length > 0) {
-					prop.SetValue(conn, prop.GetValue(this, null), null);
-				}
-			}*/
 
 			// always accept certificate no matter what because if code execution ever
 			// gets here it means the certificate on the control connection object being
@@ -266,6 +258,8 @@ namespace FluentFTP {
 				if (!IsClone) {
 					m_capabilities = FtpCapability.NONE;
 				}
+
+				ResetStateFlags();
 
 				m_hashAlgorithms = FtpHashAlgorithm.NONE;
 				m_stream.ConnectTimeout = m_connectTimeout;

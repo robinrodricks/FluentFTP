@@ -300,8 +300,6 @@ namespace FluentFTP {
 
 		#region Active/Passive Streams
 
-		private bool _EPSVNotSupported = false;
-
 		/// <summary>
 		/// Opens the specified type of passive data stream
 		/// </summary>
@@ -1104,13 +1102,14 @@ namespace FluentFTP {
 #endif
 				if (m_threadSafeDataChannels) {
 					client = CloneConnection();
+					client.CopyStateFlags(this);
 					client.Connect();
 					client.SetWorkingDirectory(GetWorkingDirectory());
 				} else {
 					client = this;
 				}
 
-				this.SetDataType(type);
+				client.SetDataType(type);
 
 				length = checkIfFileExists ? client.GetFileSize(path) : 0;
 				stream = client.OpenDataStream(("RETR " + path.GetFtpPath()), restart);
@@ -1228,6 +1227,7 @@ namespace FluentFTP {
 			if (m_threadSafeDataChannels)
 			{
 				client = CloneConnection();
+				client.CopyStateFlags(this);
 				await client.ConnectAsync(token);
 				await client.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
 			}
@@ -1348,6 +1348,7 @@ namespace FluentFTP {
 #endif
 				if (m_threadSafeDataChannels) {
 					client = CloneConnection();
+					client.CopyStateFlags(this);
 					client.Connect();
 					client.SetWorkingDirectory(GetWorkingDirectory());
 				} else {
@@ -1438,6 +1439,7 @@ namespace FluentFTP {
 			if (m_threadSafeDataChannels)
 			{
 				client = CloneConnection();
+				client.CopyStateFlags(this);
 				await client.ConnectAsync(token);
 				await client.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
 			}
@@ -1530,6 +1532,7 @@ namespace FluentFTP {
 #endif
 				if (m_threadSafeDataChannels) {
 					client = CloneConnection();
+					client.CopyStateFlags(this);
 					client.Connect();
 					client.SetWorkingDirectory(GetWorkingDirectory());
 				} else {
@@ -1623,6 +1626,7 @@ namespace FluentFTP {
 			if (m_threadSafeDataChannels)
 			{
 				client = CloneConnection();
+				client.CopyStateFlags(this);
 				await client.ConnectAsync(token);
 				await client.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
 			}

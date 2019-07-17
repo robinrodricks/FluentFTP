@@ -1878,7 +1878,7 @@ namespace FluentFTP {
 		#region Get File Size
 
 		/// <summary>
-		/// Gets the size of a remote file
+		/// Gets the size of a remote file, in bytes.
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
 		/// <returns>-1 if the command fails, otherwise the file size</returns>
@@ -1894,35 +1894,61 @@ namespace FluentFTP {
 			if (!HasFeature(FtpCapability.SIZE)) {
 				return -1;
 			}
-
-			FtpReply reply;
+			
 			long length = 0;
 
 #if !CORE14
 			lock (m_lock) {
 #endif
-				// Switch to binary mode since some servers don't support SIZE command for ASCII files.
-				// 
-				// NOTE: We do this inside the lock so we're guaranteed to switch it back to the original
-				// type in a thread-safe manner
-				var savedDataType = CurrentDataType;
-				if (savedDataType != FtpDataType.Binary) {
-					this.SetDataTypeInternal(FtpDataType.Binary);
-				}
-
-				if (!(reply = Execute("SIZE " + path.GetFtpPath())).Success) {
-					length = -1;
-				} else if (!long.TryParse(reply.Message, out length)) {
-					length = -1;
-				}
-
-				if (savedDataType != FtpDataType.Binary) {
-					this.SetDataTypeInternal(savedDataType);
-				}
+				length = GetFileSizeInternal(path);
 #if !CORE14
 			}
 #endif
 
+			return length;
+		}
+
+		/// <summary>
+		/// Gets the file size of an object, without locking
+		/// </summary>
+		private long GetFileSizeInternal(string path) {
+
+			FtpReply reply;
+			long length = -1;
+
+			// Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.
+			var savedDataType = CurrentDataType;
+			if (_FileSizeASCIINotSupported) {
+				if (savedDataType != FtpDataType.Binary) {
+					this.SetDataTypeInternal(FtpDataType.Binary);
+				}
+			}
+
+			// execute the SIZE command
+			reply = Execute("SIZE " + path.GetFtpPath());
+			if (!reply.Success) {
+				length = -1;
+
+				// Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
+				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(fileSizeNotInASCIIStrings)) {
+
+					// set the flag so mode switching is done
+					_FileSizeASCIINotSupported = true;
+
+					// retry getting the file size
+					return GetFileSizeInternal(path);
+				}
+
+			} else if (!long.TryParse(reply.Message, out length)) {
+				length = -1;
+			}
+
+			// Fix #137: switch back to ASCII if required
+			if (_FileSizeASCIINotSupported) {
+				if (savedDataType != FtpDataType.Binary) {
+					this.SetDataTypeInternal(savedDataType);
+				}
+			}
 
 			return length;
 		}
@@ -1963,7 +1989,7 @@ namespace FluentFTP {
 #endif
 #if ASYNC
 		/// <summary>
-		/// Retrieve the size of a remote file asynchronously
+		/// Asynchronously gets the size of a remote file, in bytes.
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="token">Cancellation Token</param>
@@ -1978,30 +2004,58 @@ namespace FluentFTP {
 			if (!HasFeature(FtpCapability.SIZE)) { 
 				return -1;
 			}
-
-            FtpReply reply;
-            long length = 0;
-
-            // Switch to binary mode since some servers don't support SIZE command for ASCII files.
-            // 
-            var savedDataType = CurrentDataType;
-            if (savedDataType != FtpDataType.Binary)
-            {
-                await this.SetDataTypeAsync(FtpDataType.Binary, token);
-            }
-
-            if (!(reply = await ExecuteAsync("SIZE " + path.GetFtpPath(), token)).Success){
-                length = -1;
-            } else if (!long.TryParse(reply.Message, out length)){
-                length = -1;
-			}
-
-            if (savedDataType != FtpDataType.Binary){
-                await this.SetDataTypeAsync(savedDataType, token);
-			}
+		
+            long length = await GetFileSizeInternalAsync(path, token);
 
             return length;
         }
+		
+		/// <summary>
+		/// Gets the file size of an object, without locking
+		/// </summary>
+		public async Task<long> GetFileSizeInternalAsync(string path, CancellationToken token) {
+
+			FtpReply reply;
+			long length = -1;
+
+			// Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.
+			var savedDataType = CurrentDataType;
+			if (_FileSizeASCIINotSupported) {
+				if (savedDataType != FtpDataType.Binary) {
+					 await this.SetDataTypeAsync(FtpDataType.Binary, token);
+				}
+			}
+
+			// execute the SIZE command
+			reply = await ExecuteAsync("SIZE " + path.GetFtpPath(), token);
+			if (!reply.Success) {
+				length = -1;
+
+				// Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
+				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(fileSizeNotInASCIIStrings)) {
+
+					// set the flag so mode switching is done
+					_FileSizeASCIINotSupported = true;
+
+					// retry getting the file size
+					return await GetFileSizeInternalAsync(path, token);
+				}
+
+			} else if (!long.TryParse(reply.Message, out length)) {
+				length = -1;
+			}
+
+			// Fix #137: switch back to ASCII if required
+			if (_FileSizeASCIINotSupported) {
+				if (savedDataType != FtpDataType.Binary) {
+					 await this.SetDataTypeAsync(savedDataType, token);
+				}
+			}
+
+			return length;
+		}
+
+
 #endif
 		#endregion
 
