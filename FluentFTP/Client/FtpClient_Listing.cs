@@ -229,11 +229,7 @@ namespace FluentFTP {
 
 			// read flags
 			bool isIncludeSelf = (options & FtpListOption.IncludeSelfAndParent) == FtpListOption.IncludeSelfAndParent;
-			bool isForceList = (options & FtpListOption.ForceList) == FtpListOption.ForceList;
-			bool isNoPath = (options & FtpListOption.NoPath) == FtpListOption.NoPath;
 			bool isNameList = (options & FtpListOption.NameList) == FtpListOption.NameList;
-			bool isUseLS = (options & FtpListOption.UseLS) == FtpListOption.UseLS;
-			bool isAllFiles = (options & FtpListOption.AllFiles) == FtpListOption.AllFiles;
 			bool isRecursive = (options & FtpListOption.Recursive) == FtpListOption.Recursive && RecursiveList;
 			bool isDerefLinks = (options & FtpListOption.DerefLinks) == FtpListOption.DerefLinks;
 			bool isGetModified = (options & FtpListOption.Modify) == FtpListOption.Modify;
@@ -456,7 +452,7 @@ namespace FluentFTP {
 			} catch (IOException ioEx) {
 				// Some FTP servers forcibly close the connection, we absorb these errors
 
-				// Fix #410: If its a temporary failure, try again ("Received an unexpected EOF or 0 bytes from the transport stream")
+				// Fix #410: Retry if its a temporary failure ("Received an unexpected EOF or 0 bytes from the transport stream")
 				if (retry && ioEx.Message.IsKnownError(unexpectedEOFStrings)) {
 
 					// retry once more, but do not go into a infinite recursion loop here
@@ -571,18 +567,14 @@ namespace FluentFTP {
             List<string> rawlisting = new List<string>();
             string listcmd = null;
             string buf = null;
-
-            // read flags
-            bool isIncludeSelf = (options & FtpListOption.IncludeSelfAndParent) == FtpListOption.IncludeSelfAndParent;
-            bool isForceList = (options & FtpListOption.ForceList) == FtpListOption.ForceList;
-            bool isNoPath = (options & FtpListOption.NoPath) == FtpListOption.NoPath;
-            bool isNameList = (options & FtpListOption.NameList) == FtpListOption.NameList;
-            bool isUseLS = (options & FtpListOption.UseLS) == FtpListOption.UseLS;
-            bool isAllFiles = (options & FtpListOption.AllFiles) == FtpListOption.AllFiles;
-            bool isRecursive = (options & FtpListOption.Recursive) == FtpListOption.Recursive && RecursiveList;
-            bool isDerefLinks = (options & FtpListOption.DerefLinks) == FtpListOption.DerefLinks;
-            bool isGetModified = (options & FtpListOption.Modify) == FtpListOption.Modify;
-            bool isGetSize = (options & FtpListOption.Size) == FtpListOption.Size;
+		
+			// read flags
+			bool isIncludeSelf = (options & FtpListOption.IncludeSelfAndParent) == FtpListOption.IncludeSelfAndParent;
+			bool isNameList = (options & FtpListOption.NameList) == FtpListOption.NameList;
+			bool isRecursive = (options & FtpListOption.Recursive) == FtpListOption.Recursive && RecursiveList;
+			bool isDerefLinks = (options & FtpListOption.DerefLinks) == FtpListOption.DerefLinks;
+			bool isGetModified = (options & FtpListOption.Modify) == FtpListOption.Modify;
+			bool isGetSize = (options & FtpListOption.Size) == FtpListOption.Size;
 
             // calc path to request
             path = await GetAbsolutePathAsync(path, token);
@@ -593,7 +585,7 @@ namespace FluentFTP {
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 			
             // read in raw file listing
-	        rawlisting = GetListingInternalAsync(listcmd, true);
+	        rawlisting = await GetListingInternalAsync(listcmd, true, token);
 
             for (int i = 0; i < rawlisting.Count; i++)
             {
@@ -726,7 +718,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Get the records of a file listing and retry if temporary failure.
 		/// </summary>
-		private Task<List<string>> GetListingInternalAsync(string listcmd, bool retry, CancellationToken token) {
+		private async Task<List<string>> GetListingInternalAsync(string listcmd, bool retry, CancellationToken token) {
 
 			List<string> rawlisting = new List<string>();
 
@@ -774,7 +766,7 @@ namespace FluentFTP {
 			} catch (IOException ioEx) {
 				// Some FTP servers forcibly close the connection, we absorb these errors
 
-				// Fix #410: If its a temporary failure, try again ("Received an unexpected EOF or 0 bytes from the transport stream")
+				// Fix #410: Retry if its a temporary failure ("Received an unexpected EOF or 0 bytes from the transport stream")
 				if (retry && ioEx.Message.IsKnownError(unexpectedEOFStrings)) {
 
 					// retry once more, but do not go into a infinite recursion loop here
