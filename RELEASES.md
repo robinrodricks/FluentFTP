@@ -2,10 +2,12 @@
 
 #### 26.0.2
   - Fix: Improve performance of `GetFileSize` to only switch to Binary for servers that require it
-  - Fix: Ensure data type (ASCII/Binary) is correctly flipped during `GetFileSize` for servers that require it
+  - Fix: Ensure data type (ASCII/Binary) is correctly set during `GetFileSize` for servers that require it
   - Fix: Ensure data type (ASCII/Binary) is correctly set for cloned connections
+  - Fix: Ensure data type (ASCII/Binary) is correctly set during `GetListing` and `GetNameListing`
   - Fix: Reset server detection state flags whenever we connect to a server, to allow for reuse of `FtpClient`
   - Fix: Copy server detection state flags to cloned connections to improve performance
+  - Fix: Retry `GetListing` if temporary error "Received an unexpected EOF or 0 bytes from the transport stream"
 
 #### 26.0.1
   - Fix: Prefer using Passive/Active modes rather than Enhanced Active/Passive during auto-detection

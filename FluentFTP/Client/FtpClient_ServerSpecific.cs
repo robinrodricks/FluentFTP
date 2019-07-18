@@ -389,8 +389,9 @@ namespace FluentFTP {
 		#region File Exists
 
 		/// <summary>
-		/// Error messages returned by various when a file does not exist.
+		/// Error messages returned by various servers when a file does not exist.
 		/// Instead of throwing an error, we use these to detect and handle the file detection properly.
+		/// MUST BE LOWER CASE!
 		/// </summary>
 		private static string[] fileNotFoundStrings = new string[] {
 			"can't find file",
@@ -415,10 +416,25 @@ namespace FluentFTP {
 		#region File Size
 
 		/// <summary>
-		/// Error messages returned by various when a file size is not supported in ASCII mode.
+		/// Error messages returned by various servers when a file size is not supported in ASCII mode.
+		/// MUST BE LOWER CASE!
 		/// </summary>
 		private static string[] fileSizeNotInASCIIStrings = new string[] {
 			"size not allowed in ascii"
+		};
+
+		#endregion
+
+		#region File Transfer
+
+		/// <summary>
+		/// Error messages returned by various servers when a file transfer temporarily failed.
+		/// MUST BE LOWER CASE!
+		/// </summary>
+		private static string[] unexpectedEOFStrings = new string[] {
+			"unexpected eof for remote file",
+			"received an unexpected eof",
+			"unexpected eof"
 		};
 
 		#endregion

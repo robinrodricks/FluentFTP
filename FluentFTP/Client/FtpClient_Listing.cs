@@ -223,7 +223,7 @@ namespace FluentFTP {
 
 			FtpListItem item = null;
 			List<FtpListItem> lst = new List<FtpListItem>();
-			List<string> rawlisting = new List<string>();
+			List<string> rawlisting = null;
 			string listcmd = null;
 			string buf = null;
 
@@ -244,86 +244,13 @@ namespace FluentFTP {
 
 			// MLSD provides a machine readable format with 100% accurate information
 			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
-			bool machineList = false;
-			if ((!isForceList || m_parser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
-				listcmd = "MLSD";
-				machineList = true;
-			} else {
-				if (isUseLS) {
-					listcmd = "LS";
-				} else if (isNameList) {
-					listcmd = "NLST";
-				} else {
-					string listopts = "";
-
-					listcmd = "LIST";
-
-					if (isAllFiles) {
-						listopts += "a";
-					}
-
-					if (isRecursive) {
-						listopts += "R";
-					}
-
-					if (listopts.Length > 0) {
-						listcmd += " -" + listopts;
-					}
-				}
-			}
-
-			if (!isNoPath) {
-				listcmd = (listcmd + " " + path.GetFtpPath());
-			}
+			bool machineList;
+			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
 #if !CORE14
 			lock (m_lock) {
 #endif
-				Execute("TYPE I");
-
-				try
-				{
-
-					// read in raw file listing
-					using (FtpDataStream stream = OpenDataStream(listcmd, 0)) {
-						try {
-							this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
-
-							if (this.BulkListing) {
-
-								// increases performance of GetListing by reading multiple lines of the file listing at once
-								foreach (var line in stream.ReadAllLines(Encoding, this.BulkListingLength)) {
-									if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
-										rawlisting.Add(line);
-										this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
-									}
-								}
-
-							} else {
-
-								// GetListing will read file listings line-by-line (actually byte-by-byte)
-								while ((buf = stream.ReadLine(Encoding)) != null) {
-									if (buf.Length > 0) {
-										rawlisting.Add(buf);
-										this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
-									}
-								}
-							}
-
-							this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
-
-						} finally {
-							stream.Close();
-						}
-					}
-				}
-				catch (FtpMissingSocketException)
-				{
-					// Some FTP server does not send any response when listing an empty directory
-					// and the connection fails because no communication socket is provided by the server
-				} catch (IOException) {
-					// Some FTP servers forcibly close the connection, we absorb these errors
-				}
+				rawlisting = GetListingInternal(listcmd, true);
 #if !CORE14
 			}
 #endif
@@ -429,6 +356,118 @@ namespace FluentFTP {
 			}
 
 			return lst.ToArray();
+		}
+
+		private void CalculateGetListingCommand(string path, FtpListOption options, out string listcmd, out bool machineList) {
+
+			// read flags
+			bool isForceList = (options & FtpListOption.ForceList) == FtpListOption.ForceList;
+			bool isNoPath = (options & FtpListOption.NoPath) == FtpListOption.NoPath;
+			bool isNameList = (options & FtpListOption.NameList) == FtpListOption.NameList;
+			bool isUseLS = (options & FtpListOption.UseLS) == FtpListOption.UseLS;
+			bool isAllFiles = (options & FtpListOption.AllFiles) == FtpListOption.AllFiles;
+			bool isRecursive = (options & FtpListOption.Recursive) == FtpListOption.Recursive && RecursiveList;
+			
+			machineList = false;
+
+			// use machine listing if supported by the server
+			if ((!isForceList || m_parser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
+				listcmd = "MLSD";
+				machineList = true;
+
+			} else {
+
+				// otherwise use one of the legacy name listing commands
+				if (isUseLS) {
+					listcmd = "LS";
+				} else if (isNameList) {
+					listcmd = "NLST";
+				} else {
+					string listopts = "";
+
+					listcmd = "LIST";
+
+					// add option flags
+					if (isAllFiles) {
+						listopts += "a";
+					}
+					if (isRecursive) {
+						listopts += "R";
+					}
+					if (listopts.Length > 0) {
+						listcmd += " -" + listopts;
+					}
+				}
+			}
+
+			if (!isNoPath) {
+				listcmd = (listcmd + " " + path.GetFtpPath());
+			}
+		}
+
+		/// <summary>
+		/// Get the records of a file listing and retry if temporary failure.
+		/// </summary>
+		private List<string> GetListingInternal(string listcmd, bool retry) {
+
+			List<string> rawlisting = new List<string>();
+
+			// always get the file listing in binary to avoid character translation issues with ASCII.
+			SetDataTypeNoLock(FtpDataType.Binary);
+
+			try {
+
+				// read in raw file listing
+				using (FtpDataStream stream = OpenDataStream(listcmd, 0)) {
+					try {
+						this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+
+						if (this.BulkListing) {
+
+							// increases performance of GetListing by reading multiple lines of the file listing at once
+							foreach (var line in stream.ReadAllLines(Encoding, this.BulkListingLength)) {
+								if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
+									rawlisting.Add(line);
+									this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
+								}
+							}
+
+						} else {
+
+							// GetListing will read file listings line-by-line (actually byte-by-byte)
+							string buf;
+							while ((buf = stream.ReadLine(Encoding)) != null) {
+								if (buf.Length > 0) {
+									rawlisting.Add(buf);
+									this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
+								}
+							}
+						}
+
+						this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
+
+					} finally {
+						stream.Close();
+					}
+				}
+			} catch (FtpMissingSocketException) {
+				// Some FTP server does not send any response when listing an empty directory
+				// and the connection fails because no communication socket is provided by the server
+			} catch (IOException ioEx) {
+				// Some FTP servers forcibly close the connection, we absorb these errors
+
+				// Fix #410: If its a temporary failure, try again ("Received an unexpected EOF or 0 bytes from the transport stream")
+				if (retry && ioEx.Message.IsKnownError(unexpectedEOFStrings)) {
+
+					// retry once more, but do not go into a infinite recursion loop here
+					return GetListingInternal(listcmd, false);
+				} else {
+					// suppress all other types of exceptions
+				}
+
+			}
+
+			return rawlisting;
 		}
 
 #if !CORE
@@ -550,102 +589,11 @@ namespace FluentFTP {
 
             // MLSD provides a machine readable format with 100% accurate information
             // so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
-            bool machineList = false;
-            if ((!isForceList || m_parser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD))
-            {
-                listcmd = "MLSD";
-                machineList = true;
-            }
-            else
-            {
-                if (isUseLS)
-                {
-                    listcmd = "LS";
-                }
-                else if (isNameList)
-                {
-                    listcmd = "NLST";
-                }
-                else
-                {
-                    string listopts = "";
-
-                    listcmd = "LIST";
-
-                    if (isAllFiles){
-                        listopts += "a";
-					}
-
-                    if (isRecursive){
-                        listopts += "R";
-					}
-
-                    if (listopts.Length > 0){
-                        listcmd += " -" + listopts;
-					}
-                }
-            }
-
-            if (!isNoPath)
-            {
-                listcmd = (listcmd + " " + path.GetFtpPath());
-            }
-
-            await ExecuteAsync("TYPE I", token);
-
+            bool machineList;
+			CalculateGetListingCommand(path, options, out listcmd, out machineList);
+			
             // read in raw file listing
-	        try
-	        {
-				using (FtpDataStream stream = await OpenDataStreamAsync(listcmd, 0, token))
-	            {
-	                try
-	                {
-	                    this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
-
-	                    if (this.BulkListing)
-	                    {
-
-	                        // increases performance of GetListing by reading multiple lines of the file listing at once
-	                        foreach (var line in await stream.ReadAllLinesAsync(Encoding, this.BulkListingLength, token))
-	                        {
-	                            if (!FtpExtensions.IsNullOrWhiteSpace(line))
-	                            {
-	                                rawlisting.Add(line);
-	                                this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
-	                            }
-	                        }
-
-	                    }
-	                    else
-	                    {
-
-	                        // GetListing will read file listings line-by-line (actually byte-by-byte)
-	                        while ((buf = await stream.ReadLineAsync(Encoding, token)) != null)
-	                        {
-	                            if (buf.Length > 0)
-	                            {
-	                                rawlisting.Add(buf);
-	                                this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
-	                            }
-	                        }
-	                    }
-
-	                    this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
-
-	                }
-	                finally
-	                {
-	                    stream.Close();
-	                }
-	            }
-	        }
-	        catch (FtpMissingSocketException)
-	        {
-		        // Some FTP server does not send any response when listing an empty directory
-		        // and the connection fails because no communication socket is provided by the server
-	        } catch (IOException) {
-				// Some FTP servers forcibly close the connection, we absorb these errors
-			}
+	        rawlisting = GetListingInternalAsync(listcmd, true);
 
             for (int i = 0; i < rawlisting.Count; i++)
             {
@@ -774,6 +722,71 @@ namespace FluentFTP {
 
             return lst.ToArray();
         }
+		
+		/// <summary>
+		/// Get the records of a file listing and retry if temporary failure.
+		/// </summary>
+		private Task<List<string>> GetListingInternalAsync(string listcmd, bool retry, CancellationToken token) {
+
+			List<string> rawlisting = new List<string>();
+
+			// always get the file listing in binary to avoid character translation issues with ASCII.
+			await SetDataTypeNoLockAsync(FtpDataType.Binary, token);
+
+			try {
+
+				// read in raw file listing
+				using (FtpDataStream stream = await OpenDataStreamAsync(listcmd, 0, token)) {
+					try {
+						this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+
+						if (this.BulkListing) {
+
+							// increases performance of GetListing by reading multiple lines of the file listing at once
+							foreach (var line in await stream.ReadAllLinesAsync(Encoding, this.BulkListingLength, token)) {
+								if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
+									rawlisting.Add(line);
+									this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
+								}
+							}
+
+						} else {
+
+							// GetListing will read file listings line-by-line (actually byte-by-byte)
+							string buf;
+							while ((buf = await stream.ReadLineAsync(Encoding, token)) != null) {
+								if (buf.Length > 0) {
+									rawlisting.Add(buf);
+									this.LogLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
+								}
+							}
+						}
+
+						this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
+
+					} finally {
+						stream.Close();
+					}
+				}
+			} catch (FtpMissingSocketException) {
+				// Some FTP server does not send any response when listing an empty directory
+				// and the connection fails because no communication socket is provided by the server
+			} catch (IOException ioEx) {
+				// Some FTP servers forcibly close the connection, we absorb these errors
+
+				// Fix #410: If its a temporary failure, try again ("Received an unexpected EOF or 0 bytes from the transport stream")
+				if (retry && ioEx.Message.IsKnownError(unexpectedEOFStrings)) {
+
+					// retry once more, but do not go into a infinite recursion loop here
+					return await GetListingInternalAsync(listcmd, false, token);
+				} else {
+					// suppress all other types of exceptions
+				}
+
+			}
+
+			return rawlisting;
+		}
 
 		/// <summary>
 		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
@@ -936,10 +949,8 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				// always get the file listing in binary
-				// to avoid any potential character translation
-				// problems that would happen if in ASCII.
-				Execute("TYPE I");
+				// always get the file listing in binary to avoid character translation issues with ASCII.
+				SetDataTypeNoLock(FtpDataType.Binary);
 
 				// read in raw listing
 				try {
@@ -1026,12 +1037,10 @@ namespace FluentFTP {
 
 			// calc path to request
 			path = await GetAbsolutePathAsync(path, token);
-
-			// always get the file listing in binary
-			// to avoid any potential character translation
-			// problems that would happen if in ASCII.
-			await ExecuteAsync("TYPE I", token);
 		
+			// always get the file listing in binary to avoid character translation issues with ASCII.
+			await SetDataTypeNoLockAsync(FtpDataType.Binary, token);
+
 			// read in raw listing
 			try {
 				using (FtpDataStream stream = await OpenDataStreamAsync(("NLST " + path.GetFtpPath()), 0, token))

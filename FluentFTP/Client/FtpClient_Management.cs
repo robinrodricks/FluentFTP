@@ -1917,11 +1917,8 @@ namespace FluentFTP {
 			long length = -1;
 
 			// Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.
-			var savedDataType = CurrentDataType;
 			if (_FileSizeASCIINotSupported) {
-				if (savedDataType != FtpDataType.Binary) {
-					this.SetDataTypeInternal(FtpDataType.Binary);
-				}
+				SetDataTypeNoLock(FtpDataType.Binary);
 			}
 
 			// execute the SIZE command
@@ -1941,13 +1938,6 @@ namespace FluentFTP {
 
 			} else if (!long.TryParse(reply.Message, out length)) {
 				length = -1;
-			}
-
-			// Fix #137: switch back to ASCII if required
-			if (_FileSizeASCIINotSupported) {
-				if (savedDataType != FtpDataType.Binary) {
-					this.SetDataTypeInternal(savedDataType);
-				}
 			}
 
 			return length;
@@ -2017,13 +2007,10 @@ namespace FluentFTP {
 
 			FtpReply reply;
 			long length = -1;
-
+		
 			// Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.
-			var savedDataType = CurrentDataType;
 			if (_FileSizeASCIINotSupported) {
-				if (savedDataType != FtpDataType.Binary) {
-					 await this.SetDataTypeAsync(FtpDataType.Binary, token);
-				}
+				await SetDataTypeNoLockAsync(FtpDataType.Binary, token);
 			}
 
 			// execute the SIZE command
@@ -2043,13 +2030,6 @@ namespace FluentFTP {
 
 			} else if (!long.TryParse(reply.Message, out length)) {
 				length = -1;
-			}
-
-			// Fix #137: switch back to ASCII if required
-			if (_FileSizeASCIINotSupported) {
-				if (savedDataType != FtpDataType.Binary) {
-					 await this.SetDataTypeAsync(savedDataType, token);
-				}
 			}
 
 			return length;
