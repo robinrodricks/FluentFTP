@@ -10,16 +10,15 @@ using System.Text.RegularExpressions;
 
 #if NET45
 using System.Threading.Tasks;
+
 #endif
 
 namespace FluentFTP {
-
 	/// <summary>
 	/// Parses a line from a file listing using the first successful parser, or the specified parser.
 	/// Returns an FtpListItem object representing the parsed line, or null if the line was unable to be parsed.
 	/// </summary>
 	public class FtpListParser {
-		
 		#region Internal API
 
 		/// <summary>
@@ -27,10 +26,10 @@ namespace FluentFTP {
 		/// </summary>
 		public FtpClient client;
 
-		private static List<FtpParser> parsers = new List<FtpParser>{
+		private static List<FtpParser> parsers = new List<FtpParser> {
 			FtpParser.Unix, FtpParser.Windows, FtpParser.IBM, FtpParser.VMS, FtpParser.NonStop
 		};
-		
+
 		/// <summary>
 		/// current parser, or parser set by user
 		/// </summary>
@@ -45,7 +44,7 @@ namespace FluentFTP {
 		/// if we have detected that the current parser is valid
 		/// </summary>
 		public bool ParserConfirmed = false;
-		
+
 		/// <summary>
 		/// what is the time offset between server/client?
 		/// </summary>
@@ -78,44 +77,46 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="system">result of SYST command</param>
 		public void Init(FtpOperatingSystem system) {
-
 			ParserConfirmed = false;
-			
+
 			if (system == FtpOperatingSystem.Windows) {
 				CurrentParser = FtpParser.Windows;
-			} else if (system == FtpOperatingSystem.Unix) {
+			}
+			else if (system == FtpOperatingSystem.Unix) {
 				CurrentParser = FtpParser.Unix;
-			} else if (system == FtpOperatingSystem.VMS) {
+			}
+			else if (system == FtpOperatingSystem.VMS) {
 				CurrentParser = FtpParser.VMS;
-			} else if (system == FtpOperatingSystem.IBMOS400) {
+			}
+			else if (system == FtpOperatingSystem.IBMOS400) {
 				CurrentParser = FtpParser.IBM;
-			} else {
+			}
+			else {
 				CurrentParser = FtpParser.Unix;
-				this.client.LogStatus(FtpTraceLevel.Warn, "Cannot auto-detect listing parser for system '" + system + "', using Unix parser");
+				client.LogStatus(FtpTraceLevel.Warn, "Cannot auto-detect listing parser for system '" + system + "', using Unix parser");
 			}
 
 			DetectedParser = CurrentParser;
 		}
-		
+
 		/// <summary>
 		/// Parse raw file from server into a file object, using the currently active parser.
 		/// </summary>
 		public FtpListItem ParseSingleLine(string path, string file, FtpCapability caps, bool isMachineList) {
-
 			FtpListItem result = null;
 
 			// force machine listing if it is
 			if (isMachineList) {
 				result = FtpMachineListParser.Parse(file, caps, client);
-			} else {
-
+			}
+			else {
 				// use custom parser if given
 				if (m_customParser != null) {
 					result = m_customParser(file, caps, client);
-				} else {
-
+				}
+				else {
 					if (IsWrongParser()) {
-						ValidateParser(new string[] { file });
+						ValidateParser(new string[] {file});
 					}
 
 					// use one of the in-built parsers
@@ -123,24 +124,31 @@ namespace FluentFTP {
 						case FtpParser.Legacy:
 							result = ParseLegacy(path, file, caps, client);
 							break;
+
 						case FtpParser.Machine:
 							result = FtpMachineListParser.Parse(file, caps, client);
 							break;
+
 						case FtpParser.Windows:
 							result = FtpWindowsParser.Parse(client, file);
 							break;
+
 						case FtpParser.Unix:
 							result = FtpUnixParser.Parse(client, file);
 							break;
+
 						case FtpParser.UnixAlt:
 							result = FtpUnixParser.ParseUnixAlt(client, file);
 							break;
+
 						case FtpParser.VMS:
 							result = FtpVMSParser.Parse(client, file);
 							break;
+
 						case FtpParser.IBM:
 							result = FtpIBMParser.Parse(client, file);
 							break;
+
 						case FtpParser.NonStop:
 							result = FtpNonStopParser.Parse(client, file);
 							break;
@@ -150,15 +158,13 @@ namespace FluentFTP {
 
 			// if parsed file successfully
 			if (result != null) {
-
 				// apply time difference between server/client
 				if (HasTimeOffset) {
 					result.Modified = result.Modified - TimeOffset;
 				}
 
 				// calc absolute file paths
-				result.CalculateFullFtpPath(this.client, path, false);
-
+				result.CalculateFullFtpPath(client, path, false);
 			}
 
 			return result;
@@ -168,13 +174,12 @@ namespace FluentFTP {
 		/// Validate if the current parser is correct, or if another parser seems more appropriate.
 		/// </summary>
 		private void ValidateParser(string[] files) {
-
 			if (IsWrongParser()) {
-
 				// by default use the UNIX parser, if none detected
 				if (DetectedParser == FtpParser.Auto) {
 					DetectedParser = FtpParser.Unix;
 				}
+
 				if (CurrentParser == FtpParser.Auto) {
 					CurrentParser = DetectedParser;
 				}
@@ -186,27 +191,29 @@ namespace FluentFTP {
 
 				// use the initially set parser (from SYST)
 				if (IsParserValid(CurrentParser, files)) {
-					this.client.LogStatus(FtpTraceLevel.Verbose, "Confirmed format " + CurrentParser.ToString());
+					client.LogStatus(FtpTraceLevel.Verbose, "Confirmed format " + CurrentParser.ToString());
 					ParserConfirmed = true;
 					return;
 				}
-				foreach (FtpParser p in parsers) {
+
+				foreach (var p in parsers) {
 					if (IsParserValid(p, files)) {
 						CurrentParser = p;
-						this.client.LogStatus(FtpTraceLevel.Verbose, "Detected format " + CurrentParser.ToString());
+						client.LogStatus(FtpTraceLevel.Verbose, "Detected format " + CurrentParser.ToString());
 						ParserConfirmed = true;
 						return;
 					}
 				}
-				CurrentParser = FtpParser.Unix;
-				this.client.LogStatus(FtpTraceLevel.Verbose, "Could not detect format. Using default " + CurrentParser.ToString());
 
+				CurrentParser = FtpParser.Unix;
+				client.LogStatus(FtpTraceLevel.Verbose, "Could not detect format. Using default " + CurrentParser.ToString());
 			}
 		}
 
 		private bool IsWrongParser() {
 			return CurrentParser == FtpParser.Auto || !ParserConfirmed || IsWrongMachineListing();
 		}
+
 		private bool IsWrongMachineListing() {
 			return CurrentParser == FtpParser.Machine && client != null && !client.HasFeature(FtpCapability.MLSD);
 		}
@@ -218,15 +225,20 @@ namespace FluentFTP {
 			switch (p) {
 				case FtpParser.Windows:
 					return FtpWindowsParser.IsValid(client, files);
+
 				case FtpParser.Unix:
 					return FtpUnixParser.IsValid(client, files);
+
 				case FtpParser.VMS:
 					return FtpVMSParser.IsValid(client, files);
+
 				case FtpParser.IBM:
 					return FtpIBMParser.IsValid(client, files);
+
 				case FtpParser.NonStop:
 					return FtpNonStopParser.IsValid(client, files);
 			}
+
 			return false;
 		}
 
@@ -237,7 +249,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Used for synchronizing access to the Parsers collection
 		/// </summary>
-		public static Object m_parserLock = new Object();
+		public static object m_parserLock = new object();
 
 		/// <summary>
 		/// Adds a custom parser
@@ -246,8 +258,9 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\CustomParser.cs" lang="cs" /></example>
 		public static void AddParser(Parser parser) {
 			lock (m_parserLock) {
-				if (m_parsers == null)
+				if (m_parsers == null) {
 					InitParsers();
+				}
 
 				m_parsers.Add(parser);
 				m_customParser = parser;
@@ -259,8 +272,9 @@ namespace FluentFTP {
 		/// </summary>
 		public static void ClearParsers() {
 			lock (m_parserLock) {
-				if (m_parsers == null)
+				if (m_parsers == null) {
 					InitParsers();
+				}
 
 				m_parsers.Clear();
 			}
@@ -272,8 +286,9 @@ namespace FluentFTP {
 		/// <param name="parser">The parser delegate to remove</param>
 		public static void RemoveParser(Parser parser) {
 			lock (m_parserLock) {
-				if (m_parsers == null)
+				if (m_parsers == null) {
 					InitParsers();
+				}
 
 				m_parsers.Remove(parser);
 			}
@@ -300,7 +315,7 @@ namespace FluentFTP {
 			if (!string.IsNullOrEmpty(buf)) {
 				FtpListItem item;
 
-				foreach (Parser parser in Parsers) {
+				foreach (var parser in Parsers) {
 					if ((item = parser(buf, capabilities, client)) != null) {
 						item.Input = buf;
 						return item;
@@ -328,6 +343,7 @@ namespace FluentFTP {
 		}
 
 		public static List<Parser> m_parsers = null;
+
 		/// <summary>
 		/// Collection of parsers. Each parser object contains
 		/// a regex string that uses named groups, i.e., (?&lt;group_name&gt;foobar).
@@ -343,8 +359,9 @@ namespace FluentFTP {
 				Parser[] parsers;
 
 				lock (m_parserLock) {
-					if (m_parsers == null)
+					if (m_parsers == null) {
 						InitParsers();
+					}
 
 					parsers = m_parsers.ToArray();
 				}
@@ -356,6 +373,5 @@ namespace FluentFTP {
 		private static Parser m_customParser;
 
 		#endregion
-
 	}
 }

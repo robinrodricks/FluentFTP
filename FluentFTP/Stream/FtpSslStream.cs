@@ -7,10 +7,10 @@ using System.Net.Security;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Text;
+
 #endif
 
 namespace FluentFTP {
-
 #if !CORE
 	/// <summary>
 	/// .NET SslStream doesn't close TLS connection properly.
@@ -20,25 +20,29 @@ namespace FluentFTP {
 	/// Thanks to Neco @ https://stackoverflow.com/questions/237807/net-sslstream-doesnt-close-tls-connection-properly/22626756#22626756
 	/// </summary>
 	internal class FtpSslStream : SslStream {
-
 		private bool sentCloseNotify = false;
 
 		public FtpSslStream(Stream innerStream)
 			: base(innerStream) {
 		}
+
 		public FtpSslStream(Stream innerStream, bool leaveInnerStreamOpen)
 			: base(innerStream, leaveInnerStreamOpen) {
 		}
+
 		public FtpSslStream(Stream innerStream, bool leaveInnerStreamOpen, RemoteCertificateValidationCallback userCertificateValidationCallback)
 			: base(innerStream, leaveInnerStreamOpen, userCertificateValidationCallback) {
 		}
+
 		public FtpSslStream(Stream innerStream, bool leaveInnerStreamOpen, RemoteCertificateValidationCallback userCertificateValidationCallback, LocalCertificateSelectionCallback userCertificateSelectionCallback)
 			: base(innerStream, leaveInnerStreamOpen, userCertificateValidationCallback, userCertificateSelectionCallback) {
 		}
+
 #if !NET20 && !NET35
 		public FtpSslStream(Stream innerStream, bool leaveInnerStreamOpen, RemoteCertificateValidationCallback userCertificateValidationCallback, LocalCertificateSelectionCallback userCertificateSelectionCallback, EncryptionPolicy encryptionPolicy)
 			: base(innerStream, leaveInnerStreamOpen, userCertificateValidationCallback, userCertificateSelectionCallback, encryptionPolicy) {
 		}
+
 #endif
 		public override void Close() {
 			try {
@@ -46,26 +50,27 @@ namespace FluentFTP {
 					SslDirectCall.CloseNotify(this);
 					sentCloseNotify = true;
 				}
-			} finally {
+			}
+			finally {
 				base.Close();
 			}
 		}
 	}
 
-	internal unsafe static class SslDirectCall {
+	internal static unsafe class SslDirectCall {
 		/// <summary>
 		/// Send an SSL close_notify alert.
 		/// </summary>
 		/// <param name="sslStream"></param>
 		public static void CloseNotify(SslStream sslStream) {
 			if (sslStream.IsAuthenticated && sslStream.CanWrite) {
-				bool isServer = sslStream.IsServer;
+				var isServer = sslStream.IsServer;
 
 				byte[] result;
 				int resultSz;
 				var asmbSystem = typeof(System.Net.Authorization).Assembly;
 
-				int SCHANNEL_SHUTDOWN = 1;
+				var SCHANNEL_SHUTDOWN = 1;
 				var workArray = BitConverter.GetBytes(SCHANNEL_SHUTDOWN);
 
 				var sslstate = FtpReflection.GetField(sslStream, "_SslState");
@@ -73,74 +78,78 @@ namespace FluentFTP {
 
 				var securityContext = FtpReflection.GetField(context, "m_SecurityContext");
 				var securityContextHandleOriginal = FtpReflection.GetField(securityContext, "_handle");
-				SslNativeApi.SSPIHandle securityContextHandle = default(SslNativeApi.SSPIHandle);
-				securityContextHandle.HandleHi = (IntPtr)FtpReflection.GetField(securityContextHandleOriginal, "HandleHi");
-				securityContextHandle.HandleLo = (IntPtr)FtpReflection.GetField(securityContextHandleOriginal, "HandleLo");
+				var securityContextHandle = default(SslNativeApi.SSPIHandle);
+				securityContextHandle.HandleHi = (IntPtr) FtpReflection.GetField(securityContextHandleOriginal, "HandleHi");
+				securityContextHandle.HandleLo = (IntPtr) FtpReflection.GetField(securityContextHandleOriginal, "HandleLo");
 
 				var credentialsHandle = FtpReflection.GetField(context, "m_CredentialsHandle");
 				var credentialsHandleHandleOriginal = FtpReflection.GetField(credentialsHandle, "_handle");
-				SslNativeApi.SSPIHandle credentialsHandleHandle = default(SslNativeApi.SSPIHandle);
-				credentialsHandleHandle.HandleHi = (IntPtr)FtpReflection.GetField(credentialsHandleHandleOriginal, "HandleHi");
-				credentialsHandleHandle.HandleLo = (IntPtr)FtpReflection.GetField(credentialsHandleHandleOriginal, "HandleLo");
+				var credentialsHandleHandle = default(SslNativeApi.SSPIHandle);
+				credentialsHandleHandle.HandleHi = (IntPtr) FtpReflection.GetField(credentialsHandleHandleOriginal, "HandleHi");
+				credentialsHandleHandle.HandleLo = (IntPtr) FtpReflection.GetField(credentialsHandleHandleOriginal, "HandleLo");
 
-				int bufferSize = 1;
-				SslNativeApi.SecurityBufferDescriptor securityBufferDescriptor = new SslNativeApi.SecurityBufferDescriptor(bufferSize);
-				SslNativeApi.SecurityBufferStruct[] unmanagedBuffer = new SslNativeApi.SecurityBufferStruct[bufferSize];
+				var bufferSize = 1;
+				var securityBufferDescriptor = new SslNativeApi.SecurityBufferDescriptor(bufferSize);
+				var unmanagedBuffer = new SslNativeApi.SecurityBufferStruct[bufferSize];
 
 				fixed (SslNativeApi.SecurityBufferStruct* ptr = unmanagedBuffer)
 				fixed (void* workArrayPtr = workArray) {
-					securityBufferDescriptor.UnmanagedPointer = (void*)ptr;
+					securityBufferDescriptor.UnmanagedPointer = (void*) ptr;
 
-					unmanagedBuffer[0].token = (IntPtr)workArrayPtr;
+					unmanagedBuffer[0].token = (IntPtr) workArrayPtr;
 					unmanagedBuffer[0].count = workArray.Length;
 					unmanagedBuffer[0].type = SslNativeApi.BufferType.Token;
 
 					SslNativeApi.SecurityStatus status;
-					status = (SslNativeApi.SecurityStatus)SslNativeApi.ApplyControlToken(ref securityContextHandle, securityBufferDescriptor);
+					status = (SslNativeApi.SecurityStatus) SslNativeApi.ApplyControlToken(ref securityContextHandle, securityBufferDescriptor);
 					if (status == SslNativeApi.SecurityStatus.OK) {
 						unmanagedBuffer[0].token = IntPtr.Zero;
 						unmanagedBuffer[0].count = 0;
 						unmanagedBuffer[0].type = SslNativeApi.BufferType.Token;
 
-						SslNativeApi.SSPIHandle contextHandleOut = default(SslNativeApi.SSPIHandle);
-						SslNativeApi.ContextFlags outflags = SslNativeApi.ContextFlags.Zero;
+						var contextHandleOut = default(SslNativeApi.SSPIHandle);
+						var outflags = SslNativeApi.ContextFlags.Zero;
 						long ts = 0;
 
 						var inflags = SslNativeApi.ContextFlags.SequenceDetect |
-									SslNativeApi.ContextFlags.ReplayDetect |
-									SslNativeApi.ContextFlags.Confidentiality |
-									SslNativeApi.ContextFlags.AcceptExtendedError |
-									SslNativeApi.ContextFlags.AllocateMemory |
-									SslNativeApi.ContextFlags.InitStream;
+						              SslNativeApi.ContextFlags.ReplayDetect |
+						              SslNativeApi.ContextFlags.Confidentiality |
+						              SslNativeApi.ContextFlags.AcceptExtendedError |
+						              SslNativeApi.ContextFlags.AllocateMemory |
+						              SslNativeApi.ContextFlags.InitStream;
 
 						if (isServer) {
-							status = (SslNativeApi.SecurityStatus)SslNativeApi.AcceptSecurityContext(ref credentialsHandleHandle, ref securityContextHandle, null,
+							status = (SslNativeApi.SecurityStatus) SslNativeApi.AcceptSecurityContext(ref credentialsHandleHandle, ref securityContextHandle, null,
 								inflags, SslNativeApi.Endianness.Native, ref contextHandleOut, securityBufferDescriptor, ref outflags, out ts);
-						} else {
-							status = (SslNativeApi.SecurityStatus)SslNativeApi.InitializeSecurityContextW(ref credentialsHandleHandle, ref securityContextHandle, null,
+						}
+						else {
+							status = (SslNativeApi.SecurityStatus) SslNativeApi.InitializeSecurityContextW(ref credentialsHandleHandle, ref securityContextHandle, null,
 								inflags, 0, SslNativeApi.Endianness.Native, null, 0, ref contextHandleOut, securityBufferDescriptor, ref outflags, out ts);
 						}
+
 						if (status == SslNativeApi.SecurityStatus.OK) {
-							byte[] resultArr = new byte[unmanagedBuffer[0].count];
+							var resultArr = new byte[unmanagedBuffer[0].count];
 							Marshal.Copy(unmanagedBuffer[0].token, resultArr, 0, resultArr.Length);
 							Marshal.FreeCoTaskMem(unmanagedBuffer[0].token);
 							result = resultArr;
 							resultSz = resultArr.Length;
-						} else {
+						}
+						else {
 							throw new InvalidOperationException(string.Format("AcceptSecurityContext/InitializeSecurityContextW returned [{0}] during CloseNotify.", status));
 						}
-					} else {
+					}
+					else {
 						throw new InvalidOperationException(string.Format("ApplyControlToken returned [{0}] during CloseNotify.", status));
 					}
 				}
 
-				var innerStream = (Stream)FtpReflection.GetProperty(sslstate, "InnerStream");
+				var innerStream = (Stream) FtpReflection.GetProperty(sslstate, "InnerStream");
 				innerStream.Write(result, 0, resultSz);
 			}
 		}
 	}
 
-	internal unsafe static class SslNativeApi {
+	internal static unsafe class SslNativeApi {
 		internal enum BufferType {
 			Empty,
 			Data,
@@ -162,29 +171,29 @@ namespace FluentFTP {
 		internal struct SSPIHandle {
 			public IntPtr HandleHi;
 			public IntPtr HandleLo;
-			public bool IsZero {
-				get {
-					return this.HandleHi == IntPtr.Zero && this.HandleLo == IntPtr.Zero;
-				}
-			}
+			public bool IsZero => HandleHi == IntPtr.Zero && HandleLo == IntPtr.Zero;
+
 			[ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
 			internal void SetToInvalid() {
-				this.HandleHi = IntPtr.Zero;
-				this.HandleLo = IntPtr.Zero;
+				HandleHi = IntPtr.Zero;
+				HandleLo = IntPtr.Zero;
 			}
+
 			public override string ToString() {
-				return this.HandleHi.ToString("x") + ":" + this.HandleLo.ToString("x");
+				return HandleHi.ToString("x") + ":" + HandleLo.ToString("x");
 			}
 		}
+
 		[StructLayout(LayoutKind.Sequential)]
 		internal class SecurityBufferDescriptor {
 			public readonly int Version;
 			public readonly int Count;
 			public unsafe void* UnmanagedPointer;
+
 			public SecurityBufferDescriptor(int count) {
-				this.Version = 0;
-				this.Count = count;
-				this.UnmanagedPointer = null;
+				Version = 0;
+				Count = count;
+				UnmanagedPointer = null;
 			}
 		}
 
@@ -237,6 +246,7 @@ namespace FluentFTP {
 			UnsupportedPreauth = -2146892989,
 			BadBinding = -2146892986
 		}
+
 		[Flags]
 		internal enum ContextFlags {
 			Zero = 0,
@@ -262,6 +272,7 @@ namespace FluentFTP {
 			AllowMissingBindings = 268435456,
 			UnverifiedTargetName = 536870912
 		}
+
 		internal enum Endianness {
 			Network,
 			Native = 16
@@ -273,11 +284,11 @@ namespace FluentFTP {
 
 		[ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
 		[DllImport("secur32.dll", ExactSpelling = true, SetLastError = true)]
-		internal unsafe static extern int AcceptSecurityContext(ref SSPIHandle credentialHandle, ref SSPIHandle contextHandle, [In] SecurityBufferDescriptor inputBuffer, [In] ContextFlags inFlags, [In] Endianness endianness, ref SSPIHandle outContextPtr, [In] [Out] SecurityBufferDescriptor outputBuffer, [In] [Out] ref ContextFlags attributes, out long timeStamp);
+		internal static extern unsafe int AcceptSecurityContext(ref SSPIHandle credentialHandle, ref SSPIHandle contextHandle, [In] SecurityBufferDescriptor inputBuffer, [In] ContextFlags inFlags, [In] Endianness endianness, ref SSPIHandle outContextPtr, [In] [Out] SecurityBufferDescriptor outputBuffer, [In] [Out] ref ContextFlags attributes, out long timeStamp);
 
 		[ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
 		[DllImport("secur32.dll", ExactSpelling = true, SetLastError = true)]
-		internal unsafe static extern int InitializeSecurityContextW(ref SSPIHandle credentialHandle, ref SSPIHandle contextHandle, [In] byte* targetName, [In] ContextFlags inFlags, [In] int reservedI, [In] Endianness endianness, [In] SecurityBufferDescriptor inputBuffer, [In] int reservedII, ref SSPIHandle outContextPtr, [In] [Out] SecurityBufferDescriptor outputBuffer, [In] [Out] ref ContextFlags attributes, out long timeStamp);
+		internal static extern unsafe int InitializeSecurityContextW(ref SSPIHandle credentialHandle, ref SSPIHandle contextHandle, [In] byte* targetName, [In] ContextFlags inFlags, [In] int reservedI, [In] Endianness endianness, [In] SecurityBufferDescriptor inputBuffer, [In] int reservedII, ref SSPIHandle outContextPtr, [In] [Out] SecurityBufferDescriptor outputBuffer, [In] [Out] ref ContextFlags attributes, out long timeStamp);
 	}
 
 #endif

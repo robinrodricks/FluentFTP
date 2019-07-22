@@ -1,13 +1,10 @@
 using System;
 
 namespace FluentFTP {
-
 	/// <summary>
 	/// Class to report Ftp Transfer Progress (Up and Donwload)
 	/// </summary>
-
 	public class FtpProgress {
-
 		/// <summary>
 		/// A value between 0-100 indicating percentage complete, or -1 for indeterminate.
 		/// </summary>
@@ -36,16 +33,15 @@ namespace FluentFTP {
 		/// Convert Transfer Speed (bytes per second) in human readable format
 		/// </summary>
 		public string TransferSpeedToString() {
-
-			double value = TransferSpeed > 0 ? (TransferSpeed / 1024) : 0; //get KB/s
+			var value = TransferSpeed > 0 ? TransferSpeed / 1024 : 0; //get KB/s
 
 			if (value < 1024) {
 				return string.Format("{0} KB/s", Math.Round(value, 2));
-			} else {
+			}
+			else {
 				value = value / 1024;
 				return string.Format("{0} MB/s", Math.Round(value, 2));
 			}
-
 		}
 	}
 }

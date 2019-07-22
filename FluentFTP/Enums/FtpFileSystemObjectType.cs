@@ -1,7 +1,6 @@
 ﻿using System;
 
 namespace FluentFTP {
-
 	/// <summary>
 	/// Type of file system of object
 	/// </summary>
@@ -10,14 +9,15 @@ namespace FluentFTP {
 		/// A file
 		/// </summary>
 		File,
+
 		/// <summary>
 		/// A directory
 		/// </summary>
 		Directory,
+
 		/// <summary>
 		/// A symbolic link
 		/// </summary>
 		Link
 	}
-
 }

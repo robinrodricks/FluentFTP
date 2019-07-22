@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 26.0.3
+  - New: Support detection of FTP2S3 gateway server software (allows for server specific commands)
+  
 #### 26.0.2
   - Fix: Improve performance of `GetFileSize` to only switch to Binary for servers that require it
   - Fix: Ensure data type (ASCII/Binary) is correctly set during `GetFileSize` for servers that require it

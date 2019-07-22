@@ -12,15 +12,14 @@ using System.Threading;
 #endif
 #if (CORE || NET45)
 using System.Threading.Tasks;
+
 #endif
 
 namespace FluentFTP {
-
 	/// <summary>
 	/// Interface for the FtpClient class. For detailed documentation of the methods, please see the FtpClient class.
 	/// </summary>
 	public interface IFtpClient : IDisposable {
-
 
 		// CONNECTION
 
@@ -81,6 +80,7 @@ namespace FluentFTP {
 		Task ConnectAsync(CancellationToken token = default(CancellationToken));
 		Task ConnectAsync(FtpProfile profile, CancellationToken token = default(CancellationToken));
 		Task<FtpProfile> AutoConnectAsync(CancellationToken token = default(CancellationToken));
+
 		Task DisconnectAsync(CancellationToken token = default(CancellationToken));
 #endif
 
@@ -134,6 +134,7 @@ namespace FluentFTP {
 		Task<string> GetWorkingDirectoryAsync(CancellationToken token = default(CancellationToken));
 		Task<long> GetFileSizeAsync(string path, CancellationToken token = default(CancellationToken));
 		Task<DateTime> GetModifiedTimeAsync(string path, FtpDate type = FtpDate.Original, CancellationToken token = default(CancellationToken));
+
 		Task SetModifiedTimeAsync(string path, DateTime date, FtpDate type = FtpDate.Original, CancellationToken token = default(CancellationToken));
 #endif
 
@@ -153,6 +154,7 @@ namespace FluentFTP {
 		Task<FtpListItem[]> GetListingAsync(string path, CancellationToken token = default(CancellationToken));
 		Task<FtpListItem[]> GetListingAsync(CancellationToken token = default(CancellationToken));
 		Task<string[]> GetNameListingAsync(string path, CancellationToken token = default(CancellationToken));
+
 		Task<string[]> GetNameListingAsync(CancellationToken token = default(CancellationToken));
 #endif
 
@@ -184,6 +186,7 @@ namespace FluentFTP {
 		Task<Stream> OpenWriteAsync(string path, CancellationToken token = default(CancellationToken));
 		Task<Stream> OpenAppendAsync(string path, FtpDataType type, bool checkIfFileExists, CancellationToken token = default(CancellationToken));
 		Task<Stream> OpenAppendAsync(string path, FtpDataType type, CancellationToken token = default(CancellationToken));
+
 		Task<Stream> OpenAppendAsync(string path, CancellationToken token = default(CancellationToken));
 #endif
 
@@ -237,6 +240,7 @@ namespace FluentFTP {
 		Task<string> GetXMD5Async(string path, CancellationToken token = default(CancellationToken));
 		Task<string> GetXSHA1Async(string path, CancellationToken token = default(CancellationToken));
 		Task<string> GetXSHA256Async(string path, CancellationToken token = default(CancellationToken));
+
 		Task<string> GetXSHA512Async(string path, CancellationToken token = default(CancellationToken));
 #endif
 	}

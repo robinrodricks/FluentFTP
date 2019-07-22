@@ -1,12 +1,10 @@
 ﻿using System;
 
 namespace FluentFTP {
-
 	/// <summary>
 	/// Determines how SSL Buffering is handled
 	/// </summary>
 	public enum FtpsBuffering {
-
 		/// <summary>
 		/// Enables buffering in all cases except when using FTP proxies.
 		/// </summary>
@@ -21,5 +19,4 @@ namespace FluentFTP {
 		/// </summary>
 		On
 	}
-
 }

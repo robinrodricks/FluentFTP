@@ -9,8 +9,9 @@ using System.Text;
 // you need this once (only), and it must be in this namespace
 namespace System.Runtime.CompilerServices {
 	[AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class
-		 | AttributeTargets.Method)]
-	public sealed class ExtensionAttribute : Attribute { }
+	                                          | AttributeTargets.Method)]
+	public sealed class ExtensionAttribute : Attribute {
+	}
 }
 
 #endif
@@ -21,12 +22,10 @@ namespace System.Runtime.CompilerServices {
 /// To support progress reporting in .NET 3.5 and .NET 4.0
 /// </summary>
 public interface IProgress<T> {
-
 	/// <summary>
 	/// To support progress reporting in .NET 3.5 and .NET 4.0
 	/// </summary>
 	void Report(T value);
-
 }
 
 #endif
@@ -44,9 +43,9 @@ namespace System.Linq {
 	#region Imports
 
 	using System;
-	using System.Collections;
-	using System.Collections.Generic;
-	using System.Diagnostics;
+	using Collections;
+	using Collections.Generic;
+	using Diagnostics;
 	using LinqBridge;
 
 	#endregion
@@ -55,12 +54,10 @@ namespace System.Linq {
 	/// Provides a set of static (Shared in Visual Basic) methods for 
 	/// querying objects that implement <see cref="IEnumerable{T}" />.
 	/// </summary>
-
-	static partial class Enumerable {
+	internal static partial class Enumerable {
 		/// <summary>
 		/// Returns the input typed as <see cref="IEnumerable{T}"/>.
 		/// </summary>
-
 		public static IEnumerable<TSource> AsEnumerable<TSource>(this IEnumerable<TSource> source) {
 			return source;
 		}
@@ -69,7 +66,6 @@ namespace System.Linq {
 		/// Returns an empty <see cref="IEnumerable{T}"/> that has the 
 		/// specified type argument.
 		/// </summary>
-
 		public static IEnumerable<TResult> Empty<TResult>() {
 			return Sequence<TResult>.Empty;
 		}
@@ -78,36 +74,41 @@ namespace System.Linq {
 		/// Converts the elements of an <see cref="IEnumerable"/> to the 
 		/// specified type.
 		/// </summary>
-
 		public static IEnumerable<TResult> Cast<TResult>(
 			this IEnumerable source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return CastYield<TResult>(source);
 		}
 
 		private static IEnumerable<TResult> CastYield<TResult>(
 			IEnumerable source) {
-			foreach (var item in source)
-				yield return (TResult)item;
+			foreach (var item in source) {
+				yield return (TResult) item;
+			}
 		}
 
 		/// <summary>
 		/// Filters the elements of an <see cref="IEnumerable"/> based on a specified type.
 		/// </summary>
-
 		public static IEnumerable<TResult> OfType<TResult>(
 			this IEnumerable source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return OfTypeYield<TResult>(source);
 		}
 
 		private static IEnumerable<TResult> OfTypeYield<TResult>(
 			IEnumerable source) {
-			foreach (var item in source)
-				if (item is TResult)
-					yield return (TResult)item;
+			foreach (var item in source) {
+				if (item is TResult) {
+					yield return (TResult) item;
+				}
+			}
 		}
 
 		/// <summary>
@@ -115,46 +116,51 @@ namespace System.Linq {
 		/// </summary>
 		/// <param name="start">The value of the first integer in the sequence.</param>
 		/// <param name="count">The number of sequential integers to generate.</param>
-
 		public static IEnumerable<int> Range(int start, int count) {
-			if (count < 0)
+			if (count < 0) {
 				throw new ArgumentOutOfRangeException("count", count, null);
+			}
 
-			var end = (long)start + count;
-			if (end - 1 >= int.MaxValue)
+			var end = (long) start + count;
+			if (end - 1 >= int.MaxValue) {
 				throw new ArgumentOutOfRangeException("count", count, null);
+			}
 
 			return RangeYield(start, end);
 		}
 
 		private static IEnumerable<int> RangeYield(int start, long end) {
-			for (var i = start; i < end; i++)
+			for (var i = start; i < end; i++) {
 				yield return i;
+			}
 		}
 
 		/// <summary>
 		/// Generates a sequence that contains one repeated value.
 		/// </summary>
-
 		public static IEnumerable<TResult> Repeat<TResult>(TResult element, int count) {
-			if (count < 0) throw new ArgumentOutOfRangeException("count", count, null);
+			if (count < 0) {
+				throw new ArgumentOutOfRangeException("count", count, null);
+			}
 
 			return RepeatYield(element, count);
 		}
 
 		private static IEnumerable<TResult> RepeatYield<TResult>(TResult element, int count) {
-			for (var i = 0; i < count; i++)
+			for (var i = 0; i < count; i++) {
 				yield return element;
+			}
 		}
 
 		/// <summary>
 		/// Filters a sequence of values based on a predicate.
 		/// </summary>
-
 		public static IEnumerable<TSource> Where<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, bool> predicate) {
-			if (predicate == null) throw new ArgumentNullException("predicate");
+			if (predicate == null) {
+				throw new ArgumentNullException("predicate");
+			}
 
 			return source.Where((item, i) => predicate(item));
 		}
@@ -163,12 +169,16 @@ namespace System.Linq {
 		/// Filters a sequence of values based on a predicate. 
 		/// Each element's index is used in the logic of the predicate function.
 		/// </summary>
-
 		public static IEnumerable<TSource> Where<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, int, bool> predicate) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (predicate == null) throw new ArgumentNullException("predicate");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
+			if (predicate == null) {
+				throw new ArgumentNullException("predicate");
+			}
 
 			return WhereYield(source, predicate);
 		}
@@ -177,19 +187,22 @@ namespace System.Linq {
 			IEnumerable<TSource> source,
 			Func<TSource, int, bool> predicate) {
 			var i = 0;
-			foreach (var item in source)
-				if (predicate(item, i++))
+			foreach (var item in source) {
+				if (predicate(item, i++)) {
 					yield return item;
+				}
+			}
 		}
 
 		/// <summary>
 		/// Projects each element of a sequence into a new form.
 		/// </summary>
-
 		public static IEnumerable<TResult> Select<TSource, TResult>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TResult> selector) {
-			if (selector == null) throw new ArgumentNullException("selector");
+			if (selector == null) {
+				throw new ArgumentNullException("selector");
+			}
 
 			return source.Select((item, i) => selector(item));
 		}
@@ -198,12 +211,16 @@ namespace System.Linq {
 		/// Projects each element of a sequence into a new form by 
 		/// incorporating the element's index.
 		/// </summary>
-
 		public static IEnumerable<TResult> Select<TSource, TResult>(
 			this IEnumerable<TSource> source,
 			Func<TSource, int, TResult> selector) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (selector == null) throw new ArgumentNullException("selector");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
+			if (selector == null) {
+				throw new ArgumentNullException("selector");
+			}
 
 			return SelectYield(source, selector);
 		}
@@ -212,19 +229,21 @@ namespace System.Linq {
 			IEnumerable<TSource> source,
 			Func<TSource, int, TResult> selector) {
 			var i = 0;
-			foreach (var item in source)
+			foreach (var item in source) {
 				yield return selector(item, i++);
+			}
 		}
 
 		/// <summary>
 		/// Projects each element of a sequence to an <see cref="IEnumerable{T}" /> 
 		/// and flattens the resulting sequences into one sequence.
 		/// </summary>
-
 		public static IEnumerable<TResult> SelectMany<TSource, TResult>(
 			this IEnumerable<TSource> source,
 			Func<TSource, IEnumerable<TResult>> selector) {
-			if (selector == null) throw new ArgumentNullException("selector");
+			if (selector == null) {
+				throw new ArgumentNullException("selector");
+			}
 
 			return source.SelectMany((item, i) => selector(item));
 		}
@@ -235,11 +254,12 @@ namespace System.Linq {
 		/// index of each source element is used in the projected form of 
 		/// that element.
 		/// </summary>
-
 		public static IEnumerable<TResult> SelectMany<TSource, TResult>(
 			this IEnumerable<TSource> source,
 			Func<TSource, int, IEnumerable<TResult>> selector) {
-			if (selector == null) throw new ArgumentNullException("selector");
+			if (selector == null) {
+				throw new ArgumentNullException("selector");
+			}
 
 			return source.SelectMany(selector, (item, subitem) => subitem);
 		}
@@ -249,12 +269,13 @@ namespace System.Linq {
 		/// flattens the resulting sequences into one sequence, and invokes 
 		/// a result selector function on each element therein.
 		/// </summary>
-
 		public static IEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(
 			this IEnumerable<TSource> source,
 			Func<TSource, IEnumerable<TCollection>> collectionSelector,
 			Func<TSource, TCollection, TResult> resultSelector) {
-			if (collectionSelector == null) throw new ArgumentNullException("collectionSelector");
+			if (collectionSelector == null) {
+				throw new ArgumentNullException("collectionSelector");
+			}
 
 			return source.SelectMany((item, i) => collectionSelector(item), resultSelector);
 		}
@@ -266,14 +287,21 @@ namespace System.Linq {
 		/// each source element is used in the intermediate projected form 
 		/// of that element.
 		/// </summary>
-
 		public static IEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(
 			this IEnumerable<TSource> source,
 			Func<TSource, int, IEnumerable<TCollection>> collectionSelector,
 			Func<TSource, TCollection, TResult> resultSelector) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (collectionSelector == null) throw new ArgumentNullException("collectionSelector");
-			if (resultSelector == null) throw new ArgumentNullException("resultSelector");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
+			if (collectionSelector == null) {
+				throw new ArgumentNullException("collectionSelector");
+			}
+
+			if (resultSelector == null) {
+				throw new ArgumentNullException("resultSelector");
+			}
 
 			return SelectManyYield(source, collectionSelector, resultSelector);
 		}
@@ -284,18 +312,20 @@ namespace System.Linq {
 			Func<TSource, TCollection, TResult> resultSelector) {
 			var i = 0;
 			foreach (var item in source)
-				foreach (var subitem in collectionSelector(item, i++))
-					yield return resultSelector(item, subitem);
+			foreach (var subitem in collectionSelector(item, i++)) {
+				yield return resultSelector(item, subitem);
+			}
 		}
 
 		/// <summary>
 		/// Returns elements from a sequence as long as a specified condition is true.
 		/// </summary>
-
 		public static IEnumerable<TSource> TakeWhile<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, bool> predicate) {
-			if (predicate == null) throw new ArgumentNullException("predicate");
+			if (predicate == null) {
+				throw new ArgumentNullException("predicate");
+			}
 
 			return source.TakeWhile((item, i) => predicate(item));
 		}
@@ -304,12 +334,16 @@ namespace System.Linq {
 		/// Returns elements from a sequence as long as a specified condition is true.
 		/// The element's index is used in the logic of the predicate function.
 		/// </summary>
-
 		public static IEnumerable<TSource> TakeWhile<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, int, bool> predicate) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (predicate == null) throw new ArgumentNullException("predicate");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
+			if (predicate == null) {
+				throw new ArgumentNullException("predicate");
+			}
 
 			return TakeWhileYield(source, predicate);
 		}
@@ -318,18 +352,20 @@ namespace System.Linq {
 			this IEnumerable<TSource> source,
 			Func<TSource, int, bool> predicate) {
 			var i = 0;
-			foreach (var item in source)
-				if (predicate(item, i++))
+			foreach (var item in source) {
+				if (predicate(item, i++)) {
 					yield return item;
-				else
+				}
+				else {
 					break;
+				}
+			}
 		}
 
 		/// <summary>
 		/// Returns a specified number of contiguous elements from the start 
 		/// of a sequence.
 		/// </summary>
-
 		public static IEnumerable<TSource> Take<TSource>(
 			this IEnumerable<TSource> source,
 			int count) {
@@ -344,25 +380,29 @@ namespace System.Linq {
 		/// <summary>
 		/// Base implementation of First operator.
 		/// </summary>
-
 		private static TSource FirstImpl<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource> empty) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
 			Debug.Assert(empty != null);
 
-			var list = source as IList<TSource>;    // optimized case for lists
-			if (list != null)
+			var list = source as IList<TSource>; // optimized case for lists
+			if (list != null) {
 				return list.Count > 0 ? list[0] : empty();
+			}
 
-			using (var e = source.GetEnumerator())  // fallback for enumeration
+			using (var e = source.GetEnumerator()) // fallback for enumeration
+			{
 				return e.MoveNext() ? e.Current : empty();
+			}
 		}
 
 		/// <summary>
 		/// Returns the first element of a sequence.
 		/// </summary>
-
 		public static TSource First<TSource>(
 			this IEnumerable<TSource> source) {
 			return source.FirstImpl(Futures<TSource>.Undefined);
@@ -371,7 +411,6 @@ namespace System.Linq {
 		/// <summary>
 		/// Returns the first element in a sequence that satisfies a specified condition.
 		/// </summary>
-
 		public static TSource First<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, bool> predicate) {
@@ -382,7 +421,6 @@ namespace System.Linq {
 		/// Returns the first element of a sequence, or a default value if 
 		/// the sequence contains no elements.
 		/// </summary>
-
 		public static TSource FirstOrDefault<TSource>(
 			this IEnumerable<TSource> source) {
 			return source.FirstImpl(Futures<TSource>.Default);
@@ -392,7 +430,6 @@ namespace System.Linq {
 		/// Returns the first element of the sequence that satisfies a 
 		/// condition or a default value if no such element is found.
 		/// </summary>
-
 		public static TSource FirstOrDefault<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, bool> predicate) {
@@ -402,23 +439,27 @@ namespace System.Linq {
 		/// <summary>
 		/// Base implementation of Last operator.
 		/// </summary>
-
 		private static TSource LastImpl<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource> empty) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
-			var list = source as IList<TSource>;    // optimized case for lists
-			if (list != null)
+			var list = source as IList<TSource>; // optimized case for lists
+			if (list != null) {
 				return list.Count > 0 ? list[list.Count - 1] : empty();
+			}
 
 			using (var e = source.GetEnumerator()) {
-				if (!e.MoveNext())
+				if (!e.MoveNext()) {
 					return empty();
+				}
 
 				var last = e.Current;
-				while (e.MoveNext())
+				while (e.MoveNext()) {
 					last = e.Current;
+				}
 
 				return last;
 			}
@@ -436,7 +477,6 @@ namespace System.Linq {
 		/// Returns the last element of a sequence that satisfies a 
 		/// specified condition.
 		/// </summary>
-
 		public static TSource Last<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, bool> predicate) {
@@ -447,7 +487,6 @@ namespace System.Linq {
 		/// Returns the last element of a sequence, or a default value if 
 		/// the sequence contains no elements.
 		/// </summary>
-
 		public static TSource LastOrDefault<TSource>(
 			this IEnumerable<TSource> source) {
 			return source.LastImpl(Futures<TSource>.Default);
@@ -457,7 +496,6 @@ namespace System.Linq {
 		/// Returns the last element of a sequence that satisfies a 
 		/// condition or a default value if no such element is found.
 		/// </summary>
-
 		public static TSource LastOrDefault<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, bool> predicate) {
@@ -467,17 +505,19 @@ namespace System.Linq {
 		/// <summary>
 		/// Base implementation of Single operator.
 		/// </summary>
-
 		private static TSource SingleImpl<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource> empty) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			using (var e = source.GetEnumerator()) {
 				if (e.MoveNext()) {
 					var single = e.Current;
-					if (!e.MoveNext())
+					if (!e.MoveNext()) {
 						return single;
+					}
 
 					throw new InvalidOperationException();
 				}
@@ -490,7 +530,6 @@ namespace System.Linq {
 		/// Returns the only element of a sequence, and throws an exception 
 		/// if there is not exactly one element in the sequence.
 		/// </summary>
-
 		public static TSource Single<TSource>(
 			this IEnumerable<TSource> source) {
 			return source.SingleImpl(Futures<TSource>.Undefined);
@@ -501,7 +540,6 @@ namespace System.Linq {
 		/// specified condition, and throws an exception if more than one 
 		/// such element exists.
 		/// </summary>
-
 		public static TSource Single<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, bool> predicate) {
@@ -513,7 +551,6 @@ namespace System.Linq {
 		/// the sequence is empty; this method throws an exception if there 
 		/// is more than one element in the sequence.
 		/// </summary>
-
 		public static TSource SingleOrDefault<TSource>(
 			this IEnumerable<TSource> source) {
 			return source.SingleImpl(Futures<TSource>.Default);
@@ -525,7 +562,6 @@ namespace System.Linq {
 		/// exists; this method throws an exception if more than one element 
 		/// satisfies the condition.
 		/// </summary>
-
 		public static TSource SingleOrDefault<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, bool> predicate) {
@@ -535,22 +571,26 @@ namespace System.Linq {
 		/// <summary>
 		/// Returns the element at a specified index in a sequence.
 		/// </summary>
-
 		public static TSource ElementAt<TSource>(
 			this IEnumerable<TSource> source,
 			int index) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
-			if (index < 0)
+			if (index < 0) {
 				throw new ArgumentOutOfRangeException("index", index, null);
+			}
 
 			var list = source as IList<TSource>;
-			if (list != null)
+			if (list != null) {
 				return list[index];
+			}
 
 			try {
 				return source.SkipWhile((item, i) => i < index).First();
-			} catch (InvalidOperationException) // if thrown by First
+			}
+			catch (InvalidOperationException) // if thrown by First
 			{
 				throw new ArgumentOutOfRangeException("index", index, null);
 			}
@@ -560,18 +600,21 @@ namespace System.Linq {
 		/// Returns the element at a specified index in a sequence or a 
 		/// default value if the index is out of range.
 		/// </summary>
-
 		public static TSource ElementAtOrDefault<TSource>(
 			this IEnumerable<TSource> source,
 			int index) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
-			if (index < 0)
+			if (index < 0) {
 				return default(TSource);
+			}
 
 			var list = source as IList<TSource>;
-			if (list != null)
+			if (list != null) {
 				return index < list.Count ? list[index] : default(TSource);
+			}
 
 			return source.SkipWhile((item, i) => i < index).FirstOrDefault();
 		}
@@ -579,32 +622,36 @@ namespace System.Linq {
 		/// <summary>
 		/// Inverts the order of the elements in a sequence.
 		/// </summary>
-
 		public static IEnumerable<TSource> Reverse<TSource>(
 			this IEnumerable<TSource> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return ReverseYield(source);
 		}
 
 		private static IEnumerable<TSource> ReverseYield<TSource>(IEnumerable<TSource> source) {
 			var stack = new Stack<TSource>();
-			foreach (var item in source)
+			foreach (var item in source) {
 				stack.Push(item);
+			}
 
-			foreach (var item in stack)
+			foreach (var item in stack) {
 				yield return item;
+			}
 		}
 
 		/// <summary>
 		/// Bypasses elements in a sequence as long as a specified condition 
 		/// is true and then returns the remaining elements.
 		/// </summary>
-
 		public static IEnumerable<TSource> SkipWhile<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, bool> predicate) {
-			if (predicate == null) throw new ArgumentNullException("predicate");
+			if (predicate == null) {
+				throw new ArgumentNullException("predicate");
+			}
 
 			return source.SkipWhile((item, i) => predicate(item));
 		}
@@ -614,12 +661,16 @@ namespace System.Linq {
 		/// is true and then returns the remaining elements. The element's 
 		/// index is used in the logic of the predicate function.
 		/// </summary>
-
 		public static IEnumerable<TSource> SkipWhile<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, int, bool> predicate) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (predicate == null) throw new ArgumentNullException("predicate");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
+			if (predicate == null) {
+				throw new ArgumentNullException("predicate");
+			}
 
 			return SkipWhileYield(source, predicate);
 		}
@@ -628,15 +679,19 @@ namespace System.Linq {
 			IEnumerable<TSource> source,
 			Func<TSource, int, bool> predicate) {
 			using (var e = source.GetEnumerator()) {
-				for (var i = 0; ; i++) {
-					if (!e.MoveNext())
+				for (var i = 0;; i++) {
+					if (!e.MoveNext()) {
 						yield break;
+					}
 
-					if (!predicate(e.Current, i))
+					if (!predicate(e.Current, i)) {
 						break;
+					}
 				}
 
-				do { yield return e.Current; } while (e.MoveNext());
+				do {
+					yield return e.Current;
+				} while (e.MoveNext());
 			}
 		}
 
@@ -644,7 +699,6 @@ namespace System.Linq {
 		/// Bypasses a specified number of elements in a sequence and then 
 		/// returns the remaining elements.
 		/// </summary>
-
 		public static IEnumerable<TSource> Skip<TSource>(
 			this IEnumerable<TSource> source,
 			int count) {
@@ -654,22 +708,22 @@ namespace System.Linq {
 		/// <summary>
 		/// Returns the number of elements in a sequence.
 		/// </summary>
-
 		public static int Count<TSource>(
 			this IEnumerable<TSource> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			var collection = source as ICollection;
 			return collection != null
-				 ? collection.Count
-				 : source.Aggregate(0, (count, item) => checked(count + 1));
+				? collection.Count
+				: source.Aggregate(0, (count, item) => checked(count + 1));
 		}
 
 		/// <summary>
 		/// Returns a number that represents how many elements in the 
 		/// specified sequence satisfy a condition.
 		/// </summary>
-
 		public static int Count<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, bool> predicate) {
@@ -680,22 +734,22 @@ namespace System.Linq {
 		/// Returns an <see cref="Int64"/> that represents the total number 
 		/// of elements in a sequence.
 		/// </summary>
-
 		public static long LongCount<TSource>(
 			this IEnumerable<TSource> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			var array = source as Array;
 			return array != null
-				 ? array.LongLength
-				 : source.Aggregate(0L, (count, item) => count + 1);
+				? array.LongLength
+				: source.Aggregate(0L, (count, item) => count + 1);
 		}
 
 		/// <summary>
 		/// Returns an <see cref="Int64"/> that represents how many elements 
 		/// in a sequence satisfy a condition.
 		/// </summary>
-
 		public static long LongCount<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, bool> predicate) {
@@ -705,12 +759,16 @@ namespace System.Linq {
 		/// <summary>
 		/// Concatenates two sequences.
 		/// </summary>
-
 		public static IEnumerable<TSource> Concat<TSource>(
 			this IEnumerable<TSource> first,
 			IEnumerable<TSource> second) {
-			if (first == null) throw new ArgumentNullException("first");
-			if (second == null) throw new ArgumentNullException("second");
+			if (first == null) {
+				throw new ArgumentNullException("first");
+			}
+
+			if (second == null) {
+				throw new ArgumentNullException("second");
+			}
 
 			return ConcatYield(first, second);
 		}
@@ -718,20 +776,23 @@ namespace System.Linq {
 		private static IEnumerable<TSource> ConcatYield<TSource>(
 			IEnumerable<TSource> first,
 			IEnumerable<TSource> second) {
-			foreach (var item in first)
+			foreach (var item in first) {
 				yield return item;
+			}
 
-			foreach (var item in second)
+			foreach (var item in second) {
 				yield return item;
+			}
 		}
 
 		/// <summary>
 		/// Creates a <see cref="List{T}"/> from an <see cref="IEnumerable{T}"/>.
 		/// </summary>
-
 		public static List<TSource> ToList<TSource>(
 			this IEnumerable<TSource> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return new List<TSource>(source);
 		}
@@ -739,7 +800,6 @@ namespace System.Linq {
 		/// <summary>
 		/// Creates an array from an <see cref="IEnumerable{T}"/>.
 		/// </summary>
-
 		public static TSource[] ToArray<TSource>(
 			this IEnumerable<TSource> source) {
 			return source.ToList().ToArray();
@@ -749,7 +809,6 @@ namespace System.Linq {
 		/// Returns distinct elements from a sequence by using the default 
 		/// equality comparer to compare values.
 		/// </summary>
-
 		public static IEnumerable<TSource> Distinct<TSource>(
 			this IEnumerable<TSource> source) {
 			return Distinct(source, /* comparer */ null);
@@ -759,11 +818,12 @@ namespace System.Linq {
 		/// Returns distinct elements from a sequence by using a specified 
 		/// <see cref="IEqualityComparer{T}"/> to compare values.
 		/// </summary>
-
 		public static IEnumerable<TSource> Distinct<TSource>(
 			this IEnumerable<TSource> source,
 			IEqualityComparer<TSource> comparer) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return DistinctYield(source, comparer);
 		}
@@ -776,12 +836,17 @@ namespace System.Linq {
 
 			foreach (var item in source) {
 				if (item == null) {
-					if (gotNull)
+					if (gotNull) {
 						continue;
+					}
+
 					gotNull = true;
-				} else {
-					if (set.ContainsKey(item))
+				}
+				else {
+					if (set.ContainsKey(item)) {
 						continue;
+					}
+
 					set.Add(item, null);
 				}
 
@@ -794,7 +859,6 @@ namespace System.Linq {
 		/// <see cref="IEnumerable{T}" /> according to a specified key 
 		/// selector function.
 		/// </summary>
-
 		public static ILookup<TKey, TSource> ToLookup<TSource, TKey>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector) {
@@ -806,7 +870,6 @@ namespace System.Linq {
 		/// <see cref="IEnumerable{T}" /> according to a specified key 
 		/// selector function and a key comparer.
 		/// </summary>
-
 		public static ILookup<TKey, TSource> ToLookup<TSource, TKey>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
@@ -819,7 +882,6 @@ namespace System.Linq {
 		/// <see cref="IEnumerable{T}" /> according to specified key 
 		/// and element selector functions.
 		/// </summary>
-
 		public static ILookup<TKey, TElement> ToLookup<TSource, TKey, TElement>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
@@ -832,22 +894,29 @@ namespace System.Linq {
 		/// <see cref="IEnumerable{T}" /> according to a specified key 
 		/// selector function, a comparer and an element selector function.
 		/// </summary>
-
 		public static ILookup<TKey, TElement> ToLookup<TSource, TKey, TElement>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
 			Func<TSource, TElement> elementSelector,
 			IEqualityComparer<TKey> comparer) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (keySelector == null) throw new ArgumentNullException("keySelector");
-			if (elementSelector == null) throw new ArgumentNullException("elementSelector");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
+			if (keySelector == null) {
+				throw new ArgumentNullException("keySelector");
+			}
+
+			if (elementSelector == null) {
+				throw new ArgumentNullException("elementSelector");
+			}
 
 			var lookup = new Lookup<TKey, TElement>(comparer);
 
 			foreach (var item in source) {
 				var key = keySelector(item);
 
-				var grouping = (Grouping<TKey, TElement>)lookup.Find(key);
+				var grouping = (Grouping<TKey, TElement>) lookup.Find(key);
 				if (grouping == null) {
 					grouping = new Grouping<TKey, TElement>(key);
 					lookup.Add(grouping);
@@ -863,7 +932,6 @@ namespace System.Linq {
 		/// Groups the elements of a sequence according to a specified key 
 		/// selector function.
 		/// </summary>
-
 		public static IEnumerable<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector) {
@@ -875,7 +943,6 @@ namespace System.Linq {
 		/// selector function and compares the keys by using a specified 
 		/// comparer.
 		/// </summary>
-
 		public static IEnumerable<IGrouping<TKey, TSource>> GroupBy<TSource, TKey>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
@@ -888,7 +955,6 @@ namespace System.Linq {
 		/// selector function and projects the elements for each group by 
 		/// using a specified function.
 		/// </summary>
-
 		public static IEnumerable<IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
@@ -901,15 +967,22 @@ namespace System.Linq {
 		/// selector function and creates a result value from each group and 
 		/// its key.
 		/// </summary>
-
 		public static IEnumerable<IGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
 			Func<TSource, TElement> elementSelector,
 			IEqualityComparer<TKey> comparer) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (keySelector == null) throw new ArgumentNullException("keySelector");
-			if (elementSelector == null) throw new ArgumentNullException("elementSelector");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
+			if (keySelector == null) {
+				throw new ArgumentNullException("keySelector");
+			}
+
+			if (elementSelector == null) {
+				throw new ArgumentNullException("elementSelector");
+			}
 
 			return ToLookup(source, keySelector, elementSelector, comparer);
 		}
@@ -919,7 +992,6 @@ namespace System.Linq {
 		/// function. The keys are compared by using a comparer and each 
 		/// group's elements are projected by using a specified function.
 		/// </summary>
-
 		public static IEnumerable<TResult> GroupBy<TSource, TKey, TResult>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
@@ -933,15 +1005,22 @@ namespace System.Linq {
 		/// its key. The elements of each group are projected by using a 
 		/// specified function.
 		/// </summary>
-
 		public static IEnumerable<TResult> GroupBy<TSource, TKey, TResult>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
 			Func<TKey, IEnumerable<TSource>, TResult> resultSelector,
 			IEqualityComparer<TKey> comparer) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (keySelector == null) throw new ArgumentNullException("keySelector");
-			if (resultSelector == null) throw new ArgumentNullException("resultSelector");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
+			if (keySelector == null) {
+				throw new ArgumentNullException("keySelector");
+			}
+
+			if (resultSelector == null) {
+				throw new ArgumentNullException("resultSelector");
+			}
 
 			return ToLookup(source, keySelector, comparer).Select(g => resultSelector(g.Key, g));
 		}
@@ -951,7 +1030,6 @@ namespace System.Linq {
 		/// selector function and creates a result value from each group and 
 		/// its key. The keys are compared by using a specified comparer.
 		/// </summary>
-
 		public static IEnumerable<TResult> GroupBy<TSource, TKey, TElement, TResult>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
@@ -967,35 +1045,50 @@ namespace System.Linq {
 		/// and the elements of each group are projected by using a 
 		/// specified function.
 		/// </summary>
-
 		public static IEnumerable<TResult> GroupBy<TSource, TKey, TElement, TResult>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
 			Func<TSource, TElement> elementSelector,
 			Func<TKey, IEnumerable<TElement>, TResult> resultSelector,
 			IEqualityComparer<TKey> comparer) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (keySelector == null) throw new ArgumentNullException("keySelector");
-			if (elementSelector == null) throw new ArgumentNullException("elementSelector");
-			if (resultSelector == null) throw new ArgumentNullException("resultSelector");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
+			if (keySelector == null) {
+				throw new ArgumentNullException("keySelector");
+			}
+
+			if (elementSelector == null) {
+				throw new ArgumentNullException("elementSelector");
+			}
+
+			if (resultSelector == null) {
+				throw new ArgumentNullException("resultSelector");
+			}
 
 			return ToLookup(source, keySelector, elementSelector, comparer)
-				   .Select(g => resultSelector(g.Key, g));
+				.Select(g => resultSelector(g.Key, g));
 		}
 
 		/// <summary>
 		/// Applies an accumulator function over a sequence.
 		/// </summary>
-
 		public static TSource Aggregate<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TSource, TSource> func) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (func == null) throw new ArgumentNullException("func");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
+			if (func == null) {
+				throw new ArgumentNullException("func");
+			}
 
 			using (var e = source.GetEnumerator()) {
-				if (!e.MoveNext())
+				if (!e.MoveNext()) {
 					throw new InvalidOperationException();
+				}
 
 				return e.Renumerable().Skip(1).Aggregate(e.Current, func);
 			}
@@ -1005,7 +1098,6 @@ namespace System.Linq {
 		/// Applies an accumulator function over a sequence. The specified 
 		/// seed value is used as the initial accumulator value.
 		/// </summary>
-
 		public static TAccumulate Aggregate<TSource, TAccumulate>(
 			this IEnumerable<TSource> source,
 			TAccumulate seed,
@@ -1018,20 +1110,28 @@ namespace System.Linq {
 		/// seed value is used as the initial accumulator value, and the 
 		/// specified function is used to select the result value.
 		/// </summary>
-
 		public static TResult Aggregate<TSource, TAccumulate, TResult>(
 			this IEnumerable<TSource> source,
 			TAccumulate seed,
 			Func<TAccumulate, TSource, TAccumulate> func,
 			Func<TAccumulate, TResult> resultSelector) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (func == null) throw new ArgumentNullException("func");
-			if (resultSelector == null) throw new ArgumentNullException("resultSelector");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
+			if (func == null) {
+				throw new ArgumentNullException("func");
+			}
+
+			if (resultSelector == null) {
+				throw new ArgumentNullException("resultSelector");
+			}
 
 			var result = seed;
 
-			foreach (var item in source)
+			foreach (var item in source) {
 				result = func(result, item);
+			}
 
 			return resultSelector(result);
 		}
@@ -1040,7 +1140,6 @@ namespace System.Linq {
 		/// Produces the set union of two sequences by using the default 
 		/// equality comparer.
 		/// </summary>
-
 		public static IEnumerable<TSource> Union<TSource>(
 			this IEnumerable<TSource> first,
 			IEnumerable<TSource> second) {
@@ -1051,7 +1150,6 @@ namespace System.Linq {
 		/// Produces the set union of two sequences by using a specified 
 		/// <see cref="IEqualityComparer{T}" />.
 		/// </summary>
-
 		public static IEnumerable<TSource> Union<TSource>(
 			this IEnumerable<TSource> first,
 			IEnumerable<TSource> second,
@@ -1064,7 +1162,6 @@ namespace System.Linq {
 		/// parameter's default value in a singleton collection if the 
 		/// sequence is empty.
 		/// </summary>
-
 		public static IEnumerable<TSource> DefaultIfEmpty<TSource>(
 			this IEnumerable<TSource> source) {
 			return source.DefaultIfEmpty(default(TSource));
@@ -1074,11 +1171,12 @@ namespace System.Linq {
 		/// Returns the elements of the specified sequence or the specified 
 		/// value in a singleton collection if the sequence is empty.
 		/// </summary>
-
 		public static IEnumerable<TSource> DefaultIfEmpty<TSource>(
 			this IEnumerable<TSource> source,
 			TSource defaultValue) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return DefaultIfEmptyYield(source, defaultValue);
 		}
@@ -1087,26 +1185,36 @@ namespace System.Linq {
 			IEnumerable<TSource> source,
 			TSource defaultValue) {
 			using (var e = source.GetEnumerator()) {
-				if (!e.MoveNext())
+				if (!e.MoveNext()) {
 					yield return defaultValue;
-				else
-					do { yield return e.Current; } while (e.MoveNext());
+				}
+				else {
+					do {
+						yield return e.Current;
+					} while (e.MoveNext());
+				}
 			}
 		}
 
 		/// <summary>
 		/// Determines whether all elements of a sequence satisfy a condition.
 		/// </summary>
-
 		public static bool All<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, bool> predicate) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (predicate == null) throw new ArgumentNullException("predicate");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
-			foreach (var item in source)
-				if (!predicate(item))
+			if (predicate == null) {
+				throw new ArgumentNullException("predicate");
+			}
+
+			foreach (var item in source) {
+				if (!predicate(item)) {
 					return false;
+				}
+			}
 
 			return true;
 		}
@@ -1114,20 +1222,21 @@ namespace System.Linq {
 		/// <summary>
 		/// Determines whether a sequence contains any elements.
 		/// </summary>
-
 		public static bool Any<TSource>(
 			this IEnumerable<TSource> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
-			using (var e = source.GetEnumerator())
+			using (var e = source.GetEnumerator()) {
 				return e.MoveNext();
+			}
 		}
 
 		/// <summary>
 		/// Determines whether any element of a sequence satisfies a 
 		/// condition.
 		/// </summary>
-
 		public static bool Any<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, bool> predicate) {
@@ -1138,7 +1247,6 @@ namespace System.Linq {
 		/// Determines whether a sequence contains a specified element by 
 		/// using the default equality comparer.
 		/// </summary>
-
 		public static bool Contains<TSource>(
 			this IEnumerable<TSource> source,
 			TSource value) {
@@ -1149,17 +1257,19 @@ namespace System.Linq {
 		/// Determines whether a sequence contains a specified element by 
 		/// using a specified <see cref="IEqualityComparer{T}" />.
 		/// </summary>
-
 		public static bool Contains<TSource>(
 			this IEnumerable<TSource> source,
 			TSource value,
 			IEqualityComparer<TSource> comparer) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			if (comparer == null) {
 				var collection = source as ICollection<TSource>;
-				if (collection != null)
+				if (collection != null) {
 					return collection.Contains(value);
+				}
 			}
 
 			comparer = comparer ?? EqualityComparer<TSource>.Default;
@@ -1170,7 +1280,6 @@ namespace System.Linq {
 		/// Determines whether two sequences are equal by comparing the 
 		/// elements by using the default equality comparer for their type.
 		/// </summary>
-
 		public static bool SequenceEqual<TSource>(
 			this IEnumerable<TSource> first,
 			IEnumerable<TSource> second) {
@@ -1181,26 +1290,31 @@ namespace System.Linq {
 		/// Determines whether two sequences are equal by comparing their 
 		/// elements by using a specified <see cref="IEqualityComparer{T}" />.
 		/// </summary>
-
 		public static bool SequenceEqual<TSource>(
 			this IEnumerable<TSource> first,
 			IEnumerable<TSource> second,
 			IEqualityComparer<TSource> comparer) {
-			if (first == null) throw new ArgumentNullException("frist");
-			if (second == null) throw new ArgumentNullException("second");
+			if (first == null) {
+				throw new ArgumentNullException("frist");
+			}
+
+			if (second == null) {
+				throw new ArgumentNullException("second");
+			}
 
 			comparer = comparer ?? EqualityComparer<TSource>.Default;
 
 			using (IEnumerator<TSource> lhs = first.GetEnumerator(),
-										rhs = second.GetEnumerator()) {
+				rhs = second.GetEnumerator()) {
 				do {
-					if (!lhs.MoveNext())
+					if (!lhs.MoveNext()) {
 						return !rhs.MoveNext();
+					}
 
-					if (!rhs.MoveNext())
+					if (!rhs.MoveNext()) {
 						return false;
-				}
-				while (comparer.Equals(lhs.Current, rhs.Current));
+					}
+				} while (comparer.Equals(lhs.Current, rhs.Current));
 			}
 
 			return false;
@@ -1209,15 +1323,19 @@ namespace System.Linq {
 		/// <summary>
 		/// Base implementation for Min/Max operator.
 		/// </summary>
-
 		private static TSource MinMaxImpl<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TSource, bool> lesser) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
 			Debug.Assert(lesser != null);
 
 			if (typeof(TSource).IsClass) // ReSharper disable CompareNonConstrainedGenericWithNull                
+			{
 				source = source.Where(e => e != null).DefaultIfEmpty(); // ReSharper restore CompareNonConstrainedGenericWithNull
+			}
 
 			return source.Aggregate((a, item) => lesser(a, item) ? a : item);
 		}
@@ -1225,21 +1343,23 @@ namespace System.Linq {
 		/// <summary>
 		/// Base implementation for Min/Max operator for nullable types.
 		/// </summary>
-
 		private static TSource? MinMaxImpl<TSource>(
 			this IEnumerable<TSource?> source,
 			TSource? seed, Func<TSource?, TSource?, bool> lesser) where TSource : struct {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
 			Debug.Assert(lesser != null);
 
 			return source.Aggregate(seed, (a, item) => lesser(a, item) ? a : item);
+
 			//  == MinMaxImpl(Repeat<TSource?>(null, 1).Concat(source), lesser);
 		}
 
 		/// <summary>
 		/// Returns the minimum value in a generic sequence.
 		/// </summary>
-
 		public static TSource Min<TSource>(
 			this IEnumerable<TSource> source) {
 			var comparer = Comparer<TSource>.Default;
@@ -1250,7 +1370,6 @@ namespace System.Linq {
 		/// Invokes a transform function on each element of a generic 
 		/// sequence and returns the minimum resulting value.
 		/// </summary>
-
 		public static TResult Min<TSource, TResult>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TResult> selector) {
@@ -1260,7 +1379,6 @@ namespace System.Linq {
 		/// <summary>
 		/// Returns the maximum value in a generic sequence.
 		/// </summary>
-
 		public static TSource Max<TSource>(
 			this IEnumerable<TSource> source) {
 			var comparer = Comparer<TSource>.Default;
@@ -1271,7 +1389,6 @@ namespace System.Linq {
 		/// Invokes a transform function on each element of a generic 
 		/// sequence and returns the maximum resulting value.
 		/// </summary>
-
 		public static TResult Max<TSource, TResult>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TResult> selector) {
@@ -1287,17 +1404,17 @@ namespace System.Linq {
 		/// DO NOT use this method if the caller must be a generator. It is
 		/// mostly safe among aggregate operations.
 		/// </remarks>
-
 		private static IEnumerable<T> Renumerable<T>(this IEnumerator<T> e) {
 			Debug.Assert(e != null);
 
-			do { yield return e.Current; } while (e.MoveNext());
+			do {
+				yield return e.Current;
+			} while (e.MoveNext());
 		}
 
 		/// <summary>
 		/// Sorts the elements of a sequence in ascending order according to a key.
 		/// </summary>
-
 		public static IOrderedEnumerable<TSource> OrderBy<TSource, TKey>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector) {
@@ -1308,13 +1425,17 @@ namespace System.Linq {
 		/// Sorts the elements of a sequence in ascending order by using a 
 		/// specified comparer.
 		/// </summary>
-
 		public static IOrderedEnumerable<TSource> OrderBy<TSource, TKey>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
 			IComparer<TKey> comparer) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (keySelector == null) throw new ArgumentNullException("keySelector");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
+			if (keySelector == null) {
+				throw new ArgumentNullException("keySelector");
+			}
 
 			return new OrderedEnumerable<TSource, TKey>(source, keySelector, comparer, /* descending */ false);
 		}
@@ -1322,7 +1443,6 @@ namespace System.Linq {
 		/// <summary>
 		/// Sorts the elements of a sequence in descending order according to a key.
 		/// </summary>
-
 		public static IOrderedEnumerable<TSource> OrderByDescending<TSource, TKey>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector) {
@@ -1333,13 +1453,17 @@ namespace System.Linq {
 		///  Sorts the elements of a sequence in descending order by using a 
 		/// specified comparer. 
 		/// </summary>
-
 		public static IOrderedEnumerable<TSource> OrderByDescending<TSource, TKey>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
 			IComparer<TKey> comparer) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (source == null) throw new ArgumentNullException("keySelector");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
+			if (source == null) {
+				throw new ArgumentNullException("keySelector");
+			}
 
 			return new OrderedEnumerable<TSource, TKey>(source, keySelector, comparer, /* descending */ true);
 		}
@@ -1348,7 +1472,6 @@ namespace System.Linq {
 		/// Performs a subsequent ordering of the elements in a sequence in 
 		/// ascending order according to a key.
 		/// </summary>
-
 		public static IOrderedEnumerable<TSource> ThenBy<TSource, TKey>(
 			this IOrderedEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector) {
@@ -1359,12 +1482,13 @@ namespace System.Linq {
 		/// Performs a subsequent ordering of the elements in a sequence in 
 		/// ascending order by using a specified comparer.
 		/// </summary>
-
 		public static IOrderedEnumerable<TSource> ThenBy<TSource, TKey>(
 			this IOrderedEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
 			IComparer<TKey> comparer) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return source.CreateOrderedEnumerable(keySelector, comparer, /* descending */ false);
 		}
@@ -1373,7 +1497,6 @@ namespace System.Linq {
 		/// Performs a subsequent ordering of the elements in a sequence in 
 		/// descending order, according to a key.
 		/// </summary>
-
 		public static IOrderedEnumerable<TSource> ThenByDescending<TSource, TKey>(
 			this IOrderedEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector) {
@@ -1384,12 +1507,13 @@ namespace System.Linq {
 		/// Performs a subsequent ordering of the elements in a sequence in 
 		/// descending order by using a specified comparer.
 		/// </summary>
-
 		public static IOrderedEnumerable<TSource> ThenByDescending<TSource, TKey>(
 			this IOrderedEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
 			IComparer<TKey> comparer) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return source.CreateOrderedEnumerable(keySelector, comparer, /* descending */ true);
 		}
@@ -1397,30 +1521,36 @@ namespace System.Linq {
 		/// <summary>
 		/// Base implementation for Intersect and Except operators.
 		/// </summary>
-
 		private static IEnumerable<TSource> IntersectExceptImpl<TSource>(
 			this IEnumerable<TSource> first,
 			IEnumerable<TSource> second,
 			IEqualityComparer<TSource> comparer,
 			bool flag) {
-			if (first == null) throw new ArgumentNullException("first");
-			if (second == null) throw new ArgumentNullException("second");
+			if (first == null) {
+				throw new ArgumentNullException("first");
+			}
+
+			if (second == null) {
+				throw new ArgumentNullException("second");
+			}
 
 			var keys = new List<Key<TSource>>();
 			var flags = new Dictionary<Key<TSource>, bool>(new KeyComparer<TSource>(comparer));
 
 			foreach (var item in from item in first
-								 select new Key<TSource>(item) into item
-								 where !flags.ContainsKey(item)
-								 select item) {
+				select new Key<TSource>(item)
+				into item
+				where !flags.ContainsKey(item)
+				select item) {
 				flags.Add(item, !flag);
 				keys.Add(item);
 			}
 
 			foreach (var item in from item in second
-								 select new Key<TSource>(item) into item
-								 where flags.ContainsKey(item)
-								 select item) {
+				select new Key<TSource>(item)
+				into item
+				where flags.ContainsKey(item)
+				select item) {
 				flags[item] = flag;
 			}
 
@@ -1436,7 +1566,6 @@ namespace System.Linq {
 		/// Produces the set intersection of two sequences by using the 
 		/// default equality comparer to compare values.
 		/// </summary>
-
 		public static IEnumerable<TSource> Intersect<TSource>(
 			this IEnumerable<TSource> first,
 			IEnumerable<TSource> second) {
@@ -1447,7 +1576,6 @@ namespace System.Linq {
 		/// Produces the set intersection of two sequences by using the 
 		/// specified <see cref="IEqualityComparer{T}" /> to compare values.
 		/// </summary>
-
 		public static IEnumerable<TSource> Intersect<TSource>(
 			this IEnumerable<TSource> first,
 			IEnumerable<TSource> second,
@@ -1459,7 +1587,6 @@ namespace System.Linq {
 		/// Produces the set difference of two sequences by using the 
 		/// default equality comparer to compare values.
 		/// </summary>
-
 		public static IEnumerable<TSource> Except<TSource>(
 			this IEnumerable<TSource> first,
 			IEnumerable<TSource> second) {
@@ -1470,7 +1597,6 @@ namespace System.Linq {
 		/// Produces the set difference of two sequences by using the 
 		/// specified <see cref="IEqualityComparer{T}" /> to compare values.
 		/// </summary>
-
 		public static IEnumerable<TSource> Except<TSource>(
 			this IEnumerable<TSource> first,
 			IEnumerable<TSource> second,
@@ -1483,7 +1609,6 @@ namespace System.Linq {
 		/// <see cref="IEnumerable{T}" /> according to a specified key 
 		/// selector function.
 		/// </summary>
-
 		public static Dictionary<TKey, TSource> ToDictionary<TSource, TKey>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector) {
@@ -1495,7 +1620,6 @@ namespace System.Linq {
 		/// <see cref="IEnumerable{T}" /> according to a specified key 
 		/// selector function and key comparer.
 		/// </summary>
-
 		public static Dictionary<TKey, TSource> ToDictionary<TSource, TKey>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
@@ -1508,7 +1632,6 @@ namespace System.Linq {
 		/// <see cref="IEnumerable{T}" /> according to specified key 
 		/// selector and element selector functions.
 		/// </summary>
-
 		public static Dictionary<TKey, TElement> ToDictionary<TSource, TKey, TElement>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
@@ -1521,15 +1644,22 @@ namespace System.Linq {
 		/// <see cref="IEnumerable{T}" /> according to a specified key 
 		/// selector function, a comparer, and an element selector function.
 		/// </summary>
-
 		public static Dictionary<TKey, TElement> ToDictionary<TSource, TKey, TElement>(
 			this IEnumerable<TSource> source,
 			Func<TSource, TKey> keySelector,
 			Func<TSource, TElement> elementSelector,
 			IEqualityComparer<TKey> comparer) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (keySelector == null) throw new ArgumentNullException("keySelector");
-			if (elementSelector == null) throw new ArgumentNullException("elementSelector");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
+			if (keySelector == null) {
+				throw new ArgumentNullException("keySelector");
+			}
+
+			if (elementSelector == null) {
+				throw new ArgumentNullException("elementSelector");
+			}
 
 			var dict = new Dictionary<TKey, TElement>(comparer);
 
@@ -1556,7 +1686,6 @@ namespace System.Linq {
 		/// Correlates the elements of two sequences based on matching keys. 
 		/// The default equality comparer is used to compare keys.
 		/// </summary>
-
 		public static IEnumerable<TResult> Join<TOuter, TInner, TKey, TResult>(
 			this IEnumerable<TOuter> outer,
 			IEnumerable<TInner> inner,
@@ -1571,7 +1700,6 @@ namespace System.Linq {
 		/// The default equality comparer is used to compare keys. A 
 		/// specified <see cref="IEqualityComparer{T}" /> is used to compare keys.
 		/// </summary>
-
 		public static IEnumerable<TResult> Join<TOuter, TInner, TKey, TResult>(
 			this IEnumerable<TOuter> outer,
 			IEnumerable<TInner> inner,
@@ -1579,11 +1707,25 @@ namespace System.Linq {
 			Func<TInner, TKey> innerKeySelector,
 			Func<TOuter, TInner, TResult> resultSelector,
 			IEqualityComparer<TKey> comparer) {
-			if (outer == null) throw new ArgumentNullException("outer");
-			if (inner == null) throw new ArgumentNullException("inner");
-			if (outerKeySelector == null) throw new ArgumentNullException("outerKeySelector");
-			if (innerKeySelector == null) throw new ArgumentNullException("innerKeySelector");
-			if (resultSelector == null) throw new ArgumentNullException("resultSelector");
+			if (outer == null) {
+				throw new ArgumentNullException("outer");
+			}
+
+			if (inner == null) {
+				throw new ArgumentNullException("inner");
+			}
+
+			if (outerKeySelector == null) {
+				throw new ArgumentNullException("outerKeySelector");
+			}
+
+			if (innerKeySelector == null) {
+				throw new ArgumentNullException("innerKeySelector");
+			}
+
+			if (resultSelector == null) {
+				throw new ArgumentNullException("resultSelector");
+			}
 
 			var lookup = inner.ToLookup(innerKeySelector, comparer);
 
@@ -1598,7 +1740,6 @@ namespace System.Linq {
 		/// keys and groups the results. The default equality comparer is 
 		/// used to compare keys.
 		/// </summary>
-
 		public static IEnumerable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(
 			this IEnumerable<TOuter> outer,
 			IEnumerable<TInner> inner,
@@ -1614,7 +1755,6 @@ namespace System.Linq {
 		/// used to compare keys. A specified <see cref="IEqualityComparer{T}" /> 
 		/// is used to compare keys.
 		/// </summary>
-
 		public static IEnumerable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(
 			this IEnumerable<TOuter> outer,
 			IEnumerable<TInner> inner,
@@ -1622,11 +1762,25 @@ namespace System.Linq {
 			Func<TInner, TKey> innerKeySelector,
 			Func<TOuter, IEnumerable<TInner>, TResult> resultSelector,
 			IEqualityComparer<TKey> comparer) {
-			if (outer == null) throw new ArgumentNullException("outer");
-			if (inner == null) throw new ArgumentNullException("inner");
-			if (outerKeySelector == null) throw new ArgumentNullException("outerKeySelector");
-			if (innerKeySelector == null) throw new ArgumentNullException("innerKeySelector");
-			if (resultSelector == null) throw new ArgumentNullException("resultSelector");
+			if (outer == null) {
+				throw new ArgumentNullException("outer");
+			}
+
+			if (inner == null) {
+				throw new ArgumentNullException("inner");
+			}
+
+			if (outerKeySelector == null) {
+				throw new ArgumentNullException("outerKeySelector");
+			}
+
+			if (innerKeySelector == null) {
+				throw new ArgumentNullException("innerKeySelector");
+			}
+
+			if (resultSelector == null) {
+				throw new ArgumentNullException("resultSelector");
+			}
 
 			var lookup = inner.ToLookup(innerKeySelector, comparer);
 			return outer.Select(o => resultSelector(o, lookup[outerKeySelector(o)]));
@@ -1652,25 +1806,27 @@ namespace System.Linq {
 	#region Imports
 
 	using System;
-	using System.Collections.Generic;
+	using Collections.Generic;
 
 	#endregion
 
 	// This partial implementation was template-generated:
 	// Mon, 16 Apr 2012 20:05:53 GMT
 
-	partial class Enumerable {
+	internal partial class Enumerable {
 		/// <summary>
 		/// Computes the sum of a sequence of nullable <see cref="System.Int32" /> values.
 		/// </summary>
-
 		public static int Sum(
 			this IEnumerable<int> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
-			int sum = 0;
-			foreach (var num in source)
+			var sum = 0;
+			foreach (var num in source) {
 				sum = checked(sum + num);
+			}
 
 			return sum;
 		}
@@ -1680,7 +1836,6 @@ namespace System.Linq {
 		/// values that are obtained by invoking a transform function on 
 		/// each element of the input sequence.
 		/// </summary>
-
 		public static int Sum<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, int> selector) {
@@ -1690,24 +1845,27 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the average of a sequence of nullable <see cref="System.Int32" /> values.
 		/// </summary>
-
 		public static double Average(
 			this IEnumerable<int> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			long sum = 0;
 			long count = 0;
 
-			foreach (var num in source)
+			foreach (var num in source) {
 				checked {
-					sum += (int)num;
+					sum += (int) num;
 					count++;
 				}
+			}
 
-			if (count == 0)
+			if (count == 0) {
 				throw new InvalidOperationException();
+			}
 
-			return (double)sum / count;
+			return (double) sum / count;
 		}
 
 		/// <summary>
@@ -1715,7 +1873,6 @@ namespace System.Linq {
 		/// that are obtained by invoking a transform function on each 
 		/// element of the input sequence.
 		/// </summary>
-
 		public static double Average<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, int> selector) {
@@ -1726,14 +1883,16 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the sum of a sequence of <see cref="System.Int32" /> values.
 		/// </summary>
-
 		public static int? Sum(
 			this IEnumerable<int?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
-			int sum = 0;
-			foreach (var num in source)
+			var sum = 0;
+			foreach (var num in source) {
 				sum = checked(sum + (num ?? 0));
+			}
 
 			return sum;
 		}
@@ -1743,7 +1902,6 @@ namespace System.Linq {
 		/// values that are obtained by invoking a transform function on 
 		/// each element of the input sequence.
 		/// </summary>
-
 		public static int? Sum<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, int?> selector) {
@@ -1753,24 +1911,27 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the average of a sequence of <see cref="System.Int32" /> values.
 		/// </summary>
-
 		public static double? Average(
 			this IEnumerable<int?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			long sum = 0;
 			long count = 0;
 
-			foreach (var num in source.Where(n => n != null))
+			foreach (var num in source.Where(n => n != null)) {
 				checked {
-					sum += (int)num;
+					sum += (int) num;
 					count++;
 				}
+			}
 
-			if (count == 0)
+			if (count == 0) {
 				return null;
+			}
 
-			return (double?)sum / count;
+			return (double?) sum / count;
 		}
 
 		/// <summary>
@@ -1778,7 +1939,6 @@ namespace System.Linq {
 		/// that are obtained by invoking a transform function on each 
 		/// element of the input sequence.
 		/// </summary>
-
 		public static double? Average<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, int?> selector) {
@@ -1789,10 +1949,11 @@ namespace System.Linq {
 		/// Returns the minimum value in a sequence of nullable 
 		/// <see cref="System.Int32" /> values.
 		/// </summary>
-
 		public static int? Min(
 			this IEnumerable<int?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return MinMaxImpl(source.Where(x => x != null), null, (min, x) => min < x);
 		}
@@ -1801,7 +1962,6 @@ namespace System.Linq {
 		/// Invokes a transform function on each element of a sequence and 
 		/// returns the minimum nullable <see cref="System.Int32" /> value.
 		/// </summary>
-
 		public static int? Min<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, int?> selector) {
@@ -1812,20 +1972,20 @@ namespace System.Linq {
 		/// Returns the maximum value in a sequence of nullable 
 		/// <see cref="System.Int32" /> values.
 		/// </summary>
-
 		public static int? Max(
 			this IEnumerable<int?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return MinMaxImpl(source.Where(x => x != null),
-				null, (max, x) => x == null || (max != null && x.Value < max.Value));
+				null, (max, x) => x == null || max != null && x.Value < max.Value);
 		}
 
 		/// <summary>
 		/// Invokes a transform function on each element of a sequence and 
 		/// returns the maximum nullable <see cref="System.Int32" /> value.
 		/// </summary>
-
 		public static int? Max<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, int?> selector) {
@@ -1835,14 +1995,16 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the sum of a sequence of nullable <see cref="System.Int64" /> values.
 		/// </summary>
-
 		public static long Sum(
 			this IEnumerable<long> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			long sum = 0;
-			foreach (var num in source)
+			foreach (var num in source) {
 				sum = checked(sum + num);
+			}
 
 			return sum;
 		}
@@ -1852,7 +2014,6 @@ namespace System.Linq {
 		/// values that are obtained by invoking a transform function on 
 		/// each element of the input sequence.
 		/// </summary>
-
 		public static long Sum<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, long> selector) {
@@ -1862,24 +2023,27 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the average of a sequence of nullable <see cref="System.Int64" /> values.
 		/// </summary>
-
 		public static double Average(
 			this IEnumerable<long> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			long sum = 0;
 			long count = 0;
 
-			foreach (var num in source)
+			foreach (var num in source) {
 				checked {
-					sum += (long)num;
+					sum += (long) num;
 					count++;
 				}
+			}
 
-			if (count == 0)
+			if (count == 0) {
 				throw new InvalidOperationException();
+			}
 
-			return (double)sum / count;
+			return (double) sum / count;
 		}
 
 		/// <summary>
@@ -1887,7 +2051,6 @@ namespace System.Linq {
 		/// that are obtained by invoking a transform function on each 
 		/// element of the input sequence.
 		/// </summary>
-
 		public static double Average<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, long> selector) {
@@ -1898,14 +2061,16 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the sum of a sequence of <see cref="System.Int64" /> values.
 		/// </summary>
-
 		public static long? Sum(
 			this IEnumerable<long?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			long sum = 0;
-			foreach (var num in source)
+			foreach (var num in source) {
 				sum = checked(sum + (num ?? 0));
+			}
 
 			return sum;
 		}
@@ -1915,7 +2080,6 @@ namespace System.Linq {
 		/// values that are obtained by invoking a transform function on 
 		/// each element of the input sequence.
 		/// </summary>
-
 		public static long? Sum<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, long?> selector) {
@@ -1925,24 +2089,27 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the average of a sequence of <see cref="System.Int64" /> values.
 		/// </summary>
-
 		public static double? Average(
 			this IEnumerable<long?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			long sum = 0;
 			long count = 0;
 
-			foreach (var num in source.Where(n => n != null))
+			foreach (var num in source.Where(n => n != null)) {
 				checked {
-					sum += (long)num;
+					sum += (long) num;
 					count++;
 				}
+			}
 
-			if (count == 0)
+			if (count == 0) {
 				return null;
+			}
 
-			return (double?)sum / count;
+			return (double?) sum / count;
 		}
 
 		/// <summary>
@@ -1950,7 +2117,6 @@ namespace System.Linq {
 		/// that are obtained by invoking a transform function on each 
 		/// element of the input sequence.
 		/// </summary>
-
 		public static double? Average<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, long?> selector) {
@@ -1961,10 +2127,11 @@ namespace System.Linq {
 		/// Returns the minimum value in a sequence of nullable 
 		/// <see cref="System.Int64" /> values.
 		/// </summary>
-
 		public static long? Min(
 			this IEnumerable<long?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return MinMaxImpl(source.Where(x => x != null), null, (min, x) => min < x);
 		}
@@ -1973,7 +2140,6 @@ namespace System.Linq {
 		/// Invokes a transform function on each element of a sequence and 
 		/// returns the minimum nullable <see cref="System.Int64" /> value.
 		/// </summary>
-
 		public static long? Min<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, long?> selector) {
@@ -1984,20 +2150,20 @@ namespace System.Linq {
 		/// Returns the maximum value in a sequence of nullable 
 		/// <see cref="System.Int64" /> values.
 		/// </summary>
-
 		public static long? Max(
 			this IEnumerable<long?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return MinMaxImpl(source.Where(x => x != null),
-				null, (max, x) => x == null || (max != null && x.Value < max.Value));
+				null, (max, x) => x == null || max != null && x.Value < max.Value);
 		}
 
 		/// <summary>
 		/// Invokes a transform function on each element of a sequence and 
 		/// returns the maximum nullable <see cref="System.Int64" /> value.
 		/// </summary>
-
 		public static long? Max<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, long?> selector) {
@@ -2007,14 +2173,16 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the sum of a sequence of nullable <see cref="System.Single" /> values.
 		/// </summary>
-
 		public static float Sum(
 			this IEnumerable<float> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			float sum = 0;
-			foreach (var num in source)
+			foreach (var num in source) {
 				sum = checked(sum + num);
+			}
 
 			return sum;
 		}
@@ -2024,7 +2192,6 @@ namespace System.Linq {
 		/// values that are obtained by invoking a transform function on 
 		/// each element of the input sequence.
 		/// </summary>
-
 		public static float Sum<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, float> selector) {
@@ -2034,24 +2201,27 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the average of a sequence of nullable <see cref="System.Single" /> values.
 		/// </summary>
-
 		public static float Average(
 			this IEnumerable<float> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			float sum = 0;
 			long count = 0;
 
-			foreach (var num in source)
+			foreach (var num in source) {
 				checked {
-					sum += (float)num;
+					sum += (float) num;
 					count++;
 				}
+			}
 
-			if (count == 0)
+			if (count == 0) {
 				throw new InvalidOperationException();
+			}
 
-			return (float)sum / count;
+			return (float) sum / count;
 		}
 
 		/// <summary>
@@ -2059,7 +2229,6 @@ namespace System.Linq {
 		/// that are obtained by invoking a transform function on each 
 		/// element of the input sequence.
 		/// </summary>
-
 		public static float Average<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, float> selector) {
@@ -2070,14 +2239,16 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the sum of a sequence of <see cref="System.Single" /> values.
 		/// </summary>
-
 		public static float? Sum(
 			this IEnumerable<float?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			float sum = 0;
-			foreach (var num in source)
+			foreach (var num in source) {
 				sum = checked(sum + (num ?? 0));
+			}
 
 			return sum;
 		}
@@ -2087,7 +2258,6 @@ namespace System.Linq {
 		/// values that are obtained by invoking a transform function on 
 		/// each element of the input sequence.
 		/// </summary>
-
 		public static float? Sum<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, float?> selector) {
@@ -2097,24 +2267,27 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the average of a sequence of <see cref="System.Single" /> values.
 		/// </summary>
-
 		public static float? Average(
 			this IEnumerable<float?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			float sum = 0;
 			long count = 0;
 
-			foreach (var num in source.Where(n => n != null))
+			foreach (var num in source.Where(n => n != null)) {
 				checked {
-					sum += (float)num;
+					sum += (float) num;
 					count++;
 				}
+			}
 
-			if (count == 0)
+			if (count == 0) {
 				return null;
+			}
 
-			return (float?)sum / count;
+			return (float?) sum / count;
 		}
 
 		/// <summary>
@@ -2122,7 +2295,6 @@ namespace System.Linq {
 		/// that are obtained by invoking a transform function on each 
 		/// element of the input sequence.
 		/// </summary>
-
 		public static float? Average<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, float?> selector) {
@@ -2133,10 +2305,11 @@ namespace System.Linq {
 		/// Returns the minimum value in a sequence of nullable 
 		/// <see cref="System.Single" /> values.
 		/// </summary>
-
 		public static float? Min(
 			this IEnumerable<float?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return MinMaxImpl(source.Where(x => x != null), null, (min, x) => min < x);
 		}
@@ -2145,7 +2318,6 @@ namespace System.Linq {
 		/// Invokes a transform function on each element of a sequence and 
 		/// returns the minimum nullable <see cref="System.Single" /> value.
 		/// </summary>
-
 		public static float? Min<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, float?> selector) {
@@ -2156,20 +2328,20 @@ namespace System.Linq {
 		/// Returns the maximum value in a sequence of nullable 
 		/// <see cref="System.Single" /> values.
 		/// </summary>
-
 		public static float? Max(
 			this IEnumerable<float?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return MinMaxImpl(source.Where(x => x != null),
-				null, (max, x) => x == null || (max != null && x.Value < max.Value));
+				null, (max, x) => x == null || max != null && x.Value < max.Value);
 		}
 
 		/// <summary>
 		/// Invokes a transform function on each element of a sequence and 
 		/// returns the maximum nullable <see cref="System.Single" /> value.
 		/// </summary>
-
 		public static float? Max<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, float?> selector) {
@@ -2179,14 +2351,16 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the sum of a sequence of nullable <see cref="System.Double" /> values.
 		/// </summary>
-
 		public static double Sum(
 			this IEnumerable<double> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			double sum = 0;
-			foreach (var num in source)
+			foreach (var num in source) {
 				sum = checked(sum + num);
+			}
 
 			return sum;
 		}
@@ -2196,7 +2370,6 @@ namespace System.Linq {
 		/// values that are obtained by invoking a transform function on 
 		/// each element of the input sequence.
 		/// </summary>
-
 		public static double Sum<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, double> selector) {
@@ -2206,24 +2379,27 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the average of a sequence of nullable <see cref="System.Double" /> values.
 		/// </summary>
-
 		public static double Average(
 			this IEnumerable<double> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			double sum = 0;
 			long count = 0;
 
-			foreach (var num in source)
+			foreach (var num in source) {
 				checked {
-					sum += (double)num;
+					sum += (double) num;
 					count++;
 				}
+			}
 
-			if (count == 0)
+			if (count == 0) {
 				throw new InvalidOperationException();
+			}
 
-			return (double)sum / count;
+			return (double) sum / count;
 		}
 
 		/// <summary>
@@ -2231,7 +2407,6 @@ namespace System.Linq {
 		/// that are obtained by invoking a transform function on each 
 		/// element of the input sequence.
 		/// </summary>
-
 		public static double Average<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, double> selector) {
@@ -2242,14 +2417,16 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the sum of a sequence of <see cref="System.Double" /> values.
 		/// </summary>
-
 		public static double? Sum(
 			this IEnumerable<double?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			double sum = 0;
-			foreach (var num in source)
+			foreach (var num in source) {
 				sum = checked(sum + (num ?? 0));
+			}
 
 			return sum;
 		}
@@ -2259,7 +2436,6 @@ namespace System.Linq {
 		/// values that are obtained by invoking a transform function on 
 		/// each element of the input sequence.
 		/// </summary>
-
 		public static double? Sum<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, double?> selector) {
@@ -2269,24 +2445,27 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the average of a sequence of <see cref="System.Double" /> values.
 		/// </summary>
-
 		public static double? Average(
 			this IEnumerable<double?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			double sum = 0;
 			long count = 0;
 
-			foreach (var num in source.Where(n => n != null))
+			foreach (var num in source.Where(n => n != null)) {
 				checked {
-					sum += (double)num;
+					sum += (double) num;
 					count++;
 				}
+			}
 
-			if (count == 0)
+			if (count == 0) {
 				return null;
+			}
 
-			return (double?)sum / count;
+			return (double?) sum / count;
 		}
 
 		/// <summary>
@@ -2294,7 +2473,6 @@ namespace System.Linq {
 		/// that are obtained by invoking a transform function on each 
 		/// element of the input sequence.
 		/// </summary>
-
 		public static double? Average<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, double?> selector) {
@@ -2305,10 +2483,11 @@ namespace System.Linq {
 		/// Returns the minimum value in a sequence of nullable 
 		/// <see cref="System.Double" /> values.
 		/// </summary>
-
 		public static double? Min(
 			this IEnumerable<double?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return MinMaxImpl(source.Where(x => x != null), null, (min, x) => min < x);
 		}
@@ -2317,7 +2496,6 @@ namespace System.Linq {
 		/// Invokes a transform function on each element of a sequence and 
 		/// returns the minimum nullable <see cref="System.Double" /> value.
 		/// </summary>
-
 		public static double? Min<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, double?> selector) {
@@ -2328,20 +2506,20 @@ namespace System.Linq {
 		/// Returns the maximum value in a sequence of nullable 
 		/// <see cref="System.Double" /> values.
 		/// </summary>
-
 		public static double? Max(
 			this IEnumerable<double?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return MinMaxImpl(source.Where(x => x != null),
-				null, (max, x) => x == null || (max != null && x.Value < max.Value));
+				null, (max, x) => x == null || max != null && x.Value < max.Value);
 		}
 
 		/// <summary>
 		/// Invokes a transform function on each element of a sequence and 
 		/// returns the maximum nullable <see cref="System.Double" /> value.
 		/// </summary>
-
 		public static double? Max<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, double?> selector) {
@@ -2351,14 +2529,16 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the sum of a sequence of nullable <see cref="System.Decimal" /> values.
 		/// </summary>
-
 		public static decimal Sum(
 			this IEnumerable<decimal> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			decimal sum = 0;
-			foreach (var num in source)
+			foreach (var num in source) {
 				sum = checked(sum + num);
+			}
 
 			return sum;
 		}
@@ -2368,7 +2548,6 @@ namespace System.Linq {
 		/// values that are obtained by invoking a transform function on 
 		/// each element of the input sequence.
 		/// </summary>
-
 		public static decimal Sum<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, decimal> selector) {
@@ -2378,24 +2557,27 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the average of a sequence of nullable <see cref="System.Decimal" /> values.
 		/// </summary>
-
 		public static decimal Average(
 			this IEnumerable<decimal> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			decimal sum = 0;
 			long count = 0;
 
-			foreach (var num in source)
+			foreach (var num in source) {
 				checked {
-					sum += (decimal)num;
+					sum += (decimal) num;
 					count++;
 				}
+			}
 
-			if (count == 0)
+			if (count == 0) {
 				throw new InvalidOperationException();
+			}
 
-			return (decimal)sum / count;
+			return (decimal) sum / count;
 		}
 
 		/// <summary>
@@ -2403,7 +2585,6 @@ namespace System.Linq {
 		/// that are obtained by invoking a transform function on each 
 		/// element of the input sequence.
 		/// </summary>
-
 		public static decimal Average<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, decimal> selector) {
@@ -2414,14 +2595,16 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the sum of a sequence of <see cref="System.Decimal" /> values.
 		/// </summary>
-
 		public static decimal? Sum(
 			this IEnumerable<decimal?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			decimal sum = 0;
-			foreach (var num in source)
+			foreach (var num in source) {
 				sum = checked(sum + (num ?? 0));
+			}
 
 			return sum;
 		}
@@ -2431,7 +2614,6 @@ namespace System.Linq {
 		/// values that are obtained by invoking a transform function on 
 		/// each element of the input sequence.
 		/// </summary>
-
 		public static decimal? Sum<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, decimal?> selector) {
@@ -2441,24 +2623,27 @@ namespace System.Linq {
 		/// <summary>
 		/// Computes the average of a sequence of <see cref="System.Decimal" /> values.
 		/// </summary>
-
 		public static decimal? Average(
 			this IEnumerable<decimal?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			decimal sum = 0;
 			long count = 0;
 
-			foreach (var num in source.Where(n => n != null))
+			foreach (var num in source.Where(n => n != null)) {
 				checked {
-					sum += (decimal)num;
+					sum += (decimal) num;
 					count++;
 				}
+			}
 
-			if (count == 0)
+			if (count == 0) {
 				return null;
+			}
 
-			return (decimal?)sum / count;
+			return (decimal?) sum / count;
 		}
 
 		/// <summary>
@@ -2466,7 +2651,6 @@ namespace System.Linq {
 		/// that are obtained by invoking a transform function on each 
 		/// element of the input sequence.
 		/// </summary>
-
 		public static decimal? Average<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, decimal?> selector) {
@@ -2477,10 +2661,11 @@ namespace System.Linq {
 		/// Returns the minimum value in a sequence of nullable 
 		/// <see cref="System.Decimal" /> values.
 		/// </summary>
-
 		public static decimal? Min(
 			this IEnumerable<decimal?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return MinMaxImpl(source.Where(x => x != null), null, (min, x) => min < x);
 		}
@@ -2489,7 +2674,6 @@ namespace System.Linq {
 		/// Invokes a transform function on each element of a sequence and 
 		/// returns the minimum nullable <see cref="System.Decimal" /> value.
 		/// </summary>
-
 		public static decimal? Min<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, decimal?> selector) {
@@ -2500,20 +2684,20 @@ namespace System.Linq {
 		/// Returns the maximum value in a sequence of nullable 
 		/// <see cref="System.Decimal" /> values.
 		/// </summary>
-
 		public static decimal? Max(
 			this IEnumerable<decimal?> source) {
-			if (source == null) throw new ArgumentNullException("source");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
 
 			return MinMaxImpl(source.Where(x => x != null),
-				null, (max, x) => x == null || (max != null && x.Value < max.Value));
+				null, (max, x) => x == null || max != null && x.Value < max.Value);
 		}
 
 		/// <summary>
 		/// Invokes a transform function on each element of a sequence and 
 		/// returns the maximum nullable <see cref="System.Decimal" /> value.
 		/// </summary>
-
 		public static decimal? Max<TSource>(
 			this IEnumerable<TSource> source,
 			Func<TSource, decimal?> selector) {
@@ -2527,16 +2711,26 @@ namespace System.Linq {
 namespace System {
 #if LINQBRIDGE_LIB
 	public delegate TResult Func<out TResult>();
+
 	public delegate TResult Func<in T, out TResult>(T a);
+
 	public delegate TResult Func<in T1, in T2, out TResult>(T1 arg1, T2 arg2);
+
 	public delegate TResult Func<in T1, in T2, in T3, out TResult>(T1 arg1, T2 arg2, T3 arg3);
+
 	public delegate TResult Func<in T1, in T2, in T3, in T4, out TResult>(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
+
 #else
-	delegate TResult Func<TResult>();
-	delegate TResult Func<T, TResult>(T a);
-	delegate TResult Func<T1, T2, TResult>(T1 arg1, T2 arg2);
-	delegate TResult Func<T1, T2, T3, TResult>(T1 arg1, T2 arg2, T3 arg3);
-	delegate TResult Func<T1, T2, T3, T4, TResult>(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
+	internal delegate TResult Func<TResult>();
+
+	internal delegate TResult Func<T, TResult>(T a);
+
+	internal delegate TResult Func<T1, T2, TResult>(T1 arg1, T2 arg2);
+
+	internal delegate TResult Func<T1, T2, T3, TResult>(T1 arg1, T2 arg2, T3 arg3);
+
+	internal delegate TResult Func<T1, T2, T3, T4, TResult>(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
+
 #endif
 }
 
@@ -2545,15 +2739,14 @@ namespace System {
 namespace System.Linq {
 	#region Imports
 
-	using System.Collections.Generic;
+	using Collections.Generic;
 
 	#endregion
 
 	/// <summary>
 	/// Represents a collection of objects that have a common key.
 	/// </summary>
-
-	partial interface IGrouping<out TKey, TElement> : IEnumerable<TElement> {
+	internal partial interface IGrouping<out TKey, TElement> : IEnumerable<TElement> {
 		/// <summary>
 		/// Gets the key of the <see cref="IGrouping{TKey,TElement}" />.
 		/// </summary>
@@ -2565,15 +2758,14 @@ namespace System.Linq {
 // $Id: ILookup.cs 71137f497bf2 2012/04/16 20:01:27 azizatif $
 
 namespace System.Linq {
-	using System.Collections.Generic;
+	using Collections.Generic;
 
 	/// <summary>
 	/// Defines an indexer, size property, and Boolean search method for 
 	/// data structures that map keys to <see cref="IEnumerable{T}"/> 
 	/// sequences of values.
 	/// </summary>
-
-	partial interface ILookup<TKey, TElement> : IEnumerable<IGrouping<TKey, TElement>> {
+	internal partial interface ILookup<TKey, TElement> : IEnumerable<IGrouping<TKey, TElement>> {
 		bool Contains(TKey key);
 		int Count { get; }
 		IEnumerable<TElement> this[TKey key] { get; }
@@ -2594,25 +2786,31 @@ namespace LinqBridge {
 	/// This type is not intended to be used directly from user code.
 	/// It may be removed or changed in a future version without notice.
 	/// </remarks>
-
-	sealed class DelegatingComparer<T> : IComparer<T> {
+	internal sealed class DelegatingComparer<T> : IComparer<T> {
 		private readonly Func<T, T, int> _comparer;
 
 		public DelegatingComparer(Func<T, T, int> comparer) {
-			if (comparer == null) throw new ArgumentNullException("comparer");
+			if (comparer == null) {
+				throw new ArgumentNullException("comparer");
+			}
+
 			_comparer = comparer;
 		}
 
-		public int Compare(T x, T y) { return _comparer(x, y); }
+		public int Compare(T x, T y) {
+			return _comparer(x, y);
+		}
 	}
 
 	/// <remarks>
 	/// This type is not intended to be used directly from user code.
 	/// It may be removed or changed in a future version without notice.
 	/// </remarks>
+	internal struct Key<T> {
+		public Key(T value) : this() {
+			Value = value;
+		}
 
-	struct Key<T> {
-		public Key(T value) : this() { Value = value; }
 		public T Value { get; private set; }
 	}
 
@@ -2620,8 +2818,7 @@ namespace LinqBridge {
 	/// This type is not intended to be used directly from user code.
 	/// It may be removed or changed in a future version without notice.
 	/// </remarks>
-
-	sealed class KeyComparer<T> : IEqualityComparer<Key<T>> {
+	internal sealed class KeyComparer<T> : IEqualityComparer<Key<T>> {
 		private readonly IEqualityComparer<T> _innerComparer;
 
 		public KeyComparer(IEqualityComparer<T> innerComparer) {
@@ -2641,18 +2838,16 @@ namespace LinqBridge {
 // $Id: IOrderedEnumerable.cs 71137f497bf2 2012/04/16 20:01:27 azizatif $
 
 namespace System.Linq {
-	using System.Collections.Generic;
+	using Collections.Generic;
 
 	/// <summary>
 	/// Represents a sorted sequence.
 	/// </summary>
-
-	partial interface IOrderedEnumerable<TElement> : IEnumerable<TElement> {
+	internal partial interface IOrderedEnumerable<TElement> : IEnumerable<TElement> {
 		/// <summary>
 		/// Performs a subsequent ordering on the elements of an 
 		/// <see cref="IOrderedEnumerable{T}"/> according to a key.
 		/// </summary>
-
 		IOrderedEnumerable<TElement> CreateOrderedEnumerable<TKey>(
 			Func<TElement, TKey> keySelector, IComparer<TKey> comparer, bool descending);
 	}
@@ -2664,9 +2859,9 @@ namespace System.Linq {
 	#region Imports
 
 	using System;
-	using System.Collections;
-	using System.Collections.Generic;
-	using IEnumerable = System.Collections.IEnumerable;
+	using Collections;
+	using Collections.Generic;
+	using IEnumerable = Collections.IEnumerable;
 	using LinqBridge;
 
 	#endregion
@@ -2674,7 +2869,6 @@ namespace System.Linq {
 	/// <summary>
 	/// Represents a collection of keys each mapped to one or more values.
 	/// </summary>
-
 	internal sealed class Lookup<TKey, TElement> : ILookup<TKey, TElement> {
 		private readonly Dictionary<Key<TKey>, IGrouping<TKey, TElement>> _map;
 		private readonly List<Key<TKey>> _orderedKeys; // remember order of insertion
@@ -2699,9 +2893,7 @@ namespace System.Linq {
 		/// Gets the number of key/value collection pairs in the <see cref="Lookup{TKey,TElement}" />.
 		/// </summary>
 
-		public int Count {
-			get { return _map.Count; }
-		}
+		public int Count => _map.Count;
 
 		/// <summary>
 		/// Gets the collection of values indexed by the specified key.
@@ -2717,7 +2909,6 @@ namespace System.Linq {
 		/// <summary>
 		/// Determines whether a specified key is in the <see cref="Lookup{TKey,TElement}" />.
 		/// </summary>
-
 		public bool Contains(TKey key) {
 			return _map.ContainsKey(new Key<TKey>(key));
 		}
@@ -2726,23 +2917,24 @@ namespace System.Linq {
 		/// Applies a transform function to each key and its associated 
 		/// values and returns the results.
 		/// </summary>
-
 		public IEnumerable<TResult> ApplyResultSelector<TResult>(
 			Func<TKey, IEnumerable<TElement>, TResult> resultSelector) {
-			if (resultSelector == null)
+			if (resultSelector == null) {
 				throw new ArgumentNullException("resultSelector");
+			}
 
-			foreach (var pair in _map)
+			foreach (var pair in _map) {
 				yield return resultSelector(pair.Key.Value, pair.Value);
+			}
 		}
 
 		/// <summary>
 		/// Returns a generic enumerator that iterates through the <see cref="Lookup{TKey,TElement}" />.
 		/// </summary>
-
 		public IEnumerator<IGrouping<TKey, TElement>> GetEnumerator() {
-			foreach (var key in _orderedKeys)
+			foreach (var key in _orderedKeys) {
 				yield return _map[key];
+			}
 		}
 
 		IEnumerator IEnumerable.GetEnumerator() {
@@ -2770,13 +2962,20 @@ namespace LinqBridge {
 
 		public OrderedEnumerable(IEnumerable<T> source,
 			Func<T, K> keySelector, IComparer<K> comparer, bool descending) :
-			this(source, (_, next) => next, keySelector, comparer, descending) { }
+			this(source, (_, next) => next, keySelector, comparer, descending) {
+		}
 
 		private OrderedEnumerable(IEnumerable<T> source,
 			Func<T[], IComparer<int>, IComparer<int>> parent,
 			Func<T, K> keySelector, IComparer<K> comparer, bool descending) {
-			if (source == null) throw new ArgumentNullException("source");
-			if (keySelector == null) throw new ArgumentNullException("keySelector");
+			if (source == null) {
+				throw new ArgumentNullException("source");
+			}
+
+			if (keySelector == null) {
+				throw new ArgumentNullException("keySelector");
+			}
+
 			Debug.Assert(parent != null);
 
 			_source = source;
@@ -2789,8 +2988,9 @@ namespace LinqBridge {
 				Debug.Assert(next != null);
 
 				var keys = new K[items.Length];
-				for (var i = 0; i < items.Length; i++)
+				for (var i = 0; i < items.Length; i++) {
 					keys[i] = keySelector(items[i]);
+				}
 
 				return parent(items, new DelegatingComparer<int>((i, j) => {
 					var result = direction * comparer.Compare(keys[i], keys[j]);
@@ -2817,10 +3017,12 @@ namespace LinqBridge {
 			var positionComparer = new DelegatingComparer<int>((i, j) => i.CompareTo(j));
 			var comparer = _comparerComposer(items, positionComparer);
 			var keys = new int[items.Length];
-			for (var i = 0; i < keys.Length; i++)
+			for (var i = 0; i < keys.Length; i++) {
 				keys[i] = i;
+			}
+
 			Array.Sort(keys, items, comparer);
-			return ((IEnumerable<T>)items).GetEnumerator();
+			return ((IEnumerable<T>) items).GetEnumerator();
 		}
 
 		IEnumerator IEnumerable.GetEnumerator() {
@@ -2834,14 +3036,22 @@ namespace LinqBridge {
 namespace System {
 #if LINQBRIDGE_LIB
 	public delegate void Action();
+
 	public delegate void Action<in T1, in T2>(T1 arg1, T2 arg2);
+
 	public delegate void Action<in T1, in T2, in T3>(T1 arg1, T2 arg2, T3 arg3);
+
 	public delegate void Action<in T1, in T2, in T3, in T4>(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
+
 #else
-	delegate void Action();
-	delegate void Action<T1, T2>(T1 arg1, T2 arg2);
-	delegate void Action<T1, T2, T3>(T1 arg1, T2 arg2, T3 arg3);
-	delegate void Action<T1, T2, T3, T4>(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
+	internal delegate void Action();
+
+	internal delegate void Action<T1, T2>(T1 arg1, T2 arg2);
+
+	internal delegate void Action<T1, T2, T3>(T1 arg1, T2 arg2, T3 arg3);
+
+	internal delegate void Action<T1, T2, T3, T4>(T1 arg1, T2 arg2, T3 arg3, T4 arg4);
+
 #endif
 }
 

@@ -20,12 +20,11 @@ using System.Threading;
 #endif
 #if ASYNC
 using System.Threading.Tasks;
+
 #endif
 
 namespace FluentFTP {
-
 	public partial class FtpClient : IFtpClient, IDisposable {
-
 		#region Delete File
 
 		/// <summary>
@@ -37,24 +36,27 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
 #if !CORE14
 			lock (m_lock) {
 #endif
-				this.LogFunc("DeleteFile", new object[] { path });
+				LogFunc("DeleteFile", new object[] {path});
 
 				if (!(reply = Execute("DELE " + path.GetFtpPath())).Success) {
 					throw new FtpCommandException(reply);
 				}
+
 #if !CORE14
 			}
+
 #endif
 		}
 
 #if !CORE
-		delegate void AsyncDeleteFile(string path);
+		private delegate void AsyncDeleteFile(string path);
 
 		/// <summary>
 		/// Begins an asynchronous operation to delete the specified file on the server
@@ -92,17 +94,17 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the file</param>
 		/// <param name="token">Cancellation Token</param>
-		public async Task DeleteFileAsync(string path, CancellationToken token = default(CancellationToken))
-		{
+		public async Task DeleteFileAsync(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
-			this.LogFunc(nameof(DeleteFileAsync), new object[] { path });
+			LogFunc(nameof(DeleteFileAsync), new object[] {path});
 
-			if (!(reply = await ExecuteAsync("DELE " + path.GetFtpPath(), token)).Success){
+			if (!(reply = await ExecuteAsync("DELE " + path.GetFtpPath(), token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 		}
@@ -119,16 +121,16 @@ namespace FluentFTP {
 		/// <returns>True if the file exists</returns>
 		/// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
 		public bool FileExists(string path) {
-
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
 #if !CORE14
 			lock (m_lock) {
 #endif
 
-				this.LogFunc("FileExists", new object[] { path });
+				LogFunc("FileExists", new object[] {path});
 
 				// calc the absolute filepath
 				path = GetAbsolutePath(path.GetFtpPath());
@@ -136,11 +138,12 @@ namespace FluentFTP {
 				// since FTP does not include a specific command to check if a file exists
 				// here we check if file exists by attempting to get its filesize (SIZE)
 				if (HasFeature(FtpCapability.SIZE)) {
-					FtpReply reply = Execute("SIZE " + path);
-					char ch = reply.Code[0];
+					var reply = Execute("SIZE " + path);
+					var ch = reply.Code[0];
 					if (ch == '2') {
 						return true;
 					}
+
 					if (ch == '5' && reply.Message.IsKnownError(fileNotFoundStrings)) {
 						return false;
 					}
@@ -153,18 +156,19 @@ namespace FluentFTP {
 
 				// check if file exists by attempting to get its date modified (MDTM)
 				if (HasFeature(FtpCapability.MDTM)) {
-					FtpReply reply = Execute("MDTM " + path);
-					char ch = reply.Code[0];
+					var reply = Execute("MDTM " + path);
+					var ch = reply.Code[0];
 					if (ch == '2') {
 						return true;
 					}
+
 					if (ch == '5' && reply.Message.IsKnownError(fileNotFoundStrings)) {
 						return false;
 					}
 				}
 
 				// check if file exists by getting a name listing (NLST)
-				string[] fileList = GetNameListing(path.GetFtpDirectoryName());
+				var fileList = GetNameListing(path.GetFtpDirectoryName());
 				return FtpExtensions.FileExistsInNameListing(fileList, path);
 
 
@@ -179,11 +183,12 @@ namespace FluentFTP {
 				return false;
 #if !CORE14
 			}
+
 #endif
 		}
 
 #if !CORE
-		delegate bool AsyncFileExists(string path);
+		private delegate bool AsyncFileExists(string path);
 
 		/// <summary>
 		/// Begins an asynchronous operation to check if a file exists on the 
@@ -225,33 +230,30 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the file</param>
 		/// <param name="token">Cancellation Token</param>
 		/// <returns>True if the file exists, false otherwise</returns>
-		public async Task<bool> FileExistsAsync(string path, CancellationToken token = default(CancellationToken))
-		{
-
+		public async Task<bool> FileExistsAsync(string path, CancellationToken token = default(CancellationToken)) {
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
-			this.LogFunc(nameof(FileExistsAsync), new object[] { path });
+			LogFunc(nameof(FileExistsAsync), new object[] {path});
 
 			// calc the absolute filepath
 			path = await GetAbsolutePathAsync(path.GetFtpPath(), token);
 
 			// since FTP does not include a specific command to check if a file exists
 			// here we check if file exists by attempting to get its filesize (SIZE)
-			if (HasFeature(FtpCapability.SIZE))
-			{
+			if (HasFeature(FtpCapability.SIZE)) {
 				FtpReply reply = await ExecuteAsync("SIZE " + path, token);
-				char ch = reply.Code[0];
-				if (ch == '2')
-				{
+				var ch = reply.Code[0];
+				if (ch == '2') {
 					return true;
 				}
-				if (ch == '5' && reply.Message.IsKnownError(fileNotFoundStrings))
-				{
+
+				if (ch == '5' && reply.Message.IsKnownError(fileNotFoundStrings)) {
 					return false;
 				}
-				
+
 				// Fix #179: Server returns 550 if file not found or no access to file
 				if (reply.Code.Substring(0, 3) == "550") {
 					return false;
@@ -259,20 +261,18 @@ namespace FluentFTP {
 			}
 
 			// check if file exists by attempting to get its date modified (MDTM)
-			if (HasFeature(FtpCapability.MDTM))
-			{
+			if (HasFeature(FtpCapability.MDTM)) {
 				FtpReply reply = await ExecuteAsync("MDTM " + path, token);
-				char ch = reply.Code[0];
-				if (ch == '2')
-				{
+				var ch = reply.Code[0];
+				if (ch == '2') {
 					return true;
 				}
-				if (ch == '5' && reply.Message.IsKnownError(fileNotFoundStrings))
-				{
+
+				if (ch == '5' && reply.Message.IsKnownError(fileNotFoundStrings)) {
 					return false;
 				}
 			}
-		
+
 			// check if file exists by getting a name listing (NLST)
 			string[] fileList = await GetNameListingAsync(path.GetFtpDirectoryName(), token);
 			return FtpExtensions.FileExistsInNameListing(fileList, path);
@@ -305,15 +305,18 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			if (dest.IsBlank())
+			}
+
+			if (dest.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "dest");
+			}
 
 #if !CORE14
 			lock (m_lock) {
 #endif
-				this.LogFunc("Rename", new object[] { path, dest });
+				LogFunc("Rename", new object[] {path, dest});
 
 				// calc the absolute filepaths
 				path = GetAbsolutePath(path.GetFtpPath());
@@ -326,13 +329,15 @@ namespace FluentFTP {
 				if (!(reply = Execute("RNTO " + dest)).Success) {
 					throw new FtpCommandException(reply);
 				}
+
 #if !CORE14
 			}
+
 #endif
 		}
 
 #if !CORE
-		delegate void AsyncRename(string path, string dest);
+		private delegate void AsyncRename(string path, string dest);
 
 		/// <summary>
 		/// Begins an asynchronous operation to rename an object on the remote file system.
@@ -376,27 +381,29 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
 		/// <param name="token">Cancellation Token</param>
-		public async Task RenameAsync(string path, string dest, CancellationToken token = default(CancellationToken))
-		{
+		public async Task RenameAsync(string path, string dest, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			if (dest.IsBlank())
-				throw new ArgumentException("Required parameter is null or blank.", "dest");
+			}
 
-			this.LogFunc(nameof(RenameAsync), new object[] { path, dest });
+			if (dest.IsBlank()) {
+				throw new ArgumentException("Required parameter is null or blank.", "dest");
+			}
+
+			LogFunc(nameof(RenameAsync), new object[] {path, dest});
 
 			// calc the absolute filepaths
 			path = await GetAbsolutePathAsync(path.GetFtpPath(), token);
 			dest = await GetAbsolutePathAsync(dest.GetFtpPath(), token);
 
-			if (!(reply = await ExecuteAsync("RNFR " + path, token)).Success){
+			if (!(reply = await ExecuteAsync("RNFR " + path, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 
-			if (!(reply = await ExecuteAsync("RNTO " + dest, token)).Success){
+			if (!(reply = await ExecuteAsync("RNTO " + dest, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 		}
@@ -416,25 +423,27 @@ namespace FluentFTP {
 		/// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
 		/// <returns>Whether the file was moved</returns>
 		public bool MoveFile(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
-
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			if (dest.IsBlank())
-				throw new ArgumentException("Required parameter is null or blank.", "dest");
+			}
 
-			this.LogFunc("MoveFile", new object[] { path, dest, existsMode });
+			if (dest.IsBlank()) {
+				throw new ArgumentException("Required parameter is null or blank.", "dest");
+			}
+
+			LogFunc("MoveFile", new object[] {path, dest, existsMode});
 
 			if (FileExists(path)) {
-
 				// check if dest file exists and act accordingly
 				if (existsMode != FtpExists.NoCheck) {
-					bool destExists = FileExists(dest);
+					var destExists = FileExists(dest);
 					if (destExists) {
 						switch (existsMode) {
 							case FtpExists.Overwrite:
 								DeleteFile(dest);
 								break;
+
 							case FtpExists.Skip:
 								return false;
 						}
@@ -446,11 +455,12 @@ namespace FluentFTP {
 
 				return true;
 			}
+
 			return false;
 		}
 
 #if !CORE
-		delegate bool AsyncMoveFile(string path, string dest, FtpExists existsMode);
+		private delegate bool AsyncMoveFile(string path, string dest, FtpExists existsMode);
 
 		/// <summary>
 		/// Begins an asynchronous operation to move a file on the remote file system, from one directory to another.
@@ -498,27 +508,26 @@ namespace FluentFTP {
 		/// <returns>Whether the file was moved</returns>
 		public async Task<bool> MoveFileAsync(string path, string dest, FtpExists existsMode = FtpExists.Overwrite, CancellationToken token = default(CancellationToken)) {
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			if (dest.IsBlank())
+			}
+
+			if (dest.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "dest");
+			}
 
-			this.LogFunc(nameof(MoveFileAsync), new object[] { path, dest, existsMode });
+			LogFunc(nameof(MoveFileAsync), new object[] {path, dest, existsMode});
 
-			if (await FileExistsAsync(path, token))
-			{
-
+			if (await FileExistsAsync(path, token)) {
 				// check if dest file exists and act accordingly
-				if (existsMode != FtpExists.NoCheck)
-				{
+				if (existsMode != FtpExists.NoCheck) {
 					bool destExists = await FileExistsAsync(dest, token);
-					if (destExists)
-					{
-						switch (existsMode)
-						{
+					if (destExists) {
+						switch (existsMode) {
 							case FtpExists.Overwrite:
 								await DeleteFileAsync(dest, token);
 								break;
+
 							case FtpExists.Skip:
 								return false;
 						}
@@ -530,6 +539,7 @@ namespace FluentFTP {
 
 				return true;
 			}
+
 			return false;
 		}
 #endif
@@ -551,19 +561,22 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
 #if !CORE14
 			lock (m_lock) {
 #endif
-				this.LogFunc("SetFilePermissions", new object[] { path, permissions });
+				LogFunc("SetFilePermissions", new object[] {path, permissions});
 
 				if (!(reply = Execute("SITE CHMOD " + permissions.ToString() + " " + path.GetFtpPath())).Success) {
 					throw new FtpCommandException(reply);
 				}
+
 #if !CORE14
 			}
+
 #endif
 		}
 
@@ -578,17 +591,17 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the item</param>
 		/// <param name="permissions">The permissions in CHMOD format</param>
 		/// <param name="token">Cancellation Token</param>
-		public async Task SetFilePermissionsAsync(string path, int permissions, CancellationToken token = default(CancellationToken))
-		{
+		public async Task SetFilePermissionsAsync(string path, int permissions, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
-			this.LogFunc(nameof(SetFilePermissionsAsync), new object[] { path, permissions });
+			LogFunc(nameof(SetFilePermissionsAsync), new object[] {path, permissions});
 
-			if (!(reply = await ExecuteAsync("SITE CHMOD " + permissions.ToString() + " " + path.GetFtpPath(), token)).Success){
+			if (!(reply = await ExecuteAsync("SITE CHMOD " + permissions.ToString() + " " + path.GetFtpPath(), token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 		}
@@ -618,8 +631,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the item</param>
 		/// <param name="permissions">The permissions in CHMOD format</param>
 		/// <param name="token">Cancellation Token</param>
-		public Task ChmodAsync(string path, int permissions, CancellationToken token = default(CancellationToken))
-		{
+		public Task ChmodAsync(string path, int permissions, CancellationToken token = default(CancellationToken)) {
 			return SetFilePermissionsAsync(path, permissions, token);
 		}
 #endif
@@ -652,8 +664,7 @@ namespace FluentFTP {
 		/// <param name="group">The group permissions</param>
 		/// <param name="other">The other permissions</param>
 		/// <param name="token">Cancellation Token</param>
-		public Task SetFilePermissionsAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken))
-		{
+		public Task SetFilePermissionsAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken)) {
 			return SetFilePermissionsAsync(path, FtpExtensions.CalcChmod(owner, group, other), token);
 		}
 #endif
@@ -686,8 +697,7 @@ namespace FluentFTP {
 		/// <param name="group">The group permissions</param>
 		/// <param name="other">The other permissions</param>
 		/// <param name="token">Cancellation Token</param>
-		public Task ChmodAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken))
-		{
+		public Task ChmodAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken)) {
 			return SetFilePermissionsAsync(path, owner, group, other, token);
 		}
 #endif
@@ -700,19 +710,20 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the item</param>
 		public FtpListItem GetFilePermissions(string path) {
-
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
-			this.LogFunc("GetFilePermissions", new object[] { path });
+			LogFunc("GetFilePermissions", new object[] {path});
 
-			string fullPath = path.GetFtpPath();
-			foreach (FtpListItem i in GetListing(path)) {
+			var fullPath = path.GetFtpPath();
+			foreach (var i in GetListing(path)) {
 				if (i.FullName == fullPath) {
 					return i;
 				}
 			}
+
 			return null;
 		}
 
@@ -725,22 +736,21 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the item</param>
 		/// <param name="token">Cancellation Token</param>
-		public async Task<FtpListItem> GetFilePermissionsAsync(string path, CancellationToken token = default(CancellationToken))
-		{
+		public async Task<FtpListItem> GetFilePermissionsAsync(string path, CancellationToken token = default(CancellationToken)) {
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
-			this.LogFunc(nameof(GetFilePermissionsAsync), new object[] { path });
+			LogFunc(nameof(GetFilePermissionsAsync), new object[] {path});
 
-			string fullPath = path.GetFtpPath();
-			foreach (FtpListItem i in await GetListingAsync(path, token))
-			{
-				if (i.FullName == fullPath)
-				{
+			var fullPath = path.GetFtpPath();
+			foreach (FtpListItem i in await GetListingAsync(path, token)) {
+				if (i.FullName == fullPath) {
 					return i;
 				}
 			}
+
 			return null;
 		}
 #endif
@@ -753,7 +763,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the item</param>
 		public int GetChmod(string path) {
-			FtpListItem item = GetFilePermissions(path);
+			var item = GetFilePermissions(path);
 			return item != null ? item.Chmod : 0;
 		}
 
@@ -766,13 +776,11 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the item</param>
 		/// <param name="token">Cancellation Token</param>
-		public async Task<int> GetChmodAsync(string path, CancellationToken token = default(CancellationToken))
-		{
+		public async Task<int> GetChmodAsync(string path, CancellationToken token = default(CancellationToken)) {
 			FtpListItem item = await GetFilePermissionsAsync(path, token);
 			return item != null ? item.Chmod : 0;
 		}
 #endif
-
 
 		#endregion
 
@@ -798,10 +806,9 @@ namespace FluentFTP {
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
 		/// <example><code source="..\Examples\DereferenceLink.cs" lang="cs" /></example>
 		public FtpListItem DereferenceLink(FtpListItem item, int recMax) {
+			LogFunc("DereferenceLink", new object[] {item.FullName, recMax});
 
-			this.LogFunc("DereferenceLink", new object[] { item.FullName, recMax });
-
-			int count = 0;
+			var count = 0;
 			return DereferenceLink(item, recMax, ref count);
 		}
 
@@ -813,31 +820,36 @@ namespace FluentFTP {
 		/// <param name="count">Counter</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
 		/// <example><code source="..\Examples\DereferenceLink.cs" lang="cs" /></example>
-		FtpListItem DereferenceLink(FtpListItem item, int recMax, ref int count) {
-			if (item.Type != FtpFileSystemObjectType.Link)
+		private FtpListItem DereferenceLink(FtpListItem item, int recMax, ref int count) {
+			if (item.Type != FtpFileSystemObjectType.Link) {
 				throw new FtpException("You can only derefernce a symbolic link. Please verify the item type is Link.");
+			}
 
-			if (item.LinkTarget == null)
+			if (item.LinkTarget == null) {
 				throw new FtpException("The link target was null. Please check this before trying to dereference the link.");
+			}
 
-			foreach (FtpListItem obj in GetListing(item.LinkTarget.GetFtpDirectoryName(), FtpListOption.ForceList)) {
+			foreach (var obj in GetListing(item.LinkTarget.GetFtpDirectoryName(), FtpListOption.ForceList)) {
 				if (item.LinkTarget == obj.FullName) {
 					if (obj.Type == FtpFileSystemObjectType.Link) {
-						if (++count == recMax)
+						if (++count == recMax) {
 							return null;
+						}
 
 						return DereferenceLink(obj, recMax, ref count);
 					}
 
 					if (HasFeature(FtpCapability.MDTM)) {
-						DateTime modify = GetModifiedTime(obj.FullName);
+						var modify = GetModifiedTime(obj.FullName);
 
-						if (modify != DateTime.MinValue)
+						if (modify != DateTime.MinValue) {
 							obj.Modified = modify;
+						}
 					}
 
-					if (obj.Type == FtpFileSystemObjectType.File && obj.Size < 0 && HasFeature(FtpCapability.SIZE))
+					if (obj.Type == FtpFileSystemObjectType.File && obj.Size < 0 && HasFeature(FtpCapability.SIZE)) {
 						obj.Size = GetFileSize(obj.FullName);
+					}
 
 					return obj;
 				}
@@ -847,7 +859,7 @@ namespace FluentFTP {
 		}
 
 #if !CORE
-		delegate FtpListItem AsyncDereferenceLink(FtpListItem item, int recMax);
+		private delegate FtpListItem AsyncDereferenceLink(FtpListItem item, int recMax);
 
 		/// <summary>
 		/// Begins an asynchronous operation to dereference a <see cref="FtpListItem"/> object
@@ -904,45 +916,45 @@ namespace FluentFTP {
 		/// <param name="count">Counter</param>
 		/// <param name="token">Cancellation Token</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-		async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, IntRef count, CancellationToken token = default(CancellationToken))
-        {
-            if (item.Type != FtpFileSystemObjectType.Link)
-                throw new FtpException("You can only derefernce a symbolic link. Please verify the item type is Link.");
+		private async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, IntRef count, CancellationToken token = default(CancellationToken)) {
+			if (item.Type != FtpFileSystemObjectType.Link) {
+				throw new FtpException("You can only derefernce a symbolic link. Please verify the item type is Link.");
+			}
 
-            if (item.LinkTarget == null)
-                throw new FtpException("The link target was null. Please check this before trying to dereference the link.");
+			if (item.LinkTarget == null) {
+				throw new FtpException("The link target was null. Please check this before trying to dereference the link.");
+			}
 
-	        var listing = await GetListingAsync(item.LinkTarget.GetFtpDirectoryName(), FtpListOption.ForceList, token);
+			var listing = await GetListingAsync(item.LinkTarget.GetFtpDirectoryName(), FtpListOption.ForceList, token);
 
-			foreach (FtpListItem obj in listing)
-            {
-                if (item.LinkTarget == obj.FullName)
-                {
-                    if (obj.Type == FtpFileSystemObjectType.Link)
-                    {
-                        if (++count.Value == recMax)
-                            return null;
+			foreach (FtpListItem obj in listing) {
+				if (item.LinkTarget == obj.FullName) {
+					if (obj.Type == FtpFileSystemObjectType.Link) {
+						if (++count.Value == recMax) {
+							return null;
+						}
 
-                        return await DereferenceLinkAsync(obj, recMax, count, token);
-                    }
+						return await DereferenceLinkAsync(obj, recMax, count, token);
+					}
 
-                    if (HasFeature(FtpCapability.MDTM))
-                    {
-                        DateTime modify = GetModifiedTime(obj.FullName);
+					if (HasFeature(FtpCapability.MDTM)) {
+						var modify = GetModifiedTime(obj.FullName);
 
-                        if (modify != DateTime.MinValue)
-                            obj.Modified = modify;
-                    }
+						if (modify != DateTime.MinValue) {
+							obj.Modified = modify;
+						}
+					}
 
-                    if (obj.Type == FtpFileSystemObjectType.File && obj.Size < 0 && HasFeature(FtpCapability.SIZE))
-                        obj.Size = GetFileSize(obj.FullName);
+					if (obj.Type == FtpFileSystemObjectType.File && obj.Size < 0 && HasFeature(FtpCapability.SIZE)) {
+						obj.Size = GetFileSize(obj.FullName);
+					}
 
-                    return obj;
-                }
-            }
+					return obj;
+				}
+			}
 
-            return null;
-        }
+			return null;
+		}
 
 		/// <summary>
 		/// Dereference a <see cref="FtpListItem"/> object asynchronously
@@ -952,10 +964,10 @@ namespace FluentFTP {
 		/// <param name="token">Cancellation Token</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
 		public Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, CancellationToken token = default(CancellationToken)) {
-            this.LogFunc(nameof(DereferenceLinkAsync), new object[] { item.FullName, recMax });
+			LogFunc(nameof(DereferenceLinkAsync), new object[] {item.FullName, recMax});
 
-            IntRef count = new IntRef { Value = 0 };
-            return DereferenceLinkAsync(item, recMax, count, token);
+			var count = new IntRef {Value = 0};
+			return DereferenceLinkAsync(item, recMax, count, token);
 		}
 
 		/// <summary>
@@ -965,8 +977,8 @@ namespace FluentFTP {
 		/// <param name="token">Cancellation Token</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
 		public Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, CancellationToken token = default(CancellationToken)) {
-            return DereferenceLinkAsync(item, MaximumDereferenceCount, token);
-        }
+			return DereferenceLinkAsync(item, MaximumDereferenceCount, token);
+		}
 #endif
 
 		#endregion
@@ -980,12 +992,12 @@ namespace FluentFTP {
 		/// <returns>-1 if the command fails, otherwise the file size</returns>
 		/// <example><code source="..\Examples\GetFileSize.cs" lang="cs" /></example>
 		public virtual long GetFileSize(string path) {
-
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
-			this.LogFunc("GetFileSize", new object[] { path });
+			LogFunc("GetFileSize", new object[] {path});
 
 			if (!HasFeature(FtpCapability.SIZE)) {
 				return -1;
@@ -1008,7 +1020,6 @@ namespace FluentFTP {
 		/// Gets the file size of an object, without locking
 		/// </summary>
 		private long GetFileSizeInternal(string path) {
-
 			FtpReply reply;
 			long length = -1;
 
@@ -1024,15 +1035,14 @@ namespace FluentFTP {
 
 				// Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
 				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(fileSizeNotInASCIIStrings)) {
-
 					// set the flag so mode switching is done
 					_FileSizeASCIINotSupported = true;
 
 					// retry getting the file size
 					return GetFileSizeInternal(path);
 				}
-
-			} else if (!long.TryParse(reply.Message, out length)) {
+			}
+			else if (!long.TryParse(reply.Message, out length)) {
 				length = -1;
 			}
 
@@ -1040,7 +1050,7 @@ namespace FluentFTP {
 		}
 
 #if !CORE
-		delegate long AsyncGetFileSize(string path);
+		private delegate long AsyncGetFileSize(string path);
 
 		/// <summary>
 		/// Begins an asynchronous operation to retrieve the size of a remote file
@@ -1081,29 +1091,29 @@ namespace FluentFTP {
 		/// <param name="token">Cancellation Token</param>
 		/// <returns>The size of the file, -1 if there was a problem.</returns>
 		public async Task<long> GetFileSizeAsync(string path, CancellationToken token = default(CancellationToken)) {
-            // verify args
-            if (path.IsBlank())
-                throw new ArgumentException("Required parameter is null or blank.", "path");
+			// verify args
+			if (path.IsBlank()) {
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
-            this.LogFunc(nameof(GetFileSizeAsync), new object[] { path });
+			LogFunc(nameof(GetFileSizeAsync), new object[] {path});
 
-			if (!HasFeature(FtpCapability.SIZE)) { 
+			if (!HasFeature(FtpCapability.SIZE)) {
 				return -1;
 			}
-		
-            long length = await GetFileSizeInternalAsync(path, token);
 
-            return length;
-        }
-		
+			long length = await GetFileSizeInternalAsync(path, token);
+
+			return length;
+		}
+
 		/// <summary>
 		/// Gets the file size of an object, without locking
 		/// </summary>
 		public async Task<long> GetFileSizeInternalAsync(string path, CancellationToken token) {
-
 			FtpReply reply;
 			long length = -1;
-		
+
 			// Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.
 			if (_FileSizeASCIINotSupported) {
 				await SetDataTypeNoLockAsync(FtpDataType.Binary, token);
@@ -1116,15 +1126,14 @@ namespace FluentFTP {
 
 				// Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
 				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(fileSizeNotInASCIIStrings)) {
-
 					// set the flag so mode switching is done
 					_FileSizeASCIINotSupported = true;
 
 					// retry getting the file size
 					return await GetFileSizeInternalAsync(path, token);
 				}
-
-			} else if (!long.TryParse(reply.Message, out length)) {
+			}
+			else if (!long.TryParse(reply.Message, out length)) {
 				length = -1;
 			}
 
@@ -1133,6 +1142,7 @@ namespace FluentFTP {
 
 
 #endif
+
 		#endregion
 
 		#region Get Modified Time
@@ -1145,14 +1155,14 @@ namespace FluentFTP {
 		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
 		/// <example><code source="..\Examples\GetModifiedTime.cs" lang="cs" /></example>
 		public virtual DateTime GetModifiedTime(string path, FtpDate type = FtpDate.Original) {
-
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
-			this.LogFunc("GetModifiedTime", new object[] { path, type });
+			LogFunc("GetModifiedTime", new object[] {path, type});
 
-			DateTime date = DateTime.MinValue;
+			var date = DateTime.MinValue;
 			FtpReply reply;
 
 #if !CORE14
@@ -1164,7 +1174,7 @@ namespace FluentFTP {
 
 					// convert server timezone to UTC, based on the TimeOffset property
 					if (type != FtpDate.Original && m_listParser.HasTimeOffset) {
-						date = (date - m_listParser.TimeOffset);
+						date = date - m_listParser.TimeOffset;
 					}
 
 					// convert to local time if wanted
@@ -1172,8 +1182,10 @@ namespace FluentFTP {
 					if (type == FtpDate.Local) {
 						date = TimeZone.CurrentTimeZone.ToLocalTime(date);
 					}
+
 #endif
 				}
+
 #if !CORE14
 			}
 #endif
@@ -1182,7 +1194,7 @@ namespace FluentFTP {
 		}
 
 #if !CORE
-		delegate DateTime AsyncGetModifiedTime(string path, FtpDate type);
+		private delegate DateTime AsyncGetModifiedTime(string path, FtpDate type);
 
 		/// <summary>
 		/// Begins an asynchronous operation to get the modified time of a remote file
@@ -1225,36 +1237,36 @@ namespace FluentFTP {
 		/// <param name="token">Cancellation Token</param>
 		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
 		public async Task<DateTime> GetModifiedTimeAsync(string path, FtpDate type = FtpDate.Original, CancellationToken token = default(CancellationToken)) {
-            // verify args
-            if (path.IsBlank())
-                throw new ArgumentException("Required parameter is null or blank.", "path");
+			// verify args
+			if (path.IsBlank()) {
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
-            this.LogFunc(nameof(GetModifiedTimeAsync), new object[] { path, type });
+			LogFunc(nameof(GetModifiedTimeAsync), new object[] {path, type});
 
-            DateTime date = DateTime.MinValue;
-            FtpReply reply;
+			var date = DateTime.MinValue;
+			FtpReply reply;
 
-            // get modified date of a file
-            if ((reply = await ExecuteAsync("MDTM " + path.GetFtpPath(), token)).Success)
-            {
-                date = reply.Message.GetFtpDate(DateTimeStyles.AssumeUniversal);
+			// get modified date of a file
+			if ((reply = await ExecuteAsync("MDTM " + path.GetFtpPath(), token)).Success) {
+				date = reply.Message.GetFtpDate(DateTimeStyles.AssumeUniversal);
 
-                // convert server timezone to UTC, based on the TimeOffset property
-                if (type != FtpDate.Original && m_listParser.HasTimeOffset)
-                {
-                    date = (date - m_listParser.TimeOffset);
-                }
+				// convert server timezone to UTC, based on the TimeOffset property
+				if (type != FtpDate.Original && m_listParser.HasTimeOffset) {
+					date = date - m_listParser.TimeOffset;
+				}
 
-                // convert to local time if wanted
+				// convert to local time if wanted
 #if !CORE
 				if (type == FtpDate.Local) {
 					date = TimeZone.CurrentTimeZone.ToLocalTime(date);
 				}
-#endif
-            }
 
-            return date;
-        }
+#endif
+			}
+
+			return date;
+		}
 #endif
 
 		#endregion
@@ -1268,14 +1280,16 @@ namespace FluentFTP {
 		/// <param name="date">The new modified date/time value</param>
 		/// <param name="type">Is the date provided in local timezone or UTC? Use FtpDate.Original to disable timezone conversion.</param>
 		public virtual void SetModifiedTime(string path, DateTime date, FtpDate type = FtpDate.Original) {
-
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			if (date == null)
-				throw new ArgumentException("Required parameter is null or blank.", "date");
+			}
 
-			this.LogFunc("SetModifiedTime", new object[] { path, date, type });
+			if (date == null) {
+				throw new ArgumentException("Required parameter is null or blank.", "date");
+			}
+
+			LogFunc("SetModifiedTime", new object[] {path, date, type});
 
 			FtpReply reply;
 
@@ -1292,21 +1306,22 @@ namespace FluentFTP {
 
 				// convert UTC to server timezone, based on the TimeOffset property
 				if (type != FtpDate.Original && m_listParser.HasTimeOffset) {
-					date = (date + m_listParser.TimeOffset);
+					date = date + m_listParser.TimeOffset;
 				}
 
 				// set modified date of a file
-				string timeStr = date.ToString("yyyyMMddHHmmss");
+				var timeStr = date.ToString("yyyyMMddHHmmss");
 				if ((reply = Execute("MFMT " + timeStr + " " + path.GetFtpPath())).Success) {
-
 				}
+
 #if !CORE14
 			}
+
 #endif
 		}
 
 #if !CORE
-		delegate void AsyncSetModifiedTime(string path, DateTime date, FtpDate type);
+		private delegate void AsyncSetModifiedTime(string path, DateTime date, FtpDate type);
 
 		/// <summary>
 		/// Begins an asynchronous operation to get the modified time of a remote file
@@ -1347,15 +1362,17 @@ namespace FluentFTP {
 		/// <param name="date">The new modified date/time value</param>
 		/// <param name="type">Is the date provided in local timezone or UTC? Use FtpDate.Original to disable timezone conversion.</param>
 		/// <param name="token">Cancellation Token</param>
-		public async Task SetModifiedTimeAsync(string path, DateTime date, FtpDate type = FtpDate.Original, CancellationToken token = default(CancellationToken))
-		{
+		public async Task SetModifiedTimeAsync(string path, DateTime date, FtpDate type = FtpDate.Original, CancellationToken token = default(CancellationToken)) {
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
-			if (date == null)
-				throw new ArgumentException("Required parameter is null or blank.", "date");
+			}
 
-			this.LogFunc(nameof(SetModifiedTimeAsync), new object[] { path, date, type });
+			if (date == null) {
+				throw new ArgumentException("Required parameter is null or blank.", "date");
+			}
+
+			LogFunc(nameof(SetModifiedTimeAsync), new object[] {path, date, type});
 
 			FtpReply reply;
 
@@ -1367,21 +1384,17 @@ namespace FluentFTP {
 #endif
 
 			// convert UTC to server timezone, based on the TimeOffset property
-			if (type != FtpDate.Original && m_listParser.HasTimeOffset)
-			{
-				date = (date + m_listParser.TimeOffset);
+			if (type != FtpDate.Original && m_listParser.HasTimeOffset) {
+				date = date + m_listParser.TimeOffset;
 			}
 
 			// set modified date of a file
-			string timeStr = date.ToString("yyyyMMddHHmmss");
-			if ((reply = await ExecuteAsync("MFMT " + timeStr + " " + path.GetFtpPath(), token)).Success)
-			{
-
+			var timeStr = date.ToString("yyyyMMddHHmmss");
+			if ((reply = await ExecuteAsync("MFMT " + timeStr + " " + path.GetFtpPath(), token)).Success) {
 			}
 		}
 #endif
 
 		#endregion
-
 	}
 }

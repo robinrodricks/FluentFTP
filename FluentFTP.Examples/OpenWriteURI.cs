@@ -3,7 +3,7 @@ using System.IO;
 using FluentFTP;
 
 namespace Examples {
-	static class OpenWriteURI {
+	internal static class OpenWriteURI {
 		public static Stream OpenNewWrite(Uri uri) {
 			FtpClient cl = null;
 
@@ -14,11 +14,13 @@ namespace Examples {
 
 			return cl.OpenWrite(uri.PathAndQuery, FtpDataType.Binary);
 		}
+
 		public static void OpenURI() {
-			using (Stream s = OpenNewWrite(new Uri("ftp://server/path/file"))) {
+			using (var s = OpenNewWrite(new Uri("ftp://server/path/file"))) {
 				try {
 					// write data to the file on the server
-				} finally {
+				}
+				finally {
 					s.Close();
 				}
 			}

@@ -1,7 +1,6 @@
 ﻿using System;
 
 namespace FluentFTP {
-
 	/// <summary>
 	/// Type of data transfer to do
 	/// </summary>
@@ -10,10 +9,10 @@ namespace FluentFTP {
 		/// ASCII transfer
 		/// </summary>
 		ASCII,
+
 		/// <summary>
 		/// Binary transfer
 		/// </summary>
 		Binary
 	}
-
 }

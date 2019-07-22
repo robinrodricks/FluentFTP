@@ -6,14 +6,41 @@ using System.Text;
 
 namespace FluentFTP {
 	public class FtpProfile {
-
+		/// <summary>
+		/// The host IP address or URL of the FTP server
+		/// </summary>
 		public string Host;
+
+		/// <summary>
+		/// The FTP username and password used to login
+		/// </summary>
 		public NetworkCredential Credentials;
+
+		/// <summary>
+		/// A working Encryption Mode found for this profile
+		/// </summary>
 		public FtpEncryptionMode Encryption;
+
+		/// <summary>
+		/// A working Ssl Protocol setting found for this profile
+		/// </summary>
 		public SslProtocols Protocols;
+
+		/// <summary>
+		/// A working Data Connection Type found for this profile
+		/// </summary>
 		public FtpDataConnectionType DataConnection;
+
+		/// <summary>
+		/// A working Encoding setting found for this profile
+		/// </summary>
 		public Encoding Encoding;
 
+
+		/// <summary>
+		/// Generates valid C# code for this connection profile.
+		/// </summary>
+		/// <returns></returns>
 		public string ToCode() {
 			var sb = new StringBuilder();
 

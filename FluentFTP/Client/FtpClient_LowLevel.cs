@@ -15,18 +15,17 @@ using FluentFTP.Proxy;
 #if !CORE
 using System.Web;
 #endif
-
 #if (CORE || NETFX)
 using System.Threading;
+
 #endif
 #if ASYNC
 using System.Threading.Tasks;
+
 #endif
 
 namespace FluentFTP {
-
 	public partial class FtpClient : IDisposable {
-
 		#region Execute Command
 
 		/// <summary>
@@ -47,7 +46,7 @@ namespace FluentFTP {
 
 				if (!IsConnected) {
 					if (command == "QUIT") {
-						this.LogStatus(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
+						LogStatus(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
 						return new FtpReply() {
 							Code = "200",
 							Message = "Connection already closed."
@@ -58,14 +57,16 @@ namespace FluentFTP {
 				}
 
 				// hide sensitive data from logs
-				string commandTxt = command;
+				var commandTxt = command;
 				if (!FtpTrace.LogUserName && command.StartsWith("USER", StringComparison.Ordinal)) {
 					commandTxt = "USER ***";
 				}
+
 				if (!FtpTrace.LogPassword && command.StartsWith("PASS", StringComparison.Ordinal)) {
 					commandTxt = "PASS ***";
 				}
-				this.LogLine(FtpTraceLevel.Info, "Command:  " + commandTxt);
+
+				LogLine(FtpTraceLevel.Info, "Command:  " + commandTxt);
 
 				// send command to FTP server
 				m_stream.WriteLine(m_textEncoding, command);
@@ -78,7 +79,7 @@ namespace FluentFTP {
 		}
 
 #if !CORE
-		delegate FtpReply AsyncExecute(string command);
+		private delegate FtpReply AsyncExecute(string command);
 
 		/// <summary>
 		/// Performs execution of the specified command asynchronously
@@ -119,50 +120,46 @@ namespace FluentFTP {
 		/// <param name="token">Cancellation Token</param>
 		/// <returns>The servers reply to the command</returns>
 		public async Task<FtpReply> ExecuteAsync(string command, CancellationToken token) {
-            FtpReply reply;
+			FtpReply reply;
 
-            if (StaleDataCheck)
-            {
+			if (StaleDataCheck) {
 #if CORE
-                await ReadStaleDataAsync(true, false, true, token);
+				await ReadStaleDataAsync(true, false, true, token);
 #else
-                ReadStaleData(true, false, true);
+				ReadStaleData(true, false, true);
 #endif
-            }
+			}
 
-            if (!IsConnected)
-            {
-                if (command == "QUIT")
-                {
-                    this.LogStatus(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
-                    return new FtpReply()
-                    {
-                        Code = "200",
-                        Message = "Connection already closed."
-                    };
-                }
+			if (!IsConnected) {
+				if (command == "QUIT") {
+					LogStatus(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
+					return new FtpReply() {
+						Code = "200",
+						Message = "Connection already closed."
+					};
+				}
 
-                await ConnectAsync(token);
-            }
+				await ConnectAsync(token);
+			}
 
-            // hide sensitive data from logs
-            string commandTxt = command;
-            if (!FtpTrace.LogUserName && command.StartsWith("USER", StringComparison.Ordinal))
-            {
-                commandTxt = "USER ***";
-            }
-            if (!FtpTrace.LogPassword && command.StartsWith("PASS", StringComparison.Ordinal))
-            {
-                commandTxt = "PASS ***";
-            }
-            this.LogLine(FtpTraceLevel.Info, "Command:  " + commandTxt);
+			// hide sensitive data from logs
+			var commandTxt = command;
+			if (!FtpTrace.LogUserName && command.StartsWith("USER", StringComparison.Ordinal)) {
+				commandTxt = "USER ***";
+			}
 
-            // send command to FTP server
-            await m_stream.WriteLineAsync(m_textEncoding, command, token);
-            reply = await GetReplyAsync(token);
+			if (!FtpTrace.LogPassword && command.StartsWith("PASS", StringComparison.Ordinal)) {
+				commandTxt = "PASS ***";
+			}
 
-            return reply;
-        }
+			LogLine(FtpTraceLevel.Info, "Command:  " + commandTxt);
+
+			// send command to FTP server
+			await m_stream.WriteLineAsync(m_textEncoding, command, token);
+			reply = await GetReplyAsync(token);
+
+			return reply;
+		}
 #endif
 
 		#endregion
@@ -178,14 +175,15 @@ namespace FluentFTP {
 		/// <returns>FtpReply representing the response from the server</returns>
 		/// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
 		public FtpReply GetReply() {
-			FtpReply reply = new FtpReply();
+			var reply = new FtpReply();
 			string buf;
 
 #if !CORE14
 			lock (m_lock) {
 #endif
-				if (!IsConnected)
+				if (!IsConnected) {
 					throw new InvalidOperationException("No connection to the server has been established.");
+				}
 
 				m_stream.ReadTimeout = m_readTimeout;
 				while ((buf = m_stream.ReadLine(Encoding)) != null) {
@@ -198,33 +196,36 @@ namespace FluentFTP {
 						break;
 					}
 
-					reply.InfoMessages += (buf + "\n");
+					reply.InfoMessages += buf + "\n";
 				}
 
 				// if reply received
 				if (reply.Code != null) {
-
 					// hide sensitive data from logs
-					string logMsg = reply.Message;
+					var logMsg = reply.Message;
 					if (!FtpTrace.LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK")) {
 						logMsg = logMsg.Replace(Credentials.UserName, "***");
 					}
 
 					// log response code + message
-					this.LogLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
+					LogLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
 				}
 
 				// log multiline response messages
 				if (reply.InfoMessages != null) {
 					reply.InfoMessages = reply.InfoMessages.Trim();
 				}
+
 				if (!string.IsNullOrEmpty(reply.InfoMessages)) {
 					//this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
-					this.LogLine(FtpTraceLevel.Verbose, reply.InfoMessages.Split('\n').AddPrefix("Response: ", true).Join("\n"));
+					LogLine(FtpTraceLevel.Verbose, reply.InfoMessages.Split('\n').AddPrefix("Response: ", true).Join("\n"));
+
 					//this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 				}
+
 #if !CORE14
 			}
+
 #endif
 			LastReply = reply;
 
@@ -232,68 +233,63 @@ namespace FluentFTP {
 		}
 
 #if ASYNC
-        // TODO: add example
-        /// <summary>
-        /// Retrieves a reply from the server. Do not execute this method
-        /// unless you are sure that a reply has been sent, i.e., you
-        /// executed a command. Doing so will cause the code to hang
-        /// indefinitely waiting for a server reply that is never coming.
-        /// </summary>
-        /// <returns>FtpReply representing the response from the server</returns>
-        /// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
-        public async Task<FtpReply> GetReplyAsync(CancellationToken token)
-        {
-            FtpReply reply = new FtpReply();
-            string buf;
+		// TODO: add example
+		/// <summary>
+		/// Retrieves a reply from the server. Do not execute this method
+		/// unless you are sure that a reply has been sent, i.e., you
+		/// executed a command. Doing so will cause the code to hang
+		/// indefinitely waiting for a server reply that is never coming.
+		/// </summary>
+		/// <returns>FtpReply representing the response from the server</returns>
+		/// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
+		public async Task<FtpReply> GetReplyAsync(CancellationToken token) {
+			var reply = new FtpReply();
+			string buf;
 
-            if (!IsConnected)
-                throw new InvalidOperationException("No connection to the server has been established.");
+			if (!IsConnected) {
+				throw new InvalidOperationException("No connection to the server has been established.");
+			}
 
-            m_stream.ReadTimeout = m_readTimeout;
-            while ((buf = await m_stream.ReadLineAsync(Encoding, token)) != null)
-            {
-                Match m;
+			m_stream.ReadTimeout = m_readTimeout;
+			while ((buf = await m_stream.ReadLineAsync(Encoding, token)) != null) {
+				Match m;
 
 
-                if ((m = Regex.Match(buf, "^(?<code>[0-9]{3}) (?<message>.*)$")).Success)
-                {
-                    reply.Code = m.Groups["code"].Value;
-                    reply.Message = m.Groups["message"].Value;
-                    break;
-                }
+				if ((m = Regex.Match(buf, "^(?<code>[0-9]{3}) (?<message>.*)$")).Success) {
+					reply.Code = m.Groups["code"].Value;
+					reply.Message = m.Groups["message"].Value;
+					break;
+				}
 
-                reply.InfoMessages += (buf + "\n");
-            }
+				reply.InfoMessages += buf + "\n";
+			}
 
-            // if reply received
-            if (reply.Code != null)
-            {
+			// if reply received
+			if (reply.Code != null) {
+				// hide sensitive data from logs
+				var logMsg = reply.Message;
+				if (!FtpTrace.LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK")) {
+					logMsg = logMsg.Replace(Credentials.UserName, "***");
+				}
 
-                // hide sensitive data from logs
-                string logMsg = reply.Message;
-                if (!FtpTrace.LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK"))
-                {
-                    logMsg = logMsg.Replace(Credentials.UserName, "***");
-                }
+				// log response code + message
+				LogLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
+			}
 
-                // log response code + message
-                this.LogLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
-            }
+			// log multiline response messages
+			if (reply.InfoMessages != null) {
+				reply.InfoMessages = reply.InfoMessages.Trim();
+			}
 
-            // log multiline response messages
-            if (reply.InfoMessages != null)
-            {
-                reply.InfoMessages = reply.InfoMessages.Trim();
-            }
-            if (!string.IsNullOrEmpty(reply.InfoMessages))
-            {
-                //this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
-                this.LogLine(FtpTraceLevel.Verbose, reply.InfoMessages.Split('\n').AddPrefix("Response: ", true).Join("\n"));
-                //this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
-            }
+			if (!string.IsNullOrEmpty(reply.InfoMessages)) {
+				//this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+				LogLine(FtpTraceLevel.Verbose, reply.InfoMessages.Split('\n').AddPrefix("Response: ", true).Join("\n"));
 
-            return reply;
-        }
+				//this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
+			}
+
+			return reply;
+		}
 #endif
 
 		#endregion
@@ -307,30 +303,27 @@ namespace FluentFTP {
 		/// <param name="command">The command to execute that requires a data stream</param>
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <returns>A data stream ready to be used</returns>
-		FtpDataStream OpenPassiveDataStream(FtpDataConnectionType type, string command, long restart) {
-
-			this.LogFunc("OpenPassiveDataStream", new object[] { type, command, restart });
+		private FtpDataStream OpenPassiveDataStream(FtpDataConnectionType type, string command, long restart) {
+			LogFunc("OpenPassiveDataStream", new object[] {type, command, restart});
 
 			FtpDataStream stream = null;
 			FtpReply reply;
 			Match m;
 			string host = null;
-			int port = 0;
+			var port = 0;
 
-			if (m_stream == null)
+			if (m_stream == null) {
 				throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open a passive data stream.");
+			}
 
 			if ((type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) && !_EPSVNotSupported) {
-
 				// execute EPSV to try enhanced-passive mode
 				if (!(reply = Execute("EPSV")).Success) {
-
 					// if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
 					if ((reply.Type == FtpResponseType.TransientNegativeCompletion || reply.Type == FtpResponseType.PermanentNegativeCompletion)
-						&& type == FtpDataConnectionType.AutoPassive
-						&& m_stream != null
-						&& m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) {
-
+					    && type == FtpDataConnectionType.AutoPassive
+					    && m_stream != null
+					    && m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
 						// mark EPSV not supported so we do not try EPSV again during this connection
 						_EPSVNotSupported = true;
 						return OpenPassiveDataStream(FtpDataConnectionType.PASV, command, restart);
@@ -348,9 +341,11 @@ namespace FluentFTP {
 
 				host = m_host;
 				port = int.Parse(m.Groups["port"].Value);
-			} else {
-				if (m_stream.LocalEndPoint.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
+			}
+			else {
+				if (m_stream.LocalEndPoint.AddressFamily != AddressFamily.InterNetwork) {
 					throw new FtpException("Only IPv4 is supported by the PASV command. Use EPSV instead.");
+				}
 
 				// excute PRET before passive if server requires it
 				if (HasFeature(FtpCapability.PRET)) {
@@ -364,20 +359,22 @@ namespace FluentFTP {
 
 				m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
 
-				if (!m.Success || m.Groups.Count != 7)
-					throw new FtpException(("Malformed PASV response: " + reply.Message));
+				if (!m.Success || m.Groups.Count != 7) {
+					throw new FtpException("Malformed PASV response: " + reply.Message);
+				}
 
 				// PASVEX mode ignores the host supplied in the PASV response
-				if (type == FtpDataConnectionType.PASVEX)
+				if (type == FtpDataConnectionType.PASVEX) {
 					host = m_host;
-				else
-					host = (m.Groups["quad1"].Value + "." + m.Groups["quad2"].Value + "." + m.Groups["quad3"].Value + "." + m.Groups["quad4"].Value);
+				}
+				else {
+					host = m.Groups["quad1"].Value + "." + m.Groups["quad2"].Value + "." + m.Groups["quad3"].Value + "." + m.Groups["quad4"].Value;
+				}
 
 				port = (int.Parse(m.Groups["port1"].Value) << 8) + int.Parse(m.Groups["port2"].Value);
 
 				// Fix #409 for BlueCoat proxy connections. This code replaces the name of the proxy with the name of the FTP server and then nothing works.
-				if (!this.IsProxy()) {
-
+				if (!IsProxy()) {
 					//use host ip if server advertises a non-routeable IP
 					m = Regex.Match(host, @"(^10\.)|(^172\.1[6-9]\.)|(^172\\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)|(^127\.0\.0\.1)|(^0\.0\.0\.0)");
 
@@ -392,7 +389,7 @@ namespace FluentFTP {
 			stream.ConnectTimeout = DataConnectionConnectTimeout;
 			stream.ReadTimeout = DataConnectionReadTimeout;
 			Connect(stream, host, port, InternetProtocolVersions);
-			stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);
+			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
 
 			if (restart > 0) {
 				if (!(reply = Execute("REST " + restart)).Success) {
@@ -404,7 +401,8 @@ namespace FluentFTP {
 				stream.Close();
 				if (command.StartsWith("NLST ") && reply.Code == "550" && reply.Message == "No files found.") {
 					//workaround for ftpd which responses "550 No files found." when folder exists but is empty
-				} else {
+				}
+				else {
 					throw new FtpCommandException(reply);
 				}
 			}
@@ -416,10 +414,11 @@ namespace FluentFTP {
 			stream.CommandStatus = reply;
 
 #if !NO_SSL
+
 			// this needs to take place after the command is executed
 			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None) {
 				stream.ActivateEncryption(m_host,
-					this.ClientCertificates.Count > 0 ? this.ClientCertificates : null,
+					ClientCertificates.Count > 0 ? ClientCertificates : null,
 					m_SslProtocols);
 			}
 #endif
@@ -428,39 +427,35 @@ namespace FluentFTP {
 		}
 
 #if ASYNC
-        /// <summary>
-        /// Opens the specified type of passive data stream
-        /// </summary>
-        /// <param name="type">Type of passive data stream to open</param>
-        /// <param name="command">The command to execute that requires a data stream</param>
-        /// <param name="restart">Restart location in bytes for file transfer</param>
-        /// <returns>A data stream ready to be used</returns>
-        async Task<FtpDataStream> OpenPassiveDataStreamAsync(FtpDataConnectionType type, string command, long restart, CancellationToken token = default(CancellationToken))
-        {
+		/// <summary>
+		/// Opens the specified type of passive data stream
+		/// </summary>
+		/// <param name="type">Type of passive data stream to open</param>
+		/// <param name="command">The command to execute that requires a data stream</param>
+		/// <param name="restart">Restart location in bytes for file transfer</param>
+		/// <returns>A data stream ready to be used</returns>
+		private async Task<FtpDataStream> OpenPassiveDataStreamAsync(FtpDataConnectionType type, string command, long restart, CancellationToken token = default(CancellationToken)) {
+			LogFunc(nameof(OpenPassiveDataStreamAsync), new object[] {type, command, restart});
 
-            this.LogFunc(nameof(OpenPassiveDataStreamAsync), new object[] { type, command, restart });
+			FtpDataStream stream = null;
+			FtpReply reply;
+			Match m;
+			string host = null;
+			var port = 0;
 
-            FtpDataStream stream = null;
-            FtpReply reply;
-            Match m;
-            string host = null;
-            int port = 0;
+			if (m_stream == null) {
+				throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open a passive data stream.");
+			}
 
-            if (m_stream == null)
-                throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open a passive data stream.");
 
-           
 			if ((type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) && !_EPSVNotSupported) {
-
 				// execute EPSV to try enhanced-passive mode
 				if (!(reply = await ExecuteAsync("EPSV", token)).Success) {
-
 					// if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
 					if ((reply.Type == FtpResponseType.TransientNegativeCompletion || reply.Type == FtpResponseType.PermanentNegativeCompletion)
-						&& type == FtpDataConnectionType.AutoPassive
-						&& m_stream != null
-						&& m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) {
-
+					    && type == FtpDataConnectionType.AutoPassive
+					    && m_stream != null
+					    && m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
 						// mark EPSV not supported so we do not try EPSV again during this connection
 						_EPSVNotSupported = true;
 						return await OpenPassiveDataStreamAsync(FtpDataConnectionType.PASV, command, restart, token);
@@ -478,84 +473,84 @@ namespace FluentFTP {
 
 				host = m_host;
 				port = int.Parse(m.Groups["port"].Value);
-			} else {
+			}
+			else {
+				if (m_stream.LocalEndPoint.AddressFamily != AddressFamily.InterNetwork) {
+					throw new FtpException("Only IPv4 is supported by the PASV command. Use EPSV instead.");
+				}
 
-                if (m_stream.LocalEndPoint.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
-                    throw new FtpException("Only IPv4 is supported by the PASV command. Use EPSV instead.");
-		
 				// excute PRET before passive if server requires it
 				if (HasFeature(FtpCapability.PRET)) {
 					reply = await ExecuteAsync("PRET " + command, token);
 				}
 
 				// execute PASV to try passive mode
-                if (!(reply = await ExecuteAsync("PASV", token)).Success){
-                    throw new FtpCommandException(reply);
+				if (!(reply = await ExecuteAsync("PASV", token)).Success) {
+					throw new FtpCommandException(reply);
 				}
 
-                m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
+				m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
 
-                if (!m.Success || m.Groups.Count != 7)
-                    throw new FtpException(("Malformed PASV response: " + reply.Message));
+				if (!m.Success || m.Groups.Count != 7) {
+					throw new FtpException("Malformed PASV response: " + reply.Message);
+				}
 
-                // PASVEX mode ignores the host supplied in the PASV response
-                if (type == FtpDataConnectionType.PASVEX)
-                    host = m_host;
-                else
-                    host = (m.Groups["quad1"].Value + "." + m.Groups["quad2"].Value + "." + m.Groups["quad3"].Value + "." + m.Groups["quad4"].Value);
+				// PASVEX mode ignores the host supplied in the PASV response
+				if (type == FtpDataConnectionType.PASVEX) {
+					host = m_host;
+				}
+				else {
+					host = m.Groups["quad1"].Value + "." + m.Groups["quad2"].Value + "." + m.Groups["quad3"].Value + "." + m.Groups["quad4"].Value;
+				}
 
-                port = (int.Parse(m.Groups["port1"].Value) << 8) + int.Parse(m.Groups["port2"].Value);
-		
+				port = (int.Parse(m.Groups["port1"].Value) << 8) + int.Parse(m.Groups["port2"].Value);
+
 				// Fix #409 for BlueCoat proxy connections. This code replaces the name of the proxy with the name of the FTP server and then nothing works.
-				if (!this.IsProxy()){
-					
+				if (!IsProxy()) {
 					//use host ip if server advertises a non-routeable IP
-					m = Regex.Match(host,@"(^10\.)|(^172\.1[6-9]\.)|(^172\\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)|(^127\.0\.0\.1)|(^0\.0\.0\.0)");
+					m = Regex.Match(host, @"(^10\.)|(^172\.1[6-9]\.)|(^172\\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)|(^127\.0\.0\.1)|(^0\.0\.0\.0)");
 
-					if(m.Success){			
+					if (m.Success) {
 						host = m_host;
 					}
 				}
-            }
+			}
 
-            stream = new FtpDataStream(this);
+			stream = new FtpDataStream(this);
 			stream.Client = this;
-            stream.ConnectTimeout = DataConnectionConnectTimeout;
-            stream.ReadTimeout = DataConnectionReadTimeout;
-            await ConnectAsync(stream, host, port, InternetProtocolVersions, token);
-            stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);
+			stream.ConnectTimeout = DataConnectionConnectTimeout;
+			stream.ReadTimeout = DataConnectionReadTimeout;
+			await ConnectAsync(stream, host, port, InternetProtocolVersions, token);
+			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
 
-            if (restart > 0)
-            {
-                if (!(reply = await ExecuteAsync("REST " + restart, token)).Success){
-                    throw new FtpCommandException(reply);
+			if (restart > 0) {
+				if (!(reply = await ExecuteAsync("REST " + restart, token)).Success) {
+					throw new FtpCommandException(reply);
 				}
-            }
+			}
 
-            if (!(reply = await ExecuteAsync(command, token)).Success)
-            {
-                stream.Close();
-                throw new FtpCommandException(reply);
-            }
+			if (!(reply = await ExecuteAsync(command, token)).Success) {
+				stream.Close();
+				throw new FtpCommandException(reply);
+			}
 
-            // the command status is used to determine
-            // if a reply needs to be read from the server
-            // when the stream is closed so always set it
-            // otherwise things can get out of sync.
-            stream.CommandStatus = reply;
+			// the command status is used to determine
+			// if a reply needs to be read from the server
+			// when the stream is closed so always set it
+			// otherwise things can get out of sync.
+			stream.CommandStatus = reply;
 
 #if !NO_SSL
-            // this needs to take place after the command is executed
-            if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
-            {
-                await stream.ActivateEncryptionAsync(m_host,
-                    this.ClientCertificates.Count > 0 ? this.ClientCertificates : null,
-                    m_SslProtocols);
-            }
+			// this needs to take place after the command is executed
+			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None) {
+				await stream.ActivateEncryptionAsync(m_host,
+					ClientCertificates.Count > 0 ? ClientCertificates : null,
+					m_SslProtocols);
+			}
 #endif
 
-            return stream;
-        }
+			return stream;
+		}
 #endif
 
 		/// <summary>
@@ -563,7 +558,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="ip"></param>
 		/// <returns></returns>
-		string GetLocalAddress(IPAddress ip) {
+		private string GetLocalAddress(IPAddress ip) {
 			// Use resolver
 			if (m_AddressResolver != null) {
 				return m_Address ?? (m_Address = m_AddressResolver());
@@ -580,19 +575,19 @@ namespace FluentFTP {
 		/// <param name="command">The command to execute that requires a data stream</param>
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <returns>A data stream ready to be used</returns>
-		FtpDataStream OpenActiveDataStream(FtpDataConnectionType type, string command, long restart) {
+		private FtpDataStream OpenActiveDataStream(FtpDataConnectionType type, string command, long restart) {
+			LogFunc("OpenActiveDataStream", new object[] {type, command, restart});
 
-			this.LogFunc("OpenActiveDataStream", new object[] { type, command, restart });
-
-			FtpDataStream stream = new FtpDataStream(this);
+			var stream = new FtpDataStream(this);
 			stream.Client = this;
 			FtpReply reply;
 #if !CORE
 			IAsyncResult ar;
 #endif
 
-			if (m_stream == null)
+			if (m_stream == null) {
 				throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open an active data stream.");
+			}
 
 			StartListeningOnPort(stream);
 #if CORE
@@ -602,39 +597,43 @@ namespace FluentFTP {
 #endif
 
 			if (type == FtpDataConnectionType.EPRT || type == FtpDataConnectionType.AutoActive) {
-				int ipver = 0;
+				var ipver = 0;
 
 				switch (stream.LocalEndPoint.AddressFamily) {
-					case System.Net.Sockets.AddressFamily.InterNetwork:
+					case AddressFamily.InterNetwork:
 						ipver = 1; // IPv4
 						break;
-					case System.Net.Sockets.AddressFamily.InterNetworkV6:
+
+					case AddressFamily.InterNetworkV6:
 						ipver = 2; // IPv6
 						break;
+
 					default:
 						throw new InvalidOperationException("The IP protocol being used is not supported.");
 				}
 
 				if (!(reply = Execute("EPRT |" + ipver + "|" + GetLocalAddress(stream.LocalEndPoint.Address) + "|" + stream.LocalEndPoint.Port + "|")).Success) {
-
 					// if we're connected with IPv4 and the data channel type is AutoActive then try to fall back to the PORT command
-					if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) {
+					if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
 						stream.ControlConnection = null; // we don't want this failed EPRT attempt to close our control connection when the stream is closed so clear out the reference.
 						stream.Close();
 						return OpenActiveDataStream(FtpDataConnectionType.PORT, command, restart);
-					} else {
+					}
+					else {
 						stream.Close();
 						throw new FtpCommandException(reply);
 					}
 				}
-			} else {
-				if (m_stream.LocalEndPoint.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
+			}
+			else {
+				if (m_stream.LocalEndPoint.AddressFamily != AddressFamily.InterNetwork) {
 					throw new FtpException("Only IPv4 is supported by the PORT command. Use EPRT instead.");
+				}
 
 				if (!(reply = Execute("PORT " +
-						GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ',') + "," +
-						stream.LocalEndPoint.Port / 256 + "," +
-						stream.LocalEndPoint.Port % 256)).Success) {
+				                      GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ',') + "," +
+				                      stream.LocalEndPoint.Port / 256 + "," +
+				                      stream.LocalEndPoint.Port % 256)).Success) {
 					stream.Close();
 					throw new FtpCommandException(reply);
 				}
@@ -672,12 +671,12 @@ namespace FluentFTP {
 #if !NO_SSL
 			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None) {
 				stream.ActivateEncryption(m_host,
-					this.ClientCertificates.Count > 0 ? this.ClientCertificates : null,
+					ClientCertificates.Count > 0 ? ClientCertificates : null,
 					m_SslProtocols);
 			}
 #endif
 
-			stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);
+			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
 			stream.ReadTimeout = m_dataConnectionReadTimeout;
 
 			return stream;
@@ -692,123 +691,114 @@ namespace FluentFTP {
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <param name="token">Cancellation Token</param>
 		/// <returns>A data stream ready to be used</returns>
-		async Task<FtpDataStream> OpenActiveDataStreamAsync(FtpDataConnectionType type, string command, long restart, CancellationToken token = default(CancellationToken))
-        {
+		private async Task<FtpDataStream> OpenActiveDataStreamAsync(FtpDataConnectionType type, string command, long restart, CancellationToken token = default(CancellationToken)) {
+			LogFunc(nameof(OpenActiveDataStreamAsync), new object[] {type, command, restart});
 
-            this.LogFunc(nameof(OpenActiveDataStreamAsync), new object[] { type, command, restart });
-
-            FtpDataStream stream = new FtpDataStream(this);
+			var stream = new FtpDataStream(this);
 			stream.Client = this;
-            FtpReply reply;
+			FtpReply reply;
 
 #if !CORE
 			IAsyncResult ar;
 #endif
 
-            if (m_stream == null)
-                throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open an active data stream.");
+			if (m_stream == null) {
+				throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open an active data stream.");
+			}
 
 			StartListeningOnPort(stream);
 
 #if CORE
-            var args = stream.BeginAccept();
+			var args = stream.BeginAccept();
 #else
-            ar = stream.BeginAccept(null, null);
+			ar = stream.BeginAccept(null, null);
 #endif
 
-            if (type == FtpDataConnectionType.EPRT || type == FtpDataConnectionType.AutoActive)
-            {
-                int ipver = 0;
+			if (type == FtpDataConnectionType.EPRT || type == FtpDataConnectionType.AutoActive) {
+				var ipver = 0;
 
-                switch (stream.LocalEndPoint.AddressFamily)
-                {
-                    case System.Net.Sockets.AddressFamily.InterNetwork:
-                        ipver = 1; // IPv4
-                        break;
-                    case System.Net.Sockets.AddressFamily.InterNetworkV6:
-                        ipver = 2; // IPv6
-                        break;
-                    default:
-                        throw new InvalidOperationException("The IP protocol being used is not supported.");
-                }
+				switch (stream.LocalEndPoint.AddressFamily) {
+					case AddressFamily.InterNetwork:
+						ipver = 1; // IPv4
+						break;
 
-                if (!(reply = await ExecuteAsync("EPRT |" + ipver + "|" + GetLocalAddress(stream.LocalEndPoint.Address) + "|" + stream.LocalEndPoint.Port + "|", token)).Success)
-                {
+					case AddressFamily.InterNetworkV6:
+						ipver = 2; // IPv6
+						break;
 
-                    // if we're connected with IPv4 and the data channel type is AutoActive then try to fall back to the PORT command
-                    if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-                    {
-                        stream.ControlConnection = null; // we don't want this failed EPRT attempt to close our control connection when the stream is closed so clear out the reference.
-                        stream.Close();
-                        return await OpenActiveDataStreamAsync(FtpDataConnectionType.PORT, command, restart, token);
-                    }
-                    else
-                    {
-                        stream.Close();
-                        throw new FtpCommandException(reply);
-                    }
-                }
-            }
-            else
-            {
-                if (m_stream.LocalEndPoint.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
-                    throw new FtpException("Only IPv4 is supported by the PORT command. Use EPRT instead.");
+					default:
+						throw new InvalidOperationException("The IP protocol being used is not supported.");
+				}
 
-                if (!(reply = await ExecuteAsync("PORT " +
-                        GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ',') + "," +
-                        stream.LocalEndPoint.Port / 256 + "," +
-                        stream.LocalEndPoint.Port % 256, token)).Success)
-                {
-                    stream.Close();
-                    throw new FtpCommandException(reply);
-                }
-            }
+				if (!(reply = await ExecuteAsync("EPRT |" + ipver + "|" + GetLocalAddress(stream.LocalEndPoint.Address) + "|" + stream.LocalEndPoint.Port + "|", token)).Success) {
+					// if we're connected with IPv4 and the data channel type is AutoActive then try to fall back to the PORT command
+					if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
+						stream.ControlConnection = null; // we don't want this failed EPRT attempt to close our control connection when the stream is closed so clear out the reference.
+						stream.Close();
+						return await OpenActiveDataStreamAsync(FtpDataConnectionType.PORT, command, restart, token);
+					}
+					else {
+						stream.Close();
+						throw new FtpCommandException(reply);
+					}
+				}
+			}
+			else {
+				if (m_stream.LocalEndPoint.AddressFamily != AddressFamily.InterNetwork) {
+					throw new FtpException("Only IPv4 is supported by the PORT command. Use EPRT instead.");
+				}
 
-            if (restart > 0)
-            {
-                if (!(reply = await ExecuteAsync("REST " + restart, token)).Success)
-                    throw new FtpCommandException(reply);
-            }
+				if (!(reply = await ExecuteAsync("PORT " +
+				                                 GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ',') + "," +
+				                                 stream.LocalEndPoint.Port / 256 + "," +
+				                                 stream.LocalEndPoint.Port % 256, token)).Success) {
+					stream.Close();
+					throw new FtpCommandException(reply);
+				}
+			}
 
-            if (!(reply = await ExecuteAsync(command, token)).Success)
-            {
-                stream.Close();
-                throw new FtpCommandException(reply);
-            }
+			if (restart > 0) {
+				if (!(reply = await ExecuteAsync("REST " + restart, token)).Success) {
+					throw new FtpCommandException(reply);
+				}
+			}
 
-            // the command status is used to determine
-            // if a reply needs to be read from the server
-            // when the stream is closed so always set it
-            // otherwise things can get out of sync.
-            stream.CommandStatus = reply;
+			if (!(reply = await ExecuteAsync(command, token)).Success) {
+				stream.Close();
+				throw new FtpCommandException(reply);
+			}
+
+			// the command status is used to determine
+			// if a reply needs to be read from the server
+			// when the stream is closed so always set it
+			// otherwise things can get out of sync.
+			stream.CommandStatus = reply;
 
 #if CORE
-            stream.EndAccept(args, m_dataConnectionConnectTimeout);
+			stream.EndAccept(args, m_dataConnectionConnectTimeout);
 #else
-            ar.AsyncWaitHandle.WaitOne(m_dataConnectionConnectTimeout);
-            if (!ar.IsCompleted)
-	    {
-            	stream.Close();
-		throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
-            }
+			ar.AsyncWaitHandle.WaitOne(m_dataConnectionConnectTimeout);
+			if (!ar.IsCompleted) {
+				stream.Close();
+				throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
+			}
 
-            stream.EndAccept(ar);
+			stream.EndAccept(ar);
 #endif
 
 #if !NO_SSL
-            if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None)
-            {
-                await stream.ActivateEncryptionAsync(m_host,
-                    this.ClientCertificates.Count > 0 ? this.ClientCertificates : null,
-                    m_SslProtocols);
-            }
+			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None) {
+				await stream.ActivateEncryptionAsync(m_host,
+					ClientCertificates.Count > 0 ? ClientCertificates : null,
+					m_SslProtocols);
+			}
 #endif
 
-            stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, m_keepAlive);
-            stream.ReadTimeout = m_dataConnectionReadTimeout;
+			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
+			stream.ReadTimeout = m_dataConnectionReadTimeout;
 
-            return stream;
-        }
+			return stream;
+		}
 #endif
 
 		/// <summary>
@@ -817,30 +807,31 @@ namespace FluentFTP {
 		/// <param name='command'>The command to execute that requires a data stream</param>
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <returns>The data stream.</returns>
-		FtpDataStream OpenDataStream(string command, long restart) {
-
-			FtpDataConnectionType type = m_dataConnectionType;
+		private FtpDataStream OpenDataStream(string command, long restart) {
+			var type = m_dataConnectionType;
 			FtpDataStream stream = null;
 
 #if !CORE14
 			lock (m_lock) {
 #endif
-				if (!IsConnected)
+				if (!IsConnected) {
 					Connect();
+				}
 
 				// The PORT and PASV commands do not work with IPv6 so
 				// if either one of those types are set change them
 				// to EPSV or EPRT appropriately.
-				if (m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6) {
+				if (m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetworkV6) {
 					switch (type) {
 						case FtpDataConnectionType.PORT:
 							type = FtpDataConnectionType.EPRT;
-							this.LogLine(FtpTraceLevel.Info, "Changed data connection type to EPRT because we are connected with IPv6.");
+							LogLine(FtpTraceLevel.Info, "Changed data connection type to EPRT because we are connected with IPv6.");
 							break;
+
 						case FtpDataConnectionType.PASV:
 						case FtpDataConnectionType.PASVEX:
 							type = FtpDataConnectionType.EPSV;
-							this.LogLine(FtpTraceLevel.Info, "Changed data connection type to EPSV because we are connected with IPv6.");
+							LogLine(FtpTraceLevel.Info, "Changed data connection type to EPSV because we are connected with IPv6.");
 							break;
 					}
 				}
@@ -852,6 +843,7 @@ namespace FluentFTP {
 					case FtpDataConnectionType.PASVEX:
 						stream = OpenPassiveDataStream(type, command, restart);
 						break;
+
 					case FtpDataConnectionType.AutoActive:
 					case FtpDataConnectionType.EPRT:
 					case FtpDataConnectionType.PORT:
@@ -859,8 +851,10 @@ namespace FluentFTP {
 						break;
 				}
 
-				if (stream == null)
+				if (stream == null) {
 					throw new InvalidOperationException("The specified data channel type is not implemented.");
+				}
+
 #if !CORE14
 			}
 #endif
@@ -876,54 +870,53 @@ namespace FluentFTP {
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <param name="token">Cancellation Token</param>
 		/// <returns>The data stream.</returns>
-		async Task<FtpDataStream> OpenDataStreamAsync(string command, long restart, CancellationToken token = default(CancellationToken))
-        {
+		private async Task<FtpDataStream> OpenDataStreamAsync(string command, long restart, CancellationToken token = default(CancellationToken)) {
+			var type = m_dataConnectionType;
+			FtpDataStream stream = null;
 
-            FtpDataConnectionType type = m_dataConnectionType;
-            FtpDataStream stream = null;
+			if (!IsConnected) {
+				await ConnectAsync(token);
+			}
 
-            if (!IsConnected)
-                await ConnectAsync(token);
+			// The PORT and PASV commands do not work with IPv6 so
+			// if either one of those types are set change them
+			// to EPSV or EPRT appropriately.
+			if (m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetworkV6) {
+				switch (type) {
+					case FtpDataConnectionType.PORT:
+						type = FtpDataConnectionType.EPRT;
+						LogLine(FtpTraceLevel.Info, "Changed data connection type to EPRT because we are connected with IPv6.");
+						break;
 
-            // The PORT and PASV commands do not work with IPv6 so
-            // if either one of those types are set change them
-            // to EPSV or EPRT appropriately.
-            if (m_stream.LocalEndPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetworkV6)
-            {
-                switch (type)
-                {
-                    case FtpDataConnectionType.PORT:
-                        type = FtpDataConnectionType.EPRT;
-                        this.LogLine(FtpTraceLevel.Info, "Changed data connection type to EPRT because we are connected with IPv6.");
-                        break;
-                    case FtpDataConnectionType.PASV:
-                    case FtpDataConnectionType.PASVEX:
-                        type = FtpDataConnectionType.EPSV;
-                        this.LogLine(FtpTraceLevel.Info, "Changed data connection type to EPSV because we are connected with IPv6.");
-                        break;
-                }
-            }
+					case FtpDataConnectionType.PASV:
+					case FtpDataConnectionType.PASVEX:
+						type = FtpDataConnectionType.EPSV;
+						LogLine(FtpTraceLevel.Info, "Changed data connection type to EPSV because we are connected with IPv6.");
+						break;
+				}
+			}
 
-            switch (type)
-            {
-                case FtpDataConnectionType.AutoPassive:
-                case FtpDataConnectionType.EPSV:
-                case FtpDataConnectionType.PASV:
-                case FtpDataConnectionType.PASVEX:
-                    stream = await OpenPassiveDataStreamAsync(type, command, restart, token);
-                    break;
-                case FtpDataConnectionType.AutoActive:
-                case FtpDataConnectionType.EPRT:
-                case FtpDataConnectionType.PORT:
-                    stream = await OpenActiveDataStreamAsync(type, command, restart, token);
-                    break;
-            }
+			switch (type) {
+				case FtpDataConnectionType.AutoPassive:
+				case FtpDataConnectionType.EPSV:
+				case FtpDataConnectionType.PASV:
+				case FtpDataConnectionType.PASVEX:
+					stream = await OpenPassiveDataStreamAsync(type, command, restart, token);
+					break;
 
-            if (stream == null)
-                throw new InvalidOperationException("The specified data channel type is not implemented.");
+				case FtpDataConnectionType.AutoActive:
+				case FtpDataConnectionType.EPRT:
+				case FtpDataConnectionType.PORT:
+					stream = await OpenActiveDataStreamAsync(type, command, restart, token);
+					break;
+			}
 
-            return stream;
-        }
+			if (stream == null) {
+				throw new InvalidOperationException("The specified data channel type is not implemented.");
+			}
+
+			return stream;
+		}
 #endif
 
 		/// <summary>
@@ -931,13 +924,13 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="stream">The data stream to close</param>
 		internal FtpReply CloseDataStream(FtpDataStream stream) {
+			LogFunc("CloseDataStream");
 
-			this.LogFunc("CloseDataStream");
+			var reply = new FtpReply();
 
-			FtpReply reply = new FtpReply();
-
-			if (stream == null)
+			if (stream == null) {
 				throw new ArgumentException("The data stream parameter was null");
+			}
 
 #if !CORE14
 			lock (m_lock) {
@@ -955,7 +948,8 @@ namespace FluentFTP {
 							}
 						}
 					}
-				} finally {
+				}
+				finally {
 					// if this is a clone of the original control
 					// connection we should Dispose()
 					if (IsClone) {
@@ -963,6 +957,7 @@ namespace FluentFTP {
 						Dispose();
 					}
 				}
+
 #if !CORE14
 			}
 #endif
@@ -978,29 +973,38 @@ namespace FluentFTP {
 			if (m_ActivePorts == null || !m_ActivePorts.Any()) {
 				// Use random port
 				stream.Listen(m_stream.LocalEndPoint.Address, 0);
-			} else {
+			}
+			else {
 				var success = false;
+
 				// Use one of the specified ports
 				foreach (var port in m_ActivePorts) {
 					try {
 						stream.Listen(m_stream.LocalEndPoint.Address, port);
 						success = true;
 						break;
-					} catch (SocketException se) {
+					}
+					catch (SocketException se) {
 #if NETFX
+
 						// Already in use
-						if (se.ErrorCode != 10048)
+						if (se.ErrorCode != 10048) {
 							throw;
+						}
+
 #else
-						if (se.SocketErrorCode != SocketError.AddressAlreadyInUse)
+						if (se.SocketErrorCode != SocketError.AddressAlreadyInUse) {
 							throw;
+						}
+
 #endif
 					}
 				}
 
 				// No usable port found
-				if (!success)
+				if (!success) {
 					throw new Exception("No valid active data port available!");
+				}
 			}
 		}
 
@@ -1086,12 +1090,12 @@ namespace FluentFTP {
 		/// <returns>A stream for reading the file on the server</returns>
 		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
 		public virtual Stream OpenRead(string path, FtpDataType type, long restart, bool checkIfFileExists) {
-
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
-			this.LogFunc("OpenRead", new object[] { path, type, restart });
+			LogFunc("OpenRead", new object[] {path, type, restart});
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1105,24 +1109,27 @@ namespace FluentFTP {
 					client.CopyStateFlags(this);
 					client.Connect();
 					client.SetWorkingDirectory(GetWorkingDirectory());
-				} else {
+				}
+				else {
 					client = this;
 				}
 
 				client.SetDataType(type);
 
 				length = checkIfFileExists ? client.GetFileSize(path) : 0;
-				stream = client.OpenDataStream(("RETR " + path.GetFtpPath()), restart);
+				stream = client.OpenDataStream("RETR " + path.GetFtpPath(), restart);
 #if !CORE14
 			}
 #endif
 
 			if (stream != null) {
-				if (length > 0)
+				if (length > 0) {
 					stream.SetLength(length);
+				}
 
-				if (restart > 0)
+				if (restart > 0) {
 					stream.SetPosition(restart);
+				}
 			}
 
 			return stream;
@@ -1167,7 +1174,7 @@ namespace FluentFTP {
 			return BeginOpenRead(path, FtpDataType.Binary, restart, callback, state);
 		}
 
-		delegate Stream AsyncOpenRead(string path, FtpDataType type, long restart);
+		private delegate Stream AsyncOpenRead(string path, FtpDataType type, long restart);
 
 		/// <summary>
 		/// Begins an asynchronous operation to open the specified file for reading
@@ -1212,41 +1219,40 @@ namespace FluentFTP {
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
 		/// <param name="token">Cancellation Token</param>
 		/// <returns>A stream for reading the file on the server</returns>
-		public virtual async Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, bool checkIfFileExists, CancellationToken token = default(CancellationToken))
-		{
+		public virtual async Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, bool checkIfFileExists, CancellationToken token = default(CancellationToken)) {
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
-			this.LogFunc(nameof(OpenReadAsync), new object[] { path, type, restart });
+			LogFunc(nameof(OpenReadAsync), new object[] {path, type, restart});
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
 			long length = 0;
 
-			if (m_threadSafeDataChannels)
-			{
+			if (m_threadSafeDataChannels) {
 				client = CloneConnection();
 				client.CopyStateFlags(this);
 				await client.ConnectAsync(token);
 				await client.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
 			}
-			else
-			{
+			else {
 				client = this;
 			}
 
 			await client.SetDataTypeAsync(type, token);
 			length = checkIfFileExists ? await client.GetFileSizeAsync(path, token) : 0;
-			stream = await client.OpenDataStreamAsync(("RETR " + path.GetFtpPath()), restart, token);
+			stream = await client.OpenDataStreamAsync("RETR " + path.GetFtpPath(), restart, token);
 
-			if (stream != null)
-			{
-				if (length > 0)
+			if (stream != null) {
+				if (length > 0) {
 					stream.SetLength(length);
+				}
 
-				if (restart > 0)
+				if (restart > 0) {
 					stream.SetPosition(restart);
+				}
 			}
 
 			return stream;
@@ -1332,12 +1338,12 @@ namespace FluentFTP {
 		/// <returns>A stream for writing to the file on the server</returns>
 		/// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
 		public virtual Stream OpenWrite(string path, FtpDataType type, bool checkIfFileExists) {
-
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
-			this.LogFunc("OpenWrite", new object[] { path, type });
+			LogFunc("OpenWrite", new object[] {path, type});
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1351,16 +1357,19 @@ namespace FluentFTP {
 					client.CopyStateFlags(this);
 					client.Connect();
 					client.SetWorkingDirectory(GetWorkingDirectory());
-				} else {
+				}
+				else {
 					client = this;
 				}
 
 				client.SetDataType(type);
 				length = checkIfFileExists ? client.GetFileSize(path) : 0;
-				stream = client.OpenDataStream(("STOR " + path.GetFtpPath()), 0);
+				stream = client.OpenDataStream("STOR " + path.GetFtpPath(), 0);
 
-				if (length > 0 && stream != null)
+				if (length > 0 && stream != null) {
 					stream.SetLength(length);
+				}
+
 #if !CORE14
 			}
 #endif
@@ -1381,7 +1390,7 @@ namespace FluentFTP {
 			return BeginOpenWrite(path, FtpDataType.Binary, callback, state);
 		}
 
-		delegate Stream AsyncOpenWrite(string path, FtpDataType type);
+		private delegate Stream AsyncOpenWrite(string path, FtpDataType type);
 
 		/// <summary>
 		/// Begins an asynchronous operation to open the specified file for writing
@@ -1424,36 +1433,35 @@ namespace FluentFTP {
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
 		/// <param name="token"><param name="token">Cancellation Token</param>
 		/// <returns>A stream for writing to the file on the server</returns>
-		public virtual async Task<Stream> OpenWriteAsync(string path, FtpDataType type, bool checkIfFileExists, CancellationToken token = default(CancellationToken))
-		{
+		public virtual async Task<Stream> OpenWriteAsync(string path, FtpDataType type, bool checkIfFileExists, CancellationToken token = default(CancellationToken)) {
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
-			this.LogFunc(nameof(OpenWriteAsync), new object[] { path, type });
+			LogFunc(nameof(OpenWriteAsync), new object[] {path, type});
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
 			long length = 0;
 
-			if (m_threadSafeDataChannels)
-			{
+			if (m_threadSafeDataChannels) {
 				client = CloneConnection();
 				client.CopyStateFlags(this);
 				await client.ConnectAsync(token);
 				await client.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
 			}
-			else
-			{
+			else {
 				client = this;
 			}
 
 			await client.SetDataTypeAsync(type, token);
 			length = checkIfFileExists ? await client.GetFileSizeAsync(path, token) : 0;
-			stream = await client.OpenDataStreamAsync(("STOR " + path.GetFtpPath()), 0, token);
+			stream = await client.OpenDataStreamAsync("STOR " + path.GetFtpPath(), 0, token);
 
-			if (length > 0 && stream != null)
+			if (length > 0 && stream != null) {
 				stream.SetLength(length);
+			}
 
 			return stream;
 		}
@@ -1516,12 +1524,12 @@ namespace FluentFTP {
 		/// <returns>A stream for writing to the file on the server</returns>
 		/// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
 		public virtual Stream OpenAppend(string path, FtpDataType type, bool checkIfFileExists) {
-
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
-			this.LogFunc("OpenAppend", new object[] { path, type });
+			LogFunc("OpenAppend", new object[] {path, type});
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1535,18 +1543,20 @@ namespace FluentFTP {
 					client.CopyStateFlags(this);
 					client.Connect();
 					client.SetWorkingDirectory(GetWorkingDirectory());
-				} else {
+				}
+				else {
 					client = this;
 				}
 
 				client.SetDataType(type);
 				length = checkIfFileExists ? client.GetFileSize(path) : 0;
-				stream = client.OpenDataStream(("APPE " + path.GetFtpPath()), 0);
+				stream = client.OpenDataStream("APPE " + path.GetFtpPath(), 0);
 
 				if (length > 0 && stream != null) {
 					stream.SetLength(length);
 					stream.SetPosition(length);
 				}
+
 #if !CORE14
 			}
 #endif
@@ -1567,7 +1577,7 @@ namespace FluentFTP {
 			return BeginOpenAppend(path, FtpDataType.Binary, callback, state);
 		}
 
-		delegate Stream AsyncOpenAppend(string path, FtpDataType type);
+		private delegate Stream AsyncOpenAppend(string path, FtpDataType type);
 
 		/// <summary>
 		/// Begins an asynchronous operation to open the specified file for appending
@@ -1610,37 +1620,34 @@ namespace FluentFTP {
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
 		/// <param name="token">Cancellation Token</param>
 		/// <returns>A stream for writing to the file on the server</returns>
-		public virtual async Task<Stream> OpenAppendAsync(string path, FtpDataType type, bool checkIfFileExists, CancellationToken token = default(CancellationToken))
-		{
+		public virtual async Task<Stream> OpenAppendAsync(string path, FtpDataType type, bool checkIfFileExists, CancellationToken token = default(CancellationToken)) {
 			// verify args
-			if (path.IsBlank())
+			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
 
-			this.LogFunc(nameof(OpenAppendAsync), new object[] { path, type });
+			LogFunc(nameof(OpenAppendAsync), new object[] {path, type});
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
 			long length = 0;
 
 
-			if (m_threadSafeDataChannels)
-			{
+			if (m_threadSafeDataChannels) {
 				client = CloneConnection();
 				client.CopyStateFlags(this);
 				await client.ConnectAsync(token);
 				await client.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
 			}
-			else
-			{
+			else {
 				client = this;
 			}
 
 			await client.SetDataTypeAsync(type, token);
 			length = checkIfFileExists ? await client.GetFileSizeAsync(path, token) : 0;
-			stream = await client.OpenDataStreamAsync(("APPE " + path.GetFtpPath()), 0, token);
+			stream = await client.OpenDataStreamAsync("APPE " + path.GetFtpPath(), 0, token);
 
-			if (length > 0 && stream != null)
-			{
+			if (length > 0 && stream != null) {
 				stream.SetLength(length);
 				stream.SetPosition(length);
 			}
@@ -1684,18 +1691,19 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
+
 				// FIX : #291 only change the data type if different
 				if (CurrentDataType != type || ForceSetDataType) {
-
 					// FIX : #318 always set the type when we create a new connection
 					ForceSetDataType = false;
 
-					this.SetDataTypeNoLock(type);
+					SetDataTypeNoLock(type);
 				}
+
 #if !CORE14
 			}
-#endif
 
+#endif
 		}
 
 		/// <summary>Internal method that handles actually setting the data type.</summary>
@@ -1710,12 +1718,16 @@ namespace FluentFTP {
 					if (!(reply = Execute("TYPE A")).Success) {
 						throw new FtpCommandException(reply);
 					}
+
 					break;
+
 				case FtpDataType.Binary:
 					if (!(reply = Execute("TYPE I")).Success) {
 						throw new FtpCommandException(reply);
 					}
+
 					break;
+
 				default:
 					throw new FtpException("Unsupported data type: " + type.ToString());
 			}
@@ -1724,7 +1736,7 @@ namespace FluentFTP {
 		}
 
 #if !CORE
-		delegate void AsyncSetDataType(FtpDataType type);
+		private delegate void AsyncSetDataType(FtpDataType type);
 
 		/// <summary>
 		/// Begins an asynchronous operation to set the data type of information sent over the data stream
@@ -1761,38 +1773,37 @@ namespace FluentFTP {
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="token">Cancellation Token</param>
 		protected async Task SetDataTypeAsync(FtpDataType type, CancellationToken token = default(CancellationToken)) {
-			
 			// FIX : #291 only change the data type if different
 			if (CurrentDataType != type || ForceSetDataType) {
-
 				// FIX : #318 always set the type when we create a new connection
 				ForceSetDataType = false;
-		
+
 				await SetDataTypeNoLockAsync(type, token);
 			}
-			
-
 		}
+
 		/// <summary>
 		/// Sets the data type of information sent over the data stream asynchronously
 		/// </summary>
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="token">Cancellation Token</param>
 		protected async Task SetDataTypeNoLockAsync(FtpDataType type, CancellationToken token = default(CancellationToken)) {
-		
 			FtpReply reply;
-			switch (type)
-			{
+			switch (type) {
 				case FtpDataType.ASCII:
-					if (!(reply = await ExecuteAsync("TYPE A", token)).Success){
+					if (!(reply = await ExecuteAsync("TYPE A", token)).Success) {
 						throw new FtpCommandException(reply);
 					}
+
 					break;
+
 				case FtpDataType.Binary:
-					if (!(reply = await ExecuteAsync("TYPE I", token)).Success){
+					if (!(reply = await ExecuteAsync("TYPE I", token)).Success) {
 						throw new FtpCommandException(reply);
 					}
+
 					break;
+
 				default:
 					throw new FtpException("Unsupported data type: " + type.ToString());
 			}
@@ -1800,7 +1811,7 @@ namespace FluentFTP {
 			CurrentDataType = type;
 		}
 #endif
-		#endregion
 
+		#endregion
 	}
 }

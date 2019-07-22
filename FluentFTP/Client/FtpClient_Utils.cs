@@ -18,17 +18,16 @@ using System.Threading;
 #endif
 #if ASYNC
 using System.Threading.Tasks;
+
 #endif
 
 namespace FluentFTP {
-
 	/// <summary>
 	/// A connection to a single FTP server. Interacts with any FTP/FTPS server and provides a high-level and low-level API to work with files and folders.
 	/// 
 	/// Debugging problems with FTP is much easier when you enable logging. See the FAQ on our Github project page for more info.
 	/// </summary>
 	public partial class FtpClient : IDisposable {
-
 		#region Utils
 
 		/// <summary>
@@ -38,7 +37,7 @@ namespace FluentFTP {
 		/// <param name="cap">The <see cref="FtpCapability"/> to check for</param>
 		/// <returns>True if the feature was found, false otherwise</returns>
 		public bool HasFeature(FtpCapability cap) {
-			return ((this.Capabilities & cap) == cap);
+			return (Capabilities & cap) == cap;
 		}
 
 		/// <summary>
@@ -59,19 +58,19 @@ namespace FluentFTP {
 				if (!m_asyncmethods.ContainsKey(ar)) {
 					throw new InvalidOperationException("The specified IAsyncResult could not be located.");
 				}
+
 				if (!(m_asyncmethods[ar] is T)) {
 #if CORE
 					throw new InvalidCastException("The AsyncResult cannot be matched to the specified delegate. ");
 #else
-					StackTrace st = new StackTrace(1);
+					var st = new StackTrace(1);
 
-					throw new InvalidCastException("The AsyncResult cannot be matched to the specified delegate. " +
-						("Are you sure you meant to call " + st.GetFrame(0).GetMethod().Name + " and not another method?")
+					throw new InvalidCastException("The AsyncResult cannot be matched to the specified delegate. " + "Are you sure you meant to call " + st.GetFrame(0).GetMethod().Name + " and not another method?"
 					);
 #endif
 				}
 
-				func = (T)m_asyncmethods[ar];
+				func = (T) m_asyncmethods[ar];
 				m_asyncmethods.Remove(ar);
 			}
 
@@ -83,68 +82,66 @@ namespace FluentFTP {
 		/// </summary>
 		private string GetAbsolutePath(string path) {
 			if (path == null || path.Trim().Length == 0) {
-
 				// if path not given, then use working dir
-				string pwd = GetWorkingDirectory();
+				var pwd = GetWorkingDirectory();
 				if (pwd != null && pwd.Trim().Length > 0) {
 					path = pwd;
-				} else {
+				}
+				else {
 					path = "./";
 				}
 
 				// FIX : #153 ensure this check works with unix & windows
-			} else if (!path.StartsWith("/") && path.Substring(1, 1) != ":") {
-
+			}
+			else if (!path.StartsWith("/") && path.Substring(1, 1) != ":") {
 				// if its a server-specific absolute path then don't add base dir
 				if (IsAbsolutePath(path)) {
 					return path;
 				}
 
 				// if relative path given then add working dir to calc full path
-				string pwd = GetWorkingDirectory();
+				var pwd = GetWorkingDirectory();
 				if (pwd != null && pwd.Trim().Length > 0) {
 					if (path.StartsWith("./")) {
 						path = path.Remove(0, 2);
 					}
+
 					path = (pwd + "/" + path).GetFtpPath();
 				}
 			}
+
 			return path;
 		}
 
 #if ASYNC
-        /// <summary>
-        /// Ensure a relative path is absolute by appending the working dir
-        /// </summary>
-        private async Task<string> GetAbsolutePathAsync(string path, CancellationToken token)
-        {
-            if (path == null || path.Trim().Length == 0)
-            {
-
-                // if path not given, then use working dir
-                string pwd = await GetWorkingDirectoryAsync(token);
-                if (pwd != null && pwd.Trim().Length > 0){
-                    path = pwd;
-                } else {
-                    path = "./";
+		/// <summary>
+		/// Ensure a relative path is absolute by appending the working dir
+		/// </summary>
+		private async Task<string> GetAbsolutePathAsync(string path, CancellationToken token) {
+			if (path == null || path.Trim().Length == 0) {
+				// if path not given, then use working dir
+				string pwd = await GetWorkingDirectoryAsync(token);
+				if (pwd != null && pwd.Trim().Length > 0) {
+					path = pwd;
 				}
-
-            }
-            else if (!path.StartsWith("/"))
-            {
-
-                // if relative path given then add working dir to calc full path
-                string pwd = await GetWorkingDirectoryAsync(token);
-                if (pwd != null && pwd.Trim().Length > 0)
-                {
-                    if (path.StartsWith("./")){
-                        path = path.Remove(0, 2);
+				else {
+					path = "./";
+				}
+			}
+			else if (!path.StartsWith("/")) {
+				// if relative path given then add working dir to calc full path
+				string pwd = await GetWorkingDirectoryAsync(token);
+				if (pwd != null && pwd.Trim().Length > 0) {
+					if (path.StartsWith("./")) {
+						path = path.Remove(0, 2);
 					}
-                    path = (pwd + "/" + path).GetFtpPath();
-                }
-            }
-            return path;
-        }
+
+					path = (pwd + "/" + path).GetFtpPath();
+				}
+			}
+
+			return path;
+		}
 #endif
 
 		private static string DecodeUrl(string url) {
@@ -174,6 +171,7 @@ namespace FluentFTP {
 				m_textEncodingAutoUTF = false;
 #if !CORE14
 			}
+
 #endif
 		}
 
@@ -188,13 +186,14 @@ namespace FluentFTP {
 		private void ReadStaleData(bool closeStream, bool evenEncrypted, bool traceData) {
 			if (m_stream != null && m_stream.SocketDataAvailable > 0) {
 				if (traceData) {
-					this.LogStatus(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out or you did not call GetReply(). Re-connecting...");
+					LogStatus(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out or you did not call GetReply(). Re-connecting...");
 				}
+
 				if (m_stream.IsConnected && (!m_stream.IsEncrypted || evenEncrypted)) {
-					byte[] buf = new byte[m_stream.SocketDataAvailable];
+					var buf = new byte[m_stream.SocketDataAvailable];
 					m_stream.RawSocketRead(buf);
 					if (traceData) {
-						this.LogStatus(FtpTraceLevel.Verbose, "The stale data was: " + Encoding.GetString(buf).TrimEnd('\r', '\n'));
+						LogStatus(FtpTraceLevel.Verbose, "The stale data was: " + Encoding.GetString(buf).TrimEnd('\r', '\n'));
 					}
 				}
 
@@ -214,40 +213,33 @@ namespace FluentFTP {
 		/// <param name="evenEncrypted">even read encrypted data?</param>
 		/// <param name="traceData">trace data to logs?</param>
 		/// <param name="token">Cancellation Token</param>
+		private async Task ReadStaleDataAsync(bool closeStream, bool evenEncrypted, bool traceData, CancellationToken token) {
+			if (m_stream != null && m_stream.SocketDataAvailable > 0) {
+				if (traceData) {
+					LogStatus(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out or you did not call GetReply(). Re-connecting...");
+				}
 
-		private async Task ReadStaleDataAsync(bool closeStream, bool evenEncrypted, bool traceData, CancellationToken token)
-        {
-            if (m_stream != null && m_stream.SocketDataAvailable > 0)
-            {
-                if (traceData)
-                {
-                    this.LogStatus(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out or you did not call GetReply(). Re-connecting...");
-                }
-                if (m_stream.IsConnected && (!m_stream.IsEncrypted || evenEncrypted))
-                {
-                    byte[] buf = new byte[m_stream.SocketDataAvailable];
-                    await m_stream.RawSocketReadAsync(buf, token);
-                    if (traceData)
-                    {
-                        this.LogStatus(FtpTraceLevel.Verbose, "The stale data was: " + Encoding.GetString(buf).TrimEnd('\r', '\n'));
-                    }
-                }
+				if (m_stream.IsConnected && (!m_stream.IsEncrypted || evenEncrypted)) {
+					var buf = new byte[m_stream.SocketDataAvailable];
+					await m_stream.RawSocketReadAsync(buf, token);
+					if (traceData) {
+						LogStatus(FtpTraceLevel.Verbose, "The stale data was: " + Encoding.GetString(buf).TrimEnd('\r', '\n'));
+					}
+				}
 
-                if (closeStream)
-                {
-                    m_stream.Close();
-                }
-            }
-        }
+				if (closeStream) {
+					m_stream.Close();
+				}
+			}
+		}
 #endif
 
 		/// <summary>
 		/// Checks if this FTP/FTPS connection is made through a proxy.
 		/// </summary>
 		public bool IsProxy() {
-			return (this is FtpClientProxy);
+			return this is FtpClientProxy;
 		}
-
 
 		#endregion
 
@@ -264,7 +256,6 @@ namespace FluentFTP {
 		/// <param name="function">The name of the API function</param>
 		/// <param name="args">The args passed to the function</param>
 		public void LogFunc(string function, object[] args = null) {
-
 			// log to attached logger if given
 			if (OnLogEvent != null) {
 				OnLogEvent(FtpTraceLevel.Verbose, ">         " + function + "(" + args.ItemsToString().Join(", ") + ")");
@@ -273,13 +264,13 @@ namespace FluentFTP {
 			// log to system
 			FtpTrace.WriteFunc(function, args);
 		}
+
 		/// <summary>
 		/// Log a message
 		/// </summary>
 		/// <param name="eventType">The type of tracing event</param>
 		/// <param name="message">The message to write</param>
 		public void LogLine(FtpTraceLevel eventType, string message) {
-
 			// log to attached logger if given
 			if (OnLogEvent != null) {
 				OnLogEvent(eventType, message);
@@ -295,7 +286,6 @@ namespace FluentFTP {
 		/// <param name="eventType">The type of tracing event</param>
 		/// <param name="message">The message to write</param>
 		public void LogStatus(FtpTraceLevel eventType, string message) {
-
 			// add prefix
 			message = TraceLevelPrefix(eventType) + message;
 
@@ -307,20 +297,25 @@ namespace FluentFTP {
 			// log to system
 			FtpTrace.WriteLine(eventType, message);
 		}
+
 		private static string TraceLevelPrefix(FtpTraceLevel level) {
 			switch (level) {
 				case FtpTraceLevel.Verbose:
 					return "Status:   ";
+
 				case FtpTraceLevel.Info:
 					return "Status:   ";
+
 				case FtpTraceLevel.Warn:
 					return "Warning:  ";
+
 				case FtpTraceLevel.Error:
 					return "Error:    ";
 			}
+
 			return "Status:   ";
 		}
-		#endregion
 
+		#endregion
 	}
 }

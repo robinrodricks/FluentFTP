@@ -1,7 +1,6 @@
 ﻿using System;
 
 namespace FluentFTP {
-
 	/// <summary>
 	/// Defines how multi-file processes should handle a processing error.
 	/// </summary>
@@ -12,6 +11,7 @@ namespace FluentFTP {
 		/// No action is taken upon errors.  The method absorbs the error and continues.
 		/// </summary>
 		None = 0,
+
 		/// <summary>
 		/// If any files have completed successfully (or failed after a partial download/upload) then should be deleted.  
 		/// This will simulate an all-or-nothing transaction downloading or uploading multiple files.  If this option is not
@@ -20,17 +20,17 @@ namespace FluentFTP {
 		/// encountered at any point.
 		/// </summary>
 		DeleteProcessed = 1,
+
 		/// <summary>
 		/// The method should stop processing any additional files and immediately return upon encountering an error.
 		/// Cannot be combined with <see cref="FtpError.Throw"/>
 		/// </summary>
 		Stop = 2,
+
 		/// <summary>
 		/// The method should stop processing any additional files and immediately throw the current error.
 		/// Cannot be combined with <see cref="FtpError.Stop"/>
 		/// </summary>
 		Throw = 4,
-
 	}
-
 }

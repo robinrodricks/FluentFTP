@@ -3,53 +3,58 @@ using System.Net;
 using FluentFTP;
 
 namespace Examples {
-    static class GetListingExample {
-        public static void GetListing() {
-            using (FtpClient conn = new FtpClient()) {
-                conn.Host = "localhost";
-                conn.Credentials = new NetworkCredential("ftptest", "ftptest");
-                
-                foreach (FtpListItem item in conn.GetListing(conn.GetWorkingDirectory(),
-                    FtpListOption.Modify | FtpListOption.Size)) {
+	internal static class GetListingExample {
+		public static void GetListing() {
+			using (var conn = new FtpClient()) {
+				conn.Host = "localhost";
+				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
 
-                    switch (item.Type) {
-                        case FtpFileSystemObjectType.Directory:
-                            break;
-                        case FtpFileSystemObjectType.File:
-                            break;
-                        case FtpFileSystemObjectType.Link:
-                            // derefernece symbolic links
-                            if (item.LinkTarget != null) {
-                                // see the DereferenceLink() example
-                                // for more details about resolving links.
-                                item.LinkObject = conn.DereferenceLink(item);
+				foreach (var item in conn.GetListing(conn.GetWorkingDirectory(),
+					FtpListOption.Modify | FtpListOption.Size)) {
+					switch (item.Type) {
+						case FtpFileSystemObjectType.Directory:
+							break;
 
-                                if (item.LinkObject != null) {
-                                    // switch (item.LinkObject.Type)...
-                                }
-                            }
-                            break;
-                    }
-                }
+						case FtpFileSystemObjectType.File:
+							break;
 
-                // same example except automatically dereference symbolic links.
-                // see the DereferenceLink() example for more details about resolving links.
-                foreach (FtpListItem item in conn.GetListing(conn.GetWorkingDirectory(),
-                    FtpListOption.Modify | FtpListOption.Size | FtpListOption.DerefLinks)) {
+						case FtpFileSystemObjectType.Link:
 
-                    switch (item.Type) {
-                        case FtpFileSystemObjectType.Directory:
-                            break;
-                        case FtpFileSystemObjectType.File:
-                            break;
-                        case FtpFileSystemObjectType.Link:
-                            if (item.LinkObject != null) {
-                                // switch (item.LinkObject.Type)...
-                            }
-                            break;
-                    }
-                }
-            }
-        }
-    }
+							// derefernece symbolic links
+							if (item.LinkTarget != null) {
+								// see the DereferenceLink() example
+								// for more details about resolving links.
+								item.LinkObject = conn.DereferenceLink(item);
+
+								if (item.LinkObject != null) {
+									// switch (item.LinkObject.Type)...
+								}
+							}
+
+							break;
+					}
+				}
+
+				// same example except automatically dereference symbolic links.
+				// see the DereferenceLink() example for more details about resolving links.
+				foreach (var item in conn.GetListing(conn.GetWorkingDirectory(),
+					FtpListOption.Modify | FtpListOption.Size | FtpListOption.DerefLinks)) {
+					switch (item.Type) {
+						case FtpFileSystemObjectType.Directory:
+							break;
+
+						case FtpFileSystemObjectType.File:
+							break;
+
+						case FtpFileSystemObjectType.Link:
+							if (item.LinkObject != null) {
+								// switch (item.LinkObject.Type)...
+							}
+
+							break;
+					}
+				}
+			}
+		}
+	}
 }

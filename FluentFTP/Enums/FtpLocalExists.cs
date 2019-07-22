@@ -1,12 +1,10 @@
 ﻿using System;
 
 namespace FluentFTP {
-
 	/// <summary>
 	/// Determines how we handle partially downloaded files
 	/// </summary>
 	public enum FtpLocalExists {
-
 		/// <summary>
 		/// Restart the download of a file if it is partially downloaded.
 		/// Overwrites the file if it exists on disk.
@@ -26,5 +24,4 @@ namespace FluentFTP {
 		/// </summary>
 		Skip
 	}
-
 }

@@ -11,10 +11,10 @@ using System.Net;
 
 #if NET45
 using System.Threading.Tasks;
+
 #endif
 
 namespace FluentFTP {
-
 	/// <summary>
 	/// Event is fired when a SSL certificate needs to be validated
 	/// </summary>
@@ -34,59 +34,46 @@ namespace FluentFTP {
 	/// Event args for the FtpSslValidationError delegate
 	/// </summary>
 	public class FtpSslValidationEventArgs : EventArgs {
-		X509Certificate m_certificate = null;
+		private X509Certificate m_certificate = null;
+
 		/// <summary>
 		/// The certificate to be validated
 		/// </summary>
 		public X509Certificate Certificate {
-			get {
-				return m_certificate;
-			}
-			set {
-				m_certificate = value;
-			}
+			get => m_certificate;
+			set => m_certificate = value;
 		}
 
-		X509Chain m_chain = null;
+		private X509Chain m_chain = null;
+
 		/// <summary>
 		/// The certificate chain
 		/// </summary>
 		public X509Chain Chain {
-			get {
-				return m_chain;
-			}
-			set {
-				m_chain = value;
-			}
+			get => m_chain;
+			set => m_chain = value;
 		}
 
-		SslPolicyErrors m_policyErrors = SslPolicyErrors.None;
+		private SslPolicyErrors m_policyErrors = SslPolicyErrors.None;
+
 		/// <summary>
 		/// Validation errors, if any.
 		/// </summary>
 		public SslPolicyErrors PolicyErrors {
-			get {
-				return m_policyErrors;
-			}
-			set {
-				m_policyErrors = value;
-			}
+			get => m_policyErrors;
+			set => m_policyErrors = value;
 		}
 
-		bool m_accept = false;
+		private bool m_accept = false;
+
 		/// <summary>
 		/// Gets or sets a value indicating if this certificate should be accepted. The default
 		/// value is false. If the certificate is not accepted, an AuthenticationException will
 		/// be thrown.
 		/// </summary>
 		public bool Accept {
-			get {
-				return m_accept;
-			}
-			set {
-				m_accept = value;
-			}
+			get => m_accept;
+			set => m_accept = value;
 		}
 	}
-
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 
 namespace FluentFTP {
-
 	/// <summary>
 	/// Data connection type
 	/// </summary>
@@ -13,6 +12,7 @@ namespace FluentFTP {
 		/// in which case the PASV command is not supported.
 		/// </summary>
 		AutoPassive,
+
 		/// <summary>
 		/// Passive data connection. EPSV is a better
 		/// option if it's supported. Passive connections
@@ -26,6 +26,7 @@ namespace FluentFTP {
 		/// automatically be used in its place.
 		/// </summary>
 		PASV,
+
 		/// <summary>
 		/// Same as PASV except the host supplied by the server is ignored
 		/// and the data connection is made to the same address that the control
@@ -38,6 +39,7 @@ namespace FluentFTP {
 		/// automatically be used in its place.
 		/// </summary>
 		PASVEX,
+
 		/// <summary>
 		/// Extended passive data connection, recommended. Works
 		/// the same as a PASV connection except the server
@@ -47,6 +49,7 @@ namespace FluentFTP {
 		/// supports IPv4 and IPv6.
 		/// </summary>
 		EPSV,
+
 		/// <summary>
 		/// This type of data connection attempts to use the EPRT command
 		/// and if the server does not support EPRT it falls back to the
@@ -54,6 +57,7 @@ namespace FluentFTP {
 		/// in which case the PORT command is not supported.
 		/// </summary>
 		AutoActive,
+
 		/// <summary>
 		/// Active data connection, not recommended unless
 		/// you have a specific reason for using this type.
@@ -69,6 +73,7 @@ namespace FluentFTP {
 		/// EPRT will automatically be used instead.
 		/// </summary>
 		PORT,
+
 		/// <summary>
 		/// Extended active data connection, not recommended
 		/// unless you have a specific reason for using this
@@ -81,5 +86,4 @@ namespace FluentFTP {
 		/// </summary>
 		EPRT
 	}
-
 }

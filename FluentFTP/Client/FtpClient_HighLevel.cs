@@ -21,31 +21,31 @@ using System.Threading;
 #endif
 #if (CORE || NET45)
 using System.Threading.Tasks;
+
 #endif
 
 namespace FluentFTP {
-
 	public partial class FtpClient : IDisposable {
-		
 		#region Verification
 
 		private bool VerifyTransfer(string localPath, string remotePath) {
-
 			// verify args
 			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
 			}
+
 			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
-				this.HasFeature(FtpCapability.XMD5) || this.HasFeature(FtpCapability.XCRC) ||
-				this.HasFeature(FtpCapability.XSHA1) || this.HasFeature(FtpCapability.XSHA256) ||
-				this.HasFeature(FtpCapability.XSHA512)) {
-				FtpHash hash = this.GetChecksum(remotePath);
-				if (!hash.IsValid)
+			if (HasFeature(FtpCapability.HASH) || HasFeature(FtpCapability.MD5) ||
+			    HasFeature(FtpCapability.XMD5) || HasFeature(FtpCapability.XCRC) ||
+			    HasFeature(FtpCapability.XSHA1) || HasFeature(FtpCapability.XSHA256) ||
+			    HasFeature(FtpCapability.XSHA512)) {
+				var hash = GetChecksum(remotePath);
+				if (!hash.IsValid) {
 					return false;
+				}
 
 				return hash.Verify(localPath);
 			}
@@ -56,22 +56,23 @@ namespace FluentFTP {
 
 #if ASYNC
 		private async Task<bool> VerifyTransferAsync(string localPath, string remotePath, CancellationToken token = default(CancellationToken)) {
-
 			// verify args
-			if (localPath.IsBlank()){
+			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
 			}
-			if (remotePath.IsBlank()){
+
+			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
-			
-			if (this.HasFeature(FtpCapability.HASH) || this.HasFeature(FtpCapability.MD5) ||
-				this.HasFeature(FtpCapability.XMD5) || this.HasFeature(FtpCapability.XCRC) ||
-				this.HasFeature(FtpCapability.XSHA1) || this.HasFeature(FtpCapability.XSHA256) ||
-				this.HasFeature(FtpCapability.XSHA512)) {
-				FtpHash hash = await this.GetChecksumAsync(remotePath, token);
-				if (!hash.IsValid)
+
+			if (HasFeature(FtpCapability.HASH) || HasFeature(FtpCapability.MD5) ||
+			    HasFeature(FtpCapability.XMD5) || HasFeature(FtpCapability.XCRC) ||
+			    HasFeature(FtpCapability.XSHA1) || HasFeature(FtpCapability.XSHA256) ||
+			    HasFeature(FtpCapability.XSHA512)) {
+				FtpHash hash = await GetChecksumAsync(remotePath, token);
+				if (!hash.IsValid) {
 					return false;
+				}
 
 				return hash.Verify(localPath);
 			}
@@ -89,42 +90,39 @@ namespace FluentFTP {
 		/// Sends progress to the user, either a value between 0-100 indicating percentage complete, or -1 for indeterminate.
 		/// </summary>
 		private void ReportProgress(IProgress<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime) {
-
 			// default values to send
-			double progressValue = -1; 
+			double progressValue = -1;
 			double transferSpeed = 0;
-			TimeSpan estimatedRemaingTime = TimeSpan.Zero;
+			var estimatedRemaingTime = TimeSpan.Zero;
 
 			// catch any divide-by-zero errors
 			try {
-
 				// calculate % based on file len vs file offset
 				// send a value between 0-100 indicating percentage complete
-				progressValue = ((double)position / (double)fileSize) * 100;
+				progressValue = (double) position / (double) fileSize * 100;
 
 				// calcute raw transferSpeed (bytes per second)
 				transferSpeed = bytesProcessed / elapsedtime.TotalSeconds;
 
 				//calculate remaining time			
-				estimatedRemaingTime = TimeSpan.FromSeconds(((fileSize - position) / transferSpeed));
-
-			} catch (Exception) {
+				estimatedRemaingTime = TimeSpan.FromSeconds((fileSize - position) / transferSpeed);
+			}
+			catch (Exception) {
 			}
 
 			// suppress invalid values and send -1 instead
 			if (double.IsNaN(progressValue) && double.IsInfinity(progressValue)) {
 				progressValue = -1;
 			}
+
 			if (double.IsNaN(transferSpeed) && double.IsInfinity(transferSpeed)) {
 				transferSpeed = 0;
 			}
 
 			// send progress to parent
 			progress.Report(new FtpProgress(progressValue, transferSpeed, estimatedRemaingTime));
-
 		}
 
 		#endregion
-
 	}
 }

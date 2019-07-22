@@ -9,7 +9,7 @@ namespace Examples {
 	/// is currently used to parse UNIX style long listings and serves as an
 	/// example for adding your own parser.
 	/// </summary>
-	class CustomParser {
+	internal class CustomParser {
 		/// <summary>
 		/// Adds a custom file listing parser
 		/// </summary>
@@ -23,10 +23,10 @@ namespace Examples {
 		/// <param name="buf">A line from the listing</param>
 		/// <param name="capabilities">Server capabilities</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		static FtpListItem ParseUnixList(string buf, FtpCapability capabilities, FtpClient client) {
-			FtpListItem item = new FtpListItem();
+		private static FtpListItem ParseUnixList(string buf, FtpCapability capabilities, FtpClient client) {
+			var item = new FtpListItem();
 			Match m = null;
-			string regex =
+			var regex =
 				@"(?<permissions>[\w-]{10})\s+" +
 				@"(?<objectcount>\d+)\s+" +
 				@"(?<user>[\w\d]+)\s+" +
@@ -41,9 +41,11 @@ namespace Examples {
 
 			if (m.Groups["permissions"].Value.StartsWith("d")) {
 				item.Type = FtpFileSystemObjectType.Directory;
-			} else if (m.Groups["permissions"].Value.StartsWith("-")) {
+			}
+			else if (m.Groups["permissions"].Value.StartsWith("-")) {
 				item.Type = FtpFileSystemObjectType.File;
-			} else {
+			}
+			else {
 				return null;
 			}
 
@@ -52,6 +54,7 @@ namespace Examples {
 			if (m.Groups["name"].Value.Length < 1) {
 				return null;
 			}
+
 			item.Name = m.Groups["name"].Value;
 
 			if (item.Type == FtpFileSystemObjectType.Directory && (item.Name == "." || item.Name == "..")) {
@@ -79,7 +82,7 @@ namespace Examples {
 			}
 
 			if (m.Groups["permissions"].Value.Length > 0) {
-				Match perms = Regex.Match(m.Groups["permissions"].Value,
+				var perms = Regex.Match(m.Groups["permissions"].Value,
 					@"[\w-]{1}(?<owner>[\w-]{3})(?<group>[\w-]{3})(?<others>[\w-]{3})",
 					RegexOptions.IgnoreCase);
 
@@ -88,12 +91,15 @@ namespace Examples {
 						if (perms.Groups["owner"].Value[0] == 'r') {
 							item.OwnerPermissions |= FtpPermission.Read;
 						}
+
 						if (perms.Groups["owner"].Value[1] == 'w') {
 							item.OwnerPermissions |= FtpPermission.Write;
 						}
+
 						if (perms.Groups["owner"].Value[2] == 'x' || perms.Groups["owner"].Value[2] == 's') {
 							item.OwnerPermissions |= FtpPermission.Execute;
 						}
+
 						if (perms.Groups["owner"].Value[2] == 's' || perms.Groups["owner"].Value[2] == 'S') {
 							item.SpecialPermissions |= FtpSpecialPermissions.SetUserID;
 						}
@@ -103,12 +109,15 @@ namespace Examples {
 						if (perms.Groups["group"].Value[0] == 'r') {
 							item.GroupPermissions |= FtpPermission.Read;
 						}
+
 						if (perms.Groups["group"].Value[1] == 'w') {
 							item.GroupPermissions |= FtpPermission.Write;
 						}
+
 						if (perms.Groups["group"].Value[2] == 'x' || perms.Groups["group"].Value[2] == 's') {
 							item.GroupPermissions |= FtpPermission.Execute;
 						}
+
 						if (perms.Groups["group"].Value[2] == 's' || perms.Groups["group"].Value[2] == 'S') {
 							item.SpecialPermissions |= FtpSpecialPermissions.SetGroupID;
 						}
@@ -118,12 +127,15 @@ namespace Examples {
 						if (perms.Groups["others"].Value[0] == 'r') {
 							item.OthersPermissions |= FtpPermission.Read;
 						}
+
 						if (perms.Groups["others"].Value[1] == 'w') {
 							item.OthersPermissions |= FtpPermission.Write;
 						}
+
 						if (perms.Groups["others"].Value[2] == 'x' || perms.Groups["others"].Value[2] == 't') {
 							item.OthersPermissions |= FtpPermission.Execute;
 						}
+
 						if (perms.Groups["others"].Value[2] == 't' || perms.Groups["others"].Value[2] == 'T') {
 							item.SpecialPermissions |= FtpSpecialPermissions.Sticky;
 						}

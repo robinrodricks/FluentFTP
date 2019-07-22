@@ -1,6 +1,7 @@
 ﻿using System;
 #if !CORE
 using System.Runtime.Serialization;
+
 #endif
 
 namespace FluentFTP {
@@ -11,24 +12,28 @@ namespace FluentFTP {
 	[Serializable]
 #endif
 	public class FtpException : Exception {
-
 		/// <summary>
 		/// Initializes a new instance of the <see cref="FtpException"/> class.
 		/// </summary>
 		/// <param name="message">The error message</param>
-		public FtpException(string message) : base(message) { }
+		public FtpException(string message) : base(message) {
+		}
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="FtpException"/> class with an inner exception.
 		/// </summary>
 		/// <param name="message">The error message that explains the reason for the exception.</param>
 		/// <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
-		public FtpException(string message, Exception innerException) : base(message, innerException) { }
+		public FtpException(string message, Exception innerException) : base(message, innerException) {
+		}
 
 #if !CORE
 		/// <summary>
 		/// Must be implemented so every Serializer can Deserialize the Exception
 		/// </summary>
-		protected FtpException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+		protected FtpException(SerializationInfo info, StreamingContext context) : base(info, context) {
+		}
+
 #endif
 	}
 
@@ -39,13 +44,14 @@ namespace FluentFTP {
 	[Serializable]
 #endif
 	public class FtpCommandException : FtpException {
-		string _code = null;
+		private string _code = null;
+
 		/// <summary>
 		/// Gets the completion code associated with the response
 		/// </summary>
 		public string CompletionCode {
-			get { return _code; }
-			private set { _code = value; }
+			get => _code;
+			private set => _code = value;
 		}
 
 		/// <summary>
@@ -60,6 +66,7 @@ namespace FluentFTP {
 					switch (_code[0]) {
 						case '4':
 							return FtpResponseType.TransientNegativeCompletion;
+
 						case '5':
 							return FtpResponseType.PermanentNegativeCompletion;
 					}
@@ -91,7 +98,9 @@ namespace FluentFTP {
 		/// <summary>
 		/// Must be implemented so every Serializer can Deserialize the Exception
 		/// </summary>
-		protected FtpCommandException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+		protected FtpCommandException(SerializationInfo info, StreamingContext context) : base(info, context) {
+		}
+
 #endif
 	}
 
@@ -101,26 +110,29 @@ namespace FluentFTP {
 #if !CORE
 	[Serializable]
 #endif
-	public class FtpAuthenticationException : FtpCommandException
-	{
+	public class FtpAuthenticationException : FtpCommandException {
 		/// <summary>
 		/// Initializes a new instance of a FtpAuthenticationException
 		/// </summary>
 		/// <param name="code">Status code</param>
 		/// <param name="message">Associated message</param>
-		public FtpAuthenticationException(string code, string message) : base(code, message) { }
+		public FtpAuthenticationException(string code, string message) : base(code, message) {
+		}
 
 		/// <summary>
 		/// Initializes a new instance of a FtpAuthenticationException
 		/// </summary>
 		/// <param name="reply">The FtpReply to build the exception from</param>
-		public FtpAuthenticationException(FtpReply reply) : base(reply) { }
+		public FtpAuthenticationException(FtpReply reply) : base(reply) {
+		}
 
 #if !CORE
 		/// <summary>
 		/// Must be implemented so every Serializer can Deserialize the Exception
 		/// </summary>
-		protected FtpAuthenticationException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+		protected FtpAuthenticationException(SerializationInfo info, StreamingContext context) : base(info, context) {
+		}
+
 #endif
 	}
 
@@ -150,7 +162,9 @@ namespace FluentFTP {
 		/// <summary>
 		/// Must be implemented so every Serializer can Deserialize the Exception
 		/// </summary>
-		protected FtpSecurityNotAvailableException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+		protected FtpSecurityNotAvailableException(SerializationInfo info, StreamingContext context) : base(info, context) {
+		}
+
 #endif
 	}
 }

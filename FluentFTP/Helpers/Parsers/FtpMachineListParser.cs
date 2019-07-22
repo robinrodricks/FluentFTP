@@ -8,10 +8,10 @@ using System.Text.RegularExpressions;
 
 #if NET45
 using System.Threading.Tasks;
+
 #endif
 namespace FluentFTP.Helpers.Parsers {
 	internal class FtpMachineListParser {
-
 		/// <summary>
 		/// Parses MLSD/MLST format listings
 		/// </summary>
@@ -19,7 +19,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <param name="capabilities">Server capabilities</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
 		public static FtpListItem Parse(string record, FtpCapability capabilities, FtpClient client) {
-			FtpListItem item = new FtpListItem();
+			var item = new FtpListItem();
 			Match m;
 
 			if (!(m = Regex.Match(record, "type=(?<type>.+?);", RegexOptions.IgnoreCase)).Success) {
@@ -32,9 +32,11 @@ namespace FluentFTP.Helpers.Parsers {
 				case "cdir":
 					item.Type = FtpFileSystemObjectType.Directory;
 					break;
+
 				case "file":
 					item.Type = FtpFileSystemObjectType.File;
 					break;
+
 				// These are not supported for now.
 				case "link":
 				case "device":
@@ -44,7 +46,9 @@ namespace FluentFTP.Helpers.Parsers {
 
 			if ((m = Regex.Match(record, "; (?<name>.*)$", RegexOptions.IgnoreCase)).Success) {
 				item.Name = m.Groups["name"].Value;
-			} else { // if we can't parse the file name there is a problem.
+			}
+			else {
+				// if we can't parse the file name there is a problem.
 				return null;
 			}
 
@@ -79,8 +83,9 @@ namespace FluentFTP.Helpers.Parsers {
 			if ((m = Regex.Match(record, @"size=(?<size>\d+);", RegexOptions.IgnoreCase)).Success) {
 				long size;
 
-				if (long.TryParse(m.Groups["size"].Value, out size))
+				if (long.TryParse(m.Groups["size"].Value, out size)) {
 					item.Size = size;
+				}
 			}
 		}
 
@@ -91,15 +96,16 @@ namespace FluentFTP.Helpers.Parsers {
 			Match m;
 			if ((m = Regex.Match(record, @"unix.mode=(?<mode>\d+);", RegexOptions.IgnoreCase)).Success) {
 				if (m.Groups["mode"].Value.Length == 4) {
-					item.SpecialPermissions = (FtpSpecialPermissions)int.Parse(m.Groups["mode"].Value[0].ToString());
-					item.OwnerPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[1].ToString());
-					item.GroupPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[2].ToString());
-					item.OthersPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[3].ToString());
+					item.SpecialPermissions = (FtpSpecialPermissions) int.Parse(m.Groups["mode"].Value[0].ToString());
+					item.OwnerPermissions = (FtpPermission) int.Parse(m.Groups["mode"].Value[1].ToString());
+					item.GroupPermissions = (FtpPermission) int.Parse(m.Groups["mode"].Value[2].ToString());
+					item.OthersPermissions = (FtpPermission) int.Parse(m.Groups["mode"].Value[3].ToString());
 					item.CalculateChmod();
-				} else if (m.Groups["mode"].Value.Length == 3) {
-					item.OwnerPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[0].ToString());
-					item.GroupPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[1].ToString());
-					item.OthersPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[2].ToString());
+				}
+				else if (m.Groups["mode"].Value.Length == 3) {
+					item.OwnerPermissions = (FtpPermission) int.Parse(m.Groups["mode"].Value[0].ToString());
+					item.GroupPermissions = (FtpPermission) int.Parse(m.Groups["mode"].Value[1].ToString());
+					item.OthersPermissions = (FtpPermission) int.Parse(m.Groups["mode"].Value[2].ToString());
 					item.CalculateChmod();
 				}
 			}

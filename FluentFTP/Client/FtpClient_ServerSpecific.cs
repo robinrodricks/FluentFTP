@@ -21,12 +21,11 @@ using System.Threading;
 #endif
 #if ASYNC
 using System.Threading.Tasks;
+
 #endif
 
 namespace FluentFTP {
-
 	public partial class FtpClient : IDisposable {
-
 		#region Detect Server
 
 		/// <summary>
@@ -34,10 +33,8 @@ namespace FluentFTP {
 		/// Its the primary method.
 		/// </summary>
 		private void DetectFtpServer() {
-
 			if (HandshakeReply.Success && (HandshakeReply.Message != null || HandshakeReply.InfoMessages != null)) {
-
-				string welcome = (HandshakeReply.Message ?? "") + (HandshakeReply.InfoMessages ?? "");
+				var welcome = (HandshakeReply.Message ?? "") + (HandshakeReply.InfoMessages ?? "");
 
 				// Detect Pure-FTPd server
 				// Welcome message: "---------- Welcome to Pure-FTPd [privsep] [TLS] ----------"
@@ -119,6 +116,12 @@ namespace FluentFTP {
 				}
 
 				// Detect BFTPd server
+				// Welcome message: "220 Aruba FTP2S3 gateway 1.0.1 ready"
+				else if (welcome.Contains("FTP2S3 gateway")) {
+					m_serverType = FtpServer.FTP2S3Gateway;
+				}
+
+				// Detect BFTPd server
 				// Welcome message: "220 bftpd 2.2.1 at 192.168.1.1 ready"
 				else if (welcome.Contains("bftpd ")) {
 					m_serverType = FtpServer.BFTPd;
@@ -133,54 +136,43 @@ namespace FluentFTP {
 
 				// trace it
 				if (m_serverType != FtpServer.Unknown) {
-					this.LogLine(FtpTraceLevel.Info, "Status:   Detected FTP server: " + m_serverType.ToString());
+					LogLine(FtpTraceLevel.Info, "Status:   Detected FTP server: " + m_serverType.ToString());
 				}
-
 			}
-
 		}
+
 		/// <summary>
 		/// Detect the FTP Server based on the response to the SYST connection command.
 		/// Its a fallback method if the server did not send an identifying welcome message.
 		/// </summary>
 		private void DetectFtpServerBySyst() {
-
-
-
 			// detect OS type
 			var system = m_systemType.ToUpper();
 
 			if (system.StartsWith("WINDOWS")) {
-
 				// Windows OS
 				m_serverOS = FtpOperatingSystem.Windows;
-
-			} else if (system.Contains("UNIX") || system.Contains("AIX")) {
-
+			}
+			else if (system.Contains("UNIX") || system.Contains("AIX")) {
 				// Unix OS
 				m_serverOS = FtpOperatingSystem.Unix;
-
-			} else if (system.Contains("VMS")) {
-
+			}
+			else if (system.Contains("VMS")) {
 				// VMS or OpenVMS
 				m_serverOS = FtpOperatingSystem.VMS;
-
-			} else if (system.Contains("OS/400")) {
-
+			}
+			else if (system.Contains("OS/400")) {
 				// IBM OS/400
 				m_serverOS = FtpOperatingSystem.IBMOS400;
-
-			} else {
-
+			}
+			else {
 				// assume Unix OS
 				m_serverOS = FtpOperatingSystem.Unknown;
 			}
 
 
-
 			// detect server type
 			if (m_serverType == FtpServer.Unknown) {
-
 				// Detect OpenVMS server
 				// SYST type: "VMS OpenVMS V8.4"
 				if (m_systemType.Contains("OpenVMS")) {
@@ -195,9 +187,8 @@ namespace FluentFTP {
 
 				// trace it
 				if (m_serverType != FtpServer.Unknown) {
-					this.LogStatus(FtpTraceLevel.Info, "Detected FTP server: " + m_serverType.ToString());
+					LogStatus(FtpTraceLevel.Info, "Detected FTP server: " + m_serverType.ToString());
 				}
-
 			}
 		}
 
@@ -205,88 +196,113 @@ namespace FluentFTP {
 
 		#region Detect Capabilities
 
-
 		/// <summary>
 		/// Populates the capabilities flags based on capabilities given in the list of strings.
 		/// </summary>
 		protected virtual void GetFeatures(string[] features) {
-			foreach (string feat in features) {
-
-				string featName = feat.Trim().ToUpper();
+			foreach (var feat in features) {
+				var featName = feat.Trim().ToUpper();
 
 				if (featName.StartsWith("MLST") || featName.StartsWith("MLSD")) {
 					m_capabilities |= FtpCapability.MLSD;
-				} else if (featName.StartsWith("MDTM")) {
+				}
+				else if (featName.StartsWith("MDTM")) {
 					m_capabilities |= FtpCapability.MDTM;
-				} else if (featName.StartsWith("REST STREAM")) {
+				}
+				else if (featName.StartsWith("REST STREAM")) {
 					m_capabilities |= FtpCapability.REST;
-				} else if (featName.StartsWith("SIZE")) {
+				}
+				else if (featName.StartsWith("SIZE")) {
 					m_capabilities |= FtpCapability.SIZE;
-				} else if (featName.StartsWith("UTF8")) {
+				}
+				else if (featName.StartsWith("UTF8")) {
 					m_capabilities |= FtpCapability.UTF8;
-				} else if (featName.StartsWith("PRET")) {
+				}
+				else if (featName.StartsWith("PRET")) {
 					m_capabilities |= FtpCapability.PRET;
-				} else if (featName.StartsWith("MFMT")) {
+				}
+				else if (featName.StartsWith("MFMT")) {
 					m_capabilities |= FtpCapability.MFMT;
-				} else if (featName.StartsWith("MFCT")) {
+				}
+				else if (featName.StartsWith("MFCT")) {
 					m_capabilities |= FtpCapability.MFCT;
-				} else if (featName.StartsWith("MFF")) {
+				}
+				else if (featName.StartsWith("MFF")) {
 					m_capabilities |= FtpCapability.MFF;
-				} else if (featName.StartsWith("MD5")) {
+				}
+				else if (featName.StartsWith("MD5")) {
 					m_capabilities |= FtpCapability.MD5;
-				} else if (featName.StartsWith("XMD5")) {
+				}
+				else if (featName.StartsWith("XMD5")) {
 					m_capabilities |= FtpCapability.XMD5;
-				} else if (featName.StartsWith("XCRC")) {
+				}
+				else if (featName.StartsWith("XCRC")) {
 					m_capabilities |= FtpCapability.XCRC;
-				} else if (featName.StartsWith("XSHA1")) {
+				}
+				else if (featName.StartsWith("XSHA1")) {
 					m_capabilities |= FtpCapability.XSHA1;
-				} else if (featName.StartsWith("XSHA256")) {
+				}
+				else if (featName.StartsWith("XSHA256")) {
 					m_capabilities |= FtpCapability.XSHA256;
-				} else if (featName.StartsWith("XSHA512")) {
+				}
+				else if (featName.StartsWith("XSHA512")) {
 					m_capabilities |= FtpCapability.XSHA512;
-				} else if (featName.StartsWith("EPSV")) {
+				}
+				else if (featName.StartsWith("EPSV")) {
 					m_capabilities |= FtpCapability.EPSV;
-				} else if (featName.StartsWith("CPSV")) {
+				}
+				else if (featName.StartsWith("CPSV")) {
 					m_capabilities |= FtpCapability.CPSV;
-				} else if (featName.StartsWith("NOOP")) {
+				}
+				else if (featName.StartsWith("NOOP")) {
 					m_capabilities |= FtpCapability.NOOP;
-				} else if (featName.StartsWith("CLNT")) {
+				}
+				else if (featName.StartsWith("CLNT")) {
 					m_capabilities |= FtpCapability.CLNT;
-				} else if (featName.StartsWith("SSCN")) {
+				}
+				else if (featName.StartsWith("SSCN")) {
 					m_capabilities |= FtpCapability.SSCN;
-				} else if (featName.StartsWith("SITE MKDIR")) {
+				}
+				else if (featName.StartsWith("SITE MKDIR")) {
 					m_capabilities |= FtpCapability.SITE_MKDIR;
-				} else if (featName.StartsWith("SITE RMDIR")) {
+				}
+				else if (featName.StartsWith("SITE RMDIR")) {
 					m_capabilities |= FtpCapability.SITE_RMDIR;
-				} else if (featName.StartsWith("SITE UTIME")) {
+				}
+				else if (featName.StartsWith("SITE UTIME")) {
 					m_capabilities |= FtpCapability.SITE_UTIME;
-				} else if (featName.StartsWith("SITE SYMLINK")) {
+				}
+				else if (featName.StartsWith("SITE SYMLINK")) {
 					m_capabilities |= FtpCapability.SITE_SYMLINK;
-
-				} else if (featName.StartsWith("HASH")) {
+				}
+				else if (featName.StartsWith("HASH")) {
 					Match m;
 
 					m_capabilities |= FtpCapability.HASH;
 
 					if ((m = Regex.Match(featName, @"^HASH\s+(?<types>.*)$")).Success) {
-						foreach (string type in m.Groups["types"].Value.Split(';')) {
+						foreach (var type in m.Groups["types"].Value.Split(';')) {
 							switch (type.ToUpper().Trim()) {
 								case "SHA-1":
 								case "SHA-1*":
 									m_hashAlgorithms |= FtpHashAlgorithm.SHA1;
 									break;
+
 								case "SHA-256":
 								case "SHA-256*":
 									m_hashAlgorithms |= FtpHashAlgorithm.SHA256;
 									break;
+
 								case "SHA-512":
 								case "SHA-512*":
 									m_hashAlgorithms |= FtpHashAlgorithm.SHA512;
 									break;
+
 								case "MD5":
 								case "MD5*":
 									m_hashAlgorithms |= FtpHashAlgorithm.MD5;
 									break;
+
 								case "CRC":
 								case "CRC*":
 									m_hashAlgorithms |= FtpHashAlgorithm.CRC;
@@ -302,14 +318,12 @@ namespace FluentFTP {
 
 		#region Detect Recursive List
 
-
 		/// <summary>
 		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
 		/// If you know for sure that this is supported, return true here.
 		/// </summary>
 		public bool RecursiveList {
 			get {
-
 				// Has support, per https://download.pureftpd.org/pub/pure-ftpd/doc/README
 				if (ServerType == FtpServer.PureFTPd) {
 					return true;
@@ -338,10 +352,8 @@ namespace FluentFTP {
 				// Unknown, so assume server does not support recursive listing
 				return false;
 			}
-			set {
-			}
+			set { }
 		}
-
 
 		#endregion
 
@@ -351,16 +363,12 @@ namespace FluentFTP {
 		/// Assume the FTP Server's capabilities if it does not support the FEAT command.
 		/// </summary>
 		private void AssumeCapabilities() {
-
 			// HP-UX version of wu-ftpd 2.6.1
 			// http://nixdoc.net/man-pages/HP-UX/ftpd.1m.html
 			if (ServerType == FtpServer.WuFTPd) {
-
 				// assume the basic features supported
-				GetFeatures(new string[] { "ABOR", "ACCT", "ALLO", "APPE", "CDUP", "CWD", "DELE", "EPSV", "EPRT", "HELP", "LIST", "LPRT", "LPSV", "MKD", "MDTM", "MODE", "NLST", "NOOP", "PASS", "PASV", "PORT", "PWD", "QUIT", "REST", "RETR", "RMD", "RNFR", "RNTO", "SITE", "SIZE", "STAT", "STOR", "STOU", "STRU", "SYST", "TYPE" });
-
+				GetFeatures(new string[] {"ABOR", "ACCT", "ALLO", "APPE", "CDUP", "CWD", "DELE", "EPSV", "EPRT", "HELP", "LIST", "LPRT", "LPSV", "MKD", "MDTM", "MODE", "NLST", "NOOP", "PASS", "PASV", "PORT", "PWD", "QUIT", "REST", "RETR", "RMD", "RNFR", "RNTO", "SITE", "SIZE", "STAT", "STOR", "STOU", "STRU", "SYST", "TYPE"});
 			}
-
 		}
 
 		#endregion
@@ -371,7 +379,6 @@ namespace FluentFTP {
 		/// Checks for server-specific absolute paths
 		/// </summary>
 		private bool IsAbsolutePath(string path) {
-
 			// FIX : #380 for OpenVMS absolute paths are "SYS$SYSDEVICE:[USERS.mylogin]"
 			// FIX : #402 for OpenVMS absolute paths are "SYSDEVICE:[USERS.mylogin]"
 			// FIX : #424 for OpenVMS absolute paths are "FTP_DEFAULT:[WAGN_IN]"
@@ -409,7 +416,8 @@ namespace FluentFTP {
 			"file not unavailable",
 			"file is not available",
 			"no files found",
-			"no file found" };
+			"no file found"
+		};
 
 		#endregion
 
@@ -442,33 +450,34 @@ namespace FluentFTP {
 		#region Delete Directory
 
 		private bool ServerDeleteDirectory(string path, string ftppath, bool deleteContents, FtpListOption options) {
-
 			FtpReply reply;
 
 			// Support #378 - Support RMDIR command for ProFTPd
 			if (deleteContents && ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_RMDIR)) {
 				if ((reply = Execute("SITE RMDIR " + ftppath)).Success) {
-					this.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete: " + ftppath);
+					LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete: " + ftppath);
 					return true;
-				} else {
-					this.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete: " + ftppath);
+				}
+				else {
+					LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete: " + ftppath);
 				}
 			}
 
 			return false;
 		}
+
 #if ASYNC
 		private async Task<bool> ServerDeleteDirectoryAsync(string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
-			
 			FtpReply reply;
 
 			// Support #378 - Support RMDIR command for ProFTPd
 			if (deleteContents && ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_RMDIR)) {
-				if ((reply = await ExecuteAsync("SITE RMDIR " + ftppath, token)).Success){
-					this.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete: " + ftppath);
+				if ((reply = await ExecuteAsync("SITE RMDIR " + ftppath, token)).Success) {
+					LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete: " + ftppath);
 					return true;
-				} else {
-					this.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete: " + ftppath);
+				}
+				else {
+					LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete: " + ftppath);
 				}
 			}
 
@@ -481,33 +490,34 @@ namespace FluentFTP {
 		#region Create Directory
 
 		private bool ServerCreateDirectory(string path, string ftppath, bool force) {
-
 			FtpReply reply;
 
 			// Support #378 - Support MKDIR command for ProFTPd
 			if (ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_MKDIR)) {
 				if ((reply = Execute("SITE MKDIR " + ftppath)).Success) {
-					this.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
+					LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
 					return true;
-				} else {
-					this.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
+				}
+				else {
+					LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
 				}
 			}
 
 			return false;
 		}
+
 #if ASYNC
 		private async Task<bool> ServerCreateDirectoryAsync(string path, string ftppath, bool force, CancellationToken token) {
-			
 			FtpReply reply;
 
 			// Support #378 - Support MKDIR command for ProFTPd
 			if (ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_MKDIR)) {
-				if ((reply = await ExecuteAsync("SITE MKDIR " + ftppath, token)).Success){
-					this.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
+				if ((reply = await ExecuteAsync("SITE MKDIR " + ftppath, token)).Success) {
+					LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
 					return true;
-				} else {
-					this.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
+				}
+				else {
+					LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
 				}
 			}
 
@@ -516,6 +526,5 @@ namespace FluentFTP {
 #endif
 
 		#endregion
-
 	}
 }

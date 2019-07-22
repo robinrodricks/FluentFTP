@@ -3,13 +3,13 @@ using System.Net;
 using FluentFTP;
 
 namespace Examples {
-    public static class ConnectExample {
-        public static void Connect() {
-            using (FtpClient conn = new FtpClient()) {
-                conn.Host = "localhost";
-                conn.Credentials = new NetworkCredential("ftptest", "ftptest");
-                conn.Connect();
-            }
-        }
-    }
+	public static class ConnectExample {
+		public static void Connect() {
+			using (var conn = new FtpClient()) {
+				conn.Host = "localhost";
+				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
+				conn.Connect();
+			}
+		}
+	}
 }

@@ -21,12 +21,11 @@ using System.Threading;
 #endif
 #if (CORE || NET45)
 using System.Threading.Tasks;
+
 #endif
 
 namespace FluentFTP {
-
 	public partial class FtpClient : IDisposable {
-
 		#region Download Multiple Files
 
 		/// <summary>
@@ -50,37 +49,40 @@ namespace FluentFTP {
 		/// </remarks>
 		public int DownloadFiles(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None,
 			FtpError errorHandling = FtpError.None) {
-
 			// verify args
-			if (!errorHandling.IsValidCombination())
+			if (!errorHandling.IsValidCombination()) {
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
-			if (localDir.IsBlank())
+			}
+
+			if (localDir.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localDir");
+			}
 
-			this.LogFunc("DownloadFiles", new object[] { localDir, remotePaths, existsMode, verifyOptions });
+			LogFunc("DownloadFiles", new object[] {localDir, remotePaths, existsMode, verifyOptions});
 
-			bool errorEncountered = false;
-			List<string> successfulDownloads = new List<string>();
+			var errorEncountered = false;
+			var successfulDownloads = new List<string>();
 
 			// ensure ends with slash
 			localDir = !localDir.EndsWith(Path.DirectorySeparatorChar.ToString()) ? localDir + Path.DirectorySeparatorChar.ToString() : localDir;
 
-			foreach (string remotePath in remotePaths) {
-
+			foreach (var remotePath in remotePaths) {
 				// calc local path
-				string localPath = localDir + remotePath.GetFtpFileName();
+				var localPath = localDir + remotePath.GetFtpFileName();
 
 				// try to download it
 				try {
-					bool ok = DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, null);
+					var ok = DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, null);
 					if (ok) {
 						successfulDownloads.Add(localPath);
-					} else if ((int)errorHandling > 1) {
+					}
+					else if ((int) errorHandling > 1) {
 						errorEncountered = true;
 						break;
 					}
-				} catch (Exception ex) {
-					this.LogStatus(FtpTraceLevel.Error, "Failed to download " + remotePath + ". Error: " + ex);
+				}
+				catch (Exception ex) {
+					LogStatus(FtpTraceLevel.Error, "Failed to download " + remotePath + ". Error: " + ex);
 					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;
@@ -129,12 +131,13 @@ namespace FluentFTP {
 		}*/
 
 		private void PurgeSuccessfulDownloads(IEnumerable<string> localFiles) {
-			foreach (string localFile in localFiles) {
+			foreach (var localFile in localFiles) {
 				// absorb any errors because we don't want this to throw more errors!
 				try {
 					File.Delete(localFile);
-				} catch (Exception ex) {
-					this.LogStatus(FtpTraceLevel.Warn, "FtpClient : Exception caught and discarded while attempting to delete file '" + localFile + "' : " + ex.ToString());
+				}
+				catch (Exception ex) {
+					LogStatus(FtpTraceLevel.Warn, "FtpClient : Exception caught and discarded while attempting to delete file '" + localFile + "' : " + ex.ToString());
 				}
 			}
 		}
@@ -148,7 +151,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localDir">The full or relative path to the directory that files will be downloaded.</param>
 		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
-        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
+		/// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <param name="token">The token to monitor for cancellation requests</param>
@@ -160,46 +163,53 @@ namespace FluentFTP {
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
-        public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite,
+		public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite,
 			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken)) {
-
 			// verify args
-			if (!errorHandling.IsValidCombination())
+			if (!errorHandling.IsValidCombination()) {
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
-			if (localDir.IsBlank())
+			}
+
+			if (localDir.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localDir");
-			
-            this.LogFunc("DownloadFilesAsync", new object[] { localDir, remotePaths, existsMode, verifyOptions });
+			}
+
+			LogFunc("DownloadFilesAsync", new object[] {localDir, remotePaths, existsMode, verifyOptions});
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
 			token.ThrowIfCancellationRequested();
-			bool errorEncountered = false;
-			List<string> successfulDownloads = new List<string>();
+			var errorEncountered = false;
+			var successfulDownloads = new List<string>();
 
 			// ensure ends with slash
 			localDir = !localDir.EndsWith(Path.DirectorySeparatorChar.ToString()) ? localDir + Path.DirectorySeparatorChar.ToString() : localDir;
 
-			foreach (string remotePath in remotePaths) {
+			foreach (var remotePath in remotePaths) {
 				//check if cancellation was requested and throw to set TaskStatus state to Canceled
 				token.ThrowIfCancellationRequested();
+
 				// calc local path
-				string localPath = localDir + remotePath.GetFtpFileName();
+				var localPath = localDir + remotePath.GetFtpFileName();
 
 				// try to download it
 				try {
-                    bool ok = await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, token: token);
+					bool ok = await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, token: token);
 					if (ok) {
 						successfulDownloads.Add(localPath);
-					} else if ((int)errorHandling > 1) {
+					}
+					else if ((int) errorHandling > 1) {
 						errorEncountered = true;
 						break;
 					}
-				} catch (Exception ex) {
+				}
+				catch (Exception ex) {
 					if (ex is OperationCanceledException) {
-						this.LogStatus(FtpTraceLevel.Info, "Download cancellation requested");
+						LogStatus(FtpTraceLevel.Info, "Download cancellation requested");
+
 						//DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
 						throw;
 					}
+
 					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;
@@ -253,56 +263,56 @@ namespace FluentFTP {
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
 		public bool DownloadFile(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null) {
-
 			// verify args
 			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
 			}
+
 			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			this.LogFunc("DownloadFile", new object[] { localPath, remotePath, existsMode, verifyOptions });
+			LogFunc("DownloadFile", new object[] {localPath, remotePath, existsMode, verifyOptions});
 
 			return DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, progress);
 		}
 
 		private bool DownloadFileToFile(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress) {
-			FileMode outStreamFileMode = FileMode.Create;
+			var outStreamFileMode = FileMode.Create;
+
 			// skip downloading if local file size matches
 			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
 				if (GetFileSize(remotePath).Equals(new FileInfo(localPath).Length)) {
-					this.LogStatus(FtpTraceLevel.Info, "Append is selected => Local file size matches size on server => skipping");
+					LogStatus(FtpTraceLevel.Info, "Append is selected => Local file size matches size on server => skipping");
 					return false;
-				} else {
+				}
+				else {
 					outStreamFileMode = FileMode.Append;
 				}
-			} else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
-				this.LogStatus(FtpTraceLevel.Info, "Skip is selected => Local file exists => skipping");
+			}
+			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
+				LogStatus(FtpTraceLevel.Info, "Skip is selected => Local file exists => skipping");
 				return false;
 			}
 
 			try {
-
 				// create the folders
-				string dirPath = Path.GetDirectoryName(localPath);
+				var dirPath = Path.GetDirectoryName(localPath);
 				if (!FtpExtensions.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
 					Directory.CreateDirectory(dirPath);
 				}
-			} catch (Exception ex1) {
-
+			}
+			catch (Exception ex1) {
 				// catch errors creating directory
 				throw new FtpException("Error while creating directories. See InnerException for more info.", ex1);
 			}
 
 			bool downloadSuccess;
-			bool verified = true;
-			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+			var verified = true;
+			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 			do {
-
 				// download the file from server
 				using (var outStream = new FileStream(localPath, outStreamFileMode, FileAccess.Write, FileShare.None)) {
-
 					// download the file straight to a file stream
 					downloadSuccess = DownloadFileInternal(remotePath, outStream, File.Exists(localPath) ? new FileInfo(localPath).Length : 0, progress);
 					attemptsLeft--;
@@ -311,11 +321,12 @@ namespace FluentFTP {
 				// if verification is needed
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
 					verified = VerifyTransfer(localPath, remotePath);
-					this.LogLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+					LogLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 #if DEBUG
 					if (!verified && attemptsLeft > 0) {
-						this.LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
 					}
+
 #endif
 				}
 			} while (!verified && attemptsLeft > 0);
@@ -339,7 +350,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-        /// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
+		/// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <param name="token">Cancellation Token</param>
@@ -349,535 +360,524 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-        public async Task<bool> DownloadFileAsync(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
-
+		public async Task<bool> DownloadFileAsync(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 			// verify args
-			if (localPath.IsBlank()){
+			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
 			}
-			if (remotePath.IsBlank()){
+
+			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
-			
-            this.LogFunc("DownloadFileAsync", new object[] { localPath, remotePath, existsMode, verifyOptions });
 
-            return await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, progress, token);
+			LogFunc("DownloadFileAsync", new object[] {localPath, remotePath, existsMode, verifyOptions});
+
+			return await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, progress, token);
 		}
 
 		private async Task<bool> DownloadFileToFileAsync(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
-
-
-
 			// verify args
-			if (localPath.IsBlank()){
+			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
 			}
-			if (remotePath.IsBlank()){
+
+			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-            this.LogFunc("DownloadFileAsync", new object[] { localPath, remotePath, existsMode, verifyOptions });
+			LogFunc("DownloadFileAsync", new object[] {localPath, remotePath, existsMode, verifyOptions});
 
 
-            FileMode outStreamFileMode = FileMode.Create;
+			var outStreamFileMode = FileMode.Create;
+
 			// skip downloading if the local file exists
 #if CORE
-            if (existsMode == FtpLocalExists.Append && await Task.Run(() => File.Exists(localPath), token)) {
-                if ((await GetFileSizeAsync(remotePath, token)).Equals((await Task.Run(() => new FileInfo(localPath), token)).Length)) {
+			if (existsMode == FtpLocalExists.Append && await Task.Run(() => File.Exists(localPath), token)) {
+				if ((await GetFileSizeAsync(remotePath, token)).Equals((await Task.Run(() => new FileInfo(localPath), token)).Length)) {
 #else
-			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
-				if ((await GetFileSizeAsync(remotePath)).Equals(new FileInfo(localPath).Length)) {
+					if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
+						if ((await GetFileSizeAsync(remotePath)).Equals(new FileInfo(localPath).Length)) {
 #endif
-					this.LogStatus(FtpTraceLevel.Info, "Append is enabled => Local file size matches size on server => skipping");
-					return false;
-				}
-                else {
-                    outStreamFileMode = FileMode.Append;
-                }
-            }
-#if CORE
-			else if (existsMode == FtpLocalExists.Skip && await Task.Run(() => File.Exists(localPath), token)) {
-#else
-			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
-#endif
-				this.LogStatus(FtpTraceLevel.Info, "Skip is selected => Local file exists => skipping");
-				return false;
-			}
-
-			try {
-				
-				// create the folders
-				string dirPath = Path.GetDirectoryName(localPath);
-#if CORE
-				if (!String.IsNullOrWhiteSpace(dirPath) && !await Task.Run(() => Directory.Exists(dirPath), token)) {
-#else
-				if (!String.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
-#endif
-					Directory.CreateDirectory(dirPath);
-				}
-			} catch (Exception ex1) {
-				
-				// catch errors creating directory
-				throw new FtpException("Error while crated directories. See InnerException for more info.", ex1);
-			}
-
-			bool downloadSuccess;
-			bool verified = true;
-			int attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
-			do {
-
-				// download the file from server
-                using (var outStream = new FileStream(localPath, outStreamFileMode, FileAccess.Write, FileShare.None, 4096, true)) {
-					
-					// download the file straight to a file stream
-                    downloadSuccess = await DownloadFileInternalAsync(remotePath, outStream, await Task.Run(() => File.Exists(localPath), token) ? (await Task.Run(() => new FileInfo(localPath), token)).Length : 0, progress, token);
-					attemptsLeft--;
-				}
-
-				// if verification is needed
-				if (downloadSuccess && verifyOptions != FtpVerify.None) {
-					verified = await VerifyTransferAsync(localPath, remotePath, token);
-					this.LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
-#if DEBUG
-					if (!verified && attemptsLeft > 0) {
-                        this.LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Append ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+							LogStatus(FtpTraceLevel.Info, "Append is enabled => Local file size matches size on server => skipping");
+							return false;
+						}
+						else {
+							outStreamFileMode = FileMode.Append;
+						}
 					}
+#if CORE
+					else if (existsMode == FtpLocalExists.Skip && await Task.Run(() => File.Exists(localPath), token)) {
+#else
+						else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
 #endif
-				}
-			} while (!verified && attemptsLeft > 0);
+							LogStatus(FtpTraceLevel.Info, "Skip is selected => Local file exists => skipping");
+							return false;
+						}
 
-			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
-				File.Delete(localPath);
-			}
-
-			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
-				throw new FtpException("Downloaded file checksum value does not match remote file");
-			}
-
-			return downloadSuccess && verified;
-		}
+						try {
+							// create the folders
+							var dirPath = Path.GetDirectoryName(localPath);
+#if CORE
+							if (!string.IsNullOrWhiteSpace(dirPath) && !await Task.Run(() => Directory.Exists(dirPath), token)) {
+#else
+								if (!string.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
 #endif
-		#endregion
-
-		#region	Download Bytes/Stream
-
-		/// <summary>
-		/// Downloads the specified file into the specified stream.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
-		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool Download(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null) {
-
-			// verify args
-			if (outStream == null) {
-				throw new ArgumentException("Required parameter is null or blank.", "outStream");
-			}
-			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
-
-			this.LogFunc("Download", new object[] { remotePath });
-
-			// download the file from the server
-			return DownloadFileInternal(remotePath, outStream, restartPosition, progress);
-		}
-
-		/// <summary>
-		/// Downloads the specified file and return the raw byte array.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="outBytes">The variable that will receive the bytes.</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
-		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool Download(out byte[] outBytes, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null) {
-
-			// verify args
-			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
-
-			this.LogFunc("Download", new object[] { remotePath });
-
-			outBytes = null;
-
-			// download the file from the server
-			bool ok;
-			using (MemoryStream outStream = new MemoryStream()) {
-				ok = DownloadFileInternal(remotePath, outStream, restartPosition, progress);
-				if (ok) {
-					outBytes = outStream.ToArray();
-				}
-			}
-			return ok;
-		}
-
-#if ASYNC
-		/// <summary>
-		/// Downloads the specified file into the specified stream asynchronously .
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
-		/// <param name="token">The token to monitor cancellation requests</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
-		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-        public async Task<bool> DownloadAsync(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
-
-			// verify args
-			if (outStream == null){
-				throw new ArgumentException("Required parameter is null or blank.", "outStream");
-			}
-			if (remotePath.IsBlank()){
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
-			
-			this.LogFunc("DownloadAsync", new object[] { remotePath });
-			
-			// download the file from the server
-            return await DownloadFileInternalAsync(remotePath, outStream, restartPosition, progress, token);
-		}
-
-		/// <summary>
-		/// Downloads the specified file and return the raw byte array.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
-		/// <param name="token">The token to monitor cancellation requests</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
-		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
-        public async Task<byte[]> DownloadAsync(string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
-
-			// verify args
-			if (remotePath.IsBlank()){
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
-			
-			this.LogFunc("DownloadAsync", new object[] { remotePath });
-			
-			// download the file from the server
-			using (MemoryStream outStream = new MemoryStream()) {
-                bool ok = await DownloadFileInternalAsync(remotePath, outStream, restartPosition, progress, token);
-				return ok ? outStream.ToArray() : null;
-			}
-		}
-
-		/// <summary>
-		/// Downloads the specified file into the specified stream asynchronously .
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="token">Cancellation Token</param>
-		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
-		public async Task<byte[]> DownloadAsync(string remotePath, CancellationToken token = default(CancellationToken)) {
-
-			// download the file from the server
-            return await DownloadAsync(remotePath, 0, null, token);
-		}
-#endif
-
-		#endregion
-
-		#region Download File Internal
-
-		/// <summary>
-		/// Download a file from the server and write the data into the given stream.
-		/// Reads data in chunks. Retries if server disconnects midway.
-		/// </summary>
-		private bool DownloadFileInternal(string remotePath, Stream outStream, long restartPosition, IProgress<FtpProgress> progress) {
-
-			Stream downStream = null;
-
-			try {
-
-				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
-				long fileLen = 0;
-				if (DownloadDataType == FtpDataType.Binary && progress != null) {
-					fileLen = GetFileSize(remotePath);
-				}
-
-				// open the file for reading
-				downStream = OpenRead(remotePath, DownloadDataType, restartPosition, fileLen > 0);
-
-				// if the server has not provided a length for this file
-				// we read until EOF instead of reading a specific number of bytes
-				bool readToEnd = (fileLen <= 0);
-
-				// loop till entire file downloaded
-				byte[] buffer = new byte[TransferChunkSize];
-				long offset = restartPosition;
-
-				DateTime transferStarted = DateTime.Now;
-				Stopwatch sw = new Stopwatch();
-				long rateLimitBytes = DownloadRateLimit != 0 ? DownloadRateLimit * 1024 : 0;
-				while (offset < fileLen || readToEnd) {
-					try {
-
-						// read a chunk of bytes from the FTP stream
-						int readBytes = 1;
-						double limitCheckBytes = 0;
-						long bytesProcessed = 0;
-
-						sw.Start();
-						while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
-
-							// write chunk to output stream
-							outStream.Write(buffer, 0, readBytes);
-							offset += readBytes;
-							bytesProcessed += readBytes;
-							limitCheckBytes += readBytes;
-
-							// send progress reports
-							if (progress != null) {
-								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted);
+									Directory.CreateDirectory(dirPath);
+								}
+							} catch (Exception ex1) {
+								// catch errors creating directory
+								throw new FtpException("Error while crated directories. See InnerException for more info.", ex1);
 							}
 
-							// honor the rate limit
-							int swTime = (int)sw.ElapsedMilliseconds;
-							if (rateLimitBytes > 0 && swTime >= 1000) {
-								double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
-								if (timeShouldTake > swTime) {
-#if CORE14
-                                    Task.Delay((int)(timeShouldTake - swTime)).Wait();
-#else
-									Thread.Sleep((int)(timeShouldTake - swTime));
+							bool downloadSuccess;
+							var verified = true;
+							var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+							do {
+								// download the file from server
+								using (var outStream = new FileStream(localPath, outStreamFileMode, FileAccess.Write, FileShare.None, 4096, true)) {
+									// download the file straight to a file stream
+									downloadSuccess = await DownloadFileInternalAsync(remotePath, outStream, await Task.Run(() => File.Exists(localPath), token) ? (await Task.Run(() => new FileInfo(localPath), token)).Length : 0, progress, token);
+									attemptsLeft--;
+								}
+
+								// if verification is needed
+								if (downloadSuccess && verifyOptions != FtpVerify.None) {
+									verified = await VerifyTransferAsync(localPath, remotePath, token);
+									LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+#if DEBUG
+									if (!verified && attemptsLeft > 0) {
+										LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Append ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+									}
+
 #endif
 								}
-								limitCheckBytes = 0;
-								sw.Restart();
+							} while (!verified && attemptsLeft > 0);
+
+							if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
+								File.Delete(localPath);
+							}
+
+							if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
+								throw new FtpException("Downloaded file checksum value does not match remote file");
+							}
+
+							return downloadSuccess && verified;
+						}
+
+#endif
+
+						#endregion
+
+						#region	Download Bytes/Stream
+
+						/// <summary>
+						/// Downloads the specified file into the specified stream.
+						/// High-level API that takes care of various edge cases internally.
+						/// Supports very large files since it downloads data in chunks.
+						/// </summary>
+						/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
+						/// <param name="remotePath">The full or relative path to the file on the server</param>
+						/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
+						/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
+						/// <returns>If true then the file was downloaded, false otherwise.</returns>
+						public bool Download(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null) {
+							// verify args
+							if (outStream == null) {
+								throw new ArgumentException("Required parameter is null or blank.", "outStream");
+							}
+
+							if (remotePath.IsBlank()) {
+								throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+							}
+
+							LogFunc("Download", new object[] {remotePath});
+
+							// download the file from the server
+							return DownloadFileInternal(remotePath, outStream, restartPosition, progress);
+						}
+
+						/// <summary>
+						/// Downloads the specified file and return the raw byte array.
+						/// High-level API that takes care of various edge cases internally.
+						/// Supports very large files since it downloads data in chunks.
+						/// </summary>
+						/// <param name="outBytes">The variable that will receive the bytes.</param>
+						/// <param name="remotePath">The full or relative path to the file on the server</param>
+						/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
+						/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
+						/// <returns>If true then the file was downloaded, false otherwise.</returns>
+						public bool Download(out byte[] outBytes, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null) {
+							// verify args
+							if (remotePath.IsBlank()) {
+								throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+							}
+
+							LogFunc("Download", new object[] {remotePath});
+
+							outBytes = null;
+
+							// download the file from the server
+							bool ok;
+							using (var outStream = new MemoryStream()) {
+								ok = DownloadFileInternal(remotePath, outStream, restartPosition, progress);
+								if (ok) {
+									outBytes = outStream.ToArray();
+								}
+							}
+
+							return ok;
+						}
+
+#if ASYNC
+						/// <summary>
+						/// Downloads the specified file into the specified stream asynchronously .
+						/// High-level API that takes care of various edge cases internally.
+						/// Supports very large files since it downloads data in chunks.
+						/// </summary>
+						/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
+						/// <param name="remotePath">The full or relative path to the file on the server</param>
+						/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
+						/// <param name="token">The token to monitor cancellation requests</param>
+						/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
+						/// <returns>If true then the file was downloaded, false otherwise.</returns>
+						public async Task<bool> DownloadAsync(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+							// verify args
+							if (outStream == null) {
+								throw new ArgumentException("Required parameter is null or blank.", "outStream");
+							}
+
+							if (remotePath.IsBlank()) {
+								throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+							}
+
+							LogFunc("DownloadAsync", new object[] {remotePath});
+
+							// download the file from the server
+							return await DownloadFileInternalAsync(remotePath, outStream, restartPosition, progress, token);
+						}
+
+						/// <summary>
+						/// Downloads the specified file and return the raw byte array.
+						/// High-level API that takes care of various edge cases internally.
+						/// Supports very large files since it downloads data in chunks.
+						/// </summary>
+						/// <param name="remotePath">The full or relative path to the file on the server</param>
+						/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
+						/// <param name="token">The token to monitor cancellation requests</param>
+						/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
+						/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
+						public async Task<byte[]> DownloadAsync(string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+							// verify args
+							if (remotePath.IsBlank()) {
+								throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+							}
+
+							LogFunc("DownloadAsync", new object[] {remotePath});
+
+							// download the file from the server
+							using (var outStream = new MemoryStream()) {
+								bool ok = await DownloadFileInternalAsync(remotePath, outStream, restartPosition, progress, token);
+								return ok ? outStream.ToArray() : null;
 							}
 						}
 
-						// if we reach here means EOF encountered
-						// stop if we are in "read until EOF" mode
-						if (readToEnd || offset == fileLen) {
-							break;
+						/// <summary>
+						/// Downloads the specified file into the specified stream asynchronously .
+						/// High-level API that takes care of various edge cases internally.
+						/// Supports very large files since it downloads data in chunks.
+						/// </summary>
+						/// <param name="remotePath">The full or relative path to the file on the server</param>
+						/// <param name="token">Cancellation Token</param>
+						/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
+						public async Task<byte[]> DownloadAsync(string remotePath, CancellationToken token = default(CancellationToken)) {
+							// download the file from the server
+							return await DownloadAsync(remotePath, 0, null, token);
+						}
+#endif
+
+						#endregion
+
+						#region Download File Internal
+
+						/// <summary>
+						/// Download a file from the server and write the data into the given stream.
+						/// Reads data in chunks. Retries if server disconnects midway.
+						/// </summary>
+						private bool DownloadFileInternal(string remotePath, Stream outStream, long restartPosition, IProgress<FtpProgress> progress) {
+							Stream downStream = null;
+
+							try {
+								// get file size if downloading in binary mode (in ASCII mode we read until EOF)
+								long fileLen = 0;
+								if (DownloadDataType == FtpDataType.Binary && progress != null) {
+									fileLen = GetFileSize(remotePath);
+								}
+
+								// open the file for reading
+								downStream = OpenRead(remotePath, DownloadDataType, restartPosition, fileLen > 0);
+
+								// if the server has not provided a length for this file
+								// we read until EOF instead of reading a specific number of bytes
+								var readToEnd = fileLen <= 0;
+
+								// loop till entire file downloaded
+								var buffer = new byte[TransferChunkSize];
+								var offset = restartPosition;
+
+								var transferStarted = DateTime.Now;
+								var sw = new Stopwatch();
+								long rateLimitBytes = DownloadRateLimit != 0 ? DownloadRateLimit * 1024 : 0;
+								while (offset < fileLen || readToEnd) {
+									try {
+										// read a chunk of bytes from the FTP stream
+										var readBytes = 1;
+										double limitCheckBytes = 0;
+										long bytesProcessed = 0;
+
+										sw.Start();
+										while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
+											// write chunk to output stream
+											outStream.Write(buffer, 0, readBytes);
+											offset += readBytes;
+											bytesProcessed += readBytes;
+											limitCheckBytes += readBytes;
+
+											// send progress reports
+											if (progress != null) {
+												ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted);
+											}
+
+											// honor the rate limit
+											var swTime = (int) sw.ElapsedMilliseconds;
+											if (rateLimitBytes > 0 && swTime >= 1000) {
+												var timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
+												if (timeShouldTake > swTime) {
+#if CORE14
+													Task.Delay((int) (timeShouldTake - swTime)).Wait();
+#else
+													Thread.Sleep((int) (timeShouldTake - swTime));
+#endif
+												}
+
+												limitCheckBytes = 0;
+												sw.Restart();
+											}
+										}
+
+										// if we reach here means EOF encountered
+										// stop if we are in "read until EOF" mode
+										if (readToEnd || offset == fileLen) {
+											break;
+										}
+
+										// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
+										throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
+									}
+									catch (IOException ex) {
+										// resume if server disconnected midway, or throw if there is an exception doing that as well
+										if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
+											sw.Stop();
+											throw;
+										}
+									}
+								}
+
+								sw.Stop();
+
+
+								// disconnect FTP stream before exiting
+								outStream.Flush();
+								downStream.Dispose();
+
+								// FIX : if this is not added, there appears to be "stale data" on the socket
+								// listen for a success/failure reply
+								if (!m_threadSafeDataChannels) {
+									var status = GetReply();
+								}
+
+								return true;
+							}
+							catch (Exception ex1) {
+								// close stream before throwing error
+								try {
+									downStream.Dispose();
+								}
+								catch (Exception) {
+								}
+
+								// absorb "file does not exist" exceptions and simply return false
+								if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
+									LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
+									return false;
+								}
+
+								// catch errors during upload
+								throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
+							}
 						}
 
-						// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
-						throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
-					} catch (IOException ex) {
+#if ASYNC
+						/// <summary>
+						/// Download a file from the server and write the data into the given stream asynchronously.
+						/// Reads data in chunks. Retries if server disconnects midway.
+						/// </summary>
+						private async Task<bool> DownloadFileInternalAsync(string remotePath, Stream outStream, long restartPosition, IProgress<FtpProgress> progress, CancellationToken token = default(CancellationToken)) {
+							Stream downStream = null;
+							try {
+								// get file size if downloading in binary mode (in ASCII mode we read until EOF)
+								long fileLen = 0;
 
-						// resume if server disconnected midway, or throw if there is an exception doing that as well
-						if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
-							sw.Stop();
-							throw;
+								if (DownloadDataType == FtpDataType.Binary && progress != null) {
+									fileLen = await GetFileSizeAsync(remotePath, token);
+								}
+
+								// open the file for reading
+								downStream = await OpenReadAsync(remotePath, DownloadDataType, restartPosition, fileLen > 0, token);
+
+								// if the server has not provided a length for this file
+								// we read until EOF instead of reading a specific number of bytes
+								var readToEnd = fileLen <= 0;
+
+								// loop till entire file downloaded
+								var buffer = new byte[TransferChunkSize];
+								var offset = restartPosition;
+
+								var transferStarted = DateTime.Now;
+								var sw = new Stopwatch();
+								long rateLimitBytes = DownloadRateLimit != 0 ? DownloadRateLimit * 1024 : 0;
+
+								while (offset < fileLen || readToEnd) {
+									try {
+										// read a chunk of bytes from the FTP stream
+										var readBytes = 1;
+										double limitCheckBytes = 0;
+										long bytesProcessed = 0;
+
+										sw.Start();
+										while ((readBytes = await downStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
+											// write chunk to output stream
+											await outStream.WriteAsync(buffer, 0, readBytes, token);
+											offset += readBytes;
+											bytesProcessed += readBytes;
+											limitCheckBytes += readBytes;
+
+											// send progress reports
+											if (progress != null) {
+												ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted);
+											}
+
+											// honor the rate limit
+											var swTime = (int) sw.ElapsedMilliseconds;
+											if (rateLimitBytes > 0 && swTime >= 1000) {
+												var timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
+												if (timeShouldTake > swTime) {
+													await Task.Delay((int) (timeShouldTake - swTime), token);
+													token.ThrowIfCancellationRequested();
+												}
+
+												limitCheckBytes = 0;
+												sw.Restart();
+											}
+										}
+
+										// if we reach here means EOF encountered
+										// stop if we are in "read until EOF" mode
+										if (readToEnd || offset == fileLen) {
+											break;
+										}
+
+										// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
+										throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
+									}
+									catch (IOException ex) {
+										// resume if server disconnected midway, or throw if there is an exception doing that as well
+										var resumeResult = await ResumeDownloadAsync(remotePath, downStream, offset, ex);
+										if (resumeResult.Item1) {
+											downStream = resumeResult.Item2;
+										}
+										else {
+											sw.Stop();
+											throw;
+										}
+									}
+								}
+
+								sw.Stop();
+
+								// disconnect FTP stream before exiting
+								await outStream.FlushAsync(token);
+								downStream.Dispose();
+
+								// FIX : if this is not added, there appears to be "stale data" on the socket
+								// listen for a success/failure reply
+								if (!m_threadSafeDataChannels) {
+									FtpReply status = await GetReplyAsync(token);
+								}
+
+								return true;
+							}
+							catch (Exception ex1) {
+								// close stream before throwing error
+								try {
+									downStream.Dispose();
+								}
+								catch (Exception) {
+								}
+
+								if (ex1 is OperationCanceledException) {
+									LogStatus(FtpTraceLevel.Info, "Upload cancellation requested");
+									throw;
+								}
+
+								// absorb "file does not exist" exceptions and simply return false
+								if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
+									LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
+									return false;
+								}
+
+								// catch errors during upload
+								throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
+							}
 						}
+#endif
 
-					}
+						private bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
+							// resume if server disconnects midway (fixes #39 and #410)
+							if (ex.InnerException != null || ex.Message.IsKnownError(unexpectedEOFStrings)) {
+								var ie = ex.InnerException as SocketException;
+#if CORE
+								if (ie == null || ie != null && (int) ie.SocketErrorCode == 10054) {
+#else
+									if (ie == null || ie != null && ie.ErrorCode == 10054) {
+#endif
+										downStream.Dispose();
+										downStream = OpenRead(remotePath, DownloadDataType, offset);
+										return true;
+									}
+								}
 
-				}
-
-				sw.Stop();
-
-
-				// disconnect FTP stream before exiting
-				outStream.Flush();
-				downStream.Dispose();
-
-				// FIX : if this is not added, there appears to be "stale data" on the socket
-				// listen for a success/failure reply
-				if (!m_threadSafeDataChannels) {
-					FtpReply status = GetReply();
-				}
-				return true;
-
-
-			} catch (Exception ex1) {
-
-				// close stream before throwing error
-				try {
-					downStream.Dispose();
-				} catch (Exception) { }
-
-				// absorb "file does not exist" exceptions and simply return false
-				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
-					this.LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
-					return false;
-				}
-
-				// catch errors during upload
-				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
-			}
-		}
+								return false;
+							}
 
 #if ASYNC
-		/// <summary>
-		/// Download a file from the server and write the data into the given stream asynchronously.
-		/// Reads data in chunks. Retries if server disconnects midway.
-		/// </summary>
-        private async Task<bool> DownloadFileInternalAsync(string remotePath, Stream outStream, long restartPosition, IProgress<FtpProgress> progress, CancellationToken token = default(CancellationToken)) {
-			Stream downStream = null;
-			try {
-				
-				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
-				long fileLen = 0;
-
-				if (DownloadDataType == FtpDataType.Binary && progress != null){
-					fileLen = await GetFileSizeAsync(remotePath, token);
-				}
-				
-				// open the file for reading
-                downStream = await OpenReadAsync(remotePath, DownloadDataType, restartPosition, fileLen > 0, token);
-				
-				// if the server has not provided a length for this file
-				// we read until EOF instead of reading a specific number of bytes
-				bool readToEnd = (fileLen <= 0);
-				
-				// loop till entire file downloaded
-				byte[] buffer = new byte[TransferChunkSize];
-                long offset = restartPosition;
-
-				DateTime transferStarted = DateTime.Now;
-				Stopwatch sw = new Stopwatch();
-				long rateLimitBytes = DownloadRateLimit != 0 ? DownloadRateLimit * 1024 : 0;
-
-                while (offset < fileLen || readToEnd) {
-                    try {
-
-                        // read a chunk of bytes from the FTP stream
-                        int readBytes = 1;
-                        double limitCheckBytes = 0;
-						long bytesProcessed = 0;
-
-                        sw.Start();
-                        while ((readBytes = await downStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
-
-                            // write chunk to output stream
-                            await outStream.WriteAsync(buffer, 0, readBytes, token);
-                            offset += readBytes;
-							bytesProcessed += readBytes;
-                            limitCheckBytes += readBytes;
-
-                            // send progress reports
-                            if (progress != null) {
-                                ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted);
-                            }
-
-                            // honor the rate limit
-                            int swTime = (int)sw.ElapsedMilliseconds;
-                            if (rateLimitBytes > 0 && swTime >= 1000) {
-                                double timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
-                                if (timeShouldTake > swTime) {
-                                    await Task.Delay((int)(timeShouldTake - swTime), token);
-                                    token.ThrowIfCancellationRequested();
-                                }
-                                limitCheckBytes = 0;
-                                sw.Restart();
-                            }
-                        }
-
-                        // if we reach here means EOF encountered
-                        // stop if we are in "read until EOF" mode
-                        if (readToEnd || offset == fileLen) {
-                            break;
-                        }
-
-                        // zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
-                        throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
-                    }
-                    catch (IOException ex) {
-
-                        // resume if server disconnected midway, or throw if there is an exception doing that as well
-                        var resumeResult = await ResumeDownloadAsync(remotePath, downStream, offset, ex);
-                        if (resumeResult.Item1) {
-                            downStream = resumeResult.Item2;
-                        }
-                        else {
-                            sw.Stop();
-                            throw;
-                        }
-                    }
-
-                }
-
-                sw.Stop();
-
-				// disconnect FTP stream before exiting
-				await outStream.FlushAsync(token);
-				downStream.Dispose();
-
-				// FIX : if this is not added, there appears to be "stale data" on the socket
-				// listen for a success/failure reply
-				if (!m_threadSafeDataChannels) {
-					FtpReply status = await GetReplyAsync(token);
-				}
-				return true;
-
-			} catch (Exception ex1) {
-				// close stream before throwing error
-				try {
-					downStream.Dispose();
-				} catch (Exception) { }
-
-				if (ex1 is OperationCanceledException)
-				{
-					this.LogStatus(FtpTraceLevel.Info, "Upload cancellation requested");
-					throw;
-				}
-
-				// absorb "file does not exist" exceptions and simply return false
-				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
-					this.LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
-					return false;
-				}
-
-				// catch errors during upload
-				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
-			}
-		}
-#endif
-
-		private bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
-
-			// resume if server disconnects midway (fixes #39 and #410)
-			if (ex.InnerException != null || ex.Message.IsKnownError(unexpectedEOFStrings)) {
-				var ie = ex.InnerException as System.Net.Sockets.SocketException;
+							private async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex) {
+								// resume if server disconnects midway (fixes #39 and #410)
+								if (ex.InnerException != null || ex.Message.IsKnownError(unexpectedEOFStrings)) {
+									var ie = ex.InnerException as SocketException;
 #if CORE
-				if (ie == null || (ie != null && (int)ie.SocketErrorCode == 10054)) {
+									if (ie == null || ie != null && (int) ie.SocketErrorCode == 10054) {
 #else
-				if (ie == null || (ie != null && ie.ErrorCode == 10054)) {
+										if (ie == null || ie != null && ie.ErrorCode == 10054) {
 #endif
-					downStream.Dispose();
-					downStream = OpenRead(remotePath, DownloadDataType, restart: offset);
-					return true;
-				}
-			}
-			return false;
-		}
+											downStream.Dispose();
+											return Tuple.Create(true, await OpenReadAsync(remotePath, DownloadDataType, offset));
+										}
+									}
 
-#if ASYNC
-		private async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex) {
-			
-		// resume if server disconnects midway (fixes #39 and #410)
-			if (ex.InnerException != null || ex.Message.IsKnownError(unexpectedEOFStrings)) {
-				var ie = ex.InnerException as System.Net.Sockets.SocketException;
-#if CORE
-				if (ie == null || (ie != null && (int)ie.SocketErrorCode == 10054)) {
-#else
-				if (ie == null || (ie != null && ie.ErrorCode == 10054)) {
-#endif
-					downStream.Dispose();
-					return Tuple.Create(true, await OpenReadAsync(remotePath, DownloadDataType, restart: offset));
-				}
-			}
-			return Tuple.Create(false, (Stream)null);
-		}
+									return Tuple.Create(false, (Stream) null);
+								}
 #endif
 
-		#endregion
-
-	}
-}
+								#endregion
+							}
+						}

@@ -4,42 +4,43 @@ using FluentFTP;
 using System.Threading;
 
 namespace Examples {
-    public static class BeginRenameExample {
-        static ManualResetEvent m_reset = new ManualResetEvent(false);
+	public static class BeginRenameExample {
+		private static ManualResetEvent m_reset = new ManualResetEvent(false);
 
-        public static void BeginRename() {
-            // The using statement here is OK _only_ because m_reset.WaitOne()
-            // causes the code to block until the async process finishes, otherwise
-            // the connection object would be disposed early. In practice, you
-            // typically would not wrap the following code with a using statement.
-            using (FtpClient conn = new FtpClient()) {
-                m_reset.Reset();
-                
-                conn.Host = "localhost";
-                conn.Credentials = new NetworkCredential("ftptest", "ftptest");
-                conn.BeginRename("/source/object", "/new/path/and/name",
-                    new AsyncCallback(BeginRenameCallback), conn);
+		public static void BeginRename() {
+			// The using statement here is OK _only_ because m_reset.WaitOne()
+			// causes the code to block until the async process finishes, otherwise
+			// the connection object would be disposed early. In practice, you
+			// typically would not wrap the following code with a using statement.
+			using (var conn = new FtpClient()) {
+				m_reset.Reset();
 
-                m_reset.WaitOne();
-                conn.Disconnect();
-            }
-        }
+				conn.Host = "localhost";
+				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
+				conn.BeginRename("/source/object", "/new/path/and/name",
+					new AsyncCallback(BeginRenameCallback), conn);
 
-        static void BeginRenameCallback(IAsyncResult ar) {
-            FtpClient conn = ar.AsyncState as FtpClient;
+				m_reset.WaitOne();
+				conn.Disconnect();
+			}
+		}
 
-            try {
+		private static void BeginRenameCallback(IAsyncResult ar) {
+			var conn = ar.AsyncState as FtpClient;
+
+			try {
 				if (conn == null) {
 					throw new InvalidOperationException("The FtpControlConnection object is null!");
 				}
+
 				conn.EndRename(ar);
-            }
-            catch (Exception ex) {
-                Console.WriteLine(ex.ToString());
-            }
-            finally {
-                m_reset.Set();
-            }
-        }
-    }
+			}
+			catch (Exception ex) {
+				Console.WriteLine(ex.ToString());
+			}
+			finally {
+				m_reset.Set();
+			}
+		}
+	}
 }

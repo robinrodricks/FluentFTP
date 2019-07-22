@@ -8,11 +8,11 @@ using System.Text.RegularExpressions;
 
 #if NET45
 using System.Threading.Tasks;
+
 #endif
 
 namespace FluentFTP.Helpers.Parsers {
 	internal class FtpWindowsParser {
-
 		/// <summary>
 		/// Parses IIS/DOS format listings
 		/// </summary>
@@ -20,8 +20,8 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <param name="capabilities">Server capabilities</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
 		public static FtpListItem ParseLegacy(string record, FtpCapability capabilities, FtpClient client) {
-			FtpListItem item = new FtpListItem();
-			string[] datefmt = new string[] {
+			var item = new FtpListItem();
+			var datefmt = new string[] {
 				"MM-dd-yy  hh:mmtt",
 				"MM-dd-yyyy  hh:mmtt"
 			};
@@ -54,8 +54,10 @@ namespace FluentFTP.Helpers.Parsers {
 				if (DateTime.TryParseExact(m.Groups["modify"].Value, datefmt, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out modify)) {
 					item.Modified = modify;
 				}
-			} else
+			}
+			else {
 				return null;
+			}
 
 			return item;
 		}
@@ -64,35 +66,41 @@ namespace FluentFTP.Helpers.Parsers {
 		/// Checks if the given listing is a valid IIS/DOS file listing
 		/// </summary>
 		public static bool IsValid(FtpClient client, string[] records) {
-			int count = Math.Min(records.Length, 10);
+			var count = Math.Min(records.Length, 10);
 
-			bool dateStart = false;
-			bool timeColon = false;
-			bool dirOrFile = false;
+			var dateStart = false;
+			var timeColon = false;
+			var dirOrFile = false;
 
-			for (int i = 0; i < count; i++) {
+			for (var i = 0; i < count; i++) {
 				var record = records[i];
 				if (record.Trim().Length == 0) {
 					continue;
 				}
-				string[] values = record.SplitString();
+
+				var values = record.SplitString();
 				if (values.Length < MinFieldCount) {
 					continue;
 				}
+
 				// first & last chars are digits of first field
-				if (Char.IsDigit(values[0][0]) && Char.IsDigit(values[0][values[0].Length - 1])) {
+				if (char.IsDigit(values[0][0]) && char.IsDigit(values[0][values[0].Length - 1])) {
 					dateStart = true;
 				}
+
 				if (values[1].IndexOf(':') > 0) {
 					timeColon = true;
 				}
-				if (values[2].ToUpper() == DirectoryMarker || Char.IsDigit(values[2][0])) {
+
+				if (values[2].ToUpper() == DirectoryMarker || char.IsDigit(values[2][0])) {
 					dirOrFile = true;
 				}
 			}
+
 			if (dateStart && timeColon && dirOrFile) {
 				return true;
 			}
+
 			client.LogStatus(FtpTraceLevel.Verbose, "Not in Windows format");
 			return false;
 		}
@@ -103,15 +111,14 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <param name="record">A line from the listing</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
 		public static FtpListItem Parse(FtpClient client, string record) {
-
-			string[] values = record.SplitString();
+			var values = record.SplitString();
 
 			if (values.Length < MinFieldCount) {
 				return null;
 			}
 
 			// parse date & time
-			DateTime lastModified = ParseDateTime(client, values[0] + " " + values[1]);
+			var lastModified = ParseDateTime(client, values[0] + " " + values[1]);
 
 			// parse dir flag & file size
 			bool isDir;
@@ -119,7 +126,7 @@ namespace FluentFTP.Helpers.Parsers {
 			ParseTypeAndFileSize(client, values[2], out isDir, out size);
 
 			// parse name of file or folder
-			string name = ParseName(client, record, values);
+			var name = ParseName(client, record, values);
 
 			return new FtpListItem(record, name, size, isDir, ref lastModified);
 		}
@@ -129,21 +136,24 @@ namespace FluentFTP.Helpers.Parsers {
 		/// </summary>
 		private static string ParseName(FtpClient client, string record, string[] values) {
 			// Find starting point of the name by finding the pos of all the date/time fields.
-			int pos = 0;
-			bool ok = true;
-			for (int i = 0; i < 3; i++) {
+			var pos = 0;
+			var ok = true;
+			for (var i = 0; i < 3; i++) {
 				pos = record.IndexOf(values[i], pos);
 				if (pos < 0) {
 					ok = false;
 					break;
-				} else {
+				}
+				else {
 					pos += values[i].Length;
 				}
 			}
+
 			string name = null;
 			if (ok) {
 				name = record.Substring(pos).Trim();
-			} else {
+			}
+			else {
 				client.LogStatus(FtpTraceLevel.Error, "Failed to retrieve name: " + record);
 			}
 
@@ -158,10 +168,12 @@ namespace FluentFTP.Helpers.Parsers {
 			size = 0L;
 			if (type.ToUpper().Equals(DirectoryMarker.ToUpper())) {
 				isDir = true;
-			} else {
+			}
+			else {
 				try {
-					size = Int64.Parse(type);
-				} catch (FormatException) {
+					size = long.Parse(type);
+				}
+				catch (FormatException) {
 					client.LogStatus(FtpTraceLevel.Error, "Failed to parse size: " + type);
 				}
 			}
@@ -171,10 +183,11 @@ namespace FluentFTP.Helpers.Parsers {
 		/// Parses the last modified date from IIS/DOS format listings
 		/// </summary>
 		private static DateTime ParseDateTime(FtpClient client, string lastModifiedStr) {
-			DateTime lastModified = DateTime.MinValue;
+			var lastModified = DateTime.MinValue;
 			try {
 				lastModified = DateTime.ParseExact(lastModifiedStr, DateTimeFormats, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
-			} catch (FormatException) {
+			}
+			catch (FormatException) {
 				client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
 			}
 
@@ -185,7 +198,7 @@ namespace FluentFTP.Helpers.Parsers {
 
 		private static string DirectoryMarker = "<DIR>";
 		private static int MinFieldCount = 4;
-		private static string[] DateTimeFormats = { "MM'-'dd'-'yy hh':'mmtt", "MM'-'dd'-'yy HH':'mm", "MM'-'dd'-'yyyy hh':'mmtt" };
+		private static string[] DateTimeFormats = {"MM'-'dd'-'yy hh':'mmtt", "MM'-'dd'-'yy HH':'mm", "MM'-'dd'-'yyyy hh':'mmtt"};
 
 		#endregion
 	}

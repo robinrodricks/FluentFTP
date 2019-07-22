@@ -1213,6 +1213,7 @@ You can read `ServerType` to get the exact type of FTP server software that you'
 - glFTPd
 - Homegate FTP
 - BFTPd
+- FTP2S3 Gateway
 
 You can also read `ServerOS` to get the operating system of the FTP server you've connected to. We can detect:
 

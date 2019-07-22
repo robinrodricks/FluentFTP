@@ -3,14 +3,14 @@ using System.Net;
 using FluentFTP;
 
 namespace Examples {
-    static class GetWorkingDirectoryExample {
-        public static void GetWorkingDirectory() {
-            using (FtpClient conn = new FtpClient()) {
-                conn.Host = "localhost";
-                conn.Credentials = new NetworkCredential("ftptest", "ftptest");
-                Console.WriteLine("The working directory is: "+
-                    conn.GetWorkingDirectory());
-            }
-        }
-    }
+	internal static class GetWorkingDirectoryExample {
+		public static void GetWorkingDirectory() {
+			using (var conn = new FtpClient()) {
+				conn.Host = "localhost";
+				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
+				Console.WriteLine("The working directory is: " +
+				                  conn.GetWorkingDirectory());
+			}
+		}
+	}
 }
