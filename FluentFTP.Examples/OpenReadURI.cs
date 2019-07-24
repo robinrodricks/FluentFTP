@@ -3,7 +3,7 @@ using System.IO;
 using FluentFTP;
 
 namespace Examples {
-	public static class OpenReadURI {
+	internal static class OpenReadURI {
 		public static Stream OpenNewRead(Uri uri) {
 			FtpClient cl = null;
 

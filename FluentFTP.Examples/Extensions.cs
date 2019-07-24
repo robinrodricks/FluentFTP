@@ -1,7 +1,7 @@
 using System;
 
 namespace Examples {
-	public static class Extensions {
+	internal static class Extensions {
 		public static string FormatBytes(this long val) {
 			return ((double) val).FormatBytes();
 		}
@@ -11,7 +11,7 @@ namespace Examples {
 		}
 
 		public static string FormatBytes(this double val) {
-			var units = new string[] {"B", "KB", "MB", "GB", "TB"};
+			var units = new[] {"B", "KB", "MB", "GB", "TB"};
 			var count = 0;
 
 			while (count + 1 < units.Length && val >= 1024) {

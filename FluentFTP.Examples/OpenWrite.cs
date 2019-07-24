@@ -4,7 +4,7 @@ using System.Net;
 using FluentFTP;
 
 namespace Examples {
-	public class OpenWriteExample {
+	internal static class OpenWriteExample {
 		public static void OpenWrite() {
 			using (var conn = new FtpClient()) {
 				conn.Host = "localhost";

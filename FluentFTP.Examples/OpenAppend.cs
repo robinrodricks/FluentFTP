@@ -4,7 +4,7 @@ using System.Net;
 using FluentFTP;
 
 namespace Examples {
-	public class OpenAppendExample {
+	internal static class OpenAppendExample {
 		public static void OpenAppend() {
 			using (var conn = new FtpClient()) {
 				conn.Host = "localhost";

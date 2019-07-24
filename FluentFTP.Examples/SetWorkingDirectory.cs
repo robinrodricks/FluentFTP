@@ -4,7 +4,7 @@ using FluentFTP;
 using System.IO;
 
 namespace Examples {
-	public static class SetWorkingDirectoryExample {
+	internal static class SetWorkingDirectoryExample {
 		public static void SetWorkingDirectory() {
 			using (var conn = new FtpClient()) {
 				conn.Host = "localhost";

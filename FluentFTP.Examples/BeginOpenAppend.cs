@@ -5,7 +5,7 @@ using System.IO;
 using System.Threading;
 
 namespace Examples {
-	public static class BeginOpenAppendExample {
+	internal static class BeginOpenAppendExample {
 		private static ManualResetEvent m_reset = new ManualResetEvent(false);
 
 		public static void BeginOpenAppend() {

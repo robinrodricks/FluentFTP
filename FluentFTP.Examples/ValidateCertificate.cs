@@ -3,7 +3,7 @@ using System.Net;
 using FluentFTP;
 
 namespace Examples {
-	public static class ValidateCertificateExample {
+	internal static class ValidateCertificateExample {
 		public static void ValidateCertificate() {
 			using (var conn = new FtpClient()) {
 				conn.Host = "localhost";

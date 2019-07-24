@@ -10,7 +10,7 @@ namespace Examples {
 	/// is currently used to parse UNIX style long listings and serves as an
 	/// example for adding your own parser.
 	/// </summary>
-	internal class CustomParser {
+	internal static class CustomParser {
 		/// <summary>
 		/// Adds a custom file listing parser
 		/// </summary>

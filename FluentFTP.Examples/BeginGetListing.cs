@@ -6,7 +6,7 @@ using System.Threading;
 namespace Examples {
 	// Also see the GetListing() example for more details
 	// about file listings and the objects returned.
-	public static class BeginGetListing {
+	internal static class BeginGetListing {
 		private static ManualResetEvent m_reset = new ManualResetEvent(false);
 
 		public static void BeginGetListingExample() {

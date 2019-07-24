@@ -5,7 +5,7 @@ using System.Net;
 using FluentFTP;
 
 namespace Examples {
-	public static class BeginCreateDirectoryExample {
+	internal static class BeginCreateDirectoryExample {
 		private static ManualResetEvent m_reset = new ManualResetEvent(false);
 
 		public static void BeginCreateDirectory() {

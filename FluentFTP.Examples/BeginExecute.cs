@@ -4,7 +4,7 @@ using FluentFTP;
 using System.Threading;
 
 namespace Examples {
-	public class BeginExecuteExample {
+	internal static class BeginExecuteExample {
 		private static ManualResetEvent m_reset = new ManualResetEvent(false);
 
 		public static void BeginExecute() {

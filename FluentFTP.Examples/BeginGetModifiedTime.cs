@@ -4,7 +4,7 @@ using FluentFTP;
 using System.Threading;
 
 namespace Examples {
-	public static class BeginGetModifiedTimeExample {
+	internal static class BeginGetModifiedTimeExample {
 		private static ManualResetEvent m_reset = new ManualResetEvent(false);
 
 		public static void BeginGetModifiedTime() {

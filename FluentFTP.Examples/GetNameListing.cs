@@ -3,7 +3,7 @@ using System.Net;
 using FluentFTP;
 
 namespace Examples {
-	internal class GetNameListingExample {
+	internal static class GetNameListingExample {
 		public static void GetNameListing() {
 			using (var cl = new FtpClient()) {
 				cl.Credentials = new NetworkCredential("ftp", "ftp");

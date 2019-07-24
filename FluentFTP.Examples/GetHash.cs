@@ -3,7 +3,7 @@ using System.Net;
 using FluentFTP;
 
 namespace Examples {
-	public class GetHashExample {
+	internal static class GetHashExample {
 		public static void GetHash() {
 			using (var cl = new FtpClient()) {
 				cl.Credentials = new NetworkCredential("user", "pass");

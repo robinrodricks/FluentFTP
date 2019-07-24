@@ -4,7 +4,7 @@ using FluentFTP;
 using System.IO;
 
 namespace Examples {
-	public static class RenameExample {
+	internal static class RenameExample {
 		public static void Rename() {
 			using (var conn = new FtpClient()) {
 				conn.Host = "localhost";

@@ -4,7 +4,7 @@ using FluentFTP;
 using System.Security.Authentication;
 
 namespace Examples {
-	public static class SetEncryptionProtocolsExample {
+	internal static class SetEncryptionProtocolsExample {
 		public static void ValidateCertificate() {
 			using (var conn = new FtpClient()) {
 				conn.Host = "localhost";

@@ -6,7 +6,7 @@ namespace Examples {
 	/// <summary>
 	/// Example for logging server transactions for use in debugging problems.
 	/// </summary>
-	public static class DebugExample {
+	internal static class DebugExample {
 		/// <summary>
 		/// Log to a console window
 		/// </summary>
