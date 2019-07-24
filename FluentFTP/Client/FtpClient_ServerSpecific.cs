@@ -287,6 +287,18 @@ namespace FluentFTP {
 				else if (featName.StartsWith("DSIZ")) {
 					m_capabilities.AddOnce(FtpCapability.DSIZ);
 				}
+				else if (featName.StartsWith("HOST")) {
+					m_capabilities.AddOnce(FtpCapability.HOST);
+				}
+				else if (featName.StartsWith("CCC")) {
+					m_capabilities.AddOnce(FtpCapability.CCC);
+				}
+				else if (featName.StartsWith("MODE Z")) {
+					m_capabilities.AddOnce(FtpCapability.MODE_Z);
+				}
+				else if (featName.StartsWith("LANG")) {
+					m_capabilities.AddOnce(FtpCapability.LANG);
+				}
 				else if (featName.StartsWith("HASH")) {
 					Match m;
 
@@ -465,13 +477,24 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			// Support #378 - Support RMDIR command for ProFTPd
-			if (deleteContents && ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_RMDIR)) {
+			if (deleteContents && HasFeature(FtpCapability.SITE_RMDIR)) {
 				if ((reply = Execute("SITE RMDIR " + ftppath)).Success) {
-					LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete: " + ftppath);
+					LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete directory: " + ftppath);
 					return true;
 				}
 				else {
-					LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete: " + ftppath);
+					LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete directory: " + ftppath);
+				}
+			}
+
+			// Support #88 - Support RMDA command for Serv-U
+			if (deleteContents && HasFeature(FtpCapability.RMDA)) {
+				if ((reply = Execute("RMDA " + ftppath)).Success) {
+					LogStatus(FtpTraceLevel.Verbose, "Used the server-specific RMDA command to quickly delete directory: " + ftppath);
+					return true;
+				}
+				else {
+					LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific RMDA command to quickly delete directory: " + ftppath);
 				}
 			}
 

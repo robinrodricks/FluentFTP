@@ -55,10 +55,8 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Server supports the MFF command for setting certain facts
-		/// about file system objects. If you need this command, it would
-		/// probably be handy to query FEAT your self and have a look at
-		/// the FtpReply.InfoMessages property to see which facts the server
-		/// allows you to modify.
+		/// about file system objects. It typically allows you to modify
+		/// the last modification time, creation time, UNIX group/owner/mode of a file.
 		/// </summary>
 		MFF = 10,
 
@@ -128,43 +126,64 @@ namespace FluentFTP {
 		SSCN = 23,
 
 		/// <summary>
-		/// Support for the SITE MKDIR server-specific command (ProFTPd)
+		/// Support for the SITE MKDIR (make directory) server-specific command for ProFTPd
 		/// </summary>
 		SITE_MKDIR = 24,
 
 		/// <summary>
-		/// Support for the SITE RMDIR (remove directory) server-specific command (ProFTPd)
+		/// Support for the SITE RMDIR (remove directory) server-specific command for ProFTPd
 		/// </summary>
 		SITE_RMDIR = 25,
 
 		/// <summary>
-		/// Support for the SITE UTIME server-specific command (ProFTPd)
+		/// Support for the SITE UTIME server-specific command for ProFTPd
 		/// </summary>
 		SITE_UTIME = 26,
 
 		/// <summary>
-		/// Support for the SITE SYMLINK server-specific command (ProFTPd)
+		/// Support for the SITE SYMLINK server-specific command for ProFTPd
 		/// </summary>
 		SITE_SYMLINK = 27,
 
 		/// <summary>
-		/// Support for the AVBL (get available space) server-specific command (Serv-U)
+		/// Support for the AVBL (get available space) server-specific command for Serv-U
 		/// </summary>
 		AVBL = 28,
 
 		/// <summary>
-		/// Support for the THMB (get image thumbnail) server-specific command (Serv-U)
+		/// Support for the THMB (get image thumbnail) server-specific command for Serv-U
 		/// </summary>
 		THMB = 29,
 
 		/// <summary>
-		/// Support for the RMDA (remove directory) server-specific command (Serv-U)
+		/// Support for the RMDA (remove directory) server-specific command for Serv-U
 		/// </summary>
 		RMDA = 30,
 
 		/// <summary>
-		/// Support for the DSIZ (get directory size) server-specific command (Serv-U)
+		/// Support for the DSIZ (get directory size) server-specific command for Serv-U
 		/// </summary>
 		DSIZ = 31,
+
+		/// <summary>
+		/// Support for the HOST (get host) server-specific command for Serv-U
+		/// </summary>
+		HOST = 32,
+
+		/// <summary>
+		/// Support for the CCC (Clear Command Channel) command, which makes a secure FTP channel revert back to plain text.
+		/// </summary>
+		CCC = 33,
+
+		/// <summary>
+		/// Support for the MODE Z (compression enabled) command, which says that the server supports ZLIB compression for all transfers
+		/// </summary>
+		MODE_Z = 34,
+
+		/// <summary>
+		/// Support for the LANG (language negociation) command.
+		/// </summary>
+		LANG = 35,
+
 	}
 }
