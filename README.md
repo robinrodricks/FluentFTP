@@ -35,7 +35,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
     - Easily send [server-specific](https://github.com/robinrodricks/FluentFTP/issues/88) FTP commands using the `Execute()` method
     - Explicit and Implicit [SSL connections](#faq_ftps) are supported for the control and data connections using .NET's `SslStream`
     - Passive and active data connections (PASV, EPSV, PORT and EPRT)
-    - Supports Unix CHMOD command, PRET command, ProFTPD's SITE MKDIR and RMDIR commands
+    - Supports Unix CHMOD command, PRET command, ProFTPD's SITE MKDIR and RMDIR commands, Serv-U's RMDA command
     - Supports [FTP Proxies](#faq_loginproxy) (User@Host, HTTP 1.1, BlueCoat)
     - [FTP command logging](#faq_log) using `TraceListeners` (passwords omitted) to [trace](#faq_trace) or [log output](#faq_logfile) to a file
     - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
@@ -595,6 +595,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **SITE MKDIR**      	| CreateDirectory() 	| Create a directory with server-side recursion (ProFTPD only) |
 | **RMD**      			| DeleteDirectory() 	| Delete a directory |
 | **SITE RMDIR**      	| DeleteDirectory() 	| Delete a directory with server-side recursion (ProFTPD only) |
+| **RMDA**      		| DeleteDirectory() 	| Delete a directory with server-side recursion (Serv-U only) |
 | **CWD**      			| SetWorkingDirectory() | Change the working directory |
 | **PWD**      			| GetWorkingDirectory() | Get the working directory |
 | **SIZE**      		| GetFileSize() 		| Get the filesize in bytes |
