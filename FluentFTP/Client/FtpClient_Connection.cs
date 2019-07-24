@@ -586,7 +586,7 @@ namespace FluentFTP {
 			IAsyncResult ar;
 
 			lock (m_asyncmethods) {
-				ar = (func = new AsyncConnect(Connect)).BeginInvoke(callback, state);
+				ar = (func = Connect).BeginInvoke(callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -954,7 +954,7 @@ namespace FluentFTP {
 			AsyncDisconnect func;
 
 			lock (m_asyncmethods) {
-				ar = (func = new AsyncDisconnect(Disconnect)).BeginInvoke(callback, state);
+				ar = (func = Disconnect).BeginInvoke(callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 

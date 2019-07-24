@@ -88,7 +88,7 @@ namespace FluentFTP {
 			IAsyncResult ar;
 
 			lock (m_asyncmethods) {
-				ar = (func = new AsyncGetHashAlgorithm(GetHashAlgorithm)).BeginInvoke(callback, state);
+				ar = (func = GetHashAlgorithm).BeginInvoke(callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -202,7 +202,7 @@ namespace FluentFTP {
 			IAsyncResult ar;
 
 			lock (m_asyncmethods) {
-				ar = (func = new AsyncSetHashAlgorithm(SetHashAlgorithm)).BeginInvoke(type, callback, state);
+				ar = (func = SetHashAlgorithm).BeginInvoke(type, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -348,7 +348,7 @@ namespace FluentFTP {
 			IAsyncResult ar;
 
 			lock (m_asyncmethods) {
-				ar = (func = new AsyncGetHash(GetHash)).BeginInvoke(path, callback, state);
+				ar = (func = GetHash).BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 

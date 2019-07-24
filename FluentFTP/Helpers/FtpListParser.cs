@@ -116,7 +116,7 @@ namespace FluentFTP {
 				}
 				else {
 					if (IsWrongParser()) {
-						ValidateParser(new string[] {file});
+						ValidateParser(new[] {file});
 					}
 
 					// use one of the in-built parsers

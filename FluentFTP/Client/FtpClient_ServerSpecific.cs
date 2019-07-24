@@ -391,7 +391,7 @@ namespace FluentFTP {
 			// http://nixdoc.net/man-pages/HP-UX/ftpd.1m.html
 			if (ServerType == FtpServer.WuFTPd) {
 				// assume the basic features supported
-				GetFeatures(new string[] { "ABOR", "ACCT", "ALLO", "APPE", "CDUP", "CWD", "DELE", "EPSV", "EPRT", "HELP", "LIST", "LPRT", "LPSV", "MKD", "MDTM", "MODE", "NLST", "NOOP", "PASS", "PASV", "PORT", "PWD", "QUIT", "REST", "RETR", "RMD", "RNFR", "RNTO", "SITE", "SIZE", "STAT", "STOR", "STOU", "STRU", "SYST", "TYPE" });
+				GetFeatures(new[] { "ABOR", "ACCT", "ALLO", "APPE", "CDUP", "CWD", "DELE", "EPSV", "EPRT", "HELP", "LIST", "LPRT", "LPSV", "MKD", "MDTM", "MODE", "NLST", "NOOP", "PASS", "PASV", "PORT", "PWD", "QUIT", "REST", "RETR", "RMD", "RNFR", "RNTO", "SITE", "SIZE", "STAT", "STOR", "STOU", "STRU", "SYST", "TYPE" });
 			}
 		}
 
@@ -424,7 +424,7 @@ namespace FluentFTP {
 		/// Instead of throwing an error, we use these to detect and handle the file detection properly.
 		/// MUST BE LOWER CASE!
 		/// </summary>
-		private static string[] fileNotFoundStrings = new string[] {
+		private static string[] fileNotFoundStrings = new[] {
 			"can't find file",
 			"can't check for file existence",
 			"does not exist",
@@ -451,7 +451,7 @@ namespace FluentFTP {
 		/// Error messages returned by various servers when a file size is not supported in ASCII mode.
 		/// MUST BE LOWER CASE!
 		/// </summary>
-		private static string[] fileSizeNotInASCIIStrings = new string[] {
+		private static string[] fileSizeNotInASCIIStrings = new[] {
 			"size not allowed in ascii"
 		};
 
@@ -463,7 +463,7 @@ namespace FluentFTP {
 		/// Error messages returned by various servers when a file transfer temporarily failed.
 		/// MUST BE LOWER CASE!
 		/// </summary>
-		private static string[] unexpectedEOFStrings = new string[] {
+		private static string[] unexpectedEOFStrings = new[] {
 			"unexpected eof for remote file",
 			"received an unexpected eof",
 			"unexpected eof"

@@ -21,7 +21,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
 		public static FtpListItem ParseLegacy(string record, List<FtpCapability> capabilities, FtpClient client) {
 			var item = new FtpListItem();
-			var datefmt = new string[] {
+			var datefmt = new[] {
 				"MM-dd-yy  hh:mmtt",
 				"MM-dd-yyyy  hh:mmtt"
 			};

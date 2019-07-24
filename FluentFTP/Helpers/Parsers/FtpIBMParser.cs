@@ -134,8 +134,8 @@ namespace FluentFTP.Helpers.Parsers {
 		private static string MemoryMarker = "*MEM";
 		private static string FileMarker = "*FILE";
 		private static int MinFieldCount = 5;
-		private static string[][] DateTimeFormats = {new string[] {"dd'/'MM'/'yy' 'HH':'mm':'ss", "dd'/'MM'/'yyyy' 'HH':'mm':'ss", "dd'.'MM'.'yy' 'HH':'mm':'ss"}, new string[] {"yy'/'MM'/'dd' 'HH':'mm':'ss", "yyyy'/'MM'/'dd' 'HH':'mm':'ss", "yy'.'MM'.'dd' 'HH':'mm':'ss"}, new string[] {"MM'/'dd'/'yy' 'HH':'mm':'ss", "MM'/'dd'/'yyyy' 'HH':'mm':'ss", "MM'.'dd'.'yy' 'HH':'mm':'ss"}};
-		private static string[] ValidListFormats = new string[] {"*DIR", "*FILE", "*FLR", "*DDIR", "*STMF", "*LIB"};
+		private static string[][] DateTimeFormats = {new[] {"dd'/'MM'/'yy' 'HH':'mm':'ss", "dd'/'MM'/'yyyy' 'HH':'mm':'ss", "dd'.'MM'.'yy' 'HH':'mm':'ss"}, new[] {"yy'/'MM'/'dd' 'HH':'mm':'ss", "yyyy'/'MM'/'dd' 'HH':'mm':'ss", "yy'.'MM'.'dd' 'HH':'mm':'ss"}, new[] {"MM'/'dd'/'yy' 'HH':'mm':'ss", "MM'/'dd'/'yyyy' 'HH':'mm':'ss", "MM'.'dd'.'yy' 'HH':'mm':'ss"}};
+		private static string[] ValidListFormats = new[] {"*DIR", "*FILE", "*FLR", "*DDIR", "*STMF", "*LIB"};
 
 		#endregion
 	}

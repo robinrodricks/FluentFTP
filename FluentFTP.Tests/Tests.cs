@@ -27,7 +27,7 @@ namespace Tests {
 		private const string m_user = "";
 		private const string m_pass = "";
 
-		private static readonly int[] connectionTypes = new int[] {
+		private static readonly int[] connectionTypes = new[] {
 			(int) FtpDataConnectionType.EPSV,
 			(int) FtpDataConnectionType.EPRT,
 			(int) FtpDataConnectionType.PASV,
@@ -434,7 +434,7 @@ namespace Tests {
 
 			//parser.parser = FtpParser.Legacy;
 
-			var sample = new string[] {
+			var sample = new[] {
 				"drwxr-xr-x   7  user1 user1       512 Sep 27  2011 .",
 				"drwxr-xr-x  31 user1  user1      1024 Sep 27  2011 ..",
 				"lrwxrwxrwx   1 user1  user1      9 Sep 27  2011 data.0000 -> data.6460",
@@ -460,7 +460,7 @@ namespace Tests {
 
 			//parser.parser = FtpParser.Legacy;
 
-			var sample = new string[] {
+			var sample = new[] {
 				"03-07-13  10:02AM                  901 File01.xml",
 				"03-07-13  10:03AM                  921 File02.xml",
 				"03-07-13  10:04AM                  904 File03.xml",
@@ -491,7 +491,7 @@ namespace Tests {
 			var parser = new FtpListParser(new FtpClient());
 			parser.Init(FtpOperatingSystem.VMS);
 
-			var sample = new string[] {
+			var sample = new[] {
 				"411_4114.TXT;1             11  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
 				"ACT_CC_NAME_4114.TXT;1    30  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
 				"ACT_CC_NUM_4114.TXT;1     30  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
@@ -687,7 +687,7 @@ namespace Tests {
 			for (var i = 0; i < 1; i++) {
 				var count = i;
 
-				var t = new Thread(new ThreadStart(delegate() {
+				var t = new Thread(new ThreadStart(delegate {
 					cl.Credentials = new NetworkCredential(m_user, m_pass);
 					cl.Host = m_host;
 					cl.Connect();
@@ -724,7 +724,7 @@ namespace Tests {
 					continue;
 				}
 
-				var t = new Thread(new ThreadStart(delegate() { DoUpload(cl, root, file); }));
+				var t = new Thread(new ThreadStart(delegate { DoUpload(cl, root, file); }));
 
 				t.Start();
 				threads.Add(t);
@@ -795,7 +795,7 @@ namespace Tests {
 				else if (item.Type == FtpFileSystemObjectType.File) {
 					var file = item.FullName;
 
-					var t = new Thread(new ThreadStart(delegate() { DoDownload(cl, file); }));
+					var t = new Thread(new ThreadStart(delegate { DoDownload(cl, file); }));
 
 					t.Start();
 
@@ -975,10 +975,10 @@ namespace Tests {
 				cl.Connect();
 
 				// upload many
-				cl.UploadFiles(new string[] {@"D:\Drivers\test\file0.exe", @"D:\Drivers\test\file1.exe", @"D:\Drivers\test\file2.exe", @"D:\Drivers\test\file3.exe", @"D:\Drivers\test\file4.exe"}, "/public_html/temp/", FtpExists.Skip);
+				cl.UploadFiles(new[] {@"D:\Drivers\test\file0.exe", @"D:\Drivers\test\file1.exe", @"D:\Drivers\test\file2.exe", @"D:\Drivers\test\file3.exe", @"D:\Drivers\test\file4.exe"}, "/public_html/temp/", FtpExists.Skip);
 
 				// download many
-				cl.DownloadFiles(@"D:\Drivers\test\", new string[] {@"/public_html/temp/file0.exe", @"/public_html/temp/file1.exe", @"/public_html/temp/file2.exe", @"/public_html/temp/file3.exe", @"/public_html/temp/file4.exe"}, FtpLocalExists.Append);
+				cl.DownloadFiles(@"D:\Drivers\test\", new[] {@"/public_html/temp/file0.exe", @"/public_html/temp/file1.exe", @"/public_html/temp/file2.exe", @"/public_html/temp/file3.exe", @"/public_html/temp/file4.exe"}, FtpLocalExists.Append);
 
 				FtpTrace.WriteLine(" ------------- ALL DONE! ------------------");
 
@@ -994,10 +994,10 @@ namespace Tests {
 				await cl.ConnectAsync();
 
 				// upload many
-				await cl.UploadFilesAsync(new string[] {@"D:\Drivers\test\file0.exe", @"D:\Drivers\test\file1.exe", @"D:\Drivers\test\file2.exe", @"D:\Drivers\test\file3.exe", @"D:\Drivers\test\file4.exe"}, "/public_html/temp/", createRemoteDir: false);
+				await cl.UploadFilesAsync(new[] {@"D:\Drivers\test\file0.exe", @"D:\Drivers\test\file1.exe", @"D:\Drivers\test\file2.exe", @"D:\Drivers\test\file3.exe", @"D:\Drivers\test\file4.exe"}, "/public_html/temp/", createRemoteDir: false);
 
 				// download many
-				await cl.DownloadFilesAsync(@"D:\Drivers\test\", new string[] {@"/public_html/temp/file0.exe", @"/public_html/temp/file1.exe", @"/public_html/temp/file2.exe", @"/public_html/temp/file3.exe", @"/public_html/temp/file4.exe"}, FtpLocalExists.Append);
+				await cl.DownloadFilesAsync(@"D:\Drivers\test\", new[] {@"/public_html/temp/file0.exe", @"/public_html/temp/file1.exe", @"/public_html/temp/file2.exe", @"/public_html/temp/file3.exe", @"/public_html/temp/file4.exe"}, FtpLocalExists.Append);
 
 				FtpTrace.WriteLine(" ------------- ALL DONE! ------------------");
 

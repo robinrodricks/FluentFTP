@@ -71,7 +71,7 @@ namespace FluentFTP {
 			AsyncDeleteFile func;
 
 			lock (m_asyncmethods) {
-				ar = (func = new AsyncDeleteFile(DeleteFile)).BeginInvoke(path, callback, state);
+				ar = (func = DeleteFile).BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -205,7 +205,7 @@ namespace FluentFTP {
 			IAsyncResult ar;
 
 			lock (m_asyncmethods) {
-				ar = (func = new AsyncFileExists(FileExists)).BeginInvoke(path, callback, state);
+				ar = (func = FileExists).BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -355,7 +355,7 @@ namespace FluentFTP {
 			IAsyncResult ar;
 
 			lock (m_asyncmethods) {
-				ar = (func = new AsyncRename(Rename)).BeginInvoke(path, dest, callback, state);
+				ar = (func = Rename).BeginInvoke(path, dest, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -478,7 +478,7 @@ namespace FluentFTP {
 			IAsyncResult ar;
 
 			lock (m_asyncmethods) {
-				ar = (func = new AsyncMoveFile(MoveFile)).BeginInvoke(path, dest, existsMode, callback, state);
+				ar = (func = MoveFile).BeginInvoke(path, dest, existsMode, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -875,7 +875,7 @@ namespace FluentFTP {
 			AsyncDereferenceLink func;
 
 			lock (m_asyncmethods) {
-				ar = (func = new AsyncDereferenceLink(DereferenceLink)).BeginInvoke(item, recMax, callback, state);
+				ar = (func = DereferenceLink).BeginInvoke(item, recMax, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1065,7 +1065,7 @@ namespace FluentFTP {
 			AsyncGetFileSize func;
 
 			lock (m_asyncmethods) {
-				ar = (func = new AsyncGetFileSize(GetFileSize)).BeginInvoke(path, callback, state);
+				ar = (func = GetFileSize).BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1210,7 +1210,7 @@ namespace FluentFTP {
 			AsyncGetModifiedTime func;
 
 			lock (m_asyncmethods) {
-				ar = (func = new AsyncGetModifiedTime(GetModifiedTime)).BeginInvoke(path, type, callback, state);
+				ar = (func = GetModifiedTime).BeginInvoke(path, type, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -1337,7 +1337,7 @@ namespace FluentFTP {
 			AsyncSetModifiedTime func;
 
 			lock (m_asyncmethods) {
-				ar = (func = new AsyncSetModifiedTime(SetModifiedTime)).BeginInvoke(path, date, type, callback, state);
+				ar = (func = SetModifiedTime).BeginInvoke(path, date, type, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
