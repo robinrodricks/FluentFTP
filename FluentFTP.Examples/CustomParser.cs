@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using FluentFTP;
 using System.Globalization;
+using System.Collections.Generic;
 
 namespace Examples {
 	/// <summary>
@@ -23,7 +24,7 @@ namespace Examples {
 		/// <param name="buf">A line from the listing</param>
 		/// <param name="capabilities">Server capabilities</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		private static FtpListItem ParseUnixList(string buf, FtpCapability capabilities, FtpClient client) {
+		private static FtpListItem ParseUnixList(string buf, List<FtpCapability> capabilities, FtpClient client) {
 			var item = new FtpListItem();
 			Match m = null;
 			var regex =
@@ -69,7 +70,7 @@ namespace Examples {
 			// so if a modify time was parsed from the listing we will try
 			// to convert it to a DateTime object and use it for directories.
 			////
-			if ((!capabilities.HasFlag(FtpCapability.MDTM) || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0) {
+			if ((!capabilities.Contains(FtpCapability.MDTM) || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0) {
 				item.Modified = m.Groups["modify"].Value.GetFtpDate(DateTimeStyles.AssumeUniversal);
 			}
 

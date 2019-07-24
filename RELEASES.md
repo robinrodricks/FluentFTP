@@ -1,7 +1,10 @@
 # Release Notes
 
-#### 26.0.3
+#### 27.0.0
+  - New: Change `Capability` API to return a list of capabilities instead of bitwise enum (allows for more than 32 distinct capabilities)
+  - New: Change custom parsers to take capabilities as a list instead of bitwise enum (to match client implementation)
   - New: Support detection of FTP2S3 gateway server software (allows for server specific commands)
+  - New: Support detection of server-specific capabilities of Serv-U FTP Server/Gateway
   
 #### 26.0.2
   - Fix: Improve performance of `GetFileSize` to only switch to Binary for servers that require it

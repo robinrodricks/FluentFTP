@@ -16,7 +16,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses Vax/VMS format listings
 		/// </summary>
-		public static FtpListItem ParseLegacy(string record, FtpCapability capabilities, FtpClient client) {
+		public static FtpListItem ParseLegacy(string record, List<FtpCapability> capabilities, FtpClient client) {
 			var regex =
 				@"(?<name>.+)\.(?<extension>.+);(?<version>\d+)\s+" +
 				@"(?<size>\d+)\s+" +

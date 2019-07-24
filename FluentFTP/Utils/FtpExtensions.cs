@@ -775,5 +775,16 @@ namespace FluentFTP {
 
 			return false;
 		}
+
+		/// <summary>
+		/// Ensures the given item is only added once. If it was not present true is returned, else false is returned.
+		/// </summary>
+		public static bool AddOnce<T>(this List<T> items, T item) {
+			if (!items.Contains(item)) {
+				items.Add(item);
+				return true;
+			}
+			return false;
+		}
 	}
 }

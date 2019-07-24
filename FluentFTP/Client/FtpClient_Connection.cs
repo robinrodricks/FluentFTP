@@ -258,7 +258,7 @@ namespace FluentFTP {
 				}
 
 				if (!IsClone) {
-					m_capabilities = FtpCapability.NONE;
+					m_capabilities = new List<FtpCapability>();
 				}
 
 				ResetStateFlags();
@@ -393,7 +393,7 @@ namespace FluentFTP {
 			}
 
 			if (!IsClone) {
-				m_capabilities = FtpCapability.NONE;
+				m_capabilities = new List<FtpCapability>();
 			}
 
 			m_hashAlgorithms = FtpHashAlgorithm.NONE;

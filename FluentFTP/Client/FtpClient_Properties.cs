@@ -424,12 +424,12 @@ namespace FluentFTP {
 			}
 		}
 
-		private FtpCapability m_capabilities = FtpCapability.NONE;
+		private List<FtpCapability> m_capabilities = new List<FtpCapability>();
 
 		/// <summary>
-		/// Gets the server capabilities represented by flags
+		/// Gets the server capabilities represented by an array of capability flags
 		/// </summary>
-		public FtpCapability Capabilities {
+		public List<FtpCapability> Capabilities {
 			get {
 				if (m_stream == null || !m_stream.IsConnected) {
 					Connect();

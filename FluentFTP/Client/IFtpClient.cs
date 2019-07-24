@@ -44,7 +44,7 @@ namespace FluentFTP {
 		int DataConnectionConnectTimeout { get; set; }
 		int DataConnectionReadTimeout { get; set; }
 		bool SocketKeepAlive { get; set; }
-		FtpCapability Capabilities { get; }
+		List<FtpCapability> Capabilities { get; }
 		FtpHashAlgorithm HashAlgorithms { get; }
 		FtpEncryptionMode EncryptionMode { get; set; }
 		bool DataConnectionEncryption { get; set; }

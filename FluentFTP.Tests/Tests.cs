@@ -444,7 +444,7 @@ namespace Tests {
 			};
 
 			foreach (var s in sample) {
-				var item = parser.ParseSingleLine("/", s, 0, false);
+				var item = parser.ParseSingleLine("/", s, new List<FtpCapability>(), false);
 
 				if (item != null) {
 					FtpTrace.WriteLine(item);
@@ -477,7 +477,7 @@ namespace Tests {
 			};
 
 			foreach (var s in sample) {
-				var item = parser.ParseSingleLine("/", s, 0, false);
+				var item = parser.ParseSingleLine("/", s, new List<FtpCapability>(), false);
 
 				if (item != null) {
 					FtpTrace.WriteLine(item);
@@ -513,7 +513,7 @@ namespace Tests {
 			};
 
 			foreach (var s in sample) {
-				var item = parser.ParseSingleLine("disk$user520:[4114.2012.Jan]", s, 0, false);
+				var item = parser.ParseSingleLine("disk$user520:[4114.2012.Jan]", s, new List<FtpCapability>(), false);
 
 				if (item != null) {
 					FtpTrace.WriteLine(item);

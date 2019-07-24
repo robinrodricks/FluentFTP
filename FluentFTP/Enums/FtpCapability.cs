@@ -9,49 +9,49 @@ namespace FluentFTP {
 		/// <summary>
 		/// This server said it doesn't support anything!
 		/// </summary>
-		NONE = 0b0000_0000_0000_0000,
+		NONE = 1,
 
 		/// <summary>
 		/// Supports the MLST command
 		/// </summary>
-		MLSD = 0b0000_0000_0000_0001,
+		MLSD = 2,
 
 		/// <summary>
 		/// Supports the SIZE command
 		/// </summary>
-		SIZE = 0b0000_0000_0000_0010,
+		SIZE = 3,
 
 		/// <summary>
 		/// Supports the MDTM command
 		/// </summary>
-		MDTM = 0b0000_0000_0000_0100,
+		MDTM = 4,
 
 		/// <summary>
 		/// Supports download/upload stream resumes
 		/// </summary>
-		REST = 0b0000_0000_0000_1000,
+		REST = 5,
 
 		/// <summary>
 		/// Supports UTF8
 		/// </summary>
-		UTF8 = 0b0000_0000_0001_0000,
+		UTF8 = 6,
 
 		/// <summary>
 		/// PRET Command used in distributed ftp server software DrFTPD
 		/// </summary>
-		PRET = 0b0000_0000_0010_0000,
+		PRET = 7,
 
 		/// <summary>
 		/// Server supports the MFMT command for setting the
 		/// modified date of an object on the server
 		/// </summary>
-		MFMT = 0b0000_0000_0100_0000,
+		MFMT = 8,
 
 		/// <summary>
 		/// Server supports the MFCT command for setting the
 		/// created date of an object on the server
 		/// </summary>
-		MFCT = 0b0000_0000_1000_0000,
+		MFCT = 9,
 
 		/// <summary>
 		/// Server supports the MFF command for setting certain facts
@@ -60,91 +60,111 @@ namespace FluentFTP {
 		/// the FtpReply.InfoMessages property to see which facts the server
 		/// allows you to modify.
 		/// </summary>
-		MFF = 0b0000_0001_0000_0000,
+		MFF = 10,
 
 		/// <summary>
 		/// Server supports the STAT command
 		/// </summary>
-		STAT = 0b0000_0010_0000_0000,
+		STAT = 11,
 
 		/// <summary>
 		/// Support for the HASH command
 		/// </summary>
-		HASH = 0b0000_0100_0000_0000,
+		HASH = 12,
 
 		/// <summary>
-		/// Support for the non-standard MD5 command
+		/// Support for the MD5 command
 		/// </summary>
-		MD5 = 0b0000_1000_0000_0000,
+		MD5 = 13,
 
 		/// <summary>
-		/// Support for the non-standard XMD5 command
+		/// Support for the XMD5 command
 		/// </summary>
-		XMD5 = 0b0001_0000_0000_0000,
+		XMD5 = 14,
 
 		/// <summary>
-		/// Support for the non-standard XCRC command
+		/// Support for the XCRC command
 		/// </summary>
-		XCRC = 0b0010_0000_0000_0000,
+		XCRC = 15,
 
 		/// <summary>
-		/// Support for the non-standard XSHA1 command
+		/// Support for the XSHA1 command
 		/// </summary>
-		XSHA1 = 0b0100_0000_0000_0000,
+		XSHA1 = 16,
 
 		/// <summary>
-		/// Support for the non-standard XSHA256 command
+		/// Support for the XSHA256 command
 		/// </summary>
-		XSHA256 = 0b1000_0000_0000_0000,
+		XSHA256 = 17,
 
 		/// <summary>
-		/// Support for the non-standard XSHA512 command
+		/// Support for the XSHA512 command
 		/// </summary>
-		XSHA512 = 0b0000_0001_0000_0000_0000_0000,
+		XSHA512 = 18,
 
 		/// <summary>
 		/// Support for the EPSV file-transfer command
 		/// </summary>
-		EPSV = 0b0000_0010_0000_0000_0000_0000,
+		EPSV = 19,
 
 		/// <summary>
 		/// Support for the CPSV command
 		/// </summary>
-		CPSV = 0b0000_0100_0000_0000_0000_0000,
+		CPSV = 20,
 
 		/// <summary>
 		/// Support for the NOOP command
 		/// </summary>
-		NOOP = 0b0000_1000_0000_0000_0000_0000,
+		NOOP = 21,
 
 		/// <summary>
 		/// Support for the CLNT command
 		/// </summary>
-		CLNT = 0b0001_0000_0000_0000_0000_0000,
+		CLNT = 22,
 
 		/// <summary>
 		/// Support for the SSCN command
 		/// </summary>
-		SSCN = 0b0010_0000_0000_0000_0000_0000,
+		SSCN = 23,
 
 		/// <summary>
 		/// Support for the SITE MKDIR server-specific command (ProFTPd)
 		/// </summary>
-		SITE_MKDIR = 0b0100_0000_0000_0000_0000_0000,
+		SITE_MKDIR = 24,
 
 		/// <summary>
-		/// Support for the SITE RMDIR server-specific command (ProFTPd)
+		/// Support for the SITE RMDIR (remove directory) server-specific command (ProFTPd)
 		/// </summary>
-		SITE_RMDIR = 0b1000_0000_0000_0000_0000_0000,
+		SITE_RMDIR = 25,
 
 		/// <summary>
 		/// Support for the SITE UTIME server-specific command (ProFTPd)
 		/// </summary>
-		SITE_UTIME = 0b0001_0000_0000_0000_0000_0000_0000,
+		SITE_UTIME = 26,
 
 		/// <summary>
 		/// Support for the SITE SYMLINK server-specific command (ProFTPd)
 		/// </summary>
-		SITE_SYMLINK = 0b0010_0000_0000_0000_0000_0000_0000
+		SITE_SYMLINK = 27,
+
+		/// <summary>
+		/// Support for the AVBL (get available space) server-specific command (Serv-U)
+		/// </summary>
+		AVBL = 28,
+
+		/// <summary>
+		/// Support for the THMB (get image thumbnail) server-specific command (Serv-U)
+		/// </summary>
+		THMB = 29,
+
+		/// <summary>
+		/// Support for the RMDA (remove directory) server-specific command (Serv-U)
+		/// </summary>
+		RMDA = 30,
+
+		/// <summary>
+		/// Support for the DSIZ (get directory size) server-specific command (Serv-U)
+		/// </summary>
+		DSIZ = 31,
 	}
 }

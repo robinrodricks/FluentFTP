@@ -102,7 +102,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Parse raw file from server into a file object, using the currently active parser.
 		/// </summary>
-		public FtpListItem ParseSingleLine(string path, string file, FtpCapability caps, bool isMachineList) {
+		public FtpListItem ParseSingleLine(string path, string file, List<FtpCapability> caps, bool isMachineList) {
 			FtpListItem result = null;
 
 			// force machine listing if it is
@@ -300,7 +300,7 @@ namespace FluentFTP {
 		/// <param name="line">The line from the listing</param>
 		/// <param name="capabilities">The server capabilities</param>
 		/// <returns>FtpListItem if the line can be parsed, null otherwise</returns>
-		public delegate FtpListItem Parser(string line, FtpCapability capabilities, FtpClient client);
+		public delegate FtpListItem Parser(string line, List<FtpCapability> capabilities, FtpClient client);
 
 		/// <summary>
 		/// Parses a line from a file listing using the first successful match in the Parsers collection.
@@ -311,7 +311,7 @@ namespace FluentFTP {
 		/// <returns>A FtpListItem object representing the parsed line, null if the line was
 		/// unable to be parsed. If you have encountered an unsupported list type add a parser
 		/// to the public static Parsers collection of FtpListItem.</returns>
-		public static FtpListItem ParseLegacy(string path, string buf, FtpCapability capabilities, FtpClient client) {
+		public static FtpListItem ParseLegacy(string path, string buf, List<FtpCapability> capabilities, FtpClient client) {
 			if (!string.IsNullOrEmpty(buf)) {
 				FtpListItem item;
 

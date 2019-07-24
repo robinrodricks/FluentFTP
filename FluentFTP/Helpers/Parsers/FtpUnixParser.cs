@@ -19,7 +19,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <param name="record">A line from the listing</param>
 		/// <param name="capabilities">Server capabilities</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		public static FtpListItem ParseLegacy(string record, FtpCapability capabilities, FtpClient client) {
+		public static FtpListItem ParseLegacy(string record, List<FtpCapability> capabilities, FtpClient client) {
 			var regex =
 				@"(?<permissions>.+)\s+" +
 				@"(?<objectcount>\d+)\s+" +
@@ -95,7 +95,7 @@ namespace FluentFTP.Helpers.Parsers {
 			// so if a modify time was parsed from the listing we will try
 			// to convert it to a DateTime object and use it for directories.
 			////
-			if (((capabilities & FtpCapability.MDTM) != FtpCapability.MDTM || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0) {
+			if ((!capabilities.Contains(FtpCapability.MDTM) || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0) {
 				item.Modified = m.Groups["modify"].Value.GetFtpDate(DateTimeStyles.AssumeLocal);
 				if (item.Modified == DateTime.MinValue) {
 					client.LogStatus(FtpTraceLevel.Warn, "GetFtpDate() failed on " + m.Groups["modify"].Value);
@@ -108,7 +108,7 @@ namespace FluentFTP.Helpers.Parsers {
 				else if (item.Type == FtpFileSystemObjectType.Directory) {
 					client.LogStatus(FtpTraceLevel.Warn, "Modified times of directories are ignored in UNIX long listings.");
 				}
-				else if ((capabilities & FtpCapability.MDTM) == FtpCapability.MDTM) {
+				else if (capabilities.Contains(FtpCapability.MDTM)) {
 					client.LogStatus(FtpTraceLevel.Warn, "Ignoring modified date because MDTM feature is present. If you aren't already, pass FtpListOption.Modify or FtpListOption.SizeModify to GetListing() to retrieve the modification time.");
 				}
 			}

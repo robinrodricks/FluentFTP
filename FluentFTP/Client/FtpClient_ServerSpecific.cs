@@ -204,81 +204,93 @@ namespace FluentFTP {
 				var featName = feat.Trim().ToUpper();
 
 				if (featName.StartsWith("MLST") || featName.StartsWith("MLSD")) {
-					m_capabilities |= FtpCapability.MLSD;
+					m_capabilities.AddOnce(FtpCapability.MLSD);
 				}
 				else if (featName.StartsWith("MDTM")) {
-					m_capabilities |= FtpCapability.MDTM;
+					m_capabilities.AddOnce(FtpCapability.MDTM);
 				}
 				else if (featName.StartsWith("REST STREAM")) {
-					m_capabilities |= FtpCapability.REST;
+					m_capabilities.AddOnce(FtpCapability.REST);
 				}
 				else if (featName.StartsWith("SIZE")) {
-					m_capabilities |= FtpCapability.SIZE;
+					m_capabilities.AddOnce(FtpCapability.SIZE);
 				}
 				else if (featName.StartsWith("UTF8")) {
-					m_capabilities |= FtpCapability.UTF8;
+					m_capabilities.AddOnce(FtpCapability.UTF8);
 				}
 				else if (featName.StartsWith("PRET")) {
-					m_capabilities |= FtpCapability.PRET;
+					m_capabilities.AddOnce(FtpCapability.PRET);
 				}
 				else if (featName.StartsWith("MFMT")) {
-					m_capabilities |= FtpCapability.MFMT;
+					m_capabilities.AddOnce(FtpCapability.MFMT);
 				}
 				else if (featName.StartsWith("MFCT")) {
-					m_capabilities |= FtpCapability.MFCT;
+					m_capabilities.AddOnce(FtpCapability.MFCT);
 				}
 				else if (featName.StartsWith("MFF")) {
-					m_capabilities |= FtpCapability.MFF;
+					m_capabilities.AddOnce(FtpCapability.MFF);
 				}
 				else if (featName.StartsWith("MD5")) {
-					m_capabilities |= FtpCapability.MD5;
+					m_capabilities.AddOnce(FtpCapability.MD5);
 				}
 				else if (featName.StartsWith("XMD5")) {
-					m_capabilities |= FtpCapability.XMD5;
+					m_capabilities.AddOnce(FtpCapability.XMD5);
 				}
 				else if (featName.StartsWith("XCRC")) {
-					m_capabilities |= FtpCapability.XCRC;
+					m_capabilities.AddOnce(FtpCapability.XCRC);
 				}
 				else if (featName.StartsWith("XSHA1")) {
-					m_capabilities |= FtpCapability.XSHA1;
+					m_capabilities.AddOnce(FtpCapability.XSHA1);
 				}
 				else if (featName.StartsWith("XSHA256")) {
-					m_capabilities |= FtpCapability.XSHA256;
+					m_capabilities.AddOnce(FtpCapability.XSHA256);
 				}
 				else if (featName.StartsWith("XSHA512")) {
-					m_capabilities |= FtpCapability.XSHA512;
+					m_capabilities.AddOnce(FtpCapability.XSHA512);
 				}
 				else if (featName.StartsWith("EPSV")) {
-					m_capabilities |= FtpCapability.EPSV;
+					m_capabilities.AddOnce(FtpCapability.EPSV);
 				}
 				else if (featName.StartsWith("CPSV")) {
-					m_capabilities |= FtpCapability.CPSV;
+					m_capabilities.AddOnce(FtpCapability.CPSV);
 				}
 				else if (featName.StartsWith("NOOP")) {
-					m_capabilities |= FtpCapability.NOOP;
+					m_capabilities.AddOnce(FtpCapability.NOOP);
 				}
 				else if (featName.StartsWith("CLNT")) {
-					m_capabilities |= FtpCapability.CLNT;
+					m_capabilities.AddOnce(FtpCapability.CLNT);
 				}
 				else if (featName.StartsWith("SSCN")) {
-					m_capabilities |= FtpCapability.SSCN;
+					m_capabilities.AddOnce(FtpCapability.SSCN);
 				}
 				else if (featName.StartsWith("SITE MKDIR")) {
-					m_capabilities |= FtpCapability.SITE_MKDIR;
+					m_capabilities.AddOnce(FtpCapability.SITE_MKDIR);
 				}
 				else if (featName.StartsWith("SITE RMDIR")) {
-					m_capabilities |= FtpCapability.SITE_RMDIR;
+					m_capabilities.AddOnce(FtpCapability.SITE_RMDIR);
 				}
 				else if (featName.StartsWith("SITE UTIME")) {
-					m_capabilities |= FtpCapability.SITE_UTIME;
+					m_capabilities.AddOnce(FtpCapability.SITE_UTIME);
 				}
 				else if (featName.StartsWith("SITE SYMLINK")) {
-					m_capabilities |= FtpCapability.SITE_SYMLINK;
+					m_capabilities.AddOnce(FtpCapability.SITE_SYMLINK);
+				}
+				else if (featName.StartsWith("AVBL")) {
+					m_capabilities.AddOnce(FtpCapability.AVBL);
+				}
+				else if (featName.StartsWith("THMB")) {
+					m_capabilities.AddOnce(FtpCapability.THMB);
+				}
+				else if (featName.StartsWith("RMDA")) {
+					m_capabilities.AddOnce(FtpCapability.RMDA);
+				}
+				else if (featName.StartsWith("DSIZ")) {
+					m_capabilities.AddOnce(FtpCapability.DSIZ);
 				}
 				else if (featName.StartsWith("HASH")) {
 					Match m;
 
-					m_capabilities |= FtpCapability.HASH;
+					m_capabilities.AddOnce(FtpCapability.HASH);
 
 					if ((m = Regex.Match(featName, @"^HASH\s+(?<types>.*)$")).Success) {
 						foreach (var type in m.Groups["types"].Value.Split(';')) {
@@ -367,7 +379,7 @@ namespace FluentFTP {
 			// http://nixdoc.net/man-pages/HP-UX/ftpd.1m.html
 			if (ServerType == FtpServer.WuFTPd) {
 				// assume the basic features supported
-				GetFeatures(new string[] {"ABOR", "ACCT", "ALLO", "APPE", "CDUP", "CWD", "DELE", "EPSV", "EPRT", "HELP", "LIST", "LPRT", "LPSV", "MKD", "MDTM", "MODE", "NLST", "NOOP", "PASS", "PASV", "PORT", "PWD", "QUIT", "REST", "RETR", "RMD", "RNFR", "RNTO", "SITE", "SIZE", "STAT", "STOR", "STOU", "STRU", "SYST", "TYPE"});
+				GetFeatures(new string[] { "ABOR", "ACCT", "ALLO", "APPE", "CDUP", "CWD", "DELE", "EPSV", "EPRT", "HELP", "LIST", "LPRT", "LPSV", "MKD", "MDTM", "MODE", "NLST", "NOOP", "PASS", "PASV", "PORT", "PWD", "QUIT", "REST", "RETR", "RMD", "RNFR", "RNTO", "SITE", "SIZE", "STAT", "STOR", "STOU", "STRU", "SYST", "TYPE" });
 			}
 		}
 

@@ -37,7 +37,10 @@ namespace FluentFTP {
 		/// <param name="cap">The <see cref="FtpCapability"/> to check for</param>
 		/// <returns>True if the feature was found, false otherwise</returns>
 		public bool HasFeature(FtpCapability cap) {
-			return (Capabilities & cap) == cap;
+			if (cap == FtpCapability.NONE && Capabilities.Count == 0) {
+				return true;
+			}
+			return Capabilities.Contains(cap);
 		}
 
 		/// <summary>

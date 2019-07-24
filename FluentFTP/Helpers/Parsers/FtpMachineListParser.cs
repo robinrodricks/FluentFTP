@@ -18,7 +18,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <param name="record">A line from the listing</param>
 		/// <param name="capabilities">Server capabilities</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		public static FtpListItem Parse(string record, FtpCapability capabilities, FtpClient client) {
+		public static FtpListItem Parse(string record, List<FtpCapability> capabilities, FtpClient client) {
 			var item = new FtpListItem();
 			Match m;
 
