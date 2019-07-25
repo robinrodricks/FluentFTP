@@ -602,6 +602,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **MDTM**   			| GetModifiedTime()<br>GetListing() with FtpListOption.Modify<br>GetObjectInfo() with dateModified | Get the file modified date  |
 | **MFMT**   			| SetModifiedTime()		 | Modify file modified date  |
 | **SITE CHMOD**      	| Chmod() or SetFilePermissions() | Modify file permissions |
+| **RNFR, RNTO**   		| Rename()<br>MoveFile()	| Rename a file or directory<br>Move a file or directory  |
 
 *File Hashing commands*
 
