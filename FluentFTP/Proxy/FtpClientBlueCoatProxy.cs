@@ -28,7 +28,7 @@ namespace FluentFTP.Proxy {
 			}
 
 			// Connection USER@Host means to change user name to add host.
-			Credentials.UserName = Credentials.UserName + "@" + Host;
+			Credentials.UserName = Credentials.UserName + "@" + Host + ":" + Port;
 
 			var reply = GetReply();
 			if (reply.Code == "220") {
