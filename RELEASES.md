@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 27.0.1
+  - Fix: Error using BlueCoat proxy to an FTP server on a port other than port 21
+  - Fix: Error using UserAtHost proxy to an FTP server on a port other than port 21
+  
 #### 27.0.0
   - New: Change `Capability` API to return a list instead of bitwise enum (to support more than 32 distinct capabilities)
   - New: Change custom parsers to take capabilities as a list instead of bitwise enum (to match client implementation)
