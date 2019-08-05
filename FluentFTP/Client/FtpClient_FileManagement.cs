@@ -138,6 +138,10 @@ namespace FluentFTP {
 				// since FTP does not include a specific command to check if a file exists
 				// here we check if file exists by attempting to get its filesize (SIZE)
 				if (HasFeature(FtpCapability.SIZE)) {
+					if (_FileSizeASCIINotSupported) {
+						SetDataTypeNoLock(FtpDataType.Binary);
+					}
+
 					var reply = Execute("SIZE " + path);
 					var ch = reply.Code[0];
 					if (ch == '2') {
@@ -150,6 +154,14 @@ namespace FluentFTP {
 
 					// Fix #179: Server returns 550 if file not found or no access to file
 					if (reply.Code.Substring(0, 3) == "550") {
+						if (reply.Message.IsKnownError(fileSizeNotInASCIIStrings)) {
+							// set the flag so mode switching is done
+							_FileSizeASCIINotSupported = true;
+
+							// retry checking if the file exists
+							return FileExists(path);
+						}
+
 						return false;
 					}
 				}
@@ -244,6 +256,10 @@ namespace FluentFTP {
 			// since FTP does not include a specific command to check if a file exists
 			// here we check if file exists by attempting to get its filesize (SIZE)
 			if (HasFeature(FtpCapability.SIZE)) {
+				if (_FileSizeASCIINotSupported) {
+					await SetDataTypeNoLockAsync(FtpDataType.Binary, token);
+				}
+
 				FtpReply reply = await ExecuteAsync("SIZE " + path, token);
 				var ch = reply.Code[0];
 				if (ch == '2') {
@@ -256,6 +272,14 @@ namespace FluentFTP {
 
 				// Fix #179: Server returns 550 if file not found or no access to file
 				if (reply.Code.Substring(0, 3) == "550") {
+					if (reply.Message.IsKnownError(fileSizeNotInASCIIStrings)) {
+						// set the flag so mode switching is done
+						_FileSizeASCIINotSupported = true;
+
+						// retry getting the file size
+						return await FileExistsAsync(path, token);
+					}
+
 					return false;
 				}
 			}
