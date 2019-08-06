@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 27.0.2
+  - Fix: `FileExists` and `FileExistsAsync` support switching to binary mode for servers that need it
+  
 #### 27.0.1
   - Fix: Error using BlueCoat proxy to an FTP server on a port other than port 21
   - Fix: Error using UserAtHost proxy to an FTP server on a port other than port 21
