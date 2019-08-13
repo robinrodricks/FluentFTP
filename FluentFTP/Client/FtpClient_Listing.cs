@@ -210,8 +210,9 @@ namespace FluentFTP {
 		/// <returns>An array of FtpListItem objects</returns>
 		/// <example><code source="..\Examples\GetListing.cs" lang="cs" /></example>
 		public FtpListItem[] GetListing(string path, FtpListOption options) {
+
 			// start recursive process if needed and unsupported by the server
-			if ((options & FtpListOption.Recursive) == FtpListOption.Recursive && !RecursiveList) {
+			if (options.HasFlag(FtpListOption.Recursive) && (!RecursiveList || options.HasFlag(FtpListOption.UseStat))) {
 				return GetListingRecursive(GetAbsolutePath(path), options);
 			}
 
@@ -224,12 +225,12 @@ namespace FluentFTP {
 			string buf = null;
 
 			// read flags
-			var isIncludeSelf = (options & FtpListOption.IncludeSelfAndParent) == FtpListOption.IncludeSelfAndParent;
-			var isNameList = (options & FtpListOption.NameList) == FtpListOption.NameList;
-			var isRecursive = (options & FtpListOption.Recursive) == FtpListOption.Recursive && RecursiveList;
-			var isDerefLinks = (options & FtpListOption.DerefLinks) == FtpListOption.DerefLinks;
-			var isGetModified = (options & FtpListOption.Modify) == FtpListOption.Modify;
-			var isGetSize = (options & FtpListOption.Size) == FtpListOption.Size;
+			var isIncludeSelf = options.HasFlag(FtpListOption.IncludeSelfAndParent);
+			var isNameList = options.HasFlag(FtpListOption.NameList);
+			var isRecursive = options.HasFlag(FtpListOption.Recursive) && RecursiveList;
+			var isDerefLinks = options.HasFlag(FtpListOption.DerefLinks);
+			var isGetModified = options.HasFlag(FtpListOption.Modify);
+			var isGetSize = options.HasFlag(FtpListOption.Size);
 
 			// calc path to request
 			path = GetAbsolutePath(path);
@@ -242,7 +243,7 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				rawlisting = GetListingInternal(listcmd, true);
+				rawlisting = GetListingInternal(listcmd, options, true);
 #if !CORE14
 			}
 #endif
@@ -354,45 +355,53 @@ namespace FluentFTP {
 		}
 
 		private void CalculateGetListingCommand(string path, FtpListOption options, out string listcmd, out bool machineList) {
+
 			// read flags
-			var isForceList = (options & FtpListOption.ForceList) == FtpListOption.ForceList;
-			var isNoPath = (options & FtpListOption.NoPath) == FtpListOption.NoPath;
-			var isNameList = (options & FtpListOption.NameList) == FtpListOption.NameList;
-			var isUseLS = (options & FtpListOption.UseLS) == FtpListOption.UseLS;
-			var isAllFiles = (options & FtpListOption.AllFiles) == FtpListOption.AllFiles;
-			var isRecursive = (options & FtpListOption.Recursive) == FtpListOption.Recursive && RecursiveList;
+			var isForceList = options.HasFlag(FtpListOption.ForceList);
+			var isUseStat = options.HasFlag(FtpListOption.UseStat);
+			var isNoPath = options.HasFlag(FtpListOption.NoPath);
+			var isNameList = options.HasFlag(FtpListOption.NameList);
+			var isUseLS = options.HasFlag(FtpListOption.UseLS);
+			var isAllFiles = options.HasFlag(FtpListOption.AllFiles);
+			var isRecursive = options.HasFlag(FtpListOption.Recursive) && RecursiveList;
 
 			machineList = false;
 
-			// use machine listing if supported by the server
-			if ((!isForceList || m_parser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
-				listcmd = "MLSD";
-				machineList = true;
+			// use stat listing if forced
+			if (isUseStat) {
+				listcmd = "STAT -l";
 			}
 			else {
-				// otherwise use one of the legacy name listing commands
-				if (isUseLS) {
-					listcmd = "LS";
-				}
-				else if (isNameList) {
-					listcmd = "NLST";
+				// use machine listing if supported by the server
+				if ((!isForceList || m_parser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
+					listcmd = "MLSD";
+					machineList = true;
 				}
 				else {
-					var listopts = "";
-
-					listcmd = "LIST";
-
-					// add option flags
-					if (isAllFiles) {
-						listopts += "a";
+					// otherwise use one of the legacy name listing commands
+					if (isUseLS) {
+						listcmd = "LS";
 					}
-
-					if (isRecursive) {
-						listopts += "R";
+					else if (isNameList) {
+						listcmd = "NLST";
 					}
+					else {
+						var listopts = "";
 
-					if (listopts.Length > 0) {
-						listcmd += " -" + listopts;
+						listcmd = "LIST";
+
+						// add option flags
+						if (isAllFiles) {
+							listopts += "a";
+						}
+
+						if (isRecursive) {
+							listopts += "R";
+						}
+
+						if (listopts.Length > 0) {
+							listcmd += " -" + listopts;
+						}
 					}
 				}
 			}
@@ -405,42 +414,64 @@ namespace FluentFTP {
 		/// <summary>
 		/// Get the records of a file listing and retry if temporary failure.
 		/// </summary>
-		private List<string> GetListingInternal(string listcmd, bool retry) {
+		private List<string> GetListingInternal(string listcmd, FtpListOption options, bool retry) {
 			var rawlisting = new List<string>();
+			var isUseStat = options.HasFlag(FtpListOption.UseStat);
 
 			// always get the file listing in binary to avoid character translation issues with ASCII.
 			SetDataTypeNoLock(FtpDataType.Binary);
 
 			try {
-				// read in raw file listing
-				using (var stream = OpenDataStream(listcmd, 0)) {
-					try {
+
+				// read in raw file listing from control stream
+				if (isUseStat) {
+					var reply = Execute(listcmd);
+					if (reply.Success) {
+
 						LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
-						if (BulkListing) {
-							// increases performance of GetListing by reading multiple lines of the file listing at once
-							foreach (var line in stream.ReadAllLines(Encoding, BulkListingLength)) {
-								if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
-									rawlisting.Add(line);
-									LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
-								}
-							}
-						}
-						else {
-							// GetListing will read file listings line-by-line (actually byte-by-byte)
-							string buf;
-							while ((buf = stream.ReadLine(Encoding)) != null) {
-								if (buf.Length > 0) {
-									rawlisting.Add(buf);
-									LogLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
-								}
+						foreach (var line in reply.InfoMessages.Split('\n')) {
+							if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
+								rawlisting.Add(line);
+								LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
 							}
 						}
 
 						LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 					}
-					finally {
-						stream.Close();
+				}
+				else {
+
+					// read in raw file listing from data stream
+					using (var stream = OpenDataStream(listcmd, 0)) {
+						try {
+							LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+
+							if (BulkListing) {
+								// increases performance of GetListing by reading multiple lines of the file listing at once
+								foreach (var line in stream.ReadAllLines(Encoding, BulkListingLength)) {
+									if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
+										rawlisting.Add(line);
+										LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
+									}
+								}
+							}
+							else {
+								// GetListing will read file listings line-by-line (actually byte-by-byte)
+								string buf;
+								while ((buf = stream.ReadLine(Encoding)) != null) {
+									if (buf.Length > 0) {
+										rawlisting.Add(buf);
+										LogLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
+									}
+								}
+							}
+
+							LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
+						}
+						finally {
+							stream.Close();
+						}
 					}
 				}
 			}
@@ -454,7 +485,7 @@ namespace FluentFTP {
 				// Fix #410: Retry if its a temporary failure ("Received an unexpected EOF or 0 bytes from the transport stream")
 				if (retry && ioEx.Message.IsKnownError(unexpectedEOFStrings)) {
 					// retry once more, but do not go into a infinite recursion loop here
-					return GetListingInternal(listcmd, false);
+					return GetListingInternal(listcmd, options, false);
 				}
 				else {
 					// suppress all other types of exceptions
@@ -553,7 +584,7 @@ namespace FluentFTP {
 		/// <returns>An array of items retrieved in the listing</returns>
 		public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
 			// start recursive process if needed and unsupported by the server
-			if ((options & FtpListOption.Recursive) == FtpListOption.Recursive && !RecursiveList) {
+			if (options.HasFlag(FtpListOption.Recursive) && (!RecursiveList || options.HasFlag(FtpListOption.UseStat))) {
 				return await GetListingRecursiveAsync(GetAbsolutePath(path), options);
 			}
 
@@ -566,12 +597,12 @@ namespace FluentFTP {
 			string buf = null;
 
 			// read flags
-			var isIncludeSelf = (options & FtpListOption.IncludeSelfAndParent) == FtpListOption.IncludeSelfAndParent;
-			var isNameList = (options & FtpListOption.NameList) == FtpListOption.NameList;
-			var isRecursive = (options & FtpListOption.Recursive) == FtpListOption.Recursive && RecursiveList;
-			var isDerefLinks = (options & FtpListOption.DerefLinks) == FtpListOption.DerefLinks;
-			var isGetModified = (options & FtpListOption.Modify) == FtpListOption.Modify;
-			var isGetSize = (options & FtpListOption.Size) == FtpListOption.Size;
+			var isIncludeSelf = options.HasFlag(FtpListOption.IncludeSelfAndParent);
+			var isNameList = options.HasFlag(FtpListOption.NameList);
+			var isRecursive = options.HasFlag(FtpListOption.Recursive) && RecursiveList;
+			var isDerefLinks = options.HasFlag(FtpListOption.DerefLinks);
+			var isGetModified = options.HasFlag(FtpListOption.Modify);
+			var isGetSize = options.HasFlag(FtpListOption.Size);
 
 			// calc path to request
 			path = await GetAbsolutePathAsync(path, token);
@@ -582,7 +613,7 @@ namespace FluentFTP {
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
 			// read in raw file listing
-			rawlisting = await GetListingInternalAsync(listcmd, true, token);
+			rawlisting = await GetListingInternalAsync(listcmd, options, true, token);
 
 			for (var i = 0; i < rawlisting.Count; i++) {
 				buf = rawlisting[i];
@@ -693,42 +724,64 @@ namespace FluentFTP {
 		/// <summary>
 		/// Get the records of a file listing and retry if temporary failure.
 		/// </summary>
-		private async Task<List<string>> GetListingInternalAsync(string listcmd, bool retry, CancellationToken token) {
+		private async Task<List<string>> GetListingInternalAsync(string listcmd, FtpListOption options, bool retry, CancellationToken token) {
 			var rawlisting = new List<string>();
+			var isUseStat = options.HasFlag(FtpListOption.UseStat);
 
 			// always get the file listing in binary to avoid character translation issues with ASCII.
 			await SetDataTypeNoLockAsync(FtpDataType.Binary, token);
 
 			try {
-				// read in raw file listing
-				using (FtpDataStream stream = await OpenDataStreamAsync(listcmd, 0, token)) {
-					try {
+		
+				// read in raw file listing from control stream
+				if (isUseStat) {
+					var reply = await ExecuteAsync(listcmd, token);
+					if (reply.Success) {
+
 						LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
-						if (BulkListing) {
-							// increases performance of GetListing by reading multiple lines of the file listing at once
-							foreach (var line in await stream.ReadAllLinesAsync(Encoding, BulkListingLength, token)) {
-								if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
-									rawlisting.Add(line);
-									LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
-								}
-							}
-						}
-						else {
-							// GetListing will read file listings line-by-line (actually byte-by-byte)
-							string buf;
-							while ((buf = await stream.ReadLineAsync(Encoding, token)) != null) {
-								if (buf.Length > 0) {
-									rawlisting.Add(buf);
-									LogLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
-								}
+						foreach (var line in reply.InfoMessages.Split('\n')) {
+							if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
+								rawlisting.Add(line);
+								LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
 							}
 						}
 
 						LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 					}
-					finally {
-						stream.Close();
+				}
+				else {
+
+					// read in raw file listing from data stream
+					using (FtpDataStream stream = await OpenDataStreamAsync(listcmd, 0, token)) {
+						try {
+							LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+
+							if (BulkListing) {
+								// increases performance of GetListing by reading multiple lines of the file listing at once
+								foreach (var line in await stream.ReadAllLinesAsync(Encoding, BulkListingLength, token)) {
+									if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
+										rawlisting.Add(line);
+										LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
+									}
+								}
+							}
+							else {
+								// GetListing will read file listings line-by-line (actually byte-by-byte)
+								string buf;
+								while ((buf = await stream.ReadLineAsync(Encoding, token)) != null) {
+									if (buf.Length > 0) {
+										rawlisting.Add(buf);
+										LogLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
+									}
+								}
+							}
+
+							LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
+						}
+						finally {
+							stream.Close();
+						}
 					}
 				}
 			}
@@ -742,7 +795,7 @@ namespace FluentFTP {
 				// Fix #410: Retry if its a temporary failure ("Received an unexpected EOF or 0 bytes from the transport stream")
 				if (retry && ioEx.Message.IsKnownError(unexpectedEOFStrings)) {
 					// retry once more, but do not go into a infinite recursion loop here
-					return await GetListingInternalAsync(listcmd, false, token);
+					return await GetListingInternalAsync(listcmd, options, false, token);
 				}
 				else {
 					// suppress all other types of exceptions

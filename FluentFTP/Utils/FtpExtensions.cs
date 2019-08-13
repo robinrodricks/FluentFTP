@@ -412,7 +412,7 @@ namespace FluentFTP {
 			return (flags & flag) == flag;
 		}
 
-		public static bool HasFlag(this FtpCapability flags, FtpCapability flag) {
+		public static bool HasFlag(this FtpListOption flags, FtpListOption flag) {
 			return (flags & flag) == flag;
 		}
 

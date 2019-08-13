@@ -89,6 +89,11 @@ namespace FluentFTP {
 		/// and the parent directory (".."). Meaningless unless you want these two
 		/// items for some reason.
 		/// </summary>
-		IncludeSelfAndParent = 512
+		IncludeSelfAndParent = 512,
+
+		/// <summary>
+		/// Force the use of STAT command for getting file listings
+		/// </summary>
+		UseStat = 1024
 	}
 }
