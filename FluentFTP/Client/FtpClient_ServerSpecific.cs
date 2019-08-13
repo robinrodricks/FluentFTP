@@ -115,6 +115,12 @@ namespace FluentFTP {
 					m_serverType = FtpServer.HomegateFTP;
 				}
 
+				// Detect XLight server
+				// Welcome message: "220 Xlight FTP Server 3.9 ready"
+				else if (welcome.Contains("Xlight FTP Server")) {
+					m_serverType = FtpServer.XLight;
+				}
+
 				// Detect BFTPd server
 				// Welcome message: "220 Aruba FTP2S3 gateway 1.0.1 ready"
 				else if (welcome.Contains("FTP2S3 gateway")) {

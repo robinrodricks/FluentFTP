@@ -94,6 +94,11 @@ namespace FluentFTP {
 		/// <summary>
 		/// Definitely FTP2S3 gateway server
 		/// </summary>
-		FTP2S3Gateway
+		FTP2S3Gateway,
+
+		/// <summary>
+		/// Definitely XLight FTP server
+		/// </summary>
+		XLight
 	}
 }

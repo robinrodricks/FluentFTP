@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 27.0.3
+  - New: Support detection of XLight FTP server software (allows for server specific commands)
+  - New: Support getting directory listing using STAT command (`GetListing` supports new `FtpListOption.UseStat`)
+  
 #### 27.0.2
   - Fix: `FileExists` and `FileExistsAsync` support switching to binary mode for servers that need it
   

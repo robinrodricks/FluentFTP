@@ -589,6 +589,8 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **MLSD**  			| GetListing()			| Get directory machine list 	|
 | **LIST**  			| GetListing() with FtpListOption.ForceList		| Get directory file list 	|
 | **NLST**  			| GetNameListing()<br>GetListing() with FtpListOption.ForceNameList	| Get directory name list 	|
+| **LS**  				| GetListing() with FtpListOption.UseLS		| Get directory file list 	|
+| **STAT**  			| GetListing() with FtpListOption.UseStat		| Get directory file list 	|
 | **MLST**				| GetObjectInfo()		| Get file information			|
 | **DELE**      		| DeleteFile()			| Delete a file |
 | **MKD**      			| CreateDirectory() 	| Create a directory |
@@ -1216,6 +1218,7 @@ You can read `ServerType` to get the exact type of FTP server software that you'
 - Homegate FTP
 - BFTPd
 - FTP2S3 Gateway
+- XLight
 
 You can also read `ServerOS` to get the operating system of the FTP server you've connected to. We can detect:
 
