@@ -485,6 +485,7 @@ namespace FluentFTP {
 				// Fix #410: Retry if its a temporary failure ("Received an unexpected EOF or 0 bytes from the transport stream")
 				if (retry && ioEx.Message.IsKnownError(unexpectedEOFStrings)) {
 					// retry once more, but do not go into a infinite recursion loop here
+					LogLine(FtpTraceLevel.Verbose, "Warning:  Retry GetListing once more due to unexpected EOF");
 					return GetListingInternal(listcmd, options, false);
 				}
 				else {
@@ -795,6 +796,7 @@ namespace FluentFTP {
 				// Fix #410: Retry if its a temporary failure ("Received an unexpected EOF or 0 bytes from the transport stream")
 				if (retry && ioEx.Message.IsKnownError(unexpectedEOFStrings)) {
 					// retry once more, but do not go into a infinite recursion loop here
+					LogLine(FtpTraceLevel.Verbose, "Warning:  Retry GetListing once more due to unexpected EOF");
 					return await GetListingInternalAsync(listcmd, options, false, token);
 				}
 				else {
