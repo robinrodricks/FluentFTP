@@ -199,18 +199,6 @@ namespace FluentFTP {
 					reply.InfoMessages += buf + "\n";
 				}
 
-				// if reply received
-				if (reply.Code != null) {
-					// hide sensitive data from logs
-					var logMsg = reply.Message;
-					if (!FtpTrace.LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK")) {
-						logMsg = logMsg.Replace(Credentials.UserName, "***");
-					}
-
-					// log response code + message
-					LogLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
-				}
-
 				// log multiline response messages
 				if (reply.InfoMessages != null) {
 					reply.InfoMessages = reply.InfoMessages.Trim();
@@ -221,6 +209,18 @@ namespace FluentFTP {
 					LogLine(FtpTraceLevel.Verbose, reply.InfoMessages.Split('\n').AddPrefix("Response: ", true).Join("\n"));
 
 					//this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
+				}
+
+				// if reply received
+				if (reply.Code != null) {
+					// hide sensitive data from logs
+					var logMsg = reply.Message;
+					if (!FtpTrace.LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK")) {
+						logMsg = logMsg.Replace(Credentials.UserName, "***");
+					}
+
+					// log response code + message
+					LogLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
 				}
 
 #if !CORE14
@@ -264,18 +264,6 @@ namespace FluentFTP {
 				reply.InfoMessages += buf + "\n";
 			}
 
-			// if reply received
-			if (reply.Code != null) {
-				// hide sensitive data from logs
-				var logMsg = reply.Message;
-				if (!FtpTrace.LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK")) {
-					logMsg = logMsg.Replace(Credentials.UserName, "***");
-				}
-
-				// log response code + message
-				LogLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
-			}
-
 			// log multiline response messages
 			if (reply.InfoMessages != null) {
 				reply.InfoMessages = reply.InfoMessages.Trim();
@@ -286,6 +274,18 @@ namespace FluentFTP {
 				LogLine(FtpTraceLevel.Verbose, reply.InfoMessages.Split('\n').AddPrefix("Response: ", true).Join("\n"));
 
 				//this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
+			}
+		
+			// if reply received
+			if (reply.Code != null) {
+				// hide sensitive data from logs
+				var logMsg = reply.Message;
+				if (!FtpTrace.LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK")) {
+					logMsg = logMsg.Replace(Credentials.UserName, "***");
+				}
+
+				// log response code + message
+				LogLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
 			}
 
 			return reply;
