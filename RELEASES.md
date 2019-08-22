@@ -2,7 +2,8 @@
 
 #### 27.0.3
   - New: Support detection of XLight FTP server software (allows for server specific commands)
-  - New: Support getting directory listing using STAT command (`GetListing` supports new `FtpListOption.UseStat`)
+  - New: Partial support for getting directory listing using STAT command (`GetListing` supports new `FtpListOption.UseStat`)
+  - Fix: `GetFileSize` always returns 0 instead of correct file size (thanks [RadiatorTwo](/RadiatorTwo))
   
 #### 27.0.2
   - Fix: `FileExists` and `FileExistsAsync` support switching to binary mode for servers that need it
