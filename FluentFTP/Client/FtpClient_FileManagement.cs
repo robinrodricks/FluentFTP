@@ -1007,18 +1007,15 @@ namespace FluentFTP {
 				return -1;
 			}
 
-			long length = 0;
-
+			FtpSizeReply sizeReply = new FtpSizeReply();
 #if !CORE14
 			lock (m_lock) {
 #endif
-				FtpSizeReply sizeReply = new FtpSizeReply();
 				GetFileSizeInternal(path, sizeReply);
 #if !CORE14
 			}
 #endif
-
-			return length;
+			return sizeReply.FileSize;
 		}
 
 		/// <summary>
