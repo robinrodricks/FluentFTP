@@ -620,13 +620,27 @@ namespace FluentFTP {
 								// we read until EOF instead of reading a specific number of bytes
 								var readToEnd = fileLen <= 0;
 
+								const int rateControlResolution = 100;
+								const int chunkSizeMin = 64;
+								var rateLimitBytes = DownloadRateLimit != 0 ? (long)DownloadRateLimit * 1024 : 0;
+								var chunkSize = Math.Max(TransferChunkSize, chunkSizeMin);
+								if (rateLimitBytes > 0) {
+									// reduce chunk size to optimize rate control
+									while (chunkSize > chunkSizeMin) {
+										var chunkLenInMs = 1000L * chunkSize / rateLimitBytes;
+										if (chunkLenInMs <= rateControlResolution) {
+											break;
+										}
+										chunkSize = Math.Max(chunkSize >> 1, chunkSizeMin);
+									}
+								}
+
 								// loop till entire file downloaded
-								var buffer = new byte[TransferChunkSize];
+								var buffer = new byte[chunkSize];
 								var offset = restartPosition;
 
 								var transferStarted = DateTime.Now;
 								var sw = new Stopwatch();
-								long rateLimitBytes = DownloadRateLimit != 0 ? DownloadRateLimit * 1024 : 0;
 								while (offset < fileLen || readToEnd) {
 									try {
 										// read a chunk of bytes from the FTP stream
@@ -649,7 +663,7 @@ namespace FluentFTP {
 
 											// honor the rate limit
 											var swTime = (int) sw.ElapsedMilliseconds;
-											if (rateLimitBytes > 0 && swTime >= 1000) {
+											if (rateLimitBytes > 0) {
 												var timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
 												if (timeShouldTake > swTime) {
 #if CORE14
@@ -658,9 +672,10 @@ namespace FluentFTP {
 													Thread.Sleep((int) (timeShouldTake - swTime));
 #endif
 												}
-
-												limitCheckBytes = 0;
-												sw.Restart();
+												else if (swTime > timeShouldTake + rateControlResolution) {
+													limitCheckBytes = 0;
+													sw.Restart();
+												}
 											}
 										}
 
@@ -738,13 +753,27 @@ namespace FluentFTP {
 								// we read until EOF instead of reading a specific number of bytes
 								var readToEnd = fileLen <= 0;
 
+								const int rateControlResolution = 100;
+								const int chunkSizeMin = 64;
+								var rateLimitBytes = DownloadRateLimit != 0 ? (long)DownloadRateLimit * 1024 : 0;
+								var chunkSize = Math.Max(TransferChunkSize, chunkSizeMin);
+								if (rateLimitBytes > 0) {
+									// reduce chunk size to optimize rate control
+									while (chunkSize > chunkSizeMin) {
+										var chunkLenInMs = 1000L * chunkSize / rateLimitBytes;
+										if (chunkLenInMs <= rateControlResolution) {
+											break;
+										}
+										chunkSize = Math.Max(chunkSize >> 1, chunkSizeMin);
+									}
+								}
+
 								// loop till entire file downloaded
-								var buffer = new byte[TransferChunkSize];
+								var buffer = new byte[chunkSize];
 								var offset = restartPosition;
 
 								var transferStarted = DateTime.Now;
 								var sw = new Stopwatch();
-								long rateLimitBytes = DownloadRateLimit != 0 ? DownloadRateLimit * 1024 : 0;
 
 								while (offset < fileLen || readToEnd) {
 									try {
@@ -768,15 +797,16 @@ namespace FluentFTP {
 
 											// honor the rate limit
 											var swTime = (int) sw.ElapsedMilliseconds;
-											if (rateLimitBytes > 0 && swTime >= 1000) {
+											if (rateLimitBytes > 0) {
 												var timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
 												if (timeShouldTake > swTime) {
 													await Task.Delay((int) (timeShouldTake - swTime), token);
 													token.ThrowIfCancellationRequested();
 												}
-
-												limitCheckBytes = 0;
-												sw.Restart();
+												else if (swTime > timeShouldTake + rateControlResolution) {
+													limitCheckBytes = 0;
+													sw.Restart();
+												}
 											}
 										}
 
