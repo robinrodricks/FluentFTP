@@ -684,11 +684,11 @@ namespace FluentFTP {
 					}
 
 					const int rateControlResolution = 100;
-					const int chunkSizeMin = 64;
 					var rateLimitBytes = UploadRateLimit != 0 ? (long)UploadRateLimit * 1024 : 0;
-					var chunkSize = Math.Max(TransferChunkSize, chunkSizeMin);
-					if (rateLimitBytes > 0) {
+					var chunkSize = TransferChunkSize;
+					if (m_transferChunkSize == null && rateLimitBytes > 0) {
 						// reduce chunk size to optimize rate control
+						const int chunkSizeMin = 64;
 						while (chunkSize > chunkSizeMin) {
 							var chunkLenInMs = 1000L * chunkSize / rateLimitBytes;
 							if (chunkLenInMs <= rateControlResolution) {
@@ -893,11 +893,11 @@ namespace FluentFTP {
 					}
 
 					const int rateControlResolution = 100;
-					const int chunkSizeMin = 64;
 					var rateLimitBytes = UploadRateLimit != 0 ? (long)UploadRateLimit * 1024 : 0;
-					var chunkSize = Math.Max(TransferChunkSize, chunkSizeMin);
-					if (rateLimitBytes > 0) {
+					var chunkSize = TransferChunkSize;
+					if (m_transferChunkSize == null && rateLimitBytes > 0) {
 						// reduce chunk size to optimize rate control
+						const int chunkSizeMin = 64;
 						while (chunkSize > chunkSizeMin) {
 							var chunkLenInMs = 1000L * chunkSize / rateLimitBytes;
 							if (chunkLenInMs <= rateControlResolution) {

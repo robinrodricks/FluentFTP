@@ -644,7 +644,7 @@ namespace FluentFTP {
 		}
 
 
-		private int m_transferChunkSize = 65536;
+		private int? m_transferChunkSize;
 
 		/// <summary>
 		/// Gets or sets the number of bytes transferred in a single chunk (a single FTP command).
@@ -652,7 +652,7 @@ namespace FluentFTP {
 		/// to transfer large files in multiple chunks.
 		/// </summary>
 		public int TransferChunkSize {
-			get => m_transferChunkSize;
+			get => m_transferChunkSize ?? 65536;
 			set => m_transferChunkSize = value;
 		}
 
