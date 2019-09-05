@@ -714,7 +714,7 @@ namespace FluentFTP {
 						try {
 							// read a chunk of bytes from the file
 							int readBytes;
-							double limitCheckBytes = 0;
+							long limitCheckBytes = 0;
 							long bytesProcessed = 0;
 
 							sw.Start();
@@ -732,9 +732,9 @@ namespace FluentFTP {
 								}
 
 								// honor the speed limit
-								var swTime = (int) sw.ElapsedMilliseconds;
+								var swTime = sw.ElapsedMilliseconds;
 								if (rateLimitBytes > 0) {
-									var timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
+									var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
 									if (timeShouldTake > swTime) {
 #if CORE14
 										Task.Delay((int) (timeShouldTake - swTime)).Wait();
@@ -923,7 +923,7 @@ namespace FluentFTP {
 						try {
 							// read a chunk of bytes from the file
 							int readBytes;
-							double limitCheckBytes = 0;
+							long limitCheckBytes = 0;
 							long bytesProcessed = 0;
 
 							sw.Start();
@@ -941,9 +941,9 @@ namespace FluentFTP {
 								}
 
 								// honor the rate limit
-								var swTime = (int) sw.ElapsedMilliseconds;
+								var swTime = sw.ElapsedMilliseconds;
 								if (rateLimitBytes > 0) {
-									var timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
+									var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
 									if (timeShouldTake > swTime) {
 										await Task.Delay((int) (timeShouldTake - swTime), token);
 										token.ThrowIfCancellationRequested();
