@@ -28,6 +28,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
     - Absolute or relative paths (relative to the ["working directory"](#file-management))
     - Get the [hash/checksum](#file-hashing) of a file (SHA-1, SHA-256, SHA-512, and MD5)
     - Dereference of symbolic links to calculate the linked file/folder
+	- [Throttling](#faq_throttle) of uploads and downloads with configurable speed limit
   - **FTP protocol:**
     - Automatic detection of [working connection settings](#faq_autodetect) and automatic [connection negotiation](#faq_autoconnect)
     - Automatic detection of the [FTP server software](#faq_servertype) and its [capabilities](#faq_recursivelist)
