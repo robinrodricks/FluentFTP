@@ -683,13 +683,27 @@ namespace FluentFTP {
 						upStream = OpenAppend(remotePath, UploadDataType, checkFileExistsAgain);
 					}
 
+					const int rateControlResolution = 100;
+					var rateLimitBytes = UploadRateLimit != 0 ? (long)UploadRateLimit * 1024 : 0;
+					var chunkSize = TransferChunkSize;
+					if (m_transferChunkSize == null && rateLimitBytes > 0) {
+						// reduce chunk size to optimize rate control
+						const int chunkSizeMin = 64;
+						while (chunkSize > chunkSizeMin) {
+							var chunkLenInMs = 1000L * chunkSize / rateLimitBytes;
+							if (chunkLenInMs <= rateControlResolution) {
+								break;
+							}
+							chunkSize = Math.Max(chunkSize >> 1, chunkSizeMin);
+						}
+					}
+
 					// loop till entire file uploaded
 					var fileLen = fileData.Length;
-					var buffer = new byte[TransferChunkSize];
+					var buffer = new byte[chunkSize];
 
 					var transferStarted = DateTime.Now;
 					var sw = new Stopwatch();
-					long rateLimitBytes = UploadRateLimit != 0 ? UploadRateLimit * 1024 : 0;
 
 					// Fix #288 - Upload hangs with only a few bytes left
 					if (fileLen < upStream.Length) {
@@ -700,7 +714,7 @@ namespace FluentFTP {
 						try {
 							// read a chunk of bytes from the file
 							int readBytes;
-							double limitCheckBytes = 0;
+							long limitCheckBytes = 0;
 							long bytesProcessed = 0;
 
 							sw.Start();
@@ -718,9 +732,9 @@ namespace FluentFTP {
 								}
 
 								// honor the speed limit
-								var swTime = (int) sw.ElapsedMilliseconds;
-								if (rateLimitBytes > 0 && swTime >= 1000) {
-									var timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
+								var swTime = sw.ElapsedMilliseconds;
+								if (rateLimitBytes > 0) {
+									var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
 									if (timeShouldTake > swTime) {
 #if CORE14
 										Task.Delay((int) (timeShouldTake - swTime)).Wait();
@@ -728,9 +742,10 @@ namespace FluentFTP {
 										Thread.Sleep((int) (timeShouldTake - swTime));
 #endif
 									}
-
-									limitCheckBytes = 0;
-									sw.Restart();
+									else if (swTime > timeShouldTake + rateControlResolution) {
+										limitCheckBytes = 0;
+										sw.Restart();
+									}
 								}
 							}
 
@@ -877,13 +892,27 @@ namespace FluentFTP {
 						upStream = await OpenAppendAsync(remotePath, UploadDataType, checkFileExistsAgain, token);
 					}
 
+					const int rateControlResolution = 100;
+					var rateLimitBytes = UploadRateLimit != 0 ? (long)UploadRateLimit * 1024 : 0;
+					var chunkSize = TransferChunkSize;
+					if (m_transferChunkSize == null && rateLimitBytes > 0) {
+						// reduce chunk size to optimize rate control
+						const int chunkSizeMin = 64;
+						while (chunkSize > chunkSizeMin) {
+							var chunkLenInMs = 1000L * chunkSize / rateLimitBytes;
+							if (chunkLenInMs <= rateControlResolution) {
+								break;
+							}
+							chunkSize = Math.Max(chunkSize >> 1, chunkSizeMin);
+						}
+					}
+
 					// loop till entire file uploaded
 					var fileLen = fileData.Length;
-					var buffer = new byte[TransferChunkSize];
+					var buffer = new byte[chunkSize];
 
 					var transferStarted = DateTime.Now;
 					var sw = new Stopwatch();
-					long rateLimitBytes = UploadRateLimit != 0 ? UploadRateLimit * 1024 : 0;
 
 					// Fix #288 - Upload hangs with only a few bytes left
 					if (fileLen < upStream.Length) {
@@ -894,7 +923,7 @@ namespace FluentFTP {
 						try {
 							// read a chunk of bytes from the file
 							int readBytes;
-							double limitCheckBytes = 0;
+							long limitCheckBytes = 0;
 							long bytesProcessed = 0;
 
 							sw.Start();
@@ -912,16 +941,17 @@ namespace FluentFTP {
 								}
 
 								// honor the rate limit
-								var swTime = (int) sw.ElapsedMilliseconds;
-								if (rateLimitBytes > 0 && swTime >= 1000) {
-									var timeShouldTake = limitCheckBytes / rateLimitBytes * 1000;
+								var swTime = sw.ElapsedMilliseconds;
+								if (rateLimitBytes > 0) {
+									var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
 									if (timeShouldTake > swTime) {
 										await Task.Delay((int) (timeShouldTake - swTime), token);
 										token.ThrowIfCancellationRequested();
 									}
-
-									limitCheckBytes = 0;
-									sw.Restart();
+									else if (swTime > timeShouldTake + rateControlResolution) {
+										limitCheckBytes = 0;
+										sw.Restart();
+									}
 								}
 							}
 
