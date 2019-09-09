@@ -1,7 +1,7 @@
 # Release Notes
 
 #### 27.1.0
-  - New: Improved throttling when using an upload/download speed limit (thanks [wakabayashik](/wakabayashik))
+  - New: Improved transfer rate throttling when using an upload/download speed limit (thanks [wakabayashik](/wakabayashik))
 
 #### 27.0.3
   - New: Support detection of XLight FTP server software (allows for server specific commands)
