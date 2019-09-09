@@ -852,6 +852,8 @@ Set the `UploadRateLimit` and `DownloadRateLimit` properties to control the spee
 - UploadFile() / DownloadFile()
 - UploadFiles() / DownloadFiles()
 
+See this [pull request](https://github.com/robinrodricks/FluentFTP/pull/446) for more information on the recent improvements to throttling.
+
 
 --------------------------------------------------------
 <a name="faq_verifyhash"></a>
