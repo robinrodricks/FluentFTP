@@ -12,9 +12,9 @@ using SysSslProtocols = System.Security.Authentication.SslProtocols;
 #if !CORE
 using System.Web;
 #endif
-
 #if (CORE || NETFX)
 using System.Threading;
+
 #endif
 #if ASYNC
 using System.Threading.Tasks;
@@ -40,6 +40,7 @@ namespace FluentFTP {
 			if (cap == FtpCapability.NONE && Capabilities.Count == 0) {
 				return true;
 			}
+
 			return Capabilities.Contains(cap);
 		}
 

@@ -6,9 +6,9 @@ using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-
 #if (CORE || NETFX)
 using System.Threading;
+
 #endif
 #if (CORE || NET45)
 using System.Threading.Tasks;
@@ -20,7 +20,6 @@ namespace FluentFTP {
 	/// Interface for the FtpClient class. For detailed documentation of the methods, please see the FtpClient class.
 	/// </summary>
 	public interface IFtpClient : IDisposable {
-
 		// CONNECTION
 
 		bool IsDisposed { get; }

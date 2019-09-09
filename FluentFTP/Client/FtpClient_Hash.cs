@@ -15,9 +15,9 @@ using FluentFTP.Proxy;
 #if !CORE
 using System.Web;
 #endif
-
 #if (CORE || NETFX)
 using System.Threading;
+
 #endif
 #if ASYNC
 using System.Threading.Tasks;

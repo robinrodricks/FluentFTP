@@ -14,9 +14,9 @@ using FluentFTP.Proxy;
 #if !CORE
 using System.Web;
 #endif
-
 #if (CORE || NETFX)
 using System.Threading;
+
 #endif
 #if ASYNC
 using System.Threading.Tasks;
@@ -138,9 +138,8 @@ namespace FluentFTP {
 				// since FTP does not include a specific command to check if a file exists
 				// here we check if file exists by attempting to get its filesize (SIZE)
 				if (HasFeature(FtpCapability.SIZE)) {
-
 					// Fix #328: get filesize in ASCII or Binary mode as required by server
-					FtpSizeReply sizeReply = new FtpSizeReply();
+					var sizeReply = new FtpSizeReply();
 					GetFileSizeInternal(path, sizeReply);
 					if (sizeReply.Reply.Code[0] == '2') {
 						return true;
@@ -499,7 +498,6 @@ namespace FluentFTP {
 
 #endif
 #if ASYNC
-
 		/// <summary>
 		/// Moves a file asynchronously on the remote file system from one directory to another.
 		/// Always checks if the source file exists. Checks if the dest file exists based on the `existsMode` parameter.
@@ -1007,7 +1005,7 @@ namespace FluentFTP {
 				return -1;
 			}
 
-			FtpSizeReply sizeReply = new FtpSizeReply();
+			var sizeReply = new FtpSizeReply();
 #if !CORE14
 			lock (m_lock) {
 #endif
@@ -1050,7 +1048,6 @@ namespace FluentFTP {
 			}
 
 			sizeReply.FileSize = length;
-
 		}
 
 #if !CORE
@@ -1176,6 +1173,7 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
+
 				// get modified date of a file
 				if ((reply = Execute("MDTM " + path.GetFtpPath())).Success) {
 					date = reply.Message.GetFtpDate(DateTimeStyles.AssumeUniversal);

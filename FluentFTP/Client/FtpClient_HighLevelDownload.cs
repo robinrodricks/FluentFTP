@@ -15,9 +15,9 @@ using FluentFTP.Proxy;
 #if !CORE
 using System.Web;
 #endif
-
 #if (CORE || NETFX)
 using System.Threading;
+
 #endif
 #if (CORE || NET45)
 using System.Threading.Tasks;
@@ -466,67 +466,67 @@ namespace FluentFTP {
 
 #endif
 
-						#endregion
+		#endregion
 
-						#region	Download Bytes/Stream
+		#region	Download Bytes/Stream
 
-						/// <summary>
-						/// Downloads the specified file into the specified stream.
-						/// High-level API that takes care of various edge cases internally.
-						/// Supports very large files since it downloads data in chunks.
-						/// </summary>
-						/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
-						/// <param name="remotePath">The full or relative path to the file on the server</param>
-						/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
-						/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
-						/// <returns>If true then the file was downloaded, false otherwise.</returns>
-						public bool Download(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null) {
-							// verify args
-							if (outStream == null) {
-								throw new ArgumentException("Required parameter is null or blank.", "outStream");
-							}
+		/// <summary>
+		/// Downloads the specified file into the specified stream.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
+		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		public bool Download(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null) {
+			// verify args
+			if (outStream == null) {
+				throw new ArgumentException("Required parameter is null or blank.", "outStream");
+			}
 
-							if (remotePath.IsBlank()) {
-								throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-							}
+			if (remotePath.IsBlank()) {
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
 
-							LogFunc("Download", new object[] {remotePath});
+			LogFunc("Download", new object[] {remotePath});
 
-							// download the file from the server
-							return DownloadFileInternal(remotePath, outStream, restartPosition, progress);
-						}
+			// download the file from the server
+			return DownloadFileInternal(remotePath, outStream, restartPosition, progress);
+		}
 
-						/// <summary>
-						/// Downloads the specified file and return the raw byte array.
-						/// High-level API that takes care of various edge cases internally.
-						/// Supports very large files since it downloads data in chunks.
-						/// </summary>
-						/// <param name="outBytes">The variable that will receive the bytes.</param>
-						/// <param name="remotePath">The full or relative path to the file on the server</param>
-						/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
-						/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
-						/// <returns>If true then the file was downloaded, false otherwise.</returns>
-						public bool Download(out byte[] outBytes, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null) {
-							// verify args
-							if (remotePath.IsBlank()) {
-								throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-							}
+		/// <summary>
+		/// Downloads the specified file and return the raw byte array.
+		/// High-level API that takes care of various edge cases internally.
+		/// Supports very large files since it downloads data in chunks.
+		/// </summary>
+		/// <param name="outBytes">The variable that will receive the bytes.</param>
+		/// <param name="remotePath">The full or relative path to the file on the server</param>
+		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
+		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
+		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		public bool Download(out byte[] outBytes, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null) {
+			// verify args
+			if (remotePath.IsBlank()) {
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
 
-							LogFunc("Download", new object[] {remotePath});
+			LogFunc("Download", new object[] {remotePath});
 
-							outBytes = null;
+			outBytes = null;
 
-							// download the file from the server
-							bool ok;
-							using (var outStream = new MemoryStream()) {
-								ok = DownloadFileInternal(remotePath, outStream, restartPosition, progress);
-								if (ok) {
-									outBytes = outStream.ToArray();
-								}
-							}
+			// download the file from the server
+			bool ok;
+			using (var outStream = new MemoryStream()) {
+				ok = DownloadFileInternal(remotePath, outStream, restartPosition, progress);
+				if (ok) {
+					outBytes = outStream.ToArray();
+				}
+			}
 
-							return ok;
-						}
+			return ok;
+		}
 
 #if ASYNC
 						/// <summary>
@@ -595,141 +595,142 @@ namespace FluentFTP {
 						}
 #endif
 
-						#endregion
+		#endregion
 
-						#region Download File Internal
+		#region Download File Internal
 
-						/// <summary>
-						/// Download a file from the server and write the data into the given stream.
-						/// Reads data in chunks. Retries if server disconnects midway.
-						/// </summary>
-						private bool DownloadFileInternal(string remotePath, Stream outStream, long restartPosition, IProgress<FtpProgress> progress) {
-							Stream downStream = null;
+		/// <summary>
+		/// Download a file from the server and write the data into the given stream.
+		/// Reads data in chunks. Retries if server disconnects midway.
+		/// </summary>
+		private bool DownloadFileInternal(string remotePath, Stream outStream, long restartPosition, IProgress<FtpProgress> progress) {
+			Stream downStream = null;
 
-							try {
-								// get file size if downloading in binary mode (in ASCII mode we read until EOF)
-								long fileLen = 0;
-								if (DownloadDataType == FtpDataType.Binary && progress != null) {
-									fileLen = GetFileSize(remotePath);
-								}
+			try {
+				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
+				long fileLen = 0;
+				if (DownloadDataType == FtpDataType.Binary && progress != null) {
+					fileLen = GetFileSize(remotePath);
+				}
 
-								// open the file for reading
-								downStream = OpenRead(remotePath, DownloadDataType, restartPosition, fileLen > 0);
+				// open the file for reading
+				downStream = OpenRead(remotePath, DownloadDataType, restartPosition, fileLen > 0);
 
-								// if the server has not provided a length for this file
-								// we read until EOF instead of reading a specific number of bytes
-								var readToEnd = fileLen <= 0;
+				// if the server has not provided a length for this file
+				// we read until EOF instead of reading a specific number of bytes
+				var readToEnd = fileLen <= 0;
 
-								const int rateControlResolution = 100;
-								var rateLimitBytes = DownloadRateLimit != 0 ? (long)DownloadRateLimit * 1024 : 0;
-								var chunkSize = TransferChunkSize;
-								if (m_transferChunkSize == null && rateLimitBytes > 0) {
-									// reduce chunk size to optimize rate control
-									const int chunkSizeMin = 64;
-									while (chunkSize > chunkSizeMin) {
-										var chunkLenInMs = 1000L * chunkSize / rateLimitBytes;
-										if (chunkLenInMs <= rateControlResolution) {
-											break;
-										}
-										chunkSize = Math.Max(chunkSize >> 1, chunkSizeMin);
-									}
-								}
+				const int rateControlResolution = 100;
+				var rateLimitBytes = DownloadRateLimit != 0 ? (long) DownloadRateLimit * 1024 : 0;
+				var chunkSize = TransferChunkSize;
+				if (m_transferChunkSize == null && rateLimitBytes > 0) {
+					// reduce chunk size to optimize rate control
+					const int chunkSizeMin = 64;
+					while (chunkSize > chunkSizeMin) {
+						var chunkLenInMs = 1000L * chunkSize / rateLimitBytes;
+						if (chunkLenInMs <= rateControlResolution) {
+							break;
+						}
 
-								// loop till entire file downloaded
-								var buffer = new byte[chunkSize];
-								var offset = restartPosition;
+						chunkSize = Math.Max(chunkSize >> 1, chunkSizeMin);
+					}
+				}
 
-								var transferStarted = DateTime.Now;
-								var sw = new Stopwatch();
-								while (offset < fileLen || readToEnd) {
-									try {
-										// read a chunk of bytes from the FTP stream
-										var readBytes = 1;
-										long limitCheckBytes = 0;
-										long bytesProcessed = 0;
+				// loop till entire file downloaded
+				var buffer = new byte[chunkSize];
+				var offset = restartPosition;
 
-										sw.Start();
-										while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
-											// write chunk to output stream
-											outStream.Write(buffer, 0, readBytes);
-											offset += readBytes;
-											bytesProcessed += readBytes;
-											limitCheckBytes += readBytes;
+				var transferStarted = DateTime.Now;
+				var sw = new Stopwatch();
+				while (offset < fileLen || readToEnd) {
+					try {
+						// read a chunk of bytes from the FTP stream
+						var readBytes = 1;
+						long limitCheckBytes = 0;
+						long bytesProcessed = 0;
 
-											// send progress reports
-											if (progress != null) {
-												ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted);
-											}
+						sw.Start();
+						while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
+							// write chunk to output stream
+							outStream.Write(buffer, 0, readBytes);
+							offset += readBytes;
+							bytesProcessed += readBytes;
+							limitCheckBytes += readBytes;
 
-											// honor the rate limit
-											var swTime = sw.ElapsedMilliseconds;
-											if (rateLimitBytes > 0) {
-												var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
-												if (timeShouldTake > swTime) {
+							// send progress reports
+							if (progress != null) {
+								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted);
+							}
+
+							// honor the rate limit
+							var swTime = sw.ElapsedMilliseconds;
+							if (rateLimitBytes > 0) {
+								var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
+								if (timeShouldTake > swTime) {
 #if CORE14
 													Task.Delay((int) (timeShouldTake - swTime)).Wait();
 #else
-													Thread.Sleep((int) (timeShouldTake - swTime));
+									Thread.Sleep((int) (timeShouldTake - swTime));
 #endif
-												}
-												else if (swTime > timeShouldTake + rateControlResolution) {
-													limitCheckBytes = 0;
-													sw.Restart();
-												}
-											}
-										}
-
-										// if we reach here means EOF encountered
-										// stop if we are in "read until EOF" mode
-										if (readToEnd || offset == fileLen) {
-											break;
-										}
-
-										// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
-										throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
-									}
-									catch (IOException ex) {
-										// resume if server disconnected midway, or throw if there is an exception doing that as well
-										if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
-											sw.Stop();
-											throw;
-										}
-									}
 								}
-
-								sw.Stop();
-
-
-								// disconnect FTP stream before exiting
-								outStream.Flush();
-								downStream.Dispose();
-
-								// FIX : if this is not added, there appears to be "stale data" on the socket
-								// listen for a success/failure reply
-								if (!m_threadSafeDataChannels) {
-									var status = GetReply();
+								else if (swTime > timeShouldTake + rateControlResolution) {
+									limitCheckBytes = 0;
+									sw.Restart();
 								}
-
-								return true;
-							}
-							catch (Exception ex1) {
-								// close stream before throwing error
-								try {
-									downStream.Dispose();
-								}
-								catch (Exception) {
-								}
-
-								// absorb "file does not exist" exceptions and simply return false
-								if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
-									LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
-									return false;
-								}
-
-								// catch errors during upload
-								throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
 							}
 						}
+
+						// if we reach here means EOF encountered
+						// stop if we are in "read until EOF" mode
+						if (readToEnd || offset == fileLen) {
+							break;
+						}
+
+						// zero return value (with no Exception) indicates EOS; so we should fail here and attempt to resume
+						throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
+					}
+					catch (IOException ex) {
+						// resume if server disconnected midway, or throw if there is an exception doing that as well
+						if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
+							sw.Stop();
+							throw;
+						}
+					}
+				}
+
+				sw.Stop();
+
+
+				// disconnect FTP stream before exiting
+				outStream.Flush();
+				downStream.Dispose();
+
+				// FIX : if this is not added, there appears to be "stale data" on the socket
+				// listen for a success/failure reply
+				if (!m_threadSafeDataChannels) {
+					var status = GetReply();
+				}
+
+				return true;
+			}
+			catch (Exception ex1) {
+				// close stream before throwing error
+				try {
+					downStream.Dispose();
+				}
+				catch (Exception) {
+				}
+
+				// absorb "file does not exist" exceptions and simply return false
+				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
+					LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
+					return false;
+				}
+
+				// catch errors during upload
+				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
+			}
+		}
 
 #if ASYNC
 						/// <summary>
@@ -871,23 +872,23 @@ namespace FluentFTP {
 						}
 #endif
 
-						private bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
-							// resume if server disconnects midway (fixes #39 and #410)
-							if (ex.InnerException != null || ex.Message.IsKnownError(unexpectedEOFStrings)) {
-								var ie = ex.InnerException as SocketException;
+		private bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
+			// resume if server disconnects midway (fixes #39 and #410)
+			if (ex.InnerException != null || ex.Message.IsKnownError(unexpectedEOFStrings)) {
+				var ie = ex.InnerException as SocketException;
 #if CORE
 								if (ie == null || ie != null && (int) ie.SocketErrorCode == 10054) {
 #else
-									if (ie == null || ie != null && ie.ErrorCode == 10054) {
+				if (ie == null || ie != null && ie.ErrorCode == 10054) {
 #endif
-										downStream.Dispose();
-										downStream = OpenRead(remotePath, DownloadDataType, offset);
-										return true;
-									}
-								}
+					downStream.Dispose();
+					downStream = OpenRead(remotePath, DownloadDataType, offset);
+					return true;
+				}
+			}
 
-								return false;
-							}
+			return false;
+		}
 
 #if ASYNC
 							private async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex) {
@@ -908,6 +909,6 @@ namespace FluentFTP {
 								}
 #endif
 
-								#endregion
-							}
-						}
+		#endregion
+	}
+}

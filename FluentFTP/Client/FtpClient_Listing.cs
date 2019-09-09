@@ -15,9 +15,9 @@ using FluentFTP.Proxy;
 #if !CORE
 using System.Web;
 #endif
-
 #if (CORE || NETFX)
 using System.Threading;
+
 #endif
 #if ASYNC
 using System.Threading.Tasks;
@@ -210,7 +210,6 @@ namespace FluentFTP {
 		/// <returns>An array of FtpListItem objects</returns>
 		/// <example><code source="..\Examples\GetListing.cs" lang="cs" /></example>
 		public FtpListItem[] GetListing(string path, FtpListOption options) {
-
 			// start recursive process if needed and unsupported by the server
 			if (options.HasFlag(FtpListOption.Recursive) && (!RecursiveList || options.HasFlag(FtpListOption.UseStat))) {
 				return GetListingRecursive(GetAbsolutePath(path), options);
@@ -355,7 +354,6 @@ namespace FluentFTP {
 		}
 
 		private void CalculateGetListingCommand(string path, FtpListOption options, out string listcmd, out bool machineList) {
-
 			// read flags
 			var isForceList = options.HasFlag(FtpListOption.ForceList);
 			var isUseStat = options.HasFlag(FtpListOption.UseStat);
@@ -422,12 +420,10 @@ namespace FluentFTP {
 			SetDataTypeNoLock(FtpDataType.Binary);
 
 			try {
-
 				// read in raw file listing from control stream
 				if (isUseStat) {
 					var reply = Execute(listcmd);
 					if (reply.Success) {
-
 						LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
 						foreach (var line in reply.InfoMessages.Split('\n')) {
@@ -441,7 +437,6 @@ namespace FluentFTP {
 					}
 				}
 				else {
-
 					// read in raw file listing from data stream
 					using (var stream = OpenDataStream(listcmd, 0)) {
 						try {
@@ -969,6 +964,7 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
+
 				// always get the file listing in binary to avoid character translation issues with ASCII.
 				SetDataTypeNoLock(FtpDataType.Binary);
 
