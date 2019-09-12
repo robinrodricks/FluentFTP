@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 27.1.1
+  - New: Auto-detect the correct FTP listing parser when SYST command fails (IIS, Azure, OpenVMS)
+
 #### 27.1.0
   - New: Improved transfer rate throttling when using an upload/download speed limit (thanks [wakabayashik](/wakabayashik))
 
