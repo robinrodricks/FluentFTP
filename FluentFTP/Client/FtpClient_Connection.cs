@@ -697,6 +697,7 @@ namespace FluentFTP {
 									conn.Dispose();
 								}
 								catch (Exception ex) {
+									conn.Dispose();
 								}
 
 								// if it worked, add the profile
