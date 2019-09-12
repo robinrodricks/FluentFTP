@@ -75,8 +75,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Try to auto-detect which parser is suitable given a system string.
 		/// </summary>
-		/// <param name="system">result of SYST command</param>
-		public void Init(FtpOperatingSystem system) {
+		public void Init(FtpOperatingSystem system, FtpParser defaultParser) {
 			ParserConfirmed = false;
 
 			if (system == FtpOperatingSystem.Windows) {
@@ -92,8 +91,8 @@ namespace FluentFTP {
 				CurrentParser = FtpParser.IBM;
 			}
 			else {
-				CurrentParser = FtpParser.Unix;
-				client.LogStatus(FtpTraceLevel.Warn, "Cannot auto-detect listing parser for system '" + system + "', using Unix parser");
+				CurrentParser = defaultParser;
+				client.LogStatus(FtpTraceLevel.Warn, "Cannot auto-detect listing parser for system '" + system + "', using " + defaultParser + " parser");
 			}
 
 			DetectedParser = CurrentParser;

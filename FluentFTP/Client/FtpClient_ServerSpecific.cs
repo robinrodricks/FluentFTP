@@ -477,6 +477,27 @@ namespace FluentFTP {
 
 		#endregion
 
+		#region File Listing Parser
+
+		private FtpParser GetParserByServerType() {
+
+			if (ServerType == FtpServer.WindowsServerIIS || ServerType == FtpServer.WindowsCE) {
+				return FtpParser.Windows;
+			}
+
+			if (ServerType == FtpServer.NonStopTandem) {
+				return FtpParser.NonStop;
+			}
+
+			if (ServerType == FtpServer.OpenVMS) {
+				return FtpParser.VMS;
+			}
+
+			return FtpParser.Unix;
+		}
+
+		#endregion
+
 		#region Delete Directory
 
 		private bool ServerDeleteDirectory(string path, string ftppath, bool deleteContents, FtpListOption options) {
