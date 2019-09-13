@@ -483,7 +483,7 @@ namespace FluentFTP {
 #endif
 
 			// Create the parser after OS auto-detection
-			m_listParser.Init(m_serverOS);
+			m_listParser.Init(m_serverOS,  GetParserByServerType());
 		}
 #endif
 

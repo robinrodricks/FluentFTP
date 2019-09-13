@@ -393,12 +393,21 @@ namespace FluentFTP {
 		/// Assume the FTP Server's capabilities if it does not support the FEAT command.
 		/// </summary>
 		private void AssumeCapabilities() {
+
 			// HP-UX version of wu-ftpd 2.6.1
 			// http://nixdoc.net/man-pages/HP-UX/ftpd.1m.html
 			if (ServerType == FtpServer.WuFTPd) {
 				// assume the basic features supported
-				GetFeatures(new[] {"ABOR", "ACCT", "ALLO", "APPE", "CDUP", "CWD", "DELE", "EPSV", "EPRT", "HELP", "LIST", "LPRT", "LPSV", "MKD", "MDTM", "MODE", "NLST", "NOOP", "PASS", "PASV", "PORT", "PWD", "QUIT", "REST", "RETR", "RMD", "RNFR", "RNTO", "SITE", "SIZE", "STAT", "STOR", "STOU", "STRU", "SYST", "TYPE"});
+				GetFeatures(new[] { "ABOR", "ACCT", "ALLO", "APPE", "CDUP", "CWD", "DELE", "EPSV", "EPRT", "HELP", "LIST", "LPRT", "LPSV", "MKD", "MDTM", "MODE", "NLST", "NOOP", "PASS", "PASV", "PORT", "PWD", "QUIT", "REST", "RETR", "RMD", "RNFR", "RNTO", "SITE", "SIZE", "STAT", "STOR", "STOU", "STRU", "SYST", "TYPE" });
 			}
+
+			// OpenVMS HGFTP
+			// https://gist.github.com/robinrodricks/9631f9fad3c0fc4c667adfd09bd98762
+			if (ServerType == FtpServer.OpenVMS) {
+				// assume the basic features supported
+				GetFeatures(new[] { "CWD", "DELE", "LIST", "NLST", "MKD", "MDTM", "PASV", "PORT", "PWD", "QUIT", "RNFR", "RNTO", "SITE", "STOR", "STRU", "TYPE" });
+			}
+
 		}
 
 		#endregion
@@ -412,8 +421,9 @@ namespace FluentFTP {
 			// FIX : #380 for OpenVMS absolute paths are "SYS$SYSDEVICE:[USERS.mylogin]"
 			// FIX : #402 for OpenVMS absolute paths are "SYSDEVICE:[USERS.mylogin]"
 			// FIX : #424 for OpenVMS absolute paths are "FTP_DEFAULT:[WAGN_IN]"
+			// FIX : #454 for OpenVMS absolute paths are "TOPAS$ROOT:[000000.TUIL.YR_20.SUBLIS]"
 			if (ServerType == FtpServer.OpenVMS) {
-				if (new Regex("[A-Za-z$._]*:\\[[A-Za-z$_.]*\\]").Match(path).Success) {
+				if (new Regex("[A-Za-z$._]*:\\[[A-Za-z0-9$_.]*\\]").Match(path).Success) {
 					return true;
 				}
 			}
