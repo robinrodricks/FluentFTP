@@ -1,5 +1,11 @@
 # Release Notes
 
+#### 27.1.2
+  - Fix: Unable to upload files to OpenVMS servers if path contains numeric characters
+  - Fix: Assume FTP commands supported by OpenVMS HGFTP server if FEAT not supported
+  - FiX: Improve detection of OpenVMS absolute paths
+  - Fix: `Connect` & `ConnectAsync` throw ArgumentException when passing an incomplete `FtpProfile`
+
 #### 27.1.1
   - New: Auto-detect the correct FTP listing parser when SYST command fails (IIS, Azure, OpenVMS)
   - New: Assume FTP commands supported by OpenVMS HGFTP server
