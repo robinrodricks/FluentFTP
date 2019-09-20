@@ -305,12 +305,13 @@ namespace FluentFTP {
 
 				// if this is a clone these values should have already been loaded
 				// so save some bandwidth and CPU time and skip executing this again.
+				bool assumeCaps = false;
 				if (!IsClone && m_checkCapabilities) {
 					if ((reply = Execute("FEAT")).Success && reply.InfoMessages != null) {
 						GetFeatures(reply);
 					}
 					else {
-						AssumeCapabilities();
+						assumeCaps = true;
 					}
 				}
 
@@ -332,6 +333,11 @@ namespace FluentFTP {
 				if ((reply = Execute("SYST")).Success) {
 					m_systemType = reply.Message;
 					DetectFtpServerBySyst();
+				}
+
+				// Assume the system's capabilities if FEAT command not supported by the server
+				if (assumeCaps) {
+					AssumeCapabilities();
 				}
 
 #if !NO_SSL && !CORE
@@ -438,12 +444,13 @@ namespace FluentFTP {
 
 			// if this is a clone these values should have already been loaded
 			// so save some bandwidth and CPU time and skip executing this again.
+			bool assumeCaps = false;
 			if (!IsClone && m_checkCapabilities) {
 				if ((reply = await ExecuteAsync("FEAT", token)).Success && reply.InfoMessages != null) {
 					GetFeatures(reply);
 				}
 				else {
-					AssumeCapabilities();
+					assumeCaps = true;
 				}
 			}
 
@@ -465,6 +472,11 @@ namespace FluentFTP {
 			if ((reply = await ExecuteAsync("SYST", token)).Success) {
 				m_systemType = reply.Message;
 				DetectFtpServerBySyst();
+			}
+			
+			// Assume the system's capabilities if FEAT command not supported by the server
+			if (assumeCaps) {
+				AssumeCapabilities();
 			}
 
 #if !NO_SSL && !CORE
@@ -612,12 +624,16 @@ namespace FluentFTP {
 		};
 
 		private static List<SysSslProtocols> autoConnectProtocols = new List<SysSslProtocols> {
-			SysSslProtocols.None, SysSslProtocols.Ssl2, SysSslProtocols.Ssl3, SysSslProtocols.Tls,
+			SysSslProtocols.None,
+#if ASYNC
+			SysSslProtocols.Tls12, SysSslProtocols.Tls11, 
+#endif
+#if !ASYNC
+			SysSslProtocols.Tls,
+#endif
+			SysSslProtocols.Ssl3, SysSslProtocols.Ssl2,
 #if !CORE
 			SysSslProtocols.Default,
-#endif
-#if ASYNC
-			SysSslProtocols.Tls11, SysSslProtocols.Tls12,
 #endif
 		};
 
@@ -729,9 +745,9 @@ namespace FluentFTP {
 			return results;
 		}
 
-		#endregion
+#endregion
 
-		#region Auto Connect
+#region Auto Connect
 
 		/// <summary>
 		/// Connect to the given server profile.
@@ -839,9 +855,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Login
+#region Login
 
 		/// <summary>
 		/// Performs a login on the server. This method is overridable so
@@ -909,9 +925,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Disconnect
+#region Disconnect
 
 		/// <summary>
 		/// Disconnects from the server
@@ -993,9 +1009,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region FTPS
+#region FTPS
 
 		/// <summary>
 		/// Catches the socket stream ssl validation event and fires the event handlers
@@ -1020,6 +1036,6 @@ namespace FluentFTP {
 			}
 		}
 
-		#endregion
+#endregion
 	}
 }
