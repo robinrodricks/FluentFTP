@@ -85,6 +85,7 @@ namespace FluentFTP {
 		/// Ensure a relative path is absolute by appending the working dir
 		/// </summary>
 		private string GetAbsolutePath(string path) {
+
 			if (path == null || path.Trim().Length == 0) {
 				// if path not given, then use working dir
 				var pwd = GetWorkingDirectory();
@@ -95,9 +96,12 @@ namespace FluentFTP {
 					path = "./";
 				}
 
-				// FIX : #153 ensure this check works with unix & windows
 			}
-			else if (!path.StartsWith("/") && path.Substring(1, 1) != ":") {
+
+			// FIX : #153 ensure this check works with unix & windows
+			// FIX : #454 OpenVMS paths can be a single character
+			else if (!path.StartsWith("/") && !(path.Length > 1 && path[1] == ':')) {
+
 				// if its a server-specific absolute path then don't add base dir
 				if (IsAbsolutePath(path)) {
 					return path;
@@ -122,6 +126,7 @@ namespace FluentFTP {
 		/// Ensure a relative path is absolute by appending the working dir
 		/// </summary>
 		private async Task<string> GetAbsolutePathAsync(string path, CancellationToken token) {
+			
 			if (path == null || path.Trim().Length == 0) {
 				// if path not given, then use working dir
 				string pwd = await GetWorkingDirectoryAsync(token);
@@ -132,7 +137,11 @@ namespace FluentFTP {
 					path = "./";
 				}
 			}
-			else if (!path.StartsWith("/")) {
+			
+			// FIX : #153 ensure this check works with unix & windows
+			// FIX : #454 OpenVMS paths can be a single character
+			else if (!path.StartsWith("/") && !(path.Length > 1 && path[1] == ':')) {
+
 				// if relative path given then add working dir to calc full path
 				string pwd = await GetWorkingDirectoryAsync(token);
 				if (pwd != null && pwd.Trim().Length > 0) {
