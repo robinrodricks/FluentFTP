@@ -19,17 +19,17 @@ namespace FluentFTP {
 		/// <summary>
 		/// A working Encryption Mode found for this profile
 		/// </summary>
-		public FtpEncryptionMode Encryption;
+		public FtpEncryptionMode Encryption = FtpEncryptionMode.None;
 
 		/// <summary>
 		/// A working Ssl Protocol setting found for this profile
 		/// </summary>
-		public SslProtocols Protocols;
+		public SslProtocols Protocols = SslProtocols.None;
 
 		/// <summary>
 		/// A working Data Connection Type found for this profile
 		/// </summary>
-		public FtpDataConnectionType DataConnection;
+		public FtpDataConnectionType DataConnection = FtpDataConnectionType.PASV;
 
 		/// <summary>
 		/// A working Encoding setting found for this profile

@@ -753,13 +753,9 @@ namespace FluentFTP {
 		/// Connect to the given server profile.
 		/// </summary>
 		public void Connect(FtpProfile profile) {
+
 			// copy over the profile properties to this instance
-			Host = profile.Host;
-			Credentials = profile.Credentials;
-			EncryptionMode = profile.Encryption;
-			SslProtocols = profile.Protocols;
-			DataConnectionType = profile.DataConnection;
-			Encoding = profile.Encoding;
+			LoadProfile(profile);
 
 			// begin connection
 			Connect();
@@ -770,6 +766,31 @@ namespace FluentFTP {
 		/// Connect to the given server profile.
 		/// </summary>
 		public async Task ConnectAsync(FtpProfile profile, CancellationToken token = default(CancellationToken)) {
+			
+			// copy over the profile properties to this instance
+			LoadProfile(profile);
+
+			// begin connection
+			await ConnectAsync(token);
+		}
+#endif
+
+		private void LoadProfile(FtpProfile profile) {
+
+			// verify args
+			if (profile == null) {
+				throw new ArgumentException("Required parameter is null or blank.", "profile");
+			}
+			if (profile.Host.IsBlank()) {
+				throw new ArgumentException("Required parameter is null or blank.", "profile.Host");
+			}
+			if (profile.Credentials == null) {
+				throw new ArgumentException("Required parameter is null.", "profile.Credentials");
+			}
+			if (profile.Encoding == null) {
+				throw new ArgumentException("Required parameter is null.", "profile.Encoding");
+			}
+
 			// copy over the profile properties to this instance
 			Host = profile.Host;
 			Credentials = profile.Credentials;
@@ -777,11 +798,7 @@ namespace FluentFTP {
 			SslProtocols = profile.Protocols;
 			DataConnectionType = profile.DataConnection;
 			Encoding = profile.Encoding;
-
-			// begin connection
-			await ConnectAsync(token);
 		}
-#endif
 
 		/// <summary>
 		/// Automatic FTP and FTPS connection negotiation.
