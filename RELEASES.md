@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 27.1.3
+  - New: Support detection of Sun OS Solaris FTP OS and server (allows for server specific commands)
+
 #### 27.1.2
   - Fix: Unable to upload files to OpenVMS servers if path contains numeric characters
   - Fix: Assume FTP commands supported by OpenVMS HGFTP server if FEAT not supported

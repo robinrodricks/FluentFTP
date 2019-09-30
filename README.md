@@ -1222,6 +1222,7 @@ You can read `ServerType` to get the exact type of FTP server software that you'
 - BFTPd
 - FTP2S3 Gateway
 - XLight
+- Solaris FTP
 
 You can also read `ServerOS` to get the operating system of the FTP server you've connected to. We can detect:
 
@@ -1229,6 +1230,7 @@ You can also read `ServerOS` to get the operating system of the FTP server you'v
 - Unix
 - VMS
 - IBM OS/400
+- SunOS
 
 
 --------------------------------------------------------

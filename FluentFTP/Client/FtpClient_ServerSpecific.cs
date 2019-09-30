@@ -171,6 +171,10 @@ namespace FluentFTP {
 				// IBM OS/400
 				m_serverOS = FtpOperatingSystem.IBMOS400;
 			}
+			else if (system.Contains("SUNOS")) {
+				// SUN OS
+				m_serverOS = FtpOperatingSystem.SunOS;
+			}
 			else {
 				// assume Unix OS
 				m_serverOS = FtpOperatingSystem.Unknown;
@@ -179,6 +183,7 @@ namespace FluentFTP {
 
 			// detect server type
 			if (m_serverType == FtpServer.Unknown) {
+
 				// Detect OpenVMS server
 				// SYST type: "VMS OpenVMS V8.4"
 				if (m_systemType.Contains("OpenVMS")) {
@@ -189,6 +194,12 @@ namespace FluentFTP {
 				// SYST type: "Windows_CE version 7.0"
 				if (m_systemType.Contains("Windows_CE")) {
 					m_serverType = FtpServer.WindowsCE;
+				}
+
+				// Detect SolarisTP server
+				// SYST response: "215 UNIX Type: L8 Version: SUNOS"
+				if (m_systemType.Contains("SUNOS")) {
+					m_serverType = FtpServer.SolarisFTP;
 				}
 
 				// trace it

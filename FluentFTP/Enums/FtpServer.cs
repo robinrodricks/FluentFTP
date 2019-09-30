@@ -99,6 +99,11 @@ namespace FluentFTP {
 		/// <summary>
 		/// Definitely XLight FTP server
 		/// </summary>
-		XLight
+		XLight,
+
+		/// <summary>
+		/// Definitely Sun OS Solaris FTP server
+		/// </summary>
+		SolarisFTP,
 	}
 }
