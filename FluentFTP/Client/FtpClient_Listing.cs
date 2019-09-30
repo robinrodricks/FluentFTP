@@ -474,6 +474,12 @@ namespace FluentFTP {
 				// Some FTP server does not send any response when listing an empty directory
 				// and the connection fails because no communication socket is provided by the server
 			}
+			catch (FtpCommandException ftpEx) {
+				// Some FTP servers throw 550 for empty folders. Absorb these.
+				if (!ftpEx.CompletionCode.StartsWith("550")) {
+					throw ftpEx;
+				}
+			}
 			catch (IOException ioEx) {
 				// Some FTP servers forcibly close the connection, we absorb these errors
 
@@ -785,6 +791,12 @@ namespace FluentFTP {
 				// Some FTP server does not send any response when listing an empty directory
 				// and the connection fails because no communication socket is provided by the server
 			}
+			catch (FtpCommandException ftpEx) {
+				// Some FTP servers throw 550 for empty folders. Absorb these.
+				if (!ftpEx.CompletionCode.StartsWith("550")) {
+					throw ftpEx;
+				}
+			}
 			catch (IOException ioEx) {
 				// Some FTP servers forcibly close the connection, we absorb these errors
 
@@ -987,6 +999,12 @@ namespace FluentFTP {
 					// Some FTP server does not send any response when listing an empty directory
 					// and the connection fails because no communication socket is provided by the server
 				}
+				catch (FtpCommandException ftpEx) {
+					// Some FTP servers throw 550 for empty folders. Absorb these.
+					if (!ftpEx.CompletionCode.StartsWith("550")) {
+						throw ftpEx;
+					}
+				}
 				catch (IOException) {
 					// Some FTP servers forcibly close the connection, we absorb these errors
 				}
@@ -1079,6 +1097,12 @@ namespace FluentFTP {
 			catch (FtpMissingSocketException) {
 				// Some FTP server does not send any response when listing an empty directory
 				// and the connection fails because no communication socket is provided by the server
+			}
+			catch (FtpCommandException ftpEx) {
+				// Some FTP servers throw 550 for empty folders. Absorb these.
+				if (!ftpEx.CompletionCode.StartsWith("550")) {
+					throw ftpEx;
+				}
 			}
 			catch (IOException) {
 				// Some FTP servers forcibly close the connection, we absorb these errors
