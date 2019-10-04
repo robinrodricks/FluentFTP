@@ -142,7 +142,7 @@ client.Disconnect();
 
 ## Powershell
 
-You can use FluentFTP from Powershell without requiring any coding knowledge. To get started:
+You can use FluentFTP to transfer files to your FTP servers from your Powershell scripts. To get started:
 
 1. Download all the files in the [Powershell](https://github.com/robinrodricks/FluentFTP/tree/master/Powershell) folder in this repo.
 2. Place the contents into `C:\Scripts` or any folder of your choice.
