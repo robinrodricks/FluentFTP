@@ -81,7 +81,7 @@ namespace FluentFTP {
 			if (system == FtpOperatingSystem.Windows) {
 				CurrentParser = FtpParser.Windows;
 			}
-			else if (system == FtpOperatingSystem.Unix) {
+			else if (system == FtpOperatingSystem.Unix || system == FtpOperatingSystem.SunOS) {
 				CurrentParser = FtpParser.Unix;
 			}
 			else if (system == FtpOperatingSystem.VMS) {
