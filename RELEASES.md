@@ -2,6 +2,7 @@
 
 #### 27.1.3
   - New: Support detection of Sun OS Solaris FTP OS and server (allows for server specific commands)
+  - Fix: UploadFile fails when destination folder is empty on SunOS (550 error)
 
 #### 27.1.2
   - Fix: Unable to upload files to OpenVMS servers if path contains numeric characters
