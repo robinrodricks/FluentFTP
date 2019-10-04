@@ -144,32 +144,32 @@ client.Disconnect();
 
 You can use FluentFTP from Powershell without requiring any coding knowledge. To get started:
 
-1. Download the Powershell folder from this repo.
-2. Place the contents into `C:\Scripts` or any similar folder.
+1. Download all the files in the [Powershell](https://github.com/robinrodricks/FluentFTP/tree/master/Powershell) folder in this repo.
+2. Place the contents into `C:\Scripts` or any folder of your choice.
 3. Run this in Powershell to make the FluentFTP functions usable:
 
 ```powershell
-. C:\Scripts\FluentFTP.ps1   #Makes functions callable from calling PowerShell
+>. C:\Scripts\FluentFTP.ps1   #Makes functions callable from PowerShell scripts
 ```
 
 4. Run the commands you need! (Example commands are given below)
 
 ```powershell
-Show-FtpFile -Site ftp.mysite.com -User bob -Password secure -FtpDirectory pub -FtpFileName "text*"
-Rename-File -Site ftp.mysite.com -User bob -Password secure -FtpDirectory pub -oldName "Readme.txt -newName Readme.done"
-Send-FtpFile -Site ftp.mysite.com -User bob -Password secure -FtpDirectory pub -fileName "Read*"
-Get-FtpFile -Site ftp.mysite.com -User bob -Password secure -FtpDirectory pub -ftpfileName "Read*"
-Remove-FtpFile -Site ftp.mysite.com -User bob -Password secure -FtpDirectory pub -ftpfileName "Read*"
+> Show-FtpFile -Site ftp.mysite.com -User bob -Password secure -FtpDirectory pub -FtpFileName "text*"
+> Rename-File -Site ftp.mysite.com -User bob -Password secure -FtpDirectory pub -oldName "Readme.txt -newName Readme.done"
+> Send-FtpFile -Site ftp.mysite.com -User bob -Password secure -FtpDirectory pub -fileName "Read*"
+> Get-FtpFile -Site ftp.mysite.com -User bob -Password secure -FtpDirectory pub -ftpfileName "Read*"
+> Remove-FtpFile -Site ftp.mysite.com -User bob -Password secure -FtpDirectory pub -ftpfileName "Read*"
 ```
 
-Help on each command can be printed by running these commands:
+Help on each command can be printed by running these commands in Powershell:
 
 ```powershell
-PS C:\temp> get-help -full Show-FtpFile
-PS C:\temp> get-help -full Rename-FtpFile
-PS C:\temp> get-help -full Send-FtpFile
-PS C:\temp> get-help -full Get-FtpFile
-PS C:\temp> get-help -full Remove-FtpFile
+> get-help -full Show-FtpFile
+> get-help -full Rename-FtpFile
+> get-help -full Send-FtpFile
+> get-help -full Get-FtpFile
+> get-help -full Remove-FtpFile
 ```
 	
 ## Documentation
