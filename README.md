@@ -7,7 +7,7 @@
 [![Codacy grade](https://img.shields.io/codacy/grade/2d6bb3604aae4c1e892a8386363a5bfc.svg)](https://app.codacy.com/project/robinrodricks/FluentFTP/dashboard)
 [![License](https://img.shields.io/github/license/robinrodricks/FluentFTP.svg)](https://github.com/robinrodricks/FluentFTP/blob/master/LICENSE.TXT)
 
-FluentFTP is a fully managed FTP and FTPS library for .NET & .NET Standard, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, UTF-8 support, Async/await support and more.
+FluentFTP is a fully managed FTP and FTPS library for .NET & .NET Standard, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, UTF-8 support, Async/await support, Powershell support and more.
 
 It is written entirely in C#, with no external dependencies. FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 
@@ -51,6 +51,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
     - Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/robinrodricks/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
     - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/robinrodricks/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
     - Easily add custom logging/tracing functionality using [`FtpTrace.AddListener`](#faq_log)
+	- Easily add your own Powershell commands by extending the scripts in `FluentFTP.ps1`
 
 ## Releases
 
@@ -137,6 +138,38 @@ client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt", FtpExists.Overwrite, fal
 
 // disconnect! good bye!
 client.Disconnect();
+```
+
+## Powershell
+
+You can use FluentFTP from Powershell without requiring any coding knowledge. To get started:
+
+1. Download the Powershell folder from this repo.
+2. Place the contents into `C:\Scripts` or any similar folder.
+3. Run this in Powershell to make the FluentFTP functions usable:
+
+```powershell
+. C:\Scripts\FluentFTP.ps1   #Makes functions callable from calling PowerShell
+```
+
+4. Run the commands you need! (Example commands are given below)
+
+```powershell
+Show-FtpFile -Site ftp.mysite.com -User bob -Password secure -FtpDirectory pub -FtpFileName "text*"
+Rename-File -Site ftp.mysite.com -User bob -Password secure -FtpDirectory pub -oldName "Readme.txt -newName Readme.done"
+Send-FtpFile -Site ftp.mysite.com -User bob -Password secure -FtpDirectory pub -fileName "Read*"
+Get-FtpFile -Site ftp.mysite.com -User bob -Password secure -FtpDirectory pub -ftpfileName "Read*"
+Remove-FtpFile -Site ftp.mysite.com -User bob -Password secure -FtpDirectory pub -ftpfileName "Read*"
+```
+
+Help on each command can be printed by running these commands:
+
+```powershell
+PS C:\temp> get-help -full Show-FtpFile
+PS C:\temp> get-help -full Rename-FtpFile
+PS C:\temp> get-help -full Send-FtpFile
+PS C:\temp> get-help -full Get-FtpFile
+PS C:\temp> get-help -full Remove-FtpFile
 ```
 	
 ## Documentation
