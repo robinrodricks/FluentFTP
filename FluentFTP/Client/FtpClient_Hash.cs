@@ -11,10 +11,10 @@ using System.Security.Cryptography.X509Certificates;
 using System.Globalization;
 using System.Security.Authentication;
 using System.Net;
+using FluentFTP.Helpers;
 using FluentFTP.Proxy;
 #if !CORE
 using System.Web;
-using FluentFTP.Helpers;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
