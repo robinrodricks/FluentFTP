@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Net;
-using FluentFTP;
 using System.IO;
+using System.Net;
 using System.Threading;
+using FluentFTP;
 
 namespace Examples {
 	internal static class BeginOpenAppendExample {
@@ -18,8 +18,7 @@ namespace Examples {
 
 				conn.Host = "localhost";
 				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
-				conn.BeginOpenAppend("/path/to/file",
-					new AsyncCallback(BeginOpenAppendCallback), conn);
+				conn.BeginOpenAppend("/path/to/file", BeginOpenAppendCallback, conn);
 
 				m_reset.WaitOne();
 				conn.Disconnect();

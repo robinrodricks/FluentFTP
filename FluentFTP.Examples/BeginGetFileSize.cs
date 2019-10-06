@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
-using FluentFTP;
 using System.Threading;
+using FluentFTP;
 
 namespace Examples {
 	internal static class BeginGetFileSizeExample {
@@ -18,7 +18,7 @@ namespace Examples {
 				conn.Host = "localhost";
 				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
 				conn.Connect();
-				conn.BeginGetFileSize("foobar", new AsyncCallback(BeginGetFileSizeCallback), conn);
+				conn.BeginGetFileSize("foobar", BeginGetFileSizeCallback, conn);
 
 				m_reset.WaitOne();
 				conn.Disconnect();

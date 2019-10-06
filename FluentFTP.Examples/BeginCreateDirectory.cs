@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Threading;
-using System.IO;
 using System.Net;
+using System.Threading;
 using FluentFTP;
 
 namespace Examples {
@@ -20,7 +19,7 @@ namespace Examples {
 				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
 				conn.DeleteDirectory("/test");
 				conn.BeginCreateDirectory("/test/path/that/should/be/created", true,
-					new AsyncCallback(CreateDirectoryCallback), conn);
+					CreateDirectoryCallback, conn);
 
 				m_reset.WaitOne();
 				conn.Disconnect();

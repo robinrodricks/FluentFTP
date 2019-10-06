@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
-using FluentFTP;
 using System.Threading;
+using FluentFTP;
 
 namespace Examples {
 	internal static class BeginGetNameListingExample {
@@ -17,7 +17,7 @@ namespace Examples {
 
 				conn.Host = "localhost";
 				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
-				conn.BeginGetNameListing(new AsyncCallback(EndGetNameListing), conn);
+				conn.BeginGetNameListing(EndGetNameListing, conn);
 
 				m_reset.WaitOne();
 				conn.Disconnect();

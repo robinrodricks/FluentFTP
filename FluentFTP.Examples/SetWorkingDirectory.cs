@@ -1,7 +1,5 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using FluentFTP;
-using System.IO;
 
 namespace Examples {
 	internal static class SetWorkingDirectoryExample {

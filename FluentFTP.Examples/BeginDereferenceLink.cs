@@ -5,9 +5,9 @@ using FluentFTP;
 
 namespace Examples {
 	/// <summary>
-	/// This example illustrates how to dereference a symbolic link asyncrhonously. The
-	/// code bollow takes a FtpListItem object and checks if it is a symbolic link and
-	/// that the LinkTarget property has been initalized before executing the method. Not
+	/// This example illustrates how to dereference a symbolic link asynchronously. The
+	/// code bellow takes a FtpListItem object and checks if it is a symbolic link and
+	/// that the LinkTarget property has been initialized before executing the method. Not
 	/// doing so can result in a FtpException being thrown.
 	/// 
 	/// Also see the DerefenceLink() example! There is lots of information
@@ -29,7 +29,7 @@ namespace Examples {
 				conn.Connect();
 
 				if (item.Type == FtpFileSystemObjectType.Link && item.LinkTarget != null) {
-					conn.BeginDereferenceLink(item, new AsyncCallback(DereferenceLinkCallback), conn);
+					conn.BeginDereferenceLink(item, DereferenceLinkCallback, conn);
 					m_reset.WaitOne();
 				}
 
