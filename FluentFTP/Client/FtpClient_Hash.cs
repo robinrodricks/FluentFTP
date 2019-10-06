@@ -14,6 +14,7 @@ using System.Net;
 using FluentFTP.Proxy;
 #if !CORE
 using System.Web;
+using FluentFTP.Helpers;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
@@ -45,22 +46,10 @@ namespace FluentFTP {
 			lock (m_lock) {
 #endif
 				if ((reply = Execute("OPTS HASH")).Success) {
-					switch (reply.Message) {
-						case "SHA-1":
-							type = FtpHashAlgorithm.SHA1;
-							break;
-
-						case "SHA-256":
-							type = FtpHashAlgorithm.SHA256;
-							break;
-
-						case "SHA-512":
-							type = FtpHashAlgorithm.SHA512;
-							break;
-
-						case "MD5":
-							type = FtpHashAlgorithm.MD5;
-							break;
+					try {
+						type = FtpHashAlgorithmConverter.FromString(reply.Message);
+					}
+					catch (InvalidOperationException) {
 					}
 				}
 
@@ -147,27 +136,7 @@ namespace FluentFTP {
 					throw new NotImplementedException("The hash algorithm " + type.ToString() + " was not advertised by the server.");
 				}
 
-				switch (type) {
-					case FtpHashAlgorithm.SHA1:
-						algorithm = "SHA-1";
-						break;
-
-					case FtpHashAlgorithm.SHA256:
-						algorithm = "SHA-256";
-						break;
-
-					case FtpHashAlgorithm.SHA512:
-						algorithm = "SHA-512";
-						break;
-
-					case FtpHashAlgorithm.MD5:
-						algorithm = "MD5";
-						break;
-
-					default:
-						algorithm = type.ToString();
-						break;
-				}
+				algorithm = FtpHashAlgorithmConverter.ToString(type);
 
 				if (!(reply = Execute("OPTS HASH " + algorithm)).Success) {
 					throw new FtpCommandException(reply);
@@ -290,27 +259,7 @@ namespace FluentFTP {
 			}
 
 			if (m != null && m.Success) {
-				switch (m.Groups["algorithm"].Value) {
-					case "SHA-1":
-						hash.Algorithm = FtpHashAlgorithm.SHA1;
-						break;
-
-					case "SHA-256":
-						hash.Algorithm = FtpHashAlgorithm.SHA256;
-						break;
-
-					case "SHA-512":
-						hash.Algorithm = FtpHashAlgorithm.SHA512;
-						break;
-
-					case "MD5":
-						hash.Algorithm = FtpHashAlgorithm.MD5;
-						break;
-
-					default:
-						throw new NotImplementedException("Unknown hash algorithm: " + m.Groups["algorithm"].Value);
-				}
-
+				hash.Algorithm = FtpHashAlgorithmConverter.FromString(m.Groups["algorithm"].Value);
 				hash.Value = m.Groups["hash"].Value;
 			}
 			else {
@@ -416,27 +365,7 @@ namespace FluentFTP {
 			}
 
 			if (m != null && m.Success) {
-				switch (m.Groups["algorithm"].Value) {
-					case "SHA-1":
-						hash.Algorithm = FtpHashAlgorithm.SHA1;
-						break;
-
-					case "SHA-256":
-						hash.Algorithm = FtpHashAlgorithm.SHA256;
-						break;
-
-					case "SHA-512":
-						hash.Algorithm = FtpHashAlgorithm.SHA512;
-						break;
-
-					case "MD5":
-						hash.Algorithm = FtpHashAlgorithm.MD5;
-						break;
-
-					default:
-						throw new NotImplementedException("Unknown hash algorithm: " + m.Groups["algorithm"].Value);
-				}
-
+				hash.Algorithm = FtpHashAlgorithmConverter.FromString(m.Groups["algorithm"].Value);
 				hash.Value = m.Groups["hash"].Value;
 			}
 			else {

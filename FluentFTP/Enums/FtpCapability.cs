@@ -181,7 +181,7 @@ namespace FluentFTP {
 		MODE_Z = 34,
 
 		/// <summary>
-		/// Support for the LANG (language negociation) command.
+		/// Support for the LANG (language negotiation) command.
 		/// </summary>
 		LANG = 35,
 

@@ -574,7 +574,7 @@ namespace FluentFTP {
 					separatorIdx = Array.IndexOf(buf, (byte) '\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array readed
 				}
 
-				while (firstByteToReadIdx < charRead) // add all remainings characters to data
+				while (firstByteToReadIdx < charRead) // add all remaining characters to data
 				{
 					data.Add(buf[firstByteToReadIdx++]);
 				}
@@ -619,7 +619,7 @@ namespace FluentFTP {
 			while ((charRead = await ReadAsync(buf, 0, buf.Length, token)) > 0) {
 				var firstByteToReadIdx = 0;
 
-				var separatorIdx = Array.IndexOf(buf, (byte) '\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array readed
+				var separatorIdx = Array.IndexOf(buf, (byte) '\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array read
 
 				while (separatorIdx >= 0) // at least one '\n' returned
 				{
@@ -631,10 +631,10 @@ namespace FluentFTP {
 					lines.Add(line);
 					data.Clear();
 
-					separatorIdx = Array.IndexOf(buf, (byte) '\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array readed
+					separatorIdx = Array.IndexOf(buf, (byte) '\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array read
 				}
 
-				while (firstByteToReadIdx < charRead) // add all remainings characters to data
+				while (firstByteToReadIdx < charRead) // add all remaining characters to data
 				{
 					data.Add(buf[firstByteToReadIdx++]);
 				}
@@ -714,7 +714,7 @@ namespace FluentFTP {
 		/// Disconnects from server
 		/// </summary>
 		protected override void Dispose(bool disposing) {
-			// Fix: Hard catch and supress all exceptions during disposing as there are constant issues with this method
+			// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
 			try {
 				// ensure null exceptions don't occur here
 				if (Client != null) {

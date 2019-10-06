@@ -316,7 +316,7 @@ namespace FluentFTP {
 		public bool DirectoryExists(string path) {
 			string pwd;
 
-			// dont verify args as blank/null path is OK
+			// don't verify args as blank/null path is OK
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
@@ -405,7 +405,7 @@ namespace FluentFTP {
 		public async Task<bool> DirectoryExistsAsync(string path, CancellationToken token = default(CancellationToken)) {
 			string pwd;
 
-			// dont verify args as blank/null path is OK
+			// don't verify args as blank/null path is OK
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
@@ -455,7 +455,7 @@ namespace FluentFTP {
 		/// <param name="force">Try to force all non-existent pieces of the path to be created</param>
 		/// <example><code source="..\Examples\CreateDirectory.cs" lang="cs" /></example>
 		public void CreateDirectory(string path, bool force) {
-			// dont verify args as blank/null path is OK
+			// don't verify args as blank/null path is OK
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
@@ -555,7 +555,7 @@ namespace FluentFTP {
 		/// <param name="force">Try to create the whole path if the preceding directories do not exist</param>
 		/// <param name="token">Cancellation Token</param>
 		public async Task CreateDirectoryAsync(string path, bool force, CancellationToken token = default(CancellationToken)) {
-			// dont verify args as blank/null path is OK
+			// don't verify args as blank/null path is OK
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 

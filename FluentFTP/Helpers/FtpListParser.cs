@@ -298,6 +298,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="line">The line from the listing</param>
 		/// <param name="capabilities">The server capabilities</param>
+		/// <param name="client">The FTP client</param>
 		/// <returns>FtpListItem if the line can be parsed, null otherwise</returns>
 		public delegate FtpListItem Parser(string line, List<FtpCapability> capabilities, FtpClient client);
 

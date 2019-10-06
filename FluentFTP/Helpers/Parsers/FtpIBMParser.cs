@@ -35,6 +35,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses IBM OS/400 format listings
 		/// </summary>
+		/// <param name="client">The FTP client</param>
 		/// <param name="record">A line from the listing</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
 		public static FtpListItem Parse(FtpClient client, string record) {

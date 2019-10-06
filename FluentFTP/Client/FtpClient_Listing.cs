@@ -206,7 +206,7 @@ namespace FluentFTP {
 		/// be retrieved.
 		/// </remarks>
 		/// <param name="path">The path of the directory to list</param>
-		/// <param name="options">Options that dictacte how a list is performed and what information is gathered.</param>
+		/// <param name="options">Options that dictate how a list is performed and what information is gathered.</param>
 		/// <returns>An array of FtpListItem objects</returns>
 		/// <example><code source="..\Examples\GetListing.cs" lang="cs" /></example>
 		public FtpListItem[] GetListing(string path, FtpListOption options) {
@@ -857,7 +857,7 @@ namespace FluentFTP {
 		/// Uses flat recursion instead of head recursion.
 		/// </summary>
 		/// <param name="path">The path of the directory to list</param>
-		/// <param name="options">Options that dictacte how a list is performed and what information is gathered.</param>
+		/// <param name="options">Options that dictate how a list is performed and what information is gathered.</param>
 		/// <returns>An array of FtpListItem objects</returns>
 		protected FtpListItem[] GetListingRecursive(string path, FtpListOption options) {
 			// remove the recursive flag
@@ -905,7 +905,7 @@ namespace FluentFTP {
 		/// Uses flat recursion instead of head recursion.
 		/// </summary>
 		/// <param name="path">The path of the directory to list</param>
-		/// <param name="options">Options that dictacte how a list is performed and what information is gathered.</param>
+		/// <param name="options">Options that dictate how a list is performed and what information is gathered.</param>
 		/// <returns>An array of FtpListItem objects</returns>
 		protected async Task<FtpListItem[]> GetListingRecursiveAsync(string path, FtpListOption options) {
 			// remove the recursive flag
