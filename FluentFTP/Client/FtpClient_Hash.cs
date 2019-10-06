@@ -49,7 +49,7 @@ namespace FluentFTP {
 					try {
 						type = FtpHashAlgorithmConverter.FromString(reply.Message);
 					}
-					catch (InvalidOperationException) {
+					catch (InvalidOperationException ex) {
 					}
 				}
 
