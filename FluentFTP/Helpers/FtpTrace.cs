@@ -66,7 +66,7 @@ namespace FluentFTP {
 		private static bool m_LogToConsole = false;
 
 		/// <summary>
-		/// Should FTP communication be be logged to console?
+		/// Should FTP communication be logged to console?
 		/// </summary>
 		public static bool LogToConsole {
 			get => m_LogToConsole;

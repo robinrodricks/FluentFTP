@@ -173,7 +173,7 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// When this value is set to true (default) the control connection
-		/// will set which features are avaiable by executing the FEAT command
+		/// will set which features are available by executing the FEAT command
 		/// when the connect method is called.
 		/// </summary>
 		public bool CheckCapabilities {
@@ -565,7 +565,7 @@ namespace FluentFTP {
 
 		private FtpReply m_lastReply;
 
-		/// <summary> Gets the last reply recieved from the server</summary>
+		/// <summary> Gets the last reply received from the server</summary>
 		public FtpReply LastReply {
 			get => m_lastReply;
 			protected set => m_lastReply = value;

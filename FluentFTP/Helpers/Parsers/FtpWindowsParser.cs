@@ -18,6 +18,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// </summary>
 		/// <param name="record">A line from the listing</param>
 		/// <param name="capabilities">Server capabilities</param>
+		/// <param name="client">The FTP client</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
 		public static FtpListItem ParseLegacy(string record, List<FtpCapability> capabilities, FtpClient client) {
 			var item = new FtpListItem();
@@ -108,6 +109,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses IIS/DOS format listings
 		/// </summary>
+		/// <param name="client">The FTP client</param>
 		/// <param name="record">A line from the listing</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
 		public static FtpListItem Parse(FtpClient client, string record) {

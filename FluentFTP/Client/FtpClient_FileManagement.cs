@@ -815,16 +815,16 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Derefence a FtpListItem object
+		/// Dereference a FtpListItem object
 		/// </summary>
-		/// <param name="item">The item to derefence</param>
+		/// <param name="item">The item to dereference</param>
 		/// <param name="recMax">Maximum recursive calls</param>
 		/// <param name="count">Counter</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
 		/// <example><code source="..\Examples\DereferenceLink.cs" lang="cs" /></example>
 		private FtpListItem DereferenceLink(FtpListItem item, int recMax, ref int count) {
 			if (item.Type != FtpFileSystemObjectType.Link) {
-				throw new FtpException("You can only derefernce a symbolic link. Please verify the item type is Link.");
+				throw new FtpException("You can only dereference a symbolic link. Please verify the item type is Link.");
 			}
 
 			if (item.LinkTarget == null) {
@@ -911,16 +911,16 @@ namespace FluentFTP {
 #endif
 #if ASYNC
 		/// <summary>
-		/// Derefence a FtpListItem object
+		/// Dereference a FtpListItem object
 		/// </summary>
-		/// <param name="item">The item to derefence</param>
+		/// <param name="item">The item to dereference</param>
 		/// <param name="recMax">Maximum recursive calls</param>
 		/// <param name="count">Counter</param>
 		/// <param name="token">Cancellation Token</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
 		private async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, IntRef count, CancellationToken token = default(CancellationToken)) {
 			if (item.Type != FtpFileSystemObjectType.Link) {
-				throw new FtpException("You can only derefernce a symbolic link. Please verify the item type is Link.");
+				throw new FtpException("You can only dereference a symbolic link. Please verify the item type is Link.");
 			}
 
 			if (item.LinkTarget == null) {

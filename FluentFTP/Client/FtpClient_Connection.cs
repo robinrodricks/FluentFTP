@@ -103,7 +103,7 @@ namespace FluentFTP {
 					return;
 				}
 
-				// Fix: Hard catch and supress all exceptions during disposing as there are constant issues with this method
+				// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
 				try {
 					LogFunc("Dispose");
 					LogStatus(FtpTraceLevel.Verbose, "Disposing FtpClient object...");
@@ -747,7 +747,7 @@ namespace FluentFTP {
 
 #endregion
 
-#region Auto Connect
+		#region Auto Connect
 
 		/// <summary>
 		/// Connect to the given server profile.
@@ -872,9 +872,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region Login
+		#region Login
 
 		/// <summary>
 		/// Performs a login on the server. This method is overridable so
@@ -942,9 +942,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region Disconnect
+		#region Disconnect
 
 		/// <summary>
 		/// Disconnects from the server
@@ -1026,9 +1026,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region FTPS
+		#region FTPS
 
 		/// <summary>
 		/// Catches the socket stream ssl validation event and fires the event handlers
@@ -1053,6 +1053,6 @@ namespace FluentFTP {
 			}
 		}
 
-#endregion
+		#endregion
 	}
 }

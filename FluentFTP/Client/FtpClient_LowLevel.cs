@@ -347,7 +347,7 @@ namespace FluentFTP {
 					throw new FtpException("Only IPv4 is supported by the PASV command. Use EPSV instead.");
 				}
 
-				// excute PRET before passive if server requires it
+				// execute PRET before passive if server requires it
 				if (HasFeature(FtpCapability.PRET)) {
 					reply = Execute("PRET " + command);
 				}
@@ -375,7 +375,7 @@ namespace FluentFTP {
 
 				// Fix #409 for BlueCoat proxy connections. This code replaces the name of the proxy with the name of the FTP server and then nothing works.
 				if (!IsProxy()) {
-					//use host ip if server advertises a non-routeable IP
+					//use host ip if server advertises a non-routable IP
 					m = Regex.Match(host, @"(^10\.)|(^172\.1[6-9]\.)|(^172\\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)|(^127\.0\.0\.1)|(^0\.0\.0\.0)");
 
 					if (m.Success) {
@@ -479,7 +479,7 @@ namespace FluentFTP {
 					throw new FtpException("Only IPv4 is supported by the PASV command. Use EPSV instead.");
 				}
 
-				// excute PRET before passive if server requires it
+				// execute PRET before passive if server requires it
 				if (HasFeature(FtpCapability.PRET)) {
 					reply = await ExecuteAsync("PRET " + command, token);
 				}
@@ -507,7 +507,7 @@ namespace FluentFTP {
 
 				// Fix #409 for BlueCoat proxy connections. This code replaces the name of the proxy with the name of the FTP server and then nothing works.
 				if (!IsProxy()) {
-					//use host ip if server advertises a non-routeable IP
+					//use host ip if server advertises a non-routable IP
 					m = Regex.Match(host, @"(^10\.)|(^172\.1[6-9]\.)|(^172\\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)|(^127\.0\.0\.1)|(^0\.0\.0\.0)");
 
 					if (m.Success) {
@@ -1508,7 +1508,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the file to be opened</param>
 		/// <param name="type">ASCII/Binary</param>
-		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		/// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
 		public virtual Stream OpenAppend(string path, FtpDataType type) {

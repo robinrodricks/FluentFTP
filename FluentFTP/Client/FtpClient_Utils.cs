@@ -264,7 +264,7 @@ namespace FluentFTP {
 		public Action<FtpTraceLevel, string> OnLogEvent;
 
 		/// <summary>
-		/// Log a function call with relavent arguments
+		/// Log a function call with relevant arguments
 		/// </summary>
 		/// <param name="function">The name of the API function</param>
 		/// <param name="args">The args passed to the function</param>
