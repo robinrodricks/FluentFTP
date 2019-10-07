@@ -20,7 +20,7 @@ namespace Examples {
 
 						case FtpFileSystemObjectType.Link:
 
-							// derefernece symbolic links
+							// dereference symbolic links
 							if (item.LinkTarget != null) {
 								// see the DereferenceLink() example
 								// for more details about resolving links.

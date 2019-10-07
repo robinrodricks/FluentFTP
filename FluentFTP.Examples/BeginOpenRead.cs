@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Net;
-using FluentFTP;
-using System.IO;
 using System.Threading;
+using FluentFTP;
 
 namespace Examples {
 	internal static class BeginOpenReadExample {
@@ -18,8 +17,7 @@ namespace Examples {
 
 				conn.Host = "localhost";
 				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
-				conn.BeginOpenRead("/path/to/file",
-					new AsyncCallback(BeginOpenReadCallback), conn);
+				conn.BeginOpenRead("/path/to/file", BeginOpenReadCallback, conn);
 
 				m_reset.WaitOne();
 				conn.Disconnect();

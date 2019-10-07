@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
-using FluentFTP;
 using System.Threading;
+using FluentFTP;
 
 namespace Examples {
 	internal class BeginDeleteDirectoryExample {
@@ -18,7 +18,7 @@ namespace Examples {
 				conn.Host = "localhost";
 				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
 				conn.CreateDirectory("/some/test/directory");
-				conn.BeginDeleteDirectory("/some", new AsyncCallback(DeleteDirectoryCallback), conn);
+				conn.BeginDeleteDirectory("/some", DeleteDirectoryCallback, conn);
 
 				m_reset.WaitOne();
 				conn.Disconnect();

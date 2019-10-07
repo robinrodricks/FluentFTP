@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
-using FluentFTP;
 using System.Security.Authentication;
+using FluentFTP;
 
 namespace Examples {
 	internal static class SetEncryptionProtocolsExample {

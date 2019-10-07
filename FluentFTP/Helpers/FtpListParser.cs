@@ -75,7 +75,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Try to auto-detect which parser is suitable given a system string.
 		/// </summary>
-		public void Init(FtpOperatingSystem system, FtpParser defaultParser) {
+		public void Init(FtpOperatingSystem system, FtpParser defaultParser = FtpParser.Auto) {
 			ParserConfirmed = false;
 
 			if (system == FtpOperatingSystem.Windows) {

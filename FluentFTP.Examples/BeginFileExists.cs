@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
-using FluentFTP;
 using System.Threading;
+using FluentFTP;
 
 namespace Examples {
 	internal static class BeginFileExistsExample {
@@ -18,7 +18,7 @@ namespace Examples {
 				conn.Host = "localhost";
 				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
 				conn.Connect();
-				conn.BeginFileExists("foobar", new AsyncCallback(BeginFileExistsCallback), conn);
+				conn.BeginFileExists("foobar", BeginFileExistsCallback, conn);
 
 				m_reset.WaitOne();
 				conn.Disconnect();

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
-using FluentFTP;
 using System.Threading;
+using FluentFTP;
 
 namespace Examples {
 	// Also see the GetListing() example for more details
@@ -20,7 +20,7 @@ namespace Examples {
 				conn.Host = "localhost";
 				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
 				conn.Connect();
-				conn.BeginGetListing(new AsyncCallback(GetListingCallback), conn);
+				conn.BeginGetListing(GetListingCallback, conn);
 
 				m_reset.WaitOne();
 				conn.Disconnect();

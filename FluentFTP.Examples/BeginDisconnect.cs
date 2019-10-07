@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
-using FluentFTP;
 using System.Threading;
+using FluentFTP;
 
 namespace Examples {
 	internal static class BeginDisconnectExample {
@@ -18,7 +18,7 @@ namespace Examples {
 				conn.Host = "localhost";
 				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
 				conn.Connect();
-				conn.BeginDisconnect(new AsyncCallback(BeginDisconnectCallback), conn);
+				conn.BeginDisconnect(BeginDisconnectCallback, conn);
 
 				m_reset.WaitOne();
 			}

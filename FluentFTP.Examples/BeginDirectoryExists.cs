@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
-using FluentFTP;
 using System.Threading;
+using FluentFTP;
 
 namespace Examples {
 	internal static class BeginDirectoryExistsExample {
@@ -17,7 +17,7 @@ namespace Examples {
 
 				conn.Host = "localhost";
 				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
-				conn.BeginDirectoryExists("/path/to/directory", new AsyncCallback(DirectoryExistsCallback), conn);
+				conn.BeginDirectoryExists("/path/to/directory", DirectoryExistsCallback, conn);
 
 				m_reset.WaitOne();
 				conn.Disconnect();
@@ -32,7 +32,7 @@ namespace Examples {
 					throw new InvalidOperationException("The FtpControlConnection object is null!");
 				}
 
-				Console.WriteLine("Directory Exiss: " + conn.EndDirectoryExists(ar));
+				Console.WriteLine("Directory exists: " + conn.EndDirectoryExists(ar));
 			}
 			catch (Exception ex) {
 				Console.WriteLine(ex.ToString());

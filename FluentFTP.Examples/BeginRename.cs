@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
-using FluentFTP;
 using System.Threading;
+using FluentFTP;
 
 namespace Examples {
 	internal static class BeginRenameExample {
@@ -18,7 +18,7 @@ namespace Examples {
 				conn.Host = "localhost";
 				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
 				conn.BeginRename("/source/object", "/new/path/and/name",
-					new AsyncCallback(BeginRenameCallback), conn);
+					BeginRenameCallback, conn);
 
 				m_reset.WaitOne();
 				conn.Disconnect();

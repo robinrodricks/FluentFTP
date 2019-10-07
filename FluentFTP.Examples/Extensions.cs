@@ -1,5 +1,3 @@
-using System;
-
 namespace Examples {
 	internal static class Extensions {
 		public static string FormatBytes(this long val) {

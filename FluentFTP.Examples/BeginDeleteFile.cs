@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
-using FluentFTP;
 using System.Threading;
+using FluentFTP;
 
 namespace Examples {
 	internal static class BeginDeleteFileExample {
@@ -17,7 +17,7 @@ namespace Examples {
 
 				conn.Host = "localhost";
 				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
-				conn.BeginDeleteFile("/path/to/file", new AsyncCallback(DeleteFileCallback), conn);
+				conn.BeginDeleteFile("/path/to/file", DeleteFileCallback, conn);
 
 				m_reset.WaitOne();
 				conn.Disconnect();

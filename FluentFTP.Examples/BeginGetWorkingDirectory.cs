@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
-using FluentFTP;
 using System.Threading;
+using FluentFTP;
 
 namespace Examples {
 	internal static class BeginGetWorkingDirectoryExample {
@@ -18,7 +18,7 @@ namespace Examples {
 				conn.Host = "localhost";
 				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
 				conn.Connect();
-				conn.BeginGetWorkingDirectory(new AsyncCallback(BeginGetWorkingDirectoryCallback), conn);
+				conn.BeginGetWorkingDirectory(BeginGetWorkingDirectoryCallback, conn);
 
 				m_reset.WaitOne();
 				conn.Disconnect();

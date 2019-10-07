@@ -18,12 +18,12 @@ namespace Examples {
 				client.Credentials = new NetworkCredential("user", "pass");
 				client.Host = "somehost";
 
-				// This propety controls the depth of recursion that
+				// This property controls the depth of recursion that
 				// can be done before giving up on resolving the link.
 				// You can set the value to -1 for infinite depth 
 				// however you are strongly discourage from doing so.
 				// The default value is 20, the following line is
-				// only to illustrate the existance of the property.
+				// only to illustrate the existence of the property.
 				// It's also possible to override this value as one
 				// of the overloaded arguments to the DereferenceLink() method.
 				client.MaximumDereferenceCount = 20;
