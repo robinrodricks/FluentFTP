@@ -47,7 +47,7 @@ namespace FluentFTP {
 #endif
 				if ((reply = Execute("OPTS HASH")).Success) {
 					try {
-						type = FtpHashAlgorithmConverter.FromString(reply.Message);
+						type = FtpHashAlgorithms.FromString(reply.Message);
 					}
 					catch (InvalidOperationException ex) {
 						// Do nothing
@@ -137,7 +137,7 @@ namespace FluentFTP {
 					throw new NotImplementedException("The hash algorithm " + type.ToString() + " was not advertised by the server.");
 				}
 
-				algorithm = FtpHashAlgorithmConverter.ToString(type);
+				algorithm = FtpHashAlgorithms.ToString(type);
 
 				if (!(reply = Execute("OPTS HASH " + algorithm)).Success) {
 					throw new FtpCommandException(reply);
@@ -260,7 +260,7 @@ namespace FluentFTP {
 			}
 
 			if (m != null && m.Success) {
-				hash.Algorithm = FtpHashAlgorithmConverter.FromString(m.Groups["algorithm"].Value);
+				hash.Algorithm = FtpHashAlgorithms.FromString(m.Groups["algorithm"].Value);
 				hash.Value = m.Groups["hash"].Value;
 			}
 			else {
@@ -366,7 +366,7 @@ namespace FluentFTP {
 			}
 
 			if (m != null && m.Success) {
-				hash.Algorithm = FtpHashAlgorithmConverter.FromString(m.Groups["algorithm"].Value);
+				hash.Algorithm = FtpHashAlgorithms.FromString(m.Groups["algorithm"].Value);
 				hash.Value = m.Groups["hash"].Value;
 			}
 			else {
