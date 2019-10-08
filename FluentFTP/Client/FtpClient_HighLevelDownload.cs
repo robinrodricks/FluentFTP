@@ -696,6 +696,17 @@ namespace FluentFTP {
 							throw;
 						}
 					}
+					catch (FtpException ex) {
+						// fix: attempting to download data after we reached the end of the stream
+						// often throws a timeout execption, so we silently absorb that here
+						if (offset >= fileLen && ex.InnerException != null && ex.InnerException is TimeoutException) {
+							break;
+						}
+						else {
+							sw.Stop();
+							throw;
+						}
+					}
 				}
 
 				sw.Stop();
@@ -825,6 +836,17 @@ namespace FluentFTP {
 										var resumeResult = await ResumeDownloadAsync(remotePath, downStream, offset, ex);
 										if (resumeResult.Item1) {
 											downStream = resumeResult.Item2;
+										}
+										else {
+											sw.Stop();
+											throw;
+										}
+									}
+									catch (FtpException ex) {
+										// fix: attempting to download data after we reached the end of the stream
+										// often throws a timeout execption, so we silently absorb that here
+										if (offset >= fileLen && ex.InnerException != null && ex.InnerException is TimeoutException) {
+											break;
 										}
 										else {
 											sw.Stop();

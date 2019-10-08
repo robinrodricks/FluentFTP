@@ -759,6 +759,17 @@ namespace FluentFTP {
 							throw;
 						}
 					}
+					catch (FtpException ex) {
+						// fix: attempting to upload data after we reached the end of the stream
+						// often throws a timeout execption, so we silently absorb that here
+						if (offset >= fileLen && ex.InnerException != null && ex.InnerException is TimeoutException) {
+							break;
+						}
+						else {
+							sw.Stop();
+							throw;
+						}
+					}
 				}
 
 				sw.Stop();
@@ -963,6 +974,17 @@ namespace FluentFTP {
 							var resumeResult = await ResumeUploadAsync(remotePath, upStream, offset, ex);
 							if (resumeResult.Item1) {
 								upStream = resumeResult.Item2;
+							}
+							else {
+								sw.Stop();
+								throw;
+							}
+						}
+						catch (FtpException ex) {
+							// fix: attempting to upload data after we reached the end of the stream
+							// often throws a timeout execption, so we silently absorb that here
+							if (offset >= fileLen && ex.InnerException != null && ex.InnerException is TimeoutException) {
+								break;
 							}
 							else {
 								sw.Stop();
