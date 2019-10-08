@@ -2,6 +2,7 @@
 
 #### 27.1.4
   - Fix: Correctly assume Unix file listing parser for SunOS & Solaris servers
+  - Fix: Safely absorb TimeoutException thrown after the file has fully uploaded/downloaded
 
 #### 27.1.3
   - New: Support detection of Sun OS Solaris FTP OS and server (allows for server specific commands)
