@@ -90,6 +90,27 @@ namespace FluentFTP {
 		/// Sends progress to the user, either a value between 0-100 indicating percentage complete, or -1 for indeterminate.
 		/// </summary>
 		private void ReportProgress(IProgress<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime) {
+
+			//  calculate % done, transfer speed and time remaining
+			FtpProgress status = CalculateProgress(fileSize, position, bytesProcessed, elapsedtime);
+
+			// send progress to parent
+			progress.Report(status);
+		}
+
+		/// <summary>
+		/// Sends progress to the user, either a value between 0-100 indicating percentage complete, or -1 for indeterminate.
+		/// </summary>
+		private void ReportProgress(Action<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime) {
+			
+			//  calculate % done, transfer speed and time remaining
+			FtpProgress status = CalculateProgress(fileSize, position, bytesProcessed, elapsedtime);
+
+			// send progress to parent
+			progress(status);
+		}
+
+		private static FtpProgress CalculateProgress(long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime) {
 			// default values to send
 			double progressValue = -1;
 			double transferSpeed = 0;
@@ -99,7 +120,7 @@ namespace FluentFTP {
 			try {
 				// calculate % based on file length vs file offset
 				// send a value between 0-100 indicating percentage complete
-				progressValue = (double) position / (double) fileSize * 100;
+				progressValue = (double)position / (double)fileSize * 100;
 
 				// calculate raw transferSpeed (bytes per second)
 				transferSpeed = bytesProcessed / elapsedtime.TotalSeconds;
@@ -119,8 +140,8 @@ namespace FluentFTP {
 				transferSpeed = 0;
 			}
 
-			// send progress to parent
-			progress.Report(new FtpProgress(progressValue, transferSpeed, estimatedRemaingTime));
+			var p = new FtpProgress(progressValue, transferSpeed, estimatedRemaingTime);
+			return p;
 		}
 
 		#endregion
