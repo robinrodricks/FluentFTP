@@ -799,9 +799,25 @@ To use this, first create a callback method to provide to the Upload/Download me
 
 If you are creating your UI in WinForms, create a `ProgressBar` with the `Minimum` = 0 and `Maximum` = 100.
 
+*Using the asynchronous API:*
 ```cs
 // Callback method that accepts a FtpProgress object
 Progress<FtpProgress> progress = new Progress<FtpProgress>(x => {
+
+	// When progress in unknown, -1 will be sent
+	if (x.Progress < 0){
+		progressBar.IsIndeterminate = true;
+	}else{
+		progressBar.IsIndeterminate = false;
+		progressBar.Value = x;
+	}
+});
+```
+
+*Using the synchronous API:*
+```cs
+// Callback method that accepts a FtpProgress object
+Action<FtpProgress> progress = new Action<FtpProgress>(x => {
 
 	// When progress in unknown, -1 will be sent
 	if (x.Progress < 0){

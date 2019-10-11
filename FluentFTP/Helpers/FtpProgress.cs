@@ -2,7 +2,7 @@ using System;
 
 namespace FluentFTP {
 	/// <summary>
-	/// Class to report Ftp Transfer Progress (Up and Donwload)
+	/// Class to report FTP file transfer progress during upload or download of files
 	/// </summary>
 	public class FtpProgress {
 		/// <summary>
