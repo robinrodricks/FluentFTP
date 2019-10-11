@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 28.0.0
+  - New: Progress reporting for synchronous methods `Upload`, `Download`, `UploadFile` and `DownloadFile` are now sent via delegates
+  - Fix: Correctly send progress for synchronous methods and retain `IProgress` for async methods
+
 #### 27.1.4
   - Fix: Correctly assume Unix file listing parser for SunOS & Solaris servers
   - Fix: Safely absorb TimeoutException thrown after the file has fully uploaded/downloaded
