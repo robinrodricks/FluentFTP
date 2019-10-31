@@ -757,10 +757,10 @@ namespace FluentFTP {
 							throw;
 						}
 					}
-					catch (FtpException ex) {
+					catch (TimeoutException ex) {
 						// fix: attempting to upload data after we reached the end of the stream
 						// often throws a timeout execption, so we silently absorb that here
-						if (offset >= fileLen && ex.InnerException != null && ex.InnerException is TimeoutException) {
+						if (offset >= fileLen) {
 							break;
 						}
 						else {
@@ -978,10 +978,10 @@ namespace FluentFTP {
 							throw;
 						}
 					}
-					catch (FtpException ex) {
+					catch (TimeoutException ex) {
 						// fix: attempting to upload data after we reached the end of the stream
 						// often throws a timeout execption, so we silently absorb that here
-						if (offset >= fileLen && ex.InnerException != null && ex.InnerException is TimeoutException) {
+						if (offset >= fileLen) {
 							break;
 						}
 						else {
