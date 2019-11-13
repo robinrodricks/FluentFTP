@@ -571,7 +571,9 @@ namespace FluentFTP {
 			response = reply.Message;
 			foreach (var responsePrefix in new[] { path, $@"""{path}""" })
 			{
-				if (!response.StartsWith(responsePrefix)) continue;
+				if (!response.StartsWith(responsePrefix)) {
+					continue;
+				}
 
 				response = response.Remove(0, responsePrefix.Length).Trim();
 				break;
