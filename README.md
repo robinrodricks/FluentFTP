@@ -1343,12 +1343,12 @@ public void InitSFTP(){
 
     FluentFTP.FtpClient client = new FluentFTP.FtpClient("WWW.MYSITE.COM", "USER", "PASS");
     X509Certificate2 cert_grt = new X509Certificate2("C:\mycert.xyz"); 
-    conn.EncryptionMode = FtpEncryptionMode.Explicit; 
-    conn.DataConnectionType = FtpDataConnectionType.PASV; 
-    conn.DataConnectionEncryption = true; 
-    conn.ClientCertificates.Add(cert_grt); 
-    conn.ValidateCertificate += new FtpSslValidation(OnValidateCertificate); 
-    conn.Connect();
+    client.EncryptionMode = FtpEncryptionMode.Explicit; 
+    client.DataConnectionType = FtpDataConnectionType.PASV; 
+    client.DataConnectionEncryption = true; 
+    client.ClientCertificates.Add(cert_grt); 
+    client.ValidateCertificate += new FtpSslValidation(OnValidateCertificate); 
+    client.Connect();
 }       
 
 private void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e)
