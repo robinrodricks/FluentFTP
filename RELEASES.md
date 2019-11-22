@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 28.0.2
+  - Fix: Verification of the MD5 Hash when file name contains spaces (thanks [Nimelo](/Nimelo))
+
 #### 28.0.1
   - Fix: Safely absorb TimeoutException thrown after the file has fully uploaded/downloaded
 
