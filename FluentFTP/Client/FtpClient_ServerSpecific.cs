@@ -365,6 +365,12 @@ namespace FluentFTP {
 		/// </summary>
 		public bool RecursiveList {
 			get {
+
+				// If the user has confirmed support on his server, return true
+				if (_RecursiveListSupported) {
+					return true;
+				}
+
 				// Has support, per https://download.pureftpd.org/pub/pure-ftpd/doc/README
 				if (ServerType == FtpServer.PureFTPd) {
 					return true;
@@ -393,7 +399,11 @@ namespace FluentFTP {
 				// Unknown, so assume server does not support recursive listing
 				return false;
 			}
-			set { }
+			set {
+				// You can always set this property if you are sure about
+				// your server's support for recursive listing
+				_RecursiveListSupported = value;
+			}
 		}
 
 		#endregion

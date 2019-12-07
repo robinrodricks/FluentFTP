@@ -25,12 +25,19 @@ namespace FluentFTP {
 		private bool _FileSizeASCIINotSupported = false;
 
 		/// <summary>
+		/// Used to improve performance of GetListing.
+		/// You can set this to true by setting the RecursiveList property.
+		/// </summary>
+		private bool _RecursiveListSupported = false;
+
+		/// <summary>
 		/// These flags must be reset every time we connect, to allow for users to connect to
 		/// different FTP servers with the same client object.
 		/// </summary>
 		private void ResetStateFlags() {
 			_EPSVNotSupported = false;
 			_FileSizeASCIINotSupported = false;
+			_RecursiveListSupported = false;
 		}
 
 		/// <summary>
@@ -39,6 +46,7 @@ namespace FluentFTP {
 		private void CopyStateFlags(FtpClient original) {
 			_EPSVNotSupported = original._EPSVNotSupported;
 			_FileSizeASCIINotSupported = original._FileSizeASCIINotSupported;
+			_RecursiveListSupported = original._RecursiveListSupported;
 		}
 
 		#endregion
