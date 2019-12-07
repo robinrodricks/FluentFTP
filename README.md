@@ -485,7 +485,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
   
   - **TimeOffset** - Time difference between server and client, in hours. If the server is located in Amsterdam and you are in Los Angeles then the time difference is 9 hours. **Default:** 0.
   
-  - **RecursiveList** - Check if your server supports a recursive LIST command (`LIST -R`).
+  - **RecursiveList** - Uses predefined logic to check if your server supports a recursive LIST command. Set this to `true` if you are sure your server supports recursive listing. (`LIST -R`).
   
   - **BulkListing** - If true, increases performance of GetListing by reading multiple lines of the file listing at once. If false then GetListing will read file listings line-by-line. If GetListing is having issues with your server, set it to false. **Default:** true.
   
