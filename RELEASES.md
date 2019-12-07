@@ -2,6 +2,7 @@
 
 #### 28.0.3
   - New: Override the server-specific recursive LIST detection by setting `RecursiveList`
+  - Fix typo in IP parsing regex that causes fallback to Host IP to fail (thanks Andy Whitfield)
 
 #### 28.0.2
   - Fix: Verification of the MD5 Hash when file name contains spaces (thanks [Nimelo](/Nimelo))
