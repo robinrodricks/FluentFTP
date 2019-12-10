@@ -1045,12 +1045,16 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="e">Event Args</param>
 		private void OnValidateCertficate(FtpSslValidationEventArgs e) {
-			FtpSslValidation evt;
 
-			evt = m_sslvalidate;
-			if (evt != null) {
-				evt(this, e);
+			// automatically validate if ValidateAnyCertificate is set
+			if (ValidateAnyCertificate) {
+				e.Accept = true;
+				return;
 			}
+
+			// fallback to manual validation using the ValidateCertificate event
+			m_ValidateCertificate?.Invoke(this, e);
+
 		}
 
 		#endregion

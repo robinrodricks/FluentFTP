@@ -502,12 +502,10 @@ namespace FluentFTP {
 		}
 #endif
 
-#if CORE
+#if CORE || NET45PLUS
 		private SslProtocols m_SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
-
 #else
 		private SslProtocols m_SslProtocols = SslProtocols.Default;
-
 #endif
 		/// <summary>
 		/// Encryption protocols to use. Only valid if EncryptionMode property is not equal to <see cref="FtpEncryptionMode.None"/>.
@@ -528,19 +526,32 @@ namespace FluentFTP {
 			set => m_SslBuffering = value;
 		}
 
-		private FtpSslValidation m_sslvalidate = null;
+		private FtpSslValidation m_ValidateCertificate = null;
 
 		/// <summary>
 		/// Event is fired to validate SSL certificates. If this event is
 		/// not handled and there are errors validating the certificate
 		/// the connection will be aborted.
+		/// Not fired if ValidateAnyCertificate is set to true.
 		/// </summary>
 		/// <example><code source="..\Examples\ValidateCertificate.cs" lang="cs" /></example>
 		public event FtpSslValidation ValidateCertificate {
-			add => m_sslvalidate += value;
-			remove => m_sslvalidate -= value;
+			add => m_ValidateCertificate += value;
+			remove => m_ValidateCertificate -= value;
 		}
 
+		private bool m_ValidateAnyCertificate = false;
+
+		/// <summary>
+		/// Accept any SSL certificate received from the server and skip performing
+		/// the validation using the ValidateCertificate callback.
+		/// Useful for Powershell users.
+		/// </summary>
+		/// <example><code source="..\Examples\ValidateCertificate.cs" lang="cs" /></example>
+		public bool ValidateAnyCertificate {
+			get => m_ValidateAnyCertificate;
+			set => m_ValidateAnyCertificate = value;
+		}
 
 		private string m_systemType = "UNKNOWN";
 
