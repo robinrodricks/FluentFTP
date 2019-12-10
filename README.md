@@ -458,6 +458,8 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
   
   - **ValidateCertificate** - Event is fired to validate SSL certificates. If this event is not handled and there are errors validating the certificate the connection will be aborted.
   
+  - **ValidateAnyCertificate** - Accept any SSL certificate received from the server and skip performing the validation using the `ValidateCertificate` callback. Useful for Powershell users. **Default:** false.
+  
   - **PlainTextEncryption** - Disable encryption immediately after connecting with FTPS, using the CCC command. This is useful when you have a FTP firewall that requires plaintext FTP, but your server mandates FTPS connections. **Default:** false.
 
 

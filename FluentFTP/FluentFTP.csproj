@@ -21,8 +21,12 @@
     <DefineConstants>$(DefineConstants);CORE14;NO_SSL</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net45' Or $(DefineConstants.Contains('CORE'))">
+  <PropertyGroup Condition="'$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net50' Or $(DefineConstants.Contains('CORE'))">
     <DefineConstants>$(DefineConstants);ASYNC</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net50'">
+    <DefineConstants>$(DefineConstants);NET45PLUS</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -34,11 +38,11 @@
     <PackageProjectUrl>https://github.com/robinrodricks/FluentFTP</PackageProjectUrl>
     <Copyright>MIT License</Copyright>
     <PackageTags>ftp,ftp-client,ftps,ssl,tls,unix,iis</PackageTags>
-    <VersionPrefix>28.0.3</VersionPrefix>
+    <VersionPrefix>28.0.4</VersionPrefix>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
-    <Version>28.0.3</Version>
+    <Version>28.0.4</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">

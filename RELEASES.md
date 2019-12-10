@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 28.0.4
+  - New: `ValidateAnyCertificate` property to validate any received server certificate, useful for Powershell
+  - Fix: Default SSL protocol used in .NET 4.5+ release is now TLS 1.2 (latest supported protocol)
+
 #### 28.0.3
   - New: Override the server-specific recursive LIST detection by setting `RecursiveList`
   - Fix typo in IP parsing regex that causes fallback to Host IP to fail (thanks Andy Whitfield)
