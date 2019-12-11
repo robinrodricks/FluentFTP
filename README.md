@@ -460,6 +460,8 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
   
   - **ValidateAnyCertificate** - Accept any SSL certificate received from the server and skip performing the validation using the `ValidateCertificate` callback. Useful for Powershell users. **Default:** false.
   
+  - **ValidateCertificateRevocation** - Indicates if the certificate revocation list is checked during authentication. Useful when you need to maintain the certificate chain validation, but skip the certificate revocation check. **Default:** true.
+  
   - **PlainTextEncryption** - Disable encryption immediately after connecting with FTPS, using the CCC command. This is useful when you have a FTP firewall that requires plaintext FTP, but your server mandates FTPS connections. **Default:** false.
 
 

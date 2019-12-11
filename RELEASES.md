@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 28.0.5
+  - New: `ValidateCertificateRevocation` property to control if certificate revocation is checked.
+
 #### 28.0.4
   - New: `ValidateAnyCertificate` property to validate any received server certificate, useful for Powershell
   - Fix: Default SSL protocol used in .NET 4.5+ release is now TLS 1.2 (latest supported protocol)
