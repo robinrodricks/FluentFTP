@@ -207,6 +207,7 @@ Help on each command can be printed by running these commands in Powershell:
   - [How do I auto-connect to an FTP or FTPS server?](#faq_autoconnect)
   - [How do I connect with SSL/TLS? / How do I use FTPS?](#faq_ftps)
   - [How do I validate the server's certificate when using FTPS?](#faq_ftps)
+  - [How do I connect to Azure using SSL/TLS?](#faq_azure)
   - [How do I connect with FTPS and then switch back down to plaintext FTP?](#faq_ccc)
   - [How do I connect with SFTP?](#faq_sftp)
   - [How do I login with an anonymous FTP account?](#faq_loginanon)
@@ -758,6 +759,19 @@ client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSsl
 });
 ```
 
+
+--------------------------------------------------------
+<a name="faq_azure"></a>
+**How do I connect to Azure using SSL/TLS?**
+
+Assuming you are using FTP publishing service on an Azure App Service instance.
+
+If you have issues connecting to Azure, ensure you are *not* using "FTPS Only". As per the [Azure documentation](https://docs.microsoft.com/en-gb/azure/app-service/deploy-ftp), "FTPS Only" does not support TLS 1.0 and 1.1 and this might break connectivity when trying to use FluentFTP with older versions of Windows. So when you try to connect to an Azure FTP instance that is blocking TLS 1.1 the connection silently fails because it only accepts TLS 1.2.
+
+After changing the settings to allow insecure FTP, you can connect with FTPS using both Explicit and Implicit SSL modes.
+
+
+
 --------------------------------------------------------
 <a name="faq_ccc"></a>
 **How do I connect with FTPS and then switch back down to plaintext FTP?**
@@ -775,6 +789,7 @@ client.PlainTextEncryption = true;
 **How do I connect with SFTP?**
 
 SFTP is not supported as it is FTP over SSH, a completely different protocol. Use [SSH.NET](https://github.com/sshnet/SSH.NET) for that.
+
 
 
 --------------------------------------------------------
