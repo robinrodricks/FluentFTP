@@ -547,10 +547,21 @@ namespace FluentFTP {
 		/// the validation using the ValidateCertificate callback.
 		/// Useful for Powershell users.
 		/// </summary>
-		/// <example><code source="..\Examples\ValidateCertificate.cs" lang="cs" /></example>
 		public bool ValidateAnyCertificate {
 			get => m_ValidateAnyCertificate;
 			set => m_ValidateAnyCertificate = value;
+		}
+
+		private bool m_ValidateCertificateRevocation = true;
+
+		/// <summary>
+		/// Indicates if the certificate revocation list is checked during authentication.
+		/// Useful when you need to maintain the certificate chain validation,
+		/// but skip the certificate revocation check.
+		/// </summary>
+		public bool ValidateCertificateRevocation {
+			get => m_ValidateCertificateRevocation;
+			set => m_ValidateCertificateRevocation = value;
 		}
 
 		private string m_systemType = "UNKNOWN";

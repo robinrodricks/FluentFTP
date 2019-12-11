@@ -1066,9 +1066,9 @@ namespace FluentFTP {
 				auth_start = DateTime.Now;
 				try {
 #if CORE
-					m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, true).Wait();
+					m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.ValidateCertificateRevocation).Wait();
 #else
-					m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, true);
+					m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, Client.ValidateCertificateRevocation);
 #endif
 				}
 				catch (IOException ex) {
