@@ -56,7 +56,7 @@ param(
             {
 				if ($item.Name -like $ftpFileName)
 				{
-					Write-Host "$item"
+					Write-Output "$item"
 				}
             }
         }
@@ -70,7 +70,7 @@ param(
     }
     catch
     {
-        Write-Host $_.Exception|format-list -force
+        Write-Output $_.Exception|format-list -force
        
     }
 }
@@ -153,12 +153,12 @@ param(
                 $result = $client.Rename($oldPath, $newPath)
                 if ($result)
                 {
-                    Write-Host "$oldPath successfully renamed to $newPath"
+                    Write-Output "$oldPath successfully renamed to $newPath"
                 }
             }
             else
             {
-                Write-Host "$oldPath is not found on server"
+                Write-Output "$oldPath is not found on server"
             }
         }
         finally
@@ -263,11 +263,11 @@ param(
                 }
                 $result = $client.UploadFile($filePath, $ftpPath)
                 $filesUploaded = $true
-                Write-Host "$filePath successfully copied to $ftpPath"
+                Write-Output "$filePath successfully copied to $ftpPath"
             }
             if (!$filesUploaded)
             {
-                Write-Host "No files matching $FtpFileName were found"
+                Write-Output "No files matching $FtpFileName were found"
             }
         }
         finally
@@ -361,17 +361,17 @@ param(
 					if ($client.DownloadFile($localFile, $fileOnly))
 					{
                         $filesDownloaded = $true
-						Write-Host ("$fileOnly successfully downloaded to $localFile" )
+						Write-Output ("$fileOnly successfully downloaded to $localFile" )
 					}
 					else
 					{
-						Write-Host ("Unable to download $fileOnly to $localFile" )
+						Write-Output ("Unable to download $fileOnly to $localFile" )
 					}
 				}
             }
             if (!$filesDownloaded)
             {
-                Write-Host "Attempting to download files matching $ftpFileName. No files were found"
+                Write-Output "Attempting to download files matching $ftpFileName. No files were found"
             }
         }    
         finally
@@ -450,12 +450,12 @@ param(
 				{
                     $filesDeleted = $true
 					$success = $client.DeleteFile($fileOnly)
-					Write-Host "$fileOnly successfully deleted"
+					Write-Output "$fileOnly successfully deleted"
 				}
             }
             if (!$filesDeleted)
             {
-                Write-Host "No files matching $ftpFileName were found on the FTP server"
+                Write-Output "No files matching $ftpFileName were found on the FTP server"
             }
         }    
         finally
