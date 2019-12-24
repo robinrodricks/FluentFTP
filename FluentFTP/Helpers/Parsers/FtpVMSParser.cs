@@ -77,11 +77,11 @@ namespace FluentFTP.Helpers.Parsers {
 					semiColonName = true;
 				}
 
-				if (record.IndexOf('[') > 0) {
+				if (record.Contains('[')) {
 					squareBracketStart = true;
 				}
 
-				if (record.IndexOf(']') > 0) {
+				if (record.Contains(']')) {
 					squareBracketEnd = true;
 				}
 			}

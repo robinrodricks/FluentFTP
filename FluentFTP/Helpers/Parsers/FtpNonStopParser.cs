@@ -21,7 +21,7 @@ namespace FluentFTP.Helpers.Parsers {
 		}
 
 		private static bool IsHeader(string line) {
-			if (line.IndexOf("Code") > 0 && line.IndexOf("EOF") > 0 && line.IndexOf("RWEP") > 0) {
+			if (line.Contains("Code") && line.Contains("EOF") && line.Contains("RWEP")) {
 				return true;
 			}
 
