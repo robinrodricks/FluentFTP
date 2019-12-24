@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace FluentFTP {
 	/// <summary>
@@ -112,15 +113,15 @@ namespace FluentFTP {
 
 				try {
 					byte[] data = null;
-					var hash = "";
+					var hash = new StringBuilder();
 
 					data = hashAlg.ComputeHash(istream);
 					if (data != null) {
 						foreach (var b in data) {
-							hash += b.ToString("x2");
+							hash.Append(b.ToString("x2"));
 						}
 
-						return hash.ToUpper() == m_value.ToUpper();
+						return hash.ToString().ToUpper() == m_value.ToUpper();
 					}
 				}
 				finally {

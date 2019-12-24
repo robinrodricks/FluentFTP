@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP.Helpers.Parsers {
-	internal class FtpUnixParser {
+	internal static class FtpUnixParser {
 		/// <summary>
 		/// Parses LIST format listings
 		/// </summary>
@@ -427,30 +427,50 @@ namespace FluentFTP.Helpers.Parsers {
 			var field = values[index++];
 			if (field.IndexOf((char) ':') < 0 && field.IndexOf((char) '.') < 0) {
 				stamp.Append(field); // year
-				try {
-					lastModified = DateTime.ParseExact(stamp.ToString(), DateTimeFormats1, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
-				}
-				catch (FormatException) {
-					client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
-				}
+				lastModified = ParseYear(client, stamp, DateTimeFormats1);
 			}
 			else {
 				// add the year ourselves as not present
 				var year = client.ListingCulture.Calendar.GetYear(DateTime.Now);
 				stamp.Append(year).Append('-').Append(field);
-				try {
-					lastModified = DateTime.ParseExact(stamp.ToString(), DateTimeFormats2, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
-				}
-				catch (FormatException) {
-					client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
-				}
-
-				// can't be in the future - must be the previous year
-				// add 2 days for time zones (thanks hgfischer)
-				if (lastModified > DateTime.Now.AddDays(2)) {
-					lastModified = lastModified.AddYears(-1);
-				}
+				lastModified = ParseDateTime(client, stamp, DateTimeFormats2);
 			}
+		}
+
+		/// <summary>
+		/// Parses the last modified year from Unix format listings
+		/// </summary>
+		private static DateTime ParseYear(FtpClient client, StringBuilder stamp, string[] format) {
+			var lastModified = DateTime.MinValue;
+			try {
+				lastModified = DateTime.ParseExact(stamp.ToString(), format, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
+			}
+			catch (FormatException) {
+				client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
+			}
+
+			return lastModified;
+		}
+
+		/// <summary>
+		/// Parses the last modified date from Unix format listings
+		/// </summary>
+		private static DateTime ParseDateTime(FtpClient client, StringBuilder stamp, string[] format) {
+			var lastModified = DateTime.MinValue;
+			try {
+				lastModified = DateTime.ParseExact(stamp.ToString(), format, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
+			}
+			catch (FormatException) {
+				client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
+			}
+
+			// can't be in the future - must be the previous year
+			// add 2 days for time zones
+			if (lastModified > DateTime.Now.AddDays(2)) {
+				lastModified = lastModified.AddYears(-1);
+			}
+
+			return lastModified;
 		}
 
 		/// <summary>
@@ -530,29 +550,13 @@ namespace FluentFTP.Helpers.Parsers {
 			var field = values[index++];
 			if (field.IndexOf((char) ':') < 0) {
 				stamp.Append(field); // year
-				try {
-					lastModified = DateTime.ParseExact(stamp.ToString(), DateTimeAltFormats1, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
-				}
-				catch (FormatException) {
-					client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
-				}
+				lastModified = ParseYear(client, stamp, DateTimeAltFormats1);
 			}
 			else {
 				// add the year ourselves as not present
 				var year = client.ListingCulture.Calendar.GetYear(DateTime.Now);
 				stamp.Append(year).Append('-').Append(field);
-				try {
-					lastModified = DateTime.ParseExact(stamp.ToString(), DateTimeAltFormats2, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
-				}
-				catch (FormatException) {
-					client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
-				}
-
-				// can't be in the future - must be the previous year
-				// add 2 days for time zones (thanks hgfischer)
-				if (lastModified > DateTime.Now.AddDays(2)) {
-					lastModified = lastModified.AddYears(-1);
-				}
+				lastModified = ParseDateTime(client, stamp, DateTimeAltFormats2);
 			}
 
 			// name of file or dir. Extract symlink if possible

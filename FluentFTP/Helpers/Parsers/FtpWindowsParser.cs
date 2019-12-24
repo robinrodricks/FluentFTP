@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP.Helpers.Parsers {
-	internal class FtpWindowsParser {
+	internal static class FtpWindowsParser {
 		/// <summary>
 		/// Parses IIS/DOS format listings
 		/// </summary>
@@ -185,15 +185,15 @@ namespace FluentFTP.Helpers.Parsers {
 		/// Parses the last modified date from IIS/DOS format listings
 		/// </summary>
 		private static DateTime ParseDateTime(FtpClient client, string lastModifiedStr) {
-			var lastModified = DateTime.MinValue;
 			try {
-				lastModified = DateTime.ParseExact(lastModifiedStr, DateTimeFormats, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
+				var lastModified = DateTime.ParseExact(lastModifiedStr, DateTimeFormats, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
+				return lastModified;
 			}
 			catch (FormatException) {
 				client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
 			}
 
-			return lastModified;
+			return DateTime.MinValue;
 		}
 
 		#region Constants

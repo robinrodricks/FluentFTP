@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP.Helpers.Parsers {
-	internal class FtpVMSParser {
+	internal static class FtpVMSParser {
 		/// <summary>
 		/// Parses Vax/VMS format listings
 		/// </summary>
@@ -42,8 +42,7 @@ namespace FluentFTP.Helpers.Parsers {
 
 				item.Size = itemSize;
 
-				var itemModified = DateTime.MinValue;
-
+				DateTime itemModified;
 				if (!DateTime.TryParse(m.Groups["modify"].Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out itemModified)) {
 					itemModified = DateTime.MinValue;
 				}
@@ -266,15 +265,15 @@ namespace FluentFTP.Helpers.Parsers {
 			var lastModifiedStr = sb.ToString();
 
 			// parse it into a date/time object
-			var lastModified = DateTime.MinValue;
 			try {
-				lastModified = DateTime.Parse(lastModifiedStr, client.ListingCulture.DateTimeFormat);
+				var lastModified = DateTime.Parse(lastModifiedStr, client.ListingCulture.DateTimeFormat);
+				return lastModified;
 			}
 			catch (FormatException) {
 				client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
 			}
 
-			return lastModified;
+			return DateTime.MinValue;
 		}
 
 		#region Constants

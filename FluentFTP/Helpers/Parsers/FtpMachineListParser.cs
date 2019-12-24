@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 #endif
 namespace FluentFTP.Helpers.Parsers {
-	internal class FtpMachineListParser {
+	internal static class FtpMachineListParser {
 		/// <summary>
 		/// Parses MLSD/MLST format listings
 		/// </summary>

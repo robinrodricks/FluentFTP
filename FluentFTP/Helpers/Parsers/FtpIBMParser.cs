@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP.Helpers.Parsers {
-	internal class FtpIBMParser {
+	internal static class FtpIBMParser {
 		private static int formatIndex = 0;
 
 		/// <summary>

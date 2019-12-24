@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP.Helpers.Parsers {
-	internal class FtpNonStopParser {
+	internal static class FtpNonStopParser {
 		/// <summary>
 		/// Checks if the given listing is a valid NonStop file listing
 		/// </summary>
@@ -85,15 +85,14 @@ namespace FluentFTP.Helpers.Parsers {
 		/// Parses the last modified date from NonStop format listings
 		/// </summary>
 		private static DateTime ParseDateTime(FtpClient client, string lastModifiedStr) {
-			var lastModified = DateTime.MinValue;
 			try {
-				lastModified = DateTime.ParseExact(lastModifiedStr, DateTimeFormats, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
+				var lastModified = DateTime.ParseExact(lastModifiedStr, DateTimeFormats, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
+				return lastModified;
 			}
 			catch (FormatException) {
 				client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
 			}
-
-			return lastModified;
+			return DateTime.MinValue;
 		}
 
 		#region Constants

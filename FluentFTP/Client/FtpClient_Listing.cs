@@ -58,13 +58,13 @@ namespace FluentFTP {
 				if ((reply = Execute("MLST " + path)).Success) {
 					res = reply.InfoMessages.Split('\n');
 					if (res.Length > 1) {
-						var info = "";
+						var info = new StringBuilder();
 
 						for (var i = 1; i < res.Length; i++) {
-							info += res[i];
+							info.Append(res[i]);
 						}
 
-						result = m_listParser.ParseSingleLine(null, info, m_capabilities, true);
+						result = m_listParser.ParseSingleLine(null, info.ToString(), m_capabilities, true);
 					}
 				}
 				else {
