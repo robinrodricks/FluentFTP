@@ -62,7 +62,8 @@ namespace FluentFTP {
 
 				// Detect WuFTPd server
 				// Welcome message: "FTP server (Revision 9.0 Version wuftpd-2.6.1 Mon Jun 30 09:28:28 GMT 2014) ready"
-				else if (welcome.Contains(" wuftpd")) {
+				// Welcome message: "220 DH FTP server (Version wu-2.6.2-5) ready"
+				else if (welcome.Contains("Version wuftpd") || welcome.Contains("Version wu-")) {
 					m_serverType = FtpServer.WuFTPd;
 				}
 
