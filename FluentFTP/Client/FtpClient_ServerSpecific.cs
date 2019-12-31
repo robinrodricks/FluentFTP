@@ -135,10 +135,16 @@ namespace FluentFTP {
 				}
 
 				// Detect Tandem/NonStop server
-				// Welcome message: "220 tdm-QWERTY-fp00.itc.intranet FTP SERVER T9552H02 (Version H02 TANDEM 11SEP2008) ready."
+				// Welcome message: "220 mysite.com FTP SERVER T9552H02 (Version H02 TANDEM 11SEP2008) ready."
 				// Welcome message: "220 FTP SERVER T9552G08 (Version G08 TANDEM 15JAN2008) ready."
 				else if (welcome.Contains("FTP SERVER ") && welcome.Contains(" TANDEM ")) {
 					m_serverType = FtpServer.NonStopTandem;
+				}
+
+				// Detect IBM z/OS server
+				// Welcome message: "220-FTPD1 IBM FTP CS V2R3 at mysite.gov, 16:51:54 on 2019-12-12."
+				else if (welcome.Contains("IBM FTP CS")) {
+					m_serverType = FtpServer.IBMzOSFTP;
 				}
 
 				// trace it
@@ -171,6 +177,11 @@ namespace FluentFTP {
 			else if (system.Contains("OS/400")) {
 				// IBM OS/400
 				m_serverOS = FtpOperatingSystem.IBMOS400;
+			}
+			else if (system.Contains("Z/OS")) {
+				// IBM OS/400
+				// Syst message: "215 MVS is the operating system of this server. FTP Server is running on z/OS."
+				m_serverOS = FtpOperatingSystem.IBMzOS;
 			}
 			else if (system.Contains("SUNOS")) {
 				// SUN OS

@@ -105,5 +105,10 @@ namespace FluentFTP {
 		/// Definitely Sun OS Solaris FTP server
 		/// </summary>
 		SolarisFTP,
+
+		/// <summary>
+		/// Definitely IBM z/OS FTP server
+		/// </summary>
+		IBMzOSFTP,
 	}
 }

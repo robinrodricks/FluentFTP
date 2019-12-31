@@ -87,7 +87,7 @@ namespace FluentFTP {
 			else if (system == FtpOperatingSystem.VMS) {
 				CurrentParser = FtpParser.VMS;
 			}
-			else if (system == FtpOperatingSystem.IBMOS400) {
+			else if (system == FtpOperatingSystem.IBMOS400 || system == FtpOperatingSystem.IBMzOS) {
 				CurrentParser = FtpParser.IBM;
 			}
 			else {

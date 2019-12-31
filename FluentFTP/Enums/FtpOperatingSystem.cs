@@ -31,6 +31,11 @@ namespace FluentFTP {
 		IBMOS400,
 
 		/// <summary>
+		/// Definitely IBM z/OS server
+		/// </summary>
+		IBMzOS,
+
+		/// <summary>
 		/// Definitely SUN OS/Solaris server
 		/// </summary>
 		SunOS,
