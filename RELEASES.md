@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 28.0.6
+  - New: Support detection of IBM z/OS and MVS FTP OS and server (allows for server specific commands)
+  
 #### 28.0.5
   - New: `ValidateCertificateRevocation` property to control if certificate revocation is checked.
 
