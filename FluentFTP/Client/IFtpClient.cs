@@ -24,6 +24,7 @@ namespace FluentFTP {
 
 		bool IsDisposed { get; }
 		FtpIpVersion InternetProtocolVersions { get; set; }
+		int NoopInterval { get; set; }
 		int SocketPollInterval { get; set; }
 		bool StaleDataCheck { get; set; }
 		bool IsConnected { get; }

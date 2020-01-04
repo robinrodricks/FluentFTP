@@ -172,6 +172,7 @@ namespace FluentFTP {
 			conn.SocketPollInterval = SocketPollInterval;
 			conn.StaleDataCheck = StaleDataCheck;
 			conn.EnableThreadSafeDataConnections = EnableThreadSafeDataConnections;
+			conn.NoopInterval = NoopInterval;
 			conn.Encoding = Encoding;
 			conn.Host = Host;
 			conn.Port = Port;

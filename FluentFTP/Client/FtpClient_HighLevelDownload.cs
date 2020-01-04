@@ -643,6 +643,9 @@ namespace FluentFTP {
 
 				var transferStarted = DateTime.Now;
 				var sw = new Stopwatch();
+
+				var anyNoop = false;
+
 				while (offset < fileLen || readToEnd) {
 					try {
 						// read a chunk of bytes from the FTP stream
@@ -661,6 +664,11 @@ namespace FluentFTP {
 							// send progress reports
 							if (progress != null) {
 								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted);
+							}
+
+							// Fix #387: keep alive with NOOP as configured and needed
+							if (!m_threadSafeDataChannels) {
+								anyNoop = Noop();
 							}
 
 							// honor the rate limit
@@ -719,8 +727,15 @@ namespace FluentFTP {
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
-				if (!m_threadSafeDataChannels) {
+				while (!m_threadSafeDataChannels) {
 					var status = GetReply();
+
+					// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
+					if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
+						continue;
+					}
+
+					break;
 				}
 
 				return true;
@@ -788,6 +803,8 @@ namespace FluentFTP {
 				var transferStarted = DateTime.Now;
 				var sw = new Stopwatch();
 
+				var anyNoop = false;
+
 				while (offset < fileLen || readToEnd) {
 					try {
 						// read a chunk of bytes from the FTP stream
@@ -806,6 +823,11 @@ namespace FluentFTP {
 							// send progress reports
 							if (progress != null) {
 								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted);
+							}
+
+							// Fix #387: keep alive with NOOP as configured and needed
+							if (!m_threadSafeDataChannels) {
+								anyNoop = Noop();
 							}
 
 							// honor the rate limit
@@ -864,8 +886,15 @@ namespace FluentFTP {
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
-				if (!m_threadSafeDataChannels) {
+				while (!m_threadSafeDataChannels) {
 					FtpReply status = await GetReplyAsync(token);
+
+					// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
+					if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
+						continue;
+					}
+
+					break;
 				}
 
 				return true;

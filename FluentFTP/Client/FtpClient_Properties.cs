@@ -177,6 +177,21 @@ namespace FluentFTP {
 			set => m_threadSafeDataChannels = value;
 		}
 
+		private int m_noopInterval = 0;
+
+		/// <summary>
+		/// Gets or sets the length of time in milliseconds after last command
+		/// (NOOP or other) that a NOOP command is sent by <see cref="Noop"/>.
+		/// This is called during downloading/uploading if
+		/// <see cref="EnableThreadSafeDataConnections"/> is false. Setting this
+		/// interval to 0 disables <see cref="o:Noop"/> all together.
+		/// The default value is 0 (disabled).
+		/// </summary>
+		public int NoopInterval {
+			get => m_noopInterval;
+			set => m_noopInterval = value;
+		}
+
 		private bool m_checkCapabilities = true;
 
 		/// <summary>
