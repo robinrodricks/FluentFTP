@@ -178,7 +178,7 @@ namespace FluentFTP {
 		/// <returns>true if NOOP command was sent</returns>
 		public bool Noop() {
 			if (DateTime.Now.Subtract(m_lastCommand).TotalMilliseconds > m_noopInterval) {
-				LogLine(FtpTraceLevel.Verbose, "KeepLive: NOOP");
+				LogLine(FtpTraceLevel.Verbose, "Command:  NOOP");
 
 				m_stream.WriteLine(m_textEncoding, "NOOP");
 				m_lastCommand = DateTime.Now;
@@ -199,7 +199,7 @@ namespace FluentFTP {
 		/// <returns>true if NOOP command was sent</returns>
 		private async Task<bool> NoopAsync(CancellationToken token) {
 			if (DateTime.Now.Subtract(m_lastCommand).TotalMilliseconds > m_noopInterval) {
-				LogLine(FtpTraceLevel.Verbose, "KeepLive: NOOP");
+				LogLine(FtpTraceLevel.Verbose, "Command:  NOOP");
 
 				await m_stream.WriteLineAsync(m_textEncoding, "NOOP", token);
 				m_lastCommand = DateTime.Now;
