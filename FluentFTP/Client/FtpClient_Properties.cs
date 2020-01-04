@@ -184,7 +184,7 @@ namespace FluentFTP {
 		/// (NOOP or other) that a NOOP command is sent by <see cref="Noop"/>.
 		/// This is called during downloading/uploading if
 		/// <see cref="EnableThreadSafeDataConnections"/> is false. Setting this
-		/// interval to 0 disables <see cref="o:Noop"/> all together.
+		/// interval to 0 disables <see cref="Noop"/> all together.
 		/// The default value is 0 (disabled).
 		/// </summary>
 		public int NoopInterval {
