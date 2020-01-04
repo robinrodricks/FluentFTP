@@ -32,7 +32,7 @@ namespace FluentFTP {
 		/// When last command was sent (NOOP or other), for having <see cref="Noop"/>
 		/// respect the <see cref="NoopInterval"/>.
 		/// </summary>
-		private DateTime m_lastCommand;
+		private DateTime m_lastCommandUtc;
 
 		/// <summary>
 		/// Executes a command
@@ -76,7 +76,7 @@ namespace FluentFTP {
 
 				// send command to FTP server
 				m_stream.WriteLine(m_textEncoding, command);
-				m_lastCommand = DateTime.Now;
+				m_lastCommandUtc = DateTime.UtcNow;
 				reply = GetReply();
 #if !CORE14
 			}
@@ -163,7 +163,7 @@ namespace FluentFTP {
 
 			// send command to FTP server
 			await m_stream.WriteLineAsync(m_textEncoding, command, token);
-			m_lastCommand = DateTime.Now;
+			m_lastCommandUtc = DateTime.UtcNow;
 			reply = await GetReplyAsync(token);
 
 			return reply;
@@ -177,11 +177,11 @@ namespace FluentFTP {
 		/// </summary>
 		/// <returns>true if NOOP command was sent</returns>
 		public bool Noop() {
-			if (m_noopInterval > 0 && DateTime.Now.Subtract(m_lastCommand).TotalMilliseconds > m_noopInterval) {
+			if (m_noopInterval > 0 && DateTime.UtcNow.Subtract(m_lastCommandUtc).TotalMilliseconds > m_noopInterval) {
 				LogLine(FtpTraceLevel.Verbose, "Command:  NOOP");
 
 				m_stream.WriteLine(m_textEncoding, "NOOP");
-				m_lastCommand = DateTime.Now;
+				m_lastCommandUtc = DateTime.UtcNow;
 
 				return true;
 			}
@@ -198,11 +198,11 @@ namespace FluentFTP {
 		/// <param name="token"></param>
 		/// <returns>true if NOOP command was sent</returns>
 		private async Task<bool> NoopAsync(CancellationToken token) {
-			if (m_noopInterval > 0 && DateTime.Now.Subtract(m_lastCommand).TotalMilliseconds > m_noopInterval) {
+			if (m_noopInterval > 0 && DateTime.UtcNow.Subtract(m_lastCommandUtc).TotalMilliseconds > m_noopInterval) {
 				LogLine(FtpTraceLevel.Verbose, "Command:  NOOP");
 
 				await m_stream.WriteLineAsync(m_textEncoding, "NOOP", token);
-				m_lastCommand = DateTime.Now;
+				m_lastCommandUtc = DateTime.UtcNow;
 
 				return true;
 			}
