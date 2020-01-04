@@ -733,7 +733,7 @@ namespace FluentFTP {
 
 							// Fix #387: keep alive with NOOP as configured and needed
 							if (!m_threadSafeDataChannels) {
-								anyNoop = Noop();
+								anyNoop = Noop() || anyNoop;
 							}
 
 							// honor the speed limit
@@ -967,7 +967,7 @@ namespace FluentFTP {
 
 							// Fix #387: keep alive with NOOP as configured and needed
 							if (!m_threadSafeDataChannels) {
-								anyNoop = await NoopAsync(token);
+								anyNoop = await NoopAsync(token) || anyNoop;
 							}
 
 							// honor the rate limit
