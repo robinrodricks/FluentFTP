@@ -24,11 +24,11 @@ namespace FluentFTP {
 
 		bool IsDisposed { get; }
 		FtpIpVersion InternetProtocolVersions { get; set; }
-		int NoopInterval { get; set; }
 		int SocketPollInterval { get; set; }
 		bool StaleDataCheck { get; set; }
 		bool IsConnected { get; }
 		bool EnableThreadSafeDataConnections { get; set; }
+		int NoopInterval { get; set; }
 		Encoding Encoding { get; set; }
 		string Host { get; set; }
 		int Port { get; set; }
