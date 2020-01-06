@@ -720,6 +720,10 @@ namespace FluentFTP {
 
 				sw.Stop();
 
+				// send progress reports
+				if (progress != null) {
+					progress(new FtpProgress(100.0, 0, TimeSpan.Zero));
+				}
 
 				// disconnect FTP stream before exiting
 				outStream.Flush();
@@ -879,7 +883,12 @@ namespace FluentFTP {
 				}
 
 				sw.Stop();
-
+				
+				// send progress reports
+				if (progress != null) {
+					progress.Report(new FtpProgress(100.0, 0, TimeSpan.Zero));
+				}
+				
 				// disconnect FTP stream before exiting
 				await outStream.FlushAsync(token);
 				downStream.Dispose();
