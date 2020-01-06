@@ -807,6 +807,11 @@ namespace FluentFTP {
 						return false;
 					}
 
+					// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
+					if (anyNoop) {
+						ReadStaleData(false, true, true);
+					}
+
 					break;
 				}
 
@@ -1039,6 +1044,11 @@ namespace FluentFTP {
 					// Fix #353: if server sends 550 the transfer was received but could not be confirmed by the server
 					if (status.Code != null && status.Code != "" && status.Code.StartsWith("5")) {
 						return false;
+					}
+
+					// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
+					if (anyNoop) {
+						await ReadStaleDataAsync(false, true, true, token);
 					}
 
 					break;

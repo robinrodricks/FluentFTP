@@ -739,6 +739,11 @@ namespace FluentFTP {
 						continue;
 					}
 
+					// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
+					if (anyNoop) {
+						ReadStaleData(false, true, true);
+					}
+
 					break;
 				}
 
@@ -901,6 +906,11 @@ namespace FluentFTP {
 					// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
 					if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
 						continue;
+					}
+
+					// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
+					if (anyNoop) {
+						await ReadStaleDataAsync(false, true, true, token);
 					}
 
 					break;
