@@ -589,7 +589,7 @@ Please see these [FAQ entries](#faq_trace) for help on logging & debugging.
   
   - **DownloadDataType** - Download files in ASCII or Binary mode? **Default:** FtpDataType.Binary.
 
-  - **NoopInterval** - Time to wait (in milliseconds) between sending NOOP commands to keep the control socket alive during long file transfers. Setting this interval too low will have a negative impact on performance. Setting this interval to 0 disables NOOP commands altogether. Decrease this setting if you are getting timeouts during file transfers (`Error: Timed out trying to read data from the socket stream!`). [Read the PR notes for suggested values for this property.](https://github.com/robinrodricks/FluentFTP/pull/504) **Default:** 15000 (15 seconds).
+  - **NoopInterval** - Time to wait (in milliseconds) between sending NOOP commands to keep the control socket alive during long file transfers. Setting this interval too low will have a negative impact on performance. Setting this interval to 0 disables NOOP commands altogether. Decrease this setting if you are getting timeouts during file transfers. [Read the PR notes for suggested values for this property.](https://github.com/robinrodricks/FluentFTP/pull/504) **Default:** 15000 (15 seconds).
 
 
 
