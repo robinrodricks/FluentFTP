@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net20;net35;net40;net45;netstandard1.4;netstandard1.6</TargetFrameworks>
+    <TargetFrameworks>net20;net35;net40;net45;netstandard1.4;netstandard1.6;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net20' Or '$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40' Or '$(TargetFramework)'=='net45'">
@@ -13,7 +13,7 @@
     <DefineConstants>$(DefineConstants);LINQBRIDGE_LIB</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netstandard1.4'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netstandard1.4' Or '$(TargetFramework)'=='netstandard2.0'">
     <DefineConstants>$(DefineConstants);CORE</DefineConstants>
   </PropertyGroup>
 
@@ -38,11 +38,11 @@
     <PackageProjectUrl>https://github.com/robinrodricks/FluentFTP</PackageProjectUrl>
     <Copyright>MIT License</Copyright>
     <PackageTags>ftp,ftp-client,ftps,ssl,tls,unix,iis</PackageTags>
-    <VersionPrefix>28.0.6</VersionPrefix>
+    <VersionPrefix>29.0.0</VersionPrefix>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
-    <Version>28.0.6</Version>
+    <Version>29.0.0</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -62,7 +62,7 @@
     <PackageReference Include="System.Threading.Tasks" Version="4.3.0.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
     <PackageReference Include="System.Net.Security" Version="4.3.0.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0.0" />
   </ItemGroup>
