@@ -182,10 +182,16 @@ Help on each command can be printed by running these commands in Powershell:
     - [File Management](#file-management)
     - [File Permissions](#file-permissions)
     - [File Hashing](#file-hashing)
-    - [FTPS](#ftps)
-    - [Settings](#advanced-settings)
     - [Utilities](#utilities)
     - [Logging](#logging)
+- [Settings](#settings)
+    - [FTP Settings](#ftp-settings)
+    - [Active FTP Settings](#active-ftp-settings)
+    - [FTPS Settings](#ftps-settings)
+    - [File Listing Settings](#file-listing-settings)
+    - [File Transfer Settings](#file-transfer-settings)
+    - [Timeout Settings](#timeout-settings)
+    - [Socket Settings](#timeout-settings)
 - [FTP Support Table](#ftp-support)
 - [Examples](https://github.com/robinrodricks/FluentFTP/tree/master/FluentFTP.Examples)
 - [Release Notes](https://github.com/robinrodricks/FluentFTP/blob/master/RELEASES.md)
@@ -444,112 +450,6 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
   - **GetXCRC**() - Retrieves the CRC32 checksum of the given file, if the server supports it.
 
 
-### FTPS
-
-*Set these before you call `Connect()`. You can [automatically detect FTPS connection settings](#faq_autodetect) that work with your server.*
-
-  - **EncryptionMode** - Type of SSL to use, or none. Explicit is TLS, Implicit is SSL. **Default:** FtpEncryptionMode.None.
-  
-  - **DataConnectionEncryption** - Indicates if data channel transfers should be encrypted. **Default:** true.
-  
-  - **SslProtocols** - Encryption protocols to use. **Default:** SslProtocols.Default.
-  
-  - **SslBuffering** - Whether to use SSL Buffering to speed up data transfer during FTP operations. Turn this off if you are having random issues with FTPS/SSL file transfer. **Default:** FtpsBuffering.Auto.
-  
-  - **ClientCertificates** - X509 client certificates to be used in SSL authentication process. [Learn more.](#faq_certs)
-  
-  - **ValidateCertificate** - Event is fired to validate SSL certificates. If this event is not handled and there are errors validating the certificate the connection will be aborted.
-  
-  - **ValidateAnyCertificate** - Accept any SSL certificate received from the server and skip performing the validation using the `ValidateCertificate` callback. Useful for Powershell users. **Default:** false.
-  
-  - **ValidateCertificateRevocation** - Indicates if the certificate revocation list is checked during authentication. Useful when you need to maintain the certificate chain validation, but skip the certificate revocation check. **Default:** true.
-  
-  - **PlainTextEncryption** - Disable encryption immediately after connecting with FTPS, using the CCC command. This is useful when you have a FTP firewall that requires plaintext FTP, but your server mandates FTPS connections. **Default:** false.
-
-
-### Advanced Settings
-
-*FTP Protocol. You can [automatically detect FTP connection settings](#faq_autodetect) that work with your server.*
-
-  - **DataConnectionType** - Active or Passive connection. **Default:** FtpDataConnectionType.AutoPassive (tries EPSV then PASV then gives up)
-  
-  - **Encoding** - Text encoding (ASCII or UTF8) used when talking with the server. ASCII is default, but upon connection, we switch to UTF8 if supported by the server. Manually setting this value overrides automatic detection. **Default:** Auto.
-  
-  - **InternetProtocolVersions** - Whether to use IPV4 and/or IPV6 when making a connection. All addresses returned during name resolution are tried until a successful connection is made. **Default:** Any.
-  
-  - **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
-  
-  - **IsClone** - Checks if this control connection is a clone. **Default:** false.
-
-
-
-*File Listings*
-
-  - **ListingParser** - File listing parser to be used. Automatically calculated based on the type of the server, unless changed. File listing parsing has improved in 2017, but to use the older parsing routines please use `FtpParser.Legacy`. **Default:** `FtpParser.Auto`.
-  
-  - **ListingCulture** - Culture used to parse file listings. **Default:** `CultureInfo.InvariantCulture`.
-  
-  - **TimeConversion** - Controls how timestamps returned by the server are converted. The default setting assumes that all servers return UTC. **Default:** DateTimeStyles.AssumeUniversal.
-  
-  - **TimeOffset** - Time difference between server and client, in hours. If the server is located in Amsterdam and you are in Los Angeles then the time difference is 9 hours. **Default:** 0.
-  
-  - **RecursiveList** - Uses predefined logic to check if your server supports a recursive LIST command. Set this to `true` if you are sure your server supports recursive listing. (`LIST -R`).
-  
-  - **BulkListing** - If true, increases performance of GetListing by reading multiple lines of the file listing at once. If false then GetListing will read file listings line-by-line. If GetListing is having issues with your server, set it to false. **Default:** true.
-  
-  - **BulkListingLength** - Bytes to read during GetListing. Only honored if BulkListing is true. **Default:** 128.
-
-  - **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
-  
-
-
-*File Transfer*
-
-  - **RetryAttempts** - The retry attempts allowed when a verification failure occurs during download or upload. **Default:** 1.
-  
-  - **TransferChunkSize** - Chunk size (in bytes) used during upload/download of files. **Default:** 65536 (65 KB).
-  
-  - **UploadRateLimit** - Rate limit for uploads (in kbyte/s), honored by [high level API](#highlevel). **Default:** 0 (Unlimited).
-  
-  - **DownloadRateLimit** - Rate limit for downloads (in kbyte/s), honored by [high level API](#highlevel). **Default:** 0 (Unlimited).
-  
-  - **UploadDataType** - Upload files in ASCII or Binary mode? **Default:** FtpDataType.Binary.
-  
-  - **DownloadDataType** - Download files in ASCII or Binary mode? **Default:** FtpDataType.Binary.
-
-
-
-*Active FTP*
-
-  - **ActivePorts** - List of ports to try using for Active FTP connections, or null to automatically select a port. **Default:** null.
-  
-  - **AddressResolver** - Delegate used for resolving local address, used for active data connections. This can be used in case you're behind a router, but port forwarding is configured to forward the ports from your router to your internal IP. In that case, we need to send the router's IP instead of our internal IP.
-
-
-*Timeouts*
-
-  - **ConnectTimeout** - Time to wait (in milliseconds) for a connection attempt to succeed, before giving up. **Default:** 15000 (15 seconds).
-  
-  - **ReadTimeout** - Time to wait (in milliseconds) for data to be read from the underlying stream, before giving up. Honored by all asynchronous methods as well. **Default:** 15000 (15 seconds).
-  
-  - **DataConnectionConnectTimeout** - Time to wait (in milliseconds) for a data connection to be established, before giving up. **Default:** 15000 (15 seconds).
-  
-  - **DataConnectionReadTimeout** - Time to wait (in milliseconds) for the server to send data on the data channel, before giving up. **Default:** 15000 (15 seconds).
-  
-  - **SocketPollInterval** - Time that must pass (in milliseconds) since the last socket activity before calling `Poll()` on the socket to test for connectivity. Setting this interval too low will have a negative impact on performance. Setting this interval to 0 disables Polling altogether. **Default:** 15000 (15 seconds).
-
-  - **NoopInterval** - Time to wait (in milliseconds) between sending NOOP commands to keep the control socket alive during long file transfers. Setting this interval too low will have a negative impact on performance. Setting this interval to 0 disables NOOP commands altogether. Decrease this setting if you are getting timeouts during file transfers (`Error: Timed out trying to read data from the socket stream!`). [Read the PR notes for suggested values for this property.](https://github.com/robinrodricks/FluentFTP/pull/504) **Default:** 15000 (15 seconds).
-  
-
-*Socket Settings*
-
-  - **SocketKeepAlive** - Set `SocketOption.KeepAlive` on all future stream sockets. **Default:** false.
-  
-  - **StaleDataCheck** - Check if there is stale (unrequested data) sitting on the socket or not. In some cases the control connection may time out but before the server closes the connection it might send a 4xx response that was unexpected and can cause synchronization errors with transactions. To avoid this problem the Execute() method checks to see if there is any data available on the socket before executing a command. **Default:** true.
-  
-  - **EnableThreadSafeDataConnections** - Creates a new FTP connection for every file download and upload. This is slower but is a thread safe approach to make asynchronous operations on a single control connection transparent. Set this to `false` if your FTP server allows only one connection per username. [Learn more](#faq_etsdc)  **Default:** false.
-
-
 ### Utilities
 
 Please import `FluentFTP` to use these extension methods, or access them directly under the `FtpExtensions` class.
@@ -603,6 +503,120 @@ Please see these [FAQ entries](#faq_trace) for help on logging & debugging.
   
   - FtpTrace.**RemoveListener** - Remove a logger from the system.
 
+  
+  
+## Settings
+
+### FTP Settings
+
+*You can [automatically detect FTP connection settings](#faq_autodetect) that work with your server.*
+
+  - **DataConnectionType** - Active or Passive connection. **Default:** FtpDataConnectionType.AutoPassive (tries EPSV then PASV then gives up)
+  
+  - **Encoding** - Text encoding (ASCII or UTF8) used when talking with the server. ASCII is default, but upon connection, we switch to UTF8 if supported by the server. Manually setting this value overrides automatic detection. **Default:** Auto.
+  
+  - **InternetProtocolVersions** - Whether to use IPV4 and/or IPV6 when making a connection. All addresses returned during name resolution are tried until a successful connection is made. **Default:** Any.
+  
+  - **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
+  
+  - **IsClone** - Checks if this control connection is a clone. **Default:** false.
+  
+  
+### Active FTP Settings
+
+  - **ActivePorts** - List of ports to try using for Active FTP connections, or null to automatically select a port. **Default:** null.
+  
+  - **AddressResolver** - Delegate used for resolving local address, used for active data connections. This can be used in case you're behind a router, but port forwarding is configured to forward the ports from your router to your internal IP. In that case, we need to send the router's IP instead of our internal IP.
+  
+  
+
+### FTPS Settings
+
+*Set these before you call `Connect()`. You can [automatically detect FTPS connection settings](#faq_autodetect) that work with your server.*
+
+  - **EncryptionMode** - Type of SSL to use, or none. Explicit is TLS, Implicit is SSL. **Default:** FtpEncryptionMode.None.
+  
+  - **DataConnectionEncryption** - Indicates if data channel transfers should be encrypted. **Default:** true.
+  
+  - **SslProtocols** - Encryption protocols to use. **Default:** SslProtocols.Default.
+  
+  - **SslBuffering** - Whether to use SSL Buffering to speed up data transfer during FTP operations. Turn this off if you are having random issues with FTPS/SSL file transfer. **Default:** FtpsBuffering.Auto.
+  
+  - **ClientCertificates** - X509 client certificates to be used in SSL authentication process. [Learn more.](#faq_certs)
+  
+  - **ValidateCertificate** - Event is fired to validate SSL certificates. If this event is not handled and there are errors validating the certificate the connection will be aborted.
+  
+  - **ValidateAnyCertificate** - Accept any SSL certificate received from the server and skip performing the validation using the `ValidateCertificate` callback. Useful for Powershell users. **Default:** false.
+  
+  - **ValidateCertificateRevocation** - Indicates if the certificate revocation list is checked during authentication. Useful when you need to maintain the certificate chain validation, but skip the certificate revocation check. **Default:** true.
+  
+  - **PlainTextEncryption** - Disable encryption immediately after connecting with FTPS, using the CCC command. This is useful when you have a FTP firewall that requires plaintext FTP, but your server mandates FTPS connections. **Default:** false.
+
+
+  
+
+### File Listing Settings
+
+  - **ListingParser** - File listing parser to be used. Automatically calculated based on the type of the server, unless changed. File listing parsing has improved in 2017, but to use the older parsing routines please use `FtpParser.Legacy`. **Default:** `FtpParser.Auto`.
+  
+  - **ListingCulture** - Culture used to parse file listings. **Default:** `CultureInfo.InvariantCulture`.
+  
+  - **TimeConversion** - Controls how timestamps returned by the server are converted. The default setting assumes that all servers return UTC. **Default:** DateTimeStyles.AssumeUniversal.
+  
+  - **TimeOffset** - Time difference between server and client, in hours. If the server is located in Amsterdam and you are in Los Angeles then the time difference is 9 hours. **Default:** 0.
+  
+  - **RecursiveList** - Uses predefined logic to check if your server supports a recursive LIST command. Set this to `true` if you are sure your server supports recursive listing. (`LIST -R`).
+  
+  - **BulkListing** - If true, increases performance of GetListing by reading multiple lines of the file listing at once. If false then GetListing will read file listings line-by-line. If GetListing is having issues with your server, set it to false. **Default:** true.
+  
+  - **BulkListingLength** - Bytes to read during GetListing. Only honored if BulkListing is true. **Default:** 128.
+
+  - **MaximumDereferenceCount** - The maximum depth of recursion that `DereferenceLink()` will follow symbolic links before giving up. **Default:** 20.
+  
+
+
+### File Transfer Settings
+
+  - **RetryAttempts** - The retry attempts allowed when a verification failure occurs during download or upload. **Default:** 1.
+  
+  - **TransferChunkSize** - Chunk size (in bytes) used during upload/download of files. **Default:** 65536 (65 KB).
+  
+  - **UploadRateLimit** - Rate limit for uploads (in kbyte/s), honored by [high level API](#highlevel). **Default:** 0 (Unlimited).
+  
+  - **DownloadRateLimit** - Rate limit for downloads (in kbyte/s), honored by [high level API](#highlevel). **Default:** 0 (Unlimited).
+  
+  - **UploadDataType** - Upload files in ASCII or Binary mode? **Default:** FtpDataType.Binary.
+  
+  - **DownloadDataType** - Download files in ASCII or Binary mode? **Default:** FtpDataType.Binary.
+
+  - **NoopInterval** - Time to wait (in milliseconds) between sending NOOP commands to keep the control socket alive during long file transfers. Setting this interval too low will have a negative impact on performance. Setting this interval to 0 disables NOOP commands altogether. Decrease this setting if you are getting timeouts during file transfers (`Error: Timed out trying to read data from the socket stream!`). [Read the PR notes for suggested values for this property.](https://github.com/robinrodricks/FluentFTP/pull/504) **Default:** 15000 (15 seconds).
+
+
+
+### Timeout Settings
+
+  - **ConnectTimeout** - Time to wait (in milliseconds) for a connection attempt to succeed, before giving up. **Default:** 15000 (15 seconds).
+  
+  - **ReadTimeout** - Time to wait (in milliseconds) for data to be read from the underlying stream, before giving up. Honored by all asynchronous methods as well. **Default:** 15000 (15 seconds).
+  
+  - **DataConnectionConnectTimeout** - Time to wait (in milliseconds) for a data connection to be established, before giving up. **Default:** 15000 (15 seconds).
+  
+  - **DataConnectionReadTimeout** - Time to wait (in milliseconds) for the server to send data on the data channel, before giving up. **Default:** 15000 (15 seconds).
+  
+  - **SocketPollInterval** - Time that must pass (in milliseconds) since the last socket activity before calling `Poll()` on the socket to test for connectivity. Setting this interval too low will have a negative impact on performance. Setting this interval to 0 disables Polling altogether. **Default:** 15000 (15 seconds).
+
+  
+
+### Socket Settings
+
+  - **SocketKeepAlive** - Set `SocketOption.KeepAlive` on all future stream sockets. **Default:** false.
+  
+  - **StaleDataCheck** - Check if there is stale (unrequested data) sitting on the socket or not. In some cases the control connection may time out but before the server closes the connection it might send a 4xx response that was unexpected and can cause synchronization errors with transactions. To avoid this problem the Execute() method checks to see if there is any data available on the socket before executing a command. **Default:** true.
+  
+  - **EnableThreadSafeDataConnections** - Creates a new FTP connection for every file download and upload. This is slower but is a thread safe approach to make asynchronous operations on a single control connection transparent. Set this to `false` if your FTP server allows only one connection per username. [Learn more](#faq_etsdc)  **Default:** false.
+
+
+  
 
 ## FTP Support
 
