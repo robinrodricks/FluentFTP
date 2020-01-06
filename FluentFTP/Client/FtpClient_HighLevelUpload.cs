@@ -708,6 +708,8 @@ namespace FluentFTP {
 					upStream.SetLength(fileLen);
 				}
 
+				var anyNoop = false;
+
 				while (offset < fileLen) {
 					try {
 						// read a chunk of bytes from the file
@@ -727,6 +729,11 @@ namespace FluentFTP {
 							// send progress reports
 							if (progress != null) {
 								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted);
+							}
+
+							// Fix #387: keep alive with NOOP as configured and needed
+							if (!m_threadSafeDataChannels) {
+								anyNoop = Noop() || anyNoop;
 							}
 
 							// honor the speed limit
@@ -787,13 +794,20 @@ namespace FluentFTP {
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
-				if (!EnableThreadSafeDataConnections) {
+				while (!m_threadSafeDataChannels) {
 					var status = GetReply();
+
+					// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
+					if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
+						continue;
+					}
 
 					// Fix #353: if server sends 550 the transfer was received but could not be confirmed by the server
 					if (status.Code != null && status.Code != "" && status.Code.StartsWith("5")) {
 						return false;
 					}
+
+					break;
 				}
 
 				return true;
@@ -928,6 +942,8 @@ namespace FluentFTP {
 					upStream.SetLength(fileLen);
 				}
 
+				var anyNoop = false;
+
 				while (offset < fileLen) {
 					try {
 						// read a chunk of bytes from the file
@@ -947,6 +963,11 @@ namespace FluentFTP {
 							// send progress reports
 							if (progress != null) {
 								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted);
+							}
+
+							// Fix #387: keep alive with NOOP as configured and needed
+							if (!m_threadSafeDataChannels) {
+								anyNoop = await NoopAsync(token) || anyNoop;
 							}
 
 							// honor the rate limit
@@ -1007,13 +1028,20 @@ namespace FluentFTP {
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
-				if (!m_threadSafeDataChannels) {
+				while (!m_threadSafeDataChannels) {
 					FtpReply status = await GetReplyAsync(token);
+
+					// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
+					if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
+						continue;
+					}
 
 					// Fix #353: if server sends 550 the transfer was received but could not be confirmed by the server
 					if (status.Code != null && status.Code != "" && status.Code.StartsWith("5")) {
 						return false;
 					}
+
+					break;
 				}
 
 				return true;
