@@ -1,7 +1,14 @@
 # Release Notes
 
-#### 28.0.6
+#### 29.0.0
+  - New: Support .NET Standard 2.0
+  - New: Keep control socket alive during long file transfers using NOOP (thanks [aliquid](/aliquid))
+  - New: Add `NoopInterval` property to control interval of NOOP commands (thanks [aliquid](/aliquid))
+  - New: Add `TimeConversion` property to control if timestamps are converted from UTC into local time
+  - Refactor: Rename `FtpExists` to `FtpRemoteExists` to make its usage clear
   - New: Support detection of IBM z/OS and MVS FTP OS and server (allows for server specific commands)
+  - New: New constructors for `FtpClient` to support hostnames in `Uri` format
+  - Fix: Always send progress reports after file download, even for zero-length files
   
 #### 28.0.5
   - New: `ValidateCertificateRevocation` property to control if certificate revocation is checked.

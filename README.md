@@ -70,6 +70,7 @@ FluentFTP works on .NET and .NET Standard/.NET Core.
 | **.NET 4.5**      	| net45     		| 
 | **.NET Standard 1.4** | netstandard1.4	| 
 | **.NET Standard 1.6** | netstandard1.6	| 
+| **.NET Standard 2.0** | netstandard2.0	| 
 
 FluentFTP is also supported on these platforms: (via .NET Standard)
 
@@ -487,6 +488,8 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
   - **ListingParser** - File listing parser to be used. Automatically calculated based on the type of the server, unless changed. File listing parsing has improved in 2017, but to use the older parsing routines please use `FtpParser.Legacy`. **Default:** `FtpParser.Auto`.
   
   - **ListingCulture** - Culture used to parse file listings. **Default:** `CultureInfo.InvariantCulture`.
+  
+  - **TimeConversion** - Controls how timestamps returned by the server are converted. The default setting assumes that all servers return UTC. **Default:** DateTimeStyles.AssumeUniversal.
   
   - **TimeOffset** - Time difference between server and client, in hours. If the server is located in Amsterdam and you are in Los Angeles then the time difference is 9 hours. **Default:** 0.
   
