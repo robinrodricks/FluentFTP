@@ -41,7 +41,7 @@ namespace FluentFTP {
 		/// Creates a new instance of an FTP Client, with the given host.
 		/// </summary>
 		public FtpClient(string host) {
-			Host = host;
+			Host = host ?? throw new ArgumentNullException("Host must be provided");
 			m_listParser = new FtpListParser(this);
 		}
 
@@ -49,8 +49,8 @@ namespace FluentFTP {
 		/// Creates a new instance of an FTP Client, with the given host and credentials.
 		/// </summary>
 		public FtpClient(string host, NetworkCredential credentials) {
-			Host = host;
-			Credentials = credentials;
+			Host = host ?? throw new ArgumentNullException("Host must be provided");
+			Credentials = credentials ?? throw new ArgumentNullException("Credentials must be provided");
 			m_listParser = new FtpListParser(this);
 		}
 
@@ -58,9 +58,9 @@ namespace FluentFTP {
 		/// Creates a new instance of an FTP Client, with the given host, port and credentials.
 		/// </summary>
 		public FtpClient(string host, int port, NetworkCredential credentials) {
-			Host = host;
+			Host = host ?? throw new ArgumentNullException("Host must be provided");
 			Port = port;
-			Credentials = credentials;
+			Credentials = credentials ?? throw new ArgumentNullException("Credentials must be provided");
 			m_listParser = new FtpListParser(this);
 		}
 
@@ -81,6 +81,58 @@ namespace FluentFTP {
 			Port = port;
 			Credentials = new NetworkCredential(user, pass);
 			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host.
+		/// </summary>
+		public FtpClient(Uri host) {
+			Host = ValidateHost(host);
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host and credentials.
+		/// </summary>
+		public FtpClient(Uri host, NetworkCredential credentials) {
+			Host = ValidateHost(host);
+			Credentials = credentials;
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host and credentials.
+		/// </summary>
+		public FtpClient(Uri host, string user, string pass) {
+			Host = ValidateHost(host);
+			Credentials = new NetworkCredential(user, pass);
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host, port and credentials.
+		/// </summary>
+		public FtpClient(Uri host, int port, string user, string pass) {
+			Host = ValidateHost(host);
+			Port = port;
+			Credentials = new NetworkCredential(user, pass);
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
+		/// Check if the host parameter is valid
+		/// </summary>
+		/// <param name="host"></param>
+		private static string ValidateHost(Uri host) {
+			if (host == null) {
+				throw new ArgumentNullException("Host is required");
+			}
+#if !CORE
+			if (host.Scheme != Uri.UriSchemeFtp) {
+				throw new ArgumentException("Host is not a valid FTP path");
+			}
+#endif
+			return host.ToString();
 		}
 
 		/// <summary>
