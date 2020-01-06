@@ -1,10 +1,19 @@
 ﻿using System;
 
 namespace FluentFTP {
+
+	/// <summary>
+	/// This enum is obsolete. Please use FtpRemoteExists instead.
+	/// </summary>
+	[ObsoleteAttribute("This enum is obsolete. Please use FtpRemoteExists instead.", true)]
+	public enum FtpExists {
+	}
+
 	/// <summary>
 	/// Defines the behavior for uploading/downloading files that already exist
 	/// </summary>
-	public enum FtpExists {
+	public enum FtpRemoteExists {
+
 		/// <summary>
 		/// Do not check if the file exists. A bit faster than the other options.
 		/// Only use this if you are SURE that the file does not exist on the server.

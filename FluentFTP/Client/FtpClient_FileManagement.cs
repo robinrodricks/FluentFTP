@@ -425,7 +425,7 @@ namespace FluentFTP {
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
 		/// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
 		/// <returns>Whether the file was moved</returns>
-		public bool MoveFile(string path, string dest, FtpExists existsMode = FtpExists.Overwrite) {
+		public bool MoveFile(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -439,15 +439,15 @@ namespace FluentFTP {
 
 			if (FileExists(path)) {
 				// check if dest file exists and act accordingly
-				if (existsMode != FtpExists.NoCheck) {
+				if (existsMode != FtpRemoteExists.NoCheck) {
 					var destExists = FileExists(dest);
 					if (destExists) {
 						switch (existsMode) {
-							case FtpExists.Overwrite:
+							case FtpRemoteExists.Overwrite:
 								DeleteFile(dest);
 								break;
 
-							case FtpExists.Skip:
+							case FtpRemoteExists.Skip:
 								return false;
 						}
 					}
@@ -463,7 +463,7 @@ namespace FluentFTP {
 		}
 
 #if !CORE
-		private delegate bool AsyncMoveFile(string path, string dest, FtpExists existsMode);
+		private delegate bool AsyncMoveFile(string path, string dest, FtpRemoteExists existsMode);
 
 		/// <summary>
 		/// Begins an asynchronous operation to move a file on the remote file system, from one directory to another.
@@ -476,7 +476,7 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginMoveFile(string path, string dest, FtpExists existsMode, AsyncCallback callback, object state) {
+		public IAsyncResult BeginMoveFile(string path, string dest, FtpRemoteExists existsMode, AsyncCallback callback, object state) {
 			AsyncMoveFile func;
 			IAsyncResult ar;
 
@@ -508,7 +508,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
 		/// <param name="token">Cancellation Token</param>
 		/// <returns>Whether the file was moved</returns>
-		public async Task<bool> MoveFileAsync(string path, string dest, FtpExists existsMode = FtpExists.Overwrite, CancellationToken token = default(CancellationToken)) {
+		public async Task<bool> MoveFileAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -522,15 +522,15 @@ namespace FluentFTP {
 
 			if (await FileExistsAsync(path, token)) {
 				// check if dest file exists and act accordingly
-				if (existsMode != FtpExists.NoCheck) {
+				if (existsMode != FtpRemoteExists.NoCheck) {
 					bool destExists = await FileExistsAsync(dest, token);
 					if (destExists) {
 						switch (existsMode) {
-							case FtpExists.Overwrite:
+							case FtpRemoteExists.Overwrite:
 								await DeleteFileAsync(dest, token);
 								break;
 
-							case FtpExists.Skip:
+							case FtpRemoteExists.Skip:
 								return false;
 						}
 					}
