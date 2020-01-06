@@ -1176,7 +1176,7 @@ namespace FluentFTP {
 
 				// get modified date of a file
 				if ((reply = Execute("MDTM " + path.GetFtpPath())).Success) {
-					date = reply.Message.GetFtpDate(DateTimeStyles.AssumeUniversal);
+					date = reply.Message.GetFtpDate(TimeConversion);
 
 					// convert server timezone to UTC, based on the TimeOffset property
 					if (type != FtpDate.Original && m_listParser.HasTimeOffset) {
@@ -1255,7 +1255,7 @@ namespace FluentFTP {
 
 			// get modified date of a file
 			if ((reply = await ExecuteAsync("MDTM " + path.GetFtpPath(), token)).Success) {
-				date = reply.Message.GetFtpDate(DateTimeStyles.AssumeUniversal);
+				date = reply.Message.GetFtpDate(TimeConversion);
 
 				// convert server timezone to UTC, based on the TimeOffset property
 				if (type != FtpDate.Original && m_listParser.HasTimeOffset) {

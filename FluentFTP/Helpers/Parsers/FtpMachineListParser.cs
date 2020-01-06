@@ -53,7 +53,7 @@ namespace FluentFTP.Helpers.Parsers {
 				return null;
 			}
 
-			ParseDateTime(record, item);
+			ParseDateTime(record, item, client);
 
 			ParseFileSize(record, item);
 
@@ -65,14 +65,14 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the date modified field from MLSD/MLST format listings
 		/// </summary>
-		private static void ParseDateTime(string record, FtpListItem item) {
+		private static void ParseDateTime(string record, FtpListItem item, FtpClient client) {
 			Match m;
 			if ((m = Regex.Match(record, "modify=(?<modify>.+?);", RegexOptions.IgnoreCase)).Success) {
-				item.Modified = m.Groups["modify"].Value.GetFtpDate(DateTimeStyles.AssumeUniversal);
+				item.Modified = m.Groups["modify"].Value.GetFtpDate(client.TimeConversion);
 			}
 
 			if ((m = Regex.Match(record, "created?=(?<create>.+?);", RegexOptions.IgnoreCase)).Success) {
-				item.Created = m.Groups["create"].Value.GetFtpDate(DateTimeStyles.AssumeUniversal);
+				item.Created = m.Groups["create"].Value.GetFtpDate(client.TimeConversion);
 			}
 		}
 

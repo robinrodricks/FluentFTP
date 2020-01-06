@@ -663,6 +663,19 @@ namespace FluentFTP {
 			}
 		}
 
+		private DateTimeStyles m_timeConversion = 0;
+
+		/// <summary>
+		/// Controls how timestamps returned by the server are converted.
+		/// The default setting assumes that all servers return UTC.
+		/// </summary>
+		public DateTimeStyles TimeConversion {
+			get => m_timeConversion;
+			set {
+				m_timeConversion = value;
+			}
+		}
+
 		private bool m_bulkListing = true;
 
 		/// <summary>
