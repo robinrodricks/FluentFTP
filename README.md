@@ -538,7 +538,7 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
   
   - **SocketPollInterval** - Time that must pass (in milliseconds) since the last socket activity before calling `Poll()` on the socket to test for connectivity. Setting this interval too low will have a negative impact on performance. Setting this interval to 0 disables Polling altogether. **Default:** 15000 (15 seconds).
 
-  - **NoopInterval** - Time to wait (in milliseconds) between sending NOOP commands to keep the control socket alive during long file transfers. Setting this interval too low will have a negative impact on performance. Setting this interval to 0 disables NOOP commands altogether. Decrease this setting if you are getting timeouts during file transfers. (`Error: Timed out trying to read data from the socket stream!`). **Default:** 15000 (15 seconds).
+  - **NoopInterval** - Time to wait (in milliseconds) between sending NOOP commands to keep the control socket alive during long file transfers. Setting this interval too low will have a negative impact on performance. Setting this interval to 0 disables NOOP commands altogether. Decrease this setting if you are getting timeouts during file transfers. [More information](https://github.com/robinrodricks/FluentFTP/pull/504). (`Error: Timed out trying to read data from the socket stream!`). **Default:** 15000 (15 seconds).
   
 
 *Socket Settings*

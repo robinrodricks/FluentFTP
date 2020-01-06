@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 29.0.1
+  - Fix: Read stale NOOP responses after file transfer and also after `226 Transfer complete` (thanks [aliquid](/aliquid))
+
 #### 29.0.0
   - New: Support .NET Standard 2.0
   - New: Keep control socket alive during long file transfers using NOOP (thanks [aliquid](/aliquid))
