@@ -649,6 +649,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 | **MFMT**   			| SetModifiedTime()		 | Modify file modified date  |
 | **SITE CHMOD**      	| Chmod() or SetFilePermissions() | Modify file permissions |
 | **RNFR, RNTO**   		| Rename()<br>MoveFile()	| Rename a file or directory<br>Move a file or directory  |
+| **NOOP**   			| Upload()<br>UploadFile()<br>Download()<br>DownloadFile()	| Keep-alive used during file transfer  |
 
 *File Hashing commands*
 
