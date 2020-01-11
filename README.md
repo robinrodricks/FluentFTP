@@ -179,6 +179,7 @@ Help on each command can be printed by running these commands in Powershell:
 
 - [API Documentation](#api)
     - [Connection](#connection)
+    - [Server](#server)
     - [Directory Listing](#directory-listing)
     - [File Transfer](#file-transfer)
     - [File Management](#file-management)
@@ -287,7 +288,15 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
   
   - **AutoConnect**() - Automatically discover working FTP connection settings and use those to connect to the server.
   
-  - **Execute**() - Execute a custom or unspported command.
+  - **Execute**() - Execute a custom or unsupported command.
+  
+  - **IsConnected** - Checks if the connection is still alive.
+  
+  - **IsClone** - Checks if this control connection is a clone. **Default:** false.
+  
+  - **LastReply** - Returns the last `FtpReply` received from the server.
+
+### Server
   
   - **SystemType** - Gets the type of system/server that we're connected to.
   
@@ -295,14 +304,10 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
   
   - **ServerOS** - Gets the operating system of the FTP server software that we're connected to, using the `FtpOS` enum. See the list of [supported operating systems](#faq_servertype). **Default:** `FtpOS.Unknown`
   
-  - **IsConnected** - Checks if the connection is still alive.
-  
   - **Capabilities** - Gets the server capabilities (represented by flags).
   
   - **HasFeature**() - Checks if a specific feature (`FtpCapability`) is supported by the server.
   
-  - **LastReply** - Returns the last `FtpReply` recieved from the server.
-
 ### Directory Listing
 
   - **GetListing**() - Get a [file listing](#faq_listings) of the given directory. Add `FtpListOption.Recursive` to [recursively list](#faq_recursivelist) all the sub-directories as well. Returns one `FtpListItem` per file or folder with all available properties set. Each item contains:
@@ -520,8 +525,6 @@ Please see these [FAQ entries](#faq_trace) for help on logging & debugging.
   - **InternetProtocolVersions** - Whether to use IPV4 and/or IPV6 when making a connection. All addresses returned during name resolution are tried until a successful connection is made. **Default:** Any.
   
   - **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
-  
-  - **IsClone** - Checks if this control connection is a clone. **Default:** false.
   
   
 ### Active FTP Settings
