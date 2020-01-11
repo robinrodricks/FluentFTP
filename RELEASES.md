@@ -2,6 +2,7 @@
 
 #### 29.0.1
   - Fix: Read stale NOOP responses after file transfer and also after `226 Transfer complete` (thanks [aliquid](/aliquid))
+  - Fix: Correct default value for `TimeConversion` property to assume UTC timestamps
 
 #### 29.0.0
   - New: Support .NET Standard 2.0
