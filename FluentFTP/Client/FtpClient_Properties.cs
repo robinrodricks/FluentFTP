@@ -663,7 +663,7 @@ namespace FluentFTP {
 			}
 		}
 
-		private DateTimeStyles m_timeConversion = 0;
+		private DateTimeStyles m_timeConversion = DateTimeStyles.AssumeUniversal;
 
 		/// <summary>
 		/// Controls how timestamps returned by the server are converted.
