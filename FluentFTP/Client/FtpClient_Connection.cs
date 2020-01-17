@@ -480,7 +480,7 @@ namespace FluentFTP {
 			DetectFtpServer();
 
 			if (SendHost) {
-				if (!(reply = await ExecuteAsync("HOST " + (SendHostDomain != null ? SendHostDomain : Host))).Success) {
+				if (!(reply = await ExecuteAsync("HOST " + (SendHostDomain != null ? SendHostDomain : Host), token)).Success) {
 					throw new FtpException("HOST command failed.");
 				}
 			}
