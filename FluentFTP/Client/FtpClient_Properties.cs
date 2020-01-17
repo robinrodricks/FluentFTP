@@ -769,14 +769,26 @@ namespace FluentFTP {
 			set => m_DownloadDataType = value;
 		}
 
-		private bool m_SendHostCommand;
+		private bool m_SendHost;
 		/// <summary>
-		/// If set to true, then the HOST command will be sent immediately after the handshake
+		/// Controls if the HOST command is sent immediately after the handshake.
+		/// Useful when you are using shared hosting and you need to inform the
+		/// FTP server which domain you want to connect to.
 		/// </summary>
-		public bool SendHostCommand {
-			get => m_SendHostCommand; 
-			set => m_SendHostCommand = value; }
-
+		public bool SendHost {
+			get => m_SendHost;
+			set => m_SendHost = value;
+		}
+		
+		private string m_SendHostDomain = null;
+		/// <summary>
+		/// Controls which domain is sent with the HOST command.
+		/// If this is null, then the Host parameter of the FTP client is sent.
+		/// </summary>
+		public string SendHostDomain {
+			get => m_SendHostDomain;
+			set => m_SendHostDomain = value;
+		}
 
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
 		// FtpClient.CloneConnection()

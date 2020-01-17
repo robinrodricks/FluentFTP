@@ -253,7 +253,8 @@ namespace FluentFTP {
 			conn.DownloadDataType = DownloadDataType;
 			conn.UploadDataType = UploadDataType;
 			conn.ActivePorts = ActivePorts;
-			conn.SendHostCommand = SendHostCommand;
+			conn.SendHost = SendHost;
+			conn.SendHostDomain = SendHostDomain;
 
 			// fix for #428: OpenRead with EnableThreadSafeDataConnections always uses ASCII
 			conn.CurrentDataType = CurrentDataType;
@@ -333,10 +334,8 @@ namespace FluentFTP {
 				Handshake();
 				DetectFtpServer();
 
-				if (SendHostCommand)
-				{
-					if (!(reply = Execute($"HOST {Host}")).Success)
-					{
+				if (SendHost) {
+					if (!(reply = Execute("HOST " + (SendHostDomain != null ? SendHostDomain : Host))).Success) {
 						throw new FtpException("HOST command failed.");
 					}
 				}
@@ -480,10 +479,8 @@ namespace FluentFTP {
 			await HandshakeAsync(token);
 			DetectFtpServer();
 
-			if (SendHostCommand)
-			{
-				if (!(reply = await ExecuteAsync($"HOST {Host}")).Success)
-				{
+			if (SendHost) {
+				if (!(reply = await ExecuteAsync("HOST " + (SendHostDomain != null ? SendHostDomain : Host))).Success) {
 					throw new FtpException("HOST command failed.");
 				}
 			}
