@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 29.0.2
+  - New: Add `SendHost` and `SendHostDomain` to control if HOST command is sent after handshake (thanks [dansharpe83](/dansharpe83))
+
 #### 29.0.1
   - Fix: Read stale NOOP responses after file transfer and also after `226 Transfer complete` (thanks [aliquid](/aliquid))
   - Fix: Correct default value for `TimeConversion` property to assume UTC timestamps

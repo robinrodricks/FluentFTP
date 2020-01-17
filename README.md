@@ -526,6 +526,10 @@ Please see these [FAQ entries](#faq_trace) for help on logging & debugging.
   
   - **UngracefullDisconnection** - Disconnect from the server without sending QUIT. **Default:** false.
   
+  - **SendHost** - Send the HOST command immediately after the handshake. Useful when you are using shared hosting and you need to inform the FTP server which domain you want to connect to. **Default:** false.
+  
+  - **SendHostDomain** - Controls which domain is sent with the HOST command. If this is null, then the Host parameter of the FTP client is sent. **Default:** null.
+  
   
 ### Active FTP Settings
 
@@ -631,6 +635,7 @@ Mapping table documenting supported FTP commands and the corresponding API..
 
 | Command  	    		| API						| Description                  	|
 |---------------		|-----------				|---------------------------	|
+| **HOST**  			| SendHost and<br>SendHostDomain	| Identify your domain on shared hosting|
 | **USER, PASS**  		| Credentials				| Login with username & password|
 | **QUIT**  			| Disconnect()				| Disconnect	|
 | **PASV, EPSV, EPRT**  | DataConnectionType		| Passive & Active FTP modes	|
