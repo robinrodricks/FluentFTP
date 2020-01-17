@@ -769,6 +769,14 @@ namespace FluentFTP {
 			set => m_DownloadDataType = value;
 		}
 
+		private bool m_SendHostCommand;
+		/// <summary>
+		/// If set to true, then the HOST command will be sent immediately after the handshake
+		/// </summary>
+		public bool SendHostCommand {
+			get => m_SendHostCommand; 
+			set => m_SendHostCommand = value; }
+
 
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
 		// FtpClient.CloneConnection()
