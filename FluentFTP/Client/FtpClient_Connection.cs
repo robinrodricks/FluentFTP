@@ -268,7 +268,7 @@ namespace FluentFTP {
 			// gets here it means the certificate on the control connection object being
 			// cloned was already accepted.
 			conn.ValidateCertificate += new FtpSslValidation(
-				delegate(FtpClient obj, FtpSslValidationEventArgs e) { e.Accept = true; });
+				delegate (FtpClient obj, FtpSslValidationEventArgs e) { e.Accept = true; });
 
 			return conn;
 		}
@@ -540,7 +540,7 @@ namespace FluentFTP {
 				m_systemType = reply.Message;
 				DetectFtpServerBySyst();
 			}
-			
+
 			// Assume the system's capabilities if FEAT command not supported by the server
 			if (assumeCaps) {
 				AssumeCapabilities();
@@ -562,7 +562,7 @@ namespace FluentFTP {
 #endif
 
 			// Create the parser after OS auto-detection
-			m_listParser.Init(m_serverOS,  GetParserByServerType());
+			m_listParser.Init(m_serverOS, GetParserByServerType());
 		}
 #endif
 
@@ -727,7 +727,7 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				LogFunc("AutoDetect", new object[] {firstOnly});
+				LogFunc("AutoDetect", new object[] { firstOnly });
 
 				if (IsDisposed) {
 					throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
@@ -812,7 +812,7 @@ namespace FluentFTP {
 			return results;
 		}
 
-#endregion
+		#endregion
 
 		#region Auto Connect
 
@@ -833,7 +833,7 @@ namespace FluentFTP {
 		/// Connect to the given server profile.
 		/// </summary>
 		public async Task ConnectAsync(FtpProfile profile, CancellationToken token = default(CancellationToken)) {
-			
+
 			// copy over the profile properties to this instance
 			LoadProfile(profile);
 
@@ -882,7 +882,7 @@ namespace FluentFTP {
 
 				// if we are using SSL, set a basic server acceptance function
 				if (profile.Encryption != FtpEncryptionMode.None) {
-					ValidateCertificate += new FtpSslValidation(delegate(FtpClient c, FtpSslValidationEventArgs e) {
+					ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
 						if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
 							e.Accept = false;
 						}
@@ -918,7 +918,7 @@ namespace FluentFTP {
 
 				// if we are using SSL, set a basic server acceptance function
 				if (profile.Encryption != FtpEncryptionMode.None) {
-					ValidateCertificate += new FtpSslValidation(delegate(FtpClient c, FtpSslValidationEventArgs e) {
+					ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
 						if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
 							e.Accept = false;
 						}
@@ -980,7 +980,7 @@ namespace FluentFTP {
 			}
 
 			if (reply.Type == FtpResponseType.PositiveIntermediate &&
-			    !(reply = Execute("PASS " + password)).Success) {
+				!(reply = Execute("PASS " + password)).Success) {
 				throw new FtpAuthenticationException(reply);
 			}
 		}
@@ -1003,7 +1003,7 @@ namespace FluentFTP {
 			}
 
 			if (reply.Type == FtpResponseType.PositiveIntermediate
-			    && !(reply = await ExecuteAsync("PASS " + password, token)).Success) {
+				&& !(reply = await ExecuteAsync("PASS " + password, token)).Success) {
 				throw new FtpAuthenticationException(reply);
 			}
 		}

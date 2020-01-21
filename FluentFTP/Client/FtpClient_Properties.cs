@@ -656,8 +656,8 @@ namespace FluentFTP {
 				m_timeDiff = value;
 
 				// configure parser
-				var hours = (int) Math.Floor(m_timeDiff);
-				var mins = (int) Math.Floor((m_timeDiff - Math.Floor(m_timeDiff)) * 60);
+				var hours = (int)Math.Floor(m_timeDiff);
+				var mins = (int)Math.Floor((m_timeDiff - Math.Floor(m_timeDiff)) * 60);
 				m_listParser.TimeOffset = new TimeSpan(hours, mins, 0);
 				m_listParser.HasTimeOffset = m_timeDiff != 0;
 			}
@@ -779,7 +779,7 @@ namespace FluentFTP {
 			get => m_SendHost;
 			set => m_SendHost = value;
 		}
-		
+
 		private string m_SendHostDomain = null;
 		/// <summary>
 		/// Controls which domain is sent with the HOST command.

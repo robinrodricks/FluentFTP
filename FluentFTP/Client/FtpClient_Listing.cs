@@ -43,7 +43,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc("GetObjectInfo", new object[] {path, dateModified});
+			LogFunc("GetObjectInfo", new object[] { path, dateModified });
 
 			FtpReply reply;
 			string[] res;
@@ -215,7 +215,7 @@ namespace FluentFTP {
 				return GetListingRecursive(GetAbsolutePath(path), options);
 			}
 
-			LogFunc("GetListing", new object[] {path, options});
+			LogFunc("GetListing", new object[] { path, options });
 
 			FtpListItem item = null;
 			var lst = new List<FtpListItem>();
@@ -590,7 +590,7 @@ namespace FluentFTP {
 				return await GetListingRecursiveAsync(GetAbsolutePath(path), options);
 			}
 
-			LogFunc(nameof(GetListingAsync), new object[] {path, options});
+			LogFunc(nameof(GetListingAsync), new object[] { path, options });
 
 			FtpListItem item = null;
 			var lst = new List<FtpListItem>();
@@ -734,7 +734,7 @@ namespace FluentFTP {
 			await SetDataTypeNoLockAsync(FtpDataType.Binary, token);
 
 			try {
-		
+
 				// read in raw file listing from control stream
 				if (isUseStat) {
 					var reply = await ExecuteAsync(listcmd, token);
@@ -966,7 +966,7 @@ namespace FluentFTP {
 		/// <returns>A string array of file and directory names if any were returned.</returns>
 		/// <example><code source="..\Examples\GetNameListing.cs" lang="cs" /></example>
 		public string[] GetNameListing(string path) {
-			LogFunc("GetNameListing", new object[] {path});
+			LogFunc("GetNameListing", new object[] { path });
 
 			var listing = new List<string>();
 
@@ -1069,7 +1069,7 @@ namespace FluentFTP {
 		/// <param name="token">Cancellation Token</param>
 		/// <returns>An array of file and directory names if any were returned.</returns>
 		public async Task<string[]> GetNameListingAsync(string path, CancellationToken token = default(CancellationToken)) {
-			LogFunc(nameof(GetNameListingAsync), new object[] {path});
+			LogFunc(nameof(GetNameListingAsync), new object[] { path });
 
 			var listing = new List<string>();
 

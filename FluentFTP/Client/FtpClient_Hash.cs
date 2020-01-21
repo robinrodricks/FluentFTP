@@ -482,7 +482,7 @@ namespace FluentFTP {
 					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
 				}
 
-				func = (AsyncGetChecksum) m_asyncmethods[ar];
+				func = (AsyncGetChecksum)m_asyncmethods[ar];
 				m_asyncmethods.Remove(ar);
 			}
 
@@ -569,8 +569,7 @@ namespace FluentFTP {
 			}
 
 			response = reply.Message;
-			foreach (var responsePrefix in new[] { path, $@"""{path}""" })
-			{
+			foreach (var responsePrefix in new[] { path, $@"""{path}""" }) {
 				if (!response.StartsWith(responsePrefix)) {
 					continue;
 				}
@@ -618,7 +617,7 @@ namespace FluentFTP {
 					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
 				}
 
-				func = (AsyncGetMD5) m_asyncmethods[ar];
+				func = (AsyncGetMD5)m_asyncmethods[ar];
 				m_asyncmethods.Remove(ar);
 			}
 
@@ -711,7 +710,7 @@ namespace FluentFTP {
 					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
 				}
 
-				func = (AsyncGetXCRC) m_asyncmethods[ar];
+				func = (AsyncGetXCRC)m_asyncmethods[ar];
 				m_asyncmethods.Remove(ar);
 			}
 
@@ -804,7 +803,7 @@ namespace FluentFTP {
 					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
 				}
 
-				func = (AsyncGetXMD5) m_asyncmethods[ar];
+				func = (AsyncGetXMD5)m_asyncmethods[ar];
 				m_asyncmethods.Remove(ar);
 			}
 
@@ -891,7 +890,7 @@ namespace FluentFTP {
 					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
 				}
 
-				func = (AsyncGetXSHA1) m_asyncmethods[ar];
+				func = (AsyncGetXSHA1)m_asyncmethods[ar];
 				m_asyncmethods.Remove(ar);
 			}
 
@@ -978,7 +977,7 @@ namespace FluentFTP {
 					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
 				}
 
-				func = (AsyncGetXSHA256) m_asyncmethods[ar];
+				func = (AsyncGetXSHA256)m_asyncmethods[ar];
 				m_asyncmethods.Remove(ar);
 			}
 
@@ -1065,7 +1064,7 @@ namespace FluentFTP {
 					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
 				}
 
-				func = (AsyncGetXSHA512) m_asyncmethods[ar];
+				func = (AsyncGetXSHA512)m_asyncmethods[ar];
 				m_asyncmethods.Remove(ar);
 			}
 

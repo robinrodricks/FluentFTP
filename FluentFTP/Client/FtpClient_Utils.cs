@@ -74,7 +74,7 @@ namespace FluentFTP {
 #endif
 				}
 
-				func = (T) m_asyncmethods[ar];
+				func = (T)m_asyncmethods[ar];
 				m_asyncmethods.Remove(ar);
 			}
 
@@ -126,7 +126,7 @@ namespace FluentFTP {
 		/// Ensure a relative path is absolute by appending the working dir
 		/// </summary>
 		private async Task<string> GetAbsolutePathAsync(string path, CancellationToken token) {
-			
+
 			if (path == null || path.Trim().Length == 0) {
 				// if path not given, then use working dir
 				string pwd = await GetWorkingDirectoryAsync(token);
@@ -137,7 +137,7 @@ namespace FluentFTP {
 					path = "./";
 				}
 			}
-			
+
 			// FIX : #153 ensure this check works with unix & windows
 			// FIX : #454 OpenVMS paths can be a single character
 			else if (!path.StartsWith("/") && !(path.Length > 1 && path[1] == ':')) {

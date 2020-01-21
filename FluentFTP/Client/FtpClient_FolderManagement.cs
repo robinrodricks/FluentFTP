@@ -36,7 +36,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc("DeleteDirectory", new object[] {path});
+			LogFunc("DeleteDirectory", new object[] { path });
 			DeleteDirInternal(path, true, FtpListOption.ForceList | FtpListOption.Recursive);
 		}
 
@@ -52,7 +52,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc("DeleteDirectory", new object[] {path, options});
+			LogFunc("DeleteDirectory", new object[] { path, options });
 			DeleteDirInternal(path, true, options);
 		}
 
@@ -207,7 +207,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc(nameof(DeleteDirectoryAsync), new object[] {path});
+			LogFunc(nameof(DeleteDirectoryAsync), new object[] { path });
 			return DeleteDirInternalAsync(path, true, FtpListOption.ForceList | FtpListOption.Recursive, token);
 		}
 
@@ -223,7 +223,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc(nameof(DeleteDirectoryAsync), new object[] {path, options});
+			LogFunc(nameof(DeleteDirectoryAsync), new object[] { path, options });
 			return DeleteDirInternalAsync(path, true, options, token);
 		}
 
@@ -320,7 +320,7 @@ namespace FluentFTP {
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			LogFunc("DirectoryExists", new object[] {path});
+			LogFunc("DirectoryExists", new object[] { path });
 
 			// quickly check if root path, then it always exists!
 			var ftppath = path.GetFtpPath();
@@ -409,7 +409,7 @@ namespace FluentFTP {
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			LogFunc(nameof(DirectoryExistsAsync), new object[] {path});
+			LogFunc(nameof(DirectoryExistsAsync), new object[] { path });
 
 			// quickly check if root path, then it always exists!
 			var ftppath = path.GetFtpPath();
@@ -459,7 +459,7 @@ namespace FluentFTP {
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			LogFunc("CreateDirectory", new object[] {path, force});
+			LogFunc("CreateDirectory", new object[] { path, force });
 
 			FtpReply reply;
 			var ftppath = path.GetFtpPath();
@@ -559,7 +559,7 @@ namespace FluentFTP {
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			LogFunc(nameof(CreateDirectoryAsync), new object[] {path, force});
+			LogFunc(nameof(CreateDirectoryAsync), new object[] { path, force });
 
 			FtpReply reply;
 			var ftppath = path.GetFtpPath();
@@ -625,7 +625,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "dest");
 			}
 
-			LogFunc("MoveDirectory", new object[] {path, dest, existsMode});
+			LogFunc("MoveDirectory", new object[] { path, dest, existsMode });
 
 			if (DirectoryExists(path)) {
 				// check if dest directory exists and act accordingly
@@ -708,7 +708,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "dest");
 			}
 
-			LogFunc(nameof(MoveDirectoryAsync), new object[] {path, dest, existsMode});
+			LogFunc(nameof(MoveDirectoryAsync), new object[] { path, dest, existsMode });
 
 			if (await DirectoryExistsAsync(path, token)) {
 				// check if dest directory exists and act accordingly
@@ -746,7 +746,7 @@ namespace FluentFTP {
 		/// <param name="path">The path of the directory to change to</param>
 		/// <example><code source="..\Examples\SetWorkingDirectory.cs" lang="cs" /></example>
 		public void SetWorkingDirectory(string path) {
-			LogFunc("SetWorkingDirectory", new object[] {path});
+			LogFunc("SetWorkingDirectory", new object[] { path });
 
 			FtpReply reply;
 			var ftppath = path.GetFtpPath();
@@ -808,7 +808,7 @@ namespace FluentFTP {
 		/// <param name="path">The directory to change to</param>
 		/// <param name="token">Cancellation Token</param>
 		public async Task SetWorkingDirectoryAsync(string path, CancellationToken token = default(CancellationToken)) {
-			LogFunc(nameof(SetWorkingDirectoryAsync), new object[] {path});
+			LogFunc(nameof(SetWorkingDirectoryAsync), new object[] { path });
 
 			FtpReply reply;
 			var ftppath = path.GetFtpPath();

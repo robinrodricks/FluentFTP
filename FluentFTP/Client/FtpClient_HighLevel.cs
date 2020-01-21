@@ -39,9 +39,9 @@ namespace FluentFTP {
 			}
 
 			if (HasFeature(FtpCapability.HASH) || HasFeature(FtpCapability.MD5) ||
-			    HasFeature(FtpCapability.XMD5) || HasFeature(FtpCapability.XCRC) ||
-			    HasFeature(FtpCapability.XSHA1) || HasFeature(FtpCapability.XSHA256) ||
-			    HasFeature(FtpCapability.XSHA512)) {
+				HasFeature(FtpCapability.XMD5) || HasFeature(FtpCapability.XCRC) ||
+				HasFeature(FtpCapability.XSHA1) || HasFeature(FtpCapability.XSHA256) ||
+				HasFeature(FtpCapability.XSHA512)) {
 				var hash = GetChecksum(remotePath);
 				if (!hash.IsValid) {
 					return false;
@@ -66,9 +66,9 @@ namespace FluentFTP {
 			}
 
 			if (HasFeature(FtpCapability.HASH) || HasFeature(FtpCapability.MD5) ||
-			    HasFeature(FtpCapability.XMD5) || HasFeature(FtpCapability.XCRC) ||
-			    HasFeature(FtpCapability.XSHA1) || HasFeature(FtpCapability.XSHA256) ||
-			    HasFeature(FtpCapability.XSHA512)) {
+				HasFeature(FtpCapability.XMD5) || HasFeature(FtpCapability.XCRC) ||
+				HasFeature(FtpCapability.XSHA1) || HasFeature(FtpCapability.XSHA256) ||
+				HasFeature(FtpCapability.XSHA512)) {
 				FtpHash hash = await GetChecksumAsync(remotePath, token);
 				if (!hash.IsValid) {
 					return false;
@@ -102,7 +102,7 @@ namespace FluentFTP {
 		/// Sends progress to the user, either a value between 0-100 indicating percentage complete, or -1 for indeterminate.
 		/// </summary>
 		private void ReportProgress(Action<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime) {
-			
+
 			//  calculate % done, transfer speed and time remaining
 			FtpProgress status = CalculateProgress(fileSize, position, bytesProcessed, elapsedtime);
 

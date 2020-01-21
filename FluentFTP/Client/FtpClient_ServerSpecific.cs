@@ -544,7 +544,7 @@ namespace FluentFTP {
 		#region Delete Directory
 
 		private bool ServerDeleteDirectory(string path, string ftppath, bool deleteContents, FtpListOption options) {
-			
+
 			// Support #378 - Support RMDIR command for ProFTPd
 			if (deleteContents && HasFeature(FtpCapability.SITE_RMDIR)) {
 				if ((Execute("SITE RMDIR " + ftppath)).Success) {
@@ -572,7 +572,7 @@ namespace FluentFTP {
 
 #if ASYNC
 		private async Task<bool> ServerDeleteDirectoryAsync(string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
-			
+
 			// Support #378 - Support RMDIR command for ProFTPd
 			if (deleteContents && ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_RMDIR)) {
 				if ((await ExecuteAsync("SITE RMDIR " + ftppath, token)).Success) {
@@ -593,7 +593,7 @@ namespace FluentFTP {
 		#region Create Directory
 
 		private bool ServerCreateDirectory(string path, string ftppath, bool force) {
-			
+
 			// Support #378 - Support MKDIR command for ProFTPd
 			if (ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_MKDIR)) {
 				if ((Execute("SITE MKDIR " + ftppath)).Success) {
@@ -610,7 +610,7 @@ namespace FluentFTP {
 
 #if ASYNC
 		private async Task<bool> ServerCreateDirectoryAsync(string path, string ftppath, bool force, CancellationToken token) {
-			
+
 			// Support #378 - Support MKDIR command for ProFTPd
 			if (ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_MKDIR)) {
 				if ((await ExecuteAsync("SITE MKDIR " + ftppath, token)).Success) {

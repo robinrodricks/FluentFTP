@@ -324,7 +324,7 @@ namespace FluentFTP {
 
 				//this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 			}
-		
+
 			// if reply received
 			if (reply.Code != null) {
 				// hide sensitive data from logs
@@ -353,7 +353,7 @@ namespace FluentFTP {
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <returns>A data stream ready to be used</returns>
 		private FtpDataStream OpenPassiveDataStream(FtpDataConnectionType type, string command, long restart) {
-			LogFunc("OpenPassiveDataStream", new object[] {type, command, restart});
+			LogFunc("OpenPassiveDataStream", new object[] { type, command, restart });
 
 			FtpDataStream stream = null;
 			FtpReply reply;
@@ -370,9 +370,9 @@ namespace FluentFTP {
 				if (!(reply = Execute("EPSV")).Success) {
 					// if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
 					if ((reply.Type == FtpResponseType.TransientNegativeCompletion || reply.Type == FtpResponseType.PermanentNegativeCompletion)
-					    && type == FtpDataConnectionType.AutoPassive
-					    && m_stream != null
-					    && m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
+						&& type == FtpDataConnectionType.AutoPassive
+						&& m_stream != null
+						&& m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
 						// mark EPSV not supported so we do not try EPSV again during this connection
 						_EPSVNotSupported = true;
 						return OpenPassiveDataStream(FtpDataConnectionType.PASV, command, restart);
@@ -484,7 +484,7 @@ namespace FluentFTP {
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <returns>A data stream ready to be used</returns>
 		private async Task<FtpDataStream> OpenPassiveDataStreamAsync(FtpDataConnectionType type, string command, long restart, CancellationToken token = default(CancellationToken)) {
-			LogFunc(nameof(OpenPassiveDataStreamAsync), new object[] {type, command, restart});
+			LogFunc(nameof(OpenPassiveDataStreamAsync), new object[] { type, command, restart });
 
 			FtpDataStream stream = null;
 			FtpReply reply;
@@ -502,9 +502,9 @@ namespace FluentFTP {
 				if (!(reply = await ExecuteAsync("EPSV", token)).Success) {
 					// if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
 					if ((reply.Type == FtpResponseType.TransientNegativeCompletion || reply.Type == FtpResponseType.PermanentNegativeCompletion)
-					    && type == FtpDataConnectionType.AutoPassive
-					    && m_stream != null
-					    && m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
+						&& type == FtpDataConnectionType.AutoPassive
+						&& m_stream != null
+						&& m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
 						// mark EPSV not supported so we do not try EPSV again during this connection
 						_EPSVNotSupported = true;
 						return await OpenPassiveDataStreamAsync(FtpDataConnectionType.PASV, command, restart, token);
@@ -625,7 +625,7 @@ namespace FluentFTP {
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <returns>A data stream ready to be used</returns>
 		private FtpDataStream OpenActiveDataStream(FtpDataConnectionType type, string command, long restart) {
-			LogFunc("OpenActiveDataStream", new object[] {type, command, restart});
+			LogFunc("OpenActiveDataStream", new object[] { type, command, restart });
 
 			var stream = new FtpDataStream(this);
 			stream.Client = this;
@@ -680,9 +680,9 @@ namespace FluentFTP {
 				}
 
 				if (!(reply = Execute("PORT " +
-				                      GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ',') + "," +
-				                      stream.LocalEndPoint.Port / 256 + "," +
-				                      stream.LocalEndPoint.Port % 256)).Success) {
+									  GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ',') + "," +
+									  stream.LocalEndPoint.Port / 256 + "," +
+									  stream.LocalEndPoint.Port % 256)).Success) {
 					stream.Close();
 					throw new FtpCommandException(reply);
 				}
@@ -741,7 +741,7 @@ namespace FluentFTP {
 		/// <param name="token">Cancellation Token</param>
 		/// <returns>A data stream ready to be used</returns>
 		private async Task<FtpDataStream> OpenActiveDataStreamAsync(FtpDataConnectionType type, string command, long restart, CancellationToken token = default(CancellationToken)) {
-			LogFunc(nameof(OpenActiveDataStreamAsync), new object[] {type, command, restart});
+			LogFunc(nameof(OpenActiveDataStreamAsync), new object[] { type, command, restart });
 
 			var stream = new FtpDataStream(this);
 			stream.Client = this;
@@ -798,9 +798,9 @@ namespace FluentFTP {
 				}
 
 				if (!(reply = await ExecuteAsync("PORT " +
-				                                 GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ',') + "," +
-				                                 stream.LocalEndPoint.Port / 256 + "," +
-				                                 stream.LocalEndPoint.Port % 256, token)).Success) {
+												 GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ',') + "," +
+												 stream.LocalEndPoint.Port / 256 + "," +
+												 stream.LocalEndPoint.Port % 256, token)).Success) {
 					stream.Close();
 					throw new FtpCommandException(reply);
 				}
@@ -1144,7 +1144,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc("OpenRead", new object[] {path, type, restart});
+			LogFunc("OpenRead", new object[] { path, type, restart });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1274,7 +1274,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc(nameof(OpenReadAsync), new object[] {path, type, restart});
+			LogFunc(nameof(OpenReadAsync), new object[] { path, type, restart });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1392,7 +1392,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc("OpenWrite", new object[] {path, type});
+			LogFunc("OpenWrite", new object[] { path, type });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1488,7 +1488,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc(nameof(OpenWriteAsync), new object[] {path, type});
+			LogFunc(nameof(OpenWriteAsync), new object[] { path, type });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1577,7 +1577,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc("OpenAppend", new object[] {path, type});
+			LogFunc("OpenAppend", new object[] { path, type });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1674,7 +1674,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc(nameof(OpenAppendAsync), new object[] {path, type});
+			LogFunc(nameof(OpenAppendAsync), new object[] { path, type });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;

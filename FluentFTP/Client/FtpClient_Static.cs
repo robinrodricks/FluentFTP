@@ -50,7 +50,7 @@ namespace FluentFTP {
 				cl.Credentials = new NetworkCredential("ftp", "ftp");
 			}
 
-			cl.ValidateCertificate += new FtpSslValidation(delegate(FtpClient control, FtpSslValidationEventArgs e) {
+			cl.ValidateCertificate += new FtpSslValidation(delegate (FtpClient control, FtpSslValidationEventArgs e) {
 				if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None && checkcertificate) {
 					e.Accept = false;
 				}
