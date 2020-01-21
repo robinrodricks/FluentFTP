@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 29.0.3
+  - Fix: TimeoutException when trying to read FTP server reply after Download/Upload
+
 #### 29.0.2
   - New: Add `SendHost` and `SendHostDomain` to control if HOST command is sent after handshake (thanks [dansharpe83](/dansharpe83))
 
