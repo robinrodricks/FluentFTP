@@ -58,7 +58,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "localDir");
 			}
 
-			LogFunc("DownloadFiles", new object[] {localDir, remotePaths, existsMode, verifyOptions});
+			LogFunc("DownloadFiles", new object[] { localDir, remotePaths, existsMode, verifyOptions });
 
 			var errorEncountered = false;
 			var successfulDownloads = new List<string>();
@@ -76,7 +76,7 @@ namespace FluentFTP {
 					if (ok) {
 						successfulDownloads.Add(localPath);
 					}
-					else if ((int) errorHandling > 1) {
+					else if ((int)errorHandling > 1) {
 						errorEncountered = true;
 						break;
 					}
@@ -174,7 +174,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "localDir");
 			}
 
-			LogFunc("DownloadFilesAsync", new object[] {localDir, remotePaths, existsMode, verifyOptions});
+			LogFunc("DownloadFilesAsync", new object[] { localDir, remotePaths, existsMode, verifyOptions });
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
 			token.ThrowIfCancellationRequested();
@@ -197,7 +197,7 @@ namespace FluentFTP {
 					if (ok) {
 						successfulDownloads.Add(localPath);
 					}
-					else if ((int) errorHandling > 1) {
+					else if ((int)errorHandling > 1) {
 						errorEncountered = true;
 						break;
 					}
@@ -272,7 +272,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("DownloadFile", new object[] {localPath, remotePath, existsMode, verifyOptions});
+			LogFunc("DownloadFile", new object[] { localPath, remotePath, existsMode, verifyOptions });
 
 			return DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, progress);
 		}
@@ -370,7 +370,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("DownloadFileAsync", new object[] {localPath, remotePath, existsMode, verifyOptions});
+			LogFunc("DownloadFileAsync", new object[] { localPath, remotePath, existsMode, verifyOptions });
 
 			return await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, progress, token);
 		}
@@ -491,7 +491,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("Download", new object[] {remotePath});
+			LogFunc("Download", new object[] { remotePath });
 
 			// download the file from the server
 			return DownloadFileInternal(remotePath, outStream, restartPosition, progress);
@@ -513,7 +513,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("Download", new object[] {remotePath});
+			LogFunc("Download", new object[] { remotePath });
 
 			outBytes = null;
 
@@ -551,7 +551,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("DownloadAsync", new object[] {remotePath});
+			LogFunc("DownloadAsync", new object[] { remotePath });
 
 			// download the file from the server
 			return await DownloadFileInternalAsync(remotePath, outStream, restartPosition, progress, token);
@@ -573,7 +573,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("DownloadAsync", new object[] {remotePath});
+			LogFunc("DownloadAsync", new object[] { remotePath });
 
 			// download the file from the server
 			using (var outStream = new MemoryStream()) {
@@ -622,7 +622,7 @@ namespace FluentFTP {
 				var readToEnd = fileLen <= 0;
 
 				const int rateControlResolution = 100;
-				var rateLimitBytes = DownloadRateLimit != 0 ? (long) DownloadRateLimit * 1024 : 0;
+				var rateLimitBytes = DownloadRateLimit != 0 ? (long)DownloadRateLimit * 1024 : 0;
 				var chunkSize = TransferChunkSize;
 				if (m_transferChunkSize == null && rateLimitBytes > 0) {
 					// reduce chunk size to optimize rate control
@@ -679,7 +679,7 @@ namespace FluentFTP {
 #if CORE14
 													Task.Delay((int) (timeShouldTake - swTime)).Wait();
 #else
-									Thread.Sleep((int) (timeShouldTake - swTime));
+									Thread.Sleep((int)(timeShouldTake - swTime));
 #endif
 								}
 								else if (swTime > timeShouldTake + rateControlResolution) {
@@ -731,21 +731,26 @@ namespace FluentFTP {
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
-				while (!m_threadSafeDataChannels) {
-					var status = GetReply();
+				try {
+					while (!m_threadSafeDataChannels) {
+						var status = GetReply();
 
-					// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
-					if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
-						continue;
+						// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
+						if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
+							continue;
+						}
+
+						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
+						if (anyNoop) {
+							ReadStaleData(false, true, true);
+						}
+
+						break;
 					}
-
-					// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
-					if (anyNoop) {
-						ReadStaleData(false, true, true);
-					}
-
-					break;
 				}
+
+				// absorb "System.TimeoutException: Timed out trying to read data from the socket stream!" at GetReply()
+				catch (Exception) { }
 
 				return true;
 			}
@@ -844,7 +849,7 @@ namespace FluentFTP {
 							if (rateLimitBytes > 0) {
 								var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
 								if (timeShouldTake > swTime) {
-									await Task.Delay((int) (timeShouldTake - swTime), token);
+									await Task.Delay((int)(timeShouldTake - swTime), token);
 									token.ThrowIfCancellationRequested();
 								}
 								else if (swTime > timeShouldTake + rateControlResolution) {
@@ -888,33 +893,38 @@ namespace FluentFTP {
 				}
 
 				sw.Stop();
-				
+
 				// send progress reports
 				if (progress != null) {
 					progress.Report(new FtpProgress(100.0, 0, TimeSpan.Zero));
 				}
-				
+
 				// disconnect FTP stream before exiting
 				await outStream.FlushAsync(token);
 				downStream.Dispose();
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
-				while (!m_threadSafeDataChannels) {
-					FtpReply status = await GetReplyAsync(token);
+				try {
+					while (!m_threadSafeDataChannels) {
+						FtpReply status = await GetReplyAsync(token);
 
-					// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
-					if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
-						continue;
+						// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
+						if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
+							continue;
+						}
+
+						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
+						if (anyNoop) {
+							await ReadStaleDataAsync(false, true, true, token);
+						}
+
+						break;
 					}
-
-					// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
-					if (anyNoop) {
-						await ReadStaleDataAsync(false, true, true, token);
-					}
-
-					break;
 				}
+
+				// absorb "System.TimeoutException: Timed out trying to read data from the socket stream!" at GetReply()
+				catch (Exception) { }
 
 				return true;
 			}
@@ -969,15 +979,15 @@ namespace FluentFTP {
 #if CORE
 				if (ie == null || ie != null && (int) ie.SocketErrorCode == 10054) {
 #else
-					if (ie == null || ie != null && ie.ErrorCode == 10054) {
+				if (ie == null || ie != null && ie.ErrorCode == 10054) {
 #endif
-						downStream.Dispose();
-						return Tuple.Create(true, await OpenReadAsync(remotePath, DownloadDataType, offset));
-					}
+					downStream.Dispose();
+					return Tuple.Create(true, await OpenReadAsync(remotePath, DownloadDataType, offset));
 				}
-
-				return Tuple.Create(false, (Stream) null);
 			}
+
+			return Tuple.Create(false, (Stream)null);
+		}
 #endif
 
 		#endregion

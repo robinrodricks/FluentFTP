@@ -61,7 +61,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteDir");
 			}
 
-			LogFunc("UploadFiles", new object[] {localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling});
+			LogFunc("UploadFiles", new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
 			//int count = 0;
 			var errorEncountered = false;
@@ -98,7 +98,7 @@ namespace FluentFTP {
 
 						//count++;
 					}
-					else if ((int) errorHandling > 1) {
+					else if ((int)errorHandling > 1) {
 						errorEncountered = true;
 						break;
 					}
@@ -201,7 +201,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteDir");
 			}
 
-			LogFunc("UploadFilesAsync", new object[] {localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling});
+			LogFunc("UploadFilesAsync", new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
 			token.ThrowIfCancellationRequested();
@@ -242,7 +242,7 @@ namespace FluentFTP {
 					if (ok) {
 						successfulUploads.Add(remotePath);
 					}
-					else if ((int) errorHandling > 1) {
+					else if ((int)errorHandling > 1) {
 						errorEncountered = true;
 						break;
 					}
@@ -327,7 +327,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("UploadFile", new object[] {localPath, remotePath, existsMode, createRemoteDir, verifyOptions});
+			LogFunc("UploadFile", new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
@@ -411,54 +411,54 @@ namespace FluentFTP {
 #if CORE
 			if (!await Task.Run(() => File.Exists(localPath), token)) {
 #else
-				if (!File.Exists(localPath)) {
+			if (!File.Exists(localPath)) {
 #endif
-					LogStatus(FtpTraceLevel.Error, "File does not exist.");
-					return false;
-				}
-
-				LogFunc("UploadFileAsync", new object[] {localPath, remotePath, existsMode, createRemoteDir, verifyOptions});
-
-				return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token, progress);
+				LogStatus(FtpTraceLevel.Error, "File does not exist.");
+				return false;
 			}
 
-			private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
-				bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token, IProgress<FtpProgress> progress) {
-				// If retries are allowed set the retry counter to the allowed count
-				var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+			LogFunc("UploadFileAsync", new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 
-				// Default validation to true (if verification isn't needed it'll allow a pass-through)
-				var verified = true;
-				bool uploadSuccess;
-				do {
-					// write the file onto the server
-					using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true)) {
-						uploadSuccess = await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, progress, token);
-						attemptsLeft--;
+			return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token, progress);
+		}
 
-						// If verification is needed, update the validated flag
-						if (verifyOptions != FtpVerify.None) {
-							verified = await VerifyTransferAsync(localPath, remotePath, token);
-							LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
-							if (!verified && attemptsLeft > 0) {
-								// Force overwrite if a retry is required
-								LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpRemoteExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
-								existsMode = FtpRemoteExists.Overwrite;
-							}
+		private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
+			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token, IProgress<FtpProgress> progress) {
+			// If retries are allowed set the retry counter to the allowed count
+			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+
+			// Default validation to true (if verification isn't needed it'll allow a pass-through)
+			var verified = true;
+			bool uploadSuccess;
+			do {
+				// write the file onto the server
+				using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true)) {
+					uploadSuccess = await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, progress, token);
+					attemptsLeft--;
+
+					// If verification is needed, update the validated flag
+					if (verifyOptions != FtpVerify.None) {
+						verified = await VerifyTransferAsync(localPath, remotePath, token);
+						LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+						if (!verified && attemptsLeft > 0) {
+							// Force overwrite if a retry is required
+							LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpRemoteExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
+							existsMode = FtpRemoteExists.Overwrite;
 						}
 					}
-				} while (!verified && attemptsLeft > 0);
-
-				if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
-					await DeleteFileAsync(remotePath, token);
 				}
+			} while (!verified && attemptsLeft > 0);
 
-				if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
-					throw new FtpException("Uploaded file checksum value does not match local file");
-				}
-
-				return uploadSuccess && verified;
+			if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
+				await DeleteFileAsync(remotePath, token);
 			}
+
+			if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
+				throw new FtpException("Uploaded file checksum value does not match local file");
+			}
+
+			return uploadSuccess && verified;
+		}
 
 #endif
 
@@ -487,7 +487,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("Upload", new object[] {remotePath, existsMode, createRemoteDir});
+			LogFunc("Upload", new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			return UploadFileInternal(fileStream, remotePath, createRemoteDir, existsMode, false, false, progress);
@@ -514,7 +514,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("Upload", new object[] {remotePath, existsMode, createRemoteDir});
+			LogFunc("Upload", new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			using (var ms = new MemoryStream(fileData)) {
@@ -548,7 +548,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("UploadAsync", new object[] {remotePath, existsMode, createRemoteDir});
+			LogFunc("UploadAsync", new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			return await UploadFileInternalAsync(fileStream, remotePath, createRemoteDir, existsMode, false, false, progress, token);
@@ -577,7 +577,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("UploadAsync", new object[] {remotePath, existsMode, createRemoteDir});
+			LogFunc("UploadAsync", new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			using (var ms = new MemoryStream(fileData)) {
@@ -623,7 +623,7 @@ namespace FluentFTP {
 						case FtpRemoteExists.Skip:
 							if (fileExists) {
 								LogStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
-								
+
 								// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
 								// send progress reports
 								if (progress != null) {
@@ -681,7 +681,7 @@ namespace FluentFTP {
 				}
 
 				const int rateControlResolution = 100;
-				var rateLimitBytes = UploadRateLimit != 0 ? (long) UploadRateLimit * 1024 : 0;
+				var rateLimitBytes = UploadRateLimit != 0 ? (long)UploadRateLimit * 1024 : 0;
 				var chunkSize = TransferChunkSize;
 				if (m_transferChunkSize == null && rateLimitBytes > 0) {
 					// reduce chunk size to optimize rate control
@@ -744,7 +744,7 @@ namespace FluentFTP {
 #if CORE14
 										Task.Delay((int) (timeShouldTake - swTime)).Wait();
 #else
-									Thread.Sleep((int) (timeShouldTake - swTime));
+									Thread.Sleep((int)(timeShouldTake - swTime));
 #endif
 								}
 								else if (swTime > timeShouldTake + rateControlResolution) {
@@ -794,26 +794,31 @@ namespace FluentFTP {
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
-				while (!m_threadSafeDataChannels) {
-					var status = GetReply();
+				try {
+					while (!m_threadSafeDataChannels) {
+						var status = GetReply();
 
-					// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
-					if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
-						continue;
+						// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
+						if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
+							continue;
+						}
+
+						// Fix #353: if server sends 550 the transfer was received but could not be confirmed by the server
+						if (status.Code != null && status.Code != "" && status.Code.StartsWith("5")) {
+							return false;
+						}
+
+						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
+						if (anyNoop) {
+							ReadStaleData(false, true, true);
+						}
+
+						break;
 					}
-
-					// Fix #353: if server sends 550 the transfer was received but could not be confirmed by the server
-					if (status.Code != null && status.Code != "" && status.Code.StartsWith("5")) {
-						return false;
-					}
-
-					// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
-					if (anyNoop) {
-						ReadStaleData(false, true, true);
-					}
-
-					break;
 				}
+
+				// absorb "System.TimeoutException: Timed out trying to read data from the socket stream!" at GetReply()
+				catch (Exception) { }
 
 				return true;
 			}
@@ -980,7 +985,7 @@ namespace FluentFTP {
 							if (rateLimitBytes > 0) {
 								var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
 								if (timeShouldTake > swTime) {
-									await Task.Delay((int) (timeShouldTake - swTime), token);
+									await Task.Delay((int)(timeShouldTake - swTime), token);
 									token.ThrowIfCancellationRequested();
 								}
 								else if (swTime > timeShouldTake + rateControlResolution) {
@@ -1033,26 +1038,31 @@ namespace FluentFTP {
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
-				while (!m_threadSafeDataChannels) {
-					FtpReply status = await GetReplyAsync(token);
+				try {
+					while (!m_threadSafeDataChannels) {
+						FtpReply status = await GetReplyAsync(token);
 
-					// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
-					if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
-						continue;
+						// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
+						if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
+							continue;
+						}
+
+						// Fix #353: if server sends 550 the transfer was received but could not be confirmed by the server
+						if (status.Code != null && status.Code != "" && status.Code.StartsWith("5")) {
+							return false;
+						}
+
+						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
+						if (anyNoop) {
+							await ReadStaleDataAsync(false, true, true, token);
+						}
+
+						break;
 					}
-
-					// Fix #353: if server sends 550 the transfer was received but could not be confirmed by the server
-					if (status.Code != null && status.Code != "" && status.Code.StartsWith("5")) {
-						return false;
-					}
-
-					// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
-					if (anyNoop) {
-						await ReadStaleDataAsync(false, true, true, token);
-					}
-
-					break;
 				}
+
+				// absorb "System.TimeoutException: Timed out trying to read data from the socket stream!" at GetReply()
+				catch (Exception) { }
 
 				return true;
 			}
@@ -1105,17 +1115,17 @@ namespace FluentFTP {
 #if CORE
 				if (iex != null && (int) iex.SocketErrorCode == 10054) {
 #else
-					if (iex != null && iex.ErrorCode == 10054) {
+				if (iex != null && iex.ErrorCode == 10054) {
 #endif
-						upStream.Dispose();
-						var returnStream = await OpenAppendAsync(remotePath, UploadDataType, true);
-						returnStream.Position = offset;
-						return Tuple.Create(true, returnStream);
-					}
+					upStream.Dispose();
+					var returnStream = await OpenAppendAsync(remotePath, UploadDataType, true);
+					returnStream.Position = offset;
+					return Tuple.Create(true, returnStream);
 				}
-
-				return Tuple.Create(false, (Stream) null);
 			}
+
+			return Tuple.Create(false, (Stream)null);
+		}
 #endif
 
 		#endregion
