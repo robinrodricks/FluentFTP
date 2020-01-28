@@ -501,7 +501,9 @@ namespace FluentFTP {
 		/// MUST BE LOWER CASE!
 		/// </summary>
 		private static string[] fileSizeNotInASCIIStrings = new[] {
-			"size not allowed in ascii"
+			"not allowed in ascii",
+			"size not allowed in ascii",
+			"n'est pas autorisé en mode ascii"
 		};
 
 		#endregion

@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 29.0.4
+  - Fix: Detect "file size not allowed in ASCII" string for French FTP servers
+
 #### 29.0.3
   - Fix: TimeoutException when trying to read FTP server reply after Download/Upload
 
