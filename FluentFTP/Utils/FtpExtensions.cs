@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -8,9 +10,6 @@ using System.Diagnostics;
 #endif
 #if NET45
 using System.Threading.Tasks;
-using System.Collections;
-using System.IO;
-
 #endif
 
 namespace FluentFTP {

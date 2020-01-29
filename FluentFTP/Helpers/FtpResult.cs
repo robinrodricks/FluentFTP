@@ -7,7 +7,17 @@ namespace FluentFTP {
 	/// <summary>
 	/// Stores the result of a file transfer when UploadDirectory or DownloadDirectory is used.
 	/// </summary>
-	public class FtpFileResult {
+	public class FtpResult {
+
+		/// <summary>
+		/// Gets the type of file system object.
+		/// </summary>
+		public FtpFileSystemObjectType Type;
+
+		/// <summary>
+		/// Gets the size of the file.
+		/// </summary>
+		public long Size;
 
 		/// <summary>
 		/// Gets the name and extension of the file.

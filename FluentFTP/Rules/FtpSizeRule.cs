@@ -1,0 +1,55 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using FluentFTP.Helpers;
+
+namespace FluentFTP {
+
+	/// <summary>
+	/// Allow only files that are larger/smaller than a certain value.
+	/// </summary>
+	public class FtpSizeRule : FtpRule {
+
+		/// <summary>
+		/// Which operator to use
+		/// </summary>
+		public FtpOperator Operator;
+
+		/// <summary>
+		/// The first value, required for all operators
+		/// </summary>
+		public long X;
+
+		/// <summary>
+		/// The second value, only required for BetweenRange and OutsideRange operators
+		/// </summary>
+		public long Y;
+
+		/// <summary>
+		/// Only accept files that are of the given size, or within the given range of sizes.
+		/// </summary>
+		/// <param name="ruleOperator">Which operator to use</param>
+		/// <param name="x">The first value, required for all operators</param>
+		/// <param name="y">The second value, only required for BetweenRange and OutsideRange operators.</param>
+		public FtpSizeRule(FtpOperator ruleOperator, long x, long y = 0) {
+			this.Operator = ruleOperator;
+			this.X = x;
+			this.Y = y;
+		}
+
+		/// <summary>
+		/// Checks if the file is of the given size, or within the given range of sizes.
+		/// </summary>
+		/// <param name="result"></param>
+		/// <returns></returns>
+		public override bool IsAllowed(FtpResult result) {
+			if (result.Type == FtpFileSystemObjectType.File) {
+				return FtpOperators.Validate(Operator, result.Size, X, Y);
+			}
+			else {
+				return true;
+			}
+		}
+
+	}
+}
