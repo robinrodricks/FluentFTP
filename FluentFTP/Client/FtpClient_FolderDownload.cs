@@ -32,12 +32,20 @@ namespace FluentFTP {
 		/// In Mirror mode, we will delete extra files from the local filesystem that are not present on the server.
 		/// In Update mode, we will only download files onto the local filesystem and preserve any extra files.
 		/// Only downloads the files and folders matching all the rules provided, if any.
+		/// All exceptions during downloading are caught, and the exception is stored in the related FtpResult object.
 		/// </summary>
+		/// <param name="localFolder">The full path of the local folder on disk to download into. It is created if it does not exist.</param>
+		/// <param name="remoteFolder">The full path of the remote FTP folder that you want to download. If it does not exist, an empty result list is returned.</param>
+		/// <param name="mode">Mirror or Update mode, as explained above</param>
+		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
+		/// <param name="progress">Provide a callback to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>
 		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
 		/// Returns a blank list if nothing was transfered. Never returns null.
 		/// </returns>
-		public List<FtpResult> DownloadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode folderSyncMode = FtpFolderSyncMode.Update, FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null) {
+		public List<FtpResult> DownloadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null) {
 
 			if (localFolder.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localFolder");
@@ -47,7 +55,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
 			}
 
-			LogFunc("DownloadDirectory", new object[] { localFolder, remoteFolder, folderSyncMode, existsMode, verifyOptions });
+			LogFunc("DownloadDirectory", new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions });
 
 			var results = new List<FtpResult>();
 
@@ -156,7 +164,7 @@ namespace FluentFTP {
 			}
 
 			// delete the extra local files if in mirror mode
-			if (folderSyncMode == FtpFolderSyncMode.Mirror) {
+			if (mode == FtpFolderSyncMode.Mirror) {
 
 				// get all the local files
 				var localListing = Directory.GetFiles(localFolder, "*.*", SearchOption.AllDirectories);

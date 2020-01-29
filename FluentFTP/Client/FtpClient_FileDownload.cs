@@ -255,7 +255,7 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
+		/// <param name="progress">Provide a callback to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
@@ -479,7 +479,7 @@ namespace FluentFTP {
 		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
+		/// <param name="progress">Provide a callback to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public bool Download(Stream outStream, string remotePath, long restartPosition = 0, Action<FtpProgress> progress = null) {
 			// verify args
@@ -505,7 +505,7 @@ namespace FluentFTP {
 		/// <param name="outBytes">The variable that will receive the bytes.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
-		/// <param name="progress">Provide an implementation of IProgress to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
+		/// <param name="progress">Provide a callback to track download progress. The value provided is in the range 0 to 100, indicating the percentage of the file transferred. If the progress is indeterminate, -1 is sent.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public bool Download(out byte[] outBytes, string remotePath, long restartPosition = 0, Action<FtpProgress> progress = null) {
 			// verify args
