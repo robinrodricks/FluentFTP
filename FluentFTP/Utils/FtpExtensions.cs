@@ -9,6 +9,7 @@ using System.Diagnostics;
 #if NET45
 using System.Threading.Tasks;
 using System.Collections;
+using System.IO;
 
 #endif
 
@@ -782,6 +783,17 @@ namespace FluentFTP {
 		public static bool AddOnce<T>(this List<T> items, T item) {
 			if (!items.Contains(item)) {
 				items.Add(item);
+				return true;
+			}
+			return false;
+		}
+
+		/// <summary>
+		/// Ensures the given directory exists.
+		/// </summary>
+		public static bool EnsureDirectory(this string localPath) {
+			if (!Directory.Exists(localPath)) {
+				Directory.CreateDirectory(localPath);
 				return true;
 			}
 			return false;
