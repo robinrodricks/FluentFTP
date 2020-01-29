@@ -286,14 +286,13 @@ namespace FluentFTP {
 			return value == null || value.Length == 0;
 		}
 
-#if NET45
 		/// <summary>
 		/// Checks if the array is null or 0 length.
 		/// </summary>
 		public static bool IsBlank(this IList value) {
 			return value == null || value.Count == 0;
 		}
-
+		
 		/// <summary>
 		/// Checks if the array is null or 0 length.
 		/// </summary>
@@ -312,7 +311,6 @@ namespace FluentFTP {
 
 			return false;
 		}
-#endif
 
 		/// <summary>
 		/// Join the given strings by a delimiter.

@@ -59,5 +59,17 @@ namespace FluentFTP {
 		/// </summary>
 		public bool IsFailed;
 
+		/// <summary>
+		/// Convert this result to a FTP list item.
+		/// </summary>
+		public FtpListItem ToListItem(bool useLocalPath) {
+			return new FtpListItem {
+				Type = Type,
+				Size = Size,
+				Name = Name,
+				FullName = useLocalPath ? LocalPath : RemotePath,
+			};
+		}
+
 	}
 }

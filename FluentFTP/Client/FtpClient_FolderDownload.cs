@@ -29,8 +29,8 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Downloads the specified directory onto the local file system.
-		/// In Mirror mode, we will download missing files, and delete any extra local files that are not present on the server. This is very useful when creating an exact local backup of an FTP directory.
-		/// In Update mode, we will only download missing files and preserve any extra local files. This is useful when you want to simply download missing files from an FTP directory.
+		/// In Mirror mode, we will download missing files, and delete any extra files from disk that are not present on the server. This is very useful when creating an exact local backup of an FTP directory.
+		/// In Update mode, we will only download missing files and preserve any extra files on disk. This is useful when you want to simply download missing files from an FTP directory.
 		/// Only downloads the files and folders matching all the rules provided, if any.
 		/// All exceptions during downloading are caught, and the exception is stored in the related FtpResult object.
 		/// </summary>
@@ -62,17 +62,17 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
 			}
 
-			LogFunc("DownloadDirectory", new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions });
+			LogFunc("DownloadDirectory", new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
 			var results = new List<FtpResult>();
 
 			// ensure the local path ends with slash
-			localFolder = !localFolder.EndsWith(Path.DirectorySeparatorChar.ToString()) ? localFolder + Path.DirectorySeparatorChar.ToString() : localFolder;
+			localFolder = localFolder.EnsurePostfix(Path.DirectorySeparatorChar.ToString());
 
 			// cleanup the remote path
-			remoteFolder = remoteFolder.GetFtpPath();
+			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
 
-			// if the dir does not exist or some error, fail fast
+			// if the dir does not exist, fail fast
 			if (!DirectoryExists(remoteFolder)) {
 				return results;
 			}

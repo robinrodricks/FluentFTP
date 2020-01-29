@@ -113,22 +113,7 @@ namespace FluentFTP {
 
 			return successfulDownloads.Count;
 		}
-
-		/*
-		/// <summary>
-		/// Downloads the specified files into a local single directory.
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// Same speed as <see cref="o:DownloadFile"/>.
-		/// </summary>
-		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
-		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
-		/// <param name="overwrite">True if you want the local file to be overwritten if it already exists. (Default value is true)</param>
-		/// <param name="errorHandling">Used to determine how errors are handled</param>
-		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
-		public int DownloadFiles(string localDir, List<string> remotePaths, bool overwrite = true, FtpError errorHandling = FtpError.None) {
-			return DownloadFiles(localDir, remotePaths.ToArray(), overwrite);
-		}*/
+		
 
 		private void PurgeSuccessfulDownloads(IEnumerable<string> localFiles) {
 			foreach (var localFile in localFiles) {
