@@ -6,7 +6,7 @@ using FluentFTP.Helpers;
 namespace FluentFTP {
 
 	/// <summary>
-	/// Allow only files that are larger/smaller than a certain value.
+	/// Only accept files that are of the given size, or within the given range of sizes.
 	/// </summary>
 	public class FtpSizeRule : FtpRule {
 
@@ -40,9 +40,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Checks if the file is of the given size, or within the given range of sizes.
 		/// </summary>
-		/// <param name="result"></param>
-		/// <returns></returns>
-		public override bool IsAllowed(FtpResult result) {
+		public override bool IsAllowed(FtpListItem result) {
 			if (result.Type == FtpFileSystemObjectType.File) {
 				return FtpOperators.Validate(Operator, result.Size, X, Y);
 			}

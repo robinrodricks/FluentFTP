@@ -15,7 +15,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Returns true if the object has passed this rules.
 		/// </summary>
-		public virtual bool IsAllowed(FtpResult result) {
+		public virtual bool IsAllowed(FtpListItem result) {
 			return true;
 		}
 
