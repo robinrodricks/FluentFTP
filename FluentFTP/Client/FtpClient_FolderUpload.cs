@@ -52,7 +52,7 @@ namespace FluentFTP {
 		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
 		/// Returns a blank list if nothing was transfered. Never returns null.
 		/// </returns>
-		public List<FtpResult> UploadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpRemoteExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null) {
+		public List<FtpResult> UploadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null) {
 
 			if (localFolder.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localFolder");
@@ -82,9 +82,6 @@ namespace FluentFTP {
 				CreateDirectory(remoteFolder);
 			}
 
-			// get all the files on the server
-			var remoteListing = GetListing(remoteFolder, FtpListOption.Recursive | FtpListOption.Size);
-
 			// collect paths of the files that should exist (lowercase for CI checks)
 			var shouldExist = new Dictionary<string, bool>();
 
@@ -95,7 +92,7 @@ namespace FluentFTP {
 			foreach (var localFile in dirListing) {
 
 				// calculate the local path
-				var relativePath = localFile.Replace(localFolder, "");
+				var relativePath = localFile.Replace(localFolder, "").EnsurePostfix(Path.DirectorySeparatorChar.ToString());
 				var remoteFile = remoteFolder + relativePath.Replace('\\', '/');
 
 				// create the result object
@@ -106,16 +103,13 @@ namespace FluentFTP {
 					RemotePath = remoteFile,
 					LocalPath = localFile
 				};
-
-				// find the matching remote file
-				var remoteFile = ??;
-
+				
 				// record the folder
 				results.Add(result);
 
 				// if the folder passes all rules
 				if (rules != null && rules.Count > 0) {
-					var passes = FtpRule.IsAllAllowed(rules, remoteItem);
+					var passes = FtpRule.IsAllAllowed(rules, result.ToListItem(true));
 					if (!passes) {
 
 						// mark that the file was skipped due to a rule
@@ -171,16 +165,13 @@ namespace FluentFTP {
 					RemotePath = remoteFile,
 					LocalPath = localFile
 				};
-
-				// find the matching remote file
-				var remoteFile = ??;
-
+				
 				// record the file
 				results.Add(result);
 
 				// if the file passes all rules
 				if (rules != null && rules.Count > 0) {
-					var passes = FtpRule.IsAllAllowed(rules, remoteItem);
+					var passes = FtpRule.IsAllAllowed(rules, result.ToListItem(true));
 					if (!passes) {
 
 						// mark that the file was skipped due to a rule
@@ -213,17 +204,24 @@ namespace FluentFTP {
 
 			// delete the extra remote files if in mirror mode
 			if (mode == FtpFolderSyncMode.Mirror) {
-				
+
+				// get all the files on the server
+				var remoteListing = GetListing(remoteFolder, FtpListOption.Recursive);
+
 				// delete files that are not in listed in shouldExist
 				foreach (var existingServerFile in remoteListing) {
 
-					if (!shouldExist.ContainsKey(existingServerFile.FullName.ToLower())) {
+					if (existingServerFile.Type == FtpFileSystemObjectType.File) {
 
-						// delete the file
-						try {
-							DeleteFile(existingServerFile.FullName);
+						if (!shouldExist.ContainsKey(existingServerFile.FullName.ToLower())) {
+
+							// delete the file from the server
+							try {
+								DeleteFile(existingServerFile.FullName);
+							}
+							catch (Exception ex) { }
+
 						}
-						catch (Exception ex) { }
 
 					}
 

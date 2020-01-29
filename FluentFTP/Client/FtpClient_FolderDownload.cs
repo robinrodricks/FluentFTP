@@ -181,7 +181,7 @@ namespace FluentFTP {
 
 					if (!shouldExist.ContainsKey(existingLocalFile.ToLower())) {
 
-						// delete the file
+						// delete the file from disk
 						try {
 							File.Delete(existingLocalFile);
 						}
