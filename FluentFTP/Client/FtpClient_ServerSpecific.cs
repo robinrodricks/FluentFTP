@@ -489,7 +489,8 @@ namespace FluentFTP {
 			"file not unavailable",
 			"file is not available",
 			"no files found",
-			"no file found"
+			"no file found",
+			"datei oder verzeichnis nicht gefunden"
 		};
 
 		#endregion
