@@ -22,7 +22,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Returns true if the object has passed all the rules.
 		/// </summary>
-		public static bool IsAllAllowed(List<FtpRule> rules, FtpResult result) {
+		public static bool IsAllAllowed(List<FtpRule> rules, FtpListItem result) {
 			foreach (var rule in rules) {
 				if (!rule.IsAllowed(result)) {
 					return false;

@@ -68,12 +68,15 @@ namespace FluentFTP {
 			// get all the files in the remote directory
 			var listing = GetListing(remoteFolder, FtpListOption.Recursive | FtpListOption.Size);
 
+			// collect relative paths of the files that should exist
+			var shouldExist = new List<string>();
+
 			// loop thru each file and transfer it
 			foreach (var remoteFile in listing) {
 
 				// calculate the local path
-				var relativeFilePath = remoteFile.FullName.Replace(remoteFolder, "");
-				var localFile = Path.Combine(localFolder, relativeFilePath);
+				var relativePath = remoteFile.FullName.Replace(remoteFolder, "");
+				var localFile = Path.Combine(localFolder, relativePath);
 
 				// create the result object
 				var result = new FtpResult() {
@@ -84,53 +87,72 @@ namespace FluentFTP {
 					LocalPath = localFile
 				};
 
-				// only files are processed
-				if (remoteFile.Type == FtpFileSystemObjectType.File) {
+				// only files and folders are processed
+				if (remoteFile.Type == FtpFileSystemObjectType.File ||
+					remoteFile.Type == FtpFileSystemObjectType.Directory) {
 
-					// absorb errors
-					try {
 
-						// download the file
-						var transferred = this.DownloadFile(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress);
-						result.IsSuccess = true;
-						result.IsSkipped = !transferred;
-					}
-					catch (Exception ex) {
-
-						// absorb and record errors
-						result.IsFailed = true;
-						result.Exception = ex;
-					}
-
-					// record it
+					// record the file
 					results.Add(result);
 
+					// if the file passes all rules
+					if (rules != null && rules.Count > 0) {
+						var passes = FtpRule.IsAllAllowed(rules, remoteFile);
+						if (!passes) {
 
-				}
-				else if (remoteFile.Type == FtpFileSystemObjectType.Directory) {
+							// mark that the file was skipped due to a rule
+							result.IsSkipped = true;
+							result.IsSkippedByRule = true;
 
-					// absorb errors
-					try {
-
-						// create directory on local filesystem
-						// to ensure we download the blank remote dirs as well
-						var created = result.LocalPath.EnsureDirectory();
-						result.IsSuccess = true;
-						result.IsSkipped = !created;
-
-					}
-					catch (Exception ex) {
-
-						// absorb and record errors
-						result.IsFailed = true;
-						result.Exception = ex;
+							// skip downloading the file
+							continue;
+						}
 					}
 
-					// record it
-					results.Add(result);
+					// record that this file/folder should exist
+					shouldExist.Add(relativePath);
+
+					// only files are processed
+					if (remoteFile.Type == FtpFileSystemObjectType.File) {
+
+						// absorb errors
+						try {
+
+							// download the file
+							var transferred = this.DownloadFile(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress);
+							result.IsSuccess = true;
+							result.IsSkipped = !transferred;
+						}
+						catch (Exception ex) {
+
+							// mark that the file failed to download
+							result.IsFailed = true;
+							result.Exception = ex;
+						}
+						
+					}
+					else if (remoteFile.Type == FtpFileSystemObjectType.Directory) {
+
+						// absorb errors
+						try {
+
+							// create directory on local filesystem
+							// to ensure we download the blank remote dirs as well
+							var created = result.LocalPath.EnsureDirectory();
+							result.IsSuccess = true;
+							result.IsSkipped = !created;
+
+						}
+						catch (Exception ex) {
+
+							// mark that the file failed to download
+							result.IsFailed = true;
+							result.Exception = ex;
+						}
+
+					}
 
 				}
-
 			}
 
 			// delete the extra local files if in mirror mode
@@ -138,6 +160,8 @@ namespace FluentFTP {
 
 				// get all the local files
 				//var localListing = ?;
+
+				// delete files that are not in this list : shouldExist
 
 			}
 

@@ -48,9 +48,14 @@ namespace FluentFTP {
 		/// Was the file skipped?
 		/// </summary>
 		public bool IsSkipped;
-		
+
 		/// <summary>
-		/// Was there an error during transfer?
+		/// Was the file skipped due to failing the rule condition?
+		/// </summary>
+		public bool IsSkippedByRule;
+
+		/// <summary>
+		/// Was there an error during transfer? You can read the Exception property for more details.
 		/// </summary>
 		public bool IsFailed;
 
