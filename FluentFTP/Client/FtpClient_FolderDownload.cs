@@ -28,9 +28,9 @@ namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
 
 		/// <summary>
-		/// Downloads the specified directory from the server.
-		/// In Mirror mode, we will delete extra files from the local filesystem that are not present on the server. This is very useful when creating an exact local backup of an FTP directory.
-		/// In Update mode, we will only download files onto the local filesystem and preserve any extra files. This is useful when you want to simply download missing files from an FTP directory.
+		/// Downloads the specified directory onto the local file system.
+		/// In Mirror mode, we will download missing files, and delete any extra local files that are not present on the server. This is very useful when creating an exact local backup of an FTP directory.
+		/// In Update mode, we will only download missing files and preserve any extra local files. This is useful when you want to simply download missing files from an FTP directory.
 		/// Only downloads the files and folders matching all the rules provided, if any.
 		/// All exceptions during downloading are caught, and the exception is stored in the related FtpResult object.
 		/// </summary>
@@ -59,7 +59,7 @@ namespace FluentFTP {
 
 			var results = new List<FtpResult>();
 
-			// ensure ends with slash
+			// ensure the local path ends with slash
 			localFolder = !localFolder.EndsWith(Path.DirectorySeparatorChar.ToString()) ? localFolder + Path.DirectorySeparatorChar.ToString() : localFolder;
 
 			// cleanup the remote path
