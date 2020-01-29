@@ -68,7 +68,7 @@ namespace FluentFTP {
 			// get all the files in the remote directory
 			var listing = GetListing(remoteFolder, FtpListOption.Recursive | FtpListOption.Size);
 
-			// collect relative paths of the files that should exist
+			// collect paths of the files that should exist
 			var shouldExist = new List<string>();
 
 			// loop thru each file and transfer it
@@ -110,7 +110,7 @@ namespace FluentFTP {
 					}
 
 					// record that this file/folder should exist
-					shouldExist.Add(relativePath);
+					shouldExist.Add(localFile.ToLower());
 
 					// only files are processed
 					if (remoteFile.Type == FtpFileSystemObjectType.File) {
@@ -159,9 +159,22 @@ namespace FluentFTP {
 			if (folderSyncMode == FtpFolderSyncMode.Mirror) {
 
 				// get all the local files
-				//var localListing = ?;
+				var localListing = Directory.GetFiles(localFolder, "*.*", SearchOption.AllDirectories);
 
 				// delete files that are not in this list : shouldExist
+				foreach (var existingLocalFile in localListing) {
+
+					if (!shouldExist.Contains(existingLocalFile.ToLower())) {
+
+						// delete the file
+						try {
+							File.Delete(existingLocalFile);
+						}
+						catch (Exception ex) {}
+
+					}
+
+				}
 
 			}
 
