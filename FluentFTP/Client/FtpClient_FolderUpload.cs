@@ -120,10 +120,7 @@ namespace FluentFTP {
 						continue;
 					}
 				}
-
-				// record that this folder should exist
-				shouldExist.Add(localFile.ToLower(), true);
-
+				
 				// absorb errors
 				try {
 
@@ -184,7 +181,7 @@ namespace FluentFTP {
 				}
 
 				// record that this file should exist
-				shouldExist.Add(localFile.ToLower(), true);
+				shouldExist.Add(remoteFile.ToLower(), true);
 
 				// absorb errors
 				try {
