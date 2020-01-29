@@ -40,7 +40,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpRemoteExists.NoCheck"/> for fastest performance,
 		///  but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
 		/// <remarks>
@@ -153,7 +153,7 @@ namespace FluentFTP {
 		/// <param name="remoteDir">The full or relative path to the directory that files will be uploaded on the server</param>
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to FtpExists.None for fastest performance but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		/// <remarks>
@@ -476,7 +476,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpRemoteExists.NoCheck"/> for fastest performance
 		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="progress">Provide a callback to track download progress.</param>
+		/// <param name="progress">Provide a callback to track upload progress.</param>
 		public bool Upload(Stream fileStream, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, Action<FtpProgress> progress = null) {
 			// verify args
 			if (fileStream == null) {
@@ -503,7 +503,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpRemoteExists.NoCheck"/> for fastest performance 
 		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="progress">Provide a callback to track download progress.</param>
+		/// <param name="progress">Provide a callback to track upload progress.</param>
 		public bool Upload(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, Action<FtpProgress> progress = null) {
 			// verify args
 			if (fileData == null) {
