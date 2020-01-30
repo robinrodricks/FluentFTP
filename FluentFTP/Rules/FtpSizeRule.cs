@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using FluentFTP.Helpers;
 
-namespace FluentFTP {
+namespace FluentFTP.Rules {
 
 	/// <summary>
 	/// Only accept files that are of the given size, or within the given range of sizes.

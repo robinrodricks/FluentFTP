@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace FluentFTP {
+namespace FluentFTP.Rules {
 	/// <summary>
 	/// Base class used for all FTP Rules. Extend this class to create custom rules.
 	/// You only need to provide an implementation for IsAllowed, and add any custom arguments that you require.

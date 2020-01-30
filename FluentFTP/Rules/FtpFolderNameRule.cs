@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using FluentFTP.Helpers;
 
-namespace FluentFTP {
+namespace FluentFTP.Rules {
 
 	/// <summary>
 	/// Only accept folders that have the given name, or exclude folders of a given name.

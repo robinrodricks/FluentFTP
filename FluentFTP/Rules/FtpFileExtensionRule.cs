@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using FluentFTP.Helpers;
 
-namespace FluentFTP {
+namespace FluentFTP.Rules {
 
 	/// <summary>
 	/// Only accept files that have the given extension, or exclude files of a given extension.
