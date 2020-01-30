@@ -1,12 +1,13 @@
 # Release Notes
 
-#### 29.1.0
+#### 30.0.0
   - New: `UploadDirectory` and `UploadDirectoryAsync` methods to recursively upload or mirror a directory
   - New: `DownloadDirectory` and `DownloadDirectoryAsync` methods to recursively download or mirror a directory
   - New: Rule engine to filter files that should be uploaded/downloaded according to multiple user-defined rules
   - New: Predefined rules for filtering on folder name, useful for blacklisting certain system folders
   - New: Predefined rules for filtering on file name or file extensions, useful for transferring a subset of files
   - New: Predefined rules for filtering on file size, useful for filtering out very large files
+  - Change: `CreateDirectory` and `CreateDirectoryAsync` now return a flag indicating if it was created or skipped
 
 #### 29.0.4
   - Fix: Detect "file size not allowed in ASCII" string for French FTP servers
