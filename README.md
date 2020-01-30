@@ -20,6 +20,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
     - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, AS400, Windows CE, Serv-U, etc)
 	- Fully recursive directory listing and directory deletion (manual recursion and server-side recursion)
     - Easily upload and download a file from the server with [progress tracking](#faq_progress)
+    - Easily upload and download a directory from the server with Mirror or Update modes
     - Automatically [verify the hash](#faq_verifyhash) of a file & retry transfer if hash mismatches
     - Configurable error handling (ignore/abort/throw) for multi-file transfers
     - Easily read and write file data from the server using standard streams
@@ -363,6 +364,18 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
   - **UploadFiles**() - Uploads multiple files from the local file system to a single folder on the server. Returns the number of files uploaded. Skipped files are not counted. User-defined error handling for exceptions during file upload (ignore/abort/throw).  Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches. Faster than calling `UploadFile()` multiple times.
 
   - **DownloadFiles**() - Downloads multiple files from server to a single directory on the local file system. Returns the number of files downloaded. Skipped files are not counted. User-defined error handling for exceptions during file download (ignore/abort/throw). Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
+
+  - **UploadDirectory**() - Uploads the specified directory onto the server. If any rules are provided then we only upload the files and folders matching all the rules. All exceptions during uploading are caught, and the exception is stored in the related FtpResult object. Optionally [verifies the hash](#faq_verifyhash) of the files & retries transfer if hash mismatches. 
+  
+    - In *Mirror* mode, we will upload missing files, and delete any extra files from the server that are not present on disk. This is very useful when publishing an exact copy of a local folder onto an FTP server.
+	
+	- In *Update* mode, we will only upload missing files and preserve any extra files on the server. This is useful when you want to simply upload missing files to a server.
+
+  - **DownloadDirectory**() - Downloads the specified directory onto the local file system. If any rules are provided then we only download the files and folders matching all the rules. All exceptions during downloading are caught, and the exception is stored in the related FtpResult object. Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
+  
+    - In *Mirror* mode, we will download missing files, and delete any extra files from disk that are not present on the server. This is very useful when creating an exact local backup of an FTP directory.
+  
+    - In *Update* mode, we will only download missing files and preserve any extra files on disk. This is useful when you want to simply download missing files from an FTP directory.
 
 <a name="lowlevel"></a>
 *Low-level API:*
