@@ -28,21 +28,32 @@ namespace FluentFTP.Helpers.Parsers {
 			}
 
 			switch (m.Groups["type"].Value.ToLower()) {
-				case "dir":
+
+				// Parent and self-directories are parsed but not always returned
 				case "pdir":
+					item.Type = FtpFileSystemObjectType.Directory;
+					item.SubType = FtpFileSystemObjectSubType.ParentDirectory;
+					break;
 				case "cdir":
 					item.Type = FtpFileSystemObjectType.Directory;
+					item.SubType = FtpFileSystemObjectSubType.SelfDirectory;
 					break;
 
+				// Always list sub directories and files
+				case "dir":
+					item.Type = FtpFileSystemObjectType.Directory;
+					item.SubType = FtpFileSystemObjectSubType.SubDirectory;
+					break;
 				case "file":
 					item.Type = FtpFileSystemObjectType.File;
 					break;
 
-				// These are not supported for now.
+				// These are not supported
 				case "link":
 				case "device":
 				default:
 					return null;
+
 			}
 
 			if ((m = Regex.Match(record, "; (?<name>.*)$", RegexOptions.IgnoreCase)).Success) {
