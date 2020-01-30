@@ -71,10 +71,15 @@ namespace FluentFTP {
 			sb.AppendLine(";");
 
 			sb.Append("client.Encoding = ");
-			sb.Append(Encoding.ToString());
+
+			// Fix #468 - Invalid code generated: Encoding = System.Text.UTF8Encoding+UTF8EncodingSealed
+			var encoding = Encoding.ToString();
+			sb.Append(encoding.Contains("+") ? encoding.Substring(0, encoding.IndexOf('+')) : encoding);
+
 			sb.AppendLine(";");
 
 			if (Encryption != FtpEncryptionMode.None) {
+				sb.AppendLine("// if you want to accept any certificate then set ValidateAnyCertificate=true and delete the following event handler");
 				sb.AppendLine("client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient control, FtpSslValidationEventArgs e) {");
 				sb.AppendLine("	// add your logic to test if the SSL certificate is valid (see the FAQ for examples)");
 				sb.AppendLine("	e.Accept = true;");
