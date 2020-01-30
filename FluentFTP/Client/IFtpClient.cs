@@ -92,8 +92,8 @@ namespace FluentFTP {
 		void DeleteDirectory(string path, FtpListOption options);
 		bool DirectoryExists(string path);
 		bool FileExists(string path);
-		void CreateDirectory(string path);
-		void CreateDirectory(string path, bool force);
+		bool CreateDirectory(string path);
+		bool CreateDirectory(string path, bool force);
 		void Rename(string path, string dest);
 		bool MoveFile(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite);
 		bool MoveDirectory(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite);
@@ -117,8 +117,8 @@ namespace FluentFTP {
 		Task DeleteDirectoryAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken));
 		Task<bool> DirectoryExistsAsync(string path, CancellationToken token = default(CancellationToken));
 		Task<bool> FileExistsAsync(string path, CancellationToken token = default(CancellationToken));
-		Task CreateDirectoryAsync(string path, bool force, CancellationToken token = default(CancellationToken));
-		Task CreateDirectoryAsync(string path, CancellationToken token = default(CancellationToken));
+		Task<bool> CreateDirectoryAsync(string path, bool force, CancellationToken token = default(CancellationToken));
+		Task<bool> CreateDirectoryAsync(string path, CancellationToken token = default(CancellationToken));
 		Task RenameAsync(string path, string dest, CancellationToken token = default(CancellationToken));
 		Task<bool> MoveFileAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken));
 		Task<bool> MoveDirectoryAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken));

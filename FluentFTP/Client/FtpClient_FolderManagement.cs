@@ -444,8 +444,8 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the new remote directory</param>
 		/// <example><code source="..\Examples\CreateDirectory.cs" lang="cs" /></example>
-		public void CreateDirectory(string path) {
-			CreateDirectory(path, true);
+		public bool CreateDirectory(string path) {
+			return CreateDirectory(path, true);
 		}
 
 		/// <summary>
@@ -454,7 +454,8 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the new remote directory</param>
 		/// <param name="force">Try to force all non-existent pieces of the path to be created</param>
 		/// <example><code source="..\Examples\CreateDirectory.cs" lang="cs" /></example>
-		public void CreateDirectory(string path, bool force) {
+		/// <returns>True if directory was created, false if it was skipped</returns>
+		public bool CreateDirectory(string path, bool force) {
 			// don't verify args as blank/null path is OK
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -466,7 +467,7 @@ namespace FluentFTP {
 
 			// cannot create root or working directory
 			if (ftppath.IsFtpRootDirectory()) {
-				return;
+				return false;
 			}
 
 #if !CORE14
@@ -475,7 +476,7 @@ namespace FluentFTP {
 
 				// server-specific directory creation
 				if (ServerCreateDirectory(path, ftppath, force)) {
-					return;
+					return true;
 				}
 
 				path = path.GetFtpPath().TrimEnd('/');
@@ -485,7 +486,7 @@ namespace FluentFTP {
 					CreateDirectory(path.GetFtpDirectoryName(), true);
 				}
 				else if (DirectoryExists(path)) {
-					return;
+					return false;
 				}
 
 				LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + ftppath);
@@ -493,6 +494,7 @@ namespace FluentFTP {
 				if (!(reply = Execute("MKD " + ftppath)).Success) {
 					throw new FtpCommandException(reply);
 				}
+				return true;
 
 #if !CORE14
 			}
@@ -501,7 +503,7 @@ namespace FluentFTP {
 		}
 
 #if !CORE
-		private delegate void AsyncCreateDirectory(string path, bool force);
+		private delegate bool AsyncCreateDirectory(string path, bool force);
 
 		/// <summary>
 		/// Begins an asynchronous operation to create a remote directory. If the preceding
@@ -554,7 +556,8 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the new remote directory</param>
 		/// <param name="force">Try to create the whole path if the preceding directories do not exist</param>
 		/// <param name="token">Cancellation Token</param>
-		public async Task CreateDirectoryAsync(string path, bool force, CancellationToken token = default(CancellationToken)) {
+		/// <returns>True if directory was created, false if it was skipped</returns>
+		public async Task<bool> CreateDirectoryAsync(string path, bool force, CancellationToken token = default(CancellationToken)) {
 			// don't verify args as blank/null path is OK
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -566,12 +569,12 @@ namespace FluentFTP {
 
 			// cannot create root or working directory
 			if (ftppath.IsFtpRootDirectory()) {
-				return;
+				return false;
 			}
 
 			// server-specific directory creation
 			if (await ServerCreateDirectoryAsync(path, ftppath, force, token)) {
-				return;
+				return true;
 			}
 
 			path = path.GetFtpPath().TrimEnd('/');
@@ -581,7 +584,7 @@ namespace FluentFTP {
 				await CreateDirectoryAsync(path.GetFtpDirectoryName(), true, token);
 			}
 			else if (await DirectoryExistsAsync(path, token)) {
-				return;
+				return false;
 			}
 
 			LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + ftppath);
@@ -589,6 +592,7 @@ namespace FluentFTP {
 			if (!(reply = await ExecuteAsync("MKD " + ftppath, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
+			return true;
 		}
 
 		/// <summary>
@@ -597,7 +601,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the new remote directory</param>
 		/// <param name="token">Cancellation Token</param>
-		public Task CreateDirectoryAsync(string path, CancellationToken token = default(CancellationToken)) {
+		public Task<bool> CreateDirectoryAsync(string path, CancellationToken token = default(CancellationToken)) {
 			return CreateDirectoryAsync(path, true, token);
 		}
 #endif
