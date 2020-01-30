@@ -351,13 +351,13 @@ Complete API documentation for the `FtpClient` class, which handles all FTP/FTPS
 
 ### Directory Transfer
 
-  - **UploadDirectory**() - Uploads the specified directory onto the server. If any rules are provided then we only upload the files and folders matching all the rules. All exceptions during uploading are caught, and the exception is stored in the related FtpResult object. Optionally [verifies the hash](#faq_verifyhash) of the files & retries transfer if hash mismatches. 
+  - **UploadDirectory**() - Uploads the specified directory onto the server. If any rules are provided then we only upload the files and folders matching all the rules. Returns one `FtpResult` per file or folder, containing its detailed transfer status. All exceptions during uploading are caught, and the exception is stored in the related `FtpResult` and uploading continues. Optionally [verifies the hash](#faq_verifyhash) of the files & retries transfer if hash mismatches. 
   
     - In *Mirror* mode, we will upload missing files, and delete any extra files from the server that are not present on disk. This is very useful when publishing an exact copy of a local folder onto an FTP server.
 	
 	- In *Update* mode, we will only upload missing files and preserve any extra files on the server. This is useful when you want to simply upload missing files to a server.
 
-  - **DownloadDirectory**() - Downloads the specified directory onto the local file system. If any rules are provided then we only download the files and folders matching all the rules. All exceptions during downloading are caught, and the exception is stored in the related FtpResult object. Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
+  - **DownloadDirectory**() - Downloads the specified directory onto the local file system. If any rules are provided then we only download the files and folders matching all the rules. Returns one `FtpResult` per file or folder, containing its detailed transfer status. All exceptions during downloading are caught, and the exception is stored in the related `FtpResult` and downloading continues. Optionally [verifies the hash](#faq_verifyhash) of a file & retries transfer if hash mismatches.
   
     - In *Mirror* mode, we will download missing files, and delete any extra files from disk that are not present on the server. This is very useful when creating an exact local backup of an FTP directory.
   
