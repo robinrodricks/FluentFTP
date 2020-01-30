@@ -126,8 +126,7 @@ namespace FluentFTP {
 
 					// create directory on the server
 					// to ensure we upload the blank remote dirs as well
-					if (!DirectoryExists(remoteFile)) {
-						CreateDirectory(remoteFile);
+					if (CreateDirectory(remoteFile)) {
 						result.IsSuccess = true;
 						result.IsSkipped = false;
 					}
