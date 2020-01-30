@@ -7,7 +7,9 @@
   - New: Predefined rules for filtering on folder name, useful for blacklisting certain system folders
   - New: Predefined rules for filtering on file name or file extensions, useful for transferring a subset of files
   - New: Predefined rules for filtering on file size, useful for filtering out very large files
+  - New: Ability to determine parent/self/child directories in listing using `SubType` property of `FtpListItem`
   - Change: `CreateDirectory` and `CreateDirectoryAsync` now return a flag indicating if it was created or skipped
+  - Change: Use public fields instead of public properties for `FtpListItem`
 
 #### 29.0.4
   - Fix: Detect "file size not allowed in ASCII" string for French FTP servers
