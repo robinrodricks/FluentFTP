@@ -102,7 +102,8 @@ namespace FluentFTP {
 					Size = 0,
 					Name = Path.GetDirectoryName(localFile),
 					RemotePath = remoteFile,
-					LocalPath = localFile
+					LocalPath = localFile,
+					IsDownload = false,
 				};
 				
 				// record the folder
@@ -151,7 +152,7 @@ namespace FluentFTP {
 			foreach (var localFile in fileListing) {
 				
 				// calculate the local path
-				var relativePath = localFile.Replace(localFolder, "");
+				var relativePath = localFile.Replace(localFolder, "").Replace(Path.DirectorySeparatorChar, '/');
 				var remoteFile = remoteFolder + relativePath.Replace('\\', '/');
 
 				// create the result object
