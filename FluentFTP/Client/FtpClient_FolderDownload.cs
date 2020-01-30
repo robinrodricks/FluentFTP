@@ -116,6 +116,8 @@ namespace FluentFTP {
 						var passes = FtpRule.IsAllAllowed(rules, remoteFile);
 						if (!passes) {
 
+							LogStatus(FtpTraceLevel.Info, "Skipped file due to rule: " + remoteFile.Name);
+
 							// mark that the file was skipped due to a rule
 							result.IsSkipped = true;
 							result.IsSkippedByRule = true;
@@ -140,6 +142,8 @@ namespace FluentFTP {
 							result.IsSkipped = !transferred;
 						}
 						catch (Exception ex) {
+
+							LogStatus(FtpTraceLevel.Warn, "File failed to download: " + remoteFile.Name);
 
 							// mark that the file failed to download
 							result.IsFailed = true;
@@ -181,6 +185,8 @@ namespace FluentFTP {
 				foreach (var existingLocalFile in localListing) {
 
 					if (!shouldExist.ContainsKey(existingLocalFile.ToLower())) {
+
+						LogStatus(FtpTraceLevel.Info, "Delete extra file from disk: " + existingLocalFile);
 
 						// delete the file from disk
 						try {

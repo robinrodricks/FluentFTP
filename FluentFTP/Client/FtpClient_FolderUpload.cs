@@ -171,6 +171,8 @@ namespace FluentFTP {
 					var passes = FtpRule.IsAllAllowed(rules, result.ToListItem(true));
 					if (!passes) {
 
+						LogStatus(FtpTraceLevel.Info, "Skipped file due to rule: " + result.LocalPath);
+
 						// mark that the file was skipped due to a rule
 						result.IsSkipped = true;
 						result.IsSkippedByRule = true;
@@ -193,6 +195,8 @@ namespace FluentFTP {
 				}
 				catch (Exception ex) {
 
+					LogStatus(FtpTraceLevel.Warn, "File failed to upload: " + result.LocalPath);
+
 					// mark that the file failed to upload
 					result.IsFailed = true;
 					result.Exception = ex;
@@ -211,6 +215,8 @@ namespace FluentFTP {
 					if (existingServerFile.Type == FtpFileSystemObjectType.File) {
 
 						if (!shouldExist.ContainsKey(existingServerFile.FullName.ToLower())) {
+
+							LogStatus(FtpTraceLevel.Info, "Delete extra file from server: " + existingServerFile.FullName);
 
 							// delete the file from the server
 							try {

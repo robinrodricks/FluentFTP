@@ -8,6 +8,7 @@
   - New: Predefined rules for filtering on file name or file extensions, useful for transferring a subset of files
   - New: Predefined rules for filtering on file size, useful for filtering out very large files
   - New: Ability to determine parent/self/child directories in listing using `SubType` property of `FtpListItem`
+  - Fix: Machine listings sometimes cause infinite recursion in `GetListing` when recursing into self directory
   - Change: `CreateDirectory` and `CreateDirectoryAsync` now return a flag indicating if it was created or skipped
   - Change: Use public fields instead of public properties for `FtpListItem`
 
