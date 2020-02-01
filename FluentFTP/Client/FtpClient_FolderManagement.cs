@@ -485,13 +485,24 @@ namespace FluentFTP {
 					LogStatus(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
 					CreateDirectory(path.GetFtpDirectoryName(), true);
 				}
-				else if (DirectoryExists(path)) {
+
+				// fix: improve performance by skipping the directory exists check
+				/*else if (DirectoryExists(path)) {
 					return false;
-				}
+				}*/
 
 				LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + ftppath);
 
 				if (!(reply = Execute("MKD " + ftppath)).Success) {
+
+					// if the error indicates the directory already exists, its not an error
+					if (reply.Code == "550") {
+						return false;
+					}
+					if (reply.Code[0] == '5' && reply.Message.IsKnownError(folderAlreadyExistsStrings)) {
+						return false;
+					}
+
 					throw new FtpCommandException(reply);
 				}
 				return true;
@@ -583,13 +594,24 @@ namespace FluentFTP {
 				LogStatus(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
 				await CreateDirectoryAsync(path.GetFtpDirectoryName(), true, token);
 			}
-			else if (await DirectoryExistsAsync(path, token)) {
+
+			// fix: improve performance by skipping the directory exists check
+			/*else if (await DirectoryExistsAsync(path, token)) {
 				return false;
-			}
+			}*/
 
 			LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + ftppath);
 
 			if (!(reply = await ExecuteAsync("MKD " + ftppath, token)).Success) {
+
+				// if the error indicates the directory already exists, its not an error
+				if (reply.Code == "550") {
+					return false;
+				}
+				if (reply.Code[0] == '5' && reply.Message.IsKnownError(folderAlreadyExistsStrings)) {
+					return false;
+				}
+
 				throw new FtpCommandException(reply);
 			}
 			return true;
