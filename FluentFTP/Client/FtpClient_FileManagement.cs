@@ -145,7 +145,7 @@ namespace FluentFTP {
 						return true;
 					}
 
-					if (sizeReply.Reply.Code[0] == '5' && sizeReply.Reply.Message.IsKnownError(FtpServerStrings.fileNotFoundStrings)) {
+					if (sizeReply.Reply.Code[0] == '5' && sizeReply.Reply.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
 						return false;
 					}
 
@@ -163,7 +163,7 @@ namespace FluentFTP {
 						return true;
 					}
 
-					if (ch == '5' && reply.Message.IsKnownError(FtpServerStrings.fileNotFoundStrings)) {
+					if (ch == '5' && reply.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
 						return false;
 					}
 				}
@@ -253,7 +253,7 @@ namespace FluentFTP {
 					return true;
 				}
 
-				if (sizeReply.Reply.Code[0] == '5' && sizeReply.Reply.Message.IsKnownError(FtpServerStrings.fileNotFoundStrings)) {
+				if (sizeReply.Reply.Code[0] == '5' && sizeReply.Reply.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
 					return false;
 				}
 
@@ -271,7 +271,7 @@ namespace FluentFTP {
 					return true;
 				}
 
-				if (ch == '5' && reply.Message.IsKnownError(FtpServerStrings.fileNotFoundStrings)) {
+				if (ch == '5' && reply.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
 					return false;
 				}
 			}
@@ -1034,7 +1034,7 @@ namespace FluentFTP {
 				length = -1;
 
 				// Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
-				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(FtpServerStrings.fileSizeNotInASCIIStrings)) {
+				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(FtpServerStrings.fileSizeNotInASCII)) {
 					// set the flag so mode switching is done
 					_FileSizeASCIINotSupported = true;
 
@@ -1127,7 +1127,7 @@ namespace FluentFTP {
 				sizeReply.FileSize = -1;
 
 				// Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
-				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(FtpServerStrings.fileSizeNotInASCIIStrings)) {
+				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(FtpServerStrings.fileSizeNotInASCII)) {
 					// set the flag so mode switching is done
 					_FileSizeASCIINotSupported = true;
 

@@ -12,7 +12,7 @@ namespace FluentFTP.Servers {
 		/// Instead of throwing an error, we use these to detect and handle the file detection properly.
 		/// MUST BE LOWER CASE!
 		/// </summary>
-		public static string[] fileNotFoundStrings = new[] {
+		public static string[] fileNotFound = new[] {
 			"can't find file",
 			"can't check for file existence",
 			"does not exist",
@@ -40,7 +40,7 @@ namespace FluentFTP.Servers {
 		/// Error messages returned by various servers when a file size is not supported in ASCII mode.
 		/// MUST BE LOWER CASE!
 		/// </summary>
-		public static string[] fileSizeNotInASCIIStrings = new[] {
+		public static string[] fileSizeNotInASCII = new[] {
 			"not allowed in ascii",
 			"size not allowed in ascii",
 			"n'est pas autorisé en mode ascii"
@@ -54,7 +54,7 @@ namespace FluentFTP.Servers {
 		/// Error messages returned by various servers when a file transfer temporarily failed.
 		/// MUST BE LOWER CASE!
 		/// </summary>
-		public static string[] unexpectedEOFStrings = new[] {
+		public static string[] unexpectedEOF = new[] {
 			"unexpected eof for remote file",
 			"received an unexpected eof",
 			"unexpected eof"
@@ -69,14 +69,15 @@ namespace FluentFTP.Servers {
 		/// Instead of throwing an error, we use these to detect and handle the folder creation properly.
 		/// MUST BE LOWER CASE!
 		/// </summary>
-		public static string[] folderAlreadyExistsStrings = new[] {
+		public static string[] folderExists = new[] {
+			"exist on server",
 			"exists on server",
-			"file exists",
-			"directory exists",
-			"folder exists",
-			"file already exists",
-			"directory already exists",
-			"folder already exists",
+			"file exist",
+			"directory exist",
+			"folder exist",
+			"file already exist",
+			"directory already exist",
+			"folder already exist",
 		};
 
 		#endregion

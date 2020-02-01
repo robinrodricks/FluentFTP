@@ -500,7 +500,7 @@ namespace FluentFTP {
 					if (reply.Code == "550") {
 						return false;
 					}
-					if (reply.Code[0] == '5' && reply.Message.IsKnownError(FtpServerStrings.folderAlreadyExistsStrings)) {
+					if (reply.Code[0] == '5' && reply.Message.IsKnownError(FtpServerStrings.folderExists)) {
 						return false;
 					}
 
@@ -609,7 +609,7 @@ namespace FluentFTP {
 				if (reply.Code == "550") {
 					return false;
 				}
-				if (reply.Code[0] == '5' && reply.Message.IsKnownError(FtpServerStrings.folderAlreadyExistsStrings)) {
+				if (reply.Code[0] == '5' && reply.Message.IsKnownError(FtpServerStrings.folderExists)) {
 					return false;
 				}
 
