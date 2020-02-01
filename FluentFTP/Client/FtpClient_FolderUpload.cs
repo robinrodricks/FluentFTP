@@ -78,9 +78,13 @@ namespace FluentFTP {
 				return results;
 			}
 
+			// flag to determine if existence checks are required
+			var checkFileExistence = true;
+
 			// ensure the remote dir exists
 			if (!DirectoryExists(remoteFolder)) {
 				CreateDirectory(remoteFolder);
+				checkFileExistence = false;
 			}
 
 			// collect paths of the files that should exist (lowercase for CI checks)
@@ -89,7 +93,33 @@ namespace FluentFTP {
 			// get all the folders in the local directory
 			var dirListing = Directory.GetDirectories(localFolder, "*.*", SearchOption.AllDirectories);
 
+			// get all the already existing files
+			var remoteListing = checkFileExistence ? GetListing(remoteFolder, FtpListOption.Recursive) : null;
+
 			// loop thru each folder and ensure it exists
+			var dirsToUpload = GetSubDirectoriesToUpload(localFolder, remoteFolder, rules, results, dirListing);
+			UploadSubDirectories(dirsToUpload);
+
+			// get all the files in the local directory
+			var fileListing = Directory.GetFiles(localFolder, "*.*", SearchOption.AllDirectories);
+
+			// loop thru each file and transfer it
+			var filesToUpload = GetFilesToUpload(localFolder, remoteFolder, rules, results, shouldExist, fileListing);
+			UploadDirectoryFiles(filesToUpload, existsMode, verifyOptions, progress, remoteListing);
+
+			// delete the extra remote files if in mirror mode and the directory was pre-existing
+			DeleteExtraServerFiles(mode, shouldExist, remoteListing);
+
+			return results;
+		}
+
+		/// <summary>
+		/// Get a list of all the sub directories that need to be created within the main directory
+		/// </summary>
+		private List<FtpResult> GetSubDirectoriesToUpload(string localFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, string[] dirListing) {
+
+			var dirsToUpload = new List<FtpResult>();
+
 			foreach (var localFile in dirListing) {
 
 				// calculate the local path
@@ -105,7 +135,7 @@ namespace FluentFTP {
 					LocalPath = localFile,
 					IsDownload = false,
 				};
-				
+
 				// record the folder
 				results.Add(result);
 
@@ -122,13 +152,26 @@ namespace FluentFTP {
 						continue;
 					}
 				}
-				
+
+				// absorb errors
+				dirsToUpload.Add(result);
+			}
+
+			return dirsToUpload;
+		}
+
+		/// <summary>
+		/// Create all the sub directories within the main directory
+		/// </summary>
+		private void UploadSubDirectories(List<FtpResult> dirsToUpload) {
+			foreach (var result in dirsToUpload) {
+
 				// absorb errors
 				try {
 
 					// create directory on the server
 					// to ensure we upload the blank remote dirs as well
-					if (CreateDirectory(remoteFile)) {
+					if (CreateDirectory(result.RemotePath)) {
 						result.IsSuccess = true;
 						result.IsSkipped = false;
 					}
@@ -144,13 +187,17 @@ namespace FluentFTP {
 					result.Exception = ex;
 				}
 			}
+		}
 
-			// get all the files in the local directory
-			var fileListing = Directory.GetFiles(localFolder, "*.*", SearchOption.AllDirectories);
+		/// <summary>
+		/// Get a list of all the files that need to be uploaded within the main directory
+		/// </summary>
+		private List<FtpResult> GetFilesToUpload(string localFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, string[] fileListing) {
 
-			// loop thru each file and transfer it
+			var filesToUpload = new List<FtpResult>();
+
 			foreach (var localFile in fileListing) {
-				
+
 				// calculate the local path
 				var relativePath = localFile.Replace(localFolder, "").Replace(Path.DirectorySeparatorChar, '/');
 				var remoteFile = remoteFolder + relativePath.Replace('\\', '/');
@@ -163,7 +210,7 @@ namespace FluentFTP {
 					RemotePath = remoteFile,
 					LocalPath = localFile
 				};
-				
+
 				// record the file
 				results.Add(result);
 
@@ -187,12 +234,46 @@ namespace FluentFTP {
 				shouldExist.Add(remoteFile.ToLower(), true);
 
 				// absorb errors
+				filesToUpload.Add(result);
+			}
+
+			return filesToUpload;
+		}
+
+		/// <summary>
+		/// Upload all the files within the main directory
+		/// </summary>
+		private void UploadDirectoryFiles(List<FtpResult> filesToUpload, FtpRemoteExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpListItem[] remoteListing) {
+
+			foreach (var result in filesToUpload) {
+
+				// absorb errors
 				try {
 
+					// check if the file already exists on the server
+					var existsModeToUse = existsMode;
+					var fileExists = FtpExtensions.FileExistsInListing(remoteListing, result.RemotePath);
+
+					// if we want to skip uploaded files and the file already exists, mark its skipped
+					if (existsMode == FtpRemoteExists.Skip && fileExists) {
+
+						LogStatus(FtpTraceLevel.Info, "Skipped file that already exists: " + result.LocalPath);
+
+						result.IsSuccess = true;
+						result.IsSkipped = true;
+						continue;
+					}
+
+					// in any mode if the file does not exist, mark that exists check is not required
+					if (!fileExists) {
+						existsModeToUse = existsMode == FtpRemoteExists.Append ? FtpRemoteExists.AppendNoCheck : FtpRemoteExists.NoCheck;
+					}
+
 					// upload the file
-					var transferred = this.UploadFile(result.LocalPath, result.RemotePath, existsMode, false, verifyOptions, progress);
+					var transferred = this.UploadFile(result.LocalPath, result.RemotePath, existsModeToUse, false, verifyOptions, progress);
 					result.IsSuccess = true;
 					result.IsSkipped = !transferred;
+
 				}
 				catch (Exception ex) {
 
@@ -204,11 +285,13 @@ namespace FluentFTP {
 				}
 			}
 
-			// delete the extra remote files if in mirror mode
-			if (mode == FtpFolderSyncMode.Mirror) {
+		}
 
-				// get all the files on the server
-				var remoteListing = GetListing(remoteFolder, FtpListOption.Recursive);
+		/// <summary>
+		/// Delete the extra remote files if in mirror mode and the directory was pre-existing
+		/// </summary>
+		private void DeleteExtraServerFiles(FtpFolderSyncMode mode, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing) {
+			if (mode == FtpFolderSyncMode.Mirror && remoteListing != null) {
 
 				// delete files that are not in listed in shouldExist
 				foreach (var existingServerFile in remoteListing) {
@@ -232,9 +315,8 @@ namespace FluentFTP {
 				}
 
 			}
-
-			return results;
 		}
+
 
 	}
 }
