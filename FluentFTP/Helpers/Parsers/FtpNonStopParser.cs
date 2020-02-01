@@ -68,7 +68,7 @@ namespace FluentFTP.Helpers.Parsers {
 		}
 
 		/// <summary>
-		/// Parses the directory type & file size from NonStop format listings
+		/// Parses the directory type and file size from NonStop format listings
 		/// </summary>
 		private static void ParseDirAndFileSize(FtpClient client, string[] values, out bool isDir, out long size) {
 			isDir = false;

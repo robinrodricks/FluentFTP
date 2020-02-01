@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using FluentFTP.Proxy;
+using FluentFTP.Servers;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
 #if !CORE
 using System.Web;
@@ -103,7 +104,7 @@ namespace FluentFTP {
 			else if (!path.StartsWith("/") && !(path.Length > 1 && path[1] == ':')) {
 
 				// if its a server-specific absolute path then don't add base dir
-				if (IsAbsolutePath(path)) {
+				if (FtpServerSpecificHandler.IsAbsolutePath(this, path)) {
 					return path;
 				}
 

@@ -11,12 +11,12 @@ using System.Globalization;
 using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Proxy;
+using FluentFTP.Servers;
 #if !CORE
 using System.Web;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
-
 #endif
 #if ASYNC
 using System.Threading.Tasks;
@@ -145,7 +145,7 @@ namespace FluentFTP {
 						return true;
 					}
 
-					if (sizeReply.Reply.Code[0] == '5' && sizeReply.Reply.Message.IsKnownError(fileNotFoundStrings)) {
+					if (sizeReply.Reply.Code[0] == '5' && sizeReply.Reply.Message.IsKnownError(FtpServerStrings.fileNotFoundStrings)) {
 						return false;
 					}
 
@@ -163,7 +163,7 @@ namespace FluentFTP {
 						return true;
 					}
 
-					if (ch == '5' && reply.Message.IsKnownError(fileNotFoundStrings)) {
+					if (ch == '5' && reply.Message.IsKnownError(FtpServerStrings.fileNotFoundStrings)) {
 						return false;
 					}
 				}
@@ -253,7 +253,7 @@ namespace FluentFTP {
 					return true;
 				}
 
-				if (sizeReply.Reply.Code[0] == '5' && sizeReply.Reply.Message.IsKnownError(fileNotFoundStrings)) {
+				if (sizeReply.Reply.Code[0] == '5' && sizeReply.Reply.Message.IsKnownError(FtpServerStrings.fileNotFoundStrings)) {
 					return false;
 				}
 
@@ -271,7 +271,7 @@ namespace FluentFTP {
 					return true;
 				}
 
-				if (ch == '5' && reply.Message.IsKnownError(fileNotFoundStrings)) {
+				if (ch == '5' && reply.Message.IsKnownError(FtpServerStrings.fileNotFoundStrings)) {
 					return false;
 				}
 			}
@@ -1034,7 +1034,7 @@ namespace FluentFTP {
 				length = -1;
 
 				// Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
-				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(fileSizeNotInASCIIStrings)) {
+				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(FtpServerStrings.fileSizeNotInASCIIStrings)) {
 					// set the flag so mode switching is done
 					_FileSizeASCIINotSupported = true;
 
@@ -1127,7 +1127,7 @@ namespace FluentFTP {
 				sizeReply.FileSize = -1;
 
 				// Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
-				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(fileSizeNotInASCIIStrings)) {
+				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(FtpServerStrings.fileSizeNotInASCIIStrings)) {
 					// set the flag so mode switching is done
 					_FileSizeASCIINotSupported = true;
 

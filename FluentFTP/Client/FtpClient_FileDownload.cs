@@ -12,12 +12,12 @@ using System.Globalization;
 using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Proxy;
+using FluentFTP.Servers;
 #if !CORE
 using System.Web;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
-
 #endif
 #if (CORE || NET45)
 using System.Threading.Tasks;
@@ -940,7 +940,7 @@ namespace FluentFTP {
 
 		private bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
 			// resume if server disconnects midway (fixes #39 and #410)
-			if (ex.InnerException != null || ex.Message.IsKnownError(unexpectedEOFStrings)) {
+			if (ex.InnerException != null || ex.Message.IsKnownError(FtpServerStrings.unexpectedEOFStrings)) {
 				var ie = ex.InnerException as SocketException;
 #if CORE
 								if (ie == null || ie != null && (int) ie.SocketErrorCode == 10054) {
@@ -959,7 +959,7 @@ namespace FluentFTP {
 #if ASYNC
 		private async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex) {
 			// resume if server disconnects midway (fixes #39 and #410)
-			if (ex.InnerException != null || ex.Message.IsKnownError(unexpectedEOFStrings)) {
+			if (ex.InnerException != null || ex.Message.IsKnownError(FtpServerStrings.unexpectedEOFStrings)) {
 				var ie = ex.InnerException as SocketException;
 #if CORE
 				if (ie == null || ie != null && (int) ie.SocketErrorCode == 10054) {

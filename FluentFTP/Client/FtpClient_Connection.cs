@@ -9,12 +9,12 @@ using System.Linq;
 using System.Net;
 using FluentFTP.Proxy;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
+using FluentFTP.Servers;
 #if !CORE
 using System.Web;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
-
 #endif
 #if ASYNC
 using System.Threading.Tasks;
@@ -332,7 +332,7 @@ namespace FluentFTP {
 #endif
 
 				Handshake();
-				DetectFtpServer();
+				m_serverType = FtpServerSpecificHandler.DetectFtpServer(this, HandshakeReply);
 
 				if (SendHost) {
 					if (!(reply = Execute("HOST " + (SendHostDomain != null ? SendHostDomain : Host))).Success) {
@@ -393,12 +393,13 @@ namespace FluentFTP {
 				// Get the system type - Needed to auto-detect file listing parser
 				if ((reply = Execute("SYST")).Success) {
 					m_systemType = reply.Message;
-					DetectFtpServerBySyst();
+					m_serverType = FtpServerSpecificHandler.DetectFtpServerBySyst(this);
+					m_serverOS = FtpServerSpecificHandler.DetectFtpOSBySyst(this);
 				}
 
 				// Assume the system's capabilities if FEAT command not supported by the server
 				if (assumeCaps) {
-					AssumeCapabilities();
+					FtpServerSpecificHandler.AssumeCapabilities(this, m_capabilities, ref m_hashAlgorithms);
 				}
 
 #if !NO_SSL && !CORE
@@ -417,7 +418,7 @@ namespace FluentFTP {
 #endif
 
 				// Create the parser even if the auto-OS detection failed
-				m_listParser.Init(m_serverOS, GetParserByServerType());
+				m_listParser.Init(m_serverOS, FtpServerSpecificHandler.GetParserByServerType(this));
 
 				// FIX : #318 always set the type when we create a new connection
 				ForceSetDataType = true;
@@ -477,7 +478,7 @@ namespace FluentFTP {
 #endif
 
 			await HandshakeAsync(token);
-			DetectFtpServer();
+			m_serverType = FtpServerSpecificHandler.DetectFtpServer(this, HandshakeReply);
 
 			if (SendHost) {
 				if (!(reply = await ExecuteAsync("HOST " + (SendHostDomain != null ? SendHostDomain : Host), token)).Success) {
@@ -538,12 +539,13 @@ namespace FluentFTP {
 			// Get the system type - Needed to auto-detect file listing parser
 			if ((reply = await ExecuteAsync("SYST", token)).Success) {
 				m_systemType = reply.Message;
-				DetectFtpServerBySyst();
+				m_serverType = FtpServerSpecificHandler.DetectFtpServerBySyst(this);
+				m_serverOS = FtpServerSpecificHandler.DetectFtpOSBySyst(this);
 			}
 
 			// Assume the system's capabilities if FEAT command not supported by the server
 			if (assumeCaps) {
-				AssumeCapabilities();
+				FtpServerSpecificHandler.AssumeCapabilities(this, m_capabilities, ref m_hashAlgorithms);
 			}
 
 #if !NO_SSL && !CORE
@@ -562,7 +564,7 @@ namespace FluentFTP {
 #endif
 
 			// Create the parser after OS auto-detection
-			m_listParser.Init(m_serverOS, GetParserByServerType());
+			m_listParser.Init(m_serverOS, FtpServerSpecificHandler.GetParserByServerType(this));
 		}
 #endif
 
@@ -647,7 +649,7 @@ namespace FluentFTP {
 		/// <param name="reply">The reply object from the FEAT command. The InfoMessages property will
 		/// contain a list of the features the server supported delimited by a new line '\n' character.</param>
 		protected virtual void GetFeatures(FtpReply reply) {
-			GetFeatures(reply.InfoMessages.Split('\n'));
+			FtpServerSpecificHandler.GetFeatures(this, m_capabilities, ref m_hashAlgorithms, reply.InfoMessages.Split('\n'));
 		}
 
 #if !CORE

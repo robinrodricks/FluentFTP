@@ -6,6 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Globalization;
 using System.Security.Authentication;
 using System.Net;
+using FluentFTP.Servers;
 
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
@@ -645,6 +646,31 @@ namespace FluentFTP {
 		}
 
 		private double m_timeDiff = 0;
+
+
+		/// <summary>
+		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
+		/// If you know for sure that this is supported, return true here.
+		/// </summary>
+		public bool RecursiveList {
+			get {
+
+				// If the user has confirmed support on his server, return true
+				if (_RecursiveListSupported) {
+					return true;
+				}
+				
+				// check on a server-by-server basis
+				return FtpServerSpecificHandler.SupportsRecursiveList(this);
+
+			}
+			set {
+				// You can always set this property if you are sure about
+				// your server's support for recursive listing
+				_RecursiveListSupported = value;
+			}
+		}
+
 
 		/// <summary>
 		/// Time difference between server and client, in hours.

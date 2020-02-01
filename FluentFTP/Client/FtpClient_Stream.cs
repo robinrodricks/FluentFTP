@@ -1480,7 +1480,7 @@ namespace FluentFTP {
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
-		/// <param name="token"><param name="token">Cancellation Token</param>
+		/// <param name="token">Cancellation Token</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		public virtual async Task<Stream> OpenWriteAsync(string path, FtpDataType type, bool checkIfFileExists, CancellationToken token = default(CancellationToken)) {
 			// verify args

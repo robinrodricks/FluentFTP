@@ -17,6 +17,7 @@ using System.Web;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
+using FluentFTP.Helpers;
 
 #endif
 #if ASYNC
@@ -24,201 +25,220 @@ using System.Threading.Tasks;
 
 #endif
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Servers {
+	public class FtpServerSpecificHandler {
+
 		#region Detect Server
 
 		/// <summary>
 		/// Detect the FTP Server based on the welcome message sent by the server after getting the 220 connection command.
 		/// Its the primary method.
 		/// </summary>
-		private void DetectFtpServer() {
+		public static FtpServer DetectFtpServer(FtpClient client, FtpReply HandshakeReply) {
+			var serverType = client.ServerType;
+
 			if (HandshakeReply.Success && (HandshakeReply.Message != null || HandshakeReply.InfoMessages != null)) {
 				var welcome = (HandshakeReply.Message ?? "") + (HandshakeReply.InfoMessages ?? "");
 
 				// Detect Pure-FTPd server
 				// Welcome message: "---------- Welcome to Pure-FTPd [privsep] [TLS] ----------"
 				if (welcome.Contains("Pure-FTPd")) {
-					m_serverType = FtpServer.PureFTPd;
+					serverType = FtpServer.PureFTPd;
 				}
 
 				// Detect vsFTPd server
 				// Welcome message: "(vsFTPd 3.0.3)"
 				else if (welcome.Contains("(vsFTPd")) {
-					m_serverType = FtpServer.VsFTPd;
+					serverType = FtpServer.VsFTPd;
 				}
 
 				// Detect ProFTPd server
 				// Welcome message: "ProFTPD 1.3.5rc3 Server (***) [::ffff:***]"
 				else if (welcome.Contains("ProFTPD")) {
-					m_serverType = FtpServer.ProFTPD;
+					serverType = FtpServer.ProFTPD;
 				}
 
 				// Detect FileZilla server
 				// Welcome message: "FileZilla Server 0.9.60 beta"
 				else if (welcome.Contains("FileZilla Server")) {
-					m_serverType = FtpServer.FileZilla;
+					serverType = FtpServer.FileZilla;
 				}
 
 				// Detect WuFTPd server
 				// Welcome message: "FTP server (Revision 9.0 Version wuftpd-2.6.1 Mon Jun 30 09:28:28 GMT 2014) ready"
 				// Welcome message: "220 DH FTP server (Version wu-2.6.2-5) ready"
 				else if (welcome.Contains("Version wuftpd") || welcome.Contains("Version wu-")) {
-					m_serverType = FtpServer.WuFTPd;
+					serverType = FtpServer.WuFTPd;
 				}
 
 				// Detect GlobalScape EFT server
 				// Welcome message: "EFT Server Enterprise 7.4.5.6"
 				else if (welcome.Contains("EFT Server")) {
-					m_serverType = FtpServer.GlobalScapeEFT;
+					serverType = FtpServer.GlobalScapeEFT;
 				}
 
 				// Detect Cerberus server
 				// Welcome message: "220-Cerberus FTP Server Personal Edition"
 				else if (welcome.Contains("Cerberus FTP")) {
-					m_serverType = FtpServer.Cerberus;
+					serverType = FtpServer.Cerberus;
 				}
 
 				// Detect Serv-U server
 				// Welcome message: "220 Serv-U FTP Server v5.0 for WinSock ready."
 				else if (welcome.Contains("Serv-U FTP")) {
-					m_serverType = FtpServer.ServU;
+					serverType = FtpServer.ServU;
 				}
 
 				// Detect Windows Server/IIS FTP server
 				// Welcome message: "220-Microsoft FTP Service."
 				else if (welcome.Contains("Microsoft FTP Service")) {
-					m_serverType = FtpServer.WindowsServerIIS;
+					serverType = FtpServer.WindowsServerIIS;
 				}
 
 				// Detect CrushFTP server
 				// Welcome message: "220 CrushFTP Server Ready!"
 				else if (welcome.Contains("CrushFTP Server")) {
-					m_serverType = FtpServer.CrushFTP;
+					serverType = FtpServer.CrushFTP;
 				}
 
 				// Detect glFTPd server
 				// Welcome message: "220 W 00 T (glFTPd 2.01 Linux+TLS) ready."
 				// Welcome message: "220 <hostname> (glFTPd 2.01 Linux+TLS) ready."
 				else if (welcome.Contains("glFTPd ")) {
-					m_serverType = FtpServer.glFTPd;
+					serverType = FtpServer.glFTPd;
 				}
 
 				// Detect OpenVMS server
 				// Welcome message: "220 ftp.bedrock.net FTP-OpenVMS FTPD V5.5-3 (c) 2001 Process Software"
 				else if (welcome.Contains("OpenVMS FTPD")) {
-					m_serverType = FtpServer.OpenVMS;
+					serverType = FtpServer.OpenVMS;
 				}
 
 				// Detect Homegate FTP server
 				// Welcome message: "220 Homegate FTP Server ready"
 				else if (welcome.Contains("Homegate FTP Server")) {
-					m_serverType = FtpServer.HomegateFTP;
+					serverType = FtpServer.HomegateFTP;
 				}
 
 				// Detect XLight server
 				// Welcome message: "220 Xlight FTP Server 3.9 ready"
 				else if (welcome.Contains("Xlight FTP Server")) {
-					m_serverType = FtpServer.XLight;
+					serverType = FtpServer.XLight;
 				}
 
 				// Detect BFTPd server
 				// Welcome message: "220 Aruba FTP2S3 gateway 1.0.1 ready"
 				else if (welcome.Contains("FTP2S3 gateway")) {
-					m_serverType = FtpServer.FTP2S3Gateway;
+					serverType = FtpServer.FTP2S3Gateway;
 				}
 
 				// Detect BFTPd server
 				// Welcome message: "220 bftpd 2.2.1 at 192.168.1.1 ready"
 				else if (welcome.Contains("bftpd ")) {
-					m_serverType = FtpServer.BFTPd;
+					serverType = FtpServer.BFTPd;
 				}
 
 				// Detect Tandem/NonStop server
 				// Welcome message: "220 mysite.com FTP SERVER T9552H02 (Version H02 TANDEM 11SEP2008) ready."
 				// Welcome message: "220 FTP SERVER T9552G08 (Version G08 TANDEM 15JAN2008) ready."
 				else if (welcome.Contains("FTP SERVER ") && welcome.Contains(" TANDEM ")) {
-					m_serverType = FtpServer.NonStopTandem;
+					serverType = FtpServer.NonStopTandem;
 				}
 
 				// Detect IBM z/OS server
 				// Welcome message: "220-FTPD1 IBM FTP CS V2R3 at mysite.gov, 16:51:54 on 2019-12-12."
 				else if (welcome.Contains("IBM FTP CS")) {
-					m_serverType = FtpServer.IBMzOSFTP;
+					serverType = FtpServer.IBMzOSFTP;
 				}
 
 				// trace it
-				if (m_serverType != FtpServer.Unknown) {
-					LogLine(FtpTraceLevel.Info, "Status:   Detected FTP server: " + m_serverType.ToString());
+				if (serverType != FtpServer.Unknown) {
+					client.LogLine(FtpTraceLevel.Info, "Status:   Detected FTP server: " + serverType.ToString());
 				}
 			}
+
+			return serverType;
 		}
 
 		/// <summary>
 		/// Detect the FTP Server based on the response to the SYST connection command.
 		/// Its a fallback method if the server did not send an identifying welcome message.
 		/// </summary>
-		private void DetectFtpServerBySyst() {
+		public static FtpOperatingSystem DetectFtpOSBySyst(FtpClient client) {
+			var serverOS = client.ServerOS;
+
 			// detect OS type
-			var system = m_systemType.ToUpper();
+			var system = client.SystemType.ToUpper();
 
 			if (system.StartsWith("WINDOWS")) {
 				// Windows OS
-				m_serverOS = FtpOperatingSystem.Windows;
+				serverOS = FtpOperatingSystem.Windows;
 			}
 			else if (system.Contains("UNIX") || system.Contains("AIX")) {
 				// Unix OS
-				m_serverOS = FtpOperatingSystem.Unix;
+				serverOS = FtpOperatingSystem.Unix;
 			}
 			else if (system.Contains("VMS")) {
 				// VMS or OpenVMS
-				m_serverOS = FtpOperatingSystem.VMS;
+				serverOS = FtpOperatingSystem.VMS;
 			}
 			else if (system.Contains("OS/400")) {
 				// IBM OS/400
-				m_serverOS = FtpOperatingSystem.IBMOS400;
+				serverOS = FtpOperatingSystem.IBMOS400;
 			}
 			else if (system.Contains("Z/OS")) {
 				// IBM OS/400
 				// Syst message: "215 MVS is the operating system of this server. FTP Server is running on z/OS."
-				m_serverOS = FtpOperatingSystem.IBMzOS;
+				serverOS = FtpOperatingSystem.IBMzOS;
 			}
 			else if (system.Contains("SUNOS")) {
 				// SUN OS
-				m_serverOS = FtpOperatingSystem.SunOS;
+				serverOS = FtpOperatingSystem.SunOS;
 			}
 			else {
 				// assume Unix OS
-				m_serverOS = FtpOperatingSystem.Unknown;
+				serverOS = FtpOperatingSystem.Unknown;
 			}
 
+			return serverOS;
+		}
+
+		/// <summary>
+		/// Detect the FTP Server based on the response to the SYST connection command.
+		/// Its a fallback method if the server did not send an identifying welcome message.
+		/// </summary>
+		public static FtpServer DetectFtpServerBySyst(FtpClient client) {
+			var serverType = client.ServerType;
 
 			// detect server type
-			if (m_serverType == FtpServer.Unknown) {
+			if (serverType == FtpServer.Unknown) {
 
 				// Detect OpenVMS server
 				// SYST type: "VMS OpenVMS V8.4"
-				if (m_systemType.Contains("OpenVMS")) {
-					m_serverType = FtpServer.OpenVMS;
+				if (client.SystemType.Contains("OpenVMS")) {
+					serverType = FtpServer.OpenVMS;
 				}
 
 				// Detect WindowsCE server
 				// SYST type: "Windows_CE version 7.0"
-				if (m_systemType.Contains("Windows_CE")) {
-					m_serverType = FtpServer.WindowsCE;
+				if (client.SystemType.Contains("Windows_CE")) {
+					serverType = FtpServer.WindowsCE;
 				}
 
 				// Detect SolarisTP server
 				// SYST response: "215 UNIX Type: L8 Version: SUNOS"
-				if (m_systemType.Contains("SUNOS")) {
-					m_serverType = FtpServer.SolarisFTP;
+				if (client.SystemType.Contains("SUNOS")) {
+					serverType = FtpServer.SolarisFTP;
 				}
 
 				// trace it
-				if (m_serverType != FtpServer.Unknown) {
-					LogStatus(FtpTraceLevel.Info, "Detected FTP server: " + m_serverType.ToString());
+				if (serverType != FtpServer.Unknown) {
+					client.LogStatus(FtpTraceLevel.Info, "Detected FTP server: " + serverType.ToString());
 				}
+
 			}
+
+			return serverType;
 		}
 
 		#endregion
@@ -228,7 +248,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Populates the capabilities flags based on capabilities given in the list of strings.
 		/// </summary>
-		protected virtual void GetFeatures(string[] features) {
+		public static void GetFeatures(FtpClient client, List<FtpCapability> m_capabilities, ref FtpHashAlgorithm m_hashAlgorithms, string[] features) {
 			foreach (var feat in features) {
 				var featName = feat.Trim().ToUpper();
 
@@ -375,47 +395,35 @@ namespace FluentFTP {
 		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
 		/// If you know for sure that this is supported, return true here.
 		/// </summary>
-		public bool RecursiveList {
-			get {
+		public static bool SupportsRecursiveList(FtpClient client) {
 
-				// If the user has confirmed support on his server, return true
-				if (_RecursiveListSupported) {
-					return true;
-				}
+			// Has support, per https://download.pureftpd.org/pub/pure-ftpd/doc/README
+			if (client.ServerType == FtpServer.PureFTPd) {
+				return true;
+			}
 
-				// Has support, per https://download.pureftpd.org/pub/pure-ftpd/doc/README
-				if (ServerType == FtpServer.PureFTPd) {
-					return true;
-				}
+			// Has support, per: http://www.proftpd.org/docs/howto/ListOptions.html
+			if (client.ServerType == FtpServer.ProFTPD) {
+				return true;
+			}
 
-				// Has support, per: http://www.proftpd.org/docs/howto/ListOptions.html
-				if (ServerType == FtpServer.ProFTPD) {
-					return true;
-				}
+			// Has support, but OFF by default, per: https://linux.die.net/man/5/vsftpd.conf
+			if (client.ServerType == FtpServer.VsFTPd) {
+				return false; // impossible to detect on a server-by-server basis
+			}
 
-				// Has support, but OFF by default, per: https://linux.die.net/man/5/vsftpd.conf
-				if (ServerType == FtpServer.VsFTPd) {
-					return false; // impossible to detect on a server-by-server basis
-				}
-
-				// No support, per: https://trac.filezilla-project.org/ticket/1848
-				if (ServerType == FtpServer.FileZilla) {
-					return false;
-				}
-
-				// No support, per: http://wu-ftpd.therockgarden.ca/man/ftpd.html
-				if (ServerType == FtpServer.WuFTPd) {
-					return false;
-				}
-
-				// Unknown, so assume server does not support recursive listing
+			// No support, per: https://trac.filezilla-project.org/ticket/1848
+			if (client.ServerType == FtpServer.FileZilla) {
 				return false;
 			}
-			set {
-				// You can always set this property if you are sure about
-				// your server's support for recursive listing
-				_RecursiveListSupported = value;
+
+			// No support, per: http://wu-ftpd.therockgarden.ca/man/ftpd.html
+			if (client.ServerType == FtpServer.WuFTPd) {
+				return false;
 			}
+
+			// Unknown, so assume server does not support recursive listing
+			return false;
 		}
 
 		#endregion
@@ -425,20 +433,20 @@ namespace FluentFTP {
 		/// <summary>
 		/// Assume the FTP Server's capabilities if it does not support the FEAT command.
 		/// </summary>
-		private void AssumeCapabilities() {
+		public static void AssumeCapabilities(FtpClient client, List<FtpCapability> m_capabilities, ref FtpHashAlgorithm m_hashAlgorithms) {
 
 			// HP-UX version of wu-ftpd 2.6.1
 			// http://nixdoc.net/man-pages/HP-UX/ftpd.1m.html
-			if (ServerType == FtpServer.WuFTPd) {
+			if (client.ServerType == FtpServer.WuFTPd) {
 				// assume the basic features supported
-				GetFeatures(new[] { "ABOR", "ACCT", "ALLO", "APPE", "CDUP", "CWD", "DELE", "EPSV", "EPRT", "HELP", "LIST", "LPRT", "LPSV", "MKD", "MDTM", "MODE", "NLST", "NOOP", "PASS", "PASV", "PORT", "PWD", "QUIT", "REST", "RETR", "RMD", "RNFR", "RNTO", "SITE", "SIZE", "STAT", "STOR", "STOU", "STRU", "SYST", "TYPE" });
+				GetFeatures(client, m_capabilities, ref m_hashAlgorithms, new[] { "ABOR", "ACCT", "ALLO", "APPE", "CDUP", "CWD", "DELE", "EPSV", "EPRT", "HELP", "LIST", "LPRT", "LPSV", "MKD", "MDTM", "MODE", "NLST", "NOOP", "PASS", "PASV", "PORT", "PWD", "QUIT", "REST", "RETR", "RMD", "RNFR", "RNTO", "SITE", "SIZE", "STAT", "STOR", "STOU", "STRU", "SYST", "TYPE" });
 			}
 
 			// OpenVMS HGFTP
 			// https://gist.github.com/robinrodricks/9631f9fad3c0fc4c667adfd09bd98762
-			if (ServerType == FtpServer.OpenVMS) {
+			if (client.ServerType == FtpServer.OpenVMS) {
 				// assume the basic features supported
-				GetFeatures(new[] { "CWD", "DELE", "LIST", "NLST", "MKD", "MDTM", "PASV", "PORT", "PWD", "QUIT", "RNFR", "RNTO", "SITE", "STOR", "STRU", "TYPE" });
+				GetFeatures(client, m_capabilities, ref m_hashAlgorithms, new[] { "CWD", "DELE", "LIST", "NLST", "MKD", "MDTM", "PASV", "PORT", "PWD", "QUIT", "RNFR", "RNTO", "SITE", "STOR", "STRU", "TYPE" });
 			}
 
 		}
@@ -450,12 +458,12 @@ namespace FluentFTP {
 		/// <summary>
 		/// Checks for server-specific absolute paths
 		/// </summary>
-		private bool IsAbsolutePath(string path) {
+		public static bool IsAbsolutePath(FtpClient client, string path) {
 			// FIX : #380 for OpenVMS absolute paths are "SYS$SYSDEVICE:[USERS.mylogin]"
 			// FIX : #402 for OpenVMS absolute paths are "SYSDEVICE:[USERS.mylogin]"
 			// FIX : #424 for OpenVMS absolute paths are "FTP_DEFAULT:[WAGN_IN]"
 			// FIX : #454 for OpenVMS absolute paths are "TOPAS$ROOT:[000000.TUIL.YR_20.SUBLIS]"
-			if (ServerType == FtpServer.OpenVMS) {
+			if (client.ServerType == FtpServer.OpenVMS) {
 				if (new Regex("[A-Za-z$._]*:\\[[A-Za-z0-9$_.]*\\]").Match(path).Success) {
 					return true;
 				}
@@ -466,76 +474,19 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region File Exists
-
-		/// <summary>
-		/// Error messages returned by various servers when a file does not exist.
-		/// Instead of throwing an error, we use these to detect and handle the file detection properly.
-		/// MUST BE LOWER CASE!
-		/// </summary>
-		private static string[] fileNotFoundStrings = new[] {
-			"can't find file",
-			"can't check for file existence",
-			"does not exist",
-			"failed to open file",
-			"not found",
-			"no such file",
-			"cannot find the file",
-			"cannot find",
-			"could not get file",
-			"not a regular file",
-			"file unavailable",
-			"file is unavailable",
-			"file not unavailable",
-			"file is not available",
-			"no files found",
-			"no file found",
-			"datei oder verzeichnis nicht gefunden"
-		};
-
-		#endregion
-
-		#region File Size
-
-		/// <summary>
-		/// Error messages returned by various servers when a file size is not supported in ASCII mode.
-		/// MUST BE LOWER CASE!
-		/// </summary>
-		private static string[] fileSizeNotInASCIIStrings = new[] {
-			"not allowed in ascii",
-			"size not allowed in ascii",
-			"n'est pas autorisé en mode ascii"
-		};
-
-		#endregion
-
-		#region File Transfer
-
-		/// <summary>
-		/// Error messages returned by various servers when a file transfer temporarily failed.
-		/// MUST BE LOWER CASE!
-		/// </summary>
-		private static string[] unexpectedEOFStrings = new[] {
-			"unexpected eof for remote file",
-			"received an unexpected eof",
-			"unexpected eof"
-		};
-
-		#endregion
-
 		#region File Listing Parser
 
-		private FtpParser GetParserByServerType() {
+		public static FtpParser GetParserByServerType(FtpClient client) {
 
-			if (ServerType == FtpServer.WindowsServerIIS || ServerType == FtpServer.WindowsCE) {
+			if (client.ServerType == FtpServer.WindowsServerIIS || client.ServerType == FtpServer.WindowsCE) {
 				return FtpParser.Windows;
 			}
 
-			if (ServerType == FtpServer.NonStopTandem) {
+			if (client.ServerType == FtpServer.NonStopTandem) {
 				return FtpParser.NonStop;
 			}
 
-			if (ServerType == FtpServer.OpenVMS) {
+			if (client.ServerType == FtpServer.OpenVMS) {
 				return FtpParser.VMS;
 			}
 
@@ -546,27 +497,27 @@ namespace FluentFTP {
 
 		#region Delete Directory
 
-		private bool ServerDeleteDirectory(string path, string ftppath, bool deleteContents, FtpListOption options) {
+		public static bool ServerDeleteDirectory(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options) {
 
 			// Support #378 - Support RMDIR command for ProFTPd
-			if (deleteContents && HasFeature(FtpCapability.SITE_RMDIR)) {
-				if ((Execute("SITE RMDIR " + ftppath)).Success) {
-					LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete directory: " + ftppath);
+			if (deleteContents && client.HasFeature(FtpCapability.SITE_RMDIR)) {
+				if ((client.Execute("SITE RMDIR " + ftppath)).Success) {
+					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete directory: " + ftppath);
 					return true;
 				}
 				else {
-					LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete directory: " + ftppath);
+					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete directory: " + ftppath);
 				}
 			}
 
 			// Support #88 - Support RMDA command for Serv-U
-			if (deleteContents && HasFeature(FtpCapability.RMDA)) {
-				if ((Execute("RMDA " + ftppath)).Success) {
-					LogStatus(FtpTraceLevel.Verbose, "Used the server-specific RMDA command to quickly delete directory: " + ftppath);
+			if (deleteContents && client.HasFeature(FtpCapability.RMDA)) {
+				if ((client.Execute("RMDA " + ftppath)).Success) {
+					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific RMDA command to quickly delete directory: " + ftppath);
 					return true;
 				}
 				else {
-					LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific RMDA command to quickly delete directory: " + ftppath);
+					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific RMDA command to quickly delete directory: " + ftppath);
 				}
 			}
 
@@ -574,16 +525,16 @@ namespace FluentFTP {
 		}
 
 #if ASYNC
-		private async Task<bool> ServerDeleteDirectoryAsync(string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
+		public static async Task<bool> ServerDeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
 
 			// Support #378 - Support RMDIR command for ProFTPd
-			if (deleteContents && ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_RMDIR)) {
-				if ((await ExecuteAsync("SITE RMDIR " + ftppath, token)).Success) {
-					LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete: " + ftppath);
+			if (deleteContents && client.ServerType == FtpServer.ProFTPD && client.HasFeature(FtpCapability.SITE_RMDIR)) {
+				if ((await client.ExecuteAsync("SITE RMDIR " + ftppath, token)).Success) {
+					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete: " + ftppath);
 					return true;
 				}
 				else {
-					LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete: " + ftppath);
+					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete: " + ftppath);
 				}
 			}
 
@@ -595,16 +546,16 @@ namespace FluentFTP {
 
 		#region Create Directory
 
-		private bool ServerCreateDirectory(string path, string ftppath, bool force) {
+		public static bool ServerCreateDirectory(FtpClient client, string path, string ftppath, bool force) {
 
 			// Support #378 - Support MKDIR command for ProFTPd
-			if (ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_MKDIR)) {
-				if ((Execute("SITE MKDIR " + ftppath)).Success) {
-					LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
+			if (client.ServerType == FtpServer.ProFTPD && client.HasFeature(FtpCapability.SITE_MKDIR)) {
+				if ((client.Execute("SITE MKDIR " + ftppath)).Success) {
+					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
 					return true;
 				}
 				else {
-					LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
+					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
 				}
 			}
 
@@ -612,16 +563,16 @@ namespace FluentFTP {
 		}
 
 #if ASYNC
-		private async Task<bool> ServerCreateDirectoryAsync(string path, string ftppath, bool force, CancellationToken token) {
+		public static async Task<bool> ServerCreateDirectoryAsync(FtpClient client, string path, string ftppath, bool force, CancellationToken token) {
 
 			// Support #378 - Support MKDIR command for ProFTPd
-			if (ServerType == FtpServer.ProFTPD && HasFeature(FtpCapability.SITE_MKDIR)) {
-				if ((await ExecuteAsync("SITE MKDIR " + ftppath, token)).Success) {
-					LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
+			if (client.ServerType == FtpServer.ProFTPD && client.HasFeature(FtpCapability.SITE_MKDIR)) {
+				if ((await client.ExecuteAsync("SITE MKDIR " + ftppath, token)).Success) {
+					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
 					return true;
 				}
 				else {
-					LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
+					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
 				}
 			}
 
@@ -630,5 +581,6 @@ namespace FluentFTP {
 #endif
 
 		#endregion
+
 	}
 }

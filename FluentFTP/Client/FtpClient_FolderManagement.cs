@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using FluentFTP.Proxy;
+using FluentFTP.Servers;
 #if !CORE
 using System.Web;
 #endif
@@ -75,7 +76,7 @@ namespace FluentFTP {
 
 				// server-specific directory deletion
 				if (!ftppath.IsFtpRootDirectory()) {
-					if (ServerDeleteDirectory(path, ftppath, deleteContents, options)) {
+					if (FtpServerSpecificHandler.ServerDeleteDirectory(this, path, ftppath, deleteContents, options)) {
 						return;
 					}
 				}
@@ -242,7 +243,7 @@ namespace FluentFTP {
 
 			// server-specific directory deletion
 			if (!ftppath.IsFtpRootDirectory()) {
-				if (await ServerDeleteDirectoryAsync(path, ftppath, deleteContents, options, token)) {
+				if (await FtpServerSpecificHandler.ServerDeleteDirectoryAsync(this, path, ftppath, deleteContents, options, token)) {
 					return;
 				}
 			}
@@ -475,7 +476,7 @@ namespace FluentFTP {
 #endif
 
 				// server-specific directory creation
-				if (ServerCreateDirectory(path, ftppath, force)) {
+				if (FtpServerSpecificHandler.ServerCreateDirectory(this, path, ftppath, force)) {
 					return true;
 				}
 
@@ -499,7 +500,7 @@ namespace FluentFTP {
 					if (reply.Code == "550") {
 						return false;
 					}
-					if (reply.Code[0] == '5' && reply.Message.IsKnownError(folderAlreadyExistsStrings)) {
+					if (reply.Code[0] == '5' && reply.Message.IsKnownError(FtpServerStrings.folderAlreadyExistsStrings)) {
 						return false;
 					}
 
@@ -584,7 +585,7 @@ namespace FluentFTP {
 			}
 
 			// server-specific directory creation
-			if (await ServerCreateDirectoryAsync(path, ftppath, force, token)) {
+			if (await FtpServerSpecificHandler.ServerCreateDirectoryAsync(this, path, ftppath, force, token)) {
 				return true;
 			}
 
@@ -608,7 +609,7 @@ namespace FluentFTP {
 				if (reply.Code == "550") {
 					return false;
 				}
-				if (reply.Code[0] == '5' && reply.Message.IsKnownError(folderAlreadyExistsStrings)) {
+				if (reply.Code[0] == '5' && reply.Message.IsKnownError(FtpServerStrings.folderAlreadyExistsStrings)) {
 					return false;
 				}
 

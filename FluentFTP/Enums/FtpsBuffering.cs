@@ -12,6 +12,7 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Always disables SSL Buffering to reduce FTPS connectivity issues.
+		/// </summary>
 		Off,
 
 		/// <summary>
