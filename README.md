@@ -127,6 +127,18 @@ client.DownloadFile(@"C:\MyVideo_2.mp4", "/htdocs/MyVideo_2.mp4");
 // delete the file
 client.DeleteFile("/htdocs/MyVideo_2.mp4");
 
+// upload a folder and all its files
+client.UploadDirectory(@"C:\website\videos\", @"/public_html/videos", FtpFolderSyncMode.Update);
+
+// upload a folder and all its files, and delete extra files on the server
+client.UploadDirectory(@"C:\website\assets\", @"/public_html/assets", FtpFolderSyncMode.Mirror);
+
+// download a folder and all its files
+client.DownloadDirectory(@"C:\website\logs\", @"/public_html/logs", FtpFolderSyncMode.Update);
+
+// download a folder and all its files, and delete extra files on disk
+client.DownloadDirectory(@"C:\website\dailybackup\", @"/public_html/", FtpFolderSyncMode.Mirror);
+
 // delete a folder recursively
 client.DeleteDirectory("/htdocs/extras/");
 
