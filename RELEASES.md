@@ -11,6 +11,7 @@
   - Fix: Machine listings sometimes cause infinite recursion in `GetListing` when recursing into self directory
   - Change: `CreateDirectory` and `CreateDirectoryAsync` now return a flag indicating if it was created or skipped
   - Change: Use public fields instead of public properties for `FtpListItem`
+  - Change: Improve performance of `CreateDirectory` by skipping the directory exists check
 
 #### 29.0.4
   - Fix: Detect "file size not allowed in ASCII" string for French FTP servers
