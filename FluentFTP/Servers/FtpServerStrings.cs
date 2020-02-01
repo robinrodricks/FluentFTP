@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace FluentFTP.Servers {
-	public static class FtpServerStrings {
+	internal static class FtpServerStrings {
 
 		#region File Exists
 

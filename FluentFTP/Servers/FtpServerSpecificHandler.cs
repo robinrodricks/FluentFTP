@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP.Servers {
-	public class FtpServerSpecificHandler {
+	internal static class FtpServerSpecificHandler {
 
 		#region Detect Server
 
