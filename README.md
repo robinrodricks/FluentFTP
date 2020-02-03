@@ -60,7 +60,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 	
 ## Releases
 
-Stable binaries are released on NuGet, and contain everything you need to use FTP/FTPS in your .Net/CLR application. For usage see the [Example Usage](#example-usage) section and the [Documentation](https://github.com/robinrodricks/FluentFTP/wiki) wiki.
+Stable binaries are released on NuGet, and contain everything you need to use FTP/FTPS in your .Net/CLR application. For usage see the [Quick Start Example](https://github.com/robinrodricks/FluentFTP/wiki/Quick-Start-Example) and the [Documentation](https://github.com/robinrodricks/FluentFTP/wiki) wiki.
 
   - [Nuget](https://www.nuget.org/packages/FluentFTP) (latest)
   - [Release Notes](https://github.com/robinrodricks/FluentFTP/blob/master/RELEASES.md) (features and fixes per release)
@@ -89,76 +89,7 @@ Binaries for all platforms are built from a single VS 2017 Project. You will nee
 
 ## Example Usage
 
-```csharp
-// create an FTP client
-FtpClient client = new FtpClient("123.123.123.123");
-
-// if you don't specify login credentials, we use the "anonymous" user account
-client.Credentials = new NetworkCredential("david", "pass123");
-
-// begin connecting to the server
-client.Connect();
-
-// get a list of files and directories in the "/htdocs" folder
-foreach (FtpListItem item in client.GetListing("/htdocs")) {
-	
-	// if this is a file
-	if (item.Type == FtpFileSystemObjectType.File){
-		
-		// get the file size
-		long size = client.GetFileSize(item.FullName);
-		
-	}
-	
-	// get modified date/time of the file or folder
-	DateTime time = client.GetModifiedTime(item.FullName);
-	
-	// calculate a hash for the file on the server side (default algorithm)
-	FtpHash hash = client.GetHash(item.FullName);
-	
-}
-
-// upload a file
-client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/MyVideo.mp4");
-
-// rename the uploaded file
-client.Rename("/htdocs/MyVideo.mp4", "/htdocs/MyVideo_2.mp4");
-
-// download the file again
-client.DownloadFile(@"C:\MyVideo_2.mp4", "/htdocs/MyVideo_2.mp4");
-
-// delete the file
-client.DeleteFile("/htdocs/MyVideo_2.mp4");
-
-// upload a folder and all its files
-client.UploadDirectory(@"C:\website\videos\", @"/public_html/videos", FtpFolderSyncMode.Update);
-
-// upload a folder and all its files, and delete extra files on the server
-client.UploadDirectory(@"C:\website\assets\", @"/public_html/assets", FtpFolderSyncMode.Mirror);
-
-// download a folder and all its files
-client.DownloadDirectory(@"C:\website\logs\", @"/public_html/logs", FtpFolderSyncMode.Update);
-
-// download a folder and all its files, and delete extra files on disk
-client.DownloadDirectory(@"C:\website\dailybackup\", @"/public_html/", FtpFolderSyncMode.Mirror);
-
-// delete a folder recursively
-client.DeleteDirectory("/htdocs/extras/");
-
-// check if a file exists
-if (client.FileExists("/htdocs/big2.txt")){ }
-
-// check if a folder exists
-if (client.DirectoryExists("/htdocs/extras/")){ }
-
-// upload a file and retry 3 times before giving up
-client.RetryAttempts = 3;
-client.UploadFile(@"C:\MyVideo.mp4", "/htdocs/big.txt", FtpExists.Overwrite, false, FtpVerify.Retry);
-
-// disconnect! good bye!
-client.Disconnect();
-```
-
+Check the wiki for a [Quick start example]().
 
 ## Documentation and FAQs
 
