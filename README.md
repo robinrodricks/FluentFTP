@@ -21,7 +21,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
     - File and directory listing for [all major server types](#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, AS400, Windows CE, Serv-U, etc)
 	- Fully recursive directory listing and directory deletion (manual recursion and server-side recursion)
     - Easily upload and download a file from the server with [progress tracking](#faq_progress)
-    - Easily upload and download a directory from the server with Mirror or Update modes for easy synchronization
+    - Easily upload and download a directory from the server with easy synchronization modes
     - Automatically [verify the hash](#faq_verifyhash) of a file & retry transfer if hash mismatches
     - Configurable error handling (ignore/abort/throw) for multi-file transfers
     - Easily read and write file data from the server using standard streams
@@ -129,6 +129,18 @@ client.DownloadFile(@"C:\MyVideo_2.mp4", "/htdocs/MyVideo_2.mp4");
 
 // delete the file
 client.DeleteFile("/htdocs/MyVideo_2.mp4");
+
+// upload a folder and all its files
+client.UploadDirectory(@"C:\website\videos\", @"/public_html/videos", FtpFolderSyncMode.Update);
+
+// upload a folder and all its files, and delete extra files on the server
+client.UploadDirectory(@"C:\website\assets\", @"/public_html/assets", FtpFolderSyncMode.Mirror);
+
+// download a folder and all its files
+client.DownloadDirectory(@"C:\website\logs\", @"/public_html/logs", FtpFolderSyncMode.Update);
+
+// download a folder and all its files, and delete extra files on disk
+client.DownloadDirectory(@"C:\website\dailybackup\", @"/public_html/", FtpFolderSyncMode.Mirror);
 
 // delete a folder recursively
 client.DeleteDirectory("/htdocs/extras/");

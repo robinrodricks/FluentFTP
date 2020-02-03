@@ -456,6 +456,32 @@ namespace FluentFTP {
 			return false;
 		}
 
+		/// <summary>
+		/// Checks if the given file exists in the given file listing.
+		/// </summary>
+		/// <param name="fileList">The listing returned by GetListing</param>
+		/// <param name="path">The full file path you want to check</param>
+		/// <returns></returns>
+		public static bool FileExistsInListing(FtpListItem[] fileList, string path) {
+			// exit quickly if no paths
+			if (fileList == null || fileList.Length == 0) {
+				return false;
+			}
+
+			// cleanup file path, get file name
+			var trimSlash = new char[] { '/' };
+			var pathClean = path.Trim(trimSlash);
+
+			// per entry in the list
+			foreach (var fileListEntry in fileList) {
+				if (fileListEntry.FullName.Trim(trimSlash) == pathClean) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 
 		/// <summary>
 		/// Checks if the given path is a root directory or working directory path

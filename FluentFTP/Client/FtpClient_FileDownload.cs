@@ -12,12 +12,12 @@ using System.Globalization;
 using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Proxy;
+using FluentFTP.Servers;
 #if !CORE
 using System.Web;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
-
 #endif
 #if (CORE || NET45)
 using System.Threading.Tasks;
@@ -139,7 +139,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
-		/// <param name="token">The token to monitor for cancellation requests</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
@@ -940,7 +940,7 @@ namespace FluentFTP {
 
 		private bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
 			// resume if server disconnects midway (fixes #39 and #410)
-			if (ex.InnerException != null || ex.Message.IsKnownError(unexpectedEOFStrings)) {
+			if (ex.InnerException != null || ex.Message.IsKnownError(FtpServerStrings.unexpectedEOF)) {
 				var ie = ex.InnerException as SocketException;
 #if CORE
 								if (ie == null || ie != null && (int) ie.SocketErrorCode == 10054) {
@@ -959,7 +959,7 @@ namespace FluentFTP {
 #if ASYNC
 		private async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex) {
 			// resume if server disconnects midway (fixes #39 and #410)
-			if (ex.InnerException != null || ex.Message.IsKnownError(unexpectedEOFStrings)) {
+			if (ex.InnerException != null || ex.Message.IsKnownError(FtpServerStrings.unexpectedEOF)) {
 				var ie = ex.InnerException as SocketException;
 #if CORE
 				if (ie == null || ie != null && (int) ie.SocketErrorCode == 10054) {

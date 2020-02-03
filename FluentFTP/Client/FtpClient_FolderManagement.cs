@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using FluentFTP.Proxy;
+using FluentFTP.Servers;
 #if !CORE
 using System.Web;
 #endif
@@ -75,7 +76,7 @@ namespace FluentFTP {
 
 				// server-specific directory deletion
 				if (!ftppath.IsFtpRootDirectory()) {
-					if (ServerDeleteDirectory(path, ftppath, deleteContents, options)) {
+					if (FtpServerSpecificHandler.ServerDeleteDirectory(this, path, ftppath, deleteContents, options)) {
 						return;
 					}
 				}
@@ -242,7 +243,7 @@ namespace FluentFTP {
 
 			// server-specific directory deletion
 			if (!ftppath.IsFtpRootDirectory()) {
-				if (await ServerDeleteDirectoryAsync(path, ftppath, deleteContents, options, token)) {
+				if (await FtpServerSpecificHandler.ServerDeleteDirectoryAsync(this, path, ftppath, deleteContents, options, token)) {
 					return;
 				}
 			}
@@ -475,7 +476,7 @@ namespace FluentFTP {
 #endif
 
 				// server-specific directory creation
-				if (ServerCreateDirectory(path, ftppath, force)) {
+				if (FtpServerSpecificHandler.ServerCreateDirectory(this, path, ftppath, force)) {
 					return true;
 				}
 
@@ -485,13 +486,24 @@ namespace FluentFTP {
 					LogStatus(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
 					CreateDirectory(path.GetFtpDirectoryName(), true);
 				}
-				else if (DirectoryExists(path)) {
+
+				// fix: improve performance by skipping the directory exists check
+				/*else if (DirectoryExists(path)) {
 					return false;
-				}
+				}*/
 
 				LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + ftppath);
 
 				if (!(reply = Execute("MKD " + ftppath)).Success) {
+
+					// if the error indicates the directory already exists, its not an error
+					if (reply.Code == "550") {
+						return false;
+					}
+					if (reply.Code[0] == '5' && reply.Message.IsKnownError(FtpServerStrings.folderExists)) {
+						return false;
+					}
+
 					throw new FtpCommandException(reply);
 				}
 				return true;
@@ -573,7 +585,7 @@ namespace FluentFTP {
 			}
 
 			// server-specific directory creation
-			if (await ServerCreateDirectoryAsync(path, ftppath, force, token)) {
+			if (await FtpServerSpecificHandler.ServerCreateDirectoryAsync(this, path, ftppath, force, token)) {
 				return true;
 			}
 
@@ -583,13 +595,24 @@ namespace FluentFTP {
 				LogStatus(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
 				await CreateDirectoryAsync(path.GetFtpDirectoryName(), true, token);
 			}
-			else if (await DirectoryExistsAsync(path, token)) {
+
+			// fix: improve performance by skipping the directory exists check
+			/*else if (await DirectoryExistsAsync(path, token)) {
 				return false;
-			}
+			}*/
 
 			LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + ftppath);
 
 			if (!(reply = await ExecuteAsync("MKD " + ftppath, token)).Success) {
+
+				// if the error indicates the directory already exists, its not an error
+				if (reply.Code == "550") {
+					return false;
+				}
+				if (reply.Code[0] == '5' && reply.Message.IsKnownError(FtpServerStrings.folderExists)) {
+					return false;
+				}
+
 				throw new FtpCommandException(reply);
 			}
 			return true;
