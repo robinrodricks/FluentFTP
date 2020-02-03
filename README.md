@@ -89,7 +89,7 @@ Binaries for all platforms are built from a single VS 2017 Project. You will nee
 
 ## Example Usage
 
-Check the wiki for a [Quick start example]().
+Check the wiki for a [Quick start example](https://github.com/robinrodricks/FluentFTP/wiki/Quick-Start-Example).
 
 ## Documentation and FAQs
 
