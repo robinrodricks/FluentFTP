@@ -11,7 +11,7 @@ FluentFTP is a fully managed FTP and FTPS library for .NET & .NET Standard, opti
 
 It is written entirely in C#, with no external dependencies. FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 
-**If you need priority support for a specific issue, consider funding it using [IssueHunt](https://issuehunt.io/r/robinrodricks/FluentFTP).**
+![Features](https://github.com/robinrodricks/FluentFTP/raw/master/.github/features.png)
 
 
 ## Features
