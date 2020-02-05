@@ -1,5 +1,5 @@
 
-![FluentFTP](https://github.com/robinrodricks/FluentFTP/raw/master/.github/logosmall.png)
+![FluentFTP](https://github.com/robinrodricks/FluentFTP/raw/master/.github/logo-new.png)
 
 [![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP)
 [![Downloads](https://img.shields.io/nuget/dt/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP)

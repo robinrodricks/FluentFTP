@@ -33,7 +33,7 @@
     <PackageId>FluentFTP</PackageId>
     <Title>FluentFTP</Title>
     <Description>An FTP and FTPS client for .NET &amp; .NET Standard, optimized for speed. Provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, UTF-8 support, Async/await support, Powershell support and more. Written entirely in C#, with no external dependencies.</Description>
-    <Authors>Robin Rodricks, J.P. Trosclair, FluentFTP Contributors</Authors>
+    <Authors>Robin Rodricks, FluentFTP Contributors</Authors>
     <PackageLicenseUrl>https://github.com/robinrodricks/FluentFTP/blob/master/LICENSE.TXT</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/robinrodricks/FluentFTP</PackageProjectUrl>
     <Copyright>MIT License</Copyright>
@@ -43,6 +43,7 @@
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
     <Version>30.0.0</Version>
+    <PackageIconUrl>https://raw.githubusercontent.com/robinrodricks/FluentFTP/master/.github/logo-nuget.png</PackageIconUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
