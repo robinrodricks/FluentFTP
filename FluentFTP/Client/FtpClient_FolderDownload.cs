@@ -53,7 +53,8 @@ namespace FluentFTP {
 		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
 		/// Returns a blank list if nothing was transfered. Never returns null.
 		/// </returns>
-		public List<FtpResult> DownloadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null) {
+		public List<FtpResult> DownloadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
+			FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null) {
 
 			if (localFolder.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localFolder");
@@ -124,7 +125,8 @@ namespace FluentFTP {
 		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
 		/// Returns a blank list if nothing was transfered. Never returns null.
 		/// </returns>
-		public async Task<List<FtpResult>> DownloadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+		public async Task<List<FtpResult>> DownloadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
+			FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			if (localFolder.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localFolder");
@@ -236,15 +238,21 @@ namespace FluentFTP {
 
 			LogFunc("DownloadServerFiles", new object[] { toDownload.Count + " files" });
 
+			// per object to download
+			var r = -1;
 			foreach (var result in toDownload) {
+				r++;
 
 				if (result.Type == FtpFileSystemObjectType.File) {
 
 					// absorb errors
 					try {
 
+						// create meta progress to store the file progress
+						var metaProgress = new FtpProgress(toDownload.Count, r);
+
 						// download the file
-						var transferred = this.DownloadFile(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress);
+						var transferred = DownloadFileToFile(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, metaProgress); 
 						result.IsSuccess = true;
 						result.IsSkipped = !transferred;
 					}
@@ -290,15 +298,21 @@ namespace FluentFTP {
 
 			LogFunc("DownloadServerFilesAsync", new object[] { toDownload.Count + " files" });
 
+			// per object to download
+			var r = -1;
 			foreach (var result in toDownload) {
+				r++;
 
 				if (result.Type == FtpFileSystemObjectType.File) {
 
 					// absorb errors
 					try {
 
+						// create meta progress to store the file progress
+						var metaProgress = new FtpProgress(toDownload.Count, r);
+
 						// download the file
-						var transferred = await this.DownloadFileAsync(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, token);
+						var transferred = await DownloadFileToFileAsync(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, token, metaProgress);
 						result.IsSuccess = true;
 						result.IsSkipped = !transferred;
 					}

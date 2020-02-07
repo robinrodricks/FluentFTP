@@ -46,12 +46,30 @@ namespace FluentFTP {
 		public int FileCount { get; set; }
 
 		/// <summary>
-		/// Contructor for the class
+		/// Create a new FtpProgress object for meta progress info.
 		/// </summary>
-		public FtpProgress(double progress, double transferspeed, TimeSpan remainingtime) {
+		public FtpProgress(int fileCount, int fileIndex) {
+			FileCount = fileCount;
+			FileIndex = fileIndex;
+		}
+
+		/// <summary>
+		/// Create a new FtpProgress object for individual file transfer progress.
+		/// </summary>
+		public FtpProgress(double progress, double transferspeed, TimeSpan remainingtime, string localPath, string remotePath, FtpProgress metaProgress) {
+
+			// progress of individual file transfer
 			Progress = progress;
 			TransferSpeed = transferspeed;
 			ETA = remainingtime;
+			LocalPath = localPath;
+			RemotePath = remotePath;
+
+			// progress of the entire task
+			if (metaProgress != null) {
+				FileCount = metaProgress.FileCount;
+				FileIndex = metaProgress.FileIndex;
+			}
 		}
 
 		/// <summary>

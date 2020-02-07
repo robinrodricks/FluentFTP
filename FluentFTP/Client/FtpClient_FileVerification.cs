@@ -89,10 +89,10 @@ namespace FluentFTP {
 		/// <summary>
 		/// Sends progress to the user, either a value between 0-100 indicating percentage complete, or -1 for indeterminate.
 		/// </summary>
-		private void ReportProgress(IProgress<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime) {
+		private void ReportProgress(IProgress<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime, string localPath, string remotePath, FtpProgress metaProgress) {
 
 			//  calculate % done, transfer speed and time remaining
-			FtpProgress status = CalculateProgress(fileSize, position, bytesProcessed, elapsedtime);
+			FtpProgress status = CalculateProgress(fileSize, position, bytesProcessed, elapsedtime, localPath, remotePath, metaProgress);
 
 			// send progress to parent
 			progress.Report(status);
@@ -101,16 +101,16 @@ namespace FluentFTP {
 		/// <summary>
 		/// Sends progress to the user, either a value between 0-100 indicating percentage complete, or -1 for indeterminate.
 		/// </summary>
-		private void ReportProgress(Action<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime) {
+		private void ReportProgress(Action<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime, string localPath, string remotePath, FtpProgress metaProgress) {
 
 			//  calculate % done, transfer speed and time remaining
-			FtpProgress status = CalculateProgress(fileSize, position, bytesProcessed, elapsedtime);
+			FtpProgress status = CalculateProgress(fileSize, position, bytesProcessed, elapsedtime, localPath, remotePath, metaProgress);
 
 			// send progress to parent
 			progress(status);
 		}
 
-		private static FtpProgress CalculateProgress(long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime) {
+		private static FtpProgress CalculateProgress(long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime, string localPath, string remotePath, FtpProgress metaProgress) {
 			// default values to send
 			double progressValue = -1;
 			double transferSpeed = 0;
@@ -140,7 +140,7 @@ namespace FluentFTP {
 				transferSpeed = 0;
 			}
 
-			var p = new FtpProgress(progressValue, transferSpeed, estimatedRemaingTime);
+			var p = new FtpProgress(progressValue, transferSpeed, estimatedRemaingTime, localPath, remotePath, metaProgress);
 			return p;
 		}
 

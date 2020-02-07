@@ -141,17 +141,11 @@ namespace FluentFTP {
 					// Fix #328: get filesize in ASCII or Binary mode as required by server
 					var sizeReply = new FtpSizeReply();
 					GetFileSizeInternal(path, sizeReply);
-					if (sizeReply.Reply.Code[0] == '2') {
-						return true;
-					}
 
-					if (sizeReply.Reply.Code[0] == '5' && sizeReply.Reply.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
-						return false;
-					}
-
-					// Fix #179: Server returns 550 if file not found or no access to file
-					if (sizeReply.Reply.Code.Substring(0, 3) == "550") {
-						return false;
+					// handle known errors to the SIZE command
+					var sizeKnownError = CheckFileExistsBySize(sizeReply);
+					if (sizeKnownError.HasValue) {
+						return sizeKnownError.Value;
 					}
 				}
 
@@ -162,7 +156,6 @@ namespace FluentFTP {
 					if (ch == '2') {
 						return true;
 					}
-
 					if (ch == '5' && reply.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
 						return false;
 					}
@@ -186,6 +179,28 @@ namespace FluentFTP {
 			}
 
 #endif
+		}
+
+		private bool? CheckFileExistsBySize(FtpSizeReply sizeReply) {
+
+			// file surely exists
+			if (sizeReply.Reply.Code[0] == '2') {
+				return true;
+			}
+
+			// file surely does not exist
+			if (sizeReply.Reply.Code[0] == '5' && sizeReply.Reply.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
+				return false;
+			}
+			
+			// Fix #518: This check is too broad and must be disabled, need to fallback to MDTM or NLST instead.
+			// Fix #179: Add a generic check to since server returns 550 if file not found or no access to file.
+			/*if (sizeReply.Reply.Code.Substring(0, 3) == "550") {
+				return false;
+			}*/
+
+			// fallback to MDTM or NLST
+			return null;
 		}
 
 #if !CORE
@@ -249,17 +264,11 @@ namespace FluentFTP {
 				// Fix #328: get filesize in ASCII or Binary mode as required by server
 				FtpSizeReply sizeReply = new FtpSizeReply();
 				await GetFileSizeInternalAsync(path, token, sizeReply);
-				if (sizeReply.Reply.Code[0] == '2') {
-					return true;
-				}
 
-				if (sizeReply.Reply.Code[0] == '5' && sizeReply.Reply.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
-					return false;
-				}
-
-				// Fix #179: Server returns 550 if file not found or no access to file
-				if (sizeReply.Reply.Code.Substring(0, 3) == "550") {
-					return false;
+				// handle known errors to the SIZE command
+				var sizeKnownError = CheckFileExistsBySize(sizeReply);
+				if (sizeKnownError.HasValue) {
+					return sizeKnownError.Value;
 				}
 			}
 

@@ -39,6 +39,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
+		/// <param name="progress">Provide a callback to track upload progress.</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
@@ -48,7 +49,8 @@ namespace FluentFTP {
 		/// to propagate from this method.
 		/// </remarks>
 		public int DownloadFiles(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None,
-			FtpError errorHandling = FtpError.None) {
+			FtpError errorHandling = FtpError.None, Action<FtpProgress> progress = null) {
+			
 			// verify args
 			if (!errorHandling.IsValidCombination()) {
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
@@ -66,13 +68,20 @@ namespace FluentFTP {
 			// ensure ends with slash
 			localDir = !localDir.EndsWith(Path.DirectorySeparatorChar.ToString()) ? localDir + Path.DirectorySeparatorChar.ToString() : localDir;
 
+			// per remote file
+			var r = -1;
 			foreach (var remotePath in remotePaths) {
+				r++;
+
 				// calc local path
 				var localPath = localDir + remotePath.GetFtpFileName();
 
+				// create meta progress to store the file progress
+				var metaProgress = new FtpProgress(remotePaths.Count(), r);
+
 				// try to download it
 				try {
-					var ok = DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, null);
+					var ok = DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, progress, metaProgress);
 					if (ok) {
 						successfulDownloads.Add(localPath);
 					}
@@ -140,6 +149,7 @@ namespace FluentFTP {
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
 		/// <returns>The count of how many files were downloaded successfully. When existing files are skipped, they are not counted.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
@@ -149,7 +159,8 @@ namespace FluentFTP {
 		/// to propagate from this method.
 		/// </remarks>
 		public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite,
-			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken)) {
+			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null) {
+			
 			// verify args
 			if (!errorHandling.IsValidCombination()) {
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
@@ -169,16 +180,23 @@ namespace FluentFTP {
 			// ensure ends with slash
 			localDir = !localDir.EndsWith(Path.DirectorySeparatorChar.ToString()) ? localDir + Path.DirectorySeparatorChar.ToString() : localDir;
 
+			// per remote file
+			var r = -1;
 			foreach (var remotePath in remotePaths) {
+				r++;
+
 				//check if cancellation was requested and throw to set TaskStatus state to Canceled
 				token.ThrowIfCancellationRequested();
 
 				// calc local path
 				var localPath = localDir + remotePath.GetFtpFileName();
 
+				// create meta progress to store the file progress
+				var metaProgress = new FtpProgress(remotePaths.Count(), r);
+
 				// try to download it
 				try {
-					bool ok = await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, token: token);
+					bool ok = await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, progress, token, metaProgress);
 					if (ok) {
 						successfulDownloads.Add(localPath);
 					}
@@ -257,13 +275,13 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("DownloadFile", new object[] { localPath, remotePath, existsMode, verifyOptions });
-
-			return DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, progress);
+			return DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, progress, new FtpProgress(1, 0));
 		}
 
-		private bool DownloadFileToFile(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress) {
+		private bool DownloadFileToFile(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
 			var outStreamFileMode = FileMode.Create;
+
+			LogFunc("DownloadFile", new object[] { localPath, remotePath, existsMode, verifyOptions });
 
 			// skip downloading if local file size matches
 			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
@@ -299,7 +317,8 @@ namespace FluentFTP {
 				// download the file from server
 				using (var outStream = new FileStream(localPath, outStreamFileMode, FileAccess.Write, FileShare.None)) {
 					// download the file straight to a file stream
-					downloadSuccess = DownloadFileInternal(remotePath, outStream, File.Exists(localPath) ? new FileInfo(localPath).Length : 0, progress);
+					var restartPos = File.Exists(localPath) ? new FileInfo(localPath).Length : 0;
+					downloadSuccess = DownloadFileInternal(localPath, remotePath, outStream, restartPos, progress, metaProgress);
 					attemptsLeft--;
 				}
 
@@ -354,13 +373,11 @@ namespace FluentFTP {
 			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
-
-			LogFunc("DownloadFileAsync", new object[] { localPath, remotePath, existsMode, verifyOptions });
-
-			return await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, progress, token);
+			
+			return await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, progress, token, new FtpProgress(1, 0));
 		}
 
-		private async Task<bool> DownloadFileToFileAsync(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+		private async Task<bool> DownloadFileToFileAsync(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
 			// verify args
 			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
@@ -422,7 +439,8 @@ namespace FluentFTP {
 				// download the file from server
 				using (var outStream = new FileStream(localPath, outStreamFileMode, FileAccess.Write, FileShare.None, 4096, true)) {
 					// download the file straight to a file stream
-					downloadSuccess = await DownloadFileInternalAsync(remotePath, outStream, await Task.Run(() => File.Exists(localPath), token) ? (await Task.Run(() => new FileInfo(localPath), token)).Length : 0, progress, token);
+					var restartPos = await Task.Run(() => File.Exists(localPath), token) ? (await Task.Run(() => new FileInfo(localPath), token)).Length : 0;
+					downloadSuccess = await DownloadFileInternalAsync(localPath, remotePath, outStream, restartPos, progress, token, metaProgress);
 					attemptsLeft--;
 				}
 
@@ -479,7 +497,7 @@ namespace FluentFTP {
 			LogFunc("Download", new object[] { remotePath });
 
 			// download the file from the server
-			return DownloadFileInternal(remotePath, outStream, restartPosition, progress);
+			return DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0));
 		}
 
 		/// <summary>
@@ -505,7 +523,7 @@ namespace FluentFTP {
 			// download the file from the server
 			bool ok;
 			using (var outStream = new MemoryStream()) {
-				ok = DownloadFileInternal(remotePath, outStream, restartPosition, progress);
+				ok = DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0));
 				if (ok) {
 					outBytes = outStream.ToArray();
 				}
@@ -539,7 +557,7 @@ namespace FluentFTP {
 			LogFunc("DownloadAsync", new object[] { remotePath });
 
 			// download the file from the server
-			return await DownloadFileInternalAsync(remotePath, outStream, restartPosition, progress, token);
+			return await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0));
 		}
 
 		/// <summary>
@@ -562,7 +580,7 @@ namespace FluentFTP {
 
 			// download the file from the server
 			using (var outStream = new MemoryStream()) {
-				bool ok = await DownloadFileInternalAsync(remotePath, outStream, restartPosition, progress, token);
+				bool ok = await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0));
 				return ok ? outStream.ToArray() : null;
 			}
 		}
@@ -589,7 +607,9 @@ namespace FluentFTP {
 		/// Download a file from the server and write the data into the given stream.
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private bool DownloadFileInternal(string remotePath, Stream outStream, long restartPosition, Action<FtpProgress> progress) {
+		private bool DownloadFileInternal(string localPath, string remotePath, Stream outStream, long restartPosition,
+			Action<FtpProgress> progress, FtpProgress metaProgress) {
+
 			Stream downStream = null;
 
 			try {
@@ -648,7 +668,7 @@ namespace FluentFTP {
 
 							// send progress reports
 							if (progress != null) {
-								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted);
+								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
 							}
 
 							// Fix #387: keep alive with NOOP as configured and needed
@@ -707,7 +727,7 @@ namespace FluentFTP {
 
 				// send progress reports
 				if (progress != null) {
-					progress(new FtpProgress(100.0, 0, TimeSpan.Zero));
+					progress(new FtpProgress(100.0, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
 				}
 
 				// disconnect FTP stream before exiting
@@ -763,7 +783,9 @@ namespace FluentFTP {
 		/// Download a file from the server and write the data into the given stream asynchronously.
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private async Task<bool> DownloadFileInternalAsync(string remotePath, Stream outStream, long restartPosition, IProgress<FtpProgress> progress, CancellationToken token = default(CancellationToken)) {
+		private async Task<bool> DownloadFileInternalAsync(string localPath, string remotePath, Stream outStream, long restartPosition,
+			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
+
 			Stream downStream = null;
 			try {
 				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
@@ -821,7 +843,7 @@ namespace FluentFTP {
 
 							// send progress reports
 							if (progress != null) {
-								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted);
+								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
 							}
 
 							// Fix #387: keep alive with NOOP as configured and needed
@@ -881,7 +903,7 @@ namespace FluentFTP {
 
 				// send progress reports
 				if (progress != null) {
-					progress.Report(new FtpProgress(100.0, 0, TimeSpan.Zero));
+					progress.Report(new FtpProgress(100.0, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
 				}
 
 				// disconnect FTP stream before exiting

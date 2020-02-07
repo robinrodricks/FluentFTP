@@ -53,7 +53,8 @@ namespace FluentFTP {
 		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
 		/// Returns a blank list if nothing was transfered. Never returns null.
 		/// </returns>
-		public List<FtpResult> UploadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null) {
+		public List<FtpResult> UploadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
+			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null) {
 
 			if (localFolder.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localFolder");
@@ -140,7 +141,8 @@ namespace FluentFTP {
 		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
 		/// Returns a blank list if nothing was transfered. Never returns null.
 		/// </returns>
-		public async Task<List<FtpResult>> UploadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+		public async Task<List<FtpResult>> UploadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
+			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			if (localFolder.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localFolder");
@@ -366,7 +368,9 @@ namespace FluentFTP {
 
 			LogFunc("UploadDirectoryFiles", new object[] { filesToUpload.Count + " files" });
 
+			int r = -1;
 			foreach (var result in filesToUpload) {
+				r++;
 
 				// absorb errors
 				try {
@@ -390,8 +394,11 @@ namespace FluentFTP {
 						existsModeToUse = existsMode == FtpRemoteExists.Append ? FtpRemoteExists.AppendNoCheck : FtpRemoteExists.NoCheck;
 					}
 
+					// create meta progress to store the file progress
+					var metaProgress = new FtpProgress(filesToUpload.Count, r);
+
 					// upload the file
-					var transferred = this.UploadFile(result.LocalPath, result.RemotePath, existsModeToUse, false, verifyOptions, progress);
+					var transferred = UploadFileFromFile(result.LocalPath, result.RemotePath, false, existsModeToUse, false, false, verifyOptions, progress, metaProgress);
 					result.IsSuccess = true;
 					result.IsSkipped = !transferred;
 
@@ -416,7 +423,9 @@ namespace FluentFTP {
 
 			LogFunc("UploadDirectoryFilesAsync", new object[] { filesToUpload.Count + " files" });
 
+			var r = -1;
 			foreach (var result in filesToUpload) {
+				r++;
 
 				// absorb errors
 				try {
@@ -440,8 +449,11 @@ namespace FluentFTP {
 						existsModeToUse = existsMode == FtpRemoteExists.Append ? FtpRemoteExists.AppendNoCheck : FtpRemoteExists.NoCheck;
 					}
 
+					// create meta progress to store the file progress
+					var metaProgress = new FtpProgress(filesToUpload.Count, r);
+
 					// upload the file
-					var transferred = await this.UploadFileAsync(result.LocalPath, result.RemotePath, existsModeToUse, false, verifyOptions, progress, token);
+					var transferred = await UploadFileFromFileAsync(result.LocalPath, result.RemotePath, false, existsModeToUse, false, false, verifyOptions, token, progress, metaProgress);
 					result.IsSuccess = true;
 					result.IsSkipped = !transferred;
 
