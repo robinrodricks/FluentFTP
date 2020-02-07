@@ -1,5 +1,13 @@
 # Release Notes
 
+#### 31.0.0
+  - New: Support multi-file progress tracking by indicating file index and local & remote path of the file
+  - New: `UploadDirectory` and `DownloadDirectory` now supports tracking progress of the entire task 
+  - New: `UploadFiles` and `DownloadFiles` now supports tracking progress for both sync/async methods
+  - Fix: Update `IFtpClient` interface by adding new `UploadDirectory` and `DownloadDirectory` methods
+  - Fix: Correctly determine file exists on servers that don't support SIZE command and return error 550
+  - Fix: Support more strings to determine if file exists using SIZE command
+
 #### 30.0.0
   - New: `UploadDirectory` and `UploadDirectoryAsync` methods to recursively upload or mirror a directory
   - New: `DownloadDirectory` and `DownloadDirectoryAsync` methods to recursively download or mirror a directory
