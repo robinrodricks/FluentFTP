@@ -21,7 +21,9 @@ namespace FluentFTP.Servers {
 			"no such file",
 			"cannot find the file",
 			"cannot find",
+			"can't get file",
 			"could not get file",
+			"cannot get file",
 			"not a regular file",
 			"file unavailable",
 			"file is unavailable",
@@ -29,7 +31,10 @@ namespace FluentFTP.Servers {
 			"file is not available",
 			"no files found",
 			"no file found",
-			"datei oder verzeichnis nicht gefunden"
+			"datei oder verzeichnis nicht gefunden",
+			"can't find the path",
+			"cannot find the path",
+			"could not find the path",
 		};
 
 		#endregion
