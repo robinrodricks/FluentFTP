@@ -1,23 +1,40 @@
 ﻿using System;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentFTP;
 
 namespace Examples {
 	internal static class GetNameListingExample {
-		public static void GetNameListing() {
-			using (var cl = new FtpClient()) {
-				cl.Credentials = new NetworkCredential("ftp", "ftp");
-				cl.Host = "ftp.example.com";
-				cl.Connect();
 
-				foreach (var s in cl.GetNameListing()) {
+		public static void GetNameListing() {
+			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
+				conn.Connect();
+
+				foreach (var s in conn.GetNameListing()) {
 					// load some information about the object
 					// returned from the listing...
-					var isDirectory = cl.DirectoryExists(s);
-					var modify = cl.GetModifiedTime(s);
-					var size = isDirectory ? 0 : cl.GetFileSize(s);
+					var isDirectory = conn.DirectoryExists(s);
+					var modify = conn.GetModifiedTime(s);
+					var size = isDirectory ? 0 : conn.GetFileSize(s);
 				}
 			}
 		}
+
+		public static async Task GetNameListingAsync() {
+			var token = new CancellationToken();
+			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
+				await conn.ConnectAsync(token);
+
+				foreach (var s in await conn.GetNameListingAsync(token)) {
+					// load some information about the object
+					// returned from the listing...
+					var isDirectory = await conn.DirectoryExistsAsync(s, token);
+					var modify = await conn.GetModifiedTimeAsync(s, FtpDate.Original, token);
+					var size = isDirectory ? 0 : await conn.GetFileSizeAsync(s, token);
+				}
+			}
+		}
+
 	}
 }

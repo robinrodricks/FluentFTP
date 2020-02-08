@@ -2,8 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>net45</TargetFramework>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <LangVersion>latest</LangVersion>
+    <ApplicationIcon />
+    <StartupObject />
   </PropertyGroup>
   
   <ItemGroup>

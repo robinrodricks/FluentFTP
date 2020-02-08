@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentFTP;
 
 namespace Examples {
@@ -14,9 +16,8 @@ namespace Examples {
 		/// the target.
 		/// </summary>
 		public static void DereferenceLinkExample() {
-			using (var client = new FtpClient()) {
-				client.Credentials = new NetworkCredential("user", "pass");
-				client.Host = "somehost";
+			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
+				conn.Connect();
 
 				// This property controls the depth of recursion that
 				// can be done before giving up on resolving the link.
@@ -26,7 +27,7 @@ namespace Examples {
 				// only to illustrate the existence of the property.
 				// It's also possible to override this value as one
 				// of the overloaded arguments to the DereferenceLink() method.
-				client.MaximumDereferenceCount = 20;
+				conn.MaximumDereferenceCount = 20;
 
 				// Notice the FtpListOption.ForceList flag being passed. This is because
 				// symbolic links are only supported in UNIX style listings. My personal
@@ -36,7 +37,7 @@ namespace Examples {
 				// observed over the life of this project so if you run across the contrary
 				// please report it. The specification for MLSD does include links so it's
 				// possible some FTP server implementations do include links in the MLSD listing.
-				foreach (var item in client.GetListing(null, FtpListOption.ForceList | FtpListOption.Modify)) {
+				foreach (var item in conn.GetListing(null, FtpListOption.ForceList | FtpListOption.Modify)) {
 					Console.WriteLine(item);
 
 					// If you call DerefenceLink() on a FtpListItem.Type other
@@ -44,7 +45,7 @@ namespace Examples {
 					// method and the LinkTarget is null a FtpException will also
 					// be thrown.
 					if (item.Type == FtpFileSystemObjectType.Link && item.LinkTarget != null) {
-						item.LinkObject = client.DereferenceLink(item);
+						item.LinkObject = conn.DereferenceLink(item);
 
 						// The return value of DerefenceLink() will be null
 						// if there was a problem.
@@ -58,7 +59,7 @@ namespace Examples {
 				// flag to have symbolic links automatically resolved. You must manually
 				// specify this flag because of the added overhead with regards to resolving
 				// the target of a link.
-				foreach (var item in client.GetListing(null,
+				foreach (var item in conn.GetListing(null,
 					FtpListOption.ForceList | FtpListOption.Modify | FtpListOption.DerefLinks)) {
 					Console.WriteLine(item);
 
