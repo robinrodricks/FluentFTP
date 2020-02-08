@@ -4,15 +4,21 @@
 
 **Computer OS:** ?
 
+**FluentFTP Version:** ?
+
 <write details about your bug report / feature request here>
 
 **Logs :**
 
 <!---
-Please generate logs from FluentFTP and paste them in the marked area below:
-See this link for steps : https://github.com/robinrodricks/FluentFTP#faq_trace
+Please generate logs from FluentFTP and paste them in the marked area below.
+See this link for steps :
+
+https://github.com/robinrodricks/FluentFTP/wiki/Logging#how-do-i-trace-ftp-commands-for-debugging
 -->
 
 ```
-<paste logs here but DO NOT delete the lines above and below this line>
+
+<paste logs here>
+
 ```
