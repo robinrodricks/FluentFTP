@@ -1,6 +1,6 @@
 # Release Notes
 
-#### 31.0.0
+#### 30.1.0
   - New: Support multi-file progress tracking by indicating file index and local & remote path of the file
   - New: `UploadDirectory` and `DownloadDirectory` now supports tracking progress of the entire task 
   - New: `UploadFiles` and `DownloadFiles` now supports tracking progress for both sync/async methods
