@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 30.1.1
+  - Fix: Calculation of local file path during DownloadFolder sometimes ignores base directory
+
 #### 30.1.0
   - New: Support multi-file progress tracking by indicating file index and local & remote path of the file
   - New: `UploadDirectory` and `DownloadDirectory` now supports tracking progress of the entire task 
