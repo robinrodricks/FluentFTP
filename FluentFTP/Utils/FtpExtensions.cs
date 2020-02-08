@@ -377,6 +377,31 @@ namespace FluentFTP {
 
 			return text;
 		}
+		/// <summary>
+		/// Combine the given base path with the relative path
+		/// </summary>
+		public static string CombineLocalPath(this string path, string fileOrFolder) {
+
+			string directorySeperator = Path.DirectorySeparatorChar.ToString();
+
+			// fast mode if there is exactly one slash between path & file
+			var pathHasSep = path.EndsWith(directorySeperator);
+			var fileHasSep = fileOrFolder.StartsWith(directorySeperator);
+			if ((pathHasSep && !fileHasSep) || (!pathHasSep && fileHasSep)) {
+				return path + fileOrFolder;
+			}
+
+			// slow mode if slashes need to be fixed
+			if (pathHasSep && fileHasSep) {
+				return path + fileOrFolder.Substring(1);
+			}
+			if (!pathHasSep && !fileHasSep) {
+				return path + directorySeperator + fileOrFolder;
+			}
+
+			// nothing
+			return null;
+		}
 
 		/// <summary>
 		/// Adds a prefix to the given strings, returns a new array.
