@@ -2,7 +2,7 @@
 
 namespace FluentFTP.Extensions.Hash
 {
-	class CRC32 : HashAlgorithm
+	internal class CRC32 : HashAlgorithm
 	{
 		public const uint DefaultPolynomial = 0xedb88320;
 
@@ -86,16 +86,22 @@ namespace FluentFTP.Extensions.Hash
 				for (int j = 0; j < 8; j++)
 				{
 					if ((entry & 1) == 1)
+					{
 						entry = (entry >> 1) ^ polynomial;
+					}
 					else
+					{
 						entry >>= 1;
+					}
 				}
 
 				createTable[i] = entry;
 			}
 
 			if (polynomial == DefaultPolynomial)
+			{
 				defaultTable = createTable;
+			}
 
 			return createTable;
 		}
