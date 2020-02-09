@@ -11,6 +11,7 @@ namespace FluentFTP.Helpers {
 			{ "SHA-256", FtpHashAlgorithm.SHA256 },
 			{ "SHA-512", FtpHashAlgorithm.SHA512 },
 			{ "MD5", FtpHashAlgorithm.MD5 },
+			{ "CRC", FtpHashAlgorithm.CRC },
 		};
 
 		private static readonly Dictionary<FtpHashAlgorithm, string> EnumToName = new Dictionary<FtpHashAlgorithm, string> {
@@ -18,6 +19,7 @@ namespace FluentFTP.Helpers {
 			{ FtpHashAlgorithm.SHA256, "SHA-256" },
 			{ FtpHashAlgorithm.SHA512, "SHA-512" },
 			{ FtpHashAlgorithm.MD5, "MD5" },
+			{ FtpHashAlgorithm.CRC, "CRC" },
 		};
 
 		/// <summary>
