@@ -95,3 +95,26 @@ Check the wiki for a [Quick start example](https://github.com/robinrodricks/Flue
 ## Documentation and FAQs
 
 Check the [Wiki](https://github.com/robinrodricks/FluentFTP/wiki).
+
+## Contributors
+
+Special thanks to these awesome people who helped create FluentFTP!
+
+<a href="https://github.com/robinrodricks/FluentFTP/graphs/contributors">
+  <img src="https://contributors-img.firebaseapp.com/image?repo=robinrodricks/FluentFTP" />
+</a>
+
+## Supporters
+
+FluentFTP is supported by these generous organizations:
+
+<table>
+	<tr>
+		<td>
+			<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/jetbrains-logo.png" />
+		</td>
+		<td>
+			<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/balsamiq-logo.png" />
+		</td>
+	</tr>
+</table>
