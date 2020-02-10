@@ -1,4 +1,4 @@
-﻿using FluentFTP.Extensions.Hash;
+﻿using FluentFTP.Helpers.Hashing;
 using System;
 using System.IO;
 using System.Security.Cryptography;
