@@ -100,8 +100,12 @@ Check the [Wiki](https://github.com/robinrodricks/FluentFTP/wiki).
 
 Special thanks to these awesome people who helped create FluentFTP!
 
+<!---
+https://contributors-img.firebaseapp.com/image?repo=robinrodricks/FluentFTP
+-->
+
 <a href="https://github.com/robinrodricks/FluentFTP/graphs/contributors">
-  <img src="https://contributors-img.firebaseapp.com/image?repo=robinrodricks/FluentFTP" />
+  <img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/contributors.png" />
 </a>
 
 ## Supporters
