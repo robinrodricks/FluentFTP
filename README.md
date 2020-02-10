@@ -111,10 +111,14 @@ FluentFTP is supported by these generous organizations:
 <table>
 	<tr>
 		<td>
-			<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/jetbrains-logo.png" />
+			<a href="https://www.jetbrains.com/">
+				<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/jetbrains-logo.png" />
+			</a>
 		</td>
 		<td>
-			<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/balsamiq-logo.png" />
+			<a href="https://www.balsamiq.com/">
+				<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/balsamiq-logo.png" />
+			</a>
 		</td>
 	</tr>
 </table>
