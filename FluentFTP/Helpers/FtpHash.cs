@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentFTP.Extensions.Hash;
+using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
@@ -105,7 +106,10 @@ namespace FluentFTP {
 						break;
 
 					case FtpHashAlgorithm.CRC:
-						throw new NotImplementedException("There is no built in support for computing CRC hashes.");
+
+						hashAlg = new CRC32();
+
+						break;
 
 					default:
 						throw new NotImplementedException("Unknown hash algorithm: " + m_algorithm.ToString());
