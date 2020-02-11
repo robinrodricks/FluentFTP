@@ -380,8 +380,8 @@ namespace Tests {
 				}
 
 				// 100 K file
-				client.UploadFile(@"D:\Github\hgupta\FluentFTP\README.md", "/public_html/temp/README.md");
-				client.DownloadFile(@"D:\Github\hgupta\FluentFTP\README2.md", "/public_html/temp/README.md");
+				client.UploadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md");
+				client.DownloadFile(@"D:\Github\FluentFTP\README2.md", "/public_html/temp/README.md");
 			}
 		}
 #endif
@@ -857,8 +857,8 @@ namespace Tests {
 				cl.Connect();
 
 				// 100 K file
-				cl.UploadFile(@"D:\Github\hgupta\FluentFTP\README.md", "/public_html/temp/README.md");
-				cl.DownloadFile(@"D:\Github\hgupta\FluentFTP\README2.md", "/public_html/temp/README.md");
+				cl.UploadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md");
+				cl.DownloadFile(@"D:\Github\FluentFTP\README2.md", "/public_html/temp/README.md");
 
 				/*
 				// 10 M file
@@ -874,8 +874,8 @@ namespace Tests {
 		public async Task TestUploadDownloadFileAsync() {
 			using (var cl = NewFtpClient()) {
 				// 100 K file
-				await cl.UploadFileAsync(@"D:\Github\hgupta\FluentFTP\README.md", "/public_html/temp/README.md");
-				await cl.DownloadFileAsync(@"D:\Github\hgupta\FluentFTP\README2.md", "/public_html/temp/README.md");
+				await cl.UploadFileAsync(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md");
+				await cl.DownloadFileAsync(@"D:\Github\FluentFTP\README2.md", "/public_html/temp/README.md");
 
 				/*
 				// 10 M file
