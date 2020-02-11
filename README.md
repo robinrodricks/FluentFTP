@@ -114,24 +114,24 @@ FluentFTP is supported by these generous organizations:
 
 <table>
 <tr>
-<td>
+<td width="200px">
 <a href="https://www.jetbrains.com/">
 <img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/jetbrains-logo.png" />
 </a>
 </td>
-<td>
+<td width="200px">
 <a href="https://www.balsamiq.com/">
 <img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/balsamiq-logo.png" />
 </a>
 </td>
-<td>
+<td width="200px">
 <a href="https://www.yourkit.com/">
 <img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/yourkit-logo.png" />
 </a>
 
-<span>
+<p style="color:#555">
 YourKit supports Java and .NET open source projects with innovative and intelligent monitoring and profiling tools like <a href="https://www.yourkit.com/features/">Java Profiler</a> and <a href="https://www.yourkit.com/dotnet/features/">.NET Profiler</a>.
-</span>
+</p>
 
 </td>
 </tr>
