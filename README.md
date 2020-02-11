@@ -127,10 +127,12 @@ FluentFTP is supported by these generous organizations:
 		<td>
 			<a href="https://www.yourkit.com/">
 				<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/yourkit-logo.png" />
-				
-				> YourKit supports Java and .NET open source projects with innovative and intelligent monitoring and profiling tools like <a href="https://www.yourkit.com/features/">Java Profiler</a> and <a href="https://www.yourkit.com/dotnet/features/">.NET Profiler</a>.
-				
 			</a>
+				
+			<span>
+				YourKit supports Java and .NET open source projects with innovative and intelligent monitoring and profiling tools like <a href="https://www.yourkit.com/features/">Java Profiler</a> and <a href="https://www.yourkit.com/dotnet/features/">.NET Profiler</a>.
+			</span>
+				
 		</td>
 	</tr>
 </table>
