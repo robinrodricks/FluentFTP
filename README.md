@@ -113,37 +113,32 @@ https://contributors-img.firebaseapp.com/image?repo=robinrodricks/FluentFTP
 FluentFTP is supported by these generous organizations:
 
 <table>
-	<tr>
-		<td width="200px">
-			<a href="https://www.jetbrains.com/">
-			<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/jetbrains-logo.png" />
-			</a>
-		</td>
-		<td width="200px">
-			<a href="https://www.balsamiq.com/">
-			<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/balsamiq-logo.png" />
-			</a>
-		</td>
-		<td width="200px">
-			<a href="https://www.yourkit.com/">
-			<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/yourkit-logo.png" />
-			</a>
-
-		<p style="color:#555">
+<tr>
+	<td width="200px">
+		<a href="https://www.jetbrains.com/">
+		<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/jetbrains-logo.png" />
+		</a>
+	</td>
+	<td width="200px">
+		<a href="https://www.balsamiq.com/">
+		<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/balsamiq-logo.png" />
+		</a>
+	</td>
+	<td width="200px">
+		<a href="https://www.yourkit.com/">
+		<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/yourkit-logo.png" />
+		</a>
+	</td>
+</tr>
+<tr>
+	<td width="200px">
+		JetBrains provides cutting-edge IDE and developer productivity tools.
+	</td>
+	<td width="200px">
+		Balsamiq provides rapid and effective wireframing and UI design tools.
+	</td>
+	<td width="200px">
 		YourKit provides a market-leading intelligent <a href="https://www.yourkit.com/features/">Java Profiler</a> and <a href="https://www.yourkit.com/dotnet/features/">.NET Profiler</a>.
-		</p>
-
-		</td>
-	</tr>
-	<tr>
-		<td width="200px">
-			JetBrains provides cutting-edge IDE and developer productivity tools.
-		</td>
-		<td width="200px">
-			Balsamiq provides rapid and effective wireframing and UI design tools.
-		</td>
-		<td width="200px">
-			YourKit provides a market-leading intelligent <a href="https://www.yourkit.com/features/">Java Profiler</a> and <a href="https://www.yourkit.com/dotnet/features/">.NET Profiler</a>.
-		</td>
-	</tr>
+	</td>
+</tr>
 </table>
