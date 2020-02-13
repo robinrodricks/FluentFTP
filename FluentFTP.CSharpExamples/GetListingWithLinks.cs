@@ -38,8 +38,7 @@ namespace Examples {
 					}
 				}
 
-				// same example except automatically dereference symbolic links.
-				// see the DereferenceLink() example for more details about resolving links.
+				// get a listing of the files with their modified date & size, and automatically dereference links
 				foreach (var item in conn.GetListing(conn.GetWorkingDirectory(),
 					FtpListOption.Modify | FtpListOption.Size | FtpListOption.DerefLinks)) {
 					switch (item.Type) {
@@ -92,8 +91,7 @@ namespace Examples {
 					}
 				}
 
-				// same example except automatically dereference symbolic links.
-				// see the DereferenceLink() example for more details about resolving links.
+				// get a listing of the files with their modified date & size, and automatically dereference links
 				foreach (var item in await conn.GetListingAsync(conn.GetWorkingDirectory(),
 					FtpListOption.Modify | FtpListOption.Size | FtpListOption.DerefLinks, token)) {
 					switch (item.Type) {

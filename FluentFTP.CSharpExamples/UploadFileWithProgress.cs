@@ -12,6 +12,7 @@ namespace Examples {
 			using (var ftp = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				ftp.Connect();
 
+				// define the progress tracking callback
 				Action<FtpProgress> progress = delegate (FtpProgress p) {
 					if (p.Progress == 1) {
 						// all done!
@@ -32,6 +33,7 @@ namespace Examples {
 			using (var ftp = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				await ftp.ConnectAsync(token);
 
+				// define the progress tracking callback
 				Progress<FtpProgress> progress = new Progress<FtpProgress>(p => {
 					if (p.Progress == 1) {
 						// all done!

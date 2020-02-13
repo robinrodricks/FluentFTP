@@ -11,6 +11,7 @@ namespace Examples {
 			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				conn.Connect();
 
+				// open an read-only stream to the file
 				using (var istream = conn.OpenRead("/full/or/relative/path/to/file")) {
 					try {
 						// istream.Position is incremented accordingly to the reads you perform
@@ -33,6 +34,7 @@ namespace Examples {
 			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				await conn.ConnectAsync(token);
 
+				// open an read-only stream to the file
 				using (var istream = await conn.OpenReadAsync("/full/or/relative/path/to/file", token)) {
 					try {
 						// istream.Position is incremented accordingly to the reads you perform

@@ -12,18 +12,11 @@ namespace Examples {
 			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				conn.Connect();
 
+				// Get a hash checksum for the file
 				FtpHash hash = conn.GetChecksum("/path/to/remote/file");
 
-				// Make sure it returned a, to the best of our knowledge, valid
-				// hash object. The commands for retrieving checksums are
-				// non-standard extensions to the protocol so we have to
-				// presume that the response was in a format understood by
-				// FluentFTP and parsed correctly.
-				//
-				// In addition, there is no built-in support for verifying
-				// CRC hashes. You will need to write you own or use a 
-				// third-party solution.
-				if (hash.IsValid && hash.Algorithm != FtpHashAlgorithm.CRC) {
+				// Make sure it returned a valid hash object
+				if (hash.IsValid) {
 					if (hash.Verify("/some/local/file")) {
 						Console.WriteLine("The checksum's match!");
 					}
@@ -37,18 +30,11 @@ namespace Examples {
 			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				await conn.ConnectAsync(token);
 
+				// Get a hash checksum for the file
 				FtpHash hash = await conn.GetChecksumAsync("/path/to/remote/file", token);
 
-				// Make sure it returned a, to the best of our knowledge, valid
-				// hash object. The commands for retrieving checksums are
-				// non-standard extensions to the protocol so we have to
-				// presume that the response was in a format understood by
-				// FluentFTP and parsed correctly.
-				//
-				// In addition, there is no built-in support for verifying
-				// CRC hashes. You will need to write you own or use a 
-				// third-party solution.
-				if (hash.IsValid && hash.Algorithm != FtpHashAlgorithm.CRC) {
+				// Make sure it returned a valid hash object
+				if (hash.IsValid) {
 					if (hash.Verify("/some/local/file")) {
 						Console.WriteLine("The checksum's match!");
 					}
