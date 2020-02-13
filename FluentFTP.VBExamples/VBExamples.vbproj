@@ -65,9 +65,50 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Connect.vb" />
+    <Compile Include="ConnectFTPS.vb" />
+    <Compile Include="ConnectFTPSCertificate.vb" />
+    <Compile Include="CreateDirectory.vb" />
+    <Compile Include="Debug.vb" />
+    <Compile Include="DeleteDirectory.vb" />
+    <Compile Include="DeleteFile.vb" />
+    <Compile Include="DereferenceLink.vb" />
+    <Compile Include="DirectoryExists.vb" />
+    <Compile Include="DownloadDirectory.vb" />
+    <Compile Include="DownloadDirectoryWithRules.vb" />
+    <Compile Include="DownloadFile.vb" />
+    <Compile Include="DownloadFileWithProgress.vb" />
+    <Compile Include="DownloadManyFiles.vb" />
+    <Compile Include="ExecuteFTPCommand.vb" />
+    <Compile Include="FileExists.vb" />
+    <Compile Include="GetChecksum.vb" />
+    <Compile Include="GetFileSize.vb" />
+    <Compile Include="GetHash.vb" />
+    <Compile Include="GetHashAlgorithm.vb" />
+    <Compile Include="GetListing.vb" />
+    <Compile Include="GetListingWithLinks.vb" />
+    <Compile Include="GetModifiedTime.vb" />
+    <Compile Include="GetNameListing.vb" />
+    <Compile Include="GetWorkingDirectory.vb" />
+    <Compile Include="OpenAppend.vb" />
+    <Compile Include="OpenRead.vb" />
+    <Compile Include="OpenWrite.vb" />
+    <Compile Include="Rename.vb" />
+    <Compile Include="SetHashAlgorithm.vb" />
+    <Compile Include="SetWorkingDirectory.vb" />
+    <Compile Include="UploadDirectory.vb" />
+    <Compile Include="UploadDirectoryWithRules.vb" />
+    <Compile Include="UploadFile.vb" />
+    <Compile Include="UploadFileWithProgress.vb" />
+    <Compile Include="UploadManyFiles.vb" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="My Project\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FluentFTP\FluentFTP.csproj">
+      <Project>{117f9ba2-711b-4c71-92ec-002220b157dd}</Project>
+      <Name>FluentFTP</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>
