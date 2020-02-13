@@ -101,7 +101,7 @@ namespace FluentFTP {
 				// try to upload it
 				try {
 					var ok = UploadFileFromFile(localPath, remotePath, false, existsMode, FtpExtensions.FileExistsInNameListing(existingFiles, remotePath), true, verifyOptions, progress, metaProgress);
-					if (ok) {
+					if (ok.IsSuccess()) {
 						successfulUploads.Add(remotePath);
 
 						//count++;
@@ -256,8 +256,8 @@ namespace FluentFTP {
 
 				// try to upload it
 				try {
-					bool ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, FtpExtensions.FileExistsInNameListing(existingFiles, remotePath), true, verifyOptions, token, progress, metaProgress);
-					if (ok) {
+					var ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, FtpExtensions.FileExistsInNameListing(existingFiles, remotePath), true, verifyOptions, token, progress, metaProgress);
+					if (ok.IsSuccess()) {
 						successfulUploads.Add(remotePath);
 					}
 					else if ((int)errorHandling > 1) {
@@ -334,7 +334,7 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
 		/// </remarks>
-		public bool UploadFile(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false,
+		public FtpStatus UploadFile(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false,
 			FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null) {
 			// verify args
 			if (localPath.IsBlank()) {
@@ -348,7 +348,7 @@ namespace FluentFTP {
 			return UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, progress, new FtpProgress(1, 0));
 		}
 
-		private bool UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
+		private FtpStatus UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
 
 			LogFunc("UploadFile", new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
@@ -356,7 +356,7 @@ namespace FluentFTP {
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
 				LogStatus(FtpTraceLevel.Error, "File does not exist.");
-				return false;
+				return FtpStatus.Failed;
 			}
 			
 			// If retries are allowed set the retry counter to the allowed count
@@ -394,7 +394,7 @@ namespace FluentFTP {
 				throw new FtpException("Uploaded file checksum value does not match local file");
 			}
 
-			return uploadSuccess && verified;
+			return uploadSuccess && verified ? FtpStatus.Success : FtpStatus.Failed;
 		}
 
 #if ASYNC
@@ -417,7 +417,7 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
 		/// </remarks>
-		public async Task<bool> UploadFileAsync(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+		public async Task<FtpStatus> UploadFileAsync(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
@@ -430,7 +430,7 @@ namespace FluentFTP {
 			return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token, progress, new FtpProgress(1, 0));
 		}
 
-		private async Task<bool> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
+		private async Task<FtpStatus> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token, IProgress<FtpProgress> progress, FtpProgress metaProgress) {
 
 
@@ -441,7 +441,7 @@ namespace FluentFTP {
 			if (!File.Exists(localPath)) {
 #endif
 				LogStatus(FtpTraceLevel.Error, "File does not exist.");
-				return false;
+				return FtpStatus.Failed;
 			}
 
 			LogFunc("UploadFileAsync", new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
@@ -479,7 +479,7 @@ namespace FluentFTP {
 				throw new FtpException("Uploaded file checksum value does not match local file");
 			}
 
-			return uploadSuccess && verified;
+			return uploadSuccess && verified ? FtpStatus.Success : FtpStatus.Failed;
 		}
 
 #endif

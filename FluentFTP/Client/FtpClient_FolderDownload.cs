@@ -253,8 +253,8 @@ namespace FluentFTP {
 
 						// download the file
 						var transferred = DownloadFileToFile(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, metaProgress); 
-						result.IsSuccess = true;
-						result.IsSkipped = !transferred;
+						result.IsSuccess = transferred.IsSuccess();
+						result.IsSkipped = transferred == FtpStatus.Skipped;
 					}
 					catch (Exception ex) {
 
@@ -313,8 +313,8 @@ namespace FluentFTP {
 
 						// download the file
 						var transferred = await DownloadFileToFileAsync(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, token, metaProgress);
-						result.IsSuccess = true;
-						result.IsSkipped = !transferred;
+						result.IsSuccess = transferred.IsSuccess();
+						result.IsSkipped = transferred == FtpStatus.Skipped;
 					}
 					catch (Exception ex) {
 

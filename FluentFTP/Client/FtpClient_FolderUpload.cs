@@ -242,8 +242,7 @@ namespace FluentFTP {
 						continue;
 					}
 				}
-
-				// absorb errors
+				
 				dirsToUpload.Add(result);
 			}
 
@@ -399,8 +398,8 @@ namespace FluentFTP {
 
 					// upload the file
 					var transferred = UploadFileFromFile(result.LocalPath, result.RemotePath, false, existsModeToUse, false, false, verifyOptions, progress, metaProgress);
-					result.IsSuccess = true;
-					result.IsSkipped = !transferred;
+					result.IsSuccess = transferred.IsSuccess();
+					result.IsSkipped = transferred == FtpStatus.Skipped;
 
 				}
 				catch (Exception ex) {
@@ -454,8 +453,8 @@ namespace FluentFTP {
 
 					// upload the file
 					var transferred = await UploadFileFromFileAsync(result.LocalPath, result.RemotePath, false, existsModeToUse, false, false, verifyOptions, token, progress, metaProgress);
-					result.IsSuccess = true;
-					result.IsSkipped = !transferred;
+					result.IsSuccess = transferred.IsSuccess();
+					result.IsSkipped = transferred == FtpStatus.Skipped;
 
 				}
 				catch (Exception ex) {
