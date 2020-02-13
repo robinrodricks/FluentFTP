@@ -90,7 +90,9 @@ Binaries for all platforms are built from a single VS 2017 Project. You will nee
 
 ## Example Usage
 
-Check the wiki for a [Quick start example](https://github.com/robinrodricks/FluentFTP/wiki/Quick-Start-Example).
+To get started, check out the [Quick start example in C#](https://github.com/robinrodricks/FluentFTP/wiki/Quick-Start-Example).
+
+We also have extensive examples for all methods in [C#](https://github.com/robinrodricks/FluentFTP/tree/master/FluentFTP.CSharpExamples) and [VB.NET](https://github.com/robinrodricks/FluentFTP/tree/master/FluentFTP.VBExamples).
 
 ## Documentation and FAQs
 

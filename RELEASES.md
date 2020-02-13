@@ -1,5 +1,11 @@
 # Release Notes
 
+#### 31.0.0
+  - New: Download and upload file methods indicate if file was transferred, skipped or failed to transfer
+  - New: C# and VB.NET Examples for all file and folder transfer methods
+  - New: VB.NET Examples for all methods (not included in Nuget package but available on Github)
+  - Change: `DownloadFile` and `UploadFile` return `FtpStatus` instead of boolean flag for tri-state feedback
+
 #### 30.2.0
   - New: Support for XCRC FTP Command and CRC32 hash support to validate downloaded/uploaded files (thanks [n0ix](/n0ix))
 

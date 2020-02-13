@@ -846,5 +846,20 @@ namespace FluentFTP {
 			}
 			return false;
 		}
+
+		/// <summary>
+		/// Checks if the operation was successful or skipped (indicating success).
+		/// </summary>
+		public static bool IsSuccess(this FtpStatus status) {
+			return status == FtpStatus.Success || status == FtpStatus.Skipped;
+		}
+
+		/// <summary>
+		/// Checks if the operation has failed.
+		/// </summary>
+		public static bool IsFailure(this FtpStatus status) {
+			return status == FtpStatus.Failed;
+		}
+
 	}
 }

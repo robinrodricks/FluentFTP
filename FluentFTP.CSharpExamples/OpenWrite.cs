@@ -11,9 +11,10 @@ namespace Examples {
 			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				conn.Connect();
 
+				// open an write-only stream to the file
 				using (var ostream = conn.OpenWrite("/full/or/relative/path/to/file")) {
 					try {
-						// istream.Position is incremented accordingly to the writes you perform
+						// ostream.Position is incremented accordingly to the writes you perform
 					}
 					finally {
 						ostream.Close();
@@ -27,9 +28,10 @@ namespace Examples {
 			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				await conn.ConnectAsync(token);
 
+				// open an write-only stream to the file
 				using (var ostream = await conn.OpenWriteAsync("/full/or/relative/path/to/file", token)) {
 					try {
-						// istream.Position is incremented accordingly to the writes you perform
+						// ostream.Position is incremented accordingly to the writes you perform
 					}
 					finally {
 						ostream.Close();
