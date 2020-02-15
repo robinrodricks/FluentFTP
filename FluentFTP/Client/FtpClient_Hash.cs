@@ -233,9 +233,6 @@ namespace FluentFTP {
 		/// set the algorithm using the <see cref="SetHashAlgorithm"/> method and
 		/// you can query the server for the current hash algorithm
 		/// using the <see cref="GetHashAlgorithm"/> method.
-		/// 
-		/// This feature is experimental and based on the following draft:
-		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
 		/// </remarks>
 		/// <param name="path">Full or relative path of the object to compute the hash for.</param>
 		/// <returns>The hash of the file.</returns>
@@ -315,9 +312,6 @@ namespace FluentFTP {
 		/// set the algorithm using the <see cref="SetHashAlgorithm"/> method and
 		/// you can query the server for the current hash algorithm
 		/// using the <see cref="GetHashAlgorithm"/> method.
-		/// 
-		/// This feature is experimental and based on the following draft:
-		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
 		/// </remarks>
 		/// <param name="path">The file you want the server to compute the hash for</param>
 		/// <param name="callback">AsyncCallback</param>
@@ -357,9 +351,6 @@ namespace FluentFTP {
 		/// set the algorithm using the <see cref="SetHashAlgorithm"/> method and
 		/// you can query the server for the current hash algorithm
 		/// using the <see cref="GetHashAlgorithm"/> method.
-		/// 
-		/// This feature is experimental and based on the following draft:
-		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
 		/// </remarks>
 		/// <param name="path">The file you want the server to compute the hash for</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
