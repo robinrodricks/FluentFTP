@@ -18,6 +18,7 @@ using System.Web;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
+using FluentFTP.Rules;
 #endif
 #if (CORE || NET45)
 using System.Threading.Tasks;
@@ -91,7 +92,7 @@ namespace FluentFTP
 		}
 
 		public bool FXPFileCopyInternal(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
-			IProgress<FtpProgress> progress, FtpProgress metaProgress)
+			Action<FtpProgress> progress, FtpProgress metaProgress)
 		{
 			FtpReply reply;
 			long offset = 0;
@@ -131,7 +132,7 @@ namespace FluentFTP
 								//send progress reports
 								if (progress != null)
 								{
-									progress.Report(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0), sourcePath, remotePath, metaProgress));
+									progress(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0), sourcePath, remotePath, metaProgress));
 								}
 
 								return true;
@@ -255,8 +256,9 @@ namespace FluentFTP
 			}
 		}
 
+
 		public FtpStatus FXPFileCopy(string sourcePath, FtpClient remoteClient, string remotePath,
-			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null)
+			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Append, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null)
 		{
 
 			LogFunc("FXPFileCopy", new object[] { sourcePath, remoteClient, remotePath, FXPDataType });
@@ -333,7 +335,6 @@ namespace FluentFTP
 
 		}
 
-	
 #if ASYNC
 
 		private async Task<FtpFxpSession> OpenPassiveFXPConnectionAsync(FtpClient remoteClient, CancellationToken token)
