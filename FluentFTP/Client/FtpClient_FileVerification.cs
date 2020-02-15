@@ -120,6 +120,10 @@ namespace FluentFTP {
 
 				return sourceHash.Value == destinationHash.Value;
 			}
+			else
+			{
+				LogLine(FtpTraceLevel.Info, "Source and Destination does not support the same hash algorythm");
+			}
 
 			//Not supported return true to ignore validation
 			return true;
