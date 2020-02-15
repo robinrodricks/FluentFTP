@@ -185,5 +185,10 @@ namespace FluentFTP {
 		/// </summary>
 		LANG = 35,
 
+		/// <summary>
+		/// Support for the MMD5 (multiple MD5 hash) command.
+		/// </summary>
+		MMD5 = 36,
+
 	}
 }
