@@ -387,7 +387,7 @@ namespace FluentFTP {
 		/// <remarks>
 		/// The algorithm used goes in this order:
 		/// 1. HASH command; server preferred algorithm. See <see cref="FtpClient.SetHashAlgorithm"/>
-		/// 2. MD5 / XMD5 commands
+		/// 2. MD5 / XMD5 / MMD5 commands
 		/// 3. XSHA1 command
 		/// 4. XSHA256 command
 		/// 5. XSHA512 command
@@ -412,6 +412,11 @@ namespace FluentFTP {
 				}
 				else if (HasFeature(FtpCapability.XMD5)) {
 					res.Value = GetXMD5(path);
+					res.Algorithm = FtpHashAlgorithm.MD5;
+				}
+				else if (HasFeature(FtpCapability.MMD5))
+				{
+					res.Value = GetMD5(path);
 					res.Algorithm = FtpHashAlgorithm.MD5;
 				}
 				else if (HasFeature(FtpCapability.XSHA1)) {
@@ -444,7 +449,7 @@ namespace FluentFTP {
 		/// <remarks>
 		/// The algorithm used goes in this order:
 		/// 1. HASH command; server preferred algorithm. See <see cref="FtpClient.SetHashAlgorithm"/>
-		/// 2. MD5 / XMD5 commands
+		/// 2. MD5 / XMD5 / MMD5 commands
 		/// 3. XSHA1 command
 		/// 4. XSHA256 command
 		/// 5. XSHA512 command
@@ -497,7 +502,7 @@ namespace FluentFTP {
 		/// <remarks>
 		/// The algorithm used goes in this order:
 		/// 1. HASH command; server preferred algorithm. See <see cref="FtpClient.SetHashAlgorithm"/>
-		/// 2. MD5 / XMD5 commands
+		/// 2. MD5 / XMD5 / MMD5 commands
 		/// 3. XSHA1 command
 		/// 4. XSHA256 command
 		/// 5. XSHA512 command
@@ -523,6 +528,11 @@ namespace FluentFTP {
 				}
 				else if (HasFeature(FtpCapability.XMD5)) {
 					res.Value = await GetXMD5Async(path, token);
+					res.Algorithm = FtpHashAlgorithm.MD5;
+				}
+				else if (HasFeature(FtpCapability.MMD5))
+				{
+					res.Value = await GetMD5Async(path, token);
 					res.Algorithm = FtpHashAlgorithm.MD5;
 				}
 				else if (HasFeature(FtpCapability.XSHA1)) {
