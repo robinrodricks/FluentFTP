@@ -2,6 +2,7 @@
 
 #### 31.1.0
   - New: Support for MMD5 file hashing command to validate downloaded/uploaded files. (thanks [n0ix](/n0ix))
+  - Change: Disable all `Begin*` and `End*` methods for .NET 4.5 and onwards as `async`/`await` is supported.
 
 #### 31.0.0
   - New: Download and upload file methods indicate if file was transferred, skipped or failed to transfer
