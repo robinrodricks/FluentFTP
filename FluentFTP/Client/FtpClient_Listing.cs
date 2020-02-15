@@ -518,7 +518,7 @@ namespace FluentFTP {
 			return rawlisting;
 		}
 
-#if !CORE
+#if !ASYNC
 		/// <summary>
 		/// Begins an asynchronous operation to get a file listing from the server. 
 		/// Each <see cref="FtpListItem"/> object returned contains information about the file that was able to be retrieved. 
@@ -1006,7 +1006,7 @@ namespace FluentFTP {
 			return listing.ToArray();
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate string[] AsyncGetNameListing(string path);
 
 		/// <summary>

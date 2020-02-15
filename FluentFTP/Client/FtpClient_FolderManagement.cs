@@ -150,7 +150,7 @@ namespace FluentFTP {
 			return (options & FtpListOption.Recursive) == FtpListOption.Recursive;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate void AsyncDeleteDirectory(string path, FtpListOption options);
 
 		/// <summary>
@@ -352,7 +352,7 @@ namespace FluentFTP {
 			return false;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate bool AsyncDirectoryExists(string path);
 
 		/// <summary>
@@ -514,7 +514,7 @@ namespace FluentFTP {
 #endif
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate bool AsyncCreateDirectory(string path, bool force);
 
 		/// <summary>
@@ -679,7 +679,7 @@ namespace FluentFTP {
 			return false;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate bool AsyncMoveDirectory(string path, string dest, FtpRemoteExists existsMode);
 
 		/// <summary>
@@ -795,7 +795,7 @@ namespace FluentFTP {
 #endif
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate void AsyncSetWorkingDirectory(string path);
 
 		/// <summary>
@@ -891,7 +891,7 @@ namespace FluentFTP {
 			return "./";
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate string AsyncGetWorkingDirectory();
 
 		/// <summary>

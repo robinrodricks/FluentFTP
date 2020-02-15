@@ -652,7 +652,7 @@ namespace FluentFTP {
 			FtpServerSpecificHandler.GetFeatures(this, m_capabilities, ref m_hashAlgorithms, reply.InfoMessages.Split('\n'));
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate void AsyncConnect();
 
 		/// <summary>
@@ -1042,7 +1042,7 @@ namespace FluentFTP {
 #endif
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate void AsyncDisconnect();
 
 		/// <summary>

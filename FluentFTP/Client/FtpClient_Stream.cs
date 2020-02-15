@@ -85,7 +85,7 @@ namespace FluentFTP {
 			return reply;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate FtpReply AsyncExecute(string command);
 
 		/// <summary>
@@ -1184,7 +1184,7 @@ namespace FluentFTP {
 			return stream;
 		}
 
-#if !CORE
+#if !ASYNC
 		/// <summary>
 		/// Begins an asynchronous operation to open the specified file for reading
 		/// </summary>
@@ -1426,7 +1426,7 @@ namespace FluentFTP {
 			return stream;
 		}
 
-#if !CORE
+#if !ASYNC
 		/// <summary>
 		/// Begins an asynchronous operation to open the specified file for writing
 		/// </summary>
@@ -1612,7 +1612,7 @@ namespace FluentFTP {
 			return stream;
 		}
 
-#if !CORE
+#if !ASYNC
 		/// <summary>
 		/// Begins an asynchronous operation to open the specified file for appending
 		/// </summary>
@@ -1783,7 +1783,7 @@ namespace FluentFTP {
 			CurrentDataType = type;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate void AsyncSetDataType(FtpDataType type);
 
 		/// <summary>

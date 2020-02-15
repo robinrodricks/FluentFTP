@@ -270,7 +270,7 @@ namespace FluentFTP {
 			return hash;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate FtpHash AsyncGetHash(string path);
 
 		/// <summary>
@@ -439,7 +439,7 @@ namespace FluentFTP {
 			}
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate FtpHash AsyncGetChecksum(string path);
 
 		/// <summary>
@@ -590,7 +590,7 @@ namespace FluentFTP {
 			return response;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate string AsyncGetMD5(string path);
 
 		/// <summary>
@@ -683,7 +683,7 @@ namespace FluentFTP {
 			return reply.Message;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate string AsyncGetXCRC(string path);
 
 		/// <summary>
@@ -776,7 +776,7 @@ namespace FluentFTP {
 			return reply.Message;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate string AsyncGetXMD5(string path);
 
 		/// <summary>
@@ -863,7 +863,7 @@ namespace FluentFTP {
 			return reply.Message;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate string AsyncGetXSHA1(string path);
 
 		/// <summary>
@@ -950,7 +950,7 @@ namespace FluentFTP {
 			return reply.Message;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate string AsyncGetXSHA256(string path);
 
 		/// <summary>
@@ -1037,7 +1037,7 @@ namespace FluentFTP {
 			return reply.Message;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate string AsyncGetXSHA512(string path);
 
 		/// <summary>

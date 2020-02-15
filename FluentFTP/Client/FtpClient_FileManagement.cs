@@ -55,7 +55,7 @@ namespace FluentFTP {
 #endif
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate void AsyncDeleteFile(string path);
 
 		/// <summary>
@@ -203,7 +203,7 @@ namespace FluentFTP {
 			return null;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate bool AsyncFileExists(string path);
 
 		/// <summary>
@@ -348,7 +348,7 @@ namespace FluentFTP {
 #endif
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate void AsyncRename(string path, string dest);
 
 		/// <summary>
@@ -471,7 +471,7 @@ namespace FluentFTP {
 			return false;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate bool AsyncMoveFile(string path, string dest, FtpRemoteExists existsMode);
 
 		/// <summary>
@@ -869,7 +869,7 @@ namespace FluentFTP {
 			return null;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate FtpListItem AsyncDereferenceLink(FtpListItem item, int recMax);
 
 		/// <summary>
@@ -1059,7 +1059,7 @@ namespace FluentFTP {
 			sizeReply.FileSize = length;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate long AsyncGetFileSize(string path);
 
 		/// <summary>
@@ -1208,7 +1208,7 @@ namespace FluentFTP {
 			return date;
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate DateTime AsyncGetModifiedTime(string path, FtpDate type);
 
 		/// <summary>
@@ -1335,7 +1335,7 @@ namespace FluentFTP {
 #endif
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate void AsyncSetModifiedTime(string path, DateTime date, FtpDate type);
 
 		/// <summary>
