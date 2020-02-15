@@ -96,6 +96,7 @@ namespace FluentFTP {
 			return result;
 		}
 
+#if !ASYNC
 		private delegate FtpListItem AsyncGetObjectInfo(string path, bool dateModified);
 
 		/// <summary>
@@ -134,6 +135,7 @@ namespace FluentFTP {
 		public FtpListItem EndGetObjectInfo(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncGetObjectInfo>(ar).EndInvoke(ar);
 		}
+#endif
 
 #if ASYNC
 		/// <summary>
@@ -148,20 +150,71 @@ namespace FluentFTP {
 		/// the usefulness of this method for checking for the existence of an object.</remarks>
 		/// <param name="path">Path of the item to retrieve information about</param>
 		/// <param name="dateModified">Get the accurate modified date using another MDTM command</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <exception cref="InvalidOperationException">Thrown if the server does not support this Capability</exception>
 		/// <returns>A <see cref="FtpListItem"/> if the command succeeded, or null if there was a problem.</returns>
-		public async Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false) {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<string, bool, FtpListItem>(
-				(p, dm, ac, s) => BeginGetObjectInfo(p, dm, ac, s),
-				ar => EndGetObjectInfo(ar),
-				path, dateModified, null);
+		public async Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false, CancellationToken token = default(CancellationToken)) {
+			// verify args
+			if (path.IsBlank()) {
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
+
+			LogFunc(nameof(GetObjectInfo), new object[] { path, dateModified });
+
+			FtpReply reply;
+			string[] res;
+
+			var supportsMachineList = HasFeature(FtpCapability.MLSD);
+
+			FtpListItem result = null;
+
+			if (supportsMachineList) {
+				// USE MACHINE LISTING TO GET INFO FOR A SINGLE FILE
+
+				if ((reply = await ExecuteAsync("MLST " + path, token)).Success) {
+					res = reply.InfoMessages.Split('\n');
+					if (res.Length > 1) {
+						var info = new StringBuilder();
+
+						for (var i = 1; i < res.Length; i++) {
+							info.Append(res[i]);
+						}
+
+						result = m_listParser.ParseSingleLine(null, info.ToString(), m_capabilities, true);
+					}
+				}
+				else {
+					LogStatus(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " with error " + reply.ErrorMessage);
+				}
+			}
+			else {
+				// USE GETLISTING TO GET ALL FILES IN DIR .. SLOWER BUT AT LEAST IT WORKS
+
+				var dirPath = path.GetFtpDirectoryName();
+				var dirItems = await GetListingAsync(dirPath, token);
+
+				foreach (var dirItem in dirItems) {
+					if (dirItem.FullName == path) {
+						result = dirItem;
+						break;
+					}
+				}
+
+				LogStatus(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " since MLST not supported and GetListing() fails to list file/folder.");
+			}
+
+			// Get the accurate date modified using another MDTM command
+			if (result != null && dateModified && HasFeature(FtpCapability.MDTM)) {
+				result.Modified = await GetModifiedTimeAsync(path, FtpDate.Original, token);
+			}
+
+			return result;
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Get Listing
+#region Get Listing
 
 		/// <summary>
 		/// Gets a file listing from the server from the current working directory. Each <see cref="FtpListItem"/> object returned
@@ -603,7 +656,7 @@ namespace FluentFTP {
 		/// </remarks>
 		/// <param name="path">The path to list</param>
 		/// <param name="options">Options that dictate how the list operation is performed</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>An array of items retrieved in the listing</returns>
 		public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
 			// start recursive process if needed and unsupported by the server
@@ -815,7 +868,7 @@ namespace FluentFTP {
 		/// be retrieved.
 		/// </remarks>
 		/// <param name="path">The path to list</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>An array of items retrieved in the listing</returns>
 		public Task<FtpListItem[]> GetListingAsync(string path, CancellationToken token = default(CancellationToken)) {
 			return GetListingAsync(path, 0, token);
@@ -837,9 +890,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Get Listing Recursive
+#region Get Listing Recursive
 
 		/// <summary>
 		/// Recursive method of GetListing, to recurse through directories on servers that do not natively support recursion.
@@ -937,9 +990,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region Get Name Listing
+#region Get Name Listing
 
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command.
@@ -1056,7 +1109,7 @@ namespace FluentFTP {
 		/// Returns a file/directory listing using the NLST command asynchronously
 		/// </summary>
 		/// <param name="path">The path of the directory to list</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>An array of file and directory names if any were returned.</returns>
 		public async Task<string[]> GetNameListingAsync(string path, CancellationToken token = default(CancellationToken)) {
 			LogFunc(nameof(GetNameListingAsync), new object[] { path });
@@ -1110,6 +1163,6 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 	}
 }
