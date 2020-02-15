@@ -93,7 +93,7 @@ namespace FluentFTP {
 		/// Deletes a file from the server asynchronously
 		/// </summary>
 		/// <param name="path">The full or relative path to the file</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public async Task DeleteFileAsync(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
@@ -244,7 +244,7 @@ namespace FluentFTP {
 		/// Checks if a file exists on the server asynchronously.
 		/// </summary>
 		/// <param name="path">The full or relative path to the file</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>True if the file exists, false otherwise</returns>
 		public async Task<bool> FileExistsAsync(string path, CancellationToken token = default(CancellationToken)) {
 			// verify args
@@ -392,7 +392,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public async Task RenameAsync(string path, string dest, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
@@ -515,7 +515,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
 		/// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>Whether the file was moved</returns>
 		public async Task<bool> MoveFileAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken)) {
 			// verify args
@@ -601,7 +601,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the item</param>
 		/// <param name="permissions">The permissions in CHMOD format</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public async Task SetFilePermissionsAsync(string path, int permissions, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
@@ -641,7 +641,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the item</param>
 		/// <param name="permissions">The permissions in CHMOD format</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public Task ChmodAsync(string path, int permissions, CancellationToken token = default(CancellationToken)) {
 			return SetFilePermissionsAsync(path, permissions, token);
 		}
@@ -674,7 +674,7 @@ namespace FluentFTP {
 		/// <param name="owner">The owner permissions</param>
 		/// <param name="group">The group permissions</param>
 		/// <param name="other">The other permissions</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public Task SetFilePermissionsAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken)) {
 			return SetFilePermissionsAsync(path, FtpExtensions.CalcChmod(owner, group, other), token);
 		}
@@ -707,7 +707,7 @@ namespace FluentFTP {
 		/// <param name="owner">The owner permissions</param>
 		/// <param name="group">The group permissions</param>
 		/// <param name="other">The other permissions</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public Task ChmodAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken)) {
 			return SetFilePermissionsAsync(path, owner, group, other, token);
 		}
@@ -746,7 +746,7 @@ namespace FluentFTP {
 		/// Use `GetChmod` if you required the integer value instead.
 		/// </summary>
 		/// <param name="path">The full or relative path to the item</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public async Task<FtpListItem> GetFilePermissionsAsync(string path, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
@@ -786,7 +786,7 @@ namespace FluentFTP {
 		/// Use `GetFilePermissions` if you required the permissions in the FtpPermission format.
 		/// </summary>
 		/// <param name="path">The full or relative path to the item</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public async Task<int> GetChmodAsync(string path, CancellationToken token = default(CancellationToken)) {
 			FtpListItem item = await GetFilePermissionsAsync(path, token);
 			return item != null ? item.Chmod : 0;
@@ -925,7 +925,7 @@ namespace FluentFTP {
 		/// <param name="item">The item to dereference</param>
 		/// <param name="recMax">Maximum recursive calls</param>
 		/// <param name="count">Counter</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
 		private async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, IntRef count, CancellationToken token = default(CancellationToken)) {
 			if (item.Type != FtpFileSystemObjectType.Link) {
@@ -972,7 +972,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="item">The item to dereference</param>
 		/// <param name="recMax">Maximum recursive calls</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
 		public Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, CancellationToken token = default(CancellationToken)) {
 			LogFunc(nameof(DereferenceLinkAsync), new object[] { item.FullName, recMax });
@@ -985,7 +985,7 @@ namespace FluentFTP {
 		/// Dereference a <see cref="FtpListItem"/> object asynchronously
 		/// </summary>
 		/// <param name="item">The item to dereference</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
 		public Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, CancellationToken token = default(CancellationToken)) {
 			return DereferenceLinkAsync(item, MaximumDereferenceCount, token);
@@ -1098,7 +1098,7 @@ namespace FluentFTP {
 		/// Asynchronously gets the size of a remote file, in bytes.
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>The size of the file, -1 if there was a problem.</returns>
 		public async Task<long> GetFileSizeAsync(string path, CancellationToken token = default(CancellationToken)) {
 			// verify args
@@ -1249,7 +1249,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full path to the file</param>
 		/// <param name="type">Return the date in local timezone or UTC?  Use FtpDate.Original to disable timezone conversion.</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
 		public async Task<DateTime> GetModifiedTimeAsync(string path, FtpDate type = FtpDate.Original, CancellationToken token = default(CancellationToken)) {
 			// verify args
@@ -1376,7 +1376,7 @@ namespace FluentFTP {
 		/// <param name="path">The full path to the file</param>
 		/// <param name="date">The new modified date/time value</param>
 		/// <param name="type">Is the date provided in local timezone or UTC? Use FtpDate.Original to disable timezone conversion.</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public async Task SetModifiedTimeAsync(string path, DateTime date, FtpDate type = FtpDate.Original, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {

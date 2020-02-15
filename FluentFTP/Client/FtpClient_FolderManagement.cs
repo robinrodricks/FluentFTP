@@ -201,7 +201,7 @@ namespace FluentFTP {
 		/// Asynchronously removes a directory and all its contents.
 		/// </summary>
 		/// <param name="path">The full or relative path of the directory to delete</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public Task DeleteDirectoryAsync(string path, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
@@ -217,7 +217,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path of the directory to delete</param>
 		/// <param name="options">Useful to delete hidden files or dot-files.</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public Task DeleteDirectoryAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
@@ -235,7 +235,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the directory to delete</param>
 		/// <param name="deleteContents">Delete the contents before deleting the folder</param>
 		/// <param name="options">Useful to delete hidden files or dot-files.</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns></returns>
 		private async Task DeleteDirInternalAsync(string path, bool deleteContents, FtpListOption options, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
@@ -401,7 +401,7 @@ namespace FluentFTP {
 		/// the working directory is still the same.
 		/// </summary>
 		/// <param name='path'>The full or relative path of the directory to check for</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>True if the directory exists. False otherwise.</returns>
 		public async Task<bool> DirectoryExistsAsync(string path, CancellationToken token = default(CancellationToken)) {
 			string pwd;
@@ -567,7 +567,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the new remote directory</param>
 		/// <param name="force">Try to create the whole path if the preceding directories do not exist</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>True if directory was created, false if it was skipped</returns>
 		public async Task<bool> CreateDirectoryAsync(string path, bool force, CancellationToken token = default(CancellationToken)) {
 			// don't verify args as blank/null path is OK
@@ -623,7 +623,7 @@ namespace FluentFTP {
 		/// directories do not exist, then they are created.
 		/// </summary>
 		/// <param name="path">The full or relative path to the new remote directory</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public Task<bool> CreateDirectoryAsync(string path, CancellationToken token = default(CancellationToken)) {
 			return CreateDirectoryAsync(path, true, token);
 		}
@@ -723,7 +723,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
 		/// <param name="existsMode">Should we check if the dest directory exists? And if it does should we overwrite/skip the operation?</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>Whether the directory was moved</returns>
 		public async Task<bool> MoveDirectoryAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken)) {
 			// verify args
@@ -833,7 +833,7 @@ namespace FluentFTP {
 		/// Sets the working directory on the server asynchronously
 		/// </summary>
 		/// <param name="path">The directory to change to</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public async Task SetWorkingDirectoryAsync(string path, CancellationToken token = default(CancellationToken)) {
 			LogFunc(nameof(SetWorkingDirectoryAsync), new object[] { path });
 

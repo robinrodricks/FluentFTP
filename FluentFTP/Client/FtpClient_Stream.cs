@@ -124,7 +124,7 @@ namespace FluentFTP {
 		/// Performs an asynchronous execution of the specified command
 		/// </summary>
 		/// <param name="command">The command to execute</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>The servers reply to the command</returns>
 		public async Task<FtpReply> ExecuteAsync(string command, CancellationToken token) {
 			FtpReply reply;
@@ -738,7 +738,7 @@ namespace FluentFTP {
 		/// <param name="type">Type of passive data stream to open</param>
 		/// <param name="command">The command to execute that requires a data stream</param>
 		/// <param name="restart">Restart location in bytes for file transfer</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A data stream ready to be used</returns>
 		private async Task<FtpDataStream> OpenActiveDataStreamAsync(FtpDataConnectionType type, string command, long restart, CancellationToken token = default(CancellationToken)) {
 			LogFunc(nameof(OpenActiveDataStreamAsync), new object[] { type, command, restart });
@@ -917,7 +917,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name='command'>The command to execute that requires a data stream</param>
 		/// <param name="restart">Restart location in bytes for file transfer</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>The data stream.</returns>
 		private async Task<FtpDataStream> OpenDataStreamAsync(string command, long restart, CancellationToken token = default(CancellationToken)) {
 			var type = m_dataConnectionType;
@@ -1266,7 +1266,7 @@ namespace FluentFTP {
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="restart">Resume location</param>
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for reading the file on the server</returns>
 		public virtual async Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, bool checkIfFileExists, CancellationToken token = default(CancellationToken)) {
 			// verify args
@@ -1313,7 +1313,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="restart">Resume location</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A readable stream of the remote file</returns>
 		public Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, CancellationToken token = default(CancellationToken)) {
 			return OpenReadAsync(path, type, restart, true, token);
@@ -1324,7 +1324,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A readable stream of the remote file</returns>
 		public Task<Stream> OpenReadAsync(string path, FtpDataType type, CancellationToken token = default(CancellationToken)) {
 			return OpenReadAsync(path, type, 0, true, token);
@@ -1335,7 +1335,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="restart">Resume location</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A readable stream of the remote file</returns>
 		public Task<Stream> OpenReadAsync(string path, long restart, CancellationToken token = default(CancellationToken)) {
 			return OpenReadAsync(path, FtpDataType.Binary, restart, true, token);
@@ -1345,8 +1345,8 @@ namespace FluentFTP {
 		/// Opens the specified file for reading asynchronously
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="token">Cancellation Token</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A readable stream of the remote file</returns>
 		public Task<Stream> OpenReadAsync(string path, CancellationToken token = default(CancellationToken)) {
 			return OpenReadAsync(path, FtpDataType.Binary, 0, true, token);
@@ -1480,7 +1480,7 @@ namespace FluentFTP {
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		public virtual async Task<Stream> OpenWriteAsync(string path, FtpDataType type, bool checkIfFileExists, CancellationToken token = default(CancellationToken)) {
 			// verify args
@@ -1520,7 +1520,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		public Task<Stream> OpenWriteAsync(string path, FtpDataType type, CancellationToken token = default(CancellationToken)) {
 			return OpenWriteAsync(path, type, true, token);
@@ -1530,8 +1530,7 @@ namespace FluentFTP {
 		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. asynchronously
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
-		/// <param name="token">Cancellation Token</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		public Task<Stream> OpenWriteAsync(string path, CancellationToken token = default(CancellationToken)) {
 			return OpenWriteAsync(path, FtpDataType.Binary, true, token);
@@ -1666,7 +1665,7 @@ namespace FluentFTP {
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		public virtual async Task<Stream> OpenAppendAsync(string path, FtpDataType type, bool checkIfFileExists, CancellationToken token = default(CancellationToken)) {
 			// verify args
@@ -1708,7 +1707,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		public Task<Stream> OpenAppendAsync(string path, FtpDataType type, CancellationToken token = default(CancellationToken)) {
 			return OpenAppendAsync(path, type, true, token);
@@ -1718,7 +1717,7 @@ namespace FluentFTP {
 		/// Opens the specified file to be appended asynchronously
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		public Task<Stream> OpenAppendAsync(string path, CancellationToken token = default(CancellationToken)) {
 			return OpenAppendAsync(path, FtpDataType.Binary, true, token);
@@ -1819,7 +1818,7 @@ namespace FluentFTP {
 		/// Sets the data type of information sent over the data stream asynchronously
 		/// </summary>
 		/// <param name="type">ASCII/Binary</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		protected async Task SetDataTypeAsync(FtpDataType type, CancellationToken token = default(CancellationToken)) {
 			// FIX : #291 only change the data type if different
 			if (CurrentDataType != type || ForceSetDataType) {
@@ -1834,7 +1833,7 @@ namespace FluentFTP {
 		/// Sets the data type of information sent over the data stream asynchronously
 		/// </summary>
 		/// <param name="type">ASCII/Binary</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		protected async Task SetDataTypeNoLockAsync(FtpDataType type, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 			switch (type) {
