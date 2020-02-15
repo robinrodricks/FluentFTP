@@ -92,11 +92,11 @@ namespace FluentFTP
 			return new FtpFxpSession() { sourceFtpClient = sourceClient, destinationFtpClient = destinationClient };
 		}
 
-		private async Task<bool> FXPFileCopyInternalAsync(FtpListItem sourceFtpFileItem, FtpClient fxpDestinationClient, string destinationFilePath, FtpDataType ftpDataType, CancellationToken token)
+		private async Task<bool> FXPFileCopyInternalAsync(FtpListItem sourceFtpFileItem, FtpClient fxpDestinationClient, string destinationFilePath, bool createRemoteDir, FtpRemoteExists existsMode, FtpDataType ftpDataType, CancellationToken token)
 		{
 			FtpReply reply;
-			var anyNoopSource = false;
-			var anyNoopDestination = false;
+			long offset = 0;
+			bool fileExists = false;
 
 			var ftpFxpSession = await OpenPassiveFXPConnection(fxpDestinationClient, ftpDataType, token);
 
@@ -106,33 +106,112 @@ namespace FluentFTP
 				ftpFxpSession.sourceFtpClient.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
 				ftpFxpSession.destinationFtpClient.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
 
-				// send command to tell the source server to 'send' the file to the destination server
-				if (!(reply = await ftpFxpSession.sourceFtpClient.ExecuteAsync($"RETR {sourceFtpFileItem.FullName}", token)).Success)
+				// check if the file exists, and skip, overwrite or append
+				if (existsMode == FtpRemoteExists.AppendNoCheck)
 				{
-					throw new FtpCommandException(reply);
+					offset = await fxpDestinationClient.GetFileSizeAsync(destinationFilePath);
+					if (offset == -1)
+					{
+						offset = 0; // start from the beginning
+					}
+				}
+				else
+				{
+					fileExists = await fxpDestinationClient.FileExistsAsync(destinationFilePath);
+
+					switch (existsMode)
+					{
+						case FtpRemoteExists.Skip:
+
+							if (fileExists)
+							{
+								LogStatus(FtpTraceLevel.Warn, "File " + destinationFilePath + " exists on server & existsMode is set to FileExists.Skip");
+
+								// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
+								// send progress reports
+								//if (progress != null)
+								//{
+								//	progress(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+								//}
+
+								return false;
+							}
+
+							break;
+
+						case FtpRemoteExists.Overwrite:
+							if (fileExists)
+							{
+								await fxpDestinationClient.DeleteFileAsync(destinationFilePath);
+							}
+
+							break;
+
+						case FtpRemoteExists.Append:
+							if (fileExists)
+							{
+								offset = await fxpDestinationClient.GetFileSizeAsync(destinationFilePath);
+								if (offset == -1)
+								{
+									offset = 0; // start from the beginning
+								}
+							}
+
+							break;
+					}
+
 				}
 
-				//Instruct destination server to store the file
-				if (!(reply = await ftpFxpSession.destinationFtpClient.ExecuteAsync($"STOR {destinationFilePath}", token)).Success)
+				// ensure the remote dir exists .. only if the file does not already exist!
+				if (createRemoteDir && !fileExists)
 				{
-					throw new FtpCommandException(reply);
+					var dirname = destinationFilePath.GetFtpDirectoryName();
+					if (!await fxpDestinationClient.DirectoryExistsAsync(dirname))
+					{
+						await CreateDirectoryAsync(dirname);
+					}
 				}
 
+				if (offset == 0 && existsMode != FtpRemoteExists.AppendNoCheck)
+				{
+					// send command to tell the source server to 'send' the file to the destination server
+					if (!(reply = await ftpFxpSession.sourceFtpClient.ExecuteAsync($"RETR {sourceFtpFileItem.FullName}", token)).Success)
+					{
+						throw new FtpCommandException(reply);
+					}
+
+					//Instruct destination server to store the file
+					if (!(reply = await ftpFxpSession.destinationFtpClient.ExecuteAsync($"STOR {destinationFilePath}", token)).Success)
+					{
+						throw new FtpCommandException(reply);
+					}
+				}
+				else
+				{
+					//tell source server to restart / resume
+					if (!(reply = await ftpFxpSession.sourceFtpClient.ExecuteAsync($"REST {offset}", token)).Success)
+					{
+						throw new FtpCommandException(reply);
+					}
+
+					// send command to tell the source server to 'send' the file to the destination server
+					if (!(reply = await ftpFxpSession.sourceFtpClient.ExecuteAsync($"RETR {sourceFtpFileItem.FullName}", token)).Success)
+					{
+						throw new FtpCommandException(reply);
+					}
+
+					//Instruct destination server to append the file
+					if (!(reply = await ftpFxpSession.destinationFtpClient.ExecuteAsync($"APPE {destinationFilePath}", token)).Success)
+					{
+						throw new FtpCommandException(reply);
+					}
+				}
+					
 				var sourceFXPTransferReply = ftpFxpSession.sourceFtpClient.GetReplyAsync(token);
 				var destinationFXPTransferReply = ftpFxpSession.destinationFtpClient.GetReplyAsync(token);
 
 				while (sourceFXPTransferReply.IsCompleted == false | destinationFXPTransferReply.IsCompleted == false)
 				{
-					//if (!m_threadSafeDataChannels)
-					//{
-					//	anyNoopSource = await NoopAsync(token) || anyNoopSource;
-					//}
-
-					//if (!fxpDestinationClient.EnableThreadSafeDataConnections)
-					//{
-					//	anyNoopDestination = await fxpDestinationClient.NoopAsync(token) || anyNoopDestination;
-					//}
-
 					await Task.Delay(1000);
 				}
 
@@ -151,7 +230,7 @@ namespace FluentFTP
 
 		}
 
-		public async Task<bool> FXPFileCopyAsync(FtpListItem sourceFtpFileItem, FtpClient fxpDestinationClient, string destinationFilePath, FtpRemoteExists existsMode = FtpRemoteExists.Append, FtpVerify verifyOptions = FtpVerify.None,
+		public async Task<bool> FXPFileCopyAsync(FtpListItem sourceFtpFileItem, FtpClient fxpDestinationClient, string destinationFilePath, bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Append, FtpVerify verifyOptions = FtpVerify.None,
 			FtpDataType ftpDataType = FtpDataType.Binary, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken))
 		{
 
@@ -196,8 +275,7 @@ namespace FluentFTP
 			do
 			{
 
-				//var restartPos = await Task.Run(() => File.Exists(localPath), token) ? (await Task.Run(() => new FileInfo(localPath), token)).Length : 0;
-				downloadSuccess = await FXPFileCopyInternalAsync(sourceFtpFileItem, fxpDestinationClient, destinationFilePath, ftpDataType, token);
+				downloadSuccess = await FXPFileCopyInternalAsync(sourceFtpFileItem, fxpDestinationClient, destinationFilePath, createRemoteDir, existsMode, ftpDataType, token);
 				attemptsLeft--;
 
 				// if verification is needed
