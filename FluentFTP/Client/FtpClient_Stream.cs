@@ -353,7 +353,7 @@ namespace FluentFTP {
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <returns>A data stream ready to be used</returns>
 		private FtpDataStream OpenPassiveDataStream(FtpDataConnectionType type, string command, long restart) {
-			LogFunc("OpenPassiveDataStream", new object[] { type, command, restart });
+			LogFunc(nameof(OpenPassiveDataStream), new object[] { type, command, restart });
 
 			FtpDataStream stream = null;
 			FtpReply reply;
@@ -625,7 +625,7 @@ namespace FluentFTP {
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <returns>A data stream ready to be used</returns>
 		private FtpDataStream OpenActiveDataStream(FtpDataConnectionType type, string command, long restart) {
-			LogFunc("OpenActiveDataStream", new object[] { type, command, restart });
+			LogFunc(nameof(OpenActiveDataStream), new object[] { type, command, restart });
 
 			var stream = new FtpDataStream(this);
 			stream.Client = this;
@@ -973,7 +973,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="stream">The data stream to close</param>
 		internal FtpReply CloseDataStream(FtpDataStream stream) {
-			LogFunc("CloseDataStream");
+			LogFunc(nameof(CloseDataStream));
 
 			var reply = new FtpReply();
 
@@ -1144,7 +1144,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc("OpenRead", new object[] { path, type, restart });
+			LogFunc(nameof(OpenRead), new object[] { path, type, restart });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1392,7 +1392,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc("OpenWrite", new object[] { path, type });
+			LogFunc(nameof(OpenWrite), new object[] { path, type });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1577,7 +1577,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc("OpenAppend", new object[] { path, type });
+			LogFunc(nameof(OpenAppend), new object[] { path, type });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;

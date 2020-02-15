@@ -44,7 +44,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc("GetObjectInfo", new object[] { path, dateModified });
+			LogFunc(nameof(GetObjectInfo), new object[] { path, dateModified });
 
 			FtpReply reply;
 			string[] res;
@@ -216,7 +216,7 @@ namespace FluentFTP {
 				return GetListingRecursive(GetAbsolutePath(path), options);
 			}
 
-			LogFunc("GetListing", new object[] { path, options });
+			LogFunc(nameof(GetListing), new object[] { path, options });
 
 			FtpListItem item = null;
 			var lst = new List<FtpListItem>();
@@ -956,7 +956,7 @@ namespace FluentFTP {
 		/// <returns>A string array of file and directory names if any were returned.</returns>
 		/// <example><code source="..\Examples\GetNameListing.cs" lang="cs" /></example>
 		public string[] GetNameListing(string path) {
-			LogFunc("GetNameListing", new object[] { path });
+			LogFunc(nameof(GetNameListing), new object[] { path });
 
 			var listing = new List<string>();
 

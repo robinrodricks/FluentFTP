@@ -43,7 +43,7 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				LogFunc("DeleteFile", new object[] { path });
+				LogFunc(nameof(DeleteFile), new object[] { path });
 
 				if (!(reply = Execute("DELE " + path.GetFtpPath())).Success) {
 					throw new FtpCommandException(reply);
@@ -130,7 +130,7 @@ namespace FluentFTP {
 			lock (m_lock) {
 #endif
 
-				LogFunc("FileExists", new object[] { path });
+				LogFunc(nameof(FileExists), new object[] { path });
 
 				// calc the absolute filepath
 				path = GetAbsolutePath(path.GetFtpPath());
@@ -328,7 +328,7 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				LogFunc("Rename", new object[] { path, dest });
+				LogFunc(nameof(Rename), new object[] { path, dest });
 
 				// calc the absolute filepaths
 				path = GetAbsolutePath(path.GetFtpPath());
@@ -444,7 +444,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "dest");
 			}
 
-			LogFunc("MoveFile", new object[] { path, dest, existsMode });
+			LogFunc(nameof(MoveFile), new object[] { path, dest, existsMode });
 
 			if (FileExists(path)) {
 				// check if dest file exists and act accordingly
@@ -579,7 +579,7 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				LogFunc("SetFilePermissions", new object[] { path, permissions });
+				LogFunc(nameof(SetFilePermissions), new object[] { path, permissions });
 
 				if (!(reply = Execute("SITE CHMOD " + permissions.ToString() + " " + path.GetFtpPath())).Success) {
 					throw new FtpCommandException(reply);
@@ -726,7 +726,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc("GetFilePermissions", new object[] { path });
+			LogFunc(nameof(GetFilePermissions), new object[] { path });
 
 			var fullPath = path.GetFtpPath();
 			foreach (var i in GetListing(path)) {
@@ -817,7 +817,7 @@ namespace FluentFTP {
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
 		/// <example><code source="..\Examples\DereferenceLink.cs" lang="cs" /></example>
 		public FtpListItem DereferenceLink(FtpListItem item, int recMax) {
-			LogFunc("DereferenceLink", new object[] { item.FullName, recMax });
+			LogFunc(nameof(DereferenceLink), new object[] { item.FullName, recMax });
 
 			var count = 0;
 			return DereferenceLink(item, recMax, ref count);
@@ -1008,7 +1008,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc("GetFileSize", new object[] { path });
+			LogFunc(nameof(GetFileSize), new object[] { path });
 
 			if (!HasFeature(FtpCapability.SIZE)) {
 				return -1;
@@ -1174,7 +1174,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc("GetModifiedTime", new object[] { path, type });
+			LogFunc(nameof(GetModifiedTime), new object[] { path, type });
 
 			var date = DateTime.MinValue;
 			FtpReply reply;
@@ -1304,7 +1304,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "date");
 			}
 
-			LogFunc("SetModifiedTime", new object[] { path, date, type });
+			LogFunc(nameof(SetModifiedTime), new object[] { path, date, type });
 
 			FtpReply reply;
 

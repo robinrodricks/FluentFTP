@@ -37,7 +37,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc("DeleteDirectory", new object[] { path });
+			LogFunc(nameof(DeleteDirectory), new object[] { path });
 			DeleteDirInternal(path, true, FtpListOption.ForceList | FtpListOption.Recursive);
 		}
 
@@ -53,7 +53,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc("DeleteDirectory", new object[] { path, options });
+			LogFunc(nameof(DeleteDirectory), new object[] { path, options });
 			DeleteDirInternal(path, true, options);
 		}
 
@@ -321,7 +321,7 @@ namespace FluentFTP {
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			LogFunc("DirectoryExists", new object[] { path });
+			LogFunc(nameof(DirectoryExists), new object[] { path });
 
 			// quickly check if root path, then it always exists!
 			var ftppath = path.GetFtpPath();
@@ -461,7 +461,7 @@ namespace FluentFTP {
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			LogFunc("CreateDirectory", new object[] { path, force });
+			LogFunc(nameof(CreateDirectory), new object[] { path, force });
 
 			FtpReply reply;
 			var ftppath = path.GetFtpPath();
@@ -652,7 +652,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "dest");
 			}
 
-			LogFunc("MoveDirectory", new object[] { path, dest, existsMode });
+			LogFunc(nameof(MoveDirectory), new object[] { path, dest, existsMode });
 
 			if (DirectoryExists(path)) {
 				// check if dest directory exists and act accordingly
@@ -773,7 +773,7 @@ namespace FluentFTP {
 		/// <param name="path">The path of the directory to change to</param>
 		/// <example><code source="..\Examples\SetWorkingDirectory.cs" lang="cs" /></example>
 		public void SetWorkingDirectory(string path) {
-			LogFunc("SetWorkingDirectory", new object[] { path });
+			LogFunc(nameof(SetWorkingDirectory), new object[] { path });
 
 			FtpReply reply;
 			var ftppath = path.GetFtpPath();
@@ -861,7 +861,7 @@ namespace FluentFTP {
 		/// <returns>The current working directory, ./ if the response couldn't be parsed.</returns>
 		/// <example><code source="..\Examples\GetWorkingDirectory.cs" lang="cs" /></example>
 		public string GetWorkingDirectory() {
-			LogFunc("GetWorkingDirectory");
+			LogFunc(nameof(GetWorkingDirectory));
 
 			FtpReply reply;
 			Match m;
