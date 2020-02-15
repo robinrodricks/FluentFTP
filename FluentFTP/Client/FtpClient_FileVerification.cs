@@ -80,6 +80,51 @@ namespace FluentFTP {
 			//Not supported return true to ignore validation
 			return true;
 		}
+
+		private async Task<bool> VerifyFXPTransferAsync(string sourcePath, FtpClient fxpDestinationClient, string remotePath, CancellationToken token = default(CancellationToken))
+		{
+			// verify args
+			if (sourcePath.IsBlank())
+			{
+				throw new ArgumentException("Required parameter is null or blank.", "localPath");
+			}
+
+			if (remotePath.IsBlank())
+			{
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
+
+			if (fxpDestinationClient is null)
+			{
+				throw new ArgumentNullException("Destination FXP FtpClient cannot be null!", "fxpDestinationClient");
+			}
+
+			if ((HasFeature(FtpCapability.HASH) && fxpDestinationClient.HasFeature(FtpCapability.HASH)) || (HasFeature(FtpCapability.MD5) && fxpDestinationClient.HasFeature(FtpCapability.MD5)) ||
+				(HasFeature(FtpCapability.XMD5) && fxpDestinationClient.HasFeature(FtpCapability.XMD5)) || (HasFeature(FtpCapability.XCRC) && fxpDestinationClient.HasFeature(FtpCapability.XCRC)) ||
+				(HasFeature(FtpCapability.XSHA1) && fxpDestinationClient.HasFeature(FtpCapability.XSHA1)) || (HasFeature(FtpCapability.XSHA256) & fxpDestinationClient.HasFeature(FtpCapability.XSHA256)) ||
+				(HasFeature(FtpCapability.XSHA512) && fxpDestinationClient.HasFeature(FtpCapability.XSHA512)))
+			{
+	
+				FtpHash sourceHash = await GetChecksumAsync(sourcePath, token);
+				if (!sourceHash.IsValid)
+				{
+					return false;
+				}
+
+
+				FtpHash destinationHash = await fxpDestinationClient.GetChecksumAsync(remotePath, token);
+				if (!destinationHash.IsValid)
+				{
+					return false;
+				}
+
+				return sourceHash.Value == destinationHash.Value;
+			}
+
+			//Not supported return true to ignore validation
+			return true;
+		}
+
 #endif
 
 		#endregion
