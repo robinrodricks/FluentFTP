@@ -60,7 +60,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "localDir");
 			}
 
-			LogFunc("DownloadFiles", new object[] { localDir, remotePaths, existsMode, verifyOptions });
+			LogFunc(nameof(DownloadFiles), new object[] { localDir, remotePaths, existsMode, verifyOptions });
 
 			var errorEncountered = false;
 			var successfulDownloads = new List<string>();
@@ -170,7 +170,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "localDir");
 			}
 
-			LogFunc("DownloadFilesAsync", new object[] { localDir, remotePaths, existsMode, verifyOptions });
+			LogFunc(nameof(DownloadFilesAsync), new object[] { localDir, remotePaths, existsMode, verifyOptions });
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
 			token.ThrowIfCancellationRequested();
@@ -281,7 +281,7 @@ namespace FluentFTP {
 		private FtpStatus DownloadFileToFile(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
 			var outStreamFileMode = FileMode.Create;
 
-			LogFunc("DownloadFile", new object[] { localPath, remotePath, existsMode, verifyOptions });
+			LogFunc(nameof(DownloadFile), new object[] { localPath, remotePath, existsMode, verifyOptions });
 
 			// skip downloading if local file size matches
 			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
@@ -387,7 +387,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("DownloadFileAsync", new object[] { localPath, remotePath, existsMode, verifyOptions });
+			LogFunc(nameof(DownloadFileAsync), new object[] { localPath, remotePath, existsMode, verifyOptions });
 
 
 			var outStreamFileMode = FileMode.Create;
@@ -494,7 +494,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("Download", new object[] { remotePath });
+			LogFunc(nameof(Download), new object[] { remotePath });
 
 			// download the file from the server
 			return DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0));
@@ -516,7 +516,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("Download", new object[] { remotePath });
+			LogFunc(nameof(Download), new object[] { remotePath });
 
 			outBytes = null;
 
@@ -554,7 +554,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("DownloadAsync", new object[] { remotePath });
+			LogFunc(nameof(DownloadAsync), new object[] { remotePath });
 
 			// download the file from the server
 			return await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0));
@@ -576,7 +576,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("DownloadAsync", new object[] { remotePath });
+			LogFunc(nameof(DownloadAsync), new object[] { remotePath });
 
 			// download the file from the server
 			using (var outStream = new MemoryStream()) {

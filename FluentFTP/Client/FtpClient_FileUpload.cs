@@ -63,7 +63,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteDir");
 			}
 
-			LogFunc("UploadFiles", new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
+			LogFunc(nameof(UploadFiles), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
 			//int count = 0;
 			var errorEncountered = false;
@@ -213,7 +213,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteDir");
 			}
 
-			LogFunc("UploadFilesAsync", new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
+			LogFunc(nameof(UploadFilesAsync), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
 			token.ThrowIfCancellationRequested();
@@ -351,7 +351,7 @@ namespace FluentFTP {
 		private FtpStatus UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
 
-			LogFunc("UploadFile", new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
+			LogFunc(nameof(UploadFile), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
@@ -444,7 +444,7 @@ namespace FluentFTP {
 				return FtpStatus.Failed;
 			}
 
-			LogFunc("UploadFileAsync", new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
+			LogFunc(nameof(UploadFileAsync), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 			
 			// If retries are allowed set the retry counter to the allowed count
 			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
@@ -509,7 +509,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("Upload", new object[] { remotePath, existsMode, createRemoteDir });
+			LogFunc(nameof(Upload), new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			return UploadFileInternal(fileStream, null, remotePath, createRemoteDir, existsMode, false, false, progress, new FtpProgress(1, 0));
@@ -536,7 +536,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("Upload", new object[] { remotePath, existsMode, createRemoteDir });
+			LogFunc(nameof(Upload), new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			using (var ms = new MemoryStream(fileData)) {
@@ -570,7 +570,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("UploadAsync", new object[] { remotePath, existsMode, createRemoteDir });
+			LogFunc(nameof(UploadAsync), new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			return await UploadFileInternalAsync(fileStream, null, remotePath, createRemoteDir, existsMode, false, false, progress, token, new FtpProgress(1, 0));
@@ -599,7 +599,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			LogFunc("UploadAsync", new object[] { remotePath, existsMode, createRemoteDir });
+			LogFunc(nameof(UploadAsync), new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			using (var ms = new MemoryStream(fileData)) {

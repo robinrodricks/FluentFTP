@@ -64,7 +64,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
 			}
 
-			LogFunc("UploadDirectory", new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+			LogFunc(nameof(UploadDirectory), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
 			var results = new List<FtpResult>();
 
@@ -152,7 +152,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
 			}
 
-			LogFunc("UploadDirectoryAsync", new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+			LogFunc(nameof(UploadDirectoryAsync), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
 			var results = new List<FtpResult>();
 
@@ -365,7 +365,7 @@ namespace FluentFTP {
 		/// </summary>
 		private void UploadDirectoryFiles(List<FtpResult> filesToUpload, FtpRemoteExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpListItem[] remoteListing) {
 
-			LogFunc("UploadDirectoryFiles", new object[] { filesToUpload.Count + " files" });
+			LogFunc(nameof(UploadDirectoryFiles), new object[] { filesToUpload.Count + " files" });
 
 			int r = -1;
 			foreach (var result in filesToUpload) {
@@ -420,7 +420,7 @@ namespace FluentFTP {
 		/// </summary>
 		private async Task UploadDirectoryFilesAsync(List<FtpResult> filesToUpload, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
 
-			LogFunc("UploadDirectoryFilesAsync", new object[] { filesToUpload.Count + " files" });
+			LogFunc(nameof(UploadDirectoryFilesAsync), new object[] { filesToUpload.Count + " files" });
 
 			var r = -1;
 			foreach (var result in filesToUpload) {
@@ -476,7 +476,7 @@ namespace FluentFTP {
 		private void DeleteExtraServerFiles(FtpFolderSyncMode mode, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing) {
 			if (mode == FtpFolderSyncMode.Mirror && remoteListing != null) {
 
-				LogFunc("DeleteExtraServerFiles");
+				LogFunc(nameof(DeleteExtraServerFiles));
 
 				// delete files that are not in listed in shouldExist
 				foreach (var existingServerFile in remoteListing) {
@@ -509,7 +509,7 @@ namespace FluentFTP {
 		private async Task DeleteExtraServerFilesAsync(FtpFolderSyncMode mode, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing, CancellationToken token) {
 			if (mode == FtpFolderSyncMode.Mirror && remoteListing != null) {
 
-				LogFunc("DeleteExtraServerFilesAsync");
+				LogFunc(nameof(DeleteExtraServerFilesAsync));
 
 				// delete files that are not in listed in shouldExist
 				foreach (var existingServerFile in remoteListing) {
