@@ -35,7 +35,7 @@ namespace FluentFTP
 
 #if ASYNC
 
-		private async Task<FtpFxpSession> OpenPassiveFXPConnection(FtpClient fxpDestinationClient, FtpDataType ftpDataType, CancellationToken token)
+		private async Task<FtpFxpSession> OpenPassiveFXPConnection(FtpClient fxpDestinationClient, CancellationToken token)
 		{
 			FtpReply reply;
 			Match m;
@@ -59,15 +59,15 @@ namespace FluentFTP
 				destinationClient = fxpDestinationClient.CloneConnection();
 				destinationClient.CopyStateFlags(fxpDestinationClient);
 				await destinationClient.ConnectAsync(token);
-				await destinationClient.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
+				await destinationClient.SetWorkingDirectoryAsync(await destinationClient.GetWorkingDirectoryAsync(token), token);
 			}
 			else
 			{
 				destinationClient = fxpDestinationClient;
 			}
 
-			await sourceClient.SetDataTypeAsync(ftpDataType,token);
-			await destinationClient.SetDataTypeAsync(ftpDataType,token);
+			await sourceClient.SetDataTypeAsync(sourceClient.FXPDataType,token);
+			await destinationClient.SetDataTypeAsync(destinationClient.FXPDataType, token);
 
 			// send PASV command to destination FTP server to get passive port to be used from source FTP server
 			if (!(reply = await destinationClient.ExecuteAsync("PASV", token)).Success)
@@ -92,19 +92,21 @@ namespace FluentFTP
 			return new FtpFxpSession() { sourceFtpClient = sourceClient, destinationFtpClient = destinationClient };
 		}
 
-		private async Task<bool> FXPFileCopyInternalAsync(FtpListItem sourceFtpFileItem, FtpClient fxpDestinationClient, string destinationFilePath, bool createRemoteDir, FtpRemoteExists existsMode, FtpDataType ftpDataType, CancellationToken token)
+		private async Task<bool> FXPFileCopyInternalAsync(FtpListItem sourceFtpFileItem, FtpClient fxpDestinationClient, string destinationFilePath, bool createRemoteDir, FtpRemoteExists existsMode,
+			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress)
 		{
 			FtpReply reply;
 			long offset = 0;
 			bool fileExists = false;
 
-			var ftpFxpSession = await OpenPassiveFXPConnection(fxpDestinationClient, ftpDataType, token);
+			var ftpFxpSession = await OpenPassiveFXPConnection(fxpDestinationClient, token);
 
 			if (ftpFxpSession != null)
 			{
 
 				ftpFxpSession.sourceFtpClient.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
 				ftpFxpSession.destinationFtpClient.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
+
 
 				// check if the file exists, and skip, overwrite or append
 				if (existsMode == FtpRemoteExists.AppendNoCheck)
@@ -125,21 +127,22 @@ namespace FluentFTP
 
 							if (fileExists)
 							{
-								LogStatus(FtpTraceLevel.Warn, "File " + destinationFilePath + " exists on server & existsMode is set to FileExists.Skip");
+								LogStatus(FtpTraceLevel.Info, "Skip is selected => Destination file exists => skipping");
 
-								// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
-								// send progress reports
-								//if (progress != null)
-								//{
-								//	progress(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
-								//}
+								//Fix #413 - progress callback isn't called if the file has already been uploaded to the server
+								//send progress reports
+								if (progress != null)
+								{
+									progress.Report(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0), sourceFtpFileItem.FullName, destinationFilePath, metaProgress));
+								}
 
-								return false;
+								return true;
 							}
 
 							break;
 
 						case FtpRemoteExists.Overwrite:
+
 							if (fileExists)
 							{
 								await fxpDestinationClient.DeleteFileAsync(destinationFilePath);
@@ -148,6 +151,7 @@ namespace FluentFTP
 							break;
 
 						case FtpRemoteExists.Append:
+
 							if (fileExists)
 							{
 								offset = await fxpDestinationClient.GetFileSizeAsync(destinationFilePath);
@@ -206,35 +210,55 @@ namespace FluentFTP
 						throw new FtpCommandException(reply);
 					}
 				}
-					
+
+				var transferStarted = DateTime.Now;
+				long lastSize = 0;
+
 				var sourceFXPTransferReply = ftpFxpSession.sourceFtpClient.GetReplyAsync(token);
 				var destinationFXPTransferReply = ftpFxpSession.destinationFtpClient.GetReplyAsync(token);
 
-				while (sourceFXPTransferReply.IsCompleted == false | destinationFXPTransferReply.IsCompleted == false)
+				while (!sourceFXPTransferReply.IsCompleted || !destinationFXPTransferReply.IsCompleted)
 				{
+
+					if (fxpDestinationClient.EnableThreadSafeDataConnections)
+					{
+						// send progress reports
+						if (progress != null && sourceFtpFileItem.Size != -1)
+						{
+							offset = await fxpDestinationClient.GetFileSizeAsync(destinationFilePath, token);
+
+							if (offset != -1 && lastSize <= offset)
+							{
+								long bytesProcessed = offset - lastSize;
+								lastSize = offset;
+								ReportProgress(progress, sourceFtpFileItem.Size, offset, bytesProcessed, DateTime.Now - transferStarted, sourceFtpFileItem.FullName, destinationFilePath, metaProgress);
+							}
+						}
+					}
+
 					await Task.Delay(1000);
 				}
 
-				FtpTrace.Write(FtpTraceLevel.Info, $"FXP transfer of file {sourceFtpFileItem.FullName} has completed");
+				FtpTrace.WriteLine(FtpTraceLevel.Info, $"FXP transfer of file {sourceFtpFileItem.FullName} has completed");
 
-				await GetWorkingDirectoryAsync(token);
-				await fxpDestinationClient.GetWorkingDirectoryAsync(token);
+				await NoopAsync(token);
+				await fxpDestinationClient.NoopAsync(token);
 
 				return true;
 			}
 			else
 			{
-				FtpTrace.Write(FtpTraceLevel.Error, "Failed to open FXP passive Connection");
+				FtpTrace.WriteLine(FtpTraceLevel.Error, "Failed to open FXP passive Connection");
 				return false;
 			}
 
 		}
 
-		public async Task<bool> FXPFileCopyAsync(FtpListItem sourceFtpFileItem, FtpClient fxpDestinationClient, string destinationFilePath, bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Append, FtpVerify verifyOptions = FtpVerify.None,
-			FtpDataType ftpDataType = FtpDataType.Binary, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken))
+		public async Task<FtpStatus> FXPFileCopyAsync(FtpListItem sourceFtpFileItem, FtpClient fxpDestinationClient, string destinationFilePath,
+			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken))
 		{
 
-			LogFunc("FXPFileCopyAsync", new object[] { sourceFtpFileItem, fxpDestinationClient, destinationFilePath, ftpDataType });
+			LogFunc("FXPFileCopyAsync", new object[] { sourceFtpFileItem, fxpDestinationClient, destinationFilePath, FXPDataType });
 
 			#region "Verify and Check vars and prequisites"
 
@@ -269,17 +293,17 @@ namespace FluentFTP
 
 			#endregion
 
-			bool downloadSuccess;
+			bool fxpSuccess;
 			var verified = true;
 			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 			do
 			{
 
-				downloadSuccess = await FXPFileCopyInternalAsync(sourceFtpFileItem, fxpDestinationClient, destinationFilePath, createRemoteDir, existsMode, ftpDataType, token);
+				fxpSuccess = await FXPFileCopyInternalAsync(sourceFtpFileItem, fxpDestinationClient, destinationFilePath, createRemoteDir, existsMode, progress, token, new FtpProgress(1, 0));
 				attemptsLeft--;
 
 				// if verification is needed
-				if (downloadSuccess && verifyOptions != FtpVerify.None)
+				if (fxpSuccess && verifyOptions != FtpVerify.None)
 				{
 					verified = await VerifyFXPTransferAsync(sourceFtpFileItem.FullName, fxpDestinationClient, destinationFilePath, token);
 					LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
@@ -293,17 +317,17 @@ namespace FluentFTP
 				}
 			} while (!verified && attemptsLeft > 0);
 
-			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete))
+			if (fxpSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete))
 			{
 				await fxpDestinationClient.DeleteFileAsync(destinationFilePath);
 			}
 
-			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw))
+			if (fxpSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw))
 			{
 				throw new FtpException("Destination file checksum value does not match source file");
 			}
 
-			return downloadSuccess && verified;
+			return fxpSuccess && verified ? FtpStatus.Success : FtpStatus.Failed;
 
 		}
 #endif
