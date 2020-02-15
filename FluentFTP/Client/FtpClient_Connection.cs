@@ -157,7 +157,7 @@ namespace FluentFTP {
 
 				// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
 				try {
-					LogFunc("Dispose");
+					LogFunc(nameof(Dispose));
 					LogStatus(FtpTraceLevel.Verbose, "Disposing FtpClient object...");
 				}
 				catch (Exception ex) {
@@ -291,7 +291,7 @@ namespace FluentFTP {
 			lock (m_lock) {
 #endif
 
-				LogFunc("Connect");
+				LogFunc(nameof(Connect));
 
 				if (IsDisposed) {
 					throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
@@ -652,7 +652,7 @@ namespace FluentFTP {
 			FtpServerSpecificHandler.GetFeatures(this, m_capabilities, ref m_hashAlgorithms, reply.InfoMessages.Split('\n'));
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate void AsyncConnect();
 
 		/// <summary>
@@ -729,7 +729,7 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				LogFunc("AutoDetect", new object[] { firstOnly });
+				LogFunc(nameof(AutoDetect), new object[] { firstOnly });
 
 				if (IsDisposed) {
 					throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
@@ -875,7 +875,7 @@ namespace FluentFTP {
 		/// Returns the FtpProfile if the connection succeeded, or null if it failed.
 		/// </summary>
 		public FtpProfile AutoConnect() {
-			LogFunc("AutoConnect");
+			LogFunc(nameof(AutoConnect));
 
 			// detect the first available connection profile
 			var results = AutoDetect();
@@ -911,7 +911,7 @@ namespace FluentFTP {
 		/// Returns the FtpProfile if the connection succeeded, or null if it failed.
 		/// </summary>
 		public async Task<FtpProfile> AutoConnectAsync(CancellationToken token = default(CancellationToken)) {
-			LogFunc("AutoConnectAsync");
+			LogFunc(nameof(AutoConnectAsync));
 
 			// detect the first available connection profile
 			var results = AutoDetect();
@@ -1042,7 +1042,7 @@ namespace FluentFTP {
 #endif
 		}
 
-#if !CORE
+#if !ASYNC
 		private delegate void AsyncDisconnect();
 
 		/// <summary>

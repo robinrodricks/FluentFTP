@@ -64,7 +64,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
 			}
 
-			LogFunc("DownloadDirectory", new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+			LogFunc(nameof(DownloadDirectory), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
 			var results = new List<FtpResult>();
 
@@ -136,7 +136,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
 			}
 
-			LogFunc("DownloadDirectoryAsync", new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+			LogFunc(nameof(DownloadDirectoryAsync), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
 			var results = new List<FtpResult>();
 
@@ -236,7 +236,7 @@ namespace FluentFTP {
 		/// </summary>
 		private void DownloadServerFiles(List<FtpResult> toDownload, FtpLocalExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress) {
 
-			LogFunc("DownloadServerFiles", new object[] { toDownload.Count + " files" });
+			LogFunc(nameof(DownloadServerFiles), new object[] { toDownload.Count + " files" });
 
 			// per object to download
 			var r = -1;
@@ -296,7 +296,7 @@ namespace FluentFTP {
 		/// </summary>
 		private async Task DownloadServerFilesAsync(List<FtpResult> toDownload, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token) {
 
-			LogFunc("DownloadServerFilesAsync", new object[] { toDownload.Count + " files" });
+			LogFunc(nameof(DownloadServerFilesAsync), new object[] { toDownload.Count + " files" });
 
 			// per object to download
 			var r = -1;
@@ -357,7 +357,7 @@ namespace FluentFTP {
 		private void DeleteExtraLocalFiles(string localFolder, FtpFolderSyncMode mode, Dictionary<string, bool> shouldExist) {
 			if (mode == FtpFolderSyncMode.Mirror) {
 
-				LogFunc("DeleteExtraLocalFiles");
+				LogFunc(nameof(DeleteExtraLocalFiles));
 
 				// get all the local files
 				var localListing = Directory.GetFiles(localFolder, "*.*", SearchOption.AllDirectories);

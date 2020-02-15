@@ -279,8 +279,8 @@ namespace FluentFTP.Servers {
 				else if (featName.StartsWith("MFF")) {
 					m_capabilities.AddOnce(FtpCapability.MFF);
 				}
-				else if (featName.StartsWith("MD5")) {
-					m_capabilities.AddOnce(FtpCapability.MD5);
+				else if (featName.StartsWith("MMD5")) {
+					m_capabilities.AddOnce(FtpCapability.MMD5);
 				}
 				else if (featName.StartsWith("XMD5")) {
 					m_capabilities.AddOnce(FtpCapability.XMD5);
