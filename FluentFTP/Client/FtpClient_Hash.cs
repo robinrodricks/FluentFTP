@@ -414,8 +414,7 @@ namespace FluentFTP {
 					res.Value = GetXMD5(path);
 					res.Algorithm = FtpHashAlgorithm.MD5;
 				}
-				else if (HasFeature(FtpCapability.MMD5))
-				{
+				else if (HasFeature(FtpCapability.MMD5)) {
 					res.Value = GetMD5(path);
 					res.Algorithm = FtpHashAlgorithm.MD5;
 				}
