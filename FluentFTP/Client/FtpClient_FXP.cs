@@ -97,6 +97,7 @@ namespace FluentFTP
 			FtpReply reply;
 			long offset = 0;
 			bool fileExists = false;
+			long fileSize = 0;
 
 			var ftpFxpSession = OpenPassiveFXPConnection(remoteClient);
 
@@ -165,6 +166,8 @@ namespace FluentFTP
 
 				}
 
+				fileSize = GetFileSize(sourcePath);
+
 				// ensure the remote dir exists .. only if the file does not already exist!
 				if (createRemoteDir && !fileExists)
 				{
@@ -212,7 +215,6 @@ namespace FluentFTP
 
 				var transferStarted = DateTime.Now;
 				long lastSize = 0;
-				long fileSize = GetFileSize(sourcePath);
 
 				var sourceFXPTransferReply = ftpFxpSession.sourceFtpClient.GetReply();
 				var destinationFXPTransferReply = ftpFxpSession.destinationFtpClient.GetReply();
@@ -222,6 +224,7 @@ namespace FluentFTP
 
 					if (remoteClient.EnableThreadSafeDataConnections)
 					{
+						FtpTrace.Write(FtpTraceLevel.Info, "reporting progress");
 						// send progress reports
 						if (progress != null && fileSize != -1)
 						{
@@ -258,7 +261,7 @@ namespace FluentFTP
 
 
 		public FtpStatus FXPFileCopy(string sourcePath, FtpClient remoteClient, string remotePath,
-			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Append, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null)
+			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Append, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null, FtpProgress metaProgress = null)
 		{
 
 			LogFunc("FXPFileCopy", new object[] { sourcePath, remoteClient, remotePath, FXPDataType });
@@ -303,7 +306,7 @@ namespace FluentFTP
 			do
 			{
 
-				fxpSuccess = FXPFileCopyInternal(sourcePath, remoteClient, remotePath, createRemoteDir, existsMode, progress, new FtpProgress(1, 0));
+				fxpSuccess = FXPFileCopyInternal(sourcePath, remoteClient, remotePath, createRemoteDir, existsMode, progress, metaProgress is null ? new FtpProgress(1, 0) : metaProgress);
 				attemptsLeft--;
 
 				// if verification is needed
@@ -333,6 +336,263 @@ namespace FluentFTP
 
 			return fxpSuccess && verified ? FtpStatus.Success : FtpStatus.Failed;
 
+		}
+
+		public List<FtpResult> FXPCopyDirectory(string sourceFolder, FtpClient remoteClient, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
+	FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null)
+		{
+
+			if (sourceFolder.IsBlank())
+			{
+				throw new ArgumentException("Required parameter is null or blank.", "sourceFolder");
+			}
+
+			if (remoteFolder.IsBlank())
+			{
+				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
+			}
+
+			LogFunc(nameof(FXPCopyDirectory), new object[] { sourceFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+
+			var results = new List<FtpResult>();
+
+			// ensure the local path ends with slash
+			sourceFolder = sourceFolder.EnsurePostfix("/");
+
+			// cleanup the remote path
+			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
+
+			// if the dir does not exist, fail fast
+			if (!DirectoryExists(sourceFolder))
+			{
+				return results;
+			}
+
+			// flag to determine if existence checks are required
+			var checkFileExistence = true;
+
+			// ensure the remote dir exists
+			if (!remoteClient.DirectoryExists(remoteFolder))
+			{
+				remoteClient.CreateDirectory(remoteFolder);
+				checkFileExistence = false;
+			}
+
+			// collect paths of the files that should exist (lowercase for CI checks)
+			var shouldExist = new Dictionary<string, bool>();
+
+			// get all the folders in the local directory
+			var dirListing = GetListing(sourceFolder, FtpListOption.Recursive).Where(x => x.Type == FtpFileSystemObjectType.Directory).Select(x => x.FullName).ToArray();
+
+			// get all the already existing files
+			var remoteListing = checkFileExistence ? remoteClient.GetListing(remoteFolder, FtpListOption.Recursive) : null;
+
+			// loop thru each folder and ensure it exists
+			var dirsToUpload = GetSubDirectoriesToTransfer(sourceFolder, remoteFolder, rules, results, dirListing);
+			TransferSubDirectories(dirsToUpload,remoteClient);
+
+			// get all the files in the local directory
+			var fileListing = GetListing(sourceFolder, FtpListOption.Recursive).Where(x => x.Type == FtpFileSystemObjectType.File).Select(x => x.FullName).ToArray();
+
+			// loop thru each file and transfer it
+			var filesToUpload = GetFilesToTransfer(sourceFolder, remoteFolder, rules, results, shouldExist, fileListing);
+			TransferServerFiles(filesToUpload, remoteClient, existsMode, verifyOptions, progress, remoteListing);
+
+			// delete the extra remote files if in mirror mode and the directory was pre-existing
+			// DeleteExtraServerFiles(mode, shouldExist, remoteListing);
+
+			return results;
+		}
+
+		private List<FtpResult> GetSubDirectoriesToTransfer(string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, string[] dirListing)
+		{
+
+			var dirsToTransfer = new List<FtpResult>();
+
+			foreach (var sourceFile in dirListing)
+			{
+
+				// calculate the local path
+				var relativePath = sourceFile.Replace(sourceFolder, "").EnsurePostfix("/");
+				var remoteFile = remoteFolder + relativePath;
+
+				// create the result object
+				var result = new FtpResult()
+				{
+					Type = FtpFileSystemObjectType.Directory,
+					Size = 0,
+					Name = sourceFile.GetFtpDirectoryName(),
+					RemotePath = remoteFile,
+					LocalPath = sourceFile,
+					IsDownload = false,
+				};
+
+				// record the folder
+				results.Add(result);
+
+				// if the folder passes all rules
+				if (rules != null && rules.Count > 0)
+				{
+					var passes = FtpRule.IsAllAllowed(rules, result.ToListItem(true));
+					if (!passes)
+					{
+
+						// mark that the file was skipped due to a rule
+						result.IsSkipped = true;
+						result.IsSkippedByRule = true;
+
+						// skip uploading the file
+						continue;
+					}
+				}
+
+				dirsToTransfer.Add(result);
+			}
+
+			return dirsToTransfer;
+		}
+
+		private List<FtpResult> GetFilesToTransfer(string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, string[] fileListing)
+		{
+
+			var filesToTransfer = new List<FtpResult>();
+
+			foreach (var sourceFile in fileListing)
+			{
+
+				// calculate the local path
+				var relativePath = sourceFile.Replace(sourceFolder, "");
+				var remoteFile = remoteFolder + relativePath;
+
+				// create the result object
+				var result = new FtpResult()
+				{
+					Type = FtpFileSystemObjectType.File,
+					Size = GetFileSize(sourceFile),
+					Name = sourceFile.GetFtpFileName(),
+					RemotePath = remoteFile,
+					LocalPath = sourceFile
+				};
+
+				// record the file
+				results.Add(result);
+
+				// if the file passes all rules
+				if (rules != null && rules.Count > 0)
+				{
+					var passes = FtpRule.IsAllAllowed(rules, result.ToListItem(true));
+					if (!passes)
+					{
+
+						LogStatus(FtpTraceLevel.Info, "Skipped file due to rule: " + result.LocalPath);
+
+						// mark that the file was skipped due to a rule
+						result.IsSkipped = true;
+						result.IsSkippedByRule = true;
+
+						// skip uploading the file
+						continue;
+					}
+				}
+
+				// record that this file should exist
+				shouldExist.Add(remoteFile.ToLower(), true);
+
+				// absorb errors
+				filesToTransfer.Add(result);
+			}
+
+			return filesToTransfer;
+		}
+
+		private void TransferServerFiles(List<FtpResult> filesToTransfer, FtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpListItem[] remoteListing)
+		{
+
+			LogFunc(nameof(TransferServerFiles), new object[] { filesToTransfer.Count + " files" });
+
+			int r = -1;
+			foreach (var result in filesToTransfer)
+			{
+				r++;
+
+				// absorb errors
+				try
+				{
+
+					// check if the file already exists on the server
+					var existsModeToUse = existsMode;
+					var fileExists = FtpExtensions.FileExistsInListing(remoteListing, result.RemotePath);
+
+					// if we want to skip uploaded files and the file already exists, mark its skipped
+					if (existsMode == FtpRemoteExists.Skip && fileExists)
+					{
+
+						LogStatus(FtpTraceLevel.Info, "Skipped file that already exists: " + result.LocalPath);
+
+						result.IsSuccess = true;
+						result.IsSkipped = true;
+						continue;
+					}
+
+					// in any mode if the file does not exist, mark that exists check is not required
+					if (!fileExists)
+					{
+						existsModeToUse = existsMode == FtpRemoteExists.Append ? FtpRemoteExists.AppendNoCheck : FtpRemoteExists.NoCheck;
+					}
+
+					// create meta progress to store the file progress
+					var metaProgress = new FtpProgress(filesToTransfer.Count, r);
+
+					// upload the file
+					//var transferred = UploadFileFromFile(result.LocalPath, result.RemotePath, false, existsModeToUse, false, false, verifyOptions, progress, metaProgress);
+					var transferred = FXPFileCopy(result.LocalPath, remoteClient, result.RemotePath, false, existsModeToUse, verifyOptions, progress, metaProgress);
+					result.IsSuccess = transferred.IsSuccess();
+					result.IsSkipped = transferred == FtpStatus.Skipped;
+
+				}
+				catch (Exception ex)
+				{
+
+					LogStatus(FtpTraceLevel.Warn, "File failed to transfer: " + result.LocalPath);
+
+					// mark that the file failed to upload
+					result.IsFailed = true;
+					result.Exception = ex;
+				}
+			}
+
+		}
+
+		private void TransferSubDirectories(List<FtpResult> dirsToUpload, FtpClient remoteClient)
+		{
+			foreach (var result in dirsToUpload)
+			{
+
+				// absorb errors
+				try
+				{
+
+					// create directory on the server
+					// to ensure we upload the blank remote dirs as well
+					if (remoteClient.CreateDirectory(result.RemotePath))
+					{
+						result.IsSuccess = true;
+						result.IsSkipped = false;
+					}
+					else
+					{
+						result.IsSkipped = true;
+					}
+
+				}
+				catch (Exception ex)
+				{
+
+					// mark that the folder failed to upload
+					result.IsFailed = true;
+					result.Exception = ex;
+				}
+			}
 		}
 
 #if ASYNC
@@ -400,6 +660,7 @@ namespace FluentFTP
 			FtpReply reply;
 			long offset = 0;
 			bool fileExists = false;
+			long fileSize = 0;
 
 			var ftpFxpSession = await OpenPassiveFXPConnectionAsync(remoteClient, token);
 
@@ -468,6 +729,8 @@ namespace FluentFTP
 
 				}
 
+				fileSize = await GetFileSizeAsync(sourcePath, token);
+
 				// ensure the remote dir exists .. only if the file does not already exist!
 				if (createRemoteDir && !fileExists)
 				{
@@ -515,7 +778,7 @@ namespace FluentFTP
 
 				var transferStarted = DateTime.Now;
 				long lastSize = 0;
-				long fileSize = await GetFileSizeAsync(sourcePath, token);
+
 
 				var sourceFXPTransferReply = ftpFxpSession.sourceFtpClient.GetReplyAsync(token);
 				var destinationFXPTransferReply = ftpFxpSession.destinationFtpClient.GetReplyAsync(token);
