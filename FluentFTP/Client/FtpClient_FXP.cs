@@ -151,7 +151,7 @@ namespace FluentFTP
 
 		}
 
-		public async Task<bool> FXPFileCopyAsync(FtpListItem sourceFtpFileItem, FtpClient fxpDestinationClient, string destinationFilePath, FtpLocalExists existsMode = FtpLocalExists.Append, FtpVerify verifyOptions = FtpVerify.None,
+		public async Task<bool> FXPFileCopyAsync(FtpListItem sourceFtpFileItem, FtpClient fxpDestinationClient, string destinationFilePath, FtpRemoteExists existsMode = FtpRemoteExists.Append, FtpVerify verifyOptions = FtpVerify.None,
 			FtpDataType ftpDataType = FtpDataType.Binary, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken))
 		{
 
@@ -208,7 +208,7 @@ namespace FluentFTP
 #if DEBUG
 					if (!verified && attemptsLeft > 0)
 					{
-						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Append ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpRemoteExists.Append ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
 					}
 
 #endif
