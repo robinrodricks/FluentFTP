@@ -61,6 +61,7 @@ namespace FluentFTP {
 			return type;
 		}
 
+#if !ASYNC
 		private delegate FtpHashAlgorithm AsyncGetHashAlgorithm();
 
 		/// <summary>
@@ -93,21 +94,28 @@ namespace FluentFTP {
 		public FtpHashAlgorithm EndGetHashAlgorithm(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncGetHashAlgorithm>(ar).EndInvoke(ar);
 		}
+#endif
 
 #if ASYNC
 		/// <summary>
 		/// Gets the currently selected hash algorithm for the HASH command asynchronously.
 		/// </summary>
-		/// <remarks>
-		///  This feature is experimental. See this link for details:
-		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
-		/// </remarks>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>The <see cref="FtpHashAlgorithm"/> flag or <see cref="FtpHashAlgorithm.NONE"/> if there was a problem.</returns>
-		public async Task<FtpHashAlgorithm> GetHashAlgorithmAsync() {
-			//TODO:  Rewrite as true async method with cancellation support
-			return await Task.Factory.FromAsync<FtpHashAlgorithm>(
-				(ac, s) => BeginGetHashAlgorithm(ac, s),
-				ar => EndGetHashAlgorithm(ar), null);
+		public async Task<FtpHashAlgorithm> GetHashAlgorithmAsync(CancellationToken token = default(CancellationToken)) {
+			FtpReply reply;
+			var type = FtpHashAlgorithm.NONE;
+
+			if ((reply = await ExecuteAsync("OPTS HASH", token)).Success) {
+				try {
+					type = FtpHashAlgorithms.FromString(reply.Message);
+				}
+				catch (InvalidOperationException ex) {
+					// Do nothing
+				}
+			}
+
+			return type;
 		}
 #endif
 
@@ -149,6 +157,7 @@ namespace FluentFTP {
 #endif
 		}
 
+#if !ASYNC
 		private delegate void AsyncSetHashAlgorithm(FtpHashAlgorithm type);
 
 		/// <summary>
@@ -186,19 +195,29 @@ namespace FluentFTP {
 		public void EndSetHashAlgorithm(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncSetHashAlgorithm>(ar).EndInvoke(ar);
 		}
+#endif
 
 #if ASYNC
 		/// <summary>
 		/// Sets the hash algorithm on the server to be used with the HASH command asynchronously.
 		/// </summary>
 		/// <param name="type">Hash algorithm to use</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <exception cref="System.NotImplementedException">Thrown if the selected algorithm is not available on the server</exception>
-		public async Task SetHashAlgorithmAsync(FtpHashAlgorithm type) {
-			//TODO:  Rewrite as true async method with cancellation support
-			await Task.Factory.FromAsync<FtpHashAlgorithm>(
-				(t, ac, s) => BeginSetHashAlgorithm(t, ac, s),
-				ar => EndSetHashAlgorithm(ar),
-				type, null);
+		public async Task SetHashAlgorithmAsync(FtpHashAlgorithm type, CancellationToken token = default(CancellationToken)) {
+			FtpReply reply;
+			string algorithm;
+
+			if ((HashAlgorithms & type) != type) {
+				throw new NotImplementedException("The hash algorithm " + type.ToString() + " was not advertised by the server.");
+			}
+
+			algorithm = FtpHashAlgorithms.ToString(type);
+
+			if (!(reply = await ExecuteAsync("OPTS HASH " + algorithm, token)).Success) {
+				throw new FtpCommandException(reply);
+			}
+
 		}
 #endif
 
@@ -247,6 +266,17 @@ namespace FluentFTP {
 			}
 #endif
 
+			// parse hash from the server reply
+			m = ParseHashValue(reply, hash);
+
+			return hash;
+		}
+
+		/// <summary>
+		/// Parses the recieved hash value into the FtpHash object
+		/// </summary>
+		private Match ParseHashValue(FtpReply reply, FtpHash hash) {
+			Match m;
 			// Current draft says the server should return this:
 			// SHA-256 0-49 169cd22282da7f147cb491e559e9dd filename.ext
 			if (!(m = Regex.Match(reply.Message,
@@ -267,7 +297,7 @@ namespace FluentFTP {
 				LogStatus(FtpTraceLevel.Warn, "Failed to parse hash from: " + reply.Message);
 			}
 
-			return hash;
+			return m;
 		}
 
 #if !ASYNC
@@ -332,7 +362,7 @@ namespace FluentFTP {
 		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
 		/// </remarks>
 		/// <param name="path">The file you want the server to compute the hash for</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <exception cref="FtpCommandException">
 		/// Thrown if the <see cref="HashAlgorithms"/> property is <see cref="FtpHashAlgorithm.NONE"/>, 
 		/// the remote path does not exist, or the command cannot be executed.
@@ -353,33 +383,16 @@ namespace FluentFTP {
 				throw new FtpCommandException(reply);
 			}
 
-			// Current draft says the server should return this:
-			// SHA-256 0-49 169cd22282da7f147cb491e559e9dd filename.ext
-			if (!(m = Regex.Match(reply.Message,
-				@"(?<algorithm>.+)\s" +
-				@"(?<bytestart>\d+)-(?<byteend>\d+)\s" +
-				@"(?<hash>.+)\s" +
-				@"(?<filename>.+)")).Success) {
-				// Current version of FileZilla returns this:
-				// SHA-1 21c2ca15cf570582949eb59fb78038b9c27ffcaf 
-				m = Regex.Match(reply.Message, @"(?<algorithm>.+)\s(?<hash>.+)\s");
-			}
-
-			if (m != null && m.Success) {
-				hash.Algorithm = FtpHashAlgorithms.FromString(m.Groups["algorithm"].Value);
-				hash.Value = m.Groups["hash"].Value;
-			}
-			else {
-				LogStatus(FtpTraceLevel.Warn, "Failed to parse hash from: " + reply.Message);
-			}
+			// parse hash from the server reply
+			m = ParseHashValue(reply, hash);
 
 			return hash;
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region File Checksum
+#region File Checksum
 
 		/// <summary>
 		/// Retrieves a checksum of the given file using a checksum method that the server supports, if any. 
@@ -508,7 +521,7 @@ namespace FluentFTP {
 		/// 6. XCRC command
 		/// </remarks>
 		/// <param name="path">Full or relative path of the file to checksum</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns><see cref="FtpHash"/> object containing the value and algorithm. Use the <see cref="FtpHash.IsValid"/> property to
 		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
 		/// the underlying calls.</returns>
@@ -556,9 +569,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region MD5
+#region MD5
 
 		/// <summary>
 		/// Gets the MD5 hash of the specified file using MD5. This is a non-standard extension
@@ -641,7 +654,7 @@ namespace FluentFTP {
 		/// thrown if the command fails.
 		/// </summary>
 		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>Server response, presumably the MD5 hash.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
 		public async Task<string> GetMD5Async(string path, CancellationToken token = default(CancellationToken)) {
@@ -662,9 +675,9 @@ namespace FluentFTP {
 
 #endif
 
-		#endregion
+#endregion
 
-		#region XCRC
+#region XCRC
 
 		/// <summary>
 		/// Get the CRC value of the specified file. This is a non-standard extension of the protocol 
@@ -734,7 +747,7 @@ namespace FluentFTP {
 		/// thrown if the command fails.
 		/// </summary>
 		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>Server response, presumably the CRC hash.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
 		public async Task<string> GetXCRCAsync(string path, CancellationToken token = default(CancellationToken)) {
@@ -754,9 +767,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region XMD5
+#region XMD5
 
 		/// <summary>
 		/// Gets the MD5 hash of the specified file using XMD5. This is a non-standard extension
@@ -827,7 +840,7 @@ namespace FluentFTP {
 		/// thrown if the command fails.
 		/// </summary>
 		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>Server response, presumably the MD5 hash.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
 		public async Task<string> GetXMD5Async(string path, CancellationToken token = default(CancellationToken)) {
@@ -841,9 +854,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region XSHA1
+#region XSHA1
 
 		/// <summary>
 		/// Gets the SHA-1 hash of the specified file using XSHA1. This is a non-standard extension
@@ -914,7 +927,7 @@ namespace FluentFTP {
 		/// thrown if the command fails.
 		/// </summary>
 		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>Server response, presumably the SHA-1 hash.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
 		public async Task<string> GetXSHA1Async(string path, CancellationToken token = default(CancellationToken)) {
@@ -928,9 +941,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region XSHA256
+#region XSHA256
 
 		/// <summary>
 		/// Gets the SHA-256 hash of the specified file using XSHA256. This is a non-standard extension
@@ -1001,7 +1014,7 @@ namespace FluentFTP {
 		/// thrown if the command fails.
 		/// </summary>
 		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>Server response, presumably the SHA-256 hash.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
 		public async Task<string> GetXSHA256Async(string path, CancellationToken token = default(CancellationToken)) {
@@ -1015,9 +1028,9 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
-		#region XSHA512
+#region XSHA512
 
 		/// <summary>
 		/// Gets the SHA-512 hash of the specified file using XSHA512. This is a non-standard extension
@@ -1088,7 +1101,7 @@ namespace FluentFTP {
 		/// thrown if the command fails.
 		/// </summary>
 		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>Server response, presumably the SHA-512 hash.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
 		public async Task<string> GetXSHA512Async(string path, CancellationToken token = default(CancellationToken)) {
@@ -1103,6 +1116,6 @@ namespace FluentFTP {
 
 #endif
 
-		#endregion
+#endregion
 	}
 }
