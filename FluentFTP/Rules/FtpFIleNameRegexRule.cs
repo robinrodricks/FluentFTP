@@ -10,7 +10,7 @@ namespace FluentFTP.Rules {
 	/// <summary>
 	/// Only accept files that have the given name, or exclude files of a given name.
 	/// </summary>
-	public class FtpRegexRule : FtpRule {
+	public class FtpFIleNameRegexRule : FtpRule {
 
 		/// <summary>
 		/// If true, only items where one of the supplied regex pattern matches are download. If false, items where one of the supplied regex pattern matches are excluded.
@@ -27,7 +27,7 @@ namespace FluentFTP.Rules {
 		/// </summary>
 		/// <param name="whitelist">If true, only items where one of the supplied regex pattern matches are download. If false, items where one of the supplied regex pattern matches are excluded.</param>
 		/// <param name="regexPatterns">The list of regex pattern to match</param>
-		public FtpRegexRule(bool whitelist, IList<string> regexPatterns) {
+		public FtpFIleNameRegexRule(bool whitelist, IList<string> regexPatterns) {
 			this.Whitelist = whitelist;
 			this.RegexPatterns = regexPatterns.Where(x => x.IsValidRegEx()).ToList();
 		}
