@@ -727,7 +727,7 @@ namespace FluentFTP {
 
 				// send progress reports
 				if (progress != null) {
-					progress(new FtpProgress(100.0, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
+					progress(new FtpProgress(100.0, offset, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
 				}
 
 				// disconnect FTP stream before exiting
@@ -903,7 +903,7 @@ namespace FluentFTP {
 
 				// send progress reports
 				if (progress != null) {
-					progress.Report(new FtpProgress(100.0, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
+					progress.Report(new FtpProgress(100.0, offset, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
 				}
 
 				// disconnect FTP stream before exiting
