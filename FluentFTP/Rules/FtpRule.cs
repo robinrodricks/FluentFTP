@@ -8,7 +8,7 @@ namespace FluentFTP.Rules {
 	/// You only need to provide an implementation for IsAllowed, and add any custom arguments that you require.
 	/// </summary>
 	public class FtpRule {
-		
+
 		public FtpRule() {
 		}
 

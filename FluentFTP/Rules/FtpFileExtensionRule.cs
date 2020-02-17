@@ -12,7 +12,7 @@ namespace FluentFTP.Rules {
 	public class FtpFileExtensionRule : FtpRule {
 
 		/// <summary>
-		/// If true, only files of the given extension are downloaded. If false, files of the given extension are excluded.
+		/// If true, only files of the given extension are uploaded or downloaded. If false, files of the given extension are excluded.
 		/// </summary>
 		public bool Whitelist;
 
@@ -24,7 +24,7 @@ namespace FluentFTP.Rules {
 		/// <summary>
 		/// Only accept files that have the given extension, or exclude files of a given extension.
 		/// </summary>
-		/// <param name="whitelist">If true, only files of the given extension are downloaded. If false, files of the given extension are excluded.</param>
+		/// <param name="whitelist">If true, only files of the given extension are uploaded or downloaded. If false, files of the given extension are excluded.</param>
 		/// <param name="exts">The extensions to match</param>
 		public FtpFileExtensionRule(bool whitelist, IList<string> exts) {
 			this.Whitelist = whitelist;

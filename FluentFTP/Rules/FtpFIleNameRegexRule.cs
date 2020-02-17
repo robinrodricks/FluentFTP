@@ -8,12 +8,13 @@ using FluentFTP.Helpers;
 namespace FluentFTP.Rules {
 
 	/// <summary>
-	/// Only accept files that have the given name, or exclude files of a given name.
+	/// Only accept files whose names match the given regular expression, or exclude files that match.
 	/// </summary>
-	public class FtpFIleNameRegexRule : FtpRule {
+	public class FtpFileNameRegexRule : FtpRule {
 
 		/// <summary>
-		/// If true, only items where one of the supplied regex pattern matches are download. If false, items where one of the supplied regex pattern matches are excluded.
+		/// If true, only items where one of the supplied regex pattern matches are uploaded or downloaded.
+		/// If false, items where one of the supplied regex pattern matches are excluded.
 		/// </summary>
 		public bool Whitelist;
 
@@ -23,11 +24,11 @@ namespace FluentFTP.Rules {
 		public IList<string> RegexPatterns;
 
 		/// <summary>
-		/// Only accept items that one of the supplied regex pattern.
+		/// Only accept items that match one of the supplied regex patterns.
 		/// </summary>
-		/// <param name="whitelist">If true, only items where one of the supplied regex pattern matches are download. If false, items where one of the supplied regex pattern matches are excluded.</param>
-		/// <param name="regexPatterns">The list of regex pattern to match</param>
-		public FtpFIleNameRegexRule(bool whitelist, IList<string> regexPatterns) {
+		/// <param name="whitelist">If true, only items where one of the supplied regex pattern matches are uploaded or downloaded. If false, items where one of the supplied regex pattern matches are excluded.</param>
+		/// <param name="regexPatterns">The list of regex patterns to match. Only valid patterns are accepted and stored. If none of the patterns are valid, this rule is disabled and passes all objects.</param>
+		public FtpFileNameRegexRule(bool whitelist, IList<string> regexPatterns) {
 			this.Whitelist = whitelist;
 			this.RegexPatterns = regexPatterns.Where(x => x.IsValidRegEx()).ToList();
 		}
@@ -37,15 +38,24 @@ namespace FluentFTP.Rules {
 		/// </summary>
 		public override bool IsAllowed(FtpListItem item) {
 
-			var fileName = item.Name;
-
-			if (Whitelist)
-			{
-				return RegexPatterns.Any(x => Regex.IsMatch(fileName, x));
+			// if no valid regex patterns, accept all objects
+			if (RegexPatterns.Count == 0) {
+				return true;
 			}
-			else
-			{
-				return !RegexPatterns.Any(x => Regex.IsMatch(fileName, x));
+
+			// only check files
+			if (item.Type == FtpFileSystemObjectType.File) {
+				var fileName = item.Name;
+
+				if (Whitelist) {
+					return RegexPatterns.Any(x => Regex.IsMatch(fileName, x));
+				}
+				else {
+					return !RegexPatterns.Any(x => Regex.IsMatch(fileName, x));
+				}
+			}
+			else {
+				return true;
 			}
 		}
 

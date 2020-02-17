@@ -12,7 +12,7 @@ namespace FluentFTP {
 	/// <example><code source="..\Examples\CustomParser.cs" lang="cs" /></example>
 	public class FtpListItem {
 		/// <summary>
-		/// Blank constructor; Fill args manually.
+		/// Blank constructor, you will need to fill arguments manually.
 		/// 
 		/// NOTE TO USER : You should not need to construct this class manually except in advanced cases. Typically constructed by GetListing().
 		/// </summary>
@@ -20,7 +20,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Constructor with mandatory args filled.
+		/// Constructor with mandatory arguments filled.
 		/// 
 		/// NOTE TO USER : You should not need to construct this class manually except in advanced cases. Typically constructed by GetListing().
 		/// </summary>
@@ -43,14 +43,14 @@ namespace FluentFTP {
 		public FtpFileSystemObjectSubType SubType;
 
 		/// <summary>
-		/// Gets the full path name to the object.
+		/// Gets the full path name to the file or folder.
 		/// </summary>
 		public string FullName;
 
 		private string m_name = null;
 
 		/// <summary>
-		/// Gets the name of the object.
+		/// Gets the name of the file or folder. Does not include the full path.
 		/// </summary>
 		public string Name {
 			get {
