@@ -8,7 +8,7 @@ using FluentFTP.Helpers;
 namespace FluentFTP.Rules {
 
 	/// <summary>
-	/// Only accept files whose names match the given regular expression, or exclude files that match.
+	/// Only accept files whose names match the given regular expression(s), or exclude files that match.
 	/// </summary>
 	public class FtpFileNameRegexRule : FtpRule {
 
@@ -21,7 +21,7 @@ namespace FluentFTP.Rules {
 		/// <summary>
 		/// The files names to match
 		/// </summary>
-		public IList<string> RegexPatterns;
+		public List<string> RegexPatterns;
 
 		/// <summary>
 		/// Only accept items that match one of the supplied regex patterns.

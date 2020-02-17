@@ -8,8 +8,7 @@ using FluentFTP.Helpers;
 namespace FluentFTP.Rules {
 
 	/// <summary>
-	/// Only accept folders whose names match the given regular expression, or exclude files that match.
-	/// This rule does not check the folder paths of file objects. Only folders are checked.
+	/// Only accept folders whose names match the given regular expression(s), or exclude folders that match.
 	/// </summary>
 	public class FtpFolderRegexRule : FtpRule {
 
@@ -22,7 +21,7 @@ namespace FluentFTP.Rules {
 		/// <summary>
 		/// The files names to match
 		/// </summary>
-		public IList<string> RegexPatterns;
+		public List<string> RegexPatterns;
 
 		/// <summary>
 		/// Only accept items that one of the supplied regex pattern.
@@ -44,18 +43,41 @@ namespace FluentFTP.Rules {
 				return true;
 			}
 
-			// only check folders
-			if (item.Type == FtpFileSystemObjectType.Directory) {
-				var folderName = item.Name;
-
-				if (Whitelist) {
-					return RegexPatterns.Any(x => Regex.IsMatch(folderName, x));
-				}
-				else {
-					return !RegexPatterns.Any(x => Regex.IsMatch(folderName, x));
-				}
+			// get the folder name of this item
+			string[] dirNameParts = null;
+			if (item.Type == FtpFileSystemObjectType.File) {
+				dirNameParts = item.FullName.GetFtpDirectoryName().Split('/');
+			}
+			else if (item.Type == FtpFileSystemObjectType.Directory) {
+				dirNameParts = item.FullName.Split('/');
 			}
 			else {
+				return true;
+			}
+
+			// check against whitelist or blacklist
+			if (Whitelist) {
+
+				// whitelist
+				foreach (var dirName in dirNameParts) {
+					foreach (var pattern in RegexPatterns) {
+						if (Regex.IsMatch(dirName.Trim(), pattern)) {
+							return true;
+						}
+					}
+				}
+				return false;
+			}
+			else {
+
+				// blacklist
+				foreach (var dirName in dirNameParts) {
+					foreach (var pattern in RegexPatterns) {
+						if (Regex.IsMatch(dirName.Trim(), pattern)) {
+							return false;
+						}
+					}
+				}
 				return true;
 			}
 
