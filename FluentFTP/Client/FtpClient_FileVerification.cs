@@ -118,15 +118,18 @@ namespace FluentFTP {
 
 			// catch any divide-by-zero errors
 			try {
-				// calculate % based on file length vs file offset
-				// send a value between 0-100 indicating percentage complete
-				progressValue = (double)position / (double)fileSize * 100;
-
 				// calculate raw transferSpeed (bytes per second)
 				transferSpeed = bytesProcessed / elapsedtime.TotalSeconds;
-
-				//calculate remaining time			
-				estimatedRemaingTime = TimeSpan.FromSeconds((fileSize - position) / transferSpeed);
+    			
+    			// If fileSize < 0 the below computations make no sense 
+                if(fileSize > 0)
+				{
+				    // calculate % based on file length vs file offset
+				    // send a value between 0-100 indicating percentage complete
+				    progressValue = (double)position / (double)fileSize * 100;
+				    //calculate remaining time			
+				    estimatedRemaingTime = TimeSpan.FromSeconds((fileSize - position) / transferSpeed);
+				}
 			}
 			catch (Exception) {
 			}
