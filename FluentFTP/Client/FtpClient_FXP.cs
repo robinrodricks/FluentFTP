@@ -88,7 +88,7 @@ namespace FluentFTP
 				throw new FtpCommandException(reply);
 			}
 
-			return new FtpFxpSession() { sourceFtpClient = sourceClient, destinationFtpClient = destinationClient };
+			return new FtpFxpSession { sourceFtpClient = sourceClient, destinationFtpClient = destinationClient };
 		}
 
 		public bool FXPFileCopyInternal(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
@@ -417,7 +417,7 @@ namespace FluentFTP
 				var remoteFile = remoteFolder + relativePath;
 
 				// create the result object
-				var result = new FtpResult()
+				var result = new FtpResult
 				{
 					Type = FtpFileSystemObjectType.Directory,
 					Size = 0,
@@ -496,7 +496,7 @@ namespace FluentFTP
 				}
 
 				// record that this file should exist
-				shouldExist.Add(remoteFile.ToLower(), true);
+				shouldExist.Add(remoteFile.ToLowerInvariant(), true);
 
 				// absorb errors
 				filesToTransfer.Add(result);

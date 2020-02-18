@@ -22,46 +22,27 @@ namespace FluentFTP
 			set => m_destinationFtpClient = value;
 		}
 
-		private bool m_isDisposed = false;
+        /// <summary>
+        /// Gets a value indicating if this object has already been disposed.
+        /// </summary>
+        public bool IsDisposed { get; private set; }
 
-		/// <summary>
-		/// Gets a value indicating if this object has already been disposed.
-		/// </summary>
-		public bool IsDisposed
-		{
-			get => m_isDisposed;
-			private set => m_isDisposed = value;
-		}
-
-		public void Dispose()
+        public void Dispose()
 		{
 			if (IsDisposed)
 			{
 				return;
 			}
 
-			try
+			if (sourceFtpClient.IsConnected)
 			{
-				if (sourceFtpClient.IsConnected)
-				{
-					sourceFtpClient.Disconnect();
-				}
-			}
-			catch (Exception ex)
-			{
+				sourceFtpClient.Disconnect();
 			}
 
-			try
+			if (destinationFtpClient.IsConnected)
 			{
-				if (destinationFtpClient.IsConnected)
-				{
-					destinationFtpClient.Disconnect();
-				}
+				destinationFtpClient.Disconnect();
 			}
-			catch (Exception ex)
-			{
-			}
-
 
 			IsDisposed = true;
 			GC.SuppressFinalize(this);
