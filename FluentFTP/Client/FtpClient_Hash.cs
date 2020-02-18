@@ -381,9 +381,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region File Checksum
+		#region File Checksum
 
 		/// <summary>
 		/// Retrieves a checksum of the given file using a checksum method that the server supports, if any. 
@@ -533,8 +533,7 @@ namespace FluentFTP {
 					res.Value = await GetXMD5Async(path, token);
 					res.Algorithm = FtpHashAlgorithm.MD5;
 				}
-				else if (HasFeature(FtpCapability.MMD5))
-				{
+				else if (HasFeature(FtpCapability.MMD5)) {
 					res.Value = await GetMD5Async(path, token);
 					res.Algorithm = FtpHashAlgorithm.MD5;
 				}
@@ -560,9 +559,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region MD5
+		#region MD5
 
 		/// <summary>
 		/// Gets the MD5 hash of the specified file using MD5. This is a non-standard extension
@@ -666,9 +665,9 @@ namespace FluentFTP {
 
 #endif
 
-#endregion
+		#endregion
 
-#region XCRC
+		#region XCRC
 
 		/// <summary>
 		/// Get the CRC value of the specified file. This is a non-standard extension of the protocol 
@@ -758,9 +757,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region XMD5
+		#region XMD5
 
 		/// <summary>
 		/// Gets the MD5 hash of the specified file using XMD5. This is a non-standard extension
@@ -845,9 +844,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region XSHA1
+		#region XSHA1
 
 		/// <summary>
 		/// Gets the SHA-1 hash of the specified file using XSHA1. This is a non-standard extension
@@ -932,9 +931,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region XSHA256
+		#region XSHA256
 
 		/// <summary>
 		/// Gets the SHA-256 hash of the specified file using XSHA256. This is a non-standard extension
@@ -1019,9 +1018,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region XSHA512
+		#region XSHA512
 
 		/// <summary>
 		/// Gets the SHA-512 hash of the specified file using XSHA512. This is a non-standard extension
@@ -1107,6 +1106,6 @@ namespace FluentFTP {
 
 #endif
 
-#endregion
+		#endregion
 	}
 }
