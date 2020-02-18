@@ -465,7 +465,7 @@ namespace FluentFTP
 				var remoteFile = remoteFolder + relativePath;
 
 				// create the result object
-				var result = new FtpResult()
+				var result = new FtpResult
 				{
 					Type = FtpFileSystemObjectType.File,
 					Size = GetFileSize(sourceFile),
