@@ -212,9 +212,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region Get Listing
+		#region Get Listing
 
 		/// <summary>
 		/// Gets a file listing from the server from the current working directory. Each <see cref="FtpListItem"/> object returned
@@ -890,9 +890,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region Get Listing Recursive
+		#region Get Listing Recursive
 
 		/// <summary>
 		/// Recursive method of GetListing, to recurse through directories on servers that do not natively support recursion.
@@ -990,9 +990,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region Get Name Listing
+		#region Get Name Listing
 
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command.
@@ -1163,6 +1163,6 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 	}
 }
