@@ -945,7 +945,7 @@ FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = Ftp
 			var dirListing = (await GetListingAsync(sourceFolder, FtpListOption.Recursive,token)).Where(x => x.Type == FtpFileSystemObjectType.Directory).Select(x => x.FullName).ToArray();
 
 			// get all the already existing files
-			var remoteListing = checkFileExistence ? remoteClient.GetListing(remoteFolder, FtpListOption.Recursive) : null;
+			var remoteListing = checkFileExistence ? await remoteClient.GetListingAsync(remoteFolder, FtpListOption.Recursive,token) : null;
 
 			// loop thru each folder and ensure it exists
 			var dirsToUpload =  GetSubDirectoriesToTransfer(sourceFolder, remoteFolder, rules, results, dirListing);
