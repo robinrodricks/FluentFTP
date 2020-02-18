@@ -417,7 +417,7 @@ namespace FluentFTP {
 		/// Bypass the stream and read directly off the socket.
 		/// </summary>
 		/// <param name="buffer">The buffer to read into</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>The number of bytes read</returns>
 		internal async Task<int> RawSocketReadAsync(byte[] buffer, CancellationToken token) {
 			var read = 0;
@@ -911,7 +911,7 @@ namespace FluentFTP {
 		/// <param name="host">The host to connect to</param>
 		/// <param name="port">The port to connect to</param>
 		/// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public async Task ConnectAsync(string host, int port, FtpIpVersion ipVersions, CancellationToken token) {
 			IPAddress[] addresses = await Dns.GetHostAddressesAsync(host);
 

@@ -6,6 +6,12 @@ Imports FluentFTP
 
 Namespace Examples
 	Friend Module GetHashExample
+
+		'-----------------------------------------------------------------------------------------
+		' NOTE! GetChecksum automatically uses the first available hash algorithm on the server,
+		'		And it should be used as far as possible instead of GetHash, GetMD5, GetSHA256...
+		'-----------------------------------------------------------------------------------------
+
 		Sub GetHash()
 			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
 				conn.Connect()

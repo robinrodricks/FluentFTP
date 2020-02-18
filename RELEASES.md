@@ -1,8 +1,16 @@
 # Release Notes
 
+#### 31.2.0
+  - New: Predefined rules for filtering on file name using regular expressions (thanks [n0ix](/n0ix))
+  - New: Predefined rules for filtering on folder name using regular expressions (thanks [n0ix](/n0ix))
+  - Fix: Don't calculate ETA and percentage of `FtpProgress` if file size is zero (thanks [Adhara3](/Adhara3))
+  - Fix: `GetFilePermissions` should use `GetObjectInfo` instead of `GetListing` to prevent incorrect filepaths
+
 #### 31.1.0
   - New: Support for MMD5 file hashing command to validate downloaded/uploaded files. (thanks [n0ix](/n0ix))
   - Change: Disable all `Begin*` and `End*` methods for .NET 4.5 and onwards as `async`/`await` is supported.
+  - Improve: `GetHashAlgorithmAsync` and `SetHashAlgorithmAsync` implemented as true async methods with cancellation support
+  - Improve: `GetObjectInfoAsync` implemented as true async methods with cancellation support
 
 #### 31.0.0
   - New: Download and upload file methods indicate if file was transferred, skipped or failed to transfer
