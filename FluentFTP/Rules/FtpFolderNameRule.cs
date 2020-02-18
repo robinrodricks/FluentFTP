@@ -18,7 +18,8 @@ namespace FluentFTP.Rules {
 		};
 
 		/// <summary>
-		/// If true, only folders of the given name are downloaded. If false, folders of the given name are excluded.
+		/// If true, only folders of the given name are uploaded or downloaded.
+		/// If false, folders of the given name are excluded.
 		/// </summary>
 		public bool Whitelist;
 

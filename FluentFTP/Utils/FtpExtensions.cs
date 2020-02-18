@@ -861,5 +861,32 @@ namespace FluentFTP {
 			return status == FtpStatus.Failed;
 		}
 
+		/// <summary>
+		/// Checks if RexEx Pattern is valid
+		/// </summary>
+		public static bool IsValidRegEx(this string pattern)
+		{
+			bool isValid = true;
+
+			if ((pattern != null) && (pattern.Trim().Length > 0))
+			{
+				try
+				{
+					Regex.Match("", pattern);
+				}
+				catch (ArgumentException)
+				{
+					// BAD PATTERN: Syntax error
+					isValid = false;
+				}
+			}
+			else
+			{
+				//BAD PATTERN: Pattern is null or blank
+				isValid = false;
+			}
+
+			return (isValid);
+		}
 	}
 }

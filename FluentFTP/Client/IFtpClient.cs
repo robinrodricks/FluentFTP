@@ -152,7 +152,7 @@ namespace FluentFTP {
 		string[] GetNameListing(string path);
 
 #if ASYNC
-		Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false);
+		Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false, CancellationToken token = default(CancellationToken));
 		Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken));
 		Task<FtpListItem[]> GetListingAsync(string path, CancellationToken token = default(CancellationToken));
 		Task<FtpListItem[]> GetListingAsync(CancellationToken token = default(CancellationToken));
@@ -240,8 +240,8 @@ namespace FluentFTP {
 		string GetXSHA512(string path);
 
 #if ASYNC
-		Task<FtpHashAlgorithm> GetHashAlgorithmAsync();
-		Task SetHashAlgorithmAsync(FtpHashAlgorithm type);
+		Task<FtpHashAlgorithm> GetHashAlgorithmAsync(CancellationToken token = default(CancellationToken));
+		Task SetHashAlgorithmAsync(FtpHashAlgorithm type, CancellationToken token = default(CancellationToken));
 		Task<FtpHash> GetHashAsync(string path, CancellationToken token = default(CancellationToken));
 		Task<FtpHash> GetChecksumAsync(string path, CancellationToken token = default(CancellationToken));
 		Task<string> GetMD5Async(string path, CancellationToken token = default(CancellationToken));

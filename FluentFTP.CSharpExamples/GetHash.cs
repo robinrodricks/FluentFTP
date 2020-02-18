@@ -7,6 +7,11 @@ using FluentFTP;
 namespace Examples {
 	internal static class GetHashExample {
 
+		//-----------------------------------------------------------------------------------------
+		// NOTE! GetChecksum automatically uses the first available hash algorithm on the server,
+		//		 and it should be used as far as possible instead of GetHash, GetMD5, GetSHA256...
+		//-----------------------------------------------------------------------------------------
+
 		public static void GetHash() {
 			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				conn.Connect();

@@ -357,7 +357,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it dosen't exists</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress.</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
@@ -541,7 +541,7 @@ namespace FluentFTP {
 		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
-		/// <param name="token">The token to monitor cancellation requests</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
 		public async Task<bool> DownloadAsync(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
@@ -567,7 +567,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
-		/// <param name="token">The token to monitor cancellation requests</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress.</param>
 		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
 		public async Task<byte[]> DownloadAsync(string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
@@ -591,7 +591,7 @@ namespace FluentFTP {
 		/// Supports very large files since it downloads data in chunks.
 		/// </summary>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="token">Cancellation Token</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
 		public async Task<byte[]> DownloadAsync(string remotePath, CancellationToken token = default(CancellationToken)) {
 			// download the file from the server

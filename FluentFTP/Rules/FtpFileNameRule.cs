@@ -11,7 +11,7 @@ namespace FluentFTP.Rules {
 	public class FtpFileNameRule : FtpRule {
 
 		/// <summary>
-		/// If true, only files of the given name are downloaded. If false, files of the given name are excluded.
+		/// If true, only files of the given name are uploaded or downloaded. If false, files of the given name are excluded.
 		/// </summary>
 		public bool Whitelist;
 

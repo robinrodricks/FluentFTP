@@ -71,7 +71,7 @@ namespace FluentFTP {
 				FileIndex = metaProgress.FileIndex;
 			}
 		}
-
+		
 		/// <summary>
 		/// Convert Transfer Speed (bytes per second) in human readable format
 		/// </summary>
@@ -86,5 +86,49 @@ namespace FluentFTP {
 				return string.Format("{0} MB/s", Math.Round(value, 2));
 			}
 		}
+
+
+		/// <summary>
+		/// Create a new FtpProgress object for a file transfer and calculate the ETA, Percentage and Transfer Speed.
+		/// </summary>
+		public static FtpProgress Generate(long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime, string localPath, string remotePath, FtpProgress metaProgress) {
+
+			// default values to send
+			double progressValue = -1;
+			double transferSpeed = 0;
+			var estimatedRemaingTime = TimeSpan.Zero;
+
+			// catch any divide-by-zero errors
+			try {
+
+				// calculate raw transferSpeed (bytes per second)
+				transferSpeed = bytesProcessed / elapsedtime.TotalSeconds;
+
+				// If fileSize < 0 the below computations make no sense 
+				if (fileSize > 0) {
+
+					// calculate % based on file length vs file offset
+					// send a value between 0-100 indicating percentage complete
+					progressValue = (double)position / (double)fileSize * 100;
+
+					//calculate remaining time			
+					estimatedRemaingTime = TimeSpan.FromSeconds((fileSize - position) / transferSpeed);
+				}
+			}
+			catch (Exception) {
+			}
+
+			// suppress invalid values and send -1 instead
+			if (double.IsNaN(progressValue) && double.IsInfinity(progressValue)) {
+				progressValue = -1;
+			}
+			if (double.IsNaN(transferSpeed) && double.IsInfinity(transferSpeed)) {
+				transferSpeed = 0;
+			}
+
+			var p = new FtpProgress(progressValue, transferSpeed, estimatedRemaingTime, localPath, remotePath, metaProgress);
+			return p;
+		}
+
 	}
 }

@@ -189,7 +189,7 @@ namespace FluentFTP {
 		private void ReportProgress(IProgress<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime, string localPath, string remotePath, FtpProgress metaProgress) {
 
 			//  calculate % done, transfer speed and time remaining
-			FtpProgress status = CalculateProgress(fileSize, position, bytesProcessed, elapsedtime, localPath, remotePath, metaProgress);
+			FtpProgress status = FtpProgress.Generate(fileSize, position, bytesProcessed, elapsedtime, localPath, remotePath, metaProgress);
 
 			// send progress to parent
 			progress.Report(status);
@@ -201,44 +201,10 @@ namespace FluentFTP {
 		private void ReportProgress(Action<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime, string localPath, string remotePath, FtpProgress metaProgress) {
 
 			//  calculate % done, transfer speed and time remaining
-			FtpProgress status = CalculateProgress(fileSize, position, bytesProcessed, elapsedtime, localPath, remotePath, metaProgress);
+			FtpProgress status = FtpProgress.Generate(fileSize, position, bytesProcessed, elapsedtime, localPath, remotePath, metaProgress);
 
 			// send progress to parent
 			progress(status);
-		}
-
-		private static FtpProgress CalculateProgress(long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime, string localPath, string remotePath, FtpProgress metaProgress) {
-			// default values to send
-			double progressValue = -1;
-			double transferSpeed = 0;
-			var estimatedRemaingTime = TimeSpan.Zero;
-
-			// catch any divide-by-zero errors
-			try {
-				// calculate % based on file length vs file offset
-				// send a value between 0-100 indicating percentage complete
-				progressValue = (double)position / (double)fileSize * 100;
-
-				// calculate raw transferSpeed (bytes per second)
-				transferSpeed = bytesProcessed / elapsedtime.TotalSeconds;
-
-				//calculate remaining time			
-				estimatedRemaingTime = TimeSpan.FromSeconds((fileSize - position) / transferSpeed);
-			}
-			catch (Exception) {
-			}
-
-			// suppress invalid values and send -1 instead
-			if (double.IsNaN(progressValue) && double.IsInfinity(progressValue)) {
-				progressValue = -1;
-			}
-
-			if (double.IsNaN(transferSpeed) && double.IsInfinity(transferSpeed)) {
-				transferSpeed = 0;
-			}
-
-			var p = new FtpProgress(progressValue, transferSpeed, estimatedRemaingTime, localPath, remotePath, metaProgress);
-			return p;
 		}
 
 		#endregion
