@@ -34,6 +34,11 @@ namespace FluentFTP
 	public partial class FtpClient : IDisposable
 	{
 
+		/// <summary>
+		/// Opens a FXP PASV connection between the source and the remote (aka destination) ftp server
+		/// </summary>
+		/// <param name="remoteClient">FtpClient instance of the remote / destination FTP Server</param>
+		/// <returns>A data stream ready to be used</returns>
 		private FtpFxpSession OpenPassiveFXPConnection(FtpClient remoteClient)
 		{
 			FtpReply reply;
@@ -91,6 +96,9 @@ namespace FluentFTP
 			return new FtpFxpSession { sourceFtpClient = sourceClient, destinationFtpClient = destinationClient };
 		}
 
+		/// <summary>
+		/// 'Copys' a file from the source FTP Server to the remote / destination FTP Server via the FXP protocol
+		/// </summary>
 		public bool FXPFileCopyInternal(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			Action<FtpProgress> progress, FtpProgress metaProgress)
 		{
@@ -259,6 +267,22 @@ namespace FluentFTP
 			}
 		}
 
+		/// <summary>
+		/// Transfer the specified file from the srouce FTP Server to the remote / destination FTP Server using the FXP protocol.
+		/// High-level API that takes care of various edge cases internally.
+		/// </summary>
+		/// <param name="sourcePath">The full or relative path to the file on the source FTP Server</param>
+		/// <param name="remotePath">The full or relative path to destination file on the remote FTP Server</param>
+		/// <param name="createRemoteDir">Indicates if the folder should be created on the remote FTP Server</param>
+		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="progress">Provide a callback to track download progress.</param>
+		/// Returns a FtpStatus indicating if the file was transfered.
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
+		/// </remarks>
 
 		public FtpStatus TransferFile(string sourcePath, FtpClient remoteClient, string remotePath,
 			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Append, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null, FtpProgress metaProgress = null)
@@ -338,6 +362,32 @@ namespace FluentFTP
 
 		}
 
+		/// <summary>
+		/// Transfer the specified directory from the source FTP Server onto the remote FTP Server using the FXP protocol.
+		/// In Mirror mode, we will transfer missing files, and delete any extra files from the remote server if not present on the soruce FTP Server. This is very useful when creating an exact local backup of an FTP directory.
+		/// In Update mode, we will only transfer missing files and preserve any extra files on the remote FTP Server. This is useful when you want to simply transfer missing files from an FTP directory.
+		/// Only transfer the files and folders matching all the rules provided, if any.
+		/// All exceptions during transfer are caught, and the exception is stored in the related FtpResult object.
+		/// </summary>
+		/// <param name="sourceFolder">The full or relative path to the folder on the source FTP Server. If it does not exist, an empty result list is returned.</param>
+		/// <param name="remoteClient">FtpClient instance of the remote / destination FTP Server</param>
+		/// <param name="remoteFolder">The full or relative path to destination folder on the remote FTP Server</param>
+		/// <param name="mode">Mirror or Update mode, as explained above</param>
+		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
+		/// <param name="progress">Provide a callback to track download progress.</param>
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
+		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+		/// to propagate from this method.
+		/// </remarks>
+		/// <returns>
+		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
+		/// Returns a blank list if nothing was transfered. Never returns null.
+		/// </returns>
 		public List<FtpResult> TransferDirectory(string sourceFolder, FtpClient remoteClient, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
 	FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null)
 		{
@@ -597,6 +647,11 @@ namespace FluentFTP
 
 #if ASYNC
 
+		/// <summary>
+		/// Opens a FXP PASV connection between the source and the remote (aka destination) ftp server asynchronously.
+		/// </summary>
+		/// <param name="remoteClient">FtpClient instance of the remote / destination FTP Server</param>
+		/// <returns>A data stream ready to be used</returns>
 		private async Task<FtpFxpSession> OpenPassiveFXPConnectionAsync(FtpClient remoteClient, CancellationToken token)
 		{
 			FtpReply reply;
@@ -654,6 +709,9 @@ namespace FluentFTP
 			return new FtpFxpSession() { sourceFtpClient = sourceClient, destinationFtpClient = destinationClient };
 		}
 
+		/// <summary>
+		/// 'Copys' a file from the source FTP Server to the remote / destination FTP Server via the FXP protocol asynchronously.
+		/// </summary>
 		private async Task<bool> FXPFileCopyInternalAsync(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress)
 		{
@@ -820,6 +878,24 @@ namespace FluentFTP
 
 		}
 
+		/// <summary>
+		/// Transfer the specified file from the srouce FTP Server to the remote / destination FTP Server asynchronously using the FXP protocol.
+		/// High-level API that takes care of various edge cases internally.
+		/// </summary>
+		/// <param name="sourcePath">The full or relative path to the file on the source FTP Server</param>
+		/// <param name="remoteClient">FtpClient instance of the remote / destination FTP Server</param>
+		/// <param name="remotePath">The full or relative path to destination file on the remote FTP Server</param>
+		/// <param name="createRemoteDir">Indicates if the folder should be created on the remote FTP Server</param>
+		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="progress">Provide a callback to track download progress.</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// Returns a FtpStatus indicating if the file was transfered.
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
+		/// </remarks>
 		public async Task<FtpStatus> TransferFileAsync(string sourcePath, FtpClient remoteClient, string remotePath,
 			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, FtpProgress metaProgress = null, CancellationToken token = default(CancellationToken))
 		{
@@ -897,7 +973,33 @@ namespace FluentFTP
 
 		}
 
-
+		/// <summary>
+		/// Transfer the specified directory from the source FTP Server onto the remote FTP Server asynchronously using the FXP protocol.
+		/// In Mirror mode, we will transfer missing files, and delete any extra files from the remote server if not present on the soruce FTP Server. This is very useful when creating an exact local backup of an FTP directory.
+		/// In Update mode, we will only transfer missing files and preserve any extra files on the remote FTP Server. This is useful when you want to simply transfer missing files from an FTP directory.
+		/// Only transfer the files and folders matching all the rules provided, if any.
+		/// All exceptions during transfer are caught, and the exception is stored in the related FtpResult object.
+		/// </summary>
+		/// <param name="sourceFolder">The full or relative path to the folder on the source FTP Server. If it does not exist, an empty result list is returned.</param>
+		/// <param name="remoteClient">FtpClient instance of the remote / destination FTP Server</param>
+		/// <param name="remoteFolder">The full or relative path to destination folder on the remote FTP Server</param>
+		/// <param name="mode">Mirror or Update mode, as explained above</param>
+		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
+		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
+		/// <param name="progress">Provide a callback to track download progress.</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <remarks>
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
+		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
+		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
+		/// to propagate from this method.
+		/// </remarks>
+		/// <returns>
+		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
+		/// Returns a blank list if nothing was transfered. Never returns null.
+		/// </returns>
 		public async Task<List<FtpResult>> TransferDirectoryAsync(string sourceFolder, FtpClient remoteClient, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
 FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken))
 		{
