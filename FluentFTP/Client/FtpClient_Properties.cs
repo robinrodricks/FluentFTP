@@ -798,7 +798,7 @@ namespace FluentFTP {
 		public FtpDataType m_FXPDataType = FtpDataType.Binary;
 
 		/// <summary>
-		/// Controls if the high-level API transfer (FXP) files in Binary or ASCII mode.
+		/// Controls if the FXP server-to-server file transfer API uses Binary or ASCII mode.
 		/// </summary>
 		public FtpDataType FXPDataType
 		{
