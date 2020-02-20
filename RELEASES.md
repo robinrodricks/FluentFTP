@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 31.3.1
+  - Fix: All exception classes now inherit from `FtpException`
+  - Improve: All exceptions are now serializable in .NET Framework
+
 #### 31.3.0
   - New: `TransferFile` and `TransferDirectory` methods to transfer files from server to server (thanks [n0ix](/n0ix))
   - New: FXP (File Transfer Protocol) implementation to support direct server-to-server transfers (thanks [n0ix](/n0ix))
