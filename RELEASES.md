@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 31.3.0
+  - New: `TransferFile` and `TransferDirectory` methods to transfer files from server to server (thanks [n0ix](/n0ix))
+  - New: FXP (File Transfer Protocol) implementation to support direct server-to-server transfers (thanks [n0ix](/n0ix))
+
 #### 31.2.0
   - New: Predefined rules for filtering on file name using regular expressions (thanks [n0ix](/n0ix))
   - New: Predefined rules for filtering on folder name using regular expressions (thanks [n0ix](/n0ix))
