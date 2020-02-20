@@ -888,5 +888,6 @@ namespace FluentFTP {
 
 			return (isValid);
 		}
+
 	}
 }

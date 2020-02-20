@@ -202,20 +202,9 @@ namespace FluentFTP {
 					// record the file
 					results.Add(result);
 
-					// if the file passes all rules
-					if (rules != null && rules.Count > 0) {
-						var passes = FtpRule.IsAllAllowed(rules, remoteFile);
-						if (!passes) {
-
-							LogStatus(FtpTraceLevel.Info, "Skipped file due to rule: " + result.RemotePath);
-
-							// mark that the file was skipped due to a rule
-							result.IsSkipped = true;
-							result.IsSkippedByRule = true;
-
-							// skip downloading the file
-							continue;
-						}
+					// skip downloading the file if it does not pass all the rules
+					if (!FilePassesRules(result, rules, false, remoteFile)) {
+						continue;
 					}
 
 					// record that this file/folder should exist

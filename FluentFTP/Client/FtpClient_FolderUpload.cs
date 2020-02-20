@@ -229,18 +229,9 @@ namespace FluentFTP {
 				// record the folder
 				results.Add(result);
 
-				// if the folder passes all rules
-				if (rules != null && rules.Count > 0) {
-					var passes = FtpRule.IsAllAllowed(rules, result.ToListItem(true));
-					if (!passes) {
-
-						// mark that the file was skipped due to a rule
-						result.IsSkipped = true;
-						result.IsSkippedByRule = true;
-
-						// skip uploading the file
-						continue;
-					}
+				// skip uploading the file if it does not pass all the rules
+				if (!FilePassesRules(result, rules, true)) {
+					continue;
 				}
 				
 				dirsToUpload.Add(result);
@@ -334,22 +325,11 @@ namespace FluentFTP {
 				// record the file
 				results.Add(result);
 
-				// if the file passes all rules
-				if (rules != null && rules.Count > 0) {
-					var passes = FtpRule.IsAllAllowed(rules, result.ToListItem(true));
-					if (!passes) {
-
-						LogStatus(FtpTraceLevel.Info, "Skipped file due to rule: " + result.LocalPath);
-
-						// mark that the file was skipped due to a rule
-						result.IsSkipped = true;
-						result.IsSkippedByRule = true;
-
-						// skip uploading the file
-						continue;
-					}
+				// skip uploading the file if it does not pass all the rules
+				if (!FilePassesRules(result, rules, true)) {
+					continue;
 				}
-
+				
 				// record that this file should exist
 				shouldExist.Add(remoteFile.ToLower(), true);
 

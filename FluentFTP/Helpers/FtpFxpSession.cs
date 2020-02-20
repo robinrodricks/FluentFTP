@@ -6,21 +6,15 @@ namespace FluentFTP
 {
 	public class FtpFxpSession: IDisposable
 	{
-		private FtpClient m_sourceFtpClient;
+		/// <summary>
+		/// A connection to the server where the file or folder is currently stored
+		/// </summary>
+		public FtpClient SourceClient;
 
-		public FtpClient sourceFtpClient
-		{
-			get => m_sourceFtpClient;
-			set => m_sourceFtpClient = value;
-		}
-
-		private FtpClient m_destinationFtpClient;
-
-		public FtpClient destinationFtpClient
-		{
-			get => m_destinationFtpClient;
-			set => m_destinationFtpClient = value;
-		}
+		/// <summary>
+		/// A connection to the destination server where you want to create the file or folder
+		/// </summary>
+		public FtpClient TargetClient;
 
         /// <summary>
         /// Gets a value indicating if this object has already been disposed.
@@ -34,14 +28,14 @@ namespace FluentFTP
 				return;
 			}
 
-			if (sourceFtpClient.IsConnected)
+			if (SourceClient.IsConnected)
 			{
-				sourceFtpClient.Disconnect();
+				SourceClient.Disconnect();
 			}
 
-			if (destinationFtpClient.IsConnected)
+			if (TargetClient.IsConnected)
 			{
-				destinationFtpClient.Disconnect();
+				TargetClient.Disconnect();
 			}
 
 			IsDisposed = true;
