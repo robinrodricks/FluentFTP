@@ -14,10 +14,11 @@ namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
 
 		/// <summary>
-		/// Transfer the specified file from the srouce FTP Server to the destination FTP Server using the FXP protocol.
+		/// Transfer the specified file from the source FTP Server to the destination FTP Server using the FXP protocol.
 		/// High-level API that takes care of various edge cases internally.
 		/// </summary>
 		/// <param name="sourcePath">The full or relative path to the file on the source FTP Server</param>
+		/// <param name="remoteClient">Valid FTP connection to the destination FTP Server</param>
 		/// <param name="remotePath">The full or relative path to destination file on the remote FTP Server</param>
 		/// <param name="createRemoteDir">Indicates if the folder should be created on the remote FTP Server</param>
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
@@ -29,7 +30,6 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-
 		public FtpStatus TransferFile(string sourcePath, FtpClient remoteClient, string remotePath,
 			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Append, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null, FtpProgress metaProgress = null) {
 
@@ -100,11 +100,11 @@ namespace FluentFTP {
 
 #if ASYNC
 		/// <summary>
-		/// Transfer the specified file from the srouce FTP Server to the destination FTP Server asynchronously using the FXP protocol.
+		/// Transfer the specified file from the source FTP Server to the destination FTP Server asynchronously using the FXP protocol.
 		/// High-level API that takes care of various edge cases internally.
 		/// </summary>
 		/// <param name="sourcePath">The full or relative path to the file on the source FTP Server</param>
-		/// <param name="remoteClient">FtpClient instance of the destination FTP Server</param>
+		/// <param name="remoteClient">Valid FTP connection to the destination FTP Server</param>
 		/// <param name="remotePath">The full or relative path to destination file on the remote FTP Server</param>
 		/// <param name="createRemoteDir">Indicates if the folder should be created on the remote FTP Server</param>
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>

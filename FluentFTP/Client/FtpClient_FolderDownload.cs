@@ -2,16 +2,11 @@
 using System.IO;
 using System.Collections.Generic;
 using FluentFTP.Rules;
-#if !CORE
-using System.Web;
-#endif
 #if (CORE || NETFX)
 using System.Threading;
-
 #endif
 #if (CORE || NET45)
 using System.Threading.Tasks;
-
 #endif
 
 namespace FluentFTP {

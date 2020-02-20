@@ -1,28 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Globalization;
-using System.Security.Authentication;
-using System.Net;
-using FluentFTP.Proxy;
 using FluentFTP.Rules;
-#if !CORE
-using System.Web;
-#endif
 #if (CORE || NETFX)
 using System.Threading;
-
 #endif
 #if (CORE || NET45)
 using System.Threading.Tasks;
-
 #endif
 
 namespace FluentFTP {
@@ -99,7 +83,7 @@ namespace FluentFTP {
 
 			// loop thru each folder and ensure it exists
 			var dirsToUpload = GetSubDirectoriesToUpload(localFolder, remoteFolder, rules, results, dirListing);
-			UploadSubDirectories(dirsToUpload);
+			CreateSubDirectories(this, dirsToUpload);
 
 			// get all the files in the local directory
 			var fileListing = Directory.GetFiles(localFolder, "*.*", SearchOption.AllDirectories);
@@ -187,7 +171,7 @@ namespace FluentFTP {
 
 			// loop thru each folder and ensure it exists
 			var dirsToUpload = GetSubDirectoriesToUpload(localFolder, remoteFolder, rules, results, dirListing);
-			await UploadSubDirectoriesAsync(dirsToUpload, token);
+			await CreateSubDirectoriesAsync(this, dirsToUpload, token);
 
 			// get all the files in the local directory
 			var fileListing = Directory.GetFiles(localFolder, "*.*", SearchOption.AllDirectories);
@@ -243,7 +227,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Create all the sub directories within the main directory
 		/// </summary>
-		private void UploadSubDirectories(List<FtpResult> dirsToUpload) {
+		private void CreateSubDirectories(FtpClient client, List<FtpResult> dirsToUpload) {
 			foreach (var result in dirsToUpload) {
 
 				// absorb errors
@@ -251,7 +235,7 @@ namespace FluentFTP {
 
 					// create directory on the server
 					// to ensure we upload the blank remote dirs as well
-					if (CreateDirectory(result.RemotePath)) {
+					if (client.CreateDirectory(result.RemotePath)) {
 						result.IsSuccess = true;
 						result.IsSkipped = false;
 					}
@@ -273,7 +257,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Create all the sub directories within the main directory
 		/// </summary>
-		private async Task UploadSubDirectoriesAsync(List<FtpResult> dirsToUpload, CancellationToken token) {
+		private async Task CreateSubDirectoriesAsync(FtpClient client, List<FtpResult> dirsToUpload, CancellationToken token) {
 			foreach (var result in dirsToUpload) {
 
 				// absorb errors
@@ -281,7 +265,7 @@ namespace FluentFTP {
 
 					// create directory on the server
 					// to ensure we upload the blank remote dirs as well
-					if (await CreateDirectoryAsync(result.RemotePath, token)) {
+					if (await client.CreateDirectoryAsync(result.RemotePath, token)) {
 						result.IsSuccess = true;
 						result.IsSkipped = false;
 					}

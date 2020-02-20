@@ -28,7 +28,7 @@ namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
 
 		/// <summary>
-		/// Opens a FXP PASV connection between the source and the remote (aka destination) ftp server
+		/// Opens a FXP PASV connection between the source FTP Server and the destination FTP Server
 		/// </summary>
 		/// <param name="remoteClient">FtpClient instance of the destination FTP Server</param>
 		/// <returns>A data stream ready to be used</returns>
@@ -84,9 +84,9 @@ namespace FluentFTP {
 #if ASYNC
 
 		/// <summary>
-		/// Opens a FXP PASV connection between the source and the remote (aka destination) ftp server asynchronously.
+		/// Opens a FXP PASV connection between the source FTP Server and the destination FTP Server
 		/// </summary>
-		/// <param name="remoteClient">FtpClient instance of the destination FTP Server</param>
+		/// <param name="remoteClient">Valid FTP connection to the destination FTP Server</param>
 		/// <returns>A data stream ready to be used</returns>
 		private async Task<FtpFxpSession> OpenPassiveFXPConnectionAsync(FtpClient remoteClient, CancellationToken token) {
 			FtpReply reply;
