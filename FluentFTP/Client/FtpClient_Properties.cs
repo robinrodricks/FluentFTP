@@ -795,6 +795,17 @@ namespace FluentFTP {
 			set => m_DownloadDataType = value;
 		}
 
+		public FtpDataType m_FXPDataType = FtpDataType.Binary;
+
+		/// <summary>
+		/// Controls if the FXP server-to-server file transfer API uses Binary or ASCII mode.
+		/// </summary>
+		public FtpDataType FXPDataType
+		{
+			get => m_FXPDataType;
+			set => m_FXPDataType = value;
+		}
+
 		private bool m_SendHost;
 		/// <summary>
 		/// Controls if the HOST command is sent immediately after the handshake.
