@@ -33,42 +33,22 @@ namespace FluentFTP {
 		public FtpStatus TransferFile(string sourcePath, FtpClient remoteClient, string remotePath,
 			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Append, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null, FtpProgress metaProgress = null) {
 
-			LogFunc("FXPFileCopy", new object[] { sourcePath, remoteClient, remotePath, FXPDataType });
+			LogFunc(nameof(TransferFile), new object[] { sourcePath, remoteClient, remotePath, FXPDataType, createRemoteDir, existsMode, verifyOptions });
 
-			#region "Verify and Check vars and prequisites"
+			// verify input params
+			VerifyTransferFileParams(sourcePath, remoteClient, remotePath);
 
-			if (remoteClient is null) {
-				throw new ArgumentNullException("Destination FXP FtpClient cannot be null!", "remoteClient");
-			}
-
-			if (sourcePath.IsBlank()) {
-				throw new ArgumentNullException("FtpListItem must be specified!", "sourceFtpFileItem");
-			}
-
-			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
-
-			if (!remoteClient.IsConnected) {
-				throw new FluentFTP.FtpException("The connection must be open before a transfer between servers can be intitiated");
-			}
-
-			if (!this.IsConnected) {
-				throw new FluentFTP.FtpException("The source FXP FtpClient must be open and connected before a transfer between servers can be intitiated");
-			}
-
+			// ensure source file exists
 			if (!FileExists(sourcePath)) {
-				throw new FluentFTP.FtpException(string.Format("Source File {0} cannot be found or does not exists!", sourcePath));
+				throw new FtpException(string.Format("Source File {0} cannot be found or does not exists!", sourcePath));
 			}
-
-			#endregion
 
 			bool fxpSuccess;
 			var verified = true;
 			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 			do {
 
-				fxpSuccess = FXPFileCopyInternal(sourcePath, remoteClient, remotePath, createRemoteDir, existsMode, progress, metaProgress is null ? new FtpProgress(1, 0) : metaProgress);
+				fxpSuccess = TransferFileFXPInternal(sourcePath, remoteClient, remotePath, createRemoteDir, existsMode, progress, metaProgress is null ? new FtpProgress(1, 0) : metaProgress);
 				attemptsLeft--;
 
 				// if verification is needed
@@ -97,6 +77,28 @@ namespace FluentFTP {
 
 		}
 
+		private void VerifyTransferFileParams(string sourcePath, FtpClient remoteClient, string remotePath) {
+			if (remoteClient is null) {
+				throw new ArgumentNullException("Destination FXP FtpClient cannot be null!", "remoteClient");
+			}
+
+			if (sourcePath.IsBlank()) {
+				throw new ArgumentNullException("FtpListItem must be specified!", "sourceFtpFileItem");
+			}
+
+			if (remotePath.IsBlank()) {
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
+
+			if (!remoteClient.IsConnected) {
+				throw new FtpException("The connection must be open before a transfer between servers can be intitiated");
+			}
+
+			if (!this.IsConnected) {
+				throw new FtpException("The source FXP FtpClient must be open and connected before a transfer between servers can be intitiated");
+			}
+		}
+
 
 #if ASYNC
 		/// <summary>
@@ -120,42 +122,22 @@ namespace FluentFTP {
 		public async Task<FtpStatus> TransferFileAsync(string sourcePath, FtpClient remoteClient, string remotePath,
 			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, FtpProgress metaProgress = null, CancellationToken token = default(CancellationToken)) {
 
-			LogFunc("FXPFileCopyAsync", new object[] { sourcePath, remoteClient, remotePath, FXPDataType });
+			LogFunc(nameof(TransferFileAsync), new object[] { sourcePath, remoteClient, remotePath, FXPDataType, createRemoteDir, existsMode, verifyOptions });
 
-			#region "Verify and Check vars and prequisites"
+			// verify input params
+			VerifyTransferFileParams(sourcePath, remoteClient, remotePath);
 
-			if (remoteClient is null) {
-				throw new ArgumentNullException("Destination FXP FtpClient cannot be null!", "remoteClient");
-			}
-
-			if (sourcePath.IsBlank()) {
-				throw new ArgumentNullException("FtpListItem must be specified!", "sourceFtpFileItem");
-			}
-
-			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
-
-			if (!remoteClient.IsConnected) {
-				throw new FluentFTP.FtpException("The connection must be open before a transfer between servers can be intitiated");
-			}
-
-			if (!this.IsConnected) {
-				throw new FluentFTP.FtpException("The source FXP FtpClient must be open and connected before a transfer between servers can be intitiated");
-			}
-
+			// ensure source file exists
 			if (!await FileExistsAsync(sourcePath, token)) {
-				throw new FluentFTP.FtpException(string.Format("Source File {0} cannot be found or does not exists!", sourcePath));
+				throw new FtpException(string.Format("Source File {0} cannot be found or does not exists!", sourcePath));
 			}
-
-			#endregion
 
 			bool fxpSuccess;
 			var verified = true;
 			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 			do {
 
-				fxpSuccess = await FXPFileCopyInternalAsync(sourcePath, remoteClient, remotePath, createRemoteDir, existsMode, progress, token, metaProgress is null ? new FtpProgress(1, 0) : metaProgress);
+				fxpSuccess = await TransferFileFXPInternalAsync(sourcePath, remoteClient, remotePath, createRemoteDir, existsMode, progress, token, metaProgress is null ? new FtpProgress(1, 0) : metaProgress);
 				attemptsLeft--;
 
 				// if verification is needed
@@ -186,9 +168,9 @@ namespace FluentFTP {
 #endif
 
 		/// <summary>
-		/// Copies a file from the source FTP Server to the destination FTP Server via the FXP protocol
+		/// Transfers a file from the source FTP Server to the destination FTP Server via the FXP protocol
 		/// </summary>
-		public bool FXPFileCopyInternal(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
+		public bool TransferFileFXPInternal(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			Action<FtpProgress> progress, FtpProgress metaProgress) {
 			FtpReply reply;
 			long offset = 0;
@@ -199,8 +181,8 @@ namespace FluentFTP {
 
 			if (ftpFxpSession != null) {
 
-				ftpFxpSession.SourceServer.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
-				ftpFxpSession.TargetServer.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
+				ftpFxpSession.SourceServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
+				ftpFxpSession.TargetServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
 
 
 				// check if the file exists, and skip, overwrite or append
@@ -258,7 +240,7 @@ namespace FluentFTP {
 				if (createRemoteDir && !fileExists) {
 					var dirname = remotePath.GetFtpDirectoryName();
 					if (!remoteClient.DirectoryExists(dirname)) {
-						CreateDirectory(dirname);
+						remoteClient.CreateDirectory(dirname);
 					}
 				}
 
@@ -334,9 +316,9 @@ namespace FluentFTP {
 
 #if ASYNC
 		/// <summary>
-		/// Copies a file from the source FTP Server to the destination FTP Server via the FXP protocol asynchronously.
+		/// Transfers a file from the source FTP Server to the destination FTP Server via the FXP protocol asynchronously.
 		/// </summary>
-		private async Task<bool> FXPFileCopyInternalAsync(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
+		private async Task<bool> TransferFileFXPInternalAsync(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
 			FtpReply reply;
 			long offset = 0;
@@ -347,8 +329,8 @@ namespace FluentFTP {
 
 			if (ftpFxpSession != null) {
 
-				ftpFxpSession.SourceServer.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
-				ftpFxpSession.TargetServer.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
+				ftpFxpSession.SourceServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
+				ftpFxpSession.TargetServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
 
 
 				// check if the file exists, and skip, overwrite or append
@@ -406,7 +388,7 @@ namespace FluentFTP {
 				if (createRemoteDir && !fileExists) {
 					var dirname = remotePath.GetFtpDirectoryName();
 					if (!await remoteClient.DirectoryExistsAsync(dirname, token)) {
-						await CreateDirectoryAsync(dirname, token);
+						await remoteClient.CreateDirectoryAsync(dirname, token);
 					}
 				}
 

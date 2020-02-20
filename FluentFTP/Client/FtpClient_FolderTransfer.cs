@@ -51,7 +51,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
 			}
 
-			LogFunc(nameof(TransferDirectory), new object[] { sourceFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+			LogFunc(nameof(TransferDirectory), new object[] { sourceFolder, remoteClient, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
 			var results = new List<FtpResult>();
 
@@ -140,7 +140,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
 			}
 
-			LogFunc(nameof(TransferDirectoryAsync), new object[] { sourceFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+			LogFunc(nameof(TransferDirectoryAsync), new object[] { sourceFolder, remoteClient, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
 			var results = new List<FtpResult>();
 
@@ -302,7 +302,7 @@ namespace FluentFTP {
 
 		private async Task TransferServerFilesAsync(List<FtpResult> filesToTransfer, FtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
 
-			LogFunc(nameof(TransferServerFiles), new object[] { filesToTransfer.Count + " files" });
+			LogFunc(nameof(TransferServerFilesAsync), new object[] { filesToTransfer.Count + " files" });
 
 			int r = -1;
 			foreach (var result in filesToTransfer) {
