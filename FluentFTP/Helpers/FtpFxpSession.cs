@@ -2,40 +2,34 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace FluentFTP
-{
-	public class FtpFxpSession: IDisposable
-	{
+namespace FluentFTP {
+	public class FtpFxpSession : IDisposable {
 		/// <summary>
-		/// A connection to the server where the file or folder is currently stored
+		/// A connection to the FTP server where the file or folder is currently stored
 		/// </summary>
-		public FtpClient SourceClient;
+		public FtpClient SourceServer;
 
 		/// <summary>
-		/// A connection to the destination server where you want to create the file or folder
+		/// A connection to the destination FTP server where you want to create the file or folder
 		/// </summary>
-		public FtpClient TargetClient;
+		public FtpClient TargetServer;
 
-        /// <summary>
-        /// Gets a value indicating if this object has already been disposed.
-        /// </summary>
-        public bool IsDisposed { get; private set; }
+		/// <summary>
+		/// Gets a value indicating if this object has already been disposed.
+		/// </summary>
+		public bool IsDisposed { get; private set; }
 
-        public void Dispose()
-		{
-			if (IsDisposed)
-			{
+		public void Dispose() {
+			if (IsDisposed) {
 				return;
 			}
 
-			if (SourceClient.IsConnected)
-			{
-				SourceClient.Disconnect();
+			if (SourceServer.IsConnected) {
+				SourceServer.Disconnect();
 			}
 
-			if (TargetClient.IsConnected)
-			{
-				TargetClient.Disconnect();
+			if (TargetServer.IsConnected) {
+				TargetServer.Disconnect();
 			}
 
 			IsDisposed = true;

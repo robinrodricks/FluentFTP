@@ -1,18 +1,6 @@
 ﻿using System;
-using System.IO;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Globalization;
-using System.Security.Authentication;
-using System.Net;
-using FluentFTP.Proxy;
-using FluentFTP.Servers;
 #if !CORE
 using System.Web;
 #endif
@@ -25,25 +13,21 @@ using System.Threading.Tasks;
 
 #endif
 namespace FluentFTP {
-	/// <summary>
-	/// A connection to a single FTP server. Interacts with any FTP/FTPS server and provides a high-level and low-level API to work with files and folders.
-	/// 
-	/// Debugging problems with FTP is much easier when you enable logging. See the FAQ on our Github project page for more info.
-	/// </summary>
 	public partial class FtpClient : IDisposable {
 
 
 		/// <summary>
 		/// Transfer the specified directory from the source FTP Server onto the remote FTP Server using the FXP protocol.
-		/// In Mirror mode, we will transfer missing files, and delete any extra files from the remote server if not present on the soruce FTP Server. This is very useful when creating an exact local backup of an FTP directory.
+		/// You will need to create a valid connection to your remote FTP Server before calling this method.
 		/// In Update mode, we will only transfer missing files and preserve any extra files on the remote FTP Server. This is useful when you want to simply transfer missing files from an FTP directory.
-		/// Only transfer the files and folders matching all the rules provided, if any.
+		/// Currently Mirror mode is not implemented.
+		/// Only transfers the files and folders matching all the rules provided, if any.
 		/// All exceptions during transfer are caught, and the exception is stored in the related FtpResult object.
 		/// </summary>
 		/// <param name="sourceFolder">The full or relative path to the folder on the source FTP Server. If it does not exist, an empty result list is returned.</param>
-		/// <param name="remoteClient">FtpClient instance of the remote / destination FTP Server</param>
+		/// <param name="remoteClient">FtpClient instance of the destination FTP Server</param>
 		/// <param name="remoteFolder">The full or relative path to destination folder on the remote FTP Server</param>
-		/// <param name="mode">Mirror or Update mode, as explained above</param>
+		/// <param name="mode">Only Update mode is currently implemented</param>
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
@@ -147,7 +131,7 @@ namespace FluentFTP {
 				if (!FilePassesRules(result, rules, true)) {
 					continue;
 				}
-				
+
 				dirsToTransfer.Add(result);
 			}
 
@@ -180,7 +164,7 @@ namespace FluentFTP {
 				if (!FilePassesRules(result, rules, true)) {
 					continue;
 				}
-				
+
 				// record that this file should exist
 				shouldExist.Add(remoteFile.ToLowerInvariant(), true);
 
@@ -202,23 +186,10 @@ namespace FluentFTP {
 				// absorb errors
 				try {
 
-					// check if the file already exists on the server
-					var existsModeToUse = existsMode;
-					var fileExists = FtpExtensions.FileExistsInListing(remoteListing, result.RemotePath);
-
-					// if we want to skip uploaded files and the file already exists, mark its skipped
-					if (existsMode == FtpRemoteExists.Skip && fileExists) {
-
-						LogStatus(FtpTraceLevel.Info, "Skipped file that already exists: " + result.LocalPath);
-
-						result.IsSuccess = true;
-						result.IsSkipped = true;
+					// skip uploading if the file already exists on the server
+					FtpRemoteExists existsModeToUse;
+					if (!CanUploadFile(result, remoteListing, existsMode, out existsModeToUse)) {
 						continue;
-					}
-
-					// in any mode if the file does not exist, mark that exists check is not required
-					if (!fileExists) {
-						existsModeToUse = existsMode == FtpRemoteExists.Append ? FtpRemoteExists.AppendNoCheck : FtpRemoteExists.NoCheck;
 					}
 
 					// create meta progress to store the file progress
@@ -274,15 +245,16 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Transfer the specified directory from the source FTP Server onto the remote FTP Server asynchronously using the FXP protocol.
-		/// In Mirror mode, we will transfer missing files, and delete any extra files from the remote server if not present on the soruce FTP Server. This is very useful when creating an exact local backup of an FTP directory.
+		/// You will need to create a valid connection to your remote FTP Server before calling this method.
 		/// In Update mode, we will only transfer missing files and preserve any extra files on the remote FTP Server. This is useful when you want to simply transfer missing files from an FTP directory.
-		/// Only transfer the files and folders matching all the rules provided, if any.
+		/// Currently Mirror mode is not implemented.
+		/// Only transfers the files and folders matching all the rules provided, if any.
 		/// All exceptions during transfer are caught, and the exception is stored in the related FtpResult object.
 		/// </summary>
 		/// <param name="sourceFolder">The full or relative path to the folder on the source FTP Server. If it does not exist, an empty result list is returned.</param>
-		/// <param name="remoteClient">FtpClient instance of the remote / destination FTP Server</param>
+		/// <param name="remoteClient">FtpClient instance of the destination FTP Server</param>
 		/// <param name="remoteFolder">The full or relative path to destination folder on the remote FTP Server</param>
-		/// <param name="mode">Mirror or Update mode, as explained above</param>
+		/// <param name="mode">Only Update mode is currently implemented</param>
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
@@ -371,23 +343,10 @@ namespace FluentFTP {
 				// absorb errors
 				try {
 
-					// check if the file already exists on the server
-					var existsModeToUse = existsMode;
-					var fileExists = FtpExtensions.FileExistsInListing(remoteListing, result.RemotePath);
-
-					// if we want to skip uploaded files and the file already exists, mark its skipped
-					if (existsMode == FtpRemoteExists.Skip && fileExists) {
-
-						LogStatus(FtpTraceLevel.Info, "Skipped file that already exists: " + result.LocalPath);
-
-						result.IsSuccess = true;
-						result.IsSkipped = true;
+					// skip uploading if the file already exists on the server
+					FtpRemoteExists existsModeToUse;
+					if (!CanUploadFile(result, remoteListing, existsMode, out existsModeToUse)) {
 						continue;
-					}
-
-					// in any mode if the file does not exist, mark that exists check is not required
-					if (!fileExists) {
-						existsModeToUse = existsMode == FtpRemoteExists.Append ? FtpRemoteExists.AppendNoCheck : FtpRemoteExists.NoCheck;
 					}
 
 					// create meta progress to store the file progress

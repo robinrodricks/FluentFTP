@@ -1,18 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Globalization;
-using System.Security.Authentication;
-using System.Net;
-using FluentFTP.Proxy;
-using FluentFTP.Servers;
 #if !CORE
 using System.Web;
 #endif
@@ -25,15 +11,10 @@ using System.Threading.Tasks;
 
 #endif
 namespace FluentFTP {
-	/// <summary>
-	/// A connection to a single FTP server. Interacts with any FTP/FTPS server and provides a high-level and low-level API to work with files and folders.
-	/// 
-	/// Debugging problems with FTP is much easier when you enable logging. See the FAQ on our Github project page for more info.
-	/// </summary>
 	public partial class FtpClient : IDisposable {
-		
+
 		/// <summary>
-		/// Transfer the specified file from the srouce FTP Server to the remote / destination FTP Server using the FXP protocol.
+		/// Transfer the specified file from the srouce FTP Server to the destination FTP Server using the FXP protocol.
 		/// High-level API that takes care of various edge cases internally.
 		/// </summary>
 		/// <param name="sourcePath">The full or relative path to the file on the source FTP Server</param>
@@ -119,11 +100,11 @@ namespace FluentFTP {
 
 #if ASYNC
 		/// <summary>
-		/// Transfer the specified file from the srouce FTP Server to the remote / destination FTP Server asynchronously using the FXP protocol.
+		/// Transfer the specified file from the srouce FTP Server to the destination FTP Server asynchronously using the FXP protocol.
 		/// High-level API that takes care of various edge cases internally.
 		/// </summary>
 		/// <param name="sourcePath">The full or relative path to the file on the source FTP Server</param>
-		/// <param name="remoteClient">FtpClient instance of the remote / destination FTP Server</param>
+		/// <param name="remoteClient">FtpClient instance of the destination FTP Server</param>
 		/// <param name="remotePath">The full or relative path to destination file on the remote FTP Server</param>
 		/// <param name="createRemoteDir">Indicates if the folder should be created on the remote FTP Server</param>
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
@@ -205,7 +186,7 @@ namespace FluentFTP {
 #endif
 
 		/// <summary>
-		/// Copies a file from the source FTP Server to the remote / destination FTP Server via the FXP protocol
+		/// Copies a file from the source FTP Server to the destination FTP Server via the FXP protocol
 		/// </summary>
 		public bool FXPFileCopyInternal(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			Action<FtpProgress> progress, FtpProgress metaProgress) {
@@ -218,8 +199,8 @@ namespace FluentFTP {
 
 			if (ftpFxpSession != null) {
 
-				ftpFxpSession.SourceClient.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
-				ftpFxpSession.TargetClient.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
+				ftpFxpSession.SourceServer.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
+				ftpFxpSession.TargetServer.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
 
 
 				// check if the file exists, and skip, overwrite or append
@@ -283,28 +264,28 @@ namespace FluentFTP {
 
 				if (offset == 0 && existsMode != FtpRemoteExists.AppendNoCheck) {
 					// send command to tell the source server to 'send' the file to the destination server
-					if (!(reply = ftpFxpSession.SourceClient.Execute($"RETR {sourcePath}")).Success) {
+					if (!(reply = ftpFxpSession.SourceServer.Execute($"RETR {sourcePath}")).Success) {
 						throw new FtpCommandException(reply);
 					}
 
 					//Instruct destination server to store the file
-					if (!(reply = ftpFxpSession.TargetClient.Execute($"STOR {remotePath}")).Success) {
+					if (!(reply = ftpFxpSession.TargetServer.Execute($"STOR {remotePath}")).Success) {
 						throw new FtpCommandException(reply);
 					}
 				}
 				else {
 					//tell source server to restart / resume
-					if (!(reply = ftpFxpSession.SourceClient.Execute($"REST {offset}")).Success) {
+					if (!(reply = ftpFxpSession.SourceServer.Execute($"REST {offset}")).Success) {
 						throw new FtpCommandException(reply);
 					}
 
 					// send command to tell the source server to 'send' the file to the destination server
-					if (!(reply = ftpFxpSession.SourceClient.Execute($"RETR {sourcePath}")).Success) {
+					if (!(reply = ftpFxpSession.SourceServer.Execute($"RETR {sourcePath}")).Success) {
 						throw new FtpCommandException(reply);
 					}
 
 					//Instruct destination server to append the file
-					if (!(reply = ftpFxpSession.TargetClient.Execute($"APPE {remotePath}")).Success) {
+					if (!(reply = ftpFxpSession.TargetServer.Execute($"APPE {remotePath}")).Success) {
 						throw new FtpCommandException(reply);
 					}
 				}
@@ -312,8 +293,8 @@ namespace FluentFTP {
 				var transferStarted = DateTime.Now;
 				long lastSize = 0;
 
-				var sourceFXPTransferReply = ftpFxpSession.SourceClient.GetReply();
-				var destinationFXPTransferReply = ftpFxpSession.TargetClient.GetReply();
+				var sourceFXPTransferReply = ftpFxpSession.SourceServer.GetReply();
+				var destinationFXPTransferReply = ftpFxpSession.TargetServer.GetReply();
 
 				while (!sourceFXPTransferReply.Success || !destinationFXPTransferReply.Success) {
 
@@ -353,7 +334,7 @@ namespace FluentFTP {
 
 #if ASYNC
 		/// <summary>
-		/// Copies a file from the source FTP Server to the remote / destination FTP Server via the FXP protocol asynchronously.
+		/// Copies a file from the source FTP Server to the destination FTP Server via the FXP protocol asynchronously.
 		/// </summary>
 		private async Task<bool> FXPFileCopyInternalAsync(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
@@ -366,8 +347,8 @@ namespace FluentFTP {
 
 			if (ftpFxpSession != null) {
 
-				ftpFxpSession.SourceClient.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
-				ftpFxpSession.TargetClient.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
+				ftpFxpSession.SourceServer.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
+				ftpFxpSession.TargetServer.ReadTimeout = (int)TimeSpan.FromMinutes((double)30).TotalMilliseconds;
 
 
 				// check if the file exists, and skip, overwrite or append
@@ -431,28 +412,28 @@ namespace FluentFTP {
 
 				if (offset == 0 && existsMode != FtpRemoteExists.AppendNoCheck) {
 					// send command to tell the source server to 'send' the file to the destination server
-					if (!(reply = await ftpFxpSession.SourceClient.ExecuteAsync($"RETR {sourcePath}", token)).Success) {
+					if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"RETR {sourcePath}", token)).Success) {
 						throw new FtpCommandException(reply);
 					}
 
 					//Instruct destination server to store the file
-					if (!(reply = await ftpFxpSession.TargetClient.ExecuteAsync($"STOR {remotePath}", token)).Success) {
+					if (!(reply = await ftpFxpSession.TargetServer.ExecuteAsync($"STOR {remotePath}", token)).Success) {
 						throw new FtpCommandException(reply);
 					}
 				}
 				else {
 					//tell source server to restart / resume
-					if (!(reply = await ftpFxpSession.SourceClient.ExecuteAsync($"REST {offset}", token)).Success) {
+					if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"REST {offset}", token)).Success) {
 						throw new FtpCommandException(reply);
 					}
 
 					// send command to tell the source server to 'send' the file to the destination server
-					if (!(reply = await ftpFxpSession.SourceClient.ExecuteAsync($"RETR {sourcePath}", token)).Success) {
+					if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"RETR {sourcePath}", token)).Success) {
 						throw new FtpCommandException(reply);
 					}
 
 					//Instruct destination server to append the file
-					if (!(reply = await ftpFxpSession.TargetClient.ExecuteAsync($"APPE {remotePath}", token)).Success) {
+					if (!(reply = await ftpFxpSession.TargetServer.ExecuteAsync($"APPE {remotePath}", token)).Success) {
 						throw new FtpCommandException(reply);
 					}
 				}
@@ -461,8 +442,8 @@ namespace FluentFTP {
 				long lastSize = 0;
 
 
-				var sourceFXPTransferReply = ftpFxpSession.SourceClient.GetReplyAsync(token);
-				var destinationFXPTransferReply = ftpFxpSession.TargetClient.GetReplyAsync(token);
+				var sourceFXPTransferReply = ftpFxpSession.SourceServer.GetReplyAsync(token);
+				var destinationFXPTransferReply = ftpFxpSession.TargetServer.GetReplyAsync(token);
 
 				while (!sourceFXPTransferReply.IsCompleted || !destinationFXPTransferReply.IsCompleted) {
 

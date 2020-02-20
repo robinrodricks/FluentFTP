@@ -46,10 +46,10 @@ namespace FluentFTP.Rules {
 			// get the folder name of this item
 			string[] dirNameParts = null;
 			if (item.Type == FtpFileSystemObjectType.File) {
-				dirNameParts = item.FullName.GetFtpDirectoryName().Split('/');
+				dirNameParts = item.FullName.GetFtpDirectoryName().GetPathSegments();
 			}
 			else if (item.Type == FtpFileSystemObjectType.Directory) {
-				dirNameParts = item.FullName.Split('/');
+				dirNameParts = item.FullName.GetPathSegments();
 			}
 			else {
 				return true;

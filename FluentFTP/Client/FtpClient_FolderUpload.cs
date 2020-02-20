@@ -354,23 +354,10 @@ namespace FluentFTP {
 				// absorb errors
 				try {
 
-					// check if the file already exists on the server
-					var existsModeToUse = existsMode;
-					var fileExists = FtpExtensions.FileExistsInListing(remoteListing, result.RemotePath);
-
-					// if we want to skip uploaded files and the file already exists, mark its skipped
-					if (existsMode == FtpRemoteExists.Skip && fileExists) {
-
-						LogStatus(FtpTraceLevel.Info, "Skipped file that already exists: " + result.LocalPath);
-
-						result.IsSuccess = true;
-						result.IsSkipped = true;
+					// skip uploading if the file already exists on the server
+					FtpRemoteExists existsModeToUse;
+					if (!CanUploadFile(result, remoteListing, existsMode, out existsModeToUse)){
 						continue;
-					}
-
-					// in any mode if the file does not exist, mark that exists check is not required
-					if (!fileExists) {
-						existsModeToUse = existsMode == FtpRemoteExists.Append ? FtpRemoteExists.AppendNoCheck : FtpRemoteExists.NoCheck;
 					}
 
 					// create meta progress to store the file progress
@@ -394,6 +381,32 @@ namespace FluentFTP {
 
 		}
 
+		/// <summary>
+		/// Check if the file is cleared to be uploaded, taking its existance/filesize and existsMode options into account.
+		/// </summary>
+		private bool CanUploadFile(FtpResult result, FtpListItem[] remoteListing, FtpRemoteExists existsMode, out FtpRemoteExists existsModeToUse) {
+
+			// check if the file already exists on the server
+			existsModeToUse = existsMode;
+			var fileExists = FtpExtensions.FileExistsInListing(remoteListing, result.RemotePath);
+
+			// if we want to skip uploaded files and the file already exists, mark its skipped
+			if (existsMode == FtpRemoteExists.Skip && fileExists) {
+
+				LogStatus(FtpTraceLevel.Info, "Skipped file that already exists: " + result.LocalPath);
+
+				result.IsSuccess = true;
+				result.IsSkipped = true;
+				return false;
+			}
+
+			// in any mode if the file does not exist, mark that exists check is not required
+			if (!fileExists) {
+				existsModeToUse = existsMode == FtpRemoteExists.Append ? FtpRemoteExists.AppendNoCheck : FtpRemoteExists.NoCheck;
+			}
+			return true;
+		}
+
 #if ASYNC
 		/// <summary>
 		/// Upload all the files within the main directory
@@ -409,23 +422,10 @@ namespace FluentFTP {
 				// absorb errors
 				try {
 
-					// check if the file already exists on the server
-					var existsModeToUse = existsMode;
-					var fileExists = FtpExtensions.FileExistsInListing(remoteListing, result.RemotePath);
-
-					// if we want to skip uploaded files and the file already exists, mark its skipped
-					if (existsMode == FtpRemoteExists.Skip && fileExists) {
-
-						LogStatus(FtpTraceLevel.Info, "Skipped file that already exists: " + result.LocalPath);
-
-						result.IsSuccess = true;
-						result.IsSkipped = true;
+					// skip uploading if the file already exists on the server
+					FtpRemoteExists existsModeToUse;
+					if (!CanUploadFile(result, remoteListing, existsMode, out existsModeToUse)) {
 						continue;
-					}
-
-					// in any mode if the file does not exist, mark that exists check is not required
-					if (!fileExists) {
-						existsModeToUse = existsMode == FtpRemoteExists.Append ? FtpRemoteExists.AppendNoCheck : FtpRemoteExists.NoCheck;
 					}
 
 					// create meta progress to store the file progress

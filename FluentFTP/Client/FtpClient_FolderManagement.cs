@@ -1,14 +1,6 @@
 using System;
-using System.IO;
-using System.Net.Sockets;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Net;
-using FluentFTP.Proxy;
 using FluentFTP.Servers;
 #if !CORE
 using System.Web;
