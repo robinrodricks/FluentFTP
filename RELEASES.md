@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 31.3.2
+  - Fix: Proper session handling for FXP connections and disconnection of cloned connections
+  - Performance: Reduce redundant file size check in `DownloadFile` when appending is used
+
 #### 31.3.1
   - New: `AutoDetect` and `AutoConnect` now auto-configure for Azure FTP servers using known connection settings
   - Improve code generation of `FtpProfile` to use LoadProfile rather than setting each property individually
