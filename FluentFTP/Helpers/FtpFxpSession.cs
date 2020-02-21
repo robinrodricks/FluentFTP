@@ -24,14 +24,6 @@ namespace FluentFTP {
 				return;
 			}
 
-			if (SourceServer.IsConnected) {
-				SourceServer.Disconnect();
-			}
-
-			if (TargetServer.IsConnected) {
-				TargetServer.Disconnect();
-			}
-
 			IsDisposed = true;
 			GC.SuppressFinalize(this);
 

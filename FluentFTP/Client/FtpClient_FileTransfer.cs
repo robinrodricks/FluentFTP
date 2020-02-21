@@ -305,6 +305,8 @@ namespace FluentFTP {
 				Noop();
 				remoteClient.Noop();
 
+				CloseFXPConnection(ftpFxpSession);
+
 				return true;
 			}
 			else {

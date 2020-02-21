@@ -32,6 +32,11 @@ namespace FluentFTP {
 		private bool _RecursiveListSupported = false;
 
 		/// <summary>
+		/// Used to automatically dispose cloned connections after FXP transfer has ended.
+		/// </summary>
+		private bool _AutoDispose = false;
+
+		/// <summary>
 		/// These flags must be reset every time we connect, to allow for users to connect to
 		/// different FTP servers with the same client object.
 		/// </summary>

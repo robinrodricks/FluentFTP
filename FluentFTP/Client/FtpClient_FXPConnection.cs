@@ -38,8 +38,9 @@ namespace FluentFTP {
 			FtpClient sourceClient = null;
 			FtpClient destinationClient = null;
 
-			if (m_threadSafeDataChannels) {
+			if (EnableThreadSafeDataConnections) {
 				sourceClient = CloneConnection();
+				sourceClient._AutoDispose = true;
 				sourceClient.CopyStateFlags(this);
 				sourceClient.Connect();
 				sourceClient.SetWorkingDirectory(GetWorkingDirectory());
@@ -50,6 +51,7 @@ namespace FluentFTP {
 
 			if (remoteClient.EnableThreadSafeDataConnections) {
 				destinationClient = remoteClient.CloneConnection();
+				destinationClient._AutoDispose = true;
 				destinationClient.CopyStateFlags(remoteClient);
 				destinationClient.Connect();
 				destinationClient.SetWorkingDirectory(destinationClient.GetWorkingDirectory());
@@ -138,6 +140,24 @@ namespace FluentFTP {
 		}
 
 #endif
+
+		/// <summary>
+		/// Closes an FXP connection by disconnecting and disposing off the FTP clients that are
+		/// auto created at the time of creating the FXP connection. Manually created FTP clients are untouched.
+		/// </summary>
+		private void CloseFXPConnection(FtpFxpSession ftpFxpSession) {
+
+			if (!ftpFxpSession.IsDisposed) {
+				if (ftpFxpSession.SourceServer._AutoDispose) {
+					ftpFxpSession.SourceServer.Dispose();
+				}
+				if (ftpFxpSession.TargetServer._AutoDispose) {
+					ftpFxpSession.TargetServer.Dispose();
+				}
+				ftpFxpSession.Dispose();
+			}
+
+		}
 
 	}
 }
