@@ -284,8 +284,10 @@ namespace FluentFTP {
 			LogFunc(nameof(DownloadFile), new object[] { localPath, remotePath, existsMode, verifyOptions });
 
 			// skip downloading if local file size matches
+			long knownFileSize = 0;
 			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
-				if (GetFileSize(remotePath).Equals(new FileInfo(localPath).Length)) {
+				knownFileSize = GetFileSize(remotePath);
+				if (knownFileSize.Equals(new FileInfo(localPath).Length)) {
 					LogStatus(FtpTraceLevel.Info, "Append is selected => Local file size matches size on server => skipping");
 					return FtpStatus.Skipped;
 				}
@@ -318,7 +320,7 @@ namespace FluentFTP {
 				using (var outStream = new FileStream(localPath, outStreamFileMode, FileAccess.Write, FileShare.None)) {
 					// download the file straight to a file stream
 					var restartPos = File.Exists(localPath) ? new FileInfo(localPath).Length : 0;
-					downloadSuccess = DownloadFileInternal(localPath, remotePath, outStream, restartPos, progress, metaProgress);
+					downloadSuccess = DownloadFileInternal(localPath, remotePath, outStream, restartPos, progress, metaProgress, knownFileSize);
 					attemptsLeft--;
 				}
 
@@ -393,12 +395,15 @@ namespace FluentFTP {
 			var outStreamFileMode = FileMode.Create;
 
 			// skip downloading if the local file exists
+			long knownFileSize = 0;
 #if CORE
 			if (existsMode == FtpLocalExists.Append && await Task.Run(() => File.Exists(localPath), token)) {
-				if ((await GetFileSizeAsync(remotePath, token)).Equals((await Task.Run(() => new FileInfo(localPath), token)).Length)) {
+				knownFileSize = (await GetFileSizeAsync(remotePath, token));
+				if (knownFileSize.Equals((await Task.Run(() => new FileInfo(localPath), token)).Length)) {
 #else
 			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
-				if ((await GetFileSizeAsync(remotePath)).Equals(new FileInfo(localPath).Length)) {
+				knownFileSize = (await GetFileSizeAsync(remotePath, token));
+				if (knownFileSize.Equals(new FileInfo(localPath).Length)) {
 #endif
 					LogStatus(FtpTraceLevel.Info, "Append is enabled => Local file size matches size on server => skipping");
 					return FtpStatus.Skipped;
@@ -440,7 +445,7 @@ namespace FluentFTP {
 				using (var outStream = new FileStream(localPath, outStreamFileMode, FileAccess.Write, FileShare.None, 4096, true)) {
 					// download the file straight to a file stream
 					var restartPos = await Task.Run(() => File.Exists(localPath), token) ? (await Task.Run(() => new FileInfo(localPath), token)).Length : 0;
-					downloadSuccess = await DownloadFileInternalAsync(localPath, remotePath, outStream, restartPos, progress, token, metaProgress);
+					downloadSuccess = await DownloadFileInternalAsync(localPath, remotePath, outStream, restartPos, progress, token, metaProgress, knownFileSize);
 					attemptsLeft--;
 				}
 
@@ -497,7 +502,7 @@ namespace FluentFTP {
 			LogFunc(nameof(Download), new object[] { remotePath });
 
 			// download the file from the server
-			return DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0));
+			return DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0), 0);
 		}
 
 		/// <summary>
@@ -523,7 +528,7 @@ namespace FluentFTP {
 			// download the file from the server
 			bool ok;
 			using (var outStream = new MemoryStream()) {
-				ok = DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0));
+				ok = DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0), 0);
 				if (ok) {
 					outBytes = outStream.ToArray();
 				}
@@ -557,7 +562,7 @@ namespace FluentFTP {
 			LogFunc(nameof(DownloadAsync), new object[] { remotePath });
 
 			// download the file from the server
-			return await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0));
+			return await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0), 0);
 		}
 
 		/// <summary>
@@ -580,7 +585,7 @@ namespace FluentFTP {
 
 			// download the file from the server
 			using (var outStream = new MemoryStream()) {
-				var ok = await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0));
+				var ok = await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0), 0);
 				return ok ? outStream.ToArray() : null;
 			}
 		}
@@ -608,7 +613,7 @@ namespace FluentFTP {
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
 		private bool DownloadFileInternal(string localPath, string remotePath, Stream outStream, long restartPosition,
-			Action<FtpProgress> progress, FtpProgress metaProgress) {
+			Action<FtpProgress> progress, FtpProgress metaProgress, long knownFileSize) {
 
 			Stream downStream = null;
 
@@ -616,7 +621,7 @@ namespace FluentFTP {
 				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
 				long fileLen = 0;
 				if (DownloadDataType == FtpDataType.Binary && progress != null) {
-					fileLen = GetFileSize(remotePath);
+					fileLen = knownFileSize > 0 ? knownFileSize : GetFileSize(remotePath);
 				}
 
 				// open the file for reading
@@ -784,15 +789,15 @@ namespace FluentFTP {
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
 		private async Task<bool> DownloadFileInternalAsync(string localPath, string remotePath, Stream outStream, long restartPosition,
-			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
+			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress, long knownFileSize) {
 
 			Stream downStream = null;
 			try {
 				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
 				long fileLen = 0;
-
+				
 				if (DownloadDataType == FtpDataType.Binary && progress != null) {
-					fileLen = await GetFileSizeAsync(remotePath, token);
+					fileLen = knownFileSize > 0 ? knownFileSize : await GetFileSizeAsync(remotePath, token);
 				}
 
 				// open the file for reading
