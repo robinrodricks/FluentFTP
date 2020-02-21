@@ -143,7 +143,7 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Closes an FXP connection by disconnecting and disposing off the FTP clients that are
-		/// auto created at the time of creating the FXP connection. Manually created FTP clients are untouched.
+		/// cloned for this FXP connection. Manually created FTP clients are untouched.
 		/// </summary>
 		private void CloseFXPConnection(FtpFxpSession ftpFxpSession) {
 
