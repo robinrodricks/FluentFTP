@@ -28,6 +28,31 @@ using System.Threading.Tasks;
 namespace FluentFTP.Servers {
 	internal static class FtpServerSpecificHandler {
 
+		#region Working Connection Profiles
+
+		/// <summary>
+		/// Return a known working connection profile from the host/port combination.
+		/// </summary>
+		public static FtpProfile GetWorkingProfileFromHost(string Host, int Port) {
+
+			// Azure App Services / Azure Websites
+			if (Host.IndexOf("ftp.azurewebsites.windows.net", StringComparison.OrdinalIgnoreCase) > -1) {
+
+				return new FtpProfile {
+					Protocols = SslProtocols.Tls,
+					DataConnection = FtpDataConnectionType.PASV,
+					RetryAttempts = 5,
+					SocketPollInterval = 1000,
+					Timeout = 2000,
+				};
+
+			}
+
+			return null;
+		}
+
+		#endregion
+
 		#region Detect Server
 
 		/// <summary>
