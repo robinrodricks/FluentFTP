@@ -1,8 +1,11 @@
 # Release Notes
 
 #### 31.3.1
+  - New: `AutoDetect` and `AutoConnect` now auto-configure for Azure FTP servers using known connection settings
+  - Improve code generation of `FtpProfile` to use LoadProfile rather than setting each property individually
+  - Add advanced Timeout and Socket settings to `FtpProfile` for Azure auto configuration
   - Fix: All exception classes now inherit from `FtpException`
-  - Improve: All exceptions are now serializable in .NET Framework
+  - All exceptions and `FtpProfile` are now serializable in .NET Framework
 
 #### 31.3.0
   - New: `TransferFile` and `TransferDirectory` methods to transfer files from server to server (thanks [n0ix](/n0ix))
