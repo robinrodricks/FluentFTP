@@ -148,10 +148,10 @@ namespace FluentFTP {
 		private void CloseFXPConnection(FtpFxpSession ftpFxpSession) {
 
 			if (!ftpFxpSession.IsDisposed) {
-				if (ftpFxpSession.SourceServer._AutoDispose) {
+				if (ftpFxpSession.SourceServer != null && ftpFxpSession.SourceServer._AutoDispose) {
 					ftpFxpSession.SourceServer.Dispose();
 				}
-				if (ftpFxpSession.TargetServer._AutoDispose) {
+				if (ftpFxpSession.TargetServer != null && ftpFxpSession.TargetServer._AutoDispose) {
 					ftpFxpSession.TargetServer.Dispose();
 				}
 				ftpFxpSession.Dispose();

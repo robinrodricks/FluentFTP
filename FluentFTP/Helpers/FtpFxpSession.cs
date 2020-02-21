@@ -24,6 +24,9 @@ namespace FluentFTP {
 				return;
 			}
 
+			SourceServer = null;
+			TargetServer = null;
+
 			IsDisposed = true;
 			GC.SuppressFinalize(this);
 
