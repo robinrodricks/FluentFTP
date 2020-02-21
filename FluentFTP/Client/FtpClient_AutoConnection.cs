@@ -82,6 +82,13 @@ namespace FluentFTP {
 					throw new FtpException("No username and password has been specified. Please set the 'Credentials' property before trying to auto connect.");
 				}
 
+				// get known working connection profile based on the host (if any)
+				var knownProfile = FtpServerSpecificHandler.GetWorkingProfileFromHost(Host, Port);
+				if (knownProfile != null) {
+					results.Add(knownProfile);
+					return results;
+				}
+
 				// try each encoding
 				encoding:
 				foreach (var encoding in autoConnectEncoding) {
@@ -206,6 +213,18 @@ namespace FluentFTP {
 			SslProtocols = profile.Protocols;
 			DataConnectionType = profile.DataConnection;
 			Encoding = profile.Encoding;
+			if (profile.Timeout != 0) {
+				ConnectTimeout = profile.Timeout;
+				ReadTimeout = profile.Timeout;
+				DataConnectionConnectTimeout = profile.Timeout;
+				DataConnectionReadTimeout = profile.Timeout;
+			}
+			if (SocketPollInterval != 0) {
+				SocketPollInterval = profile.SocketPollInterval;
+			}
+			if (RetryAttempts != 0) {
+				RetryAttempts = profile.RetryAttempts;
+			}
 		}
 
 		/// <summary>
