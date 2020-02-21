@@ -142,21 +142,12 @@ namespace FluentFTP {
 #endif
 
 		/// <summary>
-		/// Closes an FXP connection by disconnecting and disposing off the FTP clients that are
-		/// cloned for this FXP connection. Manually created FTP clients are untouched.
+		/// Disposes and disconnects this FTP client if it was auto-created for an internal operation.
 		/// </summary>
-		private void CloseFXPConnection(FtpFxpSession ftpFxpSession) {
-
-			if (!ftpFxpSession.IsDisposed) {
-				if (ftpFxpSession.SourceServer != null && ftpFxpSession.SourceServer._AutoDispose) {
-					ftpFxpSession.SourceServer.Dispose();
-				}
-				if (ftpFxpSession.TargetServer != null && ftpFxpSession.TargetServer._AutoDispose) {
-					ftpFxpSession.TargetServer.Dispose();
-				}
-				ftpFxpSession.Dispose();
+		public void AutoDispose() {
+			if (_AutoDispose) {
+				Dispose();
 			}
-
 		}
 
 	}

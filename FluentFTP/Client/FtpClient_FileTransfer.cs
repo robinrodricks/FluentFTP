@@ -171,6 +171,7 @@ namespace FluentFTP {
 		/// Transfers a file from the source FTP Server to the destination FTP Server via the FXP protocol
 		/// </summary>
 		public bool TransferFileFXPInternal(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
+
 			Action<FtpProgress> progress, FtpProgress metaProgress) {
 			FtpReply reply;
 			long offset = 0;
@@ -180,134 +181,143 @@ namespace FluentFTP {
 			var ftpFxpSession = OpenPassiveFXPConnection(remoteClient);
 
 			if (ftpFxpSession != null) {
+				try {
 
-				ftpFxpSession.SourceServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
-				ftpFxpSession.TargetServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
+					ftpFxpSession.SourceServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
+					ftpFxpSession.TargetServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
 
 
-				// check if the file exists, and skip, overwrite or append
-				if (existsMode == FtpRemoteExists.AppendNoCheck) {
-					offset = remoteClient.GetFileSize(remotePath);
-					if (offset == -1) {
-						offset = 0; // start from the beginning
-					}
-				}
-				else {
-					fileExists = remoteClient.FileExists(remotePath);
-
-					switch (existsMode) {
-						case FtpRemoteExists.Skip:
-
-							if (fileExists) {
-								LogStatus(FtpTraceLevel.Info, "Skip is selected => Destination file exists => skipping");
-
-								//Fix #413 - progress callback isn't called if the file has already been uploaded to the server
-								//send progress reports
-								if (progress != null) {
-									progress(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0), sourcePath, remotePath, metaProgress));
-								}
-
-								return true;
-							}
-
-							break;
-
-						case FtpRemoteExists.Overwrite:
-
-							if (fileExists) {
-								remoteClient.DeleteFile(remotePath);
-							}
-
-							break;
-
-						case FtpRemoteExists.Append:
-
-							if (fileExists) {
-								offset = remoteClient.GetFileSize(remotePath);
-								if (offset == -1) {
-									offset = 0; // start from the beginning
-								}
-							}
-
-							break;
-					}
-
-				}
-
-				fileSize = GetFileSize(sourcePath);
-
-				// ensure the remote dir exists .. only if the file does not already exist!
-				if (createRemoteDir && !fileExists) {
-					var dirname = remotePath.GetFtpDirectoryName();
-					if (!remoteClient.DirectoryExists(dirname)) {
-						remoteClient.CreateDirectory(dirname);
-					}
-				}
-
-				if (offset == 0 && existsMode != FtpRemoteExists.AppendNoCheck) {
-					// send command to tell the source server to 'send' the file to the destination server
-					if (!(reply = ftpFxpSession.SourceServer.Execute($"RETR {sourcePath}")).Success) {
-						throw new FtpCommandException(reply);
-					}
-
-					//Instruct destination server to store the file
-					if (!(reply = ftpFxpSession.TargetServer.Execute($"STOR {remotePath}")).Success) {
-						throw new FtpCommandException(reply);
-					}
-				}
-				else {
-					//tell source server to restart / resume
-					if (!(reply = ftpFxpSession.SourceServer.Execute($"REST {offset}")).Success) {
-						throw new FtpCommandException(reply);
-					}
-
-					// send command to tell the source server to 'send' the file to the destination server
-					if (!(reply = ftpFxpSession.SourceServer.Execute($"RETR {sourcePath}")).Success) {
-						throw new FtpCommandException(reply);
-					}
-
-					//Instruct destination server to append the file
-					if (!(reply = ftpFxpSession.TargetServer.Execute($"APPE {remotePath}")).Success) {
-						throw new FtpCommandException(reply);
-					}
-				}
-
-				var transferStarted = DateTime.Now;
-				long lastSize = 0;
-
-				var sourceFXPTransferReply = ftpFxpSession.SourceServer.GetReply();
-				var destinationFXPTransferReply = ftpFxpSession.TargetServer.GetReply();
-
-				while (!sourceFXPTransferReply.Success || !destinationFXPTransferReply.Success) {
-
-					if (remoteClient.EnableThreadSafeDataConnections) {
-						FtpTrace.Write(FtpTraceLevel.Info, "reporting progress");
-						// send progress reports
-						if (progress != null && fileSize != -1) {
-							offset = remoteClient.GetFileSize(remotePath);
-
-							if (offset != -1 && lastSize <= offset) {
-								long bytesProcessed = offset - lastSize;
-								lastSize = offset;
-								ReportProgress(progress, fileSize, offset, bytesProcessed, DateTime.Now - transferStarted, sourcePath, remotePath, metaProgress);
-							}
+					// check if the file exists, and skip, overwrite or append
+					if (existsMode == FtpRemoteExists.AppendNoCheck) {
+						offset = remoteClient.GetFileSize(remotePath);
+						if (offset == -1) {
+							offset = 0; // start from the beginning
 						}
 					}
+					else {
+						fileExists = remoteClient.FileExists(remotePath);
+
+						switch (existsMode) {
+							case FtpRemoteExists.Skip:
+
+								if (fileExists) {
+									LogStatus(FtpTraceLevel.Info, "Skip is selected => Destination file exists => skipping");
+
+									//Fix #413 - progress callback isn't called if the file has already been uploaded to the server
+									//send progress reports
+									if (progress != null) {
+										progress(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0), sourcePath, remotePath, metaProgress));
+									}
+
+									return true;
+								}
+
+								break;
+
+							case FtpRemoteExists.Overwrite:
+
+								if (fileExists) {
+									remoteClient.DeleteFile(remotePath);
+								}
+
+								break;
+
+							case FtpRemoteExists.Append:
+
+								if (fileExists) {
+									offset = remoteClient.GetFileSize(remotePath);
+									if (offset == -1) {
+										offset = 0; // start from the beginning
+									}
+								}
+
+								break;
+						}
+
+					}
+
+					fileSize = GetFileSize(sourcePath);
+
+					// ensure the remote dir exists .. only if the file does not already exist!
+					if (createRemoteDir && !fileExists) {
+						var dirname = remotePath.GetFtpDirectoryName();
+						if (!remoteClient.DirectoryExists(dirname)) {
+							remoteClient.CreateDirectory(dirname);
+						}
+					}
+
+					if (offset == 0 && existsMode != FtpRemoteExists.AppendNoCheck) {
+						// send command to tell the source server to 'send' the file to the destination server
+						if (!(reply = ftpFxpSession.SourceServer.Execute($"RETR {sourcePath}")).Success) {
+							throw new FtpCommandException(reply);
+						}
+
+						//Instruct destination server to store the file
+						if (!(reply = ftpFxpSession.TargetServer.Execute($"STOR {remotePath}")).Success) {
+							throw new FtpCommandException(reply);
+						}
+					}
+					else {
+						//tell source server to restart / resume
+						if (!(reply = ftpFxpSession.SourceServer.Execute($"REST {offset}")).Success) {
+							throw new FtpCommandException(reply);
+						}
+
+						// send command to tell the source server to 'send' the file to the destination server
+						if (!(reply = ftpFxpSession.SourceServer.Execute($"RETR {sourcePath}")).Success) {
+							throw new FtpCommandException(reply);
+						}
+
+						//Instruct destination server to append the file
+						if (!(reply = ftpFxpSession.TargetServer.Execute($"APPE {remotePath}")).Success) {
+							throw new FtpCommandException(reply);
+						}
+					}
+
+					var transferStarted = DateTime.Now;
+					long lastSize = 0;
+
+					var sourceFXPTransferReply = ftpFxpSession.SourceServer.GetReply();
+					var destinationFXPTransferReply = ftpFxpSession.TargetServer.GetReply();
+
+					while (!sourceFXPTransferReply.Success || !destinationFXPTransferReply.Success) {
+
+						if (remoteClient.EnableThreadSafeDataConnections) {
+							FtpTrace.Write(FtpTraceLevel.Info, "reporting progress");
+							// send progress reports
+							if (progress != null && fileSize != -1) {
+								offset = remoteClient.GetFileSize(remotePath);
+
+								if (offset != -1 && lastSize <= offset) {
+									long bytesProcessed = offset - lastSize;
+									lastSize = offset;
+									ReportProgress(progress, fileSize, offset, bytesProcessed, DateTime.Now - transferStarted, sourcePath, remotePath, metaProgress);
+								}
+							}
+						}
 #if CORE14
 					Task.Delay(1000);
 #else
-					Thread.Sleep(1000);
+						Thread.Sleep(1000);
 #endif
+					}
+
+					FtpTrace.WriteLine(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");
+
+					Noop();
+					remoteClient.Noop();
+
+					ftpFxpSession.Dispose();
+
+					return true;
+
 				}
 
-				FtpTrace.WriteLine(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");
-
-				Noop();
-				remoteClient.Noop();
-
-				CloseFXPConnection(ftpFxpSession);
-
-				return true;
+				// Fix: catch all exceptions and dispose off the FTP clients if one occurs
+				catch (Exception ex) {
+					ftpFxpSession.Dispose();
+					throw ex;
+				}
 			}
 			else {
 				FtpTrace.WriteLine(FtpTraceLevel.Error, "Failed to open FXP passive Connection");
@@ -331,128 +341,140 @@ namespace FluentFTP {
 
 			if (ftpFxpSession != null) {
 
-				ftpFxpSession.SourceServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
-				ftpFxpSession.TargetServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
+				try {
+
+					ftpFxpSession.SourceServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
+					ftpFxpSession.TargetServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
 
 
-				// check if the file exists, and skip, overwrite or append
-				if (existsMode == FtpRemoteExists.AppendNoCheck) {
-					offset = await remoteClient.GetFileSizeAsync(remotePath, token);
-					if (offset == -1) {
-						offset = 0; // start from the beginning
+					// check if the file exists, and skip, overwrite or append
+					if (existsMode == FtpRemoteExists.AppendNoCheck) {
+						offset = await remoteClient.GetFileSizeAsync(remotePath, token);
+						if (offset == -1) {
+							offset = 0; // start from the beginning
+						}
 					}
-				}
-				else {
-					fileExists = await remoteClient.FileExistsAsync(remotePath, token);
+					else {
+						fileExists = await remoteClient.FileExistsAsync(remotePath, token);
 
-					switch (existsMode) {
-						case FtpRemoteExists.Skip:
+						switch (existsMode) {
+							case FtpRemoteExists.Skip:
 
-							if (fileExists) {
-								LogStatus(FtpTraceLevel.Info, "Skip is selected => Destination file exists => skipping");
+								if (fileExists) {
+									LogStatus(FtpTraceLevel.Info, "Skip is selected => Destination file exists => skipping");
 
-								//Fix #413 - progress callback isn't called if the file has already been uploaded to the server
-								//send progress reports
-								if (progress != null) {
-									progress.Report(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0), sourcePath, remotePath, metaProgress));
+									//Fix #413 - progress callback isn't called if the file has already been uploaded to the server
+									//send progress reports
+									if (progress != null) {
+										progress.Report(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0), sourcePath, remotePath, metaProgress));
+									}
+
+									return true;
 								}
 
-								return true;
-							}
+								break;
 
-							break;
+							case FtpRemoteExists.Overwrite:
 
-						case FtpRemoteExists.Overwrite:
-
-							if (fileExists) {
-								await remoteClient.DeleteFileAsync(remotePath, token);
-							}
-
-							break;
-
-						case FtpRemoteExists.Append:
-
-							if (fileExists) {
-								offset = await remoteClient.GetFileSizeAsync(remotePath, token);
-								if (offset == -1) {
-									offset = 0; // start from the beginning
+								if (fileExists) {
+									await remoteClient.DeleteFileAsync(remotePath, token);
 								}
-							}
 
-							break;
+								break;
+
+							case FtpRemoteExists.Append:
+
+								if (fileExists) {
+									offset = await remoteClient.GetFileSizeAsync(remotePath, token);
+									if (offset == -1) {
+										offset = 0; // start from the beginning
+									}
+								}
+
+								break;
+						}
+
 					}
 
-				}
+					fileSize = await GetFileSizeAsync(sourcePath, token);
 
-				fileSize = await GetFileSizeAsync(sourcePath, token);
-
-				// ensure the remote dir exists .. only if the file does not already exist!
-				if (createRemoteDir && !fileExists) {
-					var dirname = remotePath.GetFtpDirectoryName();
-					if (!await remoteClient.DirectoryExistsAsync(dirname, token)) {
-						await remoteClient.CreateDirectoryAsync(dirname, token);
-					}
-				}
-
-				if (offset == 0 && existsMode != FtpRemoteExists.AppendNoCheck) {
-					// send command to tell the source server to 'send' the file to the destination server
-					if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"RETR {sourcePath}", token)).Success) {
-						throw new FtpCommandException(reply);
-					}
-
-					//Instruct destination server to store the file
-					if (!(reply = await ftpFxpSession.TargetServer.ExecuteAsync($"STOR {remotePath}", token)).Success) {
-						throw new FtpCommandException(reply);
-					}
-				}
-				else {
-					//tell source server to restart / resume
-					if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"REST {offset}", token)).Success) {
-						throw new FtpCommandException(reply);
-					}
-
-					// send command to tell the source server to 'send' the file to the destination server
-					if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"RETR {sourcePath}", token)).Success) {
-						throw new FtpCommandException(reply);
-					}
-
-					//Instruct destination server to append the file
-					if (!(reply = await ftpFxpSession.TargetServer.ExecuteAsync($"APPE {remotePath}", token)).Success) {
-						throw new FtpCommandException(reply);
-					}
-				}
-
-				var transferStarted = DateTime.Now;
-				long lastSize = 0;
-
-
-				var sourceFXPTransferReply = ftpFxpSession.SourceServer.GetReplyAsync(token);
-				var destinationFXPTransferReply = ftpFxpSession.TargetServer.GetReplyAsync(token);
-
-				while (!sourceFXPTransferReply.IsCompleted || !destinationFXPTransferReply.IsCompleted) {
-
-					if (remoteClient.EnableThreadSafeDataConnections) {
-						// send progress reports
-						if (progress != null && fileSize != -1) {
-							offset = await remoteClient.GetFileSizeAsync(remotePath, token);
-
-							if (offset != -1 && lastSize <= offset) {
-								long bytesProcessed = offset - lastSize;
-								lastSize = offset;
-								ReportProgress(progress, fileSize, offset, bytesProcessed, DateTime.Now - transferStarted, sourcePath, remotePath, metaProgress);
-							}
+					// ensure the remote dir exists .. only if the file does not already exist!
+					if (createRemoteDir && !fileExists) {
+						var dirname = remotePath.GetFtpDirectoryName();
+						if (!await remoteClient.DirectoryExistsAsync(dirname, token)) {
+							await remoteClient.CreateDirectoryAsync(dirname, token);
 						}
 					}
 
-					await Task.Delay(1000);
+					if (offset == 0 && existsMode != FtpRemoteExists.AppendNoCheck) {
+						// send command to tell the source server to 'send' the file to the destination server
+						if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"RETR {sourcePath}", token)).Success) {
+							throw new FtpCommandException(reply);
+						}
+
+						//Instruct destination server to store the file
+						if (!(reply = await ftpFxpSession.TargetServer.ExecuteAsync($"STOR {remotePath}", token)).Success) {
+							throw new FtpCommandException(reply);
+						}
+					}
+					else {
+						//tell source server to restart / resume
+						if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"REST {offset}", token)).Success) {
+							throw new FtpCommandException(reply);
+						}
+
+						// send command to tell the source server to 'send' the file to the destination server
+						if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"RETR {sourcePath}", token)).Success) {
+							throw new FtpCommandException(reply);
+						}
+
+						//Instruct destination server to append the file
+						if (!(reply = await ftpFxpSession.TargetServer.ExecuteAsync($"APPE {remotePath}", token)).Success) {
+							throw new FtpCommandException(reply);
+						}
+					}
+
+					var transferStarted = DateTime.Now;
+					long lastSize = 0;
+
+
+					var sourceFXPTransferReply = ftpFxpSession.SourceServer.GetReplyAsync(token);
+					var destinationFXPTransferReply = ftpFxpSession.TargetServer.GetReplyAsync(token);
+
+					while (!sourceFXPTransferReply.IsCompleted || !destinationFXPTransferReply.IsCompleted) {
+
+						if (remoteClient.EnableThreadSafeDataConnections) {
+							// send progress reports
+							if (progress != null && fileSize != -1) {
+								offset = await remoteClient.GetFileSizeAsync(remotePath, token);
+
+								if (offset != -1 && lastSize <= offset) {
+									long bytesProcessed = offset - lastSize;
+									lastSize = offset;
+									ReportProgress(progress, fileSize, offset, bytesProcessed, DateTime.Now - transferStarted, sourcePath, remotePath, metaProgress);
+								}
+							}
+						}
+
+						await Task.Delay(1000);
+					}
+
+					FtpTrace.WriteLine(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");
+
+					await NoopAsync(token);
+					await remoteClient.NoopAsync(token);
+
+					ftpFxpSession.Dispose();
+
+					return true;
+
 				}
 
-				FtpTrace.WriteLine(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");
-
-				await NoopAsync(token);
-				await remoteClient.NoopAsync(token);
-
-				return true;
+				// Fix: catch all exceptions and dispose off the FTP clients if one occurs
+				catch (Exception ex) {
+					ftpFxpSession.Dispose();
+					throw ex;
+				}
 			}
 			else {
 				FtpTrace.WriteLine(FtpTraceLevel.Error, "Failed to open FXP passive Connection");

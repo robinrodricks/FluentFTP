@@ -19,13 +19,23 @@ namespace FluentFTP {
 		/// </summary>
 		public bool IsDisposed { get; private set; }
 
+		/// <summary>
+		/// Closes an FXP connection by disconnecting and disposing off the FTP clients that are
+		/// cloned for this FXP connection. Manually created FTP clients are untouched.
+		/// </summary>
 		public void Dispose() {
 			if (IsDisposed) {
 				return;
 			}
-
-			SourceServer = null;
-			TargetServer = null;
+			
+			if (SourceServer != null) {
+				SourceServer.AutoDispose();
+				SourceServer = null;
+			}
+			if (TargetServer != null) {
+				TargetServer.AutoDispose();
+				TargetServer = null;
+			}
 
 			IsDisposed = true;
 			GC.SuppressFinalize(this);
