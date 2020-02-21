@@ -3,10 +3,15 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
+#if !CORE
+using System.Runtime.Serialization;
+#endif
 
 namespace FluentFTP {
-
+	
+#if !CORE
 	[Serializable]
+#endif
 	public class FtpProfile {
 		/// <summary>
 		/// The host IP address or URL of the FTP server
