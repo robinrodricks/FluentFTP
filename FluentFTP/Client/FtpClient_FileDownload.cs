@@ -328,12 +328,11 @@ namespace FluentFTP {
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
 					verified = VerifyTransfer(localPath, remotePath);
 					LogLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
-#if DEBUG
 					if (!verified && attemptsLeft > 0) {
 						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						// Force overwrite if a retry is required
+						existsMode = FtpLocalExists.Overwrite;
 					}
-
-#endif
 				}
 			} while (!verified && attemptsLeft > 0);
 
@@ -453,12 +452,11 @@ namespace FluentFTP {
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
 					verified = await VerifyTransferAsync(localPath, remotePath, token);
 					LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
-#if DEBUG
 					if (!verified && attemptsLeft > 0) {
 						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Append ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						// Force overwrite if a retry is required
+						existsMode = FtpLocalExists.Overwrite;
 					}
-
-#endif
 				}
 			} while (!verified && attemptsLeft > 0);
 

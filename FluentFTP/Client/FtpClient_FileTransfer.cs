@@ -55,13 +55,11 @@ namespace FluentFTP {
 				if (fxpSuccess && verifyOptions != FtpVerify.None) {
 					verified = VerifyFXPTransfer(sourcePath, remoteClient, remotePath);
 					LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
-#if DEBUG
-					if (!verified && attemptsLeft > 0)
-					{
+					if (!verified && attemptsLeft > 0) {
 						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpRemoteExists.Append ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						// Force overwrite if a retry is required
+						existsMode = FtpRemoteExists.Overwrite;
 					}
-
-#endif
 				}
 			} while (!verified && attemptsLeft > 0);
 
@@ -144,13 +142,11 @@ namespace FluentFTP {
 				if (fxpSuccess && verifyOptions != FtpVerify.None) {
 					verified = await VerifyFXPTransferAsync(sourcePath, remoteClient, remotePath, token);
 					LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
-#if DEBUG
-					if (!verified && attemptsLeft > 0)
-					{
+					if (!verified && attemptsLeft > 0) {
 						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpRemoteExists.Append ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						// Force overwrite if a retry is required
+						existsMode = FtpRemoteExists.Overwrite;
 					}
-
-#endif
 				}
 			} while (!verified && attemptsLeft > 0);
 
