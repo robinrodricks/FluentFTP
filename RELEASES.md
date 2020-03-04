@@ -1,9 +1,6 @@
 # Release Notes
 
 #### 32.0.0
-  - Performance: New `QuickTransferLimit` property to control size of files read/written in a single disk call
-  - Performance: When uploading files, small files are read in a single disk call greatly improving transfer performance
-  - Performance: When downloading files, small files are written in a single disk call greatly improving transfer performance
   - Fix: When download fails and we need to retry on failed verification, ensure that file is re-downloaded
   - Fix: When FXP transfer fails and we need to retry on failed verification, ensure that file is re-transfered
   - Fix: When uploaded file is skipped, `FtpStatus.Failed` is returned instead of `FtpStatus.Skipped`

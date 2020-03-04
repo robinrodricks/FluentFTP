@@ -44,7 +44,7 @@ namespace FluentFTP.Streams {
 		public static Stream GetFileReadStream(FtpClient client, string localPath, bool isAsync, long fileSizeLimit, long knownLocalFileSize = 0) {
 
 			// if quick transfer is enabled
-			if (fileSizeLimit > 0) {
+			/*if (fileSizeLimit > 0) {
 
 				// ensure we have the size of the local file
 				if (knownLocalFileSize == 0) {
@@ -71,7 +71,7 @@ namespace FluentFTP.Streams {
 			// trace
 			if (client != null) {
 				client.LogStatus(FtpTraceLevel.Verbose, "Using file stream for " + knownLocalFileSize.FileSizeToString() + " file, outside " + fileSizeLimit.FileSizeToString());
-			}
+			}*/
 
 			// normal slow mode, return a FileStream
 			return new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, isAsync);
@@ -85,7 +85,7 @@ namespace FluentFTP.Streams {
 		public static Stream GetFileWriteStream(FtpClient client, string localPath, bool isAsync, long fileSizeLimit, long knownRemoteFileSize = 0, bool isAppend = false, long restartPos = 0) {
 
 			// if quick transfer is enabled
-			if (fileSizeLimit > 0) {
+			/*if (fileSizeLimit > 0) {
 
 				// check if quick transfer mode is possible
 				if (!isAppend && restartPos == 0 && knownRemoteFileSize > 0 && knownRemoteFileSize < fileSizeLimit) {
@@ -103,7 +103,7 @@ namespace FluentFTP.Streams {
 			// trace
 			if (client != null) {
 				client.LogStatus(FtpTraceLevel.Verbose, "Using file stream for " + knownRemoteFileSize.FileSizeToString() + " file, outside " + fileSizeLimit.FileSizeToString());
-			}
+			}*/
 
 			// normal slow mode, return a FileStream
 			if (isAppend) {
@@ -120,14 +120,14 @@ namespace FluentFTP.Streams {
 		public static void CompleteQuickFileWrite(Stream fileStream, string localPath) {
 
 			// if quick transfer is enabled
-			if (fileStream is MemoryStream) {
+			/*if (fileStream is MemoryStream) {
 
 				// write the file to disk using a single disk call
 				using (var file = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, false)) {
 					fileStream.Position = 0;
 					((MemoryStream)fileStream).WriteTo(file);
 				}
-			}
+			}*/
 		}
 
 #if ASYNC
@@ -137,7 +137,7 @@ namespace FluentFTP.Streams {
 		public static async Task CompleteQuickFileWriteAsync(Stream fileStream, string localPath, CancellationToken token) {
 
 			// if quick transfer is enabled
-			if (fileStream is MemoryStream) {
+			/*if (fileStream is MemoryStream) {
 
 				// write the file to disk using a single disk call
 				await Task.Run(() => {
@@ -146,7 +146,7 @@ namespace FluentFTP.Streams {
 						((MemoryStream)fileStream).WriteTo(file);
 					}
 				}, token);
-			}
+			}*/
 
 		}
 #endif

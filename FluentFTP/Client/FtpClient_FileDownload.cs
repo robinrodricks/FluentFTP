@@ -316,9 +316,9 @@ namespace FluentFTP {
 			}
 
 			// if not appending then fetch remote file size since mode is determined by that
-			if (knownFileSize == 0 && !isAppend) {
+			/*if (knownFileSize == 0 && !isAppend) {
 				knownFileSize = GetFileSize(remotePath);
-			}
+			}*/
 
 			bool downloadSuccess;
 			var verified = true;
@@ -331,9 +331,9 @@ namespace FluentFTP {
 					attemptsLeft--;
 
 					// if using the quick download mode, then complete the download by writing the file to disk
-					if (downloadSuccess) {
+					/*if (downloadSuccess) {
 						FtpFileStream.CompleteQuickFileWrite(outStream, localPath);
-					}
+					}*/
 				}
 
 				// if verification is needed
@@ -452,9 +452,9 @@ namespace FluentFTP {
 			}
 
 			// if not appending then fetch remote file size since mode is determined by that
-			if (knownFileSize == 0 && !isAppend) {
+			/*if (knownFileSize == 0 && !isAppend) {
 				knownFileSize = GetFileSize(remotePath);
-			}
+			}*/
 
 			bool downloadSuccess;
 			var verified = true;

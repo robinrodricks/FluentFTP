@@ -1110,7 +1110,7 @@ namespace Tests {
 				cl.Connect();
 
 
-				cl.QuickTransferLimit = 100000000; // 100 MB limit
+				//cl.QuickTransferLimit = 100000000; // 100 MB limit
 				var sw = StartTimer();
 				cl.DownloadFile(@"D:\Temp\10MB.zip", "10MB.zip");
 				cl.DownloadFile(@"D:\Temp\10MB.zip", "10MB.zip");
@@ -1118,7 +1118,7 @@ namespace Tests {
 
 
 
-				cl.QuickTransferLimit = 0; // disabled
+				//cl.QuickTransferLimit = 0; // disabled
 				var sw2 = StartTimer();
 				cl.DownloadFile(@"D:\Temp\10MB.zip", "10MB.zip");
 				cl.DownloadFile(@"D:\Temp\10MB.zip", "10MB.zip");
@@ -1135,7 +1135,7 @@ namespace Tests {
 				cl.Connect();
 
 
-				cl.QuickTransferLimit = 100000000; // 100 MB limit
+				//cl.QuickTransferLimit = 100000000; // 100 MB limit
 				var sw = StartTimer();
 				cl.DownloadFile(@"D:\Temp\100KB.zip", "100KB.zip");
 				cl.DownloadFile(@"D:\Temp\100KB.zip", "100KB.zip");
@@ -1146,7 +1146,7 @@ namespace Tests {
 
 
 
-				cl.QuickTransferLimit = 0; // disabled
+				//cl.QuickTransferLimit = 0; // disabled
 				var sw2 = StartTimer();
 				cl.DownloadFile(@"D:\Temp\100KB.zip", "100KB.zip");
 				cl.DownloadFile(@"D:\Temp\100KB.zip", "100KB.zip");
