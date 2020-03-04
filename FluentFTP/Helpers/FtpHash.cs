@@ -1,4 +1,5 @@
 ﻿using FluentFTP.Helpers.Hashing;
+using FluentFTP.Streams;
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -50,7 +51,11 @@ namespace FluentFTP {
 		/// <returns>True if the computed hash matches what's stored in this object.</returns>
 		/// <exception cref="NotImplementedException">Thrown if called on a CRC Hash</exception>
 		public bool Verify(string file) {
-			using (var istream = new FileStream(file, FileMode.Open, FileAccess.Read)) {
+
+			// read the file using a FileStream or by reading it entirely into memory if it fits within 1 MB
+			using (var istream = FtpFileStream.GetFileReadStream(file, false, 1024 * 1024)) {
+
+				// verify the file data against the hash reported by the FTP server
 				return Verify(istream);
 			}
 		}
@@ -124,12 +129,13 @@ namespace FluentFTP {
 						foreach (var b in data) {
 							hash.Append(b.ToString("x2"));
 						}
-
-						return hash.ToString().ToUpper() == m_value.ToUpper();
+						return hash.ToString().Equals(m_value, StringComparison.OrdinalIgnoreCase);
 					}
 				}
 				finally {
-#if !NET20 && !NET35 // .NET 2.0 doesn't provide access to Dispose() for HashAlgorithm
+
+// .NET 2.0 doesn't provide access to Dispose() for HashAlgorithm
+#if !NET20 && !NET35 
 					if (hashAlg != null) {
 						hashAlg.Dispose();
 					}
