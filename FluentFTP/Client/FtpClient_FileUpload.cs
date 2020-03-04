@@ -356,12 +356,14 @@ namespace FluentFTP {
 
 			// Default validation to true (if verification isn't needed it'll allow a pass-through)
 			var verified = true;
+			FtpStatus uploadStatus;
 			bool uploadSuccess;
 			do {
 				// write the file onto the server
 				using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
 					// Upload file
-					uploadSuccess = UploadFileInternal(fileStream, localPath, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, progress, metaProgress);
+					uploadStatus = UploadFileInternal(fileStream, localPath, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, progress, metaProgress);
+					uploadSuccess = uploadStatus.IsSuccess();
 					attemptsLeft--;
 
 					// If verification is needed, update the validated flag
@@ -369,8 +371,8 @@ namespace FluentFTP {
 						verified = VerifyTransfer(localPath, remotePath);
 						LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 						if (!verified && attemptsLeft > 0) {
-							// Force overwrite if a retry is required
 							LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpRemoteExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
+							// Force overwrite if a retry is required
 							existsMode = FtpRemoteExists.Overwrite;
 						}
 					}
@@ -386,7 +388,8 @@ namespace FluentFTP {
 				throw new FtpException("Uploaded file checksum value does not match local file");
 			}
 
-			return uploadSuccess && verified ? FtpStatus.Success : FtpStatus.Failed;
+			// if uploaded OK then correctly return Skipped or Success, else return Failed
+			return uploadSuccess && verified ? uploadStatus : FtpStatus.Failed;
 		}
 
 #if ASYNC
@@ -443,11 +446,13 @@ namespace FluentFTP {
 
 			// Default validation to true (if verification isn't needed it'll allow a pass-through)
 			var verified = true;
+			FtpStatus uploadStatus;
 			bool uploadSuccess;
 			do {
 				// write the file onto the server
 				using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true)) {
-					uploadSuccess = await UploadFileInternalAsync(fileStream, localPath, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, progress, token, metaProgress);
+					uploadStatus = await UploadFileInternalAsync(fileStream, localPath, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, progress, token, metaProgress);
+					uploadSuccess = uploadStatus.IsSuccess();
 					attemptsLeft--;
 
 					// If verification is needed, update the validated flag
@@ -455,8 +460,8 @@ namespace FluentFTP {
 						verified = await VerifyTransferAsync(localPath, remotePath, token);
 						LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 						if (!verified && attemptsLeft > 0) {
-							// Force overwrite if a retry is required
 							LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpRemoteExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
+							// Force overwrite if a retry is required
 							existsMode = FtpRemoteExists.Overwrite;
 						}
 					}
@@ -471,7 +476,8 @@ namespace FluentFTP {
 				throw new FtpException("Uploaded file checksum value does not match local file");
 			}
 
-			return uploadSuccess && verified ? FtpStatus.Success : FtpStatus.Failed;
+			// if uploaded OK then correctly return Skipped or Success, else return Failed
+			return uploadSuccess && verified ? uploadStatus : FtpStatus.Failed;
 		}
 
 #endif
@@ -609,7 +615,7 @@ namespace FluentFTP {
 		/// Upload the given stream to the server as a new file. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private bool UploadFileInternal(Stream fileData, string localPath, string remotePath, bool createRemoteDir,
+		private FtpStatus UploadFileInternal(Stream fileData, string localPath, string remotePath, bool createRemoteDir,
 			FtpRemoteExists existsMode, bool fileExists, bool fileExistsKnown, Action<FtpProgress> progress, FtpProgress metaProgress) {
 
 			Stream upStream = null;
@@ -646,7 +652,7 @@ namespace FluentFTP {
 									progress(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 								}
 
-								return false;
+								return FtpStatus.Skipped;
 							}
 
 							break;
@@ -821,7 +827,7 @@ namespace FluentFTP {
 
 						// Fix #353: if server sends 550 the transfer was received but could not be confirmed by the server
 						if (status.Code != null && status.Code != "" && status.Code.StartsWith("5")) {
-							return false;
+							return FtpStatus.Failed;
 						}
 
 						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
@@ -836,7 +842,7 @@ namespace FluentFTP {
 				// absorb "System.TimeoutException: Timed out trying to read data from the socket stream!" at GetReply()
 				catch (Exception) { }
 
-				return true;
+				return FtpStatus.Success;
 			}
 			catch (Exception ex1) {
 				// close stream before throwing error
@@ -858,7 +864,7 @@ namespace FluentFTP {
 		/// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private async Task<bool> UploadFileInternalAsync(Stream fileData, string localPath, string remotePath, bool createRemoteDir,
+		private async Task<FtpStatus> UploadFileInternalAsync(Stream fileData, string localPath, string remotePath, bool createRemoteDir,
 			FtpRemoteExists existsMode, bool fileExists, bool fileExistsKnown, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
 
 			Stream upStream = null;
@@ -893,7 +899,7 @@ namespace FluentFTP {
 									progress.Report(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 								}
 
-								return false;
+								return FtpStatus.Skipped;
 							}
 
 							break;
@@ -1067,7 +1073,7 @@ namespace FluentFTP {
 
 						// Fix #353: if server sends 550 the transfer was received but could not be confirmed by the server
 						if (status.Code != null && status.Code != "" && status.Code.StartsWith("5")) {
-							return false;
+							return FtpStatus.Failed;
 						}
 
 						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
@@ -1082,7 +1088,7 @@ namespace FluentFTP {
 				// absorb "System.TimeoutException: Timed out trying to read data from the socket stream!" at GetReply()
 				catch (Exception) { }
 
-				return true;
+				return FtpStatus.Success;
 			}
 			catch (Exception ex1) {
 				// close stream before throwing error
