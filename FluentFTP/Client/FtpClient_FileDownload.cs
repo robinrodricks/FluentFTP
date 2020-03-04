@@ -13,6 +13,7 @@ using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Proxy;
 using FluentFTP.Servers;
+using FluentFTP.Streams;
 #if !CORE
 using System.Web;
 #endif
@@ -279,7 +280,7 @@ namespace FluentFTP {
 		}
 
 		private FtpStatus DownloadFileToFile(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
-			var outStreamFileMode = FileMode.Create;
+			bool isAppend = false;
 
 			LogFunc(nameof(DownloadFile), new object[] { localPath, remotePath, existsMode, verifyOptions });
 
@@ -287,12 +288,12 @@ namespace FluentFTP {
 			long knownFileSize = 0;
 			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
 				knownFileSize = GetFileSize(remotePath);
-				if (knownFileSize.Equals(new FileInfo(localPath).Length)) {
+				if (knownFileSize.Equals(FtpFileStream.GetFileSize(localPath, false))) {
 					LogStatus(FtpTraceLevel.Info, "Append is selected => Local file size matches size on server => skipping");
 					return FtpStatus.Skipped;
 				}
 				else {
-					outStreamFileMode = FileMode.Append;
+					isAppend = true;
 				}
 			}
 			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
@@ -312,16 +313,26 @@ namespace FluentFTP {
 				throw new FtpException("Error while creating directories. See InnerException for more info.", ex1);
 			}
 
+			// if not appending then fetch remote file size since mode is determined by that
+			if (knownFileSize == 0 && !isAppend) {
+				knownFileSize = GetFileSize(remotePath);
+			}
+
 			bool downloadSuccess;
 			var verified = true;
 			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 			do {
-				// download the file from server
-				using (var outStream = new FileStream(localPath, outStreamFileMode, FileAccess.Write, FileShare.None)) {
-					// download the file straight to a file stream
-					var restartPos = File.Exists(localPath) ? new FileInfo(localPath).Length : 0;
+
+				// download the file from the server to a file stream or memory stream
+				var restartPos = FtpFileStream.GetFileSize(localPath, true);
+				using (var outStream = FtpFileStream.GetFileWriteStream(localPath, false, QuickTransferLimit, knownFileSize, isAppend, restartPos)) {
 					downloadSuccess = DownloadFileInternal(localPath, remotePath, outStream, restartPos, progress, metaProgress, knownFileSize);
 					attemptsLeft--;
+
+					// if using the quick download mode, then complete the download by writing the file to disk
+					if (downloadSuccess) {
+						FtpFileStream.CompleteQuickFileWrite(outStream, localPath);
+					}
 				}
 
 				// if verification is needed
@@ -391,24 +402,24 @@ namespace FluentFTP {
 			LogFunc(nameof(DownloadFileAsync), new object[] { localPath, remotePath, existsMode, verifyOptions });
 
 
-			var outStreamFileMode = FileMode.Create;
+			bool isAppend = false;
 
 			// skip downloading if the local file exists
 			long knownFileSize = 0;
 #if CORE
 			if (existsMode == FtpLocalExists.Append && await Task.Run(() => File.Exists(localPath), token)) {
 				knownFileSize = (await GetFileSizeAsync(remotePath, token));
-				if (knownFileSize.Equals((await Task.Run(() => new FileInfo(localPath), token)).Length)) {
+				if (knownFileSize.Equals(await FtpFileStream.GetFileSizeAsync(localPath, false, token))) {
 #else
 			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
 				knownFileSize = (await GetFileSizeAsync(remotePath, token));
-				if (knownFileSize.Equals(new FileInfo(localPath).Length)) {
+				if (knownFileSize.Equals(FtpFileStream.GetFileSize(localPath, false))) {
 #endif
 					LogStatus(FtpTraceLevel.Info, "Append is enabled => Local file size matches size on server => skipping");
 					return FtpStatus.Skipped;
 				}
 				else {
-					outStreamFileMode = FileMode.Append;
+					isAppend = true;
 				}
 			}
 #if CORE
@@ -436,16 +447,26 @@ namespace FluentFTP {
 				throw new FtpException("Error while crated directories. See InnerException for more info.", ex1);
 			}
 
+			// if not appending then fetch remote file size since mode is determined by that
+			if (knownFileSize == 0 && !isAppend) {
+				knownFileSize = GetFileSize(remotePath);
+			}
+
 			bool downloadSuccess;
 			var verified = true;
 			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 			do {
-				// download the file from server
-				using (var outStream = new FileStream(localPath, outStreamFileMode, FileAccess.Write, FileShare.None, 4096, true)) {
-					// download the file straight to a file stream
-					var restartPos = await Task.Run(() => File.Exists(localPath), token) ? (await Task.Run(() => new FileInfo(localPath), token)).Length : 0;
+
+				// download the file from the server to a file stream or memory stream
+				var restartPos = await FtpFileStream.GetFileSizeAsync(localPath, true, token);
+				using (var outStream = FtpFileStream.GetFileWriteStream(localPath, true, QuickTransferLimit, knownFileSize, isAppend, restartPos)) {
 					downloadSuccess = await DownloadFileInternalAsync(localPath, remotePath, outStream, restartPos, progress, token, metaProgress, knownFileSize);
 					attemptsLeft--;
+
+					// if using the quick download mode, then complete the download by writing the file to disk
+					if (downloadSuccess) {
+						await FtpFileStream.CompleteQuickFileWriteAsync(outStream, localPath, token);
+					}
 				}
 
 				// if verification is needed

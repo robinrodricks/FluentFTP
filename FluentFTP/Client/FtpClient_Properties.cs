@@ -748,9 +748,9 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Files within this size are read and written in a single call to the disk, thereby greatly increasing transfer performance.
-		/// Reduce this if you notice large memory consumption by FluentFTP.
+		/// Reduce this if you notice large memory consumption by FluentFTP. Set this to 0 to disable quick transfer.
 		/// </summary>
-		public int QuickTransferSize {
+		public int QuickTransferLimit {
 			get => m_quickTransferSize;
 			set => m_quickTransferSize = value;
 		}

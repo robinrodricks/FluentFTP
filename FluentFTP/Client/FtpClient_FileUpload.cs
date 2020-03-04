@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using FluentFTP.Streams;
 #if !CORE
 using System.Web;
 #endif
@@ -360,7 +361,7 @@ namespace FluentFTP {
 			bool uploadSuccess;
 			do {
 				// write the file onto the server
-				using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+				using (var fileStream = FtpFileStream.GetFileReadStream(localPath, false, QuickTransferLimit)) {
 					// Upload file
 					uploadStatus = UploadFileInternal(fileStream, localPath, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, progress, metaProgress);
 					uploadSuccess = uploadStatus.IsSuccess();
@@ -450,7 +451,7 @@ namespace FluentFTP {
 			bool uploadSuccess;
 			do {
 				// write the file onto the server
-				using (var fileStream = new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true)) {
+				using (var fileStream = FtpFileStream.GetFileReadStream(localPath, true, QuickTransferLimit)) {
 					uploadStatus = await UploadFileInternalAsync(fileStream, localPath, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, progress, token, metaProgress);
 					uploadSuccess = uploadStatus.IsSuccess();
 					attemptsLeft--;
