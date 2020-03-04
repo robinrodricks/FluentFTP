@@ -53,7 +53,7 @@ namespace FluentFTP {
 		public bool Verify(string file) {
 
 			// read the file using a FileStream or by reading it entirely into memory if it fits within 1 MB
-			using (var istream = FtpFileStream.GetFileReadStream(file, false, 1024 * 1024)) {
+			using (var istream = FtpFileStream.GetFileReadStream(null, file, false, 1024 * 1024)) {
 
 				// verify the file data against the hash reported by the FTP server
 				return Verify(istream);

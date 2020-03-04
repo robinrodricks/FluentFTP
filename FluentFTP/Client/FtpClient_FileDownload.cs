@@ -286,9 +286,11 @@ namespace FluentFTP {
 
 			// skip downloading if local file size matches
 			long knownFileSize = 0;
+			long restartPos = 0;
 			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
 				knownFileSize = GetFileSize(remotePath);
-				if (knownFileSize.Equals(FtpFileStream.GetFileSize(localPath, false))) {
+				restartPos = FtpFileStream.GetFileSize(localPath, false);
+				if (knownFileSize.Equals(restartPos)) {
 					LogStatus(FtpTraceLevel.Info, "Append is selected => Local file size matches size on server => skipping");
 					return FtpStatus.Skipped;
 				}
@@ -324,8 +326,7 @@ namespace FluentFTP {
 			do {
 
 				// download the file from the server to a file stream or memory stream
-				var restartPos = FtpFileStream.GetFileSize(localPath, true);
-				using (var outStream = FtpFileStream.GetFileWriteStream(localPath, false, QuickTransferLimit, knownFileSize, isAppend, restartPos)) {
+				using (var outStream = FtpFileStream.GetFileWriteStream(this, localPath, false, QuickTransferLimit, knownFileSize, isAppend, restartPos)) {
 					downloadSuccess = DownloadFileInternal(localPath, remotePath, outStream, restartPos, progress, metaProgress, knownFileSize);
 					attemptsLeft--;
 
@@ -406,14 +407,17 @@ namespace FluentFTP {
 
 			// skip downloading if the local file exists
 			long knownFileSize = 0;
+			long restartPos = 0;
 #if CORE
 			if (existsMode == FtpLocalExists.Append && await Task.Run(() => File.Exists(localPath), token)) {
 				knownFileSize = (await GetFileSizeAsync(remotePath, token));
-				if (knownFileSize.Equals(await FtpFileStream.GetFileSizeAsync(localPath, false, token))) {
+				restartPos = await FtpFileStream.GetFileSizeAsync(localPath, false, token);
+				if (knownFileSize.Equals(restartPos)) {
 #else
 			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
 				knownFileSize = (await GetFileSizeAsync(remotePath, token));
-				if (knownFileSize.Equals(FtpFileStream.GetFileSize(localPath, false))) {
+				restartPos = FtpFileStream.GetFileSize(localPath, false);
+				if (knownFileSize.Equals(restartPos)) {
 #endif
 					LogStatus(FtpTraceLevel.Info, "Append is enabled => Local file size matches size on server => skipping");
 					return FtpStatus.Skipped;
@@ -458,8 +462,7 @@ namespace FluentFTP {
 			do {
 
 				// download the file from the server to a file stream or memory stream
-				var restartPos = await FtpFileStream.GetFileSizeAsync(localPath, true, token);
-				using (var outStream = FtpFileStream.GetFileWriteStream(localPath, true, QuickTransferLimit, knownFileSize, isAppend, restartPos)) {
+				using (var outStream = FtpFileStream.GetFileWriteStream(this, localPath, true, QuickTransferLimit, knownFileSize, isAppend, restartPos)) {
 					downloadSuccess = await DownloadFileInternalAsync(localPath, remotePath, outStream, restartPos, progress, token, metaProgress, knownFileSize);
 					attemptsLeft--;
 
@@ -786,8 +789,8 @@ namespace FluentFTP {
 				}
 
 				// absorb "file does not exist" exceptions and simply return false
-				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
-					LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
+				if (ex1.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
+					LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1.Message);
 					return false;
 				}
 
@@ -985,8 +988,8 @@ namespace FluentFTP {
 				}
 
 				// absorb "file does not exist" exceptions and simply return false
-				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
-					LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
+				if (ex1.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
+					LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1.Message);
 					return false;
 				}
 
