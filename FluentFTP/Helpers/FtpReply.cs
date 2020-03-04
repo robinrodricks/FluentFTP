@@ -59,11 +59,10 @@ namespace FluentFTP {
 		public bool Success {
 			get {
 				if (Code != null && Code.Length > 0) {
-					int i;
 
 					// 1xx, 2xx, 3xx indicate success
 					// 4xx, 5xx are failures
-					if (int.TryParse(Code[0].ToString(), out i) && i >= 1 && i <= 3) {
+					if (Code[0] == '1' || Code[0] == '2' || Code[0] == '3') {
 						return true;
 					}
 				}

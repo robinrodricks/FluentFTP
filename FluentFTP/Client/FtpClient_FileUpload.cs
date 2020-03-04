@@ -814,8 +814,9 @@ namespace FluentFTP {
 							continue;
 						}
 
-						// Fix #353: if server sends 550 the transfer was received but could not be confirmed by the server
-						if (status.Code != null && status.Code != "" && status.Code.StartsWith("5")) {
+						// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
+						// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
+						if (status.Code != null && !status.Success) {
 							return FtpStatus.Failed;
 						}
 
@@ -1049,8 +1050,9 @@ namespace FluentFTP {
 							continue;
 						}
 
-						// Fix #353: if server sends 550 the transfer was received but could not be confirmed by the server
-						if (status.Code != null && status.Code != "" && status.Code.StartsWith("5")) {
+						// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
+						// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
+						if (status.Code != null && !status.Success) {
 							return FtpStatus.Failed;
 						}
 
