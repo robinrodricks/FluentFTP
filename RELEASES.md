@@ -8,6 +8,7 @@
   - Fix: When FXP transfer fails and we need to retry on failed verification, ensure that file is re-transfered
   - Fix: When uploaded file is skipped, `FtpStatus.Failed` is returned instead of `FtpStatus.Skipped`
   - Fix: Properly handle 4xx and 5xx series of errors and indicate failure when uploading or downloading files
+  - Fix: Correctly detect if server-side recursion is supported otherwise fallback to manual directory recursion
   - Change: `Upload` and `UploadAsync` now returns `FtpStatus` to indicate skipped, success or failed
 
 #### 31.3.2
