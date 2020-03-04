@@ -143,7 +143,7 @@ namespace FluentFTP {
 					}
 				}
 
-				var innerStream = (Stream) FtpReflection.GetProperty(sslstate, "InnerStream");
+				var innerStream = (Stream)FtpReflection.GetProperty(sslstate, "InnerStream");
 				innerStream.Write(result, 0, resultSz);
 			}
 		}
