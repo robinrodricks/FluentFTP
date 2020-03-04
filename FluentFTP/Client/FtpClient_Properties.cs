@@ -732,7 +732,6 @@ namespace FluentFTP {
 			set => m_bulkListingLength = value;
 		}
 
-
 		private int? m_transferChunkSize;
 
 		/// <summary>
@@ -743,6 +742,17 @@ namespace FluentFTP {
 		public int TransferChunkSize {
 			get => m_transferChunkSize ?? 65536;
 			set => m_transferChunkSize = value;
+		}
+
+		private int m_quickTransferSize = (10 * 1024 * 1024);
+
+		/// <summary>
+		/// Files within this size are read and written in a single call to the disk, thereby greatly increasing transfer performance.
+		/// Reduce this if you notice large memory consumption by FluentFTP.
+		/// </summary>
+		public int QuickTransferSize {
+			get => m_quickTransferSize;
+			set => m_quickTransferSize = value;
 		}
 
 		private FtpDataType CurrentDataType;
