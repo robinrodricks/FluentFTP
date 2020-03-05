@@ -1104,7 +1104,7 @@ namespace Tests {
 			}
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestQuickDownloadFilePublic() {
 			using (var cl = NewFtpClient()) {
 				cl.Connect();
@@ -1129,7 +1129,7 @@ namespace Tests {
 
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestQuickDownloadFilePublic2() {
 			using (var cl = NewFtpClient()) {
 				cl.Connect();
@@ -1160,7 +1160,7 @@ namespace Tests {
 
 		}
 
-		[Fact]
+		//[Fact]
 		public void TestUploadDownloadFilePublic() {
 			using (var cl = NewFtpClient()) {
 				cl.Connect();
