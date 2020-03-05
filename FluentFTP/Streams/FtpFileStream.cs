@@ -35,6 +35,22 @@ namespace FluentFTP.Streams {
 			return (await Task.Run(() => new FileInfo(localPath), token)).Length;
 		}
 #endif
+		
+		/// <summary>
+		/// Returns the file size using synchronous file I/O.
+		/// </summary>
+		public static DateTime GetFileDateModifiedUtc(string localPath) {
+			return new FileInfo(localPath).LastWriteTimeUtc;
+		}
+
+#if ASYNC
+		/// <summary>
+		/// Returns the file size using synchronous file I/O.
+		/// </summary>
+		public static async Task<DateTime> GetFileDateModifiedUtcAsync(string localPath, CancellationToken token) {
+			return (await Task.Run(() => new FileInfo(localPath), token)).LastWriteTimeUtc;
+		}
+#endif
 
 		/// <summary>
 		/// Returns a new stream to upload a file from disk.

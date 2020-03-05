@@ -439,6 +439,10 @@ namespace FluentFTP {
 			return (flags & flag) == flag;
 		}
 
+		public static bool HasFlag(this FtpCompareOption flags, FtpCompareOption flag) {
+			return (flags & flag) == flag;
+		}
+
 		public static bool HasFlag(this FtpVerify flags, FtpVerify flag) {
 			return (flags & flag) == flag;
 		}

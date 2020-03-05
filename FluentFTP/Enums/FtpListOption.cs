@@ -2,7 +2,7 @@
 
 namespace FluentFTP {
 	/// <summary>
-	/// Flags that can dictate how a file listing is performed
+	/// Flags that can control how a file listing is performed. If you are unsure what to use, set it to Auto.
 	/// </summary>
 	[Flags]
 	public enum FtpListOption {

@@ -28,6 +28,13 @@ namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
 		#region Verification
 
+		private bool SupportsChecksum() {
+			return HasFeature(FtpCapability.HASH) || HasFeature(FtpCapability.MD5) ||
+					HasFeature(FtpCapability.XMD5) || HasFeature(FtpCapability.XCRC) ||
+					HasFeature(FtpCapability.XSHA1) || HasFeature(FtpCapability.XSHA256) ||
+					HasFeature(FtpCapability.XSHA512);
+		}
+
 		private bool VerifyTransfer(string localPath, string remotePath) {
 			// verify args
 			if (localPath.IsBlank()) {
@@ -38,10 +45,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			if (HasFeature(FtpCapability.HASH) || HasFeature(FtpCapability.MD5) ||
-				HasFeature(FtpCapability.XMD5) || HasFeature(FtpCapability.XCRC) ||
-				HasFeature(FtpCapability.XSHA1) || HasFeature(FtpCapability.XSHA256) ||
-				HasFeature(FtpCapability.XSHA512)) {
+			if (SupportsChecksum()) {
 				var hash = GetChecksum(remotePath);
 				if (!hash.IsValid) {
 					return false;
@@ -113,10 +117,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			if (HasFeature(FtpCapability.HASH) || HasFeature(FtpCapability.MD5) ||
-				HasFeature(FtpCapability.XMD5) || HasFeature(FtpCapability.XCRC) ||
-				HasFeature(FtpCapability.XSHA1) || HasFeature(FtpCapability.XSHA256) ||
-				HasFeature(FtpCapability.XSHA512)) {
+			if (SupportsChecksum()) {
 				FtpHash hash = await GetChecksumAsync(remotePath, token);
 				if (!hash.IsValid) {
 					return false;

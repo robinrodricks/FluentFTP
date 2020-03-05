@@ -40,7 +40,7 @@ namespace FluentFTP {
 
 			// ensure source file exists
 			if (!FileExists(sourcePath)) {
-				throw new FtpException(string.Format("Source File {0} cannot be found or does not exists!", sourcePath));
+				throw new FtpException("Source File " + sourcePath + " cannot be found or does not exists!");
 			}
 
 			bool fxpSuccess;
@@ -127,7 +127,7 @@ namespace FluentFTP {
 
 			// ensure source file exists
 			if (!await FileExistsAsync(sourcePath, token)) {
-				throw new FtpException(string.Format("Source File {0} cannot be found or does not exists!", sourcePath));
+				throw new FtpException("Source File " + sourcePath + " cannot be found or does not exists!");
 			}
 
 			bool fxpSuccess;

@@ -79,11 +79,11 @@ namespace FluentFTP {
 			var value = TransferSpeed > 0 ? TransferSpeed / 1024 : 0; //get KB/s
 
 			if (value < 1024) {
-				return string.Format("{0} KB/s", Math.Round(value, 2));
+				return Math.Round(value, 2).ToString() + "{0} KB/s";
 			}
 			else {
 				value = value / 1024;
-				return string.Format("{0} MB/s", Math.Round(value, 2));
+				return Math.Round(value, 2).ToString() + "{0} MB/s";
 			}
 		}
 
