@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 32.2.0
+  - New: `GetChecksum` allows you to specify a hash algorithm to be run on the server if supported
+  - New: FXP file transfer now validates the file using the first mutually supported algorithm
+
 #### 32.1.1
   - Fix: Incorrectly formatted string returned by utility method `TransferSpeedToString`
 
