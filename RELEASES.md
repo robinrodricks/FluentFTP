@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 32.1.1
+  - Fix: Incorrectly formatted string returned by utility method `TransferSpeedToString`
+
 #### 32.1.0
   - New: `CompareFile` and `CompareFileAsync` methods to quickly perform various equality checks on a uploaded/downloaded file
 
