@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 32.1.0
+  - New: `CompareFile` and `CompareFileAsync` methods to quickly perform various equality checks on a uploaded/downloaded file
+
 #### 32.0.0
   - Fix: When download fails and we need to retry on failed verification, ensure that file is re-downloaded
   - Fix: When FXP transfer fails and we need to retry on failed verification, ensure that file is re-transfered
