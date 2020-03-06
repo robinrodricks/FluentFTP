@@ -32,7 +32,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
     - Get file/folder info (exists, size, security flags, modified date/time)
     - Get and set [file permissions](https://github.com/robinrodricks/FluentFTP/wiki/File-Permissions) (owner, group, other)
     - Absolute or relative paths (relative to the ["working directory"](https://github.com/robinrodricks/FluentFTP/wiki/File-Management))
-    - Get the [hash/checksum](https://github.com/robinrodricks/FluentFTP/wiki/File-Hashing) of a file (SHA-1, SHA-256, SHA-512, and MD5)
+    - Compare a local file against a remote file using the [hash/checksum](https://github.com/robinrodricks/FluentFTP/wiki/File-Hashing#faq_comparefile) (MD5, CRC32, SHA-1, SHA-256, SHA-512)
     - Dereference of symbolic links to calculate the linked file/folder
 	- [Throttling](https://github.com/robinrodricks/FluentFTP/wiki/File-Transfer#faq_throttle) of uploads and downloads with configurable speed limit
   - **FTP protocol:**
