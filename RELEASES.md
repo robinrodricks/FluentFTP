@@ -2,6 +2,7 @@
 
 #### 32.2.0
   - New: `GetChecksum` allows you to specify a hash algorithm to be run on the server if supported
+  - New: `GetChecksum` has special support for switching the server-side algorithm for HASH command support
   - New: FXP file transfer now validates the file using the first mutually supported algorithm
 
 #### 32.1.1
