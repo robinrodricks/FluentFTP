@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 32.2.1
+  - Fix: `FtpFileExtensionRule` was failing to compare extensions unless they were prefixed with a dot
+
 #### 32.2.0
   - New: `GetChecksum` allows you to specify a hash algorithm to be run on the server if supported
   - New: `GetChecksum` has special support for switching the server-side algorithm for HASH command support
