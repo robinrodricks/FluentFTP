@@ -1,5 +1,49 @@
 # Release Notes
 
+#### 32.2.1
+  - Fix: `FtpFileExtensionRule` was failing to compare extensions unless they were prefixed with a dot
+
+#### 32.2.0
+  - New: `GetChecksum` allows you to specify a hash algorithm to be run on the server if supported
+  - New: `GetChecksum` has special support for switching the server-side algorithm for HASH command support
+  - New: FXP file transfer now validates the file using the first mutually supported algorithm
+
+#### 32.1.1
+  - Fix: Incorrectly formatted string returned by utility method `TransferSpeedToString`
+
+#### 32.1.0
+  - New: `CompareFile` and `CompareFileAsync` methods to quickly perform various equality checks on a uploaded/downloaded file
+
+#### 32.0.0
+  - Fix: When download fails and we need to retry on failed verification, ensure that file is re-downloaded
+  - Fix: When FXP transfer fails and we need to retry on failed verification, ensure that file is re-transfered
+  - Fix: When uploaded file is skipped, `FtpStatus.Failed` is returned instead of `FtpStatus.Skipped`
+  - Fix: Properly handle 4xx and 5xx series of errors and indicate failure when uploading or downloading files
+  - Fix: Correctly detect if server-side recursion is supported otherwise fallback to manual directory recursion
+  - Fix: Only resume download of files if Append mode is selected (in Overwrite mode we restart the download)
+  - Change: `Upload` and `UploadAsync` now returns `FtpStatus` to indicate skipped, success or failed
+
+#### 31.3.2
+  - Fix: Proper session handling for FXP connections and disconnection of cloned connections
+  - Performance: Reduce redundant file size check in `DownloadFile` when appending is used
+
+#### 31.3.1
+  - New: `AutoDetect` and `AutoConnect` now auto-configure for Azure FTP servers using known connection settings
+  - Improve code generation of `FtpProfile` to use LoadProfile rather than setting each property individually
+  - Add advanced Timeout and Socket settings to `FtpProfile` for Azure auto configuration
+  - Fix: All exception classes now inherit from `FtpException`
+  - All exceptions and `FtpProfile` are now serializable in .NET Framework
+
+#### 31.3.0
+  - New: `TransferFile` and `TransferDirectory` methods to transfer files from server to server (thanks [n0ix](/n0ix))
+  - New: FXP (File Transfer Protocol) implementation to support direct server-to-server transfers (thanks [n0ix](/n0ix))
+
+#### 31.2.0
+  - New: Predefined rules for filtering on file name using regular expressions (thanks [n0ix](/n0ix))
+  - New: Predefined rules for filtering on folder name using regular expressions (thanks [n0ix](/n0ix))
+  - Fix: Don't calculate ETA and percentage of `FtpProgress` if file size is zero (thanks [Adhara3](/Adhara3))
+  - Fix: `GetFilePermissions` should use `GetObjectInfo` instead of `GetListing` to prevent incorrect filepaths
+
 #### 31.1.0
   - New: Support for MMD5 file hashing command to validate downloaded/uploaded files. (thanks [n0ix](/n0ix))
   - Change: Disable all `Begin*` and `End*` methods for .NET 4.5 and onwards as `async`/`await` is supported.

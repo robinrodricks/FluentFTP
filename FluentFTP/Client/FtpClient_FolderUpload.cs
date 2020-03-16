@@ -1,28 +1,12 @@
 ﻿using System;
 using System.IO;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Globalization;
-using System.Security.Authentication;
-using System.Net;
-using FluentFTP.Proxy;
 using FluentFTP.Rules;
-#if !CORE
-using System.Web;
-#endif
 #if (CORE || NETFX)
 using System.Threading;
-
 #endif
 #if (CORE || NET45)
 using System.Threading.Tasks;
-
 #endif
 
 namespace FluentFTP {
@@ -99,7 +83,7 @@ namespace FluentFTP {
 
 			// loop thru each folder and ensure it exists
 			var dirsToUpload = GetSubDirectoriesToUpload(localFolder, remoteFolder, rules, results, dirListing);
-			UploadSubDirectories(dirsToUpload);
+			CreateSubDirectories(this, dirsToUpload);
 
 			// get all the files in the local directory
 			var fileListing = Directory.GetFiles(localFolder, "*.*", SearchOption.AllDirectories);
@@ -187,7 +171,7 @@ namespace FluentFTP {
 
 			// loop thru each folder and ensure it exists
 			var dirsToUpload = GetSubDirectoriesToUpload(localFolder, remoteFolder, rules, results, dirListing);
-			await UploadSubDirectoriesAsync(dirsToUpload, token);
+			await CreateSubDirectoriesAsync(this, dirsToUpload, token);
 
 			// get all the files in the local directory
 			var fileListing = Directory.GetFiles(localFolder, "*.*", SearchOption.AllDirectories);
@@ -229,18 +213,9 @@ namespace FluentFTP {
 				// record the folder
 				results.Add(result);
 
-				// if the folder passes all rules
-				if (rules != null && rules.Count > 0) {
-					var passes = FtpRule.IsAllAllowed(rules, result.ToListItem(true));
-					if (!passes) {
-
-						// mark that the file was skipped due to a rule
-						result.IsSkipped = true;
-						result.IsSkippedByRule = true;
-
-						// skip uploading the file
-						continue;
-					}
+				// skip uploading the file if it does not pass all the rules
+				if (!FilePassesRules(result, rules, true)) {
+					continue;
 				}
 				
 				dirsToUpload.Add(result);
@@ -252,7 +227,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Create all the sub directories within the main directory
 		/// </summary>
-		private void UploadSubDirectories(List<FtpResult> dirsToUpload) {
+		private void CreateSubDirectories(FtpClient client, List<FtpResult> dirsToUpload) {
 			foreach (var result in dirsToUpload) {
 
 				// absorb errors
@@ -260,7 +235,7 @@ namespace FluentFTP {
 
 					// create directory on the server
 					// to ensure we upload the blank remote dirs as well
-					if (CreateDirectory(result.RemotePath)) {
+					if (client.CreateDirectory(result.RemotePath)) {
 						result.IsSuccess = true;
 						result.IsSkipped = false;
 					}
@@ -282,7 +257,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Create all the sub directories within the main directory
 		/// </summary>
-		private async Task UploadSubDirectoriesAsync(List<FtpResult> dirsToUpload, CancellationToken token) {
+		private async Task CreateSubDirectoriesAsync(FtpClient client, List<FtpResult> dirsToUpload, CancellationToken token) {
 			foreach (var result in dirsToUpload) {
 
 				// absorb errors
@@ -290,7 +265,7 @@ namespace FluentFTP {
 
 					// create directory on the server
 					// to ensure we upload the blank remote dirs as well
-					if (await CreateDirectoryAsync(result.RemotePath, token)) {
+					if (await client.CreateDirectoryAsync(result.RemotePath, token)) {
 						result.IsSuccess = true;
 						result.IsSkipped = false;
 					}
@@ -334,22 +309,11 @@ namespace FluentFTP {
 				// record the file
 				results.Add(result);
 
-				// if the file passes all rules
-				if (rules != null && rules.Count > 0) {
-					var passes = FtpRule.IsAllAllowed(rules, result.ToListItem(true));
-					if (!passes) {
-
-						LogStatus(FtpTraceLevel.Info, "Skipped file due to rule: " + result.LocalPath);
-
-						// mark that the file was skipped due to a rule
-						result.IsSkipped = true;
-						result.IsSkippedByRule = true;
-
-						// skip uploading the file
-						continue;
-					}
+				// skip uploading the file if it does not pass all the rules
+				if (!FilePassesRules(result, rules, true)) {
+					continue;
 				}
-
+				
 				// record that this file should exist
 				shouldExist.Add(remoteFile.ToLower(), true);
 
@@ -374,23 +338,10 @@ namespace FluentFTP {
 				// absorb errors
 				try {
 
-					// check if the file already exists on the server
-					var existsModeToUse = existsMode;
-					var fileExists = FtpExtensions.FileExistsInListing(remoteListing, result.RemotePath);
-
-					// if we want to skip uploaded files and the file already exists, mark its skipped
-					if (existsMode == FtpRemoteExists.Skip && fileExists) {
-
-						LogStatus(FtpTraceLevel.Info, "Skipped file that already exists: " + result.LocalPath);
-
-						result.IsSuccess = true;
-						result.IsSkipped = true;
+					// skip uploading if the file already exists on the server
+					FtpRemoteExists existsModeToUse;
+					if (!CanUploadFile(result, remoteListing, existsMode, out existsModeToUse)){
 						continue;
-					}
-
-					// in any mode if the file does not exist, mark that exists check is not required
-					if (!fileExists) {
-						existsModeToUse = existsMode == FtpRemoteExists.Append ? FtpRemoteExists.AppendNoCheck : FtpRemoteExists.NoCheck;
 					}
 
 					// create meta progress to store the file progress
@@ -414,6 +365,32 @@ namespace FluentFTP {
 
 		}
 
+		/// <summary>
+		/// Check if the file is cleared to be uploaded, taking its existance/filesize and existsMode options into account.
+		/// </summary>
+		private bool CanUploadFile(FtpResult result, FtpListItem[] remoteListing, FtpRemoteExists existsMode, out FtpRemoteExists existsModeToUse) {
+
+			// check if the file already exists on the server
+			existsModeToUse = existsMode;
+			var fileExists = FtpExtensions.FileExistsInListing(remoteListing, result.RemotePath);
+
+			// if we want to skip uploaded files and the file already exists, mark its skipped
+			if (existsMode == FtpRemoteExists.Skip && fileExists) {
+
+				LogStatus(FtpTraceLevel.Info, "Skipped file that already exists: " + result.LocalPath);
+
+				result.IsSuccess = true;
+				result.IsSkipped = true;
+				return false;
+			}
+
+			// in any mode if the file does not exist, mark that exists check is not required
+			if (!fileExists) {
+				existsModeToUse = existsMode == FtpRemoteExists.Append ? FtpRemoteExists.AppendNoCheck : FtpRemoteExists.NoCheck;
+			}
+			return true;
+		}
+
 #if ASYNC
 		/// <summary>
 		/// Upload all the files within the main directory
@@ -429,23 +406,10 @@ namespace FluentFTP {
 				// absorb errors
 				try {
 
-					// check if the file already exists on the server
-					var existsModeToUse = existsMode;
-					var fileExists = FtpExtensions.FileExistsInListing(remoteListing, result.RemotePath);
-
-					// if we want to skip uploaded files and the file already exists, mark its skipped
-					if (existsMode == FtpRemoteExists.Skip && fileExists) {
-
-						LogStatus(FtpTraceLevel.Info, "Skipped file that already exists: " + result.LocalPath);
-
-						result.IsSuccess = true;
-						result.IsSkipped = true;
+					// skip uploading if the file already exists on the server
+					FtpRemoteExists existsModeToUse;
+					if (!CanUploadFile(result, remoteListing, existsMode, out existsModeToUse)) {
 						continue;
-					}
-
-					// in any mode if the file does not exist, mark that exists check is not required
-					if (!fileExists) {
-						existsModeToUse = existsMode == FtpRemoteExists.Append ? FtpRemoteExists.AppendNoCheck : FtpRemoteExists.NoCheck;
 					}
 
 					// create meta progress to store the file progress

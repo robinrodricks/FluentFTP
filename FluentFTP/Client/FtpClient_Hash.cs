@@ -381,12 +381,12 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region File Checksum
+		#region File Checksum
 
 		/// <summary>
-		/// Retrieves a checksum of the given file using a checksum method that the server supports, if any. 
+		/// Retrieves a checksum of the given file using the specified checksum algorithum, or using the first available algorithm that the server supports.
 		/// </summary>
 		/// <remarks>
 		/// The algorithm used goes in this order:
@@ -398,53 +398,70 @@ namespace FluentFTP {
 		/// 6. XCRC command
 		/// </remarks>
 		/// <param name="path">Full or relative path of the file to checksum</param>
+		/// <param name="algorithm">Specify an algorithm that you prefer, or NONE to use the first available algorithm. If the preferred algorithm is not supported, a blank hash is returned.</param>
 		/// <returns><see cref="FtpHash"/> object containing the value and algorithm. Use the <see cref="FtpHash.IsValid"/> property to
 		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
 		/// the underlying calls.</returns>
 		/// <example><code source="..\Examples\GetChecksum.cs" lang="cs" /></example>
 		/// <exception cref="FtpCommandException">The command fails</exception>
-		public FtpHash GetChecksum(string path) {
-			if (HasFeature(FtpCapability.HASH)) {
+		public FtpHash GetChecksum(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE) {
+
+			// if HASH is supported and the caller prefers an algorithm and that algorithm is supported
+			var useFirst = algorithm == FtpHashAlgorithm.NONE;
+			if (HasFeature(FtpCapability.HASH) && !useFirst && HashAlgorithms.HasFlag(algorithm)) {
+
+				// switch to that algorithm
+				SetHashAlgorithm(algorithm);
+
+				// get the hash of the file
+				return GetHash(path);
+
+			}
+
+			// if HASH is supported and the caller does not prefer any specific algorithm
+			else if (HasFeature(FtpCapability.HASH) && useFirst) {
 				return GetHash(path);
 			}
 			else {
-				var res = new FtpHash();
+				var result = new FtpHash();
 
-				if (HasFeature(FtpCapability.MD5)) {
-					res.Value = GetMD5(path);
-					res.Algorithm = FtpHashAlgorithm.MD5;
+				// execute the first available algorithm, or the preferred algorithm if specified
+
+				if (HasFeature(FtpCapability.MD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
+					result.Value = GetMD5(path);
+					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
-				else if (HasFeature(FtpCapability.XMD5)) {
-					res.Value = GetXMD5(path);
-					res.Algorithm = FtpHashAlgorithm.MD5;
+				else if (HasFeature(FtpCapability.XMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
+					result.Value = GetXMD5(path);
+					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
-				else if (HasFeature(FtpCapability.MMD5)) {
-					res.Value = GetMD5(path);
-					res.Algorithm = FtpHashAlgorithm.MD5;
+				else if (HasFeature(FtpCapability.MMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
+					result.Value = GetMD5(path);
+					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
-				else if (HasFeature(FtpCapability.XSHA1)) {
-					res.Value = GetXSHA1(path);
-					res.Algorithm = FtpHashAlgorithm.SHA1;
+				else if (HasFeature(FtpCapability.XSHA1) && (useFirst || algorithm == FtpHashAlgorithm.SHA1)) {
+					result.Value = GetXSHA1(path);
+					result.Algorithm = FtpHashAlgorithm.SHA1;
 				}
-				else if (HasFeature(FtpCapability.XSHA256)) {
-					res.Value = GetXSHA256(path);
-					res.Algorithm = FtpHashAlgorithm.SHA256;
+				else if (HasFeature(FtpCapability.XSHA256) && (useFirst || algorithm == FtpHashAlgorithm.SHA256)) {
+					result.Value = GetXSHA256(path);
+					result.Algorithm = FtpHashAlgorithm.SHA256;
 				}
-				else if (HasFeature(FtpCapability.XSHA512)) {
-					res.Value = GetXSHA512(path);
-					res.Algorithm = FtpHashAlgorithm.SHA512;
+				else if (HasFeature(FtpCapability.XSHA512) && (useFirst || algorithm == FtpHashAlgorithm.SHA512)) {
+					result.Value = GetXSHA512(path);
+					result.Algorithm = FtpHashAlgorithm.SHA512;
 				}
-				else if (HasFeature(FtpCapability.XCRC)) {
-					res.Value = GetXCRC(path);
-					res.Algorithm = FtpHashAlgorithm.CRC;
+				else if (HasFeature(FtpCapability.XCRC) && (useFirst || algorithm == FtpHashAlgorithm.CRC)) {
+					result.Value = GetXCRC(path);
+					result.Algorithm = FtpHashAlgorithm.CRC;
 				}
 
-				return res;
+				return result;
 			}
 		}
 
 #if !ASYNC
-		private delegate FtpHash AsyncGetChecksum(string path);
+		private delegate FtpHash AsyncGetChecksum(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE);
 
 		/// <summary>
 		/// Begins an asynchronous operation to retrieve a checksum of the given file using a checksum method that the server supports, if any. 
@@ -463,12 +480,12 @@ namespace FluentFTP {
 		/// <param name="state">State Object</param>
 		/// <returns>IAsyncResult</returns>
 		public IAsyncResult BeginGetChecksum(string path, AsyncCallback callback,
-			object state) {
+			object state, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE) {
 			var func = new AsyncGetChecksum(GetChecksum);
 			IAsyncResult ar;
 
 			lock (m_asyncmethods) {
-				ar = func.BeginInvoke(path, callback, state);
+				ar = func.BeginInvoke(path, algorithm, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -500,7 +517,7 @@ namespace FluentFTP {
 #endif
 #if ASYNC
 		/// <summary>
-		/// Retrieves a checksum of the given file using a checksum method that the server supports, if any. 
+		/// Retrieves a checksum of the given file using the specified checksum algorithum, or using the first available algorithm that the server supports.
 		/// </summary>
 		/// <remarks>
 		/// The algorithm used goes in this order:
@@ -513,56 +530,73 @@ namespace FluentFTP {
 		/// </remarks>
 		/// <param name="path">Full or relative path of the file to checksum</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <param name="algorithm">Specify an algorithm that you prefer, or NONE to use the first available algorithm. If the preferred algorithm is not supported, a blank hash is returned.</param>
 		/// <returns><see cref="FtpHash"/> object containing the value and algorithm. Use the <see cref="FtpHash.IsValid"/> property to
 		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
 		/// the underlying calls.</returns>
 		/// <example><code source="..\Examples\GetChecksum.cs" lang="cs" /></example>
 		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<FtpHash> GetChecksumAsync(string path, CancellationToken token = default(CancellationToken)) {
-			if (HasFeature(FtpCapability.HASH)) {
+		public async Task<FtpHash> GetChecksumAsync(string path, CancellationToken token = default(CancellationToken), FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE) {
+
+			// if HASH is supported and the caller prefers an algorithm and that algorithm is supported
+			var useFirst = algorithm == FtpHashAlgorithm.NONE;
+			if (HasFeature(FtpCapability.HASH) && !useFirst && HashAlgorithms.HasFlag(algorithm)) {
+
+				// switch to that algorithm
+				await SetHashAlgorithmAsync(algorithm, token);
+
+				// get the hash of the file
+				return await GetHashAsync(path, token);
+
+			}
+
+			// if HASH is supported and the caller does not prefer any specific algorithm
+			else if (HasFeature(FtpCapability.HASH) && useFirst) {
 				return await GetHashAsync(path, token);
 			}
+
 			else {
-				var res = new FtpHash();
+				var result = new FtpHash();
 
-				if (HasFeature(FtpCapability.MD5)) {
-					res.Value = await GetMD5Async(path, token);
-					res.Algorithm = FtpHashAlgorithm.MD5;
+				// execute the first available algorithm, or the preferred algorithm if specified
+
+				if (HasFeature(FtpCapability.MD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
+					result.Value = await GetMD5Async(path, token);
+					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
-				else if (HasFeature(FtpCapability.XMD5)) {
-					res.Value = await GetXMD5Async(path, token);
-					res.Algorithm = FtpHashAlgorithm.MD5;
+				else if (HasFeature(FtpCapability.XMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
+					result.Value = await GetXMD5Async(path, token);
+					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
-				else if (HasFeature(FtpCapability.MMD5))
-				{
-					res.Value = await GetMD5Async(path, token);
-					res.Algorithm = FtpHashAlgorithm.MD5;
+				else if (HasFeature(FtpCapability.MMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
+					result.Value = await GetMD5Async(path, token);
+					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
-				else if (HasFeature(FtpCapability.XSHA1)) {
-					res.Value = await GetXSHA1Async(path, token);
-					res.Algorithm = FtpHashAlgorithm.SHA1;
+				else if (HasFeature(FtpCapability.XSHA1) && (useFirst || algorithm == FtpHashAlgorithm.SHA1)) {
+					result.Value = await GetXSHA1Async(path, token);
+					result.Algorithm = FtpHashAlgorithm.SHA1;
 				}
-				else if (HasFeature(FtpCapability.XSHA256)) {
-					res.Value = await GetXSHA256Async(path, token);
-					res.Algorithm = FtpHashAlgorithm.SHA256;
+				else if (HasFeature(FtpCapability.XSHA256) && (useFirst || algorithm == FtpHashAlgorithm.SHA256)) {
+					result.Value = await GetXSHA256Async(path, token);
+					result.Algorithm = FtpHashAlgorithm.SHA256;
 				}
-				else if (HasFeature(FtpCapability.XSHA512)) {
-					res.Value = await GetXSHA512Async(path, token);
-					res.Algorithm = FtpHashAlgorithm.SHA512;
+				else if (HasFeature(FtpCapability.XSHA512) && (useFirst || algorithm == FtpHashAlgorithm.SHA512)) {
+					result.Value = await GetXSHA512Async(path, token);
+					result.Algorithm = FtpHashAlgorithm.SHA512;
 				}
-				else if (HasFeature(FtpCapability.XCRC)) {
-					res.Value = await GetXCRCAsync(path, token);
-					res.Algorithm = FtpHashAlgorithm.CRC;
+				else if (HasFeature(FtpCapability.XCRC) && (useFirst || algorithm == FtpHashAlgorithm.CRC)) {
+					result.Value = await GetXCRCAsync(path, token);
+					result.Algorithm = FtpHashAlgorithm.CRC;
 				}
 
-				return res;
+				return result;
 			}
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region MD5
+		#region MD5
 
 		/// <summary>
 		/// Gets the MD5 hash of the specified file using MD5. This is a non-standard extension
@@ -666,9 +700,9 @@ namespace FluentFTP {
 
 #endif
 
-#endregion
+		#endregion
 
-#region XCRC
+		#region XCRC
 
 		/// <summary>
 		/// Get the CRC value of the specified file. This is a non-standard extension of the protocol 
@@ -758,9 +792,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region XMD5
+		#region XMD5
 
 		/// <summary>
 		/// Gets the MD5 hash of the specified file using XMD5. This is a non-standard extension
@@ -845,9 +879,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region XSHA1
+		#region XSHA1
 
 		/// <summary>
 		/// Gets the SHA-1 hash of the specified file using XSHA1. This is a non-standard extension
@@ -932,9 +966,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region XSHA256
+		#region XSHA256
 
 		/// <summary>
 		/// Gets the SHA-256 hash of the specified file using XSHA256. This is a non-standard extension
@@ -1019,9 +1053,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region XSHA512
+		#region XSHA512
 
 		/// <summary>
 		/// Gets the SHA-512 hash of the specified file using XSHA512. This is a non-standard extension
@@ -1107,6 +1141,6 @@ namespace FluentFTP {
 
 #endif
 
-#endregion
+		#endregion
 	}
 }

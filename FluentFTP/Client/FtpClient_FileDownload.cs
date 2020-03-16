@@ -13,6 +13,7 @@ using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Proxy;
 using FluentFTP.Servers;
+using FluentFTP.Streams;
 #if !CORE
 using System.Web;
 #endif
@@ -279,18 +280,22 @@ namespace FluentFTP {
 		}
 
 		private FtpStatus DownloadFileToFile(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
-			var outStreamFileMode = FileMode.Create;
+			bool isAppend = false;
 
 			LogFunc(nameof(DownloadFile), new object[] { localPath, remotePath, existsMode, verifyOptions });
 
 			// skip downloading if local file size matches
+			long knownFileSize = 0;
+			long restartPos = 0;
 			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
-				if (GetFileSize(remotePath).Equals(new FileInfo(localPath).Length)) {
+				knownFileSize = GetFileSize(remotePath);
+				restartPos = FtpFileStream.GetFileSize(localPath, false);
+				if (knownFileSize.Equals(restartPos)) {
 					LogStatus(FtpTraceLevel.Info, "Append is selected => Local file size matches size on server => skipping");
 					return FtpStatus.Skipped;
 				}
 				else {
-					outStreamFileMode = FileMode.Append;
+					isAppend = true;
 				}
 			}
 			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
@@ -310,28 +315,36 @@ namespace FluentFTP {
 				throw new FtpException("Error while creating directories. See InnerException for more info.", ex1);
 			}
 
+			// if not appending then fetch remote file size since mode is determined by that
+			/*if (knownFileSize == 0 && !isAppend) {
+				knownFileSize = GetFileSize(remotePath);
+			}*/
+
 			bool downloadSuccess;
 			var verified = true;
 			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 			do {
-				// download the file from server
-				using (var outStream = new FileStream(localPath, outStreamFileMode, FileAccess.Write, FileShare.None)) {
-					// download the file straight to a file stream
-					var restartPos = File.Exists(localPath) ? new FileInfo(localPath).Length : 0;
-					downloadSuccess = DownloadFileInternal(localPath, remotePath, outStream, restartPos, progress, metaProgress);
+
+				// download the file from the server to a file stream or memory stream
+				using (var outStream = FtpFileStream.GetFileWriteStream(this, localPath, false, QuickTransferLimit, knownFileSize, isAppend, restartPos)) {
+					downloadSuccess = DownloadFileInternal(localPath, remotePath, outStream, restartPos, progress, metaProgress, knownFileSize);
 					attemptsLeft--;
+
+					// if using the quick download mode, then complete the download by writing the file to disk
+					/*if (downloadSuccess) {
+						FtpFileStream.CompleteQuickFileWrite(outStream, localPath);
+					}*/
 				}
 
 				// if verification is needed
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
 					verified = VerifyTransfer(localPath, remotePath);
 					LogLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
-#if DEBUG
 					if (!verified && attemptsLeft > 0) {
 						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						// Force overwrite if a retry is required
+						existsMode = FtpLocalExists.Overwrite;
 					}
-
-#endif
 				}
 			} while (!verified && attemptsLeft > 0);
 
@@ -390,21 +403,27 @@ namespace FluentFTP {
 			LogFunc(nameof(DownloadFileAsync), new object[] { localPath, remotePath, existsMode, verifyOptions });
 
 
-			var outStreamFileMode = FileMode.Create;
+			bool isAppend = false;
 
 			// skip downloading if the local file exists
+			long knownFileSize = 0;
+			long restartPos = 0;
 #if CORE
 			if (existsMode == FtpLocalExists.Append && await Task.Run(() => File.Exists(localPath), token)) {
-				if ((await GetFileSizeAsync(remotePath, token)).Equals((await Task.Run(() => new FileInfo(localPath), token)).Length)) {
+				knownFileSize = (await GetFileSizeAsync(remotePath, token));
+				restartPos = await FtpFileStream.GetFileSizeAsync(localPath, false, token);
+				if (knownFileSize.Equals(restartPos)) {
 #else
 			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
-				if ((await GetFileSizeAsync(remotePath)).Equals(new FileInfo(localPath).Length)) {
+				knownFileSize = (await GetFileSizeAsync(remotePath, token));
+				restartPos = FtpFileStream.GetFileSize(localPath, false);
+				if (knownFileSize.Equals(restartPos)) {
 #endif
 					LogStatus(FtpTraceLevel.Info, "Append is enabled => Local file size matches size on server => skipping");
 					return FtpStatus.Skipped;
 				}
 				else {
-					outStreamFileMode = FileMode.Append;
+					isAppend = true;
 				}
 			}
 #if CORE
@@ -432,28 +451,36 @@ namespace FluentFTP {
 				throw new FtpException("Error while crated directories. See InnerException for more info.", ex1);
 			}
 
+			// if not appending then fetch remote file size since mode is determined by that
+			/*if (knownFileSize == 0 && !isAppend) {
+				knownFileSize = GetFileSize(remotePath);
+			}*/
+
 			bool downloadSuccess;
 			var verified = true;
 			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 			do {
-				// download the file from server
-				using (var outStream = new FileStream(localPath, outStreamFileMode, FileAccess.Write, FileShare.None, 4096, true)) {
-					// download the file straight to a file stream
-					var restartPos = await Task.Run(() => File.Exists(localPath), token) ? (await Task.Run(() => new FileInfo(localPath), token)).Length : 0;
-					downloadSuccess = await DownloadFileInternalAsync(localPath, remotePath, outStream, restartPos, progress, token, metaProgress);
+
+				// download the file from the server to a file stream or memory stream
+				using (var outStream = FtpFileStream.GetFileWriteStream(this, localPath, true, QuickTransferLimit, knownFileSize, isAppend, restartPos)) {
+					downloadSuccess = await DownloadFileInternalAsync(localPath, remotePath, outStream, restartPos, progress, token, metaProgress, knownFileSize);
 					attemptsLeft--;
+
+					// if using the quick download mode, then complete the download by writing the file to disk
+					if (downloadSuccess) {
+						await FtpFileStream.CompleteQuickFileWriteAsync(outStream, localPath, token);
+					}
 				}
 
 				// if verification is needed
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
 					verified = await VerifyTransferAsync(localPath, remotePath, token);
 					LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
-#if DEBUG
 					if (!verified && attemptsLeft > 0) {
 						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Append ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						// Force overwrite if a retry is required
+						existsMode = FtpLocalExists.Overwrite;
 					}
-
-#endif
 				}
 			} while (!verified && attemptsLeft > 0);
 
@@ -497,7 +524,7 @@ namespace FluentFTP {
 			LogFunc(nameof(Download), new object[] { remotePath });
 
 			// download the file from the server
-			return DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0));
+			return DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0), 0);
 		}
 
 		/// <summary>
@@ -523,7 +550,7 @@ namespace FluentFTP {
 			// download the file from the server
 			bool ok;
 			using (var outStream = new MemoryStream()) {
-				ok = DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0));
+				ok = DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0), 0);
 				if (ok) {
 					outBytes = outStream.ToArray();
 				}
@@ -557,7 +584,7 @@ namespace FluentFTP {
 			LogFunc(nameof(DownloadAsync), new object[] { remotePath });
 
 			// download the file from the server
-			return await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0));
+			return await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0), 0);
 		}
 
 		/// <summary>
@@ -580,7 +607,7 @@ namespace FluentFTP {
 
 			// download the file from the server
 			using (var outStream = new MemoryStream()) {
-				var ok = await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0));
+				var ok = await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0), 0);
 				return ok ? outStream.ToArray() : null;
 			}
 		}
@@ -608,7 +635,7 @@ namespace FluentFTP {
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
 		private bool DownloadFileInternal(string localPath, string remotePath, Stream outStream, long restartPosition,
-			Action<FtpProgress> progress, FtpProgress metaProgress) {
+			Action<FtpProgress> progress, FtpProgress metaProgress, long knownFileSize) {
 
 			Stream downStream = null;
 
@@ -616,7 +643,7 @@ namespace FluentFTP {
 				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
 				long fileLen = 0;
 				if (DownloadDataType == FtpDataType.Binary && progress != null) {
-					fileLen = GetFileSize(remotePath);
+					fileLen = knownFileSize > 0 ? knownFileSize : GetFileSize(remotePath);
 				}
 
 				// open the file for reading
@@ -628,19 +655,7 @@ namespace FluentFTP {
 
 				const int rateControlResolution = 100;
 				var rateLimitBytes = DownloadRateLimit != 0 ? (long)DownloadRateLimit * 1024 : 0;
-				var chunkSize = TransferChunkSize;
-				if (m_transferChunkSize == null && rateLimitBytes > 0) {
-					// reduce chunk size to optimize rate control
-					const int chunkSizeMin = 64;
-					while (chunkSize > chunkSizeMin) {
-						var chunkLenInMs = 1000L * chunkSize / rateLimitBytes;
-						if (chunkLenInMs <= rateControlResolution) {
-							break;
-						}
-
-						chunkSize = Math.Max(chunkSize >> 1, chunkSizeMin);
-					}
-				}
+				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
 
 				// loop till entire file downloaded
 				var buffer = new byte[chunkSize];
@@ -745,6 +760,12 @@ namespace FluentFTP {
 							continue;
 						}
 
+						// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
+						// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
+						if (status.Code != null && !status.Success) {
+							return false;
+						}
+
 						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
 						if (anyNoop) {
 							ReadStaleData(false, true, true);
@@ -768,8 +789,8 @@ namespace FluentFTP {
 				}
 
 				// absorb "file does not exist" exceptions and simply return false
-				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
-					LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
+				if (ex1.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
+					LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1.Message);
 					return false;
 				}
 
@@ -778,21 +799,44 @@ namespace FluentFTP {
 			}
 		}
 
+		/// <summary>
+		/// Calculate transfer chunk size taking rate control into account
+		/// </summary>
+		private int CalculateTransferChunkSize(Int64 rateLimitBytes, int rateControlResolution) {
+			int chunkSize = TransferChunkSize;
+
+			// if user has not specified a TransferChunkSize and rate limiting is enabled
+			if (m_transferChunkSize == null && rateLimitBytes > 0) {
+
+				// reduce chunk size to optimize rate control
+				const int chunkSizeMin = 64;
+				while (chunkSize > chunkSizeMin) {
+					var chunkLenInMs = 1000L * chunkSize / rateLimitBytes;
+					if (chunkLenInMs <= rateControlResolution) {
+						break;
+					}
+
+					chunkSize = Math.Max(chunkSize >> 1, chunkSizeMin);
+				}
+			}
+			return chunkSize;
+		}
+
 #if ASYNC
 		/// <summary>
 		/// Download a file from the server and write the data into the given stream asynchronously.
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
 		private async Task<bool> DownloadFileInternalAsync(string localPath, string remotePath, Stream outStream, long restartPosition,
-			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
+			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress, long knownFileSize) {
 
 			Stream downStream = null;
 			try {
 				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
 				long fileLen = 0;
-
+				
 				if (DownloadDataType == FtpDataType.Binary && progress != null) {
-					fileLen = await GetFileSizeAsync(remotePath, token);
+					fileLen = knownFileSize > 0 ? knownFileSize : await GetFileSizeAsync(remotePath, token);
 				}
 
 				// open the file for reading
@@ -804,18 +848,7 @@ namespace FluentFTP {
 
 				const int rateControlResolution = 100;
 				var rateLimitBytes = DownloadRateLimit != 0 ? (long)DownloadRateLimit * 1024 : 0;
-				var chunkSize = TransferChunkSize;
-				if (m_transferChunkSize == null && rateLimitBytes > 0) {
-					// reduce chunk size to optimize rate control
-					const int chunkSizeMin = 64;
-					while (chunkSize > chunkSizeMin) {
-						var chunkLenInMs = 1000L * chunkSize / rateLimitBytes;
-						if (chunkLenInMs <= rateControlResolution) {
-							break;
-						}
-						chunkSize = Math.Max(chunkSize >> 1, chunkSizeMin);
-					}
-				}
+				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
 
 				// loop till entire file downloaded
 				var buffer = new byte[chunkSize];
@@ -921,6 +954,12 @@ namespace FluentFTP {
 							continue;
 						}
 
+						// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
+						// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
+						if (status.Code != null && !status.Success) {
+							return false;
+						}
+
 						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
 						if (anyNoop) {
 							await ReadStaleDataAsync(false, true, true, token);
@@ -949,8 +988,8 @@ namespace FluentFTP {
 				}
 
 				// absorb "file does not exist" exceptions and simply return false
-				if (ex1.Message.Contains("No such file") || ex1.Message.Contains("not exist") || ex1.Message.Contains("missing file") || ex1.Message.Contains("unknown file")) {
-					LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1);
+				if (ex1.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
+					LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1.Message);
 					return false;
 				}
 

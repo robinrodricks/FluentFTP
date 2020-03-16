@@ -3,8 +3,15 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
+#if !CORE
+using System.Runtime.Serialization;
+#endif
 
 namespace FluentFTP {
+	
+#if !CORE
+	[Serializable]
+#endif
 	public class FtpProfile {
 		/// <summary>
 		/// The host IP address or URL of the FTP server
@@ -36,6 +43,21 @@ namespace FluentFTP {
 		/// </summary>
 		public Encoding Encoding;
 
+		/// <summary>
+		/// A working Timeout setting found for this profile, or 0 if default value should be used
+		/// </summary>
+		public int Timeout;
+
+		/// <summary>
+		/// A working SocketPollInterval setting found for this profile, or 0 if default value should be used
+		/// </summary>
+		public int SocketPollInterval;
+
+		/// <summary>
+		/// A working RetryAttempts setting found for this profile, or 0 if default value should be used
+		/// </summary>
+		public int RetryAttempts;
+
 
 		/// <summary>
 		/// Generates valid C# code for this connection profile.
@@ -54,29 +76,40 @@ namespace FluentFTP {
 			sb.AppendLine("// add this to create and configure the FTP client");
 			sb.AppendLine("var client = new FtpClient();");
 
-			sb.AppendLine("client.Host = " + Host.EscapeStringLiteral() + ";");
 
-			sb.AppendLine("client.Credentials = new NetworkCredential(" + Credentials.UserName.EscapeStringLiteral() + ", " + Credentials.Password.EscapeStringLiteral() + ");");
+			// use LoadProfile rather than setting each property manually
+			// this also allows us to use the high level properties like Timeout without
+			// setting each Timeout individually
+			sb.AppendLine("client.LoadProfile(new FtpProfile {");
 
-			sb.Append("client.EncryptionMode = FtpEncryptionMode.");
-			sb.Append(Encryption.ToString());
-			sb.AppendLine(";");
+			sb.AppendLine("	Host = " + Host.EscapeStringLiteral() + ",");
+			sb.AppendLine("	Credentials = new NetworkCredential(" + Credentials.UserName.EscapeStringLiteral() + ", " + Credentials.Password.EscapeStringLiteral() + "),");
+			sb.AppendLine("	Encryption = FtpEncryptionMode." + Encryption.ToString() + ",");
+			sb.AppendLine("	Protocols = SslProtocols." + Protocols.ToString() + ",");
+			sb.AppendLine("	DataConnection = FtpDataConnectionType." + DataConnection.ToString() + ",");
 
-			sb.Append("client.SslProtocols = SslProtocols.");
-			sb.Append(Protocols.ToString());
-			sb.AppendLine(";");
-
-			sb.Append("client.DataConnectionType = FtpDataConnectionType.");
-			sb.Append(DataConnection.ToString());
-			sb.AppendLine(";");
-
-			sb.Append("client.Encoding = ");
 
 			// Fix #468 - Invalid code generated: Encoding = System.Text.UTF8Encoding+UTF8EncodingSealed
 			var encoding = Encoding.ToString();
-			sb.Append(encoding.Contains("+") ? encoding.Substring(0, encoding.IndexOf('+')) : encoding);
+			if (encoding.Contains("+")) {
+				sb.AppendLine("	Encoding = " + encoding.Substring(0, encoding.IndexOf('+')) + ",");
+			}
+			else {
+				sb.AppendLine("	Encoding = " + encoding + ",");
+			}
 
-			sb.AppendLine(";");
+			// Required for #533 - Auto detect Azure servers and use working settings
+			if (Timeout != 0) {
+				sb.AppendLine("	Timeout = " + Timeout + ",");
+			}
+			if (SocketPollInterval != 0) {
+				sb.AppendLine("	SocketPollInterval = " + SocketPollInterval + ",");
+			}
+			if (RetryAttempts != 0) {
+				sb.AppendLine("	RetryAttempts = " + RetryAttempts + ",");
+			}
+
+			sb.AppendLine("});");
 
 			if (Encryption != FtpEncryptionMode.None) {
 				sb.AppendLine("// if you want to accept any certificate then set ValidateAnyCertificate=true and delete the following event handler");

@@ -145,7 +145,7 @@ namespace FluentFTP {
 			return tpath.Substring(lastslash, tpath.Length - lastslash);
 		}
 
-		private static string[] FtpDateFormats = {"yyyyMMddHHmmss", "yyyyMMddHHmmss'.'f", "yyyyMMddHHmmss'.'ff", "yyyyMMddHHmmss'.'fff", "MMM dd  yyyy", "MMM  d  yyyy", "MMM dd HH:mm", "MMM  d HH:mm"};
+		private static string[] FtpDateFormats = { "yyyyMMddHHmmss", "yyyyMMddHHmmss'.'f", "yyyyMMddHHmmss'.'ff", "yyyyMMddHHmmss'.'fff", "MMM dd  yyyy", "MMM  d  yyyy", "MMM dd HH:mm", "MMM  d HH:mm" };
 
 		/// <summary>
 		/// Tries to convert the string FTP date representation into a <see cref="DateTime"/> object
@@ -163,27 +163,27 @@ namespace FluentFTP {
 			return DateTime.MinValue;
 		}
 
-		private static string[] sizePostfix = {"bytes", "KB", "MB", "GB", "TB"};
+		private static string[] sizePostfix = { "bytes", "KB", "MB", "GB", "TB" };
 
 		/// <summary>
 		/// Converts a file size in bytes to a string representation (eg. 12345 becomes 12.3 KB)
 		/// </summary>
 		public static string FileSizeToString(this int bytes) {
-			return ((long) bytes).FileSizeToString();
+			return ((long)bytes).FileSizeToString();
 		}
 
 		/// <summary>
 		/// Converts a file size in bytes to a string representation (eg. 12345 becomes 12.3 KB)
 		/// </summary>
 		public static string FileSizeToString(this uint bytes) {
-			return ((long) bytes).FileSizeToString();
+			return ((long)bytes).FileSizeToString();
 		}
 
 		/// <summary>
 		/// Converts a file size in bytes to a string representation (eg. 12345 becomes 12.3 KB)
 		/// </summary>
 		public static string FileSizeToString(this ulong bytes) {
-			return ((long) bytes).FileSizeToString();
+			return ((long)bytes).FileSizeToString();
 		}
 
 		/// <summary>
@@ -259,7 +259,7 @@ namespace FluentFTP {
 		/// <returns>True if a valid combination, otherwise false</returns>
 		public static bool IsValidCombination(this FtpError options) {
 			return options != (FtpError.Stop | FtpError.Throw) &&
-			       options != (FtpError.Throw | FtpError.Stop | FtpError.DeleteProcessed);
+				   options != (FtpError.Throw | FtpError.Stop | FtpError.DeleteProcessed);
 		}
 
 		/// <summary>
@@ -292,7 +292,7 @@ namespace FluentFTP {
 		public static bool IsBlank(this IList value) {
 			return value == null || value.Count == 0;
 		}
-		
+
 		/// <summary>
 		/// Checks if the array is null or 0 length.
 		/// </summary>
@@ -302,11 +302,11 @@ namespace FluentFTP {
 			}
 
 			if (value is IList) {
-				return ((IList) value).Count == 0;
+				return ((IList)value).Count == 0;
 			}
 
 			if (value is byte[]) {
-				return ((byte[]) value).Length == 0;
+				return ((byte[])value).Length == 0;
 			}
 
 			return false;
@@ -436,6 +436,10 @@ namespace FluentFTP {
 		}
 
 		public static bool HasFlag(this FtpListOption flags, FtpListOption flag) {
+			return (flags & flag) == flag;
+		}
+
+		public static bool HasFlag(this FtpCompareOption flags, FtpCompareOption flag) {
 			return (flags & flag) == flag;
 		}
 
@@ -631,7 +635,7 @@ namespace FluentFTP {
 						else {
 							// As UTF16 escaped character
 							literal.Append(@"\u");
-							literal.Append(((int) c).ToString("x4"));
+							literal.Append(((int)c).ToString("x4"));
 						}
 
 						break;
@@ -649,12 +653,12 @@ namespace FluentFTP {
 		public static string[] SplitString(this string str) {
 			var allTokens = new List<string>(str.Split(null));
 			for (var i = allTokens.Count - 1; i >= 0; i--) {
-				if (((string) allTokens[i]).Trim().Length == 0) {
+				if (((string)allTokens[i]).Trim().Length == 0) {
 					allTokens.RemoveAt(i);
 				}
 			}
 
-			return (string[]) allTokens.ToArray();
+			return (string[])allTokens.ToArray();
 		}
 
 		/// <summary>
@@ -699,7 +703,7 @@ namespace FluentFTP {
 					}
 					else {
 						client.LogStatus(FtpTraceLevel.Warn, "Couldn't determine the full path of this object: " +
-						                                     Environment.NewLine + item.ToString());
+															 Environment.NewLine + item.ToString());
 					}
 				}
 
@@ -864,29 +868,41 @@ namespace FluentFTP {
 		/// <summary>
 		/// Checks if RexEx Pattern is valid
 		/// </summary>
-		public static bool IsValidRegEx(this string pattern)
-		{
+		public static bool IsValidRegEx(this string pattern) {
 			bool isValid = true;
 
-			if ((pattern != null) && (pattern.Trim().Length > 0))
-			{
-				try
-				{
+			if ((pattern != null) && (pattern.Trim().Length > 0)) {
+				try {
 					Regex.Match("", pattern);
 				}
-				catch (ArgumentException)
-				{
+				catch (ArgumentException) {
 					// BAD PATTERN: Syntax error
 					isValid = false;
 				}
 			}
-			else
-			{
+			else {
 				//BAD PATTERN: Pattern is null or blank
 				isValid = false;
 			}
 
 			return (isValid);
 		}
+
+		/// <summary>
+		/// Converts a Windows or Unix-style path into its segments for segment-wise processing
+		/// </summary>
+		/// <returns></returns>
+		public static string[] GetPathSegments(this string path) {
+			if (path.Contains("/")) {
+				return path.Split('/');
+			}
+			else if (path.Contains("\\")) {
+				return path.Split('\\');
+			}
+			else {
+				return new string[] { path };
+			}
+		}
+
 	}
 }

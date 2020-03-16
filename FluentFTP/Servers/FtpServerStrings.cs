@@ -23,6 +23,7 @@ namespace FluentFTP.Servers {
 			"cannot find",
 			"can't get file",
 			"could not get file",
+			"could not get file size",
 			"cannot get file",
 			"not a regular file",
 			"file unavailable",

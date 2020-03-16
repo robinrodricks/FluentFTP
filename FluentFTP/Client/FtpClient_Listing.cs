@@ -212,9 +212,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region Get Listing
+		#region Get Listing
 
 		/// <summary>
 		/// Gets a file listing from the server from the current working directory. Each <see cref="FtpListItem"/> object returned
@@ -264,8 +264,9 @@ namespace FluentFTP {
 		/// <returns>An array of FtpListItem objects</returns>
 		/// <example><code source="..\Examples\GetListing.cs" lang="cs" /></example>
 		public FtpListItem[] GetListing(string path, FtpListOption options) {
+
 			// start recursive process if needed and unsupported by the server
-			if (options.HasFlag(FtpListOption.Recursive) && (!RecursiveList || options.HasFlag(FtpListOption.UseStat))) {
+			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
 				return GetListingRecursive(GetAbsolutePath(path), options);
 			}
 
@@ -428,6 +429,7 @@ namespace FluentFTP {
 		}
 
 		private void CalculateGetListingCommand(string path, FtpListOption options, out string listcmd, out bool machineList) {
+			
 			// read flags
 			var isForceList = options.HasFlag(FtpListOption.ForceList);
 			var isUseStat = options.HasFlag(FtpListOption.UseStat);
@@ -481,6 +483,40 @@ namespace FluentFTP {
 			if (!isNoPath) {
 				listcmd = listcmd + " " + path.GetFtpPath();
 			}
+		}
+
+		private bool IsServerSideRecursionSupported(FtpListOption options) {
+
+			// Fix #539: Correctly calculate if server-side recursion is supported else fallback to manual recursion
+
+			// check if the connected FTP server supports recursion in the first place
+			if (RecursiveList) {
+
+				// read flags
+				var isForceList = options.HasFlag(FtpListOption.ForceList);
+				var isUseStat = options.HasFlag(FtpListOption.UseStat);
+				var isNameList = options.HasFlag(FtpListOption.NameList);
+				var isUseLS = options.HasFlag(FtpListOption.UseLS);
+
+				// if not using STAT listing
+				if (!isUseStat) {
+
+					// if not using machine listing (MSLD)
+					if ((!isForceList || m_parser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
+					}
+					else {
+
+						// if not using legacy list (LS) and name listing (NSLT)
+						if (!isUseLS && !isNameList) {
+
+							// only supported if using LIST
+							return true;
+						}
+					}
+				}
+			}
+
+			return false;
 		}
 
 		/// <summary>
@@ -659,8 +695,9 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>An array of items retrieved in the listing</returns>
 		public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
+			
 			// start recursive process if needed and unsupported by the server
-			if (options.HasFlag(FtpListOption.Recursive) && (!RecursiveList || options.HasFlag(FtpListOption.UseStat))) {
+			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
 				return await GetListingRecursiveAsync(GetAbsolutePath(path), options);
 			}
 
@@ -890,9 +927,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region Get Listing Recursive
+		#region Get Listing Recursive
 
 		/// <summary>
 		/// Recursive method of GetListing, to recurse through directories on servers that do not natively support recursion.
@@ -990,9 +1027,9 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
-#region Get Name Listing
+		#region Get Name Listing
 
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command.
@@ -1163,6 +1200,6 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 	}
 }

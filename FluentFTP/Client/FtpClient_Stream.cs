@@ -383,13 +383,8 @@ namespace FluentFTP {
 				}
 
 				// read the connection port from the EPSV response
-				m = Regex.Match(reply.Message, @"\(\|\|\|(?<port>\d+)\|\)");
-				if (!m.Success) {
-					throw new FtpException("Failed to get the EPSV port from: " + reply.Message);
-				}
+				GetEnhancedPassivePort(reply, out host, out port);
 
-				host = m_host;
-				port = int.Parse(m.Groups["port"].Value);
 			}
 			else {
 				if (m_stream.LocalEndPoint.AddressFamily != AddressFamily.InterNetwork) {
@@ -406,31 +401,9 @@ namespace FluentFTP {
 					throw new FtpCommandException(reply);
 				}
 
-				m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
+				// get the passive port taking proxy config into account (if any)
+				GetPassivePort(type, reply, out host, out port);
 
-				if (!m.Success || m.Groups.Count != 7) {
-					throw new FtpException("Malformed PASV response: " + reply.Message);
-				}
-
-				// PASVEX mode ignores the host supplied in the PASV response
-				if (type == FtpDataConnectionType.PASVEX) {
-					host = m_host;
-				}
-				else {
-					host = m.Groups["quad1"].Value + "." + m.Groups["quad2"].Value + "." + m.Groups["quad3"].Value + "." + m.Groups["quad4"].Value;
-				}
-
-				port = (int.Parse(m.Groups["port1"].Value) << 8) + int.Parse(m.Groups["port2"].Value);
-
-				// Fix #409 for BlueCoat proxy connections. This code replaces the name of the proxy with the name of the FTP server and then nothing works.
-				if (!IsProxy()) {
-					//use host ip if server advertises a non-routable IP
-					m = Regex.Match(host, @"(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)|(^127\.0\.0\.1)|(^0\.0\.0\.0)");
-
-					if (m.Success) {
-						host = m_host;
-					}
-				}
 			}
 
 			stream = new FtpDataStream(this);
@@ -515,13 +488,8 @@ namespace FluentFTP {
 				}
 
 				// read the connection port from the EPSV response
-				m = Regex.Match(reply.Message, @"\(\|\|\|(?<port>\d+)\|\)");
-				if (!m.Success) {
-					throw new FtpException("Failed to get the EPSV port from: " + reply.Message);
-				}
+				GetEnhancedPassivePort(reply, out host, out port);
 
-				host = m_host;
-				port = int.Parse(m.Groups["port"].Value);
 			}
 			else {
 				if (m_stream.LocalEndPoint.AddressFamily != AddressFamily.InterNetwork) {
@@ -538,31 +506,9 @@ namespace FluentFTP {
 					throw new FtpCommandException(reply);
 				}
 
-				m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
+				// get the passive port taking proxy config into account (if any)
+				GetPassivePort(type, reply, out host, out port);
 
-				if (!m.Success || m.Groups.Count != 7) {
-					throw new FtpException("Malformed PASV response: " + reply.Message);
-				}
-
-				// PASVEX mode ignores the host supplied in the PASV response
-				if (type == FtpDataConnectionType.PASVEX) {
-					host = m_host;
-				}
-				else {
-					host = m.Groups["quad1"].Value + "." + m.Groups["quad2"].Value + "." + m.Groups["quad3"].Value + "." + m.Groups["quad4"].Value;
-				}
-
-				port = (int.Parse(m.Groups["port1"].Value) << 8) + int.Parse(m.Groups["port2"].Value);
-
-				// Fix #409 for BlueCoat proxy connections. This code replaces the name of the proxy with the name of the FTP server and then nothing works.
-				if (!IsProxy()) {
-					//use host ip if server advertises a non-routable IP
-					m = Regex.Match(host, @"(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)|(^127\.0\.0\.1)|(^0\.0\.0\.0)");
-
-					if (m.Success) {
-						host = m_host;
-					}
-				}
 			}
 
 			stream = new FtpDataStream(this);
@@ -601,6 +547,50 @@ namespace FluentFTP {
 			return stream;
 		}
 #endif
+
+		/// <summary>
+		/// Parse the host and port number from an EPSV response
+		/// </summary>
+		private void GetEnhancedPassivePort(FtpReply reply, out string host, out int port) {
+			var m = Regex.Match(reply.Message, @"\(\|\|\|(?<port>\d+)\|\)");
+			if (!m.Success) {
+				throw new FtpException("Failed to get the EPSV port from: " + reply.Message);
+			}
+
+			host = m_host;
+			port = int.Parse(m.Groups["port"].Value);
+		}
+
+		/// <summary>
+		/// Parse the host and port number from an PASV or PASVEX response
+		/// </summary>
+		private void GetPassivePort(FtpDataConnectionType type, FtpReply reply, out string host, out int port) {
+			var m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
+
+			if (!m.Success || m.Groups.Count != 7) {
+				throw new FtpException("Malformed PASV response: " + reply.Message);
+			}
+
+			// PASVEX mode ignores the host supplied in the PASV response
+			if (type == FtpDataConnectionType.PASVEX) {
+				host = m_host;
+			}
+			else {
+				host = m.Groups["quad1"].Value + "." + m.Groups["quad2"].Value + "." + m.Groups["quad3"].Value + "." + m.Groups["quad4"].Value;
+			}
+
+			port = (int.Parse(m.Groups["port1"].Value) << 8) + int.Parse(m.Groups["port2"].Value);
+
+			// Fix #409 for BlueCoat proxy connections. This code replaces the name of the proxy with the name of the FTP server and then nothing works.
+			if (!IsProxy()) {
+				//use host ip if server advertises a non-routable IP
+				m = Regex.Match(host, @"(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)|(^127\.0\.0\.1)|(^0\.0\.0\.0)");
+
+				if (m.Success) {
+					host = m_host;
+				}
+			}
+		}
 
 		/// <summary>
 		/// Returns the ip address to be sent to the server for the active connection
@@ -1860,5 +1850,6 @@ namespace FluentFTP {
 #endif
 
 		#endregion
+
 	}
 }

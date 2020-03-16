@@ -9,13 +9,13 @@ using System.Linq;
 using System.Net;
 using FluentFTP.Proxy;
 using FluentFTP.Servers;
+using FluentFTP.Rules;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
 #if !CORE
 using System.Web;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
-
 #endif
 #if ASYNC
 using System.Threading.Tasks;
@@ -23,11 +23,6 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP {
-	/// <summary>
-	/// A connection to a single FTP server. Interacts with any FTP/FTPS server and provides a high-level and low-level API to work with files and folders.
-	/// 
-	/// Debugging problems with FTP is much easier when you enable logging. See the FAQ on our Github project page for more info.
-	/// </summary>
 	public partial class FtpClient : IDisposable {
 		#region Utils
 
@@ -254,6 +249,28 @@ namespace FluentFTP {
 		public bool IsProxy() {
 			return this is FtpClientProxy;
 		}
+		
+		/// <summary>
+		/// Returns true if the file passes all the rules
+		/// </summary>
+		private bool FilePassesRules(FtpResult result, List<FtpRule> rules, bool useLocalPath, FtpListItem item = null) {
+			if (rules != null && rules.Count > 0) {
+				var passes = FtpRule.IsAllAllowed(rules, item ?? result.ToListItem(useLocalPath));
+				if (!passes) {
+
+					LogStatus(FtpTraceLevel.Info, "Skipped file due to rule: " + (useLocalPath ? result.LocalPath : result.RemotePath));
+
+					// mark that the file was skipped due to a rule
+					result.IsSkipped = true;
+					result.IsSkippedByRule = true;
+
+					// skip uploading the file
+					return false;
+				}
+			}
+			return true;
+		}
+		
 
 		#endregion
 

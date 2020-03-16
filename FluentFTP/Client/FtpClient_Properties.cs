@@ -32,6 +32,11 @@ namespace FluentFTP {
 		private bool _RecursiveListSupported = false;
 
 		/// <summary>
+		/// Used to automatically dispose cloned connections after FXP transfer has ended.
+		/// </summary>
+		private bool _AutoDispose = false;
+
+		/// <summary>
 		/// These flags must be reset every time we connect, to allow for users to connect to
 		/// different FTP servers with the same client object.
 		/// </summary>
@@ -727,7 +732,6 @@ namespace FluentFTP {
 			set => m_bulkListingLength = value;
 		}
 
-
 		private int? m_transferChunkSize;
 
 		/// <summary>
@@ -738,6 +742,17 @@ namespace FluentFTP {
 		public int TransferChunkSize {
 			get => m_transferChunkSize ?? 65536;
 			set => m_transferChunkSize = value;
+		}
+
+		private int m_quickTransferSize = (10 * 1024 * 1024);
+
+		/// <summary>
+		/// Files within this size are read and written in a single call to the disk, thereby greatly increasing transfer performance. Measured in bytes.
+		/// Reduce this if you notice large memory consumption by FluentFTP. Set this to 0 to disable quick transfer.
+		/// </summary>
+		internal int QuickTransferLimit {
+			get => m_quickTransferSize;
+			set => m_quickTransferSize = value;
 		}
 
 		private FtpDataType CurrentDataType;
@@ -793,6 +808,17 @@ namespace FluentFTP {
 		public FtpDataType DownloadDataType {
 			get => m_DownloadDataType;
 			set => m_DownloadDataType = value;
+		}
+
+		public FtpDataType m_FXPDataType = FtpDataType.Binary;
+
+		/// <summary>
+		/// Controls if the FXP server-to-server file transfer API uses Binary or ASCII mode.
+		/// </summary>
+		public FtpDataType FXPDataType
+		{
+			get => m_FXPDataType;
+			set => m_FXPDataType = value;
 		}
 
 		private bool m_SendHost;

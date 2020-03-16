@@ -1103,5 +1103,94 @@ namespace Tests {
 				}
 			}
 		}
+
+		//[Fact]
+		public void TestQuickDownloadFilePublic() {
+			using (var cl = NewFtpClient()) {
+				cl.Connect();
+
+
+				//cl.QuickTransferLimit = 100000000; // 100 MB limit
+				var sw = StartTimer();
+				cl.DownloadFile(@"D:\Temp\10MB.zip", "10MB.zip");
+				cl.DownloadFile(@"D:\Temp\10MB.zip", "10MB.zip");
+				StopTimer(sw, "Downloading with Quick Transfer");
+
+
+
+				//cl.QuickTransferLimit = 0; // disabled
+				var sw2 = StartTimer();
+				cl.DownloadFile(@"D:\Temp\10MB.zip", "10MB.zip");
+				cl.DownloadFile(@"D:\Temp\10MB.zip", "10MB.zip");
+				StopTimer(sw2, "Downloading with Filestream");
+
+
+			}
+
+		}
+
+		//[Fact]
+		public void TestQuickDownloadFilePublic2() {
+			using (var cl = NewFtpClient()) {
+				cl.Connect();
+
+
+				//cl.QuickTransferLimit = 100000000; // 100 MB limit
+				var sw = StartTimer();
+				cl.DownloadFile(@"D:\Temp\100KB.zip", "100KB.zip");
+				cl.DownloadFile(@"D:\Temp\100KB.zip", "100KB.zip");
+				cl.DownloadFile(@"D:\Temp\100KB.zip", "100KB.zip");
+				cl.DownloadFile(@"D:\Temp\100KB.zip", "100KB.zip");
+				cl.DownloadFile(@"D:\Temp\100KB.zip", "100KB.zip");
+				StopTimer(sw, "Downloading with Quick Transfer");
+
+
+
+				//cl.QuickTransferLimit = 0; // disabled
+				var sw2 = StartTimer();
+				cl.DownloadFile(@"D:\Temp\100KB.zip", "100KB.zip");
+				cl.DownloadFile(@"D:\Temp\100KB.zip", "100KB.zip");
+				cl.DownloadFile(@"D:\Temp\100KB.zip", "100KB.zip");
+				cl.DownloadFile(@"D:\Temp\100KB.zip", "100KB.zip");
+				cl.DownloadFile(@"D:\Temp\100KB.zip", "100KB.zip");
+				StopTimer(sw2, "Downloading with Filestream");
+
+
+			}
+
+		}
+
+		//[Fact]
+		public void TestUploadDownloadFilePublic() {
+			using (var cl = NewFtpClient()) {
+				cl.Connect();
+
+				cl.DownloadFile(@"D:\Temp\10MB.zip", "10MB.zip");
+				cl.DownloadFile(@"D:\Temp\1KB.zip", "1KB.zip");
+
+				cl.UploadFile(@"D:\Github\FluentFTP\README.md", "/upload/README.md");
+
+				cl.UploadFile(@"D:\Github\FluentFTP\.github\contributors.png", "/upload/contributors.png");
+
+			}
+
+		}
+
+		private Stopwatch StartTimer() {
+			var sw = new Stopwatch();
+			sw.Start();
+			return sw;
+		}
+
+		private void StopTimer(Stopwatch sw, string action) {
+			sw.Stop();
+
+			FtpTrace.WriteLine("");
+			FtpTrace.WriteLine("---------------------------------------------------");
+			FtpTrace.WriteLine("! " + action + " took " + ((double)sw.ElapsedMilliseconds / 1000) + " seconds");
+			FtpTrace.WriteLine("---------------------------------------------------");
+
+		}
+
 	}
 }

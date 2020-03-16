@@ -7,7 +7,7 @@
 [![Codacy grade](https://img.shields.io/codacy/grade/2d6bb3604aae4c1e892a8386363a5bfc.svg)](https://app.codacy.com/project/robinrodricks/FluentFTP/dashboard)
 [![License](https://img.shields.io/github/license/robinrodricks/FluentFTP.svg)](https://github.com/robinrodricks/FluentFTP/blob/master/LICENSE.TXT)
 
-FluentFTP is a fully managed FTP and FTPS library for .NET & .NET Standard, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, UTF-8 support, Async/await support, Powershell support and more.
+FluentFTP is a fully managed FTP and FTPS library for .NET & .NET Standard, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, FXP transfers, UTF-8 support, Async/await support, Powershell support and more.
 
 It is written entirely in C#, with no external dependencies. FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 
@@ -16,12 +16,13 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
 
 ## Features
 
-  - Full support for [FTP](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Support), [FTPS](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Connection#faq_ftps) (FTP over SSL), [FTPS with client certificates](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Connection#faq_certs) and [FTPS with CCC](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Connection#faq_ccc) (for FTP firewalls)
+  - Full support for [FTP](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Support), [FXP](https://github.com/robinrodricks/FluentFTP/wiki/FXP-Server-To-Server#how-does-fxp-transfer-work), [FTPS](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Connection#faq_ftps) (FTP over SSL), [FTPS with client certificates](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Connection#faq_certs) and [FTPS with CCC](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Connection#faq_ccc) (for FTP firewalls)
   - **File management:**
     - File and directory listing for [all major server types](https://github.com/robinrodricks/FluentFTP/wiki/Directory-Listing#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, IBM OS/400, AS400, Windows CE, Serv-U, etc)
 	- Fully recursive directory listing and directory deletion (manual recursion and server-side recursion)
-    - Easily upload and download a file from the server with [progress tracking](https://github.com/robinrodricks/FluentFTP/wiki/Directory-Listing#faq_progress)
+    - Easily upload and download a file from the server with [progress tracking](https://github.com/robinrodricks/FluentFTP/wiki/File-Transfer#how-can-i-track-the-progress-of-file-transfers)
     - Easily upload and download a directory from the server with [easy synchronization modes](https://github.com/robinrodricks/FluentFTP/wiki/Directory-Transfer#what-is-the-difference-between-the-mirror-and-update-modes)
+	- Easily transfer a file or folder directly from [one server to another](https://github.com/robinrodricks/FluentFTP/wiki/FXP-Server-To-Server#how-does-fxp-transfer-work) using the FXP protocol
 	- Conditionally transfer files using [rule based whitelisting and blacklisting](https://github.com/robinrodricks/FluentFTP/wiki/Rules#what-kinds-of-rules-are-supported-and-how-do-rules-work)
     - Automatically [verify the hash](https://github.com/robinrodricks/FluentFTP/wiki/File-Hashing#faq_verifyhash) of a file & retry transfer if hash mismatches
     - Configurable error handling (ignore/abort/throw) for multi-file transfers
@@ -31,7 +32,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
     - Get file/folder info (exists, size, security flags, modified date/time)
     - Get and set [file permissions](https://github.com/robinrodricks/FluentFTP/wiki/File-Permissions) (owner, group, other)
     - Absolute or relative paths (relative to the ["working directory"](https://github.com/robinrodricks/FluentFTP/wiki/File-Management))
-    - Get the [hash/checksum](https://github.com/robinrodricks/FluentFTP/wiki/File-Hashing) of a file (SHA-1, SHA-256, SHA-512, and MD5)
+    - Compare a local file against a remote file using the [hash/checksum](https://github.com/robinrodricks/FluentFTP/wiki/File-Hashing#faq_comparefile) (MD5, CRC32, SHA-1, SHA-256, SHA-512)
     - Dereference of symbolic links to calculate the linked file/folder
 	- [Throttling](https://github.com/robinrodricks/FluentFTP/wiki/File-Transfer#faq_throttle) of uploads and downloads with configurable speed limit
   - **FTP protocol:**
@@ -53,10 +54,11 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
     - Improves thread safety by cloning the FTP control connection for file transfers (optional)
     - Implements its own internal locking in an effort to keep transactions synchronized
   - **Extensible:**
-    - Easily add support for more proxy types (simply extend [`FTPClientProxy`](https://github.com/robinrodricks/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
-    - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/robinrodricks/FluentFTP/blob/f48af030b565237ddd5d7c8937378884d20e1627/FluentFTP.Examples/CustomParser.cs) example)
+    - Easily add support for more file or directory filtering rules (simply extend [`FtpRule`](https://github.com/robinrodricks/FluentFTP/wiki/Class-FtpRule))
+    - Easily add support for more proxy types (simply extend [`FtpClientProxy`](https://github.com/robinrodricks/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
+    - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/robinrodricks/FluentFTP/blob/master/FluentFTP.CSharpExamples/CustomParser.cs) example)
     - Easily add custom logging/tracing functionality using [`FtpTrace.AddListener`](https://github.com/robinrodricks/FluentFTP/wiki/Logging#faq_log)
-	- Easily add your own Powershell commands by extending the scripts in `FluentFTP.ps1`
+	- Easily add your own Powershell commands by extending the scripts in [`FluentFTP.ps1`](https://github.com/robinrodricks/FluentFTP/wiki/Powershell)
 
 	
 ## Releases

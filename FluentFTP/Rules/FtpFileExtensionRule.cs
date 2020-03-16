@@ -36,7 +36,7 @@ namespace FluentFTP.Rules {
 		/// </summary>
 		public override bool IsAllowed(FtpListItem item) {
 			if (item.Type == FtpFileSystemObjectType.File) {
-				var ext = Path.GetExtension(item.Name);
+				var ext = Path.GetExtension(item.Name).Replace(".", "").ToLower();
 				if (Whitelist) {
 
 					// whitelist
