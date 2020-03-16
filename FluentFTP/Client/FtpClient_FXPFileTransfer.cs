@@ -166,7 +166,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Transfers a file from the source FTP Server to the destination FTP Server via the FXP protocol
 		/// </summary>
-		public bool TransferFileFXPInternal(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
+		private bool TransferFileFXPInternal(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 
 			Action<FtpProgress> progress, FtpProgress metaProgress) {
 			FtpReply reply;
