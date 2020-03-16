@@ -133,7 +133,7 @@ namespace FluentFTP {
 				transferSpeed = 0;
 			}
 
-			var p = new FtpProgress(progressValue, transferSpeed, estimatedRemaingTime, localPath, remotePath, metaProgress);
+			var p = new FtpProgress(progressValue, position, transferSpeed, estimatedRemaingTime, localPath, remotePath, metaProgress);
 			return p;
 		}
 
