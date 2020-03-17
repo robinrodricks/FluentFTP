@@ -12,10 +12,10 @@ namespace FluentFTP {
 		public double Progress { get; set; }
 
 		/// <summary>
-		/// A value indicating how many bytes have been processed.
+		/// A value indicating how many bytes have been transferred.
 		/// When unable to calculate percentage, having the partial byte count may help in providing some feedback.
 		/// </summary>
-		public long ProcessedBytes { get; set; }
+		public long TransferredBytes { get; set; }
 
 		/// <summary>
 		/// A value representing the current Transfer Speed in Bytes per seconds.
@@ -62,7 +62,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Create a new FtpProgress object for individual file transfer progress.
 		/// </summary>
-		public FtpProgress(double progress, long bytesProcessed, double transferspeed, TimeSpan remainingtime, string localPath, string remotePath, FtpProgress metaProgress) {
+		public FtpProgress(double progress, long bytesTransferred, double transferspeed, TimeSpan remainingtime, string localPath, string remotePath, FtpProgress metaProgress) {
 
 			// progress of individual file transfer
 			Progress = progress;
@@ -70,7 +70,7 @@ namespace FluentFTP {
 			ETA = remainingtime;
 			LocalPath = localPath;
 			RemotePath = remotePath;
-			ProcessedBytes = bytesProcessed;
+			TransferredBytes = bytesTransferred;
 
 			// progress of the entire task
 			if (metaProgress != null) {
