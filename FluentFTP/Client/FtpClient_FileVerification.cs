@@ -98,7 +98,6 @@ namespace FluentFTP {
 			// send progress to parent
 			progress(status);
 		}
-
 		#endregion
 	}
 }

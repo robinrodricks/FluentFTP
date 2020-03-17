@@ -650,7 +650,7 @@ namespace FluentFTP {
 								// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
 								// send progress reports
 								if (progress != null) {
-									progress(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+									progress(new FtpProgress(100.0, offset, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 								}
 
 								return FtpStatus.Skipped;
@@ -797,7 +797,7 @@ namespace FluentFTP {
 
 				// send progress reports
 				if (progress != null) {
-					progress(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+					progress(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 				}
 
 				// disconnect FTP stream before exiting
@@ -844,7 +844,7 @@ namespace FluentFTP {
 				catch (Exception) {
 				}
 
-				// catch errors during upload
+				// catch errors during upload, 
 				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
 			}
 		}
@@ -886,7 +886,7 @@ namespace FluentFTP {
 								// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
 								// send progress reports
 								if (progress != null) {
-									progress.Report(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+									progress.Report(new FtpProgress(100.0, offset, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 								}
 
 								return FtpStatus.Skipped;
@@ -1033,7 +1033,7 @@ namespace FluentFTP {
 
 				// send progress reports
 				if (progress != null) {
-					progress.Report(new FtpProgress(100.0, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+					progress.Report(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 				}
 
 				// disconnect FTP stream before exiting
