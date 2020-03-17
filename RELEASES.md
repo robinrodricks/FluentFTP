@@ -1,5 +1,11 @@
 # Release Notes
 
+#### 32.2.2
+  - New: Tracking progress with FXP transfers is supported for all transfer modes
+  - New: Track low-level progress with new `TransferredBytes` in `FtpProgress` class (thanks [Adhara3](/Adhara3))
+  - New: `FXPProgressInterval` property to control how often FXP progress reports are sent
+  - Fix: Hide `TransferFileFXPInternal` because its an internal transfer method and not to be used directly
+
 #### 32.2.1
   - Fix: `FtpFileExtensionRule` was failing to compare extensions unless they were prefixed with a dot
 
