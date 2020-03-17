@@ -294,9 +294,9 @@ namespace FluentFTP {
 							}
 						}
 #if CORE14
-					Task.Delay(1000);
+						Task.Delay(FXPProgressInterval);
 #else
-						Thread.Sleep(1000);
+						Thread.Sleep(FXPProgressInterval);
 #endif
 					}
 
@@ -457,7 +457,7 @@ namespace FluentFTP {
 							}
 						}
 
-						await Task.Delay(1000);
+						await Task.Delay(FXPProgressInterval);
 					}
 
 					FtpTrace.WriteLine(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");
