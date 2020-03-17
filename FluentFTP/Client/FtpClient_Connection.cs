@@ -256,6 +256,8 @@ namespace FluentFTP {
 			conn.ActivePorts = ActivePorts;
 			conn.SendHost = SendHost;
 			conn.SendHostDomain = SendHostDomain;
+			conn.FXPDataType = FXPDataType;
+			conn.FXPProgressInterval = FXPProgressInterval;
 
 			// fix for #428: OpenRead with EnableThreadSafeDataConnections always uses ASCII
 			conn.CurrentDataType = CurrentDataType;

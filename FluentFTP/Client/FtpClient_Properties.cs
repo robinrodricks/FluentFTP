@@ -815,10 +815,20 @@ namespace FluentFTP {
 		/// <summary>
 		/// Controls if the FXP server-to-server file transfer API uses Binary or ASCII mode.
 		/// </summary>
-		public FtpDataType FXPDataType
-		{
+		public FtpDataType FXPDataType {
 			get => m_FXPDataType;
 			set => m_FXPDataType = value;
+		}
+
+		public int m_FXPProgressInterval = 1000;
+
+		/// <summary>
+		/// Controls how often the progress reports are sent during an FXP file transfer.
+		/// The default value is 1000 (1 second).
+		/// </summary>
+		public int FXPProgressInterval {
+			get => m_FXPProgressInterval;
+			set => m_FXPProgressInterval = value;
 		}
 
 		private bool m_SendHost;

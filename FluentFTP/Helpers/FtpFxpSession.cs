@@ -15,6 +15,11 @@ namespace FluentFTP {
 		public FtpClient TargetServer;
 
 		/// <summary>
+		/// A connection to the destination FTP server used to track progress while transfer is going on.
+		/// </summary>
+		public FtpClient ProgressServer;
+
+		/// <summary>
 		/// Gets a value indicating if this object has already been disposed.
 		/// </summary>
 		public bool IsDisposed { get; private set; }
@@ -35,6 +40,10 @@ namespace FluentFTP {
 			if (TargetServer != null) {
 				TargetServer.AutoDispose();
 				TargetServer = null;
+			}
+			if (ProgressServer != null) {
+				ProgressServer.AutoDispose();
+				ProgressServer = null;
 			}
 
 			IsDisposed = true;

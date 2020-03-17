@@ -167,14 +167,14 @@ namespace FluentFTP {
 		/// Transfers a file from the source FTP Server to the destination FTP Server via the FXP protocol
 		/// </summary>
 		private bool TransferFileFXPInternal(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
-
 			Action<FtpProgress> progress, FtpProgress metaProgress) {
+
 			FtpReply reply;
 			long offset = 0;
 			bool fileExists = false;
 			long fileSize = 0;
 
-			var ftpFxpSession = OpenPassiveFXPConnection(remoteClient);
+			var ftpFxpSession = OpenPassiveFXPConnection(remoteClient, progress != null);
 
 			if (ftpFxpSession != null) {
 				try {
@@ -276,13 +276,15 @@ namespace FluentFTP {
 					var sourceFXPTransferReply = ftpFxpSession.SourceServer.GetReply();
 					var destinationFXPTransferReply = ftpFxpSession.TargetServer.GetReply();
 
+					// while the transfer is not complete
 					while (!sourceFXPTransferReply.Success || !destinationFXPTransferReply.Success) {
 
-						if (remoteClient.EnableThreadSafeDataConnections) {
-							FtpTrace.Write(FtpTraceLevel.Info, "reporting progress");
+						// send progress reports every 1 second
+						if (ftpFxpSession.ProgressServer != null) {
+
 							// send progress reports
 							if (progress != null && fileSize != -1) {
-								offset = remoteClient.GetFileSize(remotePath);
+								offset = ftpFxpSession.ProgressServer.GetFileSize(remotePath);
 
 								if (offset != -1 && lastSize <= offset) {
 									long bytesProcessed = offset - lastSize;
@@ -333,7 +335,7 @@ namespace FluentFTP {
 			bool fileExists = false;
 			long fileSize = 0;
 
-			var ftpFxpSession = await OpenPassiveFXPConnectionAsync(remoteClient, token);
+			var ftpFxpSession = await OpenPassiveFXPConnectionAsync(remoteClient, progress != null, token);
 
 			if (ftpFxpSession != null) {
 
@@ -437,12 +439,15 @@ namespace FluentFTP {
 					var sourceFXPTransferReply = ftpFxpSession.SourceServer.GetReplyAsync(token);
 					var destinationFXPTransferReply = ftpFxpSession.TargetServer.GetReplyAsync(token);
 
+					// while the transfer is not complete
 					while (!sourceFXPTransferReply.IsCompleted || !destinationFXPTransferReply.IsCompleted) {
 
-						if (remoteClient.EnableThreadSafeDataConnections) {
+						// send progress reports every 1 second
+						if (ftpFxpSession.ProgressServer != null) {
+
 							// send progress reports
 							if (progress != null && fileSize != -1) {
-								offset = await remoteClient.GetFileSizeAsync(remotePath, token);
+								offset = await ftpFxpSession.ProgressServer.GetFileSizeAsync(remotePath, token);
 
 								if (offset != -1 && lastSize <= offset) {
 									long bytesProcessed = offset - lastSize;
