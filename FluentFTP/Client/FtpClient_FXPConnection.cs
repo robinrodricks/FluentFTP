@@ -57,7 +57,7 @@ namespace FluentFTP {
 				destinationClient._AutoDispose = true;
 				destinationClient.CopyStateFlags(remoteClient);
 				destinationClient.Connect();
-				destinationClient.SetWorkingDirectory(destinationClient.GetWorkingDirectory());
+				destinationClient.SetWorkingDirectory(remoteClient.GetWorkingDirectory());
 			}
 			else {
 				destinationClient = remoteClient;
@@ -70,7 +70,7 @@ namespace FluentFTP {
 				progressClient._AutoDispose = true;
 				progressClient.CopyStateFlags(remoteClient);
 				progressClient.Connect();
-				progressClient.SetWorkingDirectory(destinationClient.GetWorkingDirectory());
+				progressClient.SetWorkingDirectory(remoteClient.GetWorkingDirectory());
 			}
 
 			sourceClient.SetDataType(sourceClient.FXPDataType);
@@ -131,7 +131,7 @@ namespace FluentFTP {
 				destinationClient._AutoDispose = true;
 				destinationClient.CopyStateFlags(remoteClient);
 				await destinationClient.ConnectAsync(token);
-				await destinationClient.SetWorkingDirectoryAsync(await destinationClient.GetWorkingDirectoryAsync(token), token);
+				await destinationClient.SetWorkingDirectoryAsync(await remoteClient.GetWorkingDirectoryAsync(token), token);
 			}
 			else {
 				destinationClient = remoteClient;
@@ -144,7 +144,7 @@ namespace FluentFTP {
 				progressClient._AutoDispose = true;
 				progressClient.CopyStateFlags(remoteClient);
 				await progressClient.ConnectAsync(token);
-				await progressClient.SetWorkingDirectoryAsync(await destinationClient.GetWorkingDirectoryAsync(token), token);
+				await progressClient.SetWorkingDirectoryAsync(await remoteClient.GetWorkingDirectoryAsync(token), token);
 			}
 
 			await sourceClient.SetDataTypeAsync(sourceClient.FXPDataType, token);
