@@ -21,7 +21,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.
 		/// </summary>
-		public virtual FtpServer ToEnum() {
+		public override FtpServer ToEnum() {
 			return FtpServer.SolarisFTP;
 		}
 

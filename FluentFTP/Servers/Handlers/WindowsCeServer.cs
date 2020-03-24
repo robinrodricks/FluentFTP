@@ -21,7 +21,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.
 		/// </summary>
-		public virtual FtpServer ToEnum() {
+		public override FtpServer ToEnum() {
 			return FtpServer.WindowsCE;
 		}
 
@@ -38,6 +38,13 @@ namespace FluentFTP.Servers.Handlers {
 			}
 
 			return false;
+		}
+
+		/// <summary>
+		/// Return the default file listing parser to be used with your FTP server.
+		/// </summary>
+		public virtual FtpParser GetParser() {
+			return FtpParser.Windows;
 		}
 
 	}

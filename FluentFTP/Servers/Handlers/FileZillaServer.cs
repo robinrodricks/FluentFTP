@@ -21,7 +21,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.
 		/// </summary>
-		public virtual FtpServer ToEnum() {
+		public override FtpServer ToEnum() {
 			return FtpServer.FileZilla;
 		}
 
@@ -40,11 +40,14 @@ namespace FluentFTP.Servers.Handlers {
 		}
 
 		/// <summary>
-		/// Return true if your server is detected by the given SYST response message.
-		/// Its a fallback method if the server did not send an identifying welcome message.
+		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
+		/// If you know for sure that this is supported, return true here.
 		/// </summary>
-		public override bool DetectedBySyst(string message) {
+		public override bool SupportsRecursiveList() {
+
+			// No support, per: https://trac.filezilla-project.org/ticket/1848
 			return false;
+
 		}
 
 	}

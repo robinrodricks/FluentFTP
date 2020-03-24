@@ -258,6 +258,8 @@ namespace FluentFTP {
 			conn.SendHostDomain = SendHostDomain;
 			conn.FXPDataType = FXPDataType;
 			conn.FXPProgressInterval = FXPProgressInterval;
+			conn.ServerHandler = ServerHandler;
+
 
 			// fix for #428: OpenRead with EnableThreadSafeDataConnections always uses ASCII
 			conn.CurrentDataType = CurrentDataType;
@@ -400,9 +402,14 @@ namespace FluentFTP {
 					m_serverOS = FtpServerSpecificHandler.DetectFtpOSBySyst(this);
 				}
 
+				// Set a FTP server handler if a custom handler has not already been set
+				if (ServerHandler != null) {
+					ServerHandler = FtpServerSpecificHandler.GetServerHandler(m_serverType);
+				}
+
 				// Assume the system's capabilities if FEAT command not supported by the server
 				if (assumeCaps) {
-					FtpServerSpecificHandler.AssumeCapabilities(this, m_capabilities, ref m_hashAlgorithms);
+					FtpServerSpecificHandler.AssumeCapabilities(this, ServerHandler, m_capabilities, ref m_hashAlgorithms);
 				}
 
 #if !NO_SSL && !CORE
@@ -421,7 +428,8 @@ namespace FluentFTP {
 #endif
 
 				// Create the parser even if the auto-OS detection failed
-				m_listParser.Init(m_serverOS, FtpServerSpecificHandler.GetParserByServerType(this));
+				var autoParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Unix;
+				m_listParser.Init(m_serverOS, autoParser);
 
 				// FIX : #318 always set the type when we create a new connection
 				ForceSetDataType = true;
@@ -548,7 +556,7 @@ namespace FluentFTP {
 
 			// Assume the system's capabilities if FEAT command not supported by the server
 			if (assumeCaps) {
-				FtpServerSpecificHandler.AssumeCapabilities(this, m_capabilities, ref m_hashAlgorithms);
+				FtpServerSpecificHandler.AssumeCapabilities(this, ServerHandler, m_capabilities, ref m_hashAlgorithms);
 			}
 
 #if !NO_SSL && !CORE
@@ -567,7 +575,8 @@ namespace FluentFTP {
 #endif
 
 			// Create the parser after OS auto-detection
-			m_listParser.Init(m_serverOS, FtpServerSpecificHandler.GetParserByServerType(this));
+			var autoParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Unix;
+			m_listParser.Init(m_serverOS, autoParser);
 		}
 #endif
 

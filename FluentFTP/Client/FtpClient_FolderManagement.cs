@@ -68,8 +68,12 @@ namespace FluentFTP {
 
 				// server-specific directory deletion
 				if (!ftppath.IsFtpRootDirectory()) {
-					if (FtpServerSpecificHandler.ServerDeleteDirectory(this, path, ftppath, deleteContents, options)) {
-						return;
+
+					// ask the server handler to delete a directory
+					if (ServerHandler != null) {
+						if (ServerHandler.ServerDeleteDirectory(this, path, ftppath, deleteContents, options)) {
+							return;
+						}
 					}
 				}
 
@@ -235,8 +239,12 @@ namespace FluentFTP {
 
 			// server-specific directory deletion
 			if (!ftppath.IsFtpRootDirectory()) {
-				if (await FtpServerSpecificHandler.ServerDeleteDirectoryAsync(this, path, ftppath, deleteContents, options, token)) {
-					return;
+
+				// ask the server handler to delete a directory
+				if (ServerHandler != null) {
+					if (await ServerHandler.ServerDeleteDirectoryAsync(this, path, ftppath, deleteContents, options, token)) {
+						return;
+					}
 				}
 			}
 
@@ -468,8 +476,11 @@ namespace FluentFTP {
 #endif
 
 				// server-specific directory creation
-				if (FtpServerSpecificHandler.ServerCreateDirectory(this, path, ftppath, force)) {
-					return true;
+				// ask the server handler to create a directory
+				if (ServerHandler != null) {
+					if (ServerHandler.ServerCreateDirectory(this, path, ftppath, force)) {
+						return true;
+					}
 				}
 
 				path = path.GetFtpPath().TrimEnd('/');
@@ -577,8 +588,11 @@ namespace FluentFTP {
 			}
 
 			// server-specific directory creation
-			if (await FtpServerSpecificHandler.ServerCreateDirectoryAsync(this, path, ftppath, force, token)) {
-				return true;
+			// ask the server handler to create a directory
+			if (ServerHandler != null) {
+				if (await ServerHandler.ServerCreateDirectoryAsync(this, path, ftppath, force, token)) {
+					return true;
+				}
 			}
 
 			path = path.GetFtpPath().TrimEnd('/');

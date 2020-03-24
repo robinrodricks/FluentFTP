@@ -21,7 +21,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.
 		/// </summary>
-		public virtual FtpServer ToEnum() {
+		public override FtpServer ToEnum() {
 			return FtpServer.OpenVMS;
 		}
 
@@ -53,6 +53,44 @@ namespace FluentFTP.Servers.Handlers {
 
 			return false;
 		}
+
+		/// <summary>
+		/// Return your FTP server's default capabilities.
+		/// Used if your server does not broadcast its capabilities using the FEAT command.
+		/// </summary>
+		public override string[] AssumeCapabilities() {
+			
+			// OpenVMS HGFTP
+			// https://gist.github.com/robinrodricks/9631f9fad3c0fc4c667adfd09bd98762
+			
+			// assume the basic features supported
+			return new[] { "CWD", "DELE", "LIST", "NLST", "MKD", "MDTM", "PASV", "PORT", "PWD", "QUIT", "RNFR", "RNTO", "SITE", "STOR", "STRU", "TYPE" };
+			
+		}
+
+		/// <summary>
+		/// Return true if the path is an absolute path according to your server's convention.
+		/// </summary>
+		public override bool IsAbsolutePath(string path) {
+
+			// FIX : #380 for OpenVMS absolute paths are "SYS$SYSDEVICE:[USERS.mylogin]"
+			// FIX : #402 for OpenVMS absolute paths are "SYSDEVICE:[USERS.mylogin]"
+			// FIX : #424 for OpenVMS absolute paths are "FTP_DEFAULT:[WAGN_IN]"
+			// FIX : #454 for OpenVMS absolute paths are "TOPAS$ROOT:[000000.TUIL.YR_20.SUBLIS]"
+			if (new Regex("[A-Za-z$._]*:\\[[A-Za-z0-9$_.]*\\]").Match(path).Success) {
+				return true;
+			}
+
+			return false;
+		}
+
+		/// <summary>
+		/// Return the default file listing parser to be used with your FTP server.
+		/// </summary>
+		public virtual FtpParser GetParser() {
+			return FtpParser.VMS;
+		}
+
 
 	}
 }

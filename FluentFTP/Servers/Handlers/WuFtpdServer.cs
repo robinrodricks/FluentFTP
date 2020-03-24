@@ -21,7 +21,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.
 		/// </summary>
-		public virtual FtpServer ToEnum() {
+		public override FtpServer ToEnum() {
 			return FtpServer.WuFTPd;
 		}
 
@@ -41,11 +41,27 @@ namespace FluentFTP.Servers.Handlers {
 		}
 
 		/// <summary>
-		/// Return true if your server is detected by the given SYST response message.
-		/// Its a fallback method if the server did not send an identifying welcome message.
+		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
+		/// If you know for sure that this is supported, return true here.
 		/// </summary>
-		public override bool DetectedBySyst(string message) {
+		public override bool SupportsRecursiveList() {
+
+			// No support, per: http://wu-ftpd.therockgarden.ca/man/ftpd.html
 			return false;
+		}
+
+		/// <summary>
+		/// Return your FTP server's default capabilities.
+		/// Used if your server does not broadcast its capabilities using the FEAT command.
+		/// </summary>
+		public override string[] AssumeCapabilities() {
+
+			// HP-UX version of wu-ftpd 2.6.1
+			// http://nixdoc.net/man-pages/HP-UX/ftpd.1m.html
+			
+			// assume the basic features supported
+			return new[] { "ABOR", "ACCT", "ALLO", "APPE", "CDUP", "CWD", "DELE", "EPSV", "EPRT", "HELP", "LIST", "LPRT", "LPSV", "MKD", "MDTM", "MODE", "NLST", "NOOP", "PASS", "PASV", "PORT", "PWD", "QUIT", "REST", "RETR", "RMD", "RNFR", "RNTO", "SITE", "SIZE", "STAT", "STOR", "STOU", "STRU", "SYST", "TYPE" };
+			
 		}
 
 	}

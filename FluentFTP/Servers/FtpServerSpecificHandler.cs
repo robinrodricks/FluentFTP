@@ -91,6 +91,20 @@ namespace FluentFTP.Servers {
 		}
 
 		/// <summary>
+		/// Get a default FTP Server handler based on the enum value.
+		/// </summary>
+		public static FtpBaseServer GetServerHandler(FtpServer value) {
+			if (value != FtpServer.Unknown) {
+				foreach (var server in AllServers) {
+					if (server.ToEnum() == value) {
+						return server;
+					}
+				}
+			}
+			return null;
+		}
+
+		/// <summary>
 		/// Detect the FTP Server based on the response to the SYST connection command.
 		/// Its a fallback method if the server did not send an identifying welcome message.
 		/// </summary>
@@ -309,198 +323,26 @@ namespace FluentFTP.Servers {
 
 		#endregion
 
-		#region Detect Recursive List
-
-		/// <summary>
-		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
-		/// If you know for sure that this is supported, return true here.
-		/// </summary>
-		public static bool SupportsRecursiveList(FtpClient client) {
-
-			// Has support, per https://download.pureftpd.org/pub/pure-ftpd/doc/README
-			if (client.ServerType == FtpServer.PureFTPd) {
-				return true;
-			}
-
-			// Has support, per: http://www.proftpd.org/docs/howto/ListOptions.html
-			if (client.ServerType == FtpServer.ProFTPD) {
-				return true;
-			}
-
-			// Has support, but OFF by default, per: https://linux.die.net/man/5/vsftpd.conf
-			if (client.ServerType == FtpServer.VsFTPd) {
-				return false; // impossible to detect on a server-by-server basis
-			}
-
-			// No support, per: https://trac.filezilla-project.org/ticket/1848
-			if (client.ServerType == FtpServer.FileZilla) {
-				return false;
-			}
-
-			// No support, per: http://wu-ftpd.therockgarden.ca/man/ftpd.html
-			if (client.ServerType == FtpServer.WuFTPd) {
-				return false;
-			}
-
-			// Unknown, so assume server does not support recursive listing
-			return false;
-		}
-
-		#endregion
-
 		#region Assume Capabilities
 
 		/// <summary>
 		/// Assume the FTP Server's capabilities if it does not support the FEAT command.
 		/// </summary>
-		public static void AssumeCapabilities(FtpClient client, List<FtpCapability> m_capabilities, ref FtpHashAlgorithm m_hashAlgorithms) {
+		public static void AssumeCapabilities(FtpClient client, FtpBaseServer handler, List<FtpCapability> m_capabilities, ref FtpHashAlgorithm m_hashAlgorithms) {
 
-			// HP-UX version of wu-ftpd 2.6.1
-			// http://nixdoc.net/man-pages/HP-UX/ftpd.1m.html
-			if (client.ServerType == FtpServer.WuFTPd) {
-				// assume the basic features supported
-				GetFeatures(client, m_capabilities, ref m_hashAlgorithms, new[] { "ABOR", "ACCT", "ALLO", "APPE", "CDUP", "CWD", "DELE", "EPSV", "EPRT", "HELP", "LIST", "LPRT", "LPSV", "MKD", "MDTM", "MODE", "NLST", "NOOP", "PASS", "PASV", "PORT", "PWD", "QUIT", "REST", "RETR", "RMD", "RNFR", "RNTO", "SITE", "SIZE", "STAT", "STOR", "STOU", "STRU", "SYST", "TYPE" });
-			}
+			// ask the server handler to assume its capabilities
+			if (handler != null) {
+				var caps = handler.AssumeCapabilities();
+				if (caps != null) {
 
-			// OpenVMS HGFTP
-			// https://gist.github.com/robinrodricks/9631f9fad3c0fc4c667adfd09bd98762
-			if (client.ServerType == FtpServer.OpenVMS) {
-				// assume the basic features supported
-				GetFeatures(client, m_capabilities, ref m_hashAlgorithms, new[] { "CWD", "DELE", "LIST", "NLST", "MKD", "MDTM", "PASV", "PORT", "PWD", "QUIT", "RNFR", "RNTO", "SITE", "STOR", "STRU", "TYPE" });
+					// add the assumed capabilities to our set
+					GetFeatures(client, m_capabilities, ref m_hashAlgorithms, caps);
+				}
 			}
 
 		}
 
 		#endregion
-
-		#region Absolute Path
-
-		/// <summary>
-		/// Checks for server-specific absolute paths
-		/// </summary>
-		public static bool IsAbsolutePath(FtpClient client, string path) {
-			// FIX : #380 for OpenVMS absolute paths are "SYS$SYSDEVICE:[USERS.mylogin]"
-			// FIX : #402 for OpenVMS absolute paths are "SYSDEVICE:[USERS.mylogin]"
-			// FIX : #424 for OpenVMS absolute paths are "FTP_DEFAULT:[WAGN_IN]"
-			// FIX : #454 for OpenVMS absolute paths are "TOPAS$ROOT:[000000.TUIL.YR_20.SUBLIS]"
-			if (client.ServerType == FtpServer.OpenVMS) {
-				if (new Regex("[A-Za-z$._]*:\\[[A-Za-z0-9$_.]*\\]").Match(path).Success) {
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		#endregion
-
-		#region File Listing Parser
-
-		public static FtpParser GetParserByServerType(FtpClient client) {
-
-			if (client.ServerType == FtpServer.WindowsServerIIS || client.ServerType == FtpServer.WindowsCE) {
-				return FtpParser.Windows;
-			}
-
-			if (client.ServerType == FtpServer.NonStopTandem) {
-				return FtpParser.NonStop;
-			}
-
-			if (client.ServerType == FtpServer.OpenVMS) {
-				return FtpParser.VMS;
-			}
-
-			return FtpParser.Unix;
-		}
-
-		#endregion
-
-		#region Delete Directory
-
-		public static bool ServerDeleteDirectory(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options) {
-
-			// Support #378 - Support RMDIR command for ProFTPd
-			if (deleteContents && client.HasFeature(FtpCapability.SITE_RMDIR)) {
-				if ((client.Execute("SITE RMDIR " + ftppath)).Success) {
-					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete directory: " + ftppath);
-					return true;
-				}
-				else {
-					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete directory: " + ftppath);
-				}
-			}
-
-			// Support #88 - Support RMDA command for Serv-U
-			if (deleteContents && client.HasFeature(FtpCapability.RMDA)) {
-				if ((client.Execute("RMDA " + ftppath)).Success) {
-					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific RMDA command to quickly delete directory: " + ftppath);
-					return true;
-				}
-				else {
-					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific RMDA command to quickly delete directory: " + ftppath);
-				}
-			}
-
-			return false;
-		}
-
-#if ASYNC
-		public static async Task<bool> ServerDeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
-
-			// Support #378 - Support RMDIR command for ProFTPd
-			if (deleteContents && client.ServerType == FtpServer.ProFTPD && client.HasFeature(FtpCapability.SITE_RMDIR)) {
-				if ((await client.ExecuteAsync("SITE RMDIR " + ftppath, token)).Success) {
-					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete: " + ftppath);
-					return true;
-				}
-				else {
-					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete: " + ftppath);
-				}
-			}
-
-			return false;
-		}
-#endif
-
-		#endregion
-
-		#region Create Directory
-
-		public static bool ServerCreateDirectory(FtpClient client, string path, string ftppath, bool force) {
-
-			// Support #378 - Support MKDIR command for ProFTPd
-			if (client.ServerType == FtpServer.ProFTPD && client.HasFeature(FtpCapability.SITE_MKDIR)) {
-				if ((client.Execute("SITE MKDIR " + ftppath)).Success) {
-					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
-					return true;
-				}
-				else {
-					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
-				}
-			}
-
-			return false;
-		}
-
-#if ASYNC
-		public static async Task<bool> ServerCreateDirectoryAsync(FtpClient client, string path, string ftppath, bool force, CancellationToken token) {
-
-			// Support #378 - Support MKDIR command for ProFTPd
-			if (client.ServerType == FtpServer.ProFTPD && client.HasFeature(FtpCapability.SITE_MKDIR)) {
-				if ((await client.ExecuteAsync("SITE MKDIR " + ftppath, token)).Success) {
-					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
-					return true;
-				}
-				else {
-					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
-				}
-			}
-
-			return false;
-		}
-#endif
-
-		#endregion
-
+		
 	}
 }

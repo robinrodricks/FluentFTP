@@ -11,6 +11,7 @@ namespace FluentFTP.Servers {
 
 	/// <summary>
 	/// The base class used for all FTP server specific support.
+	/// You may extend this class to implement support for custom FTP servers.
 	/// </summary>
 	public abstract class FtpBaseServer {
 
@@ -48,21 +49,21 @@ namespace FluentFTP.Servers {
 		/// Return your FTP server's default capabilities.
 		/// Used if your server does not broadcast its capabilities using the FEAT command.
 		/// </summary>
-		public virtual string[] AssumeCapabilities(List<FtpCapability> capabilities) {
+		public virtual string[] AssumeCapabilities() {
 			return null;
 		}
 
 		/// <summary>
 		/// Return true if the path is an absolute path according to your server's convention.
 		/// </summary>
-		public virtual bool IsAbsolutePath(FtpClient client, string path) {
+		public virtual bool IsAbsolutePath(string path) {
 			return false;
 		}
 
 		/// <summary>
 		/// Return the default file listing parser to be used with your FTP server.
 		/// </summary>
-		public virtual FtpParser GetParser(FtpClient client) {
+		public virtual FtpParser GetParser() {
 			return FtpParser.Unix;
 		}
 

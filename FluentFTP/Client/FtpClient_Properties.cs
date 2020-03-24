@@ -599,6 +599,18 @@ namespace FluentFTP {
 		/// </summary>
 		public FtpServer ServerType => m_serverType;
 
+		private FtpBaseServer m_serverHandler;
+
+		/// <summary>
+		/// Gets the type of the FTP server handler.
+		/// This is automatically set based on the detected FTP server, if it is detected. 
+		/// You can manually set this property to implement handling for a custom FTP server.
+		/// </summary>
+		public FtpBaseServer ServerHandler {
+			get => m_serverHandler;
+			set => m_serverHandler = value;
+		}
+
 		private FtpOperatingSystem m_serverOS = FtpOperatingSystem.Unknown;
 
 		/// <summary>
@@ -664,9 +676,12 @@ namespace FluentFTP {
 				if (_RecursiveListSupported) {
 					return true;
 				}
-				
-				// check on a server-by-server basis
-				return FtpServerSpecificHandler.SupportsRecursiveList(this);
+
+				// ask the server handler if it supports recursive listing
+				if (ServerHandler != null && ServerHandler.SupportsRecursiveList()) {
+					return true;
+				}
+				return false;
 
 			}
 			set {
