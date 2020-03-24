@@ -1,32 +1,40 @@
 ﻿using System;
-using System.IO;
-using System.Net.Sockets;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Globalization;
 using System.Security.Authentication;
-using System.Net;
-using FluentFTP.Proxy;
-#if !CORE
-using System.Web;
-#endif
+using FluentFTP.Servers.Handlers;
 #if (CORE || NETFX)
 using System.Threading;
-using FluentFTP.Helpers;
-
 #endif
 #if ASYNC
 using System.Threading.Tasks;
-
 #endif
 
 namespace FluentFTP.Servers {
 	internal static class FtpServerSpecificHandler {
+
+		internal static List<FtpBaseServer> AllServers = new List<FtpBaseServer> {
+			new BFtpdServer(),
+			new CerberusServer(),
+			new CrushFtpServer(),
+			new FileZillaServer(),
+			new Ftp2S3GatewayServer(),
+			new GlFtpdServer(),
+			new GlobalScapeEftServer(),
+			new HomegateFtpServer(),
+			new IbmZosFtpServer(),
+			new NonStopTandemServer(),
+			new OpenVmsServer(),
+			new ProFtpdServer(),
+			new PureFtpdServer(),
+			new ServUServer(),
+			new SolarisFtpServer(),
+			new VsFtpdServer(),
+			new WindowsCeServer(),
+			new WindowsIisServer(),
+			new WuFtpdServer(),
+			new XLightServer(),
+		};
 
 		#region Working Connection Profiles
 
@@ -63,117 +71,14 @@ namespace FluentFTP.Servers {
 			var serverType = client.ServerType;
 
 			if (HandshakeReply.Success && (HandshakeReply.Message != null || HandshakeReply.InfoMessages != null)) {
-				var welcome = (HandshakeReply.Message ?? "") + (HandshakeReply.InfoMessages ?? "");
+				var message = (HandshakeReply.Message ?? "") + (HandshakeReply.InfoMessages ?? "");
 
-				// Detect Pure-FTPd server
-				// Welcome message: "---------- Welcome to Pure-FTPd [privsep] [TLS] ----------"
-				if (welcome.Contains("Pure-FTPd")) {
-					serverType = FtpServer.PureFTPd;
-				}
-
-				// Detect vsFTPd server
-				// Welcome message: "(vsFTPd 3.0.3)"
-				else if (welcome.Contains("(vsFTPd")) {
-					serverType = FtpServer.VsFTPd;
-				}
-
-				// Detect ProFTPd server
-				// Welcome message: "ProFTPD 1.3.5rc3 Server (***) [::ffff:***]"
-				else if (welcome.Contains("ProFTPD")) {
-					serverType = FtpServer.ProFTPD;
-				}
-
-				// Detect FileZilla server
-				// Welcome message: "FileZilla Server 0.9.60 beta"
-				else if (welcome.Contains("FileZilla Server")) {
-					serverType = FtpServer.FileZilla;
-				}
-
-				// Detect WuFTPd server
-				// Welcome message: "FTP server (Revision 9.0 Version wuftpd-2.6.1 Mon Jun 30 09:28:28 GMT 2014) ready"
-				// Welcome message: "220 DH FTP server (Version wu-2.6.2-5) ready"
-				else if (welcome.Contains("Version wuftpd") || welcome.Contains("Version wu-")) {
-					serverType = FtpServer.WuFTPd;
-				}
-
-				// Detect GlobalScape EFT server
-				// Welcome message: "EFT Server Enterprise 7.4.5.6"
-				else if (welcome.Contains("EFT Server")) {
-					serverType = FtpServer.GlobalScapeEFT;
-				}
-
-				// Detect Cerberus server
-				// Welcome message: "220-Cerberus FTP Server Personal Edition"
-				else if (welcome.Contains("Cerberus FTP")) {
-					serverType = FtpServer.Cerberus;
-				}
-
-				// Detect Serv-U server
-				// Welcome message: "220 Serv-U FTP Server v5.0 for WinSock ready."
-				else if (welcome.Contains("Serv-U FTP")) {
-					serverType = FtpServer.ServU;
-				}
-
-				// Detect Windows Server/IIS FTP server
-				// Welcome message: "220-Microsoft FTP Service."
-				else if (welcome.Contains("Microsoft FTP Service")) {
-					serverType = FtpServer.WindowsServerIIS;
-				}
-
-				// Detect CrushFTP server
-				// Welcome message: "220 CrushFTP Server Ready!"
-				else if (welcome.Contains("CrushFTP Server")) {
-					serverType = FtpServer.CrushFTP;
-				}
-
-				// Detect glFTPd server
-				// Welcome message: "220 W 00 T (glFTPd 2.01 Linux+TLS) ready."
-				// Welcome message: "220 <hostname> (glFTPd 2.01 Linux+TLS) ready."
-				else if (welcome.Contains("glFTPd ")) {
-					serverType = FtpServer.glFTPd;
-				}
-
-				// Detect OpenVMS server
-				// Welcome message: "220 ftp.bedrock.net FTP-OpenVMS FTPD V5.5-3 (c) 2001 Process Software"
-				else if (welcome.Contains("OpenVMS FTPD")) {
-					serverType = FtpServer.OpenVMS;
-				}
-
-				// Detect Homegate FTP server
-				// Welcome message: "220 Homegate FTP Server ready"
-				else if (welcome.Contains("Homegate FTP Server")) {
-					serverType = FtpServer.HomegateFTP;
-				}
-
-				// Detect XLight server
-				// Welcome message: "220 Xlight FTP Server 3.9 ready"
-				else if (welcome.Contains("Xlight FTP Server")) {
-					serverType = FtpServer.XLight;
-				}
-
-				// Detect BFTPd server
-				// Welcome message: "220 Aruba FTP2S3 gateway 1.0.1 ready"
-				else if (welcome.Contains("FTP2S3 gateway")) {
-					serverType = FtpServer.FTP2S3Gateway;
-				}
-
-				// Detect BFTPd server
-				// Welcome message: "220 bftpd 2.2.1 at 192.168.1.1 ready"
-				else if (welcome.Contains("bftpd ")) {
-					serverType = FtpServer.BFTPd;
-				}
-
-				// Detect Tandem/NonStop server
-				// Welcome message: "220 mysite.com FTP SERVER T9552H02 (Version H02 TANDEM 11SEP2008) ready."
-				// Welcome message: "220 FTP SERVER T9552G08 (Version G08 TANDEM 15JAN2008) ready."
-				else if (welcome.Contains("FTP SERVER ") && welcome.Contains(" TANDEM ")) {
-					serverType = FtpServer.NonStopTandem;
-				}
-
-				// Detect IBM z/OS server
-				// Welcome message: "220-FTPD1 IBM FTP CS V2R3 at mysite.gov, 16:51:54 on 2019-12-12."
-				else if (welcome.Contains("IBM FTP CS")) {
-					serverType = FtpServer.IBMzOSFTP;
+				// try to detect any of the servers
+				foreach (var server in AllServers) {
+					if (server.DetectedByWelcome(message)) {
+						serverType = server.ToEnum();
+						break;
+					}
 				}
 
 				// trace it
@@ -238,22 +143,12 @@ namespace FluentFTP.Servers {
 			// detect server type
 			if (serverType == FtpServer.Unknown) {
 
-				// Detect OpenVMS server
-				// SYST type: "VMS OpenVMS V8.4"
-				if (client.SystemType.Contains("OpenVMS")) {
-					serverType = FtpServer.OpenVMS;
-				}
-
-				// Detect WindowsCE server
-				// SYST type: "Windows_CE version 7.0"
-				if (client.SystemType.Contains("Windows_CE")) {
-					serverType = FtpServer.WindowsCE;
-				}
-
-				// Detect SolarisTP server
-				// SYST response: "215 UNIX Type: L8 Version: SUNOS"
-				if (client.SystemType.Contains("SUNOS")) {
-					serverType = FtpServer.SolarisFTP;
+				// try to detect any of the servers
+				foreach (var server in AllServers) {
+					if (server.DetectedBySyst(client.SystemType)) {
+						serverType = server.ToEnum();
+						break;
+					}
 				}
 
 				// trace it
