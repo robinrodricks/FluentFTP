@@ -11,6 +11,19 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP.Servers {
+
+	/// <summary>
+	/// All servers with server-specific handling and support are listed here.
+	/// Its possible you can connect to other FTP servers too.
+	/// 
+	/// To add support for another standard FTP server:
+	///		1) Modify the FtpServer enum
+	///		2) Add a new class extending FtpBaseServer
+	///		3) Create a new instance of your class in AllServers (below)
+	///		
+	/// To support a custom FTP server you only need to extend FtpBaseServer
+	/// and set it on your client.ServerHandler before calling Connect.
+	/// </summary>
 	internal static class FtpServerSpecificHandler {
 
 		internal static List<FtpBaseServer> AllServers = new List<FtpBaseServer> {
