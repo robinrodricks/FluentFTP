@@ -28,7 +28,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Return true if your server is detected by the given FTP server welcome message.
 		/// </summary>
-		public override bool DetectedByWelcome(string message) {
+		public override bool DetectByWelcome(string message) {
 
 			// Detect Tandem/NonStop server
 			// Welcome message: "220 mysite.com FTP SERVER T9552H02 (Version H02 TANDEM 11SEP2008) ready."

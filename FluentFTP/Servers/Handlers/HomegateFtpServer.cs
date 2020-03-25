@@ -28,7 +28,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Return true if your server is detected by the given FTP server welcome message.
 		/// </summary>
-		public override bool DetectedByWelcome(string message) {
+		public override bool DetectByWelcome(string message) {
 
 			// Detect Homegate FTP server
 			// Welcome message: "220 Homegate FTP Server ready"

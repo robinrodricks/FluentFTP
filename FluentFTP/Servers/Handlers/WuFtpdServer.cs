@@ -28,7 +28,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Return true if your server is detected by the given FTP server welcome message.
 		/// </summary>
-		public override bool DetectedByWelcome(string message) {
+		public override bool DetectByWelcome(string message) {
 
 			// Detect WuFTPd server
 			// Welcome message: "FTP server (Revision 9.0 Version wuftpd-2.6.1 Mon Jun 30 09:28:28 GMT 2014) ready"
@@ -44,7 +44,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
 		/// If you know for sure that this is supported, return true here.
 		/// </summary>
-		public override bool SupportsRecursiveList() {
+		public override bool RecursiveList() {
 
 			// No support, per: http://wu-ftpd.therockgarden.ca/man/ftpd.html
 			return false;
@@ -54,7 +54,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Return your FTP server's default capabilities.
 		/// Used if your server does not broadcast its capabilities using the FEAT command.
 		/// </summary>
-		public override string[] AssumeCapabilities() {
+		public override string[] DefaultCapabilities() {
 
 			// HP-UX version of wu-ftpd 2.6.1
 			// http://nixdoc.net/man-pages/HP-UX/ftpd.1m.html

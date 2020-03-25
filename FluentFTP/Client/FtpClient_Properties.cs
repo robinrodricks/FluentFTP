@@ -678,7 +678,7 @@ namespace FluentFTP {
 				}
 
 				// ask the server handler if it supports recursive listing
-				if (ServerHandler != null && ServerHandler.SupportsRecursiveList()) {
+				if (ServerHandler != null && ServerHandler.RecursiveList()) {
 					return true;
 				}
 				return false;

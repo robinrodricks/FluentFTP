@@ -28,7 +28,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Return true if your server is detected by the given FTP server welcome message.
 		/// </summary>
-		public override bool DetectedByWelcome(string message) {
+		public override bool DetectByWelcome(string message) {
 
 			// Detect FileZilla server
 			// Welcome message: "FileZilla Server 0.9.60 beta"
@@ -43,7 +43,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
 		/// If you know for sure that this is supported, return true here.
 		/// </summary>
-		public override bool SupportsRecursiveList() {
+		public override bool RecursiveList() {
 
 			// No support, per: https://trac.filezilla-project.org/ticket/1848
 			return false;

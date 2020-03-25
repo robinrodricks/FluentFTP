@@ -28,7 +28,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Return true if your server is detected by the given FTP server welcome message.
 		/// </summary>
-		public override bool DetectedByWelcome(string message) {
+		public override bool DetectByWelcome(string message) {
 
 			// Detect IBM z/OS server
 			// Welcome message: "220-FTPD1 IBM FTP CS V2R3 at mysite.gov, 16:51:54 on 2019-12-12."

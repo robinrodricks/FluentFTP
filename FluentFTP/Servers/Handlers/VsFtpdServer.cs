@@ -28,7 +28,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Return true if your server is detected by the given FTP server welcome message.
 		/// </summary>
-		public override bool DetectedByWelcome(string message) {
+		public override bool DetectByWelcome(string message) {
 			
 			// Detect vsFTPd server
 			// Welcome message: "(vsFTPd 3.0.3)"
@@ -43,7 +43,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
 		/// If you know for sure that this is supported, return true here.
 		/// </summary>
-		public override bool SupportsRecursiveList() {
+		public override bool RecursiveList() {
 
 			// Has support, but OFF by default, per: https://linux.die.net/man/5/vsftpd.conf
 			return false; // impossible to detect on a server-by-server basis

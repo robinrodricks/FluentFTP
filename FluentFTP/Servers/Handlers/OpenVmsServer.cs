@@ -28,7 +28,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Return true if your server is detected by the given FTP server welcome message.
 		/// </summary>
-		public override bool DetectedByWelcome(string message) {
+		public override bool DetectByWelcome(string message) {
 
 			// Detect OpenVMS server
 			// Welcome message: "220 ftp.bedrock.net FTP-OpenVMS FTPD V5.5-3 (c) 2001 Process Software"
@@ -43,7 +43,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Return true if your server is detected by the given SYST response message.
 		/// Its a fallback method if the server did not send an identifying welcome message.
 		/// </summary>
-		public override bool DetectedBySyst(string message) {
+		public override bool DetectBySyst(string message) {
 
 			// Detect OpenVMS server
 			// SYST type: "VMS OpenVMS V8.4"
@@ -58,7 +58,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Return your FTP server's default capabilities.
 		/// Used if your server does not broadcast its capabilities using the FEAT command.
 		/// </summary>
-		public override string[] AssumeCapabilities() {
+		public override string[] DefaultCapabilities() {
 			
 			// OpenVMS HGFTP
 			// https://gist.github.com/robinrodricks/9631f9fad3c0fc4c667adfd09bd98762

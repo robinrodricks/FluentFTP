@@ -88,7 +88,7 @@ namespace FluentFTP.Servers {
 
 				// try to detect any of the servers
 				foreach (var server in AllServers) {
-					if (server.DetectedByWelcome(message)) {
+					if (server.DetectByWelcome(message)) {
 						serverType = server.ToEnum();
 						break;
 					}
@@ -172,7 +172,7 @@ namespace FluentFTP.Servers {
 
 				// try to detect any of the servers
 				foreach (var server in AllServers) {
-					if (server.DetectedBySyst(client.SystemType)) {
+					if (server.DetectBySyst(client.SystemType)) {
 						serverType = server.ToEnum();
 						break;
 					}
@@ -345,7 +345,7 @@ namespace FluentFTP.Servers {
 
 			// ask the server handler to assume its capabilities
 			if (handler != null) {
-				var caps = handler.AssumeCapabilities();
+				var caps = handler.DefaultCapabilities();
 				if (caps != null) {
 
 					// add the assumed capabilities to our set

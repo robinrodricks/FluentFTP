@@ -29,7 +29,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Return true if your server is detected by the given SYST response message.
 		/// Its a fallback method if the server did not send an identifying welcome message.
 		/// </summary>
-		public override bool DetectedBySyst(string message) {
+		public override bool DetectBySyst(string message) {
 
 			// Detect WindowsCE server
 			// SYST type: "Windows_CE version 7.0"

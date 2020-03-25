@@ -25,7 +25,7 @@ namespace FluentFTP.Servers {
 		/// <summary>
 		/// Return true if your server is detected by the given FTP server welcome message.
 		/// </summary>
-		public virtual bool DetectedByWelcome(string message) {
+		public virtual bool DetectByWelcome(string message) {
 			return false;
 		}
 
@@ -33,7 +33,7 @@ namespace FluentFTP.Servers {
 		/// Return true if your server is detected by the given SYST response message.
 		/// Its a fallback method if the server did not send an identifying welcome message.
 		/// </summary>
-		public virtual bool DetectedBySyst(string message) {
+		public virtual bool DetectBySyst(string message) {
 			return false;
 		}
 
@@ -41,7 +41,7 @@ namespace FluentFTP.Servers {
 		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
 		/// If you know for sure that this is supported, return true here.
 		/// </summary>
-		public virtual bool SupportsRecursiveList() {
+		public virtual bool RecursiveList() {
 			return false;
 		}
 
@@ -49,7 +49,7 @@ namespace FluentFTP.Servers {
 		/// Return your FTP server's default capabilities.
 		/// Used if your server does not broadcast its capabilities using the FEAT command.
 		/// </summary>
-		public virtual string[] AssumeCapabilities() {
+		public virtual string[] DefaultCapabilities() {
 			return null;
 		}
 
@@ -71,7 +71,7 @@ namespace FluentFTP.Servers {
 		/// Perform server-specific delete directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public virtual bool ServerDeleteDirectory(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options) {
+		public virtual bool DeleteDirectory(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options) {
 			return false;
 		}
 
@@ -80,7 +80,7 @@ namespace FluentFTP.Servers {
 		/// Perform async server-specific delete directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public virtual async Task<bool> ServerDeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
+		public virtual async Task<bool> DeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
 			return false;
 		}
 #endif
@@ -89,7 +89,7 @@ namespace FluentFTP.Servers {
 		/// Perform server-specific create directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public virtual bool ServerCreateDirectory(FtpClient client, string path, string ftppath, bool force) {
+		public virtual bool CreateDirectory(FtpClient client, string path, string ftppath, bool force) {
 			return false;
 		}
 
@@ -98,7 +98,7 @@ namespace FluentFTP.Servers {
 		/// Perform async server-specific create directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public virtual async Task<bool> ServerCreateDirectoryAsync(FtpClient client, string path, string ftppath, bool force, CancellationToken token) {
+		public virtual async Task<bool> CreateDirectoryAsync(FtpClient client, string path, string ftppath, bool force, CancellationToken token) {
 			return false;
 		}
 #endif

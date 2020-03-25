@@ -28,7 +28,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Return true if your server is detected by the given FTP server welcome message.
 		/// </summary>
-		public override bool DetectedByWelcome(string message) {
+		public override bool DetectByWelcome(string message) {
 
 			// Detect Serv-U server
 			// Welcome message: "220 Serv-U FTP Server v5.0 for WinSock ready."
@@ -43,7 +43,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Perform server-specific delete directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public override bool ServerDeleteDirectory(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options) {
+		public override bool DeleteDirectory(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options) {
 
 			// Support #88 - Support RMDA command for Serv-U
 			if (deleteContents && client.HasFeature(FtpCapability.RMDA)) {
@@ -64,7 +64,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Perform async server-specific delete directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public override async Task<bool> ServerDeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
+		public override async Task<bool> DeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
 
 			// Support #88 - Support RMDA command for Serv-U
 			if (deleteContents && client.HasFeature(FtpCapability.RMDA)) {
