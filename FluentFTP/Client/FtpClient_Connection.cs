@@ -581,7 +581,7 @@ namespace FluentFTP {
 #endif
 
 		/// <summary>
-		/// Connect to the FTP server. Overwritten in proxy classes.
+		/// Connect to the FTP server. Overridden in proxy classes.
 		/// </summary>
 		/// <param name="stream"></param>
 		protected virtual void Connect(FtpSocketStream stream) {
@@ -590,7 +590,7 @@ namespace FluentFTP {
 
 #if ASYNC
 		/// <summary>
-		/// Connect to the FTP server. Overwritten in proxy classes.
+		/// Connect to the FTP server. Overridden in proxy classes.
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <param name="token"></param>
@@ -600,7 +600,7 @@ namespace FluentFTP {
 #endif
 
 		/// <summary>
-		/// Connect to the FTP server. Overwritten in proxy classes.
+		/// Connect to the FTP server. Overridden in proxy classes.
 		/// </summary>
 		protected virtual void Connect(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions) {
 			stream.Connect(host, port, ipVersions);
@@ -608,7 +608,7 @@ namespace FluentFTP {
 
 #if ASYNC
 		/// <summary>
-		/// Connect to the FTP server. Overwritten in proxy classes.
+		/// Connect to the FTP server. Overridden in proxy classes.
 		/// </summary>
 		protected virtual Task ConnectAsync(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions, CancellationToken token) {
 			return stream.ConnectAsync(host, port, ipVersions, token);
