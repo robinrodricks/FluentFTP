@@ -326,15 +326,8 @@ namespace FluentFTP {
 			do {
 
 				// download the file from the server to a file stream or memory stream
-				using (var outStream = FtpFileStream.GetFileWriteStream(this, localPath, false, QuickTransferLimit, knownFileSize, isAppend, restartPos)) {
-					downloadSuccess = DownloadFileInternal(localPath, remotePath, outStream, restartPos, progress, metaProgress, knownFileSize);
-					attemptsLeft--;
-
-					// if using the quick download mode, then complete the download by writing the file to disk
-					/*if (downloadSuccess) {
-						FtpFileStream.CompleteQuickFileWrite(outStream, localPath);
-					}*/
-				}
+				downloadSuccess = DownloadFileInternal(localPath, remotePath, null, restartPos, progress, metaProgress, knownFileSize, isAppend);
+				attemptsLeft--;
 
 				// if verification is needed
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
@@ -462,15 +455,8 @@ namespace FluentFTP {
 			do {
 
 				// download the file from the server to a file stream or memory stream
-				using (var outStream = FtpFileStream.GetFileWriteStream(this, localPath, true, QuickTransferLimit, knownFileSize, isAppend, restartPos)) {
-					downloadSuccess = await DownloadFileInternalAsync(localPath, remotePath, outStream, restartPos, progress, token, metaProgress, knownFileSize);
-					attemptsLeft--;
-
-					// if using the quick download mode, then complete the download by writing the file to disk
-					if (downloadSuccess) {
-						await FtpFileStream.CompleteQuickFileWriteAsync(outStream, localPath, token);
-					}
-				}
+				downloadSuccess = await DownloadFileInternalAsync(localPath, remotePath, null, restartPos, progress, token, metaProgress, knownFileSize, isAppend);
+				attemptsLeft--;
 
 				// if verification is needed
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
@@ -524,7 +510,7 @@ namespace FluentFTP {
 			LogFunc(nameof(Download), new object[] { remotePath });
 
 			// download the file from the server
-			return DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0), 0);
+			return DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0), 0, false);
 		}
 
 		/// <summary>
@@ -550,7 +536,7 @@ namespace FluentFTP {
 			// download the file from the server
 			bool ok;
 			using (var outStream = new MemoryStream()) {
-				ok = DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0), 0);
+				ok = DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0), 0, false);
 				if (ok) {
 					outBytes = outStream.ToArray();
 				}
@@ -584,7 +570,7 @@ namespace FluentFTP {
 			LogFunc(nameof(DownloadAsync), new object[] { remotePath });
 
 			// download the file from the server
-			return await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0), 0);
+			return await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0), 0, false);
 		}
 
 		/// <summary>
@@ -607,7 +593,7 @@ namespace FluentFTP {
 
 			// download the file from the server
 			using (var outStream = new MemoryStream()) {
-				var ok = await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0), 0);
+				var ok = await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0), 0, false);
 				return ok ? outStream.ToArray() : null;
 			}
 		}
@@ -635,9 +621,10 @@ namespace FluentFTP {
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
 		private bool DownloadFileInternal(string localPath, string remotePath, Stream outStream, long restartPosition,
-			Action<FtpProgress> progress, FtpProgress metaProgress, long knownFileSize) {
+			Action<FtpProgress> progress, FtpProgress metaProgress, long knownFileSize, bool isAppend) {
 
 			Stream downStream = null;
+			var disposeOutStream = false;
 
 			try {
 				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
@@ -675,6 +662,13 @@ namespace FluentFTP {
 
 						sw.Start();
 						while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
+
+							// Fix #552: only create outstream when first bytes downloaded
+							if (outStream == null && localPath != null){
+								outStream = FtpFileStream.GetFileWriteStream(this, localPath, false, QuickTransferLimit, knownFileSize, isAppend, restartPosition);
+								disposeOutStream = true;
+							}
+							
 							// write chunk to output stream
 							outStream.Write(buffer, 0, readBytes);
 							offset += readBytes;
@@ -697,7 +691,7 @@ namespace FluentFTP {
 								var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
 								if (timeShouldTake > swTime) {
 #if CORE14
-													Task.Delay((int) (timeShouldTake - swTime)).Wait();
+									Task.Delay((int) (timeShouldTake - swTime)).Wait();
 #else
 									Thread.Sleep((int)(timeShouldTake - swTime));
 #endif
@@ -719,6 +713,7 @@ namespace FluentFTP {
 						throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
 					}
 					catch (IOException ex) {
+
 						// resume if server disconnected midway, or throw if there is an exception doing that as well
 						if (!ResumeDownload(remotePath, ref downStream, offset, ex)) {
 							sw.Stop();
@@ -726,6 +721,7 @@ namespace FluentFTP {
 						}
 					}
 					catch (TimeoutException ex) {
+
 						// fix: attempting to download data after we reached the end of the stream
 						// often throws a timeout execption, so we silently absorb that here
 						if (offset >= fileLen) {
@@ -740,14 +736,20 @@ namespace FluentFTP {
 
 				sw.Stop();
 
+				// disconnect FTP stream before exiting
+				outStream.Flush();
+				downStream.Dispose();
+
+				// Fix #552: close the filestream if it was created in this method
+				if (disposeOutStream) {
+					outStream.Dispose();
+					disposeOutStream = false;
+				}
+
 				// send progress reports
 				if (progress != null) {
 					progress(new FtpProgress(100.0, offset, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
 				}
-
-				// disconnect FTP stream before exiting
-				outStream.Flush();
-				downStream.Dispose();
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
@@ -781,11 +783,22 @@ namespace FluentFTP {
 				return true;
 			}
 			catch (Exception ex1) {
+
 				// close stream before throwing error
 				try {
 					downStream.Dispose();
 				}
 				catch (Exception) {
+				}
+
+				// Fix #552: close the filestream if it was created in this method
+				if (disposeOutStream) {
+					try {
+						outStream.Dispose();
+						disposeOutStream = false;
+					}
+					catch (Exception) {
+					}
 				}
 
 				// absorb "file does not exist" exceptions and simply return false
@@ -828,13 +841,15 @@ namespace FluentFTP {
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
 		private async Task<bool> DownloadFileInternalAsync(string localPath, string remotePath, Stream outStream, long restartPosition,
-			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress, long knownFileSize) {
+			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress, long knownFileSize, bool isAppend) {
 
 			Stream downStream = null;
+			var disposeOutStream = false;
+
 			try {
 				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
 				long fileLen = 0;
-				
+
 				if (DownloadDataType == FtpDataType.Binary && progress != null) {
 					fileLen = knownFileSize > 0 ? knownFileSize : await GetFileSizeAsync(remotePath, token);
 				}
@@ -868,6 +883,13 @@ namespace FluentFTP {
 
 						sw.Start();
 						while ((readBytes = await downStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
+							
+							// Fix #552: only create outstream when first bytes downloaded
+							if (outStream == null && localPath != null) {
+								outStream = FtpFileStream.GetFileWriteStream(this, localPath, true, QuickTransferLimit, knownFileSize, isAppend, restartPosition);
+								disposeOutStream = true;
+							}
+
 							// write chunk to output stream
 							await outStream.WriteAsync(buffer, 0, readBytes, token);
 							offset += readBytes;
@@ -909,6 +931,7 @@ namespace FluentFTP {
 						throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
 					}
 					catch (IOException ex) {
+
 						// resume if server disconnected midway, or throw if there is an exception doing that as well
 						var resumeResult = await ResumeDownloadAsync(remotePath, downStream, offset, ex);
 						if (resumeResult.Item1) {
@@ -920,6 +943,7 @@ namespace FluentFTP {
 						}
 					}
 					catch (TimeoutException ex) {
+
 						// fix: attempting to download data after we reached the end of the stream
 						// often throws a timeout execption, so we silently absorb that here
 						if (offset >= fileLen) {
@@ -934,14 +958,20 @@ namespace FluentFTP {
 
 				sw.Stop();
 
+				// disconnect FTP stream before exiting
+				await outStream.FlushAsync(token);
+				downStream.Dispose();
+
+				// Fix #552: close the filestream if it was created in this method
+				if (disposeOutStream) {
+					outStream.Dispose();
+					disposeOutStream = false;
+				}
+
 				// send progress reports
 				if (progress != null) {
 					progress.Report(new FtpProgress(100.0, offset, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
 				}
-
-				// disconnect FTP stream before exiting
-				await outStream.FlushAsync(token);
-				downStream.Dispose();
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
@@ -975,6 +1005,7 @@ namespace FluentFTP {
 				return true;
 			}
 			catch (Exception ex1) {
+
 				// close stream before throwing error
 				try {
 					downStream.Dispose();
@@ -982,8 +1013,18 @@ namespace FluentFTP {
 				catch (Exception) {
 				}
 
+				// Fix #552: close the filestream if it was created in this method
+				if (disposeOutStream) {
+					try {
+						outStream.Dispose();
+						disposeOutStream = false;
+					}
+					catch (Exception) {
+					}
+				}
+
 				if (ex1 is OperationCanceledException) {
-					LogStatus(FtpTraceLevel.Info, "Upload cancellation requested");
+					LogStatus(FtpTraceLevel.Info, "Download cancellation requested");
 					throw;
 				}
 
