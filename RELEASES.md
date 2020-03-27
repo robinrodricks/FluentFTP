@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 32.3.0
+  - New: All server-specific handlers moved to dedicated classes that extend `FtpBaseServer`
+  - New: Ability to handle custom non-standard FTP servers by extending `FtpBaseServer`
+  - Fix: Only overwrite local file after the first bytes downloaded of a remote file
+
 #### 32.2.2
   - New: Tracking progress with FXP transfers is supported for all transfer modes
   - New: Track low-level progress with new `TransferredBytes` in `FtpProgress` class (thanks [Adhara3](/Adhara3))
