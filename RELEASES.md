@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 32.3.1
+  - New: `ListingDataType` property to get file listings in ASCII/Binary
+  - New: `DownloadZeroByteFiles` property to control if zero-byte files should be downloaded or skipped
+  - Fix: Downloading 0-byte files crashes since no data downloaded
+
 #### 32.3.0
   - New: All server-specific handlers moved to dedicated classes that extend `FtpBaseServer`
   - New: Ability to handle custom non-standard FTP servers by extending `FtpBaseServer`
