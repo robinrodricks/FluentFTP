@@ -635,6 +635,16 @@ namespace FluentFTP {
 		}
 
 
+		public FtpDataType m_ListingDataType = FtpDataType.Binary;
+
+		/// <summary>
+		/// Controls if the high-level API downloads files in Binary or ASCII mode.
+		/// </summary>
+		public FtpDataType ListingDataType {
+			get => m_ListingDataType;
+			set => m_ListingDataType = value;
+		}
+
 		private FtpParser m_parser = FtpParser.Auto;
 
 		/// <summary>

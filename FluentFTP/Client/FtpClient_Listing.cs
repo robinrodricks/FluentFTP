@@ -527,7 +527,7 @@ namespace FluentFTP {
 			var isUseStat = options.HasFlag(FtpListOption.UseStat);
 
 			// always get the file listing in binary to avoid character translation issues with ASCII.
-			SetDataTypeNoLock(FtpDataType.Binary);
+			SetDataTypeNoLock(ListingDataType);
 
 			try {
 				// read in raw file listing from control stream
@@ -811,7 +811,7 @@ namespace FluentFTP {
 			var isUseStat = options.HasFlag(FtpListOption.UseStat);
 
 			// always get the file listing in binary to avoid character translation issues with ASCII.
-			await SetDataTypeNoLockAsync(FtpDataType.Binary, token);
+			await SetDataTypeNoLockAsync(ListingDataType, token);
 
 			try {
 
@@ -1058,7 +1058,7 @@ namespace FluentFTP {
 #endif
 
 				// always get the file listing in binary to avoid character translation issues with ASCII.
-				SetDataTypeNoLock(FtpDataType.Binary);
+				SetDataTypeNoLock(ListingDataType);
 
 				// read in raw listing
 				try {
@@ -1157,7 +1157,7 @@ namespace FluentFTP {
 			path = await GetAbsolutePathAsync(path, token);
 
 			// always get the file listing in binary to avoid character translation issues with ASCII.
-			await SetDataTypeNoLockAsync(FtpDataType.Binary, token);
+			await SetDataTypeNoLockAsync(ListingDataType, token);
 
 			// read in raw listing
 			try {
