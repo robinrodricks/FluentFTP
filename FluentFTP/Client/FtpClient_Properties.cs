@@ -638,7 +638,7 @@ namespace FluentFTP {
 		public FtpDataType m_ListingDataType = FtpDataType.Binary;
 
 		/// <summary>
-		/// Controls if the high-level API downloads files in Binary or ASCII mode.
+		/// Controls if the file listings are downloaded in Binary or ASCII mode.
 		/// </summary>
 		public FtpDataType ListingDataType {
 			get => m_ListingDataType;
@@ -813,6 +813,17 @@ namespace FluentFTP {
 		public uint DownloadRateLimit {
 			get => m_downloadRateLimit;
 			set => m_downloadRateLimit = value;
+		}
+
+		private bool m_DownloadZeroByteFiles = true;
+
+		/// <summary>
+		/// Controls if zero-byte files should be downloaded or skipped.
+		/// If false, then no file is created/overwritten into the filesystem.
+		/// </summary>
+		public bool DownloadZeroByteFiles {
+			get => m_DownloadZeroByteFiles;
+			set => m_DownloadZeroByteFiles = value;
 		}
 
 		public FtpDataType m_UploadDataType = FtpDataType.Binary;

@@ -653,6 +653,12 @@ namespace FluentFTP {
 
 				var anyNoop = false;
 
+				// Fix #554: ability to download zero-byte files
+				if (DownloadZeroByteFiles && outStream == null && localPath != null){
+					outStream = FtpFileStream.GetFileWriteStream(this, localPath, false, QuickTransferLimit, knownFileSize, isAppend, restartPosition);
+					disposeOutStream = true;
+				}
+							
 				while (offset < fileLen || readToEnd) {
 					try {
 						// read a chunk of bytes from the FTP stream
@@ -875,6 +881,12 @@ namespace FluentFTP {
 				var sw = new Stopwatch();
 
 				var anyNoop = false;
+
+				// Fix #554: ability to download zero-byte files
+				if (DownloadZeroByteFiles && outStream == null && localPath != null) {
+					outStream = FtpFileStream.GetFileWriteStream(this, localPath, true, QuickTransferLimit, knownFileSize, isAppend, restartPosition);
+					disposeOutStream = true;
+				}
 
 				while (offset < fileLen || readToEnd) {
 					try {
