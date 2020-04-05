@@ -377,6 +377,27 @@ namespace FluentFTP {
 
 			return text;
 		}
+
+		/// <summary>
+		/// Remove a prefix from a string, only if it has the given prefix
+		/// </summary>
+		public static string RemovePrefix(this string text, string prefix) {
+			if (text.StartsWith(prefix)) {
+				return text.Substring(prefix.Length);
+			}
+			return text;
+		}
+
+		/// <summary>
+		/// Remove a postfix from a string, only if it has the given postfix
+		/// </summary>
+		public static string RemovePostfix(this string text, string postfix) {
+			if (text.EndsWith(postfix)) {
+				return text.Substring(0, text.Length - postfix.Length);
+			}
+			return text;
+		}
+
 		/// <summary>
 		/// Combine the given base path with the relative path
 		/// </summary>

@@ -165,7 +165,7 @@ namespace FluentFTP {
 			foreach (var remoteFile in listing) {
 
 				// calculate the local path
-				var relativePath = remoteFile.FullName.Replace(remoteFolder, "").Replace('/', Path.DirectorySeparatorChar);
+				var relativePath = remoteFile.FullName.EnsurePrefix("/").RemovePrefix(remoteFolder).Replace('/', Path.DirectorySeparatorChar);
 				var localFile = localFolder.CombineLocalPath(relativePath);
 
 				// create the result object
