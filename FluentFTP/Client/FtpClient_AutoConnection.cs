@@ -190,7 +190,11 @@ namespace FluentFTP {
 		}
 #endif
 
-		private void LoadProfile(FtpProfile profile) {
+		/// <summary>
+		/// Load the given connection profile and configure the FTP client instance accordingly.
+		/// </summary>
+		/// <param name="profile">Connection profile. Not modified.</param>
+		public void LoadProfile(FtpProfile profile) {
 
 			// verify args
 			if (profile == null) {
