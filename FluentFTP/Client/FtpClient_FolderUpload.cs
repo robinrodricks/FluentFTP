@@ -197,8 +197,8 @@ namespace FluentFTP {
 			foreach (var localFile in dirListing) {
 
 				// calculate the local path
-				var relativePath = localFile.EnsurePrefix("/").RemovePrefix(localFolder).EnsurePostfix(Path.DirectorySeparatorChar.ToString());
-				var remoteFile = remoteFolder + relativePath.Replace('\\', '/');
+				var relativePath = localFile.RemovePrefix(localFolder).RemovePrefix("/").EnsurePostfix(Path.DirectorySeparatorChar.ToString());
+				var remoteFile = remoteFolder.EnsurePostfix("/") + relativePath.Replace('\\', '/');
 
 				// create the result object
 				var result = new FtpResult() {
