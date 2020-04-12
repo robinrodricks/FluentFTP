@@ -181,7 +181,7 @@ namespace FluentFTP {
 			await UploadDirectoryFilesAsync(filesToUpload, existsMode, verifyOptions, progress, remoteListing, token);
 
 			// delete the extra remote files if in mirror mode and the directory was pre-existing
-			await DeleteExtraServerFilesAsync(mode, remoteFolder,, shouldExist, remoteListing, rules, token);
+			await DeleteExtraServerFilesAsync(mode, remoteFolder, shouldExist, remoteListing, rules, token);
 
 			return results;
 		}
