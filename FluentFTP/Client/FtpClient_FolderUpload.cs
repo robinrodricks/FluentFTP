@@ -93,7 +93,7 @@ namespace FluentFTP {
 			UploadDirectoryFiles(filesToUpload, existsMode, verifyOptions, progress, remoteListing);
 
 			// delete the extra remote files if in mirror mode and the directory was pre-existing
-			DeleteExtraServerFiles(mode, shouldExist, remoteListing);
+			DeleteExtraServerFiles(mode, remoteFolder, shouldExist, remoteListing, rules);
 
 			return results;
 		}
@@ -181,7 +181,7 @@ namespace FluentFTP {
 			await UploadDirectoryFilesAsync(filesToUpload, existsMode, verifyOptions, progress, remoteListing, token);
 
 			// delete the extra remote files if in mirror mode and the directory was pre-existing
-			await DeleteExtraServerFilesAsync(mode, shouldExist, remoteListing, token);
+			await DeleteExtraServerFilesAsync(mode, remoteFolder,, shouldExist, remoteListing, rules, token);
 
 			return results;
 		}
@@ -217,7 +217,7 @@ namespace FluentFTP {
 				if (!FilePassesRules(result, rules, true)) {
 					continue;
 				}
-				
+
 				dirsToUpload.Add(result);
 			}
 
@@ -313,7 +313,7 @@ namespace FluentFTP {
 				if (!FilePassesRules(result, rules, true)) {
 					continue;
 				}
-				
+
 				// record that this file should exist
 				shouldExist.Add(remoteFile.ToLower(), true);
 
@@ -340,7 +340,7 @@ namespace FluentFTP {
 
 					// skip uploading if the file already exists on the server
 					FtpRemoteExists existsModeToUse;
-					if (!CanUploadFile(result, remoteListing, existsMode, out existsModeToUse)){
+					if (!CanUploadFile(result, remoteListing, existsMode, out existsModeToUse)) {
 						continue;
 					}
 
@@ -437,7 +437,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Delete the extra remote files if in mirror mode and the directory was pre-existing
 		/// </summary>
-		private void DeleteExtraServerFiles(FtpFolderSyncMode mode, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing) {
+		private void DeleteExtraServerFiles(FtpFolderSyncMode mode, string remoteFolder, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing, List<FtpRule> rules) {
 			if (mode == FtpFolderSyncMode.Mirror && remoteListing != null) {
 
 				LogFunc(nameof(DeleteExtraServerFiles));
@@ -449,13 +449,26 @@ namespace FluentFTP {
 
 						if (!shouldExist.ContainsKey(existingServerFile.FullName.ToLower())) {
 
-							LogStatus(FtpTraceLevel.Info, "Delete extra file from server: " + existingServerFile.FullName);
+							// create the result object to validate rules with same condition like upload
+							var result = new FtpResult() {
+								Type = existingServerFile.Type,
+								Size = existingServerFile.Size,
+								Name = Path.GetFileName(existingServerFile.FullName),
+								RemotePath = existingServerFile.FullName,
+								IsDownload = false,
+							};
 
-							// delete the file from the server
-							try {
-								DeleteFile(existingServerFile.FullName);
+							if (FilePassesRules(result, rules, false)) {
+
+								LogStatus(FtpTraceLevel.Info, "Delete extra file from server: " + existingServerFile.FullName);
+
+								// delete the file from the server
+								try {
+									DeleteFile(existingServerFile.FullName);
+								}
+								catch (Exception ex) { }
+
 							}
-							catch (Exception ex) { }
 
 						}
 
@@ -464,13 +477,14 @@ namespace FluentFTP {
 				}
 
 			}
+
 		}
 
 #if ASYNC
 		/// <summary>
 		/// Delete the extra remote files if in mirror mode and the directory was pre-existing
 		/// </summary>
-		private async Task DeleteExtraServerFilesAsync(FtpFolderSyncMode mode, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing, CancellationToken token) {
+		private async Task DeleteExtraServerFilesAsync(FtpFolderSyncMode mode, string remoteFolder, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing, List<FtpRule> rules, CancellationToken token) {
 			if (mode == FtpFolderSyncMode.Mirror && remoteListing != null) {
 
 				LogFunc(nameof(DeleteExtraServerFilesAsync));
@@ -482,13 +496,26 @@ namespace FluentFTP {
 
 						if (!shouldExist.ContainsKey(existingServerFile.FullName.ToLower())) {
 
-							LogStatus(FtpTraceLevel.Info, "Delete extra file from server: " + existingServerFile.FullName);
+							// create the result object to validate rules with same condition like upload
+							var result = new FtpResult() {
+								Type = existingServerFile.Type,
+								Size = existingServerFile.Size,
+								Name = Path.GetFileName(existingServerFile.FullName),
+								RemotePath = existingServerFile.FullName,
+								IsDownload = false,
+							};
 
-							// delete the file from the server
-							try {
-								await DeleteFileAsync(existingServerFile.FullName, token);
+							if (FilePassesRules(result, rules, false)) {
+
+								LogStatus(FtpTraceLevel.Info, "Delete extra file from server: " + existingServerFile.FullName);
+
+								// delete the file from the server
+								try {
+									await DeleteFileAsync(existingServerFile.FullName, token);
+								}
+								catch (Exception ex) { }
+
 							}
-							catch (Exception ex) { }
 
 						}
 
