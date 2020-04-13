@@ -77,7 +77,7 @@ namespace FluentFTP {
 			DownloadServerFiles(toDownload, existsMode, verifyOptions, progress);
 
 			// delete the extra local files if in mirror mode
-			DeleteExtraLocalFiles(localFolder, mode, shouldExist);
+			DeleteExtraLocalFiles(localFolder, mode, shouldExist, rules);
 
 			return results;
 		}
@@ -149,7 +149,7 @@ namespace FluentFTP {
 			await DownloadServerFilesAsync(toDownload, existsMode, verifyOptions, progress, token);
 
 			// delete the extra local files if in mirror mode
-			DeleteExtraLocalFiles(localFolder, mode, shouldExist);
+			DeleteExtraLocalFiles(localFolder, mode, shouldExist, rules);
 
 			return results;
 		}
@@ -225,7 +225,7 @@ namespace FluentFTP {
 						var metaProgress = new FtpProgress(toDownload.Count, r);
 
 						// download the file
-						var transferred = DownloadFileToFile(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, metaProgress); 
+						var transferred = DownloadFileToFile(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, metaProgress);
 						result.IsSuccess = transferred.IsSuccess();
 						result.IsSkipped = transferred == FtpStatus.Skipped;
 					}
@@ -327,7 +327,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Delete the extra local files if in mirror mode
 		/// </summary>
-		private void DeleteExtraLocalFiles(string localFolder, FtpFolderSyncMode mode, Dictionary<string, bool> shouldExist) {
+		private void DeleteExtraLocalFiles(string localFolder, FtpFolderSyncMode mode, Dictionary<string, bool> shouldExist, List<FtpRule> rules) {
 			if (mode == FtpFolderSyncMode.Mirror) {
 
 				LogFunc(nameof(DeleteExtraLocalFiles));
@@ -340,13 +340,26 @@ namespace FluentFTP {
 
 					if (!shouldExist.ContainsKey(existingLocalFile.ToLower())) {
 
-						LogStatus(FtpTraceLevel.Info, "Delete extra file from disk: " + existingLocalFile);
+						// create the result object to validate rules with same condition like upload
+						var result = new FtpResult() {
+							Type = FtpFileSystemObjectType.File,
+							Size = 0,
+							Name = Path.GetFileName(existingLocalFile),
+							LocalPath = existingLocalFile,
+							IsDownload = false,
+						};
 
-						// delete the file from disk
-						try {
-							File.Delete(existingLocalFile);
+						if (FilePassesRules(result, rules, true)) {
+
+							LogStatus(FtpTraceLevel.Info, "Delete extra file from disk: " + existingLocalFile);
+
+							// delete the file from disk
+							try {
+								File.Delete(existingLocalFile);
+							}
+							catch (Exception ex) { }
+
 						}
-						catch (Exception ex) { }
 
 					}
 
