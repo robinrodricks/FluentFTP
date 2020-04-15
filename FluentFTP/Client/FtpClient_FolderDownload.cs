@@ -25,6 +25,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
+		/// <param name = "deleteFilteredFiles" >Force delete files that matches an FtpRule on client side if an FtpRule ignores the file to download.</param>
 		/// <param name="progress">Provide a callback to track download progress.</param>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
@@ -38,7 +39,7 @@ namespace FluentFTP {
 		/// Returns a blank list if nothing was transfered. Never returns null.
 		/// </returns>
 		public List<FtpResult> DownloadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
-			FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null) {
+			FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, bool deleteFilteredFiles = true, Action<FtpProgress> progress = null) {
 
 			if (localFolder.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localFolder");
@@ -77,7 +78,7 @@ namespace FluentFTP {
 			DownloadServerFiles(toDownload, existsMode, verifyOptions, progress);
 
 			// delete the extra local files if in mirror mode
-			DeleteExtraLocalFiles(localFolder, mode, shouldExist, rules);
+			DeleteExtraLocalFiles(localFolder, mode, shouldExist, !deleteFilteredFiles ? rules : null);
 
 			return results;
 		}
@@ -96,6 +97,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
+		/// <param name = "deleteFilteredFiles" > Force delete files that matches an FtpRule on client side if an FtpRule ignores the file to download.</param>
 		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <remarks>
@@ -110,7 +112,7 @@ namespace FluentFTP {
 		/// Returns a blank list if nothing was transfered. Never returns null.
 		/// </returns>
 		public async Task<List<FtpResult>> DownloadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
-			FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+			FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, bool deleteFilteredFiles = true, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			if (localFolder.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localFolder");
@@ -149,7 +151,7 @@ namespace FluentFTP {
 			await DownloadServerFilesAsync(toDownload, existsMode, verifyOptions, progress, token);
 
 			// delete the extra local files if in mirror mode
-			DeleteExtraLocalFiles(localFolder, mode, shouldExist, rules);
+			DeleteExtraLocalFiles(localFolder, mode, shouldExist, !deleteFilteredFiles ? rules : null);
 
 			return results;
 		}
