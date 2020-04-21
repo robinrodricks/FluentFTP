@@ -473,7 +473,9 @@ namespace FluentFTP {
 			return BaseStream.Read(buffer, offset, count);
 #else
 			ar = BaseStream.BeginRead(buffer, offset, count, null, null);
-			if (!ar.AsyncWaitHandle.WaitOne(m_readTimeout, true)) {
+			bool success = ar.AsyncWaitHandle.WaitOne(m_readTimeout, true);
+			ar.AsyncWaitHandle.Close();
+			if (!success) {
 				Close();
 				throw new TimeoutException("Timed out trying to read data from the socket stream!");
 			}
@@ -873,7 +875,9 @@ namespace FluentFTP {
 				break;
 #else
 				ar = m_socket.BeginConnect(addresses[i], port, null, null);
-				if (!ar.AsyncWaitHandle.WaitOne(m_connectTimeout, true)) {
+				bool success = ar.AsyncWaitHandle.WaitOne(m_connectTimeout, true);
+				ar.AsyncWaitHandle.Close();
+				if (!success) {
 					Close();
 
 					// check to see if we're out of addresses, and throw a TimeoutException
