@@ -4,6 +4,10 @@
   - New: `UploadDirectoryDeleteExcluded` property to control if excluded files are deleted during Upload
   - New: `DownloadDirectoryDeleteExcluded` property to control if excluded files are deleted during Download
   - Fix: Dispose AsyncWaitHandles to stop handle leak in .NET Framework 4.5
+  - Fix: Implement proper cancellation support in `UploadDirectory` (once file transfer begins it cannot be cancelled)
+  - Fix: Implement proper cancellation support in `DownloadDirectory` (once file transfer begins it cannot be cancelled)
+  - Fix: Implement proper cancellation support in FXP `TransferDirectory`
+  - Fix: Implement proper cancellation support in recursive `GetListing`
 
 #### 32.3.3
   - Fix: Downloading or uploading a directory can generate incorrect local paths
