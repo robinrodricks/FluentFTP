@@ -1,5 +1,13 @@
 # Release Notes
 
+#### 32.3.4
+  - New: `UploadDirectoryDeleteExcluded` property to control if excluded files are deleted during Upload
+  - New: `DownloadDirectoryDeleteExcluded` property to control if excluded files are deleted during Download
+  - Fix: Dispose AsyncWaitHandles to stop handle leak in .NET Framework 4.5
+
+#### 32.3.3
+  - Fix: Downloading or uploading a directory can generate incorrect local paths
+
 #### 32.3.2
   - Fix: Downloading or uploading a directory can generate incorrect local paths
   - Fix: Expose `LoadProfile` API so it can be called by the generated code from `AutoDetect`
