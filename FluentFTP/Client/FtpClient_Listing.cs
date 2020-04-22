@@ -698,7 +698,7 @@ namespace FluentFTP {
 			
 			// start recursive process if needed and unsupported by the server
 			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
-				return await GetListingRecursiveAsync(GetAbsolutePath(path), options);
+				return await GetListingRecursiveAsync(GetAbsolutePath(path), options, token);
 			}
 
 			LogFunc(nameof(GetListingAsync), new object[] { path, options });
@@ -730,6 +730,9 @@ namespace FluentFTP {
 
 			for (var i = 0; i < rawlisting.Count; i++) {
 				buf = rawlisting[i];
+
+				// break if task is cancelled
+				token.ThrowIfCancellationRequested();
 
 				if (isNameList) {
 					// if NLST was used we only have a file name so
@@ -987,7 +990,7 @@ namespace FluentFTP {
 		/// <param name="path">The path of the directory to list</param>
 		/// <param name="options">Options that dictate how a list is performed and what information is gathered.</param>
 		/// <returns>An array of FtpListItem objects</returns>
-		protected async Task<FtpListItem[]> GetListingRecursiveAsync(string path, FtpListOption options) {
+		protected async Task<FtpListItem[]> GetListingRecursiveAsync(string path, FtpListOption options, CancellationToken token) {
 			// remove the recursive flag
 			options &= ~FtpListOption.Recursive;
 
@@ -1005,7 +1008,10 @@ namespace FluentFTP {
 				}
 
 				// list it
-				FtpListItem[] items = await GetListingAsync(currentPath, options);
+				FtpListItem[] items = await GetListingAsync(currentPath, options, token);
+
+				// break if task is cancelled
+				token.ThrowIfCancellationRequested();
 
 				// add it to the final listing
 				allFiles.AddRange(items);
