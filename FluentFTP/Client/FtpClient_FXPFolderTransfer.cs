@@ -82,7 +82,7 @@ namespace FluentFTP {
 			// get all the already existing files
 			var remoteListing = checkFileExistence ? remoteClient.GetListing(remoteFolder, FtpListOption.Recursive) : null;
 
-			// loop thru each folder and ensure it exists
+			// loop thru each folder and ensure it exists #1
 			var dirsToUpload = GetSubDirectoriesToTransfer(sourceFolder, remoteFolder, rules, results, dirListing);
 			CreateSubDirectories(remoteClient, dirsToUpload);
 
@@ -162,17 +162,35 @@ namespace FluentFTP {
 				checkFileExistence = false;
 			}
 
+			// break if task is cancelled
+			token.ThrowIfCancellationRequested();
+
 			// collect paths of the files that should exist (lowercase for CI checks)
 			var shouldExist = new Dictionary<string, bool>();
 
 			// get all the folders in the local directory
 			var dirListing = (await GetListingAsync(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpFileSystemObjectType.Directory).Select(x => x.FullName).ToArray();
 
+			// break if task is cancelled
+			token.ThrowIfCancellationRequested();
+
 			// get all the already existing files
 			var remoteListing = checkFileExistence ? await remoteClient.GetListingAsync(remoteFolder, FtpListOption.Recursive, token) : null;
 
-			// loop thru each folder and ensure it exists
+			// break if task is cancelled
+			token.ThrowIfCancellationRequested();
+
+			// loop thru each folder and ensure it exists #1
 			var dirsToUpload = GetSubDirectoriesToTransfer(sourceFolder, remoteFolder, rules, results, dirListing);
+
+			// break if task is cancelled
+			token.ThrowIfCancellationRequested();
+
+			/*-------------------------------------------------------------------------------------/
+			 *   Cancelling after this point would leave the FTP server in an inconsistant state   *
+			 *-------------------------------------------------------------------------------------*/
+
+			// loop thru each folder and ensure it exists #2
 			await CreateSubDirectoriesAsync(remoteClient, dirsToUpload, token);
 
 			// get all the files in the local directory

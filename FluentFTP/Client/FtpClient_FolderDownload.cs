@@ -141,11 +141,23 @@ namespace FluentFTP {
 			// get all the files in the remote directory
 			var listing = await GetListingAsync(remoteFolder, FtpListOption.Recursive | FtpListOption.Size, token);
 
+			// break if task is cancelled
+			token.ThrowIfCancellationRequested();
+
 			// collect paths of the files that should exist (lowercase for CI checks)
 			var shouldExist = new Dictionary<string, bool>();
 
-			// loop thru each file and transfer it
+			// loop thru each file and transfer it #1
 			var toDownload = GetFilesToDownload(localFolder, remoteFolder, rules, results, listing, shouldExist);
+
+			// break if task is cancelled
+			token.ThrowIfCancellationRequested();
+
+			/*-------------------------------------------------------------------------------------/
+			 *   Cancelling after this point would leave the FTP server in an inconsistant state   *
+			 *-------------------------------------------------------------------------------------*/
+
+			// loop thru each file and transfer it #2
 			await DownloadServerFilesAsync(toDownload, existsMode, verifyOptions, progress, token);
 
 			// delete the extra local files if in mirror mode
@@ -163,6 +175,9 @@ namespace FluentFTP {
 			var toDownload = new List<FtpResult>();
 
 			foreach (var remoteFile in listing) {
+
+				// break if task is cancelled
+				token.ThrowIfCancellationRequested();
 
 				// calculate the local path
 				var relativePath = remoteFile.FullName.EnsurePrefix("/").RemovePrefix(remoteFolder).Replace('/', Path.DirectorySeparatorChar);
