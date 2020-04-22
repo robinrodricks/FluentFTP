@@ -846,6 +846,32 @@ namespace FluentFTP {
 			set => m_DownloadDataType = value;
 		}
 
+		public bool m_UploadDirectoryDeleteExcluded = true;
+
+		/// <summary>
+		/// Controls if the UploadDirectory API deletes the excluded files when uploading in Mirror mode.
+		/// If true, then any files that are excluded will be deleted from the FTP server if they are
+		/// excluded from the local system. This is done to keep the server in sync with the local system.
+		/// But if it is false, the excluded files are not touched on the server, and simply ignored.
+		/// </summary>
+		public bool UploadDirectoryDeleteExcluded {
+			get => m_UploadDirectoryDeleteExcluded;
+			set => m_UploadDirectoryDeleteExcluded = value;
+		}
+
+		public bool m_DownloadDirectoryDeleteExcluded = true;
+
+		/// <summary>
+		/// Controls if the DownloadDirectory API deletes the excluded files when downloading in Mirror mode.
+		/// If true, then any files that are excluded will be deleted from the local filesystem if they are
+		/// excluded from the FTP server. This is done to keep the local filesystem in sync with the FTP server.
+		/// But if it is false, the excluded files are not touched on the local filesystem, and simply ignored.
+		/// </summary>
+		public bool DownloadDirectoryDeleteExcluded {
+			get => m_DownloadDirectoryDeleteExcluded;
+			set => m_DownloadDirectoryDeleteExcluded = value;
+		}
+
 		public FtpDataType m_FXPDataType = FtpDataType.Binary;
 
 		/// <summary>

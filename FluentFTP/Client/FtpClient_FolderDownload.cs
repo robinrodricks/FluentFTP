@@ -188,6 +188,13 @@ namespace FluentFTP {
 
 					// skip downloading the file if it does not pass all the rules
 					if (!FilePassesRules(result, rules, false, remoteFile)) {
+
+						// record that this file/folder should exist
+						// if we don't want to delete excluded files
+						if (!DownloadDirectoryDeleteExcluded) {
+							shouldExist.Add(localFile.ToLower(), true);
+						}
+
 						continue;
 					}
 

@@ -311,6 +311,13 @@ namespace FluentFTP {
 
 				// skip uploading the file if it does not pass all the rules
 				if (!FilePassesRules(result, rules, true)) {
+
+					// record that this file/folder should exist
+					// if we don't want to delete excluded files
+					if (!UploadDirectoryDeleteExcluded) {
+						shouldExist.Add(remoteFile.ToLower(), true);
+					}
+
 					continue;
 				}
 				

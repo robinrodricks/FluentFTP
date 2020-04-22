@@ -261,6 +261,8 @@ namespace FluentFTP {
 			conn.FXPDataType = FXPDataType;
 			conn.FXPProgressInterval = FXPProgressInterval;
 			conn.ServerHandler = ServerHandler;
+			conn.UploadDirectoryDeleteExcluded = UploadDirectoryDeleteExcluded;
+			conn.DownloadDirectoryDeleteExcluded = DownloadDirectoryDeleteExcluded;
 
 
 			// fix for #428: OpenRead with EnableThreadSafeDataConnections always uses ASCII
