@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.Net.Sockets;
+using FluentFTP.Servers;
 #if (CORE || NETFX)
 using System.Diagnostics;
 #endif
@@ -925,5 +927,29 @@ namespace FluentFTP {
 			}
 		}
 
+		/// <summary>
+		/// Check if operation can resume after <see cref="IOException"/>.
+		/// </summary>
+		/// <param name="exception">Received exception.</param>
+		/// <returns>Result of checking.</returns>
+		public static bool IsResumeAllowed(this IOException exception)
+		{
+			// resume if server disconnects midway (fixes #39 and #410)
+			if (exception.InnerException != null || exception.Message.IsKnownError(FtpServerStrings.unexpectedEOF))
+			{
+				if (exception.InnerException is SocketException socketException)
+				{
+#if CORE
+					return (int)socketException.SocketErrorCode == 10054;
+#else
+					return socketException.ErrorCode == 10054;
+#endif
+				}
+
+				return true;
+			}
+
+			return false;
+		}
 	}
 }

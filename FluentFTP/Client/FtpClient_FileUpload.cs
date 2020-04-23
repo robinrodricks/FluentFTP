@@ -1093,19 +1093,13 @@ namespace FluentFTP {
 #endif
 
 		private bool ResumeUpload(string remotePath, ref Stream upStream, long offset, IOException ex) {
-			// resume if server disconnects midway (fixes #39)
-			if (ex.InnerException != null) {
-				var iex = ex.InnerException as SocketException;
-#if CORE
-					if (iex != null && (int) iex.SocketErrorCode == 10054) {
-#else
-				if (iex != null && iex.ErrorCode == 10054) {
-#endif
-					upStream.Dispose();
-					upStream = OpenAppend(remotePath, UploadDataType, true);
-					upStream.Position = offset;
-					return true;
-				}
+			if (ex.IsResumeAllowed())
+			{
+				upStream.Dispose();
+				upStream = OpenAppend(remotePath, UploadDataType, true);
+				upStream.Position = offset;
+
+				return true;
 			}
 
 			return false;
@@ -1113,19 +1107,13 @@ namespace FluentFTP {
 
 #if ASYNC
 		private async Task<Tuple<bool, Stream>> ResumeUploadAsync(string remotePath, Stream upStream, long offset, IOException ex) {
-			// resume if server disconnects midway (fixes #39)
-			if (ex.InnerException != null) {
-				var iex = ex.InnerException as SocketException;
-#if CORE
-				if (iex != null && (int) iex.SocketErrorCode == 10054) {
-#else
-				if (iex != null && iex.ErrorCode == 10054) {
-#endif
-					upStream.Dispose();
-					var returnStream = await OpenAppendAsync(remotePath, UploadDataType, true);
-					returnStream.Position = offset;
-					return Tuple.Create(true, returnStream);
-				}
+			if (ex.IsResumeAllowed())
+			{
+				upStream.Dispose();
+				var returnStream = await OpenAppendAsync(remotePath, UploadDataType, true);
+				returnStream.Position = offset;
+
+				return Tuple.Create(true, returnStream);
 			}
 
 			return Tuple.Create(false, (Stream)null);
