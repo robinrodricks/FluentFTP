@@ -77,7 +77,7 @@ namespace FluentFTP {
 			DownloadServerFiles(toDownload, existsMode, verifyOptions, progress);
 
 			// delete the extra local files if in mirror mode
-			DeleteExtraLocalFiles(localFolder, mode, shouldExist);
+			DeleteExtraLocalFiles(localFolder, mode, shouldExist, rules);
 
 			return results;
 		}
@@ -161,7 +161,7 @@ namespace FluentFTP {
 			await DownloadServerFilesAsync(toDownload, existsMode, verifyOptions, progress, token);
 
 			// delete the extra local files if in mirror mode
-			DeleteExtraLocalFiles(localFolder, mode, shouldExist);
+			DeleteExtraLocalFiles(localFolder, mode, shouldExist, rules);
 
 			return results;
 		}
@@ -200,13 +200,6 @@ namespace FluentFTP {
 
 					// skip downloading the file if it does not pass all the rules
 					if (!FilePassesRules(result, rules, false, remoteFile)) {
-
-						// record that this file/folder should exist
-						// if we don't want to delete excluded files
-						if (!DownloadDirectoryDeleteExcluded) {
-							shouldExist.Add(localFile.ToLower(), true);
-						}
-
 						continue;
 					}
 
@@ -244,7 +237,7 @@ namespace FluentFTP {
 						var metaProgress = new FtpProgress(toDownload.Count, r);
 
 						// download the file
-						var transferred = DownloadFileToFile(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, metaProgress); 
+						var transferred = DownloadFileToFile(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, metaProgress);
 						result.IsSuccess = transferred.IsSuccess();
 						result.IsSkipped = transferred == FtpStatus.Skipped;
 					}
@@ -346,7 +339,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Delete the extra local files if in mirror mode
 		/// </summary>
-		private void DeleteExtraLocalFiles(string localFolder, FtpFolderSyncMode mode, Dictionary<string, bool> shouldExist) {
+		private void DeleteExtraLocalFiles(string localFolder, FtpFolderSyncMode mode, Dictionary<string, bool> shouldExist, List<FtpRule> rules) {
 			if (mode == FtpFolderSyncMode.Mirror) {
 
 				LogFunc(nameof(DeleteExtraLocalFiles));
@@ -359,19 +352,52 @@ namespace FluentFTP {
 
 					if (!shouldExist.ContainsKey(existingLocalFile.ToLower())) {
 
-						LogStatus(FtpTraceLevel.Info, "Delete extra file from disk: " + existingLocalFile);
+						// only delete the local file if its permitted by the configuration
+						if (CanDeleteLocalFile(rules, existingLocalFile)) {
+							LogStatus(FtpTraceLevel.Info, "Delete extra file from disk: " + existingLocalFile);
 
-						// delete the file from disk
-						try {
-							File.Delete(existingLocalFile);
+							// delete the file from disk
+							try {
+								File.Delete(existingLocalFile);
+							}
+							catch (Exception ex) { }
 						}
-						catch (Exception ex) { }
-
 					}
-
 				}
-
 			}
+		}
+
+		/// <summary>
+		/// Check if the local file can be deleted, based on the DownloadDirectoryDeleteExcluded property
+		/// </summary>
+		private bool CanDeleteLocalFile(List<FtpRule> rules, string existingLocalFile) {
+
+			// if we should not delete excluded files
+			if (!DownloadDirectoryDeleteExcluded && !rules.IsBlank()) {
+
+				// create the result object to validate rules to ensure that file from excluded
+				// directories are not deleted on the local filesystem
+				var result = new FtpResult() {
+					Type = FtpFileSystemObjectType.File,
+					Size = 0,
+					Name = Path.GetFileName(existingLocalFile),
+					LocalPath = existingLocalFile,
+					IsDownload = false,
+				};
+
+				// check if the file passes the rules
+				if (FilePassesRules(result, rules, true)) {
+					// delete the file because it is included
+					return true;
+				}
+				else {
+					// do not delete the file because it is excluded
+					return false;
+				}
+			}
+
+			// always delete the file whether its included or excluded by the rules
+			return true;
 		}
 
 	}
