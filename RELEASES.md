@@ -1,6 +1,6 @@
 # Release Notes
 
-#### 32.3.4
+#### 32.4.0
   - New: `UploadDirectoryDeleteExcluded` property to control if excluded files are deleted during Upload
   - New: `DownloadDirectoryDeleteExcluded` property to control if excluded files are deleted during Download
   - Fix: Dispose AsyncWaitHandles to stop handle leak in .NET Framework 4.5
