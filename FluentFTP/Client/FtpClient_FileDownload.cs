@@ -1057,18 +1057,12 @@ namespace FluentFTP {
 #endif
 
 		private bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
-			// resume if server disconnects midway (fixes #39 and #410)
-			if (ex.InnerException != null || ex.Message.IsKnownError(FtpServerStrings.unexpectedEOF)) {
-				var ie = ex.InnerException as SocketException;
-#if CORE
-								if (ie == null || ie != null && (int) ie.SocketErrorCode == 10054) {
-#else
-				if (ie == null || ie != null && ie.ErrorCode == 10054) {
-#endif
-					downStream.Dispose();
-					downStream = OpenRead(remotePath, DownloadDataType, offset);
-					return true;
-				}
+			if (ex.IsResumeAllowed())
+			{
+				downStream.Dispose();
+				downStream = OpenRead(remotePath, DownloadDataType, offset);
+
+				return true;
 			}
 
 			return false;
@@ -1076,17 +1070,11 @@ namespace FluentFTP {
 
 #if ASYNC
 		private async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex) {
-			// resume if server disconnects midway (fixes #39 and #410)
-			if (ex.InnerException != null || ex.Message.IsKnownError(FtpServerStrings.unexpectedEOF)) {
-				var ie = ex.InnerException as SocketException;
-#if CORE
-				if (ie == null || ie != null && (int) ie.SocketErrorCode == 10054) {
-#else
-				if (ie == null || ie != null && ie.ErrorCode == 10054) {
-#endif
-					downStream.Dispose();
-					return Tuple.Create(true, await OpenReadAsync(remotePath, DownloadDataType, offset));
-				}
+			if (ex.IsResumeAllowed())
+			{
+				downStream.Dispose();
+
+				return Tuple.Create(true, await OpenReadAsync(remotePath, DownloadDataType, offset));
 			}
 
 			return Tuple.Create(false, (Stream)null);
