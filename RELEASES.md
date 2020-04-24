@@ -8,6 +8,7 @@
   - Fix: Implement proper cancellation support in `DownloadDirectory` (once file transfer begins it cannot be cancelled)
   - Fix: Implement proper cancellation support in FXP `TransferDirectory`
   - Fix: Implement proper cancellation support in recursive `GetListing`
+  - Fix: Correctly resume when unexpectedEOF error received during uploading a file (thanks [mrcopperbeard](/mrcopperbeard))
 
 #### 32.3.3
   - Fix: Downloading or uploading a directory can generate incorrect local paths
