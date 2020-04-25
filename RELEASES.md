@@ -9,6 +9,8 @@
   - Fix: Implement proper cancellation support in FXP `TransferDirectory`
   - Fix: Implement proper cancellation support in recursive `GetListing`
   - Fix: Correctly resume when unexpectedEOF error received during uploading a file (thanks [mrcopperbeard](/mrcopperbeard))
+  - Fix: Hide internal properties in `FtpClient` that are not meant to be exposed
+  - Fix: Update `IFtpClient` with the latest set of public properties that are meant to be exposed
 
 #### 32.3.3
   - Fix: Downloading or uploading a directory can generate incorrect local paths
