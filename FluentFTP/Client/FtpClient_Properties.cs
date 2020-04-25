@@ -635,7 +635,7 @@ namespace FluentFTP {
 		}
 
 
-		public FtpDataType m_ListingDataType = FtpDataType.Binary;
+		private FtpDataType m_ListingDataType = FtpDataType.Binary;
 
 		/// <summary>
 		/// Controls if the file listings are downloaded in Binary or ASCII mode.
@@ -826,7 +826,7 @@ namespace FluentFTP {
 			set => m_DownloadZeroByteFiles = value;
 		}
 
-		public FtpDataType m_UploadDataType = FtpDataType.Binary;
+		private FtpDataType m_UploadDataType = FtpDataType.Binary;
 
 		/// <summary>
 		/// Controls if the high-level API uploads files in Binary or ASCII mode.
@@ -836,7 +836,7 @@ namespace FluentFTP {
 			set => m_UploadDataType = value;
 		}
 
-		public FtpDataType m_DownloadDataType = FtpDataType.Binary;
+		private FtpDataType m_DownloadDataType = FtpDataType.Binary;
 
 		/// <summary>
 		/// Controls if the high-level API downloads files in Binary or ASCII mode.
@@ -846,7 +846,7 @@ namespace FluentFTP {
 			set => m_DownloadDataType = value;
 		}
 
-		public bool m_UploadDirectoryDeleteExcluded = true;
+		private bool m_UploadDirectoryDeleteExcluded = true;
 
 		/// <summary>
 		/// Controls if the UploadDirectory API deletes the excluded files when uploading in Mirror mode.
@@ -859,7 +859,7 @@ namespace FluentFTP {
 			set => m_UploadDirectoryDeleteExcluded = value;
 		}
 
-		public bool m_DownloadDirectoryDeleteExcluded = true;
+		private bool m_DownloadDirectoryDeleteExcluded = true;
 
 		/// <summary>
 		/// Controls if the DownloadDirectory API deletes the excluded files when downloading in Mirror mode.
@@ -872,7 +872,7 @@ namespace FluentFTP {
 			set => m_DownloadDirectoryDeleteExcluded = value;
 		}
 
-		public FtpDataType m_FXPDataType = FtpDataType.Binary;
+		private FtpDataType m_FXPDataType = FtpDataType.Binary;
 
 		/// <summary>
 		/// Controls if the FXP server-to-server file transfer API uses Binary or ASCII mode.
@@ -882,7 +882,7 @@ namespace FluentFTP {
 			set => m_FXPDataType = value;
 		}
 
-		public int m_FXPProgressInterval = 1000;
+		private int m_FXPProgressInterval = 1000;
 
 		/// <summary>
 		/// Controls how often the progress reports are sent during an FXP file transfer.
