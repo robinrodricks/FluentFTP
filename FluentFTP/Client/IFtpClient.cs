@@ -27,11 +27,11 @@ namespace FluentFTP {
 
 		// PROPERTIES (From FtpClient_Properties)
 
-		bool IsDisposed { get; set; }
+		bool IsDisposed { get;}
 		FtpIpVersion InternetProtocolVersions { get; set; }
 		int SocketPollInterval { get; set; }
 		bool StaleDataCheck { get; set; }
-		bool IsConnected { get; set; }
+		bool IsConnected { get; }
 		bool EnableThreadSafeDataConnections { get; set; }
 		int NoopInterval { get; set; }
 		bool CheckCapabilities { get; set; }
@@ -40,7 +40,7 @@ namespace FluentFTP {
 		int Port { get; set; }
 		NetworkCredential Credentials { get; set; }
 		int MaximumDereferenceCount { get; set; }
-		X509CertificateCollection ClientCertificates { get; set; }
+		X509CertificateCollection ClientCertificates { get; }
 		Func<string> AddressResolver { get; set; }
 		IEnumerable<int> ActivePorts { get; set; }
 		FtpDataConnectionType DataConnectionType { get; set; }
@@ -50,11 +50,13 @@ namespace FluentFTP {
 		int DataConnectionConnectTimeout { get; set; }
 		int DataConnectionReadTimeout { get; set; }
 		bool SocketKeepAlive { get; set; }
-		List<FtpCapability> Capabilities { get; set; }
-		FtpHashAlgorithm HashAlgorithms { get; set; }
+		List<FtpCapability> Capabilities { get; }
+		FtpHashAlgorithm HashAlgorithms { get; }
 		FtpEncryptionMode EncryptionMode { get; set; }
 		bool DataConnectionEncryption { get; set; }
+#if !CORE
 		bool PlainTextEncryption { get; set; }
+#endif
 		SslProtocols SslProtocols { get; set; }
 		FtpsBuffering SslBuffering { get; set; }
 		event FtpSslValidation ValidateCertificate;
@@ -64,8 +66,8 @@ namespace FluentFTP {
 		FtpServer ServerType { get; }
 		FtpBaseServer ServerHandler { get; set; }
 		FtpOperatingSystem ServerOS { get; }
-		string ConnectionType { get; set; }
-		FtpReply LastReply { get; set; }
+		string ConnectionType { get; }
+		FtpReply LastReply { get; }
 		FtpDataType ListingDataType { get; set; }
 		FtpParser ListingParser { get; set; }
 		CultureInfo ListingCulture { get; set; }
