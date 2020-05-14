@@ -77,6 +77,7 @@ namespace FluentFTP {
 		bool BulkListing { get; set; }
 		int BulkListingLength { get; set; }
 		int TransferChunkSize { get; set; }
+		int LocalFileBufferSize { get; set; }
 		int RetryAttempts { get; set; }
 		uint UploadRateLimit { get; set; }
 		uint DownloadRateLimit { get; set; }

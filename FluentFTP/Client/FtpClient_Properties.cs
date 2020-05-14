@@ -769,6 +769,18 @@ namespace FluentFTP {
 			set => m_transferChunkSize = value;
 		}
 
+		private int? m_localFileBufferSize;
+
+		/// <summary>
+		/// Gets or sets the size of the file buffer when reading and writing files on the local file system.
+		/// Used by <see cref="o:UploadFile"/>/<see cref="o:UploadFileAsync"/> and <see cref="o:DownloadFile"/>/<see cref="o:DownloadFileAsync"/>
+		/// and all the other file and directory transfer methods.
+		/// </summary>
+		public int LocalFileBufferSize {
+			get => m_localFileBufferSize ?? 4096;
+			set => m_localFileBufferSize = value;
+		}
+
 		private int m_quickTransferSize = (10 * 1024 * 1024);
 
 		/// <summary>

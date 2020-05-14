@@ -245,6 +245,7 @@ namespace FluentFTP {
 			conn.SslProtocols = SslProtocols;
 			conn.SslBuffering = SslBuffering;
 			conn.TransferChunkSize = TransferChunkSize;
+			conn.LocalFileBufferSize = LocalFileBufferSize;
 			conn.ListingDataType = ListingDataType;
 			conn.ListingParser = ListingParser;
 			conn.ListingCulture = ListingCulture;

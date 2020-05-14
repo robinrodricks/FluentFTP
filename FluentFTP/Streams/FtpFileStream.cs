@@ -90,7 +90,7 @@ namespace FluentFTP.Streams {
 			}*/
 
 			// normal slow mode, return a FileStream
-			return new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, isAsync);
+			return new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read, client.LocalFileBufferSize, isAsync);
 		}
 
 		/// <summary>
@@ -123,10 +123,10 @@ namespace FluentFTP.Streams {
 
 			// normal slow mode, return a FileStream
 			if (isAppend) {
-				return new FileStream(localPath, FileMode.Append, FileAccess.Write, FileShare.None, 4096, isAsync);
+				return new FileStream(localPath, FileMode.Append, FileAccess.Write, FileShare.None, client.LocalFileBufferSize, isAsync);
 			}
 			else {
-				return new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, isAsync);
+				return new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None, client.LocalFileBufferSize, isAsync);
 			}
 		}
 
@@ -139,7 +139,7 @@ namespace FluentFTP.Streams {
 			/*if (fileStream is MemoryStream) {
 
 				// write the file to disk using a single disk call
-				using (var file = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, false)) {
+				using (var file = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None, client.LocalFileBufferSize, false)) {
 					fileStream.Position = 0;
 					((MemoryStream)fileStream).WriteTo(file);
 				}
@@ -157,7 +157,7 @@ namespace FluentFTP.Streams {
 
 				// write the file to disk using a single disk call
 				await Task.Run(() => {
-					using (var file = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, false)) {
+					using (var file = new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None, client.LocalFileBufferSize, false)) {
 						fileStream.Position = 0;
 						((MemoryStream)fileStream).WriteTo(file);
 					}
