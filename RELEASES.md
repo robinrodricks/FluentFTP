@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 32.4.1
+  - New: `LocalFileBufferSize` property to control size of file buffer during local file I/O
+
 #### 32.4.0
   - New: `UploadDirectoryDeleteExcluded` property to control if excluded files are deleted during Upload (thanks [philippjenni](/philippjenni))
   - New: `DownloadDirectoryDeleteExcluded` property to control if excluded files are deleted during Download (thanks [philippjenni](/philippjenni))
