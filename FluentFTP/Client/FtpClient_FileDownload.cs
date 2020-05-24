@@ -329,6 +329,13 @@ namespace FluentFTP {
 				downloadSuccess = DownloadFileInternal(localPath, remotePath, null, restartPos, progress, metaProgress, knownFileSize, isAppend);
 				attemptsLeft--;
 
+				if (!downloadSuccess) {
+					LogStatus(FtpTraceLevel.Info, "Failed to download file.");
+
+					if (attemptsLeft > 0)
+						LogStatus(FtpTraceLevel.Info, "Retrying to download file.");
+				}
+
 				// if verification is needed
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
 					verified = VerifyTransfer(localPath, remotePath);
@@ -339,7 +346,7 @@ namespace FluentFTP {
 						existsMode = FtpLocalExists.Overwrite;
 					}
 				}
-			} while (!verified && attemptsLeft > 0);
+			} while ((!downloadSuccess || !verified) && attemptsLeft > 0);
 
 			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
 				File.Delete(localPath);
@@ -458,6 +465,13 @@ namespace FluentFTP {
 				downloadSuccess = await DownloadFileInternalAsync(localPath, remotePath, null, restartPos, progress, token, metaProgress, knownFileSize, isAppend);
 				attemptsLeft--;
 
+				if (!downloadSuccess) {
+					LogStatus(FtpTraceLevel.Info, "Failed to download file.");
+
+					if (attemptsLeft > 0)
+						LogStatus(FtpTraceLevel.Info, "Retrying to download file.");
+				}
+
 				// if verification is needed
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
 					verified = await VerifyTransferAsync(localPath, remotePath, token);
@@ -468,7 +482,7 @@ namespace FluentFTP {
 						existsMode = FtpLocalExists.Overwrite;
 					}
 				}
-			} while (!verified && attemptsLeft > 0);
+			} while ((!downloadSuccess || !verified) && attemptsLeft > 0);
 
 			if (downloadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
 				File.Delete(localPath);
@@ -790,6 +804,10 @@ namespace FluentFTP {
 
 				return true;
 			}
+			catch (IOException ex1) {
+				LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
+				return false;
+			}
 			catch (Exception ex1) {
 
 				// close stream before throwing error
@@ -1019,6 +1037,10 @@ namespace FluentFTP {
 				catch (Exception) { }
 
 				return true;
+			}
+			catch (IOException ex1) {
+				LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
+				return false;
 			}
 			catch (Exception ex1) {
 

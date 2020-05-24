@@ -360,12 +360,19 @@ namespace FluentFTP {
 			FtpStatus uploadStatus;
 			bool uploadSuccess;
 			do {
-				// write the file onto the server
-				using (var fileStream = FtpFileStream.GetFileReadStream(this, localPath, false, QuickTransferLimit)) {
+					// write the file onto the server
+					using (var fileStream = FtpFileStream.GetFileReadStream(this, localPath, false, QuickTransferLimit)) {
 					// Upload file
 					uploadStatus = UploadFileInternal(fileStream, localPath, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, progress, metaProgress);
 					uploadSuccess = uploadStatus.IsSuccess();
 					attemptsLeft--;
+
+					if (!uploadSuccess) {
+						LogStatus(FtpTraceLevel.Info, "Failed to upload file.");
+
+						if (attemptsLeft > 0)
+							LogStatus(FtpTraceLevel.Info, "Retrying to upload file.");
+					}
 
 					// If verification is needed, update the validated flag
 					if (uploadSuccess && verifyOptions != FtpVerify.None) {
@@ -378,8 +385,7 @@ namespace FluentFTP {
 						}
 					}
 				}
-			} while (!verified && attemptsLeft > 0); //Loop if attempts are available and validation failed
-
+			} while ((!uploadSuccess || !verified) && attemptsLeft > 0); //Loop if attempts are available and the transfer or validation failed
 
 			if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
 				DeleteFile(remotePath);
@@ -456,6 +462,13 @@ namespace FluentFTP {
 					uploadSuccess = uploadStatus.IsSuccess();
 					attemptsLeft--;
 
+					if (!uploadSuccess) {
+						LogStatus(FtpTraceLevel.Info, "Failed to upload file.");
+
+						if (attemptsLeft > 0)
+							LogStatus(FtpTraceLevel.Info, "Retrying to upload file.");
+					}
+
 					// If verification is needed, update the validated flag
 					if (verifyOptions != FtpVerify.None) {
 						verified = await VerifyTransferAsync(localPath, remotePath, token);
@@ -467,7 +480,7 @@ namespace FluentFTP {
 						}
 					}
 				}
-			} while (!verified && attemptsLeft > 0);
+			} while ((!uploadSuccess || !verified) && attemptsLeft > 0);
 
 			if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
 				await DeleteFileAsync(remotePath, token);
@@ -834,6 +847,10 @@ namespace FluentFTP {
 
 				return FtpStatus.Success;
 			}
+			catch (IOException ex1) {
+				LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
+				return FtpStatus.Failed;
+			}
 			catch (Exception ex1) {
 				// close stream before throwing error
 				try {
@@ -1069,6 +1086,10 @@ namespace FluentFTP {
 				catch (Exception) { }
 
 				return FtpStatus.Success;
+			}
+			catch (IOException ex1) {
+				LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
+				return FtpStatus.Failed;
 			}
 			catch (Exception ex1) {
 				// close stream before throwing error
