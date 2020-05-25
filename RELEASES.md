@@ -1,8 +1,9 @@
 # Release Notes
 
-#### 32.4.2
+#### 32.4.3
   - Fix: Ensure file is retried sucessfully when first upload/download fails with an `IOException` (thanks [manuelxmarquez](/manuelxmarquez))
   - Fix: Ensure file streams read and write correctly even when no `FtpClient` is provided (thanks [manuelxmarquez](/manuelxmarquez))
+  - Fix: Clear custom parser when removing parser or clearing all parsers (thanks [rubenhuisman](/rubenhuisman))
 
 #### 32.4.1
   - New: `LocalFileBufferSize` property to control size of file buffer during local file I/O
