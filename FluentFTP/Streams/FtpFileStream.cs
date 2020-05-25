@@ -90,7 +90,8 @@ namespace FluentFTP.Streams {
 			}*/
 
 			// normal slow mode, return a FileStream
-			return new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read, client.LocalFileBufferSize, isAsync);
+			var bufferSize = client != null ? client.LocalFileBufferSize : 4096;
+			return new FileStream(localPath, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize, isAsync);
 		}
 
 		/// <summary>
@@ -122,11 +123,12 @@ namespace FluentFTP.Streams {
 			}*/
 
 			// normal slow mode, return a FileStream
+			var bufferSize = client != null ? client.LocalFileBufferSize : 4096;
 			if (isAppend) {
-				return new FileStream(localPath, FileMode.Append, FileAccess.Write, FileShare.None, client.LocalFileBufferSize, isAsync);
+				return new FileStream(localPath, FileMode.Append, FileAccess.Write, FileShare.None, bufferSize, isAsync);
 			}
 			else {
-				return new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None, client.LocalFileBufferSize, isAsync);
+				return new FileStream(localPath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize, isAsync);
 			}
 		}
 
