@@ -292,8 +292,9 @@ namespace FluentFTP {
 
 				m_parsers.Remove(parser);
 				
-				if(m_customParser == parser)
+				if(m_customParser == parser){
 					m_customParser = null;
+				}
 			}
 		}
 
