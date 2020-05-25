@@ -276,6 +276,7 @@ namespace FluentFTP {
 				}
 
 				m_parsers.Clear();
+				m_customParser = null;
 			}
 		}
 
@@ -290,6 +291,9 @@ namespace FluentFTP {
 				}
 
 				m_parsers.Remove(parser);
+				
+				if(m_customParser == parser)
+					m_customParser = null;
 			}
 		}
 
