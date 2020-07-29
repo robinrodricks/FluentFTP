@@ -1164,7 +1164,7 @@ namespace FluentFTP {
 
 				auth_start = DateTime.Now;
 				try {
-					await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, true);
+					await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.ValidateCertificateRevocation);
 				}
 				catch (IOException ex) {
 					if (ex.InnerException is Win32Exception) {
