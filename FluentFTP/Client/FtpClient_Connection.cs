@@ -351,12 +351,15 @@ namespace FluentFTP {
 				}
 
 #if !NO_SSL
-				if (EncryptionMode == FtpEncryptionMode.Explicit) {
-					if (!(reply = Execute("AUTH TLS")).Success) {
+				// try to upgrade this connection to SSL if supported by the server
+				if (EncryptionMode == FtpEncryptionMode.Explicit || EncryptionMode == FtpEncryptionMode.Auto) {
+					reply = Execute("AUTH TLS");
+					if (!reply.Success && EncryptionMode == FtpEncryptionMode.Explicit) {
 						throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
 					}
-
-					m_stream.ActivateEncryption(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
+					else if (reply.Success) {
+						m_stream.ActivateEncryption(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
+					}
 				}
 #endif
 
@@ -364,7 +367,8 @@ namespace FluentFTP {
 					Authenticate();
 				}
 
-				if (m_stream.IsEncrypted && DataConnectionEncryption) {
+				// configure the default FTPS settings
+				if (IsEncrypted && DataConnectionEncryption) {
 					if (!(reply = Execute("PBSZ 0")).Success) {
 						throw new FtpCommandException(reply);
 					}
@@ -418,7 +422,7 @@ namespace FluentFTP {
 				}
 
 #if !NO_SSL && !CORE
-				if (m_stream.IsEncrypted && PlainTextEncryption) {
+				if (IsEncrypted && PlainTextEncryption) {
 					if (!(reply = Execute("CCC")).Success) {
 						throw new FtpSecurityNotAvailableException("Failed to disable encryption with CCC command. Perhaps your server does not support it or is not configured to allow it.");
 					}
@@ -503,20 +507,25 @@ namespace FluentFTP {
 			}
 
 #if !NO_SSL
-			if (EncryptionMode == FtpEncryptionMode.Explicit) {
-				if (!(reply = await ExecuteAsync("AUTH TLS", token)).Success) {
+			// try to upgrade this connection to SSL if supported by the server
+			if (EncryptionMode == FtpEncryptionMode.Explicit || EncryptionMode == FtpEncryptionMode.Auto) {
+				reply = await ExecuteAsync("AUTH TLS", token);
+				if (!reply.Success && EncryptionMode == FtpEncryptionMode.Explicit) {
 					throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
 				}
-
-				await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
+				else if (reply.Success) {
+					await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
+				}
 			}
 #endif
+
 
 			if (m_credentials != null) {
 				await AuthenticateAsync(token);
 			}
 
-			if (m_stream.IsEncrypted && DataConnectionEncryption) {
+			// configure the default FTPS settings
+			if (IsEncrypted && DataConnectionEncryption) {
 				if (!(reply = await ExecuteAsync("PBSZ 0", token)).Success) {
 					throw new FtpCommandException(reply);
 				}
@@ -565,7 +574,7 @@ namespace FluentFTP {
 			}
 
 #if !NO_SSL && !CORE
-			if (m_stream.IsEncrypted && PlainTextEncryption) {
+			if (IsEncrypted && PlainTextEncryption) {
 				if (!(reply = await ExecuteAsync("CCC", token)).Success) {
 					throw new FtpSecurityNotAvailableException("Failed to disable encryption with CCC command. Perhaps your server does not support it or is not configured to allow it.");
 				}

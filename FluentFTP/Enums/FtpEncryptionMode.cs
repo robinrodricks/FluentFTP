@@ -19,6 +19,11 @@ namespace FluentFTP {
 		/// Connection starts in plain text and FTPS encryption is enabled
 		/// with the AUTH command immediately after the server greeting.
 		/// </summary>
-		Explicit
+		Explicit,
+
+		/// <summary>
+		/// FTPS encryption is used if supported by the server, otherwise it falls back to plaintext FTP communication.
+		/// </summary>
+		Auto
 	}
 }

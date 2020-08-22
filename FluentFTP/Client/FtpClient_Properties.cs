@@ -547,6 +547,14 @@ namespace FluentFTP {
 			set => m_SslBuffering = value;
 		}
 
+		/// <summary>
+		/// Checks if FTPS/SSL encryption is currently active.
+		/// Useful to see if your server supports FTPS, when using FtpEncryptionMode.Auto. 
+		/// </summary>
+		public bool IsEncrypted {
+			get => m_stream != null && m_stream.IsEncrypted;
+		}
+
 		private FtpSslValidation m_ValidateCertificate = null;
 
 		/// <summary>
