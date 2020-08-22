@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 32.4.4
+  - New: Automatic FTPS connection mode: `FtpEncryptionMode.Auto` which connects in FTP and attempts to upgrade to FTPS
+  - New: `IsEncrypted` property to check if FTPS encryption is currently active for this connection
+  - Fix: `ValidateCertificateRevocation` property was not being honored in async version (thanks [kolorotur](/kolorotur))
+
 #### 32.4.3
   - Fix: Ensure file is retried sucessfully when first upload/download fails with an `IOException` (thanks [manuelxmarquez](/manuelxmarquez))
   - Fix: Ensure file streams read and write correctly even when no `FtpClient` is provided (thanks [manuelxmarquez](/manuelxmarquez))
