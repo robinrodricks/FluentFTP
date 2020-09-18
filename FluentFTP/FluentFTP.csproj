@@ -41,7 +41,7 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
-    <Version>32.4.4</Version>
+    <Version>32.4.5</Version>
     <PackageIconUrl>https://raw.githubusercontent.com/robinrodricks/FluentFTP/master/.github/logo-nuget.png</PackageIconUrl>
   </PropertyGroup>
 

@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 32.4.5
+ - Fix: Uncatchable NullReferenceException is occasionally thrown from `ConnectAsync`
+
 #### 32.4.4
   - New: Automatic FTPS connection mode: `FtpEncryptionMode.Auto` which connects in FTP and attempts to upgrade to FTPS
   - New: `IsEncrypted` property to check if FTPS encryption is currently active for this connection
