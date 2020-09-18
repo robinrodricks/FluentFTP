@@ -426,13 +426,14 @@ namespace FluentFTP {
 				var asyncResult = m_socket.BeginReceive(buffer, 0, buffer.Length, 0, null, null);
 				read = await EnableCancellation(
 					Task.Factory.FromAsync(asyncResult, m_socket.EndReceive),
-					token,
-					() => m_socket.Close()
+					token, 
+					() => CloseSocket()
 				);
 			}
 
 			return read;
 		}
+
 #endif
 
 #if ASYNC && !NET45
@@ -740,25 +741,7 @@ namespace FluentFTP {
 			}
 #endif
 
-			if (m_socket != null) {
-				try {
-					if (m_socket.Connected) {
-#if CORE
-						m_socket.Dispose();
-#else
-						m_socket.Close();
-#endif
-					}
-
-#if !NET20 && !NET35 && !CORE
-					m_socket.Dispose();
-#endif
-				}
-				catch (Exception ex) {
-				}
-
-				m_socket = null;
-			}
+			CloseSocket();
 
 			if (m_netStream != null) {
 				try {
@@ -782,6 +765,32 @@ namespace FluentFTP {
 			}
 
 #endif
+		}
+
+		/// <summary>
+		/// Safely close the socket if its open
+		/// </summary>
+		internal void CloseSocket() {
+			if (m_socket != null) {
+				try {
+					if (m_socket.Connected) {
+#if CORE
+						m_socket.Dispose();
+#else
+						m_socket.Close();
+#endif
+					}
+
+#if !NET20 && !NET35 && !CORE
+					m_socket.Dispose();
+#endif
+				}
+				catch (Exception ex) {
+				}
+
+				m_socket = null;
+			}
+
 		}
 
 		/// <summary>
@@ -960,11 +969,11 @@ namespace FluentFTP {
 
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 #if CORE
-				await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), token, () => m_socket.Dispose());
+				await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), token, () => CloseSocket());
 				break;
 #else
 				var connectResult = m_socket.BeginConnect(addresses[i], port, null, null);
-				await EnableCancellation(Task.Factory.FromAsync(connectResult, m_socket.EndConnect), token, () => m_socket.Close());
+				await EnableCancellation(Task.Factory.FromAsync(connectResult, m_socket.EndConnect), token, () => CloseSocket());
 				break;
 #endif
 			}
