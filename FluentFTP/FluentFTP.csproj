@@ -67,4 +67,8 @@
     <PackageReference Include="System.Threading.Thread" Version="4.3.0.0" />
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy /Y &quot;$(ProjectDir)bin\Release\net45\FluentFTP.dll&quot; &quot;$(SolutionDir)Powershell\FluentFTP.dll&quot;" />
+  </Target>
+
 </Project>
