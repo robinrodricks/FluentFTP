@@ -321,7 +321,7 @@ namespace FluentFTP {
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
 		/// <param name="progress">Provide a callback to track download progress.</param>
-		/// <returns>If true then the file was uploaded, false otherwise.</returns>
+		/// <returns>FtpStatus flag indicating if the file was uploaded, skipped or failed to transfer.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
@@ -413,7 +413,7 @@ namespace FluentFTP {
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
 		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
-		/// <returns>If true then the file was uploaded, false otherwise.</returns>
+		/// <returns>FtpStatus flag indicating if the file was uploaded, skipped or failed to transfer.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
@@ -571,7 +571,7 @@ namespace FluentFTP {
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
-		/// <returns>If true then the file was uploaded, false otherwise.</returns>
+		/// <returns>FtpStatus flag indicating if the file was uploaded, skipped or failed to transfer.</returns>
 		public async Task<FtpStatus> UploadAsync(Stream fileStream, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (fileStream == null) {
@@ -600,7 +600,7 @@ namespace FluentFTP {
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
-		/// <returns>If true then the file was uploaded, false otherwise.</returns>
+		/// <returns>FtpStatus flag indicating if the file was uploaded, skipped or failed to transfer.</returns>
 		public async Task<FtpStatus> UploadAsync(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (fileData == null) {

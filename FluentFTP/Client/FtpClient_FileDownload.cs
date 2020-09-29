@@ -260,7 +260,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="progress">Provide a callback to track download progress.</param>
-		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		/// <returns>FtpStatus flag indicating if the file was downloaded, skipped or failed to transfer.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
@@ -371,7 +371,7 @@ namespace FluentFTP {
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress.</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>If true then the file was downloaded, false otherwise.</returns>
+		/// <returns>FtpStatus flag indicating if the file was downloaded, skipped or failed to transfer.</returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 

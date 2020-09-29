@@ -1,7 +1,8 @@
 # Release Notes
 
 #### 32.4.6
- - Upgrade System.Net.Security from version 4.3.0 to 4.3.2 to fix security issues
+ - Upgrade `System.Net.Security` from version 4.3.0 to 4.3.2 to fix security issues
+ - Fix comment for `UploadFile`/`UploadFileAsync`/`DownloadFile`/`DownloadFileAsync` methods
 
 #### 32.4.5
  - Fix: Uncatchable NullReferenceException is occasionally thrown from `ConnectAsync`
