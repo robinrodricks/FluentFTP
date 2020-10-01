@@ -51,6 +51,12 @@ namespace Tests {
 		private static FtpClient NewFtpClient_Tele2SpeedTest() {
 			return new FtpClient("ftp://speedtest.tele2.net/");
 		}
+		private static FtpClient NewFtpClient_Inacessible() {
+			return new FtpClient("ftp://bad.unknown.com/");
+		}
+		private static FtpClient NewFtpClient_Inacessible2() {
+			return new FtpClient("ftp://192.168.0.0/");
+		}
 
 		#endregion
 
@@ -1101,6 +1107,12 @@ namespace Tests {
 				if (profile != null) {
 					var code = profile.ToCode();
 				}
+			}
+			using (var cl = NewFtpClient_Inacessible()) {
+				var profile = cl.AutoConnect();
+			}
+			using (var cl = NewFtpClient_Inacessible2()) {
+				var profile = cl.AutoConnect();
 			}
 		}
 

@@ -129,6 +129,23 @@ namespace FluentFTP {
 								}
 								catch (Exception ex) {
 									conn.Dispose();
+
+									// catch error "no such host is known" and hard abort
+#if NETFX || CORE2PLUS
+									if (ex is SocketException && ((SocketException)ex).ErrorCode == 11001) {
+										return results;
+									}
+#else
+									if (ex is SocketException && ((SocketException)ex).Message.Contains("No such host is known")) {
+										return results;
+									}
+#endif
+
+									// catch error "timed out trying to connect" and hard abort
+									if (ex is TimeoutException) {
+										return results;
+									}
+									
 								}
 
 								// if it worked, add the profile
