@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 #if !CORE
 using System.Web;
 #endif
@@ -23,26 +24,35 @@ namespace FluentFTP {
 		}
 
 		private bool VerifyTransfer(string localPath, string remotePath) {
-			// verify args
-			if (localPath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localPath");
-			}
-
-			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-			}
-
-			if (SupportsChecksum()) {
-				var hash = GetChecksum(remotePath);
-				if (!hash.IsValid) {
-					return false;
+			try
+			{ 
+				// verify args
+				if (localPath.IsBlank()) {
+					throw new ArgumentException("Required parameter is null or blank.", "localPath");
 				}
 
-				return hash.Verify(localPath);
-			}
+				if (remotePath.IsBlank()) {
+					throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+				}
 
-			//Not supported return true to ignore validation
-			return true;
+				if (SupportsChecksum()) {
+					var hash = GetChecksum(remotePath);
+					if (!hash.IsValid) {
+						return false;
+					}
+
+					return hash.Verify(localPath);
+				}
+
+				//Not supported return true to ignore validation
+				return true;
+			}
+			catch (IOException ex)
+			{
+				LogStatus(FtpTraceLevel.Warn, "IOException for file " + localPath + " : " + ex.Message);
+			
+				return false;
+			}
 		}
 		
 #if ASYNC
