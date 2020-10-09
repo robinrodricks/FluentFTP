@@ -24,17 +24,16 @@ namespace FluentFTP {
 		}
 
 		private bool VerifyTransfer(string localPath, string remotePath) {
-			try
-			{ 
-				// verify args
-				if (localPath.IsBlank()) {
-					throw new ArgumentException("Required parameter is null or blank.", "localPath");
-				}
 
-				if (remotePath.IsBlank()) {
-					throw new ArgumentException("Required parameter is null or blank.", "remotePath");
-				}
+			// verify args
+			if (localPath.IsBlank()) {
+				throw new ArgumentException("Required parameter is null or blank.", "localPath");
+			}
+			if (remotePath.IsBlank()) {
+				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
 
+			try {
 				if (SupportsChecksum()) {
 					var hash = GetChecksum(remotePath);
 					if (!hash.IsValid) {
@@ -44,39 +43,43 @@ namespace FluentFTP {
 					return hash.Verify(localPath);
 				}
 
-				//Not supported return true to ignore validation
+				// not supported, so return true to ignore validation
 				return true;
 			}
-			catch (IOException ex)
-			{
-				LogStatus(FtpTraceLevel.Warn, "IOException for file " + localPath + " : " + ex.Message);
-			
+			catch (IOException ex) {
+				LogStatus(FtpTraceLevel.Warn, "Failed to verify file " + localPath + " : " + ex.Message);
 				return false;
 			}
 		}
-		
+
 #if ASYNC
 		private async Task<bool> VerifyTransferAsync(string localPath, string remotePath, CancellationToken token = default(CancellationToken)) {
+
 			// verify args
 			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
 			}
-
 			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
-			if (SupportsChecksum()) {
-				FtpHash hash = await GetChecksumAsync(remotePath, token);
-				if (!hash.IsValid) {
-					return false;
+			try {
+				if (SupportsChecksum()) {
+					FtpHash hash = await GetChecksumAsync(remotePath, token);
+					if (!hash.IsValid) {
+						return false;
+					}
+
+					return hash.Verify(localPath);
 				}
 
-				return hash.Verify(localPath);
+				// not supported, so return true to ignore validation
+				return true;
 			}
-
-			//Not supported return true to ignore validation
-			return true;
+			catch (IOException ex) {
+				LogStatus(FtpTraceLevel.Warn, "Failed to verify file " + localPath + " : " + ex.Message);
+				return false;
+			}
 		}
 		
 #endif
