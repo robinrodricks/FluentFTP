@@ -744,15 +744,35 @@ namespace FluentFTP {
 		/// To handle authentication failures without retries, catch FtpAuthenticationException.
 		/// </remarks>
 		protected virtual void Authenticate(string userName, string password) {
-			FtpReply reply;
 
-			if (!(reply = Execute("USER " + userName)).Success) {
+			// send the USER command along with the FTP username
+			FtpReply reply = Execute("USER " + userName);
+
+			// check the reply to the USER command
+			if (!reply.Success) {
 				throw new FtpAuthenticationException(reply);
 			}
 
-			if (reply.Type == FtpResponseType.PositiveIntermediate &&
-				!(reply = Execute("PASS " + password)).Success) {
-				throw new FtpAuthenticationException(reply);
+			// if it was accepted
+			else if (reply.Type == FtpResponseType.PositiveIntermediate) {
+
+				// send the PASS command along with the FTP password
+				reply = Execute("PASS " + password);
+
+				// fix for #620: some servers send multiple responses that must be read and decoded,
+				// otherwise the connection is aborted and remade and it goes into an infinite loop
+				var staleData = ReadStaleData(false, true, true);
+				if (staleData != null) {
+					var staleReply = new FtpReply();
+					if (DecodeStringToReply(staleData, staleReply) && !staleReply.Success) {
+						throw new FtpAuthenticationException(staleReply);
+					}
+				}
+
+				// check the first reply to the PASS command
+				if (!reply.Success) {
+					throw new FtpAuthenticationException(reply);
+				}
 			}
 		}
 
@@ -767,15 +787,35 @@ namespace FluentFTP {
 		/// To handle authentication failures without retries, catch FtpAuthenticationException.
 		/// </remarks>
 		protected virtual async Task AuthenticateAsync(string userName, string password, CancellationToken token) {
-			FtpReply reply;
+			
+			// send the USER command along with the FTP username
+			FtpReply reply = await ExecuteAsync("USER " + userName, token);
 
-			if (!(reply = await ExecuteAsync("USER " + userName, token)).Success) {
+			// check the reply to the USER command
+			if (!reply.Success) {
 				throw new FtpAuthenticationException(reply);
 			}
 
-			if (reply.Type == FtpResponseType.PositiveIntermediate
-				&& !(reply = await ExecuteAsync("PASS " + password, token)).Success) {
-				throw new FtpAuthenticationException(reply);
+			// if it was accepted
+			else if (reply.Type == FtpResponseType.PositiveIntermediate) {
+
+				// send the PASS command along with the FTP password
+				reply = await ExecuteAsync("PASS " + password, token);
+
+				// fix for #620: some servers send multiple responses that must be read and decoded,
+				// otherwise the connection is aborted and remade and it goes into an infinite loop
+				var staleData = await ReadStaleDataAsync(false, true, true, token);
+				if (staleData != null) {
+					var staleReply = new FtpReply();
+					if (DecodeStringToReply(staleData, staleReply) && !staleReply.Success) {
+						throw new FtpAuthenticationException(staleReply);
+					}
+				}
+
+				// check the first reply to the PASS command
+				if (!reply.Success) {
+					throw new FtpAuthenticationException(reply);
+				}
 			}
 		}
 #endif
