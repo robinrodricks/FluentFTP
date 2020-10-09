@@ -4,7 +4,7 @@
  - Platform: Add support for .NET Standard 2.1
  - Platform: Upgrade `System.Net.Security` from version 4.3.0 to 4.3.2 to fix security issues
  - Performance: Quickly abort detection if host is unavailable during `AutoDetect`/`AutoConnect`
- - Fix: `UploadDirectory` fails for some files with "Unable to read data from the transport connection"
+ - Fix: `UploadDirectory` fails for some files with "Unable to read data from the transport connection" (thanks [manuelxmarquez](/manuelxmarquez))
  - Fix: Comment for `UploadFile`/`UploadFileAsync`/`DownloadFile`/`DownloadFileAsync` methods
  - Fix: Stack overflow during connection when server responds incorrectly to PASS command
 
