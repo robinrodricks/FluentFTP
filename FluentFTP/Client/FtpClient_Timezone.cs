@@ -14,26 +14,24 @@ namespace FluentFTP {
 		public DateTime ParseFtpDate(string date) {
 			DateTime parsed;
 
-			// adjust the timestamp into UTC if wanted
-			DateTimeStyles options = m_timeConversion == FtpDate.UTC ?
-				(DateTimeStyles.AdjustToUniversal | DateTimeStyles.AllowWhiteSpaces) :
-				(DateTimeStyles.AllowWhiteSpaces);
-
 			// parse the raw timestamp without performing any timezone conversions
-			if (DateTime.TryParseExact(date, FtpDateFormats, CultureInfo.InvariantCulture, options, out parsed)) {
+			if (DateTime.TryParseExact(date, FtpDateFormats, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out parsed)) {
 
-				// convert server timezone to UTC, based on the TimeOffset property
-				if (m_timeConversion == FtpDate.TimeOffset) {
-					parsed = parsed - m_timeOffset;
-				}
+				// if server time is wanted, don't perform any conversion
+				if (m_timeConversion != FtpDate.ServerTime) {
 
-				// convert to local time if wanted
+					// convert server timezone to UTC based on the TimeZone property
+					if (m_timeOffset.TotalHours != 0) {
+						parsed = parsed - m_timeOffset;
+					}
+
+					// convert to local time if wanted
 #if !CORE
-				if (m_timeConversion == FtpDate.UTCToLocal) {
-					parsed = TimeZone.CurrentTimeZone.ToLocalTime(parsed);
-				}
-
+					if (m_timeConversion == FtpDate.LocalTime) {
+						parsed = System.TimeZone.CurrentTimeZone.ToLocalTime(parsed);
+					}
 #endif
+				}
 				// return the final parsed date value
 				return parsed;
 			}
@@ -49,21 +47,20 @@ namespace FluentFTP {
 		/// <returns>A <see cref="DateTime"/> object representing the date, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
 		public string GenerateFtpDate(DateTime date) {
 
-			// convert local to UTC if wanted
+			// if server time is wanted, don't perform any conversion
+			if (m_timeConversion != FtpDate.ServerTime) {
+
+				// convert local to UTC if wanted
 #if !CORE
-			if (m_timeConversion == FtpDate.UTCToLocal) {
-				date = TimeZone.CurrentTimeZone.ToUniversalTime(date);
-			}
+				if (m_timeConversion == FtpDate.LocalTime) {
+					date = System.TimeZone.CurrentTimeZone.ToUniversalTime(date);
+				}
 #endif
 
-			// convert UTC to server timezone, based on the TimeOffset property
-			if (m_timeConversion == FtpDate.TimeOffset) {
-				date = date + m_timeOffset;
-			}
-
-			// convert UTC to server timezone if no offset specified
-			if (m_timeConversion == FtpDate.UTC) {
-				throw new ArgumentException("Changing the modified date of a file is not supported when TimeConversion is in UTC mode.", "FtpClient.TimeConversion");
+				// convert UTC to server timezone, based on the TimeOffset property
+				if (m_timeOffset.TotalHours != 0) {
+					date = date + m_timeOffset;
+				}
 			}
 
 			// generate final pretty printed date

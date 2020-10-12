@@ -72,7 +72,7 @@ namespace FluentFTP {
 		FtpParser ListingParser { get; set; }
 		CultureInfo ListingCulture { get; set; }
 		bool RecursiveList { get; set; }
-		double TimeOffset { get; set; }
+		double TimeZone { get; set; }
 		FtpDate TimeConversion { get; set; }
 		bool BulkListing { get; set; }
 		int BulkListingLength { get; set; }

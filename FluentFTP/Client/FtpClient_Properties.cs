@@ -730,26 +730,28 @@ namespace FluentFTP {
 
 
 		public TimeSpan m_timeOffset = new TimeSpan();
-		private double m_timeDiff = 0;
+		private double m_timeZone = 0;
 
 		/// <summary>
-		/// Time difference between server and client, in hours.
-		/// If the server is located in New York and you are in London then the time difference is -5 hours.
-		/// Only honored if the TimeConversion is set to FtpDate.TimeOffset.
+		/// The timezone of the FTP server. If the server in Tokyo with UTC+9 then set this to 9.
+		/// If the server returns timestamps in UTC then keep this 0.
 		/// </summary>
-		public double TimeOffset {
-			get => m_timeDiff;
+		public double TimeZone {
+			get => m_timeZone;
 			set {
-				m_timeDiff = value;
+				if (value < -14 || value > 14) {
+					throw new ArgumentOutOfRangeException("TimeZone must be within -14 to +14 to represent UTC-14 to UTC+14");
+				}
+				m_timeZone = value;
 
 				// configure parser
-				var hours = (int)Math.Floor(m_timeDiff);
-				var mins = (int)Math.Floor((m_timeDiff - Math.Floor(m_timeDiff)) * 60);
+				var hours = (int)Math.Floor(m_timeZone);
+				var mins = (int)Math.Floor((m_timeZone - Math.Floor(m_timeZone)) * 60);
 				m_timeOffset = new TimeSpan(hours, mins, 0);
 			}
 		}
 
-		private FtpDate m_timeConversion = FtpDate.Original;
+		private FtpDate m_timeConversion = FtpDate.ServerTime;
 
 		/// <summary>
 		/// Controls how timestamps returned by the server are converted.
