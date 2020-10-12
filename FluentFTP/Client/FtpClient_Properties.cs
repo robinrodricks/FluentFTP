@@ -735,6 +735,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Time difference between server and client, in hours.
 		/// If the server is located in New York and you are in London then the time difference is -5 hours.
+		/// Only honored if the TimeConversion is set to FtpDate.TimeOffset.
 		/// </summary>
 		public double TimeOffset {
 			get => m_timeDiff;
@@ -753,8 +754,8 @@ namespace FluentFTP {
 		/// <summary>
 		/// Controls how timestamps returned by the server are converted.
 		/// FtpDate.Original will preserve the value that the server sends.
-		/// FtpDate.Local assumes that the server timestamp is in UTC and attempts to convert it to the local timezone.
-		/// FtpDate.UTC assumes that the server timestamp is in Local Time and attempts to convert it to UTC.
+		/// FtpDate.UTCToLocal assumes that the server timestamp is in UTC and attempts to convert it to the local timezone.
+		/// FtpDate.TimeOffset will simply offset the server timestamps based on the TimeOffset property.
 		/// </summary>
 		public FtpDate TimeConversion {
 			get => m_timeConversion;
