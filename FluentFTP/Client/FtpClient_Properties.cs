@@ -689,7 +689,12 @@ namespace FluentFTP {
 			get => m_customParser;
 			set {
 				m_customParser = value;
-				m_parser = FtpParser.Custom;
+				if (value != null) {
+					m_parser = FtpParser.Custom;
+				}
+				else {
+					m_parser = FtpParser.Auto;
+				}
 			}
 		}
 
@@ -789,10 +794,11 @@ namespace FluentFTP {
 		private FtpDate m_timeConversion = FtpDate.ServerTime;
 
 		/// <summary>
-		/// Controls how timestamps returned by the server are converted.
-		/// FtpDate.Original will preserve the value that the server sends.
-		/// FtpDate.UTCToLocal assumes that the server timestamp is in UTC and attempts to convert it to the local timezone.
-		/// FtpDate.TimeOffset will simply offset the server timestamps based on the TimeOffset property.
+		/// Server timestamps are converted into the given timezone.
+		/// ServerTime will return the original timestamp.
+		/// LocalTime will convert the timestamp into your local machine's timezone.
+		/// UTC will convert the timestamp into UTC format (GMT+0).
+		/// You need to set TimeZone and LocalTimeZone (.NET core only) for these to work.
 		/// </summary>
 		public FtpDate TimeConversion {
 			get => m_timeConversion;
