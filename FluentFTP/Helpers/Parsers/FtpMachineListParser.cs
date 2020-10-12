@@ -79,11 +79,11 @@ namespace FluentFTP.Helpers.Parsers {
 		private static void ParseDateTime(string record, FtpListItem item, FtpClient client) {
 			Match m;
 			if ((m = Regex.Match(record, "modify=(?<modify>.+?);", RegexOptions.IgnoreCase)).Success) {
-				item.Modified = m.Groups["modify"].Value.GetFtpDate(client.TimeConversion);
+				item.Modified = client.ParseFtpDate(m.Groups["modify"].Value);
 			}
 
 			if ((m = Regex.Match(record, "created?=(?<create>.+?);", RegexOptions.IgnoreCase)).Success) {
-				item.Created = m.Groups["create"].Value.GetFtpDate(client.TimeConversion);
+				item.Created = client.ParseFtpDate(m.Groups["create"].Value);
 			}
 		}
 

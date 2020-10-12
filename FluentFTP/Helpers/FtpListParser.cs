@@ -46,16 +46,6 @@ namespace FluentFTP {
 		public bool ParserConfirmed = false;
 
 		/// <summary>
-		/// what is the time offset between server/client?
-		/// </summary>
-		public TimeSpan TimeOffset = new TimeSpan();
-
-		/// <summary>
-		/// any time offset between server/client?
-		/// </summary>
-		public bool HasTimeOffset = false;
-
-		/// <summary>
 		/// Is the version number returned as part of the filename?
 		/// 
 		/// Some VMS FTP servers do not permit a file to be deleted unless
@@ -157,10 +147,6 @@ namespace FluentFTP {
 
 			// if parsed file successfully
 			if (result != null) {
-				// apply time difference between server/client
-				if (HasTimeOffset) {
-					result.Modified = result.Modified - TimeOffset;
-				}
 
 				// calc absolute file paths
 				result.CalculateFullFtpPath(client, path, false);

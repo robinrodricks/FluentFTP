@@ -64,7 +64,7 @@ namespace FluentFTP {
 
 				// check file size
 				var localDate = FtpFileStream.GetFileDateModifiedUtc(localPath);
-				var remoteDate = GetModifiedTime(remotePath, FtpDate.UTC);
+				var remoteDate = GetModifiedTime(remotePath);
 				if (!localDate.Equals(remoteDate)) {
 					return FtpCompareResult.NotEqual;
 				}
@@ -148,7 +148,7 @@ namespace FluentFTP {
 
 				// check file size
 				var localDate = await FtpFileStream.GetFileDateModifiedUtcAsync(localPath, token);
-				var remoteDate = await GetModifiedTimeAsync(remotePath, FtpDate.UTC, token);
+				var remoteDate = await GetModifiedTimeAsync(remotePath, token);
 				if (!localDate.Equals(remoteDate)) {
 					return FtpCompareResult.NotEqual;
 				}

@@ -35,7 +35,7 @@ namespace FluentFTP.Helpers.Parsers {
 				item.Type = FtpFileSystemObjectType.Directory;
 				item.Name = m.Groups["name"].Value;
 
-				if (DateTime.TryParseExact(m.Groups["modify"].Value, datefmt, CultureInfo.InvariantCulture, client.TimeConversion, out modify)) {
+				if ((modify = client.ParseFtpDate(m.Groups["modify"].Value)) != DateTime.MinValue) {
 					item.Modified = modify;
 				}
 			}
@@ -52,7 +52,7 @@ namespace FluentFTP.Helpers.Parsers {
 					item.Size = size;
 				}
 
-				if (DateTime.TryParseExact(m.Groups["modify"].Value, datefmt, CultureInfo.InvariantCulture, client.TimeConversion, out modify)) {
+				if ((modify = client.ParseFtpDate(m.Groups["modify"].Value)) != DateTime.MinValue) {
 					item.Modified = modify;
 				}
 			}

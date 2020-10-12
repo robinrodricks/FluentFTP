@@ -382,19 +382,18 @@ namespace FluentFTP {
 		#region Get Modified Time
 
 		/// <summary>
-		/// Gets the modified time of a remote file
+		/// Gets the modified time of a remote file.
 		/// </summary>
 		/// <param name="path">The full path to the file</param>
-		/// <param name="type">Return the date in local timezone or UTC?  Use FtpDate.Original to disable timezone conversion.</param>
 		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
 		/// <example><code source="..\Examples\GetModifiedTime.cs" lang="cs" /></example>
-		public virtual DateTime GetModifiedTime(string path, FtpDate type = FtpDate.Original) {
+		public virtual DateTime GetModifiedTime(string path) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc(nameof(GetModifiedTime), new object[] { path, type });
+			LogFunc(nameof(GetModifiedTime), new object[] { path });
 
 			var date = DateTime.MinValue;
 			FtpReply reply;
@@ -405,20 +404,7 @@ namespace FluentFTP {
 
 				// get modified date of a file
 				if ((reply = Execute("MDTM " + path.GetFtpPath())).Success) {
-					date = reply.Message.GetFtpDate(TimeConversion);
-
-					// convert server timezone to UTC, based on the TimeOffset property
-					if (type != FtpDate.Original && m_listParser.HasTimeOffset) {
-						date = date - m_listParser.TimeOffset;
-					}
-
-					// convert to local time if wanted
-#if !CORE
-					if (type == FtpDate.Local) {
-						date = TimeZone.CurrentTimeZone.ToLocalTime(date);
-					}
-
-#endif
+					date = ParseFtpDate(reply.Message);
 				}
 
 #if !CORE14
@@ -429,23 +415,22 @@ namespace FluentFTP {
 		}
 
 #if !ASYNC
-		private delegate DateTime AsyncGetModifiedTime(string path, FtpDate type);
+		private delegate DateTime AsyncGetModifiedTime(string path);
 
 		/// <summary>
 		/// Begins an asynchronous operation to get the modified time of a remote file
 		/// </summary>
 		/// <param name="path">The full path to the file</param>
-		/// <param name="type">Return the date in local timezone or UTC?  Use FtpDate.Original to disable timezone conversion.</param>
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
 		/// <example><code source="..\Examples\BeginGetModifiedTime.cs" lang="cs" /></example>
-		public IAsyncResult BeginGetModifiedTime(string path, FtpDate type, AsyncCallback callback, object state) {
+		public IAsyncResult BeginGetModifiedTime(string path, AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncGetModifiedTime func;
 
 			lock (m_asyncmethods) {
-				ar = (func = GetModifiedTime).BeginInvoke(path, type, callback, state);
+				ar = (func = GetModifiedTime).BeginInvoke(path, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -468,36 +453,22 @@ namespace FluentFTP {
 		/// Gets the modified time of a remote file asynchronously
 		/// </summary>
 		/// <param name="path">The full path to the file</param>
-		/// <param name="type">Return the date in local timezone or UTC?  Use FtpDate.Original to disable timezone conversion.</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
-		public async Task<DateTime> GetModifiedTimeAsync(string path, FtpDate type = FtpDate.Original, CancellationToken token = default(CancellationToken)) {
+		public async Task<DateTime> GetModifiedTimeAsync(string path, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc(nameof(GetModifiedTimeAsync), new object[] { path, type });
+			LogFunc(nameof(GetModifiedTimeAsync), new object[] { path });
 
 			var date = DateTime.MinValue;
 			FtpReply reply;
 
 			// get modified date of a file
 			if ((reply = await ExecuteAsync("MDTM " + path.GetFtpPath(), token)).Success) {
-				date = reply.Message.GetFtpDate(TimeConversion);
-
-				// convert server timezone to UTC, based on the TimeOffset property
-				if (type != FtpDate.Original && m_listParser.HasTimeOffset) {
-					date = date - m_listParser.TimeOffset;
-				}
-
-				// convert to local time if wanted
-#if !CORE
-				if (type == FtpDate.Local) {
-					date = TimeZone.CurrentTimeZone.ToLocalTime(date);
-				}
-
-#endif
+				date = ParseFtpDate(reply.Message);
 			}
 
 			return date;
@@ -513,8 +484,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full path to the file</param>
 		/// <param name="date">The new modified date/time value</param>
-		/// <param name="type">Is the date provided in local timezone or UTC? Use FtpDate.Original to disable timezone conversion.</param>
-		public virtual void SetModifiedTime(string path, DateTime date, FtpDate type = FtpDate.Original) {
+		public virtual void SetModifiedTime(string path, DateTime date) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -524,7 +494,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "date");
 			}
 
-			LogFunc(nameof(SetModifiedTime), new object[] { path, date, type });
+			LogFunc(nameof(SetModifiedTime), new object[] { path, date });
 
 			FtpReply reply;
 
@@ -532,20 +502,10 @@ namespace FluentFTP {
 			lock (m_lock) {
 #endif
 
-				// convert local to UTC if wanted
-#if !CORE
-				if (type == FtpDate.Local) {
-					date = TimeZone.CurrentTimeZone.ToUniversalTime(date);
-				}
-#endif
-
-				// convert UTC to server timezone, based on the TimeOffset property
-				if (type != FtpDate.Original && m_listParser.HasTimeOffset) {
-					date = date + m_listParser.TimeOffset;
-				}
+				// calculate the final date string with the timezone conversion
+				var timeStr = GenerateFtpDate(date);
 
 				// set modified date of a file
-				var timeStr = date.ToString("yyyyMMddHHmmss");
 				if ((reply = Execute("MFMT " + timeStr + " " + path.GetFtpPath())).Success) {
 				}
 
@@ -556,23 +516,21 @@ namespace FluentFTP {
 		}
 
 #if !ASYNC
-		private delegate void AsyncSetModifiedTime(string path, DateTime date, FtpDate type);
+		private delegate void AsyncSetModifiedTime(string path, DateTime date);
 
 		/// <summary>
 		/// Begins an asynchronous operation to get the modified time of a remote file
 		/// </summary>
 		/// <param name="path">The full path to the file</param>
 		/// <param name="date">The new modified date/time value</param>
-		/// <param name="type">Is the date provided in local timezone or UTC? Use FtpDate.Original to disable timezone conversion.</param>
-		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginSetModifiedTime(string path, DateTime date, FtpDate type, AsyncCallback callback, object state) {
+		public IAsyncResult BeginSetModifiedTime(string path, DateTime date, AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncSetModifiedTime func;
 
 			lock (m_asyncmethods) {
-				ar = (func = SetModifiedTime).BeginInvoke(path, date, type, callback, state);
+				ar = (func = SetModifiedTime).BeginInvoke(path, date, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -595,9 +553,8 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full path to the file</param>
 		/// <param name="date">The new modified date/time value</param>
-		/// <param name="type">Is the date provided in local timezone or UTC? Use FtpDate.Original to disable timezone conversion.</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task SetModifiedTimeAsync(string path, DateTime date, FtpDate type = FtpDate.Original, CancellationToken token = default(CancellationToken)) {
+		public async Task SetModifiedTimeAsync(string path, DateTime date, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -607,24 +564,14 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "date");
 			}
 
-			LogFunc(nameof(SetModifiedTimeAsync), new object[] { path, date, type });
+			LogFunc(nameof(SetModifiedTimeAsync), new object[] { path, date });
 
 			FtpReply reply;
 
-			// convert local to UTC if wanted
-#if !CORE
-			if (type == FtpDate.Local) {
-				date = TimeZone.CurrentTimeZone.ToUniversalTime(date);
-			}
-#endif
-
-			// convert UTC to server timezone, based on the TimeOffset property
-			if (type != FtpDate.Original && m_listParser.HasTimeOffset) {
-				date = date + m_listParser.TimeOffset;
-			}
+			// calculate the final date string with the timezone conversion
+			var timeStr = GenerateFtpDate(date);
 
 			// set modified date of a file
-			var timeStr = date.ToString("yyyyMMddHHmmss");
 			if ((reply = await ExecuteAsync("MFMT " + timeStr + " " + path.GetFtpPath(), token)).Success) {
 			}
 		}

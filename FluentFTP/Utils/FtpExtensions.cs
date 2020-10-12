@@ -147,24 +147,6 @@ namespace FluentFTP {
 			return tpath.Substring(lastslash, tpath.Length - lastslash);
 		}
 
-		private static string[] FtpDateFormats = { "yyyyMMddHHmmss", "yyyyMMddHHmmss'.'f", "yyyyMMddHHmmss'.'ff", "yyyyMMddHHmmss'.'fff", "MMM dd  yyyy", "MMM  d  yyyy", "MMM dd HH:mm", "MMM  d HH:mm" };
-
-		/// <summary>
-		/// Tries to convert the string FTP date representation into a <see cref="DateTime"/> object
-		/// </summary>
-		/// <param name="date">The date</param>
-		/// <param name="style">UTC/Local Time</param>
-		/// <returns>A <see cref="DateTime"/> object representing the date, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
-		public static DateTime GetFtpDate(this string date, DateTimeStyles style) {
-			DateTime parsed;
-
-			if (DateTime.TryParseExact(date, FtpDateFormats, CultureInfo.InvariantCulture, style, out parsed)) {
-				return parsed;
-			}
-
-			return DateTime.MinValue;
-		}
-
 		private static string[] sizePostfix = { "bytes", "KB", "MB", "GB", "TB" };
 
 		/// <summary>

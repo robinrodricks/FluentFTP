@@ -2,9 +2,7 @@
 
 namespace FluentFTP {
 	/// <summary>
-	/// Defines if additional verification and actions upon failure that 
-	/// should be performed when uploading/downloading files using the high-level APIs.  Ignored if the 
-	/// FTP server does not support any hashing algorithms.
+	/// Controls how timestamps returned by the server are converted.
 	/// </summary>
 	public enum FtpDate {
 		/// <summary>
@@ -14,14 +12,15 @@ namespace FluentFTP {
 
 #if !CORE
 		/// <summary>
-		/// The date is converted to the local timezone, based on the TimeOffset property in FtpClient.
+		/// Assumes that the server timestamps are in UTC, and converts the timestamps to the local time during GetListing.
+		/// When you modify the date of files, your local time is converted back to UTC and sent to the server.
 		/// </summary>
-		Local = 1,
+		UTCToLocal = 1,
 
 #endif
 		/// <summary>
-		/// The date is converted to UTC, based on the TimeOffset property in FtpClient.
+		/// Uses the time offset value specified in the FtpClient to shift dates from one timezone to another (TimeOffset property).
 		/// </summary>
-		UTC = 2,
+		TimeOffset = 2,
 	}
 }

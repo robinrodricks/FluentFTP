@@ -97,9 +97,9 @@ namespace FluentFTP.Helpers.Parsers {
 			// to convert it to a DateTime object and use it for directories.
 			////
 			if ((!capabilities.Contains(FtpCapability.MDTM) || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0) {
-				item.Modified = m.Groups["modify"].Value.GetFtpDate(DateTimeStyles.AssumeLocal);
+				item.Modified = client.ParseFtpDate(m.Groups["modify"].Value);
 				if (item.Modified == DateTime.MinValue) {
-					client.LogStatus(FtpTraceLevel.Warn, "GetFtpDate() failed on " + m.Groups["modify"].Value);
+					client.LogStatus(FtpTraceLevel.Warn, "ParseFtpDate() failed on " + m.Groups["modify"].Value);
 				}
 			}
 			else {

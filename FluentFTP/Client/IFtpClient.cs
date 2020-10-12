@@ -73,7 +73,7 @@ namespace FluentFTP {
 		CultureInfo ListingCulture { get; set; }
 		bool RecursiveList { get; set; }
 		double TimeOffset { get; set; }
-		DateTimeStyles TimeConversion { get; set; }
+		FtpDate TimeConversion { get; set; }
 		bool BulkListing { get; set; }
 		int BulkListingLength { get; set; }
 		int TransferChunkSize { get; set; }
@@ -139,8 +139,8 @@ namespace FluentFTP {
 		void SetWorkingDirectory(string path);
 		string GetWorkingDirectory();
 		long GetFileSize(string path);
-		DateTime GetModifiedTime(string path, FtpDate type = FtpDate.Original);
-		void SetModifiedTime(string path, DateTime date, FtpDate type = FtpDate.Original);
+		DateTime GetModifiedTime(string path);
+		void SetModifiedTime(string path, DateTime date);
 
 #if ASYNC
 		Task DeleteFileAsync(string path, CancellationToken token = default(CancellationToken));
@@ -164,9 +164,9 @@ namespace FluentFTP {
 		Task SetWorkingDirectoryAsync(string path, CancellationToken token = default(CancellationToken));
 		Task<string> GetWorkingDirectoryAsync(CancellationToken token = default(CancellationToken));
 		Task<long> GetFileSizeAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<DateTime> GetModifiedTimeAsync(string path, FtpDate type = FtpDate.Original, CancellationToken token = default(CancellationToken));
+		Task<DateTime> GetModifiedTimeAsync(string path, CancellationToken token = default(CancellationToken));
 
-		Task SetModifiedTimeAsync(string path, DateTime date, FtpDate type = FtpDate.Original, CancellationToken token = default(CancellationToken));
+		Task SetModifiedTimeAsync(string path, DateTime date, CancellationToken token = default(CancellationToken));
 #endif
 
 

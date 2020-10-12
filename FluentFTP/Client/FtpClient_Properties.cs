@@ -680,8 +680,6 @@ namespace FluentFTP {
 			set => m_parserCulture = value;
 		}
 
-		private double m_timeDiff = 0;
-
 
 		/// <summary>
 		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
@@ -710,6 +708,9 @@ namespace FluentFTP {
 		}
 
 
+		public TimeSpan m_timeOffset = new TimeSpan();
+		private double m_timeDiff = 0;
+
 		/// <summary>
 		/// Time difference between server and client, in hours.
 		/// If the server is located in New York and you are in London then the time difference is -5 hours.
@@ -722,18 +723,19 @@ namespace FluentFTP {
 				// configure parser
 				var hours = (int)Math.Floor(m_timeDiff);
 				var mins = (int)Math.Floor((m_timeDiff - Math.Floor(m_timeDiff)) * 60);
-				m_listParser.TimeOffset = new TimeSpan(hours, mins, 0);
-				m_listParser.HasTimeOffset = m_timeDiff != 0;
+				m_timeOffset = new TimeSpan(hours, mins, 0);
 			}
 		}
 
-		private DateTimeStyles m_timeConversion = DateTimeStyles.AssumeUniversal;
+		private FtpDate m_timeConversion = FtpDate.Original;
 
 		/// <summary>
 		/// Controls how timestamps returned by the server are converted.
-		/// The default setting assumes that all servers return UTC.
+		/// FtpDate.Original will preserve the value that the server sends.
+		/// FtpDate.Local assumes that the server timestamp is in UTC and attempts to convert it to the local timezone.
+		/// FtpDate.UTC assumes that the server timestamp is in Local Time and attempts to convert it to UTC.
 		/// </summary>
-		public DateTimeStyles TimeConversion {
+		public FtpDate TimeConversion {
 			get => m_timeConversion;
 			set {
 				m_timeConversion = value;
