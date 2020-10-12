@@ -2,6 +2,7 @@
 
 #### 33.0.0
  - New: Reworked timezone conversion API (simply set `TimeConversion` and `TimeOffset` on the client)
+ - New: 4 new options to convert server timestamps (`Original`, `UTCToLocal`, `UTC` and `TimeOffset`)
  - New: `GetListing` honors the time conversion settings of the active client
  - New: `GetModifiedDate` honors the time conversion settings of the active client
  - New: `SetModifiedDate` honors the time conversion settings of the active client
