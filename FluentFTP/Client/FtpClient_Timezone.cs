@@ -21,19 +21,21 @@ namespace FluentFTP {
 				if (m_timeConversion != FtpDate.ServerTime) {
 
 					// convert server timezone to UTC based on the TimeZone property
-					if (m_timeOffset.TotalHours != 0) {
-						parsed = parsed - m_timeOffset;
+					if (m_serverTimeZone != 0) {
+						parsed = parsed - m_serverTimeOffset;
 					}
 
-					// convert to local time if wanted
-#if !CORE
+					// convert UTC to local time if wanted (on .NET Core this is based on the LocalTimeZone property)
 					if (m_timeConversion == FtpDate.LocalTime) {
+#if CORE
+						parsed = parsed + m_localTimeOffset;
+#else
 						parsed = System.TimeZone.CurrentTimeZone.ToLocalTime(parsed);
-					}
 #endif
+					}
 				}
-				// return the final parsed date value
-				return parsed;
+					// return the final parsed date value
+					return parsed;
 			}
 
 
@@ -50,16 +52,18 @@ namespace FluentFTP {
 			// if server time is wanted, don't perform any conversion
 			if (m_timeConversion != FtpDate.ServerTime) {
 
-				// convert local to UTC if wanted
-#if !CORE
+				// convert local to UTC if wanted (on .NET Core this is based on the LocalTimeZone property)
 				if (m_timeConversion == FtpDate.LocalTime) {
+#if CORE
+					date = date - m_localTimeOffset;
+#else
 					date = System.TimeZone.CurrentTimeZone.ToUniversalTime(date);
-				}
 #endif
+				}
 
-				// convert UTC to server timezone, based on the TimeOffset property
-				if (m_timeOffset.TotalHours != 0) {
-					date = date + m_timeOffset;
+				// convert UTC to server timezone, based on the TimeZone property
+				if (m_serverTimeZone != 0) {
+					date = date + m_serverTimeOffset;
 				}
 			}
 

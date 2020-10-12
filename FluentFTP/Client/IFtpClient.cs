@@ -73,6 +73,9 @@ namespace FluentFTP {
 		CultureInfo ListingCulture { get; set; }
 		bool RecursiveList { get; set; }
 		double TimeZone { get; set; }
+#if CORE
+		double LocalTimeZone { get; set; }
+#endif
 		FtpDate TimeConversion { get; set; }
 		bool BulkListing { get; set; }
 		int BulkListingLength { get; set; }

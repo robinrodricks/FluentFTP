@@ -267,11 +267,16 @@ namespace FluentFTP {
 			conn.UploadDirectoryDeleteExcluded = UploadDirectoryDeleteExcluded;
 			conn.DownloadDirectoryDeleteExcluded = DownloadDirectoryDeleteExcluded;
 
+			// configure new connection as clone of self (.NET core props only)
+#if CORE
+			conn.LocalTimeZone = LocalTimeZone;
+#endif
 
 			// fix for #428: OpenRead with EnableThreadSafeDataConnections always uses ASCII
 			conn.CurrentDataType = CurrentDataType;
 			conn.ForceSetDataType = true;
 
+			// configure new connection as clone of self (.NET framework props only)
 #if !CORE
 			conn.PlainTextEncryption = PlainTextEncryption;
 #endif

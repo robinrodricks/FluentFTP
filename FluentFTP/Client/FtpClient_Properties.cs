@@ -729,27 +729,62 @@ namespace FluentFTP {
 		}
 
 
-		public TimeSpan m_timeOffset = new TimeSpan();
-		private double m_timeZone = 0;
+		private double m_serverTimeZone = 0;
+		private TimeSpan m_serverTimeOffset = new TimeSpan();
 
 		/// <summary>
-		/// The timezone of the FTP server. If the server in Tokyo with UTC+9 then set this to 9.
+		/// The timezone of the FTP server. If the server is in Tokyo with UTC+9 then set this to 9.
 		/// If the server returns timestamps in UTC then keep this 0.
 		/// </summary>
 		public double TimeZone {
-			get => m_timeZone;
+			get => m_serverTimeZone;
 			set {
 				if (value < -14 || value > 14) {
 					throw new ArgumentOutOfRangeException("TimeZone must be within -14 to +14 to represent UTC-14 to UTC+14");
 				}
-				m_timeZone = value;
+				m_serverTimeZone = value;
 
 				// configure parser
-				var hours = (int)Math.Floor(m_timeZone);
-				var mins = (int)Math.Floor((m_timeZone - Math.Floor(m_timeZone)) * 60);
-				m_timeOffset = new TimeSpan(hours, mins, 0);
+				if (value == 0) {
+					m_serverTimeOffset = TimeSpan.Zero;
+				}
+				else {
+					var hours = (int)Math.Floor(m_serverTimeZone);
+					var mins = (int)Math.Floor((m_serverTimeZone - Math.Floor(m_serverTimeZone)) * 60);
+					m_serverTimeOffset = new TimeSpan(hours, mins, 0);
+				}
 			}
 		}
+
+
+#if CORE
+		private double m_localTimeZone = 0;
+		private TimeSpan m_localTimeOffset = new TimeSpan();
+
+		/// <summary>
+		/// The timezone of your machine. If your machine is in Tokyo with UTC+9 then set this to 9.
+		/// If your machine is synchronized with UTC then keep this 0.
+		/// </summary>
+		public double LocalTimeZone {
+			get => m_localTimeZone;
+			set {
+				if (value < -14 || value > 14) {
+					throw new ArgumentOutOfRangeException("LocalTimeZone must be within -14 to +14 to represent UTC-14 to UTC+14");
+				}
+				m_localTimeZone = value;
+
+				// configure parser
+				if (value == 0) {
+					m_localTimeOffset = TimeSpan.Zero;
+				}
+				else {
+					var hours = (int)Math.Floor(m_localTimeZone);
+					var mins = (int)Math.Floor((m_localTimeZone - Math.Floor(m_localTimeZone)) * 60);
+					m_localTimeOffset = new TimeSpan(hours, mins, 0);
+				}
+			}
+		}
+#endif
 
 		private FtpDate m_timeConversion = FtpDate.ServerTime;
 
