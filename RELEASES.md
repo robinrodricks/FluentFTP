@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 32.4.7
+ - Fix: "The connection was terminated before a greeting could be read"
+
 #### 32.4.6
  - Platform: Add support for .NET Standard 2.1
  - Platform: Upgrade `System.Net.Security` from version 4.3.0 to 4.3.2 to fix security issues
