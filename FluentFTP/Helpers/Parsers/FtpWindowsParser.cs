@@ -13,56 +13,7 @@ using System.Threading.Tasks;
 
 namespace FluentFTP.Helpers.Parsers {
 	internal static class FtpWindowsParser {
-		/// <summary>
-		/// Parses IIS/DOS format listings
-		/// </summary>
-		/// <param name="record">A line from the listing</param>
-		/// <param name="capabilities">Server capabilities</param>
-		/// <param name="client">The FTP client</param>
-		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		public static FtpListItem ParseLegacy(string record, List<FtpCapability> capabilities, FtpClient client) {
-			var item = new FtpListItem();
-			var datefmt = new[] {
-				"MM-dd-yy  hh:mmtt",
-				"MM-dd-yyyy  hh:mmtt"
-			};
-			Match m;
-
-			// directory
-			if ((m = Regex.Match(record, @"(?<modify>\d+-\d+-\d+\s+\d+:\d+\w+)\s+<DIR>\s+(?<name>.*)$", RegexOptions.IgnoreCase)).Success) {
-				DateTime modify;
-
-				item.Type = FtpFileSystemObjectType.Directory;
-				item.Name = m.Groups["name"].Value;
-
-				if ((modify = client.ParseFtpDate(m.Groups["modify"].Value)) != DateTime.MinValue) {
-					item.Modified = modify;
-				}
-			}
-
-			// file
-			else if ((m = Regex.Match(record, @"(?<modify>\d+-\d+-\d+\s+\d+:\d+\w+)\s+(?<size>\d+)\s+(?<name>.*)$", RegexOptions.IgnoreCase)).Success) {
-				DateTime modify;
-				long size;
-
-				item.Type = FtpFileSystemObjectType.File;
-				item.Name = m.Groups["name"].Value;
-
-				if (long.TryParse(m.Groups["size"].Value, out size)) {
-					item.Size = size;
-				}
-
-				if ((modify = client.ParseFtpDate(m.Groups["modify"].Value)) != DateTime.MinValue) {
-					item.Modified = modify;
-				}
-			}
-			else {
-				return null;
-			}
-
-			return item;
-		}
-
+		
 		/// <summary>
 		/// Checks if the given listing is a valid IIS/DOS file listing
 		/// </summary>

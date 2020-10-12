@@ -13,48 +13,7 @@ using System.Threading.Tasks;
 
 namespace FluentFTP.Helpers.Parsers {
 	internal static class FtpVMSParser {
-		/// <summary>
-		/// Parses Vax/VMS format listings
-		/// </summary>
-		public static FtpListItem ParseLegacy(string record, List<FtpCapability> capabilities, FtpClient client) {
-			var regex =
-				@"(?<name>.+)\.(?<extension>.+);(?<version>\d+)\s+" +
-				@"(?<size>\d+)\s+" +
-				@"(?<modify>\d+-\w+-\d+\s+\d+:\d+)";
-			Match m;
-
-			if ((m = Regex.Match(record, regex)).Success) {
-				var item = new FtpListItem();
-
-				item.Name = m.Groups["name"].Value + "." + m.Groups["extension"].Value + ";" + m.Groups["version"].Value;
-
-				if (m.Groups["extension"].Value.ToUpper() == "DIR") {
-					item.Type = FtpFileSystemObjectType.Directory;
-				}
-				else {
-					item.Type = FtpFileSystemObjectType.File;
-				}
-
-				long itemSize = 0;
-				if (!long.TryParse(m.Groups["size"].Value, out itemSize)) {
-					itemSize = -1;
-				}
-
-				item.Size = itemSize;
-
-				DateTime itemModified;
-				if (!DateTime.TryParse(m.Groups["modify"].Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal, out itemModified)) {
-					itemModified = DateTime.MinValue;
-				}
-
-				item.Modified = itemModified;
-
-				return item;
-			}
-
-			return null;
-		}
-
+		
 		/// <summary>
 		/// Checks if the given listing is a valid VMS file listing
 		/// </summary>

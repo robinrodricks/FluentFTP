@@ -30,7 +30,7 @@ namespace Examples {
 					// load some information about the object
 					// returned from the listing...
 					var isDirectory = await conn.DirectoryExistsAsync(s, token);
-					var modify = await conn.GetModifiedTimeAsync(s, FtpDate.Original, token);
+					var modify = await conn.GetModifiedTimeAsync(s, token);
 					var size = isDirectory ? 0 : await conn.GetFileSizeAsync(s, token);
 				}
 			}

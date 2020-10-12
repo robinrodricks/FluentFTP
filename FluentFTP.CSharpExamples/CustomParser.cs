@@ -13,8 +13,8 @@ namespace Examples {
 		/// <summary>
 		/// Adds a custom file listing parser
 		/// </summary>
-		public static void AddCustomParser() {
-			FtpListParser.AddParser(new FtpListParser.Parser(ParseUnixList));
+		public static void AddCustomParser(FtpClient client) {
+			client.ListingCustomParser = ParseUnixList;
 		}
 
 		/// <summary>

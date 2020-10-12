@@ -22,7 +22,7 @@ namespace Examples {
 				await conn.ConnectAsync(token);
 
 				Console.WriteLine("The modified type is: " +
-							  await conn.GetModifiedTimeAsync("/full/or/relative/path/to/file", FtpDate.Original, token));
+							  await conn.GetModifiedTimeAsync("/full/or/relative/path/to/file", token));
 			}
 		}
 

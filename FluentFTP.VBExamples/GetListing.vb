@@ -44,12 +44,12 @@ Namespace Examples
 
 						Case FtpFileSystemObjectType.Directory
 							Console.WriteLine("Directory!  " & item.FullName)
-							Console.WriteLine("Modified date:  " & Await conn.GetModifiedTimeAsync(item.FullName, FtpDate.Original, token))
+							Console.WriteLine("Modified date:  " & Await conn.GetModifiedTimeAsync(item.FullName, token))
 
 						Case FtpFileSystemObjectType.File
 							Console.WriteLine("File!  " & item.FullName)
 							Console.WriteLine("File size:  " & Await conn.GetFileSizeAsync(item.FullName, token))
-							Console.WriteLine("Modified date:  " & Await conn.GetModifiedTimeAsync(item.FullName, FtpDate.Original, token))
+							Console.WriteLine("Modified date:  " & Await conn.GetModifiedTimeAsync(item.FullName, token))
 							Console.WriteLine("Chmod:  " & Await conn.GetChmodAsync(item.FullName, token))
 
 						Case FtpFileSystemObjectType.Link

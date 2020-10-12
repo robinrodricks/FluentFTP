@@ -51,7 +51,7 @@ namespace Examples {
 						case FtpFileSystemObjectType.Directory:
 
 							Console.WriteLine("Directory!  " + item.FullName);
-							Console.WriteLine("Modified date:  " + await conn.GetModifiedTimeAsync(item.FullName, FtpDate.Original, token));
+							Console.WriteLine("Modified date:  " + await conn.GetModifiedTimeAsync(item.FullName, token));
 
 							break;
 
@@ -59,7 +59,7 @@ namespace Examples {
 
 							Console.WriteLine("File!  " + item.FullName);
 							Console.WriteLine("File size:  " + await conn.GetFileSizeAsync(item.FullName, token));
-							Console.WriteLine("Modified date:  " + await conn.GetModifiedTimeAsync(item.FullName, FtpDate.Original, token));
+							Console.WriteLine("Modified date:  " + await conn.GetModifiedTimeAsync(item.FullName, token));
 							Console.WriteLine("Chmod:  " + await conn.GetChmodAsync(item.FullName, token));
 
 							break;

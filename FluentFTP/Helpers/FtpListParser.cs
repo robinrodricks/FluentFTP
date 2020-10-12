@@ -100,8 +100,8 @@ namespace FluentFTP {
 			}
 			else {
 				// use custom parser if given
-				if (m_customParser != null) {
-					result = m_customParser(file, caps, client);
+				if (CurrentParser == FtpParser.Custom && client.ListingCustomParser != null) {
+					result = client.ListingCustomParser(file, caps, client);
 				}
 				else {
 					if (IsWrongParser()) {
@@ -110,10 +110,6 @@ namespace FluentFTP {
 
 					// use one of the in-built parsers
 					switch (CurrentParser) {
-						case FtpParser.Legacy:
-							result = ParseLegacy(path, file, caps, client);
-							break;
-
 						case FtpParser.Machine:
 							result = FtpMachineListParser.Parse(file, caps, client);
 							break;
@@ -229,140 +225,5 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region Legacy API
-
-		/// <summary>
-		/// Used for synchronizing access to the Parsers collection
-		/// </summary>
-		public static object m_parserLock = new object();
-
-		/// <summary>
-		/// Adds a custom parser
-		/// </summary>
-		/// <param name="parser">The parser delegate to add</param>
-		/// <example><code source="..\Examples\CustomParser.cs" lang="cs" /></example>
-		public static void AddParser(Parser parser) {
-			lock (m_parserLock) {
-				if (m_parsers == null) {
-					InitParsers();
-				}
-
-				m_parsers.Add(parser);
-				m_customParser = parser;
-			}
-		}
-
-		/// <summary>
-		/// Removes all parser delegates
-		/// </summary>
-		public static void ClearParsers() {
-			lock (m_parserLock) {
-				if (m_parsers == null) {
-					InitParsers();
-				}
-
-				m_parsers.Clear();
-				m_customParser = null;
-			}
-		}
-
-		/// <summary>
-		/// Removes the specified parser
-		/// </summary>
-		/// <param name="parser">The parser delegate to remove</param>
-		public static void RemoveParser(Parser parser) {
-			lock (m_parserLock) {
-				if (m_parsers == null) {
-					InitParsers();
-				}
-
-				m_parsers.Remove(parser);
-				
-				if(m_customParser == parser){
-					m_customParser = null;
-				}
-			}
-		}
-
-		/// <summary>
-		/// Ftp listing line parser
-		/// </summary>
-		/// <param name="line">The line from the listing</param>
-		/// <param name="capabilities">The server capabilities</param>
-		/// <param name="client">The FTP client</param>
-		/// <returns>FtpListItem if the line can be parsed, null otherwise</returns>
-		public delegate FtpListItem Parser(string line, List<FtpCapability> capabilities, FtpClient client);
-
-		/// <summary>
-		/// Parses a line from a file listing using the first successful match in the Parsers collection.
-		/// </summary>
-		/// <param name="path">The source path of the file listing</param>
-		/// <param name="buf">A line from the file listing</param>
-		/// <param name="capabilities">Server capabilities</param>
-		/// <returns>A FtpListItem object representing the parsed line, null if the line was
-		/// unable to be parsed. If you have encountered an unsupported list type add a parser
-		/// to the public static Parsers collection of FtpListItem.</returns>
-		public static FtpListItem ParseLegacy(string path, string buf, List<FtpCapability> capabilities, FtpClient client) {
-			if (!string.IsNullOrEmpty(buf)) {
-				FtpListItem item;
-
-				foreach (var parser in Parsers) {
-					if ((item = parser(buf, capabilities, client)) != null) {
-						item.Input = buf;
-						return item;
-					}
-				}
-			}
-
-			return null;
-		}
-
-
-		/// <summary>
-		/// Initializes the default list of parsers
-		/// </summary>
-		public static void InitParsers() {
-			lock (m_parserLock) {
-				if (m_parsers == null) {
-					m_parsers = new List<Parser>();
-					m_parsers.Add(new Parser(FtpMachineListParser.Parse));
-					m_parsers.Add(new Parser(FtpUnixParser.ParseLegacy));
-					m_parsers.Add(new Parser(FtpWindowsParser.ParseLegacy));
-					m_parsers.Add(new Parser(FtpVMSParser.ParseLegacy));
-				}
-			}
-		}
-
-		public static List<Parser> m_parsers = null;
-
-		/// <summary>
-		/// Collection of parsers. Each parser object contains
-		/// a regex string that uses named groups, i.e., (?&lt;group_name&gt;foobar).
-		/// The support group names are modify for last write time, size for the
-		/// size and name for the name of the file system object. Each group name is
-		/// optional, if they are present then those values are retrieved from a 
-		/// successful match. In addition, each parser contains a Type property
-		/// which gets set in the FtpListItem object to distinguish between different
-		/// types of objects.
-		/// </summary>
-		public static Parser[] Parsers {
-			get {
-				Parser[] parsers;
-
-				lock (m_parserLock) {
-					if (m_parsers == null) {
-						InitParsers();
-					}
-
-					parsers = m_parsers.ToArray();
-				}
-
-				return parsers;
-			}
-		}
-
-		private static Parser m_customParser;
-
-		#endregion
 	}
 }

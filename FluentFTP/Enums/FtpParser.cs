@@ -6,9 +6,9 @@ namespace FluentFTP {
 	/// </summary>
 	public enum FtpParser : int {
 		/// <summary>
-		/// Use the legacy parser (for older projects that depend on the pre-2017 parser routines).
+		/// Use the custom parser that you have set on the FtpClient object (ListingCustomParser property)
 		/// </summary>
-		Legacy = -1,
+		Custom = -1,
 
 		/// <summary>
 		/// Automatically detect the file listing parser to use based on the FTP server (SYST command).

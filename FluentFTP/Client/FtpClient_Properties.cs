@@ -680,6 +680,27 @@ namespace FluentFTP {
 			set => m_parserCulture = value;
 		}
 
+		private CustomParser m_customParser = null;
+
+		/// <summary>
+		/// Custom file listing parser to be used.
+		/// </summary>
+		public CustomParser ListingCustomParser {
+			get => m_customParser;
+			set {
+				m_customParser = value;
+				m_parser = FtpParser.Custom;
+			}
+		}
+
+		/// <summary>
+		/// Callback format to implement your custom FTP listing line parser.
+		/// </summary>
+		/// <param name="line">The line from the listing</param>
+		/// <param name="capabilities">The server capabilities</param>
+		/// <param name="client">The FTP client</param>
+		/// <returns>Return an FtpListItem object if the line can be parsed, else return null</returns>
+		public delegate FtpListItem CustomParser(string line, List<FtpCapability> capabilities, FtpClient client);
 
 		/// <summary>
 		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
