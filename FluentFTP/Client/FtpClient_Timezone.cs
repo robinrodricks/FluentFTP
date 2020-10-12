@@ -7,7 +7,8 @@ namespace FluentFTP {
 		private static string[] FtpDateFormats = { "yyyyMMddHHmmss", "yyyyMMddHHmmss'.'f", "yyyyMMddHHmmss'.'ff", "yyyyMMddHHmmss'.'fff", "MMM dd  yyyy", "MMM  d  yyyy", "MMM dd HH:mm", "MMM  d HH:mm" };
 
 		/// <summary>
-		/// Tries to convert the string FTP date representation into a <see cref="DateTime"/> object
+		/// Converts the FTP date string into a DateTime object, honoring the timezone conversion configuration of the client.
+		/// Affected by properties: TimeConversion, TimeZone, LocalTimeZone.
 		/// </summary>
 		/// <param name="date">The date string</param>
 		/// <returns>A <see cref="DateTime"/> object representing the date, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
@@ -43,10 +44,11 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Generates an FTP date-string when provided a date value
+		/// Generates an FTP date-string from the DateTime object, reversing the timezone conversion configuration of the client.
+		/// Affected by properties: TimeConversion, TimeZone, LocalTimeZone.
 		/// </summary>
 		/// <param name="date">The date value</param>
-		/// <returns>A <see cref="DateTime"/> object representing the date, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
+		/// <returns>A string representing the date</returns>
 		public string GenerateFtpDate(DateTime date) {
 
 			// if server time is wanted, don't perform any conversion
