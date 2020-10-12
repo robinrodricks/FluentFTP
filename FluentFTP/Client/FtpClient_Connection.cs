@@ -249,6 +249,7 @@ namespace FluentFTP {
 			conn.ListingDataType = ListingDataType;
 			conn.ListingParser = ListingParser;
 			conn.ListingCulture = ListingCulture;
+			conn.ListingCustomParser = ListingCustomParser;
 			conn.TimeOffset = TimeOffset;
 			conn.TimeConversion = TimeConversion;
 			conn.RetryAttempts = RetryAttempts;
