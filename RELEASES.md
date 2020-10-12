@@ -1,5 +1,14 @@
 # Release Notes
 
+#### 33.0.0
+ - New: Reworked timezone conversion API (simply set `TimeConversion` and `TimeOffset` on the client)
+ - New: `GetListing` honors the time conversion settings of the active client
+ - New: `GetModifiedDate` honors the time conversion settings of the active client
+ - New: `SetModifiedDate` honors the time conversion settings of the active client
+ - New: Reworked API for Custom file listing parsers (simply set `ListingCustomParser` on the client)
+ - Fix: Drop support for legacy file listing parsing routines (`FtpParser.Legacy` will no longer work)
+ - Fix: Unexpected time conversion occuring in `GetModifiedTimeAsync` 
+
 #### 32.4.7
  - Fix: "The connection was terminated before a greeting could be read"
 
