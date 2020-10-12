@@ -764,7 +764,7 @@ namespace FluentFTP {
 				var staleData = ReadStaleData(false, true, true);
 				if (staleData != null) {
 					var staleReply = new FtpReply();
-					if (DecodeStringToReply(staleData, staleReply) && !staleReply.Success) {
+					if (DecodeStringToReply(staleData, ref staleReply) && !staleReply.Success) {
 						throw new FtpAuthenticationException(staleReply);
 					}
 				}
@@ -807,7 +807,7 @@ namespace FluentFTP {
 				var staleData = await ReadStaleDataAsync(false, true, true, token);
 				if (staleData != null) {
 					var staleReply = new FtpReply();
-					if (DecodeStringToReply(staleData, staleReply) && !staleReply.Success) {
+					if (DecodeStringToReply(staleData, ref staleReply) && !staleReply.Success) {
 						throw new FtpAuthenticationException(staleReply);
 					}
 				}

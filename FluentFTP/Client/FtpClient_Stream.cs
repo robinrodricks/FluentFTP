@@ -236,7 +236,7 @@ namespace FluentFTP {
 
 				m_stream.ReadTimeout = m_readTimeout;
 				while ((buf = m_stream.ReadLine(Encoding)) != null) {
-					if (DecodeStringToReply(buf, reply)) {
+					if (DecodeStringToReply(buf, ref reply)) {
 						break;
 					}
 					reply.InfoMessages += buf + "\n";
@@ -279,7 +279,7 @@ namespace FluentFTP {
 		/// Decodes the given FTP response string into a FtpReply, seperating the FTP return code and message.
 		/// Returns true if the string was decoded correctly or false if it is not a standard format FTP response.
 		/// </summary>
-		private bool DecodeStringToReply(string text, FtpReply reply) {
+		private bool DecodeStringToReply(string text, ref FtpReply reply) {
 			Match m = Regex.Match(text, "^(?<code>[0-9]{3}) (?<message>.*)$");
 			if (m.Success) {
 				reply.Code = m.Groups["code"].Value;
@@ -308,7 +308,7 @@ namespace FluentFTP {
 
 			m_stream.ReadTimeout = m_readTimeout;
 			while ((buf = await m_stream.ReadLineAsync(Encoding, token)) != null) {
-				if (DecodeStringToReply(buf, reply)) {
+				if (DecodeStringToReply(buf, ref reply)) {
 					break;
 				}
 				reply.InfoMessages += buf + "\n";
