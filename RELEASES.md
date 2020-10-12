@@ -1,14 +1,17 @@
 # Release Notes
 
 #### 33.0.0
- - New: Reworked timezone conversion API (simply set `TimeConversion` and `TimeOffset` on the client)
- - New: 4 new options to convert server timestamps (`Original`, `UTCToLocal`, `UTC` and `TimeOffset`)
+ - New: Reworked timezone conversion API (simply set `TimeConversion` and `TimeZone`)
+ - New: Options to convert server timestamps into the format of your choice (`ServerTime`, `LocalTime` and `UTC`)
+ - New: Support for conversion to local timezone in .NET core (set `LocalTimeZone`)
  - New: `GetListing` honors the time conversion settings of the active client
  - New: `GetModifiedDate` honors the time conversion settings of the active client
  - New: `SetModifiedDate` honors the time conversion settings of the active client
  - New: Reworked API for Custom file listing parsers (simply set `ListingCustomParser` on the client)
  - Fix: Drop support for legacy file listing parsing routines (`FtpParser.Legacy` will no longer work)
  - Fix: Unexpected time conversion occuring in `GetModifiedTimeAsync` 
+ - Change: Breaking changes to the `TimeConversion` property.
+ - Change: Breaking changes to the `TimeOffset` property, which has been replaced by `TimeZone`
 
 #### 32.4.7
  - Fix: "The connection was terminated before a greeting could be read"
