@@ -404,7 +404,8 @@ namespace FluentFTP {
 
 				// get modified date of a file
 				if ((reply = Execute("MDTM " + path.GetFtpPath())).Success) {
-					date = ParseFtpDate(reply.Message);
+					date = reply.Message.ParseFtpDate(this);
+					date = ConvertDate(date);
 				}
 
 #if !CORE14
@@ -468,7 +469,8 @@ namespace FluentFTP {
 
 			// get modified date of a file
 			if ((reply = await ExecuteAsync("MDTM " + path.GetFtpPath(), token)).Success) {
-				date = ParseFtpDate(reply.Message);
+				date = reply.Message.ParseFtpDate(this);
+				date = ConvertDate(date);
 			}
 
 			return date;
@@ -503,7 +505,8 @@ namespace FluentFTP {
 #endif
 
 				// calculate the final date string with the timezone conversion
-				var timeStr = GenerateFtpDate(date);
+				date = ConvertDate(date, true);
+				var timeStr = date.GenerateFtpDate();
 
 				// set modified date of a file
 				if ((reply = Execute("MFMT " + timeStr + " " + path.GetFtpPath())).Success) {
@@ -569,7 +572,8 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			// calculate the final date string with the timezone conversion
-			var timeStr = GenerateFtpDate(date);
+			date = ConvertDate(date, true);
+			var timeStr = date.GenerateFtpDate();
 
 			// set modified date of a file
 			if ((reply = await ExecuteAsync("MFMT " + timeStr + " " + path.GetFtpPath(), token)).Success) {

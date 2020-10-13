@@ -4,75 +4,59 @@ using System.Globalization;
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
 		
-		private static string[] FtpDateFormats = { "yyyyMMddHHmmss", "yyyyMMddHHmmss'.'f", "yyyyMMddHHmmss'.'ff", "yyyyMMddHHmmss'.'fff", "MMM dd  yyyy", "MMM  d  yyyy", "MMM dd HH:mm", "MMM  d HH:mm" };
-
 		/// <summary>
-		/// Converts the FTP date string into a DateTime object, honoring the timezone conversion configuration of the client.
+		/// If reverse is false, converts the date provided by the FTP server into the timezone required locally.
+		/// If reverse is true, converts the local timezone date into the date required by the FTP server.
+		/// 
 		/// Affected by properties: TimeConversion, TimeZone, LocalTimeZone.
 		/// </summary>
-		/// <param name="date">The date string</param>
-		/// <returns>A <see cref="DateTime"/> object representing the date, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
-		public DateTime ParseFtpDate(string date) {
-			DateTime parsed;
+		public DateTime ConvertDate(DateTime date, bool reverse = false) {
 
-			// parse the raw timestamp without performing any timezone conversions
-			if (DateTime.TryParseExact(date, FtpDateFormats, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out parsed)) {
+			// if server time is wanted, don't perform any conversion
+			if (m_timeConversion != FtpDate.ServerTime) {
 
-				// if server time is wanted, don't perform any conversion
-				if (m_timeConversion != FtpDate.ServerTime) {
+				// convert server time to local time
+				if (!reverse) {
 
 					// convert server timezone to UTC based on the TimeZone property
 					if (m_serverTimeZone != 0) {
-						parsed = parsed - m_serverTimeOffset;
+						date = date - m_serverTimeOffset;
 					}
 
 					// convert UTC to local time if wanted (on .NET Core this is based on the LocalTimeZone property)
 					if (m_timeConversion == FtpDate.LocalTime) {
 #if CORE
-						parsed = parsed + m_localTimeOffset;
+					date = date + m_localTimeOffset;
 #else
-						parsed = System.TimeZone.CurrentTimeZone.ToLocalTime(parsed);
+						date = System.TimeZone.CurrentTimeZone.ToLocalTime(date);
 #endif
 					}
+
 				}
-					// return the final parsed date value
-					return parsed;
-			}
 
+				// convert local time to server time
+				else {
 
-			return DateTime.MinValue;
-		}
-
-		/// <summary>
-		/// Generates an FTP date-string from the DateTime object, reversing the timezone conversion configuration of the client.
-		/// Affected by properties: TimeConversion, TimeZone, LocalTimeZone.
-		/// </summary>
-		/// <param name="date">The date value</param>
-		/// <returns>A string representing the date</returns>
-		public string GenerateFtpDate(DateTime date) {
-
-			// if server time is wanted, don't perform any conversion
-			if (m_timeConversion != FtpDate.ServerTime) {
-
-				// convert local to UTC if wanted (on .NET Core this is based on the LocalTimeZone property)
-				if (m_timeConversion == FtpDate.LocalTime) {
+					// convert local to UTC if wanted (on .NET Core this is based on the LocalTimeZone property)
+					if (m_timeConversion == FtpDate.LocalTime) {
 #if CORE
 					date = date - m_localTimeOffset;
 #else
-					date = System.TimeZone.CurrentTimeZone.ToUniversalTime(date);
+						date = System.TimeZone.CurrentTimeZone.ToUniversalTime(date);
 #endif
-				}
+					}
 
-				// convert UTC to server timezone, based on the TimeZone property
-				if (m_serverTimeZone != 0) {
-					date = date + m_serverTimeOffset;
+					// convert UTC to server timezone, based on the TimeZone property
+					if (m_serverTimeZone != 0) {
+						date = date + m_serverTimeOffset;
+					}
 				}
 			}
 
-			// generate final pretty printed date
-			var timeStr = date.ToString("yyyyMMddHHmmss");
-			return timeStr;
+			// return the final date value
+			return date;
 		}
+
 
 	}
 }

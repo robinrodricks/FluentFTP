@@ -144,6 +144,18 @@ namespace FluentFTP {
 			// if parsed file successfully
 			if (result != null) {
 
+				// process created date into the timezone required
+				result.RawCreated = result.Created;
+				if (result.Created != DateTime.MinValue) {
+					result.Created = client.ConvertDate(result.Created);
+				}
+
+				// process modified date into the timezone required
+				result.RawModified = result.Modified;
+				if (result.Modified != DateTime.MinValue) {
+					result.Modified = client.ConvertDate(result.Modified);
+				}
+
 				// calc absolute file paths
 				result.CalculateFullFtpPath(client, path, false);
 			}

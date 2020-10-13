@@ -80,14 +80,24 @@ namespace FluentFTP {
 		public FtpListItem LinkObject;
 
 		/// <summary>
-		/// Gets the last write time of the object.
+		/// Gets the last write time of the object after timezone conversion (if enabled).
 		/// </summary>
 		public DateTime Modified = DateTime.MinValue;
 
 		/// <summary>
-		/// Gets the created date of the object.
+		/// Gets the created date of the object after timezone conversion (if enabled).
 		/// </summary>
 		public DateTime Created = DateTime.MinValue;
+
+		/// <summary>
+		/// Gets the last write time of the object before any timezone conversion.
+		/// </summary>
+		public DateTime RawModified = DateTime.MinValue;
+
+		/// <summary>
+		/// Gets the created date of the object before any timezone conversion.
+		/// </summary>
+		public DateTime RawCreated = DateTime.MinValue;
 
 		/// <summary>
 		/// Gets the size of the object.

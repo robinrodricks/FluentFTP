@@ -70,7 +70,7 @@ namespace Examples {
 			// to convert it to a DateTime object and use it for directories.
 			////
 			if ((!capabilities.Contains(FtpCapability.MDTM) || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0) {
-				item.Modified = client.ParseFtpDate(m.Groups["modify"].Value);
+				item.Modified = m.Groups["modify"].Value.ParseFtpDate(client);
 			}
 
 			if (m.Groups["size"].Value.Length > 0) {
