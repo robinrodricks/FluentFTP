@@ -371,6 +371,59 @@ namespace Tests {
 			}
 		}
 
+		[Fact]
+		[Trait("Category", Category_PublicFTP)]
+		public void TestGetListingBSDServer() {
+			using (var client = NewFtpClient_NetBsd()) {
+
+				// machine listing
+				var listing = client.GetListing();
+
+				// unix listing
+				var listing2 = client.GetListing("/", FtpListOption.ForceList);
+			}
+		}
+
+		[Fact]
+		[Trait("Category", Category_PublicFTP)]
+		public void TestGetListingTeleServer() {
+			using (var client = NewFtpClient_Tele2SpeedTest()) {
+
+				// machine listing
+				var listing = client.GetListing();
+
+				// unix listing
+				var listing2 = client.GetListing("/", FtpListOption.ForceList);
+			}
+		}
+
+		[Fact]
+		[Trait("Category", Category_PublicFTP)]
+		public void TestGetListingTeleServerTimezone() {
+			using (var client = NewFtpClient_Tele2SpeedTest()) {
+
+				// original date = 19/Feb/2020 00:00 (12 am)
+
+				// convert to UTC (assume Tokyo to UTC)
+				client.TimeConversion = FtpDate.UTC;
+				client.TimeZone = 9;
+
+				var listing = client.GetListing();
+				if (listing[0].Modified != DateTime.Parse("18-Feb-2016 3:00:00 PM")) {
+					throw new Exception("Timezone conversion failed!");
+				}
+
+				// convert to local time (assume Tokyo to Mumbai)
+				client.TimeConversion = FtpDate.LocalTime;
+				client.TimeZone = 9;
+
+				var listing2 = client.GetListing();
+				if (listing2[0].Modified == DateTime.Parse("18-Feb-2016 12:00:00 AM")) {
+					throw new Exception("Timezone conversion failed!");
+				}
+			}
+		}
+
 #if !CORE
 		//[Fact]
 		public void TestGetListingCCC() {
