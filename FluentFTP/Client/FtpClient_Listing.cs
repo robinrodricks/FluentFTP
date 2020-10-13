@@ -585,6 +585,10 @@ namespace FluentFTP {
 				// and the connection fails because no communication socket is provided by the server
 			}
 			catch (FtpCommandException ftpEx) {
+				// Fix for #589 - CompletionCode is null
+				if (ftpEx.CompletionCode == null) {
+					throw new FtpException(ftpEx.Message + " - Try using FtpListOption.UseStat which might fix this.", ftpEx);
+				}
 				// Some FTP servers throw 550 for empty folders. Absorb these.
 				if (!ftpEx.CompletionCode.StartsWith("550")) {
 					throw ftpEx;
@@ -875,6 +879,10 @@ namespace FluentFTP {
 				// and the connection fails because no communication socket is provided by the server
 			}
 			catch (FtpCommandException ftpEx) {
+				// Fix for #589 - CompletionCode is null
+				if (ftpEx.CompletionCode == null) {
+					throw new FtpException(ftpEx.Message + " - Try using FtpListOption.UseStat which might fix this.", ftpEx);
+				}
 				// Some FTP servers throw 550 for empty folders. Absorb these.
 				if (!ftpEx.CompletionCode.StartsWith("550")) {
 					throw ftpEx;
