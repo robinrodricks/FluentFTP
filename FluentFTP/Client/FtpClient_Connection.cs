@@ -408,7 +408,7 @@ namespace FluentFTP {
 				}
 
 				// Set a FTP server handler if a custom handler has not already been set
-				if (ServerHandler != null) {
+				if (ServerHandler == null) {
 					ServerHandler = FtpServerSpecificHandler.GetServerHandler(m_serverType);
 				}
 
