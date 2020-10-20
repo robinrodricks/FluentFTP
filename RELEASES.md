@@ -1,7 +1,7 @@
 # Release Notes
 
 #### 33.0.1
- - Fix: Create server-specific handler if a custom handler has not been set
+ - Fix: Create server-specific handler if a custom handler has not been set (thanks [Adhara3](/Adhara3))
 
 #### 33.0.0
  - New: Reworked timezone conversion API (simply set `TimeConversion` and `TimeZone`)
