@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 33.0.1
+ - Fix: Create server-specific handler if a custom handler has not been set
+
 #### 33.0.0
  - New: Reworked timezone conversion API (simply set `TimeConversion` and `TimeZone`)
  - New: Options to convert server timestamps into the format of your choice (`ServerTime`, `LocalTime` and `UTC`)
