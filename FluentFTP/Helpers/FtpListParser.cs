@@ -65,24 +65,31 @@ namespace FluentFTP {
 		/// <summary>
 		/// Try to auto-detect which parser is suitable given a system string.
 		/// </summary>
-		public void Init(FtpOperatingSystem system, FtpParser defaultParser = FtpParser.Auto) {
+		public void Init(FtpOperatingSystem system, FtpParser forcedParser = FtpParser.Auto) {
 			ParserConfirmed = false;
 
-			if (system == FtpOperatingSystem.Windows) {
-				CurrentParser = FtpParser.Windows;
-			}
-			else if (system == FtpOperatingSystem.Unix || system == FtpOperatingSystem.SunOS) {
-				CurrentParser = FtpParser.Unix;
-			}
-			else if (system == FtpOperatingSystem.VMS) {
-				CurrentParser = FtpParser.VMS;
-			}
-			else if (system == FtpOperatingSystem.IBMOS400 || system == FtpOperatingSystem.IBMzOS) {
-				CurrentParser = FtpParser.IBM;
+			if (forcedParser != FtpParser.Auto) {
+				// use the parser that the server handler specified
+				CurrentParser = forcedParser;
 			}
 			else {
-				CurrentParser = defaultParser;
-				client.LogStatus(FtpTraceLevel.Warn, "Cannot auto-detect listing parser for system '" + system + "', using " + defaultParser + " parser");
+
+				if (system == FtpOperatingSystem.Windows) {
+					CurrentParser = FtpParser.Windows;
+				}
+				else if (system == FtpOperatingSystem.Unix || system == FtpOperatingSystem.SunOS) {
+					CurrentParser = FtpParser.Unix;
+				}
+				else if (system == FtpOperatingSystem.VMS) {
+					CurrentParser = FtpParser.VMS;
+				}
+				else if (system == FtpOperatingSystem.IBMOS400 || system == FtpOperatingSystem.IBMzOS) {
+					CurrentParser = FtpParser.IBM;
+				}
+				else {
+					CurrentParser = FtpParser.Unix;
+					client.LogStatus(FtpTraceLevel.Warn, "Cannot auto-detect listing parser for system '" + system + "', using Unix parser");
+				}
 			}
 
 			DetectedParser = CurrentParser;
@@ -100,7 +107,7 @@ namespace FluentFTP {
 			}
 			else {
 				// use custom parser if given
-				if (CurrentParser == FtpParser.Custom && client.ListingCustomParser != null) {
+				if (client.ListingParser == FtpParser.Custom && client.ListingCustomParser != null) {
 					result = client.ListingCustomParser(file, caps, client);
 				}
 				else {

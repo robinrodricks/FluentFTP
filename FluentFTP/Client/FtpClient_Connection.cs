@@ -444,8 +444,8 @@ namespace FluentFTP {
 #endif
 
 				// Create the parser even if the auto-OS detection failed
-				var autoParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Unix;
-				m_listParser.Init(m_serverOS, autoParser);
+				var forcedParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Auto;
+				m_listParser.Init(m_serverOS, forcedParser);
 
 				// FIX : #318 always set the type when we create a new connection
 				ForceSetDataType = true;
@@ -596,8 +596,8 @@ namespace FluentFTP {
 #endif
 
 			// Create the parser after OS auto-detection
-			var autoParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Unix;
-			m_listParser.Init(m_serverOS, autoParser);
+			var forcedParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Auto;
+			m_listParser.Init(m_serverOS, forcedParser);
 		}
 #endif
 
