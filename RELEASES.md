@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 33.0.2
+ - Fix: Honor custom parsers if server-specific handler is used
+
 #### 33.0.1
  - Fix: Create server-specific handler if a custom handler has not been set (thanks [Adhara3](/Adhara3))
 
