@@ -783,12 +783,19 @@ namespace FluentFTP {
 					}
 					catch (IOException ex) {
 						// resume if server disconnected midway, or throw if there is an exception doing that as well
-						if (!ResumeUpload(remotePath, ref upStream, offset, ex)) {
+						if (!ResumeUpload(remotePath, ref upStream, ref offset, ex)) {
 							sw.Stop();
 							throw;
 						}
-					}
-					catch (TimeoutException ex) {
+						// we should get the offset from the remote server, since we are not sure the last write operation succeeded.
+						// give up if we cannot reposition the source stream
+						if (!fileData.CanSeek) {
+							sw.Stop();
+							throw;
+						}
+						fileData.Seek(offset, SeekOrigin.Begin);
+
+					} catch (TimeoutException ex) {
 						// fix: attempting to upload data after we reached the end of the stream
 						// often throws a timeout execption, so we silently absorb that here
 						if (offset >= fileLen) {
@@ -1113,12 +1120,12 @@ namespace FluentFTP {
 
 #endif
 
-		private bool ResumeUpload(string remotePath, ref Stream upStream, long offset, IOException ex) {
+		private bool ResumeUpload(string remotePath, ref Stream upStream, ref long offset, IOException ex) {
 			if (ex.IsResumeAllowed())
 			{
 				upStream.Dispose();
 				upStream = OpenAppend(remotePath, UploadDataType, true);
-				upStream.Position = offset;
+				offset = upStream.Position;
 
 				return true;
 			}
