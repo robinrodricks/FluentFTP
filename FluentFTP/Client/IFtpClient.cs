@@ -236,8 +236,8 @@ namespace FluentFTP {
 		FtpStatus Upload(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, Action<FtpProgress> progress = null);
 
 		FtpStatus DownloadFile(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null);
-		bool Download(Stream outStream, string remotePath, long restartPosition, Action<FtpProgress> progress = null);
-		bool Download(out byte[] outBytes, string remotePath, long restartPosition, Action<FtpProgress> progress = null);
+		bool Download(Stream outStream, string remotePath, long restartPosition = 0, Action<FtpProgress> progress = null);
+		bool Download(out byte[] outBytes, string remotePath, long restartPosition = 0, Action<FtpProgress> progress = null);
 
 		List<FtpResult> DownloadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null);
 		List<FtpResult> UploadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null);
