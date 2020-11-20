@@ -75,12 +75,31 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host, username, password and account
+		/// </summary>
+		public FtpClient(string host, string user, string pass, string account) {
+			Host = host;
+			Credentials = new NetworkCredential(user, pass, account);
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
 		/// Creates a new instance of an FTP Client, with the given host, port, username and password.
 		/// </summary>
 		public FtpClient(string host, int port, string user, string pass) {
 			Host = host;
 			Port = port;
 			Credentials = new NetworkCredential(user, pass);
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host, port, username, password and account
+		/// </summary>
+		public FtpClient(string host, int port, string user, string pass, string account) {
+			Host = host;
+			Port = port;
+			Credentials = new NetworkCredential(user, pass, account);
 			m_listParser = new FtpListParser(this);
 		}
 
@@ -111,12 +130,31 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host and credentials.
+		/// </summary>
+		public FtpClient(Uri host, string user, string pass, string account) {
+			Host = ValidateHost(host);
+			Credentials = new NetworkCredential(user, pass, account);
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
 		/// Creates a new instance of an FTP Client, with the given host, port and credentials.
 		/// </summary>
 		public FtpClient(Uri host, int port, string user, string pass) {
 			Host = ValidateHost(host);
 			Port = port;
 			Credentials = new NetworkCredential(user, pass);
+			m_listParser = new FtpListParser(this);
+		}
+
+		/// <summary>
+		/// Creates a new instance of an FTP Client, with the given host, port and credentials.
+		/// </summary>
+		public FtpClient(Uri host, int port, string user, string pass, string account) {
+			Host = ValidateHost(host);
+			Port = port;
+			Credentials = new NetworkCredential(user, pass, account);
 			m_listParser = new FtpListParser(this);
 		}
 
@@ -727,7 +765,7 @@ namespace FluentFTP {
 		/// a FTP proxy.
 		/// </summary>
 		protected virtual void Authenticate() {
-			Authenticate(Credentials.UserName, Credentials.Password);
+			Authenticate(Credentials.UserName, Credentials.Password, Credentials.Domain);
 		}
 
 #if ASYNC
@@ -737,7 +775,7 @@ namespace FluentFTP {
 		/// a FTP proxy.
 		/// </summary>
 		protected virtual async Task AuthenticateAsync(CancellationToken token) {
-			await AuthenticateAsync(Credentials.UserName, Credentials.Password, token);
+			await AuthenticateAsync(Credentials.UserName, Credentials.Password, Credentials.Domain, token);
 		}
 #endif
 
@@ -750,7 +788,7 @@ namespace FluentFTP {
 		/// <remarks>
 		/// To handle authentication failures without retries, catch FtpAuthenticationException.
 		/// </remarks>
-		protected virtual void Authenticate(string userName, string password) {
+		protected virtual void Authenticate(string userName, string password, string account) {
 
 			// send the USER command along with the FTP username
 			FtpReply reply = Execute("USER " + userName);
@@ -780,6 +818,15 @@ namespace FluentFTP {
 				if (!reply.Success) {
 					throw new FtpAuthenticationException(reply);
 				}
+
+				// only possible 3** here is `332 Need account for login`
+				if (reply.Type == FtpResponseType.PositiveIntermediate) {
+					reply = Execute("ACCT " + account);
+
+					if (!reply.Success) {
+						throw new FtpAuthenticationException(reply);
+					}
+				}
 			}
 		}
 
@@ -793,7 +840,7 @@ namespace FluentFTP {
 		/// <remarks>
 		/// To handle authentication failures without retries, catch FtpAuthenticationException.
 		/// </remarks>
-		protected virtual async Task AuthenticateAsync(string userName, string password, CancellationToken token) {
+		protected virtual async Task AuthenticateAsync(string userName, string password, string account, CancellationToken token) {
 			
 			// send the USER command along with the FTP username
 			FtpReply reply = await ExecuteAsync("USER " + userName, token);
@@ -822,6 +869,15 @@ namespace FluentFTP {
 				// check the first reply to the PASS command
 				if (!reply.Success) {
 					throw new FtpAuthenticationException(reply);
+				}
+
+				// only possible 3** here is `332 Need account for login`
+				if (reply.Type == FtpResponseType.PositiveIntermediate) {
+					reply = await ExecuteAsync("ACCT " + account);
+
+					if (!reply.Success) {
+						throw new FtpAuthenticationException(reply);
+					}
 				}
 			}
 		}
