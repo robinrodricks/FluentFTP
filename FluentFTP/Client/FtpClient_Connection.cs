@@ -175,7 +175,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Host is not a valid FTP path");
 			}
 #endif
-			return host.ToString();
+			return host.Host;
 		}
 
 		/// <summary>
