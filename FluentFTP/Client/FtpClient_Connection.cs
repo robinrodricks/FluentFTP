@@ -873,7 +873,7 @@ namespace FluentFTP {
 
 				// only possible 3** here is `332 Need account for login`
 				if (reply.Type == FtpResponseType.PositiveIntermediate) {
-					reply = await ExecuteAsync("ACCT " + account);
+					reply = await ExecuteAsync("ACCT " + account, token);
 
 					if (!reply.Success) {
 						throw new FtpAuthenticationException(reply);
