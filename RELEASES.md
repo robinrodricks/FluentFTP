@@ -1,5 +1,11 @@
 # Release Notes
 
+#### 33.0.3
+- Fix: URI ports not being respected when Uri constructor used (thanks [julian94](/julian94))
+- Fix: Respect `332 Need account for login` response during FTP client authorization (thanks [novak-as](/novak-as))
+- Fix: Set default value for `restartPosition` in `Download` method to match `FtpClient` method (thanks [AdamLewisGMSL](/AdamLewisGMSL))
+- Fix: Improved handling for resuming upload when the connection drops (thanks [pradu71](/pradu71))
+
 #### 33.0.2
  - Fix: Honor custom parsers if server-specific handler is used
 
