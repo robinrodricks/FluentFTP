@@ -108,6 +108,7 @@ namespace FluentFTP {
 		/// </summary>
 		public FtpClient(Uri host) {
 			Host = ValidateHost(host);
+			Port = host.Port;
 			m_listParser = new FtpListParser(this);
 		}
 
@@ -116,6 +117,7 @@ namespace FluentFTP {
 		/// </summary>
 		public FtpClient(Uri host, NetworkCredential credentials) {
 			Host = ValidateHost(host);
+			Port = host.Port;
 			Credentials = credentials;
 			m_listParser = new FtpListParser(this);
 		}
@@ -125,6 +127,7 @@ namespace FluentFTP {
 		/// </summary>
 		public FtpClient(Uri host, string user, string pass) {
 			Host = ValidateHost(host);
+			Port = host.Port;
 			Credentials = new NetworkCredential(user, pass);
 			m_listParser = new FtpListParser(this);
 		}
@@ -134,6 +137,7 @@ namespace FluentFTP {
 		/// </summary>
 		public FtpClient(Uri host, string user, string pass, string account) {
 			Host = ValidateHost(host);
+			Port = host.Port;
 			Credentials = new NetworkCredential(user, pass, account);
 			m_listParser = new FtpListParser(this);
 		}
@@ -171,7 +175,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Host is not a valid FTP path");
 			}
 #endif
-			return host.ToString();
+			return host.Host;
 		}
 
 		/// <summary>
