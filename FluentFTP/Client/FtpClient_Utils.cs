@@ -207,6 +207,9 @@ namespace FluentFTP {
 					if (traceData) {
 						LogStatus(FtpTraceLevel.Verbose, "The stale data was: " + staleData);
 					}
+					if(string.IsNullOrEmpty(staleData)) {
+						closeStream = false;
+					}
 				}
 
 				if (closeStream) {
