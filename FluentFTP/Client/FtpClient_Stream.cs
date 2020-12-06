@@ -555,7 +555,19 @@ namespace FluentFTP {
 		private void GetEnhancedPassivePort(FtpReply reply, out string host, out int port) {
 			var m = Regex.Match(reply.Message, @"\(\|\|\|(?<port>\d+)\|\)");
 			if (!m.Success) {
-				throw new FtpException("Failed to get the EPSV port from: " + reply.Message);
+				// In the case that ESPV is responded with a regular "Entering Passive Mode" instead, we'll try tthat parsing before we raise the exception
+				/* Example:
+				Command: EPSV
+				Response: 227 Entering Passive Mode(XX, XX, XX, XX, 143, 225).
+				*/
+				
+				try {
+					GetPassivePort(FtpDataConnectionType.AutoPassive, reply, out host, out port);
+					return;
+				}
+				catch {
+					throw new FtpException("Failed to get the EPSV port from: " + reply.Message);
+				}
 			}
 
 			host = m_host;
