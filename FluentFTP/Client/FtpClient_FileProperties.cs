@@ -552,7 +552,7 @@ namespace FluentFTP {
 #endif
 #if ASYNC
 		/// <summary>
-		/// Gets the modified time of a remote file asynchronously
+		/// Changes the modified time of a remote file asynchronously
 		/// </summary>
 		/// <param name="path">The full path to the file</param>
 		/// <param name="date">The new modified date/time value</param>
