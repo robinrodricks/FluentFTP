@@ -260,10 +260,18 @@ namespace FluentFTP {
 				// only if GetListing was called with recursive option.
 				FtpListItem[] itemList;
 				if (recurse) {
+#if ASYNCPLUS
+					itemList = await GetListingAsync(path, options, token).ToArrayAsync();
+#else
 					itemList = await GetListingAsync(path, options, token);
+#endif
 				}
 				else {
+#if ASYNCPLUS
+					itemList = await GetListingAsync(path, options, token).OrderByDescending(x => x.FullName.Count(c => c.Equals('/'))).ThenBy(x => x.Type).ToArrayAsync();
+#else
 					itemList = (await GetListingAsync(path, options, token)).OrderByDescending(x => x.FullName.Count(c => c.Equals('/'))).ThenBy(x => x.Type).ToArray();
+#endif
 				}
 
 				// delete the item based on the type
@@ -299,7 +307,7 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
 		#region Directory Exists
 

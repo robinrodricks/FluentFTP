@@ -8,8 +8,8 @@ using System.Threading;
 #endif
 #if ASYNC
 using System.Threading.Tasks;
-
 #endif
+using System.Linq;
 
 namespace FluentFTP {
 	public partial class FtpClient : IFtpClient, IDisposable {
@@ -155,9 +155,11 @@ namespace FluentFTP {
 			if (item.LinkTarget == null) {
 				throw new FtpException("The link target was null. Please check this before trying to dereference the link.");
 			}
-
+#if ASYNCPLUS
+			var listing = await GetListingAsync(item.LinkTarget.GetFtpDirectoryName(), FtpListOption.ForceList, token).ToArrayAsync();
+#else
 			var listing = await GetListingAsync(item.LinkTarget.GetFtpDirectoryName(), FtpListOption.ForceList, token);
-
+#endif
 			foreach (FtpListItem obj in listing) {
 				if (item.LinkTarget == obj.FullName) {
 					if (obj.Type == FtpFileSystemObjectType.Link) {
@@ -212,7 +214,7 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
 		#region Get File Size
 

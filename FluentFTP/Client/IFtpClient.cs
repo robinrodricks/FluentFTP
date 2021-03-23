@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -184,11 +185,17 @@ namespace FluentFTP {
 
 #if ASYNC
 		Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false, CancellationToken token = default(CancellationToken));
+
+#if ASYNCPLUS
+		IAsyncEnumerable<FtpListItem> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
+		IAsyncEnumerable<FtpListItem> GetListingAsync(string path, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
+		IAsyncEnumerable<FtpListItem> GetListingAsync(CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
+#else
 		Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken));
 		Task<FtpListItem[]> GetListingAsync(string path, CancellationToken token = default(CancellationToken));
 		Task<FtpListItem[]> GetListingAsync(CancellationToken token = default(CancellationToken));
+#endif
 		Task<string[]> GetNameListingAsync(string path, CancellationToken token = default(CancellationToken));
-
 		Task<string[]> GetNameListingAsync(CancellationToken token = default(CancellationToken));
 #endif
 
