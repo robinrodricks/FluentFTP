@@ -18,6 +18,7 @@ using System.Web;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
+using System.Runtime.CompilerServices;
 
 #endif
 #if ASYNC
@@ -191,6 +192,14 @@ namespace FluentFTP {
 				// USE GETLISTING TO GET ALL FILES IN DIR .. SLOWER BUT AT LEAST IT WORKS
 
 				var dirPath = path.GetFtpDirectoryName();
+#if ASYNCPLUS
+				await foreach (var dirItem in GetListingAsync(dirPath, token)) {
+					if (dirItem.FullName == path) {
+						result = dirItem;
+						break;
+					}
+				}
+#else
 				var dirItems = await GetListingAsync(dirPath, token);
 
 				foreach (var dirItem in dirItems) {
@@ -199,6 +208,7 @@ namespace FluentFTP {
 						break;
 					}
 				}
+#endif
 
 				LogStatus(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " since MLST not supported and GetListing() fails to list file/folder.");
 			}
@@ -212,7 +222,7 @@ namespace FluentFTP {
 		}
 #endif
 
-		#endregion
+#endregion
 
 		#region Get Listing
 
@@ -684,6 +694,24 @@ namespace FluentFTP {
 
 #endif
 #if ASYNC
+#if ASYNCPLUS
+		/// <summary>
+		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
+		/// contains information about the file that was able to be retrieved. 
+		/// </summary>
+		/// <remarks>
+		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+		/// is equal to 0, then it means the size of the object could also not
+		/// be retrieved.
+		/// </remarks>
+		/// <param name="path">The path to list</param>
+		/// <param name="options">Options that dictate how the list operation is performed</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <param name="enumToken">The token that can be used to cancel the enumerator</param>
+		/// <returns>An array of items retrieved in the listing</returns>
+		public async IAsyncEnumerable<FtpListItem> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken), [EnumeratorCancellation] CancellationToken enumToken = default(CancellationToken)) {
+#else
 		/// <summary>
 		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
 		/// contains information about the file that was able to be retrieved. 
@@ -699,10 +727,18 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>An array of items retrieved in the listing</returns>
 		public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
-			
+#endif
 			// start recursive process if needed and unsupported by the server
 			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
+#if ASYNCPLUS
+				await foreach (FtpListItem i in GetListingRecursiveAsync(GetAbsolutePath(path), options, token, enumToken)) {
+					yield return i;
+				}
+
+				yield break;
+#else
 				return await GetListingRecursiveAsync(GetAbsolutePath(path), options, token);
+#endif
 			}
 
 			LogFunc(nameof(GetListingAsync), new object[] { path, options });
@@ -751,7 +787,6 @@ namespace FluentFTP {
 					else {
 						item.Type = FtpFileSystemObjectType.File;
 					}
-
 					lst.Add(item);
 				}
 				else {
@@ -805,9 +840,15 @@ namespace FluentFTP {
 						}
 					}
 				}
+#if ASYNCPLUS
+				if (item != null) {
+					yield return item;
+				}
+#endif
 			}
-
+#if !ASYNCPLUS
 			return lst.ToArray();
+#endif
 		}
 
 		/// <summary>
@@ -905,6 +946,25 @@ namespace FluentFTP {
 			return rawlisting;
 		}
 
+#if ASYNCPLUS
+		/// <summary>
+		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
+		/// contains information about the file that was able to be retrieved. 
+		/// </summary>
+		/// <remarks>
+		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+		/// is equal to 0, then it means the size of the object could also not
+		/// be retrieved.
+		/// </remarks>
+		/// <param name="path">The path to list</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <param name="enumToken">The token that can be used to cancel the enumerator</param>
+		/// <returns>An array of items retrieved in the listing</returns>
+		public IAsyncEnumerable<FtpListItem> GetListingAsync(string path, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken)) {
+			return GetListingAsync(path, 0, token, enumToken);
+		}
+#else
 		/// <summary>
 		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
 		/// contains information about the file that was able to be retrieved. 
@@ -921,7 +981,26 @@ namespace FluentFTP {
 		public Task<FtpListItem[]> GetListingAsync(string path, CancellationToken token = default(CancellationToken)) {
 			return GetListingAsync(path, 0, token);
 		}
+#endif
 
+
+#if ASYNCPLUS
+		/// <summary>
+		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
+		/// contains information about the file that was able to be retrieved. 
+		/// </summary>
+		/// <remarks>
+		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
+		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
+		/// is equal to 0, then it means the size of the object could also not
+		/// be retrieved.
+		/// </remarks>
+		/// <returns>An array of items retrieved in the listing</returns>
+		public IAsyncEnumerable<FtpListItem> GetListingAsync(CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken))
+		{
+			return GetListingAsync(null, token, enumToken);
+		}
+#else
 		/// <summary>
 		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
 		/// contains information about the file that was able to be retrieved. 
@@ -936,6 +1015,8 @@ namespace FluentFTP {
 		public Task<FtpListItem[]> GetListingAsync(CancellationToken token = default(CancellationToken)) {
 			return GetListingAsync(null, token);
 		}
+#endif
+
 #endif
 
 		#endregion
@@ -975,7 +1056,7 @@ namespace FluentFTP {
 
 				// extract the directories
 				foreach (var item in items) {
-					if (item.Type == FtpFileSystemObjectType.Directory) {
+					if (item.Type == FtpFileSystemObjectType.Directory && item.Name != "." && item.Name != "..") {
 						stack.Push(item.FullName);
 					}
 				}
@@ -997,8 +1078,17 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The path of the directory to list</param>
 		/// <param name="options">Options that dictate how a list is performed and what information is gathered.</param>
+		/// <param name="token"></param>
+#if ASYNCPLUS
+		/// <param name="enumToken"></param>
+#endif
 		/// <returns>An array of FtpListItem objects</returns>
+#if ASYNCPLUS
+
+		protected async IAsyncEnumerable<FtpListItem> GetListingRecursiveAsync(string path, FtpListOption options, CancellationToken token, [EnumeratorCancellation]CancellationToken enumToken = default) {
+#else
 		protected async Task<FtpListItem[]> GetListingRecursiveAsync(string path, FtpListOption options, CancellationToken token) {
+#endif
 			// remove the recursive flag
 			options &= ~FtpListOption.Recursive;
 
@@ -1007,6 +1097,31 @@ namespace FluentFTP {
 			stack.Push(path);
 			var allFiles = new List<FtpListItem>();
 
+#if ASYNCPLUS
+			// explore folders
+			while (stack.Count > 0) {
+				// get path of folder to list
+				var currentPath = stack.Pop();
+				if (!currentPath.EndsWith("/")) {
+					currentPath += "/";
+				}
+
+				// extract the directories
+				await foreach (var item in GetListingAsync(currentPath, options, token))
+				{
+					// break if task is cancelled
+					token.ThrowIfCancellationRequested();
+
+					if (item.Type == FtpFileSystemObjectType.Directory && item.Name != "." && item.Name != "..") {
+						stack.Push(item.FullName);
+					}
+
+					yield return item;
+				}
+
+				// recurse
+			}
+#else
 			// explore folders
 			while (stack.Count > 0) {
 				// get path of folder to list
@@ -1026,7 +1141,7 @@ namespace FluentFTP {
 
 				// extract the directories
 				foreach (var item in items) {
-					if (item.Type == FtpFileSystemObjectType.Directory) {
+					if (item.Type == FtpFileSystemObjectType.Directory && item.Name != "." && item.Name != "..") {
 						stack.Push(item.FullName);
 					}
 				}
@@ -1038,6 +1153,7 @@ namespace FluentFTP {
 
 			// final list of all files and dirs
 			return allFiles.ToArray();
+#endif
 		}
 #endif
 

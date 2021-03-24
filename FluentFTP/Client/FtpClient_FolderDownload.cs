@@ -8,6 +8,7 @@ using System.Threading;
 #if (CORE || NET45)
 using System.Threading.Tasks;
 #endif
+using System.Linq;
 
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
@@ -139,7 +140,11 @@ namespace FluentFTP {
 			localFolder.EnsureDirectory();
 
 			// get all the files in the remote directory
+#if ASYNCPLUS
+			var listing = await GetListingAsync(remoteFolder, FtpListOption.Recursive | FtpListOption.Size, token).ToArrayAsync();
+#else
 			var listing = await GetListingAsync(remoteFolder, FtpListOption.Recursive | FtpListOption.Size, token);
+#endif
 
 			// break if task is cancelled
 			token.ThrowIfCancellationRequested();
