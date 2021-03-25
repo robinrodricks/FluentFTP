@@ -384,6 +384,21 @@ namespace Tests {
 			}
 		}
 
+#if !NOASYNC
+		[Fact]
+		[Trait("Category", Category_PublicFTP)]
+		public async void TestGetListingBSDServerAsync() {
+			using (var client = NewFtpClient_NetBsd()) {
+
+				// machine listing
+				var listing = await client.GetListingAsync();
+
+				// unix listing
+				var listing2 = await client.GetListingAsync("/", FtpListOption.ForceList);
+			}
+		}
+#endif
+
 		[Fact]
 		[Trait("Category", Category_PublicFTP)]
 		public void TestGetListingTeleServer() {
@@ -396,6 +411,21 @@ namespace Tests {
 				var listing2 = client.GetListing("/", FtpListOption.ForceList);
 			}
 		}
+
+#if !NOASYNC
+		[Fact]
+		[Trait("Category", Category_PublicFTP)]
+		public async void TestGetListingTeleServerAsync() {
+			using (var client = NewFtpClient_Tele2SpeedTest()) {
+
+				// machine listing
+				var listing = await client.GetListingAsync();
+
+				// unix listing
+				var listing2 = await client.GetListingAsync("/", FtpListOption.ForceList);
+			}
+		}
+#endif
 
 		[Fact]
 		[Trait("Category", Category_PublicFTP)]
