@@ -753,7 +753,7 @@ namespace FluentFTP {
 
 				}
 
-				item = await GetListingProcessItemAsync(lst, rawEntry, listcmd, token,
+				item = await GetListingProcessItemAsync(item, lst, rawEntry, listcmd, token,
 					isIncludeSelf, isNameList, isRecursive, isDerefLinks, isGetModified, isGetSize
 				);
 				if (item != null) {
@@ -862,7 +862,7 @@ namespace FluentFTP {
 
 				}
 
-				item = await GetListingProcessItemAsync(lst, rawEntry, listcmd, token,
+				item = await GetListingProcessItemAsync(item, lst, rawEntry, listcmd, token,
 					isIncludeSelf, isNameList, isRecursive, isDerefLinks, isGetModified, isGetSize
 				);
 
@@ -870,9 +870,7 @@ namespace FluentFTP {
 			return lst.ToArray();
 		}
 
-		private async Task<FtpListItem> GetListingProcessItemAsync(List<FtpListItem> lst, string rawEntry, string listcmd, CancellationToken token, bool isIncludeSelf, bool isNameList, bool isRecursive, bool isDerefLinks, bool isGetModified, bool isGetSize) {
-
-			FtpListItem item = null;
+		private async Task<FtpListItem> GetListingProcessItemAsync(FtpListItem item, List<FtpListItem> lst, string rawEntry, string listcmd, CancellationToken token, bool isIncludeSelf, bool isNameList, bool isRecursive, bool isDerefLinks, bool isGetModified, bool isGetSize) {
 
 			// break if task is cancelled
 			token.ThrowIfCancellationRequested();
