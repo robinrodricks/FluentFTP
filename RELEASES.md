@@ -3,7 +3,7 @@
 #### 33.1.0
  - New: Support for .NET 5.0 platform
  - New: Support for `IAsyncEnumerable` pattern in .NET Standard 2.0+ and .NET 5.0
- - New: Variant of `GetListingAsync` introduced: `GetListingAsyncEnumerable`
+ - New: Async variant of `GetListingAsync` introduced: `GetListingAsyncEnumerable`
 
 #### 33.0.3
 - Fix: URI ports not being respected when Uri constructor used (thanks [julian94](/julian94))
