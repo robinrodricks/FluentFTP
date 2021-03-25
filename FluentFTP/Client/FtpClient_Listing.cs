@@ -716,7 +716,6 @@ namespace FluentFTP {
 			var lst = new List<FtpListItem>();
 			var rawlisting = new List<string>();
 			string listcmd = null;
-			string buf = null;
 
 			// read flags
 			var isIncludeSelf = options.HasFlag(FtpListOption.IncludeSelfAndParent);
@@ -742,10 +741,13 @@ namespace FluentFTP {
 			for (var i = 0; i < rawlisting.Count; i++) {
 				string rawEntry = rawlisting[i];
 
+				// break if task is cancelled
+				token.ThrowIfCancellationRequested();
+
 				if (!isNameList) {
 
 					// load basic information available within the file listing
-					if (!LoadBasicListingInfo(ref path, ref item, lst, rawlisting, ref i, listcmd, buf, isRecursive, isIncludeSelf, machineList)) {
+					if (!LoadBasicListingInfo(ref path, ref item, lst, rawlisting, ref i, listcmd, rawEntry, isRecursive, isIncludeSelf, machineList)) {
 
 						// skip unwanted listings
 						continue;
@@ -825,7 +827,6 @@ namespace FluentFTP {
 			var lst = new List<FtpListItem>();
 			var rawlisting = new List<string>();
 			string listcmd = null;
-			string buf = null;
 
 			// read flags
 			var isIncludeSelf = options.HasFlag(FtpListOption.IncludeSelfAndParent);
@@ -851,10 +852,13 @@ namespace FluentFTP {
 			for (var i = 0; i < rawlisting.Count; i++) {
 				string rawEntry = rawlisting[i];
 
+				// break if task is cancelled
+				token.ThrowIfCancellationRequested();
+
 				if (!isNameList) {
 
 					// load basic information available within the file listing
-					if (!LoadBasicListingInfo(ref path, ref item, lst, rawlisting, ref i, listcmd, buf, isRecursive, isIncludeSelf, machineList)) {
+					if (!LoadBasicListingInfo(ref path, ref item, lst, rawlisting, ref i, listcmd, rawEntry, isRecursive, isIncludeSelf, machineList)) {
 
 						// skip unwanted listings
 						continue;
@@ -871,9 +875,6 @@ namespace FluentFTP {
 		}
 
 		private async Task<FtpListItem> GetListingProcessItemAsync(FtpListItem item, List<FtpListItem> lst, string rawEntry, string listcmd, CancellationToken token, bool isIncludeSelf, bool isNameList, bool isRecursive, bool isDerefLinks, bool isGetModified, bool isGetSize) {
-
-			// break if task is cancelled
-			token.ThrowIfCancellationRequested();
 
 			if (isNameList) {
 				// if NLST was used we only have a file name so
