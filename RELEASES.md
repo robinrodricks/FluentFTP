@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 33.1.0
+ - New: Support for .NET 5.0 platform
+ - New: Support for `IAsyncEnumerable` pattern in .NET Standard 2.0+ and .NET 5.0
+ - New: Variant of `GetListingAsync` introduced: `GetListingAsyncEnumerable`
+
 #### 33.0.3
 - Fix: URI ports not being respected when Uri constructor used (thanks [julian94](/julian94))
 - Fix: Respect `332 Need account for login` response during FTP client authorization (thanks [novak-as](/novak-as))

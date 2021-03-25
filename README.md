@@ -49,6 +49,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
   - **Asynchronous support:**
     - Synchronous and asynchronous methods using `async`/`await` for all operations
     - Asynchronous methods for .NET 4.0 and below using `IAsyncResult` pattern (Begin*/End*)
+    - Asynchronous support for the `IAsyncEnumerable` pattern for `GetListing` methods (see `GetListingAsyncEnumerable`)
     - All asynchronous methods can be cancelled midway by passing a `CancellationToken`
     - All asynchronous methods honor the `ReadTimeout` and automatically cancel themselves if timed out
     - Improves thread safety by cloning the FTP control connection for file transfers (optional)
@@ -77,6 +78,7 @@ FluentFTP works on .NET and .NET Standard/.NET Core.
 | **.NET 3.5**      	| net35     		| 
 | **.NET 4.0**      	| net40     		| 
 | **.NET 4.5**      	| net45     		| 
+| **.NET 5.0**      	| net50     		| 
 | **.NET Standard 1.4** | netstandard1.4	| 
 | **.NET Standard 1.6** | netstandard1.6	| 
 | **.NET Standard 2.0** | netstandard2.0	| 
