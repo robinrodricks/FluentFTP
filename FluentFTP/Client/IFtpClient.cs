@@ -183,20 +183,20 @@ namespace FluentFTP {
 		string[] GetNameListing();
 		string[] GetNameListing(string path);
 
+
 #if ASYNC
 		Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false, CancellationToken token = default(CancellationToken));
-
-#if ASYNCPLUS
-		IAsyncEnumerable<FtpListItem> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
-		IAsyncEnumerable<FtpListItem> GetListingAsync(string path, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
-		IAsyncEnumerable<FtpListItem> GetListingAsync(CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
-#else
 		Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken));
 		Task<FtpListItem[]> GetListingAsync(string path, CancellationToken token = default(CancellationToken));
 		Task<FtpListItem[]> GetListingAsync(CancellationToken token = default(CancellationToken));
-#endif
 		Task<string[]> GetNameListingAsync(string path, CancellationToken token = default(CancellationToken));
 		Task<string[]> GetNameListingAsync(CancellationToken token = default(CancellationToken));
+#endif
+
+#if ASYNCPLUS
+		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, FtpListOption options, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
+		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
+		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
 #endif
 
 

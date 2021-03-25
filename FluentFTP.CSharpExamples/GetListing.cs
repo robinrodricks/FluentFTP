@@ -46,6 +46,7 @@ namespace Examples {
 
 				// get a recursive listing of the files & folders in a specific folder
 				foreach (var item in await conn.GetListingAsync("/htdocs", FtpListOption.Recursive, token)) {
+
 					switch (item.Type) {
 
 						case FtpFileSystemObjectType.Directory:

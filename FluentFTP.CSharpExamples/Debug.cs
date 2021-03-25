@@ -7,6 +7,9 @@ namespace Examples {
 	/// Example for logging server transactions for use in debugging problems.
 	/// </summary>
 	internal static class DebugExample {
+
+#if NETFX
+
 		/// <summary>
 		/// Log to a console window
 		/// </summary>
@@ -83,5 +86,9 @@ namespace Examples {
 		 *      </sharedListeners>
 		 *    </system.diagnostics>
 		 */
+
+#endif
+
 	}
+
 }

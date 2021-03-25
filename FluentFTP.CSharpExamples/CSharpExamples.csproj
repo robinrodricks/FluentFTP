@@ -1,15 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net45</TargetFramework>
-    <OutputType>Library</OutputType>
-    <LangVersion>latest</LangVersion>
-    <ApplicationIcon />
-    <StartupObject />
-  </PropertyGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\FluentFTP\FluentFTP.csproj" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net45</TargetFramework>
+		<OutputType>Library</OutputType>
+		<LangVersion>latest</LangVersion>
+		<ApplicationIcon />
+		<StartupObject />
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\FluentFTP\FluentFTP.csproj" />
+	</ItemGroup>
 
 </Project>

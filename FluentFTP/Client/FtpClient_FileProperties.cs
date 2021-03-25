@@ -155,11 +155,7 @@ namespace FluentFTP {
 			if (item.LinkTarget == null) {
 				throw new FtpException("The link target was null. Please check this before trying to dereference the link.");
 			}
-#if ASYNCPLUS
-			var listing = await GetListingAsync(item.LinkTarget.GetFtpDirectoryName(), FtpListOption.ForceList, token).ToArrayAsync();
-#else
 			var listing = await GetListingAsync(item.LinkTarget.GetFtpDirectoryName(), FtpListOption.ForceList, token);
-#endif
 			foreach (FtpListItem obj in listing) {
 				if (item.LinkTarget == obj.FullName) {
 					if (obj.Type == FtpFileSystemObjectType.Link) {
