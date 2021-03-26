@@ -145,6 +145,11 @@ namespace FluentFTP {
 									if (ex is TimeoutException) {
 										return results;
 									}
+
+									// catch authentication error and hard abort (see issue #697)
+									if (ex is FtpAuthenticationException) {
+										return results;
+									}
 									
 								}
 
