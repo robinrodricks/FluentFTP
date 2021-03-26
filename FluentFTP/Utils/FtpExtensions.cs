@@ -37,6 +37,12 @@ namespace FluentFTP {
 		/// Checks if the reply contains any of the known error strings
 		/// </summary>
 		public static bool IsKnownError(this string reply, string[] strings) {
+
+			// FIX: absorb cases where the reply is null (see issue #631)
+			if (reply == null) {
+				return false;
+			}
+
 			reply = reply.ToLower();
 			foreach (var msg in strings) {
 				if (reply.Contains(msg)) {
