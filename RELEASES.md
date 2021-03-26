@@ -1,10 +1,10 @@
 # Release Notes
 
 #### 33.1.2
- - Fix: Prevent Capabilities & HashAlgorithms from causing sync-over-async path
- - Fix: NullReferenceException during UploadFile if the error message is unknown
- - Fix: If incorrect credentials are passed to AutoConnect, it does not hard abort
- - Fix: Initializing TLS Authentication hangs in .NET 5 if SslBuffering is enabled
+ - Fix: Prevent `Capabilities` & `HashAlgorithms` from causing sync-over-async path
+ - Fix: `NullReferenceException` during `UploadFile` if the error message is unknown
+ - Fix: If incorrect credentials are passed to `AutoConnect`, it does not hard abort
+ - Fix: Initializing TLS Authentication hangs in .NET 5 if `SslBuffering` is enabled
 
 #### 33.1.1
  - New: Support for .NET 5.0 platform
