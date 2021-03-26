@@ -540,7 +540,8 @@ namespace FluentFTP {
 		private FtpsBuffering m_SslBuffering = FtpsBuffering.Auto;
 
 		/// <summary>
-		/// Whether to use SSL Buffering to speed up data transfer during FTP operations
+		/// Whether to use SSL Buffering to speed up data transfer during FTP operations.
+		/// SSL Buffering is always disabled on .NET 5.0 due to platform issues (see issue 682 in FluentFTP issue tracker).
 		/// </summary>
 		public FtpsBuffering SslBuffering {
 			get => m_SslBuffering;

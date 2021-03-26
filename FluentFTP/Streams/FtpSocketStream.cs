@@ -1115,6 +1115,10 @@ namespace FluentFTP {
 		/// </summary>
 		private void CreateBufferStream() {
 			// Fix: SSL BufferStream is automatically disabled when using FTP proxies, and enabled in all other cases
+			// Fix: SSL Buffering is disabled on .NET 5.0 due to issues in .NET framework - See #682
+#if NET50
+				m_bufStream = null;
+#else
 			if (Client.SslBuffering == FtpsBuffering.On ||
 			    Client.SslBuffering == FtpsBuffering.Auto && !Client.IsProxy()) {
 				m_bufStream = new BufferedStream(NetworkStream, 81920);
@@ -1122,6 +1126,7 @@ namespace FluentFTP {
 			else {
 				m_bufStream = null;
 			}
+#endif
 		}
 
 		/// <summary>
@@ -1205,10 +1210,10 @@ namespace FluentFTP {
 #endif
 
 #if !CORE
-		/// <summary>
-		/// Deactivates SSL on this stream using the specified protocols and reverts back to plain-text FTP.
-		/// </summary>
-		public void DeactivateEncryption() {
+			/// <summary>
+			/// Deactivates SSL on this stream using the specified protocols and reverts back to plain-text FTP.
+			/// </summary>
+			public void DeactivateEncryption() {
 			if (!IsConnected) {
 				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
 			}
