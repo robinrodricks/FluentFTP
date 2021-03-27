@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 33.1.3
+ - New: `LogToFile` and `LogToConsole` are now available on .NET Framework / .NET 5.0
+ - Fix: `Capabilities` & `HashAlgorithms` are returned if they are loaded regardless of connection status
+
 #### 33.1.2
  - Fix: Prevent `Capabilities` & `HashAlgorithms` from causing sync-over-async path
  - Fix: `NullReferenceException` during `UploadFile` if the error message is unknown
