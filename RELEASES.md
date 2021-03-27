@@ -12,7 +12,7 @@
 
 #### 33.1.1
  - New: Support for .NET 5.0 platform
- - New: Support for `IAsyncEnumerable` pattern in .NET Standard 2.0+ and .NET 5.0
+ - New: Support for `IAsyncEnumerable` pattern in .NET Standard 2.0+ and .NET 5.0 (thanks [hez2010](/hez2010))
  - New: Async variant of `GetListingAsync` introduced: `GetListingAsyncEnumerable`
 
 #### 33.0.3
