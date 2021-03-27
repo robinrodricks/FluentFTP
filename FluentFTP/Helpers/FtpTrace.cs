@@ -61,8 +61,6 @@ namespace FluentFTP {
 
 #endif
 
-#if CORE
-
 		private static bool m_LogToConsole = false;
 
 		/// <summary>
@@ -83,7 +81,6 @@ namespace FluentFTP {
 			set => m_LogToFile = value;
 		}
 
-#endif
 		private static bool m_functions = true;
 
 		/// <summary>
@@ -186,7 +183,6 @@ namespace FluentFTP {
 				return;
 			}
 
-#if CORE
 #if DEBUG
 			Debug.WriteLine(message);
 #else
@@ -198,7 +194,8 @@ namespace FluentFTP {
 				File.AppendAllText(m_LogToFile, message + "\n");
 			}
 #endif
-#elif !CORE
+
+#if !CORE
 
 			if (m_prefix) {
 				// if prefix is wanted then use TraceEvent()
