@@ -461,9 +461,14 @@ namespace FluentFTP {
 		public List<FtpCapability> Capabilities {
 			get {
 
+				// FIX #683: if capabilities are already loaded, dont check if connected and return straightaway
+				if (m_capabilities != null && m_capabilities.Count > 0) {
+					return m_capabilities;
+				}
+
+				// FIX #683: while using async operations, it is possile that the stream is not
+				// connected, so don't connect using sychronous connection logic
 				if (m_stream == null || !m_stream.IsConnected) {
-					// FIX #683: while using async operations, it is possile that the stream is not
-					// connected, so don't connect using sychronous connection logic
 					throw new FtpException("Please call Connect() before trying to use any other methods/properties!");
 				}
 
@@ -484,9 +489,14 @@ namespace FluentFTP {
 		public FtpHashAlgorithm HashAlgorithms {
 			get {
 
+				// FIX #683: if hash types are already loaded, dont check if connected and return straightaway
+				if (m_hashAlgorithms != FtpHashAlgorithm.NONE) {
+					return m_hashAlgorithms;
+				}
+
+				// FIX #683: while using async operations, it is possile that the stream is not
+				// connected, so don't connect using sychronous connection logic
 				if (m_stream == null || !m_stream.IsConnected) {
-					// FIX #683: while using async operations, it is possile that the stream is not
-					// connected, so don't connect using sychronous connection logic
 					throw new FtpException("Please call Connect() before trying to use any other methods/properties!");
 				}
 
