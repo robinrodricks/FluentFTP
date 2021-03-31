@@ -148,7 +148,14 @@ namespace FluentFTP {
 
 									// catch authentication error and hard abort (see issue #697)
 									if (ex is FtpAuthenticationException) {
-										return results;
+
+										// only catch auth error if the credentials have been rejected by the server
+										// because the error is also thrown if connection drops due to TLS or EncryptionMode
+										// (see issue #700 for more details)
+										var authError = ex as FtpAuthenticationException;
+										if (authError.CompletionCode != null && authError.CompletionCode.StartsWith("530")) {
+											return results;
+										}
 									}
 									
 								}

@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 33.1.4
+ - Fix: Conditionally hard-abort `AutoConnect` only if the credentials were incorrect
+
 #### 33.1.3
  - New: `LogToFile` and `LogToConsole` are now available on .NET Framework / .NET 5.0
  - Fix: `Capabilities` & `HashAlgorithms` are returned if they are loaded regardless of connection status
