@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 33.1.5
+ - Fix: Do not force users to `Connect` if capabilities are not loaded (only force if `Capabilities` are read before connecting)
+
 #### 33.1.4
  - Fix: Conditionally hard-abort `AutoConnect` only if the credentials were incorrect
 
