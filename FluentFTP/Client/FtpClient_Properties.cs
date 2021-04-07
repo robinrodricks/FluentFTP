@@ -468,7 +468,7 @@ namespace FluentFTP {
 
 				// FIX #683: while using async operations, it is possile that the stream is not
 				// connected, so don't connect using sychronous connection logic
-				if (m_stream == null || !m_stream.IsConnected) {
+				if (m_stream == null) {
 					throw new FtpException("Please call Connect() before trying to use any other methods/properties!");
 				}
 
