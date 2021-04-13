@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 33.1.6
+ - Fix: Use .NET Core API for .NET 5 builds to fix various networking and connectivity issues
+ - New: Support detection of FRITZ!Box FTP servers (allows for server specific commands)
+
 #### 33.1.5
  - Fix: Do not force users to `Connect` if capabilities are not loaded (only force if `Capabilities` are read before connecting)
 
