@@ -267,6 +267,7 @@ namespace FluentFTP {
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
 		public FtpStatus DownloadFile(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null) {
+			
 			// verify args
 			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
@@ -283,6 +284,11 @@ namespace FluentFTP {
 			bool isAppend = false;
 
 			LogFunc(nameof(DownloadFile), new object[] { localPath, remotePath, existsMode, verifyOptions });
+
+			// skip downloading if the localPath is a folder
+			if (FtpExtensions.IsLocalFolderPath(localPath)) {
+				throw new ArgumentException("Local path must specify a file path and not a folder path.", "localPath");
+			}
 
 			// skip downloading if local file size matches
 			long knownFileSize = 0;
@@ -391,6 +397,7 @@ namespace FluentFTP {
 		}
 
 		private async Task<FtpStatus> DownloadFileToFileAsync(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
+			
 			// verify args
 			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
@@ -398,6 +405,11 @@ namespace FluentFTP {
 
 			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+			}
+
+			// skip downloading if the localPath is a folder
+			if (FtpExtensions.IsLocalFolderPath(localPath)) {
+				throw new ArgumentException("Local path must specify a file path and not a folder path.", "localPath");
 			}
 
 			LogFunc(nameof(DownloadFileAsync), new object[] { localPath, remotePath, existsMode, verifyOptions });
