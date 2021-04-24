@@ -115,5 +115,10 @@ namespace FluentFTP {
 		/// Definitely FritzBox FTP server
 		/// </summary>
 		FritzBox,
+
+		/// <summary>
+		/// Definitely WS_FTP server
+		/// </summary>
+		WSFTPServer,
 	}
 }

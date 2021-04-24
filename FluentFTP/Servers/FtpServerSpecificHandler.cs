@@ -48,6 +48,7 @@ namespace FluentFTP.Servers {
 			new WuFtpdServer(),
 			new XLightServer(),
 			new FritzBoxServer(),
+			new WSFTPServer(),
 		};
 
 		#region Working Connection Profiles
