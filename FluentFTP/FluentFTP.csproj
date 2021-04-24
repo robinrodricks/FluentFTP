@@ -37,10 +37,14 @@
     <DefineConstants>$(DefineConstants);NET50;CORE</DefineConstants>
   </PropertyGroup>
 
+  <!--
+  Required only for GetListingAsyncEnumerable
+  
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1' Or '$(TargetFramework)'=='net50'">
     <DefineConstants>$(DefineConstants);ASYNCPLUS</DefineConstants>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
+  -->
 
   <PropertyGroup>
     <PackageId>FluentFTP</PackageId>
@@ -53,7 +57,7 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
-    <Version>33.1.6</Version>
+    <Version>33.1.7</Version>
     <PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
     <PackageIcon>logo-nuget.png</PackageIcon>
   </PropertyGroup>
@@ -80,6 +84,9 @@
     <PackageReference Include="System.Threading.Thread" Version="4.3.0.0" />
   </ItemGroup>
 
+  <!--
+  Required only for GetListingAsyncEnumerable
+  
   <ItemGroup Condition="$(DefineConstants.Contains('ASYNCPLUS')) And '$(TargetFramework)'=='netstandard2.0'">
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
   </ItemGroup>
@@ -87,6 +94,7 @@
   <ItemGroup Condition="$(DefineConstants.Contains('ASYNCPLUS'))">
     <PackageReference Include="System.Linq.Async" Version="5.0.0" />
   </ItemGroup>
+  -->
 
   <ItemGroup>
     <None Include="..\.github\logo-nuget.png">
