@@ -1,5 +1,11 @@
 # Release Notes
 
+#### 33.1.7
+ - Fix: `DownloadFile` should fail if directory path is passed in `localPath`
+ - Fix: `LastReply` is not set when using async methods
+ - Fix: Ambiguous call when using LINQ extension methods and EF core
+ - Fix: Remove dependency on `System.Linq.Async` and disable `GetListingAsyncEnumerable`
+
 #### 33.1.6
  - Fix: Use .NET Core API for .NET 5 builds to fix various networking and connectivity issues
  - New: Support detection of FRITZ!Box FTP servers (allows for server specific commands)
