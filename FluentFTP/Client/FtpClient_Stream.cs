@@ -338,6 +338,8 @@ namespace FluentFTP {
 				LogLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
 			}
 
+			LastReply = reply;
+
 			return reply;
 		}
 #endif
