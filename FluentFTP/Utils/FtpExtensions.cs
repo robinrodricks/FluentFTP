@@ -441,6 +441,13 @@ namespace FluentFTP {
 			return results;
 		}
 
+		/// <summary>
+		/// Returns true if the given path is a directory path.
+		/// </summary>
+		public static bool IsLocalFolderPath(string localPath) {
+			return localPath.EndsWith("/") || localPath.EndsWith("\\") || Directory.Exists(localPath);
+		}
+
 #if NET20 || NET35
 		public static bool HasFlag(this FtpHashAlgorithm flags, FtpHashAlgorithm flag) {
 			return (flags & flag) == flag;
