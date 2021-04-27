@@ -36,6 +36,7 @@ namespace FluentFTP.Servers {
 			"can't find the path",
 			"cannot find the path",
 			"could not find the path",
+			"file doesnot exist"
 		};
 
 		#endregion

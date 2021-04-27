@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 33.1.8
+ - Fix: Add support for another server specific string to detect if file exists
+ - Fix: Prevent memory leaks with FTPS on AKS by disabling `ValidateCertificateRevocation` by default
+ 
 #### 33.1.7
  - Fix: `DownloadFile` should fail if directory path is passed in `localPath`
  - Fix: `LastReply` is not set when using async methods
