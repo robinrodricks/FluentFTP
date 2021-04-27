@@ -598,12 +598,13 @@ namespace FluentFTP {
 			set => m_ValidateAnyCertificate = value;
 		}
 
-		private bool m_ValidateCertificateRevocation = true;
+		private bool m_ValidateCertificateRevocation = false;
 
 		/// <summary>
 		/// Indicates if the certificate revocation list is checked during authentication.
 		/// Useful when you need to maintain the certificate chain validation,
 		/// but skip the certificate revocation check.
+		/// WARNING: Enabling this can cause memory leaks in some conditions (see issue #710 for details).
 		/// </summary>
 		public bool ValidateCertificateRevocation {
 			get => m_ValidateCertificateRevocation;
