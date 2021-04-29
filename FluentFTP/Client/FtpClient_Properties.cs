@@ -377,7 +377,7 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Maximum number of passive connections made in order to find a working port for Passive Data Connection (PASV and EPSV).
-		/// Only used if PassivePorts is set. Ignored if PassivePorts is null.
+		/// Only used if PassiveBlockedPorts is non-null.
 		/// </summary>
 		public int PassiveMaxAttempts {
 			get => m_PassiveMaxAttempts;
