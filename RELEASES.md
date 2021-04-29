@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 33.2.0
+ - New: Ability to block certain server ports from being used during passive FTP connection (PASV/EPSV)
+ - New: `PassiveBlockedPorts` and `PassiveMaxAttempts` properties to configure passive blocked ports
+
 #### 33.1.8
  - Fix: Add support for another server specific string to detect if file exists
  - Fix: Prevent memory leaks with FTPS on AKS by disabling `ValidateCertificateRevocation` by default
