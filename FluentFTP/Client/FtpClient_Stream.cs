@@ -368,44 +368,76 @@ namespace FluentFTP {
 				throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open a passive data stream.");
 			}
 
-			if ((type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) && !_EPSVNotSupported) {
-				// execute EPSV to try enhanced-passive mode
-				if (!(reply = Execute("EPSV")).Success) {
-					// if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
-					if ((reply.Type == FtpResponseType.TransientNegativeCompletion || reply.Type == FtpResponseType.PermanentNegativeCompletion)
-						&& type == FtpDataConnectionType.AutoPassive
-						&& m_stream != null
-						&& m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
-						// mark EPSV not supported so we do not try EPSV again during this connection
-						_EPSVNotSupported = true;
-						return OpenPassiveDataStream(FtpDataConnectionType.PASV, command, restart);
+			for (int a = 0; a <= m_PassiveMaxAttempts; ) {
+
+				if ((type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) && !_EPSVNotSupported) {
+
+					// execute EPSV to try enhanced-passive mode
+					if (!(reply = Execute("EPSV")).Success) {
+
+						// if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
+						if ((reply.Type == FtpResponseType.TransientNegativeCompletion || reply.Type == FtpResponseType.PermanentNegativeCompletion)
+							&& type == FtpDataConnectionType.AutoPassive
+							&& m_stream != null
+							&& m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
+							// mark EPSV not supported so we do not try EPSV again during this connection
+							_EPSVNotSupported = true;
+							return OpenPassiveDataStream(FtpDataConnectionType.PASV, command, restart);
+						}
+
+						// throw this unknown error
+						throw new FtpCommandException(reply);
 					}
 
-					// throw this unknown error
-					throw new FtpCommandException(reply);
+					// read the connection port from the EPSV response
+					GetEnhancedPassivePort(reply, out host, out port);
+
+				}
+				else {
+					if (m_stream.LocalEndPoint.AddressFamily != AddressFamily.InterNetwork) {
+						throw new FtpException("Only IPv4 is supported by the PASV command. Use EPSV instead.");
+					}
+
+					// execute PRET before passive if server requires it
+					if (HasFeature(FtpCapability.PRET)) {
+						reply = Execute("PRET " + command);
+					}
+
+					// execute PASV to try passive mode
+					if (!(reply = Execute("PASV")).Success) {
+						throw new FtpCommandException(reply);
+					}
+
+					// get the passive port taking proxy config into account (if any)
+					GetPassivePort(type, reply, out host, out port);
+
 				}
 
-				// read the connection port from the EPSV response
-				GetEnhancedPassivePort(reply, out host, out port);
 
-			}
-			else {
-				if (m_stream.LocalEndPoint.AddressFamily != AddressFamily.InterNetwork) {
-					throw new FtpException("Only IPv4 is supported by the PASV command. Use EPSV instead.");
+				// break if too many tries
+				a++;
+				if (a >= m_PassiveMaxAttempts) {
+					throw new FtpException("Could not find a suitable port for PASV/EPSV Data Connection after trying "+ m_PassiveMaxAttempts + " times.");
 				}
 
-				// execute PRET before passive if server requires it
-				if (HasFeature(FtpCapability.PRET)) {
-					reply = Execute("PRET " + command);
+				// accept first port if not configured
+				if (m_PassiveBlockedPorts.IsBlank()) {
+					break;
 				}
+				else {
 
-				// execute PASV to try passive mode
-				if (!(reply = Execute("PASV")).Success) {
-					throw new FtpCommandException(reply);
+					// check port against whitelist if configured
+					if (!m_PassiveBlockedPorts.Contains(port)) {
+
+						// whitelist contains port, accept it
+						break;
+					}
+					else {
+						
+						// whitelist does not contain port, try again
+						continue;
+					}
 				}
-
-				// get the passive port taking proxy config into account (if any)
-				GetPassivePort(type, reply, out host, out port);
 
 			}
 
@@ -1026,7 +1058,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="stream"></param>
 		private void StartListeningOnPort(FtpDataStream stream) {
-			if (m_ActivePorts == null || !m_ActivePorts.Any()) {
+			if (m_ActivePorts.IsBlank()) {
 				// Use random port
 				stream.Listen(m_stream.LocalEndPoint.Address, 0);
 			}

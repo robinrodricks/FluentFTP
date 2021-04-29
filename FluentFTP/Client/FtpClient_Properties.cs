@@ -354,11 +354,34 @@ namespace FluentFTP {
 		private IEnumerable<int> m_ActivePorts;
 
 		/// <summary>
-		/// Ports used for Active Data Connection
+		/// Ports used for Active Data Connection.
+		/// Useful when your FTP server has certain ports that are blocked or used for other purposes.
 		/// </summary>
 		public IEnumerable<int> ActivePorts {
 			get => m_ActivePorts;
 			set => m_ActivePorts = value;
+		}
+
+		private IEnumerable<int> m_PassiveBlockedPorts;
+
+		/// <summary>
+		/// Ports blocked for Passive Data Connection (PASV and EPSV).
+		/// Useful when your FTP server has certain ports that are blocked or used for other purposes.
+		/// </summary>
+		public IEnumerable<int> PassiveBlockedPorts {
+			get => m_PassiveBlockedPorts;
+			set => m_PassiveBlockedPorts = value;
+		}
+		
+		private int m_PassiveMaxAttempts = 100;
+
+		/// <summary>
+		/// Maximum number of passive connections made in order to find a working port for Passive Data Connection (PASV and EPSV).
+		/// Only used if PassivePorts is set. Ignored if PassivePorts is null.
+		/// </summary>
+		public int PassiveMaxAttempts {
+			get => m_PassiveMaxAttempts;
+			set => m_PassiveMaxAttempts = value;
 		}
 
 		private FtpDataConnectionType m_dataConnectionType = FtpDataConnectionType.AutoPassive;

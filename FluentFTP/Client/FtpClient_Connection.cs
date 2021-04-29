@@ -301,6 +301,8 @@ namespace FluentFTP {
 			conn.DownloadDataType = DownloadDataType;
 			conn.UploadDataType = UploadDataType;
 			conn.ActivePorts = ActivePorts;
+			conn.PassiveBlockedPorts = PassiveBlockedPorts;
+			conn.PassiveMaxAttempts = PassiveMaxAttempts;
 			conn.SendHost = SendHost;
 			conn.SendHostDomain = SendHostDomain;
 			conn.FXPDataType = FXPDataType;
