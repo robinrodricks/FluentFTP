@@ -9,22 +9,28 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
+using System.Net.NetworkInformation;
+
+using FluentFTP.Helpers;
 using FluentFTP.Exceptions;
 #if CORE || NET45
 using System.Threading.Tasks;
-
 #endif
 
 namespace FluentFTP {
+
+
 	/// <summary>
 	/// Stream class used for talking. Used by FtpClient, extended by FtpDataStream
 	/// </summary>
 	public class FtpSocketStream : Stream, IDisposable {
 		private SslProtocols m_SslProtocols;
+		private IPAddress m_LocalIpAddress;
 		public FtpClient Client;
 
-		public FtpSocketStream(SslProtocols defaultSslProtocols) {
+		public FtpSocketStream(SslProtocols defaultSslProtocols, IPAddress localIpAddress) {
 			m_SslProtocols = defaultSslProtocols;
+			m_LocalIpAddress = localIpAddress;
 		}
 
 		/// <summary>
@@ -815,7 +821,7 @@ namespace FluentFTP {
 		/// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
 		public void Connect(string host, int port, FtpIpVersion ipVersions) {
 #if CORE
-			IPAddress[] addresses = Dns.GetHostAddressesAsync(host).Result;
+			IPAddress[] addresses = Dns.GetHostAddresses(host);
 #else
 			IAsyncResult ar = null;
 			var addresses = Dns.GetHostAddresses(host);
@@ -861,10 +867,14 @@ namespace FluentFTP {
 				}
 
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+				BindLocalIfNecessary();
+
 #if CORE
+
+
 				var args = new SocketAsyncEventArgs {
-					RemoteEndPoint = new IPEndPoint(addresses[i], port)
-				};
+						                                    RemoteEndPoint = new IPEndPoint(addresses[i], port)
+					                                    };
 				var connectEvent = new ManualResetEvent(false);
 				args.Completed += (s, e) => { connectEvent.Set(); };
 
@@ -968,6 +978,7 @@ namespace FluentFTP {
 				}
 
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+				BindLocalIfNecessary();
 #if CORE
 				await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), token, () => CloseSocket());
 				break;
@@ -1305,6 +1316,22 @@ namespace FluentFTP {
 			}
 		}
 #endif
+		private void BindLocalIfNecessary()
+		{
+			if (this.m_LocalIpAddress == null)
+			{
+				return;
+			}
+
+			var localPort = LocalPorts.GetRandomAvailable(m_LocalIpAddress);
+			var localEndpoint = new IPEndPoint(m_LocalIpAddress, localPort);
+
+#if DEBUG
+			Client.LogStatus(FtpTraceLevel.Verbose, $"Will now bind to {localEndpoint}");
+#endif
+
+			this.m_socket.Bind(localEndpoint);
+		}
 
 #if CORE
 		internal SocketAsyncEventArgs BeginAccept() {

@@ -310,6 +310,7 @@ namespace FluentFTP {
 			conn.ServerHandler = ServerHandler;
 			conn.UploadDirectoryDeleteExcluded = UploadDirectoryDeleteExcluded;
 			conn.DownloadDirectoryDeleteExcluded = DownloadDirectoryDeleteExcluded;
+			conn.LocalIpAddress = LocalIpAddress;
 
 			// configure new connection as clone of self (.NET core props only)
 #if CORE
@@ -359,7 +360,7 @@ namespace FluentFTP {
 				}
 
 				if (m_stream == null) {
-					m_stream = new FtpSocketStream(m_SslProtocols);
+					m_stream = new FtpSocketStream(m_SslProtocols, m_LocalIpAddress);
 					m_stream.Client = this;
 					m_stream.ValidateCertificate += new FtpSocketStreamSslValidation(FireValidateCertficate);
 				}
@@ -517,7 +518,7 @@ namespace FluentFTP {
 			}
 
 			if (m_stream == null) {
-				m_stream = new FtpSocketStream(m_SslProtocols);
+				m_stream = new FtpSocketStream(m_SslProtocols, m_LocalIpAddress);
 				m_stream.Client = this;
 				m_stream.ValidateCertificate += new FtpSocketStreamSslValidation(FireValidateCertficate);
 			}
