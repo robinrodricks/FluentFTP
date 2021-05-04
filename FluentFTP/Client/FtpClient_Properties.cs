@@ -1042,6 +1042,20 @@ namespace FluentFTP {
 			set => m_SendHostDomain = value;
 		}
 
+		private IPAddress m_LocalIpAddress;
+		/// <summary>
+		/// Allow to bind sockets to a particular local IP/interface.
+		/// Useful if you have several usable public IP addresses and want to use a particular one.
+		/// </summary>
+		public IPAddress LocalIpAddress
+		{
+			get => m_LocalIpAddress;
+			set => m_LocalIpAddress = value;
+		}
+
+		public IPEndPoint LocalEndPoint => this.m_stream.LocalEndPoint;
+		public IPEndPoint RemoteEndPoint => this.m_stream.RemoteEndPoint;
+
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
 		// FtpClient.CloneConnection()
 	}
