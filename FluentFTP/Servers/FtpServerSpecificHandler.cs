@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Security.Authentication;
 using FluentFTP.Servers.Handlers;
+using FluentFTP.Helpers;
 #if (CORE || NETFX)
 using System.Threading;
 #endif

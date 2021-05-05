@@ -13,6 +13,7 @@ using System.Net;
 using FluentFTP.Exceptions;
 using FluentFTP.Proxy;
 using FluentFTP.Servers;
+using FluentFTP.Helpers;
 #if !CORE
 using System.Web;
 #endif
@@ -538,7 +539,7 @@ namespace FluentFTP {
 						LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
 						foreach (var line in reply.InfoMessages.Split('\n')) {
-							if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
+							if (!Strings.IsNullOrWhiteSpace(line)) {
 								rawlisting.Add(line);
 								LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
 							}
@@ -556,7 +557,7 @@ namespace FluentFTP {
 							if (BulkListing) {
 								// increases performance of GetListing by reading multiple lines of the file listing at once
 								foreach (var line in stream.ReadAllLines(Encoding, BulkListingLength)) {
-									if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
+									if (!Strings.IsNullOrWhiteSpace(line)) {
 										rawlisting.Add(line);
 										LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
 									}
@@ -957,7 +958,7 @@ namespace FluentFTP {
 						LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
 						foreach (var line in reply.InfoMessages.Split('\n')) {
-							if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
+							if (!Strings.IsNullOrWhiteSpace(line)) {
 								rawlisting.Add(line);
 								LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
 							}
@@ -976,7 +977,7 @@ namespace FluentFTP {
 							if (BulkListing) {
 								// increases performance of GetListing by reading multiple lines of the file listing at once
 								foreach (var line in await stream.ReadAllLinesAsync(Encoding, BulkListingLength, token)) {
-									if (!FtpExtensions.IsNullOrWhiteSpace(line)) {
+									if (!Strings.IsNullOrWhiteSpace(line)) {
 										rawlisting.Add(line);
 										LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
 									}

@@ -47,7 +47,7 @@ namespace FluentFTP {
 #endif
 				if ((reply = Execute("OPTS HASH")).Success) {
 					try {
-						type = FtpHashAlgorithms.FromString(reply.Message);
+						type = Helpers.HashAlgorithms.FromString(reply.Message);
 					}
 					catch (InvalidOperationException ex) {
 						// Do nothing
@@ -108,7 +108,7 @@ namespace FluentFTP {
 
 			if ((reply = await ExecuteAsync("OPTS HASH", token)).Success) {
 				try {
-					type = FtpHashAlgorithms.FromString(reply.Message);
+					type = Helpers.HashAlgorithms.FromString(reply.Message);
 				}
 				catch (InvalidOperationException ex) {
 					// Do nothing
@@ -145,7 +145,7 @@ namespace FluentFTP {
 					throw new NotImplementedException("The hash algorithm " + type.ToString() + " was not advertised by the server.");
 				}
 
-				algorithm = FtpHashAlgorithms.ToString(type);
+				algorithm = Helpers.HashAlgorithms.ToString(type);
 
 				if (!(reply = Execute("OPTS HASH " + algorithm)).Success) {
 					throw new FtpCommandException(reply);
@@ -212,7 +212,7 @@ namespace FluentFTP {
 				throw new NotImplementedException("The hash algorithm " + type.ToString() + " was not advertised by the server.");
 			}
 
-			algorithm = FtpHashAlgorithms.ToString(type);
+			algorithm = Helpers.HashAlgorithms.ToString(type);
 
 			if (!(reply = await ExecuteAsync("OPTS HASH " + algorithm, token)).Success) {
 				throw new FtpCommandException(reply);
@@ -287,7 +287,7 @@ namespace FluentFTP {
 			}
 
 			if (m != null && m.Success) {
-				hash.Algorithm = FtpHashAlgorithms.FromString(m.Groups["algorithm"].Value);
+				hash.Algorithm = Helpers.HashAlgorithms.FromString(m.Groups["algorithm"].Value);
 				hash.Value = m.Groups["hash"].Value;
 			}
 			else {

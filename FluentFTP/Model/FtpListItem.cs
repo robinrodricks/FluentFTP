@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Threading;
+using FluentFTP.Helpers;
 
 namespace FluentFTP {
 	/// <summary>

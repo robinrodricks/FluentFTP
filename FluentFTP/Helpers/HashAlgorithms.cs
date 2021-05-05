@@ -5,7 +5,7 @@ namespace FluentFTP.Helpers {
 	/// <summary>
 	/// Helper class to convert FtpHashAlgorithm
 	/// </summary>
-	public static class FtpHashAlgorithms {
+	internal static class HashAlgorithms {
 		private static readonly Dictionary<string, FtpHashAlgorithm> NameToEnum = new Dictionary<string, FtpHashAlgorithm> {
 			{ "SHA-1", FtpHashAlgorithm.SHA1 },
 			{ "SHA-256", FtpHashAlgorithm.SHA256 },

@@ -15,6 +15,7 @@ using System.Text;
 using FluentFTP.Proxy;
 using System.Security.Authentication;
 using Xunit;
+using FluentFTP.Helpers;
 
 namespace Tests {
 	public class Tests {

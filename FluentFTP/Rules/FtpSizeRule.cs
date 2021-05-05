@@ -42,7 +42,7 @@ namespace FluentFTP.Rules {
 		/// </summary>
 		public override bool IsAllowed(FtpListItem result) {
 			if (result.Type == FtpFileSystemObjectType.File) {
-				return FtpOperators.Validate(Operator, result.Size, X, Y);
+				return Operators.Validate(Operator, result.Size, X, Y);
 			}
 			else {
 				return true;

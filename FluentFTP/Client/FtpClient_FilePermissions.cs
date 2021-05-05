@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 #endif
+using FluentFTP.Helpers;
 
 namespace FluentFTP {
 	public partial class FtpClient : IFtpClient, IDisposable {
@@ -115,7 +116,7 @@ namespace FluentFTP {
 		/// <param name="group">The group permissions</param>
 		/// <param name="other">The other permissions</param>
 		public void SetFilePermissions(string path, FtpPermission owner, FtpPermission group, FtpPermission other) {
-			SetFilePermissions(path, FtpExtensions.CalcChmod(owner, group, other));
+			SetFilePermissions(path, Permissions.CalcChmod(owner, group, other));
 		}
 
 #if ASYNC
@@ -132,7 +133,7 @@ namespace FluentFTP {
 		/// <param name="other">The other permissions</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public Task SetFilePermissionsAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken)) {
-			return SetFilePermissionsAsync(path, FtpExtensions.CalcChmod(owner, group, other), token);
+			return SetFilePermissionsAsync(path, Permissions.CalcChmod(owner, group, other), token);
 		}
 #endif
 

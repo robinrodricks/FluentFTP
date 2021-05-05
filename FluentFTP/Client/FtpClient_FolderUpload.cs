@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using FluentFTP.Rules;
+using FluentFTP.Helpers;
 #if (CORE || NETFX)
 using System.Threading;
 #endif
@@ -390,7 +391,7 @@ namespace FluentFTP {
 
 			// check if the file already exists on the server
 			existsModeToUse = existsMode;
-			var fileExists = FtpExtensions.FileExistsInListing(remoteListing, result.RemotePath);
+			var fileExists = FileListings.FileExistsInListing(remoteListing, result.RemotePath);
 
 			// if we want to skip uploaded files and the file already exists, mark its skipped
 			if (existsMode == FtpRemoteExists.Skip && fileExists) {

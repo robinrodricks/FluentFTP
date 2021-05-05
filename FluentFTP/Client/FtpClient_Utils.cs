@@ -11,6 +11,7 @@ using System.Net;
 using FluentFTP.Proxy;
 using FluentFTP.Servers;
 using FluentFTP.Rules;
+using FluentFTP.Helpers;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
 #if !CORE
 using System.Web;

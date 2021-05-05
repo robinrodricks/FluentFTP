@@ -12,6 +12,7 @@ using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Proxy;
 using FluentFTP.Servers;
+using FluentFTP.Helpers;
 #if !CORE
 using System.Web;
 #endif
@@ -164,7 +165,7 @@ namespace FluentFTP {
 
 				// check if file exists by getting a name listing (NLST)
 				var fileList = GetNameListing(path.GetFtpDirectoryName());
-				return FtpExtensions.FileExistsInNameListing(fileList, path);
+				return FileListings.FileExistsInNameListing(fileList, path);
 
 
 				// check if file exists by attempting to download it (RETR)
@@ -288,7 +289,7 @@ namespace FluentFTP {
 
 			// check if file exists by getting a name listing (NLST)
 			string[] fileList = await GetNameListingAsync(path.GetFtpDirectoryName(), token);
-			return FtpExtensions.FileExistsInNameListing(fileList, path);
+			return FileListings.FileExistsInNameListing(fileList, path);
 
 			// check if file exists by attempting to download it (RETR)
 			/*try {

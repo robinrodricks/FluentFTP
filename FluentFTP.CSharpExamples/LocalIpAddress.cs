@@ -30,12 +30,12 @@ namespace CSharpExamples
 					InternetProtocolVersions = localIpAddress.AddressFamily == AddressFamily.InterNetworkV6 ? FtpIpVersion.IPv6 : FtpIpVersion.IPv4,
 
 					// Equivalent to lftp's ftp:port-ipv[4|6] and net:socket-bind-ipv[4|6] (see http://manpages.org/lftp)
-					LocalIpAddress = localIpAddress
+					SocketLocalIp = localIpAddress
 				})
 				{
 					f.Connect();
 
-					Console.WriteLine($"Connected to {f.RemoteEndPoint} from {f.LocalEndPoint}");
+					Console.WriteLine($"Connected to {f.SocketRemoteEndPoint} from {f.SocketLocalEndPoint}");
 					foreach (var file in f.GetListing())
 					{
 						Console.Out.WriteLine(file);

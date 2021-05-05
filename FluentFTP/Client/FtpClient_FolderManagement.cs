@@ -2,6 +2,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.Linq;
 using FluentFTP.Servers;
+using FluentFTP.Helpers;
 #if !CORE
 using System.Web;
 #endif

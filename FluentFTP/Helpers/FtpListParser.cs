@@ -1,19 +1,8 @@
-﻿using FluentFTP.Exceptions;
-using FluentFTP.Helpers.Parsers;
+﻿using FluentFTP.Helpers.Parsers;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 
-#if NET45
-using System.Threading.Tasks;
-
-#endif
-
-namespace FluentFTP {
+namespace FluentFTP.Helpers {
 	/// <summary>
 	/// Parses a line from a file listing using the first successful parser, or the specified parser.
 	/// Returns an FtpListItem object representing the parsed line, or null if the line was unable to be parsed.

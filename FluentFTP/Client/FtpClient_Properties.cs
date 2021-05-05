@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Servers;
+using FluentFTP.Helpers;
 
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
@@ -1038,23 +1039,34 @@ namespace FluentFTP {
 		/// If this is null, then the Host parameter of the FTP client is sent.
 		/// </summary>
 		public string SendHostDomain {
-			get => m_SendHostDomain;
+			get => m_SendHostDomain; 
 			set => m_SendHostDomain = value;
 		}
 
-		private IPAddress m_LocalIpAddress;
+		private IPAddress m_SocketLocalIp;
 		/// <summary>
-		/// Allow to bind sockets to a particular local IP/interface.
-		/// Useful if you have several usable public IP addresses and want to use a particular one.
+		/// The local socket will be bound to the given local IP/interface.
+		/// This is useful if you have several usable public IP addresses and want to use a particular one.
 		/// </summary>
-		public IPAddress LocalIpAddress
+		public IPAddress SocketLocalIp
 		{
-			get => m_LocalIpAddress;
-			set => m_LocalIpAddress = value;
+			get => m_SocketLocalIp;
+			set => m_SocketLocalIp = value;
 		}
 
-		public IPEndPoint LocalEndPoint => this.m_stream.LocalEndPoint;
-		public IPEndPoint RemoteEndPoint => this.m_stream.RemoteEndPoint;
+		/// <summary>
+		/// Returns the local end point of the FTP socket, if it is available.
+		/// </summary>
+		public IPEndPoint SocketLocalEndPoint {
+			get => m_stream?.LocalEndPoint;
+		}
+
+		/// <summary>
+		/// Returns the remote end point of the FTP socket, if it is available.
+		/// </summary>
+		public IPEndPoint SocketRemoteEndPoint {
+			get => m_stream?.RemoteEndPoint;
+		}
 
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
 		// FtpClient.CloneConnection()

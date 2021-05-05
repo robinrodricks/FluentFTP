@@ -6,6 +6,7 @@ using System.Text;
 #if !CORE
 using System.Runtime.Serialization;
 #endif
+using FluentFTP.Helpers;
 
 namespace FluentFTP {
 	

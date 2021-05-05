@@ -1,3 +1,4 @@
+using FluentFTP.Helpers;
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -153,7 +154,7 @@ namespace FluentFTP.Proxy {
 				while ((buf = stream.ReadLine(Encoding)) != null) {
 					LogLine(FtpTraceLevel.Info, buf);
 
-					if (FtpExtensions.IsNullOrWhiteSpace(buf)) {
+					if (Strings.IsNullOrWhiteSpace(buf)) {
 						break;
 					}
 
@@ -195,7 +196,7 @@ namespace FluentFTP.Proxy {
 			while ((buf = await stream.ReadLineAsync(Encoding, token)) != null) {
 				LogLine(FtpTraceLevel.Info, buf);
 
-				if (FtpExtensions.IsNullOrWhiteSpace(buf)) {
+				if (Strings.IsNullOrWhiteSpace(buf)) {
 					break;
 				}
 

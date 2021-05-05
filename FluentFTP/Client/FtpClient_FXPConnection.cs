@@ -13,6 +13,7 @@ using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Proxy;
 using FluentFTP.Servers;
+using FluentFTP.Helpers;
 #if !CORE
 using System.Web;
 #endif

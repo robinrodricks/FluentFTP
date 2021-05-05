@@ -21,9 +21,13 @@
     <DefineConstants>$(DefineConstants);CORE2PLUS</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.4'">
-    <DefineConstants>$(DefineConstants);CORE14;NO_SSL</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.4'">
+		<DefineConstants>$(DefineConstants);CORE14;NO_SSL</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
+		<DefineConstants>$(DefineConstants);CORE16</DefineConstants>
+	</PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net50' Or $(DefineConstants.Contains('CORE'))">
     <DefineConstants>$(DefineConstants);ASYNC</DefineConstants>
@@ -57,7 +61,7 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
-    <Version>33.2.0</Version>
+    <Version>34.0.0</Version>
     <PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
     <PackageIcon>logo-nuget.png</PackageIcon>
   </PropertyGroup>

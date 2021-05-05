@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace FluentFTP {
+
+	/// <summary>
+	/// Object that keeps track of an active FXP Connection between 2 FTP servers.
+	/// </summary>
 	public class FtpFxpSession : IDisposable {
 		/// <summary>
 		/// A connection to the FTP server where the file or folder is currently stored

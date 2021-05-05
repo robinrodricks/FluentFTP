@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using FluentFTP.Helpers;
 
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {

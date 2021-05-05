@@ -14,11 +14,13 @@ using System.Net;
 using FluentFTP.Proxy;
 using FluentFTP.Servers;
 using FluentFTP.Streams;
+using FluentFTP.Helpers;
 #if !CORE
 using System.Web;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
+using FluentFTP.Exceptions;
 #endif
 #if (CORE || NET45)
 using System.Threading.Tasks;
@@ -286,7 +288,7 @@ namespace FluentFTP {
 			LogFunc(nameof(DownloadFile), new object[] { localPath, remotePath, existsMode, verifyOptions });
 
 			// skip downloading if the localPath is a folder
-			if (FtpExtensions.IsLocalFolderPath(localPath)) {
+			if (LocalPaths.IsLocalFolderPath(localPath)) {
 				throw new ArgumentException("Local path must specify a file path and not a folder path.", "localPath");
 			}
 
@@ -312,7 +314,7 @@ namespace FluentFTP {
 			try {
 				// create the folders
 				var dirPath = Path.GetDirectoryName(localPath);
-				if (!FtpExtensions.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
+				if (!Strings.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
 					Directory.CreateDirectory(dirPath);
 				}
 			}
@@ -408,7 +410,7 @@ namespace FluentFTP {
 			}
 
 			// skip downloading if the localPath is a folder
-			if (FtpExtensions.IsLocalFolderPath(localPath)) {
+			if (LocalPaths.IsLocalFolderPath(localPath)) {
 				throw new ArgumentException("Local path must specify a file path and not a folder path.", "localPath");
 			}
 

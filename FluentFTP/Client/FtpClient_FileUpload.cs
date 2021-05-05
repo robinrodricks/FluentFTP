@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using FluentFTP.Streams;
+using FluentFTP.Helpers;
 #if !CORE
 using System.Web;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
+using FluentFTP.Exceptions;
 
 #endif
 #if (CORE || NET45)
@@ -93,7 +95,7 @@ namespace FluentFTP {
 
 				// try to upload it
 				try {
-					var ok = UploadFileFromFile(localPath, remotePath, false, existsMode, FtpExtensions.FileExistsInNameListing(existingFiles, remotePath), true, verifyOptions, progress, metaProgress);
+					var ok = UploadFileFromFile(localPath, remotePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, remotePath), true, verifyOptions, progress, metaProgress);
 					if (ok.IsSuccess()) {
 						successfulUploads.Add(remotePath);
 
@@ -249,7 +251,7 @@ namespace FluentFTP {
 
 				// try to upload it
 				try {
-					var ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, FtpExtensions.FileExistsInNameListing(existingFiles, remotePath), true, verifyOptions, token, progress, metaProgress);
+					var ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, remotePath), true, verifyOptions, token, progress, metaProgress);
 					if (ok.IsSuccess()) {
 						successfulUploads.Add(remotePath);
 					}

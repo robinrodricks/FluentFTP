@@ -821,7 +821,7 @@ namespace FluentFTP {
 		/// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
 		public void Connect(string host, int port, FtpIpVersion ipVersions) {
 #if CORE
-			IPAddress[] addresses = Dns.GetHostAddresses(host);
+			IPAddress[] addresses = Dns.GetHostAddressesAsync(host).Result;
 #else
 			IAsyncResult ar = null;
 			var addresses = Dns.GetHostAddresses(host);
@@ -867,7 +867,7 @@ namespace FluentFTP {
 				}
 
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-				BindLocalIfNecessary();
+				BindSocketToLocalIp();
 
 #if CORE
 
@@ -978,7 +978,7 @@ namespace FluentFTP {
 				}
 
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-				BindLocalIfNecessary();
+				BindSocketToLocalIp();
 #if CORE
 				await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), token, () => CloseSocket());
 				break;
@@ -1316,10 +1316,9 @@ namespace FluentFTP {
 			}
 		}
 #endif
-		private void BindLocalIfNecessary()
-		{
-			if (this.m_LocalIpAddress == null)
-			{
+		private void BindSocketToLocalIp() {
+#if ASYNC && !CORE14 && !CORE16
+			if (this.m_LocalIpAddress == null) {
 				return;
 			}
 
@@ -1331,6 +1330,7 @@ namespace FluentFTP {
 #endif
 
 			this.m_socket.Bind(localEndpoint);
+#endif
 		}
 
 #if CORE

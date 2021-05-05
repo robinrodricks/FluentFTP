@@ -1,6 +1,7 @@
 ﻿Imports System
 Imports System.Diagnostics
 Imports FluentFTP
+Imports FluentFTP.Helpers
 
 Namespace Examples
 	Friend Module DebugExample

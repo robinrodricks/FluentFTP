@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 #endif
+using FluentFTP.Helpers;
 
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {

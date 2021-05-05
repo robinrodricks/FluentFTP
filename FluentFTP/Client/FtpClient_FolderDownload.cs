@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using FluentFTP.Rules;
+using FluentFTP.Helpers;
 #if (CORE || NETFX)
 using System.Threading;
 #endif

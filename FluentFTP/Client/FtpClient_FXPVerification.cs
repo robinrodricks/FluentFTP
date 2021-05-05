@@ -1,4 +1,5 @@
 ﻿using System;
+using FluentFTP.Helpers;
 #if !CORE
 using System.Web;
 #endif

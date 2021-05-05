@@ -3,7 +3,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace FluentFTP {
+namespace FluentFTP.Helpers {
 	/// <summary>
 	/// Used for transaction logging and debug information.
 	/// </summary>

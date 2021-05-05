@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace FluentFTP.Helpers {
-	public static class FtpOperators {
+﻿namespace FluentFTP.Helpers {
+	internal static class Operators {
 
 
 		public static bool Validate(FtpOperator op, int value, int x, int y) {

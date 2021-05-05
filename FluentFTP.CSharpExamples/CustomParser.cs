@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using FluentFTP;
+using FluentFTP.Helpers;
 
 namespace Examples {
 	/// <summary>
