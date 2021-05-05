@@ -24,13 +24,10 @@ namespace FluentFTP {
 	/// Stream class used for talking. Used by FtpClient, extended by FtpDataStream
 	/// </summary>
 	public class FtpSocketStream : Stream, IDisposable {
-		private SslProtocols m_SslProtocols;
-		private IPAddress m_LocalIpAddress;
-		public FtpClient Client;
+		public readonly FtpClient Client;
 
-		public FtpSocketStream(SslProtocols defaultSslProtocols, IPAddress localIpAddress) {
-			m_SslProtocols = defaultSslProtocols;
-			m_LocalIpAddress = localIpAddress;
+		public FtpSocketStream(FtpClient conn) {
+			Client = conn;
 		}
 
 		/// <summary>
@@ -1010,7 +1007,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="targethost">The host to authenticate the certificate against</param>
 		public void ActivateEncryption(string targethost) {
-			ActivateEncryption(targethost, null, m_SslProtocols);
+			ActivateEncryption(targethost, null, Client.SslProtocols);
 		}
 
 #if ASYNC
@@ -1021,7 +1018,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="targethost">The host to authenticate the certificate against</param>
 		public async Task ActivateEncryptionAsync(string targethost) {
-			await ActivateEncryptionAsync(targethost, null, m_SslProtocols);
+			await ActivateEncryptionAsync(targethost, null, Client.SslProtocols);
 		}
 #endif
 
@@ -1033,7 +1030,7 @@ namespace FluentFTP {
 		/// <param name="targethost">The host to authenticate the certificate against</param>
 		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
 		public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts) {
-			ActivateEncryption(targethost, clientCerts, m_SslProtocols);
+			ActivateEncryption(targethost, clientCerts, Client.SslProtocols);
 		}
 
 #if ASYNC
@@ -1045,7 +1042,7 @@ namespace FluentFTP {
 		/// <param name="targethost">The host to authenticate the certificate against</param>
 		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
 		public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts) {
-			await ActivateEncryptionAsync(targethost, clientCerts, m_SslProtocols);
+			await ActivateEncryptionAsync(targethost, clientCerts, Client.SslProtocols);
 		}
 #endif
 
@@ -1318,18 +1315,17 @@ namespace FluentFTP {
 #endif
 		private void BindSocketToLocalIp() {
 #if ASYNC && !CORE14 && !CORE16
-			if (this.m_LocalIpAddress == null) {
-				return;
-			}
+			if (Client.SocketLocalIp != null) {
 
-			var localPort = LocalPorts.GetRandomAvailable(m_LocalIpAddress);
-			var localEndpoint = new IPEndPoint(m_LocalIpAddress, localPort);
+				var localPort = LocalPorts.GetRandomAvailable(Client.SocketLocalIp);
+				var localEndpoint = new IPEndPoint(Client.SocketLocalIp, localPort);
 
 #if DEBUG
-			Client.LogStatus(FtpTraceLevel.Verbose, $"Will now bind to {localEndpoint}");
+				Client.LogStatus(FtpTraceLevel.Verbose, $"Will now bind to {localEndpoint}");
 #endif
 
-			this.m_socket.Bind(localEndpoint);
+				this.m_socket.Bind(localEndpoint);
+			}
 #endif
 		}
 

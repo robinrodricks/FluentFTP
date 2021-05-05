@@ -311,7 +311,11 @@ namespace FluentFTP {
 			conn.ServerHandler = ServerHandler;
 			conn.UploadDirectoryDeleteExcluded = UploadDirectoryDeleteExcluded;
 			conn.DownloadDirectoryDeleteExcluded = DownloadDirectoryDeleteExcluded;
+
+			// configure new connection as clone of self (newer version .NET only)
+#if ASYNC && !CORE14 && !CORE16
 			conn.SocketLocalIp = SocketLocalIp;
+#endif
 
 			// configure new connection as clone of self (.NET core props only)
 #if CORE
@@ -361,8 +365,7 @@ namespace FluentFTP {
 				}
 
 				if (m_stream == null) {
-					m_stream = new FtpSocketStream(m_SslProtocols, m_SocketLocalIp);
-					m_stream.Client = this;
+					m_stream = new FtpSocketStream(this);
 					m_stream.ValidateCertificate += new FtpSocketStreamSslValidation(FireValidateCertficate);
 				}
 				else {
@@ -519,8 +522,7 @@ namespace FluentFTP {
 			}
 
 			if (m_stream == null) {
-				m_stream = new FtpSocketStream(m_SslProtocols, m_SocketLocalIp);
-				m_stream.Client = this;
+				m_stream = new FtpSocketStream(this);
 				m_stream.ValidateCertificate += new FtpSocketStreamSslValidation(FireValidateCertficate);
 			}
 			else {
@@ -647,10 +649,10 @@ namespace FluentFTP {
 		}
 #endif
 
-		/// <summary>
-		/// Connect to the FTP server. Overridden in proxy classes.
-		/// </summary>
-		/// <param name="stream"></param>
+				/// <summary>
+				/// Connect to the FTP server. Overridden in proxy classes.
+				/// </summary>
+				/// <param name="stream"></param>
 		protected virtual void Connect(FtpSocketStream stream) {
 			stream.Connect(Host, Port, InternetProtocolVersions);
 		}

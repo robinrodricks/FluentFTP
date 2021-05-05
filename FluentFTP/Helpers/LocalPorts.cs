@@ -13,7 +13,7 @@
 		internal static readonly Random randomGen = new Random();
 
 		/// <summary>
-		/// Get random local IP address from all the available ones
+		/// Get random local port for the given local IP address
 		/// </summary>
 		public static int GetRandomAvailable(IPAddress localIpAddress) {
 			lock (randomGen) {

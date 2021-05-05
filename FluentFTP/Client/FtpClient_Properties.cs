@@ -1043,6 +1043,7 @@ namespace FluentFTP {
 			set => m_SendHostDomain = value;
 		}
 
+#if ASYNC && !CORE14 && !CORE16
 		private IPAddress m_SocketLocalIp;
 		/// <summary>
 		/// The local socket will be bound to the given local IP/interface.
@@ -1053,6 +1054,7 @@ namespace FluentFTP {
 			get => m_SocketLocalIp;
 			set => m_SocketLocalIp = value;
 		}
+#endif
 
 		/// <summary>
 		/// Returns the local end point of the FTP socket, if it is available.

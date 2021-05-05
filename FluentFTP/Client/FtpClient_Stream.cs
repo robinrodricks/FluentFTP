@@ -443,7 +443,6 @@ namespace FluentFTP {
 			}
 
 			stream = new FtpDataStream(this);
-			stream.Client = this;
 			stream.ConnectTimeout = DataConnectionConnectTimeout;
 			stream.ReadTimeout = DataConnectionReadTimeout;
 			Connect(stream, host, port, InternetProtocolVersions);
@@ -576,7 +575,6 @@ namespace FluentFTP {
 			}
 
 			stream = new FtpDataStream(this);
-			stream.Client = this;
 			stream.ConnectTimeout = DataConnectionConnectTimeout;
 			stream.ReadTimeout = DataConnectionReadTimeout;
 			await ConnectAsync(stream, host, port, InternetProtocolVersions, token);
@@ -694,7 +692,6 @@ namespace FluentFTP {
 			LogFunc(nameof(OpenActiveDataStream), new object[] { type, command, restart });
 
 			var stream = new FtpDataStream(this);
-			stream.Client = this;
 			FtpReply reply;
 #if !CORE
 			IAsyncResult ar;
@@ -811,7 +808,6 @@ namespace FluentFTP {
 			LogFunc(nameof(OpenActiveDataStreamAsync), new object[] { type, command, restart });
 
 			var stream = new FtpDataStream(this);
-			stream.Client = this;
 			FtpReply reply;
 
 #if !CORE
