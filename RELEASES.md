@@ -1,5 +1,14 @@
 # Release Notes
 
+#### 34.0.0
+ - Major: Refactor and cleanup helpers & extension methods
+ - Major: Changed namespace of `FtpTrace` to `FluentFTP.Helpers`
+ - Major: Changed namespace of `FtpListParser` to `FluentFTP.Helpers`
+ - Major: You need to import `FluentFTP.Helpers` to gain access to FTP extension methods
+ - Major: Changed visibility of various internal FTP helpers to `internal` to prevent external access
+ - New: Ability to set a local IP address to be used for FTP connections (thanks [daviddenis-stx](/daviddenis-stx))
+ - New: Properties for local IP: `SocketLocalIp`, `SocketLocalEndPoint`, `SocketRemoteEndPoint` (thanks [daviddenis-stx](/daviddenis-stx))
+
 #### 33.2.0
  - New: Ability to block certain server ports from being used during passive FTP connection (PASV/EPSV)
  - New: `PassiveBlockedPorts` and `PassiveMaxAttempts` properties to configure passive blocked ports
