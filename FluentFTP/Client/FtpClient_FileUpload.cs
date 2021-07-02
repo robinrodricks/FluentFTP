@@ -19,10 +19,8 @@ using System.Threading.Tasks;
 
 #endif
 
-namespace FluentFTP
-{
-	public partial class FtpClient : IDisposable
-	{
+namespace FluentFTP {
+	public partial class FtpClient : IDisposable {
 		#region Upload Multiple Files
 
 		/// <summary>
@@ -49,17 +47,14 @@ namespace FluentFTP
 		/// to propagate from this method.
 		/// </remarks>
 		public int UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true,
-			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, Action<FtpProgress> progress = null)
-		{
-
+			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, Action<FtpProgress> progress = null) {
+			
 			// verify args
-			if (!errorHandling.IsValidCombination())
-			{
+			if (!errorHandling.IsValidCombination()) {
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
 			}
 
-			if (remoteDir.IsBlank())
-			{
+			if (remoteDir.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteDir");
 			}
 
@@ -70,23 +65,14 @@ namespace FluentFTP
 			var successfulUploads = new List<string>();
 
 			// ensure ends with slash
-			if (ServerType == FtpServer.IBMzOSFTP)
-			{
-				remoteDir = !remoteDir.EndsWith(".'") ? remoteDir + ".'" : remoteDir;
-			}
-			else
-			{
-				remoteDir = !remoteDir.EndsWith("/") ? remoteDir + "/" : remoteDir;
-			}
+			remoteDir = !remoteDir.EndsWith("/") ? remoteDir + "/" : remoteDir;
 
 			//flag to determine if existence checks are required
 			var checkFileExistence = true;
 
 			// create remote dir if wanted
-			if (createRemoteDir)
-			{
-				if (!DirectoryExists(remoteDir))
-				{
+			if (createRemoteDir) {
+				if (!DirectoryExists(remoteDir)) {
 					CreateDirectory(remoteDir);
 					checkFileExistence = false;
 				}
@@ -97,58 +83,38 @@ namespace FluentFTP
 
 			// per local file
 			var r = -1;
-			foreach (var localPath in localPaths)
-			{
+			foreach (var localPath in localPaths) {
 				r++;
 
 				// calc remote path
 				var fileName = Path.GetFileName(localPath);
-				var remotePath = "";
-				if (ServerType == FtpServer.IBMzOSFTP)
-				{
-					if (remoteDir.EndsWith("'"))
-					{
-						remotePath = remoteDir;
-						remotePath = remotePath.Insert(remoteDir.Length - 1, fileName);
-					}
-				}
-				else
-				{
-					remotePath = remoteDir + fileName;
-				}
+				var remotePath = remoteDir + fileName;
 
 				// create meta progress to store the file progress
 				var metaProgress = new FtpProgress(localPaths.Count(), r);
 
 				// try to upload it
-				try
-				{
+				try {
 					var ok = UploadFileFromFile(localPath, remotePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, remotePath), true, verifyOptions, progress, metaProgress);
-					if (ok.IsSuccess())
-					{
+					if (ok.IsSuccess()) {
 						successfulUploads.Add(remotePath);
 
 						//count++;
 					}
-					else if ((int)errorHandling > 1)
-					{
+					else if ((int)errorHandling > 1) {
 						errorEncountered = true;
 						break;
 					}
 				}
-				catch (Exception ex)
-				{
+				catch (Exception ex) {
 					LogStatus(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
-					if (errorHandling.HasFlag(FtpError.Stop))
-					{
+					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;
 					}
 
-					if (errorHandling.HasFlag(FtpError.Throw))
-					{
-						if (errorHandling.HasFlag(FtpError.DeleteProcessed))
-						{
+					if (errorHandling.HasFlag(FtpError.Throw)) {
+						if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
 							PurgeSuccessfulUploads(successfulUploads);
 						}
 
@@ -157,18 +123,15 @@ namespace FluentFTP
 				}
 			}
 
-			if (errorEncountered)
-			{
+			if (errorEncountered) {
 				//Delete any successful uploads if needed
-				if (errorHandling.HasFlag(FtpError.DeleteProcessed))
-				{
+				if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
 					PurgeSuccessfulUploads(successfulUploads);
 					successfulUploads.Clear(); //forces return of 0
 				}
 
 				//Throw generic error because requested
-				if (errorHandling.HasFlag(FtpError.Throw))
-				{
+				if (errorHandling.HasFlag(FtpError.Throw)) {
 					throw new FtpException("An error occurred uploading one or more files.  Refer to trace output if available.");
 				}
 			}
@@ -176,10 +139,8 @@ namespace FluentFTP
 			return successfulUploads.Count;
 		}
 
-		private void PurgeSuccessfulUploads(IEnumerable<string> remotePaths)
-		{
-			foreach (var remotePath in remotePaths)
-			{
+		private void PurgeSuccessfulUploads(IEnumerable<string> remotePaths) {
+			foreach (var remotePath in remotePaths) {
 				DeleteFile(remotePath);
 			}
 		}
@@ -207,8 +168,7 @@ namespace FluentFTP
 		/// to propagate from this method.
 		/// </remarks>
 		public int UploadFiles(IEnumerable<FileInfo> localFiles, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true,
-			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, Action<FtpProgress> progress = null)
-		{
+			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, Action<FtpProgress> progress = null) {
 			return UploadFiles(localFiles.Select(f => f.FullName), remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling, progress);
 		}
 
@@ -370,16 +330,13 @@ namespace FluentFTP
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
 		/// </remarks>
 		public FtpStatus UploadFile(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false,
-			FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null)
-		{
+			FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null) {
 			// verify args
-			if (localPath.IsBlank())
-			{
+			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
 			}
 
-			if (remotePath.IsBlank())
-			{
+			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
@@ -387,18 +344,16 @@ namespace FluentFTP
 		}
 
 		private FtpStatus UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
-			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress)
-		{
+			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
 
 			LogFunc(nameof(UploadFile), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 
 			// skip uploading if the local file does not exist
-			if (!File.Exists(localPath))
-			{
+			if (!File.Exists(localPath)) {
 				LogStatus(FtpTraceLevel.Error, "File does not exist.");
 				return FtpStatus.Failed;
 			}
-
+			
 			// If retries are allowed set the retry counter to the allowed count
 			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 
@@ -406,18 +361,15 @@ namespace FluentFTP
 			var verified = true;
 			FtpStatus uploadStatus;
 			bool uploadSuccess;
-			do
-			{
-				// write the file onto the server
-				using (var fileStream = FtpFileStream.GetFileReadStream(this, localPath, false, QuickTransferLimit))
-				{
+			do {
+					// write the file onto the server
+					using (var fileStream = FtpFileStream.GetFileReadStream(this, localPath, false, QuickTransferLimit)) {
 					// Upload file
 					uploadStatus = UploadFileInternal(fileStream, localPath, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, progress, metaProgress);
 					uploadSuccess = uploadStatus.IsSuccess();
 					attemptsLeft--;
 
-					if (!uploadSuccess)
-					{
+					if (!uploadSuccess) {
 						LogStatus(FtpTraceLevel.Info, "Failed to upload file.");
 
 						if (attemptsLeft > 0)
@@ -425,12 +377,10 @@ namespace FluentFTP
 					}
 
 					// If verification is needed, update the validated flag
-					if (uploadSuccess && verifyOptions != FtpVerify.None)
-					{
+					if (uploadSuccess && verifyOptions != FtpVerify.None) {
 						verified = VerifyTransfer(localPath, remotePath);
 						LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
-						if (!verified && attemptsLeft > 0)
-						{
+						if (!verified && attemptsLeft > 0) {
 							LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpRemoteExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
 							// Force overwrite if a retry is required
 							existsMode = FtpRemoteExists.Overwrite;
@@ -439,13 +389,11 @@ namespace FluentFTP
 				}
 			} while ((!uploadSuccess || !verified) && attemptsLeft > 0); //Loop if attempts are available and the transfer or validation failed
 
-			if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete))
-			{
+			if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
 				DeleteFile(remotePath);
 			}
 
-			if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw))
-			{
+			if (uploadSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
 				throw new FtpException("Uploaded file checksum value does not match local file");
 			}
 
@@ -565,16 +513,13 @@ namespace FluentFTP
 		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="progress">Provide a callback to track upload progress.</param>
-		public FtpStatus Upload(Stream fileStream, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, Action<FtpProgress> progress = null)
-		{
+		public FtpStatus Upload(Stream fileStream, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, Action<FtpProgress> progress = null) {
 			// verify args
-			if (fileStream == null)
-			{
+			if (fileStream == null) {
 				throw new ArgumentException("Required parameter is null or blank.", "fileStream");
 			}
 
-			if (remotePath.IsBlank())
-			{
+			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
@@ -595,24 +540,20 @@ namespace FluentFTP
 		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="progress">Provide a callback to track upload progress.</param>
-		public FtpStatus Upload(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, Action<FtpProgress> progress = null)
-		{
+		public FtpStatus Upload(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, Action<FtpProgress> progress = null) {
 			// verify args
-			if (fileData == null)
-			{
+			if (fileData == null) {
 				throw new ArgumentException("Required parameter is null or blank.", "fileData");
 			}
 
-			if (remotePath.IsBlank())
-			{
+			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
 			LogFunc(nameof(Upload), new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
-			using (var ms = new MemoryStream(fileData))
-			{
+			using (var ms = new MemoryStream(fileData)) {
 				ms.Position = 0;
 				return UploadFileInternal(ms, null, remotePath, createRemoteDir, existsMode, false, false, progress, new FtpProgress(1, 0));
 			}
@@ -691,49 +632,39 @@ namespace FluentFTP
 		/// Writes data in chunks. Retries if server disconnects midway.
 		/// </summary>
 		private FtpStatus UploadFileInternal(Stream fileData, string localPath, string remotePath, bool createRemoteDir,
-			FtpRemoteExists existsMode, bool fileExists, bool fileExistsKnown, Action<FtpProgress> progress, FtpProgress metaProgress)
-		{
+			FtpRemoteExists existsMode, bool fileExists, bool fileExistsKnown, Action<FtpProgress> progress, FtpProgress metaProgress) {
 
 			Stream upStream = null;
 
-			try
-			{
+			try {
 				long offset = 0;
 				var checkFileExistsAgain = false;
 
 				// check if the file exists, and skip, overwrite or append
-				if (existsMode == FtpRemoteExists.NoCheck)
-				{
+				if (existsMode == FtpRemoteExists.NoCheck) {
 					checkFileExistsAgain = false;
 				}
-				else if (existsMode == FtpRemoteExists.AppendNoCheck)
-				{
+				else if (existsMode == FtpRemoteExists.AppendNoCheck) {
 					checkFileExistsAgain = true;
 
 					offset = GetFileSize(remotePath);
-					if (offset == -1)
-					{
+					if (offset == -1) {
 						offset = 0; // start from the beginning
 					}
 				}
-				else
-				{
-					if (!fileExistsKnown)
-					{
+				else {
+					if (!fileExistsKnown) {
 						fileExists = FileExists(remotePath);
 					}
 
-					switch (existsMode)
-					{
+					switch (existsMode) {
 						case FtpRemoteExists.Skip:
-							if (fileExists)
-							{
+							if (fileExists) {
 								LogStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
 
 								// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
 								// send progress reports
-								if (progress != null)
-								{
+								if (progress != null) {
 									progress(new FtpProgress(100.0, offset, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 								}
 
@@ -743,19 +674,16 @@ namespace FluentFTP
 							break;
 
 						case FtpRemoteExists.Overwrite:
-							if (fileExists)
-							{
+							if (fileExists) {
 								DeleteFile(remotePath);
 							}
 
 							break;
 
 						case FtpRemoteExists.Append:
-							if (fileExists)
-							{
+							if (fileExists) {
 								offset = GetFileSize(remotePath);
-								if (offset == -1)
-								{
+								if (offset == -1) {
 									offset = 0; // start from the beginning
 								}
 							}
@@ -765,35 +693,28 @@ namespace FluentFTP
 				}
 
 				// ensure the remote dir exists .. only if the file does not already exist!
-				if (createRemoteDir && !fileExists)
-				{
+				if (createRemoteDir && !fileExists) {
 					var dirname = remotePath.GetFtpDirectoryName();
-					if (!DirectoryExists(dirname))
-					{
+					if (!DirectoryExists(dirname)) {
 						CreateDirectory(dirname);
 					}
 				}
 
 				// FIX #213 : Do not change Stream.Position if not supported
-				if (fileData.CanSeek)
-				{
-					try
-					{
+				if (fileData.CanSeek) {
+					try {
 						// seek to required offset
 						fileData.Position = offset;
 					}
-					catch (Exception ex2)
-					{
+					catch (Exception ex2) {
 					}
 				}
 
 				// open a file connection
-				if (offset == 0 && existsMode != FtpRemoteExists.AppendNoCheck)
-				{
+				if (offset == 0 && existsMode != FtpRemoteExists.AppendNoCheck) {
 					upStream = OpenWrite(remotePath, UploadDataType, checkFileExistsAgain);
 				}
-				else
-				{
+				else {
 					upStream = OpenAppend(remotePath, UploadDataType, checkFileExistsAgain);
 				}
 
@@ -809,25 +730,21 @@ namespace FluentFTP
 				var sw = new Stopwatch();
 
 				// Fix #288 - Upload hangs with only a few bytes left
-				if (fileLen < upStream.Length)
-				{
+				if (fileLen < upStream.Length) {
 					upStream.SetLength(fileLen);
 				}
 
 				var anyNoop = false;
 
-				while (offset < fileLen)
-				{
-					try
-					{
+				while (offset < fileLen) {
+					try {
 						// read a chunk of bytes from the file
 						int readBytes;
 						long limitCheckBytes = 0;
 						long bytesProcessed = 0;
 
 						sw.Start();
-						while ((readBytes = fileData.Read(buffer, 0, buffer.Length)) > 0)
-						{
+						while ((readBytes = fileData.Read(buffer, 0, buffer.Length)) > 0) {
 							// write chunk to the FTP stream
 							upStream.Write(buffer, 0, readBytes);
 							upStream.Flush();
@@ -836,32 +753,27 @@ namespace FluentFTP
 							limitCheckBytes += readBytes;
 
 							// send progress reports
-							if (progress != null)
-							{
+							if (progress != null) {
 								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
 							}
 
 							// Fix #387: keep alive with NOOP as configured and needed
-							if (!m_threadSafeDataChannels)
-							{
+							if (!m_threadSafeDataChannels) {
 								anyNoop = Noop() || anyNoop;
 							}
 
 							// honor the speed limit
 							var swTime = sw.ElapsedMilliseconds;
-							if (rateLimitBytes > 0)
-							{
+							if (rateLimitBytes > 0) {
 								var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
-								if (timeShouldTake > swTime)
-								{
+								if (timeShouldTake > swTime) {
 #if CORE14
 										Task.Delay((int) (timeShouldTake - swTime)).Wait();
 #else
 									Thread.Sleep((int)(timeShouldTake - swTime));
 #endif
 								}
-								else if (swTime > timeShouldTake + rateControlResolution)
-								{
+								else if (swTime > timeShouldTake + rateControlResolution) {
 									limitCheckBytes = 0;
 									sw.Restart();
 								}
@@ -871,34 +783,27 @@ namespace FluentFTP
 						// zero return value (with no Exception) indicates EOS; so we should terminate the outer loop here
 						break;
 					}
-					catch (IOException ex)
-					{
+					catch (IOException ex) {
 						// resume if server disconnected midway, or throw if there is an exception doing that as well
-						if (!ResumeUpload(remotePath, ref upStream, ref offset, ex))
-						{
+						if (!ResumeUpload(remotePath, ref upStream, ref offset, ex)) {
 							sw.Stop();
 							throw;
 						}
 						// we should get the offset from the remote server, since we are not sure the last write operation succeeded.
 						// give up if we cannot reposition the source stream
-						if (!fileData.CanSeek)
-						{
+						if (!fileData.CanSeek) {
 							sw.Stop();
 							throw;
 						}
 						fileData.Seek(offset, SeekOrigin.Begin);
 
-					}
-					catch (TimeoutException ex)
-					{
+					} catch (TimeoutException ex) {
 						// fix: attempting to upload data after we reached the end of the stream
 						// often throws a timeout exception, so we silently absorb that here
-						if (offset >= fileLen)
-						{
+						if (offset >= fileLen) {
 							break;
 						}
-						else
-						{
+						else {
 							sw.Stop();
 							throw;
 						}
@@ -909,13 +814,11 @@ namespace FluentFTP
 
 
 				// wait for transfer to get over
-				while (upStream.Position < upStream.Length)
-				{
+				while (upStream.Position < upStream.Length) {
 				}
 
 				// send progress reports
-				if (progress != null)
-				{
+				if (progress != null) {
 					progress(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 				}
 
@@ -924,28 +827,23 @@ namespace FluentFTP
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
-				try
-				{
-					while (!m_threadSafeDataChannels)
-					{
+				try {
+					while (!m_threadSafeDataChannels) {
 						var status = GetReply();
 
 						// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
-						if (anyNoop && status.Message != null && status.Message.Contains("NOOP"))
-						{
+						if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
 							continue;
 						}
 
 						// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
 						// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
-						if (status.Code != null && !status.Success)
-						{
+						if (status.Code != null && !status.Success) {
 							return FtpStatus.Failed;
 						}
 
 						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
-						if (anyNoop)
-						{
+						if (anyNoop) {
 							ReadStaleData(false, true, true);
 						}
 
@@ -958,23 +856,18 @@ namespace FluentFTP
 
 				return FtpStatus.Success;
 			}
-			catch (IOException ex1)
-			{
+			catch (IOException ex1) {
 				LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
 				return FtpStatus.Failed;
 			}
-			catch (Exception ex1)
-			{
+			catch (Exception ex1) {
 				// close stream before throwing error
-				try
-				{
-					if (upStream != null)
-					{
+				try {
+					if (upStream != null) {
 						upStream.Dispose();
 					}
 				}
-				catch (Exception)
-				{
+				catch (Exception) {
 				}
 
 				// catch errors during upload, 
@@ -1229,8 +1122,7 @@ namespace FluentFTP
 
 #endif
 
-		private bool ResumeUpload(string remotePath, ref Stream upStream, ref long offset, IOException ex)
-		{
+		private bool ResumeUpload(string remotePath, ref Stream upStream, ref long offset, IOException ex) {
 			if (ex.IsResumeAllowed())
 			{
 				upStream.Dispose();
