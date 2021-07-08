@@ -97,15 +97,17 @@ namespace FluentFTP {
 				var remotePath = "";
 
 				if (isPDS) {
-					// Check if dot is present before the ending single quote, if not insert it
-					char c = remoteDir[remoteDir.Length - 2];
-					if (c != '.') {
-						remoteDir = remoteDir.Insert(remoteDir.Length - 1, ".");
+					remotePath = remoteDir;
+
+					// make sure path doesn't end with a dot before appending "(filename)"
+					if (remotePath[remotePath.Length - 2] == '.') {
+						remotePath = remotePath.Remove(remotePath.Length - 2, 1);
 					}
 
-					// Add remoteDir and filename using Insert() to avoid messing up single quotes
-					remotePath = remoteDir;
-					remotePath = remotePath.Insert(remoteDir.Length - 1, fileName);
+					// Append "(filename)" before closing single quote
+					remotePath = remotePath.Insert(remotePath.Length - 1, "(");
+					remotePath = remotePath.Insert(remotePath.Length - 1, fileName);
+					remotePath = remotePath.Insert(remotePath.Length - 1, ")");
 				}
 				else {
 					remotePath = remoteDir + fileName;

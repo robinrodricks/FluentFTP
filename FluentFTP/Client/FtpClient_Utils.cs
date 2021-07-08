@@ -107,25 +107,11 @@ namespace FluentFTP {
 
 				// if relative path given then add working dir to calc full path
 				var pwd = GetWorkingDirectory();
-				if (pwd != null && pwd.Trim().Length > 0 && path != pwd.Trim())
-				{
+				if (pwd != null && pwd.Trim().Length > 0 && path != pwd) {
 					// Check if PDS (MVS Dataset) file system
 					if (pwd.StartsWith("'") && ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS) {
-						if (path == pwd) {
-							return path;
-						}
-
-						if (path == ".") {
-							return pwd;
-						}
-
-						// make sure pwd ends with a dot before appending a file path
-						if (pwd[pwd.Length - 2] != '.') {
-							pwd = pwd.Insert(pwd.Length - 1, ".");
-						}
-						path = pwd.Insert(pwd.Length - 1, path);
-
-						return path;
+						// PDS that has single quotes is already fully qualified
+						return pwd;
 					}
 
 					if (path.StartsWith("./")) {

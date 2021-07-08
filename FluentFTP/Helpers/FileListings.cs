@@ -21,9 +21,7 @@
 			// cleanup file path, get file name
 			var pathName = path.GetFtpFileName();
 			var pathPrefixed = pathName;
-			if (!path.StartsWith("'")) {
-				pathPrefixed = path.EnsurePrefix("/");
-			}
+			pathPrefixed = path.EnsurePrefix("/");
 
 			// per entry in the name list
 			foreach (var fileListEntry in fileList) {
