@@ -64,8 +64,14 @@ namespace FluentFTP {
 			var errorEncountered = false;
 			var successfulUploads = new List<string>();
 
-			// ensure ends with slash
-			remoteDir = !remoteDir.EndsWith("/") ? remoteDir + "/" : remoteDir;
+			// ensure ends with slash if remote is not PDS (MVS Dataset)
+			bool isPDS = false;
+			if (remoteDir.StartsWith("'") && ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS) {
+				isPDS = true;
+			}
+			else {
+				remoteDir = !remoteDir.EndsWith("/") ? remoteDir + "/" : remoteDir;
+			}
 
 			//flag to determine if existence checks are required
 			var checkFileExistence = true;
@@ -88,7 +94,24 @@ namespace FluentFTP {
 
 				// calc remote path
 				var fileName = Path.GetFileName(localPath);
-				var remotePath = remoteDir + fileName;
+				var remotePath = "";
+
+				if (isPDS) {
+					remotePath = remoteDir;
+
+					// make sure path doesn't end with a dot before appending "(filename)"
+					if (remotePath[remotePath.Length - 2] == '.') {
+						remotePath = remotePath.Remove(remotePath.Length - 2, 1);
+					}
+
+					// Append "(filename)" before closing single quote
+					remotePath = remotePath.Insert(remotePath.Length - 1, "(");
+					remotePath = remotePath.Insert(remotePath.Length - 1, fileName);
+					remotePath = remotePath.Insert(remotePath.Length - 1, ")");
+				}
+				else {
+					remotePath = remoteDir + fileName;
+				}
 
 				// create meta progress to store the file progress
 				var metaProgress = new FtpProgress(localPaths.Count(), r);
