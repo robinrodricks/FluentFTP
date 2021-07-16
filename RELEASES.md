@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 34.0.1
+ - Fix file path calculation when uploading files to IBM zOS running MVS (thanks [arafuls](/arafuls))
+ - Detect full qualified directory when using data sets on IBM zOS running MVS (thanks [arafuls](/arafuls))
+
 #### 34.0.0
  - Major: Refactor and cleanup helpers & extension methods
  - Major: Changed namespace of `FtpTrace` to `FluentFTP.Helpers`
