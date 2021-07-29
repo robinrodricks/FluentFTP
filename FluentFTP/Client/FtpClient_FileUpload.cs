@@ -97,17 +97,10 @@ namespace FluentFTP {
 				var remotePath = "";
 
 				if (isPDS) {
-					remotePath = remoteDir;
-
-					// make sure path doesn't end with a dot before appending "(filename)"
-					if (remotePath[remotePath.Length - 2] == '.') {
-						remotePath = remotePath.Remove(remotePath.Length - 2, 1);
-					}
-
-					// Append "(filename)" before closing single quote
-					remotePath = remotePath.Insert(remotePath.Length - 1, "(");
-					remotePath = remotePath.Insert(remotePath.Length - 1, fileName);
-					remotePath = remotePath.Insert(remotePath.Length - 1, ")");
+					// STOR cmd is intelligent enough to determine the full path
+					// and if it needs to append the ".filename" or "(filename)"
+					// addition to the remote path internally for Dsorgs.
+					remotePath = fileName;
 				}
 				else {
 					remotePath = remoteDir + fileName;
