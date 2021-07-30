@@ -630,8 +630,16 @@ namespace FluentFTP {
 					throw new FtpException("Failed to get the EPSV port from: " + reply.Message);
 				}
 			}
+			// If ESPV is responded with Entering Extended Passive. The IP must remain the same.
+			/* Example:
+			Command: EPSV
+			Response: 229 Entering Extended Passive Mode(|||10016|)
 
-			host = m_host;
+			If we set the host to ftp.host.com and ftp.host.com has multiple ip's we may end up with the wrong ip.
+			Making sure that we use the same IP.
+			host = m_host; 
+			*/
+			host = SocketRemoteEndPoint.Address.ToString();
 			port = int.Parse(m.Groups["port"].Value);
 		}
 
