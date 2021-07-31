@@ -1,5 +1,11 @@
 # Release Notes
 
+#### 34.0.2
+ - New: Add support for `IsAuthenticated` property which enables detection of FTP connection and authentication
+ - Fix: Improved file path calculation when uploading files to IBM zOS running MVS (thanks [arafuls](/arafuls))
+ - Fix: Detection of file exists for Windows NT Servers fails due to invalid slashes
+ - Fix: Ensure `CompletionCode` is always null-checked to fix edge cases and comply with existing implementation
+
 #### 34.0.1
  - Fix file path calculation when uploading files to IBM zOS running MVS (thanks [arafuls](/arafuls))
  - Detect fully-qualified directory when using data sets on IBM zOS running MVS (thanks [arafuls](/arafuls))
