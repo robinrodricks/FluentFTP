@@ -158,12 +158,29 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Gets a value indicating if the connection is alive
+		/// Returns true if the connection to the FTP server is open.
+		/// WARNING: Returns true even if our credentials are incorrect but connection to the server is open.
+		/// See the IsAuthenticated property if you want to check if we are correctly logged in.
 		/// </summary>
 		public bool IsConnected {
 			get {
 				if (m_stream != null) {
 					return m_stream.IsConnected;
+				}
+
+				return false;
+			}
+		}
+
+		private bool m_IsAuthenticated = false;
+
+		/// <summary>
+		/// Returns true if if the connection to the FTP server is open and if the FTP server accepted our credentials.
+		/// </summary>
+		public bool IsAuthenticated {
+			get {
+				if (m_stream != null) {
+					return m_stream.IsConnected && m_IsAuthenticated;
 				}
 
 				return false;

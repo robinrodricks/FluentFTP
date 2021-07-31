@@ -800,6 +800,9 @@ namespace FluentFTP {
 		/// </remarks>
 		protected virtual void Authenticate(string userName, string password, string account) {
 
+			// mark that we are not authenticated
+			m_IsAuthenticated = false;
+
 			// send the USER command along with the FTP username
 			FtpReply reply = Execute("USER " + userName);
 
@@ -837,6 +840,10 @@ namespace FluentFTP {
 						throw new FtpAuthenticationException(reply);
 					}
 				}
+
+				// mark that we are authenticated
+				m_IsAuthenticated = true;
+
 			}
 		}
 
