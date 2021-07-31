@@ -15,7 +15,10 @@ namespace FluentFTP.Helpers {
 		}
 
 		/// <summary>
-		/// Converts the specified path into a valid FTP file system path
+		/// Converts the specified path into a valid FTP file system path.
+		/// Replaces invalid back-slashes with valid forward-slashes.
+		/// Replaces multiple slashes with single slashes.
+		/// Removes the ending postfix slash if any.
 		/// </summary>
 		/// <param name="path">The file system path</param>
 		/// <returns>A path formatted for FTP</returns>
@@ -89,7 +92,8 @@ namespace FluentFTP.Helpers {
 		}
 
 		/// <summary>
-		/// Gets the file name and extension from the path
+		/// Gets the file name and extension from the path.
+		/// Supports paths with backslashes and forwardslashes.
 		/// </summary>
 		/// <param name="path">The full path to the file</param>
 		/// <returns>The file name</returns>
@@ -103,7 +107,10 @@ namespace FluentFTP.Helpers {
 
 			lastslash = tpath.LastIndexOf('/');
 			if (lastslash < 0) {
-				return tpath;
+				lastslash = tpath.LastIndexOf('\\');
+				if (lastslash < 0) {
+					return tpath;
+				}
 			}
 
 			lastslash += 1;
