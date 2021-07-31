@@ -1277,7 +1277,7 @@ namespace FluentFTP {
 				}
 				catch (FtpCommandException ftpEx) {
 					// Some FTP servers throw 550 for empty folders. Absorb these.
-					if (!ftpEx.CompletionCode.StartsWith("550")) {
+					if (ftpEx.CompletionCode == null || !ftpEx.CompletionCode.StartsWith("550")) {
 						throw ftpEx;
 					}
 				}
@@ -1376,7 +1376,7 @@ namespace FluentFTP {
 			}
 			catch (FtpCommandException ftpEx) {
 				// Some FTP servers throw 550 for empty folders. Absorb these.
-				if (!ftpEx.CompletionCode.StartsWith("550")) {
+				if (ftpEx.CompletionCode == null || !ftpEx.CompletionCode.StartsWith("550")) {
 					throw ftpEx;
 				}
 			}
