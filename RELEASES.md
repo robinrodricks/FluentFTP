@@ -5,6 +5,7 @@
  - Fix: Improved file path calculation when uploading files to IBM zOS running MVS (thanks [arafuls](/arafuls))
  - Fix: Detection of file exists for Windows NT Servers fails due to invalid slashes
  - Fix: Ensure `CompletionCode` is always null-checked to fix edge cases and comply with existing implementation
+ - Fix: Possible wrong IP when connecting to Azure FTP Server using `EPSV` command (thanks [jsantos74](/jsantos74))
 
 #### 34.0.1
  - Fix file path calculation when uploading files to IBM zOS running MVS (thanks [arafuls](/arafuls))
