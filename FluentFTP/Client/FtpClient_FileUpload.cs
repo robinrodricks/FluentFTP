@@ -745,8 +745,17 @@ namespace FluentFTP {
 				var transferStarted = DateTime.Now;
 				var sw = new Stopwatch();
 
+
+
+				//sum file length with existing for chunks.
+				//offset and file stream position reset.
+				if (existsMode == FtpRemoteExists.Append || existsMode == FtpRemoteExists.AppendNoCheck) {
+					upStream.SetLength(upStream.Length + fileData.Length);
+					offset = 0;
+					fileData.Position = 0;
+				}
 				// Fix #288 - Upload hangs with only a few bytes left
-				if (fileLen < upStream.Length) {
+				else if (fileLen < upStream.Length) {
 					upStream.SetLength(fileLen);
 				}
 
