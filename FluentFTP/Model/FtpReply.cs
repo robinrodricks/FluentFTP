@@ -54,7 +54,8 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// General success or failure of the last command executed
+		/// General success or failure of the last command executed, by checking the FTP status code.
+		/// 1xx, 2xx, 3xx indicate success and 4xx, 5xx are failures.
 		/// </summary>
 		public bool Success {
 			get {
