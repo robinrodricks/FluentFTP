@@ -658,7 +658,7 @@ namespace FluentFTP {
 			}
 
 			try {
-				long localPosition = 0, remotePosition = 0;
+				long localPosition = 0, remotePosition = 0, remoteFileLen = 0;
 				var checkRemoteFileSize = false;
 
 				// check if the file exists, and skip, overwrite or append
@@ -669,7 +669,7 @@ namespace FluentFTP {
 					checkRemoteFileSize = true;
 
 					// start from the end of the remote file, or if failed to read the length then start from the beginning
-					remotePosition = GetFileSize(remotePath, 0);
+					remoteFileLen = remotePosition = GetFileSize(remotePath, 0);
 
 					// calculate the local position for appending / resuming
 					localPosition = CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
@@ -685,10 +685,10 @@ namespace FluentFTP {
 					if (existsMode == FtpRemoteExists.Skip) {
 
 						if (fileExists) {
-							LogStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
+							LogStatus(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists on server (Remote: " + remotePath + ", Local: " + localPath + ")");
 
 							// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
-							// send progress reports
+							// send progress reports for skipped files
 							if (progress != null) {
 								progress(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 							}
@@ -707,7 +707,7 @@ namespace FluentFTP {
 						if (fileExists) {
 
 							// start from the end of the remote file, or if failed to read the length then start from the beginning
-							remotePosition = GetFileSize(remotePath, 0);
+							remoteFileLen = remotePosition = GetFileSize(remotePath, 0);
 
 							// calculate the local position for appending / resuming
 							localPosition = CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
@@ -733,6 +733,21 @@ namespace FluentFTP {
 					}
 				}
 
+				// calc local file len
+				var localFileLen = fileData.Length;
+
+				// skip uploading if the mode is resume and the local and remote file have the same length
+				if ((existsMode == FtpRemoteExists.AppendResume || existsMode == FtpRemoteExists.AppendResumeNoCheck) &&
+					(localFileLen == remoteFileLen)) {
+					LogStatus(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully uploaded (Remote: " + remotePath + ", Local: " + localPath + ")");
+
+					// send progress reports for skipped files
+					if (progress != null) {
+						progress(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+					}
+					return FtpStatus.Skipped;
+				}
+
 				// open a file connection
 				if (remotePosition == 0 && existsMode != FtpRemoteExists.AppendResumeNoCheck && existsMode != FtpRemoteExists.AppendToEndNoCheck) {
 					upStream = OpenWrite(remotePath, UploadDataType, checkRemoteFileSize);
@@ -745,9 +760,6 @@ namespace FluentFTP {
 				const int rateControlResolution = 100;
 				var rateLimitBytes = UploadRateLimit != 0 ? (long)UploadRateLimit * 1024 : 0;
 				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
-
-				// calc local file len
-				var localFileLen = fileData.Length;
 
 				// calc desired length based on the mode (if need to append to the end of remote file, length is sum of local+remote)
 				var remoteFileDesiredLen = (existsMode == FtpRemoteExists.AppendToEnd) ?
@@ -928,7 +940,7 @@ namespace FluentFTP {
 			}
 
 			try {
-				long localPosition = 0, remotePosition = 0;
+				long localPosition = 0, remotePosition = 0, remoteFileLen = 0;
 				var checkRemoteFileSize = false;
 
 				// check if the file exists, and skip, overwrite or append
@@ -939,7 +951,7 @@ namespace FluentFTP {
 					checkRemoteFileSize = true;
 
 					// start from the end of the remote file, or if failed to read the length then start from the beginning
-					remotePosition = await GetFileSizeAsync(remotePath, 0, token);
+					remoteFileLen = remotePosition = await GetFileSizeAsync(remotePath, 0, token);
 
 					// calculate the local position for appending / resuming
 					localPosition = CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
@@ -955,10 +967,10 @@ namespace FluentFTP {
 					if (existsMode == FtpRemoteExists.Skip) {
 
 						if (fileExists) {
-							LogStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
+							LogStatus(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists on server (Remote: " + remotePath + ", Local: " + localPath + ")");
 
 							// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
-							// send progress reports
+							// send progress reports for skipped files
 							if (progress != null) {
 								progress.Report(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 							}
@@ -979,7 +991,7 @@ namespace FluentFTP {
 						if (fileExists) {
 
 							// start from the end of the remote file, or if failed to read the length then start from the beginning
-							remotePosition = await GetFileSizeAsync(remotePath, 0, token);
+							remoteFileLen = remotePosition = await GetFileSizeAsync(remotePath, 0, token);
 
 							// calculate the local position for appending / resuming
 							localPosition = CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
@@ -1007,6 +1019,21 @@ namespace FluentFTP {
 					}
 				}
 
+				// calc local file len
+				var localFileLen = fileData.Length;
+
+				// skip uploading if the mode is resume and the local and remote file have the same length
+				if ((existsMode == FtpRemoteExists.AppendResume || existsMode == FtpRemoteExists.AppendResumeNoCheck) &&
+					(localFileLen == remoteFileLen)) {
+					LogStatus(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully uploaded (Remote: " + remotePath + ", Local: " + localPath + ")");
+
+					// send progress reports for skipped files
+					if (progress != null) {
+						progress.Report(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+					}
+					return FtpStatus.Skipped;
+				}
+
 				// open a file connection
 				if (remotePosition == 0 && existsMode != FtpRemoteExists.AppendResumeNoCheck && existsMode != FtpRemoteExists.AppendToEndNoCheck) {
 					upStream = await OpenWriteAsync(remotePath, UploadDataType, checkRemoteFileSize, token);
@@ -1019,9 +1046,6 @@ namespace FluentFTP {
 				const int rateControlResolution = 100;
 				var rateLimitBytes = UploadRateLimit != 0 ? (long)UploadRateLimit * 1024 : 0;
 				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
-
-				// calc local file len
-				var localFileLen = fileData.Length;
 
 				// calc desired length based on the mode (if need to append to the end of remote file, length is sum of local+remote)
 				var remoteFileDesiredLen = (existsMode == FtpRemoteExists.AppendToEnd) ?
