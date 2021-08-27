@@ -424,12 +424,12 @@ namespace FluentFTP {
 			long restartPos = 0;
 #if CORE
 			if (existsMode == FtpLocalExists.Append && await Task.Run(() => File.Exists(localPath), token)) {
-				knownFileSize = (await GetFileSizeAsync(remotePath, token));
+				knownFileSize = (await GetFileSizeAsync(remotePath, -1, token));
 				restartPos = await FtpFileStream.GetFileSizeAsync(localPath, false, token);
 				if (knownFileSize.Equals(restartPos)) {
 #else
 			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
-				knownFileSize = (await GetFileSizeAsync(remotePath, token));
+				knownFileSize = (await GetFileSizeAsync(remotePath, -1, token));
 				restartPos = FtpFileStream.GetFileSize(localPath, false);
 				if (knownFileSize.Equals(restartPos)) {
 #endif
@@ -891,7 +891,7 @@ namespace FluentFTP {
 				long fileLen = 0;
 
 				if (DownloadDataType == FtpDataType.Binary && progress != null) {
-					fileLen = knownFileSize > 0 ? knownFileSize : await GetFileSizeAsync(remotePath, token);
+					fileLen = knownFileSize > 0 ? knownFileSize : await GetFileSizeAsync(remotePath, -1, token);
 				}
 
 				// open the file for reading

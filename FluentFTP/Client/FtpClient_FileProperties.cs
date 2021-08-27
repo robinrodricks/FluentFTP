@@ -211,7 +211,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
 		#region Get File Size
 
@@ -219,9 +219,10 @@ namespace FluentFTP {
 		/// Gets the size of a remote file, in bytes.
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
-		/// <returns>-1 if the command fails, otherwise the file size</returns>
+		/// <param name="defaultValue">Value to return if there was an error obtaining the file size, or if the file does not exist</param>
+		/// <returns>The size of the file, or defaultValue if there was a problem.</returns>
 		/// <example><code source="..\Examples\GetFileSize.cs" lang="cs" /></example>
-		public virtual long GetFileSize(string path) {
+		public virtual long GetFileSize(string path, long defaultValue = -1) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -230,14 +231,14 @@ namespace FluentFTP {
 			LogFunc(nameof(GetFileSize), new object[] { path });
 
 			if (!HasFeature(FtpCapability.SIZE)) {
-				return -1;
+				return defaultValue;
 			}
 
 			var sizeReply = new FtpSizeReply();
 #if !CORE14
 			lock (m_lock) {
 #endif
-				GetFileSizeInternal(path, sizeReply);
+				GetFileSizeInternal(path, sizeReply, defaultValue);
 #if !CORE14
 			}
 #endif
@@ -247,8 +248,8 @@ namespace FluentFTP {
 		/// <summary>
 		/// Gets the file size of an object, without locking
 		/// </summary>
-		private void GetFileSizeInternal(string path, FtpSizeReply sizeReply) {
-			long length = -1;
+		private void GetFileSizeInternal(string path, FtpSizeReply sizeReply, long defaultValue) {
+			long length = defaultValue;
 
 			// Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.
 			if (_FileSizeASCIINotSupported) {
@@ -259,7 +260,7 @@ namespace FluentFTP {
 			var reply = Execute("SIZE " + path.GetFtpPath());
 			sizeReply.Reply = reply;
 			if (!reply.Success) {
-				length = -1;
+				length = defaultValue;
 
 				// Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
 				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(FtpServerStrings.fileSizeNotInASCII)) {
@@ -267,34 +268,35 @@ namespace FluentFTP {
 					_FileSizeASCIINotSupported = true;
 
 					// retry getting the file size
-					GetFileSizeInternal(path, sizeReply);
+					GetFileSizeInternal(path, sizeReply, defaultValue);
 					return;
 				}
 			}
 			else if (!long.TryParse(reply.Message, out length)) {
-				length = -1;
+				length = defaultValue;
 			}
 
 			sizeReply.FileSize = length;
 		}
 
 #if !ASYNC
-		private delegate long AsyncGetFileSize(string path);
+		private delegate long AsyncGetFileSize(string path, long defaultValue);
 
 		/// <summary>
 		/// Begins an asynchronous operation to retrieve the size of a remote file
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
+		/// <param name="defaultValue">Value to return if there was an error obtaining the file size, or if the file does not exist</param>
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
 		/// <example><code source="..\Examples\BeginGetFileSize.cs" lang="cs" /></example>
-		public IAsyncResult BeginGetFileSize(string path, AsyncCallback callback, object state) {
+		public IAsyncResult BeginGetFileSize(string path, long defaultValue, AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncGetFileSize func;
 
 			lock (m_asyncmethods) {
-				ar = (func = GetFileSize).BeginInvoke(path, callback, state);
+				ar = (func = GetFileSize).BeginInvoke(path, defaultValue, callback, state);
 				m_asyncmethods.Add(ar, func);
 			}
 
@@ -305,7 +307,7 @@ namespace FluentFTP {
 		/// Ends a call to <see cref="BeginGetFileSize"/>
 		/// </summary>
 		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetFileSize"/></param>
-		/// <returns>The size of the file, -1 if there was a problem.</returns>
+		/// <returns>The size of the file, or defaultValue if there was a problem.</returns>
 		/// <example><code source="..\Examples\BeginGetFileSize.cs" lang="cs" /></example>
 		public long EndGetFileSize(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncGetFileSize>(ar).EndInvoke(ar);
@@ -317,22 +319,23 @@ namespace FluentFTP {
 		/// Asynchronously gets the size of a remote file, in bytes.
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
+		/// <param name="defaultValue">Value to return if there was an error obtaining the file size, or if the file does not exist</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>The size of the file, -1 if there was a problem.</returns>
-		public async Task<long> GetFileSizeAsync(string path, CancellationToken token = default(CancellationToken)) {
+		/// <returns>The size of the file, or defaultValue if there was a problem.</returns>
+		public async Task<long> GetFileSizeAsync(string path, long defaultValue = -1, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc(nameof(GetFileSizeAsync), new object[] { path });
+			LogFunc(nameof(GetFileSizeAsync), new object[] { path, defaultValue });
 
 			if (!HasFeature(FtpCapability.SIZE)) {
-				return -1;
+				return defaultValue;
 			}
 
 			FtpSizeReply sizeReply = new FtpSizeReply();
-			await GetFileSizeInternalAsync(path, token, sizeReply);
+			await GetFileSizeInternalAsync(path, defaultValue, token, sizeReply);
 
 			return sizeReply.FileSize;
 		}
@@ -340,8 +343,8 @@ namespace FluentFTP {
 		/// <summary>
 		/// Gets the file size of an object, without locking
 		/// </summary>
-		private async Task GetFileSizeInternalAsync(string path, CancellationToken token, FtpSizeReply sizeReply) {
-			long length = -1;
+		private async Task GetFileSizeInternalAsync(string path, long defaultValue, CancellationToken token, FtpSizeReply sizeReply) {
+			long length = defaultValue;
 
 			// Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.
 			if (_FileSizeASCIINotSupported) {
@@ -352,7 +355,7 @@ namespace FluentFTP {
 			var reply = await ExecuteAsync("SIZE " + path.GetFtpPath(), token);
 			sizeReply.Reply = reply;
 			if (!reply.Success) {
-				sizeReply.FileSize = -1;
+				sizeReply.FileSize = defaultValue;
 
 				// Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
 				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(FtpServerStrings.fileSizeNotInASCII)) {
@@ -360,12 +363,12 @@ namespace FluentFTP {
 					_FileSizeASCIINotSupported = true;
 
 					// retry getting the file size
-					await GetFileSizeInternalAsync(path, token, sizeReply);
+					await GetFileSizeInternalAsync(path, defaultValue, token, sizeReply);
 					return;
 				}
 			}
 			else if (!long.TryParse(reply.Message, out length)) {
-				length = -1;
+				length = defaultValue;
 			}
 
 			sizeReply.FileSize = length;

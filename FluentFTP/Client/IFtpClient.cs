@@ -142,7 +142,7 @@ namespace FluentFTP {
 		FtpListItem DereferenceLink(FtpListItem item, int recMax);
 		void SetWorkingDirectory(string path);
 		string GetWorkingDirectory();
-		long GetFileSize(string path);
+		long GetFileSize(string path, long defaultValue = -1);
 		DateTime GetModifiedTime(string path);
 		void SetModifiedTime(string path, DateTime date);
 
@@ -167,7 +167,7 @@ namespace FluentFTP {
 		Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, CancellationToken token = default(CancellationToken));
 		Task SetWorkingDirectoryAsync(string path, CancellationToken token = default(CancellationToken));
 		Task<string> GetWorkingDirectoryAsync(CancellationToken token = default(CancellationToken));
-		Task<long> GetFileSizeAsync(string path, CancellationToken token = default(CancellationToken));
+		Task<long> GetFileSizeAsync(string path, long defaultValue = -1, CancellationToken token = default(CancellationToken));
 		Task<DateTime> GetModifiedTimeAsync(string path, CancellationToken token = default(CancellationToken));
 
 		Task SetModifiedTimeAsync(string path, DateTime date, CancellationToken token = default(CancellationToken));

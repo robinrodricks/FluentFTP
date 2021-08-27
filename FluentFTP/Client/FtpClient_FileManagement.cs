@@ -142,7 +142,7 @@ namespace FluentFTP {
 				if (HasFeature(FtpCapability.SIZE)) {
 					// Fix #328: get filesize in ASCII or Binary mode as required by server
 					var sizeReply = new FtpSizeReply();
-					GetFileSizeInternal(path, sizeReply);
+					GetFileSizeInternal(path, sizeReply, -1);
 
 					// handle known errors to the SIZE command
 					var sizeKnownError = CheckFileExistsBySize(sizeReply);
@@ -254,7 +254,7 @@ namespace FluentFTP {
 
 				// Fix #328: get filesize in ASCII or Binary mode as required by server
 				FtpSizeReply sizeReply = new FtpSizeReply();
-				await GetFileSizeInternalAsync(path, token, sizeReply);
+				await GetFileSizeInternalAsync(path, -1, token, sizeReply);
 
 				// handle known errors to the SIZE command
 				var sizeKnownError = CheckFileExistsBySize(sizeReply);

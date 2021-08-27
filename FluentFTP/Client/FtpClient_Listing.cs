@@ -926,7 +926,7 @@ namespace FluentFTP {
 					// supports the SIZE command, then load the file size
 					if (item.Size == -1) {
 						if (item.Type != FtpFileSystemObjectType.Directory) {
-							item.Size = await GetFileSizeAsync(item.FullName, token);
+							item.Size = await GetFileSizeAsync(item.FullName, -1, token);
 						}
 						else {
 							item.Size = 0;

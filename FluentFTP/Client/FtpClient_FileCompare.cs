@@ -137,7 +137,7 @@ namespace FluentFTP {
 
 				// check file size
 				var localSize = await FtpFileStream.GetFileSizeAsync(localPath, false, token);
-				var remoteSize = await GetFileSizeAsync(remotePath, token);
+				var remoteSize = await GetFileSizeAsync(remotePath, -1, token);
 				if (localSize != remoteSize) {
 					return FtpCompareResult.NotEqual;
 				}
