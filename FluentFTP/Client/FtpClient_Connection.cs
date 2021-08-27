@@ -492,9 +492,18 @@ namespace FluentFTP {
 				}
 #endif
 
+				// Unless a custom list parser has been set,
+				// Detect the listing parser and prefer machine listings over any other type
+				// FIX : #739 prefer using machine listings to fix issues with GetListing and DeleteDirectory
+				if (ListingParser != FtpParser.Custom) {
+					ListingParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Auto;
+					if (HasFeature(FtpCapability.MLSD)) {
+						ListingParser = FtpParser.Machine;
+					}
+				}
+
 				// Create the parser even if the auto-OS detection failed
-				var forcedParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Auto;
-				m_listParser.Init(m_serverOS, forcedParser);
+				m_listParser.Init(m_serverOS, ListingParser);
 
 				// FIX : #318 always set the type when we create a new connection
 				ForceSetDataType = true;

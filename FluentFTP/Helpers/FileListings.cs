@@ -22,24 +22,40 @@
 			var pathName = path.GetFtpFileName();
 			var pathPrefixed = path.EnsurePrefix("/");
 
+
 			// FAST MODE
+
 			// per entry in the name list
 			foreach (var fileListEntry in fileList) {
-				// FIX: support servers that return:  1) full paths,  2) only filenames,  3) full paths without slash prefixed
+				// support servers that return:  1) full paths,  2) only filenames,  3) full paths without slash prefixed
 				if (fileListEntry == pathName || fileListEntry == path || fileListEntry.EnsurePrefix("/") == pathPrefixed) {
 					return true;
 				}
 			}
 
-			// SLOW MODE
+
+			// SLOW MODE 1
+
 			// per entry in the name list
-			// Fix #745: FileExists returns false when file exists [Windows NT Server]
 			foreach (var fileListEntry in fileList) {
-				// support servers that return:  4) full paths with invalid slashes
+				// support servers that return:  2) only filenames
 				if (fileListEntry.GetFtpFileName() == pathName) {
 					return true;
 				}
 			}
+
+
+			// SLOW MODE 2
+			// Fix #745: FileExists returns false when file exists [Windows NT Server]
+
+			// per entry in the name list
+			foreach (var fileListEntry in fileList) {
+				// support servers that return:  4) full paths with invalid slashes
+				if (fileListEntry.GetFtpPath() == path) {
+					return true;
+				}
+			}
+
 
 			return false;
 		}

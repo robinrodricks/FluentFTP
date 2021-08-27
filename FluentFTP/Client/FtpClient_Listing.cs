@@ -449,7 +449,7 @@ namespace FluentFTP {
 			}
 			else {
 				// use machine listing if supported by the server
-				if ((!isForceList || m_parser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
+				if ((!isForceList || ListingParser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
 					listcmd = "MLSD";
 					machineList = true;
 				}
@@ -504,7 +504,7 @@ namespace FluentFTP {
 				if (!isUseStat) {
 
 					// if not using machine listing (MSLD)
-					if ((!isForceList || m_parser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
+					if ((!isForceList || ListingParser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
 					}
 					else {
 
@@ -1259,16 +1259,19 @@ namespace FluentFTP {
 				// read in raw listing
 				try {
 					using (var stream = OpenDataStream("NLST " + path.GetFtpPath(), 0)) {
-						string buf;
+						LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+						string line;
 
 						try {
-							while ((buf = stream.ReadLine(Encoding)) != null) {
-								listing.Add(buf);
+							while ((line = stream.ReadLine(Encoding)) != null) {
+								listing.Add(line);
+								LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
 							}
 						}
 						finally {
 							stream.Close();
 						}
+						LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 					}
 				}
 				catch (FtpMissingSocketException) {
@@ -1358,16 +1361,19 @@ namespace FluentFTP {
 			// read in raw listing
 			try {
 				using (FtpDataStream stream = await OpenDataStreamAsync("NLST " + path.GetFtpPath(), 0, token)) {
-					string buf;
+					LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+					string line;
 
 					try {
-						while ((buf = await stream.ReadLineAsync(Encoding, token)) != null) {
-							listing.Add(buf);
+						while ((line = await stream.ReadLineAsync(Encoding, token)) != null) {
+							listing.Add(line);
+							LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
 						}
 					}
 					finally {
 						stream.Close();
 					}
+					LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 				}
 			}
 			catch (FtpMissingSocketException) {

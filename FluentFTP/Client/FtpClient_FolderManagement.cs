@@ -31,7 +31,7 @@ namespace FluentFTP {
 			}
 
 			LogFunc(nameof(DeleteDirectory), new object[] { path });
-			DeleteDirInternal(path, true, FtpListOption.ForceList | FtpListOption.Recursive);
+			DeleteDirInternal(path, true, FtpListOption.Recursive);
 		}
 
 		/// <summary>
@@ -159,7 +159,7 @@ namespace FluentFTP {
 		/// <returns>IAsyncResult</returns>
 		/// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
 		public IAsyncResult BeginDeleteDirectory(string path, AsyncCallback callback, object state) {
-			return BeginDeleteDirectory(path, FtpListOption.ForceList | FtpListOption.Recursive, callback, state);
+			return BeginDeleteDirectory(path, FtpListOption.Recursive, callback, state);
 		}
 
 		/// <summary>
@@ -206,7 +206,7 @@ namespace FluentFTP {
 			}
 
 			LogFunc(nameof(DeleteDirectoryAsync), new object[] { path });
-			return DeleteDirInternalAsync(path, true, FtpListOption.ForceList | FtpListOption.Recursive, token);
+			return DeleteDirInternalAsync(path, true, FtpListOption.Recursive, token);
 		}
 
 		/// <summary>

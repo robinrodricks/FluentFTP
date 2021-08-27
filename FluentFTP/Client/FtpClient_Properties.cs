@@ -716,7 +716,8 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// File listing parser to be used. 
-		/// Automatically calculated based on the type of the server, unless changed.
+		/// Automatically calculated based on the type of the server at the time of connection.
+		/// If you want to override this property, make sure to do it after calling Connect.
 		/// </summary>
 		public FtpParser ListingParser {
 			get => m_parser;
@@ -748,11 +749,13 @@ namespace FluentFTP {
 			get => m_customParser;
 			set {
 				m_customParser = value;
+
+				// modify the ListingParser to note that a custom parser is set
 				if (value != null) {
-					m_parser = FtpParser.Custom;
+					ListingParser = FtpParser.Custom;
 				}
 				else {
-					m_parser = FtpParser.Auto;
+					ListingParser = FtpParser.Auto;
 				}
 			}
 		}

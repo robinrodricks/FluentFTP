@@ -101,23 +101,30 @@ namespace FluentFTP.Helpers {
 			var tpath = path == null ? null : path;
 			var lastslash = -1;
 
+			// no change in path
 			if (tpath == null) {
 				return null;
 			}
 
+			// find the index of the right-most slash character
 			lastslash = tpath.LastIndexOf('/');
 			if (lastslash < 0) {
 				lastslash = tpath.LastIndexOf('\\');
 				if (lastslash < 0) {
+
+					// no change in path
 					return tpath;
 				}
 			}
-
 			lastslash += 1;
 			if (lastslash >= tpath.Length) {
+
+				// no change in path
 				return tpath;
 			}
 
+			// only return the filename and extension portion
+			// skipping all the path folders
 			return tpath.Substring(lastslash, tpath.Length - lastslash);
 		}
 
