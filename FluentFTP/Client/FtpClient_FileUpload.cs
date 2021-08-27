@@ -762,7 +762,7 @@ namespace FluentFTP {
 				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
 
 				// calc desired length based on the mode (if need to append to the end of remote file, length is sum of local+remote)
-				var remoteFileDesiredLen = (existsMode == FtpRemoteExists.AppendToEnd) ?
+				var remoteFileDesiredLen = (existsMode == FtpRemoteExists.AppendToEnd || existsMode == FtpRemoteExists.AppendToEndNoCheck) ?
 					(upStream.Length + localFileLen)
 					: localFileLen;
 
@@ -773,7 +773,11 @@ namespace FluentFTP {
 
 				// always set the length of the remote file based on the desired size
 				// also fixes #288 - Upload hangs with only a few bytes left
-				upStream.SetLength(remoteFileDesiredLen);
+				try {
+					upStream.SetLength(remoteFileDesiredLen);
+				}
+				catch (Exception ex2) {
+				}
 
 				var anyNoop = false;
 
@@ -1048,7 +1052,7 @@ namespace FluentFTP {
 				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
 
 				// calc desired length based on the mode (if need to append to the end of remote file, length is sum of local+remote)
-				var remoteFileDesiredLen = (existsMode == FtpRemoteExists.AppendToEnd) ?
+				var remoteFileDesiredLen = (existsMode == FtpRemoteExists.AppendToEnd || existsMode == FtpRemoteExists.AppendToEndNoCheck) ?
 					(upStream.Length + localFileLen)
 					: localFileLen;
 
@@ -1059,7 +1063,11 @@ namespace FluentFTP {
 
 				// always set the length of the remote file based on the desired size
 				// also fixes #288 - Upload hangs with only a few bytes left
-				upStream.SetLength(remoteFileDesiredLen);
+				try {
+					upStream.SetLength(remoteFileDesiredLen);
+				}
+				catch (Exception ex2) {
+				}
 
 				var anyNoop = false;
 
