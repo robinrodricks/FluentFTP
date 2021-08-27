@@ -29,13 +29,20 @@ namespace FluentFTP.Rules {
 		public IList<string> Names;
 
 		/// <summary>
+		/// Which path segment to start checking from
+		/// </summary>
+		public int StartSegment;
+
+		/// <summary>
 		/// Only accept folders that have the given name, or exclude folders of a given name.
 		/// </summary>
 		/// <param name="whitelist">If true, only folders of the given name are downloaded. If false, folders of the given name are excluded.</param>
 		/// <param name="names">The folder names to match</param>
-		public FtpFolderNameRule(bool whitelist, IList<string> names) {
+		/// <param name="startSegment">Which path segment to start checking from. 0 checks root folder onwards. 1 skips root folder.</param>
+		public FtpFolderNameRule(bool whitelist, IList<string> names, int startSegment = 0) {
 			this.Whitelist = whitelist;
 			this.Names = names;
+			this.StartSegment = startSegment;
 		}
 
 		/// <summary>
@@ -58,8 +65,11 @@ namespace FluentFTP.Rules {
 			// check against whitelist or blacklist
 			if (Whitelist) {
 
-				// whitelist
-				foreach (var dirName in dirNameParts) {
+				// loop thru path segments starting at given index
+				for (int d = StartSegment; d < dirNameParts.Length; d++) {
+					var dirName = dirNameParts[d];
+
+					// whitelist
 					if (Names.Contains(dirName.Trim())) {
 						return true;
 					}
@@ -68,8 +78,11 @@ namespace FluentFTP.Rules {
 			}
 			else {
 
-				// blacklist
-				foreach (var dirName in dirNameParts) {
+				// loop thru path segments starting at given index
+				for (int d = StartSegment; d < dirNameParts.Length; d++) {
+					var dirName = dirNameParts[d];
+
+					// blacklist
 					if (Names.Contains(dirName.Trim())) {
 						return false;
 					}
