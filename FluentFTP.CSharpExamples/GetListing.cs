@@ -59,7 +59,7 @@ namespace Examples {
 						case FtpFileSystemObjectType.File:
 
 							Console.WriteLine("File!  " + item.FullName);
-							Console.WriteLine("File size:  " + await conn.GetFileSizeAsync(item.FullName, token));
+							Console.WriteLine("File size:  " + await conn.GetFileSizeAsync(item.FullName, -1, token));
 							Console.WriteLine("Modified date:  " + await conn.GetModifiedTimeAsync(item.FullName, token));
 							Console.WriteLine("Chmod:  " + await conn.GetChmodAsync(item.FullName, token));
 

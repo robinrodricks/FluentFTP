@@ -20,7 +20,7 @@ namespace Examples {
 			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				await conn.ConnectAsync(token);
 
-				Console.WriteLine("The file size is: " + await conn.GetFileSizeAsync("/full/or/relative/path/to/file", token));
+				Console.WriteLine("The file size is: " + await conn.GetFileSizeAsync("/full/or/relative/path/to/file", -1, token));
 			}
 		}
 

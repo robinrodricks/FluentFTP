@@ -27,7 +27,7 @@ Namespace Examples
 				For Each s In Await conn.GetNameListingAsync(token)
 					Dim isDirectory = Await conn.DirectoryExistsAsync(s, token)
 					Dim modify = Await conn.GetModifiedTimeAsync(s, token)
-					Dim size = If(isDirectory, 0, Await conn.GetFileSizeAsync(s, token))
+					Dim size = If(isDirectory, 0, Await conn.GetFileSizeAsync(s, -1, token))
 				Next
 			End Using
 		End Function

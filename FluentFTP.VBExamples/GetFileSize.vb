@@ -18,7 +18,7 @@ Namespace Examples
 
 			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
 				Await conn.ConnectAsync(token)
-				Console.WriteLine("The file size is: " & Await conn.GetFileSizeAsync("/full/or/relative/path/to/file", token))
+				Console.WriteLine("The file size is: " & Await conn.GetFileSizeAsync("/full/or/relative/path/to/file", -1, token))
 			End Using
 		End Function
 	End Module

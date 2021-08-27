@@ -1089,8 +1089,9 @@ namespace FluentFTP {
 						break;
 					}
 					catch (IOException ex) {
+
 						// resume if server disconnected midway, or throw if there is an exception doing that as well
-						var resumeResult = await ResumeUploadAsync(remotePath, upStream, offset, ex);
+						var resumeResult = await ResumeUploadAsync(remotePath, upStream, remotePosition, ex);
 						if (resumeResult.Item1) {
 							upStream = resumeResult.Item2;
 

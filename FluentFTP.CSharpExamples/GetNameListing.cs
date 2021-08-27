@@ -31,7 +31,7 @@ namespace Examples {
 					// returned from the listing...
 					var isDirectory = await conn.DirectoryExistsAsync(s, token);
 					var modify = await conn.GetModifiedTimeAsync(s, token);
-					var size = isDirectory ? 0 : await conn.GetFileSizeAsync(s, token);
+					var size = isDirectory ? 0 : await conn.GetFileSizeAsync(s, -1, token);
 				}
 			}
 		}
