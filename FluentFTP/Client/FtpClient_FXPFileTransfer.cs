@@ -37,7 +37,7 @@ namespace FluentFTP {
 			LogFunc(nameof(TransferFile), new object[] { sourcePath, remoteClient, remotePath, FXPDataType, createRemoteDir, existsMode, verifyOptions });
 
 			// verify input params
-			VerifyTransferFileParams(sourcePath, remoteClient, remotePath);
+			VerifyTransferFileParams(sourcePath, remoteClient, remotePath, existsMode);
 
 			// ensure source file exists
 			if (!FileExists(sourcePath)) {
@@ -76,7 +76,7 @@ namespace FluentFTP {
 
 		}
 
-		private void VerifyTransferFileParams(string sourcePath, FtpClient remoteClient, string remotePath) {
+		private void VerifyTransferFileParams(string sourcePath, FtpClient remoteClient, string remotePath, FtpRemoteExists existsMode) {
 			if (remoteClient is null) {
 				throw new ArgumentNullException("Destination FXP FtpClient cannot be null!", "remoteClient");
 			}
@@ -95,6 +95,10 @@ namespace FluentFTP {
 
 			if (!this.IsConnected) {
 				throw new FtpException("The source FXP FtpClient must be open and connected before a transfer between servers can be intitiated");
+			}
+
+			if (existsMode == FtpRemoteExists.AppendToEnd || existsMode == FtpRemoteExists.AppendToEndNoCheck) {
+				throw new ArgumentException("FXP file transfer does not currently support AppendToEnd or AppendToEndNoCheck modes. Use another value for existsMode.", "existsMode");
 			}
 		}
 
@@ -124,7 +128,7 @@ namespace FluentFTP {
 			LogFunc(nameof(TransferFileAsync), new object[] { sourcePath, remoteClient, remotePath, FXPDataType, createRemoteDir, existsMode, verifyOptions });
 
 			// verify input params
-			VerifyTransferFileParams(sourcePath, remoteClient, remotePath);
+			VerifyTransferFileParams(sourcePath, remoteClient, remotePath, existsMode);
 
 			// ensure source file exists
 			if (!await FileExistsAsync(sourcePath, token)) {
