@@ -299,7 +299,7 @@ namespace FluentFTP {
 				knownFileSize = GetFileSize(remotePath);
 				restartPos = FtpFileStream.GetFileSize(localPath, false);
 				if (knownFileSize.Equals(restartPos)) {
-					LogStatus(FtpTraceLevel.Info, "Append is selected => Local file size matches size on server => skipping");
+					LogStatus(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully downloaded (Remote: " + remotePath + ", Local: " + localPath + ")");
 					return FtpStatus.Skipped;
 				}
 				else {
@@ -307,7 +307,7 @@ namespace FluentFTP {
 				}
 			}
 			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
-				LogStatus(FtpTraceLevel.Info, "Skip is selected => Local file exists => skipping");
+				LogStatus(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists locally (Remote: " + remotePath + ", Local: " + localPath + ")");
 				return FtpStatus.Skipped;
 			}
 
@@ -433,7 +433,7 @@ namespace FluentFTP {
 				restartPos = FtpFileStream.GetFileSize(localPath, false);
 				if (knownFileSize.Equals(restartPos)) {
 #endif
-					LogStatus(FtpTraceLevel.Info, "Append is enabled => Local file size matches size on server => skipping");
+					LogStatus(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully downloaded (Remote: " + remotePath + ", Local: " + localPath + ")");
 					return FtpStatus.Skipped;
 				}
 				else {
@@ -445,7 +445,7 @@ namespace FluentFTP {
 #else
 			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
 #endif
-				LogStatus(FtpTraceLevel.Info, "Skip is selected => Local file exists => skipping");
+				LogStatus(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists locally (Remote: " + remotePath + ", Local: " + localPath + ")");
 				return FtpStatus.Skipped;
 			}
 
