@@ -405,7 +405,7 @@ namespace FluentFTP {
 
 			// in any mode if the file does not exist, mark that exists check is not required
 			if (!fileExists) {
-				existsModeToUse = existsMode == FtpRemoteExists.Append ? FtpRemoteExists.AppendNoCheck : FtpRemoteExists.NoCheck;
+				existsModeToUse = existsMode == FtpRemoteExists.AppendResume ? FtpRemoteExists.AppendResumeNoCheck : FtpRemoteExists.NoCheck;
 			}
 			return true;
 		}

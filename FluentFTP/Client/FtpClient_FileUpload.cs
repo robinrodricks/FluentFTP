@@ -652,59 +652,66 @@ namespace FluentFTP {
 
 			Stream upStream = null;
 
+			// throw an error if need to resume uploading and cannot seek the local file stream
+			if (fileData.CanSeek && existsMode == FtpRemoteExists.AppendResume) {
+				throw new ArgumentException("You have requested resuming file upload with FtpRemoteExists.AppendResume, but the local file stream cannot be seeked. Use another type of Stream or another existsMode.", "fileData");
+			}
+
 			try {
-				long offset = 0;
-				var checkFileExistsAgain = false;
+				long localPosition = 0, remotePosition = 0;
+				var checkRemoteFileSize = false;
 
 				// check if the file exists, and skip, overwrite or append
 				if (existsMode == FtpRemoteExists.NoCheck) {
-					checkFileExistsAgain = false;
+					checkRemoteFileSize = false;
 				}
-				else if (existsMode == FtpRemoteExists.AppendNoCheck) {
-					checkFileExistsAgain = true;
+				else if (existsMode == FtpRemoteExists.AppendResumeNoCheck || existsMode == FtpRemoteExists.AppendToEndNoCheck) {
+					checkRemoteFileSize = true;
 
-					offset = GetFileSize(remotePath);
-					if (offset == -1) {
-						offset = 0; // start from the beginning
-					}
+					// start from the end of the remote file, or if failed to read the length then start from the beginning
+					remotePosition = GetFileSize(remotePath, 0);
+
+					// calculate the local position for appending / resuming
+					localPosition = CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
+
 				}
 				else {
+
+					// check if the remote file exists
 					if (!fileExistsKnown) {
 						fileExists = FileExists(remotePath);
 					}
 
-					switch (existsMode) {
-						case FtpRemoteExists.Skip:
-							if (fileExists) {
-								LogStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
+					if (existsMode == FtpRemoteExists.Skip) {
 
-								// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
-								// send progress reports
-								if (progress != null) {
-									progress(new FtpProgress(100.0, offset, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
-								}
+						if (fileExists) {
+							LogStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
 
-								return FtpStatus.Skipped;
+							// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
+							// send progress reports
+							if (progress != null) {
+								progress(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 							}
 
-							break;
+							return FtpStatus.Skipped;
+						}
+					}
+					else if (existsMode == FtpRemoteExists.Overwrite) {
 
-						case FtpRemoteExists.Overwrite:
-							if (fileExists) {
-								DeleteFile(remotePath);
-							}
+						// delete the remote file if it exists and we need to overwrite
+						if (fileExists) {
+							DeleteFile(remotePath);
+						}
+					}
+					else if (existsMode == FtpRemoteExists.AppendResume || existsMode == FtpRemoteExists.AppendToEnd) {
+						if (fileExists) {
 
-							break;
+							// start from the end of the remote file, or if failed to read the length then start from the beginning
+							remotePosition = GetFileSize(remotePath, 0);
 
-						case FtpRemoteExists.Append:
-							if (fileExists) {
-								offset = GetFileSize(remotePath);
-								if (offset == -1) {
-									offset = 0; // start from the beginning
-								}
-							}
-
-							break;
+							// calculate the local position for appending / resuming
+							localPosition = CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
+						}
 					}
 				}
 
@@ -720,48 +727,46 @@ namespace FluentFTP {
 				if (fileData.CanSeek) {
 					try {
 						// seek to required offset
-						fileData.Position = offset;
+						fileData.Position = localPosition;
 					}
 					catch (Exception ex2) {
 					}
 				}
 
 				// open a file connection
-				if (offset == 0 && existsMode != FtpRemoteExists.AppendNoCheck) {
-					upStream = OpenWrite(remotePath, UploadDataType, checkFileExistsAgain);
+				if (remotePosition == 0 && existsMode != FtpRemoteExists.AppendResumeNoCheck && existsMode != FtpRemoteExists.AppendToEndNoCheck) {
+					upStream = OpenWrite(remotePath, UploadDataType, checkRemoteFileSize);
 				}
 				else {
-					upStream = OpenAppend(remotePath, UploadDataType, checkFileExistsAgain);
+					upStream = OpenAppend(remotePath, UploadDataType, checkRemoteFileSize);
 				}
 
+				// calculate chunk size and rate limiting
 				const int rateControlResolution = 100;
 				var rateLimitBytes = UploadRateLimit != 0 ? (long)UploadRateLimit * 1024 : 0;
 				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
 
-				// loop till entire file uploaded
-				var fileLen = fileData.Length;
+				// calc local file len
+				var localFileLen = fileData.Length;
+
+				// calc desired length based on the mode (if need to append to the end of remote file, length is sum of local+remote)
+				var remoteFileDesiredLen = (existsMode == FtpRemoteExists.AppendToEnd) ?
+					(upStream.Length + localFileLen)
+					: localFileLen;
+
 				var buffer = new byte[chunkSize];
 
 				var transferStarted = DateTime.Now;
 				var sw = new Stopwatch();
 
-
-
-				//sum file length with existing for chunks.
-				//offset and file stream position reset.
-				if (existsMode == FtpRemoteExists.Append || existsMode == FtpRemoteExists.AppendNoCheck) {
-					upStream.SetLength(upStream.Length + fileData.Length);
-					offset = 0;
-					fileData.Position = 0;
-				}
-				// Fix #288 - Upload hangs with only a few bytes left
-				else if (fileLen < upStream.Length) {
-					upStream.SetLength(fileLen);
-				}
+				// always set the length of the remote file based on the desired size
+				// also fixes #288 - Upload hangs with only a few bytes left
+				upStream.SetLength(remoteFileDesiredLen);
 
 				var anyNoop = false;
 
-				while (offset < fileLen) {
+				// loop till entire file uploaded
+				while (localPosition < localFileLen) {
 					try {
 						// read a chunk of bytes from the file
 						int readBytes;
@@ -770,16 +775,20 @@ namespace FluentFTP {
 
 						sw.Start();
 						while ((readBytes = fileData.Read(buffer, 0, buffer.Length)) > 0) {
+
 							// write chunk to the FTP stream
 							upStream.Write(buffer, 0, readBytes);
 							upStream.Flush();
-							offset += readBytes;
+
+							// move file pointers ahead
+							localPosition += readBytes;
+							remotePosition += readBytes;
 							bytesProcessed += readBytes;
 							limitCheckBytes += readBytes;
 
 							// send progress reports
 							if (progress != null) {
-								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
+								ReportProgress(progress, localFileLen, localPosition, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
 							}
 
 							// Fix #387: keep alive with NOOP as configured and needed
@@ -809,23 +818,26 @@ namespace FluentFTP {
 						break;
 					}
 					catch (IOException ex) {
+
 						// resume if server disconnected midway, or throw if there is an exception doing that as well
-						if (!ResumeUpload(remotePath, ref upStream, ref offset, ex)) {
+						if (!ResumeUpload(remotePath, ref upStream, remotePosition, ex)) {
 							sw.Stop();
 							throw;
 						}
-						// we should get the offset from the remote server, since we are not sure the last write operation succeeded.
-						// give up if we cannot reposition the source stream
-						if (!fileData.CanSeek) {
+
+						// since the remote stream has been seeked, we need to reposition the local stream too
+						if (fileData.CanSeek) {
+							fileData.Seek(localPosition, SeekOrigin.Begin);
+						}
+						else {
 							sw.Stop();
 							throw;
 						}
-						fileData.Seek(offset, SeekOrigin.Begin);
 
 					} catch (TimeoutException ex) {
 						// fix: attempting to upload data after we reached the end of the stream
 						// often throws a timeout exception, so we silently absorb that here
-						if (offset >= fileLen) {
+						if (localPosition >= localFileLen) {
 							break;
 						}
 						else {
@@ -909,59 +921,72 @@ namespace FluentFTP {
 			FtpRemoteExists existsMode, bool fileExists, bool fileExistsKnown, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
 
 			Stream upStream = null;
+
+			// throw an error if need to resume uploading and cannot seek the local file stream
+			if (fileData.CanSeek && existsMode == FtpRemoteExists.AppendResume) {
+				throw new ArgumentException("You have requested resuming file upload with FtpRemoteExists.AppendResume, but the local file stream cannot be seeked. Use another type of Stream or another existsMode.", "fileData");
+			}
+
 			try {
-				long offset = 0;
-				var checkFileExistsAgain = false;
+				long localPosition = 0, remotePosition = 0;
+				var checkRemoteFileSize = false;
 
 				// check if the file exists, and skip, overwrite or append
 				if (existsMode == FtpRemoteExists.NoCheck) {
-					checkFileExistsAgain = false;
+					checkRemoteFileSize = false;
 				}
-				else if (existsMode == FtpRemoteExists.AppendNoCheck) {
-					checkFileExistsAgain = true;
-					offset = await GetFileSizeAsync(remotePath, token);
-					if (offset == -1) {
-						offset = 0; // start from the beginning
-					}
+				else if (existsMode == FtpRemoteExists.AppendResumeNoCheck || existsMode == FtpRemoteExists.AppendToEndNoCheck) {
+					checkRemoteFileSize = true;
+
+					// start from the end of the remote file, or if failed to read the length then start from the beginning
+					remotePosition = await GetFileSizeAsync(remotePath, 0, token);
+
+					// calculate the local position for appending / resuming
+					localPosition = CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
+
 				}
 				else {
+
+					// check if the remote file exists
 					if (!fileExistsKnown) {
 						fileExists = await FileExistsAsync(remotePath, token);
 					}
 
-					switch (existsMode) {
-						case FtpRemoteExists.Skip:
-							if (fileExists) {
-								LogStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
+					if (existsMode == FtpRemoteExists.Skip) {
 
-								// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
-								// send progress reports
-								if (progress != null) {
-									progress.Report(new FtpProgress(100.0, offset, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
-								}
+						if (fileExists) {
+							LogStatus(FtpTraceLevel.Warn, "File " + remotePath + " exists on server & existsMode is set to FileExists.Skip");
 
-								return FtpStatus.Skipped;
+							// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
+							// send progress reports
+							if (progress != null) {
+								progress.Report(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 							}
 
-							break;
+							return FtpStatus.Skipped;
+						}
 
-						case FtpRemoteExists.Overwrite:
-							if (fileExists) {
-								await DeleteFileAsync(remotePath, token);
-							}
-
-							break;
-
-						case FtpRemoteExists.Append:
-							if (fileExists) {
-								offset = await GetFileSizeAsync(remotePath, token);
-								if (offset == -1) {
-									offset = 0; // start from the beginning
-								}
-							}
-
-							break;
 					}
+					else if (existsMode == FtpRemoteExists.Overwrite) {
+
+						// delete the remote file if it exists and we need to overwrite
+						if (fileExists) {
+							await DeleteFileAsync(remotePath, token);
+						}
+
+					}
+					else if (existsMode == FtpRemoteExists.AppendResume || existsMode == FtpRemoteExists.AppendToEnd) {
+						if (fileExists) {
+
+							// start from the end of the remote file, or if failed to read the length then start from the beginning
+							remotePosition = await GetFileSizeAsync(remotePath, 0, token);
+
+							// calculate the local position for appending / resuming
+							localPosition = CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
+						}
+
+					}
+
 				}
 
 				// ensure the remote dir exists .. only if the file does not already exist!
@@ -976,39 +1001,46 @@ namespace FluentFTP {
 				if (fileData.CanSeek) {
 					try {
 						// seek to required offset
-						fileData.Position = offset;
+						fileData.Position = localPosition;
 					}
 					catch (Exception ex2) {
 					}
 				}
 
 				// open a file connection
-				if (offset == 0 && existsMode != FtpRemoteExists.AppendNoCheck) {
-					upStream = await OpenWriteAsync(remotePath, UploadDataType, checkFileExistsAgain, token);
+				if (remotePosition == 0 && existsMode != FtpRemoteExists.AppendResumeNoCheck && existsMode != FtpRemoteExists.AppendToEndNoCheck) {
+					upStream = await OpenWriteAsync(remotePath, UploadDataType, checkRemoteFileSize, token);
 				}
 				else {
-					upStream = await OpenAppendAsync(remotePath, UploadDataType, checkFileExistsAgain, token);
+					upStream = await OpenAppendAsync(remotePath, UploadDataType, checkRemoteFileSize, token);
 				}
 
+				// calculate chunk size and rate limiting
 				const int rateControlResolution = 100;
 				var rateLimitBytes = UploadRateLimit != 0 ? (long)UploadRateLimit * 1024 : 0;
 				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
 
-				// loop till entire file uploaded
-				var fileLen = fileData.Length;
+				// calc local file len
+				var localFileLen = fileData.Length;
+
+				// calc desired length based on the mode (if need to append to the end of remote file, length is sum of local+remote)
+				var remoteFileDesiredLen = (existsMode == FtpRemoteExists.AppendToEnd) ?
+					(upStream.Length + localFileLen)
+					: localFileLen;
+
 				var buffer = new byte[chunkSize];
 
 				var transferStarted = DateTime.Now;
 				var sw = new Stopwatch();
 
-				// Fix #288 - Upload hangs with only a few bytes left
-				if (fileLen < upStream.Length) {
-					upStream.SetLength(fileLen);
-				}
+				// always set the length of the remote file based on the desired size
+				// also fixes #288 - Upload hangs with only a few bytes left
+				upStream.SetLength(remoteFileDesiredLen);
 
 				var anyNoop = false;
 
-				while (offset < fileLen) {
+				// loop till entire file uploaded
+				while (localPosition < localFileLen) {
 					try {
 						// read a chunk of bytes from the file
 						int readBytes;
@@ -1020,13 +1052,17 @@ namespace FluentFTP {
 							// write chunk to the FTP stream
 							await upStream.WriteAsync(buffer, 0, readBytes, token);
 							await upStream.FlushAsync(token);
-							offset += readBytes;
+
+
+							// move file pointers ahead
+							localPosition += readBytes;
+							remotePosition += readBytes;
 							bytesProcessed += readBytes;
 							limitCheckBytes += readBytes;
 
 							// send progress reports
 							if (progress != null) {
-								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
+								ReportProgress(progress, localFileLen, localPosition, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
 							}
 
 							// Fix #387: keep alive with NOOP as configured and needed
@@ -1057,6 +1093,16 @@ namespace FluentFTP {
 						var resumeResult = await ResumeUploadAsync(remotePath, upStream, offset, ex);
 						if (resumeResult.Item1) {
 							upStream = resumeResult.Item2;
+
+							// since the remote stream has been seeked, we need to reposition the local stream too
+							if (fileData.CanSeek) {
+								fileData.Seek(localPosition, SeekOrigin.Begin);
+							}
+							else {
+								sw.Stop();
+								throw;
+							}
+
 						}
 						else {
 							sw.Stop();
@@ -1066,7 +1112,7 @@ namespace FluentFTP {
 					catch (TimeoutException ex) {
 						// fix: attempting to upload data after we reached the end of the stream
 						// often throws a timeout exception, so we silently absorb that here
-						if (offset >= fileLen) {
+						if (localPosition >= localFileLen) {
 							break;
 						}
 						else {
@@ -1147,33 +1193,59 @@ namespace FluentFTP {
 
 #endif
 
-		private bool ResumeUpload(string remotePath, ref Stream upStream, ref long offset, IOException ex) {
-			if (ex.IsResumeAllowed())
-			{
-				upStream.Dispose();
-				upStream = OpenAppend(remotePath, UploadDataType, true);
-				offset = upStream.Position;
+		private bool ResumeUpload(string remotePath, ref Stream upStream, long remotePosition, IOException ex) {
 
+			// if resume possible
+			if (ex.IsResumeAllowed()) {
+
+				// dispose the old bugged out stream
+				upStream.Dispose();
+
+				// create and return a new stream starting at the current remotePosition
+				upStream = OpenAppend(remotePath, UploadDataType, true);
+				upStream.Position = remotePosition;
 				return true;
 			}
 
+			// resume not allowed
 			return false;
 		}
 
 #if ASYNC
-		private async Task<Tuple<bool, Stream>> ResumeUploadAsync(string remotePath, Stream upStream, long offset, IOException ex) {
-			if (ex.IsResumeAllowed())
-			{
-				upStream.Dispose();
-				var returnStream = await OpenAppendAsync(remotePath, UploadDataType, true);
-				returnStream.Position = offset;
+		private async Task<Tuple<bool, Stream>> ResumeUploadAsync(string remotePath, Stream upStream, long remotePosition, IOException ex) {
 
+			// if resume possible
+			if (ex.IsResumeAllowed()) {
+
+				// dispose the old bugged out stream
+				upStream.Dispose();
+
+				// create and return a new stream starting at the current remotePosition
+				var returnStream = await OpenAppendAsync(remotePath, UploadDataType, true);
+				returnStream.Position = remotePosition;
 				return Tuple.Create(true, returnStream);
 			}
 
+			// resume not allowed
 			return Tuple.Create(false, (Stream)null);
 		}
 #endif
+		private long CalculateAppendLocalPosition(string remotePath, FtpRemoteExists existsMode, long remotePosition) {
+
+			long localPosition = 0;
+
+			// resume - start the local file from the same position as the remote file
+			if (existsMode == FtpRemoteExists.AppendResume || existsMode == FtpRemoteExists.AppendResumeNoCheck) {
+				localPosition = remotePosition;
+			}
+
+			// append to end - start from the beginning of the local file
+			else if (existsMode == FtpRemoteExists.AppendToEnd || existsMode == FtpRemoteExists.AppendToEndNoCheck) {
+				localPosition = 0;
+			}
+
+			return localPosition;
+		}
 
 		#endregion
 	}
