@@ -82,8 +82,6 @@
     <Compile Include="FileExists.vb" />
     <Compile Include="GetChecksum.vb" />
     <Compile Include="GetFileSize.vb" />
-    <Compile Include="GetHash.vb" />
-    <Compile Include="GetHashAlgorithm.vb" />
     <Compile Include="GetListing.vb" />
     <Compile Include="GetListingWithLinks.vb" />
     <Compile Include="GetModifiedTime.vb" />
@@ -93,7 +91,6 @@
     <Compile Include="OpenRead.vb" />
     <Compile Include="OpenWrite.vb" />
     <Compile Include="Rename.vb" />
-    <Compile Include="SetHashAlgorithm.vb" />
     <Compile Include="SetWorkingDirectory.vb" />
     <Compile Include="UploadDirectory.vb" />
     <Compile Include="UploadDirectoryWithRules.vb" />

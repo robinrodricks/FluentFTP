@@ -43,6 +43,11 @@ namespace FluentFTP {
 		private string _LastWorkingDir = null;
 
 		/// <summary>
+		/// Cached value of the last set hash algorithm.
+		/// </summary>
+		private FtpHashAlgorithm _LastHashAlgo = FtpHashAlgorithm.NONE;
+
+		/// <summary>
 		/// These flags must be reset every time we connect, to allow for users to connect to
 		/// different FTP servers with the same client object.
 		/// </summary>
@@ -51,6 +56,7 @@ namespace FluentFTP {
 			_FileSizeASCIINotSupported = false;
 			_RecursiveListSupported = false;
 			_LastWorkingDir = null;
+			_LastHashAlgo = FtpHashAlgorithm.NONE;
 		}
 
 		/// <summary>

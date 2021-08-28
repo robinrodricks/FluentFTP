@@ -640,7 +640,7 @@ namespace Tests {
 
 		//[Fact]
 		public void TestHash() {
-			using (var cl = NewFtpClient()) {
+			/*using (var cl = NewFtpClient()) {
 				cl.Connect();
 
 				FtpTrace.WriteLine("Supported HASH algorithms: " + cl.HashAlgorithms);
@@ -658,13 +658,13 @@ namespace Tests {
 						}
 					}
 				}
-			}
+			}*/
 		}
 
 #if !NOASYNC
 		//[Fact]
 		public async Task TestHashAsync() {
-			using (var cl = NewFtpClient()) {
+			/*using (var cl = NewFtpClient()) {
 				await cl.ConnectAsync();
 
 				FtpTrace.WriteLine("Supported HASH algorithms: " + cl.HashAlgorithms);
@@ -675,14 +675,14 @@ namespace Tests {
 						FtpHash hash = null;
 
 						await cl.SetHashAlgorithmAsync(alg);
-						hash = await cl.GetHashAsync("LICENSE.TXT");
+						hash = await cl.HashCommandInternalAsync("LICENSE.TXT");
 
 						if (hash.IsValid) {
 							Debug.Assert(hash.Verify(@"C:\FTPTEST\LICENSE.TXT"), "The computed hash didn't match or the hash object was invalid!");
 						}
 					}
 				}
-			}
+			}*/
 		}
 #endif
 
@@ -853,9 +853,9 @@ namespace Tests {
 					ostream.Write(buf, 0, read);
 				}
 
-				if (cl.HashAlgorithms != FtpHashAlgorithm.NONE) {
+				/*if (cl.HashAlgorithms != FtpHashAlgorithm.NONE) {
 					Debug.Assert(cl.GetHash(s.Replace(root, "")).Verify(s), "The computed hashes don't match!");
-				}
+				}*/
 			}
 
 			/*if (!cl.GetHash(s.Replace(root, "")).Verify(s))

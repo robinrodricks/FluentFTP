@@ -265,16 +265,9 @@ namespace FluentFTP {
 #endif
 
 		// HASH
-
-		FtpHashAlgorithm GetHashAlgorithm();
-		void SetHashAlgorithm(FtpHashAlgorithm type);
-		FtpHash GetHash(string path);
 		FtpHash GetChecksum(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE);
 
 #if ASYNC
-		Task<FtpHashAlgorithm> GetHashAlgorithmAsync(CancellationToken token = default(CancellationToken));
-		Task SetHashAlgorithmAsync(FtpHashAlgorithm type, CancellationToken token = default(CancellationToken));
-		Task<FtpHash> GetHashAsync(string path, CancellationToken token = default(CancellationToken));
 		Task<FtpHash> GetChecksumAsync(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken));
 
 #endif
