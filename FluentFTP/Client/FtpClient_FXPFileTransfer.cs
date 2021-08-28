@@ -101,7 +101,7 @@ namespace FluentFTP {
 			}
 
 			if (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AddToEndNoCheck) {
-				throw new ArgumentException("FXP file transfer does not currently support AppendToEnd or AppendToEndNoCheck modes. Use another value for existsMode.", "existsMode");
+				throw new ArgumentException("FXP file transfer does not currently support AddToEnd or AddToEndNoCheck modes. Use another value for existsMode.", "existsMode");
 			}
 		}
 

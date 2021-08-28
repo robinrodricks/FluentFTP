@@ -627,7 +627,6 @@ namespace FluentFTP {
 		/// the connection will be aborted.
 		/// Not fired if ValidateAnyCertificate is set to true.
 		/// </summary>
-		/// <example><code source="..\Examples\ValidateCertificate.cs" lang="cs" /></example>
 		public event FtpSslValidation ValidateCertificate {
 			add => m_ValidateCertificate += value;
 			remove => m_ValidateCertificate -= value;

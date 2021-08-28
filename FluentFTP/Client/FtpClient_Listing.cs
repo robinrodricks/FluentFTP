@@ -233,7 +233,6 @@ namespace FluentFTP {
 		/// be retrieved.
 		/// </remarks>
 		/// <returns>An array of FtpListItem objects</returns>
-		/// <example><code source="..\Examples\GetListing.cs" lang="cs" /></example>
 		public FtpListItem[] GetListing() {
 			return GetListing(null);
 		}
@@ -250,7 +249,6 @@ namespace FluentFTP {
 		/// </remarks>
 		/// <param name="path">The path of the directory to list</param>
 		/// <returns>An array of FtpListItem objects</returns>
-		/// <example><code source="..\Examples\GetListing.cs" lang="cs" /></example>
 		public FtpListItem[] GetListing(string path) {
 			return GetListing(path, 0);
 		}
@@ -268,7 +266,6 @@ namespace FluentFTP {
 		/// <param name="path">The path of the directory to list</param>
 		/// <param name="options">Options that dictate how a list is performed and what information is gathered.</param>
 		/// <returns>An array of FtpListItem objects</returns>
-		/// <example><code source="..\Examples\GetListing.cs" lang="cs" /></example>
 		public FtpListItem[] GetListing(string path, FtpListOption options) {
 
 			// start recursive process if needed and unsupported by the server
@@ -633,7 +630,6 @@ namespace FluentFTP {
 		/// <param name="callback">AsyncCallback method</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginGetListing.cs" lang="cs" /></example>
 		public IAsyncResult BeginGetListing(AsyncCallback callback, object state) {
 			return BeginGetListing(null, callback, state);
 		}
@@ -652,7 +648,6 @@ namespace FluentFTP {
 		/// <param name="callback">AsyncCallback method</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginGetListing.cs" lang="cs" /></example>
 		public IAsyncResult BeginGetListing(string path, AsyncCallback callback, object state) {
 			return BeginGetListing(path, FtpListOption.Modify | FtpListOption.Size, callback, state);
 		}
@@ -667,7 +662,6 @@ namespace FluentFTP {
 		/// <param name="callback">AsyncCallback method</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginGetListing.cs" lang="cs" /></example>
 		public IAsyncResult BeginGetListing(string path, FtpListOption options, AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncGetListing func;
@@ -685,7 +679,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="ar">IAsyncResult return from <see cref="o:BeginGetListing"/></param>
 		/// <returns>An array of items retrieved in the listing</returns>
-		/// <example><code source="..\Examples\BeginGetListing.cs" lang="cs" /></example>
 		public FtpListItem[] EndGetListing(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncGetListing>(ar).EndInvoke(ar);
 		}
@@ -1248,7 +1241,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The path of the directory to list</param>
 		/// <returns>A string array of file and directory names if any were returned.</returns>
-		/// <example><code source="..\Examples\GetNameListing.cs" lang="cs" /></example>
 		public string[] GetNameListing(string path) {
 
 			path = path.GetFtpPath();
@@ -1316,7 +1308,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async Callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginGetNameListing.cs" lang="cs" /></example>
 		public IAsyncResult BeginGetNameListing(string path, AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncGetNameListing func;
@@ -1335,7 +1326,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async Callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginGetNameListing.cs" lang="cs" /></example>
 		public IAsyncResult BeginGetNameListing(AsyncCallback callback, object state) {
 			return BeginGetNameListing(null, callback, state);
 		}
@@ -1345,7 +1335,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="ar">IAsyncResult object returned from <see cref="o:BeginGetNameListing"/></param>
 		/// <returns>An array of file and directory names if any were returned.</returns>
-		/// <example><code source="..\Examples\BeginGetNameListing.cs" lang="cs" /></example>
 		public string[] EndGetNameListing(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncGetNameListing>(ar).EndInvoke(ar);
 		}

@@ -33,7 +33,6 @@ namespace FluentFTP {
 		/// Deletes a file on the server
 		/// </summary>
 		/// <param name="path">The full or relative path to the file</param>
-		/// <example><code source="..\Examples\DeleteFile.cs" lang="cs" /></example>
 		public void DeleteFile(string path) {
 			FtpReply reply;
 
@@ -69,7 +68,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginDeleteFile.cs" lang="cs" /></example>
 		public IAsyncResult BeginDeleteFile(string path, AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncDeleteFile func;
@@ -86,7 +84,6 @@ namespace FluentFTP {
 		/// Ends a call to <see cref="BeginDeleteFile"/>
 		/// </summary>
 		/// <param name="ar">IAsyncResult returned from BeginDeleteFile</param>
-		/// <example><code source="..\Examples\BeginDeleteFile.cs" lang="cs" /></example>
 		public void EndDeleteFile(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncDeleteFile>(ar).EndInvoke(ar);
 		}
@@ -125,7 +122,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the file</param>
 		/// <returns>True if the file exists</returns>
-		/// <example><code source="..\Examples\FileExists.cs" lang="cs" /></example>
 		public bool FileExists(string path) {
 			// verify args
 			if (path.IsBlank()) {
@@ -212,7 +208,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
 		public IAsyncResult BeginFileExists(string path, AsyncCallback callback, object state) {
 			AsyncFileExists func;
 			IAsyncResult ar;
@@ -230,7 +225,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="ar">IAsyncResult returned from <see cref="o:BeginFileExists"/></param>
 		/// <returns>True if the file exists, false otherwise</returns>
-		/// <example><code source="..\Examples\BeginFileExists.cs" lang="cs" /></example>
 		public bool EndFileExists(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncFileExists>(ar).EndInvoke(ar);
 		}
@@ -301,7 +295,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
-		/// <example><code source="..\Examples\Rename.cs" lang="cs" /></example>
 		public void Rename(string path, string dest) {
 			FtpReply reply;
 
@@ -353,7 +346,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginRename.cs" lang="cs" /></example>
 		public IAsyncResult BeginRename(string path, string dest, AsyncCallback callback, object state) {
 			AsyncRename func;
 			IAsyncResult ar;
@@ -370,7 +362,6 @@ namespace FluentFTP {
 		/// Ends a call to <see cref="BeginRename"/>
 		/// </summary>
 		/// <param name="ar">IAsyncResult returned from <see cref="BeginRename"/></param>
-		/// <example><code source="..\Examples\BeginRename.cs" lang="cs" /></example>
 		public void EndRename(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncRename>(ar).EndInvoke(ar);
 		}

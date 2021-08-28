@@ -40,7 +40,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="command">The command to execute</param>
 		/// <returns>The servers reply to the command</returns>
-		/// <example><code source="..\Examples\Execute.cs" lang="cs" /></example>
 		public FtpReply Execute(string command) {
 			FtpReply reply;
 
@@ -96,7 +95,6 @@ namespace FluentFTP {
 		/// <param name="callback">The <see cref="AsyncCallback"/> method</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginExecute.cs" lang="cs" /></example>
 		public IAsyncResult BeginExecute(string command, AsyncCallback callback, object state) {
 			AsyncExecute func;
 			IAsyncResult ar;
@@ -114,7 +112,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="ar">IAsyncResult returned from BeginExecute</param>
 		/// <returns>FtpReply object (never null).</returns>
-		/// <example><code source="..\Examples\BeginExecute.cs" lang="cs" /></example>
 		public FtpReply EndExecute(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncExecute>(ar).EndInvoke(ar);
 		}
@@ -223,7 +220,6 @@ namespace FluentFTP {
 		/// indefinitely waiting for a server reply that is never coming.
 		/// </summary>
 		/// <returns>FtpReply representing the response from the server</returns>
-		/// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
 		public FtpReply GetReply() {
 			var reply = new FtpReply();
 			string buf;
@@ -299,7 +295,6 @@ namespace FluentFTP {
 		/// indefinitely waiting for a server reply that is never coming.
 		/// </summary>
 		/// <returns>FtpReply representing the response from the server</returns>
-		/// <example><code source="..\Examples\BeginGetReply.cs" lang="cs" /></example>
 		public async Task<FtpReply> GetReplyAsync(CancellationToken token) {
 			var reply = new FtpReply();
 			string buf;
@@ -1139,7 +1134,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
 		/// <returns>A stream for reading the file on the server</returns>
-		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
 		public Stream OpenRead(string path) {
 			return OpenRead(path, FtpDataType.Binary, 0, true);
 		}
@@ -1150,7 +1144,6 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
 		/// <returns>A stream for reading the file on the server</returns>
-		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
 		public Stream OpenRead(string path, FtpDataType type) {
 			return OpenRead(path, type, 0, true);
 		}
@@ -1162,7 +1155,6 @@ namespace FluentFTP {
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
 		/// <returns>A stream for reading the file on the server</returns>
-		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
 		public Stream OpenRead(string path, FtpDataType type, bool checkIfFileExists) {
 			return OpenRead(path, type, 0, checkIfFileExists);
 		}
@@ -1174,7 +1166,6 @@ namespace FluentFTP {
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="restart">Resume location</param>
 		/// <returns>A stream for reading the file on the server</returns>
-		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
 		public virtual Stream OpenRead(string path, FtpDataType type, long restart) {
 			return OpenRead(path, type, restart, true);
 		}
@@ -1185,7 +1176,6 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="restart">Resume location</param>
 		/// <returns>A stream for reading the file on the server</returns>
-		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
 		public Stream OpenRead(string path, long restart) {
 			return OpenRead(path, FtpDataType.Binary, restart, true);
 		}
@@ -1197,7 +1187,6 @@ namespace FluentFTP {
 		/// <param name="restart">Resume location</param>
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
 		/// <returns>A stream for reading the file on the server</returns>
-		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
 		public Stream OpenRead(string path, long restart, bool checkIfFileExists) {
 			return OpenRead(path, FtpDataType.Binary, restart, checkIfFileExists);
 		}
@@ -1210,7 +1199,6 @@ namespace FluentFTP {
 		/// <param name="restart">Resume location</param>
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
 		/// <returns>A stream for reading the file on the server</returns>
-		/// <example><code source="..\Examples\OpenRead.cs" lang="cs" /></example>
 		public virtual Stream OpenRead(string path, FtpDataType type, long restart, bool checkIfFileExists) {
 			// verify args
 			if (path.IsBlank()) {
@@ -1267,7 +1255,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async Callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginOpenRead.cs" lang="cs" /></example>
 		public IAsyncResult BeginOpenRead(string path, AsyncCallback callback, object state) {
 			return BeginOpenRead(path, FtpDataType.Binary, 0, callback, state);
 		}
@@ -1280,7 +1267,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async Callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginOpenRead.cs" lang="cs" /></example>
 		public IAsyncResult BeginOpenRead(string path, FtpDataType type, AsyncCallback callback, object state) {
 			return BeginOpenRead(path, type, 0, callback, state);
 		}
@@ -1293,7 +1279,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async Callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginOpenRead.cs" lang="cs" /></example>
 		public IAsyncResult BeginOpenRead(string path, long restart, AsyncCallback callback, object state) {
 			return BeginOpenRead(path, FtpDataType.Binary, restart, callback, state);
 		}
@@ -1309,7 +1294,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async Callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginOpenRead.cs" lang="cs" /></example>
 		public IAsyncResult BeginOpenRead(string path, FtpDataType type, long restart, AsyncCallback callback, object state) {
 			AsyncOpenRead func;
 			IAsyncResult ar;
@@ -1327,7 +1311,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="o:BeginOpenRead"/></param>
 		/// <returns>A readable stream of the remote file</returns>
-		/// <example><code source="..\Examples\BeginOpenRead.cs" lang="cs" /></example>
 		public Stream EndOpenRead(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncOpenRead>(ar).EndInvoke(ar);
 		}
@@ -1439,7 +1422,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <returns>A stream for writing to the file on the server</returns>
-		/// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
 		public Stream OpenWrite(string path) {
 			return OpenWrite(path, FtpDataType.Binary, true);
 		}
@@ -1450,7 +1432,6 @@ namespace FluentFTP {
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
 		/// <returns>A stream for writing to the file on the server</returns>
-		/// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
 		public virtual Stream OpenWrite(string path, FtpDataType type) {
 			return OpenWrite(path, type, true);
 		}
@@ -1462,7 +1443,6 @@ namespace FluentFTP {
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
 		/// <returns>A stream for writing to the file on the server</returns>
-		/// <example><code source="..\Examples\OpenWrite.cs" lang="cs" /></example>
 		public virtual Stream OpenWrite(string path, FtpDataType type, bool checkIfFileExists) {
 			// verify args
 			if (path.IsBlank()) {
@@ -1513,7 +1493,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginOpenWrite.cs" lang="cs" /></example>
 		public IAsyncResult BeginOpenWrite(string path, AsyncCallback callback, object state) {
 			return BeginOpenWrite(path, FtpDataType.Binary, callback, state);
 		}
@@ -1528,7 +1507,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginOpenWrite.cs" lang="cs" /></example>
 		public IAsyncResult BeginOpenWrite(string path, FtpDataType type, AsyncCallback callback, object state) {
 			AsyncOpenWrite func;
 			IAsyncResult ar;
@@ -1546,7 +1524,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="o:BeginOpenWrite"/></param>
 		/// <returns>A writable stream</returns>
-		/// <example><code source="..\Examples\BeginOpenWrite.cs" lang="cs" /></example>
 		public Stream EndOpenWrite(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncOpenWrite>(ar).EndInvoke(ar);
 		}
@@ -1627,7 +1604,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the file to be opened</param>
 		/// <returns>A stream for writing to the file on the server</returns>
-		/// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
 		public Stream OpenAppend(string path) {
 			return OpenAppend(path, FtpDataType.Binary, true);
 		}
@@ -1638,7 +1614,6 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the file to be opened</param>
 		/// <param name="type">ASCII/Binary</param>
 		/// <returns>A stream for writing to the file on the server</returns>
-		/// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
 		public virtual Stream OpenAppend(string path, FtpDataType type) {
 			return OpenAppend(path, type, true);
 		}
@@ -1650,7 +1625,6 @@ namespace FluentFTP {
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
 		/// <returns>A stream for writing to the file on the server</returns>
-		/// <example><code source="..\Examples\OpenAppend.cs" lang="cs" /></example>
 		public virtual Stream OpenAppend(string path, FtpDataType type, bool checkIfFileExists) {
 			// verify args
 			if (path.IsBlank()) {
@@ -1702,7 +1676,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginOpenAppend.cs" lang="cs" /></example>
 		public IAsyncResult BeginOpenAppend(string path, AsyncCallback callback, object state) {
 			return BeginOpenAppend(path, FtpDataType.Binary, callback, state);
 		}
@@ -1717,7 +1690,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginOpenAppend.cs" lang="cs" /></example>
 		public IAsyncResult BeginOpenAppend(string path, FtpDataType type, AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncOpenAppend func;
@@ -1735,7 +1707,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="o:BeginOpenAppend"/></param>
 		/// <returns>A writable stream</returns>
-		/// <example><code source="..\Examples\BeginOpenAppend.cs" lang="cs" /></example>
 		public Stream EndOpenAppend(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncOpenAppend>(ar).EndInvoke(ar);
 		}

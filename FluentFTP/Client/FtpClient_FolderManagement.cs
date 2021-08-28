@@ -23,7 +23,6 @@ namespace FluentFTP {
 		/// Deletes the specified directory and all its contents.
 		/// </summary>
 		/// <param name="path">The full or relative path of the directory to delete</param>
-		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
 		public void DeleteDirectory(string path) {
 			// verify args
 			if (path.IsBlank()) {
@@ -41,7 +40,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path of the directory to delete</param>
 		/// <param name="options">Useful to delete hidden files or dot-files.</param>
-		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
 		public void DeleteDirectory(string path, FtpListOption options) {
 			// verify args
 			if (path.IsBlank()) {
@@ -60,7 +58,6 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the directory to delete</param>
 		/// <param name="deleteContents">If the directory is not empty, remove its contents</param>
 		/// <param name="options">Useful to delete hidden files or dot-files.</param>
-		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
 		private void DeleteDirInternal(string path, bool deleteContents, FtpListOption options) {
 			FtpReply reply;
 
@@ -162,7 +159,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
 		public IAsyncResult BeginDeleteDirectory(string path, AsyncCallback callback, object state) {
 			return BeginDeleteDirectory(path, FtpListOption.Recursive, callback, state);
 		}
@@ -175,7 +171,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
 		public IAsyncResult BeginDeleteDirectory(string path, FtpListOption options, AsyncCallback callback, object state) {
 			AsyncDeleteDirectory func;
 			IAsyncResult ar;
@@ -192,7 +187,6 @@ namespace FluentFTP {
 		/// Ends a call to <see cref="o:BeginDeleteDirectory"/>
 		/// </summary>
 		/// <param name="ar">IAsyncResult returned from BeginDeleteDirectory</param>
-		/// <example><code source="..\Examples\BeginDeleteDirectory.cs" lang="cs" /></example>
 		public void EndDeleteDirectory(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncDeleteDirectory>(ar).EndInvoke(ar);
 		}
@@ -323,7 +317,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The path of the directory</param>
 		/// <returns>True if it exists, false otherwise.</returns>
-		/// <example><code source="..\Examples\DirectoryExists.cs" lang="cs" /></example>
 		public bool DirectoryExists(string path) {
 			string pwd;
 
@@ -378,7 +371,6 @@ namespace FluentFTP {
 		/// <param name='path'>The full or relative path of the directory to check for</param>
 		/// <param name='callback'>Async callback</param>
 		/// <param name='state'>State object</param>
-		/// <example><code source="..\Examples\BeginDirectoryExists.cs" lang="cs" /></example>
 		public IAsyncResult BeginDirectoryExists(string path, AsyncCallback callback, object state) {
 			AsyncDirectoryExists func;
 			IAsyncResult ar;
@@ -396,7 +388,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="ar">IAsyncResult returned from BeginDirectoryExists</param>
 		/// <returns>True if the directory exists. False otherwise.</returns>
-		/// <example><code source="..\Examples\BeginDirectoryExists.cs" lang="cs" /></example>
 		public bool EndDirectoryExists(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncDirectoryExists>(ar).EndInvoke(ar);
 		}
@@ -456,7 +447,6 @@ namespace FluentFTP {
 		/// directories do not exist, then they are created.
 		/// </summary>
 		/// <param name="path">The full or relative path to the new remote directory</param>
-		/// <example><code source="..\Examples\CreateDirectory.cs" lang="cs" /></example>
 		public bool CreateDirectory(string path) {
 			return CreateDirectory(path, true);
 		}
@@ -466,7 +456,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the new remote directory</param>
 		/// <param name="force">Try to force all non-existent pieces of the path to be created</param>
-		/// <example><code source="..\Examples\CreateDirectory.cs" lang="cs" /></example>
 		/// <returns>True if directory was created, false if it was skipped</returns>
 		public bool CreateDirectory(string path, bool force) {
 			// don't verify args as blank/null path is OK
@@ -541,7 +530,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginCreateDirectory.cs" lang="cs" /></example>
 		public IAsyncResult BeginCreateDirectory(string path, AsyncCallback callback, object state) {
 			return BeginCreateDirectory(path, true, callback, state);
 		}
@@ -554,7 +542,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginCreateDirectory.cs" lang="cs" /></example>
 		public IAsyncResult BeginCreateDirectory(string path, bool force, AsyncCallback callback, object state) {
 			AsyncCreateDirectory func;
 			IAsyncResult ar;
@@ -571,7 +558,6 @@ namespace FluentFTP {
 		/// Ends a call to <see cref="o:BeginCreateDirectory"/>
 		/// </summary>
 		/// <param name="ar">IAsyncResult returned from <see cref="o:BeginCreateDirectory"/></param>
-		/// <example><code source="..\Examples\BeginCreateDirectory.cs" lang="cs" /></example>
 		public void EndCreateDirectory(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncCreateDirectory>(ar).EndInvoke(ar);
 		}
@@ -797,7 +783,6 @@ namespace FluentFTP {
 		/// Sets the work directory on the server
 		/// </summary>
 		/// <param name="path">The path of the directory to change to</param>
-		/// <example><code source="..\Examples\SetWorkingDirectory.cs" lang="cs" /></example>
 		public void SetWorkingDirectory(string path) {
 
 			path = path.GetFtpPath();
@@ -839,7 +824,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async Callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginSetWorkingDirectory.cs" lang="cs" /></example>
 		public IAsyncResult BeginSetWorkingDirectory(string path, AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncSetWorkingDirectory func;
@@ -856,7 +840,6 @@ namespace FluentFTP {
 		/// Ends a call to <see cref="BeginSetWorkingDirectory"/>
 		/// </summary>
 		/// <param name="ar">IAsyncResult returned from <see cref="BeginSetWorkingDirectory"/></param>
-		/// <example><code source="..\Examples\BeginSetWorkingDirectory.cs" lang="cs" /></example>
 		public void EndSetWorkingDirectory(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncSetWorkingDirectory>(ar).EndInvoke(ar);
 		}
@@ -901,7 +884,6 @@ namespace FluentFTP {
 		/// Gets the current working directory
 		/// </summary>
 		/// <returns>The current working directory, ./ if the response couldn't be parsed.</returns>
-		/// <example><code source="..\Examples\GetWorkingDirectory.cs" lang="cs" /></example>
 		public string GetWorkingDirectory() {
 
 			// this case occurs immediately after connection and after the working dir has changed
@@ -922,7 +904,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginGetWorkingDirectory.cs" lang="cs" /></example>
 		public IAsyncResult BeginGetWorkingDirectory(AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncGetWorkingDirectory func;
@@ -940,7 +921,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetWorkingDirectory"/></param>
 		/// <returns>The current working directory</returns>
-		/// <example><code source="..\Examples\BeginGetWorkingDirectory.cs" lang="cs" /></example>
 		public string EndGetWorkingDirectory(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncGetWorkingDirectory>(ar).EndInvoke(ar);
 		}

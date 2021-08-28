@@ -25,7 +25,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="item">The symbolic link</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-		/// <example><code source="..\Examples\DereferenceLink.cs" lang="cs" /></example>
 		public FtpListItem DereferenceLink(FtpListItem item) {
 			return DereferenceLink(item, MaximumDereferenceCount);
 		}
@@ -36,7 +35,6 @@ namespace FluentFTP {
 		/// <param name="item">The symbolic link</param>
 		/// <param name="recMax">The maximum depth of recursion that can be performed before giving up.</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-		/// <example><code source="..\Examples\DereferenceLink.cs" lang="cs" /></example>
 		public FtpListItem DereferenceLink(FtpListItem item, int recMax) {
 			LogFunc(nameof(DereferenceLink), new object[] { item.FullName, recMax });
 
@@ -51,7 +49,6 @@ namespace FluentFTP {
 		/// <param name="recMax">Maximum recursive calls</param>
 		/// <param name="count">Counter</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-		/// <example><code source="..\Examples\DereferenceLink.cs" lang="cs" /></example>
 		private FtpListItem DereferenceLink(FtpListItem item, int recMax, ref int count) {
 			if (item.Type != FtpFileSystemObjectType.Link) {
 				throw new FtpException("You can only dereference a symbolic link. Please verify the item type is Link.");
@@ -101,7 +98,6 @@ namespace FluentFTP {
 		/// <param name="callback">AsyncCallback</param>
 		/// <param name="state">State Object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginDereferenceLink.cs" lang="cs" /></example>
 		public IAsyncResult BeginDereferenceLink(FtpListItem item, int recMax, AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncDereferenceLink func;
@@ -123,7 +119,6 @@ namespace FluentFTP {
 		/// <param name="callback">AsyncCallback</param>
 		/// <param name="state">State Object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginDereferenceLink.cs" lang="cs" /></example>
 		public IAsyncResult BeginDereferenceLink(FtpListItem item, AsyncCallback callback, object state) {
 			return BeginDereferenceLink(item, MaximumDereferenceCount, callback, state);
 		}
@@ -133,7 +128,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="ar">IAsyncResult</param>
 		/// <returns>A <see cref="FtpListItem"/>, or null if the link can't be dereferenced</returns>
-		/// <example><code source="..\Examples\BeginDereferenceLink.cs" lang="cs" /></example>
 		public FtpListItem EndDereferenceLink(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncDereferenceLink>(ar).EndInvoke(ar);
 		}
@@ -221,7 +215,6 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="defaultValue">Value to return if there was an error obtaining the file size, or if the file does not exist</param>
 		/// <returns>The size of the file, or defaultValue if there was a problem.</returns>
-		/// <example><code source="..\Examples\GetFileSize.cs" lang="cs" /></example>
 		public virtual long GetFileSize(string path, long defaultValue = -1) {
 			// verify args
 			if (path.IsBlank()) {
@@ -294,7 +287,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginGetFileSize.cs" lang="cs" /></example>
 		public IAsyncResult BeginGetFileSize(string path, long defaultValue, AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncGetFileSize func;
@@ -312,7 +304,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetFileSize"/></param>
 		/// <returns>The size of the file, or defaultValue if there was a problem.</returns>
-		/// <example><code source="..\Examples\BeginGetFileSize.cs" lang="cs" /></example>
 		public long EndGetFileSize(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncGetFileSize>(ar).EndInvoke(ar);
 		}
@@ -396,7 +387,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full path to the file</param>
 		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
-		/// <example><code source="..\Examples\GetModifiedTime.cs" lang="cs" /></example>
 		public virtual DateTime GetModifiedTime(string path) {
 			// verify args
 			if (path.IsBlank()) {
@@ -437,7 +427,6 @@ namespace FluentFTP {
 		/// <param name="callback">Async callback</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginGetModifiedTime.cs" lang="cs" /></example>
 		public IAsyncResult BeginGetModifiedTime(string path, AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncGetModifiedTime func;
@@ -455,7 +444,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetModifiedTime"/></param>
 		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
-		/// <example><code source="..\Examples\BeginGetModifiedTime.cs" lang="cs" /></example>
 		public DateTime EndGetModifiedTime(IAsyncResult ar) {
 			return GetAsyncDelegate<AsyncGetModifiedTime>(ar).EndInvoke(ar);
 		}

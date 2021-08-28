@@ -10,7 +10,6 @@ namespace FluentFTP {
 	/// <summary>
 	/// Represents a file system object on the server
 	/// </summary>
-	/// <example><code source="..\Examples\CustomParser.cs" lang="cs" /></example>
 	public class FtpListItem {
 		/// <summary>
 		/// Blank constructor, you will need to fill arguments manually.

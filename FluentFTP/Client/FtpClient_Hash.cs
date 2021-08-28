@@ -37,7 +37,6 @@ namespace FluentFTP {
 		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
 		/// </remarks>
 		/// <returns>The <see cref="FtpHashAlgorithm"/> flag or <see cref="FtpHashAlgorithm.NONE"/> if there was a problem.</returns>
-		/// <example><code source="..\Examples\GetHashAlgorithm.cs" lang="cs" /></example>
 		public FtpHashAlgorithm GetHashAlgorithm() {
 			FtpReply reply;
 			var type = FtpHashAlgorithm.NONE;
@@ -133,7 +132,6 @@ namespace FluentFTP {
 		/// </remarks>
 		/// <param name="type">Hash Algorithm</param>
 		/// <exception cref="System.NotImplementedException">Thrown if the selected algorithm is not available on the server</exception>
-		/// <example><code source="..\Examples\SetHashAlgorithm.cs" lang="cs" /></example>
 		public void SetHashAlgorithm(FtpHashAlgorithm type) {
 			FtpReply reply;
 			string algorithm;
@@ -242,7 +240,6 @@ namespace FluentFTP {
 		/// </exception>
 		/// <exception cref="ArgumentException">Path argument is null</exception>
 		/// <exception cref="NotImplementedException">Thrown when an unknown hash algorithm type is returned by the server</exception>
-		/// <example><code source="..\Examples\GetHash.cs" lang="cs" /></example>
 		public FtpHash GetHash(string path) {
 			FtpReply reply;
 			var hash = new FtpHash();
@@ -410,7 +407,6 @@ namespace FluentFTP {
 		/// <returns><see cref="FtpHash"/> object containing the value and algorithm. Use the <see cref="FtpHash.IsValid"/> property to
 		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
 		/// the underlying calls.</returns>
-		/// <example><code source="..\Examples\GetChecksum.cs" lang="cs" /></example>
 		/// <exception cref="FtpCommandException">The command fails</exception>
 		public FtpHash GetChecksum(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE) {
 
@@ -542,7 +538,6 @@ namespace FluentFTP {
 		/// <returns><see cref="FtpHash"/> object containing the value and algorithm. Use the <see cref="FtpHash.IsValid"/> property to
 		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
 		/// the underlying calls.</returns>
-		/// <example><code source="..\Examples\GetChecksum.cs" lang="cs" /></example>
 		/// <exception cref="FtpCommandException">The command fails</exception>
 		public async Task<FtpHash> GetChecksumAsync(string path, CancellationToken token = default(CancellationToken), FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE) {
 

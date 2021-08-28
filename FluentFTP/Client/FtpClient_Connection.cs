@@ -257,7 +257,6 @@ namespace FluentFTP {
 		/// Clones the control connection for opening multiple data streams
 		/// </summary>
 		/// <returns>A new control connection with the same property settings as this one</returns>
-		/// <example><code source="..\Examples\CloneConnection.cs" lang="cs" /></example>
 		protected FtpClient CloneConnection() {
 			var conn = Create();
 
@@ -350,7 +349,6 @@ namespace FluentFTP {
 		/// Connect to the server
 		/// </summary>
 		/// <exception cref="ObjectDisposedException">Thrown if this object has been disposed.</exception>
-		/// <example><code source="..\Examples\Connect.cs" lang="cs" /></example>
 		public virtual void Connect() {
 			FtpReply reply;
 
@@ -520,7 +518,6 @@ namespace FluentFTP {
 		/// Connect to the server
 		/// </summary>
 		/// <exception cref="ObjectDisposedException">Thrown if this object has been disposed.</exception>
-		/// <example><code source="..\Examples\Connect.cs" lang="cs" /></example>
 		public virtual async Task ConnectAsync(CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
@@ -751,7 +748,6 @@ namespace FluentFTP {
 		/// <param name="callback">AsyncCallback method</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginConnect.cs" lang="cs" /></example>
 		public IAsyncResult BeginConnect(AsyncCallback callback, object state) {
 			AsyncConnect func;
 			IAsyncResult ar;
@@ -768,7 +764,6 @@ namespace FluentFTP {
 		/// Ends an asynchronous connection attempt to the server from <see cref="BeginConnect"/>
 		/// </summary>
 		/// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="BeginConnect"/></param>
-		/// <example><code source="..\Examples\BeginConnect.cs" lang="cs" /></example>
 		public void EndConnect(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncConnect>(ar).EndInvoke(ar);
 		}
@@ -949,7 +944,6 @@ namespace FluentFTP {
 		/// <param name="callback"><see cref="AsyncCallback"/> method</param>
 		/// <param name="state">State object</param>
 		/// <returns>IAsyncResult</returns>
-		/// <example><code source="..\Examples\BeginDisconnect.cs" lang="cs" /></example>
 		public IAsyncResult BeginDisconnect(AsyncCallback callback, object state) {
 			IAsyncResult ar;
 			AsyncDisconnect func;
@@ -966,7 +960,6 @@ namespace FluentFTP {
 		/// Ends a call to <see cref="BeginDisconnect"/>
 		/// </summary>
 		/// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="BeginDisconnect"/></param>
-		/// <example><code source="..\Examples\BeginConnect.cs" lang="cs" /></example>
 		public void EndDisconnect(IAsyncResult ar) {
 			GetAsyncDelegate<AsyncDisconnect>(ar).EndInvoke(ar);
 		}
