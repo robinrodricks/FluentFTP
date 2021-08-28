@@ -100,7 +100,7 @@ namespace FluentFTP {
 				throw new FtpException("The source FXP FtpClient must be open and connected before a transfer between servers can be intitiated");
 			}
 
-			if (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AppendToEndNoCheck) {
+			if (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AddToEndNoCheck) {
 				throw new ArgumentException("FXP file transfer does not currently support AppendToEnd or AppendToEndNoCheck modes. Use another value for existsMode.", "existsMode");
 			}
 		}
@@ -195,7 +195,7 @@ namespace FluentFTP {
 
 
 					// check if the file exists, and skip, overwrite or append
-					if (existsMode == FtpRemoteExists.AppendResumeNoCheck) {
+					if (existsMode == FtpRemoteExists.ResumeNoCheck) {
 						offset = remoteClient.GetFileSize(remotePath);
 						if (offset == -1) {
 							offset = 0; // start from the beginning
@@ -253,7 +253,7 @@ namespace FluentFTP {
 						}
 					}
 
-					if (offset == 0 && existsMode != FtpRemoteExists.AppendResumeNoCheck) {
+					if (offset == 0 && existsMode != FtpRemoteExists.ResumeNoCheck) {
 						// send command to tell the source server to 'send' the file to the destination server
 						if (!(reply = ftpFxpSession.SourceServer.Execute($"RETR {sourcePath}")).Success) {
 							throw new FtpCommandException(reply);
@@ -357,7 +357,7 @@ namespace FluentFTP {
 
 
 					// check if the file exists, and skip, overwrite or append
-					if (existsMode == FtpRemoteExists.AppendResumeNoCheck) {
+					if (existsMode == FtpRemoteExists.ResumeNoCheck) {
 						offset = await remoteClient.GetFileSizeAsync(remotePath, -1, token);
 						if (offset == -1) {
 							offset = 0; // start from the beginning
@@ -412,7 +412,7 @@ namespace FluentFTP {
 						}
 					}
 
-					if (offset == 0 && existsMode != FtpRemoteExists.AppendResumeNoCheck) {
+					if (offset == 0 && existsMode != FtpRemoteExists.ResumeNoCheck) {
 						// send command to tell the source server to 'send' the file to the destination server
 						if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"RETR {sourcePath}", token)).Success) {
 							throw new FtpCommandException(reply);

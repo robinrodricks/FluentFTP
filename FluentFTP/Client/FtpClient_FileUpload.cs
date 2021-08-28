@@ -679,7 +679,7 @@ namespace FluentFTP {
 				if (existsMode == FtpRemoteExists.NoCheck) {
 					checkRemoteFileSize = false;
 				}
-				else if (existsMode == FtpRemoteExists.AppendResumeNoCheck || existsMode == FtpRemoteExists.AppendToEndNoCheck) {
+				else if (existsMode == FtpRemoteExists.ResumeNoCheck || existsMode == FtpRemoteExists.AddToEndNoCheck) {
 					checkRemoteFileSize = true;
 
 					// start from the end of the remote file, or if failed to read the length then start from the beginning
@@ -751,7 +751,7 @@ namespace FluentFTP {
 				var localFileLen = fileData.Length;
 
 				// skip uploading if the mode is resume and the local and remote file have the same length
-				if ((existsMode == FtpRemoteExists.Resume || existsMode == FtpRemoteExists.AppendResumeNoCheck) &&
+				if ((existsMode == FtpRemoteExists.Resume || existsMode == FtpRemoteExists.ResumeNoCheck) &&
 					(localFileLen == remoteFileLen)) {
 					LogStatus(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully uploaded (Remote: " + remotePath + ", Local: " + localPath + ")");
 
@@ -763,7 +763,7 @@ namespace FluentFTP {
 				}
 
 				// open a file connection
-				if (remotePosition == 0 && existsMode != FtpRemoteExists.AppendResumeNoCheck && existsMode != FtpRemoteExists.AppendToEndNoCheck) {
+				if (remotePosition == 0 && existsMode != FtpRemoteExists.ResumeNoCheck && existsMode != FtpRemoteExists.AddToEndNoCheck) {
 					upStream = OpenWrite(remotePath, UploadDataType, checkRemoteFileSize);
 				}
 				else {
@@ -776,7 +776,7 @@ namespace FluentFTP {
 				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
 
 				// calc desired length based on the mode (if need to append to the end of remote file, length is sum of local+remote)
-				var remoteFileDesiredLen = (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AppendToEndNoCheck) ?
+				var remoteFileDesiredLen = (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AddToEndNoCheck) ?
 					(upStream.Length + localFileLen)
 					: localFileLen;
 
@@ -965,7 +965,7 @@ namespace FluentFTP {
 				if (existsMode == FtpRemoteExists.NoCheck) {
 					checkRemoteFileSize = false;
 				}
-				else if (existsMode == FtpRemoteExists.AppendResumeNoCheck || existsMode == FtpRemoteExists.AppendToEndNoCheck) {
+				else if (existsMode == FtpRemoteExists.ResumeNoCheck || existsMode == FtpRemoteExists.AddToEndNoCheck) {
 					checkRemoteFileSize = true;
 
 					// start from the end of the remote file, or if failed to read the length then start from the beginning
@@ -1041,7 +1041,7 @@ namespace FluentFTP {
 				var localFileLen = fileData.Length;
 
 				// skip uploading if the mode is resume and the local and remote file have the same length
-				if ((existsMode == FtpRemoteExists.Resume || existsMode == FtpRemoteExists.AppendResumeNoCheck) &&
+				if ((existsMode == FtpRemoteExists.Resume || existsMode == FtpRemoteExists.ResumeNoCheck) &&
 					(localFileLen == remoteFileLen)) {
 					LogStatus(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully uploaded (Remote: " + remotePath + ", Local: " + localPath + ")");
 
@@ -1053,7 +1053,7 @@ namespace FluentFTP {
 				}
 
 				// open a file connection
-				if (remotePosition == 0 && existsMode != FtpRemoteExists.AppendResumeNoCheck && existsMode != FtpRemoteExists.AppendToEndNoCheck) {
+				if (remotePosition == 0 && existsMode != FtpRemoteExists.ResumeNoCheck && existsMode != FtpRemoteExists.AddToEndNoCheck) {
 					upStream = await OpenWriteAsync(remotePath, UploadDataType, checkRemoteFileSize, token);
 				}
 				else {
@@ -1066,7 +1066,7 @@ namespace FluentFTP {
 				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
 
 				// calc desired length based on the mode (if need to append to the end of remote file, length is sum of local+remote)
-				var remoteFileDesiredLen = (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AppendToEndNoCheck) ?
+				var remoteFileDesiredLen = (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AddToEndNoCheck) ?
 					(upStream.Length + localFileLen)
 					: localFileLen;
 
@@ -1282,12 +1282,12 @@ namespace FluentFTP {
 			long localPosition = 0;
 
 			// resume - start the local file from the same position as the remote file
-			if (existsMode == FtpRemoteExists.Resume || existsMode == FtpRemoteExists.AppendResumeNoCheck) {
+			if (existsMode == FtpRemoteExists.Resume || existsMode == FtpRemoteExists.ResumeNoCheck) {
 				localPosition = remotePosition;
 			}
 
 			// append to end - start from the beginning of the local file
-			else if (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AppendToEndNoCheck) {
+			else if (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AddToEndNoCheck) {
 				localPosition = 0;
 			}
 
