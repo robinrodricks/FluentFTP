@@ -44,7 +44,7 @@ namespace Examples {
 				});
 
 				// download a file and ensure the local directory is created
-				await ftp.DownloadFileAsync(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpLocalExists.Append, FtpVerify.None, progress, token);
+				await ftp.DownloadFileAsync(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpLocalExists.Resume, FtpVerify.None, progress, token);
 				
 			}
 		}

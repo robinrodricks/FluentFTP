@@ -49,11 +49,11 @@ namespace FluentFTP {
 		/// Resume uploading by appending to the remote file if it exists.
 		/// It works by checking the remote file length and adding the missing data.
 		/// </summary>
-		AppendResume,
+		Resume,
 
 		/// <summary>
 		/// Append the local file to the end of the remote file.
 		/// </summary>
-		AppendToEnd,
+		AddToEnd,
 	}
 }

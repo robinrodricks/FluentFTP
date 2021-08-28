@@ -32,7 +32,7 @@ namespace FluentFTP {
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
 		public FtpStatus TransferFile(string sourcePath, FtpClient remoteClient, string remotePath,
-			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.AppendResume, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null, FtpProgress metaProgress = null) {
+			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Resume, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null, FtpProgress metaProgress = null) {
 
 			sourcePath = sourcePath.GetFtpPath();
 			remotePath = remotePath.GetFtpPath();
@@ -60,7 +60,7 @@ namespace FluentFTP {
 					verified = VerifyFXPTransfer(sourcePath, remoteClient, remotePath);
 					LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 					if (!verified && attemptsLeft > 0) {
-						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpRemoteExists.AppendResume ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpRemoteExists.Resume ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
 						// Force overwrite if a retry is required
 						existsMode = FtpRemoteExists.Overwrite;
 					}
@@ -100,7 +100,7 @@ namespace FluentFTP {
 				throw new FtpException("The source FXP FtpClient must be open and connected before a transfer between servers can be intitiated");
 			}
 
-			if (existsMode == FtpRemoteExists.AppendToEnd || existsMode == FtpRemoteExists.AppendToEndNoCheck) {
+			if (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AppendToEndNoCheck) {
 				throw new ArgumentException("FXP file transfer does not currently support AppendToEnd or AppendToEndNoCheck modes. Use another value for existsMode.", "existsMode");
 			}
 		}
@@ -126,7 +126,7 @@ namespace FluentFTP {
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
 		public async Task<FtpStatus> TransferFileAsync(string sourcePath, FtpClient remoteClient, string remotePath,
-			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.AppendResume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, FtpProgress metaProgress = null, CancellationToken token = default(CancellationToken)) {
+			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Resume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, FtpProgress metaProgress = null, CancellationToken token = default(CancellationToken)) {
 
 			sourcePath = sourcePath.GetFtpPath();
 			remotePath = remotePath.GetFtpPath();
@@ -154,7 +154,7 @@ namespace FluentFTP {
 					verified = await VerifyFXPTransferAsync(sourcePath, remoteClient, remotePath, token);
 					LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 					if (!verified && attemptsLeft > 0) {
-						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpRemoteExists.AppendResume ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpRemoteExists.Resume ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
 						// Force overwrite if a retry is required
 						existsMode = FtpRemoteExists.Overwrite;
 					}
@@ -229,7 +229,7 @@ namespace FluentFTP {
 
 								break;
 
-							case FtpRemoteExists.AppendResume:
+							case FtpRemoteExists.Resume:
 
 								if (fileExists) {
 									offset = remoteClient.GetFileSize(remotePath);
@@ -391,7 +391,7 @@ namespace FluentFTP {
 
 								break;
 
-							case FtpRemoteExists.AppendResume:
+							case FtpRemoteExists.Resume:
 
 								if (fileExists) {
 									offset = await remoteClient.GetFileSizeAsync(remotePath, 0, token);

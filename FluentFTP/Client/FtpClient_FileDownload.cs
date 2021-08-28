@@ -297,7 +297,7 @@ namespace FluentFTP {
 			// skip downloading if local file size matches
 			long knownFileSize = 0;
 			long restartPos = 0;
-			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
+			if (existsMode == FtpLocalExists.Resume && File.Exists(localPath)) {
 				knownFileSize = GetFileSize(remotePath);
 				restartPos = FtpFileStream.GetFileSize(localPath, false);
 				if (knownFileSize.Equals(restartPos)) {
@@ -387,7 +387,7 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-		public async Task<FtpStatus> DownloadFileAsync(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Append, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+		public async Task<FtpStatus> DownloadFileAsync(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Resume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
@@ -427,12 +427,12 @@ namespace FluentFTP {
 			long knownFileSize = 0;
 			long restartPos = 0;
 #if CORE
-			if (existsMode == FtpLocalExists.Append && await Task.Run(() => File.Exists(localPath), token)) {
+			if (existsMode == FtpLocalExists.Resume && await Task.Run(() => File.Exists(localPath), token)) {
 				knownFileSize = (await GetFileSizeAsync(remotePath, -1, token));
 				restartPos = await FtpFileStream.GetFileSizeAsync(localPath, false, token);
 				if (knownFileSize.Equals(restartPos)) {
 #else
-			if (existsMode == FtpLocalExists.Append && File.Exists(localPath)) {
+			if (existsMode == FtpLocalExists.Resume && File.Exists(localPath)) {
 				knownFileSize = (await GetFileSizeAsync(remotePath, -1, token));
 				restartPos = FtpFileStream.GetFileSize(localPath, false);
 				if (knownFileSize.Equals(restartPos)) {
@@ -495,7 +495,7 @@ namespace FluentFTP {
 					verified = await VerifyTransferAsync(localPath, remotePath, token);
 					LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 					if (!verified && attemptsLeft > 0) {
-						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Append ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Resume ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
 						// Force overwrite if a retry is required
 						existsMode = FtpLocalExists.Overwrite;
 					}

@@ -43,7 +43,7 @@ Namespace Examples
 					End Sub)
 
 				' download a file with progress tracking
-				Await ftp.DownloadFileAsync("D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpLocalExists.Append, FtpVerify.None, progress, token)
+				Await ftp.DownloadFileAsync("D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpLocalExists.Resume, FtpVerify.None, progress, token)
 
 			End Using
 		End Function

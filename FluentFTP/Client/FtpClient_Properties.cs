@@ -38,7 +38,7 @@ namespace FluentFTP {
 		private bool _AutoDispose = false;
 
 		/// <summary>
-		/// Used to automatically dispose cloned connections after FXP transfer has ended.
+		/// Cached value of the last read working directory (absolute path).
 		/// </summary>
 		private string _LastWorkingDir = null;
 
