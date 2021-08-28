@@ -326,7 +326,7 @@ namespace FluentFTP {
 
 			// quickly check if root path, then it always exists!
 			var ftppath = path.GetFtpPath();
-			if (ftppath == "." || ftppath == "./" || ftppath == "/") {
+			if (ftppath.IsRootPath()) {
 				return true;
 			}
 
@@ -415,7 +415,7 @@ namespace FluentFTP {
 
 			// quickly check if root path, then it always exists!
 			var ftppath = path.GetFtpPath();
-			if (ftppath == "." || ftppath == "./" || ftppath == "/") {
+			if (ftppath.IsRootPath()) {
 				return true;
 			}
 
@@ -785,6 +785,7 @@ namespace FluentFTP {
 			FtpReply reply;
 			var ftppath = path.GetFtpPath();
 
+			// exit if invalid path
 			if (ftppath == "." || ftppath == "./") {
 				return;
 			}
@@ -792,15 +793,20 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
+				// modify working dir
 				if (!(reply = Execute("CWD " + ftppath)).Success) {
 					throw new FtpCommandException(reply);
 				}
+
+				// invalidate the cached path
+				_LastWorkingDir = null;
 
 #if !CORE14
 			}
 
 #endif
 		}
+
 
 #if !ASYNC
 		private delegate void AsyncSetWorkingDirectory(string path);
@@ -847,14 +853,20 @@ namespace FluentFTP {
 			FtpReply reply;
 			var ftppath = path.GetFtpPath();
 
+			// exit if invalid path
 			if (ftppath == "." || ftppath == "./") {
 				return;
 			}
 
+			// modify working dir
 			if (!(reply = await ExecuteAsync("CWD " + ftppath, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
+
+			// invalidate the cached path
+			_LastWorkingDir = null;
 		}
+
 
 #endif
 
@@ -868,35 +880,15 @@ namespace FluentFTP {
 		/// <returns>The current working directory, ./ if the response couldn't be parsed.</returns>
 		/// <example><code source="..\Examples\GetWorkingDirectory.cs" lang="cs" /></example>
 		public string GetWorkingDirectory() {
-			LogFunc(nameof(GetWorkingDirectory));
 
-			FtpReply reply;
-			Match m;
-
-#if !CORE14
-			lock (m_lock) {
-#endif
-				if (!(reply = Execute("PWD")).Success) {
-					throw new FtpCommandException(reply);
-				}
-
-#if !CORE14
-			}
-#endif
-
-			if ((m = Regex.Match(reply.Message, "\"(?<pwd>.*)\"")).Success) {
-				return m.Groups["pwd"].Value;
+			// this case occurs immediately after connection and after the working dir has changed
+			if (_LastWorkingDir == null) {
+				ReadCurrentWorkingDirectory();
 			}
 
-			// check for MODCOMP ftp path mentioned in forums: https://netftp.codeplex.com/discussions/444461
-			if ((m = Regex.Match(reply.Message, "PWD = (?<pwd>.*)")).Success) {
-				return m.Groups["pwd"].Value;
-			}
-
-			LogStatus(FtpTraceLevel.Warn, "Failed to parse working directory from: " + reply.Message);
-
-			return "./";
+			return _LastWorkingDir;
 		}
+
 
 #if !ASYNC
 		private delegate string AsyncGetWorkingDirectory();
@@ -937,14 +929,38 @@ namespace FluentFTP {
 		/// </summary>
 		/// <returns>The current working directory, ./ if the response couldn't be parsed.</returns>
 		public async Task<string> GetWorkingDirectoryAsync(CancellationToken token = default(CancellationToken)) {
-			LogFunc(nameof(GetWorkingDirectoryAsync));
 
-			FtpReply reply;
-			Match m;
-
-			if (!(reply = await ExecuteAsync("PWD", token)).Success) {
-				throw new FtpCommandException(reply);
+			// this case occurs immediately after connection and after the working dir has changed
+			if (_LastWorkingDir == null) {
+				await ReadCurrentWorkingDirectoryAsync(token);
 			}
+
+			return _LastWorkingDir;
+		}
+
+#endif
+
+		private FtpReply ReadCurrentWorkingDirectory() {
+			FtpReply reply;
+
+#if !CORE14
+			lock (m_lock) {
+#endif
+				// read the absolute path of the current working dir
+				if (!(reply = Execute("PWD")).Success) {
+					throw new FtpCommandException(reply);
+				}
+#if !CORE14
+			}
+#endif
+
+			// cache the last working dir
+			_LastWorkingDir = ParseWorkingDirectory(reply);
+			return reply;
+		}
+
+		private string ParseWorkingDirectory(FtpReply reply) {
+			Match m;
 
 			if ((m = Regex.Match(reply.Message, "\"(?<pwd>.*)\"")).Success) {
 				return m.Groups["pwd"].Value;
@@ -957,10 +973,22 @@ namespace FluentFTP {
 
 			LogStatus(FtpTraceLevel.Warn, "Failed to parse working directory from: " + reply.Message);
 
-			return "./";
+			return "/";
 		}
 
-#endif
+		private async Task<FtpReply> ReadCurrentWorkingDirectoryAsync(CancellationToken token) {
+
+			FtpReply reply;
+
+			// read the absolute path of the current working dir
+			if (!(reply = await ExecuteAsync("PWD", token)).Success) {
+				throw new FtpCommandException(reply);
+			}
+
+			// cache the last working dir
+			_LastWorkingDir = ParseWorkingDirectory(reply);
+			return reply;
+		}
 
 		#endregion
 	}

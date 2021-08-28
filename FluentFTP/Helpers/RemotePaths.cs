@@ -15,6 +15,13 @@ namespace FluentFTP.Helpers {
 		}
 
 		/// <summary>
+		/// Checks if this FTP path is pointing to the root folder
+		/// </summary>
+		public static bool IsRootPath(this string path) {
+			return path == "." || path == "/" || path == "./";
+		}
+
+		/// <summary>
 		/// Converts the specified path into a valid FTP file system path.
 		/// Replaces invalid back-slashes with valid forward-slashes.
 		/// Replaces multiple slashes with single slashes.
@@ -24,7 +31,7 @@ namespace FluentFTP.Helpers {
 		/// <returns>A path formatted for FTP</returns>
 		public static string GetFtpPath(this string path) {
 			if (string.IsNullOrEmpty(path)) {
-				return "./";
+				return "/";
 			}
 
 			path = path.Replace('\\', '/');
