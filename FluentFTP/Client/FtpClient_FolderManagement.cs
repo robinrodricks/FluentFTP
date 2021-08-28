@@ -297,13 +297,13 @@ namespace FluentFTP {
 
 			// can't delete the working directory and
 			// can't delete the server root.
-			if (ftppath.IsFtpRootDirectory()) {
+			if (path.IsFtpRootDirectory()) {
 				return;
 			}
 
 			// DELETE ACTUAL DIRECTORY
 
-			if (!(reply = await ExecuteAsync("RMD " + ftppath, token)).Success) {
+			if (!(reply = await ExecuteAsync("RMD " + path, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 		}
