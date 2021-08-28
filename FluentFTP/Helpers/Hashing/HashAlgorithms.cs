@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace FluentFTP.Helpers {
+namespace FluentFTP.Helpers.Hashing {
 	/// <summary>
 	/// Helper class to convert FtpHashAlgorithm
 	/// </summary>

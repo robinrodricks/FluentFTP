@@ -18,6 +18,7 @@ using System.Web;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
+using FluentFTP.Helpers.Hashing;
 
 #endif
 #if ASYNC
@@ -46,7 +47,7 @@ namespace FluentFTP {
 #endif
 				if ((reply = Execute("OPTS HASH")).Success) {
 					try {
-						type = Helpers.HashAlgorithms.FromString(reply.Message);
+						type = Helpers.Hashing.HashAlgorithms.FromString(reply.Message);
 					}
 					catch (InvalidOperationException ex) {
 						// Do nothing
@@ -107,7 +108,7 @@ namespace FluentFTP {
 
 			if ((reply = await ExecuteAsync("OPTS HASH", token)).Success) {
 				try {
-					type = Helpers.HashAlgorithms.FromString(reply.Message);
+					type = Helpers.Hashing.HashAlgorithms.FromString(reply.Message);
 				}
 				catch (InvalidOperationException ex) {
 					// Do nothing
@@ -143,7 +144,7 @@ namespace FluentFTP {
 					throw new NotImplementedException("The hash algorithm " + type.ToString() + " was not advertised by the server.");
 				}
 
-				algorithm = Helpers.HashAlgorithms.ToString(type);
+				algorithm = Helpers.Hashing.HashAlgorithms.ToString(type);
 
 				if (!(reply = Execute("OPTS HASH " + algorithm)).Success) {
 					throw new FtpCommandException(reply);
@@ -210,7 +211,7 @@ namespace FluentFTP {
 				throw new NotImplementedException("The hash algorithm " + type.ToString() + " was not advertised by the server.");
 			}
 
-			algorithm = Helpers.HashAlgorithms.ToString(type);
+			algorithm = Helpers.Hashing.HashAlgorithms.ToString(type);
 
 			if (!(reply = await ExecuteAsync("OPTS HASH " + algorithm, token)).Success) {
 				throw new FtpCommandException(reply);
@@ -220,7 +221,7 @@ namespace FluentFTP {
 #endif
 
 		/// <summary>
-		/// Gets the hash of an object on the server using the currently selected hash algorithm. 
+		/// Gets the hash of an object on the server using the currently selected hash algorithm, or null if hash cannot be parsed.
 		/// </summary>
 		/// <remarks>
 		/// Supported algorithms, if any, are available in the <see cref="HashAlgorithms"/>
@@ -242,8 +243,6 @@ namespace FluentFTP {
 		/// <exception cref="NotImplementedException">Thrown when an unknown hash algorithm type is returned by the server</exception>
 		public FtpHash GetHash(string path) {
 			FtpReply reply;
-			var hash = new FtpHash();
-			Match m;
 
 			if (path == null) {
 				throw new ArgumentException("Required argument is null", "path");
@@ -265,37 +264,7 @@ namespace FluentFTP {
 #endif
 
 			// parse hash from the server reply
-			m = ParseHashValue(reply, hash);
-
-			return hash;
-		}
-
-		/// <summary>
-		/// Parses the recieved hash value into the FtpHash object
-		/// </summary>
-		private Match ParseHashValue(FtpReply reply, FtpHash hash) {
-			Match m;
-			// Current draft says the server should return this:
-			// SHA-256 0-49 169cd22282da7f147cb491e559e9dd filename.ext
-			if (!(m = Regex.Match(reply.Message,
-				@"(?<algorithm>.+)\s" +
-				@"(?<bytestart>\d+)-(?<byteend>\d+)\s" +
-				@"(?<hash>.+)\s" +
-				@"(?<filename>.+)")).Success) {
-				// Current version of FileZilla returns this:
-				// SHA-1 21c2ca15cf570582949eb59fb78038b9c27ffcaf 
-				m = Regex.Match(reply.Message, @"(?<algorithm>.+)\s(?<hash>.+)\s");
-			}
-
-			if (m != null && m.Success) {
-				hash.Algorithm = Helpers.HashAlgorithms.FromString(m.Groups["algorithm"].Value);
-				hash.Value = m.Groups["hash"].Value;
-			}
-			else {
-				LogStatus(FtpTraceLevel.Warn, "Failed to parse hash from: " + reply.Message);
-			}
-
-			return m;
+			return HashParser.Parse(reply.Message);
 		}
 
 #if !ASYNC
@@ -341,7 +310,7 @@ namespace FluentFTP {
 #endif
 #if ASYNC
 		/// <summary>
-		/// Gets the hash of an object on the server using the currently selected hash algorithm asynchronously. 
+		/// Gets the hash of an object on the server using the currently selected hash algorithm, or null if hash cannot be parsed.
 		/// </summary>
 		/// <remarks>
 		/// Supported algorithms, if any, are available in the <see cref="HashAlgorithms"/>
@@ -364,8 +333,6 @@ namespace FluentFTP {
 		/// <returns>The hash of the file.</returns>
 		public async Task<FtpHash> GetHashAsync(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
-			var hash = new FtpHash();
-			Match m;
 
 			if (path == null) {
 				throw new ArgumentException("Required argument is null", "path");
@@ -380,9 +347,7 @@ namespace FluentFTP {
 			}
 
 			// parse hash from the server reply
-			m = ParseHashValue(reply, hash);
-
-			return hash;
+			return HashParser.Parse(reply.Message);
 		}
 #endif
 
