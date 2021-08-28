@@ -48,6 +48,8 @@ namespace FluentFTP {
 
 			LogFunc(nameof(GetObjectInfo), new object[] { path, dateModified });
 
+			path = path.GetFtpPath();
+
 			FtpReply reply;
 			string[] res;
 

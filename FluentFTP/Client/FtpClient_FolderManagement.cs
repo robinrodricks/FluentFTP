@@ -326,7 +326,7 @@ namespace FluentFTP {
 
 			// quickly check if root path, then it always exists!
 			var ftppath = path.GetFtpPath();
-			if (ftppath.IsRootPath()) {
+			if (ftppath.IsFtpRootDirectory()) {
 				return true;
 			}
 
@@ -415,7 +415,7 @@ namespace FluentFTP {
 
 			// quickly check if root path, then it always exists!
 			var ftppath = path.GetFtpPath();
-			if (ftppath.IsRootPath()) {
+			if (ftppath.IsFtpRootDirectory()) {
 				return true;
 			}
 
@@ -975,6 +975,7 @@ namespace FluentFTP {
 
 			return "/";
 		}
+#if ASYNC
 
 		private async Task<FtpReply> ReadCurrentWorkingDirectoryAsync(CancellationToken token) {
 
@@ -989,6 +990,7 @@ namespace FluentFTP {
 			_LastWorkingDir = ParseWorkingDirectory(reply);
 			return reply;
 		}
+#endif
 
 		#endregion
 	}

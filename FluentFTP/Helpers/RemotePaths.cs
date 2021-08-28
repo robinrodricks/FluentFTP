@@ -15,10 +15,12 @@ namespace FluentFTP.Helpers {
 		}
 
 		/// <summary>
-		/// Checks if this FTP path is pointing to the root folder
+		/// Checks if the given path is a root directory or working directory path
 		/// </summary>
-		public static bool IsRootPath(this string path) {
-			return path == "." || path == "/" || path == "./";
+		/// <param name="ftppath"></param>
+		/// <returns></returns>
+		public static bool IsFtpRootDirectory(this string ftppath) {
+			return ftppath == "." || ftppath == "./" || ftppath == "/";
 		}
 
 		/// <summary>
@@ -133,15 +135,6 @@ namespace FluentFTP.Helpers {
 			// only return the filename and extension portion
 			// skipping all the path folders
 			return tpath.Substring(lastslash, tpath.Length - lastslash);
-		}
-
-		/// <summary>
-		/// Checks if the given path is a root directory or working directory path
-		/// </summary>
-		/// <param name="ftppath"></param>
-		/// <returns></returns>
-		public static bool IsFtpRootDirectory(this string ftppath) {
-			return ftppath == "." || ftppath == "./" || ftppath == "/";
 		}
 
 		/// <summary>
