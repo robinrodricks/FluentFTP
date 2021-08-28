@@ -58,6 +58,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteDir");
 			}
 
+			remoteDir = remoteDir.GetFtpPath();
+
 			LogFunc(nameof(UploadFiles), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
 			//int count = 0;
@@ -224,6 +226,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteDir");
 			}
 
+			remoteDir = remoteDir.GetFtpPath();
+
 			LogFunc(nameof(UploadFilesAsync), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
@@ -361,6 +365,8 @@ namespace FluentFTP {
 
 		private FtpStatus UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
+
+			remotePath = remotePath.GetFtpPath();
 
 			LogFunc(nameof(UploadFile), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 
@@ -539,6 +545,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
+			remotePath = remotePath.GetFtpPath();
+
 			LogFunc(nameof(Upload), new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
@@ -565,6 +573,8 @@ namespace FluentFTP {
 			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
+
+			remotePath = remotePath.GetFtpPath();
 
 			LogFunc(nameof(Upload), new object[] { remotePath, existsMode, createRemoteDir });
 
@@ -600,6 +610,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
+			remotePath = remotePath.GetFtpPath();
+
 			LogFunc(nameof(UploadAsync), new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
@@ -628,6 +640,8 @@ namespace FluentFTP {
 			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
+
+			remotePath = remotePath.GetFtpPath();
 
 			LogFunc(nameof(UploadAsync), new object[] { remotePath, existsMode, createRemoteDir });
 

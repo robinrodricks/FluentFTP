@@ -249,13 +249,17 @@ namespace FluentFTP {
 			Match m;
 
 			if (path == null) {
-				throw new ArgumentException("GetHash(path) argument can't be null");
+				throw new ArgumentException("Required argument is null", "path");
 			}
+
+			path = path.GetFtpPath();
+
+			LogFunc(nameof(GetHash), new object[] { path });
 
 #if !CORE14
 			lock (m_lock) {
 #endif
-				if (!(reply = Execute("HASH " + path.GetFtpPath())).Success) {
+				if (!(reply = Execute("HASH " + path)).Success) {
 					throw new FtpCommandException(reply);
 				}
 
@@ -367,10 +371,14 @@ namespace FluentFTP {
 			Match m;
 
 			if (path == null) {
-				throw new ArgumentException("GetHash(path) argument can't be null");
+				throw new ArgumentException("Required argument is null", "path");
 			}
 
-			if (!(reply = await ExecuteAsync("HASH " + path.GetFtpPath(), token)).Success) {
+			path = path.GetFtpPath();
+
+			LogFunc(nameof(GetHashAsync), new object[] { path });
+
+			if (!(reply = await ExecuteAsync("HASH " + path, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 

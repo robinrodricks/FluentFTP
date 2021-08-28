@@ -37,6 +37,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
+			remotePath = remotePath.GetFtpPath();
+
 			LogFunc(nameof(CompareFile), new object[] { localPath, remotePath, options });
 
 
@@ -120,6 +122,8 @@ namespace FluentFTP {
 			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
+
+			remotePath = remotePath.GetFtpPath();
 
 			LogFunc(nameof(CompareFileAsync), new object[] { localPath, remotePath, options });
 

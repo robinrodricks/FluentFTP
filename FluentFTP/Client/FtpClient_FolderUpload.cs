@@ -49,15 +49,15 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
 			}
 
-			LogFunc(nameof(UploadDirectory), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
-
-			var results = new List<FtpResult>();
-
 			// ensure the local path ends with slash
 			localFolder = localFolder.EnsurePostfix(Path.DirectorySeparatorChar.ToString());
 
 			// cleanup the remote path
 			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
+
+			LogFunc(nameof(UploadDirectory), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+
+			var results = new List<FtpResult>();
 
 			// if the dir does not exist, fail fast
 			if (!Directory.Exists(localFolder)) {
@@ -137,15 +137,15 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
 			}
 
-			LogFunc(nameof(UploadDirectoryAsync), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
-
-			var results = new List<FtpResult>();
-
 			// ensure the local path ends with slash
 			localFolder = localFolder.EnsurePostfix(Path.DirectorySeparatorChar.ToString());
 
 			// cleanup the remote path
 			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
+
+			LogFunc(nameof(UploadDirectoryAsync), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+
+			var results = new List<FtpResult>();
 
 			// if the dir does not exist, fail fast
 			if (!Directory.Exists(localFolder)) {

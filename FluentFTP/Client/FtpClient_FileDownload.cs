@@ -285,6 +285,8 @@ namespace FluentFTP {
 		private FtpStatus DownloadFileToFile(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
 			bool isAppend = false;
 
+			remotePath = remotePath.GetFtpPath();
+
 			LogFunc(nameof(DownloadFile), new object[] { localPath, remotePath, existsMode, verifyOptions });
 
 			// skip downloading if the localPath is a folder
@@ -414,6 +416,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Local path must specify a file path and not a folder path.", "localPath");
 			}
 
+			remotePath = remotePath.GetFtpPath();
+
 			LogFunc(nameof(DownloadFileAsync), new object[] { localPath, remotePath, existsMode, verifyOptions });
 
 
@@ -535,6 +539,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
+			remotePath = remotePath.GetFtpPath();
+
 			LogFunc(nameof(Download), new object[] { remotePath });
 
 			// download the file from the server
@@ -556,6 +562,8 @@ namespace FluentFTP {
 			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
+
+			remotePath = remotePath.GetFtpPath();
 
 			LogFunc(nameof(Download), new object[] { remotePath });
 
@@ -595,6 +603,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
 
+			remotePath = remotePath.GetFtpPath();
+
 			LogFunc(nameof(DownloadAsync), new object[] { remotePath });
 
 			// download the file from the server
@@ -616,6 +626,8 @@ namespace FluentFTP {
 			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
+
+			remotePath = remotePath.GetFtpPath();
 
 			LogFunc(nameof(DownloadAsync), new object[] { remotePath });
 

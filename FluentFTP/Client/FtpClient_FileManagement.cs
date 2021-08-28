@@ -45,9 +45,11 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
+				path = path.GetFtpPath();
+
 				LogFunc(nameof(DeleteFile), new object[] { path });
 
-				if (!(reply = Execute("DELE " + path.GetFtpPath())).Success) {
+				if (!(reply = Execute("DELE " + path)).Success) {
 					throw new FtpCommandException(reply);
 				}
 
@@ -104,9 +106,11 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(DeleteFileAsync), new object[] { path });
 
-			if (!(reply = await ExecuteAsync("DELE " + path.GetFtpPath(), token)).Success) {
+			if (!(reply = await ExecuteAsync("DELE " + path, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 		}
@@ -131,15 +135,17 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
+				path = path.GetFtpPath();
 
 				LogFunc(nameof(FileExists), new object[] { path });
 
 				// calc the absolute filepath
-				path = GetAbsolutePath(path.GetFtpPath());
+				path = GetAbsolutePath(path);
 
 				// since FTP does not include a specific command to check if a file exists
 				// here we check if file exists by attempting to get its filesize (SIZE)
 				if (HasFeature(FtpCapability.SIZE)) {
+
 					// Fix #328: get filesize in ASCII or Binary mode as required by server
 					var sizeReply = new FtpSizeReply();
 					GetFileSizeInternal(path, sizeReply, -1);
@@ -243,10 +249,12 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(FileExistsAsync), new object[] { path });
 
 			// calc the absolute filepath
-			path = await GetAbsolutePathAsync(path.GetFtpPath(), token);
+			path = await GetAbsolutePathAsync(path, token);
 
 			// since FTP does not include a specific command to check if a file exists
 			// here we check if file exists by attempting to get its filesize (SIZE)
@@ -309,11 +317,14 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
+				path = path.GetFtpPath();
+				dest = dest.GetFtpPath();
+
 				LogFunc(nameof(Rename), new object[] { path, dest });
 
 				// calc the absolute filepaths
-				path = GetAbsolutePath(path.GetFtpPath());
-				dest = GetAbsolutePath(dest.GetFtpPath());
+				path = GetAbsolutePath(path);
+				dest = GetAbsolutePath(dest);
 
 				if (!(reply = Execute("RNFR " + path)).Success) {
 					throw new FtpCommandException(reply);
@@ -386,11 +397,14 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "dest");
 			}
 
+			path = path.GetFtpPath();
+			dest = dest.GetFtpPath();
+
 			LogFunc(nameof(RenameAsync), new object[] { path, dest });
 
 			// calc the absolute filepaths
-			path = await GetAbsolutePathAsync(path.GetFtpPath(), token);
-			dest = await GetAbsolutePathAsync(dest.GetFtpPath(), token);
+			path = await GetAbsolutePathAsync(path, token);
+			dest = await GetAbsolutePathAsync(dest, token);
 
 			if (!(reply = await ExecuteAsync("RNFR " + path, token)).Success) {
 				throw new FtpCommandException(reply);
@@ -424,6 +438,9 @@ namespace FluentFTP {
 			if (dest.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "dest");
 			}
+
+			path = path.GetFtpPath();
+			dest = dest.GetFtpPath();
 
 			LogFunc(nameof(MoveFile), new object[] { path, dest, existsMode });
 
@@ -507,6 +524,9 @@ namespace FluentFTP {
 			if (dest.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "dest");
 			}
+
+			path = path.GetFtpPath();
+			dest = dest.GetFtpPath();
 
 			LogFunc(nameof(MoveFileAsync), new object[] { path, dest, existsMode });
 

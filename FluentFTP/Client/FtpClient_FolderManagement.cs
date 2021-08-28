@@ -30,6 +30,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(DeleteDirectory), new object[] { path });
 			DeleteDirInternal(path, true, FtpListOption.Recursive);
 		}
@@ -46,6 +48,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(DeleteDirectory), new object[] { path, options });
 			DeleteDirInternal(path, true, options);
 		}
@@ -59,7 +63,8 @@ namespace FluentFTP {
 		/// <example><code source="..\Examples\DeleteDirectory.cs" lang="cs" /></example>
 		private void DeleteDirInternal(string path, bool deleteContents, FtpListOption options) {
 			FtpReply reply;
-			var ftppath = path.GetFtpPath();
+
+			path = path.GetFtpPath();
 
 
 #if !CORE14
@@ -68,11 +73,11 @@ namespace FluentFTP {
 
 
 				// server-specific directory deletion
-				if (!ftppath.IsFtpRootDirectory()) {
+				if (!path.IsFtpRootDirectory()) {
 
 					// ask the server handler to delete a directory
 					if (ServerHandler != null) {
-						if (ServerHandler.DeleteDirectory(this, path, ftppath, deleteContents, options)) {
+						if (ServerHandler.DeleteDirectory(this, path, path, deleteContents, options)) {
 							return;
 						}
 					}
@@ -119,14 +124,14 @@ namespace FluentFTP {
 
 				// can't delete the working directory and
 				// can't delete the server root.
-				if (ftppath.IsFtpRootDirectory()) {
+				if (path.IsFtpRootDirectory()) {
 					return;
 				}
 
 
 				// DELETE ACTUAL DIRECTORY
 
-				if (!(reply = Execute("RMD " + ftppath)).Success) {
+				if (!(reply = Execute("RMD " + path)).Success) {
 					throw new FtpCommandException(reply);
 				}
 
@@ -205,6 +210,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(DeleteDirectoryAsync), new object[] { path });
 			return DeleteDirInternalAsync(path, true, FtpListOption.Recursive, token);
 		}
@@ -221,6 +228,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(DeleteDirectoryAsync), new object[] { path, options });
 			return DeleteDirInternalAsync(path, true, options, token);
 		}
@@ -236,14 +245,14 @@ namespace FluentFTP {
 		/// <returns></returns>
 		private async Task DeleteDirInternalAsync(string path, bool deleteContents, FtpListOption options, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
-			var ftppath = path.GetFtpPath();
+			path = path.GetFtpPath();
 
 			// server-specific directory deletion
-			if (!ftppath.IsFtpRootDirectory()) {
+			if (!path.IsFtpRootDirectory()) {
 
 				// ask the server handler to delete a directory
 				if (ServerHandler != null) {
-					if (await ServerHandler.DeleteDirectoryAsync(this, path, ftppath, deleteContents, options, token)) {
+					if (await ServerHandler.DeleteDirectoryAsync(this, path, path, deleteContents, options, token)) {
 						return;
 					}
 				}
@@ -322,11 +331,12 @@ namespace FluentFTP {
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(DirectoryExists), new object[] { path });
 
 			// quickly check if root path, then it always exists!
-			var ftppath = path.GetFtpPath();
-			if (ftppath.IsFtpRootDirectory()) {
+			if (path.IsFtpRootDirectory()) {
 				return true;
 			}
 
@@ -336,8 +346,8 @@ namespace FluentFTP {
 #endif
 				pwd = GetWorkingDirectory();
 
-				if (Execute("CWD " + ftppath).Success) {
-					var reply = Execute("CWD " + pwd.GetFtpPath());
+				if (Execute("CWD " + path).Success) {
+					var reply = Execute("CWD " + pwd);
 
 					if (!reply.Success) {
 						throw new FtpException("DirectoryExists(): Failed to restore the working directory.");
@@ -411,19 +421,20 @@ namespace FluentFTP {
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(DirectoryExistsAsync), new object[] { path });
 
 			// quickly check if root path, then it always exists!
-			var ftppath = path.GetFtpPath();
-			if (ftppath.IsFtpRootDirectory()) {
+			if (path.IsFtpRootDirectory()) {
 				return true;
 			}
 
 			// check if a folder exists by changing the working dir to it
 			pwd = await GetWorkingDirectoryAsync(token);
 
-			if ((await ExecuteAsync("CWD " + ftppath, token)).Success) {
-				FtpReply reply = await ExecuteAsync("CWD " + pwd.GetFtpPath(), token);
+			if ((await ExecuteAsync("CWD " + path, token)).Success) {
+				FtpReply reply = await ExecuteAsync("CWD " + pwd, token);
 
 				if (!reply.Success) {
 					throw new FtpException("DirectoryExists(): Failed to restore the working directory.");
@@ -462,13 +473,14 @@ namespace FluentFTP {
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(CreateDirectory), new object[] { path, force });
 
 			FtpReply reply;
-			var ftppath = path.GetFtpPath();
 
 			// cannot create root or working directory
-			if (ftppath.IsFtpRootDirectory()) {
+			if (path.IsFtpRootDirectory()) {
 				return false;
 			}
 
@@ -479,12 +491,12 @@ namespace FluentFTP {
 				// server-specific directory creation
 				// ask the server handler to create a directory
 				if (ServerHandler != null) {
-					if (ServerHandler.CreateDirectory(this, path, ftppath, force)) {
+					if (ServerHandler.CreateDirectory(this, path, path, force)) {
 						return true;
 					}
 				}
 
-				path = path.GetFtpPath().TrimEnd('/');
+				path = path.TrimEnd('/');
 
 				if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
 					LogStatus(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
@@ -496,9 +508,9 @@ namespace FluentFTP {
 					return false;
 				}*/
 
-				LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + ftppath);
+				LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + path);
 
-				if (!(reply = Execute("MKD " + ftppath)).Success) {
+				if (!(reply = Execute("MKD " + path)).Success) {
 
 					// if the error indicates the directory already exists, its not an error
 					if (reply.Code == "550") {
@@ -578,25 +590,26 @@ namespace FluentFTP {
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(CreateDirectoryAsync), new object[] { path, force });
 
 			FtpReply reply;
-			var ftppath = path.GetFtpPath();
 
 			// cannot create root or working directory
-			if (ftppath.IsFtpRootDirectory()) {
+			if (path.IsFtpRootDirectory()) {
 				return false;
 			}
 
 			// server-specific directory creation
 			// ask the server handler to create a directory
 			if (ServerHandler != null) {
-				if (await ServerHandler.CreateDirectoryAsync(this, path, ftppath, force, token)) {
+				if (await ServerHandler.CreateDirectoryAsync(this, path, path, force, token)) {
 					return true;
 				}
 			}
 
-			path = path.GetFtpPath().TrimEnd('/');
+			path = path.TrimEnd('/');
 
 			if (force && !await DirectoryExistsAsync(path.GetFtpDirectoryName(), token)) {
 				LogStatus(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
@@ -608,9 +621,9 @@ namespace FluentFTP {
 				return false;
 			}*/
 
-			LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + ftppath);
+			LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + path);
 
-			if (!(reply = await ExecuteAsync("MKD " + ftppath, token)).Success) {
+			if (!(reply = await ExecuteAsync("MKD " + path, token)).Success) {
 
 				// if the error indicates the directory already exists, its not an error
 				if (reply.Code == "550") {
@@ -658,6 +671,9 @@ namespace FluentFTP {
 			if (dest.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "dest");
 			}
+
+			path = path.GetFtpPath();
+			dest = dest.GetFtpPath();
 
 			LogFunc(nameof(MoveDirectory), new object[] { path, dest, existsMode });
 
@@ -742,6 +758,9 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "dest");
 			}
 
+			path = path.GetFtpPath();
+			dest = dest.GetFtpPath();
+
 			LogFunc(nameof(MoveDirectoryAsync), new object[] { path, dest, existsMode });
 
 			if (await DirectoryExistsAsync(path, token)) {
@@ -780,13 +799,15 @@ namespace FluentFTP {
 		/// <param name="path">The path of the directory to change to</param>
 		/// <example><code source="..\Examples\SetWorkingDirectory.cs" lang="cs" /></example>
 		public void SetWorkingDirectory(string path) {
+
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(SetWorkingDirectory), new object[] { path });
 
 			FtpReply reply;
-			var ftppath = path.GetFtpPath();
 
 			// exit if invalid path
-			if (ftppath == "." || ftppath == "./") {
+			if (path == "." || path == "./") {
 				return;
 			}
 
@@ -794,7 +815,7 @@ namespace FluentFTP {
 			lock (m_lock) {
 #endif
 				// modify working dir
-				if (!(reply = Execute("CWD " + ftppath)).Success) {
+				if (!(reply = Execute("CWD " + path)).Success) {
 					throw new FtpCommandException(reply);
 				}
 
@@ -848,18 +869,20 @@ namespace FluentFTP {
 		/// <param name="path">The directory to change to</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public async Task SetWorkingDirectoryAsync(string path, CancellationToken token = default(CancellationToken)) {
+			
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(SetWorkingDirectoryAsync), new object[] { path });
 
 			FtpReply reply;
-			var ftppath = path.GetFtpPath();
 
 			// exit if invalid path
-			if (ftppath == "." || ftppath == "./") {
+			if (path == "." || path == "./") {
 				return;
 			}
 
 			// modify working dir
-			if (!(reply = await ExecuteAsync("CWD " + ftppath, token)).Success) {
+			if (!(reply = await ExecuteAsync("CWD " + path, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 
@@ -963,12 +986,12 @@ namespace FluentFTP {
 			Match m;
 
 			if ((m = Regex.Match(reply.Message, "\"(?<pwd>.*)\"")).Success) {
-				return m.Groups["pwd"].Value;
+				return m.Groups["pwd"].Value.GetFtpPath();
 			}
 
 			// check for MODCOMP ftp path mentioned in forums: https://netftp.codeplex.com/discussions/444461
 			if ((m = Regex.Match(reply.Message, "PWD = (?<pwd>.*)")).Success) {
-				return m.Groups["pwd"].Value;
+				return m.Groups["pwd"].Value.GetFtpPath();
 			}
 
 			LogStatus(FtpTraceLevel.Warn, "Failed to parse working directory from: " + reply.Message);

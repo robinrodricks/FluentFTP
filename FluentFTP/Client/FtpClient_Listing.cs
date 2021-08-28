@@ -46,9 +46,9 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-			LogFunc(nameof(GetObjectInfo), new object[] { path, dateModified });
-
 			path = path.GetFtpPath();
+
+			LogFunc(nameof(GetObjectInfo), new object[] { path, dateModified });
 
 			FtpReply reply;
 			string[] res;
@@ -163,6 +163,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(GetObjectInfo), new object[] { path, dateModified });
 
 			FtpReply reply;
@@ -273,6 +275,8 @@ namespace FluentFTP {
 			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
 				return GetListingRecursive(GetAbsolutePath(path), options);
 			}
+
+			path = path.GetFtpPath();
 
 			LogFunc(nameof(GetListing), new object[] { path, options });
 
@@ -825,6 +829,8 @@ namespace FluentFTP {
 				return await GetListingRecursiveAsync(GetAbsolutePath(path), options, token);
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(GetListingAsync), new object[] { path, options });
 
 			var lst = new List<FtpListItem>();
@@ -1244,6 +1250,9 @@ namespace FluentFTP {
 		/// <returns>A string array of file and directory names if any were returned.</returns>
 		/// <example><code source="..\Examples\GetNameListing.cs" lang="cs" /></example>
 		public string[] GetNameListing(string path) {
+
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(GetNameListing), new object[] { path });
 
 			var listing = new List<string>();
@@ -1260,7 +1269,7 @@ namespace FluentFTP {
 
 				// read in raw listing
 				try {
-					using (var stream = OpenDataStream("NLST " + path.GetFtpPath(), 0)) {
+					using (var stream = OpenDataStream("NLST " + path, 0)) {
 						LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 						string line;
 
@@ -1350,6 +1359,9 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>An array of file and directory names if any were returned.</returns>
 		public async Task<string[]> GetNameListingAsync(string path, CancellationToken token = default(CancellationToken)) {
+
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(GetNameListingAsync), new object[] { path });
 
 			var listing = new List<string>();
@@ -1362,7 +1374,7 @@ namespace FluentFTP {
 
 			// read in raw listing
 			try {
-				using (FtpDataStream stream = await OpenDataStreamAsync("NLST " + path.GetFtpPath(), 0, token)) {
+				using (FtpDataStream stream = await OpenDataStreamAsync("NLST " + path, 0, token)) {
 					LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 					string line;
 

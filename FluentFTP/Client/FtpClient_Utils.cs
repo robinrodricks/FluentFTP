@@ -90,7 +90,7 @@ namespace FluentFTP {
 					path = pwd;
 				}
 				else {
-					path = "./";
+					path = "/";
 				}
 
 			}
@@ -137,13 +137,18 @@ namespace FluentFTP {
 					path = pwd;
 				}
 				else {
-					path = "./";
+					path = "/";
 				}
 			}
 
 			// FIX : #153 ensure this check works with unix & windows
 			// FIX : #454 OpenVMS paths can be a single character
 			else if (!path.StartsWith("/") && !(path.Length > 1 && path[1] == ':')) {
+
+				// if its a server-specific absolute path then don't add base dir
+				if (ServerHandler != null && ServerHandler.IsAbsolutePath(path)) {
+					return path;
+				}
 
 				// if relative path given then add working dir to calc full path
 				string pwd = await GetWorkingDirectoryAsync(token);

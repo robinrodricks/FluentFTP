@@ -257,6 +257,7 @@ namespace FluentFTP {
 
 				// if reply received
 				if (reply.Code != null) {
+
 					// hide sensitive data from logs
 					var logMsg = reply.Message;
 					if (!FtpTrace.LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK")) {
@@ -1216,6 +1217,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(OpenRead), new object[] { path, type, restart });
 
 			FtpClient client = null;
@@ -1238,7 +1241,7 @@ namespace FluentFTP {
 				client.SetDataType(type);
 
 				length = checkIfFileExists ? client.GetFileSize(path) : 0;
-				stream = client.OpenDataStream("RETR " + path.GetFtpPath(), restart);
+				stream = client.OpenDataStream("RETR " + path, restart);
 #if !CORE14
 			}
 #endif
@@ -1346,6 +1349,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(OpenReadAsync), new object[] { path, type, restart });
 
 			FtpClient client = null;
@@ -1364,7 +1369,7 @@ namespace FluentFTP {
 
 			await client.SetDataTypeAsync(type, token);
 			length = checkIfFileExists ? await client.GetFileSizeAsync(path, -1, token) : 0;
-			stream = await client.OpenDataStreamAsync("RETR " + path.GetFtpPath(), restart, token);
+			stream = await client.OpenDataStreamAsync("RETR " + path, restart, token);
 
 			if (stream != null) {
 				if (length > 0) {
@@ -1464,6 +1469,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(OpenWrite), new object[] { path, type });
 
 			FtpClient client = null;
@@ -1485,7 +1492,7 @@ namespace FluentFTP {
 
 				client.SetDataType(type);
 				length = checkIfFileExists ? client.GetFileSize(path) : 0;
-				stream = client.OpenDataStream("STOR " + path.GetFtpPath(), 0);
+				stream = client.OpenDataStream("STOR " + path, 0);
 
 				if (length > 0 && stream != null) {
 					stream.SetLength(length);
@@ -1560,6 +1567,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(OpenWriteAsync), new object[] { path, type });
 
 			FtpClient client = null;
@@ -1578,7 +1587,7 @@ namespace FluentFTP {
 
 			await client.SetDataTypeAsync(type, token);
 			length = checkIfFileExists ? await client.GetFileSizeAsync(path, -1, token) : 0;
-			stream = await client.OpenDataStreamAsync("STOR " + path.GetFtpPath(), 0, token);
+			stream = await client.OpenDataStreamAsync("STOR " + path, 0, token);
 
 			if (length > 0 && stream != null) {
 				stream.SetLength(length);
@@ -1648,6 +1657,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(OpenAppend), new object[] { path, type });
 
 			FtpClient client = null;
@@ -1669,7 +1680,7 @@ namespace FluentFTP {
 
 				client.SetDataType(type);
 				length = checkIfFileExists ? client.GetFileSize(path) : 0;
-				stream = client.OpenDataStream("APPE " + path.GetFtpPath(), 0);
+				stream = client.OpenDataStream("APPE " + path, 0);
 
 				if (length > 0 && stream != null) {
 					stream.SetLength(length);
@@ -1745,6 +1756,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(OpenAppendAsync), new object[] { path, type });
 
 			FtpClient client = null;
@@ -1764,7 +1777,7 @@ namespace FluentFTP {
 
 			await client.SetDataTypeAsync(type, token);
 			length = checkIfFileExists ? await client.GetFileSizeAsync(path, -1, token) : 0;
-			stream = await client.OpenDataStreamAsync("APPE " + path.GetFtpPath(), 0, token);
+			stream = await client.OpenDataStreamAsync("APPE " + path, 0, token);
 
 			if (length > 0 && stream != null) {
 				stream.SetLength(length);

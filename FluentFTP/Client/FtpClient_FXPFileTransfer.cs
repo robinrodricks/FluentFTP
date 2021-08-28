@@ -34,6 +34,9 @@ namespace FluentFTP {
 		public FtpStatus TransferFile(string sourcePath, FtpClient remoteClient, string remotePath,
 			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.AppendResume, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null, FtpProgress metaProgress = null) {
 
+			sourcePath = sourcePath.GetFtpPath();
+			remotePath = remotePath.GetFtpPath();
+
 			LogFunc(nameof(TransferFile), new object[] { sourcePath, remoteClient, remotePath, FXPDataType, createRemoteDir, existsMode, verifyOptions });
 
 			// verify input params
@@ -125,6 +128,9 @@ namespace FluentFTP {
 		public async Task<FtpStatus> TransferFileAsync(string sourcePath, FtpClient remoteClient, string remotePath,
 			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.AppendResume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, FtpProgress metaProgress = null, CancellationToken token = default(CancellationToken)) {
 
+			sourcePath = sourcePath.GetFtpPath();
+			remotePath = remotePath.GetFtpPath();
+
 			LogFunc(nameof(TransferFileAsync), new object[] { sourcePath, remoteClient, remotePath, FXPDataType, createRemoteDir, existsMode, verifyOptions });
 
 			// verify input params
@@ -202,7 +208,7 @@ namespace FluentFTP {
 							case FtpRemoteExists.Skip:
 
 								if (fileExists) {
-									LogStatus(FtpTraceLevel.Info, "Skip is selected => Destination file exists => skipping");
+									LogStatus(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists (Source: " + sourcePath + ", Dest: " + remotePath + ")");
 
 									//Fix #413 - progress callback isn't called if the file has already been uploaded to the server
 									//send progress reports
@@ -364,7 +370,7 @@ namespace FluentFTP {
 							case FtpRemoteExists.Skip:
 
 								if (fileExists) {
-									LogStatus(FtpTraceLevel.Info, "Skip is selected => Destination file exists => skipping");
+									LogStatus(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists (Source: " + sourcePath + ", Dest: " + remotePath + ")");
 
 									//Fix #413 - progress callback isn't called if the file has already been uploaded to the server
 									//send progress reports

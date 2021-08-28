@@ -55,7 +55,7 @@ namespace FluentFTP.Helpers {
 		/// <returns>A valid FTP path</returns>
 		public static string GetFtpPath(this string path, params string[] segments) {
 			if (string.IsNullOrEmpty(path)) {
-				path = "./";
+				path = "/";
 			}
 
 			foreach (var part in segments) {

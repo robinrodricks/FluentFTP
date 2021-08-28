@@ -228,6 +228,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(GetFileSize), new object[] { path });
 
 			if (!HasFeature(FtpCapability.SIZE)) {
@@ -251,13 +253,15 @@ namespace FluentFTP {
 		private void GetFileSizeInternal(string path, FtpSizeReply sizeReply, long defaultValue) {
 			long length = defaultValue;
 
+			path = path.GetFtpPath();
+
 			// Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.
 			if (_FileSizeASCIINotSupported) {
 				SetDataTypeNoLock(FtpDataType.Binary);
 			}
 
 			// execute the SIZE command
-			var reply = Execute("SIZE " + path.GetFtpPath());
+			var reply = Execute("SIZE " + path);
 			sizeReply.Reply = reply;
 			if (!reply.Success) {
 				length = defaultValue;
@@ -328,6 +332,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(GetFileSizeAsync), new object[] { path, defaultValue });
 
 			if (!HasFeature(FtpCapability.SIZE)) {
@@ -345,6 +351,8 @@ namespace FluentFTP {
 		/// </summary>
 		private async Task GetFileSizeInternalAsync(string path, long defaultValue, CancellationToken token, FtpSizeReply sizeReply) {
 			long length = defaultValue;
+			
+			path = path.GetFtpPath();
 
 			// Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.
 			if (_FileSizeASCIINotSupported) {
@@ -352,7 +360,7 @@ namespace FluentFTP {
 			}
 
 			// execute the SIZE command
-			var reply = await ExecuteAsync("SIZE " + path.GetFtpPath(), token);
+			var reply = await ExecuteAsync("SIZE " + path, token);
 			sizeReply.Reply = reply;
 			if (!reply.Success) {
 				sizeReply.FileSize = defaultValue;
@@ -395,6 +403,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(GetModifiedTime), new object[] { path });
 
 			var date = DateTime.MinValue;
@@ -405,7 +415,7 @@ namespace FluentFTP {
 #endif
 
 				// get modified date of a file
-				if ((reply = Execute("MDTM " + path.GetFtpPath())).Success) {
+				if ((reply = Execute("MDTM " + path)).Success) {
 					date = reply.Message.ParseFtpDate(this);
 					date = ConvertDate(date);
 				}
@@ -464,13 +474,15 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(GetModifiedTimeAsync), new object[] { path });
 
 			var date = DateTime.MinValue;
 			FtpReply reply;
 
 			// get modified date of a file
-			if ((reply = await ExecuteAsync("MDTM " + path.GetFtpPath(), token)).Success) {
+			if ((reply = await ExecuteAsync("MDTM " + path, token)).Success) {
 				date = reply.Message.ParseFtpDate(this);
 				date = ConvertDate(date);
 			}
@@ -498,6 +510,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "date");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(SetModifiedTime), new object[] { path, date });
 
 			FtpReply reply;
@@ -511,7 +525,7 @@ namespace FluentFTP {
 				var timeStr = date.GenerateFtpDate();
 
 				// set modified date of a file
-				if ((reply = Execute("MFMT " + timeStr + " " + path.GetFtpPath())).Success) {
+				if ((reply = Execute("MFMT " + timeStr + " " + path)).Success) {
 				}
 
 #if !CORE14
@@ -569,6 +583,8 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "date");
 			}
 
+			path = path.GetFtpPath();
+
 			LogFunc(nameof(SetModifiedTimeAsync), new object[] { path, date });
 
 			FtpReply reply;
@@ -578,7 +594,7 @@ namespace FluentFTP {
 			var timeStr = date.GenerateFtpDate();
 
 			// set modified date of a file
-			if ((reply = await ExecuteAsync("MFMT " + timeStr + " " + path.GetFtpPath(), token)).Success) {
+			if ((reply = await ExecuteAsync("MFMT " + timeStr + " " + path, token)).Success) {
 			}
 		}
 #endif
