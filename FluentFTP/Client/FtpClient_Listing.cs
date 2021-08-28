@@ -100,47 +100,6 @@ namespace FluentFTP {
 			return result;
 		}
 
-#if !ASYNC
-		private delegate FtpListItem AsyncGetObjectInfo(string path, bool dateModified);
-
-		/// <summary>
-		/// Begins an asynchronous operation to return information about a remote file system object. 
-		/// </summary>
-		/// <remarks>
-		/// You should check the <see cref="Capabilities"/> property for the <see cref="FtpCapability.MLSD"/> 
-		/// flag before calling this method. Failing to do so will result in an InvalidOperationException
-		///  being thrown when the server does not support machine listings. Returns null if the server response can't
-		/// be parsed or the server returns a failure completion code. The error for a failure
-		/// is logged with FtpTrace. No exception is thrown on error because that would negate
-		/// the usefulness of this method for checking for the existence of an object.
-		/// </remarks>
-		/// <param name="path">Path of the file or folder</param>
-		/// <param name="dateModified">Get the accurate modified date using another MDTM command</param>
-		/// <param name="callback">Async Callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetObjectInfo(string path, bool dateModified, AsyncCallback callback, object state) {
-			IAsyncResult ar;
-			AsyncGetObjectInfo func;
-
-			lock (m_asyncmethods) {
-				ar = (func = new AsyncGetObjectInfo(GetObjectInfo)).BeginInvoke(path, dateModified, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="BeginGetObjectInfo"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetObjectInfo"/></param>
-		/// <returns>A <see cref="FtpListItem"/> if the command succeeded, or null if there was a problem.</returns>
-		public FtpListItem EndGetObjectInfo(IAsyncResult ar) {
-			return GetAsyncDelegate<AsyncGetObjectInfo>(ar).EndInvoke(ar);
-		}
-#endif
-
 #if ASYNC
 		/// <summary>
 		/// Return information about a remote file system object asynchronously. 
@@ -616,74 +575,6 @@ namespace FluentFTP {
 			return rawlisting;
 		}
 
-#if !ASYNC
-		/// <summary>
-		/// Begins an asynchronous operation to get a file listing from the server. 
-		/// Each <see cref="FtpListItem"/> object returned contains information about the file that was able to be retrieved. 
-		/// </summary>
-		/// <remarks>
-		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-		/// is equal to 0, then it means the size of the object could also not
-		/// be retrieved.
-		/// </remarks>
-		/// <param name="callback">AsyncCallback method</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetListing(AsyncCallback callback, object state) {
-			return BeginGetListing(null, callback, state);
-		}
-
-		/// <summary>
-		/// Begins an asynchronous operation to get a file listing from the server. 
-		/// Each <see cref="FtpListItem"/> object returned contains information about the file that was able to be retrieved. 
-		/// </summary>
-		/// <remarks>
-		/// If a <see cref="DateTime"/> property is equal to <see cref="DateTime.MinValue"/> then it means the 
-		/// date in question was not able to be retrieved. If the <see cref="FtpListItem.Size"/> property
-		/// is equal to 0, then it means the size of the object could also not
-		/// be retrieved.
-		/// </remarks>
-		/// <param name="path">The path to list</param>
-		/// <param name="callback">AsyncCallback method</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetListing(string path, AsyncCallback callback, object state) {
-			return BeginGetListing(path, FtpListOption.Modify | FtpListOption.Size, callback, state);
-		}
-
-		private delegate FtpListItem[] AsyncGetListing(string path, FtpListOption options);
-
-		/// <summary>
-		/// Gets a file listing from the server asynchronously
-		/// </summary>
-		/// <param name="path">The path to list</param>
-		/// <param name="options">Options that dictate how the list operation is performed</param>
-		/// <param name="callback">AsyncCallback method</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetListing(string path, FtpListOption options, AsyncCallback callback, object state) {
-			IAsyncResult ar;
-			AsyncGetListing func;
-
-			lock (m_asyncmethods) {
-				ar = (func = new AsyncGetListing(GetListing)).BeginInvoke(path, options, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="o:BeginGetListing"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult return from <see cref="o:BeginGetListing"/></param>
-		/// <returns>An array of items retrieved in the listing</returns>
-		public FtpListItem[] EndGetListing(IAsyncResult ar) {
-			return GetAsyncDelegate<AsyncGetListing>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNCPLUS
 		/// <summary>
 		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned

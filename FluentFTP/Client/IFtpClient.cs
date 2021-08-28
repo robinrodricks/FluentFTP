@@ -270,25 +270,13 @@ namespace FluentFTP {
 		void SetHashAlgorithm(FtpHashAlgorithm type);
 		FtpHash GetHash(string path);
 		FtpHash GetChecksum(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE);
-		string GetMD5(string path);
-		string GetXCRC(string path);
-		string GetXMD5(string path);
-		string GetXSHA1(string path);
-		string GetXSHA256(string path);
-		string GetXSHA512(string path);
 
 #if ASYNC
 		Task<FtpHashAlgorithm> GetHashAlgorithmAsync(CancellationToken token = default(CancellationToken));
 		Task SetHashAlgorithmAsync(FtpHashAlgorithm type, CancellationToken token = default(CancellationToken));
 		Task<FtpHash> GetHashAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<FtpHash> GetChecksumAsync(string path, CancellationToken token = default(CancellationToken), FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE);
-		Task<string> GetMD5Async(string path, CancellationToken token = default(CancellationToken));
-		Task<string> GetXCRCAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<string> GetXMD5Async(string path, CancellationToken token = default(CancellationToken));
-		Task<string> GetXSHA1Async(string path, CancellationToken token = default(CancellationToken));
-		Task<string> GetXSHA256Async(string path, CancellationToken token = default(CancellationToken));
+		Task<FtpHash> GetChecksumAsync(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken));
 
-		Task<string> GetXSHA512Async(string path, CancellationToken token = default(CancellationToken));
 #endif
 	}
 }

@@ -149,49 +149,6 @@ namespace FluentFTP {
 			return (options & FtpListOption.Recursive) == FtpListOption.Recursive;
 		}
 
-#if !ASYNC
-		private delegate void AsyncDeleteDirectory(string path, FtpListOption options);
-
-		/// <summary>
-		/// Begins an asynchronous operation to delete the specified directory and all its contents.
-		/// </summary>
-		/// <param name="path">The full or relative path of the directory to delete</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginDeleteDirectory(string path, AsyncCallback callback, object state) {
-			return BeginDeleteDirectory(path, FtpListOption.Recursive, callback, state);
-		}
-
-		/// <summary>
-		/// Begins an asynchronous operation to delete the specified directory and all its contents.
-		/// </summary>
-		/// <param name="path">The full or relative path of the directory to delete</param>
-		/// <param name="options">Useful to delete hidden files or dot-files.</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginDeleteDirectory(string path, FtpListOption options, AsyncCallback callback, object state) {
-			AsyncDeleteDirectory func;
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = (func = DeleteDirectory).BeginInvoke(path, options, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="o:BeginDeleteDirectory"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from BeginDeleteDirectory</param>
-		public void EndDeleteDirectory(IAsyncResult ar) {
-			GetAsyncDelegate<AsyncDeleteDirectory>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Asynchronously removes a directory and all its contents.
@@ -356,43 +313,6 @@ namespace FluentFTP {
 			return false;
 		}
 
-#if !ASYNC
-		private delegate bool AsyncDirectoryExists(string path);
-
-		/// <summary>
-		/// Begins an asynchronous operation to test if the specified directory exists on the server. 
-		/// This method works by trying to change the working directory to
-		/// the path specified. If it succeeds, the directory is changed
-		/// back to the old working directory and true is returned. False
-		/// is returned otherwise and since the CWD failed it is assumed
-		/// the working directory is still the same.
-		/// </summary>
-		/// <returns>IAsyncResult</returns>
-		/// <param name='path'>The full or relative path of the directory to check for</param>
-		/// <param name='callback'>Async callback</param>
-		/// <param name='state'>State object</param>
-		public IAsyncResult BeginDirectoryExists(string path, AsyncCallback callback, object state) {
-			AsyncDirectoryExists func;
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = (func = DirectoryExists).BeginInvoke(path, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="BeginDirectoryExists"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from BeginDirectoryExists</param>
-		/// <returns>True if the directory exists. False otherwise.</returns>
-		public bool EndDirectoryExists(IAsyncResult ar) {
-			return GetAsyncDelegate<AsyncDirectoryExists>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Tests if the specified directory exists on the server asynchronously. This
@@ -519,50 +439,6 @@ namespace FluentFTP {
 #endif
 		}
 
-#if !ASYNC
-		private delegate bool AsyncCreateDirectory(string path, bool force);
-
-		/// <summary>
-		/// Begins an asynchronous operation to create a remote directory. If the preceding
-		/// directories do not exist, then they are created.
-		/// </summary>
-		/// <param name="path">The full or relative path to the new remote directory</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginCreateDirectory(string path, AsyncCallback callback, object state) {
-			return BeginCreateDirectory(path, true, callback, state);
-		}
-
-		/// <summary>
-		/// Begins an asynchronous operation to create a remote directory
-		/// </summary>
-		/// <param name="path">The full or relative path to the new remote directory</param>
-		/// <param name="force">Try to create the whole path if the preceding directories do not exist</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginCreateDirectory(string path, bool force, AsyncCallback callback, object state) {
-			AsyncCreateDirectory func;
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = (func = CreateDirectory).BeginInvoke(path, force, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="o:BeginCreateDirectory"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="o:BeginCreateDirectory"/></param>
-		public void EndCreateDirectory(IAsyncResult ar) {
-			GetAsyncDelegate<AsyncCreateDirectory>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Creates a remote directory asynchronously
@@ -688,41 +564,6 @@ namespace FluentFTP {
 			return false;
 		}
 
-#if !ASYNC
-		private delegate bool AsyncMoveDirectory(string path, string dest, FtpRemoteExists existsMode);
-
-		/// <summary>
-		/// Begins an asynchronous operation to move a directory on the remote file system, from one directory to another.
-		/// Always checks if the source directory exists. Checks if the dest directory exists based on the `existsMode` parameter.
-		/// Only throws exceptions for critical errors.
-		/// </summary>
-		/// <param name="path">The full or relative path to the object</param>
-		/// <param name="dest">The new full or relative path including the new name of the object</param>
-		/// <param name="existsMode">Should we check if the dest directory exists? And if it does should we overwrite/skip the operation?</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginMoveDirectory(string path, string dest, FtpRemoteExists existsMode, AsyncCallback callback, object state) {
-			AsyncMoveDirectory func;
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = (func = MoveDirectory).BeginInvoke(path, dest, existsMode, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="BeginMoveDirectory"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginMoveDirectory"/></param>
-		public void EndMoveDirectory(IAsyncResult ar) {
-			GetAsyncDelegate<AsyncMoveDirectory>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Moves a directory asynchronously on the remote file system from one directory to another.
@@ -814,37 +655,6 @@ namespace FluentFTP {
 		}
 
 
-#if !ASYNC
-		private delegate void AsyncSetWorkingDirectory(string path);
-
-		/// <summary>
-		/// Begins an asynchronous operation to set the working directory on the server
-		/// </summary>
-		/// <param name="path">The directory to change to</param>
-		/// <param name="callback">Async Callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginSetWorkingDirectory(string path, AsyncCallback callback, object state) {
-			IAsyncResult ar;
-			AsyncSetWorkingDirectory func;
-
-			lock (m_asyncmethods) {
-				ar = (func = SetWorkingDirectory).BeginInvoke(path, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="BeginSetWorkingDirectory"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginSetWorkingDirectory"/></param>
-		public void EndSetWorkingDirectory(IAsyncResult ar) {
-			GetAsyncDelegate<AsyncSetWorkingDirectory>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Sets the working directory on the server asynchronously
@@ -894,38 +704,6 @@ namespace FluentFTP {
 			return _LastWorkingDir;
 		}
 
-
-#if !ASYNC
-		private delegate string AsyncGetWorkingDirectory();
-
-		/// <summary>
-		/// Begins an asynchronous operation to get the working directory
-		/// </summary>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetWorkingDirectory(AsyncCallback callback, object state) {
-			IAsyncResult ar;
-			AsyncGetWorkingDirectory func;
-
-			lock (m_asyncmethods) {
-				ar = (func = GetWorkingDirectory).BeginInvoke(callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="BeginGetWorkingDirectory"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetWorkingDirectory"/></param>
-		/// <returns>The current working directory</returns>
-		public string EndGetWorkingDirectory(IAsyncResult ar) {
-			return GetAsyncDelegate<AsyncGetWorkingDirectory>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Gets the current working directory asynchronously

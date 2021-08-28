@@ -105,7 +105,7 @@ namespace FluentFTP.Helpers {
 		/// </summary>
 		public static string RemovePrefix(this string text, string prefix) {
 			if (text.StartsWith(prefix)) {
-				return text.Substring(prefix.Length);
+				return text.Substring(prefix.Length).Trim();
 			}
 			return text;
 		}

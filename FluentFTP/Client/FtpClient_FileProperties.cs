@@ -87,52 +87,6 @@ namespace FluentFTP {
 			return null;
 		}
 
-#if !ASYNC
-		private delegate FtpListItem AsyncDereferenceLink(FtpListItem item, int recMax);
-
-		/// <summary>
-		/// Begins an asynchronous operation to dereference a <see cref="FtpListItem"/> object
-		/// </summary>
-		/// <param name="item">The item to dereference</param>
-		/// <param name="recMax">Maximum recursive calls</param>
-		/// <param name="callback">AsyncCallback</param>
-		/// <param name="state">State Object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginDereferenceLink(FtpListItem item, int recMax, AsyncCallback callback, object state) {
-			IAsyncResult ar;
-			AsyncDereferenceLink func;
-
-			lock (m_asyncmethods) {
-				ar = (func = DereferenceLink).BeginInvoke(item, recMax, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Begins an asynchronous operation to dereference a <see cref="FtpListItem"/> object. See the
-		/// <see cref="MaximumDereferenceCount"/> property for controlling
-		/// how deep this method will recurse before giving up.
-		/// </summary>
-		/// <param name="item">The item to dereference</param>
-		/// <param name="callback">AsyncCallback</param>
-		/// <param name="state">State Object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginDereferenceLink(FtpListItem item, AsyncCallback callback, object state) {
-			return BeginDereferenceLink(item, MaximumDereferenceCount, callback, state);
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="o:BeginDereferenceLink"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult</param>
-		/// <returns>A <see cref="FtpListItem"/>, or null if the link can't be dereferenced</returns>
-		public FtpListItem EndDereferenceLink(IAsyncResult ar) {
-			return GetAsyncDelegate<AsyncDereferenceLink>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Dereference a FtpListItem object
@@ -276,39 +230,6 @@ namespace FluentFTP {
 			sizeReply.FileSize = length;
 		}
 
-#if !ASYNC
-		private delegate long AsyncGetFileSize(string path, long defaultValue);
-
-		/// <summary>
-		/// Begins an asynchronous operation to retrieve the size of a remote file
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="defaultValue">Value to return if there was an error obtaining the file size, or if the file does not exist</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetFileSize(string path, long defaultValue, AsyncCallback callback, object state) {
-			IAsyncResult ar;
-			AsyncGetFileSize func;
-
-			lock (m_asyncmethods) {
-				ar = (func = GetFileSize).BeginInvoke(path, defaultValue, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="BeginGetFileSize"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetFileSize"/></param>
-		/// <returns>The size of the file, or defaultValue if there was a problem.</returns>
-		public long EndGetFileSize(IAsyncResult ar) {
-			return GetAsyncDelegate<AsyncGetFileSize>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Asynchronously gets the size of a remote file, in bytes.
@@ -417,38 +338,6 @@ namespace FluentFTP {
 			return date;
 		}
 
-#if !ASYNC
-		private delegate DateTime AsyncGetModifiedTime(string path);
-
-		/// <summary>
-		/// Begins an asynchronous operation to get the modified time of a remote file
-		/// </summary>
-		/// <param name="path">The full path to the file</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetModifiedTime(string path, AsyncCallback callback, object state) {
-			IAsyncResult ar;
-			AsyncGetModifiedTime func;
-
-			lock (m_asyncmethods) {
-				ar = (func = GetModifiedTime).BeginInvoke(path, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="BeginGetModifiedTime"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetModifiedTime"/></param>
-		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
-		public DateTime EndGetModifiedTime(IAsyncResult ar) {
-			return GetAsyncDelegate<AsyncGetModifiedTime>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Gets the modified time of a remote file asynchronously
@@ -522,38 +411,6 @@ namespace FluentFTP {
 #endif
 		}
 
-#if !ASYNC
-		private delegate void AsyncSetModifiedTime(string path, DateTime date);
-
-		/// <summary>
-		/// Begins an asynchronous operation to get the modified time of a remote file
-		/// </summary>
-		/// <param name="path">The full path to the file</param>
-		/// <param name="date">The new modified date/time value</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginSetModifiedTime(string path, DateTime date, AsyncCallback callback, object state) {
-			IAsyncResult ar;
-			AsyncSetModifiedTime func;
-
-			lock (m_asyncmethods) {
-				ar = (func = SetModifiedTime).BeginInvoke(path, date, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="BeginSetModifiedTime"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginSetModifiedTime"/></param>
-		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
-		public void EndSetModifiedTime(IAsyncResult ar) {
-			GetAsyncDelegate<AsyncSetModifiedTime>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Gets the modified time of a remote file asynchronously

@@ -1247,75 +1247,6 @@ namespace FluentFTP {
 			return stream;
 		}
 
-#if !ASYNC
-		/// <summary>
-		/// Begins an asynchronous operation to open the specified file for reading
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="callback">Async Callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginOpenRead(string path, AsyncCallback callback, object state) {
-			return BeginOpenRead(path, FtpDataType.Binary, 0, callback, state);
-		}
-
-		/// <summary>
-		/// Opens the specified file for reading
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="callback">Async Callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginOpenRead(string path, FtpDataType type, AsyncCallback callback, object state) {
-			return BeginOpenRead(path, type, 0, callback, state);
-		}
-
-		/// <summary>
-		/// Begins an asynchronous operation to open the specified file for reading
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="restart">Resume location</param>
-		/// <param name="callback">Async Callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginOpenRead(string path, long restart, AsyncCallback callback, object state) {
-			return BeginOpenRead(path, FtpDataType.Binary, restart, callback, state);
-		}
-
-		private delegate Stream AsyncOpenRead(string path, FtpDataType type, long restart);
-
-		/// <summary>
-		/// Begins an asynchronous operation to open the specified file for reading
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="restart">Resume location</param>
-		/// <param name="callback">Async Callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginOpenRead(string path, FtpDataType type, long restart, AsyncCallback callback, object state) {
-			AsyncOpenRead func;
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = (func = new AsyncOpenRead(OpenRead)).BeginInvoke(path, type, restart, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="o:BeginOpenRead"/>
-		/// </summary>
-		/// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="o:BeginOpenRead"/></param>
-		/// <returns>A readable stream of the remote file</returns>
-		public Stream EndOpenRead(IAsyncResult ar) {
-			return GetAsyncDelegate<AsyncOpenRead>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Opens the specified file for reading asynchronously
@@ -1485,50 +1416,6 @@ namespace FluentFTP {
 			return stream;
 		}
 
-#if !ASYNC
-		/// <summary>
-		/// Begins an asynchronous operation to open the specified file for writing
-		/// </summary>
-		/// <param name="path">Full or relative path of the file</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginOpenWrite(string path, AsyncCallback callback, object state) {
-			return BeginOpenWrite(path, FtpDataType.Binary, callback, state);
-		}
-
-		private delegate Stream AsyncOpenWrite(string path, FtpDataType type);
-
-		/// <summary>
-		/// Begins an asynchronous operation to open the specified file for writing
-		/// </summary>
-		/// <param name="path">Full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginOpenWrite(string path, FtpDataType type, AsyncCallback callback, object state) {
-			AsyncOpenWrite func;
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = (func = new AsyncOpenWrite(OpenWrite)).BeginInvoke(path, type, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="o:BeginOpenWrite"/>
-		/// </summary>
-		/// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="o:BeginOpenWrite"/></param>
-		/// <returns>A writable stream</returns>
-		public Stream EndOpenWrite(IAsyncResult ar) {
-			return GetAsyncDelegate<AsyncOpenWrite>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
@@ -1668,50 +1555,6 @@ namespace FluentFTP {
 			return stream;
 		}
 
-#if !ASYNC
-		/// <summary>
-		/// Begins an asynchronous operation to open the specified file for appending
-		/// </summary>
-		/// <param name="path">Full or relative path of the file</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginOpenAppend(string path, AsyncCallback callback, object state) {
-			return BeginOpenAppend(path, FtpDataType.Binary, callback, state);
-		}
-
-		private delegate Stream AsyncOpenAppend(string path, FtpDataType type);
-
-		/// <summary>
-		/// Begins an asynchronous operation to open the specified file for appending
-		/// </summary>
-		/// <param name="path">Full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginOpenAppend(string path, FtpDataType type, AsyncCallback callback, object state) {
-			IAsyncResult ar;
-			AsyncOpenAppend func;
-
-			lock (m_asyncmethods) {
-				ar = (func = new AsyncOpenAppend(OpenAppend)).BeginInvoke(path, type, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="o:BeginOpenAppend"/>
-		/// </summary>
-		/// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="o:BeginOpenAppend"/></param>
-		/// <returns>A writable stream</returns>
-		public Stream EndOpenAppend(IAsyncResult ar) {
-			return GetAsyncDelegate<AsyncOpenAppend>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Opens the specified file to be appended asynchronously
@@ -1838,37 +1681,6 @@ namespace FluentFTP {
 			CurrentDataType = type;
 		}
 
-#if !ASYNC
-		private delegate void AsyncSetDataType(FtpDataType type);
-
-		/// <summary>
-		/// Begins an asynchronous operation to set the data type of information sent over the data stream
-		/// </summary>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		protected IAsyncResult BeginSetDataType(FtpDataType type, AsyncCallback callback, object state) {
-			IAsyncResult ar;
-			AsyncSetDataType func;
-
-			lock (m_asyncmethods) {
-				ar = (func = new AsyncSetDataType(SetDataType)).BeginInvoke(type, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="BeginSetDataType"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginSetDataType"/></param>
-		protected void EndSetDataType(IAsyncResult ar) {
-			GetAsyncDelegate<AsyncSetDataType>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Sets the data type of information sent over the data stream asynchronously

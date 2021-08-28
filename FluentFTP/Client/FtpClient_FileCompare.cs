@@ -165,7 +165,7 @@ namespace FluentFTP {
 
 				// check file checksum
 				if (SupportsChecksum()) {
-					var hash = await GetChecksumAsync(remotePath, token);
+					var hash = await GetChecksumAsync(remotePath, FtpHashAlgorithm.NONE, token);
 					if (hash.IsValid) {
 						if (!hash.Verify(localPath)) {
 							return FtpCompareResult.NotEqual;

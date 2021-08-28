@@ -45,6 +45,8 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
+				LogFunc(nameof(GetHashAlgorithm));
+
 				if ((reply = Execute("OPTS HASH")).Success) {
 					try {
 						type = Helpers.Hashing.HashAlgorithms.FromString(reply.Message);
@@ -61,41 +63,6 @@ namespace FluentFTP {
 			return type;
 		}
 
-#if !ASYNC
-		private delegate FtpHashAlgorithm AsyncGetHashAlgorithm();
-
-		/// <summary>
-		/// Begins an asynchronous operation to get the currently selected hash algorithm for the HASH command.
-		/// </summary>
-		/// <remarks>
-		///  This feature is experimental. See this link for details:
-		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
-		/// </remarks>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetHashAlgorithm(AsyncCallback callback, object state) {
-			AsyncGetHashAlgorithm func;
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = (func = GetHashAlgorithm).BeginInvoke(callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="BeginGetHashAlgorithm"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetHashAlgorithm"/></param>
-		/// <returns>The <see cref="FtpHashAlgorithm"/> flag or <see cref="FtpHashAlgorithm.NONE"/> if there was a problem.</returns>
-		public FtpHashAlgorithm EndGetHashAlgorithm(IAsyncResult ar) {
-			return GetAsyncDelegate<AsyncGetHashAlgorithm>(ar).EndInvoke(ar);
-		}
-#endif
-
 #if ASYNC
 		/// <summary>
 		/// Gets the currently selected hash algorithm for the HASH command asynchronously.
@@ -105,6 +72,8 @@ namespace FluentFTP {
 		public async Task<FtpHashAlgorithm> GetHashAlgorithmAsync(CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 			var type = FtpHashAlgorithm.NONE;
+
+			LogFunc(nameof(GetHashAlgorithmAsync));
 
 			if ((reply = await ExecuteAsync("OPTS HASH", token)).Success) {
 				try {
@@ -140,6 +109,8 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
+				LogFunc(nameof(SetHashAlgorithm), new object[] { type });
+
 				if ((HashAlgorithms & type) != type) {
 					throw new NotImplementedException("The hash algorithm " + type.ToString() + " was not advertised by the server.");
 				}
@@ -156,46 +127,6 @@ namespace FluentFTP {
 #endif
 		}
 
-#if !ASYNC
-		private delegate void AsyncSetHashAlgorithm(FtpHashAlgorithm type);
-
-		/// <summary>
-		/// Begins an asynchronous operation to set the hash algorithm on the server to use for the HASH command. 
-		/// </summary>
-		/// <remarks>
-		/// If you specify an algorithm not listed in <see cref="FtpClient.HashAlgorithms"/>
-		/// a <see cref="NotImplementedException"/> will be thrown
-		/// so be sure to query that list of Flags before
-		/// selecting a hash algorithm. Support for the
-		/// HASH command is experimental. Please see
-		/// the following link for more details:
-		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
-		/// </remarks>
-		/// <param name="type">Hash algorithm to use</param>
-		/// <param name="callback">Async Callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginSetHashAlgorithm(FtpHashAlgorithm type, AsyncCallback callback, object state) {
-			AsyncSetHashAlgorithm func;
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = (func = SetHashAlgorithm).BeginInvoke(type, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends an asynchronous call to <see cref="BeginSetHashAlgorithm"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginSetHashAlgorithm"/></param>
-		public void EndSetHashAlgorithm(IAsyncResult ar) {
-			GetAsyncDelegate<AsyncSetHashAlgorithm>(ar).EndInvoke(ar);
-		}
-#endif
-
 #if ASYNC
 		/// <summary>
 		/// Sets the hash algorithm on the server to be used with the HASH command asynchronously.
@@ -206,6 +137,8 @@ namespace FluentFTP {
 		public async Task SetHashAlgorithmAsync(FtpHashAlgorithm type, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 			string algorithm;
+
+			LogFunc(nameof(SetHashAlgorithmAsync), new object[] { type });
 
 			if ((HashAlgorithms & type) != type) {
 				throw new NotImplementedException("The hash algorithm " + type.ToString() + " was not advertised by the server.");
@@ -267,47 +200,6 @@ namespace FluentFTP {
 			return HashParser.Parse(reply.Message);
 		}
 
-#if !ASYNC
-		private delegate FtpHash AsyncGetHash(string path);
-
-		/// <summary>
-		/// Begins an asynchronous operation to get the hash of an object on the server using the currently selected hash algorithm. 
-		/// </summary>
-		/// <remarks>
-		/// Supported algorithms, if any, are available in the <see cref="HashAlgorithms"/>
-		/// property. You should confirm that it's not equal
-		/// to <see cref="FtpHashAlgorithm.NONE"/> before calling this method
-		/// otherwise the server trigger a <see cref="FtpCommandException"/>
-		/// due to a lack of support for the HASH command. You can
-		/// set the algorithm using the <see cref="SetHashAlgorithm"/> method and
-		/// you can query the server for the current hash algorithm
-		/// using the <see cref="GetHashAlgorithm"/> method.
-		/// </remarks>
-		/// <param name="path">The file you want the server to compute the hash for</param>
-		/// <param name="callback">AsyncCallback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetHash(string path, AsyncCallback callback, object state) {
-			AsyncGetHash func;
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = (func = GetHash).BeginInvoke(path, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends an asynchronous call to <see cref="BeginGetHash"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetHash"/></param>
-		public FtpHash EndGetHash(IAsyncResult ar) {
-			return GetAsyncDelegate<AsyncGetHash>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Gets the hash of an object on the server using the currently selected hash algorithm, or null if hash cannot be parsed.
@@ -397,31 +289,31 @@ namespace FluentFTP {
 				// execute the first available algorithm, or the preferred algorithm if specified
 
 				if (HasFeature(FtpCapability.MD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = GetMD5(path);
+					result.Value = GetHashInternal(path, "MD5");
 					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
 				else if (HasFeature(FtpCapability.XMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = GetXMD5(path);
+					result.Value = GetHashInternal(path, "XMD5");
 					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
-				else if (HasFeature(FtpCapability.MMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = GetMD5(path);
+				/*else if (HasFeature(FtpCapability.MMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
+					result.Value = GetHashInternal(path, "MD5");
 					result.Algorithm = FtpHashAlgorithm.MD5;
-				}
+				}*/
 				else if (HasFeature(FtpCapability.XSHA1) && (useFirst || algorithm == FtpHashAlgorithm.SHA1)) {
-					result.Value = GetXSHA1(path);
+					result.Value = GetHashInternal(path, "XSHA1");
 					result.Algorithm = FtpHashAlgorithm.SHA1;
 				}
 				else if (HasFeature(FtpCapability.XSHA256) && (useFirst || algorithm == FtpHashAlgorithm.SHA256)) {
-					result.Value = GetXSHA256(path);
+					result.Value = GetHashInternal(path, "XSHA256");
 					result.Algorithm = FtpHashAlgorithm.SHA256;
 				}
 				else if (HasFeature(FtpCapability.XSHA512) && (useFirst || algorithm == FtpHashAlgorithm.SHA512)) {
-					result.Value = GetXSHA512(path);
+					result.Value = GetHashInternal(path, "XSHA512");
 					result.Algorithm = FtpHashAlgorithm.SHA512;
 				}
 				else if (HasFeature(FtpCapability.XCRC) && (useFirst || algorithm == FtpHashAlgorithm.CRC)) {
-					result.Value = GetXCRC(path);
+					result.Value = GetHashInternal(path, "XCRC");
 					result.Algorithm = FtpHashAlgorithm.CRC;
 				}
 
@@ -429,61 +321,6 @@ namespace FluentFTP {
 			}
 		}
 
-#if !ASYNC
-		private delegate FtpHash AsyncGetChecksum(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE);
-
-		/// <summary>
-		/// Begins an asynchronous operation to retrieve a checksum of the given file using a checksum method that the server supports, if any. 
-		/// </summary>
-		/// <remarks>
-		/// The algorithm used goes in this order:
-		/// 1. HASH command; server preferred algorithm. See <see cref="FtpClient.SetHashAlgorithm"/>
-		/// 2. MD5 / XMD5 / MMD5 commands
-		/// 3. XSHA1 command
-		/// 4. XSHA256 command
-		/// 5. XSHA512 command
-		/// 6. XCRC command
-		/// </remarks>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="callback">AsyncCallback</param>
-		/// <param name="state">State Object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetChecksum(string path, AsyncCallback callback,
-			object state, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE) {
-			var func = new AsyncGetChecksum(GetChecksum);
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = func.BeginInvoke(path, algorithm, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends an asynchronous call to <see cref="BeginGetChecksum"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetChecksum"/></param>
-		/// <returns><see cref="FtpHash"/> object containing the value and algorithm. Use the <see cref="FtpHash.IsValid"/> property to
-		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
-		/// the underlying calls.</returns>
-		public FtpHash EndGetChecksum(IAsyncResult ar) {
-			AsyncGetChecksum func = null;
-
-			lock (m_asyncmethods) {
-				if (!m_asyncmethods.ContainsKey(ar)) {
-					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
-				}
-
-				func = (AsyncGetChecksum)m_asyncmethods[ar];
-				m_asyncmethods.Remove(ar);
-			}
-
-			return func.EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Retrieves a checksum of the given file using the specified checksum algorithum, or using the first available algorithm that the server supports.
@@ -504,7 +341,7 @@ namespace FluentFTP {
 		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
 		/// the underlying calls.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<FtpHash> GetChecksumAsync(string path, CancellationToken token = default(CancellationToken), FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE) {
+		public async Task<FtpHash> GetChecksumAsync(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken)) {
 
 			// if HASH is supported and the caller prefers an algorithm and that algorithm is supported
 			var useFirst = algorithm == FtpHashAlgorithm.NONE;
@@ -529,31 +366,31 @@ namespace FluentFTP {
 				// execute the first available algorithm, or the preferred algorithm if specified
 
 				if (HasFeature(FtpCapability.MD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = await GetMD5Async(path, token);
+					result.Value = await GetHashInternalAsync(path, "MD5", token);
 					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
 				else if (HasFeature(FtpCapability.XMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = await GetXMD5Async(path, token);
+					result.Value = await GetHashInternalAsync(path, "XMD5", token);
 					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
-				else if (HasFeature(FtpCapability.MMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = await GetMD5Async(path, token);
+				/*else if (HasFeature(FtpCapability.MMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
+					result.Value = await GetHashInternalAsync(path, "MD5", token);
 					result.Algorithm = FtpHashAlgorithm.MD5;
-				}
+				}*/
 				else if (HasFeature(FtpCapability.XSHA1) && (useFirst || algorithm == FtpHashAlgorithm.SHA1)) {
-					result.Value = await GetXSHA1Async(path, token);
+					result.Value = await GetHashInternalAsync(path, "XSHA1", token);
 					result.Algorithm = FtpHashAlgorithm.SHA1;
 				}
 				else if (HasFeature(FtpCapability.XSHA256) && (useFirst || algorithm == FtpHashAlgorithm.SHA256)) {
-					result.Value = await GetXSHA256Async(path, token);
+					result.Value = await GetHashInternalAsync(path, "XSHA256", token);
 					result.Algorithm = FtpHashAlgorithm.SHA256;
 				}
 				else if (HasFeature(FtpCapability.XSHA512) && (useFirst || algorithm == FtpHashAlgorithm.SHA512)) {
-					result.Value = await GetXSHA512Async(path, token);
+					result.Value = await GetHashInternalAsync(path, "XSHA512", token);
 					result.Algorithm = FtpHashAlgorithm.SHA512;
 				}
 				else if (HasFeature(FtpCapability.XCRC) && (useFirst || algorithm == FtpHashAlgorithm.CRC)) {
-					result.Value = await GetXCRCAsync(path, token);
+					result.Value = await GetHashInternalAsync(path, "XCRC", token);
 					result.Algorithm = FtpHashAlgorithm.CRC;
 				}
 
@@ -564,82 +401,30 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region MD5
+		#region Hash Commands
 
 		/// <summary>
-		/// Gets the MD5 hash of the specified file using MD5. This is a non-standard extension
-		/// to the protocol and may or may not work. A FtpCommandException will be
-		/// thrown if the command fails.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <returns>Server response, presumably the MD5 hash.</returns>
-		/// <exception cref="FtpCommandException">The command fails</exception>
-		public string GetMD5(string path) {
-			// http://tools.ietf.org/html/draft-twine-ftpmd5-00#section-3.1
+		/// Gets the hash of the specified file using the given comomand.
+		/// This is a non-standard extension to the protocol and may or may not work.
+		internal string GetHashInternal(string path, string command) {
 			FtpReply reply;
 			string response;
 
-			if (!(reply = Execute("MD5 " + path)).Success) {
+			if (!(reply = Execute(command + " " + path)).Success) {
 				throw new FtpCommandException(reply);
 			}
 
 			response = reply.Message;
-			foreach (var responsePrefix in new[] { path, $@"""{path}""" }) {
-				if (!response.StartsWith(responsePrefix)) {
-					continue;
-				}
-
-				response = response.Remove(0, responsePrefix.Length).Trim();
-				break;
-			}
-
+			response = CleanHashResult(path, response);
 			return response;
 		}
 
-#if !ASYNC
-		private delegate string AsyncGetMD5(string path);
-
-		/// <summary>
-		/// Begins an asynchronous operation to retrieve a MD5 hash. The MD5 command is non-standard
-		/// and not guaranteed to work.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="callback">AsyncCallback</param>
-		/// <param name="state">State Object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetMD5(string path, AsyncCallback callback, object state) {
-			var func = new AsyncGetMD5(GetMD5);
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = func.BeginInvoke(path, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
+		private static string CleanHashResult(string path, string response) {
+			response = response.RemovePrefix(path);
+			response = response.RemovePrefix($@"""{path}""");
+			return response;
 		}
 
-		/// <summary>
-		/// Ends an asynchronous call to <see cref="BeginGetMD5"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetMD5"/></param>
-		/// <returns>The MD5 hash of the specified file.</returns>
-		public string EndGetMD5(IAsyncResult ar) {
-			AsyncGetMD5 func = null;
-
-			lock (m_asyncmethods) {
-				if (!m_asyncmethods.ContainsKey(ar)) {
-					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
-				}
-
-				func = (AsyncGetMD5)m_asyncmethods[ar];
-				m_asyncmethods.Remove(ar);
-			}
-
-			return func.EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Gets the MD5 hash of the specified file using MD5 asynchronously. This is a non-standard extension
@@ -650,19 +435,16 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>Server response, presumably the MD5 hash.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<string> GetMD5Async(string path, CancellationToken token = default(CancellationToken)) {
+		internal async Task<string> GetHashInternalAsync(string path, string command, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 			string response;
 
-			if (!(reply = await ExecuteAsync("MD5 " + path, token)).Success) {
+			if (!(reply = await ExecuteAsync(command + " " + path, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 
 			response = reply.Message;
-			if (response.StartsWith(path)) {
-				response = response.Remove(0, path.Length).Trim();
-			}
-
+			response = CleanHashResult(path, response);
 			return response;
 		}
 
@@ -670,443 +452,59 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region XCRC
+		#region Obsolete Commands
 
-		/// <summary>
-		/// Get the CRC value of the specified file. This is a non-standard extension of the protocol 
-		/// and may throw a FtpCommandException if the server does not support it.
-		/// </summary>
-		/// <param name="path">The path of the file you'd like the server to compute the CRC value for.</param>
-		/// <returns>The response from the server, typically the XCRC value. FtpCommandException thrown on error</returns>
-		/// <exception cref="FtpCommandException">The command fails</exception>
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
+		public string GetMD5(string path) {
+			return null;
+		}
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
 		public string GetXCRC(string path) {
-			FtpReply reply;
-
-			if (!(reply = Execute("XCRC " + path)).Success) {
-				throw new FtpCommandException(reply);
-			}
-
-			return reply.Message;
+			return null;
 		}
-
-#if !ASYNC
-		private delegate string AsyncGetXCRC(string path);
-
-		/// <summary>
-		/// Begins an asynchronous operation to retrieve a CRC hash. The XCRC command is non-standard
-		/// and not guaranteed to work.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="callback">AsyncCallback</param>
-		/// <param name="state">State Object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetXCRC(string path, AsyncCallback callback, object state) {
-			var func = new AsyncGetXCRC(GetXCRC);
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = func.BeginInvoke(path, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends an asynchronous call to <see cref="BeginGetXCRC"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetXCRC"/></param>
-		/// <returns>The CRC hash of the specified file.</returns>
-		public string EndGetXCRC(IAsyncResult ar) {
-			AsyncGetXCRC func = null;
-
-			lock (m_asyncmethods) {
-				if (!m_asyncmethods.ContainsKey(ar)) {
-					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
-				}
-
-				func = (AsyncGetXCRC)m_asyncmethods[ar];
-				m_asyncmethods.Remove(ar);
-			}
-
-			return func.EndInvoke(ar);
-		}
-
-#endif
-#if ASYNC
-		/// <summary>
-		/// Gets the CRC hash of the specified file using XCRC asynchronously. This is a non-standard extension
-		/// to the protocol and may or may not work. A FtpCommandException will be
-		/// thrown if the command fails.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>Server response, presumably the CRC hash.</returns>
-		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<string> GetXCRCAsync(string path, CancellationToken token = default(CancellationToken)) {
-			FtpReply reply;
-			string response;
-
-			if (!(reply = await ExecuteAsync("MD5 " + path, token)).Success) {
-				throw new FtpCommandException(reply);
-			}
-
-			response = reply.Message;
-			if (response.StartsWith(path)) {
-				response = response.Remove(0, path.Length).Trim();
-			}
-
-			return response;
-		}
-#endif
-
-		#endregion
-
-		#region XMD5
-
-		/// <summary>
-		/// Gets the MD5 hash of the specified file using XMD5. This is a non-standard extension
-		/// to the protocol and may or may not work. A FtpCommandException will be
-		/// thrown if the command fails.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <returns>Server response, presumably the MD5 hash.</returns>
-		/// <exception cref="FtpCommandException">The command fails</exception>
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
 		public string GetXMD5(string path) {
-			FtpReply reply;
-
-			if (!(reply = Execute("XMD5 " + path)).Success) {
-				throw new FtpCommandException(reply);
-			}
-
-			return reply.Message;
+			return null;
 		}
-
-#if !ASYNC
-		private delegate string AsyncGetXMD5(string path);
-
-		/// <summary>
-		/// Begins an asynchronous operation to retrieve a XMD5 hash. The XMD5 command is non-standard
-		/// and not guaranteed to work.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="callback">AsyncCallback</param>
-		/// <param name="state">State Object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetXMD5(string path, AsyncCallback callback, object state) {
-			var func = new AsyncGetXMD5(GetXMD5);
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = func.BeginInvoke(path, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends an asynchronous call to <see cref="BeginGetXMD5"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetXMD5"/></param>
-		/// <returns>The MD5 hash of the specified file.</returns>
-		public string EndGetXMD5(IAsyncResult ar) {
-			AsyncGetXMD5 func = null;
-
-			lock (m_asyncmethods) {
-				if (!m_asyncmethods.ContainsKey(ar)) {
-					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
-				}
-
-				func = (AsyncGetXMD5)m_asyncmethods[ar];
-				m_asyncmethods.Remove(ar);
-			}
-
-			return func.EndInvoke(ar);
-		}
-
-#endif
-#if ASYNC
-		/// <summary>
-		/// Gets the MD5 hash of the specified file using XMD5 asynchronously. This is a non-standard extension
-		/// to the protocol and may or may not work. A FtpCommandException will be
-		/// thrown if the command fails.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>Server response, presumably the MD5 hash.</returns>
-		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<string> GetXMD5Async(string path, CancellationToken token = default(CancellationToken)) {
-			FtpReply reply;
-
-			if (!(reply = await ExecuteAsync("XMD5 " + path, token)).Success) {
-				throw new FtpCommandException(reply);
-			}
-
-			return reply.Message;
-		}
-#endif
-
-		#endregion
-
-		#region XSHA1
-
-		/// <summary>
-		/// Gets the SHA-1 hash of the specified file using XSHA1. This is a non-standard extension
-		/// to the protocol and may or may not work. A FtpCommandException will be
-		/// thrown if the command fails.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <returns>Server response, presumably the SHA-1 hash.</returns>
-		/// <exception cref="FtpCommandException">The command fails</exception>
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
 		public string GetXSHA1(string path) {
-			FtpReply reply;
-
-			if (!(reply = Execute("XSHA1 " + path)).Success) {
-				throw new FtpCommandException(reply);
-			}
-
-			return reply.Message;
+			return null;
 		}
-
-#if !ASYNC
-		private delegate string AsyncGetXSHA1(string path);
-
-		/// <summary>
-		/// Begins an asynchronous operation to retrieve a SHA1 hash. The XSHA1 command is non-standard
-		/// and not guaranteed to work.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="callback">AsyncCallback</param>
-		/// <param name="state">State Object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetXSHA1(string path, AsyncCallback callback, object state) {
-			var func = new AsyncGetXSHA1(GetXSHA1);
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = func.BeginInvoke(path, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends an asynchronous call to <see cref="BeginGetXSHA1"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetXSHA1"/></param>
-		/// <returns>The SHA-1 hash of the specified file.</returns>
-		public string EndGetXSHA1(IAsyncResult ar) {
-			AsyncGetXSHA1 func = null;
-
-			lock (m_asyncmethods) {
-				if (!m_asyncmethods.ContainsKey(ar)) {
-					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
-				}
-
-				func = (AsyncGetXSHA1)m_asyncmethods[ar];
-				m_asyncmethods.Remove(ar);
-			}
-
-			return func.EndInvoke(ar);
-		}
-
-#endif
-#if ASYNC
-		/// <summary>
-		/// Gets the SHA-1 hash of the specified file using XSHA1 asynchronously. This is a non-standard extension
-		/// to the protocol and may or may not work. A FtpCommandException will be
-		/// thrown if the command fails.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>Server response, presumably the SHA-1 hash.</returns>
-		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<string> GetXSHA1Async(string path, CancellationToken token = default(CancellationToken)) {
-			FtpReply reply;
-
-			if (!(reply = await ExecuteAsync("XSHA1 " + path, token)).Success) {
-				throw new FtpCommandException(reply);
-			}
-
-			return reply.Message;
-		}
-#endif
-
-		#endregion
-
-		#region XSHA256
-
-		/// <summary>
-		/// Gets the SHA-256 hash of the specified file using XSHA256. This is a non-standard extension
-		/// to the protocol and may or may not work. A FtpCommandException will be
-		/// thrown if the command fails.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <returns>Server response, presumably the SHA-256 hash.</returns>
-		/// <exception cref="FtpCommandException">The command fails</exception>
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
 		public string GetXSHA256(string path) {
-			FtpReply reply;
-
-			if (!(reply = Execute("XSHA256 " + path)).Success) {
-				throw new FtpCommandException(reply);
-			}
-
-			return reply.Message;
+			return null;
 		}
-
-#if !ASYNC
-		private delegate string AsyncGetXSHA256(string path);
-
-		/// <summary>
-		/// Begins an asynchronous operation to retrieve a SHA256 hash. The XSHA256 command is non-standard
-		/// and not guaranteed to work.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="callback">AsyncCallback</param>
-		/// <param name="state">State Object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetXSHA256(string path, AsyncCallback callback, object state) {
-			var func = new AsyncGetXSHA256(GetXSHA256);
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = func.BeginInvoke(path, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends an asynchronous call to <see cref="BeginGetXSHA256"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetXSHA256"/></param>
-		/// <returns>The SHA-256 hash of the specified file.</returns>
-		public string EndGetXSHA256(IAsyncResult ar) {
-			AsyncGetXSHA256 func = null;
-
-			lock (m_asyncmethods) {
-				if (!m_asyncmethods.ContainsKey(ar)) {
-					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
-				}
-
-				func = (AsyncGetXSHA256)m_asyncmethods[ar];
-				m_asyncmethods.Remove(ar);
-			}
-
-			return func.EndInvoke(ar);
-		}
-
-#endif
-#if ASYNC
-		/// <summary>
-		/// Gets the SHA-256 hash of the specified file using XSHA256 asynchronously. This is a non-standard extension
-		/// to the protocol and may or may not work. A FtpCommandException will be
-		/// thrown if the command fails.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>Server response, presumably the SHA-256 hash.</returns>
-		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<string> GetXSHA256Async(string path, CancellationToken token = default(CancellationToken)) {
-			FtpReply reply;
-
-			if (!(reply = await ExecuteAsync("XSHA256 " + path, token)).Success) {
-				throw new FtpCommandException(reply);
-			}
-
-			return reply.Message;
-		}
-#endif
-
-		#endregion
-
-		#region XSHA512
-
-		/// <summary>
-		/// Gets the SHA-512 hash of the specified file using XSHA512. This is a non-standard extension
-		/// to the protocol and may or may not work. A FtpCommandException will be
-		/// thrown if the command fails.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <returns>Server response, presumably the SHA-512 hash.</returns>
-		/// <exception cref="FtpCommandException">The command fails</exception>
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
 		public string GetXSHA512(string path) {
-			FtpReply reply;
-
-			if (!(reply = Execute("XSHA512 " + path)).Success) {
-				throw new FtpCommandException(reply);
-			}
-
-			return reply.Message;
+			return null;
 		}
 
-#if !ASYNC
-		private delegate string AsyncGetXSHA512(string path);
 
-		/// <summary>
-		/// Begins an asynchronous operation to retrieve a SHA512 hash. The XSHA512 command is non-standard
-		/// and not guaranteed to work.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="callback">AsyncCallback</param>
-		/// <param name="state">State Object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginGetXSHA512(string path, AsyncCallback callback, object state) {
-			var func = new AsyncGetXSHA512(GetXSHA512);
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = func.BeginInvoke(path, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends an asynchronous call to <see cref="BeginGetXSHA512"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginGetXSHA512"/></param>
-		/// <returns>The SHA-512 hash of the specified file.</returns>
-		public string EndGetXSHA512(IAsyncResult ar) {
-			AsyncGetXSHA512 func = null;
-
-			lock (m_asyncmethods) {
-				if (!m_asyncmethods.ContainsKey(ar)) {
-					throw new InvalidOperationException("The specified IAsyncResult was not found in the collection.");
-				}
-
-				func = (AsyncGetXSHA512)m_asyncmethods[ar];
-				m_asyncmethods.Remove(ar);
-			}
-
-			return func.EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
-		/// <summary>
-		/// Gets the SHA-512 hash of the specified file using XSHA512 asynchronously. This is a non-standard extension
-		/// to the protocol and may or may not work. A FtpCommandException will be
-		/// thrown if the command fails.
-		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>Server response, presumably the SHA-512 hash.</returns>
-		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<string> GetXSHA512Async(string path, CancellationToken token = default(CancellationToken)) {
-			FtpReply reply;
-
-			if (!(reply = await ExecuteAsync("XSHA512 " + path, token)).Success) {
-				throw new FtpCommandException(reply);
-			}
-
-			return reply.Message;
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
+		public async Task<string> GetMD5Async(string path, CancellationToken token = default(CancellationToken)) {
+			return null;
 		}
-
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
+		public async Task<string> GetXCRCAsync(string path, CancellationToken token = default(CancellationToken)) {
+			return null;
+		}
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
+		public async Task<string> GetXMD5Async(string path, CancellationToken token = default(CancellationToken)) {
+			return null;
+		}
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
+		public async Task<string> GetXSHA1Async(string path, CancellationToken token = default(CancellationToken)) {
+			return null;
+		}
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
+		public async Task<string> GetXSHA256Async(string path, CancellationToken token = default(CancellationToken)) {
+			return null;
+		}
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
+		public async Task<string> GetXSHA512Async(string path, CancellationToken token = default(CancellationToken)) {
+			return null;
+		}
 #endif
 
 		#endregion

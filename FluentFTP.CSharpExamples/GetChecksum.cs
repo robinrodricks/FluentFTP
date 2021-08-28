@@ -36,7 +36,7 @@ namespace Examples {
 				await conn.ConnectAsync(token);
 
 				// Get a hash checksum for the file
-				FtpHash hash = await conn.GetChecksumAsync("/path/to/remote/file", token);
+				FtpHash hash = await conn.GetChecksumAsync("/path/to/remote/file", FtpHashAlgorithm.NONE, token);
 
 				// Make sure it returned a valid hash object
 				if (hash.IsValid) {

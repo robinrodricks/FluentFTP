@@ -58,37 +58,6 @@ namespace FluentFTP {
 #endif
 		}
 
-#if !ASYNC
-		private delegate void AsyncDeleteFile(string path);
-
-		/// <summary>
-		/// Begins an asynchronous operation to delete the specified file on the server
-		/// </summary>
-		/// <param name="path">The full or relative path to the file</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginDeleteFile(string path, AsyncCallback callback, object state) {
-			IAsyncResult ar;
-			AsyncDeleteFile func;
-
-			lock (m_asyncmethods) {
-				ar = (func = DeleteFile).BeginInvoke(path, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="BeginDeleteFile"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from BeginDeleteFile</param>
-		public void EndDeleteFile(IAsyncResult ar) {
-			GetAsyncDelegate<AsyncDeleteFile>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Deletes a file from the server asynchronously
@@ -196,40 +165,6 @@ namespace FluentFTP {
 			return null;
 		}
 
-#if !ASYNC
-		private delegate bool AsyncFileExists(string path);
-
-		/// <summary>
-		/// Begins an asynchronous operation to check if a file exists on the 
-		/// server by taking a  file listing of the parent directory in the path
-		/// and comparing the results the path supplied.
-		/// </summary>
-		/// <param name="path">The full or relative path to the file</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginFileExists(string path, AsyncCallback callback, object state) {
-			AsyncFileExists func;
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = (func = FileExists).BeginInvoke(path, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="o:BeginFileExists"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="o:BeginFileExists"/></param>
-		/// <returns>True if the file exists, false otherwise</returns>
-		public bool EndFileExists(IAsyncResult ar) {
-			return GetAsyncDelegate<AsyncFileExists>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Checks if a file exists on the server asynchronously.
@@ -333,40 +268,6 @@ namespace FluentFTP {
 #endif
 		}
 
-#if !ASYNC
-		private delegate void AsyncRename(string path, string dest);
-
-		/// <summary>
-		/// Begins an asynchronous operation to rename an object on the remote file system.
-		/// Low level method that should NOT be used in most cases. Prefer MoveFile() and MoveDirectory().
-		/// Throws exceptions if the file does not exist, or if the destination file already exists.
-		/// </summary>
-		/// <param name="path">The full or relative path to the object</param>
-		/// <param name="dest">The new full or relative path including the new name of the object</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginRename(string path, string dest, AsyncCallback callback, object state) {
-			AsyncRename func;
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = (func = Rename).BeginInvoke(path, dest, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="BeginRename"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginRename"/></param>
-		public void EndRename(IAsyncResult ar) {
-			GetAsyncDelegate<AsyncRename>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Renames an object on the remote file system asynchronously.
@@ -460,41 +361,6 @@ namespace FluentFTP {
 			return false;
 		}
 
-#if !ASYNC
-		private delegate bool AsyncMoveFile(string path, string dest, FtpRemoteExists existsMode);
-
-		/// <summary>
-		/// Begins an asynchronous operation to move a file on the remote file system, from one directory to another.
-		/// Always checks if the source file exists. Checks if the dest file exists based on the `existsMode` parameter.
-		/// Only throws exceptions for critical errors.
-		/// </summary>
-		/// <param name="path">The full or relative path to the object</param>
-		/// <param name="dest">The new full or relative path including the new name of the object</param>
-		/// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
-		/// <param name="callback">Async callback</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginMoveFile(string path, string dest, FtpRemoteExists existsMode, AsyncCallback callback, object state) {
-			AsyncMoveFile func;
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = (func = MoveFile).BeginInvoke(path, dest, existsMode, callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="BeginMoveFile"/>
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from <see cref="BeginMoveFile"/></param>
-		public void EndMoveFile(IAsyncResult ar) {
-			GetAsyncDelegate<AsyncMoveFile>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Moves a file asynchronously on the remote file system from one directory to another.

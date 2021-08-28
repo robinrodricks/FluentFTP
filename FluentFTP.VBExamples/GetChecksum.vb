@@ -36,7 +36,7 @@ Namespace Examples
 				Await conn.ConnectAsync(token)
 
 				' Get a hash checksum for the file
-				Dim hash As FtpHash = Await conn.GetChecksumAsync("/path/to/remote/file", token)
+				Dim hash As FtpHash = Await conn.GetChecksumAsync("/path/to/remote/file", FtpHashAlgorithm.Auto, token)
 
 				' Make sure it returned a valid hash object
 				If hash.IsValid Then

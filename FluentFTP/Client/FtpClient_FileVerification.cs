@@ -66,7 +66,7 @@ namespace FluentFTP {
 
 			try {
 				if (SupportsChecksum()) {
-					FtpHash hash = await GetChecksumAsync(remotePath, token);
+					FtpHash hash = await GetChecksumAsync(remotePath, FtpHashAlgorithm.NONE, token);
 					if (!hash.IsValid) {
 						return false;
 					}

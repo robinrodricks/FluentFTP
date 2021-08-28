@@ -16,7 +16,7 @@ Namespace Examples
 			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
 				conn.Connect()
 
-				If conn.HashAlgorithms <> FtpHashAlgorithm.NONE Then
+				If conn.HashAlgorithms <> FtpHashAlgorithm.Auto Then
 					Dim hash As FtpHash
 					hash = conn.GetHash("/path/to/remote/somefile.ext")
 
@@ -42,7 +42,7 @@ Namespace Examples
 			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
 				Await conn.ConnectAsync(token)
 
-				If conn.HashAlgorithms <> FtpHashAlgorithm.NONE Then
+				If conn.HashAlgorithms <> FtpHashAlgorithm.Auto Then
 					Dim hash As FtpHash
 					hash = Await conn.GetHashAsync("/path/to/remote/somefile.ext", token)
 

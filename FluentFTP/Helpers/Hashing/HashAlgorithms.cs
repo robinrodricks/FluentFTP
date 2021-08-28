@@ -25,29 +25,29 @@ namespace FluentFTP.Helpers.Hashing {
 		/// <summary>
 		/// Get FtpHashAlgorithm from it's string representation
 		/// </summary>
-		/// <param name="ftpHashAlgorithm">Name of the hash algorithm</param>
+		/// <param name="name">Name of the hash algorithm</param>
 		/// <returns>The FtpHashAlgorithm</returns>
-		public static FtpHashAlgorithm FromString(string ftpHashAlgorithm) {
-			if (!NameToEnum.ContainsKey(ftpHashAlgorithm)) {
-				throw new NotImplementedException("Unknown hash algorithm: " + ftpHashAlgorithm);
+		public static FtpHashAlgorithm FromString(string name) {
+			if (!NameToEnum.ContainsKey(name.ToUpper())) {
+				throw new NotImplementedException("Unknown hash algorithm: " + name);
 			}
 
-			return NameToEnum[ftpHashAlgorithm];
+			return NameToEnum[name];
 		}
 
 		/// <summary>
 		/// Get string representation of FtpHashAlgorithm
 		/// </summary>
-		/// <param name="ftpHashAlgorithm">FtpHashAlgorithm to be converted into string</param>
+		/// <param name="name">FtpHashAlgorithm to be converted into string</param>
 		/// <returns>Name of the hash algorithm</returns>
-		public static string ToString(FtpHashAlgorithm ftpHashAlgorithm)
+		public static string ToString(FtpHashAlgorithm name)
 		{
-			if (!EnumToName.ContainsKey(ftpHashAlgorithm))
+			if (!EnumToName.ContainsKey(name))
 			{
-				return ftpHashAlgorithm.ToString();
+				return name.ToString();
 			}
 
-			return EnumToName[ftpHashAlgorithm];
+			return EnumToName[name];
 		}
 	}
 }

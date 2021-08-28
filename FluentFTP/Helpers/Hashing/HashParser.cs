@@ -24,7 +24,7 @@ namespace FluentFTP.Helpers.Hashing {
 			var hash = new FtpHash();
 
 			// FIX #722 - remove the FTP status code causing a wrong hash to be returned
-			if (reply.StartsWith('2') && reply.Length > 10) {
+			if (reply.StartsWith("2") && reply.Length > 10) {
 				reply = reply.Substring(4);
 			}
 
