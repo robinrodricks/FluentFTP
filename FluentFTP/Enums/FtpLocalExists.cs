@@ -22,6 +22,12 @@ namespace FluentFTP {
 		/// Blindly skip downloading the file if it exists on disk, without any more checks.
 		/// This is only included to be compatible with legacy behaviour.
 		/// </summary>
-		Skip
+		Skip,
+
+		/// <summary>
+		/// Append is now renamed to Resume.
+		/// </summary>
+		[ObsoleteAttribute("Append is now renamed to Resume to better reflect its behaviour.", true)]
+		Append,
 	}
 }

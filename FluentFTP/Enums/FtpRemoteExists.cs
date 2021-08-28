@@ -55,5 +55,11 @@ namespace FluentFTP {
 		/// Append the local file to the end of the remote file.
 		/// </summary>
 		AddToEnd,
+
+		/// <summary>
+		/// Append is now renamed to Resume. Alternatively you can use AddToEnd.
+		/// </summary>
+		[ObsoleteAttribute("Append is now renamed to Resume to better reflect its behaviour. If you instead want to append the local file to the END of the remote file without resuming, then use AddToEnd.", true)]
+		Append,
 	}
 }
