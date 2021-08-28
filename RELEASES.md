@@ -1,5 +1,47 @@
 # Release Notes
 
+#### 35.0.0
+ - **Appending and resuming uploads**
+   - Major: The setting `FtpLocalExists.Append` is now renamed to `FtpLocalExists.Resume`
+   - Major: The setting `FtpRemoteExists.Append` is now renamed to `FtpRemoteExists.Resume`
+   - Major: Split `FtpRemoteExists.Append` into two properties with distinct behaviour (`Resume` and `AddToEnd`)
+   - Major: Improvements to `UploadFile` and `UploadFileAsync` to support appending and resuming of uploads
+   - Major: `UploadFile` always sets the length of the remote file stream before uploading, appending or resuming
+   - Major: `UploadFile` skips uploading in `Resume` mode if local and remote file are equal length
+   - Fix: Implementation for resuming uploads using `UploadFile` based on fixes in `UploadFileAsync`
+ 
+ - **Machine listings**
+   - Major: Prefer using Machine Listings over LIST command in `GetListing`, unless a custom list parser is used
+   - Fix: `ListingParser` property is updated according to auto-detected parser during `Connect`
+   - Fix: `DeleteDirectory` and `DereferenceLink` methods no longer use `ForceList` and so prefer using Machine Listings
+   
+ - **File hashing**
+   - Major: All low-level hash methods are now inaccessible and `GetChecksum` is the only recommended approach
+   - Fix: Improved extraction of hash checksum when using the HASH command
+   - Fix: Improved extraction of hash checksum when using the MD5, SHA1, SHA256, SHA512 or X-series commands
+   - Fix: `GetChecksum` now prints function call logs and sanitizes the input path
+   - Fix: `GetChecksumAsync` now takes the cancellation token last to follow conventions (argument reorder)
+   - New: `SetHashAlgorithm` now only modifies the hash algorithm if it has changed
+ 
+ - **Path sanitization**
+   - Fix: All high level API methods sanitize input paths to improve robustness
+   - Fix: `GetWorkingDirectory` always sanitizes the returned working path directory
+   - Fix: Correctly handle server-specific absolute FTP paths for async operations
+   - Fix: All function call logs now print the sanitized path rather than raw input path
+ 
+ - **Path improvements**
+   - Major: `GetWorkingDirectory` is now extremely fast and caches the working dir path for subsequent calls
+   - Fix: `FileExists` supports checking name listings for Windows NT servers which use invalid slashes
+   - Fix: Root directory FTP paths no longer return `./` and instead return `/`
+ 
+ - **Other improvements**
+   - Major: All legacy asynchronous methods using `IAsyncResult` pattern have been removed (outdated since 2012)
+   - Fix: Add logging for skipped files in `UploadFile`
+   - Fix: Add file path details in skipped files logged by `UploadFile` and `DownloadFile`
+   - New: `GetNameListing` to print results of name listing as verbose logs, similar to `GetListing`
+   - New: `GetFileSize` and `GetFileSizeAsync` to support a configurable return value if the file does not exist
+   - New: `FtpFolderNameRule` now supports `startSegment` to skip checking root directory folder names
+
 #### 34.0.2
  - New: Add support for `IsAuthenticated` property which enables detection of FTP connection and authentication
  - Fix: Improved file path calculation when uploading files to IBM zOS running MVS (thanks [arafuls](/arafuls))
