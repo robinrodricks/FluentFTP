@@ -9,6 +9,7 @@
    - New: `AutoDetect` verifies if the server supports UTF-8 and updates the `FtpProfile` accordingly
    - New: `FtpProfile` code generation adds a warning message if the encoding mode is unverified
    - New: `AutoConnectAsync` now uses asynchronous connection rather than synchronous connection
+   - New: `AutoConnect` now auto computes an FTP port unless a non-standard port is already set
    - New: `AutoConnect` uses the main `FtpClient` connection rather than creating one clone per attempt
    - Fix: `AutoConnect` remains connected to the first working profile rather than connecting twice on success
    - Fix: `AutoConnect` reuses the same connection for FTPS and FTP rather than connecting again
