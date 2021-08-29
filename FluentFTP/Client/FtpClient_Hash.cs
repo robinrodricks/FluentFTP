@@ -19,6 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 using FluentFTP.Helpers.Hashing;
+using HashAlgos = FluentFTP.Helpers.Hashing.HashAlgorithms;
 
 #endif
 #if ASYNC
@@ -36,7 +37,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <remarks>
 		/// The algorithm used goes in this order:
-		/// 1. HASH command; server preferred algorithm. See <see cref="FtpClient.SetHashAlgorithmInternal"/>
+		/// 1. HASH command using the first supported algorithm.
 		/// 2. MD5 / XMD5 / MMD5 commands
 		/// 3. XSHA1 command
 		/// 4. XSHA256 command
@@ -55,24 +56,32 @@ namespace FluentFTP {
 				throw new ArgumentException("Required argument is null", "path");
 			}
 
+			ValidateHashAlgorithm(algorithm);
+
 			path = path.GetFtpPath();
 
 			LogFunc(nameof(GetChecksum), new object[] { path });
 
+			var useFirst = (algorithm == FtpHashAlgorithm.NONE);
+
 			// if HASH is supported and the caller prefers an algorithm and that algorithm is supported
-			var useFirst = algorithm == FtpHashAlgorithm.NONE;
 			if (HasFeature(FtpCapability.HASH) && !useFirst && HashAlgorithms.HasFlag(algorithm)) {
 
 				// switch to that algorithm
 				SetHashAlgorithmInternal(algorithm);
 
-				// get the hash of the file
+				// get the hash of the file using HASH Command
 				return HashCommandInternal(path);
 
 			}
 
 			// if HASH is supported and the caller does not prefer any specific algorithm
 			else if (HasFeature(FtpCapability.HASH) && useFirst) {
+
+				// switch to the first preferred algorithm
+				SetHashAlgorithmInternal(HashAlgos.FirstSupported(HashAlgorithms));
+
+				// get the hash of the file using HASH Command
 				return HashCommandInternal(path);
 			}
 			else {
@@ -88,10 +97,10 @@ namespace FluentFTP {
 					result.Value = GetHashInternal(path, "XMD5");
 					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
-				/*else if (HasFeature(FtpCapability.MMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = GetHashInternal(path, "MD5");
+				else if (HasFeature(FtpCapability.MMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
+					result.Value = GetHashInternal(path, "MMD5");
 					result.Algorithm = FtpHashAlgorithm.MD5;
-				}*/
+				}
 				else if (HasFeature(FtpCapability.XSHA1) && (useFirst || algorithm == FtpHashAlgorithm.SHA1)) {
 					result.Value = GetHashInternal(path, "XSHA1");
 					result.Algorithm = FtpHashAlgorithm.SHA1;
@@ -113,13 +122,62 @@ namespace FluentFTP {
 			}
 		}
 
+		private void ValidateHashAlgorithm(FtpHashAlgorithm algorithm) {
+
+			// if NO hashing algos or commands supported, throw here
+			if (!HasFeature(FtpCapability.HASH) &&
+				!HasFeature(FtpCapability.MD5) &&
+				!HasFeature(FtpCapability.XMD5) &&
+				!HasFeature(FtpCapability.MMD5) &&
+				!HasFeature(FtpCapability.XSHA1) &&
+				!HasFeature(FtpCapability.XSHA256) &&
+				!HasFeature(FtpCapability.XSHA512) &&
+				!HasFeature(FtpCapability.XCRC)) {
+				throw new FtpHashAlgorithmUnsupportedException();
+			}
+
+			// only if the user has specified a certain hash algorithm
+			var useFirst = (algorithm == FtpHashAlgorithm.NONE);
+			if (!useFirst) {
+
+				// first check if the HASH command supports the required algo
+				if (HasFeature(FtpCapability.HASH) && HashAlgorithms.HasFlag(algorithm)) {
+
+					// we are good
+
+				}
+				else {
+
+					// second check if the special FTP command is supported based on the algo
+					if (algorithm == FtpHashAlgorithm.MD5 && !HasFeature(FtpCapability.MD5) &&
+						!HasFeature(FtpCapability.XMD5) && !HasFeature(FtpCapability.MMD5)) {
+						throw new FtpHashAlgorithmUnsupportedException(FtpHashAlgorithm.MD5, "MD5, XMD5, MMD5");
+					}
+					if (algorithm == FtpHashAlgorithm.SHA1 && !HasFeature(FtpCapability.XSHA1)) {
+						throw new FtpHashAlgorithmUnsupportedException(FtpHashAlgorithm.SHA1, "XSHA1");
+					}
+					if (algorithm == FtpHashAlgorithm.SHA256 && !HasFeature(FtpCapability.XSHA256)) {
+						throw new FtpHashAlgorithmUnsupportedException(FtpHashAlgorithm.SHA256, "XSHA256");
+					}
+					if (algorithm == FtpHashAlgorithm.SHA512 && !HasFeature(FtpCapability.XSHA512)) {
+						throw new FtpHashAlgorithmUnsupportedException(FtpHashAlgorithm.SHA512, "XSHA512");
+					}
+					if (algorithm == FtpHashAlgorithm.CRC && !HasFeature(FtpCapability.XCRC)) {
+						throw new FtpHashAlgorithmUnsupportedException(FtpHashAlgorithm.CRC, "XCRC");
+					}
+
+					// we are good
+				}
+			}
+		}
+
 #if ASYNC
 		/// <summary>
 		/// Retrieves a checksum of the given file using the specified checksum algorithum, or using the first available algorithm that the server supports.
 		/// </summary>
 		/// <remarks>
 		/// The algorithm used goes in this order:
-		/// 1. HASH command; server preferred algorithm. See <see cref="FtpClient.SetHashAlgorithmInternal"/>
+		/// 1. HASH command using the first supported algorithm.
 		/// 2. MD5 / XMD5 / MMD5 commands
 		/// 3. XSHA1 command
 		/// 4. XSHA256 command
@@ -139,24 +197,32 @@ namespace FluentFTP {
 				throw new ArgumentException("Required argument is null", "path");
 			}
 
+			ValidateHashAlgorithm(algorithm);
+
 			path = path.GetFtpPath();
 
 			LogFunc(nameof(GetChecksumAsync), new object[] { path });
 
+			var useFirst = (algorithm == FtpHashAlgorithm.NONE);
+
 			// if HASH is supported and the caller prefers an algorithm and that algorithm is supported
-			var useFirst = algorithm == FtpHashAlgorithm.NONE;
 			if (HasFeature(FtpCapability.HASH) && !useFirst && HashAlgorithms.HasFlag(algorithm)) {
 
 				// switch to that algorithm
 				await SetHashAlgorithmInternalAsync(algorithm, token);
 
-				// get the hash of the file
+				// get the hash of the file using HASH Command
 				return await HashCommandInternalAsync(path, token);
 
 			}
 
 			// if HASH is supported and the caller does not prefer any specific algorithm
 			else if (HasFeature(FtpCapability.HASH) && useFirst) {
+
+				// switch to the first preferred algorithm
+				await SetHashAlgorithmInternalAsync(HashAlgos.FirstSupported(HashAlgorithms), token);
+
+				// get the hash of the file using HASH Command
 				return await HashCommandInternalAsync(path, token);
 			}
 
@@ -173,10 +239,10 @@ namespace FluentFTP {
 					result.Value = await GetHashInternalAsync(path, "XMD5", token);
 					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
-				/*else if (HasFeature(FtpCapability.MMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = await GetHashInternalAsync(path, "MD5", token);
+				else if (HasFeature(FtpCapability.MMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
+					result.Value = await GetHashInternalAsync(path, "MMD5", token);
 					result.Algorithm = FtpHashAlgorithm.MD5;
-				}*/
+				}
 				else if (HasFeature(FtpCapability.XSHA1) && (useFirst || algorithm == FtpHashAlgorithm.SHA1)) {
 					result.Value = await GetHashInternalAsync(path, "XSHA1", token);
 					result.Algorithm = FtpHashAlgorithm.SHA1;
@@ -204,8 +270,8 @@ namespace FluentFTP {
 		#region MD5, SHA1, SHA256, SHA512 Commands
 
 		/// <summary>
-		/// Gets the hash of the specified file using the given comomand.
-		/// This is a non-standard extension to the protocol and may or may not work.
+		/// Gets the hash of the specified file using the given command.
+		/// </summary>
 		internal string GetHashInternal(string path, string command) {
 			FtpReply reply;
 			string response;
@@ -227,14 +293,8 @@ namespace FluentFTP {
 
 #if ASYNC
 		/// <summary>
-		/// Gets the MD5 hash of the specified file using MD5 asynchronously. This is a non-standard extension
-		/// to the protocol and may or may not work. A FtpCommandException will be
-		/// thrown if the command fails.
+		/// Gets the hash of the specified file using the given command.
 		/// </summary>
-		/// <param name="path">Full or relative path to remote file</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>Server response, presumably the MD5 hash.</returns>
-		/// <exception cref="FtpCommandException">The command fails</exception>
 		internal async Task<string> GetHashInternalAsync(string path, string command, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 			string response;
@@ -257,11 +317,6 @@ namespace FluentFTP {
 		/// <summary>
 		/// Gets the currently selected hash algorithm for the HASH command.
 		/// </summary>
-		/// <remarks>
-		///  This feature is experimental. See this link for details:
-		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
-		/// </remarks>
-		/// <returns>The <see cref="FtpHashAlgorithm"/> flag or <see cref="FtpHashAlgorithm.NONE"/> if there was a problem.</returns>
 		internal FtpHashAlgorithm GetHashAlgorithmUnused() {
 			FtpReply reply;
 			var type = FtpHashAlgorithm.NONE;
@@ -273,7 +328,7 @@ namespace FluentFTP {
 
 				if ((reply = Execute("OPTS HASH")).Success) {
 					try {
-						type = Helpers.Hashing.HashAlgorithms.FromString(reply.Message);
+						type = HashAlgos.FromString(reply.Message);
 					}
 					catch (InvalidOperationException ex) {
 						// Do nothing
@@ -291,8 +346,6 @@ namespace FluentFTP {
 		/// <summary>
 		/// Gets the currently selected hash algorithm for the HASH command asynchronously.
 		/// </summary>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>The <see cref="FtpHashAlgorithm"/> flag or <see cref="FtpHashAlgorithm.NONE"/> if there was a problem.</returns>
 		internal async Task<FtpHashAlgorithm> GetHashAlgorithmUnusedAsync(CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 			var type = FtpHashAlgorithm.NONE;
@@ -301,7 +354,7 @@ namespace FluentFTP {
 
 			if ((reply = await ExecuteAsync("OPTS HASH", token)).Success) {
 				try {
-					type = Helpers.Hashing.HashAlgorithms.FromString(reply.Message);
+					type = HashAlgos.FromString(reply.Message);
 				}
 				catch (InvalidOperationException ex) {
 					// Do nothing
@@ -315,17 +368,6 @@ namespace FluentFTP {
 		/// <summary>
 		/// Sets the hash algorithm on the server to use for the HASH command. 
 		/// </summary>
-		/// <remarks>
-		/// If you specify an algorithm not listed in <see cref="FtpClient.HashAlgorithms"/>
-		/// a <see cref="NotImplementedException"/> will be thrown
-		/// so be sure to query that list of Flags before
-		/// selecting a hash algorithm. Support for the
-		/// HASH command is experimental. Please see
-		/// the following link for more details:
-		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02
-		/// </remarks>
-		/// <param name="algorithm">Hash Algorithm</param>
-		/// <exception cref="System.NotImplementedException">Thrown if the selected algorithm is not available on the server</exception>
 		internal void SetHashAlgorithmInternal(FtpHashAlgorithm algorithm) {
 			FtpReply reply;
 
@@ -341,7 +383,7 @@ namespace FluentFTP {
 					throw new NotImplementedException("The hash algorithm " + algorithm.ToString() + " was not advertised by the server.");
 				}
 
-				string algoName = Helpers.Hashing.HashAlgorithms.ToString(algorithm);
+				string algoName = HashAlgos.PrintToString(algorithm);
 
 				if (!(reply = Execute("OPTS HASH " + algoName)).Success) {
 					throw new FtpCommandException(reply);
@@ -360,9 +402,6 @@ namespace FluentFTP {
 		/// <summary>
 		/// Sets the hash algorithm on the server to be used with the HASH command asynchronously.
 		/// </summary>
-		/// <param name="algorithm">Hash algorithm to use</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <exception cref="System.NotImplementedException">Thrown if the selected algorithm is not available on the server</exception>
 		internal async Task SetHashAlgorithmInternalAsync(FtpHashAlgorithm algorithm, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
@@ -375,7 +414,7 @@ namespace FluentFTP {
 				throw new NotImplementedException("The hash algorithm " + algorithm.ToString() + " was not advertised by the server.");
 			}
 
-			string algoName = Helpers.Hashing.HashAlgorithms.ToString(algorithm);
+			string algoName = HashAlgos.PrintToString(algorithm);
 
 			if (!(reply = await ExecuteAsync("OPTS HASH " + algoName, token)).Success) {
 				throw new FtpCommandException(reply);
@@ -388,10 +427,8 @@ namespace FluentFTP {
 #endif
 
 		/// <summary>
-		/// Gets the hash of an object on the server using the currently selected hash algorithm, or null if hash cannot be parsed.
+		/// Gets the hash of an object on the server using the currently selected hash algorithm.
 		/// </summary>
-		/// <param name="path">Full or relative path of the object to compute the hash for.</param>
-		/// <returns>The hash of the file.</returns>
 		internal FtpHash HashCommandInternal(string path) {
 			FtpReply reply;
 
@@ -412,27 +449,8 @@ namespace FluentFTP {
 
 #if ASYNC
 		/// <summary>
-		/// Gets the hash of an object on the server using the currently selected hash algorithm, or null if hash cannot be parsed.
+		/// Gets the hash of an object on the server using the currently selected hash algorithm.
 		/// </summary>
-		/// <remarks>
-		/// Supported algorithms, if any, are available in the <see cref="HashAlgorithms"/>
-		/// property. You should confirm that it's not equal
-		/// to <see cref="FtpHashAlgorithm.NONE"/> before calling this method
-		/// otherwise the server trigger a <see cref="FtpCommandException"/>
-		/// due to a lack of support for the HASH command. You can
-		/// set the algorithm using the <see cref="SetHashAlgorithmInternal"/> method and
-		/// you can query the server for the current hash algorithm
-		/// using the <see cref="GetHashAlgorithm"/> method.
-		/// </remarks>
-		/// <param name="path">The file you want the server to compute the hash for</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <exception cref="FtpCommandException">
-		/// Thrown if the <see cref="HashAlgorithms"/> property is <see cref="FtpHashAlgorithm.NONE"/>, 
-		/// the remote path does not exist, or the command cannot be executed.
-		/// </exception>
-		/// <exception cref="ArgumentException">Path argument is null</exception>
-		/// <exception cref="NotImplementedException">Thrown when an unknown hash algorithm type is returned by the server</exception>
-		/// <returns>The hash of the file.</returns>
 		public async Task<FtpHash> HashCommandInternalAsync(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
@@ -449,79 +467,79 @@ namespace FluentFTP {
 
 		#region Obsolete Commands
 
-		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need. Or use CompareFile.", true)]
 		public FtpHashAlgorithm GetHashAlgorithm() {
 			return FtpHashAlgorithm.NONE;
 		}
 
-		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need. Or use CompareFile.", true)]
 		public void SetHashAlgorithm(FtpHashAlgorithm algorithm) { }
 
-		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need. Or use CompareFile.", true)]
 		public FtpHash GetHash(string path) {
 			return null;
 		}
 
-		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to MD5.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to MD5. Or use CompareFile.", true)]
 		public string GetMD5(string path) {
 			return null;
 		}
-		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to CRC.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to CRC. Or use CompareFile.", true)]
 		public string GetXCRC(string path) {
 			return null;
 		}
-		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to MD5.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to MD5. Or use CompareFile.", true)]
 		public string GetXMD5(string path) {
 			return null;
 		}
-		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to SHA1.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to SHA1. Or use CompareFile.", true)]
 		public string GetXSHA1(string path) {
 			return null;
 		}
-		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to SHA256.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to SHA256. Or use CompareFile.", true)]
 		public string GetXSHA256(string path) {
 			return null;
 		}
-		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to SHA512.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to SHA512. Or use CompareFile.", true)]
 		public string GetXSHA512(string path) {
 			return null;
 		}
 
 
 #if ASYNC
-		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need. Or use CompareFile.", true)]
 		public async Task<FtpHashAlgorithm> GetHashAlgorithmAsync(CancellationToken token = default(CancellationToken)) {
 			return FtpHashAlgorithm.NONE;
 		}
-		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need. Or use CompareFile.", true)]
 		public async Task SetHashAlgorithmAsync(FtpHashAlgorithm algorithm, CancellationToken token = default(CancellationToken)) {
 		}
-		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need. Or use CompareFile.", true)]
 		public async Task<FtpHash> GetHashAsync(string path, CancellationToken token = default(CancellationToken)) {
 			return null;
 		}
 
-		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to MD5.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to MD5. Or use CompareFile.", true)]
 		public async Task<string> GetMD5Async(string path, CancellationToken token = default(CancellationToken)) {
 			return null;
 		}
-		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to CRC.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to CRC. Or use CompareFile.", true)]
 		public async Task<string> GetXCRCAsync(string path, CancellationToken token = default(CancellationToken)) {
 			return null;
 		}
-		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to MD5.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to MD5. Or use CompareFile.", true)]
 		public async Task<string> GetXMD5Async(string path, CancellationToken token = default(CancellationToken)) {
 			return null;
 		}
-		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to SHA1.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to SHA1. Or use CompareFile.", true)]
 		public async Task<string> GetXSHA1Async(string path, CancellationToken token = default(CancellationToken)) {
 			return null;
 		}
-		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to SHA256.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to SHA256. Or use CompareFile.", true)]
 		public async Task<string> GetXSHA256Async(string path, CancellationToken token = default(CancellationToken)) {
 			return null;
 		}
-		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to SHA512.", true)]
+		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to SHA512. Or use CompareFile.", true)]
 		public async Task<string> GetXSHA512Async(string path, CancellationToken token = default(CancellationToken)) {
 			return null;
 		}

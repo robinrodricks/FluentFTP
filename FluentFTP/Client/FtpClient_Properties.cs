@@ -533,8 +533,8 @@ namespace FluentFTP {
 		private FtpHashAlgorithm m_hashAlgorithms = FtpHashAlgorithm.NONE;
 
 		/// <summary>
-		/// Get the hash types supported by the server, if any. This
-		/// is a recent extension to the protocol that is not fully
+		/// Get the hash types supported by the server for use with the HASH Command.
+		/// This is a recent extension to the protocol that is not fully
 		/// standardized and is not guaranteed to work. See here for
 		/// more details:
 		/// http://tools.ietf.org/html/draft-bryan-ftpext-hash-02

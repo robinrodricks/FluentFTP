@@ -6,6 +6,7 @@ namespace FluentFTP.Helpers.Hashing {
 	/// Helper class to convert FtpHashAlgorithm
 	/// </summary>
 	internal static class HashAlgorithms {
+
 		private static readonly Dictionary<string, FtpHashAlgorithm> NameToEnum = new Dictionary<string, FtpHashAlgorithm> {
 			{ "SHA-1", FtpHashAlgorithm.SHA1 },
 			{ "SHA-256", FtpHashAlgorithm.SHA256 },
@@ -23,7 +24,7 @@ namespace FluentFTP.Helpers.Hashing {
 		};
 
 		/// <summary>
-		/// Get FtpHashAlgorithm from it's string representation
+		/// Get FtpHashAlgorithm from its string representation
 		/// </summary>
 		/// <param name="name">Name of the hash algorithm</param>
 		/// <returns>The FtpHashAlgorithm</returns>
@@ -40,14 +41,28 @@ namespace FluentFTP.Helpers.Hashing {
 		/// </summary>
 		/// <param name="name">FtpHashAlgorithm to be converted into string</param>
 		/// <returns>Name of the hash algorithm</returns>
-		public static string ToString(FtpHashAlgorithm name)
-		{
-			if (!EnumToName.ContainsKey(name))
-			{
+		public static string PrintToString(this FtpHashAlgorithm name) {
+			if (!EnumToName.ContainsKey(name)) {
 				return name.ToString();
 			}
 
 			return EnumToName[name];
+		}
+
+		private static readonly List<FtpHashAlgorithm> AlgoPreference = new List<FtpHashAlgorithm> {
+			FtpHashAlgorithm.MD5, FtpHashAlgorithm.SHA1, FtpHashAlgorithm.SHA256, FtpHashAlgorithm.SHA512, FtpHashAlgorithm.CRC
+		};
+
+		/// <summary>
+		/// Get the first supported algorithm, in the standard order of preference. If no hashing algos found, returns NONE.
+		/// </summary>
+		public static FtpHashAlgorithm FirstSupported(FtpHashAlgorithm supportedFlags) {
+			foreach (var algo in AlgoPreference) {
+				if (supportedFlags.HasFlag(algo)) {
+					return algo;
+				}
+			}
+			return FtpHashAlgorithm.NONE;
 		}
 	}
 }
