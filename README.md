@@ -122,9 +122,9 @@ https://contributors-img.firebaseapp.com/image?repo=robinrodricks/FluentFTP
   <img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/contributors.png" />
 </a>
 
-## Supporters
+## Software Support
 
-FluentFTP is supported by these generous organizations:
+FluentFTP has recieved free software from these generous organizations:
 
 <table>
 <tr>
