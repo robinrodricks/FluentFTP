@@ -108,10 +108,10 @@ namespace FluentFTP {
 					// try each SSL protocol
 					foreach (var protocol in autoConnectProtocols) {
 
-						// skip plain protocols if testing secure FTPS
-						if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
+						// skip plain protocols if testing secure FTPS -- disabled because 'None' is recommended by Microsoft
+						/*if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
 							continue;
-						}
+						}*/
 
 						// skip secure protocols if testing plain FTP
 						if (encryption == FtpEncryptionMode.None && protocol != SysSslProtocols.None) {
@@ -260,10 +260,10 @@ namespace FluentFTP {
 				// try each SSL protocol
 				foreach (var protocol in autoConnectProtocols) {
 
-					// skip plain protocols if testing secure FTPS
-					if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
+					// skip plain protocols if testing secure FTPS -- disabled because 'None' is recommended by Microsoft
+					/*if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
 						continue;
-					}
+					}*/
 
 					// skip secure protocols if testing plain FTP
 					if (encryption == FtpEncryptionMode.None && protocol != SysSslProtocols.None) {
