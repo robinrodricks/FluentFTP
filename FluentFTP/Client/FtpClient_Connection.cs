@@ -641,6 +641,10 @@ namespace FluentFTP {
 				m_serverOS = FtpServerSpecificHandler.DetectFtpOSBySyst(this);
 			}
 
+			// Set a FTP server handler if a custom handler has not already been set
+			if (ServerHandler == null) {
+				ServerHandler = FtpServerSpecificHandler.GetServerHandler(m_serverType);
+			}
 			// Assume the system's capabilities if FEAT command not supported by the server
 			if (assumeCaps) {
 				FtpServerSpecificHandler.AssumeCapabilities(this, ServerHandler, m_capabilities, ref m_hashAlgorithms);
@@ -661,16 +665,29 @@ namespace FluentFTP {
 			}
 #endif
 
-			// Create the parser after OS auto-detection
-			var forcedParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Auto;
-			m_listParser.Init(m_serverOS, forcedParser);
+			// Unless a custom list parser has been set,
+			// Detect the listing parser and prefer machine listings over any other type
+			// FIX : #739 prefer using machine listings to fix issues with GetListing and DeleteDirectory
+			if (ListingParser != FtpParser.Custom) {
+				ListingParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Auto;
+				if (HasFeature(FtpCapability.MLSD)) {
+					ListingParser = FtpParser.Machine;
+				}
+			}
+
+			// Create the parser even if the auto-OS detection failed
+			m_listParser.Init(m_serverOS, ListingParser);
+
+			// FIX : #318 always set the type when we create a new connection
+			ForceSetDataType = true;
 		}
+
 #endif
 
-				/// <summary>
-				/// Connect to the FTP server. Overridden in proxy classes.
-				/// </summary>
-				/// <param name="stream"></param>
+		/// <summary>
+		/// Connect to the FTP server. Overridden in proxy classes.
+		/// </summary>
+		/// <param name="stream"></param>
 		protected virtual void Connect(FtpSocketStream stream) {
 			stream.Connect(Host, Port, InternetProtocolVersions);
 		}

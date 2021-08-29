@@ -1,6 +1,6 @@
 # Release Notes
 
-#### 35.0.0
+#### 35.0.1
  - **Automatic connection**
    - Major: `AutoConnect` takes far fewer connection attempts due to improvements in connection handling
    - Major: `AutoConnect` and `AutoDetect` are much faster and smarter and only try each setting once if possible
@@ -15,7 +15,8 @@
    - Fix: `AutoConnect` reuses the same connection for FTPS and FTP rather than connecting again
    - Fix: Ensure FTP server capabilities are loaded during `AutoDetect` if original connection is blank
    - Fix: `AutoConnect` and `AutoDetect` will now throw exceptions for permanent failures (bad host/credentials)
-   - Fix: `ConnectAsync` now correctly resets the state flags inline with `Connect` behaviour
+   - Fix: `ConnectAsync` now correctly creates a FTP server-specific handler to match `Connect` behaviour
+   - Fix: `ConnectAsync` now correctly resets the state flags to match `Connect` behaviour
    - Fix: `Port` now correctly calculates the default port 21 when using `FtpEncryptionMode.Auto`
  
  - **Appending and resuming uploads**
@@ -29,7 +30,7 @@
  
  - **Machine listings**
    - Major: `GetListing` prefers using Machine Listings over LIST command, unless a custom list parser is set
-   - Fix: `ListingParser` property is updated according to auto-detected parser during `Connect`
+   - Fix: `ListingParser` property is updated according to auto-detected parser during `Connect` and `ConnectAsync`
    - Fix: `DeleteDirectory` and `DereferenceLink` methods no longer use `ForceList` and so prefer using Machine Listings
    
  - **File hashing**
