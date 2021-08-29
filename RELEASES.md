@@ -1,8 +1,8 @@
 # Release Notes
 
 #### 35.0.2
-   - Major: `AutoDetect` does not cycle through data connection types during connection as it is irrelevant
-   - Major: `AutoDetect` calculates a data connection type after connection succeeds (EPSV or PASV)
+ - Major: `AutoDetect` does not cycle through data connection types during connection as it is irrelevant
+ - Major: `AutoDetect` calculates a data connection type after connection succeeds (EPSV or PASV)
 
 #### 35.0.1
  - Fix: `ConnectAsync` now correctly creates a FTP server-specific handler to match `Connect` behaviour
