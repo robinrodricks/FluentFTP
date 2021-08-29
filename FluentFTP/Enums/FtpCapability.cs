@@ -37,7 +37,7 @@ namespace FluentFTP {
 		UTF8 = 6,
 
 		/// <summary>
-		/// PRET Command used in distributed ftp server software DrFTPD
+		/// PRET Command used by DrFTPD
 		/// </summary>
 		PRET = 7,
 

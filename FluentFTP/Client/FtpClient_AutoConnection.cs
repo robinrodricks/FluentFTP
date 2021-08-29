@@ -33,7 +33,7 @@ namespace FluentFTP {
 		};
 
 		private static List<SysSslProtocols> autoConnectProtocols = new List<SysSslProtocols> {
-			SysSslProtocols.None,
+			//SysSslProtocols.None,
 #if ASYNC
 			SysSslProtocols.Tls12 | SysSslProtocols.Tls11, 
 #endif
@@ -47,10 +47,6 @@ namespace FluentFTP {
 
 		private static List<FtpDataConnectionType> autoConnectData = new List<FtpDataConnectionType> {
 			FtpDataConnectionType.PASV, FtpDataConnectionType.EPSV, FtpDataConnectionType.PORT, FtpDataConnectionType.EPRT, FtpDataConnectionType.PASVEX
-		};
-
-		private static List<Encoding> autoConnectEncoding = new List<Encoding> {
-			Encoding.UTF8, Encoding.ASCII
 		};
 
 		/// <summary>
@@ -118,75 +114,71 @@ namespace FluentFTP {
 							continue;
 						}
 
-						// try each data connection type
-						foreach (var dataType in autoConnectData) {
+						// reset port so it auto computes based on encryption type
+						if (resetPort) {
+							conn.Port = 0;
+						}
 
-							// reset port so it auto computes based on encryption type
-							if (resetPort) {
-								conn.Port = 0;
-							}
+						// set rolled props
+						conn.EncryptionMode = encryption;
+						conn.SslProtocols = protocol;
+						conn.DataConnectionType = FtpDataConnectionType.AutoPassive;
+						conn.Encoding = Encoding.UTF8;
 
-							// set rolled props
-							conn.EncryptionMode = encryption;
-							conn.SslProtocols = protocol;
-							conn.DataConnectionType = dataType;
-							conn.Encoding = Encoding.UTF8;
+						// try to connect
+						var connected = false;
+						try {
+							conn.Connect();
+							connected = true;
 
-							// try to connect
-							var connected = false;
-							try {
-								conn.Connect();
-								connected = true;
-
-								// if non-cloned connection, we want to remain connected if it works
-								if (cloneConnection) {
-									conn.Disconnect();
-								}
-							}
-							catch (Exception ex) {
-
-								// since the connection failed, disconnect and retry
+							// if non-cloned connection, we want to remain connected if it works
+							if (cloneConnection) {
 								conn.Disconnect();
+							}
+						}
+						catch (Exception ex) {
 
-								// if server does not support FTPS no point trying encryption again
-								if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
-									goto SkipEncryptionMode;
-								}
+							// since the connection failed, disconnect and retry
+							conn.Disconnect();
 
-								// catch error "no such host is known" and hard abort
-								if (IsPermanantConnectionFailure(ex)) {
-									if (cloneConnection) {
-										conn.Dispose();
-									}
-
-									// rethrow permanant failures so caller can be made aware of it
-									throw;
-								}
+							// if server does not support FTPS no point trying encryption again
+							if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
+								goto SkipEncryptionMode;
 							}
 
-							// if it worked, add the profile
-							if (connected) {
-
-								// if connected by explicit FTPS failed, no point trying encryption again
-								if (IsConnectedButFtpsFailure(blacklistedEncryptions, encryption, conn._ConnectionFTPSFailure)) {
+							// catch error "no such host is known" and hard abort
+							if (IsPermanantConnectionFailure(ex)) {
+								if (cloneConnection) {
+									conn.Dispose();
 								}
 
-								results.Add(new FtpProfile {
-									Host = Host,
-									Credentials = Credentials,
-									Encryption = encryption,
-									Protocols = protocol,
-									DataConnection = dataType,
-									Encoding = Encoding.UTF8,
-									EncodingVerified = conn._ConnectionUTF8Success || conn.HasFeature(FtpCapability.UTF8)
-								});
-
-								// stop if only 1 wanted
-								if (firstOnly) {
-									goto Exit;
-								}
-
+								// rethrow permanant failures so caller can be made aware of it
+								throw;
 							}
+						}
+
+						// if it worked
+						if (connected) {
+
+							// if connected by explicit FTPS failed, no point trying encryption again
+							if (IsConnectedButFtpsFailure(blacklistedEncryptions, encryption, conn._ConnectionFTPSFailure)) {
+							}
+
+							results.Add(new FtpProfile {
+								Host = Host,
+								Credentials = Credentials,
+								Encryption = encryption,
+								Protocols = protocol,
+								DataConnection = AutoDataConnection(conn),
+								Encoding = Encoding.UTF8,
+								EncodingVerified = conn._ConnectionUTF8Success || conn.HasFeature(FtpCapability.UTF8)
+							});
+
+							// stop if only 1 wanted
+							if (firstOnly) {
+								goto Exit;
+							}
+
 						}
 					}
 
@@ -270,73 +262,69 @@ namespace FluentFTP {
 						continue;
 					}
 
-					// try each data connection type
-					foreach (var dataType in autoConnectData) {
+					// reset port so it auto computes based on encryption type
+					if (resetPort) {
+						conn.Port = 0;
+					}
 
-						// reset port so it auto computes based on encryption type
-						if (resetPort) {
-							conn.Port = 0;
+					// set rolled props
+					conn.EncryptionMode = encryption;
+					conn.SslProtocols = protocol;
+					conn.DataConnectionType = FtpDataConnectionType.AutoPassive;
+					conn.Encoding = Encoding.UTF8;
+
+					// try to connect
+					var connected = false;
+					try {
+						await conn.ConnectAsync(token);
+						connected = true;
+
+						// if non-cloned connection, we want to remain connected if it works
+						if (cloneConnection) {
+							await conn.DisconnectAsync(token);
+						}
+					}
+					catch (Exception ex) {
+
+						// since the connection failed, disconnect and retry
+						await conn.DisconnectAsync();
+
+						// if server does not support FTPS no point trying encryption again
+						if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
+							goto SkipEncryptionMode;
 						}
 
-						// set rolled props
-						conn.EncryptionMode = encryption;
-						conn.SslProtocols = protocol;
-						conn.DataConnectionType = dataType;
-						conn.Encoding = Encoding.UTF8;
-
-						// try to connect
-						var connected = false;
-						try {
-							await conn.ConnectAsync(token);
-							connected = true;
-
-							// if non-cloned connection, we want to remain connected if it works
+						// catch error "no such host is known" and hard abort
+						if (IsPermanantConnectionFailure(ex)) {
 							if (cloneConnection) {
-								await conn.DisconnectAsync(token);
+								conn.Dispose();
 							}
+
+							// rethrow permanant failures so caller can be made aware of it
+							throw;
 						}
-						catch (Exception ex) {
+					}
 
-							// since the connection failed, disconnect and retry
-							await conn.DisconnectAsync();
+					// if it worked, add the profile
+					if (connected) {
 
-							// if server does not support FTPS no point trying encryption again
-							if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
-								goto SkipEncryptionMode;
-							}
-
-							// catch error "no such host is known" and hard abort
-							if (IsPermanantConnectionFailure(ex)) {
-								if (cloneConnection) {
-									conn.Dispose();
-								}
-
-								// rethrow permanant failures so caller can be made aware of it
-								throw;
-							}
+						// if connected by explicit FTPS failed, no point trying encryption again
+						if (IsConnectedButFtpsFailure(blacklistedEncryptions, encryption, conn._ConnectionFTPSFailure)) {
 						}
 
-						// if it worked, add the profile
-						if (connected) {
+						results.Add(new FtpProfile {
+							Host = Host,
+							Credentials = Credentials,
+							Encryption = encryption,
+							Protocols = protocol,
+							DataConnection = AutoDataConnection(conn),
+							Encoding = Encoding.UTF8,
+							EncodingVerified = conn._ConnectionUTF8Success || conn.HasFeature(FtpCapability.UTF8)
+						});
 
-							// if connected by explicit FTPS failed, no point trying encryption again
-							if (IsConnectedButFtpsFailure(blacklistedEncryptions, encryption, conn._ConnectionFTPSFailure)) {
-							}
-
-							results.Add(new FtpProfile {
-								Host = Host,
-								Credentials = Credentials,
-								Encryption = encryption,
-								Protocols = protocol,
-								DataConnection = dataType,
-								Encoding = Encoding.UTF8,
-								EncodingVerified = conn._ConnectionUTF8Success || conn.HasFeature(FtpCapability.UTF8)
-							});
-
-							// stop if only 1 wanted
-							if (firstOnly) {
-								goto Exit;
-							}
+						// stop if only 1 wanted
+						if (firstOnly) {
+							goto Exit;
 						}
 					}
 				}
@@ -436,6 +424,27 @@ namespace FluentFTP {
 			}
 
 			return false;
+		}
+
+		#endregion
+
+		#region Auto Data Connection
+
+		private FtpDataConnectionType AutoDataConnection(FtpClient conn) {
+
+			// check socket protocol version
+			if (conn.m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
+
+				// IPV4
+				return FtpDataConnectionType.PASV;
+
+			}
+			else {
+
+				// IPV6
+				// always use enhanced passive (enhanced PORT is not recommended and no other types support IPV6)
+				return FtpDataConnectionType.EPSV;
+			}
 		}
 
 		#endregion

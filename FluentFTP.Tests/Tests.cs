@@ -1235,12 +1235,12 @@ namespace Tests {
 					Console.WriteLine(code);
 				}
 			}
-			using (var cl = NewFtpClient_Inacessible()) {
+			/*using (var cl = NewFtpClient_Inacessible()) {
 				var profile = cl.AutoConnect();
 			}
 			using (var cl = NewFtpClient_Inacessible2()) {
 				var profile = cl.AutoConnect();
-			}
+			}*/
 		}
 
 #if ASYNC
@@ -1253,12 +1253,12 @@ namespace Tests {
 					Console.WriteLine(code);
 				}
 			}
-			using (var cl = NewFtpClient_Inacessible()) {
+			/*using (var cl = NewFtpClient_Inacessible()) {
 				var profile = await cl.AutoConnectAsync();
 			}
 			using (var cl = NewFtpClient_Inacessible2()) {
 				var profile = await cl.AutoConnectAsync();
-			}
+			}*/
 		}
 #endif
 
