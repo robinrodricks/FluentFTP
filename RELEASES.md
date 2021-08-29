@@ -2,6 +2,7 @@
 
 #### 35.0.0
  - **Automatic connection**
+   - Major: `AutoConnect` takes far fewer connection attempts due to improvements in connection handling
    - Major: `AutoConnect` and `AutoDetect` are much faster and smarter and only try each setting once if possible
    - Major: `AutoDetect` only tries Explicit and Implicit FTPS once and then falls back to plaintext FTP
    - Major: `AutoDetect` only tries UTF-8 and never ASCII because most UTF-8 servers don't advertise it
@@ -12,6 +13,7 @@
    - Fix: `AutoConnect` remains connected to the first working profile rather than connecting twice on success
    - Fix: Ensure FTP server capabilities are loaded during `AutoDetect` if original connection is blank
    - Fix: `AutoConnect` and `AutoDetect` will now throw exceptions for permanent failures (bad host/credentials)
+   - Fix: `ConnectAsync` now correctly resets the state flags inline with `Connect` behaviour
  
  - **Appending and resuming uploads**
    - Major: The setting `FtpLocalExists.Append` is now renamed to `FtpLocalExists.Resume`

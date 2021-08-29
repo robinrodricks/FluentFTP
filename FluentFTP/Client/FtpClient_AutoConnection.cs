@@ -167,7 +167,7 @@ namespace FluentFTP {
 									Protocols = protocol,
 									DataConnection = dataType,
 									Encoding = Encoding.UTF8,
-									EncodingVerified = conn.HasFeature(FtpCapability.UTF8)
+									EncodingVerified = conn._ConnectionUTF8Success || conn.HasFeature(FtpCapability.UTF8)
 								});
 
 								// stop if only 1 wanted
@@ -307,7 +307,7 @@ namespace FluentFTP {
 								Protocols = protocol,
 								DataConnection = dataType,
 								Encoding = Encoding.UTF8,
-								EncodingVerified = conn.HasFeature(FtpCapability.UTF8)
+								EncodingVerified = conn._ConnectionUTF8Success || conn.HasFeature(FtpCapability.UTF8)
 							});
 
 							// stop if only 1 wanted
