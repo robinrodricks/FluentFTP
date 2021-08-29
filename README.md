@@ -48,7 +48,6 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
     - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
   - **Asynchronous support:**
     - Synchronous and asynchronous methods using `async`/`await` for all operations
-    - Asynchronous methods for .NET 4.0 and below using `IAsyncResult` pattern (Begin*/End*)
     - Asynchronous support for the `IAsyncEnumerable` pattern for `GetListing` methods (see `GetListingAsyncEnumerable`)
     - All asynchronous methods can be cancelled midway by passing a `CancellationToken`
     - All asynchronous methods honor the `ReadTimeout` and automatically cancel themselves if timed out
