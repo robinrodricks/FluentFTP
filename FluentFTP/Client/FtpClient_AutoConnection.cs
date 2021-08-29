@@ -475,6 +475,7 @@ namespace FluentFTP {
 		/// Automatic FTP and FTPS connection negotiation.
 		/// This method tries every possible combination of the FTP connection properties, and connects to the first successful profile.
 		/// Returns the FtpProfile if the connection succeeded, or null if it failed.
+		/// It will throw exceptions for permanent failures like invalid host or invalid credentials.
 		/// </summary>
 		public FtpProfile AutoConnect() {
 			LogFunc(nameof(AutoConnect));
@@ -499,6 +500,7 @@ namespace FluentFTP {
 		/// Automatic FTP and FTPS connection negotiation.
 		/// This method tries every possible combination of the FTP connection properties, and connects to the first successful profile.
 		/// Returns the FtpProfile if the connection succeeded, or null if it failed.
+		/// It will throw exceptions for permanent failures like invalid host or invalid credentials.
 		/// </summary>
 		public async Task<FtpProfile> AutoConnectAsync(CancellationToken token = default(CancellationToken)) {
 			LogFunc(nameof(AutoConnectAsync));
