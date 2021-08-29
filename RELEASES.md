@@ -21,8 +21,8 @@
    - Fix: Improved extraction of hash checksum when using the MD5, SHA1, SHA256, SHA512 or X-series commands
    - Fix: `GetChecksum` now prints function call logs and sanitizes the input path
    - Fix: `GetChecksum` switches to the first preferred hash algorithm for `HASH` command if no algorithm is specified
-   - Fix: `GetChecksum` validates if the required algorithm is unsupported and throws `FtpHashAlgorithmUnsupportedException`
-   - Fix: `GetChecksum` validates if hashing is unsupported by the server and throws `FtpHashAlgorithmUnsupportedException`
+   - Fix: `GetChecksum` validates if the required algorithm is unsupported and throws `FtpHashUnsupportedException`
+   - Fix: `GetChecksum` validates if hashing is unsupported by the server and throws `FtpHashUnsupportedException`
    - Fix: `GetChecksumAsync` now takes the cancellation token last to follow conventions (argument reorder)
    - New: `SetHashAlgorithm` now only modifies the hash algorithm if it has changed
  

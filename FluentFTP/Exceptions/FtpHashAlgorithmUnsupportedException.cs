@@ -14,7 +14,7 @@ namespace FluentFTP {
 #if !CORE
 	[Serializable]
 #endif
-	public class FtpHashAlgorithmUnsupportedException : FtpException {
+	public class FtpHashUnsupportedException : FtpException {
 
 		private FtpHashAlgorithm _algo = FtpHashAlgorithm.NONE;
 
@@ -29,7 +29,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Default constructor
 		/// </summary>
-		public FtpHashAlgorithmUnsupportedException()
+		public FtpHashUnsupportedException()
 			: base("Your FTP server does not support the HASH command or any of the algorithm-specific commands. Use a better FTP server software or install a hashing/checksum module onto your server.") {
 
 		}
@@ -37,7 +37,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Algorithm-specific constructor
 		/// </summary>
-		public FtpHashAlgorithmUnsupportedException(FtpHashAlgorithm algo, string specialCommands)
+		public FtpHashUnsupportedException(FtpHashAlgorithm algo, string specialCommands)
 			: base("Hash algorithm " + algo.PrintToString() + " is unsupported by your server using the HASH command or the " +
 				  specialCommands + " command(s). "+
 				  "Use another algorithm or use FtpHashAlgorithm.NONE to select the first available algorithm.") {
@@ -49,7 +49,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Must be implemented so every Serializer can Deserialize the Exception
 		/// </summary>
-		protected FtpHashAlgorithmUnsupportedException(SerializationInfo info, StreamingContext context) : base(info, context) {
+		protected FtpHashUnsupportedException(SerializationInfo info, StreamingContext context) : base(info, context) {
 		}
 
 #endif

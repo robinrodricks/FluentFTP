@@ -133,7 +133,7 @@ namespace FluentFTP {
 				!HasFeature(FtpCapability.XSHA256) &&
 				!HasFeature(FtpCapability.XSHA512) &&
 				!HasFeature(FtpCapability.XCRC)) {
-				throw new FtpHashAlgorithmUnsupportedException();
+				throw new FtpHashUnsupportedException();
 			}
 
 			// only if the user has specified a certain hash algorithm
@@ -151,19 +151,19 @@ namespace FluentFTP {
 					// second check if the special FTP command is supported based on the algo
 					if (algorithm == FtpHashAlgorithm.MD5 && !HasFeature(FtpCapability.MD5) &&
 						!HasFeature(FtpCapability.XMD5) && !HasFeature(FtpCapability.MMD5)) {
-						throw new FtpHashAlgorithmUnsupportedException(FtpHashAlgorithm.MD5, "MD5, XMD5, MMD5");
+						throw new FtpHashUnsupportedException(FtpHashAlgorithm.MD5, "MD5, XMD5, MMD5");
 					}
 					if (algorithm == FtpHashAlgorithm.SHA1 && !HasFeature(FtpCapability.XSHA1)) {
-						throw new FtpHashAlgorithmUnsupportedException(FtpHashAlgorithm.SHA1, "XSHA1");
+						throw new FtpHashUnsupportedException(FtpHashAlgorithm.SHA1, "XSHA1");
 					}
 					if (algorithm == FtpHashAlgorithm.SHA256 && !HasFeature(FtpCapability.XSHA256)) {
-						throw new FtpHashAlgorithmUnsupportedException(FtpHashAlgorithm.SHA256, "XSHA256");
+						throw new FtpHashUnsupportedException(FtpHashAlgorithm.SHA256, "XSHA256");
 					}
 					if (algorithm == FtpHashAlgorithm.SHA512 && !HasFeature(FtpCapability.XSHA512)) {
-						throw new FtpHashAlgorithmUnsupportedException(FtpHashAlgorithm.SHA512, "XSHA512");
+						throw new FtpHashUnsupportedException(FtpHashAlgorithm.SHA512, "XSHA512");
 					}
 					if (algorithm == FtpHashAlgorithm.CRC && !HasFeature(FtpCapability.XCRC)) {
-						throw new FtpHashAlgorithmUnsupportedException(FtpHashAlgorithm.CRC, "XCRC");
+						throw new FtpHashUnsupportedException(FtpHashAlgorithm.CRC, "XCRC");
 					}
 
 					// we are good
