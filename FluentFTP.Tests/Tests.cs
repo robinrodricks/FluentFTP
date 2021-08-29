@@ -7,7 +7,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
-#if !NOASYNC
+#if ASYNC
 using System.Threading.Tasks;
 #endif
 using System.IO.Compression;
@@ -100,7 +100,7 @@ namespace Tests {
 			}
 		}
 
-#if !NOASYNC
+#if ASYNC
 		//[Fact]
 		public async Task TestListPathAsync() {
 			using (var cl = NewFtpClient()) {
@@ -139,7 +139,7 @@ namespace Tests {
 			}
 		}
 
-#if !NOASYNC
+#if ASYNC
 		//[Fact]
 		public async Task StreamResponsesAsync() {
 			using (var cl = NewFtpClient()) {
@@ -206,7 +206,7 @@ namespace Tests {
 			}
 		}
 
-#if !NOASYNC && !CORE
+#if ASYNC && !CORE
 		//[Fact]
 		public async Task TestGetObjectInfoAsync() {
 			using (var cl = NewFtpClient()) {
@@ -274,7 +274,7 @@ namespace Tests {
 			}
 		}
 
-#if !NOASYNC
+#if ASYNC
 		private async Task TestServerDownloadAsync(FtpClient client, string path) {
 			foreach (var i in await client.GetListingAsync(path)) {
 				switch (i.Type) {
@@ -340,7 +340,7 @@ namespace Tests {
 			}
 			catch (System.Net.Sockets.SocketException) {
 			} // Expecting this
-#if !NOASYNC
+#if ASYNC
 			catch (AggregateException ex) when (ex.InnerException is System.Net.Sockets.SocketException) {
 			}
 
@@ -385,7 +385,7 @@ namespace Tests {
 			}
 		}
 
-#if !NOASYNC
+#if ASYNC
 		[Fact]
 		[Trait("Category", Category_PublicFTP)]
 		public async void TestGetListingBSDServerAsync() {
@@ -455,7 +455,7 @@ namespace Tests {
 
 		}
 
-#if !NOASYNC
+#if ASYNC
 		[Fact]
 		[Trait("Category", Category_PublicFTP)]
 		public async void TestGetListingTeleServerAsync() {
@@ -681,7 +681,7 @@ namespace Tests {
 		}
 
 		//[Fact]
-		public void TestHash() {
+		//public void TestHash() {
 			/*using (var cl = NewFtpClient()) {
 				cl.Connect();
 
@@ -701,11 +701,11 @@ namespace Tests {
 					}
 				}
 			}*/
-		}
+		//}
 
-#if !NOASYNC
+#if ASYNC
 		//[Fact]
-		public async Task TestHashAsync() {
+		//public async Task TestHashAsync() {
 			/*using (var cl = NewFtpClient()) {
 				await cl.ConnectAsync();
 
@@ -725,7 +725,7 @@ namespace Tests {
 					}
 				}
 			}*/
-		}
+		//}
 #endif
 
 		//[Fact]
@@ -1001,7 +1001,7 @@ namespace Tests {
 			}
 		}
 
-#if !NOASYNC
+#if ASYNC
 		//[Fact]
 		public async Task TestUploadDownloadFileAsync() {
 			using (var cl = NewFtpClient()) {
@@ -1076,7 +1076,7 @@ namespace Tests {
 			}
 		}
 
-#if !NOASYNC
+#if ASYNC
 		//[Fact]
 		public async Task TestUploadDownloadManyFilesAsync() {
 			using (var cl = NewFtpClient()) {
@@ -1118,7 +1118,7 @@ namespace Tests {
 			}
 		}
 
-#if !NOASYNC
+#if ASYNC
 		//[Fact]
 		public async Task TestUploadDownloadManyFiles2Async() {
 			using (var cl = NewFtpClient()) {
@@ -1232,6 +1232,7 @@ namespace Tests {
 				var profile = cl.AutoConnect();
 				if (profile != null) {
 					var code = profile.ToCode();
+					Console.WriteLine(code);
 				}
 			}
 			using (var cl = NewFtpClient_Inacessible()) {
@@ -1241,6 +1242,25 @@ namespace Tests {
 				var profile = cl.AutoConnect();
 			}
 		}
+
+#if ASYNC
+		[Fact]
+		public async void TestAutoConnectAsync() {
+			using (var cl = NewFtpClient_Tele2SpeedTest()) {
+				var profile = await cl.AutoConnectAsync();
+				if (profile != null) {
+					var code = profile.ToCode();
+					Console.WriteLine(code);
+				}
+			}
+			using (var cl = NewFtpClient_Inacessible()) {
+				var profile = await cl.AutoConnectAsync();
+			}
+			using (var cl = NewFtpClient_Inacessible2()) {
+				var profile = await cl.AutoConnectAsync();
+			}
+		}
+#endif
 
 		//[Fact]
 		public void TestQuickDownloadFilePublic() {

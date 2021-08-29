@@ -1,39 +1,61 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netstandard1.4;netstandard1.6;netcoreapp1.0;net20;net35;net40;net45</TargetFrameworks>
+	 <TargetFrameworks>net20;net35;net40;net45;net50;netstandard1.4;netstandard1.6;netstandard2.0;netstandard2.1</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net20' Or '$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40' Or '$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='netstandard1.4'">
     <DefineConstants>$(DefineConstants);SHIM_XUNIT</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net20' Or '$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40'">
-    <DefineConstants>$(DefineConstants);NOASYNC</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netstandard1.4' Or '$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
+		<DefineConstants>$(DefineConstants);CORE</DefineConstants>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netstandard1.4' Or '$(TargetFramework)'=='netcoreapp1.0'">
-    <DefineConstants>$(DefineConstants);CORE</DefineConstants>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.4'">
-    <DefineConstants>$(DefineConstants);CORE14</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
+		<DefineConstants>$(DefineConstants);CORE2PLUS</DefineConstants>
+	</PropertyGroup>
 
-  <ItemGroup Condition="!$(DefineConstants.Contains('SHIM_XUNIT'))">
+	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.4'">
+		<DefineConstants>$(DefineConstants);CORE14;NO_SSL</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
+		<DefineConstants>$(DefineConstants);CORE16</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net50' Or $(DefineConstants.Contains('CORE'))">
+		<DefineConstants>$(DefineConstants);ASYNC</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net50'">
+		<DefineConstants>$(DefineConstants);NET45</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)'=='net50'">
+		<DefineConstants>$(DefineConstants);NET50;CORE</DefineConstants>
+	</PropertyGroup>
+
+
+	<ItemGroup Condition="!$(DefineConstants.Contains('SHIM_XUNIT'))">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
     <PackageReference Include="xunit" Version="2.3.0-beta5-build3769" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0-beta5-build3769" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(DefineConstants.Contains('CORE'))">
-    <PackageReference Include="System.Console" Version="4.3.0.0" />
-    <PackageReference Include="System.IO" Version="4.3.0.0" />
-    <PackageReference Include="System.Net.NameResolution" Version="4.3.0.0" />
-    <PackageReference Include="System.Net.Sockets" Version="4.3.0.0" />
-    <PackageReference Include="System.Runtime" Version="4.3.0.0" />
-    <PackageReference Include="System.Threading.Tasks" Version="4.3.0.0" />
-  </ItemGroup>
+	<ItemGroup Condition="$(DefineConstants.Contains('CORE'))">
+		<PackageReference Include="System.Console" Version="4.3.0.0" />
+		<PackageReference Include="System.IO" Version="4.3.0.0" />
+		<PackageReference Include="System.Net.NameResolution" Version="4.3.0.0" />
+		<PackageReference Include="System.Net.Sockets" Version="4.3.0.0" />
+		<PackageReference Include="System.Runtime" Version="4.3.0.0" />
+		<PackageReference Include="System.Threading.Tasks" Version="4.3.0.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
+		<PackageReference Include="System.Net.Security" Version="4.3.2.0" />
+		<PackageReference Include="System.Threading.Thread" Version="4.3.0.0" />
+	</ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FluentFTP\FluentFTP.csproj" />

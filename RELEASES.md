@@ -1,6 +1,9 @@
 # Release Notes
 
 #### 35.0.1
+ - Fix: `ConnectAsync` now correctly creates a FTP server-specific handler to match `Connect` behaviour
+
+#### 35.0.0
  - **Automatic connection**
    - Major: `AutoConnect` takes far fewer connection attempts due to improvements in connection handling
    - Major: `AutoConnect` and `AutoDetect` are much faster and smarter and only try each setting once if possible
@@ -15,7 +18,6 @@
    - Fix: `AutoConnect` reuses the same connection for FTPS and FTP rather than connecting again
    - Fix: Ensure FTP server capabilities are loaded during `AutoDetect` if original connection is blank
    - Fix: `AutoConnect` and `AutoDetect` will now throw exceptions for permanent failures (bad host/credentials)
-   - Fix: `ConnectAsync` now correctly creates a FTP server-specific handler to match `Connect` behaviour
    - Fix: `ConnectAsync` now correctly resets the state flags to match `Connect` behaviour
    - Fix: `Port` now correctly calculates the default port 21 when using `FtpEncryptionMode.Auto`
  
