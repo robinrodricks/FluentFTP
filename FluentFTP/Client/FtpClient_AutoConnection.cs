@@ -60,27 +60,17 @@ namespace FluentFTP {
 		/// You can then generate code for the profile using the FtpProfile.ToCode method.
 		/// If no successful profiles are found, a blank list is returned.
 		/// </summary>
-		/// <param name="firstOnly">Find all successful profiles (false) or stop after finding the first successful profile (true)?</param>
+		/// <param name="firstOnly">Find all successful profiles (false) or stop after finding the first successful profile (true)</param>
+		/// <param name="cloneConnection">Use a new cloned FtpClient for testing connection profiles (true) or use the source FtpClient (false)</param>
 		/// <returns></returns>
-		public List<FtpProfile> AutoDetect(bool firstOnly = true) {
+		public List<FtpProfile> AutoDetect(bool firstOnly = true, bool cloneConnection = true) {
 			var results = new List<FtpProfile>();
 
 #if !CORE14
 			lock (m_lock) {
 #endif
-				LogFunc(nameof(AutoDetect), new object[] { firstOnly });
-
-				if (IsDisposed) {
-					throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
-				}
-
-				if (Host == null) {
-					throw new FtpException("No host has been specified. Please set the 'Host' property before trying to auto connect.");
-				}
-
-				if (Credentials == null) {
-					throw new FtpException("No username and password has been specified. Please set the 'Credentials' property before trying to auto connect.");
-				}
+				LogFunc(nameof(AutoDetect), new object[] { firstOnly, cloneConnection });
+				ValidateAutoDetect();
 
 				// get known working connection profile based on the host (if any)
 				var knownProfile = FtpServerSpecificHandler.GetWorkingProfileFromHost(Host, Port);
@@ -91,9 +81,20 @@ namespace FluentFTP {
 
 				var blacklistedEncryptions = new List<FtpEncryptionMode>();
 
-				// try each encoding
-				//foreach (var encoding in autoConnectEncoding) {
-				var encoding = Encoding.UTF8;
+				// clone this connection or use this connection
+				var conn = cloneConnection ? CloneConnection() : this;
+
+				// copy basic props if cloned connection
+				if (cloneConnection) {
+					conn.Host = this.Host;
+					conn.Port = this.Port;
+					conn.Credentials = this.Credentials;
+				}
+
+				// disconnect if already connected
+				if (conn.IsConnected) {
+					conn.Disconnect();
+				}
 
 				// try each encryption mode
 				foreach (var encryption in autoConnectEncryption) {
@@ -119,49 +120,41 @@ namespace FluentFTP {
 						// try each data connection type
 						foreach (var dataType in autoConnectData) {
 
-							// clone this connection
-							var conn = CloneConnection();
-
-							// set basic props
-							conn.Host = Host;
-							conn.Port = Port;
-							conn.Credentials = Credentials;
-
 							// set rolled props
 							conn.EncryptionMode = encryption;
 							conn.SslProtocols = protocol;
 							conn.DataConnectionType = dataType;
-							conn.Encoding = encoding;
+							conn.Encoding = Encoding.UTF8;
 
 							// try to connect
 							var connected = false;
 							try {
 								conn.Connect();
 								connected = true;
-								conn.Dispose();
+
+								// if non-cloned connection, we want to remain connected if it works
+								if (cloneConnection) {
+									conn.Disconnect();
+								}
 							}
 							catch (Exception ex) {
-								conn.Dispose();
 
-								// catch error starting explicit FTPS and don't try any more secure connections
-								if (encryption == FtpEncryptionMode.Explicit) {
-									if (ex is FtpSecurityNotAvailableException) {
-										blacklistedEncryptions.Add(encryption);
-										goto SkipEncryptionMode;
-									}
-								}
+								// since the connection failed, disconnect and retry
+								conn.Disconnect();
 
-								// catch error starting implicit FTPS and don't try any more secure connections
-								if (encryption == FtpEncryptionMode.Implicit) {
-									if ((ex is SocketException && (ex as SocketException).SocketErrorCode == SocketError.ConnectionRefused) || ex is TimeoutException) {
-										blacklistedEncryptions.Add(encryption);
-										goto SkipEncryptionMode;
-									}
+								// if server does not support FTPS no point trying encryption again
+								if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
+									goto SkipEncryptionMode;
 								}
 
 								// catch error "no such host is known" and hard abort
-								if (AbortAutoDetection(ex)) {
-									return results;
+								if (IsPermanantConnectionFailure(ex)) {
+									if (cloneConnection) {
+										conn.Dispose();
+									}
+
+									// rethrow permanant failures so caller can be made aware of it
+									throw;
 								}
 							}
 
@@ -173,13 +166,13 @@ namespace FluentFTP {
 									Encryption = encryption,
 									Protocols = protocol,
 									DataConnection = dataType,
-									Encoding = encoding,
+									Encoding = Encoding.UTF8,
 									EncodingVerified = conn.HasFeature(FtpCapability.UTF8)
 								});
 
 								// stop if only 1 wanted
 								if (firstOnly) {
-									return results;
+									goto Exit;
 								}
 							}
 						}
@@ -189,28 +182,203 @@ namespace FluentFTP {
 					var skip = true;
 
 				}
-				//}
 
 
+				Exit:
+				if (cloneConnection) {
+					conn.Dispose();
+				}
 #if !CORE14
 			}
 #endif
-
 			return results;
 		}
 
-		private static bool AbortAutoDetection(Exception ex) {
+#if ASYNC
+		/// <summary>
+		/// Automatic FTP and FTPS connection negotiation.
+		/// This method tries every possible combination of the FTP connection properties, and returns the list of successful connection profiles.
+		/// You can configure it to stop after finding the first successful profile, or to collect all successful profiles.
+		/// You can then generate code for the profile using the FtpProfile.ToCode method.
+		/// If no successful profiles are found, a blank list is returned.
+		/// </summary>
+		/// <param name="firstOnly">Find all successful profiles (false) or stop after finding the first successful profile (true)</param>
+		/// <param name="cloneConnection">Use a new cloned FtpClient for testing connection profiles (true) or use the source FtpClient (false)</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <returns></returns>
+		public async Task<List<FtpProfile>> AutoDetectAsync(bool firstOnly, bool cloneConnection = true, CancellationToken token = default(CancellationToken)) {
+			var results = new List<FtpProfile>();
+
+			LogFunc(nameof(AutoDetectAsync), new object[] { firstOnly, cloneConnection });
+			ValidateAutoDetect();
+
+			// get known working connection profile based on the host (if any)
+			var knownProfile = FtpServerSpecificHandler.GetWorkingProfileFromHost(Host, Port);
+			if (knownProfile != null) {
+				results.Add(knownProfile);
+				return results;
+			}
+
+			var blacklistedEncryptions = new List<FtpEncryptionMode>();
+
+			// clone this connection or use this connection
+			var conn = cloneConnection ? CloneConnection() : this;
+
+			// copy basic props if cloned connection
+			if (cloneConnection) {
+				conn.Host = this.Host;
+				conn.Port = this.Port;
+				conn.Credentials = this.Credentials;
+			}
+
+			// disconnect if already connected
+			if (conn.IsConnected) {
+				await conn.DisconnectAsync();
+			}
+
+			// try each encryption mode
+			foreach (var encryption in autoConnectEncryption) {
+
+				// skip if FTPS was tried and failed
+				if (blacklistedEncryptions.Contains(encryption)) {
+					continue;
+				}
+
+				// try each SSL protocol
+				foreach (var protocol in autoConnectProtocols) {
+
+					// skip plain protocols if testing secure FTPS
+					if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
+						continue;
+					}
+
+					// skip secure protocols if testing plain FTP
+					if (encryption == FtpEncryptionMode.None && protocol != SysSslProtocols.None) {
+						continue;
+					}
+
+					// try each data connection type
+					foreach (var dataType in autoConnectData) {
+
+						// set rolled props
+						conn.EncryptionMode = encryption;
+						conn.SslProtocols = protocol;
+						conn.DataConnectionType = dataType;
+						conn.Encoding = Encoding.UTF8;
+
+						// try to connect
+						var connected = false;
+						try {
+							await conn.ConnectAsync(token);
+							connected = true;
+
+							// if non-cloned connection, we want to remain connected if it works
+							if (cloneConnection) {
+								await conn.DisconnectAsync(token);
+							}
+						}
+						catch (Exception ex) {
+
+							// since the connection failed, disconnect and retry
+							await conn.DisconnectAsync();
+
+							// if server does not support FTPS no point trying encryption again
+							if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
+								goto SkipEncryptionMode;
+							}
+
+							// catch error "no such host is known" and hard abort
+							if (IsPermanantConnectionFailure(ex)) {
+								if (cloneConnection) {
+									conn.Dispose();
+								}
+
+								// rethrow permanant failures so caller can be made aware of it
+								throw;
+							}
+						}
+
+						// if it worked, add the profile
+						if (connected) {
+							results.Add(new FtpProfile {
+								Host = Host,
+								Credentials = Credentials,
+								Encryption = encryption,
+								Protocols = protocol,
+								DataConnection = dataType,
+								Encoding = Encoding.UTF8,
+								EncodingVerified = conn.HasFeature(FtpCapability.UTF8)
+							});
+
+							// stop if only 1 wanted
+							if (firstOnly) {
+								goto Exit;
+							}
+						}
+					}
+				}
+
+				SkipEncryptionMode:
+				var skip = true;
+
+			}
+
+
+			Exit:
+			if (cloneConnection) {
+				conn.Dispose();
+			}
+
+			return results;
+		}
+#endif
+
+		private void ValidateAutoDetect() {
+			if (IsDisposed) {
+				throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
+			}
+
+			if (Host == null) {
+				throw new FtpException("No host has been specified. Please set the 'Host' property before trying to auto connect.");
+			}
+
+			if (Credentials == null) {
+				throw new FtpException("No username and password has been specified. Please set the 'Credentials' property before trying to auto connect.");
+			}
+		}
+
+		private static bool IsFtpsFailure(List<FtpEncryptionMode> blacklistedEncryptions, FtpEncryptionMode encryption, Exception ex) {
+
+			// catch error starting explicit FTPS and don't try any more secure connections
+			if (encryption == FtpEncryptionMode.Explicit) {
+				if (ex is FtpSecurityNotAvailableException) {
+
+					// ban explicit FTPS
+					blacklistedEncryptions.Add(encryption);
+					return true;
+				}
+			}
+
+			// catch error starting implicit FTPS and don't try any more secure connections
+			if (encryption == FtpEncryptionMode.Implicit) {
+				if ((ex is SocketException && (ex as SocketException).SocketErrorCode == SocketError.ConnectionRefused)
+					|| ex is TimeoutException) {
+
+					// ban implicit FTPS
+					blacklistedEncryptions.Add(encryption);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		private static bool IsPermanantConnectionFailure(Exception ex) {
 
 			// catch error "no such host is known" and hard abort
-#if NETFX || CORE2PLUS
-			if (ex is SocketException && ((SocketException)ex).ErrorCode == 11001) {
+			if (ex is SocketException && ((SocketException)ex).SocketErrorCode == SocketError.HostNotFound) {
 				return true;
 			}
-#else
-			if (ex is SocketException && ((SocketException)ex).Message.Contains("No such host is known")) {
-				return true;
-			}
-#endif
 
 			// catch error "timed out trying to connect" and hard abort
 			if (ex is TimeoutException) {
@@ -311,25 +479,13 @@ namespace FluentFTP {
 		public FtpProfile AutoConnect() {
 			LogFunc(nameof(AutoConnect));
 
-			// detect the first available connection profile
-			var results = AutoDetect();
+			// connect to the first available connection profile
+			var results = AutoDetect(true, false);
 			if (results.Count > 0) {
 				var profile = results[0];
 
 				// if we are using SSL, set a basic server acceptance function
-				if (profile.Encryption != FtpEncryptionMode.None) {
-					ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
-						if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
-							e.Accept = false;
-						}
-						else {
-							e.Accept = true;
-						}
-					});
-				}
-
-				// connect to the first found profile
-				Connect(profile);
+				SetDefaultCertificateValidation(profile);
 
 				// return the working profile
 				return profile;
@@ -347,25 +503,13 @@ namespace FluentFTP {
 		public async Task<FtpProfile> AutoConnectAsync(CancellationToken token = default(CancellationToken)) {
 			LogFunc(nameof(AutoConnectAsync));
 
-			// detect the first available connection profile
-			var results = AutoDetect();
+			// connect to the first available connection profile
+			var results = await AutoDetectAsync(true, false, token);
 			if (results.Count > 0) {
 				var profile = results[0];
 
 				// if we are using SSL, set a basic server acceptance function
-				if (profile.Encryption != FtpEncryptionMode.None) {
-					ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
-						if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
-							e.Accept = false;
-						}
-						else {
-							e.Accept = true;
-						}
-					});
-				}
-
-				// connect to the first found profile
-				await ConnectAsync(profile, token);
+				SetDefaultCertificateValidation(profile);
 
 				// return the working profile
 				return profile;
@@ -374,6 +518,18 @@ namespace FluentFTP {
 			return null;
 		}
 #endif
+		private void SetDefaultCertificateValidation(FtpProfile profile) {
+			if (profile.Encryption != FtpEncryptionMode.None) {
+				ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
+					if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
+						e.Accept = false;
+					}
+					else {
+						e.Accept = true;
+					}
+				});
+			}
+		}
 
 		#endregion
 

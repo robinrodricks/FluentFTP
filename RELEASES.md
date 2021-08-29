@@ -7,7 +7,11 @@
    - Major: `AutoDetect` only tries UTF-8 and never ASCII because most UTF-8 servers don't advertise it
    - New: `AutoDetect` verifies if the server supports UTF-8 and updates the `FtpProfile` accordingly
    - New: `FtpProfile` code generation adds a warning message if the encoding mode is unverified
+   - New: `AutoConnectAsync` now uses asynchronous connection rather than synchronous connection
+   - New: `AutoConnect` uses the main `FtpClient` connection rather than creating a clone per attempt
+   - Fix: `AutoConnect` remains connected to the first working profile rather than connecting twice on success
    - Fix: Ensure FTP server capabilities are loaded during `AutoDetect` if original connection is blank
+   - Fix: `AutoConnect` and `AutoDetect` will now throw exceptions for permanent failures (bad host/credentials)
  
  - **Appending and resuming uploads**
    - Major: The setting `FtpLocalExists.Append` is now renamed to `FtpLocalExists.Resume`

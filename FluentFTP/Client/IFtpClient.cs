@@ -103,7 +103,7 @@ namespace FluentFTP {
 		FtpReply GetReply();
 		void Connect();
 		void Connect(FtpProfile profile);
-		List<FtpProfile> AutoDetect(bool firstOnly);
+		List<FtpProfile> AutoDetect(bool firstOnly, bool cloneConnection = true);
 		FtpProfile AutoConnect();
 		void Disconnect();
 		bool HasFeature(FtpCapability cap);
@@ -114,6 +114,7 @@ namespace FluentFTP {
 		Task<FtpReply> GetReplyAsync(CancellationToken token = default(CancellationToken));
 		Task ConnectAsync(CancellationToken token = default(CancellationToken));
 		Task ConnectAsync(FtpProfile profile, CancellationToken token = default(CancellationToken));
+		Task<List<FtpProfile>> AutoDetectAsync(bool firstOnly, bool cloneConnection = true, CancellationToken token = default(CancellationToken));
 		Task<FtpProfile> AutoConnectAsync(CancellationToken token = default(CancellationToken));
 
 		Task DisconnectAsync(CancellationToken token = default(CancellationToken));
