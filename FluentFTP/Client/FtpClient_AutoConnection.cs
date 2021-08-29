@@ -80,6 +80,7 @@ namespace FluentFTP {
 				}
 
 				var blacklistedEncryptions = new List<FtpEncryptionMode>();
+				bool resetPort = m_port == 0;
 
 				// clone this connection or use this connection
 				var conn = cloneConnection ? CloneConnection() : this;
@@ -119,6 +120,11 @@ namespace FluentFTP {
 
 						// try each data connection type
 						foreach (var dataType in autoConnectData) {
+
+							// reset port so it auto computes based on encryption type
+							if (resetPort) {
+								conn.Port = 0;
+							}
 
 							// set rolled props
 							conn.EncryptionMode = encryption;
@@ -226,6 +232,7 @@ namespace FluentFTP {
 			}
 
 			var blacklistedEncryptions = new List<FtpEncryptionMode>();
+			bool resetPort = m_port == 0;
 
 			// clone this connection or use this connection
 			var conn = cloneConnection ? CloneConnection() : this;
@@ -265,6 +272,11 @@ namespace FluentFTP {
 
 					// try each data connection type
 					foreach (var dataType in autoConnectData) {
+
+						// reset port so it auto computes based on encryption type
+						if (resetPort) {
+							conn.Port = 0;
+						}
 
 						// set rolled props
 						conn.EncryptionMode = encryption;
