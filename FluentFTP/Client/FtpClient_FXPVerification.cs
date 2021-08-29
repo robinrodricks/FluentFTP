@@ -15,55 +15,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
 
-		/// <summary>
-		/// Get the first checksum algorithm mutually supported by both servers.
-		/// </summary>
-		private FtpHashAlgorithm GetFirstMutualChecksum(FtpClient destination) {
-
-			// special handling for HASH command which is a meta-command supporting all hash types
-			if (HasFeature(FtpCapability.HASH) && destination.HasFeature(FtpCapability.HASH)) {
-				if (HashAlgorithms.HasFlag(FtpHashAlgorithm.MD5) && destination.HashAlgorithms.HasFlag(FtpHashAlgorithm.MD5)) {
-					return FtpHashAlgorithm.MD5;
-				}
-				if (HashAlgorithms.HasFlag(FtpHashAlgorithm.SHA1) && destination.HashAlgorithms.HasFlag(FtpHashAlgorithm.SHA1)) {
-					return FtpHashAlgorithm.SHA1;
-				}
-				if (HashAlgorithms.HasFlag(FtpHashAlgorithm.SHA256) && destination.HashAlgorithms.HasFlag(FtpHashAlgorithm.SHA256)) {
-					return FtpHashAlgorithm.SHA256;
-				}
-				if (HashAlgorithms.HasFlag(FtpHashAlgorithm.SHA512) && destination.HashAlgorithms.HasFlag(FtpHashAlgorithm.SHA512)) {
-					return FtpHashAlgorithm.SHA512;
-				}
-				if (HashAlgorithms.HasFlag(FtpHashAlgorithm.CRC) && destination.HashAlgorithms.HasFlag(FtpHashAlgorithm.CRC)) {
-					return FtpHashAlgorithm.CRC;
-				}
-			}
-
-			// handling for non-standard specific hashing commands
-			if (HasFeature(FtpCapability.MD5) && destination.HasFeature(FtpCapability.MD5)) {
-				return FtpHashAlgorithm.MD5;
-			}
-			if (HasFeature(FtpCapability.XMD5) && destination.HasFeature(FtpCapability.XMD5)) {
-				return FtpHashAlgorithm.MD5;
-			}
-			if (HasFeature(FtpCapability.MMD5) && destination.HasFeature(FtpCapability.MMD5)) {
-				return FtpHashAlgorithm.MD5;
-			}
-			if (HasFeature(FtpCapability.XSHA1) && destination.HasFeature(FtpCapability.XSHA1)) {
-				return FtpHashAlgorithm.SHA1;
-			}
-			if (HasFeature(FtpCapability.XSHA256) && destination.HasFeature(FtpCapability.XSHA256)) {
-				return FtpHashAlgorithm.SHA256;
-			}
-			if (HasFeature(FtpCapability.XSHA512) && destination.HasFeature(FtpCapability.XSHA512)) {
-				return FtpHashAlgorithm.SHA512;
-			}
-			if (HasFeature(FtpCapability.XCRC) && destination.HasFeature(FtpCapability.XCRC)) {
-				return FtpHashAlgorithm.CRC;
-			}
-			return FtpHashAlgorithm.NONE;
-		}
-
 		private bool VerifyFXPTransfer(string sourcePath, FtpClient fxpDestinationClient, string remotePath) {
 			
 			// verify args
@@ -98,7 +49,7 @@ namespace FluentFTP {
 				return sourceHash.Value == destinationHash.Value;
 			}
 			else {
-				LogLine(FtpTraceLevel.Info, "Source and Destination does not support the same hash algorythm");
+				LogLine(FtpTraceLevel.Info, "Source and Destination servers do not support any common hashing algorithm");
 			}
 
 			// since not supported return true to ignore validation
@@ -140,7 +91,7 @@ namespace FluentFTP {
 				return sourceHash.Value == destinationHash.Value;
 			}
 			else {
-				LogLine(FtpTraceLevel.Info, "Source and Destination does not support the same hash algorythm");
+				LogLine(FtpTraceLevel.Info, "Source and Destination servers do not support any common hashing algorithm");
 			}
 
 			// since not supported return true to ignore validation
