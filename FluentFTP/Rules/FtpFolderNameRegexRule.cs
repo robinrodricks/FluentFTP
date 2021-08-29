@@ -24,13 +24,20 @@ namespace FluentFTP.Rules {
 		public List<string> RegexPatterns;
 
 		/// <summary>
+		/// Which path segment to start checking from
+		/// </summary>
+		public int StartSegment;
+
+		/// <summary>
 		/// Only accept items that one of the supplied regex pattern.
 		/// </summary>
 		/// <param name="whitelist">If true, only folders where one of the supplied regex pattern matches are uploaded or downloaded. If false, folders where one of the supplied regex pattern matches are excluded.</param>
 		/// <param name="regexPatterns">The list of regex patterns to match. Only valid patterns are accepted and stored. If none of the patterns are valid, this rule is disabled and passes all objects.</param>
-		public FtpFolderRegexRule(bool whitelist, IList<string> regexPatterns) {
+		/// <param name="startSegment">Which path segment to start checking from. 0 checks root folder onwards. 1 skips root folder.</param>
+		public FtpFolderRegexRule(bool whitelist, IList<string> regexPatterns, int startSegment = 0) {
 			this.Whitelist = whitelist;
 			this.RegexPatterns = regexPatterns.Where(x => x.IsValidRegEx()).ToList();
+			this.StartSegment = startSegment;
 		}
 
 		/// <summary>
@@ -58,8 +65,11 @@ namespace FluentFTP.Rules {
 			// check against whitelist or blacklist
 			if (Whitelist) {
 
-				// whitelist
-				foreach (var dirName in dirNameParts) {
+				// loop thru path segments starting at given index
+				for (int d = StartSegment; d < dirNameParts.Length; d++) {
+					var dirName = dirNameParts[d];
+
+					// whitelist
 					foreach (var pattern in RegexPatterns) {
 						if (Regex.IsMatch(dirName.Trim(), pattern)) {
 							return true;
@@ -70,8 +80,11 @@ namespace FluentFTP.Rules {
 			}
 			else {
 
-				// blacklist
-				foreach (var dirName in dirNameParts) {
+				// loop thru path segments starting at given index
+				for (int d = StartSegment; d < dirNameParts.Length; d++) {
+					var dirName = dirNameParts[d];
+
+					// blacklist
 					foreach (var pattern in RegexPatterns) {
 						if (Regex.IsMatch(dirName.Trim(), pattern)) {
 							return false;

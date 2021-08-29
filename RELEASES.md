@@ -41,6 +41,7 @@
    - New: `GetNameListing` to print results of name listing as verbose logs, similar to `GetListing`
    - New: `GetFileSize` and `GetFileSizeAsync` to support a configurable return value if the file does not exist
    - New: `FtpFolderNameRule` now supports `startSegment` to skip checking root directory folder names
+   - New: `FtpFolderNameRegexRule` now supports `startSegment` to skip checking root directory folder names
 
 #### 34.0.2
  - New: Add support for `IsAuthenticated` property which enables detection of FTP connection and authentication
