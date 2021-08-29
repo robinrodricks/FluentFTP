@@ -19,7 +19,7 @@
    - Fix: Implementation for resuming uploads using `UploadFile` based on fixes in `UploadFileAsync`
  
  - **Machine listings**
-   - Major: Prefer using Machine Listings over LIST command in `GetListing`, unless a custom list parser is used
+   - Major: `GetListing` prefers using Machine Listings over LIST command, unless a custom list parser is set
    - Fix: `ListingParser` property is updated according to auto-detected parser during `Connect`
    - Fix: `DeleteDirectory` and `DereferenceLink` methods no longer use `ForceList` and so prefer using Machine Listings
    
