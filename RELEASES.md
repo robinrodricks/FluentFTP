@@ -39,6 +39,7 @@
  
  - **Other improvements**
    - Major: All legacy asynchronous methods using `IAsyncResult` pattern have been removed (outdated since 2012)
+   - Fix: FXP file transfers for glFTPd server require use of CPSV command to get passive port
    - Fix: Add logging for skipped files in `UploadFile`
    - Fix: Add file path details in skipped files logged by `UploadFile` and `DownloadFile`
    - New: `GetNameListing` to print results of name listing as verbose logs, similar to `GetListing`

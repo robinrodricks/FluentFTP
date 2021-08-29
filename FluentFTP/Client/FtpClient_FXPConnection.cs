@@ -77,10 +77,14 @@ namespace FluentFTP {
 			sourceClient.SetDataType(sourceClient.FXPDataType);
 			destinationClient.SetDataType(destinationClient.FXPDataType);
 
-			// send PASV command to destination FTP server to get passive port to be used from source FTP server
-			if (!(reply = destinationClient.Execute("PASV")).Success) {
-				throw new FtpCommandException(reply);
+			// send CPSV and PASV command to destination FTP server to get passive port to be used from source FTP server
+			// FIXES #666 - glFTPd server - 435 Failed TLS negotiation on data channel
+			if (!(reply = destinationClient.Execute("CPSV")).Success) {
+				if (!(reply = destinationClient.Execute("PASV")).Success) {
+					throw new FtpCommandException(reply);
+				}
 			}
+
 			m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
 			if (!m.Success || m.Groups.Count != 7) {
 				throw new FtpException("Malformed PASV response: " + reply.Message);
@@ -151,9 +155,12 @@ namespace FluentFTP {
 			await sourceClient.SetDataTypeAsync(sourceClient.FXPDataType, token);
 			await destinationClient.SetDataTypeAsync(destinationClient.FXPDataType, token);
 
-			// send PASV command to destination FTP server to get passive port to be used from source FTP server
-			if (!(reply = await destinationClient.ExecuteAsync("PASV", token)).Success) {
-				throw new FtpCommandException(reply);
+			// send CPSV and PASV command to destination FTP server to get passive port to be used from source FTP server
+			// FIXES #666 - glFTPd server - 435 Failed TLS negotiation on data channel
+			if (!(reply = await destinationClient.ExecuteAsync("CPSV", token)).Success) {
+				if (!(reply = await destinationClient.ExecuteAsync("PASV", token)).Success) {
+					throw new FtpCommandException(reply);
+				}
 			}
 
 			m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
