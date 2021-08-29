@@ -376,7 +376,7 @@ namespace FluentFTP {
 					throw new FtpException("No host has been specified");
 				}
 
-				if (!IsClone) {
+				if (m_capabilities == null) {
 					m_capabilities = new List<FtpCapability>();
 				}
 
@@ -435,7 +435,7 @@ namespace FluentFTP {
 				// if this is a clone these values should have already been loaded
 				// so save some bandwidth and CPU time and skip executing this again.
 				bool assumeCaps = false;
-				if (!IsClone && m_checkCapabilities) {
+				if (m_capabilities.IsBlank() && m_checkCapabilities) {
 					if ((reply = Execute("FEAT")).Success && reply.InfoMessages != null) {
 						GetFeatures(reply);
 					}
@@ -541,7 +541,7 @@ namespace FluentFTP {
 				throw new FtpException("No host has been specified");
 			}
 
-			if (!IsClone) {
+			if (m_capabilities == null) {
 				m_capabilities = new List<FtpCapability>();
 			}
 
@@ -599,7 +599,7 @@ namespace FluentFTP {
 			// if this is a clone these values should have already been loaded
 			// so save some bandwidth and CPU time and skip executing this again.
 			bool assumeCaps = false;
-			if (!IsClone && m_checkCapabilities) {
+			if (m_capabilities.IsBlank() && m_checkCapabilities) {
 				if ((reply = await ExecuteAsync("FEAT", token)).Success && reply.InfoMessages != null) {
 					GetFeatures(reply);
 				}

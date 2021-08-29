@@ -506,7 +506,7 @@ namespace FluentFTP {
 			}
 		}
 
-		private List<FtpCapability> m_capabilities = new List<FtpCapability>();
+		private List<FtpCapability> m_capabilities = null;
 
 		/// <summary>
 		/// Gets the server capabilities represented by an array of capability flags
@@ -522,7 +522,7 @@ namespace FluentFTP {
 				// FIX #683: while using async operations, it is possile that the stream is not
 				// connected, so don't connect using sychronous connection logic
 				if (m_stream == null) {
-					throw new FtpException("Please call Connect() before trying to use any other methods/properties!");
+					throw new FtpException("Please call Connect() before trying to read the Capabilities!");
 				}
 
 				return m_capabilities;
@@ -550,7 +550,7 @@ namespace FluentFTP {
 				// FIX #683: while using async operations, it is possile that the stream is not
 				// connected, so don't connect using sychronous connection logic
 				if (m_stream == null || !m_stream.IsConnected) {
-					throw new FtpException("Please call Connect() before trying to use any other methods/properties!");
+					throw new FtpException("Please call Connect() before trying to read the HashAlgorithms!");
 				}
 
 				return m_hashAlgorithms;

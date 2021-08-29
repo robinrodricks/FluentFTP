@@ -47,17 +47,22 @@ namespace FluentFTP {
 		/// <summary>
 		/// A working Timeout setting found for this profile, or 0 if default value should be used
 		/// </summary>
-		public int Timeout;
+		public int Timeout = 0;
 
 		/// <summary>
 		/// A working SocketPollInterval setting found for this profile, or 0 if default value should be used
 		/// </summary>
-		public int SocketPollInterval;
+		public int SocketPollInterval = 0;
 
 		/// <summary>
 		/// A working RetryAttempts setting found for this profile, or 0 if default value should be used
 		/// </summary>
-		public int RetryAttempts;
+		public int RetryAttempts = 0;
+
+		/// <summary>
+		/// If the server surely supports the given encoding.
+		/// </summary>
+		public bool EncodingVerified = true;
 
 
 		/// <summary>
@@ -89,6 +94,12 @@ namespace FluentFTP {
 			sb.AppendLine("	Protocols = SslProtocols." + Protocols.ToString() + ",");
 			sb.AppendLine("	DataConnection = FtpDataConnectionType." + DataConnection.ToString() + ",");
 
+
+			// warn users if encoding is unverified
+			if (!EncodingVerified) {
+				sb.AppendLine("	// WARNING: This encoding cannot be verified because your server does not explicitly advertise it, but it is the best option.");
+				sb.AppendLine("	// If you have issues with international characters in listings or file transfer, disable the following line.");
+			}
 
 			// Fix #468 - Invalid code generated: Encoding = System.Text.UTF8Encoding+UTF8EncodingSealed
 			var encoding = Encoding.ToString();

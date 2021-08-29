@@ -4,6 +4,10 @@
  - **Automatic connection**
    - Major: `AutoConnect` and `AutoDetect` are much faster and smarter and only try each setting once if possible
    - Major: `AutoDetect` only tries Explicit and Implicit FTPS once and then falls back to plaintext FTP
+   - Major: `AutoDetect` only tries UTF-8 and never ASCII because most UTF-8 servers don't advertise it
+   - New: `AutoDetect` verifies if the server supports UTF-8 and updates the `FtpProfile` accordingly
+   - New: `FtpProfile` code generation adds a warning message if the encoding mode is unverified
+   - Fix: Ensure FTP server capabilities are loaded during `AutoDetect` if original connection is blank
  
  - **Appending and resuming uploads**
    - Major: The setting `FtpLocalExists.Append` is now renamed to `FtpLocalExists.Resume`

@@ -92,102 +92,104 @@ namespace FluentFTP {
 				var blacklistedEncryptions = new List<FtpEncryptionMode>();
 
 				// try each encoding
-				foreach (var encoding in autoConnectEncoding) {
+				//foreach (var encoding in autoConnectEncoding) {
+				var encoding = Encoding.UTF8;
 
-					// try each encryption mode
-					foreach (var encryption in autoConnectEncryption) {
+				// try each encryption mode
+				foreach (var encryption in autoConnectEncryption) {
 
-						// skip if FTPS was tried and failed
-						if (blacklistedEncryptions.Contains(encryption)) {
+					// skip if FTPS was tried and failed
+					if (blacklistedEncryptions.Contains(encryption)) {
+						continue;
+					}
+
+					// try each SSL protocol
+					foreach (var protocol in autoConnectProtocols) {
+
+						// skip plain protocols if testing secure FTPS
+						if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
 							continue;
 						}
 
-						// try each SSL protocol
-						foreach (var protocol in autoConnectProtocols) {
+						// skip secure protocols if testing plain FTP
+						if (encryption == FtpEncryptionMode.None && protocol != SysSslProtocols.None) {
+							continue;
+						}
 
-							// skip plain protocols if testing secure FTPS
-							if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
-								continue;
+						// try each data connection type
+						foreach (var dataType in autoConnectData) {
+
+							// clone this connection
+							var conn = CloneConnection();
+
+							// set basic props
+							conn.Host = Host;
+							conn.Port = Port;
+							conn.Credentials = Credentials;
+
+							// set rolled props
+							conn.EncryptionMode = encryption;
+							conn.SslProtocols = protocol;
+							conn.DataConnectionType = dataType;
+							conn.Encoding = encoding;
+
+							// try to connect
+							var connected = false;
+							try {
+								conn.Connect();
+								connected = true;
+								conn.Dispose();
 							}
+							catch (Exception ex) {
+								conn.Dispose();
 
-							// skip secure protocols if testing plain FTP
-							if (encryption == FtpEncryptionMode.None && protocol != SysSslProtocols.None) {
-								continue;
-							}
-
-							// try each data connection type
-							foreach (var dataType in autoConnectData) {
-
-								// clone this connection
-								var conn = CloneConnection();
-
-								// set basic props
-								conn.Host = Host;
-								conn.Port = Port;
-								conn.Credentials = Credentials;
-
-								// set rolled props
-								conn.EncryptionMode = encryption;
-								conn.SslProtocols = protocol;
-								conn.DataConnectionType = dataType;
-								conn.Encoding = encoding;
-
-								// try to connect
-								var connected = false;
-								try {
-									conn.Connect();
-									connected = true;
-									conn.Dispose();
-								}
-								catch (Exception ex) {
-									conn.Dispose();
-
-									// catch error starting explicit FTPS and don't try any more secure connections
-									if (encryption == FtpEncryptionMode.Explicit) {
-										if (ex is FtpSecurityNotAvailableException) {
-											blacklistedEncryptions.Add(encryption);
-											goto SkipEncryptionMode;
-										}
-									}
-
-									// catch error starting implicit FTPS and don't try any more secure connections
-									if (encryption == FtpEncryptionMode.Implicit) {
-										if ((ex is SocketException && (ex as SocketException).SocketErrorCode == SocketError.ConnectionRefused) || ex is TimeoutException) {
-											blacklistedEncryptions.Add(encryption);
-											goto SkipEncryptionMode;
-										}
-									}
-
-									// catch error "no such host is known" and hard abort
-									if (AbortAutoDetection(ex)) {
-										return results;
+								// catch error starting explicit FTPS and don't try any more secure connections
+								if (encryption == FtpEncryptionMode.Explicit) {
+									if (ex is FtpSecurityNotAvailableException) {
+										blacklistedEncryptions.Add(encryption);
+										goto SkipEncryptionMode;
 									}
 								}
 
-								// if it worked, add the profile
-								if (connected) {
-									results.Add(new FtpProfile {
-										Host = Host,
-										Credentials = Credentials,
-										Encryption = encryption,
-										Protocols = protocol,
-										DataConnection = dataType,
-										Encoding = encoding
-									});
-
-									// stop if only 1 wanted
-									if (firstOnly) {
-										return results;
+								// catch error starting implicit FTPS and don't try any more secure connections
+								if (encryption == FtpEncryptionMode.Implicit) {
+									if ((ex is SocketException && (ex as SocketException).SocketErrorCode == SocketError.ConnectionRefused) || ex is TimeoutException) {
+										blacklistedEncryptions.Add(encryption);
+										goto SkipEncryptionMode;
 									}
+								}
+
+								// catch error "no such host is known" and hard abort
+								if (AbortAutoDetection(ex)) {
+									return results;
+								}
+							}
+
+							// if it worked, add the profile
+							if (connected) {
+								results.Add(new FtpProfile {
+									Host = Host,
+									Credentials = Credentials,
+									Encryption = encryption,
+									Protocols = protocol,
+									DataConnection = dataType,
+									Encoding = encoding,
+									EncodingVerified = conn.HasFeature(FtpCapability.UTF8)
+								});
+
+								// stop if only 1 wanted
+								if (firstOnly) {
+									return results;
 								}
 							}
 						}
-
-						SkipEncryptionMode:
-						var skip = true;
-
 					}
+
+					SkipEncryptionMode:
+					var skip = true;
+
 				}
+				//}
 
 
 #if !CORE14
