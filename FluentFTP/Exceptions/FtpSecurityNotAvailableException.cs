@@ -16,7 +16,8 @@ namespace FluentFTP {
 		/// Default constructor
 		/// </summary>
 		public FtpSecurityNotAvailableException()
-			: base("Security is not available on the server.") {
+			: base("FTPS security is not available on the server. To disable FTPS, set the EncryptionMode property to None.") {
+			
 		}
 
 		/// <summary>

@@ -413,6 +413,48 @@ namespace Tests {
 			}
 		}
 
+		[Fact]
+		[Trait("Category", Category_PublicFTP)]
+		public void TestConnectVariousModes() {
+
+			try {
+				// Implicit TLS
+				FtpClient client = NewFtpClient_Tele2SpeedTest();
+				client.EncryptionMode = FtpEncryptionMode.Implicit;
+				client.Connect();
+			}
+			catch (Exception ex) {
+			}
+
+			try {
+				// Implicit TLS
+				FtpClient client = NewFtpClient_NetBsd();
+				client.EncryptionMode = FtpEncryptionMode.Implicit;
+				client.Connect();
+			}
+			catch (Exception ex) {
+			}
+
+			try {
+				// Explicit SSL
+				FtpClient client = NewFtpClient_Tele2SpeedTest();
+				client.EncryptionMode = FtpEncryptionMode.Explicit;
+				client.Connect();
+			}
+			catch (Exception ex) {
+			}
+
+			try {
+				// Explicit SSL
+				FtpClient client = NewFtpClient_NetBsd();
+				client.EncryptionMode = FtpEncryptionMode.Explicit;
+				client.Connect();
+			}
+			catch (Exception ex) {
+			}
+
+		}
+
 #if !NOASYNC
 		[Fact]
 		[Trait("Category", Category_PublicFTP)]

@@ -29,18 +29,17 @@ namespace FluentFTP {
 		#region Auto Detect
 
 		private static List<FtpEncryptionMode> autoConnectEncryption = new List<FtpEncryptionMode> {
-			FtpEncryptionMode.None, FtpEncryptionMode.Implicit, FtpEncryptionMode.Explicit
+			FtpEncryptionMode.Explicit, FtpEncryptionMode.None, FtpEncryptionMode.Implicit, 
 		};
 
 		private static List<SysSslProtocols> autoConnectProtocols = new List<SysSslProtocols> {
 			SysSslProtocols.None,
 #if ASYNC
-			SysSslProtocols.Tls12, SysSslProtocols.Tls11, 
+			SysSslProtocols.Tls12 | SysSslProtocols.Tls11, 
 #endif
 #if !ASYNC
 			SysSslProtocols.Tls,
 #endif
-			SysSslProtocols.Ssl3, SysSslProtocols.Ssl2,
 #if !CORE
 			SysSslProtocols.Default,
 #endif
@@ -90,23 +89,35 @@ namespace FluentFTP {
 					return results;
 				}
 
+				var blacklistedEncryptions = new List<FtpEncryptionMode>();
+
 				// try each encoding
-				encoding:
 				foreach (var encoding in autoConnectEncoding) {
+
 					// try each encryption mode
-					encryption:
 					foreach (var encryption in autoConnectEncryption) {
+
+						// skip if FTPS was tried and failed
+						if (blacklistedEncryptions.Contains(encryption)) {
+							continue;
+						}
+
 						// try each SSL protocol
-						protocol:
 						foreach (var protocol in autoConnectProtocols) {
+
+							// skip plain protocols if testing secure FTPS
+							if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
+								continue;
+							}
+
 							// skip secure protocols if testing plain FTP
 							if (encryption == FtpEncryptionMode.None && protocol != SysSslProtocols.None) {
 								continue;
 							}
 
 							// try each data connection type
-							dataType:
 							foreach (var dataType in autoConnectData) {
+
 								// clone this connection
 								var conn = CloneConnection();
 
@@ -131,34 +142,26 @@ namespace FluentFTP {
 								catch (Exception ex) {
 									conn.Dispose();
 
-									// catch error "no such host is known" and hard abort
-#if NETFX || CORE2PLUS
-									if (ex is SocketException && ((SocketException)ex).ErrorCode == 11001) {
-										return results;
-									}
-#else
-									if (ex is SocketException && ((SocketException)ex).Message.Contains("No such host is known")) {
-										return results;
-									}
-#endif
-
-									// catch error "timed out trying to connect" and hard abort
-									if (ex is TimeoutException) {
-										return results;
-									}
-
-									// catch authentication error and hard abort (see issue #697)
-									if (ex is FtpAuthenticationException) {
-
-										// only catch auth error if the credentials have been rejected by the server
-										// because the error is also thrown if connection drops due to TLS or EncryptionMode
-										// (see issue #700 for more details)
-										var authError = ex as FtpAuthenticationException;
-										if (authError.CompletionCode != null && authError.CompletionCode.StartsWith("530")) {
-											return results;
+									// catch error starting explicit FTPS and don't try any more secure connections
+									if (encryption == FtpEncryptionMode.Explicit) {
+										if (ex is FtpSecurityNotAvailableException) {
+											blacklistedEncryptions.Add(encryption);
+											goto SkipEncryptionMode;
 										}
 									}
-									
+
+									// catch error starting implicit FTPS and don't try any more secure connections
+									if (encryption == FtpEncryptionMode.Implicit) {
+										if ((ex is SocketException && (ex as SocketException).SocketErrorCode == SocketError.ConnectionRefused) || ex is TimeoutException) {
+											blacklistedEncryptions.Add(encryption);
+											goto SkipEncryptionMode;
+										}
+									}
+
+									// catch error "no such host is known" and hard abort
+									if (AbortAutoDetection(ex)) {
+										return results;
+									}
 								}
 
 								// if it worked, add the profile
@@ -179,6 +182,10 @@ namespace FluentFTP {
 								}
 							}
 						}
+
+						SkipEncryptionMode:
+						var skip = true;
+
 					}
 				}
 
@@ -188,6 +195,39 @@ namespace FluentFTP {
 #endif
 
 			return results;
+		}
+
+		private static bool AbortAutoDetection(Exception ex) {
+
+			// catch error "no such host is known" and hard abort
+#if NETFX || CORE2PLUS
+			if (ex is SocketException && ((SocketException)ex).ErrorCode == 11001) {
+				return true;
+			}
+#else
+			if (ex is SocketException && ((SocketException)ex).Message.Contains("No such host is known")) {
+				return true;
+			}
+#endif
+
+			// catch error "timed out trying to connect" and hard abort
+			if (ex is TimeoutException) {
+				return true;
+			}
+
+			// catch authentication error and hard abort (see issue #697)
+			if (ex is FtpAuthenticationException) {
+
+				// only catch auth error if the credentials have been rejected by the server
+				// because the error is also thrown if connection drops due to TLS or EncryptionMode
+				// (see issue #700 for more details)
+				var authError = ex as FtpAuthenticationException;
+				if (authError.CompletionCode != null && authError.CompletionCode.StartsWith("530")) {
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		#endregion

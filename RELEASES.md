@@ -1,6 +1,10 @@
 # Release Notes
 
 #### 35.0.0
+ - **Automatic connection**
+   - Major: `AutoConnect` and `AutoDetect` are much faster and smarter and only try each setting once if possible
+   - Major: `AutoDetect` only tries Explicit and Implicit FTPS once and then falls back to plaintext FTP
+ 
  - **Appending and resuming uploads**
    - Major: The setting `FtpLocalExists.Append` is now renamed to `FtpLocalExists.Resume`
    - Major: The setting `FtpRemoteExists.Append` is now renamed to `FtpRemoteExists.Resume`
