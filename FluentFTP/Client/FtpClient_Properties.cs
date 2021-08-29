@@ -48,6 +48,16 @@ namespace FluentFTP {
 		private FtpHashAlgorithm _LastHashAlgo = FtpHashAlgorithm.NONE;
 
 		/// <summary>
+		/// Did the FTPS connection fail during the last Connect/ConnectAsync attempt?
+		/// </summary>
+		private bool _ConnectionFTPSFailure = false;
+
+		/// <summary>
+		/// Did the UTF8 encoding setting work during the last Connect/ConnectAsync attempt?
+		/// </summary>
+		private bool _ConnectionUTF8Success = false;
+
+		/// <summary>
 		/// These flags must be reset every time we connect, to allow for users to connect to
 		/// different FTP servers with the same client object.
 		/// </summary>
@@ -57,6 +67,8 @@ namespace FluentFTP {
 			_RecursiveListSupported = false;
 			_LastWorkingDir = null;
 			_LastHashAlgo = FtpHashAlgorithm.NONE;
+			_ConnectionFTPSFailure = false;
+			_ConnectionUTF8Success = false;
 		}
 
 		/// <summary>

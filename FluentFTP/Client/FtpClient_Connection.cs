@@ -408,8 +408,11 @@ namespace FluentFTP {
 				// try to upgrade this connection to SSL if supported by the server
 				if (EncryptionMode == FtpEncryptionMode.Explicit || EncryptionMode == FtpEncryptionMode.Auto) {
 					reply = Execute("AUTH TLS");
-					if (!reply.Success && EncryptionMode == FtpEncryptionMode.Explicit) {
-						throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
+					if (!reply.Success){
+						_ConnectionFTPSFailure = true;
+						if (EncryptionMode == FtpEncryptionMode.Explicit) {
+							throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
+						}
 					}
 					else if (reply.Success) {
 						m_stream.ActivateEncryption(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
@@ -455,7 +458,9 @@ namespace FluentFTP {
 					// If the server supports UTF8 it should already be enabled and this
 					// command should not matter however there are conflicting drafts
 					// about this so we'll just execute it to be safe. 
-					Execute("OPTS UTF8 ON");
+					if ((reply = Execute("OPTS UTF8 ON")).Success) {
+						_ConnectionUTF8Success = true;
+					}
 				}
 
 				// Get the system type - Needed to auto-detect file listing parser
@@ -545,6 +550,8 @@ namespace FluentFTP {
 				m_capabilities = new List<FtpCapability>();
 			}
 
+			ResetStateFlags();
+
 			m_hashAlgorithms = FtpHashAlgorithm.NONE;
 			m_stream.ConnectTimeout = m_connectTimeout;
 			m_stream.SocketPollInterval = m_socketPollInterval;
@@ -571,8 +578,11 @@ namespace FluentFTP {
 			// try to upgrade this connection to SSL if supported by the server
 			if (EncryptionMode == FtpEncryptionMode.Explicit || EncryptionMode == FtpEncryptionMode.Auto) {
 				reply = await ExecuteAsync("AUTH TLS", token);
-				if (!reply.Success && EncryptionMode == FtpEncryptionMode.Explicit) {
-					throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
+				if (!reply.Success) {
+					_ConnectionFTPSFailure = true;
+					if (EncryptionMode == FtpEncryptionMode.Explicit) {
+						throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
+					}
 				}
 				else if (reply.Success) {
 					await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
@@ -619,7 +629,9 @@ namespace FluentFTP {
 				// If the server supports UTF8 it should already be enabled and this
 				// command should not matter however there are conflicting drafts
 				// about this so we'll just execute it to be safe. 
-				await ExecuteAsync("OPTS UTF8 ON", token);
+				if ((reply = await ExecuteAsync("OPTS UTF8 ON", token)).Success) {
+					_ConnectionUTF8Success = true;
+				}
 			}
 
 			// Get the system type - Needed to auto-detect file listing parser
