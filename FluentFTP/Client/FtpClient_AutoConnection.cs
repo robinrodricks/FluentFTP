@@ -29,7 +29,7 @@ namespace FluentFTP {
 		#region Auto Detect
 
 		private static List<FtpEncryptionMode> autoConnectEncryption = new List<FtpEncryptionMode> {
-			FtpEncryptionMode.Explicit, FtpEncryptionMode.None, FtpEncryptionMode.Implicit, 
+			FtpEncryptionMode.Auto, FtpEncryptionMode.None, FtpEncryptionMode.Implicit, 
 		};
 
 		private static List<SysSslProtocols> autoConnectProtocols = new List<SysSslProtocols> {
@@ -160,6 +160,11 @@ namespace FluentFTP {
 
 							// if it worked, add the profile
 							if (connected) {
+
+								// if connected by explicit FTPS failed, no point trying encryption again
+								if (IsConnectedButFtpsFailure(blacklistedEncryptions, encryption, conn._ConnectionFTPSFailure)) {
+								}
+
 								results.Add(new FtpProfile {
 									Host = Host,
 									Credentials = Credentials,
@@ -174,6 +179,7 @@ namespace FluentFTP {
 								if (firstOnly) {
 									goto Exit;
 								}
+
 							}
 						}
 					}
@@ -300,6 +306,11 @@ namespace FluentFTP {
 
 						// if it worked, add the profile
 						if (connected) {
+
+							// if connected by explicit FTPS failed, no point trying encryption again
+							if (IsConnectedButFtpsFailure(blacklistedEncryptions, encryption, conn._ConnectionFTPSFailure)) {
+							}
+
 							results.Add(new FtpProfile {
 								Host = Host,
 								Credentials = Credentials,
@@ -350,7 +361,7 @@ namespace FluentFTP {
 		private static bool IsFtpsFailure(List<FtpEncryptionMode> blacklistedEncryptions, FtpEncryptionMode encryption, Exception ex) {
 
 			// catch error starting explicit FTPS and don't try any more secure connections
-			if (encryption == FtpEncryptionMode.Explicit) {
+			if (encryption == FtpEncryptionMode.Auto || encryption == FtpEncryptionMode.Explicit) {
 				if (ex is FtpSecurityNotAvailableException) {
 
 					// ban explicit FTPS
@@ -365,6 +376,21 @@ namespace FluentFTP {
 					|| ex is TimeoutException) {
 
 					// ban implicit FTPS
+					blacklistedEncryptions.Add(encryption);
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		private static bool IsConnectedButFtpsFailure(List<FtpEncryptionMode> blacklistedEncryptions, FtpEncryptionMode encryption, bool failedFTPS) {
+
+			// catch error starting explicit FTPS and don't try any more secure connections
+			if (failedFTPS) {
+				if (encryption == FtpEncryptionMode.Auto || encryption == FtpEncryptionMode.Explicit) {
+
+					// ban explicit FTPS
 					blacklistedEncryptions.Add(encryption);
 					return true;
 				}

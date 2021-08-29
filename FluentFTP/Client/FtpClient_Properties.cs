@@ -326,13 +326,11 @@ namespace FluentFTP {
 				// automatically determine port
 				// when m_port is 0.
 				if (m_port == 0) {
-					switch (EncryptionMode) {
-						case FtpEncryptionMode.None:
-						case FtpEncryptionMode.Explicit:
-							return 21;
-
-						case FtpEncryptionMode.Implicit:
-							return 990;
+					if (EncryptionMode == FtpEncryptionMode.Implicit) {
+						return 990;
+					}
+					else {
+						return 21;
 					}
 				}
 
