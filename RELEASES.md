@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 35.0.3
+ - Fix: `AutoDetect` correctly recommends `FtpEncryptionMode.None` if FTPS connection failed
+ - Fix: `AutoDetect` crashes because attempting to read socket type after disconnected
+
 #### 35.0.2
  - Major: `AutoDetect` does not cycle through data connection types during connection as it is irrelevant
  - Major: `AutoDetect` calculates a data connection type after connection succeeds (EPSV or PASV)
