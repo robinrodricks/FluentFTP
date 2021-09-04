@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 35.0.4
+ - Fix: `AutoConnect` loads the newly detected `FtpProfile` to update properties & encryption
+ - Fix: Passive connections work in `FtpEncryptionMode.Auto` mode and FTPS connection fails
+
 #### 35.0.3
  - Fix: `AutoDetect` correctly recommends `FtpEncryptionMode.None` if FTPS connection failed
  - Fix: `AutoDetect` crashes because attempting to read socket type after disconnected
