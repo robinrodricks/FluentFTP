@@ -91,7 +91,7 @@ namespace FluentFTP {
 			sb.AppendLine("	Host = " + Host.EscapeStringLiteral() + ",");
 			sb.AppendLine("	Credentials = new NetworkCredential(" + Credentials.UserName.EscapeStringLiteral() + ", " + Credentials.Password.EscapeStringLiteral() + "),");
 			sb.AppendLine("	Encryption = FtpEncryptionMode." + Encryption.ToString() + ",");
-			sb.AppendLine("	Protocols = SslProtocols." + Protocols.ToString() + ",");
+			sb.AppendLine("	Protocols = SslProtocols." + Protocols.ToString().Replace(", ", " | SslProtocols.") + ", ");
 			sb.AppendLine("	DataConnection = FtpDataConnectionType." + DataConnection.ToString() + ",");
 
 
