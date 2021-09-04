@@ -595,7 +595,7 @@ namespace FluentFTP {
 
 #if !NO_SSL
 			// this needs to take place after the command is executed
-			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None) {
+			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !_ConnectionFTPSFailure) {
 				await stream.ActivateEncryptionAsync(m_host,
 					ClientCertificates.Count > 0 ? ClientCertificates : null,
 					m_SslProtocols);
@@ -904,7 +904,7 @@ namespace FluentFTP {
 #endif
 
 #if !NO_SSL
-			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None) {
+			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !_ConnectionFTPSFailure) {
 				await stream.ActivateEncryptionAsync(m_host,
 					ClientCertificates.Count > 0 ? ClientCertificates : null,
 					m_SslProtocols);

@@ -540,6 +540,10 @@ namespace FluentFTP {
 			if (results.Count > 0) {
 				var profile = results[0];
 
+				// load the profile so final property selections are
+				// loaded into the current connection
+				LoadProfile(profile);
+
 				// if we are using SSL, set a basic server acceptance function
 				SetDefaultCertificateValidation(profile);
 
@@ -564,6 +568,10 @@ namespace FluentFTP {
 			var results = await AutoDetectAsync(true, false, token);
 			if (results.Count > 0) {
 				var profile = results[0];
+
+				// load the profile so final property selections are
+				// loaded into the current connection
+				LoadProfile(profile);
 
 				// if we are using SSL, set a basic server acceptance function
 				SetDefaultCertificateValidation(profile);
