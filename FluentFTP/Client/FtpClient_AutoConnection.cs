@@ -127,9 +127,13 @@ namespace FluentFTP {
 
 						// try to connect
 						var connected = false;
+						var dataConn = FtpDataConnectionType.PASV;
 						try {
 							conn.Connect();
 							connected = true;
+
+							// get data connection once connected
+							dataConn = AutoDataConnection(conn);
 
 							// if non-cloned connection, we want to remain connected if it works
 							if (cloneConnection) {
@@ -167,9 +171,9 @@ namespace FluentFTP {
 							results.Add(new FtpProfile {
 								Host = Host,
 								Credentials = Credentials,
-								Encryption = encryption,
+								Encryption = blacklistedEncryptions.Contains(encryption) ? FtpEncryptionMode.None : encryption,
 								Protocols = protocol,
-								DataConnection = AutoDataConnection(conn),
+								DataConnection = dataConn,
 								Encoding = Encoding.UTF8,
 								EncodingVerified = conn._ConnectionUTF8Success || conn.HasFeature(FtpCapability.UTF8)
 							});
@@ -275,9 +279,13 @@ namespace FluentFTP {
 
 					// try to connect
 					var connected = false;
+					var dataConn = FtpDataConnectionType.PASV;
 					try {
 						await conn.ConnectAsync(token);
 						connected = true;
+
+						// get data connection once connected
+						dataConn = AutoDataConnection(conn);
 
 						// if non-cloned connection, we want to remain connected if it works
 						if (cloneConnection) {
@@ -317,7 +325,7 @@ namespace FluentFTP {
 							Credentials = Credentials,
 							Encryption = encryption,
 							Protocols = protocol,
-							DataConnection = AutoDataConnection(conn),
+							DataConnection = dataConn,
 							Encoding = Encoding.UTF8,
 							EncodingVerified = conn._ConnectionUTF8Success || conn.HasFeature(FtpCapability.UTF8)
 						});
