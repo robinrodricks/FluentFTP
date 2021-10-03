@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 35.0.5
+ - Fix: `UploadFile` fails to upload in `FtpRemoteExists.Resume` mode even if stream is seekable
+
 #### 35.0.4
  - Fix: `AutoConnect` loads the newly detected `FtpProfile` to update properties & encryption
  - Fix: Passive connections work in `FtpEncryptionMode.Auto` mode and FTPS connection fails
