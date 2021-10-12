@@ -1111,6 +1111,19 @@ namespace FluentFTP {
 			get => m_stream?.RemoteEndPoint;
 		}
 
+		private FtpzOSListRealm m_zOSListingRealm;
+
+		/// <summary>
+		/// Accept any SSL certificate received from the server and skip performing
+		/// the validation using the ValidateCertificate callback.
+		/// Useful for Powershell users.
+		/// </summary>
+		public FtpzOSListRealm zOSListingRealm
+		{
+			get => m_zOSListingRealm;
+			set => m_zOSListingRealm = value;
+		}
+
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
 		// FtpClient.CloneConnection()
 	}

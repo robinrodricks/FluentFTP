@@ -112,6 +112,11 @@ namespace FluentFTP {
 		IBMzOSFTP,
 
 		/// <summary>
+		/// Definitely IBM OS/400 FTP server
+		/// </summary>
+		IBMOS400FTP,
+
+		/// <summary>
 		/// Definitely FritzBox FTP server
 		/// </summary>
 		FritzBox,
