@@ -104,8 +104,15 @@ namespace FluentFTP {
 
 				LogFunc(nameof(FileExists), new object[] { path });
 
-				// calc the absolute filepath
-				path = GetAbsolutePath(path);
+				// Only disable the GetAbsolutePath(path) if z/OS
+				// Note: "TEST.TST" is a "path" that does not start with a slash
+				// This could be a unix file on z/OS OR a classic CWD relative dataset
+				// Both of these work with the z/OS FTP server NLST command
+				if (path.StartsWith("/") || ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS)
+				{
+					// calc the absolute filepath
+					path = GetAbsolutePath(path);
+				}
 
 				// since FTP does not include a specific command to check if a file exists
 				// here we check if file exists by attempting to get its filesize (SIZE)
@@ -134,9 +141,23 @@ namespace FluentFTP {
 					}
 				}
 
+				// Only disable the GetFtpDirectoryName() if z/OS
+				// Also make use of NLST returning no entries if file does not exist
+				// Note: "TEST.TST" is a "path" that does not start with a slash
+				// This could be a unix file on z/OS OR a classic CWD relative dataset
+				// Both of these work with the z/OS FTP server NLST command
+				if (!path.StartsWith("/") && ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS)
+				{
+					var fileList = GetNameListing(path);
+					return fileList.Count() > 0;
+				}
+				else
 				// check if file exists by getting a name listing (NLST)
-				var fileList = GetNameListing(path.GetFtpDirectoryName());
-				return FileListings.FileExistsInNameListing(fileList, path);
+				{
+					var fileList = GetNameListing(path.GetFtpDirectoryName());
+					return FileListings.FileExistsInNameListing(fileList, path);
+				}
+
 #if !CORE14
 			}
 
@@ -182,8 +203,15 @@ namespace FluentFTP {
 
 			LogFunc(nameof(FileExistsAsync), new object[] { path });
 
-			// calc the absolute filepath
-			path = await GetAbsolutePathAsync(path, token);
+			// Only disable the GetAbsolutePath(path) if z/OS
+			// Note: "TEST.TST" is a "path" that does not start with a slash
+			// This could be a unix file on z/OS OR a classic CWD relative dataset
+			// Both of these work with the z/OS FTP server NLST command
+			if (path.StartsWith("/") || ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS)
+			{
+				// calc the absolute filepath
+				path = await GetAbsolutePathAsync(path, token);
+			}
 
 			// since FTP does not include a specific command to check if a file exists
 			// here we check if file exists by attempting to get its filesize (SIZE)
@@ -213,9 +241,22 @@ namespace FluentFTP {
 				}
 			}
 
+			// Only disable the GetFtpDirectoryName() if z/OS
+			// Also make use of NLST returning no entries if file does not exist
+			// Note: "TEST.TST" is a "path" that does not start with a slash
+			// This could be a unix file on z/OS OR a classic CWD relative dataset
+			// Both of these work with the z/OS FTP server NLST command
+			if (!path.StartsWith("/") && ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS)
+			{
+				var fileList = await GetNameListingAsync(path, token);
+				return fileList.Count() > 0;
+			}
+			else
 			// check if file exists by getting a name listing (NLST)
-			string[] fileList = await GetNameListingAsync(path.GetFtpDirectoryName(), token);
-			return FileListings.FileExistsInNameListing(fileList, path);
+			{
+				var fileList = await GetNameListingAsync(path.GetFtpDirectoryName(), token);
+				return FileListings.FileExistsInNameListing(fileList, path);
+			}
 		}
 #endif
 
