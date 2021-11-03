@@ -796,6 +796,9 @@ namespace FluentFTP {
 			}
 
 			// If it is not a "/" root, it could perhaps be a z/OS root (like 'SYS1.')
+			// Note: If on z/OS you have somehow managed to CWD "over" th top, i.e.
+			// PWD returns "''" - you would need to CWD to some HLQ that only you can
+			// imagine. There is no way to list the available top level HLQs.
 			if (ServerType == FtpServer.IBMzOSFTP &&
 				ServerOS == FtpOperatingSystem.IBMzOS &&
 				_LastWorkingDir.Split('.').Length - 1 == 1)
@@ -826,6 +829,9 @@ namespace FluentFTP {
 			}
 
 			// If it is not a "/" root, it could perhaps be a z/OS root (like 'SYS1.')
+			// Note: If on z/OS you have somehow managed to CWD "over" th top, i.e.
+			// PWD returns "''" - you would need to CWD to some HLQ that only you can
+			// imagine. There is no way to list the available top level HLQs.
 			if (ServerType == FtpServer.IBMzOSFTP &&
 				ServerOS == FtpOperatingSystem.IBMzOS &&
 				_LastWorkingDir.Split('.').Length - 1 == 1)
