@@ -231,8 +231,11 @@ namespace FluentFTP {
 			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
 				return GetListingRecursive(GetAbsolutePath(path), options);
 			}
-
-			path = path.GetFtpPath();
+			
+			// FIX : #768 NullOrEmpty is valid, means "use working directory".
+			if (!string.IsNullOrEmpty(path)) {
+				path = path.GetFtpPath();
+			}
 
 			LogFunc(nameof(GetListing), new object[] { path, options });
 
@@ -713,7 +716,10 @@ namespace FluentFTP {
 				return await GetListingRecursiveAsync(GetAbsolutePath(path), options, token);
 			}
 
-			path = path.GetFtpPath();
+			// FIX : #768 NullOrEmpty is valid, means "use working directory".
+			if (!string.IsNullOrEmpty(path)) {
+				path = path.GetFtpPath();
+			}
 
 			LogFunc(nameof(GetListingAsync), new object[] { path, options });
 
@@ -1134,7 +1140,10 @@ namespace FluentFTP {
 		/// <returns>A string array of file and directory names if any were returned.</returns>
 		public string[] GetNameListing(string path) {
 
-			path = path.GetFtpPath();
+			// FIX : #768 NullOrEmpty is valid, means "use working directory".
+			if (!string.IsNullOrEmpty(path)) {
+				path = path.GetFtpPath();
+			}
 
 			LogFunc(nameof(GetNameListing), new object[] { path });
 
@@ -1240,7 +1249,10 @@ namespace FluentFTP {
 		/// <returns>An array of file and directory names if any were returned.</returns>
 		public async Task<string[]> GetNameListingAsync(string path, CancellationToken token = default(CancellationToken)) {
 
-			path = path.GetFtpPath();
+			// FIX : #768 NullOrEmpty is valid, means "use working directory".
+			if (!string.IsNullOrEmpty(path)) {
+				path = path.GetFtpPath();
+			}
 
 			LogFunc(nameof(GetNameListingAsync), new object[] { path });
 

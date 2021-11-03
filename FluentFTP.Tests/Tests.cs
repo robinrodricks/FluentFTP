@@ -376,6 +376,7 @@ namespace Tests {
 		[Trait("Category", Category_PublicFTP)]
 		public void TestGetListingBSDServer() {
 			using (var client = NewFtpClient_NetBsd()) {
+				client.Connect();
 
 				// machine listing
 				var listing = client.GetListing();
@@ -399,6 +400,58 @@ namespace Tests {
 			}
 		}
 #endif
+
+		[Fact]
+		[Trait("Category", Category_PublicFTP)]
+		// FIX : #768 NullOrEmpty is valid, means "use working directory".
+		public void TestGetListingWorkingDirectoryBsdServer() {
+			using (var client = NewFtpClient_NetBsd()) {
+				// Setup
+				client.Connect();
+
+				const string directoryNetBsdName = "NetBSD";
+				const string directoryPubName = "pub";
+				var directoryPubNameFull = $"/{directoryPubName}";
+				var directoryNetBsdNameFull = $"{directoryPubNameFull}/{directoryNetBsdName}";
+
+				// Act
+				client.SetWorkingDirectory(directoryPubName);
+				var resultGetListing = client.GetListing();
+				//todo test GetListingAsync()
+				//var resultGetListingAsync = await client.GetListingAsync();
+				var resultGetNameListing = client.GetNameListing();
+				//todo test GetNameListingAsync()
+				//var resultGetNameListingAsync = await client.GetNameListingAsync();
+
+				// Check helper
+				void CheckListing(string methodName, IList<string> list) {
+					var directoryNetBsdFound = false;
+					var directoryPubFound = false;
+					foreach (var item in list) {
+						if (item.Equals(directoryNetBsdNameFull, StringComparison.OrdinalIgnoreCase))
+							directoryNetBsdFound = true;
+						if (item.Equals(directoryPubNameFull, StringComparison.OrdinalIgnoreCase))
+							directoryPubFound = true;
+					}
+
+					if (!directoryNetBsdFound)
+						throw new Exception($"Did not find expected directory: '{directoryNetBsdNameFull}' using {methodName}.");
+					if (directoryPubFound)
+						throw new Exception($"Found unexpected directory '{directoryPubNameFull}' using {methodName}.");
+				}
+
+				// Check
+				var resultGetListingNames = new List<string>();
+				foreach (var item in resultGetListing)
+					resultGetListingNames.Add(item.FullName);
+				CheckListing("GetListing", resultGetListingNames);
+				//todo test GetListingAsync()
+				//CheckListing("GetListingAsync", resultGetListingAsync);
+				CheckListing("GetNameListing", resultGetNameListing);
+				//todo test GetNameListingAsync()
+				//CheckListing("GetNameListingAsync", resultGetNameListingAsync);
+			}
+		}
 
 		[Fact]
 		[Trait("Category", Category_PublicFTP)]
