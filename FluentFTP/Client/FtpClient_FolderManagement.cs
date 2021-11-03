@@ -774,5 +774,119 @@ namespace FluentFTP {
 #endif
 
 		#endregion
+
+		#region GetzOSListRealm
+
+		/// <summary>
+		/// If an FTP Server has "different realms", in which realm is the
+		/// current working directory. 
+		/// </summary>
+		/// <returns>The realm</returns>
+		public FtpzOSListRealm GetzOSListRealm()
+		{
+
+			// this case occurs immediately after connection and after the working dir has changed
+			if (_LastWorkingDir == null)
+			{
+				ReadCurrentWorkingDirectory();
+			}
+
+			if (ServerType != FtpServer.IBMzOSFTP ||
+				ServerOS != FtpOperatingSystem.IBMzOS)
+			{
+				return FtpzOSListRealm.Invalid;
+			}
+
+			// It is a unix like path (starts with /)
+			if (_LastWorkingDir[0] != '\'')
+			{
+				return FtpzOSListRealm.Unix;
+			}
+
+			// Ok, the CWD starts with a single quoute. Classic z/OS dataset realm
+			FtpReply reply;
+
+#if !CORE14
+			lock (m_lock)
+			{
+#endif
+				// Go to where we are. The reply will tell us what it is we we are...
+				if (!(reply = Execute("CWD " + _LastWorkingDir)).Success)
+				{
+					throw new FtpCommandException(reply);
+				}
+#if !CORE14
+			}
+#endif
+			// 250-The working directory may be a load library                          
+			// 250 The working directory "GEEK.PRODUCT.LOADLIB" is a partitioned data set
+
+			if (reply.InfoMessages != null &&
+				reply.InfoMessages.Contains("may be a load library"))
+			{
+				return FtpzOSListRealm.MemberU;
+			}
+
+			if (reply.Message.Contains("is a partitioned data set"))
+			{
+				return FtpzOSListRealm.Member;
+			}
+
+			return FtpzOSListRealm.Dataset;
+		}
+
+#if ASYNC
+		/// <summary>
+		/// If an FTP Server has "different realms", in which realm is the
+		/// current working directory. 
+		/// </summary>
+		/// <returns>The realm</returns>
+		public async Task<FtpzOSListRealm> GetzOSListRealmAsync(CancellationToken token = default(CancellationToken))
+		{
+
+			// this case occurs immediately after connection and after the working dir has changed
+			if (_LastWorkingDir == null)
+			{
+				await ReadCurrentWorkingDirectoryAsync(token);
+			}
+
+			if (ServerType != FtpServer.IBMzOSFTP ||
+				ServerOS != FtpOperatingSystem.IBMzOS)			{
+				return FtpzOSListRealm.Invalid;
+			}
+
+			// It is a unix like path (starts with /)
+			if (_LastWorkingDir[0] != '\'')
+			{
+				return FtpzOSListRealm.Unix;
+			}
+
+			// Ok, the CWD starts with a single quoute. Classic z/OS dataset realm
+			FtpReply reply;
+
+			// Go to where we are. The reply will tell us what it is we we are...
+			if (!(reply = await Execute("CWD " + _LastWorkingDir, token)).Success)
+			{
+				throw new FtpCommandException(reply);
+			}
+
+			// 250-The working directory may be a load library                          
+			// 250 The working directory "GEEK.PRODUCTS.LOADLIB" is a partitioned data set
+
+			if (reply.InfoMessages!=null &&
+				reply.InfoMessages.Contains("may be a load library"))
+			{
+				return FtpzOSListRealm.MemberU;
+			}
+
+			if (reply.Message.Contains("is a partitioned data set"))
+			{
+				return FtpzOSListRealm.Member;
+			}
+
+			return FtpzOSListRealm.Dataset;
+		}
+#endif
+		#endregion
 	}
 }
