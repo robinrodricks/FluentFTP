@@ -1149,8 +1149,11 @@ namespace FluentFTP {
 
 			var listing = new List<string>();
 
-			// calc path to request
-			path = GetAbsolutePath(path);
+			if (path.StartsWith("/") || ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS)
+			{
+				// calc path to request
+				path = GetAbsolutePath(path);
+			}
 
 #if !CORE14
 			lock (m_lock) {
@@ -1258,8 +1261,11 @@ namespace FluentFTP {
 
 			var listing = new List<string>();
 
-			// calc path to request
-			path = await GetAbsolutePathAsync(path, token);
+			if (path.StartsWith("/") || ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS)
+			{
+				// calc path to request
+				path = await GetAbsolutePathAsync(path, token);
+			}
 
 			// always get the file listing in binary to avoid character translation issues with ASCII.
 			await SetDataTypeNoLockAsync(ListingDataType, token);
