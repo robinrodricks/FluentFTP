@@ -253,8 +253,15 @@ namespace FluentFTP {
 			var isGetModified = options.HasFlag(FtpListOption.Modify);
 			var isGetSize = options.HasFlag(FtpListOption.Size);
 
-			// calc path to request
-			path = GetAbsolutePath(path);
+			// Only disable the GetAbsolutePath(path) if z/OS
+			// Note: "TEST.TST" is a "path" that does not start with a slash
+			// This could be a unix file on z/OS OR a classic CWD relative dataset
+			// Both of these work with the z/OS FTP server LIST command
+			if (path.StartsWith("/") || ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS)
+			{
+				// calc the absolute filepath
+				path = GetAbsolutePath(path);
+			}
 
 			// MLSD provides a machine readable format with 100% accurate information
 			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
@@ -381,7 +388,9 @@ namespace FluentFTP {
 					//this.LogStatus(FtpTraceLevel.Verbose, "Skipped self or parent item: " + item.Name);
 				}
 			}
-			else {
+			// for z/OS, return of null actually means, just skip with no warning
+			if (ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS)
+			{
 				LogStatus(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
 			}
 			return true;
@@ -619,8 +628,15 @@ namespace FluentFTP {
 			var isGetModified = options.HasFlag(FtpListOption.Modify);
 			var isGetSize = options.HasFlag(FtpListOption.Size);
 
-			// calc path to request
-			path = await GetAbsolutePathAsync(path, token);
+			// Only disable the GetAbsolutePath(path) if z/OS
+			// Note: "TEST.TST" is a "path" that does not start with a slash
+			// This could be a unix file on z/OS OR a classic CWD relative dataset
+			// Both of these work with the z/OS FTP server LIST command
+			if (path.StartsWith("/") || ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS)
+			{
+				// calc the absolute filepath
+				path = await GetAbsolutePathAsync(path, token);
+			}
 
 			// MLSD provides a machine readable format with 100% accurate information
 			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option

@@ -41,13 +41,18 @@ namespace FluentFTP {
 		VMS = 5,
 
 		/// <summary>
-		/// File listing parser for IBM OS400.
+		/// File listing parser for IBM z/OS
 		/// </summary>
-		IBM = 6,
+		IBMzOS = 6,
+
+		/// <summary>
+		/// File listing parser for IBM OS/400.
+		/// </summary>
+		IBMOS400 = 7,
 
 		/// <summary>
 		/// File listing parser for Tandem/Nonstop Guardian OS.
 		/// </summary>
-		NonStop = 7
+		NonStop = 8
 	}
 }

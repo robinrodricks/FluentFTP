@@ -14,15 +14,15 @@ using System.Threading.Tasks;
 namespace FluentFTP.Servers.Handlers {
 
 	/// <summary>
-	/// Server-specific handling for IBMzOSFTP servers
+	/// Server-specific handling for IBMOS400FTP servers
 	/// </summary>
-	public class IbmZosFtpServer : FtpBaseServer {
+	public class IbmOs400FtpServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.
 		/// </summary>
 		public override FtpServer ToEnum() {
-			return FtpServer.IBMzOSFTP;
+			return FtpServer.IBMOS400FTP;
 		}
 
 		/// <summary>
@@ -30,9 +30,9 @@ namespace FluentFTP.Servers.Handlers {
 		/// </summary>
 		public override bool DetectByWelcome(string message) {
 
-			// Detect IBM z/OS server
-			// Welcome message: "220-FTPD1 IBM FTP CS V2R3 at mysite.gov, 16:51:54 on 2019-12-12."
-			if (message.Contains("IBM FTP CS")) {
+			// Detect IBM OS/400 server
+			// Welcome message: "220-QTCP at xxxxxx.xxxxx.xxx.com."
+			if (message.Contains("QTCP at")) {
 				return true;
 			}
 
@@ -43,7 +43,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Return the default file listing parser to be used with your FTP server.
 		/// </summary>
 		public override FtpParser GetParser() {
-			return FtpParser.IBMzOS;
+			return FtpParser.IBMOS400;
 		}
 
 	}
