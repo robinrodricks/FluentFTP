@@ -774,5 +774,69 @@ namespace FluentFTP {
 #endif
 
 		#endregion
+
+		#region IsRoot
+
+		/// <summary>
+		/// Is the current working directory the root?
+		/// </summary>
+		/// <returns>true if root.</returns>
+		public bool IsRoot()
+		{
+
+			// this case occurs immediately after connection and after the working dir has changed
+			if (_LastWorkingDir == null)
+			{
+				ReadCurrentWorkingDirectory();
+			}
+
+			if (_LastWorkingDir.IsFtpRootDirectory())
+			{
+				return true;
+			}
+
+			// If it is not a "/" root, it could perhaps be a z/OS root (like 'SYS1.')
+			if (ServerType == FtpServer.IBMzOSFTP &&
+				ServerOS == FtpOperatingSystem.IBMzOS &&
+				_LastWorkingDir.Split('.').Length - 1 == 1)
+			{
+				return true;
+			}
+
+			return false;
+		}
+
+#if ASYNC
+		/// <summary>
+		/// Is the current working directory the root?
+		/// </summary>
+		/// <returns>true if root.</returns>
+		public async Task<bool> IsRootAsync(CancellationToken token = default(CancellationToken))
+		{
+
+			// this case occurs immediately after connection and after the working dir has changed
+			if (_LastWorkingDir == null)
+			{
+				await ReadCurrentWorkingDirectoryAsync(token);
+			}
+
+			if (_LastWorkingDir.IsFtpRootDirectory())
+			{
+				return true;
+			}
+
+			// If it is not a "/" root, it could perhaps be a z/OS root (like 'SYS1.')
+			if (ServerType == FtpServer.IBMzOSFTP &&
+				ServerOS == FtpOperatingSystem.IBMzOS &&
+				_LastWorkingDir.Split('.').Length - 1 == 1)
+			{
+				return true;
+			}
+
+			return false;
+		}
+#endif
+		#endregion
+
 	}
 }
