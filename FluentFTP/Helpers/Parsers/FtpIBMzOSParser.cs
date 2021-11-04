@@ -22,7 +22,7 @@ namespace FluentFTP.Helpers.Parsers
 			// Member Loadlib: " Name      Size     TTR   Alias-of AC--------- Attributes--------- Amode Rmode"
 
 			return listing[0].Contains("total") ||
-		           listing[0].Contains("Volume Unit") ||
+				   listing[0].Contains("Volume Unit") ||
 				   listing[0].Contains("Name     VV.MM") ||
 				   listing[0].Contains("Name      Size     TTR");
 		}
@@ -55,6 +55,18 @@ namespace FluentFTP.Helpers.Parsers
 			// " Name     VV.MM   Created       Changed      Size  Init   Mod   Id"
 			if (record.Contains("Name     VV.MM"))
 			{
+				// This is an opportunity to issue XDSS and get the LRECL
+				FtpReply reply;
+
+				if (!(reply = client.Execute("XDSS " + client.GetWorkingDirectory())).Success)
+				{
+					throw new FtpCommandException(reply);
+				}
+				// SITE PDSTYPE=PDSE RECFM=FB BLKSIZE=16000 DIRECTORY=1 LRECL=80 PRIMARY=3 SECONDARY=110 TRACKS EATTR=SYSTEM
+				string[] words = reply.Message.Split(' ');
+				string[] val = words[5].Split('=');
+				client.zOSListingLRECL = UInt16.Parse(val[1]);
+
 				client.zOSListingRealm = FtpzOSListRealm.Member;
 				return null;
 			}
@@ -104,7 +116,7 @@ namespace FluentFTP.Helpers.Parsers
 						lastModifiedStr += " 00:00";
 					}
 					var lastModified = ParseDateTime(client, lastModifiedStr);
-					var size = EstimateSize(used);
+					var size = int.Parse(used) * 56664; // 3390 dev bytes per track
 					var file = new FtpListItem(record, dsname, size, isDir, ref lastModified);
 					return file;
 				}
@@ -136,7 +148,7 @@ namespace FluentFTP.Helpers.Parsers
 				bool isDir = false;
 				var lastModifiedStr = changed;
 				var lastModified = ParseDateTime(client, lastModifiedStr);
-				var size = EstimateSizeMEM(records);
+				var size = ushort.Parse(records) * client.zOSListingLRECL;
 				var file = new FtpListItem(record, name, size, isDir, ref lastModified);
 				return file;
 			}
@@ -152,7 +164,7 @@ namespace FluentFTP.Helpers.Parsers
 
 				string name = record.Substring(0, 8).Trim();
 				string changed = string.Empty;
-				string memsize = record.Substring(10,6);
+				string memsize = record.Substring(10, 6);
 				string TTR = record.Substring(19, 6);
 				string Alias = record.Substring(26, 8).Trim();
 				string Attributes = record.Substring(38, 30);
@@ -182,32 +194,6 @@ namespace FluentFTP.Helpers.Parsers
 			lastModified = DateTime.ParseExact(lastModifiedStr, @"yyyy'/'MM'/'dd HH':'mm", client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
 
 			return lastModified;
-		}
-
-		/// <summary>
-		/// This is a upper bound and an estimate of the file size.
-		/// </summary>
-		private static long EstimateSize(string used)
-		{
-			int n_used = int.Parse(used);   // # of tracks used
-
-			// Assume 3390 device
-			long bytesPerTrack = 56664;
-
-			return n_used * bytesPerTrack;
-		}
-
-		/// <summary>
-		/// Give the caller the number of records instead of a file size.
-		/// </summary>
-		private static long EstimateSizeMEM(string records)
-		{
-			int n_records = int.Parse(records);   // # of records of member
-
-			// We don't know LRECL
-			long bytesPerRecord = 1;
-
-			return n_records * bytesPerRecord;
 		}
 	}
 }
