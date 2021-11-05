@@ -437,6 +437,11 @@ namespace FluentFTP {
 
 				// if this is a clone these values should have already been loaded
 				// so save some bandwidth and CPU time and skip executing this again.
+				// otherwise clear the capabilities in case connection is reused to 
+				// a different server 
+				if (!m_isClone && m_checkCapabilities) {
+					m_capabilities.Clear();
+				}
 				bool assumeCaps = false;
 				if (m_capabilities.IsBlank() && m_checkCapabilities) {
 					if ((reply = Execute("FEAT")).Success && reply.InfoMessages != null) {
@@ -608,6 +613,11 @@ namespace FluentFTP {
 
 			// if this is a clone these values should have already been loaded
 			// so save some bandwidth and CPU time and skip executing this again.
+			// otherwise clear the capabilities in case connection is reused to 
+			// a different server 
+			if (!m_isClone && m_checkCapabilities) {
+				m_capabilities.Clear();
+			}
 			bool assumeCaps = false;
 			if (m_capabilities.IsBlank() && m_checkCapabilities) {
 				if ((reply = await ExecuteAsync("FEAT", token)).Success && reply.InfoMessages != null) {
