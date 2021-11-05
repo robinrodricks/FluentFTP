@@ -389,7 +389,7 @@ namespace FluentFTP {
 				}
 			}
 			// for z/OS, return of null actually means, just skip with no warning
-			if (ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS)
+			else if (ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS)
 			{
 				LogStatus(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
 			}
