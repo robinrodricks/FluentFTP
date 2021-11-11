@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Security.Authentication;
 using FluentFTP.Proxy;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
 using FluentFTP.Servers;
@@ -141,6 +142,13 @@ namespace FluentFTP {
 							}
 						}
 						catch (Exception ex) {
+
+#if !CORE14
+							if (ex is AuthenticationException)
+							{
+								throw new FtpInvalidCertificateException();
+							}
+#endif
 
 							// since the connection failed, disconnect and retry
 							conn.Disconnect();
@@ -293,6 +301,13 @@ namespace FluentFTP {
 						}
 					}
 					catch (Exception ex) {
+
+#if !CORE14
+						if (ex is AuthenticationException)
+						{
+							throw new FtpInvalidCertificateException();
+						}
+#endif
 
 						// since the connection failed, disconnect and retry
 						await conn.DisconnectAsync();
