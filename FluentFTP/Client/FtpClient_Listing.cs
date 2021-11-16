@@ -423,7 +423,7 @@ namespace FluentFTP {
 			}
 			else {
 				// use machine listing if supported by the server
-				if ((!isForceList || ListingParser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
+				if (!isForceList && ListingParser == FtpParser.Machine && HasFeature(FtpCapability.MLSD)) {
 					listcmd = "MLSD";
 					machineList = true;
 				}
