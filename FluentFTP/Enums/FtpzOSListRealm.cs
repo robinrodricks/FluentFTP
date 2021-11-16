@@ -7,6 +7,11 @@ namespace FluentFTP {
 	[Flags]
 	public enum FtpzOSListRealm {
 		/// <summary>
+		/// Not z/OS
+		/// </summary>
+		Invalid = -1,
+
+		/// <summary>
 		/// HFS / USS 
 		/// </summary>
 		Unix = 0,
