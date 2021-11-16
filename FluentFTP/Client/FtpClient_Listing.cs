@@ -170,7 +170,10 @@ namespace FluentFTP {
 
 			// Get the accurate date modified using another MDTM command
 			if (result != null && dateModified && HasFeature(FtpCapability.MDTM)) {
-				result.Modified = await GetModifiedTimeAsync(path, token);
+				var alternativeModifiedDate = await GetModifiedTimeAsync(path, token);
+				if (alternativeModifiedDate != default) {
+					result.Modified = alternativeModifiedDate;
+				}
 			}
 
 			return result;
