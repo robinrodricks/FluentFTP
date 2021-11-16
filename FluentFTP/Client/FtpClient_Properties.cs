@@ -1114,14 +1114,26 @@ namespace FluentFTP {
 		private FtpzOSListRealm m_zOSListingRealm;
 
 		/// <summary>
-		/// Accept any SSL certificate received from the server and skip performing
-		/// the validation using the ValidateCertificate callback.
-		/// Useful for Powershell users.
+		/// During and after a z/OS GetListing(), this value shows the
+		/// z/OS filesystem realm that was encountered.
 		/// </summary>
 		public FtpzOSListRealm zOSListingRealm
 		{
 			get => m_zOSListingRealm;
 			set => m_zOSListingRealm = value;
+		}
+
+		private ushort m_zOSListingLRECL;
+
+		/// <summary>
+		/// During and after a z/OS GetListing(), this value shows the
+		/// the LRECL that was encountered (for a realm = Member only).
+		/// The value is used internally to calculate member sizes
+		/// </summary>
+		public ushort zOSListingLRECL
+		{
+			get => m_zOSListingLRECL;
+			set => m_zOSListingLRECL = value;
 		}
 
 		// ADD PROPERTIES THAT NEED TO BE CLONED INTO
