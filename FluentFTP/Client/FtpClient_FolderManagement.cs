@@ -646,7 +646,8 @@ namespace FluentFTP {
 				}
 
 				// invalidate the cached path
-				_LastWorkingDir = null;
+				// This is redundant, Execute(...) will see the CWD and do this
+				//_LastWorkingDir = null;
 
 #if !CORE14
 			}
@@ -680,7 +681,8 @@ namespace FluentFTP {
 			}
 
 			// invalidate the cached path
-			_LastWorkingDir = null;
+			// This is redundant, Execute(...) will see the CWD and do this
+			//_LastWorkingDir = null;
 		}
 
 
