@@ -1,5 +1,16 @@
 # Release Notes
 
+#### 35.1.0
+ - New: `GetzOSFileSize` APIs to get file size of IBM z/OS file system objects (thanks [FanDjango](/FanDjango))
+ - New: `GetzOSListRealm` APIs to get realm of IBM z/OS servers (thanks [FanDjango](/FanDjango))
+ - New: Enhance the z/OS listing parser to get LRECL (via XDSS) on behalf of user (thanks [FanDjango](/FanDjango))
+ - Fix: `AutoConnect` detects rejected certificates on connection and raises `FtpInvalidCertificateException` (thanks [FanDjango](/FanDjango))
+ - Fix: `FtpListOption.ForceList` is not being honored by GetListing and machine listings are used instead (thanks [FanDjango](/FanDjango))
+ - Fix: `GetListing` regression causing many untrue parse fail warnings (thanks [FanDjango](/FanDjango))
+ - Fix: `GetObjectInfo` is overwriting Modified date of a `FtpListItem` if the consecutive MDTM command fails (thanks [Dylan-DutchAndBold](/Dylan-DutchAndBold))
+ - Fix: reusing same FtpClient should reload server capabilities unless its a cloned connection (thanks [FanDjango](/FanDjango))
+ - Fix: Executing `CWD` using `Execute` API does not invalidate internal CWD cache (thanks [FanDjango](/FanDjango))
+
 #### 35.0.5
  - Fix: `UploadFile` fails to upload in `FtpRemoteExists.Resume` mode even if stream is seekable
 
