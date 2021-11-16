@@ -37,7 +37,7 @@ namespace FluentFTP {
 		/// current working directory. 
 		/// </summary>
 		/// <returns>The realm</returns>
-		public FtpzOSListRealm GetzOSListRealm() {
+		public FtpZOSListRealm GetZOSListRealm() {
 
 			// this case occurs immediately after connection and after the working dir has changed
 			if (_LastWorkingDir == null) {
@@ -46,12 +46,12 @@ namespace FluentFTP {
 
 			if (ServerType != FtpServer.IBMzOSFTP ||
 				ServerOS != FtpOperatingSystem.IBMzOS) {
-				return FtpzOSListRealm.Invalid;
+				return FtpZOSListRealm.Invalid;
 			}
 
 			// It is a unix like path (starts with /)
 			if (_LastWorkingDir[0] != '\'') {
-				return FtpzOSListRealm.Unix;
+				return FtpZOSListRealm.Unix;
 			}
 
 			// Ok, the CWD starts with a single quoute. Classic z/OS dataset realm
@@ -72,14 +72,14 @@ namespace FluentFTP {
 
 			if (reply.InfoMessages != null &&
 				reply.InfoMessages.Contains("may be a load library")) {
-				return FtpzOSListRealm.MemberU;
+				return FtpZOSListRealm.MemberU;
 			}
 
 			if (reply.Message.Contains("is a partitioned data set")) {
-				return FtpzOSListRealm.Member;
+				return FtpZOSListRealm.Member;
 			}
 
-			return FtpzOSListRealm.Dataset;
+			return FtpZOSListRealm.Dataset;
 		}
 
 #if ASYNC
@@ -88,7 +88,7 @@ namespace FluentFTP {
 		/// current working directory. 
 		/// </summary>
 		/// <returns>The realm</returns>
-		public async Task<FtpzOSListRealm> GetzOSListRealmAsync(CancellationToken token = default(CancellationToken))
+		public async Task<FtpZOSListRealm> GetZOSListRealmAsync(CancellationToken token = default(CancellationToken))
 		{
 
 			// this case occurs immediately after connection and after the working dir has changed
@@ -99,20 +99,20 @@ namespace FluentFTP {
 
 			if (ServerType != FtpServer.IBMzOSFTP ||
 				ServerOS != FtpOperatingSystem.IBMzOS)			{
-				return FtpzOSListRealm.Invalid;
+				return FtpZOSListRealm.Invalid;
 			}
 
 			// It is a unix like path (starts with /)
 			if (_LastWorkingDir[0] != '\'')
 			{
-				return FtpzOSListRealm.Unix;
+				return FtpZOSListRealm.Unix;
 			}
 
 			// Ok, the CWD starts with a single quoute. Classic z/OS dataset realm
 			FtpReply reply;
 
 			// Go to where we are. The reply will tell us what it is we we are...
-			if (!(reply = await Execute("CWD " + _LastWorkingDir, token)).Success)
+			if (!(reply = await ExecuteAsync("CWD " + _LastWorkingDir, token)).Success)
 			{
 				throw new FtpCommandException(reply);
 			}
@@ -123,15 +123,15 @@ namespace FluentFTP {
 			if (reply.InfoMessages!=null &&
 				reply.InfoMessages.Contains("may be a load library"))
 			{
-				return FtpzOSListRealm.MemberU;
+				return FtpZOSListRealm.MemberU;
 			}
 
 			if (reply.Message.Contains("is a partitioned data set"))
 			{
-				return FtpzOSListRealm.Member;
+				return FtpZOSListRealm.Member;
 			}
 
-			return FtpzOSListRealm.Dataset;
+			return FtpZOSListRealm.Dataset;
 		}
 #endif
 		#endregion
@@ -142,7 +142,7 @@ namespace FluentFTP {
 		/// Get z/OS file size
 		/// </summary>
 		/// <returns>The size of the file</returns>
-		public long GetzOSFileSize(string path) {
+		public long GetZOSFileSize(string path) {
 			string oldPath = "";
 			string cwdPath = path;
 			string[] preFix = path.Split('(');
@@ -168,7 +168,7 @@ namespace FluentFTP {
 		/// Get z/OS file size
 		/// </summary>
 		/// <returns>The size of the file</returns>
-		public async Task<long> GetzOSFileSizeAsync(string path, CancellationToken token = default(CancellationToken))
+		public async Task<long> GetZOSFileSizeAsync(string path, CancellationToken token = default(CancellationToken))
 		{
 			string oldPath = "";     
 			string cwdPath = path;
@@ -176,7 +176,7 @@ namespace FluentFTP {
 			if (preFix.Length > 1) // PDS Member
 			{
 				cwdPath = preFix[0] + '\'';
-				oldPath = await GetWorkingDirectory(token);
+				oldPath = await GetWorkingDirectoryAsync(token);
 				await SetWorkingDirectoryAsync(cwdPath, token);
 			}
 			ListingParser = FtpParser.IBMzOS;

@@ -5,7 +5,7 @@ namespace FluentFTP {
 	/// Flags that can control how a file listing is performed. If you are unsure what to use, set it to Auto.
 	/// </summary>
 	[Flags]
-	public enum FtpzOSListRealm {
+	public enum FtpZOSListRealm {
 		/// <summary>
 		/// Not z/OS Server
 		/// </summary>

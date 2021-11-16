@@ -1111,13 +1111,13 @@ namespace FluentFTP {
 			get => m_stream?.RemoteEndPoint;
 		}
 
-		private FtpzOSListRealm m_zOSListingRealm;
+		private FtpZOSListRealm m_zOSListingRealm;
 
 		/// <summary>
 		/// During and after a z/OS GetListing(), this value shows the
 		/// z/OS filesystem realm that was encountered.
 		/// </summary>
-		public FtpzOSListRealm zOSListingRealm
+		public FtpZOSListRealm zOSListingRealm
 		{
 			get => m_zOSListingRealm;
 			set => m_zOSListingRealm = value;

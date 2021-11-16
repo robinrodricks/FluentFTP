@@ -41,14 +41,14 @@ namespace FluentFTP.Helpers.Parsers
 			// "total nnnn"
 			if (record.Contains("total"))
 			{
-				client.zOSListingRealm = FtpzOSListRealm.Unix;
+				client.zOSListingRealm = FtpZOSListRealm.Unix;
 				return null;
 			}
 
 			// "Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname"
 			if (record.Contains("Volume Unit"))
 			{
-				client.zOSListingRealm = FtpzOSListRealm.Dataset;
+				client.zOSListingRealm = FtpZOSListRealm.Dataset;
 				return null;
 			}
 
@@ -67,18 +67,18 @@ namespace FluentFTP.Helpers.Parsers
 				string[] val = words[5].Split('=');
 				client.zOSListingLRECL = UInt16.Parse(val[1]);
 
-				client.zOSListingRealm = FtpzOSListRealm.Member;
+				client.zOSListingRealm = FtpZOSListRealm.Member;
 				return null;
 			}
 
 			// "Name      Size     TTR   Alias-of AC--------- Attributes--------- Amode Rmode"
 			if (record.Contains("Name      Size     TTR"))
 			{
-				client.zOSListingRealm = FtpzOSListRealm.MemberU;
+				client.zOSListingRealm = FtpZOSListRealm.MemberU;
 				return null;
 			}
 
-			if (client.zOSListingRealm == FtpzOSListRealm.Unix)
+			if (client.zOSListingRealm == FtpZOSListRealm.Unix)
 			{
 				// unix mode
 				//
@@ -87,7 +87,7 @@ namespace FluentFTP.Helpers.Parsers
 				return FtpUnixParser.Parse(client, record);
 			}
 
-			if (client.zOSListingRealm == FtpzOSListRealm.Dataset)
+			if (client.zOSListingRealm == FtpZOSListRealm.Dataset)
 			{
 				// PS/PO mode
 				//
@@ -123,7 +123,7 @@ namespace FluentFTP.Helpers.Parsers
 				return null;
 			}
 
-			if (client.zOSListingRealm == FtpzOSListRealm.Member)
+			if (client.zOSListingRealm == FtpZOSListRealm.Member)
 			{
 				// Member mode
 				//
@@ -153,7 +153,7 @@ namespace FluentFTP.Helpers.Parsers
 				return file;
 			}
 
-			if (client.zOSListingRealm == FtpzOSListRealm.MemberU)
+			if (client.zOSListingRealm == FtpZOSListRealm.MemberU)
 			{
 				// Member Loadlib mode
 				//
