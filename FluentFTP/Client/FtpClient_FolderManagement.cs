@@ -777,73 +777,42 @@ namespace FluentFTP {
 
 		#endregion
 
-		#region GetzOSListRealm
+		#region Is Root Dir
 
 		/// <summary>
-		/// If an FTP Server has "different realms", in which realm is the
-		/// current working directory. 
+		/// Is the current working directory the root?
 		/// </summary>
-		/// <returns>The realm</returns>
-		public FtpzOSListRealm GetzOSListRealm()
-		{
+		/// <returns>true if root.</returns>
+		public bool IsRoot() {
 
 			// this case occurs immediately after connection and after the working dir has changed
-			if (_LastWorkingDir == null)
-			{
+			if (_LastWorkingDir == null) {
 				ReadCurrentWorkingDirectory();
 			}
 
-			if (ServerType != FtpServer.IBMzOSFTP ||
-				ServerOS != FtpOperatingSystem.IBMzOS)
-			{
-				return FtpzOSListRealm.Invalid;
+			if (_LastWorkingDir.IsFtpRootDirectory()) {
+				return true;
 			}
 
-			// It is a unix like path (starts with /)
-			if (_LastWorkingDir[0] != '\'')
-			{
-				return FtpzOSListRealm.Unix;
+			// If it is not a "/" root, it could perhaps be a z/OS root (like 'SYS1.')
+			// Note: If on z/OS you have somehow managed to CWD "over" th top, i.e.
+			// PWD returns "''" - you would need to CWD to some HLQ that only you can
+			// imagine. There is no way to list the available top level HLQs.
+			if (ServerType == FtpServer.IBMzOSFTP &&
+				ServerOS == FtpOperatingSystem.IBMzOS &&
+				_LastWorkingDir.Split('.').Length - 1 == 1) {
+				return true;
 			}
 
-			// Ok, the CWD starts with a single quoute. Classic z/OS dataset realm
-			FtpReply reply;
-
-#if !CORE14
-			lock (m_lock)
-			{
-#endif
-				// Go to where we are. The reply will tell us what it is we we are...
-				if (!(reply = Execute("CWD " + _LastWorkingDir)).Success)
-				{
-					throw new FtpCommandException(reply);
-				}
-#if !CORE14
-			}
-#endif
-			// 250-The working directory may be a load library                          
-			// 250 The working directory "GEEK.PRODUCT.LOADLIB" is a partitioned data set
-
-			if (reply.InfoMessages != null &&
-				reply.InfoMessages.Contains("may be a load library"))
-			{
-				return FtpzOSListRealm.MemberU;
-			}
-
-			if (reply.Message.Contains("is a partitioned data set"))
-			{
-				return FtpzOSListRealm.Member;
-			}
-
-			return FtpzOSListRealm.Dataset;
+			return false;
 		}
 
 #if ASYNC
 		/// <summary>
-		/// If an FTP Server has "different realms", in which realm is the
-		/// current working directory. 
+		/// Is the current working directory the root?
 		/// </summary>
-		/// <returns>The realm</returns>
-		public async Task<FtpzOSListRealm> GetzOSListRealmAsync(CancellationToken token = default(CancellationToken))
+		/// <returns>true if root.</returns>
+		public async Task<bool> IsRootAsync(CancellationToken token = default(CancellationToken))
 		{
 
 			// this case occurs immediately after connection and after the working dir has changed
@@ -852,43 +821,26 @@ namespace FluentFTP {
 				await ReadCurrentWorkingDirectoryAsync(token);
 			}
 
-			if (ServerType != FtpServer.IBMzOSFTP ||
-				ServerOS != FtpOperatingSystem.IBMzOS)			{
-				return FtpzOSListRealm.Invalid;
-			}
-
-			// It is a unix like path (starts with /)
-			if (_LastWorkingDir[0] != '\'')
+			if (_LastWorkingDir.IsFtpRootDirectory())
 			{
-				return FtpzOSListRealm.Unix;
+				return true;
 			}
 
-			// Ok, the CWD starts with a single quoute. Classic z/OS dataset realm
-			FtpReply reply;
-
-			// Go to where we are. The reply will tell us what it is we we are...
-			if (!(reply = await Execute("CWD " + _LastWorkingDir, token)).Success)
+			// If it is not a "/" root, it could perhaps be a z/OS root (like 'SYS1.')
+			// Note: If on z/OS you have somehow managed to CWD "over" th top, i.e.
+			// PWD returns "''" - you would need to CWD to some HLQ that only you can
+			// imagine. There is no way to list the available top level HLQs.
+			if (ServerType == FtpServer.IBMzOSFTP &&
+				ServerOS == FtpOperatingSystem.IBMzOS &&
+				_LastWorkingDir.Split('.').Length - 1 == 1)
 			{
-				throw new FtpCommandException(reply);
+				return true;
 			}
 
-			// 250-The working directory may be a load library                          
-			// 250 The working directory "GEEK.PRODUCTS.LOADLIB" is a partitioned data set
-
-			if (reply.InfoMessages!=null &&
-				reply.InfoMessages.Contains("may be a load library"))
-			{
-				return FtpzOSListRealm.MemberU;
-			}
-
-			if (reply.Message.Contains("is a partitioned data set"))
-			{
-				return FtpzOSListRealm.Member;
-			}
-
-			return FtpzOSListRealm.Dataset;
+			return false;
 		}
 #endif
 		#endregion
+
 	}
 }

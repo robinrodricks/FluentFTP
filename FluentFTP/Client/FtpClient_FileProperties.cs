@@ -300,68 +300,6 @@ namespace FluentFTP {
 #endif
 		#endregion
 
-		#region GetzOSFileSize
-
-		/// <summary>
-		/// Get z/OS file size
-		/// </summary>
-		/// <returns>The size of the file</returns>
-		public long GetzOSFileSize(string path)
-		{
-			string oldPath = "";     
-			string cwdPath = path;
-			string[] preFix = path.Split('(');
-			if (preFix.Length > 1) // PDS Member
-			{
-				cwdPath = preFix[0] + '\'';
-				oldPath = GetWorkingDirectory();
-				SetWorkingDirectory(cwdPath);
-			}
-			ListingParser = FtpParser.IBMzOS;
-			FtpListItem[] entries = GetListing(path);
-			if (entries.Length != 1) return -1;
-			FtpListItem entry = entries[0];
-
-			if (preFix.Length > 1)
-			{
-				SetWorkingDirectory(oldPath);
-			}
-			return entry.Size;
-		}
-
-#if ASYNC
-		/// <summary>
-		/// Get z/OS file size
-		/// </summary>
-		/// <returns>The size of the file</returns>
-		public async Task<long> GetzOSFileSizeAsync(string path, CancellationToken token = default(CancellationToken))
-		{
-			string oldPath = "";     
-			string cwdPath = path;
-			string[] preFix = path.Split('(');
-			if (preFix.Length > 1) // PDS Member
-			{
-				cwdPath = preFix[0] + '\'';
-				oldPath = await GetWorkingDirectory(token);
-				await SetWorkingDirectoryAsync(cwdPath, token);
-			}
-			ListingParser = FtpParser.IBMzOS;
-			FtpListItem[] entries = await GetListingAsync(path, token);
-			if (entries.Length != 1) return -1;
-			FtpListItem entry = entries[0];
-
-			if (preFix.Length > 1)
-			{
-				await SetWorkingDirectoryAsync(oldPath, token);
-			}
-			return entry.Size;
-
-		}
-#endif
-
-
-		#endregion
-
 		#region Get Modified Time
 
 		/// <summary>
