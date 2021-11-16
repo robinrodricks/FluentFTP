@@ -1,8 +1,8 @@
 # Release Notes
 
 #### 35.1.0
- - New: `GetzOSFileSize` APIs to get file size of IBM z/OS file system objects (thanks [FanDjango](/FanDjango))
- - New: `GetzOSListRealm` APIs to get realm of IBM z/OS servers (thanks [FanDjango](/FanDjango))
+ - New: `GetZOSFileSize` APIs to get file size of IBM z/OS file system objects (thanks [FanDjango](/FanDjango))
+ - New: `GetZOSListRealm` APIs to get realm of IBM z/OS servers (thanks [FanDjango](/FanDjango))
  - New: Enhance the z/OS listing parser to get LRECL (via XDSS) on behalf of user (thanks [FanDjango](/FanDjango))
  - Fix: `AutoConnect` detects rejected certificates on connection and raises `FtpInvalidCertificateException` (thanks [FanDjango](/FanDjango))
  - Fix: `FtpListOption.ForceList` is not being honored by GetListing and machine listings are used instead (thanks [FanDjango](/FanDjango))
