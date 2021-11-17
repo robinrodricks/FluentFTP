@@ -156,7 +156,7 @@ namespace FluentFTP.Helpers {
 		/// <summary>
 		/// Get the full path of a given FTP Listing entry
 		/// </summary>
-		public static void CalculateFullFtpPath(this FtpListItem item, FtpClient client, string path, bool isVMS) {
+		public static void CalculateFullFtpPath(this FtpListItem item, FtpClient client, string path) {
 			// EXIT IF NO DIR PATH PROVIDED
 			if (path == null) {
 				// check if the path is absolute
@@ -173,7 +173,11 @@ namespace FluentFTP.Helpers {
 
 			// if this is a vax/openvms file listing
 			// there are no slashes in the path name
-			if (isVMS) {
+			if (client.ServerType == FtpServer.OpenVMS &&
+			    client.ServerOS == FtpOperatingSystem.VMS)
+			{
+				// if this is a vax/openvms file listing
+				// there are no slashes in the path name
 				item.FullName = path + item.Name;
 			}
 			else {
