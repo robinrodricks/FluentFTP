@@ -168,7 +168,6 @@ namespace FluentFTP.Helpers {
 				return;
 			}
 
-
 			// ONLY IF DIR PATH PROVIDED
 
 			// if this is a vax/openvms file listing
@@ -182,6 +181,11 @@ namespace FluentFTP.Helpers {
 				// remove globbing/wildcard from path
 				if (path.GetFtpFileName().Contains("*")) {
 					path = path.GetFtpDirectoryName();
+				}
+
+				if (path.Length == 0)
+				{
+					path = client.GetWorkingDirectory();
 				}
 
 				if (item.Name != null) {
@@ -199,7 +203,6 @@ namespace FluentFTP.Helpers {
 					}
 				}
 
-
 				// if a link target is set and it doesn't include an absolute path
 				// then try to resolve it.
 				if (item.LinkTarget != null && !item.LinkTarget.StartsWith("/")) {
@@ -212,7 +215,5 @@ namespace FluentFTP.Helpers {
 				}
 			}
 		}
-
-
 	}
 }
