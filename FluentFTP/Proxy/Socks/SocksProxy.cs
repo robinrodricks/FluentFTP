@@ -19,7 +19,6 @@ namespace FluentFTP.Proxy.Socks
 		private readonly int _destinationPort;
 		private readonly FtpSocketStream _socketStream;
 		private SocksAuthType? _authType;
-		private SocksReply _reply;
 
 		public SocksProxy(string destinationHost, int destinationPort, FtpSocketStream socketStream)
 		{
@@ -64,6 +63,8 @@ namespace FluentFTP.Proxy.Socks
 			var requestBuffer = GetConnectRequest();
 			_socketStream.Write(requestBuffer, 0, requestBuffer.Length);
 
+			SocksReply reply;
+			
 			// The server evaluates the request, and returns a reply.
 			// - First we read VER, REP, RSV & ATYP
 			var received = _socketStream.Read(_buffer, 0, 4);
@@ -71,8 +72,8 @@ namespace FluentFTP.Proxy.Socks
 			{
 				if (received >= 2)
 				{
-					_reply = (SocksReply)_buffer[1];
-					HandleProxyCommandError(_reply);
+					reply = (SocksReply)_buffer[1];
+					HandleProxyCommandError(reply);
 				}
 
 				_socketStream.Close();
@@ -80,11 +81,11 @@ namespace FluentFTP.Proxy.Socks
 			}
 
 			// - Now we check if the reply was positive.
-			_reply = (SocksReply)_buffer[1];
+			reply = (SocksReply)_buffer[1];
 
-			if (_reply != SocksReply.Succeeded)
+			if (reply != SocksReply.Succeeded)
 			{
-				HandleProxyCommandError(_reply);
+				HandleProxyCommandError(reply);
 			}
 
 			// - Consume rest of the SOCKS5 protocol so the next read will give application data.
@@ -243,6 +244,8 @@ namespace FluentFTP.Proxy.Socks
 			var requestBuffer = GetConnectRequest();
 			await _socketStream.WriteAsync(requestBuffer, 0, requestBuffer.Length);
 
+			SocksReply reply;
+
 			// The server evaluates the request, and returns a reply.
 			// - First we read VER, REP, RSV & ATYP
 			var received = await _socketStream.ReadAsync(_buffer, 0, 4);
@@ -250,8 +253,8 @@ namespace FluentFTP.Proxy.Socks
 			{
 				if (received >= 2)
 				{
-					_reply = (SocksReply)_buffer[1];
-					HandleProxyCommandError(_reply);
+					reply = (SocksReply)_buffer[1];
+					HandleProxyCommandError(reply);
 				}
 
 				_socketStream.Close();
@@ -259,11 +262,11 @@ namespace FluentFTP.Proxy.Socks
 			}
 
 			// - Now we check if the reply was positive.
-			_reply = (SocksReply)_buffer[1];
+			reply = (SocksReply)_buffer[1];
 
-			if (_reply != SocksReply.Succeeded)
+			if (reply != SocksReply.Succeeded)
 			{
-				HandleProxyCommandError(_reply);
+				HandleProxyCommandError(reply);
 			}
 
 			// - Consume rest of the SOCKS5 protocol so the next read will give application data.
