@@ -516,6 +516,13 @@ namespace FluentFTP {
 				// FIX : #318 always set the type when we create a new connection
 				ForceSetDataType = true;
 
+				if (ServerType == FtpServer.IBMzOSFTP &&
+					ServerOS == FtpOperatingSystem.IBMzOS)
+				{
+					Execute("SITE DATASETMODE");
+					Execute("SITE QUOTESOVERRIDE");
+				}
+
 #if !CORE14
 			}
 
@@ -690,6 +697,13 @@ namespace FluentFTP {
 
 			// FIX : #318 always set the type when we create a new connection
 			ForceSetDataType = true;
+
+			if (ServerType == FtpServer.IBMzOSFTP &&
+				ServerOS == FtpOperatingSystem.IBMzOS)
+			{
+				await ExecuteAsync("SITE DATASETMODE", token);
+				await ExecuteAsync("SITE QUOTESOVERRIDE", token);
+			}
 		}
 
 #endif
