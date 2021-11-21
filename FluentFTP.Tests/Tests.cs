@@ -28,6 +28,9 @@ namespace Tests {
 		private const string m_user = "";
 		private const string m_pass = "";
 
+		private const string m_proxy_host = "";
+		private const int m_proxy_port = 0;
+
 		private static readonly int[] connectionTypes = new[] {
 			(int) FtpDataConnectionType.EPSV,
 			(int) FtpDataConnectionType.EPRT,
@@ -1294,6 +1297,25 @@ namespace Tests {
 			using (var cl = NewFtpClient_Inacessible2()) {
 				var profile = cl.AutoConnect();
 			}*/
+		}
+
+		[Fact]
+		public void TestSocksProxy()
+		{
+			using (var cl = new FtpClientSocks5Proxy(new ProxyInfo()
+			{
+				Credentials = null,
+				Host = m_proxy_host,
+				Port = m_proxy_port
+			})
+			{
+				Host = m_host,
+				Credentials = new NetworkCredential(m_user, m_pass)
+			})
+			{
+				var items = cl.GetListing("/");
+				Console.WriteLine(items.Length);
+			}
 		}
 
 #if ASYNC
