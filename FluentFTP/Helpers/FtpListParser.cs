@@ -133,7 +133,7 @@ namespace FluentFTP.Helpers {
 							break;
 
 						case FtpParser.IBMzOS:
-							result = FtpIBMzOSParser.Parse(client, file);
+							result = FtpIBMzOSParser.Parse(client, file, path);
 							break;
 
 						case FtpParser.IBMOS400:

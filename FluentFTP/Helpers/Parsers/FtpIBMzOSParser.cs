@@ -33,7 +33,7 @@ namespace FluentFTP.Helpers.Parsers
 		/// <param name="client">The FTP client</param>
 		/// <param name="record">A line from the listing</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		public static FtpListItem Parse(FtpClient client, string record)
+		public static FtpListItem Parse(FtpClient client, string record, string path)
 		{
 			// Skip title line - all modes have one. 
 			// Also set zOSListingRealm to remember the mode we are in
@@ -55,10 +55,29 @@ namespace FluentFTP.Helpers.Parsers
 			// " Name     VV.MM   Created       Changed      Size  Init   Mod   Id"
 			if (record.Contains("Name     VV.MM"))
 			{
-				// This is an opportunity to issue XDSS and get the LRECL
+				// This is an opportunity to issue XDSS and get the LRECL, but how?
 				FtpReply reply;
-
-				if (!(reply = client.Execute("XDSS " + client.GetWorkingDirectory())).Success)
+				string cwd;
+				// Is caller using FtpListOption.NoPath and CWD to the right place?
+				if (path.Length == 0)
+				{
+					cwd = client.GetWorkingDirectory();
+				}
+				// Caller is not using FtpListOption.NoPath, so the path can be used
+				// but needs modification depending on its ending. Remove the "(...)"
+				else if (path.EndsWith(")'"))
+				{
+					cwd = path.Substring(0, path.IndexOf('(')) + "\'";
+				}
+				else if (path.EndsWith(")"))
+				{
+					cwd = path.Substring(0, path.IndexOf('('));
+				}
+				else
+				{
+					cwd = path;
+				}
+				if (!(reply = client.Execute("XDSS " + cwd)).Success)
 				{
 					throw new FtpCommandException(reply);
 				}
@@ -66,7 +85,6 @@ namespace FluentFTP.Helpers.Parsers
 				string[] words = reply.Message.Split(' ');
 				string[] val = words[5].Split('=');
 				client.zOSListingLRECL = UInt16.Parse(val[1]);
-
 				client.zOSListingRealm = FtpZOSListRealm.Member;
 				return null;
 			}
