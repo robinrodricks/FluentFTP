@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 35.2.0
+ - New: Support for connecting to FTP/FTPS servers via a SOCKS5 proxy (thanks [bjth](/bjth))
+ - New: Autoconfigure IBM z/OS FTP server using `SITE DATASETMODE` and `QUOTESOVERRIDE` (thanks [FanDjango](/FanDjango))
+ - Fix: `GetListing` item `Fullname` is now correctly calculated for Unix and z/OS systems (thanks [FanDjango](/FanDjango))
+
 #### 35.1.0
  - New: `GetZOSFileSize` APIs to get file size of IBM z/OS file system objects (thanks [FanDjango](/FanDjango))
  - New: `GetZOSListRealm` APIs to get realm of IBM z/OS servers (thanks [FanDjango](/FanDjango))
