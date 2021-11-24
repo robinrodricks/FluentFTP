@@ -116,7 +116,7 @@ namespace FluentFTP.Helpers.Parsers
 						lastModifiedStr += " 00:00";
 					}
 					var lastModified = ParseDateTime(client, lastModifiedStr);
-					var size = int.Parse(used) * 56664; // 3390 dev bytes per track
+					var size = long.Parse(used) * 56664; // 3390 dev bytes per track
 					var file = new FtpListItem(record, dsname, size, isDir, ref lastModified);
 					return file;
 				}
