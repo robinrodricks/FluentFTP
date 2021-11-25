@@ -102,8 +102,8 @@ namespace FluentFTP {
 
 			// default values to send
 			double progressValue = -1;
-			double transferSpeed = 0;
-			var estimatedRemaingTime = TimeSpan.Zero;
+			double transferSpeed;
+			var estimatedRemainingTime = TimeSpan.Zero;
 
 			// catch any divide-by-zero errors
 			try {
@@ -119,21 +119,17 @@ namespace FluentFTP {
 					progressValue = (double)position / (double)fileSize * 100;
 
 					//calculate remaining time			
-					estimatedRemaingTime = TimeSpan.FromSeconds((fileSize - position) / transferSpeed);
+					estimatedRemainingTime = TimeSpan.FromSeconds((fileSize - position) / transferSpeed);
 				}
 			}
-			catch (Exception) {
+			catch (Exception)
+			{
+				// Can only be a division that went wrong (div by zero or overflow)
+				transferSpeed = double.MaxValue;
+				estimatedRemainingTime = TimeSpan.Zero;
 			}
 
-			// suppress invalid values and send -1 instead
-			if (double.IsNaN(progressValue) && double.IsInfinity(progressValue)) {
-				progressValue = -1;
-			}
-			if (double.IsNaN(transferSpeed) && double.IsInfinity(transferSpeed)) {
-				transferSpeed = 0;
-			}
-
-			var p = new FtpProgress(progressValue, position, transferSpeed, estimatedRemaingTime, localPath, remotePath, metaProgress);
+			var p = new FtpProgress(progressValue, position, transferSpeed, estimatedRemainingTime, localPath, remotePath, metaProgress);
 			return p;
 		}
 
