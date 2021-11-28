@@ -141,25 +141,25 @@ namespace FluentFTP {
 		/// <summary>
 		/// Get z/OS file size
 		/// </summary>
+		/// <param name="path">The full path of th file whose size you want to retrieve</param>
+		/// <remarks>
+		/// Make sure you are in the right realm (z/OS or HFS) before doing this
+		/// </remarks>
 		/// <returns>The size of the file</returns>
-		public long GetZOSFileSize(string path) {
-			string oldPath = "";
-			string cwdPath = path;
-			string[] preFix = path.Split('(');
-			if (preFix.Length > 1) // PDS Member
-			{
-				cwdPath = preFix[0] + '\'';
-				oldPath = GetWorkingDirectory();
-				SetWorkingDirectory(cwdPath);
-			}
+		public long GetZOSFileSize(string path)
+		{
+			// prevent automatic parser detection switching to unix on HFS paths
 			ListingParser = FtpParser.IBMzOS;
+
 			FtpListItem[] entries = GetListing(path);
+
+			// no entries or more than one: path is NOT for a single dataset or file
 			if (entries.Length != 1) return -1;
+
+			// if the path is for a SINGLE dataset or file, there will be only one entry
 			FtpListItem entry = entries[0];
 
-			if (preFix.Length > 1) {
-				SetWorkingDirectory(oldPath);
-			}
+			// z/OS list parser will have determined that size
 			return entry.Size;
 		}
 
@@ -167,34 +167,26 @@ namespace FluentFTP {
 		/// <summary>
 		/// Get z/OS file size
 		/// </summary>
+		/// <param name="path">The full path of th file whose size you want to retrieve</param>
+		/// <remarks>
+		/// Make sure you are in the right realm (z/OS or HFS) before doing this
+		/// </remarks>
 		/// <returns>The size of the file</returns>
 		public async Task<long> GetZOSFileSizeAsync(string path, CancellationToken token = default(CancellationToken))
 		{
-			string oldPath = "";     
-			string cwdPath = path;
-			string[] preFix = path.Split('(');
-			if (preFix.Length > 1) // PDS Member
-			{
-				cwdPath = preFix[0] + '\'';
-				oldPath = await GetWorkingDirectoryAsync(token);
-				await SetWorkingDirectoryAsync(cwdPath, token);
-			}
+			// prevent automatic parser detection switching to unix on HFS paths
 			ListingParser = FtpParser.IBMzOS;
+
 			FtpListItem[] entries = await GetListingAsync(path, token);
+            // no entries or more than one: path is NOT for a single dataset or file
+
 			if (entries.Length != 1) return -1;
+			// if the path is for a SINGLE dataset or file, there will be only one entry
+
 			FtpListItem entry = entries[0];
+			// z/OS list parser will have determined that size
 
-			if (preFix.Length > 1)
-			{
-				await SetWorkingDirectoryAsync(oldPath, token);
-			}
 			return entry.Size;
-
 		}
-#endif
-
-
-		#endregion
-
 	}
 }
