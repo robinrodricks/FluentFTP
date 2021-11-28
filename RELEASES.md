@@ -1,9 +1,9 @@
 # Release Notes
 
 #### 35.2.1
- - Fix: z/OS GetListing: Path can be null causing an exception
- - Fix: z/OS GetListing: Large files overflow on size calculation resulting in negative file sizes
- - Fix: z/OS GetListing: Listing fails unless users `CWD` to the correct folder of a non-`RECFM=U` PDS
+ - Fix: z/OS GetListing: Path can be null causing an exception (thanks [FanDjango](/FanDjango))
+ - Fix: z/OS GetListing: Large files overflow on size calculation resulting in negative file sizes (thanks [FanDjango](/FanDjango))
+ - Fix: z/OS GetListing: Listing fails unless users `CWD` to the correct folder of a non-`RECFM=U` PDS (thanks [FanDjango](/FanDjango))
  
 #### 35.2.0
  - New: Support for connecting to FTP/FTPS servers via a SOCKS5 proxy (thanks [bjth](/bjth))
