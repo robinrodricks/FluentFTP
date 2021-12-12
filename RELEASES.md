@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 35.2.2
+ - Fix: z/OS GetFileSize: Ignore SIZE capability even if advertised by server as pointless (thanks [FanDjango](/FanDjango))
+ - Fix: z/OS DownloadFile: Read to end of stream because filesize is always inaccurate (thanks [FanDjango](/FanDjango))
+ - Fix: z/OS DownloadFile: Fix check for infinity or NaN progress values (thanks [FanDjango](/FanDjango))
+
 #### 35.2.1
  - Fix: z/OS GetListing: Path can be null causing an exception (thanks [FanDjango](/FanDjango))
  - Fix: z/OS GetListing: Large files overflow on size calculation resulting in negative file sizes (thanks [FanDjango](/FanDjango))

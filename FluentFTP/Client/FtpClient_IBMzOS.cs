@@ -146,15 +146,14 @@ namespace FluentFTP {
 		/// Make sure you are in the right realm (z/OS or HFS) before doing this
 		/// </remarks>
 		/// <returns>The size of the file</returns>
-		public long GetZOSFileSize(string path)
-		{
+		public long GetZOSFileSize(string path) {
 			// prevent automatic parser detection switching to unix on HFS paths
 			ListingParser = FtpParser.IBMzOS;
 
 			FtpListItem[] entries = GetListing(path);
 
 			// no entries or more than one: path is NOT for a single dataset or file
-			if (entries.Length != 1) return -1;
+			if (entries.Length != 1) { return -1; }
 
 			// if the path is for a SINGLE dataset or file, there will be only one entry
 			FtpListItem entry = entries[0];
@@ -188,5 +187,7 @@ namespace FluentFTP {
 
 			return entry.Size;
 		}
+#endif
+		#endregion
 	}
 }
