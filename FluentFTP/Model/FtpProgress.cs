@@ -126,10 +126,10 @@ namespace FluentFTP {
 			}
 
 			// suppress invalid values and send -1 instead
-			if (double.IsNaN(progressValue) && double.IsInfinity(progressValue)) {
+			if (double.IsNaN(progressValue) || double.IsInfinity(progressValue)) {
 				progressValue = -1;
 			}
-			if (double.IsNaN(transferSpeed) && double.IsInfinity(transferSpeed)) {
+			if (double.IsNaN(transferSpeed) || double.IsInfinity(transferSpeed)) {
 				transferSpeed = 0;
 			}
 
