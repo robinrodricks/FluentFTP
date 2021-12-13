@@ -250,7 +250,7 @@ namespace FluentFTP {
 
 			// disconnect if already connected
 			if (conn.IsConnected) {
-				await conn.DisconnectAsync();
+				await conn.DisconnectAsync(token);
 			}
 
 			// try each encryption mode
@@ -310,7 +310,7 @@ namespace FluentFTP {
 #endif
 
 						// since the connection failed, disconnect and retry
-						await conn.DisconnectAsync();
+						await conn.DisconnectAsync(token);
 
 						// if server does not support FTPS no point trying encryption again
 						if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {

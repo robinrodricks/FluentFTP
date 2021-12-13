@@ -27,10 +27,10 @@ namespace Examples {
 				await ftp.ConnectAsync(token);
 
 				// download a file and ensure the local directory is created
-				await ftp.DownloadFileAsync(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md");
+				await ftp.DownloadFileAsync(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", token: token);
 
 				// download a file and ensure the local directory is created, verify the file after download
-				await ftp.DownloadFileAsync(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpLocalExists.Overwrite, FtpVerify.Retry);
+				await ftp.DownloadFileAsync(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpLocalExists.Overwrite, FtpVerify.Retry, token: token);
 
 			}
 		}

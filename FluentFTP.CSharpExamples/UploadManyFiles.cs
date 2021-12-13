@@ -40,7 +40,7 @@ namespace Examples {
 						@"D:\Drivers\test\file3.exe",
 						@"D:\Drivers\test\file4.exe"
 					},
-					"/public_html/temp/", FtpRemoteExists.Skip);
+					"/public_html/temp/", FtpRemoteExists.Skip, token: token);
 
 			}
 		}

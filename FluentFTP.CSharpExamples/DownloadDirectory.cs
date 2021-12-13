@@ -31,10 +31,10 @@ namespace Examples {
 
 
 				// download a folder and all its files
-				await ftp.DownloadDirectoryAsync(@"C:\website\logs\", @"/public_html/logs", FtpFolderSyncMode.Update);
+				await ftp.DownloadDirectoryAsync(@"C:\website\logs\", @"/public_html/logs", FtpFolderSyncMode.Update, token: token);
 				
 				// download a folder and all its files, and delete extra files on disk
-				await ftp.DownloadDirectoryAsync(@"C:\website\dailybackup\", @"/public_html/", FtpFolderSyncMode.Mirror);
+				await ftp.DownloadDirectoryAsync(@"C:\website\dailybackup\", @"/public_html/", FtpFolderSyncMode.Mirror, token: token);
 				
 			}
 		}
