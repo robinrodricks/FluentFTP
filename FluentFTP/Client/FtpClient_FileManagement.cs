@@ -104,19 +104,22 @@ namespace FluentFTP {
 
 				LogFunc(nameof(FileExists), new object[] { path });
 
-				// Only disable the GetAbsolutePath(path) if z/OS
-				// Note: "TEST.TST" is a "path" that does not start with a slash
-				// This could be a unix file on z/OS OR a classic CWD relative dataset
-				// Both of these work with the z/OS FTP server NLST command
-				if (path.StartsWith("/") || ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS)
-				{
+				// z/OS Notes:
+				// In the following code, this checks for special z/OS handling:
+				// ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS
+				// A check for path.StartsWith("/") tells us, even if it is z/OS, we can use the 
+				// normal unix logic
+
+				// If z/OS: Do not GetAbsolutePath(), unless we have a leading slash
+				if (ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS || path.StartsWith("/")) {
 					// calc the absolute filepath
 					path = GetAbsolutePath(path);
 				}
 
 				// since FTP does not include a specific command to check if a file exists
 				// here we check if file exists by attempting to get its filesize (SIZE)
-				if (HasFeature(FtpCapability.SIZE)) {
+				// If z/OS: Do not do SIZE, unless we have a leading slash
+				if (HasFeature(FtpCapability.SIZE) && (ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS || path.StartsWith("/"))) {
 
 					// Fix #328: get filesize in ASCII or Binary mode as required by server
 					var sizeReply = new FtpSizeReply();
@@ -130,7 +133,8 @@ namespace FluentFTP {
 				}
 
 				// check if file exists by attempting to get its date modified (MDTM)
-				if (HasFeature(FtpCapability.MDTM)) {
+				// If z/OS: Do not do MDTM, unless we have a leading slash
+				if (HasFeature(FtpCapability.MDTM) && (ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS || path.StartsWith("/"))) {
 					var reply = Execute("MDTM " + path);
 					var ch = reply.Code[0];
 					if (ch == '2') {
@@ -141,13 +145,8 @@ namespace FluentFTP {
 					}
 				}
 
-				// Only disable the GetFtpDirectoryName() if z/OS
-				// Also make use of NLST returning no entries if file does not exist
-				// Note: "TEST.TST" is a "path" that does not start with a slash
-				// This could be a unix file on z/OS OR a classic CWD relative dataset
-				// Both of these work with the z/OS FTP server NLST command
-				if (!path.StartsWith("/") && ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS)
-				{
+				// If z/OS: different handling, unless we have a leading slash
+				if (ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS && !path.StartsWith("/")) {
 					var fileList = GetNameListing(path);
 					return fileList.Count() > 0;
 				}
@@ -203,19 +202,22 @@ namespace FluentFTP {
 
 			LogFunc(nameof(FileExistsAsync), new object[] { path });
 
-			// Only disable the GetAbsolutePath(path) if z/OS
-			// Note: "TEST.TST" is a "path" that does not start with a slash
-			// This could be a unix file on z/OS OR a classic CWD relative dataset
-			// Both of these work with the z/OS FTP server NLST command
-			if (path.StartsWith("/") || ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS)
-			{
+			// z/OS Notes:
+			// In the following code, this checks for special z/OS handling:
+			// ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS
+			// A check for path.StartsWith("/") tells us, even if it is z/OS, we can use the 
+			// normal unix logic
+
+			// Do not need GetAbsolutePath(path) if z/OS
+			if (ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS || path.StartsWith("/")) {
 				// calc the absolute filepath
 				path = await GetAbsolutePathAsync(path, token);
 			}
 
 			// since FTP does not include a specific command to check if a file exists
 			// here we check if file exists by attempting to get its filesize (SIZE)
-			if (HasFeature(FtpCapability.SIZE)) {
+			// If z/OS: Do not do SIZE, unless we have a leading slash
+			if (HasFeature(FtpCapability.SIZE) && (ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS || path.StartsWith("/"))) {
 
 				// Fix #328: get filesize in ASCII or Binary mode as required by server
 				FtpSizeReply sizeReply = new FtpSizeReply();
@@ -229,7 +231,8 @@ namespace FluentFTP {
 			}
 
 			// check if file exists by attempting to get its date modified (MDTM)
-			if (HasFeature(FtpCapability.MDTM)) {
+			// If z/OS: Do not do MDTM, unless we have a leading slash
+			if (HasFeature(FtpCapability.MDTM) && (ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS || path.StartsWith("/"))) {
 				FtpReply reply = await ExecuteAsync("MDTM " + path, token);
 				var ch = reply.Code[0];
 				if (ch == '2') {
@@ -241,13 +244,8 @@ namespace FluentFTP {
 				}
 			}
 
-			// Only disable the GetFtpDirectoryName() if z/OS
-			// Also make use of NLST returning no entries if file does not exist
-			// Note: "TEST.TST" is a "path" that does not start with a slash
-			// This could be a unix file on z/OS OR a classic CWD relative dataset
-			// Both of these work with the z/OS FTP server NLST command
-			if (!path.StartsWith("/") && ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS)
-			{
+			// If z/OS: different handling, unless we have a leading slash
+			if (ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS && !path.StartsWith("/")) {
 				var fileList = await GetNameListingAsync(path, token);
 				return fileList.Count() > 0;
 			}
