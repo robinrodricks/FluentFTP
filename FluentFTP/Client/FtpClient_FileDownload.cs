@@ -667,18 +667,20 @@ namespace FluentFTP {
 			var disposeOutStream = false;
 
 			try {
-				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
+				// if progress requested get file size (if not known already)
 				long fileLen = 0;
-				if (DownloadDataType == FtpDataType.Binary && progress != null) {
+				if (progress != null) {
 					fileLen = knownFileSize > 0 ? knownFileSize : GetFileSize(remotePath);
 				}
 
 				// open the file for reading
 				downStream = OpenRead(remotePath, DownloadDataType, restartPosition, fileLen > 0);
 
-				// if the server has not provided a length for this file
+				// if the server has not provided a length for this file or
+				// if the mode is ASCII or
+				// if the server is IBM z/OS
 				// we read until EOF instead of reading a specific number of bytes
-				var readToEnd = fileLen <= 0 || (ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS);
+				var readToEnd = (fileLen <= 0) || (DownloadDataType == FtpDataType.ASCII) || (ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS);
 
 				const int rateControlResolution = 100;
 				var rateLimitBytes = DownloadRateLimit != 0 ? (long)DownloadRateLimit * 1024 : 0;
@@ -899,19 +901,20 @@ namespace FluentFTP {
 			var disposeOutStream = false;
 
 			try {
-				// get file size if downloading in binary mode (in ASCII mode we read until EOF)
+				// if progress requested get file size (if not known already)
 				long fileLen = 0;
-
-				if (DownloadDataType == FtpDataType.Binary && progress != null) {
+				if (progress != null) {
 					fileLen = knownFileSize > 0 ? knownFileSize : await GetFileSizeAsync(remotePath, -1, token);
 				}
 
 				// open the file for reading
 				downStream = await OpenReadAsync(remotePath, DownloadDataType, restartPosition, fileLen > 0, token);
 
-				// if the server has not provided a length for this file
+				// if the server has not provided a length for this file or
+				// if the mode is ASCII or
+				// if the server is IBM z/OS
 				// we read until EOF instead of reading a specific number of bytes
-				var readToEnd = fileLen <= 0 || (ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS);
+				var readToEnd = (fileLen <= 0) || (DownloadDataType == FtpDataType.ASCII) || (ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS);
 
 				const int rateControlResolution = 100;
 				var rateLimitBytes = DownloadRateLimit != 0 ? (long)DownloadRateLimit * 1024 : 0;
