@@ -519,8 +519,14 @@ namespace FluentFTP {
 				if (ServerType == FtpServer.IBMzOSFTP &&
 					ServerOS == FtpOperatingSystem.IBMzOS)
 				{
-					Execute("SITE DATASETMODE");
-					Execute("SITE QUOTESOVERRIDE");
+					if (!(reply = Execute("SITE DATASETMODE")).Success)
+					{
+						throw new FtpCommandException(reply);
+					}
+					if (!(reply = Execute("SITE QUOTESOVERRIDE")).Success)
+					{
+						throw new FtpCommandException(reply);
+					}
 				}
 
 #if !CORE14
@@ -701,8 +707,14 @@ namespace FluentFTP {
 			if (ServerType == FtpServer.IBMzOSFTP &&
 				ServerOS == FtpOperatingSystem.IBMzOS)
 			{
-				await ExecuteAsync("SITE DATASETMODE", token);
-				await ExecuteAsync("SITE QUOTESOVERRIDE", token);
+				if (!(reply = await ExecuteAsync("SITE DATASETMODE", token)).Success)
+				{
+					throw new FtpCommandException(reply);
+				}
+				if (!(reply = await ExecuteAsync("SITE QUOTESOVERRIDE", token)).Success)
+				{
+					throw new FtpCommandException(reply);
+				}
 			}
 		}
 
