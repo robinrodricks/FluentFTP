@@ -1231,9 +1231,8 @@ namespace FluentFTP {
 					client = this;
 				}
 
-				client.SetDataType(type);
-
 				length = checkIfFileExists ? client.GetFileSize(path) : 0;
+				client.SetDataType(type);
 				stream = client.OpenDataStream("RETR " + path, restart);
 #if !CORE14
 			}
@@ -1286,8 +1285,8 @@ namespace FluentFTP {
 				client = this;
 			}
 
-			await client.SetDataTypeAsync(type, token);
 			length = checkIfFileExists ? await client.GetFileSizeAsync(path, -1, token) : 0;
+			await client.SetDataTypeAsync(type, token);
 			stream = await client.OpenDataStreamAsync("RETR " + path, restart, token);
 
 			if (stream != null) {
