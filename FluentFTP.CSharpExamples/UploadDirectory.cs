@@ -31,10 +31,10 @@ namespace Examples {
 
 
 				// upload a folder and all its files
-				await ftp.UploadDirectoryAsync(@"C:\website\videos\", @"/public_html/videos", FtpFolderSyncMode.Update);
+				await ftp.UploadDirectoryAsync(@"C:\website\videos\", @"/public_html/videos", FtpFolderSyncMode.Update, token: token);
 				
 				// upload a folder and all its files, and delete extra files on the server
-				await ftp.UploadDirectoryAsync(@"C:\website\assets\", @"/public_html/assets", FtpFolderSyncMode.Mirror);
+				await ftp.UploadDirectoryAsync(@"C:\website\assets\", @"/public_html/assets", FtpFolderSyncMode.Mirror, token: token);
 				
 			}
 		}

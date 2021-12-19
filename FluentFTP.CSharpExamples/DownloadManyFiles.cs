@@ -38,7 +38,7 @@ namespace Examples {
 						@"/public_html/temp/file2.exe",
 						@"/public_html/temp/file3.exe",
 						@"/public_html/temp/file4.exe"
-					}, FtpLocalExists.Skip);
+					}, FtpLocalExists.Skip, token: token);
 
 			}
 		}

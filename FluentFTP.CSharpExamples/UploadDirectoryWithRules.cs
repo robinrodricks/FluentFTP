@@ -46,7 +46,7 @@ namespace Examples {
 				   new FtpSizeRule(FtpOperator.LessThan, 1000000000)           // only allow files <1 GB
 				};
 				await ftp.UploadDirectoryAsync(@"C:\website\attachments\", @"/public_html/attachments",
-					FtpFolderSyncMode.Update, FtpRemoteExists.Skip, FtpVerify.None, rules);
+					FtpFolderSyncMode.Update, FtpRemoteExists.Skip, FtpVerify.None, rules, token: token);
 
 
 				// upload all files from a folder, but skip the sub-directories named `.git`, `.svn`, `node_modules` etc
@@ -54,7 +54,7 @@ namespace Examples {
 				   new FtpFolderNameRule(false, FtpFolderNameRule.CommonBlacklistedFolders),
 				};
 				await ftp.UploadDirectoryAsync(@"C:\project\src\", @"/project/src",
-					FtpFolderSyncMode.Update, FtpRemoteExists.Skip, FtpVerify.None, rules2);
+					FtpFolderSyncMode.Update, FtpRemoteExists.Skip, FtpVerify.None, rules2, token: token);
 
 			}
 		}
