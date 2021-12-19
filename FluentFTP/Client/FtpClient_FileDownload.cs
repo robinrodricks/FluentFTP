@@ -830,10 +830,6 @@ namespace FluentFTP {
 
 				return true;
 			}
-			catch (IOException ex1) {
-				LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
-				return false;
-			}
 			catch (Exception ex1) {
 
 				// close stream before throwing error
@@ -851,6 +847,11 @@ namespace FluentFTP {
 					}
 					catch (Exception) {
 					}
+				}
+
+				if (ex1 is IOException) {
+					LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
+					return false;
 				}
 
 				// absorb "file does not exist" exceptions and simply return false
@@ -1064,10 +1065,6 @@ namespace FluentFTP {
 
 				return true;
 			}
-			catch (IOException ex1) {
-				LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
-				return false;
-			}
 			catch (Exception ex1) {
 
 				// close stream before throwing error
@@ -1085,6 +1082,11 @@ namespace FluentFTP {
 					}
 					catch (Exception) {
 					}
+				}
+
+				if (ex1 is IOException) {
+					LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
+					return false;
 				}
 
 				if (ex1 is OperationCanceledException) {
