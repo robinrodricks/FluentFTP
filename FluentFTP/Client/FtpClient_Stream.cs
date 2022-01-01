@@ -1644,13 +1644,7 @@ namespace FluentFTP {
 			lock (m_lock) {
 #endif
 
-				// FIX : #291 only change the data type if different
-				if (CurrentDataType != type || ForceSetDataType) {
-					// FIX : #318 always set the type when we create a new connection
-					ForceSetDataType = false;
-
-					SetDataTypeNoLock(type);
-				}
+				SetDataTypeNoLock(type);
 
 #if !CORE14
 			}
@@ -1664,27 +1658,33 @@ namespace FluentFTP {
 		/// <param name="type">ASCII/Binary.</param>
 		/// <remarks>This method doesn't do any locking to prevent recursive lock scenarios.  Callers must do their own locking.</remarks>
 		private void SetDataTypeNoLock(FtpDataType type) {
-			FtpReply reply;
-			switch (type) {
-				case FtpDataType.ASCII:
-					if (!(reply = Execute("TYPE A")).Success) {
-						throw new FtpCommandException(reply);
-					}
+			// FIX : #291 only change the data type if different
+			if (CurrentDataType != type || ForceSetDataType) {
+				// FIX : #318 always set the type when we create a new connection
+				ForceSetDataType = false;
 
-					break;
+				FtpReply reply;
+				switch (type) {
+					case FtpDataType.ASCII:
+						if (!(reply = Execute("TYPE A")).Success) {
+							throw new FtpCommandException(reply);
+						}
 
-				case FtpDataType.Binary:
-					if (!(reply = Execute("TYPE I")).Success) {
-						throw new FtpCommandException(reply);
-					}
+						break;
 
-					break;
+					case FtpDataType.Binary:
+						if (!(reply = Execute("TYPE I")).Success) {
+							throw new FtpCommandException(reply);
+						}
 
-				default:
-					throw new FtpException("Unsupported data type: " + type.ToString());
+						break;
+
+					default:
+						throw new FtpException("Unsupported data type: " + type.ToString());
+				}
+
+				CurrentDataType = type;
 			}
-
-			CurrentDataType = type;
 		}
 
 #if ASYNC
@@ -1694,13 +1694,8 @@ namespace FluentFTP {
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		protected async Task SetDataTypeAsync(FtpDataType type, CancellationToken token = default(CancellationToken)) {
-			// FIX : #291 only change the data type if different
-			if (CurrentDataType != type || ForceSetDataType) {
-				// FIX : #318 always set the type when we create a new connection
-				ForceSetDataType = false;
 
-				await SetDataTypeNoLockAsync(type, token);
-			}
+			await SetDataTypeNoLockAsync(type, token);
 		}
 
 		/// <summary>
@@ -1709,27 +1704,33 @@ namespace FluentFTP {
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		protected async Task SetDataTypeNoLockAsync(FtpDataType type, CancellationToken token = default(CancellationToken)) {
-			FtpReply reply;
-			switch (type) {
-				case FtpDataType.ASCII:
-					if (!(reply = await ExecuteAsync("TYPE A", token)).Success) {
-						throw new FtpCommandException(reply);
-					}
+			// FIX : #291 only change the data type if different
+			if (CurrentDataType != type || ForceSetDataType) {
+				// FIX : #318 always set the type when we create a new connection
+				ForceSetDataType = false;
 
-					break;
+				FtpReply reply;
+				switch (type) {
+					case FtpDataType.ASCII:
+						if (!(reply = await ExecuteAsync("TYPE A", token)).Success) {
+							throw new FtpCommandException(reply);
+						}
 
-				case FtpDataType.Binary:
-					if (!(reply = await ExecuteAsync("TYPE I", token)).Success) {
-						throw new FtpCommandException(reply);
-					}
+						break;
 
-					break;
+					case FtpDataType.Binary:
+						if (!(reply = await ExecuteAsync("TYPE I", token)).Success) {
+							throw new FtpCommandException(reply);
+						}
 
-				default:
-					throw new FtpException("Unsupported data type: " + type.ToString());
-			}
+						break;
+
+					default:
+						throw new FtpException("Unsupported data type: " + type.ToString());
+				}
 
 			CurrentDataType = type;
+			}
 		}
 #endif
 
