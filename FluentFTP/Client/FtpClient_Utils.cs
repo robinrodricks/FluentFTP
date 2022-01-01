@@ -108,7 +108,7 @@ namespace FluentFTP {
 				var pwd = GetWorkingDirectory();
 				if (pwd != null && pwd.Trim().Length > 0 && path != pwd) {
 					// Check if PDS (MVS Dataset) file system
-					if (pwd.StartsWith("'") && ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS) {
+					if (pwd.StartsWith("'") && ServerType == FtpServer.IBMzOSFTP) {
 						// PDS that has single quotes is already fully qualified
 						return pwd;
 					}
