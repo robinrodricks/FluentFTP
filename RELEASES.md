@@ -1,5 +1,15 @@
 # Release Notes
 
+#### 35.2.3
+ - New: Detect PyFtpdLib FTP servers (allows for future server-specific handling)
+ - Fix: Pass CancellationToken to all methods that support cancellation (thanks [0xced](/0xced))
+ - Fix: Error check on z/OS init commands to ensure they executed correctly (thanks [FanDjango](/FanDjango))
+ - Fix: Improve `FileExists` for z/OS: better no SIZE, no MDTM on non HFS files (thanks [FanDjango](/FanDjango))
+ - Fix: `DownloadFile` for z/OS: `SetDataType` directly before the `RETR` command (thanks [FanDjango](/FanDjango))
+ - Fix: `IsAuthenticated` is not updated when calling `ConnectAsync` (thanks [datvm](/datvm))
+ - Fix: Reduce number of times `SetDataType` is called internally to improve performance (thanks [FanDjango](/FanDjango))
+ - Fix: Fail to detect z/OS server if `Unix` is also mentioned in welcome message (thanks [FanDjango](/FanDjango))
+
 #### 35.2.2
  - Fix: z/OS GetFileSize: Ignore SIZE capability even if advertised by server as pointless (thanks [FanDjango](/FanDjango))
  - Fix: z/OS DownloadFile: Read to end of stream because filesize is always inaccurate (thanks [FanDjango](/FanDjango))
