@@ -50,6 +50,7 @@ namespace FluentFTP.Servers {
 			new XLightServer(),
 			new FritzBoxServer(),
 			new WSFTPServer(),
+			new PyFtpdLibServer(),
 		};
 
 		#region Working Connection Profiles

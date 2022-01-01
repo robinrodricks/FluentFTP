@@ -125,5 +125,10 @@ namespace FluentFTP {
 		/// Definitely WS_FTP server
 		/// </summary>
 		WSFTPServer,
+
+		/// <summary>
+		/// Definitely PyFtpdLib server
+		/// </summary>
+		PyFtpdLib,
 	}
 }
