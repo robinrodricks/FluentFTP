@@ -104,11 +104,7 @@ namespace FluentFTP {
 
 				LogFunc(nameof(FileExists), new object[] { path });
 
-				// z/OS Notes:
-				// In the following code, this checks for special z/OS handling:
-				// ServerType == FtpServer.IBMzOSFTP
-				// A check for path.StartsWith("/") tells us, even if it is z/OS, we can use the 
-				// normal unix logic
+				// A check for path.StartsWith("/") tells us, even if it is z/OS, we can use the normal unix logic
 
 				// If z/OS: Do not GetAbsolutePath(), unless we have a leading slash
 				if (ServerType != FtpServer.IBMzOSFTP || path.StartsWith("/")) {
@@ -202,11 +198,7 @@ namespace FluentFTP {
 
 			LogFunc(nameof(FileExistsAsync), new object[] { path });
 
-			// z/OS Notes:
-			// In the following code, this checks for special z/OS handling:
-			// ServerType == FtpServer.IBMzOSFTP
-			// A check for path.StartsWith("/") tells us, even if it is z/OS, we can use the 
-			// normal unix logic
+			// A check for path.StartsWith("/") tells us, even if it is z/OS, we can use the normal unix logic
 
 			// Do not need GetAbsolutePath(path) if z/OS
 			if (ServerType != FtpServer.IBMzOSFTP || path.StartsWith("/")) {
