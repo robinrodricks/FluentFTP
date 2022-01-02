@@ -263,7 +263,7 @@ namespace FluentFTP {
 			// Note: "TEST.TST" is a "path" that does not start with a slash
 			// This could be a unix file on z/OS OR a classic CWD relative dataset
 			// Both of these work with the z/OS FTP server LIST command
-			if (ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS || path == null || path.StartsWith("/"))
+			if (ServerType != FtpServer.IBMzOSFTP || path == null || path.StartsWith("/"))
 			{
 				// calc the absolute filepath
 				path = GetAbsolutePath(path);
@@ -395,7 +395,7 @@ namespace FluentFTP {
 				}
 			}
 			// for z/OS, return of null actually means, just skip with no warning
-			else if (ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS)
+			else if (ServerType != FtpServer.IBMzOSFTP)
 			{
 				LogStatus(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
 			}
@@ -638,7 +638,7 @@ namespace FluentFTP {
 			// Note: "TEST.TST" is a "path" that does not start with a slash
 			// This could be a unix file on z/OS OR a classic CWD relative dataset
 			// Both of these work with the z/OS FTP server LIST command
-			if (ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS || path == null || path.StartsWith("/"))
+			if (ServerType != FtpServer.IBMzOSFTP || path == null || path.StartsWith("/"))
 			{
 				// calc the absolute filepath
 				path = await GetAbsolutePathAsync(path, token);
@@ -1171,7 +1171,7 @@ namespace FluentFTP {
 
 			var listing = new List<string>();
 
-			if (ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS || path == null || path.StartsWith("/"))
+			if (ServerType != FtpServer.IBMzOSFTP || path == null || path.StartsWith("/"))
 			{
 				// calc path to request
 				path = GetAbsolutePath(path);
@@ -1283,7 +1283,7 @@ namespace FluentFTP {
 
 			var listing = new List<string>();
 
-			if (ServerType != FtpServer.IBMzOSFTP || ServerOS != FtpOperatingSystem.IBMzOS || path == null || path.StartsWith("/"))
+			if (ServerType != FtpServer.IBMzOSFTP || path == null || path.StartsWith("/"))
 			{
 				// calc path to request
 				path = await GetAbsolutePathAsync(path, token);

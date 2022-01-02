@@ -173,7 +173,6 @@ namespace FluentFTP.Helpers {
 
 			// ONLY IF DIR PATH PROVIDED
 			if (client.ServerType == FtpServer.IBMzOSFTP &&
-				client.ServerOS == FtpOperatingSystem.IBMzOS &&
 				client.zOSListingRealm != FtpZOSListRealm.Unix)
 			{
 				// The user might be using GetListing("", FtpListOption.NoPath)

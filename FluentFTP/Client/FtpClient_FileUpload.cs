@@ -68,7 +68,7 @@ namespace FluentFTP {
 
 			// ensure ends with slash if remote is not PDS (MVS Dataset)
 			bool isPDS = false;
-			if (remoteDir.StartsWith("'") && ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS) {
+			if (remoteDir.StartsWith("'") && ServerType == FtpServer.IBMzOSFTP) {
 				isPDS = true;
 			}
 			else {

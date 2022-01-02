@@ -44,8 +44,7 @@ namespace FluentFTP {
 				ReadCurrentWorkingDirectory();
 			}
 
-			if (ServerType != FtpServer.IBMzOSFTP ||
-				ServerOS != FtpOperatingSystem.IBMzOS) {
+			if (ServerType != FtpServer.IBMzOSFTP) {
 				return FtpZOSListRealm.Invalid;
 			}
 
@@ -97,8 +96,7 @@ namespace FluentFTP {
 				await ReadCurrentWorkingDirectoryAsync(token);
 			}
 
-			if (ServerType != FtpServer.IBMzOSFTP ||
-				ServerOS != FtpOperatingSystem.IBMzOS)			{
+			if (ServerType != FtpServer.IBMzOSFTP)			{
 				return FtpZOSListRealm.Invalid;
 			}
 

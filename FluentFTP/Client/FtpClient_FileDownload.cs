@@ -678,7 +678,7 @@ namespace FluentFTP {
 
 				// if the server has not provided a length for this file
 				// we read until EOF instead of reading a specific number of bytes
-				var readToEnd = fileLen <= 0 || (ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS);
+				var readToEnd = fileLen <= 0 || (ServerType == FtpServer.IBMzOSFTP);
 
 				const int rateControlResolution = 100;
 				var rateLimitBytes = DownloadRateLimit != 0 ? (long)DownloadRateLimit * 1024 : 0;
@@ -912,7 +912,7 @@ namespace FluentFTP {
 
 				// if the server has not provided a length for this file
 				// we read until EOF instead of reading a specific number of bytes
-				var readToEnd = fileLen <= 0 || (ServerType == FtpServer.IBMzOSFTP && ServerOS == FtpOperatingSystem.IBMzOS);
+				var readToEnd = fileLen <= 0 || (ServerType == FtpServer.IBMzOSFTP);
 
 				const int rateControlResolution = 100;
 				var rateLimitBytes = DownloadRateLimit != 0 ? (long)DownloadRateLimit * 1024 : 0;

@@ -799,7 +799,6 @@ namespace FluentFTP {
 			// PWD returns "''" - you would need to CWD to some HLQ that only you can
 			// imagine. There is no way to list the available top level HLQs.
 			if (ServerType == FtpServer.IBMzOSFTP &&
-				ServerOS == FtpOperatingSystem.IBMzOS &&
 				_LastWorkingDir.Split('.').Length - 1 == 1) {
 				return true;
 			}
@@ -831,7 +830,6 @@ namespace FluentFTP {
 			// PWD returns "''" - you would need to CWD to some HLQ that only you can
 			// imagine. There is no way to list the available top level HLQs.
 			if (ServerType == FtpServer.IBMzOSFTP &&
-				ServerOS == FtpOperatingSystem.IBMzOS &&
 				_LastWorkingDir.Split('.').Length - 1 == 1)
 			{
 				return true;
