@@ -1,7 +1,7 @@
 # Release Notes
 
 #### 36.0.0
- - New: `GetZOSFileSize` is now hidden and superceeded by `GetFileSize` which handles z/OS servers
+ - New: `GetZOSFileSize` is now removed and superceeded by `GetFileSize` which handles z/OS servers
  - New: Refactor and cleanup z/OS specific logic for: post-connect init, `IsRoot`, `GetFileSize`
  - Fix: Enable detection of IBM OS/400 servers that were disabled during server-specific handling
 
