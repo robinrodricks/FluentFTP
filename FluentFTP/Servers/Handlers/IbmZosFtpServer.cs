@@ -136,6 +136,22 @@ namespace FluentFTP.Servers.Handlers {
 		}
 #endif
 		#endregion
+
+		/// <summary>
+		/// Check if the given path is a root directory on your FTP server.
+		/// If you are unsure, return false.
+		/// </summary>
+		public override bool IsRoot(FtpClient client, string path) {
+
+			// If it is not a "/" root, it could perhaps be a z/OS root (like 'SYS1.')
+			// Note: If on z/OS you have somehow managed to CWD "over" th top, i.e.
+			// PWD returns "''" - you would need to CWD to some HLQ that only you can
+			// imagine. There is no way to list the available top level HLQs.
+			if (path.Split('.').Length - 1 == 1) {
+				return true;
+			}
+			return false;
+		}
 	}
 }
 

@@ -143,5 +143,13 @@ namespace FluentFTP.Servers {
 			return 0;
 		}
 #endif
+		/// <summary>
+		/// Check if the given path is a root directory on your FTP server.
+		/// If you are unsure, return false.
+		/// </summary>
+		public virtual bool IsRoot(FtpClient client, string path) {
+			return false;
+		}
+
 	}
 }

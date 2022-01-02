@@ -794,12 +794,8 @@ namespace FluentFTP {
 				return true;
 			}
 
-			// If it is not a "/" root, it could perhaps be a z/OS root (like 'SYS1.')
-			// Note: If on z/OS you have somehow managed to CWD "over" th top, i.e.
-			// PWD returns "''" - you would need to CWD to some HLQ that only you can
-			// imagine. There is no way to list the available top level HLQs.
-			if (ServerType == FtpServer.IBMzOSFTP &&
-				_LastWorkingDir.Split('.').Length - 1 == 1) {
+			// execute server-specific check if the current working dir is a root directory
+			if (ServerHandler != null && ServerHandler.IsRoot(this, _LastWorkingDir)){
 				return true;
 			}
 
@@ -825,13 +821,8 @@ namespace FluentFTP {
 				return true;
 			}
 
-			// If it is not a "/" root, it could perhaps be a z/OS root (like 'SYS1.')
-			// Note: If on z/OS you have somehow managed to CWD "over" th top, i.e.
-			// PWD returns "''" - you would need to CWD to some HLQ that only you can
-			// imagine. There is no way to list the available top level HLQs.
-			if (ServerType == FtpServer.IBMzOSFTP &&
-				_LastWorkingDir.Split('.').Length - 1 == 1)
-			{
+			// execute server-specific check if the current working dir is a root directory
+			if (ServerHandler != null && ServerHandler.IsRoot(this, _LastWorkingDir)) {
 				return true;
 			}
 
