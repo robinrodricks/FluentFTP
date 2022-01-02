@@ -1140,28 +1140,17 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the file</param>
 		/// <returns>A stream for reading the file on the server</returns>
 		public Stream OpenRead(string path) {
-			return OpenRead(path, FtpDataType.Binary, 0, true);
+			return OpenRead(path, FtpDataType.Binary, 0, 0);
 		}
 
 		/// <summary>
 		/// Opens the specified file for reading
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
+		/// <param name="restart">Resume location</param>
 		/// <returns>A stream for reading the file on the server</returns>
-		public Stream OpenRead(string path, FtpDataType type) {
-			return OpenRead(path, type, 0, true);
-		}
-
-		/// <summary>
-		/// Opens the specified file for reading
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
-		/// <returns>A stream for reading the file on the server</returns>
-		public Stream OpenRead(string path, FtpDataType type, bool checkIfFileExists) {
-			return OpenRead(path, type, 0, checkIfFileExists);
+		public Stream OpenRead(string path, long restart) {
+			return OpenRead(path, FtpDataType.Binary, restart, 0);
 		}
 
 		/// <summary>
@@ -1172,28 +1161,7 @@ namespace FluentFTP {
 		/// <param name="restart">Resume location</param>
 		/// <returns>A stream for reading the file on the server</returns>
 		public virtual Stream OpenRead(string path, FtpDataType type, long restart) {
-			return OpenRead(path, type, restart, true);
-		}
-
-		/// <summary>
-		/// Opens the specified file for reading
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="restart">Resume location</param>
-		/// <returns>A stream for reading the file on the server</returns>
-		public Stream OpenRead(string path, long restart) {
-			return OpenRead(path, FtpDataType.Binary, restart, true);
-		}
-
-		/// <summary>
-		/// Opens the specified file for reading
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="restart">Resume location</param>
-		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
-		/// <returns>A stream for reading the file on the server</returns>
-		public Stream OpenRead(string path, long restart, bool checkIfFileExists) {
-			return OpenRead(path, FtpDataType.Binary, restart, checkIfFileExists);
+			return OpenRead(path, type, restart, 0);
 		}
 
 		/// <summary>
@@ -1202,9 +1170,9 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="restart">Resume location</param>
-		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
+		/// <param name="fileLen">The file length, if already known</param>
 		/// <returns>A stream for reading the file on the server</returns>
-		public virtual Stream OpenRead(string path, FtpDataType type, long restart, bool checkIfFileExists) {
+		public virtual Stream OpenRead(string path, FtpDataType type, long restart, long fileLen) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -1212,7 +1180,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(OpenRead), new object[] { path, type, restart });
+			LogFunc(nameof(OpenRead), new object[] { path, type, restart, fileLen });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1231,7 +1199,13 @@ namespace FluentFTP {
 					client = this;
 				}
 
-				length = checkIfFileExists ? client.GetFileSize(path) : 0;
+				if (fileLen > 0) {
+					// Our caller knows the fileLen, so it exists, no need to check
+					length = fileLen;
+				}
+				else {
+					length = client.GetFileSize(path);
+				}
 
 				client.SetDataType(type);
 				stream = client.OpenDataStream("RETR " + path, restart);
@@ -1259,10 +1233,10 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="restart">Resume location</param>
-		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
+		/// <param name="fileLen">The file length, if already known</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for reading the file on the server</returns>
-		public virtual async Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, bool checkIfFileExists, CancellationToken token = default(CancellationToken)) {
+		public virtual async Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, long fileLen, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -1270,7 +1244,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(OpenReadAsync), new object[] { path, type, restart });
+			LogFunc(nameof(OpenReadAsync), new object[] { path, type, restart, fileLen });
 
 			FtpClient client = null;
 			FtpDataStream stream = null;
@@ -1286,7 +1260,13 @@ namespace FluentFTP {
 				client = this;
 			}
 
-			length = checkIfFileExists ? await client.GetFileSizeAsync(path, -1, token) : 0;
+			if (fileLen > 0) {
+				// Our caller knows the fileLen, so it exists, no need to check
+				length = fileLen;
+			}
+			else {
+				length = await client.GetFileSizeAsync(path, -1, token);
+			}
 
 			await client.SetDataTypeAsync(type, token);
 			stream = await client.OpenDataStreamAsync("RETR " + path, restart, token);
@@ -1311,20 +1291,9 @@ namespace FluentFTP {
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="restart">Resume location</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A readable stream of the remote file</returns>
+		/// <returns>A stream for reading the file on the server</returns>
 		public Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, CancellationToken token = default(CancellationToken)) {
-			return OpenReadAsync(path, type, restart, true, token);
-		}
-
-		/// <summary>
-		/// Opens the specified file for reading asynchronously
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A readable stream of the remote file</returns>
-		public Task<Stream> OpenReadAsync(string path, FtpDataType type, CancellationToken token = default(CancellationToken)) {
-			return OpenReadAsync(path, type, 0, true, token);
+			return OpenReadAsync(path, type, restart, 0, token);
 		}
 
 		/// <summary>
@@ -1335,7 +1304,7 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A readable stream of the remote file</returns>
 		public Task<Stream> OpenReadAsync(string path, long restart, CancellationToken token = default(CancellationToken)) {
-			return OpenReadAsync(path, FtpDataType.Binary, restart, true, token);
+			return OpenReadAsync(path, FtpDataType.Binary, restart, 0, token);
 		}
 
 		/// <summary>
@@ -1346,7 +1315,7 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A readable stream of the remote file</returns>
 		public Task<Stream> OpenReadAsync(string path, CancellationToken token = default(CancellationToken)) {
-			return OpenReadAsync(path, FtpDataType.Binary, 0, true, token);
+			return OpenReadAsync(path, FtpDataType.Binary, 0, 0, token);
 		}
 #endif
 
