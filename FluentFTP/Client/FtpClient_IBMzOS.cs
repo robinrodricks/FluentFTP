@@ -39,6 +39,8 @@ namespace FluentFTP {
 		/// <returns>The realm</returns>
 		public FtpZOSListRealm GetZOSListRealm() {
 
+			LogFunc(nameof(GetZOSListRealm));
+
 			// this case occurs immediately after connection and after the working dir has changed
 			if (_LastWorkingDir == null) {
 				ReadCurrentWorkingDirectory();
@@ -87,22 +89,20 @@ namespace FluentFTP {
 		/// current working directory. 
 		/// </summary>
 		/// <returns>The realm</returns>
-		public async Task<FtpZOSListRealm> GetZOSListRealmAsync(CancellationToken token = default(CancellationToken))
-		{
+		public async Task<FtpZOSListRealm> GetZOSListRealmAsync(CancellationToken token = default(CancellationToken)) {
+			LogFunc(nameof(GetZOSListRealmAsync));
 
 			// this case occurs immediately after connection and after the working dir has changed
-			if (_LastWorkingDir == null)
-			{
+			if (_LastWorkingDir == null) {
 				await ReadCurrentWorkingDirectoryAsync(token);
 			}
 
-			if (ServerType != FtpServer.IBMzOSFTP)			{
+			if (ServerType != FtpServer.IBMzOSFTP) {
 				return FtpZOSListRealm.Invalid;
 			}
 
 			// It is a unix like path (starts with /)
-			if (_LastWorkingDir[0] != '\'')
-			{
+			if (_LastWorkingDir[0] != '\'') {
 				return FtpZOSListRealm.Unix;
 			}
 
@@ -110,22 +110,19 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			// Go to where we are. The reply will tell us what it is we we are...
-			if (!(reply = await ExecuteAsync("CWD " + _LastWorkingDir, token)).Success)
-			{
+			if (!(reply = await ExecuteAsync("CWD " + _LastWorkingDir, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 
 			// 250-The working directory may be a load library                          
 			// 250 The working directory "GEEK.PRODUCTS.LOADLIB" is a partitioned data set
 
-			if (reply.InfoMessages!=null &&
-				reply.InfoMessages.Contains("may be a load library"))
-			{
+			if (reply.InfoMessages != null &&
+				reply.InfoMessages.Contains("may be a load library")) {
 				return FtpZOSListRealm.MemberU;
 			}
 
-			if (reply.Message.Contains("is a partitioned data set"))
-			{
+			if (reply.Message.Contains("is a partitioned data set")) {
 				return FtpZOSListRealm.Member;
 			}
 
@@ -145,6 +142,14 @@ namespace FluentFTP {
 		/// </remarks>
 		/// <returns>The size of the file</returns>
 		public long GetZOSFileSize(string path) {
+
+			// Verify args
+			if (path.IsBlank()) {
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
+
+			LogFunc(nameof(GetZOSFileSize), new object[] { path });
+
 			// prevent automatic parser detection switching to unix on HFS paths
 			ListingParser = FtpParser.IBMzOS;
 
@@ -169,13 +174,20 @@ namespace FluentFTP {
 		/// Make sure you are in the right realm (z/OS or HFS) before doing this
 		/// </remarks>
 		/// <returns>The size of the file</returns>
-		public async Task<long> GetZOSFileSizeAsync(string path, CancellationToken token = default(CancellationToken))
-		{
+		public async Task<long> GetZOSFileSizeAsync(string path, CancellationToken token = default(CancellationToken)) {// verify args
+
+			// Verify args
+			if (path.IsBlank()) {
+				throw new ArgumentException("Required parameter is null or blank.", "path");
+			}
+
+			LogFunc(nameof(GetZOSFileSizeAsync), new object[] { path });
+
 			// prevent automatic parser detection switching to unix on HFS paths
 			ListingParser = FtpParser.IBMzOS;
 
 			FtpListItem[] entries = await GetListingAsync(path, token);
-            // no entries or more than one: path is NOT for a single dataset or file
+			// no entries or more than one: path is NOT for a single dataset or file
 
 			if (entries.Length != 1) return -1;
 			// if the path is for a SINGLE dataset or file, there will be only one entry

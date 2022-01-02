@@ -103,5 +103,23 @@ namespace FluentFTP.Servers {
 		}
 #endif
 
+		/// <summary>
+		/// Perform server-specific post-connection commands here.
+		/// Return true if you executed a server-specific command.
+		/// </summary>
+		public virtual void AfterConnected(FtpClient client) {
+
+		}
+
+#if ASYNC
+		/// <summary>
+		/// Perform server-specific post-connection commands here.
+		/// Return true if you executed a server-specific command.
+		/// </summary>
+		public virtual async Task AfterConnectedAsync(FtpClient client, CancellationToken token) {
+
+		}
+#endif
+
 	}
 }

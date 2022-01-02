@@ -46,5 +46,34 @@ namespace FluentFTP.Servers.Handlers {
 			return FtpParser.IBMzOS;
 		}
 
+		/// <summary>
+		/// Perform server-specific post-connection commands here.
+		/// Return true if you executed a server-specific command.
+		/// </summary>
+		public override void AfterConnected(FtpClient client) {
+			FtpReply reply;
+			if (!(reply = client.Execute("SITE DATASETMODE")).Success) {
+				throw new FtpCommandException(reply);
+			}
+			if (!(reply = client.Execute("SITE QUOTESOVERRIDE")).Success) {
+				throw new FtpCommandException(reply);
+			}
+		}
+
+#if ASYNC
+		/// <summary>
+		/// Perform server-specific post-connection commands here.
+		/// Return true if you executed a server-specific command.
+		/// </summary>
+		public override async Task AfterConnectedAsync(FtpClient client, CancellationToken token) {
+			FtpReply reply;
+			if (!(reply = await client.ExecuteAsync("SITE DATASETMODE", token)).Success) {
+				throw new FtpCommandException(reply);
+			}
+			if (!(reply = await client.ExecuteAsync("SITE QUOTESOVERRIDE", token)).Success) {
+				throw new FtpCommandException(reply);
+			}
+		}
+#endif
 	}
 }

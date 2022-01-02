@@ -516,16 +516,9 @@ namespace FluentFTP {
 				// FIX : #318 always set the type when we create a new connection
 				ForceSetDataType = true;
 
-				if (ServerType == FtpServer.IBMzOSFTP)
-				{
-					if (!(reply = Execute("SITE DATASETMODE")).Success)
-					{
-						throw new FtpCommandException(reply);
-					}
-					if (!(reply = Execute("SITE QUOTESOVERRIDE")).Success)
-					{
-						throw new FtpCommandException(reply);
-					}
+				// Execute server-specific post-connection event
+				if (ServerHandler != null) {
+					ServerHandler.AfterConnected(this);
 				}
 
 #if !CORE14
@@ -703,16 +696,9 @@ namespace FluentFTP {
 			// FIX : #318 always set the type when we create a new connection
 			ForceSetDataType = true;
 
-			if (ServerType == FtpServer.IBMzOSFTP)
-			{
-				if (!(reply = await ExecuteAsync("SITE DATASETMODE", token)).Success)
-				{
-					throw new FtpCommandException(reply);
-				}
-				if (!(reply = await ExecuteAsync("SITE QUOTESOVERRIDE", token)).Success)
-				{
-					throw new FtpCommandException(reply);
-				}
+			// Execute server-specific post-connection event
+			if (ServerHandler != null) {
+				ServerHandler.AfterConnectedAsync(this, token);
 			}
 		}
 
