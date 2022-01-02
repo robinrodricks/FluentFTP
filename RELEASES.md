@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 36.0.0
+ - New: `GetZOSFileSize` is now hidden and superceeded by `GetFileSize` which handles z/OS servers
+ - New: Refactor and cleanup z/OS specific logic for: post-connect init, `IsRoot`, `GetFileSize`
+ - Fix: Enable detection of IBM OS/400 servers that were disabled during server-specific handling
+
 #### 35.2.3
  - New: Detect PyFtpdLib FTP servers (allows for future server-specific handling)
  - Fix: Pass CancellationToken to all methods that support cancellation (thanks [0xced](/0xced))
