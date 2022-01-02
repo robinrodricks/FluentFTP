@@ -120,6 +120,28 @@ namespace FluentFTP.Servers {
 
 		}
 #endif
+		/// <summary>
+		/// Return true if your server requires custom handling of file size.
+		/// </summary>
+		public virtual bool IsCustomFileSize() {
+			return false;
+		}
+		/// <summary>
+		/// Perform server-specific file size fetching commands here.
+		/// Return the file size in bytes.
+		/// </summary>
+		public virtual long GetFileSize(FtpClient client, string path) {
+			return 0;
+		}
 
+#if ASYNC
+		/// <summary>
+		/// Perform server-specific file size fetching commands here.
+		/// Return the file size in bytes.
+		/// </summary>
+		public virtual async Task<long> GetFileSizeAsync(FtpClient client, string path, CancellationToken token) {
+			return 0;
+		}
+#endif
 	}
 }

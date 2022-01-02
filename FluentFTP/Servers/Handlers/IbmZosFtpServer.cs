@@ -16,7 +16,7 @@ namespace FluentFTP.Servers.Handlers {
 	/// <summary>
 	/// Server-specific handling for IBMzOSFTP servers
 	/// </summary>
-	public class IbmZosFtpServer : FtpBaseServer {
+	public class IBMzOSFtpServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.
@@ -75,5 +75,67 @@ namespace FluentFTP.Servers.Handlers {
 			}
 		}
 #endif
+
+		#region Get z/OS File Size
+
+		public override bool IsCustomFileSize() {
+			return true;
+		}
+
+		/// <summary>
+		/// Get z/OS file size
+		/// </summary>
+		/// <param name="path">The full path of th file whose size you want to retrieve</param>
+		/// <remarks>
+		/// Make sure you are in the right realm (z/OS or HFS) before doing this
+		/// </remarks>
+		/// <returns>The size of the file</returns>
+		public override long GetFileSize(FtpClient client, string path) {
+
+			// prevent automatic parser detection switching to unix on HFS paths
+			client.ListingParser = FtpParser.IBMzOS;
+
+			// get metadata of the file
+			FtpListItem[] entries = client.GetListing(path);
+
+			// no entries or more than one: path is NOT for a single dataset or file
+			if (entries.Length != 1) { return -1; }
+
+			// if the path is for a SINGLE dataset or file, there will be only one entry
+			FtpListItem entry = entries[0];
+
+			// z/OS list parser will have determined that size
+			return entry.Size;
+		}
+
+#if ASYNC
+		/// <summary>
+		/// Get z/OS file size
+		/// </summary>
+		/// <param name="path">The full path of th file whose size you want to retrieve</param>
+		/// <remarks>
+		/// Make sure you are in the right realm (z/OS or HFS) before doing this
+		/// </remarks>
+		/// <returns>The size of the file</returns>
+		public override async Task<long> GetFileSizeAsync(FtpClient client, string path, CancellationToken token) {
+
+			// prevent automatic parser detection switching to unix on HFS paths
+			client.ListingParser = FtpParser.IBMzOS;
+
+			// get metadata of the file
+			FtpListItem[] entries = await client.GetListingAsync(path, token);
+
+			// no entries or more than one: path is NOT for a single dataset or file
+			if (entries.Length != 1) return -1;
+
+			// if the path is for a SINGLE dataset or file, there will be only one entry
+			FtpListItem entry = entries[0];
+
+			// z/OS list parser will have determined that size
+			return entry.Size;
+		}
+#endif
+		#endregion
 	}
 }
+

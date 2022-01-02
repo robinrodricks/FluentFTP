@@ -36,7 +36,7 @@ namespace FluentFTP.Servers {
 			new GlFtpdServer(),
 			new GlobalScapeEftServer(),
 			new HomegateFtpServer(),
-			new IbmZosFtpServer(),
+			new IBMzOSFtpServer(),
 			new NonStopTandemServer(),
 			new OpenVmsServer(),
 			new ProFtpdServer(),

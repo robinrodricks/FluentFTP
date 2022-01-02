@@ -61,7 +61,7 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				// Go to where we are. The reply will tell us what it is we we are...
+				// Fetch the current working directory. The reply will tell us what it is we we are...
 				if (!(reply = Execute("CWD " + _LastWorkingDir)).Success) {
 					throw new FtpCommandException(reply);
 				}
@@ -109,7 +109,7 @@ namespace FluentFTP {
 			// Ok, the CWD starts with a single quoute. Classic z/OS dataset realm
 			FtpReply reply;
 
-			// Go to where we are. The reply will tell us what it is we we are...
+			// Fetch the current working directory. The reply will tell us what it is we we are...
 			if (!(reply = await ExecuteAsync("CWD " + _LastWorkingDir, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
@@ -131,73 +131,5 @@ namespace FluentFTP {
 #endif
 		#endregion
 
-		#region Get z/OS File Size
-
-		/// <summary>
-		/// Get z/OS file size
-		/// </summary>
-		/// <param name="path">The full path of th file whose size you want to retrieve</param>
-		/// <remarks>
-		/// Make sure you are in the right realm (z/OS or HFS) before doing this
-		/// </remarks>
-		/// <returns>The size of the file</returns>
-		public long GetZOSFileSize(string path) {
-
-			// Verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
-
-			LogFunc(nameof(GetZOSFileSize), new object[] { path });
-
-			// prevent automatic parser detection switching to unix on HFS paths
-			ListingParser = FtpParser.IBMzOS;
-
-			FtpListItem[] entries = GetListing(path);
-
-			// no entries or more than one: path is NOT for a single dataset or file
-			if (entries.Length != 1) { return -1; }
-
-			// if the path is for a SINGLE dataset or file, there will be only one entry
-			FtpListItem entry = entries[0];
-
-			// z/OS list parser will have determined that size
-			return entry.Size;
-		}
-
-#if ASYNC
-		/// <summary>
-		/// Get z/OS file size
-		/// </summary>
-		/// <param name="path">The full path of th file whose size you want to retrieve</param>
-		/// <remarks>
-		/// Make sure you are in the right realm (z/OS or HFS) before doing this
-		/// </remarks>
-		/// <returns>The size of the file</returns>
-		public async Task<long> GetZOSFileSizeAsync(string path, CancellationToken token = default(CancellationToken)) {// verify args
-
-			// Verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
-
-			LogFunc(nameof(GetZOSFileSizeAsync), new object[] { path });
-
-			// prevent automatic parser detection switching to unix on HFS paths
-			ListingParser = FtpParser.IBMzOS;
-
-			FtpListItem[] entries = await GetListingAsync(path, token);
-			// no entries or more than one: path is NOT for a single dataset or file
-
-			if (entries.Length != 1) return -1;
-			// if the path is for a SINGLE dataset or file, there will be only one entry
-
-			FtpListItem entry = entries[0];
-			// z/OS list parser will have determined that size
-
-			return entry.Size;
-		}
-#endif
-		#endregion
 	}
 }

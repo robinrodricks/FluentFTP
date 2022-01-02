@@ -179,8 +179,9 @@ namespace FluentFTP {
 
 			LogFunc(nameof(GetFileSize), new object[] { path });
 
-			if (ServerType == FtpServer.IBMzOSFTP)	{
-				return GetZOSFileSize(path);
+			// execute server-specific file size fetching logic, if any
+			if (ServerHandler != null && ServerHandler.IsCustomFileSize())	{
+				return ServerHandler.GetFileSize(this, path);
 			}
 
 			if (!HasFeature(FtpCapability.SIZE)) {
@@ -252,8 +253,9 @@ namespace FluentFTP {
 
 			LogFunc(nameof(GetFileSizeAsync), new object[] { path, defaultValue });
 
-			if (ServerType == FtpServer.IBMzOSFTP)	{
-				return await GetZOSFileSizeAsync(path, token);
+			// execute server-specific file size fetching logic, if any
+			if (ServerHandler != null && ServerHandler.IsCustomFileSize()) {
+				return await ServerHandler.GetFileSizeAsync(this, path, token);
 			}
 
 			if (!HasFeature(FtpCapability.SIZE)) {

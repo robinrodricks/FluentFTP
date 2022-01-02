@@ -698,7 +698,7 @@ namespace FluentFTP {
 
 			// Execute server-specific post-connection event
 			if (ServerHandler != null) {
-				ServerHandler.AfterConnectedAsync(this, token);
+				await ServerHandler.AfterConnectedAsync(this, token);
 			}
 		}
 
