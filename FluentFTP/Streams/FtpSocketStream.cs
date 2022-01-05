@@ -977,6 +977,16 @@ namespace FluentFTP {
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 				BindSocketToLocalIp();
 #if CORE
+				if (this.ConnectTimeout > 0)
+				{
+					var timeoutSrc = new CancellationTokenSource();
+					timeoutSrc.CancelAfter(this.ConnectTimeout);
+
+					var tokenSrc = CancellationTokenSource.CreateLinkedTokenSource(
+						token, timeoutSrc.Token);
+					token = tokenSrc.Token;
+				}
+
 				await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), token, () => CloseSocket());
 				break;
 #else
