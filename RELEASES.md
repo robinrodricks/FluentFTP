@@ -1,15 +1,13 @@
 # Release Notes
 
-#### 37.0.0
+#### 36.0.0
+ - New: `GetZOSFileSize` is now removed and superceeded by `GetFileSize` which handles z/OS servers
+ - New: Refactor and cleanup z/OS specific logic for: post-connect init, `IsRoot`, `GetFileSize`
  - Change: `OpenRead` API no longer supports `checkIfFileExists` argument (thanks [FanDjango](/FanDjango))
  - Fix: z/OS & ASCII transfers: Don't get filesize if filesize already known during downloading (thanks [FanDjango](/FanDjango))
  - Fix: z/OS `UploadFilesAsync`: Fixed IBM MVS File uploading path calculation (thanks [FanDjango](/FanDjango))
  - Fix: Close underlying FTP socket connection on async cancellation on .NET Core (thanks [datvm](/datvm))
  - Fix: Correctly handle FTP connection timeout on .NET Core (thanks [datvm](/datvm))
-
-#### 36.0.0
- - New: `GetZOSFileSize` is now removed and superceeded by `GetFileSize` which handles z/OS servers
- - New: Refactor and cleanup z/OS specific logic for: post-connect init, `IsRoot`, `GetFileSize`
  - Fix: Enable detection of IBM OS/400 servers that were disabled during server-specific handling
 
 #### 35.2.3
