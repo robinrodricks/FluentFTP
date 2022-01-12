@@ -689,14 +689,11 @@ namespace FluentFTP {
 
 			try {
 				long localPosition = 0, remotePosition = 0, remoteFileLen = 0;
-				var checkRemoteFileSize = false;
 
 				// check if the file exists, and skip, overwrite or append
 				if (existsMode == FtpRemoteExists.NoCheck) {
-					checkRemoteFileSize = false;
 				}
 				else if (existsMode == FtpRemoteExists.ResumeNoCheck || existsMode == FtpRemoteExists.AddToEndNoCheck) {
-					checkRemoteFileSize = true;
 
 					// start from the end of the remote file, or if failed to read the length then start from the beginning
 					remoteFileLen = remotePosition = GetFileSize(remotePath, 0);
@@ -780,10 +777,10 @@ namespace FluentFTP {
 
 				// open a file connection
 				if (remotePosition == 0 && existsMode != FtpRemoteExists.ResumeNoCheck && existsMode != FtpRemoteExists.AddToEndNoCheck) {
-					upStream = OpenWrite(remotePath, UploadDataType, checkRemoteFileSize);
+					upStream = OpenWrite(remotePath, UploadDataType, remoteFileLen);
 				}
 				else {
-					upStream = OpenAppend(remotePath, UploadDataType, checkRemoteFileSize);
+					upStream = OpenAppend(remotePath, UploadDataType, remoteFileLen);
 				}
 
 				// calculate chunk size and rate limiting
@@ -976,14 +973,11 @@ namespace FluentFTP {
 
 			try {
 				long localPosition = 0, remotePosition = 0, remoteFileLen = 0;
-				var checkRemoteFileSize = false;
 
 				// check if the file exists, and skip, overwrite or append
 				if (existsMode == FtpRemoteExists.NoCheck) {
-					checkRemoteFileSize = false;
 				}
 				else if (existsMode == FtpRemoteExists.ResumeNoCheck || existsMode == FtpRemoteExists.AddToEndNoCheck) {
-					checkRemoteFileSize = true;
 
 					// start from the end of the remote file, or if failed to read the length then start from the beginning
 					remoteFileLen = remotePosition = await GetFileSizeAsync(remotePath, 0, token);
@@ -1071,10 +1065,10 @@ namespace FluentFTP {
 
 				// open a file connection
 				if (remotePosition == 0 && existsMode != FtpRemoteExists.ResumeNoCheck && existsMode != FtpRemoteExists.AddToEndNoCheck) {
-					upStream = await OpenWriteAsync(remotePath, UploadDataType, checkRemoteFileSize, token);
+					upStream = await OpenWriteAsync(remotePath, UploadDataType, remoteFileLen, token);
 				}
 				else {
-					upStream = await OpenAppendAsync(remotePath, UploadDataType, checkRemoteFileSize, token);
+					upStream = await OpenAppendAsync(remotePath, UploadDataType, remoteFileLen, token);
 				}
 
 				// calculate chunk size and rate limiting
@@ -1267,7 +1261,7 @@ namespace FluentFTP {
 				upStream.Dispose();
 
 				// create and return a new stream starting at the current remotePosition
-				upStream = OpenAppend(remotePath, UploadDataType, true);
+				upStream = OpenAppend(remotePath, UploadDataType, 0);
 				upStream.Position = remotePosition;
 				return true;
 			}
@@ -1286,7 +1280,7 @@ namespace FluentFTP {
 				upStream.Dispose();
 
 				// create and return a new stream starting at the current remotePosition
-				var returnStream = await OpenAppendAsync(remotePath, UploadDataType, true);
+				var returnStream = await OpenAppendAsync(remotePath, UploadDataType, 0);
 				returnStream.Position = remotePosition;
 				return Tuple.Create(true, returnStream);
 			}
