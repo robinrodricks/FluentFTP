@@ -4,7 +4,7 @@
     <TargetFrameworks>net20;net35;net40;net45;net50;netstandard1.4;netstandard1.6;netstandard2.0;netstandard2.1</TargetFrameworks>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net20' Or '$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40' Or '$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net50'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='net20' Or '$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40' Or '$(TargetFramework)'=='net45'">
     <DefineConstants>$(DefineConstants);NETFX</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
@@ -13,12 +13,8 @@
     <DefineConstants>$(DefineConstants);LINQBRIDGE_LIB</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netstandard1.4' Or '$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.4' Or '$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
     <DefineConstants>$(DefineConstants);CORE</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
-    <DefineConstants>$(DefineConstants);CORE2PLUS</DefineConstants>
   </PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.4'">
@@ -33,7 +29,7 @@
     <DefineConstants>$(DefineConstants);ASYNC</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net50'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
     <DefineConstants>$(DefineConstants);NET45</DefineConstants>
   </PropertyGroup>
 
@@ -74,18 +70,13 @@
     <Reference Include="System.Web" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(DefineConstants.Contains('CORE'))">
-    <PackageReference Include="System.Console" Version="4.3.0.0" />
-    <PackageReference Include="System.IO" Version="4.3.0.0" />
-    <PackageReference Include="System.Net.NameResolution" Version="4.3.0.0" />
-    <PackageReference Include="System.Net.Sockets" Version="4.3.0.0" />
-    <PackageReference Include="System.Runtime" Version="4.3.0.0" />
-    <PackageReference Include="System.Threading.Tasks" Version="4.3.0.0" />
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.4' Or '$(TargetFramework)'=='netstandard1.6'">
+    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
-    <PackageReference Include="System.Net.Security" Version="4.3.2.0" />
-    <PackageReference Include="System.Threading.Thread" Version="4.3.0.0" />
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
+    <PackageReference Include="System.Net.Security" Version="4.3.2" />
+    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
   </ItemGroup>
 
   <!--
@@ -109,30 +100,6 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <PackageReference Include="System.Net.Primitives" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net50'">
-    <PackageReference Include="System.Net.Primitives" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.4'">
-    <PackageReference Include="System.Net.Primitives" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
-    <PackageReference Include="System.Net.Primitives" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Net.Primitives" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-    <PackageReference Include="System.Net.Primitives" Version="4.3.0" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)'=='Release' And '$(TargetFramework)'=='net45'">
