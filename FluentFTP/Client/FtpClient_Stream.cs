@@ -1378,7 +1378,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A readable stream of the remote file</returns>
 		public Task<Stream> OpenReadAsync(string path, CancellationToken token = default(CancellationToken)) {
 			return OpenReadAsync(path, FtpDataType.Binary, 0, 0, token);
