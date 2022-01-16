@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 36.1.0
+ - Change: Restore the older `OpenRead` API to prevent breaking older projects that depend on it (thanks [FanDjango](/FanDjango))
+
 #### 36.0.0
  - New: `GetZOSFileSize` is now removed and superceeded by `GetFileSize` which handles z/OS servers
  - New: Refactor and cleanup z/OS specific logic for: post-connect init, `IsRoot`, `GetFileSize`
