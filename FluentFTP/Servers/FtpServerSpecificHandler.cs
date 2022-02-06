@@ -52,6 +52,7 @@ namespace FluentFTP.Servers {
 			new WSFTPServer(),
 			new WuFtpdServer(),
 			new XLightServer(),
+			new TitanFtpServer()
 		};
 
 		#region Working Connection Profiles

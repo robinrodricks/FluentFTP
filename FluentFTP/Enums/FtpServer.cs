@@ -130,5 +130,10 @@ namespace FluentFTP {
 		/// Definitely PyFtpdLib server
 		/// </summary>
 		PyFtpdLib,
+
+		/// <summary>
+		/// Definitely Titan FTP server
+		/// </summary>
+		TitanFTP,
 	}
 }
