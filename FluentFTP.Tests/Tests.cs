@@ -789,7 +789,7 @@ namespace Tests {
 			using (var cl = NewFtpClient()) {
 				cl.Connect();
 
-				using (var istream = cl.OpenRead("LICENSE.TXT", 10)) {
+				using (var istream = cl.OpenRead("LICENSE.TXT", FtpDataType.Binary, 10)) {
 				}
 			}
 		}

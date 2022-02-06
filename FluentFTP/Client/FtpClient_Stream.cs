@@ -1138,73 +1138,12 @@ namespace FluentFTP {
 		/// Opens the specified file for reading
 		/// </summary>
 		/// <param name="path">The full or relative path of the file</param>
-		/// <returns>A stream for reading the file on the server</returns>
-		public Stream OpenRead(string path) {
-			return OpenRead(path, FtpDataType.Binary, 0, 0);
-		}
-
-		/// <summary>
-		/// Opens the specified file for reading
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <returns>A stream for reading the file on the server</returns>
-		public Stream OpenRead(string path, FtpDataType type) {
-			return OpenRead(path, type, 0, 0);
-		}
-
-		/// <summary>
-		/// Opens the specified file for reading
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
-		/// <returns>A stream for reading the file on the server</returns>
-		public Stream OpenRead(string path, FtpDataType type, bool checkIfFileExists) {
-			return OpenRead(path, type, 0, checkIfFileExists ? 0 : -1);
-		}
-
-		/// <summary>
-		/// Opens the specified file for reading
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="restart">Resume location</param>
-		/// <returns>A stream for reading the file on the server</returns>
-		public virtual Stream OpenRead(string path, FtpDataType type, long restart) {
-			return OpenRead(path, type, restart, 0);
-		}
-
-		/// <summary>
-		/// Opens the specified file for reading
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="restart">Resume location</param>
-		/// <returns>A stream for reading the file on the server</returns>
-		public Stream OpenRead(string path, long restart) {
-			return OpenRead(path, FtpDataType.Binary, restart, 0);
-		}
-
-		/// <summary>
-		/// Opens the specified file for reading
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="restart">Resume location</param>
-		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
-		/// <returns>A stream for reading the file on the server</returns>
-		public Stream OpenRead(string path, long restart, bool checkIfFileExists) {
-			return OpenRead(path, FtpDataType.Binary, restart, checkIfFileExists ? 0 : -1);
-		}
-
-		/// <summary>
-		/// Opens the specified file for reading
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="restart">Resume location</param>
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
 		/// <returns>A stream for reading the file on the server</returns>
-		public virtual Stream OpenRead(string path, FtpDataType type, long restart, bool checkIfFileExists) {
+		[Obsolete("OpenRead() is obsolete, please use Download() or DownloadFile() instead", false)]
+		public virtual Stream OpenRead(string path, FtpDataType type = FtpDataType.Binary, long restart = 0, bool checkIfFileExists = true) {
 			return OpenRead(path, type, restart, checkIfFileExists ? 0 : -1);
 		}
 
@@ -1221,6 +1160,7 @@ namespace FluentFTP {
 		/// <br> >0 => File length is KNOWN. No need to determine it</br>
 		/// </param>
 		/// <returns>A stream for reading the file on the server</returns>
+		[Obsolete("OpenRead() is obsolete, please use Download() or DownloadFile() instead", false)]
 		public virtual Stream OpenRead(string path, FtpDataType type, long restart, long fileLen) {
 			// verify args
 			if (path.IsBlank()) {
@@ -1270,6 +1210,22 @@ namespace FluentFTP {
 		}
 
 #if ASYNC
+
+		/// <summary>
+		/// Opens the specified file for reading asynchronously
+		/// </summary>
+		/// <param name="path">The full or relative path of the file</param>
+		/// <param name="type">ASCII/Binary</param>
+		/// <param name="restart">Resume location</param>
+		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <returns>A stream for reading the file on the server</returns>
+		[Obsolete("OpenReadAsync() is obsolete, please use DownloadAsync() or DownloadFileAsync() instead", false)]
+		public virtual Task<Stream> OpenReadAsync(string path, FtpDataType type = FtpDataType.Binary, long restart = 0,
+			bool checkIfFileExists = true, CancellationToken token = default(CancellationToken)) {
+			return OpenReadAsync(path, type, restart, checkIfFileExists ? 0 : -1, token);
+		}
+
 		/// <summary>
 		/// Opens the specified file for reading asynchronously
 		/// </summary>
@@ -1284,6 +1240,7 @@ namespace FluentFTP {
 		/// </param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for reading the file on the server</returns>
+		[Obsolete("OpenReadAsync() is obsolete, please use DownloadAsync() or DownloadFileAsync() instead", false)]
 		public virtual async Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, long fileLen, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
@@ -1326,62 +1283,6 @@ namespace FluentFTP {
 			return stream;
 		}
 
-		/// <summary>
-		/// Opens the specified file for reading asynchronously
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="restart">Resume location</param>
-		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A stream for reading the file on the server</returns>
-		public virtual Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, bool checkIfFileExists, CancellationToken token = default(CancellationToken)) {
-			return OpenReadAsync(path, type, restart, checkIfFileExists ? 0 : -1, token);
-		}
-
-		/// <summary>
-		/// Opens the specified file for reading asynchronously
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="restart">Resume location</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A readable stream of the remote file</returns>
-		public Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, CancellationToken token = default(CancellationToken)) {
-			return OpenReadAsync(path, type, restart, 0, token);
-		}
-
-		/// <summary>
-		/// Opens the specified file for reading asynchronously
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A readable stream of the remote file</returns>
-		public Task<Stream> OpenReadAsync(string path, FtpDataType type, CancellationToken token = default(CancellationToken)) {
-			return OpenReadAsync(path, type, 0, 0, token);
-		}
-
-		/// <summary>
-		/// Opens the specified file for reading asynchronously
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="restart">Resume location</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A readable stream of the remote file</returns>
-		public Task<Stream> OpenReadAsync(string path, long restart, CancellationToken token = default(CancellationToken)) {
-			return OpenReadAsync(path, FtpDataType.Binary, restart, 0, token);
-		}
-
-		/// <summary>
-		/// Opens the specified file for reading asynchronously
-		/// </summary>
-		/// <param name="path">The full or relative path of the file</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A readable stream of the remote file</returns>
-		public Task<Stream> OpenReadAsync(string path, CancellationToken token = default(CancellationToken)) {
-			return OpenReadAsync(path, FtpDataType.Binary, 0, 0, token);
-		}
 #endif
 
 		#endregion
@@ -1392,29 +1293,11 @@ namespace FluentFTP {
 		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
-		/// <returns>A stream for writing to the file on the server</returns>
-		public Stream OpenWrite(string path) {
-			return OpenWrite(path, FtpDataType.Binary, 0);
-		}
-
-		/// <summary>
-		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
-		/// </summary>
-		/// <param name="path">Full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <returns>A stream for writing to the file on the server</returns>
-		public virtual Stream OpenWrite(string path, FtpDataType type) {
-			return OpenWrite(path, type, 0);
-		}
-
-		/// <summary>
-		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
-		/// </summary>
-		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
 		/// <returns>A stream for writing to the file on the server</returns>
-		public virtual Stream OpenWrite(string path, FtpDataType type, bool checkIfFileExists) {
+		[Obsolete("OpenWrite() is obsolete, please use Upload() or UploadFile() instead", false)]
+		public virtual Stream OpenWrite(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true) {
 			return OpenWrite(path, type, checkIfFileExists ? 0 : -1);
 		}
 
@@ -1430,6 +1313,7 @@ namespace FluentFTP {
 		/// <br> >0 => File length is KNOWN. No need to determine it</br>
 		/// </param>
 		/// <returns>A stream for writing to the file on the server</returns>
+		[Obsolete("OpenWrite() is obsolete, please use Upload() or UploadFile() instead", false)]
 		public virtual Stream OpenWrite(string path, FtpDataType type, long fileLen) {
 			// verify args
 			if (path.IsBlank()) {
@@ -1478,6 +1362,19 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
+		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <returns>A stream for writing to the file on the server</returns>
+		[Obsolete("OpenWriteAsync() is obsolete, please use UploadAsync() or UploadFileAsync() instead", false)]
+		public virtual Task<Stream> OpenWriteAsync(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken)) {
+			return OpenWriteAsync(path, type, checkIfFileExists ? 0 : -1, token);
+		}
+
+		/// <summary>
+		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
+		/// </summary>
+		/// <param name="path">Full or relative path of the file</param>
+		/// <param name="type">ASCII/Binary</param>
 		/// <param name="fileLen">
 		/// <para>Pass in a file length if known</para>
 		/// <br> -1 => File length is irrelevant, do not attempt to determine it</br>
@@ -1486,6 +1383,7 @@ namespace FluentFTP {
 		/// </param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for writing to the file on the server</returns>
+		[Obsolete("OpenWriteAsync() is obsolete, please use UploadAsync() or UploadFileAsync() instead", false)]
 		public virtual async Task<Stream> OpenWriteAsync(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
@@ -1522,38 +1420,6 @@ namespace FluentFTP {
 			return stream;
 		}
 
-		/// <summary>
-		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
-		/// </summary>
-		/// <param name="path">Full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A stream for writing to the file on the server</returns>
-		public virtual Task<Stream> OpenWriteAsync(string path, FtpDataType type, bool checkIfFileExists, CancellationToken token = default(CancellationToken)) {
-			return OpenWriteAsync(path, type, checkIfFileExists ? 0 : -1, token);
-		}
-
-		/// <summary>
-		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. asynchronously
-		/// </summary>
-		/// <param name="path">Full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A stream for writing to the file on the server</returns>
-		public Task<Stream> OpenWriteAsync(string path, FtpDataType type, CancellationToken token = default(CancellationToken)) {
-			return OpenWriteAsync(path, type, 0, token);
-		}
-
-		/// <summary>
-		/// Opens the specified file for writing. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket. asynchronously
-		/// </summary>
-		/// <param name="path">Full or relative path of the file</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A stream for writing to the file on the server</returns>
-		public Task<Stream> OpenWriteAsync(string path, CancellationToken token = default(CancellationToken)) {
-			return OpenWriteAsync(path, FtpDataType.Binary, 0, token);
-		}
 #endif
 
 		#endregion
@@ -1564,29 +1430,11 @@ namespace FluentFTP {
 		/// Opens the specified file for appending. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// </summary>
 		/// <param name="path">The full or relative path to the file to be opened</param>
-		/// <returns>A stream for writing to the file on the server</returns>
-		public Stream OpenAppend(string path) {
-			return OpenAppend(path, FtpDataType.Binary, 0);
-		}
-
-		/// <summary>
-		/// Opens the specified file for appending. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
-		/// </summary>
-		/// <param name="path">The full or relative path to the file to be opened</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <returns>A stream for writing to the file on the server</returns>
-		public virtual Stream OpenAppend(string path, FtpDataType type) {
-			return OpenAppend(path, type, 0);
-		}
-
-		/// <summary>
-		/// Opens the specified file for appending. Please call GetReply() after you have successfully transfered the file to read the "OK" command sent by the server and prevent stale data on the socket.
-		/// </summary>
-		/// <param name="path">The full or relative path to the file to be opened</param>
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
 		/// <returns>A stream for writing to the file on the server</returns>
-		public virtual Stream OpenAppend(string path, FtpDataType type, bool checkIfFileExists) {
+		[Obsolete("OpenAppend() is obsolete, please use UploadFile() with FtpRemoteExists.Resume or FtpRemoteExists.AddToEnd instead", false)]
+		public virtual Stream OpenAppend(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true) {
 			return OpenAppend(path, type, checkIfFileExists ? 0 : -1);
 		}
 
@@ -1602,6 +1450,7 @@ namespace FluentFTP {
 		/// <br> >0 => File length is KNOWN. No need to determine it</br>
 		/// </param>
 		/// <returns>A stream for writing to the file on the server</returns>
+		[Obsolete("OpenAppend() is obsolete, please use UploadFile() with FtpRemoteExists.Resume or FtpRemoteExists.AddToEnd instead", false)]
 		public virtual Stream OpenAppend(string path, FtpDataType type, long fileLen) {
 			// verify args
 			if (path.IsBlank()) {
@@ -1652,6 +1501,19 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">Full or relative path of the file</param>
 		/// <param name="type">ASCII/Binary</param>
+		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <returns>A stream for writing to the file on the server</returns>
+		[Obsolete("OpenAppendAsync() is obsolete, please use UploadFileAsync() with FtpRemoteExists.Resume or FtpRemoteExists.AddToEnd instead", false)]
+		public virtual Task<Stream> OpenAppendAsync(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken)) {
+			return OpenAppendAsync(path, type, checkIfFileExists ? 0 : -1, token);
+		}
+
+		/// <summary>
+		/// Opens the specified file to be appended asynchronously
+		/// </summary>
+		/// <param name="path">Full or relative path of the file</param>
+		/// <param name="type">ASCII/Binary</param>
 		/// <param name="fileLen">
 		/// <para>Pass in a file length if known</para>
 		/// <br> -1 => File length is irrelevant, do not attempt to determine it</br>
@@ -1660,6 +1522,7 @@ namespace FluentFTP {
 		/// </param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for writing to the file on the server</returns>
+		[Obsolete("OpenAppendAsync() is obsolete, please use UploadFileAsync() with FtpRemoteExists.Resume or FtpRemoteExists.AddToEnd instead", false)]
 		public virtual async Task<Stream> OpenAppendAsync(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
@@ -1698,38 +1561,6 @@ namespace FluentFTP {
 			return stream;
 		}
 
-		/// <summary>
-		/// Opens the specified file to be appended asynchronously
-		/// </summary>
-		/// <param name="path">Full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A stream for writing to the file on the server</returns>
-		public virtual Task<Stream> OpenAppendAsync(string path, FtpDataType type, bool checkIfFileExists, CancellationToken token = default(CancellationToken)) {
-			return OpenAppendAsync(path, type, checkIfFileExists ? 0 : -1, token);
-		}
-
-		/// <summary>
-		/// Opens the specified file to be appended asynchronously
-		/// </summary>
-		/// <param name="path">Full or relative path of the file</param>
-		/// <param name="type">ASCII/Binary</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A stream for writing to the file on the server</returns>
-		public Task<Stream> OpenAppendAsync(string path, FtpDataType type, CancellationToken token = default(CancellationToken)) {
-			return OpenAppendAsync(path, type, 0, token);
-		}
-
-		/// <summary>
-		/// Opens the specified file to be appended asynchronously
-		/// </summary>
-		/// <param name="path">Full or relative path of the file</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A stream for writing to the file on the server</returns>
-		public Task<Stream> OpenAppendAsync(string path, CancellationToken token = default(CancellationToken)) {
-			return OpenAppendAsync(path, FtpDataType.Binary, 0, token);
-		}
 #endif
 
 		#endregion

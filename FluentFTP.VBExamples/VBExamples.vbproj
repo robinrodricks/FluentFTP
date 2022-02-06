@@ -87,9 +87,6 @@
     <Compile Include="GetModifiedTime.vb" />
     <Compile Include="GetNameListing.vb" />
     <Compile Include="GetWorkingDirectory.vb" />
-    <Compile Include="OpenAppend.vb" />
-    <Compile Include="OpenRead.vb" />
-    <Compile Include="OpenWrite.vb" />
     <Compile Include="Rename.vb" />
     <Compile Include="SetWorkingDirectory.vb" />
     <Compile Include="UploadDirectory.vb" />
