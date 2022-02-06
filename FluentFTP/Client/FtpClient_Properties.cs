@@ -602,7 +602,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#if CORE || NET45PLUS
+#if CORE || NET45
 		private SslProtocols m_SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
 #else
 		private SslProtocols m_SslProtocols = SslProtocols.Default;
