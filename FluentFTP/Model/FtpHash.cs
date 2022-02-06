@@ -127,6 +127,8 @@ namespace FluentFTP {
 
 					data = hashAlg.ComputeHash(istream);
 					if (data != null) {
+
+						// convert hash to hex string
 						foreach (var b in data) {
 							hash.Append(b.ToString("x2"));
 						}
