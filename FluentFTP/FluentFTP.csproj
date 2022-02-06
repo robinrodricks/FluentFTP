@@ -111,6 +111,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+    <PackageReference Include="System.Net.Primitives" Version="4.3.0" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' == 'net50'">
     <PackageReference Include="System.Net.Primitives" Version="4.3.0" />
   </ItemGroup>
