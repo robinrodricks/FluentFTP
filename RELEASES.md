@@ -1,5 +1,12 @@
 # Release Notes
 
+#### 37.0.0
+ - New: Detect Titan FTP servers (allows for future server-specific handling)
+ - Fix: Validation of short CRC checksum fails due to mismatch of hex hash format
+ - Change: Remove redundant and extranous `OpenRead`/`OpenWrite`/`OpenAppend` API and keep only 2 methods each
+ - Change: Mark `OpenRead`/`OpenWrite`/`OpenAppend` API as obsolete with warnings and recommend high level API
+ - Change: Cleanup dependencies for netstandard2.0, netstandard2.1 and net5.0 targets (thanks [jnyrup](/jnyrup))
+
 #### 36.1.0
  - Change: Restore the older `OpenRead` API to prevent breaking older projects that depend on it (thanks [FanDjango](/FanDjango))
 
