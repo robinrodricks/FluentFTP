@@ -1,4 +1,5 @@
-﻿using FluentFTP.Helpers.Hashing;
+﻿using FluentFTP.Helpers;
+using FluentFTP.Helpers.Hashing;
 using FluentFTP.Streams;
 using System;
 using System.IO;
@@ -129,7 +130,18 @@ namespace FluentFTP {
 						foreach (var b in data) {
 							hash.Append(b.ToString("x2"));
 						}
-						return hash.ToString().Equals(m_value, StringComparison.OrdinalIgnoreCase);
+						var hashStr = hash.ToString();
+
+						// check if hash exactly matches
+						if (hashStr.Equals(m_value, StringComparison.OrdinalIgnoreCase)) {
+							return true;
+						}
+						// check if hash matches without the "0" prefix that .NET CRC sometimes generates
+						// to fix #820: Validation of short CRC checksum fails due to mismatch with hex format
+						if (Strings.RemovePrefix(hashStr, "0").Equals(Strings.RemovePrefix(m_value, "0"), StringComparison.OrdinalIgnoreCase)) {
+							return true;
+						}
+						return false;
 					}
 				}
 				finally {
