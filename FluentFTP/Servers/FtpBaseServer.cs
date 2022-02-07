@@ -80,8 +80,8 @@ namespace FluentFTP.Servers {
 		/// Perform async server-specific delete directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public virtual async Task<bool> DeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
-			return false;
+		public virtual Task<bool> DeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
+			return Task.FromResult(false);
 		}
 #endif
 
@@ -98,8 +98,8 @@ namespace FluentFTP.Servers {
 		/// Perform async server-specific create directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public virtual async Task<bool> CreateDirectoryAsync(FtpClient client, string path, string ftppath, bool force, CancellationToken token) {
-			return false;
+		public virtual Task<bool> CreateDirectoryAsync(FtpClient client, string path, string ftppath, bool force, CancellationToken token) {
+			return Task.FromResult(false);
 		}
 #endif
 
@@ -116,8 +116,8 @@ namespace FluentFTP.Servers {
 		/// Perform server-specific post-connection commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public virtual async Task AfterConnectedAsync(FtpClient client, CancellationToken token) {
-
+		public virtual Task AfterConnectedAsync(FtpClient client, CancellationToken token) {
+			return Task.CompletedTask;
 		}
 #endif
 		/// <summary>
@@ -139,8 +139,8 @@ namespace FluentFTP.Servers {
 		/// Perform server-specific file size fetching commands here.
 		/// Return the file size in bytes.
 		/// </summary>
-		public virtual async Task<long> GetFileSizeAsync(FtpClient client, string path, CancellationToken token) {
-			return 0;
+		public virtual Task<long> GetFileSizeAsync(FtpClient client, string path, CancellationToken token) {
+			return Task.FromResult(0L);
 		}
 #endif
 		/// <summary>

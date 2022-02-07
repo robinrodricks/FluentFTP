@@ -561,40 +561,41 @@ namespace FluentFTP {
 
 #if ASYNC
 		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need. Or use CompareFile.", true)]
-		public async Task<FtpHashAlgorithm> GetHashAlgorithmAsync(CancellationToken token = default(CancellationToken)) {
-			return FtpHashAlgorithm.NONE;
+		public Task<FtpHashAlgorithm> GetHashAlgorithmAsync(CancellationToken token = default(CancellationToken)) {
+			return Task.FromResult(FtpHashAlgorithm.NONE);
 		}
 		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need. Or use CompareFile.", true)]
-		public async Task SetHashAlgorithmAsync(FtpHashAlgorithm algorithm, CancellationToken token = default(CancellationToken)) {
+		public Task SetHashAlgorithmAsync(FtpHashAlgorithm algorithm, CancellationToken token = default(CancellationToken)) {
+			return Task.CompletedTask;
 		}
 		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need. Or use CompareFile.", true)]
-		public async Task<FtpHash> GetHashAsync(string path, CancellationToken token = default(CancellationToken)) {
-			return null;
+		public Task<FtpHash> GetHashAsync(string path, CancellationToken token = default(CancellationToken)) {
+			return Task.FromResult<FtpHash>(null);
 		}
 
 		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to MD5. Or use CompareFile.", true)]
-		public async Task<string> GetMD5Async(string path, CancellationToken token = default(CancellationToken)) {
-			return null;
+		public Task<string> GetMD5Async(string path, CancellationToken token = default(CancellationToken)) {
+			return Task.FromResult<string>(null);
 		}
 		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to CRC. Or use CompareFile.", true)]
-		public async Task<string> GetXCRCAsync(string path, CancellationToken token = default(CancellationToken)) {
-			return null;
+		public Task<string> GetXCRCAsync(string path, CancellationToken token = default(CancellationToken)) {
+			return Task.FromResult<string>(null);
 		}
 		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to MD5. Or use CompareFile.", true)]
-		public async Task<string> GetXMD5Async(string path, CancellationToken token = default(CancellationToken)) {
-			return null;
+		public Task<string> GetXMD5Async(string path, CancellationToken token = default(CancellationToken)) {
+			return Task.FromResult<string>(null);
 		}
 		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to SHA1. Or use CompareFile.", true)]
-		public async Task<string> GetXSHA1Async(string path, CancellationToken token = default(CancellationToken)) {
-			return null;
+		public Task<string> GetXSHA1Async(string path, CancellationToken token = default(CancellationToken)) {
+			return Task.FromResult<string>(null);
 		}
 		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to SHA256. Or use CompareFile.", true)]
-		public async Task<string> GetXSHA256Async(string path, CancellationToken token = default(CancellationToken)) {
-			return null;
+		public Task<string> GetXSHA256Async(string path, CancellationToken token = default(CancellationToken)) {
+			return Task.FromResult<string>(null);
 		}
 		[ObsoleteAttribute("Use GetChecksum instead and set the algorithm to SHA512. Or use CompareFile.", true)]
-		public async Task<string> GetXSHA512Async(string path, CancellationToken token = default(CancellationToken)) {
-			return null;
+		public Task<string> GetXSHA512Async(string path, CancellationToken token = default(CancellationToken)) {
+			return Task.FromResult<string>(null);
 		}
 #endif
 
