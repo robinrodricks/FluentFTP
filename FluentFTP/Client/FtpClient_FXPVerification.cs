@@ -19,15 +19,15 @@ namespace FluentFTP {
 			
 			// verify args
 			if (sourcePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localPath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(sourcePath));
 			}
 
 			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
 			if (fxpDestinationClient is null) {
-				throw new ArgumentNullException("Destination FXP FtpClient cannot be null!", "fxpDestinationClient");
+				throw new ArgumentNullException(nameof(fxpDestinationClient), "Destination FXP FtpClient cannot be null!");
 			}
 
 			// check if any algorithm is supported by both servers
@@ -61,15 +61,15 @@ namespace FluentFTP {
 			
 			// verify args
 			if (sourcePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localPath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(sourcePath));
 			}
 
 			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
 			if (fxpDestinationClient is null) {
-				throw new ArgumentNullException("Destination FXP FtpClient cannot be null!", "fxpDestinationClient");
+				throw new ArgumentNullException(nameof(fxpDestinationClient), "Destination FXP FtpClient cannot be null!");
 			}
 
 			// check if any algorithm is supported by both servers
