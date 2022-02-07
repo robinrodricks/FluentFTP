@@ -33,7 +33,7 @@ namespace FluentFTP {
 		#region Checksum
 
 		/// <summary>
-		/// Retrieves a checksum of the given file using the specified checksum algorithum, or using the first available algorithm that the server supports.
+		/// Retrieves a checksum of the given file using the specified checksum algorithm, or using the first available algorithm that the server supports.
 		/// </summary>
 		/// <remarks>
 		/// The algorithm used goes in this order:
@@ -173,7 +173,7 @@ namespace FluentFTP {
 
 #if ASYNC
 		/// <summary>
-		/// Retrieves a checksum of the given file using the specified checksum algorithum, or using the first available algorithm that the server supports.
+		/// Retrieves a checksum of the given file using the specified checksum algorithm, or using the first available algorithm that the server supports.
 		/// </summary>
 		/// <remarks>
 		/// The algorithm used goes in this order:

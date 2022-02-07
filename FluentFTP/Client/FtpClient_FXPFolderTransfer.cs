@@ -188,7 +188,7 @@ namespace FluentFTP {
 			token.ThrowIfCancellationRequested();
 
 			/*-------------------------------------------------------------------------------------/
-			 *   Cancelling after this point would leave the FTP server in an inconsistant state   *
+			 *   Cancelling after this point would leave the FTP server in an inconsistent state   *
 			 *-------------------------------------------------------------------------------------*/
 
 			// loop thru each folder and ensure it exists #2
@@ -231,7 +231,7 @@ namespace FluentFTP {
 				// record the folder
 				results.Add(result);
 
-				// skip transfering the file if it does not pass all the rules
+				// skip transferring the file if it does not pass all the rules
 				if (!FilePassesRules(result, rules, true)) {
 					continue;
 				}
@@ -264,7 +264,7 @@ namespace FluentFTP {
 				// record the file
 				results.Add(result);
 
-				// skip transfering the file if it does not pass all the rules
+				// skip transferring the file if it does not pass all the rules
 				if (!FilePassesRules(result, rules, true)) {
 					continue;
 				}

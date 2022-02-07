@@ -7,7 +7,7 @@ namespace FluentFTP.Helpers.Hashing {
 	internal static class HashParser {
 
 		/// <summary>
-		/// Parses the recieved FTP hash response into a new FtpHash object.
+		/// Parses the received FTP hash response into a new FtpHash object.
 		/// </summary>
 		public static FtpHash Parse(string reply) {
 

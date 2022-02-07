@@ -93,11 +93,11 @@ namespace FluentFTP {
 			}
 
 			if (!remoteClient.IsConnected) {
-				throw new FtpException("The connection must be open before a transfer between servers can be intitiated");
+				throw new FtpException("The connection must be open before a transfer between servers can be initiated");
 			}
 
 			if (!this.IsConnected) {
-				throw new FtpException("The source FXP FtpClient must be open and connected before a transfer between servers can be intitiated");
+				throw new FtpException("The source FXP FtpClient must be open and connected before a transfer between servers can be initiated");
 			}
 
 			if (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AddToEndNoCheck) {

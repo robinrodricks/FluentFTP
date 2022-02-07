@@ -279,7 +279,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Decodes the given FTP response string into a FtpReply, seperating the FTP return code and message.
+		/// Decodes the given FTP response string into a FtpReply, separating the FTP return code and message.
 		/// Returns true if the string was decoded correctly or false if it is not a standard format FTP response.
 		/// </summary>
 		private bool DecodeStringToReply(string text, ref FtpReply reply) {
@@ -617,7 +617,7 @@ namespace FluentFTP {
 		private void GetEnhancedPassivePort(FtpReply reply, out string host, out int port) {
 			var m = Regex.Match(reply.Message, @"\(\|\|\|(?<port>\d+)\|\)");
 			if (!m.Success) {
-				// In the case that ESPV is responded with a regular "Entering Passive Mode" instead, we'll try tthat parsing before we raise the exception
+				// In the case that ESPV is responded with a regular "Entering Passive Mode" instead, we'll try that parsing before we raise the exception
 				/* Example:
 				Command: EPSV
 				Response: 227 Entering Passive Mode(XX, XX, XX, XX, 143, 225).
