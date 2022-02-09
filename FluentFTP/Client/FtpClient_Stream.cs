@@ -162,6 +162,11 @@ namespace FluentFTP {
 				commandTxt = "PASS ***";
 			}
 
+			// A CWD will invalidate the cached value.
+			if (command.StartsWith("CWD ", StringComparison.Ordinal)) {
+				_LastWorkingDir = null;
+			}
+
 			LogLine(FtpTraceLevel.Info, "Command:  " + commandTxt);
 
 			// send command to FTP server
