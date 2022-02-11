@@ -208,8 +208,7 @@ namespace FluentFTP.Servers {
 				var featName = feat.Trim().ToUpper();
 
 				// Handle possible multiline FEAT reply format
-				if (featName.StartsWith("211-"))
-				{
+				if (featName.StartsWith("211-")) {
 					featName = featName.Substring(4);
 				}
 
