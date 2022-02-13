@@ -81,15 +81,15 @@ namespace FluentFTP {
 
 		private void VerifyTransferFileParams(string sourcePath, FtpClient remoteClient, string remotePath, FtpRemoteExists existsMode) {
 			if (remoteClient is null) {
-				throw new ArgumentNullException("Destination FXP FtpClient cannot be null!", "remoteClient");
+				throw new ArgumentNullException(nameof(remoteClient), "Destination FXP FtpClient cannot be null!");
 			}
 
 			if (sourcePath.IsBlank()) {
-				throw new ArgumentNullException("FtpListItem must be specified!", "sourceFtpFileItem");
+				throw new ArgumentNullException(nameof(sourcePath), "FtpListItem must be specified!");
 			}
 
 			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
 			if (!remoteClient.IsConnected) {
@@ -101,7 +101,7 @@ namespace FluentFTP {
 			}
 
 			if (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AddToEndNoCheck) {
-				throw new ArgumentException("FXP file transfer does not currently support AddToEnd or AddToEndNoCheck modes. Use another value for existsMode.", "existsMode");
+				throw new ArgumentException("FXP file transfer does not currently support AddToEnd or AddToEndNoCheck modes. Use another value for existsMode.", nameof(existsMode));
 			}
 		}
 

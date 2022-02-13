@@ -828,7 +828,7 @@ namespace FluentFTP {
 			get => m_serverTimeZone;
 			set {
 				if (value < -14 || value > 14) {
-					throw new ArgumentOutOfRangeException("TimeZone must be within -14 to +14 to represent UTC-14 to UTC+14");
+					throw new ArgumentOutOfRangeException(nameof(value), "TimeZone must be within -14 to +14 to represent UTC-14 to UTC+14");
 				}
 				m_serverTimeZone = value;
 
@@ -857,7 +857,7 @@ namespace FluentFTP {
 			get => m_localTimeZone;
 			set {
 				if (value < -14 || value > 14) {
-					throw new ArgumentOutOfRangeException("LocalTimeZone must be within -14 to +14 to represent UTC-14 to UTC+14");
+					throw new ArgumentOutOfRangeException(nameof(value), "LocalTimeZone must be within -14 to +14 to represent UTC-14 to UTC+14");
 				}
 				m_localTimeZone = value;
 

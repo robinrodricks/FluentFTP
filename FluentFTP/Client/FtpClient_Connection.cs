@@ -43,7 +43,7 @@ namespace FluentFTP {
 		/// Creates a new instance of an FTP Client, with the given host.
 		/// </summary>
 		public FtpClient(string host) {
-			Host = host ?? throw new ArgumentNullException("Host must be provided");
+			Host = host ?? throw new ArgumentNullException(nameof(host), "Host must be provided");
 			m_listParser = new FtpListParser(this);
 		}
 
@@ -51,8 +51,8 @@ namespace FluentFTP {
 		/// Creates a new instance of an FTP Client, with the given host and credentials.
 		/// </summary>
 		public FtpClient(string host, NetworkCredential credentials) {
-			Host = host ?? throw new ArgumentNullException("Host must be provided");
-			Credentials = credentials ?? throw new ArgumentNullException("Credentials must be provided");
+			Host = host ?? throw new ArgumentNullException(nameof(host), "Host must be provided");
+			Credentials = credentials ?? throw new ArgumentNullException(nameof(credentials), "Credentials must be provided");
 			m_listParser = new FtpListParser(this);
 		}
 
@@ -60,9 +60,9 @@ namespace FluentFTP {
 		/// Creates a new instance of an FTP Client, with the given host, port and credentials.
 		/// </summary>
 		public FtpClient(string host, int port, NetworkCredential credentials) {
-			Host = host ?? throw new ArgumentNullException("Host must be provided");
+			Host = host ?? throw new ArgumentNullException(nameof(host), "Host must be provided");
 			Port = port;
-			Credentials = credentials ?? throw new ArgumentNullException("Credentials must be provided");
+			Credentials = credentials ?? throw new ArgumentNullException(nameof(credentials), "Credentials must be provided");
 			m_listParser = new FtpListParser(this);
 		}
 
@@ -169,7 +169,7 @@ namespace FluentFTP {
 		/// <param name="host"></param>
 		private static string ValidateHost(Uri host) {
 			if (host == null) {
-				throw new ArgumentNullException("Host is required");
+				throw new ArgumentNullException(nameof(host), "Host is required");
 			}
 #if !CORE
 			if (host.Scheme != Uri.UriSchemeFtp) {
