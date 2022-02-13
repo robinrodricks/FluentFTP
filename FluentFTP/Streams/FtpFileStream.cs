@@ -153,7 +153,11 @@ namespace FluentFTP.Streams {
 		/// If the stream is a MemoryStream, completes the quick download by writing the file to disk.
 		/// </summary>
 		public static Task CompleteQuickFileWriteAsync(Stream fileStream, string localPath, CancellationToken token) {
+#if NET45
+			return Task.FromResult(true);
+#else
 			return Task.CompletedTask;
+#endif
 			// if quick transfer is enabled
 			/*if (fileStream is MemoryStream) {
 

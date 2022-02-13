@@ -566,7 +566,11 @@ namespace FluentFTP {
 		}
 		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need. Or use CompareFile.", true)]
 		public Task SetHashAlgorithmAsync(FtpHashAlgorithm algorithm, CancellationToken token = default(CancellationToken)) {
+#if NET45
+			return Task.FromResult(true);
+#else
 			return Task.CompletedTask;
+#endif
 		}
 		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need. Or use CompareFile.", true)]
 		public Task<FtpHash> GetHashAsync(string path, CancellationToken token = default(CancellationToken)) {

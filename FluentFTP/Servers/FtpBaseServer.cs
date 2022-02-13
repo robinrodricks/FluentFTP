@@ -117,12 +117,16 @@ namespace FluentFTP.Servers {
 		/// Return true if you executed a server-specific command.
 		/// </summary>
 		public virtual Task AfterConnectedAsync(FtpClient client, CancellationToken token) {
+#if NET45
+			return Task.FromResult(true);
+#else
 			return Task.CompletedTask;
+#endif
 		}
 #endif
-		/// <summary>
-		/// Return true if your server requires custom handling of file size.
-		/// </summary>
+			/// <summary>
+			/// Return true if your server requires custom handling of file size.
+			/// </summary>
 		public virtual bool IsCustomFileSize() {
 			return false;
 		}
