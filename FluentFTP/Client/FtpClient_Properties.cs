@@ -199,7 +199,7 @@ namespace FluentFTP {
 		private bool m_IsAuthenticated = false;
 
 		/// <summary>
-		/// Returns true if if the connection to the FTP server is open and if the FTP server accepted our credentials.
+		/// Returns true if the connection to the FTP server is open and if the FTP server accepted our credentials.
 		/// </summary>
 		public bool IsAuthenticated {
 			get {
@@ -524,13 +524,13 @@ namespace FluentFTP {
 		public List<FtpCapability> Capabilities {
 			get {
 
-				// FIX #683: if capabilities are already loaded, dont check if connected and return straightaway
+				// FIX #683: if capabilities are already loaded, don't check if connected and return straightaway
 				if (m_capabilities != null && m_capabilities.Count > 0) {
 					return m_capabilities;
 				}
 
-				// FIX #683: while using async operations, it is possile that the stream is not
-				// connected, so don't connect using sychronous connection logic
+				// FIX #683: while using async operations, it is possible that the stream is not
+				// connected, so don't connect using synchronous connection logic
 				if (m_stream == null) {
 					throw new FtpException("Please call Connect() before trying to read the Capabilities!");
 				}
@@ -552,13 +552,13 @@ namespace FluentFTP {
 		public FtpHashAlgorithm HashAlgorithms {
 			get {
 
-				// FIX #683: if hash types are already loaded, dont check if connected and return straightaway
+				// FIX #683: if hash types are already loaded, don't check if connected and return straightaway
 				if (m_hashAlgorithms != FtpHashAlgorithm.NONE) {
 					return m_hashAlgorithms;
 				}
 
-				// FIX #683: while using async operations, it is possile that the stream is not
-				// connected, so don't connect using sychronous connection logic
+				// FIX #683: while using async operations, it is possible that the stream is not
+				// connected, so don't connect using synchronous connection logic
 				if (m_stream == null || !m_stream.IsConnected) {
 					throw new FtpException("Please call Connect() before trying to read the HashAlgorithms!");
 				}

@@ -164,7 +164,7 @@ namespace FluentFTP {
 									conn.Dispose();
 								}
 
-								// rethrow permanant failures so caller can be made aware of it
+								// rethrow permanent failures so caller can be made aware of it
 								throw;
 							}
 						}
@@ -323,7 +323,7 @@ namespace FluentFTP {
 								conn.Dispose();
 							}
 
-							// rethrow permanant failures so caller can be made aware of it
+							// rethrow permanent failures so caller can be made aware of it
 							throw;
 						}
 					}

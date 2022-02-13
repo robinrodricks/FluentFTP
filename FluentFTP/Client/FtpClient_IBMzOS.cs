@@ -55,13 +55,13 @@ namespace FluentFTP {
 				return FtpZOSListRealm.Unix;
 			}
 
-			// Ok, the CWD starts with a single quoute. Classic z/OS dataset realm
+			// Ok, the CWD starts with a single quote. Classic z/OS dataset realm
 			FtpReply reply;
 
 #if !CORE14
 			lock (m_lock) {
 #endif
-				// Fetch the current working directory. The reply will tell us what it is we we are...
+				// Fetch the current working directory. The reply will tell us what it is we are...
 				if (!(reply = Execute("CWD " + _LastWorkingDir)).Success) {
 					throw new FtpCommandException(reply);
 				}
@@ -106,10 +106,10 @@ namespace FluentFTP {
 				return FtpZOSListRealm.Unix;
 			}
 
-			// Ok, the CWD starts with a single quoute. Classic z/OS dataset realm
+			// Ok, the CWD starts with a single quote. Classic z/OS dataset realm
 			FtpReply reply;
 
-			// Fetch the current working directory. The reply will tell us what it is we we are...
+			// Fetch the current working directory. The reply will tell us what it is we are...
 			if (!(reply = await ExecuteAsync("CWD " + _LastWorkingDir, token)).Success) {
 				throw new FtpCommandException(reply);
 			}

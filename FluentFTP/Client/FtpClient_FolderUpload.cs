@@ -186,7 +186,7 @@ namespace FluentFTP {
 			token.ThrowIfCancellationRequested();
 
 			/*-------------------------------------------------------------------------------------/
-			 *   Cancelling after this point would leave the FTP server in an inconsistant state   *
+			 *   Cancelling after this point would leave the FTP server in an inconsistent state   *
 			 *-------------------------------------------------------------------------------------*/
 
 			// loop thru each folder and ensure it exists #2
@@ -385,7 +385,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Check if the file is cleared to be uploaded, taking its existance/filesize and existsMode options into account.
+		/// Check if the file is cleared to be uploaded, taking its existence/filesize and existsMode options into account.
 		/// </summary>
 		private bool CanUploadFile(FtpResult result, FtpListItem[] remoteListing, FtpRemoteExists existsMode, out FtpRemoteExists existsModeToUse) {
 

@@ -9,12 +9,12 @@ namespace FluentFTP {
 	public enum FtpStatus {
 
 		/// <summary>
-		/// The upload or download failed with an error transfering, or the source file did not exist
+		/// The upload or download failed with an error transferring, or the source file did not exist
 		/// </summary>
 		Failed = 0,
 
 		/// <summary>
-		/// The upload or download completed succesfully
+		/// The upload or download completed successfully
 		/// </summary>
 		Success = 1,
 

@@ -156,7 +156,7 @@ namespace FluentFTP {
 			token.ThrowIfCancellationRequested();
 
 			/*-------------------------------------------------------------------------------------/
-			 *   Cancelling after this point would leave the FTP server in an inconsistant state   *
+			 *   Cancelling after this point would leave the FTP server in an inconsistent state   *
 			 *-------------------------------------------------------------------------------------*/
 
 			// loop thru each file and transfer it #2
