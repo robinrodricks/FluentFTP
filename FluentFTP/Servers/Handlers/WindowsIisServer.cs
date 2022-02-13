@@ -42,7 +42,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Return the default file listing parser to be used with your FTP server.
 		/// </summary>
-		public virtual FtpParser GetParser() {
+		public override FtpParser GetParser() {
 			return FtpParser.Windows;
 		}
 
