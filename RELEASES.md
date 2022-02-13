@@ -1,5 +1,13 @@
 # Release Notes
 
+#### 37.0.1
+ - Fix: `SetWorkingDirectoryAsync` doesn't set working directory due to missing cache invalidation (thanks [FanDjango](/FanDjango))
+ - Fix:  Handle multiline `FEAT` replies to support ProFTPD capability reporting (thanks [FanDjango](/FanDjango))
+ - Fix: Correctly disposes `CancellationTokenSource` created during `ConnectAsync` (thanks [jnyrup](/jnyrup))
+ - Fix: Printing of error messages in some `ArgumentNullException` and `ArgumentOutOfRangeException` (thanks [jnyrup](/jnyrup))
+ - Fix: Wrong file parser being selected for servers: NonStop/Tandem, OpenVMS, Windows CE, IIS (thanks [jnyrup](/jnyrup))
+ - Performance: Improve performance of async methods that return constant values (thanks [jnyrup](/jnyrup))
+
 #### 37.0.0
  - New: Detect Titan FTP servers (allows for future server-specific handling)
  - Fix: Validation of short CRC checksum fails due to mismatch of hex hash format
