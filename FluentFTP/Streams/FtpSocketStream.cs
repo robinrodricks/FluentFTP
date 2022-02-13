@@ -979,16 +979,18 @@ namespace FluentFTP {
 #if CORE
 				if (this.ConnectTimeout > 0)
 				{
-					var timeoutSrc = new CancellationTokenSource();
-					timeoutSrc.CancelAfter(this.ConnectTimeout);
-
-					var tokenSrc = CancellationTokenSource.CreateLinkedTokenSource(
-						token, timeoutSrc.Token);
-					token = tokenSrc.Token;
+					using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token))
+					{
+						timeoutSrc.CancelAfter(this.ConnectTimeout);
+						await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), timeoutSrc.Token, () => CloseSocket());
+						break;
+					}
 				}
-
-				await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), token, () => CloseSocket());
-				break;
+				else
+				{
+					await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), token, () => CloseSocket());
+					break;
+				}
 #else
 				var connectResult = m_socket.BeginConnect(addresses[i], port, null, null);
 				await EnableCancellation(Task.Factory.FromAsync(connectResult, m_socket.EndConnect), token, () => CloseSocket());
