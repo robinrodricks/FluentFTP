@@ -207,6 +207,11 @@ namespace FluentFTP.Servers {
 			foreach (var feat in features) {
 				var featName = feat.Trim().ToUpper();
 
+				// Handle possible multiline FEAT reply format
+				if (featName.StartsWith("211-")) {
+					featName = featName.Substring(4);
+				}
+
 				if (featName.StartsWith("MLST") || featName.StartsWith("MLSD")) {
 					m_capabilities.AddOnce(FtpCapability.MLSD);
 				}
