@@ -85,7 +85,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Get z/OS file size
 		/// </summary>
-		/// <param name="path">The full path of th file whose size you want to retrieve</param>
+		/// <param name="path">The full path of the file whose size you want to retrieve</param>
 		/// <remarks>
 		/// Make sure you are in the right realm (z/OS or HFS) before doing this
 		/// </remarks>
@@ -112,7 +112,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Get z/OS file size
 		/// </summary>
-		/// <param name="path">The full path of th file whose size you want to retrieve</param>
+		/// <param name="path">The full path of the file whose size you want to retrieve</param>
 		/// <remarks>
 		/// Make sure you are in the right realm (z/OS or HFS) before doing this
 		/// </remarks>
@@ -144,12 +144,12 @@ namespace FluentFTP.Servers.Handlers {
 		public override bool IsRoot(FtpClient client, string path) {
 
 			// If it is not a "/" root, it could perhaps be a z/OS root (like 'SYS1.')
-			// Note: If on z/OS you have somehow managed to CWD "over" th top, i.e.
+			// Note: If on z/OS you have somehow managed to CWD "over" the top, i.e.
 			// PWD returns "''" - you would need to CWD to some HLQ that only you can
 			// imagine. There is no way to list the available top level HLQs.
-			if (path.Split('.').Length - 1 == 1) {
-				return true;
-			}
+			if (path == "/") return true;
+			if (path.StartsWith("/")) return false;
+			if (path.Trim('\'').TrimEnd('.').Split('.').Length <= 1) return true;
 			return false;
 		}
 	}
