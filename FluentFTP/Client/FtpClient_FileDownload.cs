@@ -775,7 +775,7 @@ namespace FluentFTP {
 
 						// fix: attempting to download data after we reached the end of the stream
 						// often throws a timeout exception, so we silently absorb that here
-						if (offset >= fileLen) {
+						if (offset >= fileLen && !readToEnd) {
 							break;
 						}
 						else {
