@@ -143,13 +143,27 @@ namespace FluentFTP.Servers.Handlers {
 		/// </summary>
 		public override bool IsRoot(FtpClient client, string path) {
 
-			// If it is not a "/" root, it could perhaps be a z/OS root (like 'SYS1.')
 			// Note: If on z/OS you have somehow managed to CWD "over" the top, i.e.
-			// PWD returns "''" - you would need to CWD to some HLQ that only you can
-			// imagine. There is no way to list the available top level HLQs.
-			if (path == "/") return true;
-			if (path.StartsWith("/")) return false;
-			if (path.Trim('\'').TrimEnd('.').Split('.').Length <= 1) return true;
+			// PWD returns "''", it is also root - you would need to CWD to some HLQ
+			// that only you can imagine. There is no way to list the available top
+			// level HLQs.
+
+			// z/OS HFS root
+			if (path == "/") { 
+				return true;
+			}
+
+			// z/OS HFS some path
+			if (path.StartsWith("/")) {
+				return false;
+			}
+
+			// z/OS HLQ (like 'SYS1.' or '')
+			if (path.Trim('\'').TrimEnd('.').Split('.').Length <= 1) { 
+				return true;
+			}
+
+			// all others
 			return false;
 		}
 	}
