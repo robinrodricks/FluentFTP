@@ -111,6 +111,7 @@ namespace FluentFTP.Helpers.Parsers
 				//
 				//Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname    
 				//ANSYBG 3390   2020/01/03  1   15  VB   32756 32760  PS  $.ADATA.XAA
+				//ANSYBH 3390   2022/02/18  1+++++  VBS  32767 27966  PS  $.BDATA.XBB
 				//
 
 				// Ignore title line AND also ignore "VSAM", "Not Mounted" and "Error determining attributes"
@@ -134,7 +135,14 @@ namespace FluentFTP.Helpers.Parsers
 						lastModifiedStr += " 00:00";
 					}
 					var lastModified = ParseDateTime(client, lastModifiedStr);
-					var size = long.Parse(used) * 56664; // 3390 dev bytes per track
+					// If "+++++" we could assume maximum "normal" size of 65535 tracks. (3.46GB)
+					// or preferably "large format sequential" of 16777215 tracks (885.38GB)
+					// This is a huge over-estimation in all probability but it cannot be helped.
+					var size = 16777216L * 56664L;
+					if (used != "+++++")
+					{
+						size = long.Parse(used) * 56664L; // 3390 dev bytes per track
+					}
 					var file = new FtpListItem(record, dsname, size, isDir, ref lastModified);
 					return file;
 				}
