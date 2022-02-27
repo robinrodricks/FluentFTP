@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 37.0.2
+ - Fix: z/OS: `GetListing`: Handle large file sizes reported in Used column (thanks [FanDjango](/FanDjango))
+ - Fix: z/OS: `IsRoot` improved to handle Unix realm as well (thanks [FanDjango](/FanDjango))
+ - Fix: `DownloadFile` correctly handles connection interruptions and resumes partially downloaded files (thanks [FanDjango](/FanDjango))
+
 #### 37.0.1
  - Fix: `SetWorkingDirectoryAsync` doesn't set working directory due to missing cache invalidation (thanks [FanDjango](/FanDjango))
  - Fix:  Handle multiline `FEAT` replies to support ProFTPD capability reporting (thanks [FanDjango](/FanDjango))
