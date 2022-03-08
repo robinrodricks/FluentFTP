@@ -731,11 +731,31 @@ namespace FluentFTP {
 			}
 
 #if !NO_SSL
+			if (m_sslStream != null)
+			{
+				try
+				{
+#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+					m_sslStream.ShutdownAsync().RunSynchronously();
+#endif
+					m_sslStream.Dispose();
+				}
+				catch (Exception ex)
+				{
+				}
+
+				m_sslStream = null;
+			}
+
+#endif
+
+#if !NO_SSL
 			if (m_bufStream != null) {
 				try {
 					// ensure the last of the buffered bytes are flushed
 					// before we close the socket and network stream
 					m_bufStream.Flush();
+					m_bufStream.Dispose();
 				}
 				catch (Exception ex) {
 				}
@@ -744,51 +764,47 @@ namespace FluentFTP {
 			}
 #endif
 
-			CloseSocket();
 
-			if (m_netStream != null) {
-				try {
+			if (m_netStream != null)
+			{
+				try
+				{
 					m_netStream.Dispose();
 				}
-				catch (Exception ex) {
+				catch (Exception ex)
+				{
 				}
 
 				m_netStream = null;
 			}
 
-#if !NO_SSL
-			if (m_sslStream != null) {
-				try {
-					m_sslStream.Dispose();
-				}
-				catch (Exception ex) {
-				}
-
-				m_sslStream = null;
-			}
-
-#endif
+			CloseSocket();
 		}
 
 		/// <summary>
 		/// Safely close the socket if its open
 		/// </summary>
-		internal void CloseSocket() {
-			if (m_socket != null) {
-				try {
-#if CORE
-					m_socket.Dispose();
-#else
-					if (m_socket.Connected) {
-						m_socket.Close();
-					}
-#endif
+		internal void CloseSocket()
+		{
+			if (m_socket != null)
+			{
+				try
+				{
 
 #if !NET20 && !NET35 && !CORE
 					m_socket.Dispose();
 #endif
+					if (m_socket.Connected)
+					{
+#if NET5_0_OR_GREATER
+
+						m_socket.Shutdown(SocketShutdown.Send);
+						m_socket.Close();
+#endif
+					}
 				}
-				catch (Exception ex) {
+				catch (Exception ex)
+				{
 				}
 
 				m_socket = null;
