@@ -524,7 +524,7 @@ namespace FluentFTP {
 		public List<FtpCapability> Capabilities {
 			get {
 
-				// FIX #683: if capabilities are already loaded, don't check if connected and return straightaway
+				// FIX #683: if capabilities are already loaded, don't check if connected and return straight away
 				if (m_capabilities != null && m_capabilities.Count > 0) {
 					return m_capabilities;
 				}
@@ -552,7 +552,7 @@ namespace FluentFTP {
 		public FtpHashAlgorithm HashAlgorithms {
 			get {
 
-				// FIX #683: if hash types are already loaded, don't check if connected and return straightaway
+				// FIX #683: if hash types are already loaded, don't check if connected and return straight away
 				if (m_hashAlgorithms != FtpHashAlgorithm.NONE) {
 					return m_hashAlgorithms;
 				}

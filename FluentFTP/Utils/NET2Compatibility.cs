@@ -1295,7 +1295,7 @@ namespace System.Linq {
 			IEnumerable<TSource> second,
 			IEqualityComparer<TSource> comparer) {
 			if (first == null) {
-				throw new ArgumentNullException("frist");
+				throw new ArgumentNullException("first");
 			}
 
 			if (second == null) {

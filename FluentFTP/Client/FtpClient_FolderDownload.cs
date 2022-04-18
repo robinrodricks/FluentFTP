@@ -37,7 +37,7 @@ namespace FluentFTP {
 		/// </remarks>
 		/// <returns>
 		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
-		/// Returns a blank list if nothing was transfered. Never returns null.
+		/// Returns a blank list if nothing was transferred. Never returns null.
 		/// </returns>
 		public List<FtpResult> DownloadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
 			FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null) {
@@ -74,7 +74,7 @@ namespace FluentFTP {
 			// collect paths of the files that should exist (lowercase for CI checks)
 			var shouldExist = new Dictionary<string, bool>();
 
-			// loop thru each file and transfer it
+			// loop through each file and transfer it
 			var toDownload = GetFilesToDownload(localFolder, remoteFolder, rules, results, listing, shouldExist);
 			DownloadServerFiles(toDownload, existsMode, verifyOptions, progress);
 
@@ -109,7 +109,7 @@ namespace FluentFTP {
 		/// </remarks>
 		/// <returns>
 		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
-		/// Returns a blank list if nothing was transfered. Never returns null.
+		/// Returns a blank list if nothing was transferred. Never returns null.
 		/// </returns>
 		public async Task<List<FtpResult>> DownloadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
 			FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
@@ -149,7 +149,7 @@ namespace FluentFTP {
 			// collect paths of the files that should exist (lowercase for CI checks)
 			var shouldExist = new Dictionary<string, bool>();
 
-			// loop thru each file and transfer it #1
+			// loop through each file and transfer it #1
 			var toDownload = GetFilesToDownload(localFolder, remoteFolder, rules, results, listing, shouldExist);
 
 			// break if task is cancelled
@@ -159,7 +159,7 @@ namespace FluentFTP {
 			 *   Cancelling after this point would leave the FTP server in an inconsistent state   *
 			 *-------------------------------------------------------------------------------------*/
 
-			// loop thru each file and transfer it #2
+			// loop through each file and transfer it #2
 			await DownloadServerFilesAsync(toDownload, existsMode, verifyOptions, progress, token);
 
 			// delete the extra local files if in mirror mode

@@ -65,7 +65,7 @@ namespace FluentFTP.Rules {
 			// check against whitelist or blacklist
 			if (Whitelist) {
 
-				// loop thru path segments starting at given index
+				// loop through path segments starting at given index
 				for (int d = StartSegment; d < dirNameParts.Length; d++) {
 					var dirName = dirNameParts[d];
 
@@ -78,7 +78,7 @@ namespace FluentFTP.Rules {
 			}
 			else {
 
-				// loop thru path segments starting at given index
+				// loop through path segments starting at given index
 				for (int d = StartSegment; d < dirNameParts.Length; d++) {
 					var dirName = dirNameParts[d];
 
