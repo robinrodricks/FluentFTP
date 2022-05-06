@@ -124,7 +124,7 @@ https://contributors-img.firebaseapp.com/image?repo=robinrodricks/FluentFTP
 
 ## Software Support
 
-FluentFTP has recieved free software from these generous organizations:
+FluentFTP has received free software from these generous organizations:
 
 <table>
 <tr>

@@ -39,7 +39,7 @@ namespace FluentFTP {
 		/// </remarks>
 		/// <returns>
 		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
-		/// Returns a blank list if nothing was transfered. Never returns null.
+		/// Returns a blank list if nothing was transferred. Never returns null.
 		/// </returns>
 		public List<FtpResult> TransferDirectory(string sourceFolder, FtpClient remoteClient, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
 			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null) {
@@ -83,14 +83,14 @@ namespace FluentFTP {
 			// get all the already existing files
 			var remoteListing = checkFileExistence ? remoteClient.GetListing(remoteFolder, FtpListOption.Recursive) : null;
 
-			// loop thru each folder and ensure it exists #1
+			// loop through each folder and ensure it exists #1
 			var dirsToUpload = GetSubDirectoriesToTransfer(sourceFolder, remoteFolder, rules, results, dirListing);
 			CreateSubDirectories(remoteClient, dirsToUpload);
 
 			// get all the files in the local directory
 			var fileListing = GetListing(sourceFolder, FtpListOption.Recursive).Where(x => x.Type == FtpFileSystemObjectType.File).Select(x => x.FullName).ToArray();
 
-			// loop thru each file and transfer it
+			// loop through each file and transfer it
 			var filesToUpload = GetFilesToTransfer(sourceFolder, remoteFolder, rules, results, shouldExist, fileListing);
 			TransferServerFiles(filesToUpload, remoteClient, existsMode, verifyOptions, progress, remoteListing);
 
@@ -128,7 +128,7 @@ namespace FluentFTP {
 		/// </remarks>
 		/// <returns>
 		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
-		/// Returns a blank list if nothing was transfered. Never returns null.
+		/// Returns a blank list if nothing was transferred. Never returns null.
 		/// </returns>
 		public async Task<List<FtpResult>> TransferDirectoryAsync(string sourceFolder, FtpClient remoteClient, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
 			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
@@ -181,7 +181,7 @@ namespace FluentFTP {
 			// break if task is cancelled
 			token.ThrowIfCancellationRequested();
 
-			// loop thru each folder and ensure it exists #1
+			// loop through each folder and ensure it exists #1
 			var dirsToUpload = GetSubDirectoriesToTransfer(sourceFolder, remoteFolder, rules, results, dirListing);
 
 			// break if task is cancelled
@@ -191,13 +191,13 @@ namespace FluentFTP {
 			 *   Cancelling after this point would leave the FTP server in an inconsistent state   *
 			 *-------------------------------------------------------------------------------------*/
 
-			// loop thru each folder and ensure it exists #2
+			// loop through each folder and ensure it exists #2
 			await CreateSubDirectoriesAsync(remoteClient, dirsToUpload, token);
 
 			// get all the files in the local directory
 			var fileListing = (await GetListingAsync(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpFileSystemObjectType.File).Select(x => x.FullName).ToArray();
 			
-			// loop thru each file and transfer it
+			// loop through each file and transfer it
 			var filesToUpload = GetFilesToTransfer(sourceFolder, remoteFolder, rules, results, shouldExist, fileListing);
 			await TransferServerFilesAsync(filesToUpload, remoteClient, existsMode, verifyOptions, progress, remoteListing, token);
 

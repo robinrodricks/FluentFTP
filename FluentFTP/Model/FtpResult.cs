@@ -30,12 +30,12 @@ namespace FluentFTP {
 		public string Name;
 
 		/// <summary>
-		/// Stores the absolute remote path of the current file being transfered.
+		/// Stores the absolute remote path of the current file being transferred.
 		/// </summary>
 		public string RemotePath { get; set; }
 
 		/// <summary>
-		/// Stores the absolute local path of the current file being transfered.
+		/// Stores the absolute local path of the current file being transferred.
 		/// </summary>
 		public string LocalPath { get; set; }
 

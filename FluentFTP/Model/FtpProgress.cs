@@ -30,12 +30,12 @@ namespace FluentFTP {
 		public TimeSpan ETA { get; set; }
 
 		/// <summary>
-		/// Stores the absolute remote path of the current file being transfered.
+		/// Stores the absolute remote path of the current file being transferred.
 		/// </summary>
 		public string RemotePath { get; set; }
 
 		/// <summary>
-		/// Stores the absolute local path of the current file being transfered.
+		/// Stores the absolute local path of the current file being transferred.
 		/// </summary>
 		public string LocalPath { get; set; }
 
@@ -46,7 +46,7 @@ namespace FluentFTP {
 		public int FileIndex { get; set; }
 
 		/// <summary>
-		/// Stores the total count of the files to be transfered.
+		/// Stores the total count of the files to be transferred.
 		/// Only used when transferring multiple files or an entire directory.
 		/// </summary>
 		public int FileCount { get; set; }
