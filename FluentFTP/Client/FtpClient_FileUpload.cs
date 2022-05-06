@@ -388,7 +388,7 @@ namespace FluentFTP {
 
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
-				LogStatus(FtpTraceLevel.Error, "File does not exist.");
+				LogStatus(FtpTraceLevel.Error, "File does not exist: " + localPath);
 				return FtpStatus.Failed;
 			}
 			
@@ -482,7 +482,7 @@ namespace FluentFTP {
 #else
 			if (!File.Exists(localPath)) {
 #endif
-				LogStatus(FtpTraceLevel.Error, "File does not exist.");
+				LogStatus(FtpTraceLevel.Error, "File does not exist: " + localPath);
 				return FtpStatus.Failed;
 			}
 
