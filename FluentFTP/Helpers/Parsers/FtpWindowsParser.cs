@@ -79,7 +79,7 @@ namespace FluentFTP.Helpers.Parsers {
 			ParseTypeAndFileSize(client, values[2], out isDir, out size);
 
 			// parse name of file or folder
-			var name = ParseName(client, record, values);
+			var name = ParseName(client, record, values, isDir);
 
 			return new FtpListItem(record, name, size, isDir, ref lastModified);
 		}
@@ -87,7 +87,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the file or folder name from IIS/DOS format listings
 		/// </summary>
-		private static string ParseName(FtpClient client, string record, string[] values) {
+		private static string ParseName(FtpClient client, string record, string[] values, bool isDir) {
 			// Find starting point of the name by finding the pos of all the date/time fields.
 			var pos = 0;
 			var ok = true;
@@ -104,7 +104,11 @@ namespace FluentFTP.Helpers.Parsers {
 
 			string name = null;
 			if (ok) {
-				name = record.Substring(pos).Trim();
+				//---------------------------------------
+				//03-24-22  09:50AM       <DIR>          TestSubDirectory01
+				//03-24-22  09:50AM                   31 TextFileA.txt
+				//---------------------------------------
+				name = isDir ? record.Substring(pos + 10) : record.Substring(pos + 1);
 			}
 			else {
 				client.LogStatus(FtpTraceLevel.Error, "Failed to retrieve name: " + record);
