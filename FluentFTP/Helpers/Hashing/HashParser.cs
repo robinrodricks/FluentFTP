@@ -29,11 +29,7 @@ namespace FluentFTP.Helpers.Hashing {
 			}
 
 			Match m;
-			if (!(m = Regex.Match(reply,
-				@"(?<algorithm>.+)\s" +
-				@"(?<bytestart>\d+)-(?<byteend>\d+)\s" +
-				@"(?<hash>.+)\s" +
-				@"(?<filename>.+)")).Success) {
+			if (!(m = Regex.Match(reply, @"^(?<algorithm>\S+)\s(?<bytestart>\d+)-(?<byteend>\d+)\s(?<hash>\S+)\s(?<filename>.+)$")).Success) {
 				m = Regex.Match(reply, @"(?<algorithm>.+)\s(?<hash>.+)\s");
 			}
 
