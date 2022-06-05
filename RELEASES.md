@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 37.0.3
+ - Change: Remove `Obsolete` from all `OpenRead`/`OpenWrite`/`OpenAppend` API as it is not planned for deletion
+ - Fix: Calculate checksum for files with whitespaces in their name (thanks [simonefil](/simonefil))
+
 #### 37.0.2
  - Fix: z/OS: `GetListing`: Handle large file sizes reported in Used column (thanks [FanDjango](/FanDjango))
  - Fix: z/OS: `IsRoot` improved to handle Unix realm as well (thanks [FanDjango](/FanDjango))
