@@ -108,7 +108,7 @@ namespace FluentFTP.Helpers.Parsers {
 				//03-24-22  09:50AM       <DIR>          TestSubDirectory01
 				//03-24-22  09:50AM                   31 TextFileA.txt
 				//---------------------------------------
-				name = isDir ? record.Substring(pos + 10) : record.Substring(pos + 1);
+				name = isDir ? record.Substring(pos + OffsetLengthDirectory) : record.Substring(pos + OffsetLengthFile);
 			}
 			else {
 				client.LogStatus(FtpTraceLevel.Error, "Failed to retrieve name: " + record);
@@ -156,6 +156,8 @@ namespace FluentFTP.Helpers.Parsers {
 		private static string DirectoryMarker = "<DIR>";
 		private static int MinFieldCount = 4;
 		private static string[] DateTimeFormats = {"MM'-'dd'-'yy hh':'mmtt", "MM'-'dd'-'yy HH':'mm", "MM'-'dd'-'yyyy hh':'mmtt"};
+		private static int OffsetLengthDirectory = 10;
+		private static int OffsetLengthFile = 1;
 
 		#endregion
 	}
