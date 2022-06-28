@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 37.0.4
+ - New: Support for .NET 6.0
+ - Fix: For FileZilla FTP Server, TLS socket would be incorrectly closed (thanks [michael-hoedl](/michael-hoedl))
+ - Fix: For Windows Server IIS, the space at the beginning of the file name is excluded (thanks [tYoshiyuki](/tYoshiyuki))
+
 #### 37.0.3
  - Change: Remove `Obsolete` from all `OpenRead`/`OpenWrite`/`OpenAppend` API as it is not planned for deletion
  - Fix: Calculate checksum for files with whitespaces in their name (thanks [simonefil](/simonefil))

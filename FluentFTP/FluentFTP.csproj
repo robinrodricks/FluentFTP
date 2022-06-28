@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net20;net35;net40;net45;net50;netstandard1.4;netstandard1.6;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net20;net35;net40;net45;net50;net60;netstandard1.4;netstandard1.6;netstandard2.0;netstandard2.1</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net20' Or '$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40' Or '$(TargetFramework)'=='net45'">
@@ -25,7 +25,7 @@
 		<DefineConstants>$(DefineConstants);CORE16</DefineConstants>
 	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net50' Or $(DefineConstants.Contains('CORE'))">
+  <PropertyGroup Condition="'$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net50' Or '$(TargetFramework)'=='net60' Or $(DefineConstants.Contains('CORE'))">
     <DefineConstants>$(DefineConstants);ASYNC</DefineConstants>
   </PropertyGroup>
 
@@ -33,9 +33,13 @@
     <DefineConstants>$(DefineConstants);NET45</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net50'">
-    <DefineConstants>$(DefineConstants);NET50;CORE</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)'=='net50'">
+		<DefineConstants>$(DefineConstants);NET50;CORE</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)'=='net60'">
+		<DefineConstants>$(DefineConstants);NET60;CORE</DefineConstants>
+	</PropertyGroup>
 
   <!--
   Required only for GetListingAsyncEnumerable
@@ -57,7 +61,7 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
-    <Version>37.0.3</Version>
+    <Version>37.0.4</Version>
     <PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
     <PackageIcon>logo-nuget.png</PackageIcon>
   </PropertyGroup>
