@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 37.0.5
+
+ - Fix: IOException in synchronous methods when AUTH TLS is rejected (thanks [yatlor](/yatlor))
+
 #### 37.0.4
  - New: Support for .NET 6.0
  - Fix: For FileZilla FTP Server, TLS socket would be incorrectly closed (thanks [michael-hoedl](/michael-hoedl))
