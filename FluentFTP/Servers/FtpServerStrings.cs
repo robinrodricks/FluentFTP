@@ -50,7 +50,8 @@ namespace FluentFTP.Servers {
 		public static string[] fileSizeNotInASCII = new[] {
 			"not allowed in ascii",
 			"size not allowed in ascii",
-			"n'est pas autorisé en mode ascii"
+			"n'est pas autorisé en mode ascii",
+			"не разрешено в режиме ascii"
 		};
 
 		#endregion
