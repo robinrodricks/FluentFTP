@@ -135,5 +135,15 @@ namespace FluentFTP {
 		/// Definitely Titan FTP server
 		/// </summary>
 		TitanFTP,
+
+		/// <summary>
+		/// Definitely Rumpus server
+		/// </summary>
+		Rumpus,
+
+		/// <summary>
+		/// Definitely ABB IDAL server
+		/// </summary>
+		ABBIDAL,
 	}
 }

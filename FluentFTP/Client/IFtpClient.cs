@@ -45,7 +45,8 @@ namespace FluentFTP {
 		Func<string> AddressResolver { get; set; }
 		IEnumerable<int> ActivePorts { get; set; }
 		FtpDataConnectionType DataConnectionType { get; set; }
-		bool UngracefullDisconnection { get; set; }
+		bool DisconnectWithQuit { get; set; }
+		bool DisconnectWithShutdown { get; set; }
 		int ConnectTimeout { get; set; }
 		int ReadTimeout { get; set; }
 		int DataConnectionConnectTimeout { get; set; }

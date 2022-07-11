@@ -275,7 +275,8 @@ namespace FluentFTP {
 			conn.MaximumDereferenceCount = MaximumDereferenceCount;
 			conn.ClientCertificates = ClientCertificates;
 			conn.DataConnectionType = DataConnectionType;
-			conn.UngracefullDisconnection = UngracefullDisconnection;
+			conn.DisconnectWithQuit = DisconnectWithQuit;
+			conn.DisconnectWithShutdown = DisconnectWithShutdown;
 			conn.ConnectTimeout = ConnectTimeout;
 			conn.ReadTimeout = ReadTimeout;
 			conn.DataConnectionConnectTimeout = DataConnectionConnectTimeout;
@@ -974,7 +975,7 @@ namespace FluentFTP {
 #endif
 				if (m_stream != null && m_stream.IsConnected) {
 					try {
-						if (!UngracefullDisconnection) {
+						if (DisconnectWithQuit) {
 							Execute("QUIT");
 						}
 					}
@@ -1029,7 +1030,7 @@ namespace FluentFTP {
 		public async Task DisconnectAsync(CancellationToken token = default(CancellationToken)) {
 			if (m_stream != null && m_stream.IsConnected) {
 				try {
-					if (!UngracefullDisconnection) {
+					if (DisconnectWithQuit) {
 						await ExecuteAsync("QUIT", token);
 					}
 				}

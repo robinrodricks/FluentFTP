@@ -439,16 +439,26 @@ namespace FluentFTP {
 			set => m_dataConnectionType = value;
 		}
 
-		private bool m_ungracefullDisconnect = false;
+		private bool m_DisconnectWithQuit = true;
 
 		/// <summary>
 		/// Disconnect from the server without sending QUIT. This helps
 		/// work around IOExceptions caused by buggy connection resets
 		/// when closing the control connection.
 		/// </summary>
-		public bool UngracefullDisconnection {
-			get => m_ungracefullDisconnect;
-			set => m_ungracefullDisconnect = value;
+		public bool DisconnectWithQuit {
+			get => m_DisconnectWithQuit;
+			set => m_DisconnectWithQuit = value;
+		}
+
+		private bool m_DisconnectWithShutdown = false;
+
+		/// <summary>
+		/// Before we disconnect from the server, send the Shutdown signal on the socket stream.
+		/// </summary>
+		public bool DisconnectWithShutdown {
+			get => m_DisconnectWithShutdown;
+			set => m_DisconnectWithShutdown = value;
 		}
 
 		private int m_connectTimeout = 15000;
