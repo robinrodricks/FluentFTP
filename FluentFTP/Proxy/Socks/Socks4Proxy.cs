@@ -39,7 +39,7 @@ namespace FluentFTP.Proxy.Socks
 	        //  if the address doesn't parse then try to resolve with dns
 	        if (!IPAddress.TryParse(destinationHost, out ipAddr))
 	        {
-		        throw new Exception(String.Format("A error occurred while attempting to parse the host IP address {0}.", destinationHost));
+		        throw new ArgumentException(String.Format("A error occurred while attempting to parse the host IP address {0}.", destinationHost));
 	        }
            
 	        // return address bytes
