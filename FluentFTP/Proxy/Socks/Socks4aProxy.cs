@@ -102,18 +102,20 @@ namespace FluentFTP.Proxy.Socks
 			}
 			if (_buffer[1] != 90)
 			{
-				if (_buffer[0] == 91)
+				_socketStream.Close();
+				if (_buffer[1] == 91)
 				{
 					throw new SocksProxyException("Request rejected or failed");
 				}
-				if (_buffer[0] == 92)
+				if (_buffer[1] == 92)
 				{
 					throw new SocksProxyException("Request rejected becuase SOCKS server cannot connect to identd on the client");
 				}
-				if (_buffer[0] == 93)
+				if (_buffer[1] == 93)
 				{
 					throw new SocksProxyException("Request rejected because the client program and identd report different user-ids");
 				}
+				throw new SocksProxyException($"Unknown error with code {_buffer[1]}");
 			}
 		}
 #endif
