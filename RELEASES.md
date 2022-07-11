@@ -1,15 +1,13 @@
 # Release Notes
 
 #### 37.0.6
-
  - New: Detect Rumpus FTP servers for Mac (allows for future server-specific handling)
  - New: Detect ABB IDAL FTP servers (allows for future server-specific handling)
- - New: Add `client.DisconnectWithShutdown` property to configure shutdown signal on disconnect
- - Change: Rename `client.UngracefullDisconnect` to `client.DisconnectWithQuit`
+ - New: Add `DisconnectWithShutdown` property to configure shutdown signal on disconnect
+ - Change: Rename `UngracefullDisconnect` to `DisconnectWithQuit`
  - Fix: Resolve long timeouts after socket stream disconnected
 
 #### 37.0.5
-
  - Fix: IOException in synchronous methods when AUTH TLS is rejected (thanks [yatlor](/yatlor))
 
 #### 37.0.4
