@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 37.1.0
+ - Major: Added support for SOCKS4 proxy servers using the `FtpClientSocks4Proxy` client class
+ - Major: Added support for SOCKS4a proxy servers using the `FtpClientSocks4aProxy` client class
+
 #### 37.0.6
  - New: Detect Rumpus FTP servers for Mac (allows for future server-specific handling)
  - New: Detect ABB IDAL FTP servers (allows for future server-specific handling)

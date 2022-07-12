@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace FluentFTP.Proxy
 {
-    /// <summary> A FTP client with a SOCKS5 proxy implementation. </summary>
+    /// <summary> A FTP client with a SOCKS4 proxy implementation. </summary>
     public class FtpClientSocks4Proxy : FtpClientProxy
     {
         public FtpClientSocks4Proxy(ProxyInfo proxy) : base(proxy)

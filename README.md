@@ -44,7 +44,7 @@ It is written entirely in C#, with no external dependencies. FluentFTP is releas
     - Passive and active data connections (PASV, EPSV, PORT and EPRT)
     - Supports Unix CHMOD, PRET, ProFTPD's SITE MKDIR and RMDIR commands, Serv-U's RMDA command
     - Supports Realm and directory navigation for [IBM z/OS and OS/400](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support)
-    - Supports all types of FTP Proxies ([HTTP 1.1](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Proxies#faq_loginproxy), [SOCKS5](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Proxies#faq_loginsocksproxy), User@Host, BlueCoat)
+    - Supports all types of FTP Proxies ([HTTP 1.1](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Proxies#faq_loginproxy), [SOCKS5](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Proxies#faq_loginsocksproxy), SOCKS4, SOCKS4a, User@Host, BlueCoat)
     - [FTP command logging](https://github.com/robinrodricks/FluentFTP/wiki/Logging#faq_log) using `TraceListeners` (passwords omitted) to [trace](https://github.com/robinrodricks/FluentFTP/wiki/Logging#faq_trace) or [log output](https://github.com/robinrodricks/FluentFTP/wiki/Logging#faq_logfile) to a file
     - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
   - **Asynchronous support:**

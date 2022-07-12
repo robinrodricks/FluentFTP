@@ -61,7 +61,7 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
-    <Version>37.0.6</Version>
+    <Version>37.1.0</Version>
     <PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
     <PackageIcon>logo-nuget.png</PackageIcon>
   </PropertyGroup>
