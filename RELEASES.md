@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 37.1.1
+ - Fix: Disable SSL Buffering in .NET 6 as it was in .NET 5
+
 #### 37.1.0
  - Major: Added support for SOCKS4 proxy servers using the `FtpClientSocks4Proxy` client class (thanks [fire-lizard](/fire-lizard))
  - Major: Added support for SOCKS4a proxy servers using the `FtpClientSocks4aProxy` client class (thanks [fire-lizard](/fire-lizard))

@@ -34,11 +34,11 @@
   </PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net50'">
-		<DefineConstants>$(DefineConstants);NET50;CORE</DefineConstants>
+		<DefineConstants>$(DefineConstants);NET50;CORE;NET50_OR_LATER;</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net60'">
-		<DefineConstants>$(DefineConstants);NET60;CORE</DefineConstants>
+		<DefineConstants>$(DefineConstants);NET60;CORE;NET50_OR_LATER;</DefineConstants>
 	</PropertyGroup>
 
   <!--
@@ -61,7 +61,7 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
-    <Version>37.1.0</Version>
+    <Version>37.1.1</Version>
     <PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
     <PackageIcon>logo-nuget.png</PackageIcon>
   </PropertyGroup>

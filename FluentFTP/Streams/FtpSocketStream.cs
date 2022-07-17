@@ -1148,8 +1148,8 @@ namespace FluentFTP {
 		/// </summary>
 		private void CreateBufferStream() {
 			// Fix: SSL BufferStream is automatically disabled when using FTP proxies, and enabled in all other cases
-			// Fix: SSL Buffering is disabled on .NET 5.0 due to issues in .NET framework - See #682
-#if NET50
+			// Fix: SSL Buffering is disabled on .NET 5.0 and later due to issues in .NET framework - See #682
+#if NET50_OR_LATER
 				m_bufStream = null;
 #else
 			if (Client.SslBuffering == FtpsBuffering.On ||
