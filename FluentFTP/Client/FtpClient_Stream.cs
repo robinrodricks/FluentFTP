@@ -462,7 +462,8 @@ namespace FluentFTP {
 				var length = GetFileSize(m_path);
 				if (restart < length)
 				{
-					if (!(reply = Execute("REST " + restart)).Success)
+					reply = Execute("REST " + restart);
+					if (!reply.Success)
 					{
 						throw new FtpCommandException(reply);
 					}
@@ -599,7 +600,8 @@ namespace FluentFTP {
 				var length = await GetFileSizeAsync(m_path, -1L, token);
 				if (restart < length)
 				{
-					if (!(reply = await ExecuteAsync("REST " + restart, token)).Success) {
+					reply = await ExecuteAsync("REST " + restart, token);
+					if (!reply.Success) {
 						throw new FtpCommandException(reply);
 					}
 				}
@@ -778,9 +780,16 @@ namespace FluentFTP {
 				}
 			}
 
-			if (restart > 0) {
-				if (!(reply = Execute("REST " + restart)).Success) {
-					throw new FtpCommandException(reply);
+			if (restart > 0)
+			{
+				var length = GetFileSize(m_path);
+				if (restart < length)
+				{
+					reply = Execute("REST " + restart);
+					if (!reply.Success)
+					{
+						throw new FtpCommandException(reply);
+					}
 				}
 			}
 
@@ -896,9 +905,16 @@ namespace FluentFTP {
 				}
 			}
 
-			if (restart > 0) {
-				if (!(reply = await ExecuteAsync("REST " + restart, token)).Success) {
-					throw new FtpCommandException(reply);
+			if (restart > 0)
+			{
+				var length = await GetFileSizeAsync(m_path, -1L, token);
+				if (restart < length)
+				{
+					reply = await ExecuteAsync("REST " + restart, token);
+					if (!reply.Success)
+					{
+						throw new FtpCommandException(reply);
+					}
 				}
 			}
 
