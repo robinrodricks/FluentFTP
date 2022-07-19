@@ -1197,14 +1197,13 @@ namespace FluentFTP {
 		//[Obsolete("OpenRead() is obsolete, please use Download() or DownloadFile() instead", false)]
 		public virtual Stream OpenRead(string path, FtpDataType type, long restart, long fileLen)
 		{
-			m_path = path;
-			
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			path = path.GetFtpPath();
+			m_path = path;
 
 			LogFunc(nameof(OpenRead), new object[] { path, type, restart, fileLen });
 
@@ -1279,14 +1278,13 @@ namespace FluentFTP {
 		/// <returns>A stream for reading the file on the server</returns>
 		//[Obsolete("OpenReadAsync() is obsolete, please use DownloadAsync() or DownloadFileAsync() instead", false)]
 		public virtual async Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, long fileLen, CancellationToken token = default(CancellationToken)) {
-			m_path = path;
-			
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			path = path.GetFtpPath();
+			m_path = path;
 
 			LogFunc(nameof(OpenReadAsync), new object[] { path, type, restart, fileLen });
 
@@ -1356,10 +1354,11 @@ namespace FluentFTP {
 		public virtual Stream OpenWrite(string path, FtpDataType type, long fileLen) {
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			path = path.GetFtpPath();
+			m_path = path;
 
 			LogFunc(nameof(OpenWrite), new object[] { path, type });
 
@@ -1426,10 +1425,11 @@ namespace FluentFTP {
 		public virtual async Task<Stream> OpenWriteAsync(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			path = path.GetFtpPath();
+			m_path = path;
 
 			LogFunc(nameof(OpenWriteAsync), new object[] { path, type });
 
@@ -1493,10 +1493,11 @@ namespace FluentFTP {
 		public virtual Stream OpenAppend(string path, FtpDataType type, long fileLen) {
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			path = path.GetFtpPath();
+			m_path = path;
 
 			LogFunc(nameof(OpenAppend), new object[] { path, type });
 
@@ -1565,10 +1566,11 @@ namespace FluentFTP {
 		public virtual async Task<Stream> OpenAppendAsync(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			path = path.GetFtpPath();
+			m_path = path;
 
 			LogFunc(nameof(OpenAppendAsync), new object[] { path, type });
 
