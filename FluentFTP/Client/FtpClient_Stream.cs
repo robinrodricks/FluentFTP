@@ -1195,8 +1195,7 @@ namespace FluentFTP {
 		/// </param>
 		/// <returns>A stream for reading the file on the server</returns>
 		//[Obsolete("OpenRead() is obsolete, please use Download() or DownloadFile() instead", false)]
-		public virtual Stream OpenRead(string path, FtpDataType type, long restart, long fileLen)
-		{
+		public virtual Stream OpenRead(string path, FtpDataType type, long restart, long fileLen) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
