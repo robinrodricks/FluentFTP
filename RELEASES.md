@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 37.1.2
+ - Fix: Error when downloading large files through SOCKS4 or SOCKS4a proxy (thanks [fire-lizard](/fire-lizard))
+
 #### 37.1.1
  - Fix: Disable SSL Buffering in .NET 6 as it was in .NET 5
 
