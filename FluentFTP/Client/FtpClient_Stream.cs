@@ -26,7 +26,10 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+	public partial class FtpClient : IDisposable
+	{
+		private string m_path;
+		
 		#region Execute Command
 
 		/// <summary>
@@ -454,9 +457,16 @@ namespace FluentFTP {
 			Connect(stream, host, port, InternetProtocolVersions);
 			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
 
-			if (restart > 0) {
-				if (!(reply = Execute("REST " + restart)).Success) {
-					throw new FtpCommandException(reply);
+			if (restart > 0)
+			{
+				var length = GetFileSize(m_path);
+				if (restart < length)
+				{
+					reply = Execute("REST " + restart);
+					if (!reply.Success)
+					{
+						throw new FtpCommandException(reply);
+					}
 				}
 			}
 
@@ -587,8 +597,13 @@ namespace FluentFTP {
 			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
 
 			if (restart > 0) {
-				if (!(reply = await ExecuteAsync("REST " + restart, token)).Success) {
-					throw new FtpCommandException(reply);
+				var length = await GetFileSizeAsync(m_path, -1L, token);
+				if (restart < length)
+				{
+					reply = await ExecuteAsync("REST " + restart, token);
+					if (!reply.Success) {
+						throw new FtpCommandException(reply);
+					}
 				}
 			}
 
@@ -765,9 +780,16 @@ namespace FluentFTP {
 				}
 			}
 
-			if (restart > 0) {
-				if (!(reply = Execute("REST " + restart)).Success) {
-					throw new FtpCommandException(reply);
+			if (restart > 0)
+			{
+				var length = GetFileSize(m_path);
+				if (restart < length)
+				{
+					reply = Execute("REST " + restart);
+					if (!reply.Success)
+					{
+						throw new FtpCommandException(reply);
+					}
 				}
 			}
 
@@ -883,9 +905,16 @@ namespace FluentFTP {
 				}
 			}
 
-			if (restart > 0) {
-				if (!(reply = await ExecuteAsync("REST " + restart, token)).Success) {
-					throw new FtpCommandException(reply);
+			if (restart > 0)
+			{
+				var length = await GetFileSizeAsync(m_path, -1L, token);
+				if (restart < length)
+				{
+					reply = await ExecuteAsync("REST " + restart, token);
+					if (!reply.Success)
+					{
+						throw new FtpCommandException(reply);
+					}
 				}
 			}
 
@@ -1169,10 +1198,11 @@ namespace FluentFTP {
 		public virtual Stream OpenRead(string path, FtpDataType type, long restart, long fileLen) {
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			path = path.GetFtpPath();
+			m_path = path;
 
 			LogFunc(nameof(OpenRead), new object[] { path, type, restart, fileLen });
 
@@ -1249,10 +1279,11 @@ namespace FluentFTP {
 		public virtual async Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, long fileLen, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			path = path.GetFtpPath();
+			m_path = path;
 
 			LogFunc(nameof(OpenReadAsync), new object[] { path, type, restart, fileLen });
 
@@ -1322,10 +1353,11 @@ namespace FluentFTP {
 		public virtual Stream OpenWrite(string path, FtpDataType type, long fileLen) {
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			path = path.GetFtpPath();
+			m_path = path;
 
 			LogFunc(nameof(OpenWrite), new object[] { path, type });
 
@@ -1392,10 +1424,11 @@ namespace FluentFTP {
 		public virtual async Task<Stream> OpenWriteAsync(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			path = path.GetFtpPath();
+			m_path = path;
 
 			LogFunc(nameof(OpenWriteAsync), new object[] { path, type });
 
@@ -1459,10 +1492,11 @@ namespace FluentFTP {
 		public virtual Stream OpenAppend(string path, FtpDataType type, long fileLen) {
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			path = path.GetFtpPath();
+			m_path = path;
 
 			LogFunc(nameof(OpenAppend), new object[] { path, type });
 
@@ -1531,10 +1565,11 @@ namespace FluentFTP {
 		public virtual async Task<Stream> OpenAppendAsync(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			path = path.GetFtpPath();
+			m_path = path;
 
 			LogFunc(nameof(OpenAppendAsync), new object[] { path, type });
 
