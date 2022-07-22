@@ -26,10 +26,9 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP {
-	public partial class FtpClient : IDisposable
-	{
+	public partial class FtpClient : IDisposable {
 		private string m_path;
-		
+
 		#region Execute Command
 
 		/// <summary>
@@ -377,7 +376,7 @@ namespace FluentFTP {
 				throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open a passive data stream.");
 			}
 
-			for (int a = 0; a <= m_PassiveMaxAttempts; ) {
+			for (int a = 0; a <= m_PassiveMaxAttempts;) {
 
 				if ((type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) && !_EPSVNotSupported) {
 
@@ -427,7 +426,7 @@ namespace FluentFTP {
 				// break if too many tries
 				a++;
 				if (a >= m_PassiveMaxAttempts) {
-					throw new FtpException("Could not find a suitable port for PASV/EPSV Data Connection after trying "+ m_PassiveMaxAttempts + " times.");
+					throw new FtpException("Could not find a suitable port for PASV/EPSV Data Connection after trying " + m_PassiveMaxAttempts + " times.");
 				}
 
 				// accept first port if not configured
@@ -457,14 +456,21 @@ namespace FluentFTP {
 			Connect(stream, host, port, InternetProtocolVersions);
 			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
 
-			if (restart > 0)
-			{
-				var length = GetFileSize(m_path);
-				if (restart < length)
-				{
-					reply = Execute("REST " + restart);
-					if (!reply.Success)
-					{
+			if (restart > 0) {
+				// Fix for #887: When downloading through SOCKS proxy, the restart param is incorrect and needs to be ignored.
+				// Restart is set to the length of the already downloaded file (i.e. if the file is 1000 bytes, it restarts with restart parameter 1000 or 1001 after file is successfully downloaded)
+				if (IsProxy()) {
+					var length = GetFileSize(m_path);
+					if (restart < length) {
+						reply = Execute("REST " + restart);
+						if (!reply.Success) {
+							throw new FtpCommandException(reply);
+						}
+					}
+				}
+				else {
+					// Note: If this implementation causes an issue with non-proxy downloads too then we need to use the above implementation for all clients.
+					if (!(reply = Execute("REST " + restart)).Success) {
 						throw new FtpCommandException(reply);
 					}
 				}
@@ -597,11 +603,20 @@ namespace FluentFTP {
 			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
 
 			if (restart > 0) {
-				var length = await GetFileSizeAsync(m_path, -1L, token);
-				if (restart < length)
-				{
-					reply = await ExecuteAsync("REST " + restart, token);
-					if (!reply.Success) {
+				// Fix for #887: When downloading through SOCKS proxy, the restart param is incorrect and needs to be ignored.
+				// Restart is set to the length of the already downloaded file (i.e. if the file is 1000 bytes, it restarts with restart parameter 1000 or 1001 after file is successfully downloaded)
+				if (IsProxy()) {
+					var length = await GetFileSizeAsync(m_path, -1L, token);
+					if (restart < length) {
+						reply = await ExecuteAsync("REST " + restart, token);
+						if (!reply.Success) {
+							throw new FtpCommandException(reply);
+						}
+					}
+				}
+				else {
+					// Note: If this implementation causes an issue with non-proxy downloads too then we need to use the above implementation for all clients.
+					if (!(reply = await ExecuteAsync("REST " + restart, token)).Success) {
 						throw new FtpCommandException(reply);
 					}
 				}
@@ -642,7 +657,7 @@ namespace FluentFTP {
 				Command: EPSV
 				Response: 227 Entering Passive Mode(XX, XX, XX, XX, 143, 225).
 				*/
-				
+
 				try {
 					GetPassivePort(FtpDataConnectionType.AutoPassive, reply, out host, out port);
 					return;
@@ -780,14 +795,21 @@ namespace FluentFTP {
 				}
 			}
 
-			if (restart > 0)
-			{
-				var length = GetFileSize(m_path);
-				if (restart < length)
-				{
-					reply = Execute("REST " + restart);
-					if (!reply.Success)
-					{
+			if (restart > 0) {
+				// Fix for #887: When downloading through SOCKS proxy, the restart param is incorrect and needs to be ignored.
+				// Restart is set to the length of the already downloaded file (i.e. if the file is 1000 bytes, it restarts with restart parameter 1000 or 1001 after file is successfully downloaded)
+				if (IsProxy()) {
+					var length = GetFileSize(m_path);
+					if (restart < length) {
+						reply = Execute("REST " + restart);
+						if (!reply.Success) {
+							throw new FtpCommandException(reply);
+						}
+					}
+				}
+				else {
+					// Note: If this implementation causes an issue with non-proxy downloads too then we need to use the above implementation for all clients.
+					if (!(reply = Execute("REST " + restart)).Success) {
 						throw new FtpCommandException(reply);
 					}
 				}
@@ -905,14 +927,21 @@ namespace FluentFTP {
 				}
 			}
 
-			if (restart > 0)
-			{
-				var length = await GetFileSizeAsync(m_path, -1L, token);
-				if (restart < length)
-				{
-					reply = await ExecuteAsync("REST " + restart, token);
-					if (!reply.Success)
-					{
+			if (restart > 0) {
+				// Fix for #887: When downloading through SOCKS proxy, the restart param is incorrect and needs to be ignored.
+				// Restart is set to the length of the already downloaded file (i.e. if the file is 1000 bytes, it restarts with restart parameter 1000 or 1001 after file is successfully downloaded)
+				if (IsProxy()) {
+					var length = await GetFileSizeAsync(m_path, -1L, token);
+					if (restart < length) {
+						reply = await ExecuteAsync("REST " + restart, token);
+						if (!reply.Success) {
+							throw new FtpCommandException(reply);
+						}
+					}
+				}
+				else {
+					// Note: If this implementation causes an issue with non-proxy downloads too then we need to use the above implementation for all clients.
+					if (!(reply = await ExecuteAsync("REST " + restart, token)).Success) {
 						throw new FtpCommandException(reply);
 					}
 				}
@@ -1703,7 +1732,7 @@ namespace FluentFTP {
 						throw new FtpException("Unsupported data type: " + type.ToString());
 				}
 
-			CurrentDataType = type;
+				CurrentDataType = type;
 			}
 		}
 #endif
