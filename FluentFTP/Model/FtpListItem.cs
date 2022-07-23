@@ -24,13 +24,27 @@ namespace FluentFTP {
 		/// 
 		/// NOTE TO USER : You should not need to construct this class manually except in advanced cases. Typically constructed by GetListing().
 		/// </summary>
-		public FtpListItem(string record, string name, long size, bool isDir, ref DateTime lastModifiedTime) {
+		public FtpListItem(string record, string name, long size, bool isDir, DateTime lastModifiedTime) {
 			this.Input = record;
 			this.Name = name;
 			this.Size = size;
 			this.Type = isDir ? FtpFileSystemObjectType.Directory : FtpFileSystemObjectType.File;
 			this.Modified = lastModifiedTime;
 		}
+
+		/// <summary>
+		/// Constructor with mandatory arguments filled.
+		/// 
+		/// NOTE TO USER : You should not need to construct this class manually except in advanced cases. Typically constructed by GetListing().
+		/// </summary>
+		public FtpListItem(string record, string name, long size, FtpFileSystemObjectType type, DateTime lastModifiedTime) {
+			this.Input = record;
+			this.Name = name;
+			this.Size = size;
+			this.Type = type;
+			this.Modified = lastModifiedTime;
+		}
+
 
 		/// <summary>
 		/// Gets the type of file system object.
@@ -191,6 +205,26 @@ namespace FluentFTP {
 				sb.Append(Modified.ToString());
 			}
 
+			return sb.ToString();
+		}
+		/// <summary>
+		/// Returns a code representation of this object and its properties
+		/// </summary>
+		public string ToCode() {
+			var sb = new StringBuilder();
+			sb.Append("new FtpListItem(");
+			sb.Append(Input.EscapeStringLiteral());
+			sb.Append(",");
+			sb.Append(Name.EscapeStringLiteral());
+			sb.Append(",");
+			sb.Append(Size);
+			sb.Append(",");
+			sb.Append(Type == FtpFileSystemObjectType.Directory ? "true" : "false");
+			sb.Append(",");
+			sb.Append("new DateTime(");
+			sb.Append(Modified.ToBinary());
+			sb.Append(")");
+			sb.Append(")");
 			return sb.ToString();
 		}
 	}

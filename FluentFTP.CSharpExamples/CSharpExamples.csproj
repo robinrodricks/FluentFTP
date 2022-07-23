@@ -6,6 +6,7 @@
 		<LangVersion>latest</LangVersion>
 		<ApplicationIcon />
 		<StartupObject />
+		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
 
 	<ItemGroup>

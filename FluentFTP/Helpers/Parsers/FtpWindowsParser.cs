@@ -81,7 +81,7 @@ namespace FluentFTP.Helpers.Parsers {
 			// parse name of file or folder
 			var name = ParseName(client, record, values, isDir);
 
-			return new FtpListItem(record, name, size, isDir, ref lastModified);
+			return new FtpListItem(record, name, size, isDir, lastModified);
 		}
 
 		/// <summary>

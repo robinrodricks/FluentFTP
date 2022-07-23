@@ -51,7 +51,7 @@ namespace FluentFTP.Helpers.Parsers {
 				var lastModifiedm = DateTime.MinValue;
 				var ownerm = values[0];
 				var namem = values[2];
-				var filem = new FtpListItem(record, namem, 0, false, ref lastModifiedm);
+				var filem = new FtpListItem(record, namem, 0, false, lastModifiedm);
 				filem.RawOwner = ownerm;
 				return filem;
 			}
@@ -83,7 +83,7 @@ namespace FluentFTP.Helpers.Parsers {
 			}
 
 			// create a new list item object with the parsed metadata
-			var file = new FtpListItem(record, name, size, isDir, ref lastModified);
+			var file = new FtpListItem(record, name, size, isDir, lastModified);
 			file.RawOwner = owner;
 			return file;
 		}

@@ -132,7 +132,7 @@ namespace FluentFTP.Helpers.Parsers {
 			var permissions = ParsePermissions(values);
 
 			// create a new list item object with the parsed metadata
-			var file = new FtpListItem(record, name, size, isDir, ref lastModified);
+			var file = new FtpListItem(record, name, size, isDir, lastModified);
 			file.RawGroup = group;
 			file.RawOwner = owner;
 			file.RawPermissions = permissions;

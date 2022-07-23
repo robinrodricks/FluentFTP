@@ -64,7 +64,7 @@ namespace Tests {
 
 		#endregion
 
-		//[Fact]
+		
 		public void TestListPathWithHttp11Proxy() {
 			using (FtpClient cl = new FtpClientHttp11Proxy(new ProxyInfo {Host = "127.0.0.1", Port = 3128,})) // Credential = new NetworkCredential() 
 			{
@@ -83,7 +83,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestListPath() {
 			using (var cl = NewFtpClient()) {
 				cl.EncryptionMode = FtpEncryptionMode.None;
@@ -95,7 +95,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestCheckCapabilities() {
 			using (var cl = NewFtpClient()) {
 				cl.CheckCapabilities = false;
@@ -104,7 +104,7 @@ namespace Tests {
 		}
 
 #if ASYNC
-		//[Fact]
+		
 		public async Task TestListPathAsync() {
 			using (var cl = NewFtpClient()) {
 				cl.EncryptionMode = FtpEncryptionMode.None;
@@ -117,7 +117,7 @@ namespace Tests {
 		}
 #endif
 
-		//[Fact]
+		
 		public void StreamResponses() {
 			using (var cl = NewFtpClient()) {
 				cl.EncryptionMode = FtpEncryptionMode.None;
@@ -143,7 +143,7 @@ namespace Tests {
 		}
 
 #if ASYNC
-		//[Fact]
+		
 		public async Task StreamResponsesAsync() {
 			using (var cl = NewFtpClient()) {
 				cl.EncryptionMode = FtpEncryptionMode.None;
@@ -169,7 +169,7 @@ namespace Tests {
 		}
 #endif
 
-		//[Fact]
+		
 		public void TestUnixListing() {
 			using (var cl = NewFtpClient()) {
 				if (!cl.FileExists("test.txt")) {
@@ -183,7 +183,7 @@ namespace Tests {
 			}
 		}
 
-		[Fact]
+		
 		[Trait("Category", Category_Code)]
 		public void TestFtpPath() {
 			var path = "/home/sigurdhj/errors/16.05.2014/asdasd/asd asd asd aa asd/Kooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo::asdasd";
@@ -202,7 +202,7 @@ namespace Tests {
 			FtpTrace.WriteLine("bar".GetFtpFileName());
 		}
 
-		//[Fact]
+		
 		public void TestGetObjectInfo() {
 			using (var client = NewFtpClient()) {
 				FtpTrace.WriteLine(client.GetObjectInfo("/public_html/temp/README.md"));
@@ -210,7 +210,7 @@ namespace Tests {
 		}
 
 #if ASYNC && !CORE
-		//[Fact]
+		
 		public async Task TestGetObjectInfoAsync() {
 			using (var cl = NewFtpClient()) {
 				cl.Encoding = Encoding.UTF8;
@@ -221,7 +221,7 @@ namespace Tests {
 		}
 #endif
 
-		//[Fact]
+		
 		public void TestManualEncoding() {
 			using (var cl = NewFtpClient()) {
 				cl.Encoding = Encoding.UTF8;
@@ -231,7 +231,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestServer() {
 			using (var cl = NewFtpClient()) {
 				cl.EncryptionMode = FtpEncryptionMode.Explicit;
@@ -314,7 +314,7 @@ namespace Tests {
 #endif
 
 #if !CORE14
-		[Fact]
+		
 		[Trait("Category", Category_PublicFTP)]
 		public void TestDisposeWithMultipleThreads() {
 			using (var cl = NewFtpClient_NetBsd()) {
@@ -332,7 +332,7 @@ namespace Tests {
 		}
 #endif
 
-		[Fact]
+		
 		[Trait("Category", Category_Code)]
 		public void TestConnectionFailure() {
 			try {
@@ -350,7 +350,7 @@ namespace Tests {
 #endif
 		}
 
-		[Fact]
+		
 		[Trait("Category", Category_PublicFTP)]
 		public void TestNetBSDServer() {
 			using (var client = NewFtpClient_NetBsd()) {
@@ -365,7 +365,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestGetListing() {
 			using (var client = NewFtpClient()) {
 				client.Connect();
@@ -375,7 +375,7 @@ namespace Tests {
 			}
 		}
 
-		[Fact]
+		
 		[Trait("Category", Category_PublicFTP)]
 		public void TestGetListingBSDServer() {
 			using (var client = NewFtpClient_NetBsd()) {
@@ -390,7 +390,7 @@ namespace Tests {
 		}
 
 #if ASYNC
-		[Fact]
+		
 		[Trait("Category", Category_PublicFTP)]
 		public async void TestGetListingBSDServerAsync() {
 			using (var client = NewFtpClient_NetBsd()) {
@@ -404,7 +404,7 @@ namespace Tests {
 		}
 #endif
 
-		[Fact]
+		
 		[Trait("Category", Category_PublicFTP)]
 		// FIX : #768 NullOrEmpty is valid, means "use working directory".
 		public void TestGetListingWorkingDirectoryBsdServer() {
@@ -456,7 +456,7 @@ namespace Tests {
 			}
 		}
 
-		[Fact]
+		
 		[Trait("Category", Category_PublicFTP)]
 		public void TestGetListingTeleServer() {
 			using (var client = NewFtpClient_Tele2SpeedTest()) {
@@ -469,7 +469,7 @@ namespace Tests {
 			}
 		}
 
-		[Fact]
+		
 		[Trait("Category", Category_PublicFTP)]
 		public void TestConnectVariousModes() {
 
@@ -512,7 +512,7 @@ namespace Tests {
 		}
 
 #if ASYNC
-		[Fact]
+		
 		[Trait("Category", Category_PublicFTP)]
 		public async void TestGetListingTeleServerAsync() {
 			using (var client = NewFtpClient_Tele2SpeedTest()) {
@@ -526,10 +526,13 @@ namespace Tests {
 		}
 #endif
 
-		[Fact]
+		
 		[Trait("Category", Category_PublicFTP)]
 		public void TestGetListingTeleServerTimezone() {
+
 			using (var client = NewFtpClient_Tele2SpeedTest()) {
+
+				client.AutoConnect();
 
 				// original date = 19/Feb/2020 00:00 (12 am)
 
@@ -554,11 +557,11 @@ namespace Tests {
 		}
 
 #if !CORE
-		//[Fact]
+		
 		public void TestGetListingCCC() {
 			using (var client = NewFtpClient()) {
 				client.EncryptionMode = FtpEncryptionMode.Explicit;
-				client.PlainTextEncryption = true;
+				//client.PlainTextEncryption = true;
 				client.SslProtocols = SslProtocols.Tls;
 				client.ValidateCertificate += OnValidateCertificate;
 				client.Connect();
@@ -574,7 +577,7 @@ namespace Tests {
 		}
 #endif
 
-		//[Fact]
+		
 		public void TestGetMachineListing() {
 			using (var client = NewFtpClient()) {
 				client.ListingParser = FtpParser.Machine;
@@ -585,7 +588,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestFileZillaKick() {
 			using (var cl = NewFtpClient()) {
 				cl.EnableThreadSafeDataConnections = false;
@@ -614,102 +617,7 @@ namespace Tests {
 			}
 		}
 
-		[Fact]
-		[Trait("Category", Category_Code)]
-		public void TestUnixListParser() {
-			var parser = new FtpListParser(new FtpClient());
-			parser.Init(FtpOperatingSystem.Unix);
-
-			//parser.parser = FtpParser.Legacy;
-
-			var sample = new[] {
-				"drwxr-xr-x   7  user1 user1       512 Sep 27  2011 .",
-				"drwxr-xr-x  31 user1  user1      1024 Sep 27  2011 ..",
-				"lrwxrwxrwx   1 user1  user1      9 Sep 27  2011 data.0000 -> data.6460",
-				"drwxr-xr-x  10 user1  user1      512 Jun 29  2012 data.6460",
-				"lrwxrwxrwx   1 user1 user1       8 Sep 27  2011 sys.0000 -> sys.6460",
-				"drwxr-xr-x 133 user1  user1     4096 Jun 25 16:26 sys.6460"
-			};
-
-			foreach (var s in sample) {
-				var item = parser.ParseSingleLine("/", s, new List<FtpCapability>(), false);
-
-				if (item != null) {
-					FtpTrace.WriteLine(item);
-				}
-			}
-		}
-
-		[Fact]
-		[Trait("Category", Category_Code)]
-		public void TestIISParser() {
-			var parser = new FtpListParser(new FtpClient());
-			parser.Init(FtpOperatingSystem.Windows);
-
-			//parser.parser = FtpParser.Legacy;
-
-			var sample = new[] {
-				"03-07-13  10:02AM                  901 File01.xml",
-				"03-07-13  10:03AM                  921 File02.xml",
-				"03-07-13  10:04AM                  904 File03.xml",
-				"03-07-13  10:04AM                  912 File04.xml",
-				"03-08-13  11:10AM                  912 File05.xml",
-				"03-15-13  02:38PM                  912 File06.xml",
-				"03-07-13  10:16AM                  909 File07.xml",
-				"03-07-13  10:16AM                  899 File08.xml",
-				"03-08-13  10:22AM                  904 File09.xml",
-				"03-25-13  07:27AM                  895 File10.xml",
-				"03-08-13  10:22AM                 6199 File11.txt",
-				"03-25-13  07:22AM                31444 File12.txt",
-				"03-25-13  07:24AM                24537 File13.txt"
-			};
-
-			foreach (var s in sample) {
-				var item = parser.ParseSingleLine("/", s, new List<FtpCapability>(), false);
-
-				if (item != null) {
-					FtpTrace.WriteLine(item);
-				}
-			}
-		}
-
-		[Fact]
-		[Trait("Category", Category_Code)]
-		public void TestOpenVMSParser() {
-			var parser = new FtpListParser(new FtpClient());
-			parser.Init(FtpOperatingSystem.VMS);
-
-			var sample = new[] {
-				"411_4114.TXT;1             11  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"ACT_CC_NAME_4114.TXT;1    30  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"ACT_CC_NUM_4114.TXT;1     30  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"ACT_CELL_NAME_4114.TXT;1 113  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"ACT_CELL_NUM_4114.TXT;1  113  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"AGCY_BUDG_4114.TXT;1      63  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"CELL_SUMM_4114.TXT;1     125  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"CELL_SUMM_CHART_4114.PDF;2 95  21-MAR-2012 10:58 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"DET_4114.TXT;1          17472  21-MAR-2012 15:17 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"DET_4114_000.TXT;1        777  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"DET_4114_001.TXT;1        254  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"DET_4114_003.TXT;1         21  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"DET_4114_006.TXT;1         22  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"DET_4114_101.TXT;1        431  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"DET_4114_121.TXT;1       2459  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"DET_4114_124.TXT;1       4610  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"DET_4114_200.TXT;1        936  21-MAR-2012 15:18 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)",
-				"TEL_4114.TXT;1           1178  21-MAR-2012 15:19 [TBMS,TBMS_BOSS] (RWED,RWED,,RE)"
-			};
-
-			foreach (var s in sample) {
-				var item = parser.ParseSingleLine("disk$user520:[4114.2012.Jan]", s, new List<FtpCapability>(), false);
-
-				if (item != null) {
-					FtpTrace.WriteLine(item);
-				}
-			}
-		}
-
-		//[Fact]
+		
 		public void TestDirectoryWithDots() {
 			using (var cl = NewFtpClient()) {
 				cl.Connect();
@@ -723,7 +631,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestDispose() {
 			using (var cl = NewFtpClient()) {
 				cl.Connect();
@@ -736,7 +644,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		//public void TestHash() {
 			/*using (var cl = NewFtpClient()) {
 				cl.Connect();
@@ -760,7 +668,7 @@ namespace Tests {
 		//}
 
 #if ASYNC
-		//[Fact]
+		
 		//public async Task TestHashAsync() {
 			/*using (var cl = NewFtpClient()) {
 				await cl.ConnectAsync();
@@ -784,7 +692,7 @@ namespace Tests {
 		//}
 #endif
 
-		//[Fact]
+		
 		public void TestReset() {
 			using (var cl = NewFtpClient()) {
 				cl.Connect();
@@ -794,7 +702,7 @@ namespace Tests {
 			}
 		}
 
-		[Fact]
+		
 		[Trait("Category", Category_PublicFTP)]
 		public void GetPublicFTPServerListing() {
 			using (var cl = NewFtpClient_Tele2SpeedTest()) {
@@ -808,7 +716,7 @@ namespace Tests {
 			}
 		}
 
-		[Fact]
+		
 		[Trait("Category", Category_Code)]
 		public void TestMODCOMP_PWD_Parser() {
 			var response = "PWD = ~TNA=AMP,VNA=VOL03,FNA=U-ED-B2-USL";
@@ -819,7 +727,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestNameListing() {
 			using (var cl = NewFtpClient()) {
 				cl.ValidateCertificate += OnValidateCertificate;
@@ -841,7 +749,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestNameListingFTPS() {
 			using (var cl = NewFtpClient()) {
 				cl.ValidateCertificate += OnValidateCertificate;
@@ -863,7 +771,7 @@ namespace Tests {
 		}
 
 #if !CORE14
-		//[Fact] // Beware: Completely ignores thrown exceptions - Doesn't actually test anything!
+		 // Beware: Completely ignores thrown exceptions - Doesn't actually test anything!
 		public FtpClient Connect() {
 			var threads = new List<Thread>();
 			var cl = new FtpClient();
@@ -1021,7 +929,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestUTF8() {
 			// the following file name was reported in the discussions as having
 			// problems:
@@ -1039,7 +947,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestUploadDownloadFile() {
 			using (var cl = NewFtpClient()) {
 				cl.Connect();
@@ -1058,7 +966,7 @@ namespace Tests {
 		}
 
 #if ASYNC
-		//[Fact]
+		
 		public async Task TestUploadDownloadFileAsync() {
 			using (var cl = NewFtpClient()) {
 				// 100 K file
@@ -1075,7 +983,7 @@ namespace Tests {
 		}
 #endif
 
-		//[Fact]
+		
 		public void TestUploadDownloadFile_UTF() {
 			using (var cl = NewFtpClient()) {
 				// 100 K file
@@ -1091,7 +999,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestUploadDownloadFile_ANSI() {
 			using (var cl = NewFtpClient()) {
 				cl.Encoding = Encoding.GetEncoding(1252);
@@ -1110,7 +1018,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestUploadDownloadManyFiles() {
 			using (var cl = NewFtpClient()) {
 				cl.EnableThreadSafeDataConnections = false;
@@ -1133,7 +1041,7 @@ namespace Tests {
 		}
 
 #if ASYNC
-		//[Fact]
+		
 		public async Task TestUploadDownloadManyFilesAsync() {
 			using (var cl = NewFtpClient()) {
 				cl.EnableThreadSafeDataConnections = false;
@@ -1156,7 +1064,7 @@ namespace Tests {
 		}
 #endif
 
-		//[Fact]
+		
 		public void TestUploadDownloadManyFiles2() {
 			using (var cl = NewFtpClient()) {
 				cl.EnableThreadSafeDataConnections = false;
@@ -1175,7 +1083,7 @@ namespace Tests {
 		}
 
 #if ASYNC
-		//[Fact]
+		
 		public async Task TestUploadDownloadManyFiles2Async() {
 			using (var cl = NewFtpClient()) {
 				cl.EnableThreadSafeDataConnections = false;
@@ -1194,7 +1102,7 @@ namespace Tests {
 		}
 #endif
 
-		//[Fact]
+		
 		public void TestUploadDownloadZeroLenFile() {
 			using (var cl = NewFtpClient()) {
 				// 0 KB file
@@ -1203,7 +1111,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestListSpacedPath() {
 			using (var cl = NewFtpClient()) {
 				cl.EncryptionMode = FtpEncryptionMode.Explicit;
@@ -1215,7 +1123,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestFilePermissions() {
 			using (var cl = NewFtpClient()) {
 				foreach (var i in cl.GetListing("/public_html/temp/")) {
@@ -1231,7 +1139,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestFileExists() {
 			using (var cl = NewFtpClient()) {
 				var f1_yes = cl.FileExists("/public_html");
@@ -1255,7 +1163,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestDeleteDirectory() {
 			using (var cl = NewFtpClient()) {
 				cl.DeleteDirectory("/public_html/temp/otherdir/");
@@ -1263,7 +1171,7 @@ namespace Tests {
 			}
 		}
 
-		//[Fact]
+		
 		public void TestMoveFiles() {
 			using (var cl = NewFtpClient()) {
 				cl.MoveFile("/public_html/temp/README.md", "/public_html/temp/README_moved.md");
@@ -1272,7 +1180,7 @@ namespace Tests {
 			}
 		}
 
-		[Fact]
+		
 		public void TestAutoDetect() {
 			using (var cl = NewFtpClient_Tele2SpeedTest()) {
 				var profiles = cl.AutoDetect(false);
@@ -1282,7 +1190,7 @@ namespace Tests {
 			}
 		}
 
-		[Fact]
+		
 		public void TestAutoConnect() {
 			using (var cl = NewFtpClient_Tele2SpeedTest()) {
 				var profile = cl.AutoConnect();
@@ -1299,7 +1207,7 @@ namespace Tests {
 			}*/
 		}
 
-		[Fact]
+		
 		public void TestSocksProxy()
 		{
 			using (var cl = new FtpClientSocks5Proxy(new ProxyInfo()
@@ -1319,7 +1227,7 @@ namespace Tests {
 		}
 
 #if ASYNC
-		[Fact]
+		
 		public async void TestAutoConnectAsync() {
 			using (var cl = NewFtpClient_Tele2SpeedTest()) {
 				var profile = await cl.AutoConnectAsync();
@@ -1337,7 +1245,7 @@ namespace Tests {
 		}
 #endif
 
-		//[Fact]
+		
 		public void TestQuickDownloadFilePublic() {
 			using (var cl = NewFtpClient()) {
 				cl.Connect();
@@ -1362,7 +1270,7 @@ namespace Tests {
 
 		}
 
-		//[Fact]
+		
 		public void TestQuickDownloadFilePublic2() {
 			using (var cl = NewFtpClient()) {
 				cl.Connect();
@@ -1393,7 +1301,7 @@ namespace Tests {
 
 		}
 
-		//[Fact]
+		
 		public void TestUploadDownloadFilePublic() {
 			using (var cl = NewFtpClient()) {
 				cl.Connect();

@@ -1,38 +1,56 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentFTP", "FluentFTP\FluentFTP.csproj", "{117F9BA2-711B-4C71-92EC-002220B157DD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpExamples", "FluentFTP.CSharpExamples\CSharpExamples.csproj", "{49B11591-C942-479F-A864-AB2738E50EF0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "FluentFTP.Tests\Tests.csproj", "{28AA032E-CACF-4C07-BF12-C4FBE71BC8BD}"
-EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "VBExamples", "FluentFTP.VBExamples\VBExamples.vbproj", "{FC62AA30-F9F0-4DC1-A9EA-51A24C624973}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentFTP.Tests", "FluentFTP.Tests\FluentFTP.Tests.csproj", "{0B17384E-6849-46D0-B880-2F97FE11A1B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{117F9BA2-711B-4C71-92EC-002220B157DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{117F9BA2-711B-4C71-92EC-002220B157DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{117F9BA2-711B-4C71-92EC-002220B157DD}.Debug|x64.ActiveCfg = Debug|x64
+		{117F9BA2-711B-4C71-92EC-002220B157DD}.Debug|x64.Build.0 = Debug|x64
 		{117F9BA2-711B-4C71-92EC-002220B157DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{117F9BA2-711B-4C71-92EC-002220B157DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{117F9BA2-711B-4C71-92EC-002220B157DD}.Release|x64.ActiveCfg = Release|x64
+		{117F9BA2-711B-4C71-92EC-002220B157DD}.Release|x64.Build.0 = Release|x64
 		{49B11591-C942-479F-A864-AB2738E50EF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{49B11591-C942-479F-A864-AB2738E50EF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49B11591-C942-479F-A864-AB2738E50EF0}.Debug|x64.ActiveCfg = Debug|x64
+		{49B11591-C942-479F-A864-AB2738E50EF0}.Debug|x64.Build.0 = Debug|x64
 		{49B11591-C942-479F-A864-AB2738E50EF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49B11591-C942-479F-A864-AB2738E50EF0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{28AA032E-CACF-4C07-BF12-C4FBE71BC8BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{28AA032E-CACF-4C07-BF12-C4FBE71BC8BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{28AA032E-CACF-4C07-BF12-C4FBE71BC8BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{28AA032E-CACF-4C07-BF12-C4FBE71BC8BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49B11591-C942-479F-A864-AB2738E50EF0}.Release|x64.ActiveCfg = Release|x64
+		{49B11591-C942-479F-A864-AB2738E50EF0}.Release|x64.Build.0 = Release|x64
 		{FC62AA30-F9F0-4DC1-A9EA-51A24C624973}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FC62AA30-F9F0-4DC1-A9EA-51A24C624973}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC62AA30-F9F0-4DC1-A9EA-51A24C624973}.Debug|x64.ActiveCfg = Debug|x64
+		{FC62AA30-F9F0-4DC1-A9EA-51A24C624973}.Debug|x64.Build.0 = Debug|x64
 		{FC62AA30-F9F0-4DC1-A9EA-51A24C624973}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FC62AA30-F9F0-4DC1-A9EA-51A24C624973}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC62AA30-F9F0-4DC1-A9EA-51A24C624973}.Release|x64.ActiveCfg = Release|x64
+		{FC62AA30-F9F0-4DC1-A9EA-51A24C624973}.Release|x64.Build.0 = Release|x64
+		{0B17384E-6849-46D0-B880-2F97FE11A1B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B17384E-6849-46D0-B880-2F97FE11A1B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B17384E-6849-46D0-B880-2F97FE11A1B3}.Debug|x64.ActiveCfg = Debug|x64
+		{0B17384E-6849-46D0-B880-2F97FE11A1B3}.Debug|x64.Build.0 = Debug|x64
+		{0B17384E-6849-46D0-B880-2F97FE11A1B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B17384E-6849-46D0-B880-2F97FE11A1B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B17384E-6849-46D0-B880-2F97FE11A1B3}.Release|x64.ActiveCfg = Release|x64
+		{0B17384E-6849-46D0-B880-2F97FE11A1B3}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

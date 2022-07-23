@@ -117,7 +117,7 @@ namespace FluentFTP.Helpers.Parsers {
 			ParseName(client, record, values, isLink, dayOfMonth, dateTimePos, ref name, ref linkedname);
 
 			// create a new list item object with the parsed metadata
-			var file = new FtpListItem(record, name, size, isDir, ref lastModified);
+			var file = new FtpListItem(record, name, size, isDir, lastModified);
 			if (isLink) {
 				file.Type = FtpFileSystemObjectType.Link;
 				file.LinkCount = linkCount;
@@ -469,7 +469,7 @@ namespace FluentFTP.Helpers.Parsers {
 			}
 
 			// create a new list item object with the parsed metadata
-			var file = new FtpListItem(record, name, size, isDir, ref lastModified);
+			var file = new FtpListItem(record, name, size, isDir, lastModified);
 			if (isLink) {
 				file.Type = FtpFileSystemObjectType.Link;
 				file.LinkCount = linkCount;

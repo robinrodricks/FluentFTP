@@ -143,7 +143,7 @@ namespace FluentFTP.Helpers.Parsers
 					{
 						size = long.Parse(used) * 56664L; // 3390 dev bytes per track
 					}
-					var file = new FtpListItem(record, dsname, size, isDir, ref lastModified);
+					var file = new FtpListItem(record, dsname, size, isDir, lastModified);
 					return file;
 				}
 				return null;
@@ -175,7 +175,7 @@ namespace FluentFTP.Helpers.Parsers
 				var lastModifiedStr = changed;
 				var lastModified = ParseDateTime(client, lastModifiedStr);
 				var size = ushort.Parse(records) * client.zOSListingLRECL;
-				var file = new FtpListItem(record, name, size, isDir, ref lastModified);
+				var file = new FtpListItem(record, name, size, isDir, lastModified);
 				return file;
 			}
 
@@ -200,7 +200,7 @@ namespace FluentFTP.Helpers.Parsers
 				var lastModifiedStr = changed;
 				var lastModified = ParseDateTime(client, lastModifiedStr);
 				var size = int.Parse(memsize, System.Globalization.NumberStyles.HexNumber);
-				var file = new FtpListItem(record, name, size, isDir, ref lastModified);
+				var file = new FtpListItem(record, name, size, isDir, lastModified);
 				return file;
 			}
 
