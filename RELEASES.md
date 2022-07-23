@@ -1,5 +1,19 @@
 # Release Notes
 
+#### 38.0.0
+ - Change: Rename enum `FtpFileSystemObjectType` to `FtpObjectType`
+ - Change: Rename enum `FtpFileSystemObjectSubType` to `FtpObjectSubType`
+ - Change: Rename API `Upload` to `UploadBytes` and `UploadStream` instead of overloading
+ - Change: Rename API `Download` to `DownloadBytes` and `DownloadStream` instead of overloading
+ - Change: Logging will always mask host IP, username and password by default (configurable)
+ - New: Throw `AggregateException` when an error occuring during resuming a file upload (.NET 4.5+)
+ - New: Code generation for parsed file item in order to build accurate unit tests
+ - New: Unit tests for Windows, Unix, OpenVMS, NonStop, IBM, Machine listing parsers
+ - New: Unit tests for Timezone conversion to UTC and to local time
+ - Fix: Improvement to directory parsing for Windows, Unix, OpenVMS, NonStop, Machine listings
+ - Fix: Support parsing of links and Unix-symlinks in Machine listings
+ - Fix: Enable 2 FTP server specific handlers
+
 #### 37.1.2
  - Fix: Error when downloading large files through SOCKS4 or SOCKS4a proxy (thanks [fire-lizard](/fire-lizard))
 

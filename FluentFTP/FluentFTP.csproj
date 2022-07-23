@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net20;net35;net40;net45;net50;net60;netstandard1.4;netstandard1.6;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net60;net50;net45;net40;net35;net20;netstandard1.4;netstandard1.6;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net20' Or '$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40' Or '$(TargetFramework)'=='net45'">
@@ -61,7 +62,7 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
-    <Version>37.1.2</Version>
+    <Version>38.0.0</Version>
     <PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
     <PackageIcon>logo-nuget.png</PackageIcon>
   </PropertyGroup>
