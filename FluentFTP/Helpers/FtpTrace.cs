@@ -91,7 +91,7 @@ namespace FluentFTP.Helpers {
 			set => m_functions = value;
 		}
 
-		private static bool m_IP = true;
+		private static bool m_IP = false;
 
 		/// <summary>
 		/// Should the FTP server IP addresses be included in the logs?
@@ -101,7 +101,7 @@ namespace FluentFTP.Helpers {
 			set => m_IP = value;
 		}
 
-		private static bool m_username = true;
+		private static bool m_username = false;
 
 		/// <summary>
 		/// Should the FTP usernames be included in the logs?
