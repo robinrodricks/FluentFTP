@@ -1254,56 +1254,64 @@ namespace FluentFTP {
 
 		private bool ResumeUpload(string remotePath, ref Stream upStream, long remotePosition, IOException ex) {
 
+#if ASYNC
 			try {
+#endif
 
-				// if resume possible
-				if (ex.IsResumeAllowed()) {
+			// if resume possible
+			if (ex.IsResumeAllowed()) {
 
-					// dispose the old bugged out stream
-					upStream.Dispose();
+				// dispose the old bugged out stream
+				upStream.Dispose();
 
-					// create and return a new stream starting at the current remotePosition
-					upStream = OpenAppend(remotePath, UploadDataType, 0);
-					upStream.Position = remotePosition;
-					return true;
-				}
+				// create and return a new stream starting at the current remotePosition
+				upStream = OpenAppend(remotePath, UploadDataType, 0);
+				upStream.Position = remotePosition;
+				return true;
+			}
 
-				// resume not allowed
-				return false;
+			// resume not allowed
+			return false;
 
+#if ASYNC
 			}
 			catch (Exception resumeEx) {
 
 				throw new AggregateException("Additional error occured while trying to resume uploading the file '" + remotePath + "' at position " + remotePosition, new Exception[] { ex, resumeEx });
 			}
+#endif
 
 		}
 
 #if ASYNC
 		private async Task<Tuple<bool, Stream>> ResumeUploadAsync(string remotePath, Stream upStream, long remotePosition, IOException ex) {
 
+#if ASYNC
 			try {
+#endif
 
-				// if resume possible
-				if (ex.IsResumeAllowed()) {
+			// if resume possible
+			if (ex.IsResumeAllowed()) {
 
-					// dispose the old bugged out stream
-					upStream.Dispose();
+				// dispose the old bugged out stream
+				upStream.Dispose();
 
-					// create and return a new stream starting at the current remotePosition
-					var returnStream = await OpenAppendAsync(remotePath, UploadDataType, 0);
-					returnStream.Position = remotePosition;
-					return Tuple.Create(true, returnStream);
-				}
+				// create and return a new stream starting at the current remotePosition
+				var returnStream = await OpenAppendAsync(remotePath, UploadDataType, 0);
+				returnStream.Position = remotePosition;
+				return Tuple.Create(true, returnStream);
+			}
 
-				// resume not allowed
-				return Tuple.Create(false, (Stream)null);
+			// resume not allowed
+			return Tuple.Create(false, (Stream)null);
 
+#if ASYNC
 			}
 			catch (Exception resumeEx) {
 
 				throw new AggregateException("Additional error occured while trying to resume uploading the file '" + remotePath + "' at position " + remotePosition, new Exception[] { ex, resumeEx });
 			}
+#endif
 		}
 #endif
 		private long CalculateAppendLocalPosition(string remotePath, FtpRemoteExists existsMode, long remotePosition) {
@@ -1323,6 +1331,6 @@ namespace FluentFTP {
 			return localPosition;
 		}
 
-		#endregion
+#endregion
 	}
 }
