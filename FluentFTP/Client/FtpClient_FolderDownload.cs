@@ -193,8 +193,8 @@ namespace FluentFTP {
 				};
 
 				// only files and folders are processed
-				if (remoteFile.Type == FtpFileSystemObjectType.File ||
-					remoteFile.Type == FtpFileSystemObjectType.Directory) {
+				if (remoteFile.Type == FtpObjectType.File ||
+					remoteFile.Type == FtpObjectType.Directory) {
 
 
 					// record the file
@@ -230,7 +230,7 @@ namespace FluentFTP {
 			foreach (var result in toDownload) {
 				r++;
 
-				if (result.Type == FtpFileSystemObjectType.File) {
+				if (result.Type == FtpObjectType.File) {
 
 					// absorb errors
 					try {
@@ -253,7 +253,7 @@ namespace FluentFTP {
 					}
 
 				}
-				else if (result.Type == FtpFileSystemObjectType.Directory) {
+				else if (result.Type == FtpObjectType.Directory) {
 
 					// absorb errors
 					try {
@@ -290,7 +290,7 @@ namespace FluentFTP {
 			foreach (var result in toDownload) {
 				r++;
 
-				if (result.Type == FtpFileSystemObjectType.File) {
+				if (result.Type == FtpObjectType.File) {
 
 					// absorb errors
 					try {
@@ -313,7 +313,7 @@ namespace FluentFTP {
 					}
 
 				}
-				else if (result.Type == FtpFileSystemObjectType.Directory) {
+				else if (result.Type == FtpObjectType.Directory) {
 
 					// absorb errors
 					try {
@@ -380,7 +380,7 @@ namespace FluentFTP {
 				// create the result object to validate rules to ensure that file from excluded
 				// directories are not deleted on the local filesystem
 				var result = new FtpResult() {
-					Type = FtpFileSystemObjectType.File,
+					Type = FtpObjectType.File,
 					Size = 0,
 					Name = Path.GetFileName(existingLocalFile),
 					LocalPath = existingLocalFile,

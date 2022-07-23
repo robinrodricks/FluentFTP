@@ -50,7 +50,7 @@ namespace FluentFTP {
 		/// <param name="count">Counter</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
 		private FtpListItem DereferenceLink(FtpListItem item, int recMax, ref int count) {
-			if (item.Type != FtpFileSystemObjectType.Link) {
+			if (item.Type != FtpObjectType.Link) {
 				throw new FtpException("You can only dereference a symbolic link. Please verify the item type is Link.");
 			}
 
@@ -60,7 +60,7 @@ namespace FluentFTP {
 
 			foreach (var obj in GetListing(item.LinkTarget.GetFtpDirectoryName())) {
 				if (item.LinkTarget == obj.FullName) {
-					if (obj.Type == FtpFileSystemObjectType.Link) {
+					if (obj.Type == FtpObjectType.Link) {
 						if (++count == recMax) {
 							return null;
 						}
@@ -76,7 +76,7 @@ namespace FluentFTP {
 						}
 					}
 
-					if (obj.Type == FtpFileSystemObjectType.File && obj.Size < 0 && HasFeature(FtpCapability.SIZE)) {
+					if (obj.Type == FtpObjectType.File && obj.Size < 0 && HasFeature(FtpCapability.SIZE)) {
 						obj.Size = GetFileSize(obj.FullName);
 					}
 
@@ -97,7 +97,7 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
 		private async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, IntRef count, CancellationToken token = default(CancellationToken)) {
-			if (item.Type != FtpFileSystemObjectType.Link) {
+			if (item.Type != FtpObjectType.Link) {
 				throw new FtpException("You can only dereference a symbolic link. Please verify the item type is Link.");
 			}
 
@@ -107,7 +107,7 @@ namespace FluentFTP {
 			var listing = await GetListingAsync(item.LinkTarget.GetFtpDirectoryName(), token);
 			foreach (FtpListItem obj in listing) {
 				if (item.LinkTarget == obj.FullName) {
-					if (obj.Type == FtpFileSystemObjectType.Link) {
+					if (obj.Type == FtpObjectType.Link) {
 						if (++count.Value == recMax) {
 							return null;
 						}
@@ -123,7 +123,7 @@ namespace FluentFTP {
 						}
 					}
 
-					if (obj.Type == FtpFileSystemObjectType.File && obj.Size < 0 && HasFeature(FtpCapability.SIZE)) {
+					if (obj.Type == FtpObjectType.File && obj.Size < 0 && HasFeature(FtpCapability.SIZE)) {
 						obj.Size = GetFileSize(obj.FullName);
 					}
 

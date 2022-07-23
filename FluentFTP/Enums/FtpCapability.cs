@@ -12,17 +12,17 @@ namespace FluentFTP {
 		NONE = 1,
 
 		/// <summary>
-		/// Supports the MLST command
+		/// Supports the MLST command (machine listings)
 		/// </summary>
 		MLSD = 2,
 
 		/// <summary>
-		/// Supports the SIZE command
+		/// Supports the SIZE command (get file size)
 		/// </summary>
 		SIZE = 3,
 
 		/// <summary>
-		/// Supports the MDTM command
+		/// Supports the MDTM command (get file date modified)
 		/// </summary>
 		MDTM = 4,
 

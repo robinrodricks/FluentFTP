@@ -12,6 +12,14 @@ using System.Threading.Tasks;
 #endif
 namespace FluentFTP.Helpers.Parsers {
 	internal static class FtpMachineListParser {
+
+		/// <summary>
+		/// Checks if the given listing is a valid Machine Listing item
+		/// </summary>
+		public static bool IsValid(FtpClient client, string[] records) {
+			return records[0].ContainsCI("type=");
+		}
+
 		/// <summary>
 		/// Parses MLSD/MLST format listings
 		/// </summary>
@@ -23,6 +31,7 @@ namespace FluentFTP.Helpers.Parsers {
 			var item = new FtpListItem();
 			Match m;
 
+
 			if (!(m = Regex.Match(record, "type=(?<type>.+?);", RegexOptions.IgnoreCase)).Success) {
 				return null;
 			}
@@ -31,25 +40,34 @@ namespace FluentFTP.Helpers.Parsers {
 
 				// Parent and self-directories are parsed but not always returned
 				case "pdir":
-					item.Type = FtpFileSystemObjectType.Directory;
-					item.SubType = FtpFileSystemObjectSubType.ParentDirectory;
+					item.Type = FtpObjectType.Directory;
+					item.SubType = FtpObjectSubType.ParentDirectory;
 					break;
 				case "cdir":
-					item.Type = FtpFileSystemObjectType.Directory;
-					item.SubType = FtpFileSystemObjectSubType.SelfDirectory;
+					item.Type = FtpObjectType.Directory;
+					item.SubType = FtpObjectSubType.SelfDirectory;
 					break;
 
 				// Always list sub directories and files
 				case "dir":
-					item.Type = FtpFileSystemObjectType.Directory;
-					item.SubType = FtpFileSystemObjectSubType.SubDirectory;
+					item.Type = FtpObjectType.Directory;
+					item.SubType = FtpObjectSubType.SubDirectory;
 					break;
 				case "file":
-					item.Type = FtpFileSystemObjectType.File;
+					item.Type = FtpObjectType.File;
+					break;
+
+				// Links
+				case "link":
+				case "slink":
+				case "symlink":
+				case "os.unix=link":
+				case "os.unix=slink":
+				case "os.unix=symlink":
+					item.Type = FtpObjectType.Link;
 					break;
 
 				// These are not supported
-				case "link":
 				case "device":
 				default:
 					return null;

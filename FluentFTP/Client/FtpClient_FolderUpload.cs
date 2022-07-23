@@ -221,7 +221,7 @@ namespace FluentFTP {
 
 				// create the result object
 				var result = new FtpResult() {
-					Type = FtpFileSystemObjectType.Directory,
+					Type = FtpObjectType.Directory,
 					Size = 0,
 					Name = Path.GetDirectoryName(localFile),
 					RemotePath = remoteFile,
@@ -318,7 +318,7 @@ namespace FluentFTP {
 
 				// create the result object
 				var result = new FtpResult() {
-					Type = FtpFileSystemObjectType.File,
+					Type = FtpObjectType.File,
 					Size = new FileInfo(localFile).Length,
 					Name = Path.GetFileName(localFile),
 					RemotePath = remoteFile,
@@ -464,7 +464,7 @@ namespace FluentFTP {
 				// delete files that are not in listed in shouldExist
 				foreach (var existingServerFile in remoteListing) {
 
-					if (existingServerFile.Type == FtpFileSystemObjectType.File) {
+					if (existingServerFile.Type == FtpObjectType.File) {
 
 						if (!shouldExist.ContainsKey(existingServerFile.FullName.ToLower())) {
 
@@ -499,7 +499,7 @@ namespace FluentFTP {
 				// delete files that are not in listed in shouldExist
 				foreach (var existingServerFile in remoteListing) {
 
-					if (existingServerFile.Type == FtpFileSystemObjectType.File) {
+					if (existingServerFile.Type == FtpObjectType.File) {
 
 						if (!shouldExist.ContainsKey(existingServerFile.FullName.ToLower())) {
 

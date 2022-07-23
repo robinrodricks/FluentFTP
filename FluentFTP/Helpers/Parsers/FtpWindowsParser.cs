@@ -128,7 +128,7 @@ namespace FluentFTP.Helpers.Parsers {
 			}
 			else {
 				try {
-					size = long.Parse(type);
+					size = long.Parse(type.Replace(",", ""));
 				}
 				catch (FormatException) {
 					client.LogStatus(FtpTraceLevel.Error, "Failed to parse size: " + type);
@@ -155,7 +155,10 @@ namespace FluentFTP.Helpers.Parsers {
 
 		private static string DirectoryMarker = "<DIR>";
 		private static int MinFieldCount = 4;
-		private static string[] DateTimeFormats = {"MM'-'dd'-'yy hh':'mmtt", "MM'-'dd'-'yy HH':'mm", "MM'-'dd'-'yyyy hh':'mmtt"};
+		private static string[] DateTimeFormats = {
+			"MM'-'dd'-'yy hh':'mmtt", "MM'-'dd'-'yy HH':'mm", "MM'-'dd'-'yyyy hh':'mmtt",
+			"yyyy'-'MM'-'dd hh':'mmtt", "yyyy'-'MM'-'dd HH':'mm", "yyyy'-'MM'-'dd hh':'mmtt"
+		};
 		private static int OffsetLengthDirectory = 10;
 		private static int OffsetLengthFile = 1;
 

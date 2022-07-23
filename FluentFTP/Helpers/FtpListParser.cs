@@ -239,6 +239,9 @@ namespace FluentFTP.Helpers {
 
 				case FtpParser.NonStop:
 					return FtpNonStopParser.IsValid(client, files);
+
+				case FtpParser.Machine:
+					return FtpMachineListParser.IsValid(client, files);
 			}
 
 			return false;

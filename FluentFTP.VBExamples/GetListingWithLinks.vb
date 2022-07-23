@@ -15,9 +15,9 @@ Namespace Examples
 
 					Select Case item.Type
 
-						Case FtpFileSystemObjectType.Directory
-						Case FtpFileSystemObjectType.File
-						Case FtpFileSystemObjectType.Link
+						Case FtpObjectType.Directory
+						Case FtpObjectType.File
+						Case FtpObjectType.Link
 
 							' manually dereference symbolic links
 							If item.LinkTarget IsNot Nothing Then
@@ -36,9 +36,9 @@ Namespace Examples
 					' do something
 					Select Case item.Type
 
-						Case FtpFileSystemObjectType.Directory
-						Case FtpFileSystemObjectType.File
-						Case FtpFileSystemObjectType.Link
+						Case FtpObjectType.Directory
+						Case FtpObjectType.File
+						Case FtpObjectType.Link
 
 					End Select
 				Next
@@ -56,9 +56,9 @@ Namespace Examples
 
 					Select Case item.Type
 
-						Case FtpFileSystemObjectType.Directory
-						Case FtpFileSystemObjectType.File
-						Case FtpFileSystemObjectType.Link
+						Case FtpObjectType.Directory
+						Case FtpObjectType.File
+						Case FtpObjectType.Link
 
 							' manually dereference symbolic links
 							If item.LinkTarget IsNot Nothing Then
@@ -77,9 +77,9 @@ Namespace Examples
 					' do something
 					Select Case item.Type
 
-						Case FtpFileSystemObjectType.Directory
-						Case FtpFileSystemObjectType.File
-						Case FtpFileSystemObjectType.Link
+						Case FtpObjectType.Directory
+						Case FtpObjectType.File
+						Case FtpObjectType.Link
 
 					End Select
 				Next

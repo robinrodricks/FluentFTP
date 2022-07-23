@@ -28,6 +28,15 @@ namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
 
 		/// <summary>
+		/// Forcibly set the capabilities of your FTP server.
+		/// By default capabilities are loaded automatically after calling Connect and you don't need to use this method.
+		/// This is only for advanced use-cases.
+		/// </summary>
+		public void SetFeatures(List<FtpCapability> capabilities) {
+			m_capabilities = capabilities;
+		}
+
+		/// <summary>
 		/// Performs a bitwise and to check if the specified
 		/// flag is set on the <see cref="Capabilities"/>  property.
 		/// </summary>

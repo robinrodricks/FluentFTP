@@ -4,7 +4,7 @@ namespace FluentFTP {
 	/// <summary>
 	/// Type of file system of object
 	/// </summary>
-	public enum FtpFileSystemObjectType {
+	public enum FtpObjectType {
 		/// <summary>
 		/// A file
 		/// </summary>

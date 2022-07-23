@@ -293,10 +293,10 @@ namespace FluentFTP {
 					};
 
 					if (DirectoryExists(item.FullName)) {
-						item.Type = FtpFileSystemObjectType.Directory;
+						item.Type = FtpObjectType.Directory;
 					}
 					else {
-						item.Type = FtpFileSystemObjectType.File;
+						item.Type = FtpObjectType.File;
 					}
 
 					lst.Add(item);
@@ -315,7 +315,7 @@ namespace FluentFTP {
 				if (item != null) {
 					// try to dereference symbolic links if the appropriate list
 					// option was passed
-					if (item.Type == FtpFileSystemObjectType.Link && isDerefLinks) {
+					if (item.Type == FtpObjectType.Link && isDerefLinks) {
 						item.LinkObject = DereferenceLink(item);
 					}
 
@@ -328,7 +328,7 @@ namespace FluentFTP {
 						if (item.Modified == DateTime.MinValue || listcmd.StartsWith("LIST")) {
 							DateTime modify;
 
-							if (item.Type == FtpFileSystemObjectType.Directory) {
+							if (item.Type == FtpObjectType.Directory) {
 								LogStatus(FtpTraceLevel.Verbose, "Trying to retrieve modification time of a directory, some servers don't like this...");
 							}
 
@@ -343,7 +343,7 @@ namespace FluentFTP {
 						// if no size was parsed, the object is a file and the server
 						// supports the SIZE command, then load the file size
 						if (item.Size == -1) {
-							if (item.Type != FtpFileSystemObjectType.Directory) {
+							if (item.Type != FtpObjectType.Directory) {
 								item.Size = GetFileSize(item.FullName);
 							}
 							else {
@@ -405,8 +405,8 @@ namespace FluentFTP {
 		private bool IsItemSelf(string path, FtpListItem item) {
 			return item.Name == "." ||
 				item.Name == ".." ||
-				item.SubType == FtpFileSystemObjectSubType.ParentDirectory ||
-				item.SubType == FtpFileSystemObjectSubType.SelfDirectory ||
+				item.SubType == FtpObjectSubType.ParentDirectory ||
+				item.SubType == FtpObjectSubType.SelfDirectory ||
 				item.FullName.EnsurePostfix("/") == path;
 		}
 
@@ -805,10 +805,10 @@ namespace FluentFTP {
 				};
 
 				if (await DirectoryExistsAsync(item.FullName, token)) {
-					item.Type = FtpFileSystemObjectType.Directory;
+					item.Type = FtpObjectType.Directory;
 				}
 				else {
-					item.Type = FtpFileSystemObjectType.File;
+					item.Type = FtpObjectType.File;
 				}
 				lst.Add(item);
 			}
@@ -817,7 +817,7 @@ namespace FluentFTP {
 			if (item != null) {
 				// try to dereference symbolic links if the appropriate list
 				// option was passed
-				if (item.Type == FtpFileSystemObjectType.Link && isDerefLinks) {
+				if (item.Type == FtpObjectType.Link && isDerefLinks) {
 					item.LinkObject = await DereferenceLinkAsync(item, token);
 				}
 
@@ -830,7 +830,7 @@ namespace FluentFTP {
 					if (item.Modified == DateTime.MinValue || listcmd.StartsWith("LIST")) {
 						DateTime modify;
 
-						if (item.Type == FtpFileSystemObjectType.Directory) {
+						if (item.Type == FtpObjectType.Directory) {
 							LogStatus(FtpTraceLevel.Verbose, "Trying to retrieve modification time of a directory, some servers don't like this...");
 						}
 
@@ -845,7 +845,7 @@ namespace FluentFTP {
 					// if no size was parsed, the object is a file and the server
 					// supports the SIZE command, then load the file size
 					if (item.Size == -1) {
-						if (item.Type != FtpFileSystemObjectType.Directory) {
+						if (item.Type != FtpObjectType.Directory) {
 							item.Size = await GetFileSizeAsync(item.FullName, -1, token);
 						}
 						else {
@@ -1026,7 +1026,7 @@ namespace FluentFTP {
 
 				// extract the directories
 				foreach (var item in items) {
-					if (item.Type == FtpFileSystemObjectType.Directory && item.Name != "." && item.Name != "..") {
+					if (item.Type == FtpObjectType.Directory && item.Name != "." && item.Name != "..") {
 						stack.Push(item.FullName);
 					}
 				}
@@ -1128,7 +1128,7 @@ namespace FluentFTP {
 
 				// extract the directories
 				foreach (var item in items) {
-					if (item.Type == FtpFileSystemObjectType.Directory && item.Name != "." && item.Name != "..") {
+					if (item.Type == FtpObjectType.Directory && item.Name != "." && item.Name != "..") {
 						stack.Push(item.FullName);
 					}
 				}

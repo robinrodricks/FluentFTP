@@ -52,10 +52,10 @@ namespace FluentFTP.Rules {
 
 			// get the folder name of this item
 			string[] dirNameParts = null;
-			if (item.Type == FtpFileSystemObjectType.File) {
+			if (item.Type == FtpObjectType.File) {
 				dirNameParts = item.FullName.GetFtpDirectoryName().GetPathSegments();
 			}
-			else if (item.Type == FtpFileSystemObjectType.Directory) {
+			else if (item.Type == FtpObjectType.Directory) {
 				dirNameParts = item.FullName.GetPathSegments();
 			}
 			else {

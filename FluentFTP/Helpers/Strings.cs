@@ -280,5 +280,36 @@ namespace FluentFTP.Helpers {
 		}
 
 
+		/// <summary>
+		/// Checks if the string contains the given substring in a case-insensitive manner.
+		/// </summary>
+		public static bool ContainsCI(this string value, string substring) {
+			if (value == null || value.Length == 0 || value.Length < substring.Length) {
+				return false;
+			}
+			return value.IndexOf(substring, StringComparison.OrdinalIgnoreCase) > -1;
+		}
+
+		/// <summary>
+		/// Checks if the string starts with the given substring in a case-insensitive manner.
+		/// </summary>
+		public static bool StartsWithCI(this string value, string substring) {
+			if (value == null || value.Length == 0 || value.Length < substring.Length) {
+				return false;
+			}
+			return value.StartsWith(substring, StringComparison.OrdinalIgnoreCase);
+		}
+
+		/// <summary>
+		/// Checks if the string ends with the given substring in a case-insensitive manner.
+		/// </summary>
+		public static bool EndsWithCI(this string value, string substring) {
+			if (value == null || value.Length == 0 || value.Length < substring.Length) {
+				return false;
+			}
+			return value.EndsWith(substring, StringComparison.OrdinalIgnoreCase);
+		}
+
+
 	}
 }

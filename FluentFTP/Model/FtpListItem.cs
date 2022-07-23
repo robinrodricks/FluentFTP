@@ -28,7 +28,7 @@ namespace FluentFTP {
 			this.Input = record;
 			this.Name = name;
 			this.Size = size;
-			this.Type = isDir ? FtpFileSystemObjectType.Directory : FtpFileSystemObjectType.File;
+			this.Type = isDir ? FtpObjectType.Directory : FtpObjectType.File;
 			this.Modified = lastModifiedTime;
 		}
 
@@ -37,8 +37,7 @@ namespace FluentFTP {
 		/// 
 		/// NOTE TO USER : You should not need to construct this class manually except in advanced cases. Typically constructed by GetListing().
 		/// </summary>
-		public FtpListItem(string record, string name, long size, FtpFileSystemObjectType type, DateTime lastModifiedTime) {
-			this.Input = record;
+		public FtpListItem(string name, long size, FtpObjectType type, DateTime lastModifiedTime) {
 			this.Name = name;
 			this.Size = size;
 			this.Type = type;
@@ -49,12 +48,12 @@ namespace FluentFTP {
 		/// <summary>
 		/// Gets the type of file system object.
 		/// </summary>
-		public FtpFileSystemObjectType Type;
+		public FtpObjectType Type;
 
 		/// <summary>
 		/// Gets the sub type of file system object.
 		/// </summary>
-		public FtpFileSystemObjectSubType SubType;
+		public FtpObjectSubType SubType;
 
 		/// <summary>
 		/// Gets the full path name to the file or folder.
@@ -174,19 +173,19 @@ namespace FluentFTP {
 		/// <returns>A string representing this object</returns>
 		public override string ToString() {
 			var sb = new StringBuilder();
-			if (Type == FtpFileSystemObjectType.File) {
+			if (Type == FtpObjectType.File) {
 				sb.Append("FILE");
 			}
-			else if (Type == FtpFileSystemObjectType.Directory) {
+			else if (Type == FtpObjectType.Directory) {
 				sb.Append("DIR ");
 			}
-			else if (Type == FtpFileSystemObjectType.Link) {
+			else if (Type == FtpObjectType.Link) {
 				sb.Append("LINK");
 			}
 
 			sb.Append("   ");
 			sb.Append(Name);
-			if (Type == FtpFileSystemObjectType.File) {
+			if (Type == FtpObjectType.File) {
 				sb.Append("      ");
 				sb.Append("(");
 				sb.Append(Size.FileSizeToString());
@@ -213,17 +212,14 @@ namespace FluentFTP {
 		public string ToCode() {
 			var sb = new StringBuilder();
 			sb.Append("new FtpListItem(");
-			sb.Append(Input.EscapeStringLiteral());
-			sb.Append(",");
 			sb.Append(Name.EscapeStringLiteral());
 			sb.Append(",");
 			sb.Append(Size);
 			sb.Append(",");
-			sb.Append(Type == FtpFileSystemObjectType.Directory ? "true" : "false");
+			sb.Append("FtpObjectType.");
+			sb.Append(Type.ToString());
 			sb.Append(",");
-			sb.Append("new DateTime(");
-			sb.Append(Modified.ToBinary());
-			sb.Append(")");
+			sb.Append(Modified.ToCode());
 			sb.Append(")");
 			return sb.ToString();
 		}

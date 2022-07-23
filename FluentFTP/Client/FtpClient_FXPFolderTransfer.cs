@@ -78,7 +78,7 @@ namespace FluentFTP {
 			var shouldExist = new Dictionary<string, bool>();
 
 			// get all the folders in the local directory
-			var dirListing = GetListing(sourceFolder, FtpListOption.Recursive).Where(x => x.Type == FtpFileSystemObjectType.Directory).Select(x => x.FullName).ToArray();
+			var dirListing = GetListing(sourceFolder, FtpListOption.Recursive).Where(x => x.Type == FtpObjectType.Directory).Select(x => x.FullName).ToArray();
 
 			// get all the already existing files
 			var remoteListing = checkFileExistence ? remoteClient.GetListing(remoteFolder, FtpListOption.Recursive) : null;
@@ -88,7 +88,7 @@ namespace FluentFTP {
 			CreateSubDirectories(remoteClient, dirsToUpload);
 
 			// get all the files in the local directory
-			var fileListing = GetListing(sourceFolder, FtpListOption.Recursive).Where(x => x.Type == FtpFileSystemObjectType.File).Select(x => x.FullName).ToArray();
+			var fileListing = GetListing(sourceFolder, FtpListOption.Recursive).Where(x => x.Type == FtpObjectType.File).Select(x => x.FullName).ToArray();
 
 			// loop through each file and transfer it
 			var filesToUpload = GetFilesToTransfer(sourceFolder, remoteFolder, rules, results, shouldExist, fileListing);
@@ -170,7 +170,7 @@ namespace FluentFTP {
 			var shouldExist = new Dictionary<string, bool>();
 
 			// get all the folders in the local directory
-			var dirListing = (await GetListingAsync(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpFileSystemObjectType.Directory).Select(x => x.FullName).ToArray();
+			var dirListing = (await GetListingAsync(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpObjectType.Directory).Select(x => x.FullName).ToArray();
 
 			// break if task is cancelled
 			token.ThrowIfCancellationRequested();
@@ -195,7 +195,7 @@ namespace FluentFTP {
 			await CreateSubDirectoriesAsync(remoteClient, dirsToUpload, token);
 
 			// get all the files in the local directory
-			var fileListing = (await GetListingAsync(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpFileSystemObjectType.File).Select(x => x.FullName).ToArray();
+			var fileListing = (await GetListingAsync(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpObjectType.File).Select(x => x.FullName).ToArray();
 			
 			// loop through each file and transfer it
 			var filesToUpload = GetFilesToTransfer(sourceFolder, remoteFolder, rules, results, shouldExist, fileListing);
@@ -220,7 +220,7 @@ namespace FluentFTP {
 
 				// create the result object
 				var result = new FtpResult {
-					Type = FtpFileSystemObjectType.Directory,
+					Type = FtpObjectType.Directory,
 					Size = 0,
 					Name = sourceFile.GetFtpDirectoryName(),
 					RemotePath = remoteFile,
@@ -254,7 +254,7 @@ namespace FluentFTP {
 
 				// create the result object
 				var result = new FtpResult {
-					Type = FtpFileSystemObjectType.File,
+					Type = FtpObjectType.File,
 					Size = GetFileSize(sourceFile),
 					Name = sourceFile.GetFtpFileName(),
 					RemotePath = remoteFile,

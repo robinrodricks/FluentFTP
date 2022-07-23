@@ -41,10 +41,10 @@ namespace Examples {
 			}
 
 			if (m.Groups["permissions"].Value.StartsWith("d")) {
-				item.Type = FtpFileSystemObjectType.Directory;
+				item.Type = FtpObjectType.Directory;
 			}
 			else if (m.Groups["permissions"].Value.StartsWith("-")) {
-				item.Type = FtpFileSystemObjectType.File;
+				item.Type = FtpObjectType.File;
 			}
 			else {
 				return null;
@@ -58,7 +58,7 @@ namespace Examples {
 
 			item.Name = m.Groups["name"].Value;
 
-			if (item.Type == FtpFileSystemObjectType.Directory && (item.Name == "." || item.Name == "..")) {
+			if (item.Type == FtpObjectType.Directory && (item.Name == "." || item.Name == "..")) {
 				return null;
 			}
 
@@ -70,7 +70,7 @@ namespace Examples {
 			// so if a modify time was parsed from the listing we will try
 			// to convert it to a DateTime object and use it for directories.
 			////
-			if ((!capabilities.Contains(FtpCapability.MDTM) || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0) {
+			if ((!capabilities.Contains(FtpCapability.MDTM) || item.Type == FtpObjectType.Directory) && m.Groups["modify"].Value.Length > 0) {
 				item.Modified = m.Groups["modify"].Value.ParseFtpDate(client);
 			}
 

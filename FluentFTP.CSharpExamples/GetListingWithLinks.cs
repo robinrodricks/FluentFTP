@@ -15,13 +15,13 @@ namespace Examples {
 				foreach (var item in conn.GetListing(conn.GetWorkingDirectory(),
 				FtpListOption.Modify | FtpListOption.Size)) {
 					switch (item.Type) {
-						case FtpFileSystemObjectType.Directory:
+						case FtpObjectType.Directory:
 							break;
 
-						case FtpFileSystemObjectType.File:
+						case FtpObjectType.File:
 							break;
 
-						case FtpFileSystemObjectType.Link:
+						case FtpObjectType.Link:
 
 							// dereference symbolic links
 							if (item.LinkTarget != null) {
@@ -42,13 +42,13 @@ namespace Examples {
 				foreach (var item in conn.GetListing(conn.GetWorkingDirectory(),
 					FtpListOption.Modify | FtpListOption.Size | FtpListOption.DerefLinks)) {
 					switch (item.Type) {
-						case FtpFileSystemObjectType.Directory:
+						case FtpObjectType.Directory:
 							break;
 
-						case FtpFileSystemObjectType.File:
+						case FtpObjectType.File:
 							break;
 
-						case FtpFileSystemObjectType.Link:
+						case FtpObjectType.Link:
 							if (item.LinkObject != null) {
 								// switch (item.LinkObject.Type)...
 							}
@@ -68,13 +68,13 @@ namespace Examples {
 				foreach (var item in await conn.GetListingAsync(conn.GetWorkingDirectory(),
 				FtpListOption.Modify | FtpListOption.Size, token)) {
 					switch (item.Type) {
-						case FtpFileSystemObjectType.Directory:
+						case FtpObjectType.Directory:
 							break;
 
-						case FtpFileSystemObjectType.File:
+						case FtpObjectType.File:
 							break;
 
-						case FtpFileSystemObjectType.Link:
+						case FtpObjectType.Link:
 
 							// dereference symbolic links
 							if (item.LinkTarget != null) {
@@ -95,13 +95,13 @@ namespace Examples {
 				foreach (var item in await conn.GetListingAsync(conn.GetWorkingDirectory(),
 					FtpListOption.Modify | FtpListOption.Size | FtpListOption.DerefLinks, token)) {
 					switch (item.Type) {
-						case FtpFileSystemObjectType.Directory:
+						case FtpObjectType.Directory:
 							break;
 
-						case FtpFileSystemObjectType.File:
+						case FtpObjectType.File:
 							break;
 
-						case FtpFileSystemObjectType.Link:
+						case FtpObjectType.Link:
 							if (item.LinkObject != null) {
 								// switch (item.LinkObject.Type)...
 							}

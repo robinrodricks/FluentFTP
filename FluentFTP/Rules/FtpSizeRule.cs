@@ -41,7 +41,7 @@ namespace FluentFTP.Rules {
 		/// Checks if the file is of the given size, or within the given range of sizes.
 		/// </summary>
 		public override bool IsAllowed(FtpListItem result) {
-			if (result.Type == FtpFileSystemObjectType.File) {
+			if (result.Type == FtpObjectType.File) {
 				return Operators.Validate(Operator, result.Size, X, Y);
 			}
 			else {

@@ -44,7 +44,7 @@ namespace FluentFTP.Rules {
 			}
 
 			// only check files
-			if (item.Type == FtpFileSystemObjectType.File) {
+			if (item.Type == FtpObjectType.File) {
 				var fileName = item.Name;
 
 				if (Whitelist) {

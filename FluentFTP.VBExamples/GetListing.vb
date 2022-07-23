@@ -15,17 +15,17 @@ Namespace Examples
 
 					Select Case item.Type
 
-						Case FtpFileSystemObjectType.Directory
+						Case FtpObjectType.Directory
 							Console.WriteLine("Directory!  " & item.FullName)
 							Console.WriteLine("Modified date:  " & conn.GetModifiedTime(item.FullName))
 
-						Case FtpFileSystemObjectType.File
+						Case FtpObjectType.File
 							Console.WriteLine("File!  " & item.FullName)
 							Console.WriteLine("File size:  " & conn.GetFileSize(item.FullName))
 							Console.WriteLine("Modified date:  " & conn.GetModifiedTime(item.FullName))
 							Console.WriteLine("Chmod:  " & conn.GetChmod(item.FullName))
 
-						Case FtpFileSystemObjectType.Link
+						Case FtpObjectType.Link
 					End Select
 				Next
 			End Using
@@ -42,17 +42,17 @@ Namespace Examples
 
 					Select Case item.Type
 
-						Case FtpFileSystemObjectType.Directory
+						Case FtpObjectType.Directory
 							Console.WriteLine("Directory!  " & item.FullName)
 							Console.WriteLine("Modified date:  " & Await conn.GetModifiedTimeAsync(item.FullName, token))
 
-						Case FtpFileSystemObjectType.File
+						Case FtpObjectType.File
 							Console.WriteLine("File!  " & item.FullName)
 							Console.WriteLine("File size:  " & Await conn.GetFileSizeAsync(item.FullName, -1, token))
 							Console.WriteLine("Modified date:  " & Await conn.GetModifiedTimeAsync(item.FullName, token))
 							Console.WriteLine("Chmod:  " & Await conn.GetChmodAsync(item.FullName, token))
 
-						Case FtpFileSystemObjectType.Link
+						Case FtpObjectType.Link
 					End Select
 				Next
 			End Using

@@ -15,14 +15,14 @@ namespace Examples {
 				foreach (var item in conn.GetListing("/htdocs", FtpListOption.Recursive)) {
 					switch (item.Type) {
 
-						case FtpFileSystemObjectType.Directory:
+						case FtpObjectType.Directory:
 
 							Console.WriteLine("Directory!  " + item.FullName);
 							Console.WriteLine("Modified date:  " + conn.GetModifiedTime(item.FullName));
 
 							break;
 
-						case FtpFileSystemObjectType.File:
+						case FtpObjectType.File:
 
 							Console.WriteLine("File!  " + item.FullName);
 							Console.WriteLine("File size:  " + conn.GetFileSize(item.FullName));
@@ -31,7 +31,7 @@ namespace Examples {
 
 							break;
 
-						case FtpFileSystemObjectType.Link:
+						case FtpObjectType.Link:
 							break;
 					}
 				}
@@ -49,14 +49,14 @@ namespace Examples {
 
 					switch (item.Type) {
 
-						case FtpFileSystemObjectType.Directory:
+						case FtpObjectType.Directory:
 
 							Console.WriteLine("Directory!  " + item.FullName);
 							Console.WriteLine("Modified date:  " + await conn.GetModifiedTimeAsync(item.FullName, token));
 
 							break;
 
-						case FtpFileSystemObjectType.File:
+						case FtpObjectType.File:
 
 							Console.WriteLine("File!  " + item.FullName);
 							Console.WriteLine("File size:  " + await conn.GetFileSizeAsync(item.FullName, -1, token));
@@ -65,7 +65,7 @@ namespace Examples {
 
 							break;
 
-						case FtpFileSystemObjectType.Link:
+						case FtpObjectType.Link:
 							break;
 					}
 				}

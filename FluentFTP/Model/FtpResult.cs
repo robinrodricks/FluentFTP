@@ -17,7 +17,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Gets the type of file system object.
 		/// </summary>
-		public FtpFileSystemObjectType Type;
+		public FtpObjectType Type;
 
 		/// <summary>
 		/// Gets the size of the file.

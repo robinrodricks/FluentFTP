@@ -44,7 +44,7 @@ namespace Examples {
 					// than Link a FtpException will be thrown. If you call the
 					// method and the LinkTarget is null a FtpException will also
 					// be thrown.
-					if (item.Type == FtpFileSystemObjectType.Link && item.LinkTarget != null) {
+					if (item.Type == FtpObjectType.Link && item.LinkTarget != null) {
 						item.LinkObject = conn.DereferenceLink(item);
 
 						// The return value of DerefenceLink() will be null
@@ -63,7 +63,7 @@ namespace Examples {
 					FtpListOption.ForceList | FtpListOption.Modify | FtpListOption.DerefLinks)) {
 					Console.WriteLine(item);
 
-					if (item.Type == FtpFileSystemObjectType.Link && item.LinkObject != null) {
+					if (item.Type == FtpObjectType.Link && item.LinkObject != null) {
 						Console.WriteLine(item.LinkObject);
 					}
 				}

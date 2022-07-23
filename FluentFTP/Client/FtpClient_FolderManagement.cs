@@ -102,11 +102,11 @@ namespace FluentFTP {
 					// delete the item based on the type
 					foreach (var item in itemList) {
 						switch (item.Type) {
-							case FtpFileSystemObjectType.File:
+							case FtpObjectType.File:
 								DeleteFile(item.FullName);
 								break;
 
-							case FtpFileSystemObjectType.Directory:
+							case FtpObjectType.Directory:
 								DeleteDirInternal(item.FullName, recurse, options);
 								break;
 
@@ -230,11 +230,11 @@ namespace FluentFTP {
 				// delete the item based on the type
 				foreach (var item in itemList) {
 					switch (item.Type) {
-						case FtpFileSystemObjectType.File:
+						case FtpObjectType.File:
 							await DeleteFileAsync(item.FullName, token);
 							break;
 
-						case FtpFileSystemObjectType.Directory:
+						case FtpObjectType.Directory:
 							await DeleteDirInternalAsync(item.FullName, recurse, options, token);
 							break;
 

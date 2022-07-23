@@ -34,7 +34,7 @@ namespace FluentFTP.Rules {
 		/// Checks if the files has the given name, or exclude files of the given name.
 		/// </summary>
 		public override bool IsAllowed(FtpListItem item) {
-			if (item.Type == FtpFileSystemObjectType.File) {
+			if (item.Type == FtpObjectType.File) {
 				var fileName = item.Name;
 				if (Whitelist) {
 					return Names.Contains(fileName);

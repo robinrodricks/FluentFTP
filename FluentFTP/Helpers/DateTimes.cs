@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Text;
 
 namespace FluentFTP.Helpers {
 	/// <summary>
@@ -41,6 +42,30 @@ namespace FluentFTP.Helpers {
 			// generate final pretty printed date
 			var timeStr = date.ToString("yyyyMMddHHmmss");
 			return timeStr;
+		}
+
+
+		/// <summary>
+		/// Generates C# code to create this date.
+		/// </summary>
+		public static string ToCode(this DateTime date) {
+			var sb = new StringBuilder();
+			sb.Append("new DateTime(");
+			sb.Append(date.Year);
+			sb.Append(',');
+			sb.Append(date.Month);
+			sb.Append(',');
+			sb.Append(date.Day);
+			sb.Append(',');
+			sb.Append(date.Hour);
+			sb.Append(',');
+			sb.Append(date.Minute);
+			sb.Append(',');
+			sb.Append(date.Second);
+			sb.Append(',');
+			sb.Append(date.Millisecond);
+			sb.Append(")");
+			return sb.ToString();
 		}
 
 		private static string[] FtpDateFormats = { "yyyyMMddHHmmss", "yyyyMMddHHmmss'.'f", "yyyyMMddHHmmss'.'ff", "yyyyMMddHHmmss'.'fff", "MMM dd  yyyy", "MMM  d  yyyy", "MMM dd HH:mm", "MMM  d HH:mm" };

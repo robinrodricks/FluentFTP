@@ -246,11 +246,11 @@ namespace Tests {
 		private void TestServerDownload(FtpClient client, string path) {
 			foreach (var i in client.GetListing(path)) {
 				switch (i.Type) {
-					case FtpFileSystemObjectType.Directory:
+					case FtpObjectType.Directory:
 						TestServerDownload(client, i.FullName);
 						break;
 
-					case FtpFileSystemObjectType.File:
+					case FtpObjectType.File:
 						using (var s = client.OpenRead(i.FullName)) {
 							var b = new byte[8192];
 							var read = 0;
@@ -358,7 +358,7 @@ namespace Tests {
 					FtpListOption.ForceList | FtpListOption.Modify | FtpListOption.DerefLinks)) {
 					FtpTrace.WriteLine(item);
 
-					if (item.Type == FtpFileSystemObjectType.Link && item.LinkObject != null) {
+					if (item.Type == FtpObjectType.Link && item.LinkObject != null) {
 						FtpTrace.WriteLine(item.LinkObject);
 					}
 				}
@@ -885,10 +885,10 @@ namespace Tests {
 
 		public void Download(List<Thread> threads, FtpClient cl, string path) {
 			foreach (var item in cl.GetListing(path)) {
-				if (item.Type == FtpFileSystemObjectType.Directory) {
+				if (item.Type == FtpObjectType.Directory) {
 					Download(threads, cl, item.FullName);
 				}
-				else if (item.Type == FtpFileSystemObjectType.File) {
+				else if (item.Type == FtpObjectType.File) {
 					var file = item.FullName;
 
 					var t = new Thread(new ThreadStart(delegate { DoDownload(cl, file); }));
@@ -919,10 +919,10 @@ namespace Tests {
 
 		public void DeleteDirectory(FtpClient cl, string path) {
 			foreach (var item in cl.GetListing(path)) {
-				if (item.Type == FtpFileSystemObjectType.File) {
+				if (item.Type == FtpObjectType.File) {
 					cl.DeleteFile(item.FullName);
 				}
-				else if (item.Type == FtpFileSystemObjectType.Directory) {
+				else if (item.Type == FtpObjectType.Directory) {
 					DeleteDirectory(cl, item.FullName);
 					cl.DeleteDirectory(item.FullName);
 				}
