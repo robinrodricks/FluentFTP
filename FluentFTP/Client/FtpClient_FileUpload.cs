@@ -551,7 +551,7 @@ namespace FluentFTP {
 		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="progress">Provide a callback to track upload progress.</param>
-		public FtpStatus Upload(Stream fileStream, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, Action<FtpProgress> progress = null) {
+		public FtpStatus UploadStream(Stream fileStream, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, Action<FtpProgress> progress = null) {
 			// verify args
 			if (fileStream == null) {
 				throw new ArgumentException("Required parameter is null or blank.", "fileStream");
@@ -563,7 +563,7 @@ namespace FluentFTP {
 
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(Upload), new object[] { remotePath, existsMode, createRemoteDir });
+			LogFunc(nameof(UploadStream), new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			return UploadFileInternal(fileStream, null, remotePath, createRemoteDir, existsMode, false, false, progress, new FtpProgress(1, 0));
@@ -580,7 +580,7 @@ namespace FluentFTP {
 		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
 		/// <param name="progress">Provide a callback to track upload progress.</param>
-		public FtpStatus Upload(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, Action<FtpProgress> progress = null) {
+		public FtpStatus UploadBytes(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, Action<FtpProgress> progress = null) {
 			// verify args
 			if (fileData == null) {
 				throw new ArgumentException("Required parameter is null or blank.", "fileData");
@@ -592,7 +592,7 @@ namespace FluentFTP {
 
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(Upload), new object[] { remotePath, existsMode, createRemoteDir });
+			LogFunc(nameof(UploadBytes), new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			using (var ms = new MemoryStream(fileData)) {
@@ -616,7 +616,7 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
 		/// <returns>FtpStatus flag indicating if the file was uploaded, skipped or failed to transfer.</returns>
-		public async Task<FtpStatus> UploadAsync(Stream fileStream, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+		public async Task<FtpStatus> UploadStreamAsync(Stream fileStream, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (fileStream == null) {
 				throw new ArgumentException("Required parameter is null or blank.", "fileStream");
@@ -628,7 +628,7 @@ namespace FluentFTP {
 
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(UploadAsync), new object[] { remotePath, existsMode, createRemoteDir });
+			LogFunc(nameof(UploadStreamAsync), new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			return await UploadFileInternalAsync(fileStream, null, remotePath, createRemoteDir, existsMode, false, false, progress, token, new FtpProgress(1, 0));
@@ -647,7 +647,7 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
 		/// <returns>FtpStatus flag indicating if the file was uploaded, skipped or failed to transfer.</returns>
-		public async Task<FtpStatus> UploadAsync(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+		public async Task<FtpStatus> UploadBytesAsync(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (fileData == null) {
 				throw new ArgumentException("Required parameter is null or blank.", "fileData");
@@ -659,7 +659,7 @@ namespace FluentFTP {
 
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(UploadAsync), new object[] { remotePath, existsMode, createRemoteDir });
+			LogFunc(nameof(UploadBytesAsync), new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			using (var ms = new MemoryStream(fileData)) {
