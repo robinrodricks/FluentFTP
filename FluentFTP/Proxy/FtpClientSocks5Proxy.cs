@@ -16,7 +16,7 @@ namespace FluentFTP.Proxy {
 
 		protected override void Connect(FtpSocketStream stream) {
 			base.Connect(stream);
-			var proxy = new SocksProxy(Host, Port, stream);
+			var proxy = new SocksProxy(Host, Port, stream, this.Proxy);
 			proxy.Negotiate();
 			proxy.Authenticate();
 			proxy.Connect();
@@ -24,7 +24,7 @@ namespace FluentFTP.Proxy {
 
 		protected override void Connect(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions) {
 			base.Connect(stream);
-			var proxy = new SocksProxy(Host, port, stream);
+			var proxy = new SocksProxy(Host, port, stream, this.Proxy);
 			proxy.Negotiate();
 			proxy.Authenticate();
 			proxy.Connect();
@@ -33,7 +33,7 @@ namespace FluentFTP.Proxy {
 #if ASYNC
 		protected override async Task ConnectAsync(FtpSocketStream stream, CancellationToken cancellationToken) {
 			await base.ConnectAsync(stream, cancellationToken);
-			var proxy = new SocksProxy(Host, Port, stream);
+			var proxy = new SocksProxy(Host, Port, stream, this.Proxy);
 			await proxy.NegotiateAsync();
 			await proxy.AuthenticateAsync();
 			await proxy.ConnectAsync();
