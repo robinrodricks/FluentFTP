@@ -1,5 +1,13 @@
 # Release Notes
 
+#### 39.0.0
+ - New: Username/password authentication for SOCKS5 proxy connections
+ - New: Correctly fill in `ConnectionType` for all proxy types
+ - New: Improved pattern to connect to proxy servers, all details can be specified in `FtpProxyProfile`
+ - New: Examples for all types of proxies (`ConnectProxyHttp11`, `ConnectProxySocks4`, `ConnectProxySocks4a`, `ConnectProxySocks5`)
+ - Change: Rename class `SocksProxyException` to `FtpProxyException`
+ - Change: Rename class `ProxyInfo` to `FtpProxyProfile` and rename members
+
 #### 38.0.0
  - Change: Rename enum `FtpFileSystemObjectType` to `FtpObjectType`
  - Change: Rename enum `FtpFileSystemObjectSubType` to `FtpObjectSubType`
