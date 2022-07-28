@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text;
 
@@ -19,13 +20,15 @@ namespace FluentFTP.Proxy.Socks
 		private readonly int _destinationPort;
 		private readonly FtpSocketStream _socketStream;
 		private SocksAuthType? _authType;
+		private ProxyInfo _proxyInfo;
 
-		public SocksProxy(string destinationHost, int destinationPort, FtpSocketStream socketStream)
-		{
+		public SocksProxy(string destinationHost, int destinationPort, FtpSocketStream socketStream, ProxyInfo proxyInfo)
+		{			
 			_buffer = new byte[512];
 			_destinationHost = destinationHost;
 			_destinationPort = destinationPort;
 			_socketStream = socketStream;
+			_proxyInfo = proxyInfo;
 		}
 
 		public void Negotiate()
@@ -36,7 +39,7 @@ namespace FluentFTP.Proxy.Socks
 			{
 				(byte)SocksVersion.Five, // VER
 				0x01, // NMETHODS
-				(byte)SocksAuthType.NoAuthRequired // Methods
+				MapAuthMethod()  // Methods
 			};
 
 			_socketStream.Write(methodsBuffer, 0, methodsBuffer.Length);
@@ -51,6 +54,19 @@ namespace FluentFTP.Proxy.Socks
 			}
 
 			_authType = (SocksAuthType)_buffer[1];
+		}
+
+		private byte MapAuthMethod()
+		{
+			if (_proxyInfo?.Credentials == null)
+				return (byte)SocksAuthType.NoAuthRequired;
+
+			if (!string.IsNullOrWhiteSpace(_proxyInfo.Credentials.UserName))
+				return (byte)SocksAuthType.UsernamePassword;
+
+			// TBD Implement the other SOCKS auth types per RFC
+
+			return (byte)SocksAuthType.NoAuthRequired;
 		}
 
 		public void Authenticate()
@@ -140,10 +156,10 @@ namespace FluentFTP.Proxy.Socks
 					_socketStream.Close();
 					throw new SocksProxyException("Invalid Auth Type Declared, see inner exception for details.", new NotSupportedException("GSSAPI is not implemented."));
 
+					// https://datatracker.ietf.org/doc/html/rfc1929
 				case SocksAuthType.UsernamePassword:
-					_socketStream.Close();
-					throw new SocksProxyException("Invalid Auth Type Declared, see inner exception for details.",
-						new NotSupportedException("UsernamePassword is not implemented."));
+					AuthenticateUsernamePassword();
+					break;
 
 				// If the selected METHOD is X'FF', none of the methods listed by the
 				// client are acceptable, and the client MUST close the connection
@@ -157,6 +173,39 @@ namespace FluentFTP.Proxy.Socks
 					throw new SocksProxyException("Invalid Auth Type Declared, see inner exception for details.",
 						new ArgumentOutOfRangeException());
 			}
+		}
+
+		private void AuthenticateUsernamePassword()
+		{
+			var usernameBytes = Encoding.UTF8.GetBytes(_proxyInfo.Credentials.UserName);
+			var passwordBytes = Encoding.UTF8.GetBytes(_proxyInfo.Credentials.Password);
+
+			var authBufferList = new List<byte>();
+			authBufferList.Add((byte)1); // VER
+			authBufferList.Add((byte)usernameBytes.Length); // Username Length in Bytes
+			authBufferList.AddRange(usernameBytes); // username in bytes
+			authBufferList.Add((byte)passwordBytes.Length); // password length in bytes
+			authBufferList.AddRange(passwordBytes); // password in bytes
+
+			var authBuffer = authBufferList.ToArray();
+
+			// Send it to the server
+			_socketStream.Write(authBuffer, 0, authBuffer.Length);
+
+			// read 2 bytes if the success was OK
+			var receivedBytes = _socketStream.Read(_buffer, 0, 2);
+			if (receivedBytes != 2)
+			{
+				_socketStream.Close();
+				throw new SocksProxyException($"Negotiation Response had an invalid length of {receivedBytes}");
+			}
+
+			byte status_byte = _buffer[1];
+			if(status_byte > 0)
+			{
+				_socketStream.Close();
+				throw new SocksProxyException($"Authentication Failed. Received non-zero status code [{status_byte}].");
+			}	
 		}
 
 		private byte[] GetConnectRequest()
