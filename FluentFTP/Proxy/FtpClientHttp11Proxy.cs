@@ -13,7 +13,7 @@ namespace FluentFTP.Proxy {
 	public class FtpClientHttp11Proxy : FtpClientProxy {
 		/// <summary> A FTP client with a HTTP 1.1 proxy implementation </summary>
 		/// <param name="proxy">Proxy information</param>
-		public FtpClientHttp11Proxy(ProxyInfo proxy)
+		public FtpClientHttp11Proxy(FtpProxyProfile proxy)
 			: base(proxy) {
 			ConnectionType = "HTTP 1.1 Proxy";
 		}
@@ -22,8 +22,8 @@ namespace FluentFTP.Proxy {
 		protected override void Handshake() {
 			var proxyConnectionReply = GetReply();
 			if (!proxyConnectionReply.Success) {
-				throw new FtpException("Can't connect " + Host + " via proxy " + Proxy.Host + ".\nMessage : " +
-				                       proxyConnectionReply.ErrorMessage);
+				throw new FtpException("Can't connect " + Host + " via proxy " + Proxy.ProxyHost + ".\nMessage : " +
+									   proxyConnectionReply.ErrorMessage);
 			}
 
 			// TO TEST: if we are able to detect the actual FTP server software from this reply
@@ -68,8 +68,8 @@ namespace FluentFTP.Proxy {
 			var writer = new StreamWriter(stream);
 			writer.WriteLine("CONNECT {0}:{1} HTTP/1.1", host, port);
 			writer.WriteLine("Host: {0}:{1}", host, port);
-			if (Proxy.Credentials != null) {
-				var credentialsHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Proxy.Credentials.UserName + ":" + Proxy.Credentials.Password));
+			if (Proxy.ProxyCredentials != null) {
+				var credentialsHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Proxy.ProxyCredentials.UserName + ":" + Proxy.ProxyCredentials.Password));
 				writer.WriteLine("Proxy-Authorization: Basic " + credentialsHash);
 			}
 
@@ -95,8 +95,8 @@ namespace FluentFTP.Proxy {
 			var writer = new StreamWriter(stream);
 			await writer.WriteLineAsync(string.Format("CONNECT {0}:{1} HTTP/1.1", host, port));
 			await writer.WriteLineAsync(string.Format("Host: {0}:{1}", host, port));
-			if (Proxy.Credentials != null) {
-				var credentialsHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Proxy.Credentials.UserName + ":" + Proxy.Credentials.Password));
+			if (Proxy.ProxyCredentials != null) {
+				var credentialsHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Proxy.ProxyCredentials.UserName + ":" + Proxy.ProxyCredentials.Password));
 				await writer.WriteLineAsync("Proxy-Authorization: Basic " + credentialsHash);
 			}
 
@@ -111,7 +111,7 @@ namespace FluentFTP.Proxy {
 		private void ProxyHandshake(FtpSocketStream stream) {
 			var proxyConnectionReply = GetProxyReply(stream);
 			if (!proxyConnectionReply.Success) {
-				throw new FtpException("Can't connect " + Host + " via proxy " + Proxy.Host + ".\nMessage : " + proxyConnectionReply.ErrorMessage);
+				throw new FtpException("Can't connect " + Host + " via proxy " + Proxy.ProxyHost + ".\nMessage : " + proxyConnectionReply.ErrorMessage);
 			}
 		}
 
@@ -119,7 +119,7 @@ namespace FluentFTP.Proxy {
 		private async Task ProxyHandshakeAsync(FtpSocketStream stream, CancellationToken token = default(CancellationToken)) {
 			var proxyConnectionReply = await GetProxyReplyAsync(stream, token);
 			if (!proxyConnectionReply.Success) {
-				throw new FtpException("Can't connect " + Host + " via proxy " + Proxy.Host + ".\nMessage : " + proxyConnectionReply.ErrorMessage);
+				throw new FtpException("Can't connect " + Host + " via proxy " + Proxy.ProxyHost + ".\nMessage : " + proxyConnectionReply.ErrorMessage);
 			}
 		}
 #endif

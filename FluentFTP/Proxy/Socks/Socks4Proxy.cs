@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentFTP.Exceptions;
+using System;
 using System.Net;
 
 #if ASYNC
@@ -7,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace FluentFTP.Proxy.Socks
 {
-    /// <summary>
-    ///     This class is not reusable.
-    ///     You have to create a new instance for each connection / attempt.
-    /// </summary>
-    public class Socks4Proxy
+	/// <summary>
+	///     This class is not reusable.
+	///     You have to create a new instance for each connection / attempt.
+	/// </summary>
+	internal class Socks4Proxy
     {
         private readonly byte[] _buffer;
         private readonly string _destinationHost;
@@ -81,24 +82,24 @@ namespace FluentFTP.Proxy.Socks
 			if (receivedBytes != 2)
 			{
 				_socketStream.Close();
-				throw new SocksProxyException($"Negotiation Response had an invalid length of {receivedBytes}");
+				throw new FtpProxyException($"Negotiation Response had an invalid length of {receivedBytes}");
 			}
 			if (_buffer[1] != 90)
 			{
 				_socketStream.Close();
 				if (_buffer[1] == 91)
 				{
-					throw new SocksProxyException("Request rejected or failed");
+					throw new FtpProxyException("Request rejected or failed");
 				}
 				if (_buffer[1] == 92)
 				{
-					throw new SocksProxyException("Request rejected becuase SOCKS server cannot connect to identd on the client");
+					throw new FtpProxyException("Request rejected becuase SOCKS server cannot connect to identd on the client");
 				}
 				if (_buffer[1] == 93)
 				{
-					throw new SocksProxyException("Request rejected because the client program and identd report different user-ids");
+					throw new FtpProxyException("Request rejected because the client program and identd report different user-ids");
 				}
-				throw new SocksProxyException($"Unknown error with code {_buffer[1]}");
+				throw new FtpProxyException($"Unknown error with code {_buffer[1]}");
 			}
 		}
 
@@ -125,24 +126,24 @@ namespace FluentFTP.Proxy.Socks
 			if (receivedBytes != 2)
 			{
 				_socketStream.Close();
-				throw new SocksProxyException($"Negotiation Response had an invalid length of {receivedBytes}");
+				throw new FtpProxyException($"Negotiation Response had an invalid length of {receivedBytes}");
 			}
 			if (_buffer[1] != 90)
 			{
 				_socketStream.Close();
 				if (_buffer[1] == 91)
 				{
-					throw new SocksProxyException("Request rejected or failed");
+					throw new FtpProxyException("Request rejected or failed");
 				}
 				if (_buffer[1] == 92)
 				{
-					throw new SocksProxyException("Request rejected becuase SOCKS server cannot connect to identd on the client");
+					throw new FtpProxyException("Request rejected becuase SOCKS server cannot connect to identd on the client");
 				}
 				if (_buffer[1] == 93)
 				{
-					throw new SocksProxyException("Request rejected because the client program and identd report different user-ids");
+					throw new FtpProxyException("Request rejected because the client program and identd report different user-ids");
 				}
-				throw new SocksProxyException($"Unknown error with code {_buffer[1]}");
+				throw new FtpProxyException($"Unknown error with code {_buffer[1]}");
 			}
 		}
 #endif

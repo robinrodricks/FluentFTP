@@ -66,7 +66,7 @@ namespace Tests {
 
 		
 		public void TestListPathWithHttp11Proxy() {
-			using (FtpClient cl = new FtpClientHttp11Proxy(new ProxyInfo {Host = "127.0.0.1", Port = 3128,})) // Credential = new NetworkCredential() 
+			using (FtpClient cl = new FtpClientHttp11Proxy(new FtpProxyProfile {ProxyHost = "127.0.0.1", ProxyPort = 3128,})) // Credential = new NetworkCredential() 
 			{
 				FtpTrace.WriteLine("FTPClient::ConnectionType = '" + cl.ConnectionType + "'");
 
@@ -1210,11 +1210,11 @@ namespace Tests {
 		
 		public void TestSocksProxy()
 		{
-			using (var cl = new FtpClientSocks5Proxy(new ProxyInfo()
+			using (var cl = new FtpClientSocks5Proxy(new FtpProxyProfile()
 			{
-				Credentials = null,
-				Host = m_proxy_host,
-				Port = m_proxy_port
+				ProxyCredentials = null,
+				ProxyHost = m_proxy_host,
+				ProxyPort = m_proxy_port
 			})
 			{
 				Host = m_host,

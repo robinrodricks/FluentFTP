@@ -3,7 +3,7 @@ namespace FluentFTP.Proxy {
 	public class FtpClientUserAtHostProxy : FtpClientProxy {
 		/// <summary> A FTP client with a user@host proxy identification. </summary>
 		/// <param name="proxy">Proxy information</param>
-		public FtpClientUserAtHostProxy(ProxyInfo proxy)
+		public FtpClientUserAtHostProxy(FtpProxyProfile proxy)
 			: base(proxy) {
 			ConnectionType = "User@Host";
 		}
@@ -18,8 +18,8 @@ namespace FluentFTP.Proxy {
 		/// <summary> Redefine the first dialog: auth with proxy information </summary>
 		protected override void Handshake() {
 			// Proxy authentication eventually needed.
-			if (Proxy.Credentials != null) {
-				Authenticate(Proxy.Credentials.UserName, Proxy.Credentials.Password, Proxy.Credentials.Domain);
+			if (Proxy.ProxyCredentials != null) {
+				Authenticate(Proxy.ProxyCredentials.UserName, Proxy.ProxyCredentials.Password, Proxy.ProxyCredentials.Domain);
 			}
 
 			// Connection USER@Host means to change user name to add host.

@@ -11,7 +11,8 @@ using System.Threading.Tasks;
 namespace FluentFTP.Proxy {
 	/// <summary> A FTP client with a SOCKS5 proxy implementation. </summary>
 	public class FtpClientSocks5Proxy : FtpClientProxy {
-		public FtpClientSocks5Proxy(ProxyInfo proxy) : base(proxy) {
+		public FtpClientSocks5Proxy(FtpProxyProfile proxy) : base(proxy) {
+			ConnectionType = "SOCKS5 Proxy";
 		}
 
 		protected override void Connect(FtpSocketStream stream) {

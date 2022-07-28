@@ -1,4 +1,4 @@
-public enum SocksAuthType
+internal enum SocksAuthType
 {
 	NoAuthRequired = 0x00,
 	GSSAPI = 0x01,
@@ -6,7 +6,7 @@ public enum SocksAuthType
 	NoAcceptableMethods = 0xFF
 }
 
-public enum SocksReply
+internal enum SocksReply
 {
 	Succeeded = 0x00,
 	GeneralSOCKSServerFailure = 0x01,
