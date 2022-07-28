@@ -16,7 +16,7 @@ namespace FluentFTP.Servers.Handlers {
 	/// <summary>
 	/// Server-specific handling for ABB IDAL FTP servers
 	/// </summary>
-	public class ABBIDALFtpServer : FtpBaseServer {
+	public class ABBIDALServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.
