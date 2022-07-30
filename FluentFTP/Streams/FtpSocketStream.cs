@@ -842,6 +842,7 @@ namespace FluentFTP {
 			}
 
 			for (var i = 0; i < addresses.Length; i++) {
+
 				// we don't need to do this check unless
 				// a particular version of IP has been
 				// omitted so we won't.
@@ -883,24 +884,23 @@ namespace FluentFTP {
 
 
 				var args = new SocketAsyncEventArgs {
-						                                    RemoteEndPoint = new IPEndPoint(addresses[i], port)
-					                                    };
+					RemoteEndPoint = new IPEndPoint(addresses[i], port)
+				};
 				var connectEvent = new ManualResetEvent(false);
 				args.Completed += (s, e) => { connectEvent.Set(); };
 
 				if (m_socket.ConnectAsync(args)) {
 					if (!connectEvent.WaitOne(m_connectTimeout)) {
 						Close();
-						if (i + 1 == addresses.Length) {
-							throw new TimeoutException("Timed out trying to connect!");
-						}
+						throw new TimeoutException("Timed out trying to connect!");
 					}
 				}
 
 				if (args.SocketError != SocketError.Success) {
-					throw new SocketException((int) args.SocketError);
+					throw new SocketException((int)args.SocketError);
 				}
 
+				// only try the first address
 				break;
 #else
 				ar = m_socket.BeginConnect(addresses[i], port, null, null);
@@ -990,26 +990,39 @@ namespace FluentFTP {
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 				BindSocketToLocalIp();
 #if CORE
-				if (this.ConnectTimeout > 0)
-				{
-					using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token))
-					{
-						timeoutSrc.CancelAfter(this.ConnectTimeout);
-						await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), timeoutSrc.Token, () => CloseSocket());
+				try {
+					if (this.ConnectTimeout > 0) {
+						using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
+							timeoutSrc.CancelAfter(this.ConnectTimeout);
+							await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), timeoutSrc.Token, () => CloseSocket());
+							break;
+						}
+					}
+					else {
+						await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), token, () => CloseSocket());
 						break;
 					}
 				}
-				else
-				{
-					await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), token, () => CloseSocket());
-					break;
+				catch (SocketException ex) {
+					// FIX #869: catch "The I/O operation has been aborted because of either a thread exit or an application request."
+					// and continue with next address or throw timeout exception if this is the last address available
+#if NET50_OR_LATER
+					if (ex.ErrorCode == 995 && ex.SocketErrorCode == SocketError.OperationAborted) {
+#else
+					if (ex.Message.StartsWith("The I/O operation has been aborted because") && ex.SocketErrorCode == SocketError.OperationAborted) {
+#endif
+						throw new TimeoutException("Timed out trying to connect!");
+					}
+					else {
+						throw;
+					}
 				}
 #else
 				var connectResult = m_socket.BeginConnect(addresses[i], port, null, null);
 				await EnableCancellation(Task.Factory.FromAsync(connectResult, m_socket.EndConnect), token, () => CloseSocket());
 				break;
 #endif
-			}
+					}
 
 			// make sure that we actually connected to
 			// one of the addresses returned from GetHostAddresses()
