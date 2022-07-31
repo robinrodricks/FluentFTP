@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentFTP.Tests", "FluentFT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentFTPServer", "FluentFTPServer\FluentFTPServer.csproj", "{7ED366D7-5ABD-487C-8632-81A025644B15}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentFTP.Tests.Integration", "FluentFTP.Tests.Integration\FluentFTP.Tests.Integration.csproj", "{1293DE96-A14F-42B5-B5AE-026DAF1EFC13}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,14 @@ Global
 		{7ED366D7-5ABD-487C-8632-81A025644B15}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7ED366D7-5ABD-487C-8632-81A025644B15}.Release|x64.ActiveCfg = Release|Any CPU
 		{7ED366D7-5ABD-487C-8632-81A025644B15}.Release|x64.Build.0 = Release|Any CPU
+		{1293DE96-A14F-42B5-B5AE-026DAF1EFC13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1293DE96-A14F-42B5-B5AE-026DAF1EFC13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1293DE96-A14F-42B5-B5AE-026DAF1EFC13}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1293DE96-A14F-42B5-B5AE-026DAF1EFC13}.Debug|x64.Build.0 = Debug|Any CPU
+		{1293DE96-A14F-42B5-B5AE-026DAF1EFC13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1293DE96-A14F-42B5-B5AE-026DAF1EFC13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1293DE96-A14F-42B5-B5AE-026DAF1EFC13}.Release|x64.ActiveCfg = Release|Any CPU
+		{1293DE96-A14F-42B5-B5AE-026DAF1EFC13}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
