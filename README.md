@@ -105,6 +105,13 @@ We also have extensive examples for all methods in [C#](https://github.com/robin
 
 Check the [Wiki](https://github.com/robinrodricks/FluentFTP/wiki).
 
+## Tests
+
+We have an extensive automated test suite that tests FluentFTP against many servers. We use docker to locally manage virtual FTP servers that are used for testing.
+
+Learn more on the [Automated Testing](https://github.com/robinrodricks/FluentFTP/wiki/Automated-Testing) page.
+
+
 ## Sponsorship
 
 If FluentFTP helped you or your organization, consider [sponsoring the project](https://github.com/sponsors/robinrodricks) by donating a small amount per month. Even $20 goes a long way! Everything I receive goes into household expenses and paying the bills. 
