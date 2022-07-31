@@ -59,6 +59,14 @@ namespace FluentFTPServer.Servers {
 				FtpUser = "fluentroot",
 				FtpPass = "fluentpass",
 			},
+			new FtpDocker() {
+				Type = FtpServer.PyFtpdLib,
+				DockerFolder = "pyftpdlib",
+				DockerName = "pyftpdlib:fluentftp",
+				RunCommand = "docker run -it --rm -p 21:21 pyftpdlib:fluentftp",
+				FtpUser = "user",
+				FtpPass = "password",
+			},
 
 		};
 	}
