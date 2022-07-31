@@ -20,12 +20,12 @@ namespace FluentFTPServer.Servers {
 				FtpPass = "fluentpass",
 			},
 			new FtpDocker() {
-				Type = FtpServer.CrushFTP,
-				DockerFolder = "crushftp",
-				DockerName = "crushftp:fluentftp",
-				RunCommand = "docker run -p 21:21 -p 443:443 -p 2000-2100:2000-2100 -p 2222:2222 -p 8080:8080 -p 9090:9090 crushftp:fluentftp",
-				FtpUser = "crushadmin",
-				FtpPass = "crushadmin",
+				Type = FtpServer.glFTPd,
+				DockerFolder = "filezilla",
+				DockerName = "glftpd:fluentftp",
+				RunCommand = "docker run --name=glFTPd --net=host -e GL_PORT=21 -e GL_RESET_ARGS=<arguments> glftpd:fluentftp",
+				FtpUser = "glftpd",
+				FtpPass = "glftpd",
 			},
 			new FtpDocker() {
 				Type = FtpServer.FileZilla,
@@ -34,14 +34,6 @@ namespace FluentFTPServer.Servers {
 				RunCommand = "docker run -d --name=filezilla -p 5800:5800 -v /docker/appdata/filezilla:/config:rw -v $HOME:/storage:rw filezilla:fluentftp",
 				FtpUser = "filezilla",
 				FtpPass = "filezilla",
-			},
-			new FtpDocker() {
-				Type = FtpServer.glFTPd,
-				DockerFolder = "filezilla",
-				DockerName = "glftpd:fluentftp",
-				RunCommand = "docker run --name=glFTPd --net=host -e GL_PORT=21 -e GL_RESET_ARGS=<arguments> glftpd:fluentftp",
-				FtpUser = "glftpd",
-				FtpPass = "glftpd",
 			},
 			new FtpDocker() {
 				Type = FtpServer.ProFTPD,
@@ -66,6 +58,14 @@ namespace FluentFTPServer.Servers {
 				RunCommand = "docker run -it --rm -p 21:21 pyftpdlib:fluentftp",
 				FtpUser = "user",
 				FtpPass = "password",
+			},
+			new FtpDocker() {
+				Type = FtpServer.CrushFTP,
+				DockerFolder = "crushftp",
+				DockerName = "crushftp:fluentftp",
+				RunCommand = "docker run -p 21:21 -p 443:443 -p 2000-2100:2000-2100 -p 2222:2222 -p 8080:8080 -p 9090:9090 crushftp:fluentftp",
+				FtpUser = "crushadmin",
+				FtpPass = "crushadmin",
 			},
 
 		};
