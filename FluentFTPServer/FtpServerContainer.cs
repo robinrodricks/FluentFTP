@@ -14,7 +14,7 @@ namespace FluentFTPServer {
 
 		private FtpDocker Docker;
 
-		public FtpVirtualServer(FtpServer type) {
+		public FtpServerContainer(FtpServer type) {
 			Type = type;
 
 			Docker = FtpDockerIndex.Servers.FirstOrDefault(s => type == type);
