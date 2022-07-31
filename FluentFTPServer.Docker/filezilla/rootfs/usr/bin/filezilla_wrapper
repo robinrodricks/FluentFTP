@@ -1,0 +1,34 @@
+#!/bin/sh
+
+#
+# FileZilla is not shutting down gracefully when receiving a signal, preventing
+# some stuff to be properly saved.
+#
+# This small wrapper is used to prevent FileZilla to receive termination
+# signals directly.  Instead, the wrapper traps signals and send CTRL+q key
+# presses to FileZilla, allowing the application to gracefully terminate.
+#
+
+exit_filezilla() {
+    xdotool key "Escape"
+    xdotool key "ctrl+q"
+}
+trap 'exit_filezilla $PID' TERM INT QUIT
+
+# Make sure to terminate any existing instance.
+if ps | grep -v grep | grep -qw filezilla
+then
+    exit_filezilla
+    sleep 2
+fi
+
+# Start FileZilla in background.
+/usr/bin/filezilla --local=/storage &
+
+# And wait for its termination.
+PID=$!
+wait $PID
+
+# Exit this script.
+EXIT_STATUS=$?
+exit $EXIT_STATUS
