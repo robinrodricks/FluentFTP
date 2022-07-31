@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace FluentFTPServer {
-	public class FtpVirtualServer {
+	public class FtpServerContainer {
 
 		public FtpServer Type;
 
