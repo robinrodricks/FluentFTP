@@ -54,7 +54,7 @@ namespace FluentFTP.Servers {
 			new XLightServer(),
 			new TitanFtpServer(),
 			new RumpusServer(),
-			new ABBIDALServer(),
+			new IDALFtpServer(),
 		};
 
 		#region Working Connection Profiles

@@ -142,8 +142,8 @@ namespace FluentFTP {
 		Rumpus,
 
 		/// <summary>
-		/// Definitely ABB IDAL server
+		/// Definitely ABB IDAL FTP server
 		/// </summary>
-		ABBIDAL,
+		IDALFTP,
 	}
 }
