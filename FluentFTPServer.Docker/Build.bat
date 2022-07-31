@@ -1,7 +1,7 @@
 
 docker build crushftp -t crushftp:fluentftp
 
-docker build filezilla -t filezilla1:fluentftp
+docker build filezilla -t filezilla:fluentftp
 
 docker build glftpd -t glftpd:fluentftp
 
