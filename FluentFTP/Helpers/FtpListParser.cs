@@ -98,7 +98,7 @@ namespace FluentFTP.Helpers {
 
 			// force machine listing if it is
 			if (isMachineList) {
-				result = FtpMachineListParser.Parse(file, caps, client);
+				result = MachineListParser.Parse(file, caps, client);
 			}
 			else {
 				// use custom parser if given
@@ -113,35 +113,35 @@ namespace FluentFTP.Helpers {
 					// use one of the in-built parsers
 					switch (CurrentParser) {
 						case FtpParser.Machine:
-							result = FtpMachineListParser.Parse(file, caps, client);
+							result = MachineListParser.Parse(file, caps, client);
 							break;
 
 						case FtpParser.Windows:
-							result = FtpWindowsParser.Parse(client, file);
+							result = WindowsParser.Parse(client, file);
 							break;
 
 						case FtpParser.Unix:
-							result = FtpUnixParser.Parse(client, file);
+							result = UnixParser.Parse(client, file);
 							break;
 
 						case FtpParser.UnixAlt:
-							result = FtpUnixParser.ParseUnixAlt(client, file);
+							result = UnixParser.ParseUnixAlt(client, file);
 							break;
 
 						case FtpParser.VMS:
-							result = FtpVMSParser.Parse(client, file);
+							result = VMSParser.Parse(client, file);
 							break;
 
 						case FtpParser.IBMzOS:
-							result = FtpIBMzOSParser.Parse(client, file, path);
+							result = IBMzOSParser.Parse(client, file, path);
 							break;
 
 						case FtpParser.IBMOS400:
-							result = FtpIBMOS400Parser.Parse(client, file);
+							result = IBMOS400Parser.Parse(client, file);
 							break;
 
 						case FtpParser.NonStop:
-							result = FtpNonStopParser.Parse(client, file);
+							result = NonStopParser.Parse(client, file);
 							break;
 					}
 				}
@@ -223,25 +223,25 @@ namespace FluentFTP.Helpers {
 		private bool IsParserValid(FtpParser p, string[] files) {
 			switch (p) {
 				case FtpParser.Windows:
-					return FtpWindowsParser.IsValid(client, files);
+					return WindowsParser.IsValid(client, files);
 
 				case FtpParser.Unix:
-					return FtpUnixParser.IsValid(client, files);
+					return UnixParser.IsValid(client, files);
 
 				case FtpParser.VMS:
-					return FtpVMSParser.IsValid(client, files);
+					return VMSParser.IsValid(client, files);
 
 				case FtpParser.IBMzOS:
-					return FtpIBMzOSParser.IsValid(client, files);
+					return IBMzOSParser.IsValid(client, files);
 
 				case FtpParser.IBMOS400:
-					return FtpIBMOS400Parser.IsValid(client, files);
+					return IBMOS400Parser.IsValid(client, files);
 
 				case FtpParser.NonStop:
-					return FtpNonStopParser.IsValid(client, files);
+					return NonStopParser.IsValid(client, files);
 
 				case FtpParser.Machine:
-					return FtpMachineListParser.IsValid(client, files);
+					return MachineListParser.IsValid(client, files);
 			}
 
 			return false;
