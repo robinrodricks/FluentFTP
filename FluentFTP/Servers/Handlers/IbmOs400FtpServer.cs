@@ -16,7 +16,7 @@ namespace FluentFTP.Servers.Handlers {
 	/// <summary>
 	/// Server-specific handling for IBMOS400FTP servers
 	/// </summary>
-	public class IBMOS400FtpServer : FtpBaseServer {
+	internal class IBMOS400FtpServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.

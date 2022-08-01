@@ -16,7 +16,7 @@ namespace FluentFTP.Servers.Handlers {
 	/// <summary>
 	/// Server-specific handling for CrushFTP servers
 	/// </summary>
-	public class CrushFtpServer : FtpBaseServer {
+	internal class CrushFtpServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.

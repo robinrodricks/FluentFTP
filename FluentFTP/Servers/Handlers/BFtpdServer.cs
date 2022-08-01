@@ -16,7 +16,7 @@ namespace FluentFTP.Servers.Handlers {
 	/// <summary>
 	/// Server-specific handling for BFTPd FTP servers
 	/// </summary>
-	public class BFtpdServer : FtpBaseServer {
+	internal class BFtpdServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.

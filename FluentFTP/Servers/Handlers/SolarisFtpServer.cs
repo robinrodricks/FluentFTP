@@ -16,7 +16,7 @@ namespace FluentFTP.Servers.Handlers {
 	/// <summary>
 	/// Server-specific handling for SolarisFTP servers
 	/// </summary>
-	public class SolarisFtpServer : FtpBaseServer {
+	internal class SolarisFtpServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.

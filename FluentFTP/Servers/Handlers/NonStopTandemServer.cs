@@ -16,7 +16,7 @@ namespace FluentFTP.Servers.Handlers {
 	/// <summary>
 	/// Server-specific handling for NonStop/Tandem FTP servers
 	/// </summary>
-	public class NonStopTandemServer : FtpBaseServer {
+	internal class NonStopTandemServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.

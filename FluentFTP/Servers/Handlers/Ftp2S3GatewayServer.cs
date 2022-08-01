@@ -16,7 +16,7 @@ namespace FluentFTP.Servers.Handlers {
 	/// <summary>
 	/// Server-specific handling for FTP2S3Gateway FTP servers
 	/// </summary>
-	public class Ftp2S3GatewayServer : FtpBaseServer {
+	internal class Ftp2S3GatewayServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.

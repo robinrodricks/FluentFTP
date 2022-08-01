@@ -16,7 +16,7 @@ namespace FluentFTP.Servers.Handlers {
 	/// <summary>
 	/// Server-specific handling for PureFTPd FTP servers
 	/// </summary>
-	public class PureFtpdServer : FtpBaseServer {
+	internal class PureFtpdServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.

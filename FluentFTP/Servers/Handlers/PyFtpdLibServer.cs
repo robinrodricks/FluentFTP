@@ -16,7 +16,7 @@ namespace FluentFTP.Servers.Handlers {
 	/// <summary>
 	/// Server-specific handling for PyFtpdLib FTP servers
 	/// </summary>
-	public class PyFtpdLibServer : FtpBaseServer {
+	internal class PyFtpdLibServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.

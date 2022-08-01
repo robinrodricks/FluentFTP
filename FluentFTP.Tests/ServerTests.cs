@@ -12,8 +12,8 @@ namespace FluentFTP.Tests {
 		[Fact]
 		public void FileUpload() {
 
-			FtpClient client = new FtpClient("localhost", 21, );
-			client.AutoConnect();
+			/*FtpClient client = new FtpClient("localhost", 21, );
+			client.AutoConnect();*/
 
 		}
 

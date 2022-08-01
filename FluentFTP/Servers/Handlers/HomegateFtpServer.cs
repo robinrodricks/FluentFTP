@@ -16,7 +16,7 @@ namespace FluentFTP.Servers.Handlers {
 	/// <summary>
 	/// Server-specific handling for HomegateFTP servers
 	/// </summary>
-	public class HomegateFtpServer : FtpBaseServer {
+	internal class HomegateFtpServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.
