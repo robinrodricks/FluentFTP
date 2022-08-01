@@ -16,7 +16,7 @@ namespace FluentFTP.Servers.Handlers {
 	/// <summary>
 	/// Server-specific handling for WindowsCE FTP servers
 	/// </summary>
-	internal class WindowsCeServer : FtpBaseServer {
+	internal class WindowsCEServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.
