@@ -1,5 +1,6 @@
 ﻿using FluentFTP.Exceptions;
 using FluentFTP.Helpers;
+using FluentFTP.Proxy.Enums;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -38,7 +39,7 @@ namespace FluentFTP.Proxy.Socks {
 			// and sends a version identifier / method selection message.
 			var methodsBuffer = new byte[]
 			{
-				(byte)SocksVersion.Five, // VER
+				(byte)SocksVersion.V5, // VER
 				0x01, // NMETHODS
 				MapAuthMethod()  // Methods
 			};
@@ -223,7 +224,7 @@ namespace FluentFTP.Proxy.Socks {
 				? new byte[7 + dstAddress.Length]
 				: new byte[6 + dstAddress.Length];
 
-			requestBuffer[0] = (byte)SocksVersion.Five;
+			requestBuffer[0] = (byte)SocksVersion.V5;
 			requestBuffer[1] = (byte)SocksRequestCommand.Connect;
 
 			if (issHostname)
@@ -264,7 +265,7 @@ namespace FluentFTP.Proxy.Socks {
 			// and sends a version identifier / method selection message.
 			var methodsBuffer = new byte[]
 			{
-				(byte)SocksVersion.Five, // VER
+				(byte)SocksVersion.V5, // VER
 				0x01, // NMETHODS
 				(byte)SocksAuthType.NoAuthRequired // Methods
 			};

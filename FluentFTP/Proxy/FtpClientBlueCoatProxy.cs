@@ -10,7 +10,7 @@ namespace FluentFTP.Proxy {
 		/// <param name="proxy">Proxy information</param>
 		public FtpClientBlueCoatProxy(FtpProxyProfile proxy)
 			: base(proxy) {
-			ConnectionType = "User@Host";
+			ConnectionType = "Blue Coat";
 		}
 
 		/// <summary>
