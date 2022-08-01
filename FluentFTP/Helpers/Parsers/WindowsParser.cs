@@ -12,8 +12,8 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP.Helpers.Parsers {
-	internal static class FtpWindowsParser {
-		
+	internal static class WindowsParser {
+
 		/// <summary>
 		/// Checks if the given listing is a valid IIS/DOS file listing
 		/// </summary>

@@ -6,15 +6,12 @@ using System.Threading.Tasks;
 
 #endif
 
-namespace FluentFTP.Helpers.Parsers
-{
-	internal static class FtpIBMzOSParser
-	{
+namespace FluentFTP.Helpers.Parsers {
+	internal static class IBMzOSParser {
 		/// <summary>
 		/// Checks if the given listing is a valid IBM z/OS file listing
 		/// </summary>
-		public static bool IsValid(FtpClient client, string[] listing)
-		{
+		public static bool IsValid(FtpClient client, string[] listing) {
 			// Check validity by using the title line
 			// USS Realm     : "total nnnn"
 			// Dataset       : "Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname"
@@ -33,52 +30,43 @@ namespace FluentFTP.Helpers.Parsers
 		/// <param name="client">The FTP client</param>
 		/// <param name="record">A line from the listing</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		public static FtpListItem Parse(FtpClient client, string record, string path)
-		{
+		public static FtpListItem Parse(FtpClient client, string record, string path) {
 			// Skip title line - all modes have one. 
 			// Also set zOSListingRealm to remember the mode we are in
 
 			// "total nnnn"
-			if (record.Contains("total"))
-			{
+			if (record.Contains("total")) {
 				client.zOSListingRealm = FtpZOSListRealm.Unix;
 				return null;
 			}
 
 			// "Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname"
-			if (record.Contains("Volume Unit"))
-			{
+			if (record.Contains("Volume Unit")) {
 				client.zOSListingRealm = FtpZOSListRealm.Dataset;
 				return null;
 			}
 
 			// " Name     VV.MM   Created       Changed      Size  Init   Mod   Id"
-			if (record.Contains("Name     VV.MM"))
-			{
+			if (record.Contains("Name     VV.MM")) {
 				// This is an opportunity to issue XDSS and get the LRECL, but how?
 				FtpReply reply;
 				string cwd;
 				// Is caller using FtpListOption.NoPath and CWD to the right place?
-				if (path.Length == 0)
-				{
+				if (path.Length == 0) {
 					cwd = client.GetWorkingDirectory();
 				}
 				// Caller is not using FtpListOption.NoPath, so the path can be used
 				// but needs modification depending on its ending. Remove the "(...)"
-				else if (path.EndsWith(")'"))
-				{
+				else if (path.EndsWith(")'")) {
 					cwd = path.Substring(0, path.IndexOf('(')) + "\'";
 				}
-				else if (path.EndsWith(")"))
-				{
+				else if (path.EndsWith(")")) {
 					cwd = path.Substring(0, path.IndexOf('('));
 				}
-				else
-				{
+				else {
 					cwd = path;
 				}
-				if (!(reply = client.Execute("XDSS " + cwd)).Success)
-				{
+				if (!(reply = client.Execute("XDSS " + cwd)).Success) {
 					throw new FtpCommandException(reply);
 				}
 				// SITE PDSTYPE=PDSE RECFM=FB BLKSIZE=16000 DIRECTORY=1 LRECL=80 PRIMARY=3 SECONDARY=110 TRACKS EATTR=SYSTEM
@@ -90,23 +78,20 @@ namespace FluentFTP.Helpers.Parsers
 			}
 
 			// "Name      Size     TTR   Alias-of AC--------- Attributes--------- Amode Rmode"
-			if (record.Contains("Name      Size     TTR"))
-			{
+			if (record.Contains("Name      Size     TTR")) {
 				client.zOSListingRealm = FtpZOSListRealm.MemberU;
 				return null;
 			}
 
-			if (client.zOSListingRealm == FtpZOSListRealm.Unix)
-			{
+			if (client.zOSListingRealm == FtpZOSListRealm.Unix) {
 				// unix mode
 				//
 				//total 320
 				//
-				return FtpUnixParser.Parse(client, record);
+				return UnixParser.Parse(client, record);
 			}
 
-			if (client.zOSListingRealm == FtpZOSListRealm.Dataset)
-			{
+			if (client.zOSListingRealm == FtpZOSListRealm.Dataset) {
 				// PS/PO mode
 				//
 				//Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname    
@@ -116,8 +101,7 @@ namespace FluentFTP.Helpers.Parsers
 
 				// Ignore title line AND also ignore "VSAM", "Not Mounted" and "Error determining attributes"
 
-				if (record.Substring(51, 4).Trim() == "PO" || record.Substring(51, 4).Trim() == "PS")
-				{
+				if (record.Substring(51, 4).Trim() == "PO" || record.Substring(51, 4).Trim() == "PS") {
 					string volume = record.Substring(0, 6);
 					string unit = record.Substring(7, 4);
 					string referred = record.Substring(14, 10).Trim();
@@ -130,8 +114,7 @@ namespace FluentFTP.Helpers.Parsers
 					string dsname = record.Remove(0, 56).Trim().Split(' ')[0];
 					bool isDir = dsorg == "PO";
 					var lastModifiedStr = referred;
-					if (lastModifiedStr != "**NONE**")
-					{
+					if (lastModifiedStr != "**NONE**") {
 						lastModifiedStr += " 00:00";
 					}
 					var lastModified = ParseDateTime(client, lastModifiedStr);
@@ -139,8 +122,7 @@ namespace FluentFTP.Helpers.Parsers
 					// or preferably "large format sequential" of 16777215 tracks (885.38GB)
 					// This is a huge over-estimation in all probability but it cannot be helped.
 					var size = 16777216L * 56664L;
-					if (used != "+++++")
-					{
+					if (used != "+++++") {
 						size = long.Parse(used) * 56664L; // 3390 dev bytes per track
 					}
 					var file = new FtpListItem(record, dsname, size, isDir, lastModified);
@@ -149,8 +131,7 @@ namespace FluentFTP.Helpers.Parsers
 				return null;
 			}
 
-			if (client.zOSListingRealm == FtpZOSListRealm.Member)
-			{
+			if (client.zOSListingRealm == FtpZOSListRealm.Member) {
 				// Member mode
 				//
 				// Name     VV.MM   Created       Changed      Size  Init   Mod   Id   
@@ -161,8 +142,7 @@ namespace FluentFTP.Helpers.Parsers
 				string changed = string.Empty;
 				string records = "0";
 				// Member stats may be empty
-				if (record.TrimEnd().Length > 8)
-				{
+				if (record.TrimEnd().Length > 8) {
 					string vvmm = record.Substring(10, 5).Trim();
 					string created = record.Substring(17, 10).Trim();
 					changed = record.Substring(27, 16).Trim();
@@ -179,8 +159,7 @@ namespace FluentFTP.Helpers.Parsers
 				return file;
 			}
 
-			if (client.zOSListingRealm == FtpZOSListRealm.MemberU)
-			{
+			if (client.zOSListingRealm == FtpZOSListRealm.MemberU) {
 				// Member Loadlib mode
 				//
 				// Name      Size     TTR   Alias-of AC --------- Attributes --------- Amode Rmode
@@ -210,11 +189,9 @@ namespace FluentFTP.Helpers.Parsers
 		/// <summary>
 		/// Parses the last modified date from IBM z/OS format listings
 		/// </summary>
-		private static DateTime ParseDateTime(FtpClient client, string lastModifiedStr)
-		{
+		private static DateTime ParseDateTime(FtpClient client, string lastModifiedStr) {
 			var lastModified = DateTime.MinValue;
-			if (lastModifiedStr == string.Empty || lastModifiedStr == "**NONE**")
-			{
+			if (lastModifiedStr == string.Empty || lastModifiedStr == "**NONE**") {
 				return lastModified;
 			}
 			lastModified = DateTime.ParseExact(lastModifiedStr, @"yyyy'/'MM'/'dd HH':'mm", client.ListingCulture.DateTimeFormat, DateTimeStyles.None);

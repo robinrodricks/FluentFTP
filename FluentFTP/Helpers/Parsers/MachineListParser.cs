@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 #endif
 namespace FluentFTP.Helpers.Parsers {
-	internal static class FtpMachineListParser {
+	internal static class MachineListParser {
 
 		/// <summary>
 		/// Checks if the given listing is a valid Machine Listing item
@@ -126,16 +126,16 @@ namespace FluentFTP.Helpers.Parsers {
 			Match m;
 			if ((m = Regex.Match(record, @"unix.mode=(?<mode>\d+);", RegexOptions.IgnoreCase)).Success) {
 				if (m.Groups["mode"].Value.Length == 4) {
-					item.SpecialPermissions = (FtpSpecialPermissions) int.Parse(m.Groups["mode"].Value[0].ToString());
-					item.OwnerPermissions = (FtpPermission) int.Parse(m.Groups["mode"].Value[1].ToString());
-					item.GroupPermissions = (FtpPermission) int.Parse(m.Groups["mode"].Value[2].ToString());
-					item.OthersPermissions = (FtpPermission) int.Parse(m.Groups["mode"].Value[3].ToString());
+					item.SpecialPermissions = (FtpSpecialPermissions)int.Parse(m.Groups["mode"].Value[0].ToString());
+					item.OwnerPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[1].ToString());
+					item.GroupPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[2].ToString());
+					item.OthersPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[3].ToString());
 					item.CalculateChmod();
 				}
 				else if (m.Groups["mode"].Value.Length == 3) {
-					item.OwnerPermissions = (FtpPermission) int.Parse(m.Groups["mode"].Value[0].ToString());
-					item.GroupPermissions = (FtpPermission) int.Parse(m.Groups["mode"].Value[1].ToString());
-					item.OthersPermissions = (FtpPermission) int.Parse(m.Groups["mode"].Value[2].ToString());
+					item.OwnerPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[0].ToString());
+					item.GroupPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[1].ToString());
+					item.OthersPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[2].ToString());
 					item.CalculateChmod();
 				}
 			}

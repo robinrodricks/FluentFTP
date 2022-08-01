@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP.Helpers.Parsers {
-	internal static class FtpNonStopParser {
+	internal static class NonStopParser {
 		/// <summary>
 		/// Checks if the given listing is a valid NonStop file listing
 		/// </summary>
@@ -100,9 +100,9 @@ namespace FluentFTP.Helpers.Parsers {
 
 		#region Constants
 
-		private static char[] TrimValues = {'"'};
+		private static char[] TrimValues = { '"' };
 		private static int MinFieldCount = 7;
-		private static string[] DateTimeFormats = {"d'-'MMM'-'yy HH':'mm':'ss"};
+		private static string[] DateTimeFormats = { "d'-'MMM'-'yy HH':'mm':'ss" };
 
 		#endregion
 	}

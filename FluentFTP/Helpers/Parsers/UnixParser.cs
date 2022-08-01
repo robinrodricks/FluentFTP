@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP.Helpers.Parsers {
-	internal static class FtpUnixParser {
+	internal static class UnixParser {
 
 		/// <summary>
 		/// Checks if the given listing is a valid Unix file listing
@@ -224,7 +224,7 @@ namespace FluentFTP.Helpers.Parsers {
 				// we check it is <= 31 AND that the next field starts
 				// with a letter AND the next has a ':' within it
 				try {
-					char[] chars = {'0'};
+					char[] chars = { '0' };
 					var str = values[index].TrimStart(chars);
 					dayOfMonth = int.Parse(values[index]);
 					if (dayOfMonth > 31) // can't be day of month
@@ -310,7 +310,7 @@ namespace FluentFTP.Helpers.Parsers {
 			stamp.Append('-');
 
 			var field = values[index++];
-			if (field.IndexOf((char) ':') < 0 && field.IndexOf((char) '.') < 0) {
+			if (field.IndexOf((char)':') < 0 && field.IndexOf((char)'.') < 0) {
 				stamp.Append(field); // year
 				lastModified = ParseYear(client, stamp, DateTimeFormats1);
 			}
@@ -433,7 +433,7 @@ namespace FluentFTP.Helpers.Parsers {
 			stamp.Append('-').Append(values[index++]).Append('-');
 
 			var field = values[index++];
-			if (field.IndexOf((char) ':') < 0) {
+			if (field.IndexOf((char)':') < 0) {
 				stamp.Append(field); // year
 				lastModified = ParseYear(client, stamp, DateTimeAltFormats1);
 			}
@@ -490,10 +490,10 @@ namespace FluentFTP.Helpers.Parsers {
 		private static char DirectoryMarker = 'd';
 		private static int MinFieldCount = 7;
 		private static int MinFieldCountAlt = 8;
-		private static string[] DateTimeFormats1 = {"MMM'-'d'-'yyyy", "MMM'-'dd'-'yyyy"};
-		private static string[] DateTimeFormats2 = {"MMM'-'d'-'yyyy'-'HH':'mm", "MMM'-'dd'-'yyyy'-'HH':'mm", "MMM'-'d'-'yyyy'-'H':'mm", "MMM'-'dd'-'yyyy'-'H':'mm", "MMM'-'dd'-'yyyy'-'H'.'mm"};
-		private static string[] DateTimeAltFormats1 = {"MMM'-'d'-'yyyy", "MMM'-'dd'-'yyyy"};
-		private static string[] DateTimeAltFormats2 = {"MMM'-'d'-'yyyy'-'HH':'mm:ss", "MMM'-'dd'-'yyyy'-'HH':'mm:ss", "MMM'-'d'-'yyyy'-'H':'mm:ss", "MMM'-'dd'-'yyyy'-'H':'mm:ss"};
+		private static string[] DateTimeFormats1 = { "MMM'-'d'-'yyyy", "MMM'-'dd'-'yyyy" };
+		private static string[] DateTimeFormats2 = { "MMM'-'d'-'yyyy'-'HH':'mm", "MMM'-'dd'-'yyyy'-'HH':'mm", "MMM'-'d'-'yyyy'-'H':'mm", "MMM'-'dd'-'yyyy'-'H':'mm", "MMM'-'dd'-'yyyy'-'H'.'mm" };
+		private static string[] DateTimeAltFormats1 = { "MMM'-'d'-'yyyy", "MMM'-'dd'-'yyyy" };
+		private static string[] DateTimeAltFormats2 = { "MMM'-'d'-'yyyy'-'HH':'mm:ss", "MMM'-'dd'-'yyyy'-'HH':'mm:ss", "MMM'-'d'-'yyyy'-'H':'mm:ss", "MMM'-'dd'-'yyyy'-'H':'mm:ss" };
 
 		#endregion
 	}

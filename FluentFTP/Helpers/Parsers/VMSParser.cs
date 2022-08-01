@@ -12,8 +12,8 @@ using System.Threading.Tasks;
 #endif
 
 namespace FluentFTP.Helpers.Parsers {
-	internal static class FtpVMSParser {
-		
+	internal static class VMSParser {
+
 		/// <summary>
 		/// Checks if the given listing is a valid VMS file listing
 		/// </summary>
@@ -31,7 +31,7 @@ namespace FluentFTP.Helpers.Parsers {
 
 				var pos = 0;
 				if ((pos = record.IndexOf(';')) > 0 && ++pos < record.Length &&
-				    char.IsDigit(record[pos])) {
+					char.IsDigit(record[pos])) {
 					semiColonName = true;
 				}
 
