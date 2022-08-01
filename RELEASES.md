@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 39.0.1
+ - Fix: `ConnectAsync` correctly honors `ConnectTimeout` and `TimeoutException` is correctly thrown
+ - Internal: Add unit tests for `Connect`/`ConnectAsync` to ensure `ConnectTimeout` is honored
+ - Internal: Refactor internal file listing handlers & proxy implementation (API is unchanged)
+
 #### 39.0.0
  - New: Username/password authentication for SOCKS5 proxy connections
  - New: Correctly fill in `ConnectionType` for all proxy types
