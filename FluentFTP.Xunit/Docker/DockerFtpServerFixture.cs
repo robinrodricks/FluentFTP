@@ -18,6 +18,9 @@ namespace FluentFTP.Xunit.Docker {
 			// Get the current server type to use
 			var serverType = GetServerType();
 
+			// find the server
+			_server = DockerFtpContainerIndex.Index.FirstOrDefault(s => s.ServerType.Equals(serverType, StringComparison.OrdinalIgnoreCase));
+			
 			// build and start the container image
 			StartContainer(serverType);
 		}
@@ -58,10 +61,7 @@ namespace FluentFTP.Xunit.Docker {
 		}
 
 
-		private async void StartContainer(string key) {
-
-			// find the server
-			_server = DockerFtpContainerIndex.Index.FirstOrDefault(s => s.ServerType.Equals(key, StringComparison.OrdinalIgnoreCase));
+		private async void StartContainer() {
 			if (_server != null) {
 				try {
 					// dispose existing container if any

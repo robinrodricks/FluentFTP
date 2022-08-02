@@ -15,8 +15,6 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			DockerImage = "fauria/vsftpd";
 			DockerGithub = "https://github.com/fauria/docker-vsftpd";
 			//RunCommand = "docker run --rm -it -p 21:21 -p 4559-4564:4559-4564 -e FTP_USER=fluentroot -e FTP_PASSWORD=fluentpass vsftpd:fluentftp";
-			//FtpUser = "fluentroot";
-			//FtpPass = "fluentpass";
 		}
 
 		/// <summary>
