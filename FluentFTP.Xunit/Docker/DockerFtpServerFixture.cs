@@ -22,7 +22,7 @@ namespace FluentFTP.Xunit.Docker {
 			_server = DockerFtpContainerIndex.Index.FirstOrDefault(s => s.ServerType.Equals(serverType, StringComparison.OrdinalIgnoreCase));
 			
 			// build and start the container image
-			StartContainer(serverType);
+			StartContainer();
 		}
 
 		public void Dispose() {
