@@ -19,7 +19,7 @@ namespace FluentFTP.Tests.Integration {
 		}
 
 		protected FtpClient GetClient() {
-			var client = new FtpClient("localhost", DockerFtpConfig.FtpUser, DockerFtpConfig.FtpPass);
+			var client = new FtpClient("localhost", _fixture.GetUsername(), _fixture.GetPassword());
 			return client;
 		}
 

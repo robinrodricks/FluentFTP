@@ -4,11 +4,13 @@ using FluentFTP.Xunit.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace FluentFTP.Xunit.Docker {
 	public class DockerFtpServerFixture : IDisposable {
+		internal DockerFtpContainer _server;
 		internal TestcontainersContainer _container;
 
 		public DockerFtpServerFixture() {
@@ -22,6 +24,20 @@ namespace FluentFTP.Xunit.Docker {
 
 		public void Dispose() {
 			_container?.DisposeAsync();
+		}
+
+		public string GetUsername() {
+			if (_server != null && _server.FixedUsername != null) {
+				return _server.FixedUsername;
+			}
+			return DockerFtpConfig.FtpUser;
+		}
+
+		public string GetPassword() {
+			if (_server != null && _server.FixedPassword != null) {
+				return _server.FixedPassword;
+			}
+			return DockerFtpConfig.FtpPass;
 		}
 
 		private static string GetServerType() {
@@ -45,14 +61,14 @@ namespace FluentFTP.Xunit.Docker {
 		private async void StartContainer(string key) {
 
 			// find the server
-			var server = DockerFtpContainerIndex.Index.FirstOrDefault(s => s.ServerType.Equals(key, StringComparison.OrdinalIgnoreCase));
-			if (server != null) {
+			_server = DockerFtpContainerIndex.Index.FirstOrDefault(s => s.ServerType.Equals(key, StringComparison.OrdinalIgnoreCase));
+			if (_server != null) {
 				try {
 					// dispose existing container if any
 					_container?.DisposeAsync();
 
 					// build the container image
-					_container = server.Build();
+					_container = _server.Build();
 
 					// start the container
 					_container.StartAsync().Wait();

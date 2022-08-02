@@ -17,6 +17,10 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			//FtpUser = "filezilla";
 			//FtpPass = "filezilla";
 		}
+
+		/// <summary>
+		/// For help creating this section see https://github.com/testcontainers/testcontainers-dotnet#supported-commands
+		/// </summary>
 		public override void Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 
 			builder

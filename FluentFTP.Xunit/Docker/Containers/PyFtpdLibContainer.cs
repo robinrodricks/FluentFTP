@@ -14,9 +14,13 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			DockerImage = "akogut/docker-pyftpdlib";
 			DockerGithub = "https://github.com/andriykohut/docker-pyftpdlib";
 			//RunCommand = "docker run -it --rm -p 21:21 pyftpdlib:fluentftp";
-			//FtpUser = "user";
-			//FtpPass = "password";
+			FixedUsername = "user";
+			FixedPassword = "password";
 		}
+
+		/// <summary>
+		/// For help creating this section see https://github.com/testcontainers/testcontainers-dotnet#supported-commands
+		/// </summary>
 		public override void Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 		}
 	}

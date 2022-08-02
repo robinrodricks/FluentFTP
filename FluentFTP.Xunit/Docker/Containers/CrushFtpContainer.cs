@@ -18,16 +18,26 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			//FtpUser = "crushadmin";
 			//FtpPass = "crushadmin";
 		}
+
+		/// <summary>
+		/// For help creating this section see https://github.com/testcontainers/testcontainers-dotnet#supported-commands
+		/// </summary>
 		public override void Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 
-			builder.WithPortBinding(443);
-			builder.WithPortBinding(2222);
-			builder.WithPortBinding(8080);
-			builder.WithPortBinding(9090);
+			builder
+				.WithPortBinding(443)
+				.WithPortBinding(2222)
+				.WithPortBinding(8080)
+				.WithPortBinding(9090);
 
-			for (var port = 2000; port <= 2100; port++) {
-				builder = builder.WithPortBinding(port);
-			}
+			builder
+				.WithEnvironment("CRUSH_ADMIN_USER", DockerFtpConfig.FtpUser)
+				.WithEnvironment("CRUSH_ADMIN_PASSWORD", DockerFtpConfig.FtpPass)
+				.WithEnvironment("CRUSH_ADMIN_PORT", "8080");
+
+			ExposePortRange(builder, 2000, 2100);
+
+
 
 		}
 	}

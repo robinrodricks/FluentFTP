@@ -15,9 +15,13 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			DockerImage = "jonarin/glftpd";
 			DockerGithub = "https://github.com/jonathanbower/docker-glftpd";
 			//RunCommand = "docker run --name=glFTPd --net=host -e GL_PORT=21 -e GL_RESET_ARGS=<arguments> glftpd:fluentftp";
-			//FtpUser = "glftpd";
-			//FtpPass = "glftpd";
+			FixedUsername = "glftpd";
+			FixedPassword = "glftpd";
 		}
+
+		/// <summary>
+		/// For help creating this section see https://github.com/testcontainers/testcontainers-dotnet#supported-commands
+		/// </summary>
 		public override void Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 			builder
 				.WithEnvironment("GL_PORT", "21");

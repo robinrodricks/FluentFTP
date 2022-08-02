@@ -14,6 +14,8 @@ namespace FluentFTP.Xunit.Docker {
 		public string ServerType;
 		public string DockerImage;
 		public string DockerGithub;
+		public string FixedUsername;
+		public string FixedPassword;
 
 		public virtual void Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 		}
@@ -27,11 +29,20 @@ namespace FluentFTP.Xunit.Docker {
 
 			this.Configure(builder);
 
+			builder.WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(21));
+
 			var container = builder.Build();
 
 			return container;
 		}
-		
+
+		protected void ExposePortRange(ITestcontainersBuilder<TestcontainersContainer> builder, int startPort, int endPort) {
+
+			for (var port = startPort; port <= endPort; port++) {
+				builder.WithExposedPort(port);
+				builder.WithPortBinding(port);
+			}
+		}
 
 	}
 }
