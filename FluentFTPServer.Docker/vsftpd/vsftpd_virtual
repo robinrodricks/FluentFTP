@@ -1,3 +1,0 @@
-auth     required 	pam_userdb.so    db=/etc/vsftpd/virtual-users crypt=crypt
-account  required 	pam_userdb.so    db=/etc/vsftpd/virtual-users crypt=crypt
-session  required 	pam_loginuid.so
