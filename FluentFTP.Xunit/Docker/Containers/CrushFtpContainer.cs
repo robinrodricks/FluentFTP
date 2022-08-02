@@ -22,22 +22,23 @@ namespace FluentFTP.Xunit.Docker.Containers {
 		/// <summary>
 		/// For help creating this section see https://github.com/testcontainers/testcontainers-dotnet#supported-commands
 		/// </summary>
-		public override void Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
+		public override ITestcontainersBuilder<TestcontainersContainer> Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 
-			builder
+			builder = builder
 				.WithPortBinding(443)
 				.WithPortBinding(2222)
 				.WithPortBinding(8080)
 				.WithPortBinding(9090);
 
-			ExposePortRange(builder, 2000, 2100);
-
-			builder
+			builder = ExposePortRange(builder, 2000, 2100);
+			//todo AutoConnect failing: FtpInvalidCertificateException : FTPS security could not be established on the server. The certificate was not accepted.
+			//todo volume
+			builder = builder
 				.WithEnvironment("CRUSH_ADMIN_USER", DockerFtpConfig.FtpUser)
 				.WithEnvironment("CRUSH_ADMIN_PASSWORD", DockerFtpConfig.FtpPass)
 				.WithEnvironment("CRUSH_ADMIN_PORT", "8080");
 
-
+			return builder;
 		}
 	}
 }

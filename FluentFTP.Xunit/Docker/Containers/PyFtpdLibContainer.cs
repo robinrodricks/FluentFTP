@@ -21,10 +21,10 @@ namespace FluentFTP.Xunit.Docker.Containers {
 		/// <summary>
 		/// For help creating this section see https://github.com/testcontainers/testcontainers-dotnet#supported-commands
 		/// </summary>
-		public override void Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
+		public override ITestcontainersBuilder<TestcontainersContainer> Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 
-			// no config required
-
+			builder = base.ExposePortRange(builder, 3000, 3010);
+			return builder;
 		}
 	}
 }

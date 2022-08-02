@@ -22,9 +22,11 @@ namespace FluentFTP.Xunit.Docker.Containers {
 		/// <summary>
 		/// For help creating this section see https://github.com/testcontainers/testcontainers-dotnet#supported-commands
 		/// </summary>
-		public override void Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
-			builder
+		public override ITestcontainersBuilder<TestcontainersContainer> Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
+			builder = builder
 				.WithEnvironment("GL_PORT", "21");
+			//todo fails during build. Unknown cause.
+			return builder;
 		}
 	}
 }

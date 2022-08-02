@@ -61,7 +61,7 @@ namespace FluentFTP.Xunit.Docker {
 		}
 
 
-		private async void StartContainer() {
+		private void StartContainer() {
 			if (_server != null) {
 				try {
 					// dispose existing container if any

@@ -10,7 +10,8 @@ using FluentFTP.Xunit.Docker;
 using FluentFTP.Xunit.Attributes;
 
 namespace FluentFTP.Tests.Integration {
-	public class IntegrationTestSuite : IClassFixture<DockerFtpServerFixture> {
+	[Collection("DockerCollection")]
+	public class IntegrationTestSuite {
 
 		protected readonly DockerFtpServerFixture _fixture;
 
