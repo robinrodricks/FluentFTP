@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xunit;
 
-namespace FluentFTP.Tests {
+namespace FluentFTP.Tests.Unit {
 	public class ParserTests {
 
 		private static void TestParsing(FtpListParser parser, string path, string[] testValues, FtpListItem[] expectedValues) {

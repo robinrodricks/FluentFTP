@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentFTP.Xunit.Attributes.Internal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,22 +7,18 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace FluentFTP.Tests.Integration.Skippable.XunitExtensions
-{
-	public class SkippableTheoryDiscoverer : IXunitTestCaseDiscoverer
-	{
+namespace FluentFTP.Xunit.Internal {
+	internal class SkippableTheoryDiscoverer : IXunitTestCaseDiscoverer {
 		readonly IMessageSink diagnosticMessageSink;
 		readonly TheoryDiscoverer theoryDiscoverer;
 
-		public SkippableTheoryDiscoverer(IMessageSink diagnosticMessageSink)
-		{
+		public SkippableTheoryDiscoverer(IMessageSink diagnosticMessageSink) {
 			this.diagnosticMessageSink = diagnosticMessageSink;
 
 			theoryDiscoverer = new TheoryDiscoverer(diagnosticMessageSink);
 		}
 
-		public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute)
-		{
+		public IEnumerable<IXunitTestCase> Discover(ITestFrameworkDiscoveryOptions discoveryOptions, ITestMethod testMethod, IAttributeInfo factAttribute) {
 			var defaultMethodDisplay = discoveryOptions.MethodDisplayOrDefault();
 			var defaultMethodDisplayOptions = discoveryOptions.MethodDisplayOptionsOrDefault();
 

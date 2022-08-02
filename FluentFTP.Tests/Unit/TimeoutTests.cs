@@ -6,8 +6,8 @@ using System.Net;
 using Xunit;
 using Xunit.Sdk;
 
-namespace FluentFTP.Tests {
-	public class ConnectionTests {
+namespace FluentFTP.Tests.Unit {
+	public class TimeoutTests {
 
 		[Fact]
 		public void ConnectTimeout() {

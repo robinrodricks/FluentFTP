@@ -1,11 +1,10 @@
-﻿using FluentFTP;
-using FluentFTP.Helpers;
+﻿using FluentFTP.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xunit;
 
-namespace FluentFTP.Tests {
+namespace FluentFTP.Tests.Unit {
 	public class TimezoneTests {
 
 		[Fact]

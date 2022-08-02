@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentFTP.Xunit.Attributes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -7,44 +8,37 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace FluentFTP.Tests.Integration.Skippable.XunitExtensions
-{
-	public class SkippableTheoryTestCase : XunitTheoryTestCase
-	{
+namespace FluentFTP.Xunit.Attributes.Internal {
+	internal class SkippableFactTestCase : XunitTestCase {
 		[EditorBrowsable(EditorBrowsableState.Never)]
 		[Obsolete("Called by the de-serializer; should only be called by deriving classes for de-serialization purposes")]
-		public SkippableTheoryTestCase() { }
+		public SkippableFactTestCase() { }
 
-		public SkippableTheoryTestCase(IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, TestMethodDisplayOptions defaultMethodDisplayOptions, ITestMethod testMethod)
-			: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod) { }
+		public SkippableFactTestCase(IMessageSink diagnosticMessageSink, TestMethodDisplay defaultMethodDisplay, TestMethodDisplayOptions defaultMethodDisplayOptions, ITestMethod testMethod, object[] testMethodArguments = null)
+			: base(diagnosticMessageSink, defaultMethodDisplay, defaultMethodDisplayOptions, testMethod, testMethodArguments) { }
 
 		public override async Task<RunSummary> RunAsync(IMessageSink diagnosticMessageSink,
 														IMessageBus messageBus,
 														object[] constructorArguments,
 														ExceptionAggregator aggregator,
-														CancellationTokenSource cancellationTokenSource)
-		{
-			// Duplicated code from SkippableFactTestCase. I'm sure we could find a way to de-dup with some thought.
+														CancellationTokenSource cancellationTokenSource) {
 			var skipMessageBus = new SkippableFactMessageBus(messageBus);
 			RunSummary result;
-			if (SkippableState.ShouldSkip)
-			{
+			if (SkippableState.ShouldSkip) {
 				/*
 				 * This does skip execution, but does not register as "skipped" in the summary.
 				 */
-				result = new RunSummary
-				{
+				result = new RunSummary {
 					Total = 1,
 					Skipped = 1,
 				};
 			}
-			else
-			{
+			else {
 				result = await base.RunAsync(diagnosticMessageSink, skipMessageBus, constructorArguments, aggregator, cancellationTokenSource);
 			}
 
-			if (skipMessageBus.DynamicallySkippedTestCount > 0)
-			{
+
+			if (skipMessageBus.DynamicallySkippedTestCount > 0) {
 				result.Failed -= skipMessageBus.DynamicallySkippedTestCount;
 				result.Skipped += skipMessageBus.DynamicallySkippedTestCount;
 			}

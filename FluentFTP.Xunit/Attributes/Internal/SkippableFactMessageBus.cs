@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentFTP.Xunit.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,14 +7,11 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace FluentFTP.Tests.Integration.Skippable.XunitExtensions
-{
-	public class SkippableFactMessageBus : IMessageBus
-	{
+namespace FluentFTP.Xunit.Attributes.Internal {
+	internal class SkippableFactMessageBus : IMessageBus {
 		readonly IMessageBus innerBus;
 
-		public SkippableFactMessageBus(IMessageBus innerBus)
-		{
+		public SkippableFactMessageBus(IMessageBus innerBus) {
 			this.innerBus = innerBus;
 		}
 
@@ -21,14 +19,11 @@ namespace FluentFTP.Tests.Integration.Skippable.XunitExtensions
 
 		public void Dispose() { }
 
-		public bool QueueMessage(IMessageSinkMessage message)
-		{
+		public bool QueueMessage(IMessageSinkMessage message) {
 			var testFailed = message as ITestFailed;
-			if (testFailed != null)
-			{
+			if (testFailed != null) {
 				var exceptionType = testFailed.ExceptionTypes.FirstOrDefault();
-				if (exceptionType == typeof(SkipTestException).FullName)
-				{
+				if (exceptionType == typeof(SkipTestException).FullName) {
 					DynamicallySkippedTestCount++;
 					return innerBus.QueueMessage(new TestSkipped(testFailed.Test, testFailed.Messages.FirstOrDefault()));
 				}
