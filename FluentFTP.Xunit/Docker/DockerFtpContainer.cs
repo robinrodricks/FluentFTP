@@ -13,6 +13,7 @@ namespace FluentFTP.Xunit.Docker {
 		public FtpServer Type;
 		public string ServerType;
 		public string DockerImage;
+		public string DockerGithub;
 
 		public virtual void Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 		}

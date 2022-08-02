@@ -13,6 +13,7 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			Type = FtpServer.CrushFTP;
 			ServerType = "crushftp";
 			DockerImage = "markusmcnugen/crushftp";
+			DockerGithub = "https://github.com/MarkusMcNugen/docker-CrushFTP";
 			//RunCommand = "docker run -p 21:21 -p 443:443 -p 2000-2100:2000-2100 -p 2222:2222 -p 8080:8080 -p 9090:9090 crushftp:fluentftp";
 			//FtpUser = "crushadmin";
 			//FtpPass = "crushadmin";

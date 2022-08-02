@@ -13,6 +13,7 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			Type = FtpServer.PureFTPd;
 			ServerType = "pureftpd";
 			DockerImage = "stilliard/pure-ftpd";
+			DockerGithub = "https://github.com/stilliard/docker-pure-ftpd";
 			//RunCommand = "docker run -d --name ftpd_server -p 21:21 -p 30000-30009:30000-30009 -e \"PUBLICHOST=localhost\" -e \"FTP_USER_NAME=fluentroot\" -e \"FTP_USER_PASS=fluentpass\" pureftpd:fluentftp";
 			//FtpUser = "fluentroot";
 			//FtpPass = "fluentpass";

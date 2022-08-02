@@ -12,6 +12,7 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			Type = FtpServer.FileZilla;
 			ServerType = "filezilla";
 			DockerImage = "jlesage/filezilla";
+			DockerGithub = "https://github.com/jlesage/docker-filezilla";
 			//RunCommand = "docker run -d --name=filezilla -p 5800:5800 -v /docker/appdata/filezilla:/config:rw -v $HOME:/storage:rw filezilla:fluentftp";
 			//FtpUser = "filezilla";
 			//FtpPass = "filezilla";

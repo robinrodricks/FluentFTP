@@ -13,6 +13,7 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			Type = FtpServer.ProFTPD;
 			ServerType = "proftpd";
 			DockerImage = "kibatic/proftpd";
+			DockerGithub = "https://github.com/kibatic/docker-proftpd";
 			//RunCommand = "docker run -d --net host -e FTP_LIST=\"fluentroot:fluentpass\" -e MASQUERADE_ADDRESS=1.2.3.4 proftpd:fluentftp";
 			//FtpUser = "fluentroot";
 			//FtpPass = "fluentpass";

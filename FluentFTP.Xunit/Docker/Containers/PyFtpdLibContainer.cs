@@ -12,6 +12,7 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			Type = FtpServer.PyFtpdLib;
 			ServerType = "pyftpdlib";
 			DockerImage = "akogut/docker-pyftpdlib";
+			DockerGithub = "https://github.com/andriykohut/docker-pyftpdlib";
 			//RunCommand = "docker run -it --rm -p 21:21 pyftpdlib:fluentftp";
 			//FtpUser = "user";
 			//FtpPass = "password";
