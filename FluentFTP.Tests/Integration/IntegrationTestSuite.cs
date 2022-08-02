@@ -12,7 +12,7 @@ using FluentFTP.Xunit.Attributes;
 namespace FluentFTP.Tests.Integration {
 	public class IntegrationTestSuite : IClassFixture<DockerFtpServerFixture> {
 
-		private readonly DockerFtpServerFixture _fixture;
+		protected readonly DockerFtpServerFixture _fixture;
 
 		public IntegrationTestSuite(DockerFtpServerFixture fixture) {
 			_fixture = fixture;
