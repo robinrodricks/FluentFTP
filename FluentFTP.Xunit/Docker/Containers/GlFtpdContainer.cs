@@ -19,6 +19,8 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			//FtpPass = "glftpd";
 		}
 		public override void Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
+			builder
+				.WithEnvironment("GL_PORT", "21");
 		}
 	}
 }

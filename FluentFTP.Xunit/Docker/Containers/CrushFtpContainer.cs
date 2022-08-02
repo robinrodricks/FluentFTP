@@ -19,6 +19,16 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			//FtpPass = "crushadmin";
 		}
 		public override void Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
+
+			builder.WithPortBinding(443);
+			builder.WithPortBinding(2222);
+			builder.WithPortBinding(8080);
+			builder.WithPortBinding(9090);
+
+			for (var port = 2000; port <= 2100; port++) {
+				builder = builder.WithPortBinding(port);
+			}
+
 		}
 	}
 }

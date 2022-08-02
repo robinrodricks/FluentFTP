@@ -19,6 +19,11 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			//FtpPass = "fluentpass";
 		}
 		public override void Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
+			
+			builder
+				.WithEnvironment("FTP_LIST", DockerFtpConfig.FtpUser + ":" + DockerFtpConfig.FtpPass)
+				.WithEnvironment("MASQUERADE_ADDRESS", "1.2.3.4");
+
 		}
 	}
 }

@@ -18,6 +18,12 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			//FtpPass = "filezilla";
 		}
 		public override void Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
+
+			builder
+				.WithPortBinding(5800)
+				.WithBindMount("/docker/appdata/filezilla", "/config:rw")
+				.WithBindMount("$HOME", "/storage:rw");
+
 		}
 	}
 }
