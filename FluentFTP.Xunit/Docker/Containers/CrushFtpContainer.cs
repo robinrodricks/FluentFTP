@@ -30,13 +30,12 @@ namespace FluentFTP.Xunit.Docker.Containers {
 				.WithPortBinding(8080)
 				.WithPortBinding(9090);
 
+			ExposePortRange(builder, 2000, 2100);
+
 			builder
 				.WithEnvironment("CRUSH_ADMIN_USER", DockerFtpConfig.FtpUser)
 				.WithEnvironment("CRUSH_ADMIN_PASSWORD", DockerFtpConfig.FtpPass)
 				.WithEnvironment("CRUSH_ADMIN_PORT", "8080");
-
-			ExposePortRange(builder, 2000, 2100);
-
 
 
 		}
