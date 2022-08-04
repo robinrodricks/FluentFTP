@@ -26,9 +26,9 @@ namespace FluentFTP.Xunit.Docker.Containers {
 		public override ITestcontainersBuilder<TestcontainersContainer> Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 
 			builder = builder
-				.WithPortBinding(5800)
-				.WithBindMount("/docker/appdata/filezilla", "/config:rw")
-				.WithBindMount("$HOME", "/storage:rw");
+				.WithPortBinding(5800);
+				//.WithBindMount("/docker/appdata/filezilla", "/config:rw")
+				//.WithBindMount("$HOME", "/storage:rw");
 
 			return builder;
 		}
