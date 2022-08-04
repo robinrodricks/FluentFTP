@@ -10,32 +10,32 @@ namespace FluentFTP.Tests.Integration {
 	public class IntegrationTests {
 
 		[Fact]
-		public void CrushFtp() {
-			IntegrationTestRunner.Run(FtpServer.CrushFTP);
+		public async Task CrushFtp() {
+			await IntegrationTestRunner.Run(FtpServer.CrushFTP);
 		}
 		[Fact]
-		public void FileZilla() {
-			IntegrationTestRunner.Run(FtpServer.FileZilla);
+		public async Task FileZilla() {
+			await IntegrationTestRunner.Run(FtpServer.FileZilla);
 		}
 		[Fact]
-		public void GlFtpd() {
-			IntegrationTestRunner.Run(FtpServer.glFTPd);
+		public async Task GlFtpd() {
+			await IntegrationTestRunner.Run(FtpServer.glFTPd);
 		}
 		[Fact]
-		public void ProFtpd() {
-			IntegrationTestRunner.Run(FtpServer.ProFTPD);
+		public async Task ProFtpd() {
+			await IntegrationTestRunner.Run(FtpServer.ProFTPD);
 		}
 		[Fact]
-		public void PureFtpd() {
-			IntegrationTestRunner.Run(FtpServer.PureFTPd);
+		public async Task PureFtpd() {
+			await IntegrationTestRunner.Run(FtpServer.PureFTPd);
 		}
 		[Fact]
-		public void PyFtpdLib() {
-			IntegrationTestRunner.Run(FtpServer.PyFtpdLib);
+		public async Task PyFtpdLib() {
+			await IntegrationTestRunner.Run(FtpServer.PyFtpdLib);
 		}
 		[Fact]
-		public void VsFtpd() {
-			IntegrationTestRunner.Run(FtpServer.VsFTPd);
+		public async Task VsFtpd() {
+			await IntegrationTestRunner.Run(FtpServer.VsFTPd);
 		}
 
 	}
