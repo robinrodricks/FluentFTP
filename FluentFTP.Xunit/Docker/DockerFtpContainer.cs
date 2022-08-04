@@ -10,9 +10,10 @@ using FluentFTP;
 namespace FluentFTP.Xunit.Docker {
 	internal class DockerFtpContainer {
 
-		public FtpServer Type;
-		public string ServerType;
+		public FtpServer ServerType;
+		public string ServerName;
 		public string DockerImage;
+		public string DockerImageOriginal;
 		public string DockerGithub;
 		public string FixedUsername;
 		public string FixedPassword;
@@ -25,7 +26,7 @@ namespace FluentFTP.Xunit.Docker {
 			
 			var builder = new TestcontainersBuilder<TestcontainersContainer>()
 				.WithImage(DockerImage)
-				.WithName(ServerType)
+				.WithName(ServerName)
 				.WithPortBinding(21);
 
 			builder = this.Configure(builder);

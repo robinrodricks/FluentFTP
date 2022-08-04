@@ -12,8 +12,6 @@ namespace FluentFTP.Xunit.Docker {
 		/// </summary>
 		public static bool IsCI = string.Equals(Environment.GetEnvironmentVariable("CI"), "true", StringComparison.OrdinalIgnoreCase);
 
-		public static string ServerType = null;
-
 		public static string FtpUser = "fluentuser";
 
 		public static string FtpPass = "fluentpass";

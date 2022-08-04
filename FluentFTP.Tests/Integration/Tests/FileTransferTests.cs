@@ -8,17 +8,32 @@ using System.Threading.Tasks;
 using Xunit;
 using FluentFTP.Xunit.Docker;
 using FluentFTP.Xunit.Attributes;
+using FluentFTP.Tests.Integration.System;
 
-namespace FluentFTP.Tests.Integration {
+namespace FluentFTP.Tests.Integration.Tests {
 
-	/// <summary>
-	/// All tests must use [SkippableFact] or [SkippableTheory] to allow "all tests" to run successfully on a developer machine without Docker.
-	/// </summary>
-	public class FileTransferTests : IntegrationTestSuite {
+	internal class FileTransferTests : IntegrationTestSuite {
 
-		public FileTransferTests(DockerFtpServerFixture fixture) : base(fixture) { }
+		public FileTransferTests(DockerFtpServer fixture) : base(fixture) { }
 
-		[SkippableFact]
+		/// <summary>
+		/// Main entrypoint executed for all types of FTP servers.
+		/// </summary>
+		public override void RunAllTests() {
+			UploadDownloadBytes();
+			UploadDownloadStream();
+		}
+
+		/// <summary>
+		/// Main entrypoint executed for all types of FTP servers.
+		/// </summary>
+		public async override Task RunAllTestsAsync() {
+			await UploadDownloadBytesAsync();
+			await UploadDownloadStreamAsync();
+		}
+
+
+
 		public async Task UploadDownloadBytesAsync() {
 			const string content = "Hello World!";
 			var bytes = Encoding.UTF8.GetBytes(content);
@@ -36,7 +51,7 @@ namespace FluentFTP.Tests.Integration {
 			Assert.Equal(content, outContent);
 		}
 
-		[SkippableFact]
+
 		public void UploadDownloadBytes() {
 			const string content = "Hello World!";
 			var bytes = Encoding.UTF8.GetBytes(content);
@@ -54,7 +69,7 @@ namespace FluentFTP.Tests.Integration {
 			Assert.Equal(content, outContent);
 		}
 
-		[SkippableFact]
+
 		public async Task UploadDownloadStreamAsync() {
 			const string content = "Hello World!";
 			using var stream = new MemoryStream();
@@ -78,7 +93,7 @@ namespace FluentFTP.Tests.Integration {
 			Assert.Equal(content, outContent);
 		}
 
-		[SkippableFact]
+
 		public void UploadDownloadStream() {
 			const string content = "Hello World!";
 			using var stream = new MemoryStream();

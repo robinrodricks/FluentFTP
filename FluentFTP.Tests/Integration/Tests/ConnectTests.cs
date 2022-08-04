@@ -8,18 +8,34 @@ using System.Threading.Tasks;
 using Xunit;
 using FluentFTP.Xunit.Docker;
 using FluentFTP.Xunit.Attributes;
+using FluentFTP.Tests.Integration.System;
 
-namespace FluentFTP.Tests.Integration {
+namespace FluentFTP.Tests.Integration.Tests {
 
-	/// <summary>
-	/// All tests must use [SkippableFact] or [SkippableTheory] to allow "all tests" to run successfully on a developer machine without Docker.
-	/// </summary>
-	public class ConnectTests : IntegrationTestSuite {
+	internal class ConnectTests : IntegrationTestSuite {
 
-		public ConnectTests(DockerFtpServerFixture fixture) : base(fixture) { }
+		public ConnectTests(DockerFtpServer fixture) : base(fixture) { }
 
 
-		[SkippableFact]
+		/// <summary>
+		/// Main entrypoint executed for all types of FTP servers.
+		/// </summary>
+		public override void RunAllTests() {
+			Connect();
+			AutoConnect();
+			AutoDetect();
+		}
+
+		/// <summary>
+		/// Main entrypoint executed for all types of FTP servers.
+		/// </summary>
+		public async override Task RunAllTestsAsync() {
+			await ConnectAsync();
+			await AutoConnectAsync();
+			await AutoDetectAsync();
+		}
+
+
 		public async Task ConnectAsync() {
 			using var ftpClient = GetClient();
 			await ftpClient.ConnectAsync();
@@ -27,7 +43,7 @@ namespace FluentFTP.Tests.Integration {
 			Assert.True(true);
 		}
 
-		[SkippableFact]
+
 		public void Connect() {
 			using var ftpClient = GetClient();
 			ftpClient.Connect();
@@ -35,28 +51,28 @@ namespace FluentFTP.Tests.Integration {
 			Assert.True(true);
 		}
 
-		[SkippableFact]
+
 		public void AutoConnect() {
 			using var ftpClient = GetClient();
 			var profile = ftpClient.AutoConnect();
 			Assert.NotNull(profile);
 		}
 
-		[SkippableFact]
+
 		public async Task AutoConnectAsync() {
 			using var ftpClient = GetClient();
 			var profile = await ftpClient.AutoConnectAsync();
 			Assert.NotNull(profile);
 		}
 
-		[SkippableFact]
+
 		public void AutoDetect() {
 			using var ftpClient = GetClient();
 			var profiles = ftpClient.AutoDetect();
 			Assert.NotEmpty(profiles);
 		}
 
-		[SkippableFact]
+
 		public async Task AutoDetectAsync() {
 			using var ftpClient = GetClient();
 			var profiles = await ftpClient.AutoDetectAsync(false);

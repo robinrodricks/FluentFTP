@@ -1,32 +1,37 @@
 ﻿using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using FluentFTP.Xunit.Attributes;
+using FluentFTP.Xunit.System;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace FluentFTP.Xunit.Docker {
-	public class DockerFtpServerFixture : IDisposable {
+	public class DockerFtpServer : IDisposable {
 		internal DockerFtpContainer _server;
 		internal TestcontainersContainer _container;
 
-		public DockerFtpServerFixture() {
-
-			// Get the current server type to use
-			var serverType = GetServerType();
+		public DockerFtpServer(FtpServer serverType) {
 
 			// find the server
-			_server = DockerFtpContainerIndex.Index.FirstOrDefault(s => s.ServerType.Equals(serverType, StringComparison.OrdinalIgnoreCase));
-			
+			_server = DockerFtpContainerIndex.Index.FirstOrDefault(s => s.ServerType == serverType);
+			if (_server == null) {
+				throw new ArgumentException("Server type '" + serverType + "' cannot be found! You can contribute support for this server! See https://github.com/robinrodricks/FluentFTP/wiki/Automated-Testing.");
+			}
+
 			// build and start the container image
 			StartContainer();
 		}
 
 		public void Dispose() {
 			_container?.DisposeAsync();
+
+			// Run system command to shut down docker
+			SystemProcess.Execute("docker stop " + _server.DockerImage);
 		}
 
 		public string GetUsername() {
@@ -42,24 +47,6 @@ namespace FluentFTP.Xunit.Docker {
 			}
 			return DockerFtpConfig.FtpPass;
 		}
-
-		private static string GetServerType() {
-
-			// read the given static config if running locally
-			if (DockerFtpConfig.ServerType != null) {
-				return DockerFtpConfig.ServerType;
-			}
-
-			// read server type from env var (from Github Actions)
-			var serverType = Environment.GetEnvironmentVariable("FluentFTP__Tests__Integration__FtpServerKey");
-			if (string.IsNullOrEmpty(serverType)) {
-				return "pureftpd";
-			}
-			else {
-				return serverType;
-			}
-		}
-
 
 		private void StartContainer() {
 			if (_server != null) {

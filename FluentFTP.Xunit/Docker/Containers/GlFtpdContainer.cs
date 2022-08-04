@@ -10,9 +10,10 @@ namespace FluentFTP.Xunit.Docker.Containers {
 	internal class GlFtpdContainer : DockerFtpContainer {
 
 		public GlFtpdContainer() {
-			Type = FtpServer.glFTPd;
-			ServerType = "glftpd";
-			DockerImage = "jonarin/glftpd";
+			ServerType = FtpServer.glFTPd;
+			ServerName = "glftpd";
+			DockerImage = "glftpd:fluentftp";
+			DockerImageOriginal = "jonarin/glftpd";
 			DockerGithub = "https://github.com/jonathanbower/docker-glftpd";
 			//RunCommand = "docker run --name=glFTPd --net=host -e GL_PORT=21 -e GL_RESET_ARGS=<arguments> glftpd:fluentftp";
 			FixedUsername = "glftpd";

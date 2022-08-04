@@ -8,18 +8,30 @@ using System.Threading.Tasks;
 using Xunit;
 using FluentFTP.Xunit.Docker;
 using FluentFTP.Xunit.Attributes;
+using FluentFTP.Tests.Integration.System;
 
-namespace FluentFTP.Tests.Integration {
+namespace FluentFTP.Tests.Integration.Tests {
 
-	/// <summary>
-	/// All tests must use [SkippableFact] or [SkippableTheory] to allow "all tests" to run successfully on a developer machine without Docker.
-	/// </summary>
-	public class ListingTests : IntegrationTestSuite {
+	internal class ListingTests : IntegrationTestSuite {
 
-		public ListingTests(DockerFtpServerFixture fixture) : base(fixture) { }
+		public ListingTests(DockerFtpServer fixture) : base(fixture) { }
 
 
-		[SkippableFact]
+		/// <summary>
+		/// Main entrypoint executed for all types of FTP servers.
+		/// </summary>
+		public override void RunAllTests() {
+			GetListing();
+		}
+
+		/// <summary>
+		/// Main entrypoint executed for all types of FTP servers.
+		/// </summary>
+		public async override Task RunAllTestsAsync() {
+			await GetListingAsync();
+		}
+
+
 		public async Task GetListingAsync() {
 			using var client = GetConnectedClient();
 			var bytes = Encoding.UTF8.GetBytes("a");
@@ -40,7 +52,7 @@ namespace FluentFTP.Tests.Integration {
 			Assert.Contains(listCurrentDirectory, f => f.Name == fileNameInDirectory);
 		}
 
-		[SkippableFact]
+
 		public void GetListing() {
 			using var client = GetConnectedClient();
 			var bytes = Encoding.UTF8.GetBytes("a");

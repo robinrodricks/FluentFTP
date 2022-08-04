@@ -9,10 +9,11 @@ using DotNet.Testcontainers.Containers;
 namespace FluentFTP.Xunit.Docker.Containers {
 	internal class FileZillaContainer : DockerFtpContainer {
 		public FileZillaContainer() {
-			Type = FtpServer.FileZilla;
-			ServerType = "filezilla";
+			ServerType = FtpServer.FileZilla;
+			ServerName = "filezilla";
+			DockerImage = "filezilla:fluentftp";
 			//todo Find server. This seems to be only the client (accessable via webUI).
-			DockerImage = "jlesage/filezilla";
+			DockerImageOriginal = "jlesage/filezilla";
 			DockerGithub = "https://github.com/jlesage/docker-filezilla";
 			//RunCommand = "docker run -d --name=filezilla -p 5800:5800 -v /docker/appdata/filezilla:/config:rw -v $HOME:/storage:rw filezilla:fluentftp";
 			FixedUsername = "filezilla";

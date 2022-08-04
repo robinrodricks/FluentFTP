@@ -9,9 +9,10 @@ using DotNet.Testcontainers.Containers;
 namespace FluentFTP.Xunit.Docker.Containers {
 	internal class PyFtpdLibContainer : DockerFtpContainer {
 		public PyFtpdLibContainer() {
-			Type = FtpServer.PyFtpdLib;
-			ServerType = "pyftpdlib";
-			DockerImage = "akogut/docker-pyftpdlib";
+			ServerType = FtpServer.PyFtpdLib;
+			ServerName = "pyftpdlib";
+			DockerImage = "pyftpdlib:fluentftp";
+			DockerImageOriginal = "akogut/docker-pyftpdlib";
 			DockerGithub = "https://github.com/andriykohut/docker-pyftpdlib";
 			//RunCommand = "docker run -it --rm -p 21:21 pyftpdlib:fluentftp";
 			FixedUsername = "user";
