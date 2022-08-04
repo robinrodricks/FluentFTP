@@ -30,9 +30,6 @@ namespace FluentFTP.Xunit.Docker.Containers {
 				.WithEnvironment("PASSIVE_MIN_PORT", "50000")
 				.WithEnvironment("PASSIVE_MAX_PORT", "50100")
 				.WithEnvironment("MASQUERADE_ADDRESS", "127.0.0.1");
-				
-				//todo Volume for user home
-				// -v /path_to_ftp_dir_for_user1:/home/user1
 
 			return builder;
 		}
