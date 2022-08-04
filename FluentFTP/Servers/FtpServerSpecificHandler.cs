@@ -6,6 +6,8 @@ using FluentFTP.Servers.Handlers;
 using FluentFTP.Helpers;
 #if (CORE || NETFX)
 using System.Threading;
+using System.Net;
+using System.Text;
 #endif
 #if ASYNC
 using System.Threading.Tasks;
@@ -62,17 +64,15 @@ namespace FluentFTP.Servers {
 		/// <summary>
 		/// Return a known working connection profile from the host/port combination.
 		/// </summary>
-		public static FtpProfile GetWorkingProfileFromHost(string Host, int Port) {
+		public static FtpProfile GetWorkingProfileFromHost(string host, NetworkCredential credential) {
 
 			// Azure App Services / Azure Websites
-			if (Host.IndexOf("azurewebsites.windows.net", StringComparison.OrdinalIgnoreCase) > -1) {
+			if (host.IndexOf("azurewebsites.windows.net", StringComparison.OrdinalIgnoreCase) > -1) {
 
 				return new FtpProfile {
-					Protocols = SslProtocols.Tls,
-					DataConnection = FtpDataConnectionType.PASV,
 					RetryAttempts = 5,
 					SocketPollInterval = 1000,
-					Timeout = 2000,
+					Timeout = 2000
 				};
 
 			}

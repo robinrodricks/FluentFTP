@@ -70,12 +70,8 @@ namespace FluentFTP {
 				ValidateAutoDetect();
 
 				// get known working connection profile based on the host (if any)
-				var knownProfile = FtpServerSpecificHandler.GetWorkingProfileFromHost(Host, Port);
-				if (knownProfile != null) {
-					results.Add(knownProfile);
-					return results;
-				}
-
+				var knownProfile = FtpServerSpecificHandler.GetWorkingProfileFromHost(Host, Credentials);
+				
 				var blacklistedEncryptions = new List<FtpEncryptionMode>();
 				bool resetPort = m_port == 0;
 
@@ -120,11 +116,8 @@ namespace FluentFTP {
 							conn.Port = 0;
 						}
 
-						// set rolled props
-						conn.EncryptionMode = encryption;
-						conn.SslProtocols = protocol;
-						conn.DataConnectionType = FtpDataConnectionType.AutoPassive;
-						conn.Encoding = Encoding.UTF8;
+						// configure props
+						ConfigureAutoConnectClient(conn, encryption, protocol, knownProfile);
 
 						// try to connect
 						var connected = false;
@@ -144,8 +137,7 @@ namespace FluentFTP {
 						catch (Exception ex) {
 
 #if !CORE14
-							if (ex is AuthenticationException)
-							{
+							if (ex is AuthenticationException) {
 								throw new FtpInvalidCertificateException();
 							}
 #endif
@@ -183,7 +175,13 @@ namespace FluentFTP {
 								Protocols = protocol,
 								DataConnection = dataConn,
 								Encoding = Encoding.UTF8,
-								EncodingVerified = conn._ConnectionUTF8Success || conn.HasFeature(FtpCapability.UTF8)
+								EncodingVerified = conn._ConnectionUTF8Success || conn.HasFeature(FtpCapability.UTF8),
+
+								// FIX #901: Azure FTP connection
+								// copy some props for known profile
+								Timeout = knownProfile != null ? knownProfile.Timeout : 0,
+								RetryAttempts = knownProfile != null ? knownProfile.RetryAttempts : 0,
+								SocketPollInterval = knownProfile != null ? knownProfile.SocketPollInterval : 0,
 							});
 
 							// stop if only 1 wanted
@@ -194,7 +192,7 @@ namespace FluentFTP {
 						}
 					}
 
-					SkipEncryptionMode:
+				SkipEncryptionMode:
 					var skip = true;
 
 				}
@@ -208,6 +206,23 @@ namespace FluentFTP {
 			}
 #endif
 			return results;
+		}
+
+		private static void ConfigureAutoConnectClient(FtpClient client, FtpEncryptionMode encryption, SysSslProtocols protocol, FtpProfile knownProfile) {
+
+			// set rolled props
+			client.EncryptionMode = encryption;
+			client.SslProtocols = protocol;
+			client.DataConnectionType = FtpDataConnectionType.AutoPassive;
+			client.Encoding = Encoding.UTF8;
+
+			// FIX #901: Azure FTP connection
+			// copy some props for known profile
+			if (knownProfile != null) {
+				client.ConnectTimeout = knownProfile.Timeout;
+				client.RetryAttempts = knownProfile.RetryAttempts;
+				client.SocketPollInterval = knownProfile.SocketPollInterval;
+			}
 		}
 
 #if ASYNC
@@ -229,12 +244,8 @@ namespace FluentFTP {
 			ValidateAutoDetect();
 
 			// get known working connection profile based on the host (if any)
-			var knownProfile = FtpServerSpecificHandler.GetWorkingProfileFromHost(Host, Port);
-			if (knownProfile != null) {
-				results.Add(knownProfile);
-				return results;
-			}
-
+			var knownProfile = FtpServerSpecificHandler.GetWorkingProfileFromHost(Host, Credentials);
+			
 			var blacklistedEncryptions = new List<FtpEncryptionMode>();
 			bool resetPort = m_port == 0;
 
@@ -279,11 +290,8 @@ namespace FluentFTP {
 						conn.Port = 0;
 					}
 
-					// set rolled props
-					conn.EncryptionMode = encryption;
-					conn.SslProtocols = protocol;
-					conn.DataConnectionType = FtpDataConnectionType.AutoPassive;
-					conn.Encoding = Encoding.UTF8;
+					// configure props
+					ConfigureAutoConnectClient(conn, encryption, protocol, knownProfile);
 
 					// try to connect
 					var connected = false;
@@ -342,7 +350,13 @@ namespace FluentFTP {
 							Protocols = protocol,
 							DataConnection = dataConn,
 							Encoding = Encoding.UTF8,
-							EncodingVerified = conn._ConnectionUTF8Success || conn.HasFeature(FtpCapability.UTF8)
+							EncodingVerified = conn._ConnectionUTF8Success || conn.HasFeature(FtpCapability.UTF8),
+
+							// FIX #901: Azure FTP connection
+							// copy some props for known profile
+							Timeout = knownProfile != null ? knownProfile.Timeout : 0,
+							RetryAttempts = knownProfile != null ? knownProfile.RetryAttempts : 0,
+							SocketPollInterval = knownProfile != null ? knownProfile.SocketPollInterval : 0,
 						});
 
 						// stop if only 1 wanted
