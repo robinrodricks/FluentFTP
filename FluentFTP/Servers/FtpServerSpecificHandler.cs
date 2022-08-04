@@ -65,7 +65,7 @@ namespace FluentFTP.Servers {
 		public static FtpProfile GetWorkingProfileFromHost(string Host, int Port) {
 
 			// Azure App Services / Azure Websites
-			if (Host.IndexOf("ftp.azurewebsites.windows.net", StringComparison.OrdinalIgnoreCase) > -1) {
+			if (Host.IndexOf("azurewebsites.windows.net", StringComparison.OrdinalIgnoreCase) > -1) {
 
 				return new FtpProfile {
 					Protocols = SslProtocols.Tls,
