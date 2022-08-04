@@ -20,18 +20,19 @@ namespace FluentFTP.Xunit.Docker.Containers {
 		/// <summary>
 		/// For help creating this section see https://github.com/testcontainers/testcontainers-dotnet#supported-commands
 		/// </summary>
-		public override void Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
+		public override ITestcontainersBuilder<TestcontainersContainer> Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 
-			builder.WithPortBinding(20)
+			builder = builder.WithPortBinding(20)
 				.WithPortBinding(21);
 
-			ExposePortRange(builder, 21100, 21110);
+			builder = ExposePortRange(builder, 21100, 21110);
 
-			builder
+			builder = builder
 				.WithEnvironment("PASV_ADDRESS", "127.0.0.1")
 				.WithEnvironment("FTP_USER", DockerFtpConfig.FtpUser)
 				.WithEnvironment("FTP_PASS", DockerFtpConfig.FtpPass);
 
+			return builder;
 		}
 
 	}

@@ -1,4 +1,4 @@
-﻿using FluentFTP.Xunit.Attributes.Internal;
+﻿using FluentFTP.Xunit.Internal;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
-namespace FluentFTP.Xunit.Internal {
+namespace FluentFTP.Xunit.Attributes.Internal {
 	internal class SkippableTheoryDiscoverer : IXunitTestCaseDiscoverer {
 		readonly IMessageSink diagnosticMessageSink;
 		readonly TheoryDiscoverer theoryDiscoverer;

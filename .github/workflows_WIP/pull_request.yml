@@ -13,9 +13,11 @@ jobs:
     strategy:
       matrix:
         include:
-        - ftp: pure-ftpd
+        - ftp: pureftpd
           os: ubuntu-latest
         - ftp: vsftpd
+          os: ubuntu-latest
+        - ftp: pyftpdlib
           os: ubuntu-latest
           
     runs-on: ${{ matrix.os }}
@@ -29,8 +31,8 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build FluentFTP.Tests.Integration/FluentFTP.Tests.Integration.csproj --no-restore --framework ${{ env.framework }}
+      run: dotnet build FluentFTP.Tests/FluentFTP.Tests.csproj --no-restore --framework ${{ env.framework }}
     - name: Test
       env:
         FluentFTP__Tests__Integration__FtpServerKey: ${{ matrix.ftp }}
-      run: dotnet test FluentFTP.Tests.Integration/FluentFTP.Tests.Integration.csproj --no-build --verbosity normal --framework ${{ env.framework }}
+      run: dotnet test FluentFTP.Tests/FluentFTP.Tests.csproj --no-build --verbosity normal --framework ${{ env.framework }}
