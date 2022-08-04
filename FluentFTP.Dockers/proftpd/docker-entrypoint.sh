@@ -11,7 +11,7 @@ if [ -n "$FTP_LIST" ]; then
 		useradd --shell /bin/sh ${USERADD_OPTIONS} -d /home/$ftp_login --password $CRYPTED_PASSWORD $ftp_login
 		echo "ftp_login: $ftp_login"
 		# Create home directory. Removes requirement to mount volume.
-		mkdir /home/$ftp_login
+		mkdir "/home/$ftp_login"
 		chown -R $ftp_login:$ftp_login /home/$ftp_login
 	done
 fi
