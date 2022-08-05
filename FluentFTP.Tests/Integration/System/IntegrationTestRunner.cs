@@ -10,7 +10,7 @@ using Xunit;
 namespace FluentFTP.Tests.Integration.System {
 	internal static class IntegrationTestRunner {
 
-		public static void Run(FtpServer serverType) {
+		public static async Task Run(FtpServer serverType) {
 
 			// If we are in CI pipeline
 			if (DockerFtpConfig.IsCI) {
@@ -32,11 +32,9 @@ namespace FluentFTP.Tests.Integration.System {
 
 				// run all types of async tests
 				// TODO: create a better system instead of calling each test suite manually
-				Task.Run(async () => {
-					await new ConnectTests(server).RunAllTestsAsync();
-					await new FileTransferTests(server).RunAllTestsAsync();
-					await new ListingTests(server).RunAllTestsAsync();
-				});
+				await new ConnectTests(server).RunAllTestsAsync();
+				await new FileTransferTests(server).RunAllTestsAsync();
+				await new ListingTests(server).RunAllTestsAsync();
 
 			}
 			catch (Exception ex) {
