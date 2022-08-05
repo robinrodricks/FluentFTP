@@ -596,7 +596,7 @@ namespace FluentFTP {
 			}
 			// Assume the system's capabilities if FEAT command not supported by the server
 			if (assumeCaps) {
-				ServerModule.AssumeCapabilities(this, ServerHandler, m_capabilities, ref m_hashAlgorithms);
+				ServerFeatureModule.Assume(ServerHandler, m_capabilities, ref m_hashAlgorithms);
 			}
 
 #if !NO_SSL && !CORE
