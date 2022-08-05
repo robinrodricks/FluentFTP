@@ -1,5 +1,13 @@
 # Release Notes
 
+#### 39.1.0
+ - New: `Clone` method allows for cloning an `FtpClient` connection with all settings copied
+ - New: `InternetProtocol` property which returns the current protocol used (IPV4/IPV6)
+ - New: `Status` property which returns the current `FtpClientState` flags (advanced use only)
+ - Fix: `AutoConnect`/`AutoConnectAsync` now correctly configure Azure FTP servers
+ - Internal: Add integration test system using docker to test FluentFTP against many supported FTP servers
+ - Internal: Refactor server specific, server strings, cloning and auto connection logic into modules
+
 #### 39.0.1
  - Fix: `ConnectAsync` correctly honors `ConnectTimeout` and `TimeoutException` is correctly thrown
  - Internal: Add unit tests for `Connect`/`ConnectAsync` to ensure `ConnectTimeout` is honored
