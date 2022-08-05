@@ -26,11 +26,11 @@ using System.Threading.Tasks;
 namespace FluentFTP.Client.Modules {
 	internal static class ConnectModule {
 
-		private static List<FtpEncryptionMode> autoConnectEncryption = new List<FtpEncryptionMode> {
+		private static List<FtpEncryptionMode> DefaultEncryptionPriority = new List<FtpEncryptionMode> {
 			FtpEncryptionMode.Auto, FtpEncryptionMode.None, FtpEncryptionMode.Implicit,
 		};
 
-		private static List<SysSslProtocols> autoConnectProtocols = new List<SysSslProtocols> {
+		private static List<SysSslProtocols> DefaultProtocolPriority = new List<SysSslProtocols> {
 			//SysSslProtocols.None,
 #if ASYNC
 			SysSslProtocols.Tls12 | SysSslProtocols.Tls11, 
@@ -41,10 +41,6 @@ namespace FluentFTP.Client.Modules {
 #if !CORE
 			SysSslProtocols.Default,
 #endif
-		};
-
-		private static List<FtpDataConnectionType> autoConnectData = new List<FtpDataConnectionType> {
-			FtpDataConnectionType.PASV, FtpDataConnectionType.EPSV, FtpDataConnectionType.PORT, FtpDataConnectionType.EPRT, FtpDataConnectionType.PASVEX
 		};
 
 		/// <summary>
@@ -88,7 +84,7 @@ namespace FluentFTP.Client.Modules {
 				}
 
 				// try each SSL protocol
-				foreach (var protocol in autoConnectProtocols) {
+				foreach (var protocol in DefaultProtocolPriority) {
 
 					// skip plain protocols if testing secure FTPS -- disabled because 'None' is recommended by Microsoft
 					/*if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
@@ -223,7 +219,7 @@ namespace FluentFTP.Client.Modules {
 				}
 
 				// try each SSL protocol
-				foreach (var protocol in autoConnectProtocols) {
+				foreach (var protocol in DefaultProtocolPriority) {
 
 					// skip plain protocols if testing secure FTPS -- disabled because 'None' is recommended by Microsoft
 					/*if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
@@ -500,7 +496,7 @@ namespace FluentFTP.Client.Modules {
 		/// </summary>
 		public static FtpProfile GetWorkingProfileFromHost(string host, out List<FtpEncryptionMode> encryptionsToTry) {
 
-			encryptionsToTry = autoConnectEncryption.ShallowClone();
+			encryptionsToTry = DefaultEncryptionPriority.ShallowClone();
 
 			// Azure App Services / Azure Websites
 			if (host.IndexOf("azurewebsites.windows.net", StringComparison.OrdinalIgnoreCase) > -1) {
