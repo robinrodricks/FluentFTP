@@ -71,6 +71,18 @@ namespace FluentFTP.Helpers {
 			return false;
 		}
 
+		/// <summary>
+		/// Shallow clones the list by copying each item to a new list.
+		/// </summary>
+		public static List<T> ShallowClone<T>(this List<T> list) {
+			if (list == null) {
+				return null;
+			}
+			var newList = new List<T>();
+			newList.AddRange(list);
+			return newList;
+		}
+
 
 	}
 }

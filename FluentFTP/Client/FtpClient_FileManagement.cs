@@ -11,13 +11,14 @@ using System.Globalization;
 using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Proxy;
-using FluentFTP.Servers;
 using FluentFTP.Helpers;
 #if !CORE
 using System.Web;
+using FluentFTP.Client.Modules;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
+using FluentFTP.Client.Modules;
 #endif
 #if ASYNC
 using System.Threading.Tasks;
@@ -136,7 +137,7 @@ namespace FluentFTP {
 					if (ch == '2') {
 						return true;
 					}
-					if (ch == '5' && reply.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
+					if (ch == '5' && reply.Message.IsKnownError(ServerStringModule.fileNotFound)) {
 						return false;
 					}
 				}
@@ -167,7 +168,7 @@ namespace FluentFTP {
 			}
 
 			// file surely does not exist
-			if (sizeReply.Reply.Code[0] == '5' && sizeReply.Reply.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
+			if (sizeReply.Reply.Code[0] == '5' && sizeReply.Reply.Message.IsKnownError(ServerStringModule.fileNotFound)) {
 				return false;
 			}
 			
@@ -231,7 +232,7 @@ namespace FluentFTP {
 					return true;
 				}
 
-				if (ch == '5' && reply.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
+				if (ch == '5' && reply.Message.IsKnownError(ServerStringModule.fileNotFound)) {
 					return false;
 				}
 			}

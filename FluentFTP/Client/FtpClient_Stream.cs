@@ -76,7 +76,7 @@ namespace FluentFTP {
 
 				// A CWD will invalidate the cached value.
 				if (command.StartsWith("CWD ", StringComparison.Ordinal)) {
-					_LastWorkingDir = null;
+					Status.LastWorkingDir = null;
 				}
 
 				LogLine(FtpTraceLevel.Info, "Command:  " + commandTxt);
@@ -166,7 +166,7 @@ namespace FluentFTP {
 
 			// A CWD will invalidate the cached value.
 			if (command.StartsWith("CWD ", StringComparison.Ordinal)) {
-				_LastWorkingDir = null;
+				Status.LastWorkingDir = null;
 			}
 
 			LogLine(FtpTraceLevel.Info, "Command:  " + commandTxt);
@@ -378,7 +378,7 @@ namespace FluentFTP {
 
 			for (int a = 0; a <= m_PassiveMaxAttempts;) {
 
-				if ((type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) && !_EPSVNotSupported) {
+				if ((type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) && !Status.EPSVNotSupported) {
 
 					// execute EPSV to try enhanced-passive mode
 					if (!(reply = Execute("EPSV")).Success) {
@@ -389,7 +389,7 @@ namespace FluentFTP {
 							&& m_stream != null
 							&& m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
 							// mark EPSV not supported so we do not try EPSV again during this connection
-							_EPSVNotSupported = true;
+							Status.EPSVNotSupported = true;
 							return OpenPassiveDataStream(FtpDataConnectionType.PASV, command, restart);
 						}
 
@@ -495,7 +495,7 @@ namespace FluentFTP {
 #if !NO_SSL
 
 			// this needs to take place after the command is executed
-			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !_ConnectionFTPSFailure) {
+			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
 				stream.ActivateEncryption(m_host,
 					ClientCertificates.Count > 0 ? ClientCertificates : null,
 					m_SslProtocols);
@@ -528,7 +528,7 @@ namespace FluentFTP {
 
 			for (int a = 0; a <= m_PassiveMaxAttempts;) {
 
-				if ((type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) && !_EPSVNotSupported) {
+				if ((type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) && !Status.EPSVNotSupported) {
 					// execute EPSV to try enhanced-passive mode
 					if (!(reply = await ExecuteAsync("EPSV", token)).Success) {
 						// if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
@@ -537,7 +537,7 @@ namespace FluentFTP {
 							&& m_stream != null
 							&& m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
 							// mark EPSV not supported so we do not try EPSV again during this connection
-							_EPSVNotSupported = true;
+							Status.EPSVNotSupported = true;
 							return await OpenPassiveDataStreamAsync(FtpDataConnectionType.PASV, command, restart, token);
 						}
 
@@ -635,7 +635,7 @@ namespace FluentFTP {
 
 #if !NO_SSL
 			// this needs to take place after the command is executed
-			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !_ConnectionFTPSFailure) {
+			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
 				await stream.ActivateEncryptionAsync(m_host,
 					ClientCertificates.Count > 0 ? ClientCertificates : null,
 					m_SslProtocols);
@@ -840,7 +840,7 @@ namespace FluentFTP {
 #endif
 
 #if !NO_SSL
-			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !_ConnectionFTPSFailure) {
+			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
 				stream.ActivateEncryption(m_host,
 					ClientCertificates.Count > 0 ? ClientCertificates : null,
 					m_SslProtocols);
@@ -972,7 +972,7 @@ namespace FluentFTP {
 #endif
 
 #if !NO_SSL
-			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !_ConnectionFTPSFailure) {
+			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
 				await stream.ActivateEncryptionAsync(m_host,
 					ClientCertificates.Count > 0 ? ClientCertificates : null,
 					m_SslProtocols);
@@ -1243,8 +1243,8 @@ namespace FluentFTP {
 			lock (m_lock) {
 #endif
 				if (m_threadSafeDataChannels) {
-					client = CloneConnection();
-					client.CopyStateFlags(this);
+					client = Clone();
+					client.Status.CopyFrom(this.Status);
 					client.Connect();
 					client.SetWorkingDirectory(GetWorkingDirectory());
 				}
@@ -1321,8 +1321,8 @@ namespace FluentFTP {
 			long length = 0;
 
 			if (m_threadSafeDataChannels) {
-				client = CloneConnection();
-				client.CopyStateFlags(this);
+				client = Clone();
+				client.Status.CopyFrom(this.Status);
 				await client.ConnectAsync(token);
 				await client.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
 			}
@@ -1398,8 +1398,8 @@ namespace FluentFTP {
 			lock (m_lock) {
 #endif
 				if (m_threadSafeDataChannels) {
-					client = CloneConnection();
-					client.CopyStateFlags(this);
+					client = Clone();
+					client.Status.CopyFrom(this.Status);
 					client.Connect();
 					client.SetWorkingDirectory(GetWorkingDirectory());
 				}
@@ -1466,8 +1466,8 @@ namespace FluentFTP {
 			long length = 0;
 
 			if (m_threadSafeDataChannels) {
-				client = CloneConnection();
-				client.CopyStateFlags(this);
+				client = Clone();
+				client.Status.CopyFrom(this.Status);
 				await client.ConnectAsync(token);
 				await client.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
 			}
@@ -1537,8 +1537,8 @@ namespace FluentFTP {
 			lock (m_lock) {
 #endif
 				if (m_threadSafeDataChannels) {
-					client = CloneConnection();
-					client.CopyStateFlags(this);
+					client = Clone();
+					client.Status.CopyFrom(this.Status);
 					client.Connect();
 					client.SetWorkingDirectory(GetWorkingDirectory());
 				}
@@ -1608,8 +1608,8 @@ namespace FluentFTP {
 
 
 			if (m_threadSafeDataChannels) {
-				client = CloneConnection();
-				client.CopyStateFlags(this);
+				client = Clone();
+				client.Status.CopyFrom(this.Status);
 				await client.ConnectAsync(token);
 				await client.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
 			}

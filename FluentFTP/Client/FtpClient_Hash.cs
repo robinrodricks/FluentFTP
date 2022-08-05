@@ -372,7 +372,7 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			// skip setting the hash algo if the server is already configured to it
-			if (_LastHashAlgo == algorithm) {
+			if (Status.LastHashAlgo == algorithm) {
 				return;
 			}
 
@@ -390,7 +390,7 @@ namespace FluentFTP {
 				}
 
 				// save the current hash algo so no need to repeat this command
-				_LastHashAlgo = algorithm;
+				Status.LastHashAlgo = algorithm;
 
 #if !CORE14
 			}
@@ -406,7 +406,7 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			// skip setting the hash algo if the server is already configured to it
-			if (_LastHashAlgo == algorithm) {
+			if (Status.LastHashAlgo == algorithm) {
 				return;
 			}
 
@@ -421,7 +421,7 @@ namespace FluentFTP {
 			}
 
 			// save the current hash algo so no need to repeat this command
-			_LastHashAlgo = algorithm;
+			Status.LastHashAlgo = algorithm;
 
 		}
 #endif

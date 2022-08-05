@@ -42,9 +42,9 @@ namespace FluentFTP {
 
 			// create a new connection to the source FTP server if EnableThreadSafeDataConnections is set
 			if (EnableThreadSafeDataConnections) {
-				sourceClient = CloneConnection();
-				sourceClient._AutoDispose = true;
-				sourceClient.CopyStateFlags(this);
+				sourceClient = Clone();
+				sourceClient.Status.AutoDispose = true;
+				sourceClient.Status.CopyFrom(this.Status);
 				sourceClient.Connect();
 				sourceClient.SetWorkingDirectory(GetWorkingDirectory());
 			}
@@ -54,9 +54,9 @@ namespace FluentFTP {
 
 			// create a new connection to the target FTP server if EnableThreadSafeDataConnections is set
 			if (remoteClient.EnableThreadSafeDataConnections) {
-				destinationClient = remoteClient.CloneConnection();
-				destinationClient._AutoDispose = true;
-				destinationClient.CopyStateFlags(remoteClient);
+				destinationClient = remoteClient.Clone();
+				destinationClient.Status.AutoDispose = true;
+				destinationClient.Status.CopyFrom(remoteClient.Status);
 				destinationClient.Connect();
 				destinationClient.SetWorkingDirectory(remoteClient.GetWorkingDirectory());
 			}
@@ -67,9 +67,9 @@ namespace FluentFTP {
 			// create a new connection to the target FTP server to track progress
 			// if progress tracking is enabled during this FXP transfer
 			if (trackProgress) {
-				progressClient = remoteClient.CloneConnection();
-				progressClient._AutoDispose = true;
-				progressClient.CopyStateFlags(remoteClient);
+				progressClient = remoteClient.Clone();
+				progressClient.Status.AutoDispose = true;
+				progressClient.Status.CopyFrom(remoteClient.Status);
 				progressClient.Connect();
 				progressClient.SetWorkingDirectory(remoteClient.GetWorkingDirectory());
 			}
@@ -129,9 +129,9 @@ namespace FluentFTP {
 
 			// create a new connection to the source FTP server if EnableThreadSafeDataConnections is set
 			if (m_threadSafeDataChannels) {
-				sourceClient = CloneConnection();
-				sourceClient._AutoDispose = true;
-				sourceClient.CopyStateFlags(this);
+				sourceClient = Clone();
+				sourceClient.Status.AutoDispose = true;
+				sourceClient.Status.CopyFrom(this.Status);
 				await sourceClient.ConnectAsync(token);
 				await sourceClient.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
 			}
@@ -141,9 +141,9 @@ namespace FluentFTP {
 
 			// create a new connection to the target FTP server if EnableThreadSafeDataConnections is set
 			if (remoteClient.EnableThreadSafeDataConnections) {
-				destinationClient = remoteClient.CloneConnection();
-				destinationClient._AutoDispose = true;
-				destinationClient.CopyStateFlags(remoteClient);
+				destinationClient = remoteClient.Clone();
+				destinationClient.Status.AutoDispose = true;
+				destinationClient.Status.CopyFrom(remoteClient.Status);
 				await destinationClient.ConnectAsync(token);
 				await destinationClient.SetWorkingDirectoryAsync(await remoteClient.GetWorkingDirectoryAsync(token), token);
 			}
@@ -154,9 +154,9 @@ namespace FluentFTP {
 			// create a new connection to the target FTP server to track progress
 			// if progress tracking is enabled during this FXP transfer
 			if (trackProgress) {
-				progressClient = remoteClient.CloneConnection();
-				progressClient._AutoDispose = true;
-				progressClient.CopyStateFlags(remoteClient);
+				progressClient = remoteClient.Clone();
+				progressClient.Status.AutoDispose = true;
+				progressClient.Status.CopyFrom(remoteClient.Status);
 				await progressClient.ConnectAsync(token);
 				await progressClient.SetWorkingDirectoryAsync(await remoteClient.GetWorkingDirectoryAsync(token), token);
 			}
@@ -207,7 +207,7 @@ namespace FluentFTP {
 		/// Disposes and disconnects this FTP client if it was auto-created for an internal operation.
 		/// </summary>
 		public void AutoDispose() {
-			if (_AutoDispose) {
+			if (Status.AutoDispose) {
 				Dispose();
 			}
 		}

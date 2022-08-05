@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Net.Sockets;
+using FluentFTP.Client.Modules;
 using FluentFTP.Helpers;
-using FluentFTP.Servers;
 
 namespace FluentFTP.Exceptions {
 	/// <summary>
@@ -17,7 +17,7 @@ namespace FluentFTP.Exceptions {
 		public static bool IsResumeAllowed(this IOException exception)
 		{
 			// resume if server disconnects midway (fixes #39 and #410)
-			if (exception.InnerException != null || exception.Message.IsKnownError(FtpServerStrings.unexpectedEOF))
+			if (exception.InnerException != null || exception.Message.IsKnownError(ServerStringModule.unexpectedEOF))
 			{
 				if (exception.InnerException is SocketException socketException)
 				{

@@ -12,7 +12,6 @@ using System.Globalization;
 using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Proxy;
-using FluentFTP.Servers;
 using FluentFTP.Streams;
 using FluentFTP.Helpers;
 #if !CORE
@@ -21,6 +20,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 using FluentFTP.Exceptions;
+using FluentFTP.Client.Modules;
 #endif
 #if (CORE || NET45)
 using System.Threading.Tasks;
@@ -860,7 +860,7 @@ namespace FluentFTP {
 				}
 
 				// absorb "file does not exist" exceptions and simply return false
-				if (ex1.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
+				if (ex1.Message.IsKnownError(ServerStringModule.fileNotFound)) {
 					LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1.Message);
 					return false;
 				}
@@ -1104,7 +1104,7 @@ namespace FluentFTP {
 				}
 
 				// absorb "file does not exist" exceptions and simply return false
-				if (ex1.Message.IsKnownError(FtpServerStrings.fileNotFound)) {
+				if (ex1.Message.IsKnownError(ServerStringModule.fileNotFound)) {
 					LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1.Message);
 					return false;
 				}

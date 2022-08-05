@@ -42,7 +42,7 @@ namespace FluentFTP {
 			LogFunc(nameof(GetZOSListRealm));
 
 			// this case occurs immediately after connection and after the working dir has changed
-			if (_LastWorkingDir == null) {
+			if (Status.LastWorkingDir == null) {
 				ReadCurrentWorkingDirectory();
 			}
 
@@ -51,7 +51,7 @@ namespace FluentFTP {
 			}
 
 			// It is a unix like path (starts with /)
-			if (_LastWorkingDir[0] != '\'') {
+			if (Status.LastWorkingDir[0] != '\'') {
 				return FtpZOSListRealm.Unix;
 			}
 
@@ -62,7 +62,7 @@ namespace FluentFTP {
 			lock (m_lock) {
 #endif
 				// Fetch the current working directory. The reply will tell us what it is we are...
-				if (!(reply = Execute("CWD " + _LastWorkingDir)).Success) {
+				if (!(reply = Execute("CWD " + Status.LastWorkingDir)).Success) {
 					throw new FtpCommandException(reply);
 				}
 #if !CORE14
@@ -93,7 +93,7 @@ namespace FluentFTP {
 			LogFunc(nameof(GetZOSListRealmAsync));
 
 			// this case occurs immediately after connection and after the working dir has changed
-			if (_LastWorkingDir == null) {
+			if (Status.LastWorkingDir == null) {
 				await ReadCurrentWorkingDirectoryAsync(token);
 			}
 
@@ -102,7 +102,7 @@ namespace FluentFTP {
 			}
 
 			// It is a unix like path (starts with /)
-			if (_LastWorkingDir[0] != '\'') {
+			if (Status.LastWorkingDir[0] != '\'') {
 				return FtpZOSListRealm.Unix;
 			}
 
@@ -110,7 +110,7 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			// Fetch the current working directory. The reply will tell us what it is we are...
-			if (!(reply = await ExecuteAsync("CWD " + _LastWorkingDir, token)).Success) {
+			if (!(reply = await ExecuteAsync("CWD " + Status.LastWorkingDir, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 

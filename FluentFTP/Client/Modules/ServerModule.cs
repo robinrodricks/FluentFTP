@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Security.Authentication;
 using FluentFTP.Servers.Handlers;
 using FluentFTP.Helpers;
+using FluentFTP.Servers;
 #if (CORE || NETFX)
 using System.Threading;
 using System.Net;
@@ -13,7 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 #endif
 
-namespace FluentFTP.Servers {
+namespace FluentFTP.Client.Modules {
 
 	/// <summary>
 	/// All servers with server-specific handling and support are listed here.
@@ -27,60 +28,7 @@ namespace FluentFTP.Servers {
 	/// To support a custom FTP server you only need to extend FtpBaseServer
 	/// and set it on your client.ServerHandler before calling Connect.
 	/// </summary>
-	internal static class FtpServerSpecificHandler {
-
-		internal static List<FtpBaseServer> AllServers = new List<FtpBaseServer> {
-			new BFtpdServer(),
-			new CerberusServer(),
-			new CrushFtpServer(),
-			new FileZillaServer(),
-			new FritzBoxServer(),
-			new Ftp2S3GatewayServer(),
-			new GlFtpdServer(),
-			new GlobalScapeEftServer(),
-			new HomegateFtpServer(),
-			new IBMOS400FtpServer(),
-			new IBMzOSFtpServer(),
-			new NonStopTandemServer(),
-			new OpenVmsServer(),
-			new ProFtpdServer(),
-			new PureFtpdServer(),
-			new PyFtpdLibServer(),
-			new ServUServer(),
-			new SolarisFtpServer(),
-			new VsFtpdServer(),
-			new WindowsCEServer(),
-			new WindowsIISServer(),
-			new WSFTPServer(),
-			new WuFtpdServer(),
-			new XLightServer(),
-			new TitanFtpServer(),
-			new RumpusServer(),
-			new IDALFtpServer(),
-		};
-
-		#region Working Connection Profiles
-
-		/// <summary>
-		/// Return a known working connection profile from the host/port combination.
-		/// </summary>
-		public static FtpProfile GetWorkingProfileFromHost(string host, NetworkCredential credential) {
-
-			// Azure App Services / Azure Websites
-			if (host.IndexOf("azurewebsites.windows.net", StringComparison.OrdinalIgnoreCase) > -1) {
-
-				return new FtpProfile {
-					RetryAttempts = 5,
-					SocketPollInterval = 1000,
-					Timeout = 2000
-				};
-
-			}
-
-			return null;
-		}
-
-		#endregion
+	internal static class ServerModule {
 
 		#region Detect Server
 
@@ -95,7 +43,7 @@ namespace FluentFTP.Servers {
 				var message = (HandshakeReply.Message ?? "") + (HandshakeReply.InfoMessages ?? "");
 
 				// try to detect any of the servers
-				foreach (var server in AllServers) {
+				foreach (var server in FtpHandlerIndex.AllServers) {
 					if (server.DetectByWelcome(message)) {
 						serverType = server.ToEnum();
 						break;
@@ -116,7 +64,7 @@ namespace FluentFTP.Servers {
 		/// </summary>
 		public static FtpBaseServer GetServerHandler(FtpServer value) {
 			if (value != FtpServer.Unknown) {
-				foreach (var server in AllServers) {
+				foreach (var server in FtpHandlerIndex.AllServers) {
 					if (server.ToEnum() == value) {
 						return server;
 					}
@@ -139,8 +87,7 @@ namespace FluentFTP.Servers {
 				// Windows OS
 				serverOS = FtpOperatingSystem.Windows;
 			}
-			else if (system.Contains("Z/OS"))
-			{
+			else if (system.Contains("Z/OS")) {
 				// IBM z/OS
 				// Syst message: "215 MVS is the operating system of this server. FTP Server is running on z/OS."
 				// Syst message: "215 UNIX is the operating system of this server. FTP Server is running on z/OS."
@@ -181,7 +128,7 @@ namespace FluentFTP.Servers {
 			if (serverType == FtpServer.Unknown) {
 
 				// try to detect any of the servers
-				foreach (var server in AllServers) {
+				foreach (var server in FtpHandlerIndex.AllServers) {
 					if (server.DetectBySyst(client.SystemType)) {
 						serverType = server.ToEnum();
 						break;
@@ -371,6 +318,6 @@ namespace FluentFTP.Servers {
 		}
 
 		#endregion
-		
+
 	}
 }

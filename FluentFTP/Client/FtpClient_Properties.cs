@@ -8,79 +8,20 @@ using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Servers;
 using FluentFTP.Helpers;
+using System.Net.Sockets;
 
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
-		#region Internal State Flags
 
 		/// <summary>
-		/// Used to improve performance of OpenPassiveDataStream.
-		/// Enhanced-passive mode is tried once, and if not supported, is not tried again.
+		/// Current FTP client status flags used for improving performance and caching data.
 		/// </summary>
-		private bool _EPSVNotSupported = false;
+		private readonly FtpClientState m_status = new FtpClientState();
 
 		/// <summary>
-		/// Used to improve performance of GetFileSize.
-		/// SIZE command is tried, and if the server cannot send it in ASCII mode, we switch to binary each time you call GetFileSize.
-		/// However most servers will support ASCII, so we can get the file size without switching to binary, improving performance.
+		/// Returns the current FTP client status flags. For advanced use only.
 		/// </summary>
-		private bool _FileSizeASCIINotSupported = false;
-
-		/// <summary>
-		/// Used to improve performance of GetListing.
-		/// You can set this to true by setting the RecursiveList property.
-		/// </summary>
-		private bool _RecursiveListSupported = false;
-
-		/// <summary>
-		/// Used to automatically dispose cloned connections after FXP transfer has ended.
-		/// </summary>
-		private bool _AutoDispose = false;
-
-		/// <summary>
-		/// Cached value of the last read working directory (absolute path).
-		/// </summary>
-		private string _LastWorkingDir = null;
-
-		/// <summary>
-		/// Cached value of the last set hash algorithm.
-		/// </summary>
-		private FtpHashAlgorithm _LastHashAlgo = FtpHashAlgorithm.NONE;
-
-		/// <summary>
-		/// Did the FTPS connection fail during the last Connect/ConnectAsync attempt?
-		/// </summary>
-		private bool _ConnectionFTPSFailure = false;
-
-		/// <summary>
-		/// Did the UTF8 encoding setting work during the last Connect/ConnectAsync attempt?
-		/// </summary>
-		private bool _ConnectionUTF8Success = false;
-
-		/// <summary>
-		/// These flags must be reset every time we connect, to allow for users to connect to
-		/// different FTP servers with the same client object.
-		/// </summary>
-		private void ResetStateFlags() {
-			_EPSVNotSupported = false;
-			_FileSizeASCIINotSupported = false;
-			_RecursiveListSupported = false;
-			_LastWorkingDir = null;
-			_LastHashAlgo = FtpHashAlgorithm.NONE;
-			_ConnectionFTPSFailure = false;
-			_ConnectionUTF8Success = false;
-		}
-
-		/// <summary>
-		/// These flags must be copied when we quickly clone the connection.
-		/// </summary>
-		private void CopyStateFlags(FtpClient original) {
-			_EPSVNotSupported = original._EPSVNotSupported;
-			_FileSizeASCIINotSupported = original._FileSizeASCIINotSupported;
-			_RecursiveListSupported = original._RecursiveListSupported;
-		}
-
-		#endregion
+		public FtpClientState Status { get => m_status; }
 
 #if !CORE14
 		/// <summary>
@@ -124,7 +65,7 @@ namespace FluentFTP {
 		private FtpIpVersion m_ipVersions = FtpIpVersion.ANY;
 
 		/// <summary>
-		/// Flags specifying which versions of the internet protocol to
+		/// Flags specifying which versions of the internet protocol (IPV4 or IPV6) to
 		/// support when making a connection. All addresses returned during
 		/// name resolution are tried until a successful connection is made.
 		/// You can fine tune which versions of the internet protocol to use
@@ -135,6 +76,24 @@ namespace FluentFTP {
 		public FtpIpVersion InternetProtocolVersions {
 			get => m_ipVersions;
 			set => m_ipVersions = value;
+		}
+
+		/// <summary>
+		/// Gets the current internet protocol (IPV4 or IPV6) used by the socket connection.
+		/// Returns FtpIpVersion.Unknown before connection.
+		/// </summary>
+		public FtpIpVersion? InternetProtocol {
+			get {
+				if (m_stream != null && m_stream.LocalEndPoint != null) {
+					if (m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
+						return FtpIpVersion.IPv4;
+					}
+					if (m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetworkV6) {
+						return FtpIpVersion.IPv6;
+					}
+				}
+				return FtpIpVersion.Unknown;
+			}
 		}
 
 		private int m_socketPollInterval = 15000;
@@ -808,7 +767,7 @@ namespace FluentFTP {
 			get {
 
 				// If the user has confirmed support on his server, return true
-				if (_RecursiveListSupported) {
+				if (Status.RecursiveListSupported) {
 					return true;
 				}
 
@@ -822,7 +781,7 @@ namespace FluentFTP {
 			set {
 				// You can always set this property if you are sure about
 				// your server's support for recursive listing
-				_RecursiveListSupported = value;
+				Status.RecursiveListSupported = value;
 			}
 		}
 

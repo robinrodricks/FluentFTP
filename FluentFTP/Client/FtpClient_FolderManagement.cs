@@ -1,13 +1,14 @@
 using System;
 using System.Text.RegularExpressions;
 using System.Linq;
-using FluentFTP.Servers;
 using FluentFTP.Helpers;
 #if !CORE
 using System.Web;
+using FluentFTP.Client.Modules;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
+using FluentFTP.Client.Modules;
 
 #endif
 #if ASYNC
@@ -425,7 +426,7 @@ namespace FluentFTP {
 					if (reply.Code == "550") {
 						return false;
 					}
-					if (reply.Code[0] == '5' && reply.Message.IsKnownError(FtpServerStrings.folderExists)) {
+					if (reply.Code[0] == '5' && reply.Message.IsKnownError(ServerStringModule.folderExists)) {
 						return false;
 					}
 
@@ -491,7 +492,7 @@ namespace FluentFTP {
 				if (reply.Code == "550") {
 					return false;
 				}
-				if (reply.Code[0] == '5' && reply.Message.IsKnownError(FtpServerStrings.folderExists)) {
+				if (reply.Code[0] == '5' && reply.Message.IsKnownError(ServerStringModule.folderExists)) {
 					return false;
 				}
 
@@ -647,7 +648,7 @@ namespace FluentFTP {
 
 				// invalidate the cached path
 				// This is redundant, Execute(...) will see the CWD and do this
-				//_LastWorkingDir = null;
+				//Status.LastWorkingDir = null;
 
 #if !CORE14
 			}
@@ -682,7 +683,7 @@ namespace FluentFTP {
 
 			// invalidate the cached path
 			// This is redundant, Execute(...) will see the CWD and do this
-			//_LastWorkingDir = null;
+			//Status.LastWorkingDir = null;
 		}
 
 
@@ -699,11 +700,11 @@ namespace FluentFTP {
 		public string GetWorkingDirectory() {
 
 			// this case occurs immediately after connection and after the working dir has changed
-			if (_LastWorkingDir == null) {
+			if (Status.LastWorkingDir == null) {
 				ReadCurrentWorkingDirectory();
 			}
 
-			return _LastWorkingDir;
+			return Status.LastWorkingDir;
 		}
 
 #if ASYNC
@@ -714,11 +715,11 @@ namespace FluentFTP {
 		public async Task<string> GetWorkingDirectoryAsync(CancellationToken token = default(CancellationToken)) {
 
 			// this case occurs immediately after connection and after the working dir has changed
-			if (_LastWorkingDir == null) {
+			if (Status.LastWorkingDir == null) {
 				await ReadCurrentWorkingDirectoryAsync(token);
 			}
 
-			return _LastWorkingDir;
+			return Status.LastWorkingDir;
 		}
 
 #endif
@@ -738,7 +739,7 @@ namespace FluentFTP {
 #endif
 
 			// cache the last working dir
-			_LastWorkingDir = ParseWorkingDirectory(reply);
+			Status.LastWorkingDir = ParseWorkingDirectory(reply);
 			return reply;
 		}
 
@@ -770,7 +771,7 @@ namespace FluentFTP {
 			}
 
 			// cache the last working dir
-			_LastWorkingDir = ParseWorkingDirectory(reply);
+			Status.LastWorkingDir = ParseWorkingDirectory(reply);
 			return reply;
 		}
 #endif
@@ -786,16 +787,16 @@ namespace FluentFTP {
 		public bool IsRoot() {
 
 			// this case occurs immediately after connection and after the working dir has changed
-			if (_LastWorkingDir == null) {
+			if (Status.LastWorkingDir == null) {
 				ReadCurrentWorkingDirectory();
 			}
 
-			if (_LastWorkingDir.IsFtpRootDirectory()) {
+			if (Status.LastWorkingDir.IsFtpRootDirectory()) {
 				return true;
 			}
 
 			// execute server-specific check if the current working dir is a root directory
-			if (ServerHandler != null && ServerHandler.IsRoot(this, _LastWorkingDir)){
+			if (ServerHandler != null && ServerHandler.IsRoot(this, Status.LastWorkingDir)){
 				return true;
 			}
 
@@ -811,18 +812,18 @@ namespace FluentFTP {
 		{
 
 			// this case occurs immediately after connection and after the working dir has changed
-			if (_LastWorkingDir == null)
+			if (Status.LastWorkingDir == null)
 			{
 				await ReadCurrentWorkingDirectoryAsync(token);
 			}
 
-			if (_LastWorkingDir.IsFtpRootDirectory())
+			if (Status.LastWorkingDir.IsFtpRootDirectory())
 			{
 				return true;
 			}
 
 			// execute server-specific check if the current working dir is a root directory
-			if (ServerHandler != null && ServerHandler.IsRoot(this, _LastWorkingDir)) {
+			if (ServerHandler != null && ServerHandler.IsRoot(this, Status.LastWorkingDir)) {
 				return true;
 			}
 

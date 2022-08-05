@@ -12,7 +12,6 @@ using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Exceptions;
 using FluentFTP.Proxy;
-using FluentFTP.Servers;
 using FluentFTP.Helpers;
 #if !CORE
 using System.Web;
@@ -20,6 +19,7 @@ using System.Web;
 #if (CORE || NETFX)
 using System.Threading;
 using System.Runtime.CompilerServices;
+using FluentFTP.Client.Modules;
 
 #endif
 #if ASYNC
@@ -580,7 +580,7 @@ namespace FluentFTP {
 				// Some FTP servers forcibly close the connection, we absorb these errors
 
 				// Fix #410: Retry if its a temporary failure ("Received an unexpected EOF or 0 bytes from the transport stream")
-				if (retry && ioEx.Message.IsKnownError(FtpServerStrings.unexpectedEOF)) {
+				if (retry && ioEx.Message.IsKnownError(ServerStringModule.unexpectedEOF)) {
 					// retry once more, but do not go into a infinite recursion loop here
 					LogLine(FtpTraceLevel.Verbose, "Warning:  Retry GetListing once more due to unexpected EOF");
 					return GetListingInternal(listcmd, options, false);
@@ -940,7 +940,7 @@ namespace FluentFTP {
 				// Some FTP servers forcibly close the connection, we absorb these errors
 
 				// Fix #410: Retry if its a temporary failure ("Received an unexpected EOF or 0 bytes from the transport stream")
-				if (retry && ioEx.Message.IsKnownError(FtpServerStrings.unexpectedEOF)) {
+				if (retry && ioEx.Message.IsKnownError(ServerStringModule.unexpectedEOF)) {
 					// retry once more, but do not go into a infinite recursion loop here
 					LogLine(FtpTraceLevel.Verbose, "Warning:  Retry GetListing once more due to unexpected EOF");
 					return await GetListingInternalAsync(listcmd, options, false, token);

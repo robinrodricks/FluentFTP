@@ -9,13 +9,13 @@ using System.Linq;
 using System.Net;
 using FluentFTP.Proxy;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
-using FluentFTP.Servers;
 using FluentFTP.Helpers;
 #if !CORE
 using System.Web;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
+using FluentFTP.Client.Modules;
 #endif
 #if ASYNC
 using System.Threading.Tasks;
@@ -254,91 +254,24 @@ namespace FluentFTP {
 		#region Clone
 
 		/// <summary>
-		/// Clones the control connection for opening multiple data streams
+		/// Clones the FTP client control connection. Used for opening multiple data streams.
+		/// You will need to manually connect after cloning.
 		/// </summary>
-		/// <returns>A new control connection with the same property settings as this one</returns>
-		protected FtpClient CloneConnection() {
-			var conn = Create();
+		/// <returns>A new FTP client connection with the same property settings as this one.</returns>
+		public FtpClient Clone() {
+			var write = Create();
 
-			conn.m_isClone = true;
+			write.m_isClone = true;
 
-			// configure new connection as clone of self
-			conn.InternetProtocolVersions = InternetProtocolVersions;
-			conn.SocketPollInterval = SocketPollInterval;
-			conn.StaleDataCheck = StaleDataCheck;
-			conn.EnableThreadSafeDataConnections = EnableThreadSafeDataConnections;
-			conn.NoopInterval = NoopInterval;
-			conn.Encoding = Encoding;
-			conn.Host = Host;
-			conn.Port = Port;
-			conn.Credentials = Credentials;
-			conn.MaximumDereferenceCount = MaximumDereferenceCount;
-			conn.ClientCertificates = ClientCertificates;
-			conn.DataConnectionType = DataConnectionType;
-			conn.DisconnectWithQuit = DisconnectWithQuit;
-			conn.DisconnectWithShutdown = DisconnectWithShutdown;
-			conn.ConnectTimeout = ConnectTimeout;
-			conn.ReadTimeout = ReadTimeout;
-			conn.DataConnectionConnectTimeout = DataConnectionConnectTimeout;
-			conn.DataConnectionReadTimeout = DataConnectionReadTimeout;
-			conn.SocketKeepAlive = SocketKeepAlive;
-			conn.m_capabilities = m_capabilities;
-			conn.EncryptionMode = EncryptionMode;
-			conn.DataConnectionEncryption = DataConnectionEncryption;
-			conn.SslProtocols = SslProtocols;
-			conn.SslBuffering = SslBuffering;
-			conn.TransferChunkSize = TransferChunkSize;
-			conn.LocalFileBufferSize = LocalFileBufferSize;
-			conn.ListingDataType = ListingDataType;
-			conn.ListingParser = ListingParser;
-			conn.ListingCulture = ListingCulture;
-			conn.ListingCustomParser = ListingCustomParser;
-			conn.TimeZone = TimeZone;
-			conn.TimeConversion = TimeConversion;
-			conn.RetryAttempts = RetryAttempts;
-			conn.UploadRateLimit = UploadRateLimit;
-			conn.DownloadZeroByteFiles = DownloadZeroByteFiles;
-			conn.DownloadRateLimit = DownloadRateLimit;
-			conn.DownloadDataType = DownloadDataType;
-			conn.UploadDataType = UploadDataType;
-			conn.ActivePorts = ActivePorts;
-			conn.PassiveBlockedPorts = PassiveBlockedPorts;
-			conn.PassiveMaxAttempts = PassiveMaxAttempts;
-			conn.SendHost = SendHost;
-			conn.SendHostDomain = SendHostDomain;
-			conn.FXPDataType = FXPDataType;
-			conn.FXPProgressInterval = FXPProgressInterval;
-			conn.ServerHandler = ServerHandler;
-			conn.UploadDirectoryDeleteExcluded = UploadDirectoryDeleteExcluded;
-			conn.DownloadDirectoryDeleteExcluded = DownloadDirectoryDeleteExcluded;
-
-			// configure new connection as clone of self (newer version .NET only)
-#if ASYNC && !CORE14 && !CORE16
-			conn.SocketLocalIp = SocketLocalIp;
-#endif
-
-			// configure new connection as clone of self (.NET core props only)
-#if CORE
-			conn.LocalTimeZone = LocalTimeZone;
-#endif
+			CloneModule.Clone(this, write);
 
 			// fix for #428: OpenRead with EnableThreadSafeDataConnections always uses ASCII
-			conn.CurrentDataType = CurrentDataType;
-			conn.ForceSetDataType = true;
+			write.CurrentDataType = CurrentDataType;
+			write.ForceSetDataType = true;
 
-			// configure new connection as clone of self (.NET framework props only)
-#if !CORE
-			conn.PlainTextEncryption = PlainTextEncryption;
-#endif
-
-			// always accept certificate no matter what because if code execution ever
-			// gets here it means the certificate on the control connection object being
-			// cloned was already accepted.
-			conn.ValidateCertificate += new FtpSslValidation(
-				delegate (FtpClient obj, FtpSslValidationEventArgs e) { e.Accept = true; });
-
-			return conn;
+			return write;
 		}
+
 
 		#endregion
 
@@ -381,7 +314,7 @@ namespace FluentFTP {
 					m_capabilities = new List<FtpCapability>();
 				}
 
-				ResetStateFlags();
+				Status.Reset();
 
 				m_hashAlgorithms = FtpHashAlgorithm.NONE;
 				m_stream.ConnectTimeout = m_connectTimeout;
@@ -397,7 +330,7 @@ namespace FluentFTP {
 #endif
 
 				Handshake();
-				m_serverType = FtpServerSpecificHandler.DetectFtpServer(this, HandshakeReply);
+				m_serverType = ServerModule.DetectFtpServer(this, HandshakeReply);
 
 				if (SendHost) {
 					if (!(reply = Execute("HOST " + (SendHostDomain != null ? SendHostDomain : Host))).Success) {
@@ -410,7 +343,7 @@ namespace FluentFTP {
 				if (EncryptionMode == FtpEncryptionMode.Explicit || EncryptionMode == FtpEncryptionMode.Auto) {
 					reply = Execute("AUTH TLS");
 					if (!reply.Success){
-						_ConnectionFTPSFailure = true;
+						Status.ConnectionFTPSFailure = true;
 						if (EncryptionMode == FtpEncryptionMode.Explicit) {
 							throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
 						}
@@ -465,25 +398,25 @@ namespace FluentFTP {
 					// command should not matter however there are conflicting drafts
 					// about this so we'll just execute it to be safe. 
 					if ((reply = Execute("OPTS UTF8 ON")).Success) {
-						_ConnectionUTF8Success = true;
+						Status.ConnectionUTF8Success = true;
 					}
 				}
 
 				// Get the system type - Needed to auto-detect file listing parser
 				if ((reply = Execute("SYST")).Success) {
 					m_systemType = reply.Message;
-					m_serverType = FtpServerSpecificHandler.DetectFtpServerBySyst(this);
-					m_serverOS = FtpServerSpecificHandler.DetectFtpOSBySyst(this);
+					m_serverType = ServerModule.DetectFtpServerBySyst(this);
+					m_serverOS = ServerModule.DetectFtpOSBySyst(this);
 				}
 
 				// Set a FTP server handler if a custom handler has not already been set
 				if (ServerHandler == null) {
-					ServerHandler = FtpServerSpecificHandler.GetServerHandler(m_serverType);
+					ServerHandler = ServerModule.GetServerHandler(m_serverType);
 				}
 
 				// Assume the system's capabilities if FEAT command not supported by the server
 				if (assumeCaps) {
-					FtpServerSpecificHandler.AssumeCapabilities(this, ServerHandler, m_capabilities, ref m_hashAlgorithms);
+					ServerModule.AssumeCapabilities(this, ServerHandler, m_capabilities, ref m_hashAlgorithms);
 				}
 
 #if !NO_SSL && !CORE
@@ -561,7 +494,7 @@ namespace FluentFTP {
 				m_capabilities = new List<FtpCapability>();
 			}
 
-			ResetStateFlags();
+			Status.Reset();
 
 			m_hashAlgorithms = FtpHashAlgorithm.NONE;
 			m_stream.ConnectTimeout = m_connectTimeout;
@@ -577,7 +510,7 @@ namespace FluentFTP {
 #endif
 
 			await HandshakeAsync(token);
-			m_serverType = FtpServerSpecificHandler.DetectFtpServer(this, HandshakeReply);
+			m_serverType = ServerModule.DetectFtpServer(this, HandshakeReply);
 
 			if (SendHost) {
 				if (!(reply = await ExecuteAsync("HOST " + (SendHostDomain != null ? SendHostDomain : Host), token)).Success) {
@@ -590,7 +523,7 @@ namespace FluentFTP {
 			if (EncryptionMode == FtpEncryptionMode.Explicit || EncryptionMode == FtpEncryptionMode.Auto) {
 				reply = await ExecuteAsync("AUTH TLS", token);
 				if (!reply.Success) {
-					_ConnectionFTPSFailure = true;
+					Status.ConnectionFTPSFailure = true;
 					if (EncryptionMode == FtpEncryptionMode.Explicit) {
 						throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
 					}
@@ -646,24 +579,24 @@ namespace FluentFTP {
 				// command should not matter however there are conflicting drafts
 				// about this so we'll just execute it to be safe. 
 				if ((reply = await ExecuteAsync("OPTS UTF8 ON", token)).Success) {
-					_ConnectionUTF8Success = true;
+					Status.ConnectionUTF8Success = true;
 				}
 			}
 
 			// Get the system type - Needed to auto-detect file listing parser
 			if ((reply = await ExecuteAsync("SYST", token)).Success) {
 				m_systemType = reply.Message;
-				m_serverType = FtpServerSpecificHandler.DetectFtpServerBySyst(this);
-				m_serverOS = FtpServerSpecificHandler.DetectFtpOSBySyst(this);
+				m_serverType = ServerModule.DetectFtpServerBySyst(this);
+				m_serverOS = ServerModule.DetectFtpOSBySyst(this);
 			}
 
 			// Set a FTP server handler if a custom handler has not already been set
 			if (ServerHandler == null) {
-				ServerHandler = FtpServerSpecificHandler.GetServerHandler(m_serverType);
+				ServerHandler = ServerModule.GetServerHandler(m_serverType);
 			}
 			// Assume the system's capabilities if FEAT command not supported by the server
 			if (assumeCaps) {
-				FtpServerSpecificHandler.AssumeCapabilities(this, ServerHandler, m_capabilities, ref m_hashAlgorithms);
+				ServerModule.AssumeCapabilities(this, ServerHandler, m_capabilities, ref m_hashAlgorithms);
 			}
 
 #if !NO_SSL && !CORE
@@ -786,7 +719,7 @@ namespace FluentFTP {
 		/// <param name="reply">The reply object from the FEAT command. The InfoMessages property will
 		/// contain a list of the features the server supported delimited by a new line '\n' character.</param>
 		protected virtual void GetFeatures(FtpReply reply) {
-			FtpServerSpecificHandler.GetFeatures(this, m_capabilities, ref m_hashAlgorithms, reply.InfoMessages.Split('\n'));
+			ServerModule.GetFeatures(this, m_capabilities, ref m_hashAlgorithms, reply.InfoMessages.Split('\n'));
 		}
 
 #if !ASYNC

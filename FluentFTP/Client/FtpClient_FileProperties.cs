@@ -1,11 +1,11 @@
 ﻿using System;
-using FluentFTP.Servers;
 using FluentFTP.Helpers;
 #if !CORE
 using System.Web;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
+using FluentFTP.Client.Modules;
 #endif
 #if ASYNC
 using System.Threading.Tasks;
@@ -208,7 +208,7 @@ namespace FluentFTP {
 			path = path.GetFtpPath();
 
 			// Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.
-			if (_FileSizeASCIINotSupported) {
+			if (Status.FileSizeASCIINotSupported) {
 				SetDataTypeNoLock(FtpDataType.Binary);
 			}
 
@@ -219,9 +219,9 @@ namespace FluentFTP {
 				length = defaultValue;
 
 				// Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
-				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(FtpServerStrings.fileSizeNotInASCII)) {
+				if (!Status.FileSizeASCIINotSupported && reply.Message.IsKnownError(ServerStringModule.fileSizeNotInASCII)) {
 					// set the flag so mode switching is done
-					_FileSizeASCIINotSupported = true;
+					Status.FileSizeASCIINotSupported = true;
 
 					// retry getting the file size
 					GetFileSizeInternal(path, sizeReply, defaultValue);
@@ -277,7 +277,7 @@ namespace FluentFTP {
 			path = path.GetFtpPath();
 
 			// Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.
-			if (_FileSizeASCIINotSupported) {
+			if (Status.FileSizeASCIINotSupported) {
 				await SetDataTypeNoLockAsync(FtpDataType.Binary, token);
 			}
 
@@ -288,9 +288,9 @@ namespace FluentFTP {
 				sizeReply.FileSize = defaultValue;
 
 				// Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
-				if (!_FileSizeASCIINotSupported && reply.Message.IsKnownError(FtpServerStrings.fileSizeNotInASCII)) {
+				if (!Status.FileSizeASCIINotSupported && reply.Message.IsKnownError(ServerStringModule.fileSizeNotInASCII)) {
 					// set the flag so mode switching is done
-					_FileSizeASCIINotSupported = true;
+					Status.FileSizeASCIINotSupported = true;
 
 					// retry getting the file size
 					await GetFileSizeInternalAsync(path, defaultValue, token, sizeReply);
