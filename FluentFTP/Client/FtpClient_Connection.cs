@@ -416,7 +416,7 @@ namespace FluentFTP {
 
 				// Assume the system's capabilities if FEAT command not supported by the server
 				if (assumeCaps) {
-					ServerModule.AssumeCapabilities(this, ServerHandler, m_capabilities, ref m_hashAlgorithms);
+					ServerFeatureModule.Assume(ServerHandler, m_capabilities, ref m_hashAlgorithms);
 				}
 
 #if !NO_SSL && !CORE
@@ -719,7 +719,7 @@ namespace FluentFTP {
 		/// <param name="reply">The reply object from the FEAT command. The InfoMessages property will
 		/// contain a list of the features the server supported delimited by a new line '\n' character.</param>
 		protected virtual void GetFeatures(FtpReply reply) {
-			ServerModule.GetFeatures(this, m_capabilities, ref m_hashAlgorithms, reply.InfoMessages.Split('\n'));
+			ServerFeatureModule.Detect(m_capabilities, ref m_hashAlgorithms, reply.InfoMessages.Split('\n'));
 		}
 
 #if !ASYNC
