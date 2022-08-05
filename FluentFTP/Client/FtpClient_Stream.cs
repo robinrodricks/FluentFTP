@@ -711,17 +711,18 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Returns the ip address to be sent to the server for the active connection
+		/// Returns the IP address to be sent to the server for the active connection.
 		/// </summary>
 		/// <param name="ip"></param>
 		/// <returns></returns>
 		private string GetLocalAddress(IPAddress ip) {
+
 			// Use resolver
 			if (m_AddressResolver != null) {
 				return m_Address ?? (m_Address = m_AddressResolver());
 			}
 
-			// Use supplied ip
+			// Use supplied IP
 			return ip.ToString();
 		}
 
