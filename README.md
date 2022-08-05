@@ -18,7 +18,7 @@ FluentFTP is released under the permissive MIT License, so it can be used in bot
 
 ## Features
 
-  - Full support for [FTP](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Support), [FXP](https://github.com/robinrodricks/FluentFTP/wiki/FXP-Server-To-Server#how-does-fxp-transfer-work), [FTPS](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_ftps) (FTP over SSL), [FTPS with client certificates](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_certs) and [FTPS with CCC](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_ccc) (for FTP firewalls)
+  - Full support for [FTP](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Support), [FXP](https://github.com/robinrodricks/FluentFTP/wiki/FXP-Server-To-Server#how-does-fxp-transfer-work), [FTPS](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_ftps) (FTP over SSL), [FTPS with client certificates](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_certs), [FTPS Proxies](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Proxies) and [FTPS with CCC](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_ccc) (for FTP firewalls)
   - **File management:**
     - File and directory listing for [all major server types](https://github.com/robinrodricks/FluentFTP/wiki/Directory-Listing#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, [IBM z/OS and OS/400](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support), Windows CE, Serv-U, etc)
 	- Fully recursive directory listing and directory deletion (manual recursion and server-side recursion)
@@ -46,7 +46,7 @@ FluentFTP is released under the permissive MIT License, so it can be used in bot
     - Passive and active data connections (PASV, EPSV, PORT and EPRT)
     - Supports Unix CHMOD, PRET, ProFTPD's SITE MKDIR and RMDIR commands, Serv-U's RMDA command
     - Supports Realm and directory navigation for [IBM z/OS and OS/400](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support)
-    - Supports all types of FTP Proxies ([HTTP 1.1](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Proxies#faq_loginproxy), SOCKS5, SOCKS4, SOCKS4a, User@Host, BlueCoat)
+    - Supports all types of [FTP Proxies](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Proxies) (HTTP 1.1, SOCKS4, SOCKS4a, SOCKS5, User@Host, BlueCoat)
     - [FTP command logging](https://github.com/robinrodricks/FluentFTP/wiki/Logging#faq_log) using `TraceListeners` (passwords omitted) to [trace](https://github.com/robinrodricks/FluentFTP/wiki/Logging#faq_trace) or [log output](https://github.com/robinrodricks/FluentFTP/wiki/Logging#faq_logfile) to a file
     - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
   - **Asynchronous support:**
