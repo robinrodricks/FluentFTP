@@ -549,6 +549,9 @@ namespace FluentFTP.Client.Modules {
 		/// </summary>
 		private static bool IsProtocolFailure(Exception ex) {
 			if (ex.Message.Contains("Authentication failed because the remote party sent a TLS alert: 'ProtocolVersion'")) {
+#if !NET50_OR_LATER
+				throw new FtpProtocolUnsupportedException("Your server requires TLS 1.3 and your .NET version is too low to support it! Please upgrade your project to .NET 5+ in order to activate TLS 1.3.");
+#endif
 				return true;
 			}
 			return false;
