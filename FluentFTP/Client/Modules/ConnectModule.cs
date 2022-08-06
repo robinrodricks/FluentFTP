@@ -35,7 +35,7 @@ namespace FluentFTP.Client.Modules {
 #if ASYNC
 			SysSslProtocols.Tls12 | SysSslProtocols.Tls11,
 
-			// fix #907: support TLS 1.3
+			// fix #907: support TLS 1.3 in .NET 5+
 #if NET50_OR_LATER
 			SysSslProtocols.Tls13
 #endif
@@ -93,7 +93,7 @@ namespace FluentFTP.Client.Modules {
 				bool tryTLS13 = false;
 				foreach (var protocol in DefaultProtocolPriority) {
 
-					// fix #907: support TLS 1.3
+					// fix #907: support TLS 1.3 in .NET 5+
 					// only try TLS 1.3 if required
 #if NET50_OR_LATER
 					if (protocol == SysSslProtocols.Tls13 && !tryTLS13) {
@@ -136,7 +136,7 @@ namespace FluentFTP.Client.Modules {
 					}
 					catch (Exception ex) {
 
-						// fix #907: support TLS 1.3
+						// fix #907: support TLS 1.3 in .NET 5+
 						// if it is a protocol error, then jump to the next protocol
 						if (IsProtocolFailure(ex)) {
 							tryTLS13 = true;
@@ -199,12 +199,6 @@ namespace FluentFTP.Client.Modules {
 			return results;
 		}
 
-		private static bool IsProtocolFailure(Exception ex) {
-			if (ex.Message.Contains("Authentication failed because the remote party sent a TLS alert: 'ProtocolVersion'")) {
-				return true;
-			}
-			return false;
-		}
 
 #if ASYNC
 		/// <summary>
@@ -377,6 +371,9 @@ namespace FluentFTP.Client.Modules {
 			}
 		}
 
+		/// <summary>
+		/// Check if the server refused to support one type of FTPS encryption, and if so blacklist that type of encryption.
+		/// </summary>
 		private static bool IsFtpsFailure(List<FtpEncryptionMode> blacklistedEncryptions, FtpEncryptionMode encryption, Exception ex) {
 
 			// catch error starting explicit FTPS and don't try any more secure connections
@@ -418,6 +415,10 @@ namespace FluentFTP.Client.Modules {
 			return false;
 		}
 
+		/// <summary>
+		/// Check if its an auth failure or something permanent,
+		/// so that we don't need to retry all the connection config combinations and can hard-abort the AutoConnect.
+		/// </summary>
 		private static bool IsPermanantConnectionFailure(Exception ex) {
 
 			// catch error "no such host is known" and hard abort
@@ -543,6 +544,15 @@ namespace FluentFTP.Client.Modules {
 			return null;
 		}
 
+		/// <summary>
+		/// Check if the server requires TLS 1.3 protocol
+		/// </summary>
+		private static bool IsProtocolFailure(Exception ex) {
+			if (ex.Message.Contains("Authentication failed because the remote party sent a TLS alert: 'ProtocolVersion'")) {
+				return true;
+			}
+			return false;
+		}
 
 	}
 }
