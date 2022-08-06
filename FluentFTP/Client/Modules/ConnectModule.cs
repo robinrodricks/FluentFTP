@@ -33,7 +33,13 @@ namespace FluentFTP.Client.Modules {
 		private static List<SysSslProtocols> DefaultProtocolPriority = new List<SysSslProtocols> {
 			//SysSslProtocols.None,
 #if ASYNC
-			SysSslProtocols.Tls12 | SysSslProtocols.Tls11, 
+			SysSslProtocols.Tls12 | SysSslProtocols.Tls11,
+
+			// fix #907: support TLS 1.3
+#if NET50_OR_LATER
+			SysSslProtocols.Tls13
+#endif
+
 #endif
 #if !ASYNC
 			SysSslProtocols.Tls,
@@ -84,7 +90,16 @@ namespace FluentFTP.Client.Modules {
 				}
 
 				// try each SSL protocol
+				bool tryTLS13 = false;
 				foreach (var protocol in DefaultProtocolPriority) {
+
+					// fix #907: support TLS 1.3
+					// only try TLS 1.3 if required
+#if NET50_OR_LATER
+					if (protocol == SysSslProtocols.Tls13 && !tryTLS13) {
+						continue;
+					}
+#endif
 
 					// skip plain protocols if testing secure FTPS -- disabled because 'None' is recommended by Microsoft
 					/*if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
@@ -120,6 +135,13 @@ namespace FluentFTP.Client.Modules {
 						}
 					}
 					catch (Exception ex) {
+
+						// fix #907: support TLS 1.3
+						// if it is a protocol error, then jump to the next protocol
+						if (IsProtocolFailure(ex)) {
+							tryTLS13 = true;
+							continue;
+						}
 
 #if !CORE14
 						if (ex is AuthenticationException) {
@@ -175,6 +197,13 @@ namespace FluentFTP.Client.Modules {
 				conn.Dispose();
 			}
 			return results;
+		}
+
+		private static bool IsProtocolFailure(Exception ex) {
+			if (ex.Message.Contains("Authentication failed because the remote party sent a TLS alert: 'ProtocolVersion'")) {
+				return true;
+			}
+			return false;
 		}
 
 #if ASYNC
