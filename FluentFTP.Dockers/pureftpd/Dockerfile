@@ -75,6 +75,8 @@ RUN echo "" >> /etc/rsyslog.conf && \
 
 # setup run/init file
 COPY run.sh /run.sh
+# Remove \r from the windows style \r\n newline.
+RUN sed -i -e "s/\r//" /run.sh
 RUN chmod u+x /run.sh
 
 # cleaning up
