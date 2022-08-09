@@ -1,5 +1,11 @@
 # Release Notes
 
+#### 39.2.0
+ - New: `GetListingAsyncEnumerable` method to get file listing using `IAsyncEnumerable` pattern
+ - New: During `AutoConnect`, throw `FtpProtocolUnsupportedException` if newer .NET required
+ - Fix: Support connecting to TLS 1.3 servers using `AutoConnect` (.NET 5.0+)
+ - Fix: Support automated tests for PureFTP and ProFTP servers (thanks [tommysor](/tommysor))
+
 #### 39.1.0
  - New: `Clone` method allows for cloning an `FtpClient` connection with all settings copied
  - New: `InternetProtocol` property which returns the current protocol used (IPV4/IPV6)

@@ -1073,7 +1073,7 @@ namespace FluentFTP {
 					// break if task is cancelled
 					token.ThrowIfCancellationRequested();
 
-					if (item.Type == FtpFileSystemObjectType.Directory && item.Name != "." && item.Name != "..") {
+					if (item.Type == FtpObjectType.Directory && item.Name != "." && item.Name != "..") {
 						stack.Push(item.FullName);
 					}
 
