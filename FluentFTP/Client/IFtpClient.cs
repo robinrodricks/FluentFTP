@@ -195,7 +195,7 @@ namespace FluentFTP {
 		Task<string[]> GetNameListingAsync(CancellationToken token = default(CancellationToken));
 #endif
 
-#if ASYNCPLUS
+#if NET50_OR_LATER
 		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, FtpListOption options, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
 		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
 		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
@@ -261,7 +261,7 @@ namespace FluentFTP {
 
 #endif
 
-		// FILECOMPARE
+		// COMPARE
 		FtpCompareResult CompareFile(string localPath, string remotePath, FtpCompareOption options = FtpCompareOption.Auto);
 
 #if ASYNC
