@@ -76,7 +76,6 @@ namespace FluentFTP.Servers.Handlers {
 		}
 #endif
 
-		#region Get z/OS File Size
 
 		public override bool IsCustomFileSize() {
 			return true;
@@ -135,7 +134,6 @@ namespace FluentFTP.Servers.Handlers {
 			return entry.Size;
 		}
 #endif
-		#endregion
 
 		/// <summary>
 		/// Check if the given path is a root directory on your FTP server.
@@ -165,6 +163,18 @@ namespace FluentFTP.Servers.Handlers {
 
 			// all others
 			return false;
+		}
+
+		/// <summary>
+		/// Return true if the path should be converted to an absolute path.
+		/// </summary>
+		public virtual bool ConvertListingPath(string path) {
+
+			// Only disable the GetAbsolutePath(path) if z/OS
+			// Note: "TEST.TST" is a "path" that does not start with a slash
+			// This could be a unix file on z/OS OR a classic CWD relative dataset
+			// Both of these work with the z/OS FTP server LIST command
+			return path == null || path.StartsWith("/");
 		}
 	}
 }

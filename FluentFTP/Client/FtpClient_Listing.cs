@@ -183,7 +183,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#endregion
+		#endregion
 
 		#region Get Listing
 
@@ -237,7 +237,7 @@ namespace FluentFTP {
 			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
 				return GetListingRecursive(GetAbsolutePath(path), options);
 			}
-			
+
 			// FIX : #768 NullOrEmpty is valid, means "use working directory".
 			if (!string.IsNullOrEmpty(path)) {
 				path = path.GetFtpPath();
@@ -259,13 +259,8 @@ namespace FluentFTP {
 			var isGetModified = options.HasFlag(FtpListOption.Modify);
 			var isGetSize = options.HasFlag(FtpListOption.Size);
 
-			// Only disable the GetAbsolutePath(path) if z/OS
-			// Note: "TEST.TST" is a "path" that does not start with a slash
-			// This could be a unix file on z/OS OR a classic CWD relative dataset
-			// Both of these work with the z/OS FTP server LIST command
-			if (ServerType != FtpServer.IBMzOSFTP || path == null || path.StartsWith("/"))
-			{
-				// calc the absolute filepath
+			// calc the absolute filepath
+			if (ServerHandler == null || ServerHandler.ConvertListingPath(path)) {
 				path = GetAbsolutePath(path);
 			}
 
@@ -395,8 +390,7 @@ namespace FluentFTP {
 				}
 			}
 			// for z/OS, return of null actually means, just skip with no warning
-			else if (ServerType != FtpServer.IBMzOSFTP)
-			{
+			else if (ServerType != FtpServer.IBMzOSFTP) {
 				LogStatus(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
 			}
 			return true;
@@ -411,7 +405,7 @@ namespace FluentFTP {
 		}
 
 		private void CalculateGetListingCommand(string path, FtpListOption options, out string listcmd, out bool machineList) {
-			
+
 			// read flags
 			var isForceList = options.HasFlag(FtpListOption.ForceList);
 			var isUseStat = options.HasFlag(FtpListOption.UseStat);
@@ -610,7 +604,7 @@ namespace FluentFTP {
 		/// <param name="enumToken">The token that can be used to cancel the enumerator</param>
 		/// <returns>An array of items retrieved in the listing</returns>
 		public async IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, FtpListOption options, CancellationToken token = default(CancellationToken), [EnumeratorCancellation] CancellationToken enumToken = default(CancellationToken)) {
-			
+
 			// start recursive process if needed and unsupported by the server
 			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
 				await foreach (FtpListItem i in GetListingRecursiveAsyncEnumerable(GetAbsolutePath(path), options, token, enumToken)) {
@@ -640,7 +634,9 @@ namespace FluentFTP {
 			var isGetSize = options.HasFlag(FtpListOption.Size);
 
 			// calc the absolute filepath
-			path = await GetAbsolutePathAsync(path, token);
+			if (ServerHandler == null || ServerHandler.ConvertListingPath(path)) {
+				path = await GetAbsolutePathAsync(path, token);
+			}
 
 			// MLSD provides a machine readable format with 100% accurate information
 			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
@@ -730,7 +726,7 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>An array of items retrieved in the listing</returns>
 		public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
-			
+
 			// start recursive process if needed and unsupported by the server
 			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
 				return await GetListingRecursiveAsync(GetAbsolutePath(path), options, token);
@@ -755,8 +751,10 @@ namespace FluentFTP {
 			var isGetModified = options.HasFlag(FtpListOption.Modify);
 			var isGetSize = options.HasFlag(FtpListOption.Size);
 
-			// calc path to request
-			path = await GetAbsolutePathAsync(path, token);
+			// calc the absolute filepath
+			if (ServerHandler == null || ServerHandler.ConvertListingPath(path)) {
+				path = await GetAbsolutePathAsync(path, token);
+			}
 
 			// MLSD provides a machine readable format with 100% accurate information
 			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
@@ -1050,7 +1048,7 @@ namespace FluentFTP {
 		/// <param name="enumToken"></param>
 		/// <returns>An array of FtpListItem objects</returns>
 
-		protected async IAsyncEnumerable<FtpListItem> GetListingRecursiveAsyncEnumerable(string path, FtpListOption options, CancellationToken token, [EnumeratorCancellation]CancellationToken enumToken = default) {
+		protected async IAsyncEnumerable<FtpListItem> GetListingRecursiveAsyncEnumerable(string path, FtpListOption options, CancellationToken token, [EnumeratorCancellation] CancellationToken enumToken = default) {
 			// remove the recursive flag
 			options &= ~FtpListOption.Recursive;
 
@@ -1068,8 +1066,7 @@ namespace FluentFTP {
 				}
 
 				// extract the directories
-				await foreach (var item in GetListingAsyncEnumerable(currentPath, options, token))
-				{
+				await foreach (var item in GetListingAsyncEnumerable(currentPath, options, token)) {
 					// break if task is cancelled
 					token.ThrowIfCancellationRequested();
 
@@ -1169,8 +1166,7 @@ namespace FluentFTP {
 
 			var listing = new List<string>();
 
-			if (ServerType != FtpServer.IBMzOSFTP || path == null || path.StartsWith("/"))
-			{
+			if (ServerType != FtpServer.IBMzOSFTP || path == null || path.StartsWith("/")) {
 				// calc path to request
 				path = GetAbsolutePath(path);
 			}
@@ -1281,8 +1277,7 @@ namespace FluentFTP {
 
 			var listing = new List<string>();
 
-			if (ServerType != FtpServer.IBMzOSFTP || path == null || path.StartsWith("/"))
-			{
+			if (ServerType != FtpServer.IBMzOSFTP || path == null || path.StartsWith("/")) {
 				// calc path to request
 				path = await GetAbsolutePathAsync(path, token);
 			}
