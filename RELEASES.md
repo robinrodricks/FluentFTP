@@ -2,7 +2,7 @@
 
 #### 39.2.1
  - New: Add 5 missing methods into the `IFtpClient` interface
- - Fix: z/OS: Inconsistent implementations of GetListing absolute path conversion
+ - Fix: z/OS: Inconsistent implementations of `GetListing` absolute path conversion
 
 #### 39.2.0
  - New: `GetListingAsyncEnumerable` method to get file listing using `IAsyncEnumerable` pattern
