@@ -199,7 +199,7 @@ namespace FluentFTP {
 		/// </remarks>
 		/// <returns>An array of FtpListItem objects</returns>
 		public FtpListItem[] GetListing() {
-			return GetListing(null);
+			return GetListing(null, 0);
 		}
 
 		/// <summary>
@@ -593,7 +593,7 @@ namespace FluentFTP {
 			return rawlisting;
 		}
 
-#if ASYNCPLUS
+#if NET50_OR_LATER
 		/// <summary>
 		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
 		/// contains information about the file that was able to be retrieved. 
@@ -620,6 +620,11 @@ namespace FluentFTP {
 				yield break;
 			}
 
+			// FIX : #768 NullOrEmpty is valid, means "use working directory".
+			if (!string.IsNullOrEmpty(path)) {
+				path = path.GetFtpPath();
+			}
+
 			LogFunc(nameof(GetListingAsync), new object[] { path, options });
 
 			var lst = new List<FtpListItem>();
@@ -634,15 +639,8 @@ namespace FluentFTP {
 			var isGetModified = options.HasFlag(FtpListOption.Modify);
 			var isGetSize = options.HasFlag(FtpListOption.Size);
 
-			// Only disable the GetAbsolutePath(path) if z/OS
-			// Note: "TEST.TST" is a "path" that does not start with a slash
-			// This could be a unix file on z/OS OR a classic CWD relative dataset
-			// Both of these work with the z/OS FTP server LIST command
-			if (ServerType != FtpServer.IBMzOSFTP || path == null || path.StartsWith("/"))
-			{
-				// calc the absolute filepath
-				path = await GetAbsolutePathAsync(path, token);
-			}
+			// calc the absolute filepath
+			path = await GetAbsolutePathAsync(path, token);
 
 			// MLSD provides a machine readable format with 100% accurate information
 			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
@@ -1040,7 +1038,7 @@ namespace FluentFTP {
 			return allFiles.ToArray();
 		}
 
-#if ASYNCPLUS
+#if NET50_OR_LATER
 		/// <summary>
 		/// Recursive method of GetListingAsync, to recurse through directories on servers that do not natively support recursion.
 		/// Automatically called by GetListingAsync where required.
