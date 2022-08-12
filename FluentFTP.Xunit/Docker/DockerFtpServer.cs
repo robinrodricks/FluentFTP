@@ -27,11 +27,17 @@ namespace FluentFTP.Xunit.Docker {
 			StartContainer();
 		}
 
-		public void Dispose() {
-			_container?.DisposeAsync();
+		~DockerFtpServer() {
+			Dispose(false);
+		}
 
-			// Run system command to shut down docker
-			SystemProcess.Execute("docker stop " + _server.DockerImage);
+		public void Dispose() {
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool _) {
+			_container?.DisposeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 		}
 
 		public string GetUsername() {
