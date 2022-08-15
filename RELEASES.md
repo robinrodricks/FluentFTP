@@ -1,5 +1,12 @@
 # Release Notes
 
+#### 39.3.0
+ - New: Detect D-Link, TP-LINK, Huawei, MicroTik FTP servers (allows for future server-specific handling)
+ - Fix: `AutoConnect` now correctly handles internal `AggregateException` (.NET 5.0+)
+ - Fix: `AutoConnect` now correctly connects to servers requiring TLS 1.2
+ - Internal: Support automated tests for VsFtpD servers (thanks [tommysor](/tommysor))
+ - Internal: Add tests for custom FTP server auto connection
+
 #### 39.2.1
  - New: Add 5 missing methods into the `IFtpClient` interface
  - Fix: z/OS: Inconsistent implementations of `GetListing` absolute path conversion
