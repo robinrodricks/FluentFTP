@@ -136,6 +136,13 @@ namespace FluentFTP.Client.Modules {
 					}
 					catch (Exception ex) {
 
+						// unpack aggregate exception
+#if NET50_OR_LATER
+						if (ex is AggregateException) {
+							ex = ((AggregateException)ex).InnerExceptions[0];
+						}
+#endif
+
 #if !CORE14
 						if (ex is AuthenticationException) {
 							throw new FtpInvalidCertificateException();
@@ -242,7 +249,15 @@ namespace FluentFTP.Client.Modules {
 				}
 
 				// try each SSL protocol
+				bool tryTLS13 = false;
 				foreach (var protocol in DefaultProtocolPriority) {
+					// fix #907: support TLS 1.3 in .NET 5+
+					// only try TLS 1.3 if required
+#if NET50_OR_LATER
+					if (protocol == SysSslProtocols.Tls13 && !tryTLS13) {
+						continue;
+					}
+#endif
 
 					// skip plain protocols if testing secure FTPS -- disabled because 'None' is recommended by Microsoft
 					/*if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
@@ -279,6 +294,13 @@ namespace FluentFTP.Client.Modules {
 					}
 					catch (Exception ex) {
 
+						// unpack aggregate exception
+#if NET50_OR_LATER
+						if (ex is AggregateException) {
+							ex = ((AggregateException)ex).InnerExceptions[0];
+						}
+#endif
+
 #if !CORE14
 						if (ex is AuthenticationException) {
 							throw new FtpInvalidCertificateException();
@@ -287,6 +309,12 @@ namespace FluentFTP.Client.Modules {
 
 						// since the connection failed, disconnect and retry
 						await conn.DisconnectAsync(token);
+						// fix #907: support TLS 1.3 in .NET 5+
+						// if it is a protocol error, then jump to the next protocol
+						if (IsProtocolFailure(ex)) {
+							tryTLS13 = true;
+							continue;
+						}
 
 						// if server does not support FTPS no point trying encryption again
 						if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
@@ -304,7 +332,7 @@ namespace FluentFTP.Client.Modules {
 						}
 					}
 
-					// if it worked, add the profile
+					// if it worked
 					if (connected) {
 
 						// if connected by explicit FTPS failed, no point trying encryption again
@@ -369,6 +397,17 @@ namespace FluentFTP.Client.Modules {
 				client.RetryAttempts = knownProfile.RetryAttempts;
 				client.SocketPollInterval = knownProfile.SocketPollInterval;
 			}
+
+			// FIX #907: support TLS 1.3 in .NET 5+
+			// only try TLS 1.3 if required
+#if NET50_OR_LATER
+			if (protocol == SysSslProtocols.Tls13) {
+				client.StaleDataCheck = false;
+			}
+			else {
+				client.StaleDataCheck = true;
+			}
+#endif
 		}
 
 		/// <summary>
@@ -549,11 +588,7 @@ namespace FluentFTP.Client.Modules {
 		/// </summary>
 		private static bool IsProtocolFailure(Exception ex) {
 			var msg = "Authentication failed because the remote party sent a TLS alert: 'ProtocolVersion'";
-			if (ex.Message.Contains(msg)
-# if ASYNC
-				|| (ex is AggregateException && (ex as AggregateException).ToString().Contains(msg))
-#endif
-				) {
+			if (ex.Message.Contains(msg)) {
 #if !NET50_OR_LATER
 				throw new FtpProtocolUnsupportedException("Your server requires TLS 1.3 and your .NET version is too low to support it! Please upgrade your project to .NET 5+ in order to activate TLS 1.3.");
 #endif

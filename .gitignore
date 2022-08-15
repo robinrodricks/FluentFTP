@@ -23,3 +23,4 @@ API_Reference_CHM.shfbproj_jp
 .vs
 
 FluentFTP.Tests/testdata
+*.yaml

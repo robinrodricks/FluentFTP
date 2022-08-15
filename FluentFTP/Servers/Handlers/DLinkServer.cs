@@ -14,15 +14,15 @@ using System.Threading.Tasks;
 namespace FluentFTP.Servers.Handlers {
 
 	/// <summary>
-	/// Server-specific handling for WS_FTP servers
+	/// Server-specific handling for D-Link FTP servers
 	/// </summary>
-	internal class WSFTPServer : FtpBaseServer {
+	internal class DLinkServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.
 		/// </summary>
 		public override FtpServer ToEnum() {
-			return FtpServer.WSFTP;
+			return FtpServer.DLink;
 		}
 
 		/// <summary>
@@ -30,11 +30,12 @@ namespace FluentFTP.Servers.Handlers {
 		/// </summary>
 		public override bool DetectByWelcome(string message) {
 
-			// Detect FTP2S3 server
-			// Welcome message: "220 ***.com X2 WS_FTP Server 8.5.0(24135676)"
-			if (message.Contains("WS_FTP Server")) {
+			// Detect D-Link server
+			// Welcome message: "220 D-Link FTP version 1.0 ready"
+			if (message.Contains("D-Link FTP")) {
 				return true;
 			}
+
 			return false;
 		}
 

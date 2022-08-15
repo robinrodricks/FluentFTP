@@ -32,6 +32,7 @@ namespace FluentFTP.Servers.Handlers {
 
 			// Detect FTP2S3 server
 			// Welcome message: "220 FRITZ!Box7490 FTP server ready"
+			// Welcome message: "220 FRITZ!BoxFonWLAN7390 FTP server ready"
 			if (message.Contains("FRITZ!Box")) {
 				return true;
 			}
