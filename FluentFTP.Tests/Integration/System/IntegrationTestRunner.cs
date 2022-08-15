@@ -20,7 +20,7 @@ namespace FluentFTP.Tests.Integration.System {
 			}
 
 			// spin up a new docker
-			var server = new DockerFtpServer(serverType);
+			using var server = new DockerFtpServer(serverType);
 
 			try {
 
@@ -41,8 +41,6 @@ namespace FluentFTP.Tests.Integration.System {
 				Assert.True(false, $"Integration test failed : " + ex.ToString());
 			}
 
-			// shut down the docker
-			server.Dispose();
 
 		}
 

@@ -35,8 +35,11 @@ ENV PASV_PROMISCUOUS NO
 ENV PORT_PROMISCUOUS NO
 
 COPY vsftpd.conf /etc/vsftpd/
+RUN sed -i -e "s/\r//" /etc/vsftpd/vsftpd.conf
 COPY vsftpd_virtual /etc/pam.d/
+RUN sed -i -e "s/\r//" /etc/pam.d/vsftpd_virtual
 COPY run-vsftpd.sh /usr/sbin/
+RUN sed -i -e "s/\r//" /usr/sbin/run-vsftpd.sh
 
 RUN chmod +x /usr/sbin/run-vsftpd.sh
 RUN mkdir -p /home/vsftpd/
