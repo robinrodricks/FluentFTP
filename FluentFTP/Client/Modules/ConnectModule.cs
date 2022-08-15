@@ -309,6 +309,7 @@ namespace FluentFTP.Client.Modules {
 
 						// since the connection failed, disconnect and retry
 						await conn.DisconnectAsync(token);
+
 						// fix #907: support TLS 1.3 in .NET 5+
 						// if it is a protocol error, then jump to the next protocol
 						if (IsProtocolFailure(ex)) {
