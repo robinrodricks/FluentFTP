@@ -616,11 +616,7 @@ namespace FluentFTP.Client.Modules {
 #if !CORE14
 			if (ex is AuthenticationException &&
 				((AuthenticationException)ex).InnerException != null &&
-				((AuthenticationException)ex).InnerException.Message.ContainsAny(ServerStringModule.failedTLS)) {
-				return true;
-			}
-			if (ex is Win32Exception &&
-				((Win32Exception)ex).Message.ContainsAny(ServerStringModule.failedTLS)) {
+				((AuthenticationException)ex).InnerException.Message.ToLower().ContainsAny(ServerStringModule.failedTLS)) {
 				return true;
 			}
 #endif
