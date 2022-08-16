@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Authentication;
 #if !CORE
 using System.Runtime.Serialization;
 #endif
@@ -12,12 +13,18 @@ namespace FluentFTP {
 	[Serializable]
 #endif
 	public class FtpInvalidCertificateException : FtpException {
+
+		/// <summary>
+		/// AuthenticationException that caused this.
+		/// </summary>
+		public Exception InnerException { get; private set; }
+
 		/// <summary>
 		/// Default constructor
 		/// </summary>
-		public FtpInvalidCertificateException()
+		public FtpInvalidCertificateException(Exception innerException)
 			: base("FTPS security could not be established on the server. The certificate was not accepted.") {
-			
+			InnerException = innerException;
 		}
 
 		/// <summary>

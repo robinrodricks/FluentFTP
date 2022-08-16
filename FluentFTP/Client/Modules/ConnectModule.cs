@@ -143,12 +143,6 @@ namespace FluentFTP.Client.Modules {
 						}
 #endif
 
-#if !CORE14
-						if (ex is AuthenticationException) {
-							throw new FtpInvalidCertificateException();
-						}
-#endif
-
 						// since the connection failed, disconnect and retry
 						conn.Disconnect();
 
@@ -158,6 +152,12 @@ namespace FluentFTP.Client.Modules {
 							tryTLS13 = true;
 							continue;
 						}
+
+#if !CORE14
+						if (ex is AuthenticationException) {
+							throw new FtpInvalidCertificateException((AuthenticationException)ex);
+						}
+#endif
 
 						// if server does not support FTPS no point trying encryption again
 						if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
@@ -301,12 +301,6 @@ namespace FluentFTP.Client.Modules {
 						}
 #endif
 
-#if !CORE14
-						if (ex is AuthenticationException) {
-							throw new FtpInvalidCertificateException();
-						}
-#endif
-
 						// since the connection failed, disconnect and retry
 						await conn.DisconnectAsync(token);
 
@@ -316,6 +310,12 @@ namespace FluentFTP.Client.Modules {
 							tryTLS13 = true;
 							continue;
 						}
+
+#if !CORE14
+						if (ex is AuthenticationException) {
+							throw new FtpInvalidCertificateException((AuthenticationException)ex);
+						}
+#endif
 
 						// if server does not support FTPS no point trying encryption again
 						if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
@@ -595,6 +595,15 @@ namespace FluentFTP.Client.Modules {
 #endif
 				return true;
 			}
+
+#if !CORE14
+			if (ex is AuthenticationException &&
+				((AuthenticationException)ex).InnerException != null && 
+				((AuthenticationException)ex).InnerException.Message.ContainsAny(ServerStringModule.failedTLS)) {
+				return true;
+			}
+#endif
+
 			return false;
 		}
 
