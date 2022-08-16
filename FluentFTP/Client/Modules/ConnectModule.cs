@@ -17,6 +17,7 @@ using FluentFTP.Client.Modules;
 #endif
 #if (CORE || NETFX)
 using System.Threading;
+using System.ComponentModel;
 #endif
 #if ASYNC
 using System.Threading.Tasks;
@@ -149,6 +150,14 @@ namespace FluentFTP.Client.Modules {
 						// fix #907: support TLS 1.3 in .NET 5+
 						// if it is a protocol error, then jump to the next protocol
 						if (IsProtocolFailure(ex)) {
+#if NET50_OR_LATER
+							if (protocol == SysSslProtocols.Tls13) {
+								client.LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3"); ;
+							}
+							else {
+								client.LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3"); ;
+							}
+#endif
 							tryTLS13 = true;
 							continue;
 						}
@@ -307,6 +316,14 @@ namespace FluentFTP.Client.Modules {
 						// fix #907: support TLS 1.3 in .NET 5+
 						// if it is a protocol error, then jump to the next protocol
 						if (IsProtocolFailure(ex)) {
+#if NET50_OR_LATER
+							if (protocol == SysSslProtocols.Tls13) {
+								client.LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3"); ;
+							}
+							else {
+								client.LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3"); ;
+							}
+#endif
 							tryTLS13 = true;
 							continue;
 						}
@@ -598,8 +615,12 @@ namespace FluentFTP.Client.Modules {
 
 #if !CORE14
 			if (ex is AuthenticationException &&
-				((AuthenticationException)ex).InnerException != null && 
+				((AuthenticationException)ex).InnerException != null &&
 				((AuthenticationException)ex).InnerException.Message.ContainsAny(ServerStringModule.failedTLS)) {
+				return true;
+			}
+			if (ex is Win32Exception &&
+				((Win32Exception)ex).Message.ContainsAny(ServerStringModule.failedTLS)) {
 				return true;
 			}
 #endif
