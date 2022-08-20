@@ -61,13 +61,6 @@ namespace FluentFTP.Servers {
 		}
 
 		/// <summary>
-		/// Return true if the path should be converted to an absolute path.
-		/// </summary>
-		public virtual bool ConvertListingPath(string path) {
-			return true;
-		}
-
-		/// <summary>
 		/// Return the default file listing parser to be used with your FTP server.
 		/// </summary>
 		public virtual FtpParser GetParser() {
