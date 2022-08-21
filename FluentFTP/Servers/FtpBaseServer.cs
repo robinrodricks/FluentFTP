@@ -170,5 +170,13 @@ namespace FluentFTP.Servers {
 			return false;
 		}
 
+		/// <summary>
+		/// Always read to end of stream on a download
+		/// If you are unsure, return false.
+		/// </summary>
+		public virtual bool AlwaysReadToEnd(string remotePath)
+		{
+			return false;
+		}
 	}
 }
