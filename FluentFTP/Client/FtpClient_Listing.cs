@@ -259,10 +259,7 @@ namespace FluentFTP {
 			var isGetModified = options.HasFlag(FtpListOption.Modify);
 			var isGetSize = options.HasFlag(FtpListOption.Size);
 
-			// calc the absolute filepath
-			if (ServerHandler == null || ServerHandler.ConvertListingPath(path)) {
-				path = GetAbsolutePath(path);
-			}
+			path = GetAbsolutePath(path);
 
 			// MLSD provides a machine readable format with 100% accurate information
 			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
@@ -632,10 +629,7 @@ namespace FluentFTP {
 			var isGetModified = options.HasFlag(FtpListOption.Modify);
 			var isGetSize = options.HasFlag(FtpListOption.Size);
 
-			// calc the absolute filepath
-			if (ServerHandler == null || ServerHandler.ConvertListingPath(path)) {
-				path = await GetAbsolutePathAsync(path, token);
-			}
+			path = await GetAbsolutePathAsync(path, token);
 
 			// MLSD provides a machine readable format with 100% accurate information
 			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
@@ -750,10 +744,7 @@ namespace FluentFTP {
 			var isGetModified = options.HasFlag(FtpListOption.Modify);
 			var isGetSize = options.HasFlag(FtpListOption.Size);
 
-			// calc the absolute filepath
-			if (ServerHandler == null || ServerHandler.ConvertListingPath(path)) {
-				path = await GetAbsolutePathAsync(path, token);
-			}
+			path = await GetAbsolutePathAsync(path, token);
 
 			// MLSD provides a machine readable format with 100% accurate information
 			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
@@ -1165,10 +1156,7 @@ namespace FluentFTP {
 
 			var listing = new List<string>();
 
-			if (ServerType != FtpServer.IBMzOSFTP || path == null || path.StartsWith("/")) {
-				// calc path to request
-				path = GetAbsolutePath(path);
-			}
+			path = GetAbsolutePath(path);
 
 #if !CORE14
 			lock (m_lock) {
@@ -1276,10 +1264,7 @@ namespace FluentFTP {
 
 			var listing = new List<string>();
 
-			if (ServerType != FtpServer.IBMzOSFTP || path == null || path.StartsWith("/")) {
-				// calc path to request
-				path = await GetAbsolutePathAsync(path, token);
-			}
+			path = await GetAbsolutePathAsync(path, token);
 
 			// always get the file listing in binary to avoid character translation issues with ASCII.
 			await SetDataTypeNoLockAsync(ListingDataType, token);
