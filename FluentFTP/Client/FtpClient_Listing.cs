@@ -259,10 +259,7 @@ namespace FluentFTP {
 			var isGetModified = options.HasFlag(FtpListOption.Modify);
 			var isGetSize = options.HasFlag(FtpListOption.Size);
 
-			// calc the absolute filepath
-			if (ServerHandler == null || ServerHandler.ConvertListingPath(path)) {
-				path = GetAbsolutePath(path);
-			}
+			path = GetAbsolutePath(path);
 
 			// MLSD provides a machine readable format with 100% accurate information
 			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
@@ -632,10 +629,7 @@ namespace FluentFTP {
 			var isGetModified = options.HasFlag(FtpListOption.Modify);
 			var isGetSize = options.HasFlag(FtpListOption.Size);
 
-			// calc the absolute filepath
-			if (ServerHandler == null || ServerHandler.ConvertListingPath(path)) {
-				path = await GetAbsolutePathAsync(path, token);
-			}
+			path = await GetAbsolutePathAsync(path, token);
 
 			// MLSD provides a machine readable format with 100% accurate information
 			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
@@ -750,10 +744,7 @@ namespace FluentFTP {
 			var isGetModified = options.HasFlag(FtpListOption.Modify);
 			var isGetSize = options.HasFlag(FtpListOption.Size);
 
-			// calc the absolute filepath
-			if (ServerHandler == null || ServerHandler.ConvertListingPath(path)) {
-				path = await GetAbsolutePathAsync(path, token);
-			}
+			path = await GetAbsolutePathAsync(path, token);
 
 			// MLSD provides a machine readable format with 100% accurate information
 			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option

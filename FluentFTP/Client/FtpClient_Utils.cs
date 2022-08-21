@@ -92,6 +92,10 @@ namespace FluentFTP {
 		/// </summary>
 		private string GetAbsolutePath(string path) {
 
+			if (ServerHandler != null && ServerHandler.IsCustomGetAbsolutePath())	{
+				return ServerHandler.GetAbsolutePath(this, path);
+			}
+
 			if (path == null || path.Trim().Length == 0) {
 				// if path not given, then use working dir
 				var pwd = GetWorkingDirectory();
@@ -116,12 +120,6 @@ namespace FluentFTP {
 				// if relative path given then add working dir to calc full path
 				var pwd = GetWorkingDirectory();
 				if (pwd != null && pwd.Trim().Length > 0 && path != pwd) {
-					// Check if PDS (MVS Dataset) file system
-					if (pwd.StartsWith("'") && ServerType == FtpServer.IBMzOSFTP) {
-						// PDS that has single quotes is already fully qualified
-						return pwd;
-					}
-
 					if (path.StartsWith("./")) {
 						path = path.Remove(0, 2);
 					}
@@ -161,7 +159,7 @@ namespace FluentFTP {
 
 				// if relative path given then add working dir to calc full path
 				string pwd = await GetWorkingDirectoryAsync(token);
-				if (pwd != null && pwd.Trim().Length > 0) {
+				if (pwd != null && pwd.Trim().Length > 0 && path != pwd) {
 					if (path.StartsWith("./")) {
 						path = path.Remove(0, 2);
 					}

@@ -6,6 +6,7 @@ using FluentFTP;
 using FluentFTP.Servers;
 #if (CORE || NETFX)
 using System.Threading;
+using FluentFTP.Helpers;
 #endif
 #if ASYNC
 using System.Threading.Tasks;
@@ -166,25 +167,66 @@ namespace FluentFTP.Servers.Handlers {
 		}
 
 		/// <summary>
-		/// Return true if the path should be converted to an absolute path.
-		/// </summary>
-		public override bool ConvertListingPath(string path) {
-
-			// Disable the GetAbsolutePath(path) if z/OS
-			// Note: "TEST.TST" is a "path" that does not start with a slash
-			// This could be a unix file on z/OS OR a classic CWD relative dataset
-			// Both of these work with the z/OS FTP server LIST command
-			return path == null || path.StartsWith("/");
-		}
-
-		/// <summary>
 		/// Skip reporting a parser error
 		/// </summary>
-		public override bool SkipParserErrorReport()
-		{
+		public override bool SkipParserErrorReport() {
 			return true;
 		}
 
+		/// <summary>
+		/// Always read to End of stream on a download
+		/// </summary>
+		public override bool AlwaysReadToEnd(string remotePath)	{
+			return true;
+		}
+
+		public override bool IsCustomGetAbsolutePath() {
+			return true;
+		}
+
+		/// <summary>
+		/// Perform server-specific path modification here.
+		/// Return the absolute path.
+		/// </summary>
+		public override string GetAbsolutePath(FtpClient client, string path) {
+
+			if (path == null || path.Trim().Length == 0)
+			{
+				path = client.GetWorkingDirectory();
+			}
+
+			if (path.StartsWith("/") || path.StartsWith("\'"))
+			{
+				return path;
+			}
+
+			var pwd = client.GetWorkingDirectory();
+
+			if (pwd.StartsWith("/"))
+			{
+				if (pwd.Equals("/"))
+				{
+					path = (pwd + path).GetFtpPath();
+
+				}
+				else
+				{
+					path = (pwd + "/" + path).GetFtpPath();
+				}
+			}
+
+			return path;
+		}
+
+#if ASYNC
+		/// <summary>
+		/// Perform server-specific path modification here.
+		/// Return the absolute path.
+		/// </summary>
+		public override async Task<string> GetAbsolutePathAsync(FtpClient client, string path, CancellationToken token)	{
+			return path;
+		}
+#endif
 	}
 }
 

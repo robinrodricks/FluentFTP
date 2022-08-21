@@ -54,20 +54,6 @@ namespace FluentFTP.Servers {
 		}
 
 		/// <summary>
-		/// Return true if the path is an absolute path according to your server's convention.
-		/// </summary>
-		public virtual bool IsAbsolutePath(string path) {
-			return false;
-		}
-
-		/// <summary>
-		/// Return true if the path should be converted to an absolute path.
-		/// </summary>
-		public virtual bool ConvertListingPath(string path) {
-			return true;
-		}
-
-		/// <summary>
 		/// Return the default file listing parser to be used with your FTP server.
 		/// </summary>
 		public virtual FtpParser GetParser() {
@@ -131,12 +117,14 @@ namespace FluentFTP.Servers {
 #endif
 		}
 #endif
-			/// <summary>
-			/// Return true if your server requires custom handling of file size.
-			/// </summary>
+
+		/// <summary>
+		/// Return true if your server requires custom handling of file size.
+		/// </summary>
 		public virtual bool IsCustomFileSize() {
 			return false;
 		}
+
 		/// <summary>
 		/// Perform server-specific file size fetching commands here.
 		/// Return the file size in bytes.
@@ -154,6 +142,7 @@ namespace FluentFTP.Servers {
 			return Task.FromResult(0L);
 		}
 #endif
+
 		/// <summary>
 		/// Check if the given path is a root directory on your FTP server.
 		/// If you are unsure, return false.
@@ -165,10 +154,49 @@ namespace FluentFTP.Servers {
 		/// <summary>
 		/// Skip reporting a parser error
 		/// </summary>
-		public virtual bool SkipParserErrorReport()
+		public virtual bool SkipParserErrorReport()	{
+			return false;
+		}
+
+		/// <summary>
+		/// Always read to end of stream on a download
+		/// If you are unsure, return false.
+		/// </summary>
+		public virtual bool AlwaysReadToEnd(string remotePath) {
+			return false;
+		}
+
+		/// <summary>
+		/// Return true if the path is an absolute path according to your server's convention.
+		/// </summary>
+		public virtual bool IsAbsolutePath(string path)
 		{
 			return false;
 		}
 
+		/// <summary>
+		/// Return true if your server requires custom handling of file size.
+		/// </summary>
+		public virtual bool IsCustomGetAbsolutePath() {
+			return false;
+		}
+
+		/// <summary>
+		/// Perform server-specific path modification here.
+		/// Return the absolute path.
+		/// </summary>
+		public virtual string GetAbsolutePath(FtpClient client, string path) {
+			return path;
+		}
+
+#if ASYNC
+		/// <summary>
+		/// Perform server-specific path modification here.
+		/// Return the absolute path.
+		/// </summary>
+		public virtual Task<string> GetAbsolutePathAsync(FtpClient client, string path, CancellationToken token) {
+			return Task.FromResult(path);
+		}
+#endif
 	}
 }
