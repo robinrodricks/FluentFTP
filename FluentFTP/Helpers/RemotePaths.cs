@@ -212,9 +212,16 @@ namespace FluentFTP.Helpers {
 					}
 					else
 					{
-						// Path: "'GEEK.PROJECTS.LOADLIB(*)'"
-						// Fullname: 'GEEK.PROJECTS.LOADLIB(MYPROG)'
-						item.FullName = path.Substring(0, path.Length - 4) + "(" + item.Name + ")\'";
+						if (path.EndsWith("(*)\'"))
+						{
+							// Path: "'GEEK.PROJECTS.LOADLIB(*)'"
+							// Fullname: 'GEEK.PROJECTS.LOADLIB(MYPROG)'
+							item.FullName = path.Substring(0, path.Length - 4) + "(" + item.Name + ")\'";
+						}
+						else
+						{
+							item.FullName = path;
+						}
 					}
 				}
 				else
@@ -227,9 +234,16 @@ namespace FluentFTP.Helpers {
 					}
 					else
 					{
-						// Path: "PROJECTS.LOADLIB(*)"
-						// Fullname: 'GEEK.PROJECTS.LOADLIB(MYPROG)'
-						item.FullName = client.GetWorkingDirectory().TrimEnd('\'') + path.Substring(0, path.Length - 3) + "(" + item.Name + ")\'";
+						if (path.EndsWith("(*)"))
+						{
+							// Path: "PROJECTS.LOADLIB(*)"
+							// Fullname: 'GEEK.PROJECTS.LOADLIB(MYPROG)'
+							item.FullName = client.GetWorkingDirectory().TrimEnd('\'') + path.Substring(0, path.Length - 3) + "(" + item.Name + ")\'";
+						}
+						else
+						{
+							item.FullName = path;
+						}
 					}
 				}
 				return;
