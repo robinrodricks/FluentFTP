@@ -10,18 +10,6 @@ namespace FluentFTP.Tests.Integration {
 	public class IntegrationTests {
 
 		[Fact]
-		public async Task CrushFtp() {
-			await IntegrationTestRunner.Run(FtpServer.CrushFTP);
-		}
-		[Fact]
-		public async Task FileZilla() {
-			await IntegrationTestRunner.Run(FtpServer.FileZilla);
-		}
-		[Fact]
-		public async Task GlFtpd() {
-			await IntegrationTestRunner.Run(FtpServer.glFTPd);
-		}
-		[Fact]
 		public async Task ProFtpd() {
 			await IntegrationTestRunner.Run(FtpServer.ProFTPD);
 		}
