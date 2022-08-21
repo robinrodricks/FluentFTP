@@ -48,7 +48,7 @@ namespace FluentFTP {
 #if !CORE14
 			lock (m_lock) {
 #endif
-				if (StaleDataCheck) {
+				if (StaleDataCheck && Status.AllowCheckStaleData) {
 					ReadStaleData(true, false, true);
 				}
 
@@ -134,7 +134,7 @@ namespace FluentFTP {
 		public async Task<FtpReply> ExecuteAsync(string command, CancellationToken token) {
 			FtpReply reply;
 
-			if (StaleDataCheck) {
+			if (StaleDataCheck && Status.AllowCheckStaleData) {
 #if CORE
 				await ReadStaleDataAsync(true, false, true, token);
 #else

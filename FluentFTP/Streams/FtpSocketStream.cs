@@ -142,6 +142,19 @@ namespace FluentFTP {
 #endif
 			}
 		}
+		
+		/// <summary>
+		/// The negotiated SSL/TLS protocol version. Will have a valid value after connection is complete.
+		/// </summary>
+		public SslProtocols SslProtocolActive {
+			get {
+#if NO_SSL
+				return SslProtocols.None;
+#else
+				return IsEncrypted ? m_sslStream.SslProtocol : SslProtocols.None;
+#endif
+			}
+		}
 
 		private NetworkStream m_netStream = null;
 

@@ -418,14 +418,14 @@ namespace FluentFTP.Client.Modules {
 
 			// FIX #907: support TLS 1.3 in .NET 5+
 			// only try TLS 1.3 if required
-#if NET50_OR_LATER
+/*#if NET50_OR_LATER
 			if (protocol == SysSslProtocols.Tls13) {
 				client.StaleDataCheck = false;
 			}
 			else {
 				client.StaleDataCheck = true;
 			}
-#endif
+#endif*/
 		}
 
 		/// <summary>
@@ -566,14 +566,16 @@ namespace FluentFTP.Client.Modules {
 		/// </summary>
 		public static void SetDefaultCertificateValidation(FtpClient client, FtpProfile profile) {
 			if (profile.Encryption != FtpEncryptionMode.None) {
-				client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
-					if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
-						e.Accept = false;
-					}
-					else {
-						e.Accept = true;
-					}
-				});
+				//if (client.ValidateCertificate == null) {
+					client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
+						if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
+							e.Accept = false;
+						}
+						else {
+							e.Accept = true;
+						}
+					});
+				//}
 			}
 		}
 

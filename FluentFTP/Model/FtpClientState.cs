@@ -52,6 +52,11 @@ namespace FluentFTP {
 		public bool ConnectionUTF8Success = false;
 
 		/// <summary>
+		/// Allow checking for stale data on socket?
+		/// </summary>
+		public bool AllowCheckStaleData = false;
+
+		/// <summary>
 		/// These flags must be reset every time we connect, to allow for users to connect to
 		/// different FTP servers with the same client object.
 		/// </summary>
@@ -63,6 +68,7 @@ namespace FluentFTP {
 			LastHashAlgo = FtpHashAlgorithm.NONE;
 			ConnectionFTPSFailure = false;
 			ConnectionUTF8Success = false;
+			AllowCheckStaleData = false;
 		}
 
 		/// <summary>

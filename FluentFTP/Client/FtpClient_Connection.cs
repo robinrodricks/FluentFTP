@@ -447,13 +447,16 @@ namespace FluentFTP {
 				// Create the parser even if the auto-OS detection failed
 				m_listParser.Init(m_serverOS, ListingParser);
 
-				// FIX : #318 always set the type when we create a new connection
+				// FIX #318 always set the type when we create a new connection
 				ForceSetDataType = true;
 
 				// Execute server-specific post-connection event
 				if (ServerHandler != null) {
 					ServerHandler.AfterConnected(this);
 				}
+
+				// FIX #922: disable checking for stale data during connection
+				Status.AllowCheckStaleData = true;
 
 #if !CORE14
 			}
@@ -634,6 +637,9 @@ namespace FluentFTP {
 			if (ServerHandler != null) {
 				await ServerHandler.AfterConnectedAsync(this, token);
 			}
+
+			// FIX #922: disable checking for stale data during connection
+			Status.AllowCheckStaleData = true;
 		}
 
 #endif
