@@ -162,5 +162,13 @@ namespace FluentFTP.Servers {
 			return false;
 		}
 
+		/// <summary>
+		/// Skip reporting a parser error
+		/// </summary>
+		public virtual bool SkipParserErrorReport()
+		{
+			return false;
+		}
+
 	}
 }

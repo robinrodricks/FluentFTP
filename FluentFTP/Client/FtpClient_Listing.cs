@@ -389,8 +389,7 @@ namespace FluentFTP {
 					//this.LogStatus(FtpTraceLevel.Verbose, "Skipped self or parent item: " + item.Name);
 				}
 			}
-			// for z/OS, return of null actually means, just skip with no warning
-			else if (ServerType != FtpServer.IBMzOSFTP) {
+			else if (ServerHandler != null && !ServerHandler.SkipParserErrorReport()) {
 				LogStatus(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
 			}
 			return true;

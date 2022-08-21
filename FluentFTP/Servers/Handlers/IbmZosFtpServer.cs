@@ -176,6 +176,15 @@ namespace FluentFTP.Servers.Handlers {
 			// Both of these work with the z/OS FTP server LIST command
 			return path == null || path.StartsWith("/");
 		}
+
+		/// <summary>
+		/// Skip reporting a parser error
+		/// </summary>
+		public override bool SkipParserErrorReport()
+		{
+			return true;
+		}
+
 	}
 }
 
