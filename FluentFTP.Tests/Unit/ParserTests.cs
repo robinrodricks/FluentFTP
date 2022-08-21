@@ -429,7 +429,72 @@ namespace FluentFTP.Tests.Unit {
 
 		}
 
+		[Fact]
+		public void IBMzOSMVS_HFS()
+		{
+			var parser = new FtpListParser(new FtpClient());
+			parser.Init(FtpOperatingSystem.IBMzOS, FtpParser.IBMzOS);
 
+			var sample = new[] {
+				"total 17904",
+				"drwxrwxr-x   2 OMVSKERN SYS1        8192 Oct 19  2015 downloads",
+				"drwxrwxr-x   4 OMVSKERN SYS1        8192 Oct 19  2015 p5zipfile",
+				"-rw-rw----   1 YNSAS    SYS1     2723828 Dec  6  2021 t.out",
+				"-rw-r-----   1 YNSAS    SYS1      132480 Jan  2  2022 test.bin",
+				"-rw-rw----   1 YNSAS    SYS1     6209406 May 29  2021 test.tst",
+				"-rw-rw----   1 YNSAS    SYS1       47227 Jun  7  2021 test.txt",
+			};
+
+			TestParsing(parser, "/", sample, null);
+
+		}
+
+		[Fact]
+		public void IBMzOSMVS_PSPO()
+		{
+			var parser = new FtpListParser(new FtpClient());
+			parser.Init(FtpOperatingSystem.IBMzOS, FtpParser.IBMzOS);
+
+			var sample = new[] {
+				"Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname",
+				"YNSABG 3390   2020/01/03  1   15  VB   32756 32760  PS  $.ADATA.XAA",
+				"YNSABH 3390   2022/02/18  1+++++  VBS  32767 27966  PS  $.BDATA.XBB",
+			};
+
+			TestParsing(parser, "/", sample, null);
+
+		}
+
+		[Fact]
+		public void IBMzOSMVS_Member()
+		{
+			var parser = new FtpListParser(new FtpClient());
+			parser.Init(FtpOperatingSystem.IBMzOS, FtpParser.IBMzOS);
+
+			var sample = new[] {
+				" Name     VV.MM   Created       Changed      Size  Init   Mod   Id",
+				"$2CPF1    01.01 2001/10/18 2001/10/18 11:58    29    29     0 QFX3076",
+			};
+
+			TestParsing(parser, "/", sample, null);
+
+		}
+
+		[Fact]
+		public void IBMzOSMVS_MemberU()
+		{
+			var parser = new FtpListParser(new FtpClient());
+			parser.Init(FtpOperatingSystem.IBMzOS, FtpParser.IBMzOS);
+
+			var sample = new[] {
+				" Name      Size     TTR   Alias-of AC --------- Attributes --------- Amode Rmode",
+				"EAGKCPT   000058   000009          00 FO             RN RU            31    ANY",
+				"EAGRTPRC  005F48   000011 EAGRTALT 00 FO             RN RU            31    ANY",
+			};
+
+			TestParsing(parser, "/", sample, null);
+
+		}
 
 		/*[Fact]
 		public void IBMOS2() {
@@ -444,30 +509,6 @@ namespace FluentFTP.Tests.Unit {
 			};
 
 			TestParsing(parser, "/", sample, null);
-
-		}
-		[Fact]
-		public void IBMzOSMVS() {
-			var parser = new FtpListParser(new FtpClient());
-			parser.Init(FtpOperatingSystem.IBMzOS, FtpParser.IBMzOS);
-
-			var sample = new[] {
-				"WYOSPT 3420   2012/12/21  1  200  FB      80  8053  PS  JACOB.FILE",
-				"WPTA01 3290   2013/15/04  1    3  FB      80  3125  PO  MARY.DATASET",
-				"NRP004 3390   **NONE**    1   15  NONE     0     0  PO  JANE-NONEDATE.DATASET",
-				"TSO005 3390   2014/06/06 213000 U 0 27998 PO AARON.DATASET",
-				"TSO004 3390   VSAM frederick",
-				"ALICE-MEMBER",
-				"GEORGE-MEMBER 01.01 2014/06/22 2004/06/22 16:32   128   128    0 JOHN",
-				"SAMATHA-MEMBER2 00B308 000411  00 FO                31    ANY",
-				"WATSON-MEMBER3 00B308 000411  00 FO        RU      ANY    24",
-				"Migrated				SHERLOCK-DATA.FILE",
-				"ANTHONY-ZVM-FILE  TRACE   V        65      107        2 2015-10-04 15:28:42 060191",
-				"V43525 Tape                                             BULLDOG-DATA.FILE",
-			};
-
-			TestParsing(parser, "/", sample, null);
-
 		}*/
 	}
 }

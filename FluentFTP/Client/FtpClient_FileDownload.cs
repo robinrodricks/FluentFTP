@@ -683,7 +683,7 @@ namespace FluentFTP {
 				// we read until EOF instead of reading a specific number of bytes
 				var readToEnd = (fileLen <= 0) || 
 								(DownloadDataType == FtpDataType.ASCII) || 
-								(ServerType == FtpServer.IBMzOSFTP);
+								(ServerHandler != null && ServerHandler.AlwaysReadToEnd(remotePath));
 
 				const int rateControlResolution = 100;
 				var rateLimitBytes = DownloadRateLimit != 0 ? (long)DownloadRateLimit * 1024 : 0;
@@ -920,8 +920,8 @@ namespace FluentFTP {
 				// if the server is IBM z/OS
 				// we read until EOF instead of reading a specific number of bytes
 				var readToEnd = (fileLen <= 0) || 
-								(DownloadDataType == FtpDataType.ASCII) || 
-								(ServerType == FtpServer.IBMzOSFTP);
+								(DownloadDataType == FtpDataType.ASCII) ||
+								(ServerHandler != null && ServerHandler.AlwaysReadToEnd(remotePath));
 
 				const int rateControlResolution = 100;
 				var rateLimitBytes = DownloadRateLimit != 0 ? (long)DownloadRateLimit * 1024 : 0;

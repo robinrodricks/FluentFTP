@@ -168,13 +168,29 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Return true if the path should be converted to an absolute path.
 		/// </summary>
-		public virtual bool ConvertListingPath(string path) {
+		public override bool ConvertListingPath(string path) {
 
-			// Only disable the GetAbsolutePath(path) if z/OS
+			// Disable the GetAbsolutePath(path) if z/OS
 			// Note: "TEST.TST" is a "path" that does not start with a slash
 			// This could be a unix file on z/OS OR a classic CWD relative dataset
 			// Both of these work with the z/OS FTP server LIST command
 			return path == null || path.StartsWith("/");
+		}
+
+		/// <summary>
+		/// Skip reporting a parser error
+		/// </summary>
+		public override bool SkipParserErrorReport()
+		{
+			return true;
+		}
+
+		/// <summary>
+		/// Always read to end of stream on a download
+		/// </summary>
+		public override bool AlwaysReadToEnd(string remotePath)
+		{
+			return true;
 		}
 	}
 }
