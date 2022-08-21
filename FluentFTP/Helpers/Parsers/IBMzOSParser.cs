@@ -84,9 +84,15 @@ namespace FluentFTP.Helpers.Parsers {
 			}
 
 			if (client.zOSListingRealm == FtpZOSListRealm.Unix) {
-				// unix mode
+				// HFS (=unix) mode
 				//
-				//total 320
+				//total 17904
+				//drwxrwxr-x   2 OMVSKERN SYS1        8192 Oct 19  2015 downloads
+				//drwxrwxr-x   4 OMVSKERN SYS1        8192 Oct 19  2015 p5zipfile
+				//-rw-rw----   1 YNSAS    SYS1     2723828 Dec  6  2021 t.out
+				//-rw-r-----   1 YNSAS    SYS1      132480 Jan  2  2022 test.bin
+				//-rw-rw----   1 YNSAS    SYS1     6209406 May 29  2021 test.tst
+				//-rw-rw----   1 YNSAS    SYS1       47227 Jun  7  2021 test.txt
 				//
 				return UnixParser.Parse(client, record);
 			}
