@@ -88,9 +88,12 @@ namespace FluentFTP.Client.Modules {
 				serverOS = FtpOperatingSystem.Windows;
 			}
 			else if (system.Contains("Z/OS")) {
-				// IBM z/OS
+				// IBM z/OS, message can be one of the two, depending on realm (and server config)
 				// Syst message: "215 MVS is the operating system of this server. FTP Server is running on z/OS."
 				// Syst message: "215 UNIX is the operating system of this server. FTP Server is running on z/OS."
+				//**
+				//** Important: Keep this z/OS IN FRONT of the UNIX entry, both contain "UNIX".
+				//**
 				serverOS = FtpOperatingSystem.IBMzOS;
 			}
 			else if (system.Contains("UNIX") || system.Contains("AIX")) {
