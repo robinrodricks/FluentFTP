@@ -163,7 +163,16 @@ namespace FluentFTP.Helpers {
 				}
 
 				// calc absolute file paths
-				result.CalculateFullFtpPath(client, path);
+
+				bool? handledByCustom = null;
+
+				if (client.ServerHandler != null && client.ServerHandler.IsCustomCalculateFullFtpPath()) {
+					handledByCustom = client.ServerHandler.CalculateFullFtpPath(client, path, result);
+				}
+
+				if (handledByCustom == null) {
+					result.CalculateFullFtpPath(client, path);
+				}
 			}
 
 			return result;

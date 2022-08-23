@@ -59,13 +59,13 @@ namespace FluentFTP.Servers.Handlers {
 		/// Used if your server does not broadcast its capabilities using the FEAT command.
 		/// </summary>
 		public override string[] DefaultCapabilities() {
-			
+
 			// OpenVMS HGFTP
 			// https://gist.github.com/robinrodricks/9631f9fad3c0fc4c667adfd09bd98762
-			
+
 			// assume the basic features supported
 			return new[] { "CWD", "DELE", "LIST", "NLST", "MKD", "MDTM", "PASV", "PORT", "PWD", "QUIT", "RNFR", "RNTO", "SITE", "STOR", "STRU", "TYPE" };
-			
+
 		}
 
 		/// <summary>
@@ -91,6 +91,21 @@ namespace FluentFTP.Servers.Handlers {
 			return FtpParser.VMS;
 		}
 
+		public override bool IsCustomCalculateFullFtpPath() {
+			return true;
+		}
 
+		/// <summary>
+		/// Get the full path of a given FTP Listing entry
+		/// Return null indicates custom code decided not to handle this
+		/// </summary>
+		public override bool? CalculateFullFtpPath(FtpClient client, string path, FtpListItem item)
+		{
+			// if this is a vax/openvms file listing
+			// there are no slashes in the path name
+			item.FullName = path + item.Name;
+
+			return true;
+		}
 	}
 }

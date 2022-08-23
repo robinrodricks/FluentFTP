@@ -66,14 +66,7 @@ namespace FluentFTP {
 			var errorEncountered = false;
 			var successfulUploads = new List<string>();
 
-			// ensure ends with slash if remote is not PDS (MVS Dataset)
-			bool isPDS = false;
-			if (remoteDir.StartsWith("'") && ServerType == FtpServer.IBMzOSFTP) {
-				isPDS = true;
-			}
-			else {
-				remoteDir = !remoteDir.EndsWith("/") ? remoteDir + "/" : remoteDir;
-			}
+			remoteDir = GetAbsolutePath(remoteDir); // a dir is just like a path
 
 			//flag to determine if existence checks are required
 			var checkFileExistence = true;
@@ -87,7 +80,7 @@ namespace FluentFTP {
 			}
 
 			// get all the already existing files
-			var existingFiles = checkFileExistence ? GetNameListing(remoteDir) : new string[0];
+			var existingFiles = checkFileExistence ? GetNameListing(GetAbsoluteDir(remoteDir)) : new string[0];
 
 			// per local file
 			var r = -1;
@@ -96,26 +89,18 @@ namespace FluentFTP {
 
 				// calc remote path
 				var fileName = Path.GetFileName(localPath);
-				var remotePath = "";
+				var remoteFilePath = "";
 
-				if (isPDS) {
-					// STOR cmd is intelligent enough to determine the full path
-					// and if it needs to append the ".filename" or "(filename)"
-					// addition to the remote path internally for Dsorgs.
-					remotePath = fileName;
-				}
-				else {
-					remotePath = remoteDir + fileName;
-				}
+				remoteFilePath = GetAbsoluteFilePath(remoteDir, fileName);
 
 				// create meta progress to store the file progress
 				var metaProgress = new FtpProgress(localPaths.Count(), r);
 
 				// try to upload it
 				try {
-					var ok = UploadFileFromFile(localPath, remotePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, remotePath), true, verifyOptions, progress, metaProgress);
+					var ok = UploadFileFromFile(localPath, remoteFilePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, remoteFilePath), true, verifyOptions, progress, metaProgress);
 					if (ok.IsSuccess()) {
-						successfulUploads.Add(remotePath);
+						successfulUploads.Add(remoteFilePath);
 
 						//count++;
 					}
@@ -237,14 +222,7 @@ namespace FluentFTP {
 			var errorEncountered = false;
 			var successfulUploads = new List<string>();
 
-			// ensure ends with slash if remote is not PDS (MVS Dataset)
-			bool isPDS = false;
-			if (remoteDir.StartsWith("'") && ServerType == FtpServer.IBMzOSFTP) {
-				isPDS = true;
-			}
-			else {
-				remoteDir = !remoteDir.EndsWith("/") ? remoteDir + "/" : remoteDir;
-			}
+			remoteDir = await GetAbsolutePathAsync(remoteDir, token); // a dir is just like a path
 
 			//flag to determine if existence checks are required
 			var checkFileExistence = true;
@@ -270,26 +248,18 @@ namespace FluentFTP {
 
 				// calc remote path
 				var fileName = Path.GetFileName(localPath);
-				var remotePath = "";
+				var remoteFilePath = "";
 
-				if (isPDS) {
-					// STOR cmd is intelligent enough to determine the full path
-					// and if it needs to append the ".filename" or "(filename)"
-					// addition to the remote path internally for Dsorgs.
-					remotePath = fileName;
-				}
-				else {
-					remotePath = remoteDir + fileName;
-				}
+				remoteFilePath = await GetAbsoluteFilePathAsync(remoteDir, fileName, token);
 
 				// create meta progress to store the file progress
 				var metaProgress = new FtpProgress(localPaths.Count(), r);
 
 				// try to upload it
 				try {
-					var ok = await UploadFileFromFileAsync(localPath, remotePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, remotePath), true, verifyOptions, token, progress, metaProgress);
+					var ok = await UploadFileFromFileAsync(localPath, remoteFilePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, remoteFilePath), true, verifyOptions, token, progress, metaProgress);
 					if (ok.IsSuccess()) {
-						successfulUploads.Add(remotePath);
+						successfulUploads.Add(remoteFilePath);
 					}
 					else if ((int)errorHandling > 1) {
 						errorEncountered = true;

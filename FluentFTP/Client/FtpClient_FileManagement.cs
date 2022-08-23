@@ -109,9 +109,7 @@ namespace FluentFTP {
 
 				// since FTP does not include a specific command to check if a file exists
 				// here we check if file exists by attempting to get its filesize (SIZE)
-				// If z/OS: Do not do SIZE, unless we have a leading slash
-				if (HasFeature(FtpCapability.SIZE) && (ServerType != FtpServer.IBMzOSFTP || path.StartsWith("/"))) {
-
+				if (HasFeature(FtpCapability.SIZE) && ServerHandler != null && !ServerHandler.DontUseSizeEvenIfCapable(path)) {
 					// Fix #328: get filesize in ASCII or Binary mode as required by server
 					var sizeReply = new FtpSizeReply();
 					GetFileSizeInternal(path, sizeReply, -1);
@@ -124,8 +122,7 @@ namespace FluentFTP {
 				}
 
 				// check if file exists by attempting to get its date modified (MDTM)
-				// If z/OS: Do not do MDTM, unless we have a leading slash
-				if (HasFeature(FtpCapability.MDTM) && (ServerType != FtpServer.IBMzOSFTP || path.StartsWith("/"))) {
+				if (HasFeature(FtpCapability.MDTM) && ServerHandler != null && !ServerHandler.DontUseMdtmEvenIfCapable(path)) {
 					var reply = Execute("MDTM " + path);
 					var ch = reply.Code[0];
 					if (ch == '2') {
@@ -136,14 +133,18 @@ namespace FluentFTP {
 					}
 				}
 
-				// If z/OS: different handling, unless we have a leading slash
-				if (ServerType == FtpServer.IBMzOSFTP && !path.StartsWith("/")) {
-					var fileList = GetNameListing(path);
-					return fileList.Count() > 0;
-				}
-				else
 				// check if file exists by getting a name listing (NLST)
-				{
+
+				bool? handledByCustom = null;
+
+				if (ServerHandler != null && ServerHandler.IsCustomFileExists()) {
+					handledByCustom = ServerHandler.FileExists(this, path);
+				}
+
+				if (handledByCustom != null) {
+					return (bool)handledByCustom;
+				}
+				else {
 					var fileList = GetNameListing(path.GetFtpDirectoryName());
 					return FileListings.FileExistsInNameListing(fileList, path);
 				}
@@ -197,9 +198,7 @@ namespace FluentFTP {
 
 			// since FTP does not include a specific command to check if a file exists
 			// here we check if file exists by attempting to get its filesize (SIZE)
-			// If z/OS: Do not do SIZE, unless we have a leading slash
-			if (HasFeature(FtpCapability.SIZE) && (ServerType != FtpServer.IBMzOSFTP || path.StartsWith("/"))) {
-
+			if (HasFeature(FtpCapability.SIZE) && ServerHandler != null && !ServerHandler.DontUseSizeEvenIfCapable(path)) {
 				// Fix #328: get filesize in ASCII or Binary mode as required by server
 				FtpSizeReply sizeReply = new FtpSizeReply();
 				await GetFileSizeInternalAsync(path, -1, token, sizeReply);
@@ -212,8 +211,7 @@ namespace FluentFTP {
 			}
 
 			// check if file exists by attempting to get its date modified (MDTM)
-			// If z/OS: Do not do MDTM, unless we have a leading slash
-			if (HasFeature(FtpCapability.MDTM) && (ServerType != FtpServer.IBMzOSFTP || path.StartsWith("/"))) {
+			if (HasFeature(FtpCapability.MDTM) && ServerHandler != null && !ServerHandler.DontUseMdtmEvenIfCapable(path)) {
 				FtpReply reply = await ExecuteAsync("MDTM " + path, token);
 				var ch = reply.Code[0];
 				if (ch == '2') {
@@ -225,14 +223,18 @@ namespace FluentFTP {
 				}
 			}
 
-			// If z/OS: different handling, unless we have a leading slash
-			if (ServerType == FtpServer.IBMzOSFTP && !path.StartsWith("/")) {
-				var fileList = await GetNameListingAsync(path, token);
-				return fileList.Count() > 0;
-			}
-			else
 			// check if file exists by getting a name listing (NLST)
-			{
+
+			bool? handledByCustom = null;
+
+			if (ServerHandler != null && ServerHandler.IsCustomFileExists()) {
+				handledByCustom = await ServerHandler.FileExistsAsync(this, path, token);
+			}
+
+			if (handledByCustom != null) {
+				return (bool)handledByCustom;
+			}
+			else {
 				var fileList = await GetNameListingAsync(path.GetFtpDirectoryName(), token);
 				return FileListings.FileExistsInNameListing(fileList, path);
 			}
