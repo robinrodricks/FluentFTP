@@ -58,13 +58,13 @@ namespace FluentFTP.Xunit.Docker {
 			if (_server != null) {
 				try {
 					// dispose existing container if any
-					_container?.DisposeAsync();
+					_container?.DisposeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
 					// build the container image
 					_container = _server.Build();
 
 					// start the container
-					_container.StartAsync().Wait();
+					_container.StartAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 				}
 				catch (TypeInitializationException ex) {
 

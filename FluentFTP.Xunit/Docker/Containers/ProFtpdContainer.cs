@@ -23,12 +23,12 @@ namespace FluentFTP.Xunit.Docker.Containers {
 		/// </summary>
 		public override ITestcontainersBuilder<TestcontainersContainer> Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 
-			builder = ExposePortRange(builder, 50000, 50100);
+			builder = ExposePortRange(builder, 50000, 50010);
 
 			builder = builder
 				.WithEnvironment("FTP_LIST", DockerFtpConfig.FtpUser + ":" + DockerFtpConfig.FtpPass)
 				.WithEnvironment("PASSIVE_MIN_PORT", "50000")
-				.WithEnvironment("PASSIVE_MAX_PORT", "50100")
+				.WithEnvironment("PASSIVE_MAX_PORT", "50010")
 				.WithEnvironment("MASQUERADE_ADDRESS", "127.0.0.1");
 
 			return builder;
