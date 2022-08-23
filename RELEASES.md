@@ -1,5 +1,15 @@
 # Release Notes
 
+#### 39.4.0
+ - New: Add `SslProtocolActive` property to retrieve the negotiated SSL/TLS protocol version
+ - Fix: z/OS: Improve server handling for absolute path calculation (thanks [FanDjango](/FanDjango))
+ - Fix: z/OS: Remove direct z/OS dependancy in `GetListing` (thanks [FanDjango](/FanDjango))
+ - Fix: z/OS: Add some special cases to handle conversion of remote FTP paths (thanks [FanDjango](/FanDjango))
+ - Fix: z/OS: Add missing parser tests for z/OS FTP server (thanks [FanDjango](/FanDjango))
+ - Fix: z/OS: Fix file size calculation for non-unix z/OS files (thanks [FanDjango](/FanDjango))
+ - Internal: Add integration tests for `GetListingAsyncEnumerable` (thanks [tommysor](/tommysor))
+ - Internal: Remove 3 test dockers that do not work (thanks [tommysor](/tommysor))
+
 #### 39.3.0
  - New: Detect D-Link, TP-LINK, Huawei, MicroTik FTP servers (allows for future server-specific handling)
  - Fix: `AutoConnect` now correctly handles internal `AggregateException` (.NET 5.0+)
