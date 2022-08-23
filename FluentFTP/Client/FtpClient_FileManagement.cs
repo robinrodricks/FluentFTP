@@ -105,13 +105,7 @@ namespace FluentFTP {
 
 				LogFunc(nameof(FileExists), new object[] { path });
 
-				// A check for path.StartsWith("/") tells us, even if it is z/OS, we can use the normal unix logic
-
-				// If z/OS: Do not GetAbsolutePath(), unless we have a leading slash
-				if (ServerType != FtpServer.IBMzOSFTP || path.StartsWith("/")) {
-					// calc the absolute filepath
-					path = GetAbsolutePath(path);
-				}
+				path = GetAbsolutePath(path);
 
 				// since FTP does not include a specific command to check if a file exists
 				// here we check if file exists by attempting to get its filesize (SIZE)
@@ -199,13 +193,7 @@ namespace FluentFTP {
 
 			LogFunc(nameof(FileExistsAsync), new object[] { path });
 
-			// A check for path.StartsWith("/") tells us, even if it is z/OS, we can use the normal unix logic
-
-			// Do not need GetAbsolutePath(path) if z/OS
-			if (ServerType != FtpServer.IBMzOSFTP || path.StartsWith("/")) {
-				// calc the absolute filepath
-				path = await GetAbsolutePathAsync(path, token);
-			}
+			path = await GetAbsolutePathAsync(path, token);
 
 			// since FTP does not include a specific command to check if a file exists
 			// here we check if file exists by attempting to get its filesize (SIZE)
