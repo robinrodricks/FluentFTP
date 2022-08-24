@@ -6,6 +6,7 @@ using FluentFTP;
 using FluentFTP.Servers;
 #if (CORE || NETFX)
 using System.Threading;
+using FluentFTP.Helpers;
 #endif
 #if ASYNC
 using System.Threading.Tasks;
@@ -99,8 +100,17 @@ namespace FluentFTP.Servers.Handlers {
 		/// Get the full path of a given FTP Listing entry
 		/// Return null indicates custom code decided not to handle this
 		/// </summary>
-		public override bool? CalculateFullFtpPath(FtpClient client, string path, FtpListItem item)
-		{
+		public override bool? CalculateFullFtpPath(FtpClient client, string path, FtpListItem item) {
+			if (path == null) {
+				// check if the path is absolute
+				if (IsAbsolutePath(item.Name)) {
+					item.FullName = item.Name;
+					item.Name = item.Name.GetFtpFileName();
+				}
+
+				return true;
+			}
+
 			// if this is a vax/openvms file listing
 			// there are no slashes in the path name
 			item.FullName = path + item.Name;
