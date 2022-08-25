@@ -491,10 +491,11 @@ namespace FluentFTP {
 #else
 			ar = BaseStream.BeginRead(buffer, offset, count, null, null);
 			bool success = ar.AsyncWaitHandle.WaitOne(m_readTimeout, true);
-			ar.AsyncWaitHandle.Close();
 			if (!success) {
 				Close();
 				throw new TimeoutException("Timed out trying to read data from the socket stream!");
+			} else {
+				ar.AsyncWaitHandle.Close();
 			}
 
 			return BaseStream.EndRead(ar);
@@ -918,7 +919,6 @@ namespace FluentFTP {
 #else
 				ar = m_socket.BeginConnect(addresses[i], port, null, null);
 				bool success = ar.AsyncWaitHandle.WaitOne(m_connectTimeout, true);
-				ar.AsyncWaitHandle.Close();
 				if (!success) {
 					Close();
 
@@ -928,6 +928,7 @@ namespace FluentFTP {
 					}
 				}
 				else {
+					ar.AsyncWaitHandle.Close();
 					m_socket.EndConnect(ar);
 
 					// we got a connection, break out
