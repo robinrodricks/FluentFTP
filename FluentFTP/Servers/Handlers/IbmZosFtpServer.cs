@@ -393,7 +393,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Return null indicates custom code decided not to handle this
 		/// </summary>
 		public override bool? CalculateFullFtpPath(FtpClient client, string path, FtpListItem item) {
-			if (client.zOSListingRealm != FtpZOSListRealm.Unix)	{
+			if (client.zOSListingRealm == FtpZOSListRealm.Unix)	{
 				return null;
 			}
 
