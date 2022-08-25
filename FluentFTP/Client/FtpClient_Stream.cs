@@ -831,10 +831,11 @@ namespace FluentFTP {
 			stream.EndAccept(args, m_dataConnectionConnectTimeout);
 #else
 			ar.AsyncWaitHandle.WaitOne(m_dataConnectionConnectTimeout);
-			ar.AsyncWaitHandle.Close();
 			if (!ar.IsCompleted) {
 				stream.Close();
 				throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
+			} else {
+				ar.AsyncWaitHandle.Close();
 			}
 
 			stream.EndAccept(ar);
