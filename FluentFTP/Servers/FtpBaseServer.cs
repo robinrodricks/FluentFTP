@@ -169,13 +169,12 @@ namespace FluentFTP.Servers {
 		/// <summary>
 		/// Return true if the path is an absolute path according to your server's convention.
 		/// </summary>
-		public virtual bool IsAbsolutePath(string path)
-		{
+		public virtual bool IsAbsolutePath(string path) {
 			return false;
 		}
 
 		/// <summary>
-		/// Return true if your server requires custom handling of file size.
+		/// Return true if your server requires custom handling of absolute paths.
 		/// </summary>
 		public virtual bool IsCustomGetAbsolutePath() {
 			return false;
@@ -196,6 +195,110 @@ namespace FluentFTP.Servers {
 		/// </summary>
 		public virtual Task<string> GetAbsolutePathAsync(FtpClient client, string path, CancellationToken token) {
 			return Task.FromResult(path);
+		}
+#endif
+
+		/// <summary>
+		/// Return true if your server requires custom handling of absolute dir.
+		/// </summary>
+		public virtual bool IsCustomGetAbsoluteDir() {
+			return false;
+		}
+
+		/// <summary>
+		/// Perform server-specific path modification here.
+		/// Return the absolute dir.
+		/// </summary>
+		public virtual string GetAbsoluteDir(FtpClient client, string path)	{
+			return null;
+		}
+
+#if ASYNC
+		/// <summary>
+		/// Perform server-specific path modification here.
+		/// Return the absolute path.
+		/// </summary>
+		public virtual Task<string> GetAbsoluteDirAsync(FtpClient client, string path, CancellationToken token) { 
+			return Task.FromResult((string)null);
+		}
+#endif
+
+		/// <summary>
+		/// Return true if your server requires custom handling of path and filename concatenation.
+		/// </summary>
+		public virtual bool IsCustomGetAbsoluteFilePath() {
+			return false;
+		}
+
+		/// <summary>
+		/// Perform server-specific path modification here.
+		/// Return concatenation of path and filename
+		/// </summary>
+		public virtual string GetAbsoluteFilePath(FtpClient client, string path, string fileName) {
+			return !path.EndsWith("/") ? path + "/" + fileName : path + fileName;
+		}
+
+#if ASYNC
+		/// <summary>
+		/// Perform server-specific path modification here.
+		/// Return concatenation of path and filename
+		/// </summary>
+		public virtual Task<string> GetAbsoluteFilePathAsync(FtpClient client, string path, string fileName, CancellationToken token) {
+			return Task.FromResult(!path.EndsWith("/") ? path + "/" + fileName : path + fileName);
+		}
+#endif
+
+		/// <summary>
+		/// Return true if your server requires custom handling to handle listing analysis.
+		/// </summary>
+		public virtual bool IsCustomCalculateFullFtpPath() {
+			return false;
+		}
+
+		/// <summary>
+		/// Get the full path of a given FTP Listing entry
+		/// Return null indicates custom code decided not to handle this
+		/// </summary>
+		public virtual bool? CalculateFullFtpPath(FtpClient client, string path, FtpListItem item) {
+			return null;
+		}
+
+		/// <summary>
+		/// Disable SIZE command even if server says it is supported
+		/// </summary>
+		public virtual bool DontUseSizeEvenIfCapable(string path) {
+			return false;
+		}
+
+		/// <summary>
+		/// Disable MDTM command even if server says it is supported
+		/// </summary>
+		public virtual bool DontUseMdtmEvenIfCapable(string path) {
+			return false;
+		}
+
+		/// <summary>
+		/// Return true if your server requires custom handling to check file existence.
+		/// </summary>
+		public virtual bool IsCustomFileExists() {
+			return false;
+		}
+
+		/// <summary>
+		/// Check for existence of a file
+		/// Return null indicates custom code decided not to handle this
+		/// </summary>
+		public virtual bool? FileExists(FtpClient client, string path) {
+			return null;
+		}
+
+#if ASYNC
+		/// <summary>
+		/// Check for existence of a file
+		/// Return null indicates custom code decided not to handle this
+		/// </summary>
+		public virtual Task<bool?> FileExistsAsync(FtpClient client, string path, CancellationToken token) {
+			return Task.FromResult((bool?)null);
 		}
 #endif
 	}
