@@ -11,7 +11,7 @@ namespace FluentFTP {
 	/// 
 	/// Debugging problems with FTP is much easier when you enable logging. Visit our Github Wiki for more info.
 	/// </summary>
-	public partial class AsyncFtpClient : BaseFtpClient, IInternalFtpClient, IDisposable {
+	public partial class AsyncFtpClient : BaseFtpClient, IInternalFtpClient, IDisposable, IAsyncFtpClient {
 
 		/// <summary>
 		/// Creates a new instance of this class.

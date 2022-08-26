@@ -1,20 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Globalization;
-using System.Security.Authentication;
-using System.Net;
-using FluentFTP.Proxy;
-using FluentFTP.Helpers;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentFTP.Client.Modules;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {

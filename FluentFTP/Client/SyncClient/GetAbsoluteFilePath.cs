@@ -25,25 +25,5 @@ namespace FluentFTP {
 			return path;
 		}
 
-#if ASYNC
-		/// <summary>
-		/// Concat a path and a filename
-		/// </summary>
-		protected async Task<string> GetAbsoluteFilePathAsync(string path, string fileName, CancellationToken token) {
-			string filePath = null;
-			if (ServerHandler != null && ServerHandler.IsCustomGetAbsoluteFilePath()) {
-				filePath = await ServerHandler.GetAbsoluteFilePathAsync(this, path, fileName, token);
-			}
-
-			if (filePath != null) {
-				return filePath;
-			}
-
-			path = !path.EndsWith("/") ? path + "/" + fileName : path + fileName;
-
-			return path;
-		}
-#endif
-
 	}
 }

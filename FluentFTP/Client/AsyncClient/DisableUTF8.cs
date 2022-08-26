@@ -21,7 +21,7 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			lock (m_lock) {
-				if (!(reply = Execute("OPTS UTF8 OFF")).Success) {
+				if (!(reply = ((IInternalFtpClient)this).ExecuteInternal("OPTS UTF8 OFF")).Success) {
 					throw new FtpCommandException(reply);
 				}
 

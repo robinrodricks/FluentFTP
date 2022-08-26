@@ -107,7 +107,7 @@ namespace FluentFTP {
 			var fileListing = (await GetListingAsync(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpObjectType.File).Select(x => x.FullName).ToArray();
 
 			// loop through each file and transfer it
-			var filesToUpload = GetFilesToTransfer(sourceFolder, remoteFolder, rules, results, shouldExist, fileListing);
+			var filesToUpload = await GetFilesToTransferAsync(sourceFolder, remoteFolder, rules, results, shouldExist, fileListing);
 			await TransferServerFilesAsync(filesToUpload, remoteClient, existsMode, verifyOptions, progress, remoteListing, token);
 
 			// delete the extra remote files if in mirror mode and the directory was pre-existing
@@ -115,9 +115,42 @@ namespace FluentFTP {
 
 			return results;
 		}
-#endif
+		protected async Task<List<FtpResult>> GetFilesToTransferAsync(string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, string[] fileListing) {
 
-#if ASYNC
+			var filesToTransfer = new List<FtpResult>();
+
+			foreach (var sourceFile in fileListing) {
+
+				// calculate the local path
+				var relativePath = sourceFile.Replace(sourceFolder, "");
+				var remoteFile = remoteFolder + relativePath;
+
+				// create the result object
+				var result = new FtpResult {
+					Type = FtpObjectType.File,
+					Size = await GetFileSizeAsync(sourceFile),
+					Name = sourceFile.GetFtpFileName(),
+					RemotePath = remoteFile,
+					LocalPath = sourceFile
+				};
+
+				// record the file
+				results.Add(result);
+
+				// skip transferring the file if it does not pass all the rules
+				if (!FilePassesRules(result, rules, true)) {
+					continue;
+				}
+
+				// record that this file should exist
+				shouldExist.Add(remoteFile.ToLowerInvariant(), true);
+
+				// absorb errors
+				filesToTransfer.Add(result);
+			}
+
+			return filesToTransfer;
+		}
 
 		protected async Task TransferServerFilesAsync(List<FtpResult> filesToTransfer, AsyncFtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
 

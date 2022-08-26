@@ -37,35 +37,5 @@ namespace FluentFTP {
 			return date;
 		}
 
-#if ASYNC
-		/// <summary>
-		/// Gets the modified time of a remote file asynchronously
-		/// </summary>
-		/// <param name="path">The full path to the file</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>The modified time, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
-		public async Task<DateTime> GetModifiedTimeAsync(string path, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
-
-			path = path.GetFtpPath();
-
-			LogFunc(nameof(GetModifiedTimeAsync), new object[] { path });
-
-			var date = DateTime.MinValue;
-			FtpReply reply;
-
-			// get modified date of a file
-			if ((reply = await ExecuteAsync("MDTM " + path, token)).Success) {
-				date = reply.Message.ParseFtpDate(this);
-				date = ConvertDate(date);
-			}
-
-			return date;
-		}
-#endif
-
 	}
 }

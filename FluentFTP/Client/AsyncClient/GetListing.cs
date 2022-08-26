@@ -32,7 +32,7 @@ namespace FluentFTP {
 
 			// start recursive process if needed and unsupported by the server
 			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
-				await foreach (FtpListItem i in GetListingRecursiveAsyncEnumerable(await GetAbsolutePathAsync(path), options, token, enumToken)) {
+				await foreach (FtpListItem i in GetListingRecursiveAsyncEnumerable(await GetAbsolutePathAsync(path, token), options, token, enumToken)) {
 					yield return i;
 				}
 
@@ -150,7 +150,7 @@ namespace FluentFTP {
 
 			// start recursive process if needed and unsupported by the server
 			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
-				return await GetListingRecursiveAsync(await GetAbsolutePathAsync(path), options, token);
+				return await GetListingRecursiveAsync(await GetAbsolutePathAsync(path, token), options, token);
 			}
 
 			// FIX : #768 NullOrEmpty is valid, means "use working directory".

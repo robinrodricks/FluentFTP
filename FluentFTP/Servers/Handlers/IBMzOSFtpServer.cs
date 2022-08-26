@@ -8,7 +8,7 @@ namespace FluentFTP.Servers.Handlers {
 	/// <summary>
 	/// Server-specific handling for IBMzOSFTP servers
 	/// </summary>
-	internal class t : FtpBaseServer {
+	internal class IBMzOSFtpServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.

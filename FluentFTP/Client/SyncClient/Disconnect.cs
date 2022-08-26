@@ -28,26 +28,5 @@ namespace FluentFTP {
 			}
 		}
 
-#if ASYNC
-		/// <summary>
-		/// Disconnects from the server asynchronously
-		/// </summary>
-		public async Task DisconnectAsync(CancellationToken token = default(CancellationToken)) {
-			if (m_stream != null && m_stream.IsConnected) {
-				try {
-					if (DisconnectWithQuit) {
-						await ExecuteAsync("QUIT", token);
-					}
-				}
-				catch (Exception ex) {
-					LogStatus(FtpTraceLevel.Warn, "FtpClient.Disconnect(): Exception caught and discarded while closing control connection: " + ex.ToString());
-				}
-				finally {
-					m_stream.Close();
-				}
-			}
-		}
-#endif
-
 	}
 }

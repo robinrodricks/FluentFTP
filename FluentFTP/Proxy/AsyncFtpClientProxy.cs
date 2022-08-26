@@ -1,12 +1,13 @@
-using FluentFTP.Client.BaseClient;
+﻿using FluentFTP.Client.BaseClient;
 using System.Threading;
 using System.Threading.Tasks;
 
+#if ASYNC
 namespace FluentFTP.Proxy {
 	/// <summary>
 	/// Abstraction of an FtpClient with a proxy
 	/// </summary>
-	public abstract class FtpClientProxy : FtpClient {
+	public abstract class AsyncFtpClientProxy : AsyncFtpClient {
 		private FtpProxyProfile _proxy;
 
 		/// <summary> The proxy connection info. </summary>
@@ -14,7 +15,7 @@ namespace FluentFTP.Proxy {
 
 		/// <summary> A FTP client with a HTTP 1.1 proxy implementation </summary>
 		/// <param name="proxy">Proxy information</param>
-		protected FtpClientProxy(FtpProxyProfile proxy) {
+		protected AsyncFtpClientProxy(FtpProxyProfile proxy) {
 			_proxy = proxy;
 
 			// set the FTP server details into the client if provided
@@ -27,9 +28,11 @@ namespace FluentFTP.Proxy {
 
 		/// <summary> Redefine connect for FtpClient : authentication on the Proxy  </summary>
 		/// <param name="stream">The socket stream.</param>
-		protected override void Connect(FtpSocketStream stream) {
-			stream.Connect(Proxy.ProxyHost, Proxy.ProxyPort, InternetProtocolVersions);
+		/// <param name="token">Cancellation token.</param>
+		protected override Task ConnectAsync(FtpSocketStream stream, CancellationToken token) {
+			return stream.ConnectAsync(Proxy.ProxyHost, Proxy.ProxyPort, InternetProtocolVersions, token);
 		}
 
 	}
 }
+#endif
