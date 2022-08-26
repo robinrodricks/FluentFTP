@@ -65,6 +65,10 @@
     <Folder Include="Client\AsyncClient\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.0" />
+  </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)'=='Release' And '$(TargetFramework)'=='net45'">
     <Exec Command="copy /Y &quot;$(ProjectDir)bin\Release\net45\FluentFTP.dll&quot; &quot;$(SolutionDir)Powershell\FluentFTP.dll&quot;" />
   </Target>
