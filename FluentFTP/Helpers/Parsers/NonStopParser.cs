@@ -5,13 +5,14 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers.Parsers {
 	internal static class NonStopParser {
 		/// <summary>
 		/// Checks if the given listing is a valid NonStop file listing
 		/// </summary>
-		public static bool IsValid(FtpClient client, string[] records) {
+		public static bool IsValid(BaseFtpClient client, string[] records) {
 			return IsHeader(records[0]);
 		}
 
@@ -29,7 +30,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <param name="client">The FTP client</param>
 		/// <param name="record">A line from the listing</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		public static FtpListItem Parse(FtpClient client, string record) {
+		public static FtpListItem Parse(BaseFtpClient client, string record) {
 			if (IsHeader(record)) {
 				return null;
 			}
@@ -68,7 +69,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the directory type and file size from NonStop format listings
 		/// </summary>
-		private static void ParseDirAndFileSize(FtpClient client, string[] values, out bool isDir, out long size) {
+		private static void ParseDirAndFileSize(BaseFtpClient client, string[] values, out bool isDir, out long size) {
 			isDir = false;
 			size = 0L;
 			try {
@@ -82,7 +83,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the last modified date from NonStop format listings
 		/// </summary>
-		private static DateTime ParseDateTime(FtpClient client, string lastModifiedStr) {
+		private static DateTime ParseDateTime(BaseFtpClient client, string lastModifiedStr) {
 			try {
 				var lastModified = DateTime.ParseExact(lastModifiedStr, DateTimeFormats, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
 				return lastModified;

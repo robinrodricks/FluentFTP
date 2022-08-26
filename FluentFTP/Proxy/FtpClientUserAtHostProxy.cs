@@ -1,3 +1,5 @@
+using FluentFTP.Client.BaseClient;
+
 namespace FluentFTP.Proxy {
 	/// <summary> A FTP client with a user@host proxy identification. </summary>
 	public class FtpClientUserAtHostProxy : FtpClientProxy {
@@ -11,7 +13,7 @@ namespace FluentFTP.Proxy {
 		/// <summary>
 		/// Creates a new instance of this class. Useful in FTP proxy classes.
 		/// </summary>
-		protected override FtpClient Create() {
+		protected override BaseFtpClient Create() {
 			return new FtpClientUserAtHostProxy(Proxy);
 		}
 

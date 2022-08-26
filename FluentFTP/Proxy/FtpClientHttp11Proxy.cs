@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 #endif
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Proxy {
 	/// <summary> A FTP client with a HTTP 1.1 proxy implementation. </summary>
@@ -33,7 +34,7 @@ namespace FluentFTP.Proxy {
 		/// <summary>
 		/// Creates a new instance of this class. Useful in FTP proxy classes.
 		/// </summary>
-		protected override FtpClient Create() {
+		protected override BaseFtpClient Create() {
 			return new FtpClientHttp11Proxy(Proxy);
 		}
 

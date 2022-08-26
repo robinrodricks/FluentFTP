@@ -25,20 +25,20 @@ using FluentFTP.Rules;
 using System.Threading.Tasks;
 
 #endif
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 
 		/// <summary>
 		/// Opens a FXP PASV connection between the source FTP Server and the destination FTP Server
 		/// </summary>
 		/// <param name="remoteClient">FtpClient instance of the destination FTP Server</param>
 		/// <returns>A data stream ready to be used</returns>
-		private FtpFxpSession OpenPassiveFXPConnection(FtpClient remoteClient, bool trackProgress) {
+		protected FtpFxpSession OpenPassiveFXPConnection(BaseFtpClient remoteClient, bool trackProgress) {
 			FtpReply reply, reply2;
 			Match m;
-			FtpClient sourceClient = null;
-			FtpClient destinationClient = null;
-			FtpClient progressClient = null;
+			BaseFtpClient sourceClient = null;
+			BaseFtpClient destinationClient = null;
+			BaseFtpClient progressClient = null;
 
 			// create a new connection to the source FTP server if EnableThreadSafeDataConnections is set
 			if (EnableThreadSafeDataConnections) {
@@ -120,12 +120,12 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="remoteClient">Valid FTP connection to the destination FTP Server</param>
 		/// <returns>A data stream ready to be used</returns>
-		private async Task<FtpFxpSession> OpenPassiveFXPConnectionAsync(FtpClient remoteClient, bool trackProgress, CancellationToken token) {
+		protected async Task<FtpFxpSession> OpenPassiveFXPConnectionAsync(BaseFtpClient remoteClient, bool trackProgress, CancellationToken token) {
 			FtpReply reply, reply2;
 			Match m;
-			FtpClient sourceClient = null;
-			FtpClient destinationClient = null;
-			FtpClient progressClient = null;
+			BaseFtpClient sourceClient = null;
+			BaseFtpClient destinationClient = null;
+			BaseFtpClient progressClient = null;
 
 			// create a new connection to the source FTP server if EnableThreadSafeDataConnections is set
 			if (m_threadSafeDataChannels) {

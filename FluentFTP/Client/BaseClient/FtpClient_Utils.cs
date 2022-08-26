@@ -24,8 +24,8 @@ using System.Threading.Tasks;
 #endif
 using System.Threading;
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 
 		/// <summary>
 		/// Forcibly set the capabilities of your FTP server.
@@ -51,46 +51,9 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Retrieves the delegate for the specified IAsyncResult and removes
-		/// it from the m_asyncmethods collection if the operation is successful
-		/// </summary>
-		/// <typeparam name="T">Type of delegate to retrieve</typeparam>
-		/// <param name="ar">The IAsyncResult to retrieve the delegate for</param>
-		/// <returns>The delegate that generated the specified IAsyncResult</returns>
-		protected T GetAsyncDelegate<T>(IAsyncResult ar) {
-			T func;
-
-			lock (m_asyncmethods) {
-				if (m_isDisposed) {
-					throw new ObjectDisposedException("This connection object has already been disposed.");
-				}
-
-				if (!m_asyncmethods.ContainsKey(ar)) {
-					throw new InvalidOperationException("The specified IAsyncResult could not be located.");
-				}
-
-				if (!(m_asyncmethods[ar] is T)) {
-#if NETSTANDARD
-					throw new InvalidCastException("The AsyncResult cannot be matched to the specified delegate. ");
-#else
-					var st = new StackTrace(1);
-
-					throw new InvalidCastException("The AsyncResult cannot be matched to the specified delegate. " + "Are you sure you meant to call " + st.GetFrame(0).GetMethod().Name + " and not another method?"
-					);
-#endif
-				}
-
-				func = (T)m_asyncmethods[ar];
-				m_asyncmethods.Remove(ar);
-			}
-
-			return func;
-		}
-
-		/// <summary>
 		/// Ensure a relative path is absolute by prepending the working dir
 		/// </summary>
-		private string GetAbsolutePath(string path) {
+		protected string GetAbsolutePath(string path) {
 
 			if (ServerHandler != null && ServerHandler.IsCustomGetAbsolutePath()) {
 				return ServerHandler.GetAbsolutePath(this, path);
@@ -134,7 +97,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Ensure a relative path is absolute by prepending the working dir
 		/// </summary>
-		private async Task<string> GetAbsolutePathAsync(string path, CancellationToken token) {
+		protected async Task<string> GetAbsolutePathAsync(string path, CancellationToken token) {
 
 			if (ServerHandler != null && ServerHandler.IsCustomGetAbsolutePath()) {
 				return await ServerHandler.GetAbsolutePathAsync(this, path, token);
@@ -178,7 +141,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Ensure a relative dir is absolute by prepending the working dir
 		/// </summary>
-		private string GetAbsoluteDir(string path) {
+		protected string GetAbsoluteDir(string path) {
 			string dirPath = null;
 			if (ServerHandler != null && ServerHandler.IsCustomGetAbsoluteDir()) {
 				dirPath = ServerHandler.GetAbsoluteDir(this, path);
@@ -199,7 +162,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Ensure a relative dir is absolute by prepending the working dir
 		/// </summary>
-		private async Task<string> GetAbsoluteDirAsync(string path, CancellationToken token) {
+		protected async Task<string> GetAbsoluteDirAsync(string path, CancellationToken token) {
 			string dirPath = null;
 			if (ServerHandler != null && ServerHandler.IsCustomGetAbsoluteDir()) {
 				dirPath = await ServerHandler.GetAbsoluteDirAsync(this, path, token);
@@ -220,7 +183,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Concat a path and a filename
 		/// </summary>
-		private string GetAbsoluteFilePath(string path, string fileName)
+		protected string GetAbsoluteFilePath(string path, string fileName)
 		{
 			string filePath = null;
 			if (ServerHandler != null && ServerHandler.IsCustomGetAbsoluteFilePath()) {
@@ -240,7 +203,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Concat a path and a filename
 		/// </summary>
-		private async Task<string> GetAbsoluteFilePathAsync(string path, string fileName, CancellationToken token) {
+		protected async Task<string> GetAbsoluteFilePathAsync(string path, string fileName, CancellationToken token) {
 			string filePath = null;
 			if (ServerHandler != null && ServerHandler.IsCustomGetAbsoluteFilePath()) {
 				filePath = await ServerHandler.GetAbsoluteFilePathAsync(this, path, fileName, token);
@@ -257,7 +220,7 @@ namespace FluentFTP {
 #endif
 
 
-		private static string DecodeUrl(string url) {
+		protected static string DecodeUrl(string url) {
 			return WebUtility.UrlDecode(url);
 		}
 
@@ -288,7 +251,7 @@ namespace FluentFTP {
 		/// <param name="closeStream">close the connection?</param>
 		/// <param name="evenEncrypted">even read encrypted data?</param>
 		/// <param name="traceData">trace data to logs?</param>
-		private string ReadStaleData(bool closeStream, bool evenEncrypted, bool traceData) {
+		protected string ReadStaleData(bool closeStream, bool evenEncrypted, bool traceData) {
 			string staleData = null;
 			if (m_stream != null && m_stream.SocketDataAvailable > 0) {
 				if (traceData) {
@@ -324,7 +287,7 @@ namespace FluentFTP {
 		/// <param name="evenEncrypted">even read encrypted data?</param>
 		/// <param name="traceData">trace data to logs?</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		private async Task<string> ReadStaleDataAsync(bool closeStream, bool evenEncrypted, bool traceData, CancellationToken token) {
+		protected async Task<string> ReadStaleDataAsync(bool closeStream, bool evenEncrypted, bool traceData, CancellationToken token) {
 			string staleData = null;
 			if (m_stream != null && m_stream.SocketDataAvailable > 0) {
 				if (traceData) {
@@ -358,7 +321,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Returns true if the file passes all the rules
 		/// </summary>
-		private bool FilePassesRules(FtpResult result, List<FtpRule> rules, bool useLocalPath, FtpListItem item = null) {
+		protected bool FilePassesRules(FtpResult result, List<FtpRule> rules, bool useLocalPath, FtpListItem item = null) {
 			if (rules != null && rules.Count > 0) {
 				var passes = FtpRule.IsAllAllowed(rules, item ?? result.ToListItem(useLocalPath));
 				if (!passes) {

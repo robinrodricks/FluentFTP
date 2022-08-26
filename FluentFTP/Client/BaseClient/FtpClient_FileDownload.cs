@@ -27,8 +27,8 @@ using System.Threading;
 using FluentFTP.Exceptions;
 using FluentFTP.Client.Modules;
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 		#region Download Multiple Files
 
 		/// <summary>
@@ -127,7 +127,7 @@ namespace FluentFTP {
 		}
 		
 
-		private void PurgeSuccessfulDownloads(IEnumerable<string> localFiles) {
+		protected void PurgeSuccessfulDownloads(IEnumerable<string> localFiles) {
 			foreach (var localFile in localFiles) {
 				// absorb any errors because we don't want this to throw more errors!
 				try {
@@ -282,7 +282,7 @@ namespace FluentFTP {
 			return DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, progress, new FtpProgress(1, 0));
 		}
 
-		private FtpStatus DownloadFileToFile(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
+		protected FtpStatus DownloadFileToFile(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
 			bool isAppend = false;
 
 			remotePath = remotePath.GetFtpPath();
@@ -400,7 +400,7 @@ namespace FluentFTP {
 			return await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, progress, token, new FtpProgress(1, 0));
 		}
 
-		private async Task<FtpStatus> DownloadFileToFileAsync(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
+		protected async Task<FtpStatus> DownloadFileToFileAsync(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
 			
 			// verify args
 			if (localPath.IsBlank()) {
@@ -660,7 +660,7 @@ namespace FluentFTP {
 		/// Download a file from the server and write the data into the given stream.
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private bool DownloadFileInternal(string localPath, string remotePath, Stream outStream, long restartPosition,
+		protected bool DownloadFileInternal(string localPath, string remotePath, Stream outStream, long restartPosition,
 			Action<FtpProgress> progress, FtpProgress metaProgress, long knownFileSize, bool isAppend) {
 
 			Stream downStream = null;
@@ -869,7 +869,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Calculate transfer chunk size taking rate control into account
 		/// </summary>
-		private int CalculateTransferChunkSize(Int64 rateLimitBytes, int rateControlResolution) {
+		protected int CalculateTransferChunkSize(Int64 rateLimitBytes, int rateControlResolution) {
 			int chunkSize = TransferChunkSize;
 
 			// if user has not specified a TransferChunkSize and rate limiting is enabled
@@ -894,7 +894,7 @@ namespace FluentFTP {
 		/// Download a file from the server and write the data into the given stream asynchronously.
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private async Task<bool> DownloadFileInternalAsync(string localPath, string remotePath, Stream outStream, long restartPosition,
+		protected async Task<bool> DownloadFileInternalAsync(string localPath, string remotePath, Stream outStream, long restartPosition,
 			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress, long knownFileSize, bool isAppend) {
 
 			Stream downStream = null;
@@ -1111,7 +1111,7 @@ namespace FluentFTP {
 		}
 #endif
 
-		private bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
+		protected bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
 			if (ex.IsResumeAllowed())
 			{
 				downStream.Dispose();
@@ -1124,7 +1124,7 @@ namespace FluentFTP {
 		}
 
 #if ASYNC
-		private async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex) {
+		protected async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex) {
 			if (ex.IsResumeAllowed())
 			{
 				downStream.Dispose();

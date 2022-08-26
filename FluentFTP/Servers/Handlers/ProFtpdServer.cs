@@ -10,6 +10,7 @@ using System.Threading;
 #if ASYNC
 using System.Threading.Tasks;
 #endif
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Servers.Handlers {
 
@@ -53,7 +54,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Perform server-specific delete directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public override bool DeleteDirectory(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options) {
+		public override bool DeleteDirectory(BaseFtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options) {
 
 			// Support #378 - Support RMDIR command for ProFTPd
 			if (deleteContents && client.HasFeature(FtpCapability.SITE_RMDIR)) {
@@ -74,7 +75,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Perform async server-specific delete directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public override async Task<bool> DeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
+		public override async Task<bool> DeleteDirectoryAsync(BaseFtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
 			
 			// Support #378 - Support RMDIR command for ProFTPd
 			if (deleteContents && client.HasFeature(FtpCapability.SITE_RMDIR)) {
@@ -95,7 +96,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Perform server-specific create directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public override bool CreateDirectory(FtpClient client, string path, string ftppath, bool force) {
+		public override bool CreateDirectory(BaseFtpClient client, string path, string ftppath, bool force) {
 
 			// Support #378 - Support MKDIR command for ProFTPd
 			if (client.HasFeature(FtpCapability.SITE_MKDIR)) {
@@ -116,7 +117,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Perform async server-specific create directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public override async Task<bool> CreateDirectoryAsync(FtpClient client, string path, string ftppath, bool force, CancellationToken token) {
+		public override async Task<bool> CreateDirectoryAsync(BaseFtpClient client, string path, string ftppath, bool force, CancellationToken token) {
 
 			// Support #378 - Support MKDIR command for ProFTPd
 			if (client.HasFeature(FtpCapability.SITE_MKDIR)) {

@@ -27,8 +27,8 @@ using System.Threading.Tasks;
 using FluentFTP.Helpers.Hashing;
 using HashAlgos = FluentFTP.Helpers.Hashing.HashAlgorithms;
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 
 		#region Get z/OS Realm
 

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers.Parsers {
 	internal static class UnixParser {
@@ -12,7 +13,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Checks if the given listing is a valid Unix file listing
 		/// </summary>
-		public static bool IsValid(FtpClient client, string[] records) {
+		public static bool IsValid(BaseFtpClient client, string[] records) {
 			var count = Math.Min(records.Length, 10);
 
 			var perms1 = false;
@@ -62,7 +63,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <param name="client">The FTP client</param>
 		/// <param name="record">A line from the listing</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		public static FtpListItem Parse(FtpClient client, string record) {
+		public static FtpListItem Parse(BaseFtpClient client, string record) {
 			// test it is a valid line, e.g. "total 342522" is invalid
 			var ch = record[0];
 			if (ch != FileMarker && ch != DirectoryMarker && ch != SymbolicLinkMarker) {
@@ -147,7 +148,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the link count from Unix format listings
 		/// </summary>
-		private static int ParseLinkCount(FtpClient client, string[] values, ref int index) {
+		private static int ParseLinkCount(BaseFtpClient client, string[] values, ref int index) {
 			var linkCount = 0;
 			if (char.IsDigit(values[index][0])) {
 				// assume it is if a digit
@@ -191,7 +192,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the file size from Unix format listings
 		/// </summary>
-		private static long ParseFileSize(FtpClient client, string[] values, ref int index) {
+		private static long ParseFileSize(BaseFtpClient client, string[] values, ref int index) {
 			var size = 0L;
 			var sizeStr = values[index++].Replace(".", ""); // get rid of .'s in size           
 			try {
@@ -247,7 +248,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the file or folder name from Unix format listings
 		/// </summary>
-		private static void ParseName(FtpClient client, string record, string[] values, bool isLink, int dayOfMonth, int dateTimePos, ref string name, ref string linkedname) {
+		private static void ParseName(BaseFtpClient client, string record, string[] values, bool isLink, int dayOfMonth, int dateTimePos, ref string name, ref string linkedname) {
 			// find the starting point of the name by finding the pos of all the date/time fields
 			var pos = 0;
 			var ok = true;
@@ -292,7 +293,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the last modified date from Unix format listings
 		/// </summary>
-		private static void ParseDateTime(FtpClient client, string[] values, ref int index, int dayOfMonth, ref DateTime lastModified) {
+		private static void ParseDateTime(BaseFtpClient client, string[] values, ref int index, int dayOfMonth, ref DateTime lastModified) {
 			var stamp = new StringBuilder(values[index++]);
 			stamp.Append('-');
 			if (dayOfMonth > 0) {
@@ -320,7 +321,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the last modified year from Unix format listings
 		/// </summary>
-		private static DateTime ParseYear(FtpClient client, StringBuilder stamp, string[] format) {
+		private static DateTime ParseYear(BaseFtpClient client, StringBuilder stamp, string[] format) {
 			var lastModified = DateTime.MinValue;
 			try {
 				lastModified = DateTime.ParseExact(stamp.ToString(), format, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
@@ -335,7 +336,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the last modified date from Unix format listings
 		/// </summary>
-		private static DateTime ParseDateTime(FtpClient client, StringBuilder stamp, string[] format) {
+		private static DateTime ParseDateTime(BaseFtpClient client, StringBuilder stamp, string[] format) {
 			var lastModified = DateTime.MinValue;
 			try {
 				lastModified = DateTime.ParseExact(stamp.ToString(), format, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
@@ -359,7 +360,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <param name="client">The FTP client</param>
 		/// <param name="record">A line from the listing</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		public static FtpListItem ParseUnixAlt(FtpClient client, string record) {
+		public static FtpListItem ParseUnixAlt(BaseFtpClient client, string record) {
 			// test it is a valid line, e.g. "total 342522" is invalid
 			var ch = record[0];
 			if (ch != FileMarker && ch != DirectoryMarker && ch != SymbolicLinkMarker) {

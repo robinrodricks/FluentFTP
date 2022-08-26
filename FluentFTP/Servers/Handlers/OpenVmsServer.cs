@@ -11,6 +11,7 @@ using System.Threading;
 #if ASYNC
 using System.Threading.Tasks;
 #endif
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Servers.Handlers {
 
@@ -100,7 +101,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Get the full path of a given FTP Listing entry
 		/// Return null indicates custom code decided not to handle this
 		/// </summary>
-		public override bool? CalculateFullFtpPath(FtpClient client, string path, FtpListItem item) {
+		public override bool? CalculateFullFtpPath(BaseFtpClient client, string path, FtpListItem item) {
 			if (path == null) {
 				// check if the path is absolute
 				if (IsAbsolutePath(item.Name)) {

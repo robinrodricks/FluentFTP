@@ -10,8 +10,8 @@ using System.Threading;
 using System.Threading.Tasks;
 #endif
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 
 
 		/// <summary>
@@ -41,7 +41,7 @@ namespace FluentFTP {
 		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
 		/// Returns a blank list if nothing was transferred. Never returns null.
 		/// </returns>
-		public List<FtpResult> TransferDirectory(string sourceFolder, FtpClient remoteClient, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
+		public List<FtpResult> TransferDirectory(string sourceFolder, BaseFtpClient remoteClient, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
 			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null) {
 
 			if (sourceFolder.IsBlank()) {
@@ -130,7 +130,7 @@ namespace FluentFTP {
 		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
 		/// Returns a blank list if nothing was transferred. Never returns null.
 		/// </returns>
-		public async Task<List<FtpResult>> TransferDirectoryAsync(string sourceFolder, FtpClient remoteClient, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
+		public async Task<List<FtpResult>> TransferDirectoryAsync(string sourceFolder, BaseFtpClient remoteClient, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
 			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			if (sourceFolder.IsBlank()) {
@@ -208,7 +208,7 @@ namespace FluentFTP {
 		}
 #endif
 
-		private List<FtpResult> GetSubDirectoriesToTransfer(string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, string[] dirListing) {
+		protected List<FtpResult> GetSubDirectoriesToTransfer(string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, string[] dirListing) {
 
 			var dirsToTransfer = new List<FtpResult>();
 
@@ -242,7 +242,7 @@ namespace FluentFTP {
 			return dirsToTransfer;
 		}
 
-		private List<FtpResult> GetFilesToTransfer(string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, string[] fileListing) {
+		protected List<FtpResult> GetFilesToTransfer(string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, string[] fileListing) {
 
 			var filesToTransfer = new List<FtpResult>();
 
@@ -279,7 +279,7 @@ namespace FluentFTP {
 			return filesToTransfer;
 		}
 
-		private void TransferServerFiles(List<FtpResult> filesToTransfer, FtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpListItem[] remoteListing) {
+		protected void TransferServerFiles(List<FtpResult> filesToTransfer, BaseFtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpListItem[] remoteListing) {
 
 			LogFunc(nameof(TransferServerFiles), new object[] { filesToTransfer.Count + " files" });
 
@@ -319,7 +319,7 @@ namespace FluentFTP {
 
 #if ASYNC
 
-		private async Task TransferServerFilesAsync(List<FtpResult> filesToTransfer, FtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
+		protected async Task TransferServerFilesAsync(List<FtpResult> filesToTransfer, BaseFtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
 
 			LogFunc(nameof(TransferServerFilesAsync), new object[] { filesToTransfer.Count + " files" });
 

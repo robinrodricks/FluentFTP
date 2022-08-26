@@ -1,5 +1,13 @@
 # Release Notes
 
+#### 40.0.0
+ - Refactor: Split main FTP client classes into `FtpClient` and `AsyncFtpClient`
+ - Modernize: Drop support for .NET Standard 1.2, 1.4 and .NET 2.0, 3.5, 4.0 and 4.5
+ - Modernize: Remove conditional compilation statements for unsupported platforms
+ - Modernize: Remove old and uncommon static methods `FtpClient.Connect`
+ - Modernize: Remove obsolete hashing commands `GetHashAlgorithm`, `SetHashAlgorithm`, `GetHash`, etc
+ - Modernize: Remove obsolete async pattern using `IAsyncResult`
+
 #### 39.4.0
  - New: Add `SslProtocolActive` property to retrieve the negotiated SSL/TLS protocol version
  - Fix: z/OS: Improve server handling for absolute path calculation (thanks [FanDjango](/FanDjango))

@@ -1,3 +1,5 @@
+using FluentFTP.Client.BaseClient;
+
 namespace FluentFTP.Proxy {
 	/// <summary> 
 	/// A FTP client with a user@host proxy identification, that works with Blue Coat FTP Service servers.
@@ -16,7 +18,7 @@ namespace FluentFTP.Proxy {
 		/// <summary>
 		/// Creates a new instance of this class. Useful in FTP proxy classes.
 		/// </summary>
-		protected override FtpClient Create() {
+		protected override BaseFtpClient Create() {
 			return new FtpClientBlueCoatProxy(Proxy);
 		}
 

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Globalization;
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers.Parsers {
 	internal static class IBMzOSParser {
 		/// <summary>
 		/// Checks if the given listing is a valid IBM z/OS file listing
 		/// </summary>
-		public static bool IsValid(FtpClient client, string[] listing) {
+		public static bool IsValid(BaseFtpClient client, string[] listing) {
 			// Check validity by using the title line
 			// USS Realm     : "total nnnn"
 			// Dataset       : "Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname"
@@ -25,7 +26,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <param name="client">The FTP client</param>
 		/// <param name="record">A line from the listing</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		public static FtpListItem Parse(FtpClient client, string record, string path) {
+		public static FtpListItem Parse(BaseFtpClient client, string record, string path) {
 			// Skip title line - all modes have one. 
 			// Also set zOSListingRealm to remember the mode we are in
 
@@ -190,7 +191,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the last modified date from IBM z/OS format listings
 		/// </summary>
-		private static DateTime ParseDateTime(FtpClient client, string lastModifiedStr) {
+		private static DateTime ParseDateTime(BaseFtpClient client, string lastModifiedStr) {
 			var lastModified = DateTime.MinValue;
 			if (lastModifiedStr == string.Empty || lastModifiedStr == "**NONE**") {
 				return lastModified;

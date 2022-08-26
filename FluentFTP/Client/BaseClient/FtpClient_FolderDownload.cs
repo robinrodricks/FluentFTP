@@ -11,8 +11,8 @@ using System.Threading.Tasks;
 #endif
 using System.Linq;
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 
 		/// <summary>
 		/// Downloads the specified directory onto the local file system.
@@ -172,7 +172,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Get a list of all the files and folders that need to be downloaded
 		/// </summary>
-		private List<FtpResult> GetFilesToDownload(string localFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, FtpListItem[] listing, Dictionary<string, bool> shouldExist) {
+		protected List<FtpResult> GetFilesToDownload(string localFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, FtpListItem[] listing, Dictionary<string, bool> shouldExist) {
 
 			var toDownload = new List<FtpResult>();
 
@@ -221,7 +221,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Download all the listed files and folders from the main directory
 		/// </summary>
-		private void DownloadServerFiles(List<FtpResult> toDownload, FtpLocalExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress) {
+		protected void DownloadServerFiles(List<FtpResult> toDownload, FtpLocalExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress) {
 
 			LogFunc(nameof(DownloadServerFiles), new object[] { toDownload.Count + " files" });
 
@@ -281,7 +281,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Download all the listed files and folders from the main directory
 		/// </summary>
-		private async Task DownloadServerFilesAsync(List<FtpResult> toDownload, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token) {
+		protected async Task DownloadServerFilesAsync(List<FtpResult> toDownload, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token) {
 
 			LogFunc(nameof(DownloadServerFilesAsync), new object[] { toDownload.Count + " files" });
 
@@ -341,7 +341,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Delete the extra local files if in mirror mode
 		/// </summary>
-		private void DeleteExtraLocalFiles(string localFolder, FtpFolderSyncMode mode, Dictionary<string, bool> shouldExist, List<FtpRule> rules) {
+		protected void DeleteExtraLocalFiles(string localFolder, FtpFolderSyncMode mode, Dictionary<string, bool> shouldExist, List<FtpRule> rules) {
 			if (mode == FtpFolderSyncMode.Mirror) {
 
 				LogFunc(nameof(DeleteExtraLocalFiles));
@@ -372,7 +372,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Check if the local file can be deleted, based on the DownloadDirectoryDeleteExcluded property
 		/// </summary>
-		private bool CanDeleteLocalFile(List<FtpRule> rules, string existingLocalFile) {
+		protected bool CanDeleteLocalFile(List<FtpRule> rules, string existingLocalFile) {
 
 			// if we should not delete excluded files
 			if (!DownloadDirectoryDeleteExcluded && !rules.IsBlank()) {

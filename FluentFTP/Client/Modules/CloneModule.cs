@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentFTP.Client.BaseClient;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Text;
 namespace FluentFTP.Client.Modules {
 	internal class CloneModule {
 
-		public static void Clone(FtpClient read, FtpClient write) {
+		public static void Clone(BaseFtpClient read, BaseFtpClient write) {
 
 			// configure new connection as clone of self
 			write.InternetProtocolVersions = read.InternetProtocolVersions;
@@ -83,7 +84,7 @@ namespace FluentFTP.Client.Modules {
 			// gets here it means the certificate on the control connection object being
 			// cloned was already accepted.
 			write.ValidateCertificate += new FtpSslValidation(
-				delegate (FtpClient obj, FtpSslValidationEventArgs e) { e.Accept = true; });
+				delegate (BaseFtpClient obj, FtpSslValidationEventArgs e) { e.Accept = true; });
 
 		}
 

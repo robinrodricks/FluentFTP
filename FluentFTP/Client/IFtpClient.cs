@@ -28,7 +28,7 @@ namespace FluentFTP {
 
 		// PROPERTIES (From FtpClient_Properties)
 
-		bool IsDisposed { get;}
+		bool IsDisposed { get; }
 		FtpIpVersion InternetProtocolVersions { get; set; }
 		int SocketPollInterval { get; set; }
 		bool StaleDataCheck { get; set; }
@@ -196,9 +196,9 @@ namespace FluentFTP {
 #endif
 
 #if NET50_OR_LATER
-		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, FtpListOption options, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
-		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
-		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken));
+		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, FtpListOption options, CancellationToken token = default, CancellationToken enumToken = default);
+		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, CancellationToken token = default, CancellationToken enumToken = default);
+		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(CancellationToken token = default, CancellationToken enumToken = default);
 #endif
 
 

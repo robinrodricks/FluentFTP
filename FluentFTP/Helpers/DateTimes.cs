@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Text;
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers {
 	/// <summary>
@@ -14,7 +15,7 @@ namespace FluentFTP.Helpers {
 		/// <param name="dateString">The date string</param>
 		/// <param name="formats">Date formats to try parsing the value from (eg "yyyyMMddHHmmss")</param>
 		/// <returns>A <see cref="DateTime"/> object representing the date, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
-		public static DateTime ParseFtpDate(this string dateString, FtpClient client, string[] formats = null) {
+		public static DateTime ParseFtpDate(this string dateString, BaseFtpClient client, string[] formats = null) {
 			if (formats == null) {
 				formats = FtpDateFormats;
 			}

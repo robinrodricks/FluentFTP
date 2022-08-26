@@ -22,8 +22,8 @@ using FluentFTP.Client.Modules;
 using System.Threading.Tasks;
 using FluentFTP.Client.Modules;
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 
 		#region Auto Detect
 
@@ -69,7 +69,7 @@ namespace FluentFTP {
 		}
 #endif
 
-		private void ValidateAutoDetect() {
+		protected void ValidateAutoDetect() {
 			if (IsDisposed) {
 				throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
 			}

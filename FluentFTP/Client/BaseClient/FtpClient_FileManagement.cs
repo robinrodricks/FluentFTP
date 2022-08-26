@@ -12,6 +12,7 @@ using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Proxy;
 using FluentFTP.Helpers;
+using FluentFTP.Client;
 #if !NETSTANDARD
 using System.Web;
 using FluentFTP.Client.Modules;
@@ -19,14 +20,15 @@ using FluentFTP.Client.Modules;
 #if NETSTANDARD
 using System.Threading;
 using FluentFTP.Client.Modules;
+using FluentFTP.Client;
 #endif
 #if ASYNC
 using System.Threading.Tasks;
 
 #endif
 
-namespace FluentFTP {
-	public partial class FtpClient : IFtpClient, IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IFtpClient, IDisposable {
 
 		#region Delete File
 
@@ -143,7 +145,7 @@ namespace FluentFTP {
 			}
 		}
 
-		private bool? CheckFileExistsBySize(FtpSizeReply sizeReply) {
+		protected bool? CheckFileExistsBySize(FtpSizeReply sizeReply) {
 
 			// file surely exists
 			if (sizeReply.Reply.Code[0] == '2') {

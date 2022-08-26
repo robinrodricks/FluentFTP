@@ -8,6 +8,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using FluentFTP.Client.BaseClient;
 
 #if NET45
 using System.Threading.Tasks;
@@ -20,7 +21,7 @@ namespace FluentFTP {
 	/// </summary>
 	/// <param name="control">The control connection that triggered the event</param>
 	/// <param name="e">Event args</param>
-	public delegate void FtpSslValidation(FtpClient control, FtpSslValidationEventArgs e);
+	public delegate void FtpSslValidation(BaseFtpClient control, FtpSslValidationEventArgs e);
 
 	/// <summary>
 	/// Event args for the FtpSslValidationError delegate

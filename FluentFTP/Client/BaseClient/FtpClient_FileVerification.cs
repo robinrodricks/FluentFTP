@@ -13,18 +13,18 @@ using System.Threading.Tasks;
 #endif
 using FluentFTP.Helpers;
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 		#region Verification
 
-		private bool SupportsChecksum() {
+		protected bool SupportsChecksum() {
 			return HasFeature(FtpCapability.HASH) || HasFeature(FtpCapability.MD5) ||
 					HasFeature(FtpCapability.XMD5) || HasFeature(FtpCapability.XCRC) ||
 					HasFeature(FtpCapability.XSHA1) || HasFeature(FtpCapability.XSHA256) ||
 					HasFeature(FtpCapability.XSHA512);
 		}
 
-		private bool VerifyTransfer(string localPath, string remotePath) {
+		protected bool VerifyTransfer(string localPath, string remotePath) {
 
 			// verify args
 			if (localPath.IsBlank()) {
@@ -54,7 +54,7 @@ namespace FluentFTP {
 		}
 
 #if ASYNC
-		private async Task<bool> VerifyTransferAsync(string localPath, string remotePath, CancellationToken token = default(CancellationToken)) {
+		protected async Task<bool> VerifyTransferAsync(string localPath, string remotePath, CancellationToken token = default(CancellationToken)) {
 
 			// verify args
 			if (localPath.IsBlank()) {
@@ -92,7 +92,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Sends progress to the user, either a value between 0-100 indicating percentage complete, or -1 for indeterminate.
 		/// </summary>
-		private void ReportProgress(IProgress<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime, string localPath, string remotePath, FtpProgress metaProgress) {
+		protected void ReportProgress(IProgress<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime, string localPath, string remotePath, FtpProgress metaProgress) {
 
 			//  calculate % done, transfer speed and time remaining
 			FtpProgress status = FtpProgress.Generate(fileSize, position, bytesProcessed, elapsedtime, localPath, remotePath, metaProgress);
@@ -104,7 +104,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Sends progress to the user, either a value between 0-100 indicating percentage complete, or -1 for indeterminate.
 		/// </summary>
-		private void ReportProgress(Action<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime, string localPath, string remotePath, FtpProgress metaProgress) {
+		protected void ReportProgress(Action<FtpProgress> progress, long fileSize, long position, long bytesProcessed, TimeSpan elapsedtime, string localPath, string remotePath, FtpProgress metaProgress) {
 
 			//  calculate % done, transfer speed and time remaining
 			FtpProgress status = FtpProgress.Generate(fileSize, position, bytesProcessed, elapsedtime, localPath, remotePath, metaProgress);

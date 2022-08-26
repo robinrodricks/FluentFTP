@@ -12,10 +12,10 @@ using System.Threading.Tasks;
 
 #endif
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 
-		private bool VerifyFXPTransfer(string sourcePath, FtpClient fxpDestinationClient, string remotePath) {
+		protected bool VerifyFXPTransfer(string sourcePath, BaseFtpClient fxpDestinationClient, string remotePath) {
 			
 			// verify args
 			if (sourcePath.IsBlank()) {
@@ -57,7 +57,7 @@ namespace FluentFTP {
 		}
 
 #if ASYNC
-		private async Task<bool> VerifyFXPTransferAsync(string sourcePath, FtpClient fxpDestinationClient, string remotePath, CancellationToken token = default(CancellationToken)) {
+		protected async Task<bool> VerifyFXPTransferAsync(string sourcePath, BaseFtpClient fxpDestinationClient, string remotePath, CancellationToken token = default(CancellationToken)) {
 			
 			// verify args
 			if (sourcePath.IsBlank()) {

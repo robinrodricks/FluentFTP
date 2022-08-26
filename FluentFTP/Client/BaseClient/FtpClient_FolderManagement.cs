@@ -2,6 +2,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.Linq;
 using FluentFTP.Helpers;
+using FluentFTP.Client;
 #if !NETSTANDARD
 using System.Web;
 using FluentFTP.Client.Modules;
@@ -9,6 +10,7 @@ using FluentFTP.Client.Modules;
 #if NETSTANDARD
 using System.Threading;
 using FluentFTP.Client.Modules;
+using FluentFTP.Client;
 
 #endif
 #if ASYNC
@@ -16,8 +18,8 @@ using System.Threading.Tasks;
 
 #endif
 
-namespace FluentFTP {
-	public partial class FtpClient : IFtpClient, IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IFtpClient, IDisposable {
 		#region Delete Directory
 
 		/// <summary>
@@ -59,7 +61,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the directory to delete</param>
 		/// <param name="deleteContents">If the directory is not empty, remove its contents</param>
 		/// <param name="options">Useful to delete hidden files or dot-files.</param>
-		private void DeleteDirInternal(string path, bool deleteContents, FtpListOption options) {
+		protected void DeleteDirInternal(string path, bool deleteContents, FtpListOption options) {
 			FtpReply reply;
 
 			path = path.GetFtpPath();
@@ -138,7 +140,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="options"></param>
 		/// <returns></returns>
-		private bool WasGetListingRecursive(FtpListOption options) {
+		protected bool WasGetListingRecursive(FtpListOption options) {
 			// FIX: GetListing() now supports recursive listing for all types of lists (name list, file list, machine list)
 			//		even if the server does not support recursive listing, because it does its own internal recursion.
 			return (options & FtpListOption.Recursive) == FtpListOption.Recursive;
@@ -189,7 +191,7 @@ namespace FluentFTP {
 		/// <param name="options">Useful to delete hidden files or dot-files.</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns></returns>
-		private async Task DeleteDirInternalAsync(string path, bool deleteContents, FtpListOption options, CancellationToken token = default(CancellationToken)) {
+		protected async Task DeleteDirInternalAsync(string path, bool deleteContents, FtpListOption options, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 			path = path.GetFtpPath();
 
@@ -704,7 +706,7 @@ namespace FluentFTP {
 
 #endif
 
-		private FtpReply ReadCurrentWorkingDirectory() {
+		protected FtpReply ReadCurrentWorkingDirectory() {
 			FtpReply reply;
 
 			lock (m_lock) {
@@ -719,7 +721,7 @@ namespace FluentFTP {
 			return reply;
 		}
 
-		private string ParseWorkingDirectory(FtpReply reply) {
+		protected string ParseWorkingDirectory(FtpReply reply) {
 			Match m;
 
 			if ((m = Regex.Match(reply.Message, "\"(?<pwd>.*)\"")).Success) {
@@ -737,7 +739,7 @@ namespace FluentFTP {
 		}
 #if ASYNC
 
-		private async Task<FtpReply> ReadCurrentWorkingDirectoryAsync(CancellationToken token) {
+		protected async Task<FtpReply> ReadCurrentWorkingDirectoryAsync(CancellationToken token) {
 
 			FtpReply reply;
 

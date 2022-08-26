@@ -16,6 +16,7 @@ using FluentFTP.Exceptions;
 #if NETSTANDARD || NET45
 using System.Threading.Tasks;
 #endif
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP {
 
@@ -24,9 +25,9 @@ namespace FluentFTP {
 	/// Stream class used for talking. Used by FtpClient, extended by FtpDataStream
 	/// </summary>
 	public class FtpSocketStream : Stream, IDisposable {
-		public readonly FtpClient Client;
+		public readonly BaseFtpClient Client;
 
-		public FtpSocketStream(FtpClient conn) {
+		public FtpSocketStream(BaseFtpClient conn) {
 			Client = conn;
 		}
 
@@ -1272,32 +1273,6 @@ namespace FluentFTP {
 			}
 		}
 
-#else
-		/// <summary>
-		/// Asynchronously accepts a connection from a listening socket
-		/// </summary>
-		/// <param name="callback"></param>
-		/// <param name="state"></param>
-		/// <returns></returns>
-		public IAsyncResult BeginAccept(AsyncCallback callback, object state) {
-			if (m_socket != null) {
-				return m_socket.BeginAccept(callback, state);
-			}
-
-			return null;
-		}
-
-		/// <summary>
-		/// Completes a BeginAccept() operation
-		/// </summary>
-		/// <param name="ar">IAsyncResult returned from BeginAccept</param>
-		public void EndAccept(IAsyncResult ar) {
-			if (m_socket != null) {
-				m_socket = m_socket.EndAccept(ar);
-				m_netStream = new NetworkStream(m_socket);
-				m_netStream.ReadTimeout = m_readTimeout;
-			}
-		}
 #endif
 		private void BindSocketToLocalIp() {
 #if ASYNC
@@ -1315,7 +1290,6 @@ namespace FluentFTP {
 #endif
 		}
 
-#if NETSTANDARD
 		internal SocketAsyncEventArgs BeginAccept() {
 			var args = new SocketAsyncEventArgs();
 			var connectEvent = new ManualResetEvent(false);
@@ -1353,6 +1327,5 @@ namespace FluentFTP {
 			m_netStream.ReadTimeout = m_readTimeout;
 		}
 
-#endif
 	}
 }

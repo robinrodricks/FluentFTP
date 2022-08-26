@@ -24,8 +24,8 @@ using System.Threading.Tasks;
 
 #endif
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 		
 
 		/// <summary>
@@ -81,7 +81,7 @@ namespace FluentFTP {
 			FtpTrace.WriteLine(eventType, message);
 		}
 
-		private static string TraceLevelPrefix(FtpTraceLevel level) {
+		protected static string TraceLevelPrefix(FtpTraceLevel level) {
 			switch (level) {
 				case FtpTraceLevel.Verbose:
 					return "Status:   ";

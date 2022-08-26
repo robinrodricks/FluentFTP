@@ -6,6 +6,7 @@ using FluentFTP;
 #if ASYNC
 using System.Threading.Tasks;
 #endif
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Streams {
 	public static class FtpFileStream {
@@ -57,7 +58,7 @@ namespace FluentFTP.Streams {
 		/// If the file fits within the fileSizeLimit, then it is read in a single disk call and stored in memory, and a MemoryStream is returned.
 		/// If it is larger than that, then a regular read-only FileStream is returned.
 		/// </summary>
-		public static Stream GetFileReadStream(FtpClient client, string localPath, bool isAsync, long fileSizeLimit, long knownLocalFileSize = 0) {
+		public static Stream GetFileReadStream(BaseFtpClient client, string localPath, bool isAsync, long fileSizeLimit, long knownLocalFileSize = 0) {
 
 			// if quick transfer is enabled
 			/*if (fileSizeLimit > 0) {
@@ -99,7 +100,7 @@ namespace FluentFTP.Streams {
 		/// If the file fits within the fileSizeLimit, then a new MemoryStream is returned.
 		/// If it is larger than that, then a regular writable FileStream is returned.
 		/// </summary>
-		public static Stream GetFileWriteStream(FtpClient client, string localPath, bool isAsync, long fileSizeLimit, long knownRemoteFileSize = 0, bool isAppend = false, long restartPos = 0) {
+		public static Stream GetFileWriteStream(BaseFtpClient client, string localPath, bool isAsync, long fileSizeLimit, long knownRemoteFileSize = 0, bool isAppend = false, long restartPos = 0) {
 
 			// if quick transfer is enabled
 			/*if (fileSizeLimit > 0) {

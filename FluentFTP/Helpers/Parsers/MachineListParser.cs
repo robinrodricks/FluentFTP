@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers.Parsers {
 	internal static class MachineListParser {
@@ -12,7 +13,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Checks if the given listing is a valid Machine Listing item
 		/// </summary>
-		public static bool IsValid(FtpClient client, string[] records) {
+		public static bool IsValid(BaseFtpClient client, string[] records) {
 			return records[0].ContainsCI("type=");
 		}
 
@@ -23,7 +24,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <param name="capabilities">Server capabilities</param>
 		/// <param name="client">The FTP client</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		public static FtpListItem Parse(string record, List<FtpCapability> capabilities, FtpClient client) {
+		public static FtpListItem Parse(string record, List<FtpCapability> capabilities, BaseFtpClient client) {
 			var item = new FtpListItem();
 			Match m;
 
@@ -90,7 +91,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the date modified field from MLSD/MLST format listings
 		/// </summary>
-		private static void ParseDateTime(string record, FtpListItem item, FtpClient client) {
+		private static void ParseDateTime(string record, FtpListItem item, BaseFtpClient client) {
 			Match m;
 			if ((m = Regex.Match(record, "modify=(?<modify>.+?);", RegexOptions.IgnoreCase)).Success) {
 				item.Modified = m.Groups["modify"].Value.ParseFtpDate(client);

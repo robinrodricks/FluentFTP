@@ -13,6 +13,7 @@ using System.Text;
 #if ASYNC
 using System.Threading.Tasks;
 #endif
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Client.Modules {
 
@@ -36,7 +37,7 @@ namespace FluentFTP.Client.Modules {
 		/// Detect the FTP Server based on the welcome message sent by the server after getting the 220 connection command.
 		/// Its the primary method.
 		/// </summary>
-		public static FtpServer DetectFtpServer(FtpClient client, FtpReply HandshakeReply) {
+		public static FtpServer DetectFtpServer(BaseFtpClient client, FtpReply HandshakeReply) {
 			var serverType = client.ServerType;
 
 			if (HandshakeReply.Success && (HandshakeReply.Message != null || HandshakeReply.InfoMessages != null)) {
@@ -77,7 +78,7 @@ namespace FluentFTP.Client.Modules {
 		/// Detect the FTP Server based on the response to the SYST connection command.
 		/// Its a fallback method if the server did not send an identifying welcome message.
 		/// </summary>
-		public static FtpOperatingSystem DetectFtpOSBySyst(FtpClient client) {
+		public static FtpOperatingSystem DetectFtpOSBySyst(BaseFtpClient client) {
 			var serverOS = client.ServerOS;
 
 			// detect OS type
@@ -124,7 +125,7 @@ namespace FluentFTP.Client.Modules {
 		/// Detect the FTP Server based on the response to the SYST connection command.
 		/// Its a fallback method if the server did not send an identifying welcome message.
 		/// </summary>
-		public static FtpServer DetectFtpServerBySyst(FtpClient client) {
+		public static FtpServer DetectFtpServerBySyst(BaseFtpClient client) {
 			var serverType = client.ServerType;
 
 			// detect server type

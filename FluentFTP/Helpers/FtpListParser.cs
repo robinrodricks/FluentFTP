@@ -1,4 +1,5 @@
-﻿using FluentFTP.Helpers.Parsers;
+﻿using FluentFTP.Client.BaseClient;
+using FluentFTP.Helpers.Parsers;
 using System;
 using System.Collections.Generic;
 
@@ -13,7 +14,7 @@ namespace FluentFTP.Helpers {
 		/// <summary>
 		/// the FTP connection that owns this parser
 		/// </summary>
-		public FtpClient client;
+		public BaseFtpClient client;
 
 		private static List<FtpParser> parsers = new List<FtpParser> {
 			FtpParser.Unix, FtpParser.Windows, FtpParser.VMS, FtpParser.IBMzOS, FtpParser.IBMOS400, FtpParser.NonStop
@@ -46,8 +47,8 @@ namespace FluentFTP.Helpers {
 		/// <summary>
 		/// Initializes a new instance of the <see cref="FtpListParser"/> class.
 		/// </summary>
-		/// <param name="client">An existing <see cref="FtpClient"/> object</param>
-		public FtpListParser(FtpClient client) {
+		/// <param name="client">An existing <see cref="BaseFtpClient"/> object</param>
+		public FtpListParser(BaseFtpClient client) {
 			this.client = client;
 		}
 

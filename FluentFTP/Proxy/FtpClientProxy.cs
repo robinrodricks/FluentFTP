@@ -4,11 +4,13 @@ using System.Threading.Tasks;
 
 #endif
 
+using FluentFTP.Client.BaseClient;
+
 namespace FluentFTP.Proxy {
 	/// <summary>
 	/// Abstraction of an FtpClient with a proxy
 	/// </summary>
-	public abstract class FtpClientProxy : FtpClient {
+	public abstract class FtpClientProxy : BaseFtpClient {
 		private FtpProxyProfile _proxy;
 
 		/// <summary> The proxy connection info. </summary>

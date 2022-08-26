@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using FluentFTP.Rules;
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 
 		/// <summary>
 		/// Transfer the specified file from the source FTP Server to the destination FTP Server using the FXP protocol.
@@ -30,7 +30,7 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-		public FtpStatus TransferFile(string sourcePath, FtpClient remoteClient, string remotePath,
+		public FtpStatus TransferFile(string sourcePath, BaseFtpClient remoteClient, string remotePath,
 			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Resume, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null, FtpProgress metaProgress = null) {
 
 			sourcePath = sourcePath.GetFtpPath();
@@ -78,7 +78,7 @@ namespace FluentFTP {
 
 		}
 
-		private void VerifyTransferFileParams(string sourcePath, FtpClient remoteClient, string remotePath, FtpRemoteExists existsMode) {
+		protected void VerifyTransferFileParams(string sourcePath, BaseFtpClient remoteClient, string remotePath, FtpRemoteExists existsMode) {
 			if (remoteClient is null) {
 				throw new ArgumentNullException(nameof(remoteClient), "Destination FXP FtpClient cannot be null!");
 			}
@@ -124,7 +124,7 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-		public async Task<FtpStatus> TransferFileAsync(string sourcePath, FtpClient remoteClient, string remotePath,
+		public async Task<FtpStatus> TransferFileAsync(string sourcePath, BaseFtpClient remoteClient, string remotePath,
 			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Resume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, FtpProgress metaProgress = null, CancellationToken token = default(CancellationToken)) {
 
 			sourcePath = sourcePath.GetFtpPath();
@@ -176,7 +176,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Transfers a file from the source FTP Server to the destination FTP Server via the FXP protocol
 		/// </summary>
-		private bool TransferFileFXPInternal(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
+		protected bool TransferFileFXPInternal(string sourcePath, BaseFtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			Action<FtpProgress> progress, FtpProgress metaProgress) {
 
 			FtpReply reply;
@@ -334,7 +334,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Transfers a file from the source FTP Server to the destination FTP Server via the FXP protocol asynchronously.
 		/// </summary>
-		private async Task<bool> TransferFileFXPInternalAsync(string sourcePath, FtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
+		protected async Task<bool> TransferFileFXPInternalAsync(string sourcePath, BaseFtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
 			FtpReply reply;
 			long offset = 0;

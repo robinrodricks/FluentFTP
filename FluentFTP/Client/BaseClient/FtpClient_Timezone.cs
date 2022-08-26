@@ -2,8 +2,8 @@
 using System.Globalization;
 using FluentFTP.Helpers;
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 		
 		/// <summary>
 		/// If reverse is false, converts the date provided by the FTP server into the timezone required locally.

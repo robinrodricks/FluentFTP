@@ -10,8 +10,8 @@ using System.Threading;
 using System.Threading.Tasks;
 #endif
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 
 		/// <summary>
 		/// Uploads the specified directory onto the server.
@@ -209,7 +209,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Get a list of all the sub directories that need to be created within the main directory
 		/// </summary>
-		private List<FtpResult> GetSubDirectoriesToUpload(string localFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, string[] dirListing) {
+		protected List<FtpResult> GetSubDirectoriesToUpload(string localFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, string[] dirListing) {
 
 			var dirsToUpload = new List<FtpResult>();
 
@@ -246,7 +246,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Create all the sub directories within the main directory
 		/// </summary>
-		private void CreateSubDirectories(FtpClient client, List<FtpResult> dirsToUpload) {
+		protected void CreateSubDirectories(BaseFtpClient client, List<FtpResult> dirsToUpload) {
 			foreach (var result in dirsToUpload) {
 
 				// absorb errors
@@ -276,7 +276,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Create all the sub directories within the main directory
 		/// </summary>
-		private async Task CreateSubDirectoriesAsync(FtpClient client, List<FtpResult> dirsToUpload, CancellationToken token) {
+		protected async Task CreateSubDirectoriesAsync(BaseFtpClient client, List<FtpResult> dirsToUpload, CancellationToken token) {
 			foreach (var result in dirsToUpload) {
 
 				// absorb errors
@@ -306,7 +306,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Get a list of all the files that need to be uploaded within the main directory
 		/// </summary>
-		private List<FtpResult> GetFilesToUpload(string localFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, string[] fileListing) {
+		protected List<FtpResult> GetFilesToUpload(string localFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, string[] fileListing) {
 
 			var filesToUpload = new List<FtpResult>();
 
@@ -346,7 +346,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Upload all the files within the main directory
 		/// </summary>
-		private void UploadDirectoryFiles(List<FtpResult> filesToUpload, FtpRemoteExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpListItem[] remoteListing) {
+		protected void UploadDirectoryFiles(List<FtpResult> filesToUpload, FtpRemoteExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpListItem[] remoteListing) {
 
 			LogFunc(nameof(UploadDirectoryFiles), new object[] { filesToUpload.Count + " files" });
 
@@ -387,7 +387,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Check if the file is cleared to be uploaded, taking its existence/filesize and existsMode options into account.
 		/// </summary>
-		private bool CanUploadFile(FtpResult result, FtpListItem[] remoteListing, FtpRemoteExists existsMode, out FtpRemoteExists existsModeToUse) {
+		protected bool CanUploadFile(FtpResult result, FtpListItem[] remoteListing, FtpRemoteExists existsMode, out FtpRemoteExists existsModeToUse) {
 
 			// check if the file already exists on the server
 			existsModeToUse = existsMode;
@@ -414,7 +414,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Upload all the files within the main directory
 		/// </summary>
-		private async Task UploadDirectoryFilesAsync(List<FtpResult> filesToUpload, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
+		protected async Task UploadDirectoryFilesAsync(List<FtpResult> filesToUpload, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
 
 			LogFunc(nameof(UploadDirectoryFilesAsync), new object[] { filesToUpload.Count + " files" });
 
@@ -456,7 +456,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Delete the extra remote files if in mirror mode and the directory was pre-existing
 		/// </summary>
-		private void DeleteExtraServerFiles(FtpFolderSyncMode mode, string remoteFolder, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing, List<FtpRule> rules) {
+		protected void DeleteExtraServerFiles(FtpFolderSyncMode mode, string remoteFolder, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing, List<FtpRule> rules) {
 			if (mode == FtpFolderSyncMode.Mirror && remoteListing != null) {
 
 				LogFunc(nameof(DeleteExtraServerFiles));
@@ -491,7 +491,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Delete the extra remote files if in mirror mode and the directory was pre-existing
 		/// </summary>
-		private async Task DeleteExtraServerFilesAsync(FtpFolderSyncMode mode, string remoteFolder, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing, List<FtpRule> rules, CancellationToken token) {
+		protected async Task DeleteExtraServerFilesAsync(FtpFolderSyncMode mode, string remoteFolder, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing, List<FtpRule> rules, CancellationToken token) {
 			if (mode == FtpFolderSyncMode.Mirror && remoteListing != null) {
 
 				LogFunc(nameof(DeleteExtraServerFilesAsync));
@@ -527,7 +527,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Check if the remote file can be deleted, based on the UploadDirectoryDeleteExcluded property
 		/// </summary>
-		private bool CanDeleteRemoteFile(List<FtpRule> rules, FtpListItem existingServerFile) {
+		protected bool CanDeleteRemoteFile(List<FtpRule> rules, FtpListItem existingServerFile) {
 
 			// if we should not delete excluded files
 			if (!UploadDirectoryDeleteExcluded && !rules.IsBlank()) {

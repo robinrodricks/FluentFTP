@@ -23,6 +23,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 
 #endif
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Client.Modules {
 	internal static class ConnectModule {
@@ -57,7 +58,7 @@ namespace FluentFTP.Client.Modules {
 		/// You can then generate code for the profile using the FtpProfile.ToCode method.
 		/// If no successful profiles are found, a blank list is returned.
 		/// </summary>
-		public static List<FtpProfile> AutoDetect(FtpClient client, bool firstOnly, bool cloneConnection) {
+		public static List<FtpProfile> AutoDetect(BaseFtpClient client, bool firstOnly, bool cloneConnection) {
 			var results = new List<FtpProfile>();
 
 			// get known working connection profile based on the host (if any)
@@ -222,7 +223,7 @@ namespace FluentFTP.Client.Modules {
 		/// You can then generate code for the profile using the FtpProfile.ToCode method.
 		/// If no successful profiles are found, a blank list is returned.
 		/// </summary>
-		public static async Task<List<FtpProfile>> AutoDetectAsync(FtpClient client, bool firstOnly, bool cloneConnection, CancellationToken token) {
+		public static async Task<List<FtpProfile>> AutoDetectAsync(BaseFtpClient client, bool firstOnly, bool cloneConnection, CancellationToken token) {
 			var results = new List<FtpProfile>();
 
 			// get known working connection profile based on the host (if any)
@@ -378,7 +379,7 @@ namespace FluentFTP.Client.Modules {
 		}
 #endif
 
-		private static void SaveResult(List<FtpProfile> results, FtpProfile knownProfile, List<FtpEncryptionMode> blacklistedEncryptions, FtpClient conn, FtpEncryptionMode encryption, SysSslProtocols protocol, FtpDataConnectionType dataConn) {
+		private static void SaveResult(List<FtpProfile> results, FtpProfile knownProfile, List<FtpEncryptionMode> blacklistedEncryptions, BaseFtpClient conn, FtpEncryptionMode encryption, SysSslProtocols protocol, FtpDataConnectionType dataConn) {
 			results.Add(new FtpProfile {
 				Host = conn.Host,
 				Credentials = conn.Credentials,
@@ -396,7 +397,7 @@ namespace FluentFTP.Client.Modules {
 			});
 		}
 
-		private static void ConfigureClient(FtpClient client, FtpEncryptionMode encryption, SysSslProtocols protocol, FtpProfile knownProfile) {
+		private static void ConfigureClient(BaseFtpClient client, FtpEncryptionMode encryption, SysSslProtocols protocol, FtpProfile knownProfile) {
 
 			// set rolled props
 			client.EncryptionMode = encryption;
@@ -500,7 +501,7 @@ namespace FluentFTP.Client.Modules {
 		}
 
 
-		private static FtpDataConnectionType AutoDataConnection(FtpClient conn) {
+		private static FtpDataConnectionType AutoDataConnection(BaseFtpClient conn) {
 
 			// check socket protocol version
 			if (conn.InternetProtocol == FtpIpVersion.IPv4) {
@@ -520,7 +521,7 @@ namespace FluentFTP.Client.Modules {
 		/// <summary>
 		/// Load the given connection profile and configure the FTP client instance accordingly.
 		/// </summary>
-		public static void LoadProfile(FtpClient client, FtpProfile profile) {
+		public static void LoadProfile(BaseFtpClient client, FtpProfile profile) {
 
 			// verify args
 			if (profile == null) {
@@ -560,10 +561,10 @@ namespace FluentFTP.Client.Modules {
 		/// <summary>
 		/// Create a default ValidateCertificate handler that accepts valid certificates.
 		/// </summary>
-		public static void SetDefaultCertificateValidation(FtpClient client, FtpProfile profile) {
+		public static void SetDefaultCertificateValidation(BaseFtpClient client, FtpProfile profile) {
 			if (profile.Encryption != FtpEncryptionMode.None) {
 				//if (client.ValidateCertificate == null) {
-					client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
+					client.ValidateCertificate += new FtpSslValidation(delegate (BaseFtpClient c, FtpSslValidationEventArgs e) {
 						if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
 							e.Accept = false;
 						}

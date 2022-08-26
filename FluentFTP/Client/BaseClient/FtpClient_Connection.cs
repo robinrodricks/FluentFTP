@@ -15,160 +15,27 @@ using System.Web;
 #endif
 #if NETSTANDARD
 using System.Threading;
-using FluentFTP.Client.Modules;
 #endif
 #if ASYNC
 using System.Threading.Tasks;
-
 #endif
 using FluentFTP.Client.Modules;
 
-namespace FluentFTP {
+namespace FluentFTP.Client.BaseClient {
 	/// <summary>
 	/// A connection to a single FTP server. Interacts with any FTP/FTPS server and provides a high-level and low-level API to work with files and folders.
 	/// 
 	/// Debugging problems with FTP is much easier when you enable logging. See the FAQ on our Github project page for more info.
 	/// </summary>
-	public partial class FtpClient : IDisposable {
+	public partial class BaseFtpClient : IDisposable {
 
-		#region Constructor / Destructor
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client.
-		/// </summary>
-		public FtpClient() {
-			m_listParser = new FtpListParser(this);
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host.
-		/// </summary>
-		public FtpClient(string host) {
-			Host = host ?? throw new ArgumentNullException(nameof(host), "Host must be provided");
-			m_listParser = new FtpListParser(this);
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host and credentials.
-		/// </summary>
-		public FtpClient(string host, NetworkCredential credentials) {
-			Host = host ?? throw new ArgumentNullException(nameof(host), "Host must be provided");
-			Credentials = credentials ?? throw new ArgumentNullException(nameof(credentials), "Credentials must be provided");
-			m_listParser = new FtpListParser(this);
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host, port and credentials.
-		/// </summary>
-		public FtpClient(string host, int port, NetworkCredential credentials) {
-			Host = host ?? throw new ArgumentNullException(nameof(host), "Host must be provided");
-			Port = port;
-			Credentials = credentials ?? throw new ArgumentNullException(nameof(credentials), "Credentials must be provided");
-			m_listParser = new FtpListParser(this);
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host, username and password.
-		/// </summary>
-		public FtpClient(string host, string user, string pass) {
-			Host = host;
-			Credentials = new NetworkCredential(user, pass);
-			m_listParser = new FtpListParser(this);
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host, username, password and account
-		/// </summary>
-		public FtpClient(string host, string user, string pass, string account) {
-			Host = host;
-			Credentials = new NetworkCredential(user, pass, account);
-			m_listParser = new FtpListParser(this);
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host, port, username and password.
-		/// </summary>
-		public FtpClient(string host, int port, string user, string pass) {
-			Host = host;
-			Port = port;
-			Credentials = new NetworkCredential(user, pass);
-			m_listParser = new FtpListParser(this);
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host, port, username, password and account
-		/// </summary>
-		public FtpClient(string host, int port, string user, string pass, string account) {
-			Host = host;
-			Port = port;
-			Credentials = new NetworkCredential(user, pass, account);
-			m_listParser = new FtpListParser(this);
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host.
-		/// </summary>
-		public FtpClient(Uri host) {
-			Host = ValidateHost(host);
-			Port = host.Port;
-			m_listParser = new FtpListParser(this);
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host and credentials.
-		/// </summary>
-		public FtpClient(Uri host, NetworkCredential credentials) {
-			Host = ValidateHost(host);
-			Port = host.Port;
-			Credentials = credentials;
-			m_listParser = new FtpListParser(this);
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host and credentials.
-		/// </summary>
-		public FtpClient(Uri host, string user, string pass) {
-			Host = ValidateHost(host);
-			Port = host.Port;
-			Credentials = new NetworkCredential(user, pass);
-			m_listParser = new FtpListParser(this);
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host and credentials.
-		/// </summary>
-		public FtpClient(Uri host, string user, string pass, string account) {
-			Host = ValidateHost(host);
-			Port = host.Port;
-			Credentials = new NetworkCredential(user, pass, account);
-			m_listParser = new FtpListParser(this);
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host, port and credentials.
-		/// </summary>
-		public FtpClient(Uri host, int port, string user, string pass) {
-			Host = ValidateHost(host);
-			Port = port;
-			Credentials = new NetworkCredential(user, pass);
-			m_listParser = new FtpListParser(this);
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host, port and credentials.
-		/// </summary>
-		public FtpClient(Uri host, int port, string user, string pass, string account) {
-			Host = ValidateHost(host);
-			Port = port;
-			Credentials = new NetworkCredential(user, pass, account);
-			m_listParser = new FtpListParser(this);
-		}
+		#region Destructor
 
 		/// <summary>
 		/// Check if the host parameter is valid
 		/// </summary>
 		/// <param name="host"></param>
-		private static string ValidateHost(Uri host) {
+		protected static string ValidateHost(Uri host) {
 			if (host == null) {
 				throw new ArgumentNullException(nameof(host), "Host is required");
 			}
@@ -184,8 +51,8 @@ namespace FluentFTP {
 		/// Creates a new instance of this class. Useful in FTP proxy classes.
 		/// </summary>
 		/// <returns></returns>
-		protected virtual FtpClient Create() {
-			return new FtpClient();
+		protected virtual BaseFtpClient Create() {
+			return new BaseFtpClient();
 		}
 
 		/// <summary>
@@ -228,7 +95,6 @@ namespace FluentFTP {
 					m_credentials = null;
 					m_textEncoding = null;
 					m_host = null;
-					m_asyncmethods.Clear();
 				}
 				catch (Exception ex) {
 				}
@@ -241,7 +107,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Finalizer
 		/// </summary>
-		~FtpClient() {
+		~BaseFtpClient() {
 			Dispose();
 		}
 
@@ -254,7 +120,7 @@ namespace FluentFTP {
 		/// You will need to manually connect after cloning.
 		/// </summary>
 		/// <returns>A new FTP client connection with the same property settings as this one.</returns>
-		public FtpClient Clone() {
+		public BaseFtpClient Clone() {
 			var write = Create();
 
 			write.m_isClone = true;
@@ -273,7 +139,7 @@ namespace FluentFTP {
 
 		#region Connect
 
-		private FtpListParser m_listParser;
+		protected FtpListParser m_listParser;
 
 		/// <summary>
 		/// Connect to the server
@@ -711,36 +577,6 @@ namespace FluentFTP {
 			ServerFeatureModule.Detect(m_capabilities, ref m_hashAlgorithms, reply.InfoMessages.Split('\n'));
 		}
 
-#if !ASYNC
-		private delegate void AsyncConnect();
-
-		/// <summary>
-		/// Initiates a connection to the server
-		/// </summary>
-		/// <param name="callback">AsyncCallback method</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginConnect(AsyncCallback callback, object state) {
-			AsyncConnect func;
-			IAsyncResult ar;
-
-			lock (m_asyncmethods) {
-				ar = (func = Connect).BeginInvoke(callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends an asynchronous connection attempt to the server from <see cref="BeginConnect"/>
-		/// </summary>
-		/// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="BeginConnect"/></param>
-		public void EndConnect(IAsyncResult ar) {
-			GetAsyncDelegate<AsyncConnect>(ar).EndInvoke(ar);
-		}
-#endif
-
 		#endregion
 
 		#region Login
@@ -910,36 +746,6 @@ namespace FluentFTP {
 			}
 		}
 
-#if !ASYNC
-		private delegate void AsyncDisconnect();
-
-		/// <summary>
-		/// Initiates a disconnection on the server
-		/// </summary>
-		/// <param name="callback"><see cref="AsyncCallback"/> method</param>
-		/// <param name="state">State object</param>
-		/// <returns>IAsyncResult</returns>
-		public IAsyncResult BeginDisconnect(AsyncCallback callback, object state) {
-			IAsyncResult ar;
-			AsyncDisconnect func;
-
-			lock (m_asyncmethods) {
-				ar = (func = Disconnect).BeginInvoke(callback, state);
-				m_asyncmethods.Add(ar, func);
-			}
-
-			return ar;
-		}
-
-		/// <summary>
-		/// Ends a call to <see cref="BeginDisconnect"/>
-		/// </summary>
-		/// <param name="ar"><see cref="IAsyncResult"/> returned from <see cref="BeginDisconnect"/></param>
-		public void EndDisconnect(IAsyncResult ar) {
-			GetAsyncDelegate<AsyncDisconnect>(ar).EndInvoke(ar);
-		}
-
-#endif
 #if ASYNC
 		/// <summary>
 		/// Disconnects from the server asynchronously
@@ -971,7 +777,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="stream">The stream that fired the event</param>
 		/// <param name="e">The event args used to validate the certificate</param>
-		private void FireValidateCertficate(FtpSocketStream stream, FtpSslValidationEventArgs e) {
+		protected void FireValidateCertficate(FtpSocketStream stream, FtpSslValidationEventArgs e) {
 			OnValidateCertficate(e);
 		}
 
@@ -979,7 +785,7 @@ namespace FluentFTP {
 		/// Fires the SSL validation event
 		/// </summary>
 		/// <param name="e">Event Args</param>
-		private void OnValidateCertficate(FtpSslValidationEventArgs e) {
+		protected void OnValidateCertficate(FtpSslValidationEventArgs e) {
 
 			// automatically validate if ValidateAnyCertificate is set
 			if (ValidateAnyCertificate) {

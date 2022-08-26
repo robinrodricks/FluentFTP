@@ -6,19 +6,15 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
-    <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net50' Or '$(TargetFramework)'=='net60' Or $(DefineConstants.Contains('NETSTANDARD'))">
-    <DefineConstants>$(DefineConstants);ASYNC</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETSTANDARD;ASYNC;</DefineConstants>
   </PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net50'">
-		<DefineConstants>$(DefineConstants);NET50;NETSTANDARD;NET50_OR_LATER;</DefineConstants>
+		<DefineConstants>$(DefineConstants);NET50;NETSTANDARD;NET50_OR_LATER;ASYNC;</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net60'">
-		<DefineConstants>$(DefineConstants);NET60;NETSTANDARD;NET50_OR_LATER;</DefineConstants>
+		<DefineConstants>$(DefineConstants);NET60;NETSTANDARD;NET50_OR_LATER;ASYNC;</DefineConstants>
 	</PropertyGroup>
 
   <PropertyGroup>
@@ -63,6 +59,10 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Client\AsyncClient\" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)'=='Release' And '$(TargetFramework)'=='net45'">

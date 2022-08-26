@@ -12,9 +12,10 @@ using System.Threading.Tasks;
 #endif
 using System.Linq;
 using FluentFTP.Client.Modules;
+using FluentFTP.Client;
 
-namespace FluentFTP {
-	public partial class FtpClient : IFtpClient, IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IFtpClient, IDisposable {
 
 
 		#region Dereference Link
@@ -50,7 +51,7 @@ namespace FluentFTP {
 		/// <param name="recMax">Maximum recursive calls</param>
 		/// <param name="count">Counter</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-		private FtpListItem DereferenceLink(FtpListItem item, int recMax, ref int count) {
+		protected FtpListItem DereferenceLink(FtpListItem item, int recMax, ref int count) {
 			if (item.Type != FtpObjectType.Link) {
 				throw new FtpException("You can only dereference a symbolic link. Please verify the item type is Link.");
 			}
@@ -97,7 +98,7 @@ namespace FluentFTP {
 		/// <param name="count">Counter</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-		private async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, IntRef count, CancellationToken token = default(CancellationToken)) {
+		protected async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, IntRef count, CancellationToken token = default(CancellationToken)) {
 			if (item.Type != FtpObjectType.Link) {
 				throw new FtpException("You can only dereference a symbolic link. Please verify the item type is Link.");
 			}
@@ -199,7 +200,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Gets the file size of an object, without locking
 		/// </summary>
-		private void GetFileSizeInternal(string path, FtpSizeReply sizeReply, long defaultValue) {
+		protected void GetFileSizeInternal(string path, FtpSizeReply sizeReply, long defaultValue) {
 			long length = defaultValue;
 
 			path = path.GetFtpPath();
@@ -268,7 +269,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Gets the file size of an object, without locking
 		/// </summary>
-		private async Task GetFileSizeInternalAsync(string path, long defaultValue, CancellationToken token, FtpSizeReply sizeReply) {
+		protected async Task GetFileSizeInternalAsync(string path, long defaultValue, CancellationToken token, FtpSizeReply sizeReply) {
 			long length = defaultValue;
 			
 			path = path.GetFtpPath();

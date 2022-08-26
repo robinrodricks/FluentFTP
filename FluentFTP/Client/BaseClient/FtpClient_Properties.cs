@@ -10,13 +10,13 @@ using FluentFTP.Servers;
 using FluentFTP.Helpers;
 using System.Net.Sockets;
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 
 		/// <summary>
 		/// Current FTP client status flags used for improving performance and caching data.
 		/// </summary>
-		private readonly FtpClientState m_status = new FtpClientState();
+		protected readonly FtpClientState m_status = new FtpClientState();
 
 		/// <summary>
 		/// Returns the current FTP client status flags. For advanced use only.
@@ -27,7 +27,7 @@ namespace FluentFTP {
 		/// Used for internally synchronizing access to this
 		/// object from multiple threads
 		/// </summary>
-		private readonly object m_lock = new object();
+		protected readonly object m_lock = new object();
 
 		/// <summary>
 		/// For usage by FTP proxies only
@@ -35,23 +35,18 @@ namespace FluentFTP {
 		protected object Lock => m_lock;
 
 		/// <summary>
-		/// A list of asynchronous methods that are in progress
-		/// </summary>
-		private readonly Dictionary<IAsyncResult, object> m_asyncmethods = new Dictionary<IAsyncResult, object>();
-
-		/// <summary>
 		/// Control connection socket stream
 		/// </summary>
-		private FtpSocketStream m_stream = null;
+		protected FtpSocketStream m_stream = null;
 
-		private bool m_isDisposed = false;
+		protected bool m_isDisposed = false;
 
 		/// <summary>
 		/// Gets a value indicating if this object has already been disposed.
 		/// </summary>
 		public bool IsDisposed {
 			get => m_isDisposed;
-			private set => m_isDisposed = value;
+			protected set => m_isDisposed = value;
 		}
 
 		/// <summary>
@@ -60,7 +55,7 @@ namespace FluentFTP {
 		/// </summary>
 		protected Stream BaseStream => m_stream;
 
-		private FtpIpVersion m_ipVersions = FtpIpVersion.ANY;
+		protected FtpIpVersion m_ipVersions = FtpIpVersion.ANY;
 
 		/// <summary>
 		/// Flags specifying which versions of the internet protocol (IPV4 or IPV6) to
@@ -94,7 +89,7 @@ namespace FluentFTP {
 			}
 		}
 
-		private int m_socketPollInterval = 15000;
+		protected int m_socketPollInterval = 15000;
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds
@@ -116,7 +111,7 @@ namespace FluentFTP {
 			}
 		}
 
-		private bool m_staleDataTest = true;
+		protected bool m_staleDataTest = true;
 
 		/// <summary>
 		/// Gets or sets a value indicating whether a test should be performed to
@@ -153,7 +148,7 @@ namespace FluentFTP {
 			}
 		}
 
-		private bool m_IsAuthenticated = false;
+		protected bool m_IsAuthenticated = false;
 
 		/// <summary>
 		/// Returns true if the connection to the FTP server is open and if the FTP server accepted our credentials.
@@ -168,7 +163,7 @@ namespace FluentFTP {
 			}
 		}
 
-		private bool m_threadSafeDataChannels = false;
+		protected bool m_threadSafeDataChannels = false;
 
 		/// <summary>
 		/// When this value is set to true (default) the control connection
@@ -182,7 +177,7 @@ namespace FluentFTP {
 			set => m_threadSafeDataChannels = value;
 		}
 
-		private int m_noopInterval = 0;
+		protected int m_noopInterval = 0;
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds after last command
@@ -197,7 +192,7 @@ namespace FluentFTP {
 			set => m_noopInterval = value;
 		}
 
-		private bool m_checkCapabilities = true;
+		protected bool m_checkCapabilities = true;
 
 		/// <summary>
 		/// When this value is set to true (default) the control connection
@@ -209,7 +204,7 @@ namespace FluentFTP {
 			set => m_checkCapabilities = value;
 		}
 
-		private bool m_isClone = false;
+		protected bool m_isClone = false;
 
 		/// <summary>
 		/// Gets a value indicating if this control connection is a clone. This property
@@ -219,13 +214,12 @@ namespace FluentFTP {
 		/// object will be cloned for 2 or more resulting in N new connections to the
 		/// server.
 		/// </summary>
-		internal bool IsClone {
+		protected bool IsClone {
 			get => m_isClone;
-			private set => m_isClone = value;
 		}
 
-		private Encoding m_textEncoding = Encoding.ASCII;
-		private bool m_textEncodingAutoUTF = true;
+		protected Encoding m_textEncoding = Encoding.ASCII;
+		protected bool m_textEncodingAutoUTF = true;
 
 		/// <summary>
 		/// Gets or sets the text encoding being used when talking with the server. The default
@@ -245,7 +239,7 @@ namespace FluentFTP {
 			}
 		}
 
-		private string m_host = null;
+		protected string m_host = null;
 
 		/// <summary>
 		/// The server to connect to
@@ -266,7 +260,7 @@ namespace FluentFTP {
 			}
 		}
 
-		private int m_port = 0;
+		protected int m_port = 0;
 
 		/// <summary>
 		/// The port to connect to. If this value is set to 0 (Default) the port used
@@ -291,7 +285,7 @@ namespace FluentFTP {
 			set => m_port = value;
 		}
 
-		private NetworkCredential m_credentials = new NetworkCredential("anonymous", "anonymous");
+		protected NetworkCredential m_credentials = new NetworkCredential("anonymous", "anonymous");
 
 		/// <summary>
 		/// Credentials used for authentication
@@ -301,7 +295,7 @@ namespace FluentFTP {
 			set => m_credentials = value;
 		}
 
-		private int m_maxDerefCount = 20;
+		protected int m_maxDerefCount = 20;
 
 		/// <summary>
 		/// Gets or sets a value that controls the maximum depth
@@ -317,7 +311,7 @@ namespace FluentFTP {
 			set => m_maxDerefCount = value;
 		}
 
-		private X509CertificateCollection m_clientCerts = new X509CertificateCollection();
+		protected X509CertificateCollection m_clientCerts = new X509CertificateCollection();
 
 		/// <summary>
 		/// Client certificates to be used in SSL authentication process
@@ -328,9 +322,9 @@ namespace FluentFTP {
 		}
 
 		// Holds the cached resolved address
-		private string m_Address;
+		protected string m_Address;
 
-		private Func<string> m_AddressResolver;
+		protected Func<string> m_AddressResolver;
 
 		/// <summary>
 		/// Delegate used for resolving local address, used for active data connections
@@ -343,7 +337,7 @@ namespace FluentFTP {
 			set => m_AddressResolver = value;
 		}
 
-		private IEnumerable<int> m_ActivePorts;
+		protected IEnumerable<int> m_ActivePorts;
 
 		/// <summary>
 		/// Ports used for Active Data Connection.
@@ -354,7 +348,7 @@ namespace FluentFTP {
 			set => m_ActivePorts = value;
 		}
 
-		private IEnumerable<int> m_PassiveBlockedPorts;
+		protected IEnumerable<int> m_PassiveBlockedPorts;
 
 		/// <summary>
 		/// Ports blocked for Passive Data Connection (PASV and EPSV).
@@ -365,7 +359,7 @@ namespace FluentFTP {
 			set => m_PassiveBlockedPorts = value;
 		}
 		
-		private int m_PassiveMaxAttempts = 100;
+		protected int m_PassiveMaxAttempts = 100;
 
 		/// <summary>
 		/// Maximum number of passive connections made in order to find a working port for Passive Data Connection (PASV and EPSV).
@@ -376,7 +370,7 @@ namespace FluentFTP {
 			set => m_PassiveMaxAttempts = value;
 		}
 
-		private FtpDataConnectionType m_dataConnectionType = FtpDataConnectionType.AutoPassive;
+		protected FtpDataConnectionType m_dataConnectionType = FtpDataConnectionType.AutoPassive;
 
 		/// <summary>
 		/// Data connection type, default is AutoPassive which tries
@@ -391,7 +385,7 @@ namespace FluentFTP {
 			set => m_dataConnectionType = value;
 		}
 
-		private bool m_DisconnectWithQuit = true;
+		protected bool m_DisconnectWithQuit = true;
 
 		/// <summary>
 		/// Disconnect from the server without sending QUIT. This helps
@@ -403,7 +397,7 @@ namespace FluentFTP {
 			set => m_DisconnectWithQuit = value;
 		}
 
-		private bool m_DisconnectWithShutdown = false;
+		protected bool m_DisconnectWithShutdown = false;
 
 		/// <summary>
 		/// Before we disconnect from the server, send the Shutdown signal on the socket stream.
@@ -413,7 +407,7 @@ namespace FluentFTP {
 			set => m_DisconnectWithShutdown = value;
 		}
 
-		private int m_connectTimeout = 15000;
+		protected int m_connectTimeout = 15000;
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds to wait for a connection 
@@ -424,7 +418,7 @@ namespace FluentFTP {
 			set => m_connectTimeout = value;
 		}
 
-		private int m_readTimeout = 15000;
+		protected int m_readTimeout = 15000;
 
 		/// <summary>
 		/// Gets or sets the length of time wait in milliseconds for data to be
@@ -435,7 +429,7 @@ namespace FluentFTP {
 			set => m_readTimeout = value;
 		}
 
-		private int m_dataConnectionConnectTimeout = 15000;
+		protected int m_dataConnectionConnectTimeout = 15000;
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds for a data connection
@@ -446,7 +440,7 @@ namespace FluentFTP {
 			set => m_dataConnectionConnectTimeout = value;
 		}
 
-		private int m_dataConnectionReadTimeout = 15000;
+		protected int m_dataConnectionReadTimeout = 15000;
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds the data channel
@@ -458,7 +452,7 @@ namespace FluentFTP {
 			set => m_dataConnectionReadTimeout = value;
 		}
 
-		private bool m_keepAlive = false;
+		protected bool m_keepAlive = false;
 
 		/// <summary>
 		/// Gets or sets a value indicating if <see cref="System.Net.Sockets.SocketOptionName.KeepAlive"/> should be set on 
@@ -478,7 +472,7 @@ namespace FluentFTP {
 			}
 		}
 
-		private List<FtpCapability> m_capabilities = null;
+		protected List<FtpCapability> m_capabilities = null;
 
 		/// <summary>
 		/// Gets the server capabilities represented by an array of capability flags
@@ -502,7 +496,7 @@ namespace FluentFTP {
 			protected set => m_capabilities = value;
 		}
 
-		private FtpHashAlgorithm m_hashAlgorithms = FtpHashAlgorithm.NONE;
+		protected FtpHashAlgorithm m_hashAlgorithms = FtpHashAlgorithm.NONE;
 
 		/// <summary>
 		/// Get the hash types supported by the server for use with the HASH Command.
@@ -527,10 +521,10 @@ namespace FluentFTP {
 
 				return m_hashAlgorithms;
 			}
-			private set => m_hashAlgorithms = value;
+			protected set => m_hashAlgorithms = value;
 		}
 
-		private FtpEncryptionMode m_encryptionmode = FtpEncryptionMode.None;
+		protected FtpEncryptionMode m_encryptionmode = FtpEncryptionMode.None;
 
 		/// <summary>
 		/// Type of SSL to use, or none. Default is none. Explicit is TLS, Implicit is SSL.
@@ -540,7 +534,7 @@ namespace FluentFTP {
 			set => m_encryptionmode = value;
 		}
 
-		private bool m_dataConnectionEncryption = true;
+		protected bool m_dataConnectionEncryption = true;
 
 		/// <summary>
 		/// Indicates if data channel transfers should be encrypted. Only valid if <see cref="EncryptionMode"/>
@@ -552,7 +546,7 @@ namespace FluentFTP {
 		}
 
 #if !NETSTANDARD
-		private bool m_plainTextEncryption = false;
+		protected bool m_plainTextEncryption = false;
 
 		/// <summary>
 		/// Indicates if the encryption should be disabled immediately after connecting using a CCC command.
@@ -565,9 +559,9 @@ namespace FluentFTP {
 #endif
 
 #if NETSTANDARD || NET45
-		private SslProtocols m_SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
+		protected SslProtocols m_SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
 #else
-		private SslProtocols m_SslProtocols = SslProtocols.Default;
+		protected SslProtocols m_SslProtocols = SslProtocols.Default;
 #endif
 		/// <summary>
 		/// Encryption protocols to use. Only valid if EncryptionMode property is not equal to <see cref="FtpEncryptionMode.None"/>.
@@ -578,7 +572,7 @@ namespace FluentFTP {
 			set => m_SslProtocols = value;
 		}
 
-		private FtpsBuffering m_SslBuffering = FtpsBuffering.Auto;
+		protected FtpsBuffering m_SslBuffering = FtpsBuffering.Auto;
 
 		/// <summary>
 		/// Whether to use SSL Buffering to speed up data transfer during FTP operations.
@@ -606,7 +600,7 @@ namespace FluentFTP {
 			get => m_stream != null && m_stream.IsEncrypted;
 		}
 
-		private FtpSslValidation m_ValidateCertificate = null;
+		protected FtpSslValidation m_ValidateCertificate = null;
 
 		/// <summary>
 		/// Event is fired to validate SSL certificates. If this event is
@@ -619,7 +613,7 @@ namespace FluentFTP {
 			remove => m_ValidateCertificate -= value;
 		}
 
-		private bool m_ValidateAnyCertificate = false;
+		protected bool m_ValidateAnyCertificate = false;
 
 		/// <summary>
 		/// Accept any SSL certificate received from the server and skip performing
@@ -631,7 +625,7 @@ namespace FluentFTP {
 			set => m_ValidateAnyCertificate = value;
 		}
 
-		private bool m_ValidateCertificateRevocation = false;
+		protected bool m_ValidateCertificateRevocation = false;
 
 		/// <summary>
 		/// Indicates if the certificate revocation list is checked during authentication.
@@ -644,21 +638,21 @@ namespace FluentFTP {
 			set => m_ValidateCertificateRevocation = value;
 		}
 
-		private string m_systemType = "UNKNOWN";
+		protected string m_systemType = "UNKNOWN";
 
 		/// <summary>
 		/// Gets the type of system/server that we're connected to. Typically begins with "WINDOWS" or "UNIX".
 		/// </summary>
 		public string SystemType => m_systemType;
 
-		private FtpServer m_serverType = FtpServer.Unknown;
+		protected FtpServer m_serverType = FtpServer.Unknown;
 
 		/// <summary>
 		/// Gets the type of the FTP server software that we're connected to.
 		/// </summary>
 		public FtpServer ServerType => m_serverType;
 
-		private FtpBaseServer m_serverHandler;
+		protected FtpBaseServer m_serverHandler;
 
 		/// <summary>
 		/// Gets the type of the FTP server handler.
@@ -670,14 +664,14 @@ namespace FluentFTP {
 			set => m_serverHandler = value;
 		}
 
-		private FtpOperatingSystem m_serverOS = FtpOperatingSystem.Unknown;
+		protected FtpOperatingSystem m_serverOS = FtpOperatingSystem.Unknown;
 
 		/// <summary>
 		/// Gets the operating system of the FTP server that we're connected to.
 		/// </summary>
 		public FtpOperatingSystem ServerOS => m_serverOS;
 
-		private string m_connectionType = "Default";
+		protected string m_connectionType = "Default";
 
 		/// <summary> Gets the connection type </summary>
 		public string ConnectionType {
@@ -685,7 +679,7 @@ namespace FluentFTP {
 			protected set => m_connectionType = value;
 		}
 
-		private FtpReply m_lastReply;
+		protected FtpReply m_lastReply;
 
 		/// <summary> Gets the last reply received from the server</summary>
 		public FtpReply LastReply {
@@ -694,7 +688,7 @@ namespace FluentFTP {
 		}
 
 
-		private FtpDataType m_ListingDataType = FtpDataType.Binary;
+		protected FtpDataType m_ListingDataType = FtpDataType.Binary;
 
 		/// <summary>
 		/// Controls if the file listings are downloaded in Binary or ASCII mode.
@@ -704,7 +698,7 @@ namespace FluentFTP {
 			set => m_ListingDataType = value;
 		}
 
-		private FtpParser m_parser = FtpParser.Auto;
+		protected FtpParser m_parser = FtpParser.Auto;
 
 		/// <summary>
 		/// File listing parser to be used. 
@@ -722,7 +716,7 @@ namespace FluentFTP {
 			}
 		}
 
-		private CultureInfo m_parserCulture = CultureInfo.InvariantCulture;
+		protected CultureInfo m_parserCulture = CultureInfo.InvariantCulture;
 
 		/// <summary>
 		/// Culture used to parse file listings
@@ -732,7 +726,7 @@ namespace FluentFTP {
 			set => m_parserCulture = value;
 		}
 
-		private CustomParser m_customParser = null;
+		protected CustomParser m_customParser = null;
 
 		/// <summary>
 		/// Custom file listing parser to be used.
@@ -759,7 +753,7 @@ namespace FluentFTP {
 		/// <param name="capabilities">The server capabilities</param>
 		/// <param name="client">The FTP client</param>
 		/// <returns>Return an FtpListItem object if the line can be parsed, else return null</returns>
-		public delegate FtpListItem CustomParser(string line, List<FtpCapability> capabilities, FtpClient client);
+		public delegate FtpListItem CustomParser(string line, List<FtpCapability> capabilities, BaseFtpClient client);
 
 		/// <summary>
 		/// Detect if your FTP server supports the recursive LIST command (LIST -R).
@@ -788,8 +782,8 @@ namespace FluentFTP {
 		}
 
 
-		private double m_serverTimeZone = 0;
-		private TimeSpan m_serverTimeOffset = new TimeSpan();
+		protected double m_serverTimeZone = 0;
+		protected TimeSpan m_serverTimeOffset = new TimeSpan();
 
 		/// <summary>
 		/// The timezone of the FTP server. If the server is in Tokyo with UTC+9 then set this to 9.
@@ -817,8 +811,8 @@ namespace FluentFTP {
 
 
 #if NETSTANDARD
-		private double m_localTimeZone = 0;
-		private TimeSpan m_localTimeOffset = new TimeSpan();
+		protected double m_localTimeZone = 0;
+		protected TimeSpan m_localTimeOffset = new TimeSpan();
 
 		/// <summary>
 		/// The timezone of your machine. If your machine is in Tokyo with UTC+9 then set this to 9.
@@ -845,7 +839,7 @@ namespace FluentFTP {
 		}
 #endif
 
-		private FtpDate m_timeConversion = FtpDate.ServerTime;
+		protected FtpDate m_timeConversion = FtpDate.ServerTime;
 
 		/// <summary>
 		/// Server timestamps are converted into the given timezone.
@@ -861,7 +855,7 @@ namespace FluentFTP {
 			}
 		}
 
-		private bool m_bulkListing = true;
+		protected bool m_bulkListing = true;
 
 		/// <summary>
 		/// If true, increases performance of GetListing by reading multiple lines
@@ -876,7 +870,7 @@ namespace FluentFTP {
 			set => m_bulkListing = value;
 		}
 
-		private int m_bulkListingLength = 128;
+		protected int m_bulkListingLength = 128;
 
 		/// <summary>
 		/// Bytes to read during GetListing. Only honored if <see cref="BulkListing"/> is true.
@@ -886,7 +880,7 @@ namespace FluentFTP {
 			set => m_bulkListingLength = value;
 		}
 
-		private int? m_transferChunkSize;
+		protected int? m_transferChunkSize;
 
 		/// <summary>
 		/// Gets or sets the number of bytes transferred in a single chunk (a single FTP command).
@@ -898,7 +892,7 @@ namespace FluentFTP {
 			set => m_transferChunkSize = value;
 		}
 
-		private int? m_localFileBufferSize;
+		protected int? m_localFileBufferSize;
 
 		/// <summary>
 		/// Gets or sets the size of the file buffer when reading and writing files on the local file system.
@@ -910,7 +904,7 @@ namespace FluentFTP {
 			set => m_localFileBufferSize = value;
 		}
 
-		private int m_quickTransferSize = (10 * 1024 * 1024);
+		protected int m_quickTransferSize = (10 * 1024 * 1024);
 
 		/// <summary>
 		/// Files within this size are read and written in a single call to the disk, thereby greatly increasing transfer performance. Measured in bytes.
@@ -921,9 +915,9 @@ namespace FluentFTP {
 			set => m_quickTransferSize = value;
 		}
 
-		private FtpDataType CurrentDataType;
+		protected FtpDataType CurrentDataType;
 
-		private int m_retryAttempts = 3;
+		protected int m_retryAttempts = 3;
 
 		/// <summary>
 		/// Gets or sets the retry attempts allowed when a verification failure occurs during download or upload.
@@ -934,7 +928,7 @@ namespace FluentFTP {
 			set => m_retryAttempts = value > 0 ? value : 1;
 		}
 
-		private uint m_uploadRateLimit = 0;
+		protected uint m_uploadRateLimit = 0;
 
 		/// <summary>
 		/// Rate limit for uploads in kbyte/s. Set this to 0 for unlimited speed.
@@ -945,7 +939,7 @@ namespace FluentFTP {
 			set => m_uploadRateLimit = value;
 		}
 
-		private uint m_downloadRateLimit = 0;
+		protected uint m_downloadRateLimit = 0;
 
 		/// <summary>
 		/// Rate limit for downloads in kbytes/s. Set this to 0 for unlimited speed.
@@ -956,7 +950,7 @@ namespace FluentFTP {
 			set => m_downloadRateLimit = value;
 		}
 
-		private bool m_DownloadZeroByteFiles = true;
+		protected bool m_DownloadZeroByteFiles = true;
 
 		/// <summary>
 		/// Controls if zero-byte files should be downloaded or skipped.
@@ -967,7 +961,7 @@ namespace FluentFTP {
 			set => m_DownloadZeroByteFiles = value;
 		}
 
-		private FtpDataType m_UploadDataType = FtpDataType.Binary;
+		protected FtpDataType m_UploadDataType = FtpDataType.Binary;
 
 		/// <summary>
 		/// Controls if the high-level API uploads files in Binary or ASCII mode.
@@ -977,7 +971,7 @@ namespace FluentFTP {
 			set => m_UploadDataType = value;
 		}
 
-		private FtpDataType m_DownloadDataType = FtpDataType.Binary;
+		protected FtpDataType m_DownloadDataType = FtpDataType.Binary;
 
 		/// <summary>
 		/// Controls if the high-level API downloads files in Binary or ASCII mode.
@@ -987,7 +981,7 @@ namespace FluentFTP {
 			set => m_DownloadDataType = value;
 		}
 
-		private bool m_UploadDirectoryDeleteExcluded = true;
+		protected bool m_UploadDirectoryDeleteExcluded = true;
 
 		/// <summary>
 		/// Controls if the UploadDirectory API deletes the excluded files when uploading in Mirror mode.
@@ -1000,7 +994,7 @@ namespace FluentFTP {
 			set => m_UploadDirectoryDeleteExcluded = value;
 		}
 
-		private bool m_DownloadDirectoryDeleteExcluded = true;
+		protected bool m_DownloadDirectoryDeleteExcluded = true;
 
 		/// <summary>
 		/// Controls if the DownloadDirectory API deletes the excluded files when downloading in Mirror mode.
@@ -1013,7 +1007,7 @@ namespace FluentFTP {
 			set => m_DownloadDirectoryDeleteExcluded = value;
 		}
 
-		private FtpDataType m_FXPDataType = FtpDataType.Binary;
+		protected FtpDataType m_FXPDataType = FtpDataType.Binary;
 
 		/// <summary>
 		/// Controls if the FXP server-to-server file transfer API uses Binary or ASCII mode.
@@ -1023,7 +1017,7 @@ namespace FluentFTP {
 			set => m_FXPDataType = value;
 		}
 
-		private int m_FXPProgressInterval = 1000;
+		protected int m_FXPProgressInterval = 1000;
 
 		/// <summary>
 		/// Controls how often the progress reports are sent during an FXP file transfer.
@@ -1034,7 +1028,7 @@ namespace FluentFTP {
 			set => m_FXPProgressInterval = value;
 		}
 
-		private bool m_SendHost;
+		protected bool m_SendHost;
 		/// <summary>
 		/// Controls if the HOST command is sent immediately after the handshake.
 		/// Useful when you are using shared hosting and you need to inform the
@@ -1045,7 +1039,7 @@ namespace FluentFTP {
 			set => m_SendHost = value;
 		}
 
-		private string m_SendHostDomain = null;
+		protected string m_SendHostDomain = null;
 		/// <summary>
 		/// Controls which domain is sent with the HOST command.
 		/// If this is null, then the Host parameter of the FTP client is sent.
@@ -1056,7 +1050,7 @@ namespace FluentFTP {
 		}
 
 #if ASYNC
-		private IPAddress m_SocketLocalIp;
+		protected IPAddress m_SocketLocalIp;
 		/// <summary>
 		/// The local socket will be bound to the given local IP/interface.
 		/// This is useful if you have several usable public IP addresses and want to use a particular one.
@@ -1082,7 +1076,7 @@ namespace FluentFTP {
 			get => m_stream?.RemoteEndPoint;
 		}
 
-		private FtpZOSListRealm m_zOSListingRealm;
+		protected FtpZOSListRealm m_zOSListingRealm;
 
 		/// <summary>
 		/// During and after a z/OS GetListing(), this value shows the
@@ -1094,7 +1088,7 @@ namespace FluentFTP {
 			set => m_zOSListingRealm = value;
 		}
 
-		private ushort m_zOSListingLRECL;
+		protected ushort m_zOSListingLRECL;
 
 		/// <summary>
 		/// During and after a z/OS GetListing(), this value shows the

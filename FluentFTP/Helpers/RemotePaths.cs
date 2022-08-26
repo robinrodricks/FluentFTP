@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers {
 	/// <summary>
@@ -156,7 +157,7 @@ namespace FluentFTP.Helpers {
 		/// <summary>
 		/// Get the full path of a given FTP Listing entry
 		/// </summary>
-		public static void CalculateFullFtpPath(this FtpListItem item, FtpClient client, string path)
+		public static void CalculateFullFtpPath(this FtpListItem item, BaseFtpClient client, string path)
 		{
 			// EXIT IF NO DIR PATH PROVIDED
 			if (path == null)

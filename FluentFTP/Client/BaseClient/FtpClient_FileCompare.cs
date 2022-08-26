@@ -13,8 +13,8 @@ using System.Threading;
 using System.Threading.Tasks;
 #endif
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 
 		/// <summary>
 		/// Compare the specified local file with the remote file on the FTP server using various kinds of quick equality checks.

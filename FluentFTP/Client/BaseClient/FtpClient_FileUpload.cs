@@ -19,8 +19,8 @@ using System.Threading.Tasks;
 #endif
 using System.Threading;
 
-namespace FluentFTP {
-	public partial class FtpClient : IDisposable {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient : IDisposable {
 		#region Upload Multiple Files
 
 		/// <summary>
@@ -142,7 +142,7 @@ namespace FluentFTP {
 			return successfulUploads.Count;
 		}
 
-		private void PurgeSuccessfulUploads(IEnumerable<string> remotePaths) {
+		protected void PurgeSuccessfulUploads(IEnumerable<string> remotePaths) {
 			foreach (var remotePath in remotePaths) {
 				DeleteFile(remotePath);
 			}
@@ -306,7 +306,7 @@ namespace FluentFTP {
 			return successfulUploads.Count;
 		}
 
-		private async Task PurgeSuccessfulUploadsAsync(IEnumerable<string> remotePaths) {
+		protected async Task PurgeSuccessfulUploadsAsync(IEnumerable<string> remotePaths) {
 			foreach (var remotePath in remotePaths) {
 				await DeleteFileAsync(remotePath);
 			}
@@ -349,7 +349,7 @@ namespace FluentFTP {
 			return UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, progress, new FtpProgress(1, 0));
 		}
 
-		private FtpStatus UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
+		protected FtpStatus UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
 
 			remotePath = remotePath.GetFtpPath();
@@ -442,7 +442,7 @@ namespace FluentFTP {
 			return await UploadFileFromFileAsync(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token, progress, new FtpProgress(1, 0));
 		}
 
-		private async Task<FtpStatus> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
+		protected async Task<FtpStatus> UploadFileFromFileAsync(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token, IProgress<FtpProgress> progress, FtpProgress metaProgress) {
 
 
@@ -647,7 +647,7 @@ namespace FluentFTP {
 		/// Upload the given stream to the server as a new file. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private FtpStatus UploadFileInternal(Stream fileData, string localPath, string remotePath, bool createRemoteDir,
+		protected FtpStatus UploadFileInternal(Stream fileData, string localPath, string remotePath, bool createRemoteDir,
 			FtpRemoteExists existsMode, bool fileExists, bool fileExistsKnown, Action<FtpProgress> progress, FtpProgress metaProgress) {
 
 			Stream upStream = null;
@@ -927,7 +927,7 @@ namespace FluentFTP {
 		/// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		private async Task<FtpStatus> UploadFileInternalAsync(Stream fileData, string localPath, string remotePath, bool createRemoteDir,
+		protected async Task<FtpStatus> UploadFileInternalAsync(Stream fileData, string localPath, string remotePath, bool createRemoteDir,
 			FtpRemoteExists existsMode, bool fileExists, bool fileExistsKnown, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
 
 			Stream upStream = null;
@@ -1218,7 +1218,7 @@ namespace FluentFTP {
 
 #endif
 
-		private bool ResumeUpload(string remotePath, ref Stream upStream, long remotePosition, IOException ex) {
+		protected bool ResumeUpload(string remotePath, ref Stream upStream, long remotePosition, IOException ex) {
 
 #if ASYNC
 			try {
@@ -1251,7 +1251,7 @@ namespace FluentFTP {
 		}
 
 #if ASYNC
-		private async Task<Tuple<bool, Stream>> ResumeUploadAsync(string remotePath, Stream upStream, long remotePosition, IOException ex) {
+		protected async Task<Tuple<bool, Stream>> ResumeUploadAsync(string remotePath, Stream upStream, long remotePosition, IOException ex) {
 
 #if ASYNC
 			try {
@@ -1281,7 +1281,7 @@ namespace FluentFTP {
 #endif
 		}
 #endif
-		private long CalculateAppendLocalPosition(string remotePath, FtpRemoteExists existsMode, long remotePosition) {
+		protected long CalculateAppendLocalPosition(string remotePath, FtpRemoteExists existsMode, long remotePosition) {
 
 			long localPosition = 0;
 
