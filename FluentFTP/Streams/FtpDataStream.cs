@@ -129,7 +129,7 @@ namespace FluentFTP {
 
 			try {
 				if (ControlConnection != null) {
-					ControlConnection.CloseDataStream(this);
+					((IInternalFtpClient)ControlConnection).CloseDataStreamInternal(this);
 				}
 			}
 			finally {

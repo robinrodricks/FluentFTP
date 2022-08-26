@@ -35,7 +35,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required argument is null", "path");
 			}
 
-			ValidateHashAlgorithm(algorithm);
+			ValidateChecksumAlgorithm(algorithm);
 
 			path = path.GetFtpPath();
 
@@ -127,7 +127,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required argument is null", "path");
 			}
 
-			ValidateHashAlgorithm(algorithm);
+			ValidateChecksumAlgorithm(algorithm);
 
 			path = path.GetFtpPath();
 

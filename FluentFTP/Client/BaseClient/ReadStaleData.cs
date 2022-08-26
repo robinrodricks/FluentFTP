@@ -1,42 +1,10 @@
 ﻿using System.Text;
-using System.Collections.Generic;
-using System.Net;
-using FluentFTP.Proxy;
-using FluentFTP.Rules;
-using FluentFTP.Client.Modules;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
 
-		/// <summary>
-		/// Forcibly set the capabilities of your FTP server.
-		/// By default capabilities are loaded automatically after calling Connect and you don't need to use this method.
-		/// This is only for advanced use-cases.
-		/// </summary>
-		public void SetFeatures(List<FtpCapability> capabilities) {
-			m_capabilities = capabilities;
-		}
-
-		/// <summary>
-		/// Performs a bitwise and to check if the specified
-		/// flag is set on the <see cref="Capabilities"/>  property.
-		/// </summary>
-		/// <param name="cap">The <see cref="FtpCapability"/> to check for</param>
-		/// <returns>True if the feature was found, false otherwise</returns>
-		public bool HasFeature(FtpCapability cap) {
-			if (cap == FtpCapability.NONE && Capabilities.Count == 0) {
-				return true;
-			}
-
-			return Capabilities.Contains(cap);
-		}
-
-
-		protected static string DecodeUrl(string url) {
-			return WebUtility.UrlDecode(url);
-		}
 
 		/// <summary>
 		/// Data shouldn't be on the socket, if it is it probably means we've been disconnected.
@@ -60,7 +28,7 @@ namespace FluentFTP.Client.BaseClient {
 					if (traceData) {
 						LogStatus(FtpTraceLevel.Verbose, "The stale data was: " + staleData);
 					}
-					if(string.IsNullOrEmpty(staleData)) {
+					if (string.IsNullOrEmpty(staleData)) {
 						closeStream = false;
 					}
 				}
@@ -105,34 +73,6 @@ namespace FluentFTP.Client.BaseClient {
 			return staleData;
 		}
 #endif
-
-		/// <summary>
-		/// Checks if this FTP/FTPS connection is made through a proxy.
-		/// </summary>
-		public bool IsProxy() {
-			return this is FtpClientProxy;
-		}
-		
-		/// <summary>
-		/// Returns true if the file passes all the rules
-		/// </summary>
-		protected bool FilePassesRules(FtpResult result, List<FtpRule> rules, bool useLocalPath, FtpListItem item = null) {
-			if (rules != null && rules.Count > 0) {
-				var passes = FtpRule.IsAllAllowed(rules, item ?? result.ToListItem(useLocalPath));
-				if (!passes) {
-
-					LogStatus(FtpTraceLevel.Info, "Skipped file due to rule: " + (useLocalPath ? result.LocalPath : result.RemotePath));
-
-					// mark that the file was skipped due to a rule
-					result.IsSkipped = true;
-					result.IsSkippedByRule = true;
-
-					// skip uploading the file
-					return false;
-				}
-			}
-			return true;
-		}
 
 	}
 }

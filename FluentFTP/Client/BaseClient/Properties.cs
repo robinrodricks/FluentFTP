@@ -14,7 +14,14 @@ namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
 
 
+		/// <summary>
+		/// When last command was sent (NOOP or other), for having <see cref="Noop"/>
+		/// Respects the <see cref="NoopInterval"/>.
+		/// </summary>
+		protected DateTime m_lastCommandUtc;
+
 		protected FtpReply HandshakeReply;
+
 		protected bool ForceSetDataType = false;
 
 		protected string m_path;

@@ -8,12 +8,14 @@ namespace FluentFTP {
 	internal interface IInternalFtpClient {
 
 		string GetWorkingDirectoryInternal();
-		
+
 		FtpReply ExecuteInternal(string command);
 
 		void DisconnectInternal();
 
 		void ConnectInternal();
+
+		FtpReply CloseDataStreamInternal(FtpDataStream stream);
 
 	}
 }

@@ -3,7 +3,14 @@ using FluentFTP.Helpers;
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
 
-		protected void ValidateHashAlgorithm(FtpHashAlgorithm algorithm) {
+		protected bool SupportsChecksum() {
+			return HasFeature(FtpCapability.HASH) || HasFeature(FtpCapability.MD5) ||
+					HasFeature(FtpCapability.XMD5) || HasFeature(FtpCapability.XCRC) ||
+					HasFeature(FtpCapability.XSHA1) || HasFeature(FtpCapability.XSHA256) ||
+					HasFeature(FtpCapability.XSHA512);
+		}
+
+		protected void ValidateChecksumAlgorithm(FtpHashAlgorithm algorithm) {
 
 			// if NO hashing algos or commands supported, throw here
 			if (!HasFeature(FtpCapability.HASH) &&

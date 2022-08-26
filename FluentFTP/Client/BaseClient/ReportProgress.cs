@@ -6,19 +6,7 @@ using FluentFTP.Helpers;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
-		#region Verification
-
-		protected bool SupportsChecksum() {
-			return HasFeature(FtpCapability.HASH) || HasFeature(FtpCapability.MD5) ||
-					HasFeature(FtpCapability.XMD5) || HasFeature(FtpCapability.XCRC) ||
-					HasFeature(FtpCapability.XSHA1) || HasFeature(FtpCapability.XSHA256) ||
-					HasFeature(FtpCapability.XSHA512);
-		}
-
-		#endregion
-
-		#region Utilities
-
+		
 		/// <summary>
 		/// Sends progress to the user, either a value between 0-100 indicating percentage complete, or -1 for indeterminate.
 		/// </summary>
@@ -42,6 +30,6 @@ namespace FluentFTP.Client.BaseClient {
 			// send progress to parent
 			progress(status);
 		}
-		#endregion
+
 	}
 }
