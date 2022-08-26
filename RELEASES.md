@@ -2,6 +2,7 @@
 
 #### 40.0.0
  - New: Split main FTP client classes into `FtpClient` and `AsyncFtpClient`
+ - New: Split common FTP functionality into `BaseFtpClient`
  - New: Split FTP proxy classes into `FtpClient*Proxy` and `AsyncFtpClient*Proxy`
  - New: FTP proxy classes moved into `FluentFTP.Proxy.SyncProxy` and `FluentFTP.Proxy.AsyncProxy` NS
  - New: FTP proxy classes with fully async implementations
