@@ -1,26 +1,16 @@
 ﻿using System;
 using System.IO;
-using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using FluentFTP.Streams;
 using FluentFTP.Helpers;
-#if !NETSTANDARD
-using System.Web;
-#endif
-#if NETSTANDARD
 using FluentFTP.Exceptions;
-
-#endif
-#if NETSTANDARD
+using System.Threading;
 using System.Threading.Tasks;
 
-#endif
-using System.Threading;
-
-namespace FluentFTP.Client.BaseClient {
-	public partial class BaseFtpClient : IDisposable {
+namespace FluentFTP {
+	public partial class FtpClient {
 		#region Upload Multiple Files
 
 		/// <summary>
@@ -48,7 +38,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// </remarks>
 		public int UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true,
 			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, Action<FtpProgress> progress = null) {
-			
+
 			// verify args
 			if (!errorHandling.IsValidCombination()) {
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
@@ -201,7 +191,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// </remarks>
 		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true,
 			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null) {
-			
+
 			// verify args
 			if (!errorHandling.IsValidCombination()) {
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
@@ -361,7 +351,7 @@ namespace FluentFTP.Client.BaseClient {
 				LogStatus(FtpTraceLevel.Error, "File does not exist: " + localPath);
 				return FtpStatus.Failed;
 			}
-			
+
 			// If retries are allowed set the retry counter to the allowed count
 			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 
@@ -370,8 +360,8 @@ namespace FluentFTP.Client.BaseClient {
 			FtpStatus uploadStatus;
 			bool uploadSuccess;
 			do {
-					// write the file onto the server
-					using (var fileStream = FtpFileStream.GetFileReadStream(this, localPath, false, QuickTransferLimit)) {
+				// write the file onto the server
+				using (var fileStream = FtpFileStream.GetFileReadStream(this, localPath, false, 0)) {
 					// Upload file
 					uploadStatus = UploadFileInternal(fileStream, localPath, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, progress, metaProgress);
 					uploadSuccess = uploadStatus.IsSuccess();
@@ -457,7 +447,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 
 			LogFunc(nameof(UploadFileAsync), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
-			
+
 			// If retries are allowed set the retry counter to the allowed count
 			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 
@@ -467,7 +457,7 @@ namespace FluentFTP.Client.BaseClient {
 			bool uploadSuccess;
 			do {
 				// write the file onto the server
-				using (var fileStream = FtpFileStream.GetFileReadStream(this, localPath, true, QuickTransferLimit)) {
+				using (var fileStream = FtpFileStream.GetFileReadStream(this, localPath, true, 0)) {
 					uploadStatus = await UploadFileInternalAsync(fileStream, localPath, remotePath, createRemoteDir, existsMode, fileExists, fileExistsKnown, progress, token, metaProgress);
 					uploadSuccess = uploadStatus.IsSuccess();
 					attemptsLeft--;
@@ -805,9 +795,7 @@ namespace FluentFTP.Client.BaseClient {
 							}
 
 							// Fix #387: keep alive with NOOP as configured and needed
-							if (!m_threadSafeDataChannels) {
-								anyNoop = Noop() || anyNoop;
-							}
+							anyNoop = Noop() || anyNoop;
 
 							// honor the speed limit
 							var swTime = sw.ElapsedMilliseconds;
@@ -843,7 +831,8 @@ namespace FluentFTP.Client.BaseClient {
 							throw;
 						}
 
-					} catch (TimeoutException ex) {
+					}
+					catch (TimeoutException ex) {
 						// fix: attempting to upload data after we reached the end of the stream
 						// often throws a timeout exception, so we silently absorb that here
 						if (localPosition >= localFileLen) {
@@ -874,7 +863,7 @@ namespace FluentFTP.Client.BaseClient {
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
 				try {
-					while (!m_threadSafeDataChannels) {
+					while (true) {
 						var status = GetReply();
 
 						// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
@@ -1039,7 +1028,7 @@ namespace FluentFTP.Client.BaseClient {
 
 				// calculate chunk size and rate limiting
 				const int rateControlResolution = 100;
-				var rateLimitBytes = UploadRateLimit != 0 ? (long)UploadRateLimit * 1024 : 0;
+				long rateLimitBytes = UploadRateLimit != 0 ? (long)UploadRateLimit * 1024 : 0;
 				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
 
 				// calc desired length based on the mode (if need to append to the end of remote file, length is sum of local+remote)
@@ -1089,9 +1078,7 @@ namespace FluentFTP.Client.BaseClient {
 							}
 
 							// Fix #387: keep alive with NOOP as configured and needed
-							if (!m_threadSafeDataChannels) {
-								anyNoop = await NoopAsync(token) || anyNoop;
-							}
+							anyNoop = await NoopAsync(token) || anyNoop;
 
 							// honor the rate limit
 							var swTime = sw.ElapsedMilliseconds;
@@ -1163,7 +1150,7 @@ namespace FluentFTP.Client.BaseClient {
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
 				try {
-					while (!m_threadSafeDataChannels) {
+					while (true) {
 						FtpReply status = await GetReplyAsync(token);
 
 						// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
@@ -1200,8 +1187,8 @@ namespace FluentFTP.Client.BaseClient {
 				}
 				catch (Exception) {
 				}
-				
-				if (ex1 is IOException ) {
+
+				if (ex1 is IOException) {
 					LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
 					return FtpStatus.Failed;
 				}
@@ -1228,14 +1215,14 @@ namespace FluentFTP.Client.BaseClient {
 				// if resume possible
 				if (ex.IsResumeAllowed()) {
 
-				// dispose the old bugged out stream
-				upStream.Dispose();
+					// dispose the old bugged out stream
+					upStream.Dispose();
 
-				// create and return a new stream starting at the current remotePosition
-				upStream = OpenAppend(remotePath, UploadDataType, 0);
-				upStream.Position = remotePosition;
-				return true;
-			}
+					// create and return a new stream starting at the current remotePosition
+					upStream = OpenAppend(remotePath, UploadDataType, 0);
+					upStream.Position = remotePosition;
+					return true;
+				}
 #endif
 
 #if ASYNC
@@ -1257,20 +1244,20 @@ namespace FluentFTP.Client.BaseClient {
 			try {
 #endif
 
-			// if resume possible
-			if (ex.IsResumeAllowed()) {
+				// if resume possible
+				if (ex.IsResumeAllowed()) {
 
-				// dispose the old bugged out stream
-				upStream.Dispose();
+					// dispose the old bugged out stream
+					upStream.Dispose();
 
-				// create and return a new stream starting at the current remotePosition
-				var returnStream = await OpenAppendAsync(remotePath, UploadDataType, 0);
-				returnStream.Position = remotePosition;
-				return Tuple.Create(true, returnStream);
-			}
+					// create and return a new stream starting at the current remotePosition
+					var returnStream = await OpenAppendAsync(remotePath, UploadDataType, 0);
+					returnStream.Position = remotePosition;
+					return Tuple.Create(true, returnStream);
+				}
 
-			// resume not allowed
-			return Tuple.Create(false, (Stream)null);
+				// resume not allowed
+				return Tuple.Create(false, (Stream)null);
 
 #if ASYNC
 			}
@@ -1298,6 +1285,6 @@ namespace FluentFTP.Client.BaseClient {
 			return localPosition;
 		}
 
-#endregion
+		#endregion
 	}
 }

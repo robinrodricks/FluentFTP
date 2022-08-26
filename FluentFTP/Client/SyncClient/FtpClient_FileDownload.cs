@@ -1,34 +1,17 @@
 ﻿using System;
 using System.IO;
-using System.Net.Sockets;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Reflection;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Globalization;
-using System.Security.Authentication;
-using System.Net;
-using FluentFTP.Proxy;
 using FluentFTP.Streams;
 using FluentFTP.Helpers;
-#if !NETSTANDARD
-using System.Web;
-#endif
-#if NETSTANDARD
-#endif
-#if NETSTANDARD
-using System.Threading.Tasks;
-
-#endif
-using System.Threading;
 using FluentFTP.Exceptions;
 using FluentFTP.Client.Modules;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace FluentFTP.Client.BaseClient {
-	public partial class BaseFtpClient : IDisposable {
+namespace FluentFTP {
+	public partial class FtpClient {
 		#region Download Multiple Files
 
 		/// <summary>
@@ -53,7 +36,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// </remarks>
 		public int DownloadFiles(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None,
 			FtpError errorHandling = FtpError.None, Action<FtpProgress> progress = null) {
-			
+
 			// verify args
 			if (!errorHandling.IsValidCombination()) {
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
@@ -125,7 +108,7 @@ namespace FluentFTP.Client.BaseClient {
 
 			return successfulDownloads.Count;
 		}
-		
+
 
 		protected void PurgeSuccessfulDownloads(IEnumerable<string> localFiles) {
 			foreach (var localFile in localFiles) {
@@ -163,7 +146,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// </remarks>
 		public async Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite,
 			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null) {
-			
+
 			// verify args
 			if (!errorHandling.IsValidCombination()) {
 				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
@@ -269,7 +252,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
 		public FtpStatus DownloadFile(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null) {
-			
+
 			// verify args
 			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
@@ -396,12 +379,12 @@ namespace FluentFTP.Client.BaseClient {
 			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
 			}
-			
+
 			return await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, progress, token, new FtpProgress(1, 0));
 		}
 
 		protected async Task<FtpStatus> DownloadFileToFileAsync(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
-			
+
 			// verify args
 			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
@@ -681,8 +664,8 @@ namespace FluentFTP.Client.BaseClient {
 				// if the mode is ASCII or
 				// if the server is IBM z/OS
 				// we read until EOF instead of reading a specific number of bytes
-				var readToEnd = (fileLen <= 0) || 
-								(DownloadDataType == FtpDataType.ASCII) || 
+				var readToEnd = (fileLen <= 0) ||
+								(DownloadDataType == FtpDataType.ASCII) ||
 								(ServerHandler != null && ServerHandler.AlwaysReadToEnd(remotePath));
 
 				const int rateControlResolution = 100;
@@ -699,11 +682,11 @@ namespace FluentFTP.Client.BaseClient {
 				var anyNoop = false;
 
 				// Fix #554: ability to download zero-byte files
-				if (DownloadZeroByteFiles && outStream == null && localPath != null){
-					outStream = FtpFileStream.GetFileWriteStream(this, localPath, false, QuickTransferLimit, knownFileSize, isAppend, restartPosition);
+				if (DownloadZeroByteFiles && outStream == null && localPath != null) {
+					outStream = FtpFileStream.GetFileWriteStream(this, localPath, false, 0, knownFileSize, isAppend, restartPosition);
 					disposeOutStream = true;
 				}
-							
+
 				while (offset < fileLen || readToEnd) {
 					try {
 						// read a chunk of bytes from the FTP stream
@@ -715,11 +698,11 @@ namespace FluentFTP.Client.BaseClient {
 						while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
 
 							// Fix #552: only create outstream when first bytes downloaded
-							if (outStream == null && localPath != null){
-								outStream = FtpFileStream.GetFileWriteStream(this, localPath, false, QuickTransferLimit, knownFileSize, isAppend, restartPosition);
+							if (outStream == null && localPath != null) {
+								outStream = FtpFileStream.GetFileWriteStream(this, localPath, false, 0, knownFileSize, isAppend, restartPosition);
 								disposeOutStream = true;
 							}
-							
+
 							// write chunk to output stream
 							outStream.Write(buffer, 0, readBytes);
 							offset += readBytes;
@@ -732,9 +715,7 @@ namespace FluentFTP.Client.BaseClient {
 							}
 
 							// Fix #387: keep alive with NOOP as configured and needed
-							if (!m_threadSafeDataChannels) {
-								anyNoop = Noop() || anyNoop;
-							}
+							anyNoop = Noop() || anyNoop;
 
 							// honor the rate limit
 							var swTime = sw.ElapsedMilliseconds;
@@ -803,7 +784,7 @@ namespace FluentFTP.Client.BaseClient {
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
 				try {
-					while (!m_threadSafeDataChannels) {
+					while (true) {
 						var status = GetReply();
 
 						// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
@@ -915,7 +896,7 @@ namespace FluentFTP.Client.BaseClient {
 				// if the mode is ASCII or
 				// if the server is IBM z/OS
 				// we read until EOF instead of reading a specific number of bytes
-				var readToEnd = (fileLen <= 0) || 
+				var readToEnd = (fileLen <= 0) ||
 								(DownloadDataType == FtpDataType.ASCII) ||
 								(ServerHandler != null && ServerHandler.AlwaysReadToEnd(remotePath));
 
@@ -934,7 +915,7 @@ namespace FluentFTP.Client.BaseClient {
 
 				// Fix #554: ability to download zero-byte files
 				if (DownloadZeroByteFiles && outStream == null && localPath != null) {
-					outStream = FtpFileStream.GetFileWriteStream(this, localPath, true, QuickTransferLimit, knownFileSize, isAppend, restartPosition);
+					outStream = FtpFileStream.GetFileWriteStream(this, localPath, true, 0, knownFileSize, isAppend, restartPosition);
 					disposeOutStream = true;
 				}
 
@@ -947,10 +928,10 @@ namespace FluentFTP.Client.BaseClient {
 
 						sw.Start();
 						while ((readBytes = await downStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
-							
+
 							// Fix #552: only create outstream when first bytes downloaded
 							if (outStream == null && localPath != null) {
-								outStream = FtpFileStream.GetFileWriteStream(this, localPath, true, QuickTransferLimit, knownFileSize, isAppend, restartPosition);
+								outStream = FtpFileStream.GetFileWriteStream(this, localPath, true, 0, knownFileSize, isAppend, restartPosition);
 								disposeOutStream = true;
 							}
 
@@ -966,9 +947,7 @@ namespace FluentFTP.Client.BaseClient {
 							}
 
 							// Fix #387: keep alive with NOOP as configured and needed
-							if (!m_threadSafeDataChannels) {
-								anyNoop = await NoopAsync(token) || anyNoop;
-							}
+							anyNoop = await NoopAsync(token) || anyNoop;
 
 							// honor the rate limit
 							var swTime = sw.ElapsedMilliseconds;
@@ -1042,7 +1021,7 @@ namespace FluentFTP.Client.BaseClient {
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
 				try {
-					while (!m_threadSafeDataChannels) {
+					while (true) {
 						FtpReply status = await GetReplyAsync(token);
 
 						// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
@@ -1112,8 +1091,7 @@ namespace FluentFTP.Client.BaseClient {
 #endif
 
 		protected bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
-			if (ex.IsResumeAllowed())
-			{
+			if (ex.IsResumeAllowed()) {
 				downStream.Dispose();
 				downStream = OpenRead(remotePath, DownloadDataType, offset);
 
@@ -1125,8 +1103,7 @@ namespace FluentFTP.Client.BaseClient {
 
 #if ASYNC
 		protected async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex) {
-			if (ex.IsResumeAllowed())
-			{
+			if (ex.IsResumeAllowed()) {
 				downStream.Dispose();
 
 				return Tuple.Create(true, await OpenReadAsync(remotePath, DownloadDataType, offset));

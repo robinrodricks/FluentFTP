@@ -4,7 +4,10 @@
  - Refactor: Split main FTP client classes into `FtpClient` and `AsyncFtpClient`
  - Modernize: Drop support for .NET Standard 1.2, 1.4 and .NET 2.0, 3.5, 4.0 and 4.5
  - Modernize: Remove conditional compilation statements for unsupported platforms
- - Modernize: Remove old and uncommon static methods `FtpClient.Connect`
+ - Modernize: Remove uncommon static methods `FtpClient.Connect` and `FtpClient.GetPublicIP`
+ - Modernize: Remove uncommon method `DereferenceLink` and `DereferenceLinkAsync`
+ - Modernize: Remove uncommon properties `QuickTransferLimit`, `MaximumDereferenceCount`, `EnableThreadSafeDataConnections`
+ - Modernize: Remove uncommon feature `FtpListOption.DerefLinks`
  - Modernize: Remove obsolete hashing commands `GetHashAlgorithm`, `SetHashAlgorithm`, `GetHash`, etc
  - Modernize: Remove obsolete async pattern using `IAsyncResult`
 

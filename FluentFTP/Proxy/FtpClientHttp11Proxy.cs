@@ -2,12 +2,9 @@ using FluentFTP.Helpers;
 using System;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Threading;
-#if ASYNC
-using System.Threading.Tasks;
-
-#endif
 using FluentFTP.Client.BaseClient;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FluentFTP.Proxy {
 	/// <summary> A FTP client with a HTTP 1.1 proxy implementation. </summary>

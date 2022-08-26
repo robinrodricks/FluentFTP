@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Diagnostics;
 using System.Threading;
-
-#if ASYNC
 using System.Threading.Tasks;
-
-#endif
 using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP {
@@ -136,7 +129,7 @@ namespace FluentFTP {
 
 			try {
 				if (ControlConnection != null) {
-					return ControlConnection.CloseDataStream(this);
+					ControlConnection.CloseDataStream(this);
 				}
 			}
 			finally {

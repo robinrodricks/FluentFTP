@@ -13,13 +13,11 @@ namespace FluentFTP.Client.Modules {
 			write.InternetProtocolVersions = read.InternetProtocolVersions;
 			write.SocketPollInterval = read.SocketPollInterval;
 			write.StaleDataCheck = read.StaleDataCheck;
-			write.EnableThreadSafeDataConnections = read.EnableThreadSafeDataConnections;
 			write.NoopInterval = read.NoopInterval;
 			write.Encoding = read.Encoding;
 			write.Host = read.Host;
 			write.Port = read.Port;
 			write.Credentials = read.Credentials;
-			write.MaximumDereferenceCount = read.MaximumDereferenceCount;
 			write.ClientCertificates.AddRange(read.ClientCertificates);
 			write.DataConnectionType = read.DataConnectionType;
 			write.DisconnectWithQuit = read.DisconnectWithQuit;

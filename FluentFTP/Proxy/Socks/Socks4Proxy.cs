@@ -2,10 +2,8 @@
 using FluentFTP.Proxy.Enums;
 using System;
 using System.Net;
-
-#if ASYNC
+using System.Threading;
 using System.Threading.Tasks;
-#endif
 
 namespace FluentFTP.Proxy.Socks {
 	/// <summary>

@@ -7,16 +7,12 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Net;
-using System.Net.NetworkInformation;
-
 using FluentFTP.Helpers;
 using FluentFTP.Exceptions;
-#if NETSTANDARD || NET45
-using System.Threading.Tasks;
-#endif
 using FluentFTP.Client.BaseClient;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FluentFTP {
 
@@ -1174,15 +1170,9 @@ namespace FluentFTP {
 
 				CreateBufferStream();
 
-#if NETSTANDARD
 				m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
 					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
 				));
-#else
-				m_sslStream = new FtpSslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
-					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
-				));
-#endif
 
 				auth_start = DateTime.Now;
 				try {

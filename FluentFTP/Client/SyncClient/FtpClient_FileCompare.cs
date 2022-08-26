@@ -1,20 +1,13 @@
 ﻿using System;
 using FluentFTP.Streams;
-using FluentFTP.Rules;
 using FluentFTP.Helpers;
 using System.IO;
-#if !NETSTANDARD
-using System.Web;
-#endif
-#if NETSTANDARD
 using System.Threading;
-#endif
-#if NETSTANDARD
 using System.Threading.Tasks;
-#endif
+using FluentFTP.Client.Modules;
 
-namespace FluentFTP.Client.BaseClient {
-	public partial class BaseFtpClient : IDisposable {
+namespace FluentFTP {
+	public partial class FtpClient {
 
 		/// <summary>
 		/// Compare the specified local file with the remote file on the FTP server using various kinds of quick equality checks.
@@ -27,7 +20,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="options">Types of equality checks to perform. Use Auto to compare file size and checksum.</param>
 		/// <returns></returns>
 		public FtpCompareResult CompareFile(string localPath, string remotePath, FtpCompareOption options = FtpCompareOption.Auto) {
-			
+
 			// verify args
 			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "localPath");
@@ -186,7 +179,5 @@ namespace FluentFTP.Client.BaseClient {
 		}
 
 #endif
-
-
 	}
 }

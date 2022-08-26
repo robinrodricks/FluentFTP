@@ -1,31 +1,14 @@
-﻿using System;
-using System.IO;
-using System.Net.Sockets;
-using System.Text;
-using System.Reflection;
+﻿using System.Text;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using FluentFTP.Proxy;
-using FluentFTP.Servers;
 using FluentFTP.Rules;
-using FluentFTP.Helpers;
-using SysSslProtocols = System.Security.Authentication.SslProtocols;
-#if !NETSTANDARD
-using System.Web;
-#endif
-#if NETSTANDARD
-#endif
-#if ASYNC
+using FluentFTP.Client.Modules;
+using System.Threading;
 using System.Threading.Tasks;
 
-#endif
-using System.Threading;
-
 namespace FluentFTP.Client.BaseClient {
-	public partial class BaseFtpClient : IDisposable {
+	public partial class BaseFtpClient {
 
 		/// <summary>
 		/// Forcibly set the capabilities of your FTP server.
@@ -50,197 +33,9 @@ namespace FluentFTP.Client.BaseClient {
 			return Capabilities.Contains(cap);
 		}
 
-		/// <summary>
-		/// Ensure a relative path is absolute by prepending the working dir
-		/// </summary>
-		protected string GetAbsolutePath(string path) {
-
-			if (ServerHandler != null && ServerHandler.IsCustomGetAbsolutePath()) {
-				return ServerHandler.GetAbsolutePath(this, path);
-			}
-
-			if (path == null || path.Trim().Length == 0) {
-				// if path not given, then use working dir
-				var pwd = GetWorkingDirectory();
-				if (pwd != null && pwd.Trim().Length > 0) {
-					path = pwd;
-				}
-				else {
-					path = "/";
-				}
-			}
-
-			// FIX : #153 ensure this check works with unix & windows
-			// FIX : #454 OpenVMS paths can be a single character
-			else if (!path.StartsWith("/") && !(path.Length > 1 && path[1] == ':')) {
-
-				// if its a server-specific absolute path then don't add base dir
-				if (ServerHandler != null && ServerHandler.IsAbsolutePath(path)) {
-					return path;
-				}
-
-				// if relative path given then add working dir to calc full path
-				var pwd = GetWorkingDirectory();
-				if (pwd != null && pwd.Trim().Length > 0 && path != pwd) {
-					if (path.StartsWith("./")) {
-						path = path.Remove(0, 2);
-					}
-
-					path = (pwd + "/" + path).GetFtpPath();
-				}
-			}
-
-			return path;
-		}
-
-#if ASYNC
-		/// <summary>
-		/// Ensure a relative path is absolute by prepending the working dir
-		/// </summary>
-		protected async Task<string> GetAbsolutePathAsync(string path, CancellationToken token) {
-
-			if (ServerHandler != null && ServerHandler.IsCustomGetAbsolutePath()) {
-				return await ServerHandler.GetAbsolutePathAsync(this, path, token);
-			}
-
-			if (path == null || path.Trim().Length == 0) {
-				// if path not given, then use working dir
-				string pwd = await GetWorkingDirectoryAsync(token);
-				if (pwd != null && pwd.Trim().Length > 0) {
-					path = pwd;
-				}
-				else {
-					path = "/";
-				}
-			}
-
-			// FIX : #153 ensure this check works with unix & windows
-			// FIX : #454 OpenVMS paths can be a single character
-			else if (!path.StartsWith("/") && !(path.Length > 1 && path[1] == ':')) {
-
-				// if its a server-specific absolute path then don't add base dir
-				if (ServerHandler != null && ServerHandler.IsAbsolutePath(path)) {
-					return path;
-				}
-
-				// if relative path given then add working dir to calc full path
-				string pwd = await GetWorkingDirectoryAsync(token);
-				if (pwd != null && pwd.Trim().Length > 0 && path != pwd) {
-					if (path.StartsWith("./")) {
-						path = path.Remove(0, 2);
-					}
-
-					path = (pwd + "/" + path).GetFtpPath();
-				}
-			}
-
-			return path;
-		}
-#endif
-
-		/// <summary>
-		/// Ensure a relative dir is absolute by prepending the working dir
-		/// </summary>
-		protected string GetAbsoluteDir(string path) {
-			string dirPath = null;
-			if (ServerHandler != null && ServerHandler.IsCustomGetAbsoluteDir()) {
-				dirPath = ServerHandler.GetAbsoluteDir(this, path);
-			}
-
-			if (dirPath != null) {
-				return dirPath;
-			}
-
-			path = GetAbsolutePath(path);
-
-			path = !path.EndsWith("/") ? path + "/" : path;
-
-			return path;
-		}
-
-#if ASYNC
-		/// <summary>
-		/// Ensure a relative dir is absolute by prepending the working dir
-		/// </summary>
-		protected async Task<string> GetAbsoluteDirAsync(string path, CancellationToken token) {
-			string dirPath = null;
-			if (ServerHandler != null && ServerHandler.IsCustomGetAbsoluteDir()) {
-				dirPath = await ServerHandler.GetAbsoluteDirAsync(this, path, token);
-			}
-
-			if (dirPath != null) {
-				return dirPath;
-			}
-
-			path = await GetAbsolutePathAsync(path, token);
-
-			path = !path.EndsWith("/") ? path + "/" : path;
-
-			return path;
-		}
-#endif
-
-		/// <summary>
-		/// Concat a path and a filename
-		/// </summary>
-		protected string GetAbsoluteFilePath(string path, string fileName)
-		{
-			string filePath = null;
-			if (ServerHandler != null && ServerHandler.IsCustomGetAbsoluteFilePath()) {
-				filePath = ServerHandler.GetAbsoluteFilePath(this, path, fileName);
-			}
-
-			if (filePath != null) {
-				return filePath;
-			}
-
-			path = !path.EndsWith("/") ? path + "/" + fileName : path + fileName;
-
-			return path;
-		}
-
-#if ASYNC
-		/// <summary>
-		/// Concat a path and a filename
-		/// </summary>
-		protected async Task<string> GetAbsoluteFilePathAsync(string path, string fileName, CancellationToken token) {
-			string filePath = null;
-			if (ServerHandler != null && ServerHandler.IsCustomGetAbsoluteFilePath()) {
-				filePath = await ServerHandler.GetAbsoluteFilePathAsync(this, path, fileName, token);
-			}
-
-			if (filePath != null) {
-				return filePath;
-			}
-
-			path = !path.EndsWith("/") ? path + "/" + fileName : path + fileName;
-
-			return path;
-		}
-#endif
-
 
 		protected static string DecodeUrl(string url) {
 			return WebUtility.UrlDecode(url);
-		}
-
-		/// <summary>
-		/// Disables UTF8 support and changes the Encoding property
-		/// back to ASCII. If the server returns an error when trying
-		/// to turn UTF8 off a FtpCommandException will be thrown.
-		/// </summary>
-		public void DisableUTF8() {
-			FtpReply reply;
-
-			lock (m_lock) {
-				if (!(reply = Execute("OPTS UTF8 OFF")).Success) {
-					throw new FtpCommandException(reply);
-				}
-
-				m_textEncoding = Encoding.ASCII;
-				m_textEncodingAutoUTF = false;
-			}
-
 		}
 
 		/// <summary>

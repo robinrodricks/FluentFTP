@@ -5,18 +5,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net;
-using System.Runtime.CompilerServices;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-#if NETSTANDARD
 using System.Threading;
-
-#endif
-#if NETSTANDARD
 using System.Threading.Tasks;
-
-#endif
 
 namespace FluentFTP {
 
@@ -33,14 +26,12 @@ namespace FluentFTP {
 		int SocketPollInterval { get; set; }
 		bool StaleDataCheck { get; set; }
 		bool IsConnected { get; }
-		bool EnableThreadSafeDataConnections { get; set; }
 		int NoopInterval { get; set; }
 		bool CheckCapabilities { get; set; }
 		Encoding Encoding { get; set; }
 		string Host { get; set; }
 		int Port { get; set; }
 		NetworkCredential Credentials { get; set; }
-		int MaximumDereferenceCount { get; set; }
 		X509CertificateCollection ClientCertificates { get; }
 		Func<string> AddressResolver { get; set; }
 		IEnumerable<int> ActivePorts { get; set; }
@@ -140,8 +131,6 @@ namespace FluentFTP {
 		void Chmod(string path, FtpPermission owner, FtpPermission group, FtpPermission other);
 		FtpListItem GetFilePermissions(string path);
 		int GetChmod(string path);
-		FtpListItem DereferenceLink(FtpListItem item);
-		FtpListItem DereferenceLink(FtpListItem item, int recMax);
 		void SetWorkingDirectory(string path);
 		string GetWorkingDirectory();
 		long GetFileSize(string path, long defaultValue = -1);
@@ -165,8 +154,6 @@ namespace FluentFTP {
 		Task ChmodAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken));
 		Task<FtpListItem> GetFilePermissionsAsync(string path, CancellationToken token = default(CancellationToken));
 		Task<int> GetChmodAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, CancellationToken token = default(CancellationToken));
-		Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, CancellationToken token = default(CancellationToken));
 		Task SetWorkingDirectoryAsync(string path, CancellationToken token = default(CancellationToken));
 		Task<string> GetWorkingDirectoryAsync(CancellationToken token = default(CancellationToken));
 		Task<long> GetFileSizeAsync(string path, long defaultValue = -1, CancellationToken token = default(CancellationToken));

@@ -1,18 +1,4 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using System.Security.Authentication;
-using FluentFTP.Servers.Handlers;
-using FluentFTP.Helpers;
-using FluentFTP.Servers;
-#if NETSTANDARD
-using System.Threading;
-using System.Net;
-using System.Text;
-#endif
-#if ASYNC
-using System.Threading.Tasks;
-#endif
+﻿using FluentFTP.Servers;
 using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Client.Modules {

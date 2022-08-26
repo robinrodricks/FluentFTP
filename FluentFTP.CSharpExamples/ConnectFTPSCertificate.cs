@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP;
+using FluentFTP.Client.BaseClient;
 
 namespace Examples {
 	internal static class ConnectFTPSCertificateExample {
@@ -25,7 +26,7 @@ namespace Examples {
 			}
 		}
 
-		private static void OnValidateCertificate(FtpClient control, FtpSslValidationEventArgs e) {
+		private static void OnValidateCertificate(BaseFtpClient control, FtpSslValidationEventArgs e) {
 			if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
 				// invalid cert, do you want to accept it?
 				// e.Accept = true;

@@ -1,12 +1,6 @@
-﻿using System.Net;
-using FluentFTP.Proxy.Socks;
-#if ASYNC
-
+﻿using FluentFTP.Proxy.Socks;
 using System.Threading;
 using System.Threading.Tasks;
-
-#endif
-
 
 namespace FluentFTP.Proxy {
 	/// <summary> A FTP client with a SOCKS5 proxy implementation. </summary>

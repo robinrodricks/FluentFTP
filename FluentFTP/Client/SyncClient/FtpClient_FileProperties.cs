@@ -1,167 +1,11 @@
 ﻿using System;
 using FluentFTP.Helpers;
-#if !NETSTANDARD
-using System.Web;
-#endif
-#if NETSTANDARD
+using FluentFTP.Client.Modules;
 using System.Threading;
-using FluentFTP.Client.Modules;
-#endif
-#if ASYNC
 using System.Threading.Tasks;
-#endif
-using System.Linq;
-using FluentFTP.Client.Modules;
-using FluentFTP.Client;
 
-namespace FluentFTP.Client.BaseClient {
-	public partial class BaseFtpClient : IFtpClient, IDisposable {
-
-
-		#region Dereference Link
-
-		/// <summary>
-		/// Recursively dereferences a symbolic link. See the
-		/// MaximumDereferenceCount property for controlling
-		/// how deep this method will recurse before giving up.
-		/// </summary>
-		/// <param name="item">The symbolic link</param>
-		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-		public FtpListItem DereferenceLink(FtpListItem item) {
-			return DereferenceLink(item, MaximumDereferenceCount);
-		}
-
-		/// <summary>
-		/// Recursively dereferences a symbolic link
-		/// </summary>
-		/// <param name="item">The symbolic link</param>
-		/// <param name="recMax">The maximum depth of recursion that can be performed before giving up.</param>
-		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-		public FtpListItem DereferenceLink(FtpListItem item, int recMax) {
-			LogFunc(nameof(DereferenceLink), new object[] { item.FullName, recMax });
-
-			var count = 0;
-			return DereferenceLink(item, recMax, ref count);
-		}
-
-		/// <summary>
-		/// Dereference a FtpListItem object
-		/// </summary>
-		/// <param name="item">The item to dereference</param>
-		/// <param name="recMax">Maximum recursive calls</param>
-		/// <param name="count">Counter</param>
-		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-		protected FtpListItem DereferenceLink(FtpListItem item, int recMax, ref int count) {
-			if (item.Type != FtpObjectType.Link) {
-				throw new FtpException("You can only dereference a symbolic link. Please verify the item type is Link.");
-			}
-
-			if (item.LinkTarget == null) {
-				throw new FtpException("The link target was null. Please check this before trying to dereference the link.");
-			}
-
-			foreach (var obj in GetListing(item.LinkTarget.GetFtpDirectoryName())) {
-				if (item.LinkTarget == obj.FullName) {
-					if (obj.Type == FtpObjectType.Link) {
-						if (++count == recMax) {
-							return null;
-						}
-
-						return DereferenceLink(obj, recMax, ref count);
-					}
-
-					if (HasFeature(FtpCapability.MDTM)) {
-						var modify = GetModifiedTime(obj.FullName);
-
-						if (modify != DateTime.MinValue) {
-							obj.Modified = modify;
-						}
-					}
-
-					if (obj.Type == FtpObjectType.File && obj.Size < 0 && HasFeature(FtpCapability.SIZE)) {
-						obj.Size = GetFileSize(obj.FullName);
-					}
-
-					return obj;
-				}
-			}
-
-			return null;
-		}
-
-#if ASYNC
-		/// <summary>
-		/// Dereference a FtpListItem object
-		/// </summary>
-		/// <param name="item">The item to dereference</param>
-		/// <param name="recMax">Maximum recursive calls</param>
-		/// <param name="count">Counter</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-		protected async Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, IntRef count, CancellationToken token = default(CancellationToken)) {
-			if (item.Type != FtpObjectType.Link) {
-				throw new FtpException("You can only dereference a symbolic link. Please verify the item type is Link.");
-			}
-
-			if (item.LinkTarget == null) {
-				throw new FtpException("The link target was null. Please check this before trying to dereference the link.");
-			}
-			var listing = await GetListingAsync(item.LinkTarget.GetFtpDirectoryName(), token);
-			foreach (FtpListItem obj in listing) {
-				if (item.LinkTarget == obj.FullName) {
-					if (obj.Type == FtpObjectType.Link) {
-						if (++count.Value == recMax) {
-							return null;
-						}
-
-						return await DereferenceLinkAsync(obj, recMax, count, token);
-					}
-
-					if (HasFeature(FtpCapability.MDTM)) {
-						var modify = GetModifiedTime(obj.FullName);
-
-						if (modify != DateTime.MinValue) {
-							obj.Modified = modify;
-						}
-					}
-
-					if (obj.Type == FtpObjectType.File && obj.Size < 0 && HasFeature(FtpCapability.SIZE)) {
-						obj.Size = GetFileSize(obj.FullName);
-					}
-
-					return obj;
-				}
-			}
-
-			return null;
-		}
-
-		/// <summary>
-		/// Dereference a <see cref="FtpListItem"/> object asynchronously
-		/// </summary>
-		/// <param name="item">The item to dereference</param>
-		/// <param name="recMax">Maximum recursive calls</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-		public Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, int recMax, CancellationToken token = default(CancellationToken)) {
-			LogFunc(nameof(DereferenceLinkAsync), new object[] { item.FullName, recMax });
-
-			var count = new IntRef { Value = 0 };
-			return DereferenceLinkAsync(item, recMax, count, token);
-		}
-
-		/// <summary>
-		/// Dereference a <see cref="FtpListItem"/> object asynchronously
-		/// </summary>
-		/// <param name="item">The item to dereference</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>FtpListItem, null if the link can't be dereferenced</returns>
-		public Task<FtpListItem> DereferenceLinkAsync(FtpListItem item, CancellationToken token = default(CancellationToken)) {
-			return DereferenceLinkAsync(item, MaximumDereferenceCount, token);
-		}
-#endif
-
-		#endregion
+namespace FluentFTP {
+	public partial class FtpClient {
 
 		#region Get File Size
 
@@ -182,7 +26,7 @@ namespace FluentFTP.Client.BaseClient {
 			LogFunc(nameof(GetFileSize), new object[] { path });
 
 			// execute server-specific file size fetching logic, if any
-			if (ServerHandler != null && ServerHandler.IsCustomFileSize())	{
+			if (ServerHandler != null && ServerHandler.IsCustomFileSize()) {
 				return ServerHandler.GetFileSize(this, path);
 			}
 
@@ -271,7 +115,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		protected async Task GetFileSizeInternalAsync(string path, long defaultValue, CancellationToken token, FtpSizeReply sizeReply) {
 			long length = defaultValue;
-			
+
 			path = path.GetFtpPath();
 
 			// Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.

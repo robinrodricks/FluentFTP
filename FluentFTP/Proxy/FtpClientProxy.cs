@@ -1,16 +1,12 @@
-#if ASYNC
+using FluentFTP.Client.BaseClient;
 using System.Threading;
 using System.Threading.Tasks;
-
-#endif
-
-using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Proxy {
 	/// <summary>
 	/// Abstraction of an FtpClient with a proxy
 	/// </summary>
-	public abstract class FtpClientProxy : BaseFtpClient {
+	public abstract class FtpClientProxy : FtpClient {
 		private FtpProxyProfile _proxy;
 
 		/// <summary> The proxy connection info. </summary>

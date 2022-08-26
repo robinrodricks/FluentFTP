@@ -9,11 +9,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
 using FluentFTP.Client.BaseClient;
-
-#if NET45
+using System.Threading;
 using System.Threading.Tasks;
-
-#endif
 
 namespace FluentFTP {
 	/// <summary>

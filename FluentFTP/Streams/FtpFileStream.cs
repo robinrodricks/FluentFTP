@@ -1,12 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using FluentFTP;
-
-#if ASYNC
-using System.Threading.Tasks;
-#endif
 using FluentFTP.Client.BaseClient;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FluentFTP.Streams {
 	public static class FtpFileStream {

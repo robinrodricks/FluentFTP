@@ -1,41 +1,17 @@
 using System;
 using System.IO;
 using System.Net.Sockets;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Globalization;
-using System.Security.Authentication;
 using System.Net;
-using FluentFTP.Proxy;
 using FluentFTP.Helpers;
-#if !NETSTANDARD
-using System.Web;
-#endif
-#if NETSTANDARD
 using System.Threading;
-
-#endif
-#if ASYNC
 using System.Threading.Tasks;
 
-#endif
-
-namespace FluentFTP.Client.BaseClient {
-	public partial class BaseFtpClient : IDisposable {
-		protected string m_path;
+namespace FluentFTP {
+	public partial class FtpClient {
 
 		#region Execute Command
-
-		/// <summary>
-		/// When last command was sent (NOOP or other), for having <see cref="Noop"/>
-		/// respect the <see cref="NoopInterval"/>.
-		/// </summary>
-		protected DateTime m_lastCommandUtc;
 
 		/// <summary>
 		/// Executes a command
@@ -43,49 +19,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="command">The command to execute</param>
 		/// <returns>The servers reply to the command</returns>
 		public FtpReply Execute(string command) {
-			FtpReply reply;
-
-			lock (m_lock) {
-				if (StaleDataCheck && Status.AllowCheckStaleData) {
-					ReadStaleData(true, false, true);
-				}
-
-				if (!IsConnected) {
-					if (command == "QUIT") {
-						LogStatus(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
-						return new FtpReply() {
-							Code = "200",
-							Message = "Connection already closed."
-						};
-					}
-
-					Connect();
-				}
-
-				// hide sensitive data from logs
-				var commandTxt = command;
-				if (!FtpTrace.LogUserName && command.StartsWith("USER", StringComparison.Ordinal)) {
-					commandTxt = "USER ***";
-				}
-
-				if (!FtpTrace.LogPassword && command.StartsWith("PASS", StringComparison.Ordinal)) {
-					commandTxt = "PASS ***";
-				}
-
-				// A CWD will invalidate the cached value.
-				if (command.StartsWith("CWD ", StringComparison.Ordinal)) {
-					Status.LastWorkingDir = null;
-				}
-
-				LogLine(FtpTraceLevel.Info, "Command:  " + commandTxt);
-
-				// send command to FTP server
-				m_stream.WriteLine(m_textEncoding, command);
-				m_lastCommandUtc = DateTime.UtcNow;
-				reply = GetReply();
-			}
-
-			return reply;
+			return ((IInternalFtpClient)this).ExecuteInternal(command);
 		}
 
 #if ASYNC
@@ -197,66 +131,9 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <returns>FtpReply representing the response from the server</returns>
 		public FtpReply GetReply() {
-			var reply = new FtpReply();
-			string buf;
-
-			lock (m_lock) {
-				if (!IsConnected) {
-					throw new InvalidOperationException("No connection to the server has been established.");
-				}
-
-				m_stream.ReadTimeout = m_readTimeout;
-				while ((buf = m_stream.ReadLine(Encoding)) != null) {
-					if (DecodeStringToReply(buf, ref reply)) {
-						break;
-					}
-					reply.InfoMessages += buf + "\n";
-				}
-
-				// log multiline response messages
-				if (reply.InfoMessages != null) {
-					reply.InfoMessages = reply.InfoMessages.Trim();
-				}
-
-				if (!string.IsNullOrEmpty(reply.InfoMessages)) {
-					//this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
-					LogLine(FtpTraceLevel.Verbose, reply.InfoMessages.Split('\n').AddPrefix("Response: ", true).Join("\n"));
-
-					//this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
-				}
-
-				// if reply received
-				if (reply.Code != null) {
-
-					// hide sensitive data from logs
-					var logMsg = reply.Message;
-					if (!FtpTrace.LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK")) {
-						logMsg = logMsg.Replace(Credentials.UserName, "***");
-					}
-
-					// log response code + message
-					LogLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
-				}
-
-			}
-
-			LastReply = reply;
-
-			return reply;
+			return GetReplyInternal();
 		}
 
-		/// <summary>
-		/// Decodes the given FTP response string into a FtpReply, separating the FTP return code and message.
-		/// Returns true if the string was decoded correctly or false if it is not a standard format FTP response.
-		/// </summary>
-		protected bool DecodeStringToReply(string text, ref FtpReply reply) {
-			Match m = Regex.Match(text, "^(?<code>[0-9]{3}) (?<message>.*)$");
-			if (m.Success) {
-				reply.Code = m.Groups["code"].Value;
-				reply.Message = m.Groups["message"].Value;
-			}
-			return m.Success;
-		}
 
 #if ASYNC
 		// TODO: add example
@@ -283,31 +160,7 @@ namespace FluentFTP.Client.BaseClient {
 				reply.InfoMessages += buf + "\n";
 			}
 
-			// log multiline response messages
-			if (reply.InfoMessages != null) {
-				reply.InfoMessages = reply.InfoMessages.Trim();
-			}
-
-			if (!string.IsNullOrEmpty(reply.InfoMessages)) {
-				//this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
-				LogLine(FtpTraceLevel.Verbose, reply.InfoMessages.Split('\n').AddPrefix("Response: ", true).Join("\n"));
-
-				//this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
-			}
-
-			// if reply received
-			if (reply.Code != null) {
-				// hide sensitive data from logs
-				var logMsg = reply.Message;
-				if (!FtpTrace.LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK")) {
-					logMsg = logMsg.Replace(Credentials.UserName, "***");
-				}
-
-				// log response code + message
-				LogLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
-			}
-
-			LastReply = reply;
+			reply = ProcessGetReply(reply);
 
 			return reply;
 		}
@@ -804,21 +657,13 @@ namespace FluentFTP.Client.BaseClient {
 			var stream = new FtpDataStream(this);
 			FtpReply reply;
 
-#if !NETSTANDARD
-			IAsyncResult ar;
-#endif
-
 			if (m_stream == null) {
 				throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open an active data stream.");
 			}
 
 			StartListeningOnPort(stream);
 
-#if NETSTANDARD
 			var args = stream.BeginAccept();
-#else
-			ar = stream.BeginAccept(null, null);
-#endif
 
 			if (type == FtpDataConnectionType.EPRT || type == FtpDataConnectionType.AutoActive) {
 				var ipver = 0;
@@ -894,18 +739,7 @@ namespace FluentFTP.Client.BaseClient {
 			// otherwise things can get out of sync.
 			stream.CommandStatus = reply;
 
-#if NETSTANDARD
 			stream.EndAccept(args, m_dataConnectionConnectTimeout);
-#else
-			ar.AsyncWaitHandle.WaitOne(m_dataConnectionConnectTimeout);
-			ar.AsyncWaitHandle.Close();
-			if (!ar.IsCompleted) {
-				stream.Close();
-				throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
-			}
-
-			stream.EndAccept(ar);
-#endif
 
 			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
 				await stream.ActivateEncryptionAsync(m_host,
@@ -1033,81 +867,6 @@ namespace FluentFTP.Client.BaseClient {
 		}
 #endif
 
-		/// <summary>
-		/// Disconnects a data stream
-		/// </summary>
-		/// <param name="stream">The data stream to close</param>
-		internal FtpReply CloseDataStream(FtpDataStream stream) {
-			LogFunc(nameof(CloseDataStream));
-
-			var reply = new FtpReply();
-
-			if (stream == null) {
-				throw new ArgumentException("The data stream parameter was null");
-			}
-
-			lock (m_lock) {
-				try {
-					if (IsConnected) {
-						// if the command that required the data connection was
-						// not successful then there will be no reply from
-						// the server, however if the command was successful
-						// the server will send a reply when the data connection
-						// is closed.
-						if (stream.CommandStatus.Type == FtpResponseType.PositivePreliminary) {
-							if (!(reply = GetReply()).Success) {
-								throw new FtpCommandException(reply);
-							}
-						}
-					}
-				}
-				finally {
-					// if this is a clone of the original control
-					// connection we should Dispose()
-					if (IsClone) {
-						Disconnect();
-						Dispose();
-					}
-				}
-
-			}
-
-			return reply;
-		}
-
-		/// <summary>
-		/// Open a local port on the given ActivePort or a random port.
-		/// </summary>
-		/// <param name="stream"></param>
-		protected void StartListeningOnPort(FtpDataStream stream) {
-			if (m_ActivePorts.IsBlank()) {
-				// Use random port
-				stream.Listen(m_stream.LocalEndPoint.Address, 0);
-			}
-			else {
-				var success = false;
-
-				// Use one of the specified ports
-				foreach (var port in m_ActivePorts) {
-					try {
-						stream.Listen(m_stream.LocalEndPoint.Address, port);
-						success = true;
-						break;
-					}
-					catch (SocketException se) {
-						if (se.SocketErrorCode != SocketError.AddressAlreadyInUse) {
-							throw;
-						}
-					}
-				}
-
-				// No usable port found
-				if (!success) {
-					throw new Exception("No valid active data port available!");
-				}
-			}
-		}
-
 		#endregion
 
 		#region Open Read
@@ -1150,20 +909,11 @@ namespace FluentFTP.Client.BaseClient {
 
 			LogFunc(nameof(OpenRead), new object[] { path, type, restart, fileLen });
 
-			BaseFtpClient client = null;
+			var client = this;
 			FtpDataStream stream = null;
 			long length = 0;
 
 			lock (m_lock) {
-				if (m_threadSafeDataChannels) {
-					client = Clone();
-					client.Status.CopyFrom(this.Status);
-					client.Connect();
-					client.SetWorkingDirectory(GetWorkingDirectory());
-				}
-				else {
-					client = this;
-				}
 
 				length = fileLen == 0 ? client.GetFileSize(path) : fileLen;
 
@@ -1227,19 +977,9 @@ namespace FluentFTP.Client.BaseClient {
 
 			LogFunc(nameof(OpenReadAsync), new object[] { path, type, restart, fileLen });
 
-			BaseFtpClient client = null;
+			var client = this;
 			FtpDataStream stream = null;
 			long length = 0;
-
-			if (m_threadSafeDataChannels) {
-				client = Clone();
-				client.Status.CopyFrom(this.Status);
-				await client.ConnectAsync(token);
-				await client.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
-			}
-			else {
-				client = this;
-			}
 
 			length = fileLen == 0 ? await client.GetFileSizeAsync(path, -1, token) : fileLen;
 
@@ -1301,20 +1041,11 @@ namespace FluentFTP.Client.BaseClient {
 
 			LogFunc(nameof(OpenWrite), new object[] { path, type });
 
-			BaseFtpClient client = null;
+			var client = this;
 			FtpDataStream stream = null;
 			long length = 0;
 
 			lock (m_lock) {
-				if (m_threadSafeDataChannels) {
-					client = Clone();
-					client.Status.CopyFrom(this.Status);
-					client.Connect();
-					client.SetWorkingDirectory(GetWorkingDirectory());
-				}
-				else {
-					client = this;
-				}
 
 				length = fileLen == 0 ? client.GetFileSize(path) : fileLen;
 
@@ -1367,19 +1098,9 @@ namespace FluentFTP.Client.BaseClient {
 
 			LogFunc(nameof(OpenWriteAsync), new object[] { path, type });
 
-			BaseFtpClient client = null;
+			var client = this;
 			FtpDataStream stream = null;
 			long length = 0;
-
-			if (m_threadSafeDataChannels) {
-				client = Clone();
-				client.Status.CopyFrom(this.Status);
-				await client.ConnectAsync(token);
-				await client.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
-			}
-			else {
-				client = this;
-			}
 
 			length = fileLen == 0 ? await client.GetFileSizeAsync(path, -1, token) : fileLen;
 
@@ -1435,20 +1156,11 @@ namespace FluentFTP.Client.BaseClient {
 
 			LogFunc(nameof(OpenAppend), new object[] { path, type });
 
-			BaseFtpClient client = null;
+			var client = this;
 			FtpDataStream stream = null;
 			long length = 0;
 
 			lock (m_lock) {
-				if (m_threadSafeDataChannels) {
-					client = Clone();
-					client.Status.CopyFrom(this.Status);
-					client.Connect();
-					client.SetWorkingDirectory(GetWorkingDirectory());
-				}
-				else {
-					client = this;
-				}
 
 				length = fileLen == 0 ? client.GetFileSize(path) : fileLen;
 
@@ -1503,20 +1215,9 @@ namespace FluentFTP.Client.BaseClient {
 
 			LogFunc(nameof(OpenAppendAsync), new object[] { path, type });
 
-			BaseFtpClient client = null;
+			var client = this;
 			FtpDataStream stream = null;
 			long length = 0;
-
-
-			if (m_threadSafeDataChannels) {
-				client = Clone();
-				client.Status.CopyFrom(this.Status);
-				await client.ConnectAsync(token);
-				await client.SetWorkingDirectoryAsync(await GetWorkingDirectoryAsync(token), token);
-			}
-			else {
-				client = this;
-			}
 
 			length = fileLen == 0 ? await client.GetFileSizeAsync(path, -1, token) : fileLen;
 
@@ -1536,8 +1237,6 @@ namespace FluentFTP.Client.BaseClient {
 		#endregion
 
 		#region Set Data Type
-
-		protected bool ForceSetDataType = false;
 
 		/// <summary>
 		/// Sets the data type of information sent over the data stream

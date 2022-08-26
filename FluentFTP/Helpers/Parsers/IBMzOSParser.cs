@@ -49,7 +49,7 @@ namespace FluentFTP.Helpers.Parsers {
 				string cwd;
 				// Is caller using FtpListOption.NoPath and CWD to the right place?
 				if (path.Length == 0) {
-					cwd = client.GetWorkingDirectory();
+					cwd = ((IInternalFtpClient)client).GetWorkingDirectoryInternal();
 				}
 				// Caller is not using FtpListOption.NoPath, so the path can be used
 				// but needs modification depending on its ending. Remove the "(...)"
@@ -62,7 +62,7 @@ namespace FluentFTP.Helpers.Parsers {
 				else {
 					cwd = path;
 				}
-				if (!(reply = client.Execute("XDSS " + cwd)).Success) {
+				if (!(reply = ((IInternalFtpClient)client).ExecuteInternal("XDSS " + cwd)).Success) {
 					throw new FtpCommandException(reply);
 				}
 				// SITE PDSTYPE=PDSE RECFM=FB BLKSIZE=16000 DIRECTORY=1 LRECL=80 PRIMARY=3 SECONDARY=110 TRACKS EATTR=SYSTEM

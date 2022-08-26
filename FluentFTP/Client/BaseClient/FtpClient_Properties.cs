@@ -11,7 +11,15 @@ using FluentFTP.Helpers;
 using System.Net.Sockets;
 
 namespace FluentFTP.Client.BaseClient {
-	public partial class BaseFtpClient : IDisposable {
+	public partial class BaseFtpClient {
+
+
+		protected FtpReply HandshakeReply;
+		protected bool ForceSetDataType = false;
+
+		protected string m_path;
+
+		protected FtpListParser m_listParser;
 
 		/// <summary>
 		/// Current FTP client status flags used for improving performance and caching data.
@@ -163,20 +171,6 @@ namespace FluentFTP.Client.BaseClient {
 			}
 		}
 
-		protected bool m_threadSafeDataChannels = false;
-
-		/// <summary>
-		/// When this value is set to true (default) the control connection
-		/// is cloned and a new connection the server is established for the
-		/// data channel operation. This is a thread safe approach to make
-		/// asynchronous operations on a single control connection transparent
-		/// to the developer.
-		/// </summary>
-		public bool EnableThreadSafeDataConnections {
-			get => m_threadSafeDataChannels;
-			set => m_threadSafeDataChannels = value;
-		}
-
 		protected int m_noopInterval = 0;
 
 		/// <summary>
@@ -295,22 +289,6 @@ namespace FluentFTP.Client.BaseClient {
 			set => m_credentials = value;
 		}
 
-		protected int m_maxDerefCount = 20;
-
-		/// <summary>
-		/// Gets or sets a value that controls the maximum depth
-		/// of recursion that <see cref="o:DereferenceLink"/> will follow symbolic
-		/// links before giving up. You can also specify the value
-		/// to be used as one of the overloaded parameters to the
-		/// <see cref="o:DereferenceLink"/> method. The default value is 20. Specifying
-		/// -1 here means indefinitely try to resolve a link. This is
-		/// not recommended for obvious reasons (stack overflow).
-		/// </summary>
-		public int MaximumDereferenceCount {
-			get => m_maxDerefCount;
-			set => m_maxDerefCount = value;
-		}
-
 		protected X509CertificateCollection m_clientCerts = new X509CertificateCollection();
 
 		/// <summary>
@@ -330,7 +308,6 @@ namespace FluentFTP.Client.BaseClient {
 		/// Delegate used for resolving local address, used for active data connections
 		/// This can be used in case you're behind a router, but port forwarding is configured to forward the
 		/// ports from your router to your internal IP. In that case, we need to send the router's IP instead of our internal IP.
-		/// See example: FtpClient.GetPublicIP -> This uses Ipify api to find external IP
 		/// </summary>
 		public Func<string> AddressResolver {
 			get => m_AddressResolver;
@@ -902,17 +879,6 @@ namespace FluentFTP.Client.BaseClient {
 		public int LocalFileBufferSize {
 			get => m_localFileBufferSize ?? 4096;
 			set => m_localFileBufferSize = value;
-		}
-
-		protected int m_quickTransferSize = (10 * 1024 * 1024);
-
-		/// <summary>
-		/// Files within this size are read and written in a single call to the disk, thereby greatly increasing transfer performance. Measured in bytes.
-		/// Reduce this if you notice large memory consumption by FluentFTP. Set this to 0 to disable quick transfer.
-		/// </summary>
-		internal int QuickTransferLimit {
-			get => m_quickTransferSize;
-			set => m_quickTransferSize = value;
 		}
 
 		protected FtpDataType CurrentDataType;

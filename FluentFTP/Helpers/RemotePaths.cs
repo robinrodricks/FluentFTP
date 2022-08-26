@@ -183,7 +183,7 @@ namespace FluentFTP.Helpers {
 
 			if (path.Length == 0)
 			{
-				path = client.GetWorkingDirectory();
+				path = ((IInternalFtpClient)client).GetWorkingDirectoryInternal();
 			}
 
 			if (item.Name != null)
