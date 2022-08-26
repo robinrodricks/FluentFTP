@@ -55,7 +55,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Perform async server-specific delete directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public override async Task<bool> DeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
+		public override async Task<bool> DeleteDirectoryAsync(AsyncFtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
 
 			// Support #88 - Support RMDA command for Serv-U
 			if (deleteContents && client.HasFeature(FtpCapability.RMDA)) {

@@ -8,7 +8,7 @@ namespace FluentFTP.Servers.Handlers {
 	/// <summary>
 	/// Server-specific handling for IBMzOSFTP servers
 	/// </summary>
-	internal class IBMzOSFtpServer : FtpBaseServer {
+	internal class t : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.
@@ -57,7 +57,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Perform server-specific post-connection commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public override async Task AfterConnectedAsync(FtpClient client, CancellationToken token) {
+		public override async Task AfterConnectedAsync(AsyncFtpClient client, CancellationToken token) {
 			FtpReply reply;
 			if (!(reply = await client.ExecuteAsync("SITE DATASETMODE", token)).Success) {
 				throw new FtpCommandException(reply);
@@ -108,7 +108,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Make sure you are in the right realm (z/OS or HFS) before doing this
 		/// </remarks>
 		/// <returns>The size of the file</returns>
-		public override async Task<long> GetFileSizeAsync(FtpClient client, string path, CancellationToken token) {
+		public override async Task<long> GetFileSizeAsync(AsyncFtpClient client, string path, CancellationToken token) {
 
 			// prevent automatic parser detection switching to unix on HFS paths
 			client.ListingParser = FtpParser.IBMzOS;
@@ -131,7 +131,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Check if the given path is a root directory on your FTP server.
 		/// If you are unsure, return false.
 		/// </summary>
-		public override bool IsRoot(FtpClient client, string path) {
+		public override bool IsRoot(BaseFtpClient client, string path) {
 
 			// Note: If on z/OS you have somehow managed to CWD "over" the top, i.e.
 			// PWD returns "''", it is also root - you would need to CWD to some HLQ
@@ -229,7 +229,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Perform server-specific path modification here.
 		/// Return the absolute path.
 		/// </summary>
-		public override async Task<string> GetAbsolutePathAsync(FtpClient client, string path, CancellationToken token)	{
+		public override async Task<string> GetAbsolutePathAsync(AsyncFtpClient client, string path, CancellationToken token)	{
 
 			if (path == null || path.Trim().Length == 0) {
 				path = await client.GetWorkingDirectoryAsync(token);
@@ -304,7 +304,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Return null indicates custom code decided not to handle this
 		/// Return the absolute dir.
 		/// </summary>
-		public override async Task<string> GetAbsoluteDirAsync(FtpClient client, string path, CancellationToken token) {
+		public override async Task<string> GetAbsoluteDirAsync(AsyncFtpClient client, string path, CancellationToken token) {
 
 			path = await client.ServerHandler.GetAbsolutePathAsync(client, path, token);
 
@@ -354,7 +354,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Return null indicates custom code decided not to handle this
 		/// Return concatenation of path and filename
 		/// </summary>
-		public override async Task<string> GetAbsoluteFilePathAsync(FtpClient client, string path, string fileName, CancellationToken token) {
+		public override async Task<string> GetAbsoluteFilePathAsync(AsyncFtpClient client, string path, string fileName, CancellationToken token) {
 
 			if (!path.StartsWith("\'"))	{
 				return null;
@@ -489,7 +489,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Check for existence of a file
 		/// Return null indicates custom code decided not to handle this
 		/// </summary>
-		public override async Task<bool?> FileExistsAsync(FtpClient client, string path, CancellationToken token)
+		public override async Task<bool?> FileExistsAsync(AsyncFtpClient client, string path, CancellationToken token)
 		{
 			if (path.StartsWith("/")) {
 				return null;

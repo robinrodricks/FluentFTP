@@ -26,7 +26,7 @@ namespace FluentFTP {
 		/// Creates a new instance of an FTP Client.
 		/// </summary>
 		public AsyncFtpClient() : base() {
-			
+
 		}
 
 		/// <summary>
@@ -34,7 +34,7 @@ namespace FluentFTP {
 		/// </summary>
 		public AsyncFtpClient(string host) : base() {
 			Host = host ?? throw new ArgumentNullException(nameof(host), "Host must be provided");
-			
+
 		}
 
 		/// <summary>
@@ -43,7 +43,7 @@ namespace FluentFTP {
 		public AsyncFtpClient(string host, NetworkCredential credentials) : base() {
 			Host = host ?? throw new ArgumentNullException(nameof(host), "Host must be provided");
 			Credentials = credentials ?? throw new ArgumentNullException(nameof(credentials), "Credentials must be provided");
-			
+
 		}
 
 		/// <summary>
@@ -53,7 +53,7 @@ namespace FluentFTP {
 			Host = host ?? throw new ArgumentNullException(nameof(host), "Host must be provided");
 			Port = port;
 			Credentials = credentials ?? throw new ArgumentNullException(nameof(credentials), "Credentials must be provided");
-			
+
 		}
 
 		/// <summary>
@@ -62,7 +62,7 @@ namespace FluentFTP {
 		public AsyncFtpClient(string host, string user, string pass) : base() {
 			Host = host;
 			Credentials = new NetworkCredential(user, pass);
-			
+
 		}
 
 		/// <summary>
@@ -71,7 +71,7 @@ namespace FluentFTP {
 		public AsyncFtpClient(string host, string user, string pass, string account) : base() {
 			Host = host;
 			Credentials = new NetworkCredential(user, pass, account);
-			
+
 		}
 
 		/// <summary>
@@ -81,7 +81,7 @@ namespace FluentFTP {
 			Host = host;
 			Port = port;
 			Credentials = new NetworkCredential(user, pass);
-			
+
 		}
 
 		/// <summary>
@@ -91,7 +91,7 @@ namespace FluentFTP {
 			Host = host;
 			Port = port;
 			Credentials = new NetworkCredential(user, pass, account);
-			
+
 		}
 
 		/// <summary>
@@ -100,7 +100,7 @@ namespace FluentFTP {
 		public AsyncFtpClient(Uri host) : base() {
 			Host = ValidateHost(host);
 			Port = host.Port;
-			
+
 		}
 
 		/// <summary>
@@ -110,7 +110,7 @@ namespace FluentFTP {
 			Host = ValidateHost(host);
 			Port = host.Port;
 			Credentials = credentials;
-			
+
 		}
 
 		/// <summary>
@@ -120,7 +120,7 @@ namespace FluentFTP {
 			Host = ValidateHost(host);
 			Port = host.Port;
 			Credentials = new NetworkCredential(user, pass);
-			
+
 		}
 
 		/// <summary>
@@ -130,7 +130,7 @@ namespace FluentFTP {
 			Host = ValidateHost(host);
 			Port = host.Port;
 			Credentials = new NetworkCredential(user, pass, account);
-			
+
 		}
 
 		/// <summary>
@@ -140,7 +140,7 @@ namespace FluentFTP {
 			Host = ValidateHost(host);
 			Port = port;
 			Credentials = new NetworkCredential(user, pass);
-			
+
 		}
 
 		/// <summary>
@@ -150,7 +150,7 @@ namespace FluentFTP {
 			Host = ValidateHost(host);
 			Port = port;
 			Credentials = new NetworkCredential(user, pass, account);
-			
+
 		}
 
 

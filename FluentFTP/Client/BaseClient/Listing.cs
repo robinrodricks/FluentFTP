@@ -5,6 +5,17 @@ using FluentFTP.Helpers;
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
 
+		/// <summary>
+		/// Checks whether <see cref="o:GetListing"/> will be called recursively or not.
+		/// </summary>
+		/// <param name="options"></param>
+		/// <returns></returns>
+		protected bool WasGetListingRecursive(FtpListOption options) {
+			// FIX: GetListing() now supports recursive listing for all types of lists (name list, file list, machine list)
+			//		even if the server does not support recursive listing, because it does its own internal recursion.
+			return (options & FtpListOption.Recursive) == FtpListOption.Recursive;
+		}
+
 		protected bool LoadBasicListingInfo(ref string path, ref FtpListItem item, List<FtpListItem> lst, List<string> rawlisting, ref int i, string listcmd, string buf, bool isRecursive, bool isIncludeSelf, bool machineList) {
 
 			// if this is a result of LIST -R then the path will be spit out
