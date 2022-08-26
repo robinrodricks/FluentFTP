@@ -1,7 +1,10 @@
 # Release Notes
 
 #### 40.0.0
- - Refactor: Split main FTP client classes into `FtpClient` and `AsyncFtpClient`
+ - New: Split main FTP client classes into `FtpClient` and `AsyncFtpClient`
+ - New: Split FTP proxy classes into `FtpClient*Proxy` and `AsyncFtpClient*Proxy`
+ - New: FTP proxy classes moved into `FluentFTP.Proxy.SyncProxy` and `FluentFTP.Proxy.AsyncProxy` NS
+ - New: FTP proxy classes with fully async implementations
  - Modernize: Drop support for .NET Standard 1.2, 1.4 and .NET 2.0, 3.5, 4.0 and 4.5
  - Modernize: Remove conditional compilation statements for unsupported platforms
  - Modernize: Remove uncommon static methods `FtpClient.Connect` and `FtpClient.GetPublicIP`

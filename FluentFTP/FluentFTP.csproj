@@ -51,21 +51,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Proxy\Socks\**" />
-    <EmbeddedResource Remove="Proxy\Socks\**" />
-    <None Remove="Proxy\Socks\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Proxy\FtpClientBlueCoatProxy.cs" />
-    <Compile Remove="Proxy\FtpClientHttp11Proxy.cs" />
-    <Compile Remove="Proxy\FtpClientSocks4aProxy.cs" />
-    <Compile Remove="Proxy\FtpClientSocks4Proxy.cs" />
-    <Compile Remove="Proxy\FtpClientSocks5Proxy.cs" />
-    <Compile Remove="Proxy\FtpClientUserAtHostProxy.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\.github\logo-nuget.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>

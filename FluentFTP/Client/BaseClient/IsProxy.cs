@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using FluentFTP.Proxy;
+using FluentFTP.Proxy.SyncProxy;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {

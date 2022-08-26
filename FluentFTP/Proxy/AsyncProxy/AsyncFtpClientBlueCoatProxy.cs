@@ -1,16 +1,19 @@
 using FluentFTP.Client.BaseClient;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace FluentFTP.Proxy {
+#if ASYNC
+namespace FluentFTP.Proxy.AsyncProxy {
 	/// <summary> 
 	/// A FTP client with a user@host proxy identification, that works with Blue Coat FTP Service servers.
 	/// 
 	/// The 'blue coat variant' forces the client to wait for a 220 FTP response code in 
 	/// the handshake phase.
 	/// </summary>
-	public class FtpClientBlueCoatProxy : FtpClientProxy {
+	public class AsyncFtpClientBlueCoatProxy : AsyncFtpClientProxy {
 		/// <summary> A FTP client with a user@host proxy identification. </summary>
 		/// <param name="proxy">Proxy information</param>
-		public FtpClientBlueCoatProxy(FtpProxyProfile proxy)
+		public AsyncFtpClientBlueCoatProxy(FtpProxyProfile proxy)
 			: base(proxy) {
 			ConnectionType = "Blue Coat";
 		}
@@ -19,20 +22,20 @@ namespace FluentFTP.Proxy {
 		/// Creates a new instance of this class. Useful in FTP proxy classes.
 		/// </summary>
 		protected override BaseFtpClient Create() {
-			return new FtpClientBlueCoatProxy(Proxy);
+			return new AsyncFtpClientBlueCoatProxy(Proxy);
 		}
 
 		/// <summary> Redefine the first dialog: auth with proxy information </summary>
-		protected override void Handshake() {
+		protected virtual async Task HandshakeAsync(CancellationToken token = default) {
 			// Proxy authentication eventually needed.
 			if (Proxy.ProxyCredentials != null) {
-				Authenticate(Proxy.ProxyCredentials.UserName, Proxy.ProxyCredentials.Password, Proxy.ProxyCredentials.Domain);
+				await AuthenticateAsync(Proxy.ProxyCredentials.UserName, Proxy.ProxyCredentials.Password, Proxy.ProxyCredentials.Domain, token);
 			}
 
 			// Connection USER@Host means to change user name to add host.
 			Credentials.UserName = Credentials.UserName + "@" + Host + ":" + Port;
 
-			var reply = GetReply();
+			var reply = await GetReplyAsync(token);
 			if (reply.Code == "220") {
 				LogLine(FtpTraceLevel.Info, "Status: Server is ready for the new client");
 			}
@@ -42,3 +45,4 @@ namespace FluentFTP.Proxy {
 		}
 	}
 }
+#endif

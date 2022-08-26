@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 #if ASYNC
-namespace FluentFTP.Proxy {
+namespace FluentFTP.Proxy.AsyncProxy {
 	/// <summary>
 	/// Abstraction of an FtpClient with a proxy
 	/// </summary>

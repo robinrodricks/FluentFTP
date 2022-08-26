@@ -2,7 +2,7 @@ using FluentFTP.Client.BaseClient;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FluentFTP.Proxy {
+namespace FluentFTP.Proxy.SyncProxy {
 	/// <summary>
 	/// Abstraction of an FtpClient with a proxy
 	/// </summary>
@@ -19,9 +19,9 @@ namespace FluentFTP.Proxy {
 
 			// set the FTP server details into the client if provided
 			if (_proxy.FtpHost != null) {
-				this.Host = _proxy.FtpHost;
-				this.Port = _proxy.FtpPort;
-				this.Credentials = _proxy.FtpCredentials;
+				Host = _proxy.FtpHost;
+				Port = _proxy.FtpPort;
+				Credentials = _proxy.FtpCredentials;
 			}
 		}
 
