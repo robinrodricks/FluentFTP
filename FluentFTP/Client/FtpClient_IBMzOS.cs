@@ -13,19 +13,19 @@ using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Helpers;
 using FluentFTP.Proxy;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 #endif
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
-using FluentFTP.Helpers.Hashing;
-using HashAlgos = FluentFTP.Helpers.Hashing.HashAlgorithms;
 
 #endif
 #if ASYNC
 using System.Threading.Tasks;
 
 #endif
+using FluentFTP.Helpers.Hashing;
+using HashAlgos = FluentFTP.Helpers.Hashing.HashAlgorithms;
 
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
@@ -58,16 +58,13 @@ namespace FluentFTP {
 			// Ok, the CWD starts with a single quote. Classic z/OS dataset realm
 			FtpReply reply;
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				// Fetch the current working directory. The reply will tell us what it is we are...
 				if (!(reply = Execute("CWD " + Status.LastWorkingDir)).Success) {
 					throw new FtpCommandException(reply);
 				}
-#if !CORE14
 			}
-#endif
+
 			// 250-The working directory may be a load library                          
 			// 250 The working directory "GEEK.PRODUCT.LOADLIB" is a partitioned data set
 

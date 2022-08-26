@@ -7,11 +7,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using FluentFTP.Exceptions;
 
-#if NET45
-using System.Threading.Tasks;
-
-#endif
-
 namespace FluentFTP.Helpers.Parsers {
 	internal static class IBMOS400Parser {
 		private static int formatIndex = 0;

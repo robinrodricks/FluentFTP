@@ -9,11 +9,11 @@ using System.Runtime.CompilerServices;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
 
 #endif
-#if (CORE || NET45)
+#if NETSTANDARD
 using System.Threading.Tasks;
 
 #endif
@@ -56,7 +56,7 @@ namespace FluentFTP {
 		FtpHashAlgorithm HashAlgorithms { get; }
 		FtpEncryptionMode EncryptionMode { get; set; }
 		bool DataConnectionEncryption { get; set; }
-#if !CORE
+#if !NETSTANDARD
 		bool PlainTextEncryption { get; set; }
 #endif
 		SslProtocols SslProtocols { get; set; }
@@ -75,7 +75,7 @@ namespace FluentFTP {
 		CultureInfo ListingCulture { get; set; }
 		bool RecursiveList { get; set; }
 		double TimeZone { get; set; }
-#if CORE
+#if NETSTANDARD
 		double LocalTimeZone { get; set; }
 #endif
 		FtpDate TimeConversion { get; set; }

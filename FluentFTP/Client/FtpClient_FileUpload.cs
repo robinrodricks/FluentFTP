@@ -6,18 +6,18 @@ using System.Diagnostics;
 using System.Linq;
 using FluentFTP.Streams;
 using FluentFTP.Helpers;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 #endif
-#if (CORE || NETFX)
-using System.Threading;
+#if NETSTANDARD
 using FluentFTP.Exceptions;
 
 #endif
-#if (CORE || NET45)
+#if NETSTANDARD
 using System.Threading.Tasks;
 
 #endif
+using System.Threading;
 
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
@@ -447,7 +447,7 @@ namespace FluentFTP {
 
 
 			// skip uploading if the local file does not exist
-#if CORE
+#if NETSTANDARD
 			if (!await Task.Run(() => File.Exists(localPath), token)) {
 #else
 			if (!File.Exists(localPath)) {
@@ -814,11 +814,7 @@ namespace FluentFTP {
 							if (rateLimitBytes > 0) {
 								var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
 								if (timeShouldTake > swTime) {
-#if CORE14
-										Task.Delay((int) (timeShouldTake - swTime)).Wait();
-#else
 									Thread.Sleep((int)(timeShouldTake - swTime));
-#endif
 								}
 								else if (swTime > timeShouldTake + rateControlResolution) {
 									limitCheckBytes = 0;
@@ -1228,8 +1224,9 @@ namespace FluentFTP {
 			try {
 #endif
 
-			// if resume possible
-			if (ex.IsResumeAllowed()) {
+#if NETSTANDARD
+				// if resume possible
+				if (ex.IsResumeAllowed()) {
 
 				// dispose the old bugged out stream
 				upStream.Dispose();
@@ -1239,9 +1236,7 @@ namespace FluentFTP {
 				upStream.Position = remotePosition;
 				return true;
 			}
-
-			// resume not allowed
-			return false;
+#endif
 
 #if ASYNC
 			}
@@ -1251,6 +1246,8 @@ namespace FluentFTP {
 			}
 #endif
 
+			// resume not allowed
+			return false;
 		}
 
 #if ASYNC

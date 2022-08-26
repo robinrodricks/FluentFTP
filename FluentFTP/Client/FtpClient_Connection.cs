@@ -10,10 +10,10 @@ using System.Net;
 using FluentFTP.Proxy;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
 using FluentFTP.Helpers;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 #endif
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
 using FluentFTP.Client.Modules;
 #endif
@@ -21,6 +21,7 @@ using FluentFTP.Client.Modules;
 using System.Threading.Tasks;
 
 #endif
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	/// <summary>
@@ -171,7 +172,7 @@ namespace FluentFTP {
 			if (host == null) {
 				throw new ArgumentNullException(nameof(host), "Host is required");
 			}
-#if !CORE
+#if !NETSTANDARD
 			if (host.Scheme != Uri.UriSchemeFtp) {
 				throw new ArgumentException("Host is not a valid FTP path");
 			}
@@ -192,9 +193,7 @@ namespace FluentFTP {
 		/// object.
 		/// </summary>
 		public virtual void Dispose() {
-#if !CORE14
 			lock (m_lock) {
-#endif
 				if (IsDisposed) {
 					return;
 				}
@@ -236,10 +235,7 @@ namespace FluentFTP {
 
 				IsDisposed = true;
 				GC.SuppressFinalize(this);
-#if !CORE14
 			}
-
-#endif
 		}
 
 		/// <summary>
@@ -286,9 +282,7 @@ namespace FluentFTP {
 		public virtual void Connect() {
 			FtpReply reply;
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 
 				LogFunc(nameof(Connect));
 
@@ -323,11 +317,9 @@ namespace FluentFTP {
 
 				m_stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
 
-#if !NO_SSL
 				if (EncryptionMode == FtpEncryptionMode.Implicit) {
 					m_stream.ActivateEncryption(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
 				}
-#endif
 
 				Handshake();
 				m_serverType = ServerModule.DetectFtpServer(this, HandshakeReply);
@@ -338,7 +330,6 @@ namespace FluentFTP {
 					}
 				}
 
-#if !NO_SSL
 				// try to upgrade this connection to SSL if supported by the server
 				if (EncryptionMode == FtpEncryptionMode.Explicit || EncryptionMode == FtpEncryptionMode.Auto) {
 					reply = Execute("AUTH TLS");
@@ -352,7 +343,6 @@ namespace FluentFTP {
 						m_stream.ActivateEncryption(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
 					}
 				}
-#endif
 
 				if (m_credentials != null) {
 					Authenticate();
@@ -419,7 +409,7 @@ namespace FluentFTP {
 					ServerFeatureModule.Assume(ServerHandler, m_capabilities, ref m_hashAlgorithms);
 				}
 
-#if !NO_SSL && !CORE
+#if !NETSTANDARD
 				if (IsEncrypted && PlainTextEncryption) {
 					if (!(reply = Execute("CCC")).Success) {
 						throw new FtpSecurityNotAvailableException("Failed to disable encryption with CCC command. Perhaps your server does not support it or is not configured to allow it.");
@@ -458,10 +448,7 @@ namespace FluentFTP {
 				// FIX #922: disable checking for stale data during connection
 				Status.AllowCheckStaleData = true;
 
-#if !CORE14
 			}
-
-#endif
 		}
 
 #if ASYNC
@@ -506,11 +493,9 @@ namespace FluentFTP {
 
 			m_stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
 
-#if !NO_SSL
 			if (EncryptionMode == FtpEncryptionMode.Implicit) {
 				await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
 			}
-#endif
 
 			await HandshakeAsync(token);
 			m_serverType = ServerModule.DetectFtpServer(this, HandshakeReply);
@@ -521,7 +506,6 @@ namespace FluentFTP {
 				}
 			}
 
-#if !NO_SSL
 			// try to upgrade this connection to SSL if supported by the server
 			if (EncryptionMode == FtpEncryptionMode.Explicit || EncryptionMode == FtpEncryptionMode.Auto) {
 				reply = await ExecuteAsync("AUTH TLS", token);
@@ -535,7 +519,6 @@ namespace FluentFTP {
 					await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
 				}
 			}
-#endif
 
 
 			if (m_credentials != null) {
@@ -602,7 +585,7 @@ namespace FluentFTP {
 				ServerFeatureModule.Assume(ServerHandler, m_capabilities, ref m_hashAlgorithms);
 			}
 
-#if !NO_SSL && !CORE
+#if !NETSTANDARD
 			if (IsEncrypted && PlainTextEncryption) {
 				if (!(reply = await ExecuteAsync("CCC", token)).Success) {
 					throw new FtpSecurityNotAvailableException("Failed to disable encryption with CCC command. Perhaps your server does not support it or is not configured to allow it.");
@@ -909,9 +892,7 @@ namespace FluentFTP {
 		/// Disconnects from the server
 		/// </summary>
 		public virtual void Disconnect() {
-#if !CORE14
 			lock (m_lock) {
-#endif
 				if (m_stream != null && m_stream.IsConnected) {
 					try {
 						if (DisconnectWithQuit) {
@@ -926,10 +907,7 @@ namespace FluentFTP {
 					}
 				}
 
-#if !CORE14
 			}
-
-#endif
 		}
 
 #if !ASYNC

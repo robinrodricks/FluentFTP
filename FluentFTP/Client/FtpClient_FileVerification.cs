@@ -1,13 +1,13 @@
 using System;
 using System.IO;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 #endif
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
 
 #endif
-#if (CORE || NET45)
+#if NETSTANDARD
 using System.Threading.Tasks;
 
 #endif

@@ -1,16 +1,15 @@
 ﻿using System;
 using FluentFTP.Helpers;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 #endif
-#if (CORE || NETFX)
-using System.Threading;
-using FluentFTP.Rules;
-#endif
-#if (CORE || NET45)
+#if NETSTANDARD
 using System.Threading.Tasks;
 
 #endif
+using System.Threading;
+using FluentFTP.Rules;
+
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
 
@@ -304,11 +303,7 @@ namespace FluentFTP {
 								}
 							}
 						}
-#if CORE14
-						Task.Delay(FXPProgressInterval);
-#else
 						Thread.Sleep(FXPProgressInterval);
-#endif
 					}
 
 					FtpTrace.WriteLine(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");

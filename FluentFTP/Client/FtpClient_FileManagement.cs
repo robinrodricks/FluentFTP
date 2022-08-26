@@ -12,11 +12,11 @@ using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Proxy;
 using FluentFTP.Helpers;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 using FluentFTP.Client.Modules;
 #endif
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
 using FluentFTP.Client.Modules;
 #endif
@@ -42,9 +42,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				path = path.GetFtpPath();
 
 				LogFunc(nameof(DeleteFile), new object[] { path });
@@ -52,11 +50,7 @@ namespace FluentFTP {
 				if (!(reply = Execute("DELE " + path)).Success) {
 					throw new FtpCommandException(reply);
 				}
-
-#if !CORE14
 			}
-
-#endif
 		}
 
 #if ASYNC
@@ -98,9 +92,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				path = path.GetFtpPath();
 
 				LogFunc(nameof(FileExists), new object[] { path });
@@ -148,11 +140,7 @@ namespace FluentFTP {
 					var fileList = GetNameListing(path.GetFtpDirectoryName());
 					return FileListings.FileExistsInNameListing(fileList, path);
 				}
-
-#if !CORE14
 			}
-
-#endif
 		}
 
 		private bool? CheckFileExistsBySize(FtpSizeReply sizeReply) {
@@ -264,9 +252,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "dest");
 			}
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				path = path.GetFtpPath();
 				dest = dest.GetFtpPath();
 
@@ -284,10 +270,7 @@ namespace FluentFTP {
 					throw new FtpCommandException(reply);
 				}
 
-#if !CORE14
 			}
-
-#endif
 		}
 
 #if ASYNC

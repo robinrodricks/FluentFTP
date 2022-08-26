@@ -78,27 +78,5 @@ namespace FluentFTP {
 			return Connect(uri, true);
 		}
 
-		/// <summary>
-		/// Calculate you public internet IP using the ipify service. Returns null if cannot be calculated.
-		/// </summary>
-		/// <returns>Public IP Address</returns>
-		public static string GetPublicIP() {
-#if NETFX
-			try {
-				var request = WebRequest.Create("https://api.ipify.org/");
-				request.Method = "GET";
-
-				using (var response = request.GetResponse()) {
-					using (var stream = new StreamReader(response.GetResponseStream())) {
-						return stream.ReadToEnd();
-					}
-				}
-			}
-			catch (Exception) {
-			}
-
-#endif
-			return null;
-		}
 	}
 }

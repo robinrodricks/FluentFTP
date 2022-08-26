@@ -5,7 +5,7 @@ using System.Security.Authentication;
 using FluentFTP.Servers.Handlers;
 using FluentFTP.Helpers;
 using FluentFTP.Servers;
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
 using System.Net;
 using System.Text;

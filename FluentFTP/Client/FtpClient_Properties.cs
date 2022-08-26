@@ -23,7 +23,6 @@ namespace FluentFTP {
 		/// </summary>
 		public FtpClientState Status { get => m_status; }
 
-#if !CORE14
 		/// <summary>
 		/// Used for internally synchronizing access to this
 		/// object from multiple threads
@@ -34,7 +33,6 @@ namespace FluentFTP {
 		/// For usage by FTP proxies only
 		/// </summary>
 		protected object Lock => m_lock;
-#endif
 
 		/// <summary>
 		/// A list of asynchronous methods that are in progress
@@ -240,15 +238,10 @@ namespace FluentFTP {
 		public Encoding Encoding {
 			get => m_textEncoding;
 			set {
-#if !CORE14
 				lock (m_lock) {
-#endif
 					m_textEncoding = value;
 					m_textEncodingAutoUTF = false;
-#if !CORE14
 				}
-
-#endif
 			}
 		}
 
@@ -558,7 +551,7 @@ namespace FluentFTP {
 			set => m_dataConnectionEncryption = value;
 		}
 
-#if !CORE
+#if !NETSTANDARD
 		private bool m_plainTextEncryption = false;
 
 		/// <summary>
@@ -571,7 +564,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#if CORE || NET45
+#if NETSTANDARD || NET45
 		private SslProtocols m_SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
 #else
 		private SslProtocols m_SslProtocols = SslProtocols.Default;
@@ -823,7 +816,7 @@ namespace FluentFTP {
 		}
 
 
-#if CORE
+#if NETSTANDARD
 		private double m_localTimeZone = 0;
 		private TimeSpan m_localTimeOffset = new TimeSpan();
 
@@ -1062,7 +1055,7 @@ namespace FluentFTP {
 			set => m_SendHostDomain = value;
 		}
 
-#if ASYNC && !CORE14 && !CORE16
+#if ASYNC
 		private IPAddress m_SocketLocalIp;
 		/// <summary>
 		/// The local socket will be bound to the given local IP/interface.

@@ -1,10 +1,10 @@
 ﻿using System;
-#if !CORE
+#if !NETSTANDARD
 using System.Runtime.Serialization;
 #endif
 
 namespace FluentFTP {
-#if !CORE
+#if !NETSTANDARD
 	[Serializable]
 #endif
 	public class FtpProtocolUnsupportedException : FtpException {

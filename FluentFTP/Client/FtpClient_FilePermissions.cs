@@ -1,8 +1,8 @@
 ﻿using System;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 #endif
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
 #endif
 #if ASYNC
@@ -33,9 +33,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
 			}
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				path = path.GetFtpPath();
 
 				LogFunc(nameof(SetFilePermissions), new object[] { path, permissions });
@@ -44,10 +42,7 @@ namespace FluentFTP {
 					throw new FtpCommandException(reply);
 				}
 
-#if !CORE14
 			}
-
-#endif
 		}
 
 #if ASYNC

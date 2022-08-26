@@ -14,18 +14,18 @@ using System.Net;
 using FluentFTP.Proxy;
 using FluentFTP.Streams;
 using FluentFTP.Helpers;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 #endif
-#if (CORE || NETFX)
-using System.Threading;
-using FluentFTP.Exceptions;
-using FluentFTP.Client.Modules;
+#if NETSTANDARD
 #endif
-#if (CORE || NET45)
+#if NETSTANDARD
 using System.Threading.Tasks;
 
 #endif
+using System.Threading;
+using FluentFTP.Exceptions;
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
@@ -426,7 +426,7 @@ namespace FluentFTP {
 			// skip downloading if the local file exists
 			long knownFileSize = 0;
 			long restartPos = 0;
-#if CORE
+#if NETSTANDARD
 			if (existsMode == FtpLocalExists.Resume && await Task.Run(() => File.Exists(localPath), token)) {
 				knownFileSize = (await GetFileSizeAsync(remotePath, -1, token));
 				restartPos = await FtpFileStream.GetFileSizeAsync(localPath, false, token);
@@ -444,7 +444,7 @@ namespace FluentFTP {
 					isAppend = true;
 				}
 			}
-#if CORE
+#if NETSTANDARD
 			else if (existsMode == FtpLocalExists.Skip && await Task.Run(() => File.Exists(localPath), token)) {
 #else
 			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
@@ -456,7 +456,7 @@ namespace FluentFTP {
 			try {
 				// create the folders
 				var dirPath = Path.GetDirectoryName(localPath);
-#if CORE
+#if NETSTANDARD
 				if (!string.IsNullOrWhiteSpace(dirPath) && !await Task.Run(() => Directory.Exists(dirPath), token)) {
 #else
 				if (!string.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
@@ -741,11 +741,7 @@ namespace FluentFTP {
 							if (rateLimitBytes > 0) {
 								var timeShouldTake = limitCheckBytes * 1000 / rateLimitBytes;
 								if (timeShouldTake > swTime) {
-#if CORE14
-									Task.Delay((int) (timeShouldTake - swTime)).Wait();
-#else
 									Thread.Sleep((int)(timeShouldTake - swTime));
-#endif
 								}
 								else if (swTime > timeShouldTake + rateControlResolution) {
 									limitCheckBytes = 0;

@@ -128,9 +128,7 @@ namespace FluentFTP.Proxy {
 			var reply = new FtpReply();
 			string buf;
 
-#if !CORE14
 			lock (Lock) {
-#endif
 				if (!IsConnected) {
 					throw new InvalidOperationException("No connection to the server has been established.");
 				}
@@ -161,9 +159,7 @@ namespace FluentFTP.Proxy {
 					reply.InfoMessages += buf + "\n";
 				}
 
-#if !CORE14
 			}
-#endif
 
 			return reply;
 		}

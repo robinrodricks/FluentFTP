@@ -13,10 +13,10 @@ using FluentFTP.Servers;
 using FluentFTP.Rules;
 using FluentFTP.Helpers;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 #endif
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
 #endif
 #if ASYNC

@@ -2,11 +2,11 @@ using System;
 using System.Text.RegularExpressions;
 using System.Linq;
 using FluentFTP.Helpers;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 using FluentFTP.Client.Modules;
 #endif
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
 using FluentFTP.Client.Modules;
 
@@ -64,11 +64,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-
-#if !CORE14
 			lock (m_lock) {
-#endif
-
 
 				// server-specific directory deletion
 				if (!path.IsFtpRootDirectory()) {
@@ -133,10 +129,8 @@ namespace FluentFTP {
 					throw new FtpCommandException(reply);
 				}
 
-#if !CORE14
 			}
 
-#endif
 		}
 
 		/// <summary>
@@ -292,9 +286,7 @@ namespace FluentFTP {
 			}
 
 			// check if a folder exists by changing the working dir to it
-#if !CORE14
 			lock (m_lock) {
-#endif
 				pwd = GetWorkingDirectory();
 
 				if (Execute("CWD " + path).Success) {
@@ -307,9 +299,7 @@ namespace FluentFTP {
 					return true;
 				}
 
-#if !CORE14
 			}
-#endif
 
 			return false;
 		}
@@ -394,9 +384,7 @@ namespace FluentFTP {
 				return false;
 			}
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 
 				// server-specific directory creation
 				// ask the server handler to create a directory
@@ -434,10 +422,7 @@ namespace FluentFTP {
 				}
 				return true;
 
-#if !CORE14
 			}
-
-#endif
 		}
 
 #if ASYNC
@@ -638,9 +623,7 @@ namespace FluentFTP {
 				return;
 			}
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				// modify working dir
 				if (!(reply = Execute("CWD " + path)).Success) {
 					throw new FtpCommandException(reply);
@@ -650,10 +633,7 @@ namespace FluentFTP {
 				// This is redundant, Execute(...) will see the CWD and do this
 				//Status.LastWorkingDir = null;
 
-#if !CORE14
 			}
-
-#endif
 		}
 
 
@@ -727,16 +707,12 @@ namespace FluentFTP {
 		private FtpReply ReadCurrentWorkingDirectory() {
 			FtpReply reply;
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				// read the absolute path of the current working dir
 				if (!(reply = Execute("PWD")).Success) {
 					throw new FtpCommandException(reply);
 				}
-#if !CORE14
 			}
-#endif
 
 			// cache the last working dir
 			Status.LastWorkingDir = ParseWorkingDirectory(reply);

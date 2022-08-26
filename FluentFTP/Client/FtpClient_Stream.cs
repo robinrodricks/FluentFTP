@@ -13,10 +13,10 @@ using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Proxy;
 using FluentFTP.Helpers;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 #endif
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
 
 #endif
@@ -45,9 +45,7 @@ namespace FluentFTP {
 		public FtpReply Execute(string command) {
 			FtpReply reply;
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				if (StaleDataCheck && Status.AllowCheckStaleData) {
 					ReadStaleData(true, false, true);
 				}
@@ -85,9 +83,7 @@ namespace FluentFTP {
 				m_stream.WriteLine(m_textEncoding, command);
 				m_lastCommandUtc = DateTime.UtcNow;
 				reply = GetReply();
-#if !CORE14
 			}
-#endif
 
 			return reply;
 		}
@@ -135,7 +131,7 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			if (StaleDataCheck && Status.AllowCheckStaleData) {
-#if CORE
+#if NETSTANDARD
 				await ReadStaleDataAsync(true, false, true, token);
 #else
 				ReadStaleData(true, false, true);
@@ -236,9 +232,7 @@ namespace FluentFTP {
 			var reply = new FtpReply();
 			string buf;
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				if (!IsConnected) {
 					throw new InvalidOperationException("No connection to the server has been established.");
 				}
@@ -276,10 +270,8 @@ namespace FluentFTP {
 					LogLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
 				}
 
-#if !CORE14
 			}
 
-#endif
 			LastReply = reply;
 
 			return reply;
@@ -492,15 +484,12 @@ namespace FluentFTP {
 			// otherwise things can get out of sync.
 			stream.CommandStatus = reply;
 
-#if !NO_SSL
-
 			// this needs to take place after the command is executed
 			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
 				stream.ActivateEncryption(m_host,
 					ClientCertificates.Count > 0 ? ClientCertificates : null,
 					m_SslProtocols);
 			}
-#endif
 
 			return stream;
 		}
@@ -633,14 +622,12 @@ namespace FluentFTP {
 			// otherwise things can get out of sync.
 			stream.CommandStatus = reply;
 
-#if !NO_SSL
 			// this needs to take place after the command is executed
 			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
 				await stream.ActivateEncryptionAsync(m_host,
 					ClientCertificates.Count > 0 ? ClientCertificates : null,
 					m_SslProtocols);
 			}
-#endif
 
 			return stream;
 		}
@@ -738,7 +725,7 @@ namespace FluentFTP {
 
 			var stream = new FtpDataStream(this);
 			FtpReply reply;
-#if !CORE
+#if !NETSTANDARD
 			IAsyncResult ar;
 #endif
 
@@ -747,7 +734,7 @@ namespace FluentFTP {
 			}
 
 			StartListeningOnPort(stream);
-#if CORE
+#if NETSTANDARD
 			var args = stream.BeginAccept();
 #else
 			ar = stream.BeginAccept(null, null);
@@ -827,7 +814,7 @@ namespace FluentFTP {
 			// otherwise things can get out of sync.
 			stream.CommandStatus = reply;
 
-#if CORE
+#if NETSTANDARD
 			stream.EndAccept(args, m_dataConnectionConnectTimeout);
 #else
 			ar.AsyncWaitHandle.WaitOne(m_dataConnectionConnectTimeout);
@@ -840,13 +827,11 @@ namespace FluentFTP {
 			stream.EndAccept(ar);
 #endif
 
-#if !NO_SSL
 			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
 				stream.ActivateEncryption(m_host,
 					ClientCertificates.Count > 0 ? ClientCertificates : null,
 					m_SslProtocols);
 			}
-#endif
 
 			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
 			stream.ReadTimeout = m_dataConnectionReadTimeout;
@@ -869,7 +854,7 @@ namespace FluentFTP {
 			var stream = new FtpDataStream(this);
 			FtpReply reply;
 
-#if !CORE
+#if !NETSTANDARD
 			IAsyncResult ar;
 #endif
 
@@ -879,7 +864,7 @@ namespace FluentFTP {
 
 			StartListeningOnPort(stream);
 
-#if CORE
+#if NETSTANDARD
 			var args = stream.BeginAccept();
 #else
 			ar = stream.BeginAccept(null, null);
@@ -959,7 +944,7 @@ namespace FluentFTP {
 			// otherwise things can get out of sync.
 			stream.CommandStatus = reply;
 
-#if CORE
+#if NETSTANDARD
 			stream.EndAccept(args, m_dataConnectionConnectTimeout);
 #else
 			ar.AsyncWaitHandle.WaitOne(m_dataConnectionConnectTimeout);
@@ -972,13 +957,11 @@ namespace FluentFTP {
 			stream.EndAccept(ar);
 #endif
 
-#if !NO_SSL
 			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
 				await stream.ActivateEncryptionAsync(m_host,
 					ClientCertificates.Count > 0 ? ClientCertificates : null,
 					m_SslProtocols);
 			}
-#endif
 
 			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
 			stream.ReadTimeout = m_dataConnectionReadTimeout;
@@ -997,9 +980,7 @@ namespace FluentFTP {
 			var type = m_dataConnectionType;
 			FtpDataStream stream = null;
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				if (!IsConnected) {
 					Connect();
 				}
@@ -1041,10 +1022,7 @@ namespace FluentFTP {
 					throw new InvalidOperationException("The specified data channel type is not implemented.");
 				}
 
-#if !CORE14
 			}
-#endif
-
 			return stream;
 		}
 
@@ -1118,9 +1096,7 @@ namespace FluentFTP {
 				throw new ArgumentException("The data stream parameter was null");
 			}
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				try {
 					if (IsConnected) {
 						// if the command that required the data connection was
@@ -1144,9 +1120,7 @@ namespace FluentFTP {
 					}
 				}
 
-#if !CORE14
 			}
-#endif
 
 			return reply;
 		}
@@ -1171,19 +1145,9 @@ namespace FluentFTP {
 						break;
 					}
 					catch (SocketException se) {
-#if NETFX
-
-						// Already in use
-						if (se.ErrorCode != 10048) {
-							throw;
-						}
-
-#else
 						if (se.SocketErrorCode != SocketError.AddressAlreadyInUse) {
 							throw;
 						}
-
-#endif
 					}
 				}
 
@@ -1240,9 +1204,7 @@ namespace FluentFTP {
 			FtpDataStream stream = null;
 			long length = 0;
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				if (m_threadSafeDataChannels) {
 					client = Clone();
 					client.Status.CopyFrom(this.Status);
@@ -1257,9 +1219,7 @@ namespace FluentFTP {
 
 				client.SetDataType(type);
 				stream = client.OpenDataStream("RETR " + path, restart);
-#if !CORE14
 			}
-#endif
 
 			if (stream != null) {
 				if (length > 0) {
@@ -1395,9 +1355,7 @@ namespace FluentFTP {
 			FtpDataStream stream = null;
 			long length = 0;
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				if (m_threadSafeDataChannels) {
 					client = Clone();
 					client.Status.CopyFrom(this.Status);
@@ -1417,10 +1375,7 @@ namespace FluentFTP {
 					stream.SetLength(length);
 				}
 
-#if !CORE14
 			}
-#endif
-
 			return stream;
 		}
 #if ASYNC
@@ -1534,9 +1489,7 @@ namespace FluentFTP {
 			FtpDataStream stream = null;
 			long length = 0;
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				if (m_threadSafeDataChannels) {
 					client = Clone();
 					client.Status.CopyFrom(this.Status);
@@ -1557,10 +1510,7 @@ namespace FluentFTP {
 					stream.SetPosition(length);
 				}
 
-#if !CORE14
 			}
-#endif
-
 			return stream;
 		}
 
@@ -1644,16 +1594,10 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="type">ASCII/Binary</param>
 		protected void SetDataType(FtpDataType type) {
-#if !CORE14
 			lock (m_lock) {
-#endif
-
 				SetDataTypeNoLock(type);
 
-#if !CORE14
 			}
-
-#endif
 		}
 
 		/// <summary>Internal method that handles actually setting the data type.</summary>

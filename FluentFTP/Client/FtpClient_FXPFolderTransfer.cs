@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentFTP.Rules;
 using FluentFTP.Helpers;
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
 #endif
-#if (CORE || NET45)
+#if NETSTANDARD
 using System.Threading.Tasks;
 #endif
 

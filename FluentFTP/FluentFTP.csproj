@@ -1,45 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net60;net50;net45;net40;net35;net20;netstandard1.4;netstandard1.6;netstandard2.0;netstandard2.1</TargetFrameworks>
+    <TargetFrameworks>net60;net50;net472;net462;netstandard2.0;netstandard2.1</TargetFrameworks>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net20' Or '$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40' Or '$(TargetFramework)'=='net45'">
-    <DefineConstants>$(DefineConstants);NETFX</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
+    <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net20'">
-    <DefineConstants>$(DefineConstants);LINQBRIDGE_LIB</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.4' Or '$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
-    <DefineConstants>$(DefineConstants);CORE</DefineConstants>
-  </PropertyGroup>
-
-	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.4'">
-		<DefineConstants>$(DefineConstants);CORE14;NO_SSL</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
-		<DefineConstants>$(DefineConstants);CORE16</DefineConstants>
-	</PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net50' Or '$(TargetFramework)'=='net60' Or $(DefineConstants.Contains('CORE'))">
+  <PropertyGroup Condition="'$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net50' Or '$(TargetFramework)'=='net60' Or $(DefineConstants.Contains('NETSTANDARD'))">
     <DefineConstants>$(DefineConstants);ASYNC</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
-    <DefineConstants>$(DefineConstants);NET45</DefineConstants>
-  </PropertyGroup>
-
 	<PropertyGroup Condition="'$(TargetFramework)'=='net50'">
-		<DefineConstants>$(DefineConstants);NET50;CORE;NET50_OR_LATER;</DefineConstants>
+		<DefineConstants>$(DefineConstants);NET50;NETSTANDARD;NET50_OR_LATER;</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net60'">
-		<DefineConstants>$(DefineConstants);NET60;CORE;NET50_OR_LATER;</DefineConstants>
+		<DefineConstants>$(DefineConstants);NET60;NETSTANDARD;NET50_OR_LATER;</DefineConstants>
 	</PropertyGroup>
 
   <PropertyGroup>
@@ -53,7 +32,7 @@
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
     <SignAssembly>True</SignAssembly>
     <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
-    <Version>39.4.0</Version>
+    <Version>40.0.0</Version>
     <PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
     <PackageIcon>logo-nuget.png</PackageIcon>
   </PropertyGroup>

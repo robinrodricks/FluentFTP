@@ -12,17 +12,15 @@ using FluentFTP.Proxy;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
 using FluentFTP.Servers;
 using FluentFTP.Helpers;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 #endif
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
 using FluentFTP.Client.Modules;
 #endif
-#if ASYNC
 using System.Threading.Tasks;
-
-#endif
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
@@ -41,16 +39,12 @@ namespace FluentFTP {
 		/// <returns></returns>
 		public List<FtpProfile> AutoDetect(bool firstOnly = true, bool cloneConnection = true) {
 			
-#if !CORE14
 			lock (m_lock) {
-#endif
 				LogFunc(nameof(AutoDetect), new object[] { firstOnly, cloneConnection });
 				ValidateAutoDetect();
 
 				return ConnectModule.AutoDetect(this, firstOnly, cloneConnection);
-#if !CORE14
 			}
-#endif
 		}
 
 #if ASYNC

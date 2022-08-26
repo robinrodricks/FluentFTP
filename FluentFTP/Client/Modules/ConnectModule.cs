@@ -11,11 +11,11 @@ using System.Security.Authentication;
 using FluentFTP.Proxy;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
 using FluentFTP.Helpers;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 using FluentFTP.Client.Modules;
 #endif
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
 using System.ComponentModel;
 #endif
@@ -45,7 +45,7 @@ namespace FluentFTP.Client.Modules {
 #if !ASYNC
 			SysSslProtocols.Tls,
 #endif
-#if !CORE
+#if !NETSTANDARD
 			SysSslProtocols.Default,
 #endif
 		};
@@ -162,11 +162,9 @@ namespace FluentFTP.Client.Modules {
 							continue;
 						}
 
-#if !CORE14
 						if (ex is AuthenticationException) {
 							throw new FtpInvalidCertificateException((AuthenticationException)ex);
 						}
-#endif
 
 						// if server does not support FTPS no point trying encryption again
 						if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
@@ -328,11 +326,9 @@ namespace FluentFTP.Client.Modules {
 							continue;
 						}
 
-#if !CORE14
 						if (ex is AuthenticationException) {
 							throw new FtpInvalidCertificateException((AuthenticationException)ex);
 						}
-#endif
 
 						// if server does not support FTPS no point trying encryption again
 						if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
@@ -615,13 +611,11 @@ namespace FluentFTP.Client.Modules {
 				return true;
 			}
 
-#if !CORE14
 			if (ex is AuthenticationException &&
 				((AuthenticationException)ex).InnerException != null &&
 				((AuthenticationException)ex).InnerException.Message.ToLower().ContainsAny(ServerStringModule.failedTLS)) {
 				return true;
 			}
-#endif
 
 			return false;
 		}

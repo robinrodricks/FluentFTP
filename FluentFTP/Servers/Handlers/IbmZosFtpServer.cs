@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Security.Authentication;
 using FluentFTP;
 using FluentFTP.Servers;
-#if (CORE || NETFX)
-using System.Threading;
 using FluentFTP.Helpers;
+#if NETSTANDARD
+using System.Threading;
 using System.Linq;
 #endif
 #if ASYNC
@@ -491,7 +491,7 @@ namespace FluentFTP.Servers.Handlers {
 			}
 
 			var fileList = client.GetNameListing(path);
-			return fileList.Count() > 0;
+			return fileList.Length > 0;
 		}
 
 #if ASYNC

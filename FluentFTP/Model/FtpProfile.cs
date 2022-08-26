@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
-#if !CORE
+#if !NETSTANDARD
 using System.Runtime.Serialization;
 #endif
 using FluentFTP.Helpers;
 
 namespace FluentFTP {
 	
-#if !CORE
+#if !NETSTANDARD
 	[Serializable]
 #endif
 	public class FtpProfile {

@@ -13,7 +13,7 @@ using System.Net.NetworkInformation;
 
 using FluentFTP.Helpers;
 using FluentFTP.Exceptions;
-#if CORE || NET45
+#if NETSTANDARD || NET45
 using System.Threading.Tasks;
 #endif
 
@@ -135,11 +135,7 @@ namespace FluentFTP {
 		/// </summary>
 		public bool IsEncrypted {
 			get {
-#if NO_SSL
-				return false;
-#else
 				return m_sslStream != null;
-#endif
 			}
 		}
 		
@@ -148,11 +144,7 @@ namespace FluentFTP {
 		/// </summary>
 		public SslProtocols SslProtocolActive {
 			get {
-#if NO_SSL
-				return SslProtocols.None;
-#else
 				return IsEncrypted ? m_sslStream.SslProtocol : SslProtocols.None;
-#endif
 			}
 		}
 
@@ -166,7 +158,6 @@ namespace FluentFTP {
 			set => m_netStream = value;
 		}
 
-#if !NO_SSL
 		private BufferedStream m_bufStream = null;
 
 		private SslStream m_sslStream = null;
@@ -178,27 +169,18 @@ namespace FluentFTP {
 			get => m_sslStream;
 			set => m_sslStream = value;
 		}
-#endif
 
 		/// <summary>
 		/// Gets the underlying stream, could be a NetworkStream or SslStream
 		/// </summary>
 		protected Stream BaseStream {
 			get {
-#if NO_SSL
-				if (m_netStream != null) {
-					return m_netStream;
-				}
-
-#else
 				if (m_sslStream != null) {
 					return m_sslStream;
 				}
 				else if (m_netStream != null) {
 					return m_netStream;
 				}
-#endif
-
 				return null;
 			}
 		}
@@ -428,31 +410,7 @@ namespace FluentFTP {
 
 #endif
 
-#if NET45
-		/// <summary>
-		/// Bypass the stream and read directly off the socket.
-		/// </summary>
-		/// <param name="buffer">The buffer to read into</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>The number of bytes read</returns>
-		internal async Task<int> RawSocketReadAsync(byte[] buffer, CancellationToken token) {
-			var read = 0;
-
-			if (m_socket != null && m_socket.Connected) {
-				var asyncResult = m_socket.BeginReceive(buffer, 0, buffer.Length, 0, null, null);
-				read = await EnableCancellation(
-					Task.Factory.FromAsync(asyncResult, m_socket.EndReceive),
-					token, 
-					() => CloseSocket()
-				);
-			}
-
-			return read;
-		}
-
-#endif
-
-#if ASYNC && !NET45
+#if ASYNC
 		/// <summary>
 		/// Bypass the stream and read directly off the socket.
 		/// </summary>
@@ -477,7 +435,7 @@ namespace FluentFTP {
 		/// <param name="count">Number of bytes to be read</param>
 		/// <returns>The amount of bytes read from the stream</returns>
 		public override int Read(byte[] buffer, int offset, int count) {
-#if !CORE
+#if !NETSTANDARD
 			IAsyncResult ar = null;
 #endif
 
@@ -486,7 +444,7 @@ namespace FluentFTP {
 			}
 
 			m_lastActivity = DateTime.Now;
-#if CORE
+#if NETSTANDARD
 			return BaseStream.Read(buffer, offset, count);
 #else
 			ar = BaseStream.BeginRead(buffer, offset, count, null, null);
@@ -721,7 +679,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#if CORE
+#if NETSTANDARD
 		/// <summary>
 		/// Disconnects from server
 		/// </summary>
@@ -744,7 +702,6 @@ namespace FluentFTP {
 			catch (Exception) {
 			}
 
-#if !NO_SSL
 			if (m_bufStream != null) {
 				try {
 					// ensure the last of the buffered bytes are flushed
@@ -756,7 +713,6 @@ namespace FluentFTP {
 
 				m_bufStream = null;
 			}
-#endif
 
 			CloseSocket();
 
@@ -770,7 +726,6 @@ namespace FluentFTP {
 				m_netStream = null;
 			}
 
-#if !NO_SSL
 			if (m_sslStream != null) {
 				try {
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
@@ -786,7 +741,6 @@ namespace FluentFTP {
 				m_sslStream = null;
 			}
 
-#endif
 		}
 
 		/// <summary>
@@ -795,7 +749,7 @@ namespace FluentFTP {
 		internal void CloseSocket() {
 			if (m_socket != null) {
 				try {
-#if CORE
+#if NETSTANDARD
 #if NET5_0_OR_GREATER
 					if (Client != null && Client.DisconnectWithShutdown) {
 						m_socket.Shutdown(SocketShutdown.Send);
@@ -811,7 +765,7 @@ namespace FluentFTP {
 					}
 #endif
 
-#if !NET20 && !NET35 && !CORE
+#if !NET20 && !NET35 && !NETSTANDARD
 					m_socket.Dispose();
 #endif
 				}
@@ -844,7 +798,7 @@ namespace FluentFTP {
 		/// <param name="port">The port to connect to</param>
 		/// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
 		public void Connect(string host, int port, FtpIpVersion ipVersions) {
-#if CORE
+#if NETSTANDARD
 			IPAddress[] addresses = Dns.GetHostAddressesAsync(host).Result;
 #else
 			IAsyncResult ar = null;
@@ -894,7 +848,7 @@ namespace FluentFTP {
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 				BindSocketToLocalIp();
 
-#if CORE
+#if NETSTANDARD
 
 
 				var args = new SocketAsyncEventArgs {
@@ -1003,7 +957,7 @@ namespace FluentFTP {
 
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 				BindSocketToLocalIp();
-#if CORE
+#if NETSTANDARD
 				try {
 					if (this.ConnectTimeout > 0) {
 						using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
@@ -1051,7 +1005,6 @@ namespace FluentFTP {
 		}
 #endif
 
-#if !NO_SSL
 		/// <summary>
 		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event. 
 		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -1126,19 +1079,13 @@ namespace FluentFTP {
 
 				CreateBufferStream();
 
-#if CORE
 				m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
 					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
 				));
-#else
-				m_sslStream = new FtpSslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
-					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
-				));
-#endif
 
 				auth_start = DateTime.Now;
 				try {
-#if CORE
+#if NETSTANDARD
 					m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.ValidateCertificateRevocation).Wait();
 #else
 					m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, Client.ValidateCertificateRevocation);
@@ -1226,7 +1173,7 @@ namespace FluentFTP {
 
 				CreateBufferStream();
 
-#if CORE
+#if NETSTANDARD
 				m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
 					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
 				));
@@ -1267,9 +1214,8 @@ namespace FluentFTP {
 		}
 #endif
 
-#endif
 
-#if !CORE
+#if !NETSTANDARD
 			/// <summary>
 			/// Deactivates SSL on this stream using the specified protocols and reverts back to plain-text FTP.
 			/// </summary>
@@ -1312,26 +1258,14 @@ namespace FluentFTP {
 			}
 		}
 
-#if NET45
-		/// <summary>
-		/// Accepts a connection from a listening socket
-		/// </summary>
-		public async Task AcceptAsync() {
-			if (m_socket != null) {
-				var iar = m_socket.BeginAccept(null, null);
-				await Task.Factory.FromAsync(iar, m_socket.EndAccept);
-			}
-		}
-#endif
-
-#if ASYNC && !NET45
+#if ASYNC
 		/// <summary>
 		/// Accepts a connection from a listening socket
 		/// </summary>
 		public async Task AcceptAsync() {
 			if (m_socket != null) {
 				m_socket = await m_socket.AcceptAsync();
-#if CORE
+#if NETSTANDARD
 				m_netStream = new NetworkStream(m_socket);
 				m_netStream.ReadTimeout = m_readTimeout;
 #endif
@@ -1366,7 +1300,7 @@ namespace FluentFTP {
 		}
 #endif
 		private void BindSocketToLocalIp() {
-#if ASYNC && !CORE14 && !CORE16
+#if ASYNC
 			if (Client.SocketLocalIp != null) {
 
 				var localPort = LocalPorts.GetRandomAvailable(Client.SocketLocalIp);
@@ -1381,7 +1315,7 @@ namespace FluentFTP {
 #endif
 		}
 
-#if CORE
+#if NETSTANDARD
 		internal SocketAsyncEventArgs BeginAccept() {
 			var args = new SocketAsyncEventArgs();
 			var connectEvent = new ManualResetEvent(false);

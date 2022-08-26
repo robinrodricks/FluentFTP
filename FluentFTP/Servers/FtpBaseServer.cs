@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
 #endif
 #if ASYNC
@@ -110,11 +110,7 @@ namespace FluentFTP.Servers {
 		/// Return true if you executed a server-specific command.
 		/// </summary>
 		public virtual Task AfterConnectedAsync(FtpClient client, CancellationToken token) {
-#if NET45
-			return Task.FromResult(true);
-#else
 			return Task.CompletedTask;
-#endif
 		}
 #endif
 

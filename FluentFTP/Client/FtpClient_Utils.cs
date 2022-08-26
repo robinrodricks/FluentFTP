@@ -13,16 +13,16 @@ using FluentFTP.Servers;
 using FluentFTP.Rules;
 using FluentFTP.Helpers;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 #endif
-#if (CORE || NETFX)
-using System.Threading;
+#if NETSTANDARD
 #endif
 #if ASYNC
 using System.Threading.Tasks;
 
 #endif
+using System.Threading;
 
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
@@ -70,7 +70,7 @@ namespace FluentFTP {
 				}
 
 				if (!(m_asyncmethods[ar] is T)) {
-#if CORE
+#if NETSTANDARD
 					throw new InvalidCastException("The AsyncResult cannot be matched to the specified delegate. ");
 #else
 					var st = new StackTrace(1);
@@ -258,11 +258,7 @@ namespace FluentFTP {
 
 
 		private static string DecodeUrl(string url) {
-#if CORE
 			return WebUtility.UrlDecode(url);
-#else
-			return HttpUtility.UrlDecode(url);
-#endif
 		}
 
 		/// <summary>
@@ -273,19 +269,15 @@ namespace FluentFTP {
 		public void DisableUTF8() {
 			FtpReply reply;
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				if (!(reply = Execute("OPTS UTF8 OFF")).Success) {
 					throw new FtpCommandException(reply);
 				}
 
 				m_textEncoding = Encoding.ASCII;
 				m_textEncodingAutoUTF = false;
-#if !CORE14
 			}
 
-#endif
 		}
 
 		/// <summary>

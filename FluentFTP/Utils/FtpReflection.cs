@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-#if !CORE
+#if !NETSTANDARD
 using System.Reflection;
 using System.Linq;
 
@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace FluentFTP {
 	internal static class FtpReflection {
-#if !CORE
+#if !NETSTANDARD
 		public static object GetField(this object obj, string fieldName) {
 			var tp = obj.GetType();
 			var info = GetAllFields(tp).Where(f => f.Name == fieldName).Single();

@@ -13,19 +13,19 @@ using System.Security.Authentication;
 using System.Net;
 using FluentFTP.Helpers;
 using FluentFTP.Proxy;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 #endif
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
-using FluentFTP.Helpers.Hashing;
-using HashAlgos = FluentFTP.Helpers.Hashing.HashAlgorithms;
 
 #endif
 #if ASYNC
 using System.Threading.Tasks;
 
 #endif
+using FluentFTP.Helpers.Hashing;
+using HashAlgos = FluentFTP.Helpers.Hashing.HashAlgorithms;
 
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
@@ -321,9 +321,7 @@ namespace FluentFTP {
 			FtpReply reply;
 			var type = FtpHashAlgorithm.NONE;
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				LogFunc(nameof(GetHashAlgorithmUnused));
 
 				if ((reply = Execute("OPTS HASH")).Success) {
@@ -335,10 +333,7 @@ namespace FluentFTP {
 					}
 				}
 
-#if !CORE14
 			}
-#endif
-
 			return type;
 		}
 
@@ -376,9 +371,7 @@ namespace FluentFTP {
 				return;
 			}
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				if ((HashAlgorithms & algorithm) != algorithm) {
 					throw new NotImplementedException("The hash algorithm " + algorithm.ToString() + " was not advertised by the server.");
 				}
@@ -392,10 +385,7 @@ namespace FluentFTP {
 				// save the current hash algo so no need to repeat this command
 				Status.LastHashAlgo = algorithm;
 
-#if !CORE14
 			}
-
-#endif
 		}
 
 #if ASYNC
@@ -432,16 +422,12 @@ namespace FluentFTP {
 		internal FtpHash HashCommandInternal(string path) {
 			FtpReply reply;
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				if (!(reply = Execute("HASH " + path)).Success) {
 					throw new FtpCommandException(reply);
 				}
 
-#if !CORE14
 			}
-#endif
 
 			// parse hash from the server reply
 			return HashParser.Parse(reply.Message);
@@ -566,11 +552,7 @@ namespace FluentFTP {
 		}
 		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need. Or use CompareFile.", true)]
 		public Task SetHashAlgorithmAsync(FtpHashAlgorithm algorithm, CancellationToken token = default(CancellationToken)) {
-#if NET45
-			return Task.FromResult(true);
-#else
 			return Task.CompletedTask;
-#endif
 		}
 		[ObsoleteAttribute("Use GetChecksum instead and pass the algorithm type that you need. Or use CompareFile.", true)]
 		public Task<FtpHash> GetHashAsync(string path, CancellationToken token = default(CancellationToken)) {

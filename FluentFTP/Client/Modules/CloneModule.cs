@@ -65,17 +65,17 @@ namespace FluentFTP.Client.Modules {
 
 
 			// configure new connection as clone of self (newer version .NET only)
-#if ASYNC && !CORE14 && !CORE16
+#if ASYNC
 			write.SocketLocalIp = read.SocketLocalIp;
 #endif
 
 			// configure new connection as clone of self (.NET core props only)
-#if CORE
+#if NETSTANDARD
 			write.LocalTimeZone = read.LocalTimeZone;
 #endif
 
 			// configure new connection as clone of self (.NET framework props only)
-#if !CORE
+#if !NETSTANDARD
 			write.PlainTextEncryption = read.PlainTextEncryption;
 #endif
 

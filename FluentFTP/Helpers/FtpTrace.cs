@@ -8,7 +8,7 @@ namespace FluentFTP.Helpers {
 	/// Used for transaction logging and debug information.
 	/// </summary>
 	public static class FtpTrace {
-#if !CORE
+#if !NETSTANDARD
 		private static volatile TraceSource m_traceSource = new TraceSource("FluentFTP") {
 			Switch = new SourceSwitch("sourceSwitch", "Verbose") {Level = SourceLevels.All}
 		};
@@ -195,7 +195,7 @@ namespace FluentFTP.Helpers {
 			}
 #endif
 
-#if !CORE
+#if !NETSTANDARD
 
 			if (m_prefix) {
 				// if prefix is wanted then use TraceEvent()
@@ -214,7 +214,7 @@ namespace FluentFTP.Helpers {
 		}
 
 
-#if !CORE
+#if !NETSTANDARD
 
 		private static TraceEventType TraceLevelTranslation(FtpTraceLevel level) {
 			switch (level) {

@@ -13,19 +13,17 @@ using System.Net;
 using FluentFTP.Exceptions;
 using FluentFTP.Proxy;
 using FluentFTP.Helpers;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 #endif
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
 using System.Runtime.CompilerServices;
-using FluentFTP.Client.Modules;
-
 #endif
 #if ASYNC
 using System.Threading.Tasks;
-
 #endif
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class FtpClient : IDisposable {
@@ -266,13 +264,9 @@ namespace FluentFTP {
 			bool machineList;
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 				rawlisting = GetListingInternal(listcmd, options, true);
-#if !CORE14
 			}
-#endif
 
 			for (var i = 0; i < rawlisting.Count; i++) {
 				buf = rawlisting[i];
@@ -1158,9 +1152,7 @@ namespace FluentFTP {
 
 			path = GetAbsolutePath(path);
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 
 				// always get the file listing in binary to avoid character translation issues with ASCII.
 				SetDataTypeNoLock(ListingDataType);
@@ -1197,10 +1189,7 @@ namespace FluentFTP {
 					// Some FTP servers forcibly close the connection, we absorb these errors
 				}
 
-#if !CORE14
 			}
-#endif
-
 			return listing.ToArray();
 		}
 

@@ -1,9 +1,9 @@
 ﻿using System;
 using FluentFTP.Helpers;
-#if !CORE
+#if !NETSTANDARD
 using System.Web;
 #endif
-#if (CORE || NETFX)
+#if NETSTANDARD
 using System.Threading;
 using FluentFTP.Client.Modules;
 #endif
@@ -11,6 +11,7 @@ using FluentFTP.Client.Modules;
 using System.Threading.Tasks;
 #endif
 using System.Linq;
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class FtpClient : IFtpClient, IDisposable {
@@ -189,13 +190,9 @@ namespace FluentFTP {
 			}
 
 			var sizeReply = new FtpSizeReply();
-#if !CORE14
 			lock (m_lock) {
-#endif
 				GetFileSizeInternal(path, sizeReply, defaultValue);
-#if !CORE14
 			}
-#endif
 			return sizeReply.FileSize;
 		}
 
@@ -330,9 +327,7 @@ namespace FluentFTP {
 			var date = DateTime.MinValue;
 			FtpReply reply;
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 
 				// get modified date of a file
 				if ((reply = Execute("MDTM " + path)).Success) {
@@ -340,10 +335,7 @@ namespace FluentFTP {
 					date = ConvertDate(date);
 				}
 
-#if !CORE14
 			}
-#endif
-
 			return date;
 		}
 
@@ -402,9 +394,7 @@ namespace FluentFTP {
 
 			FtpReply reply;
 
-#if !CORE14
 			lock (m_lock) {
-#endif
 
 				// calculate the final date string with the timezone conversion
 				date = ConvertDate(date, true);
@@ -414,10 +404,7 @@ namespace FluentFTP {
 				if ((reply = Execute("MFMT " + timeStr + " " + path)).Success) {
 				}
 
-#if !CORE14
 			}
-
-#endif
 		}
 
 #if ASYNC
