@@ -16,6 +16,8 @@
  - Modernize: Remove uncommon feature `FtpListOption.DerefLinks`
  - Modernize: Remove obsolete hashing commands `GetHashAlgorithm`, `SetHashAlgorithm`, `GetHash`, etc
  - Modernize: Remove obsolete async pattern using `IAsyncResult`
+ - Modernize: Move all IBM zOS logic into the `IBMzOSFtpServer` server handler (thanks [FanDjango](/FanDjango))
+ - Modernize: Move all OpenVMS logic into the `OpenVmsServer` server handler (thanks [FanDjango](/FanDjango))
 
 #### 39.4.0
  - New: Add `SslProtocolActive` property to retrieve the negotiated SSL/TLS protocol version
