@@ -1,5 +1,7 @@
 ﻿using FluentFTP;
 using FluentFTP.Proxy;
+using FluentFTP.Proxy.AsyncProxy;
+using FluentFTP.Proxy.SyncProxy;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +27,7 @@ namespace Examples {
 		public static void ConnectAndGetListing() {
 
 			// create an FTP client connecting through a SOCKS4 Proxy
-			FtpClient client = new FtpClientSocks4Proxy(new FtpProxyProfile() {
+			var client = new FtpClientSocks4Proxy(new FtpProxyProfile() {
 				ProxyHost = proxy_host,
 				ProxyPort = proxy_port,
 				ProxyCredentials = new NetworkCredential(proxy_user, proxy_pass),
@@ -69,7 +71,7 @@ namespace Examples {
 		public static void ConnectAndManipulate() {
 
 			// create an FTP client connecting through a SOCKS4 Proxy
-			FtpClient client = new FtpClientSocks4Proxy(new FtpProxyProfile() {
+			var client = new FtpClientSocks4Proxy(new FtpProxyProfile() {
 				ProxyHost = proxy_host,
 				ProxyPort = proxy_port,
 				ProxyCredentials = new NetworkCredential(proxy_user, proxy_pass),

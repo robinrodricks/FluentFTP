@@ -23,7 +23,7 @@ Namespace Examples
 		Async Function ConnectAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using conn = New FtpClient()
+			Using conn = New AsyncFtpClient()
 				conn.Host = "localhost"
 				conn.Credentials = New NetworkCredential("ftptest", "ftptest")
 				Await conn.ConnectAsync(token)
@@ -33,7 +33,7 @@ Namespace Examples
 		Async Function ConnectAsyncAlt() As Task
 			Dim token = New CancellationToken()
 
-			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
+			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
 				Await conn.ConnectAsync(token)
 			End Using
 		End Function

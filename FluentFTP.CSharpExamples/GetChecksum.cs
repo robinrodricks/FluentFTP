@@ -32,7 +32,7 @@ namespace Examples {
 
 		public static async Task GetChecksumAsync() {
 			var token = new CancellationToken();
-			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
+			using (var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				await conn.ConnectAsync(token);
 
 				// Get a hash checksum for the file

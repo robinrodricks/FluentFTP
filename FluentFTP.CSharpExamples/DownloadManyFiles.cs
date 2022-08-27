@@ -27,7 +27,7 @@ namespace Examples {
 
 		public static async Task DownloadFilesAsync() {
 			var token = new CancellationToken();
-			using (var ftp = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
+			using (var ftp = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				await ftp.ConnectAsync(token);
 
 				// download many files, skip if they already exist on disk

@@ -16,7 +16,7 @@ Namespace Examples
 		Async Function GetModifiedTimeAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
+			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
 				Await conn.ConnectAsync(token)
 				Console.WriteLine("The modified type is: " & Await conn.GetModifiedTimeAsync("/full/or/relative/path/to/file", token))
 			End Using

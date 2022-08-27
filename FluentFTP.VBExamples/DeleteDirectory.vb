@@ -18,7 +18,7 @@ Namespace Examples
 		Async Function DeleteDirectoryAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
+			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
 				Await conn.ConnectAsync(token)
 
 				' Remove the directory And all files And subdirectories inside it

@@ -17,7 +17,7 @@ namespace Examples {
 
 		public static async Task GetFileSizeAsync() {
 			var token = new CancellationToken();
-			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
+			using (var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				await conn.ConnectAsync(token);
 
 				Console.WriteLine("The file size is: " + await conn.GetFileSizeAsync("/full/or/relative/path/to/file", -1, token));

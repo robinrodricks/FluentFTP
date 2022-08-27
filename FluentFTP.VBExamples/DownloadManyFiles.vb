@@ -25,7 +25,7 @@ Namespace Examples
 		Async Function DownloadFilesAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using ftp = New FtpClient("127.0.0.1", "ftptest", "ftptest")
+			Using ftp = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
 				Await ftp.ConnectAsync(token)
 
 				' download many files, skip if they already exist on disk

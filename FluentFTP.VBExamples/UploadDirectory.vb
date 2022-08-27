@@ -24,7 +24,7 @@ Namespace Examples
 		Async Function UploadDirectoryAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using ftp = New FtpClient("127.0.0.1", "ftptest", "ftptest")
+			Using ftp = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
 				Await ftp.ConnectAsync(token)
 
 				' upload a folder and all its files

@@ -41,7 +41,7 @@ namespace Examples {
 
 		public static async Task GetListingAsync() {
 			var token = new CancellationToken();
-			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
+			using (var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				await conn.ConnectAsync(token);
 
 				// get a recursive listing of the files & folders in a specific folder

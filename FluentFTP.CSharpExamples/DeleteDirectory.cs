@@ -17,7 +17,7 @@ namespace Examples {
 
 		public static async Task DeleteDirectoryAsync() {
 			var token = new CancellationToken();
-			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
+			using (var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				await conn.ConnectAsync(token);
 
 				// Remove the directory and all files and subdirectories inside it

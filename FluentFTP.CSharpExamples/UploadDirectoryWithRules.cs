@@ -36,7 +36,7 @@ namespace Examples {
 
 		public static async Task UploadDirectoryWithRulesAsync() {
 			var token = new CancellationToken();
-			using (var ftp = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
+			using (var ftp = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				await ftp.ConnectAsync(token);
 
 				

@@ -16,7 +16,7 @@ Namespace Examples
 		Async Function SetWorkingDirectoryAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
+			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
 				Await conn.ConnectAsync(token)
 				Await conn.SetWorkingDirectoryAsync("/full/or/relative/path", token)
 			End Using
