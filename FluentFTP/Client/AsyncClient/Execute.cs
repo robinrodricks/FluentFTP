@@ -21,7 +21,7 @@ namespace FluentFTP {
 		public async Task<FtpReply> Execute(string command, CancellationToken token) {
 			FtpReply reply;
 
-			if (StaleDataCheck && Status.AllowCheckStaleData) {
+			if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
 #if NETSTANDARD
 				await ReadStaleData(true, false, true, token);
 #else
@@ -43,11 +43,11 @@ namespace FluentFTP {
 
 			// hide sensitive data from logs
 			var commandTxt = command;
-			if (!LogUserName && command.StartsWith("USER", StringComparison.Ordinal)) {
+			if (!Config.LogUserName && command.StartsWith("USER", StringComparison.Ordinal)) {
 				commandTxt = "USER ***";
 			}
 
-			if (!LogPassword && command.StartsWith("PASS", StringComparison.Ordinal)) {
+			if (!Config.LogPassword && command.StartsWith("PASS", StringComparison.Ordinal)) {
 				commandTxt = "PASS ***";
 			}
 
@@ -60,7 +60,7 @@ namespace FluentFTP {
 
 			// send command to FTP server
 			await m_stream.WriteLineAsync(m_textEncoding, command, token);
-			m_lastCommandUtc = DateTime.UtcNow;
+			LastCommandTimestamp = DateTime.UtcNow;
 			reply = await GetReply(token);
 
 			return reply;

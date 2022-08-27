@@ -274,7 +274,7 @@ namespace FluentFTP {
 			var isUseStat = options.HasFlag(FtpListOption.UseStat);
 
 			// always get the file listing in binary to avoid character translation issues with ASCII.
-			await SetDataTypeNoLockAsync(ListingDataType, token);
+			await SetDataTypeNoLockAsync(Config.ListingDataType, token);
 
 			try {
 
@@ -302,9 +302,9 @@ namespace FluentFTP {
 						try {
 							LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
-							if (BulkListing) {
+							if (Config.BulkListing) {
 								// increases performance of GetListing by reading multiple lines of the file listing at once
-								foreach (var line in await stream.ReadAllLinesAsync(Encoding, BulkListingLength, token)) {
+								foreach (var line in await stream.ReadAllLinesAsync(Encoding, Config.BulkListingLength, token)) {
 									if (!Strings.IsNullOrWhiteSpace(line)) {
 										rawlisting.Add(line);
 										LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);

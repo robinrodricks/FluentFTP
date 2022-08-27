@@ -13,7 +13,7 @@ namespace FluentFTP {
 		public async Task Disconnect(CancellationToken token = default(CancellationToken)) {
 			if (m_stream != null && m_stream.IsConnected) {
 				try {
-					if (DisconnectWithQuit) {
+					if (Config.DisconnectWithQuit) {
 						await Execute("QUIT", token);
 					}
 				}

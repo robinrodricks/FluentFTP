@@ -9,6 +9,14 @@ using System.Threading.Tasks;
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient : IDisposable, IInternalFtpClient {
 
+		#region Constructor
+
+		public BaseFtpClient() {
+			CurrentListParser = new FtpListParser(this);
+			Config = new FtpConfig();
+		}
+
+		#endregion
 
 		#region Clone
 
@@ -22,7 +30,7 @@ namespace FluentFTP.Client.BaseClient {
 
 			newClone.m_isClone = true;
 
-			CloneModule.Clone(this, newClone);
+			CloneClient(this, newClone);
 
 			newClone.CurrentDataType = CurrentDataType;
 			newClone.ForceSetDataType = true;
@@ -30,14 +38,32 @@ namespace FluentFTP.Client.BaseClient {
 			return newClone;
 		}
 
+		private static void CloneClient(BaseFtpClient read, BaseFtpClient write) {
 
-		#endregion
+			// configure new connection as clone of self
+			write.Host = read.Host;
+			write.Port = read.Port;
+			write.Credentials = read.Credentials;
+			write.ServerHandler = read.ServerHandler;
+			write.Encoding = read.Encoding;
 
-		#region Constructor
+			// copy config
+			write.Config = read.Config.Clone();
 
-		public BaseFtpClient() {
-			m_listParser = new FtpListParser(this);
+			// copy capabilities
+			try {
+				write.SetFeatures(read.Capabilities);
+			}
+			catch (Exception ex) { }
+
+			// always accept certificate no matter what because if code execution ever
+			// gets here it means the certificate on the control connection object being
+			// cloned was already accepted.
+			write.ValidateCertificate += new FtpSslValidation(
+				delegate (BaseFtpClient obj, FtpSslValidationEventArgs e) { e.Accept = true; });
+
 		}
+
 
 		#endregion
 

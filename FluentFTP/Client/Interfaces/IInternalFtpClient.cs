@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,10 @@ namespace FluentFTP {
 		void LogStatus(FtpTraceLevel eventType, string message);
 
 		void LogLine(FtpTraceLevel eventType, string message);
+
+		FtpSocketStream GetBaseStream();
+
+		void SetListingParser(FtpParser parser);
 
 	}
 }

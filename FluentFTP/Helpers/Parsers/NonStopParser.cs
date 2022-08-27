@@ -85,7 +85,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// </summary>
 		private static DateTime ParseDateTime(BaseFtpClient client, string lastModifiedStr) {
 			try {
-				var lastModified = DateTime.ParseExact(lastModifiedStr, DateTimeFormats, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
+				var lastModified = DateTime.ParseExact(lastModifiedStr, DateTimeFormats, client.Config.ListingCulture.DateTimeFormat, DateTimeStyles.None);
 				return lastModified;
 			}
 			catch (FormatException) {

@@ -78,7 +78,7 @@ namespace FluentFTP {
 				// Fix for #887: When downloading through SOCKS proxy, the restart param is incorrect and needs to be ignored.
 				// Restart is set to the length of the already downloaded file (i.e. if the file is 1000 bytes, it restarts with restart parameter 1000 or 1001 after file is successfully downloaded)
 				if (IsProxy()) {
-					var length = GetFileSize(m_path);
+					var length = GetFileSize(LastStreamPath);
 					if (restart < length) {
 						reply = Execute("REST " + restart);
 						if (!reply.Success) {
@@ -105,16 +105,16 @@ namespace FluentFTP {
 			// otherwise things can get out of sync.
 			stream.CommandStatus = reply;
 
-			stream.EndAccept(args, m_dataConnectionConnectTimeout);
+			stream.EndAccept(args, Config.DataConnectionConnectTimeout);
 
-			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
+			if (Config.DataConnectionEncryption && Config.EncryptionMode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
 				stream.ActivateEncryption(m_host,
-					ClientCertificates.Count > 0 ? ClientCertificates : null,
-					m_SslProtocols);
+					Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null,
+					Config.SslProtocols);
 			}
 
-			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
-			stream.ReadTimeout = m_dataConnectionReadTimeout;
+			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, Config.SocketKeepAlive);
+			stream.ReadTimeout = Config.DataConnectionReadTimeout;
 
 			return stream;
 		}

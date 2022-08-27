@@ -18,11 +18,11 @@ namespace FluentFTP {
 		/// </summary>
 		/// <returns>true if NOOP command was sent</returns>
 		public bool Noop() {
-			if (m_noopInterval > 0 && DateTime.UtcNow.Subtract(m_lastCommandUtc).TotalMilliseconds > m_noopInterval) {
+			if (Config.NoopInterval > 0 && DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval) {
 				LogLine(FtpTraceLevel.Verbose, "Command:  NOOP");
 
 				m_stream.WriteLine(m_textEncoding, "NOOP");
-				m_lastCommandUtc = DateTime.UtcNow;
+				LastCommandTimestamp = DateTime.UtcNow;
 
 				return true;
 			}

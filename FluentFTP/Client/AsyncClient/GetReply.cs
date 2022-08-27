@@ -28,7 +28,7 @@ namespace FluentFTP {
 				throw new InvalidOperationException("No connection to the server has been established.");
 			}
 
-			m_stream.ReadTimeout = m_readTimeout;
+			m_stream.ReadTimeout = Config.ReadTimeout;
 			while ((buf = await m_stream.ReadLineAsync(Encoding, token)) != null) {
 				if (DecodeStringToReply(buf, ref reply)) {
 					break;

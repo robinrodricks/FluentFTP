@@ -312,7 +312,7 @@ namespace FluentFTP.Helpers.Parsers {
 			}
 			else {
 				// add the year ourselves as not present
-				var year = client.ListingCulture.Calendar.GetYear(DateTime.Now);
+				var year = client.Config.ListingCulture.Calendar.GetYear(DateTime.Now);
 				stamp.Append(year).Append('-').Append(field);
 				lastModified = ParseDateTime(client, stamp, DateTimeFormats2);
 			}
@@ -324,7 +324,7 @@ namespace FluentFTP.Helpers.Parsers {
 		private static DateTime ParseYear(BaseFtpClient client, StringBuilder stamp, string[] format) {
 			var lastModified = DateTime.MinValue;
 			try {
-				lastModified = DateTime.ParseExact(stamp.ToString(), format, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
+				lastModified = DateTime.ParseExact(stamp.ToString(), format, client.Config.ListingCulture.DateTimeFormat, DateTimeStyles.None);
 			}
 			catch (FormatException) {
 				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
@@ -339,7 +339,7 @@ namespace FluentFTP.Helpers.Parsers {
 		private static DateTime ParseDateTime(BaseFtpClient client, StringBuilder stamp, string[] format) {
 			var lastModified = DateTime.MinValue;
 			try {
-				lastModified = DateTime.ParseExact(stamp.ToString(), format, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
+				lastModified = DateTime.ParseExact(stamp.ToString(), format, client.Config.ListingCulture.DateTimeFormat, DateTimeStyles.None);
 			}
 			catch (FormatException) {
 				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
@@ -435,7 +435,7 @@ namespace FluentFTP.Helpers.Parsers {
 			}
 			else {
 				// add the year ourselves as not present
-				var year = client.ListingCulture.Calendar.GetYear(DateTime.Now);
+				var year = client.Config.ListingCulture.Calendar.GetYear(DateTime.Now);
 				stamp.Append(year).Append('-').Append(field);
 				lastModified = ParseDateTime(client, stamp, DateTimeAltFormats2);
 			}

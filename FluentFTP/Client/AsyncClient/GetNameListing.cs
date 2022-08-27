@@ -33,7 +33,7 @@ namespace FluentFTP {
 			path = await GetAbsolutePathAsync(path, token);
 
 			// always get the file listing in binary to avoid character translation issues with ASCII.
-			await SetDataTypeNoLockAsync(ListingDataType, token);
+			await SetDataTypeNoLockAsync(Config.ListingDataType, token);
 
 			// read in raw listing
 			try {

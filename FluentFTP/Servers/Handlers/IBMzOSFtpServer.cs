@@ -84,7 +84,7 @@ namespace FluentFTP.Servers.Handlers {
 		public override long GetFileSize(FtpClient client, string path) {
 
 			// prevent automatic parser detection switching to unix on HFS paths
-			client.ListingParser = FtpParser.IBMzOS;
+			client.Config.ListingParser = FtpParser.IBMzOS;
 
 			// get metadata of the file
 			FtpListItem[] entries = client.GetListing(path);
@@ -111,7 +111,7 @@ namespace FluentFTP.Servers.Handlers {
 		public override async Task<long> GetFileSizeAsync(AsyncFtpClient client, string path, CancellationToken token) {
 
 			// prevent automatic parser detection switching to unix on HFS paths
-			client.ListingParser = FtpParser.IBMzOS;
+			client.Config.ListingParser = FtpParser.IBMzOS;
 
 			// get metadata of the file
 			FtpListItem[] entries = await client.GetListing(path, token);

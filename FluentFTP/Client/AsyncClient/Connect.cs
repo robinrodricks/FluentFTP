@@ -61,36 +61,36 @@ namespace FluentFTP {
 			Status.Reset();
 
 			m_hashAlgorithms = FtpHashAlgorithm.NONE;
-			m_stream.ConnectTimeout = m_connectTimeout;
-			m_stream.SocketPollInterval = m_socketPollInterval;
+			m_stream.ConnectTimeout = Config.ConnectTimeout;
+			m_stream.SocketPollInterval = Config.SocketPollInterval;
 			await ConnectAsync(m_stream, token);
 
-			m_stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
+			m_stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, Config.SocketKeepAlive);
 
-			if (EncryptionMode == FtpEncryptionMode.Implicit) {
-				await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
+			if (Config.EncryptionMode == FtpEncryptionMode.Implicit) {
+				await m_stream.ActivateEncryptionAsync(Host, Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null, Config.SslProtocols);
 			}
 
 			await HandshakeAsync(token);
 			m_serverType = ServerModule.DetectFtpServer(this, HandshakeReply);
 
-			if (SendHost) {
-				if (!(reply = await Execute("HOST " + (SendHostDomain != null ? SendHostDomain : Host), token)).Success) {
+			if (Config.SendHost) {
+				if (!(reply = await Execute("HOST " + (Config.SendHostDomain != null ? Config.SendHostDomain : Host), token)).Success) {
 					throw new FtpException("HOST command failed.");
 				}
 			}
 
 			// try to upgrade this connection to SSL if supported by the server
-			if (EncryptionMode == FtpEncryptionMode.Explicit || EncryptionMode == FtpEncryptionMode.Auto) {
+			if (Config.EncryptionMode == FtpEncryptionMode.Explicit || Config.EncryptionMode == FtpEncryptionMode.Auto) {
 				reply = await Execute("AUTH TLS", token);
 				if (!reply.Success) {
 					Status.ConnectionFTPSFailure = true;
-					if (EncryptionMode == FtpEncryptionMode.Explicit) {
+					if (Config.EncryptionMode == FtpEncryptionMode.Explicit) {
 						throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
 					}
 				}
 				else if (reply.Success) {
-					await m_stream.ActivateEncryptionAsync(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
+					await m_stream.ActivateEncryptionAsync(Host, Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null, Config.SslProtocols);
 				}
 			}
 
@@ -100,7 +100,7 @@ namespace FluentFTP {
 			}
 
 			// configure the default FTPS settings
-			if (IsEncrypted && DataConnectionEncryption) {
+			if (IsEncrypted && Config.DataConnectionEncryption) {
 				if (!(reply = await Execute("PBSZ 0", token)).Success) {
 					throw new FtpCommandException(reply);
 				}
@@ -114,11 +114,11 @@ namespace FluentFTP {
 			// so save some bandwidth and CPU time and skip executing this again.
 			// otherwise clear the capabilities in case connection is reused to 
 			// a different server 
-			if (!m_isClone && m_checkCapabilities) {
+			if (!m_isClone && Config.CheckCapabilities) {
 				m_capabilities.Clear();
 			}
 			bool assumeCaps = false;
-			if (m_capabilities.IsBlank() && m_checkCapabilities) {
+			if (m_capabilities.IsBlank() && Config.CheckCapabilities) {
 				if ((reply = await Execute("FEAT", token)).Success && reply.InfoMessages != null) {
 					GetFeatures(reply);
 				}
@@ -177,15 +177,15 @@ namespace FluentFTP {
 			// Unless a custom list parser has been set,
 			// Detect the listing parser and prefer machine listings over any other type
 			// FIX : #739 prefer using machine listings to fix issues with GetListing and DeleteDirectory
-			if (ListingParser != FtpParser.Custom) {
-				ListingParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Auto;
+			if (Config.ListingParser != FtpParser.Custom) {
+				Config.ListingParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Auto;
 				if (HasFeature(FtpCapability.MLSD)) {
-					ListingParser = FtpParser.Machine;
+					Config.ListingParser = FtpParser.Machine;
 				}
 			}
 
 			// Create the parser even if the auto-OS detection failed
-			m_listParser.Init(m_serverOS, ListingParser);
+			CurrentListParser.Init(m_serverOS, Config.ListingParser);
 
 			// FIX : #318 always set the type when we create a new connection
 			ForceSetDataType = true;
@@ -208,7 +208,7 @@ namespace FluentFTP {
 		/// <param name="stream"></param>
 		/// <param name="token"></param>
 		protected virtual async Task ConnectAsync(FtpSocketStream stream, CancellationToken token) {
-			await stream.ConnectAsync(Host, Port, InternetProtocolVersions, token);
+			await stream.ConnectAsync(Host, Port, Config.InternetProtocolVersions, token);
 		}
 #endif
 

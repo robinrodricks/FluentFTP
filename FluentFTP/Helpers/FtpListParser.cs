@@ -103,8 +103,8 @@ namespace FluentFTP.Helpers {
 			}
 			else {
 				// use custom parser if given
-				if (client.ListingParser == FtpParser.Custom && client.ListingCustomParser != null) {
-					result = client.ListingCustomParser(file, caps, client);
+				if (client.Config.ListingParser == FtpParser.Custom && client.Config.ListingCustomParser != null) {
+					result = client.Config.ListingCustomParser(file, caps, client);
 				}
 				else {
 					if (IsWrongParser()) {

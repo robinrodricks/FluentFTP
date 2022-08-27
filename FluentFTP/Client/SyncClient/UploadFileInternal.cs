@@ -116,15 +116,15 @@ namespace FluentFTP {
 
 				// open a file connection
 				if (remotePosition == 0 && existsMode != FtpRemoteExists.ResumeNoCheck && existsMode != FtpRemoteExists.AddToEndNoCheck) {
-					upStream = OpenWrite(remotePath, UploadDataType, remoteFileLen);
+					upStream = OpenWrite(remotePath, Config.UploadDataType, remoteFileLen);
 				}
 				else {
-					upStream = OpenAppend(remotePath, UploadDataType, remoteFileLen);
+					upStream = OpenAppend(remotePath, Config.UploadDataType, remoteFileLen);
 				}
 
 				// calculate chunk size and rate limiting
 				const int rateControlResolution = 100;
-				var rateLimitBytes = UploadRateLimit != 0 ? (long)UploadRateLimit * 1024 : 0;
+				var rateLimitBytes = Config.UploadRateLimit != 0 ? (long)Config.UploadRateLimit * 1024 : 0;
 				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
 
 				// calc desired length based on the mode (if need to append to the end of remote file, length is sum of local+remote)

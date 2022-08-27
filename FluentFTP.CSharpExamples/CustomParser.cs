@@ -16,7 +16,7 @@ namespace Examples {
 		/// Adds a custom file listing parser
 		/// </summary>
 		public static void AddCustomParser(FtpClient client) {
-			client.ListingCustomParser = ParseUnixList;
+			client.Config.ListingCustomParser = ParseUnixList;
 		}
 
 		/// <summary>

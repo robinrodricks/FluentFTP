@@ -83,8 +83,8 @@ namespace FluentFTP.Client.BaseClient {
 		protected string GetLocalAddress(IPAddress ip) {
 
 			// Use resolver
-			if (m_AddressResolver != null) {
-				return m_Address ?? (m_Address = m_AddressResolver());
+			if (Config.AddressResolver != null) {
+				return m_Address ?? (m_Address = Config.AddressResolver());
 			}
 
 			// Use supplied IP

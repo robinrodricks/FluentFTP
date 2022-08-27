@@ -20,7 +20,7 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>The data stream.</returns>
 		protected async Task<FtpDataStream> OpenDataStreamAsync(string command, long restart, CancellationToken token = default(CancellationToken)) {
-			var type = m_dataConnectionType;
+			var type = Config.DataConnectionType;
 			FtpDataStream stream = null;
 
 			if (!IsConnected) {

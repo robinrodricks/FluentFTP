@@ -726,7 +726,7 @@ namespace FluentFTP {
 			if (m_sslStream != null) {
 				try {
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-					if (Client != null && Client.DisconnectWithShutdown) {
+					if (Client != null && Client.Config.DisconnectWithShutdown) {
 						m_sslStream.ShutdownAsync().RunSynchronously();
 					}
 #endif
@@ -748,14 +748,14 @@ namespace FluentFTP {
 				try {
 #if NETSTANDARD
 #if NET5_0_OR_GREATER
-					if (Client != null && Client.DisconnectWithShutdown) {
+					if (Client != null && Client.Config.DisconnectWithShutdown) {
 						m_socket.Shutdown(SocketShutdown.Send);
 					}
 #endif
 					m_socket.Dispose();
 #else
 					if (m_socket.Connected) {
-						if (Client != null && Client.DisconnectWithShutdown) {
+						if (Client != null && Client.Config.DisconnectWithShutdown) {
 							m_socket.Shutdown(SocketShutdown.Send);
 						}
 						m_socket.Close();
@@ -835,7 +835,7 @@ namespace FluentFTP {
 					}
 				}
 
-				if (Client.LogIP) {
+				if (Client.Config.LogIP) {
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
 				}
 				else {
@@ -945,7 +945,7 @@ namespace FluentFTP {
 					}
 				}
 
-				if (Client.LogIP) {
+				if (Client.Config.LogIP) {
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
 				}
 				else {
@@ -1009,7 +1009,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="targethost">The host to authenticate the certificate against</param>
 		public void ActivateEncryption(string targethost) {
-			ActivateEncryption(targethost, null, Client.SslProtocols);
+			ActivateEncryption(targethost, null, Client.Config.SslProtocols);
 		}
 
 #if ASYNC
@@ -1020,7 +1020,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="targethost">The host to authenticate the certificate against</param>
 		public async Task ActivateEncryptionAsync(string targethost) {
-			await ActivateEncryptionAsync(targethost, null, Client.SslProtocols);
+			await ActivateEncryptionAsync(targethost, null, Client.Config.SslProtocols);
 		}
 #endif
 
@@ -1032,7 +1032,7 @@ namespace FluentFTP {
 		/// <param name="targethost">The host to authenticate the certificate against</param>
 		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
 		public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts) {
-			ActivateEncryption(targethost, clientCerts, Client.SslProtocols);
+			ActivateEncryption(targethost, clientCerts, Client.Config.SslProtocols);
 		}
 
 #if ASYNC
@@ -1044,7 +1044,7 @@ namespace FluentFTP {
 		/// <param name="targethost">The host to authenticate the certificate against</param>
 		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
 		public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts) {
-			await ActivateEncryptionAsync(targethost, clientCerts, Client.SslProtocols);
+			await ActivateEncryptionAsync(targethost, clientCerts, Client.Config.SslProtocols);
 		}
 #endif
 
@@ -1083,9 +1083,9 @@ namespace FluentFTP {
 				auth_start = DateTime.Now;
 				try {
 #if NETSTANDARD
-					m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.ValidateCertificateRevocation).Wait();
+					m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation).Wait();
 #else
-					m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, Client.ValidateCertificateRevocation);
+					m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
 #endif
 				}
 				catch (IOException ex) {
@@ -1123,8 +1123,8 @@ namespace FluentFTP {
 #if NET50_OR_LATER
 				m_bufStream = null;
 #else
-			if (Client.SslBuffering == FtpsBuffering.On ||
-			    Client.SslBuffering == FtpsBuffering.Auto && !Client.IsProxy()) {
+			if (Client.Config.SslBuffering == FtpsBuffering.On ||
+			    Client.Config.SslBuffering == FtpsBuffering.Auto && !Client.IsProxy()) {
 				m_bufStream = new BufferedStream(NetworkStream, 81920);
 			}
 			else {
@@ -1176,7 +1176,7 @@ namespace FluentFTP {
 
 				auth_start = DateTime.Now;
 				try {
-					await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.ValidateCertificateRevocation);
+					await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
 				}
 				catch (IOException ex) {
 					if (ex.InnerException is Win32Exception) {
@@ -1266,10 +1266,10 @@ namespace FluentFTP {
 #endif
 		private void BindSocketToLocalIp() {
 #if ASYNC
-			if (Client.SocketLocalIp != null) {
+			if (Client.Config.SocketLocalIp != null) {
 
-				var localPort = LocalPorts.GetRandomAvailable(Client.SocketLocalIp);
-				var localEndpoint = new IPEndPoint(Client.SocketLocalIp, localPort);
+				var localPort = LocalPorts.GetRandomAvailable(Client.Config.SocketLocalIp);
+				var localEndpoint = new IPEndPoint(Client.Config.SocketLocalIp, localPort);
 
 #if DEBUG
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, $"Will now bind to {localEndpoint}");

@@ -30,7 +30,7 @@ namespace FluentFTP.Proxy.AsyncProxy {
 		/// <param name="stream">The socket stream.</param>
 		/// <param name="token">Cancellation token.</param>
 		protected override Task ConnectAsync(FtpSocketStream stream, CancellationToken token) {
-			return stream.ConnectAsync(Proxy.ProxyHost, Proxy.ProxyPort, InternetProtocolVersions, token);
+			return stream.ConnectAsync(Proxy.ProxyHost, Proxy.ProxyPort, Config.InternetProtocolVersions, token);
 		}
 
 	}

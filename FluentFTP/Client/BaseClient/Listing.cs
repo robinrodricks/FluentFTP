@@ -34,7 +34,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 
 			try {
-				item = m_listParser.ParseSingleLine(path, buf, m_capabilities, machineList);
+				item = CurrentListParser.ParseSingleLine(path, buf, m_capabilities, machineList);
 			}
 			catch (FtpListParseException) {
 				LogStatus(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
@@ -86,7 +86,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 			else {
 				// use machine listing if supported by the server
-				if (!isForceList && ListingParser == FtpParser.Machine && HasFeature(FtpCapability.MLSD)) {
+				if (!isForceList && Config.ListingParser == FtpParser.Machine && HasFeature(FtpCapability.MLSD)) {
 					listcmd = "MLSD";
 					machineList = true;
 				}
@@ -141,7 +141,7 @@ namespace FluentFTP.Client.BaseClient {
 				if (!isUseStat) {
 
 					// if not using machine listing (MSLD)
-					if ((!isForceList || ListingParser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
+					if ((!isForceList || Config.ListingParser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
 					}
 					else {
 

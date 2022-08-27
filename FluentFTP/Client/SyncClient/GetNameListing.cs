@@ -41,7 +41,7 @@ namespace FluentFTP {
 			lock (m_lock) {
 
 				// always get the file listing in binary to avoid character translation issues with ASCII.
-				SetDataTypeNoLock(ListingDataType);
+				SetDataTypeNoLock(Config.ListingDataType);
 
 				// read in raw listing
 				try {

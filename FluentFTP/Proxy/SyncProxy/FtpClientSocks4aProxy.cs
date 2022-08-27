@@ -21,7 +21,7 @@ namespace FluentFTP.Proxy.SyncProxy {
 		/// Called during Connect(). Typically extended by FTP proxies.
 		/// </summary>
 		protected override void Handshake() {
-			BaseStream.Read(new byte[6], 0, 6);
+			((IInternalFtpClient)this).GetBaseStream().Read(new byte[6], 0, 6);
 			base.Handshake();
 		}
 

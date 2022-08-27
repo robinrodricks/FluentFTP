@@ -18,7 +18,7 @@ namespace FluentFTP {
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <returns>The data stream.</returns>
 		protected FtpDataStream OpenDataStream(string command, long restart) {
-			var type = m_dataConnectionType;
+			var type = Config.DataConnectionType;
 			FtpDataStream stream = null;
 
 			lock (m_lock) {

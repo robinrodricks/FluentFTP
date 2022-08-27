@@ -58,36 +58,36 @@ namespace FluentFTP {
 				Status.Reset();
 
 				m_hashAlgorithms = FtpHashAlgorithm.NONE;
-				m_stream.ConnectTimeout = m_connectTimeout;
-				m_stream.SocketPollInterval = m_socketPollInterval;
+				m_stream.ConnectTimeout = Config.ConnectTimeout;
+				m_stream.SocketPollInterval = Config.SocketPollInterval;
 				Connect(m_stream);
 
-				m_stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
+				m_stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, Config.SocketKeepAlive);
 
-				if (EncryptionMode == FtpEncryptionMode.Implicit) {
-					m_stream.ActivateEncryption(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
+				if (Config.EncryptionMode == FtpEncryptionMode.Implicit) {
+					m_stream.ActivateEncryption(Host, Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null, Config.SslProtocols);
 				}
 
 				Handshake();
 				m_serverType = ServerModule.DetectFtpServer(this, HandshakeReply);
 
-				if (SendHost) {
-					if (!(reply = Execute("HOST " + (SendHostDomain != null ? SendHostDomain : Host))).Success) {
+				if (Config.SendHost) {
+					if (!(reply = Execute("HOST " + (Config.SendHostDomain != null ? Config.SendHostDomain : Host))).Success) {
 						throw new FtpException("HOST command failed.");
 					}
 				}
 
 				// try to upgrade this connection to SSL if supported by the server
-				if (EncryptionMode == FtpEncryptionMode.Explicit || EncryptionMode == FtpEncryptionMode.Auto) {
+				if (Config.EncryptionMode == FtpEncryptionMode.Explicit || Config.EncryptionMode == FtpEncryptionMode.Auto) {
 					reply = Execute("AUTH TLS");
 					if (!reply.Success) {
 						Status.ConnectionFTPSFailure = true;
-						if (EncryptionMode == FtpEncryptionMode.Explicit) {
+						if (Config.EncryptionMode == FtpEncryptionMode.Explicit) {
 							throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
 						}
 					}
 					else if (reply.Success) {
-						m_stream.ActivateEncryption(Host, m_clientCerts.Count > 0 ? m_clientCerts : null, m_SslProtocols);
+						m_stream.ActivateEncryption(Host, Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null, Config.SslProtocols);
 					}
 				}
 
@@ -96,7 +96,7 @@ namespace FluentFTP {
 				}
 
 				// configure the default FTPS settings
-				if (IsEncrypted && DataConnectionEncryption) {
+				if (IsEncrypted && Config.DataConnectionEncryption) {
 					if (!(reply = Execute("PBSZ 0")).Success) {
 						throw new FtpCommandException(reply);
 					}
@@ -110,11 +110,11 @@ namespace FluentFTP {
 				// so save some bandwidth and CPU time and skip executing this again.
 				// otherwise clear the capabilities in case connection is reused to 
 				// a different server 
-				if (!m_isClone && m_checkCapabilities) {
+				if (!m_isClone && Config.CheckCapabilities) {
 					m_capabilities.Clear();
 				}
 				bool assumeCaps = false;
-				if (m_capabilities.IsBlank() && m_checkCapabilities) {
+				if (m_capabilities.IsBlank() && Config.CheckCapabilities) {
 					if ((reply = Execute("FEAT")).Success && reply.InfoMessages != null) {
 						GetFeatures(reply);
 					}
@@ -157,7 +157,7 @@ namespace FluentFTP {
 				}
 
 #if !NETSTANDARD
-				if (IsEncrypted && PlainTextEncryption) {
+				if (IsEncrypted && Config.PlainTextEncryption) {
 					if (!(reply = Execute("CCC")).Success) {
 						throw new FtpSecurityNotAvailableException("Failed to disable encryption with CCC command. Perhaps your server does not support it or is not configured to allow it.");
 					}
@@ -174,15 +174,15 @@ namespace FluentFTP {
 				// Unless a custom list parser has been set,
 				// Detect the listing parser and prefer machine listings over any other type
 				// FIX : #739 prefer using machine listings to fix issues with GetListing and DeleteDirectory
-				if (ListingParser != FtpParser.Custom) {
-					ListingParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Auto;
+				if (Config.ListingParser != FtpParser.Custom) {
+					Config.ListingParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Auto;
 					if (HasFeature(FtpCapability.MLSD)) {
-						ListingParser = FtpParser.Machine;
+						Config.ListingParser = FtpParser.Machine;
 					}
 				}
 
 				// Create the parser even if the auto-OS detection failed
-				m_listParser.Init(m_serverOS, ListingParser);
+				CurrentListParser.Init(m_serverOS, Config.ListingParser);
 
 				// FIX #318 always set the type when we create a new connection
 				ForceSetDataType = true;
@@ -203,7 +203,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="stream"></param>
 		protected virtual void Connect(FtpSocketStream stream) {
-			stream.Connect(Host, Port, InternetProtocolVersions);
+			stream.Connect(Host, Port, Config.InternetProtocolVersions);
 		}
 
 		/// <summary>

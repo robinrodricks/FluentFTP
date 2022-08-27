@@ -14,20 +14,20 @@ namespace FluentFTP.Client.BaseClient {
 		public DateTime ConvertDate(DateTime date, bool reverse = false) {
 
 			// if server time is wanted, don't perform any conversion
-			if (m_timeConversion != FtpDate.ServerTime) {
+			if (Config.TimeConversion != FtpDate.ServerTime) {
 
 				// convert server time to local time
 				if (!reverse) {
 
 					// convert server timezone to UTC based on the TimeZone property
-					if (m_serverTimeZone != 0) {
-						date = date - m_serverTimeOffset;
+					if (Config.TimeZone != 0) {
+						date = date - Config.GetServerTimeOffset();
 					}
 
 					// convert UTC to local time if wanted (on .NET Core this is based on the LocalTimeZone property)
-					if (m_timeConversion == FtpDate.LocalTime) {
+					if (Config.TimeConversion == FtpDate.LocalTime) {
 #if NETSTANDARD
-					date = date + m_localTimeOffset;
+					date = date + Config.GetLocalTimeOffset();
 #else
 						date = System.TimeZone.CurrentTimeZone.ToLocalTime(date);
 #endif
@@ -39,17 +39,17 @@ namespace FluentFTP.Client.BaseClient {
 				else {
 
 					// convert local to UTC if wanted (on .NET Core this is based on the LocalTimeZone property)
-					if (m_timeConversion == FtpDate.LocalTime) {
+					if (Config.TimeConversion == FtpDate.LocalTime) {
 #if NETSTANDARD
-					date = date - m_localTimeOffset;
+					date = date - Config.GetLocalTimeOffset();
 #else
 						date = System.TimeZone.CurrentTimeZone.ToUniversalTime(date);
 #endif
 					}
 
 					// convert UTC to server timezone, based on the TimeZone property
-					if (m_serverTimeZone != 0) {
-						date = date + m_serverTimeOffset;
+					if (Config.TimeZone != 0) {
+						date = date + Config.GetServerTimeOffset();
 					}
 				}
 			}

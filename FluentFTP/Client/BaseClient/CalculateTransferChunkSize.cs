@@ -7,10 +7,10 @@ namespace FluentFTP.Client.BaseClient {
 		/// Calculate transfer chunk size taking rate control into account
 		/// </summary>
 		protected int CalculateTransferChunkSize(Int64 rateLimitBytes, int rateControlResolution) {
-			int chunkSize = TransferChunkSize;
+			int chunkSize = Config.TransferChunkSize;
 
 			// if user has not specified a TransferChunkSize and rate limiting is enabled
-			if (m_transferChunkSize == null && rateLimitBytes > 0) {
+			if (Config.TransferChunkSize == 65536 && rateLimitBytes > 0) {
 
 				// reduce chunk size to optimize rate control
 				const int chunkSizeMin = 64;

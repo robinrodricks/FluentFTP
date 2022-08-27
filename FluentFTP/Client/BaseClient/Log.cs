@@ -14,7 +14,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="args">The args passed to the function</param>
 		protected void LogFunc(string function, object[] args = null) {
 
-			if (LogFunctions) {
+			if (Config.LogFunctions) {
 
 				// log to attached logger if given
 				if (m_logger != null) {
@@ -89,7 +89,7 @@ namespace FluentFTP.Client.BaseClient {
 #if DEBUG
 			Debug.WriteLine(message);
 #endif
-			if (m_logToConsole) {
+			if (Config.LogToConsole) {
 				Console.WriteLine(message);
 			}
 		}

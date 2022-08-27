@@ -32,18 +32,18 @@ namespace FluentFTP {
 				}
 
 				// open the file for reading
-				downStream = OpenRead(remotePath, DownloadDataType, restartPosition, fileLen);
+				downStream = OpenRead(remotePath, Config.DownloadDataType, restartPosition, fileLen);
 
 				// if the server has not provided a length for this file or
 				// if the mode is ASCII or
 				// if the server is IBM z/OS
 				// we read until EOF instead of reading a specific number of bytes
 				var readToEnd = (fileLen <= 0) ||
-								(DownloadDataType == FtpDataType.ASCII) ||
+								(Config.DownloadDataType == FtpDataType.ASCII) ||
 								(ServerHandler != null && ServerHandler.AlwaysReadToEnd(remotePath));
 
 				const int rateControlResolution = 100;
-				var rateLimitBytes = DownloadRateLimit != 0 ? (long)DownloadRateLimit * 1024 : 0;
+				var rateLimitBytes = Config.DownloadRateLimit != 0 ? (long)Config.DownloadRateLimit * 1024 : 0;
 				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
 
 				// loop till entire file downloaded
@@ -56,7 +56,7 @@ namespace FluentFTP {
 				var anyNoop = false;
 
 				// Fix #554: ability to download zero-byte files
-				if (DownloadZeroByteFiles && outStream == null && localPath != null) {
+				if (Config.DownloadZeroByteFiles && outStream == null && localPath != null) {
 					outStream = FtpFileStream.GetFileWriteStream(this, localPath, false, 0, knownFileSize, isAppend, restartPosition);
 					disposeOutStream = true;
 				}
@@ -224,7 +224,7 @@ namespace FluentFTP {
 		protected bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
 			if (ex.IsResumeAllowed()) {
 				downStream.Dispose();
-				downStream = OpenRead(remotePath, DownloadDataType, offset);
+				downStream = OpenRead(remotePath, Config.DownloadDataType, offset);
 
 				return true;
 			}

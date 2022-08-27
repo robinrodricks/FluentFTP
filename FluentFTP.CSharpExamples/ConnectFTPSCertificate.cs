@@ -10,7 +10,7 @@ namespace Examples {
 
 		public static void ConnectFTPSCertificate() {
 			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
-				conn.EncryptionMode = FtpEncryptionMode.Explicit;
+				conn.Config.EncryptionMode = FtpEncryptionMode.Explicit;
 				conn.ValidateCertificate += new FtpSslValidation(OnValidateCertificate);
 				conn.Connect();
 			}
@@ -20,7 +20,7 @@ namespace Examples {
 			var token = new CancellationToken();
 			using (var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
 
-				conn.EncryptionMode = FtpEncryptionMode.Explicit;
+				conn.Config.EncryptionMode = FtpEncryptionMode.Explicit;
 				conn.ValidateCertificate += new FtpSslValidation(OnValidateCertificate);
 				await conn.Connect(token);
 			}

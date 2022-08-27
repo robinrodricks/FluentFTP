@@ -22,7 +22,7 @@ namespace FluentFTP.Helpers {
 
 			// parse the raw timestamp without performing any timezone conversions
 			try {
-				DateTime date = DateTime.ParseExact(dateString, FtpDateFormats, client.ListingCulture.DateTimeFormat, DateTimeStyles.None); // or client.ListingCulture.DateTimeFormat
+				DateTime date = DateTime.ParseExact(dateString, FtpDateFormats, client.Config.ListingCulture.DateTimeFormat, DateTimeStyles.None); // or client.ListingCulture.DateTimeFormat
 
 				return date;
 			}

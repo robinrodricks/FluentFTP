@@ -13,7 +13,7 @@ namespace FluentFTP {
 			lock (m_lock) {
 				if (m_stream != null && m_stream.IsConnected) {
 					try {
-						if (DisconnectWithQuit) {
+						if (Config.DisconnectWithQuit) {
 							Execute("QUIT");
 						}
 					}

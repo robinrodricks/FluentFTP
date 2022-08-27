@@ -14,7 +14,7 @@ namespace FluentFTP.Client.BaseClient {
 			FtpReply reply;
 
 			lock (m_lock) {
-				if (StaleDataCheck && Status.AllowCheckStaleData) {
+				if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
 					ReadStaleData(true, false, true);
 				}
 
@@ -32,11 +32,11 @@ namespace FluentFTP.Client.BaseClient {
 
 				// hide sensitive data from logs
 				var commandTxt = command;
-				if (!LogUserName && command.StartsWith("USER", StringComparison.Ordinal)) {
+				if (!Config.LogUserName && command.StartsWith("USER", StringComparison.Ordinal)) {
 					commandTxt = "USER ***";
 				}
 
-				if (!LogPassword && command.StartsWith("PASS", StringComparison.Ordinal)) {
+				if (!Config.LogPassword && command.StartsWith("PASS", StringComparison.Ordinal)) {
 					commandTxt = "PASS ***";
 				}
 
@@ -49,7 +49,7 @@ namespace FluentFTP.Client.BaseClient {
 
 				// send command to FTP server
 				m_stream.WriteLine(m_textEncoding, command);
-				m_lastCommandUtc = DateTime.UtcNow;
+				LastCommandTimestamp = DateTime.UtcNow;
 				reply = GetReplyInternal();
 			}
 

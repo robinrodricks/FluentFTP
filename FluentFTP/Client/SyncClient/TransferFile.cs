@@ -30,7 +30,7 @@ namespace FluentFTP {
 			sourcePath = sourcePath.GetFtpPath();
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(TransferFile), new object[] { sourcePath, remoteClient, remotePath, FXPDataType, createRemoteDir, existsMode, verifyOptions });
+			LogFunc(nameof(TransferFile), new object[] { sourcePath, remoteClient, remotePath, Config.FXPDataType, createRemoteDir, existsMode, verifyOptions });
 
 			// verify input params
 			VerifyTransferFileParams(sourcePath, remoteClient, remotePath, existsMode);
@@ -42,7 +42,7 @@ namespace FluentFTP {
 
 			bool fxpSuccess;
 			var verified = true;
-			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? Config.RetryAttempts : 1;
 			do {
 
 				fxpSuccess = TransferFileFXPInternal(sourcePath, remoteClient, remotePath, createRemoteDir, existsMode, progress, metaProgress is null ? new FtpProgress(1, 0) : metaProgress);
@@ -88,8 +88,8 @@ namespace FluentFTP {
 			if (ftpFxpSession != null) {
 				try {
 
-					ftpFxpSession.SourceServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
-					ftpFxpSession.TargetServer.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
+					ftpFxpSession.SourceServer.Config.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
+					ftpFxpSession.TargetServer.Config.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
 
 
 					// check if the file exists, and skip, overwrite or append
@@ -202,7 +202,7 @@ namespace FluentFTP {
 								}
 							}
 						}
-						Thread.Sleep(FXPProgressInterval);
+						Thread.Sleep(Config.FXPProgressInterval);
 					}
 
 					LogStatus(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");

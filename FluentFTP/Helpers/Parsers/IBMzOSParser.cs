@@ -196,7 +196,7 @@ namespace FluentFTP.Helpers.Parsers {
 			if (lastModifiedStr == string.Empty || lastModifiedStr == "**NONE**") {
 				return lastModified;
 			}
-			lastModified = DateTime.ParseExact(lastModifiedStr, @"yyyy'/'MM'/'dd HH':'mm", client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
+			lastModified = DateTime.ParseExact(lastModifiedStr, @"yyyy'/'MM'/'dd HH':'mm", client.Config.ListingCulture.DateTimeFormat, DateTimeStyles.None);
 
 			return lastModified;
 		}

@@ -62,7 +62,7 @@ namespace FluentFTP {
 			LogFunc(nameof(UploadFile), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 
 			// If retries are allowed set the retry counter to the allowed count
-			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? Config.RetryAttempts : 1;
 
 			// Default validation to true (if verification isn't needed it'll allow a pass-through)
 			var verified = true;

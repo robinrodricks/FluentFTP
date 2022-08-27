@@ -53,7 +53,7 @@ namespace FluentFTP.Client.BaseClient {
 		protected bool CanDeleteRemoteFile(List<FtpRule> rules, FtpListItem existingServerFile) {
 
 			// if we should not delete excluded files
-			if (!UploadDirectoryDeleteExcluded && !rules.IsBlank()) {
+			if (!Config.UploadDirectoryDeleteExcluded && !rules.IsBlank()) {
 
 				// create the result object to validate rules to ensure that file from excluded
 				// directories are not deleted on the FTP remote server

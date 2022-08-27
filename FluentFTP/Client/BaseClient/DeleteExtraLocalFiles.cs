@@ -46,7 +46,7 @@ namespace FluentFTP.Client.BaseClient {
 		protected bool CanDeleteLocalFile(List<FtpRule> rules, string existingLocalFile) {
 
 			// if we should not delete excluded files
-			if (!DownloadDirectoryDeleteExcluded && !rules.IsBlank()) {
+			if (!Config.DownloadDirectoryDeleteExcluded && !rules.IsBlank()) {
 
 				// create the result object to validate rules to ensure that file from excluded
 				// directories are not deleted on the local filesystem

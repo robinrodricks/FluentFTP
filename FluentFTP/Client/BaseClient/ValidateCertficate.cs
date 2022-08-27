@@ -19,7 +19,7 @@ namespace FluentFTP.Client.BaseClient {
 		protected void OnValidateCertficate(FtpSslValidationEventArgs e) {
 
 			// automatically validate if ValidateAnyCertificate is set
-			if (ValidateAnyCertificate) {
+			if (Config.ValidateAnyCertificate) {
 				e.Accept = true;
 				return;
 			}

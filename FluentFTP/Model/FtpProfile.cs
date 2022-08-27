@@ -14,6 +14,7 @@ namespace FluentFTP {
 	[Serializable]
 #endif
 	public class FtpProfile {
+
 		/// <summary>
 		/// The host IP address or URL of the FTP server
 		/// </summary>

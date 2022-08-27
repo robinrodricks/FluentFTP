@@ -57,7 +57,7 @@ namespace FluentFTP {
 							info.Append(res[i]);
 						}
 
-						result = m_listParser.ParseSingleLine(null, info.ToString(), m_capabilities, true);
+						result = CurrentListParser.ParseSingleLine(null, info.ToString(), m_capabilities, true);
 					}
 				}
 				else {

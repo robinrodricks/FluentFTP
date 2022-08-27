@@ -18,6 +18,7 @@
  - **Organization**
    - Completely redesign the FTP client code organization and structure
    - Update all tests and examples to use the new API and `AsyncFtpClient`
+   - Hide all internally-used functions behind the interface `IInternalFtpClient`
  - **Modernization**
    - Drop support for .NET Standard 1.2, 1.4 and .NET 2.0, 3.5, 4.0 and 4.5
    - Remove conditional compilation statements for unsupported platforms

@@ -30,8 +30,8 @@ namespace FluentFTP {
 				await progressClient.SetWorkingDirectory(await remoteClient.GetWorkingDirectory(token), token);
 			}
 
-			await sourceClient.SetDataTypeAsync(sourceClient.FXPDataType, token);
-			await destinationClient.SetDataTypeAsync(destinationClient.FXPDataType, token);
+			await sourceClient.SetDataTypeAsync(sourceClient.Config.FXPDataType, token);
+			await destinationClient.SetDataTypeAsync(destinationClient.Config.FXPDataType, token);
 
 			// send PASV/CPSV commands to destination FTP server to get passive port to be used from source FTP server
 			// first try with PASV - commonly supported by all servers

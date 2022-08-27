@@ -46,7 +46,7 @@ namespace FluentFTP {
 			}
 
 			path = path.GetFtpPath();
-			m_path = path;
+			LastStreamPath = path;
 
 			LogFunc(nameof(OpenAppend), new object[] { path, type });
 

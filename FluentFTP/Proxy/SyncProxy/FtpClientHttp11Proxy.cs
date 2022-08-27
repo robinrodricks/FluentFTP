@@ -84,7 +84,7 @@ namespace FluentFTP.Proxy.SyncProxy {
 					throw new InvalidOperationException("No connection to the server has been established.");
 				}
 
-				stream.ReadTimeout = ReadTimeout;
+				stream.ReadTimeout = Config.ReadTimeout;
 				while ((buf = stream.ReadLine(Encoding)) != null) {
 					Match m;
 

@@ -97,7 +97,7 @@ namespace FluentFTP.Helpers.Parsers {
 			var prevIndex = formatIndex;
 			for (var i = formatIndex; i < DateTimeFormats.Length; i++, formatIndex++) {
 				try {
-					lastModified = DateTime.ParseExact(lastModifiedStr, DateTimeFormats[formatIndex], client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
+					lastModified = DateTime.ParseExact(lastModifiedStr, DateTimeFormats[formatIndex], client.Config.ListingCulture.DateTimeFormat, DateTimeStyles.None);
 					if (lastModified > DateTime.Now.AddDays(2)) {
 						((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Swapping to alternate format (found date in future)");
 						continue;

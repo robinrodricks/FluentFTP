@@ -54,9 +54,9 @@ namespace FluentFTP.Tests.Unit {
 		}
 
 		private static void AssertConvertedDateTime(FtpClient client, FtpDate conversion, double tz, string input, string expected) {
-			client.TimeConversion = conversion;
-			client.TimeZone = tz;
-			client.LocalTimeZone = 5.5;
+			client.Config.TimeConversion = conversion;
+			client.Config.TimeZone = tz;
+			client.Config.LocalTimeZone = 5.5;
 
 			var result = client.ConvertDate(input.ParseFtpDate(client));
 

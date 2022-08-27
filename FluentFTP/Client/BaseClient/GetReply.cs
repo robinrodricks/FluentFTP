@@ -25,7 +25,7 @@ namespace FluentFTP.Client.BaseClient {
 					throw new InvalidOperationException("No connection to the server has been established.");
 				}
 
-				m_stream.ReadTimeout = m_readTimeout;
+				m_stream.ReadTimeout = Config.ReadTimeout;
 				while ((buf = m_stream.ReadLine(Encoding)) != null) {
 					if (DecodeStringToReply(buf, ref reply)) {
 						break;
@@ -57,7 +57,7 @@ namespace FluentFTP.Client.BaseClient {
 
 				// hide sensitive data from logs
 				var logMsg = reply.Message;
-				if (!LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK")) {
+				if (!Config.LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK")) {
 					logMsg = logMsg.Replace(Credentials.UserName, "***");
 				}
 

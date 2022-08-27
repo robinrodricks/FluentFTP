@@ -32,7 +32,7 @@ namespace FluentFTP {
 			}
 
 
-			for (int a = 0; a <= m_PassiveMaxAttempts;) {
+			for (int a = 0; a <= Config.PassiveMaxAttempts;) {
 
 				if ((type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) && !Status.EPSVNotSupported) {
 					// execute EPSV to try enhanced-passive mode
@@ -78,18 +78,18 @@ namespace FluentFTP {
 
 				// break if too many tries
 				a++;
-				if (a >= m_PassiveMaxAttempts) {
-					throw new FtpException("Could not find a suitable port for PASV/EPSV Data Connection after trying " + m_PassiveMaxAttempts + " times.");
+				if (a >= Config.PassiveMaxAttempts) {
+					throw new FtpException("Could not find a suitable port for PASV/EPSV Data Connection after trying " + Config.PassiveMaxAttempts + " times.");
 				}
 
 				// accept first port if not configured
-				if (m_PassiveBlockedPorts.IsBlank()) {
+				if (Config.PassiveBlockedPorts.IsBlank()) {
 					break;
 				}
 				else {
 
 					// check port against blacklist if configured
-					if (!m_PassiveBlockedPorts.Contains(port)) {
+					if (!Config.PassiveBlockedPorts.Contains(port)) {
 
 						// blacklist does not port, accept it
 						break;
@@ -103,16 +103,16 @@ namespace FluentFTP {
 			}
 
 			stream = new FtpDataStream(this);
-			stream.ConnectTimeout = DataConnectionConnectTimeout;
-			stream.ReadTimeout = DataConnectionReadTimeout;
-			await ConnectAsync(stream, host, port, InternetProtocolVersions, token);
-			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, m_keepAlive);
+			stream.ConnectTimeout = Config.DataConnectionConnectTimeout;
+			stream.ReadTimeout = Config.DataConnectionReadTimeout;
+			await ConnectAsync(stream, host, port, Config.InternetProtocolVersions, token);
+			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, Config.SocketKeepAlive);
 
 			if (restart > 0) {
 				// Fix for #887: When downloading through SOCKS proxy, the restart param is incorrect and needs to be ignored.
 				// Restart is set to the length of the already downloaded file (i.e. if the file is 1000 bytes, it restarts with restart parameter 1000 or 1001 after file is successfully downloaded)
 				if (IsProxy()) {
-					var length = await GetFileSize(m_path, -1L, token);
+					var length = await GetFileSize(LastStreamPath, -1L, token);
 					if (restart < length) {
 						reply = await Execute("REST " + restart, token);
 						if (!reply.Success) {
@@ -140,10 +140,10 @@ namespace FluentFTP {
 			stream.CommandStatus = reply;
 
 			// this needs to take place after the command is executed
-			if (m_dataConnectionEncryption && m_encryptionmode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
+			if (Config.DataConnectionEncryption && Config.EncryptionMode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
 				await stream.ActivateEncryptionAsync(m_host,
-					ClientCertificates.Count > 0 ? ClientCertificates : null,
-					m_SslProtocols);
+					Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null,
+					Config.SslProtocols);
 			}
 
 			return stream;
@@ -222,8 +222,8 @@ namespace FluentFTP {
 		protected string GetLocalAddress(IPAddress ip) {
 
 			// Use resolver
-			if (m_AddressResolver != null) {
-				return m_Address ?? (m_Address = m_AddressResolver());
+			if (Config.AddressResolver != null) {
+				return m_Address ?? (m_Address = Config.AddressResolver());
 			}
 
 			// Use supplied IP

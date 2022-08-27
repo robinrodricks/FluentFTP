@@ -384,29 +384,16 @@ namespace FluentFTP.Client.Modules {
 		private static void ConfigureClient(BaseFtpClient client, FtpEncryptionMode encryption, SysSslProtocols protocol, FtpProfile knownProfile) {
 
 			// set rolled props
-			client.EncryptionMode = encryption;
-			client.SslProtocols = protocol;
-			client.DataConnectionType = FtpDataConnectionType.AutoPassive;
+			if (knownProfile != null) {
+				client.LoadProfile(knownProfile);
+			}
+
+			// override some props
+			client.Config.EncryptionMode = encryption;
+			client.Config.SslProtocols = protocol;
+			client.Config.DataConnectionType = FtpDataConnectionType.AutoPassive;
 			client.Encoding = Encoding.UTF8;
 
-			// FIX #901: Azure FTP connection
-			// copy some props for known profile
-			if (knownProfile != null) {
-				client.ConnectTimeout = knownProfile.Timeout;
-				client.RetryAttempts = knownProfile.RetryAttempts;
-				client.SocketPollInterval = knownProfile.SocketPollInterval;
-			}
-
-			// FIX #907: support TLS 1.3 in .NET 5+
-			// only try TLS 1.3 if required
-/*#if NET50_OR_LATER
-			if (protocol == SysSslProtocols.Tls13) {
-				client.StaleDataCheck = false;
-			}
-			else {
-				client.StaleDataCheck = true;
-			}
-#endif*/
 		}
 
 		/// <summary>
@@ -524,21 +511,21 @@ namespace FluentFTP.Client.Modules {
 			// copy over the profile properties to this instance
 			client.Host = profile.Host;
 			client.Credentials = profile.Credentials;
-			client.EncryptionMode = profile.Encryption;
-			client.SslProtocols = profile.Protocols;
-			client.DataConnectionType = profile.DataConnection;
+			client.Config.EncryptionMode = profile.Encryption;
+			client.Config.SslProtocols = profile.Protocols;
+			client.Config.DataConnectionType = profile.DataConnection;
 			client.Encoding = profile.Encoding;
 			if (profile.Timeout != 0) {
-				client.ConnectTimeout = profile.Timeout;
-				client.ReadTimeout = profile.Timeout;
-				client.DataConnectionConnectTimeout = profile.Timeout;
-				client.DataConnectionReadTimeout = profile.Timeout;
+				client.Config.ConnectTimeout = profile.Timeout;
+				client.Config.ReadTimeout = profile.Timeout;
+				client.Config.DataConnectionConnectTimeout = profile.Timeout;
+				client.Config.DataConnectionReadTimeout = profile.Timeout;
 			}
-			if (client.SocketPollInterval != 0) {
-				client.SocketPollInterval = profile.SocketPollInterval;
+			if (client.Config.SocketPollInterval != 0) {
+				client.Config.SocketPollInterval = profile.SocketPollInterval;
 			}
-			if (client.RetryAttempts != 0) {
-				client.RetryAttempts = profile.RetryAttempts;
+			if (client.Config.RetryAttempts != 0) {
+				client.Config.RetryAttempts = profile.RetryAttempts;
 			}
 		}
 

@@ -221,7 +221,7 @@ namespace FluentFTP.Helpers.Parsers {
 
 			// parse it into a date/time object
 			try {
-				var lastModified = DateTime.Parse(lastModifiedStr, client.ListingCulture.DateTimeFormat);
+				var lastModified = DateTime.Parse(lastModifiedStr, client.Config.ListingCulture.DateTimeFormat);
 				return lastModified;
 			}
 			catch (FormatException) {

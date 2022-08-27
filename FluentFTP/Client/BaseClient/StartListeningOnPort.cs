@@ -11,7 +11,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <param name="stream"></param>
 		protected void StartListeningOnPort(FtpDataStream stream) {
-			if (m_ActivePorts.IsBlank()) {
+			if (Config.ActivePorts.IsBlank()) {
 				// Use random port
 				stream.Listen(m_stream.LocalEndPoint.Address, 0);
 			}
@@ -19,7 +19,7 @@ namespace FluentFTP.Client.BaseClient {
 				var success = false;
 
 				// Use one of the specified ports
-				foreach (var port in m_ActivePorts) {
+				foreach (var port in Config.ActivePorts) {
 					try {
 						stream.Listen(m_stream.LocalEndPoint.Address, port);
 						success = true;

@@ -1,10 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using FluentFTP.Client.Modules;
-using System.Threading.Tasks;
+﻿using FluentFTP.Client.Modules;
 
-namespace FluentFTP {
-	public partial class AsyncFtpClient {
+namespace FluentFTP.Client.BaseClient {
+	public partial class BaseFtpClient {
 
 		/// <summary>
 		/// Load the given connection profile and configure the FTP client instance accordingly.
@@ -13,5 +10,6 @@ namespace FluentFTP {
 		public void LoadProfile(FtpProfile profile) {
 			ConnectModule.LoadProfile(this, profile);
 		}
+
 	}
 }

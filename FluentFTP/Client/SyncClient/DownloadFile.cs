@@ -93,7 +93,7 @@ namespace FluentFTP {
 
 			bool downloadSuccess;
 			var verified = true;
-			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
+			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? Config.RetryAttempts : 1;
 			do {
 
 				// download the file from the server to a file stream or memory stream
