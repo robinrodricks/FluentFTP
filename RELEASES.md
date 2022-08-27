@@ -6,6 +6,9 @@
    - New: Split main FTP client interfaces into `IFtpClient` and `IAsyncFtpClient`
    - New: Split common FTP functionality into `BaseFtpClient`
    - New: Drop `Async` suffix for all async FTP methods in `AsyncFtpClient`
+ - **Config API**
+   - New: Remove all config settings from FtpClient and move it into `client.Config` object
+   - New: Dedicated class to hold config settings `FtpConfig` to cleanup client API
  - **Logging API**
    - New: Remove `client.OnLogEvent` and `FtpTrace` system
    - New: Add logger system `client.Logger` using industry-standard `ILogger` interface
