@@ -48,5 +48,22 @@ namespace FluentFTP.Tests.Integration.System {
 			return client;
 		}
 
+		/// <summary>
+		/// Creates a new FTP client capable of connecting to this dockerized FTP server.
+		/// </summary>
+		protected async Task<AsyncFtpClient> GetAsyncClient() {
+			var client = new AsyncFtpClient("localhost", _fixture.GetUsername(), _fixture.GetPassword());
+			return client;
+		}
+
+		/// <summary>
+		/// Creates & Connects a new FTP client capable of connecting to this dockerized FTP server.
+		/// </summary>
+		protected async Task<AsyncFtpClient> GetConnectedAsyncClient() {
+			var client = await GetAsyncClient();
+			await client.AutoConnectAsync();
+			return client;
+		}
+
 	}
 }

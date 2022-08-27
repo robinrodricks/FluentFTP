@@ -40,9 +40,8 @@ namespace FluentFTP.Tests.Integration.Tests {
 			return result;
 		}
 
-		public async Task GetListingAsyncEnumerable()
-		{
-			using var client = GetConnectedClient();
+		public async Task GetListingAsyncEnumerable() {
+			using var client = await GetConnectedAsyncClient();
 			var bytes = Encoding.UTF8.GetBytes("a");
 			const string directory = "/GetListingAsyncEnumerable/";
 			const string fileNameInRoot = "GetListingAsync.txt";
@@ -66,7 +65,8 @@ namespace FluentFTP.Tests.Integration.Tests {
 		}
 
 		public async Task GetListingAsync() {
-			using var client = GetConnectedClient();
+
+			using var client = await GetConnectedAsyncClient();
 			var bytes = Encoding.UTF8.GetBytes("a");
 			const string directory = "/GetListingAsync/";
 			const string fileNameInRoot = "GetListingAsync.txt";

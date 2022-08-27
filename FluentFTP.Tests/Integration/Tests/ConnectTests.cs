@@ -37,7 +37,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 
 
 		public async Task ConnectAsync() {
-			using var ftpClient = GetClient();
+			using var ftpClient = await GetAsyncClient();
 			await ftpClient.ConnectAsync();
 			// Connect without error => pass
 			Assert.True(true);
@@ -60,7 +60,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 
 
 		public async Task AutoConnectAsync() {
-			using var ftpClient = GetClient();
+			using var ftpClient = await GetAsyncClient();
 			var profile = await ftpClient.AutoConnectAsync();
 			Assert.NotNull(profile);
 		}
@@ -74,7 +74,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 
 
 		public async Task AutoDetectAsync() {
-			using var ftpClient = GetClient();
+			using var ftpClient = await GetAsyncClient();
 			var profiles = await ftpClient.AutoDetectAsync(false);
 			Assert.NotEmpty(profiles);
 		}
