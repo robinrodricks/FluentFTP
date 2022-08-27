@@ -9,10 +9,70 @@ using System.Net;
 using FluentFTP.Servers;
 using FluentFTP.Helpers;
 using System.Net.Sockets;
+using Microsoft.Extensions.Logging;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
 
+		private ILogger m_logger = null;
+
+		/// <summary>
+		/// Should the function calls be logged in Verbose mode?
+		/// </summary>
+		public ILogger Logger {
+			get => m_logger;
+			set => m_logger = value;
+		}
+
+		private bool m_logToConsole = false;
+
+		/// <summary>
+		/// Should the function calls be logged in Verbose mode?
+		/// </summary>
+		public bool LogToConsole {
+			get => m_logToConsole;
+			set => m_logToConsole = value;
+		}
+
+		private bool m_functions = true;
+
+		/// <summary>
+		/// Should the function calls be logged in Verbose mode?
+		/// </summary>
+		public bool LogFunctions {
+			get => m_functions;
+			set => m_functions = value;
+		}
+
+		private bool m_IP = false;
+
+		/// <summary>
+		/// Should the FTP server IP addresses be included in the logs?
+		/// </summary>
+		public bool LogIP {
+			get => m_IP;
+			set => m_IP = value;
+		}
+
+		private bool m_username = false;
+
+		/// <summary>
+		/// Should the FTP usernames be included in the logs?
+		/// </summary>
+		public bool LogUserName {
+			get => m_username;
+			set => m_username = value;
+		}
+
+		private bool m_password = false;
+
+		/// <summary>
+		/// Should the FTP passwords be included in the logs?
+		/// </summary>
+		public bool LogPassword {
+			get => m_password;
+			set => m_password = value;
+		}
 
 		/// <summary>
 		/// When last command was sent (NOOP or other), for having <see cref="Noop"/>

@@ -7,7 +7,9 @@
    - New: Split common FTP functionality into `BaseFtpClient`
    - New: Drop `Async` suffix for all async FTP methods
  - **Logging API**
-   - New: Remove `FtpTrace` and replace it with `client.Logger` using `ILogger` interface
+   - New: Remove `client.OnLogEvent` and `FtpTrace` system
+   - New: Add logger system `client.Logger` using industry-standard `ILogger` interface
+   - New: Add logging settings: `LogToConsole`, `LogFunctions`, `LogIP`, `LogUserName`, `LogPassword`
    - New: Add Nuget dependency `Microsoft.Extensions.Logging.Abstractions` v2.1.0
  - **FTP Proxies**
    - New: Split FTP proxy classes into `FtpClient*Proxy` and `AsyncFtpClient*Proxy`

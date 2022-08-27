@@ -49,7 +49,7 @@ namespace FluentFTP.Helpers.Parsers {
 				return true;
 			}
 
-			client.LogStatus(FtpTraceLevel.Verbose, "Not in Windows format");
+			((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Not in Windows format");
 			return false;
 		}
 
@@ -107,7 +107,7 @@ namespace FluentFTP.Helpers.Parsers {
 				name = isDir ? record.Substring(pos + OffsetLengthDirectory) : record.Substring(pos + OffsetLengthFile);
 			}
 			else {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to retrieve name: " + record);
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to retrieve name: " + record);
 			}
 
 			return name;
@@ -127,7 +127,7 @@ namespace FluentFTP.Helpers.Parsers {
 					size = long.Parse(type.Replace(",", ""));
 				}
 				catch (FormatException) {
-					client.LogStatus(FtpTraceLevel.Error, "Failed to parse size: " + type);
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse size: " + type);
 				}
 			}
 		}
@@ -141,7 +141,7 @@ namespace FluentFTP.Helpers.Parsers {
 				return lastModified;
 			}
 			catch (FormatException) {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
 			}
 
 			return DateTime.MinValue;

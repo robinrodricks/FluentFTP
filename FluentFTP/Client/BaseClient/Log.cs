@@ -1,29 +1,30 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using FluentFTP.Helpers;
+using Microsoft.Extensions.Logging;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
-		
-
-		/// <summary>
-		/// Add a custom listener here to get events every time a message is logged.
-		/// </summary>
-		public Action<FtpTraceLevel, string> OnLogEvent;
 
 		/// <summary>
 		/// Log a function call with relevant arguments
 		/// </summary>
 		/// <param name="function">The name of the API function</param>
 		/// <param name="args">The args passed to the function</param>
-		public void LogFunc(string function, object[] args = null) {
-			// log to attached logger if given
-			if (OnLogEvent != null) {
-				OnLogEvent(FtpTraceLevel.Verbose, ">         " + function + "(" + args.ItemsToString().Join(", ") + ")");
-			}
+		protected void LogFunc(string function, object[] args = null) {
 
-			// log to system
-			FtpTrace.WriteFunc(function, args);
+			if (LogFunctions) {
+
+				// log to attached logger if given
+				if (m_logger != null) {
+					m_logger.LogInformation(function, args.ItemsToString());
+				}
+
+				// log to system
+				LogConsole("");
+				LogConsole("# " + function + "(" + args.ItemsToString().Join(", ") + ")");
+			}
 		}
 
 		/// <summary>
@@ -31,14 +32,15 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <param name="eventType">The type of tracing event</param>
 		/// <param name="message">The message to write</param>
-		public void LogLine(FtpTraceLevel eventType, string message) {
+		protected void LogLine(FtpTraceLevel eventType, string message) {
+
 			// log to attached logger if given
-			if (OnLogEvent != null) {
-				OnLogEvent(eventType, message);
+			if (m_logger != null) {
+				LogLogger(eventType, message);
 			}
 
 			// log to system
-			FtpTrace.WriteLine(eventType, message);
+			LogConsole(message);
 		}
 
 		/// <summary>
@@ -46,21 +48,54 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <param name="eventType">The type of tracing event</param>
 		/// <param name="message">The message to write</param>
-		public void LogStatus(FtpTraceLevel eventType, string message) {
-			// add prefix
-			message = TraceLevelPrefix(eventType) + message;
+		protected void LogStatus(FtpTraceLevel eventType, string message) {
 
 			// log to attached logger if given
-			if (OnLogEvent != null) {
-				OnLogEvent(eventType, message);
+			if (m_logger != null) {
+				LogLogger(eventType, message);
 			}
 
 			// log to system
-			FtpTrace.WriteLine(eventType, message);
+			LogConsole(GetLogPrefix(eventType) + message);
 		}
 
-		protected static string TraceLevelPrefix(FtpTraceLevel level) {
-			switch (level) {
+		/// <summary>
+		/// Log a message to the attached logger.
+		/// </summary>
+		private void LogLogger(FtpTraceLevel eventType, string message) {
+			switch (eventType) {
+				case FtpTraceLevel.Verbose:
+					m_logger.LogDebug(message);
+					break;
+
+				case FtpTraceLevel.Info:
+					m_logger.LogInformation(message);
+					break;
+
+				case FtpTraceLevel.Warn:
+					m_logger.LogWarning(message);
+					break;
+
+				case FtpTraceLevel.Error:
+					m_logger.LogError(message);
+					break;
+			}
+		}
+
+		/// <summary>
+		/// Log a message to the debug output and console.
+		/// </summary>
+		protected void LogConsole(string message) {
+#if DEBUG
+			Debug.WriteLine(message);
+#endif
+			if (m_logToConsole) {
+				Console.WriteLine(message);
+			}
+		}
+
+		protected static string GetLogPrefix(FtpTraceLevel eventType) {
+			switch (eventType) {
 				case FtpTraceLevel.Verbose:
 					return "Status:   ";
 
@@ -77,6 +112,19 @@ namespace FluentFTP.Client.BaseClient {
 			return "Status:   ";
 		}
 
+		/// <summary>
+		/// To allow for external connected classes to use the attached logger.
+		/// </summary>
+		void IInternalFtpClient.LogLine(FtpTraceLevel eventType, string message) {
+			this.LogLine(eventType, message);
+		}
+
+		/// <summary>
+		/// To allow for external connected classes to use the attached logger.
+		/// </summary>
+		void IInternalFtpClient.LogStatus(FtpTraceLevel eventType, string message) {
+			this.LogStatus(eventType, message);
+		}
 
 	}
 }

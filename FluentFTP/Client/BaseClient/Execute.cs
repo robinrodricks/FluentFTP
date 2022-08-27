@@ -32,11 +32,11 @@ namespace FluentFTP.Client.BaseClient {
 
 				// hide sensitive data from logs
 				var commandTxt = command;
-				if (!FtpTrace.LogUserName && command.StartsWith("USER", StringComparison.Ordinal)) {
+				if (!LogUserName && command.StartsWith("USER", StringComparison.Ordinal)) {
 					commandTxt = "USER ***";
 				}
 
-				if (!FtpTrace.LogPassword && command.StartsWith("PASS", StringComparison.Ordinal)) {
+				if (!LogPassword && command.StartsWith("PASS", StringComparison.Ordinal)) {
 					commandTxt = "PASS ***";
 				}
 

@@ -44,7 +44,7 @@ namespace FluentFTP.Helpers.Parsers {
 				return true;
 			}
 
-			client.LogStatus(FtpTraceLevel.Verbose, "Not in VMS format");
+			((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Not in VMS format");
 			return false;
 		}
 
@@ -84,7 +84,7 @@ namespace FluentFTP.Helpers.Parsers {
 
 			// check for ;
 			if (semiPos <= 0) {
-				client.LogStatus(FtpTraceLevel.Verbose, "File version number not found in name '" + name + "'");
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "File version number not found in name '" + name + "'");
 				return null;
 			}
 
@@ -225,7 +225,7 @@ namespace FluentFTP.Helpers.Parsers {
 				return lastModified;
 			}
 			catch (FormatException) {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
 			}
 
 			return DateTime.MinValue;

@@ -24,7 +24,7 @@ namespace FluentFTP.Helpers.Parsers {
 				}
 			}
 
-			client.LogStatus(FtpTraceLevel.Verbose, "Not in OS/400 format");
+			((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Not in OS/400 format");
 			return false;
 		}
 
@@ -90,7 +90,7 @@ namespace FluentFTP.Helpers.Parsers {
 		private static DateTime ParseDateTime(BaseFtpClient client, string lastModifiedStr) {
 			var lastModified = DateTime.MinValue;
 			if (formatIndex >= DateTimeFormats.Length) {
-				client.LogStatus(FtpTraceLevel.Warn, "Exhausted formats - failed to parse date");
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Warn, "Exhausted formats - failed to parse date");
 				return DateTime.MinValue;
 			}
 
@@ -99,7 +99,7 @@ namespace FluentFTP.Helpers.Parsers {
 				try {
 					lastModified = DateTime.ParseExact(lastModifiedStr, DateTimeFormats[formatIndex], client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
 					if (lastModified > DateTime.Now.AddDays(2)) {
-						client.LogStatus(FtpTraceLevel.Verbose, "Swapping to alternate format (found date in future)");
+						((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Swapping to alternate format (found date in future)");
 						continue;
 					}
 					else {
@@ -112,7 +112,7 @@ namespace FluentFTP.Helpers.Parsers {
 			}
 
 			if (formatIndex >= DateTimeFormats.Length) {
-				client.LogStatus(FtpTraceLevel.Warn, "Exhausted formats - failed to parse date");
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Warn, "Exhausted formats - failed to parse date");
 				return DateTime.MinValue;
 			}
 

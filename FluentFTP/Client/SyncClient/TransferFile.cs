@@ -205,7 +205,7 @@ namespace FluentFTP {
 						Thread.Sleep(FXPProgressInterval);
 					}
 
-					FtpTrace.WriteLine(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");
+					LogStatus(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");
 
 					Noop();
 					remoteClient.Noop();
@@ -223,7 +223,7 @@ namespace FluentFTP {
 				}
 			}
 			else {
-				FtpTrace.WriteLine(FtpTraceLevel.Error, "Failed to open FXP passive Connection");
+				LogStatus(FtpTraceLevel.Error, "Failed to open FXP passive Connection");
 				return false;
 			}
 		}

@@ -208,7 +208,7 @@ namespace FluentFTP {
 						await Task.Delay(FXPProgressInterval, token);
 					}
 
-					FtpTrace.WriteLine(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");
+					LogStatus(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");
 
 					await NoopAsync(token);
 					await remoteClient.NoopAsync(token);
@@ -226,7 +226,7 @@ namespace FluentFTP {
 				}
 			}
 			else {
-				FtpTrace.WriteLine(FtpTraceLevel.Error, "Failed to open FXP passive Connection");
+				LogStatus(FtpTraceLevel.Error, "Failed to open FXP passive Connection");
 				return false;
 			}
 

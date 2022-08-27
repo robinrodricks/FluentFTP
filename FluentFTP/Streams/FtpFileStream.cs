@@ -70,7 +70,7 @@ namespace FluentFTP.Streams {
 
 					// trace
 					if (client != null) {
-						client.LogStatus(FtpTraceLevel.Verbose, "Using quick transfer for " + knownLocalFileSize.FileSizeToString() + " file, within " + fileSizeLimit.FileSizeToString());
+						((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Using quick transfer for " + knownLocalFileSize.FileSizeToString() + " file, within " + fileSizeLimit.FileSizeToString());
 					}
 
 					// read the entire file into memory
@@ -84,7 +84,7 @@ namespace FluentFTP.Streams {
 
 			// trace
 			if (client != null) {
-				client.LogStatus(FtpTraceLevel.Verbose, "Using file stream for " + knownLocalFileSize.FileSizeToString() + " file, outside " + fileSizeLimit.FileSizeToString());
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Using file stream for " + knownLocalFileSize.FileSizeToString() + " file, outside " + fileSizeLimit.FileSizeToString());
 			}*/
 
 			// normal slow mode, return a FileStream
@@ -107,7 +107,7 @@ namespace FluentFTP.Streams {
 
 					// trace
 					if (client != null) {
-						client.LogStatus(FtpTraceLevel.Info, "Using quick transfer for " + knownRemoteFileSize.FileSizeToString() + " file, within " + fileSizeLimit.FileSizeToString());
+						((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Using quick transfer for " + knownRemoteFileSize.FileSizeToString() + " file, within " + fileSizeLimit.FileSizeToString());
 					}
 
 					// create a new memory stream and return that
@@ -117,7 +117,7 @@ namespace FluentFTP.Streams {
 
 			// trace
 			if (client != null) {
-				client.LogStatus(FtpTraceLevel.Verbose, "Using file stream for " + knownRemoteFileSize.FileSizeToString() + " file, outside " + fileSizeLimit.FileSizeToString());
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Using file stream for " + knownRemoteFileSize.FileSizeToString() + " file, outside " + fileSizeLimit.FileSizeToString());
 			}*/
 
 			// normal slow mode, return a FileStream

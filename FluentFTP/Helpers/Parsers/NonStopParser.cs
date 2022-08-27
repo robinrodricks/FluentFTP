@@ -76,7 +76,7 @@ namespace FluentFTP.Helpers.Parsers {
 				size = long.Parse(values[2]);
 			}
 			catch (FormatException) {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to parse size: " + values[2]);
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse size: " + values[2]);
 			}
 		}
 
@@ -89,7 +89,7 @@ namespace FluentFTP.Helpers.Parsers {
 				return lastModified;
 			}
 			catch (FormatException) {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
 			}
 			return DateTime.MinValue;
 		}

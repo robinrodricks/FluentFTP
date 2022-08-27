@@ -53,7 +53,7 @@ namespace FluentFTP.Helpers.Parsers {
 				return true;
 			}
 
-			client.LogStatus(FtpTraceLevel.Verbose, "Not in UNIX format");
+			((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Not in UNIX format");
 			return false;
 		}
 
@@ -78,7 +78,7 @@ namespace FluentFTP.Helpers.Parsers {
 					.Append(record)
 					.Append("' - expected minimum ").Append(MinFieldCount)
 					.Append(" fields but found ").Append(values.Length).Append(" fields");
-				client.LogStatus(FtpTraceLevel.Verbose, msg.ToString());
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, msg.ToString());
 				return null;
 			}
 
@@ -157,7 +157,7 @@ namespace FluentFTP.Helpers.Parsers {
 					linkCount = int.Parse(linkCountStr);
 				}
 				catch (FormatException) {
-					client.LogStatus(FtpTraceLevel.Error, "Failed to parse link count: " + linkCountStr);
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse link count: " + linkCountStr);
 				}
 			}
 			else if (values[index][0] == '-') {
@@ -199,7 +199,7 @@ namespace FluentFTP.Helpers.Parsers {
 				size = long.Parse(sizeStr);
 			}
 			catch (FormatException) {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to parse size: " + sizeStr);
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse size: " + sizeStr);
 			}
 
 			return size;
@@ -286,7 +286,7 @@ namespace FluentFTP.Helpers.Parsers {
 				}
 			}
 			else {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to retrieve name: " + record);
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to retrieve name: " + record);
 			}
 		}
 
@@ -327,7 +327,7 @@ namespace FluentFTP.Helpers.Parsers {
 				lastModified = DateTime.ParseExact(stamp.ToString(), format, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
 			}
 			catch (FormatException) {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
 			}
 
 			return lastModified;
@@ -342,7 +342,7 @@ namespace FluentFTP.Helpers.Parsers {
 				lastModified = DateTime.ParseExact(stamp.ToString(), format, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
 			}
 			catch (FormatException) {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + stamp.ToString() + "'");
 			}
 
 			// can't be in the future - must be the previous year
@@ -403,7 +403,7 @@ namespace FluentFTP.Helpers.Parsers {
 					linkCount = int.Parse(linkCountStr);
 				}
 				catch (FormatException) {
-					client.LogStatus(FtpTraceLevel.Error, "Failed to parse link count: " + linkCountStr);
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse link count: " + linkCountStr);
 				}
 			}
 
@@ -417,7 +417,7 @@ namespace FluentFTP.Helpers.Parsers {
 				size = long.Parse(sizeStr);
 			}
 			catch (FormatException) {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to parse size: " + sizeStr);
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse size: " + sizeStr);
 			}
 
 			// next 3 fields are the date time
@@ -461,7 +461,7 @@ namespace FluentFTP.Helpers.Parsers {
 				name = record.Substring(pos).Trim();
 			}
 			else {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to retrieve name: " + record);
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to retrieve name: " + record);
 			}
 
 			// create a new list item object with the parsed metadata

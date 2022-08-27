@@ -39,7 +39,7 @@ namespace FluentFTP.Client.Modules {
 
 				// trace it
 				if (serverType != FtpServer.Unknown) {
-					client.LogLine(FtpTraceLevel.Info, "Status:   Detected FTP server: " + serverType.ToString());
+					((IInternalFtpClient)client).LogLine(FtpTraceLevel.Info, "Status:   Detected FTP server: " + serverType.ToString());
 				}
 			}
 
@@ -127,7 +127,7 @@ namespace FluentFTP.Client.Modules {
 
 				// trace it
 				if (serverType != FtpServer.Unknown) {
-					client.LogStatus(FtpTraceLevel.Info, "Detected FTP server: " + serverType.ToString());
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Detected FTP server: " + serverType.ToString());
 				}
 
 			}

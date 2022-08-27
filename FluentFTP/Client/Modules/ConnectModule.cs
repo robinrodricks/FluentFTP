@@ -137,10 +137,10 @@ namespace FluentFTP.Client.Modules {
 						if (IsProtocolFailure(ex)) {
 #if NET50_OR_LATER
 							if (protocol == SysSslProtocols.Tls13) {
-								client.LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3"); ;
+								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3"); ;
 							}
 							else {
-								client.LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3"); ;
+								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3"); ;
 							}
 #endif
 							tryTLS13 = true;
@@ -301,10 +301,10 @@ namespace FluentFTP.Client.Modules {
 						if (IsProtocolFailure(ex)) {
 #if NET50_OR_LATER
 							if (protocol == SysSslProtocols.Tls13) {
-								client.LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3"); ;
+								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3"); ;
 							}
 							else {
-								client.LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3"); ;
+								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3"); ;
 							}
 #endif
 							tryTLS13 = true;

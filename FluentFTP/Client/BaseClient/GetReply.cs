@@ -57,7 +57,7 @@ namespace FluentFTP.Client.BaseClient {
 
 				// hide sensitive data from logs
 				var logMsg = reply.Message;
-				if (!FtpTrace.LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK")) {
+				if (!LogUserName && reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK")) {
 					logMsg = logMsg.Replace(Credentials.UserName, "***");
 				}
 

@@ -173,7 +173,7 @@ namespace FluentFTP.Helpers {
 			}
 
 			// ONLY IF DIR PATH PROVIDED
-			//this.client.LogStatus(item.Name);
+			//this.((IInternalFtpClient)client).LogStatus(item.Name);
 
 			// remove globbing/wildcard from path
 			if (path.GetFtpFileName().Contains("*"))
@@ -200,7 +200,7 @@ namespace FluentFTP.Helpers {
 				}
 				else
 				{
-					client.LogStatus(FtpTraceLevel.Warn, "Couldn't determine the full path of this object: " +
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Warn, "Couldn't determine the full path of this object: " +
 														 Environment.NewLine + item.ToString());
 				}
 			}

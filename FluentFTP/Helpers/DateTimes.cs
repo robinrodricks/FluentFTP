@@ -27,7 +27,7 @@ namespace FluentFTP.Helpers {
 				return date;
 			}
 			catch (FormatException) {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + dateString + "'");
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + dateString + "'");
 			}
 
 			return DateTime.MinValue;
