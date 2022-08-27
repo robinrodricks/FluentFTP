@@ -1,25 +1,33 @@
 # Release Notes
 
 #### 40.0.0
- - New: Split main FTP client classes into `FtpClient` and `AsyncFtpClient`
- - New: Split main FTP client interfaces into `IFtpClient` and `IAsyncFtpClient`
- - New: Split common FTP functionality into `BaseFtpClient`
- - New: Split FTP proxy classes into `FtpClient*Proxy` and `AsyncFtpClient*Proxy`
- - New: FTP proxy classes moved into `FluentFTP.Proxy.SyncProxy` and `FluentFTP.Proxy.AsyncProxy` NS
- - New: FTP proxy classes with fully async implementations
- - New: Drop `Async` suffix for all async FTP methods
- - New: Add Nuget dependency `Microsoft.Extensions.Logging.Abstractions` v2.1.0
- - Modernize: Completely redesign the FTP client code organization and structure
- - Modernize: Drop support for .NET Standard 1.2, 1.4 and .NET 2.0, 3.5, 4.0 and 4.5
- - Modernize: Remove conditional compilation statements for unsupported platforms
- - Modernize: Remove uncommon static methods `FtpClient.Connect` and `FtpClient.GetPublicIP`
- - Modernize: Remove uncommon method `DereferenceLink` and `DereferenceLinkAsync`
- - Modernize: Remove uncommon properties `QuickTransferLimit`, `MaximumDereferenceCount`, `EnableThreadSafeDataConnections`
- - Modernize: Remove uncommon feature `FtpListOption.DerefLinks`
- - Modernize: Remove obsolete hashing commands `GetHashAlgorithm`, `SetHashAlgorithm`, `GetHash`, etc
- - Modernize: Remove obsolete async pattern using `IAsyncResult`
- - Modernize: Move all IBM zOS logic into the `IBMzOSFtpServer` server handler (thanks [FanDjango](/FanDjango))
- - Modernize: Move all OpenVMS logic into the `OpenVmsServer` server handler (thanks [FanDjango](/FanDjango))
+ - **Asynchronous API**
+   - New: Split main FTP client classes into `FtpClient` and `AsyncFtpClient`
+   - New: Split main FTP client interfaces into `IFtpClient` and `IAsyncFtpClient`
+   - New: Split common FTP functionality into `BaseFtpClient`
+   - New: Drop `Async` suffix for all async FTP methods
+ - **Logging API**
+   - New: Remove `FtpTrace` and replace it with `client.Logger` using `ILogger` interface
+   - New: Add Nuget dependency `Microsoft.Extensions.Logging.Abstractions` v2.1.0
+ - **FTP Proxies**
+   - New: Split FTP proxy classes into `FtpClient*Proxy` and `AsyncFtpClient*Proxy`
+   - New: FTP proxy classes moved into `FluentFTP.Proxy.SyncProxy` and `FluentFTP.Proxy.AsyncProxy` NS
+   - New: FTP proxy classes with fully async implementations
+ - **Organization**
+   - Completely redesign the FTP client code organization and structure
+   - Update all tests and examples to use the new API and `AsyncFtpClient`
+ - **Modernization**
+   - Drop support for .NET Standard 1.2, 1.4 and .NET 2.0, 3.5, 4.0 and 4.5
+   - Remove conditional compilation statements for unsupported platforms
+   - Remove uncommon static methods `FtpClient.Connect` and `FtpClient.GetPublicIP`
+   - Remove uncommon method `DereferenceLink` and `DereferenceLinkAsync`
+   - Remove uncommon properties `QuickTransferLimit`, `MaximumDereferenceCount`, `EnableThreadSafeDataConnections`
+   - Remove uncommon feature `FtpListOption.DerefLinks`
+   - Remove obsolete hashing commands `GetHashAlgorithm`, `SetHashAlgorithm`, `GetHash`, etc
+   - Remove obsolete async pattern using `IAsyncResult`
+ - **Server support**
+   - Move all IBM zOS logic into the `IBMzOSFtpServer` server handler (thanks [FanDjango](/FanDjango))
+   - Move all OpenVMS logic into the `OpenVmsServer` server handler (thanks [FanDjango](/FanDjango))
 
 #### 39.4.0
  - New: Add `SslProtocolActive` property to retrieve the negotiated SSL/TLS protocol version
