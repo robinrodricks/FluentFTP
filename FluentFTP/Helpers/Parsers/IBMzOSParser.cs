@@ -13,15 +13,17 @@ namespace FluentFTP.Helpers.Parsers {
 		/// </summary>
 		public static bool IsValid(FtpClient client, string[] listing) {
 			// Check validity by using the title line
-			// USS Realm     : "total nnnn"
 			// Dataset       : "Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname"
 			// Member        : " Name     VV.MM   Created       Changed      Size  Init   Mod   Id"
 			// Member Loadlib: " Name      Size     TTR   Alias-of AC--------- Attributes--------- Amode Rmode"
+			// USS Realm     : "total nnnn" if listing is for a path with one or more listing items
+			// USS Realm     : single unix line, as is valid for unix
 
-			return listing[0].Contains("total") ||
-				   listing[0].Contains("Volume Unit") ||
+			return listing[0].Contains("Volume Unit") ||
 				   listing[0].Contains("Name     VV.MM") ||
-				   listing[0].Contains("Name      Size     TTR");
+				   listing[0].Contains("Name      Size     TTR") ||
+				   listing[0].Contains("total") ||
+				   IsValidHFS(client, listing[0]);
 		}
 
 		/// <summary>
@@ -33,12 +35,6 @@ namespace FluentFTP.Helpers.Parsers {
 		public static FtpListItem Parse(FtpClient client, string record, string path) {
 			// Skip title line - all modes have one. 
 			// Also set zOSListingRealm to remember the mode we are in
-
-			// "total nnnn"
-			if (record.Contains("total")) {
-				client.zOSListingRealm = FtpZOSListRealm.Unix;
-				return null;
-			}
 
 			// "Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname"
 			if (record.Contains("Volume Unit")) {
@@ -81,6 +77,18 @@ namespace FluentFTP.Helpers.Parsers {
 			if (record.Contains("Name      Size     TTR")) {
 				client.zOSListingRealm = FtpZOSListRealm.MemberU;
 				return null;
+			}
+
+			// "total nnnn"
+			if (record.Contains("total"))
+			{
+				client.zOSListingRealm = FtpZOSListRealm.Unix;
+				return null;
+			}
+
+			if (IsValidHFS(client, record))
+			{
+				client.zOSListingRealm = FtpZOSListRealm.Unix;
 			}
 
 			if (client.zOSListingRealm == FtpZOSListRealm.Unix) {
@@ -204,5 +212,29 @@ namespace FluentFTP.Helpers.Parsers {
 
 			return lastModified;
 		}
+
+		private static bool IsValidHFS(FtpClient client, string record)
+		{
+			var perms1 = false;
+			var perms2 = false;
+
+			var values = record.SplitString();
+
+			// check perms
+			var ch00 = char.ToLower(values[0][0]);
+			if (ch00 == '-' || ch00 == 'l' || ch00 == 'd') {
+				perms1 = true;
+			}
+
+			if (values[0].Length > 1) {
+				var ch01 = char.ToLower(values[0][1]);
+				if (ch01 == 'r' || ch01 == '-')	{
+					perms2 = true;
+				}
+			}
+
+			return (perms1 && perms2);
+		}
+
 	}
 }
