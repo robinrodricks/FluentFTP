@@ -29,11 +29,11 @@ namespace FluentFTP {
 				long fileLen = 0;
 
 				if (progress != null) {
-					fileLen = knownFileSize > 0 ? knownFileSize : await GetFileSizeAsync(remotePath, -1, token);
+					fileLen = knownFileSize > 0 ? knownFileSize : await GetFileSize(remotePath, -1, token);
 				}
 
 				// open the file for reading
-				downStream = await OpenReadAsync(remotePath, DownloadDataType, restartPosition, fileLen, token);
+				downStream = await OpenRead(remotePath, DownloadDataType, restartPosition, fileLen, token);
 
 				// if the server has not provided a length for this file or
 				// if the mode is ASCII or
@@ -165,7 +165,7 @@ namespace FluentFTP {
 				// listen for a success/failure reply
 				try {
 					while (true) {
-						FtpReply status = await GetReplyAsync(token);
+						FtpReply status = await GetReply(token);
 
 						// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
 						if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
@@ -180,7 +180,7 @@ namespace FluentFTP {
 
 						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
 						if (anyNoop) {
-							await ReadStaleDataAsync(false, true, true, token);
+							await ReadStaleData(false, true, true, token);
 						}
 
 						break;
@@ -238,7 +238,7 @@ namespace FluentFTP {
 			if (ex.IsResumeAllowed()) {
 				downStream.Dispose();
 
-				return Tuple.Create(true, await OpenReadAsync(remotePath, DownloadDataType, offset));
+				return Tuple.Create(true, await OpenRead(remotePath, DownloadDataType, offset));
 			}
 
 			return Tuple.Create(false, (Stream)null);

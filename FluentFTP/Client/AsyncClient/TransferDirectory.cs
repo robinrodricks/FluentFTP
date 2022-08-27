@@ -39,7 +39,7 @@ namespace FluentFTP {
 		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
 		/// Returns a blank list if nothing was transferred. Never returns null.
 		/// </returns>
-		public async Task<List<FtpResult>> TransferDirectoryAsync(string sourceFolder, AsyncFtpClient remoteClient, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
+		public async Task<List<FtpResult>> TransferDirectory(string sourceFolder, AsyncFtpClient remoteClient, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
 			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			if (sourceFolder.IsBlank()) {
@@ -54,12 +54,12 @@ namespace FluentFTP {
 			sourceFolder = sourceFolder.GetFtpPath().EnsurePostfix("/");
 			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
 
-			LogFunc(nameof(TransferDirectoryAsync), new object[] { sourceFolder, remoteClient, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+			LogFunc(nameof(TransferDirectory), new object[] { sourceFolder, remoteClient, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
 			var results = new List<FtpResult>();
 
 			// if the source dir does not exist, fail fast
-			if (!await DirectoryExistsAsync(sourceFolder, token)) {
+			if (!await DirectoryExists(sourceFolder, token)) {
 				return results;
 			}
 
@@ -67,8 +67,8 @@ namespace FluentFTP {
 			var checkFileExistence = true;
 
 			// ensure the remote dir exists
-			if (!await remoteClient.DirectoryExistsAsync(remoteFolder, token)) {
-				await remoteClient.CreateDirectoryAsync(remoteFolder, token);
+			if (!await remoteClient.DirectoryExists(remoteFolder, token)) {
+				await remoteClient.CreateDirectory(remoteFolder, token);
 				checkFileExistence = false;
 			}
 
@@ -79,13 +79,13 @@ namespace FluentFTP {
 			var shouldExist = new Dictionary<string, bool>();
 
 			// get all the folders in the local directory
-			var dirListing = (await GetListingAsync(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpObjectType.Directory).Select(x => x.FullName).ToArray();
+			var dirListing = (await GetListing(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpObjectType.Directory).Select(x => x.FullName).ToArray();
 
 			// break if task is cancelled
 			token.ThrowIfCancellationRequested();
 
 			// get all the already existing files
-			var remoteListing = checkFileExistence ? await remoteClient.GetListingAsync(remoteFolder, FtpListOption.Recursive, token) : null;
+			var remoteListing = checkFileExistence ? await remoteClient.GetListing(remoteFolder, FtpListOption.Recursive, token) : null;
 
 			// break if task is cancelled
 			token.ThrowIfCancellationRequested();
@@ -101,21 +101,21 @@ namespace FluentFTP {
 			 *-------------------------------------------------------------------------------------*/
 
 			// loop through each folder and ensure it exists #2
-			await CreateSubDirectoriesAsync(remoteClient, dirsToUpload, token);
+			await CreateSubDirectories(remoteClient, dirsToUpload, token);
 
 			// get all the files in the local directory
-			var fileListing = (await GetListingAsync(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpObjectType.File).Select(x => x.FullName).ToArray();
+			var fileListing = (await GetListing(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpObjectType.File).Select(x => x.FullName).ToArray();
 
 			// loop through each file and transfer it
-			var filesToUpload = await GetFilesToTransferAsync(sourceFolder, remoteFolder, rules, results, shouldExist, fileListing);
-			await TransferServerFilesAsync(filesToUpload, remoteClient, existsMode, verifyOptions, progress, remoteListing, token);
+			var filesToUpload = await GetFilesToTransfer(sourceFolder, remoteFolder, rules, results, shouldExist, fileListing);
+			await TransferServerFiles(filesToUpload, remoteClient, existsMode, verifyOptions, progress, remoteListing, token);
 
 			// delete the extra remote files if in mirror mode and the directory was pre-existing
 			// DeleteExtraServerFiles(mode, shouldExist, remoteListing);
 
 			return results;
 		}
-		protected async Task<List<FtpResult>> GetFilesToTransferAsync(string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, string[] fileListing) {
+		protected async Task<List<FtpResult>> GetFilesToTransfer(string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, string[] fileListing) {
 
 			var filesToTransfer = new List<FtpResult>();
 
@@ -128,7 +128,7 @@ namespace FluentFTP {
 				// create the result object
 				var result = new FtpResult {
 					Type = FtpObjectType.File,
-					Size = await GetFileSizeAsync(sourceFile),
+					Size = await GetFileSize(sourceFile),
 					Name = sourceFile.GetFtpFileName(),
 					RemotePath = remoteFile,
 					LocalPath = sourceFile
@@ -152,9 +152,9 @@ namespace FluentFTP {
 			return filesToTransfer;
 		}
 
-		protected async Task TransferServerFilesAsync(List<FtpResult> filesToTransfer, AsyncFtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
+		protected async Task TransferServerFiles(List<FtpResult> filesToTransfer, AsyncFtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
 
-			LogFunc(nameof(TransferServerFilesAsync), new object[] { filesToTransfer.Count + " files" });
+			LogFunc(nameof(TransferServerFiles), new object[] { filesToTransfer.Count + " files" });
 
 			int r = -1;
 			foreach (var result in filesToTransfer) {
@@ -173,7 +173,7 @@ namespace FluentFTP {
 					var metaProgress = new FtpProgress(filesToTransfer.Count, r);
 
 					// transfer the file
-					var transferred = await TransferFileAsync(result.LocalPath, remoteClient, result.RemotePath, false, existsModeToUse, verifyOptions, progress, metaProgress, token);
+					var transferred = await TransferFile(result.LocalPath, remoteClient, result.RemotePath, false, existsModeToUse, verifyOptions, progress, metaProgress, token);
 					result.IsSuccess = transferred.IsSuccess();
 					result.IsSkipped = transferred == FtpStatus.Skipped;
 

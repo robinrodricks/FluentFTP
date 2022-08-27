@@ -33,10 +33,10 @@ namespace Examples {
 		public static async Task GetChecksumAsync() {
 			var token = new CancellationToken();
 			using (var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
-				await conn.ConnectAsync(token);
+				await conn.Connect(token);
 
 				// Get a hash checksum for the file
-				FtpHash hash = await conn.GetChecksumAsync("/path/to/remote/file", FtpHashAlgorithm.NONE, token);
+				FtpHash hash = await conn.GetChecksum("/path/to/remote/file", FtpHashAlgorithm.NONE, token);
 
 				// Make sure it returned a valid hash object
 				if (hash.IsValid) {

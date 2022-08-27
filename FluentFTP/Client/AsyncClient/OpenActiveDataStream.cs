@@ -50,7 +50,7 @@ namespace FluentFTP {
 						throw new InvalidOperationException("The IP protocol being used is not supported.");
 				}
 
-				if (!(reply = await ExecuteAsync("EPRT |" + ipver + "|" + GetLocalAddress(stream.LocalEndPoint.Address) + "|" + stream.LocalEndPoint.Port + "|", token)).Success) {
+				if (!(reply = await Execute("EPRT |" + ipver + "|" + GetLocalAddress(stream.LocalEndPoint.Address) + "|" + stream.LocalEndPoint.Port + "|", token)).Success) {
 					// if we're connected with IPv4 and the data channel type is AutoActive then try to fall back to the PORT command
 					if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
 						stream.ControlConnection = null; // we don't want this failed EPRT attempt to close our control connection when the stream is closed so clear out the reference.
@@ -68,7 +68,7 @@ namespace FluentFTP {
 					throw new FtpException("Only IPv4 is supported by the PORT command. Use EPRT instead.");
 				}
 
-				if (!(reply = await ExecuteAsync("PORT " +
+				if (!(reply = await Execute("PORT " +
 												 GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ',') + "," +
 												 stream.LocalEndPoint.Port / 256 + "," +
 												 stream.LocalEndPoint.Port % 256, token)).Success) {
@@ -81,9 +81,9 @@ namespace FluentFTP {
 				// Fix for #887: When downloading through SOCKS proxy, the restart param is incorrect and needs to be ignored.
 				// Restart is set to the length of the already downloaded file (i.e. if the file is 1000 bytes, it restarts with restart parameter 1000 or 1001 after file is successfully downloaded)
 				if (IsProxy()) {
-					var length = await GetFileSizeAsync(m_path, -1L, token);
+					var length = await GetFileSize(m_path, -1L, token);
 					if (restart < length) {
-						reply = await ExecuteAsync("REST " + restart, token);
+						reply = await Execute("REST " + restart, token);
 						if (!reply.Success) {
 							throw new FtpCommandException(reply);
 						}
@@ -91,13 +91,13 @@ namespace FluentFTP {
 				}
 				else {
 					// Note: If this implementation causes an issue with non-proxy downloads too then we need to use the above implementation for all clients.
-					if (!(reply = await ExecuteAsync("REST " + restart, token)).Success) {
+					if (!(reply = await Execute("REST " + restart, token)).Success) {
 						throw new FtpCommandException(reply);
 					}
 				}
 			}
 
-			if (!(reply = await ExecuteAsync(command, token)).Success) {
+			if (!(reply = await Execute(command, token)).Success) {
 				stream.Close();
 				throw new FtpCommandException(reply);
 			}

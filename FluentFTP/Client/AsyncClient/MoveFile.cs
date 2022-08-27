@@ -19,7 +19,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">Should we check if the dest file exists? And if it does should we overwrite/skip the operation?</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>Whether the file was moved</returns>
-		public async Task<bool> MoveFileAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken)) {
+		public async Task<bool> MoveFile(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -32,16 +32,16 @@ namespace FluentFTP {
 			path = path.GetFtpPath();
 			dest = dest.GetFtpPath();
 
-			LogFunc(nameof(MoveFileAsync), new object[] { path, dest, existsMode });
+			LogFunc(nameof(MoveFile), new object[] { path, dest, existsMode });
 
-			if (await FileExistsAsync(path, token)) {
+			if (await FileExists(path, token)) {
 				// check if dest file exists and act accordingly
 				if (existsMode != FtpRemoteExists.NoCheck) {
-					bool destExists = await FileExistsAsync(dest, token);
+					bool destExists = await FileExists(dest, token);
 					if (destExists) {
 						switch (existsMode) {
 							case FtpRemoteExists.Overwrite:
-								await DeleteFileAsync(dest, token);
+								await DeleteFile(dest, token);
 								break;
 
 							case FtpRemoteExists.Skip:
@@ -51,7 +51,7 @@ namespace FluentFTP {
 				}
 
 				// move the file
-				await RenameAsync(path, dest, token);
+				await Rename(path, dest, token);
 
 				return true;
 			}

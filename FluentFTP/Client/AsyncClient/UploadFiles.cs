@@ -36,7 +36,7 @@ namespace FluentFTP {
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
-		public async Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true,
+		public async Task<int> UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true,
 			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null) {
 
 			// verify args
@@ -50,7 +50,7 @@ namespace FluentFTP {
 
 			remoteDir = remoteDir.GetFtpPath();
 
-			LogFunc(nameof(UploadFilesAsync), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
+			LogFunc(nameof(UploadFiles), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
 			token.ThrowIfCancellationRequested();
@@ -66,14 +66,14 @@ namespace FluentFTP {
 
 			// create remote dir if wanted
 			if (createRemoteDir) {
-				if (!await DirectoryExistsAsync(remoteDir, token)) {
-					await CreateDirectoryAsync(remoteDir, token);
+				if (!await DirectoryExists(remoteDir, token)) {
+					await CreateDirectory(remoteDir, token);
 					checkFileExistence = false;
 				}
 			}
 
 			// get all the already existing files (if directory was created just create an empty array)
-			var existingFiles = checkFileExistence ? await GetNameListingAsync(remoteDir, token) : new string[0];
+			var existingFiles = checkFileExistence ? await GetNameListing(remoteDir, token) : new string[0];
 
 			// per local file
 			var r = -1;
@@ -94,7 +94,7 @@ namespace FluentFTP {
 
 				// try to upload it
 				try {
-					var ok = await UploadFileFromFileAsync(localPath, remoteFilePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, remoteFilePath), true, verifyOptions, token, progress, metaProgress);
+					var ok = await UploadFileFromFile(localPath, remoteFilePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, remoteFilePath), true, verifyOptions, token, progress, metaProgress);
 					if (ok.IsSuccess()) {
 						successfulUploads.Add(remoteFilePath);
 					}
@@ -145,7 +145,7 @@ namespace FluentFTP {
 
 		protected async Task PurgeSuccessfulUploadsAsync(IEnumerable<string> remotePaths) {
 			foreach (var remotePath in remotePaths) {
-				await DeleteFileAsync(remotePath);
+				await DeleteFile(remotePath);
 			}
 		}
 #endif

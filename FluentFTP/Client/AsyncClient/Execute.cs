@@ -18,12 +18,12 @@ namespace FluentFTP {
 		/// <param name="command">The command to execute</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>The servers reply to the command</returns>
-		public async Task<FtpReply> ExecuteAsync(string command, CancellationToken token) {
+		public async Task<FtpReply> Execute(string command, CancellationToken token) {
 			FtpReply reply;
 
 			if (StaleDataCheck && Status.AllowCheckStaleData) {
 #if NETSTANDARD
-				await ReadStaleDataAsync(true, false, true, token);
+				await ReadStaleData(true, false, true, token);
 #else
 				ReadStaleData(true, false, true);
 #endif
@@ -38,7 +38,7 @@ namespace FluentFTP {
 					};
 				}
 
-				await ConnectAsync(token);
+				await Connect(token);
 			}
 
 			// hide sensitive data from logs
@@ -61,7 +61,7 @@ namespace FluentFTP {
 			// send command to FTP server
 			await m_stream.WriteLineAsync(m_textEncoding, command, token);
 			m_lastCommandUtc = DateTime.UtcNow;
-			reply = await GetReplyAsync(token);
+			reply = await GetReply(token);
 
 			return reply;
 		}

@@ -47,7 +47,7 @@ namespace FluentFTP.Tests.Unit {
 			client.ConnectTimeout = timeoutMillis;
 			var start = DateTime.Now;
 			try {
-				await client.ConnectAsync();
+				await client.Connect();
 				Assert.True(false, "Connect succeeded. Was supposed to time out.");
 			}
 			catch (TimeoutException) {

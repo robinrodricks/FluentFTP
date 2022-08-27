@@ -19,14 +19,14 @@ namespace FluentFTP {
 		/// <param name="path">The path of the directory to list</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>An array of file and directory names if any were returned.</returns>
-		public async Task<string[]> GetNameListingAsync(string path, CancellationToken token = default(CancellationToken)) {
+		public async Task<string[]> GetNameListing(string path, CancellationToken token = default(CancellationToken)) {
 
 			// FIX : #768 NullOrEmpty is valid, means "use working directory".
 			if (!string.IsNullOrEmpty(path)) {
 				path = path.GetFtpPath();
 			}
 
-			LogFunc(nameof(GetNameListingAsync), new object[] { path });
+			LogFunc(nameof(GetNameListing), new object[] { path });
 
 			var listing = new List<string>();
 
@@ -74,8 +74,8 @@ namespace FluentFTP {
 		/// Returns a file/directory listing using the NLST command asynchronously
 		/// </summary>
 		/// <returns>An array of file and directory names if any were returned.</returns>
-		public Task<string[]> GetNameListingAsync(CancellationToken token = default(CancellationToken)) {
-			return GetNameListingAsync(null, token);
+		public Task<string[]> GetNameListing(CancellationToken token = default(CancellationToken)) {
+			return GetNameListing(null, token);
 		}
 #endif
 	}

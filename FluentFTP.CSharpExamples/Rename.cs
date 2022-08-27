@@ -21,11 +21,11 @@ namespace Examples {
 		public static async Task RenameAsync() {
 			var token = new CancellationToken();
 			using (var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
-				await conn.ConnectAsync(token);
+				await conn.Connect(token);
 
 				// renaming a directory is dependent on the server! if you attempt it
 				// and it fails it's not because FluentFTP has a bug!
-				await conn.RenameAsync("/full/or/relative/path/to/src", "/full/or/relative/path/to/dest", token);
+				await conn.Rename("/full/or/relative/path/to/src", "/full/or/relative/path/to/dest", token);
 			}
 		}
 

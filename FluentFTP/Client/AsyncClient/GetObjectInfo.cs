@@ -28,7 +28,7 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <exception cref="InvalidOperationException">Thrown if the server does not support this Capability</exception>
 		/// <returns>A <see cref="FtpListItem"/> if the command succeeded, or null if there was a problem.</returns>
-		public async Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false, CancellationToken token = default(CancellationToken)) {
+		public async Task<FtpListItem> GetObjectInfo(string path, bool dateModified = false, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -36,7 +36,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(GetObjectInfoAsync), new object[] { path, dateModified });
+			LogFunc(nameof(GetObjectInfo), new object[] { path, dateModified });
 
 			FtpReply reply;
 			string[] res;
@@ -48,7 +48,7 @@ namespace FluentFTP {
 			if (supportsMachineList) {
 				// USE MACHINE LISTING TO GET INFO FOR A SINGLE FILE
 
-				if ((reply = await ExecuteAsync("MLST " + path, token)).Success) {
+				if ((reply = await Execute("MLST " + path, token)).Success) {
 					res = reply.InfoMessages.Split('\n');
 					if (res.Length > 1) {
 						var info = new StringBuilder();
@@ -68,7 +68,7 @@ namespace FluentFTP {
 				// USE GETLISTING TO GET ALL FILES IN DIR .. SLOWER BUT AT LEAST IT WORKS
 
 				var dirPath = path.GetFtpDirectoryName();
-				var dirItems = await GetListingAsync(dirPath, token);
+				var dirItems = await GetListing(dirPath, token);
 
 				foreach (var dirItem in dirItems) {
 					if (dirItem.FullName == path) {
@@ -82,7 +82,7 @@ namespace FluentFTP {
 
 			// Get the accurate date modified using another MDTM command
 			if (result != null && dateModified && HasFeature(FtpCapability.MDTM)) {
-				var alternativeModifiedDate = await GetModifiedTimeAsync(path, token);
+				var alternativeModifiedDate = await GetModifiedTime(path, token);
 				if (alternativeModifiedDate != default) {
 					result.Modified = alternativeModifiedDate;
 				}

@@ -29,13 +29,13 @@ namespace FluentFTP.Proxy.AsyncProxy {
 		protected virtual async Task HandshakeAsync(CancellationToken token = default) {
 			// Proxy authentication eventually needed.
 			if (Proxy.ProxyCredentials != null) {
-				await AuthenticateAsync(Proxy.ProxyCredentials.UserName, Proxy.ProxyCredentials.Password, Proxy.ProxyCredentials.Domain, token);
+				await Authenticate(Proxy.ProxyCredentials.UserName, Proxy.ProxyCredentials.Password, Proxy.ProxyCredentials.Domain, token);
 			}
 
 			// Connection USER@Host means to change user name to add host.
 			Credentials.UserName = Credentials.UserName + "@" + Host + ":" + Port;
 
-			var reply = await GetReplyAsync(token);
+			var reply = await GetReply(token);
 			if (reply.Code == "220") {
 				LogLine(FtpTraceLevel.Info, "Status: Server is ready for the new client");
 			}

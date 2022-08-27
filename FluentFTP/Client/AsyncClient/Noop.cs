@@ -14,7 +14,7 @@ namespace FluentFTP {
 #if ASYNC
 		/// <summary>
 		/// Sends the NOOP command according to <see cref="NoopInterval"/> (effectively a no-op if 0).
-		/// Please call <see cref="GetReplyAsync"/> as needed to read the "OK" command sent by the server and prevent stale data on the socket.
+		/// Please call <see cref="GetReply"/> as needed to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// Note that response is not guaranteed by all FTP servers when sent during file transfers.
 		/// </summary>
 		/// <param name="token"></param>

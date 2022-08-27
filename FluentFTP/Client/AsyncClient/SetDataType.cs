@@ -29,14 +29,14 @@ namespace FluentFTP {
 				FtpReply reply;
 				switch (type) {
 					case FtpDataType.ASCII:
-						if (!(reply = await ExecuteAsync("TYPE A", token)).Success) {
+						if (!(reply = await Execute("TYPE A", token)).Success) {
 							throw new FtpCommandException(reply);
 						}
 
 						break;
 
 					case FtpDataType.Binary:
-						if (!(reply = await ExecuteAsync("TYPE I", token)).Success) {
+						if (!(reply = await Execute("TYPE I", token)).Success) {
 							throw new FtpCommandException(reply);
 						}
 

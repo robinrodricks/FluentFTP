@@ -229,7 +229,7 @@ namespace FluentFTP.Client.Modules {
 
 			// disconnect if already connected
 			if (conn.IsConnected) {
-				await conn.DisconnectAsync(token);
+				await conn.Disconnect(token);
 			}
 
 			// try each encryption mode
@@ -273,7 +273,7 @@ namespace FluentFTP.Client.Modules {
 					var connected = false;
 					var dataConn = FtpDataConnectionType.PASV;
 					try {
-						await conn.ConnectAsync(token);
+						await conn.Connect(token);
 						connected = true;
 
 						// get data connection once connected
@@ -281,7 +281,7 @@ namespace FluentFTP.Client.Modules {
 
 						// if non-cloned connection, we want to remain connected if it works
 						if (cloneConnection) {
-							await conn.DisconnectAsync(token);
+							await conn.Disconnect(token);
 						}
 					}
 					catch (Exception ex) {
@@ -294,7 +294,7 @@ namespace FluentFTP.Client.Modules {
 #endif
 
 						// since the connection failed, disconnect and retry
-						await conn.DisconnectAsync(token);
+						await conn.Disconnect(token);
 
 						// fix #907: support TLS 1.3 in .NET 5+
 						// if it is a protocol error, then jump to the next protocol

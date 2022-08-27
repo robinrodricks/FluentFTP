@@ -15,7 +15,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the file</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>True if the file exists, false otherwise</returns>
-		public async Task<bool> FileExistsAsync(string path, CancellationToken token = default(CancellationToken)) {
+		public async Task<bool> FileExists(string path, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -23,7 +23,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(FileExistsAsync), new object[] { path });
+			LogFunc(nameof(FileExists), new object[] { path });
 
 			path = await GetAbsolutePathAsync(path, token);
 
@@ -32,7 +32,7 @@ namespace FluentFTP {
 			if (HasFeature(FtpCapability.SIZE) && ServerHandler != null && !ServerHandler.DontUseSizeEvenIfCapable(path)) {
 				// Fix #328: get filesize in ASCII or Binary mode as required by server
 				FtpSizeReply sizeReply = new FtpSizeReply();
-				await GetFileSizeInternalAsync(path, -1, token, sizeReply);
+				await GetFileSizeInternal(path, -1, token, sizeReply);
 
 				// handle known errors to the SIZE command
 				var sizeKnownError = CheckFileExistsBySize(sizeReply);
@@ -43,7 +43,7 @@ namespace FluentFTP {
 
 			// check if file exists by attempting to get its date modified (MDTM)
 			if (HasFeature(FtpCapability.MDTM) && ServerHandler != null && !ServerHandler.DontUseMdtmEvenIfCapable(path)) {
-				FtpReply reply = await ExecuteAsync("MDTM " + path, token);
+				FtpReply reply = await Execute("MDTM " + path, token);
 				var ch = reply.Code[0];
 				if (ch == '2') {
 					return true;
@@ -66,7 +66,7 @@ namespace FluentFTP {
 				return (bool)handledByCustom;
 			}
 			else {
-				var fileList = await GetNameListingAsync(path.GetFtpDirectoryName(), token);
+				var fileList = await GetNameListing(path.GetFtpDirectoryName(), token);
 				return FileListings.FileExistsInNameListing(fileList, path);
 			}
 		}

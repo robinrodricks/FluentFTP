@@ -19,10 +19,10 @@ namespace Examples {
 		public static async Task GetModifiedTimeAsync() {
 			var token = new CancellationToken();
 			using (var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
-				await conn.ConnectAsync(token);
+				await conn.Connect(token);
 
 				Console.WriteLine("The modified type is: " +
-							  await conn.GetModifiedTimeAsync("/full/or/relative/path/to/file", token));
+							  await conn.GetModifiedTime("/full/or/relative/path/to/file", token));
 			}
 		}
 

@@ -21,9 +21,9 @@ Namespace Examples
 			Dim token = New CancellationToken()
 
 			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await conn.ConnectAsync(token)
+				Await conn.Connect(token)
 
-				If Await conn.DirectoryExistsAsync("/full/or/relative/path") Then
+				If Await conn.DirectoryExists("/full/or/relative/path") Then
 					' do something
 				End If
 

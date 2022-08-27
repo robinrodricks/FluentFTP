@@ -21,8 +21,8 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		//[Obsolete("OpenWriteAsync() is obsolete, please use UploadAsync() or UploadFileAsync() instead", false)]
-		public virtual Task<Stream> OpenWriteAsync(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken)) {
-			return OpenWriteAsync(path, type, checkIfFileExists ? 0 : -1, token);
+		public virtual Task<Stream> OpenWrite(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken)) {
+			return OpenWrite(path, type, checkIfFileExists ? 0 : -1, token);
 		}
 
 		/// <summary>
@@ -39,7 +39,7 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		//[Obsolete("OpenWriteAsync() is obsolete, please use UploadAsync() or UploadFileAsync() instead", false)]
-		public virtual async Task<Stream> OpenWriteAsync(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken)) {
+		public virtual async Task<Stream> OpenWrite(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
@@ -48,13 +48,13 @@ namespace FluentFTP {
 			path = path.GetFtpPath();
 			m_path = path;
 
-			LogFunc(nameof(OpenWriteAsync), new object[] { path, type });
+			LogFunc(nameof(OpenWrite), new object[] { path, type });
 
 			var client = this;
 			FtpDataStream stream = null;
 			long length = 0;
 
-			length = fileLen == 0 ? await client.GetFileSizeAsync(path, -1, token) : fileLen;
+			length = fileLen == 0 ? await client.GetFileSize(path, -1, token) : fileLen;
 
 			await client.SetDataTypeAsync(type, token);
 			stream = await client.OpenDataStreamAsync("STOR " + path, 0, token);

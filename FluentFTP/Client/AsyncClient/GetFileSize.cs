@@ -15,7 +15,7 @@ namespace FluentFTP {
 		/// <param name="defaultValue">Value to return if there was an error obtaining the file size, or if the file does not exist</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>The size of the file, or defaultValue if there was a problem.</returns>
-		public async Task<long> GetFileSizeAsync(string path, long defaultValue = -1, CancellationToken token = default(CancellationToken)) {
+		public async Task<long> GetFileSize(string path, long defaultValue = -1, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -23,7 +23,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(GetFileSizeAsync), new object[] { path, defaultValue });
+			LogFunc(nameof(GetFileSize), new object[] { path, defaultValue });
 
 			// execute server-specific file size fetching logic, if any
 			if (ServerHandler != null && ServerHandler.IsCustomFileSize()) {
@@ -35,7 +35,7 @@ namespace FluentFTP {
 			}
 
 			FtpSizeReply sizeReply = new FtpSizeReply();
-			await GetFileSizeInternalAsync(path, defaultValue, token, sizeReply);
+			await GetFileSizeInternal(path, defaultValue, token, sizeReply);
 
 			return sizeReply.FileSize;
 		}
@@ -43,7 +43,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Gets the file size of an object, without locking
 		/// </summary>
-		protected async Task GetFileSizeInternalAsync(string path, long defaultValue, CancellationToken token, FtpSizeReply sizeReply) {
+		protected async Task GetFileSizeInternal(string path, long defaultValue, CancellationToken token, FtpSizeReply sizeReply) {
 			long length = defaultValue;
 
 			path = path.GetFtpPath();
@@ -54,7 +54,7 @@ namespace FluentFTP {
 			}
 
 			// execute the SIZE command
-			var reply = await ExecuteAsync("SIZE " + path, token);
+			var reply = await Execute("SIZE " + path, token);
 			sizeReply.Reply = reply;
 			if (!reply.Success) {
 				sizeReply.FileSize = defaultValue;
@@ -65,7 +65,7 @@ namespace FluentFTP {
 					Status.FileSizeASCIINotSupported = true;
 
 					// retry getting the file size
-					await GetFileSizeInternalAsync(path, defaultValue, token, sizeReply);
+					await GetFileSizeInternal(path, defaultValue, token, sizeReply);
 					return;
 				}
 			}

@@ -25,7 +25,7 @@ namespace FluentFTP.Proxy.AsyncProxy {
 
 			// Proxy authentication eventually needed.
 			if (Proxy.ProxyCredentials != null) {
-				await AuthenticateAsync(Proxy.ProxyCredentials.UserName, Proxy.ProxyCredentials.Password, Proxy.ProxyCredentials.Domain, token);
+				await Authenticate(Proxy.ProxyCredentials.UserName, Proxy.ProxyCredentials.Password, Proxy.ProxyCredentials.Domain, token);
 			}
 
 			// Connection USER@Host means to change user name to add host.

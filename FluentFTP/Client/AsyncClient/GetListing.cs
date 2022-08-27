@@ -28,11 +28,11 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <param name="enumToken">The token that can be used to cancel the enumerator</param>
 		/// <returns>An array of items retrieved in the listing</returns>
-		public async IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, FtpListOption options, CancellationToken token = default(CancellationToken), [EnumeratorCancellation] CancellationToken enumToken = default(CancellationToken)) {
+		public async IAsyncEnumerable<FtpListItem> GetListingEnumerable(string path, FtpListOption options, CancellationToken token = default(CancellationToken), [EnumeratorCancellation] CancellationToken enumToken = default(CancellationToken)) {
 
 			// start recursive process if needed and unsupported by the server
 			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
-				await foreach (FtpListItem i in GetListingRecursiveAsyncEnumerable(await GetAbsolutePathAsync(path, token), options, token, enumToken)) {
+				await foreach (FtpListItem i in GetListingRecursiveEnumerable(await GetAbsolutePathAsync(path, token), options, token, enumToken)) {
 					yield return i;
 				}
 
@@ -44,7 +44,7 @@ namespace FluentFTP {
 				path = path.GetFtpPath();
 			}
 
-			LogFunc(nameof(GetListingAsync), new object[] { path, options });
+			LogFunc(nameof(GetListing), new object[] { path, options });
 
 			var lst = new List<FtpListItem>();
 			var rawlisting = new List<string>();
@@ -65,7 +65,7 @@ namespace FluentFTP {
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
 			// read in raw file listing
-			rawlisting = await GetListingInternalAsync(listcmd, options, true, token);
+			rawlisting = await GetListingInternal(listcmd, options, true, token);
 
 			FtpListItem item = null;
 
@@ -109,8 +109,8 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <param name="enumToken">The token that can be used to cancel the enumerator</param>
 		/// <returns>An array of items retrieved in the listing</returns>
-		public IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken)) {
-			return GetListingAsyncEnumerable(path, 0, token, enumToken);
+		public IAsyncEnumerable<FtpListItem> GetListingEnumerable(string path, CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken)) {
+			return GetListingEnumerable(path, 0, token, enumToken);
 		}
 
 		/// <summary>
@@ -124,8 +124,8 @@ namespace FluentFTP {
 		/// be retrieved.
 		/// </remarks>
 		/// <returns>An array of items retrieved in the listing</returns>
-		public IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken)) {
-			return GetListingAsyncEnumerable(null, token, enumToken);
+		public IAsyncEnumerable<FtpListItem> GetListingEnumerable(CancellationToken token = default(CancellationToken), CancellationToken enumToken = default(CancellationToken)) {
+			return GetListingEnumerable(null, token, enumToken);
 		}
 
 #endif
@@ -146,11 +146,11 @@ namespace FluentFTP {
 		/// <param name="options">Options that dictate how the list operation is performed</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>An array of items retrieved in the listing</returns>
-		public async Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
+		public async Task<FtpListItem[]> GetListing(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
 
 			// start recursive process if needed and unsupported by the server
 			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
-				return await GetListingRecursiveAsync(await GetAbsolutePathAsync(path, token), options, token);
+				return await GetListingRecursive(await GetAbsolutePathAsync(path, token), options, token);
 			}
 
 			// FIX : #768 NullOrEmpty is valid, means "use working directory".
@@ -158,7 +158,7 @@ namespace FluentFTP {
 				path = path.GetFtpPath();
 			}
 
-			LogFunc(nameof(GetListingAsync), new object[] { path, options });
+			LogFunc(nameof(GetListing), new object[] { path, options });
 
 			var lst = new List<FtpListItem>();
 			var rawlisting = new List<string>();
@@ -179,7 +179,7 @@ namespace FluentFTP {
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
 			// read in raw file listing
-			rawlisting = await GetListingInternalAsync(listcmd, options, true, token);
+			rawlisting = await GetListingInternal(listcmd, options, true, token);
 
 			FtpListItem item = null;
 
@@ -217,7 +217,7 @@ namespace FluentFTP {
 					FullName = rawEntry
 				};
 
-				if (await DirectoryExistsAsync(item.FullName, token)) {
+				if (await DirectoryExists(item.FullName, token)) {
 					item.Type = FtpObjectType.Directory;
 				}
 				else {
@@ -242,7 +242,7 @@ namespace FluentFTP {
 							LogStatus(FtpTraceLevel.Verbose, "Trying to retrieve modification time of a directory, some servers don't like this...");
 						}
 
-						if ((modify = await GetModifiedTimeAsync(item.FullName, token: token)) != DateTime.MinValue) {
+						if ((modify = await GetModifiedTime(item.FullName, token: token)) != DateTime.MinValue) {
 							item.Modified = modify;
 						}
 					}
@@ -254,7 +254,7 @@ namespace FluentFTP {
 					// supports the SIZE command, then load the file size
 					if (item.Size == -1) {
 						if (item.Type != FtpObjectType.Directory) {
-							item.Size = await GetFileSizeAsync(item.FullName, -1, token);
+							item.Size = await GetFileSize(item.FullName, -1, token);
 						}
 						else {
 							item.Size = 0;
@@ -269,7 +269,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Get the records of a file listing and retry if temporary failure.
 		/// </summary>
-		protected async Task<List<string>> GetListingInternalAsync(string listcmd, FtpListOption options, bool retry, CancellationToken token) {
+		protected async Task<List<string>> GetListingInternal(string listcmd, FtpListOption options, bool retry, CancellationToken token) {
 			var rawlisting = new List<string>();
 			var isUseStat = options.HasFlag(FtpListOption.UseStat);
 
@@ -280,7 +280,7 @@ namespace FluentFTP {
 
 				// read in raw file listing from control stream
 				if (isUseStat) {
-					var reply = await ExecuteAsync(listcmd, token);
+					var reply = await Execute(listcmd, token);
 					if (reply.Success) {
 
 						LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
@@ -351,7 +351,7 @@ namespace FluentFTP {
 				if (retry && ioEx.Message.IsKnownError(ServerStringModule.unexpectedEOF)) {
 					// retry once more, but do not go into a infinite recursion loop here
 					LogLine(FtpTraceLevel.Verbose, "Warning:  Retry GetListing once more due to unexpected EOF");
-					return await GetListingInternalAsync(listcmd, options, false, token);
+					return await GetListingInternal(listcmd, options, false, token);
 				}
 				else {
 					// suppress all other types of exceptions
@@ -375,8 +375,8 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <param name="enumToken">The token that can be used to cancel the enumerator</param>
 		/// <returns>An array of items retrieved in the listing</returns>
-		public Task<FtpListItem[]> GetListingAsync(string path, CancellationToken token = default(CancellationToken)) {
-			return GetListingAsync(path, 0, token);
+		public Task<FtpListItem[]> GetListing(string path, CancellationToken token = default(CancellationToken)) {
+			return GetListing(path, 0, token);
 		}
 
 
@@ -391,8 +391,8 @@ namespace FluentFTP {
 		/// be retrieved.
 		/// </remarks>
 		/// <returns>An array of items retrieved in the listing</returns>
-		public Task<FtpListItem[]> GetListingAsync(CancellationToken token = default(CancellationToken)) {
-			return GetListingAsync(null, token);
+		public Task<FtpListItem[]> GetListing(CancellationToken token = default(CancellationToken)) {
+			return GetListing(null, token);
 		}
 
 #endif
@@ -409,7 +409,7 @@ namespace FluentFTP {
 		/// <param name="enumToken"></param>
 		/// <returns>An array of FtpListItem objects</returns>
 
-		protected async IAsyncEnumerable<FtpListItem> GetListingRecursiveAsyncEnumerable(string path, FtpListOption options, CancellationToken token, [EnumeratorCancellation] CancellationToken enumToken = default) {
+		protected async IAsyncEnumerable<FtpListItem> GetListingRecursiveEnumerable(string path, FtpListOption options, CancellationToken token, [EnumeratorCancellation] CancellationToken enumToken = default) {
 			// remove the recursive flag
 			options &= ~FtpListOption.Recursive;
 
@@ -427,7 +427,7 @@ namespace FluentFTP {
 				}
 
 				// extract the directories
-				await foreach (var item in GetListingAsyncEnumerable(currentPath, options, token)) {
+				await foreach (var item in GetListingEnumerable(currentPath, options, token)) {
 					// break if task is cancelled
 					token.ThrowIfCancellationRequested();
 
@@ -455,7 +455,7 @@ namespace FluentFTP {
 		/// <param name="token"></param>
 		/// <param name="enumToken"></param>
 		/// <returns>An array of FtpListItem objects</returns>
-		protected async Task<FtpListItem[]> GetListingRecursiveAsync(string path, FtpListOption options, CancellationToken token) {
+		protected async Task<FtpListItem[]> GetListingRecursive(string path, FtpListOption options, CancellationToken token) {
 
 			// remove the recursive flag
 			options &= ~FtpListOption.Recursive;
@@ -474,7 +474,7 @@ namespace FluentFTP {
 				}
 
 				// list it
-				FtpListItem[] items = await GetListingAsync(currentPath, options, token);
+				FtpListItem[] items = await GetListing(currentPath, options, token);
 
 				// break if task is cancelled
 				token.ThrowIfCancellationRequested();

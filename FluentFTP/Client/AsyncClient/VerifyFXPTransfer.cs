@@ -28,12 +28,12 @@ namespace FluentFTP {
 
 				// get the hashes of both files using the same mutual algorithm
 
-				FtpHash sourceHash = await GetChecksumAsync(sourcePath, algorithm, token);
+				FtpHash sourceHash = await GetChecksum(sourcePath, algorithm, token);
 				if (!sourceHash.IsValid) {
 					return false;
 				}
 
-				FtpHash destinationHash = await fxpDestinationClient.GetChecksumAsync(remotePath, algorithm, token);
+				FtpHash destinationHash = await fxpDestinationClient.GetChecksum(remotePath, algorithm, token);
 				if (!destinationHash.IsValid) {
 					return false;
 				}

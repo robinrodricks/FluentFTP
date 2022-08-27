@@ -24,7 +24,7 @@ namespace FluentFTP {
 			FtpDataStream stream = null;
 
 			if (!IsConnected) {
-				await ConnectAsync(token);
+				await Connect(token);
 			}
 
 			// The PORT and PASV commands do not work with IPv6 so

@@ -95,94 +95,94 @@ namespace FluentFTP {
 		bool HasFeature(FtpCapability cap);
 		void DisableUTF8();
 
-		Task<FtpReply> ExecuteAsync(string command, CancellationToken token = default(CancellationToken));
-		Task<FtpReply> GetReplyAsync(CancellationToken token = default(CancellationToken));
-		Task ConnectAsync(CancellationToken token = default(CancellationToken));
-		Task ConnectAsync(FtpProfile profile, CancellationToken token = default(CancellationToken));
-		Task<List<FtpProfile>> AutoDetectAsync(bool firstOnly = true, bool cloneConnection = true, CancellationToken token = default(CancellationToken));
-		Task<FtpProfile> AutoConnectAsync(CancellationToken token = default(CancellationToken));
+		Task<FtpReply> Execute(string command, CancellationToken token = default(CancellationToken));
+		Task<FtpReply> GetReply(CancellationToken token = default(CancellationToken));
+		Task Connect(CancellationToken token = default(CancellationToken));
+		Task Connect(FtpProfile profile, CancellationToken token = default(CancellationToken));
+		Task<List<FtpProfile>> AutoDetect(bool firstOnly = true, bool cloneConnection = true, CancellationToken token = default(CancellationToken));
+		Task<FtpProfile> AutoConnect(CancellationToken token = default(CancellationToken));
 
-		Task DisconnectAsync(CancellationToken token = default(CancellationToken));
+		Task Disconnect(CancellationToken token = default(CancellationToken));
 
 
 
 		// MANAGEMENT
 
-		Task DeleteFileAsync(string path, CancellationToken token = default(CancellationToken));
-		Task DeleteDirectoryAsync(string path, CancellationToken token = default(CancellationToken));
-		Task DeleteDirectoryAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken));
-		Task<bool> DirectoryExistsAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<bool> FileExistsAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<bool> CreateDirectoryAsync(string path, bool force, CancellationToken token = default(CancellationToken));
-		Task<bool> CreateDirectoryAsync(string path, CancellationToken token = default(CancellationToken));
-		Task RenameAsync(string path, string dest, CancellationToken token = default(CancellationToken));
-		Task<bool> MoveFileAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken));
-		Task<bool> MoveDirectoryAsync(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken));
-		Task SetFilePermissionsAsync(string path, int permissions, CancellationToken token = default(CancellationToken));
-		Task ChmodAsync(string path, int permissions, CancellationToken token = default(CancellationToken));
-		Task SetFilePermissionsAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken));
-		Task ChmodAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken));
-		Task<FtpListItem> GetFilePermissionsAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<int> GetChmodAsync(string path, CancellationToken token = default(CancellationToken));
-		Task SetWorkingDirectoryAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<string> GetWorkingDirectoryAsync(CancellationToken token = default(CancellationToken));
-		Task<long> GetFileSizeAsync(string path, long defaultValue = -1, CancellationToken token = default(CancellationToken));
-		Task<DateTime> GetModifiedTimeAsync(string path, CancellationToken token = default(CancellationToken));
+		Task DeleteFile(string path, CancellationToken token = default(CancellationToken));
+		Task DeleteDirectory(string path, CancellationToken token = default(CancellationToken));
+		Task DeleteDirectory(string path, FtpListOption options, CancellationToken token = default(CancellationToken));
+		Task<bool> DirectoryExists(string path, CancellationToken token = default(CancellationToken));
+		Task<bool> FileExists(string path, CancellationToken token = default(CancellationToken));
+		Task<bool> CreateDirectory(string path, bool force, CancellationToken token = default(CancellationToken));
+		Task<bool> CreateDirectory(string path, CancellationToken token = default(CancellationToken));
+		Task Rename(string path, string dest, CancellationToken token = default(CancellationToken));
+		Task<bool> MoveFile(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken));
+		Task<bool> MoveDirectory(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, CancellationToken token = default(CancellationToken));
+		Task SetFilePermissions(string path, int permissions, CancellationToken token = default(CancellationToken));
+		Task Chmod(string path, int permissions, CancellationToken token = default(CancellationToken));
+		Task SetFilePermissions(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken));
+		Task Chmod(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken));
+		Task<FtpListItem> GetFilePermissions(string path, CancellationToken token = default(CancellationToken));
+		Task<int> GetChmod(string path, CancellationToken token = default(CancellationToken));
+		Task SetWorkingDirectory(string path, CancellationToken token = default(CancellationToken));
+		Task<string> GetWorkingDirectory(CancellationToken token = default(CancellationToken));
+		Task<long> GetFileSize(string path, long defaultValue = -1, CancellationToken token = default(CancellationToken));
+		Task<DateTime> GetModifiedTime(string path, CancellationToken token = default(CancellationToken));
 
-		Task SetModifiedTimeAsync(string path, DateTime date, CancellationToken token = default(CancellationToken));
+		Task SetModifiedTime(string path, DateTime date, CancellationToken token = default(CancellationToken));
 
 
 
 		// LISTING
 
-		Task<FtpListItem> GetObjectInfoAsync(string path, bool dateModified = false, CancellationToken token = default(CancellationToken));
-		Task<FtpListItem[]> GetListingAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken));
-		Task<FtpListItem[]> GetListingAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<FtpListItem[]> GetListingAsync(CancellationToken token = default(CancellationToken));
-		Task<string[]> GetNameListingAsync(string path, CancellationToken token = default(CancellationToken));
-		Task<string[]> GetNameListingAsync(CancellationToken token = default(CancellationToken));
+		Task<FtpListItem> GetObjectInfo(string path, bool dateModified = false, CancellationToken token = default(CancellationToken));
+		Task<FtpListItem[]> GetListing(string path, FtpListOption options, CancellationToken token = default(CancellationToken));
+		Task<FtpListItem[]> GetListing(string path, CancellationToken token = default(CancellationToken));
+		Task<FtpListItem[]> GetListing(CancellationToken token = default(CancellationToken));
+		Task<string[]> GetNameListing(string path, CancellationToken token = default(CancellationToken));
+		Task<string[]> GetNameListing(CancellationToken token = default(CancellationToken));
 
 #if NET50_OR_LATER
-		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, FtpListOption options, CancellationToken token = default, CancellationToken enumToken = default);
-		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(string path, CancellationToken token = default, CancellationToken enumToken = default);
-		IAsyncEnumerable<FtpListItem> GetListingAsyncEnumerable(CancellationToken token = default, CancellationToken enumToken = default);
+		IAsyncEnumerable<FtpListItem> GetListingEnumerable(string path, FtpListOption options, CancellationToken token = default, CancellationToken enumToken = default);
+		IAsyncEnumerable<FtpListItem> GetListingEnumerable(string path, CancellationToken token = default, CancellationToken enumToken = default);
+		IAsyncEnumerable<FtpListItem> GetListingEnumerable(CancellationToken token = default, CancellationToken enumToken = default);
 #endif
 
 
 		// LOW LEVEL
 
-		Task<Stream> OpenReadAsync(string path, FtpDataType type = FtpDataType.Binary, long restart = 0, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken));
-		Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, long fileLen, CancellationToken token = default(CancellationToken));
-		Task<Stream> OpenWriteAsync(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken));
-		Task<Stream> OpenWriteAsync(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken));
-		Task<Stream> OpenAppendAsync(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken));
-		Task<Stream> OpenAppendAsync(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken));
+		Task<Stream> OpenRead(string path, FtpDataType type = FtpDataType.Binary, long restart = 0, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken));
+		Task<Stream> OpenRead(string path, FtpDataType type, long restart, long fileLen, CancellationToken token = default(CancellationToken));
+		Task<Stream> OpenWrite(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken));
+		Task<Stream> OpenWrite(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken));
+		Task<Stream> OpenAppend(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken));
+		Task<Stream> OpenAppend(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken));
 
 
 		// HIGH LEVEL
 
-		Task<int> UploadFilesAsync(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null);
-		Task<int> DownloadFilesAsync(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null);
+		Task<int> UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null);
+		Task<int> DownloadFiles(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null);
 
-		Task<FtpStatus> UploadFileAsync(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
-		Task<FtpStatus> UploadStreamAsync(Stream fileStream, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
-		Task<FtpStatus> UploadBytesAsync(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
-		Task<FtpStatus> DownloadFileAsync(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
-		Task<bool> DownloadStreamAsync(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
-		Task<byte[]> DownloadBytesAsync(string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+		Task<FtpStatus> UploadFile(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+		Task<FtpStatus> UploadStream(Stream fileStream, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+		Task<FtpStatus> UploadBytes(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+		Task<FtpStatus> DownloadFile(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Overwrite, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+		Task<bool> DownloadStream(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+		Task<byte[]> DownloadBytes(string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
 
-		Task<List<FtpResult>> DownloadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
-		Task<List<FtpResult>> UploadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+		Task<List<FtpResult>> DownloadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
+		Task<List<FtpResult>> UploadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
 
 
 		// HASH
 		
-		Task<FtpHash> GetChecksumAsync(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken));
+		Task<FtpHash> GetChecksum(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken));
 
 
 		// COMPARE
 		
-		Task<FtpCompareResult> CompareFileAsync(string localPath, string remotePath, FtpCompareOption options = FtpCompareOption.Auto, CancellationToken token = default(CancellationToken));
+		Task<FtpCompareResult> CompareFile(string localPath, string remotePath, FtpCompareOption options = FtpCompareOption.Auto, CancellationToken token = default(CancellationToken));
 
 #endif
 	}

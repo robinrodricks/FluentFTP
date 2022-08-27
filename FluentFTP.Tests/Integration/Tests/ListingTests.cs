@@ -46,21 +46,21 @@ namespace FluentFTP.Tests.Integration.Tests {
 			const string directory = "/GetListingAsyncEnumerable/";
 			const string fileNameInRoot = "GetListingAsync.txt";
 			const string fileNameInDirectory = "GetListingAsyncInDirectory.txt";
-			await client.UploadBytesAsync(bytes, fileNameInRoot);
-			await client.UploadBytesAsync(bytes, directory + fileNameInDirectory, createRemoteDir: true);
+			await client.UploadBytes(bytes, fileNameInRoot);
+			await client.UploadBytes(bytes, directory + fileNameInDirectory, createRemoteDir: true);
 
-			var listRoot = await ToListAsync(client.GetListingAsyncEnumerable());
+			var listRoot = await ToListAsync(client.GetListingEnumerable());
 			Assert.Contains(listRoot, f => f.Name == fileNameInRoot);
 
-			var listDirectory = await ToListAsync(client.GetListingAsyncEnumerable(directory));
+			var listDirectory = await ToListAsync(client.GetListingEnumerable(directory));
 			Assert.Contains(listDirectory, f => f.Name == fileNameInDirectory);
 
-			var listRecursive = await ToListAsync(client.GetListingAsyncEnumerable("/", FtpListOption.Recursive));
+			var listRecursive = await ToListAsync(client.GetListingEnumerable("/", FtpListOption.Recursive));
 			Assert.Contains(listRecursive, f => f.Name == fileNameInRoot);
 			Assert.Contains(listRecursive, f => f.Name == fileNameInDirectory);
 
-			await client.SetWorkingDirectoryAsync(directory);
-			var listCurrentDirectory = await ToListAsync(client.GetListingAsyncEnumerable());
+			await client.SetWorkingDirectory(directory);
+			var listCurrentDirectory = await ToListAsync(client.GetListingEnumerable());
 			Assert.Contains(listCurrentDirectory, f => f.Name == fileNameInDirectory);
 		}
 
@@ -71,21 +71,21 @@ namespace FluentFTP.Tests.Integration.Tests {
 			const string directory = "/GetListingAsync/";
 			const string fileNameInRoot = "GetListingAsync.txt";
 			const string fileNameInDirectory = "GetListingAsyncInDirectory.txt";
-			await client.UploadBytesAsync(bytes, fileNameInRoot);
-			await client.UploadBytesAsync(bytes, directory + fileNameInDirectory, createRemoteDir: true);
+			await client.UploadBytes(bytes, fileNameInRoot);
+			await client.UploadBytes(bytes, directory + fileNameInDirectory, createRemoteDir: true);
 
-			var listRoot = await client.GetListingAsync();
+			var listRoot = await client.GetListing();
 			Assert.Contains(listRoot, f => f.Name == fileNameInRoot);
 
-			var listDirectory = await client.GetListingAsync(directory);
+			var listDirectory = await client.GetListing(directory);
 			Assert.Contains(listDirectory, f => f.Name == fileNameInDirectory);
 
-			var listRecursive = await client.GetListingAsync("/", FtpListOption.Recursive);
+			var listRecursive = await client.GetListing("/", FtpListOption.Recursive);
 			Assert.Contains(listRecursive, f => f.Name == fileNameInRoot);
 			Assert.Contains(listRecursive, f => f.Name == fileNameInDirectory);
 
-			await client.SetWorkingDirectoryAsync(directory);
-			var listCurrentDirectory = await client.GetListingAsync();
+			await client.SetWorkingDirectory(directory);
+			var listCurrentDirectory = await client.GetListing();
 			Assert.Contains(listCurrentDirectory, f => f.Name == fileNameInDirectory);
 		}
 

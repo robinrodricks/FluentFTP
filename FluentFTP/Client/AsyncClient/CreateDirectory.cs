@@ -14,14 +14,14 @@ namespace FluentFTP {
 		/// <param name="force">Try to create the whole path if the preceding directories do not exist</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>True if directory was created, false if it was skipped</returns>
-		public async Task<bool> CreateDirectoryAsync(string path, bool force, CancellationToken token = default(CancellationToken)) {
+		public async Task<bool> CreateDirectory(string path, bool force, CancellationToken token = default(CancellationToken)) {
 			// don't verify args as blank/null path is OK
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(CreateDirectoryAsync), new object[] { path, force });
+			LogFunc(nameof(CreateDirectory), new object[] { path, force });
 
 			FtpReply reply;
 
@@ -40,9 +40,9 @@ namespace FluentFTP {
 
 			path = path.TrimEnd('/');
 
-			if (force && !await DirectoryExistsAsync(path.GetFtpDirectoryName(), token)) {
+			if (force && !await DirectoryExists(path.GetFtpDirectoryName(), token)) {
 				LogStatus(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
-				await CreateDirectoryAsync(path.GetFtpDirectoryName(), true, token);
+				await CreateDirectory(path.GetFtpDirectoryName(), true, token);
 			}
 
 			// fix: improve performance by skipping the directory exists check
@@ -52,7 +52,7 @@ namespace FluentFTP {
 
 			LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + path);
 
-			if (!(reply = await ExecuteAsync("MKD " + path, token)).Success) {
+			if (!(reply = await Execute("MKD " + path, token)).Success) {
 
 				// if the error indicates the directory already exists, its not an error
 				if (reply.Code == "550") {
@@ -73,8 +73,8 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the new remote directory</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public Task<bool> CreateDirectoryAsync(string path, CancellationToken token = default(CancellationToken)) {
-			return CreateDirectoryAsync(path, true, token);
+		public Task<bool> CreateDirectory(string path, CancellationToken token = default(CancellationToken)) {
+			return CreateDirectory(path, true, token);
 		}
 #endif
 	}

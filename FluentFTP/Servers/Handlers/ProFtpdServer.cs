@@ -69,7 +69,7 @@ namespace FluentFTP.Servers.Handlers {
 			
 			// Support #378 - Support RMDIR command for ProFTPd
 			if (deleteContents && client.HasFeature(FtpCapability.SITE_RMDIR)) {
-				if ((await client.ExecuteAsync("SITE RMDIR " + ftppath, token)).Success) {
+				if ((await client.Execute("SITE RMDIR " + ftppath, token)).Success) {
 					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete: " + ftppath);
 					return true;
 				}
@@ -111,7 +111,7 @@ namespace FluentFTP.Servers.Handlers {
 
 			// Support #378 - Support MKDIR command for ProFTPd
 			if (client.HasFeature(FtpCapability.SITE_MKDIR)) {
-				if ((await client.ExecuteAsync("SITE MKDIR " + ftppath, token)).Success) {
+				if ((await client.Execute("SITE MKDIR " + ftppath, token)).Success) {
 					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
 					return true;
 				}

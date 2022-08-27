@@ -20,7 +20,7 @@ namespace FluentFTP {
 		/// <param name='path'>The full or relative path of the directory to check for</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>True if the directory exists. False otherwise.</returns>
-		public async Task<bool> DirectoryExistsAsync(string path, CancellationToken token = default(CancellationToken)) {
+		public async Task<bool> DirectoryExists(string path, CancellationToken token = default(CancellationToken)) {
 			string pwd;
 
 			// don't verify args as blank/null path is OK
@@ -29,7 +29,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(DirectoryExistsAsync), new object[] { path });
+			LogFunc(nameof(DirectoryExists), new object[] { path });
 
 			// quickly check if root path, then it always exists!
 			if (path.IsFtpRootDirectory()) {
@@ -37,10 +37,10 @@ namespace FluentFTP {
 			}
 
 			// check if a folder exists by changing the working dir to it
-			pwd = await GetWorkingDirectoryAsync(token);
+			pwd = await GetWorkingDirectory(token);
 
-			if ((await ExecuteAsync("CWD " + path, token)).Success) {
-				FtpReply reply = await ExecuteAsync("CWD " + pwd, token);
+			if ((await Execute("CWD " + path, token)).Success) {
+				FtpReply reply = await Execute("CWD " + pwd, token);
 
 				if (!reply.Success) {
 					throw new FtpException("DirectoryExists(): Failed to restore the working directory.");

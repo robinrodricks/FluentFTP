@@ -19,8 +19,8 @@ namespace FluentFTP {
 		/// <param name="group">The group permissions</param>
 		/// <param name="other">The other permissions</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public Task SetFilePermissionsAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken)) {
-			return SetFilePermissionsAsync(path, Permissions.CalcChmod(owner, group, other), token);
+		public Task SetFilePermissions(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken)) {
+			return SetFilePermissions(path, Permissions.CalcChmod(owner, group, other), token);
 		}
 #endif
 
@@ -35,7 +35,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the item</param>
 		/// <param name="permissions">The permissions in CHMOD format</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task SetFilePermissionsAsync(string path, int permissions, CancellationToken token = default(CancellationToken)) {
+		public async Task SetFilePermissions(string path, int permissions, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
 			// verify args
@@ -45,9 +45,9 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(SetFilePermissionsAsync), new object[] { path, permissions });
+			LogFunc(nameof(SetFilePermissions), new object[] { path, permissions });
 
-			if (!(reply = await ExecuteAsync("SITE CHMOD " + permissions.ToString() + " " + path, token)).Success) {
+			if (!(reply = await Execute("SITE CHMOD " + permissions.ToString() + " " + path, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 		}

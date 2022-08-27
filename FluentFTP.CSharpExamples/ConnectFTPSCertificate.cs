@@ -22,7 +22,7 @@ namespace Examples {
 
 				conn.EncryptionMode = FtpEncryptionMode.Explicit;
 				conn.ValidateCertificate += new FtpSslValidation(OnValidateCertificate);
-				await conn.ConnectAsync(token);
+				await conn.Connect(token);
 			}
 		}
 

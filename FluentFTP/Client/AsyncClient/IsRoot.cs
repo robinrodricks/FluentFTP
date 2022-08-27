@@ -13,11 +13,11 @@ namespace FluentFTP {
 		/// Is the current working directory the root?
 		/// </summary>
 		/// <returns>true if root.</returns>
-		public async Task<bool> IsRootAsync(CancellationToken token = default(CancellationToken)) {
+		public async Task<bool> IsRoot(CancellationToken token = default(CancellationToken)) {
 
 			// this case occurs immediately after connection and after the working dir has changed
 			if (Status.LastWorkingDir == null) {
-				await ReadCurrentWorkingDirectoryAsync(token);
+				await ReadCurrentWorkingDirectory(token);
 			}
 
 			if (Status.LastWorkingDir.IsFtpRootDirectory()) {

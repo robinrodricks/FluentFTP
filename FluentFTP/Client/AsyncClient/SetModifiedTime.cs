@@ -14,7 +14,7 @@ namespace FluentFTP {
 		/// <param name="path">The full path to the file</param>
 		/// <param name="date">The new modified date/time value</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task SetModifiedTimeAsync(string path, DateTime date, CancellationToken token = default(CancellationToken)) {
+		public async Task SetModifiedTime(string path, DateTime date, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -26,7 +26,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(SetModifiedTimeAsync), new object[] { path, date });
+			LogFunc(nameof(SetModifiedTime), new object[] { path, date });
 
 			FtpReply reply;
 
@@ -35,7 +35,7 @@ namespace FluentFTP {
 			var timeStr = date.GenerateFtpDate();
 
 			// set modified date of a file
-			if ((reply = await ExecuteAsync("MFMT " + timeStr + " " + path, token)).Success) {
+			if ((reply = await Execute("MFMT " + timeStr + " " + path, token)).Success) {
 			}
 		}
 #endif

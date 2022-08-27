@@ -25,7 +25,7 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public async Task<bool> DownloadStreamAsync(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+		public async Task<bool> DownloadStream(Stream outStream, string remotePath, long restartPosition = 0, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (outStream == null) {
 				throw new ArgumentException("Required parameter is null or blank.", "outStream");
@@ -37,7 +37,7 @@ namespace FluentFTP {
 
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(DownloadStreamAsync), new object[] { remotePath });
+			LogFunc(nameof(DownloadStream), new object[] { remotePath });
 
 			// download the file from the server
 			return await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0), 0, false);

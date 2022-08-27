@@ -59,10 +59,10 @@ namespace FluentFTP.Servers.Handlers {
 		/// </summary>
 		public override async Task AfterConnectedAsync(AsyncFtpClient client, CancellationToken token) {
 			FtpReply reply;
-			if (!(reply = await client.ExecuteAsync("SITE DATASETMODE", token)).Success) {
+			if (!(reply = await client.Execute("SITE DATASETMODE", token)).Success) {
 				throw new FtpCommandException(reply);
 			}
-			if (!(reply = await client.ExecuteAsync("SITE QUOTESOVERRIDE", token)).Success) {
+			if (!(reply = await client.Execute("SITE QUOTESOVERRIDE", token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 		}
@@ -114,7 +114,7 @@ namespace FluentFTP.Servers.Handlers {
 			client.ListingParser = FtpParser.IBMzOS;
 
 			// get metadata of the file
-			FtpListItem[] entries = await client.GetListingAsync(path, token);
+			FtpListItem[] entries = await client.GetListing(path, token);
 
 			// no entries or more than one: path is NOT for a single dataset or file
 			if (entries.Length != 1) return -1;
@@ -232,7 +232,7 @@ namespace FluentFTP.Servers.Handlers {
 		public override async Task<string> GetAbsolutePathAsync(AsyncFtpClient client, string path, CancellationToken token)	{
 
 			if (path == null || path.Trim().Length == 0) {
-				path = await client.GetWorkingDirectoryAsync(token);
+				path = await client.GetWorkingDirectory(token);
 				return path;
 			}
 
@@ -240,7 +240,7 @@ namespace FluentFTP.Servers.Handlers {
 				return path;
 			}
 
-			var pwd = await client.GetWorkingDirectoryAsync(token);
+			var pwd = await client.GetWorkingDirectory(token);
 
 			if (pwd.StartsWith("/")) {
 				if (pwd.Equals("/")) {
@@ -495,7 +495,7 @@ namespace FluentFTP.Servers.Handlers {
 				return null;
 			}
 
-			var fileList = await client.GetNameListingAsync(path, token);
+			var fileList = await client.GetNameListing(path, token);
 			return fileList.Length > 0;
 		}
 #endif

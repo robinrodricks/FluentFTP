@@ -24,13 +24,13 @@ namespace Examples {
 		public static async Task DownloadFileAsync() {
 			var token = new CancellationToken();
 			using (var ftp = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
-				await ftp.ConnectAsync(token);
+				await ftp.Connect(token);
 
 				// download a file and ensure the local directory is created
-				await ftp.DownloadFileAsync(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", token: token);
+				await ftp.DownloadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", token: token);
 
 				// download a file and ensure the local directory is created, verify the file after download
-				await ftp.DownloadFileAsync(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpLocalExists.Overwrite, FtpVerify.Retry, token: token);
+				await ftp.DownloadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpLocalExists.Overwrite, FtpVerify.Retry, token: token);
 
 			}
 		}

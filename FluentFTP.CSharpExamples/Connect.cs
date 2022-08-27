@@ -32,7 +32,7 @@ namespace Examples {
 				conn.Host = "localhost";
 				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
 
-				await conn.ConnectAsync(token);
+				await conn.Connect(token);
 			}
 		}
 
@@ -41,7 +41,7 @@ namespace Examples {
 
 			using (var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
 
-				await conn.ConnectAsync(token);
+				await conn.Connect(token);
 			}
 		}
 

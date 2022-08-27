@@ -19,8 +19,8 @@ namespace FluentFTP {
 		/// <param name="group">The group permissions</param>
 		/// <param name="other">The other permissions</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public Task ChmodAsync(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken)) {
-			return SetFilePermissionsAsync(path, owner, group, other, token);
+		public Task Chmod(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken)) {
+			return SetFilePermissions(path, owner, group, other, token);
 		}
 #endif
 
@@ -35,8 +35,8 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the item</param>
 		/// <param name="permissions">The permissions in CHMOD format</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public Task ChmodAsync(string path, int permissions, CancellationToken token = default(CancellationToken)) {
-			return SetFilePermissionsAsync(path, permissions, token);
+		public Task Chmod(string path, int permissions, CancellationToken token = default(CancellationToken)) {
+			return SetFilePermissions(path, permissions, token);
 		}
 #endif
 	}

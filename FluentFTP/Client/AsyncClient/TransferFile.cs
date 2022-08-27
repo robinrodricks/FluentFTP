@@ -26,19 +26,19 @@ namespace FluentFTP {
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
 		/// </remarks>
-		public async Task<FtpStatus> TransferFileAsync(string sourcePath, AsyncFtpClient remoteClient, string remotePath,
+		public async Task<FtpStatus> TransferFile(string sourcePath, AsyncFtpClient remoteClient, string remotePath,
 			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Resume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, FtpProgress metaProgress = null, CancellationToken token = default(CancellationToken)) {
 
 			sourcePath = sourcePath.GetFtpPath();
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(TransferFileAsync), new object[] { sourcePath, remoteClient, remotePath, FXPDataType, createRemoteDir, existsMode, verifyOptions });
+			LogFunc(nameof(TransferFile), new object[] { sourcePath, remoteClient, remotePath, FXPDataType, createRemoteDir, existsMode, verifyOptions });
 
 			// verify input params
 			VerifyTransferFileParams(sourcePath, remoteClient, remotePath, existsMode);
 
 			// ensure source file exists
-			if (!await FileExistsAsync(sourcePath, token)) {
+			if (!await FileExists(sourcePath, token)) {
 				throw new FtpException("Source File " + sourcePath + " cannot be found or does not exists!");
 			}
 
@@ -47,7 +47,7 @@ namespace FluentFTP {
 			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? m_retryAttempts : 1;
 			do {
 
-				fxpSuccess = await TransferFileFXPInternalAsync(sourcePath, remoteClient, remotePath, createRemoteDir, existsMode, progress, token, metaProgress is null ? new FtpProgress(1, 0) : metaProgress);
+				fxpSuccess = await TransferFileFXPInternal(sourcePath, remoteClient, remotePath, createRemoteDir, existsMode, progress, token, metaProgress is null ? new FtpProgress(1, 0) : metaProgress);
 				attemptsLeft--;
 
 				// if verification is needed
@@ -63,7 +63,7 @@ namespace FluentFTP {
 			} while (!verified && attemptsLeft > 0);
 
 			if (fxpSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Delete)) {
-				await remoteClient.DeleteFileAsync(remotePath, token);
+				await remoteClient.DeleteFile(remotePath, token);
 			}
 
 			if (fxpSuccess && !verified && verifyOptions.HasFlag(FtpVerify.Throw)) {
@@ -79,7 +79,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Transfers a file from the source FTP Server to the destination FTP Server via the FXP protocol asynchronously.
 		/// </summary>
-		protected async Task<bool> TransferFileFXPInternalAsync(string sourcePath, AsyncFtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
+		protected async Task<bool> TransferFileFXPInternal(string sourcePath, AsyncFtpClient remoteClient, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
 			FtpReply reply;
 			long offset = 0;
@@ -98,13 +98,13 @@ namespace FluentFTP {
 
 					// check if the file exists, and skip, overwrite or append
 					if (existsMode == FtpRemoteExists.ResumeNoCheck) {
-						offset = await remoteClient.GetFileSizeAsync(remotePath, -1, token);
+						offset = await remoteClient.GetFileSize(remotePath, -1, token);
 						if (offset == -1) {
 							offset = 0; // start from the beginning
 						}
 					}
 					else {
-						fileExists = await remoteClient.FileExistsAsync(remotePath, token);
+						fileExists = await remoteClient.FileExists(remotePath, token);
 
 						switch (existsMode) {
 							case FtpRemoteExists.Skip:
@@ -126,7 +126,7 @@ namespace FluentFTP {
 							case FtpRemoteExists.Overwrite:
 
 								if (fileExists) {
-									await remoteClient.DeleteFileAsync(remotePath, token);
+									await remoteClient.DeleteFile(remotePath, token);
 								}
 
 								break;
@@ -134,7 +134,7 @@ namespace FluentFTP {
 							case FtpRemoteExists.Resume:
 
 								if (fileExists) {
-									offset = await remoteClient.GetFileSizeAsync(remotePath, 0, token);
+									offset = await remoteClient.GetFileSize(remotePath, 0, token);
 								}
 
 								break;
@@ -142,40 +142,40 @@ namespace FluentFTP {
 
 					}
 
-					fileSize = await GetFileSizeAsync(sourcePath, -1, token);
+					fileSize = await GetFileSize(sourcePath, -1, token);
 
 					// ensure the remote dir exists .. only if the file does not already exist!
 					if (createRemoteDir && !fileExists) {
 						var dirname = remotePath.GetFtpDirectoryName();
-						if (!await remoteClient.DirectoryExistsAsync(dirname, token)) {
-							await remoteClient.CreateDirectoryAsync(dirname, token);
+						if (!await remoteClient.DirectoryExists(dirname, token)) {
+							await remoteClient.CreateDirectory(dirname, token);
 						}
 					}
 
 					if (offset == 0 && existsMode != FtpRemoteExists.ResumeNoCheck) {
 						// send command to tell the source server to 'send' the file to the destination server
-						if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"RETR {sourcePath}", token)).Success) {
+						if (!(reply = await ftpFxpSession.SourceServer.Execute($"RETR {sourcePath}", token)).Success) {
 							throw new FtpCommandException(reply);
 						}
 
 						//Instruct destination server to store the file
-						if (!(reply = await ftpFxpSession.TargetServer.ExecuteAsync($"STOR {remotePath}", token)).Success) {
+						if (!(reply = await ftpFxpSession.TargetServer.Execute($"STOR {remotePath}", token)).Success) {
 							throw new FtpCommandException(reply);
 						}
 					}
 					else {
 						//tell source server to restart / resume
-						if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"REST {offset}", token)).Success) {
+						if (!(reply = await ftpFxpSession.SourceServer.Execute($"REST {offset}", token)).Success) {
 							throw new FtpCommandException(reply);
 						}
 
 						// send command to tell the source server to 'send' the file to the destination server
-						if (!(reply = await ftpFxpSession.SourceServer.ExecuteAsync($"RETR {sourcePath}", token)).Success) {
+						if (!(reply = await ftpFxpSession.SourceServer.Execute($"RETR {sourcePath}", token)).Success) {
 							throw new FtpCommandException(reply);
 						}
 
 						//Instruct destination server to append the file
-						if (!(reply = await ftpFxpSession.TargetServer.ExecuteAsync($"APPE {remotePath}", token)).Success) {
+						if (!(reply = await ftpFxpSession.TargetServer.Execute($"APPE {remotePath}", token)).Success) {
 							throw new FtpCommandException(reply);
 						}
 					}
@@ -184,8 +184,8 @@ namespace FluentFTP {
 					long lastSize = 0;
 
 
-					var sourceFXPTransferReply = ftpFxpSession.SourceServer.GetReplyAsync(token);
-					var destinationFXPTransferReply = ftpFxpSession.TargetServer.GetReplyAsync(token);
+					var sourceFXPTransferReply = ftpFxpSession.SourceServer.GetReply(token);
+					var destinationFXPTransferReply = ftpFxpSession.TargetServer.GetReply(token);
 
 					// while the transfer is not complete
 					while (!sourceFXPTransferReply.IsCompleted || !destinationFXPTransferReply.IsCompleted) {
@@ -195,7 +195,7 @@ namespace FluentFTP {
 
 							// send progress reports
 							if (progress != null && fileSize != -1) {
-								offset = await ftpFxpSession.ProgressServer.GetFileSizeAsync(remotePath, -1, token);
+								offset = await ftpFxpSession.ProgressServer.GetFileSize(remotePath, -1, token);
 
 								if (offset != -1 && lastSize <= offset) {
 									long bytesProcessed = offset - lastSize;

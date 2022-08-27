@@ -42,10 +42,10 @@ namespace FluentFTP.Tests.Integration.Tests {
 			using var client = await GetConnectedAsyncClient();
 
 			const string path = "/UploadDownloadBytesAsync/helloworld.txt";
-			var uploadStatus = await client.UploadBytesAsync(bytes, path, createRemoteDir: true);
+			var uploadStatus = await client.UploadBytes(bytes, path, createRemoteDir: true);
 			Assert.Equal(FtpStatus.Success, uploadStatus);
 
-			var outBytes = await client.DownloadBytesAsync(path, CancellationToken.None);
+			var outBytes = await client.DownloadBytes(path, CancellationToken.None);
 			Assert.NotNull(outBytes);
 
 			var outContent = Encoding.UTF8.GetString(outBytes);
@@ -83,11 +83,11 @@ namespace FluentFTP.Tests.Integration.Tests {
 
 			const string path = "/UploadDownloadStreamAsync/helloworld.txt";
 			using var client = await GetConnectedAsyncClient();
-			var uploadStatus = await client.UploadStreamAsync(stream, path, createRemoteDir: true);
+			var uploadStatus = await client.UploadStream(stream, path, createRemoteDir: true);
 			Assert.Equal(FtpStatus.Success, uploadStatus);
 
 			using var outStream = new MemoryStream();
-			var success = await client.DownloadStreamAsync(outStream, path);
+			var success = await client.DownloadStream(outStream, path);
 			Assert.True(success);
 
 			outStream.Position = 0;

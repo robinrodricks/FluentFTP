@@ -19,10 +19,10 @@ Namespace Examples
 			Dim token = New CancellationToken()
 
 			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await conn.ConnectAsync(token)
+				Await conn.Connect(token)
 
 				' Remove the directory And all files And subdirectories inside it
-				Await conn.DeleteDirectoryAsync("/path/to/directory", token)
+				Await conn.DeleteDirectory("/path/to/directory", token)
 
 			End Using
 		End Function

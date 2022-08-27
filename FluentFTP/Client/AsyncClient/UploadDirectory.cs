@@ -36,7 +36,7 @@ namespace FluentFTP {
 		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
 		/// Returns a blank list if nothing was transferred. Never returns null.
 		/// </returns>
-		public async Task<List<FtpResult>> UploadDirectoryAsync(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
+		public async Task<List<FtpResult>> UploadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
 			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			if (localFolder.IsBlank()) {
@@ -53,7 +53,7 @@ namespace FluentFTP {
 			// cleanup the remote path
 			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
 
-			LogFunc(nameof(UploadDirectoryAsync), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+			LogFunc(nameof(UploadDirectory), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
 			var results = new List<FtpResult>();
 
@@ -66,8 +66,8 @@ namespace FluentFTP {
 			var checkFileExistence = true;
 
 			// ensure the remote dir exists
-			if (!await DirectoryExistsAsync(remoteFolder, token)) {
-				await CreateDirectoryAsync(remoteFolder, token);
+			if (!await DirectoryExists(remoteFolder, token)) {
+				await CreateDirectory(remoteFolder, token);
 				checkFileExistence = false;
 			}
 
@@ -84,7 +84,7 @@ namespace FluentFTP {
 			token.ThrowIfCancellationRequested();
 
 			// get all the already existing files
-			var remoteListing = checkFileExistence ? await GetListingAsync(remoteFolder, FtpListOption.Recursive) : null;
+			var remoteListing = checkFileExistence ? await GetListing(remoteFolder, FtpListOption.Recursive) : null;
 
 			// break if task is cancelled
 			token.ThrowIfCancellationRequested();
@@ -100,17 +100,17 @@ namespace FluentFTP {
 			 *-------------------------------------------------------------------------------------*/
 
 			// loop through each folder and ensure it exists #2
-			await CreateSubDirectoriesAsync(this, dirsToUpload, token);
+			await CreateSubDirectories(this, dirsToUpload, token);
 
 			// get all the files in the local directory
 			var fileListing = Directory.GetFiles(localFolder, "*.*", SearchOption.AllDirectories);
 
 			// loop through each file and transfer it
 			var filesToUpload = GetFilesToUpload(localFolder, remoteFolder, rules, results, shouldExist, fileListing);
-			await UploadDirectoryFilesAsync(filesToUpload, existsMode, verifyOptions, progress, remoteListing, token);
+			await UploadDirectoryFiles(filesToUpload, existsMode, verifyOptions, progress, remoteListing, token);
 
 			// delete the extra remote files if in mirror mode and the directory was pre-existing
-			await DeleteExtraServerFilesAsync(mode, remoteFolder, shouldExist, remoteListing, rules, token);
+			await DeleteExtraServerFiles(mode, remoteFolder, shouldExist, remoteListing, rules, token);
 
 			return results;
 		}
@@ -120,7 +120,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Create all the sub directories within the main directory
 		/// </summary>
-		protected async Task CreateSubDirectoriesAsync(AsyncFtpClient client, List<FtpResult> dirsToUpload, CancellationToken token) {
+		protected async Task CreateSubDirectories(AsyncFtpClient client, List<FtpResult> dirsToUpload, CancellationToken token) {
 			foreach (var result in dirsToUpload) {
 
 				// absorb errors
@@ -128,7 +128,7 @@ namespace FluentFTP {
 
 					// create directory on the server
 					// to ensure we upload the blank remote dirs as well
-					if (await client.CreateDirectoryAsync(result.RemotePath, token)) {
+					if (await client.CreateDirectory(result.RemotePath, token)) {
 						result.IsSuccess = true;
 						result.IsSkipped = false;
 					}
@@ -151,9 +151,9 @@ namespace FluentFTP {
 		/// <summary>
 		/// Upload all the files within the main directory
 		/// </summary>
-		protected async Task UploadDirectoryFilesAsync(List<FtpResult> filesToUpload, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
+		protected async Task UploadDirectoryFiles(List<FtpResult> filesToUpload, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
 
-			LogFunc(nameof(UploadDirectoryFilesAsync), new object[] { filesToUpload.Count + " files" });
+			LogFunc(nameof(UploadDirectoryFiles), new object[] { filesToUpload.Count + " files" });
 
 			var r = -1;
 			foreach (var result in filesToUpload) {
@@ -172,7 +172,7 @@ namespace FluentFTP {
 					var metaProgress = new FtpProgress(filesToUpload.Count, r);
 
 					// upload the file
-					var transferred = await UploadFileFromFileAsync(result.LocalPath, result.RemotePath, false, existsModeToUse, false, false, verifyOptions, token, progress, metaProgress);
+					var transferred = await UploadFileFromFile(result.LocalPath, result.RemotePath, false, existsModeToUse, false, false, verifyOptions, token, progress, metaProgress);
 					result.IsSuccess = transferred.IsSuccess();
 					result.IsSkipped = transferred == FtpStatus.Skipped;
 
@@ -194,10 +194,10 @@ namespace FluentFTP {
 		/// <summary>
 		/// Delete the extra remote files if in mirror mode and the directory was pre-existing
 		/// </summary>
-		protected async Task DeleteExtraServerFilesAsync(FtpFolderSyncMode mode, string remoteFolder, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing, List<FtpRule> rules, CancellationToken token) {
+		protected async Task DeleteExtraServerFiles(FtpFolderSyncMode mode, string remoteFolder, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing, List<FtpRule> rules, CancellationToken token) {
 			if (mode == FtpFolderSyncMode.Mirror && remoteListing != null) {
 
-				LogFunc(nameof(DeleteExtraServerFilesAsync));
+				LogFunc(nameof(DeleteExtraServerFiles));
 
 				// delete files that are not in listed in shouldExist
 				foreach (var existingServerFile in remoteListing) {
@@ -212,7 +212,7 @@ namespace FluentFTP {
 
 								// delete the file from the server
 								try {
-									await DeleteFileAsync(existingServerFile.FullName, token);
+									await DeleteFile(existingServerFile.FullName, token);
 								}
 								catch (Exception ex) { }
 							}

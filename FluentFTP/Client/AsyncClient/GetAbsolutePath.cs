@@ -19,7 +19,7 @@ namespace FluentFTP {
 
 			if (path == null || path.Trim().Length == 0) {
 				// if path not given, then use working dir
-				string pwd = await GetWorkingDirectoryAsync(token);
+				string pwd = await GetWorkingDirectory(token);
 				if (pwd != null && pwd.Trim().Length > 0) {
 					path = pwd;
 				}
@@ -38,7 +38,7 @@ namespace FluentFTP {
 				}
 
 				// if relative path given then add working dir to calc full path
-				string pwd = await GetWorkingDirectoryAsync(token);
+				string pwd = await GetWorkingDirectory(token);
 				if (pwd != null && pwd.Trim().Length > 0 && path != pwd) {
 					if (path.StartsWith("./")) {
 						path = path.Remove(0, 2);

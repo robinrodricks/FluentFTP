@@ -29,7 +29,7 @@ namespace FluentFTP.Tests.Unit {
 		public async Task AutoConnectAsync() {
 
 			var client = await NewTestAsyncClient();
-			await client.AutoConnectAsync();
+			await client.AutoConnect();
 		}
 
 

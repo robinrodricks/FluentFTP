@@ -26,7 +26,7 @@ Namespace Examples
 			Using conn = New AsyncFtpClient()
 				conn.Host = "localhost"
 				conn.Credentials = New NetworkCredential("ftptest", "ftptest")
-				Await conn.ConnectAsync(token)
+				Await conn.Connect(token)
 			End Using
 		End Function
 
@@ -34,7 +34,7 @@ Namespace Examples
 			Dim token = New CancellationToken()
 
 			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await conn.ConnectAsync(token)
+				Await conn.Connect(token)
 			End Using
 		End Function
 	End Module

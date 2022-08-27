@@ -10,12 +10,12 @@ namespace FluentFTP {
 		/// current working directory. 
 		/// </summary>
 		/// <returns>The realm</returns>
-		public async Task<FtpZOSListRealm> GetZOSListRealmAsync(CancellationToken token = default(CancellationToken)) {
-			LogFunc(nameof(GetZOSListRealmAsync));
+		public async Task<FtpZOSListRealm> GetZOSListRealm(CancellationToken token = default(CancellationToken)) {
+			LogFunc(nameof(GetZOSListRealm));
 
 			// this case occurs immediately after connection and after the working dir has changed
 			if (Status.LastWorkingDir == null) {
-				await ReadCurrentWorkingDirectoryAsync(token);
+				await ReadCurrentWorkingDirectory(token);
 			}
 
 			if (ServerType != FtpServer.IBMzOSFTP) {
@@ -31,7 +31,7 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			// Fetch the current working directory. The reply will tell us what it is we are...
-			if (!(reply = await ExecuteAsync("CWD " + Status.LastWorkingDir, token)).Success) {
+			if (!(reply = await Execute("CWD " + Status.LastWorkingDir, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 

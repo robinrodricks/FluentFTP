@@ -36,7 +36,7 @@ namespace FluentFTP {
 
 				if ((type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) && !Status.EPSVNotSupported) {
 					// execute EPSV to try enhanced-passive mode
-					if (!(reply = await ExecuteAsync("EPSV", token)).Success) {
+					if (!(reply = await Execute("EPSV", token)).Success) {
 						// if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
 						if ((reply.Type == FtpResponseType.TransientNegativeCompletion || reply.Type == FtpResponseType.PermanentNegativeCompletion)
 							&& type == FtpDataConnectionType.AutoPassive
@@ -62,11 +62,11 @@ namespace FluentFTP {
 
 					// execute PRET before passive if server requires it
 					if (HasFeature(FtpCapability.PRET)) {
-						reply = await ExecuteAsync("PRET " + command, token);
+						reply = await Execute("PRET " + command, token);
 					}
 
 					// execute PASV to try passive mode
-					if (!(reply = await ExecuteAsync("PASV", token)).Success) {
+					if (!(reply = await Execute("PASV", token)).Success) {
 						throw new FtpCommandException(reply);
 					}
 
@@ -112,9 +112,9 @@ namespace FluentFTP {
 				// Fix for #887: When downloading through SOCKS proxy, the restart param is incorrect and needs to be ignored.
 				// Restart is set to the length of the already downloaded file (i.e. if the file is 1000 bytes, it restarts with restart parameter 1000 or 1001 after file is successfully downloaded)
 				if (IsProxy()) {
-					var length = await GetFileSizeAsync(m_path, -1L, token);
+					var length = await GetFileSize(m_path, -1L, token);
 					if (restart < length) {
-						reply = await ExecuteAsync("REST " + restart, token);
+						reply = await Execute("REST " + restart, token);
 						if (!reply.Success) {
 							throw new FtpCommandException(reply);
 						}
@@ -122,13 +122,13 @@ namespace FluentFTP {
 				}
 				else {
 					// Note: If this implementation causes an issue with non-proxy downloads too then we need to use the above implementation for all clients.
-					if (!(reply = await ExecuteAsync("REST " + restart, token)).Success) {
+					if (!(reply = await Execute("REST " + restart, token)).Success) {
 						throw new FtpCommandException(reply);
 					}
 				}
 			}
 
-			if (!(reply = await ExecuteAsync(command, token)).Success) {
+			if (!(reply = await Execute(command, token)).Success) {
 				stream.Close();
 				throw new FtpCommandException(reply);
 			}

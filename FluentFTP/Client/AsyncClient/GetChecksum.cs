@@ -31,7 +31,7 @@ namespace FluentFTP {
 		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
 		/// the underlying calls.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<FtpHash> GetChecksumAsync(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken)) {
+		public async Task<FtpHash> GetChecksum(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken)) {
 
 			if (path == null) {
 				throw new ArgumentException("Required argument is null", "path");
@@ -41,7 +41,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(GetChecksumAsync), new object[] { path });
+			LogFunc(nameof(GetChecksum), new object[] { path });
 
 			var useFirst = (algorithm == FtpHashAlgorithm.NONE);
 
@@ -117,7 +117,7 @@ namespace FluentFTP {
 			FtpReply reply;
 			string response;
 
-			if (!(reply = await ExecuteAsync(command + " " + path, token)).Success) {
+			if (!(reply = await Execute(command + " " + path, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 
@@ -150,7 +150,7 @@ namespace FluentFTP {
 
 			string algoName = HashAlgos.PrintToString(algorithm);
 
-			if (!(reply = await ExecuteAsync("OPTS HASH " + algoName, token)).Success) {
+			if (!(reply = await Execute("OPTS HASH " + algoName, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 
@@ -167,7 +167,7 @@ namespace FluentFTP {
 		protected async Task<FtpHash> HashCommandInternalAsync(string path, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
-			if (!(reply = await ExecuteAsync("HASH " + path, token)).Success) {
+			if (!(reply = await Execute("HASH " + path, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 

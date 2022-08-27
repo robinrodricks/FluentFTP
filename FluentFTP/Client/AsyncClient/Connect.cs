@@ -14,13 +14,13 @@ namespace FluentFTP {
 		/// <summary>
 		/// Connect to the given server profile.
 		/// </summary>
-		public async Task ConnectAsync(FtpProfile profile, CancellationToken token = default(CancellationToken)) {
+		public async Task Connect(FtpProfile profile, CancellationToken token = default(CancellationToken)) {
 
 			// copy over the profile properties to this instance
 			LoadProfile(profile);
 
 			// begin connection
-			await ConnectAsync(token);
+			await Connect(token);
 		}
 #endif
 
@@ -31,7 +31,7 @@ namespace FluentFTP {
 		/// Connect to the server
 		/// </summary>
 		/// <exception cref="ObjectDisposedException">Thrown if this object has been disposed.</exception>
-		public virtual async Task ConnectAsync(CancellationToken token = default(CancellationToken)) {
+		public virtual async Task Connect(CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
 			LogFunc(nameof(ConnectAsync));
@@ -75,14 +75,14 @@ namespace FluentFTP {
 			m_serverType = ServerModule.DetectFtpServer(this, HandshakeReply);
 
 			if (SendHost) {
-				if (!(reply = await ExecuteAsync("HOST " + (SendHostDomain != null ? SendHostDomain : Host), token)).Success) {
+				if (!(reply = await Execute("HOST " + (SendHostDomain != null ? SendHostDomain : Host), token)).Success) {
 					throw new FtpException("HOST command failed.");
 				}
 			}
 
 			// try to upgrade this connection to SSL if supported by the server
 			if (EncryptionMode == FtpEncryptionMode.Explicit || EncryptionMode == FtpEncryptionMode.Auto) {
-				reply = await ExecuteAsync("AUTH TLS", token);
+				reply = await Execute("AUTH TLS", token);
 				if (!reply.Success) {
 					Status.ConnectionFTPSFailure = true;
 					if (EncryptionMode == FtpEncryptionMode.Explicit) {
@@ -96,16 +96,16 @@ namespace FluentFTP {
 
 
 			if (m_credentials != null) {
-				await AuthenticateAsync(token);
+				await Authenticate(token);
 			}
 
 			// configure the default FTPS settings
 			if (IsEncrypted && DataConnectionEncryption) {
-				if (!(reply = await ExecuteAsync("PBSZ 0", token)).Success) {
+				if (!(reply = await Execute("PBSZ 0", token)).Success) {
 					throw new FtpCommandException(reply);
 				}
 
-				if (!(reply = await ExecuteAsync("PROT P", token)).Success) {
+				if (!(reply = await Execute("PROT P", token)).Success) {
 					throw new FtpCommandException(reply);
 				}
 			}
@@ -119,7 +119,7 @@ namespace FluentFTP {
 			}
 			bool assumeCaps = false;
 			if (m_capabilities.IsBlank() && m_checkCapabilities) {
-				if ((reply = await ExecuteAsync("FEAT", token)).Success && reply.InfoMessages != null) {
+				if ((reply = await Execute("FEAT", token)).Success && reply.InfoMessages != null) {
 					GetFeatures(reply);
 				}
 				else {
@@ -138,13 +138,13 @@ namespace FluentFTP {
 				// If the server supports UTF8 it should already be enabled and this
 				// command should not matter however there are conflicting drafts
 				// about this so we'll just execute it to be safe. 
-				if ((reply = await ExecuteAsync("OPTS UTF8 ON", token)).Success) {
+				if ((reply = await Execute("OPTS UTF8 ON", token)).Success) {
 					Status.ConnectionUTF8Success = true;
 				}
 			}
 
 			// Get the system type - Needed to auto-detect file listing parser
-			if ((reply = await ExecuteAsync("SYST", token)).Success) {
+			if ((reply = await Execute("SYST", token)).Success) {
 				m_systemType = reply.Message;
 				m_serverType = ServerModule.DetectFtpServerBySyst(this);
 				m_serverOS = ServerModule.DetectFtpOSBySyst(this);

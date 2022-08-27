@@ -61,7 +61,7 @@ namespace FluentFTP.Tests.Integration.System {
 		/// </summary>
 		protected async Task<AsyncFtpClient> GetConnectedAsyncClient() {
 			var client = await GetAsyncClient();
-			await client.AutoConnectAsync();
+			await client.AutoConnect();
 			return client;
 		}
 

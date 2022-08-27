@@ -17,7 +17,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the object</param>
 		/// <param name="dest">The new full or relative path including the new name of the object</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task RenameAsync(string path, string dest, CancellationToken token = default(CancellationToken)) {
+		public async Task Rename(string path, string dest, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
 			// verify args
@@ -32,17 +32,17 @@ namespace FluentFTP {
 			path = path.GetFtpPath();
 			dest = dest.GetFtpPath();
 
-			LogFunc(nameof(RenameAsync), new object[] { path, dest });
+			LogFunc(nameof(Rename), new object[] { path, dest });
 
 			// calc the absolute filepaths
 			path = await GetAbsolutePathAsync(path, token);
 			dest = await GetAbsolutePathAsync(dest, token);
 
-			if (!(reply = await ExecuteAsync("RNFR " + path, token)).Success) {
+			if (!(reply = await Execute("RNFR " + path, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 
-			if (!(reply = await ExecuteAsync("RNTO " + dest, token)).Success) {
+			if (!(reply = await Execute("RNTO " + dest, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 		}

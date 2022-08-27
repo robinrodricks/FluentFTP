@@ -15,8 +15,8 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the item</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task<int> GetChmodAsync(string path, CancellationToken token = default(CancellationToken)) {
-			FtpListItem item = await GetFilePermissionsAsync(path, token);
+		public async Task<int> GetChmod(string path, CancellationToken token = default(CancellationToken)) {
+			FtpListItem item = await GetFilePermissions(path, token);
 			return item != null ? item.Chmod : 0;
 		}
 #endif

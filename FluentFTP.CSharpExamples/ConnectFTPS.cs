@@ -21,7 +21,7 @@ namespace Examples {
 
 				conn.EncryptionMode = FtpEncryptionMode.Explicit;
 				conn.ValidateAnyCertificate = true;
-				await conn.ConnectAsync(token);
+				await conn.Connect(token);
 			}
 		}
 

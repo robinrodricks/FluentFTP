@@ -14,7 +14,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path of the directory to delete</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public Task DeleteDirectoryAsync(string path, CancellationToken token = default(CancellationToken)) {
+		public Task DeleteDirectory(string path, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -22,7 +22,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(DeleteDirectoryAsync), new object[] { path });
+			LogFunc(nameof(DeleteDirectory), new object[] { path });
 			return DeleteDirInternalAsync(path, true, FtpListOption.Recursive, token);
 		}
 
@@ -32,7 +32,7 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the directory to delete</param>
 		/// <param name="options">Useful to delete hidden files or dot-files.</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public Task DeleteDirectoryAsync(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
+		public Task DeleteDirectory(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -40,7 +40,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(DeleteDirectoryAsync), new object[] { path, options });
+			LogFunc(nameof(DeleteDirectory), new object[] { path, options });
 			return DeleteDirInternalAsync(path, true, options, token);
 		}
 
@@ -80,17 +80,17 @@ namespace FluentFTP {
 				// only if GetListing was called with recursive option.
 				FtpListItem[] itemList;
 				if (recurse) {
-					itemList = await GetListingAsync(path, options, token);
+					itemList = await GetListing(path, options, token);
 				}
 				else {
-					itemList = (await GetListingAsync(path, options, token)).OrderByDescending(x => x.FullName.Count(c => c.Equals('/'))).ThenBy(x => x.Type).ToArray();
+					itemList = (await GetListing(path, options, token)).OrderByDescending(x => x.FullName.Count(c => c.Equals('/'))).ThenBy(x => x.Type).ToArray();
 				}
 
 				// delete the item based on the type
 				foreach (var item in itemList) {
 					switch (item.Type) {
 						case FtpObjectType.File:
-							await DeleteFileAsync(item.FullName, token);
+							await DeleteFile(item.FullName, token);
 							break;
 
 						case FtpObjectType.Directory:
@@ -113,7 +113,7 @@ namespace FluentFTP {
 
 			// DELETE ACTUAL DIRECTORY
 
-			if (!(reply = await ExecuteAsync("RMD " + path, token)).Success) {
+			if (!(reply = await Execute("RMD " + path, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 		}

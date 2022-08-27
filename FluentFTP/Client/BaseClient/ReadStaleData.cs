@@ -50,7 +50,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="evenEncrypted">even read encrypted data?</param>
 		/// <param name="traceData">trace data to logs?</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		protected async Task<string> ReadStaleDataAsync(bool closeStream, bool evenEncrypted, bool traceData, CancellationToken token) {
+		protected async Task<string> ReadStaleData(bool closeStream, bool evenEncrypted, bool traceData, CancellationToken token) {
 			string staleData = null;
 			if (m_stream != null && m_stream.SocketDataAvailable > 0) {
 				if (traceData) {

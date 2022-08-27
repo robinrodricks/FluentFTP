@@ -33,10 +33,10 @@ Namespace Examples
 			Dim token = New CancellationToken()
 
 			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await conn.ConnectAsync(token)
+				Await conn.Connect(token)
 
 				' Get a hash checksum for the file
-				Dim hash As FtpHash = Await conn.GetChecksumAsync("/path/to/remote/file", FtpHashAlgorithm.NONE, token)
+				Dim hash As FtpHash = Await conn.GetChecksum("/path/to/remote/file", FtpHashAlgorithm.NONE, token)
 
 				' Make sure it returned a valid hash object
 				If hash.IsValid Then

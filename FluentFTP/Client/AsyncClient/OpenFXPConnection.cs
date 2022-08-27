@@ -26,8 +26,8 @@ namespace FluentFTP {
 				progressClient = (AsyncFtpClient)remoteClient.Clone();
 				progressClient.Status.AutoDispose = true;
 				progressClient.Status.CopyFrom(remoteClient.Status);
-				await progressClient.ConnectAsync(token);
-				await progressClient.SetWorkingDirectoryAsync(await remoteClient.GetWorkingDirectoryAsync(token), token);
+				await progressClient.Connect(token);
+				await progressClient.SetWorkingDirectory(await remoteClient.GetWorkingDirectory(token), token);
 			}
 
 			await sourceClient.SetDataTypeAsync(sourceClient.FXPDataType, token);
@@ -35,11 +35,11 @@ namespace FluentFTP {
 
 			// send PASV/CPSV commands to destination FTP server to get passive port to be used from source FTP server
 			// first try with PASV - commonly supported by all servers
-			if (!(reply = await destinationClient.ExecuteAsync("PASV", token)).Success) {
+			if (!(reply = await destinationClient.Execute("PASV", token)).Success) {
 
 				// then try with CPSV - known to be supported by glFTPd server
 				// FIXES #666 - glFTPd server - 435 Failed TLS negotiation on data channel
-				if (!(reply2 = await destinationClient.ExecuteAsync("CPSV", token)).Success) {
+				if (!(reply2 = await destinationClient.Execute("CPSV", token)).Success) {
 					throw new FtpCommandException(reply);
 				}
 				else {
@@ -58,7 +58,7 @@ namespace FluentFTP {
 
 			// Instruct source server to open a connection to the destination Server
 
-			if (!(reply = await sourceClient.ExecuteAsync($"PORT {m.Value}", token)).Success) {
+			if (!(reply = await sourceClient.Execute($"PORT {m.Value}", token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 

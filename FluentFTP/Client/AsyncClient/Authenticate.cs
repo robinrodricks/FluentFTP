@@ -12,8 +12,8 @@ namespace FluentFTP {
 		/// that the login procedure can be changed to support, for example,
 		/// a FTP proxy.
 		/// </summary>
-		protected virtual async Task AuthenticateAsync(CancellationToken token) {
-			await AuthenticateAsync(Credentials.UserName, Credentials.Password, Credentials.Domain, token);
+		protected virtual async Task Authenticate(CancellationToken token) {
+			await Authenticate(Credentials.UserName, Credentials.Password, Credentials.Domain, token);
 		}
 #endif
 
@@ -27,10 +27,10 @@ namespace FluentFTP {
 		/// <remarks>
 		/// To handle authentication failures without retries, catch FtpAuthenticationException.
 		/// </remarks>
-		protected virtual async Task AuthenticateAsync(string userName, string password, string account, CancellationToken token) {
+		protected virtual async Task Authenticate(string userName, string password, string account, CancellationToken token) {
 
 			// send the USER command along with the FTP username
-			FtpReply reply = await ExecuteAsync("USER " + userName, token);
+			FtpReply reply = await Execute("USER " + userName, token);
 
 			// check the reply to the USER command
 			if (!reply.Success) {
@@ -41,11 +41,11 @@ namespace FluentFTP {
 			else if (reply.Type == FtpResponseType.PositiveIntermediate) {
 
 				// send the PASS command along with the FTP password
-				reply = await ExecuteAsync("PASS " + password, token);
+				reply = await Execute("PASS " + password, token);
 
 				// fix for #620: some servers send multiple responses that must be read and decoded,
 				// otherwise the connection is aborted and remade and it goes into an infinite loop
-				var staleData = await ReadStaleDataAsync(false, true, true, token);
+				var staleData = await ReadStaleData(false, true, true, token);
 				if (staleData != null) {
 					var staleReply = new FtpReply();
 					if (DecodeStringToReply(staleData, ref staleReply) && !staleReply.Success) {
@@ -60,7 +60,7 @@ namespace FluentFTP {
 
 				// only possible 3** here is `332 Need account for login`
 				if (reply.Type == FtpResponseType.PositiveIntermediate) {
-					reply = await ExecuteAsync("ACCT " + account, token);
+					reply = await Execute("ACCT " + account, token);
 
 					if (!reply.Success) {
 						throw new FtpAuthenticationException(reply);

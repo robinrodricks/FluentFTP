@@ -13,11 +13,11 @@ namespace FluentFTP {
 		/// Returns the FtpProfile if the connection succeeded, or null if it failed.
 		/// It will throw exceptions for permanent failures like invalid host or invalid credentials.
 		/// </summary>
-		public async Task<FtpProfile> AutoConnectAsync(CancellationToken token = default(CancellationToken)) {
-			LogFunc(nameof(AutoConnectAsync));
+		public async Task<FtpProfile> AutoConnect(CancellationToken token = default(CancellationToken)) {
+			LogFunc(nameof(AutoConnect));
 
 			// connect to the first available connection profile
-			var results = await AutoDetectAsync(true, false, token);
+			var results = await AutoDetect(true, false, token);
 			if (results.Count > 0) {
 				var profile = results[0];
 

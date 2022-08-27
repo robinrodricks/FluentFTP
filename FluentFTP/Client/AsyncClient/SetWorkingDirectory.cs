@@ -14,11 +14,11 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The directory to change to</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task SetWorkingDirectoryAsync(string path, CancellationToken token = default(CancellationToken)) {
+		public async Task SetWorkingDirectory(string path, CancellationToken token = default(CancellationToken)) {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(SetWorkingDirectoryAsync), new object[] { path });
+			LogFunc(nameof(SetWorkingDirectory), new object[] { path });
 
 			FtpReply reply;
 
@@ -28,7 +28,7 @@ namespace FluentFTP {
 			}
 
 			// modify working dir
-			if (!(reply = await ExecuteAsync("CWD " + path, token)).Success) {
+			if (!(reply = await Execute("CWD " + path, token)).Success) {
 				throw new FtpCommandException(reply);
 			}
 

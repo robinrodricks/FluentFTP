@@ -27,14 +27,14 @@ namespace Examples {
 		public static async Task UploadDirectoryAsync() {
 			var token = new CancellationToken();
 			using (var ftp = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
-				await ftp.ConnectAsync(token);
+				await ftp.Connect(token);
 
 
 				// upload a folder and all its files
-				await ftp.UploadDirectoryAsync(@"C:\website\videos\", @"/public_html/videos", FtpFolderSyncMode.Update, token: token);
+				await ftp.UploadDirectory(@"C:\website\videos\", @"/public_html/videos", FtpFolderSyncMode.Update, token: token);
 				
 				// upload a folder and all its files, and delete extra files on the server
-				await ftp.UploadDirectoryAsync(@"C:\website\assets\", @"/public_html/assets", FtpFolderSyncMode.Mirror, token: token);
+				await ftp.UploadDirectory(@"C:\website\assets\", @"/public_html/assets", FtpFolderSyncMode.Mirror, token: token);
 				
 			}
 		}

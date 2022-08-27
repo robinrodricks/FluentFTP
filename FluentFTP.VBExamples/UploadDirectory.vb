@@ -25,13 +25,13 @@ Namespace Examples
 			Dim token = New CancellationToken()
 
 			Using ftp = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await ftp.ConnectAsync(token)
+				Await ftp.Connect(token)
 
 				' upload a folder and all its files
-				Await ftp.UploadDirectoryAsync("C:\website\videos\", "/public_html/videos", FtpFolderSyncMode.Update)
+				Await ftp.UploadDirectory("C:\website\videos\", "/public_html/videos", FtpFolderSyncMode.Update)
 
 				' upload a folder and all its files, and delete extra files on the server
-				Await ftp.UploadDirectoryAsync("C:\website\assets\", "/public_html/assets", FtpFolderSyncMode.Mirror)
+				Await ftp.UploadDirectory("C:\website\assets\", "/public_html/assets", FtpFolderSyncMode.Mirror)
 
 			End Using
 		End Function

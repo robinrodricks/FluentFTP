@@ -20,11 +20,11 @@ Namespace Examples
 			Dim token = New CancellationToken()
 
 			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await conn.ConnectAsync(token)
+				Await conn.Connect(token)
 
 				' renaming a directory Is dependent on the server! if you attempt it
 				' And it fails it's not because FluentFTP has a bug!
-				Await conn.RenameAsync("/full/or/relative/path/to/src", "/full/or/relative/path/to/dest", token)
+				Await conn.Rename("/full/or/relative/path/to/src", "/full/or/relative/path/to/dest", token)
 			End Using
 		End Function
 	End Module

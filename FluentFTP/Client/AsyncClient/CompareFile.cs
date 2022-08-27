@@ -21,7 +21,7 @@ namespace FluentFTP {
 		/// <param name="options">Types of equality checks to perform. Use Auto to compare file size and checksum.</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns></returns>
-		public async Task<FtpCompareResult> CompareFileAsync(string localPath, string remotePath, FtpCompareOption options = FtpCompareOption.Auto,
+		public async Task<FtpCompareResult> CompareFile(string localPath, string remotePath, FtpCompareOption options = FtpCompareOption.Auto,
 			CancellationToken token = default(CancellationToken)) {
 
 			// verify args
@@ -35,14 +35,14 @@ namespace FluentFTP {
 
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(CompareFileAsync), new object[] { localPath, remotePath, options });
+			LogFunc(nameof(CompareFile), new object[] { localPath, remotePath, options });
 
 
 			// ensure both files exists
 			if (!File.Exists(localPath)) {
 				return FtpCompareResult.FileNotExisting;
 			}
-			if (!await FileExistsAsync(remotePath, token)) {
+			if (!await FileExists(remotePath, token)) {
 				return FtpCompareResult.FileNotExisting;
 			}
 
@@ -51,7 +51,7 @@ namespace FluentFTP {
 
 				// check file size
 				var localSize = await FtpFileStream.GetFileSizeAsync(localPath, false, token);
-				var remoteSize = await GetFileSizeAsync(remotePath, -1, token);
+				var remoteSize = await GetFileSize(remotePath, -1, token);
 				if (localSize != remoteSize) {
 					return FtpCompareResult.NotEqual;
 				}
@@ -63,7 +63,7 @@ namespace FluentFTP {
 
 				// check file size
 				var localDate = await FtpFileStream.GetFileDateModifiedUtcAsync(localPath, token);
-				var remoteDate = await GetModifiedTimeAsync(remotePath, token);
+				var remoteDate = await GetModifiedTime(remotePath, token);
 				if (!localDate.Equals(remoteDate)) {
 					return FtpCompareResult.NotEqual;
 				}
@@ -75,7 +75,7 @@ namespace FluentFTP {
 
 				// check file checksum
 				if (SupportsChecksum()) {
-					var hash = await GetChecksumAsync(remotePath, FtpHashAlgorithm.NONE, token);
+					var hash = await GetChecksum(remotePath, FtpHashAlgorithm.NONE, token);
 					if (hash.IsValid) {
 						if (!hash.Verify(localPath)) {
 							return FtpCompareResult.NotEqual;

@@ -20,7 +20,7 @@ namespace FluentFTP {
 		/// indefinitely waiting for a server reply that is never coming.
 		/// </summary>
 		/// <returns>FtpReply representing the response from the server</returns>
-		public async Task<FtpReply> GetReplyAsync(CancellationToken token) {
+		public async Task<FtpReply> GetReply(CancellationToken token) {
 			var reply = new FtpReply();
 			string buf;
 

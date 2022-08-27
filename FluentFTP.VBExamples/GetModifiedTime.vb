@@ -17,8 +17,8 @@ Namespace Examples
 			Dim token = New CancellationToken()
 
 			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await conn.ConnectAsync(token)
-				Console.WriteLine("The modified type is: " & Await conn.GetModifiedTimeAsync("/full/or/relative/path/to/file", token))
+				Await conn.Connect(token)
+				Console.WriteLine("The modified type is: " & Await conn.GetModifiedTime("/full/or/relative/path/to/file", token))
 			End Using
 		End Function
 	End Module

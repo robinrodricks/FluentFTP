@@ -23,9 +23,9 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for reading the file on the server</returns>
 		//[Obsolete("OpenReadAsync() is obsolete, please use DownloadAsync() or DownloadFileAsync() instead", false)]
-		public virtual Task<Stream> OpenReadAsync(string path, FtpDataType type = FtpDataType.Binary, long restart = 0,
+		public virtual Task<Stream> OpenRead(string path, FtpDataType type = FtpDataType.Binary, long restart = 0,
 			bool checkIfFileExists = true, CancellationToken token = default(CancellationToken)) {
-			return OpenReadAsync(path, type, restart, checkIfFileExists ? 0 : -1, token);
+			return OpenRead(path, type, restart, checkIfFileExists ? 0 : -1, token);
 		}
 
 
@@ -44,7 +44,7 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for reading the file on the server</returns>
 		//[Obsolete("OpenReadAsync() is obsolete, please use DownloadAsync() or DownloadFileAsync() instead", false)]
-		public virtual async Task<Stream> OpenReadAsync(string path, FtpDataType type, long restart, long fileLen, CancellationToken token = default(CancellationToken)) {
+		public virtual async Task<Stream> OpenRead(string path, FtpDataType type, long restart, long fileLen, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
@@ -53,13 +53,13 @@ namespace FluentFTP {
 			path = path.GetFtpPath();
 			m_path = path;
 
-			LogFunc(nameof(OpenReadAsync), new object[] { path, type, restart, fileLen });
+			LogFunc(nameof(OpenRead), new object[] { path, type, restart, fileLen });
 
 			var client = this;
 			FtpDataStream stream = null;
 			long length = 0;
 
-			length = fileLen == 0 ? await client.GetFileSizeAsync(path, -1, token) : fileLen;
+			length = fileLen == 0 ? await client.GetFileSize(path, -1, token) : fileLen;
 
 			await client.SetDataTypeAsync(type, token);
 			stream = await client.OpenDataStreamAsync("RETR " + path, restart, token);

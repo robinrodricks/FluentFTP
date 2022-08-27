@@ -20,7 +20,7 @@ Namespace Examples
 			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
 				conn.EncryptionMode = FtpEncryptionMode.Explicit
 				AddHandler conn.ValidateCertificate, New FtpSslValidation(AddressOf OnValidateCertificate)
-				Await conn.ConnectAsync(token)
+				Await conn.Connect(token)
 			End Using
 		End Function
 

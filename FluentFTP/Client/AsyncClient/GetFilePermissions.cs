@@ -15,7 +15,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path">The full or relative path to the item</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task<FtpListItem> GetFilePermissionsAsync(string path, CancellationToken token = default(CancellationToken)) {
+		public async Task<FtpListItem> GetFilePermissions(string path, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "path");
@@ -23,9 +23,9 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(GetFilePermissionsAsync), new object[] { path });
+			LogFunc(nameof(GetFilePermissions), new object[] { path });
 
-			var result = await GetObjectInfoAsync(path, false, token);
+			var result = await GetObjectInfo(path, false, token);
 
 			return result;
 		}

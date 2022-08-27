@@ -12,7 +12,7 @@ namespace FluentFTP {
 		/// </summary>
 		protected virtual async Task HandshakeAsync(CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
-			if (!(reply = await GetReplyAsync(token)).Success) {
+			if (!(reply = await GetReply(token)).Success) {
 				if (reply.Code == null) {
 					throw new IOException("The connection was terminated before a greeting could be read.");
 				}
