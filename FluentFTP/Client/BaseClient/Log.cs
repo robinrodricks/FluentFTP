@@ -22,8 +22,8 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				// log to system
-				LogConsole("");
-				LogConsole("# " + function + "(" + args.ItemsToString().Join(", ") + ")");
+				LogToDebugOrConsole("");
+				LogToDebugOrConsole("# " + function + "(" + args.ItemsToString().Join(", ") + ")");
 			}
 		}
 
@@ -36,11 +36,11 @@ namespace FluentFTP.Client.BaseClient {
 
 			// log to attached logger if given
 			if (m_logger != null) {
-				LogLogger(eventType, message);
+				LogToLogger(eventType, message);
 			}
 
 			// log to system
-			LogConsole(message);
+			LogToDebugOrConsole(message);
 		}
 
 		/// <summary>
@@ -52,17 +52,17 @@ namespace FluentFTP.Client.BaseClient {
 
 			// log to attached logger if given
 			if (m_logger != null) {
-				LogLogger(eventType, message);
+				LogToLogger(eventType, message);
 			}
 
 			// log to system
-			LogConsole(GetLogPrefix(eventType) + message);
+			LogToDebugOrConsole(GetLogPrefix(eventType) + message);
 		}
 
 		/// <summary>
 		/// Log a message to the attached logger.
 		/// </summary>
-		private void LogLogger(FtpTraceLevel eventType, string message) {
+		private void LogToLogger(FtpTraceLevel eventType, string message) {
 			switch (eventType) {
 				case FtpTraceLevel.Verbose:
 					m_logger.LogDebug(message);
@@ -85,7 +85,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <summary>
 		/// Log a message to the debug output and console.
 		/// </summary>
-		protected void LogConsole(string message) {
+		protected void LogToDebugOrConsole(string message) {
 #if DEBUG
 			Debug.WriteLine(message);
 #endif
