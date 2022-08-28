@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Reflection;
-using System.Text.RegularExpressions;
-using System.Diagnostics;
 using System.Threading;
-
-#if ASYNC
 using System.Threading.Tasks;
-
-#endif
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP {
 	/// <summary>
@@ -25,7 +19,7 @@ namespace FluentFTP {
 			set => m_commandStatus = value;
 		}
 
-		private FtpClient m_control = null;
+		private BaseFtpClient m_control = null;
 
 		/// <summary>
 		/// Gets or sets the control connection for this data stream. Setting
@@ -33,7 +27,7 @@ namespace FluentFTP {
 		/// connection is made to the server to carry out the task. This ensures
 		/// that multiple streams can be opened simultaneously.
 		/// </summary>
-		public FtpClient ControlConnection {
+		public BaseFtpClient ControlConnection {
 			get => m_control;
 			set => m_control = value;
 		}
@@ -135,7 +129,7 @@ namespace FluentFTP {
 
 			try {
 				if (ControlConnection != null) {
-					return ControlConnection.CloseDataStream(this);
+					((IInternalFtpClient)ControlConnection).CloseDataStreamInternal(this);
 				}
 			}
 			finally {
@@ -150,7 +144,7 @@ namespace FluentFTP {
 		/// Creates a new data stream object
 		/// </summary>
 		/// <param name="conn">The control connection to be used for carrying out this operation</param>
-		public FtpDataStream(FtpClient conn) : base(conn) {
+		public FtpDataStream(BaseFtpClient conn) : base(conn) {
 			if (conn == null) {
 				throw new ArgumentException("The control connection cannot be null.");
 			}

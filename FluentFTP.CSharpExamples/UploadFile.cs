@@ -26,17 +26,17 @@ namespace Examples {
 
 		public static async Task UploadFileAsync() {
 			var token = new CancellationToken();
-			using (var ftp = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
-				await ftp.ConnectAsync(token);
+			using (var ftp = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
+				await ftp.Connect(token);
 
 				// upload a file to an existing FTP directory
-				await ftp.UploadFileAsync(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", token: token);
+				await ftp.UploadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", token: token);
 
 				// upload a file and ensure the FTP directory is created on the server
-				await ftp.UploadFileAsync(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpRemoteExists.Overwrite, true, token: token);
+				await ftp.UploadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpRemoteExists.Overwrite, true, token: token);
 
 				// upload a file and ensure the FTP directory is created on the server, verify the file after upload
-				await ftp.UploadFileAsync(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpRemoteExists.Overwrite, true, FtpVerify.Retry, token: token);
+				await ftp.UploadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpRemoteExists.Overwrite, true, FtpVerify.Retry, token: token);
 
 			}
 		}

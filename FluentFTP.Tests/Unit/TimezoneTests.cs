@@ -10,7 +10,7 @@ namespace FluentFTP.Tests.Unit {
 		[Fact]
 		public void FranceToUTC() {
 
-			using (var client = new FtpClient("localhost")) {
+			using (var client = new FtpClient("localhost", "user", "pass")) {
 
 				// input date = 19/Feb/2020 20:30 (8:30 PM) in France
 
@@ -20,7 +20,7 @@ namespace FluentFTP.Tests.Unit {
 		}
 		[Fact]
 		public void FranceToLocal() {
-			using (var client = new FtpClient("localhost")) {
+			using (var client = new FtpClient("localhost", "user", "pass")) {
 
 				// input date = 19/Feb/2020 20:30 (8:30 PM) in France
 
@@ -33,7 +33,7 @@ namespace FluentFTP.Tests.Unit {
 		[Fact]
 		public void TokyoToUTC() {
 
-			using (var client = new FtpClient("localhost")) {
+			using (var client = new FtpClient("localhost", "user", "pass")) {
 
 				// input date = 19/Feb/2020 00:00 (12 am) in Tokyo
 
@@ -43,7 +43,7 @@ namespace FluentFTP.Tests.Unit {
 		}
 		[Fact]
 		public void TokyoToLocal() {
-			using (var client = new FtpClient("localhost")) {
+			using (var client = new FtpClient("localhost", "user", "pass")) {
 
 				// input date = 19/Feb/2020 00:00 (12 am) in Tokyo
 
@@ -54,9 +54,9 @@ namespace FluentFTP.Tests.Unit {
 		}
 
 		private static void AssertConvertedDateTime(FtpClient client, FtpDate conversion, double tz, string input, string expected) {
-			client.TimeConversion = conversion;
-			client.TimeZone = tz;
-			client.LocalTimeZone = 5.5;
+			client.Config.TimeConversion = conversion;
+			client.Config.TimeZone = tz;
+			client.Config.LocalTimeZone = 5.5;
 
 			var result = client.ConvertDate(input.ParseFtpDate(client));
 

@@ -5,10 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
-
-#if ASYNC
+using System.Threading;
 using System.Threading.Tasks;
-#endif
 
 namespace FluentFTP.Proxy.Socks {
 	/// <summary>

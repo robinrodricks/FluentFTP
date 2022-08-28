@@ -20,11 +20,11 @@ Namespace Examples
 		Async Function ExecuteAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await conn.ConnectAsync(token)
+			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
+				Await conn.Connect(token)
 				Dim reply As FtpReply
 
-				If Not (CSharpImpl.__Assign(reply, Await conn.ExecuteAsync("SITE CHMOD 640 FOO.TXT", token))).Success Then
+				If Not (CSharpImpl.__Assign(reply, Await conn.Execute("SITE CHMOD 640 FOO.TXT", token))).Success Then
 					Throw New FtpCommandException(reply)
 				End If
 			End Using

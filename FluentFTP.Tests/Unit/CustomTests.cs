@@ -11,22 +11,25 @@ using Xunit.Sdk;
 namespace FluentFTP.Tests.Unit {
 	public class CustomTests {
 
-		private FtpClient NewTestClient(){
-			return new FtpClient("", 21, "", "");
+		private FtpClient NewTestClient() {
+			return new FtpClient("1.2.3.4", new NetworkCredential("user", "pass"));
+		}
+		private async Task<AsyncFtpClient> NewTestAsyncClient() {
+			return new AsyncFtpClient("1.2.3.4", new NetworkCredential("user", "pass"));
 		}
 
 		[Fact]
 		public void AutoConnect() {
 
-			FtpClient client = NewTestClient();
+			var client = NewTestClient();
 			client.AutoConnect();
 		}
 
 		[Fact]
 		public async Task AutoConnectAsync() {
 
-			FtpClient client = NewTestClient();
-			await client.AutoConnectAsync();
+			var client = await NewTestAsyncClient();
+			await client.AutoConnect();
 		}
 
 

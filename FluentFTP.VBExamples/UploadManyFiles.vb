@@ -25,11 +25,11 @@ Namespace Examples
 		Async Function UploadFilesAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using ftp = New FtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await ftp.ConnectAsync(token)
+			Using ftp = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
+				Await ftp.Connect(token)
 
 				' upload many files, skip if they already exist on server
-				Await ftp.UploadFilesAsync({
+				Await ftp.UploadFiles({
 					"D:\Drivers\test\file0.exe",
 					"D:\Drivers\test\file1.exe",
 					"D:\Drivers\test\file2.exe",

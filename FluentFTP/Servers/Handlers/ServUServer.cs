@@ -1,15 +1,6 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using System.Security.Authentication;
-using FluentFTP;
-using FluentFTP.Servers;
-#if (CORE || NETFX)
-using System.Threading;
-#endif
-#if ASYNC
+﻿using System.Threading;
 using System.Threading.Tasks;
-#endif
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Servers.Handlers {
 
@@ -48,11 +39,11 @@ namespace FluentFTP.Servers.Handlers {
 			// Support #88 - Support RMDA command for Serv-U
 			if (deleteContents && client.HasFeature(FtpCapability.RMDA)) {
 				if ((client.Execute("RMDA " + ftppath)).Success) {
-					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific RMDA command to quickly delete directory: " + ftppath);
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Used the server-specific RMDA command to quickly delete directory: " + ftppath);
 					return true;
 				}
 				else {
-					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific RMDA command to quickly delete directory: " + ftppath);
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific RMDA command to quickly delete directory: " + ftppath);
 				}
 			}
 
@@ -64,16 +55,16 @@ namespace FluentFTP.Servers.Handlers {
 		/// Perform async server-specific delete directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public override async Task<bool> DeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
+		public override async Task<bool> DeleteDirectoryAsync(AsyncFtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
 
 			// Support #88 - Support RMDA command for Serv-U
 			if (deleteContents && client.HasFeature(FtpCapability.RMDA)) {
-				if ((await client.ExecuteAsync("RMDA " + ftppath, token)).Success) {
-					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific RMDA command to quickly delete directory: " + ftppath);
+				if ((await client.Execute("RMDA " + ftppath, token)).Success) {
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Used the server-specific RMDA command to quickly delete directory: " + ftppath);
 					return true;
 				}
 				else {
-					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific RMDA command to quickly delete directory: " + ftppath);
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific RMDA command to quickly delete directory: " + ftppath);
 				}
 			}
 

@@ -1,15 +1,6 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using System.Security.Authentication;
-using FluentFTP;
-using FluentFTP.Servers;
-#if (CORE || NETFX)
-using System.Threading;
-#endif
-#if ASYNC
+﻿using System.Threading;
 using System.Threading.Tasks;
-#endif
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Servers.Handlers {
 
@@ -58,11 +49,11 @@ namespace FluentFTP.Servers.Handlers {
 			// Support #378 - Support RMDIR command for ProFTPd
 			if (deleteContents && client.HasFeature(FtpCapability.SITE_RMDIR)) {
 				if ((client.Execute("SITE RMDIR " + ftppath)).Success) {
-					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete directory: " + ftppath);
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete directory: " + ftppath);
 					return true;
 				}
 				else {
-					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete directory: " + ftppath);
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete directory: " + ftppath);
 				}
 			}
 
@@ -74,16 +65,16 @@ namespace FluentFTP.Servers.Handlers {
 		/// Perform async server-specific delete directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public override async Task<bool> DeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
+		public override async Task<bool> DeleteDirectoryAsync(AsyncFtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
 			
 			// Support #378 - Support RMDIR command for ProFTPd
 			if (deleteContents && client.HasFeature(FtpCapability.SITE_RMDIR)) {
-				if ((await client.ExecuteAsync("SITE RMDIR " + ftppath, token)).Success) {
-					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete: " + ftppath);
+				if ((await client.Execute("SITE RMDIR " + ftppath, token)).Success) {
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE RMDIR command to quickly delete: " + ftppath);
 					return true;
 				}
 				else {
-					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete: " + ftppath);
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE RMDIR command to quickly delete: " + ftppath);
 				}
 			}
 
@@ -100,11 +91,11 @@ namespace FluentFTP.Servers.Handlers {
 			// Support #378 - Support MKDIR command for ProFTPd
 			if (client.HasFeature(FtpCapability.SITE_MKDIR)) {
 				if ((client.Execute("SITE MKDIR " + ftppath)).Success) {
-					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
 					return true;
 				}
 				else {
-					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
 				}
 			}
 
@@ -116,16 +107,16 @@ namespace FluentFTP.Servers.Handlers {
 		/// Perform async server-specific create directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public override async Task<bool> CreateDirectoryAsync(FtpClient client, string path, string ftppath, bool force, CancellationToken token) {
+		public override async Task<bool> CreateDirectoryAsync(AsyncFtpClient client, string path, string ftppath, bool force, CancellationToken token) {
 
 			// Support #378 - Support MKDIR command for ProFTPd
 			if (client.HasFeature(FtpCapability.SITE_MKDIR)) {
-				if ((await client.ExecuteAsync("SITE MKDIR " + ftppath, token)).Success) {
-					client.LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
+				if ((await client.Execute("SITE MKDIR " + ftppath, token)).Success) {
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Used the server-specific SITE MKDIR command to quickly create: " + ftppath);
 					return true;
 				}
 				else {
-					client.LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Failed to use the server-specific SITE MKDIR command to quickly create: " + ftppath);
 				}
 			}
 

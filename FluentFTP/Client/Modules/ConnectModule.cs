@@ -1,28 +1,13 @@
 ﻿using System;
-using System.IO;
 using System.Net.Sockets;
 using System.Text;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
 using System.Security.Authentication;
-using FluentFTP.Proxy;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
 using FluentFTP.Helpers;
-#if !CORE
-using System.Web;
-using FluentFTP.Client.Modules;
-#endif
-#if (CORE || NETFX)
 using System.Threading;
-using System.ComponentModel;
-#endif
-#if ASYNC
 using System.Threading.Tasks;
-
-#endif
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Client.Modules {
 	internal static class ConnectModule {
@@ -45,7 +30,7 @@ namespace FluentFTP.Client.Modules {
 #if !ASYNC
 			SysSslProtocols.Tls,
 #endif
-#if !CORE
+#if !NETSTANDARD
 			SysSslProtocols.Default,
 #endif
 		};
@@ -68,7 +53,7 @@ namespace FluentFTP.Client.Modules {
 			bool resetPort = (client.Port == 990 || client.Port == 21);
 
 			// clone this connection or use this connection
-			var conn = cloneConnection ? client.Clone() : client;
+			FtpClient conn = cloneConnection ? (FtpClient)client.Clone() : client;
 
 			// copy basic props if cloned connection
 			if (cloneConnection) {
@@ -79,7 +64,7 @@ namespace FluentFTP.Client.Modules {
 
 			// disconnect if already connected
 			if (conn.IsConnected) {
-				conn.Disconnect();
+				((IInternalFtpClient)conn).DisconnectInternal();
 			}
 
 			// try each encryption mode
@@ -132,7 +117,7 @@ namespace FluentFTP.Client.Modules {
 
 						// if non-cloned connection, we want to remain connected if it works
 						if (cloneConnection) {
-							conn.Disconnect();
+							((IInternalFtpClient)conn).DisconnectInternal();
 						}
 					}
 					catch (Exception ex) {
@@ -145,28 +130,26 @@ namespace FluentFTP.Client.Modules {
 #endif
 
 						// since the connection failed, disconnect and retry
-						conn.Disconnect();
+						((IInternalFtpClient)conn).DisconnectInternal();
 
 						// fix #907: support TLS 1.3 in .NET 5+
 						// if it is a protocol error, then jump to the next protocol
 						if (IsProtocolFailure(ex)) {
 #if NET50_OR_LATER
 							if (protocol == SysSslProtocols.Tls13) {
-								client.LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3"); ;
+								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3"); ;
 							}
 							else {
-								client.LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3"); ;
+								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3"); ;
 							}
 #endif
 							tryTLS13 = true;
 							continue;
 						}
 
-#if !CORE14
 						if (ex is AuthenticationException) {
 							throw new FtpInvalidCertificateException((AuthenticationException)ex);
 						}
-#endif
 
 						// if server does not support FTPS no point trying encryption again
 						if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
@@ -224,7 +207,7 @@ namespace FluentFTP.Client.Modules {
 		/// You can then generate code for the profile using the FtpProfile.ToCode method.
 		/// If no successful profiles are found, a blank list is returned.
 		/// </summary>
-		public static async Task<List<FtpProfile>> AutoDetectAsync(FtpClient client, bool firstOnly, bool cloneConnection, CancellationToken token) {
+		public static async Task<List<FtpProfile>> AutoDetectAsync(AsyncFtpClient client, bool firstOnly, bool cloneConnection, CancellationToken token) {
 			var results = new List<FtpProfile>();
 
 			// get known working connection profile based on the host (if any)
@@ -235,7 +218,7 @@ namespace FluentFTP.Client.Modules {
 			bool resetPort = (client.Port == 990 || client.Port == 21);
 
 			// clone this connection or use this connection
-			var conn = cloneConnection ? client.Clone() : client;
+			AsyncFtpClient conn = cloneConnection ? (AsyncFtpClient)client.Clone() : client;
 
 			// copy basic props if cloned connection
 			if (cloneConnection) {
@@ -246,7 +229,7 @@ namespace FluentFTP.Client.Modules {
 
 			// disconnect if already connected
 			if (conn.IsConnected) {
-				await conn.DisconnectAsync(token);
+				await conn.Disconnect(token);
 			}
 
 			// try each encryption mode
@@ -290,7 +273,7 @@ namespace FluentFTP.Client.Modules {
 					var connected = false;
 					var dataConn = FtpDataConnectionType.PASV;
 					try {
-						await conn.ConnectAsync(token);
+						await conn.Connect(token);
 						connected = true;
 
 						// get data connection once connected
@@ -298,7 +281,7 @@ namespace FluentFTP.Client.Modules {
 
 						// if non-cloned connection, we want to remain connected if it works
 						if (cloneConnection) {
-							await conn.DisconnectAsync(token);
+							await conn.Disconnect(token);
 						}
 					}
 					catch (Exception ex) {
@@ -311,28 +294,26 @@ namespace FluentFTP.Client.Modules {
 #endif
 
 						// since the connection failed, disconnect and retry
-						await conn.DisconnectAsync(token);
+						await conn.Disconnect(token);
 
 						// fix #907: support TLS 1.3 in .NET 5+
 						// if it is a protocol error, then jump to the next protocol
 						if (IsProtocolFailure(ex)) {
 #if NET50_OR_LATER
 							if (protocol == SysSslProtocols.Tls13) {
-								client.LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3"); ;
+								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3"); ;
 							}
 							else {
-								client.LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3"); ;
+								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3"); ;
 							}
 #endif
 							tryTLS13 = true;
 							continue;
 						}
 
-#if !CORE14
 						if (ex is AuthenticationException) {
 							throw new FtpInvalidCertificateException((AuthenticationException)ex);
 						}
-#endif
 
 						// if server does not support FTPS no point trying encryption again
 						if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
@@ -382,7 +363,7 @@ namespace FluentFTP.Client.Modules {
 		}
 #endif
 
-		private static void SaveResult(List<FtpProfile> results, FtpProfile knownProfile, List<FtpEncryptionMode> blacklistedEncryptions, FtpClient conn, FtpEncryptionMode encryption, SysSslProtocols protocol, FtpDataConnectionType dataConn) {
+		private static void SaveResult(List<FtpProfile> results, FtpProfile knownProfile, List<FtpEncryptionMode> blacklistedEncryptions, BaseFtpClient conn, FtpEncryptionMode encryption, SysSslProtocols protocol, FtpDataConnectionType dataConn) {
 			results.Add(new FtpProfile {
 				Host = conn.Host,
 				Credentials = conn.Credentials,
@@ -400,32 +381,19 @@ namespace FluentFTP.Client.Modules {
 			});
 		}
 
-		private static void ConfigureClient(FtpClient client, FtpEncryptionMode encryption, SysSslProtocols protocol, FtpProfile knownProfile) {
+		private static void ConfigureClient(BaseFtpClient client, FtpEncryptionMode encryption, SysSslProtocols protocol, FtpProfile knownProfile) {
 
 			// set rolled props
-			client.EncryptionMode = encryption;
-			client.SslProtocols = protocol;
-			client.DataConnectionType = FtpDataConnectionType.AutoPassive;
+			if (knownProfile != null) {
+				client.LoadProfile(knownProfile);
+			}
+
+			// override some props
+			client.Config.EncryptionMode = encryption;
+			client.Config.SslProtocols = protocol;
+			client.Config.DataConnectionType = FtpDataConnectionType.AutoPassive;
 			client.Encoding = Encoding.UTF8;
 
-			// FIX #901: Azure FTP connection
-			// copy some props for known profile
-			if (knownProfile != null) {
-				client.ConnectTimeout = knownProfile.Timeout;
-				client.RetryAttempts = knownProfile.RetryAttempts;
-				client.SocketPollInterval = knownProfile.SocketPollInterval;
-			}
-
-			// FIX #907: support TLS 1.3 in .NET 5+
-			// only try TLS 1.3 if required
-/*#if NET50_OR_LATER
-			if (protocol == SysSslProtocols.Tls13) {
-				client.StaleDataCheck = false;
-			}
-			else {
-				client.StaleDataCheck = true;
-			}
-#endif*/
 		}
 
 		/// <summary>
@@ -504,7 +472,7 @@ namespace FluentFTP.Client.Modules {
 		}
 
 
-		private static FtpDataConnectionType AutoDataConnection(FtpClient conn) {
+		private static FtpDataConnectionType AutoDataConnection(BaseFtpClient conn) {
 
 			// check socket protocol version
 			if (conn.InternetProtocol == FtpIpVersion.IPv4) {
@@ -524,7 +492,7 @@ namespace FluentFTP.Client.Modules {
 		/// <summary>
 		/// Load the given connection profile and configure the FTP client instance accordingly.
 		/// </summary>
-		public static void LoadProfile(FtpClient client, FtpProfile profile) {
+		public static void LoadProfile(BaseFtpClient client, FtpProfile profile) {
 
 			// verify args
 			if (profile == null) {
@@ -543,31 +511,31 @@ namespace FluentFTP.Client.Modules {
 			// copy over the profile properties to this instance
 			client.Host = profile.Host;
 			client.Credentials = profile.Credentials;
-			client.EncryptionMode = profile.Encryption;
-			client.SslProtocols = profile.Protocols;
-			client.DataConnectionType = profile.DataConnection;
+			client.Config.EncryptionMode = profile.Encryption;
+			client.Config.SslProtocols = profile.Protocols;
+			client.Config.DataConnectionType = profile.DataConnection;
 			client.Encoding = profile.Encoding;
 			if (profile.Timeout != 0) {
-				client.ConnectTimeout = profile.Timeout;
-				client.ReadTimeout = profile.Timeout;
-				client.DataConnectionConnectTimeout = profile.Timeout;
-				client.DataConnectionReadTimeout = profile.Timeout;
+				client.Config.ConnectTimeout = profile.Timeout;
+				client.Config.ReadTimeout = profile.Timeout;
+				client.Config.DataConnectionConnectTimeout = profile.Timeout;
+				client.Config.DataConnectionReadTimeout = profile.Timeout;
 			}
-			if (client.SocketPollInterval != 0) {
-				client.SocketPollInterval = profile.SocketPollInterval;
+			if (client.Config.SocketPollInterval != 0) {
+				client.Config.SocketPollInterval = profile.SocketPollInterval;
 			}
-			if (client.RetryAttempts != 0) {
-				client.RetryAttempts = profile.RetryAttempts;
+			if (client.Config.RetryAttempts != 0) {
+				client.Config.RetryAttempts = profile.RetryAttempts;
 			}
 		}
 
 		/// <summary>
 		/// Create a default ValidateCertificate handler that accepts valid certificates.
 		/// </summary>
-		public static void SetDefaultCertificateValidation(FtpClient client, FtpProfile profile) {
+		public static void SetDefaultCertificateValidation(BaseFtpClient client, FtpProfile profile) {
 			if (profile.Encryption != FtpEncryptionMode.None) {
 				//if (client.ValidateCertificate == null) {
-					client.ValidateCertificate += new FtpSslValidation(delegate (FtpClient c, FtpSslValidationEventArgs e) {
+					client.ValidateCertificate += new FtpSslValidation(delegate (BaseFtpClient c, FtpSslValidationEventArgs e) {
 						if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
 							e.Accept = false;
 						}
@@ -615,13 +583,11 @@ namespace FluentFTP.Client.Modules {
 				return true;
 			}
 
-#if !CORE14
 			if (ex is AuthenticationException &&
 				((AuthenticationException)ex).InnerException != null &&
 				((AuthenticationException)ex).InnerException.Message.ToLower().ContainsAny(ServerStringModule.failedTLS)) {
 				return true;
 			}
-#endif
 
 			return false;
 		}

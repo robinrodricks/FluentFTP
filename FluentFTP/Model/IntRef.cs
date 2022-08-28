@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace FluentFTP {
-	internal class IntRef {
+	public class IntRef {
 		public int Value;
 	}
 }

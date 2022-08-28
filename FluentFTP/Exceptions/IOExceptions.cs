@@ -21,7 +21,7 @@ namespace FluentFTP.Exceptions {
 			{
 				if (exception.InnerException is SocketException socketException)
 				{
-#if CORE
+#if NETSTANDARD
 					return (int)socketException.SocketErrorCode == 10054;
 #else
 					return socketException.ErrorCode == 10054;

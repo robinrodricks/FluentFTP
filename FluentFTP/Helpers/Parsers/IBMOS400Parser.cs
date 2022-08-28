@@ -6,11 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using FluentFTP.Exceptions;
-
-#if NET45
-using System.Threading.Tasks;
-
-#endif
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers.Parsers {
 	internal static class IBMOS400Parser {
@@ -19,7 +15,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Checks if the given listing is a valid IBM OS/400 file listing
 		/// </summary>
-		public static bool IsValid(FtpClient client, string[] listing) {
+		public static bool IsValid(BaseFtpClient client, string[] listing) {
 			var count = Math.Min(listing.Length, 10);
 
 			for (var i = 0; i < count; i++) {
@@ -28,7 +24,7 @@ namespace FluentFTP.Helpers.Parsers {
 				}
 			}
 
-			client.LogStatus(FtpTraceLevel.Verbose, "Not in OS/400 format");
+			((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Not in OS/400 format");
 			return false;
 		}
 
@@ -38,7 +34,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <param name="client">The FTP client</param>
 		/// <param name="record">A line from the listing</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		public static FtpListItem Parse(FtpClient client, string record) {
+		public static FtpListItem Parse(BaseFtpClient client, string record) {
 			var values = record.SplitString();
 
 			// skip blank lines
@@ -91,19 +87,19 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the last modified date from IBM OS/400 format listings
 		/// </summary>
-		private static DateTime ParseDateTime(FtpClient client, string lastModifiedStr) {
+		private static DateTime ParseDateTime(BaseFtpClient client, string lastModifiedStr) {
 			var lastModified = DateTime.MinValue;
 			if (formatIndex >= DateTimeFormats.Length) {
-				client.LogStatus(FtpTraceLevel.Warn, "Exhausted formats - failed to parse date");
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Warn, "Exhausted formats - failed to parse date");
 				return DateTime.MinValue;
 			}
 
 			var prevIndex = formatIndex;
 			for (var i = formatIndex; i < DateTimeFormats.Length; i++, formatIndex++) {
 				try {
-					lastModified = DateTime.ParseExact(lastModifiedStr, DateTimeFormats[formatIndex], client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
+					lastModified = DateTime.ParseExact(lastModifiedStr, DateTimeFormats[formatIndex], client.Config.ListingCulture.DateTimeFormat, DateTimeStyles.None);
 					if (lastModified > DateTime.Now.AddDays(2)) {
-						client.LogStatus(FtpTraceLevel.Verbose, "Swapping to alternate format (found date in future)");
+						((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Swapping to alternate format (found date in future)");
 						continue;
 					}
 					else {
@@ -116,7 +112,7 @@ namespace FluentFTP.Helpers.Parsers {
 			}
 
 			if (formatIndex >= DateTimeFormats.Length) {
-				client.LogStatus(FtpTraceLevel.Warn, "Exhausted formats - failed to parse date");
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Warn, "Exhausted formats - failed to parse date");
 				return DateTime.MinValue;
 			}
 

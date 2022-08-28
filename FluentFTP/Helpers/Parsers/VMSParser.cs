@@ -5,11 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-
-#if NET45
-using System.Threading.Tasks;
-
-#endif
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers.Parsers {
 	internal static class VMSParser {
@@ -17,7 +13,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Checks if the given listing is a valid VMS file listing
 		/// </summary>
-		public static bool IsValid(FtpClient client, string[] records) {
+		public static bool IsValid(BaseFtpClient client, string[] records) {
 			var count = Math.Min(records.Length, 10);
 
 			var semiColonName = false;
@@ -48,7 +44,7 @@ namespace FluentFTP.Helpers.Parsers {
 				return true;
 			}
 
-			client.LogStatus(FtpTraceLevel.Verbose, "Not in VMS format");
+			((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Not in VMS format");
 			return false;
 		}
 
@@ -58,7 +54,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <param name="client">The FTP client</param>
 		/// <param name="record">A line from the listing</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		public static FtpListItem Parse(FtpClient client, string record) {
+		public static FtpListItem Parse(BaseFtpClient client, string record) {
 			var values = record.SplitString();
 
 			// skip blank lines
@@ -88,7 +84,7 @@ namespace FluentFTP.Helpers.Parsers {
 
 			// check for ;
 			if (semiPos <= 0) {
-				client.LogStatus(FtpTraceLevel.Verbose, "File version number not found in name '" + name + "'");
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "File version number not found in name '" + name + "'");
 				return null;
 			}
 
@@ -198,7 +194,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the last modified date from Vax/VMS format listings
 		/// </summary>
-		private static DateTime ParseDateTime(FtpClient client, string date, string time) {
+		private static DateTime ParseDateTime(BaseFtpClient client, string date, string time) {
 			var sb = new StringBuilder();
 			var monthFound = false;
 
@@ -225,11 +221,11 @@ namespace FluentFTP.Helpers.Parsers {
 
 			// parse it into a date/time object
 			try {
-				var lastModified = DateTime.Parse(lastModifiedStr, client.ListingCulture.DateTimeFormat);
+				var lastModified = DateTime.Parse(lastModifiedStr, client.Config.ListingCulture.DateTimeFormat);
 				return lastModified;
 			}
 			catch (FormatException) {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
 			}
 
 			return DateTime.MinValue;

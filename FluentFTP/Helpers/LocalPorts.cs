@@ -9,7 +9,7 @@
 	/// The local ports.
 	/// </summary>
 	internal static class LocalPorts {
-#if ASYNC && !CORE14 && !CORE16
+#if ASYNC
 		internal static readonly Random randomGen = new Random();
 
 		/// <summary>

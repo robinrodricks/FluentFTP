@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Globalization;
-
-#if NET45
-using System.Threading.Tasks;
-
-#endif
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers.Parsers {
 	internal static class IBMzOSParser {
 		/// <summary>
 		/// Checks if the given listing is a valid IBM z/OS file listing
 		/// </summary>
-		public static bool IsValid(FtpClient client, string[] listing) {
+		public static bool IsValid(BaseFtpClient client, string[] listing) {
 			// Check validity by using the title line
 			// Dataset       : "Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname"
 			// Member        : " Name     VV.MM   Created       Changed      Size  Init   Mod   Id"
@@ -32,7 +28,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <param name="client">The FTP client</param>
 		/// <param name="record">A line from the listing</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		public static FtpListItem Parse(FtpClient client, string record, string path) {
+		public static FtpListItem Parse(BaseFtpClient client, string record, string path) {
 			// Skip title line - all modes have one. 
 			// Also set zOSListingRealm to remember the mode we are in
 
@@ -49,7 +45,7 @@ namespace FluentFTP.Helpers.Parsers {
 				string cwd;
 				// Is caller using FtpListOption.NoPath and CWD to the right place?
 				if (path.Length == 0) {
-					cwd = client.GetWorkingDirectory();
+					cwd = ((IInternalFtpClient)client).GetWorkingDirectoryInternal();
 				}
 				// Caller is not using FtpListOption.NoPath, so the path can be used
 				// but needs modification depending on its ending. Remove the "(...)"
@@ -62,7 +58,7 @@ namespace FluentFTP.Helpers.Parsers {
 				else {
 					cwd = path;
 				}
-				if (!(reply = client.Execute("XDSS " + cwd)).Success) {
+				if (!(reply = ((IInternalFtpClient)client).ExecuteInternal("XDSS " + cwd)).Success) {
 					throw new FtpCommandException(reply);
 				}
 				// SITE PDSTYPE=PDSE RECFM=FB BLKSIZE=16000 DIRECTORY=1 LRECL=80 PRIMARY=3 SECONDARY=110 TRACKS EATTR=SYSTEM
@@ -203,12 +199,12 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the last modified date from IBM z/OS format listings
 		/// </summary>
-		private static DateTime ParseDateTime(FtpClient client, string lastModifiedStr) {
+		private static DateTime ParseDateTime(BaseFtpClient client, string lastModifiedStr) {
 			var lastModified = DateTime.MinValue;
 			if (lastModifiedStr == string.Empty || lastModifiedStr == "**NONE**") {
 				return lastModified;
 			}
-			lastModified = DateTime.ParseExact(lastModifiedStr, @"yyyy'/'MM'/'dd HH':'mm", client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
+			lastModified = DateTime.ParseExact(lastModifiedStr, @"yyyy'/'MM'/'dd HH':'mm", client.Config.ListingCulture.DateTimeFormat, DateTimeStyles.None);
 
 			return lastModified;
 		}

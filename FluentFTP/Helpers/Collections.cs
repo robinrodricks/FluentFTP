@@ -34,7 +34,7 @@ namespace FluentFTP.Helpers {
 		}
 
 		/// <summary>
-		/// Adds a prefix to the given strings, returns a new array.
+		/// Converts the arguments to an array of strings.
 		/// </summary>
 		public static List<string> ItemsToString(this object[] args) {
 			var results = new List<string>();

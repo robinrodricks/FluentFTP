@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers {
 	/// <summary>
@@ -156,7 +157,7 @@ namespace FluentFTP.Helpers {
 		/// <summary>
 		/// Get the full path of a given FTP Listing entry
 		/// </summary>
-		public static void CalculateFullFtpPath(this FtpListItem item, FtpClient client, string path)
+		public static void CalculateFullFtpPath(this FtpListItem item, BaseFtpClient client, string path)
 		{
 			// EXIT IF NO DIR PATH PROVIDED
 			if (path == null)
@@ -172,7 +173,7 @@ namespace FluentFTP.Helpers {
 			}
 
 			// ONLY IF DIR PATH PROVIDED
-			//this.client.LogStatus(item.Name);
+			//this.((IInternalFtpClient)client).LogStatus(item.Name);
 
 			// remove globbing/wildcard from path
 			if (path.GetFtpFileName().Contains("*"))
@@ -182,7 +183,7 @@ namespace FluentFTP.Helpers {
 
 			if (path.Length == 0)
 			{
-				path = client.GetWorkingDirectory();
+				path = ((IInternalFtpClient)client).GetWorkingDirectoryInternal();
 			}
 
 			if (item.Name != null)
@@ -199,7 +200,7 @@ namespace FluentFTP.Helpers {
 				}
 				else
 				{
-					client.LogStatus(FtpTraceLevel.Warn, "Couldn't determine the full path of this object: " +
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Warn, "Couldn't determine the full path of this object: " +
 														 Environment.NewLine + item.ToString());
 				}
 			}

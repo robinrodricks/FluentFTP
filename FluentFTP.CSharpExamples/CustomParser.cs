@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using FluentFTP;
+using FluentFTP.Client.BaseClient;
 using FluentFTP.Helpers;
 
 namespace Examples {
@@ -15,7 +16,7 @@ namespace Examples {
 		/// Adds a custom file listing parser
 		/// </summary>
 		public static void AddCustomParser(FtpClient client) {
-			client.ListingCustomParser = ParseUnixList;
+			client.Config.ListingCustomParser = ParseUnixList;
 		}
 
 		/// <summary>
@@ -24,7 +25,7 @@ namespace Examples {
 		/// <param name="buf">A line from the listing</param>
 		/// <param name="capabilities">Server capabilities</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		private static FtpListItem ParseUnixList(string buf, List<FtpCapability> capabilities, FtpClient client) {
+		private static FtpListItem ParseUnixList(string buf, List<FtpCapability> capabilities, BaseFtpClient client) {
 			var item = new FtpListItem();
 			Match m = null;
 			var regex =

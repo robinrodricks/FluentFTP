@@ -5,11 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-
-#if NET45
-using System.Threading.Tasks;
-
-#endif
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers.Parsers {
 	internal static class WindowsParser {
@@ -17,7 +13,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Checks if the given listing is a valid IIS/DOS file listing
 		/// </summary>
-		public static bool IsValid(FtpClient client, string[] records) {
+		public static bool IsValid(BaseFtpClient client, string[] records) {
 			var count = Math.Min(records.Length, 10);
 
 			var dateStart = false;
@@ -53,7 +49,7 @@ namespace FluentFTP.Helpers.Parsers {
 				return true;
 			}
 
-			client.LogStatus(FtpTraceLevel.Verbose, "Not in Windows format");
+			((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Not in Windows format");
 			return false;
 		}
 
@@ -63,7 +59,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <param name="client">The FTP client</param>
 		/// <param name="record">A line from the listing</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		public static FtpListItem Parse(FtpClient client, string record) {
+		public static FtpListItem Parse(BaseFtpClient client, string record) {
 			var values = record.SplitString();
 
 			if (values.Length < MinFieldCount) {
@@ -87,7 +83,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the file or folder name from IIS/DOS format listings
 		/// </summary>
-		private static string ParseName(FtpClient client, string record, string[] values, bool isDir) {
+		private static string ParseName(BaseFtpClient client, string record, string[] values, bool isDir) {
 			// Find starting point of the name by finding the pos of all the date/time fields.
 			var pos = 0;
 			var ok = true;
@@ -111,7 +107,7 @@ namespace FluentFTP.Helpers.Parsers {
 				name = isDir ? record.Substring(pos + OffsetLengthDirectory) : record.Substring(pos + OffsetLengthFile);
 			}
 			else {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to retrieve name: " + record);
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to retrieve name: " + record);
 			}
 
 			return name;
@@ -120,7 +116,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the file size and checks if the item is a directory from IIS/DOS format listings
 		/// </summary>
-		private static void ParseTypeAndFileSize(FtpClient client, string type, out bool isDir, out long size) {
+		private static void ParseTypeAndFileSize(BaseFtpClient client, string type, out bool isDir, out long size) {
 			isDir = false;
 			size = 0L;
 			if (type.ToUpper().Equals(DirectoryMarker.ToUpper())) {
@@ -131,7 +127,7 @@ namespace FluentFTP.Helpers.Parsers {
 					size = long.Parse(type.Replace(",", ""));
 				}
 				catch (FormatException) {
-					client.LogStatus(FtpTraceLevel.Error, "Failed to parse size: " + type);
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse size: " + type);
 				}
 			}
 		}
@@ -139,13 +135,13 @@ namespace FluentFTP.Helpers.Parsers {
 		/// <summary>
 		/// Parses the last modified date from IIS/DOS format listings
 		/// </summary>
-		private static DateTime ParseDateTime(FtpClient client, string lastModifiedStr) {
+		private static DateTime ParseDateTime(BaseFtpClient client, string lastModifiedStr) {
 			try {
-				var lastModified = DateTime.ParseExact(lastModifiedStr, DateTimeFormats, client.ListingCulture.DateTimeFormat, DateTimeStyles.None);
+				var lastModified = DateTime.ParseExact(lastModifiedStr, DateTimeFormats, client.Config.ListingCulture.DateTimeFormat, DateTimeStyles.None);
 				return lastModified;
 			}
 			catch (FormatException) {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + lastModifiedStr + "'");
 			}
 
 			return DateTime.MinValue;

@@ -1,5 +1,44 @@
 # Release Notes
 
+#### 40.0.0
+ - **Constructor API**
+   - New: 3 new FTP client constructors that accept FTP host, credentials, config and logger
+   - Remove extranous constructors because properties can be used instead
+ - **Asynchronous API**
+   - New: Split main FTP client classes into `FtpClient` and `AsyncFtpClient`
+   - New: Split main FTP client interfaces into `IFtpClient` and `IAsyncFtpClient`
+   - New: Split common FTP functionality into `BaseFtpClient`
+   - New: Drop `Async` suffix for all async FTP methods in `AsyncFtpClient`
+ - **Config API**
+   - New: Remove all config settings from FtpClient and move it into `client.Config` object
+   - New: Dedicated class to hold config settings `FtpConfig` to cleanup client API
+ - **Logging API**
+   - New: Remove `client.OnLogEvent` and `FtpTrace` system
+   - New: Add logger system `client.Logger` using industry-standard `ILogger` interface
+   - New: Add Nuget dependency `Microsoft.Extensions.Logging.Abstractions` v2.1.0
+   - Remove logging settings as they are always enabled: `LogFunctions`
+   - Remove logging settings as sensitive data is always masked: `LogIP`, `LogUserName`, `LogPassword`
+ - **FTP Proxies**
+   - New: Split FTP proxy classes into `FtpClient*Proxy` and `AsyncFtpClient*Proxy`
+   - New: FTP proxy classes moved into `FluentFTP.Proxy.SyncProxy` and `FluentFTP.Proxy.AsyncProxy` NS
+   - New: FTP proxy classes with fully async implementations
+ - **Organization**
+   - Completely redesign the FTP client code organization and structure
+   - Update all tests and examples to use the new API and `AsyncFtpClient`
+   - Hide all internally-used functions behind the interface `IInternalFtpClient`
+ - **Modernization**
+   - Drop support for .NET Standard 1.2, 1.4 and .NET 2.0, 3.5, 4.0 and 4.5
+   - Remove conditional compilation statements for unsupported platforms
+   - Remove uncommon static methods `FtpClient.Connect` and `FtpClient.GetPublicIP`
+   - Remove uncommon method `DereferenceLink` and `DereferenceLinkAsync`
+   - Remove uncommon properties `QuickTransferLimit`, `MaximumDereferenceCount`, `EnableThreadSafeDataConnections`
+   - Remove uncommon feature `FtpListOption.DerefLinks`
+   - Remove obsolete hashing commands `GetHashAlgorithm`, `SetHashAlgorithm`, `GetHash`, etc
+   - Remove obsolete async pattern using `IAsyncResult`
+ - **Server support**
+   - Move all IBM zOS logic into the `IBMzOSFtpServer` server handler (thanks [FanDjango](/FanDjango))
+   - Move all OpenVMS logic into the `OpenVmsServer` server handler (thanks [FanDjango](/FanDjango))
+
 #### 39.4.0
  - New: Add `SslProtocolActive` property to retrieve the negotiated SSL/TLS protocol version
  - Fix: z/OS: Improve server handling for absolute path calculation (thanks [FanDjango](/FanDjango))
