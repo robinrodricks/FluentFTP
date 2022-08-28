@@ -41,46 +41,6 @@ namespace FluentFTP {
 			set => _logToConsole = value;
 		}
 
-		private bool _logFunctions = true;
-
-		/// <summary>
-		/// Should the function calls be logged in Verbose mode?
-		/// </summary>
-		public bool LogFunctions {
-			get => _logFunctions;
-			set => _logFunctions = value;
-		}
-
-		private bool _logIP = false;
-
-		/// <summary>
-		/// Should the FTP server IP addresses be included in the logs?
-		/// </summary>
-		public bool LogIP {
-			get => _logIP;
-			set => _logIP = value;
-		}
-
-		private bool _logUsername = false;
-
-		/// <summary>
-		/// Should the FTP usernames be included in the logs?
-		/// </summary>
-		public bool LogUserName {
-			get => _logUsername;
-			set => _logUsername = value;
-		}
-
-		private bool _logPassword = false;
-
-		/// <summary>
-		/// Should the FTP passwords be included in the logs?
-		/// </summary>
-		public bool LogPassword {
-			get => _logPassword;
-			set => _logPassword = value;
-		}
-
 		protected FtpIpVersion _ipVersions = FtpIpVersion.ANY;
 
 		/// <summary>
@@ -797,10 +757,6 @@ namespace FluentFTP {
 
 			// copy settings
 			write.LogToConsole = read.LogToConsole;
-			write.LogFunctions = read.LogFunctions;
-			write.LogIP = read.LogIP;
-			write.LogUserName = read.LogUserName;
-			write.LogPassword = read.LogPassword;
 			write.InternetProtocolVersions = read.InternetProtocolVersions;
 			write.SocketPollInterval = read.SocketPollInterval;
 			write.StaleDataCheck = read.StaleDataCheck;

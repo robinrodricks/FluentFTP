@@ -14,17 +14,15 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="args">The args passed to the function</param>
 		protected void LogFunc(string function, object[] args = null) {
 
-			if (Config.LogFunctions) {
-
-				// log to attached logger if given
-				if (m_logger != null) {
-					m_logger.LogInformation(function, args.ItemsToString());
-				}
-
-				// log to system
-				LogToDebugOrConsole("");
-				LogToDebugOrConsole("# " + function + "(" + args.ItemsToString().Join(", ") + ")");
+			// log to attached logger if given
+			if (m_logger != null) {
+				m_logger.LogInformation(function, args.ItemsToString());
 			}
+
+			// log to system
+			LogToDebugOrConsole("");
+			LogToDebugOrConsole("# " + function + "(" + args.ItemsToString().Join(", ") + ")");
+			
 		}
 
 		/// <summary>
