@@ -26,7 +26,7 @@ namespace FluentFTP.Tests.Unit {
 		[Fact]
 		public void ConnectTimeout() {
 
-			var client = new FtpClient("test.github.com", 21, "wrong", "password");
+			var client = new FtpClient("test.github.com", new NetworkCredential("wrong", "password"));
 			client.Config.DataConnectionType = FtpDataConnectionType.PASVEX;
 			client.Config.ConnectTimeout = timeoutMillis;
 			var start = DateTime.Now;
@@ -42,7 +42,7 @@ namespace FluentFTP.Tests.Unit {
 		[Fact]
 		public async Task ConnectTimeoutAsync() {
 
-			var client = new AsyncFtpClient("test.github.com", 21, "wrong", "password");
+			var client = new AsyncFtpClient("test.github.com", new NetworkCredential("wrong", "password"));
 			client.Config.DataConnectionType = FtpDataConnectionType.PASVEX;
 			client.Config.ConnectTimeout = timeoutMillis;
 			var start = DateTime.Now;

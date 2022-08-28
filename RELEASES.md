@@ -1,6 +1,9 @@
 # Release Notes
 
 #### 40.0.0
+ - **Constructor API**
+   - New: 3 new FTP client constructors that accept FTP host, credentials, config and logger
+   - Remove extranous constructors because properties can be used instead
  - **Asynchronous API**
    - New: Split main FTP client classes into `FtpClient` and `AsyncFtpClient`
    - New: Split main FTP client interfaces into `IFtpClient` and `IAsyncFtpClient`

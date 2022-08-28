@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using FluentFTP.Client.BaseClient;
+using Microsoft.Extensions.Logging;
 
 namespace FluentFTP {
 
@@ -23,136 +24,30 @@ namespace FluentFTP {
 		#region Constructors
 
 		/// <summary>
-		/// Creates a new instance of an FTP Client.
+		/// Creates a new instance of an async FTP Client. You will have to setup the FTP host and credentials before connecting.
 		/// </summary>
-		public AsyncFtpClient() : base() {
-
+		public AsyncFtpClient() : base(null) {
 		}
 
 		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host.
+		/// Creates a new instance of an async FTP Client, with the given host and credentials.
 		/// </summary>
-		public AsyncFtpClient(string host) : base() {
-			Host = host ?? throw new ArgumentNullException(nameof(host), "Host must be provided");
-
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host and credentials.
-		/// </summary>
-		public AsyncFtpClient(string host, NetworkCredential credentials) : base() {
-			Host = host ?? throw new ArgumentNullException(nameof(host), "Host must be provided");
-			Credentials = credentials ?? throw new ArgumentNullException(nameof(credentials), "Credentials must be provided");
-
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host, port and credentials.
-		/// </summary>
-		public AsyncFtpClient(string host, int port, NetworkCredential credentials) : base() {
-			Host = host ?? throw new ArgumentNullException(nameof(host), "Host must be provided");
-			Port = port;
-			Credentials = credentials ?? throw new ArgumentNullException(nameof(credentials), "Credentials must be provided");
-
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host, username and password.
-		/// </summary>
-		public AsyncFtpClient(string host, string user, string pass) : base() {
+		public AsyncFtpClient(string host, string user, string pass, FtpConfig config = null, ILogger logger = null) : base(config) {
 			Host = host;
-			Credentials = new NetworkCredential(user, pass);
-
+			if (user != null && pass != null) {
+				Credentials = new NetworkCredential(user, pass);
+			}
+			Logger = logger;
 		}
 
 		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host, username, password and account
+		/// Creates a new instance of an async FTP Client, with the given host and credentials.
 		/// </summary>
-		public AsyncFtpClient(string host, string user, string pass, string account) : base() {
+		public AsyncFtpClient(string host, NetworkCredential credentials, FtpConfig config = null, ILogger logger = null) : base(config) {
 			Host = host;
-			Credentials = new NetworkCredential(user, pass, account);
-
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host, port, username and password.
-		/// </summary>
-		public AsyncFtpClient(string host, int port, string user, string pass) : base() {
-			Host = host;
-			Port = port;
-			Credentials = new NetworkCredential(user, pass);
-
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host, port, username, password and account
-		/// </summary>
-		public AsyncFtpClient(string host, int port, string user, string pass, string account) : base() {
-			Host = host;
-			Port = port;
-			Credentials = new NetworkCredential(user, pass, account);
-
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host.
-		/// </summary>
-		public AsyncFtpClient(Uri host) : base() {
-			Host = ValidateHost(host);
-			Port = host.Port;
-
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host and credentials.
-		/// </summary>
-		public AsyncFtpClient(Uri host, NetworkCredential credentials) : base() {
-			Host = ValidateHost(host);
-			Port = host.Port;
 			Credentials = credentials;
-
+			Logger = logger;
 		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host and credentials.
-		/// </summary>
-		public AsyncFtpClient(Uri host, string user, string pass) : base() {
-			Host = ValidateHost(host);
-			Port = host.Port;
-			Credentials = new NetworkCredential(user, pass);
-
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host and credentials.
-		/// </summary>
-		public AsyncFtpClient(Uri host, string user, string pass, string account) : base() {
-			Host = ValidateHost(host);
-			Port = host.Port;
-			Credentials = new NetworkCredential(user, pass, account);
-
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host, port and credentials.
-		/// </summary>
-		public AsyncFtpClient(Uri host, int port, string user, string pass) : base() {
-			Host = ValidateHost(host);
-			Port = port;
-			Credentials = new NetworkCredential(user, pass);
-
-		}
-
-		/// <summary>
-		/// Creates a new instance of an FTP Client, with the given host, port and credentials.
-		/// </summary>
-		public AsyncFtpClient(Uri host, int port, string user, string pass, string account) : base() {
-			Host = ValidateHost(host);
-			Port = port;
-			Credentials = new NetworkCredential(user, pass, account);
-
-		}
-
 
 		#endregion
 

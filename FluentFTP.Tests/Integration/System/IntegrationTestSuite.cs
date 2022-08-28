@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Xunit;
 using FluentFTP.Xunit.Docker;
 using FluentFTP.Xunit.Attributes;
+using System.Net;
 
 namespace FluentFTP.Tests.Integration.System {
 
@@ -35,7 +36,7 @@ namespace FluentFTP.Tests.Integration.System {
 		/// Creates a new FTP client capable of connecting to this dockerized FTP server.
 		/// </summary>
 		protected FtpClient GetClient() {
-			var client = new FtpClient("localhost", _fixture.GetUsername(), _fixture.GetPassword());
+			var client = new FtpClient("localhost", new NetworkCredential(_fixture.GetUsername(), _fixture.GetPassword()));
 			return client;
 		}
 
@@ -52,7 +53,7 @@ namespace FluentFTP.Tests.Integration.System {
 		/// Creates a new FTP client capable of connecting to this dockerized FTP server.
 		/// </summary>
 		protected async Task<AsyncFtpClient> GetAsyncClient() {
-			var client = new AsyncFtpClient("localhost", _fixture.GetUsername(), _fixture.GetPassword());
+			var client = new AsyncFtpClient("localhost", new NetworkCredential(_fixture.GetUsername(), _fixture.GetPassword()));
 			return client;
 		}
 

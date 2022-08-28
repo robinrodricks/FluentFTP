@@ -11,9 +11,9 @@ namespace FluentFTP.Client.BaseClient {
 
 		#region Constructor
 
-		public BaseFtpClient() {
+		public BaseFtpClient(FtpConfig config) {
 			CurrentListParser = new FtpListParser(this);
-			Config = new FtpConfig();
+			Config = config != null ? config : new FtpConfig();
 		}
 
 		#endregion
@@ -97,7 +97,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// Creates a new instance of this class. Useful in FTP proxy classes.
 		/// </summary>
 		protected virtual BaseFtpClient Create() {
-			return new BaseFtpClient();
+			return new BaseFtpClient(null);
 		}
 
 		/// <summary>
