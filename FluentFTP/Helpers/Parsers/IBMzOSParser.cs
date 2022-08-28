@@ -209,7 +209,7 @@ namespace FluentFTP.Helpers.Parsers {
 			return lastModified;
 		}
 
-		private static bool IsValidHFS(FtpClient client, string record)
+		private static bool IsValidHFS(BaseFtpClient client, string record)
 		{
 			var perms1 = false;
 			var perms2 = false;
