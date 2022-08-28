@@ -19,7 +19,7 @@ namespace FluentFTP.Helpers.Parsers {
 				   listing[0].Contains("Name     VV.MM") ||
 				   listing[0].Contains("Name      Size     TTR") ||
 				   listing[0].Contains("total") ||
-				   IsValidHFS(client, listing[0]);
+				   IsValidHFS(listing[0]);
 		}
 
 		/// <summary>
@@ -82,7 +82,7 @@ namespace FluentFTP.Helpers.Parsers {
 				return null;
 			}
 
-			if (IsValidHFS(client, record))
+			if (IsValidHFS(record))
 			{
 				client.zOSListingRealm = FtpZOSListRealm.Unix;
 			}
@@ -209,7 +209,7 @@ namespace FluentFTP.Helpers.Parsers {
 			return lastModified;
 		}
 
-		private static bool IsValidHFS(BaseFtpClient client, string record)
+		private static bool IsValidHFS(string record)
 		{
 			var perms1 = false;
 			var perms2 = false;
