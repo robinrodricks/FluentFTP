@@ -12,8 +12,8 @@
  - **Logging API**
    - New: Remove `client.OnLogEvent` and `FtpTrace` system
    - New: Add logger system `client.Logger` using industry-standard `ILogger` interface
-   - New: Add logging settings: `LogToConsole`, `LogFunctions`, `LogIP`, `LogUserName`, `LogPassword`
    - New: Add Nuget dependency `Microsoft.Extensions.Logging.Abstractions` v2.1.0
+   - Removed: Logging settings `LogFunctions`, `LogIP`, `LogUserName`, `LogPassword` because they are always enabled
  - **FTP Proxies**
    - New: Split FTP proxy classes into `FtpClient*Proxy` and `AsyncFtpClient*Proxy`
    - New: FTP proxy classes moved into `FluentFTP.Proxy.SyncProxy` and `FluentFTP.Proxy.AsyncProxy` NS
