@@ -28,6 +28,7 @@
    - Hide all internally-used functions behind the interface `IInternalFtpClient`
  - **Modernization**
    - Drop support for .NET Standard 1.2, 1.4 and .NET 2.0, 3.5, 4.0 and 4.5
+   - Add support for .NET 4.6.2 and 4.7.2
    - Remove conditional compilation statements for unsupported platforms
    - Remove uncommon static methods `FtpClient.Connect` and `FtpClient.GetPublicIP`
    - Remove uncommon method `DereferenceLink` and `DereferenceLinkAsync`
