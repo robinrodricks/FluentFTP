@@ -83,9 +83,6 @@ namespace FluentFTP.Servers.Handlers {
 		/// <returns>The size of the file</returns>
 		public override long GetFileSize(FtpClient client, string path) {
 
-			// prevent automatic parser detection switching to unix on HFS paths
-			client.Config.ListingParser = FtpParser.IBMzOS;
-
 			// get metadata of the file
 			FtpListItem[] entries = client.GetListing(path);
 
