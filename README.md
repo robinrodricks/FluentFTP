@@ -76,14 +76,10 @@ FluentFTP works on .NET and .NET Standard/.NET Core.
 
 | Platform      		| Binaries Folder	| 
 |---------------		|-----------		|
-| **.NET 2.0**      	| net20     		| 
-| **.NET 3.5**      	| net35     		| 
-| **.NET 4.0**      	| net40     		| 
-| **.NET 4.5**      	| net45     		| 
+| **.NET 4.6.2**      	| net462     		| 
+| **.NET 4.7.2**      	| net472     		| 
 | **.NET 5.0**      	| net50     		| 
 | **.NET 6.0**      	| net60     		| 
-| **.NET Standard 1.4** | netstandard1.4	| 
-| **.NET Standard 1.6** | netstandard1.6	| 
 | **.NET Standard 2.0** | netstandard2.0	| 
 | **.NET Standard 2.1** | netstandard2.1	| 
 
