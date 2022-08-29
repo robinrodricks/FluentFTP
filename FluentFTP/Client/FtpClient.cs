@@ -32,20 +32,42 @@ namespace FluentFTP {
 		/// <summary>
 		/// Creates a new instance of a synchronous FTP Client, with the given host and credentials.
 		/// </summary>
-		public FtpClient(string host, string user, string pass, FtpConfig config = null, ILogger logger = null) : base(config) {
-			Host = host;
-			if (user != null && pass != null) {
-				Credentials = new NetworkCredential(user, pass);
+		public FtpClient(string host, string user, string pass, int port = 0, FtpConfig config = null, ILogger logger = null) : base(config) {
+
+			// set host
+			Host = host ?? throw new ArgumentNullException("host");
+
+			// set credentials
+			if (user == null) throw new ArgumentNullException("user");
+			if (pass == null) throw new ArgumentNullException("pass");
+			Credentials = new NetworkCredential(user, pass);
+
+			// set port
+			if (port > 0) {
+				Port = port;
 			}
+
+			// set logger
 			Logger = logger;
 		}
 
 		/// <summary>
 		/// Creates a new instance of a synchronous FTP Client, with the given host and credentials.
 		/// </summary>
-		public FtpClient(string host, NetworkCredential credentials, FtpConfig config = null, ILogger logger = null) : base(config) {
-			Host = host;
-			Credentials = credentials;
+		public FtpClient(string host, NetworkCredential credentials, int port = 0, FtpConfig config = null, ILogger logger = null) : base(config) {
+
+			// set host
+			Host = host ?? throw new ArgumentNullException("host");
+
+			// set credentials
+			Credentials = credentials ?? throw new ArgumentNullException("credentials");
+
+			// set port
+			if (port > 0) {
+				Port = port;
+			}
+
+			// set logger
 			Logger = logger;
 		}
 
