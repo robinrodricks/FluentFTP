@@ -32,6 +32,23 @@ namespace FluentFTP {
 		/// <summary>
 		/// Creates a new instance of an async FTP Client, with the given host and credentials.
 		/// </summary>
+		public AsyncFtpClient(string host, int port = 0, FtpConfig config = null, ILogger logger = null) : base(config) {
+
+			// set host
+			Host = host ?? throw new ArgumentNullException("host");
+
+			// set port
+			if (port > 0) {
+				Port = port;
+			}
+
+			// set logger
+			Logger = logger;
+		}
+
+		/// <summary>
+		/// Creates a new instance of an async FTP Client, with the given host and credentials.
+		/// </summary>
 		public AsyncFtpClient(string host, string user, string pass, int port = 0, FtpConfig config = null, ILogger logger = null) : base(config) {
 			
 			// set host
