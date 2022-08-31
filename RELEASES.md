@@ -17,6 +17,7 @@
    - New: Remove `client.OnLogEvent` and `FtpTrace` system
    - New: Add logger system `client.Logger` using industry-standard `ILogger` interface
    - New: Add Nuget dependency `Microsoft.Extensions.Logging.Abstractions` v2.1.0
+   - Renamed: Legacy logging callback `OnLogEvent` is now renamed to `LegacyLogger`
    - Remove logging settings as they are always enabled: `LogFunctions`
    - Remove logging settings as sensitive data is always masked: `LogIP`, `LogUserName`, `LogPassword`
  - **FTP Proxies**
