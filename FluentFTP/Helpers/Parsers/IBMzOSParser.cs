@@ -110,14 +110,14 @@ namespace FluentFTP.Helpers.Parsers {
 				// Ignore title line AND also ignore "VSAM", "Not Mounted" and "Error determining attributes"
 
 				if (record.Substring(51, 4).Trim() == "PO" || record.Substring(51, 4).Trim() == "PS") {
-					string volume = record.Substring(0, 6);
-					string unit = record.Substring(7, 4);
+					//string volume = record.Substring(0, 6);
+					//string unit = record.Substring(7, 4);
 					string referred = record.Substring(14, 10).Trim();
-					string ext = record.Substring(25, 2).Trim();
+					//string ext = record.Substring(25, 2).Trim();
 					string used = record.Substring(27, 5).Trim();
-					string recfm = record.Substring(34, 4).Trim();
-					string lrecl = record.Substring(39, 5).Trim();
-					string blksz = record.Substring(45, 5).Trim();
+					//string recfm = record.Substring(34, 4).Trim();
+					//string lrecl = record.Substring(39, 5).Trim();
+					//string blksz = record.Substring(45, 5).Trim();
 					string dsorg = record.Substring(51, 4).Trim();
 					string dsname = record.Remove(0, 56).Trim().Split(' ')[0];
 					bool isDir = dsorg == "PO";
@@ -151,13 +151,13 @@ namespace FluentFTP.Helpers.Parsers {
 				string records = "0";
 				// Member stats may be empty
 				if (record.TrimEnd().Length > 8) {
-					string vvmm = record.Substring(10, 5).Trim();
-					string created = record.Substring(17, 10).Trim();
+					//string vvmm = record.Substring(10, 5).Trim();
+					//string created = record.Substring(17, 10).Trim();
 					changed = record.Substring(27, 16).Trim();
 					records = record.Substring(44, 5).Trim();
-					string init = record.Substring(50, 5).Trim();
-					string mod = record.Substring(56, 5).Trim();
-					string id = record.Substring(62, 6).Trim();
+					//string init = record.Substring(50, 5).Trim();
+					//string mod = record.Substring(56, 5).Trim();
+					//string id = record.Substring(62, 6).Trim();
 				}
 				bool isDir = false;
 				var lastModifiedStr = changed;
@@ -178,11 +178,11 @@ namespace FluentFTP.Helpers.Parsers {
 				string name = record.Substring(0, 8).Trim();
 				string changed = string.Empty;
 				string memsize = record.Substring(10, 6);
-				string TTR = record.Substring(19, 6);
-				string Alias = record.Substring(26, 8).Trim();
-				string Attributes = record.Substring(38, 30);
-				string Amode = record.Substring(70, 2);
-				string Rmode = record.Substring(76, 3);
+				//string TTR = record.Substring(19, 6);
+				//string Alias = record.Substring(26, 8).Trim();
+				//string Attributes = record.Substring(38, 30);
+				//string Amode = record.Substring(70, 2);
+				//string Rmode = record.Substring(76, 3);
 				bool isDir = false;
 				var lastModifiedStr = changed;
 				var lastModified = ParseDateTime(client, lastModifiedStr);
