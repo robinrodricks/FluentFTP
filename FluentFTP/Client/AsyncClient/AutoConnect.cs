@@ -14,7 +14,7 @@ namespace FluentFTP {
 		/// It will throw exceptions for permanent failures like invalid host or invalid credentials.
 		/// </summary>
 		public async Task<FtpProfile> AutoConnect(CancellationToken token = default(CancellationToken)) {
-			LogFunc(nameof(AutoConnect));
+			LogFunction(nameof(AutoConnect));
 
 			// connect to the first available connection profile
 			var results = await AutoDetect(true, false, token);

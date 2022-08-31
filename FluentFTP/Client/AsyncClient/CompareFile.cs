@@ -35,7 +35,7 @@ namespace FluentFTP {
 
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(CompareFile), new object[] { localPath, remotePath, options });
+			LogFunction(nameof(CompareFile), new object[] { localPath, remotePath, options });
 
 
 			// ensure both files exists

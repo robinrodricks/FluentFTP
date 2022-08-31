@@ -22,7 +22,7 @@ namespace FluentFTP {
 			lock (m_lock) {
 				path = path.GetFtpPath();
 
-				LogFunc(nameof(FileExists), new object[] { path });
+				LogFunction(nameof(FileExists), new object[] { path });
 
 				path = GetAbsolutePath(path);
 

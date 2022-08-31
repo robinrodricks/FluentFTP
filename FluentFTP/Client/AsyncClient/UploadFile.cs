@@ -55,11 +55,11 @@ namespace FluentFTP {
 #else
 			if (!File.Exists(localPath)) {
 #endif
-				LogStatus(FtpTraceLevel.Error, "File does not exist: " + localPath);
+				LogWithPrefix(FtpTraceLevel.Error, "File does not exist: " + localPath);
 				return FtpStatus.Failed;
 			}
 
-			LogFunc(nameof(UploadFile), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
+			LogFunction(nameof(UploadFile), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 
 			// If retries are allowed set the retry counter to the allowed count
 			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? Config.RetryAttempts : 1;
@@ -76,18 +76,18 @@ namespace FluentFTP {
 					attemptsLeft--;
 
 					if (!uploadSuccess) {
-						LogStatus(FtpTraceLevel.Info, "Failed to upload file.");
+						LogWithPrefix(FtpTraceLevel.Info, "Failed to upload file.");
 
 						if (attemptsLeft > 0)
-							LogStatus(FtpTraceLevel.Info, "Retrying to upload file.");
+							LogWithPrefix(FtpTraceLevel.Info, "Retrying to upload file.");
 					}
 
 					// If verification is needed, update the validated flag
 					if (verifyOptions != FtpVerify.None) {
 						verified = await VerifyTransferAsync(localPath, remotePath, token);
-						LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+						LogWithPrefix(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 						if (!verified && attemptsLeft > 0) {
-							LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpRemoteExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
+							LogWithPrefix(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpRemoteExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
 							// Force overwrite if a retry is required
 							existsMode = FtpRemoteExists.Overwrite;
 						}

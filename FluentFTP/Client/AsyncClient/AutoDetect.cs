@@ -21,7 +21,7 @@ namespace FluentFTP {
 		public async Task<List<FtpProfile>> AutoDetect(bool firstOnly, bool cloneConnection = true, CancellationToken token = default(CancellationToken)) {
 			var results = new List<FtpProfile>();
 
-			LogFunc(nameof(AutoDetect), new object[] { firstOnly, cloneConnection });
+			LogFunction(nameof(AutoDetect), new object[] { firstOnly, cloneConnection });
 			ValidateAutoDetect();
 
 			return await ConnectModule.AutoDetectAsync(this, firstOnly, cloneConnection, token);

@@ -18,7 +18,7 @@ namespace FluentFTP.Client.BaseClient {
 			string staleData = null;
 			if (m_stream != null && m_stream.SocketDataAvailable > 0) {
 				if (traceData) {
-					LogStatus(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out or you did not call GetReply(). Re-connecting...");
+					LogWithPrefix(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out or you did not call GetReply(). Re-connecting...");
 				}
 
 				if (m_stream.IsConnected && (!m_stream.IsEncrypted || evenEncrypted)) {
@@ -26,7 +26,7 @@ namespace FluentFTP.Client.BaseClient {
 					m_stream.RawSocketRead(buf);
 					staleData = Encoding.GetString(buf).TrimEnd('\r', '\n');
 					if (traceData) {
-						LogStatus(FtpTraceLevel.Verbose, "The stale data was: " + staleData);
+						LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: " + staleData);
 					}
 					if (string.IsNullOrEmpty(staleData)) {
 						closeStream = false;
@@ -54,7 +54,7 @@ namespace FluentFTP.Client.BaseClient {
 			string staleData = null;
 			if (m_stream != null && m_stream.SocketDataAvailable > 0) {
 				if (traceData) {
-					LogStatus(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out or you did not call GetReply(). Re-connecting...");
+					LogWithPrefix(FtpTraceLevel.Info, "There is stale data on the socket, maybe our connection timed out or you did not call GetReply(). Re-connecting...");
 				}
 
 				if (m_stream.IsConnected && (!m_stream.IsEncrypted || evenEncrypted)) {
@@ -62,7 +62,7 @@ namespace FluentFTP.Client.BaseClient {
 					await m_stream.RawSocketReadAsync(buf, token);
 					staleData = Encoding.GetString(buf).TrimEnd('\r', '\n');
 					if (traceData) {
-						LogStatus(FtpTraceLevel.Verbose, "The stale data was: " + staleData);
+						LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: " + staleData);
 					}
 				}
 

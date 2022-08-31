@@ -13,7 +13,7 @@ namespace FluentFTP {
 		/// It will throw exceptions for permanent failures like invalid host or invalid credentials.
 		/// </summary>
 		public FtpProfile AutoConnect() {
-			LogFunc(nameof(AutoConnect));
+			LogFunction(nameof(AutoConnect));
 
 			// connect to the first available connection profile
 			var results = AutoDetect(true, false);

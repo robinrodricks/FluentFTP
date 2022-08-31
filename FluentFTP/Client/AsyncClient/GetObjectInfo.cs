@@ -36,7 +36,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(GetObjectInfo), new object[] { path, dateModified });
+			LogFunction(nameof(GetObjectInfo), new object[] { path, dateModified });
 
 			FtpReply reply;
 			string[] res;
@@ -61,7 +61,7 @@ namespace FluentFTP {
 					}
 				}
 				else {
-					LogStatus(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " with error " + reply.ErrorMessage);
+					LogWithPrefix(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " with error " + reply.ErrorMessage);
 				}
 			}
 			else {
@@ -77,7 +77,7 @@ namespace FluentFTP {
 					}
 				}
 
-				LogStatus(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " since MLST not supported and GetListing() fails to list file/folder.");
+				LogWithPrefix(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " since MLST not supported and GetListing() fails to list file/folder.");
 			}
 
 			// Get the accurate date modified using another MDTM command

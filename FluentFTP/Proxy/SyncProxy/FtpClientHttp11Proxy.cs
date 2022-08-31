@@ -88,7 +88,7 @@ namespace FluentFTP.Proxy.SyncProxy {
 				while ((buf = stream.ReadLine(Encoding)) != null) {
 					Match m;
 
-					LogLine(FtpTraceLevel.Info, buf);
+					Log(FtpTraceLevel.Info, buf);
 
 					if ((m = Regex.Match(buf, @"^HTTP/.*\s(?<code>[0-9]{3}) (?<message>.*)$")).Success) {
 						reply.Code = m.Groups["code"].Value;
@@ -101,7 +101,7 @@ namespace FluentFTP.Proxy.SyncProxy {
 
 				// fixes #84 (missing bytes when downloading/uploading files through proxy)
 				while ((buf = stream.ReadLine(Encoding)) != null) {
-					LogLine(FtpTraceLevel.Info, buf);
+					Log(FtpTraceLevel.Info, buf);
 
 					if (Strings.IsNullOrWhiteSpace(buf)) {
 						break;

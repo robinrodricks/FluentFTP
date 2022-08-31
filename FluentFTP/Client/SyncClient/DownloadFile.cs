@@ -48,7 +48,7 @@ namespace FluentFTP {
 
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(DownloadFile), new object[] { localPath, remotePath, existsMode, verifyOptions });
+			LogFunction(nameof(DownloadFile), new object[] { localPath, remotePath, existsMode, verifyOptions });
 
 			// skip downloading if the localPath is a folder
 			if (LocalPaths.IsLocalFolderPath(localPath)) {
@@ -62,7 +62,7 @@ namespace FluentFTP {
 				knownFileSize = GetFileSize(remotePath);
 				restartPos = FtpFileStream.GetFileSize(localPath, false);
 				if (knownFileSize.Equals(restartPos)) {
-					LogStatus(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully downloaded (Remote: " + remotePath + ", Local: " + localPath + ")");
+					LogWithPrefix(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully downloaded (Remote: " + remotePath + ", Local: " + localPath + ")");
 					return FtpStatus.Skipped;
 				}
 				else {
@@ -70,7 +70,7 @@ namespace FluentFTP {
 				}
 			}
 			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
-				LogStatus(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists locally (Remote: " + remotePath + ", Local: " + localPath + ")");
+				LogWithPrefix(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists locally (Remote: " + remotePath + ", Local: " + localPath + ")");
 				return FtpStatus.Skipped;
 			}
 
@@ -101,18 +101,18 @@ namespace FluentFTP {
 				attemptsLeft--;
 
 				if (!downloadSuccess) {
-					LogStatus(FtpTraceLevel.Info, "Failed to download file.");
+					LogWithPrefix(FtpTraceLevel.Info, "Failed to download file.");
 
 					if (attemptsLeft > 0)
-						LogStatus(FtpTraceLevel.Info, "Retrying to download file.");
+						LogWithPrefix(FtpTraceLevel.Info, "Retrying to download file.");
 				}
 
 				// if verification is needed
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
 					verified = VerifyTransfer(localPath, remotePath);
-					LogLine(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+					Log(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 					if (!verified && attemptsLeft > 0) {
-						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						LogWithPrefix(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Overwrite ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
 						// Force overwrite if a retry is required
 						existsMode = FtpLocalExists.Overwrite;
 					}

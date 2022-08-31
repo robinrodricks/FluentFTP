@@ -52,7 +52,7 @@ namespace FluentFTP {
 			sourceFolder = sourceFolder.GetFtpPath().EnsurePostfix("/");
 			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
 
-			LogFunc(nameof(TransferDirectory), new object[] { sourceFolder, remoteClient, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+			LogFunction(nameof(TransferDirectory), new object[] { sourceFolder, remoteClient, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
 			var results = new List<FtpResult>();
 
@@ -134,7 +134,7 @@ namespace FluentFTP {
 
 		protected void TransferServerFiles(List<FtpResult> filesToTransfer, FtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpListItem[] remoteListing) {
 
-			LogFunc(nameof(TransferServerFiles), new object[] { filesToTransfer.Count + " files" });
+			LogFunction(nameof(TransferServerFiles), new object[] { filesToTransfer.Count + " files" });
 
 			int r = -1;
 			foreach (var result in filesToTransfer) {
@@ -160,7 +160,7 @@ namespace FluentFTP {
 				}
 				catch (Exception ex) {
 
-					LogStatus(FtpTraceLevel.Warn, "File failed to transfer: " + result.LocalPath);
+					LogWithPrefix(FtpTraceLevel.Warn, "File failed to transfer: " + result.LocalPath);
 
 					// mark that the file failed to upload
 					result.IsFailed = true;

@@ -22,7 +22,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(DeleteDirectory), new object[] { path });
+			LogFunction(nameof(DeleteDirectory), new object[] { path });
 			return DeleteDirInternalAsync(path, true, FtpListOption.Recursive, token);
 		}
 
@@ -40,7 +40,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(DeleteDirectory), new object[] { path, options });
+			LogFunction(nameof(DeleteDirectory), new object[] { path, options });
 			return DeleteDirInternalAsync(path, true, options, token);
 		}
 

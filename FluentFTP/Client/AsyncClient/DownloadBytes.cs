@@ -32,7 +32,7 @@ namespace FluentFTP {
 
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(DownloadBytes), new object[] { remotePath });
+			LogFunction(nameof(DownloadBytes), new object[] { remotePath });
 
 			// download the file from the server
 			using (var outStream = new MemoryStream()) {

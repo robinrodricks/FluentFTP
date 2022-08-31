@@ -15,7 +15,7 @@ namespace FluentFTP.Client.BaseClient {
 			// if we want to skip uploaded files and the file already exists, mark its skipped
 			if (existsMode == FtpRemoteExists.Skip && fileExists) {
 
-				LogStatus(FtpTraceLevel.Info, "Skipped file that already exists: " + result.LocalPath);
+				LogWithPrefix(FtpTraceLevel.Info, "Skipped file that already exists: " + result.LocalPath);
 
 				result.IsSuccess = true;
 				result.IsSkipped = true;

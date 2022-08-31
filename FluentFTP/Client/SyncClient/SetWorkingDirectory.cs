@@ -16,7 +16,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(SetWorkingDirectory), new object[] { path });
+			LogFunction(nameof(SetWorkingDirectory), new object[] { path });
 
 			FtpReply reply;
 

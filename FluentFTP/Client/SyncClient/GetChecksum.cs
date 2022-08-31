@@ -39,7 +39,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(GetChecksum), new object[] { path });
+			LogFunction(nameof(GetChecksum), new object[] { path });
 
 			var useFirst = (algorithm == FtpHashAlgorithm.NONE);
 

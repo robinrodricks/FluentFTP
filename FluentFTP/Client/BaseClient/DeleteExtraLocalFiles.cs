@@ -15,7 +15,7 @@ namespace FluentFTP.Client.BaseClient {
 		protected void DeleteExtraLocalFiles(string localFolder, FtpFolderSyncMode mode, Dictionary<string, bool> shouldExist, List<FtpRule> rules) {
 			if (mode == FtpFolderSyncMode.Mirror) {
 
-				LogFunc(nameof(DeleteExtraLocalFiles));
+				LogFunction(nameof(DeleteExtraLocalFiles));
 
 				// get all the local files
 				var localListing = Directory.GetFiles(localFolder, "*.*", SearchOption.AllDirectories);
@@ -27,7 +27,7 @@ namespace FluentFTP.Client.BaseClient {
 
 						// only delete the local file if its permitted by the configuration
 						if (CanDeleteLocalFile(rules, existingLocalFile)) {
-							LogStatus(FtpTraceLevel.Info, "Delete extra file from disk: " + existingLocalFile);
+							LogWithPrefix(FtpTraceLevel.Info, "Delete extra file from disk: " + existingLocalFile);
 
 							// delete the file from disk
 							try {

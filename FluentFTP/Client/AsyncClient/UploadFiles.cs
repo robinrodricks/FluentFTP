@@ -50,7 +50,7 @@ namespace FluentFTP {
 
 			remoteDir = remoteDir.GetFtpPath();
 
-			LogFunc(nameof(UploadFiles), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
+			LogFunction(nameof(UploadFiles), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
 			token.ThrowIfCancellationRequested();
@@ -106,12 +106,12 @@ namespace FluentFTP {
 				catch (Exception ex) {
 					if (ex is OperationCanceledException) {
 						//DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
-						LogStatus(FtpTraceLevel.Info, "Upload cancellation requested");
+						LogWithPrefix(FtpTraceLevel.Info, "Upload cancellation requested");
 						throw;
 					}
 
 					//suppress all other upload exceptions (errors are still written to FtpTrace)
-					LogStatus(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
+					LogWithPrefix(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
 					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;

@@ -19,7 +19,7 @@ namespace FluentFTP {
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <returns>A data stream ready to be used</returns>
 		protected FtpDataStream OpenActiveDataStream(FtpDataConnectionType type, string command, long restart) {
-			LogFunc(nameof(OpenActiveDataStream), new object[] { type, command, restart });
+			LogFunction(nameof(OpenActiveDataStream), new object[] { type, command, restart });
 
 			var stream = new FtpDataStream(this);
 			FtpReply reply;

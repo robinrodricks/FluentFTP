@@ -20,7 +20,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(GetModifiedTime), new object[] { path });
+			LogFunction(nameof(GetModifiedTime), new object[] { path });
 
 			var date = DateTime.MinValue;
 			FtpReply reply;

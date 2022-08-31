@@ -47,7 +47,7 @@ namespace FluentFTP.Client.BaseClient {
 
 			if (!string.IsNullOrEmpty(reply.InfoMessages)) {
 				//this.LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
-				LogLine(FtpTraceLevel.Verbose, reply.InfoMessages.Split('\n').AddPrefix("Response: ", true).Join("\n"));
+				Log(FtpTraceLevel.Verbose, reply.InfoMessages.Split('\n').AddPrefix("Response: ", true).Join("\n"));
 
 				//this.LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
 			}
@@ -62,7 +62,7 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				// log response code + message
-				LogLine(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
+				Log(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
 			}
 
 			LastReply = reply;

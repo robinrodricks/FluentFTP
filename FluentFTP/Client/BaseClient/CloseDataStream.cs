@@ -8,7 +8,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <param name="stream">The data stream to close</param>
 		FtpReply IInternalFtpClient.CloseDataStreamInternal(FtpDataStream stream) {
-			LogFunc("CloseDataStream");
+			LogFunction("CloseDataStream");
 
 			var reply = new FtpReply();
 

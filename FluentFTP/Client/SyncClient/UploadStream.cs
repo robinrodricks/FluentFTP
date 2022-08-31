@@ -35,7 +35,7 @@ namespace FluentFTP {
 
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(UploadStream), new object[] { remotePath, existsMode, createRemoteDir });
+			LogFunction(nameof(UploadStream), new object[] { remotePath, existsMode, createRemoteDir });
 
 			// write the file onto the server
 			return UploadFileInternal(fileStream, null, remotePath, createRemoteDir, existsMode, false, false, progress, new FtpProgress(1, 0));

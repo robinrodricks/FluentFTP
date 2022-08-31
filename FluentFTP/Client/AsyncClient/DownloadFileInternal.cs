@@ -212,18 +212,18 @@ namespace FluentFTP {
 				}
 
 				if (ex1 is IOException) {
-					LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
+					LogWithPrefix(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
 					return false;
 				}
 
 				if (ex1 is OperationCanceledException) {
-					LogStatus(FtpTraceLevel.Info, "Download cancellation requested");
+					LogWithPrefix(FtpTraceLevel.Info, "Download cancellation requested");
 					throw;
 				}
 
 				// absorb "file does not exist" exceptions and simply return false
 				if (ex1.Message.IsKnownError(ServerStringModule.fileNotFound)) {
-					LogStatus(FtpTraceLevel.Error, "File does not exist: " + ex1.Message);
+					LogWithPrefix(FtpTraceLevel.Error, "File does not exist: " + ex1.Message);
 					return false;
 				}
 

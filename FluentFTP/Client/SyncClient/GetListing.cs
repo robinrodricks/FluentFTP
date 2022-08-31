@@ -69,7 +69,7 @@ namespace FluentFTP {
 				path = path.GetFtpPath();
 			}
 
-			LogFunc(nameof(GetListing), new object[] { path, options });
+			LogFunction(nameof(GetListing), new object[] { path, options });
 
 			FtpListItem item = null;
 			var lst = new List<FtpListItem>();
@@ -137,7 +137,7 @@ namespace FluentFTP {
 							DateTime modify;
 
 							if (item.Type == FtpObjectType.Directory) {
-								LogStatus(FtpTraceLevel.Verbose, "Trying to retrieve modification time of a directory, some servers don't like this...");
+								LogWithPrefix(FtpTraceLevel.Verbose, "Trying to retrieve modification time of a directory, some servers don't like this...");
 							}
 
 							if ((modify = GetModifiedTime(item.FullName)) != DateTime.MinValue) {
@@ -180,30 +180,30 @@ namespace FluentFTP {
 				if (isUseStat) {
 					var reply = Execute(listcmd);
 					if (reply.Success) {
-						LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+						Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
 						foreach (var line in reply.InfoMessages.Split('\n')) {
 							if (!Strings.IsNullOrWhiteSpace(line)) {
 								rawlisting.Add(line);
-								LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
+								Log(FtpTraceLevel.Verbose, "Listing:  " + line);
 							}
 						}
 
-						LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
+						Log(FtpTraceLevel.Verbose, "-----------------------------------------");
 					}
 				}
 				else {
 					// read in raw file listing from data stream
 					using (var stream = OpenDataStream(listcmd, 0)) {
 						try {
-							LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+							Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
 							if (Config.BulkListing) {
 								// increases performance of GetListing by reading multiple lines of the file listing at once
 								foreach (var line in stream.ReadAllLines(Encoding, Config.BulkListingLength)) {
 									if (!Strings.IsNullOrWhiteSpace(line)) {
 										rawlisting.Add(line);
-										LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
+										Log(FtpTraceLevel.Verbose, "Listing:  " + line);
 									}
 								}
 							}
@@ -213,12 +213,12 @@ namespace FluentFTP {
 								while ((buf = stream.ReadLine(Encoding)) != null) {
 									if (buf.Length > 0) {
 										rawlisting.Add(buf);
-										LogLine(FtpTraceLevel.Verbose, "Listing:  " + buf);
+										Log(FtpTraceLevel.Verbose, "Listing:  " + buf);
 									}
 								}
 							}
 
-							LogLine(FtpTraceLevel.Verbose, "-----------------------------------------");
+							Log(FtpTraceLevel.Verbose, "-----------------------------------------");
 						}
 						finally {
 							stream.Close();
@@ -246,7 +246,7 @@ namespace FluentFTP {
 				// Fix #410: Retry if its a temporary failure ("Received an unexpected EOF or 0 bytes from the transport stream")
 				if (retry && ioEx.Message.IsKnownError(ServerStringModule.unexpectedEOF)) {
 					// retry once more, but do not go into a infinite recursion loop here
-					LogLine(FtpTraceLevel.Verbose, "Warning:  Retry GetListing once more due to unexpected EOF");
+					Log(FtpTraceLevel.Verbose, "Warning:  Retry GetListing once more due to unexpected EOF");
 					return GetListingInternal(listcmd, options, false);
 				}
 				else {

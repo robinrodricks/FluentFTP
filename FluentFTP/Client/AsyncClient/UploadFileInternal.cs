@@ -52,7 +52,7 @@ namespace FluentFTP {
 					if (existsMode == FtpRemoteExists.Skip) {
 
 						if (fileExists) {
-							LogStatus(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists on server (Remote: " + remotePath + ", Local: " + localPath + ")");
+							LogWithPrefix(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists on server (Remote: " + remotePath + ", Local: " + localPath + ")");
 
 							// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
 							// send progress reports for skipped files
@@ -110,7 +110,7 @@ namespace FluentFTP {
 				// skip uploading if the mode is resume and the local and remote file have the same length
 				if ((existsMode == FtpRemoteExists.Resume || existsMode == FtpRemoteExists.ResumeNoCheck) &&
 					(localFileLen == remoteFileLen)) {
-					LogStatus(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully uploaded (Remote: " + remotePath + ", Local: " + localPath + ")");
+					LogWithPrefix(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully uploaded (Remote: " + remotePath + ", Local: " + localPath + ")");
 
 					// send progress reports for skipped files
 					if (progress != null) {
@@ -290,12 +290,12 @@ namespace FluentFTP {
 				}
 
 				if (ex1 is IOException) {
-					LogStatus(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
+					LogWithPrefix(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
 					return FtpStatus.Failed;
 				}
 
 				if (ex1 is OperationCanceledException) {
-					LogStatus(FtpTraceLevel.Info, "Upload cancellation requested");
+					LogWithPrefix(FtpTraceLevel.Info, "Upload cancellation requested");
 					throw;
 				}
 

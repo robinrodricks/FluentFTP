@@ -12,7 +12,7 @@ namespace FluentFTP.Client.BaseClient {
 				var passes = FtpRule.IsAllAllowed(rules, item ?? result.ToListItem(useLocalPath));
 				if (!passes) {
 
-					LogStatus(FtpTraceLevel.Info, "Skipped file due to rule: " + (useLocalPath ? result.LocalPath : result.RemotePath));
+					LogWithPrefix(FtpTraceLevel.Info, "Skipped file due to rule: " + (useLocalPath ? result.LocalPath : result.RemotePath));
 
 					// mark that the file was skipped due to a rule
 					result.IsSkipped = true;

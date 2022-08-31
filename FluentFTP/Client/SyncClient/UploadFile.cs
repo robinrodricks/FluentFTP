@@ -49,11 +49,11 @@ namespace FluentFTP {
 
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(UploadFile), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
+			LogFunction(nameof(UploadFile), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 
 			// skip uploading if the local file does not exist
 			if (!File.Exists(localPath)) {
-				LogStatus(FtpTraceLevel.Error, "File does not exist: " + localPath);
+				LogWithPrefix(FtpTraceLevel.Error, "File does not exist: " + localPath);
 				return FtpStatus.Failed;
 			}
 
@@ -73,18 +73,18 @@ namespace FluentFTP {
 					attemptsLeft--;
 
 					if (!uploadSuccess) {
-						LogStatus(FtpTraceLevel.Info, "Failed to upload file.");
+						LogWithPrefix(FtpTraceLevel.Info, "Failed to upload file.");
 
 						if (attemptsLeft > 0)
-							LogStatus(FtpTraceLevel.Info, "Retrying to upload file.");
+							LogWithPrefix(FtpTraceLevel.Info, "Retrying to upload file.");
 					}
 
 					// If verification is needed, update the validated flag
 					if (uploadSuccess && verifyOptions != FtpVerify.None) {
 						verified = VerifyTransfer(localPath, remotePath);
-						LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+						LogWithPrefix(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 						if (!verified && attemptsLeft > 0) {
-							LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpRemoteExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
+							LogWithPrefix(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpRemoteExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");
 							// Force overwrite if a retry is required
 							existsMode = FtpRemoteExists.Overwrite;
 						}

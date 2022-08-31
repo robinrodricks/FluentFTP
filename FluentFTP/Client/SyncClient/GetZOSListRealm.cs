@@ -11,7 +11,7 @@ namespace FluentFTP {
 		/// <returns>The realm</returns>
 		public FtpZOSListRealm GetZOSListRealm() {
 
-			LogFunc(nameof(GetZOSListRealm));
+			LogFunction(nameof(GetZOSListRealm));
 
 			// this case occurs immediately after connection and after the working dir has changed
 			if (Status.LastWorkingDir == null) {

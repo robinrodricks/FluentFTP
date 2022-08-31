@@ -24,7 +24,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(DeleteFile), new object[] { path });
+			LogFunction(nameof(DeleteFile), new object[] { path });
 
 			if (!(reply = await Execute("DELE " + path, token)).Success) {
 				throw new FtpCommandException(reply);

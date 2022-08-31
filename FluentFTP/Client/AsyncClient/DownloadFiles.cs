@@ -20,7 +20,7 @@ namespace FluentFTP {
 					File.Delete(localFile);
 				}
 				catch (Exception ex) {
-					LogStatus(FtpTraceLevel.Warn, "AsyncFtpClient : Exception caught and discarded while attempting to delete file '" + localFile + "' : " + ex.ToString());
+					LogWithPrefix(FtpTraceLevel.Warn, "AsyncFtpClient : Exception caught and discarded while attempting to delete file '" + localFile + "' : " + ex.ToString());
 				}
 			}
 		}
@@ -59,7 +59,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "localDir");
 			}
 
-			LogFunc(nameof(DownloadFiles), new object[] { localDir, remotePaths, existsMode, verifyOptions });
+			LogFunction(nameof(DownloadFiles), new object[] { localDir, remotePaths, existsMode, verifyOptions });
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
 			token.ThrowIfCancellationRequested();
@@ -96,7 +96,7 @@ namespace FluentFTP {
 				}
 				catch (Exception ex) {
 					if (ex is OperationCanceledException) {
-						LogStatus(FtpTraceLevel.Info, "Download cancellation requested");
+						LogWithPrefix(FtpTraceLevel.Info, "Download cancellation requested");
 
 						//DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
 						throw;

@@ -23,7 +23,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(FileExists), new object[] { path });
+			LogFunction(nameof(FileExists), new object[] { path });
 
 			path = await GetAbsolutePathAsync(path, token);
 

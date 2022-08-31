@@ -47,7 +47,7 @@ namespace FluentFTP.Client.BaseClient {
 				return m.Groups["pwd"].Value.GetFtpPath();
 			}
 
-			LogStatus(FtpTraceLevel.Warn, "Failed to parse working directory from: " + reply.Message);
+			LogWithPrefix(FtpTraceLevel.Warn, "Failed to parse working directory from: " + reply.Message);
 
 			return "/";
 		}

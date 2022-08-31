@@ -21,7 +21,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(CreateDirectory), new object[] { path, force });
+			LogFunction(nameof(CreateDirectory), new object[] { path, force });
 
 			FtpReply reply;
 
@@ -41,7 +41,7 @@ namespace FluentFTP {
 			path = path.TrimEnd('/');
 
 			if (force && !await DirectoryExists(path.GetFtpDirectoryName(), token)) {
-				LogStatus(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
+				LogWithPrefix(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
 				await CreateDirectory(path.GetFtpDirectoryName(), true, token);
 			}
 
@@ -50,7 +50,7 @@ namespace FluentFTP {
 				return false;
 			}*/
 
-			LogStatus(FtpTraceLevel.Verbose, "CreateDirectory " + path);
+			LogWithPrefix(FtpTraceLevel.Verbose, "CreateDirectory " + path);
 
 			if (!(reply = await Execute("MKD " + path, token)).Success) {
 

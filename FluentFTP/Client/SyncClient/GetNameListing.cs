@@ -32,7 +32,7 @@ namespace FluentFTP {
 				path = path.GetFtpPath();
 			}
 
-			LogFunc(nameof(GetNameListing), new object[] { path });
+			LogFunction(nameof(GetNameListing), new object[] { path });
 
 			var listing = new List<string>();
 
@@ -46,19 +46,19 @@ namespace FluentFTP {
 				// read in raw listing
 				try {
 					using (var stream = OpenDataStream("NLST " + path, 0)) {
-						LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+						Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 						string line;
 
 						try {
 							while ((line = stream.ReadLine(Encoding)) != null) {
 								listing.Add(line);
-								LogLine(FtpTraceLevel.Verbose, "Listing:  " + line);
+								Log(FtpTraceLevel.Verbose, "Listing:  " + line);
 							}
 						}
 						finally {
 							stream.Close();
 						}
-						LogLine(FtpTraceLevel.Verbose, "+---------------------------------------+");
+						Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 					}
 				}
 				catch (FtpMissingSocketException) {

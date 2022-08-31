@@ -30,7 +30,7 @@ namespace FluentFTP {
 			sourcePath = sourcePath.GetFtpPath();
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(TransferFile), new object[] { sourcePath, remoteClient, remotePath, Config.FXPDataType, createRemoteDir, existsMode, verifyOptions });
+			LogFunction(nameof(TransferFile), new object[] { sourcePath, remoteClient, remotePath, Config.FXPDataType, createRemoteDir, existsMode, verifyOptions });
 
 			// verify input params
 			VerifyTransferFileParams(sourcePath, remoteClient, remotePath, existsMode);
@@ -51,9 +51,9 @@ namespace FluentFTP {
 				// if verification is needed
 				if (fxpSuccess && verifyOptions != FtpVerify.None) {
 					verified = VerifyFXPTransfer(sourcePath, remoteClient, remotePath);
-					LogStatus(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
+					LogWithPrefix(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 					if (!verified && attemptsLeft > 0) {
-						LogStatus(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpRemoteExists.Resume ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
+						LogWithPrefix(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpRemoteExists.Resume ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
 						// Force overwrite if a retry is required
 						existsMode = FtpRemoteExists.Overwrite;
 					}
@@ -106,7 +106,7 @@ namespace FluentFTP {
 							case FtpRemoteExists.Skip:
 
 								if (fileExists) {
-									LogStatus(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists (Source: " + sourcePath + ", Dest: " + remotePath + ")");
+									LogWithPrefix(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists (Source: " + sourcePath + ", Dest: " + remotePath + ")");
 
 									//Fix #413 - progress callback isn't called if the file has already been uploaded to the server
 									//send progress reports
@@ -205,7 +205,7 @@ namespace FluentFTP {
 						Thread.Sleep(Config.FXPProgressInterval);
 					}
 
-					LogStatus(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");
+					LogWithPrefix(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");
 
 					Noop();
 					remoteClient.Noop();
@@ -223,7 +223,7 @@ namespace FluentFTP {
 				}
 			}
 			else {
-				LogStatus(FtpTraceLevel.Error, "Failed to open FXP passive Connection");
+				LogWithPrefix(FtpTraceLevel.Error, "Failed to open FXP passive Connection");
 				return false;
 			}
 		}

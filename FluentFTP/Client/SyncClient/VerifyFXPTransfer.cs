@@ -40,7 +40,7 @@ namespace FluentFTP {
 				return sourceHash.Value == destinationHash.Value;
 			}
 			else {
-				LogLine(FtpTraceLevel.Info, "Source and Destination servers do not support any common hashing algorithm");
+				Log(FtpTraceLevel.Info, "Source and Destination servers do not support any common hashing algorithm");
 			}
 
 			// since not supported return true to ignore validation

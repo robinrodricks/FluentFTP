@@ -27,7 +27,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(DirectoryExists), new object[] { path });
+			LogFunction(nameof(DirectoryExists), new object[] { path });
 
 			// quickly check if root path, then it always exists!
 			if (path.IsFtpRootDirectory()) {

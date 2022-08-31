@@ -31,7 +31,7 @@ namespace FluentFTP {
 
 			lock (m_lock) {
 
-				LogFunc(nameof(Connect));
+				LogFunction(nameof(Connect));
 
 				if (IsDisposed) {
 					throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
@@ -128,7 +128,7 @@ namespace FluentFTP {
 					m_textEncoding = Encoding.UTF8;
 				}
 
-				LogStatus(FtpTraceLevel.Info, "Text encoding: " + m_textEncoding.ToString());
+				LogWithPrefix(FtpTraceLevel.Info, "Text encoding: " + m_textEncoding.ToString());
 
 				if (m_textEncoding == Encoding.UTF8) {
 					// If the server supports UTF8 it should already be enabled and this

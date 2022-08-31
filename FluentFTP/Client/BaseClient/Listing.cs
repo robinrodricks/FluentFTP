@@ -37,7 +37,7 @@ namespace FluentFTP.Client.BaseClient {
 				item = CurrentListParser.ParseSingleLine(path, buf, m_capabilities, machineList);
 			}
 			catch (FtpListParseException) {
-				LogStatus(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
+				LogWithPrefix(FtpTraceLevel.Verbose, "Restarting parsing from first entry in list");
 				i = -1;
 				lst.Clear();
 				return false;
@@ -54,7 +54,7 @@ namespace FluentFTP.Client.BaseClient {
 				}
 			}
 			else if (ServerHandler != null && !ServerHandler.SkipParserErrorReport()) {
-				LogStatus(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
+				LogWithPrefix(FtpTraceLevel.Warn, "Failed to parse file listing: " + buf);
 			}
 			return true;
 		}

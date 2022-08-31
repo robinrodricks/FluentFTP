@@ -20,7 +20,7 @@ namespace FluentFTP {
 		/// <param name="restart">Restart location in bytes for file transfer</param>
 		/// <returns>A data stream ready to be used</returns>
 		protected async Task<FtpDataStream> OpenPassiveDataStreamAsync(FtpDataConnectionType type, string command, long restart, CancellationToken token = default(CancellationToken)) {
-			LogFunc(nameof(OpenPassiveDataStreamAsync), new object[] { type, command, restart });
+			LogFunction(nameof(OpenPassiveDataStreamAsync), new object[] { type, command, restart });
 
 			FtpDataStream stream = null;
 			FtpReply reply;

@@ -12,17 +12,24 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <param name="function">The name of the API function</param>
 		/// <param name="args">The args passed to the function</param>
-		protected void LogFunc(string function, object[] args = null) {
+		protected void LogFunction(string function, object[] args = null) {
 
-			// log to attached logger if given
+			var fullMessage = (">         " + function + "(" + args.ItemsToString().Join(", ") + ")");
+
+			// log to modern logger if given
 			if (m_logger != null) {
-				m_logger.LogInformation(function, args.ItemsToString());
+				m_logger.LogInformation(fullMessage);
+			}
+
+			// log to legacy logger if given
+			if (m_legacyLogger != null) {
+				m_legacyLogger(FtpTraceLevel.Verbose, fullMessage);
 			}
 
 			// log to system
 			LogToDebugOrConsole("");
 			LogToDebugOrConsole("# " + function + "(" + args.ItemsToString().Join(", ") + ")");
-			
+
 		}
 
 		/// <summary>
@@ -30,11 +37,16 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <param name="eventType">The type of tracing event</param>
 		/// <param name="message">The message to write</param>
-		protected void LogLine(FtpTraceLevel eventType, string message) {
+		protected void Log(FtpTraceLevel eventType, string message) {
 
-			// log to attached logger if given
+			// log to modern logger if given
 			if (m_logger != null) {
 				LogToLogger(eventType, message);
+			}
+
+			// log to legacy logger if given
+			if (m_legacyLogger != null) {
+				m_legacyLogger(eventType, message);
 			}
 
 			// log to system
@@ -46,15 +58,22 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <param name="eventType">The type of tracing event</param>
 		/// <param name="message">The message to write</param>
-		protected void LogStatus(FtpTraceLevel eventType, string message) {
+		protected void LogWithPrefix(FtpTraceLevel eventType, string message) {
+
+			var fullMessage = GetLogPrefix(eventType) + message;
 
 			// log to attached logger if given
 			if (m_logger != null) {
-				LogToLogger(eventType, message);
+				LogToLogger(eventType, fullMessage);
+			}
+
+			// log to legacy logger if given
+			if (m_legacyLogger != null) {
+				m_legacyLogger(eventType, fullMessage);
 			}
 
 			// log to system
-			LogToDebugOrConsole(GetLogPrefix(eventType) + message);
+			LogToDebugOrConsole(fullMessage);
 		}
 
 		/// <summary>
@@ -114,14 +133,14 @@ namespace FluentFTP.Client.BaseClient {
 		/// To allow for external connected classes to use the attached logger.
 		/// </summary>
 		void IInternalFtpClient.LogLine(FtpTraceLevel eventType, string message) {
-			this.LogLine(eventType, message);
+			this.Log(eventType, message);
 		}
 
 		/// <summary>
 		/// To allow for external connected classes to use the attached logger.
 		/// </summary>
 		void IInternalFtpClient.LogStatus(FtpTraceLevel eventType, string message) {
-			this.LogStatus(eventType, message);
+			this.LogWithPrefix(eventType, message);
 		}
 
 	}

@@ -23,7 +23,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(GetFilePermissions), new object[] { path });
+			LogFunction(nameof(GetFilePermissions), new object[] { path });
 
 			var result = await GetObjectInfo(path, false, token);
 

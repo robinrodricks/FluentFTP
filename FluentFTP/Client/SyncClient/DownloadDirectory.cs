@@ -51,7 +51,7 @@ namespace FluentFTP {
 			// cleanup the remote path
 			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
 
-			LogFunc(nameof(DownloadDirectory), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+			LogFunction(nameof(DownloadDirectory), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
 			var results = new List<FtpResult>();
 
@@ -85,7 +85,7 @@ namespace FluentFTP {
 		/// </summary>
 		protected void DownloadServerFiles(List<FtpResult> toDownload, FtpLocalExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress) {
 
-			LogFunc(nameof(DownloadServerFiles), new object[] { toDownload.Count + " files" });
+			LogFunction(nameof(DownloadServerFiles), new object[] { toDownload.Count + " files" });
 
 			// per object to download
 			var r = -1;
@@ -107,7 +107,7 @@ namespace FluentFTP {
 					}
 					catch (Exception ex) {
 
-						LogStatus(FtpTraceLevel.Warn, "File failed to download: " + result.RemotePath);
+						LogWithPrefix(FtpTraceLevel.Warn, "File failed to download: " + result.RemotePath);
 
 						// mark that the file failed to download
 						result.IsFailed = true;

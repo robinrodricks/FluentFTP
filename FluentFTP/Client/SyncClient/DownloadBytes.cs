@@ -31,7 +31,7 @@ namespace FluentFTP {
 
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunc(nameof(DownloadBytes), new object[] { remotePath });
+			LogFunction(nameof(DownloadBytes), new object[] { remotePath });
 
 			outBytes = null;
 

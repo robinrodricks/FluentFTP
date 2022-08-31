@@ -23,7 +23,7 @@ namespace FluentFTP {
 			lock (m_lock) {
 				path = path.GetFtpPath();
 
-				LogFunc(nameof(DeleteFile), new object[] { path });
+				LogFunction(nameof(DeleteFile), new object[] { path });
 
 				if (!(reply = Execute("DELE " + path)).Success) {
 					throw new FtpCommandException(reply);

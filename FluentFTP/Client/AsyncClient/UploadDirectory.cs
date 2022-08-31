@@ -53,7 +53,7 @@ namespace FluentFTP {
 			// cleanup the remote path
 			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
 
-			LogFunc(nameof(UploadDirectory), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+			LogFunction(nameof(UploadDirectory), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
 			var results = new List<FtpResult>();
 
@@ -153,7 +153,7 @@ namespace FluentFTP {
 		/// </summary>
 		protected async Task UploadDirectoryFiles(List<FtpResult> filesToUpload, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
 
-			LogFunc(nameof(UploadDirectoryFiles), new object[] { filesToUpload.Count + " files" });
+			LogFunction(nameof(UploadDirectoryFiles), new object[] { filesToUpload.Count + " files" });
 
 			var r = -1;
 			foreach (var result in filesToUpload) {
@@ -179,7 +179,7 @@ namespace FluentFTP {
 				}
 				catch (Exception ex) {
 
-					LogStatus(FtpTraceLevel.Warn, "File failed to upload: " + result.LocalPath);
+					LogWithPrefix(FtpTraceLevel.Warn, "File failed to upload: " + result.LocalPath);
 
 					// mark that the file failed to upload
 					result.IsFailed = true;
@@ -197,7 +197,7 @@ namespace FluentFTP {
 		protected async Task DeleteExtraServerFiles(FtpFolderSyncMode mode, string remoteFolder, Dictionary<string, bool> shouldExist, FtpListItem[] remoteListing, List<FtpRule> rules, CancellationToken token) {
 			if (mode == FtpFolderSyncMode.Mirror && remoteListing != null) {
 
-				LogFunc(nameof(DeleteExtraServerFiles));
+				LogFunction(nameof(DeleteExtraServerFiles));
 
 				// delete files that are not in listed in shouldExist
 				foreach (var existingServerFile in remoteListing) {
@@ -208,7 +208,7 @@ namespace FluentFTP {
 
 							// only delete the remote file if its permitted by the configuration
 							if (CanDeleteRemoteFile(rules, existingServerFile)) {
-								LogStatus(FtpTraceLevel.Info, "Delete extra file from server: " + existingServerFile.FullName);
+								LogWithPrefix(FtpTraceLevel.Info, "Delete extra file from server: " + existingServerFile.FullName);
 
 								// delete the file from the server
 								try {

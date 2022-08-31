@@ -24,6 +24,19 @@ namespace FluentFTP.Client.BaseClient {
 			set => m_logger = value;
 		}
 
+		private Action<FtpTraceLevel, string> m_legacyLogger = null;
+
+
+		/// <summary>
+		/// Add a custom listener here to get events every time a message is logged.
+		/// This is the older system, prefer using the ILogger based `Logger` property.
+		/// This system will never be removed, you can safely use it in your applications.
+		/// </summary>
+		public Action<FtpTraceLevel, string> LegacyLogger {
+			get => m_legacyLogger;
+			set => m_legacyLogger = value;
+		}
+
 		private FtpConfig m_config = null;
 
 		/// <summary>

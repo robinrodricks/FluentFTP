@@ -19,7 +19,7 @@ namespace FluentFTP {
 		public List<FtpProfile> AutoDetect(bool firstOnly = true, bool cloneConnection = true) {
 
 			lock (m_lock) {
-				LogFunc(nameof(AutoDetect), new object[] { firstOnly, cloneConnection });
+				LogFunction(nameof(AutoDetect), new object[] { firstOnly, cloneConnection });
 				ValidateAutoDetect();
 
 				return ConnectModule.AutoDetect(this, firstOnly, cloneConnection);

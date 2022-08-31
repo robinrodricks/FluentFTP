@@ -33,13 +33,13 @@ namespace FluentFTP {
 					switch (type) {
 						case FtpDataConnectionType.PORT:
 							type = FtpDataConnectionType.EPRT;
-							LogLine(FtpTraceLevel.Info, "Changed data connection type to EPRT because we are connected with IPv6.");
+							Log(FtpTraceLevel.Info, "Changed data connection type to EPRT because we are connected with IPv6.");
 							break;
 
 						case FtpDataConnectionType.PASV:
 						case FtpDataConnectionType.PASVEX:
 							type = FtpDataConnectionType.EPSV;
-							LogLine(FtpTraceLevel.Info, "Changed data connection type to EPSV because we are connected with IPv6.");
+							Log(FtpTraceLevel.Info, "Changed data connection type to EPSV because we are connected with IPv6.");
 							break;
 					}
 				}

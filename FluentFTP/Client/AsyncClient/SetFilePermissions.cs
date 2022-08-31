@@ -45,7 +45,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(SetFilePermissions), new object[] { path, permissions });
+			LogFunction(nameof(SetFilePermissions), new object[] { path, permissions });
 
 			if (!(reply = await Execute("SITE CHMOD " + permissions.ToString() + " " + path, token)).Success) {
 				throw new FtpCommandException(reply);

@@ -45,7 +45,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", "localDir");
 			}
 
-			LogFunc(nameof(DownloadFiles), new object[] { localDir, remotePaths, existsMode, verifyOptions });
+			LogFunction(nameof(DownloadFiles), new object[] { localDir, remotePaths, existsMode, verifyOptions });
 
 			var errorEncountered = false;
 			var successfulDownloads = new List<string>();
@@ -76,7 +76,7 @@ namespace FluentFTP {
 					}
 				}
 				catch (Exception ex) {
-					LogStatus(FtpTraceLevel.Error, "Failed to download " + remotePath + ". Error: " + ex);
+					LogWithPrefix(FtpTraceLevel.Error, "Failed to download " + remotePath + ". Error: " + ex);
 					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;
@@ -116,7 +116,7 @@ namespace FluentFTP {
 					File.Delete(localFile);
 				}
 				catch (Exception ex) {
-					LogStatus(FtpTraceLevel.Warn, "FtpClient : Exception caught and discarded while attempting to delete file '" + localFile + "' : " + ex.ToString());
+					LogWithPrefix(FtpTraceLevel.Warn, "FtpClient : Exception caught and discarded while attempting to delete file '" + localFile + "' : " + ex.ToString());
 				}
 			}
 		}

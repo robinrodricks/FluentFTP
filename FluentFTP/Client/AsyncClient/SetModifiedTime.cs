@@ -26,7 +26,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(SetModifiedTime), new object[] { path, date });
+			LogFunction(nameof(SetModifiedTime), new object[] { path, date });
 
 			FtpReply reply;
 

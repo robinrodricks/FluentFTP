@@ -49,7 +49,7 @@ namespace FluentFTP {
 
 			remoteDir = remoteDir.GetFtpPath();
 
-			LogFunc(nameof(UploadFiles), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
+			LogFunction(nameof(UploadFiles), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
 			//int count = 0;
 			var errorEncountered = false;
@@ -99,7 +99,7 @@ namespace FluentFTP {
 					}
 				}
 				catch (Exception ex) {
-					LogStatus(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
+					LogWithPrefix(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
 					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;

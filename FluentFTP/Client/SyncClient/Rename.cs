@@ -31,7 +31,7 @@ namespace FluentFTP {
 				path = path.GetFtpPath();
 				dest = dest.GetFtpPath();
 
-				LogFunc(nameof(Rename), new object[] { path, dest });
+				LogFunction(nameof(Rename), new object[] { path, dest });
 
 				// calc the absolute filepaths
 				path = GetAbsolutePath(path);

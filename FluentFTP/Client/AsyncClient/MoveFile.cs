@@ -32,7 +32,7 @@ namespace FluentFTP {
 			path = path.GetFtpPath();
 			dest = dest.GetFtpPath();
 
-			LogFunc(nameof(MoveFile), new object[] { path, dest, existsMode });
+			LogFunction(nameof(MoveFile), new object[] { path, dest, existsMode });
 
 			if (await FileExists(path, token)) {
 				// check if dest file exists and act accordingly

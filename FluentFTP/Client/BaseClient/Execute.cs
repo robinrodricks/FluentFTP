@@ -20,7 +20,7 @@ namespace FluentFTP.Client.BaseClient {
 
 				if (!IsConnected) {
 					if (command == "QUIT") {
-						LogStatus(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
+						LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
 						return new FtpReply() {
 							Code = "200",
 							Message = "Connection already closed."
@@ -45,7 +45,7 @@ namespace FluentFTP.Client.BaseClient {
 					Status.LastWorkingDir = null;
 				}
 
-				LogLine(FtpTraceLevel.Info, "Command:  " + commandTxt);
+				Log(FtpTraceLevel.Info, "Command:  " + commandTxt);
 
 				// send command to FTP server
 				m_stream.WriteLine(m_textEncoding, command);

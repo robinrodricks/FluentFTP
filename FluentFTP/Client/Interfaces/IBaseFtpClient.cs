@@ -34,5 +34,7 @@ namespace FluentFTP {
 		FtpReply LastReply { get; }
 		Encoding Encoding { get; set; }
 
-	}
+		Action<FtpTraceLevel, string> LegacyLogger { get; set; }
+
+}
 }

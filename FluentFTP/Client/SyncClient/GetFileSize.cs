@@ -21,7 +21,7 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			LogFunc(nameof(GetFileSize), new object[] { path });
+			LogFunction(nameof(GetFileSize), new object[] { path });
 
 			// execute server-specific file size fetching logic, if any
 			if (ServerHandler != null && ServerHandler.IsCustomFileSize()) {
