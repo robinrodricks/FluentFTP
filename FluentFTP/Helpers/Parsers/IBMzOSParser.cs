@@ -76,14 +76,12 @@ namespace FluentFTP.Helpers.Parsers {
 			}
 
 			// "total nnnn"
-			if (record.Contains("total"))
-			{
+			if (record.Contains("total")) {
 				client.zOSListingRealm = FtpZOSListRealm.Unix;
 				return null;
 			}
 
-			if (IsValidHFS(record))
-			{
+			if (IsValidHFS(record)) {
 				client.zOSListingRealm = FtpZOSListRealm.Unix;
 			}
 
