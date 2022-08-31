@@ -227,7 +227,7 @@ namespace FluentFTP.Helpers.Parsers {
 				}
 			}
 
-			return (perms1 && perms2);
+			return perms1 && perms2;
 		}
 
 	}
