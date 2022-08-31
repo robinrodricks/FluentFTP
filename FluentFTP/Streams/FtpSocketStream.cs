@@ -392,7 +392,7 @@ namespace FluentFTP {
 			return read;
 		}
 
-#if ASYNC
+#if ASYNC || NETFRAMEWORK
 		internal async Task EnableCancellation(Task task, CancellationToken token, Action action) {
 			var registration = token.Register(action);
 			_ = task.ContinueWith(x => registration.Dispose(), CancellationToken.None);
@@ -407,7 +407,32 @@ namespace FluentFTP {
 
 #endif
 
-#if ASYNC
+
+#if NETFRAMEWORK
+		/// <summary>
+		/// Bypass the stream and read directly off the socket.
+		/// </summary>
+		/// <param name="buffer">The buffer to read into</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <returns>The number of bytes read</returns>
+		internal async Task<int> RawSocketReadAsync(byte[] buffer, CancellationToken token) {
+			var read = 0;
+
+			if (m_socket != null && m_socket.Connected) {
+				var asyncResult = m_socket.BeginReceive(buffer, 0, buffer.Length, 0, null, null);
+				read = await EnableCancellation(
+					Task.Factory.FromAsync(asyncResult, m_socket.EndReceive),
+					token, 
+					() => CloseSocket()
+				);
+			}
+
+			return read;
+		}
+
+#endif
+
+#if ASYNC && !NETFRAMEWORK
 		/// <summary>
 		/// Bypass the stream and read directly off the socket.
 		/// </summary>
@@ -1249,7 +1274,45 @@ namespace FluentFTP {
 			}
 		}
 
-#if ASYNC
+#if NETFRAMEWORK
+		/// <summary>
+		/// Asynchronously accepts a connection from a listening socket
+		/// </summary>
+		/// <param name="callback"></param>
+		/// <param name="state"></param>
+		/// <returns></returns>
+		public IAsyncResult BeginAccept(AsyncCallback callback, object state) {
+			if (m_socket != null) {
+				return m_socket.BeginAccept(callback, state);
+			}
+
+			return null;
+		}
+
+		/// <summary>
+		/// Completes a BeginAccept() operation
+		/// </summary>
+		/// <param name="ar">IAsyncResult returned from BeginAccept</param>
+		public void EndAccept(IAsyncResult ar) {
+			if (m_socket != null) {
+				m_socket = m_socket.EndAccept(ar);
+				m_netStream = new NetworkStream(m_socket);
+				m_netStream.ReadTimeout = m_readTimeout;
+			}
+		}
+
+		/// <summary>
+		/// Accepts a connection from a listening socket
+		/// </summary>
+		public async Task AcceptAsync() {
+			if (m_socket != null) {
+				var iar = m_socket.BeginAccept(null, null);
+				await Task.Factory.FromAsync(iar, m_socket.EndAccept);
+			}
+		}
+#endif
+
+#if ASYNC && !NETFRAMEWORK
 		/// <summary>
 		/// Accepts a connection from a listening socket
 		/// </summary>
@@ -1279,6 +1342,8 @@ namespace FluentFTP {
 			}
 #endif
 		}
+
+#if !NETFRAMEWORK
 
 		internal SocketAsyncEventArgs BeginAccept() {
 			var args = new SocketAsyncEventArgs();
@@ -1317,5 +1382,6 @@ namespace FluentFTP {
 			m_netStream.ReadTimeout = m_readTimeout;
 		}
 
+#endif
 	}
 }
