@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Security.Authentication;
-#if !NETSTANDARD
+#if NETFRAMEWORK
 using System.Runtime.Serialization;
 #endif
 
@@ -9,7 +9,7 @@ namespace FluentFTP {
 	/// <summary>
 	/// Exception is thrown when TLS/SSL encryption could not be negotiated by the FTP server.
 	/// </summary>
-#if !NETSTANDARD
+#if NETFRAMEWORK
 	[Serializable]
 #endif
 	public class FtpInvalidCertificateException : FtpException {
@@ -35,7 +35,7 @@ namespace FluentFTP {
 			: base(message) {
 		}
 
-#if !NETSTANDARD
+#if NETFRAMEWORK
 		/// <summary>
 		/// Must be implemented so every Serializer can Deserialize the Exception
 		/// </summary>

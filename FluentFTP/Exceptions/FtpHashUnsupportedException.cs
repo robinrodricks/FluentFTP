@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using FluentFTP.Helpers.Hashing;
-#if !NETSTANDARD
+#if NETFRAMEWORK
 using System.Runtime.Serialization;
 #endif
 
@@ -11,7 +11,7 @@ namespace FluentFTP {
 	/// <summary>
 	/// Exception is thrown when the required hash algorithm is unsupported by the server.
 	/// </summary>
-#if !NETSTANDARD
+#if NETFRAMEWORK
 	[Serializable]
 #endif
 	public class FtpHashUnsupportedException : FtpException {
@@ -45,7 +45,7 @@ namespace FluentFTP {
 			Algorithm = algo;
 		}
 
-#if !NETSTANDARD
+#if NETFRAMEWORK
 		/// <summary>
 		/// Must be implemented so every Serializer can Deserialize the Exception
 		/// </summary>

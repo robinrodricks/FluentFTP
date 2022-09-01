@@ -1,17 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net60;net50;net472;net462;netstandard2.0;netstandard2.1</TargetFrameworks>
-    <Platforms>AnyCPU;x64</Platforms>
-  </PropertyGroup>
+	<PropertyGroup>
+		<PackageId>FluentFTP</PackageId>
+		<Title>FluentFTP</Title>
+		<Description>An FTP and FTPS client for .NET &amp; .NET Standard, optimized for speed. Provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, FXP transfers, UTF-8 support, Async/await support, Powershell support and more. Written entirely in C#, with no external dependencies.</Description>
+		<Authors>Robin Rodricks, FluentFTP Contributors</Authors>
+		<PackageProjectUrl>https://github.com/robinrodricks/FluentFTP</PackageProjectUrl>
+		<Copyright>MIT License</Copyright>
+		<PackageTags>ftp,ftp-client,ftps,ftps-client,ssl,tls,unix,iis,ftp-proxy</PackageTags>
+		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
+		<SignAssembly>True</SignAssembly>
+		<AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
+		<Version>40.0.0-beta3</Version>
+		<PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
+		<PackageIcon>logo-nuget.png</PackageIcon>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net462'">
-    <DefineConstants>$(DefineConstants);NETFRAMEWORK;</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net60;net50;net472;net462;netstandard2.0;netstandard2.1</TargetFrameworks>
+		<Platforms>AnyCPU;x64</Platforms>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
-    <DefineConstants>$(DefineConstants);NETSTANDARD;ASYNC;</DefineConstants>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net462'">
+		<DefineConstants>$(DefineConstants);NETFRAMEWORK;</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
+		<DefineConstants>$(DefineConstants);NETSTANDARD;ASYNC;</DefineConstants>
+	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net50'">
 		<DefineConstants>$(DefineConstants);NET50;NETSTANDARD;NET50_OR_LATER;ASYNC;</DefineConstants>
@@ -21,23 +38,7 @@
 		<DefineConstants>$(DefineConstants);NET60;NETSTANDARD;NET50_OR_LATER;ASYNC;</DefineConstants>
 	</PropertyGroup>
 
-  <PropertyGroup>
-    <PackageId>FluentFTP</PackageId>
-    <Title>FluentFTP</Title>
-    <Description>An FTP and FTPS client for .NET &amp; .NET Standard, optimized for speed. Provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, FXP transfers, UTF-8 support, Async/await support, Powershell support and more. Written entirely in C#, with no external dependencies.</Description>
-    <Authors>Robin Rodricks, FluentFTP Contributors</Authors>
-    <PackageProjectUrl>https://github.com/robinrodricks/FluentFTP</PackageProjectUrl>
-    <Copyright>MIT License</Copyright>
-    <PackageTags>ftp,ftp-client,ftps,ssl,tls,unix,iis</PackageTags>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
-    <SignAssembly>True</SignAssembly>
-    <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
-    <Version>40.0.0-beta2</Version>
-    <PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
-    <PackageIcon>logo-nuget.png</PackageIcon>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
 

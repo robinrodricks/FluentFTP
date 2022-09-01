@@ -30,7 +30,7 @@ namespace FluentFTP.Client.Modules {
 #if !ASYNC
 			SysSslProtocols.Tls,
 #endif
-#if !NETSTANDARD
+#if NETFRAMEWORK
 			SysSslProtocols.Default,
 #endif
 		};

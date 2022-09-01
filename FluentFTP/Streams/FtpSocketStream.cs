@@ -13,6 +13,9 @@ using FluentFTP.Exceptions;
 using FluentFTP.Client.BaseClient;
 using System.Threading;
 using System.Threading.Tasks;
+#if NETFRAMEWORK
+using FluentFTP.Streams.NetFramework;
+#endif
 
 namespace FluentFTP {
 
@@ -457,7 +460,7 @@ namespace FluentFTP {
 		/// <param name="count">Number of bytes to be read</param>
 		/// <returns>The amount of bytes read from the stream</returns>
 		public override int Read(byte[] buffer, int offset, int count) {
-#if !NETSTANDARD
+#if NETFRAMEWORK
 			IAsyncResult ar = null;
 #endif
 
@@ -787,7 +790,7 @@ namespace FluentFTP {
 					}
 #endif
 
-#if !NET20 && !NET35 && !NETSTANDARD
+#if NETFRAMEWORK
 					m_socket.Dispose();
 #endif
 				}
@@ -1100,10 +1103,7 @@ namespace FluentFTP {
 				TimeSpan auth_time_total;
 
 				CreateBufferStream();
-
-				m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
-					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
-				));
+				CreateSSlStream();
 
 				auth_start = DateTime.Now;
 				try {
@@ -1115,7 +1115,7 @@ namespace FluentFTP {
 				}
 				catch (IOException ex) {
 					if (ex.InnerException is Win32Exception) {
-						var win32Exception = (Win32Exception) ex.InnerException;
+						var win32Exception = (Win32Exception)ex.InnerException;
 						if (win32Exception.NativeErrorCode == 10053) {
 							throw new FtpMissingSocketException(ex);
 						}
@@ -1137,6 +1137,20 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
 				throw;
 			}
+		}
+
+		private void CreateSSlStream() {
+
+#if NETSTANDARD
+				m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
+					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
+				));
+#endif
+#if NETFRAMEWORK
+			m_sslStream = new FtpSslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
+				delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
+			));
+#endif
 		}
 
 		/// <summary>
@@ -1194,10 +1208,7 @@ namespace FluentFTP {
 				TimeSpan auth_time_total;
 
 				CreateBufferStream();
-
-				m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
-					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
-				));
+				CreateSSlStream();
 
 				auth_start = DateTime.Now;
 				try {
@@ -1231,11 +1242,11 @@ namespace FluentFTP {
 #endif
 
 
-#if !NETSTANDARD
-			/// <summary>
-			/// Deactivates SSL on this stream using the specified protocols and reverts back to plain-text FTP.
-			/// </summary>
-			public void DeactivateEncryption() {
+#if NETFRAMEWORK
+		/// <summary>
+		/// Deactivates SSL on this stream using the specified protocols and reverts back to plain-text FTP.
+		/// </summary>
+		public void DeactivateEncryption() {
 			if (!IsConnected) {
 				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
 			}

@@ -1,5 +1,5 @@
 ﻿using System;
-#if !NETSTANDARD
+#if NETFRAMEWORK
 using System.Runtime.Serialization;
 #endif
 
@@ -8,7 +8,7 @@ namespace FluentFTP {
 	/// <summary>
 	/// Exception triggered on FTP command failures
 	/// </summary>
-#if !NETSTANDARD
+#if NETFRAMEWORK
 	[Serializable]
 #endif
 	public class FtpCommandException : FtpException {
@@ -62,7 +62,7 @@ namespace FluentFTP {
 			: this(reply.Code, reply.ErrorMessage) {
 		}
 
-#if !NETSTANDARD
+#if NETFRAMEWORK
 		/// <summary>
 		/// Must be implemented so every Serializer can Deserialize the Exception
 		/// </summary>

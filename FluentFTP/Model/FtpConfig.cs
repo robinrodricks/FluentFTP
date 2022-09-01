@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace FluentFTP {
 
-#if !NETSTANDARD
+#if NETFRAMEWORK
 	[Serializable]
 #endif
 	/// <summary>
@@ -319,7 +319,7 @@ namespace FluentFTP {
 			set => _dataConnectionEncryption = value;
 		}
 
-#if !NETSTANDARD
+#if NETFRAMEWORK
 		protected bool _plainTextEncryption = false;
 
 		/// <summary>
@@ -332,11 +332,8 @@ namespace FluentFTP {
 		}
 #endif
 
-#if NETSTANDARD || NET45
 		protected SslProtocols _SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
-#else
-		protected SslProtocols _SslProtocols = SslProtocols.Default;
-#endif
+		
 		/// <summary>
 		/// Encryption protocols to use. Only valid if EncryptionMode property is not equal to <see cref="FtpEncryptionMode.None"/>.
 		/// Default value is .NET Framework defaults from the <see cref="System.Net.Security.SslStream"/> class.
@@ -802,7 +799,7 @@ namespace FluentFTP {
 #if NETSTANDARD
 			write.LocalTimeZone = read.LocalTimeZone;
 #endif
-#if !NETSTANDARD
+#if NETFRAMEWORK
 			write.PlainTextEncryption = read.PlainTextEncryption;
 #endif
 

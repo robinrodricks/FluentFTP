@@ -159,7 +159,7 @@ namespace FluentFTP {
 				ServerFeatureModule.Assume(ServerHandler, m_capabilities, ref m_hashAlgorithms);
 			}
 
-#if !NETSTANDARD
+#if NETFRAMEWORK
 			if (IsEncrypted && PlainTextEncryption) {
 				if (!(reply = await ExecuteAsync("CCC", token)).Success) {
 					throw new FtpSecurityNotAvailableException("Failed to disable encryption with CCC command. Perhaps your server does not support it or is not configured to allow it.");

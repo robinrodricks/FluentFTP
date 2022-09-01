@@ -34,7 +34,7 @@ namespace FluentFTP.Helpers.Hashing {
 
 		protected override byte[] HashFinal() {
 			byte[] hashBuffer = UInt32ToBigEndianBytes(~hash);
-#if !NETSTANDARD || NETSTANDARD2_0
+#if NETFRAMEWORK || NETSTANDARD2_0
 			this.HashValue = hashBuffer;
 #endif
 			return hashBuffer;
