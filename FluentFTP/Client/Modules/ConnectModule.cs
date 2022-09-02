@@ -17,18 +17,12 @@ namespace FluentFTP.Client.Modules {
 		};
 
 		private static List<SysSslProtocols> DefaultProtocolPriority = new List<SysSslProtocols> {
-			//SysSslProtocols.None,
-#if ASYNC
+			
 			SysSslProtocols.Tls12 | SysSslProtocols.Tls11,
 
 			// fix #907: support TLS 1.3 in .NET 5+
 #if NET50_OR_LATER
 			SysSslProtocols.Tls13
-#endif
-
-#endif
-#if !ASYNC
-			SysSslProtocols.Tls,
 #endif
 #if NETFRAMEWORK
 			SysSslProtocols.Default,
@@ -575,6 +569,9 @@ namespace FluentFTP.Client.Modules {
 		/// Check if the server requires TLS 1.3 protocol
 		/// </summary>
 		private static bool IsProtocolFailure(Exception ex) {
+
+			// NOTE: Developed but never recieved confirmation from any user that it works
+
 			var msg = "Authentication failed because the remote party sent a TLS alert: 'ProtocolVersion'";
 			if (ex.Message.Contains(msg)) {
 #if !NET50_OR_LATER

@@ -34,7 +34,7 @@
    - Remove conditional compilation statements for unsupported platforms
    - Remove uncommon static methods `FtpClient.Connect` and `FtpClient.GetPublicIP`
    - Remove uncommon method `DereferenceLink` and `DereferenceLinkAsync`
-   - Remove uncommon properties `QuickTransferLimit`, `MaximumDereferenceCount`, `EnableThreadSafeDataConnections`
+   - Remove uncommon properties `QuickTransferLimit`, `MaximumDereferenceCount`, `EnableThreadSafeDataConnections`, `PlainTextEncryption`
    - Remove uncommon feature `FtpListOption.DerefLinks`
    - Remove obsolete hashing commands `GetHashAlgorithm`, `SetHashAlgorithm`, `GetHash`, etc
    - Remove obsolete async pattern using `IAsyncResult`

@@ -77,7 +77,7 @@ namespace FluentFTP {
 				if (knownFileSize.Equals(restartPos)) {
 #else
 			if (existsMode == FtpLocalExists.Resume && File.Exists(localPath)) {
-				knownFileSize = (await GetFileSizeAsync(remotePath, -1, token));
+				knownFileSize = (await GetFileSize(remotePath, -1, token));
 				restartPos = FtpFileStream.GetFileSize(localPath, false);
 				if (knownFileSize.Equals(restartPos)) {
 #endif

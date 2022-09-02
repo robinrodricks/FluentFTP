@@ -22,8 +22,8 @@
 		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net462'">
-		<DefineConstants>$(DefineConstants);NETFRAMEWORK;</DefineConstants>
+	<PropertyGroup Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net472'">
+		<DefineConstants>$(DefineConstants);NETFRAMEWORK;ASYNC;</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">

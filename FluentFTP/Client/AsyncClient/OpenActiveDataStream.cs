@@ -31,8 +31,12 @@ namespace FluentFTP {
 			}
 
 			StartListeningOnPort(stream);
-
+#if NETSTANDARD
 			var args = stream.BeginAccept();
+#endif
+#if NETFRAMEWORK
+			var ar = stream.BeginAccept(null, null);
+#endif
 
 			if (type == FtpDataConnectionType.EPRT || type == FtpDataConnectionType.AutoActive) {
 				var ipver = 0;
@@ -108,7 +112,19 @@ namespace FluentFTP {
 			// otherwise things can get out of sync.
 			stream.CommandStatus = reply;
 
+#if NETSTANDARD
 			stream.EndAccept(args, Config.DataConnectionConnectTimeout);
+#endif
+#if NETFRAMEWORK
+			ar.AsyncWaitHandle.WaitOne(Config.DataConnectionConnectTimeout);
+			ar.AsyncWaitHandle.Close();
+			if (!ar.IsCompleted) {
+				stream.Close();
+				throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
+			}
+
+			stream.EndAccept(ar);
+#endif
 
 			if (Config.DataConnectionEncryption && Config.EncryptionMode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
 				await stream.ActivateEncryptionAsync(m_host,

@@ -159,21 +159,6 @@ namespace FluentFTP {
 				ServerFeatureModule.Assume(ServerHandler, m_capabilities, ref m_hashAlgorithms);
 			}
 
-#if NETFRAMEWORK
-			if (IsEncrypted && PlainTextEncryption) {
-				if (!(reply = await ExecuteAsync("CCC", token)).Success) {
-					throw new FtpSecurityNotAvailableException("Failed to disable encryption with CCC command. Perhaps your server does not support it or is not configured to allow it.");
-				}
-				else {
-					// close the SslStream and send close_notify command to server
-					m_stream.DeactivateEncryption();
-
-					// read stale data (server's reply?)
-					await ReadStaleDataAsync(false, true, false, token);
-				}
-			}
-#endif
-
 			// Unless a custom list parser has been set,
 			// Detect the listing parser and prefer machine listings over any other type
 			// FIX : #739 prefer using machine listings to fix issues with GetListing and DeleteDirectory

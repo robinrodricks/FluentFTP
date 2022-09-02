@@ -319,19 +319,6 @@ namespace FluentFTP {
 			set => _dataConnectionEncryption = value;
 		}
 
-#if NETFRAMEWORK
-		protected bool _plainTextEncryption = false;
-
-		/// <summary>
-		/// Indicates if the encryption should be disabled immediately after connecting using a CCC command.
-		/// This is useful when you have a FTP firewall that requires plaintext FTP, but your server mandates FTPS connections.
-		/// </summary>
-		public bool PlainTextEncryption {
-			get => _plainTextEncryption;
-			set => _plainTextEncryption = value;
-		}
-#endif
-
 		protected SslProtocols _SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
 		
 		/// <summary>
@@ -798,9 +785,6 @@ namespace FluentFTP {
 #endif
 #if NETSTANDARD
 			write.LocalTimeZone = read.LocalTimeZone;
-#endif
-#if NETFRAMEWORK
-			write.PlainTextEncryption = read.PlainTextEncryption;
 #endif
 
 			// copy certificates from self
