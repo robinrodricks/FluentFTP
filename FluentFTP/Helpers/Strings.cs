@@ -201,12 +201,12 @@ namespace FluentFTP.Helpers {
 		public static string[] SplitString(this string str) {
 			var allTokens = new List<string>(str.Split(null));
 			for (var i = allTokens.Count - 1; i >= 0; i--) {
-				if (((string)allTokens[i]).Trim().Length == 0) {
+				if (allTokens[i].Trim().Length == 0) {
 					allTokens.RemoveAt(i);
 				}
 			}
 
-			return (string[])allTokens.ToArray();
+			return allTokens.ToArray();
 		}
 
 		/// <summary>

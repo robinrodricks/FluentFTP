@@ -48,7 +48,7 @@ namespace FluentFTP.Helpers {
 					txt = "null";
 				}
 				else if (v is string) {
-					txt = "\"" + v as string + "\"";
+					txt = "\"" + v + "\"";
 				}
 				else {
 					txt = v.ToString();
