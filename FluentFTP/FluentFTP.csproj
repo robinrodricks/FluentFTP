@@ -15,6 +15,7 @@
         <PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
         <PackageIcon>logo-nuget.png</PackageIcon>
         <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+        <LangVersion>10.0</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup>
