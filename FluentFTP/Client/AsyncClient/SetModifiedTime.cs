@@ -19,10 +19,6 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
-			if (date == null) {
-				throw new ArgumentException("Required parameter is null or blank.", nameof(date));
-			}
-
 			path = path.GetFtpPath();
 
 			LogFunction(nameof(SetModifiedTime), new object[] { path, date });
