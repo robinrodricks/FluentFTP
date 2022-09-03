@@ -52,7 +52,6 @@ namespace FluentFTP.Servers.Handlers {
 			}
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Perform server-specific post-connection commands here.
 		/// Return true if you executed a server-specific command.
@@ -66,7 +65,6 @@ namespace FluentFTP.Servers.Handlers {
 				throw new FtpCommandException(reply);
 			}
 		}
-#endif
 
 
 		public override bool IsCustomFileSize() {
@@ -96,7 +94,6 @@ namespace FluentFTP.Servers.Handlers {
 			return entry.Size;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Get z/OS file size
 		/// </summary>
@@ -122,7 +119,6 @@ namespace FluentFTP.Servers.Handlers {
 			// z/OS list parser will have determined that size
 			return entry.Size;
 		}
-#endif
 
 		/// <summary>
 		/// Check if the given path is a root directory on your FTP server.
@@ -221,7 +217,6 @@ namespace FluentFTP.Servers.Handlers {
 			return path;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Perform server-specific path modification here.
 		/// Return the absolute path.
@@ -267,7 +262,6 @@ namespace FluentFTP.Servers.Handlers {
 
 			return path;
 		}
-#endif
 
 		/// <summary>
 		/// Return true if your server requires custom handling of absolute dir.
@@ -295,7 +289,6 @@ namespace FluentFTP.Servers.Handlers {
 			return path;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Perform server-specific path modification here.
 		/// Return null indicates custom code decided not to handle this
@@ -315,7 +308,6 @@ namespace FluentFTP.Servers.Handlers {
 
 			return path;
 		}
-#endif
 
 		/// <summary>
 		/// Return true if your server requires custom handling of path and filename concatenation.
@@ -345,7 +337,6 @@ namespace FluentFTP.Servers.Handlers {
 			return path;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Perform server-specific path modification here.
 		/// Return null indicates custom code decided not to handle this
@@ -366,7 +357,6 @@ namespace FluentFTP.Servers.Handlers {
 
 			return path;
 		}
-#endif
 
 		/// <summary>
 		/// Return true if your server requires custom handling to handle listing analysis.
@@ -481,7 +471,6 @@ namespace FluentFTP.Servers.Handlers {
 			return fileList.Length > 0;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Check for existence of a file
 		/// Return null indicates custom code decided not to handle this
@@ -495,7 +484,6 @@ namespace FluentFTP.Servers.Handlers {
 			var fileList = await client.GetNameListing(path, token);
 			return fileList.Length > 0;
 		}
-#endif
 	}
 }
 

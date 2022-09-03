@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Sets the data type of information sent over the data stream asynchronously
 		/// </summary>
@@ -49,7 +48,6 @@ namespace FluentFTP {
 				CurrentDataType = type;
 			}
 		}
-#endif
 
 	}
 }

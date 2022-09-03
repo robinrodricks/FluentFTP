@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
@@ -304,14 +303,9 @@ namespace FluentFTP {
 			}
 		}
 
-#endif
-
-#if ASYNC
 		protected async Task<Tuple<bool, Stream>> ResumeUploadAsync(string remotePath, Stream upStream, long remotePosition, IOException ex) {
 
-#if ASYNC
 			try {
-#endif
 
 				// if resume possible
 				if (ex.IsResumeAllowed()) {
@@ -328,16 +322,12 @@ namespace FluentFTP {
 				// resume not allowed
 				return Tuple.Create(false, (Stream)null);
 
-#if ASYNC
 			}
 			catch (Exception resumeEx) {
 
 				throw new AggregateException("Additional error occured while trying to resume uploading the file '" + remotePath + "' at position " + remotePosition, new Exception[] { ex, resumeEx });
 			}
-#endif
 		}
-#endif
-		
 
 	}
 }

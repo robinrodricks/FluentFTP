@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Automatic FTP and FTPS connection negotiation.
 		/// This method tries every possible combination of the FTP connection properties, and connects to the first successful profile.
@@ -34,7 +33,6 @@ namespace FluentFTP {
 
 			return null;
 		}
-#endif
 
 	}
 }

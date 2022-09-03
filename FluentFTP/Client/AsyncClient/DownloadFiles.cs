@@ -25,7 +25,6 @@ namespace FluentFTP {
 			}
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Downloads the specified files into a local single directory.
 		/// High-level API that takes care of various edge cases internally.
@@ -132,7 +131,6 @@ namespace FluentFTP {
 
 			return successfulDownloads.Count;
 		}
-#endif
 
 	}
 }

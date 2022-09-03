@@ -12,7 +12,6 @@ using FluentFTP.Client.Modules;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Returns a file/directory listing using the NLST command asynchronously
 		/// </summary>
@@ -77,6 +76,6 @@ namespace FluentFTP {
 		public Task<string[]> GetNameListing(CancellationToken token = default(CancellationToken)) {
 			return GetNameListing(null, token);
 		}
-#endif
+
 	}
 }

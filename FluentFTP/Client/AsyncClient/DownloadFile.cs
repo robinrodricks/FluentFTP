@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Downloads the specified file onto the local file system asynchronously.
 		/// High-level API that takes care of various edge cases internally.
@@ -156,9 +155,6 @@ namespace FluentFTP {
 
 			return downloadSuccess && verified ? FtpStatus.Success : FtpStatus.Failed;
 		}
-
-#endif
-
 
 	}
 }

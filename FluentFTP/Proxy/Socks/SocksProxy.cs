@@ -256,7 +256,6 @@ namespace FluentFTP.Proxy.Socks {
 			return requestBuffer;
 		}
 
-#if ASYNC
 		public async Task NegotiateAsync()
 		{
 			// The client connects to the server,
@@ -351,7 +350,6 @@ namespace FluentFTP.Proxy.Socks {
 				throw new FtpProxyException($"Unexpected Response size from Request Type Data. Expected {atypSize} received {read}");
 			}
 		}
-#endif
 		private void HandleProxyCommandError(SocksReply replyCode)
 		{
 			string proxyErrorText;

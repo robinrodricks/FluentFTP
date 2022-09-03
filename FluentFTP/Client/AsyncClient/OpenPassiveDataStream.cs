@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Opens the specified type of passive data stream
 		/// </summary>
@@ -148,7 +147,6 @@ namespace FluentFTP {
 
 			return stream;
 		}
-#endif
 
 		/// <summary>
 		/// Parse the host and port number from an EPSV response

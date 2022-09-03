@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Deletes a file from the server asynchronously
 		/// </summary>
@@ -30,7 +29,6 @@ namespace FluentFTP {
 				throw new FtpCommandException(reply);
 			}
 		}
-#endif
 
 	}
 }

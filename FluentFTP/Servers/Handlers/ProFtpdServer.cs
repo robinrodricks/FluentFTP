@@ -60,7 +60,6 @@ namespace FluentFTP.Servers.Handlers {
 			return false;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Perform async server-specific delete directory commands here.
 		/// Return true if you executed a server-specific command.
@@ -80,7 +79,6 @@ namespace FluentFTP.Servers.Handlers {
 
 			return false;
 		}
-#endif
 
 		/// <summary>
 		/// Perform server-specific create directory commands here.
@@ -102,7 +100,6 @@ namespace FluentFTP.Servers.Handlers {
 			return false;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Perform async server-specific create directory commands here.
 		/// Return true if you executed a server-specific command.
@@ -122,7 +119,6 @@ namespace FluentFTP.Servers.Handlers {
 
 			return false;
 		}
-#endif
 
 	}
 }

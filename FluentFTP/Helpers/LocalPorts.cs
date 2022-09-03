@@ -9,7 +9,7 @@
 	/// The local ports.
 	/// </summary>
 	internal static class LocalPorts {
-#if ASYNC
+
 		internal static readonly Random randomGen = new Random();
 
 		/// <summary>
@@ -31,6 +31,6 @@
 				return localPort;
 			}
 		}
-#endif
+
 	}
 }

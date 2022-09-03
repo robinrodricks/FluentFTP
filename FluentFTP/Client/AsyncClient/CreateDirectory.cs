@@ -6,7 +6,6 @@ using FluentFTP.Client.Modules;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Creates a remote directory asynchronously
 		/// </summary>
@@ -76,6 +75,6 @@ namespace FluentFTP {
 		public Task<bool> CreateDirectory(string path, CancellationToken token = default(CancellationToken)) {
 			return CreateDirectory(path, true, token);
 		}
-#endif
+
 	}
 }

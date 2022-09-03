@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Performs a login on the server. This method is overridable so
 		/// that the login procedure can be changed to support, for example,
@@ -15,9 +14,7 @@ namespace FluentFTP {
 		protected virtual async Task Authenticate(CancellationToken token) {
 			await Authenticate(Credentials.UserName, Credentials.Password, Credentials.Domain, token);
 		}
-#endif
 
-#if ASYNC
 		/// <summary>
 		/// Performs a login on the server. This method is overridable so
 		/// that the login procedure can be changed to support, for example,
@@ -74,7 +71,6 @@ namespace FluentFTP {
 				}
 			}
 		}
-#endif
 
 	}
 }

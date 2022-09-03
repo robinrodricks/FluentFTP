@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Transfer the specified file from the source FTP Server to the destination FTP Server asynchronously using the FXP protocol.
 		/// High-level API that takes care of various edge cases internally.
@@ -73,9 +72,7 @@ namespace FluentFTP {
 			return fxpSuccess && verified ? FtpStatus.Success : FtpStatus.Failed;
 
 		}
-#endif
 
-#if ASYNC
 		/// <summary>
 		/// Transfers a file from the source FTP Server to the destination FTP Server via the FXP protocol asynchronously.
 		/// </summary>
@@ -231,8 +228,6 @@ namespace FluentFTP {
 			}
 
 		}
-#endif
-
 
 	}
 }

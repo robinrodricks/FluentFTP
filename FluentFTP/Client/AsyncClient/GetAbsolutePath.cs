@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Ensure a relative path is absolute by prepending the working dir
 		/// </summary>
@@ -50,8 +49,6 @@ namespace FluentFTP {
 
 			return path;
 		}
-#endif
-
 
 	}
 }

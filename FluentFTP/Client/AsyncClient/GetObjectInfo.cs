@@ -12,7 +12,6 @@ using FluentFTP.Client.Modules;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Return information about a remote file system object asynchronously. 
 		/// </summary>
@@ -90,7 +89,6 @@ namespace FluentFTP {
 
 			return result;
 		}
-#endif
 
 	}
 

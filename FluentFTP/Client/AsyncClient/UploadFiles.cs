@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Uploads the given file paths to a single folder on the server asynchronously.
 		/// All files are placed directly into the given folder regardless of their path on the local filesystem.
@@ -148,6 +147,6 @@ namespace FluentFTP {
 				await DeleteFile(remotePath);
 			}
 		}
-#endif
+
 	}
 }

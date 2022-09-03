@@ -6,7 +6,6 @@ using FluentFTP.Helpers;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Retrieve the permissions of the given file/folder as an FtpListItem object with all "Permission" properties set.
 		/// Throws FtpCommandException if there is an issue.
@@ -29,7 +28,6 @@ namespace FluentFTP {
 
 			return result;
 		}
-#endif
 
 	}
 }

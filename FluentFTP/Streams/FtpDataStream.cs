@@ -63,7 +63,6 @@ namespace FluentFTP {
 			return read;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Reads data off the stream asynchronously
 		/// </summary>
@@ -77,7 +76,6 @@ namespace FluentFTP {
 			m_position += read;
 			return read;
 		}
-#endif
 
 		/// <summary>
 		/// Writes data to the stream
@@ -90,7 +88,6 @@ namespace FluentFTP {
 			m_position += count;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Writes data to the stream asynchronously
 		/// </summary>
@@ -102,7 +99,6 @@ namespace FluentFTP {
 			await base.WriteAsync(buffer, offset, count, token);
 			m_position += count;
 		}
-#endif
 
 		/// <summary>
 		/// Sets the length of this stream

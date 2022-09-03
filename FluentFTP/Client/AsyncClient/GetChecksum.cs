@@ -8,10 +8,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-
-		#region Checksum
-
-#if ASYNC
 		/// <summary>
 		/// Retrieves a checksum of the given file using the specified checksum algorithm, or using the first available algorithm that the server supports.
 		/// </summary>
@@ -103,13 +99,7 @@ namespace FluentFTP {
 				return result;
 			}
 		}
-#endif
 
-		#endregion
-
-		#region MD5, SHA1, SHA256, SHA512 Commands
-
-#if ASYNC
 		/// <summary>
 		/// Gets the hash of the specified file using the given command.
 		/// </summary>
@@ -126,13 +116,6 @@ namespace FluentFTP {
 			return response;
 		}
 
-#endif
-
-		#endregion
-
-		#region HASH Command
-
-#if ASYNC
 		/// <summary>
 		/// Sets the hash algorithm on the server to be used with the HASH command asynchronously.
 		/// </summary>
@@ -158,9 +141,7 @@ namespace FluentFTP {
 			Status.LastHashAlgo = algorithm;
 
 		}
-#endif
 
-#if ASYNC
 		/// <summary>
 		/// Gets the hash of an object on the server using the currently selected hash algorithm.
 		/// </summary>
@@ -174,9 +155,6 @@ namespace FluentFTP {
 			// parse hash from the server reply
 			return HashParser.Parse(reply.Message);
 		}
-#endif
-
-		#endregion
 
 	}
 }

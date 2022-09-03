@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Asynchronously removes a directory and all its contents.
 		/// </summary>
@@ -117,6 +116,6 @@ namespace FluentFTP {
 				throw new FtpCommandException(reply);
 			}
 		}
-#endif
+
 	}
 }

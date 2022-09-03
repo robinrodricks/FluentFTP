@@ -9,8 +9,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-
-#if ASYNC
 		/// <summary>
 		/// Downloads the specified directory onto the local file system.
 		/// In Mirror mode, we will download missing files, and delete any extra files from disk that are not present on the server. This is very useful when creating an exact local backup of an FTP directory.
@@ -93,9 +91,7 @@ namespace FluentFTP {
 
 			return results;
 		}
-#endif
 
-#if ASYNC
 		/// <summary>
 		/// Download all the listed files and folders from the main directory
 		/// </summary>
@@ -154,7 +150,6 @@ namespace FluentFTP {
 			}
 
 		}
-#endif
 
 	}
 }

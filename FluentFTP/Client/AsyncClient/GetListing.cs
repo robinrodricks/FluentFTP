@@ -130,8 +130,6 @@ namespace FluentFTP {
 
 #endif
 
-
-#if ASYNC
 		/// <summary>
 		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
 		/// contains information about the file that was able to be retrieved. 
@@ -395,8 +393,6 @@ namespace FluentFTP {
 			return GetListing(null, token);
 		}
 
-#endif
-
 #if NET50_OR_LATER
 		/// <summary>
 		/// Recursive method of GetListingAsync, to recurse through directories on servers that do not natively support recursion.
@@ -443,8 +439,6 @@ namespace FluentFTP {
 		}
 #endif
 
-
-#if ASYNC
 		/// <summary>
 		/// Recursive method of GetListingAsync, to recurse through directories on servers that do not natively support recursion.
 		/// Automatically called by GetListingAsync where required.
@@ -497,7 +491,6 @@ namespace FluentFTP {
 			// final list of all files and dirs
 			return allFiles.ToArray();
 		}
-#endif
 
 	}
 }

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Asynchronously gets the size of a remote file, in bytes.
 		/// </summary>
@@ -77,9 +76,6 @@ namespace FluentFTP {
 
 			return;
 		}
-
-
-#endif
 
 	}
 }

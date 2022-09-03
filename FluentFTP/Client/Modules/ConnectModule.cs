@@ -192,8 +192,6 @@ namespace FluentFTP.Client.Modules {
 			return results;
 		}
 
-
-#if ASYNC
 		/// <summary>
 		/// Automatic FTP and FTPS connection negotiation.
 		/// This method tries every possible combination of the FTP connection properties, and returns the list of successful connection profiles.
@@ -355,7 +353,6 @@ namespace FluentFTP.Client.Modules {
 
 			return results;
 		}
-#endif
 
 		private static void SaveResult(List<FtpProfile> results, FtpProfile knownProfile, List<FtpEncryptionMode> blacklistedEncryptions, BaseFtpClient conn, FtpEncryptionMode encryption, SysSslProtocols protocol, FtpDataConnectionType dataConn) {
 			results.Add(new FtpProfile {

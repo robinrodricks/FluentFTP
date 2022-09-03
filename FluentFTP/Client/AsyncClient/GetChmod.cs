@@ -6,7 +6,6 @@ using FluentFTP.Helpers;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Retrieve the permissions of the given file/folder as an integer in the CHMOD format.
 		/// Throws FtpCommandException if there is an issue.
@@ -19,7 +18,6 @@ namespace FluentFTP {
 			FtpListItem item = await GetFilePermissions(path, token);
 			return item != null ? item.Chmod : 0;
 		}
-#endif
 
 	}
 }

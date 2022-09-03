@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Downloads the specified file into the specified stream asynchronously .
 		/// High-level API that takes care of various edge cases internally.
@@ -42,6 +41,6 @@ namespace FluentFTP {
 			// download the file from the server
 			return await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0), 0, false);
 		}
-#endif
+
 	}
 }

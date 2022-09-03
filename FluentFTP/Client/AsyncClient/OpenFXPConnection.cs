@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
-
 		/// <summary>
 		/// Opens a FXP PASV connection between the source FTP Server and the destination FTP Server
 		/// </summary>
@@ -69,8 +67,6 @@ namespace FluentFTP {
 				ProgressServer = progressClient,
 			};
 		}
-
-#endif
 
 	}
 }

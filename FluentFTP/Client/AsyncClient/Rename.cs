@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Renames an object on the remote file system asynchronously.
 		/// Low level method that should NOT be used in most cases. Prefer MoveFile() and MoveDirectory().
@@ -46,7 +45,6 @@ namespace FluentFTP {
 				throw new FtpCommandException(reply);
 			}
 		}
-#endif
 
 	}
 }

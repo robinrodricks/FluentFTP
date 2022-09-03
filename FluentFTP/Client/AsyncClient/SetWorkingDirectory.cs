@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Sets the working directory on the server asynchronously
 		/// </summary>
@@ -36,9 +35,6 @@ namespace FluentFTP {
 			// This is redundant, Execute(...) will see the CWD and do this
 			//Status.LastWorkingDir = null;
 		}
-
-
-#endif
 
 	}
 }

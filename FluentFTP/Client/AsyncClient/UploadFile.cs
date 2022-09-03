@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Uploads the specified file directly onto the server asynchronously.
 		/// High-level API that takes care of various edge cases internally.
@@ -106,8 +105,6 @@ namespace FluentFTP {
 			// if uploaded OK then correctly return Skipped or Success, else return Failed
 			return uploadSuccess && verified ? uploadStatus : FtpStatus.Failed;
 		}
-
-#endif
 
 	}
 }

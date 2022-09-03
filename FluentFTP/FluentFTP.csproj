@@ -23,19 +23,19 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net472'">
-		<DefineConstants>$(DefineConstants);NETFRAMEWORK;ASYNC;</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETFRAMEWORK;</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
-		<DefineConstants>$(DefineConstants);NETSTANDARD;ASYNC;</DefineConstants>
+		<DefineConstants>$(DefineConstants);NETSTANDARD;</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net50'">
-		<DefineConstants>$(DefineConstants);NET50;NETSTANDARD;NET50_OR_LATER;ASYNC;</DefineConstants>
+		<DefineConstants>$(DefineConstants);NET50;NETSTANDARD;NET50_OR_LATER;</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net60'">
-		<DefineConstants>$(DefineConstants);NET60;NETSTANDARD;NET50_OR_LATER;ASYNC;</DefineConstants>
+		<DefineConstants>$(DefineConstants);NET60;NETSTANDARD;NET50_OR_LATER;</DefineConstants>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">

@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Uploads the specified directory onto the server.
 		/// In Mirror mode, we will upload missing files, and delete any extra files from the server that are not present on disk. This is very useful when publishing an exact copy of a local folder onto an FTP server.
@@ -114,9 +113,7 @@ namespace FluentFTP {
 
 			return results;
 		}
-#endif
 
-#if ASYNC
 		/// <summary>
 		/// Create all the sub directories within the main directory
 		/// </summary>
@@ -145,9 +142,7 @@ namespace FluentFTP {
 				}
 			}
 		}
-#endif
 
-#if ASYNC
 		/// <summary>
 		/// Upload all the files within the main directory
 		/// </summary>
@@ -188,9 +183,7 @@ namespace FluentFTP {
 			}
 
 		}
-#endif
 
-#if ASYNC
 		/// <summary>
 		/// Delete the extra remote files if in mirror mode and the directory was pre-existing
 		/// </summary>
@@ -224,8 +217,6 @@ namespace FluentFTP {
 
 			}
 		}
-
-#endif
 
 	}
 }

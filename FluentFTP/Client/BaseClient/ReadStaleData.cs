@@ -40,7 +40,6 @@ namespace FluentFTP.Client.BaseClient {
 			return staleData;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Data shouldn't be on the socket, if it is it probably means we've been disconnected.
 		/// Read and discard whatever is there and optionally close the connection.
@@ -72,7 +71,6 @@ namespace FluentFTP.Client.BaseClient {
 			}
 			return staleData;
 		}
-#endif
 
 	}
 }

@@ -9,7 +9,6 @@ using FluentFTP.Client.Modules;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Compare the specified local file with the remote file on the FTP server using various kinds of quick equality checks.
 		/// In Auto mode, the file size and checksum are compared.
@@ -95,6 +94,5 @@ namespace FluentFTP {
 			return FtpCompareResult.Equal;
 		}
 
-#endif
 	}
 }

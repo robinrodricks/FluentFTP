@@ -9,8 +9,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
-
 		/// <summary>
 		/// Transfer the specified directory from the source FTP Server onto the remote FTP Server asynchronously using the FXP protocol.
 		/// You will need to create a valid connection to your remote FTP Server before calling this method.
@@ -189,9 +187,6 @@ namespace FluentFTP {
 			}
 
 		}
-
-#endif
-
 
 	}
 }

@@ -6,7 +6,6 @@ using FluentFTP.Client.BaseClient;
 using System.Threading;
 using System.Threading.Tasks;
 
-#if ASYNC
 namespace FluentFTP.Proxy.AsyncProxy {
 	/// <summary> A FTP client with a HTTP 1.1 proxy implementation. </summary>
 	public class AsyncFtpClientHttp11Proxy : AsyncFtpClientProxy {
@@ -116,4 +115,3 @@ namespace FluentFTP.Proxy.AsyncProxy {
 
 	}
 }
-#endif

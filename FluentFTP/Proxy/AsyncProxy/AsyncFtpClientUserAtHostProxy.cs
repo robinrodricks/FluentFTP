@@ -2,7 +2,6 @@ using FluentFTP.Client.BaseClient;
 using System.Threading;
 using System.Threading.Tasks;
 
-#if ASYNC
 namespace FluentFTP.Proxy.AsyncProxy {
 	/// <summary> A FTP client with a user@host proxy identification. </summary>
 	public class AsyncFtpClientUserAtHostProxy : AsyncFtpClientProxy {
@@ -33,4 +32,3 @@ namespace FluentFTP.Proxy.AsyncProxy {
 		}
 	}
 }
-#endif

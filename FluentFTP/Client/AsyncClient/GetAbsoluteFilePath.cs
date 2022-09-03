@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Concat a path and a filename
 		/// </summary>
@@ -25,7 +24,6 @@ namespace FluentFTP {
 
 			return path;
 		}
-#endif
 
 	}
 }

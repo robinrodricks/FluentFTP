@@ -11,8 +11,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
-
 		/// <summary>
 		/// Opens the specified file for reading asynchronously
 		/// </summary>
@@ -77,6 +75,5 @@ namespace FluentFTP {
 			return stream;
 		}
 
-#endif
 	}
 }

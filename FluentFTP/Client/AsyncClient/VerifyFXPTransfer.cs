@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		protected async Task<bool> VerifyFXPTransferAsync(string sourcePath, AsyncFtpClient fxpDestinationClient, string remotePath, CancellationToken token = default(CancellationToken)) {
 
 			// verify args
@@ -47,9 +46,6 @@ namespace FluentFTP {
 			// since not supported return true to ignore validation
 			return true;
 		}
-
-#endif
-
 
 	}
 }

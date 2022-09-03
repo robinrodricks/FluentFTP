@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Disconnects from the server asynchronously
 		/// </summary>
@@ -25,7 +24,6 @@ namespace FluentFTP {
 				}
 			}
 		}
-#endif
 
 	}
 }

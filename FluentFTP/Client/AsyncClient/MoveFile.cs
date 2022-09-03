@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Moves a file asynchronously on the remote file system from one directory to another.
 		/// Always checks if the source file exists. Checks if the dest file exists based on the `existsMode` parameter.
@@ -58,7 +57,6 @@ namespace FluentFTP {
 
 			return false;
 		}
-#endif
 
 	}
 }

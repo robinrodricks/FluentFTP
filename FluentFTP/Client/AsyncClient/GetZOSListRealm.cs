@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// If an FTP Server has "different realms", in which realm is the
 		/// current working directory. 
@@ -49,7 +48,6 @@ namespace FluentFTP {
 
 			return FtpZOSListRealm.Dataset;
 		}
-#endif
 
 	}
 }

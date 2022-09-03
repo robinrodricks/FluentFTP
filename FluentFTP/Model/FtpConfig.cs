@@ -715,7 +715,6 @@ namespace FluentFTP {
 			set => _SendHostDomain = value;
 		}
 
-#if ASYNC
 		protected IPAddress _SocketLocalIp;
 		/// <summary>
 		/// The local socket will be bound to the given local IP/interface.
@@ -725,8 +724,6 @@ namespace FluentFTP {
 			get => _SocketLocalIp;
 			set => _SocketLocalIp = value;
 		}
-#endif
-
 
 
 
@@ -800,9 +797,8 @@ namespace FluentFTP {
 			write.FXPProgressInterval = read.FXPProgressInterval;
 			write.UploadDirectoryDeleteExcluded = read.UploadDirectoryDeleteExcluded;
 			write.DownloadDirectoryDeleteExcluded = read.DownloadDirectoryDeleteExcluded;
-#if ASYNC
 			write.SocketLocalIp = read.SocketLocalIp;
-#endif
+
 #if NETSTANDARD
 			write.LocalTimeZone = read.LocalTimeZone;
 #endif

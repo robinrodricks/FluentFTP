@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Tests if the specified directory exists on the server asynchronously. This
 		/// method works by trying to change the working directory to
@@ -51,6 +50,6 @@ namespace FluentFTP {
 
 			return false;
 		}
-#endif
+
 	}
 }

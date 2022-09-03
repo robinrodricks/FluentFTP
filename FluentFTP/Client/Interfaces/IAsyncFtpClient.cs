@@ -20,8 +20,6 @@ namespace FluentFTP {
 	/// </summary>
 	public interface IAsyncFtpClient : IDisposable, IBaseFtpClient {
 
-#if ASYNC
-
 
 		// METHODS
 
@@ -117,6 +115,5 @@ namespace FluentFTP {
 		
 		Task<FtpCompareResult> CompareFile(string localPath, string remotePath, FtpCompareOption options = FtpCompareOption.Auto, CancellationToken token = default(CancellationToken));
 
-#endif
 	}
 }

@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Download a file from the server and write the data into the given stream asynchronously.
 		/// Reads data in chunks. Retries if server disconnects midway.
@@ -231,9 +230,6 @@ namespace FluentFTP {
 				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
 			}
 		}
-#endif
-
-#if ASYNC
 		protected async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex) {
 			if (ex.IsResumeAllowed()) {
 				downStream.Dispose();
@@ -243,7 +239,6 @@ namespace FluentFTP {
 
 			return Tuple.Create(false, (Stream)null);
 		}
-#endif
 
 	}
 }

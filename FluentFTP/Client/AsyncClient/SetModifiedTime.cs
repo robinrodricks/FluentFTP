@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Gets the modified time of a remote file asynchronously
 		/// </summary>
@@ -38,6 +37,6 @@ namespace FluentFTP {
 			if ((reply = await Execute("MFMT " + timeStr + " " + path, token)).Success) {
 			}
 		}
-#endif
+
 	}
 }

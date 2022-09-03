@@ -10,7 +10,6 @@ using FluentFTP.Helpers;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Connect to the given server profile.
 		/// </summary>
@@ -22,10 +21,7 @@ namespace FluentFTP {
 			// begin connection
 			await Connect(token);
 		}
-#endif
 
-
-#if ASYNC
 		// TODO: add example
 		/// <summary>
 		/// Connect to the server
@@ -184,9 +180,6 @@ namespace FluentFTP {
 			Status.AllowCheckStaleData = true;
 		}
 
-#endif
-
-#if ASYNC
 		/// <summary>
 		/// Connect to the FTP server. Overridden in proxy classes.
 		/// </summary>
@@ -195,16 +188,13 @@ namespace FluentFTP {
 		protected virtual async Task ConnectAsync(FtpSocketStream stream, CancellationToken token) {
 			await stream.ConnectAsync(Host, Port, Config.InternetProtocolVersions, token);
 		}
-#endif
 
-#if ASYNC
 		/// <summary>
 		/// Connect to the FTP server. Overridden in proxy classes.
 		/// </summary>
 		protected virtual Task ConnectAsync(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions, CancellationToken token) {
 			return stream.ConnectAsync(host, port, ipVersions, token);
 		}
-#endif
 
 	}
 }

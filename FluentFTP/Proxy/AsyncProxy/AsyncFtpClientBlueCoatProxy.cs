@@ -2,7 +2,6 @@ using FluentFTP.Client.BaseClient;
 using System.Threading;
 using System.Threading.Tasks;
 
-#if ASYNC
 namespace FluentFTP.Proxy.AsyncProxy {
 	/// <summary> 
 	/// A FTP client with a user@host proxy identification, that works with Blue Coat FTP Service servers.
@@ -45,4 +44,3 @@ namespace FluentFTP.Proxy.AsyncProxy {
 		}
 	}
 }
-#endif

@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Called during <see cref="ConnectAsync()"/>. Typically extended by FTP proxies.
 		/// </summary>
@@ -23,7 +22,6 @@ namespace FluentFTP {
 
 			HandshakeReply = reply;
 		}
-#endif
 
 	}
 }

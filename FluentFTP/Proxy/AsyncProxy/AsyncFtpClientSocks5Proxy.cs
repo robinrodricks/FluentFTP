@@ -3,7 +3,6 @@ using FluentFTP.Proxy.Socks;
 using System.Threading;
 using System.Threading.Tasks;
 
-#if ASYNC
 namespace FluentFTP.Proxy.AsyncProxy {
 	/// <summary> A FTP client with a SOCKS5 proxy implementation. </summary>
 	public class AsyncFtpClientSocks5Proxy : AsyncFtpClientProxy {
@@ -28,4 +27,3 @@ namespace FluentFTP.Proxy.AsyncProxy {
 		}
 	}
 }
-#endif

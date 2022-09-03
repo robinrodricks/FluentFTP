@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Checks if a file exists on the server asynchronously.
 		/// </summary>
@@ -70,7 +69,6 @@ namespace FluentFTP {
 				return FileListings.FileExistsInNameListing(fileList, path);
 			}
 		}
-#endif
 
 	}
 }

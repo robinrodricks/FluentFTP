@@ -63,7 +63,6 @@ namespace FluentFTP.Servers {
 			return false;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Perform async server-specific delete directory commands here.
 		/// Return true if you executed a server-specific command.
@@ -71,7 +70,6 @@ namespace FluentFTP.Servers {
 		public virtual Task<bool> DeleteDirectoryAsync(AsyncFtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
 			return Task.FromResult(false);
 		}
-#endif
 
 		/// <summary>
 		/// Perform server-specific create directory commands here.
@@ -81,7 +79,6 @@ namespace FluentFTP.Servers {
 			return false;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Perform async server-specific create directory commands here.
 		/// Return true if you executed a server-specific command.
@@ -89,7 +86,6 @@ namespace FluentFTP.Servers {
 		public virtual Task<bool> CreateDirectoryAsync(AsyncFtpClient client, string path, string ftppath, bool force, CancellationToken token) {
 			return Task.FromResult(false);
 		}
-#endif
 
 		/// <summary>
 		/// Perform server-specific post-connection commands here.
@@ -99,7 +95,6 @@ namespace FluentFTP.Servers {
 
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Perform server-specific post-connection commands here.
 		/// Return true if you executed a server-specific command.
@@ -107,7 +102,6 @@ namespace FluentFTP.Servers {
 		public virtual Task AfterConnectedAsync(AsyncFtpClient client, CancellationToken token) {
 			return Task.CompletedTask;
 		}
-#endif
 
 		/// <summary>
 		/// Return true if your server requires custom handling of file size.
@@ -124,7 +118,6 @@ namespace FluentFTP.Servers {
 			return 0;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Perform server-specific file size fetching commands here.
 		/// Return the file size in bytes.
@@ -132,7 +125,6 @@ namespace FluentFTP.Servers {
 		public virtual Task<long> GetFileSizeAsync(AsyncFtpClient client, string path, CancellationToken token) {
 			return Task.FromResult(0L);
 		}
-#endif
 
 		/// <summary>
 		/// Check if the given path is a root directory on your FTP server.
@@ -179,7 +171,6 @@ namespace FluentFTP.Servers {
 			return path;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Perform server-specific path modification here.
 		/// Return the absolute path.
@@ -187,7 +178,6 @@ namespace FluentFTP.Servers {
 		public virtual Task<string> GetAbsolutePathAsync(AsyncFtpClient client, string path, CancellationToken token) {
 			return Task.FromResult(path);
 		}
-#endif
 
 		/// <summary>
 		/// Return true if your server requires custom handling of absolute dir.
@@ -204,7 +194,6 @@ namespace FluentFTP.Servers {
 			return null;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Perform server-specific path modification here.
 		/// Return the absolute path.
@@ -212,7 +201,6 @@ namespace FluentFTP.Servers {
 		public virtual Task<string> GetAbsoluteDirAsync(AsyncFtpClient client, string path, CancellationToken token) { 
 			return Task.FromResult((string)null);
 		}
-#endif
 
 		/// <summary>
 		/// Return true if your server requires custom handling of path and filename concatenation.
@@ -229,7 +217,6 @@ namespace FluentFTP.Servers {
 			return !path.EndsWith("/") ? path + "/" + fileName : path + fileName;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Perform server-specific path modification here.
 		/// Return concatenation of path and filename
@@ -237,7 +224,6 @@ namespace FluentFTP.Servers {
 		public virtual Task<string> GetAbsoluteFilePathAsync(AsyncFtpClient client, string path, string fileName, CancellationToken token) {
 			return Task.FromResult(!path.EndsWith("/") ? path + "/" + fileName : path + fileName);
 		}
-#endif
 
 		/// <summary>
 		/// Return true if your server requires custom handling to handle listing analysis.
@@ -283,7 +269,6 @@ namespace FluentFTP.Servers {
 			return null;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Check for existence of a file
 		/// Return null indicates custom code decided not to handle this
@@ -291,6 +276,5 @@ namespace FluentFTP.Servers {
 		public virtual Task<bool?> FileExistsAsync(AsyncFtpClient client, string path, CancellationToken token) {
 			return Task.FromResult((bool?)null);
 		}
-#endif
 	}
 }

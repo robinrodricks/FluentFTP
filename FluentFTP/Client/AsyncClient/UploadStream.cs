@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Uploads the specified stream as a file onto the server asynchronously.
 		/// High-level API that takes care of various edge cases internally.
@@ -43,7 +42,6 @@ namespace FluentFTP {
 			// write the file onto the server
 			return await UploadFileInternalAsync(fileStream, null, remotePath, createRemoteDir, existsMode, false, false, progress, token, new FtpProgress(1, 0));
 		}
-#endif
 
 	}
 }

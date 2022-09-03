@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Opens the specified file for writing. Please call GetReply() after you have successfully transferred the file to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// </summary>
@@ -65,8 +64,6 @@ namespace FluentFTP {
 
 			return stream;
 		}
-
-#endif
 
 	}
 }

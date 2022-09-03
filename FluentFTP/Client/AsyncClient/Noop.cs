@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Sends the NOOP command according to <see cref="NoopInterval"/> (effectively a no-op if 0).
 		/// Please call <see cref="GetReply"/> as needed to read the "OK" command sent by the server and prevent stale data on the socket.
@@ -31,7 +30,6 @@ namespace FluentFTP {
 
 			return false;
 		}
-#endif
 
 	}
 }

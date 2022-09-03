@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Gets the current working directory asynchronously
 		/// </summary>
@@ -23,9 +22,6 @@ namespace FluentFTP {
 			return Status.LastWorkingDir;
 		}
 
-#endif
-#if ASYNC
-
 		protected async Task<FtpReply> ReadCurrentWorkingDirectory(CancellationToken token) {
 
 			FtpReply reply;
@@ -39,7 +35,6 @@ namespace FluentFTP {
 			Status.LastWorkingDir = ParseWorkingDirectory(reply);
 			return reply;
 		}
-#endif
 
 	}
 }

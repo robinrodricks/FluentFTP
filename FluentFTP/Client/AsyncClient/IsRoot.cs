@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Is the current working directory the root?
 		/// </summary>
@@ -31,6 +30,6 @@ namespace FluentFTP {
 
 			return false;
 		}
-#endif
+
 	}
 }

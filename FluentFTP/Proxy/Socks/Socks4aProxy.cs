@@ -63,7 +63,6 @@ namespace FluentFTP.Proxy.Socks {
 			}
 		}
 
-#if ASYNC
 		public override async Task ConnectAsync() {
 			// The client connects to the server,
 			// and sends a version identifier / method selection message.
@@ -103,6 +102,6 @@ namespace FluentFTP.Proxy.Socks {
 				throw new FtpProxyException($"Unknown error with code {_buffer[1]}");
 			}
 		}
-#endif
+
 	}
 }

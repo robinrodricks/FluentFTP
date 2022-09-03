@@ -357,8 +357,6 @@ namespace FluentFTP {
 			BaseStream.Flush();
 		}
 
-#if ASYNC
-
 		/// <summary>
 		/// Flushes the stream asynchronously
 		/// </summary>
@@ -375,8 +373,6 @@ namespace FluentFTP {
 			await BaseStream.FlushAsync(token);
 		}
 
-#endif
-
 		/// <summary>
 		/// Bypass the stream and read directly off the socket.
 		/// </summary>
@@ -392,7 +388,6 @@ namespace FluentFTP {
 			return read;
 		}
 
-#if ASYNC || NETFRAMEWORK
 		internal async Task EnableCancellation(Task task, CancellationToken token, Action action) {
 			var registration = token.Register(action);
 			_ = task.ContinueWith(x => registration.Dispose(), CancellationToken.None);
@@ -404,8 +399,6 @@ namespace FluentFTP {
 			_ = task.ContinueWith(x => registration.Dispose(), CancellationToken.None);
 			return await task;
 		}
-
-#endif
 
 
 #if NETFRAMEWORK
@@ -432,7 +425,7 @@ namespace FluentFTP {
 
 #endif
 
-#if ASYNC && !NETFRAMEWORK
+#if !NETFRAMEWORK
 		/// <summary>
 		/// Bypass the stream and read directly off the socket.
 		/// </summary>
@@ -482,7 +475,6 @@ namespace FluentFTP {
 #endif
 		}
 
-#if ASYNC
 
 		/// <summary>
 		/// Reads data from the stream
@@ -521,8 +513,6 @@ namespace FluentFTP {
 				}
 			}
 		}
-
-#endif
 
 		/// <summary>
 		/// Reads a line from the socket
@@ -581,7 +571,6 @@ namespace FluentFTP {
 			}
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Reads a line from the socket asynchronously
 		/// </summary>
@@ -642,7 +631,6 @@ namespace FluentFTP {
 
 			return lines;
 		}
-#endif
 
 		/// <summary>
 		/// Writes data to the stream
@@ -659,7 +647,6 @@ namespace FluentFTP {
 			m_lastActivity = DateTime.Now;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Writes data to the stream asynchronously
 		/// </summary>
@@ -675,7 +662,6 @@ namespace FluentFTP {
 			await BaseStream.WriteAsync(buffer, offset, count, token);
 			m_lastActivity = DateTime.Now;
 		}
-#endif
 
 		/// <summary>
 		/// Writes a line to the stream using the specified encoding
@@ -688,7 +674,6 @@ namespace FluentFTP {
 			Write(data, 0, data.Length);
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Writes a line to the stream using the specified encoding asynchronously
 		/// </summary>
@@ -699,7 +684,6 @@ namespace FluentFTP {
 			var data = encoding.GetBytes(buf + "\r\n");
 			await WriteAsync(data, 0, data.Length, token);
 		}
-#endif
 
 #if NETSTANDARD
 		/// <summary>
@@ -927,7 +911,6 @@ namespace FluentFTP {
 			m_lastActivity = DateTime.Now;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Connect to the specified host
 		/// </summary>
@@ -1025,7 +1008,6 @@ namespace FluentFTP {
 			m_netStream.ReadTimeout = m_readTimeout;
 			m_lastActivity = DateTime.Now;
 		}
-#endif
 
 		/// <summary>
 		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event. 
@@ -1037,7 +1019,6 @@ namespace FluentFTP {
 			ActivateEncryption(targethost, null, Client.Config.SslProtocols);
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event. 
 		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -1047,7 +1028,6 @@ namespace FluentFTP {
 		public async Task ActivateEncryptionAsync(string targethost) {
 			await ActivateEncryptionAsync(targethost, null, Client.Config.SslProtocols);
 		}
-#endif
 
 		/// <summary>
 		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
@@ -1060,7 +1040,6 @@ namespace FluentFTP {
 			ActivateEncryption(targethost, clientCerts, Client.Config.SslProtocols);
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
 		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -1071,7 +1050,6 @@ namespace FluentFTP {
 		public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts) {
 			await ActivateEncryptionAsync(targethost, clientCerts, Client.Config.SslProtocols);
 		}
-#endif
 
 		/// <summary>
 		/// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
@@ -1170,7 +1148,6 @@ namespace FluentFTP {
 			return m_bufStream != null ? (Stream)m_bufStream : (Stream)NetworkStream;
 		}
 
-#if ASYNC
 		/// <summary>
 		/// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
 		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
@@ -1229,7 +1206,6 @@ namespace FluentFTP {
 				throw;
 			}
 		}
-#endif
 
 
 #if NETFRAMEWORK
@@ -1313,7 +1289,7 @@ namespace FluentFTP {
 		}
 #endif
 
-#if ASYNC && !NETFRAMEWORK
+#if !NETFRAMEWORK
 		/// <summary>
 		/// Accepts a connection from a listening socket
 		/// </summary>
@@ -1329,7 +1305,6 @@ namespace FluentFTP {
 
 #endif
 		private void BindSocketToLocalIp() {
-#if ASYNC
 			if (Client.Config.SocketLocalIp != null) {
 
 				var localPort = LocalPorts.GetRandomAvailable(Client.Config.SocketLocalIp);
@@ -1341,7 +1316,6 @@ namespace FluentFTP {
 
 				this.m_socket.Bind(localEndpoint);
 			}
-#endif
 		}
 
 #if !NETFRAMEWORK

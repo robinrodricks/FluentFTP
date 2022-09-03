@@ -6,7 +6,6 @@ using FluentFTP.Helpers;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if ASYNC
 		/// <summary>
 		/// Modify the permissions of the given file/folder.
 		/// Only works on *NIX systems, and not on Windows/IIS servers.
@@ -22,9 +21,7 @@ namespace FluentFTP {
 		public Task Chmod(string path, FtpPermission owner, FtpPermission group, FtpPermission other, CancellationToken token = default(CancellationToken)) {
 			return SetFilePermissions(path, owner, group, other, token);
 		}
-#endif
 
-#if ASYNC
 		/// <summary>
 		/// Modify the permissions of the given file/folder.
 		/// Only works on *NIX systems, and not on Windows/IIS servers.
@@ -38,6 +35,6 @@ namespace FluentFTP {
 		public Task Chmod(string path, int permissions, CancellationToken token = default(CancellationToken)) {
 			return SetFilePermissions(path, permissions, token);
 		}
-#endif
+
 	}
 }
