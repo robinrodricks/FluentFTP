@@ -3,8 +3,8 @@
 #### 40.0.0
  - Please read the [Migration Guide](https://github.com/robinrodricks/FluentFTP/wiki/v40-Migration-Guide) for help migrating to the new version!
  - **Constructor API**
-   - New: 3 new FTP client constructors that accept FTP host, credentials, config and logger
-   - Remove extranous constructors because properties can be used instead
+   - New: 4 new FTP client constructors that accept FTP host, credentials, config and logger
+   - Remove extraneous constructors because properties can be used instead
  - **Asynchronous API**
    - New: Split main FTP client classes into `FtpClient` and `AsyncFtpClient`
    - New: Split main FTP client interfaces into `IFtpClient` and `IAsyncFtpClient`
@@ -20,7 +20,7 @@
    - Renamed: Legacy logging callback `OnLogEvent` is now renamed to `LegacyLogger`
    - Renamed: Logging settings: `LogPassword` and `LogUserName` merged into `LogCredentials`
    - Renamed: Logging settings: `LogIP` renamed to `LogHost`
-   - Remove logging settings as they are always enabled: `LogFunctions`
+   - Remove logging setting `LogFunctions` as it is always enabled
  - **FTP Proxies**
    - New: Split FTP proxy classes into `FtpClient*Proxy` and `AsyncFtpClient*Proxy`
    - New: FTP proxy classes moved into `FluentFTP.Proxy.SyncProxy` and `FluentFTP.Proxy.AsyncProxy` NS
