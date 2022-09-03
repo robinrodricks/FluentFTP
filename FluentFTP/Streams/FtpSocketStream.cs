@@ -1089,10 +1089,8 @@ namespace FluentFTP {
 #endif
 				}
 				catch (IOException ex) {
-					if (ex.InnerException is Win32Exception win32Exception) {
-						if (win32Exception.NativeErrorCode == 10053) {
-							throw new FtpMissingSocketException(ex);
-						}
+					if (ex.InnerException is Win32Exception { NativeErrorCode: 10053 }) {
+						throw new FtpMissingSocketException(ex);
 					}
 
 					throw;
@@ -1181,10 +1179,8 @@ namespace FluentFTP {
 					await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
 				}
 				catch (IOException ex) {
-					if (ex.InnerException is Win32Exception win32Exception) {
-						if (win32Exception.NativeErrorCode == 10053) {
-							throw new FtpMissingSocketException(ex);
-						}
+					if (ex.InnerException is Win32Exception { NativeErrorCode: 10053 }) {
+						throw new FtpMissingSocketException(ex);
 					}
 
 					throw;
