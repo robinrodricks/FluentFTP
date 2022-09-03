@@ -2,6 +2,7 @@
 
 #### 40.0.0
  - Please read the [Migration Guide](https://github.com/robinrodricks/FluentFTP/wiki/v40-Migration-Guide) for help migrating to the new version!
+ - Special thanks to Robin Rodricks, Michael Stiemke and Jonas Nyrup for this release!
  - **Constructor API**
    - New: 4 new FTP client constructors that accept FTP host, credentials, config and logger
    - Remove extraneous constructors because properties can be used instead
