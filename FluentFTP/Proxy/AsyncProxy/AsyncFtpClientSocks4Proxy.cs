@@ -22,7 +22,7 @@ namespace FluentFTP.Proxy.AsyncProxy {
 		/// </summary>
 		protected override async Task HandshakeAsync(CancellationToken token = default) {
 			await ((IInternalFtpClient)this).GetBaseStream().ReadAsync(new byte[6], 0, 6, token);
-			await base.HandshakeAsync();
+			await base.HandshakeAsync(token);
 		}
 
 		protected override async Task ConnectAsync(FtpSocketStream stream, CancellationToken cancellationToken) {

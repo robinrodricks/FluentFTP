@@ -25,10 +25,13 @@
    - New: Split FTP proxy classes into `FtpClient*Proxy` and `AsyncFtpClient*Proxy`
    - New: FTP proxy classes moved into `FluentFTP.Proxy.SyncProxy` and `FluentFTP.Proxy.AsyncProxy` NS
    - New: FTP proxy classes with fully async implementations
+   - Fix: Properly override `HandshakeAsync` in async FTP proxies (thanks [jnyrup](/jnyrup))
  - **Organization**
    - Completely redesign the FTP client code organization and structure
    - Update all tests and examples to use the new API and `AsyncFtpClient`
    - Hide all internally-used functions behind the interface `IInternalFtpClient`
+   - Code style standardization and use new C# language constructs (thanks [jnyrup](/jnyrup))
+   - Add styling rules to `.editorconfig` to prevent using IDE defaults (thanks [jnyrup](/jnyrup))
  - **Modernization**
    - Drop support for .NET Standard 1.2, 1.4 and .NET 2.0, 3.5, 4.0 and 4.5
    - Add support for .NET 4.6.2 and 4.7.2
@@ -39,6 +42,7 @@
    - Remove uncommon feature `FtpListOption.DerefLinks`
    - Remove obsolete hashing commands `GetHashAlgorithm`, `SetHashAlgorithm`, `GetHash`, etc
    - Remove obsolete async pattern using `IAsyncResult`
+   - Fix: Forward cancellation token in UploadDirectory and Proxy HandshakeAsync (thanks [jnyrup](/jnyrup))
  - **Server support**
    - Move all IBM zOS logic into the `IBMzOSFtpServer` server handler (thanks [FanDjango](/FanDjango))
    - Move all OpenVMS logic into the `OpenVmsServer` server handler (thanks [FanDjango](/FanDjango))
