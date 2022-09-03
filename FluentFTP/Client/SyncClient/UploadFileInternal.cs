@@ -23,7 +23,7 @@ namespace FluentFTP {
 
 			// throw an error if need to resume uploading and cannot seek the local file stream
 			if (!fileData.CanSeek && existsMode == FtpRemoteExists.Resume) {
-				throw new ArgumentException("You have requested resuming file upload with FtpRemoteExists.Resume, but the local file stream cannot be seeked. Use another type of Stream or another existsMode.", "fileData");
+				throw new ArgumentException("You have requested resuming file upload with FtpRemoteExists.Resume, but the local file stream cannot be seeked. Use another type of Stream or another existsMode.", nameof(fileData));
 			}
 
 			try {

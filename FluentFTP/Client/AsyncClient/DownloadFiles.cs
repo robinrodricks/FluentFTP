@@ -55,7 +55,7 @@ namespace FluentFTP {
 			}
 
 			if (localDir.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localDir");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(localDir));
 			}
 
 			LogFunction(nameof(DownloadFiles), new object[] { localDir, remotePaths, existsMode, verifyOptions });

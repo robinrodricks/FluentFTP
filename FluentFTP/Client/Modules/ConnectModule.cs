@@ -487,7 +487,7 @@ namespace FluentFTP.Client.Modules {
 
 			// verify args
 			if (profile == null) {
-				throw new ArgumentException("Required parameter is null or blank.", "profile");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(profile));
 			}
 			if (profile.Host.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "profile.Host");

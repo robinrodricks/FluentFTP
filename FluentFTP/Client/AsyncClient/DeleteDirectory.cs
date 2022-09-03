@@ -16,7 +16,7 @@ namespace FluentFTP {
 		public Task DeleteDirectory(string path, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			path = path.GetFtpPath();
@@ -34,7 +34,7 @@ namespace FluentFTP {
 		public Task DeleteDirectory(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			path = path.GetFtpPath();

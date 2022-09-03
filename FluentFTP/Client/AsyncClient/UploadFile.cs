@@ -34,11 +34,11 @@ namespace FluentFTP {
 		public async Task<FtpStatus> UploadFile(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (localPath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localPath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(localPath));
 			}
 
 			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
 			return await UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token, progress, new FtpProgress(1, 0));

@@ -26,11 +26,11 @@ namespace FluentFTP {
 		public FtpStatus UploadBytes(byte[] fileData, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, Action<FtpProgress> progress = null) {
 			// verify args
 			if (fileData == null) {
-				throw new ArgumentException("Required parameter is null or blank.", "fileData");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(fileData));
 			}
 
 			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
 			remotePath = remotePath.GetFtpPath();

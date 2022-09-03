@@ -33,11 +33,11 @@ namespace FluentFTP {
 		public async Task<FtpStatus> DownloadFile(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Resume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (localPath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localPath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(localPath));
 			}
 
 			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
 			return await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, progress, token, new FtpProgress(1, 0));
@@ -47,16 +47,16 @@ namespace FluentFTP {
 
 			// verify args
 			if (localPath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localPath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(localPath));
 			}
 
 			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
 			// skip downloading if the localPath is a folder
 			if (LocalPaths.IsLocalFolderPath(localPath)) {
-				throw new ArgumentException("Local path must specify a file path and not a folder path.", "localPath");
+				throw new ArgumentException("Local path must specify a file path and not a folder path.", nameof(localPath));
 			}
 
 			remotePath = remotePath.GetFtpPath();

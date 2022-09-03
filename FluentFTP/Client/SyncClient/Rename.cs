@@ -19,11 +19,11 @@ namespace FluentFTP {
 
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			if (dest.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "dest");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(dest));
 			}
 
 			lock (m_lock) {

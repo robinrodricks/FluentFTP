@@ -19,11 +19,11 @@ namespace FluentFTP {
 		public bool MoveFile(string path, string dest, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite) {
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			if (dest.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "dest");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(dest));
 			}
 
 			path = path.GetFtpPath();
