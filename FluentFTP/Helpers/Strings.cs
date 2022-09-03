@@ -45,11 +45,7 @@ namespace FluentFTP.Helpers {
 		/// Join the given strings by a delimiter.
 		/// </summary>
 		public static string Join(this List<string> values, string delimiter) {
-#if NET20 || NET35
-			return string.Join(delimiter, values.ToArray());
-#else
 			return string.Join(delimiter, values);
-#endif
 		}
 
 		/// <summary>
