@@ -30,7 +30,7 @@ namespace FluentFTP {
 		public async Task<FtpHash> GetChecksum(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken)) {
 
 			if (path == null) {
-				throw new ArgumentException("Required argument is null", "path");
+				throw new ArgumentException("Required argument is null", nameof(path));
 			}
 
 			ValidateChecksumAlgorithm(algorithm);

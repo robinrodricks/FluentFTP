@@ -13,7 +13,7 @@ namespace Examples {
 		public static void DownloadDirectoryWithRules() {
 			using (var ftp = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				ftp.Connect();
-				
+
 
 				// download only PDF files under 1 GB from a folder, by using the rule engine
 				var rules = new List<FtpRule>{
@@ -38,7 +38,7 @@ namespace Examples {
 			var token = new CancellationToken();
 			using (var ftp = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				await ftp.Connect(token);
-				
+
 
 				// download only PDF files under 1 GB from a folder, by using the rule engine
 				var rules = new List<FtpRule>{

@@ -2,7 +2,6 @@
 using FluentFTP.Helpers;
 using System.Threading;
 using FluentFTP.Client.Modules;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentFTP {
@@ -16,7 +15,7 @@ namespace FluentFTP {
 		public bool FileExists(string path) {
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			lock (m_lock) {

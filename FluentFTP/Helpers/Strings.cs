@@ -45,11 +45,7 @@ namespace FluentFTP.Helpers {
 		/// Join the given strings by a delimiter.
 		/// </summary>
 		public static string Join(this List<string> values, string delimiter) {
-#if NET20 || NET35
-			return string.Join(delimiter, values.ToArray());
-#else
 			return string.Join(delimiter, values);
-#endif
 		}
 
 		/// <summary>
@@ -201,12 +197,12 @@ namespace FluentFTP.Helpers {
 		public static string[] SplitString(this string str) {
 			var allTokens = new List<string>(str.Split(null));
 			for (var i = allTokens.Count - 1; i >= 0; i--) {
-				if (((string)allTokens[i]).Trim().Length == 0) {
+				if (allTokens[i].Trim().Length == 0) {
 					allTokens.RemoveAt(i);
 				}
 			}
 
-			return (string[])allTokens.ToArray();
+			return allTokens.ToArray();
 		}
 
 		/// <summary>

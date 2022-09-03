@@ -33,11 +33,11 @@ namespace FluentFTP {
 
 			// verify args
 			if (localPath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localPath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(localPath));
 			}
 
 			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
 			return DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, progress, new FtpProgress(1, 0));
@@ -52,7 +52,7 @@ namespace FluentFTP {
 
 			// skip downloading if the localPath is a folder
 			if (LocalPaths.IsLocalFolderPath(localPath)) {
-				throw new ArgumentException("Local path must specify a file path and not a folder path.", "localPath");
+				throw new ArgumentException("Local path must specify a file path and not a folder path.", nameof(localPath));
 			}
 
 			// skip downloading if local file size matches

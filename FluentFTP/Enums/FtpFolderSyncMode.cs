@@ -20,6 +20,6 @@ namespace FluentFTP {
 		/// Uploads/downloads all the missing files to update the server/local filesystem.
 		/// </summary>
 		Update,
-		
+
 	}
 }

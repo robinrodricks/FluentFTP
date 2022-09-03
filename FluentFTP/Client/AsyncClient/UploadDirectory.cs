@@ -39,11 +39,11 @@ namespace FluentFTP {
 			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			if (localFolder.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localFolder");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(localFolder));
 			}
 
 			if (remoteFolder.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(remoteFolder));
 			}
 
 			// ensure the local path ends with slash
@@ -83,7 +83,7 @@ namespace FluentFTP {
 			token.ThrowIfCancellationRequested();
 
 			// get all the already existing files
-			var remoteListing = checkFileExistence ? await GetListing(remoteFolder, FtpListOption.Recursive) : null;
+			var remoteListing = checkFileExistence ? await GetListing(remoteFolder, FtpListOption.Recursive, token) : null;
 
 			// break if task is cancelled
 			token.ThrowIfCancellationRequested();

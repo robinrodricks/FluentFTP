@@ -79,8 +79,7 @@ namespace FluentFTP.Helpers {
 				else if (system == FtpOperatingSystem.IBMOS400) {
 					CurrentParser = FtpParser.IBMOS400;
 				}
-				else
-				{
+				else {
 					CurrentParser = FtpParser.Unix;
 					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Warn, "Cannot auto-detect listing parser for system '" + system + "', using Unix parser");
 				}
@@ -108,7 +107,7 @@ namespace FluentFTP.Helpers {
 				}
 				else {
 					if (IsWrongParser()) {
-						ValidateParser(new[] {file});
+						ValidateParser(new[] { file });
 					}
 
 					// use one of the in-built parsers

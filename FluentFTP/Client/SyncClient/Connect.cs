@@ -72,7 +72,7 @@ namespace FluentFTP {
 				m_serverType = ServerModule.DetectFtpServer(this, HandshakeReply);
 
 				if (Config.SendHost) {
-					if (!(reply = Execute("HOST " + (Config.SendHostDomain != null ? Config.SendHostDomain : Host))).Success) {
+					if (!(reply = Execute("HOST " + (Config.SendHostDomain ?? Host))).Success) {
 						throw new FtpException("HOST command failed.");
 					}
 				}
@@ -173,9 +173,7 @@ namespace FluentFTP {
 				ForceSetDataType = true;
 
 				// Execute server-specific post-connection event
-				if (ServerHandler != null) {
-					ServerHandler.AfterConnected(this);
-				}
+				ServerHandler?.AfterConnected(this);
 
 				// FIX #922: disable checking for stale data during connection
 				Status.AllowCheckStaleData = true;

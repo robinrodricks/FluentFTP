@@ -7,9 +7,6 @@ using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Net.Sockets;
 using FluentFTP.Servers;
-#if NETSTANDARD
-using System.Diagnostics;
-#endif
 
 namespace FluentFTP.Helpers {
 	/// <summary>

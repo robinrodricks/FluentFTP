@@ -13,7 +13,7 @@ namespace Examples {
 		//-----------------------------------------------------------------------------------------
 
 		public static void GetChecksum() {
-			
+
 			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				conn.Connect();
 

@@ -38,11 +38,11 @@ namespace FluentFTP {
 			FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null) {
 
 			if (localFolder.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "localFolder");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(localFolder));
 			}
 
 			if (remoteFolder.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(remoteFolder));
 			}
 
 			// ensure the local path ends with slash

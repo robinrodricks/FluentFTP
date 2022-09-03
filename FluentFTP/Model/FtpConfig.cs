@@ -311,9 +311,7 @@ namespace FluentFTP {
 				// set this value on the FtpClient's base stream
 				if (_client != null) {
 					var stream = ((IInternalFtpClient)_client).GetBaseStream();
-					if (stream != null) {
-						stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, value);
-					}
+					stream?.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, value);
 				}
 			}
 		}
@@ -340,7 +338,7 @@ namespace FluentFTP {
 		}
 
 		protected SslProtocols _SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
-		
+
 		/// <summary>
 		/// Encryption protocols to use. Only valid if EncryptionMode property is not equal to <see cref="FtpEncryptionMode.None"/>.
 		/// Default value is .NET Framework defaults from the <see cref="System.Net.Security.SslStream"/> class.

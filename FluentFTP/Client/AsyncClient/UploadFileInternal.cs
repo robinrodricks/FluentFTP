@@ -23,7 +23,7 @@ namespace FluentFTP {
 
 			// throw an error if need to resume uploading and cannot seek the local file stream
 			if (!fileData.CanSeek && existsMode == FtpRemoteExists.Resume) {
-				throw new ArgumentException("You have requested resuming file upload with FtpRemoteExists.Resume, but the local file stream cannot be seeked. Use another type of Stream or another existsMode.", "fileData");
+				throw new ArgumentException("You have requested resuming file upload with FtpRemoteExists.Resume, but the local file stream cannot be seeked. Use another type of Stream or another existsMode.", nameof(fileData));
 			}
 
 			try {
@@ -55,9 +55,7 @@ namespace FluentFTP {
 
 							// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
 							// send progress reports for skipped files
-							if (progress != null) {
-								progress.Report(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
-							}
+							progress?.Report(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 
 							return FtpStatus.Skipped;
 						}
@@ -112,9 +110,8 @@ namespace FluentFTP {
 					LogWithPrefix(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully uploaded (Remote: " + remotePath + ", Local: " + localPath + ")");
 
 					// send progress reports for skipped files
-					if (progress != null) {
-						progress.Report(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
-					}
+					progress?.Report(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+
 					return FtpStatus.Skipped;
 				}
 
@@ -240,9 +237,7 @@ namespace FluentFTP {
 				}
 
 				// send progress reports
-				if (progress != null) {
-					progress.Report(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
-				}
+				progress?.Report(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 
 				// disconnect FTP stream before exiting
 				upStream.Dispose();
@@ -281,9 +276,7 @@ namespace FluentFTP {
 			catch (Exception ex1) {
 				// close stream before throwing error
 				try {
-					if (upStream != null) {
-						upStream.Dispose();
-					}
+					upStream?.Dispose();
 				}
 				catch (Exception) {
 				}

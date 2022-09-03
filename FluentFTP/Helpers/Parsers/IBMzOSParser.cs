@@ -221,7 +221,7 @@ namespace FluentFTP.Helpers.Parsers {
 
 			if (values[0].Length > 1) {
 				var ch01 = char.ToLower(values[0][1]);
-				if (ch01 == 'r' || ch01 == '-')	{
+				if (ch01 == 'r' || ch01 == '-') {
 					perms2 = true;
 				}
 			}

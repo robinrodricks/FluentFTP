@@ -37,7 +37,7 @@ namespace FluentFTP {
 			if (IsDisposed) {
 				return;
 			}
-			
+
 			if (SourceServer != null) {
 				SourceServer.AutoDispose();
 				SourceServer = null;
