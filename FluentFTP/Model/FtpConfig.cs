@@ -311,9 +311,7 @@ namespace FluentFTP {
 				// set this value on the FtpClient's base stream
 				if (_client != null) {
 					var stream = ((IInternalFtpClient)_client).GetBaseStream();
-					if (stream != null) {
-						stream.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, value);
-					}
+					stream?.SetSocketOption(System.Net.Sockets.SocketOptionLevel.Socket, System.Net.Sockets.SocketOptionName.KeepAlive, value);
 				}
 			}
 		}

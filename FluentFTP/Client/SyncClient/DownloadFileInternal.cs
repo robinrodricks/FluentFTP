@@ -139,9 +139,7 @@ namespace FluentFTP {
 				sw.Stop();
 
 				// disconnect FTP stream before exiting
-				if (outStream != null) {
-					outStream.Flush();
-				}
+				outStream?.Flush();
 				downStream.Dispose();
 
 				// Fix #552: close the filestream if it was created in this method

@@ -108,7 +108,7 @@ namespace FluentFTP.Helpers {
 		/// <param name="path">The full path to the file</param>
 		/// <returns>The file name</returns>
 		public static string GetFtpFileName(this string path) {
-			var tpath = path == null ? null : path;
+			var tpath = path;
 			var lastslash = -1;
 
 			// no change in path

@@ -150,10 +150,7 @@ namespace FluentFTP {
 
 					// .NET 2.0 doesn't provide access to Dispose() for HashAlgorithm
 #if !NET20 && !NET35
-					if (hashAlg != null) {
-						hashAlg.Dispose();
-					}
-
+					hashAlg?.Dispose();
 #endif
 				}
 			}

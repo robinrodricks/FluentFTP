@@ -268,9 +268,7 @@ namespace FluentFTP {
 			catch (Exception ex1) {
 				// close stream before throwing error
 				try {
-					if (upStream != null) {
-						upStream.Dispose();
-					}
+					upStream?.Dispose();
 				}
 				catch (Exception) {
 				}
