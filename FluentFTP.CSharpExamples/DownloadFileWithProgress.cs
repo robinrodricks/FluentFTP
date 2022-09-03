@@ -13,7 +13,7 @@ namespace Examples {
 				ftp.Connect();
 
 				// define the progress tracking callback
-				Action<FtpProgress> progress = delegate(FtpProgress p){
+				Action<FtpProgress> progress = delegate (FtpProgress p) {
 					if (p.Progress == 1) {
 						// all done!
 					}
@@ -24,7 +24,7 @@ namespace Examples {
 
 				// download a file with progress tracking
 				ftp.DownloadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpLocalExists.Overwrite, FtpVerify.None, progress);
-				
+
 			}
 		}
 
@@ -45,7 +45,7 @@ namespace Examples {
 
 				// download a file and ensure the local directory is created
 				await ftp.DownloadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpLocalExists.Resume, FtpVerify.None, progress, token);
-				
+
 			}
 		}
 

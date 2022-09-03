@@ -36,5 +36,5 @@ namespace FluentFTP {
 
 		Action<FtpTraceLevel, string> LegacyLogger { get; set; }
 
-}
+	}
 }

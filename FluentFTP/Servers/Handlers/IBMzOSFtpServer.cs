@@ -132,7 +132,7 @@ namespace FluentFTP.Servers.Handlers {
 			// level HLQs.
 
 			// z/OS HFS root
-			if (path == "/") { 
+			if (path == "/") {
 				return true;
 			}
 
@@ -142,7 +142,7 @@ namespace FluentFTP.Servers.Handlers {
 			}
 
 			// z/OS HLQ (like 'SYS1.' or '')
-			if (path.Trim('\'').TrimEnd('.').Split('.').Length <= 1) { 
+			if (path.Trim('\'').TrimEnd('.').Split('.').Length <= 1) {
 				return true;
 			}
 
@@ -160,7 +160,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Always read to End of stream on a download
 		/// </summary>
-		public override bool AlwaysReadToEnd(string remotePath)	{
+		public override bool AlwaysReadToEnd(string remotePath) {
 			return true;
 		}
 
@@ -221,7 +221,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Perform server-specific path modification here.
 		/// Return the absolute path.
 		/// </summary>
-		public override async Task<string> GetAbsolutePathAsync(AsyncFtpClient client, string path, CancellationToken token)	{
+		public override async Task<string> GetAbsolutePathAsync(AsyncFtpClient client, string path, CancellationToken token) {
 
 			if (path == null || path.Trim().Length == 0) {
 				path = await client.GetWorkingDirectory(token);
@@ -323,7 +323,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// </summary>
 		public override string GetAbsoluteFilePath(FtpClient client, string path, string fileName) {
 
-			if (!path.StartsWith("\'"))	{
+			if (!path.StartsWith("\'")) {
 				return null;
 			}
 
@@ -344,7 +344,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// </summary>
 		public override async Task<string> GetAbsoluteFilePathAsync(AsyncFtpClient client, string path, string fileName, CancellationToken token) {
 
-			if (!path.StartsWith("\'"))	{
+			if (!path.StartsWith("\'")) {
 				return null;
 			}
 
@@ -370,7 +370,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Return null indicates custom code decided not to handle this
 		/// </summary>
 		public override bool? CalculateFullFtpPath(BaseFtpClient client, string path, FtpListItem item) {
-			if (client.zOSListingRealm == FtpZOSListRealm.Unix)	{
+			if (client.zOSListingRealm == FtpZOSListRealm.Unix) {
 				return null;
 			}
 
@@ -385,8 +385,7 @@ namespace FluentFTP.Servers.Handlers {
 
 			// Is caller using FtpListOption.NoPath and CWD to the right place?
 			if (path.Length == 0) {
-				if (client.zOSListingRealm == FtpZOSListRealm.Dataset)
-				{
+				if (client.zOSListingRealm == FtpZOSListRealm.Dataset) {
 					// Path: ""
 					// Fullname: 'GEEK.PROJECTS.LOADLIB'
 					item.FullName = ((IInternalFtpClient)client).GetWorkingDirectoryInternal().TrimEnd('\'') + item.Name + "\'";
@@ -406,7 +405,7 @@ namespace FluentFTP.Servers.Handlers {
 					item.FullName = item.Name;
 				}
 				else {
-					if (path.EndsWith("(*)\'"))	{
+					if (path.EndsWith("(*)\'")) {
 						// Path: "'GEEK.PROJECTS.LOADLIB(*)'"
 						// Fullname: 'GEEK.PROJECTS.LOADLIB(MYPROG)'
 						item.FullName = path.Substring(0, path.Length - 4) + "(" + item.Name + ")\'";
@@ -461,8 +460,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Check for existence of a file
 		/// Return null indicates custom code decided not to handle this
 		/// </summary>
-		public override bool? FileExists(FtpClient client, string path)
-		{
+		public override bool? FileExists(FtpClient client, string path) {
 			if (path.StartsWith("/")) {
 				return null;
 			}
@@ -475,8 +473,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Check for existence of a file
 		/// Return null indicates custom code decided not to handle this
 		/// </summary>
-		public override async Task<bool?> FileExistsAsync(AsyncFtpClient client, string path, CancellationToken token)
-		{
+		public override async Task<bool?> FileExistsAsync(AsyncFtpClient client, string path, CancellationToken token) {
 			if (path.StartsWith("/")) {
 				return null;
 			}

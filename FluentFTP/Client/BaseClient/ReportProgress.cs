@@ -6,7 +6,7 @@ using FluentFTP.Helpers;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
-		
+
 		/// <summary>
 		/// Sends progress to the user, either a value between 0-100 indicating percentage complete, or -1 for indeterminate.
 		/// </summary>

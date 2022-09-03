@@ -107,12 +107,12 @@ namespace FluentFTP {
 
 
 		// HASH
-		
+
 		Task<FtpHash> GetChecksum(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken));
 
 
 		// COMPARE
-		
+
 		Task<FtpCompareResult> CompareFile(string localPath, string remotePath, FtpCompareOption options = FtpCompareOption.Auto, CancellationToken token = default(CancellationToken));
 
 	}

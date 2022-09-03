@@ -1,2 +1,17 @@
-[*.cs]
+# top-most EditorConfig file
+root = true
+
+# Default settings:
+[*]
+indent_style = space
+trim_trailing_whitespace = true
+trim_trailing_white_space_on_save = true
+end_of_line = crlf
+
+# Code files
+[*.{cs,vb}]
 indent_style = tab
+
+[*.cs]
+# New line preferences
+csharp_new_line_before_open_brace = none

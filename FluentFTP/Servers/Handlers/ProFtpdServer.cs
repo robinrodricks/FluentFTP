@@ -65,7 +65,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Return true if you executed a server-specific command.
 		/// </summary>
 		public override async Task<bool> DeleteDirectoryAsync(AsyncFtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
-			
+
 			// Support #378 - Support RMDIR command for ProFTPd
 			if (deleteContents && client.HasFeature(FtpCapability.SITE_RMDIR)) {
 				if ((await client.Execute("SITE RMDIR " + ftppath, token)).Success) {

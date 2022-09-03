@@ -11,7 +11,7 @@ namespace Examples {
 		public static void DownloadFile() {
 			using (var ftp = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				ftp.Connect();
-				
+
 				// download a file and ensure the local directory is created
 				ftp.DownloadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md");
 

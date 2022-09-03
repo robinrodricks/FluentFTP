@@ -24,7 +24,7 @@ namespace Examples {
 
 				// upload a file with progress tracking
 				ftp.UploadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpRemoteExists.Overwrite, false, FtpVerify.None, progress);
-				
+
 			}
 		}
 
@@ -45,7 +45,7 @@ namespace Examples {
 
 				// upload a file with progress tracking
 				await ftp.UploadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpRemoteExists.Overwrite, false, FtpVerify.None, progress, token);
-				
+
 			}
 		}
 

@@ -430,8 +430,7 @@ namespace FluentFTP.Tests.Unit {
 		}
 
 		[Fact]
-		public void IBMzOSMVS_HFS()
-		{
+		public void IBMzOSMVS_HFS() {
 			var parser = new FtpListParser(new FtpClient());
 			parser.Init(FtpOperatingSystem.IBMzOS, FtpParser.IBMzOS);
 
@@ -450,8 +449,7 @@ namespace FluentFTP.Tests.Unit {
 		}
 
 		[Fact]
-		public void IBMzOSMVS_PSPO()
-		{
+		public void IBMzOSMVS_PSPO() {
 			var parser = new FtpListParser(new FtpClient());
 			parser.Init(FtpOperatingSystem.IBMzOS, FtpParser.IBMzOS);
 
@@ -466,8 +464,7 @@ namespace FluentFTP.Tests.Unit {
 		}
 
 		[Fact]
-		public void IBMzOSMVS_Member()
-		{
+		public void IBMzOSMVS_Member() {
 			var parser = new FtpListParser(new FtpClient());
 			parser.Init(FtpOperatingSystem.IBMzOS, FtpParser.IBMzOS);
 
@@ -481,8 +478,7 @@ namespace FluentFTP.Tests.Unit {
 		}
 
 		[Fact]
-		public void IBMzOSMVS_MemberU()
-		{
+		public void IBMzOSMVS_MemberU() {
 			var parser = new FtpListParser(new FtpClient());
 			parser.Init(FtpOperatingSystem.IBMzOS, FtpParser.IBMzOS);
 

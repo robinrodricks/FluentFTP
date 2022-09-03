@@ -31,7 +31,7 @@ namespace FluentFTP.Streams {
 			}
 			return (await Task.Run(() => new FileInfo(localPath), token)).Length;
 		}
-		
+
 		/// <summary>
 		/// Returns the file size using synchronous file I/O.
 		/// </summary>

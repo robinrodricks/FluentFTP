@@ -8,7 +8,7 @@ namespace FluentFTP.Servers.Handlers {
 	/// Server-specific handling for ServU FTP servers
 	/// </summary>
 	internal class ServUServer : FtpBaseServer {
-	
+
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.
 		/// </summary>

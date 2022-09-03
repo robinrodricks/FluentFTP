@@ -137,7 +137,7 @@ namespace FluentFTP.Servers {
 		/// <summary>
 		/// Skip reporting a parser error
 		/// </summary>
-		public virtual bool SkipParserErrorReport()	{
+		public virtual bool SkipParserErrorReport() {
 			return false;
 		}
 
@@ -190,7 +190,7 @@ namespace FluentFTP.Servers {
 		/// Perform server-specific path modification here.
 		/// Return the absolute dir.
 		/// </summary>
-		public virtual string GetAbsoluteDir(FtpClient client, string path)	{
+		public virtual string GetAbsoluteDir(FtpClient client, string path) {
 			return null;
 		}
 
@@ -198,7 +198,7 @@ namespace FluentFTP.Servers {
 		/// Perform server-specific path modification here.
 		/// Return the absolute path.
 		/// </summary>
-		public virtual Task<string> GetAbsoluteDirAsync(AsyncFtpClient client, string path, CancellationToken token) { 
+		public virtual Task<string> GetAbsoluteDirAsync(AsyncFtpClient client, string path, CancellationToken token) {
 			return Task.FromResult((string)null);
 		}
 

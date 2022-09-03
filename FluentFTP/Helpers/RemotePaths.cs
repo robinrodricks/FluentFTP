@@ -157,14 +157,11 @@ namespace FluentFTP.Helpers {
 		/// <summary>
 		/// Get the full path of a given FTP Listing entry
 		/// </summary>
-		public static void CalculateFullFtpPath(this FtpListItem item, BaseFtpClient client, string path)
-		{
+		public static void CalculateFullFtpPath(this FtpListItem item, BaseFtpClient client, string path) {
 			// EXIT IF NO DIR PATH PROVIDED
-			if (path == null)
-			{
+			if (path == null) {
 				// check if the path is absolute
-				if (IsAbsolutePath(item.Name))
-				{
+				if (IsAbsolutePath(item.Name)) {
 					item.FullName = item.Name;
 					item.Name = item.Name.GetFtpFileName();
 				}
@@ -176,30 +173,24 @@ namespace FluentFTP.Helpers {
 			//this.((IInternalFtpClient)client).LogStatus(item.Name);
 
 			// remove globbing/wildcard from path
-			if (path.GetFtpFileName().Contains("*"))
-			{
+			if (path.GetFtpFileName().Contains("*")) {
 				path = path.GetFtpDirectoryName();
 			}
 
-			if (path.Length == 0)
-			{
+			if (path.Length == 0) {
 				path = ((IInternalFtpClient)client).GetWorkingDirectoryInternal();
 			}
 
-			if (item.Name != null)
-			{
+			if (item.Name != null) {
 				// absolute path? then ignore the path input to this method.
-				if (IsAbsolutePath(item.Name))
-				{
+				if (IsAbsolutePath(item.Name)) {
 					item.FullName = item.Name;
 					item.Name = item.Name.GetFtpFileName();
 				}
-				else if (path != null)
-				{
+				else if (path != null) {
 					item.FullName = path.GetFtpPath(item.Name); //.GetFtpPathWithoutGlob();
 				}
-				else
-				{
+				else {
 					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Warn, "Couldn't determine the full path of this object: " +
 														 Environment.NewLine + item.ToString());
 				}
@@ -207,14 +198,11 @@ namespace FluentFTP.Helpers {
 
 			// if a link target is set and it doesn't include an absolute path
 			// then try to resolve it.
-			if (item.LinkTarget != null && !item.LinkTarget.StartsWith("/"))
-			{
-				if (item.LinkTarget.StartsWith("./"))
-				{
+			if (item.LinkTarget != null && !item.LinkTarget.StartsWith("/")) {
+				if (item.LinkTarget.StartsWith("./")) {
 					item.LinkTarget = path.GetFtpPath(item.LinkTarget.Remove(0, 2)).Trim();
 				}
-				else
-				{
+				else {
 					item.LinkTarget = path.GetFtpPath(item.LinkTarget).Trim();
 				}
 			}
