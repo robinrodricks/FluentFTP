@@ -141,11 +141,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="conn">The control connection to be used for carrying out this operation</param>
 		public FtpDataStream(BaseFtpClient conn) : base(conn) {
-			if (conn == null) {
-				throw new ArgumentException("The control connection cannot be null.");
-			}
-
-			ControlConnection = conn;
+			ControlConnection = conn ?? throw new ArgumentException("The control connection cannot be null.");
 
 			// always accept certificate no matter what because if code execution ever
 			// gets here it means the certificate on the control connection object being
