@@ -20,7 +20,7 @@ namespace FluentFTP.Proxy.AsyncProxy {
 		/// <summary>
 		/// Called during <see cref="ConnectAsync()"/>. Typically extended by FTP proxies.
 		/// </summary>
-		protected virtual async Task HandshakeAsync(CancellationToken token = default) {
+		protected override async Task HandshakeAsync(CancellationToken token = default) {
 			await ((IInternalFtpClient)this).GetBaseStream().ReadAsync(new byte[6], 0, 6);
 			await base.HandshakeAsync();
 		}
