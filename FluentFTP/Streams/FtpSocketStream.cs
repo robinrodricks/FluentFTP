@@ -11,7 +11,6 @@ using System.Net;
 using FluentFTP.Helpers;
 using FluentFTP.Exceptions;
 using FluentFTP.Client.BaseClient;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentFTP {

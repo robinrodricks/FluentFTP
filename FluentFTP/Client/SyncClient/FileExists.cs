@@ -2,7 +2,6 @@
 using FluentFTP.Helpers;
 using System.Threading;
 using FluentFTP.Client.Modules;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentFTP {
