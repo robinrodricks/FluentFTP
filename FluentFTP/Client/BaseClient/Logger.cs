@@ -17,14 +17,10 @@ namespace FluentFTP.Client.BaseClient {
 			var fullMessage = (">         " + function + "(" + args.ItemsToString().Join(", ") + ")");
 
 			// log to modern logger if given
-			if (m_logger != null) {
-				m_logger.LogInformation(fullMessage);
-			}
+			m_logger?.LogInformation(fullMessage);
 
 			// log to legacy logger if given
-			if (m_legacyLogger != null) {
-				m_legacyLogger(FtpTraceLevel.Verbose, fullMessage);
-			}
+			m_legacyLogger?.Invoke(FtpTraceLevel.Verbose, fullMessage);
 
 			// log to system
 			LogToDebugOrConsole("");
@@ -45,9 +41,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 
 			// log to legacy logger if given
-			if (m_legacyLogger != null) {
-				m_legacyLogger(eventType, message);
-			}
+			m_legacyLogger?.Invoke(eventType, message);
 
 			// log to system
 			LogToDebugOrConsole(message);
@@ -68,9 +62,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 
 			// log to legacy logger if given
-			if (m_legacyLogger != null) {
-				m_legacyLogger(eventType, fullMessage);
-			}
+			m_legacyLogger?.Invoke(eventType, fullMessage);
 
 			// log to system
 			LogToDebugOrConsole(fullMessage);

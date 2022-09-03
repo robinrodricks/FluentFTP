@@ -151,9 +151,7 @@ namespace FluentFTP {
 				}
 
 				// send progress reports
-				if (progress != null) {
-					progress(new FtpProgress(100.0, offset, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
-				}
+				progress?.Invoke(new FtpProgress(100.0, offset, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply

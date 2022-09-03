@@ -55,9 +55,7 @@ namespace FluentFTP {
 
 							// Fix #413 - progress callback isn't called if the file has already been uploaded to the server
 							// send progress reports for skipped files
-							if (progress != null) {
-								progress(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
-							}
+							progress?.Invoke(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 
 							return FtpStatus.Skipped;
 						}
@@ -108,9 +106,8 @@ namespace FluentFTP {
 					LogWithPrefix(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully uploaded (Remote: " + remotePath + ", Local: " + localPath + ")");
 
 					// send progress reports for skipped files
-					if (progress != null) {
-						progress(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
-					}
+					progress?.Invoke(new FtpProgress(100.0, localPosition, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+
 					return FtpStatus.Skipped;
 				}
 
@@ -232,9 +229,7 @@ namespace FluentFTP {
 				}
 
 				// send progress reports
-				if (progress != null) {
-					progress(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
-				}
+				progress?.Invoke(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 
 				// disconnect FTP stream before exiting
 				upStream.Dispose();
