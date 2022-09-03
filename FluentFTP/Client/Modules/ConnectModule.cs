@@ -118,8 +118,8 @@ namespace FluentFTP.Client.Modules {
 
 						// unpack aggregate exception
 #if NET50_OR_LATER
-						if (ex is AggregateException) {
-							ex = ((AggregateException)ex).InnerExceptions[0];
+						if (ex is AggregateException aex) {
+							ex = aex.InnerExceptions[0];
 						}
 #endif
 
@@ -141,8 +141,8 @@ namespace FluentFTP.Client.Modules {
 							continue;
 						}
 
-						if (ex is AuthenticationException) {
-							throw new FtpInvalidCertificateException((AuthenticationException)ex);
+						if (ex is AuthenticationException aex) {
+							throw new FtpInvalidCertificateException(aex);
 						}
 
 						// if server does not support FTPS no point trying encryption again
@@ -280,8 +280,8 @@ namespace FluentFTP.Client.Modules {
 
 						// unpack aggregate exception
 #if NET50_OR_LATER
-						if (ex is AggregateException) {
-							ex = ((AggregateException)ex).InnerExceptions[0];
+						if (ex is AggregateException aex) {
+							ex = aex.InnerExceptions[0];
 						}
 #endif
 
@@ -303,8 +303,8 @@ namespace FluentFTP.Client.Modules {
 							continue;
 						}
 
-						if (ex is AuthenticationException) {
-							throw new FtpInvalidCertificateException((AuthenticationException)ex);
+						if (ex is AuthenticationException aex) {
+							throw new FtpInvalidCertificateException(aex);
 						}
 
 						// if server does not support FTPS no point trying encryption again
