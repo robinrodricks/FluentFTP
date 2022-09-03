@@ -13,9 +13,6 @@ using FluentFTP.Exceptions;
 using FluentFTP.Client.BaseClient;
 using System.Threading;
 using System.Threading.Tasks;
-#if NETFRAMEWORK
-using FluentFTP.Streams.NetFramework;
-#endif
 
 namespace FluentFTP {
 
@@ -1141,16 +1138,9 @@ namespace FluentFTP {
 
 		private void CreateSSlStream() {
 
-#if NETSTANDARD
-				m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
-					delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
-				));
-#endif
-#if NETFRAMEWORK
-			m_sslStream = new FtpSslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
-				delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
+			m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
+				delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
 			));
-#endif
 		}
 
 		/// <summary>
