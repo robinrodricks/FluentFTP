@@ -31,21 +31,9 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				// hide sensitive data from logs
-				var commandTxt = command;
-				if (command.StartsWith("USER", StringComparison.Ordinal)) {
-					commandTxt = "USER ***";
-				}
+				string commandClean = OnPostExecute(command);
 
-				if (command.StartsWith("PASS", StringComparison.Ordinal)) {
-					commandTxt = "PASS ***";
-				}
-
-				// A CWD will invalidate the cached value.
-				if (command.StartsWith("CWD ", StringComparison.Ordinal)) {
-					Status.LastWorkingDir = null;
-				}
-
-				Log(FtpTraceLevel.Info, "Command:  " + commandTxt);
+				Log(FtpTraceLevel.Info, "Command:  " + commandClean);
 
 				// send command to FTP server
 				m_stream.WriteLine(m_textEncoding, command);
@@ -56,5 +44,24 @@ namespace FluentFTP.Client.BaseClient {
 			return reply;
 		}
 
+		protected string OnPostExecute(string command) {
+
+			// hide sensitive data from logs
+			if (!Config.LogCredentials) {
+				if (command.StartsWith("USER", StringComparison.Ordinal)) {
+					command = "USER ***";
+				}
+				if (command.StartsWith("PASS", StringComparison.Ordinal)) {
+					command = "PASS ***";
+				}
+			}
+
+			// A CWD will invalidate the cached value.
+			if (command.StartsWith("CWD ", StringComparison.Ordinal)) {
+				Status.LastWorkingDir = null;
+			}
+
+			return command;
+		}
 	}
 }

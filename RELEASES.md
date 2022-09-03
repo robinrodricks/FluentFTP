@@ -18,8 +18,9 @@
    - New: Add logger system `client.Logger` using industry-standard `ILogger` interface
    - New: Add Nuget dependency `Microsoft.Extensions.Logging.Abstractions` v2.1.0
    - Renamed: Legacy logging callback `OnLogEvent` is now renamed to `LegacyLogger`
+   - Renamed: Logging settings: `LogPassword` and `LogUserName` merged into `LogCredentials`
+   - Renamed: Logging settings: `LogIP` renamed to `LogHost`
    - Remove logging settings as they are always enabled: `LogFunctions`
-   - Remove logging settings as sensitive data is always masked: `LogIP`, `LogUserName`, `LogPassword`
  - **FTP Proxies**
    - New: Split FTP proxy classes into `FtpClient*Proxy` and `AsyncFtpClient*Proxy`
    - New: FTP proxy classes moved into `FluentFTP.Proxy.SyncProxy` and `FluentFTP.Proxy.AsyncProxy` NS

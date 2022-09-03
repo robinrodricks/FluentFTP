@@ -863,12 +863,12 @@ namespace FluentFTP {
 					}
 				}
 
-				/*if (Client.Config.LogIP) {
+				if (Client.Config.LogHost) {
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
 				}
-				else {*/
+				else {
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "Connecting to ***:" + port);
-				//}
+				}
 
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 				BindSocketToLocalIp();
@@ -973,12 +973,12 @@ namespace FluentFTP {
 					}
 				}
 
-				/*if (Client.Config.LogIP) {
+				if (Client.Config.LogHost) {
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
 				}
-				else {*/
+				else {
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "Connecting to ***:" + port);
-				//}
+				}
 
 				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 				BindSocketToLocalIp();

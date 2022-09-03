@@ -41,6 +41,26 @@ namespace FluentFTP {
 			set => _logToConsole = value;
 		}
 
+		private bool _logHost = false;
+
+		/// <summary>
+		/// Should the FTP server host IP/domain be shown in the logs (true) or masked out (false)?
+		/// </summary>
+		public bool LogHost {
+			get => _logHost;
+			set => _logHost = value;
+		}
+
+		private bool _logCredentials = false;
+
+		/// <summary>
+		/// Should the FTP credentials be shown in the logs (true) or masked out (false)?
+		/// </summary>
+		public bool LogCredentials {
+			get => _logCredentials;
+			set => _logCredentials = value;
+		}
+
 		protected FtpIpVersion _ipVersions = FtpIpVersion.ANY;
 
 		/// <summary>
