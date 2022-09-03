@@ -83,7 +83,7 @@ namespace FluentFTP {
 			token.ThrowIfCancellationRequested();
 
 			// get all the already existing files
-			var remoteListing = checkFileExistence ? await GetListing(remoteFolder, FtpListOption.Recursive) : null;
+			var remoteListing = checkFileExistence ? await GetListing(remoteFolder, FtpListOption.Recursive, token) : null;
 
 			// break if task is cancelled
 			token.ThrowIfCancellationRequested();
