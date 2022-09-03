@@ -17,7 +17,7 @@ namespace FluentFTP.Proxy.AsyncProxy {
 		}
 
 		/// <summary> Redefine the first dialog: HTTP Frame for the HTTP 1.1 Proxy </summary>
-		protected virtual async Task HandshakeAsync(CancellationToken token = default) {
+		protected override async Task HandshakeAsync(CancellationToken token = default) {
 			var proxyConnectionReply = await GetReply(token);
 			if (!proxyConnectionReply.Success) {
 				throw new FtpException("Can't connect " + Host + " via proxy " + Proxy.ProxyHost + ".\nMessage : " +

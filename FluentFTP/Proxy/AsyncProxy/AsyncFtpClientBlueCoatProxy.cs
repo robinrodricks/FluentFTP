@@ -25,7 +25,7 @@ namespace FluentFTP.Proxy.AsyncProxy {
 		}
 
 		/// <summary> Redefine the first dialog: auth with proxy information </summary>
-		protected virtual async Task HandshakeAsync(CancellationToken token = default) {
+		protected override async Task HandshakeAsync(CancellationToken token = default) {
 			// Proxy authentication eventually needed.
 			if (Proxy.ProxyCredentials != null) {
 				await Authenticate(Proxy.ProxyCredentials.UserName, Proxy.ProxyCredentials.Password, Proxy.ProxyCredentials.Domain, token);
