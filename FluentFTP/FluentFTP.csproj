@@ -42,20 +42,7 @@
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     </PropertyGroup>
 
-    <ItemGroup Condition="$(DefineConstants.Contains('NETFX'))">
-        <Reference Include="System.Web" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.4' Or '$(TargetFramework)'=='netstandard1.6'">
-        <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
-        <PackageReference Include="System.Net.Security" Version="4.3.2" />
-        <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
-    </ItemGroup>
-
-    <ItemGroup>
+     <ItemGroup>
         <None Include="..\.github\logo-nuget.png">
             <Pack>True</Pack>
             <PackagePath></PackagePath>
@@ -64,10 +51,6 @@
             <Pack>True</Pack>
             <PackagePath></PackagePath>
         </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Client\AsyncClient\" />
     </ItemGroup>
 
     <ItemGroup>
