@@ -28,11 +28,11 @@ namespace FluentFTP {
 		public async Task<FtpStatus> UploadStream(Stream fileStream, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (fileStream == null) {
-				throw new ArgumentException("Required parameter is null or blank.", "fileStream");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(fileStream));
 			}
 
 			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
 			remotePath = remotePath.GetFtpPath();

@@ -14,7 +14,7 @@ namespace FluentFTP.Tests.Integration.System {
 
 			// If we are in CI pipeline
 			if (DockerFtpConfig.IsCI) {
-				
+
 				// just let the test pass
 				return;
 			}

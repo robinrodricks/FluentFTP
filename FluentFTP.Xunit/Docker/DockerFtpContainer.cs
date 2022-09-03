@@ -21,9 +21,9 @@ namespace FluentFTP.Xunit.Docker {
 		public virtual ITestcontainersBuilder<TestcontainersContainer> Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 			return builder;
 		}
-		
+
 		public virtual TestcontainersContainer Build() {
-			
+
 			var builder = new TestcontainersBuilder<TestcontainersContainer>()
 				.WithImage(DockerImage)
 				.WithName(ServerName)

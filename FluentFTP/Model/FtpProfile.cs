@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 using FluentFTP.Helpers;
 
 namespace FluentFTP {
-	
+
 #if NETFRAMEWORK
 	[Serializable]
 #endif

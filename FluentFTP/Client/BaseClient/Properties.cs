@@ -131,7 +131,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// the control connection.
 		/// </summary>
 		FtpSocketStream IInternalFtpClient.GetBaseStream() {
-			return m_stream; 
+			return m_stream;
 		}
 		void IInternalFtpClient.SetListingParser(FtpParser parser) {
 			CurrentListParser.CurrentParser = parser;

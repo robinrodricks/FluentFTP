@@ -13,7 +13,7 @@ namespace FluentFTP.Client.BaseClient {
 
 		public BaseFtpClient(FtpConfig config) {
 			CurrentListParser = new FtpListParser(this);
-			Config = config != null ? config : new FtpConfig();
+			Config = config ?? new FtpConfig();
 		}
 
 		#endregion

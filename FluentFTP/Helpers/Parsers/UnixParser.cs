@@ -306,7 +306,7 @@ namespace FluentFTP.Helpers.Parsers {
 			stamp.Append('-');
 
 			var field = values[index++];
-			if (field.IndexOf((char)':') < 0 && field.IndexOf((char)'.') < 0) {
+			if (field.IndexOf(':') < 0 && field.IndexOf('.') < 0) {
 				stamp.Append(field); // year
 				lastModified = ParseYear(client, stamp, DateTimeFormats1);
 			}
@@ -429,7 +429,7 @@ namespace FluentFTP.Helpers.Parsers {
 			stamp.Append('-').Append(values[index++]).Append('-');
 
 			var field = values[index++];
-			if (field.IndexOf((char)':') < 0) {
+			if (field.IndexOf(':') < 0) {
 				stamp.Append(field); // year
 				lastModified = ParseYear(client, stamp, DateTimeAltFormats1);
 			}

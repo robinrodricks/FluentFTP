@@ -4,7 +4,7 @@ using FluentFTP.Helpers;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
-		
+
 		/// <summary>
 		/// If reverse is false, converts the date provided by the FTP server into the timezone required locally.
 		/// If reverse is true, converts the local timezone date into the date required by the FTP server.
@@ -27,7 +27,7 @@ namespace FluentFTP.Client.BaseClient {
 					// convert UTC to local time if wanted (on .NET Core this is based on the LocalTimeZone property)
 					if (Config.TimeConversion == FtpDate.LocalTime) {
 #if NETSTANDARD
-					date = date + Config.GetLocalTimeOffset();
+						date = date + Config.GetLocalTimeOffset();
 #else
 						date = System.TimeZone.CurrentTimeZone.ToLocalTime(date);
 #endif
@@ -41,7 +41,7 @@ namespace FluentFTP.Client.BaseClient {
 					// convert local to UTC if wanted (on .NET Core this is based on the LocalTimeZone property)
 					if (Config.TimeConversion == FtpDate.LocalTime) {
 #if NETSTANDARD
-					date = date - Config.GetLocalTimeOffset();
+						date = date - Config.GetLocalTimeOffset();
 #else
 						date = System.TimeZone.CurrentTimeZone.ToUniversalTime(date);
 #endif

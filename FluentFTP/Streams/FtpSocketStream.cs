@@ -11,7 +11,6 @@ using System.Net;
 using FluentFTP.Helpers;
 using FluentFTP.Exceptions;
 using FluentFTP.Client.BaseClient;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentFTP {
@@ -135,7 +134,7 @@ namespace FluentFTP {
 				return m_sslStream != null;
 			}
 		}
-		
+
 		/// <summary>
 		/// The negotiated SSL/TLS protocol version. Will have a valid value after connection is complete.
 		/// </summary>
@@ -280,7 +279,7 @@ namespace FluentFTP {
 					return null;
 				}
 
-				return (IPEndPoint) m_socket.LocalEndPoint;
+				return (IPEndPoint)m_socket.LocalEndPoint;
 			}
 		}
 
@@ -293,7 +292,7 @@ namespace FluentFTP {
 					return null;
 				}
 
-				return (IPEndPoint) m_socket.RemoteEndPoint;
+				return (IPEndPoint)m_socket.RemoteEndPoint;
 			}
 		}
 
@@ -415,7 +414,7 @@ namespace FluentFTP {
 				var asyncResult = m_socket.BeginReceive(buffer, 0, buffer.Length, 0, null, null);
 				read = await EnableCancellation(
 					Task.Factory.FromAsync(asyncResult, m_socket.EndReceive),
-					token, 
+					token,
 					() => CloseSocket()
 				);
 			}
@@ -467,7 +466,8 @@ namespace FluentFTP {
 			if (!success) {
 				Close();
 				throw new TimeoutException("Timed out trying to read data from the socket stream!");
-			} else {
+			}
+			else {
 				ar.AsyncWaitHandle.Close();
 			}
 
@@ -526,7 +526,7 @@ namespace FluentFTP {
 
 			while (Read(buf, 0, buf.Length) > 0) {
 				data.Add(buf[0]);
-				if ((char) buf[0] == '\n') {
+				if ((char)buf[0] == '\n') {
 					line = encoding.GetString(data.ToArray()).Trim('\r', '\n');
 					break;
 				}
@@ -549,7 +549,7 @@ namespace FluentFTP {
 			while ((charRead = Read(buf, 0, buf.Length)) > 0) {
 				var firstByteToReadIdx = 0;
 
-				var separatorIdx = Array.IndexOf(buf, (byte) '\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array readed
+				var separatorIdx = Array.IndexOf(buf, (byte)'\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array readed
 
 				while (separatorIdx >= 0) // at least one '\n' returned
 				{
@@ -561,7 +561,7 @@ namespace FluentFTP {
 					yield return line;
 					data.Clear();
 
-					separatorIdx = Array.IndexOf(buf, (byte) '\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array readed
+					separatorIdx = Array.IndexOf(buf, (byte)'\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array readed
 				}
 
 				while (firstByteToReadIdx < charRead) // add all remaining characters to data
@@ -584,7 +584,7 @@ namespace FluentFTP {
 
 			while (await ReadAsync(buf, 0, buf.Length, token) > 0) {
 				data.Add(buf[0]);
-				if ((char) buf[0] == '\n') {
+				if ((char)buf[0] == '\n') {
 					line = encoding.GetString(data.ToArray()).Trim('\r', '\n');
 					break;
 				}
@@ -608,7 +608,7 @@ namespace FluentFTP {
 			while ((charRead = await ReadAsync(buf, 0, buf.Length, token)) > 0) {
 				var firstByteToReadIdx = 0;
 
-				var separatorIdx = Array.IndexOf(buf, (byte) '\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array read
+				var separatorIdx = Array.IndexOf(buf, (byte)'\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array read
 
 				while (separatorIdx >= 0) // at least one '\n' returned
 				{
@@ -620,7 +620,7 @@ namespace FluentFTP {
 					lines.Add(line);
 					data.Clear();
 
-					separatorIdx = Array.IndexOf(buf, (byte) '\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array read
+					separatorIdx = Array.IndexOf(buf, (byte)'\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array read
 				}
 
 				while (firstByteToReadIdx < charRead) // add all remaining characters to data
@@ -995,7 +995,7 @@ namespace FluentFTP {
 				await EnableCancellation(Task.Factory.FromAsync(connectResult, m_socket.EndConnect), token, () => CloseSocket());
 				break;
 #endif
-					}
+			}
 
 			// make sure that we actually connected to
 			// one of the addresses returned from GetHostAddresses()
@@ -1089,11 +1089,8 @@ namespace FluentFTP {
 #endif
 				}
 				catch (IOException ex) {
-					if (ex.InnerException is Win32Exception) {
-						var win32Exception = (Win32Exception)ex.InnerException;
-						if (win32Exception.NativeErrorCode == 10053) {
-							throw new FtpMissingSocketException(ex);
-						}
+					if (ex.InnerException is Win32Exception { NativeErrorCode: 10053 }) {
+						throw new FtpMissingSocketException(ex);
 					}
 
 					throw;
@@ -1117,7 +1114,7 @@ namespace FluentFTP {
 		private void CreateSSlStream() {
 
 			m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
-				delegate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
+				delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
 			));
 		}
 
@@ -1128,10 +1125,10 @@ namespace FluentFTP {
 			// Fix: SSL BufferStream is automatically disabled when using FTP proxies, and enabled in all other cases
 			// Fix: SSL Buffering is disabled on .NET 5.0 and later due to issues in .NET framework - See #682
 #if NET50_OR_LATER
-				m_bufStream = null;
+			m_bufStream = null;
 #else
 			if (Client.Config.SslBuffering == FtpsBuffering.On ||
-			    Client.Config.SslBuffering == FtpsBuffering.Auto && !Client.IsProxy()) {
+				Client.Config.SslBuffering == FtpsBuffering.Auto && !Client.IsProxy()) {
 				m_bufStream = new BufferedStream(NetworkStream, 81920);
 			}
 			else {
@@ -1182,11 +1179,8 @@ namespace FluentFTP {
 					await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
 				}
 				catch (IOException ex) {
-					if (ex.InnerException is Win32Exception) {
-						var win32Exception = (Win32Exception) ex.InnerException;
-						if (win32Exception.NativeErrorCode == 10053) {
-							throw new FtpMissingSocketException(ex);
-						}
+					if (ex.InnerException is Win32Exception { NativeErrorCode: 10053 }) {
+						throw new FtpMissingSocketException(ex);
 					}
 
 					throw;
@@ -1338,7 +1332,7 @@ namespace FluentFTP {
 				return;
 			}
 
-			var connectEvent = (ManualResetEvent) args.UserToken;
+			var connectEvent = (ManualResetEvent)args.UserToken;
 			if (!connectEvent.WaitOne(timeout)) {
 				Close();
 				throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
@@ -1349,7 +1343,7 @@ namespace FluentFTP {
 
 		private void CheckResult(SocketAsyncEventArgs args) {
 			if (args.SocketError != SocketError.Success) {
-				throw new SocketException((int) args.SocketError);
+				throw new SocketException((int)args.SocketError);
 			}
 
 			m_socket = args.AcceptSocket;

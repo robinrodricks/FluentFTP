@@ -14,7 +14,7 @@ namespace Examples {
 				conn.CreateDirectory("/test/path/that/should/be/created", true);
 			}
 		}
-		
+
 		public static async Task CreateDirectoryAsync() {
 			var token = new CancellationToken();
 			using (var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {

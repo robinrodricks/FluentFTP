@@ -19,7 +19,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Return true if your server is detected by the given FTP server welcome message.
 		/// </summary>
 		public override bool DetectByWelcome(string message) {
-			
+
 			// Detect vsFTPd server
 			// Welcome message: "(vsFTPd 3.0.3)"
 			if (message.Contains("(vsFTPd")) {

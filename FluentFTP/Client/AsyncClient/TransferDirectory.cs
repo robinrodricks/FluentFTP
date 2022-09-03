@@ -41,11 +41,11 @@ namespace FluentFTP {
 			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			if (sourceFolder.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "sourceFolder");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(sourceFolder));
 			}
 
 			if (remoteFolder.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remoteFolder");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(remoteFolder));
 			}
 
 			// cleanup the FTP paths

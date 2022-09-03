@@ -26,11 +26,11 @@ namespace FluentFTP {
 		public bool DownloadStream(Stream outStream, string remotePath, long restartPosition = 0, Action<FtpProgress> progress = null) {
 			// verify args
 			if (outStream == null) {
-				throw new ArgumentException("Required parameter is null or blank.", "outStream");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(outStream));
 			}
 
 			if (remotePath.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remotePath");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
 			remotePath = remotePath.GetFtpPath();

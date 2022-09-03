@@ -44,7 +44,7 @@ namespace FluentFTP {
 			}
 
 			if (remoteDir.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "remoteDir");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(remoteDir));
 			}
 
 			remoteDir = remoteDir.GetFtpPath();

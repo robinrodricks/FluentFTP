@@ -15,11 +15,7 @@ namespace FluentFTP {
 		public virtual void SetModifiedTime(string path, DateTime date) {
 			// verify args
 			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", "path");
-			}
-
-			if (date == null) {
-				throw new ArgumentException("Required parameter is null or blank.", "date");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
 			path = path.GetFtpPath();

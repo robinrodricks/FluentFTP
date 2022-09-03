@@ -22,12 +22,12 @@ namespace FluentFTP.Helpers {
 				return true;
 			}
 
-			if (value is IList) {
-				return ((IList)value).Count == 0;
+			if (value is IList list) {
+				return list.Count == 0;
 			}
 
-			if (value is byte[]) {
-				return ((byte[])value).Length == 0;
+			if (value is byte[] bytes) {
+				return bytes.Length == 0;
 			}
 
 			return false;
@@ -48,7 +48,7 @@ namespace FluentFTP.Helpers {
 					txt = "null";
 				}
 				else if (v is string) {
-					txt = "\"" + v as string + "\"";
+					txt = "\"" + v + "\"";
 				}
 				else {
 					txt = v.ToString();

@@ -23,11 +23,11 @@ namespace FluentFTP.Client.Modules {
 		/// Detect the FTP Server based on the welcome message sent by the server after getting the 220 connection command.
 		/// Its the primary method.
 		/// </summary>
-		public static FtpServer DetectFtpServer(BaseFtpClient client, FtpReply HandshakeReply) {
+		public static FtpServer DetectFtpServer(BaseFtpClient client, FtpReply handshakeReply) {
 			var serverType = client.ServerType;
 
-			if (HandshakeReply.Success && (HandshakeReply.Message != null || HandshakeReply.InfoMessages != null)) {
-				var message = (HandshakeReply.Message ?? "") + (HandshakeReply.InfoMessages ?? "");
+			if (handshakeReply.Success && (handshakeReply.Message != null || handshakeReply.InfoMessages != null)) {
+				var message = (handshakeReply.Message ?? "") + (handshakeReply.InfoMessages ?? "");
 
 				// try to detect any of the servers
 				foreach (var server in FtpHandlerIndex.AllServers) {

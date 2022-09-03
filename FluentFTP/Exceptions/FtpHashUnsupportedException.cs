@@ -39,7 +39,7 @@ namespace FluentFTP {
 		/// </summary>
 		public FtpHashUnsupportedException(FtpHashAlgorithm algo, string specialCommands)
 			: base("Hash algorithm " + algo.PrintToString() + " is unsupported by your server using the HASH command or the " +
-				  specialCommands + " command(s). "+
+				  specialCommands + " command(s). " +
 				  "Use another algorithm or use FtpHashAlgorithm.NONE to select the first available algorithm.") {
 
 			Algorithm = algo;

@@ -17,10 +17,10 @@ namespace Examples {
 
 				// upload a folder and all its files
 				ftp.UploadDirectory(@"C:\website\videos\", @"/public_html/videos", FtpFolderSyncMode.Update);
-				
+
 				// upload a folder and all its files, and delete extra files on the server
 				ftp.UploadDirectory(@"C:\website\assets\", @"/public_html/assets", FtpFolderSyncMode.Mirror);
-				
+
 			}
 		}
 
@@ -32,10 +32,10 @@ namespace Examples {
 
 				// upload a folder and all its files
 				await ftp.UploadDirectory(@"C:\website\videos\", @"/public_html/videos", FtpFolderSyncMode.Update, token: token);
-				
+
 				// upload a folder and all its files, and delete extra files on the server
 				await ftp.UploadDirectory(@"C:\website\assets\", @"/public_html/assets", FtpFolderSyncMode.Mirror, token: token);
-				
+
 			}
 		}
 

@@ -371,7 +371,6 @@ namespace FluentFTP {
 		/// </remarks>
 		/// <param name="path">The path to list</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <param name="enumToken">The token that can be used to cancel the enumerator</param>
 		/// <returns>An array of items retrieved in the listing</returns>
 		public Task<FtpListItem[]> GetListing(string path, CancellationToken token = default(CancellationToken)) {
 			return GetListing(path, 0, token);
@@ -447,7 +446,6 @@ namespace FluentFTP {
 		/// <param name="path">The path of the directory to list</param>
 		/// <param name="options">Options that dictate how a list is performed and what information is gathered.</param>
 		/// <param name="token"></param>
-		/// <param name="enumToken"></param>
 		/// <returns>An array of FtpListItem objects</returns>
 		protected async Task<FtpListItem[]> GetListingRecursive(string path, FtpListOption options, CancellationToken token) {
 

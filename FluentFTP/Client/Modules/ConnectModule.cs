@@ -17,7 +17,7 @@ namespace FluentFTP.Client.Modules {
 		};
 
 		private static List<SysSslProtocols> DefaultProtocolPriority = new List<SysSslProtocols> {
-			
+
 			SysSslProtocols.Tls12 | SysSslProtocols.Tls11,
 
 			// fix #907: support TLS 1.3 in .NET 5+
@@ -118,8 +118,8 @@ namespace FluentFTP.Client.Modules {
 
 						// unpack aggregate exception
 #if NET50_OR_LATER
-						if (ex is AggregateException) {
-							ex = ((AggregateException)ex).InnerExceptions[0];
+						if (ex is AggregateException aex) {
+							ex = aex.InnerExceptions[0];
 						}
 #endif
 
@@ -131,18 +131,18 @@ namespace FluentFTP.Client.Modules {
 						if (IsProtocolFailure(ex)) {
 #if NET50_OR_LATER
 							if (protocol == SysSslProtocols.Tls13) {
-								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3"); ;
+								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3");
 							}
 							else {
-								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3"); ;
+								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3");
 							}
 #endif
 							tryTLS13 = true;
 							continue;
 						}
 
-						if (ex is AuthenticationException) {
-							throw new FtpInvalidCertificateException((AuthenticationException)ex);
+						if (ex is AuthenticationException authEx) {
+							throw new FtpInvalidCertificateException(authEx);
 						}
 
 						// if server does not support FTPS no point trying encryption again
@@ -280,8 +280,8 @@ namespace FluentFTP.Client.Modules {
 
 						// unpack aggregate exception
 #if NET50_OR_LATER
-						if (ex is AggregateException) {
-							ex = ((AggregateException)ex).InnerExceptions[0];
+						if (ex is AggregateException aex) {
+							ex = aex.InnerExceptions[0];
 						}
 #endif
 
@@ -293,18 +293,18 @@ namespace FluentFTP.Client.Modules {
 						if (IsProtocolFailure(ex)) {
 #if NET50_OR_LATER
 							if (protocol == SysSslProtocols.Tls13) {
-								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3"); ;
+								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3");
 							}
 							else {
-								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3"); ;
+								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3");
 							}
 #endif
 							tryTLS13 = true;
 							continue;
 						}
 
-						if (ex is AuthenticationException) {
-							throw new FtpInvalidCertificateException((AuthenticationException)ex);
+						if (ex is AuthenticationException authEx) {
+							throw new FtpInvalidCertificateException(authEx);
 						}
 
 						// if server does not support FTPS no point trying encryption again
@@ -404,8 +404,7 @@ namespace FluentFTP.Client.Modules {
 
 			// catch error starting implicit FTPS and don't try any more secure connections
 			if (encryption == FtpEncryptionMode.Implicit) {
-				if ((ex is SocketException && (ex as SocketException).SocketErrorCode == SocketError.ConnectionRefused)
-					|| ex is TimeoutException) {
+				if (ex is SocketException { SocketErrorCode: SocketError.ConnectionRefused } or TimeoutException) {
 
 					// ban implicit FTPS
 					blacklistedEncryptions.Add(encryption);
@@ -438,7 +437,7 @@ namespace FluentFTP.Client.Modules {
 		private static bool IsPermanantConnectionFailure(Exception ex) {
 
 			// catch error "no such host is known" and hard abort
-			if (ex is SocketException && ((SocketException)ex).SocketErrorCode == SocketError.HostNotFound) {
+			if (ex is SocketException { SocketErrorCode: SocketError.HostNotFound }) {
 				return true;
 			}
 
@@ -448,12 +447,11 @@ namespace FluentFTP.Client.Modules {
 			}
 
 			// catch authentication error and hard abort (see issue #697)
-			if (ex is FtpAuthenticationException) {
+			if (ex is FtpAuthenticationException authError) {
 
 				// only catch auth error if the credentials have been rejected by the server
 				// because the error is also thrown if connection drops due to TLS or EncryptionMode
 				// (see issue #700 for more details)
-				var authError = ex as FtpAuthenticationException;
 				if (authError.CompletionCode != null && authError.CompletionCode.StartsWith("530")) {
 					return true;
 				}
@@ -487,7 +485,7 @@ namespace FluentFTP.Client.Modules {
 
 			// verify args
 			if (profile == null) {
-				throw new ArgumentException("Required parameter is null or blank.", "profile");
+				throw new ArgumentException("Required parameter is null or blank.", nameof(profile));
 			}
 			if (profile.Host.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", "profile.Host");
@@ -526,14 +524,14 @@ namespace FluentFTP.Client.Modules {
 		public static void SetDefaultCertificateValidation(BaseFtpClient client, FtpProfile profile) {
 			if (profile.Encryption != FtpEncryptionMode.None) {
 				//if (client.ValidateCertificate == null) {
-					client.ValidateCertificate += new FtpSslValidation(delegate (BaseFtpClient c, FtpSslValidationEventArgs e) {
-						if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
-							e.Accept = false;
-						}
-						else {
-							e.Accept = true;
-						}
-					});
+				client.ValidateCertificate += new FtpSslValidation(delegate (BaseFtpClient c, FtpSslValidationEventArgs e) {
+					if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
+						e.Accept = false;
+					}
+					else {
+						e.Accept = true;
+					}
+				});
 				//}
 			}
 		}
@@ -577,9 +575,9 @@ namespace FluentFTP.Client.Modules {
 				return true;
 			}
 
-			if (ex is AuthenticationException &&
-				((AuthenticationException)ex).InnerException != null &&
-				((AuthenticationException)ex).InnerException.Message.ToLower().ContainsAny(ServerStringModule.failedTLS)) {
+			if (ex is AuthenticationException authEx &&
+				authEx.InnerException != null &&
+				authEx.InnerException.Message.ToLower().ContainsAny(ServerStringModule.failedTLS)) {
 				return true;
 			}
 

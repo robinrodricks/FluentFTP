@@ -111,9 +111,7 @@ namespace FluentFTP {
 
 									//Fix #413 - progress callback isn't called if the file has already been uploaded to the server
 									//send progress reports
-									if (progress != null) {
-										progress.Report(new FtpProgress(100.0, 0, 0, TimeSpan.FromSeconds(0), sourcePath, remotePath, metaProgress));
-									}
+									progress?.Report(new FtpProgress(100.0, 0, 0, TimeSpan.FromSeconds(0), sourcePath, remotePath, metaProgress));
 
 									return true;
 								}

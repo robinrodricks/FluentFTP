@@ -71,7 +71,7 @@ namespace FluentFTP {
 			m_serverType = ServerModule.DetectFtpServer(this, HandshakeReply);
 
 			if (Config.SendHost) {
-				if (!(reply = await Execute("HOST " + (Config.SendHostDomain != null ? Config.SendHostDomain : Host), token)).Success) {
+				if (!(reply = await Execute("HOST " + (Config.SendHostDomain ?? Host), token)).Success) {
 					throw new FtpException("HOST command failed.");
 				}
 			}

@@ -139,9 +139,7 @@ namespace FluentFTP {
 				sw.Stop();
 
 				// disconnect FTP stream before exiting
-				if (outStream != null) {
-					outStream.Flush();
-				}
+				outStream?.Flush();
 				downStream.Dispose();
 
 				// Fix #552: close the filestream if it was created in this method
@@ -151,9 +149,7 @@ namespace FluentFTP {
 				}
 
 				// send progress reports
-				if (progress != null) {
-					progress(new FtpProgress(100.0, offset, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
-				}
+				progress?.Invoke(new FtpProgress(100.0, offset, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FluentFTP.Xunit.Docker {
 	internal static class DockerFtpContainerIndex {
-		
+
 		public static List<DockerFtpContainer> Index = new List<DockerFtpContainer> {
 			new ProFtpdContainer(),
 			new PureFtpdContainer(),
