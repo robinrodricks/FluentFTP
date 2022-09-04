@@ -159,14 +159,6 @@ namespace FluentFTP {
 		private SslStream m_sslStream = null;
 
 		/// <summary>
-		/// The encrypted stream
-		/// </summary>
-		private SslStream SslStream {
-			get => m_sslStream;
-			set => m_sslStream = value;
-		}
-
-		/// <summary>
 		/// Gets the underlying stream, could be a NetworkStream or SslStream
 		/// </summary>
 		protected Stream BaseStream {

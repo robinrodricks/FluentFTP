@@ -31,48 +31,25 @@ namespace FluentFTP {
 			get => _client;
 		}
 
-		private bool _logToConsole = false;
-
 		/// <summary>
 		/// Should the function calls be logged in Verbose mode?
 		/// </summary>
-		public bool LogToConsole {
-			get => _logToConsole;
-			set => _logToConsole = value;
-		}
-
-		private bool _logHost = false;
+		public bool LogToConsole { get; set; } = false;
 
 		/// <summary>
 		/// Should the FTP server host IP/domain be shown in the logs (true) or masked out (false)?
 		/// </summary>
-		public bool LogHost {
-			get => _logHost;
-			set => _logHost = value;
-		}
-
-		private bool _logUserName = false;
+		public bool LogHost { get; set; } =false;
 
 		/// <summary>
 		/// Should the FTP username be shown in the logs (true) or masked out (false)?
 		/// </summary>
-		public bool LogUserName {
-			get => _logUserName;
-			set => _logUserName = value;
-		}
-
-
-		private bool _logPassword = false;
+		public bool LogUserName { get; set; } =false;
 
 		/// <summary>
 		/// Should the FTP password be shown in the logs (true) or masked out (false)?
 		/// </summary>
-		public bool LogPassword {
-			get => _logPassword;
-			set => _logPassword = value;
-		}
-
-		protected FtpIpVersion _ipVersions = FtpIpVersion.ANY;
+		public bool LogPassword { get; set; } =false;
 
 		/// <summary>
 		/// Flags specifying which versions of the internet protocol (IPV4 or IPV6) to
@@ -83,10 +60,7 @@ namespace FluentFTP {
 		/// to FtpIpVersion.IPv4 will cause the connection process to
 		/// ignore IPv6 addresses. The default value is ANY version.
 		/// </summary>
-		public FtpIpVersion InternetProtocolVersions {
-			get => _ipVersions;
-			set => _ipVersions = value;
-		}
+		public FtpIpVersion InternetProtocolVersions { get; set; } =FtpIpVersion.ANY;
 
 		protected int _socketPollInterval = 15000;
 
@@ -115,8 +89,6 @@ namespace FluentFTP {
 			}
 		}
 
-		protected bool _staleDataTest = true;
-
 		/// <summary>
 		/// Gets or sets a value indicating whether a test should be performed to
 		/// see if there is stale (unrequested data) sitting on the socket. In some
@@ -132,12 +104,7 @@ namespace FluentFTP {
 		/// for more details about the Azure problem:
 		/// https://netftp.codeplex.com/discussions/535879
 		/// </summary>
-		public bool StaleDataCheck {
-			get => _staleDataTest;
-			set => _staleDataTest = value;
-		}
-
-		protected int _noopInterval = 0;
+		public bool StaleDataCheck { get; set; } = true;
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds after last command
@@ -147,82 +114,44 @@ namespace FluentFTP {
 		/// interval to 0 disables <see cref="Noop"/> all together.
 		/// The default value is 0 (disabled).
 		/// </summary>
-		public int NoopInterval {
-			get => _noopInterval;
-			set => _noopInterval = value;
-		}
-
-		protected bool _checkCapabilities = true;
+		public int NoopInterval { get; set; } = 0;
 
 		/// <summary>
 		/// When this value is set to true (default) the control connection
 		/// will set which features are available by executing the FEAT command
 		/// when the connect method is called.
 		/// </summary>
-		public bool CheckCapabilities {
-			get => _checkCapabilities;
-			set => _checkCapabilities = value;
-		}
-
-		protected X509CertificateCollection _clientCerts = new X509CertificateCollection();
+		public bool CheckCapabilities { get; set; } =true;
 
 		/// <summary>
 		/// Client certificates to be used in SSL authentication process
 		/// </summary>
-		public X509CertificateCollection ClientCertificates {
-			get => _clientCerts;
-			protected set => _clientCerts = value;
-		}
-
-		// Holds the cached resolved address
-		protected string _Address;
-
-		protected Func<string> _AddressResolver;
+		public X509CertificateCollection ClientCertificates { get; protected set; } = new X509CertificateCollection();
 
 		/// <summary>
 		/// Delegate used for resolving local address, used for active data connections
 		/// This can be used in case you're behind a router, but port forwarding is configured to forward the
 		/// ports from your router to your internal IP. In that case, we need to send the router's IP instead of our internal IP.
 		/// </summary>
-		public Func<string> AddressResolver {
-			get => _AddressResolver;
-			set => _AddressResolver = value;
-		}
-
-		protected IEnumerable<int> _ActivePorts;
+		public Func<string> AddressResolver { get; set; }
 
 		/// <summary>
 		/// Ports used for Active Data Connection.
 		/// Useful when your FTP server has certain ports that are blocked or used for other purposes.
 		/// </summary>
-		public IEnumerable<int> ActivePorts {
-			get => _ActivePorts;
-			set => _ActivePorts = value;
-		}
-
-		protected IEnumerable<int> _PassiveBlockedPorts;
+		public IEnumerable<int> ActivePorts { get; set; }
 
 		/// <summary>
 		/// Ports blocked for Passive Data Connection (PASV and EPSV).
 		/// Useful when your FTP server has certain ports that are blocked or used for other purposes.
 		/// </summary>
-		public IEnumerable<int> PassiveBlockedPorts {
-			get => _PassiveBlockedPorts;
-			set => _PassiveBlockedPorts = value;
-		}
-
-		protected int _PassiveMaxAttempts = 100;
+		public IEnumerable<int> PassiveBlockedPorts { get; set; }
 
 		/// <summary>
 		/// Maximum number of passive connections made in order to find a working port for Passive Data Connection (PASV and EPSV).
 		/// Only used if PassiveBlockedPorts is non-null.
 		/// </summary>
-		public int PassiveMaxAttempts {
-			get => _PassiveMaxAttempts;
-			set => _PassiveMaxAttempts = value;
-		}
-
-		protected FtpDataConnectionType _dataConnectionType = FtpDataConnectionType.AutoPassive;
+		public int PassiveMaxAttempts { get; set; } = 100;
 
 		/// <summary>
 		/// Data connection type, default is AutoPassive which tries
@@ -232,77 +161,44 @@ namespace FluentFTP {
 		/// by defining a specific type of passive or active data
 		/// connection here.
 		/// </summary>
-		public FtpDataConnectionType DataConnectionType {
-			get => _dataConnectionType;
-			set => _dataConnectionType = value;
-		}
-
-		protected bool _DisconnectWithQuit = true;
+		public FtpDataConnectionType DataConnectionType { get; set; } =FtpDataConnectionType.AutoPassive;
 
 		/// <summary>
 		/// Disconnect from the server without sending QUIT. This helps
 		/// work around IOExceptions caused by buggy connection resets
 		/// when closing the control connection.
 		/// </summary>
-		public bool DisconnectWithQuit {
-			get => _DisconnectWithQuit;
-			set => _DisconnectWithQuit = value;
-		}
-
-		protected bool _DisconnectWithShutdown = false;
+		public bool DisconnectWithQuit { get; set; } =true;
 
 		/// <summary>
 		/// Before we disconnect from the server, send the Shutdown signal on the socket stream.
 		/// </summary>
-		public bool DisconnectWithShutdown {
-			get => _DisconnectWithShutdown;
-			set => _DisconnectWithShutdown = value;
-		}
-
-		protected int _connectTimeout = 15000;
+		public bool DisconnectWithShutdown { get; set; } = false;
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds to wait for a connection 
 		/// attempt to succeed before giving up. Default is 15000 (15 seconds).
 		/// </summary>
-		public int ConnectTimeout {
-			get => _connectTimeout;
-			set => _connectTimeout = value;
-		}
-
-		protected int _readTimeout = 15000;
+		public int ConnectTimeout { get; set; }= 15000;
 
 		/// <summary>
 		/// Gets or sets the length of time wait in milliseconds for data to be
 		/// read from the underlying stream. The default value is 15000 (15 seconds).
 		/// </summary>
-		public int ReadTimeout {
-			get => _readTimeout;
-			set => _readTimeout = value;
-		}
-
-		protected int _dataConnectionConnectTimeout = 15000;
+		public int ReadTimeout { get; set; } = 15000;
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds for a data connection
 		/// to be established before giving up. Default is 15000 (15 seconds).
 		/// </summary>
-		public int DataConnectionConnectTimeout {
-			get => _dataConnectionConnectTimeout;
-			set => _dataConnectionConnectTimeout = value;
-		}
-
-		protected int _dataConnectionReadTimeout = 15000;
+		public int DataConnectionConnectTimeout { get; set; } = 15000;
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds the data channel
 		/// should wait for the server to send data. Default value is 
 		/// 15000 (15 seconds).
 		/// </summary>
-		public int DataConnectionReadTimeout {
-			get => _dataConnectionReadTimeout;
-			set => _dataConnectionReadTimeout = value;
-		}
+		public int DataConnectionReadTimeout { get; set; } = 15000;
 
 		protected bool _keepAlive = false;
 
@@ -327,62 +223,35 @@ namespace FluentFTP {
 			}
 		}
 
-		protected FtpEncryptionMode _encryptionmode = FtpEncryptionMode.None;
-
 		/// <summary>
 		/// Type of SSL to use, or none. Default is none. Explicit is TLS, Implicit is SSL.
 		/// </summary>
-		public FtpEncryptionMode EncryptionMode {
-			get => _encryptionmode;
-			set => _encryptionmode = value;
-		}
-
-		protected bool _dataConnectionEncryption = true;
+		public FtpEncryptionMode EncryptionMode { get; set; } = FtpEncryptionMode.None;
 
 		/// <summary>
 		/// Indicates if data channel transfers should be encrypted. Only valid if <see cref="EncryptionMode"/>
 		/// property is not equal to <see cref="FtpEncryptionMode.None"/>.
 		/// </summary>
-		public bool DataConnectionEncryption {
-			get => _dataConnectionEncryption;
-			set => _dataConnectionEncryption = value;
-		}
-
-		protected SslProtocols _SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
+		public bool DataConnectionEncryption { get; set; } = true;
 
 		/// <summary>
 		/// Encryption protocols to use. Only valid if EncryptionMode property is not equal to <see cref="FtpEncryptionMode.None"/>.
 		/// Default value is .NET Framework defaults from the <see cref="System.Net.Security.SslStream"/> class.
 		/// </summary>
-		public SslProtocols SslProtocols {
-			get => _SslProtocols;
-			set => _SslProtocols = value;
-		}
-
-		protected FtpsBuffering _SslBuffering = FtpsBuffering.Auto;
+		public SslProtocols SslProtocols { get; set; } = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
 
 		/// <summary>
 		/// Whether to use SSL Buffering to speed up data transfer during FTP operations.
 		/// SSL Buffering is always disabled on .NET 5.0 and later due to platform issues (see issue 682 in FluentFTP issue tracker).
 		/// </summary>
-		public FtpsBuffering SslBuffering {
-			get => _SslBuffering;
-			set => _SslBuffering = value;
-		}
-
-		protected bool _ValidateAnyCertificate = false;
+		public FtpsBuffering SslBuffering { get; set; } = FtpsBuffering.Auto;
 
 		/// <summary>
 		/// Accept any SSL certificate received from the server and skip performing
 		/// the validation using the ValidateCertificate callback.
 		/// Useful for Powershell users.
 		/// </summary>
-		public bool ValidateAnyCertificate {
-			get => _ValidateAnyCertificate;
-			set => _ValidateAnyCertificate = value;
-		}
-
-		protected bool _ValidateCertificateRevocation = false;
+		public bool ValidateAnyCertificate { get; set; } = false;
 
 		/// <summary>
 		/// Indicates if the certificate revocation list is checked during authentication.
@@ -390,20 +259,12 @@ namespace FluentFTP {
 		/// but skip the certificate revocation check.
 		/// WARNING: Enabling this can cause memory leaks in some conditions (see issue #710 for details).
 		/// </summary>
-		public bool ValidateCertificateRevocation {
-			get => _ValidateCertificateRevocation;
-			set => _ValidateCertificateRevocation = value;
-		}
-
-		protected FtpDataType _ListingDataType = FtpDataType.Binary;
+		public bool ValidateCertificateRevocation { get; set; } = false;
 
 		/// <summary>
 		/// Controls if the file listings are downloaded in Binary or ASCII mode.
 		/// </summary>
-		public FtpDataType ListingDataType {
-			get => _ListingDataType;
-			set => _ListingDataType = value;
-		}
+		public FtpDataType ListingDataType { get; set; } = FtpDataType.Binary;
 
 		protected FtpParser _parser = FtpParser.Auto;
 
@@ -424,15 +285,10 @@ namespace FluentFTP {
 			}
 		}
 
-		protected CultureInfo _parserCulture = CultureInfo.InvariantCulture;
-
 		/// <summary>
 		/// Culture used to parse file listings
 		/// </summary>
-		public CultureInfo ListingCulture {
-			get => _parserCulture;
-			set => _parserCulture = value;
-		}
+		public CultureInfo ListingCulture { get; set; } = CultureInfo.InvariantCulture;
 
 		protected CustomParser _customParser = null;
 
@@ -527,8 +383,6 @@ namespace FluentFTP {
 		}
 #endif
 
-		protected FtpDate _timeConversion = FtpDate.ServerTime;
-
 		/// <summary>
 		/// Server timestamps are converted into the given timezone.
 		/// ServerTime will return the original timestamp.
@@ -536,14 +390,7 @@ namespace FluentFTP {
 		/// UTC will convert the timestamp into UTC format (GMT+0).
 		/// You need to set TimeZone and LocalTimeZone (.NET core only) for these to work.
 		/// </summary>
-		public FtpDate TimeConversion {
-			get => _timeConversion;
-			set {
-				_timeConversion = value;
-			}
-		}
-
-		protected bool _bulkListing = true;
+		public FtpDate TimeConversion { get; set; } = FtpDate.ServerTime;
 
 		/// <summary>
 		/// If true, increases performance of GetListing by reading multiple lines
@@ -553,44 +400,26 @@ namespace FluentFTP {
 		/// 
 		/// The number of bytes read is based upon <see cref="BulkListingLength"/>.
 		/// </summary>
-		public bool BulkListing {
-			get => _bulkListing;
-			set => _bulkListing = value;
-		}
-
-		protected int _bulkListingLength = 128;
+		public bool BulkListing { get; set; } = true;
 
 		/// <summary>
 		/// Bytes to read during GetListing. Only honored if <see cref="BulkListing"/> is true.
 		/// </summary>
-		public int BulkListingLength {
-			get => _bulkListingLength;
-			set => _bulkListingLength = value;
-		}
-
-		protected int? _transferChunkSize;
+		public int BulkListingLength { get; set; } = 128;
 
 		/// <summary>
 		/// Gets or sets the number of bytes transferred in a single chunk (a single FTP command).
 		/// Used by <see cref="o:UploadFile"/>/<see cref="o:UploadFileAsync"/> and <see cref="o:DownloadFile"/>/<see cref="o:DownloadFileAsync"/>
 		/// to transfer large files in multiple chunks.
 		/// </summary>
-		public int TransferChunkSize {
-			get => _transferChunkSize ?? 65536;
-			set => _transferChunkSize = value;
-		}
-
-		protected int? _localFileBufferSize;
+		public int TransferChunkSize { get; set; } = 65536;
 
 		/// <summary>
 		/// Gets or sets the size of the file buffer when reading and writing files on the local file system.
 		/// Used by <see cref="o:UploadFile"/>/<see cref="o:UploadFileAsync"/> and <see cref="o:DownloadFile"/>/<see cref="o:DownloadFileAsync"/>
 		/// and all the other file and directory transfer methods.
 		/// </summary>
-		public int LocalFileBufferSize {
-			get => _localFileBufferSize ?? 4096;
-			set => _localFileBufferSize = value;
-		}
+		public int LocalFileBufferSize { get; set; } = 4096;
 
 		protected int _retryAttempts = 3;
 
@@ -603,60 +432,33 @@ namespace FluentFTP {
 			set => _retryAttempts = value > 0 ? value : 1;
 		}
 
-		protected uint _uploadRateLimit = 0;
-
 		/// <summary>
 		/// Rate limit for uploads in kbyte/s. Set this to 0 for unlimited speed.
 		/// Honored by high-level API such as Upload(), Download(), UploadFile(), DownloadFile()..
 		/// </summary>
-		public uint UploadRateLimit {
-			get => _uploadRateLimit;
-			set => _uploadRateLimit = value;
-		}
-
-		protected uint _downloadRateLimit = 0;
+		public uint UploadRateLimit { get; set; } = 0;
 
 		/// <summary>
 		/// Rate limit for downloads in kbytes/s. Set this to 0 for unlimited speed.
 		/// Honored by high-level API such as Upload(), Download(), UploadFile(), DownloadFile()..
 		/// </summary>
-		public uint DownloadRateLimit {
-			get => _downloadRateLimit;
-			set => _downloadRateLimit = value;
-		}
-
-		protected bool _DownloadZeroByteFiles = true;
+		public uint DownloadRateLimit { get; set; } = 0;
 
 		/// <summary>
 		/// Controls if zero-byte files should be downloaded or skipped.
 		/// If false, then no file is created/overwritten into the filesystem.
 		/// </summary>
-		public bool DownloadZeroByteFiles {
-			get => _DownloadZeroByteFiles;
-			set => _DownloadZeroByteFiles = value;
-		}
-
-		protected FtpDataType _UploadDataType = FtpDataType.Binary;
+		public bool DownloadZeroByteFiles { get; set; } = true;
 
 		/// <summary>
 		/// Controls if the high-level API uploads files in Binary or ASCII mode.
 		/// </summary>
-		public FtpDataType UploadDataType {
-			get => _UploadDataType;
-			set => _UploadDataType = value;
-		}
-
-		protected FtpDataType _DownloadDataType = FtpDataType.Binary;
-
+		public FtpDataType UploadDataType { get; set; } = FtpDataType.Binary;
+		
 		/// <summary>
 		/// Controls if the high-level API downloads files in Binary or ASCII mode.
 		/// </summary>
-		public FtpDataType DownloadDataType {
-			get => _DownloadDataType;
-			set => _DownloadDataType = value;
-		}
-
-		protected bool _UploadDirectoryDeleteExcluded = true;
+		public FtpDataType DownloadDataType { get; set; } = FtpDataType.Binary;
 
 		/// <summary>
 		/// Controls if the UploadDirectory API deletes the excluded files when uploading in Mirror mode.
@@ -664,12 +466,7 @@ namespace FluentFTP {
 		/// excluded from the local system. This is done to keep the server in sync with the local system.
 		/// But if it is false, the excluded files are not touched on the server, and simply ignored.
 		/// </summary>
-		public bool UploadDirectoryDeleteExcluded {
-			get => _UploadDirectoryDeleteExcluded;
-			set => _UploadDirectoryDeleteExcluded = value;
-		}
-
-		protected bool _DownloadDirectoryDeleteExcluded = true;
+		public bool UploadDirectoryDeleteExcluded { get; set; } = true;
 
 		/// <summary>
 		/// Controls if the DownloadDirectory API deletes the excluded files when downloading in Mirror mode.
@@ -677,62 +474,37 @@ namespace FluentFTP {
 		/// excluded from the FTP server. This is done to keep the local filesystem in sync with the FTP server.
 		/// But if it is false, the excluded files are not touched on the local filesystem, and simply ignored.
 		/// </summary>
-		public bool DownloadDirectoryDeleteExcluded {
-			get => _DownloadDirectoryDeleteExcluded;
-			set => _DownloadDirectoryDeleteExcluded = value;
-		}
-
-		protected FtpDataType _FXPDataType = FtpDataType.Binary;
+		public bool DownloadDirectoryDeleteExcluded { get; set; } = true;
 
 		/// <summary>
 		/// Controls if the FXP server-to-server file transfer API uses Binary or ASCII mode.
 		/// </summary>
-		public FtpDataType FXPDataType {
-			get => _FXPDataType;
-			set => _FXPDataType = value;
-		}
-
-		protected int _FXPProgressInterval = 1000;
+		public FtpDataType FXPDataType { get; set; } = FtpDataType.Binary;
 
 		/// <summary>
 		/// Controls how often the progress reports are sent during an FXP file transfer.
 		/// The default value is 1000 (1 second).
 		/// </summary>
-		public int FXPProgressInterval {
-			get => _FXPProgressInterval;
-			set => _FXPProgressInterval = value;
-		}
+		public int FXPProgressInterval { get; set; } = 1000;
 
-		protected bool _SendHost;
 		/// <summary>
 		/// Controls if the HOST command is sent immediately after the handshake.
 		/// Useful when you are using shared hosting and you need to inform the
 		/// FTP server which domain you want to connect to.
 		/// </summary>
-		public bool SendHost {
-			get => _SendHost;
-			set => _SendHost = value;
-		}
+		public bool SendHost { get; set; }
 
-		protected string _SendHostDomain = null;
 		/// <summary>
 		/// Controls which domain is sent with the HOST command.
 		/// If this is null, then the Host parameter of the FTP client is sent.
 		/// </summary>
-		public string SendHostDomain {
-			get => _SendHostDomain;
-			set => _SendHostDomain = value;
-		}
+		public string SendHostDomain { get; set; } = null;
 
-		protected IPAddress _SocketLocalIp;
 		/// <summary>
 		/// The local socket will be bound to the given local IP/interface.
 		/// This is useful if you have several usable public IP addresses and want to use a particular one.
 		/// </summary>
-		public IPAddress SocketLocalIp {
-			get => _SocketLocalIp;
-			set => _SocketLocalIp = value;
-		}
+		public IPAddress SocketLocalIp { get; set; }
 
 
 

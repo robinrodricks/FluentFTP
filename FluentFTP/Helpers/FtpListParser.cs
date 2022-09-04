@@ -9,12 +9,11 @@ namespace FluentFTP.Helpers {
 	/// Returns an FtpListItem object representing the parsed line, or null if the line was unable to be parsed.
 	/// </summary>
 	public class FtpListParser {
-		#region Internal API
 
 		/// <summary>
 		/// the FTP connection that owns this parser
 		/// </summary>
-		public BaseFtpClient client;
+		private BaseFtpClient client;
 
 		private static List<FtpParser> parsers = new List<FtpParser> {
 			FtpParser.Unix, FtpParser.Windows, FtpParser.VMS, FtpParser.IBMzOS, FtpParser.IBMOS400, FtpParser.NonStop
@@ -23,17 +22,17 @@ namespace FluentFTP.Helpers {
 		/// <summary>
 		/// current parser, or parser set by user
 		/// </summary>
-		public FtpParser CurrentParser = FtpParser.Auto;
+		public FtpParser CurrentParser { get; set; } = FtpParser.Auto;
 
 		/// <summary>
 		/// parser calculated based on system type (SYST command)
 		/// </summary>
-		public FtpParser DetectedParser = FtpParser.Auto;
+		public FtpParser DetectedParser { get; set; } = FtpParser.Auto;
 
 		/// <summary>
 		/// if we have detected that the current parser is valid
 		/// </summary>
-		public bool ParserConfirmed = false;
+		public bool ParserConfirmed { get; set; } = false;
 
 		/// <summary>
 		/// Is the version number returned as part of the filename?
@@ -42,7 +41,7 @@ namespace FluentFTP.Helpers {
 		/// the filename includes the version number. Note that directories are
 		/// never returned with the version number.
 		/// </summary>
-		public static bool VMSNameHasVersion = false;
+		public static bool VMSNameHasVersion { get; set; } = false;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="FtpListParser"/> class.
@@ -255,8 +254,6 @@ namespace FluentFTP.Helpers {
 
 			return false;
 		}
-
-		#endregion
 
 	}
 }

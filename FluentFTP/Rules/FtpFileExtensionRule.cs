@@ -14,12 +14,12 @@ namespace FluentFTP.Rules {
 		/// <summary>
 		/// If true, only files of the given extension are uploaded or downloaded. If false, files of the given extension are excluded.
 		/// </summary>
-		public bool Whitelist;
+		public bool Whitelist { get; set; }
 
 		/// <summary>
 		/// The extensions to match
 		/// </summary>
-		public IList<string> Exts;
+		public IList<string> Exts { get; set; }
 
 		/// <summary>
 		/// Only accept files that have the given extension, or exclude files of a given extension.

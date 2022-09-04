@@ -7,7 +7,7 @@ namespace FluentFTP {
 
 		public long FileSize { get; set; }
 
-		public FtpReply Reply;
+		public FtpReply Reply { get; set; }
 
 	}
 }

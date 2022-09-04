@@ -14,17 +14,17 @@ namespace FluentFTP {
 		/// <summary>
 		/// A connection to the FTP server where the file or folder is currently stored
 		/// </summary>
-		public AsyncFtpClient SourceServer;
+		public AsyncFtpClient SourceServer { get; set; }
 
 		/// <summary>
 		/// A connection to the destination FTP server where you want to create the file or folder
 		/// </summary>
-		public AsyncFtpClient TargetServer;
+		public AsyncFtpClient TargetServer { get; set; }
 
 		/// <summary>
 		/// A connection to the destination FTP server used to track progress while transfer is going on.
 		/// </summary>
-		public AsyncFtpClient ProgressServer;
+		public AsyncFtpClient ProgressServer { get; set; }
 
 		/// <summary>
 		/// Gets a value indicating if this object has already been disposed.

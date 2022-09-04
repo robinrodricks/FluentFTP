@@ -16,17 +16,17 @@ namespace FluentFTP.Rules {
 		/// If true, only folders where one of the supplied regex pattern matches are uploaded or downloaded.
 		/// If false, folders where one of the supplied regex pattern matches are excluded.
 		/// </summary>
-		public bool Whitelist;
+		public bool Whitelist { get; set; }
 
 		/// <summary>
 		/// The files names to match
 		/// </summary>
-		public List<string> RegexPatterns;
+		public List<string> RegexPatterns { get; set; }
 
 		/// <summary>
 		/// Which path segment to start checking from
 		/// </summary>
-		public int StartSegment;
+		public int StartSegment { get; set; }
 
 		/// <summary>
 		/// Only accept items that one of the supplied regex pattern.
