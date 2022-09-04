@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Client.Modules {
+	/// <summary>
+	/// Class responsible for automatically detecting working FTP settings to connect to a target FTP server.
+	/// </summary>
 	internal static class ConnectModule {
 
 		private static List<FtpEncryptionMode> DefaultEncryptionPriority = new List<FtpEncryptionMode> {

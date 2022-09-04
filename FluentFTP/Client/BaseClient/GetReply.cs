@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Linq;
 using FluentFTP.Helpers;
 using System.Text.RegularExpressions;
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP.Client.BaseClient {
 
@@ -16,7 +17,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// indefinitely waiting for a server reply that is never coming.
 		/// </summary>
 		/// <returns>FtpReply representing the response from the server</returns>
-		protected FtpReply GetReplyInternal() {
+		protected FtpReply GetReplyInternal(string command = null) {
 			var reply = new FtpReply();
 			string buf;
 
@@ -33,13 +34,14 @@ namespace FluentFTP.Client.BaseClient {
 					reply.InfoMessages += buf + "\n";
 				}
 
-				reply = ProcessGetReply(reply);
+				reply = ProcessGetReply(reply, command);
 			}
 
 			return reply;
 		}
 
-		protected FtpReply ProcessGetReply(FtpReply reply) {
+		protected FtpReply ProcessGetReply(FtpReply reply, string command) {
+
 			// log multiline response messages
 			if (reply.InfoMessages != null) {
 				reply.InfoMessages = reply.InfoMessages.Trim();
@@ -56,13 +58,13 @@ namespace FluentFTP.Client.BaseClient {
 			if (reply.Code != null) {
 
 				// hide sensitive data from logs
-				var logMsg = reply.Message;
-				if (reply.Code == "331" && logMsg.StartsWith("User ", StringComparison.Ordinal) && logMsg.Contains(" OK")) {
-					logMsg = logMsg.Replace(Credentials.UserName, "***");
+				var maskedReply = reply.Message;
+				if (command != null) {
+					maskedReply = LogMaskModule.MaskReply(this, reply, reply.Message, command);
 				}
 
 				// log response code + message
-				Log(FtpTraceLevel.Info, "Response: " + reply.Code + " " + logMsg);
+				Log(FtpTraceLevel.Info, "Response: " + reply.Code + " " + maskedReply);
 			}
 
 			LastReply = reply;

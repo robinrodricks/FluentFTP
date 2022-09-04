@@ -17,8 +17,6 @@ namespace FluentFTP.Client.Modules {
 	/// </summary>
 	internal static class ServerModule {
 
-		#region Detect Server
-
 		/// <summary>
 		/// Detect the FTP Server based on the welcome message sent by the server after getting the 220 connection command.
 		/// Its the primary method.
@@ -134,9 +132,6 @@ namespace FluentFTP.Client.Modules {
 
 			return serverType;
 		}
-
-		#endregion
-
 
 	}
 }

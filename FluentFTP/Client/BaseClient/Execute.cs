@@ -1,4 +1,5 @@
 ﻿using System;
+using FluentFTP.Client.Modules;
 using FluentFTP.Helpers;
 
 namespace FluentFTP.Client.BaseClient {
@@ -38,7 +39,7 @@ namespace FluentFTP.Client.BaseClient {
 				// send command to FTP server
 				m_stream.WriteLine(m_textEncoding, command);
 				LastCommandTimestamp = DateTime.UtcNow;
-				reply = GetReplyInternal();
+				reply = GetReplyInternal(command);
 			}
 
 			return reply;
@@ -47,14 +48,7 @@ namespace FluentFTP.Client.BaseClient {
 		protected string OnPostExecute(string command) {
 
 			// hide sensitive data from logs
-			if (!Config.LogCredentials) {
-				if (command.StartsWith("USER", StringComparison.Ordinal)) {
-					command = "USER ***";
-				}
-				if (command.StartsWith("PASS", StringComparison.Ordinal)) {
-					command = "PASS ***";
-				}
-			}
+			command = LogMaskModule.MaskCommand(this, command);
 
 			// A CWD will invalidate the cached value.
 			if (command.StartsWith("CWD ", StringComparison.Ordinal)) {
@@ -63,5 +57,6 @@ namespace FluentFTP.Client.BaseClient {
 
 			return command;
 		}
+
 	}
 }

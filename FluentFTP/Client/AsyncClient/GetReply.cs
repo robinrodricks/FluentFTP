@@ -20,6 +20,10 @@ namespace FluentFTP {
 		/// </summary>
 		/// <returns>FtpReply representing the response from the server</returns>
 		public async Task<FtpReply> GetReply(CancellationToken token) {
+			return await GetReplyAsyncInternal(token);
+		}
+
+		protected async Task<FtpReply> GetReplyAsyncInternal(CancellationToken token, string command = null) {
 			var reply = new FtpReply();
 			string buf;
 
@@ -35,7 +39,7 @@ namespace FluentFTP {
 				reply.InfoMessages += buf + "\n";
 			}
 
-			reply = ProcessGetReply(reply);
+			reply = ProcessGetReply(reply, command);
 
 			return reply;
 		}

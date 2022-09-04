@@ -51,14 +51,25 @@ namespace FluentFTP {
 			set => _logHost = value;
 		}
 
-		private bool _logCredentials = false;
+		private bool _logUserName = false;
 
 		/// <summary>
-		/// Should the FTP credentials be shown in the logs (true) or masked out (false)?
+		/// Should the FTP username be shown in the logs (true) or masked out (false)?
 		/// </summary>
-		public bool LogCredentials {
-			get => _logCredentials;
-			set => _logCredentials = value;
+		public bool LogUserName {
+			get => _logUserName;
+			set => _logUserName = value;
+		}
+
+
+		private bool _logPassword = false;
+
+		/// <summary>
+		/// Should the FTP password be shown in the logs (true) or masked out (false)?
+		/// </summary>
+		public bool LogPassword {
+			get => _logPassword;
+			set => _logPassword = value;
 		}
 
 		protected FtpIpVersion _ipVersions = FtpIpVersion.ANY;
@@ -756,6 +767,9 @@ namespace FluentFTP {
 
 			// copy settings
 			write.LogToConsole = read.LogToConsole;
+			write.LogHost = read.LogHost;
+			write.LogUserName = read.LogUserName;
+			write.LogPassword = read.LogPassword;
 			write.InternetProtocolVersions = read.InternetProtocolVersions;
 			write.SocketPollInterval = read.SocketPollInterval;
 			write.StaleDataCheck = read.StaleDataCheck;

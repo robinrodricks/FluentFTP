@@ -19,7 +19,6 @@
    - New: Add logger system `client.Logger` using industry-standard `ILogger` interface
    - New: Add Nuget dependency `Microsoft.Extensions.Logging.Abstractions` v2.1.0
    - Renamed: Legacy logging callback `OnLogEvent` is now renamed to `LegacyLogger`
-   - Renamed: Logging settings: `LogPassword` and `LogUserName` merged into `LogCredentials`
    - Renamed: Logging settings: `LogIP` renamed to `LogHost`
    - Remove logging setting `LogFunctions` as it is always enabled
  - **FTP Proxies**
@@ -44,6 +43,7 @@
    - Remove obsolete hashing commands `GetHashAlgorithm`, `SetHashAlgorithm`, `GetHash`, etc
    - Remove obsolete async pattern using `IAsyncResult`
    - Fix: Forward cancellation token in UploadDirectory and Proxy HandshakeAsync (thanks [jnyrup](/jnyrup))
+   - Fix: Improve masking out support for removing sensitive usernames from FTP logs
  - **Server support**
    - Move all IBM zOS logic into the `IBMzOSFtpServer` server handler (thanks [FanDjango](/FanDjango))
    - Move all OpenVMS logic into the `OpenVmsServer` server handler (thanks [FanDjango](/FanDjango))
