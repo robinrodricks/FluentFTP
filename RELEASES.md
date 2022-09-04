@@ -44,6 +44,8 @@
    - Remove obsolete async pattern using `IAsyncResult`
    - Fix: Forward cancellation token in UploadDirectory and Proxy HandshakeAsync (thanks [jnyrup](/jnyrup))
    - Fix: Improve masking out support for removing sensitive usernames from FTP logs
+   - Fix: Change all public fields to properties in classes: `FtpListParser`, `FtpClientState`, `FtpFxpSession`, `FtpFxpSessionAsync`, `FtpListItem`, `FtpProfile`, `FtpResult`
+   - Fix: Change all public fields to properties in rules: `FtpFileExtensionRule`, `FtpFileNameRegexRule`, `FtpFileNameRule`, `FtpFolderNameRegexRule`, `FtpFolderNameRule`, `FtpSizeRule`
  - **Server support**
    - Move all IBM zOS logic into the `IBMzOSFtpServer` server handler (thanks [FanDjango](/FanDjango))
    - Move all OpenVMS logic into the `OpenVmsServer` server handler (thanks [FanDjango](/FanDjango))
