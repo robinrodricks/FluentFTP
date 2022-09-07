@@ -43,6 +43,7 @@
    - Remove obsolete hashing commands `GetHashAlgorithm`, `SetHashAlgorithm`, `GetHash`, etc
    - Remove obsolete async pattern using `IAsyncResult`
    - Fix: Forward cancellation token in UploadDirectory and Proxy HandshakeAsync (thanks [jnyrup](/jnyrup))
+   - Fix: Parity in sync/async implementations of `Authenticate` (thanks [FanDjango](/FanDjango))
    - Fix: Improve masking out support for removing sensitive usernames from FTP logs
    - Fix: Change all public fields to properties in classes: `FtpListParser`, `FtpClientState`, `FtpFxpSession`, `FtpFxpSessionAsync`, `FtpListItem`, `FtpProfile`, `FtpResult`
    - Fix: Change all public fields to properties in rules: `FtpFileExtensionRule`, `FtpFileNameRegexRule`, `FtpFileNameRule`, `FtpFolderNameRegexRule`, `FtpFolderNameRule`, `FtpSizeRule`
