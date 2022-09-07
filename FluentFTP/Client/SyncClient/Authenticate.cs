@@ -65,11 +65,13 @@ namespace FluentFTP {
 					if (!reply.Success) {
 						throw new FtpAuthenticationException(reply);
 					}
+					else {
+						m_IsAuthenticated = true;
+					}
 				}
-
-				// mark that we are authenticated
-				m_IsAuthenticated = true;
-
+				else if (reply.Type == FtpResponseType.PositiveCompletion) {
+					m_IsAuthenticated = true;
+				}
 			}
 		}
 

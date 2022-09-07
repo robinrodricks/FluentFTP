@@ -26,6 +26,8 @@ namespace FluentFTP {
 		/// </remarks>
 		protected virtual async Task Authenticate(string userName, string password, string account, CancellationToken token) {
 
+			// mark that we are not authenticated
+			m_IsAuthenticated = false;
 			// send the USER command along with the FTP username
 			FtpReply reply = await Execute("USER " + userName, token);
 
