@@ -31,7 +31,7 @@ namespace FluentFTP {
 		/// to determine if Poll() should be used to test for
 		/// socket connectivity. The socket in this class will
 		/// not know it has been disconnected if the remote host
-		/// closes the connection first. Using Poll() avoids 
+		/// closes the connection first. Using Poll() avoids
 		/// the exception that would be thrown when trying to
 		/// read or write to the disconnected socket.
 		/// </summary>
@@ -700,6 +700,24 @@ namespace FluentFTP {
 			catch (Exception) {
 			}
 
+			if (m_sslStream != null) {
+				try {
+#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+					if (Client != null && Client.Config.DisconnectWithShutdown) {
+						m_sslStream.ShutdownAsync()
+							.ConfigureAwait(false)
+							.GetAwaiter()
+							.GetResult();
+					}
+#endif
+					m_sslStream.Dispose();
+				}
+				catch (Exception ex) {
+				}
+
+				m_sslStream = null;
+			}
+
 			if (m_bufStream != null) {
 				try {
 					// ensure the last of the buffered bytes are flushed
@@ -712,8 +730,6 @@ namespace FluentFTP {
 				m_bufStream = null;
 			}
 
-			CloseSocket();
-
 			if (m_netStream != null) {
 				try {
 					m_netStream.Dispose();
@@ -724,21 +740,7 @@ namespace FluentFTP {
 				m_netStream = null;
 			}
 
-			if (m_sslStream != null) {
-				try {
-#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-					if (Client != null && Client.Config.DisconnectWithShutdown) {
-						m_sslStream.ShutdownAsync().RunSynchronously();
-					}
-#endif
-					m_sslStream.Dispose();
-				}
-				catch (Exception ex) {
-				}
-
-				m_sslStream = null;
-			}
-
+			CloseSocket();
 		}
 
 		/// <summary>
@@ -1002,8 +1004,8 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event. 
-		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
+		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
+		/// If this event is not handled and there are SslPolicyErrors present, the certificate will
 		/// not be accepted.
 		/// </summary>
 		/// <param name="targethost">The host to authenticate the certificate against</param>
@@ -1012,8 +1014,8 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event. 
-		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
+		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
+		/// If this event is not handled and there are SslPolicyErrors present, the certificate will
 		/// not be accepted.
 		/// </summary>
 		/// <param name="targethost">The host to authenticate the certificate against</param>
@@ -1023,7 +1025,7 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
-		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
+		/// If this event is not handled and there are SslPolicyErrors present, the certificate will
 		/// not be accepted.
 		/// </summary>
 		/// <param name="targethost">The host to authenticate the certificate against</param>
@@ -1034,7 +1036,7 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
-		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
+		/// If this event is not handled and there are SslPolicyErrors present, the certificate will
 		/// not be accepted.
 		/// </summary>
 		/// <param name="targethost">The host to authenticate the certificate against</param>
@@ -1045,7 +1047,7 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
-		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
+		/// If this event is not handled and there are SslPolicyErrors present, the certificate will
 		/// not be accepted.
 		/// </summary>
 		/// <param name="targethost">The host to authenticate the certificate against</param>
@@ -1093,7 +1095,7 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
 			}
 			catch (AuthenticationException) {
-				// authentication failed and in addition it left our 
+				// authentication failed and in addition it left our
 				// ssl stream in an unusable state so cleanup needs
 				// to be done and the exception can be re-thrown for
 				// handling down the chain. (Add logging?)
@@ -1139,7 +1141,7 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
-		/// If this event is not handled and there are SslPolicyErrors present, the certificate will 
+		/// If this event is not handled and there are SslPolicyErrors present, the certificate will
 		/// not be accepted.
 		/// </summary>
 		/// <param name="targethost">The host to authenticate the certificate against</param>
@@ -1183,7 +1185,7 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
 			}
 			catch (AuthenticationException) {
-				// authentication failed and in addition it left our 
+				// authentication failed and in addition it left our
 				// ssl stream in an unusable state so cleanup needs
 				// to be done and the exception can be re-thrown for
 				// handling down the chain. (Add logging?)
