@@ -36,8 +36,8 @@ Namespace Examples
 		Async Function UploadDirectoryWithRulesAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using ftp = New FtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await ftp.ConnectAsync(token)
+			Using ftp = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
+				Await ftp.Connect(token)
 
 
 				' upload only PDF files under 1 GB from a folder, by using the rule engine
@@ -47,14 +47,14 @@ Namespace Examples
 					}),
 					New FtpSizeRule(FtpOperator.LessThan, 1000000000)' only allow files <1 GB
 				}
-				Await ftp.UploadDirectoryAsync("C:\website\attachments\", "/public_html/attachments", FtpFolderSyncMode.Update, FtpRemoteExists.Skip, FtpVerify.None, rules)
+				Await ftp.UploadDirectory("C:\website\attachments\", "/public_html/attachments", FtpFolderSyncMode.Update, FtpRemoteExists.Skip, FtpVerify.None, rules)
 
 
 				' upload all files from a folder, but skip the sub-directories named `.git`, `.svn`, `node_modules` etc
 				Dim rules2 = New List(Of FtpRule) From {
 					New FtpFolderNameRule(False, FtpFolderNameRule.CommonBlacklistedFolders)
 				}
-				Await ftp.UploadDirectoryAsync("C:\project\src\", "/project/src", FtpFolderSyncMode.Update, FtpRemoteExists.Skip, FtpVerify.None, rules2)
+				Await ftp.UploadDirectory("C:\project\src\", "/project/src", FtpFolderSyncMode.Update, FtpRemoteExists.Skip, FtpVerify.None, rules2)
 
 
 			End Using

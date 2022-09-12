@@ -22,14 +22,14 @@ Namespace Examples
 		Async Function DownloadFileAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using ftp = New FtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await ftp.ConnectAsync(token)
+			Using ftp = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
+				Await ftp.Connect(token)
 
 				' download a file and ensure the local directory is created
-				Await ftp.DownloadFileAsync("D:\Github\FluentFTP\README.md", "/public_html/temp/README.md")
+				Await ftp.DownloadFile("D:\Github\FluentFTP\README.md", "/public_html/temp/README.md")
 
 				' download a file and ensure the local directory is created, verify the file after download
-				Await ftp.DownloadFileAsync("D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpLocalExists.Overwrite, FtpVerify.Retry)
+				Await ftp.DownloadFile("D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpLocalExists.Overwrite, FtpVerify.Retry)
 
 			End Using
 		End Function

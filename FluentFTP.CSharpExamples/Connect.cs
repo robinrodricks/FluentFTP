@@ -28,20 +28,20 @@ namespace Examples {
 		public static async Task ConnectAsync() {
 			var token = new CancellationToken();
 
-			using (var conn = new FtpClient()) {
+			using (var conn = new AsyncFtpClient()) {
 				conn.Host = "localhost";
 				conn.Credentials = new NetworkCredential("ftptest", "ftptest");
 
-				await conn.ConnectAsync(token);
+				await conn.Connect(token);
 			}
 		}
 
 		public static async Task ConnectAsyncAlt() {
 			var token = new CancellationToken();
 
-			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
+			using (var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
 
-				await conn.ConnectAsync(token);
+				await conn.Connect(token);
 			}
 		}
 

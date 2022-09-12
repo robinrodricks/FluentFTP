@@ -13,7 +13,7 @@ namespace Examples {
 		public static void DownloadDirectoryWithRules() {
 			using (var ftp = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
 				ftp.Connect();
-				
+
 
 				// download only PDF files under 1 GB from a folder, by using the rule engine
 				var rules = new List<FtpRule>{
@@ -36,16 +36,16 @@ namespace Examples {
 
 		public static async Task DownloadDirectoryWithRulesAsync() {
 			var token = new CancellationToken();
-			using (var ftp = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
-				await ftp.ConnectAsync(token);
-				
+			using (var ftp = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
+				await ftp.Connect(token);
+
 
 				// download only PDF files under 1 GB from a folder, by using the rule engine
 				var rules = new List<FtpRule>{
 				   new FtpFileExtensionRule(true, new List<string>{ "pdf" }),  // only allow PDF files
 				   new FtpSizeRule(FtpOperator.LessThan, 1000000000)           // only allow files <1 GB
 				};
-				await ftp.DownloadDirectoryAsync(@"C:\website\attachments\", @"/public_html/attachments",
+				await ftp.DownloadDirectory(@"C:\website\attachments\", @"/public_html/attachments",
 					FtpFolderSyncMode.Update, FtpLocalExists.Skip, FtpVerify.None, rules, token: token);
 
 
@@ -53,7 +53,7 @@ namespace Examples {
 				var rules2 = new List<FtpRule>{
 				   new FtpFolderNameRule(false, FtpFolderNameRule.CommonBlacklistedFolders),
 				};
-				await ftp.DownloadDirectoryAsync(@"C:\project\src\", @"/project/src",
+				await ftp.DownloadDirectory(@"C:\project\src\", @"/project/src",
 					FtpFolderSyncMode.Update, FtpLocalExists.Skip, FtpVerify.None, rules2, token: token);
 
 			}

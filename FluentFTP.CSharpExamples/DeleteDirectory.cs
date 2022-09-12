@@ -17,11 +17,11 @@ namespace Examples {
 
 		public static async Task DeleteDirectoryAsync() {
 			var token = new CancellationToken();
-			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
-				await conn.ConnectAsync(token);
+			using (var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
+				await conn.Connect(token);
 
 				// Remove the directory and all files and subdirectories inside it
-				await conn.DeleteDirectoryAsync("/path/to/directory", token);
+				await conn.DeleteDirectory("/path/to/directory", token);
 			}
 		}
 	}

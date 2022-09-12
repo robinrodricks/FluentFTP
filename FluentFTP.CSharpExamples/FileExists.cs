@@ -21,12 +21,12 @@ namespace Examples {
 
 		public static async Task FileExistsAsync() {
 			var token = new CancellationToken();
-			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
-				await conn.ConnectAsync(token);
+			using (var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
+				await conn.Connect(token);
 
 				// The last parameter forces FluentFTP to use LIST -a 
 				// for getting a list of objects in the parent directory.
-				if (await conn.FileExistsAsync("/full/or/relative/path", token)) {
+				if (await conn.FileExists("/full/or/relative/path", token)) {
 					// dome something
 				}
 			}

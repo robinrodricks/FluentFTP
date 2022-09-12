@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 using FluentFTP;
+using FluentFTP.Client.BaseClient;
 using FluentFTP.Helpers;
 
 namespace Examples {
@@ -15,7 +16,7 @@ namespace Examples {
 		/// Adds a custom file listing parser
 		/// </summary>
 		public static void AddCustomParser(FtpClient client) {
-			client.ListingCustomParser = ParseUnixList;
+			client.Config.ListingCustomParser = ParseUnixList;
 		}
 
 		/// <summary>
@@ -24,7 +25,7 @@ namespace Examples {
 		/// <param name="buf">A line from the listing</param>
 		/// <param name="capabilities">Server capabilities</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
-		private static FtpListItem ParseUnixList(string buf, List<FtpCapability> capabilities, FtpClient client) {
+		private static FtpListItem ParseUnixList(string buf, List<FtpCapability> capabilities, BaseFtpClient client) {
 			var item = new FtpListItem();
 			Match m = null;
 			var regex =
@@ -41,10 +42,10 @@ namespace Examples {
 			}
 
 			if (m.Groups["permissions"].Value.StartsWith("d")) {
-				item.Type = FtpFileSystemObjectType.Directory;
+				item.Type = FtpObjectType.Directory;
 			}
 			else if (m.Groups["permissions"].Value.StartsWith("-")) {
-				item.Type = FtpFileSystemObjectType.File;
+				item.Type = FtpObjectType.File;
 			}
 			else {
 				return null;
@@ -58,7 +59,7 @@ namespace Examples {
 
 			item.Name = m.Groups["name"].Value;
 
-			if (item.Type == FtpFileSystemObjectType.Directory && (item.Name == "." || item.Name == "..")) {
+			if (item.Type == FtpObjectType.Directory && (item.Name == "." || item.Name == "..")) {
 				return null;
 			}
 
@@ -70,7 +71,7 @@ namespace Examples {
 			// so if a modify time was parsed from the listing we will try
 			// to convert it to a DateTime object and use it for directories.
 			////
-			if ((!capabilities.Contains(FtpCapability.MDTM) || item.Type == FtpFileSystemObjectType.Directory) && m.Groups["modify"].Value.Length > 0) {
+			if ((!capabilities.Contains(FtpCapability.MDTM) || item.Type == FtpObjectType.Directory) && m.Groups["modify"].Value.Length > 0) {
 				item.Modified = m.Groups["modify"].Value.ParseFtpDate(client);
 			}
 

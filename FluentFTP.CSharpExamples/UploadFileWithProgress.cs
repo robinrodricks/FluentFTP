@@ -24,14 +24,14 @@ namespace Examples {
 
 				// upload a file with progress tracking
 				ftp.UploadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpRemoteExists.Overwrite, false, FtpVerify.None, progress);
-				
+
 			}
 		}
 
 		public static async Task UploadFileAsync() {
 			var token = new CancellationToken();
-			using (var ftp = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
-				await ftp.ConnectAsync(token);
+			using (var ftp = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
+				await ftp.Connect(token);
 
 				// define the progress tracking callback
 				Progress<FtpProgress> progress = new Progress<FtpProgress>(p => {
@@ -44,8 +44,8 @@ namespace Examples {
 				});
 
 				// upload a file with progress tracking
-				await ftp.UploadFileAsync(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpRemoteExists.Overwrite, false, FtpVerify.None, progress, token);
-				
+				await ftp.UploadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpRemoteExists.Overwrite, false, FtpVerify.None, progress, token);
+
 			}
 		}
 

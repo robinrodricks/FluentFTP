@@ -36,8 +36,8 @@ Namespace Examples
 		Async Function DownloadDirectoryWithRulesAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using ftp = New FtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await ftp.ConnectAsync(token)
+			Using ftp = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
+				Await ftp.Connect(token)
 
 
 				' download only PDF files under 1 GB from a folder, by using the rule engine
@@ -47,14 +47,14 @@ Namespace Examples
 					}),
 					New FtpSizeRule(FtpOperator.LessThan, 1000000000) ' only allow files <1 GB
 				}
-				Await ftp.DownloadDirectoryAsync("C:\website\attachments\", "/public_html/attachments", FtpFolderSyncMode.Update, FtpLocalExists.Skip, FtpVerify.None, rules)
+				Await ftp.DownloadDirectory("C:\website\attachments\", "/public_html/attachments", FtpFolderSyncMode.Update, FtpLocalExists.Skip, FtpVerify.None, rules)
 
 
 				' download all files from a folder, but skip the sub-directories named `.git`, `.svn`, `node_modules` etc
 				Dim rules2 = New List(Of FtpRule) From {
 					New FtpFolderNameRule(False, FtpFolderNameRule.CommonBlacklistedFolders)
 				}
-				Await ftp.DownloadDirectoryAsync("C:\project\src\", "/project/src", FtpFolderSyncMode.Update, FtpLocalExists.Skip, FtpVerify.None, rules2)
+				Await ftp.DownloadDirectory("C:\project\src\", "/project/src", FtpFolderSyncMode.Update, FtpLocalExists.Skip, FtpVerify.None, rules2)
 
 
 			End Using

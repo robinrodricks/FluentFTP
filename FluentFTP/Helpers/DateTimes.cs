@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Globalization;
+using System.Text;
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers {
 	/// <summary>
@@ -13,19 +15,19 @@ namespace FluentFTP.Helpers {
 		/// <param name="dateString">The date string</param>
 		/// <param name="formats">Date formats to try parsing the value from (eg "yyyyMMddHHmmss")</param>
 		/// <returns>A <see cref="DateTime"/> object representing the date, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
-		public static DateTime ParseFtpDate(this string dateString, FtpClient client, string[] formats = null) {
+		public static DateTime ParseFtpDate(this string dateString, BaseFtpClient client, string[] formats = null) {
 			if (formats == null) {
 				formats = FtpDateFormats;
 			}
 
 			// parse the raw timestamp without performing any timezone conversions
 			try {
-				DateTime date = DateTime.ParseExact(dateString, FtpDateFormats, client.ListingCulture.DateTimeFormat, DateTimeStyles.None); // or client.ListingCulture.DateTimeFormat
+				DateTime date = DateTime.ParseExact(dateString, FtpDateFormats, client.Config.ListingCulture.DateTimeFormat, DateTimeStyles.None); // or client.ListingCulture.DateTimeFormat
 
 				return date;
 			}
 			catch (FormatException) {
-				client.LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + dateString + "'");
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to parse date string '" + dateString + "'");
 			}
 
 			return DateTime.MinValue;
@@ -41,6 +43,30 @@ namespace FluentFTP.Helpers {
 			// generate final pretty printed date
 			var timeStr = date.ToString("yyyyMMddHHmmss");
 			return timeStr;
+		}
+
+
+		/// <summary>
+		/// Generates C# code to create this date.
+		/// </summary>
+		public static string ToCode(this DateTime date) {
+			var sb = new StringBuilder();
+			sb.Append("new DateTime(");
+			sb.Append(date.Year);
+			sb.Append(',');
+			sb.Append(date.Month);
+			sb.Append(',');
+			sb.Append(date.Day);
+			sb.Append(',');
+			sb.Append(date.Hour);
+			sb.Append(',');
+			sb.Append(date.Minute);
+			sb.Append(',');
+			sb.Append(date.Second);
+			sb.Append(',');
+			sb.Append(date.Millisecond);
+			sb.Append(")");
+			return sb.ToString();
 		}
 
 		private static string[] FtpDateFormats = { "yyyyMMddHHmmss", "yyyyMMddHHmmss'.'f", "yyyyMMddHHmmss'.'ff", "yyyyMMddHHmmss'.'fff", "MMM dd  yyyy", "MMM  d  yyyy", "MMM dd HH:mm", "MMM  d HH:mm" };

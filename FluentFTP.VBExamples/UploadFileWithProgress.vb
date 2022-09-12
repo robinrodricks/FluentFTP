@@ -29,8 +29,8 @@ Namespace Examples
 		Async Function UploadFileAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using ftp = New FtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await ftp.ConnectAsync(token)
+			Using ftp = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
+				Await ftp.Connect(token)
 
 				' define the progress tracking callback
 				Dim progress As Progress(Of FtpProgress) = New Progress(Of FtpProgress)(
@@ -43,7 +43,7 @@ Namespace Examples
 					End Sub)
 
 				' upload a file with progress tracking
-				Await ftp.UploadFileAsync("D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpRemoteExists.Overwrite, False, FtpVerify.None, progress, token)
+				Await ftp.UploadFile("D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpRemoteExists.Overwrite, False, FtpVerify.None, progress, token)
 
 			End Using
 		End Function

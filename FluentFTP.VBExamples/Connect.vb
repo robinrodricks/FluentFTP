@@ -23,18 +23,18 @@ Namespace Examples
 		Async Function ConnectAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using conn = New FtpClient()
+			Using conn = New AsyncFtpClient()
 				conn.Host = "localhost"
 				conn.Credentials = New NetworkCredential("ftptest", "ftptest")
-				Await conn.ConnectAsync(token)
+				Await conn.Connect(token)
 			End Using
 		End Function
 
 		Async Function ConnectAsyncAlt() As Task
 			Dim token = New CancellationToken()
 
-			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await conn.ConnectAsync(token)
+			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
+				Await conn.Connect(token)
 			End Using
 		End Function
 	End Module

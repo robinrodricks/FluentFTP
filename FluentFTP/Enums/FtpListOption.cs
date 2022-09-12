@@ -61,11 +61,6 @@ namespace FluentFTP {
 		ForceNameList = ForceList | NameList,
 
 		/// <summary>
-		/// Try to dereference symbolic links, and stored the linked file/directory in FtpListItem.LinkObject
-		/// </summary>
-		DerefLinks = 32,
-
-		/// <summary>
 		/// Sets the ForceList flag and uses `LS' instead of `LIST' as the
 		/// command for getting a directory listing. This option overrides
 		/// ForceNameList and ignores the AllFiles flag.

@@ -1,5 +1,129 @@
 # Release Notes
 
+#### 40.0.0
+ - Please read the [Migration Guide](https://github.com/robinrodricks/FluentFTP/wiki/v40-Migration-Guide) for help migrating to the new version!
+ - Special thanks to Robin Rodricks, Michael Stiemke and Jonas Nyrup for this release!
+ - **Constructor API**
+   - New: 4 new FTP client constructors that accept FTP host, credentials, config and logger
+   - Remove extraneous constructors because properties can be used instead
+ - **Asynchronous API**
+   - New: Split main FTP client classes into `FtpClient` and `AsyncFtpClient`
+   - New: Split main FTP client interfaces into `IFtpClient` and `IAsyncFtpClient`
+   - New: Split common FTP functionality into `BaseFtpClient`
+   - New: Drop `Async` suffix for all async FTP methods in `AsyncFtpClient`
+ - **Config API**
+   - New: Remove all config settings from FtpClient and move it into `client.Config` object
+   - New: Dedicated class to hold config settings `FtpConfig` to cleanup client API
+ - **Logging API**
+   - New: Remove `client.OnLogEvent` and `FtpTrace` system
+   - New: Add logger system `client.Logger` using industry-standard `ILogger` interface
+   - New: Add Nuget dependency `Microsoft.Extensions.Logging.Abstractions` v2.1.0
+   - Renamed: Legacy logging callback `OnLogEvent` is now renamed to `LegacyLogger`
+   - Renamed: Logging settings: `LogIP` renamed to `LogHost`
+   - Remove logging setting `LogFunctions` as it is always enabled
+ - **FTP Proxies**
+   - New: Split FTP proxy classes into `FtpClient*Proxy` and `AsyncFtpClient*Proxy`
+   - New: FTP proxy classes moved into `FluentFTP.Proxy.SyncProxy` and `FluentFTP.Proxy.AsyncProxy` NS
+   - New: FTP proxy classes with fully async implementations
+   - Fix: Properly override `HandshakeAsync` in async FTP proxies (thanks [jnyrup](/jnyrup))
+ - **Organization**
+   - Completely redesign the FTP client code organization and structure
+   - Update all tests and examples to use the new API and `AsyncFtpClient`
+   - Hide all internally-used functions behind the interface `IInternalFtpClient`
+   - Code style standardization and use new C# language constructs (thanks [jnyrup](/jnyrup))
+   - Add styling rules to `.editorconfig` to prevent using IDE defaults (thanks [jnyrup](/jnyrup))
+ - **Modernization**
+   - Drop support for .NET Standard 1.2, 1.4 and .NET 2.0, 3.5, 4.0 and 4.5
+   - Add support for .NET 4.6.2 and 4.7.2
+   - Remove conditional compilation statements for unsupported platforms
+   - Remove uncommon static methods `FtpClient.Connect` and `FtpClient.GetPublicIP`
+   - Remove uncommon method `DereferenceLink` and `DereferenceLinkAsync`
+   - Remove uncommon properties `QuickTransferLimit`, `MaximumDereferenceCount`, `EnableThreadSafeDataConnections`, `PlainTextEncryption`
+   - Remove uncommon feature `FtpListOption.DerefLinks`
+   - Remove obsolete hashing commands `GetHashAlgorithm`, `SetHashAlgorithm`, `GetHash`, etc
+   - Remove obsolete async pattern using `IAsyncResult`
+   - Fix: Forward cancellation token in UploadDirectory and Proxy HandshakeAsync (thanks [jnyrup](/jnyrup))
+   - Fix: Parity in sync/async implementations of `Authenticate` (thanks [FanDjango](/FanDjango))
+   - Fix: Improve masking out support for removing sensitive usernames from FTP logs
+   - Fix: Change all public fields to properties in classes: `FtpListParser`, `FtpClientState`, `FtpFxpSession`, `FtpFxpSessionAsync`, `FtpListItem`, `FtpProfile`, `FtpResult`
+   - Fix: Change all public fields to properties in rules: `FtpFileExtensionRule`, `FtpFileNameRegexRule`, `FtpFileNameRule`, `FtpFolderNameRegexRule`, `FtpFolderNameRule`, `FtpSizeRule`
+ - **Server support**
+   - Move all IBM zOS logic into the `IBMzOSFtpServer` server handler (thanks [FanDjango](/FanDjango))
+   - Move all OpenVMS logic into the `OpenVmsServer` server handler (thanks [FanDjango](/FanDjango))
+   - Fix: z/OS: Handle z/OS `GetListing` single line outputs (thanks [FanDjango](/FanDjango))
+
+#### 39.4.0
+ - New: Add `SslProtocolActive` property to retrieve the negotiated SSL/TLS protocol version
+ - Fix: z/OS: Improve server handling for absolute path calculation (thanks [FanDjango](/FanDjango))
+ - Fix: z/OS: Remove direct z/OS dependancy in `GetListing` (thanks [FanDjango](/FanDjango))
+ - Fix: z/OS: Add some special cases to handle conversion of remote FTP paths (thanks [FanDjango](/FanDjango))
+ - Fix: z/OS: Add missing parser tests for z/OS FTP server (thanks [FanDjango](/FanDjango))
+ - Fix: z/OS: Fix file size calculation for non-unix z/OS files (thanks [FanDjango](/FanDjango))
+ - Internal: Add integration tests for `GetListingAsyncEnumerable` (thanks [tommysor](/tommysor))
+ - Internal: Remove 3 test dockers that do not work (thanks [tommysor](/tommysor))
+
+#### 39.3.0
+ - New: Detect D-Link, TP-LINK, Huawei, MicroTik FTP servers (allows for future server-specific handling)
+ - Fix: `AutoConnect` now correctly handles internal `AggregateException` (.NET 5.0+)
+ - Fix: `AutoConnect` now correctly connects to servers requiring TLS 1.2
+ - Internal: Support automated tests for VsFtpD servers (thanks [tommysor](/tommysor))
+ - Internal: Add tests for custom FTP server auto connection
+
+#### 39.2.1
+ - New: Add 5 missing methods into the `IFtpClient` interface
+ - Fix: z/OS: Inconsistent implementations of `GetListing` absolute path conversion
+
+#### 39.2.0
+ - New: `GetListingAsyncEnumerable` method to get file listing using `IAsyncEnumerable` pattern
+ - New: During `AutoConnect`, throw `FtpProtocolUnsupportedException` if newer .NET required
+ - Fix: Support connecting to TLS 1.3 servers using `AutoConnect` (.NET 5.0+)
+ - Fix: Support automated tests for PureFTP and ProFTP servers (thanks [tommysor](/tommysor))
+
+#### 39.1.0
+ - New: `Clone` method allows for cloning an `FtpClient` connection with all settings copied
+ - New: `InternetProtocol` property which returns the current protocol used (IPV4/IPV6)
+ - New: `Status` property which returns the current `FtpClientState` flags (advanced use only)
+ - Fix: `AutoConnect`/`AutoConnectAsync` now correctly configure Azure FTP servers
+ - Internal: Add integration test system using docker to test FluentFTP against many supported FTP servers
+ - Internal: Refactor server specific, server strings, cloning and auto connection logic into modules
+
+#### 39.0.1
+ - Fix: `ConnectAsync` correctly honors `ConnectTimeout` and `TimeoutException` is correctly thrown
+ - Internal: Add unit tests for `Connect`/`ConnectAsync` to ensure `ConnectTimeout` is honored
+ - Internal: Refactor internal file listing handlers & proxy implementation (API is unchanged)
+
+#### 39.0.0
+ - New: Username/password authentication for SOCKS5 proxy connections
+ - New: Correctly fill in `ConnectionType` for all proxy types
+ - New: Improved pattern to connect to proxy servers, all details can be specified in `FtpProxyProfile`
+ - New: Examples for all types of proxies (`ConnectProxyHttp11`, `ConnectProxySocks4`, `ConnectProxySocks4a`, `ConnectProxySocks5`)
+ - Change: Rename class `SocksProxyException` to `FtpProxyException`
+ - Change: Rename class `ProxyInfo` to `FtpProxyProfile` and rename members
+
+#### 38.0.0
+ - Change: Rename enum `FtpFileSystemObjectType` to `FtpObjectType`
+ - Change: Rename enum `FtpFileSystemObjectSubType` to `FtpObjectSubType`
+ - Change: Rename API `Upload` to `UploadBytes` and `UploadStream` instead of overloading
+ - Change: Rename API `Download` to `DownloadBytes` and `DownloadStream` instead of overloading
+ - Change: Logging will always mask host IP, username and password by default (configurable)
+ - New: Throw `AggregateException` when an error occuring during resuming a file upload (.NET 4.5+)
+ - New: Code generation for parsed file item in order to build accurate unit tests
+ - New: Unit tests for Windows, Unix, OpenVMS, NonStop, IBM, Machine listing parsers
+ - New: Unit tests for Timezone conversion to UTC and to local time
+ - Fix: Improvement to directory parsing for Windows, Unix, OpenVMS, NonStop, Machine listings
+ - Fix: Support parsing of links and Unix-symlinks in Machine listings
+ - Fix: Enable 2 FTP server specific handlers
+
+#### 37.1.2
+ - Fix: Error when downloading large files through SOCKS4 or SOCKS4a proxy (thanks [fire-lizard](/fire-lizard))
+
+#### 37.1.1
+ - Fix: Disable SSL Buffering in .NET 6 as it was in .NET 5
+
+#### 37.1.0
+ - Major: Added support for SOCKS4 proxy servers using the `FtpClientSocks4Proxy` client class (thanks [fire-lizard](/fire-lizard))
+ - Major: Added support for SOCKS4a proxy servers using the `FtpClientSocks4aProxy` client class (thanks [fire-lizard](/fire-lizard))
+
 #### 37.0.6
  - New: Detect Rumpus FTP servers for Mac (allows for future server-specific handling)
  - New: Detect ABB IDAL FTP servers (allows for future server-specific handling)

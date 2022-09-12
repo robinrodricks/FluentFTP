@@ -16,9 +16,9 @@ Namespace Examples
 		Async Function DeleteDirectoryAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await conn.ConnectAsync(token)
-				Await conn.DeleteFileAsync("/full/or/relative/path/to/file")
+			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
+				Await conn.Connect(token)
+				Await conn.DeleteFile("/full/or/relative/path/to/file")
 			End Using
 		End Function
 	End Module
