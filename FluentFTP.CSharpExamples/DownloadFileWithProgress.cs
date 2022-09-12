@@ -13,7 +13,7 @@ namespace Examples {
 				ftp.Connect();
 
 				// define the progress tracking callback
-				Action<FtpProgress> progress = delegate(FtpProgress p){
+				Action<FtpProgress> progress = delegate (FtpProgress p) {
 					if (p.Progress == 1) {
 						// all done!
 					}
@@ -24,14 +24,14 @@ namespace Examples {
 
 				// download a file with progress tracking
 				ftp.DownloadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpLocalExists.Overwrite, FtpVerify.None, progress);
-				
+
 			}
 		}
 
 		public static async Task DownloadFileAsync() {
 			var token = new CancellationToken();
-			using (var ftp = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
-				await ftp.ConnectAsync(token);
+			using (var ftp = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
+				await ftp.Connect(token);
 
 				// define the progress tracking callback
 				Progress<FtpProgress> progress = new Progress<FtpProgress>(p => {
@@ -44,8 +44,8 @@ namespace Examples {
 				});
 
 				// download a file and ensure the local directory is created
-				await ftp.DownloadFileAsync(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpLocalExists.Resume, FtpVerify.None, progress, token);
-				
+				await ftp.DownloadFile(@"D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpLocalExists.Resume, FtpVerify.None, progress, token);
+
 			}
 		}
 

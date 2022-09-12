@@ -45,11 +45,7 @@ namespace FluentFTP.Helpers {
 		/// Join the given strings by a delimiter.
 		/// </summary>
 		public static string Join(this List<string> values, string delimiter) {
-#if NET20 || NET35
-			return string.Join(delimiter, values.ToArray());
-#else
 			return string.Join(delimiter, values);
-#endif
 		}
 
 		/// <summary>
@@ -201,12 +197,12 @@ namespace FluentFTP.Helpers {
 		public static string[] SplitString(this string str) {
 			var allTokens = new List<string>(str.Split(null));
 			for (var i = allTokens.Count - 1; i >= 0; i--) {
-				if (((string)allTokens[i]).Trim().Length == 0) {
+				if (allTokens[i].Trim().Length == 0) {
 					allTokens.RemoveAt(i);
 				}
 			}
 
-			return (string[])allTokens.ToArray();
+			return allTokens.ToArray();
 		}
 
 		/// <summary>
@@ -277,6 +273,37 @@ namespace FluentFTP.Helpers {
 			}
 
 			return false;
+		}
+
+
+		/// <summary>
+		/// Checks if the string contains the given substring in a case-insensitive manner.
+		/// </summary>
+		public static bool ContainsCI(this string value, string substring) {
+			if (value == null || value.Length == 0 || value.Length < substring.Length) {
+				return false;
+			}
+			return value.IndexOf(substring, StringComparison.OrdinalIgnoreCase) > -1;
+		}
+
+		/// <summary>
+		/// Checks if the string starts with the given substring in a case-insensitive manner.
+		/// </summary>
+		public static bool StartsWithCI(this string value, string substring) {
+			if (value == null || value.Length == 0 || value.Length < substring.Length) {
+				return false;
+			}
+			return value.StartsWith(substring, StringComparison.OrdinalIgnoreCase);
+		}
+
+		/// <summary>
+		/// Checks if the string ends with the given substring in a case-insensitive manner.
+		/// </summary>
+		public static bool EndsWithCI(this string value, string substring) {
+			if (value == null || value.Length == 0 || value.Length < substring.Length) {
+				return false;
+			}
+			return value.EndsWith(substring, StringComparison.OrdinalIgnoreCase);
 		}
 
 

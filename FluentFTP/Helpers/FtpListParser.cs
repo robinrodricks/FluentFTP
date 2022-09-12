@@ -1,4 +1,5 @@
-﻿using FluentFTP.Helpers.Parsers;
+﻿using FluentFTP.Client.BaseClient;
+using FluentFTP.Helpers.Parsers;
 using System;
 using System.Collections.Generic;
 
@@ -8,12 +9,11 @@ namespace FluentFTP.Helpers {
 	/// Returns an FtpListItem object representing the parsed line, or null if the line was unable to be parsed.
 	/// </summary>
 	public class FtpListParser {
-		#region Internal API
 
 		/// <summary>
 		/// the FTP connection that owns this parser
 		/// </summary>
-		public FtpClient client;
+		private BaseFtpClient client;
 
 		private static List<FtpParser> parsers = new List<FtpParser> {
 			FtpParser.Unix, FtpParser.Windows, FtpParser.VMS, FtpParser.IBMzOS, FtpParser.IBMOS400, FtpParser.NonStop
@@ -22,17 +22,17 @@ namespace FluentFTP.Helpers {
 		/// <summary>
 		/// current parser, or parser set by user
 		/// </summary>
-		public FtpParser CurrentParser = FtpParser.Auto;
+		public FtpParser CurrentParser { get; set; } = FtpParser.Auto;
 
 		/// <summary>
 		/// parser calculated based on system type (SYST command)
 		/// </summary>
-		public FtpParser DetectedParser = FtpParser.Auto;
+		public FtpParser DetectedParser { get; set; } = FtpParser.Auto;
 
 		/// <summary>
 		/// if we have detected that the current parser is valid
 		/// </summary>
-		public bool ParserConfirmed = false;
+		public bool ParserConfirmed { get; set; } = false;
 
 		/// <summary>
 		/// Is the version number returned as part of the filename?
@@ -41,13 +41,13 @@ namespace FluentFTP.Helpers {
 		/// the filename includes the version number. Note that directories are
 		/// never returned with the version number.
 		/// </summary>
-		public static bool VMSNameHasVersion = false;
+		public static bool VMSNameHasVersion { get; set; } = false;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="FtpListParser"/> class.
 		/// </summary>
-		/// <param name="client">An existing <see cref="FtpClient"/> object</param>
-		public FtpListParser(FtpClient client) {
+		/// <param name="client">An existing <see cref="BaseFtpClient"/> object</param>
+		public FtpListParser(BaseFtpClient client) {
 			this.client = client;
 		}
 
@@ -78,16 +78,15 @@ namespace FluentFTP.Helpers {
 				else if (system == FtpOperatingSystem.IBMOS400) {
 					CurrentParser = FtpParser.IBMOS400;
 				}
-				else
-				{
+				else {
 					CurrentParser = FtpParser.Unix;
-					client.LogStatus(FtpTraceLevel.Warn, "Cannot auto-detect listing parser for system '" + system + "', using Unix parser");
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Warn, "Cannot auto-detect listing parser for system '" + system + "', using Unix parser");
 				}
 			}
 
 			DetectedParser = CurrentParser;
 
-			client.LogStatus(FtpTraceLevel.Verbose, "Listing parser set to: " + DetectedParser.ToString());
+			((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Listing parser set to: " + DetectedParser.ToString());
 		}
 
 		/// <summary>
@@ -98,50 +97,50 @@ namespace FluentFTP.Helpers {
 
 			// force machine listing if it is
 			if (isMachineList) {
-				result = FtpMachineListParser.Parse(file, caps, client);
+				result = MachineListParser.Parse(file, caps, client);
 			}
 			else {
 				// use custom parser if given
-				if (client.ListingParser == FtpParser.Custom && client.ListingCustomParser != null) {
-					result = client.ListingCustomParser(file, caps, client);
+				if (client.Config.ListingParser == FtpParser.Custom && client.Config.ListingCustomParser != null) {
+					result = client.Config.ListingCustomParser(file, caps, client);
 				}
 				else {
 					if (IsWrongParser()) {
-						ValidateParser(new[] {file});
+						ValidateParser(new[] { file });
 					}
 
 					// use one of the in-built parsers
 					switch (CurrentParser) {
 						case FtpParser.Machine:
-							result = FtpMachineListParser.Parse(file, caps, client);
+							result = MachineListParser.Parse(file, caps, client);
 							break;
 
 						case FtpParser.Windows:
-							result = FtpWindowsParser.Parse(client, file);
+							result = WindowsParser.Parse(client, file);
 							break;
 
 						case FtpParser.Unix:
-							result = FtpUnixParser.Parse(client, file);
+							result = UnixParser.Parse(client, file);
 							break;
 
 						case FtpParser.UnixAlt:
-							result = FtpUnixParser.ParseUnixAlt(client, file);
+							result = UnixParser.ParseUnixAlt(client, file);
 							break;
 
 						case FtpParser.VMS:
-							result = FtpVMSParser.Parse(client, file);
+							result = VMSParser.Parse(client, file);
 							break;
 
 						case FtpParser.IBMzOS:
-							result = FtpIBMzOSParser.Parse(client, file, path);
+							result = IBMzOSParser.Parse(client, file, path);
 							break;
 
 						case FtpParser.IBMOS400:
-							result = FtpIBMOS400Parser.Parse(client, file);
+							result = IBMOS400Parser.Parse(client, file);
 							break;
 
 						case FtpParser.NonStop:
-							result = FtpNonStopParser.Parse(client, file);
+							result = NonStopParser.Parse(client, file);
 							break;
 					}
 				}
@@ -163,7 +162,16 @@ namespace FluentFTP.Helpers {
 				}
 
 				// calc absolute file paths
-				result.CalculateFullFtpPath(client, path);
+
+				bool? handledByCustom = null;
+
+				if (client.ServerHandler != null && client.ServerHandler.IsCustomCalculateFullFtpPath()) {
+					handledByCustom = client.ServerHandler.CalculateFullFtpPath(client, path, result);
+				}
+
+				if (handledByCustom == null) {
+					result.CalculateFullFtpPath(client, path);
+				}
 			}
 
 			return result;
@@ -190,7 +198,7 @@ namespace FluentFTP.Helpers {
 
 				// use the initially set parser (from SYST)
 				if (IsParserValid(CurrentParser, files)) {
-					client.LogStatus(FtpTraceLevel.Verbose, "Confirmed format " + CurrentParser.ToString());
+					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Confirmed format " + CurrentParser.ToString());
 					ParserConfirmed = true;
 					return;
 				}
@@ -198,14 +206,14 @@ namespace FluentFTP.Helpers {
 				foreach (var p in parsers) {
 					if (IsParserValid(p, files)) {
 						CurrentParser = p;
-						client.LogStatus(FtpTraceLevel.Verbose, "Detected format " + CurrentParser.ToString());
+						((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Detected format " + CurrentParser.ToString());
 						ParserConfirmed = true;
 						return;
 					}
 				}
 
 				CurrentParser = FtpParser.Unix;
-				client.LogStatus(FtpTraceLevel.Verbose, "Could not detect format. Using default " + CurrentParser.ToString());
+				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "Could not detect format. Using default " + CurrentParser.ToString());
 			}
 		}
 
@@ -223,28 +231,29 @@ namespace FluentFTP.Helpers {
 		private bool IsParserValid(FtpParser p, string[] files) {
 			switch (p) {
 				case FtpParser.Windows:
-					return FtpWindowsParser.IsValid(client, files);
+					return WindowsParser.IsValid(client, files);
 
 				case FtpParser.Unix:
-					return FtpUnixParser.IsValid(client, files);
+					return UnixParser.IsValid(client, files);
 
 				case FtpParser.VMS:
-					return FtpVMSParser.IsValid(client, files);
+					return VMSParser.IsValid(client, files);
 
 				case FtpParser.IBMzOS:
-					return FtpIBMzOSParser.IsValid(client, files);
+					return IBMzOSParser.IsValid(client, files);
 
 				case FtpParser.IBMOS400:
-					return FtpIBMOS400Parser.IsValid(client, files);
+					return IBMOS400Parser.IsValid(client, files);
 
 				case FtpParser.NonStop:
-					return FtpNonStopParser.IsValid(client, files);
+					return NonStopParser.IsValid(client, files);
+
+				case FtpParser.Machine:
+					return MachineListParser.IsValid(client, files);
 			}
 
 			return false;
 		}
-
-		#endregion
 
 	}
 }

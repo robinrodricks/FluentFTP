@@ -1,113 +1,65 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net20;net35;net40;net45;net50;net60;netstandard1.4;netstandard1.6;netstandard2.0;netstandard2.1</TargetFrameworks>
-  </PropertyGroup>
+    <PropertyGroup>
+        <PackageId>FluentFTP</PackageId>
+        <Title>FluentFTP</Title>
+        <Description>An FTP and FTPS client for .NET &amp; .NET Standard, optimized for speed. Provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, FXP transfers, UTF-8 support, Async/await support, Powershell support and more. Written entirely in C#, with no external dependencies.</Description>
+        <Authors>Robin Rodricks, FluentFTP Contributors</Authors>
+        <PackageProjectUrl>https://github.com/robinrodricks/FluentFTP</PackageProjectUrl>
+        <Copyright>MIT License</Copyright>
+        <PackageTags>ftp,ftp-client,ftps,ftps-client,ssl,tls,unix,iis,ftp-proxy</PackageTags>
+        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
+        <SignAssembly>True</SignAssembly>
+        <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
+        <Version>40.0.0</Version>
+        <PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
+        <PackageIcon>logo-nuget.png</PackageIcon>
+        <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+        <LangVersion>10.0</LangVersion>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net20' Or '$(TargetFramework)'=='net35' Or '$(TargetFramework)'=='net40' Or '$(TargetFramework)'=='net45'">
-    <DefineConstants>$(DefineConstants);NETFX</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net60;net50;net472;net462;netstandard2.0;netstandard2.1</TargetFrameworks>
+        <Platforms>AnyCPU;x64</Platforms>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net20'">
-    <DefineConstants>$(DefineConstants);LINQBRIDGE_LIB</DefineConstants>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net472'">
+        <DefineConstants>$(DefineConstants);NETFRAMEWORK;</DefineConstants>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.4' Or '$(TargetFramework)'=='netstandard1.6' Or '$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
-    <DefineConstants>$(DefineConstants);CORE</DefineConstants>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
+        <DefineConstants>$(DefineConstants);NETSTANDARD;</DefineConstants>
+    </PropertyGroup>
 
-	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.4'">
-		<DefineConstants>$(DefineConstants);CORE14;NO_SSL</DefineConstants>
-	</PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)'=='net50'">
+        <DefineConstants>$(DefineConstants);NET50;NETSTANDARD;NET50_OR_LATER;</DefineConstants>
+    </PropertyGroup>
 
-	<PropertyGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
-		<DefineConstants>$(DefineConstants);CORE16</DefineConstants>
-	</PropertyGroup>
+    <PropertyGroup Condition="'$(TargetFramework)'=='net60'">
+        <DefineConstants>$(DefineConstants);NET60;NETSTANDARD;NET50_OR_LATER;</DefineConstants>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net45' Or '$(TargetFramework)'=='net50' Or '$(TargetFramework)'=='net60' Or $(DefineConstants.Contains('CORE'))">
-    <DefineConstants>$(DefineConstants);ASYNC</DefineConstants>
-  </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)'=='Release'">
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net45'">
-    <DefineConstants>$(DefineConstants);NET45</DefineConstants>
-  </PropertyGroup>
+     <ItemGroup>
+        <None Include="..\.github\logo-nuget.png">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+        <None Include="..\LICENSE.TXT">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
 
-	<PropertyGroup Condition="'$(TargetFramework)'=='net50'">
-		<DefineConstants>$(DefineConstants);NET50;CORE</DefineConstants>
-	</PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.0" />
+    </ItemGroup>
 
-	<PropertyGroup Condition="'$(TargetFramework)'=='net60'">
-		<DefineConstants>$(DefineConstants);NET60;CORE</DefineConstants>
-	</PropertyGroup>
-
-  <!--
-  Required only for GetListingAsyncEnumerable
-  
-  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1' Or '$(TargetFramework)'=='net50'">
-    <DefineConstants>$(DefineConstants);ASYNCPLUS</DefineConstants>
-    <LangVersion>8.0</LangVersion>
-  </PropertyGroup>
-  -->
-
-  <PropertyGroup>
-    <PackageId>FluentFTP</PackageId>
-    <Title>FluentFTP</Title>
-    <Description>An FTP and FTPS client for .NET &amp; .NET Standard, optimized for speed. Provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, FXP transfers, UTF-8 support, Async/await support, Powershell support and more. Written entirely in C#, with no external dependencies.</Description>
-    <Authors>Robin Rodricks, FluentFTP Contributors</Authors>
-    <PackageProjectUrl>https://github.com/robinrodricks/FluentFTP</PackageProjectUrl>
-    <Copyright>MIT License</Copyright>
-    <PackageTags>ftp,ftp-client,ftps,ssl,tls,unix,iis</PackageTags>
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
-    <SignAssembly>True</SignAssembly>
-    <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
-    <Version>37.0.6</Version>
-    <PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
-    <PackageIcon>logo-nuget.png</PackageIcon>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-  </PropertyGroup>
-
-  <ItemGroup Condition="$(DefineConstants.Contains('NETFX'))">
-    <Reference Include="System.Web" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.4' Or '$(TargetFramework)'=='netstandard1.6'">
-    <PackageReference Include="System.Net.NameResolution" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)'=='netstandard1.6'">
-    <PackageReference Include="System.Net.Security" Version="4.3.2" />
-    <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
-  </ItemGroup>
-
-  <!--
-  Required only for GetListingAsyncEnumerable
-  
-  <ItemGroup Condition="$(DefineConstants.Contains('ASYNCPLUS')) And '$(TargetFramework)'=='netstandard2.0'">
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(DefineConstants.Contains('ASYNCPLUS'))">
-    <PackageReference Include="System.Linq.Async" Version="5.0.0" />
-  </ItemGroup>
-  -->
-
-  <ItemGroup>
-    <None Include="..\.github\logo-nuget.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-    <None Include="..\LICENSE.TXT">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)'=='Release' And '$(TargetFramework)'=='net45'">
-    <Exec Command="copy /Y &quot;$(ProjectDir)bin\Release\net45\FluentFTP.dll&quot; &quot;$(SolutionDir)Powershell\FluentFTP.dll&quot;" />
-  </Target>
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)'=='Release' And '$(TargetFramework)'=='net45'">
+        <Exec Command="copy /Y &quot;$(ProjectDir)bin\Release\net45\FluentFTP.dll&quot; &quot;$(SolutionDir)Powershell\FluentFTP.dll&quot;" />
+    </Target>
 
 </Project>

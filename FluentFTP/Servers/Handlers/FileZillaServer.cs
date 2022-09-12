@@ -1,22 +1,12 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using System.Security.Authentication;
-using FluentFTP;
-using FluentFTP.Servers;
-#if (CORE || NETFX)
-using System.Threading;
-#endif
-#if ASYNC
+﻿using System.Threading;
 using System.Threading.Tasks;
-#endif
 
 namespace FluentFTP.Servers.Handlers {
 
 	/// <summary>
 	/// Server-specific handling for FileZilla FTP servers
 	/// </summary>
-	public class FileZillaServer : FtpBaseServer {
+	internal class FileZillaServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.

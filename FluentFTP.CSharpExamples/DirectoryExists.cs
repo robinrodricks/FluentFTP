@@ -19,10 +19,10 @@ namespace Examples {
 
 		public static async Task DirectoryExistsAsync() {
 			var token = new CancellationToken();
-			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
-				await conn.ConnectAsync(token);
+			using (var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
+				await conn.Connect(token);
 
-				if (await conn.DirectoryExistsAsync("/full/or/relative/path", token)) {
+				if (await conn.DirectoryExists("/full/or/relative/path", token)) {
 					// do something
 				}
 			}

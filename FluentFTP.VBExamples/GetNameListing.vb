@@ -21,13 +21,13 @@ Namespace Examples
 		Async Function GetNameListingAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await conn.ConnectAsync(token)
+			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
+				Await conn.Connect(token)
 
-				For Each s In Await conn.GetNameListingAsync(token)
-					Dim isDirectory = Await conn.DirectoryExistsAsync(s, token)
-					Dim modify = Await conn.GetModifiedTimeAsync(s, token)
-					Dim size = If(isDirectory, 0, Await conn.GetFileSizeAsync(s, -1, token))
+				For Each s In Await conn.GetNameListing(token)
+					Dim isDirectory = Await conn.DirectoryExists(s, token)
+					Dim modify = Await conn.GetModifiedTime(s, token)
+					Dim size = If(isDirectory, 0, Await conn.GetFileSize(s, -1, token))
 				Next
 			End Using
 		End Function

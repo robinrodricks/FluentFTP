@@ -16,9 +16,9 @@ Namespace Examples
 		Async Function GetFileSizeAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await conn.ConnectAsync(token)
-				Console.WriteLine("The file size is: " & Await conn.GetFileSizeAsync("/full/or/relative/path/to/file", -1, token))
+			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
+				Await conn.Connect(token)
+				Console.WriteLine("The file size is: " & Await conn.GetFileSize("/full/or/relative/path/to/file", -1, token))
 			End Using
 		End Function
 	End Module

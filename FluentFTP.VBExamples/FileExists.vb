@@ -20,10 +20,10 @@ Namespace Examples
 		Async Function FileExistsAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await conn.ConnectAsync(token)
+			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
+				Await conn.Connect(token)
 
-				If Await conn.FileExistsAsync("/full/or/relative/path", token) Then
+				If Await conn.FileExists("/full/or/relative/path", token) Then
 					' do something
 				End If
 

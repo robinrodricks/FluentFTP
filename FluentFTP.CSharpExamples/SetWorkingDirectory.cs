@@ -17,10 +17,10 @@ namespace Examples {
 
 		public static async Task SetWorkingDirectoryAsync() {
 			var token = new CancellationToken();
-			using (var conn = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
+			using (var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
 
-				await conn.ConnectAsync(token);
-				await conn.SetWorkingDirectoryAsync("/full/or/relative/path", token);
+				await conn.Connect(token);
+				await conn.SetWorkingDirectory("/full/or/relative/path", token);
 			}
 		}
 

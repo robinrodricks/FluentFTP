@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+
+  vsftpd:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        USER_ID: 1000
+        GROUP_ID: 1000
+    restart: always
+    ports:
+      - 0.0.0.0:20:20
+      - 0.0.0.0:21:21
+      - 21100-21110:21100-21110
+    volumes:
+      - ./home:/home/vsftpd
+      - ./logs:/var/log/vsftpd

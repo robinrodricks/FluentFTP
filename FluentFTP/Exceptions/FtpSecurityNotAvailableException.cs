@@ -1,5 +1,5 @@
 ﻿using System;
-#if !CORE
+#if NETFRAMEWORK
 using System.Runtime.Serialization;
 #endif
 
@@ -8,7 +8,7 @@ namespace FluentFTP {
 	/// <summary>
 	/// Exception is thrown when TLS/SSL encryption could not be negotiated by the FTP server.
 	/// </summary>
-#if !CORE
+#if NETFRAMEWORK
 	[Serializable]
 #endif
 	public class FtpSecurityNotAvailableException : FtpException {
@@ -17,7 +17,7 @@ namespace FluentFTP {
 		/// </summary>
 		public FtpSecurityNotAvailableException()
 			: base("FTPS security is not available on the server. To disable FTPS, set the EncryptionMode property to None.") {
-			
+
 		}
 
 		/// <summary>
@@ -28,7 +28,7 @@ namespace FluentFTP {
 			: base(message) {
 		}
 
-#if !CORE
+#if NETFRAMEWORK
 		/// <summary>
 		/// Must be implemented so every Serializer can Deserialize the Exception
 		/// </summary>

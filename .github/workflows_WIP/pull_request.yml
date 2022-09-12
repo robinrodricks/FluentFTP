@@ -1,0 +1,38 @@
+name: pull_request
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  Tests:
+    env:
+      framework: 'net6.0'
+    strategy:
+      matrix:
+        include:
+        - ftp: pureftpd
+          os: ubuntu-latest
+        - ftp: vsftpd
+          os: ubuntu-latest
+        - ftp: pyftpdlib
+          os: ubuntu-latest
+          
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build FluentFTP.Tests/FluentFTP.Tests.csproj --no-restore --framework ${{ env.framework }}
+    - name: Test
+      env:
+        FluentFTP__Tests__Integration__FtpServerKey: ${{ matrix.ftp }}
+      run: dotnet test FluentFTP.Tests/FluentFTP.Tests.csproj --no-build --verbosity normal --framework ${{ env.framework }}

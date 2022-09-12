@@ -3,66 +3,67 @@ using System.Collections.Generic;
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
-#if !CORE
+#if NETFRAMEWORK
 using System.Runtime.Serialization;
 #endif
 using FluentFTP.Helpers;
 
 namespace FluentFTP {
-	
-#if !CORE
+
+#if NETFRAMEWORK
 	[Serializable]
 #endif
 	public class FtpProfile {
+
 		/// <summary>
 		/// The host IP address or URL of the FTP server
 		/// </summary>
-		public string Host;
+		public string Host { get; set; }
 
 		/// <summary>
 		/// The FTP username and password used to login
 		/// </summary>
-		public NetworkCredential Credentials;
+		public NetworkCredential Credentials { get; set; }
 
 		/// <summary>
 		/// A working Encryption Mode found for this profile
 		/// </summary>
-		public FtpEncryptionMode Encryption = FtpEncryptionMode.None;
+		public FtpEncryptionMode Encryption { get; set; } = FtpEncryptionMode.None;
 
 		/// <summary>
 		/// A working Ssl Protocol setting found for this profile
 		/// </summary>
-		public SslProtocols Protocols = SslProtocols.None;
+		public SslProtocols Protocols { get; set; } = SslProtocols.None;
 
 		/// <summary>
 		/// A working Data Connection Type found for this profile
 		/// </summary>
-		public FtpDataConnectionType DataConnection = FtpDataConnectionType.PASV;
+		public FtpDataConnectionType DataConnection { get; set; } = FtpDataConnectionType.PASV;
 
 		/// <summary>
 		/// A working Encoding setting found for this profile
 		/// </summary>
-		public Encoding Encoding;
+		public Encoding Encoding { get; set; }
 
 		/// <summary>
 		/// A working Timeout setting found for this profile, or 0 if default value should be used
 		/// </summary>
-		public int Timeout = 0;
+		public int Timeout { get; set; } = 0;
 
 		/// <summary>
 		/// A working SocketPollInterval setting found for this profile, or 0 if default value should be used
 		/// </summary>
-		public int SocketPollInterval = 0;
+		public int SocketPollInterval { get; set; } = 0;
 
 		/// <summary>
 		/// A working RetryAttempts setting found for this profile, or 0 if default value should be used
 		/// </summary>
-		public int RetryAttempts = 0;
+		public int RetryAttempts { get; set; } = 0;
 
 		/// <summary>
 		/// If the server surely supports the given encoding.
 		/// </summary>
-		public bool EncodingVerified = true;
+		public bool EncodingVerified { get; set; } = true;
 
 
 		/// <summary>

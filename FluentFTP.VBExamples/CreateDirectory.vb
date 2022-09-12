@@ -16,9 +16,9 @@ Namespace Examples
 		Async Function CreateDirectoryAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await conn.ConnectAsync(token)
-				Await conn.CreateDirectoryAsync("/test/path/that/should/be/created", True, token)
+			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
+				Await conn.Connect(token)
+				Await conn.CreateDirectory("/test/path/that/should/be/created", True, token)
 			End Using
 		End Function
 	End Module

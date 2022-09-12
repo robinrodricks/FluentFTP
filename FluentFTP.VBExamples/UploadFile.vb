@@ -25,17 +25,17 @@ Namespace Examples
 		Async Function UploadFileAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using ftp = New FtpClient("127.0.0.1", "ftptest", "ftptest")
-				Await ftp.ConnectAsync(token)
+			Using ftp = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
+				Await ftp.Connect(token)
 
 				' upload a file to an existing FTP directory
-				Await ftp.UploadFileAsync("D:\Github\FluentFTP\README.md", "/public_html/temp/README.md")
+				Await ftp.UploadFile("D:\Github\FluentFTP\README.md", "/public_html/temp/README.md")
 
 				' upload a file And ensure the FTP directory Is created on the server
-				Await ftp.UploadFileAsync("D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpRemoteExists.Overwrite, True)
+				Await ftp.UploadFile("D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpRemoteExists.Overwrite, True)
 
 				' upload a file And ensure the FTP directory Is created on the server, verify the file after upload
-				Await ftp.UploadFileAsync("D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpRemoteExists.Overwrite, True, FtpVerify.Retry)
+				Await ftp.UploadFile("D:\Github\FluentFTP\README.md", "/public_html/temp/README.md", FtpRemoteExists.Overwrite, True, FtpVerify.Retry)
 
 			End Using
 		End Function
