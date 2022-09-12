@@ -1,15 +1,22 @@
-﻿using FluentFTP.Client.BaseClient;
-using FluentFTP.Helpers;
+﻿using System;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using System.Security.Authentication;
+using FluentFTP;
+using FluentFTP.Servers;
+#if (CORE || NETFX)
 using System.Threading;
+#endif
+#if ASYNC
 using System.Threading.Tasks;
+#endif
 
 namespace FluentFTP.Servers.Handlers {
 
 	/// <summary>
 	/// Server-specific handling for OpenVMS FTP servers
 	/// </summary>
-	internal class OpenVmsServer : FtpBaseServer {
+	public class OpenVmsServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.
@@ -52,13 +59,13 @@ namespace FluentFTP.Servers.Handlers {
 		/// Used if your server does not broadcast its capabilities using the FEAT command.
 		/// </summary>
 		public override string[] DefaultCapabilities() {
-
+			
 			// OpenVMS HGFTP
 			// https://gist.github.com/robinrodricks/9631f9fad3c0fc4c667adfd09bd98762
-
+			
 			// assume the basic features supported
 			return new[] { "CWD", "DELE", "LIST", "NLST", "MKD", "MDTM", "PASV", "PORT", "PWD", "QUIT", "RNFR", "RNTO", "SITE", "STOR", "STRU", "TYPE" };
-
+			
 		}
 
 		/// <summary>
@@ -84,30 +91,6 @@ namespace FluentFTP.Servers.Handlers {
 			return FtpParser.VMS;
 		}
 
-		public override bool IsCustomCalculateFullFtpPath() {
-			return true;
-		}
 
-		/// <summary>
-		/// Get the full path of a given FTP Listing entry
-		/// Return null indicates custom code decided not to handle this
-		/// </summary>
-		public override bool? CalculateFullFtpPath(BaseFtpClient client, string path, FtpListItem item) {
-			if (path == null) {
-				// check if the path is absolute
-				if (IsAbsolutePath(item.Name)) {
-					item.FullName = item.Name;
-					item.Name = item.Name.GetFtpFileName();
-				}
-
-				return true;
-			}
-
-			// if this is a vax/openvms file listing
-			// there are no slashes in the path name
-			item.FullName = path + item.Name;
-
-			return true;
-		}
 	}
 }

@@ -7,12 +7,6 @@ namespace FluentFTP {
 	/// </summary>
 	[Flags]
 	public enum FtpIpVersion : int {
-
-		/// <summary>
-		/// Unknown protocol.
-		/// </summary>
-		Unknown = 0,
-
 		/// <summary>
 		/// Internet Protocol Version 4
 		/// </summary>

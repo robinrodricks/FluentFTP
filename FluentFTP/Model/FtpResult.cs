@@ -12,22 +12,22 @@ namespace FluentFTP {
 		/// <summary>
 		/// Returns true if the file was downloaded, false if it was uploaded.
 		/// </summary>
-		public bool IsDownload { get; set; }
+		public bool IsDownload;
 
 		/// <summary>
 		/// Gets the type of file system object.
 		/// </summary>
-		public FtpObjectType Type { get; set; }
+		public FtpFileSystemObjectType Type;
 
 		/// <summary>
 		/// Gets the size of the file.
 		/// </summary>
-		public long Size { get; set; }
+		public long Size;
 
 		/// <summary>
 		/// Gets the name and extension of the file.
 		/// </summary>
-		public string Name { get; set; }
+		public string Name;
 
 		/// <summary>
 		/// Stores the absolute remote path of the current file being transferred.
@@ -42,27 +42,27 @@ namespace FluentFTP {
 		/// <summary>
 		/// Gets the error that occurring during transferring this file, if any.
 		/// </summary>
-		public Exception Exception { get; set; }
+		public Exception Exception;
 
 		/// <summary>
 		/// Returns true if the file was downloaded/uploaded, or the file was already existing with the same file size.
 		/// </summary>
-		public bool IsSuccess { get; set; }
+		public bool IsSuccess;
 
 		/// <summary>
 		/// Was the file skipped?
 		/// </summary>
-		public bool IsSkipped { get; set; }
+		public bool IsSkipped;
 
 		/// <summary>
 		/// Was the file skipped due to failing the rule condition?
 		/// </summary>
-		public bool IsSkippedByRule { get; set; }
+		public bool IsSkippedByRule;
 
 		/// <summary>
 		/// Was there an error during transfer? You can read the Exception property for more details.
 		/// </summary>
-		public bool IsFailed { get; set; }
+		public bool IsFailed;
 
 		/// <summary>
 		/// Convert this result to a FTP list item.

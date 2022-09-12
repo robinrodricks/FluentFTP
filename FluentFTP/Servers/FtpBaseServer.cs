@@ -1,6 +1,11 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Generic;
+#if (CORE || NETFX)
+using System.Threading;
+#endif
+#if ASYNC
 using System.Threading.Tasks;
-using FluentFTP.Client.BaseClient;
+#endif
 
 namespace FluentFTP.Servers {
 
@@ -49,6 +54,13 @@ namespace FluentFTP.Servers {
 		}
 
 		/// <summary>
+		/// Return true if the path is an absolute path according to your server's convention.
+		/// </summary>
+		public virtual bool IsAbsolutePath(string path) {
+			return false;
+		}
+
+		/// <summary>
 		/// Return the default file listing parser to be used with your FTP server.
 		/// </summary>
 		public virtual FtpParser GetParser() {
@@ -63,13 +75,15 @@ namespace FluentFTP.Servers {
 			return false;
 		}
 
+#if ASYNC
 		/// <summary>
 		/// Perform async server-specific delete directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public virtual Task<bool> DeleteDirectoryAsync(AsyncFtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
+		public virtual Task<bool> DeleteDirectoryAsync(FtpClient client, string path, string ftppath, bool deleteContents, FtpListOption options, CancellationToken token) {
 			return Task.FromResult(false);
 		}
+#endif
 
 		/// <summary>
 		/// Perform server-specific create directory commands here.
@@ -79,13 +93,15 @@ namespace FluentFTP.Servers {
 			return false;
 		}
 
+#if ASYNC
 		/// <summary>
 		/// Perform async server-specific create directory commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public virtual Task<bool> CreateDirectoryAsync(AsyncFtpClient client, string path, string ftppath, bool force, CancellationToken token) {
+		public virtual Task<bool> CreateDirectoryAsync(FtpClient client, string path, string ftppath, bool force, CancellationToken token) {
 			return Task.FromResult(false);
 		}
+#endif
 
 		/// <summary>
 		/// Perform server-specific post-connection commands here.
@@ -95,21 +111,25 @@ namespace FluentFTP.Servers {
 
 		}
 
+#if ASYNC
 		/// <summary>
 		/// Perform server-specific post-connection commands here.
 		/// Return true if you executed a server-specific command.
 		/// </summary>
-		public virtual Task AfterConnectedAsync(AsyncFtpClient client, CancellationToken token) {
+		public virtual Task AfterConnectedAsync(FtpClient client, CancellationToken token) {
+#if NET45
+			return Task.FromResult(true);
+#else
 			return Task.CompletedTask;
+#endif
 		}
-
-		/// <summary>
-		/// Return true if your server requires custom handling of file size.
-		/// </summary>
+#endif
+			/// <summary>
+			/// Return true if your server requires custom handling of file size.
+			/// </summary>
 		public virtual bool IsCustomFileSize() {
 			return false;
 		}
-
 		/// <summary>
 		/// Perform server-specific file size fetching commands here.
 		/// Return the file size in bytes.
@@ -118,163 +138,22 @@ namespace FluentFTP.Servers {
 			return 0;
 		}
 
+#if ASYNC
 		/// <summary>
 		/// Perform server-specific file size fetching commands here.
 		/// Return the file size in bytes.
 		/// </summary>
-		public virtual Task<long> GetFileSizeAsync(AsyncFtpClient client, string path, CancellationToken token) {
+		public virtual Task<long> GetFileSizeAsync(FtpClient client, string path, CancellationToken token) {
 			return Task.FromResult(0L);
 		}
-
+#endif
 		/// <summary>
 		/// Check if the given path is a root directory on your FTP server.
 		/// If you are unsure, return false.
 		/// </summary>
-		public virtual bool IsRoot(BaseFtpClient client, string path) {
+		public virtual bool IsRoot(FtpClient client, string path) {
 			return false;
 		}
 
-		/// <summary>
-		/// Skip reporting a parser error
-		/// </summary>
-		public virtual bool SkipParserErrorReport() {
-			return false;
-		}
-
-		/// <summary>
-		/// Always read to end of stream on a download
-		/// If you are unsure, return false.
-		/// </summary>
-		public virtual bool AlwaysReadToEnd(string remotePath) {
-			return false;
-		}
-
-		/// <summary>
-		/// Return true if the path is an absolute path according to your server's convention.
-		/// </summary>
-		public virtual bool IsAbsolutePath(string path) {
-			return false;
-		}
-
-		/// <summary>
-		/// Return true if your server requires custom handling of absolute paths.
-		/// </summary>
-		public virtual bool IsCustomGetAbsolutePath() {
-			return false;
-		}
-
-		/// <summary>
-		/// Perform server-specific path modification here.
-		/// Return the absolute path.
-		/// </summary>
-		public virtual string GetAbsolutePath(FtpClient client, string path) {
-			return path;
-		}
-
-		/// <summary>
-		/// Perform server-specific path modification here.
-		/// Return the absolute path.
-		/// </summary>
-		public virtual Task<string> GetAbsolutePathAsync(AsyncFtpClient client, string path, CancellationToken token) {
-			return Task.FromResult(path);
-		}
-
-		/// <summary>
-		/// Return true if your server requires custom handling of absolute dir.
-		/// </summary>
-		public virtual bool IsCustomGetAbsoluteDir() {
-			return false;
-		}
-
-		/// <summary>
-		/// Perform server-specific path modification here.
-		/// Return the absolute dir.
-		/// </summary>
-		public virtual string GetAbsoluteDir(FtpClient client, string path) {
-			return null;
-		}
-
-		/// <summary>
-		/// Perform server-specific path modification here.
-		/// Return the absolute path.
-		/// </summary>
-		public virtual Task<string> GetAbsoluteDirAsync(AsyncFtpClient client, string path, CancellationToken token) {
-			return Task.FromResult((string)null);
-		}
-
-		/// <summary>
-		/// Return true if your server requires custom handling of path and filename concatenation.
-		/// </summary>
-		public virtual bool IsCustomGetAbsoluteFilePath() {
-			return false;
-		}
-
-		/// <summary>
-		/// Perform server-specific path modification here.
-		/// Return concatenation of path and filename
-		/// </summary>
-		public virtual string GetAbsoluteFilePath(FtpClient client, string path, string fileName) {
-			return !path.EndsWith("/") ? path + "/" + fileName : path + fileName;
-		}
-
-		/// <summary>
-		/// Perform server-specific path modification here.
-		/// Return concatenation of path and filename
-		/// </summary>
-		public virtual Task<string> GetAbsoluteFilePathAsync(AsyncFtpClient client, string path, string fileName, CancellationToken token) {
-			return Task.FromResult(!path.EndsWith("/") ? path + "/" + fileName : path + fileName);
-		}
-
-		/// <summary>
-		/// Return true if your server requires custom handling to handle listing analysis.
-		/// </summary>
-		public virtual bool IsCustomCalculateFullFtpPath() {
-			return false;
-		}
-
-		/// <summary>
-		/// Get the full path of a given FTP Listing entry
-		/// Return null indicates custom code decided not to handle this
-		/// </summary>
-		public virtual bool? CalculateFullFtpPath(BaseFtpClient client, string path, FtpListItem item) {
-			return null;
-		}
-
-		/// <summary>
-		/// Disable SIZE command even if server says it is supported
-		/// </summary>
-		public virtual bool DontUseSizeEvenIfCapable(string path) {
-			return false;
-		}
-
-		/// <summary>
-		/// Disable MDTM command even if server says it is supported
-		/// </summary>
-		public virtual bool DontUseMdtmEvenIfCapable(string path) {
-			return false;
-		}
-
-		/// <summary>
-		/// Return true if your server requires custom handling to check file existence.
-		/// </summary>
-		public virtual bool IsCustomFileExists() {
-			return false;
-		}
-
-		/// <summary>
-		/// Check for existence of a file
-		/// Return null indicates custom code decided not to handle this
-		/// </summary>
-		public virtual bool? FileExists(FtpClient client, string path) {
-			return null;
-		}
-
-		/// <summary>
-		/// Check for existence of a file
-		/// Return null indicates custom code decided not to handle this
-		/// </summary>
-		public virtual Task<bool?> FileExistsAsync(AsyncFtpClient client, string path, CancellationToken token) {
-			return Task.FromResult((bool?)null);
-		}
 	}
 }

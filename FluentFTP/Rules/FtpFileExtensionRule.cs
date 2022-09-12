@@ -14,12 +14,12 @@ namespace FluentFTP.Rules {
 		/// <summary>
 		/// If true, only files of the given extension are uploaded or downloaded. If false, files of the given extension are excluded.
 		/// </summary>
-		public bool Whitelist { get; set; }
+		public bool Whitelist;
 
 		/// <summary>
 		/// The extensions to match
 		/// </summary>
-		public IList<string> Exts { get; set; }
+		public IList<string> Exts;
 
 		/// <summary>
 		/// Only accept files that have the given extension, or exclude files of a given extension.
@@ -35,7 +35,7 @@ namespace FluentFTP.Rules {
 		/// Checks if the files has the given extension, or exclude files of the given extension.
 		/// </summary>
 		public override bool IsAllowed(FtpListItem item) {
-			if (item.Type == FtpObjectType.File) {
+			if (item.Type == FtpFileSystemObjectType.File) {
 				var ext = Path.GetExtension(item.Name).Replace(".", "").ToLower();
 				if (Whitelist) {
 

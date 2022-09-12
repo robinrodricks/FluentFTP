@@ -1,6 +1,6 @@
-*/bin
-*/obj
-*/nuget
+bin
+obj
+nuget
 
 API Reference.shfbproj_jp
 Help
@@ -21,6 +21,3 @@ HTML
 API_Reference_CHM.shfbproj_jp
 .DS_Store
 .vs
-
-FluentFTP.Tests/testdata
-*.yaml

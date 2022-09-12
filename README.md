@@ -9,16 +9,14 @@
 
 FluentFTP is a fully managed FTP and FTPS library for .NET & .NET Standard, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, FXP transfers, UTF-8 support, Async/await support, Powershell support and more.
 
-It is written entirely in C#, with [just one](https://www.nuget.org/packages/Microsoft.Extensions.Logging.Abstractions/2.1.0) external dependencies. It has an extensive automated test suite which tests all its functionality against local FTP server docker containers.
+It is written entirely in C#, with no external dependencies. FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications.
 
-FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications. 
-
-![Features](https://github.com/robinrodricks/FluentFTP/raw/master/.github/features-4.png)
+![Features](https://github.com/robinrodricks/FluentFTP/raw/master/.github/features-2.png)
 
 
 ## Features
 
-  - Full support for [FTP](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Support), [FXP](https://github.com/robinrodricks/FluentFTP/wiki/FXP-Server-To-Server#how-does-fxp-transfer-work), [FTPS](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_ftps) (FTP over SSL), [FTPS with client certificates](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_certs), [FTPS with CCC](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_ccc) and [FTPS Proxies](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Proxies)
+  - Full support for [FTP](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Support), [FXP](https://github.com/robinrodricks/FluentFTP/wiki/FXP-Server-To-Server#how-does-fxp-transfer-work), [FTPS](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_ftps) (FTP over SSL), [FTPS with client certificates](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_certs) and [FTPS with CCC](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_ccc) (for FTP firewalls)
   - **File management:**
     - File and directory listing for [all major server types](https://github.com/robinrodricks/FluentFTP/wiki/Directory-Listing#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, [IBM z/OS and OS/400](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support), Windows CE, Serv-U, etc)
 	- Fully recursive directory listing and directory deletion (manual recursion and server-side recursion)
@@ -46,7 +44,7 @@ FluentFTP is released under the permissive MIT License, so it can be used in bot
     - Passive and active data connections (PASV, EPSV, PORT and EPRT)
     - Supports Unix CHMOD, PRET, ProFTPD's SITE MKDIR and RMDIR commands, Serv-U's RMDA command
     - Supports Realm and directory navigation for [IBM z/OS and OS/400](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support)
-    - Supports all types of [FTP Proxies](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Proxies) (HTTP 1.1, SOCKS4, SOCKS4a, SOCKS5, User@Host, BlueCoat)
+    - Supports all types of FTP Proxies ([HTTP 1.1](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Proxies#faq_loginproxy), [SOCKS5](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Proxies#faq_loginsocksproxy), User@Host, BlueCoat)
     - [FTP command logging](https://github.com/robinrodricks/FluentFTP/wiki/Logging#faq_log) using `TraceListeners` (passwords omitted) to [trace](https://github.com/robinrodricks/FluentFTP/wiki/Logging#faq_trace) or [log output](https://github.com/robinrodricks/FluentFTP/wiki/Logging#faq_logfile) to a file
     - SFTP is not supported as it is FTP over SSH, a completely different protocol (use [SSH.NET](https://github.com/sshnet/SSH.NET) for that)
   - **Asynchronous support:**
@@ -57,11 +55,11 @@ FluentFTP is released under the permissive MIT License, so it can be used in bot
     - Improves thread safety by cloning the FTP control connection for file transfers (optional)
     - Implements its own internal locking in an effort to keep transactions synchronized
   - **Extensible:**
-    - Easily add custom logging/tracing functionality using industry-standard [`ILogger`](https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging.ilogger?view=dotnet-plat-ext-6.0) interface
     - Easily add support for custom non-standard FTP servers (see the [Custom Servers](https://github.com/robinrodricks/FluentFTP/wiki/Custom-Servers) page)
     - Easily add support for more file or directory filtering rules (simply extend [`FtpRule`](https://github.com/robinrodricks/FluentFTP/wiki/Class-FtpRule))
     - Easily add support for more proxy types (simply extend [`FtpClientProxy`](https://github.com/robinrodricks/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
     - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/robinrodricks/FluentFTP/blob/master/FluentFTP.CSharpExamples/CustomParser.cs) example)
+    - Easily add custom logging/tracing functionality using [`FtpTrace.AddListener`](https://github.com/robinrodricks/FluentFTP/wiki/Logging#faq_log)
 	- Easily add your own Powershell commands by extending the scripts in [`FluentFTP.ps1`](https://github.com/robinrodricks/FluentFTP/wiki/Powershell)
 
 	
@@ -76,10 +74,13 @@ FluentFTP works on .NET and .NET Standard/.NET Core.
 
 | Platform      		| Binaries Folder	| 
 |---------------		|-----------		|
-| **.NET 4.6.2**      	| net462     		| 
-| **.NET 4.7.2**      	| net472     		| 
+| **.NET 2.0**      	| net20     		| 
+| **.NET 3.5**      	| net35     		| 
+| **.NET 4.0**      	| net40     		| 
+| **.NET 4.5**      	| net45     		| 
 | **.NET 5.0**      	| net50     		| 
-| **.NET 6.0**      	| net60     		| 
+| **.NET Standard 1.4** | netstandard1.4	| 
+| **.NET Standard 1.6** | netstandard1.6	| 
 | **.NET Standard 2.0** | netstandard2.0	| 
 | **.NET Standard 2.1** | netstandard2.1	| 
 
@@ -90,7 +91,7 @@ FluentFTP is also supported on these platforms: (via .NET Standard)
   - **Xamarin.Android** 10.0
   - **Universal Windows Platform** 10.0
 
-Binaries for all platforms are built from a single Visual Studio Project. You will need the latset [Visual Studio](https://visualstudio.microsoft.com/downloads/) to build or contribute to FluentFTP.
+Binaries for all platforms are built from a single Visual Studio 2019 Project. You will need [VS 2019](https://visualstudio.microsoft.com/downloads/) to build or contribute to FluentFTP.
 
 
 ## Example Usage
@@ -102,11 +103,6 @@ We also have extensive examples for all methods in [C#](https://github.com/robin
 ## Documentation and FAQs
 
 Check the [Wiki](https://github.com/robinrodricks/FluentFTP/wiki).
-
-## Tests
-
-We have an extensive [automated test suite](https://github.com/robinrodricks/FluentFTP/wiki/Automated-Testing) that tests FluentFTP against many servers. We use docker to orchestrate containerized FTP servers that are used for testing.
-
 
 ## Sponsorship
 

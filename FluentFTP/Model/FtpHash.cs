@@ -78,15 +78,16 @@ namespace FluentFTP {
 
 				switch (m_algorithm) {
 					case FtpHashAlgorithm.SHA1:
-#if NETSTANDARD
+#if CORE
 						hashAlg = SHA1.Create();
 #else
 						hashAlg = new SHA1CryptoServiceProvider();
 #endif
 						break;
 
+#if !NET20
 					case FtpHashAlgorithm.SHA256:
-#if NETSTANDARD
+#if CORE
 						hashAlg = SHA256.Create();
 #else
 						hashAlg = new SHA256CryptoServiceProvider();
@@ -94,15 +95,16 @@ namespace FluentFTP {
 						break;
 
 					case FtpHashAlgorithm.SHA512:
-#if NETSTANDARD
+#if CORE
 						hashAlg = SHA512.Create();
 #else
 						hashAlg = new SHA512CryptoServiceProvider();
 #endif
 						break;
 
+#endif
 					case FtpHashAlgorithm.MD5:
-#if NETSTANDARD
+#if CORE
 						hashAlg = MD5.Create();
 #else
 						hashAlg = new MD5CryptoServiceProvider();
@@ -145,7 +147,14 @@ namespace FluentFTP {
 					}
 				}
 				finally {
-					hashAlg?.Dispose();
+
+// .NET 2.0 doesn't provide access to Dispose() for HashAlgorithm
+#if !NET20 && !NET35 
+					if (hashAlg != null) {
+						hashAlg.Dispose();
+					}
+
+#endif
 				}
 			}
 

@@ -16,7 +16,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// The checksum of the file is verified, if supported by the server.
 		/// If the checksum comparison fails then we retry the download/upload
-		/// a specified amount of times before giving up. (See <see cref="BaseFtpClient.RetryAttempts"/>)
+		/// a specified amount of times before giving up. (See <see cref="FtpClient.RetryAttempts"/>)
 		/// </summary>
 		Retry = 1,
 

@@ -1,12 +1,22 @@
-﻿using System.Threading;
+﻿using System;
+using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using System.Security.Authentication;
+using FluentFTP;
+using FluentFTP.Servers;
+#if (CORE || NETFX)
+using System.Threading;
+#endif
+#if ASYNC
 using System.Threading.Tasks;
+#endif
 
 namespace FluentFTP.Servers.Handlers {
 
 	/// <summary>
 	/// Server-specific handling for WuFTPd FTP servers
 	/// </summary>
-	internal class WuFtpdServer : FtpBaseServer {
+	public class WuFtpdServer : FtpBaseServer {
 
 		/// <summary>
 		/// Return the FtpServer enum value corresponding to your server, or Unknown if its a custom implementation.
@@ -48,10 +58,10 @@ namespace FluentFTP.Servers.Handlers {
 
 			// HP-UX version of wu-ftpd 2.6.1
 			// http://nixdoc.net/man-pages/HP-UX/ftpd.1m.html
-
+			
 			// assume the basic features supported
 			return new[] { "ABOR", "ACCT", "ALLO", "APPE", "CDUP", "CWD", "DELE", "EPSV", "EPRT", "HELP", "LIST", "LPRT", "LPSV", "MKD", "MDTM", "MODE", "NLST", "NOOP", "PASS", "PASV", "PORT", "PWD", "QUIT", "REST", "RETR", "RMD", "RNFR", "RNTO", "SITE", "SIZE", "STAT", "STOR", "STOU", "STRU", "SYST", "TYPE" };
-
+			
 		}
 
 	}

@@ -6,8 +6,6 @@
 
 **FluentFTP Version:** ?
 
-**Framework:** .NET 2 / 3.5 / 4 / 5 / 6 / 7 / 8 / UWP / Xamarin / Mono
-
 <write details about your bug report / feature request here>
 
 **Logs :**

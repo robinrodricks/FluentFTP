@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers {
 	/// <summary>
@@ -108,7 +107,7 @@ namespace FluentFTP.Helpers {
 		/// <param name="path">The full path to the file</param>
 		/// <returns>The file name</returns>
 		public static string GetFtpFileName(this string path) {
-			var tpath = path;
+			var tpath = path == null ? null : path;
 			var lastslash = -1;
 
 			// no change in path
@@ -157,11 +156,14 @@ namespace FluentFTP.Helpers {
 		/// <summary>
 		/// Get the full path of a given FTP Listing entry
 		/// </summary>
-		public static void CalculateFullFtpPath(this FtpListItem item, BaseFtpClient client, string path) {
+		public static void CalculateFullFtpPath(this FtpListItem item, FtpClient client, string path)
+		{
 			// EXIT IF NO DIR PATH PROVIDED
-			if (path == null) {
+			if (path == null)
+			{
 				// check if the path is absolute
-				if (IsAbsolutePath(item.Name)) {
+				if (IsAbsolutePath(item.Name))
+				{
 					item.FullName = item.Name;
 					item.Name = item.Name.GetFtpFileName();
 				}
@@ -170,40 +172,121 @@ namespace FluentFTP.Helpers {
 			}
 
 			// ONLY IF DIR PATH PROVIDED
-			//this.((IInternalFtpClient)client).LogStatus(item.Name);
+			if (client.ServerType == FtpServer.IBMzOSFTP &&
+				client.zOSListingRealm != FtpZOSListRealm.Unix)
+			{
+				// The user might be using GetListing("", FtpListOption.NoPath)
+				// or he might be using    GetListing("not_fully_qualified_zOS path")
+				// or he might be using    GetListing("'fully_qualified_zOS path'") (note the single quotes)
 
-			// remove globbing/wildcard from path
-			if (path.GetFtpFileName().Contains("*")) {
-				path = path.GetFtpDirectoryName();
+				// The following examples in the comments assume a current working
+				// directory of 'GEEK.'.
+
+				// If it is not a FtpZOSListRealm.Dataset, it must be FtpZOSListRealm.Member*
+
+				// Is caller using FtpListOption.NoPath and CWD to the right place?
+				if (path.Length == 0)
+				{
+					if (client.zOSListingRealm == FtpZOSListRealm.Dataset)
+					{
+						// Path: ""
+						// Fullname: 'GEEK.PROJECTS.LOADLIB'
+						item.FullName = client.GetWorkingDirectory().TrimEnd('\'') + item.Name + "\'";
+					}
+					else
+					{
+						// Path: ""
+						// Fullname: 'GEEK.PROJECTS.LOADLIB(MYPROG)'
+						item.FullName = client.GetWorkingDirectory().TrimEnd('\'') + "(" + item.Name + ")\'";
+					}
+				}
+				// Caller is not using FtpListOption.NoPath, so the fullname can be built
+				// depending on the listing realm
+				else if (path[0] == '\'')
+				{
+					if (client.zOSListingRealm == FtpZOSListRealm.Dataset)
+					{
+						// Path: "'GEEK.PROJECTS.LOADLIB'"
+						// Fullname: 'GEEK.PROJECTS.LOADLIB'
+						item.FullName = item.Name;
+					}
+					else
+					{
+						// Path: "'GEEK.PROJECTS.LOADLIB(*)'"
+						// Fullname: 'GEEK.PROJECTS.LOADLIB(MYPROG)'
+						item.FullName = path.Substring(0, path.Length - 4) + "(" + item.Name + ")\'";
+					}
+				}
+				else
+				{
+					if (client.zOSListingRealm == FtpZOSListRealm.Dataset)
+					{
+						// Path: "PROJECTS.LOADLIB"
+						// Fullname: 'GEEK.PROJECTS.LOADLIB'
+						item.FullName = client.GetWorkingDirectory().TrimEnd('\'') + item.Name + '\'';
+					}
+					else
+					{
+						// Path: "PROJECTS.LOADLIB(*)"
+						// Fullname: 'GEEK.PROJECTS.LOADLIB(MYPROG)'
+						item.FullName = client.GetWorkingDirectory().TrimEnd('\'') + path.Substring(0, path.Length - 3) + "(" + item.Name + ")\'";
+					}
+				}
+				return;
 			}
-
-			if (path.Length == 0) {
-				path = ((IInternalFtpClient)client).GetWorkingDirectoryInternal();
+			else if (client.ServerType == FtpServer.OpenVMS &&
+					 client.ServerOS == FtpOperatingSystem.VMS)
+			{
+				// if this is a vax/openvms file listing
+				// there are no slashes in the path name
+				item.FullName = path + item.Name;
 			}
+			else
+			{
+				//this.client.LogStatus(item.Name);
 
-			if (item.Name != null) {
-				// absolute path? then ignore the path input to this method.
-				if (IsAbsolutePath(item.Name)) {
-					item.FullName = item.Name;
-					item.Name = item.Name.GetFtpFileName();
+				// remove globbing/wildcard from path
+				if (path.GetFtpFileName().Contains("*"))
+				{
+					path = path.GetFtpDirectoryName();
 				}
-				else if (path != null) {
-					item.FullName = path.GetFtpPath(item.Name); //.GetFtpPathWithoutGlob();
-				}
-				else {
-					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Warn, "Couldn't determine the full path of this object: " +
-														 Environment.NewLine + item.ToString());
-				}
-			}
 
-			// if a link target is set and it doesn't include an absolute path
-			// then try to resolve it.
-			if (item.LinkTarget != null && !item.LinkTarget.StartsWith("/")) {
-				if (item.LinkTarget.StartsWith("./")) {
-					item.LinkTarget = path.GetFtpPath(item.LinkTarget.Remove(0, 2)).Trim();
+				if (path.Length == 0)
+				{
+					path = client.GetWorkingDirectory();
 				}
-				else {
-					item.LinkTarget = path.GetFtpPath(item.LinkTarget).Trim();
+
+				if (item.Name != null)
+				{
+					// absolute path? then ignore the path input to this method.
+					if (IsAbsolutePath(item.Name))
+					{
+						item.FullName = item.Name;
+						item.Name = item.Name.GetFtpFileName();
+					}
+					else if (path != null)
+					{
+						item.FullName = path.GetFtpPath(item.Name); //.GetFtpPathWithoutGlob();
+					}
+					else
+					{
+						client.LogStatus(FtpTraceLevel.Warn, "Couldn't determine the full path of this object: " +
+															 Environment.NewLine + item.ToString());
+					}
+				}
+
+				// if a link target is set and it doesn't include an absolute path
+				// then try to resolve it.
+				if (item.LinkTarget != null && !item.LinkTarget.StartsWith("/"))
+				{
+					if (item.LinkTarget.StartsWith("./"))
+					{
+						item.LinkTarget = path.GetFtpPath(item.LinkTarget.Remove(0, 2)).Trim();
+					}
+					else
+					{
+						item.LinkTarget = path.GetFtpPath(item.LinkTarget).Trim();
+					}
 				}
 			}
 		}

@@ -21,17 +21,17 @@ namespace FluentFTP.Rules {
 		/// If true, only folders of the given name are uploaded or downloaded.
 		/// If false, folders of the given name are excluded.
 		/// </summary>
-		public bool Whitelist { get; set; }
+		public bool Whitelist;
 
 		/// <summary>
 		/// The folder names to match
 		/// </summary>
-		public IList<string> Names { get; set; }
+		public IList<string> Names;
 
 		/// <summary>
 		/// Which path segment to start checking from
 		/// </summary>
-		public int StartSegment { get; set; }
+		public int StartSegment;
 
 		/// <summary>
 		/// Only accept folders that have the given name, or exclude folders of a given name.
@@ -52,10 +52,10 @@ namespace FluentFTP.Rules {
 
 			// get the folder name of this item
 			string[] dirNameParts = null;
-			if (item.Type == FtpObjectType.File) {
+			if (item.Type == FtpFileSystemObjectType.File) {
 				dirNameParts = item.FullName.GetFtpDirectoryName().GetPathSegments();
 			}
-			else if (item.Type == FtpObjectType.Directory) {
+			else if (item.Type == FtpFileSystemObjectType.Directory) {
 				dirNameParts = item.FullName.GetPathSegments();
 			}
 			else {

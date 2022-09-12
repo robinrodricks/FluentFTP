@@ -1,7 +1,13 @@
 ﻿using System;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Diagnostics;
 using System.Threading;
+
+#if ASYNC
 using System.Threading.Tasks;
-using FluentFTP.Client.BaseClient;
+
+#endif
 
 namespace FluentFTP {
 	/// <summary>
@@ -19,7 +25,7 @@ namespace FluentFTP {
 			set => m_commandStatus = value;
 		}
 
-		private BaseFtpClient m_control = null;
+		private FtpClient m_control = null;
 
 		/// <summary>
 		/// Gets or sets the control connection for this data stream. Setting
@@ -27,7 +33,7 @@ namespace FluentFTP {
 		/// connection is made to the server to carry out the task. This ensures
 		/// that multiple streams can be opened simultaneously.
 		/// </summary>
-		public BaseFtpClient ControlConnection {
+		public FtpClient ControlConnection {
 			get => m_control;
 			set => m_control = value;
 		}
@@ -63,6 +69,7 @@ namespace FluentFTP {
 			return read;
 		}
 
+#if ASYNC
 		/// <summary>
 		/// Reads data off the stream asynchronously
 		/// </summary>
@@ -76,6 +83,7 @@ namespace FluentFTP {
 			m_position += read;
 			return read;
 		}
+#endif
 
 		/// <summary>
 		/// Writes data to the stream
@@ -88,6 +96,7 @@ namespace FluentFTP {
 			m_position += count;
 		}
 
+#if ASYNC
 		/// <summary>
 		/// Writes data to the stream asynchronously
 		/// </summary>
@@ -99,6 +108,7 @@ namespace FluentFTP {
 			await base.WriteAsync(buffer, offset, count, token);
 			m_position += count;
 		}
+#endif
 
 		/// <summary>
 		/// Sets the length of this stream
@@ -125,7 +135,7 @@ namespace FluentFTP {
 
 			try {
 				if (ControlConnection != null) {
-					((IInternalFtpClient)ControlConnection).CloseDataStreamInternal(this);
+					return ControlConnection.CloseDataStream(this);
 				}
 			}
 			finally {
@@ -140,13 +150,17 @@ namespace FluentFTP {
 		/// Creates a new data stream object
 		/// </summary>
 		/// <param name="conn">The control connection to be used for carrying out this operation</param>
-		public FtpDataStream(BaseFtpClient conn) : base(conn) {
-			ControlConnection = conn ?? throw new ArgumentException("The control connection cannot be null.");
+		public FtpDataStream(FtpClient conn) : base(conn) {
+			if (conn == null) {
+				throw new ArgumentException("The control connection cannot be null.");
+			}
+
+			ControlConnection = conn;
 
 			// always accept certificate no matter what because if code execution ever
 			// gets here it means the certificate on the control connection object being
 			// cloned was already accepted.
-			ValidateCertificate += new FtpSocketStreamSslValidation(delegate (FtpSocketStream obj, FtpSslValidationEventArgs e) { e.Accept = true; });
+			ValidateCertificate += new FtpSocketStreamSslValidation(delegate(FtpSocketStream obj, FtpSslValidationEventArgs e) { e.Accept = true; });
 
 			m_position = 0;
 		}

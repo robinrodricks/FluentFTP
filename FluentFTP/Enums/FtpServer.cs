@@ -124,7 +124,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Definitely WS_FTP server
 		/// </summary>
-		WSFTP,
+		WSFTPServer,
 
 		/// <summary>
 		/// Definitely PyFtpdLib server
@@ -142,28 +142,8 @@ namespace FluentFTP {
 		Rumpus,
 
 		/// <summary>
-		/// Definitely ABB IDAL FTP server
+		/// Definitely ABB IDAL server
 		/// </summary>
-		IDALFTP,
-
-		/// <summary>
-		/// Definitely TP-LINK FTP server
-		/// </summary>
-		TPLink,
-
-		/// <summary>
-		/// Definitely D-Link FTP server
-		/// </summary>
-		DLink,
-
-		/// <summary>
-		/// Definitely Huawei Technologies HG5xxx series FTP server
-		/// </summary>
-		Huawei,
-
-		/// <summary>
-		/// Definitely MikroTik RouterOS FTP server
-		/// </summary>
-		MikroTik,
+		ABBIDAL,
 	}
 }

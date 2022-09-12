@@ -15,8 +15,8 @@ namespace FluentFTP {
 				int code;
 
 				if (Code != null && Code.Length > 0 &&
-					int.TryParse(Code[0].ToString(), out code)) {
-					return (FtpResponseType)code;
+				    int.TryParse(Code[0].ToString(), out code)) {
+					return (FtpResponseType) code;
 				}
 
 				return FtpResponseType.None;

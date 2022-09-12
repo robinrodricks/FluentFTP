@@ -1,5 +1,5 @@
 ﻿using System;
-#if NETFRAMEWORK
+#if !CORE
 using System.Runtime.Serialization;
 #endif
 
@@ -7,7 +7,7 @@ namespace FluentFTP.Exceptions {
 	/// <summary>
 	/// Exception is thrown by FtpSocketStream when there is no FTP server socket to connect to.
 	/// </summary>
-#if NETFRAMEWORK
+#if !CORE
 	[Serializable]
 #endif
 	public class FtpMissingSocketException : FtpException {
@@ -19,7 +19,7 @@ namespace FluentFTP.Exceptions {
 			: base("Socket is missing", innerException) {
 		}
 
-#if NETFRAMEWORK
+#if !CORE
 		/// <summary>
 		/// Must be implemented so every Serializer can Deserialize the Exception
 		/// </summary>

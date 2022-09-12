@@ -1,12 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net50</TargetFramework>
+		<TargetFramework>net45</TargetFramework>
 		<OutputType>Library</OutputType>
 		<LangVersion>latest</LangVersion>
 		<ApplicationIcon />
 		<StartupObject />
-		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
 
 	<ItemGroup>

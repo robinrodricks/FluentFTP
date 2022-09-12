@@ -1,5 +1,0 @@
-server:
-  host: 1.2.3.4
-  port: 21
-  user: ftpuser
-  pass: ftppass

@@ -13,17 +13,17 @@ namespace FluentFTP.Rules {
 		/// <summary>
 		/// Which operator to use
 		/// </summary>
-		public FtpOperator Operator { get; set; }
+		public FtpOperator Operator;
 
 		/// <summary>
 		/// The first value, required for all operators
 		/// </summary>
-		public long X { get; set; }
+		public long X;
 
 		/// <summary>
 		/// The second value, only required for BetweenRange and OutsideRange operators
 		/// </summary>
-		public long Y { get; set; }
+		public long Y;
 
 		/// <summary>
 		/// Only accept files that are of the given size, or within the given range of sizes.
@@ -41,7 +41,7 @@ namespace FluentFTP.Rules {
 		/// Checks if the file is of the given size, or within the given range of sizes.
 		/// </summary>
 		public override bool IsAllowed(FtpListItem result) {
-			if (result.Type == FtpObjectType.File) {
+			if (result.Type == FtpFileSystemObjectType.File) {
 				return Operators.Validate(Operator, result.Size, X, Y);
 			}
 			else {

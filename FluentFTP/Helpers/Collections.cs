@@ -22,19 +22,19 @@ namespace FluentFTP.Helpers {
 				return true;
 			}
 
-			if (value is IList list) {
-				return list.Count == 0;
+			if (value is IList) {
+				return ((IList)value).Count == 0;
 			}
 
-			if (value is byte[] bytes) {
-				return bytes.Length == 0;
+			if (value is byte[]) {
+				return ((byte[])value).Length == 0;
 			}
 
 			return false;
 		}
 
 		/// <summary>
-		/// Converts the arguments to an array of strings.
+		/// Adds a prefix to the given strings, returns a new array.
 		/// </summary>
 		public static List<string> ItemsToString(this object[] args) {
 			var results = new List<string>();
@@ -48,7 +48,7 @@ namespace FluentFTP.Helpers {
 					txt = "null";
 				}
 				else if (v is string) {
-					txt = "\"" + v + "\"";
+					txt = "\"" + v as string + "\"";
 				}
 				else {
 					txt = v.ToString();
@@ -69,18 +69,6 @@ namespace FluentFTP.Helpers {
 				return true;
 			}
 			return false;
-		}
-
-		/// <summary>
-		/// Shallow clones the list by copying each item to a new list.
-		/// </summary>
-		public static List<T> ShallowClone<T>(this List<T> list) {
-			if (list == null) {
-				return null;
-			}
-			var newList = new List<T>();
-			newList.AddRange(list);
-			return newList;
 		}
 
 

@@ -16,17 +16,17 @@ namespace FluentFTP.Rules {
 		/// If true, only folders where one of the supplied regex pattern matches are uploaded or downloaded.
 		/// If false, folders where one of the supplied regex pattern matches are excluded.
 		/// </summary>
-		public bool Whitelist { get; set; }
+		public bool Whitelist;
 
 		/// <summary>
 		/// The files names to match
 		/// </summary>
-		public List<string> RegexPatterns { get; set; }
+		public List<string> RegexPatterns;
 
 		/// <summary>
 		/// Which path segment to start checking from
 		/// </summary>
-		public int StartSegment { get; set; }
+		public int StartSegment;
 
 		/// <summary>
 		/// Only accept items that one of the supplied regex pattern.
@@ -52,10 +52,10 @@ namespace FluentFTP.Rules {
 
 			// get the folder name of this item
 			string[] dirNameParts = null;
-			if (item.Type == FtpObjectType.File) {
+			if (item.Type == FtpFileSystemObjectType.File) {
 				dirNameParts = item.FullName.GetFtpDirectoryName().GetPathSegments();
 			}
-			else if (item.Type == FtpObjectType.Directory) {
+			else if (item.Type == FtpFileSystemObjectType.Directory) {
 				dirNameParts = item.FullName.GetPathSegments();
 			}
 			else {

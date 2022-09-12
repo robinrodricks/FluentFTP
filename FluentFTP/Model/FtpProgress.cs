@@ -78,7 +78,7 @@ namespace FluentFTP {
 				FileIndex = metaProgress.FileIndex;
 			}
 		}
-
+		
 		/// <summary>
 		/// Convert Transfer Speed (bytes per second) in human readable format
 		/// </summary>

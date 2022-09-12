@@ -8,7 +8,7 @@ Namespace Examples
 	Friend Module ConnectFTPSCertificateExample
 		Sub ConnectFTPSCertificate()
 			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
-				conn.Config.EncryptionMode = FtpEncryptionMode.Explicit
+				conn.EncryptionMode = FtpEncryptionMode.Explicit
 				AddHandler conn.ValidateCertificate, New FtpSslValidation(AddressOf OnValidateCertificate)
 				conn.Connect()
 			End Using
@@ -17,10 +17,10 @@ Namespace Examples
 		Async Function ConnectFTPSCertificateAsync() As Task
 			Dim token = New CancellationToken()
 
-			Using conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
-				conn.Config.EncryptionMode = FtpEncryptionMode.Explicit
+			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
+				conn.EncryptionMode = FtpEncryptionMode.Explicit
 				AddHandler conn.ValidateCertificate, New FtpSslValidation(AddressOf OnValidateCertificate)
-				Await conn.Connect(token)
+				Await conn.ConnectAsync(token)
 			End Using
 		End Function
 

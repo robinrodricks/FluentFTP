@@ -27,11 +27,11 @@ namespace Examples {
 
 		public static async Task DownloadFilesAsync() {
 			var token = new CancellationToken();
-			using (var ftp = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")) {
-				await ftp.Connect(token);
+			using (var ftp = new FtpClient("127.0.0.1", "ftptest", "ftptest")) {
+				await ftp.ConnectAsync(token);
 
 				// download many files, skip if they already exist on disk
-				await ftp.DownloadFiles(@"D:\Drivers\test\",
+				await ftp.DownloadFilesAsync(@"D:\Drivers\test\",
 					new[] {
 						@"/public_html/temp/file0.exe",
 						@"/public_html/temp/file1.exe",

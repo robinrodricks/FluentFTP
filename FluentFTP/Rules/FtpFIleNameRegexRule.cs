@@ -16,12 +16,12 @@ namespace FluentFTP.Rules {
 		/// If true, only items where one of the supplied regex pattern matches are uploaded or downloaded.
 		/// If false, items where one of the supplied regex pattern matches are excluded.
 		/// </summary>
-		public bool Whitelist { get; set; }
+		public bool Whitelist;
 
 		/// <summary>
 		/// The files names to match
 		/// </summary>
-		public List<string> RegexPatterns { get; set; }
+		public List<string> RegexPatterns;
 
 		/// <summary>
 		/// Only accept items that match one of the supplied regex patterns.
@@ -44,7 +44,7 @@ namespace FluentFTP.Rules {
 			}
 
 			// only check files
-			if (item.Type == FtpObjectType.File) {
+			if (item.Type == FtpFileSystemObjectType.File) {
 				var fileName = item.Name;
 
 				if (Whitelist) {

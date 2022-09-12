@@ -24,41 +24,28 @@ namespace FluentFTP {
 		/// 
 		/// NOTE TO USER : You should not need to construct this class manually except in advanced cases. Typically constructed by GetListing().
 		/// </summary>
-		public FtpListItem(string record, string name, long size, bool isDir, DateTime lastModifiedTime) {
+		public FtpListItem(string record, string name, long size, bool isDir, ref DateTime lastModifiedTime) {
 			this.Input = record;
 			this.Name = name;
 			this.Size = size;
-			this.Type = isDir ? FtpObjectType.Directory : FtpObjectType.File;
+			this.Type = isDir ? FtpFileSystemObjectType.Directory : FtpFileSystemObjectType.File;
 			this.Modified = lastModifiedTime;
 		}
-
-		/// <summary>
-		/// Constructor with mandatory arguments filled.
-		/// 
-		/// NOTE TO USER : You should not need to construct this class manually except in advanced cases. Typically constructed by GetListing().
-		/// </summary>
-		public FtpListItem(string name, long size, FtpObjectType type, DateTime lastModifiedTime) {
-			this.Name = name;
-			this.Size = size;
-			this.Type = type;
-			this.Modified = lastModifiedTime;
-		}
-
 
 		/// <summary>
 		/// Gets the type of file system object.
 		/// </summary>
-		public FtpObjectType Type { get; set; }
+		public FtpFileSystemObjectType Type;
 
 		/// <summary>
 		/// Gets the sub type of file system object.
 		/// </summary>
-		public FtpObjectSubType SubType { get; set; }
+		public FtpFileSystemObjectSubType SubType;
 
 		/// <summary>
 		/// Gets the full path name to the file or folder.
 		/// </summary>
-		public string FullName { get; set; }
+		public string FullName;
 
 		private string m_name = null;
 
@@ -78,94 +65,94 @@ namespace FluentFTP {
 		/// <summary>
 		/// Gets the target a symbolic link points to.
 		/// </summary>
-		public string LinkTarget { get; set; }
+		public string LinkTarget;
 
 		/// <summary>
 		/// Gets the number of links pointing to this file. Only supplied by Unix servers.
 		/// </summary>
-		public int LinkCount { get; set; }
+		public int LinkCount;
 
 		/// <summary>
 		/// Gets the object that the LinkTarget points to. This property is null unless you pass the
 		/// <see cref="FtpListOption.DerefLinks"/> flag in which case GetListing() will try to resolve
 		/// the target itself.
 		/// </summary>
-		public FtpListItem LinkObject { get; set; }
+		public FtpListItem LinkObject;
 
 		/// <summary>
 		/// Gets the last write time of the object after timezone conversion (if enabled).
 		/// </summary>
-		public DateTime Modified { get; set; } = DateTime.MinValue;
+		public DateTime Modified = DateTime.MinValue;
 
 		/// <summary>
 		/// Gets the created date of the object after timezone conversion (if enabled).
 		/// </summary>
-		public DateTime Created { get; set; } = DateTime.MinValue;
+		public DateTime Created = DateTime.MinValue;
 
 		/// <summary>
 		/// Gets the last write time of the object before any timezone conversion.
 		/// </summary>
-		public DateTime RawModified { get; set; } = DateTime.MinValue;
+		public DateTime RawModified = DateTime.MinValue;
 
 		/// <summary>
 		/// Gets the created date of the object before any timezone conversion.
 		/// </summary>
-		public DateTime RawCreated { get; set; } = DateTime.MinValue;
+		public DateTime RawCreated = DateTime.MinValue;
 
 		/// <summary>
 		/// Gets the size of the object.
 		/// </summary>
-		public long Size { get; set; } = -1;
+		public long Size = -1;
 
 		/// <summary>
 		/// Gets special UNIX permissions such as Sticky, SUID and SGID.
 		/// </summary>
-		public FtpSpecialPermissions SpecialPermissions { get; set; } = FtpSpecialPermissions.None;
+		public FtpSpecialPermissions SpecialPermissions = FtpSpecialPermissions.None;
 
 		/// <summary>
 		/// Gets the owner permissions.
 		/// </summary>
-		public FtpPermission OwnerPermissions { get; set; } = FtpPermission.None;
+		public FtpPermission OwnerPermissions = FtpPermission.None;
 
 		/// <summary>
 		/// Gets the group permissions.
 		/// </summary>
-		public FtpPermission GroupPermissions { get; set; } = FtpPermission.None;
+		public FtpPermission GroupPermissions = FtpPermission.None;
 
 		/// <summary>
 		/// Gets the others permissions.
 		/// </summary>
-		public FtpPermission OthersPermissions { get; set; } = FtpPermission.None;
+		public FtpPermission OthersPermissions = FtpPermission.None;
 
 		/// <summary>
 		/// Gets the raw string received for the file permissions.
 		/// Use this if the other properties are blank/invalid.
 		/// </summary>
-		public string RawPermissions { get; set; }
+		public string RawPermissions;
 
 		/// <summary>
 		/// Gets the file permissions in the CHMOD format.
 		/// </summary>
-		public int Chmod { get; set; }
+		public int Chmod;
 
 		/// <summary>
 		/// Gets the raw string received for the file's GROUP permissions.
 		/// Use this if the other properties are blank/invalid.
 		/// </summary>
-		public string RawGroup { get; set; } = null;
+		public string RawGroup = null;
 
 		/// <summary>
 		/// Gets the raw string received for the file's OWNER permissions.
 		/// Use this if the other properties are blank/invalid.
 		/// </summary>
-		public string RawOwner { get; set; } = null;
+		public string RawOwner = null;
 
 
 		/// <summary>
 		/// Gets the input string that was parsed to generate the
 		/// values in this object.
 		/// </summary>
-		public string Input { get; set; }
+		public string Input;
 
 		/// <summary>
 		/// Returns a string representation of this object and its properties
@@ -173,19 +160,19 @@ namespace FluentFTP {
 		/// <returns>A string representing this object</returns>
 		public override string ToString() {
 			var sb = new StringBuilder();
-			if (Type == FtpObjectType.File) {
+			if (Type == FtpFileSystemObjectType.File) {
 				sb.Append("FILE");
 			}
-			else if (Type == FtpObjectType.Directory) {
+			else if (Type == FtpFileSystemObjectType.Directory) {
 				sb.Append("DIR ");
 			}
-			else if (Type == FtpObjectType.Link) {
+			else if (Type == FtpFileSystemObjectType.Link) {
 				sb.Append("LINK");
 			}
 
 			sb.Append("   ");
 			sb.Append(Name);
-			if (Type == FtpObjectType.File) {
+			if (Type == FtpFileSystemObjectType.File) {
 				sb.Append("      ");
 				sb.Append("(");
 				sb.Append(Size.FileSizeToString());
@@ -204,23 +191,6 @@ namespace FluentFTP {
 				sb.Append(Modified.ToString());
 			}
 
-			return sb.ToString();
-		}
-		/// <summary>
-		/// Returns a code representation of this object and its properties
-		/// </summary>
-		public string ToCode() {
-			var sb = new StringBuilder();
-			sb.Append("new FtpListItem(");
-			sb.Append(Name.EscapeStringLiteral());
-			sb.Append(",");
-			sb.Append(Size);
-			sb.Append(",");
-			sb.Append("FtpObjectType.");
-			sb.Append(Type.ToString());
-			sb.Append(",");
-			sb.Append(Modified.ToCode());
-			sb.Append(")");
 			return sb.ToString();
 		}
 	}
