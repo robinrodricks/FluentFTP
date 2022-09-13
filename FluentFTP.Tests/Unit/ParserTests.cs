@@ -444,7 +444,17 @@ namespace FluentFTP.Tests.Unit {
 				"-rw-rw----   1 YNSAS    SYS1       47227 Jun  7  2021 test.txt",
 			};
 
-			TestParsing(parser, "/", sample, null);
+			var expected = new FtpListItem[]{
+				null,
+				new FtpListItem("downloads", 8192, FtpObjectType.Directory, new DateTime(2015, 10, 19, 0, 0, 0, 0)),
+				new FtpListItem("p5zipfile", 8192, FtpObjectType.Directory, new DateTime(2015, 10, 19, 0, 0, 0, 0)),
+				new FtpListItem("t.out", 2723828, FtpObjectType.File, new DateTime(2021, 12, 6, 0, 0, 0, 0)),
+				new FtpListItem("test.bin", 132480, FtpObjectType.File, new DateTime(2022, 1, 2, 0, 0, 0, 0)),
+				new FtpListItem("test.tst", 6209406, FtpObjectType.File, new DateTime(2021, 5, 29, 0, 0, 0, 0)),
+				new FtpListItem("test.txt", 47227, FtpObjectType.File, new DateTime(2021, 6, 7, 0, 0, 0, 0)),
+			};
+
+			TestParsing(parser, "/", sample, expected);
 
 		}
 
@@ -459,7 +469,13 @@ namespace FluentFTP.Tests.Unit {
 				"YNSABH 3390   2022/02/18  1+++++  VBS  32767 27966  PS  $.BDATA.XBB",
 			};
 
-			TestParsing(parser, "/", sample, null);
+			var expected = new FtpListItem[]{
+				null,
+				new FtpListItem("$.ADATA.XAA", 849960, FtpObjectType.File, new DateTime(2020, 1, 3, 0, 0, 0, 0)),
+				new FtpListItem("$.BDATA.XBB", 950664167424, FtpObjectType.File, new DateTime(2022, 2, 18, 0, 0, 0, 0)),
+			};
+
+			TestParsing(parser, "/", sample, expected);
 
 		}
 
@@ -472,6 +488,9 @@ namespace FluentFTP.Tests.Unit {
 				" Name     VV.MM   Created       Changed      Size  Init   Mod   Id",
 				"$2CPF1    01.01 2001/10/18 2001/10/18 11:58    29    29     0 QFX3076",
 			};
+
+			// Cannot test expected as this szenario needs an internal XDSS command to get LRECL
+			// for size calculation
 
 			TestParsing(parser, "/", sample, null);
 
@@ -488,7 +507,13 @@ namespace FluentFTP.Tests.Unit {
 				"EAGRTPRC  005F48   000011 EAGRTALT 00 FO             RN RU            31    ANY",
 			};
 
-			TestParsing(parser, "/", sample, null);
+			var expected = new FtpListItem[]{
+				null,
+				new FtpListItem("EAGKCPT", 88, FtpObjectType.File, new DateTime(1 ,1, 1, 0, 0, 0, 0)),
+				new FtpListItem("EAGRTPRC", 24392, FtpObjectType.File, new DateTime(1, 1, 1, 0, 0, 0, 0)),
+			};
+
+			TestParsing(parser, "/", sample, expected);
 
 		}
 
