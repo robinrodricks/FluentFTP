@@ -9,6 +9,7 @@ using FluentFTP.Exceptions;
 using FluentFTP.Client.Modules;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentFTP.Proxy.SyncProxy;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -33,6 +34,17 @@ namespace FluentFTP {
 
 				// open the file for reading
 				downStream = OpenRead(remotePath, Config.DownloadDataType, restartPosition, fileLen);
+				// workaround for SOCKS4 and SOCKS4a proxies
+				if (restartPosition == 0)
+				{
+					if (this is FtpClientSocks4Proxy || this is FtpClientSocks4aProxy)
+					{
+						// first 6 bytes contains 2 bytes of unknown (to me) purpose and 4 ip address bytes
+						// we need to skip them otherwise they will be downloaded to the file
+						// moreover, these bytes cause "Failed to get the EPSV port" error
+						downStream.Read(new byte[6], 0, 6);
+					}
+				}
 
 				// if the server has not provided a length for this file or
 				// if the mode is ASCII or
