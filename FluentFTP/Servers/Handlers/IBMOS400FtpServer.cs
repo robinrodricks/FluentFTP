@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using FluentFTP.Client.BaseClient;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentFTP.Servers.Handlers {
@@ -34,6 +35,34 @@ namespace FluentFTP.Servers.Handlers {
 		/// </summary>
 		public override FtpParser GetParser() {
 			return FtpParser.IBMOS400;
+		}
+
+		/// <summary>
+		/// Return true if your server requires custom handling to handle listing analysis.
+		/// </summary>
+		public override bool IsCustomCalculateFullFtpPath() {
+			return true;
+		}
+
+		/// <summary>
+		/// Get the full path of a given FTP Listing entry
+		/// Return null indicates custom code decided not to handle this
+		/// </summary>
+		public override bool? CalculateFullFtpPath(BaseFtpClient client, string path, FtpListItem item) {
+
+			// If item.name is in the library/filename format, check if the current
+			// working directory ends with that library name and then do not
+			// duplicate that library name in the fullname.
+
+			var parts = item.Name.Split('/');
+			if (parts.Length < 2 || !path.EndsWith(parts[0])) {
+				return null;
+			}
+
+			item.Name = parts[1];
+			item.FullName = path + '/' + parts[1];
+
+			return true;
 		}
 
 	}
