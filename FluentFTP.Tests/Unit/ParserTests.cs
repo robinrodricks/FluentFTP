@@ -1,3 +1,4 @@
+using FluentFTP.Client.Modules;
 using FluentFTP.Helpers;
 using System;
 using System.Collections.Generic;
@@ -372,10 +373,14 @@ namespace FluentFTP.Tests.Unit {
 		}
 		[Fact]
 		public void IBMOS400() {
-			var parser = new FtpListParser(new FtpClient());
+			var client = new FtpClient();
+			client.ServerHandler = ServerModule.GetServerHandler(FtpServer.IBMOS400FTP);
+			var parser = new FtpListParser(client);
 			parser.Init(FtpOperatingSystem.IBMOS400, FtpParser.IBMOS400);
 
 			var sample = new[] {
+				"OLLIEP           8192 30.03.16 09:00:51 *DIR      prodload/datamods/",
+				"BACKUP           2865 01.09.22 04:36:04 *STMF     prodload/D1234831.013",
 				"CFT             45056 04/12/14 14:19:31 *FILE ANTHONY1.FILE",
 				"CFT                                     *MEM ANTHONY1.FILE/ANTHONY1.MBR",
 				"CFT             36864 28/11/15 15:19:30 *FILE AMANDA3.FILE",
@@ -387,6 +392,8 @@ namespace FluentFTP.Tests.Unit {
 			};
 
 			var expected = new FtpListItem[]{
+				new FtpListItem("datamods", 8192, FtpObjectType.Directory, new DateTime(2016, 3, 30, 9, 0, 51, 0)),
+				new FtpListItem("D1234831.013", 2865, FtpObjectType.File, new DateTime(2022, 9, 1, 4, 36, 4, 0)),
 				new FtpListItem("ANTHONY1.FILE", 45056, FtpObjectType.File, new DateTime(2014, 12, 4, 14, 19, 31, 0)),
 				new FtpListItem("ANTHONY1.FILE/ANTHONY1.MBR", 0, FtpObjectType.File, new DateTime(1, 1, 1, 0, 0, 0, 0)),
 				new FtpListItem("AMANDA3.FILE", 36864, FtpObjectType.File, new DateTime(2015, 11, 28, 15, 19, 30, 0)),
@@ -397,7 +404,7 @@ namespace FluentFTP.Tests.Unit {
 				new FtpListItem("FPKI45POK5.FILE/FPKI45POK5.MBR", 0, FtpObjectType.File, new DateTime(1, 1, 1, 0, 0, 0, 0)),
 			};
 
-			TestParsing(parser, "/", sample, expected);
+			TestParsing(parser, "/user/tests/prodload", sample, expected);
 
 		}
 		[Fact]
@@ -431,7 +438,9 @@ namespace FluentFTP.Tests.Unit {
 
 		[Fact]
 		public void IBMzOSMVS_HFS() {
-			var parser = new FtpListParser(new FtpClient());
+			var client = new FtpClient();
+			client.ServerHandler = ServerModule.GetServerHandler(FtpServer.IBMzOSFTP);
+			var parser = new FtpListParser(client);
 			parser.Init(FtpOperatingSystem.IBMzOS, FtpParser.IBMzOS);
 
 			var sample = new[] {
@@ -460,7 +469,9 @@ namespace FluentFTP.Tests.Unit {
 
 		[Fact]
 		public void IBMzOSMVS_PSPO() {
-			var parser = new FtpListParser(new FtpClient());
+			var client = new FtpClient();
+			client.ServerHandler = ServerModule.GetServerHandler(FtpServer.IBMzOSFTP);
+			var parser = new FtpListParser(client);
 			parser.Init(FtpOperatingSystem.IBMzOS, FtpParser.IBMzOS);
 
 			var sample = new[] {
@@ -481,7 +492,9 @@ namespace FluentFTP.Tests.Unit {
 
 		[Fact]
 		public void IBMzOSMVS_Member() {
-			var parser = new FtpListParser(new FtpClient());
+			var client = new FtpClient();
+			client.ServerHandler = ServerModule.GetServerHandler(FtpServer.IBMzOSFTP);
+			var parser = new FtpListParser(client);
 			parser.Init(FtpOperatingSystem.IBMzOS, FtpParser.IBMzOS);
 
 			var sample = new[] {
@@ -498,7 +511,9 @@ namespace FluentFTP.Tests.Unit {
 
 		[Fact]
 		public void IBMzOSMVS_MemberU() {
-			var parser = new FtpListParser(new FtpClient());
+			var client = new FtpClient();
+			client.ServerHandler = ServerModule.GetServerHandler(FtpServer.IBMzOSFTP);
+			var parser = new FtpListParser(client);
 			parser.Init(FtpOperatingSystem.IBMzOS, FtpParser.IBMzOS);
 
 			var sample = new[] {
