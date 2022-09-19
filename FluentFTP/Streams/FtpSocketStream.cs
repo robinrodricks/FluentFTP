@@ -1235,7 +1235,9 @@ namespace FluentFTP {
 		/// </summary>
 		public void Accept() {
 			if (m_socket != null) {
+				var socketSave = m_socket;
 				m_socket = m_socket.Accept();
+				socketSave.Close();
 			}
 		}
 
@@ -1260,7 +1262,9 @@ namespace FluentFTP {
 		/// <param name="ar">IAsyncResult returned from BeginAccept</param>
 		public void EndAccept(IAsyncResult ar) {
 			if (m_socket != null) {
+				var socketSave = m_socket;
 				m_socket = m_socket.EndAccept(ar);
+				socketSave.Close();
 				m_netStream = new NetworkStream(m_socket);
 				m_netStream.ReadTimeout = m_readTimeout;
 			}
@@ -1283,7 +1287,9 @@ namespace FluentFTP {
 		/// </summary>
 		public async Task AcceptAsync() {
 			if (m_socket != null) {
+				var socketSave = m_socket;
 				m_socket = await m_socket.AcceptAsync();
+				socketSave.Close();
 #if NETSTANDARD
 				m_netStream = new NetworkStream(m_socket);
 				m_netStream.ReadTimeout = m_readTimeout;
