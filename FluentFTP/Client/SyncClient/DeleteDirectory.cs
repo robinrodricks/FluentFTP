@@ -21,7 +21,7 @@ namespace FluentFTP {
 			path = path.GetFtpPath();
 
 			LogFunction(nameof(DeleteDirectory), new object[] { path });
-			DeleteDirInternal(path, true, FtpListOption.Recursive);
+			DeleteDirInternal(path, true, FtpListOption.Recursive, true, true);
 		}
 
 		/// <summary>
@@ -38,7 +38,24 @@ namespace FluentFTP {
 			path = path.GetFtpPath();
 
 			LogFunction(nameof(DeleteDirectory), new object[] { path, options });
-			DeleteDirInternal(path, true, options);
+			DeleteDirInternal(path, true, options, true, true);
+		}
+
+		/// <summary>
+		/// Deletes the contents of the specified directory only.
+		/// </summary>
+		/// <param name="path">The full or relative path of the directorys contents to delete</param>
+		/// <param name="options">Useful to delete hidden files or dot-files.</param>
+		public void DeleteDirectoryContents(string path, FtpListOption options) {
+			// verify args
+			if (path.IsBlank()) {
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
+			}
+
+			path = path.GetFtpPath();
+
+			LogFunction(nameof(DeleteDirectoryContents), new object[] { path, options });
+			DeleteDirInternal(path, true, options, false, true);
 		}
 
 		/// <summary>
@@ -47,7 +64,9 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the directory to delete</param>
 		/// <param name="deleteContents">If the directory is not empty, remove its contents</param>
 		/// <param name="options">Useful to delete hidden files or dot-files.</param>
-		protected void DeleteDirInternal(string path, bool deleteContents, FtpListOption options) {
+		/// <param name="deleteFinalDir">Delete completely or leave the top level dir</param>
+		/// <param name="firstCall">Internally used to determine top level</param>
+		protected void DeleteDirInternal(string path, bool deleteContents, FtpListOption options, bool deleteFinalDir, bool firstCall) {
 			FtpReply reply;
 
 			path = path.GetFtpPath();
@@ -55,7 +74,9 @@ namespace FluentFTP {
 			lock (m_lock) {
 
 				// server-specific directory deletion
-				if (!path.IsFtpRootDirectory()) {
+				// don't use it if requested to leave the top level dir, because
+				// server specific RMDIRs usually brutally delete all
+				if (deleteFinalDir && !path.IsFtpRootDirectory()) {
 
 					// ask the server handler to delete a directory
 					if (ServerHandler != null) {
@@ -64,7 +85,6 @@ namespace FluentFTP {
 						}
 					}
 				}
-
 
 				// DELETE CONTENTS OF THE DIRECTORY
 				if (deleteContents) {
@@ -92,7 +112,7 @@ namespace FluentFTP {
 								break;
 
 							case FtpObjectType.Directory:
-								DeleteDirInternal(item.FullName, recurse, options);
+								DeleteDirInternal(item.FullName, recurse, options, true, false);
 								break;
 
 							default:
@@ -100,7 +120,6 @@ namespace FluentFTP {
 						}
 					}
 				}
-
 
 				// SKIP DELETING ROOT DIRS
 
@@ -110,17 +129,14 @@ namespace FluentFTP {
 					return;
 				}
 
-
 				// DELETE ACTUAL DIRECTORY
-
-				if (!(reply = Execute("RMD " + path)).Success) {
-					throw new FtpCommandException(reply);
+				if (!firstCall || deleteFinalDir) {
+					if (!(reply = Execute("RMD " + path)).Success) {
+						throw new FtpCommandException(reply);
+					}
 				}
-
 			}
 
 		}
-
-
 	}
 }
