@@ -1346,7 +1346,9 @@ namespace FluentFTP {
 				throw new SocketException((int)args.SocketError);
 			}
 
+			var socketSave = m_socket;
 			m_socket = args.AcceptSocket;
+			socketSave.Close();
 			m_netStream = new NetworkStream(args.AcceptSocket);
 			m_netStream.ReadTimeout = m_readTimeout;
 		}
