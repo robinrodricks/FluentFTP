@@ -22,7 +22,7 @@ namespace FluentFTP {
 			path = path.GetFtpPath();
 
 			LogFunction(nameof(DeleteDirectory), new object[] { path });
-			return DeleteDirInternalAsync(path, true, FtpListOption.Recursive, token);
+			return DeleteDirInternalAsync(path, true, FtpListOption.Recursive, true, true, token);
 		}
 
 		/// <summary>
@@ -40,7 +40,25 @@ namespace FluentFTP {
 			path = path.GetFtpPath();
 
 			LogFunction(nameof(DeleteDirectory), new object[] { path, options });
-			return DeleteDirInternalAsync(path, true, options, token);
+			return DeleteDirInternalAsync(path, true, options, true, true, token);
+		}
+
+		/// <summary>
+		/// Asynchronously deletes the contents of the specified directory only.
+		/// </summary>
+		/// <param name="path">The full or relative path of the directorys contents to delete</param>
+		/// <param name="options">Useful to delete hidden files or dot-files.</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		public Task DeleteDirectoryContents(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
+			// verify args
+			if (path.IsBlank()) {
+				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
+			}
+
+			path = path.GetFtpPath();
+
+			LogFunction(nameof(DeleteDirectoryContents), new object[] { path, options });
+			return DeleteDirInternalAsync(path, true, options, false, true, token);
 		}
 
 		/// <summary>
@@ -50,14 +68,18 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path of the directory to delete</param>
 		/// <param name="deleteContents">Delete the contents before deleting the folder</param>
 		/// <param name="options">Useful to delete hidden files or dot-files.</param>
+		/// <param name="deleteFinalDir">Delete the top level dir too</param>
+		/// <param name="firstCall">Internally used to determine top level</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns></returns>
-		protected async Task DeleteDirInternalAsync(string path, bool deleteContents, FtpListOption options, CancellationToken token = default(CancellationToken)) {
+		protected async Task DeleteDirInternalAsync(string path, bool deleteContents, FtpListOption options, bool deleteFinalDir, bool firstCall, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 			path = path.GetFtpPath();
 
 			// server-specific directory deletion
-			if (!path.IsFtpRootDirectory()) {
+			// don't use it if requested to leave the top level dir, because
+			// server specific RMDIRs usually brutally delete all
+			if (deleteFinalDir && !path.IsFtpRootDirectory()) {
 
 				// ask the server handler to delete a directory
 				if (ServerHandler != null) {
@@ -93,7 +115,7 @@ namespace FluentFTP {
 							break;
 
 						case FtpObjectType.Directory:
-							await DeleteDirInternalAsync(item.FullName, recurse, options, token);
+							await DeleteDirInternalAsync(item.FullName, recurse, options, true, false, token);
 							break;
 
 						default:
@@ -112,8 +134,10 @@ namespace FluentFTP {
 
 			// DELETE ACTUAL DIRECTORY
 
-			if (!(reply = await Execute("RMD " + path, token)).Success) {
-				throw new FtpCommandException(reply);
+			if (!firstCall || deleteFinalDir) {
+				if (!(reply = await Execute("RMD " + path, token)).Success) {
+					throw new FtpCommandException(reply);
+				}
 			}
 		}
 
