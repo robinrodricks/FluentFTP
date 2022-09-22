@@ -42,6 +42,8 @@ namespace FluentFTP {
 		Task DeleteFile(string path, CancellationToken token = default(CancellationToken));
 		Task DeleteDirectory(string path, CancellationToken token = default(CancellationToken));
 		Task DeleteDirectory(string path, FtpListOption options, CancellationToken token = default(CancellationToken));
+		Task EmptyDirectory(string path, CancellationToken token = default(CancellationToken));
+		Task EmptyDirectory(string path, FtpListOption options, CancellationToken token = default(CancellationToken));
 		Task<bool> DirectoryExists(string path, CancellationToken token = default(CancellationToken));
 		Task<bool> FileExists(string path, CancellationToken token = default(CancellationToken));
 		Task<bool> CreateDirectory(string path, bool force, CancellationToken token = default(CancellationToken));

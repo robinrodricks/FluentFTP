@@ -40,6 +40,8 @@ namespace FluentFTP {
 		void DeleteFile(string path);
 		void DeleteDirectory(string path);
 		void DeleteDirectory(string path, FtpListOption options);
+		void EmptyDirectory(string path);
+		void EmptyDirectory(string path, FtpListOption options);
 		bool DirectoryExists(string path);
 		bool FileExists(string path);
 		bool CreateDirectory(string path);

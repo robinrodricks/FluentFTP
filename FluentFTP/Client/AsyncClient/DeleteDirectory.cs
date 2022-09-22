@@ -44,24 +44,6 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Asynchronously deletes the contents of the specified directory only.
-		/// </summary>
-		/// <param name="path">The full or relative path of the directorys contents to delete</param>
-		/// <param name="options">Useful to delete hidden files or dot-files.</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public Task DeleteDirectoryContents(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
-			// verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
-			}
-
-			path = path.GetFtpPath();
-
-			LogFunction(nameof(DeleteDirectoryContents), new object[] { path, options });
-			return DeleteDirInternalAsync(path, true, options, false, true, token);
-		}
-
-		/// <summary>
 		/// Asynchronously removes a directory. Used by <see cref="DeleteDirectoryAsync(string)"/> and
 		/// <see cref="DeleteDirectoryAsync(string, FtpListOption)"/>.
 		/// </summary>

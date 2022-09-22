@@ -42,23 +42,6 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Deletes the contents of the specified directory only.
-		/// </summary>
-		/// <param name="path">The full or relative path of the directorys contents to delete</param>
-		/// <param name="options">Useful to delete hidden files or dot-files.</param>
-		public void DeleteDirectoryContents(string path, FtpListOption options) {
-			// verify args
-			if (path.IsBlank()) {
-				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
-			}
-
-			path = path.GetFtpPath();
-
-			LogFunction(nameof(DeleteDirectoryContents), new object[] { path, options });
-			DeleteDirInternal(path, true, options, false, true);
-		}
-
-		/// <summary>
 		/// Deletes the specified directory and all its contents.
 		/// </summary>
 		/// <param name="path">The full or relative path of the directory to delete</param>
