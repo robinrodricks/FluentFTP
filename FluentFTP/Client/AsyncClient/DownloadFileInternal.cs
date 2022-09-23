@@ -35,10 +35,8 @@ namespace FluentFTP {
 				// open the file for reading
 				downStream = await OpenRead(remotePath, Config.DownloadDataType, restartPosition, fileLen, token);
 				// workaround for SOCKS4 and SOCKS4a proxies
-				if (restartPosition == 0)
-				{
-					if (this is AsyncFtpClientSocks4Proxy || this is AsyncFtpClientSocks4aProxy)
-					{
+				if (restartPosition == 0) {
+					if (this is AsyncFtpClientSocks4Proxy || this is AsyncFtpClientSocks4aProxy) {
 						// first 6 bytes contains 2 bytes of unknown (to me) purpose and 4 ip address bytes
 						// we need to skip them otherwise they will be downloaded to the file
 						// moreover, these bytes cause "Failed to get the EPSV port" error
@@ -163,7 +161,7 @@ namespace FluentFTP {
 
 				// Fix #552: close the filestream if it was created in this method
 				if (disposeOutStream) {
-					outStream.Dispose();
+					outStream?.Dispose();
 					disposeOutStream = false;
 				}
 
@@ -205,7 +203,7 @@ namespace FluentFTP {
 
 				// close stream before throwing error
 				try {
-					downStream.Dispose();
+					downStream?.Dispose();
 				}
 				catch (Exception) {
 				}
@@ -213,7 +211,7 @@ namespace FluentFTP {
 				// Fix #552: close the filestream if it was created in this method
 				if (disposeOutStream) {
 					try {
-						outStream.Dispose();
+						outStream?.Dispose();
 						disposeOutStream = false;
 					}
 					catch (Exception) {
