@@ -44,6 +44,8 @@ namespace FluentFTP {
 			}
 		}
 
+		public override string Message => $"Code: {CompletionCode} Message: {base.Message}";
+
 		/// <summary>
 		/// Initializes a new instance of a FtpResponseException
 		/// </summary>
