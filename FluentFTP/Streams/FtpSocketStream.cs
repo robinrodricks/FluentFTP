@@ -629,7 +629,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="buffer">Buffer to write to stream</param>
 		/// <param name="offset">Where in the buffer to start</param>
-		/// <param name="count">Number of bytes to be read</param>
+		/// <param name="count">Number of bytes to be written</param>
 		public override void Write(byte[] buffer, int offset, int count) {
 			if (BaseStream == null) {
 				return;
@@ -644,7 +644,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="buffer">Buffer to write to stream</param>
 		/// <param name="offset">Where in the buffer to start</param>
-		/// <param name="count">Number of bytes to be read</param>
+		/// <param name="count">Number of bytes to be written</param>
 		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
 		public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken token) {
 			if (BaseStream == null) {
