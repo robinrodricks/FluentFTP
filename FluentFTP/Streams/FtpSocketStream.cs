@@ -1116,16 +1116,32 @@ namespace FluentFTP {
 		/// Conditionally create a SSL BufferStream based on the configuration in FtpClient.SslBuffering.
 		/// </summary>
 		private void CreateBufferStream() {
-			// Fix: SSL BufferStream is automatically disabled when using FTP proxies, and enabled in all other cases
-			// Fix: SSL Buffering is disabled on .NET 5.0 and later due to issues in .NET framework - See #682
+			// Even if SSL Bufferstream is requested, it is force-disabled automatically when
+			// Fix: using FTP proxies
+			// Fix: user needs NOOPs - See #823
+			// Fix: running on .NET 5.0 and later due to issues in .NET framework - See #682
 #if NET50_OR_LATER
+			if ( (Client.Config.SslBuffering == FtpsBuffering.On || Client.Config.SslBuffering == FtpsBuffering.Auto) ) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "SSL Buffering force disabled, is .NET 5.0 and later");
+			}
+
 			m_bufStream = null;
 #else
-			if (Client.Config.SslBuffering == FtpsBuffering.On ||
-				Client.Config.SslBuffering == FtpsBuffering.Auto && !Client.IsProxy()) {
+			if ( (Client.Config.SslBuffering == FtpsBuffering.On || Client.Config.SslBuffering == FtpsBuffering.Auto) &&
+        		 (!Client.IsProxy()) &&
+				 (Client.Config.NoopInterval == 0) ) {
 				m_bufStream = new BufferedStream(NetworkStream, 81920);
 			}
 			else {
+				if ( (Client.Config.SslBuffering == FtpsBuffering.On || Client.Config.SslBuffering == FtpsBuffering.Auto) ) {
+					if (Client.IsProxy()) {
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "SSL Buffering force disabled, is proxy");
+					}
+					else if (Client.Config.NoopInterval > 0) {
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "SSL Buffering force disabled, NOOPs requested");
+					}
+				}
+				
 				m_bufStream = null;
 			}
 #endif
