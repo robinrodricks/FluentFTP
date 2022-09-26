@@ -342,10 +342,10 @@ namespace FluentFTP.Servers.Handlers {
 		/// Return null indicates custom code decided not to handle this
 		/// Return concatenation of path and filename
 		/// </summary>
-		public override async Task<string> GetAbsoluteFilePathAsync(AsyncFtpClient client, string path, string fileName, CancellationToken token) {
+		public override Task<string> GetAbsoluteFilePathAsync(AsyncFtpClient client, string path, string fileName, CancellationToken token) {
 
 			if (!path.StartsWith("\'")) {
-				return null;
+				return Task.FromResult<string>(null);
 			}
 
 			if (path.EndsWith(".\'")) {
@@ -355,7 +355,7 @@ namespace FluentFTP.Servers.Handlers {
 				path = path.TrimEnd('\'') + "(" + fileName.Substring(0, 8) + ")\'";
 			}
 
-			return path;
+			return Task.FromResult(path);
 		}
 
 		/// <summary>
