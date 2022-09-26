@@ -40,7 +40,7 @@ namespace FluentFTP.Client.BaseClient {
 				m_stream.WriteLine(m_textEncoding, command);
 				m_stream.Flush();
 				LastCommandTimestamp = DateTime.UtcNow;
-				reply = GetReplyInternal(false, command, commandClean); 
+				reply = GetReplyInternal(false, command); 
 			}
 
 			return reply;

@@ -13,21 +13,24 @@ namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
 
 		/// <summary>
-		/// Retrieves a reply from the server. Do not execute this method
-		/// unless you are sure that a reply has been sent, i.e., you
-		/// executed a command. Doing so will cause the code to hang
-		/// indefinitely waiting for a server reply that is never coming.
+		/// Retrieves a reply from the server.
+		/// Support "normal" mode waiting for a command reply, subject to timeout exception
+		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
 		/// </summary>
+		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
+		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <returns>FtpReply representing the response from the server</returns>
-		protected FtpReply GetReplyInternal(bool exhaustNoop = false, string command = null, string commandClean = null) {
+		protected FtpReply GetReplyInternal(bool exhaustNoop = false, string command = null) {
+
 			var reply = new FtpReply();
-			string response = null, responseBuf;
-			int timeOutCounter = 0;
 
 			lock (m_lock) {
+
 				if (!IsConnected) {
 					throw new InvalidOperationException("No connection to the server has been established.");
 				}
+
+				string commandClean = OnPostExecute(command);
 
 				if (string.IsNullOrEmpty(commandClean)) {
 					Log(FtpTraceLevel.Verbose, "Status:   Waiting for a response");
@@ -37,8 +40,10 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				// Implement this: https://lists.apache.org/thread/xzpclw1015qncvczt8hg3nom2p5vtcf5
-				// Can not use the timeout mechanism though, as a System.TimeoutException
+				// Can not use the normal timeout mechanism though, as a System.TimeoutException
 				// causes the stream to disconnect.
+
+				string response;
 
 				var waitStarted = DateTime.Now;
 				var sw = new Stopwatch();
@@ -48,28 +53,34 @@ namespace FluentFTP.Client.BaseClient {
 				do {
 					var swTime = sw.ElapsedMilliseconds;
 
+					// Maximum wait time for collecting NOOP responses: 10 seconds
 					if (exhaustNoop && swTime > 10000) {
 						break;
 					}
 
-					if (exhaustNoop) {
+					if (!exhaustNoop) {
+
+						// If we are not exhausting NOOPs, i.e. doing a normal GetReply(...)
+						// we do a blocking ReadLine(...). This can throw a
+						// System.TimeoutException which will disconnect us.
+
+						m_stream.ReadTimeout = Config.ReadTimeout;
+						response = m_stream.ReadLine(Encoding);
+
+					}
+					else {
+
+						// If we are exhausting NOOPs, use a non-blocking ReadLine(...)
+						// as we don't want a timeout exception, which would disconnect us.
+
 						if (m_stream.SocketDataAvailable > 0) {
-							/*
-							byte[] responseBuf = new byte[m_stream.SocketDataAvailable];
-							m_stream.Read(responseBuf, 0, responseBuf.Length);
-							response = Encoding.GetString(responseBuf).TrimEnd('\0', '\r', '\n');
-							*/
 							response = m_stream.ReadLine(Encoding);
 						}
 						else {
 							response = null;
 							Thread.Sleep(100);
 						}
-					}
-					else {
-						m_stream.ReadTimeout = Config.ReadTimeout;
-						// This can throw System.TimeoutException which will disconnect us.
-						response = m_stream.ReadLine(Encoding);
+
 					}
 
 					if (string.IsNullOrEmpty(response)) {
@@ -77,20 +88,29 @@ namespace FluentFTP.Client.BaseClient {
 					}
 
 					if (exhaustNoop &&
+						// NOOP responses can actually come in quite a few flavors
 						(response.StartsWith("200") || response.StartsWith("500"))) {
-						Log(FtpTraceLevel.Verbose, "Status:   exhausted: " + response);
+
+						Log(FtpTraceLevel.Verbose, "Exhausted: " + response);
+
 						continue;
 					}
 
 					if (DecodeStringToReply(response, ref reply)) {
+
 						if (exhaustNoop) {
+							// We need to perhaps exhaust more NOOP responses
 							continue;
 						}
 						else {
+							// On a normal GetReply(...) we are happy to collect the
+							// first valid response
 							break;
 						}
+
 					}
 
+					// Accumulate non-valid response text too, prior to a valid response
 					reply.InfoMessages += response + "\n";
 
 				} while (true);
@@ -98,7 +118,8 @@ namespace FluentFTP.Client.BaseClient {
 				sw.Stop();
 
 				reply = ProcessGetReply(reply, command);
-			}
+
+			} // lock
 
 			return reply;
 		}
