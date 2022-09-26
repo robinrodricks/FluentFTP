@@ -1091,7 +1091,7 @@ namespace FluentFTP {
 				}
 
 				auth_time_total = DateTime.Now.Subtract(auth_start);
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS Authentication Successful");
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, protocol = " + Client.SslProtocolActive);
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
 			}
 			catch (AuthenticationException) {
@@ -1181,7 +1181,7 @@ namespace FluentFTP {
 				}
 
 				auth_time_total = DateTime.Now.Subtract(auth_start);
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS Authentication Successful");
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, protocol = " + Client.SslProtocolActive);
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
 			}
 			catch (AuthenticationException) {
