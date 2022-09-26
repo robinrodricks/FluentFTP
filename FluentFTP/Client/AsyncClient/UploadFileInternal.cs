@@ -242,26 +242,16 @@ namespace FluentFTP {
 				// disconnect FTP stream before exiting
 				upStream.Dispose();
 
-				// FIX : if this is not added, there appears to be "stale data" on the socket
-				// listen for a success/failure reply
+				// listen for a success/failure reply or out of band data (like NOOP responses)
 				try {
 					while (true) {
-						FtpReply status = await GetReply(token);
-
-						// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
-						if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
-							continue;
-						}
+						// GetReply(true) means: Exhaust any NOOP responses
+						FtpReply status = await GetReplyAsyncInternal(token, anyNoop);
 
 						// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
 						// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
 						if (status.Code != null && !status.Success) {
 							return FtpStatus.Failed;
-						}
-
-						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
-						if (anyNoop) {
-							await ReadStaleData(false, true, true, token);
 						}
 
 						break;

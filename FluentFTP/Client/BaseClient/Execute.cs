@@ -16,7 +16,7 @@ namespace FluentFTP.Client.BaseClient {
 
 			lock (m_lock) {
 				if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
-					ReadStaleData(true, false, true);
+					ReadStaleData(true, true, "prior to command execution");
 				}
 
 				if (!IsConnected) {
@@ -38,8 +38,9 @@ namespace FluentFTP.Client.BaseClient {
 
 				// send command to FTP server
 				m_stream.WriteLine(m_textEncoding, command);
+				m_stream.Flush();
 				LastCommandTimestamp = DateTime.UtcNow;
-				reply = GetReplyInternal(command);
+				reply = GetReplyInternal(false, command, commandClean); 
 			}
 
 			return reply;

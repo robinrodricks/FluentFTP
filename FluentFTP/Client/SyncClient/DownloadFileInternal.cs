@@ -161,16 +161,11 @@ namespace FluentFTP {
 				// send progress reports
 				progress?.Invoke(new FtpProgress(100.0, offset, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
 
-				// FIX : if this is not added, there appears to be "stale data" on the socket
-				// listen for a success/failure reply
+				// listen for a success/failure reply or out of band data (like NOOP responses)
 				try {
 					while (true) {
-						var status = GetReply();
-
-						// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
-						if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
-							continue;
-						}
+						// GetReply(true) means: Exhaust any NOOP responses
+						FtpReply status = GetReplyInternal(anyNoop);
 
 						// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
 						// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
@@ -180,7 +175,7 @@ namespace FluentFTP {
 
 						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
 						if (anyNoop) {
-							ReadStaleData(false, true, true);
+							ReadStaleData(false, true, "after download");
 						}
 
 						break;

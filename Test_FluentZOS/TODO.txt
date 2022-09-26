@@ -1,0 +1,63 @@
+﻿
+TODO
+DO NOT MERGE
+Hi Robin,
+while finagling some tests for the OS400 issue recently, I noticed that the parser tests were not calling any custom server handler routines. This didn't hurt up to now, success was still reported. Only for my special tests did this show up.
+So I needed to change the small new parser and new client setup slightly, to make the new client get a specific server handler.
+But: This meant changing 'ServerModule` to public (from internal). I don't think that is really what you would like. Is there any other way to do this?:
+			var client = new FtpClient();
+			client.ServerHandler = ServerModule.GetServerHandler(FtpServer.IBMOS400FTP);
+			var parser = new FtpListParser(client);
+			parser.Init(FtpOperatingSystem.IBMOS400, FtpParser.IBMOS400);
+The only other place where the server handler is actually set, is within a (successful) connect.
+** NOTE: Since this is not really needed, perhaps only a comment would suffice, to warn future coders in this test code that the ServerHandlers are notset, so not to surprised when using the test facility to debug a parser.
+
+TODO
+This concerns #946
+
+As is done in FileZilla - remove the library name from the item.Name. Avoid the duplicate library name in the item.Fullname.
+
+This modification DOES not handle other cases in which there is a library/filename format. Perhaps one could actually do this for all cases.
+
+Further investigation of different possible OS/400 FTP server listing formats is needed.
+
+Perhaps also an initial setting is useful, similar to the z/OS server handler:
+
+		public override void AfterConnected(FtpClient client) {
+			FtpReply reply;
+			if (!(reply = client.Execute("SITE LISTFMT 0")).Success) {
+				throw new FtpCommandException(reply);
+			}
+			if (!(reply = client.Execute("SITE NAMEFMT 1")).Success) {
+				throw new FtpCommandException(reply);
+			}
+		}
+Code changes: IBMOS400FtpServer.cs
+
+		/// <summary>
+		/// Return true if your server requires custom handling to handle listing analysis.
+		/// </summary>
+		public override bool IsCustomCalculateFullFtpPath() {
+			return true;
+		}
+
+		/// <summary>
+		/// Get the full path of a given FTP Listing entry
+		/// Return null indicates custom code decided not to handle this
+		/// </summary>
+		public override bool? CalculateFullFtpPath(BaseFtpClient client, string path, FtpListItem item) {
+
+			// If item.name is in the library/filename format, check if the current
+			// working directory ends with that library name and then do not
+			// duplicate that library name in the fullname.
+
+			var parts = item.Name.Split('/');
+			if (parts.Length < 2 || !path.EndsWith(parts[0])) {
+				return null;
+			}
+
+			item.Name = parts[1];
+			item.FullName = path + '/' + parts[1];
+
+			return true;
+		}

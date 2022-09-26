@@ -23,20 +23,50 @@ namespace FluentFTP {
 			return await GetReplyAsyncInternal(token);
 		}
 
-		protected async Task<FtpReply> GetReplyAsyncInternal(CancellationToken token, string command = null) {
+		protected async Task<FtpReply> GetReplyAsyncInternal(CancellationToken token, bool exhaustNoop = false, string command = null, string commandClean = null) {
 			var reply = new FtpReply();
-			string buf;
+			string response;
 
 			if (!IsConnected) {
 				throw new InvalidOperationException("No connection to the server has been established.");
 			}
 
-			m_stream.ReadTimeout = Config.ReadTimeout;
-			while ((buf = await m_stream.ReadLineAsync(Encoding, token)) != null) {
-				if (DecodeStringToReply(buf, ref reply)) {
-					break;
+			if (string.IsNullOrEmpty(commandClean)) {
+				Log(FtpTraceLevel.Verbose, "Status:   Waiting for a response");
+			}
+			else {
+				Log(FtpTraceLevel.Verbose, "Status:   Waiting for response to: " + commandClean);
+			}
+
+			// Implement this: https://lists.apache.org/thread/xzpclw1015qncvczt8hg3nom2p5vtcf5
+			if (exhaustNoop) {
+				m_stream.ReadTimeout = 10000;
+			}
+			else {
+				m_stream.ReadTimeout = Config.ReadTimeout;
+			}
+			try {
+				while ((response = await m_stream.ReadLineAsync(Encoding, token)) != null) {
+					if (exhaustNoop &&
+						(response.StartsWith("200") || response.StartsWith("500"))) {
+						Log(FtpTraceLevel.Verbose, "Status:   exhausted: " + response);
+						continue;
+					}
+					if (DecodeStringToReply(response, ref reply)) {
+						if (exhaustNoop) {
+							continue;
+						}
+						else {
+							break;
+						}
+					}
+					reply.InfoMessages += response + "\n";
 				}
-				reply.InfoMessages += buf + "\n";
+			}
+			catch (TimeoutException) {
+				if (!exhaustNoop) {
+					throw;
+				}
 			}
 
 			reply = ProcessGetReply(reply, command);
