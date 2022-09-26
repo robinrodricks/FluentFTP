@@ -22,7 +22,7 @@ namespace FluentFTP {
 
 			if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
 #if NETSTANDARD
-				await ReadStaleData(true, true, "prior to command execution", token);
+				await ReadStaleDataAsync(true, true, "prior to command execution", token);
 #else
 				ReadStaleData(true, true, "prior to command execution");
 #endif

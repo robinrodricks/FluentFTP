@@ -33,10 +33,10 @@ namespace FluentFTP {
 			}
 
 			if (string.IsNullOrEmpty(command)) {
-				Log(FtpTraceLevel.Verbose, "Status:   Waiting for a response");
+				LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for a response");
 			}
 			else {
-				Log(FtpTraceLevel.Verbose, "Status:   Waiting for response to: " + OnPostExecute(command));
+				LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for response to: " + OnPostExecute(command));
 			}
 
 			// Implement this: https://lists.apache.org/thread/xzpclw1015qncvczt8hg3nom2p5vtcf5
@@ -83,7 +83,7 @@ namespace FluentFTP {
 					else {
 						if (elapsedTime > (previousElapsedTime + 1000)) {
 							previousElapsedTime = elapsedTime;
-							Log(FtpTraceLevel.Verbose, "Status:   Waiting - " + ((10000 - elapsedTime) / 1000).ToString() + " seconds left");
+							LogWithPrefix(FtpTraceLevel.Verbose, "Waiting - " + ((10000 - elapsedTime) / 1000).ToString() + " seconds left");
 						}
 						response = null;
 						Thread.Sleep(100);
@@ -128,7 +128,7 @@ namespace FluentFTP {
 			sw.Stop();
 
 			if (exhaustNoop) {
-				Log(FtpTraceLevel.Verbose, "Status:   GetReply(...) sequence: " + sequence.TrimStart(','));
+				LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) sequence: " + sequence.TrimStart(','));
 			}
 
 			reply = ProcessGetReply(reply, command);
