@@ -68,6 +68,110 @@ namespace Test_FluentZOS {
 		}
 		*/
 
+		static void My_FTPS_Test() {
+			FtpClient FTP_Sess = new FtpClient();
+
+			string uriHost = "ftps";
+			int myPort = 21;
+
+			if (uriHost.StartsWith("ftps://"))
+				myPort = 990;
+			else if (uriHost.StartsWith("ftp://"))
+				myPort = 21;
+			else {
+				uriHost = "ftp://" + uriHost;
+				myPort = 21;
+			}
+
+			Uri uri = null;
+
+			try {
+				uri = new Uri(uriHost);
+			}
+			catch (UriFormatException) {
+
+			}
+
+			if (!uri.IsDefaultPort)
+				myPort = uri.Port;
+
+			void progress(FtpProgress p) {
+				//Console.WriteLine(p.Progress.ToString("n0") + "% complete");
+				//Console.SetCursorPosition(0, Console.CursorTop - 1);
+			}
+
+			Console.WriteLine("Scheme: " + uri.Scheme);
+			Console.WriteLine("HostNameType: " + uri.HostNameType);
+			Console.WriteLine("Host: " + uri.Host);
+			Console.WriteLine("Port: " + myPort);
+
+			FTP_Sess.Config.LogToConsole = true;
+
+			FTP_Sess.Host = uri.DnsSafeHost;
+			FTP_Sess.Port = myPort;
+
+			FTP_Sess.Credentials.UserName = "mike";
+			FTP_Sess.Credentials.Password = "7u8i9o0p";
+
+			FTP_Sess.Config.ValidateAnyCertificate = true;
+
+			FTP_Sess.ValidateCertificate += new FtpSslValidation(OnValidateCertificate);
+
+			FTP_Sess.Config.LogToConsole = false;
+
+			FTP_Sess.Config.LogPassword = false;
+			FTP_Sess.Config.LogUserName = false;
+
+			FTP_Sess.LegacyLogger = FTPLogEvent;
+
+			FTP_Sess.Config.DataConnectionType = FtpDataConnectionType.AutoPassive;
+
+			FTP_Sess.Config.SslBuffering = FtpsBuffering.On;
+
+			FTP_Sess.Config.NoopInterval = 500;
+
+			FTP_Sess.AutoConnect();
+
+			/*
+			FTP_Sess.SetWorkingDirectory("/home/mike/[].folder/dia grams/old");
+			FtpListItem[] Items = FTP_Sess.GetListing("", FtpListOption.ForceList | FtpListOption.NoPath);
+			FTP_Sess.GetFileSize("/home/mike/test.bin");
+			FtpHash hash = FTP_Sess.GetChecksum("/home/mike/te st.bin");
+			FTP_Sess.GetFileSize("/home/mike/te st.bin");
+			*/
+
+			/*
+			try {
+				FTP_Sess.DeleteFile("/home/mike/test1");
+				FTP_Sess.DeleteFile("/home/mike/test2");
+				FTP_Sess.DeleteFile("/home/mike/test3");
+			}
+			catch { }
+			
+
+			FTP_Sess.Config.DataConnectionType = FluentFTP.FtpDataConnectionType.PORT;
+			FTP_Sess.Config.ActivePorts = new int[] { 8082 };
+
+			FTP_Sess.UploadFile(@"D:\temp\test1", "/home/mike/test1", FluentFTP.FtpRemoteExists.AddToEnd, false);
+			FTP_Sess.UploadFile(@"D:\temp\test2", "/home/mike/test2", FluentFTP.FtpRemoteExists.AddToEnd, false);
+			FTP_Sess.UploadFile(@"D:\temp\test3", "/home/mike/test3", FluentFTP.FtpRemoteExists.AddToEnd, false);
+			*/
+
+
+			// Download fails on ASCII if size is 2GB - need to check.
+			FTP_Sess.Config.DownloadDataType = FtpDataType.Binary;
+			FtpStatus status1 = FTP_Sess.DownloadFile("D:\\temp\\test1.bin", "/home/mike/test1", FtpLocalExists.Overwrite, FtpVerify.None, progress);
+			FTP_Sess.Execute("FEAT");
+			FtpStatus status2 = FTP_Sess.DownloadFile("D:\\temp\\test2.bin", "/home/mike/test2", FtpLocalExists.Overwrite, FtpVerify.None, progress);
+
+
+			/*
+			FTP_Sess.DeleteDirectory("/home/mike/ghostscript", FtpListOption.Auto);
+			*/
+
+			FTP_Sess.Disconnect();
+		}
+
 		static bool My_ZOS_Test() {
 			FtpClient FTP_Sess = new FtpClient();
 
@@ -273,93 +377,6 @@ namespace Test_FluentZOS {
 		}
 
 
-		static void My_FTPS_Test() {
-			FtpClient FTP_Sess = new FtpClient();
-
-			string uriHost = "ftps";
-			int myPort = 21;
-
-			if (uriHost.StartsWith("ftps://"))
-				myPort = 990;
-			else if (uriHost.StartsWith("ftp://"))
-				myPort = 21;
-			else {
-				uriHost = "ftp://" + uriHost;
-				myPort = 21;
-			}
-
-			Uri uri = null;
-
-			try {
-				uri = new Uri(uriHost);
-			}
-			catch (UriFormatException) {
-
-			}
-
-			if (!uri.IsDefaultPort)
-				myPort = uri.Port;
-
-			void progress(FtpProgress p) {
-				Console.WriteLine(p.Progress.ToString("n0") + "% complete");
-				Console.SetCursorPosition(0, Console.CursorTop - 1);
-			}
-
-			Console.WriteLine("Scheme: " + uri.Scheme);
-			Console.WriteLine("HostNameType: " + uri.HostNameType);
-			Console.WriteLine("Host: " + uri.Host);
-			Console.WriteLine("Port: " + myPort);
-
-			FTP_Sess.Config.LogToConsole = true;
-
-			FTP_Sess.Host = uri.DnsSafeHost;
-			FTP_Sess.Port = myPort;
-
-			FTP_Sess.Credentials.UserName = "mike";
-			FTP_Sess.Credentials.Password = "7u8i9o0p";
-
-			FTP_Sess.Config.ValidateAnyCertificate = true;
-
-			FTP_Sess.ValidateCertificate += new FtpSslValidation(OnValidateCertificate);
-
-			FTP_Sess.Config.LogToConsole = false;
-
-			FTP_Sess.Config.LogPassword = false;
-			FTP_Sess.Config.LogUserName = false;
-
-			FTP_Sess.LegacyLogger = FTPLogEvent;
-
-			FTP_Sess.AutoConnect();
-
-			FTP_Sess.Config.DataConnectionType = FtpDataConnectionType.AutoPassive;
-
-			/*
-			FTP_Sess.SetWorkingDirectory("/home/mike/[].folder/dia grams/old");
-			FtpListItem[] Items = FTP_Sess.GetListing("", FtpListOption.ForceList | FtpListOption.NoPath);
-			FTP_Sess.GetFileSize("/home/mike/test.bin");
-			FtpHash hash = FTP_Sess.GetChecksum("/home/mike/te st.bin");
-			FTP_Sess.GetFileSize("/home/mike/te st.bin");
-			*/
-
-			FTP_Sess.Config.DataConnectionType = FluentFTP.FtpDataConnectionType.PORT;
-			FTP_Sess.Config.ActivePorts = new int[] { 8082 };
-
-			FTP_Sess.UploadFile(@"D:\temp\test1", "/home/mike/test1", FluentFTP.FtpRemoteExists.Overwrite, true);
-			FTP_Sess.UploadFile(@"D:\temp\test2", "/home/mike/test2", FluentFTP.FtpRemoteExists.Overwrite, true);
-			FTP_Sess.UploadFile(@"D:\temp\test3", "/home/mike/test3", FluentFTP.FtpRemoteExists.Overwrite, true);
-
-
-			/*
-			// Download fails on ASCII if size is 2GB - need to check.
-			FTP_Sess.Config.DownloadDataType = FtpDataType.ASCII;
-			FtpStatus status = FTP_Sess.DownloadFile("D:\\temp\\test.bin", "/home/mike/test.bin", FtpLocalExists.Overwrite, FtpVerify.None, progress);
-			*/
-
-			Console.ReadLine();
-
-			FTP_Sess.Disconnect();
-		}
-
 		static void My_941_Test() {
 			FtpClient FTP_Sess = new FtpClient();
 
@@ -512,7 +529,8 @@ namespace Test_FluentZOS {
 		}
 
 		private static void FTPLogEvent(FtpTraceLevel ftpTraceLevel, string logMessage) {
-			Console.WriteLine("*** " + ftpTraceLevel + " " + logMessage);
+			//Console.WriteLine("*** " + ftpTraceLevel + " " + logMessage);
+			Console.WriteLine(logMessage);
 		}
 		private static void OnValidateCertificate(BaseFtpClient control, FtpSslValidationEventArgs e) {
 			if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
