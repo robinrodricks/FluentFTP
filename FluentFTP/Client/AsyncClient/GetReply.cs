@@ -28,103 +28,104 @@ namespace FluentFTP {
 
 			var reply = new FtpReply();
 
-			// lock (m_lock) {
+			if (!IsConnected) {
+				throw new InvalidOperationException("No connection to the server has been established.");
+			}
 
-				if (!IsConnected) {
-					throw new InvalidOperationException("No connection to the server has been established.");
+			if (string.IsNullOrEmpty(command)) {
+				Log(FtpTraceLevel.Verbose, "Status:   Waiting for a response");
+			}
+			else {
+				Log(FtpTraceLevel.Verbose, "Status:   Waiting for response to: " + OnPostExecute(command));
+			}
+
+			// Implement this: https://lists.apache.org/thread/xzpclw1015qncvczt8hg3nom2p5vtcf5
+			// Can not use the normal timeout mechanism though, as a System.TimeoutException
+			// causes the stream to disconnect.
+
+			string response;
+
+			var sw = new Stopwatch();
+
+			long elapsedTime = 0;
+			long previousElapsedTime = 0;
+
+			sw.Start();
+
+			do {
+				var swTime = sw.ElapsedMilliseconds;
+
+				// Maximum wait time for collecting NOOP responses: 10 seconds
+				if (exhaustNoop && swTime > 10000) {
+					break;
 				}
 
-				string commandClean = OnPostExecute(command);
+				if (!exhaustNoop) {
 
-				if (string.IsNullOrEmpty(commandClean)) {
-					Log(FtpTraceLevel.Verbose, "Status:   Waiting for a response");
+					// If we are not exhausting NOOPs, i.e. doing a normal GetReply(...)
+					// we do a blocking ReadLine(...). This can throw a
+					// System.TimeoutException which will disconnect us.
+
+					m_stream.ReadTimeout = Config.ReadTimeout;
+					response = await m_stream.ReadLineAsync(Encoding, token);
+
 				}
 				else {
-					Log(FtpTraceLevel.Verbose, "Status:   Waiting for response to: " + commandClean);
+
+					// If we are exhausting NOOPs, use a non-blocking ReadLine(...)
+					// as we don't want a timeout exception, which would disconnect us.
+
+					if (m_stream.SocketDataAvailable > 0) {
+						response = await m_stream.ReadLineAsync(Encoding, token);
+					}
+					else {
+						if (elapsedTime > (previousElapsedTime + 1000)) {
+							previousElapsedTime = elapsedTime;
+							Log(FtpTraceLevel.Verbose, "Status:   Waiting - " + ((10000 - elapsedTime) / 1000).ToString() + " seconds left");
+						}
+						response = null;
+						Thread.Sleep(100);
+					}
+
 				}
 
-				// Implement this: https://lists.apache.org/thread/xzpclw1015qncvczt8hg3nom2p5vtcf5
-				// Can not use the normal timeout mechanism though, as a System.TimeoutException
-				// causes the stream to disconnect.
+				if (string.IsNullOrEmpty(response)) {
+					continue;
+				}
 
-				string response;
+				if (exhaustNoop &&
+					// NOOP responses can actually come in quite a few flavors
+					(response.StartsWith("200 NOOP") || response.StartsWith("500"))) {
 
-				var waitStarted = DateTime.Now;
-				var sw = new Stopwatch();
+					Log(FtpTraceLevel.Verbose, "Skipped:  " + response);
 
-				sw.Start();
+					continue;
+				}
 
-				do {
-					var swTime = sw.ElapsedMilliseconds;
+				if (DecodeStringToReply(response, ref reply)) {
 
-					// Maximum wait time for collecting NOOP responses: 10 seconds
-					if (exhaustNoop && swTime > 10000) {
+					if (exhaustNoop) {
+						// We need to perhaps exhaust more NOOP responses
+						continue;
+					}
+					else {
+						// On a normal GetReply(...) we are happy to collect the
+						// first valid response
 						break;
 					}
 
-					if (!exhaustNoop) {
+				}
 
-						// If we are not exhausting NOOPs, i.e. doing a normal GetReply(...)
-						// we do a blocking ReadLine(...). This can throw a
-						// System.TimeoutException which will disconnect us.
+				// Accumulate non-valid response text too, prior to a valid response
+				reply.InfoMessages += response + "\n";
 
-						m_stream.ReadTimeout = Config.ReadTimeout;
-						response = await m_stream.ReadLineAsync(Encoding, token);
+			} while (true);
 
-					}
-					else {
+			sw.Stop();
 
-						// If we are exhausting NOOPs, use a non-blocking ReadLine(...)
-						// as we don't want a timeout exception, which would disconnect us.
-
-						if (m_stream.SocketDataAvailable > 0) {
-							response = await m_stream.ReadLineAsync(Encoding, token);
-						}
-						else {
-							response = null;
-							Thread.Sleep(100);
-						}
-
-					}
-
-					if (string.IsNullOrEmpty(response)) {
-						continue;
-					}
-
-					if (exhaustNoop &&
-						// NOOP responses can actually come in quite a few flavors
-						(response.StartsWith("200") || response.StartsWith("500"))) {
-
-						Log(FtpTraceLevel.Verbose, "Exhausted: " + response);
-
-						continue;
-					}
-
-					if (DecodeStringToReply(response, ref reply)) {
-
-						if (exhaustNoop) {
-							// We need to perhaps exhaust more NOOP responses
-							continue;
-						}
-						else {
-							// On a normal GetReply(...) we are happy to collect the
-							// first valid response
-							break;
-						}
-
-					}
-
-					// Accumulate non-valid response text too, prior to a valid response
-					reply.InfoMessages += response + "\n";
-
-				} while (true);
-
-				sw.Stop();
-
-				reply = ProcessGetReply(reply, command);
-
-			// } // lock
+			reply = ProcessGetReply(reply, command);
 
 			return reply;
+		}
 	}
 }

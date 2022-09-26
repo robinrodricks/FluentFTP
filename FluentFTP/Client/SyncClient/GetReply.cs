@@ -12,14 +12,15 @@ namespace FluentFTP {
 	public partial class FtpClient {
 
 		/// <summary>
-		/// Retrieves a reply from the server. Do not execute this method
-		/// unless you are sure that a reply has been sent, i.e., you
-		/// executed a command. Doing so will cause the code to hang
-		/// indefinitely waiting for a server reply that is never coming.
+		/// Retrieves a reply from the server.
+		/// Support "normal" mode waiting for a command reply, subject to timeout exception
+		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
 		/// </summary>
+		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
+		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <returns>FtpReply representing the response from the server</returns>
-		public FtpReply GetReply() {
-			return GetReplyInternal();
+		public FtpReply GetReply(bool exhaustNoop = false, string command = null) {
+			return GetReplyInternal(exhaustNoop, command);
 		}
 
 	}

@@ -30,31 +30,33 @@ namespace FluentFTP.Client.BaseClient {
 					throw new InvalidOperationException("No connection to the server has been established.");
 				}
 
-				string commandClean = OnPostExecute(command);
-
-				if (string.IsNullOrEmpty(commandClean)) {
+				if (string.IsNullOrEmpty(command)) {
 					Log(FtpTraceLevel.Verbose, "Status:   Waiting for a response");
 				}
 				else {
-					Log(FtpTraceLevel.Verbose, "Status:   Waiting for response to: " + commandClean);
+					Log(FtpTraceLevel.Verbose, "Status:   Waiting for response to: " + OnPostExecute(command));
 				}
 
 				// Implement this: https://lists.apache.org/thread/xzpclw1015qncvczt8hg3nom2p5vtcf5
 				// Can not use the normal timeout mechanism though, as a System.TimeoutException
 				// causes the stream to disconnect.
 
+				string sequence = string.Empty;
+
 				string response;
 
-				var waitStarted = DateTime.Now;
 				var sw = new Stopwatch();
+
+				long elapsedTime = 0;
+				long previousElapsedTime = 0;
 
 				sw.Start();
 
 				do {
-					var swTime = sw.ElapsedMilliseconds;
+					elapsedTime = sw.ElapsedMilliseconds;
 
 					// Maximum wait time for collecting NOOP responses: 10 seconds
-					if (exhaustNoop && swTime > 10000) {
+					if (exhaustNoop && elapsedTime > 10000) {
 						break;
 					}
 
@@ -77,6 +79,10 @@ namespace FluentFTP.Client.BaseClient {
 							response = m_stream.ReadLine(Encoding);
 						}
 						else {
+							if (elapsedTime > (previousElapsedTime + 1000)) {
+								previousElapsedTime = elapsedTime;
+								Log(FtpTraceLevel.Verbose, "Status:   Waiting - " + ((10000 - elapsedTime) / 1000).ToString() + " seconds left");
+							}
 							response = null;
 							Thread.Sleep(100);
 						}
@@ -87,11 +93,14 @@ namespace FluentFTP.Client.BaseClient {
 						continue;
 					}
 
+					sequence += "," + response.Split(' ')[0];
+
 					if (exhaustNoop &&
 						// NOOP responses can actually come in quite a few flavors
-						(response.StartsWith("200") || response.StartsWith("500"))) {
+						(response.StartsWith("200 NOOP") || response.StartsWith("500"))) {
 
-						Log(FtpTraceLevel.Verbose, "Exhausted: " + response);
+
+						Log(FtpTraceLevel.Verbose, "Skipped:  " + response);
 
 						continue;
 					}
@@ -116,6 +125,8 @@ namespace FluentFTP.Client.BaseClient {
 				} while (true);
 
 				sw.Stop();
+
+				Log(FtpTraceLevel.Verbose, "Status:   GetReply(...) sequence: " + sequence.TrimStart(','));
 
 				reply = ProcessGetReply(reply, command);
 

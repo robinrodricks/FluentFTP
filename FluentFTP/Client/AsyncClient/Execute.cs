@@ -48,7 +48,7 @@ namespace FluentFTP {
 			// send command to FTP server
 			await m_stream.WriteLineAsync(m_textEncoding, command, token);
 			LastCommandTimestamp = DateTime.UtcNow;
-			reply = await GetReplyAsyncInternal(token, false, command, commandClean);
+			reply = await GetReplyAsyncInternal(token, false, command);
 
 			return reply;
 		}

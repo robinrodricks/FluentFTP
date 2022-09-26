@@ -27,7 +27,7 @@ namespace FluentFTP {
 		void DisableUTF8();
 
 		Task<FtpReply> Execute(string command, CancellationToken token = default(CancellationToken));
-		Task<FtpReply> GetReply(CancellationToken token = default(CancellationToken));
+		Task<FtpReply> GetReply(CancellationToken token = default(CancellationToken), bool exhaustNoop = false, string command = null);
 		Task Connect(CancellationToken token = default(CancellationToken));
 		Task Connect(FtpProfile profile, CancellationToken token = default(CancellationToken));
 		Task<List<FtpProfile>> AutoDetect(bool firstOnly = true, bool cloneConnection = true, CancellationToken token = default(CancellationToken));
