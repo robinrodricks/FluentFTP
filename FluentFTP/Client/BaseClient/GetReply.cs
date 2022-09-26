@@ -99,7 +99,6 @@ namespace FluentFTP.Client.BaseClient {
 						// NOOP responses can actually come in quite a few flavors
 						(response.StartsWith("200 NOOP") || response.StartsWith("500"))) {
 
-
 						Log(FtpTraceLevel.Verbose, "Skipped:  " + response);
 
 						continue;
@@ -126,7 +125,9 @@ namespace FluentFTP.Client.BaseClient {
 
 				sw.Stop();
 
-				Log(FtpTraceLevel.Verbose, "Status:   GetReply(...) sequence: " + sequence.TrimStart(','));
+				if (exhaustNoop) {
+					Log(FtpTraceLevel.Verbose, "Status:   GetReply(...) sequence: " + sequence.TrimStart(','));
+				}
 
 				reply = ProcessGetReply(reply, command);
 

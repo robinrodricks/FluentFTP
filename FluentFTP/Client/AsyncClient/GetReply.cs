@@ -43,6 +43,8 @@ namespace FluentFTP {
 			// Can not use the normal timeout mechanism though, as a System.TimeoutException
 			// causes the stream to disconnect.
 
+			string sequence = string.Empty;
+
 			string response;
 
 			var sw = new Stopwatch();
@@ -53,10 +55,10 @@ namespace FluentFTP {
 			sw.Start();
 
 			do {
-				var swTime = sw.ElapsedMilliseconds;
+				elapsedTime = sw.ElapsedMilliseconds;
 
 				// Maximum wait time for collecting NOOP responses: 10 seconds
-				if (exhaustNoop && swTime > 10000) {
+				if (exhaustNoop && elapsedTime > 10000) {
 					break;
 				}
 
@@ -93,6 +95,8 @@ namespace FluentFTP {
 					continue;
 				}
 
+				sequence += "," + response.Split(' ')[0];
+
 				if (exhaustNoop &&
 					// NOOP responses can actually come in quite a few flavors
 					(response.StartsWith("200 NOOP") || response.StartsWith("500"))) {
@@ -122,6 +126,10 @@ namespace FluentFTP {
 			} while (true);
 
 			sw.Stop();
+
+			if (exhaustNoop) {
+				Log(FtpTraceLevel.Verbose, "Status:   GetReply(...) sequence: " + sequence.TrimStart(','));
+			}
 
 			reply = ProcessGetReply(reply, command);
 
