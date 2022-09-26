@@ -49,7 +49,7 @@ namespace FluentFTP {
 
 			var sw = new Stopwatch();
 
-			long elapsedTime = 0;
+			long elapsedTime;
 			long previousElapsedTime = 0;
 
 			sw.Start();
