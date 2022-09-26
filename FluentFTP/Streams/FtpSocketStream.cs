@@ -1134,12 +1134,12 @@ namespace FluentFTP {
 #else
 			if ( (Client.Config.SslBuffering == FtpsBuffering.On || Client.Config.SslBuffering == FtpsBuffering.Auto) &&
         		 (!Client.IsProxy()) &&
-				 (!Client.Config.NoopInterval > 0) ) {
+				 (Client.Config.NoopInterval == 0) ) {
 				m_bufStream = new BufferedStream(NetworkStream, 81920);
 			}
 			else {
 				if ( (Client.Config.SslBuffering == FtpsBuffering.On || Client.Config.SslBuffering == FtpsBuffering.Auto) ) {
-					if (Client.IsProxy) {
+					if (Client.IsProxy()) {
 						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "SSL Buffering force disabled, is proxy");
 					}
 					else if (Client.Config.NoopInterval > 0) {
