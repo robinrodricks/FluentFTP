@@ -44,8 +44,8 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Asynchronously removes a directory. Used by <see cref="DeleteDirectoryAsync(string)"/> and
-		/// <see cref="DeleteDirectoryAsync(string, FtpListOption)"/>.
+		/// Asynchronously removes a directory. Used by <see cref="DeleteDirectory(string, CancellationToken)"/> and
+		/// <see cref="DeleteDirectory(string, FtpListOption, CancellationToken)"/>.
 		/// </summary>
 		/// <param name="path">The full or relative path of the directory to delete</param>
 		/// <param name="deleteContents">Delete the contents before deleting the folder</param>

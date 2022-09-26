@@ -7,7 +7,7 @@ namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
 		/// <summary>
-		/// Called during <see cref="ConnectAsync()"/>. Typically extended by FTP proxies.
+		/// Called during <see cref="Connect(CancellationToken)"/>. Typically extended by FTP proxies.
 		/// </summary>
 		protected virtual async Task HandshakeAsync(CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
