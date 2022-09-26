@@ -28,7 +28,7 @@ namespace FluentFTP {
 
 			var reply = new FtpReply();
 
-			lock (m_lock) {
+			// lock (m_lock) {
 
 				if (!IsConnected) {
 					throw new InvalidOperationException("No connection to the server has been established.");
@@ -123,7 +123,7 @@ namespace FluentFTP {
 
 				reply = ProcessGetReply(reply, command);
 
-			} // lock
+			// } // lock
 
 			return reply;
 	}
