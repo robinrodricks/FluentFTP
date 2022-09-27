@@ -27,7 +27,12 @@ namespace FluentFTP.Client.BaseClient {
 						LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data");
 					}
 					byte[] buf = new byte[m_stream.SocketDataAvailable];
-					m_stream.Read(buf, 0, buf.Length);
+					if (m_stream.IsEncrypted) {
+						m_stream.Read(buf, 0, buf.Length);
+					}
+					else {
+						m_stream.RawSocketRead(buf);
+					}
 					staleData = Encoding.GetString(buf).TrimEnd('\0', '\r', '\n');
 					if (logData) {
 						LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: " + staleData);
@@ -40,7 +45,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 
 			if (closeStream) {
-				LogWithPrefix(FtpTraceLevel.Verbose, "Closing stream because of stale data");
+				LogWithPrefix(FtpTraceLevel.Info, "Closing stream because of stale data");
 				m_stream.Close();
 			}
 
@@ -68,7 +73,12 @@ namespace FluentFTP.Client.BaseClient {
 						LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data");
 					}
 					byte[] buf = new byte[m_stream.SocketDataAvailable];
-					await m_stream.ReadAsync(buf, 0, buf.Length, token);
+					if (m_stream.IsEncrypted) {
+						await m_stream.ReadAsync(buf, 0, buf.Length, token);
+					}
+					else {
+						await m_stream.RawSocketReadAsync(buf, token);
+					}
 					staleData = Encoding.GetString(buf).TrimEnd('\0', '\r', '\n');
 					if (traceData) {
 						LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: " + staleData);
@@ -81,7 +91,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 
 			if (closeStream) {
-				LogWithPrefix(FtpTraceLevel.Verbose, "Closing stream because of stale data");
+				LogWithPrefix(FtpTraceLevel.Info, "Closing stream because of stale data");
 				m_stream.Close();
 			}
 
