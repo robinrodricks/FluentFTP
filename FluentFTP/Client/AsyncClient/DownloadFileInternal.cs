@@ -180,6 +180,11 @@ namespace FluentFTP {
 							return false;
 						}
 
+						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
+						if (anyNoop) {
+							ReadStaleData(false, true, "after download");
+						}
+
 						break;
 					}
 				}
