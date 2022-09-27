@@ -12,14 +12,14 @@ using System.Threading.Tasks;
 
 namespace FluentFTP {
 
-#if NETFRAMEWORK
-	[Serializable]
-#endif
 	/// <summary>
 	/// Holds all the configuration settings for a single FTP client.
 	/// One FtpConfig object can only be bound to one client at a time.
 	/// If you want to reuse it across multiple FTP clients, then clone it and then reuse it.
 	/// </summary>
+#if NETFRAMEWORK
+	[Serializable]
+#endif
 	public class FtpConfig {
 
 		private BaseFtpClient _client = null;
@@ -39,17 +39,17 @@ namespace FluentFTP {
 		/// <summary>
 		/// Should the FTP server host IP/domain be shown in the logs (true) or masked out (false)?
 		/// </summary>
-		public bool LogHost { get; set; } =false;
+		public bool LogHost { get; set; } = false;
 
 		/// <summary>
 		/// Should the FTP username be shown in the logs (true) or masked out (false)?
 		/// </summary>
-		public bool LogUserName { get; set; } =false;
+		public bool LogUserName { get; set; } = false;
 
 		/// <summary>
 		/// Should the FTP password be shown in the logs (true) or masked out (false)?
 		/// </summary>
-		public bool LogPassword { get; set; } =false;
+		public bool LogPassword { get; set; } = false;
 
 		/// <summary>
 		/// Flags specifying which versions of the internet protocol (IPV4 or IPV6) to
@@ -60,7 +60,7 @@ namespace FluentFTP {
 		/// to FtpIpVersion.IPv4 will cause the connection process to
 		/// ignore IPv6 addresses. The default value is ANY version.
 		/// </summary>
-		public FtpIpVersion InternetProtocolVersions { get; set; } =FtpIpVersion.ANY;
+		public FtpIpVersion InternetProtocolVersions { get; set; } = FtpIpVersion.ANY;
 
 		protected int _socketPollInterval = 15000;
 
@@ -108,10 +108,10 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds after last command
-		/// (NOOP or other) that a NOOP command is sent by <see cref="Noop"/>.
+		/// (NOOP or other) that a NOOP command is sent by <see cref="FtpClient.Noop"/>/<see cref="AsyncFtpClient.NoopAsync(System.Threading.CancellationToken)"/>.
 		/// This is called during downloading/uploading if
 		/// <see cref="EnableThreadSafeDataConnections"/> is false. Setting this
-		/// interval to 0 disables <see cref="Noop"/> all together.
+		/// interval to 0 disables <see cref="FtpClient.Noop"/>/<see cref="AsyncFtpClient.NoopAsync(System.Threading.CancellationToken)"/> all together.
 		/// The default value is 0 (disabled).
 		/// </summary>
 		public int NoopInterval { get; set; } = 0;
@@ -121,7 +121,7 @@ namespace FluentFTP {
 		/// will set which features are available by executing the FEAT command
 		/// when the connect method is called.
 		/// </summary>
-		public bool CheckCapabilities { get; set; } =true;
+		public bool CheckCapabilities { get; set; } = true;
 
 		/// <summary>
 		/// Client certificates to be used in SSL authentication process
@@ -161,14 +161,14 @@ namespace FluentFTP {
 		/// by defining a specific type of passive or active data
 		/// connection here.
 		/// </summary>
-		public FtpDataConnectionType DataConnectionType { get; set; } =FtpDataConnectionType.AutoPassive;
+		public FtpDataConnectionType DataConnectionType { get; set; } = FtpDataConnectionType.AutoPassive;
 
 		/// <summary>
 		/// Disconnect from the server without sending QUIT. This helps
 		/// work around IOExceptions caused by buggy connection resets
 		/// when closing the control connection.
 		/// </summary>
-		public bool DisconnectWithQuit { get; set; } =true;
+		public bool DisconnectWithQuit { get; set; } = true;
 
 		/// <summary>
 		/// Before we disconnect from the server, send the Shutdown signal on the socket stream.
@@ -179,7 +179,7 @@ namespace FluentFTP {
 		/// Gets or sets the length of time in milliseconds to wait for a connection 
 		/// attempt to succeed before giving up. Default is 15000 (15 seconds).
 		/// </summary>
-		public int ConnectTimeout { get; set; }= 15000;
+		public int ConnectTimeout { get; set; } = 15000;
 
 		/// <summary>
 		/// Gets or sets the length of time wait in milliseconds for data to be
@@ -454,7 +454,7 @@ namespace FluentFTP {
 		/// Controls if the high-level API uploads files in Binary or ASCII mode.
 		/// </summary>
 		public FtpDataType UploadDataType { get; set; } = FtpDataType.Binary;
-		
+
 		/// <summary>
 		/// Controls if the high-level API downloads files in Binary or ASCII mode.
 		/// </summary>

@@ -10,6 +10,7 @@ using FluentFTP.Servers;
 using FluentFTP.Helpers;
 using System.Net.Sockets;
 using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
@@ -82,8 +83,8 @@ namespace FluentFTP.Client.BaseClient {
 		}
 
 		/// <summary>
-		/// When last command was sent (NOOP or other), for having <see cref="Noop"/>
-		/// Respects the <see cref="NoopInterval"/>.
+		/// When last command was sent (NOOP or other), for having <see cref="FtpClient.Noop"/>/<see cref="AsyncFtpClient.NoopAsync(CancellationToken)"/>.
+		/// Respects the <see cref="FtpConfig.NoopInterval"/>.
 		/// </summary>
 		protected DateTime LastCommandTimestamp;
 
