@@ -22,6 +22,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 
 			if (m_stream != null) {
+
 				while (m_stream.SocketDataAvailable > 0) {
 					if (logData) {
 						LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data");
@@ -38,15 +39,16 @@ namespace FluentFTP.Client.BaseClient {
 						LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: " + staleData);
 					}
 				}
-			}
 
-			if (string.IsNullOrEmpty(staleData)) {
-				closeStream = false;
-			}
+				if (string.IsNullOrEmpty(staleData)) {
+					closeStream = false;
+				}
 
-			if (closeStream) {
-				LogWithPrefix(FtpTraceLevel.Info, "Closing stream because of stale data");
-				m_stream.Close();
+				if (closeStream) {
+					LogWithPrefix(FtpTraceLevel.Info, "Closing stream because of stale data");
+					m_stream.Close();
+				}
+
 			}
 
 			return staleData;
@@ -68,6 +70,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 
 			if (m_stream != null) {
+
 				while (m_stream.SocketDataAvailable > 0) {
 					if (traceData) {
 						LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data");
@@ -84,15 +87,16 @@ namespace FluentFTP.Client.BaseClient {
 						LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: " + staleData);
 					}
 				}
-			}
 
-			if (string.IsNullOrEmpty(staleData)) {
-				closeStream = false;
-			}
+				if (string.IsNullOrEmpty(staleData)) {
+					closeStream = false;
+				}
 
-			if (closeStream) {
-				LogWithPrefix(FtpTraceLevel.Info, "Closing stream because of stale data");
-				m_stream.Close();
+				if (closeStream) {
+					LogWithPrefix(FtpTraceLevel.Info, "Closing stream because of stale data");
+					m_stream.Close();
+				}
+
 			}
 
 			return staleData;
