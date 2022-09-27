@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using FluentFTP.Client.Modules;
+using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -16,7 +17,7 @@ namespace FluentFTP {
 		/// Return information about a remote file system object asynchronously. 
 		/// </summary>
 		/// <remarks>
-		/// You should check the <see cref="Capabilities"/> property for the <see cref="FtpCapability.MLSD"/> 
+		/// You should check the <see cref="BaseFtpClient.Capabilities"/> property for the <see cref="FtpCapability.MLSD"/>
 		/// flag before calling this method. Failing to do so will result in an InvalidOperationException
 		/// being thrown when the server does not support machine listings. Returns null if the server response can't
 		/// be parsed or the server returns a failure completion code. The error for a failure
