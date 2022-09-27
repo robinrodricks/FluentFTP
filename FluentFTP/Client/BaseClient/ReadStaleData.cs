@@ -34,6 +34,7 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				if (closeStream) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "Closing stream because of stale data");
 					m_stream.Close();
 				}
 			}
@@ -66,6 +67,7 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				if (closeStream) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "Closing stream because of stale data");
 					m_stream.Close();
 				}
 			}
