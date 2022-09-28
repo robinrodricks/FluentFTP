@@ -65,7 +65,7 @@ namespace FluentFTP {
 				m_stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, Config.SocketKeepAlive);
 
 				if (Config.EncryptionMode == FtpEncryptionMode.Implicit) {
-					m_stream.ActivateEncryption(Host, Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null, Config.SslProtocols);
+					m_stream.ActivateEncryption(Host, Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null, Config.SslProtocols, true);
 				}
 
 				Handshake();
@@ -87,7 +87,7 @@ namespace FluentFTP {
 						}
 					}
 					else {
-						m_stream.ActivateEncryption(Host, Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null, Config.SslProtocols);
+						m_stream.ActivateEncryption(Host, Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null, Config.SslProtocols, true);
 					}
 				}
 
