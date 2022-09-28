@@ -187,7 +187,7 @@ namespace FluentFTP {
 
 						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
 						if (anyNoop) {
-							await ReadStaleData(false, true, true, token);
+							await ReadStaleDataAsync(false, true, "after download", token);
 						}
 
 						break;

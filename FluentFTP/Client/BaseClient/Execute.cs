@@ -16,7 +16,7 @@ namespace FluentFTP.Client.BaseClient {
 
 			lock (m_lock) {
 				if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
-					ReadStaleData(true, false, true);
+					ReadStaleData(true, true, "prior to command execution");
 				}
 
 				if (!IsConnected) {
