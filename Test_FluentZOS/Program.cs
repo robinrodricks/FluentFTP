@@ -128,7 +128,7 @@ namespace Test_FluentZOS {
 
 			FTP_Sess.Config.SslBuffering = FtpsBuffering.On;
 
-			FTP_Sess.Config.NoopInterval = 500;
+			FTP_Sess.Config.NoopInterval = 1000;
 
 			FTP_Sess.AutoConnect();
 
