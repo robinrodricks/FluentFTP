@@ -1012,50 +1012,6 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
-		/// If this event is not handled and there are SslPolicyErrors present, the certificate will
-		/// not be accepted.
-		/// </summary>
-		/// <param name="targethost">The host to authenticate the certificate against</param>
-		public void ActivateEncryption(string targethost) {
-			ActivateEncryption(targethost, null, Client.Config.SslProtocols);
-		}
-
-		/// <summary>
-		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
-		/// If this event is not handled and there are SslPolicyErrors present, the certificate will
-		/// not be accepted.
-		/// </summary>
-		/// <param name="targethost">The host to authenticate the certificate against</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task ActivateEncryptionAsync(string targethost, CancellationToken token = default) {
-			await ActivateEncryptionAsync(targethost, null, Client.Config.SslProtocols, token: token);
-		}
-
-		/// <summary>
-		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
-		/// If this event is not handled and there are SslPolicyErrors present, the certificate will
-		/// not be accepted.
-		/// </summary>
-		/// <param name="targethost">The host to authenticate the certificate against</param>
-		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
-		public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts) {
-			ActivateEncryption(targethost, clientCerts, Client.Config.SslProtocols);
-		}
-
-		/// <summary>
-		/// Activates SSL on this stream using default protocols. Fires the ValidateCertificate event.
-		/// If this event is not handled and there are SslPolicyErrors present, the certificate will
-		/// not be accepted.
-		/// </summary>
-		/// <param name="targethost">The host to authenticate the certificate against</param>
-		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts, CancellationToken token = default) {
-			await ActivateEncryptionAsync(targethost, clientCerts, Client.Config.SslProtocols, token: token);
-		}
-
-		/// <summary>
 		/// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
 		/// If this event is not handled and there are SslPolicyErrors present, the certificate will
 		/// not be accepted.
@@ -1091,6 +1047,74 @@ namespace FluentFTP {
 					m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation).Wait();
 #else
 					m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
+#endif
+				}
+				catch (IOException ex) {
+					if (ex.InnerException is Win32Exception { NativeErrorCode: 10053 }) {
+						throw new FtpMissingSocketException(ex);
+					}
+
+					throw;
+				}
+
+				auth_time_total = DateTime.Now.Subtract(auth_start);
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, protocol = " + Client.SslProtocolActive);
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
+			}
+			catch (AuthenticationException) {
+				// authentication failed and in addition it left our
+				// ssl stream in an unusable state so cleanup needs
+				// to be done and the exception can be re-thrown for
+				// handling down the chain. (Add logging?)
+				Close();
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
+				throw;
+			}
+		}
+
+		/// <summary>
+		/// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
+		/// If this event is not handled and there are SslPolicyErrors present, the certificate will
+		/// not be accepted.
+		/// </summary>
+		/// <param name="targethost">The host to authenticate the certificate against</param>
+		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
+		/// <param name="sslProtocols">A bitwise parameter for supported encryption protocols.</param>
+		/// <param name="isControlConnection"></param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <exception cref="AuthenticationException">Thrown when authentication fails</exception>
+		public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols, bool isControlConnection = false, CancellationToken token = default) {
+			if (!IsConnected) {
+				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
+			}
+
+			if (m_netStream == null) {
+				throw new InvalidOperationException("The base network stream is null.");
+			}
+
+			if (m_sslStream != null) {
+				throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
+			}
+
+			try {
+				DateTime auth_start;
+				TimeSpan auth_time_total;
+
+				CreateBufferStream(isControlConnection);
+				CreateSSlStream();
+
+				auth_start = DateTime.Now;
+				try {
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+					var options = new SslClientAuthenticationOptions() {
+						TargetHost = targethost,
+						ClientCertificates = clientCerts,
+						EnabledSslProtocols = sslProtocols,
+						CertificateRevocationCheckMode = Client.Config.ValidateCertificateRevocation ? X509RevocationMode.Online : X509RevocationMode.NoCheck
+					};
+					await m_sslStream.AuthenticateAsClientAsync(options, token);
+#else
+					await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
 #endif
 				}
 				catch (IOException ex) {
@@ -1165,75 +1189,6 @@ namespace FluentFTP {
 		private Stream GetBufferStream() {
 			return m_bufStream != null ? (Stream)m_bufStream : (Stream)NetworkStream;
 		}
-
-		/// <summary>
-		/// Activates SSL on this stream using the specified protocols. Fires the ValidateCertificate event.
-		/// If this event is not handled and there are SslPolicyErrors present, the certificate will
-		/// not be accepted.
-		/// </summary>
-		/// <param name="targethost">The host to authenticate the certificate against</param>
-		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
-		/// <param name="sslProtocols">A bitwise parameter for supported encryption protocols.</param>
-		/// <param name="isControlConnection"></param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <exception cref="AuthenticationException">Thrown when authentication fails</exception>
-		public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols, bool isControlConnection = false, CancellationToken token = default) {
-			if (!IsConnected) {
-				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
-			}
-
-			if (m_netStream == null) {
-				throw new InvalidOperationException("The base network stream is null.");
-			}
-
-			if (m_sslStream != null) {
-				throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
-			}
-
-			try {
-				DateTime auth_start;
-				TimeSpan auth_time_total;
-
-				CreateBufferStream(isControlConnection);
-				CreateSSlStream();
-
-				auth_start = DateTime.Now;
-				try {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-					var options = new SslClientAuthenticationOptions() {
-						TargetHost = targethost,
-						ClientCertificates = clientCerts,
-						EnabledSslProtocols = sslProtocols,
-						CertificateRevocationCheckMode = Client.Config.ValidateCertificateRevocation ? X509RevocationMode.Online : X509RevocationMode.NoCheck
-					};
-					await m_sslStream.AuthenticateAsClientAsync(options, token);
-#else
-					await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
-#endif
-				}
-				catch (IOException ex) {
-					if (ex.InnerException is Win32Exception { NativeErrorCode: 10053 }) {
-						throw new FtpMissingSocketException(ex);
-					}
-
-					throw;
-				}
-
-				auth_time_total = DateTime.Now.Subtract(auth_start);
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, protocol = " + Client.SslProtocolActive);
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
-			}
-			catch (AuthenticationException) {
-				// authentication failed and in addition it left our
-				// ssl stream in an unusable state so cleanup needs
-				// to be done and the exception can be re-thrown for
-				// handling down the chain. (Add logging?)
-				Close();
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
-				throw;
-			}
-		}
-
 
 #if NETFRAMEWORK
 		/// <summary>
