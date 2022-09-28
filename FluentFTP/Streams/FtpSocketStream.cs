@@ -1062,7 +1062,7 @@ namespace FluentFTP {
 		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
 		/// <param name="sslProtocols">A bitwise parameter for supported encryption protocols.</param>
 		/// <exception cref="AuthenticationException">Thrown when authentication fails</exception>
-		public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols) {
+		public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols, bool isControlConnection = false) {
 			if (!IsConnected) {
 				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
 			}
@@ -1079,7 +1079,7 @@ namespace FluentFTP {
 				DateTime auth_start;
 				TimeSpan auth_time_total;
 
-				CreateBufferStream();
+				CreateBufferStream(isControlConnection);
 				CreateSSlStream();
 
 				auth_start = DateTime.Now;
@@ -1123,7 +1123,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Conditionally create a SSL BufferStream based on the configuration in FtpClient.SslBuffering.
 		/// </summary>
-		private void CreateBufferStream() {
+		private void CreateBufferStream(bool isControlConnection) {
 			// Even if SSL Bufferstream is requested, it is force-disabled automatically when
 			// Fix: using FTP proxies
 			// Fix: user needs NOOPs - See #823
@@ -1137,7 +1137,7 @@ namespace FluentFTP {
 #else
 			if ((Client.Config.SslBuffering == FtpsBuffering.On || Client.Config.SslBuffering == FtpsBuffering.Auto) &&
 				 (!Client.IsProxy()) &&
-				 (Client.Config.NoopInterval == 0)) {
+				 (!isControlConnection || Client.Config.NoopInterval == 0)) {
 				m_bufStream = new BufferedStream(NetworkStream, 81920);
 			}
 			else {
@@ -1172,7 +1172,7 @@ namespace FluentFTP {
 		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
 		/// <param name="sslProtocols">A bitwise parameter for supported encryption protocols.</param>
 		/// <exception cref="AuthenticationException">Thrown when authentication fails</exception>
-		public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols) {
+		public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols, bool isControlConnection = false) {
 			if (!IsConnected) {
 				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
 			}
@@ -1189,7 +1189,7 @@ namespace FluentFTP {
 				DateTime auth_start;
 				TimeSpan auth_time_total;
 
-				CreateBufferStream();
+				CreateBufferStream(isControlConnection);
 				CreateSSlStream();
 
 				auth_start = DateTime.Now;
