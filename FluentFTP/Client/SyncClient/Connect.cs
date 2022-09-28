@@ -86,7 +86,7 @@ namespace FluentFTP {
 							throw new FtpSecurityNotAvailableException("AUTH TLS command failed.");
 						}
 					}
-					else if (reply.Success) {
+					else {
 						m_stream.ActivateEncryption(Host, Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null, Config.SslProtocols);
 					}
 				}
