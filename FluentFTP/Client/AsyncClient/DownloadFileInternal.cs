@@ -40,7 +40,7 @@ namespace FluentFTP {
 						// first 6 bytes contains 2 bytes of unknown (to me) purpose and 4 ip address bytes
 						// we need to skip them otherwise they will be downloaded to the file
 						// moreover, these bytes cause "Failed to get the EPSV port" error
-						await downStream.ReadAsync(new byte[6], 0, 6);
+						await downStream.ReadAsync(new byte[6], 0, 6, token);
 					}
 				}
 
@@ -182,7 +182,7 @@ namespace FluentFTP {
 
 						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
 						if (anyNoop) {
-							ReadStaleData(false, true, "after download");
+							await ReadStaleDataAsync(false, true, "after download", token);
 						}
 
 						break;

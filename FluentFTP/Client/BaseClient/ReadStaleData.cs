@@ -38,15 +38,16 @@ namespace FluentFTP.Client.BaseClient {
 						LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: " + staleData);
 					}
 				}
-			}
 
-			if (string.IsNullOrEmpty(staleData)) {
-				closeStream = false;
-			}
+				if (string.IsNullOrEmpty(staleData)) {
+					closeStream = false;
+				}
 
-			if (closeStream) {
-				LogWithPrefix(FtpTraceLevel.Info, "Closing stream because of stale data");
-				m_stream.Close();
+				if (closeStream) {
+					LogWithPrefix(FtpTraceLevel.Info, "Closing stream because of stale data");
+					m_stream.Close();
+				}
+
 			}
 
 			return staleData;
@@ -84,15 +85,16 @@ namespace FluentFTP.Client.BaseClient {
 						LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: " + staleData);
 					}
 				}
-			}
 
-			if (string.IsNullOrEmpty(staleData)) {
-				closeStream = false;
-			}
+				if (string.IsNullOrEmpty(staleData)) {
+					closeStream = false;
+				}
 
-			if (closeStream) {
-				LogWithPrefix(FtpTraceLevel.Info, "Closing stream because of stale data");
-				m_stream.Close();
+				if (closeStream) {
+					LogWithPrefix(FtpTraceLevel.Info, "Closing stream because of stale data");
+					m_stream.Close();
+				}
+
 			}
 
 			return staleData;

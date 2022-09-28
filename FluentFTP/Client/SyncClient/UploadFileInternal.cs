@@ -246,6 +246,11 @@ namespace FluentFTP {
 							return FtpStatus.Failed;
 						}
 
+						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
+						if (anyNoop) {
+							ReadStaleData(false, true, "after upload");
+						}
+
 						break;
 					}
 				}

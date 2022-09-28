@@ -21,9 +21,9 @@ namespace FluentFTP.Proxy.AsyncProxy {
 		protected override async Task ConnectAsync(FtpSocketStream stream, CancellationToken cancellationToken) {
 			await base.ConnectAsync(stream, cancellationToken);
 			var proxy = new SocksProxy(Host, Port, stream, Proxy);
-			await proxy.NegotiateAsync();
-			await proxy.AuthenticateAsync();
-			await proxy.ConnectAsync();
+			await proxy.NegotiateAsync(cancellationToken);
+			await proxy.AuthenticateAsync(cancellationToken);
+			await proxy.ConnectAsync(cancellationToken);
 		}
 	}
 }

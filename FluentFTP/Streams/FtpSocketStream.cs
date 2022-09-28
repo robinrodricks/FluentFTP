@@ -426,7 +426,11 @@ namespace FluentFTP {
 			var read = 0;
 
 			if (m_socket != null && m_socket.Connected && !token.IsCancellationRequested) {
+#if NET6_0_OR_GREATER
+				read = await m_socket.ReceiveAsync(buffer, 0, token);
+#else
 				read = await m_socket.ReceiveAsync(new ArraySegment<byte>(buffer), 0);
+#endif
 			}
 
 			return read;
@@ -918,7 +922,11 @@ namespace FluentFTP {
 		/// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public async Task ConnectAsync(string host, int port, FtpIpVersion ipVersions, CancellationToken token) {
+#if NET6_0_OR_GREATER
+			IPAddress[] addresses = await Dns.GetHostAddressesAsync(host, token);
+#else
 			IPAddress[] addresses = await Dns.GetHostAddressesAsync(host);
+#endif
 
 			if (ipVersions == 0) {
 				throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.");
@@ -1132,13 +1140,13 @@ namespace FluentFTP {
 
 			m_bufStream = null;
 #else
-			if ( (Client.Config.SslBuffering == FtpsBuffering.On || Client.Config.SslBuffering == FtpsBuffering.Auto) &&
-        		 (!Client.IsProxy()) &&
-				 (Client.Config.NoopInterval == 0) ) {
+			if ((Client.Config.SslBuffering == FtpsBuffering.On || Client.Config.SslBuffering == FtpsBuffering.Auto) &&
+				 (!Client.IsProxy()) &&
+				 (Client.Config.NoopInterval == 0)) {
 				m_bufStream = new BufferedStream(NetworkStream, 81920);
 			}
 			else {
-				if ( (Client.Config.SslBuffering == FtpsBuffering.On || Client.Config.SslBuffering == FtpsBuffering.Auto) ) {
+				if ((Client.Config.SslBuffering == FtpsBuffering.On || Client.Config.SslBuffering == FtpsBuffering.Auto)) {
 					if (Client.IsProxy()) {
 						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "SSL Buffering force disabled, is proxy");
 					}
@@ -1146,7 +1154,7 @@ namespace FluentFTP {
 						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "SSL Buffering force disabled, NOOPs requested");
 					}
 				}
-				
+
 				m_bufStream = null;
 			}
 #endif
