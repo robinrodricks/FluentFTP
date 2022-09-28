@@ -128,7 +128,8 @@ namespace FluentFTP {
 			if (Config.DataConnectionEncryption && Config.EncryptionMode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
 				await stream.ActivateEncryptionAsync(m_host,
 					Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null,
-					Config.SslProtocols);
+					Config.SslProtocols,
+					token);
 			}
 
 			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, Config.SocketKeepAlive);
