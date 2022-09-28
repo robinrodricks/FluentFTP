@@ -63,7 +63,7 @@ namespace FluentFTP.Proxy.Socks {
 			}
 		}
 
-		public override async Task ConnectAsync() {
+		public override async Task ConnectAsync(CancellationToken cancellationToken) {
 			// The client connects to the server,
 			// and sends a version identifier / method selection message.
 			byte[] destIp = { 0, 0, 0, 1 };
@@ -79,11 +79,11 @@ namespace FluentFTP.Proxy.Socks {
 			hostBytes.CopyTo(methodsBuffer, 9);  // copy the host name to the request byte array
 			methodsBuffer[13] = 0x00;  // null (byte with all zeros) terminator
 
-			await _socketStream.WriteAsync(methodsBuffer, 0, methodsBuffer.Length);
+			await _socketStream.WriteAsync(methodsBuffer, 0, methodsBuffer.Length, cancellationToken);
 
 			// The server selects from one of the methods given in METHODS,
 			// and sends a METHOD selection message:
-			var receivedBytes = await _socketStream.ReadAsync(_buffer, 0, 2);
+			var receivedBytes = await _socketStream.ReadAsync(_buffer, 0, 2, cancellationToken);
 			if (receivedBytes != 2) {
 				_socketStream.Close();
 				throw new FtpProxyException($"Negotiation Response had an invalid length of {receivedBytes}");

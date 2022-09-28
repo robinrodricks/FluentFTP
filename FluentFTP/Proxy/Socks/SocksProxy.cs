@@ -160,18 +160,42 @@ namespace FluentFTP.Proxy.Socks {
 			}
 		}
 
+		private async Task AuthenticateInternalAsync(CancellationToken cancellationToken) {
+			if (!_authType.HasValue) {
+				_socketStream.Close();
+				throw new FtpProxyException("Invalid Auth Type Declared, see inner exception for details.", new ArgumentException("No SOCKS5 auth method has been set."));
+			}
+
+			// The client and server then enter a method-specific sub-negotiation.
+			switch (_authType.Value) {
+				case SocksAuthType.NoAuthRequired:
+					break;
+
+				case SocksAuthType.GSSAPI:
+					_socketStream.Close();
+					throw new FtpProxyException("Invalid Auth Type Declared, see inner exception for details.", new NotSupportedException("GSSAPI is not implemented."));
+
+				// https://datatracker.ietf.org/doc/html/rfc1929
+				case SocksAuthType.UsernamePassword:
+					await AuthenticateUsernamePasswordAsync(cancellationToken);
+					break;
+
+				// If the selected METHOD is X'FF', none of the methods listed by the
+				// client are acceptable, and the client MUST close the connection
+				case SocksAuthType.NoAcceptableMethods:
+					_socketStream.Close();
+					throw new FtpProxyException("Invalid Auth Type Declared, see inner exception for details.",
+						new MissingMethodException("METHOD is X'FF' No Client requested methods are acceptable. Closing the connection."));
+
+				default:
+					_socketStream.Close();
+					throw new FtpProxyException("Invalid Auth Type Declared, see inner exception for details.",
+						new ArgumentOutOfRangeException());
+			}
+		}
+
 		private void AuthenticateUsernamePassword() {
-			var usernameBytes = Encoding.UTF8.GetBytes(_proxyInfo.ProxyCredentials.UserName);
-			var passwordBytes = Encoding.UTF8.GetBytes(_proxyInfo.ProxyCredentials.Password);
-
-			var authBufferList = new List<byte>();
-			authBufferList.Add((byte)1); // VER
-			authBufferList.Add((byte)usernameBytes.Length); // Username Length in Bytes
-			authBufferList.AddRange(usernameBytes); // username in bytes
-			authBufferList.Add((byte)passwordBytes.Length); // password length in bytes
-			authBufferList.AddRange(passwordBytes); // password in bytes
-
-			var authBuffer = authBufferList.ToArray();
+			var authBuffer = GetAuthBuffer();
 
 			// Send it to the server
 			_socketStream.Write(authBuffer, 0, authBuffer.Length);
@@ -188,6 +212,41 @@ namespace FluentFTP.Proxy.Socks {
 				_socketStream.Close();
 				throw new FtpProxyException($"Authentication Failed. Received non-zero status code [{status_byte}].");
 			}
+		}
+
+		private async Task AuthenticateUsernamePasswordAsync(CancellationToken cancellationToken) {
+			byte[] authBuffer = GetAuthBuffer();
+
+			// Send it to the server
+			await _socketStream.WriteAsync(authBuffer, 0, authBuffer.Length, cancellationToken);
+
+			// read 2 bytes if the success was OK
+			var receivedBytes = await _socketStream.ReadAsync(_buffer, 0, 2, cancellationToken);
+			if (receivedBytes != 2) {
+				_socketStream.Close();
+				throw new FtpProxyException($"Negotiation Response had an invalid length of {receivedBytes}");
+			}
+
+			byte status_byte = _buffer[1];
+			if (status_byte > 0) {
+				_socketStream.Close();
+				throw new FtpProxyException($"Authentication Failed. Received non-zero status code [{status_byte}].");
+			}
+		}
+
+		private byte[] GetAuthBuffer() {
+			var usernameBytes = Encoding.UTF8.GetBytes(_proxyInfo.ProxyCredentials.UserName);
+			var passwordBytes = Encoding.UTF8.GetBytes(_proxyInfo.ProxyCredentials.Password);
+
+			var authBufferList = new List<byte>();
+			authBufferList.Add((byte)1); // VER
+			authBufferList.Add((byte)usernameBytes.Length); // Username Length in Bytes
+			authBufferList.AddRange(usernameBytes); // username in bytes
+			authBufferList.Add((byte)passwordBytes.Length); // password length in bytes
+			authBufferList.AddRange(passwordBytes); // password in bytes
+
+			var authBuffer = authBufferList.ToArray();
+			return authBuffer;
 		}
 
 		private byte[] GetConnectRequest() {
@@ -233,7 +292,7 @@ namespace FluentFTP.Proxy.Socks {
 			return requestBuffer;
 		}
 
-		public async Task NegotiateAsync() {
+		public async Task NegotiateAsync(CancellationToken cancellationToken) {
 			// The client connects to the server,
 			// and sends a version identifier / method selection message.
 			var methodsBuffer = new byte[]
@@ -243,11 +302,11 @@ namespace FluentFTP.Proxy.Socks {
 				(byte)SocksAuthType.NoAuthRequired // Methods
 			};
 
-			await _socketStream.WriteAsync(methodsBuffer, 0, methodsBuffer.Length);
+			await _socketStream.WriteAsync(methodsBuffer, 0, methodsBuffer.Length, cancellationToken);
 
 			// The server selects from one of the methods given in METHODS,
 			// and sends a METHOD selection message:
-			var receivedBytes = await _socketStream.ReadAsync(_buffer, 0, 2);
+			var receivedBytes = await _socketStream.ReadAsync(_buffer, 0, 2, cancellationToken);
 			if (receivedBytes != 2) {
 				_socketStream.Close();
 				throw new FtpProxyException($"Negotiation Response had an invalid length of {receivedBytes}");
@@ -256,20 +315,19 @@ namespace FluentFTP.Proxy.Socks {
 			_authType = (SocksAuthType)_buffer[1];
 		}
 
-		public Task AuthenticateAsync() {
-			AuthenticateInternal();
-			return Task.FromResult(0);
+		public Task AuthenticateAsync(CancellationToken cancellationToken) {
+			return AuthenticateInternalAsync(cancellationToken);
 		}
 
-		public async Task ConnectAsync() {
+		public async Task ConnectAsync(CancellationToken cancellationToken) {
 			var requestBuffer = GetConnectRequest();
-			await _socketStream.WriteAsync(requestBuffer, 0, requestBuffer.Length);
+			await _socketStream.WriteAsync(requestBuffer, 0, requestBuffer.Length, cancellationToken);
 
 			SocksReply reply;
 
 			// The server evaluates the request, and returns a reply.
 			// - First we read VER, REP, RSV & ATYP
-			var received = await _socketStream.ReadAsync(_buffer, 0, 4);
+			var received = await _socketStream.ReadAsync(_buffer, 0, 4, cancellationToken);
 			if (received != 4) {
 				if (received >= 2) {
 					reply = (SocksReply)_buffer[1];
@@ -295,18 +353,18 @@ namespace FluentFTP.Proxy.Socks {
 			switch (atyp) {
 				case SocksRequestAddressType.IPv4:
 					atypSize = 6;
-					read = await _socketStream.ReadAsync(_buffer, 0, atypSize);
+					read = await _socketStream.ReadAsync(_buffer, 0, atypSize, cancellationToken);
 					break;
 				case SocksRequestAddressType.IPv6:
 					atypSize = 18;
-					read = await _socketStream.ReadAsync(_buffer, 0, atypSize);
+					read = await _socketStream.ReadAsync(_buffer, 0, atypSize, cancellationToken);
 					break;
 				case SocksRequestAddressType.FQDN:
 					atypSize = 1;
-					await _socketStream.ReadAsync(_buffer, 0, atypSize);
+					await _socketStream.ReadAsync(_buffer, 0, atypSize, cancellationToken);
 
 					atypSize = _buffer[0] + 2;
-					read = await _socketStream.ReadAsync(_buffer, 0, atypSize);
+					read = await _socketStream.ReadAsync(_buffer, 0, atypSize, cancellationToken);
 					break;
 				default:
 					_socketStream.Close();
