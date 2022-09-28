@@ -67,6 +67,7 @@ namespace FluentFTP {
 				await m_stream.ActivateEncryptionAsync(Host,
 					Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null,
 					Config.SslProtocols,
+					true,
 					token);
 			}
 
@@ -92,6 +93,7 @@ namespace FluentFTP {
 					await m_stream.ActivateEncryptionAsync(Host,
 						Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null,
 						Config.SslProtocols,
+						true,
 						token);
 				}
 			}

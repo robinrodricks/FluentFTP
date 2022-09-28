@@ -143,7 +143,7 @@ namespace FluentFTP {
 				await stream.ActivateEncryptionAsync(m_host,
 					Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null,
 					Config.SslProtocols,
-					token);
+					token: token);
 			}
 
 			return stream;
