@@ -105,7 +105,7 @@ namespace FluentFTP {
 			var fileListing = (await GetListing(sourceFolder, FtpListOption.Recursive, token)).Where(x => x.Type == FtpObjectType.File).Select(x => x.FullName).ToArray();
 
 			// loop through each file and transfer it
-			var filesToUpload = await GetFilesToTransfer(sourceFolder, remoteFolder, rules, results, shouldExist, fileListing);
+			var filesToUpload = await GetFilesToTransfer(sourceFolder, remoteFolder, rules, results, shouldExist, fileListing, token);
 			await TransferServerFiles(filesToUpload, remoteClient, existsMode, verifyOptions, progress, remoteListing, token);
 
 			// delete the extra remote files if in mirror mode and the directory was pre-existing
@@ -113,7 +113,7 @@ namespace FluentFTP {
 
 			return results;
 		}
-		protected async Task<List<FtpResult>> GetFilesToTransfer(string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, string[] fileListing) {
+		protected async Task<List<FtpResult>> GetFilesToTransfer(string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, string[] fileListing, CancellationToken token = default) {
 
 			var filesToTransfer = new List<FtpResult>();
 
@@ -126,7 +126,7 @@ namespace FluentFTP {
 				// create the result object
 				var result = new FtpResult {
 					Type = FtpObjectType.File,
-					Size = await GetFileSize(sourceFile),
+					Size = await GetFileSize(sourceFile, token: token),
 					Name = sourceFile.GetFtpFileName(),
 					RemotePath = remoteFile,
 					LocalPath = sourceFile

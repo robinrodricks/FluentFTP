@@ -1027,8 +1027,9 @@ namespace FluentFTP {
 		/// not be accepted.
 		/// </summary>
 		/// <param name="targethost">The host to authenticate the certificate against</param>
-		public async Task ActivateEncryptionAsync(string targethost) {
-			await ActivateEncryptionAsync(targethost, null, Client.Config.SslProtocols);
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		public async Task ActivateEncryptionAsync(string targethost, CancellationToken token = default) {
+			await ActivateEncryptionAsync(targethost, null, Client.Config.SslProtocols, token: token);
 		}
 
 		/// <summary>
@@ -1049,8 +1050,9 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="targethost">The host to authenticate the certificate against</param>
 		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
-		public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts) {
-			await ActivateEncryptionAsync(targethost, clientCerts, Client.Config.SslProtocols);
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts, CancellationToken token = default) {
+			await ActivateEncryptionAsync(targethost, clientCerts, Client.Config.SslProtocols, token: token);
 		}
 
 		/// <summary>
@@ -1061,6 +1063,7 @@ namespace FluentFTP {
 		/// <param name="targethost">The host to authenticate the certificate against</param>
 		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
 		/// <param name="sslProtocols">A bitwise parameter for supported encryption protocols.</param>
+		/// <param name="isControlConnection"></param>
 		/// <exception cref="AuthenticationException">Thrown when authentication fails</exception>
 		public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols, bool isControlConnection = false) {
 			if (!IsConnected) {
@@ -1171,8 +1174,10 @@ namespace FluentFTP {
 		/// <param name="targethost">The host to authenticate the certificate against</param>
 		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
 		/// <param name="sslProtocols">A bitwise parameter for supported encryption protocols.</param>
+		/// <param name="isControlConnection"></param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <exception cref="AuthenticationException">Thrown when authentication fails</exception>
-		public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols, bool isControlConnection = false) {
+		public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols, bool isControlConnection = false, CancellationToken token = default) {
 			if (!IsConnected) {
 				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
 			}
@@ -1194,7 +1199,17 @@ namespace FluentFTP {
 
 				auth_start = DateTime.Now;
 				try {
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+					var options = new SslClientAuthenticationOptions() {
+						TargetHost = targethost,
+						ClientCertificates = clientCerts,
+						EnabledSslProtocols = sslProtocols,
+						CertificateRevocationCheckMode = Client.Config.ValidateCertificateRevocation ? X509RevocationMode.Online : X509RevocationMode.NoCheck
+					};
+					await m_sslStream.AuthenticateAsClientAsync(options, token);
+#else
 					await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
+#endif
 				}
 				catch (IOException ex) {
 					if (ex.InnerException is Win32Exception { NativeErrorCode: 10053 }) {
@@ -1309,10 +1324,14 @@ namespace FluentFTP {
 		/// <summary>
 		/// Accepts a connection from a listening socket
 		/// </summary>
-		public async Task AcceptAsync() {
+		public async Task AcceptAsync(CancellationToken token = default) {
 			if (m_socket != null) {
 				var socketSave = m_socket;
+#if NET6_0_OR_GREATER
+				m_socket = await m_socket.AcceptAsync(token);
+#else
 				m_socket = await m_socket.AcceptAsync();
+#endif
 				socketSave.Close();
 #if NETSTANDARD
 				m_netStream = new NetworkStream(m_socket);

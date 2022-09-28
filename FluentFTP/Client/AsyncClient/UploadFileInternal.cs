@@ -198,7 +198,7 @@ namespace FluentFTP {
 					catch (IOException ex) {
 
 						// resume if server disconnected midway, or throw if there is an exception doing that as well
-						var resumeResult = await ResumeUploadAsync(remotePath, upStream, remotePosition, ex);
+						var resumeResult = await ResumeUploadAsync(remotePath, upStream, remotePosition, ex, token);
 						if (resumeResult.Item1) {
 							upStream = resumeResult.Item2;
 
@@ -296,7 +296,7 @@ namespace FluentFTP {
 			}
 		}
 
-		protected async Task<Tuple<bool, Stream>> ResumeUploadAsync(string remotePath, Stream upStream, long remotePosition, IOException ex) {
+		protected async Task<Tuple<bool, Stream>> ResumeUploadAsync(string remotePath, Stream upStream, long remotePosition, IOException ex, CancellationToken token = default) {
 
 			try {
 
@@ -307,7 +307,7 @@ namespace FluentFTP {
 					upStream.Dispose();
 
 					// create and return a new stream starting at the current remotePosition
-					var returnStream = await OpenAppend(remotePath, Config.UploadDataType, 0);
+					var returnStream = await OpenAppend(remotePath, Config.UploadDataType, 0, token);
 					returnStream.Position = remotePosition;
 					return Tuple.Create(true, returnStream);
 				}

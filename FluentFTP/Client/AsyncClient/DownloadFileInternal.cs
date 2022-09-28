@@ -128,7 +128,7 @@ namespace FluentFTP {
 					catch (IOException ex) {
 
 						// resume if server disconnected midway, or throw if there is an exception doing that as well
-						var resumeResult = await ResumeDownloadAsync(remotePath, downStream, offset, ex);
+						var resumeResult = await ResumeDownloadAsync(remotePath, downStream, offset, ex, token);
 						if (resumeResult.Item1) {
 							downStream = resumeResult.Item2;
 						}
@@ -238,11 +238,11 @@ namespace FluentFTP {
 				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
 			}
 		}
-		protected async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex) {
+		protected async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex, CancellationToken token = default) {
 			if (ex.IsResumeAllowed()) {
 				downStream.Dispose();
 
-				return Tuple.Create(true, await OpenRead(remotePath, Config.DownloadDataType, offset));
+				return Tuple.Create(true, await OpenRead(remotePath, Config.DownloadDataType, offset, token: token));
 			}
 
 			return Tuple.Create(false, (Stream)null);
