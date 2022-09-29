@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,10 +21,13 @@ namespace FluentFTP.Client.BaseClient {
 
 			if (m_stream != null) {
 
-				while (m_stream.SocketDataAvailable > 0) {
+				if (m_stream.SocketDataAvailable > 0) {
 					if (logData) {
 						LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data - " + logFrom);
 					}
+				}
+
+				while (m_stream.SocketDataAvailable > 0) {
 					byte[] buf = new byte[m_stream.SocketDataAvailable];
 					if (m_stream.IsEncrypted) {
 						m_stream.Read(buf, 0, buf.Length);
@@ -30,14 +35,22 @@ namespace FluentFTP.Client.BaseClient {
 					else {
 						m_stream.RawSocketRead(buf);
 					}
-					staleData = Encoding.GetString(buf).TrimEnd('\0', '\r', '\n');
-					if (logData) {
-						LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: " + staleData);
-					}
+					staleData += Encoding.GetString(buf).TrimEnd('\0', '\r', '\n') + Environment.NewLine;
 				}
 
 				if (string.IsNullOrEmpty(staleData)) {
 					closeStream = false;
+				}
+				else {
+					if (logData) {
+						LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: ");
+						string[] staleLines = Regex.Split(staleData, Environment.NewLine);
+						foreach (string staleLine in staleLines) {
+							if (!string.IsNullOrWhiteSpace(staleLine)) {
+								Log(FtpTraceLevel.Verbose, "Stale:    " + staleLine);
+							}
+						}
+					}
 				}
 
 				if (closeStream) {
@@ -58,15 +71,18 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="closeStream">close the connection?</param>
 		/// <param name="logData">copy stale data information to logs?</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		protected async Task<string> ReadStaleDataAsync(bool closeStream, bool traceData, string logFrom, CancellationToken token) {
+		protected async Task<string> ReadStaleDataAsync(bool closeStream, bool logData, string logFrom, CancellationToken token) {
 			string staleData = null;
 
 			if (m_stream != null) {
 
-				while (m_stream.SocketDataAvailable > 0) {
-					if (traceData) {
+				if (m_stream.SocketDataAvailable > 0) {
+					if (logData) {
 						LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data - " + logFrom);
 					}
+				}
+
+				while (m_stream.SocketDataAvailable > 0) {
 					byte[] buf = new byte[m_stream.SocketDataAvailable];
 					if (m_stream.IsEncrypted) {
 						await m_stream.ReadAsync(buf, 0, buf.Length, token);
@@ -74,14 +90,22 @@ namespace FluentFTP.Client.BaseClient {
 					else {
 						await m_stream.RawSocketReadAsync(buf, token);
 					}
-					staleData = Encoding.GetString(buf).TrimEnd('\0', '\r', '\n');
-					if (traceData) {
-						LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: " + staleData);
-					}
+					staleData += Encoding.GetString(buf).TrimEnd('\0', '\r', '\n') + Environment.NewLine;
 				}
 
 				if (string.IsNullOrEmpty(staleData)) {
 					closeStream = false;
+				}
+				else {
+					if (logData) {
+						LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: ");
+						string[] staleLines = Regex.Split(staleData, Environment.NewLine);
+						foreach (string staleLine in staleLines) {
+							if (!string.IsNullOrWhiteSpace(staleLine)) {
+								Log(FtpTraceLevel.Verbose, "Stale:    " + staleLine);
+							}
+						}
+					}
 				}
 
 				if (closeStream) {
