@@ -17,15 +17,11 @@ namespace FluentFTP.Client.BaseClient {
 		protected string ReadStaleData(bool closeStream, bool logData, string logFrom) {
 			string staleData = null;
 
-			if (logData) {
-				LogWithPrefix(FtpTraceLevel.Verbose, "Checking for stale data: " + logFrom);
-			}
-
 			if (m_stream != null) {
 
 				while (m_stream.SocketDataAvailable > 0) {
 					if (logData) {
-						LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data");
+						LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data - " + logFrom);
 					}
 					byte[] buf = new byte[m_stream.SocketDataAvailable];
 					if (m_stream.IsEncrypted) {
@@ -65,15 +61,11 @@ namespace FluentFTP.Client.BaseClient {
 		protected async Task<string> ReadStaleDataAsync(bool closeStream, bool traceData, string logFrom, CancellationToken token) {
 			string staleData = null;
 
-			if (traceData) {
-				LogWithPrefix(FtpTraceLevel.Verbose, "Checking for stale data: " + logFrom);
-			}
-
 			if (m_stream != null) {
 
 				while (m_stream.SocketDataAvailable > 0) {
 					if (traceData) {
-						LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data");
+						LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data - " + logFrom);
 					}
 					byte[] buf = new byte[m_stream.SocketDataAvailable];
 					if (m_stream.IsEncrypted) {
