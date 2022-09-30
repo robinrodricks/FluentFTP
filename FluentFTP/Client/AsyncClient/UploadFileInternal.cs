@@ -244,6 +244,12 @@ namespace FluentFTP {
 
 				// FIX : if this is not added, there appears to be "stale data" on the socket
 				// listen for a success/failure reply
+
+				// Quick dirty fix for recalcitrant servers. This will cause them to hickup the rest of the responses
+				if (anyNoop) {
+					m_stream.WriteLine(Encoding, "NOOP");
+				}
+
 				try {
 					while (true) {
 						FtpReply status = await GetReply(token);
