@@ -273,7 +273,7 @@ namespace FluentFTP {
 			var isNoImage = options.HasFlag(FtpListOption.NoImage);
 
 			if (!isNoImage) {
-				// always get the file listing in binary to avoid character translation issues with ASCII.
+				// nearly always get the file listing in binary to avoid character translation issues with ASCII.
 				await SetDataTypeNoLockAsync(Config.ListingDataType, token);
 			}
 
