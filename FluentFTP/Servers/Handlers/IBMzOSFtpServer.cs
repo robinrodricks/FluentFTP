@@ -50,6 +50,10 @@ namespace FluentFTP.Servers.Handlers {
 			if (!(reply = client.Execute("SITE QUOTESOVERRIDE")).Success) {
 				throw new FtpCommandException(reply);
 			}
+			// Never mind if the z/OS is too old to support this
+			// The z/OS list parser understands all possible LISTLEVELs
+			client.Execute("SITE LISTLEVEL=0");
+			client.Execute("SITE LISTLEVEL=2"); 
 		}
 
 		/// <summary>
@@ -64,10 +68,14 @@ namespace FluentFTP.Servers.Handlers {
 			if (!(reply = await client.Execute("SITE QUOTESOVERRIDE", token)).Success) {
 				throw new FtpCommandException(reply);
 			}
-		}
+			// Never mind if the z/OS is too old to support this
+			// The z/OS list parser understands all possible LISTLEVELs
+			_ = await client.Execute("SITE LISTLEVEL=0", token);
+			_ = await client.Execute("SITE LISTLEVEL=2", token);
+	}
 
 
-		public override bool IsCustomFileSize() {
+	public override bool IsCustomFileSize() {
 			return true;
 		}
 

@@ -9,7 +9,8 @@ namespace FluentFTP.Helpers.Parsers {
 		/// </summary>
 		public static bool IsValid(BaseFtpClient client, string[] listing) {
 			// Check validity by using the title line
-			// Dataset       : "Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname"
+			// Dataset Lvl 0, 1: "Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname"
+			// Dataset Lvl 2   : "Volume Referred      Ext      Used Recfm Lrecl BlkSz Dsorg Dsname"
 			// Member        : " Name     VV.MM   Created       Changed      Size  Init   Mod   Id"
 			// Member Loadlib: " Name      Size     TTR   Alias-of AC--------- Attributes--------- Amode Rmode"
 			// FILETYPE=JES: : "JOBNAME  JOBID    OWNER    STATUS CLASS"
@@ -17,6 +18,7 @@ namespace FluentFTP.Helpers.Parsers {
 			// USS Realm     : single unix line, as is valid for unix
 
 			return listing[0].Contains("Volume Unit") ||
+				   listing[0].Contains("Volume Referred") ||
 				   listing[0].Contains("Name     VV.MM") ||
 				   listing[0].Contains("Name      Size     TTR") ||
 				   listing[0].Contains("total") ||
@@ -35,7 +37,8 @@ namespace FluentFTP.Helpers.Parsers {
 			// Also set zOSListingRealm to remember the mode we are in
 
 			// "Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname"
-			if (record.Contains("Volume Unit")) {
+			if (record.Contains("Volume Unit") ||
+				record.Contains("Volume Referred")) {
 				client.zOSListingRealm = FtpZOSListRealm.Dataset;
 				return null;
 			}
@@ -109,14 +112,63 @@ namespace FluentFTP.Helpers.Parsers {
 			if (client.zOSListingRealm == FtpZOSListRealm.Dataset) {
 				// PS/PO mode
 				//
+				// If SITE LISTLEVEL=0 is set:
 				//Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname    
-				//ANSYBG 3390   2020/01/03  1   15  VB   32756 32760  PS  $.ADATA.XAA
-				//ANSYBH 3390   2022/02/18  1+++++  VBS  32767 27966  PS  $.BDATA.XBB
+				//TERNBG 3390   2020/01/03  1   15  VB   32756 32760  PO  $.ADATA.XAA
+				//TERNBH 3390   2022/02/18  1+++++  VBS  32767 27966  PS  $.BDATA.XBB
+				//TERNBG 3390   2022/02/17  1    3  FB      80 16000  PO  $.ASM
+				//TERNBG 3390   2020/01/03  1    1  FB      80  3200  PS  $.ASMOUT
+				//TERNBG 3390   2022/08/21  1   15  FB      80 16000  PO  $.CCLIB
 				//
 
-				// Ignore title line AND also ignore "VSAM", "Not Mounted" and "Error determining attributes"
+				// If SITE LISTLEVEL=1 is set:
+				//Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname
+				//TERNBG 3390   2020/01/03  1   15  VB   32756 32760  PO  $.ADATA.XAA
+				//TERNBH 3390   2022/02/18  1+++++  VBS  32767 27966  PS  $.BDATA.XBB
+				//TERNBG 3390   2022/02/17  1    3  FB      80 16000 PO-E $.ASM
+				//TERNBG 3390   2020/01/03  1    1  FB      80  3200  PS  $.ASMOUT
+				//TERNBG 3390   2022/08/21  1   15  FB      80 16000 PO-E $.CCLIB
 
-				if (record.Substring(51, 4).Trim() == "PO" || record.Substring(51, 4).Trim() == "PS") {
+				// If SITE LISTLEVEL=2 is set (which FluentFTP enforces on connect):
+				//Volume Referred      Ext      Used Recfm Lrecl BlkSz Dsorg Dsname
+				//TERNBG 2020/01/03      1        15  VB   32756 32760  PO   $.ADATA.XAA
+				//TERNBH 2022/02/18      1 327674532  VBS  32767 27966  PS   $.BDATA.XBB
+				//TERNBG 2022/02/17      1         3  FB      80 16000 PO-E  $.ASM
+				//TERNBG 2020/01/03      1         1  FB      80  3200  PS   $.ASMOUT
+				//TERNBG 2022/08/21      1        15  FB      80 16000 PO-E  $.CCLIB
+
+				// Ignore title line AND also ignore "HFS", "VSAM", "Not Mounted" and "Error determining attributes"
+
+				// Recognize LISTLEVEL 2:
+				if (record.Substring(53, 4).Trim() == "PO" ||
+					record.Substring(53, 4).Trim() == "PS" ||
+					record.Substring(53, 4).Trim() == "PO_E") {
+					string test = record.Substring(53, 4);
+					//string volume = record.Substring(0, 6);
+					string referred = record.Substring(7, 10).Trim();
+					//string ext = record.Substring(18, 6).Trim();
+					string used = record.Substring(25, 9).Trim();
+					//string recfm = record.Substring(36, 4).Trim();
+					//string lrecl = record.Substring(41, 5).Trim();
+					//string blksz = record.Substring(47, 5).Trim();
+					string dsorg = record.Substring(53, 4).Trim();
+					string dsname = record.Remove(0, 59).Trim().Split(' ')[0];
+					bool isDir = (dsorg == "PO") || (dsorg == "PO-E");
+					var lastModifiedStr = referred;
+					if (lastModifiedStr != "**NONE**") {
+						lastModifiedStr += " 00:00";
+					}
+					var lastModified = ParseDateTime(client, lastModifiedStr);
+					var size = long.Parse(used) * 56664L; // 3390 dev bytes per track
+					var file = new FtpListItem(record, dsname, size, isDir, lastModified);
+					return file;
+				}
+
+				// Recognize LISTLEVEL 0 and 1:
+				if (record.Substring(51, 4).Trim() == "PO" ||
+					record.Substring(51, 4).Trim() == "PS" ||
+					record.Substring(51, 4).Trim() == "PO-E") {
+					string test = record.Substring(50, 4);
 					//string volume = record.Substring(0, 6);
 					//string unit = record.Substring(7, 4);
 					string referred = record.Substring(14, 10).Trim();
@@ -127,7 +179,7 @@ namespace FluentFTP.Helpers.Parsers {
 					//string blksz = record.Substring(45, 5).Trim();
 					string dsorg = record.Substring(51, 4).Trim();
 					string dsname = record.Remove(0, 56).Trim().Split(' ')[0];
-					bool isDir = dsorg == "PO";
+					bool isDir = (dsorg == "PO") || (dsorg == "PO-E");
 					var lastModifiedStr = referred;
 					if (lastModifiedStr != "**NONE**") {
 						lastModifiedStr += " 00:00";
