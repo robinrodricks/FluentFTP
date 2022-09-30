@@ -11,16 +11,18 @@ namespace FluentFTP.Helpers.Parsers {
 			// Check validity by using the title line
 			// Dataset Lvl 0, 1: "Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname"
 			// Dataset Lvl 2   : "Volume Referred      Ext      Used Recfm Lrecl BlkSz Dsorg Dsname"
-			// Member          : " Name     VV.MM   Created       Changed      Size  Init   Mod   Id"
-			// Member Loadlib  : " Name      Size     TTR   Alias-of AC--------- Attributes--------- Amode Rmode"
-			// USS Realm       : "total nnnn" if listing is for a path with one or more listing items
-			// USS Realm       : single unix line, as is valid for unix
+			// Member        : " Name     VV.MM   Created       Changed      Size  Init   Mod   Id"
+			// Member Loadlib: " Name      Size     TTR   Alias-of AC--------- Attributes--------- Amode Rmode"
+			// FILETYPE=JES: : "JOBNAME  JOBID    OWNER    STATUS CLASS"
+			// USS Realm     : "total nnnn" if listing is for a path with one or more listing items
+			// USS Realm     : single unix line, as is valid for unix
 
 			return listing[0].Contains("Volume Unit") ||
 				   listing[0].Contains("Volume Referred") ||
 				   listing[0].Contains("Name     VV.MM") ||
 				   listing[0].Contains("Name      Size     TTR") ||
 				   listing[0].Contains("total") ||
+				   listing[0].Contains("JOBNAME  JOBID") ||
 				   IsValidHFS(listing[0]);
 		}
 
@@ -75,6 +77,11 @@ namespace FluentFTP.Helpers.Parsers {
 			// "Name      Size     TTR   Alias-of AC--------- Attributes--------- Amode Rmode"
 			if (record.Contains("Name      Size     TTR")) {
 				client.zOSListingRealm = FtpZOSListRealm.MemberU;
+				return null;
+			}
+
+			if (record.Contains("JOBNAME  JOBID")) {
+				client.zOSListingRealm = FtpZOSListRealm.Jes2;
 				return null;
 			}
 
@@ -240,6 +247,20 @@ namespace FluentFTP.Helpers.Parsers {
 				var lastModified = ParseDateTime(client, lastModifiedStr);
 				var size = int.Parse(memsize, System.Globalization.NumberStyles.HexNumber);
 				var file = new FtpListItem(record, name, size, isDir, lastModified);
+				return file;
+			}
+
+			if (client.zOSListingRealm == FtpZOSListRealm.Jes2) {
+				// FILETYPE=JES
+				//
+				//JOBNAME JOBID    OWNER STATUS CLASS
+				//FGSYSA  JOB00069 FGSYS OUTPUT A RC = 0004 4 spool files
+				//FGSYSA  JOB00068 FGSYS OUTPUT A RC = 0004 4 spool files
+				//FGSYSA  JOB00067 FGSYS OUTPUT A RC = 0004 4 spool files
+				//
+
+				string name = record.Trim().Replace(' ', '_');
+				var file = new FtpListItem(record, name, 0, false, DateTime.MinValue);
 				return file;
 			}
 
