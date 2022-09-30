@@ -171,9 +171,12 @@ namespace FluentFTP {
 		protected List<string> GetListingInternal(string listcmd, FtpListOption options, bool retry) {
 			var rawlisting = new List<string>();
 			var isUseStat = options.HasFlag(FtpListOption.UseStat);
+			var isNoImage = options.HasFlag(FtpListOption.NoImage);
 
 			// always get the file listing in binary to avoid character translation issues with ASCII.
-			SetDataTypeNoLock(Config.ListingDataType);
+			if (!isNoImage) {
+				SetDataTypeNoLock(Config.ListingDataType);
+			}
 
 			try {
 				// read in raw file listing from control stream

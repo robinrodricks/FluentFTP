@@ -29,6 +29,11 @@ namespace FluentFTP {
 		/// <summary>
 		/// Partitioned dataset member, RECFM = U
 		/// </summary>
-		MemberU = 3
+		MemberU = 3,
+
+		/// <summary>
+		/// SITE FILETYPE=JES LIST
+		/// </summary>
+		Jes2 = 4
 	}
 }
