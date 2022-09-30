@@ -246,7 +246,9 @@ namespace FluentFTP {
 				// listen for a success/failure reply
 
 				// Quick dirty fix for recalcitrant servers. This will cause them to hickup the rest of the responses
-				m_stream.WriteLine(Encoding, "NOOP");
+				if (anyNoop) {
+					m_stream.WriteLine(Encoding, "NOOP");
+				}
 
 				try {
 					while (true) {
