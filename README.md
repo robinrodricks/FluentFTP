@@ -119,11 +119,11 @@ I have been a freelancer for more than a decade, and your contributions go towar
 Special thanks to these awesome people who helped create FluentFTP!
 
 <!---
-https://contributors-img.firebaseapp.com/image?repo=robinrodricks/FluentFTP
+<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/contributors.png" />
 -->
 
 <a href="https://github.com/robinrodricks/FluentFTP/graphs/contributors">
-  <img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/contributors.png" />
+  <img src="https://contributors-img.web.app/image?repo=robinrodricks/FluentFTP" />
 </a>
 
 ## Software Support
