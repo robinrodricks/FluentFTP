@@ -89,12 +89,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Force the use of STAT command for getting file listings
 		/// </summary>
-		UseStat = 1024,
-
-		/// <summary>
-		/// Do not change the ASCII/Image setting to Image
-		/// </summary>
-		NoImage = 2048
+		UseStat = 1024
 
 	}
 }
