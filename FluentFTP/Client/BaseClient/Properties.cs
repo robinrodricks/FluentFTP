@@ -88,11 +88,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		protected DateTime LastCommandTimestamp;
 
-		protected FtpDataType CurrentDataType;
-
 		protected FtpReply HandshakeReply;
-
-		protected bool ForceSetDataType = false;
 
 		protected string LastStreamPath;
 

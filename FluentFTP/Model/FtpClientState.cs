@@ -52,6 +52,11 @@ namespace FluentFTP {
 		public bool ConnectionUTF8Success { get; set; } = false;
 
 		/// <summary>
+		/// Store the current data type setting
+		/// </summary>
+		public FtpDataType CurrentDataType { get; set; } = FtpDataType.Unknown;
+
+		/// <summary>
 		/// Allow checking for stale data on socket?
 		/// </summary>
 		public bool AllowCheckStaleData { get; set; } = false;
