@@ -270,12 +270,9 @@ namespace FluentFTP {
 		protected async Task<List<string>> GetListingInternal(string listcmd, FtpListOption options, bool retry, CancellationToken token) {
 			var rawlisting = new List<string>();
 			var isUseStat = options.HasFlag(FtpListOption.UseStat);
-			var isNoImage = options.HasFlag(FtpListOption.NoImage);
 
-			if (!isNoImage) {
-				// nearly always get the file listing in binary to avoid character translation issues with ASCII.
-				await SetDataTypeNoLockAsync(Config.ListingDataType, token);
-			}
+			// Get the file listing in the desired format
+			await SetDataTypeNoLockAsync(Config.ListingDataType, token);
 
 			try {
 
