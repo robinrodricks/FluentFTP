@@ -143,7 +143,6 @@ namespace FluentFTP.Helpers.Parsers {
 				if (record.Substring(53, 4).Trim() == "PO" ||
 					record.Substring(53, 4).Trim() == "PS" ||
 					record.Substring(53, 4).Trim() == "PO_E") {
-					string test = record.Substring(53, 4);
 					//string volume = record.Substring(0, 6);
 					string referred = record.Substring(7, 10).Trim();
 					//string ext = record.Substring(18, 6).Trim();
@@ -168,7 +167,6 @@ namespace FluentFTP.Helpers.Parsers {
 				if (record.Substring(51, 4).Trim() == "PO" ||
 					record.Substring(51, 4).Trim() == "PS" ||
 					record.Substring(51, 4).Trim() == "PO-E") {
-					string test = record.Substring(50, 4);
 					//string volume = record.Substring(0, 6);
 					//string unit = record.Substring(7, 4);
 					string referred = record.Substring(14, 10).Trim();
