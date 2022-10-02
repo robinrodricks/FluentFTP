@@ -1,5 +1,12 @@
 # Release Notes
 
+#### 41.0.0
+ - Please read the [Migration Guide](https://github.com/robinrodricks/FluentFTP/wiki/v40-Migration-Guide) for help migrating to the new version!
+ - FTPS:
+   - Fix: Disable TLS 1.3 as it causes many complex networking issues during data transfer
+   - Fix: Unified system to handle permanent failures during `AutoConnect`
+   - Fix: Throw `FtpProtocolUnsupportedException` if the FTP server is forcing TLS 1.3 connections
+
 #### 40.0.0
  - Please read the [Migration Guide](https://github.com/robinrodricks/FluentFTP/wiki/v40-Migration-Guide) for help migrating to the new version!
  - Special thanks to Robin Rodricks, Michael Stiemke and Jonas Nyrup for this release!

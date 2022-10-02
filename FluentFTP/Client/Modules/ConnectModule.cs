@@ -23,10 +23,6 @@ namespace FluentFTP.Client.Modules {
 
 			SysSslProtocols.Tls12 | SysSslProtocols.Tls11,
 
-			// fix #907: support TLS 1.3 in .NET 5+
-#if NET50_OR_LATER
-			//SysSslProtocols.Tls13
-#endif
 #if NETFRAMEWORK
 			SysSslProtocols.Default,
 #endif
@@ -73,21 +69,7 @@ namespace FluentFTP.Client.Modules {
 				}
 
 				// try each SSL protocol
-				bool tryTLS13 = false;
 				foreach (var protocol in DefaultProtocolPriority) {
-
-					// fix #907: support TLS 1.3 in .NET 5+
-					// only try TLS 1.3 if required
-#if NET50_OR_LATER
-					/*if (protocol == SysSslProtocols.Tls13 && !tryTLS13) {
-						continue;
-					}*/
-#endif
-
-					// skip plain protocols if testing secure FTPS -- disabled because 'None' is recommended by Microsoft
-					/*if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
-						continue;
-					}*/
 
 					// skip secure protocols if testing plain FTP
 					if (encryption == FtpEncryptionMode.None && protocol != SysSslProtocols.None) {
@@ -125,42 +107,23 @@ namespace FluentFTP.Client.Modules {
 							ex = aex.InnerExceptions[0];
 						}
 #endif
-
 						// since the connection failed, disconnect and retry
 						((IInternalFtpClient)conn).DisconnectInternal();
-
-						// fix #907: support TLS 1.3 in .NET 5+
-						// if it is a protocol error, then jump to the next protocol
-						/*if (IsProtocolFailure(ex)) {
-#if NET50_OR_LATER
-							if (protocol == SysSslProtocols.Tls13) {
-								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3");
-							}
-							else {
-								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3");
-							}
-#endif
-							tryTLS13 = true;
-							continue;
-						}*/
-
-						if (ex is AuthenticationException authEx) {
-							throw new FtpInvalidCertificateException(authEx);
-						}
 
 						// if server does not support FTPS no point trying encryption again
 						if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
 							goto SkipEncryptionMode;
 						}
 
-						// catch error "no such host is known" and hard abort
-						if (IsPermanantConnectionFailure(ex)) {
+						// check if permanent failures and hard abort
+						var permaEx = IsPermanantConnectionFailure(ex);
+						if (permaEx != null) {
 							if (cloneConnection) {
 								conn.Dispose();
 							}
 
 							// rethrow permanent failures so caller can be made aware of it
-							throw;
+							throw permaEx;
 						}
 					}
 
@@ -236,20 +199,7 @@ namespace FluentFTP.Client.Modules {
 				}
 
 				// try each SSL protocol
-				bool tryTLS13 = false;
 				foreach (var protocol in DefaultProtocolPriority) {
-					// fix #907: support TLS 1.3 in .NET 5+
-					// only try TLS 1.3 if required
-#if NET50_OR_LATER
-					/*if (protocol == SysSslProtocols.Tls13 && !tryTLS13) {
-						continue;
-					}*/
-#endif
-
-					// skip plain protocols if testing secure FTPS -- disabled because 'None' is recommended by Microsoft
-					/*if (encryption != FtpEncryptionMode.None && protocol == SysSslProtocols.None) {
-						continue;
-					}*/
 
 					// skip secure protocols if testing plain FTP
 					if (encryption == FtpEncryptionMode.None && protocol != SysSslProtocols.None) {
@@ -291,38 +241,20 @@ namespace FluentFTP.Client.Modules {
 						// since the connection failed, disconnect and retry
 						await conn.Disconnect(token);
 
-						// fix #907: support TLS 1.3 in .NET 5+
-						// if it is a protocol error, then jump to the next protocol
-						/*if (IsProtocolFailure(ex)) {
-#if NET50_OR_LATER
-							if (protocol == SysSslProtocols.Tls13) {
-								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3");
-							}
-							else {
-								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.1/TLS1.2, trying TLS1.3");
-							}
-#endif
-							tryTLS13 = true;
-							continue;
-						}*/
-
-						if (ex is AuthenticationException authEx) {
-							throw new FtpInvalidCertificateException(authEx);
-						}
-
 						// if server does not support FTPS no point trying encryption again
 						if (IsFtpsFailure(blacklistedEncryptions, encryption, ex)) {
 							goto SkipEncryptionMode;
 						}
 
-						// catch error "no such host is known" and hard abort
-						if (IsPermanantConnectionFailure(ex)) {
+						// check if permanent failures and hard abort
+						var permaEx = IsPermanantConnectionFailure(ex);
+						if (permaEx != null) {
 							if (cloneConnection) {
 								conn.Dispose();
 							}
 
 							// rethrow permanent failures so caller can be made aware of it
-							throw;
+							throw permaEx;
 						}
 					}
 
@@ -436,17 +368,33 @@ namespace FluentFTP.Client.Modules {
 		/// <summary>
 		/// Check if its an auth failure or something permanent,
 		/// so that we don't need to retry all the connection config combinations and can hard-abort the AutoConnect.
+		/// Return the exception if it is a hard failure, or null if no issue is found.
 		/// </summary>
-		private static bool IsPermanantConnectionFailure(Exception ex) {
+		private static Exception IsPermanantConnectionFailure(Exception ex) {
+
+			// permanent failure: wrong FTPS certificate
+			if (ex is AuthenticationException credEx) {
+				return new FtpInvalidCertificateException(credEx);
+			}
+
+			// permanent failure: unsupported protocol
+			var msg = "Authentication failed because the remote party sent a TLS alert: 'ProtocolVersion'";
+			if (ex.Message.Contains(msg) ||
+				(ex is AuthenticationException authEx &&
+					authEx.InnerException != null &&
+					authEx.InnerException.Message.ToLower().ContainsAny(ServerStringModule.failedTLS))) {
+
+				return new FtpProtocolUnsupportedException("Your server requires TLS 1.3 and FluentFTP does not currently support TLS 1.3 due to poor .NET support for this protocol.");
+			}
 
 			// catch error "no such host is known" and hard abort
 			if (ex is SocketException { SocketErrorCode: SocketError.HostNotFound }) {
-				return true;
+				return ex;
 			}
 
 			// catch error "timed out trying to connect" and hard abort
 			if (ex is TimeoutException) {
-				return true;
+				return ex;
 			}
 
 			// catch authentication error and hard abort (see issue #697)
@@ -456,11 +404,11 @@ namespace FluentFTP.Client.Modules {
 				// because the error is also thrown if connection drops due to TLS or EncryptionMode
 				// (see issue #700 for more details)
 				if (authError.CompletionCode != null && authError.CompletionCode.StartsWith("530")) {
-					return true;
+					return ex;
 				}
 			}
 
-			return false;
+			return null;
 		}
 
 
@@ -563,29 +511,6 @@ namespace FluentFTP.Client.Modules {
 			return null;
 		}
 
-		/// <summary>
-		/// Check if the server requires TLS 1.3 protocol
-		/// </summary>
-		private static bool IsProtocolFailure(Exception ex) {
-
-			// NOTE: Developed but never recieved confirmation from any user that it works
-
-			var msg = "Authentication failed because the remote party sent a TLS alert: 'ProtocolVersion'";
-			if (ex.Message.Contains(msg)) {
-#if !NET50_OR_LATER
-				throw new FtpProtocolUnsupportedException("Your server requires TLS 1.3 and your .NET version is too low to support it! Please upgrade your project to .NET 5+ in order to activate TLS 1.3.");
-#endif
-				return true;
-			}
-
-			if (ex is AuthenticationException authEx &&
-				authEx.InnerException != null &&
-				authEx.InnerException.Message.ToLower().ContainsAny(ServerStringModule.failedTLS)) {
-				return true;
-			}
-
-			return false;
-		}
 
 	}
 }
