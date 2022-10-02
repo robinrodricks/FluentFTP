@@ -2,10 +2,27 @@
 
 #### 41.0.0
  - Please read the [Migration Guide](https://github.com/robinrodricks/FluentFTP/wiki/v40-Migration-Guide) for help migrating to the new version!
- - FTPS:
+ - **API**
+   - New: `EmptyDirectory` API to delete files but leave top-level directory intact (thanks [FanDjango](/FanDjango))
+ - **FTPS**
    - Fix: Disable TLS 1.3 as it causes many complex networking issues during data transfer
    - Fix: Unified system to handle permanent failures during `AutoConnect`
    - Fix: Throw `FtpProtocolUnsupportedException` if the FTP server is forcing TLS 1.3 connections
+   - Fix: Disable SSL Buffering on control connection to improve `NOOP` handling (thanks [FanDjango](/FanDjango))
+   - Fix: Send an additional `NOOP` command after uploading files to resolve issues (thanks [FanDjango](/FanDjango))
+ - **FTP**
+   - Fix: Log messages pertaining to stale data are improved (thanks [FanDjango](/FanDjango))
+   - New: Log the TLS protocol used after making a successful FTPS connection (thanks [FanDjango](/FanDjango))
+   - Fix: Correctly forward `CancellationToken` within `DownloadFile`, `UploadFile`, `TransferDirectory`, `DeleteFile`, `OpenRead`, `OpenAppend` (thanks [jnyrup](/jnyrup))
+   - Fix: Optimize `SIZE` command usage for `UploadFile` in `NoCheck` and `OverWrite` modes (thanks [FanDjango](/FanDjango))
+   - Fix: Allow reusing the `ActivePorts` in FTP Active connection mode (thanks [FanDjango](/FanDjango))
+ - **Z/OS**
+   - New: Add `LIST` functionality for z/OS JES subsystem (thanks [FanDjango](/FanDjango))
+   - New: Switch to using `LISTLEVEL 2` in `GetListing` for more accurate filesizes (thanks [FanDjango](/FanDjango))
+   - New: Improve unit test cases for the z/OS file listing parser tests (thanks [FanDjango](/FanDjango))
+ - **Proxies**
+   - New: Support multiple modes of authentication for SOCKS proxies: GSSAPI, UsernamePassword (thanks [jnyrup](/jnyrup))
+   - New: Throw `MissingMethodException` if cannot negotiate an authentication method for SOCKS proxies (thanks [jnyrup](/jnyrup))
 
 #### 40.0.0
  - Please read the [Migration Guide](https://github.com/robinrodricks/FluentFTP/wiki/v40-Migration-Guide) for help migrating to the new version!
