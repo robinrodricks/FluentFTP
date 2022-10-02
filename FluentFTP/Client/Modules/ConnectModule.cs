@@ -25,7 +25,7 @@ namespace FluentFTP.Client.Modules {
 
 			// fix #907: support TLS 1.3 in .NET 5+
 #if NET50_OR_LATER
-			SysSslProtocols.Tls13
+			//SysSslProtocols.Tls13
 #endif
 #if NETFRAMEWORK
 			SysSslProtocols.Default,
@@ -79,9 +79,9 @@ namespace FluentFTP.Client.Modules {
 					// fix #907: support TLS 1.3 in .NET 5+
 					// only try TLS 1.3 if required
 #if NET50_OR_LATER
-					if (protocol == SysSslProtocols.Tls13 && !tryTLS13) {
+					/*if (protocol == SysSslProtocols.Tls13 && !tryTLS13) {
 						continue;
-					}
+					}*/
 #endif
 
 					// skip plain protocols if testing secure FTPS -- disabled because 'None' is recommended by Microsoft
@@ -131,7 +131,7 @@ namespace FluentFTP.Client.Modules {
 
 						// fix #907: support TLS 1.3 in .NET 5+
 						// if it is a protocol error, then jump to the next protocol
-						if (IsProtocolFailure(ex)) {
+						/*if (IsProtocolFailure(ex)) {
 #if NET50_OR_LATER
 							if (protocol == SysSslProtocols.Tls13) {
 								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3");
@@ -142,7 +142,7 @@ namespace FluentFTP.Client.Modules {
 #endif
 							tryTLS13 = true;
 							continue;
-						}
+						}*/
 
 						if (ex is AuthenticationException authEx) {
 							throw new FtpInvalidCertificateException(authEx);
@@ -241,9 +241,9 @@ namespace FluentFTP.Client.Modules {
 					// fix #907: support TLS 1.3 in .NET 5+
 					// only try TLS 1.3 if required
 #if NET50_OR_LATER
-					if (protocol == SysSslProtocols.Tls13 && !tryTLS13) {
+					/*if (protocol == SysSslProtocols.Tls13 && !tryTLS13) {
 						continue;
-					}
+					}*/
 #endif
 
 					// skip plain protocols if testing secure FTPS -- disabled because 'None' is recommended by Microsoft
@@ -293,7 +293,7 @@ namespace FluentFTP.Client.Modules {
 
 						// fix #907: support TLS 1.3 in .NET 5+
 						// if it is a protocol error, then jump to the next protocol
-						if (IsProtocolFailure(ex)) {
+						/*if (IsProtocolFailure(ex)) {
 #if NET50_OR_LATER
 							if (protocol == SysSslProtocols.Tls13) {
 								((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Info, "Failed to connect with TLS1.3");
@@ -304,7 +304,7 @@ namespace FluentFTP.Client.Modules {
 #endif
 							tryTLS13 = true;
 							continue;
-						}
+						}*/
 
 						if (ex is AuthenticationException authEx) {
 							throw new FtpInvalidCertificateException(authEx);
