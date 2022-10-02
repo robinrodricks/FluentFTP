@@ -387,7 +387,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 		}
 
-		protected List<FtpReply> m_lastReplies = null;
+		protected List<FtpReply> m_lastReplies;
 
 		/// <summary> Gets the last reply received from the server</summary>
 		public List<FtpReply> LastReplies {
