@@ -179,8 +179,8 @@ namespace FluentFTP {
 					long lastSize = 0;
 
 
-					var sourceFXPTransferReply = ftpFxpSession.SourceServer.GetReply(token);
-					var destinationFXPTransferReply = ftpFxpSession.TargetServer.GetReply(token);
+					var sourceFXPTransferReply = ftpFxpSession.SourceServer.GetReply(token: token);
+					var destinationFXPTransferReply = ftpFxpSession.TargetServer.GetReply(token: token);
 
 					// while the transfer is not complete
 					while (!sourceFXPTransferReply.IsCompleted || !destinationFXPTransferReply.IsCompleted) {
