@@ -432,30 +432,5 @@ namespace FluentFTP.Client.BaseClient {
 			get => m_stream?.RemoteEndPoint;
 		}
 
-
-		protected FtpZOSListRealm _zOSListingRealm;
-
-		/// <summary>
-		/// During and after a z/OS GetListing(), this value shows the
-		/// z/OS filesystem realm that was encountered.
-		/// </summary>
-		public FtpZOSListRealm zOSListingRealm {
-			get => _zOSListingRealm;
-			set => _zOSListingRealm = value;
-		}
-
-		protected ushort _zOSListingLRECL;
-
-		/// <summary>
-		/// During and after a z/OS GetListing(), this value shows the
-		/// the LRECL that was encountered (for a realm = Member only).
-		/// The value is used internally to calculate member sizes
-		/// </summary>
-		public ushort zOSListingLRECL {
-			get => _zOSListingLRECL;
-			set => _zOSListingLRECL = value;
-		}
-
-
 	}
 }

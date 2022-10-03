@@ -378,7 +378,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// Return null indicates custom code decided not to handle this
 		/// </summary>
 		public override bool? CalculateFullFtpPath(BaseFtpClient client, string path, FtpListItem item) {
-			if (client.zOSListingRealm == FtpZOSListRealm.Unix) {
+			if (client.Status.zOSListingRealm == FtpZOSListRealm.Unix) {
 				return null;
 			}
 
@@ -393,7 +393,7 @@ namespace FluentFTP.Servers.Handlers {
 
 			// Is caller using FtpListOption.NoPath and CWD to the right place?
 			if (path.Length == 0) {
-				if (client.zOSListingRealm == FtpZOSListRealm.Dataset) {
+				if (client.Status.zOSListingRealm == FtpZOSListRealm.Dataset) {
 					// Path: ""
 					// Fullname: 'GEEK.PROJECTS.LOADLIB'
 					item.FullName = ((IInternalFtpClient)client).GetWorkingDirectoryInternal().TrimEnd('\'') + item.Name + "\'";
@@ -407,7 +407,7 @@ namespace FluentFTP.Servers.Handlers {
 			// Caller is not using FtpListOption.NoPath, so the fullname can be built
 			// depending on the listing realm
 			else if (path[0] == '\'') {
-				if (client.zOSListingRealm == FtpZOSListRealm.Dataset) {
+				if (client.Status.zOSListingRealm == FtpZOSListRealm.Dataset) {
 					// Path: "'GEEK.PROJECTS.LOADLIB'"
 					// Fullname: 'GEEK.PROJECTS.LOADLIB'
 					item.FullName = item.Name;
@@ -424,7 +424,7 @@ namespace FluentFTP.Servers.Handlers {
 				}
 			}
 			else {
-				if (client.zOSListingRealm == FtpZOSListRealm.Dataset) {
+				if (client.Status.zOSListingRealm == FtpZOSListRealm.Dataset) {
 					// Path: "PROJECTS.LOADLIB"
 					// Fullname: 'GEEK.PROJECTS.LOADLIB'
 					item.FullName = ((IInternalFtpClient)client).GetWorkingDirectoryInternal().TrimEnd('\'') + item.Name + '\'';
