@@ -39,7 +39,7 @@ namespace FluentFTP.Client.BaseClient {
 				// send command to FTP server
 				m_stream.WriteLine(m_textEncoding, command);
 				LastCommandTimestamp = DateTime.UtcNow;
-				reply = GetReplyInternal(command);
+				reply = GetReplyInternal(false, command);
 			}
 
 			return reply;
