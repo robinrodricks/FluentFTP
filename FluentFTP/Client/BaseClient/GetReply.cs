@@ -68,6 +68,8 @@ namespace FluentFTP.Client.BaseClient {
 				Log(FtpTraceLevel.Info, "Response: " + reply.Code + " " + maskedReply);
 			}
 
+			reply.Command = string.IsNullOrEmpty(command) ? string.Empty : LogMaskModule.MaskCommand(this, command);
+
 			if (LastReplies == null) {
 				LastReplies = new List<FtpReply>();
 				LastReplies.Add(reply);
