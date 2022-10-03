@@ -7,41 +7,21 @@ using System.Net;
 using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-		// TODO: add example
 		/// <summary>
-		/// Retrieves a reply from the server. Do not execute this method
-		/// unless you are sure that a reply has been sent, i.e., you
-		/// executed a command. Doing so will cause the code to hang
-		/// indefinitely waiting for a server reply that is never coming.
+		/// Retrieves a reply from the server.
+		/// Support "normal" mode waiting for a command reply, subject to timeout exception
+		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
 		/// </summary>
+		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
+		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <returns>FtpReply representing the response from the server</returns>
-		public async Task<FtpReply> GetReply(CancellationToken token) {
-			return await GetReplyAsyncInternal(token);
-		}
-
-		protected async Task<FtpReply> GetReplyAsyncInternal(CancellationToken token, string command = null) {
-			var reply = new FtpReply();
-			string buf;
-
-			if (!IsConnected) {
-				throw new InvalidOperationException("No connection to the server has been established.");
-			}
-
-			m_stream.ReadTimeout = Config.ReadTimeout;
-			while ((buf = await m_stream.ReadLineAsync(Encoding, token)) != null) {
-				if (DecodeStringToReply(buf, ref reply)) {
-					break;
-				}
-				reply.InfoMessages += buf + "\n";
-			}
-
-			reply = ProcessGetReply(reply, command);
-
-			return reply;
+		public async Task<FtpReply> GetReply(bool exhaustNoop = false, string command = null, CancellationToken token = default) {
+			return await GetReplyAsyncInternal(exhaustNoop, command, token);
 		}
 
 	}
