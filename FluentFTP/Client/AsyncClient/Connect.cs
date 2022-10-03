@@ -6,6 +6,7 @@ using System;
 using System.Net.Sockets;
 using System.Text;
 using FluentFTP.Helpers;
+using System.Reflection;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -186,6 +187,9 @@ namespace FluentFTP {
 
 			// FIX #922: disable checking for stale data during connection
 			Status.AllowCheckStaleData = true;
+
+			string applicationVersion = Assembly.GetAssembly(MethodBase.GetCurrentMethod().DeclaringType).GetName().Version.ToString();
+			LogWithPrefix(FtpTraceLevel.Verbose, "Connection established by FluentFTP Version " + applicationVersion);
 		}
 
 		/// <summary>
