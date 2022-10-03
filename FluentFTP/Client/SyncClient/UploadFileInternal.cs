@@ -234,40 +234,15 @@ namespace FluentFTP {
 				// disconnect FTP stream before exiting
 				upStream.Dispose();
 
-				// FIX : if this is not added, there appears to be "stale data" on the socket
-				// listen for a success/failure reply
+				// listen for a success/failure reply or out of band data (like NOOP responses)
+				// GetReply(true) means: Exhaust any NOOP responses
+				FtpReply status = GetReplyInternal("*DOWNLOAD*", anyNoop);
 
-				// Quick dirty fix for recalcitrant servers. This will cause them to hickup the rest of the responses
-				if (anyNoop) {
-					m_stream.WriteLine(Encoding, "NOOP");
+				// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
+				// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
+				if (status.Code != null && !status.Success) {
+					return FtpStatus.Failed;
 				}
-
-				try {
-					while (true) {
-						var status = GetReply();
-
-						// Fix #387: exhaust any NOOP responses (not guaranteed during file transfers)
-						if (anyNoop && status.Message != null && status.Message.Contains("NOOP")) {
-							continue;
-						}
-
-						// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
-						// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
-						if (status.Code != null && !status.Success) {
-							return FtpStatus.Failed;
-						}
-
-						// Fix #387: exhaust any NOOP responses also after "226 Transfer complete."
-						if (anyNoop) {
-							ReadStaleData(false, true, "after upload");
-						}
-
-						break;
-					}
-				}
-
-				// absorb "System.TimeoutException: Timed out trying to read data from the socket stream!" at GetReply()
-				catch (Exception) { }
 
 				return FtpStatus.Success;
 			}
