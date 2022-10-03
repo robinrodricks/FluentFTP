@@ -5,6 +5,9 @@ using System.Linq;
 using FluentFTP.Helpers;
 using System.Text.RegularExpressions;
 using FluentFTP.Client.Modules;
+using System.Threading;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace FluentFTP.Client.BaseClient {
@@ -12,31 +15,257 @@ namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
 
 		/// <summary>
-		/// Retrieves a reply from the server. Do not execute this method
-		/// unless you are sure that a reply has been sent, i.e., you
-		/// executed a command. Doing so will cause the code to hang
-		/// indefinitely waiting for a server reply that is never coming.
+		/// Retrieves a reply from the server.
+		/// Support "normal" mode waiting for a command reply, subject to timeout exception
+		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
 		/// </summary>
+		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
+		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <returns>FtpReply representing the response from the server</returns>
-		protected FtpReply GetReplyInternal(string command = null) {
+		protected FtpReply GetReplyInternal(bool exhaustNoop = false, string command = null) {
+
 			var reply = new FtpReply();
-			string buf;
 
 			lock (m_lock) {
+
 				if (!IsConnected) {
 					throw new InvalidOperationException("No connection to the server has been established.");
 				}
 
-				m_stream.ReadTimeout = Config.ReadTimeout;
-				while ((buf = m_stream.ReadLine(Encoding)) != null) {
-					if (DecodeStringToReply(buf, ref reply)) {
+				if (string.IsNullOrEmpty(command)) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for a response");
+				}
+				else {
+					LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for response to: " + OnPostExecute(command));
+				}
+
+				// Implement this: https://lists.apache.org/thread/xzpclw1015qncvczt8hg3nom2p5vtcf5
+				// Can not use the normal timeout mechanism though, as a System.TimeoutException
+				// causes the stream to disconnect.
+
+				string sequence = string.Empty;
+
+				string response;
+
+				var sw = new Stopwatch();
+
+				long elapsedTime;
+				long previousElapsedTime = 0;
+
+				bool triggered = false;
+
+				sw.Start();
+
+				do {
+					elapsedTime = sw.ElapsedMilliseconds;
+
+					// Maximum wait time for collecting NOOP responses: 10 seconds
+					if (exhaustNoop && elapsedTime > 10000) {
 						break;
 					}
-					reply.InfoMessages += buf + "\n";
+
+					if (!exhaustNoop) {
+
+						// If we are not exhausting NOOPs, i.e. doing a normal GetReply(...)
+						// we do a blocking ReadLine(...). This can throw a
+						// System.TimeoutException which will disconnect us.
+
+						m_stream.ReadTimeout = Config.ReadTimeout;
+						response = m_stream.ReadLine(Encoding);
+
+					}
+					else {
+						if (!triggered) {
+							m_stream.WriteLine(Encoding, "NOOP");
+							triggered = true;
+						}
+
+						// If we are exhausting NOOPs, use a non-blocking ReadLine(...)
+						// as we don't want a timeout exception, which would disconnect us.
+
+						if (m_stream.SocketDataAvailable > 0) {
+							response = m_stream.ReadLine(Encoding);
+						}
+						else {
+							if (elapsedTime > (previousElapsedTime + 1000)) {
+								previousElapsedTime = elapsedTime;
+								LogWithPrefix(FtpTraceLevel.Verbose, "Waiting - " + ((10000 - elapsedTime) / 1000).ToString() + " seconds left");
+							}
+							response = null;
+							Thread.Sleep(100);
+						}
+
+					}
+
+					if (string.IsNullOrEmpty(response)) {
+						continue;
+					}
+
+					sequence += "," + response.Split(' ')[0];
+
+					if (exhaustNoop &&
+						// NOOP responses can actually come in quite a few flavors
+						(response.StartsWith("200 NOOP") || response.StartsWith("500"))) {
+
+						Log(FtpTraceLevel.Verbose, "Skipped:  " + response);
+
+						continue;
+					}
+
+					if (DecodeStringToReply(response, ref reply)) {
+
+						if (exhaustNoop) {
+							// We need to perhaps exhaust more NOOP responses
+							continue;
+						}
+						else {
+							// On a normal GetReply(...) we are happy to collect the
+							// first valid response
+							break;
+						}
+
+					}
+
+					// Accumulate non-valid response text too, prior to a valid response
+					reply.InfoMessages += response + "\n";
+
+				} while (true);
+
+				sw.Stop();
+
+				if (exhaustNoop) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) sequence: " + sequence.TrimStart(','));
 				}
 
 				reply = ProcessGetReply(reply, command);
+
+			} // lock
+
+			return reply;
+		}
+
+		/// <summary>
+		/// Retrieves a reply from the server.
+		/// Support "normal" mode waiting for a command reply, subject to timeout exception
+		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
+		/// </summary>
+		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
+		/// <param name="command">We are waiting for the response to which command?</param>
+		/// <returns>FtpReply representing the response from the server</returns>
+		protected async Task<FtpReply> GetReplyAsyncInternal(bool exhaustNoop = false, string command = null, CancellationToken token = default) {
+
+			var reply = new FtpReply();
+
+			if (!IsConnected) {
+				throw new InvalidOperationException("No connection to the server has been established.");
 			}
+
+			if (string.IsNullOrEmpty(command)) {
+				LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for a response");
+			}
+			else {
+				LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for response to: " + OnPostExecute(command));
+			}
+
+			// Implement this: https://lists.apache.org/thread/xzpclw1015qncvczt8hg3nom2p5vtcf5
+			// Can not use the normal timeout mechanism though, as a System.TimeoutException
+			// causes the stream to disconnect.
+
+			string sequence = string.Empty;
+
+			string response;
+
+			var sw = new Stopwatch();
+
+			long elapsedTime;
+			long previousElapsedTime = 0;
+
+			bool triggered = false;
+
+			sw.Start();
+
+			do {
+				elapsedTime = sw.ElapsedMilliseconds;
+
+				// Maximum wait time for collecting NOOP responses: 10 seconds
+				if (exhaustNoop && elapsedTime > 10000) {
+					break;
+				}
+
+				if (!exhaustNoop) {
+
+					// If we are not exhausting NOOPs, i.e. doing a normal GetReply(...)
+					// we do a blocking ReadLine(...). This can throw a
+					// System.TimeoutException which will disconnect us.
+
+					m_stream.ReadTimeout = Config.ReadTimeout;
+					response = await m_stream.ReadLineAsync(Encoding, token);
+
+				}
+				else {
+					if (!triggered) {
+						await m_stream.WriteLineAsync(Encoding, "NOOP", token);
+						triggered = true;
+					}
+
+					// If we are exhausting NOOPs, use a non-blocking ReadLine(...)
+					// as we don't want a timeout exception, which would disconnect us.
+
+					if (m_stream.SocketDataAvailable > 0) {
+						response = await m_stream.ReadLineAsync(Encoding, token);
+					}
+					else {
+						if (elapsedTime > (previousElapsedTime + 1000)) {
+							previousElapsedTime = elapsedTime;
+							LogWithPrefix(FtpTraceLevel.Verbose, "Waiting - " + ((10000 - elapsedTime) / 1000).ToString() + " seconds left");
+						}
+						response = null;
+						Thread.Sleep(100);
+					}
+
+				}
+
+				if (string.IsNullOrEmpty(response)) {
+					continue;
+				}
+
+				sequence += "," + response.Split(' ')[0];
+
+				if (exhaustNoop &&
+					// NOOP responses can actually come in quite a few flavors
+					(response.StartsWith("200 NOOP") || response.StartsWith("500"))) {
+
+					Log(FtpTraceLevel.Verbose, "Skipped:  " + response);
+
+					continue;
+				}
+
+				if (DecodeStringToReply(response, ref reply)) {
+
+					if (exhaustNoop) {
+						// We need to perhaps exhaust more NOOP responses
+						continue;
+					}
+					else {
+						// On a normal GetReply(...) we are happy to collect the
+						// first valid response
+						break;
+					}
+
+				}
+
+				// Accumulate non-valid response text too, prior to a valid response
+				reply.InfoMessages += response + "\n";
+
+			} while (true);
+
+			sw.Stop();
+
+			if (exhaustNoop) {
+				LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) sequence: " + sequence.TrimStart(','));
+			}
+
+			reply = ProcessGetReply(reply, command);
 
 			return reply;
 		}
