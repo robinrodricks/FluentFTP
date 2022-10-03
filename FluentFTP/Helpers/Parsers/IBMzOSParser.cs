@@ -39,7 +39,7 @@ namespace FluentFTP.Helpers.Parsers {
 			// "Volume Unit    Referred Ext Used Recfm Lrecl BlkSz Dsorg Dsname"
 			if (record.Contains("Volume Unit") ||
 				record.Contains("Volume Referred")) {
-				client.zOSListingRealm = FtpZOSListRealm.Dataset;
+				client.Status.zOSListingRealm = FtpZOSListRealm.Dataset;
 				return null;
 			}
 
@@ -69,33 +69,33 @@ namespace FluentFTP.Helpers.Parsers {
 				// SITE PDSTYPE=PDSE RECFM=FB BLKSIZE=16000 DIRECTORY=1 LRECL=80 PRIMARY=3 SECONDARY=110 TRACKS EATTR=SYSTEM
 				string[] words = reply.Message.Split(' ');
 				string[] val = words[5].Split('=');
-				client.zOSListingLRECL = UInt16.Parse(val[1]);
-				client.zOSListingRealm = FtpZOSListRealm.Member;
+				client.Status.zOSListingLRECL = UInt16.Parse(val[1]);
+				client.Status.zOSListingRealm = FtpZOSListRealm.Member;
 				return null;
 			}
 
 			// "Name      Size     TTR   Alias-of AC--------- Attributes--------- Amode Rmode"
 			if (record.Contains("Name      Size     TTR")) {
-				client.zOSListingRealm = FtpZOSListRealm.MemberU;
+				client.Status.zOSListingRealm = FtpZOSListRealm.MemberU;
 				return null;
 			}
 
 			if (record.Contains("JOBNAME  JOBID")) {
-				client.zOSListingRealm = FtpZOSListRealm.Jes2;
+				client.Status.zOSListingRealm = FtpZOSListRealm.Jes2;
 				return null;
 			}
 
 			// "total nnnn"
 			if (record.Contains("total")) {
-				client.zOSListingRealm = FtpZOSListRealm.Unix;
+				client.Status.zOSListingRealm = FtpZOSListRealm.Unix;
 				return null;
 			}
 
 			if (IsValidHFS(record)) {
-				client.zOSListingRealm = FtpZOSListRealm.Unix;
+				client.Status.zOSListingRealm = FtpZOSListRealm.Unix;
 			}
 
-			if (client.zOSListingRealm == FtpZOSListRealm.Unix) {
+			if (client.Status.zOSListingRealm == FtpZOSListRealm.Unix) {
 				// HFS (=unix) mode
 				//
 				//total 17904
@@ -109,7 +109,7 @@ namespace FluentFTP.Helpers.Parsers {
 				return UnixParser.Parse(client, record);
 			}
 
-			if (client.zOSListingRealm == FtpZOSListRealm.Dataset) {
+			if (client.Status.zOSListingRealm == FtpZOSListRealm.Dataset) {
 				// PS/PO mode
 				//
 				// If SITE LISTLEVEL=0 is set:
@@ -196,7 +196,7 @@ namespace FluentFTP.Helpers.Parsers {
 				return null;
 			}
 
-			if (client.zOSListingRealm == FtpZOSListRealm.Member) {
+			if (client.Status.zOSListingRealm == FtpZOSListRealm.Member) {
 				// Member mode
 				//
 				// Name     VV.MM   Created       Changed      Size  Init   Mod   Id   
@@ -219,12 +219,12 @@ namespace FluentFTP.Helpers.Parsers {
 				bool isDir = false;
 				var lastModifiedStr = changed;
 				var lastModified = ParseDateTime(client, lastModifiedStr);
-				var size = ushort.Parse(records) * client.zOSListingLRECL;
+				var size = ushort.Parse(records) * client.Status.zOSListingLRECL;
 				var file = new FtpListItem(record, name, size, isDir, lastModified);
 				return file;
 			}
 
-			if (client.zOSListingRealm == FtpZOSListRealm.MemberU) {
+			if (client.Status.zOSListingRealm == FtpZOSListRealm.MemberU) {
 				// Member Loadlib mode
 				//
 				// Name      Size     TTR   Alias-of AC --------- Attributes --------- Amode Rmode
@@ -248,7 +248,7 @@ namespace FluentFTP.Helpers.Parsers {
 				return file;
 			}
 
-			if (client.zOSListingRealm == FtpZOSListRealm.Jes2) {
+			if (client.Status.zOSListingRealm == FtpZOSListRealm.Jes2) {
 				// FILETYPE=JES
 				//
 				//JOBNAME JOBID    OWNER STATUS CLASS

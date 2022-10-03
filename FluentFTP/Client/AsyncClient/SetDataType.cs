@@ -21,10 +21,7 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		protected async Task SetDataTypeNoLockAsync(FtpDataType type, CancellationToken token = default(CancellationToken)) {
 			// FIX : #291 only change the data type if different
-			if (CurrentDataType != type || ForceSetDataType) {
-				// FIX : #318 always set the type when we create a new connection
-				ForceSetDataType = false;
-
+			if (Status.CurrentDataType != type) {
 				FtpReply reply;
 				switch (type) {
 					case FtpDataType.ASCII:
@@ -45,7 +42,7 @@ namespace FluentFTP {
 						throw new FtpException("Unsupported data type: " + type.ToString());
 				}
 
-				CurrentDataType = type;
+				Status.CurrentDataType = type;
 			}
 		}
 

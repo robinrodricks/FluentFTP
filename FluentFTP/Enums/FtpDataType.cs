@@ -13,6 +13,12 @@ namespace FluentFTP {
 		/// <summary>
 		/// Binary transfer
 		/// </summary>
-		Binary
+		Binary,
+
+		/// <summary>
+		/// Not known yet
+		/// </summary>
+		Unknown
+
 	}
 }

@@ -55,6 +55,16 @@ namespace FluentFTP.Client.BaseClient {
 				Status.LastWorkingDir = null;
 			}
 
+			// A TYPE I could invalidate the cached value.
+			else if (command.StartsWith("TYPE I", StringComparison.Ordinal)) {
+				Status.CurrentDataType = FtpDataType.Binary;
+			}
+
+			// A TYPE A could invalidate the cached value.
+			else if (command.StartsWith("TYPE A", StringComparison.Ordinal)) {
+				Status.CurrentDataType = FtpDataType.ASCII;
+			}
+
 			return command;
 		}
 

@@ -176,7 +176,7 @@ namespace FluentFTP {
 				CurrentListParser.Init(m_serverOS, Config.ListingParser);
 
 				// FIX #318 always set the type when we create a new connection
-				ForceSetDataType = true;
+				Status.CurrentDataType = FtpDataType.Unknown;
 
 				// Execute server-specific post-connection event
 				ServerHandler?.AfterConnected(this);

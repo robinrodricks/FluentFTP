@@ -32,8 +32,7 @@ namespace FluentFTP.Client.BaseClient {
 
 			CloneClient(this, newClone);
 
-			newClone.CurrentDataType = CurrentDataType;
-			newClone.ForceSetDataType = true;
+			newClone.Status.CurrentDataType = FtpDataType.Unknown;
 
 			return newClone;
 		}

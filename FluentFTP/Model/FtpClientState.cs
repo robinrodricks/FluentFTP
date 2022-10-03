@@ -52,6 +52,11 @@ namespace FluentFTP {
 		public bool ConnectionUTF8Success { get; set; } = false;
 
 		/// <summary>
+		/// Store the current data type setting
+		/// </summary>
+		public FtpDataType CurrentDataType { get; set; } = FtpDataType.Unknown;
+
+		/// <summary>
 		/// Allow checking for stale data on socket?
 		/// </summary>
 		public bool AllowCheckStaleData { get; set; } = false;
@@ -80,6 +85,19 @@ namespace FluentFTP {
 			RecursiveListSupported = original.RecursiveListSupported;
 		}
 
+		/// <summary>
+		/// During and after a z/OS GetListing(), this value stores the
+		/// z/OS filesystem realm that was encountered.
+		/// The value is used internally to control the list parse mode
+		/// </summary>
+		public FtpZOSListRealm zOSListingRealm { get; set; }
+
+		/// <summary>
+		/// During and after a z/OS GetListing(), this value stores the
+		/// the LRECL that was encountered (for a realm = Member only).
+		/// The value is used internally to calculate member sizes
+		/// </summary>
+		public ushort zOSListingLRECL { get; set; }
 
 	}
 }
