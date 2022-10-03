@@ -378,22 +378,15 @@ namespace FluentFTP.Client.BaseClient {
 			protected set => m_connectionType = value;
 		}
 
-		protected FtpReply m_lastReply;
-
 		/// <summary> Gets the last reply received from the server</summary>
 		public FtpReply LastReply {
 			get {
-				return m_lastReply = m_lastReplies[0];
+				return LastReplies == null ? new FtpReply() : LastReplies[0];
 			}
 		}
 
-		protected List<FtpReply> m_lastReplies;
-
-		/// <summary> Gets the last reply received from the server</summary>
-		public List<FtpReply> LastReplies {
-			get => m_lastReplies;
-			set => m_lastReplies = value;
-		}
+		/// <summary> Gets the last replies received from the server</summary>
+		public List<FtpReply> LastReplies { get; set; }
 
 		/// <summary>
 		/// Callback format to implement your custom FTP listing line parser.
