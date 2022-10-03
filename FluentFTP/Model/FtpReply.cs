@@ -100,5 +100,10 @@ namespace FluentFTP {
 				return message;
 			}
 		}
+
+		/// <summary>
+		/// Stores the command that produced this reply (if any)
+		/// </summary>
+		public string Command { get; set; }
 	}
 }
