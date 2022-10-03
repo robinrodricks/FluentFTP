@@ -5,6 +5,7 @@ using System.Linq;
 using FluentFTP.Helpers;
 using System.Text.RegularExpressions;
 using FluentFTP.Client.Modules;
+using System.Collections.Generic;
 
 namespace FluentFTP.Client.BaseClient {
 
@@ -67,7 +68,16 @@ namespace FluentFTP.Client.BaseClient {
 				Log(FtpTraceLevel.Info, "Response: " + reply.Code + " " + maskedReply);
 			}
 
-			LastReply = reply;
+			if (LastReplies == null) {
+				LastReplies = new List<FtpReply>();
+				LastReplies.Add(reply);
+			}
+			else {
+				LastReplies.Insert(0, reply);
+				if (LastReplies.Count > 5) {
+					LastReplies.RemoveAt(5);
+				}
+			}
 
 			return reply;
 		}
