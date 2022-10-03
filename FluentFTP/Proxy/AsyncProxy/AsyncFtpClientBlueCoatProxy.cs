@@ -34,7 +34,7 @@ namespace FluentFTP.Proxy.AsyncProxy {
 			// Connection USER@Host means to change user name to add host.
 			Credentials.UserName = Credentials.UserName + "@" + Host + ":" + Port;
 
-			var reply = await GetReply(token);
+			var reply = await GetReplyAsyncInternal(token: token);
 			if (reply.Code == "220") {
 				Log(FtpTraceLevel.Info, "Status: Server is ready for the new client");
 			}
