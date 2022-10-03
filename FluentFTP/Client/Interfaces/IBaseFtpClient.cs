@@ -32,6 +32,7 @@ namespace FluentFTP {
 		FtpOperatingSystem ServerOS { get; }
 		string ConnectionType { get; }
 		FtpReply LastReply { get; }
+		List<FtpReply> LastReplies { get; set; }
 		Encoding Encoding { get; set; }
 
 		Action<FtpTraceLevel, string> LegacyLogger { get; set; }
