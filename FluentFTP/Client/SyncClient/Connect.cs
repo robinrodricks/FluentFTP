@@ -35,7 +35,7 @@ namespace FluentFTP {
 				LogFunction(nameof(Connect));
 
 				string applicationVersion = Assembly.GetAssembly(MethodBase.GetCurrentMethod().DeclaringType).GetName().Version.ToString();
-				LogWithPrefix(FtpTraceLevel.Verbose, "Connection attempted by FluentFTP Version " + applicationVersion);
+				LogWithPrefix(FtpTraceLevel.Verbose, "Connect using FluentFTP " + applicationVersion);
 
 				if (IsDisposed) {
 					throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
