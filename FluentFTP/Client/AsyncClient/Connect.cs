@@ -33,6 +33,9 @@ namespace FluentFTP {
 
 			LogFunction(nameof(ConnectAsync));
 
+			string applicationVersion = Assembly.GetAssembly(MethodBase.GetCurrentMethod().DeclaringType).GetName().Version.ToString();
+			LogWithPrefix(FtpTraceLevel.Verbose, "Connection attempted by FluentFTP Version " + applicationVersion);
+
 			if (IsDisposed) {
 				throw new ObjectDisposedException("This AsyncFtpClient object has been disposed. It is no longer accessible.");
 			}
@@ -98,7 +101,6 @@ namespace FluentFTP {
 						token);
 				}
 			}
-
 
 			if (m_credentials != null) {
 				await Authenticate(token);
@@ -187,9 +189,6 @@ namespace FluentFTP {
 
 			// FIX #922: disable checking for stale data during connection
 			Status.AllowCheckStaleData = true;
-
-			string applicationVersion = Assembly.GetAssembly(MethodBase.GetCurrentMethod().DeclaringType).GetName().Version.ToString();
-			LogWithPrefix(FtpTraceLevel.Verbose, "Connection established by FluentFTP Version " + applicationVersion);
 		}
 
 		/// <summary>
