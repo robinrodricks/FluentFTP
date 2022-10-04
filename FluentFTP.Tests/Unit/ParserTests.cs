@@ -384,6 +384,7 @@ namespace FluentFTP.Tests.Unit {
 				"CFT                                     *MEM  ASKET7.FILE/ASKET7.MBR",
 				"QSYSOPR         28672 01/12/17 20:08:04 *FILE FPKI45POK5.FILE",
 				"QSYSOPR                                 *MEM FPKI45POK5.FILE/FPKI45POK5.MBR",
+				"TESTUSR         12345 01/12/18 18:34:01 *STMF B0001234567 K",
 			};
 
 			var expected = new FtpListItem[]{
@@ -395,6 +396,7 @@ namespace FluentFTP.Tests.Unit {
 				new FtpListItem("ASKET7.FILE/ASKET7.MBR", 0, FtpObjectType.File, new DateTime(1, 1, 1, 0, 0, 0, 0)),
 				new FtpListItem("FPKI45POK5.FILE", 28672, FtpObjectType.File, new DateTime(2017, 12, 1, 20, 8, 4, 0)),
 				new FtpListItem("FPKI45POK5.FILE/FPKI45POK5.MBR", 0, FtpObjectType.File, new DateTime(1, 1, 1, 0, 0, 0, 0)),
+				new FtpListItem("B0001234567 K", 12345, FtpObjectType.File, new DateTime(2018, 12, 1, 18, 34, 1, 0)),
 			};
 
 			TestParsing(parser, "/", sample, expected);
