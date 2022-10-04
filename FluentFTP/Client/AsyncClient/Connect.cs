@@ -6,7 +6,7 @@ using System;
 using System.Net.Sockets;
 using System.Text;
 using FluentFTP.Helpers;
-using System.Reflection;
+
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -33,8 +33,7 @@ namespace FluentFTP {
 
 			LogFunction(nameof(ConnectAsync));
 
-			string applicationVersion = Assembly.GetAssembly(MethodBase.GetCurrentMethod().DeclaringType).GetName().Version.ToString();
-			LogWithPrefix(FtpTraceLevel.Verbose, "Connect using FluentFTP " + applicationVersion);
+			LogVersion();
 
 			if (IsDisposed) {
 				throw new ObjectDisposedException("This AsyncFtpClient object has been disposed. It is no longer accessible.");
