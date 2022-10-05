@@ -32,6 +32,8 @@ namespace FluentFTP {
 
 			LogFunction(nameof(ConnectAsync));
 
+			LogVersion();
+
 			if (IsDisposed) {
 				throw new ObjectDisposedException("This AsyncFtpClient object has been disposed. It is no longer accessible.");
 			}
@@ -97,7 +99,6 @@ namespace FluentFTP {
 						token);
 				}
 			}
-
 
 			if (m_credentials != null) {
 				await Authenticate(token);

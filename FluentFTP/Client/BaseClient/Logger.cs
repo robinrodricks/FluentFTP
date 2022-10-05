@@ -1,11 +1,22 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using FluentFTP.Helpers;
 using Microsoft.Extensions.Logging;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
+
+		/// <summary>
+		/// Log the version of the running assembly
+		/// </summary>
+		protected void LogVersion() {
+
+			string applicationVersion = Assembly.GetAssembly(MethodBase.GetCurrentMethod().DeclaringType).GetName().Version.ToString();
+			LogWithPrefix(FtpTraceLevel.Verbose, "FluentFTP " + applicationVersion);
+
+		}
 
 		/// <summary>
 		/// Log a function call with relevant arguments

@@ -33,6 +33,8 @@ namespace FluentFTP {
 
 				LogFunction(nameof(Connect));
 
+				LogVersion();
+
 				if (IsDisposed) {
 					throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");
 				}
@@ -183,7 +185,6 @@ namespace FluentFTP {
 
 				// FIX #922: disable checking for stale data during connection
 				Status.AllowCheckStaleData = true;
-
 			}
 		}
 
