@@ -236,7 +236,7 @@ namespace FluentFTP {
 
 				// listen for a success/failure reply or out of band data (like NOOP responses)
 				// GetReply(true) means: Exhaust any NOOP responses
-				FtpReply status = GetReplyInternal("*DOWNLOAD*", anyNoop);
+				FtpReply status = GetReplyInternal("*UPLOAD*", anyNoop);
 
 				// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
 				// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
