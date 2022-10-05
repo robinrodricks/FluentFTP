@@ -9,7 +9,7 @@
 
 FluentFTP is a fully managed FTP and FTPS library for .NET & .NET Standard, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, FXP transfers, UTF-8 support, Async/await support, Powershell support and more.
 
-It is written entirely in C#, with [just one](https://www.nuget.org/packages/Microsoft.Extensions.Logging.Abstractions/2.1.0) external dependencies. It has an extensive automated test suite which tests all its functionality against local FTP server docker containers.
+It is written entirely in C#, with [just one](https://www.nuget.org/packages/Microsoft.Extensions.Logging.Abstractions/2.1.0) external dependency. It has an extensive automated test suite which tests all its functionality against local FTP server docker containers.
 
 FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications. 
 
