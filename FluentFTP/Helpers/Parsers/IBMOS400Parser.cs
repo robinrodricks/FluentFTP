@@ -71,8 +71,14 @@ namespace FluentFTP.Helpers.Parsers {
 				isDir = true;
 			}
 
+			string name = string.Empty;
 			// If there's no name, it's because we're inside a file.  Fake out a "current directory" name instead.
-			var name = values.Length >= 6 ? values[5] : ".";
+			if (values.Length >= 6) {
+				name = record.Substring(record.TrimEnd().LastIndexOf(values[5]));
+			}
+			else {
+				name = ".";
+			}
 			if (name.EndsWith("/")) {
 				isDir = true;
 				name = name.Substring(0, name.Length - 1);
