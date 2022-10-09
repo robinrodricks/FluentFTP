@@ -6,9 +6,9 @@ using System.Net.Security;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace FluentSslLib {
+namespace FtpSslLib {
 	/// <summary>
-	/// FluentSslStream is an SslStream that properly sends a close_notify message when closing
+	/// FtpSslStream is an SslStream that properly sends a close_notify message when closing
 	/// the connection. This is required per RFC 5246 to avoid truncation attacks.
 	/// For more information, see https://tools.ietf.org/html/rfc5246#section-7.2.1
 	///
@@ -18,13 +18,14 @@ namespace FluentSslLib {
 	/// See: https://learn.microsoft.com/en-us/windows/win32/secauthn/using-sspi-with-a-windows-sockets-client?source=recommendations
 	/// 
 	/// </summary>
-	public class FluentSslStream : SslStream {
-		public FluentSslStream(Stream innerStream, bool leaveInnerStreamOpen, RemoteCertificateValidationCallback userCertificateValidationCallback)
+	public class FtpSslStream : SslStream {
+		public FtpSslStream(Stream innerStream, bool leaveInnerStreamOpen, RemoteCertificateValidationCallback userCertificateValidationCallback)
 			: base(innerStream, leaveInnerStreamOpen, userCertificateValidationCallback) {
 		}
 
+#if NETFRAMEWORK
 		private bool _Closed = false;
-
+#endif
 		protected override void Dispose(bool disposing) {
 
 			try {
@@ -33,11 +34,13 @@ namespace FluentSslLib {
 					.ConfigureAwait(false)
 					.GetAwaiter()
 					.GetResult();
-#else
+#elif NETFRAMEWORK
 				if (!_Closed) {
 					_Closed = true;
 					SslDirectCall.CloseNotify(this);
 				}
+#else
+				;
 #endif
 			}
 			finally {
@@ -46,7 +49,13 @@ namespace FluentSslLib {
 		}
 
 		public override string ToString() {
-			return $"{SslProtocol} stream ({CipherAlgorithm}, {KeyExchangeAlgorithm}, {KeyExchangeStrength})";
+#if NET5_0_OR_GREATER
+			return $"{SslProtocol} ({CipherAlgorithm}, {NegotiatedCipherSuite}, {KeyExchangeAlgorithm}, {KeyExchangeStrength})";
+#elif NETFRAMEWORK
+			return $"{SslProtocol} ({CipherAlgorithm}, {KeyExchangeAlgorithm}, {KeyExchangeStrength})";
+#else
+			return string.Empty;
+#endif
 		}
 	}
 
@@ -64,21 +73,22 @@ namespace FluentSslLib {
 			NativeApi.SSPIHandle securityContextHandle = default(NativeApi.SSPIHandle);
 			NativeApi.SSPIHandle credentialsHandleHandle = default(NativeApi.SSPIHandle);
 
-#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-			var context = ReflectUtil.GetField(sslStream, "_context");
+			//If ever needed, here are the necessary changes to work for .NET 5.0+
+			//var context = ReflectUtil.GetField(sslStream, "_context");
 
-			var securityContext = ReflectUtil.GetField(context, "_securityContext");
-			var securityContextHandleOriginal = ReflectUtil.GetField(securityContext, "_handle");
+			//var securityContext = ReflectUtil.GetField(context, "_securityContext");
+			//var securityContextHandleOriginal = ReflectUtil.GetField(securityContext, "_handle");
 
-			securityContextHandle.HandleHi = (IntPtr)ReflectUtil.GetField(securityContextHandleOriginal, "dwLower");
-			securityContextHandle.HandleLo = (IntPtr)ReflectUtil.GetField(securityContextHandleOriginal, "dwUpper");
+			//securityContextHandle.HandleHi = (IntPtr)ReflectUtil.GetField(securityContextHandleOriginal, "dwLower");
+			//securityContextHandle.HandleLo = (IntPtr)ReflectUtil.GetField(securityContextHandleOriginal, "dwUpper");
 
-			var credentialsHandle = ReflectUtil.GetField(context, "_credentialsHandle");
-			var credentialsHandleHandleOriginal = ReflectUtil.GetField(credentialsHandle, "_handle");
+			//var credentialsHandle = ReflectUtil.GetField(context, "_credentialsHandle");
+			//var credentialsHandleHandleOriginal = ReflectUtil.GetField(credentialsHandle, "_handle");
 
-			credentialsHandleHandle.HandleHi = (IntPtr)ReflectUtil.GetField(credentialsHandleHandleOriginal, "dwLower");
-			credentialsHandleHandle.HandleLo = (IntPtr)ReflectUtil.GetField(credentialsHandleHandleOriginal, "dwUpper");
-#else
+			//credentialsHandleHandle.HandleHi = (IntPtr)ReflectUtil.GetField(credentialsHandleHandleOriginal, "dwLower");
+			//credentialsHandleHandle.HandleLo = (IntPtr)ReflectUtil.GetField(credentialsHandleHandleOriginal, "dwUpper");
+
+			// The following is for .NET Framework
 			var sslstate = ReflectUtil.GetField(sslStream, "_SslState");
 			var context = ReflectUtil.GetProperty(sslstate, "Context");
 
@@ -93,7 +103,6 @@ namespace FluentSslLib {
 
 			credentialsHandleHandle.HandleHi = (IntPtr)ReflectUtil.GetField(credentialsHandleHandleOriginal, "HandleHi");
 			credentialsHandleHandle.HandleLo = (IntPtr)ReflectUtil.GetField(credentialsHandleHandleOriginal, "HandleLo");
-#endif
 
 			NativeApi.SecurityBufferDescriptor securityBufferDescriptor = new NativeApi.SecurityBufferDescriptor();
 			NativeApi.SecurityBufferStruct[] unmanagedBuffer = new NativeApi.SecurityBufferStruct[1];
@@ -151,11 +160,12 @@ namespace FluentSslLib {
 				resultSize = resultArr.Length;
 			}
 
-#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-			var innerStream = (Stream)ReflectUtil.GetProperty(sslStream, "InnerStream");
-#else
+			//If ever needed, here are the necessary changes to work for .NET 5.0+
+			//var innerStream = (Stream)ReflectUtil.GetProperty(sslStream, "InnerStream");
+
+			// The following is for .NET Framework
 			var innerStream = (Stream)ReflectUtil.GetProperty(sslstate, "InnerStream");
-#endif
+
 			innerStream.Write(result, 0, resultSize);
 		}
 	}
