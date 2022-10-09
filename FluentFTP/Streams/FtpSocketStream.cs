@@ -746,13 +746,9 @@ namespace FluentFTP {
 			if (m_socket != null) {
 				try {
 #if NETSTANDARD
-#if NET5_0_OR_GREATER
-					m_socket.Shutdown(SocketShutdown.Send);
-#endif
 					m_socket.Dispose();
 #else
 					if (m_socket.Connected) {
-						m_socket.Shutdown(SocketShutdown.Send);
 						m_socket.Close();
 					}
 #endif
