@@ -26,11 +26,19 @@ namespace FluentSslLib {
 		private bool _Closed = false;
 
 		protected override void Dispose(bool disposing) {
+
 			try {
+#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+				base.ShutdownAsync()
+					.ConfigureAwait(false)
+					.GetAwaiter()
+					.GetResult();
+#else
 				if (!_Closed) {
 					_Closed = true;
 					SslDirectCall.CloseNotify(this);
 				}
+#endif
 			}
 			finally {
 				base.Dispose(disposing);
@@ -56,7 +64,7 @@ namespace FluentSslLib {
 			NativeApi.SSPIHandle securityContextHandle = default(NativeApi.SSPIHandle);
 			NativeApi.SSPIHandle credentialsHandleHandle = default(NativeApi.SSPIHandle);
 
-#if NETSTANDARD
+#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 			var context = ReflectUtil.GetField(sslStream, "_context");
 
 			var securityContext = ReflectUtil.GetField(context, "_securityContext");
@@ -143,7 +151,7 @@ namespace FluentSslLib {
 				resultSize = resultArr.Length;
 			}
 
-#if NETSTANDARD
+#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 			var innerStream = (Stream)ReflectUtil.GetProperty(sslStream, "InnerStream");
 #else
 			var innerStream = (Stream)ReflectUtil.GetProperty(sslstate, "InnerStream");

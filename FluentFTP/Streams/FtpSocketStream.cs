@@ -706,14 +706,6 @@ namespace FluentFTP {
 
 			if (m_sslStream != null) {
 				try {
-#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-					if (Client != null && Client.Config.DisconnectWithShutdown) {
-						m_sslStream.ShutdownAsync()
-							.ConfigureAwait(false)
-							.GetAwaiter()
-							.GetResult();
-					}
-#endif
 					m_sslStream.Dispose();
 				}
 				catch (Exception ex) {
