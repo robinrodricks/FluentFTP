@@ -156,7 +156,7 @@ namespace FluentFTP {
 
 		private BufferedStream m_bufStream = null;
 
-		private SslStream m_sslStream = null;
+		private FluentSslLib.FluentSslStream m_sslStream = null;
 
 		/// <summary>
 		/// Gets the underlying stream, could be a NetworkStream or SslStream
@@ -1039,7 +1039,7 @@ namespace FluentFTP {
 				TimeSpan auth_time_total;
 
 				CreateBufferStream(isControlConnection);
-				CreateSSlStream();
+				CreateSslStream();
 
 				auth_start = DateTime.Now;
 				try {
@@ -1070,6 +1070,8 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
 				throw;
 			}
+
+			((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "SslStream: " + m_sslStream.ToString());
 		}
 
 		/// <summary>
@@ -1101,7 +1103,7 @@ namespace FluentFTP {
 				TimeSpan auth_time_total;
 
 				CreateBufferStream(isControlConnection);
-				CreateSSlStream();
+				CreateSslStream();
 
 				auth_start = DateTime.Now;
 				try {
@@ -1138,11 +1140,13 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
 				throw;
 			}
+
+			((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "SslStream: " + m_sslStream.ToString());
 		}
 
-		private void CreateSSlStream() {
+		private void CreateSslStream() {
 
-			m_sslStream = new SslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
+			m_sslStream = new FluentSslLib.FluentSslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
 				delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
 			));
 		}
