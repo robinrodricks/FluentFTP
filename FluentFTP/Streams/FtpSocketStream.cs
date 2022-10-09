@@ -156,7 +156,7 @@ namespace FluentFTP {
 
 		private BufferedStream m_bufStream = null;
 
-		private FluentSslLib.FluentSslStream m_sslStream = null;
+		private FtpSslLib.FtpSslStream m_sslStream = null;
 
 		/// <summary>
 		/// Gets the underlying stream, could be a NetworkStream or SslStream
@@ -747,16 +747,12 @@ namespace FluentFTP {
 				try {
 #if NETSTANDARD
 #if NET5_0_OR_GREATER
-					if (Client != null && Client.Config.DisconnectWithShutdown) {
-						m_socket.Shutdown(SocketShutdown.Send);
-					}
+					m_socket.Shutdown(SocketShutdown.Send);
 #endif
 					m_socket.Dispose();
 #else
 					if (m_socket.Connected) {
-						if (Client != null && Client.Config.DisconnectWithShutdown) {
-							m_socket.Shutdown(SocketShutdown.Send);
-						}
+						m_socket.Shutdown(SocketShutdown.Send);
 						m_socket.Close();
 					}
 #endif
@@ -1099,7 +1095,7 @@ namespace FluentFTP {
 
 				auth_start = DateTime.Now;
 				try {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 					var options = new SslClientAuthenticationOptions() {
 						TargetHost = targethost,
 						ClientCertificates = clientCerts,
@@ -1138,7 +1134,7 @@ namespace FluentFTP {
 
 		private void CreateSslStream() {
 
-			m_sslStream = new FluentSslLib.FluentSslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
+			m_sslStream = new FtpSslLib.FtpSslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
 				delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
 			));
 		}
