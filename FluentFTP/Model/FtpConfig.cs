@@ -171,7 +171,7 @@ namespace FluentFTP {
 		public bool DisconnectWithQuit { get; set; } = true;
 
 		/// <summary>
-		/// Before we disconnect from the server, send the Shutdown signal on the socket stream.
+		/// Deprecated and will be ignored and eventually removed
 		/// </summary>
 		public bool DisconnectWithShutdown { get; set; } = false;
 
