@@ -146,6 +146,8 @@ namespace FluentFTP {
 					}
 				}
 
+				LogWithPrefix(FtpTraceLevel.Verbose, "Downloaded " + offset + " bytes");
+
 				sw.Stop();
 
 				// disconnect FTP stream before exiting
