@@ -13,9 +13,7 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			ServerType = FtpServer.VsFTPd;
 			ServerName = "vsftpd";
 			DockerImage = "vsftpd:fluentftp";
-			DockerImageOriginal = "fauria/vsftpd";
-			DockerGithub = "https://github.com/fauria/docker-vsftpd";
-			//RunCommand = "docker run --rm -it -p 21:21 -p 4559-4564:4559-4564 -e FTP_USER=fluentroot -e FTP_PASSWORD=fluentpass vsftpd:fluentftp";
+			//RunCommand = "docker run --rm -it -p 21:21 -p 21100-21110:21100-21110 vsftpd:fluentftp";
 		}
 
 		/// <summary>
@@ -23,15 +21,9 @@ namespace FluentFTP.Xunit.Docker.Containers {
 		/// </summary>
 		public override ITestcontainersBuilder<TestcontainersContainer> Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 
-			builder = builder.WithPortBinding(20)
-				.WithPortBinding(21);
+			builder = builder.WithPortBinding(20);
 
 			builder = ExposePortRange(builder, 21100, 21110);
-
-			builder = builder
-				.WithEnvironment("PASV_ADDRESS", "127.0.0.1")
-				.WithEnvironment("FTP_USER", DockerFtpConfig.FtpUser)
-				.WithEnvironment("FTP_PASS", DockerFtpConfig.FtpPass);
 
 			return builder;
 		}

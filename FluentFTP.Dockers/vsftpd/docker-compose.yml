@@ -1,14 +1,9 @@
-version: "3"
-
 services:
-
   vsftpd:
     build:
       context: .
-      dockerfile: ./Dockerfile
-      args:
-        USER_ID: 1000
-        GROUP_ID: 1000
+      network: host
+    restart: unless-stopped
     restart: always
     ports:
       - 0.0.0.0:20:20

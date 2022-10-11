@@ -13,9 +13,7 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			ServerType = FtpServer.ProFTPD;
 			ServerName = "proftpd";
 			DockerImage = "proftpd:fluentftp";
-			DockerImageOriginal = "kibatic/proftpd";
-			DockerGithub = "https://github.com/kibatic/docker-proftpd";
-			//RunCommand = "docker run -d --net host -e FTP_LIST=\"fluentroot:fluentpass\" -e MASQUERADE_ADDRESS=1.2.3.4 proftpd:fluentftp";
+			//RunCommand = "docker run -d --net host proftpd:fluentftp";
 		}
 
 		/// <summary>
@@ -23,13 +21,7 @@ namespace FluentFTP.Xunit.Docker.Containers {
 		/// </summary>
 		public override ITestcontainersBuilder<TestcontainersContainer> Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 
-			builder = ExposePortRange(builder, 50000, 50010);
-
-			builder = builder
-				.WithEnvironment("FTP_LIST", DockerFtpConfig.FtpUser + ":" + DockerFtpConfig.FtpPass)
-				.WithEnvironment("PASSIVE_MIN_PORT", "50000")
-				.WithEnvironment("PASSIVE_MAX_PORT", "50010")
-				.WithEnvironment("MASQUERADE_ADDRESS", "127.0.0.1");
+			builder = ExposePortRange(builder, 21100, 21110);
 
 			return builder;
 		}
