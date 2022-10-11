@@ -221,13 +221,13 @@ namespace FluentFTP {
 					}
 				}
 
-				LogWithPrefix(FtpTraceLevel.Verbose, "Uploaded " + upStream.Position + " bytes");
-
 				sw.Stop();
 
 				// wait for transfer to get over
 				while (upStream.Position < upStream.Length) {
 				}
+
+				LogWithPrefix(FtpTraceLevel.Verbose, "Uploaded " + upStream.Position + " bytes");
 
 				// send progress reports
 				progress?.Invoke(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
