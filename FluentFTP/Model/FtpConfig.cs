@@ -171,11 +171,6 @@ namespace FluentFTP {
 		public bool DisconnectWithQuit { get; set; } = true;
 
 		/// <summary>
-		/// Before we disconnect from the server, send the Shutdown signal on the socket stream.
-		/// </summary>
-		public bool DisconnectWithShutdown { get; set; } = false;
-
-		/// <summary>
 		/// Gets or sets the length of time in milliseconds to wait for a connection 
 		/// attempt to succeed before giving up. Default is 15000 (15 seconds).
 		/// </summary>
@@ -548,7 +543,6 @@ namespace FluentFTP {
 			write.NoopInterval = read.NoopInterval;
 			write.DataConnectionType = read.DataConnectionType;
 			write.DisconnectWithQuit = read.DisconnectWithQuit;
-			write.DisconnectWithShutdown = read.DisconnectWithShutdown;
 			write.ConnectTimeout = read.ConnectTimeout;
 			write.ReadTimeout = read.ReadTimeout;
 			write.DataConnectionConnectTimeout = read.DataConnectionConnectTimeout;
