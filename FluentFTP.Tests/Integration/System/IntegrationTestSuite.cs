@@ -39,6 +39,9 @@ namespace FluentFTP.Tests.Integration.System {
 			var client = new FtpClient("localhost", new NetworkCredential(_fixture.GetUsername(), _fixture.GetPassword()));
 			client.Config.EncryptionMode = FtpEncryptionMode.Auto;
 			client.Config.ValidateAnyCertificate = true;
+			client.Config.LogHost = true;
+			client.Config.LogUserName = true;
+			client.Config.LogPassword = true;
 			return client;
 		}
 
@@ -49,6 +52,9 @@ namespace FluentFTP.Tests.Integration.System {
 			var client = GetClient();
 			client.Config.EncryptionMode = FtpEncryptionMode.Auto;
 			client.Config.ValidateAnyCertificate = true;
+			client.Config.LogHost = true;
+			client.Config.LogUserName = true;
+			client.Config.LogPassword = true;
 			client.AutoConnect();
 			return client;
 		}
@@ -60,6 +66,9 @@ namespace FluentFTP.Tests.Integration.System {
 			var client = new AsyncFtpClient("localhost", new NetworkCredential(_fixture.GetUsername(), _fixture.GetPassword()));
 			client.Config.EncryptionMode = FtpEncryptionMode.Auto;
 			client.Config.ValidateAnyCertificate = true;
+			client.Config.LogHost = true;
+			client.Config.LogUserName = true;
+			client.Config.LogPassword = true;
 			return client;
 		}
 
@@ -70,6 +79,9 @@ namespace FluentFTP.Tests.Integration.System {
 			var client = await GetAsyncClient();
 			client.Config.EncryptionMode = FtpEncryptionMode.Auto;
 			client.Config.ValidateAnyCertificate = true;
+			client.Config.LogHost = true;
+			client.Config.LogUserName = true;
+			client.Config.LogPassword = true;
 			await client.AutoConnect();
 			return client;
 		}
