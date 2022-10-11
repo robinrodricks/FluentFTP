@@ -12,8 +12,9 @@ RUN apt install -y \
 	dialog
 
 RUN apt install -y \
-	vsftpd \
-	iproute2
+	openssl \
+	iproute2 \
+	vsftpd
 
 RUN apt remove --purge -y \
 	exim4-base \
@@ -31,9 +32,17 @@ RUN chmod +x /usr/sbin/run-vsftpd.sh
 RUN useradd -m -p savatlcb.1m26 fluentuser
 
 RUN mkdir -p /home/fluentuser/
-RUN chown -R fluentuser:users /home/fluentuser/
+RUN chown -R fluentuser:users /home/fluentuser
 
 RUN mkdir /var/ftp
+
+RUN openssl req -x509 -newkey rsa:4096 \
+           -keyout /etc/ssl/private/vsftpd.key -out /etc/ssl/certs/vsftpd.crt \
+	   -subj "/C=US/ST=State/L=/O=Dev/CN=fluentftp" \
+           -nodes -days 3650
+
+RUN chmod 0600 /etc/ssl/private/vsftpd.key 
+RUN chmod 0640 /etc/ssl/private/vsftpd.key
 
 VOLUME /home/fluentuser
 VOLUME /var/log/vsftpd
