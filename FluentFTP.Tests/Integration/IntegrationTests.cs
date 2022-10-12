@@ -28,6 +28,12 @@ namespace FluentFTP.Tests.Integration {
 			await IntegrationTestRunner.Run(FtpServer.ProFTPD, UseSsl);
 		}
 
+		// These can only do FTP
+		[Fact]
+		public async Task Bftpd() {
+			await IntegrationTestRunner.Run(FtpServer.BFTPd);
+		}
+
 		// Still need SSL variants of these
 		[Fact]
 		public async Task PureFtpd() {
