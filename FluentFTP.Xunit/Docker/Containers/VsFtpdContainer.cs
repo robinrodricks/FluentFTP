@@ -13,7 +13,10 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			ServerType = FtpServer.VsFTPd;
 			ServerName = "vsftpd";
 			DockerImage = "vsftpd:fluentftp";
-			//RunCommand = "docker run --rm -it -p 21:21 -p 21100-21110:21100-21110 vsftpd:fluentftp";
+			//without SSL:
+			// RunCommand = "docker run --rm -it -p 21:21 -p 21100-21110:21100-21110 vsftpd:fluentftp";
+			//with SSL:
+			// RunCommand = "docker run --rm -it -p 21:21 -p 21100-21110:21100-21110 -e USE_SSL=YES vsftpd:fluentftp";
 		}
 
 		/// <summary>
@@ -29,4 +32,5 @@ namespace FluentFTP.Xunit.Docker.Containers {
 		}
 
 	}
+
 }

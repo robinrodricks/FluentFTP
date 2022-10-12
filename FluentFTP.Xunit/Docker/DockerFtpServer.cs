@@ -14,14 +14,17 @@ namespace FluentFTP.Xunit.Docker {
 	public class DockerFtpServer : IDisposable {
 		internal DockerFtpContainer _server;
 		internal TestcontainersContainer _container;
+		internal bool _useSsl;
 
-		public DockerFtpServer(FtpServer serverType) {
+		public DockerFtpServer(FtpServer serverType, bool useSsl) {
 
 			// find the server
 			_server = DockerFtpContainerIndex.Index.FirstOrDefault(s => s.ServerType == serverType);
 			if (_server == null) {
 				throw new ArgumentException("Server type '" + serverType + "' cannot be found! You can contribute support for this server! See https://github.com/robinrodricks/FluentFTP/wiki/Automated-Testing.");
 			}
+
+			_useSsl = useSsl;
 
 			// build and start the container image
 			StartContainer();
@@ -61,7 +64,7 @@ namespace FluentFTP.Xunit.Docker {
 					_container?.DisposeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
 					// build the container image
-					_container = _server.Build();
+					_container = _server.Build(_useSsl);
 
 					// start the container
 					_container.StartAsync().ConfigureAwait(false).GetAwaiter().GetResult();

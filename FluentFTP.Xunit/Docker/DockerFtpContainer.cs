@@ -22,7 +22,7 @@ namespace FluentFTP.Xunit.Docker {
 			return builder;
 		}
 
-		public virtual TestcontainersContainer Build() {
+		public virtual TestcontainersContainer Build(bool useSsl = false) {
 
 			var builder = new TestcontainersBuilder<TestcontainersContainer>()
 				.WithImage(DockerImage)
@@ -32,6 +32,10 @@ namespace FluentFTP.Xunit.Docker {
 			builder = this.Configure(builder);
 
 			builder = builder.WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(21));
+
+			if (useSsl) {
+				builder = builder.WithEnvironment("USE_SSL", "YES");
+			}
 
 			var container = builder.Build();
 
