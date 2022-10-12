@@ -9,10 +9,26 @@ using FluentFTP.Tests.Integration.System;
 namespace FluentFTP.Tests.Integration {
 	public class IntegrationTests {
 
+		private static bool UseSsl = true;
+
+		[Fact]
+		public async Task VsFtpd() {
+			await IntegrationTestRunner.Run(FtpServer.VsFTPd);
+		}
+		[Fact]
+		public async Task VsFtpdSsl() {
+			await IntegrationTestRunner.Run(FtpServer.VsFTPd, UseSsl);
+		}
 		[Fact]
 		public async Task ProFtpd() {
 			await IntegrationTestRunner.Run(FtpServer.ProFTPD);
 		}
+		[Fact]
+		public async Task ProFtpdSsl() {
+			await IntegrationTestRunner.Run(FtpServer.ProFTPD, UseSsl);
+		}
+
+		// Still need SSL variants of these
 		[Fact]
 		public async Task PureFtpd() {
 			await IntegrationTestRunner.Run(FtpServer.PureFTPd);
@@ -20,10 +36,6 @@ namespace FluentFTP.Tests.Integration {
 		[Fact]
 		public async Task PyFtpdLib() {
 			await IntegrationTestRunner.Run(FtpServer.PyFtpdLib);
-		}
-		[Fact]
-		public async Task VsFtpd() {
-			await IntegrationTestRunner.Run(FtpServer.VsFTPd);
 		}
 
 	}

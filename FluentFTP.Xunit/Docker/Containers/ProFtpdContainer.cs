@@ -13,13 +13,18 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			ServerType = FtpServer.ProFTPD;
 			ServerName = "proftpd";
 			DockerImage = "proftpd:fluentftp";
-			//RunCommand = "docker run -d --net host proftpd:fluentftp";
+			//without SSL:
+			// RunCommand = "docker run -d --net host proftpd:fluentftp";
+			//with SSL:
+			// RunCommand = "docker run -d --net host -e USE_SSL=YES proftpd:fluentftp";
 		}
 
 		/// <summary>
 		/// For help creating this section see https://github.com/testcontainers/testcontainers-dotnet#supported-commands
 		/// </summary>
 		public override ITestcontainersBuilder<TestcontainersContainer> Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
+
+			builder = builder.WithPortBinding(20);
 
 			builder = ExposePortRange(builder, 21100, 21110);
 

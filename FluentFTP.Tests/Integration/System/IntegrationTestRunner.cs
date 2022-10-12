@@ -10,7 +10,7 @@ using Xunit;
 namespace FluentFTP.Tests.Integration.System {
 	internal static class IntegrationTestRunner {
 
-		public static async Task Run(FtpServer serverType) {
+		public static async Task Run(FtpServer serverType, bool useSsl = false) {
 
 			// If we are in CI pipeline
 			if (DockerFtpConfig.IsCI) {
@@ -20,7 +20,7 @@ namespace FluentFTP.Tests.Integration.System {
 			}
 
 			// spin up a new docker
-			using var server = new DockerFtpServer(serverType);
+			using var server = new DockerFtpServer(serverType, useSsl);
 
 			try {
 
