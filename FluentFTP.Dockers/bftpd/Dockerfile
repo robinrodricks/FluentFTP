@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:bullseye AS build
 
 MAINTAINER FluentFTP
 LABEL Description="FluentFTP vsftpd docker image based on Debian Bullseye."
@@ -39,6 +39,25 @@ RUN apt remove --purge -y \
 	wget
 
 RUN apt autoremove -y
+
+FROM debian:bullseye AS production
+
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+
+RUN apt -y update && apt clean all
+
+RUN apt install -y \
+	apt-utils \
+	dialog
+
+RUN apt install -y \
+	iproute2
+
+RUN apt remove --purge -y \
+	exim4-base \
+	mariadb-common
+
+COPY --from=build /usr/sbin/bftpd /usr/sbin
 
 COPY bftpd.conf /usr/etc/
 RUN sed -i -e "s/\r//" /usr/etc/bftpd.conf
