@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM debian:bullseye-slim
 
 MAINTAINER FluentFTP
 LABEL Description="FluentFTP vsftpd docker image based on Debian Bullseye."
