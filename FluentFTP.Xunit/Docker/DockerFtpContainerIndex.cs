@@ -12,7 +12,8 @@ namespace FluentFTP.Xunit.Docker {
 			new ProFtpdContainer(),
 			new PureFtpdContainer(),
 			new PyFtpdLibContainer(),
-			new VsFtpdContainer()
+			new VsFtpdContainer(),
+			new BFtpdContainer()
 		};
 	}
 }

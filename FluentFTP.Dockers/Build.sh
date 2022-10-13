@@ -6,3 +6,5 @@ sudo docker build pureftpd -t pureftpd:fluentftp
 sudo docker build vsftpd -t vsftpd:fluentftp
 
 sudo docker build pyftpdlib -t pyftpdlib:fluentftp
+
+sudo docker build bftpd -t bftpd:fluentftp

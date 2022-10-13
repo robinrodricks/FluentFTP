@@ -1,0 +1,14 @@
+services:
+  bftpd:
+    build:
+      context: .
+      network: host
+    restart: unless-stopped
+    restart: always
+    ports:
+      - 0.0.0.0:20:20
+      - 0.0.0.0:21:21
+      - 21100-21199:21100-21199
+    volumes:
+      - ./home:/home/bftpd
+      - ./logs:/var/log/bftpd
