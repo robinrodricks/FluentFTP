@@ -9,4 +9,6 @@ docker build pyftpdlib -t pyftpdlib:fluentftp
 
 docker build bftpd -t bftpd:fluentftp
 
+docker build glftpd -t glftpd:fluentftp
+
 pause
