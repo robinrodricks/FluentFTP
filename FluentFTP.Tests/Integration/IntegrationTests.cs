@@ -11,6 +11,7 @@ namespace FluentFTP.Tests.Integration {
 
 		private static bool UseSsl = true;
 
+		// These can do both FTP and FTPS
 		[Fact]
 		public async Task VsFtpd() {
 			await IntegrationTestRunner.Run(FtpServer.VsFTPd);
@@ -26,6 +27,12 @@ namespace FluentFTP.Tests.Integration {
 		[Fact]
 		public async Task ProFtpdSsl() {
 			await IntegrationTestRunner.Run(FtpServer.ProFTPD, UseSsl);
+		}
+
+		// These can only do FTPS
+		[Fact]
+		public async Task Glftpd() {
+			await IntegrationTestRunner.Run(FtpServer.glFTPd);
 		}
 
 		// These can only do FTP
