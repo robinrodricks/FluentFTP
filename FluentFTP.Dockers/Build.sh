@@ -8,3 +8,5 @@ sudo docker build vsftpd -t vsftpd:fluentftp
 sudo docker build pyftpdlib -t pyftpdlib:fluentftp
 
 sudo docker build bftpd -t bftpd:fluentftp
+
+sudo docker build glftpd -t glftpd:fluentftp
