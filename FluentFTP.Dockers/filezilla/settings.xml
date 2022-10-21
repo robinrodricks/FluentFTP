@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<filezilla xmlns:fz="https://filezilla-project.org/" xmlns="https://filezilla-project.org/" fz:product_flavour="standard" fz:product_version="1.5.1">
+        <!--The server's locale. By default, the one defined by the appropriate environment variables is used.-->
+        <locale></locale>
+        <!--Logging options.-->
+        <logger>
+                <!--The name of the log file. If empty, the log goes to stderr.-->
+                <name></name>
+                <!--The maximum number of files to be used for the log rotation. Default is 0, meaning no rotation happens.-->
+                <max_amount_of_rotated_files>0</max_amount_of_rotated_files>
+                <!--The maximum size each log file can reach before being closed and a new one being opened. Only meaningful if max_amount_of_rotated_files > 0.-->
+                <max_file_size>9223372036854775807</max_file_size>
+                <!--Which types of logs must be enabled. Defaults to error|status|reply|command . See <libfilezilla/logger.hpp> for the values of the various types.-->
+                <enabled_types>15</enabled_types>
+                <!--Criteria used to rotate files. Currently: size-based (0) or daily rotation (1).-->
+                <rotation_type>0</rotation_type>
+                <!--Include headers for each line of logging (date&time and possibly others). Set it to false if you have your own way of tagging log lines. Default is true.-->
+                <include_headers>true</include_headers>
+        </logger>
+        <!--Settings common to all file transfer protocols-->
+        <all_protocols>
+                <!--Autobanner options-->
+                <autobanner>
+                        <!--The duration, in milliseconds, of the IP ban.-->
+                        <ban_duration>300000</ban_duration>
+                        <!--The duration, in milliseconds, during which the number of failed login attempts is monitored.-->
+                        <login_failure_time_window>100</login_failure_time_window>
+                        <!--The number of login attempts that are allowed to fail, within the time window specified by the parameter [login_failures_time_window]. The value 0 disables this mechanism.-->
+                        <login_failure_time_window>0</login_failure_time_window>
+                </autobanner>
+                <!--Performance options.-->
+                <performance>
+                        <!--Number of threads to distribute sessions to.-->
+                        <number_of_session_threads>0</number_of_session_threads>
+                        <!--Size of receving data socket buffer. Numbers < 0 mean use system defaults. Defaults to -1.-->
+                        <receive_buffer_size>-1</receive_buffer_size>
+                        <!--Size of sending data socket buffer. Numbers < 0 mean use system defaults. Defaults to -1.-->
+                        <send_buffer_size>-1</send_buffer_size>
+                </performance>
+                <!--Timeout options.-->
+                <timeouts>
+                        <!--Login timeout (fz::duration)-->
+                        <login_timeout>60000</login_timeout>
+                        <!--Activity timeout (fz::duration).-->
+                        <activity_timeout>3600000</activity_timeout>
+                </timeouts>
+        </all_protocols>
+        <!--FTP Server options-->
+        <ftp_server>
+                <!--List of addresses and ports the FTP server will listen on.-->
+                <listener>
+                        <address>0.0.0.0</address>
+                        <port>21</port>
+                        <tls_mode>0</tls_mode>
+                </listener>
+                <listener>
+                        <address>::</address>
+                        <port>21</port>
+                        <tls_mode>0</tls_mode>
+                </listener>
+                <!--Session-related options.-->
+                <session>
+                        <!--PASV settings-->
+                        <pasv>
+                        <!--IPV4 IP or name host that overrides the local address when PASV is used. Leave empty to not perform the override-->
+                            <host_override>localhost</host_override>
+                            <!--If set to true, then the host is not overriden for local connections.-->
+                            <do_not_override_host_if_peer_is_local>true</do_not_override_host_if_peer_is_local>
+                            <!--Port range to be used for PASV connections-->
+                            <port_range>
+                                <!--Maximum value for the port range to be used for PASV connections-->
+                                <min>21100</min>
+                                <!--Maximum value for the port range to be used for PASV connections-->
+                                <max>21199</max>
+                            </port_range>
+                        </pasv>
+						<!--TLS certificate data.-->
+						<tls min_protocol_version="2" index="1">
+							<!--Path to the private key in PEM format.-->
+							<keyfile></keyfile>
+							<!--Path to the certificates file in PEM format.-->
+							<certsfile></certsfile>
+							<!--Password to decrypt private key. *DO NOT USE FOR NEWLY CREATED CERTIFICATES* *ONLY USE WHEN IMPORTING OLD SERVER CONFIG*-->
+							<password></password>
+						</tls>
+                </session>
+                <!--Additional welcome message.-->
+                <welcome_message has_version="true"></welcome_message>
+        </ftp_server>
+        <!--Administration options.-->
+        <admin>
+                <local_port></local_port>
+                <password index="0" />
+        </admin>
+        <!--ACME (Let's Encrypt and the like) settings.-->
+        <acme>
+                <account_id></account_id>
+                <how_to_serve_challenges index="0" />
+        </acme>
+</filezilla>

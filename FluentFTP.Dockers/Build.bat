@@ -11,4 +11,6 @@ docker build bftpd -t bftpd:fluentftp
 
 docker build glftpd -t glftpd:fluentftp
 
+docker build filezilla -t filezilla:fluentftp
+
 pause
