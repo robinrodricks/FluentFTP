@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<filezilla xmlns:fz="https://filezilla-project.org/" xmlns="https://filezilla-project.org/" fz:product_flavour="standard" fz:product_version="1.5.1">
+	<default_impersonator index="0" enabled="false">
+		<name></name>
+		<password></password>
+	</default_impersonator>
+	<user name="&lt;system user>" enabled="false">
+		<mount_point tvfs_path="/" native_path=":h" access="1" recursive="2" />
+		<rate_limits inbound="5120" outbound="5120" session_inbound="unlimited" session_outbound="unlimited" />
+		<allowed_ips></allowed_ips>
+		<disallowed_ips></disallowed_ips>
+		<description>This user can impersonate any system user.</description>
+		<impersonation login_only="false" />
+	</user>
+	<user name="fluentuser" enabled="true">
+		<mount_point tvfs_path="/" native_path="/home/fluentuser" access="1" recursive="2" />
+		<rate_limits inbound="unlimited" outbound="unlimited" session_inbound="unlimited" session_outbound="unlimited" />
+		<allowed_ips></allowed_ips>
+		<disallowed_ips></disallowed_ips>
+		<description></description>
+		<password index="1">
+			<hash>l9jcg8P68htZEZF7iIy6GhrbS8HLFGSikYzaUAnHo5E</hash>
+			<salt>oFoJsx+xI6ZIEg9dc7fJUnLqjHWklAi2QcuHe5QVhTE</salt>
+			<iterations>100000</iterations>
+		</password>
+	</user>
+</filezilla>
