@@ -29,7 +29,7 @@ COPY	proftpd.conf /etc/proftpd/
 COPY	modules.conf /etc/proftpd/
 COPY	tls.conf /etc/proftpd/
 
-RUN	sed	-i -e "s/\r//" /etc/proftpd/proftpd.conf && \
+RUN	sed -i -e "s/\r//" /etc/proftpd/proftpd.conf && \
 	sed -i -e "s/\r//" /etc/proftpd/modules.conf && \
 	sed -i -e "s/\r//" /etc/proftpd/tls.conf && \
 	sed -i -e "s/\r//" /usr/sbin/run-proftpd.sh && \
