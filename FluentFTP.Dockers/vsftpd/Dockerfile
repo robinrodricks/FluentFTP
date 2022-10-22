@@ -56,7 +56,8 @@ COPY	vsftpd.conf /etc/
 COPY	run-vsftpd.sh /usr/sbin/
 
 RUN	sed -i -e "s/\r//" /usr/sbin/run-vsftpd.sh && \
-	sed -i -e "s/\r//" /etc/vsftpd.conf
+	sed -i -e "s/\r//" /etc/vsftpd.conf && \
+	mkdir /var/ftp
 
 WORKDIR	/
 RUN	sed -i -e "s/\r//" /etc/vsftpd.conf && \
