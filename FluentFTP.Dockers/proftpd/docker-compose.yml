@@ -9,7 +9,7 @@ services:
     ports:
 	- 0.0.0.0:20:20
 	- 0.0.0.0:21:21
-	- 21100-21110:21100-21110
+	- 21100-21199:21100-21199
     volumes:
 	- ./home:/home/proftpd
 	- ./logs:/var/log/proftpd

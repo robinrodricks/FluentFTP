@@ -14,9 +14,9 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			ServerName = "vsftpd";
 			DockerImage = "vsftpd:fluentftp";
 			//without SSL:
-			// RunCommand = "docker run --rm -it -p 21:21 -p 21100-21110:21100-21110 vsftpd:fluentftp";
+			// RunCommand = "docker run --rm -it -p 21:21 -p 21100-21199:21100-21199 vsftpd:fluentftp";
 			//with SSL:
-			// RunCommand = "docker run --rm -it -p 21:21 -p 21100-21110:21100-21110 -e USE_SSL=YES vsftpd:fluentftp";
+			// RunCommand = "docker run --rm -it -p 21:21 -p 21100-21199:21100-21199 -e USE_SSL=YES vsftpd:fluentftp";
 		}
 
 		/// <summary>
@@ -26,7 +26,7 @@ namespace FluentFTP.Xunit.Docker.Containers {
 
 			builder = builder.WithPortBinding(20);
 
-			builder = ExposePortRange(builder, 21100, 21110);
+			builder = ExposePortRange(builder, 21100, 21199);
 
 			return builder;
 		}

@@ -26,7 +26,7 @@ namespace FluentFTP.Xunit.Docker.Containers {
 
 			builder = builder.WithPortBinding(20);
 
-			builder = ExposePortRange(builder, 21100, 21110);
+			builder = ExposePortRange(builder, 21100, 21199);
 
 			return builder;
 		}
