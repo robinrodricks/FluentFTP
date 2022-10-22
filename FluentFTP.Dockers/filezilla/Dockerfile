@@ -1,4 +1,8 @@
 #
+# FluentFTP Integration Test Server: filezilla-server
+#
+
+#
 # Stage 1: build
 #
 
@@ -102,6 +106,8 @@ RUN	openssl ecparam -name prime256v1 -genkey -noout -out key.pem && \
 
 FROM	debian:bullseye-slim AS production
 
+LABEL	Description="FluentFTP filezilla-server docker image based on Debian Bullseye."
+
 SHELL   ["/bin/bash", "-c"]
 
 ARG	DEBIAN_FRONTEND=noninteractive
@@ -110,19 +116,21 @@ ARG	APT_CMD='apt install -y --no-install-recommends'
 WORKDIR	/
 RUN	apt update && apt upgrade -y && apt install -y apt-utils
 
+COPY	run-filezilla.sh /usr/sbin/
+
 #
 # Bring in settings.xml (PASV port ranges, certificate refs),
 # and users.xml (contains fluentuser and his password)
 #
 COPY	--from=build /usr/local/bin /usr/local/bin
 
-COPY    --from=build /tmp/filezilla/cert.pem /root/cert.pem
-COPY    --from=build /tmp/filezilla/key.pem /root/key.pem
-
-WORKDIR /root/.config/filezilla-server
+COPY	--from=build /tmp/filezilla/cert.pem /root/cert.pem
+COPY	--from=build /tmp/filezilla/key.pem /root/key.pem
 
 COPY	settings.xml /root/.config/filezilla-server/settings.xml
 COPY	users.xml /root/.config/filezilla-server/users.xml
+
+WORKDIR	/root/.config/filezilla-server
 
 RUN	sed -i "s/<keyfile><\/keyfile>/<keyfile>\/root\/key.pem<\/keyfile>/" /root/.config/filezilla-server/settings.xml && \
 	sed -i "s/<certsfile><\/certsfile>/<certsfile>\/root\/cert.pem<\/certsfile>/" /root/.config/filezilla-server/settings.xml && \
@@ -133,10 +141,7 @@ RUN	sed -i "s/<keyfile><\/keyfile>/<keyfile>\/root\/key.pem<\/keyfile>/" /root/.
 	touch disallowed_ips.xml && \
 	touch groups.xml
 
-WORKDIR /
-
-COPY	run-filezilla.sh /usr/sbin/
-
+WORKDIR	/
 RUN	sed -i -e "s/\r//" /usr/sbin/run-filezilla.sh && \
 	chmod +x /usr/sbin/run-filezilla.sh && \
 	\

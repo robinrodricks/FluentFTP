@@ -1,52 +1,55 @@
-FROM debian:bullseye-slim
+#
+# FluentFTP Integration Test Server: vsftpd
+#
 
-MAINTAINER FluentFTP
-LABEL Description="FluentFTP vsftpd docker image based on Debian Bullseye."
+#
+# Stage 1: build & production
+#
 
-RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+FROM	debian:bullseye-slim AS build
 
-RUN apt -y update && apt clean all
+LABEL	Description="FluentFTP vsftpd docker image based on Debian Bullseye."
 
-RUN apt install -y \
-	apt-utils \
-	dialog
+SHELL	["/bin/bash", "-c"]
 
-RUN apt install -y \
-	openssl \
-	iproute2 \
-	vsftpd
+ARG	DEBIAN_FRONTEND=noninteractive
+ARG	APT_CMD='apt install -y --no-install-recommends'
 
-RUN apt remove --purge -y \
-	exim4-base \
-	mariadb-common
+WORKDIR	/
+RUN	apt update && apt upgrade -y && apt install -y apt-utils && \
+		\
+		$APT_CMD \
+		openssl \
+		vsftpd
 
-RUN apt autoremove -y
+COPY	vsftpd.conf /etc/
 
-COPY vsftpd.conf /etc/
-RUN sed -i -e "s/\r//" /etc/vsftpd.conf
-COPY run-vsftpd.sh /usr/sbin/
-RUN sed -i -e "s/\r//" /usr/sbin/run-vsftpd.sh
+COPY	run-vsftpd.sh /usr/sbin/
 
-RUN chmod +x /usr/sbin/run-vsftpd.sh
+RUN	sed -i -e "s/\r//" /usr/sbin/run-vsftpd.sh && \
+	sed -i -e "s/\r//" /etc/vsftpd.conf
 
-RUN useradd -m -p savatlcb.1m26 fluentuser
+WORKDIR	/
+RUN	sed -i -e "s/\r//" /usr/etc/vsftpd.conf && \
+	sed -i -e "s/\r//" /usr/sbin/run-vsftpd.sh && \
+	chmod +x /usr/sbin/run-vsftpd.sh && \
+	\
+	useradd -m -p savatlcb.1m26 fluentuser && \
+	\
+	mkdir -p /home/fluentuser/ && \
+	chown -R fluentuser:users /home/fluentuser && \
+	\
+	openssl req -x509 -newkey rsa:4096 \
+		-keyout /etc/ssl/private/vsftpd.key -out /etc/ssl/certs/vsftpd.crt \
+		-subj "/C=US/ST=State/L=/O=Dev/CN=fluentftp" \
+		-nodes -days 3650 && \
+	\
+	chmod 0600 /etc/ssl/private/vsftpd.key && \
+	chmod 0640 /etc/ssl/private/vsftpd.key
 
-RUN mkdir -p /home/fluentuser/
-RUN chown -R fluentuser:users /home/fluentuser
+VOLUME	/home/fluentuser
+VOLUME	/var/log/vsftpd
 
-RUN mkdir /var/ftp
+EXPOSE	20 21
 
-RUN openssl req -x509 -newkey rsa:4096 \
-           -keyout /etc/ssl/private/vsftpd.key -out /etc/ssl/certs/vsftpd.crt \
-	   -subj "/C=US/ST=State/L=/O=Dev/CN=fluentftp" \
-           -nodes -days 3650
-
-RUN chmod 0600 /etc/ssl/private/vsftpd.key 
-RUN chmod 0640 /etc/ssl/private/vsftpd.key
-
-VOLUME /home/fluentuser
-VOLUME /var/log/vsftpd
-
-EXPOSE 20 21
-
-CMD ["/usr/sbin/run-vsftpd.sh"]
+CMD	["/usr/sbin/run-vsftpd.sh"]
