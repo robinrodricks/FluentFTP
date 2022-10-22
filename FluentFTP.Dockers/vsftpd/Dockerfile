@@ -2,6 +2,16 @@
 # FluentFTP Integration Test Server: vsftpd
 #
 
+FROM	python:3-slim AS prebuild
+
+SHELL	["/bin/bash", "-c"]
+
+WORKDIR	/usr/src/app
+RUN	pip install --user apt-smart
+
+WORKDIR	/root
+RUN	python3 /root/.local/bin/apt-smart -b > deb_mirror
+
 #
 # Stage 1: build & production
 #
@@ -14,6 +24,25 @@ SHELL	["/bin/bash", "-c"]
 
 ARG	DEBIAN_FRONTEND=noninteractive
 ARG	APT_CMD='apt install -y --no-install-recommends'
+
+COPY	--from=prebuild /root/deb_mirror /root/deb_mirror
+
+WORKDIR	/
+RUN	mapfile -t lines < /root/deb_mirror && \
+	DEB_MIRROR=${lines[0]} && \
+	echo $DEB_MIRROR && \
+	\
+	printf "\
+	deb $DEB_MIRROR bullseye main\n\
+#	deb-src $DEB_MIRROR bullseye main\n\
+	\n\
+	deb http://deb.debian.org/debian-security bullseye-security main contrib\n\
+#	deb-src http://deb.debian.org/debian-security bullseye-security main contrib\n\
+	\n\
+	# bullseye-updates, previously known as 'volatile'\n\
+	deb $DEB_MIRROR bullseye-updates main\n\
+#	deb-src $DEB_MIRROR bullseye-updates main\n\
+	" > /etc/apt/sources.list
 
 WORKDIR	/
 RUN	apt update && apt upgrade -y && apt install -y apt-utils && \
@@ -30,7 +59,7 @@ RUN	sed -i -e "s/\r//" /usr/sbin/run-vsftpd.sh && \
 	sed -i -e "s/\r//" /etc/vsftpd.conf
 
 WORKDIR	/
-RUN	sed -i -e "s/\r//" /usr/etc/vsftpd.conf && \
+RUN	sed -i -e "s/\r//" /etc/vsftpd.conf && \
 	sed -i -e "s/\r//" /usr/sbin/run-vsftpd.sh && \
 	chmod +x /usr/sbin/run-vsftpd.sh && \
 	\
@@ -47,8 +76,7 @@ RUN	sed -i -e "s/\r//" /usr/etc/vsftpd.conf && \
 	chmod 0600 /etc/ssl/private/vsftpd.key && \
 	chmod 0640 /etc/ssl/private/vsftpd.key
 
-VOLUME	/home/fluentuser
-VOLUME	/var/log/vsftpd
+VOLUME	["/home/fluentuser", "/var/log/vsftpd"]
 
 EXPOSE	20 21
 
