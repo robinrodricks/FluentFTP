@@ -28,6 +28,14 @@ namespace FluentFTP.Tests.Integration {
 		public async Task ProFtpdSsl() {
 			await IntegrationTestRunner.Run(FtpServer.ProFTPD, UseSsl);
 		}
+		[Fact]
+		public async Task PureFtpd() {
+			await IntegrationTestRunner.Run(FtpServer.PureFTPd);
+		}
+		[Fact]
+		public async Task PureFtpdSsl() {
+			await IntegrationTestRunner.Run(FtpServer.PureFTPd, UseSsl);
+		}
 
 		// These can only do FTPS
 		[Fact]
@@ -47,10 +55,6 @@ namespace FluentFTP.Tests.Integration {
 		}
 
 		// Still need SSL variants of these
-		[Fact]
-		public async Task PureFtpd() {
-			await IntegrationTestRunner.Run(FtpServer.PureFTPd);
-		}
 		[Fact]
 		public async Task PyFtpdLib() {
 			await IntegrationTestRunner.Run(FtpServer.PyFtpdLib);
