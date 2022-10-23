@@ -1,5 +1,32 @@
 # Release Notes
 
+#### 42.0.0
+ - Please read the [Migration Guide](https://github.com/robinrodricks/FluentFTP/wiki/v40-Migration-Guide) for help migrating to the new version!
+ - **API**
+   - New: `LastReplies` property to fetch a list of the last 5 server replies (thanks [FanDjango](/FanDjango))
+   - Removed: `Config.DisconnectWithShutdown` as it was not required (thanks [FanDjango](/FanDjango))
+   - Removed: `FtpListOption.NoImage` as it was not required (thanks [FanDjango](/FanDjango))
+   - Removed: Privatize `CurrentDataType` and remove `ForceSetDataType` (thanks [FanDjango](/FanDjango))
+ - **FTP**
+   - New: SslStream wrapper to send TLS close notifications for .NET and .NET Core (thanks [FanDjango](/FanDjango))
+   - Change: SSL Closure Alert is now always sent when a stream is terminated (thanks [FanDjango](/FanDjango))
+   - Change: Make SSL Shutdown independant of `Config.DisconnectWithShutdown` (thanks [FanDjango](/FanDjango))
+   - Change: `GetReply` redesign: New mode to exhaustively read all `NOOP` replies (thanks [FanDjango](/FanDjango))
+ - **Logging**
+   - New: Verbose file sizes logged during file upload/download (thanks [FanDjango](/FanDjango))
+   - New: FluentFTP version logged after connection (thanks [FanDjango](/FanDjango))
+   - New: `GetReply` redesign: Verbose logging for `NOOP` commands (thanks [FanDjango](/FanDjango))
+ - **Z/OS**
+   - New: IBM OS/400: Support blanks in filename and add unit test cases (thanks [FanDjango](/FanDjango))
+ - **Tests**
+   - New: Support for Bftpd integration test server (thanks [FanDjango](/FanDjango))
+   - New: Support for ProFTPD integration test server (thanks [FanDjango](/FanDjango))
+   - New: Support for glFTPd integration test server (thanks [FanDjango](/FanDjango))
+   - New: Support for FileZilla integration test server (thanks [FanDjango](/FanDjango))
+   - New: Redesigned VsFTPd integration test server (thanks [FanDjango](/FanDjango))
+   - New: Ability to run test server containers as FTP or FTPS servers (thanks [FanDjango](/FanDjango))
+   - Fix: Cleanup and improve all Dockerfiles and significantly reduce image size (thanks [FanDjango](/FanDjango))
+
 #### 41.0.0
  - Please read the [Migration Guide](https://github.com/robinrodricks/FluentFTP/wiki/v40-Migration-Guide) for help migrating to the new version!
  - **API**
