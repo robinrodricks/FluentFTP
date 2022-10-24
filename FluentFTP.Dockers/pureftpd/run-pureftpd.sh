@@ -20,5 +20,5 @@ else
   TLS=0
 fi
 
-# Run pureftpd:              
+# Run pureftpd:
 &>/dev/null /usr/sbin/pure-ftpd -A -E -j -R -l unix -p 21100:21199 --tls $TLS
