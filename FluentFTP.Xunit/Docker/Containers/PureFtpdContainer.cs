@@ -13,9 +13,10 @@ namespace FluentFTP.Xunit.Docker.Containers {
 			ServerType = FtpServer.PureFTPd;
 			ServerName = "pureftpd";
 			DockerImage = "pureftpd:fluentftp";
-			DockerImageOriginal = "stilliard/pure-ftpd";
-			DockerGithub = "https://github.com/stilliard/docker-pure-ftpd";
-			//RunCommand = "docker run -d --name ftpd_server -p 21:21 -p 30000-30009:30000-30009 -e \"PUBLICHOST=localhost\" -e \"FTP_USER_NAME=fluentroot\" -e \"FTP_USER_PASS=fluentpass\" pureftpd:fluentftp";
+			//without SSL:
+			// RunCommand = "docker run --rm -it -p 21:21 -p 21100-21199:21100-21199 pureftpd:fluentftp";
+			//with SSL:
+			// RunCommand = "docker run --rm -it -p 21:21 -p 21100-21199:21100-21199 -e USE_SSL=YES pureftpd:fluentftp";
 		}
 
 		/// <summary>
@@ -24,12 +25,15 @@ namespace FluentFTP.Xunit.Docker.Containers {
 
 		public override ITestcontainersBuilder<TestcontainersContainer> Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 
-			builder = ExposePortRange(builder, 30000, 30009);
+			builder = builder.WithPortBinding(20);
 
-			builder = builder
-				.WithEnvironment("FTP_USER_NAME", DockerFtpConfig.FtpUser)
-				.WithEnvironment("FTP_USER_PASS", DockerFtpConfig.FtpPass)
-				.WithEnvironment("FTP_USER_HOME", "/home/bob");
+			builder = ExposePortRange(builder, 21100, 21199);
+
+			builder = builder.WithCreateContainerParametersModifier(x => {
+				x.HostConfig.CapAdd = new List<string> {
+					"ALL"
+				};
+			});
 
 			return builder;
 		}
