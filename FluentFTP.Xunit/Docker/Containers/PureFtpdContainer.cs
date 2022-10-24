@@ -31,7 +31,8 @@ namespace FluentFTP.Xunit.Docker.Containers {
 
 			builder = builder.WithCreateContainerParametersModifier(x => {
 				x.HostConfig.CapAdd = new List<string> {
-					"ALL"
+					"SYS_NICE",
+					"DAC_READ_SEARCH"
 				};
 			});
 
