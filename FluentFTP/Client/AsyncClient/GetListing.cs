@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using FluentFTP.Client.Modules;
+using System.Security.Authentication;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -296,35 +297,41 @@ namespace FluentFTP {
 				else {
 
 					// read in raw file listing from data stream
-					using (FtpDataStream stream = await OpenDataStreamAsync(listcmd, 0, token)) {
-						try {
-							Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
+					try {
+						using (FtpDataStream stream = await OpenDataStreamAsync(listcmd, 0, token)) {
+							try {
+								Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
-							if (Config.BulkListing) {
-								// increases performance of GetListing by reading multiple lines of the file listing at once
-								foreach (var line in await stream.ReadAllLinesAsync(Encoding, Config.BulkListingLength, token)) {
-									if (!Strings.IsNullOrWhiteSpace(line)) {
-										rawlisting.Add(line);
-										Log(FtpTraceLevel.Verbose, "Listing:  " + line);
+								if (Config.BulkListing) {
+									// increases performance of GetListing by reading multiple lines of the file listing at once
+									foreach (var line in await stream.ReadAllLinesAsync(Encoding, Config.BulkListingLength, token)) {
+										if (!Strings.IsNullOrWhiteSpace(line)) {
+											rawlisting.Add(line);
+											Log(FtpTraceLevel.Verbose, "Listing:  " + line);
+										}
 									}
 								}
-							}
-							else {
-								// GetListing will read file listings line-by-line (actually byte-by-byte)
-								string buf;
-								while ((buf = await stream.ReadLineAsync(Encoding, token)) != null) {
-									if (buf.Length > 0) {
-										rawlisting.Add(buf);
-										Log(FtpTraceLevel.Verbose, "Listing:  " + buf);
+								else {
+									// GetListing will read file listings line-by-line (actually byte-by-byte)
+									string buf;
+									while ((buf = await stream.ReadLineAsync(Encoding, token)) != null) {
+										if (buf.Length > 0) {
+											rawlisting.Add(buf);
+											Log(FtpTraceLevel.Verbose, "Listing:  " + buf);
+										}
 									}
 								}
-							}
 
-							Log(FtpTraceLevel.Verbose, "-----------------------------------------");
+								Log(FtpTraceLevel.Verbose, "-----------------------------------------");
+							}
+							finally {
+								stream.Close();
+							}
 						}
-						finally {
-							stream.Close();
-						}
+					}
+					catch (AuthenticationException ex) {
+						ReadStaleDataAsync(true, true, "after GetListing", token);
+						throw;
 					}
 				}
 			}

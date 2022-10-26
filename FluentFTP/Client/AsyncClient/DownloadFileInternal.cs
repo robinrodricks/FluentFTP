@@ -10,6 +10,7 @@ using FluentFTP.Client.Modules;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP.Proxy.AsyncProxy;
+using System.Security.Authentication;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -181,6 +182,10 @@ namespace FluentFTP {
 				}
 
 				return true;
+			}
+			catch (AuthenticationException) {
+				ReadStaleData(true, true, "before Download, from failed TLS authentication");
+				throw;
 			}
 			catch (Exception ex1) {
 

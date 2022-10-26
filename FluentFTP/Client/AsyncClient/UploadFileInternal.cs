@@ -8,6 +8,7 @@ using FluentFTP.Helpers;
 using FluentFTP.Exceptions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Security.Authentication;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -255,6 +256,10 @@ namespace FluentFTP {
 				}
 
 				return FtpStatus.Success;
+			}
+			catch (AuthenticationException) {
+				ReadStaleData(true, true, "before Upload, from failed TLS authentication");
+				throw;
 			}
 			catch (Exception ex1) {
 				// close stream before throwing error

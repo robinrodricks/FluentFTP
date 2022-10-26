@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using FluentFTP.Client.Modules;
+using System.Security.Authentication;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -51,6 +52,10 @@ namespace FluentFTP {
 					}
 					Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 				}
+			}
+			catch (AuthenticationException ex) {
+				ReadStaleDataAsync(true, true, "after GetNameListing", token);
+				throw;
 			}
 			catch (FtpMissingSocketException) {
 				// Some FTP server does not send any response when listing an empty directory
