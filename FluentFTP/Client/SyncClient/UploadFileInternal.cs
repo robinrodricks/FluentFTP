@@ -8,6 +8,7 @@ using FluentFTP.Helpers;
 using FluentFTP.Exceptions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Security.Authentication;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -246,6 +247,13 @@ namespace FluentFTP {
 				}
 
 				return FtpStatus.Success;
+			}
+			catch (AuthenticationException ex) {
+				FtpReply reply = GetReplyInternal("*UPLOAD*", false, -1); // no exhaustNoop, but non-blocking
+				if (!reply.Success) {
+					throw new FtpCommandException(reply);
+				}
+				throw;
 			}
 			catch (Exception ex1) {
 				// close stream before throwing error
