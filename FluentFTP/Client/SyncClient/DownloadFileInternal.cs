@@ -10,6 +10,7 @@ using FluentFTP.Client.Modules;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP.Proxy.SyncProxy;
+using System.Security.Authentication;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -174,6 +175,13 @@ namespace FluentFTP {
 				}
 
 				return true;
+			}
+			catch (AuthenticationException ex) {
+				FtpReply reply = GetReplyInternal("*DOWNLOAD*", false, -1); // no exhaustNoop, but non-blocking
+				if (!reply.Success) {
+					throw new FtpCommandException(reply);
+				}
+				throw;
 			}
 			catch (Exception ex1) {
 

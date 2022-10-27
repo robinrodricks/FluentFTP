@@ -19,7 +19,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <returns>FtpReply representing the response from the server</returns>
 		public async Task<FtpReply> GetReply(CancellationToken token) {
-			return await GetReplyAsyncInternal(token, null, false);
+			return await GetReplyAsyncInternal(token, null, false, 0);
 		}
 
 		/// <summary>
@@ -30,7 +30,7 @@ namespace FluentFTP {
 		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <returns>FtpReply representing the response from the server</returns>
 		public async Task<FtpReply> GetReplyAsyncInternal(CancellationToken token, string command) {
-			return await GetReplyAsyncInternal(token, command, false);
+			return await GetReplyAsyncInternal(token, command, false, 0);
 		}
 
 		/// <summary>
@@ -41,7 +41,20 @@ namespace FluentFTP {
 		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <returns>FtpReply representing the response from the server</returns>
-		protected async Task<FtpReply> GetReplyAsyncInternal(CancellationToken token, string command, bool exhaustNoop) {
+		public async Task<FtpReply> GetReplyAsyncInternal(CancellationToken token, string command, bool exhaustNoop) {
+			return await GetReplyAsyncInternal(token, command, exhaustNoop, exhaustNoop ? 10000 : 0);
+		}
+
+		/// <summary>
+		/// Retrieves a reply from the server.
+		/// Support "normal" mode waiting for a command reply, subject to timeout exception
+		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
+		/// </summary>
+		/// <param name="command">We are waiting for the response to which command?</param>
+		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
+		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>
+		/// <returns>FtpReply representing the response from the server</returns>
+		protected async Task<FtpReply> GetReplyAsyncInternal(CancellationToken token, string command, bool exhaustNoop, int timeOut) {
 
 			var reply = new FtpReply();
 
@@ -78,8 +91,8 @@ namespace FluentFTP {
 			do {
 				elapsedTime = sw.ElapsedMilliseconds;
 
-				// Maximum wait time for collecting NOOP responses: 10 seconds
-				if (exhaustNoop && elapsedTime > 10000) {
+				// Maximum wait time for collecting NOOP responses: parameter timeOut
+				if (exhaustNoop && elapsedTime > timeOut) {
 					break;
 				}
 
@@ -88,9 +101,18 @@ namespace FluentFTP {
 					// If we are not exhausting NOOPs, i.e. doing a normal GetReply(...)
 					// we do a blocking ReadLine(...). This can throw a
 					// System.TimeoutException which will disconnect us.
-
-					m_stream.ReadTimeout = Config.ReadTimeout;
-					response = await m_stream.ReadLineAsync(Encoding, token);
+					// Unless timeOut is -1, then we do a single non-blocking read,
+					// otherwise we totally disregard timeOut
+					if (timeOut >= 0) {
+						m_stream.ReadTimeout = Config.ReadTimeout;	
+						response = await m_stream.ReadLineAsync(Encoding, token);
+					}
+					else {
+						response = string.Empty;
+						if (m_stream.SocketDataAvailable > 0) {
+							response = await m_stream.ReadLineAsync(Encoding, token);
+						}
+					}
 
 				}
 				else {

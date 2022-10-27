@@ -13,12 +13,25 @@ namespace FluentFTP.Client.BaseClient {
 
 	public partial class BaseFtpClient {
 
+		/// <summary>
+		/// Retrieves a reply from the server.
+		/// Support "normal" mode waiting for a command reply, subject to timeout exception
+		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
+		/// </summary>
+		/// <returns>FtpReply representing the response from the server</returns>
 		protected FtpReply GetReplyInternal() {
-			return GetReplyInternal(null, false);
+			return GetReplyInternal(null, false, 0);
 		}
 
+		/// <summary>
+		/// Retrieves a reply from the server.
+		/// Support "normal" mode waiting for a command reply, subject to timeout exception
+		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
+		/// </summary>
+		/// <param name="command">We are waiting for the response to which command?</param>
+		/// <returns>FtpReply representing the response from the server</returns>
 		protected FtpReply GetReplyInternal(string command) {
-			return GetReplyInternal(command, false);
+			return GetReplyInternal(command, false, 0);
 		}
 
 		/// <summary>
@@ -30,6 +43,19 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <returns>FtpReply representing the response from the server</returns>
 		protected FtpReply GetReplyInternal(string command, bool exhaustNoop) {
+			return GetReplyInternal(command, exhaustNoop, exhaustNoop ? 10000 : 0);
+		}
+
+		/// <summary>
+		/// Retrieves a reply from the server.
+		/// Support "normal" mode waiting for a command reply, subject to timeout exception
+		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
+		/// </summary>
+		/// <param name="command">We are waiting for the response to which command?</param>
+		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
+ 		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>
+		/// <returns>FtpReply representing the response from the server</returns>
+		protected FtpReply GetReplyInternal(string command, bool exhaustNoop, int timeOut) {
 			var reply = new FtpReply();
 
 			lock (m_lock) {
@@ -67,8 +93,8 @@ namespace FluentFTP.Client.BaseClient {
 				do {
 					elapsedTime = sw.ElapsedMilliseconds;
 
-					// Maximum wait time for collecting NOOP responses: 10 seconds
-					if (exhaustNoop && elapsedTime > 10000) {
+					// Maximum wait time for collecting NOOP responses: parameter timeOut
+					if (exhaustNoop && elapsedTime > timeOut) {
 						break;
 					}
 
@@ -77,9 +103,18 @@ namespace FluentFTP.Client.BaseClient {
 						// If we are not exhausting NOOPs, i.e. doing a normal GetReply(...)
 						// we do a blocking ReadLine(...). This can throw a
 						// System.TimeoutException which will disconnect us.
-
-						m_stream.ReadTimeout = Config.ReadTimeout;
-						response = m_stream.ReadLine(Encoding);
+						// Unless timeOut is -1, then we do a single non-blocking read,
+						// otherwise we totally disregard timeOut
+						if (timeOut >= 0) {
+							m_stream.ReadTimeout = Config.ReadTimeout;
+							response = m_stream.ReadLine(Encoding);
+						}
+						else {
+							response = string.Empty;
+							if (m_stream.SocketDataAvailable > 0) {
+								response = m_stream.ReadLine(Encoding);
+							}
+						}
 
 					}
 					else {
