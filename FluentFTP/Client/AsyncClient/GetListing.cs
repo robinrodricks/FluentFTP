@@ -336,10 +336,6 @@ namespace FluentFTP {
 						}
 						throw;
 					}
-					catch (AuthenticationException ex) {
-						ReadStaleDataAsync(true, true, "after GetListing", token);
-						throw;
-					}
 				}
 			}
 			catch (FtpMissingSocketException) {
