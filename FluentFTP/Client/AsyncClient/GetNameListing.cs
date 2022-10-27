@@ -53,8 +53,11 @@ namespace FluentFTP {
 					Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 				}
 			}
-			catch (AuthenticationException ex) {
-				ReadStaleDataAsync(true, true, "after GetNameListing", token);
+			catch (AuthenticationException) {
+				FtpReply reply = await GetReplyAsyncInternal(token, "*GETNAMELISTING*", false, -1); // no exhaustNoop, but non-blocking
+				if (!reply.Success) {
+					throw new FtpCommandException(reply);
+				}
 				throw;
 			}
 			catch (FtpMissingSocketException) {

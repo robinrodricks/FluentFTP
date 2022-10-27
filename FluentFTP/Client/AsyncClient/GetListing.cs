@@ -329,6 +329,13 @@ namespace FluentFTP {
 							}
 						}
 					}
+					catch (AuthenticationException) {
+						FtpReply reply = await GetReplyAsyncInternal(token, "*GETLISTING*", false, -1); // no exhaustNoop, but non-blocking
+						if (!reply.Success) {
+							throw new FtpCommandException(reply);
+						}
+						throw;
+					}
 					catch (AuthenticationException ex) {
 						ReadStaleDataAsync(true, true, "after GetListing", token);
 						throw;

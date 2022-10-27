@@ -248,8 +248,11 @@ namespace FluentFTP {
 
 				return FtpStatus.Success;
 			}
-			catch (AuthenticationException) {
-				ReadStaleData(true, true, "before Upload, from failed TLS authentication");
+			catch (AuthenticationException ex) {
+				FtpReply reply = GetReplyInternal("*UPLOAD*", false, -1); // no exhaustNoop, but non-blocking
+				if (!reply.Success) {
+					throw new FtpCommandException(reply);
+				}
 				throw;
 			}
 			catch (Exception ex1) {

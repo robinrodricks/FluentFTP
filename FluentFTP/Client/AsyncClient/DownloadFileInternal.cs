@@ -183,8 +183,11 @@ namespace FluentFTP {
 
 				return true;
 			}
-			catch (AuthenticationException) {
-				ReadStaleData(true, true, "before Download, from failed TLS authentication");
+			catch (AuthenticationException ex) {
+				FtpReply reply = await GetReplyAsyncInternal(token, "*DOWNLOAD*", false, -1); // no exhaustNoop, but non-blocking
+				if (!reply.Success) {
+					throw new FtpCommandException(reply);
+				}
 				throw;
 			}
 			catch (Exception ex1) {
