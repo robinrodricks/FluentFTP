@@ -105,6 +105,11 @@ namespace FluentFTP {
 						// FIX : #273 update m_lastActivity to the current time
 						m_lastActivity = DateTime.Now;
 
+						// Poll (SelectRead) returns true if:
+						// Listen has been called and connection is pending (cannot be the case)
+						// Data is available for reading
+						// Connection has been closed, reset or terminated <--- this is the one we want
+						// The ordering in the if-statement is important: Available is updated by the Poll
 						if (m_socket.Poll(500000, SelectMode.SelectRead) && m_socket.Available == 0) {
 							Close();
 							return false;
