@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using FluentFTP.Client.Modules;
 using System.Security.Authentication;
+using FluentFTP.Proxy.SyncProxy;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -198,6 +199,13 @@ namespace FluentFTP {
 					try {
 						using (var stream = OpenDataStream(listcmd, 0)) {
 							try {
+								if (this is FtpClientSocks4Proxy || this is FtpClientSocks4aProxy) {
+									// first 6 bytes contains 2 bytes of unknown (to me) purpose and 4 ip address bytes
+									// we need to skip them otherwise they will be downloaded to the file
+									// moreover, these bytes cause "Failed to get the EPSV port" error
+									stream.Read(new byte[6], 0, 6);
+								}
+
 								Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
 								if (Config.BulkListing) {
