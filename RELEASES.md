@@ -1,5 +1,14 @@
 # Release Notes
 
+#### 42.0.1
+ - **FTP**
+   - New: TLS authentication failures will always throw `AuthenticationException` (thanks [FanDjango](/FanDjango))
+   - Fix: Improve handling of stale data on socket after `GetListing` (thanks [FanDjango](/FanDjango))
+ - **Tests**
+   - New: Redesigned Pureftpd integration test server (thanks [FanDjango](/FanDjango))
+ - **Proxies**
+   - Fix: Read extra bytes to fix `GetListing` for SOCKS4 and SOCKS4a proxies (thanks [FanDjango](/FanDjango))
+
 #### 42.0.0
  - Please read the [Migration Guide](https://github.com/robinrodricks/FluentFTP/wiki/v40-Migration-Guide) for help migrating to the new version!
  - **API**
