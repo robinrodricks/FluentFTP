@@ -256,10 +256,22 @@ namespace FluentFTP {
 		/// Gets or sets the length of time milliseconds to wait
 		/// for a connection succeed before giving up. The default
 		/// is 30000 (30 seconds).
+		/// Note: This can be used to force a lower timeout than the
+		/// system default, but if you want to increase the timeout
+		/// (i.e. to more than 21 seconds as is usually set in MS Windows)
+		/// you have to change the TCP settings of the underlying
+		/// operating system. To change this, you can use the following
+		/// PowerShell command (running the PowerShell prompt as admin):
+		/// "Set-NetTCPSetting -SettingName InternetCustom -MaxSynRetransmissions 4"
+		/// The default value is 2, which yields an effective TCP connection timeout
+		/// of about 21 seconds. A value of 3 increases the timeout to about 40 seconds,
+		/// and 4 to about 90 seconds.
 		/// </summary>
 		public int ConnectTimeout {
 			get => m_connectTimeout;
-			set => m_connectTimeout = value;
+			set {
+				m_connectTimeout = value > 0 ? value : 30000;
+			}
 		}
 
 		/// <summary>
@@ -770,17 +782,48 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Check if the specified IP Address is allowed
+		/// </summary>
+		/// <param name="ipad">The ip address to connect to</param>
+		/// <param name="ipVersions">The enum value of allowed IP Versions</param>
+		private bool IsIpVersionAllowed(IPAddress ipad, FtpIpVersion ipVersions, out string ipVersionString) {
+			ipVersionString = string.Empty;
+
+			if (ipVersions == FtpIpVersion.ANY) {
+				return true;
+			}
+
+			bool allowIPv4 = ipVersions.HasFlag(FtpIpVersion.IPv4);
+			bool allowIPv6 = ipVersions.HasFlag(FtpIpVersion.IPv6);
+
+			bool addrIsIPv4 = ipad.AddressFamily == AddressFamily.InterNetwork;
+			bool addrIsIPv6 = ipad.AddressFamily == AddressFamily.InterNetworkV6;
+
+			if (addrIsIPv4) {
+				ipVersionString = "IPv4";
+			}
+			else if (addrIsIPv6) {
+				ipVersionString = "IPv6";
+			}
+			else {
+				ipVersionString = ipad.AddressFamily.ToString();
+			}
+
+			return ((addrIsIPv4 && allowIPv4) || (addrIsIPv6 && allowIPv6));
+		}
+
+		/// <summary>
 		/// Connect to the specified host
 		/// </summary>
 		/// <param name="host">The host to connect to</param>
 		/// <param name="port">The port to connect to</param>
 		/// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
 		public void Connect(string host, int port, FtpIpVersion ipVersions) {
+
 #if NETSTANDARD
 			IPAddress[] addresses = Dns.GetHostAddressesAsync(host).Result;
 #else
-			IAsyncResult ar = null;
-			var addresses = Dns.GetHostAddresses(host);
+			IPAddress[] addresses = Dns.GetHostAddresses(host);
 #endif
 
 			if (ipVersions == 0) {
@@ -788,91 +831,52 @@ namespace FluentFTP {
 			}
 
 			for (var i = 0; i < addresses.Length; i++) {
+				int iPlusOne = i + 1;
 
-				// we don't need to do this check unless
-				// a particular version of IP has been
-				// omitted so we won't.
-				if (ipVersions != FtpIpVersion.ANY) {
-					switch (addresses[i].AddressFamily) {
-						case AddressFamily.InterNetwork:
-							if ((ipVersions & FtpIpVersion.IPv4) != FtpIpVersion.IPv4) {
-#if DEBUG
-								((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Skipped IPV4 address : " + addresses[i].ToString());
-#endif
-								continue;
-							}
+				IPAddress ipad = addresses[i];
 
-							break;
+				string logIp = Client.Config.LogHost ? ipad.ToString() : "***";
+				string addrFamily = ipad.AddressFamily.ToString();
 
-						case AddressFamily.InterNetworkV6:
-							if ((ipVersions & FtpIpVersion.IPv6) != FtpIpVersion.IPv6) {
-#if DEBUG
-								((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Skipped IPV6 address : " + addresses[i].ToString());
-#endif
-								continue;
-							}
-
-							break;
-					}
+				if (!IsIpVersionAllowed(ipad, ipVersions, out string logFamily)) {
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Skipped " + logFamily + "address: " + logIp);
+					continue;
 				}
 
-				if (Client.Config.LogHost) {
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
-				}
-				else {
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "Connecting to ***:" + port);
-				}
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "Connecting to IP #" + iPlusOne + "= " + logIp + ":" + port);
 
-				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+				m_socket = new Socket(ipad.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
 				BindSocketToLocalIp();
 
-#if NETSTANDARD
+				bool lastIP = iPlusOne == addresses.Length;
 
-
-				var args = new SocketAsyncEventArgs {
-					RemoteEndPoint = new IPEndPoint(addresses[i], port)
-				};
-				var connectEvent = new ManualResetEvent(false);
-				args.Completed += (s, e) => { connectEvent.Set(); };
-
-				if (m_socket.ConnectAsync(args)) {
-					if (!connectEvent.WaitOne(m_connectTimeout)) {
-						Close();
-						throw new TimeoutException("Timed out trying to connect!");
+				try {
+					if (ConnectHelper(ipad, port)) {
+						break;
+					}
+					else {
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...failed to connect to IP #" + iPlusOne + "= " + logIp + ":" + port);
 					}
 				}
-
-				if (args.SocketError != SocketError.Success) {
-					throw new SocketException((int)args.SocketError);
-				}
-
-				// only try the first address
-				break;
-#else
-				ar = m_socket.BeginConnect(addresses[i], port, null, null);
-				bool success = ar.AsyncWaitHandle.WaitOne(m_connectTimeout, true);
-				if (!success) {
-					Close();
-
-					// check to see if we're out of addresses, and throw a TimeoutException
-					if (i + 1 == addresses.Length) {
+				catch (TimeoutException) {
+					if (lastIP) {
 						throw new TimeoutException("Timed out trying to connect!");
 					}
+					else {
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...timeout connecting to IP #" + iPlusOne + "= " + logIp + ":" + port);
+					}
 				}
-				else {
-					ar.AsyncWaitHandle.Close();
-					m_socket.EndConnect(ar);
-
-					// we got a connection, break out
-					// of the loop.
-					break;
+				catch (Exception ex) {
+					if (lastIP) {
+						throw;
+					}
+					else {
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error connecting to IP #" + iPlusOne + "= " + logIp + ":" + port + " " + ex.Message);
+					}
 				}
-
-#endif
 			}
 
-			// make sure that we actually connected to
-			// one of the addresses returned from GetHostAddresses()
 			if (m_socket == null || !m_socket.Connected) {
 				Close();
 				throw new IOException("Failed to connect to host.");
@@ -885,12 +889,54 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Connect to the specified host
+		/// Detects timeout and throws that explicitly
+		/// </summary>
+		/// <param name="ipad">The ip address to connect to</param>
+		/// <param name="port">The port to connect to</param>
+		private bool ConnectHelper(IPAddress ipad, int port) {
+
+			int ctmo = this.ConnectTimeout;
+
+#if NETSTANDARD
+			var args = new SocketAsyncEventArgs {
+				RemoteEndPoint = new IPEndPoint(ipad, port)
+			};
+			var connectEvent = new ManualResetEvent(false);
+			args.Completed += (s, e) => { connectEvent.Set(); };
+
+			if (m_socket.ConnectAsync(args)) {
+				if (!connectEvent.WaitOne(ctmo)) {
+					Close();
+					throw new TimeoutException("Timed out trying to connect!");
+				}
+			}
+
+			return args.SocketError == SocketError.Success;
+#else
+			IAsyncResult iar = m_socket.BeginConnect(ipad, port, null, null);
+			bool success = iar.AsyncWaitHandle.WaitOne(ctmo, true);
+			if (!m_socket.Connected) {
+				Close();
+				throw new TimeoutException("Timed out trying to connect!");
+			}
+			else {
+				iar.AsyncWaitHandle.Close();
+				m_socket.EndConnect(iar);
+			}
+
+			return m_socket.Connected;
+#endif
+		}
+
+		/// <summary>
+		/// Connect to the specified host
 		/// </summary>
 		/// <param name="host">The host to connect to</param>
 		/// <param name="port">The port to connect to</param>
 		/// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public async Task ConnectAsync(string host, int port, FtpIpVersion ipVersions, CancellationToken token) {
+
 #if NET6_0_OR_GREATER
 			IPAddress[] addresses = await Dns.GetHostAddressesAsync(host, token);
 #else
@@ -902,79 +948,52 @@ namespace FluentFTP {
 			}
 
 			for (var i = 0; i < addresses.Length; i++) {
-				// we don't need to do this check unless
-				// a particular version of IP has been
-				// omitted so we won't.
-				if (ipVersions != FtpIpVersion.ANY) {
-					switch (addresses[i].AddressFamily) {
-						case AddressFamily.InterNetwork:
-							if ((ipVersions & FtpIpVersion.IPv4) != FtpIpVersion.IPv4) {
-#if DEBUG
-								((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Skipped IPV4 address : " + addresses[i].ToString());
-#endif
-								continue;
-							}
+				int iPlusOne = i + 1;
 
-							break;
+				IPAddress ipad = addresses[i];
 
-						case AddressFamily.InterNetworkV6:
-							if ((ipVersions & FtpIpVersion.IPv6) != FtpIpVersion.IPv6) {
-#if DEBUG
-								((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Skipped IPV6 address : " + addresses[i].ToString());
-#endif
-								continue;
-							}
+				string logIp = Client.Config.LogHost ? ipad.ToString() : "***";
+				string addrFamily = ipad.AddressFamily.ToString();
 
-							break;
-					}
+				if (!IsIpVersionAllowed(ipad, ipVersions, out string logFamily)) {
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Skipped " + logFamily + "address: " + logIp);
+					continue;
 				}
 
-				if (Client.Config.LogHost) {
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "Connecting to " + addresses[i].ToString() + ":" + port);
-				}
-				else {
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "Connecting to ***:" + port);
-				}
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "Connecting to IP #" + iPlusOne + "= " + logIp + ":" + port);
 
-				m_socket = new Socket(addresses[i].AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+				m_socket = new Socket(ipad.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
 				BindSocketToLocalIp();
-#if NETSTANDARD
+
+				bool lastIP = iPlusOne == addresses.Length;
+
 				try {
-					if (this.ConnectTimeout > 0) {
-						using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-							timeoutSrc.CancelAfter(this.ConnectTimeout);
-							await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), timeoutSrc.Token, () => DisposeSocket());
-							break;
-						}
-					}
-					else {
-						await EnableCancellation(m_socket.ConnectAsync(addresses[i], port), token, () => DisposeSocket());
+					if (await ConnectAsyncHelper(ipad, port, token)) {
 						break;
 					}
+					else {
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...failed to connect to IP #" + iPlusOne + "= " + logIp + ":" + port);
+					}
 				}
-				catch (SocketException ex) {
-					// FIX #869: catch "The I/O operation has been aborted because of either a thread exit or an application request."
-					// and continue with next address or throw timeout exception if this is the last address available
-#if NET50_OR_LATER
-					if (ex.ErrorCode == 995 && ex.SocketErrorCode == SocketError.OperationAborted) {
-#else
-					if (ex.Message.StartsWith("The I/O operation has been aborted because") && ex.SocketErrorCode == SocketError.OperationAborted) {
-#endif
+				catch (TimeoutException) {
+					if (lastIP) {
 						throw new TimeoutException("Timed out trying to connect!");
 					}
 					else {
-						throw;
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...timeout connecting to IP #" + iPlusOne + "= " + logIp + ":" + port);
 					}
 				}
-#else
-				var connectResult = m_socket.BeginConnect(addresses[i], port, null, null);
-				await EnableCancellation(Task.Factory.FromAsync(connectResult, m_socket.EndConnect), token, () => DisposeSocket());
-				break;
-#endif
+				catch (Exception ex) {
+					if (lastIP) {
+						throw;
+					}
+					else {
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error connecting to IP #" + iPlusOne + "= " + logIp + ":" + port + " " + ex.Message);
+					}
+				}
 			}
 
-			// make sure that we actually connected to
-			// one of the addresses returned from GetHostAddresses()
 			if (m_socket == null || !m_socket.Connected) {
 				Close();
 				throw new IOException("Failed to connect to host.");
@@ -983,6 +1002,51 @@ namespace FluentFTP {
 			m_netStream = new NetworkStream(m_socket);
 			m_netStream.ReadTimeout = m_readTimeout;
 			m_lastActivity = DateTime.Now;
+		}
+
+		/// <summary>
+		/// Connect to the specified host
+		/// Detects timeout and throws that explicitly
+		/// </summary>
+		/// <param name="ipad">The ip address to connect to</param>
+		/// <param name="port">The port to connect to</param>
+		private async Task<bool> ConnectAsyncHelper(IPAddress ipad, int port, CancellationToken token) {
+
+			int ctmo = this.ConnectTimeout;
+
+#if NETSTANDARD
+			try {
+				using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
+					timeoutSrc.CancelAfter(ctmo);
+					await EnableCancellation(m_socket.ConnectAsync(ipad, port), timeoutSrc.Token, () => DisposeSocket());
+				}
+			}
+			catch (SocketException ex) {
+				if (ex.SocketErrorCode == SocketError.OperationAborted ||
+					ex.SocketErrorCode == SocketError.TimedOut) {
+					throw new TimeoutException("Timed out trying to connect!");
+				}
+				throw;
+			}
+#else
+			try {
+				using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
+					timeoutSrc.CancelAfter(ctmo);
+					await EnableCancellation(m_socket.ConnectAsync(ipad, port), timeoutSrc.Token, () => DisposeSocket());
+				}
+			}
+			catch (SocketException ex) {
+				if (ex.SocketErrorCode == SocketError.OperationAborted ||
+					ex.SocketErrorCode == SocketError.TimedOut) {
+					throw new TimeoutException("Timed out trying to connect!");
+				}
+				throw;
+			}
+			catch (ObjectDisposedException ex) {
+				throw new TimeoutException("Timed out trying to connect!");
+			}
+#endif
+			return m_socket.Connected;
 		}
 
 		/// <summary>
