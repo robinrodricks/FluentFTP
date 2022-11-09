@@ -1,8 +1,8 @@
-**FTP OS:** Unix / Windows / Embedded
+**FTP Server OS:** Unix / Windows / Embedded
 
-**FTP Server:** Pure-FTPd / DrFTPD / Vsftpd / ProFTPD / Vax / VMS / OpenVMS / Tandem / HP NonStop Guardian / IBM OS400 / AS400 / Windows CE
+**FTP Server Type:** Vsftpd / glFTPd / BFTPd / ProFTPD / Pure-FTPd / IBM CS FTP (z/OS, OS/400) / Windows CE / Windows Server IIS / Vax / VMS / OpenVMS / Tandem / HP NonStop
 
-**Computer OS:** ?
+**Client Computer OS:** Windows / Ubuntu / Debian / Linux Mint / Arch Linux
 
 **FluentFTP Version:** ?
 
@@ -13,7 +13,7 @@
 **Logs :**
 
 <!---
-Please generate logs from FluentFTP and paste them in the marked area below.
+Please generate VERBOSE logs from FluentFTP and paste them in the marked area below.
 See this link for steps :
 
 https://github.com/robinrodricks/FluentFTP/wiki/Logging#how-do-i-trace-ftp-commands-for-debugging
