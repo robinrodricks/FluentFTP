@@ -21,6 +21,6 @@ https://github.com/robinrodricks/FluentFTP/wiki/Logging#how-do-i-trace-ftp-comma
 
 ```
 
-<paste logs here>
+<paste VERBOSE logs here>
 
 ```
