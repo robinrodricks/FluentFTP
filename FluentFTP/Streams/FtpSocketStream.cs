@@ -839,7 +839,7 @@ namespace FluentFTP {
 				string addrFamily = ipad.AddressFamily.ToString();
 
 				if (!IsIpVersionAllowed(ipad, ipVersions, out string logFamily)) {
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Skipped " + logFamily + "address: " + logIp);
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Skipped " + logFamily + " address: " + logIp);
 					continue;
 				}
 
