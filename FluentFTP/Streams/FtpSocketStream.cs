@@ -250,12 +250,12 @@ namespace FluentFTP {
 			}
 		}
 
-		private int m_connectTimeout = 30000;
+		private int m_connectTimeout = int.MaxValue;
 
 		/// <summary>
 		/// Gets or sets the length of time milliseconds to wait
 		/// for a connection succeed before giving up. The default
-		/// is 30000 (30 seconds).
+		/// is 0 = disable, use system default timeout.
 		/// Note: This can be used to force a lower timeout than the
 		/// system default, but if you want to increase the timeout
 		/// (i.e. to more than 21 seconds as is usually set in MS Windows)
@@ -266,11 +266,13 @@ namespace FluentFTP {
 		/// The default value is 2, which yields an effective TCP connection timeout
 		/// of about 21 seconds. A value of 3 increases the timeout to about 40 seconds,
 		/// and 4 to about 90 seconds.
+		/// Refer to: https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2003/cc739819(v=ws.10)?redirectedfrom=MSDN
+		/// and look for "TcpInitialRTT", "TcpMaxConnectRetransmissions" and "TcpMaxConnectResponseRetransmissions".
 		/// </summary>
 		public int ConnectTimeout {
 			get => m_connectTimeout;
 			set {
-				m_connectTimeout = value > 0 ? value : 30000;
+				m_connectTimeout = value > 0 ? value : int.MaxValue;
 			}
 		}
 
@@ -786,6 +788,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="ipad">The ip address to connect to</param>
 		/// <param name="ipVersions">The enum value of allowed IP Versions</param>
+		/// <param name="ipVersionString">Textual representation of the address family</param>
 		private bool IsIpVersionAllowed(IPAddress ipad, FtpIpVersion ipVersions, out string ipVersionString) {
 			ipVersionString = string.Empty;
 
