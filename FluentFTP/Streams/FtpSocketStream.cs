@@ -948,7 +948,6 @@ namespace FluentFTP {
 				IPAddress ipad = addresses[i];
 
 				string logIp = Client.Config.LogHost ? ipad.ToString() : "***";
-				string addrFamily = ipad.AddressFamily.ToString();
 
 				if (!IsIpVersionAllowed(ipad, ipVersions, out string logFamily)) {
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Skipped " + logFamily + "address: " + logIp);
