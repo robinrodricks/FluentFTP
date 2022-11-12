@@ -64,7 +64,7 @@ namespace FluentFTP.Client.BaseClient {
 					LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for a response");
 				}
 				else {
-					LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for response to: " + OnPostExecute(command));
+					LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for response to: " + LogMaskModule.MaskCommand(this, command));
 				}
 
 				if (!IsConnected) {
