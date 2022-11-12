@@ -58,15 +58,15 @@ namespace FluentFTP {
 
 			var reply = new FtpReply();
 
-			if (!IsConnected) {
-				throw new InvalidOperationException("No connection to the server has been established.");
-			}
-
 			if (string.IsNullOrEmpty(command)) {
 				LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for a response");
 			}
 			else {
 				LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for response to: " + OnPostExecute(command));
+			}
+
+			if (!IsConnected) {
+				throw new InvalidOperationException("No connection to the server has been established.");
 			}
 
 			// Implement this: https://lists.apache.org/thread/xzpclw1015qncvczt8hg3nom2p5vtcf5
