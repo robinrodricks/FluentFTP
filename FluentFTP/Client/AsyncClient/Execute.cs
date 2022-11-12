@@ -7,6 +7,7 @@ using System.Net;
 using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -41,9 +42,9 @@ namespace FluentFTP {
 			}
 
 			// hide sensitive data from logs
-			string commandTxt = OnPostExecute(command);
+			string commandClean = LogMaskModule.MaskCommand(this, command);
 
-			Log(FtpTraceLevel.Info, "Command:  " + commandTxt);
+			Log(FtpTraceLevel.Info, "Command:  " + commandClean);
 
 			// send command to FTP server
 			await m_stream.WriteLineAsync(m_textEncoding, command, token);

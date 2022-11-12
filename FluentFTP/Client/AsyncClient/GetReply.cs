@@ -8,6 +8,7 @@ using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -62,7 +63,7 @@ namespace FluentFTP {
 				LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for a response");
 			}
 			else {
-				LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for response to: " + OnPostExecute(command));
+				LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for response to: " + LogMaskModule.MaskCommand(this, command));
 			}
 
 			if (!IsConnected) {

@@ -32,7 +32,7 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				// hide sensitive data from logs
-				string commandClean = OnPostExecute(command);
+				string commandClean = LogMaskModule.MaskCommand(this, command);
 
 				Log(FtpTraceLevel.Info, "Command:  " + commandClean);
 
@@ -40,32 +40,26 @@ namespace FluentFTP.Client.BaseClient {
 				m_stream.WriteLine(m_textEncoding, command);
 				LastCommandTimestamp = DateTime.UtcNow;
 				reply = GetReplyInternal(command);
-			}
+				if (reply.Success) {
+					OnPostExecute(command);
+				}
 
-			return reply;
+				return reply;
+			}
 		}
 
-		protected string OnPostExecute(string command) {
+		protected void OnPostExecute(string command) {
 
-			// hide sensitive data from logs
-			command = LogMaskModule.MaskCommand(this, command);
-
-			// A CWD will invalidate the cached value.
+			// Update stored values
 			if (command.StartsWith("CWD ", StringComparison.Ordinal)) {
-				Status.LastWorkingDir = null;
+				Status.LastWorkingDir = command.Substring(4).Trim();
 			}
-
-			// A TYPE I could invalidate the cached value.
 			else if (command.StartsWith("TYPE I", StringComparison.Ordinal)) {
 				Status.CurrentDataType = FtpDataType.Binary;
 			}
-
-			// A TYPE A could invalidate the cached value.
 			else if (command.StartsWith("TYPE A", StringComparison.Ordinal)) {
 				Status.CurrentDataType = FtpDataType.ASCII;
 			}
-
-			return command;
 		}
 
 	}
