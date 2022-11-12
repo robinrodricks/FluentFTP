@@ -74,6 +74,7 @@ namespace FluentFTP {
 			ConnectionFTPSFailure = false;
 			ConnectionUTF8Success = false;
 			AllowCheckStaleData = false;
+			CurrentDataType = FtpDataType.Unknown;
 		}
 
 		/// <summary>
