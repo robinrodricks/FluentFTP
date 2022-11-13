@@ -172,9 +172,11 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds to wait for a connection 
-		/// attempt to succeed before giving up. Default is 15000 (15 seconds).
+		/// attempt to succeed before giving up. Default is 0 (Use OS default timeout)
+		/// See: https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#connection-timeout-settings
+		/// and: https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_timeoutwindows
 		/// </summary>
-		public int ConnectTimeout { get; set; } = 15000;
+		public int ConnectTimeout { get; set; } = 0;
 
 		/// <summary>
 		/// Gets or sets the length of time wait in milliseconds for data to be
