@@ -51,7 +51,10 @@ namespace FluentFTP.Client.BaseClient {
 		protected void OnPostExecute(string command) {
 
 			// Update stored values
-			if (command.StartsWith("CWD ", StringComparison.Ordinal)) {
+			if (command.TrimEnd() == "CWD") {
+				Status.LastWorkingDir = null;
+			}
+			else if (command.StartsWith("CWD ", StringComparison.Ordinal)) {
 				Status.LastWorkingDir = command.Substring(4).Trim();
 			}
 			else if (command.StartsWith("TYPE I", StringComparison.Ordinal)) {
