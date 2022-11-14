@@ -109,7 +109,7 @@ namespace FluentFTP {
 			}
 			catch (Exception ex1) {
 				// catch errors creating directory
-				throw new FtpException("Error while crated directories. See InnerException for more info.", ex1);
+				throw new FtpException("Error while creating directories. See InnerException for more info.", ex1);
 			}
 
 			// if not appending then fetch remote file size since mode is determined by that
