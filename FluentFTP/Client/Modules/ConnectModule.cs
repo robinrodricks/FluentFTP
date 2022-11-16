@@ -309,17 +309,19 @@ namespace FluentFTP.Client.Modules {
 
 		private static void ConfigureClient(BaseFtpClient client, FtpEncryptionMode encryption, SysSslProtocols protocol, FtpProfile knownProfile) {
 
-			// set rolled props
-			if (knownProfile != null) {
-				client.LoadProfile(knownProfile);
-			}
-
 			// override some props
 			client.Config.EncryptionMode = encryption;
 			client.Config.SslProtocols = protocol;
 			client.Config.DataConnectionType = FtpDataConnectionType.AutoPassive;
 			client.Encoding = Encoding.UTF8;
 
+			// FIX #901: Azure FTP connection
+			// copy some props for known profile
+			if (knownProfile != null) {
+				client.Config.ConnectTimeout = knownProfile.Timeout;
+				client.Config.RetryAttempts = knownProfile.RetryAttempts;
+				client.Config.SocketPollInterval = knownProfile.SocketPollInterval;
+			}
 		}
 
 		/// <summary>
