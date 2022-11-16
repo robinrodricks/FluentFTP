@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace FluentFTP {
@@ -85,6 +86,11 @@ namespace FluentFTP {
 			FileSizeASCIINotSupported = original.FileSizeASCIINotSupported;
 			RecursiveListSupported = original.RecursiveListSupported;
 		}
+
+		/// <summary>
+		/// Avoid repeated DNS queries for the same host name
+		/// </summary>
+		public Dictionary<string, IPAddress[]> CachedHostIpads { get; set; } = new Dictionary<string, IPAddress[]>();
 
 		/// <summary>
 		/// During and after a z/OS GetListing(), this value stores the
