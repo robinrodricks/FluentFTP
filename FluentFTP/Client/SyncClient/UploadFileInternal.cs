@@ -274,9 +274,25 @@ namespace FluentFTP {
 		}
 
 		protected bool ResumeUpload(string remotePath, ref Stream upStream, long remotePosition, IOException ex) {
+			try {
+				// if resume possible
+				if (ex.IsResumeAllowed()) {
+					// dispose the old bugged out stream
+					upStream.Dispose();
+					LogWithPrefix(FtpTraceLevel.Info, "Attempting upload resume at position " + remotePosition);
 
-			// resume not allowed
-			return false;
+					// create and return a new stream starting at the current remotePosition
+					upStream = OpenAppend(remotePath, Config.UploadDataType, 0);
+					upStream.Position = remotePosition;
+					return true;
+				}
+
+				// resume not allowed
+				return false;
+			}
+			catch (Exception resumeEx) {
+				throw new AggregateException("Additional error occured while trying to resume uploading the file '" + remotePath + "' at position " + remotePosition, new Exception[] { ex, resumeEx });
+			}
 		}
 
 

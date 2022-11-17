@@ -219,11 +219,22 @@ namespace FluentFTP {
 		}
 
 		protected bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
-			if (ex.IsResumeAllowed()) {
-				downStream.Dispose();
-				downStream = OpenRead(remotePath, Config.DownloadDataType, offset);
+			try {
+				// if resume possible
+				if (ex.IsResumeAllowed()) {
+					// dispose the old bugged out stream
+					downStream.Dispose();
+					LogWithPrefix(FtpTraceLevel.Info, "Attempting download resume from offset " + offset);
 
-				return true;
+					// create and return a new stream starting at the current remotePosition
+					downStream = OpenRead(remotePath, Config.DownloadDataType, offset);
+
+					// resume not allowed
+					return true;
+				}
+			}
+			catch (Exception resumeEx) {
+				throw new AggregateException("Additional error occured while trying to resume downloading the file '" + remotePath + "' from offset " + offset, new Exception[] { ex, resumeEx });
 			}
 
 			return false;
