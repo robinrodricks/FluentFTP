@@ -41,7 +41,6 @@ namespace FluentFTP {
 
 				if (m_stream == null) {
 					m_stream = new FtpSocketStream(this);
-					m_stream.IsControlConnection = true;
 					m_stream.ValidateCertificate += new FtpSocketStreamSslValidation(FireValidateCertficate);
 				}
 				else {

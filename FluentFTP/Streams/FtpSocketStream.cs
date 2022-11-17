@@ -143,7 +143,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Is this stream the control connection?
 		/// </summary>
-		public bool IsControlConnection { get; set; }
+		public bool IsControlConnection { get; set; } = true;
 
 
 		/// <summary>
