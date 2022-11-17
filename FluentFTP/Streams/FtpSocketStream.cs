@@ -141,6 +141,12 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Is this stream the control connection?
+		/// </summary>
+		public bool IsControlConnection { get; set; }
+
+
+		/// <summary>
 		/// The negotiated SSL/TLS protocol version. Will have a valid value after connection is complete.
 		/// </summary>
 		public SslProtocols SslProtocolActive {
