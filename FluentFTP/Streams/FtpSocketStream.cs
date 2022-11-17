@@ -705,7 +705,8 @@ namespace FluentFTP {
 			try {
 				// ensure null exceptions don't occur here
 				if (Client != null) {
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing FtpSocketStream...");
+					string connText = this.IsControlConnection ? "control" : "data";
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing FtpSocketStream(" + connText + " connection)");
 				}
 			}
 			catch (Exception) {
