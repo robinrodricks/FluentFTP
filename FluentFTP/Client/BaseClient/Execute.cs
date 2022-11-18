@@ -51,11 +51,8 @@ namespace FluentFTP.Client.BaseClient {
 		protected void OnPostExecute(string command) {
 
 			// Update stored values
-			if (command.TrimEnd() == "CWD") {
+			if (command.TrimEnd() == "CWD" || command.StartsWith("CWD ", StringComparison.Ordinal)) {
 				Status.LastWorkingDir = null;
-			}
-			else if (command.StartsWith("CWD ", StringComparison.Ordinal)) {
-				Status.LastWorkingDir = command.Substring(4).Trim();
 			}
 			else if (command.StartsWith("TYPE I", StringComparison.Ordinal)) {
 				Status.CurrentDataType = FtpDataType.Binary;
