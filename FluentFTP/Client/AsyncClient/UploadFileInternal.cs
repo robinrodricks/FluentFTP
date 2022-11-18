@@ -288,14 +288,12 @@ namespace FluentFTP {
 		}
 
 		protected async Task<Tuple<bool, Stream>> ResumeUploadAsync(string remotePath, Stream upStream, long remotePosition, IOException ex, CancellationToken token = default) {
-
 			try {
-
 				// if resume possible
 				if (ex.IsResumeAllowed()) {
-
 					// dispose the old bugged out stream
 					upStream.Dispose();
+					LogWithPrefix(FtpTraceLevel.Info, "Attempting upload resume at position " + remotePosition);
 
 					// create and return a new stream starting at the current remotePosition
 					var returnStream = await OpenAppend(remotePath, Config.UploadDataType, 0, token);
@@ -305,10 +303,8 @@ namespace FluentFTP {
 
 				// resume not allowed
 				return Tuple.Create(false, (Stream)null);
-
 			}
 			catch (Exception resumeEx) {
-
 				throw new AggregateException("Additional error occured while trying to resume uploading the file '" + remotePath + "' at position " + remotePosition, new Exception[] { ex, resumeEx });
 			}
 		}

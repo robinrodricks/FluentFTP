@@ -229,14 +229,25 @@ namespace FluentFTP {
 				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
 			}
 		}
+
 		protected async Task<Tuple<bool, Stream>> ResumeDownloadAsync(string remotePath, Stream downStream, long offset, IOException ex, CancellationToken token = default) {
-			if (ex.IsResumeAllowed()) {
-				downStream.Dispose();
+			try {
+				// if resume possible
+				if (ex.IsResumeAllowed()) {
+					// dispose the old bugged out stream
+					downStream.Dispose();
+					LogWithPrefix(FtpTraceLevel.Info, "Attempting download resume from offset " + offset);
 
-				return Tuple.Create(true, await OpenRead(remotePath, Config.DownloadDataType, offset, token: token));
+					// create and return a new stream starting at the current remotePosition
+					return Tuple.Create(true, await OpenRead(remotePath, Config.DownloadDataType, offset, token: token));
+				}
+
+				// resume not allowed
+				return Tuple.Create(false, (Stream)null);
 			}
-
-			return Tuple.Create(false, (Stream)null);
+			catch (Exception resumeEx) {
+				throw new AggregateException("Additional error occured while trying to resume downloading the file '" + remotePath + "' from offset " + offset, new Exception[] { ex, resumeEx });
+			}
 		}
 
 	}
