@@ -27,7 +27,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Used for tacking read/write activity on the socket
+		/// Used for tracking read/write activity on the socket
 		/// to determine if Poll() should be used to test for
 		/// socket connectivity. The socket in this class will
 		/// not know it has been disconnected if the remote host
@@ -812,7 +812,42 @@ namespace FluentFTP {
 				ipVersionString = ipad.AddressFamily.ToString();
 			}
 
-			return ((addrIsIPv4 && allowIPv4) || (addrIsIPv6 && allowIPv6));
+			return (addrIsIPv4 && allowIPv4) || (addrIsIPv6 && allowIPv6);
+		}
+
+		/// <summary>
+		/// Get the IP Address(es) associated with this host
+		/// </summary>
+		/// <param name="host">The host to query</param>
+		private IPAddress[] GetCachedHostAddresses(string host) {
+			IPAddress[] ipads;
+
+			if (Client.Status.CachedHostIpads.ContainsKey(host)) {
+				ipads = Client.Status.CachedHostIpads[host];
+			}
+			else {
+#if NETSTANDARD
+				ipads = Dns.GetHostAddressesAsync(host).Result;
+#else
+				ipads = Dns.GetHostAddresses(host);
+#endif
+				Client.Status.CachedHostIpads.Add(host, ipads);
+			}
+
+			return ipads;
+		}
+
+		/// <summary>
+		/// Set the connected IP Address associated with this host
+		/// </summary>
+		/// <param name="host">The host to query</param>
+		private void SetCachedHostAddresses(string host, IPAddress ipad) {
+			if (Client.Status.CachedHostIpads.ContainsKey(host)) {
+				Client.Status.CachedHostIpads[host] = new IPAddress[1] { ipad };
+			}
+			else {
+				Client.Status.CachedHostIpads.Add(host, new IPAddress[1] { ipad });
+			}
 		}
 
 		/// <summary>
@@ -823,20 +858,17 @@ namespace FluentFTP {
 		/// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
 		public void Connect(string host, int port, FtpIpVersion ipVersions) {
 
-#if NETSTANDARD
-			IPAddress[] addresses = Dns.GetHostAddressesAsync(host).Result;
-#else
-			IPAddress[] addresses = Dns.GetHostAddresses(host);
-#endif
+			IPAddress[] ipads = GetCachedHostAddresses(host);
+			IPAddress ipad = null;
 
 			if (ipVersions == 0) {
 				throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.");
 			}
 
-			for (var i = 0; i < addresses.Length; i++) {
+			for (var i = 0; i < ipads.Length; i++) {
 				int iPlusOne = i + 1;
 
-				IPAddress ipad = addresses[i];
+				ipad = ipads[i];
 
 				string logIp = Client.Config.LogHost ? ipad.ToString() : "***";
 
@@ -851,7 +883,7 @@ namespace FluentFTP {
 
 				BindSocketToLocalIp();
 
-				bool lastIP = iPlusOne == addresses.Length;
+				bool lastIP = iPlusOne == ipads.Length;
 
 				try {
 					if (ConnectHelper(ipad, port)) {
@@ -883,6 +915,8 @@ namespace FluentFTP {
 				Close();
 				throw new IOException("Failed to connect to host.");
 			}
+
+			SetCachedHostAddresses(host, ipad);
 
 			m_netStream = new NetworkStream(m_socket);
 			m_netStream.ReadTimeout = m_readTimeout;
@@ -931,6 +965,29 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Get the IP Address(es) associated with this host
+		/// </summary>
+		/// <param name="host">The host to query</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		private async Task<IPAddress[]> GetCachedHostAddressesAsync(string host, CancellationToken token) {
+			IPAddress[] ipads;
+
+			if (Client.Status.CachedHostIpads.ContainsKey(host)) {
+				ipads = Client.Status.CachedHostIpads[host];
+			}
+			else {
+#if NET6_0_OR_GREATER
+				ipads = await Dns.GetHostAddressesAsync(host, token);
+#else
+				ipads = await Dns.GetHostAddressesAsync(host);
+#endif
+				Client.Status.CachedHostIpads.Add(host, ipads);
+			}
+
+			return ipads;
+		}
+
+		/// <summary>
 		/// Connect to the specified host
 		/// </summary>
 		/// <param name="host">The host to connect to</param>
@@ -939,20 +996,17 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public async Task ConnectAsync(string host, int port, FtpIpVersion ipVersions, CancellationToken token) {
 
-#if NET6_0_OR_GREATER
-			IPAddress[] addresses = await Dns.GetHostAddressesAsync(host, token);
-#else
-			IPAddress[] addresses = await Dns.GetHostAddressesAsync(host);
-#endif
+			IPAddress[] ipads = await GetCachedHostAddressesAsync(host, token);
+			IPAddress ipad = null;
 
 			if (ipVersions == 0) {
 				throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.");
 			}
 
-			for (var i = 0; i < addresses.Length; i++) {
+			for (var i = 0; i < ipads.Length; i++) {
 				int iPlusOne = i + 1;
 
-				IPAddress ipad = addresses[i];
+				ipad = ipads[i];
 
 				string logIp = Client.Config.LogHost ? ipad.ToString() : "***";
 
@@ -967,7 +1021,7 @@ namespace FluentFTP {
 
 				BindSocketToLocalIp();
 
-				bool lastIP = iPlusOne == addresses.Length;
+				bool lastIP = iPlusOne == ipads.Length;
 
 				try {
 					if (await ConnectAsyncHelper(ipad, port, token)) {
@@ -999,6 +1053,8 @@ namespace FluentFTP {
 				Close();
 				throw new IOException("Failed to connect to host.");
 			}
+
+			SetCachedHostAddresses(host, ipad);
 
 			m_netStream = new NetworkStream(m_socket);
 			m_netStream.ReadTimeout = m_readTimeout;
