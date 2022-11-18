@@ -149,6 +149,8 @@ namespace FluentFTP {
 			ValidateCertificate += new FtpSocketStreamSslValidation(delegate (FtpSocketStream obj, FtpSslValidationEventArgs e) { e.Accept = true; });
 
 			m_position = 0;
+
+			IsControlConnection = false;
 		}
 
 		/// <summary>

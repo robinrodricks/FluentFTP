@@ -69,8 +69,7 @@ namespace FluentFTP {
 				if (Config.EncryptionMode == FtpEncryptionMode.Implicit) {
 					m_stream.ActivateEncryption(Host,
 						Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null,
-						Config.SslProtocols,
-						true);
+						Config.SslProtocols);
 				}
 
 				Handshake();
@@ -94,8 +93,7 @@ namespace FluentFTP {
 					else {
 						m_stream.ActivateEncryption(Host,
 							Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null,
-							Config.SslProtocols,
-							true);
+							Config.SslProtocols);
 					}
 				}
 
