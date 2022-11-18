@@ -31,9 +31,6 @@ namespace FluentFTP {
 				throw new FtpCommandException(reply);
 			}
 
-			// invalidate the cached path
-			// This is redundant, Execute(...) will see the CWD and do this
-			//Status.LastWorkingDir = null;
 		}
 
 	}
