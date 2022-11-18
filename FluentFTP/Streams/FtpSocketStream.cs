@@ -836,8 +836,7 @@ namespace FluentFTP {
 		/// <param name="host">The host to query</param>
 		private void SetCachedHostAddresses(string host, IPAddress ipad) {
 			if (Client.Status.CachedHostIpads.ContainsKey(host)) {
-				Client.Status.CachedHostIpads.Remove(host);
-				Client.Status.CachedHostIpads.Add(host, new IPAddress[1] { ipad });
+				Client.Status.CachedHostIpads[host] = new IPAddress[1] { ipad };
 			}
 			else {
 				Client.Status.CachedHostIpads.Add(host, new IPAddress[1] { ipad });
