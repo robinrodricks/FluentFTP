@@ -1,5 +1,26 @@
 # Release Notes
 
+#### 42.0.2
+ - **FTP** (thanks [FanDjango](/FanDjango))
+   - New: DNS Caching to prevent DNS server rejecting name resolution for rapidly repeating requests
+   - Fix: Do not assume the server path when `CWD` command sent
+   - New: Better log message for stream dispose to indicate which stream was disposed
+   - Fix: Typo in `FtpException` thrown when creating directories
+   - Change: Refactor post-Execute operations and implement parity in sync/async API
+ - **Connection** (thanks [FanDjango](/FanDjango))
+   - Fix: `AutoConnect` fails with Azure FTP servers due to profile handling
+   - Change: Improve exception throwing order for `InvalidOperationException` if unable to connect
+   - Change: Complete rewrite of `Connect` API 
+   - New: Add check to ensure that the IP version is permitted when connecting to servers
+   - Fix: Implement retry logic to check all possibly server addresses before failing with an exception
+   - Fix: Implement improved logic to detect timeouts and socket failures
+   - Fix: `ConnectTimeout` is not taking effect for `ConnectAsync` API
+   - Fix: Reset `CurrentDataType` when re-connected to an FTP server
+ - **File Transfer** (thanks [FanDjango](/FanDjango))
+   - Fix: Parity in resume logic for upload and download and throw `AggregateException` where required
+   - New: Implement the missing `ResumeUpload` for synchronous API
+   - New: Add a log message so that the resume operation is actually noticed by users
+
 #### 42.0.1
  - **FTP**
    - New: TLS authentication failures will always throw `AuthenticationException` (thanks [FanDjango](/FanDjango))
