@@ -3,9 +3,9 @@
 #### 42.0.2
  - **FTP** (thanks [FanDjango](/FanDjango))
    - New: DNS Caching to prevent DNS server rejecting name resolution for rapidly repeating requests
-   - Fix: Do not assume the server path when `CWD` command sent
    - New: Better log message for stream dispose to indicate which stream was disposed
    - Fix: Typo in `FtpException` thrown when creating directories
+   - Fix: Do not assume the server path when `CWD` command sent
    - Change: Refactor post-Execute operations and implement parity in sync/async API
  - **Connection** (thanks [FanDjango](/FanDjango))
    - Fix: `AutoConnect` fails with Azure FTP servers due to profile handling
