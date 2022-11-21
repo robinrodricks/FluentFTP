@@ -1087,10 +1087,19 @@ namespace FluentFTP {
 			}
 #else
 			try {
+// fix #1054
+#if v472
+			    using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
+					timeoutSrc.CancelAfter(ctmo);
+			        await EnableCancellation(m_socket.ConnectAsync(ipad, port), timeoutSrc.Token, () => DisposeSocket());
+				}
+#else
 				using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
 					timeoutSrc.CancelAfter(ctmo);
-					await EnableCancellation(m_socket.ConnectAsync(ipad, port), timeoutSrc.Token, () => DisposeSocket());
+					var connectResult = m_socket.BeginConnect(ipad, port, null, null);
+					await EnableCancellation(Task.Factory.FromAsync(connectResult, m_socket.EndConnect), timeoutSrc.Token, () => DisposeSocket());
 				}
+#endif
 			}
 			catch (SocketException ex) {
 				if (ex.SocketErrorCode == SocketError.OperationAborted ||
