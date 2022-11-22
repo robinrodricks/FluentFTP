@@ -35,7 +35,6 @@ namespace FluentFTP {
 			if (existsMode != FtpRemoteExists.NoCheck) {
 				if (await FileExists(path, token)) {
 					// check if dest file exists and act accordingly
-					// if (existsMode != FtpRemoteExists.NoCheck) {
 					bool destExists = await FileExists(dest, token);
 					if (destExists) {
 						switch (existsMode) {
