@@ -1,0 +1,15 @@
+services:
+  apache:
+    build:
+      context: .
+      network: host
+    restart: unless-stopped
+    restart: always
+    network_mode: "host"
+    ports:
+	- 0.0.0.0:20:20
+	- 0.0.0.0:21:21
+	- 21100-21199:21100-21199
+    volumes:
+	- ./home:/home/apache
+	- ./logs:/var/log/apache
