@@ -9,13 +9,14 @@ namespace FluentFTP.Xunit.Docker {
 	internal static class DockerFtpContainerIndex {
 
 		public static List<DockerFtpContainer> Index = new List<DockerFtpContainer> {
+			new ApacheContainer(),
+			new BFtpdContainer(),
+			new FileZillaContainer(),
+			new GlFtpdContainer(),
 			new ProFtpdContainer(),
 			new PureFtpdContainer(),
 			new PyFtpdLibContainer(),
 			new VsFtpdContainer(),
-			new BFtpdContainer(),
-			new GlFtpdContainer(),
-			new FileZillaContainer(),
 		};
 	}
 }

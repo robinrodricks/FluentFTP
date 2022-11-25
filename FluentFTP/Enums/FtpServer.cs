@@ -165,5 +165,10 @@ namespace FluentFTP {
 		/// Definitely MikroTik RouterOS FTP server
 		/// </summary>
 		MikroTik,
+
+		/// <summary>
+		/// Definitely Apache FTP server
+		/// </summary>
+		Apache,
 	}
 }
