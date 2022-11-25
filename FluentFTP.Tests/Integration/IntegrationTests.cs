@@ -13,14 +13,6 @@ namespace FluentFTP.Tests.Integration {
 
 		// These can do both FTP and FTPS
 		[Fact]
-		public async Task VsFtpd() {
-			await IntegrationTestRunner.Run(FtpServer.VsFTPd);
-		}
-		[Fact]
-		public async Task VsFtpdSsl() {
-			await IntegrationTestRunner.Run(FtpServer.VsFTPd, UseSsl);
-		}
-		[Fact]
 		public async Task ProFtpd() {
 			await IntegrationTestRunner.Run(FtpServer.ProFTPD);
 		}
@@ -36,19 +28,30 @@ namespace FluentFTP.Tests.Integration {
 		public async Task PureFtpdSsl() {
 			await IntegrationTestRunner.Run(FtpServer.PureFTPd, UseSsl);
 		}
+		[Fact]
+		public async Task VsFtpd() {
+			await IntegrationTestRunner.Run(FtpServer.VsFTPd);
+		}
+		[Fact]
+		public async Task VsFtpdSsl() {
+			await IntegrationTestRunner.Run(FtpServer.VsFTPd, UseSsl);
+		}
 
 		// These can only do FTPS
+		[Fact]
+		public async Task FileZilla() {
+			await IntegrationTestRunner.Run(FtpServer.FileZilla);
+		}
 		[Fact]
 		public async Task Glftpd() {
 			await IntegrationTestRunner.Run(FtpServer.glFTPd);
 		}
 
-		[Fact]
-		public async Task FileZilla() {
-			await IntegrationTestRunner.Run(FtpServer.FileZilla);
-		}
-
 		// These can only do FTP
+		[Fact]
+		public async Task Apache() {
+			await IntegrationTestRunner.Run(FtpServer.Apache);
+		}
 		[Fact]
 		public async Task Bftpd() {
 			await IntegrationTestRunner.Run(FtpServer.BFTPd);
