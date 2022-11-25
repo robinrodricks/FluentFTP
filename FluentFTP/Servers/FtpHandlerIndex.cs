@@ -35,6 +35,5 @@ namespace FluentFTP.Servers {
 			new XLightServer(),
 		};
 
-
 	}
 }
