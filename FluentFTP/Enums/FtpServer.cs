@@ -12,79 +12,9 @@ namespace FluentFTP {
 		Unknown,
 
 		/// <summary>
-		/// Definitely PureFTPd server
+		/// Definitely Apache FTP server
 		/// </summary>
-		PureFTPd,
-
-		/// <summary>
-		/// Definitely VsFTPd server
-		/// </summary>
-		VsFTPd,
-
-		/// <summary>
-		/// Definitely ProFTPD server
-		/// </summary>
-		ProFTPD,
-
-		/// <summary>
-		/// Definitely FileZilla server
-		/// </summary>
-		FileZilla,
-
-		/// <summary>
-		/// Definitely OpenVMS server
-		/// </summary>
-		OpenVMS,
-
-		/// <summary>
-		/// Definitely Windows CE FTP server
-		/// </summary>
-		WindowsCE,
-
-		/// <summary>
-		/// Definitely WuFTPd server
-		/// </summary>
-		WuFTPd,
-
-		/// <summary>
-		/// Definitely GlobalScape EFT server
-		/// </summary>
-		GlobalScapeEFT,
-
-		/// <summary>
-		/// Definitely HP NonStop/Tandem server
-		/// </summary>
-		NonStopTandem,
-
-		/// <summary>
-		/// Definitely Serv-U server
-		/// </summary>
-		ServU,
-
-		/// <summary>
-		/// Definitely Cerberus FTP server
-		/// </summary>
-		Cerberus,
-
-		/// <summary>
-		/// Definitely Windows Server/IIS FTP server
-		/// </summary>
-		WindowsServerIIS,
-
-		/// <summary>
-		/// Definitely CrushFTP server
-		/// </summary>
-		CrushFTP,
-
-		/// <summary>
-		/// Definitely glFTPd server
-		/// </summary>
-		glFTPd,
-
-		/// <summary>
-		/// Definitely Homegate FTP server
-		/// </summary>
-		HomegateFTP,
+		Apache,
 
 		/// <summary>
 		/// Definitely BFTPd server
@@ -92,19 +22,54 @@ namespace FluentFTP {
 		BFTPd,
 
 		/// <summary>
+		/// Definitely Cerberus FTP server
+		/// </summary>
+		Cerberus,
+
+		/// <summary>
+		/// Definitely CrushFTP server
+		/// </summary>
+		CrushFTP,
+
+		/// <summary>
+		/// Definitely D-Link FTP server
+		/// </summary>
+		DLink,
+
+		/// <summary>
+		/// Definitely FileZilla server
+		/// </summary>
+		FileZilla,
+
+		/// <summary>
+		/// Definitely FritzBox FTP server
+		/// </summary>
+		FritzBox,
+
+		/// <summary>
 		/// Definitely FTP2S3 gateway server
 		/// </summary>
 		FTP2S3Gateway,
 
 		/// <summary>
-		/// Definitely XLight FTP server
+		/// Definitely glFTPd server
 		/// </summary>
-		XLight,
+		glFTPd,
 
 		/// <summary>
-		/// Definitely Sun OS Solaris FTP server
+		/// Definitely GlobalScape EFT server
 		/// </summary>
-		SolarisFTP,
+		GlobalScapeEFT,
+
+		/// <summary>
+		/// Definitely Homegate FTP server
+		/// </summary>
+		HomegateFTP,
+
+		/// <summary>
+		/// Definitely Huawei Technologies HG5xxx series FTP server
+		/// </summary>
+		Huawei,
 
 		/// <summary>
 		/// Definitely IBM z/OS FTP server
@@ -117,14 +82,34 @@ namespace FluentFTP {
 		IBMOS400FTP,
 
 		/// <summary>
-		/// Definitely FritzBox FTP server
+		/// Definitely ABB IDAL FTP server
 		/// </summary>
-		FritzBox,
+		IDALFTP,
 
 		/// <summary>
-		/// Definitely WS_FTP server
+		/// Definitely MikroTik RouterOS FTP server
 		/// </summary>
-		WSFTP,
+		MikroTik,
+
+		/// <summary>
+		/// Definitely HP NonStop/Tandem server
+		/// </summary>
+		NonStopTandem,
+
+		/// <summary>
+		/// Definitely OpenVMS server
+		/// </summary>
+		OpenVMS,
+
+		/// <summary>
+		/// Definitely ProFTPD server
+		/// </summary>
+		ProFTPD,
+
+		/// <summary>
+		/// Definitely PureFTPd server
+		/// </summary>
+		PureFTPd,
 
 		/// <summary>
 		/// Definitely PyFtpdLib server
@@ -132,19 +117,24 @@ namespace FluentFTP {
 		PyFtpdLib,
 
 		/// <summary>
-		/// Definitely Titan FTP server
-		/// </summary>
-		TitanFTP,
-
-		/// <summary>
 		/// Definitely Rumpus server
 		/// </summary>
 		Rumpus,
 
 		/// <summary>
-		/// Definitely ABB IDAL FTP server
+		/// Definitely Serv-U server
 		/// </summary>
-		IDALFTP,
+		ServU,
+
+		/// <summary>
+		/// Definitely Sun OS Solaris FTP server
+		/// </summary>
+		SolarisFTP,
+
+		/// <summary>
+		/// Definitely Titan FTP server
+		/// </summary>
+		TitanFTP,
 
 		/// <summary>
 		/// Definitely TP-LINK FTP server
@@ -152,18 +142,33 @@ namespace FluentFTP {
 		TPLink,
 
 		/// <summary>
-		/// Definitely D-Link FTP server
+		/// Definitely VsFTPd server
 		/// </summary>
-		DLink,
+		VsFTPd,
 
 		/// <summary>
-		/// Definitely Huawei Technologies HG5xxx series FTP server
+		/// Definitely Windows CE FTP server
 		/// </summary>
-		Huawei,
+		WindowsCE,
 
 		/// <summary>
-		/// Definitely MikroTik RouterOS FTP server
+		/// Definitely Windows Server/IIS FTP server
 		/// </summary>
-		MikroTik,
+		WindowsServerIIS,
+
+		/// <summary>
+		/// Definitely WS_FTP server
+		/// </summary>
+		WSFTP,
+
+		/// <summary>
+		/// Definitely WuFTPd server
+		/// </summary>
+		WuFTPd,
+
+		/// <summary>
+		/// Definitely XLight FTP server
+		/// </summary>
+		XLight,
 	}
 }
