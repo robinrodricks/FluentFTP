@@ -32,9 +32,9 @@ namespace FluentFTP {
 
 			LogFunction(nameof(MoveFile), new object[] { path, dest, existsMode });
 
-			if (await FileExists(path, token)) {
-				// check if dest file exists and act accordingly
-				if (existsMode != FtpRemoteExists.NoCheck) {
+			if (existsMode != FtpRemoteExists.NoCheck) {
+				if (await FileExists(path, token)) {
+					// check if dest file exists and act accordingly
 					bool destExists = await FileExists(dest, token);
 					if (destExists) {
 						switch (existsMode) {
@@ -47,14 +47,16 @@ namespace FluentFTP {
 						}
 					}
 				}
-
-				// move the file
-				await Rename(path, dest, token);
-
-				return true;
+				else {
+					return false;
+				}
 			}
 
-			return false;
+			// move the file
+			await Rename(path, dest, token);
+
+			return true;
+
 		}
 
 	}

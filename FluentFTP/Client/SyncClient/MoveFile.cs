@@ -31,9 +31,9 @@ namespace FluentFTP {
 
 			LogFunction(nameof(MoveFile), new object[] { path, dest, existsMode });
 
-			if (FileExists(path)) {
-				// check if dest file exists and act accordingly
-				if (existsMode != FtpRemoteExists.NoCheck) {
+			if (existsMode != FtpRemoteExists.NoCheck) {
+				if (FileExists(path)) {
+					// check if dest file exists and act accordingly
 					var destExists = FileExists(dest);
 					if (destExists) {
 						switch (existsMode) {
@@ -46,9 +46,13 @@ namespace FluentFTP {
 						}
 					}
 				}
+				else {
+					return false;
+				}
+			}
 
-				// move the file
-				Rename(path, dest);
+			// move the file
+			Rename(path, dest);
 
 				return true;
 			}
