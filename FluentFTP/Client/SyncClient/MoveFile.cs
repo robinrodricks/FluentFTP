@@ -54,11 +54,9 @@ namespace FluentFTP {
 			// move the file
 			Rename(path, dest);
 
-				return true;
-			}
+			return true;
 
-			return false;
-		}
+			}
 
 	}
 }
