@@ -154,6 +154,10 @@ namespace FluentFTP.Client.BaseClient {
 		void IInternalFtpClient.ConnectInternal() {
 		}
 
+        void IInternalFtpClient.ConnectInternal(bool reConnect)
+        {
+        }
+
 		/// <summary>
 		/// Finalizer
 		/// </summary>

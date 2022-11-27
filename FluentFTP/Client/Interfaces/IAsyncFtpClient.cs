@@ -30,6 +30,7 @@ namespace FluentFTP {
 		Task<FtpReply> GetReply(CancellationToken token = default(CancellationToken));
 		Task Connect(CancellationToken token = default(CancellationToken));
 		Task Connect(FtpProfile profile, CancellationToken token = default(CancellationToken));
+        Task Connect(bool reConnect, CancellationToken token = default(CancellationToken));
 		Task<List<FtpProfile>> AutoDetect(bool firstOnly = true, bool cloneConnection = true, CancellationToken token = default(CancellationToken));
 		Task<FtpProfile> AutoConnect(CancellationToken token = default(CancellationToken));
 

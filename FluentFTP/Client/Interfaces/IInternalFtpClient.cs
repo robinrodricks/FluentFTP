@@ -15,6 +15,7 @@ namespace FluentFTP {
 		void DisconnectInternal();
 
 		void ConnectInternal();
+        void ConnectInternal(bool reConnect);
 
 		FtpReply CloseDataStreamInternal(FtpDataStream stream);
 

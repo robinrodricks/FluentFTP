@@ -11,6 +11,14 @@ namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
 		/// <summary>
+        /// Connect to the given server profile.
+        /// </summary>
+        public async Task Connect(CancellationToken token = default(CancellationToken))
+        {
+			await Connect(false, token);
+        }
+
+        /// <summary>
 		/// Connect to the given server profile.
 		/// </summary>
 		public async Task Connect(FtpProfile profile, CancellationToken token = default(CancellationToken)) {
@@ -19,18 +27,26 @@ namespace FluentFTP {
 			LoadProfile(profile);
 
 			// begin connection
-			await Connect(token);
+			await Connect(false, token);
 		}
 
 		// TODO: add example
 		/// <summary>
 		/// Connect to the server
 		/// </summary>
+		/// <param name="reConnect"> true indicates that we want a 
+		/// reconnect to take place.</param>
 		/// <exception cref="ObjectDisposedException">Thrown if this object has been disposed.</exception>
-		public virtual async Task Connect(CancellationToken token = default(CancellationToken)) {
+        public virtual async Task Connect(bool reConnect, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
+            if (!reConnect) {
+
 			LogFunction(nameof(ConnectAsync));
+            }
+            else {
+                LogFunction("Re" + nameof(Connect));
+            }
 
 			LogVersion();
 
@@ -56,7 +72,7 @@ namespace FluentFTP {
 				m_capabilities = new List<FtpCapability>();
 			}
 
-			Status.Reset();
+			Status.Reset(reConnect);
 
 			m_hashAlgorithms = FtpHashAlgorithm.NONE;
 			m_stream.ConnectTimeout = Config.ConnectTimeout;
@@ -182,6 +198,18 @@ namespace FluentFTP {
 			if (ServerHandler != null) {
 				await ServerHandler.AfterConnectedAsync(this, token);
 			}
+
+            if (reConnect)
+            {
+				// go back to previous CWD
+				if (Status.LastWorkingDir != null) {
+					await SetWorkingDirectory(Status.LastWorkingDir, token);
+				}
+            }
+            else
+            {
+                _ = await GetWorkingDirectory(token);
+            }
 
 			// FIX #922: disable checking for stale data during connection
 			Status.AllowCheckStaleData = true;

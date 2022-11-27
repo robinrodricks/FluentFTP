@@ -21,13 +21,6 @@ namespace FluentFTP {
 		public async Task<FtpReply> Execute(string command, CancellationToken token) {
 			FtpReply reply;
 
-			if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
-#if NETSTANDARD
-				await ReadStaleDataAsync(true, "prior to command execution", token);
-#else
-				ReadStaleData(true, "prior to command execution");
-#endif
-			}
 
 			if (!IsConnected) {
 				if (command == "QUIT") {
@@ -38,13 +31,42 @@ namespace FluentFTP {
 					};
 				}
 
-				await Connect(token);
+				LogWithPrefix(FtpTraceLevel.Info, "Reconnect due to disconnected control connection");
+
+				// Reconnect and then execute the command
+				await Connect(true, token);
+            }
+            // Automatic reconnect on reaching MaxSslReadLines?
+            else if (Config.MaxSslReadLines > 0 && !Status.InCriticalSequence && m_stream.SocketReadLineCount > Config.MaxSslReadLines) {
+				LogWithPrefix(FtpTraceLevel.Info, "Reconnect due to MaxSslReadLines reached");
+
+				m_stream.Close();
+                m_stream = null;
+
+                await Connect(true, token);
+			}
+            // Check for stale data on the socket?
+            else if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
+#if NETSTANDARD
+				var staleData = await ReadStaleDataAsync(true, "prior to command execution", token);
+#else
+				var staleData = ReadStaleData(true, "prior to command execution");
+#endif
+
+				if (staleData != null) {
+					LogWithPrefix(FtpTraceLevel.Info, "Reconnect due to stale data");
+
+					m_stream.Close();
+					m_stream = null;
+
+					((IInternalFtpClient)this).ConnectInternal(true);
+				}
 			}
 
 			// hide sensitive data from logs
-			string commandClean = LogMaskModule.MaskCommand(this, command);
+			string cleanedCommand = LogMaskModule.MaskCommand(this, command);
 
-			Log(FtpTraceLevel.Info, "Command:  " + commandClean);
+            Log(FtpTraceLevel.Info, "Command:  " + cleanedCommand);
 
 			// send command to FTP server
 			await m_stream.WriteLineAsync(m_textEncoding, command, token);
@@ -52,6 +74,10 @@ namespace FluentFTP {
 			reply = await GetReplyAsyncInternal(token, command);
 			if (reply.Success) {
 				OnPostExecute(command);
+
+                if (Config.MaxSslReadLines > 0) {
+                    DetermineCriticalSequence(command);
+                }
 			}
 
 			return reply;

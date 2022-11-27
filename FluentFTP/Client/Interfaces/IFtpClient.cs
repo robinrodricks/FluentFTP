@@ -27,6 +27,7 @@ namespace FluentFTP {
 		FtpReply GetReply();
 		void Connect();
 		void Connect(FtpProfile profile);
+        void Connect(bool reConnect);
 		List<FtpProfile> AutoDetect(bool firstOnly = true, bool cloneConnection = true);
 		FtpProfile AutoConnect();
 		void Disconnect();
