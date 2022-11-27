@@ -44,7 +44,9 @@ namespace FtpSslLib {
 #endif
 			}
 			finally {
+				if (!LeaveInnerStreamOpen) {
 				base.Dispose(disposing);
+				}
 			}
 		}
 
