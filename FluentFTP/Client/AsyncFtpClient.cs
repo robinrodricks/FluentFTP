@@ -100,6 +100,11 @@ namespace FluentFTP {
 			// TODO: Call ConnectAsync
 		}
 
+        void IInternalFtpClient.ConnectInternal(bool reConnect)
+        {
+            // TODO: Call ConnectAsync
+        }
+
 		#endregion
 
 	}

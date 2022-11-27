@@ -97,8 +97,13 @@ namespace FluentFTP {
 		}
 
 		void IInternalFtpClient.ConnectInternal() {
-			Connect();
+			Connect(false);
 		}
+
+        void IInternalFtpClient.ConnectInternal(bool reConnect)
+        {
+            Connect(reConnect);
+        }
 
 		#endregion
 

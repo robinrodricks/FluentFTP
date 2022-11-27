@@ -63,19 +63,28 @@ namespace FluentFTP {
 		public bool AllowCheckStaleData { get; set; } = false;
 
 		/// <summary>
+        /// We are in a sequence of commands that should not be interrupted
+		/// by an automatic reconnect
+        /// </summary>
+        public bool InCriticalSequence { get; set; } = false;
+
+        /// <summary>
 		/// These flags must be reset every time we connect, to allow for users to connect to
 		/// different FTP servers with the same client object.
 		/// </summary>
-		public void Reset() {
+        public void Reset(bool reConnect) {
+			if (!reConnect) {
+				LastWorkingDir = null;
+			}
 			EPSVNotSupported = false;
 			FileSizeASCIINotSupported = false;
 			RecursiveListSupported = false;
-			LastWorkingDir = null;
 			LastHashAlgo = FtpHashAlgorithm.NONE;
 			ConnectionFTPSFailure = false;
 			ConnectionUTF8Success = false;
 			AllowCheckStaleData = false;
 			CurrentDataType = FtpDataType.Unknown;
+			InCriticalSequence = false;
 		}
 
 		/// <summary>

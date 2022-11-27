@@ -47,6 +47,12 @@ namespace FluentFTP {
 			private set => m_socket = value;
 		}
 
+		/// <summary>
+		/// Keep a count of command/response transactions on the
+		/// control connection
+		///
+		public int SocketReadLineCount = 0;
+
 		private int m_socketPollInterval = 15000;
 
 		/// <summary>

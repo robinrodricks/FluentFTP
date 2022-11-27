@@ -62,6 +62,13 @@ namespace FluentFTP {
 		/// </summary>
 		public FtpIpVersion InternetProtocolVersions { get; set; } = FtpIpVersion.ANY;
 
+        /// <summary>
+        /// Gets or sets the max number of socket write/read transactions
+		/// before an automatic disconnect/reconnect is performed.
+		/// Set to zero to disable automatic reconnects.
+        /// </summary>
+        public int MaxSslReadLines { get; set; } = 0;
+
 		protected int _socketPollInterval = 15000;
 
 		/// <summary>
@@ -540,6 +547,7 @@ namespace FluentFTP {
 			write.LogUserName = read.LogUserName;
 			write.LogPassword = read.LogPassword;
 			write.InternetProtocolVersions = read.InternetProtocolVersions;
+			write.MaxSslReadLines = read.MaxSslReadLines;
 			write.SocketPollInterval = read.SocketPollInterval;
 			write.StaleDataCheck = read.StaleDataCheck;
 			write.NoopInterval = read.NoopInterval;

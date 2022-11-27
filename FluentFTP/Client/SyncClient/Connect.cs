@@ -11,6 +11,14 @@ namespace FluentFTP {
 	public partial class FtpClient {
 
 		/// <summary>
+        /// Connect
+        /// </summary>
+        public virtual void Connect()
+        {
+			Connect(false);
+        }
+
+        /// <summary>
 		/// Connect to the given server profile.
 		/// </summary>
 		public void Connect(FtpProfile profile) {
@@ -19,19 +27,27 @@ namespace FluentFTP {
 			LoadProfile(profile);
 
 			// begin connection
-			Connect();
+			Connect(false);
 		}
 
 		/// <summary>
 		/// Connect to the server
 		/// </summary>
+		/// <param name="reConnect"> true indicates that we want a 
+		/// reconnect to take place.</param>
 		/// <exception cref="ObjectDisposedException">Thrown if this object has been disposed.</exception>
-		public virtual void Connect() {
+		public virtual void Connect(bool reConnect) {
 			FtpReply reply;
 
 			lock (m_lock) {
 
-				LogFunction(nameof(Connect));
+				if (!reConnect) {
+
+					LogFunction(nameof(Connect));
+				}
+				else {
+                    LogFunction("Re" + nameof(Connect));
+                }
 
 				LogVersion();
 
@@ -57,7 +73,7 @@ namespace FluentFTP {
 					m_capabilities = new List<FtpCapability>();
 				}
 
-				Status.Reset();
+				Status.Reset(reConnect);
 
 				m_hashAlgorithms = FtpHashAlgorithm.NONE;
 				m_stream.ConnectTimeout = Config.ConnectTimeout;
@@ -180,6 +196,18 @@ namespace FluentFTP {
 
 				// Execute server-specific post-connection event
 				ServerHandler?.AfterConnected(this);
+
+                if (reConnect)
+                {
+					// go back to previous CWD
+					if (Status.LastWorkingDir != null) {
+						SetWorkingDirectory(Status.LastWorkingDir);
+					}
+                }
+                else
+                {
+                    _ = GetWorkingDirectory();
+                }
 
 				// FIX #922: disable checking for stale data during connection
 				Status.AllowCheckStaleData = true;
