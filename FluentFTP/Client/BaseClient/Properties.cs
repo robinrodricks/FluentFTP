@@ -335,6 +335,13 @@ namespace FluentFTP.Client.BaseClient {
 		protected FtpSslValidation m_ValidateCertificate = null;
 
 		/// <summary>
+		/// Easiest way to check if a handler has been attached.
+		/// </summary>
+		public bool ValidateCertificateHandlerExists {
+			get { return m_ValidateCertificate != null; }
+		}
+
+		/// <summary>
 		/// Event is fired to validate SSL certificates. If this event is
 		/// not handled and there are errors validating the certificate
 		/// the connection will be aborted.
