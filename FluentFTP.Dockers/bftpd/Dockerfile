@@ -6,20 +6,9 @@
 # Stage 1: build
 #
 
-FROM	debian:bullseye-slim AS build
+FROM	common-debian:fluentftp AS build
 
 SHELL	["/bin/bash", "-c"]
-
-ARG	DEBIAN_FRONTEND=noninteractive
-ARG	APT_CMD='apt install -y --no-install-recommends'
-
-RUN	apt update && apt upgrade -y && apt install -y apt-utils && \
-		\
-		$APT_CMD \
-			ca-certificates \
-			wget \
-			build-essential
-
 
 WORKDIR	/tmp/bftpd
 RUN	wget --no-check-certificate -O bftpd.tar.gz https://downloads.sourceforge.net/project/bftpd/bftpd/bftpd-6.1/bftpd-6.1.tar.gz && \
@@ -33,17 +22,11 @@ RUN	wget --no-check-certificate -O bftpd.tar.gz https://downloads.sourceforge.ne
 # Stage 2: production
 #
 
-FROM	debian:bullseye-slim AS production
+FROM	common-debian-slim:fluentftp AS production
 
 LABEL	Description="FluentFTP bftpd docker image based on Debian Bullseye."
 
 SHELL	["/bin/bash", "-c"]
-
-ARG	DEBIAN_FRONTEND=noninteractive
-ARG	APT_CMD='apt install -y --no-install-recommends'
-
-WORKDIR	/
-RUN	apt update && apt upgrade -y && apt install -y apt-utils
 
 COPY	run-bftpd.sh /usr/sbin/
 
