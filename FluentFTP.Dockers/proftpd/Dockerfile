@@ -6,7 +6,7 @@
 # Stage 1: build & production
 #
 
-FROM	debian:bullseye-slim AS build
+FROM	common-debian-slim:fluentftp AS build
 
 LABEL	Description="FluentFTP proftpd docker image based on Debian Bullseye."
 
@@ -15,12 +15,14 @@ SHELL	["/bin/bash", "-c"]
 ARG	DEBIAN_FRONTEND=noninteractive
 ARG	APT_CMD='apt install -y --no-install-recommends'
 
-RUN	apt update && apt upgrade -y && apt install -y apt-utils && \
-		\
-		$APT_CMD \
-			openssl \
-			proftpd \
-			proftpd-mod-crypto
+COPY	sources.list /etc/apt/sources.list
+
+RUN	apt update && \
+	\
+	$APT_CMD \
+		openssl \
+		proftpd \
+		proftpd-mod-crypto
 
 COPY	run-proftpd.sh /usr/sbin/
 

@@ -6,7 +6,7 @@
 # Stage 1: build & production
 #
 
-FROM	debian:bullseye-slim AS build
+FROM	common-debian:fluentftp AS build
 
 LABEL	Description="FluentFTP proftpd docker image based on Debian Bullseye."
 
@@ -18,17 +18,16 @@ ARG	OPENSSL_VERSION=3.0.1
 ARG	DEBIAN_FRONTEND=noninteractive
 ARG	APT_CMD='apt install -y --no-install-recommends'
 
+COPY	sources.list /etc/apt/sources.list
+
 RUN	apt update && apt upgrade -y && apt install -y apt-utils && \
-		\
-		$APT_CMD \
-			ca-certificates \
-			wget \
-			build-essential \
-			libpsl5 \
-			publicsuffix \
-			zip unzip \
-			xinetd \
-			ftp && \
+	\
+	$APT_CMD \
+		libpsl5 \
+		publicsuffix \
+		zip unzip \
+		xinetd \
+		ftp && \
 	\
 	cd /tmp && \
 	wget https://glftpd.io/files/glftpd-LNX-${GLFTPD_VERSION}_${OPENSSL_VERSION}_x64.tgz && \

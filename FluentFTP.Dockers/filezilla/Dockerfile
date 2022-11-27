@@ -6,7 +6,7 @@
 # Stage 1: build
 #
 
-FROM	debian:bullseye-slim AS build
+FROM	common-debian:fluentftp AS build
 
 SHELL   ["/bin/bash", "-c"]
 
@@ -19,20 +19,20 @@ ARG	FILEZILLA_URL=https://download.filezilla-project.org/server/FileZilla_Server
 ARG	DEBIAN_FRONTEND=noninteractive
 ARG	APT_CMD='apt install -y --no-install-recommends'
 
+COPY	sources.list /etc/apt/sources.list
+
 RUN	apt update && apt upgrade -y && apt install -y apt-utils && \
-		\
-		$APT_CMD \
-			ca-certificates \
-			curl \
-			bzip2 \
-			binutils \
-			build-essential \
-			pkg-config \
-			libgmp-dev \
-			nettle-dev \
-			gnutls-dev \
-			gettext \
-			libwxgtk3.0-gtk3-dev
+	\
+	$APT_CMD \
+		curl \
+		bzip2 \
+		binutils \
+		pkg-config \
+		libgmp-dev \
+		nettle-dev \
+		gnutls-dev \
+		gettext \
+		libwxgtk3.0-gtk3-dev
 
 WORKDIR	/tmp/libfilezilla
 RUN	curl -L ${LIBFILEZILLA_URL} | tar xj --strip 1 -C /tmp/libfilezilla
@@ -103,7 +103,7 @@ RUN	openssl ecparam -name prime256v1 -genkey -noout -out key.pem && \
 # Stage 2: production
 #
 
-FROM	debian:bullseye-slim AS production
+FROM	common-debian-slim:fluentftp AS production
 
 LABEL	Description="FluentFTP filezilla-server docker image based on Debian Bullseye."
 
@@ -111,9 +111,6 @@ SHELL   ["/bin/bash", "-c"]
 
 ARG	DEBIAN_FRONTEND=noninteractive
 ARG	APT_CMD='apt install -y --no-install-recommends'
-
-WORKDIR	/
-RUN	apt update && apt upgrade -y && apt install -y apt-utils
 
 COPY	run-filezilla.sh /usr/sbin/
 

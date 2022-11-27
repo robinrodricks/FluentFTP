@@ -6,22 +6,13 @@
 # Stage 1: build
 #
 
-FROM	debian:bullseye-slim AS build
+FROM	common-debian:fluentftp AS build
 
 SHELL	["/bin/bash", "-c"]
 
 ARG	APACHE_VERSION=1.2.0
 
 ARG	APACHE_URL=https://dlcdn.apache.org/mina/ftpserver/${APACHE_VERSION}/apache-ftpserver-${APACHE_VERSION}-bin.tar.gz
-
-ARG	DEBIAN_FRONTEND=noninteractive
-ARG	APT_CMD='apt install -y --no-install-recommends'
-
-RUN	apt update && apt upgrade -y && apt install -y apt-utils && \
-	\
-	$APT_CMD \
-		ca-certificates \
-		wget
 
 WORKDIR	/root
 RUN	wget -O apache.tar.gz ${APACHE_URL} && \
@@ -32,7 +23,7 @@ RUN	wget -O apache.tar.gz ${APACHE_URL} && \
 # Stage 2: production
 #
 
-FROM	debian:bullseye-slim AS production
+FROM	common-debian-slim:fluentftp AS production
 
 LABEL	Description="FluentFTP apache-ftp-server docker image based on Debian Bullseye."
 
@@ -40,6 +31,8 @@ SHELL   ["/bin/bash", "-c"]
 
 ARG	DEBIAN_FRONTEND=noninteractive
 ARG	APT_CMD='apt install -y --no-install-recommends'
+
+COPY	sources.list /etc/apt/sources.list
 
 RUN	apt update && apt upgrade -y && apt install -y apt-utils && \
 	\
