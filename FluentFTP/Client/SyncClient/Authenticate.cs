@@ -45,7 +45,7 @@ namespace FluentFTP {
 
 				// fix for #620: some servers send multiple responses that must be read and decoded,
 				// otherwise the connection is aborted and remade and it goes into an infinite loop
-				var staleData = ReadStaleData(false, true, "in authentication");
+				var staleData = ReadStaleData(true, "in authentication");
 				if (staleData != null) {
 					var staleReply = new FtpReply();
 					if (DecodeStringToReply(staleData, ref staleReply) && !staleReply.Success) {
