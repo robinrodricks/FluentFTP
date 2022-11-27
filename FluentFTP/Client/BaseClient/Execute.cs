@@ -31,17 +31,17 @@ namespace FluentFTP.Client.BaseClient {
 					// Reconnect and then execute the command
 					((IInternalFtpClient)this).ConnectInternal(true);
 				}
-                // Automatic reconnect on reaching MaxSslReadLines?
-                else if (Config.MaxSslReadLines > 0 && !Status.InCriticalSequence && m_stream.SocketReadLineCount > Config.MaxSslReadLines) {
+				// Automatic reconnect on reaching MaxSslReadLines?
+				else if (Config.MaxSslReadLines > 0 && !Status.InCriticalSequence && m_stream.SocketReadLineCount > Config.MaxSslReadLines) {
 					LogWithPrefix(FtpTraceLevel.Info, "Reconnect due to MaxSslReadLines reached");
 
 					m_stream.Close();
-                    m_stream = null;
+					m_stream = null;
 
-                    ((IInternalFtpClient)this).ConnectInternal(true);
-                }
-                // Check for stale data on the socket?
-                else if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
+					((IInternalFtpClient)this).ConnectInternal(true);
+				}
+				// Check for stale data on the socket?
+				else if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
 					var staleData = ReadStaleData(true, "prior to command execution");
 
 					if (staleData != null) {
@@ -66,12 +66,12 @@ namespace FluentFTP.Client.BaseClient {
 				if (reply.Success) {
 					OnPostExecute(command);
 
-                    if (Config.MaxSslReadLines > 0) {
-                        DetermineCriticalSequence(command);
-				}
+					if (Config.MaxSslReadLines > 0) {
+						DetermineCriticalSequence(command);
+					}
 
+				}
 			}
-		}
 
 			return reply;
 		}
@@ -90,50 +90,48 @@ namespace FluentFTP.Client.BaseClient {
 			}
 		}
 
-        protected void DetermineCriticalSequence(string cmd)
-        {
-            // Check against a list of commands that would be
-            // the start of a critical sequence and commands
-            // that denote the end of a critical sequence.
-            // A critical sequence will not be interrupted by an
-            // automatic reconnect.
+		protected void DetermineCriticalSequence(string cmd) {
+			// Check against a list of commands that would be
+			// the start of a critical sequence and commands
+			// that denote the end of a critical sequence.
+			// A critical sequence will not be interrupted by an
+			// automatic reconnect.
 
-            List<string> criticalStartingCommands = new List<string>()
-            {
-                "EPRT",
-                "EPSV",
-                "LPSV",
-                "PASV",
-                "SPSV",
-                "PORT",
-                "LPRT",
-            };
+			List<string> criticalStartingCommands = new List<string>()
+			{
+				"EPRT",
+				"EPSV",
+				"LPSV",
+				"PASV",
+				"SPSV",
+				"PORT",
+				"LPRT",
+			};
 
-            List<string> criticalTerminatingCommands = new List<string>()
-            {
-                "ABOR",
-                "LIST",
-                "NLST",
-                "MLSD",
-                "STOR",
-                "STOU",
-                "APPE",
-                "REST",
-                "RETR",
-                "THMB",
-            };
+			List<string> criticalTerminatingCommands = new List<string>()
+			{
+				"ABOR",
+				"LIST",
+				"NLST",
+				"MLSD",
+				"STOR",
+				"STOU",
+				"APPE",
+				"REST",
+				"RETR",
+				"THMB",
+			};
 
-            if (criticalStartingCommands.Contains(cmd.Split(new char[] { ' ' })[0])) {
-                Status.InCriticalSequence = true;
-                return;
-            }
+			if (criticalStartingCommands.Contains(cmd.Split(new char[] { ' ' })[0])) {
+				Status.InCriticalSequence = true;
+				return;
+			}
 
-            if (criticalTerminatingCommands.Contains(cmd.Split(new char[] { ' ' })[0]))
-            {
-                Status.InCriticalSequence = false;
-                return;
-            }
-        }
+			if (criticalTerminatingCommands.Contains(cmd.Split(new char[] { ' ' })[0])) {
+				Status.InCriticalSequence = false;
+				return;
+			}
+		}
 
 	}
 }
