@@ -143,8 +143,8 @@ namespace FluentFTP.Client.BaseClient {
 					sequence += "," + response.Split(' ')[0];
 
 					if (exhaustNoop &&
-						// NOOP responses can actually come in quite a few flavors, so watch out..
-						(response.StartsWith("200 NOOP", StringComparison.InvariantCultureIgnoreCase) || response.StartsWith("500"))) {
+						((response.StartsWith("200") && (response.IndexOf("NOOP", StringComparison.InvariantCultureIgnoreCase) >= 0)) ||
+						response.StartsWith("500"))) {
 
 						Log(FtpTraceLevel.Verbose, "Skipped:  " + response);
 
