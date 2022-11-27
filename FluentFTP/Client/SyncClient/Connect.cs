@@ -11,14 +11,13 @@ namespace FluentFTP {
 	public partial class FtpClient {
 
 		/// <summary>
-        /// Connect
-        /// </summary>
-        public virtual void Connect()
-        {
+		/// Connect
+		/// </summary>
+		public virtual void Connect() {
 			Connect(false);
-        }
+		}
 
-        /// <summary>
+		/// <summary>
 		/// Connect to the given server profile.
 		/// </summary>
 		public void Connect(FtpProfile profile) {
@@ -46,8 +45,8 @@ namespace FluentFTP {
 					LogFunction(nameof(Connect));
 				}
 				else {
-                    LogFunction("Re" + nameof(Connect));
-                }
+					LogFunction("Re" + nameof(Connect));
+				}
 
 				LogVersion();
 
@@ -197,17 +196,15 @@ namespace FluentFTP {
 				// Execute server-specific post-connection event
 				ServerHandler?.AfterConnected(this);
 
-                if (reConnect)
-                {
+				if (reConnect) {
 					// go back to previous CWD
 					if (Status.LastWorkingDir != null) {
 						SetWorkingDirectory(Status.LastWorkingDir);
 					}
-                }
-                else
-                {
-                    _ = GetWorkingDirectory();
-                }
+				}
+				else {
+					_ = GetWorkingDirectory();
+				}
 
 				// FIX #922: disable checking for stale data during connection
 				Status.AllowCheckStaleData = true;
