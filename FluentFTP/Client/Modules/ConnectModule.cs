@@ -476,16 +476,16 @@ namespace FluentFTP.Client.Modules {
 		/// </summary>
 		public static void SetDefaultCertificateValidation(BaseFtpClient client, FtpProfile profile) {
 			if (profile.Encryption != FtpEncryptionMode.None) {
-				//if (client.ValidateCertificate == null) {
-				client.ValidateCertificate += new FtpSslValidation(delegate (BaseFtpClient c, FtpSslValidationEventArgs e) {
-					if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
-						e.Accept = false;
-					}
-					else {
-						e.Accept = true;
-					}
-				});
-				//}
+				if (client.ValidateCertificateHandlerExists == null) {
+					client.ValidateCertificate += new FtpSslValidation(delegate (BaseFtpClient c, FtpSslValidationEventArgs e) {
+						if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
+							e.Accept = false;
+						}
+						else {
+							e.Accept = true;
+						}
+					});
+				}
 			}
 		}
 
