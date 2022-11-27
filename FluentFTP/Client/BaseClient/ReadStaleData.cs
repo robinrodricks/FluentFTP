@@ -10,21 +10,18 @@ namespace FluentFTP.Client.BaseClient {
 
 		/// <summary>
 		/// Data shouldn't be on the socket, if it is it probably means we've been disconnected.
-		/// Read and discard whatever is there and optionally close the connection.
+		/// Read and discard whatever is there.
 		/// Returns the stale data as text, if any, or null if none was found.
 		/// </summary>
-		/// <param name="closeStream">close the connection?</param>
 		/// <param name="logData">copy stale data information to logs?</param>
 		/// <param name="logFrom">for the log information</param>
-		protected string ReadStaleData(bool closeStream, bool logData, string logFrom) {
+		protected string ReadStaleData(bool logData, string logFrom) {
 			string staleData = null;
 
 			if (m_stream != null) {
 
-				if (m_stream.SocketDataAvailable > 0) {
-					if (logData) {
-						LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data - " + logFrom);
-					}
+				if (m_stream.SocketDataAvailable > 0 && logData) {
+					LogWithPrefix(FtpTraceLevel.Info, "Control connection has stale data - " + logFrom);
 				}
 
 				while (m_stream.SocketDataAvailable > 0) {
@@ -38,24 +35,14 @@ namespace FluentFTP.Client.BaseClient {
 					staleData += Encoding.GetString(buf).TrimEnd('\0', '\r', '\n') + Environment.NewLine;
 				}
 
-				if (string.IsNullOrEmpty(staleData)) {
-					closeStream = false;
-				}
-				else {
-					if (logData) {
-						LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: ");
-						string[] staleLines = Regex.Split(staleData, Environment.NewLine);
-						foreach (string staleLine in staleLines) {
-							if (!string.IsNullOrWhiteSpace(staleLine)) {
-								Log(FtpTraceLevel.Verbose, "Stale:    " + staleLine);
-							}
+				if (!string.IsNullOrEmpty(staleData) && logData) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: ");
+					string[] staleLines = Regex.Split(staleData, Environment.NewLine);
+					foreach (string staleLine in staleLines) {
+						if (!string.IsNullOrWhiteSpace(staleLine)) {
+							Log(FtpTraceLevel.Verbose, "Stale:    " + staleLine);
 						}
 					}
-				}
-
-				if (closeStream) {
-					LogWithPrefix(FtpTraceLevel.Info, "Closing stream because of stale data");
-					m_stream.Close();
 				}
 
 			}
@@ -65,21 +52,18 @@ namespace FluentFTP.Client.BaseClient {
 
 		/// <summary>
 		/// Data shouldn't be on the socket, if it is it probably means we've been disconnected.
-		/// Read and discard whatever is there and optionally close the connection.
+		/// Read and discard whatever is there.
 		/// Returns the stale data as text, if any, or null if none was found.
 		/// </summary>
-		/// <param name="closeStream">close the connection?</param>
 		/// <param name="logData">copy stale data information to logs?</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		protected async Task<string> ReadStaleDataAsync(bool closeStream, bool logData, string logFrom, CancellationToken token) {
+		protected async Task<string> ReadStaleDataAsync(bool logData, string logFrom, CancellationToken token) {
 			string staleData = null;
 
 			if (m_stream != null) {
 
-				if (m_stream.SocketDataAvailable > 0) {
-					if (logData) {
-						LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data - " + logFrom);
-					}
+				if (m_stream.SocketDataAvailable > 0 && logData) {
+					LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data - " + logFrom);
 				}
 
 				while (m_stream.SocketDataAvailable > 0) {
@@ -93,24 +77,14 @@ namespace FluentFTP.Client.BaseClient {
 					staleData += Encoding.GetString(buf).TrimEnd('\0', '\r', '\n') + Environment.NewLine;
 				}
 
-				if (string.IsNullOrEmpty(staleData)) {
-					closeStream = false;
-				}
-				else {
-					if (logData) {
-						LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: ");
-						string[] staleLines = Regex.Split(staleData, Environment.NewLine);
-						foreach (string staleLine in staleLines) {
-							if (!string.IsNullOrWhiteSpace(staleLine)) {
-								Log(FtpTraceLevel.Verbose, "Stale:    " + staleLine);
-							}
+				if (!string.IsNullOrEmpty(staleData) && logData) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: ");
+					string[] staleLines = Regex.Split(staleData, Environment.NewLine);
+					foreach (string staleLine in staleLines) {
+						if (!string.IsNullOrWhiteSpace(staleLine)) {
+							Log(FtpTraceLevel.Verbose, "Stale:    " + staleLine);
 						}
 					}
-				}
-
-				if (closeStream) {
-					LogWithPrefix(FtpTraceLevel.Info, "Closing stream because of stale data");
-					m_stream.Close();
 				}
 
 			}
