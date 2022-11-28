@@ -58,7 +58,7 @@ dotnet_naming_style.camel_case_underscore_style.required_prefix          = m_
 dotnet_naming_style.camel_case_underscore_style.capitalization           = camel_case
 
 # Locals and parameters are camelCase
-dotnet_naming_rule.locals_should_be_camel_case.severity = warning
+dotnet_naming_rule.locals_should_be_camel_case.severity = error
 dotnet_naming_rule.locals_should_be_camel_case.symbols = locals_and_parameters
 dotnet_naming_rule.locals_should_be_camel_case.style = camel_case_style
 
