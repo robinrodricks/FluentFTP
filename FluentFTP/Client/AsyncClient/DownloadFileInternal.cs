@@ -65,6 +65,7 @@ namespace FluentFTP {
 				var sw = new Stopwatch();
 
 				var anyNoop = false;
+				var earlySuccess = false;
 
 				// Fix #554: ability to download zero-byte files
 				if (Config.DownloadZeroByteFiles && outStream == null && localPath != null) {
@@ -127,6 +128,14 @@ namespace FluentFTP {
 						throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
 					}
 					catch (IOException ex) {
+						LogWithPrefix(FtpTraceLevel.Verbose, "IOException: " + ex.Message);
+
+						FtpReply exStatus = await GetReplyAsyncInternal(token, "*IOException*", anyNoop, 10);
+						if (exStatus.Code == "226") {
+							earlySuccess = true;
+							sw.Stop();
+							break;
+						}
 
 						// resume if server disconnected midway, or throw if there is an exception doing that as well
 						var resumeResult = await ResumeDownloadAsync(remotePath, downStream, offset, ex, token);
@@ -170,6 +179,10 @@ namespace FluentFTP {
 
 				// send progress reports
 				progress?.Report(new FtpProgress(100.0, offset, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
+
+				if (earlySuccess) {
+					return true;
+				}
 
 				// listen for a success/failure reply or out of band data (like NOOP responses)
 				// GetReply(true) means: Exhaust any NOOP responses
