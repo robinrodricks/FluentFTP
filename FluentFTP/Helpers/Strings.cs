@@ -285,7 +285,7 @@ namespace FluentFTP.Helpers {
 			}
 
 			foreach (var str in strings) {
-				if (text == str) {
+				if (text.Equals(str, StringComparison.Ordinal)) {
 					return true;
 				}
 			}
