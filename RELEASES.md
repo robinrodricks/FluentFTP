@@ -1,5 +1,21 @@
 # Release Notes
 
+#### 42.1.0
+ - **FTP** (thanks [FanDjango](/FanDjango))
+   - New: Detect Apache FTP Server (allows for future server-specific handling)
+   - New: Major improvements to automatic FTP reconnection on connection loss
+   - New: Special handling to prevent automatic FTP reconnection during critical FTP sequences
+   - New: `Config.SslSessionLength` setting to perform automatic reconnection to bypass SSL issues
+   - Fix: Connect closing has been removed from `ReadStaleData` and moved into `Execute`
+   - Fix: Improved NOOP handling by detecting more formats of NOOP FTP replies
+   - Fix: `IOException` edge case on FTPS connections after a certain number of FTP commands
+   - Fix: Handle early `226 Transfer complete` edge case in FTP file download
+   - Fix: Honor `FtpRemoteExists.NoCheck` mode in `MoveFile` to prevent checking for existing files
+ - **Tests** (thanks [FanDjango](/FanDjango))
+   - New: Improved Docker build process using common images to speed up build times
+   - New: Rewrite all first-party Docker images to use pre-built common images
+   - New: Support for Apache FTP Server integration test server
+   
 #### 42.0.2
  - **FTP** (thanks [FanDjango](/FanDjango))
    - New: DNS Caching to prevent DNS server rejecting name resolution for rapidly repeating requests
