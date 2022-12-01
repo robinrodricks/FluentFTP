@@ -47,7 +47,7 @@ namespace FluentFTP {
 					return true;
 				}
 
-				if (ch == '5' && reply.Message.IsKnownError(ServerStringModule.fileNotFound)) {
+				if (ch == '5' && reply.Message.ContainsAnyCI(ServerStringModule.fileNotFound)) {
 					return false;
 				}
 			}

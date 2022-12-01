@@ -364,7 +364,7 @@ namespace FluentFTP {
 				// Some FTP servers forcibly close the connection, we absorb these errors
 
 				// Fix #410: Retry if its a temporary failure ("Received an unexpected EOF or 0 bytes from the transport stream")
-				if (retry && ioEx.Message.IsKnownError(ServerStringModule.unexpectedEOF)) {
+				if (retry && ioEx.Message.ContainsAnyCI(ServerStringModule.unexpectedEOF)) {
 					// retry once more, but do not go into a infinite recursion loop here
 					Log(FtpTraceLevel.Verbose, "Warning:  Retry GetListing once more due to unexpected EOF");
 					return await GetListingInternal(listcmd, options, false, token);

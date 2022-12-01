@@ -256,9 +256,9 @@ namespace FluentFTP.Helpers {
 		}
 
 		/// <summary>
-		/// Checks if the reply contains any of the known error strings
+		/// Checks if the reply contains any of the known error strings, by checking in case-insensitive manner.
 		/// </summary>
-		public static bool IsKnownError(this string reply, string[] strings) {
+		public static bool ContainsAnyCI(this string reply, string[] strings) {
 
 			// FIX: absorb cases where the reply is null (see issue #631)
 			if (reply == null) {
@@ -275,6 +275,23 @@ namespace FluentFTP.Helpers {
 			return false;
 		}
 
+		/// <summary>
+		/// Checks if the string equals any of these values, by checking in case-sensitive manner.
+		/// </summary>
+		public static bool EqualsAny(this string text, string[] strings) {
+
+			if (text == null) {
+				return false;
+			}
+
+			foreach (var str in strings) {
+				if (text == str) {
+					return true;
+				}
+			}
+
+			return false;
+		}
 
 		/// <summary>
 		/// Checks if the string contains the given substring in a case-insensitive manner.

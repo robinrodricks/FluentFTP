@@ -57,7 +57,7 @@ namespace FluentFTP {
 				if (reply.Code == "550") {
 					return false;
 				}
-				if (reply.Code[0] == '5' && reply.Message.IsKnownError(ServerStringModule.folderExists)) {
+				if (reply.Code[0] == '5' && reply.Message.ContainsAnyCI(ServerStringModule.folderExists)) {
 					return false;
 				}
 

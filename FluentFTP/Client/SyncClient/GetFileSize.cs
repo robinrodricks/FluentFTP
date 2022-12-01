@@ -59,7 +59,7 @@ namespace FluentFTP {
 				length = defaultValue;
 
 				// Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
-				if (!Status.FileSizeASCIINotSupported && reply.Message.IsKnownError(ServerStringModule.fileSizeNotInASCII)) {
+				if (!Status.FileSizeASCIINotSupported && reply.Message.ContainsAnyCI(ServerStringModule.fileSizeNotInASCII)) {
 					// set the flag so mode switching is done
 					Status.FileSizeASCIINotSupported = true;
 

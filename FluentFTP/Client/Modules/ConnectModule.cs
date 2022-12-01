@@ -8,6 +8,7 @@ using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP.Client.BaseClient;
+using System.Linq;
 
 namespace FluentFTP.Client.Modules {
 	/// <summary>
@@ -513,50 +514,22 @@ namespace FluentFTP.Client.Modules {
 			return null;
 		}
 
-		public static bool IsInCriticalSequence(string cmd) {
-
-			// Check against a list of commands that would be
-			// the start of a critical sequence and commands
-			// that denote the end of a critical sequence.
-			// A critical sequence will not be interrupted by an
-			// automatic reconnect.
-
-			List<string> criticalStartingCommands = new List<string>()
-			{
-				"EPRT",
-				"EPSV",
-				"LPSV",
-				"PASV",
-				"SPSV",
-				"PORT",
-				"LPRT",
-			};
-
-			List<string> criticalTerminatingCommands = new List<string>()
-			{
-				"ABOR",
-				"LIST",
-				"NLST",
-				"MLSD",
-				"STOR",
-				"STOU",
-				"APPE",
-				"REST",
-				"RETR",
-				"THMB",
-			};
-
+		/// <summary>
+		/// Modify the `Status.InCriticalSequence` flag based on the FTP command sent, by checking against a list of known critical commands.
+		/// A critical sequence will not be interrupted by an automatic reconnect.
+		/// </summary>
+		public static void DetermineCriticalSequence(BaseFtpClient client, string cmd) {
 			var cmdFirstWord = cmd.Split(new char[] { ' ' })[0];
 
-			if (criticalStartingCommands.Contains(cmdFirstWord)) {
-				return true;
+			if (cmdFirstWord.EqualsAny(ServerStringModule.criticalStartingCommands)){
+				client.Status.InCriticalSequence = true;
+				return;
 			}
 
-			if (criticalTerminatingCommands.Contains(cmdFirstWord)) {
-				return true;
+			if (cmdFirstWord.EqualsAny(ServerStringModule.criticalTerminatingCommands)) {
+				client.Status.InCriticalSequence = false;
+				return;
 			}
-
-			return false;
 		}
 
 	}

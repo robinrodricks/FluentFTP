@@ -103,5 +103,32 @@ namespace FluentFTP.Client.Modules {
 
 		#endregion
 
+		#region Critical commands
+
+		public static string[] criticalStartingCommands = new[] {
+			"EPRT",
+			"EPSV",
+			"LPSV",
+			"PASV",
+			"SPSV",
+			"PORT",
+			"LPRT",
+		};
+
+		public static string[] criticalTerminatingCommands = new[] {
+			"ABOR",
+			"LIST",
+			"NLST",
+			"MLSD",
+			"STOR",
+			"STOU",
+			"APPE",
+			"REST",
+			"RETR",
+			"THMB",
+		};
+
+		#endregion
+
 	}
 }

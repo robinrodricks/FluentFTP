@@ -221,7 +221,7 @@ namespace FluentFTP {
 				}
 
 				// absorb "file does not exist" exceptions and simply return false
-				if (ex1.Message.IsKnownError(ServerStringModule.fileNotFound)) {
+				if (ex1.Message.ContainsAnyCI(ServerStringModule.fileNotFound)) {
 					LogWithPrefix(FtpTraceLevel.Error, "File does not exist: " + ex1.Message);
 					return false;
 				}

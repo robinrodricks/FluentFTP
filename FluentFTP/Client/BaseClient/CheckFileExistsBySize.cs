@@ -12,7 +12,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 
 			// file surely does not exist
-			if (sizeReply.Reply.Code[0] == '5' && sizeReply.Reply.Message.IsKnownError(ServerStringModule.fileNotFound)) {
+			if (sizeReply.Reply.Code[0] == '5' && sizeReply.Reply.Message.ContainsAnyCI(ServerStringModule.fileNotFound)) {
 				return false;
 			}
 
