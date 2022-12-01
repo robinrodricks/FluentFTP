@@ -62,13 +62,6 @@ namespace FluentFTP {
 		/// </summary>
 		public FtpIpVersion InternetProtocolVersions { get; set; } = FtpIpVersion.ANY;
 
-        /// <summary>
-        /// Gets or sets the max number of socket write/read transactions
-		/// before an automatic disconnect/reconnect is performed.
-		/// Set to zero to disable automatic reconnects.
-        /// </summary>
-        public int MaxSslReadLines { get; set; } = 0;
-
 		protected int _socketPollInterval = 15000;
 
 		/// <summary>
@@ -249,6 +242,14 @@ namespace FluentFTP {
 		/// SSL Buffering is always disabled on .NET 5.0 and later due to platform issues (see issue 682 in FluentFTP issue tracker).
 		/// </summary>
 		public FtpsBuffering SslBuffering { get; set; } = FtpsBuffering.Auto;
+
+		/// <summary>
+		/// Gets or sets the max number of socket write/read transactions
+		/// before an automatic disconnect/reconnect is performed.
+		/// This is required to bypass an SSL issue that occurs after a specific number of transactions.
+		/// Set to zero to disable automatic reconnects.
+		/// </summary>
+		public int SslSessionLength { get; set; } = 750;
 
 		/// <summary>
 		/// Accept any SSL certificate received from the server and skip performing
@@ -547,7 +548,6 @@ namespace FluentFTP {
 			write.LogUserName = read.LogUserName;
 			write.LogPassword = read.LogPassword;
 			write.InternetProtocolVersions = read.InternetProtocolVersions;
-			write.MaxSslReadLines = read.MaxSslReadLines;
 			write.SocketPollInterval = read.SocketPollInterval;
 			write.StaleDataCheck = read.StaleDataCheck;
 			write.NoopInterval = read.NoopInterval;
@@ -562,6 +562,7 @@ namespace FluentFTP {
 			write.DataConnectionEncryption = read.DataConnectionEncryption;
 			write.SslProtocols = read.SslProtocols;
 			write.SslBuffering = read.SslBuffering;
+			write.SslSessionLength = read.SslSessionLength;
 			write.TransferChunkSize = read.TransferChunkSize;
 			write.LocalFileBufferSize = read.LocalFileBufferSize;
 			write.ListingDataType = read.ListingDataType;

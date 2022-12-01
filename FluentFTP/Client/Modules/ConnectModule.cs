@@ -513,6 +513,51 @@ namespace FluentFTP.Client.Modules {
 			return null;
 		}
 
+		public static bool IsInCriticalSequence(string cmd) {
+
+			// Check against a list of commands that would be
+			// the start of a critical sequence and commands
+			// that denote the end of a critical sequence.
+			// A critical sequence will not be interrupted by an
+			// automatic reconnect.
+
+			List<string> criticalStartingCommands = new List<string>()
+			{
+				"EPRT",
+				"EPSV",
+				"LPSV",
+				"PASV",
+				"SPSV",
+				"PORT",
+				"LPRT",
+			};
+
+			List<string> criticalTerminatingCommands = new List<string>()
+			{
+				"ABOR",
+				"LIST",
+				"NLST",
+				"MLSD",
+				"STOR",
+				"STOU",
+				"APPE",
+				"REST",
+				"RETR",
+				"THMB",
+			};
+
+			var cmdFirstWord = cmd.Split(new char[] { ' ' })[0];
+
+			if (criticalStartingCommands.Contains(cmdFirstWord)) {
+				return true;
+			}
+
+			if (criticalTerminatingCommands.Contains(cmdFirstWord)) {
+				return true;
+			}
+
+			return false;
+		}
 
 	}
 }

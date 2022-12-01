@@ -35,18 +35,20 @@ namespace FluentFTP {
 
 				// Reconnect and then execute the command
 				await Connect(true, token);
-            }
-            // Automatic reconnect on reaching MaxSslReadLines?
-            else if (Config.MaxSslReadLines > 0 && !Status.InCriticalSequence && m_stream.SocketReadLineCount > Config.MaxSslReadLines) {
-				LogWithPrefix(FtpTraceLevel.Info, "Reconnect due to MaxSslReadLines reached");
+			}
+
+			// Automatic reconnect on reaching SslSessionLength?
+			else if (m_stream.IsEncrypted && Config.SslSessionLength > 0 && !Status.InCriticalSequence && m_stream.SocketReadLineCount > Config.SslSessionLength) {
+				LogWithPrefix(FtpTraceLevel.Info, "Reconnect due to SslSessionLength reached");
 
 				m_stream.Close();
-                m_stream = null;
+				m_stream = null;
 
-                await Connect(true, token);
+				await Connect(true, token);
 			}
-            // Check for stale data on the socket?
-            else if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
+
+			// Check for stale data on the socket?
+			else if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
 #if NETSTANDARD
 				var staleData = await ReadStaleDataAsync(true, "prior to command execution", token);
 #else
@@ -66,7 +68,7 @@ namespace FluentFTP {
 			// hide sensitive data from logs
 			string cleanedCommand = LogMaskModule.MaskCommand(this, command);
 
-            Log(FtpTraceLevel.Info, "Command:  " + cleanedCommand);
+			Log(FtpTraceLevel.Info, "Command:  " + cleanedCommand);
 
 			// send command to FTP server
 			await m_stream.WriteLineAsync(m_textEncoding, command, token);
@@ -75,9 +77,11 @@ namespace FluentFTP {
 			if (reply.Success) {
 				OnPostExecute(command);
 
-                if (Config.MaxSslReadLines > 0) {
-                    DetermineCriticalSequence(command);
-                }
+				if (Config.SslSessionLength > 0) {
+					if (ConnectModule.IsInCriticalSequence(command)) {
+						Status.InCriticalSequence = true;
+					}
+				}
 			}
 
 			return reply;
