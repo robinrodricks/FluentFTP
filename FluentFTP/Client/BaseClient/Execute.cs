@@ -67,7 +67,7 @@ namespace FluentFTP.Client.BaseClient {
 					OnPostExecute(command);
 
 					if (Config.SslSessionLength > 0) {
-						ConnectModule.DetermineCriticalSequence(this, command);
+						ConnectModule.CheckCriticalSequence(this, command);
 					}
 
 				}
