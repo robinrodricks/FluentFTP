@@ -259,7 +259,19 @@ namespace FluentFTP {
 				}
 			}
 			catch (IOException ioEx) {
-				// Some FTP servers forcibly close the connection, we absorb these errors
+				// Some FTP servers forcibly close the connection, we absorb these errors,
+				// unless we have lost the control connection itself
+				if (m_stream.IsConnected == false) {
+					if (retry) {
+						// retry once more, but do not go into a infinite recursion loop here
+						// note: this will cause an automatic reconnect in Execute(...)
+						Log(FtpTraceLevel.Verbose, "Warning:  Retry GetListing once more due to control connection disconnect");
+						return GetListingInternal(listcmd, options, false);
+					}
+					else {
+						throw;
+					}
+				}
 
 				// Fix #410: Retry if its a temporary failure ("Received an unexpected EOF or 0 bytes from the transport stream")
 				if (retry && ioEx.Message.ContainsAnyCI(ServerStringModule.unexpectedEOF)) {
