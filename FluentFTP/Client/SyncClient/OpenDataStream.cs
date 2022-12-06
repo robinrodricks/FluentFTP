@@ -23,7 +23,8 @@ namespace FluentFTP {
 
 			lock (m_lock) {
 				if (!IsConnected) {
-					Connect();
+					LogWithPrefix(FtpTraceLevel.Info, "Reconnect due to disconnected control connection");
+					Connect(true);
 				}
 
 				// The PORT and PASV commands do not work with IPv6 so
