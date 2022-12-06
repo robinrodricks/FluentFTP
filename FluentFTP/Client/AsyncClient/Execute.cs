@@ -61,7 +61,7 @@ namespace FluentFTP {
 					m_stream.Close();
 					m_stream = null;
 
-					((IInternalFtpClient)this).ConnectInternal(true);
+					await Connect(true, token);
 				}
 			}
 
