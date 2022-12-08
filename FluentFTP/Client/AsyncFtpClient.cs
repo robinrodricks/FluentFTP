@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading;
 using FluentFTP.Client.BaseClient;
 using Microsoft.Extensions.Logging;
 
@@ -92,19 +93,15 @@ namespace FluentFTP {
 
 		#region Destructor
 
-		void IInternalFtpClient.DisconnectInternal() {
-			// TODO: Call DisconnectAsync
-		}
-
-		void IInternalFtpClient.ConnectInternal() {
-			// TODO: Call ConnectAsync
-		}
-
-		void IInternalFtpClient.ConnectInternal(bool reConnect) {
-			// TODO: Call ConnectAsync
-		}
-
 		#endregion
+
+		void IInternalFtpClient.DisconnectInternal(CancellationToken token) {
+			Disconnect(token).GetAwaiter().GetResult();
+		}
+
+		void IInternalFtpClient.ConnectInternal(bool reConnect, CancellationToken token) {
+			Connect(reConnect, token).GetAwaiter().GetResult();
+		}
 
 	}
 }
