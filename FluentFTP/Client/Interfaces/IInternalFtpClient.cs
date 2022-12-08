@@ -9,15 +9,15 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	internal interface IInternalFtpClient {
 
-		string GetWorkingDirectoryInternal();
-
-		FtpReply ExecuteInternal(string command);
+		void ConnectInternal(bool reConnect);
+		void ConnectInternal(bool reConnect, CancellationToken token);
 
 		void DisconnectInternal();
 		void DisconnectInternal(CancellationToken token);
 
-		void ConnectInternal(bool reConnect);
-		void ConnectInternal(bool reConnect, CancellationToken token);
+		FtpReply ExecuteInternal(string command);
+
+		string GetWorkingDirectoryInternal();
 
 		FtpReply CloseDataStreamInternal(FtpDataStream stream);
 

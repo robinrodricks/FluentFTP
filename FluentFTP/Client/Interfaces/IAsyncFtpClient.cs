@@ -20,7 +20,6 @@ namespace FluentFTP {
 	/// </summary>
 	public interface IAsyncFtpClient : IDisposable, IBaseFtpClient {
 
-
 		// METHODS
 
 		bool HasFeature(FtpCapability cap);
@@ -34,8 +33,6 @@ namespace FluentFTP {
 		Task Disconnect(CancellationToken token = default(CancellationToken));
 		Task<FtpReply> Execute(string command, CancellationToken token = default(CancellationToken));
 		Task<FtpReply> GetReply(CancellationToken token = default(CancellationToken));
-
-
 
 		// MANAGEMENT
 
@@ -64,8 +61,6 @@ namespace FluentFTP {
 
 		Task SetModifiedTime(string path, DateTime date, CancellationToken token = default(CancellationToken));
 
-
-
 		// LISTING
 
 		Task<FtpListItem> GetObjectInfo(string path, bool dateModified = false, CancellationToken token = default(CancellationToken));
@@ -81,7 +76,6 @@ namespace FluentFTP {
 		IAsyncEnumerable<FtpListItem> GetListingEnumerable(CancellationToken token = default, CancellationToken enumToken = default);
 #endif
 
-
 		// LOW LEVEL
 
 		Task<Stream> OpenRead(string path, FtpDataType type = FtpDataType.Binary, long restart = 0, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken));
@@ -90,7 +84,6 @@ namespace FluentFTP {
 		Task<Stream> OpenWrite(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken));
 		Task<Stream> OpenAppend(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken));
 		Task<Stream> OpenAppend(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken));
-
 
 		// HIGH LEVEL
 
@@ -107,11 +100,9 @@ namespace FluentFTP {
 		Task<List<FtpResult>> DownloadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
 		Task<List<FtpResult>> UploadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken));
 
-
 		// HASH
 
 		Task<FtpHash> GetChecksum(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken));
-
 
 		// COMPARE
 

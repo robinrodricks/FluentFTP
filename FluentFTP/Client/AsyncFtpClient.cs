@@ -95,12 +95,11 @@ namespace FluentFTP {
 
 		#endregion
 
-		void IInternalFtpClient.DisconnectInternal(CancellationToken token) {
-			Disconnect(token).GetAwaiter().GetResult();
-		}
-
 		void IInternalFtpClient.ConnectInternal(bool reConnect, CancellationToken token) {
 			Connect(reConnect, token).GetAwaiter().GetResult();
+		}
+		void IInternalFtpClient.DisconnectInternal(CancellationToken token) {
+			Disconnect(token).GetAwaiter().GetResult();
 		}
 
 	}
