@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentFTP.Client.BaseClient {
@@ -148,16 +149,6 @@ namespace FluentFTP.Client.BaseClient {
 			}
 		}
 
-		void IInternalFtpClient.DisconnectInternal() {
-		}
-
-		void IInternalFtpClient.ConnectInternal() {
-		}
-
-        void IInternalFtpClient.ConnectInternal(bool reConnect)
-        {
-        }
-
 		/// <summary>
 		/// Finalizer
 		/// </summary>
@@ -166,6 +157,16 @@ namespace FluentFTP.Client.BaseClient {
 		}
 
 		#endregion
+
+		void IInternalFtpClient.DisconnectInternal() {
+		}
+		void IInternalFtpClient.DisconnectInternal(CancellationToken token) {
+		}
+
+		void IInternalFtpClient.ConnectInternal(bool reConnect) {
+        }
+		void IInternalFtpClient.ConnectInternal(bool reConnect, CancellationToken token) {
+		}
 
 
 

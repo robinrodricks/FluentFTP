@@ -59,7 +59,7 @@ namespace FluentFTP {
 			}
 			else {
 				if (IsConnected) {
-					((IInternalFtpClient)this).DisconnectInternal();
+					((IInternalFtpClient)this).DisconnectInternal(token);
 				}
 			}
 

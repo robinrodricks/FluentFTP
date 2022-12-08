@@ -92,19 +92,15 @@ namespace FluentFTP {
 
 		#region Destructor
 
+		#endregion
+
 		void IInternalFtpClient.DisconnectInternal() {
 			Disconnect();
-		}
-
-		void IInternalFtpClient.ConnectInternal() {
-			Connect(false);
 		}
 
 		void IInternalFtpClient.ConnectInternal(bool reConnect) {
 			Connect(reConnect);
 		}
-
-		#endregion
 
 	}
 }

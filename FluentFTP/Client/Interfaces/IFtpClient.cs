@@ -26,14 +26,14 @@ namespace FluentFTP {
 		bool HasFeature(FtpCapability cap);
 		void DisableUTF8();
 
-		FtpReply Execute(string command);
-		FtpReply GetReply();
+		List<FtpProfile> AutoDetect(bool firstOnly = true, bool cloneConnection = true);
+		FtpProfile AutoConnect();
 		void Connect();
 		void Connect(FtpProfile profile);
         void Connect(bool reConnect);
-		List<FtpProfile> AutoDetect(bool firstOnly = true, bool cloneConnection = true);
-		FtpProfile AutoConnect();
 		void Disconnect();
+		FtpReply Execute(string command);
+		FtpReply GetReply();
 
 
 		// MANAGEMENT

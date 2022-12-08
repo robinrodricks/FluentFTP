@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentFTP {
@@ -13,9 +14,10 @@ namespace FluentFTP {
 		FtpReply ExecuteInternal(string command);
 
 		void DisconnectInternal();
+		void DisconnectInternal(CancellationToken token);
 
-		void ConnectInternal();
-        void ConnectInternal(bool reConnect);
+		void ConnectInternal(bool reConnect);
+		void ConnectInternal(bool reConnect, CancellationToken token);
 
 		FtpReply CloseDataStreamInternal(FtpDataStream stream);
 
