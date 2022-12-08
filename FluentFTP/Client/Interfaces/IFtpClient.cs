@@ -20,7 +20,6 @@ namespace FluentFTP {
 	/// </summary>
 	public interface IFtpClient : IDisposable, IBaseFtpClient {
 
-
 		// METHODS
 
 		bool HasFeature(FtpCapability cap);
@@ -34,7 +33,6 @@ namespace FluentFTP {
 		void Disconnect();
 		FtpReply Execute(string command);
 		FtpReply GetReply();
-
 
 		// MANAGEMENT
 
@@ -62,8 +60,6 @@ namespace FluentFTP {
 		DateTime GetModifiedTime(string path);
 		void SetModifiedTime(string path, DateTime date);
 
-
-
 		// LISTING
 
 		FtpListItem GetObjectInfo(string path, bool dateModified = false);
@@ -73,7 +69,6 @@ namespace FluentFTP {
 		string[] GetNameListing();
 		string[] GetNameListing(string path);
 
-
 		// LOW LEVEL
 
 		Stream OpenRead(string path, FtpDataType type = FtpDataType.Binary, long restart = 0, bool checkIfFileExists = true);
@@ -82,7 +77,6 @@ namespace FluentFTP {
 		Stream OpenWrite(string path, FtpDataType type, long fileLen);
 		Stream OpenAppend(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true);
 		Stream OpenAppend(string path, FtpDataType type, long fileLen);
-
 
 		// HIGH LEVEL
 
@@ -101,10 +95,8 @@ namespace FluentFTP {
 		List<FtpResult> DownloadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null);
 		List<FtpResult> UploadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update, FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, Action<FtpProgress> progress = null);
 
-
 		// HASH
 		FtpHash GetChecksum(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE);
-
 
 		// COMPARE
 		FtpCompareResult CompareFile(string localPath, string remotePath, FtpCompareOption options = FtpCompareOption.Auto);
