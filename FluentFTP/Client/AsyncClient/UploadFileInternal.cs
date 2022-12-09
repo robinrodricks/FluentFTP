@@ -102,8 +102,14 @@ namespace FluentFTP {
 					}
 				}
 
-				// calc local file len
-				var localFileLen = fileData.Length;
+				long localFileLen;
+				// calc local file len - local file might be a stream kind that cannot get length
+				try {
+					localFileLen = fileData.Length;
+				}
+				catch (NotSupportedException) {
+					localFileLen = 0;
+				}
 
 				// skip uploading if the mode is resume and the local and remote file have the same length
 				if ((existsMode == FtpRemoteExists.Resume || existsMode == FtpRemoteExists.ResumeNoCheck) &&
