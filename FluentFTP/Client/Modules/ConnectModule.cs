@@ -521,7 +521,7 @@ namespace FluentFTP.Client.Modules {
 		public static void CheckCriticalSequence(BaseFtpClient client, string cmd) {
 			var cmdFirstWord = cmd.Split(new char[] { ' ' })[0];
 
-			if (cmdFirstWord.EqualsAny(ServerStringModule.criticalStartingCommands)){
+			if (cmdFirstWord.EqualsAny(ServerStringModule.criticalStartingCommands)) {
 				client.Status.InCriticalSequence = true;
 				return;
 			}
