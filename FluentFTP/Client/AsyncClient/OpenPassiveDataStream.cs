@@ -17,6 +17,7 @@ namespace FluentFTP {
 		/// <param name="type">Type of passive data stream to open</param>
 		/// <param name="command">The command to execute that requires a data stream</param>
 		/// <param name="restart">Restart location in bytes for file transfer</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A data stream ready to be used</returns>
 		protected async Task<FtpDataStream> OpenPassiveDataStreamAsync(FtpDataConnectionType type, string command, long restart, CancellationToken token = default(CancellationToken)) {
 			LogFunction(nameof(OpenPassiveDataStreamAsync), new object[] { type, command, restart });

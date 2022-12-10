@@ -9,6 +9,7 @@ namespace FluentFTP {
 		/// Opens a FXP PASV connection between the source FTP Server and the destination FTP Server
 		/// </summary>
 		/// <param name="remoteClient">Valid FTP connection to the destination FTP Server</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A data stream ready to be used</returns>
 		protected async Task<FtpFxpSessionAsync> OpenPassiveFXPConnectionAsync(AsyncFtpClient remoteClient, bool trackProgress, CancellationToken token) {
 			FtpReply reply, reply2;

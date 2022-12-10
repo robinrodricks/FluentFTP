@@ -39,6 +39,7 @@ namespace FluentFTP.Proxy.AsyncProxy {
 		/// Connects to the server using an existing <see cref="FtpSocketStream"/>
 		/// </summary>
 		/// <param name="stream">The existing socket stream</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		protected override Task ConnectAsync(FtpSocketStream stream, CancellationToken token) {
 			return ConnectAsync(stream, Host, Port, FtpIpVersion.ANY, token);
 		}
