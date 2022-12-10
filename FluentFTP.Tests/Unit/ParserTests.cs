@@ -19,7 +19,7 @@ namespace FluentFTP.Tests.Unit {
 				var test = testValues[i];
 
 				// parse it
-				FtpListItem item = null;
+				FtpListItem? item = null;
 				try {
 					item = parser.ParseSingleLine(path, test, new List<FtpCapability>(), false);
 				}
