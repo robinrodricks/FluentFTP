@@ -18,6 +18,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="progress">Provide a callback to track download progress.</param>
+		/// <param name="metaProgress"></param>
 		/// Returns a FtpStatus indicating if the file was transferred.
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
@@ -215,9 +216,9 @@ namespace FluentFTP {
 				}
 
 				// Fix: catch all exceptions and dispose off the FTP clients if one occurs
-				catch (Exception ex) {
+				catch {
 					ftpFxpSession.Dispose();
-					throw ex;
+					throw;
 				}
 			}
 			else {

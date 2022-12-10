@@ -208,6 +208,9 @@ namespace FluentFTP {
 			return lst.ToArray();
 		}
 
+		/// <summary>
+		/// Process the output of the listing command
+		/// </summary>
 		protected async Task<FtpListItem> GetListingProcessItemAsync(FtpListItem item, List<FtpListItem> lst, string rawEntry, string listcmd, CancellationToken token, bool isIncludeSelf, bool isNameList, bool isRecursive, bool isGetModified, bool isGetSize) {
 
 			if (isNameList) {

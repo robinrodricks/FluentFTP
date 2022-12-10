@@ -10,6 +10,9 @@ namespace FluentFTP.Rules {
 	/// </summary>
 	public class FtpFolderNameRule : FtpRule {
 
+		/// <summary>
+		/// Common folders to blacklist
+		/// </summary>
 		public static List<string> CommonBlacklistedFolders = new List<string> {
 			".git",
 			".svn",

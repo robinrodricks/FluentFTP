@@ -18,6 +18,7 @@ namespace FluentFTP {
 		/// Support "normal" mode waiting for a command reply, subject to timeout exception
 		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
 		/// </summary>
+		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <returns>FtpReply representing the response from the server</returns>
 		public async Task<FtpReply> GetReply(CancellationToken token) {
 			return await GetReplyAsyncInternal(token, null, false, 0);
@@ -28,6 +29,7 @@ namespace FluentFTP {
 		/// Support "normal" mode waiting for a command reply, subject to timeout exception
 		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
 		/// </summary>
+		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <returns>FtpReply representing the response from the server</returns>
 		public async Task<FtpReply> GetReplyAsyncInternal(CancellationToken token, string command) {
@@ -39,6 +41,7 @@ namespace FluentFTP {
 		/// Support "normal" mode waiting for a command reply, subject to timeout exception
 		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
 		/// </summary>
+		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <returns>FtpReply representing the response from the server</returns>
@@ -51,6 +54,7 @@ namespace FluentFTP {
 		/// Support "normal" mode waiting for a command reply, subject to timeout exception
 		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
 		/// </summary>
+		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>

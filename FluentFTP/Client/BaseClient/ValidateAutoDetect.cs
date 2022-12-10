@@ -3,6 +3,11 @@
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
 
+		/// <summary>
+		/// Validate the client before the auto detect process
+		/// </summary>
+		/// <exception cref="ObjectDisposedException"></exception>
+		/// <exception cref="FtpException"></exception>
 		protected void ValidateAutoDetect() {
 			if (IsDisposed) {
 				throw new ObjectDisposedException("This FtpClient object has been disposed. It is no longer accessible.");

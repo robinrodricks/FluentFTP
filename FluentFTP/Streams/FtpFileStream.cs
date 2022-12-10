@@ -5,6 +5,10 @@ using FluentFTP.Client.BaseClient;
 using System.Threading.Tasks;
 
 namespace FluentFTP.Streams {
+
+	/// <summary>
+	/// Stream object for the local files
+	/// </summary>
 	public static class FtpFileStream {
 
 		/// <summary>

@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 
 namespace FluentFTP {
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
 	/// <summary>
 	/// Holds all the configuration settings for a single FTP client.
 	/// One FtpConfig object can only be bound to one client at a time.
@@ -109,8 +111,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds after last command
 		/// (NOOP or other) that a NOOP command is sent by <see cref="FtpClient.Noop"/>/<see cref="AsyncFtpClient.NoopAsync(System.Threading.CancellationToken)"/>.
-		/// This is called during downloading/uploading if
-		/// <see cref="EnableThreadSafeDataConnections"/> is false. Setting this
+		/// This is called during downloading/uploading. Setting this
 		/// interval to 0 disables <see cref="FtpClient.Noop"/>/<see cref="AsyncFtpClient.NoopAsync(System.Threading.CancellationToken)"/> all together.
 		/// The default value is 0 (disabled).
 		/// </summary>
@@ -519,7 +520,6 @@ namespace FluentFTP {
 
 
 
-
 		/// <summary>
 		/// Bind this FtpConfig object to the given FTP client.
 		/// </summary>
@@ -598,6 +598,7 @@ namespace FluentFTP {
 
 		}
 
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
 	}
 }

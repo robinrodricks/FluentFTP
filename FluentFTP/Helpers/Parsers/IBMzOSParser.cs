@@ -31,6 +31,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// </summary>
 		/// <param name="client">The FTP client</param>
 		/// <param name="record">A line from the listing</param>
+		/// <param name="path">Current location</param>
 		/// <returns>FtpListItem if the item is able to be parsed</returns>
 		public static FtpListItem Parse(BaseFtpClient client, string record, string path) {
 			// Skip title line - all modes have one. 

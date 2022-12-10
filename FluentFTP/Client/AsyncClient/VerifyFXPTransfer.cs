@@ -6,6 +6,16 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
+		/// <summary>
+		/// Verify an FXP transfer
+		/// </summary>
+		/// <param name="sourcePath"></param>
+		/// <param name="fxpDestinationClient"></param>
+		/// <param name="remotePath"></param>
+		/// <param name="token"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentException"></exception>
+		/// <exception cref="ArgumentNullException"></exception>
 		protected async Task<bool> VerifyFXPTransferAsync(string sourcePath, AsyncFtpClient fxpDestinationClient, string remotePath, CancellationToken token = default(CancellationToken)) {
 
 			// verify args

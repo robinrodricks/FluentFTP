@@ -44,6 +44,20 @@ namespace FluentFTP {
 			return UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, progress, new FtpProgress(1, 0));
 		}
 
+		/// <summary>
+		/// Upload a local file to a remote file
+		/// </summary>
+		/// <param name="localPath"></param>
+		/// <param name="remotePath"></param>
+		/// <param name="createRemoteDir"></param>
+		/// <param name="existsMode"></param>
+		/// <param name="fileExists"></param>
+		/// <param name="fileExistsKnown"></param>
+		/// <param name="verifyOptions"></param>
+		/// <param name="progress"></param>
+		/// <param name="metaProgress"></param>
+		/// <returns></returns>
+		/// <exception cref="FtpException"></exception>
 		protected FtpStatus UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
 

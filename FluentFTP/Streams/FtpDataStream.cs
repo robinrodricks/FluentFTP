@@ -161,7 +161,7 @@ namespace FluentFTP {
 			try {
 				Dispose(false);
 			}
-			catch (Exception ex) {
+			catch {
 			}
 		}
 	}

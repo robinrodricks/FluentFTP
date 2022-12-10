@@ -17,7 +17,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// AuthenticationException that caused this.
 		/// </summary>
-		public Exception InnerException { get; private set; }
+		public new Exception InnerException { get; private set; }
 
 		/// <summary>
 		/// Default constructor

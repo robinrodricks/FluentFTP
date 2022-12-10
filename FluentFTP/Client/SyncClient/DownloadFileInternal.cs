@@ -142,7 +142,7 @@ namespace FluentFTP {
 							throw;
 						}
 					}
-					catch (TimeoutException ex) {
+					catch (TimeoutException) {
 
 						// fix: attempting to download data after we reached the end of the stream
 						// often throws a timeout exception, so we silently absorb that here
@@ -189,7 +189,7 @@ namespace FluentFTP {
 
 				return true;
 			}
-			catch (AuthenticationException ex) {
+			catch (AuthenticationException) {
 				FtpReply reply = GetReplyInternal("*DOWNLOAD*", false, -1); // no exhaustNoop, but non-blocking
 				if (!reply.Success) {
 					throw new FtpCommandException(reply);
@@ -231,6 +231,9 @@ namespace FluentFTP {
 			}
 		}
 
+		/// <summary>
+		/// Setup a resume on failure of download
+		/// </summary>
 		protected bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
 			try {
 				// if resume possible

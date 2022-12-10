@@ -13,6 +13,7 @@ namespace FluentFTP.Helpers {
 		/// Converts the FTP date string into a DateTime object, without performing any timezone conversion.
 		/// </summary>
 		/// <param name="dateString">The date string</param>
+		/// <param name="client">The client object this is done for</param>
 		/// <param name="formats">Date formats to try parsing the value from (eg "yyyyMMddHHmmss")</param>
 		/// <returns>A <see cref="DateTime"/> object representing the date, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
 		public static DateTime ParseFtpDate(this string dateString, BaseFtpClient client, string[] formats = null) {

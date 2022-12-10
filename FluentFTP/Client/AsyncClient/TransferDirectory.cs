@@ -113,6 +113,10 @@ namespace FluentFTP {
 
 			return results;
 		}
+
+		/// <summary>
+		/// Make a list of files to transfer
+		/// </summary>
 		protected async Task<List<FtpResult>> GetFilesToTransfer(string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, string[] fileListing, CancellationToken token = default) {
 
 			var filesToTransfer = new List<FtpResult>();
@@ -150,6 +154,9 @@ namespace FluentFTP {
 			return filesToTransfer;
 		}
 
+		/// <summary>
+		/// Transfer the files
+		/// </summary>
 		protected async Task TransferServerFiles(List<FtpResult> filesToTransfer, AsyncFtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
 
 			LogFunction(nameof(TransferServerFiles), new object[] { filesToTransfer.Count + " files" });

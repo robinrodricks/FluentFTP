@@ -8,6 +8,15 @@ using FluentFTP.Helpers;
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
 
+		/// <summary>
+		/// Make a list of subdirectories to transfer
+		/// </summary>
+		/// <param name="sourceFolder"></param>
+		/// <param name="remoteFolder"></param>
+		/// <param name="rules"></param>
+		/// <param name="results"></param>
+		/// <param name="dirListing"></param>
+		/// <returns></returns>
 		protected List<FtpResult> GetSubDirectoriesToTransfer(string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, string[] dirListing) {
 
 			var dirsToTransfer = new List<FtpResult>();

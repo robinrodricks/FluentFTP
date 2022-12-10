@@ -13,6 +13,9 @@ using Microsoft.Extensions.Logging;
 using System.Threading;
 
 namespace FluentFTP.Client.BaseClient {
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
 	public partial class BaseFtpClient {
 
 		private ILogger m_logger = null;
@@ -439,6 +442,8 @@ namespace FluentFTP.Client.BaseClient {
 		public IPEndPoint SocketRemoteEndPoint {
 			get => m_stream?.RemoteEndPoint;
 		}
+
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
 	}
 }

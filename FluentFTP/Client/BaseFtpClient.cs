@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient : IDisposable, IInternalFtpClient {
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
 		#region Constructor
 
 		public BaseFtpClient(FtpConfig config) {
@@ -54,7 +56,8 @@ namespace FluentFTP.Client.BaseClient {
 			try {
 				write.SetFeatures(read.Capabilities);
 			}
-			catch (Exception ex) { }
+			catch {
+			}
 
 			// always accept certificate no matter what because if code execution ever
 			// gets here it means the certificate on the control connection object being
@@ -115,7 +118,7 @@ namespace FluentFTP.Client.BaseClient {
 					LogFunction(nameof(Dispose));
 					LogWithPrefix(FtpTraceLevel.Verbose, "Disposing FtpClient object...");
 				}
-				catch (Exception ex) {
+				catch {
 				}
 
 				try {
@@ -123,14 +126,14 @@ namespace FluentFTP.Client.BaseClient {
 						((IInternalFtpClient)this).DisconnectInternal();
 					}
 				}
-				catch (Exception ex) {
+				catch {
 				}
 
 				if (m_stream != null) {
 					try {
 						m_stream.Dispose();
 					}
-					catch (Exception ex) {
+					catch {
 					}
 
 					m_stream = null;
@@ -141,7 +144,7 @@ namespace FluentFTP.Client.BaseClient {
 					m_textEncoding = null;
 					m_host = null;
 				}
-				catch (Exception ex) {
+				catch {
 				}
 
 				IsDisposed = true;
@@ -168,7 +171,7 @@ namespace FluentFTP.Client.BaseClient {
 		void IInternalFtpClient.ConnectInternal(bool reConnect, CancellationToken token) {
 		}
 
-
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
 	}
 }

@@ -43,6 +43,9 @@ namespace FluentFTP {
 			return await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, progress, token, new FtpProgress(1, 0));
 		}
 
+		/// <summary>
+		/// Download a remote file to a local file
+		/// </summary>
 		protected async Task<FtpStatus> DownloadFileToFileAsync(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
 
 			// verify args

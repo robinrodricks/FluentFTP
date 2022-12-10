@@ -14,9 +14,8 @@ namespace FluentFTP {
 	/// </summary>
 	public partial class FtpClient : BaseFtpClient, IInternalFtpClient, IDisposable, IFtpClient {
 
-		/// <summary>
-		/// Creates a new instance of this class.
-		/// </summary>
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
 		protected override BaseFtpClient Create() {
 			return new FtpClient();
 		}
@@ -100,6 +99,8 @@ namespace FluentFTP {
 		void IInternalFtpClient.DisconnectInternal() {
 			Disconnect();
 		}
+
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
 	}
 }
