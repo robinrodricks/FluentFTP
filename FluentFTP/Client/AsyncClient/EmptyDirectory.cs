@@ -12,6 +12,7 @@ namespace FluentFTP {
 		/// Deletes the contents of the specified directory, without deleting the directory itself.
 		/// </summary>
 		/// <param name="path">The full or relative path of the directorys contents to delete</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public Task EmptyDirectory(string path, CancellationToken token = default(CancellationToken)) {
 			return EmptyDirectory(path, FtpListOption.Recursive, token);
 		}

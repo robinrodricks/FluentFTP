@@ -440,6 +440,7 @@ namespace FluentFTP {
 		/// Bypass the stream and read directly off the socket.
 		/// </summary>
 		/// <param name="buffer">The buffer to read into</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>The number of bytes read</returns>
 		internal async Task<int> RawSocketReadAsync(byte[] buffer, CancellationToken token) {
 			var read = 0;
@@ -613,6 +614,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
 		/// <param name="bufferSize">The size of the buffer</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A list of lines from the stream</returns>
 		public async Task<IEnumerable<string>> ReadAllLinesAsync(System.Text.Encoding encoding, int bufferSize, CancellationToken token) {
 			int charRead;
@@ -1073,6 +1075,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="ipad">The ip address to connect to</param>
 		/// <param name="port">The port to connect to</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		private async Task<bool> ConnectAsyncHelper(IPAddress ipad, int port, CancellationToken token) {
 
 			int ctmo = this.ConnectTimeout;
