@@ -147,7 +147,7 @@ namespace FluentFTP.Client.Modules {
 				}
 
 			SkipEncryptionMode:
-				var skip = true;
+				;
 
 			}
 
@@ -277,7 +277,7 @@ namespace FluentFTP.Client.Modules {
 				}
 
 			SkipEncryptionMode:
-				var skip = true;
+				;
 
 			}
 

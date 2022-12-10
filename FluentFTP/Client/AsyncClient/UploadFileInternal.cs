@@ -98,7 +98,7 @@ namespace FluentFTP {
 						// seek to required offset
 						fileData.Position = localPosition;
 					}
-					catch (Exception ex2) {
+					catch {
 					}
 				}
 
@@ -150,7 +150,7 @@ namespace FluentFTP {
 				try {
 					upStream.SetLength(remoteFileDesiredLen);
 				}
-				catch (Exception ex2) {
+				catch {
 				}
 
 				var anyNoop = false;
@@ -224,7 +224,7 @@ namespace FluentFTP {
 							throw;
 						}
 					}
-					catch (TimeoutException ex) {
+					catch (TimeoutException) {
 						// fix: attempting to upload data after we reached the end of the stream
 						// often throws a timeout exception, so we silently absorb that here
 						if (localPosition >= localFileLen) {
@@ -263,7 +263,7 @@ namespace FluentFTP {
 
 				return FtpStatus.Success;
 			}
-			catch (AuthenticationException ex) {
+			catch (AuthenticationException) {
 				FtpReply reply = await GetReplyAsyncInternal(token, "*UPLOAD*", false, -1); // no exhaustNoop, but non-blocking
 				if (!reply.Success) {
 					throw new FtpCommandException(reply);

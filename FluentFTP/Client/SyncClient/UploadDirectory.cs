@@ -188,7 +188,8 @@ namespace FluentFTP {
 								try {
 									DeleteFile(existingServerFile.FullName);
 								}
-								catch (Exception ex) { }
+								catch {
+								}
 							}
 						}
 

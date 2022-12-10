@@ -215,9 +215,9 @@ namespace FluentFTP {
 				}
 
 				// Fix: catch all exceptions and dispose off the FTP clients if one occurs
-				catch (Exception ex) {
+				catch {
 					ftpFxpSession.Dispose();
-					throw ex;
+					throw;
 				}
 			}
 			else {

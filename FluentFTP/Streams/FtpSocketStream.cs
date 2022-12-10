@@ -730,7 +730,7 @@ namespace FluentFTP {
 				try {
 					m_sslStream.Dispose();
 				}
-				catch (Exception ex) {
+				catch {
 				}
 
 				m_sslStream = null;
@@ -742,7 +742,7 @@ namespace FluentFTP {
 					// before we close the socket and network stream
 					m_bufStream.Flush();
 				}
-				catch (Exception ex) {
+				catch {
 				}
 
 				m_bufStream = null;
@@ -752,7 +752,7 @@ namespace FluentFTP {
 				try {
 					m_netStream.Dispose();
 				}
-				catch (Exception ex) {
+				catch {
 				}
 
 				m_netStream = null;
@@ -769,7 +769,7 @@ namespace FluentFTP {
 				try {
 					m_socket.Dispose();
 				}
-				catch (Exception ex) {
+				catch {
 				}
 
 				m_socket = null;
@@ -1114,7 +1114,7 @@ namespace FluentFTP {
 				}
 				throw;
 			}
-			catch (ObjectDisposedException ex) {
+			catch (ObjectDisposedException) {
 				throw new TimeoutException("Timed out trying to connect!");
 			}
 #endif

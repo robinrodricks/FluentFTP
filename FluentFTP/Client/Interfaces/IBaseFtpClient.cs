@@ -16,6 +16,8 @@ namespace FluentFTP {
 
 	public interface IBaseFtpClient {
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
 		FtpConfig Config { get; set; }
 		ILogger Logger { get; set; }
 		bool IsDisposed { get; }
@@ -36,6 +38,8 @@ namespace FluentFTP {
 		Encoding Encoding { get; set; }
 
 		Action<FtpTraceLevel, string> LegacyLogger { get; set; }
+
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
 	}
 }

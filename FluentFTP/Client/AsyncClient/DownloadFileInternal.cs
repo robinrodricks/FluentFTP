@@ -147,8 +147,7 @@ namespace FluentFTP {
 							throw;
 						}
 					}
-					catch (TimeoutException ex) {
-
+					catch (TimeoutException) {
 						// fix: attempting to download data after we reached the end of the stream
 						// often throws a timeout exception, so we silently absorb that here
 						if (offset >= fileLen && !readToEnd) {
@@ -196,7 +195,7 @@ namespace FluentFTP {
 
 				return true;
 			}
-			catch (AuthenticationException ex) {
+			catch (AuthenticationException) {
 				FtpReply reply = await GetReplyAsyncInternal(token, "*DOWNLOAD*", false, -1); // no exhaustNoop, but non-blocking
 				if (!reply.Success) {
 					throw new FtpCommandException(reply);
