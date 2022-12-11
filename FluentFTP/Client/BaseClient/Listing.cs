@@ -16,6 +16,20 @@ namespace FluentFTP.Client.BaseClient {
 			return (options & FtpListOption.Recursive) == FtpListOption.Recursive;
 		}
 
+		/// <summary>
+		/// Get a listing
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="item"></param>
+		/// <param name="lst"></param>
+		/// <param name="rawlisting"></param>
+		/// <param name="i"></param>
+		/// <param name="listcmd"></param>
+		/// <param name="buf"></param>
+		/// <param name="isRecursive"></param>
+		/// <param name="isIncludeSelf"></param>
+		/// <param name="machineList"></param>
+		/// <returns></returns>
 		protected bool LoadBasicListingInfo(ref string path, ref FtpListItem item, List<FtpListItem> lst, List<string> rawlisting, ref int i, string listcmd, string buf, bool isRecursive, bool isIncludeSelf, bool machineList) {
 
 			// if this is a result of LIST -R then the path will be spit out
@@ -59,6 +73,9 @@ namespace FluentFTP.Client.BaseClient {
 			return true;
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
 		protected bool IsItemSelf(string path, FtpListItem item) {
 			return item.Name == "." ||
 				item.Name == ".." ||
@@ -67,6 +84,9 @@ namespace FluentFTP.Client.BaseClient {
 				item.FullName.EnsurePostfix("/") == path;
 		}
 
+		/// <summary>
+		/// Determine which command to use for getting a listing
+		/// </summary>
 		protected void CalculateGetListingCommand(string path, FtpListOption options, out string listcmd, out bool machineList) {
 
 			// read flags
@@ -124,6 +144,9 @@ namespace FluentFTP.Client.BaseClient {
 			}
 		}
 
+		/// <summary>
+		/// Can the server do recursion for us?
+		/// </summary>
 		protected bool IsServerSideRecursionSupported(FtpListOption options) {
 
 			// Fix #539: Correctly calculate if server-side recursion is supported else fallback to manual recursion

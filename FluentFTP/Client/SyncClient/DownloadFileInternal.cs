@@ -231,6 +231,9 @@ namespace FluentFTP {
 			}
 		}
 
+		/// <summary>
+		/// Setup a resume on failure of download
+		/// </summary>
 		protected bool ResumeDownload(string remotePath, ref Stream downStream, long offset, IOException ex) {
 			try {
 				// if resume possible

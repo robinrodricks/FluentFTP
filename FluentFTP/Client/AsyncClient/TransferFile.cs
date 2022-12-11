@@ -18,6 +18,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="progress">Provide a callback to track download progress.</param>
+		/// <param name="metaProgress"></param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// Returns a FtpStatus indicating if the file was transferred.
 		/// <remarks>

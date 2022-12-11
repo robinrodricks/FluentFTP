@@ -19,6 +19,10 @@ namespace FtpSslLib {
 	/// 
 	/// </summary>
 	public class FtpSslStream : SslStream {
+
+		/// <summary>
+		/// Create an SslStream object
+		/// </summary>
 		public FtpSslStream(Stream innerStream, bool leaveInnerStreamOpen, RemoteCertificateValidationCallback userCertificateValidationCallback)
 			: base(innerStream, leaveInnerStreamOpen, userCertificateValidationCallback) {
 		}
@@ -26,6 +30,10 @@ namespace FtpSslLib {
 #if NETFRAMEWORK
 		private bool _Closed = false;
 #endif
+
+		/// <summary>
+		/// Dispose
+		/// </summary>
 		protected override void Dispose(bool disposing) {
 
 			try {
@@ -50,6 +58,9 @@ namespace FtpSslLib {
 			}
 		}
 
+		/// <summary>
+		/// For representing this SslStream in the log
+		/// </summary>
 		public override string ToString() {
 #if NET5_0_OR_GREATER
 			return $"{SslProtocol} ({CipherAlgorithm}, {NegotiatedCipherSuite}, {KeyExchangeAlgorithm}, {KeyExchangeStrength})";

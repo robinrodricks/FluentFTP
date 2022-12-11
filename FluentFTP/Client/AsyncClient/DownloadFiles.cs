@@ -13,18 +13,6 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-		protected void PurgeSuccessfulDownloads(IEnumerable<string> localFiles) {
-			foreach (var localFile in localFiles) {
-				// absorb any errors because we don't want this to throw more errors!
-				try {
-					File.Delete(localFile);
-				}
-				catch (Exception ex) {
-					LogWithPrefix(FtpTraceLevel.Warn, "AsyncFtpClient : Exception caught and discarded while attempting to delete file '" + localFile + "' : " + ex.ToString());
-				}
-			}
-		}
-
 		/// <summary>
 		/// Downloads the specified files into a local single directory.
 		/// High-level API that takes care of various edge cases internally.
@@ -130,6 +118,21 @@ namespace FluentFTP {
 			}
 
 			return successfulDownloads.Count;
+		}
+
+		/// <summary>
+		/// Remove successful downloads.
+		/// </summary>
+		protected void PurgeSuccessfulDownloads(IEnumerable<string> localFiles) {
+			foreach (var localFile in localFiles) {
+				// absorb any errors because we don't want this to throw more errors!
+				try {
+					File.Delete(localFile);
+				}
+				catch (Exception ex) {
+					LogWithPrefix(FtpTraceLevel.Warn, "AsyncFtpClient : Exception caught and discarded while attempting to delete file '" + localFile + "' : " + ex.ToString());
+				}
+			}
 		}
 
 	}

@@ -108,7 +108,10 @@ namespace FluentFTP {
 			return successfulDownloads.Count;
 		}
 
-
+		/// <summary>
+		/// Remove successfully downloaded files
+		/// </summary>
+		/// <param name="localFiles"></param>
 		protected void PurgeSuccessfulDownloads(IEnumerable<string> localFiles) {
 			foreach (var localFile in localFiles) {
 				// absorb any errors because we don't want this to throw more errors!

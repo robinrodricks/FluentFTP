@@ -4,13 +4,17 @@ using System.Runtime.Serialization;
 #endif
 
 namespace FluentFTP {
+
+	/// <summary>
+	/// FtpProtocolUnsupportedException
+	/// </summary>
 #if NETFRAMEWORK
 	[Serializable]
 #endif
 	public class FtpProtocolUnsupportedException : FtpException {
 
 		/// <summary>
-		/// Custom error message
+		/// FtpProtocolUnsupportedException
 		/// </summary>
 		/// <param name="message">Error message</param>
 		public FtpProtocolUnsupportedException(string message)

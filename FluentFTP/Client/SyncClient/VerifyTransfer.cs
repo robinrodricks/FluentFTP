@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class FtpClient {
 
+		/// <summary>
+		/// Verify a file transfer
+		/// </summary>
+		/// <param name="localPath"></param>
+		/// <param name="remotePath"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentException"></exception>
 		protected bool VerifyTransfer(string localPath, string remotePath) {
 
 			// verify args

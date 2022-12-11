@@ -293,6 +293,9 @@ namespace FluentFTP {
 			}
 		}
 
+		/// <summary>
+		/// Setup a resume on failure of upload
+		/// </summary>
 		protected async Task<Tuple<bool, Stream>> ResumeUploadAsync(string remotePath, Stream upStream, long remotePosition, IOException ex, CancellationToken token = default) {
 			try {
 				// if resume possible

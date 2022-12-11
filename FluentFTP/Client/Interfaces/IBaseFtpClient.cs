@@ -14,6 +14,9 @@ using System.Threading.Tasks;
 
 namespace FluentFTP {
 
+	/// <summary>
+	/// Base object for FtpClient, AsyncFtpClient and the internal client
+	/// </summary>
 	public interface IBaseFtpClient {
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member

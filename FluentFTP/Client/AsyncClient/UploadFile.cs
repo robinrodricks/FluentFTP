@@ -44,6 +44,9 @@ namespace FluentFTP {
 			return await UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token, progress, new FtpProgress(1, 0));
 		}
 
+		/// <summary>
+		/// Upload from a local file to a remote file
+		/// </summary>
 		protected async Task<FtpStatus> UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token, IProgress<FtpProgress> progress, FtpProgress metaProgress) {
 

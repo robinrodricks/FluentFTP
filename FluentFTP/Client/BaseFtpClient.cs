@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient : IDisposable, IInternalFtpClient {
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
 		#region Constructor
 
 		public BaseFtpClient(FtpConfig config) {
@@ -169,7 +171,7 @@ namespace FluentFTP.Client.BaseClient {
 		void IInternalFtpClient.ConnectInternal(bool reConnect, CancellationToken token) {
 		}
 
-
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
 	}
 }

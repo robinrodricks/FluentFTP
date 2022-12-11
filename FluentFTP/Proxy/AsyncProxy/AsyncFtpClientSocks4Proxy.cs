@@ -4,8 +4,15 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentFTP.Proxy.AsyncProxy {
-	/// <summary> A FTP client with a SOCKS4 proxy implementation. </summary>
+
+	/// <summary>
+	/// A FTP client with a SOCKS4 proxy implementation.
+	/// </summary>
 	public class AsyncFtpClientSocks4Proxy : AsyncFtpClientProxy {
+
+		/// <summary>
+		/// Setup a SOCKS4 proxy
+		/// </summary>
 		public AsyncFtpClientSocks4Proxy(FtpProxyProfile proxy) : base(proxy) {
 			ConnectionType = "SOCKS4 Proxy";
 		}
@@ -25,6 +32,9 @@ namespace FluentFTP.Proxy.AsyncProxy {
 			await base.HandshakeAsync(token);
 		}
 
+		/// <summary>
+		/// Connect
+		/// </summary>
 		protected override async Task ConnectAsync(FtpSocketStream stream, CancellationToken cancellationToken) {
 			await base.ConnectAsync(stream, cancellationToken);
 			var proxy = new Socks4Proxy(Host, Port, stream);

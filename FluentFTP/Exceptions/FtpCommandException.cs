@@ -44,6 +44,9 @@ namespace FluentFTP {
 			}
 		}
 
+		/// <summary>
+		/// Setup the error message string
+		/// </summary>
 		public override string Message => $"Code: {CompletionCode} Message: {base.Message}";
 
 		/// <summary>

@@ -183,6 +183,12 @@ namespace FluentFTP.Client.BaseClient {
 			return reply;
 		}
 
+		/// <summary>
+		/// Process the returned data after command was executed
+		/// </summary>
+		/// <param name="reply"></param>
+		/// <param name="command"></param>
+		/// <returns></returns>
 		protected FtpReply ProcessGetReply(FtpReply reply, string command) {
 
 			// log multiline response messages

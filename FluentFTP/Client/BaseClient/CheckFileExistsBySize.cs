@@ -4,6 +4,11 @@ using FluentFTP.Client.Modules;
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
 
+		/// <summary>
+		/// Try using the SIZE command to check if file exists
+		/// </summary>
+		/// <param name="sizeReply"></param>
+		/// <returns></returns>
 		protected bool? CheckFileExistsBySize(FtpSizeReply sizeReply) {
 
 			// file surely exists

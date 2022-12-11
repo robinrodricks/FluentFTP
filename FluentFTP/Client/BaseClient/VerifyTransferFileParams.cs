@@ -4,6 +4,16 @@ using FluentFTP.Helpers;
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
 
+		/// <summary>
+		/// Verify that the client is usable
+		/// </summary>
+		/// <param name="sourcePath"></param>
+		/// <param name="remoteClient"></param>
+		/// <param name="remotePath"></param>
+		/// <param name="existsMode"></param>
+		/// <exception cref="ArgumentNullException"></exception>
+		/// <exception cref="ArgumentException"></exception>
+		/// <exception cref="FtpException"></exception>
 		protected void VerifyTransferFileParams(string sourcePath, BaseFtpClient remoteClient, string remotePath, FtpRemoteExists existsMode) {
 			if (remoteClient is null) {
 				throw new ArgumentNullException(nameof(remoteClient), "Destination FXP FtpClient cannot be null!");

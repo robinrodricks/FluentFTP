@@ -20,8 +20,15 @@ namespace FluentFTP {
 	/// Stream class used for talking. Used by FtpClient, extended by FtpDataStream
 	/// </summary>
 	public class FtpSocketStream : Stream, IDisposable {
+
+		/// <summary>
+		/// The client this stream is associated with
+		/// </summary>
 		public readonly BaseFtpClient Client;
 
+		/// <summary>
+		/// This stream connection to be associated with this client
+		/// </summary>
 		public FtpSocketStream(BaseFtpClient conn) {
 			Client = conn;
 		}
@@ -706,7 +713,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Disconnects from server
 		/// </summary>
-		public virtual void Close() {
+		public override void Close() {
 			Dispose(true);
 		}
 #endif
@@ -849,6 +856,7 @@ namespace FluentFTP {
 		/// Set the connected IP Address associated with this host
 		/// </summary>
 		/// <param name="host">The host to query</param>
+		/// <param name="ipad">The IP address to store in the cache</param>
 		private void SetCachedHostAddresses(string host, IPAddress ipad) {
 			if (Client.Status.CachedHostIpads.ContainsKey(host)) {
 				Client.Status.CachedHostIpads[host] = new IPAddress[1] { ipad };

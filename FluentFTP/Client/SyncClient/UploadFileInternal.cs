@@ -279,6 +279,9 @@ namespace FluentFTP {
 			}
 		}
 
+		/// <summary>
+		/// Setup a resume on an upload failure
+		/// </summary>
 		protected bool ResumeUpload(string remotePath, ref Stream upStream, long remotePosition, IOException ex) {
 			try {
 				// if resume possible

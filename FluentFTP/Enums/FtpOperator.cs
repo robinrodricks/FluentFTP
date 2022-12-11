@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace FluentFTP {
+
+	/// <summary>
+	/// For setting up rules
+	/// </summary>
 	public enum FtpOperator {
 
 		/// <summary>
