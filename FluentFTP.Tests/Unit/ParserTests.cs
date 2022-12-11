@@ -7,7 +7,7 @@ using Xunit;
 namespace FluentFTP.Tests.Unit {
 	public class ParserTests {
 
-		private static void TestParsing(FtpListParser parser, string path, string[] testValues, FtpListItem[] expectedValues) {
+		private static void TestParsing(FtpListParser parser, string path, string[] testValues, FtpListItem?[] expectedValues) {
 
 			// code prefix
 			if (expectedValues == null) {
@@ -41,7 +41,7 @@ namespace FluentFTP.Tests.Unit {
 
 					// test if correct
 					if (item != null) {
-						Assert.Equal(item.ToString(), expectedValues[i].ToString());
+						Assert.Equal(item.ToString(), expectedValues[i]!.ToString());
 					}
 				}
 
@@ -118,7 +118,7 @@ namespace FluentFTP.Tests.Unit {
 				"Type=file;Size=4096;Modify=19990929011440;Perm=r;Unique=keVO1+bd8; FILE1",
 			};
 
-			var expected = new FtpListItem[]{
+			var expected = new FtpListItem?[]{
 				new FtpListItem("File1-whitespace trailing\t ", -1, FtpObjectType.File, new DateTime(1, 1, 1, 0, 0, 0, 0)),
 				new FtpListItem("\t File2-whitespace leading", -1, FtpObjectType.File, new DateTime(1, 1, 1, 0, 0, 0, 0)),
 				new FtpListItem("File 3 Word Doc", 14718921, FtpObjectType.File, new DateTime(2013, 4, 26, 13, 55, 1, 0)),
@@ -221,7 +221,7 @@ namespace FluentFTP.Tests.Unit {
 				"-r-xr-xr-x   2 root  root  96 2004.07.15   NonEnglish-9.mp4 file",
 			};
 
-			var expected = new FtpListItem[]{
+			var expected = new FtpListItem?[]{
 
 				// OK
 				new FtpListItem(".", 512, FtpObjectType.Directory, new DateTime(2011, 9, 27, 0, 0, 0, 0)),
@@ -283,7 +283,7 @@ namespace FluentFTP.Tests.Unit {
 				"2013-09-02  18:48       <DIR>          Folder16",
 				"2013-09-02  19:06                9,730 File17",
 			};
-			var expected = new FtpListItem[]{
+			var expected = new FtpListItem?[]{
 				new FtpListItem("File01.xml", 901, FtpObjectType.File, new DateTime(2013, 3, 7, 10, 2, 0, 0)),
 				new FtpListItem("File02.xml", 921, FtpObjectType.File, new DateTime(2013, 3, 7, 10, 3, 0, 0)),
 				new FtpListItem("File03.xml", 904, FtpObjectType.File, new DateTime(2013, 3, 7, 10, 4, 0, 0)),
@@ -340,7 +340,7 @@ namespace FluentFTP.Tests.Unit {
 				//"junk-file;1       17-JUN-1994 17:25:37     6308/13     (RWED,RWED,R,)",
 			};
 
-			var expected = new FtpListItem[]{
+			var expected = new FtpListItem?[]{
 				new FtpListItem("411_4114.TXT", 11, FtpObjectType.File, new DateTime(2012, 3, 21, 15, 17, 0, 0)),
 				new FtpListItem("ACT_CC_NAME_4114.TXT", 30, FtpObjectType.File, new DateTime(2012, 3, 21, 15, 17, 0, 0)),
 				new FtpListItem("ACT_CC_NUM_4114.TXT", 30, FtpObjectType.File, new DateTime(2012, 3, 21, 15, 17, 0, 0)),
@@ -387,7 +387,7 @@ namespace FluentFTP.Tests.Unit {
 				"TESTUSR         12345 01/12/18 18:34:01 *STMF B0001234567 K",
 			};
 
-			var expected = new FtpListItem[]{
+			var expected = new FtpListItem?[]{
 				new FtpListItem("ANTHONY1.FILE", 45056, FtpObjectType.File, new DateTime(2014, 12, 4, 14, 19, 31, 0)),
 				new FtpListItem("ANTHONY1.FILE/ANTHONY1.MBR", 0, FtpObjectType.File, new DateTime(1, 1, 1, 0, 0, 0, 0)),
 				new FtpListItem("AMANDA3.FILE", 36864, FtpObjectType.File, new DateTime(2015, 11, 28, 15, 19, 30, 0)),
@@ -419,7 +419,7 @@ namespace FluentFTP.Tests.Unit {
 				"FILE4      101            16384 15-Aug-14 11:44:56 244, 10 \"extra4\"",
 			};
 
-			var expected = new FtpListItem[]{
+			var expected = new FtpListItem?[]{
 				null,
 				new FtpListItem("FILE1", 528, FtpObjectType.File, new DateTime(635251332780000000)),
 				new FtpListItem("FILE2", 528, FtpObjectType.File, new DateTime(635278980780000000)),
@@ -446,7 +446,7 @@ namespace FluentFTP.Tests.Unit {
 				"-rw-rw----   1 YNSAS    SYS1       47227 Jun  7  2021 test.txt",
 			};
 
-			var expected = new FtpListItem[]{
+			var expected = new FtpListItem?[]{
 				null,
 				new FtpListItem("downloads", 8192, FtpObjectType.Directory, new DateTime(2015, 10, 19, 0, 0, 0, 0)),
 				new FtpListItem("p5zipfile", 8192, FtpObjectType.Directory, new DateTime(2015, 10, 19, 0, 0, 0, 0)),
@@ -471,7 +471,7 @@ namespace FluentFTP.Tests.Unit {
 				"YNSABH 3390   2022/02/18  1+++++  VBS  32767 27966  PS  $.BDATA.XBB",
 			};
 
-			var expected = new FtpListItem[]{
+			var expected = new FtpListItem?[]{
 				null,
 				new FtpListItem("$.ADATA.XAA", 849960, FtpObjectType.File, new DateTime(2020, 1, 3, 0, 0, 0, 0)),
 				new FtpListItem("$.BDATA.XBB", 950664167424, FtpObjectType.File, new DateTime(2022, 2, 18, 0, 0, 0, 0)),
@@ -493,7 +493,6 @@ namespace FluentFTP.Tests.Unit {
 
 			// Cannot test expected as this szenario needs an internal XDSS command to get LRECL
 			// for size calculation
-
 			TestParsing(parser, "/", sample, null);
 
 		}
@@ -509,7 +508,7 @@ namespace FluentFTP.Tests.Unit {
 				"EAGRTPRC  005F48   000011 EAGRTALT 00 FO             RN RU            31    ANY",
 			};
 
-			var expected = new FtpListItem[]{
+			var expected = new FtpListItem?[]{
 				null,
 				new FtpListItem("EAGKCPT", 88, FtpObjectType.File, new DateTime(1 ,1, 1, 0, 0, 0, 0)),
 				new FtpListItem("EAGRTPRC", 24392, FtpObjectType.File, new DateTime(1, 1, 1, 0, 0, 0, 0)),
