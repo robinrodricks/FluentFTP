@@ -7,7 +7,7 @@ using Xunit;
 namespace FluentFTP.Tests.Unit {
 	public class ParserTests {
 
-		private static void TestParsing(FtpListParser parser, string path, string[] testValues, FtpListItem?[] expectedValues) {
+		private static void TestParsing(FtpListParser parser, string path, string[] testValues, FtpListItem?[]? expectedValues) {
 
 			// code prefix
 			if (expectedValues == null) {
@@ -27,7 +27,7 @@ namespace FluentFTP.Tests.Unit {
 
 
 				// if no expected values known
-				if (expectedValues.Length == 0) {
+				if (expectedValues == null) {
 
 					// print parsed value to build test expectation
 					if (item == null) {
