@@ -41,7 +41,9 @@ namespace FluentFTP.Tests.Unit {
 
 					// test if correct
 					if (item != null) {
-						Assert.Equal(item.ToString(), expectedValues[i]?.ToString());
+
+						Assert.Equal(item.ToString(), expectedValues[i]!.ToString());
+
 					}
 				}
 
@@ -493,10 +495,8 @@ namespace FluentFTP.Tests.Unit {
 
 			// Cannot test expected as this szenario needs an internal XDSS command to get LRECL
 			// for size calculation
-			var expected = new FtpListItem?[]{
-			};
 
-			TestParsing(parser, "/", sample, expected);
+			TestParsing(parser, "/", sample, null);
 
 		}
 
