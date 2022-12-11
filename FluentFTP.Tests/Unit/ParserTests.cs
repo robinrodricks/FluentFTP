@@ -27,7 +27,7 @@ namespace FluentFTP.Tests.Unit {
 
 
 				// if no expected values known
-				if (expectedValues == null) {
+				if (expectedValues.Length == 0) {
 
 					// print parsed value to build test expectation
 					if (item == null) {
@@ -41,7 +41,9 @@ namespace FluentFTP.Tests.Unit {
 
 					// test if correct
 					if (item != null) {
+
 						Assert.Equal(item.ToString(), expectedValues[i]!.ToString());
+
 					}
 				}
 
@@ -493,6 +495,7 @@ namespace FluentFTP.Tests.Unit {
 
 			// Cannot test expected as this szenario needs an internal XDSS command to get LRECL
 			// for size calculation
+
 			TestParsing(parser, "/", sample, null);
 
 		}
@@ -530,7 +533,10 @@ namespace FluentFTP.Tests.Unit {
 				" 1123 DIR  A    10-05-100  23:38  27-Dir8 dir",
 			};
 
-			TestParsing(parser, "/", sample, null);
+			var expected = new FtpListItem?[]{
+			};
+
+			TestParsing(parser, "/", sample, expected);
 		}*/
 	}
 }
