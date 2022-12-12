@@ -218,7 +218,7 @@ namespace FluentFTP {
 					catch (TimeoutException ex) {
 						// fix: attempting to upload data after we reached the end of the stream
 						// often throws a timeout exception, so we silently absorb that here
-						if (localPosition >= localFileLen) {
+						if (localFileLen > 0 && localPosition >= localFileLen) {
 							break;
 						}
 						else {
