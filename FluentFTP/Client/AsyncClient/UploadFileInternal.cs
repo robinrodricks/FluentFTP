@@ -156,7 +156,7 @@ namespace FluentFTP {
 				var anyNoop = false;
 
 				// loop till entire file uploaded
-				while (localPosition < localFileLen) {
+				while (localFileLen == 0 || localPosition < localFileLen) {
 					try {
 						// read a chunk of bytes from the file
 						int readBytes;
