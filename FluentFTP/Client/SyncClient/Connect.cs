@@ -131,7 +131,7 @@ namespace FluentFTP {
 				// so save some bandwidth and CPU time and skip executing this again.
 				// otherwise clear the capabilities in case connection is reused to 
 				// a different server 
-				if (!m_isClone && Config.CheckCapabilities) {
+				if (!reConnect && !m_isClone && Config.CheckCapabilities) {
 					m_capabilities.Clear();
 				}
 				bool assumeCaps = false;
