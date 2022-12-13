@@ -555,6 +555,8 @@ namespace FluentFTP {
 				}
 			}
 
+			SocketReadLineCount++;
+
 			return line;
 		}
 
