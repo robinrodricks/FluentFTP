@@ -41,6 +41,11 @@ namespace FluentFTP {
 			else if (m_stream.IsEncrypted && Config.SslSessionLength > 0 && !Status.InCriticalSequence && m_stream.SocketReadLineCount > Config.SslSessionLength) {
 				LogWithPrefix(FtpTraceLevel.Info, "Reconnect due to SslSessionLength reached");
 
+				if (Status.LastWorkingDir == null) {
+					Status.InCriticalSequence = true;
+					await GetWorkingDirectory();
+				}
+
 				m_stream.Close();
 				m_stream = null;
 
