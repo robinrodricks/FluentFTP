@@ -95,6 +95,10 @@ namespace FluentFTP {
 
 			return results;
 		}
+
+		/// <summary>
+		/// Make a list of files to transfer 
+		/// </summary>
 		protected List<FtpResult> GetFilesToTransfer(string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, string[] fileListing) {
 
 			var filesToTransfer = new List<FtpResult>();
@@ -132,6 +136,15 @@ namespace FluentFTP {
 			return filesToTransfer;
 		}
 
+		/// <summary>
+		/// Transfer each file
+		/// </summary>
+		/// <param name="filesToTransfer"></param>
+		/// <param name="remoteClient"></param>
+		/// <param name="existsMode"></param>
+		/// <param name="verifyOptions"></param>
+		/// <param name="progress"></param>
+		/// <param name="remoteListing"></param>
 		protected void TransferServerFiles(List<FtpResult> filesToTransfer, FtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpListItem[] remoteListing) {
 
 			LogFunction(nameof(TransferServerFiles), new object[] { filesToTransfer.Count + " files" });

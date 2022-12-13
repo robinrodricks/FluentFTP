@@ -10,6 +10,9 @@ using FluentFTP.Helpers;
 
 namespace FluentFTP {
 
+	/// <summary>
+	/// The current "profile" defining the client
+	/// </summary>
 #if NETFRAMEWORK
 	[Serializable]
 #endif

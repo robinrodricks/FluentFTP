@@ -86,9 +86,7 @@ namespace FluentFTP {
 		public int LinkCount { get; set; }
 
 		/// <summary>
-		/// Gets the object that the LinkTarget points to. This property is null unless you pass the
-		/// <see cref="FtpListOption.DerefLinks"/> flag in which case GetListing() will try to resolve
-		/// the target itself.
+		/// Gets the object that the LinkTarget points to.
 		/// </summary>
 		public FtpListItem LinkObject { get; set; }
 

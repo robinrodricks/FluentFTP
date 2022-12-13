@@ -33,7 +33,8 @@ namespace FluentFTP.Client.BaseClient {
 							try {
 								File.Delete(existingLocalFile);
 							}
-							catch (Exception ex) { }
+							catch {
+							}
 						}
 					}
 				}

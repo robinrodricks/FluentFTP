@@ -207,7 +207,8 @@ namespace FluentFTP {
 								try {
 									await DeleteFile(existingServerFile.FullName, token);
 								}
-								catch (Exception ex) { }
+								catch {
+								}
 							}
 						}
 

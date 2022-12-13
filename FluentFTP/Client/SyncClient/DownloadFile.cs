@@ -43,6 +43,18 @@ namespace FluentFTP {
 			return DownloadFileToFile(localPath, remotePath, existsMode, verifyOptions, progress, new FtpProgress(1, 0));
 		}
 
+		/// <summary>
+		/// Download from a remote file to a local file
+		/// </summary>
+		/// <param name="localPath"></param>
+		/// <param name="remotePath"></param>
+		/// <param name="existsMode"></param>
+		/// <param name="verifyOptions"></param>
+		/// <param name="progress"></param>
+		/// <param name="metaProgress"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentException"></exception>
+		/// <exception cref="FtpException"></exception>
 		protected FtpStatus DownloadFileToFile(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
 			bool isAppend = false;
 

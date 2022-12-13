@@ -22,6 +22,10 @@ namespace FluentFTP {
 			return Status.LastWorkingDir;
 		}
 
+		/// <summary>
+		/// Get the reply from the PWD command
+		/// </summary>
+		/// <returns>The current working directory reply.</returns>
 		protected async Task<FtpReply> ReadCurrentWorkingDirectory(CancellationToken token) {
 
 			FtpReply reply;

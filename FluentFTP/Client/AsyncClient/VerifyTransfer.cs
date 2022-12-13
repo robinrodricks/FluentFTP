@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
+		/// <summary>
+		/// Verify a file transfer
+		/// </summary>
+		/// <param name="localPath"></param>
+		/// <param name="remotePath"></param>
+		/// <param name="token"></param>
+		/// <returns></returns>
+		/// <exception cref="ArgumentException"></exception>
 		protected async Task<bool> VerifyTransferAsync(string localPath, string remotePath, CancellationToken token = default(CancellationToken)) {
 
 			// verify args

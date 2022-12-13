@@ -76,6 +76,9 @@ namespace FluentFTP {
 			};
 		}
 
+		/// <summary>
+		/// Human readable results
+		/// </summary>
 		public override string ToString() {
 			var sb = new StringBuilder();
 

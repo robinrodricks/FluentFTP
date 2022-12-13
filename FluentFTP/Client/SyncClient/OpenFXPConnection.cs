@@ -9,8 +9,9 @@ namespace FluentFTP {
 		/// Opens a FXP PASV connection between the source FTP Server and the destination FTP Server
 		/// </summary>
 		/// <param name="remoteClient">FtpClient instance of the destination FTP Server</param>
+		/// <param name="progress">Provide an implementation of IProgress to track download progress.</param>
 		/// <returns>A data stream ready to be used</returns>
-		protected FtpFxpSession OpenPassiveFXPConnection(FtpClient remoteClient, bool trackProgress) {
+		protected FtpFxpSession OpenPassiveFXPConnection(FtpClient remoteClient, bool progress) {
 			FtpReply reply, reply2;
 			Match m;
 			FtpClient sourceClient = this;
@@ -19,7 +20,7 @@ namespace FluentFTP {
 
 			// create a new connection to the target FTP server to track progress
 			// if progress tracking is enabled during this FXP transfer
-			if (trackProgress) {
+			if (progress) {
 				progressClient = (FtpClient)remoteClient.Clone();
 				progressClient.Status.AutoDispose = true;
 				progressClient.Status.CopyFrom(remoteClient.Status);

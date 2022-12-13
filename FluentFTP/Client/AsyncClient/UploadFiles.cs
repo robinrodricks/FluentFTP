@@ -142,6 +142,9 @@ namespace FluentFTP {
 			return successfulUploads.Count;
 		}
 
+		/// <summary>
+		/// Remove the successfully uploaded files
+		/// </summary>
 		protected async Task PurgeSuccessfulUploadsAsync(IEnumerable<string> remotePaths) {
 			foreach (var remotePath in remotePaths) {
 				await DeleteFile(remotePath);

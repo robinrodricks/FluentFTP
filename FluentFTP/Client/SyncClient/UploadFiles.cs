@@ -131,6 +131,10 @@ namespace FluentFTP {
 			return successfulUploads.Count;
 		}
 
+		/// <summary>
+		/// Remove successfully uploaded files
+		/// </summary>
+		/// <param name="remotePaths"></param>
 		protected void PurgeSuccessfulUploads(IEnumerable<string> remotePaths) {
 			foreach (var remotePath in remotePaths) {
 				DeleteFile(remotePath);

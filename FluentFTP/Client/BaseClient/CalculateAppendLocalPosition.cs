@@ -1,7 +1,19 @@
 ﻿using FluentFTP.Helpers;
 
 namespace FluentFTP.Client.BaseClient {
+
+	/// <summary>
+	/// The base object for FtpClient, AsyncFtpClient
+	/// </summary>
 	public partial class BaseFtpClient {
+
+		/// <summary>
+		/// Calculate the position from which to append
+		/// </summary>
+		/// <param name="remotePath"></param>
+		/// <param name="existsMode"></param>
+		/// <param name="remotePosition"></param>
+		/// <returns></returns>
 		protected long CalculateAppendLocalPosition(string remotePath, FtpRemoteExists existsMode, long remotePosition) {
 
 			long localPosition = 0;

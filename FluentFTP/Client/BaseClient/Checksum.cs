@@ -3,6 +3,10 @@ using FluentFTP.Helpers;
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
 
+		/// <summary>
+		/// Does the server support checksums?
+		/// </summary>
+		/// <returns></returns>
 		protected bool SupportsChecksum() {
 			return HasFeature(FtpCapability.HASH) || HasFeature(FtpCapability.MD5) ||
 					HasFeature(FtpCapability.XMD5) || HasFeature(FtpCapability.XCRC) ||
@@ -10,6 +14,11 @@ namespace FluentFTP.Client.BaseClient {
 					HasFeature(FtpCapability.XSHA512);
 		}
 
+		/// <summary>
+		/// Is the checksum algorithm valid?
+		/// </summary>
+		/// <param name="algorithm"></param>
+		/// <exception cref="FtpHashUnsupportedException"></exception>
 		protected void ValidateChecksumAlgorithm(FtpHashAlgorithm algorithm) {
 
 			// if NO hashing algos or commands supported, throw here
@@ -59,6 +68,9 @@ namespace FluentFTP.Client.BaseClient {
 			}
 		}
 
+		/// <summary>
+		/// Cleanup the hash result
+		/// </summary>
 		protected static string CleanHashResult(string path, string response) {
 			response = response.RemovePrefix(path);
 			response = response.RemovePrefix($@"""{path}""");

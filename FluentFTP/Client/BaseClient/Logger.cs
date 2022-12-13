@@ -114,6 +114,11 @@ namespace FluentFTP.Client.BaseClient {
 			}
 		}
 
+		/// <summary>
+		/// Get the log prefix
+		/// </summary>
+		/// <param name="eventType"></param>
+		/// <returns></returns>
 		protected static string GetLogPrefix(FtpTraceLevel eventType) {
 			switch (eventType) {
 				case FtpTraceLevel.Verbose:

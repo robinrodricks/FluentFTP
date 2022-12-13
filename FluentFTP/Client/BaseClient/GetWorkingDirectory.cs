@@ -19,7 +19,9 @@ namespace FluentFTP.Client.BaseClient {
 			return Status.LastWorkingDir;
 		}
 
-
+		/// <summary>
+		/// Get the reply to the PWD command
+		/// </summary>
 		protected FtpReply ReadCurrentWorkingDirectory() {
 			FtpReply reply;
 
@@ -35,6 +37,11 @@ namespace FluentFTP.Client.BaseClient {
 			return reply;
 		}
 
+		/// <summary>
+		/// Parse the string returned from a PWD command
+		/// </summary>
+		/// <param name="reply"></param>
+		/// <returns></returns>
 		protected string ParseWorkingDirectory(FtpReply reply) {
 			Match m;
 

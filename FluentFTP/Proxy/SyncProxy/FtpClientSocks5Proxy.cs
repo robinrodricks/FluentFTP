@@ -4,8 +4,15 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentFTP.Proxy.SyncProxy {
-	/// <summary> A FTP client with a SOCKS5 proxy implementation. </summary>
+
+	/// <summary>
+	/// A FTP client with a SOCKS5 proxy implementation.
+	/// </summary>
 	public class FtpClientSocks5Proxy : FtpClientProxy {
+
+		/// <summary>
+		/// Setup a SOCKS5 proxy
+		/// </summary>
 		public FtpClientSocks5Proxy(FtpProxyProfile proxy) : base(proxy) {
 			ConnectionType = "SOCKS5 Proxy";
 		}
@@ -17,6 +24,9 @@ namespace FluentFTP.Proxy.SyncProxy {
 			return new FtpClientSocks5Proxy(Proxy);
 		}
 
+		/// <summary>
+		/// Connect
+		/// </summary>
 		protected override void Connect(FtpSocketStream stream) {
 			base.Connect(stream);
 			var proxy = new SocksProxy(Host, Port, stream, Proxy);
@@ -25,6 +35,9 @@ namespace FluentFTP.Proxy.SyncProxy {
 			proxy.Connect();
 		}
 
+		/// <summary>
+		/// Connect
+		/// </summary>
 		protected override void Connect(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions) {
 			base.Connect(stream);
 			var proxy = new SocksProxy(Host, port, stream, Proxy);

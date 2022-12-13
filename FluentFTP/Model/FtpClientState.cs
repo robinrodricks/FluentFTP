@@ -5,6 +5,10 @@ using System.Net;
 using System.Text;
 
 namespace FluentFTP {
+
+	/// <summary>
+	/// The current "state" of the client
+	/// </summary>
 	public class FtpClientState {
 
 

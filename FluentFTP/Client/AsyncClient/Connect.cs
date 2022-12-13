@@ -35,6 +35,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="reConnect"> true indicates that we want a 
 		/// reconnect to take place.</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <exception cref="ObjectDisposedException">Thrown if this object has been disposed.</exception>
 		public virtual async Task Connect(bool reConnect, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;

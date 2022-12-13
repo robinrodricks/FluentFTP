@@ -76,6 +76,10 @@ namespace FluentFTP.Client.BaseClient {
 			return reply;
 		}
 
+		/// <summary>
+		/// Things to do after executing a command
+		/// </summary>
+		/// <param name="command"></param>
 		protected void OnPostExecute(string command) {
 
 			// Update stored values

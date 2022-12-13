@@ -82,6 +82,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Get z/OS file size
 		/// </summary>
+		/// <param name="client">The client object this is being done for</param>
 		/// <param name="path">The full path of the file whose size you want to retrieve</param>
 		/// <remarks>
 		/// Make sure you are in the right realm (z/OS or HFS) before doing this
@@ -105,6 +106,7 @@ namespace FluentFTP.Servers.Handlers {
 		/// <summary>
 		/// Get z/OS file size
 		/// </summary>
+		/// <param name="client">The client object this is being done for</param>
 		/// <param name="path">The full path of the file whose size you want to retrieve</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <remarks>
