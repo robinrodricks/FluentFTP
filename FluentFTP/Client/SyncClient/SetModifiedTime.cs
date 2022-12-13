@@ -31,8 +31,25 @@ namespace FluentFTP {
 				var timeStr = date.GenerateFtpDate();
 
 				// set modified date of a file
-				if ((reply = Execute("MFMT " + timeStr + " " + path)).Success) {
+				if (HasFeature(FtpCapability.MFMT)) {
+					if ((reply = Execute("MFMT " + timeStr + " " + path)).Success) {
+					}
 				}
+				else if (HasFeature(FtpCapability.MDTM)) {
+					if ((reply = Execute("MDTM " + timeStr + " " + path)).Success) {
+					}
+				}
+				else {
+					throw new FtpException("No time setting command available - see FEAT response");
+				}
+
+				// TODO: Consider also supporting SITE UTIME.
+				// Advantages:
+				//	Uses UTC, no time zone concerns
+				// Disadvantages:
+				//  Some servers do not advertise this command in FEAT response,
+				//  need to test the availability of this command
+				//  Some servers do not support it correctly or in different formats
 
 			}
 		}
