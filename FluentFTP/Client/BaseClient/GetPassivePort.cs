@@ -13,9 +13,10 @@ namespace FluentFTP.Client.BaseClient {
 
 		/// <summary>
 		/// Parse the host and port number from an EPSV response
+		/// Handles (|||nnnn|) and (!!!nnnn!)
 		/// </summary>
 		protected void GetEnhancedPassivePort(FtpReply reply, out string host, out int port) {
-			var m = Regex.Match(reply.Message, @"\(\|\|\|(?<port>\d+)\|\)");
+			var m = Regex.Match(reply.Message, @"\([!\|][!\|][!\|](?<port>\d+)[!\|]\)");
 			if (!m.Success) {
 				// In the case that ESPV is responded with a regular "Entering Passive Mode" instead, we'll try that parsing before we raise the exception
 				/* Example:
