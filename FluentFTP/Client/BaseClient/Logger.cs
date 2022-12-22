@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using FluentFTP.Helpers;
-using Microsoft.Extensions.Logging;
+using FluentFTP.Logging;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
@@ -28,7 +28,7 @@ namespace FluentFTP.Client.BaseClient {
 			var fullMessage = (">         " + function + "(" + args.ItemsToString().Join(", ") + ")");
 
 			// log to modern logger if given
-			m_logger?.LogInformation(fullMessage);
+			m_logger?.Log(FtpTraceLevel.Info, fullMessage);
 
 			// log to legacy logger if given
 			m_legacyLogger?.Invoke(FtpTraceLevel.Verbose, fullMessage);
@@ -48,7 +48,7 @@ namespace FluentFTP.Client.BaseClient {
 
 			// log to modern logger if given
 			if (m_logger != null) {
-				LogToLogger(eventType, message);
+				m_logger.Log(eventType, message);
 			}
 
 			// log to legacy logger if given
@@ -69,7 +69,7 @@ namespace FluentFTP.Client.BaseClient {
 
 			// log to attached logger if given
 			if (m_logger != null) {
-				LogToLogger(eventType, fullMessage);
+				m_logger.Log(eventType, message);
 			}
 
 			// log to legacy logger if given
@@ -77,29 +77,6 @@ namespace FluentFTP.Client.BaseClient {
 
 			// log to system
 			LogToDebugOrConsole(fullMessage);
-		}
-
-		/// <summary>
-		/// Log a message to the attached logger.
-		/// </summary>
-		private void LogToLogger(FtpTraceLevel eventType, string message) {
-			switch (eventType) {
-				case FtpTraceLevel.Verbose:
-					m_logger.LogDebug(message);
-					break;
-
-				case FtpTraceLevel.Info:
-					m_logger.LogInformation(message);
-					break;
-
-				case FtpTraceLevel.Warn:
-					m_logger.LogWarning(message);
-					break;
-
-				case FtpTraceLevel.Error:
-					m_logger.LogError(message);
-					break;
-			}
 		}
 
 		/// <summary>

@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>10.0</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!--  Should reference the first version of FluentFTP that exposes IFluentFtpLogger -->
+        <!--<PackageReference Include="FluentFTP" Version="42.2.0" />-->
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- this is just to make it compile, FluentFTP should be referenced through a <PackageReference> -->
+        <ProjectReference Include="..\FluentFTP\FluentFTP.csproj" />
+    </ItemGroup>
+
+</Project>

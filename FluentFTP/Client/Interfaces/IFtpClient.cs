@@ -1,6 +1,5 @@
 using FluentFTP.Rules;
 using FluentFTP.Servers;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -31,7 +30,7 @@ namespace FluentFTP {
 		FtpProfile AutoConnect();
 		void Connect();
 		void Connect(FtpProfile profile);
-        void Connect(bool reConnect);
+		void Connect(bool reConnect);
 		void Disconnect();
 		FtpReply Execute(string command);
 		FtpReply GetReply();
