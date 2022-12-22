@@ -1,7 +1,8 @@
-# uncomment for brutal image cleanup, force total rebuild
+# uncomment for build cache cleanup before starting
 # sudo docker builder prune --all -f
 
-# can use --pull, --no-cache --progress=plain
+# uncomment for image cleanup, force total rebuild before starting
+# sudo docker image prune -f
 
 #
 # Debian mirror selection using a helper container
@@ -62,5 +63,5 @@ sudo rm pureftpd\sources.list
 # for pyftpdlib, not needed
 sudo rm vsftpd\sources.list
 
-# uncomment for brutal image cleanup, force total rebuild
-# sudo docker image prune -f
+# uncomment this if you need the storage after the build
+# sudo docker image rm common-mirror:fluentftp common-debian:fluentftp common-debian-slim:fluentftp
