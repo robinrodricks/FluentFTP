@@ -1,5 +1,23 @@
 # Release Notes
 
+#### 42.2.0
+ - **Connection** (thanks [FanDjango](/FanDjango))
+   - New: Save bandwidth on automatic reconnection by skipping `FEAT` command
+   - Fix: Implementation of connection/disconnection internal logic
+   - Fix: Create a default `ValidateCertificate` handler if none is provided
+   - Fix: Auto-reconnect SSL streams after a set number of replies are read
+ - **File Transfer** (thanks [FanDjango](/FanDjango))
+   - New: Upload: Ability to upload file streams with unknown size
+   - Fix: Upload: Timeout detection for file streams with unknown size
+ - **File Listings** (thanks [FanDjango](/FanDjango))
+   - New: `SetModifiedTime` falls back to `MDTM` if `MFMT` command not available
+   - New: `GetListing`: Catch control connection loss and retry once
+   - Fix: `GetListing` silently fails and returns empty array if connection lost
+   - Fix: IBM OS/400: Correctly handle special chars on EBCDIC code page fault
+ - **Tests** (thanks [FanDjango](/FanDjango))
+   - New: Docker: Add optional path to allow the user to save disk space
+   - Fix: Fix many XML compiler warnings in the testing system
+
 #### 42.1.0
  - **FTP** (thanks [FanDjango](/FanDjango))
    - New: Detect Apache FTP Server (allows for future server-specific handling)
