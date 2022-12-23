@@ -2,7 +2,7 @@
 using System.Net;
 using System.Threading;
 using FluentFTP.Client.BaseClient;
-using Microsoft.Extensions.Logging;
+using FluentFTP.Logging;
 
 namespace FluentFTP {
 
@@ -32,7 +32,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Creates a new instance of an async FTP Client, with the given host and credentials.
 		/// </summary>
-		public AsyncFtpClient(string host, int port = 0, FtpConfig config = null, ILogger logger = null) : base(config) {
+		public AsyncFtpClient(string host, int port = 0, FtpConfig config = null, IFluentLogger logger = null) : base(config) {
 
 			// set host
 			Host = host ?? throw new ArgumentNullException(nameof(host));
@@ -49,7 +49,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Creates a new instance of an async FTP Client, with the given host and credentials.
 		/// </summary>
-		public AsyncFtpClient(string host, string user, string pass, int port = 0, FtpConfig config = null, ILogger logger = null) : base(config) {
+		public AsyncFtpClient(string host, string user, string pass, int port = 0, FtpConfig config = null, IFluentLogger logger = null) : base(config) {
 
 			// set host
 			Host = host ?? throw new ArgumentNullException(nameof(host));
@@ -71,7 +71,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Creates a new instance of an async FTP Client, with the given host and credentials.
 		/// </summary>
-		public AsyncFtpClient(string host, NetworkCredential credentials, int port = 0, FtpConfig config = null, ILogger logger = null) : base(config) {
+		public AsyncFtpClient(string host, NetworkCredential credentials, int port = 0, FtpConfig config = null, IFluentLogger logger = null) : base(config) {
 
 			// set host
 			Host = host ?? throw new ArgumentNullException(nameof(host));
