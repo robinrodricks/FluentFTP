@@ -76,7 +76,7 @@ namespace FluentFTP {
 					}
 				}
 				catch (Exception ex) {
-					LogWithPrefix(FtpTraceLevel.Error, "Failed to download " + remotePath + ". Error: " + ex);
+					LogWithPrefix(FtpTraceLevel.Error, "Failed to download " + remotePath, ex);
 					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;
@@ -119,7 +119,7 @@ namespace FluentFTP {
 					File.Delete(localFile);
 				}
 				catch (Exception ex) {
-					LogWithPrefix(FtpTraceLevel.Warn, "FtpClient : Exception caught and discarded while attempting to delete file '" + localFile + "' : " + ex.ToString());
+					LogWithPrefix(FtpTraceLevel.Warn, "FtpClient : Exception caught and discarded while attempting to delete file '" + localFile + "'", ex);
 				}
 			}
 		}

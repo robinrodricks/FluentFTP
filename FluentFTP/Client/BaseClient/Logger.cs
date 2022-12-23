@@ -47,9 +47,7 @@ namespace FluentFTP.Client.BaseClient {
 		protected void Log(FtpTraceLevel eventType, string message) {
 
 			// log to modern logger if given
-			if (m_logger != null) {
-				m_logger.Log(eventType, message);
-			}
+			m_logger?.Log(eventType, message);
 
 			// log to legacy logger if given
 			m_legacyLogger?.Invoke(eventType, message);
@@ -63,12 +61,13 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <param name="eventType">The type of tracing event</param>
 		/// <param name="message">The message to write</param>
-		protected void LogWithPrefix(FtpTraceLevel eventType, string message) {
-
+		/// <param name="exception">An optional exeption</param>
+		protected void LogWithPrefix(FtpTraceLevel eventType, string message, Exception exception = null) {
 			// log to attached logger if given
-			if (m_logger != null) {
-				m_logger.Log(eventType, message);
-			}
+			m_logger?.Log(eventType, message, exception);
+
+			var exceptionMessage = exception is not null ? " : " + exception.ToString() : null;
+			var fullMessage = GetLogPrefix(eventType) + message + exceptionMessage;
 
 			var fullMessage = eventType.GetLogPrefix() + message;
 
@@ -101,8 +100,8 @@ namespace FluentFTP.Client.BaseClient {
 		/// <summary>
 		/// To allow for external connected classes to use the attached logger.
 		/// </summary>
-		void IInternalFtpClient.LogStatus(FtpTraceLevel eventType, string message) {
-			this.LogWithPrefix(eventType, message);
+		void IInternalFtpClient.LogStatus(FtpTraceLevel eventType, string message, Exception exception) {
+			this.LogWithPrefix(eventType, message, exception);
 		}
 
 	}

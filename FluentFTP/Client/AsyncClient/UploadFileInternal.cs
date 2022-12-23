@@ -279,7 +279,7 @@ namespace FluentFTP {
 				}
 
 				if (ex1 is IOException) {
-					LogWithPrefix(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
+					LogWithPrefix(FtpTraceLevel.Verbose, "IOException for file " + localPath, ex1);
 					return FtpStatus.Failed;
 				}
 

@@ -130,7 +130,7 @@ namespace FluentFTP {
 					File.Delete(localFile);
 				}
 				catch (Exception ex) {
-					LogWithPrefix(FtpTraceLevel.Warn, "AsyncFtpClient : Exception caught and discarded while attempting to delete file '" + localFile + "' : " + ex.ToString());
+					LogWithPrefix(FtpTraceLevel.Warn, "AsyncFtpClient : Exception caught and discarded while attempting to delete file '" + localFile + "'", ex);
 				}
 			}
 		}

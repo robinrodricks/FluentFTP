@@ -18,7 +18,7 @@ namespace FluentFTP {
 						}
 					}
 					catch (Exception ex) {
-						LogWithPrefix(FtpTraceLevel.Warn, "FtpClient.Disconnect(): Exception caught and discarded while closing control connection: " + ex.ToString());
+						LogWithPrefix(FtpTraceLevel.Warn, "FtpClient.Disconnect(): Exception caught and discarded while closing control connection", ex);
 					}
 					finally {
 						m_stream.Close();
