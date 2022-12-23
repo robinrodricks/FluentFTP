@@ -69,7 +69,7 @@ namespace FluentFTP.Client.BaseClient {
 
 			// log to attached logger if given
 			if (m_logger != null) {
-				m_logger.Log(eventType, message);
+				m_logger.Log(eventType, fullMessage);
 			}
 
 			// log to legacy logger if given
