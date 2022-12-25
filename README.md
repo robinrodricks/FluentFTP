@@ -68,11 +68,20 @@ FluentFTP is released under the permissive MIT License, so it can be used in bot
 	
 ## Releases
 
-Stable binaries are released on NuGet, and contain everything you need to use FTP/FTPS in your .Net/CLR application. For usage see the [Quick Start Example](https://github.com/robinrodricks/FluentFTP/wiki/Quick-Start-Example) and the [Documentation](https://github.com/robinrodricks/FluentFTP/wiki) wiki.
+Stable binaries are released on NuGet, and contain everything you need to use FTP/FTPS in your .Net/CLR application.
 
-  - [FluentFTP Nuget](https://www.nuget.org/packages/FluentFTP)
-  - [FluentFTP.Logging Nuget](https://www.nuget.org/packages/FluentFTP.Logging)
-  - [Release Notes](https://github.com/robinrodricks/FluentFTP/blob/master/RELEASES.md) (features and fixes per release)
+| Package      		| Latest Version	|  Downloads	| 
+|---------------		|-----------	|-----------		|
+| **[FluentFTP](https://www.nuget.org/packages/FluentFTP)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP) |
+| **[FluentFTP.Logging](https://www.nuget.org/packages/FluentFTP.Logging)**      	|    [![Version](https://img.shields.io/nuget/vpre/FluentFTP.Logging.svg)](https://www.nuget.org/packages/FluentFTP.Logging)  		| [![Downloads](https://img.shields.io/nuget/dt/FluentFTP.Logging.svg)](https://www.nuget.org/packages/FluentFTP.Logging) |
+
+For usage see the [Quick Start Example](https://github.com/robinrodricks/FluentFTP/wiki/Quick-Start-Example) and the [Documentation](https://github.com/robinrodricks/FluentFTP/wiki) wiki.
+
+For features and fixes per release see [Release Notes](https://github.com/robinrodricks/FluentFTP/blob/master/RELEASES.md).
+
+
+
+## Platform Support
 
 FluentFTP works on .NET and .NET Standard/.NET Core.
 
