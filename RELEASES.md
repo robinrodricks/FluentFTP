@@ -1,5 +1,14 @@
 # Release Notes
 
+#### 43.0.0
+ - Please read the [Migration Guide](https://github.com/robinrodricks/FluentFTP/wiki/v40-Migration-Guide#logging) for help migrating to the new version!
+ - **Packaging** (thanks [jnyrup](/jnyrup))
+   - Core FluentFTP package has removed the dependency on MELA (Microsoft.Extensions.Logging.Abstractions)
+   - New [FluentFTP.Logging](https://www.nuget.org/packages/FluentFTP.Logging) package released that integrates with MELA
+ - **Logging** (thanks [jnyrup](/jnyrup))
+   - `FtpClient.Logger` is no longer a MELA `ILogger`
+   - `FtpClient.Logger` is now a custom interface called `IFtpLogger`
+
 #### 42.2.0
  - **Connection** (thanks [FanDjango](/FanDjango))
    - New: Save bandwidth on automatic reconnection by skipping `FEAT` command
