@@ -2,6 +2,10 @@
 using Microsoft.Extensions.Logging;
 
 namespace FluentFTP.Logging {
+	/// <summary>
+	/// Logging adapter to help FluentFTP integrate with MELA-compatible Loggers (NLog, Serilog, Log4Net, PLogger, etc).
+	/// Read the Logging page: https://github.com/robinrodricks/FluentFTP/wiki/Logging
+	/// </summary>
 	public sealed class FtpLogAdapter : IFtpLogger {
 		private readonly ILogger adaptee;
 
