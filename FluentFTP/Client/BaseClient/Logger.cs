@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using FluentFTP.Helpers;
-using FluentFTP.Logging;
+using FluentFTP.Helpers.Logging;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
@@ -65,12 +65,12 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="message">The message to write</param>
 		protected void LogWithPrefix(FtpTraceLevel eventType, string message) {
 
-			var fullMessage = GetLogPrefix(eventType) + message;
-
 			// log to attached logger if given
 			if (m_logger != null) {
-				m_logger.Log(eventType, fullMessage);
+				m_logger.Log(eventType, message);
 			}
+
+			var fullMessage = eventType.GetLogPrefix() + message;
 
 			// log to legacy logger if given
 			m_legacyLogger?.Invoke(eventType, fullMessage);
@@ -89,29 +89,6 @@ namespace FluentFTP.Client.BaseClient {
 			if (Config.LogToConsole) {
 				Console.WriteLine(message);
 			}
-		}
-
-		/// <summary>
-		/// Get the log prefix
-		/// </summary>
-		/// <param name="eventType"></param>
-		/// <returns></returns>
-		protected static string GetLogPrefix(FtpTraceLevel eventType) {
-			switch (eventType) {
-				case FtpTraceLevel.Verbose:
-					return "Status:   ";
-
-				case FtpTraceLevel.Info:
-					return "Status:   ";
-
-				case FtpTraceLevel.Warn:
-					return "Warning:  ";
-
-				case FtpTraceLevel.Error:
-					return "Error:    ";
-			}
-
-			return "Status:   ";
 		}
 
 		/// <summary>

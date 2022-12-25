@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using FluentFTP.Client.BaseClient;
-using FluentFTP.Logging;
 
 namespace FluentFTP {
 
@@ -31,7 +30,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Creates a new instance of a synchronous FTP Client, with the given host and credentials.
 		/// </summary>
-		public FtpClient(string host, int port = 0, FtpConfig config = null, IFluentLogger logger = null) : base(config) {
+		public FtpClient(string host, int port = 0, FtpConfig config = null, IFtpLogger logger = null) : base(config) {
 
 			// set host
 			Host = host ?? throw new ArgumentNullException(nameof(host));
@@ -48,7 +47,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Creates a new instance of a synchronous FTP Client, with the given host and credentials.
 		/// </summary>
-		public FtpClient(string host, string user, string pass, int port = 0, FtpConfig config = null, IFluentLogger logger = null) : base(config) {
+		public FtpClient(string host, string user, string pass, int port = 0, FtpConfig config = null, IFtpLogger logger = null) : base(config) {
 
 			// set host
 			Host = host ?? throw new ArgumentNullException(nameof(host));
@@ -70,7 +69,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Creates a new instance of a synchronous FTP Client, with the given host and credentials.
 		/// </summary>
-		public FtpClient(string host, NetworkCredential credentials, int port = 0, FtpConfig config = null, IFluentLogger logger = null) : base(config) {
+		public FtpClient(string host, NetworkCredential credentials, int port = 0, FtpConfig config = null, IFtpLogger logger = null) : base(config) {
 
 			// set host
 			Host = host ?? throw new ArgumentNullException(nameof(host));

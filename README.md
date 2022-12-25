@@ -10,7 +10,7 @@
 
 FluentFTP is a fully managed FTP and FTPS library for .NET & .NET Standard, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, FXP transfers, UTF-8 support, Async/await support, Powershell support and more.
 
-It is written entirely in C#, with [just one](https://www.nuget.org/packages/Microsoft.Extensions.Logging.Abstractions/2.1.0) external dependency. It has an extensive automated test suite which tests all its functionality against local FTP server docker containers.
+It is written entirely in C#, with no external dependency. It has an extensive automated test suite which tests all its functionality against local FTP server docker containers.
 
 FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications. 
 
@@ -70,7 +70,8 @@ FluentFTP is released under the permissive MIT License, so it can be used in bot
 
 Stable binaries are released on NuGet, and contain everything you need to use FTP/FTPS in your .Net/CLR application. For usage see the [Quick Start Example](https://github.com/robinrodricks/FluentFTP/wiki/Quick-Start-Example) and the [Documentation](https://github.com/robinrodricks/FluentFTP/wiki) wiki.
 
-  - [Nuget](https://www.nuget.org/packages/FluentFTP) (latest)
+  - [FluentFTP Nuget](https://www.nuget.org/packages/FluentFTP)
+  - [FluentFTP.Logging Nuget](https://www.nuget.org/packages/FluentFTP.Logging)
   - [Release Notes](https://github.com/robinrodricks/FluentFTP/blob/master/RELEASES.md) (features and fixes per release)
 
 FluentFTP works on .NET and .NET Standard/.NET Core.

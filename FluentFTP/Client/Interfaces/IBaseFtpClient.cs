@@ -1,5 +1,4 @@
-﻿using FluentFTP.Logging;
-using FluentFTP.Rules;
+﻿using FluentFTP.Rules;
 using FluentFTP.Servers;
 using System;
 using System.Collections.Generic;
@@ -22,7 +21,7 @@ namespace FluentFTP {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 		FtpConfig Config { get; set; }
-		IFluentLogger Logger { get; set; }
+		IFtpLogger Logger { get; set; }
 		bool IsDisposed { get; }
 		bool IsConnected { get; }
 		string Host { get; set; }

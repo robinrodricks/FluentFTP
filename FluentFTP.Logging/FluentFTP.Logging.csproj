@@ -1,19 +1,47 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <PackageId>FluentFTP.Logging</PackageId>
+        <Title>FluentFTP.Logging</Title>
+        <Description>Small connector library to integrate FluentFTP with MELA Loggers (Microsoft.Extensions.Logging.Abstractions).</Description>
+        <Authors>Robin Rodricks, FluentFTP Contributors</Authors>
+        <PackageProjectUrl>https://github.com/robinrodricks/FluentFTP</PackageProjectUrl>
+        <Copyright>MIT License</Copyright>
+        <PackageTags>log,logger,logging,interface,connector,mela</PackageTags>
+        <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
+        <SignAssembly>True</SignAssembly>
+        <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
+        <Version>1.0.0</Version>
+        <PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
+        <PackageIcon>logo-nuget.png</PackageIcon>
         <LangVersion>10.0</LangVersion>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <LangVersion>10.0</LangVersion>
+        <RepositoryUrl>https://github.com/robinrodricks/FluentFTP</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+    </PropertyGroup>
+
     <ItemGroup>
-        <!--  Should reference the first version of FluentFTP that exposes IFluentFtpLogger -->
-        <!--<PackageReference Include="FluentFTP" Version="42.2.0" />-->
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.0" />
+      <None Include="..\.github\logo-nuget.png">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+      </None>
+        <None Include="..\LICENSE.TXT">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
-        <!-- this is just to make it compile, FluentFTP should be referenced through a <PackageReference> -->
-        <ProjectReference Include="..\FluentFTP\FluentFTP.csproj" />
+        <!-- Reference the first version of FluentFTP that exposes IFluentLogger. Do not change this version. -->
+        <PackageReference Include="FluentFTP" Version="43.0.0" />
     </ItemGroup>
+
+    <PropertyGroup Condition="'$(Configuration)'=='Release'">
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    </PropertyGroup>
 
 </Project>

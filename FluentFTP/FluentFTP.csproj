@@ -11,7 +11,7 @@
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
         <SignAssembly>True</SignAssembly>
         <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
-        <Version>42.2.0</Version>
+        <Version>43.0.0</Version>
         <PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
         <PackageIcon>logo-nuget.png</PackageIcon>
         <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -25,6 +25,17 @@
         <RepositoryUrl>https://github.com/robinrodricks/FluentFTP</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\.github\logo-nuget.png">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+        <None Include="..\LICENSE.TXT">
+            <Pack>True</Pack>
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
 
     <PropertyGroup Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net472'">
         <DefineConstants>$(DefineConstants);NETFRAMEWORK;</DefineConstants>
@@ -45,17 +56,6 @@
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     </PropertyGroup>
-
-     <ItemGroup>
-        <None Include="..\.github\logo-nuget.png">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-        </None>
-        <None Include="..\LICENSE.TXT">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-        </None>
-    </ItemGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)'=='Release' And '$(TargetFramework)'=='net45'">
         <Exec Command="copy /Y &quot;$(ProjectDir)bin\Release\net45\FluentFTP.dll&quot; &quot;$(SolutionDir)Powershell\FluentFTP.dll&quot;" />

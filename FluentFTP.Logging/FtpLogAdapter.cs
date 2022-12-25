@@ -1,10 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FluentFTP;
+using Microsoft.Extensions.Logging;
 
 namespace FluentFTP.Logging {
-	public sealed class MicrosoftLoggingAdapter : IFluentLogger {
+	public sealed class FtpLogAdapter : IFtpLogger {
 		private readonly ILogger adaptee;
 
-		public MicrosoftLoggingAdapter(ILogger adaptee) =>
+		public FtpLogAdapter(ILogger adaptee) =>
 			this.adaptee = adaptee;
 
 		public void Log(LogEntry entry) =>

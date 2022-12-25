@@ -10,7 +10,6 @@ using FluentFTP.Servers;
 using FluentFTP.Helpers;
 using System.Net.Sockets;
 using System.Threading;
-using FluentFTP.Logging;
 
 namespace FluentFTP.Client.BaseClient {
 
@@ -18,12 +17,12 @@ namespace FluentFTP.Client.BaseClient {
 
 	public partial class BaseFtpClient {
 
-		private IFluentLogger m_logger = null;
+		private IFtpLogger m_logger = null;
 
 		/// <summary>
 		/// Should the function calls be logged in Verbose mode?
 		/// </summary>
-		public IFluentLogger Logger {
+		public IFtpLogger Logger {
 			get => m_logger;
 			set => m_logger = value;
 		}
