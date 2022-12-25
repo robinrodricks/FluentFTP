@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FluentFTP.Model {
+namespace FluentFTP {
 	/// <summary>
 	/// Metadata of a single log message.
 	/// </summary>

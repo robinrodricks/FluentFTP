@@ -1,3 +1,2 @@
-dotnet restore FluentFTP_Core14.csproj
-dotnet restore FluentFTP_Core16.csproj
+dotnet restore FluentFTP.csproj
 pause

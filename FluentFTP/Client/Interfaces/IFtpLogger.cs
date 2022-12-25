@@ -1,6 +1,4 @@
-﻿using FluentFTP.Model;
-
-namespace FluentFTP {
+﻿namespace FluentFTP {
 	public interface IFtpLogger {
 		void Log(FtpLogEntry entry);
 	}

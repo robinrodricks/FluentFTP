@@ -8,7 +8,7 @@ namespace FluentFTP.Logging {
 		public FtpLogAdapter(ILogger adaptee) =>
 			this.adaptee = adaptee;
 
-		public void Log(LogEntry entry) =>
+		public void Log(FtpLogEntry entry) =>
 			adaptee.Log(ToLevel(entry.Severity), 0, entry.Message, entry.Exception, (s, _) => s);
 
 		private static LogLevel ToLevel(FtpTraceLevel s) => s switch {

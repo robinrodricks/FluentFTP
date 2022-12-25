@@ -1,6 +1,5 @@
 ﻿using System;
 using FluentFTP.Helpers.Logging;
-using FluentFTP.Model;
 
 namespace FluentFTP.Helpers.Logging {
 	internal static class LoggerExtensions {
