@@ -67,7 +67,6 @@ namespace FluentFTP.Client.BaseClient {
 			m_logger?.Log(eventType, message, exception);
 
 			var exceptionMessage = exception is not null ? " : " + exception.ToString() : null;
-			var fullMessage = GetLogPrefix(eventType) + message + exceptionMessage;
 
 			var fullMessage = eventType.GetLogPrefix() + message;
 
