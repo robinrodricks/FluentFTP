@@ -39,7 +39,7 @@ namespace FluentFTP {
 				return true;
 			}
 			catch (IOException ex) {
-				LogWithPrefix(FtpTraceLevel.Warn, "Failed to verify file " + localPath + " : " + ex.Message);
+				LogWithPrefix(FtpTraceLevel.Warn, "Failed to verify file " + localPath, ex);
 				return false;
 			}
 		}

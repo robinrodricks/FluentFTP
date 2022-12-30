@@ -110,7 +110,7 @@ namespace FluentFTP {
 					}
 
 					//suppress all other upload exceptions (errors are still written to FtpTrace)
-					LogWithPrefix(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
+					LogWithPrefix(FtpTraceLevel.Error, "Upload Failure for " + localPath, ex);
 					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;

@@ -131,12 +131,12 @@ namespace FluentFTP {
 				}
 				catch (SocketException sockex) {
 					Close();
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "FtpSocketStream.IsConnected: Caught and discarded SocketException while testing for connectivity: " + sockex.ToString());
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "FtpSocketStream.IsConnected: Caught and discarded SocketException while testing for connectivity", sockex);
 					return false;
 				}
 				catch (IOException ioex) {
 					Close();
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "FtpSocketStream.IsConnected: Caught and discarded IOException while testing for connectivity: " + ioex.ToString());
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "FtpSocketStream.IsConnected: Caught and discarded IOException while testing for connectivity", ioex);
 					return false;
 				}
 
@@ -924,7 +924,7 @@ namespace FluentFTP {
 						throw;
 					}
 					else {
-						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error connecting to IP #" + iPlusOne + "= " + logIp + ":" + port + " " + ex.Message);
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error connecting to IP #" + iPlusOne + "= " + logIp + ":" + port, ex);
 					}
 				}
 			}
@@ -1062,7 +1062,7 @@ namespace FluentFTP {
 						throw;
 					}
 					else {
-						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error connecting to IP #" + iPlusOne + "= " + logIp + ":" + port + " " + ex.Message);
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error connecting to IP #" + iPlusOne + "= " + logIp + ":" + port, ex);
 					}
 				}
 			}
@@ -1196,8 +1196,7 @@ namespace FluentFTP {
 				// ssl stream in an unusable state so cleanup needs
 				// to be done and the exception can be re-thrown for
 				// handling down the chain.
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed:");
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, ex.Message.Trim());
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed", ex);
 				Close();
 				throw;
 			}

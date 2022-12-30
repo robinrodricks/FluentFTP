@@ -99,7 +99,7 @@ namespace FluentFTP {
 					}
 				}
 				catch (Exception ex) {
-					LogWithPrefix(FtpTraceLevel.Error, "Upload Failure for " + localPath + ": " + ex);
+					LogWithPrefix(FtpTraceLevel.Error, "Upload Failure for " + localPath, ex);
 					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;

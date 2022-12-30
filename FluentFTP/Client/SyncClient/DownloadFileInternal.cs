@@ -127,7 +127,7 @@ namespace FluentFTP {
 						throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
 					}
 					catch (IOException ex) {
-						LogWithPrefix(FtpTraceLevel.Verbose, "IOException: " + ex.Message);
+						LogWithPrefix(FtpTraceLevel.Verbose, "IOException", ex);
 
 						FtpReply exStatus = GetReplyInternal("*IOException*", anyNoop, 10);
 						if (exStatus.Code == "226") {
@@ -216,13 +216,13 @@ namespace FluentFTP {
 				}
 
 				if (ex1 is IOException) {
-					LogWithPrefix(FtpTraceLevel.Verbose, "IOException for file " + localPath + " : " + ex1.Message);
+					LogWithPrefix(FtpTraceLevel.Verbose, "IOException for file " + localPath, ex1);
 					return false;
 				}
 
 				// absorb "file does not exist" exceptions and simply return false
 				if (ex1.Message.ContainsAnyCI(ServerStringModule.fileNotFound)) {
-					LogWithPrefix(FtpTraceLevel.Error, "File does not exist: " + ex1.Message);
+					LogWithPrefix(FtpTraceLevel.Error, "File does not exist", ex1);
 					return false;
 				}
 
