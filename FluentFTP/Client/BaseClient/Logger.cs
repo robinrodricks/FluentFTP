@@ -67,8 +67,7 @@ namespace FluentFTP.Client.BaseClient {
 			m_logger?.Log(eventType, message, exception);
 
 			var exceptionMessage = exception is not null ? " : " + exception.ToString() : null;
-
-			var fullMessage = eventType.GetLogPrefix() + message;
+			var fullMessage = eventType.GetLogPrefix() + message + exceptionMessage;
 
 			// log to legacy logger if given
 			m_legacyLogger?.Invoke(eventType, fullMessage);
