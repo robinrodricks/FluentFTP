@@ -20,7 +20,7 @@ namespace FluentFTP {
 		public FtpObjectType Type { get; set; }
 
 		/// <summary>
-		/// Gets the size of the file.
+		/// Gets the size of the file, or 0 if unknown.
 		/// </summary>
 		public long Size { get; set; }
 
