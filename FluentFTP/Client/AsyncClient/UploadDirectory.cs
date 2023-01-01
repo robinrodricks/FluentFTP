@@ -21,7 +21,7 @@ namespace FluentFTP {
 		/// <param name="mode">Mirror or Update mode, as explained above</param>
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the upload or restart the upload?</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
-		/// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
+		/// <param name="rules">Only files and folders that pass all these rules are uploaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
 		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <remarks>
@@ -32,7 +32,7 @@ namespace FluentFTP {
 		/// to propagate from this method.
 		/// </remarks>
 		/// <returns>
-		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
+		/// Returns a listing of all the local files, indicating if they were uploaded, skipped or overwritten.
 		/// Returns a blank list if nothing was transferred. Never returns null.
 		/// </returns>
 		public async Task<List<FtpResult>> UploadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
@@ -167,9 +167,9 @@ namespace FluentFTP {
 					var metaProgress = new FtpProgress(filesToUpload.Count, r);
 
 					// upload the file
-					var transferred = await UploadFileFromFile(result.LocalPath, result.RemotePath, false, existsModeToUse, false, false, verifyOptions, token, progress, metaProgress);
-					result.IsSuccess = transferred.IsSuccess();
-					result.IsSkipped = transferred == FtpStatus.Skipped;
+					var ok = await UploadFileFromFile(result.LocalPath, result.RemotePath, false, existsModeToUse, false, false, verifyOptions, token, progress, metaProgress);
+					result.IsSuccess = ok.IsSuccess();
+					result.IsSkipped = ok == FtpStatus.Skipped;
 
 				}
 				catch (Exception ex) {

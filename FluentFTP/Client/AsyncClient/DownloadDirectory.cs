@@ -113,9 +113,9 @@ namespace FluentFTP {
 						var metaProgress = new FtpProgress(toDownload.Count, r);
 
 						// download the file
-						var transferred = await DownloadFileToFileAsync(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, token, metaProgress);
-						result.IsSuccess = transferred.IsSuccess();
-						result.IsSkipped = transferred == FtpStatus.Skipped;
+						var ok = await DownloadFileToFileAsync(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, token, metaProgress);
+						result.IsSuccess = ok.IsSuccess();
+						result.IsSkipped = ok == FtpStatus.Skipped;
 					}
 					catch (Exception ex) {
 

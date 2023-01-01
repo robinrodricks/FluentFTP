@@ -22,32 +22,42 @@ namespace FluentFTP.Client.BaseClient {
 				var relativePath = localFile.Replace(localFolder, "").Replace(Path.DirectorySeparatorChar, '/');
 				var remoteFile = remoteFolder + relativePath.Replace('\\', '/');
 
-				// create the result object
-				var result = new FtpResult() {
-					Type = FtpObjectType.File,
-					Size = new FileInfo(localFile).Length,
-					Name = Path.GetFileName(localFile),
-					RemotePath = remoteFile,
-					LocalPath = localFile
-				};
+				// record that this file should be uploaded
+				RecordFileToUpload(rules, results, shouldExist, filesToUpload, localFile, remoteFile);
+			}
 
-				// record the file
-				results.Add(result);
+			return filesToUpload;
+		}
 
-				// skip uploading the file if it does not pass all the rules
-				if (!FilePassesRules(result, rules, true)) {
-					continue;
-				}
+		/// <summary>
+		/// Create an FtpResult object for the given file to be uploaded, and check if the file passes the rules.
+		/// </summary>
+		protected void RecordFileToUpload(List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, List<FtpResult> filesToUpload, string localFile, string remoteFile) {
+
+			// create the result object
+			var result = new FtpResult() {
+				Type = FtpObjectType.File,
+				Size = new FileInfo(localFile).Length,
+				Name = Path.GetFileName(localFile),
+				RemotePath = remoteFile,
+				LocalPath = localFile
+			};
+
+			// record the file
+			results.Add(result);
+
+			// only upload the file if it passes all the rules
+			if (FilePassesRules(result, rules, true)) {
 
 				// record that this file should exist
 				shouldExist.Add(remoteFile.ToLower(), true);
 
 				// absorb errors
 				filesToUpload.Add(result);
-			}
 
-			return filesToUpload;
+			}
 		}
+
 
 	}
 }

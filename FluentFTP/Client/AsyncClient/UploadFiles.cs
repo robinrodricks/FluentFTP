@@ -8,6 +8,8 @@ using FluentFTP.Helpers;
 using FluentFTP.Exceptions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Data;
+using FluentFTP.Rules;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -27,7 +29,11 @@ namespace FluentFTP {
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
-		/// <returns>The count of how many files were uploaded successfully. Affected when files are skipped when they already exist.</returns>
+		/// <param name="rules">Only files that pass all these rules are uploaded, and the files that don't pass are skipped.</param>
+		/// <returns>
+		/// Returns a listing of all the local files, indicating if they were uploaded, skipped or overwritten.
+		/// Returns a blank list if nothing was transferred. Never returns null.
+		/// </returns>
 		/// <remarks>
 		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
 		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
@@ -35,8 +41,9 @@ namespace FluentFTP {
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>
-		public async Task<int> UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true,
-			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken), IProgress<FtpProgress> progress = null) {
+		public async Task<List<FtpResult>> UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true,
+			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken),
+			IProgress<FtpProgress> progress = null, List<FtpRule> rules = null) {
 
 			// verify args
 			if (!errorHandling.IsValidCombination()) {
@@ -54,10 +61,6 @@ namespace FluentFTP {
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
 			token.ThrowIfCancellationRequested();
 
-			//int count = 0;
-			var errorEncountered = false;
-			var successfulUploads = new List<string>();
-
 			remoteDir = await GetAbsolutePathAsync(remoteDir, token); // a dir is just like a path
 
 			//flag to determine if existence checks are required
@@ -71,31 +74,39 @@ namespace FluentFTP {
 				}
 			}
 
+			// result vars
+			var errorEncountered = false;
+			var successfulUploads = new List<string>();
+			var results = new List<FtpResult>();
+			var shouldExist = new Dictionary<string, bool>(); // paths of the files that should exist (lowercase for CI checks)
+
+			// check which files should be uploaded or filtered out based on rules
+			var filesToUpload = await GetFilesToUpload2Async(localPaths, remoteDir, rules, results, shouldExist, token);
+
 			// get all the already existing files (if directory was created just create an empty array)
 			var existingFiles = checkFileExistence ? await GetNameListing(remoteDir, token) : new string[0];
 
 			// per local file
 			var r = -1;
-			foreach (var localPath in localPaths) {
+			foreach (var result in filesToUpload) {
 				r++;
 
 				// check if cancellation was requested and throw to set TaskStatus state to Canceled
 				token.ThrowIfCancellationRequested();
-
-				// calc remote path
-				var fileName = Path.GetFileName(localPath);
-				var remoteFilePath = "";
-
-				remoteFilePath = await GetAbsoluteFilePathAsync(remoteDir, fileName, token);
 
 				// create meta progress to store the file progress
 				var metaProgress = new FtpProgress(localPaths.Count(), r);
 
 				// try to upload it
 				try {
-					var ok = await UploadFileFromFile(localPath, remoteFilePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, remoteFilePath), true, verifyOptions, token, progress, metaProgress);
+					var ok = await UploadFileFromFile(result.LocalPath, result.RemotePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, result.RemotePath), true, verifyOptions, token, progress, metaProgress);
+
+					// mark that the file succeeded
+					result.IsSuccess = ok.IsSuccess();
+					result.IsSkipped = ok == FtpStatus.Skipped;
+
 					if (ok.IsSuccess()) {
-						successfulUploads.Add(remoteFilePath);
+						successfulUploads.Add(result.RemotePath);
 					}
 					else if ((int)errorHandling > 1) {
 						errorEncountered = true;
@@ -103,14 +114,19 @@ namespace FluentFTP {
 					}
 				}
 				catch (Exception ex) {
+
+					// mark that the file failed
+					result.IsFailed = true;
+					result.Exception = ex;
+
 					if (ex is OperationCanceledException) {
-						//DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
+						// DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
 						LogWithPrefix(FtpTraceLevel.Info, "Upload cancellation requested");
 						throw;
 					}
 
-					//suppress all other upload exceptions (errors are still written to FtpTrace)
-					LogWithPrefix(FtpTraceLevel.Error, "Upload Failure for " + localPath, ex);
+					// suppress all other upload exceptions (errors are still written to FtpTrace)
+					LogWithPrefix(FtpTraceLevel.Error, "Upload Failure for " + result.LocalPath, ex);
 					if (errorHandling.HasFlag(FtpError.Stop)) {
 						errorEncountered = true;
 						break;
@@ -127,19 +143,19 @@ namespace FluentFTP {
 			}
 
 			if (errorEncountered) {
-				//Delete any successful uploads if needed
+				// Delete any successful uploads if needed
 				if (errorHandling.HasFlag(FtpError.DeleteProcessed)) {
 					await PurgeSuccessfulUploadsAsync(successfulUploads);
 					successfulUploads.Clear(); //forces return of 0
 				}
 
-				//Throw generic error because requested
+				// Throw generic error because requested
 				if (errorHandling.HasFlag(FtpError.Throw)) {
 					throw new FtpException("An error occurred uploading one or more files.  Refer to trace output if available.");
 				}
 			}
 
-			return successfulUploads.Count;
+			return results;
 		}
 
 		/// <summary>
@@ -149,6 +165,27 @@ namespace FluentFTP {
 			foreach (var remotePath in remotePaths) {
 				await DeleteFile(remotePath);
 			}
+		}
+
+		/// <summary>
+		/// Get a list of all the files that need to be uploaded
+		/// </summary>
+		protected async Task<List<FtpResult>> GetFilesToUpload2Async(IEnumerable<string> localFiles, string remoteDir, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, CancellationToken token) {
+
+			var filesToUpload = new List<FtpResult>();
+
+			foreach (var localPath in localFiles) {
+
+				// calc remote path
+				var fileName = Path.GetFileName(localPath);
+				var remoteFilePath = "";
+				remoteFilePath = await GetAbsoluteFilePathAsync(remoteDir, fileName, token);
+
+				// record that this file should be uploaded
+				RecordFileToUpload(rules, results, shouldExist, filesToUpload, localPath, remoteFilePath);
+			}
+
+			return filesToUpload;
 		}
 
 	}
