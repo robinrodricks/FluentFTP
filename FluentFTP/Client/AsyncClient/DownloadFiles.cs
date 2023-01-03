@@ -21,9 +21,9 @@ namespace FluentFTP {
 		/// Supports very large files since it downloads data in chunks.
 		/// Same speed as <see cref="o:DownloadFile"/>.
 		/// </summary>
-		/// <param name="localDir">The full or relative path to the directory that files will be downloaded.</param>
+		/// <param name="localDir">The full or relative path to the directory that files will be downloaded into.</param>
 		/// <param name="remotePaths">The full or relative paths to the files on the server</param>
-		/// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it doesn't exists</param>
+		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
 		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
@@ -142,7 +142,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Remove successful downloads.
+		/// Remove successfully downloaded files.
 		/// </summary>
 		protected void PurgeSuccessfulDownloads(IEnumerable<string> localFiles) {
 			foreach (var localFile in localFiles) {

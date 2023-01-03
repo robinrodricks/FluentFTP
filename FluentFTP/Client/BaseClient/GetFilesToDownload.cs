@@ -43,7 +43,7 @@ namespace FluentFTP.Client.BaseClient {
 			foreach (var remotePath in remotePaths) {
 
 				// calc local path
-				var localPath = localFolder + remotePath.GetFtpFileName();
+				var localPath = localFolder.CombineLocalPath(remotePath.GetFtpFileName());
 
 				RecordFileToDownload(rules, results, shouldExist, toDownload, null, localPath, remotePath);
 
