@@ -74,8 +74,8 @@ namespace FluentFTP {
 				throw new InvalidOperationException("No connection to the server has been established.");
 			}
 
-			// Implement this: https://lists.apache.org/thread/xzpclw1015qncvczt8hg3nom2p5vtcf5
-			// Can not use the normal timeout mechanism though, as a System.TimeoutException
+			// Implement this: https://github.com/robinrodricks/FluentFTP/wiki/Noop#how-do-servers-respond-to-noop
+			// Cannot use the normal timeout mechanism though, as a System.TimeoutException
 			// causes the stream to disconnect.
 
 			string sequence = string.Empty;
