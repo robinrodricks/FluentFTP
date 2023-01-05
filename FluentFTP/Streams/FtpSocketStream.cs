@@ -1170,6 +1170,9 @@ namespace FluentFTP {
 				}
 #if NETSTANDARD
 				catch (AggregateException ex) {
+					if (ex.InnerException is AuthenticationException) {
+						throw ex.InnerException;
+					}
 					if (ex.InnerException is IOException) {
 						throw new AuthenticationException(ex.InnerException.Message);
 					}
@@ -1248,25 +1251,40 @@ namespace FluentFTP {
 					await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
 #endif
 				}
+#if NETSTANDARD
+				catch (AggregateException ex) {
+					if (ex.InnerException is AuthenticationException) {
+						throw ex.InnerException;
+					}
+					if (ex.InnerException is IOException) {
+						throw new AuthenticationException(ex.InnerException.Message);
+					}
+					throw;
+				}
+#endif
 				catch (IOException ex) {
 					if (ex.InnerException is Win32Exception { NativeErrorCode: 10053 }) {
 						throw new FtpMissingSocketException(ex);
 					}
-
+#if NETFRAMEWORK
+					throw new AuthenticationException(ex.Message);
+#else
 					throw;
+#endif
 				}
 
 				auth_time_total = DateTime.Now.Subtract(auth_start);
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, protocol = " + Client.SslProtocolActive);
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
 			}
-			catch (AuthenticationException) {
+			catch (AuthenticationException ex) {
 				// authentication failed and in addition it left our
 				// ssl stream in an unusable state so cleanup needs
 				// to be done and the exception can be re-thrown for
 				// handling down the chain. (Add logging?)
 				Close();
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, ex.Message.Trim());
 				throw;
 			}
 

@@ -32,30 +32,23 @@ namespace FtpSslLib {
 #endif
 
 		/// <summary>
-		/// Dispose
+		/// Close
 		/// </summary>
-		protected override void Dispose(bool disposing) {
+		public override void Close() {
 
-			try {
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-				base.ShutdownAsync()
-					.ConfigureAwait(false)
-					.GetAwaiter()
-					.GetResult();
+			base.ShutdownAsync()
+				.ConfigureAwait(false)
+				.GetAwaiter()
+				.GetResult();
 #elif NETFRAMEWORK
-				if (!_Closed) {
-					_Closed = true;
-					SslDirectCall.CloseNotify(this);
-				}
+			if (!_Closed) {
+				_Closed = true;
+				SslDirectCall.CloseNotify(this);
+			}
 #else
-				;
+			;
 #endif
-			}
-			finally {
-				if (!LeaveInnerStreamOpen) {
-				base.Dispose(disposing);
-				}
-			}
 		}
 
 		/// <summary>
