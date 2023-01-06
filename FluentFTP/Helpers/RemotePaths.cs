@@ -21,7 +21,7 @@ namespace FluentFTP.Helpers {
 		/// <param name="ftppath"></param>
 		/// <returns></returns>
 		public static bool IsFtpRootDirectory(this string ftppath) {
-			return ftppath == "." || ftppath == "./" || ftppath == "/";
+			return ftppath is "." or "./" or "/";
 		}
 
 		/// <summary>

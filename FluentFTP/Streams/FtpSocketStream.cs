@@ -1106,9 +1106,9 @@ namespace FluentFTP {
 			}
 #else
 			try {
-			    using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
+				using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
 					timeoutSrc.CancelAfter(ctmo);
-// fix #1054
+					// fix #1054
 #if v472
 			        await EnableCancellation(m_socket.ConnectAsync(ipad, port), timeoutSrc.Token, () => DisposeSocket());
 #else
@@ -1307,19 +1307,19 @@ namespace FluentFTP {
 			// Fix: user needs NOOPs - See #823
 			// Fix: running on .NET 5.0 and later due to issues in .NET framework - See #682
 #if NET50_OR_LATER
-			if ((Client.Config.SslBuffering == FtpsBuffering.On || Client.Config.SslBuffering == FtpsBuffering.Auto)) {
+			if (Client.Config.SslBuffering is FtpsBuffering.On or FtpsBuffering.Auto) {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "SSL Buffering force disabled, is .NET 5.0 and later");
 			}
 
 			m_bufStream = null;
 #else
-			if ((Client.Config.SslBuffering == FtpsBuffering.On || Client.Config.SslBuffering == FtpsBuffering.Auto) &&
+			if (Client.Config.SslBuffering is FtpsBuffering.On or FtpsBuffering.Auto &&
 				 (!Client.IsProxy()) &&
 				 (!IsControlConnection || Client.Config.NoopInterval == 0)) {
 				m_bufStream = new BufferedStream(NetworkStream, 81920);
 			}
 			else {
-				if ((Client.Config.SslBuffering == FtpsBuffering.On || Client.Config.SslBuffering == FtpsBuffering.Auto)) {
+				if (Client.Config.SslBuffering is FtpsBuffering.On or FtpsBuffering.Auto) {
 					if (Client.IsProxy()) {
 						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "SSL Buffering force disabled, is proxy");
 					}

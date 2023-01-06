@@ -35,7 +35,7 @@ namespace FluentFTP.Client.BaseClient {
 				throw new FtpException("The source FXP FtpClient must be open and connected before a transfer between servers can be initiated");
 			}
 
-			if (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AddToEndNoCheck) {
+			if (existsMode is FtpRemoteExists.AddToEnd or FtpRemoteExists.AddToEndNoCheck) {
 				throw new ArgumentException("FXP file transfer does not currently support AddToEnd or AddToEndNoCheck modes. Use another value for existsMode.", nameof(existsMode));
 			}
 		}

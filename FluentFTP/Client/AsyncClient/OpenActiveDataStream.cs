@@ -37,7 +37,7 @@ namespace FluentFTP {
 			var ar = stream.BeginAccept(null, null);
 #endif
 
-			if (type == FtpDataConnectionType.EPRT || type == FtpDataConnectionType.AutoActive) {
+			if (type is FtpDataConnectionType.EPRT or FtpDataConnectionType.AutoActive) {
 				var ipver = 0;
 
 				switch (stream.LocalEndPoint.AddressFamily) {

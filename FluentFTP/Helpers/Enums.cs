@@ -18,7 +18,7 @@
 		/// Checks if the operation was successful or skipped (indicating success).
 		/// </summary>
 		public static bool IsSuccess(this FtpStatus status) {
-			return status == FtpStatus.Success || status == FtpStatus.Skipped;
+			return status is FtpStatus.Success or FtpStatus.Skipped;
 		}
 
 		/// <summary>

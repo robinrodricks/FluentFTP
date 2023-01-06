@@ -34,11 +34,11 @@ namespace FluentFTP {
 
 			for (int a = 0; a <= Config.PassiveMaxAttempts;) {
 
-				if ((type == FtpDataConnectionType.EPSV || type == FtpDataConnectionType.AutoPassive) && !Status.EPSVNotSupported) {
+				if (type is FtpDataConnectionType.EPSV or FtpDataConnectionType.AutoPassive && !Status.EPSVNotSupported) {
 					// execute EPSV to try enhanced-passive mode
 					if (!(reply = await Execute("EPSV", token)).Success) {
 						// if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
-						if ((reply.Type == FtpResponseType.TransientNegativeCompletion || reply.Type == FtpResponseType.PermanentNegativeCompletion)
+						if (reply.Type is FtpResponseType.TransientNegativeCompletion or FtpResponseType.PermanentNegativeCompletion
 							&& type == FtpDataConnectionType.AutoPassive
 							&& m_stream != null
 							&& m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {

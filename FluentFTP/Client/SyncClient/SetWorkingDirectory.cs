@@ -21,7 +21,7 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			// exit if invalid path
-			if (path == "." || path == "./") {
+			if (path is "." or "./") {
 				return;
 			}
 

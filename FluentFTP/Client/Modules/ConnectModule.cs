@@ -331,7 +331,7 @@ namespace FluentFTP.Client.Modules {
 		private static bool IsFtpsFailure(List<FtpEncryptionMode> blacklistedEncryptions, FtpEncryptionMode encryption, Exception ex) {
 
 			// catch error starting explicit FTPS and don't try any more secure connections
-			if (encryption == FtpEncryptionMode.Auto || encryption == FtpEncryptionMode.Explicit) {
+			if (encryption is FtpEncryptionMode.Auto or FtpEncryptionMode.Explicit) {
 				if (ex is FtpSecurityNotAvailableException) {
 
 					// ban explicit FTPS
@@ -357,7 +357,7 @@ namespace FluentFTP.Client.Modules {
 
 			// catch error starting explicit FTPS and don't try any more secure connections
 			if (failedFTPS) {
-				if (encryption == FtpEncryptionMode.Auto || encryption == FtpEncryptionMode.Explicit) {
+				if (encryption is FtpEncryptionMode.Auto or FtpEncryptionMode.Explicit) {
 
 					// ban explicit FTPS
 					blacklistedEncryptions.Add(encryption);
