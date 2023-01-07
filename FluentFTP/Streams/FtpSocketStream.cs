@@ -1283,8 +1283,7 @@ namespace FluentFTP {
 				// to be done and the exception can be re-thrown for
 				// handling down the chain. (Add logging?)
 				Close();
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed");
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, ex.Message.Trim());
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed", ex);
 				throw;
 			}
 
