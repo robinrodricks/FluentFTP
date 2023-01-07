@@ -97,7 +97,7 @@ namespace FluentFTP {
 				}
 
 				// try to upgrade this connection to SSL if supported by the server
-				if (Config.EncryptionMode == FtpEncryptionMode.Explicit || Config.EncryptionMode == FtpEncryptionMode.Auto) {
+				if (Config.EncryptionMode is FtpEncryptionMode.Explicit or FtpEncryptionMode.Auto) {
 					reply = Execute("AUTH TLS");
 					if (!reply.Success) {
 						Status.ConnectionFTPSFailure = true;

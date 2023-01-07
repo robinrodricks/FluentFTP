@@ -459,7 +459,7 @@ namespace FluentFTP {
 					// break if task is cancelled
 					token.ThrowIfCancellationRequested();
 
-					if (item.Type == FtpObjectType.Directory && item.Name != "." && item.Name != "..") {
+					if (item.Type == FtpObjectType.Directory && item.Name is not ("." or "..")) {
 						stack.Push(item.FullName);
 					}
 
@@ -509,7 +509,7 @@ namespace FluentFTP {
 
 				// extract the directories
 				foreach (var item in items) {
-					if (item.Type == FtpObjectType.Directory && item.Name != "." && item.Name != "..") {
+					if (item.Type == FtpObjectType.Directory && item.Name is not ("." or "..")) {
 						stack.Push(item.FullName);
 					}
 				}

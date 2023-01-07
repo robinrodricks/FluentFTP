@@ -19,12 +19,12 @@ namespace FluentFTP.Client.BaseClient {
 			long localPosition = 0;
 
 			// resume - start the local file from the same position as the remote file
-			if (existsMode == FtpRemoteExists.Resume || existsMode == FtpRemoteExists.ResumeNoCheck) {
+			if (existsMode is FtpRemoteExists.Resume or FtpRemoteExists.ResumeNoCheck) {
 				localPosition = remotePosition;
 			}
 
 			// append to end - start from the beginning of the local file
-			else if (existsMode == FtpRemoteExists.AddToEnd || existsMode == FtpRemoteExists.AddToEndNoCheck) {
+			else if (existsMode is FtpRemoteExists.AddToEnd or FtpRemoteExists.AddToEndNoCheck) {
 				localPosition = 0;
 			}
 
