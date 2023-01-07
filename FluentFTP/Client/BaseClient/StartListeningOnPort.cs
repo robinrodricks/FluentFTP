@@ -25,10 +25,7 @@ namespace FluentFTP.Client.BaseClient {
 						success = true;
 						break;
 					}
-					catch (SocketException se) {
-						if (se.SocketErrorCode != SocketError.AddressAlreadyInUse) {
-							throw;
-						}
+					catch (SocketException se) when (se.SocketErrorCode == SocketError.AddressAlreadyInUse) {
 					}
 				}
 
