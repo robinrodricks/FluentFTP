@@ -1087,9 +1087,6 @@ namespace FluentFTP {
 					await EnableCancellation(m_socket.ConnectAsync(ipad, port), timeoutSrc.Token, () => DisposeSocket());
 				}
 			}
-			catch (SocketException ex) when (ex.SocketErrorCode is SocketError.OperationAborted or SocketError.TimedOut) {
-				throw new TimeoutException("Timed out trying to connect!");
-			}
 #else
 			try {
 				using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
@@ -1103,13 +1100,13 @@ namespace FluentFTP {
 #endif
 				}
 			}
-			catch (SocketException ex) when (ex.SocketErrorCode is SocketError.OperationAborted or SocketError.TimedOut) {
-				throw new TimeoutException("Timed out trying to connect!");
-			}
 			catch (ObjectDisposedException) {
 				throw new TimeoutException("Timed out trying to connect!");
 			}
 #endif
+			catch (SocketException ex) when (ex.SocketErrorCode is SocketError.OperationAborted or SocketError.TimedOut) {
+				throw new TimeoutException("Timed out trying to connect!");
+			}
 			return m_socket.Connected;
 		}
 
