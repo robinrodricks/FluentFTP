@@ -21,7 +21,7 @@ namespace FluentFTP {
 
 		FtpReply CloseDataStreamInternal(FtpDataStream stream);
 
-		void LogStatus(FtpTraceLevel eventType, string message, Exception exception = null);
+		void LogStatus(FtpTraceLevel eventType, string message, Exception exception = null, bool exNewLine = false);
 
 		void LogLine(FtpTraceLevel eventType, string message);
 
