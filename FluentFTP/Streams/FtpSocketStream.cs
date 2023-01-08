@@ -1077,29 +1077,18 @@ namespace FluentFTP {
 		/// <param name="port">The port to connect to</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		private async Task<bool> ConnectAsyncHelper(IPAddress ipad, int port, CancellationToken token) {
-
-			int ctmo = this.ConnectTimeout;
-
-#if NETSTANDARD
 			try {
 				using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-					timeoutSrc.CancelAfter(ctmo);
-					await EnableCancellation(m_socket.ConnectAsync(ipad, port), timeoutSrc.Token, () => DisposeSocket());
-				}
-			}
-#else
-			try {
-				using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-					timeoutSrc.CancelAfter(ctmo);
-					// fix #1054
-#if v472
-			        await EnableCancellation(m_socket.ConnectAsync(ipad, port), timeoutSrc.Token, () => DisposeSocket());
-#else
+					timeoutSrc.CancelAfter(ConnectTimeout);
+#if NET462
 					var connectResult = m_socket.BeginConnect(ipad, port, null, null);
 					await EnableCancellation(Task.Factory.FromAsync(connectResult, m_socket.EndConnect), timeoutSrc.Token, () => DisposeSocket());
+#else
+					await EnableCancellation(m_socket.ConnectAsync(ipad, port), timeoutSrc.Token, () => DisposeSocket());
 #endif
 				}
 			}
+#if !NETSTANDARD
 			catch (ObjectDisposedException) {
 				throw new TimeoutException("Timed out trying to connect!");
 			}
@@ -1107,6 +1096,7 @@ namespace FluentFTP {
 			catch (SocketException ex) when (ex.SocketErrorCode is SocketError.OperationAborted or SocketError.TimedOut) {
 				throw new TimeoutException("Timed out trying to connect!");
 			}
+
 			return m_socket.Connected;
 		}
 
