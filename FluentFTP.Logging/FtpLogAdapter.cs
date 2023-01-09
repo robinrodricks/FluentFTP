@@ -9,6 +9,8 @@ namespace FluentFTP.Logging {
 	public sealed class FtpLogAdapter : IFtpLogger {
 		private readonly ILogger adaptee;
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
 		public FtpLogAdapter(ILogger adaptee) =>
 			this.adaptee = adaptee;
 
@@ -23,4 +25,7 @@ namespace FluentFTP.Logging {
 			_ => LogLevel.Information
 		};
 	}
+
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
 }
