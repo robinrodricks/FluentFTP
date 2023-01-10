@@ -40,6 +40,11 @@ namespace FluentFTP {
 		public virtual async Task Connect(bool reConnect, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
+			// If we have never been connected before...
+			if (this.Status.CachedHostIpads.Count == 0) {
+				reConnect = false;
+			}
+
 			if (!reConnect) {
 
 				LogFunction(nameof(ConnectAsync));
