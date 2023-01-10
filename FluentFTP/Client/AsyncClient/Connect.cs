@@ -40,6 +40,12 @@ namespace FluentFTP {
 		public virtual async Task Connect(bool reConnect, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
+			// If we have never been connected before...
+			if (this.Status.CachedHostIpads.Count == 0) {
+				reConnect = false;
+				LogWithPrefix(FtpTraceLevel.Info, "Cannot Re-Connect, never been connected");
+			}
+
 			if (!reConnect) {
 
 				LogFunction(nameof(ConnectAsync));
@@ -205,9 +211,7 @@ namespace FluentFTP {
 					await SetWorkingDirectory(Status.LastWorkingDir, token);
 				}
 			}
-			else {
-				_ = await GetWorkingDirectory(token);
-			}
+			_ = await GetWorkingDirectory(token);
 
 			// FIX #922: disable checking for stale data during connection
 			Status.AllowCheckStaleData = true;

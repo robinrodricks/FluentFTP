@@ -40,6 +40,12 @@ namespace FluentFTP {
 
 			lock (m_lock) {
 
+				// If we have never been connected before...
+				if (this.Status.CachedHostIpads.Count == 0) {
+					LogWithPrefix(FtpTraceLevel.Info, "Cannot Re-Connect, never been connected");
+					reConnect = false;
+				}
+
 				if (!reConnect) {
 
 					LogFunction(nameof(Connect));
@@ -202,9 +208,7 @@ namespace FluentFTP {
 						SetWorkingDirectory(Status.LastWorkingDir);
 					}
 				}
-				else {
-					_ = GetWorkingDirectory();
-				}
+				_ = GetWorkingDirectory();
 
 				// FIX #922: disable checking for stale data during connection
 				Status.AllowCheckStaleData = true;
