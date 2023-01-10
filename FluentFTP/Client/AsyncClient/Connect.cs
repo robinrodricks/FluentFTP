@@ -211,9 +211,7 @@ namespace FluentFTP {
 					await SetWorkingDirectory(Status.LastWorkingDir, token);
 				}
 			}
-			else {
-				_ = await GetWorkingDirectory(token);
-			}
+			_ = await GetWorkingDirectory(token);
 
 			// FIX #922: disable checking for stale data during connection
 			Status.AllowCheckStaleData = true;
