@@ -43,6 +43,7 @@ namespace FluentFTP {
 			// If we have never been connected before...
 			if (this.Status.CachedHostIpads.Count == 0) {
 				reConnect = false;
+				LogWithPrefix(FtpTraceLevel.Info, "Cannot Re-Connect, never been connected");
 			}
 
 			if (!reConnect) {
