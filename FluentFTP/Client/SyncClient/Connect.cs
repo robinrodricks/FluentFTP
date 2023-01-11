@@ -40,19 +40,22 @@ namespace FluentFTP {
 
 			lock (m_lock) {
 
+				LogFunction(nameof(Connect), new object[] {reConnect});
+
 				// If we have never been connected before...
-				if (this.Status.CachedHostIpads.Count == 0) {
-					LogWithPrefix(FtpTraceLevel.Info, "Cannot Re-Connect, never been connected");
+				if (reConnect && Status.ConnectCount == 0) {
 					reConnect = false;
+					LogWithPrefix(FtpTraceLevel.Info, "Cannot reconnect, reverting to full connect");
 				}
 
-				if (!reConnect) {
-
-					LogFunction(nameof(Connect));
+				if (reConnect) {
+					LogWithPrefix(FtpTraceLevel.Info, "Reconnect, count = " + Status.ConnectCount);
 				}
 				else {
-					LogFunction("Re" + nameof(Connect));
+					Status.ConnectCount = 0;
 				}
+
+				Status.ConnectCount++;
 
 				LogVersion();
 

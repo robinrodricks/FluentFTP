@@ -72,6 +72,12 @@ namespace FluentFTP {
         /// </summary>
         public bool InCriticalSequence { get; set; } = false;
 
+		/// <summary>
+		/// Count the reconnects
+		/// Reset this value when a non-reconnect takes place
+		/// </summary>
+		public int ConnectCount { get; set; } = 0;
+
         /// <summary>
 		/// These flags must be reset every time we connect, to allow for users to connect to
 		/// different FTP servers with the same client object.
