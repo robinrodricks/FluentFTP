@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using FluentFTP.Client.Modules;
-using FluentFTP.Helpers;
 
 namespace FluentFTP.Client.BaseClient {
 
@@ -15,8 +13,12 @@ namespace FluentFTP.Client.BaseClient {
 		FtpReply IInternalFtpClient.ExecuteInternal(string command) {
 			FtpReply reply;
 
+			bool reconnect = false;
+			string reconnectReason = string.Empty;
+
 			lock (m_lock) {
 
+				// Automatic reconnect because we lost the control channel?
 				if (!IsConnected) {
 					if (command == "QUIT") {
 						LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
@@ -26,37 +28,42 @@ namespace FluentFTP.Client.BaseClient {
 						};
 					}
 
-					LogWithPrefix(FtpTraceLevel.Warn, "Reconnect due to disconnected control connection");
-
-					// Reconnect and then execute the command
-					((IInternalFtpClient)this).ConnectInternal(true);
+					reconnect = true;
+					reconnectReason = "disconnected";
 				}
 				// Automatic reconnect on reaching SslSessionLength?
 				else if (m_stream.IsEncrypted && Config.SslSessionLength > 0 && !Status.InCriticalSequence && m_stream.SocketReadLineCount > Config.SslSessionLength) {
-					LogWithPrefix(FtpTraceLevel.Warn, "Reconnect due to SslSessionLength reached");
-
-					if (Status.LastWorkingDir == null) {
-						Status.InCriticalSequence = true;
-						((IInternalFtpClient)this).GetWorkingDirectoryInternal();
-					}
-
-					m_stream.Close();
-					m_stream = null;
-
-					((IInternalFtpClient)this).ConnectInternal(true);
+					reconnect = true;
+					reconnectReason = "max SslSessionLength reached on";
 				}
 				// Check for stale data on the socket?
 				else if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
 					var staleData = ReadStaleData(true, "prior to command execution");
 
 					if (staleData != null) {
-						LogWithPrefix(FtpTraceLevel.Warn, "Reconnect due to stale data");
+						reconnect = true;
+						reconnectReason = "stale data present on";
+					}
+				}
+
+				if (reconnect) {
+					LogWithPrefix(FtpTraceLevel.Warn, "Reconnect needed due to " + reconnectReason + " control connection");
+
+					if (IsConnected) {
+						if (Status.LastWorkingDir == null) {
+							Status.InCriticalSequence = true;
+							((IInternalFtpClient)this).GetWorkingDirectoryInternal();
+						}
 
 						m_stream.Close();
 						m_stream = null;
-
-						((IInternalFtpClient)this).ConnectInternal(true);
 					}
+
+					((IInternalFtpClient)this).ConnectInternal(true);
+
+					Log(FtpTraceLevel.Info, "");
+					LogWithPrefix(FtpTraceLevel.Info, "Executing stashed command");
+					Log(FtpTraceLevel.Info, "");
 				}
 
 				// hide sensitive data from logs
@@ -90,6 +97,7 @@ namespace FluentFTP.Client.BaseClient {
 			// Update stored values
 			if (command.TrimEnd() == "CWD" || command.StartsWith("CWD ", StringComparison.Ordinal)) {
 				Status.LastWorkingDir = null;
+				ReadCurrentWorkingDirectory();
 			}
 			else if (command.StartsWith("TYPE I", StringComparison.Ordinal)) {
 				Status.CurrentDataType = FtpDataType.Binary;
@@ -98,7 +106,5 @@ namespace FluentFTP.Client.BaseClient {
 				Status.CurrentDataType = FtpDataType.ASCII;
 			}
 		}
-
-
 	}
 }

@@ -1,10 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Net.Sockets;
-using System.Text.RegularExpressions;
-using System.Linq;
-using System.Net;
-using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP.Client.Modules;
@@ -21,7 +15,10 @@ namespace FluentFTP {
 		public async Task<FtpReply> Execute(string command, CancellationToken token) {
 			FtpReply reply;
 
+			bool reconnect = false;
+			string reconnectReason = string.Empty;
 
+			// Automatic reconnect because we lost the control channel?
 			if (!IsConnected) {
 				if (command == "QUIT") {
 					LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
@@ -31,25 +28,14 @@ namespace FluentFTP {
 					};
 				}
 
-				LogWithPrefix(FtpTraceLevel.Warn, "Reconnect due to disconnected control connection");
-
-				// Reconnect and then execute the command
-				await Connect(true, token);
+				reconnect = true;
+				reconnectReason = "disconnected";
 			}
 
 			// Automatic reconnect on reaching SslSessionLength?
 			else if (m_stream.IsEncrypted && Config.SslSessionLength > 0 && !Status.InCriticalSequence && m_stream.SocketReadLineCount > Config.SslSessionLength) {
-				LogWithPrefix(FtpTraceLevel.Warn, "Reconnect due to SslSessionLength reached");
-
-				if (Status.LastWorkingDir == null) {
-					Status.InCriticalSequence = true;
-					await GetWorkingDirectory();
-				}
-
-				m_stream.Close();
-				m_stream = null;
-
-				await Connect(true, token);
+				reconnect = true;
+				reconnectReason = "max SslSessionLength reached on";
 			}
 
 			// Check for stale data on the socket?
@@ -61,13 +47,29 @@ namespace FluentFTP {
 #endif
 
 				if (staleData != null) {
-					LogWithPrefix(FtpTraceLevel.Warn, "Reconnect due to stale data");
+					reconnect = true;
+					reconnectReason = "stale data present on";
+				}
+			}
+
+			if (reconnect) {
+				LogWithPrefix(FtpTraceLevel.Warn, "Reconnect needed due to " + reconnectReason + " control connection");
+
+				if (IsConnected) {
+					if (Status.LastWorkingDir == null) {
+						Status.InCriticalSequence = true;
+						await GetWorkingDirectory();
+					}
 
 					m_stream.Close();
 					m_stream = null;
-
-					await Connect(true, token);
 				}
+
+				await Connect(true, token);
+
+				Log(FtpTraceLevel.Info, "");
+				LogWithPrefix(FtpTraceLevel.Info, "Executing stashed command");
+				Log(FtpTraceLevel.Info, "");
 			}
 
 			// hide sensitive data from logs
@@ -80,7 +82,7 @@ namespace FluentFTP {
 			LastCommandTimestamp = DateTime.UtcNow;
 			reply = await GetReplyAsyncInternal(token, command);
 			if (reply.Success) {
-				OnPostExecute(command);
+				await OnPostExecute(command, token);
 
 				if (Config.SslSessionLength > 0) {
 					ConnectModule.CheckCriticalSequence(this, command);
@@ -90,5 +92,23 @@ namespace FluentFTP {
 			return reply;
 		}
 
+		/// <summary>
+		/// Things to do after executing a command
+		/// </summary>
+		/// <param name="command"></param>
+		protected async Task OnPostExecute(string command, CancellationToken token) {
+
+			// Update stored values
+			if (command.TrimEnd() == "CWD" || command.StartsWith("CWD ", StringComparison.Ordinal)) {
+				Status.LastWorkingDir = null;
+				await ReadCurrentWorkingDirectory(token);
+			}
+			else if (command.StartsWith("TYPE I", StringComparison.Ordinal)) {
+				Status.CurrentDataType = FtpDataType.Binary;
+			}
+			else if (command.StartsWith("TYPE A", StringComparison.Ordinal)) {
+				Status.CurrentDataType = FtpDataType.ASCII;
+			}
+		}
 	}
 }
