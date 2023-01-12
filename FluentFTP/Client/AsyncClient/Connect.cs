@@ -200,9 +200,6 @@ namespace FluentFTP {
 			// Create the parser even if the auto-OS detection failed
 			CurrentListParser.Init(m_serverOS, Config.ListingParser);
 
-			// FIX : #318 always reset the type when we create a new connection
-			Status.CurrentDataType = FtpDataType.Unknown;
-
 			// Execute server-specific post-connection event
 			if (ServerHandler != null) {
 				await ServerHandler.AfterConnectedAsync(this, token);
