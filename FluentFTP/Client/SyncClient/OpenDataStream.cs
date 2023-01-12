@@ -21,9 +21,11 @@ namespace FluentFTP {
 			var type = Config.DataConnectionType;
 			FtpDataStream stream = null;
 
+			LogFunction(nameof(OpenDataStream), new object[] { command, restart });
+
 			lock (m_lock) {
 				if (!IsConnected) {
-					LogWithPrefix(FtpTraceLevel.Info, "Reconnect due to disconnected control connection");
+					LogWithPrefix(FtpTraceLevel.Warn, "Reconnect due to disconnected control connection");
 					Connect(true);
 				}
 
