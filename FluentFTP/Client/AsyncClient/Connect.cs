@@ -45,11 +45,11 @@ namespace FluentFTP {
 			// If we have never been connected before...
 			if (reConnect && Status.ConnectCount == 0) {
 				reConnect = false;
-				LogWithPrefix(FtpTraceLevel.Info, "Cannot reconnect, reverting to full connect");
+				LogWithPrefix(FtpTraceLevel.Warn, "Cannot reconnect, reverting to full connect");
 			}
 
 			if (reConnect) {
-				LogWithPrefix(FtpTraceLevel.Info, "Reconnect, count = " + Status.ConnectCount);
+				LogWithPrefix(FtpTraceLevel.Warn, "Reconnect, count = " + Status.ConnectCount);
 			}
 			else {
 				Status.ConnectCount = 0;
