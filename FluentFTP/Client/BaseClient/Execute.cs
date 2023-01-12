@@ -48,6 +48,7 @@ namespace FluentFTP.Client.BaseClient {
 
 				if (reconnect) {
 					LogWithPrefix(FtpTraceLevel.Warn, "Reconnect needed due to " + reconnectReason + " control connection");
+					LogWithPrefix(FtpTraceLevel.Info, "Command stashed: " + command);
 
 					if (IsConnected) {
 						if (Status.LastWorkingDir == null) {
