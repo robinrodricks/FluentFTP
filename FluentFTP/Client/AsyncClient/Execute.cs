@@ -31,7 +31,7 @@ namespace FluentFTP {
 					};
 				}
 
-				LogWithPrefix(FtpTraceLevel.Info, "Reconnect due to disconnected control connection");
+				LogWithPrefix(FtpTraceLevel.Warn, "Reconnect due to disconnected control connection");
 
 				// Reconnect and then execute the command
 				await Connect(true, token);
@@ -39,7 +39,7 @@ namespace FluentFTP {
 
 			// Automatic reconnect on reaching SslSessionLength?
 			else if (m_stream.IsEncrypted && Config.SslSessionLength > 0 && !Status.InCriticalSequence && m_stream.SocketReadLineCount > Config.SslSessionLength) {
-				LogWithPrefix(FtpTraceLevel.Info, "Reconnect due to SslSessionLength reached");
+				LogWithPrefix(FtpTraceLevel.Warn, "Reconnect due to SslSessionLength reached");
 
 				if (Status.LastWorkingDir == null) {
 					Status.InCriticalSequence = true;
@@ -61,7 +61,7 @@ namespace FluentFTP {
 #endif
 
 				if (staleData != null) {
-					LogWithPrefix(FtpTraceLevel.Info, "Reconnect due to stale data");
+					LogWithPrefix(FtpTraceLevel.Warn, "Reconnect due to stale data");
 
 					m_stream.Close();
 					m_stream = null;
