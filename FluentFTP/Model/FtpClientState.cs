@@ -85,6 +85,7 @@ namespace FluentFTP {
         public void Reset(bool reConnect) {
 			if (!reConnect) {
 				LastWorkingDir = null;
+				CurrentDataType = FtpDataType.Unknown;
 			}
 			EPSVNotSupported = false;
 			FileSizeASCIINotSupported = false;
@@ -93,7 +94,6 @@ namespace FluentFTP {
 			ConnectionFTPSFailure = false;
 			ConnectionUTF8Success = false;
 			AllowCheckStaleData = false;
-			CurrentDataType = FtpDataType.Unknown;
 			InCriticalSequence = false;
 		}
 
