@@ -209,11 +209,28 @@ namespace FluentFTP {
 			}
 
 			if (reConnect) {
-				// go back to previous CWD
+				// Restore important settings from prior to reconnect
+
+				// restore Status.DataType
+				var oldDataType = Status.CurrentDataType;
+				Status.CurrentDataType = FtpDataType.Unknown;
+				await SetDataTypeNoLockAsync(oldDataType, token);
+
+				// restore Status.LastWorkingDir
 				if (Status.LastWorkingDir != null) {
 					await SetWorkingDirectory(Status.LastWorkingDir, token);
 				}
 			}
+			else {
+				// Set important settings
+
+				// set Status.DataType (also: FIX : #318)
+				Status.CurrentDataType = FtpDataType.Unknown;
+
+				// set Status.LastWorkingDir: no need
+			}
+
+			// Need to know where we are in case a reconnect needs to be done
 			_ = await GetWorkingDirectory(token);
 
 			// FIX #922: disable checking for stale data during connection

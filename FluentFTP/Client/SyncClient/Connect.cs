@@ -199,18 +199,32 @@ namespace FluentFTP {
 				// Create the parser even if the auto-OS detection failed
 				CurrentListParser.Init(m_serverOS, Config.ListingParser);
 
-				// FIX #318 always set the type when we create a new connection
-				Status.CurrentDataType = FtpDataType.Unknown;
-
 				// Execute server-specific post-connection event
 				ServerHandler?.AfterConnected(this);
 
 				if (reConnect) {
-					// go back to previous CWD
+					// Restore important settings from prior to reconnect
+
+					// restore Status.DataType
+					var oldDataType = Status.CurrentDataType;
+					Status.CurrentDataType = FtpDataType.Unknown;
+					SetDataTypeNoLock(oldDataType);
+
+					// restore Status.LastWorkingDir
 					if (Status.LastWorkingDir != null) {
 						SetWorkingDirectory(Status.LastWorkingDir);
 					}
 				}
+				else {
+					// Set important settings
+
+					// set Status.DataType (also: FIX : #318)
+					Status.CurrentDataType = FtpDataType.Unknown;
+
+					// set Status.LastWorkingDir: no need
+				}
+
+				// Need to know where we are in case a reconnect needs to be done
 				_ = GetWorkingDirectory();
 
 				// FIX #922: disable checking for stale data during connection
