@@ -24,7 +24,7 @@ namespace FluentFTP.Helpers {
 				return span.TotalSeconds.ToString(format) + "s";
 			}
 			if (span.TotalMilliseconds > 0) {
-				return span.TotalMilliseconds.ToString(format) + "ms";
+				return ((int)span.TotalMilliseconds).ToString() + "ms";
 			}
 			return zeroString;
 		}
