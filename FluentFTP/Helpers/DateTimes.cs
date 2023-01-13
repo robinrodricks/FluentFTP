@@ -5,7 +5,7 @@ using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers {
 	/// <summary>
-	/// Extension methods related to FTP tasks
+	/// Extension methods related to FTP date time values
 	/// </summary>
 	public static class DateTimes {
 

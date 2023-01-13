@@ -54,6 +54,11 @@ namespace FluentFTP {
 		public bool LogPassword { get; set; } = false;
 
 		/// <summary>
+		/// Should the command duration be shown after each log command?
+		/// </summary>
+		public bool LogDuration { get; set; } = true;
+
+		/// <summary>
 		/// Flags specifying which versions of the internet protocol (IPV4 or IPV6) to
 		/// support when making a connection. All addresses returned during
 		/// name resolution are tried until a successful connection is made.
