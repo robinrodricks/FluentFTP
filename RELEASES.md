@@ -1,6 +1,6 @@
 # Release Notes
 
-#### 44.0.0
+#### 44.0.1
  - **File Transfer**
    - New: `UploadFiles` API in `AsyncFtpClient` which takes an `IEnumerable<FileInfo>`
    - New: `UploadFiles` and `DownloadFiles` now support rules which allow filtering of uploaded/downloaded files
