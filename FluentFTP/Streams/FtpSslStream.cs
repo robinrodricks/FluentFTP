@@ -16,6 +16,12 @@ namespace FtpSslLib {
 	///
 	/// See: https://learn.microsoft.com/en-us/windows/win32/secauthn/shutting-down-an-schannel-connection
 	/// See: https://learn.microsoft.com/en-us/windows/win32/secauthn/using-sspi-with-a-windows-sockets-client?source=recommendations
+	///
+	/// Note:
+	/// Microsoft says we should not override close():
+	/// "Place all cleanup logic for your stream object in Dispose(Boolean). Do not override Close()."
+	/// See: https://learn.microsoft.com/en-us/dotnet/api/system.io.stream.dispose?view=net-7.0
+	/// But: We recently changed the below logic due to issue #1107, which solved the problem in part
 	/// 
 	/// </summary>
 	public class FtpSslStream : SslStream {
