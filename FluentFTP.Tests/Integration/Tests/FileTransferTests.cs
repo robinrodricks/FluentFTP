@@ -9,6 +9,7 @@ using Xunit;
 using FluentFTP.Xunit.Docker;
 using FluentFTP.Xunit.Attributes;
 using FluentFTP.Tests.Integration.System;
+using FluentFTP.Exceptions;
 
 namespace FluentFTP.Tests.Integration.Tests {
 
@@ -22,6 +23,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 		public override void RunAllTests() {
 			UploadDownloadBytes();
 			UploadDownloadStream();
+			DownloadMissing();
 		}
 
 		/// <summary>
@@ -30,10 +32,102 @@ namespace FluentFTP.Tests.Integration.Tests {
 		public async override Task RunAllTestsAsync() {
 			await UploadDownloadBytesAsync();
 			await UploadDownloadStreamAsync();
+			await DownloadMissingAsync();
 		}
 
 
+		public async Task DownloadMissingAsync() {
 
+			using var client = await GetConnectedAsyncClient();
+			var filePath = "/no/such/file.txt";
+			var dirPath = "/no/such/dir/";
+
+			// DownloadDirectory should crash with FtpMissingObjectException if the dir does not exist
+			try {
+				await client.DownloadDirectory("/DownloadMissingAsync/", dirPath);
+			}
+			catch (Exception ex) {
+				Assert.IsType(typeof(FtpMissingObjectException), ex);
+			}
+
+			// DownloadFile should crash with FtpMissingObjectException if the file does not exist
+			try {
+				await client.DownloadFile("/DownloadMissingAsync/myfile.txt", filePath);
+			}
+			catch (Exception ex) {
+				Assert.IsType(typeof(FtpMissingObjectException), ex);
+			}
+
+			// DownloadBytes should crash with FtpMissingObjectException if the file does not exist
+			try {
+				await client.DownloadBytes(filePath, 0);
+			}
+			catch (Exception ex) {
+				Assert.IsType(typeof(FtpMissingObjectException), ex);
+			}
+
+			// DownloadStream should crash with FtpMissingObjectException if the file does not exist
+			try {
+				using var stream = new MemoryStream();
+				await client.DownloadStream(stream, filePath);
+			}
+			catch (Exception ex) {
+				Assert.IsType(typeof(FtpMissingObjectException), ex);
+			}
+
+			// DownloadFiles should not crash, but should return the FtpMissingObjectException inside the first result's Exception property
+			var result = await client.DownloadFiles("/DownloadMissingAsync/", new List<string> { filePath });
+			Assert.Equal(true, result[0].IsFailed);
+			Assert.IsType(typeof(FtpMissingObjectException), result[0].Exception);
+
+		}
+
+		public async Task DownloadMissing() {
+
+			using var client = GetConnectedClient();
+			var filePath = "/no/such/file.txt";
+			var dirPath = "/no/such/dir/";
+
+			// DownloadDirectory should crash with FtpMissingObjectException if the dir does not exist
+			try {
+				client.DownloadDirectory("/DownloadMissingAsync/", dirPath);
+			}
+			catch (Exception ex) {
+				Assert.IsType(typeof(FtpMissingObjectException), ex);
+			}
+
+			// DownloadFile should crash with FtpMissingObjectException if the file does not exist
+			try {
+				client.DownloadFile("/DownloadMissingAsync/myfile.txt", filePath);
+			}
+			catch (Exception ex) {
+				Assert.IsType(typeof(FtpMissingObjectException), ex);
+			}
+
+			// DownloadBytes should crash with FtpMissingObjectException if the file does not exist
+			try {
+				byte[] result2 = null;
+				client.DownloadBytes(out result2, filePath, 0);
+			}
+			catch (Exception ex) {
+				Assert.IsType(typeof(FtpMissingObjectException), ex);
+			}
+
+			// DownloadStream should crash with FtpMissingObjectException if the file does not exist
+			try {
+				using var stream = new MemoryStream();
+				client.DownloadStream(stream, filePath);
+			}
+			catch (Exception ex) {
+				Assert.IsType(typeof(FtpMissingObjectException), ex);
+			}
+
+			// DownloadFiles should not crash, but should return the FtpMissingObjectException inside the first result's Exception property
+			var result = client.DownloadFiles("/DownloadMissingAsync/", new List<string> { filePath });
+			Assert.Equal(true, result[0].IsFailed);
+			Assert.IsType(typeof(FtpMissingObjectException), result[0].Exception);
+
+		}
 		public async Task UploadDownloadBytesAsync() {
 
 			const string content = "Hello World!";
