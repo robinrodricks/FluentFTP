@@ -12,7 +12,7 @@ namespace FluentFTP.Helpers {
 
 		public static string ToShortString(this TimeSpan span, string format = "0.###", string zeroString = "0ms") {
 			if (span.TotalDays > 0) {
-				return span.TotalDays.ToString(format) + "h";
+				return span.TotalDays.ToString(format) + "d";
 			}
 			if (span.TotalHours > 0) {
 				return span.TotalHours.ToString(format) + "h";
