@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using FluentFTP.Client.BaseClient;
+using FluentFTP.Exceptions;
 
 namespace FluentFTP.Helpers.Parsers {
 	internal static class IBMzOSParser {

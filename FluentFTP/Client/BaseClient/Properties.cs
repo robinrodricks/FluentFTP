@@ -10,6 +10,7 @@ using FluentFTP.Servers;
 using FluentFTP.Helpers;
 using System.Net.Sockets;
 using System.Threading;
+using FluentFTP.Exceptions;
 
 namespace FluentFTP.Client.BaseClient {
 

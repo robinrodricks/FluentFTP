@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentFTP.Exceptions;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;

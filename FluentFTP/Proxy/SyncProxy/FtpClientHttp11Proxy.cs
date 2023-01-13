@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using FluentFTP.Client.BaseClient;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentFTP.Exceptions;
 
 namespace FluentFTP.Proxy.SyncProxy {
 	/// <summary> A FTP client with a HTTP 1.1 proxy implementation. </summary>

@@ -1,3 +1,4 @@
+using FluentFTP.Exceptions;
 using FluentFTP.Helpers;
 using System;
 using System.Collections.Generic;

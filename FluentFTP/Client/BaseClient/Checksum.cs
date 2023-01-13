@@ -1,3 +1,4 @@
+using FluentFTP.Exceptions;
 using FluentFTP.Helpers;
 
 namespace FluentFTP.Client.BaseClient {

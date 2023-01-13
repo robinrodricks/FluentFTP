@@ -7,6 +7,7 @@ using System.Net;
 using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentFTP.Exceptions;
 
 namespace FluentFTP {
 	public partial class FtpClient {

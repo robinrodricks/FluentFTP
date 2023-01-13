@@ -3,7 +3,7 @@
 using System.Runtime.Serialization;
 #endif
 
-namespace FluentFTP {
+namespace FluentFTP.Exceptions {
 
 	/// <summary>
 	/// FtpProtocolUnsupportedException

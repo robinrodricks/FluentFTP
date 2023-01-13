@@ -6,7 +6,7 @@ using FluentFTP.Helpers.Hashing;
 using System.Runtime.Serialization;
 #endif
 
-namespace FluentFTP {
+namespace FluentFTP.Exceptions {
 
 	/// <summary>
 	/// Exception is thrown when the required hash algorithm is unsupported by the server.

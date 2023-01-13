@@ -3,6 +3,7 @@ Imports System.Net
 Imports System.Threading
 Imports System.Threading.Tasks
 Imports FluentFTP
+Imports FluentFTP.Exceptions
 
 Namespace Examples
 	Friend Module ExecuteFTPCommandExample

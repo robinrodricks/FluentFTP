@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP.Client.BaseClient;
 using System.Linq;
+using FluentFTP.Exceptions;
 
 namespace FluentFTP.Client.Modules {
 	/// <summary>

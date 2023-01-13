@@ -6,6 +6,7 @@ using System;
 using System.Net.Sockets;
 using System.Text;
 using FluentFTP.Helpers;
+using FluentFTP.Exceptions;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
+using FluentFTP.Exceptions;
 using FluentFTP.Helpers;
 using FluentFTP.Rules;
 

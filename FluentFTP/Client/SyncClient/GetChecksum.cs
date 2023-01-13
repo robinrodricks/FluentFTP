@@ -4,6 +4,7 @@ using FluentFTP.Helpers.Hashing;
 using HashAlgos = FluentFTP.Helpers.Hashing.HashAlgorithms;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentFTP.Exceptions;
 
 namespace FluentFTP {
 	public partial class FtpClient {

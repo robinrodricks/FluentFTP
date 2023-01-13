@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using FluentFTP.Exceptions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentFTP {

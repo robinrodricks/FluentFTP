@@ -1,4 +1,5 @@
 ﻿using FluentFTP.Client.BaseClient;
+using FluentFTP.Exceptions;
 using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;

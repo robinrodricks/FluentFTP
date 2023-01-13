@@ -4,7 +4,7 @@ using System.Security.Authentication;
 using System.Runtime.Serialization;
 #endif
 
-namespace FluentFTP {
+namespace FluentFTP.Exceptions {
 
 	/// <summary>
 	/// Exception is thrown when TLS/SSL encryption could not be negotiated by the FTP server.

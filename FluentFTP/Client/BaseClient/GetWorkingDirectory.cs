@@ -1,4 +1,5 @@
-﻿using FluentFTP.Helpers;
+﻿using FluentFTP.Exceptions;
+using FluentFTP.Helpers;
 using System.Text.RegularExpressions;
 
 namespace FluentFTP.Client.BaseClient {
