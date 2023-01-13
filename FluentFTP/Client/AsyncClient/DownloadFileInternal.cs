@@ -35,9 +35,11 @@ namespace FluentFTP {
 
 				// open the file for reading
 				downStream = await OpenRead(remotePath, Config.DownloadDataType, restartPosition, fileLen, token);
-				// workaround for SOCKS4 and SOCKS4a proxies
+
+				// Fix: workaround for SOCKS4 and SOCKS4a proxies
 				if (restartPosition == 0) {
 					if (this is AsyncFtpClientSocks4Proxy || this is AsyncFtpClientSocks4aProxy) {
+
 						// first 6 bytes contains 2 bytes of unknown (to me) purpose and 4 ip address bytes
 						// we need to skip them otherwise they will be downloaded to the file
 						// moreover, these bytes cause "Failed to get the EPSV port" error
@@ -57,7 +59,6 @@ namespace FluentFTP {
 				var rateLimitBytes = Config.DownloadRateLimit != 0 ? (long)Config.DownloadRateLimit * 1024 : 0;
 				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
 
-				// loop till entire file downloaded
 				var buffer = new byte[chunkSize];
 				var offset = restartPosition;
 
@@ -73,6 +74,7 @@ namespace FluentFTP {
 					disposeOutStream = true;
 				}
 
+				// loop till entire file downloaded
 				while (offset < fileLen || readToEnd) {
 					try {
 						// read a chunk of bytes from the FTP stream
@@ -231,10 +233,10 @@ namespace FluentFTP {
 					throw;
 				}
 
-				// absorb "file does not exist" exceptions and simply return false
+				// Fix #1121: detect "file does not exist" exceptions and throw FtpMissingObjectException
 				if (ex1.Message.ContainsAnyCI(ServerStringModule.fileNotFound)) {
 					LogWithPrefix(FtpTraceLevel.Error, "File does not exist", ex1);
-					return false;
+					throw new FtpMissingObjectException("Cannot download non-existant file: " + remotePath, ex1, remotePath, FtpObjectType.File);
 				}
 
 				// catch errors during download

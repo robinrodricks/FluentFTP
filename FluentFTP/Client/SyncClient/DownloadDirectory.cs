@@ -5,6 +5,7 @@ using FluentFTP.Rules;
 using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentFTP.Exceptions;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -55,9 +56,9 @@ namespace FluentFTP {
 
 			var results = new List<FtpResult>();
 
-			// if the dir does not exist, fail fast
+			// Fix #1121: check if dir is missing and throw FtpMissingObjectException
 			if (!DirectoryExists(remoteFolder)) {
-				return results;
+				throw new FtpMissingObjectException("Cannot download non-existant directory: " + remoteFolder, null, remoteFolder, FtpObjectType.Directory);
 			}
 
 			// ensure the local dir exists
