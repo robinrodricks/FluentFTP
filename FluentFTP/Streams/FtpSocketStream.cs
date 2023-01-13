@@ -742,15 +742,11 @@ namespace FluentFTP {
 		/// Disconnects from server
 		/// </summary>
 		protected override void Dispose(bool disposing) {
-			// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
-			try {
-				// ensure null exceptions don't occur here
-				if (Client != null) {
+			// Change this if-statement if you ever need to debug this
+			if (disposing && Client != null) {
+				string infoText = disposing ? "Closing/Disposing" : "Finalizing";
 					string connText = this.IsControlConnection ? "control" : "data";
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing FtpSocketStream(" + connText + " connection)");
-				}
-			}
-			catch (Exception) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, infoText + " FtpSocketStream(" + connText + " connection)");
 			}
 
 			if (m_sslStream != null) {
