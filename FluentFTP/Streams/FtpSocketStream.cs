@@ -555,13 +555,16 @@ namespace FluentFTP {
 				}
 			}
 
-			SslSessionLength++;
+			// This is for the AutoReconnect feature
+			if (IsControlConnection && IsEncrypted) {
+				SslSessionLength++;
+			}
 
 			return line;
 		}
 
 		/// <summary>
-		/// Reads all line from the socket
+		/// Reads all lines from the socket
 		/// </summary>
 		/// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
 		/// <param name="bufferSize">The size of the buffer</param>
@@ -587,6 +590,11 @@ namespace FluentFTP {
 					data.Clear();
 
 					separatorIdx = Array.IndexOf(buf, (byte)'\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array readed
+
+					// This is for the AutoReconnect feature
+					if (IsControlConnection && IsEncrypted) {
+						SslSessionLength++;
+					}
 				}
 
 				while (firstByteToReadIdx < charRead) // add all remaining characters to data
@@ -615,11 +623,16 @@ namespace FluentFTP {
 				}
 			}
 
+			// This is for the AutoReconnect feature
+			if (IsControlConnection && IsEncrypted) {
+				SslSessionLength++;
+			}
+
 			return line;
 		}
 
 		/// <summary>
-		/// Reads all line from the socket
+		/// Reads all lines from the socket
 		/// </summary>
 		/// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
 		/// <param name="bufferSize">The size of the buffer</param>
@@ -647,6 +660,11 @@ namespace FluentFTP {
 					data.Clear();
 
 					separatorIdx = Array.IndexOf(buf, (byte)'\n', firstByteToReadIdx, charRead - firstByteToReadIdx); //search in full byte array read
+
+					// This is for the AutoReconnect feature
+					if (IsControlConnection && IsEncrypted) {
+						SslSessionLength++;
+					}
 				}
 
 				while (firstByteToReadIdx < charRead) // add all remaining characters to data
