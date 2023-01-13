@@ -1,5 +1,35 @@
 # Release Notes
 
+#### 44.0.0
+ - **File Transfer**
+   - New: `UploadFiles` API in `AsyncFtpClient` which takes an `IEnumerable<FileInfo>`
+   - New: `UploadFiles` and `DownloadFiles` now support rules which allow filtering of uploaded/downloaded files
+   - New: `UploadFiles` and `DownloadFiles` now return a `List<FtpResult>` with per-file status rather than just a count
+   - New: `FtpMissingObjectException` thrown when trying to download a non-existant object
+   - New: Download API `DownloadDirectory`, `DownloadFile`, `DownloadBytes`, `DownloadStream` will throw `FtpMissingObjectException` rather than silently failing
+   - New: Download API `DownloadFiles` will mark non-existant files as `IsFailed` and add the `Exception` rather than silently failing
+   - Tests: New integration tests to check fail conditions of Download API
+   - Fix: Correctly detect non-existant files and folders on FileZillla server (thanks [FanDjango](/FanDjango))
+ - **Connection**
+   - New: Improve reconnect logic to restore working directory and ASCII/Binary data type on automatic reconnection (thanks [FanDjango](/FanDjango))
+   - New: Improve `Execute` logic to handle working directory on automatic reconnection (thanks [FanDjango](/FanDjango))
+   - New: Do not attempt Reconnect if we have never been connected before (thanks [FanDjango](/FanDjango))
+   - Change: Reconnect logging messages elevated from `Info` to `Warn` (thanks [FanDjango](/FanDjango))
+   - Fix: Use `ConnectAsync` for `net472` platform where required (thanks [jnyrup](/jnyrup))
+ - **Exceptions**
+   - Change: Move all exception types into the `FluentFTP.Exceptions` namespace
+   - New: Separate the log message from the exception in the handler (thanks [jnyrup](/jnyrup))
+   - New: Add support for printing exception messages on a newline for socket exceptions (thanks [FanDjango](/FanDjango))
+ - **Logging**
+   - New: Setting `Config.LogDurations` to configure if durations are to be logged
+   - New: Add FTP command roundtrip duration to every `Response` log message (thanks [FanDjango](/FanDjango))
+   - New: Smart rendering of log message durations (hours, minutes, seconds, MS)
+   - Fix: Improve exception handling for connection/disconnection and authentication (thanks [FanDjango](/FanDjango))
+   - Fix: Simplify exception handling using `when` keyword and new conditional keywords (thanks [jnyrup](/jnyrup))
+ - **Quality**
+   - Fix: Reduce library warnings by improving code patterns used (thanks [FanDjango](/FanDjango))
+   - Fix: Reduce test warnings by improving code patterns used (thanks [FanDjango](/FanDjango))
+
 #### 43.0.0
  - Please read the [Migration Guide](https://github.com/robinrodricks/FluentFTP/wiki/v40-Migration-Guide#logging) for help migrating to the new version!
  - **Packaging** (thanks [jnyrup](/jnyrup))
