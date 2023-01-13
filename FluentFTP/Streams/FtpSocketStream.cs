@@ -58,7 +58,7 @@ namespace FluentFTP {
 		/// Keep a count of command/response transactions on the
 		/// control connection
 		/// </summary>
-		public int SocketReadLineCount = 0;
+		public int SslSessionLength = 0;
 
 		private int m_socketPollInterval = 15000;
 
@@ -555,7 +555,7 @@ namespace FluentFTP {
 				}
 			}
 
-			SocketReadLineCount++;
+			SslSessionLength++;
 
 			return line;
 		}
