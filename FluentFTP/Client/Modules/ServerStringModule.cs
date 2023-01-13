@@ -36,7 +36,8 @@ namespace FluentFTP.Client.Modules {
 			"can't find the path",
 			"cannot find the path",
 			"could not find the path",
-			"file doesnot exist"
+			"file doesnot exist",
+			"couldn't open the file or directory"
 		};
 
 		#endregion
