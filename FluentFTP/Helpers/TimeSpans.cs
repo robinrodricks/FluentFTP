@@ -11,19 +11,19 @@ namespace FluentFTP.Helpers {
 	public static class TimeSpans {
 
 		public static string ToShortString(this TimeSpan span, string format = "0.###", string zeroString = "0ms") {
-			if (span.TotalDays > 0) {
+			if (span.TotalDays > 1) {
 				return span.TotalDays.ToString(format) + "d";
 			}
-			if (span.TotalHours > 0) {
+			if (span.TotalHours > 1) {
 				return span.TotalHours.ToString(format) + "h";
 			}
-			if (span.TotalMinutes > 0) {
+			if (span.TotalMinutes > 1) {
 				return span.TotalMinutes.ToString(format) + "m";
 			}
-			if (span.TotalSeconds > 0) {
+			if (span.TotalSeconds > 1) {
 				return span.TotalSeconds.ToString(format) + "s";
 			}
-			if (span.TotalMilliseconds > 0) {
+			if (span.TotalMilliseconds > 1) {
 				return ((int)span.TotalMilliseconds).ToString() + "ms";
 			}
 			return zeroString;
