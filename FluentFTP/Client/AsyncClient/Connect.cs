@@ -49,7 +49,7 @@ namespace FluentFTP {
 			}
 
 			if (reConnect) {
-				LogWithPrefix(FtpTraceLevel.Warn, "Reconnect, count = " + Status.ConnectCount);
+				LogWithPrefix(FtpTraceLevel.Warn, "Reconnect (Count: " + Status.ConnectCount + ")");
 			}
 			else {
 				Status.ConnectCount = 0;
