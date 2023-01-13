@@ -213,7 +213,7 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				// log response code + message + duration
-				if (Config.LogDuration) {
+				if (Config.LogDurations) {
 					TimeSpan duration = DateTime.UtcNow.Subtract(LastCommandTimestamp);
 					Log(FtpTraceLevel.Info, "Response: " + reply.Code + " " + maskedReply + " [" + duration.ToShortString() + "]");
 				}
