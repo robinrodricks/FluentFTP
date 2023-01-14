@@ -212,13 +212,12 @@ namespace FluentFTP.Client.BaseClient {
 					maskedReply = LogMaskModule.MaskReply(this, reply, reply.Message, command);
 				}
 
-				// log response code + message + duration
 				if (Config.LogDurations) {
+					// log response code + message + duration
 					TimeSpan duration = DateTime.UtcNow.Subtract(LastCommandTimestamp);
 					Log(FtpTraceLevel.Info, "Response: " + reply.Code + " " + maskedReply + " [" + duration.ToShortString() + "]");
 				}
 				else {
-
 					// log response code + message
 					Log(FtpTraceLevel.Info, "Response: " + reply.Code + " " + maskedReply);
 				}
