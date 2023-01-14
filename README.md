@@ -87,7 +87,7 @@ For features and fixes per release see [Release Notes](https://github.com/robinr
 
 FluentFTP is a client library that can connect to these FTP servers and perform all FTP operations.
 
-| Server             | FTP/FTPS | Integration Tests | Special Handling  |
+| Server             | FTP/FTPS | Integration Tests | Special Features  |
 | ------------------ | --------- | ------------ |---------- |
 | Apache FTP         |  ![i](https://img.shields.io/badge/-supported-brightgreen)️        | ![i](https://img.shields.io/badge/-supported-brightgreen)️ |  |
 | ABB IDAL           |  ![i](https://img.shields.io/badge/-supported-brightgreen)️        | ![i](https://img.shields.io/badge/-commercial-orange) |  |
