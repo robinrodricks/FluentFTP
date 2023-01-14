@@ -89,7 +89,7 @@ FluentFTP is a client library that can connect to these FTP servers and perform 
 
 | Server             | FTP/FTPS | Integration Tests | Special Features  |
 | ------------------ | --------- | ------------ |---------- |
-| Azure FTP          |  ![i](https://img.shields.io/badge/-supported-brightgreen)️        | ![i](https://img.shields.io/badge/-commercial-orange) | ✔️ Detected by Domain, Auto Configuration |
+| Azure FTP          |  ![i](https://img.shields.io/badge/-supported-brightgreen)️        | ![i](https://img.shields.io/badge/-commercial-orange) | ✔️ [Detected by Domain](https://github.com/robinrodricks/FluentFTP/wiki/Server-Information#azure), Auto Configuration |
 | Apache FTP         |  ![i](https://img.shields.io/badge/-supported-brightgreen)️        | ![i](https://img.shields.io/badge/-supported-brightgreen)️ |  |
 | ABB IDAL           |  ![i](https://img.shields.io/badge/-supported-brightgreen)️        | ![i](https://img.shields.io/badge/-commercial-orange) |  |
 | BFTPd              |  ![i](https://img.shields.io/badge/-supported-brightgreen)️        | ![i](https://img.shields.io/badge/-supported-brightgreen) |  |
