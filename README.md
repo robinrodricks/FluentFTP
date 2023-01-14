@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/github/license/robinrodricks/FluentFTP.svg)](https://github.com/robinrodricks/FluentFTP/blob/master/LICENSE.TXT)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6661/badge)](https://bestpractices.coreinfrastructure.org/projects/6661)
 
-FluentFTP is a fully managed FTP and FTPS library for .NET & .NET Standard, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, FXP transfers, UTF-8 support, Async/await support, Powershell support and more.
+FluentFTP is a fully managed FTP and FTPS client for .NET & .NET Standard, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, FXP transfers, UTF-8 support, Async/await support, Powershell support and more.
 
 It is written entirely in C#, with no external dependency. It has an extensive automated test suite which tests all its functionality against local FTP server docker containers.
 
