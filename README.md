@@ -87,7 +87,7 @@ For features and fixes per release see [Release Notes](https://github.com/robinr
 
 FluentFTP is a client library that can connect to these FTP servers and perform all FTP operations.
 
-| Server             | FTP/FTPS | Docker Tests | Special Handling  |
+| Server             | FTP/FTPS | Integration Tests | Special Handling  |
 | ------------------ | --------- | ------------ |---------- |
 | Apache FTP         |  ![i](https://img.shields.io/badge/-supported-brightgreen)️        | ![i](https://img.shields.io/badge/-supported-brightgreen)️ |  |
 | ABB IDAL           |  ![i](https://img.shields.io/badge/-supported-brightgreen)️        | ![i](https://img.shields.io/badge/-commercial-orange) |  |
@@ -102,7 +102,7 @@ FluentFTP is a client library that can connect to these FTP servers and perform 
 | Homegate FTP       |  ![i](https://img.shields.io/badge/-supported-brightgreen)️        | ![i](https://img.shields.io/badge/-contributions%20welcome-blue) |  |
 | Huawei HG5xxx      |  ![i](https://img.shields.io/badge/-supported-brightgreen)️        | ![i](https://img.shields.io/badge/-hardware%20required-red) |  |
 | HP NonStop/Tandem  |  ![i](https://img.shields.io/badge/-supported-brightgreen)️        | ![i](https://img.shields.io/badge/-hardware%20required-red) | ✔️ NonStop File Listing |
-| IBM z/OS   |  ![i](https://img.shields.io/badge/-supported-brightgreen)️ | ![i](https://img.shields.io/badge/-hardware%20required-red)   | ✔️ [zOS API](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support), File Listing, File Size, Paths |
+| IBM z/OS   |  ![i](https://img.shields.io/badge/-supported-brightgreen)️ | ![i](https://img.shields.io/badge/-privately%20performed-yellow)   | ✔️ [zOS API](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support), File Listing, File Size, Paths |
 | MikroTik RouterOS  |  ![i](https://img.shields.io/badge/-supported-brightgreen)️        | ![i](https://img.shields.io/badge/-hardware%20required-red) |  |
 | OpenVMS            |  ![i](https://img.shields.io/badge/-supported-brightgreen)️        | ![i](https://img.shields.io/badge/-commercial-orange) | ✔️ VMS File Listing, Paths, Capability Assumption |
 | ProFTPD            |  ![i](https://img.shields.io/badge/-supported-brightgreen)️        | ![i](https://img.shields.io/badge/-supported-brightgreen) | ✔️ `SITE RMDIR` and `SITE MKDIR` Commands |
