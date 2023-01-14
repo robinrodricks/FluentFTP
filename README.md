@@ -89,38 +89,36 @@ FluentFTP is a client library that can connect to these FTP servers and perform 
 
 | Server             | Detection | Docker Tests | Special Handling  |
 | ------------------ | --------- | ------------ |---------- |
-| Apache FTP         | ✔️        | ✔️ |  |
-| ABB IDAL           | ✔️        | ⚠️ |  |
-| BFTPd              | ✔️        | ✔️ |  |
-| Cerberus           | ✔️        | ⚠️ |  |
-| CrushFTP           | ✔️        | ⚠️ |  |
-| FileZilla Server   | ✔️        | ✔️ |  |
-| FritzBox           | ✔️        | ⛔ |  |
-| FTP2S3 Gateway     | ✔️        | ⚠️ |  |
-| glFTPd             | ✔️        | ✔️ |  |
-| GlobalScape EFT    | ✔️        | ⚠️ |  |
-| Homegate FTP       | ✔️        | 🔍 |  |
-| Huawei HG5xxx      | ✔️        | ⛔ |  |
-| HP NonStop/Tandem  | ✔️        | ⛔ | ✔️ NonStop File Listing |
-| IBM z/OS   | ✔️ | ⛔   | ✔️ [zOS API](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support), File Listing, File Size, Paths |
-| MikroTik RouterOS  | ✔️        | ⛔ |  |
-| OpenVMS            | ✔️        | ⚠️ | ✔️ VMS File Listing, Paths, Capability Assumption |
-| ProFTPD            | ✔️        | ✔️ | ✔️ `SITE RMDIR` and `SITE MKDIR` Commands |
-| PureFTPd           | ✔️        | ✔️ |  |
-| PyFtpdLib          | ✔️        | ✔️ |  |
-| Rumpus             | ✔️        | ⚠️ |  |
-| Serv-U             | ✔️        | ⚠️ | ✔️ `RMDA` Command |
-| Solaris FTP        | ✔️        | ⚠️ |  |
-| Titan FTP          | ✔️        | ⚠️ |  |
-| TP-LINK            | ✔️        | ⛔ |  |
-| VsFTPd             | ✔️        | ✔️ |  |
-| Windows CE         | ✔️        | ⚠️ | ✔️ Windows File Listing |
-| Windows Server/IIS | ✔️        | ⚠️ | ✔️ Windows File Listing |
-| WS_FTP             | ✔️        | ⚠️ |  |
-| WuFTPd             | ✔️        | 🔍 | ✔️ Capability Assumption |
-| XLight             | ✔️        | 🔍 |  |
-
-✔️ = **Supported**, ⚠️ = **Commercial-only**, ⛔ = **Hardware-only**, 🔍 = **Need your help!**
+| Apache FTP         | ✔️        | ![i](https://img.shields.io/badge/-supported-brightgreen)️ |  |
+| ABB IDAL           | ✔️        | ![i](https://img.shields.io/badge/-commercial-orange) |  |
+| BFTPd              | ✔️        | ![i](https://img.shields.io/badge/-supported-brightgreen) |  |
+| Cerberus           | ✔️        | ![i](https://img.shields.io/badge/-commercial-orange) |  |
+| CrushFTP           | ✔️        | ![i](https://img.shields.io/badge/-commercial-orange) |  |
+| FileZilla Server   | ✔️        | ![i](https://img.shields.io/badge/-supported-brightgreen) |  |
+| FritzBox           | ✔️        | ![i](https://img.shields.io/badge/-hardware%20required-red) |  |
+| FTP2S3 Gateway     | ✔️        | ![i](https://img.shields.io/badge/-commercial-orange) |  |
+| glFTPd             | ✔️        | ![i](https://img.shields.io/badge/-supported-brightgreen) |  |
+| GlobalScape EFT    | ✔️        | ![i](https://img.shields.io/badge/-commercial-orange) |  |
+| Homegate FTP       | ✔️        | ![i](https://img.shields.io/badge/-contributions%20welcome-blue) |  |
+| Huawei HG5xxx      | ✔️        | ![i](https://img.shields.io/badge/-hardware%20required-red) |  |
+| HP NonStop/Tandem  | ✔️        | ![i](https://img.shields.io/badge/-hardware%20required-red) | ✔️ NonStop File Listing |
+| IBM z/OS   | ✔️ | ![i](https://img.shields.io/badge/-hardware%20required-red)   | ✔️ [zOS API](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support), File Listing, File Size, Paths |
+| MikroTik RouterOS  | ✔️        | ![i](https://img.shields.io/badge/-hardware%20required-red) |  |
+| OpenVMS            | ✔️        | ![i](https://img.shields.io/badge/-commercial-orange) | ✔️ VMS File Listing, Paths, Capability Assumption |
+| ProFTPD            | ✔️        | ![i](https://img.shields.io/badge/-supported-brightgreen) | ✔️ `SITE RMDIR` and `SITE MKDIR` Commands |
+| PureFTPd           | ✔️        | ![i](https://img.shields.io/badge/-supported-brightgreen) |  |
+| PyFtpdLib          | ✔️        | ![i](https://img.shields.io/badge/-supported-brightgreen) |  |
+| Rumpus             | ✔️        | ![i](https://img.shields.io/badge/-commercial-orange) |  |
+| Serv-U             | ✔️        | ![i](https://img.shields.io/badge/-commercial-orange) | ✔️ `RMDA` Command |
+| Solaris FTP        | ✔️        | ![i](https://img.shields.io/badge/-commercial-orange) |  |
+| Titan FTP          | ✔️        | ![i](https://img.shields.io/badge/-commercial-orange) |  |
+| TP-LINK            | ✔️        | ![i](https://img.shields.io/badge/-hardware%20required-red) |  |
+| VsFTPd             | ✔️        | ![i](https://img.shields.io/badge/-supported-brightgreen) |  |
+| Windows CE         | ✔️        | ![i](https://img.shields.io/badge/-commercial-orange) | ✔️ Windows File Listing |
+| Windows Server/IIS | ✔️        | ![i](https://img.shields.io/badge/-commercial-orange) | ✔️ Windows File Listing |
+| WS_FTP             | ✔️        | ![i](https://img.shields.io/badge/-commercial-orange) |  |
+| WuFTPd             | ✔️        | ![i](https://img.shields.io/badge/-contributions%20welcome-blue) | ✔️ Capability Assumption |
+| XLight             | ✔️        | ![i](https://img.shields.io/badge/-contributions%20welcome-blue) |  |
 
 
 
