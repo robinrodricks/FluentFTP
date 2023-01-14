@@ -41,6 +41,7 @@ FluentFTP is released under the permissive MIT License, so it can be used in bot
   - **FTP protocol:**
     - Automatic [FTP/FTPS connection negotiation](https://github.com/robinrodricks/FluentFTP/wiki/Automatic-Connection#faq_autoconnect) and detection of [working connection settings](https://github.com/robinrodricks/FluentFTP/wiki/Automatic-Connection#faq_autodetect)
     - Automatic detection of the [FTP server software](https://github.com/robinrodricks/FluentFTP/wiki/Server-Information#faq_servertype) and its [capabilities](https://github.com/robinrodricks/FluentFTP/wiki/Server-Information#faq_serverspecific)
+	- Automatic [reconnection of FTP connections](https://github.com/robinrodricks/FluentFTP/wiki/Automatic-Reconnection) for broken or degraded sockets
     - Extensive support for [FTP commands](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Support), including some server-specific commands
     - Easily send [server-specific](https://github.com/robinrodricks/FluentFTP/issues/88) FTP commands using the `Execute()` method
     - Explicit and Implicit [SSL connections](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_ftps) are supported for the control and data connections using .NET's `SslStream`
@@ -55,7 +56,7 @@ FluentFTP is released under the permissive MIT License, so it can be used in bot
     - Asynchronous support for the `IAsyncEnumerable` pattern for `GetListing` methods (see `GetListingAsyncEnumerable`)
     - All asynchronous methods can be cancelled midway by passing a `CancellationToken`
     - All asynchronous methods honor the `ReadTimeout` and automatically cancel themselves if timed out
-    - Improves thread safety by cloning the FTP control connection for file transfers (optional)
+    - Asynchronous support for [progress tracking](https://github.com/robinrodricks/FluentFTP/wiki/File-Transfer#how-can-i-track-the-progress-of-file-transfers) of file transfers during data upload/download
     - Implements its own internal locking in an effort to keep transactions synchronized
   - **Extensible:**
     - Easily add custom logging/tracing functionality using industry-standard [`ILogger`](https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging.ilogger?view=dotnet-plat-ext-6.0) interface
