@@ -120,7 +120,7 @@ FluentFTP is a client library that can connect to these FTP servers.
 | WuFTPd             | :heavy_check_mark: | **Todo!**          | :heavy_check_mark: Capability Assumption |
 | XLight             | :heavy_check_mark: | **Todo!**          |  |
 
-**Legend:** :heavy_check_mark: = Supported, :no_entry: = Hardware, :warning: = Commercial, :question: = Unknown
+:heavy_check_mark: = Supported, :no_entry: = Hardware-only, :warning: = Commercial-only, :question: = Unknown
 
 
 
