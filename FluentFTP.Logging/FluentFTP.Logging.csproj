@@ -6,13 +6,13 @@
         <Description>Small connector library to integrate FluentFTP with MELA Loggers (Microsoft.Extensions.Logging.Abstractions).</Description>
         <Authors>Robin Rodricks, FluentFTP Contributors</Authors>
         <PackageProjectUrl>https://github.com/robinrodricks/FluentFTP</PackageProjectUrl>
-        <Copyright>MIT License</Copyright>
+        <Copyright>Copyright (c) 2015 Robin Rodricks and FluentFTP Contributors</Copyright>
         <PackageTags>log,logger,logging,interface,connector,mela</PackageTags>
         <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.xml</DocumentationFile>
         <SignAssembly>True</SignAssembly>
         <AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
         <Version>1.0.0</Version>
-        <PackageLicenseFile>LICENSE.TXT</PackageLicenseFile>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageIcon>logo-nuget.png</PackageIcon>
         <LangVersion>10.0</LangVersion>
     </PropertyGroup>
