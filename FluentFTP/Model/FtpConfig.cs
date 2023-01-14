@@ -103,13 +103,7 @@ namespace FluentFTP {
 		/// the connection it might send a 4xx response that was unexpected and
 		/// can cause synchronization errors with transactions. To avoid this
 		/// problem the <see cref="o:Execute"/> method checks to see if there is any data
-		/// available on the socket before executing a command. On Azure hosting
-		/// platforms this check can cause an exception to be thrown. In order
-		/// to work around the exception you can set this property to false
-		/// which will skip the test entirely however doing so eliminates the
-		/// best effort attempt of detecting such scenarios. See this thread
-		/// for more details about the Azure problem:
-		/// https://netftp.codeplex.com/discussions/535879
+		/// available on the socket before executing a command.
 		/// </summary>
 		public bool StaleDataCheck { get; set; } = true;
 

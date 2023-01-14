@@ -50,7 +50,6 @@ namespace FluentFTP.Client.BaseClient {
 				return m.Groups["pwd"].Value.GetFtpPath();
 			}
 
-			// check for MODCOMP ftp path mentioned in forums: https://netftp.codeplex.com/discussions/444461
 			if ((m = Regex.Match(reply.Message, "PWD = (?<pwd>.*)")).Success) {
 				return m.Groups["pwd"].Value.GetFtpPath();
 			}
