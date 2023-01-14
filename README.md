@@ -85,40 +85,40 @@ For features and fixes per release see [Release Notes](https://github.com/robinr
 
 ## Server Support
 
-FluentFTP is a client library that can connect to these FTP servers.
+FluentFTP is a client library that can connect to these FTP servers and perform all FTP operations.
 
-| Server             | Detection          | Docker Tests | Special Handling  |
-| ------------------ | ------------------ | ------------ |---------- |
-| Apache FTP         | ✔️ | ✔️ |  |
-| ABB IDAL           | ✔️ | ⚠️          |  |
-| BFTPd              | ✔️ | ✔️ |  |
-| Cerberus           | ✔️ | ⚠️          |  |
-| CrushFTP           | ✔️ | ⚠️          |  |
-| FileZilla Server   | ✔️ | ✔️ |  |
-| FritzBox           | ✔️ | ⛔         |  |
-| FTP2S3 Gateway     | ✔️ | ⚠️          |  |
-| glFTPd             | ✔️ | ✔️ |  |
-| GlobalScape EFT    | ✔️ | ⚠️          |  |
-| Homegate FTP       | ✔️ | 👋         |  |
-| Huawei HG5xxx      | ✔️ | ⛔         |  |
-| HP NonStop/Tandem  | ✔️ | ⛔         | ✔️ NonStop File Listing |
+| Server             | Detection | Docker Tests | Special Handling  |
+| ------------------ | --------- | ------------ |---------- |
+| Apache FTP         | ✔️        | ✔️ |  |
+| ABB IDAL           | ✔️        | ⚠️ |  |
+| BFTPd              | ✔️        | ✔️ |  |
+| Cerberus           | ✔️        | ⚠️ |  |
+| CrushFTP           | ✔️        | ⚠️ |  |
+| FileZilla Server   | ✔️        | ✔️ |  |
+| FritzBox           | ✔️        | ⛔ |  |
+| FTP2S3 Gateway     | ✔️        | ⚠️ |  |
+| glFTPd             | ✔️        | ✔️ |  |
+| GlobalScape EFT    | ✔️        | ⚠️ |  |
+| Homegate FTP       | ✔️        | 👋 |  |
+| Huawei HG5xxx      | ✔️        | ⛔ |  |
+| HP NonStop/Tandem  | ✔️        | ⛔ | ✔️ NonStop File Listing |
 | [IBM z/OS](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support)   | ✔️ | ⛔   | ✔️ zOS API, File Listing, File Size, Paths |
-| MikroTik RouterOS  | ✔️ | ⛔         |  |
-| OpenVMS            | ✔️ | ⚠️          | ✔️ VMS File Listing, Paths, Capability Assumption |
-| ProFTPD            | ✔️ | ✔️ | ✔️ `SITE RMDIR` and `SITE MKDIR` Commands |
-| PureFTPd           | ✔️ | ✔️ |  |
-| PyFtpdLib          | ✔️ | ✔️ |  |
-| Rumpus             | ✔️ | ⚠️          |  |
-| Serv-U             | ✔️ | ⚠️          | ✔️ `RMDA` Command |
-| Solaris FTP        | ✔️ | ⚠️          |  |
-| Titan FTP          | ✔️ | ⚠️          |  |
-| TP-LINK            | ✔️ | ⛔         |  |
-| VsFTPd             | ✔️ | ✔️ |  |
-| Windows CE         | ✔️ | ⚠️          | ✔️ Windows File Listing |
-| Windows Server/IIS | ✔️ | ⚠️          | ✔️ Windows File Listing |
-| WS_FTP             | ✔️ | ⚠️          |  |
-| WuFTPd             | ✔️ | 👋          | ✔️ Capability Assumption |
-| XLight             | ✔️ | 👋          |  |
+| MikroTik RouterOS  | ✔️        | ⛔ |  |
+| OpenVMS            | ✔️        | ⚠️ | ✔️ VMS File Listing, Paths, Capability Assumption |
+| ProFTPD            | ✔️        | ✔️ | ✔️ `SITE RMDIR` and `SITE MKDIR` Commands |
+| PureFTPd           | ✔️        | ✔️ |  |
+| PyFtpdLib          | ✔️        | ✔️ |  |
+| Rumpus             | ✔️        | ⚠️ |  |
+| Serv-U             | ✔️        | ⚠️ | ✔️ `RMDA` Command |
+| Solaris FTP        | ✔️        | ⚠️ |  |
+| Titan FTP          | ✔️        | ⚠️ |  |
+| TP-LINK            | ✔️        | ⛔ |  |
+| VsFTPd             | ✔️        | ✔️ |  |
+| Windows CE         | ✔️        | ⚠️ | ✔️ Windows File Listing |
+| Windows Server/IIS | ✔️        | ⚠️ | ✔️ Windows File Listing |
+| WS_FTP             | ✔️        | ⚠️ |  |
+| WuFTPd             | ✔️        | 👋 | ✔️ Capability Assumption |
+| XLight             | ✔️        | 👋 |  |
 
 ✔️ = **Supported**, ⚠️ = **Commercial-only**, ⛔ = **Hardware-only**, 👋 = **Need help**
 
