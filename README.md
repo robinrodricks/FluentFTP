@@ -82,6 +82,41 @@ For features and fixes per release see [Release Notes](https://github.com/robinr
 
 
 
+## Server Support
+
+| Server             | Detection          | Docker Tests       |
+| ------------------ | ------------------ | ------------------ |
+| Apache FTP         | :heavy_check_mark: | :heavy_check_mark: |
+| ABB IDAL           | :heavy_check_mark: |                    |
+| BFTPd              | :heavy_check_mark: | :heavy_check_mark: |
+| Cerberus           | :heavy_check_mark: |                    |
+| CrushFTP           | :heavy_check_mark: |                    |
+| FileZilla Server   | :heavy_check_mark: | :heavy_check_mark: |
+| FritzBox           | :heavy_check_mark: |                    |
+| FTP2S3 Gateway     | :heavy_check_mark: |                    |
+| glFTPd             | :heavy_check_mark: | :heavy_check_mark: |
+| GlobalScape EFT    | :heavy_check_mark: |                    |
+| Homegate FTP       | :heavy_check_mark: |                    |
+| HP NonStop/Tandem  | :heavy_check_mark: |                    |
+| [IBM z/OS](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support)           | :heavy_check_mark: |                    |
+| OpenVMS            | :heavy_check_mark: |                    |
+| ProFTPD            | :heavy_check_mark: | :heavy_check_mark: |
+| PureFTPd           | :heavy_check_mark: | :heavy_check_mark: |
+| PyFtpdLib          | :heavy_check_mark: | :heavy_check_mark: |
+| Rumpus             | :heavy_check_mark: |                    |
+| Serv-U             | :heavy_check_mark: |                    |
+| Solaris FTP        | :heavy_check_mark: |                    |
+| Titan FTP          | :heavy_check_mark: |                    |
+| VsFTPd             | :heavy_check_mark: | :heavy_check_mark: |
+| Windows CE         | :heavy_check_mark: |                    |
+| Windows Server/IIS | :heavy_check_mark: |                    |
+| WS_FTP             | :heavy_check_mark: |                    |
+| WuFTPd             | :heavy_check_mark: |                    |
+| XLight             | :heavy_check_mark: |                    |
+
+
+
+
 ## Platform Support
 
 FluentFTP works on .NET and .NET Standard/.NET Core.
