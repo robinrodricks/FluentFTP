@@ -89,38 +89,38 @@ FluentFTP is a client library that can connect to these FTP servers.
 
 | Server             | Detection          | Docker Tests | Special Handling  |
 | ------------------ | ------------------ | ------------ |---------- |
-| Apache FTP         | :heavy_check_mark: | :heavy_check_mark: |  |
-| ABB IDAL           | :heavy_check_mark: | :warning:          |  |
-| BFTPd              | :heavy_check_mark: | :heavy_check_mark: |  |
-| Cerberus           | :heavy_check_mark: | :warning:          |  |
-| CrushFTP           | :heavy_check_mark: | :warning:          |  |
-| FileZilla Server   | :heavy_check_mark: | :heavy_check_mark: |  |
-| FritzBox           | :heavy_check_mark: | :no_entry:         |  |
-| FTP2S3 Gateway     | :heavy_check_mark: | :warning:          |  |
-| glFTPd             | :heavy_check_mark: | :heavy_check_mark: |  |
-| GlobalScape EFT    | :heavy_check_mark: | :warning:          |  |
-| Homegate FTP       | :heavy_check_mark: | :question:         |  |
-| Huawei HG5xxx      | :heavy_check_mark: | :no_entry:         |  |
-| HP NonStop/Tandem  | :heavy_check_mark: | :no_entry:         | :heavy_check_mark: NonStop File Listing |
-| [IBM z/OS](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support)   | :heavy_check_mark: | :no_entry:   | :heavy_check_mark: zOS API, File Listing, File Size, Paths |
-| MikroTik RouterOS  | :heavy_check_mark: | :no_entry:         |  |
-| OpenVMS            | :heavy_check_mark: | :warning:          | :heavy_check_mark: VMS File Listing, Paths, Capability Assumption |
-| ProFTPD            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: `SITE RMDIR` and `SITE MKDIR` Commands |
-| PureFTPd           | :heavy_check_mark: | :heavy_check_mark: |  |
-| PyFtpdLib          | :heavy_check_mark: | :heavy_check_mark: |  |
-| Rumpus             | :heavy_check_mark: | :warning:          |  |
-| Serv-U             | :heavy_check_mark: | :warning:          | :heavy_check_mark: `RMDA` Command |
-| Solaris FTP        | :heavy_check_mark: | :warning:          |  |
-| Titan FTP          | :heavy_check_mark: | :warning:          |  |
-| TP-LINK            | :heavy_check_mark: | :no_entry:         |  |
-| VsFTPd             | :heavy_check_mark: | :heavy_check_mark: |  |
-| Windows CE         | :heavy_check_mark: | :warning:          | :heavy_check_mark: Windows File Listing |
-| Windows Server/IIS | :heavy_check_mark: | :warning:          | :heavy_check_mark: Windows File Listing |
-| WS_FTP             | :heavy_check_mark: | :warning:          |  |
-| WuFTPd             | :heavy_check_mark: | **Todo!**          | :heavy_check_mark: Capability Assumption |
-| XLight             | :heavy_check_mark: | **Todo!**          |  |
+| Apache FTP         | ✔️ | ✔️ |  |
+| ABB IDAL           | ✔️ | ⚠️          |  |
+| BFTPd              | ✔️ | ✔️ |  |
+| Cerberus           | ✔️ | ⚠️          |  |
+| CrushFTP           | ✔️ | ⚠️          |  |
+| FileZilla Server   | ✔️ | ✔️ |  |
+| FritzBox           | ✔️ | 🚫         |  |
+| FTP2S3 Gateway     | ✔️ | ⚠️          |  |
+| glFTPd             | ✔️ | ✔️ |  |
+| GlobalScape EFT    | ✔️ | ⚠️          |  |
+| Homegate FTP       | ✔️ | 👋         |  |
+| Huawei HG5xxx      | ✔️ | 🚫         |  |
+| HP NonStop/Tandem  | ✔️ | 🚫         | ✔️ NonStop File Listing |
+| [IBM z/OS](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support)   | ✔️ | 🚫   | ✔️ zOS API, File Listing, File Size, Paths |
+| MikroTik RouterOS  | ✔️ | 🚫         |  |
+| OpenVMS            | ✔️ | ⚠️          | ✔️ VMS File Listing, Paths, Capability Assumption |
+| ProFTPD            | ✔️ | ✔️ | ✔️ `SITE RMDIR` and `SITE MKDIR` Commands |
+| PureFTPd           | ✔️ | ✔️ |  |
+| PyFtpdLib          | ✔️ | ✔️ |  |
+| Rumpus             | ✔️ | ⚠️          |  |
+| Serv-U             | ✔️ | ⚠️          | ✔️ `RMDA` Command |
+| Solaris FTP        | ✔️ | ⚠️          |  |
+| Titan FTP          | ✔️ | ⚠️          |  |
+| TP-LINK            | ✔️ | 🚫         |  |
+| VsFTPd             | ✔️ | ✔️ |  |
+| Windows CE         | ✔️ | ⚠️          | ✔️ Windows File Listing |
+| Windows Server/IIS | ✔️ | ⚠️          | ✔️ Windows File Listing |
+| WS_FTP             | ✔️ | ⚠️          |  |
+| WuFTPd             | ✔️ | 👋          | ✔️ Capability Assumption |
+| XLight             | ✔️ | 👋          |  |
 
-:heavy_check_mark: = Supported, :no_entry: = Hardware-only, :warning: = Commercial-only, :question: = Unknown
+✔️ = **Supported**, 🚫 = **Hardware-only**, ⚠️ = **Commercial-only**, 👋 = **Need help**
 
 
 
