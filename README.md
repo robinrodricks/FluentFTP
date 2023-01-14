@@ -87,35 +87,40 @@ For features and fixes per release see [Release Notes](https://github.com/robinr
 
 FluentFTP is a client library that can connect to these FTP servers.
 
-| Server             | Detection          | Docker Tests       |
-| ------------------ | ------------------ | ------------------ |
-| Apache FTP         | :heavy_check_mark: | :heavy_check_mark: |
-| ABB IDAL           | :heavy_check_mark: |                    |
-| BFTPd              | :heavy_check_mark: | :heavy_check_mark: |
-| Cerberus           | :heavy_check_mark: |                    |
-| CrushFTP           | :heavy_check_mark: |                    |
-| FileZilla Server   | :heavy_check_mark: | :heavy_check_mark: |
-| FritzBox           | :heavy_check_mark: |                    |
-| FTP2S3 Gateway     | :heavy_check_mark: |                    |
-| glFTPd             | :heavy_check_mark: | :heavy_check_mark: |
-| GlobalScape EFT    | :heavy_check_mark: |                    |
-| Homegate FTP       | :heavy_check_mark: |                    |
-| HP NonStop/Tandem  | :heavy_check_mark: |                    |
-| [IBM z/OS](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support)           | :heavy_check_mark: |                    |
-| OpenVMS            | :heavy_check_mark: |                    |
-| ProFTPD            | :heavy_check_mark: | :heavy_check_mark: |
-| PureFTPd           | :heavy_check_mark: | :heavy_check_mark: |
-| PyFtpdLib          | :heavy_check_mark: | :heavy_check_mark: |
-| Rumpus             | :heavy_check_mark: |                    |
-| Serv-U             | :heavy_check_mark: |                    |
-| Solaris FTP        | :heavy_check_mark: |                    |
-| Titan FTP          | :heavy_check_mark: |                    |
-| VsFTPd             | :heavy_check_mark: | :heavy_check_mark: |
-| Windows CE         | :heavy_check_mark: |                    |
-| Windows Server/IIS | :heavy_check_mark: |                    |
-| WS_FTP             | :heavy_check_mark: |                    |
-| WuFTPd             | :heavy_check_mark: |                    |
-| XLight             | :heavy_check_mark: |                    |
+| Server             | Detection    | Docker Tests | Special Handling  |
+| ------------------ | ------------ | ------------ |---------- |
+| Apache FTP         | :check_mark: | :check_mark: | :cross_mark_button: |
+| ABB IDAL           | :check_mark: | :warning:    | :cross_mark_button: |
+| BFTPd              | :check_mark: | :check_mark: | :cross_mark_button: |
+| Cerberus           | :check_mark: | :warning:    | :cross_mark_button: |
+| CrushFTP           | :check_mark: | :warning:    | :cross_mark_button: |
+| FileZilla Server   | :check_mark: | :check_mark: | :cross_mark_button: |
+| FritzBox           | :check_mark: | :no_entry:   | :cross_mark_button: |
+| FTP2S3 Gateway     | :check_mark: | :warning:    | :cross_mark_button: |
+| glFTPd             | :check_mark: | :check_mark: | :cross_mark_button: |
+| GlobalScape EFT    | :check_mark: | :warning:    | :cross_mark_button: |
+| Homegate FTP       | :check_mark: | :question:   | :cross_mark_button: |
+| Huawei HG5xxx      | :check_mark: | :no_entry:   | :cross_mark_button: |
+| HP NonStop/Tandem  | :check_mark: | :no_entry:   | :check_mark: Special File Listing |
+| [IBM z/OS](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support)   | :check_mark: | :no_entry:   | :check_mark: Special zOS API & File Listing |
+| MikroTik RouterOS  | :check_mark: | :no_entry:   | :cross_mark_button: |
+| OpenVMS            | :check_mark: | :warning:    | :check_mark: Special File Listing |
+| ProFTPD            | :check_mark: | :check_mark: | :cross_mark_button: |
+| PureFTPd           | :check_mark: | :check_mark: | :cross_mark_button: |
+| PyFtpdLib          | :check_mark: | :check_mark: | :cross_mark_button: |
+| Rumpus             | :check_mark: | :warning:    | :cross_mark_button: |
+| Serv-U             | :check_mark: | :warning:    | :cross_mark_button: |
+| Solaris FTP        | :check_mark: | :warning:    | :cross_mark_button: |
+| Titan FTP          | :check_mark: | :warning:    | :cross_mark_button: |
+| TP-LINK            | :check_mark: | :no_entry:   | :cross_mark_button: |
+| VsFTPd             | :check_mark: | :check_mark: | :cross_mark_button: |
+| Windows CE         | :check_mark: | :warning:    | :cross_mark_button: Special File Listing |
+| Windows Server/IIS | :check_mark: | :warning:    | :cross_mark_button: Special File Listing |
+| WS_FTP             | :check_mark: | :warning:    | :cross_mark_button: |
+| WuFTPd             | :check_mark: | Todo         | :cross_mark_button: |
+| XLight             | :check_mark: | Todo         | :cross_mark_button: |
+
+**Legend:** :check_mark: = Supported, :no_entry: = Hardware, :warning: = Commercial, :question: = Unknown, :cross_mark_button: = Not required
 
 
 
