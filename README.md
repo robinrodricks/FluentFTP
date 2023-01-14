@@ -101,10 +101,10 @@ FluentFTP is a client library that can connect to these FTP servers.
 | GlobalScape EFT    | :heavy_check_mark: | :warning:          |  |
 | Homegate FTP       | :heavy_check_mark: | :question:         |  |
 | Huawei HG5xxx      | :heavy_check_mark: | :no_entry:         |  |
-| HP NonStop/Tandem  | :heavy_check_mark: | :no_entry:         | :heavy_check_mark: File Listing |
+| HP NonStop/Tandem  | :heavy_check_mark: | :no_entry:         | :heavy_check_mark: NonStop File Listing |
 | [IBM z/OS](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support)   | :heavy_check_mark: | :no_entry:   | :heavy_check_mark: zOS API, File Listing, File Size, Path Handling |
 | MikroTik RouterOS  | :heavy_check_mark: | :no_entry:         |  |
-| OpenVMS            | :heavy_check_mark: | :warning:          | :heavy_check_mark: File Listing, Capability Assumption, Path Handling |
+| OpenVMS            | :heavy_check_mark: | :warning:          | :heavy_check_mark: VMS File Listing, Capability Assumption, Path Handling |
 | ProFTPD            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: `SITE RMDIR` and `SITE MKDIR` Commands |
 | PureFTPd           | :heavy_check_mark: | :heavy_check_mark: |  |
 | PyFtpdLib          | :heavy_check_mark: | :heavy_check_mark: |  |
@@ -114,8 +114,8 @@ FluentFTP is a client library that can connect to these FTP servers.
 | Titan FTP          | :heavy_check_mark: | :warning:          |  |
 | TP-LINK            | :heavy_check_mark: | :no_entry:         |  |
 | VsFTPd             | :heavy_check_mark: | :heavy_check_mark: |  |
-| Windows CE         | :heavy_check_mark: | :warning:          | :heavy_check_mark: File Listing |
-| Windows Server/IIS | :heavy_check_mark: | :warning:          | :heavy_check_mark: File Listing |
+| Windows CE         | :heavy_check_mark: | :warning:          | :heavy_check_mark: Windows File Listing |
+| Windows Server/IIS | :heavy_check_mark: | :warning:          | :heavy_check_mark: Windows File Listing |
 | WS_FTP             | :heavy_check_mark: | :warning:          |  |
 | WuFTPd             | :heavy_check_mark: | **Todo!**          | :heavy_check_mark: Capability Assumption |
 | XLight             | :heavy_check_mark: | **Todo!**          |  |
