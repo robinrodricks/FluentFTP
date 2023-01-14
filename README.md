@@ -20,7 +20,7 @@ FluentFTP is released under the permissive MIT License, so it can be used in bot
 ## Features
 
   - Full support for [FTP](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Support), [FXP](https://github.com/robinrodricks/FluentFTP/wiki/FXP-Server-To-Server#how-does-fxp-transfer-work), [FTPS](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_ftps) (FTP over SSL), [FTPS with client certificates](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_certs) and [FTPS Proxies](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Proxies)
-  - Full support for over 20 [FTP server types](#server-support) with integration tests for all major servers
+  - Full support for over 30 [FTP server types](#server-support) with integration tests for all major servers
   - **File management:**
     - File and directory listing for [all major server types](https://github.com/robinrodricks/FluentFTP/wiki/Directory-Listing#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, [IBM z/OS and OS/400](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support), Windows CE, Serv-U, etc)
 	- Fully recursive directory listing and directory deletion (manual recursion and server-side recursion)
@@ -102,7 +102,7 @@ FluentFTP is a client library that can connect to these FTP servers and perform 
 | Homegate FTP       | ✔️        | 🔍 |  |
 | Huawei HG5xxx      | ✔️        | ⛔ |  |
 | HP NonStop/Tandem  | ✔️        | ⛔ | ✔️ NonStop File Listing |
-| [IBM z/OS](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support)   | ✔️ | ⛔   | ✔️ zOS API, File Listing, File Size, Paths |
+| IBM z/OS   | ✔️ | ⛔   | ✔️ [zOS API](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support), File Listing, File Size, Paths |
 | MikroTik RouterOS  | ✔️        | ⛔ |  |
 | OpenVMS            | ✔️        | ⚠️ | ✔️ VMS File Listing, Paths, Capability Assumption |
 | ProFTPD            | ✔️        | ✔️ | ✔️ `SITE RMDIR` and `SITE MKDIR` Commands |
