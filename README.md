@@ -99,7 +99,7 @@ FluentFTP is a client library that can connect to these FTP servers and perform 
 | FTP2S3 Gateway     | ✔️        | ⚠️ |  |
 | glFTPd             | ✔️        | ✔️ |  |
 | GlobalScape EFT    | ✔️        | ⚠️ |  |
-| Homegate FTP       | ✔️        | 👋 |  |
+| Homegate FTP       | ✔️        | 🔍 |  |
 | Huawei HG5xxx      | ✔️        | ⛔ |  |
 | HP NonStop/Tandem  | ✔️        | ⛔ | ✔️ NonStop File Listing |
 | [IBM z/OS](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support)   | ✔️ | ⛔   | ✔️ zOS API, File Listing, File Size, Paths |
@@ -117,10 +117,10 @@ FluentFTP is a client library that can connect to these FTP servers and perform 
 | Windows CE         | ✔️        | ⚠️ | ✔️ Windows File Listing |
 | Windows Server/IIS | ✔️        | ⚠️ | ✔️ Windows File Listing |
 | WS_FTP             | ✔️        | ⚠️ |  |
-| WuFTPd             | ✔️        | 👋 | ✔️ Capability Assumption |
-| XLight             | ✔️        | 👋 |  |
+| WuFTPd             | ✔️        | 🔍 | ✔️ Capability Assumption |
+| XLight             | ✔️        | 🔍 |  |
 
-✔️ = **Supported**, ⚠️ = **Commercial-only**, ⛔ = **Hardware-only**, 👋 = **Need your help!**
+✔️ = **Supported**, ⚠️ = **Commercial-only**, ⛔ = **Hardware-only**, 🔍 = **Need your help!**
 
 
 
