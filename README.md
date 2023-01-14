@@ -102,9 +102,9 @@ FluentFTP is a client library that can connect to these FTP servers.
 | Homegate FTP       | :heavy_check_mark: | :question:         |  |
 | Huawei HG5xxx      | :heavy_check_mark: | :no_entry:         |  |
 | HP NonStop/Tandem  | :heavy_check_mark: | :no_entry:         | :heavy_check_mark: NonStop File Listing |
-| [IBM z/OS](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support)   | :heavy_check_mark: | :no_entry:   | :heavy_check_mark: zOS API, File Listing, File Size, Path Handling |
+| [IBM z/OS](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support)   | :heavy_check_mark: | :no_entry:   | :heavy_check_mark: zOS API, File Listing, File Size, Paths |
 | MikroTik RouterOS  | :heavy_check_mark: | :no_entry:         |  |
-| OpenVMS            | :heavy_check_mark: | :warning:          | :heavy_check_mark: VMS File Listing, Capability Assumption, Path Handling |
+| OpenVMS            | :heavy_check_mark: | :warning:          | :heavy_check_mark: VMS File Listing, Capability Assumption, Paths |
 | ProFTPD            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: `SITE RMDIR` and `SITE MKDIR` Commands |
 | PureFTPd           | :heavy_check_mark: | :heavy_check_mark: |  |
 | PyFtpdLib          | :heavy_check_mark: | :heavy_check_mark: |  |
