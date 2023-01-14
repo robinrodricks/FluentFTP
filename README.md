@@ -84,6 +84,8 @@ For features and fixes per release see [Release Notes](https://github.com/robinr
 
 ## Server Support
 
+FluentFTP is a client library that can connect to these FTP servers.
+
 | Server             | Detection          | Docker Tests       |
 | ------------------ | ------------------ | ------------------ |
 | Apache FTP         | :heavy_check_mark: | :heavy_check_mark: |
