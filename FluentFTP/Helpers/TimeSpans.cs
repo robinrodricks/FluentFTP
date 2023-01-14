@@ -10,7 +10,7 @@ namespace FluentFTP.Helpers {
 	/// </summary>
 	public static class TimeSpans {
 
-		public static string ToShortString(this TimeSpan span, string format = "0.###", string zeroString = "0ms") {
+		public static string ToShortString(this TimeSpan span, string format = "0.###", string zeroString = "<1ms") {
 			if (span.TotalDays > 1) {
 				return span.TotalDays.ToString(format) + "d";
 			}

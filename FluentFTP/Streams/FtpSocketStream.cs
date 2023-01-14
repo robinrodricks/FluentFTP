@@ -1137,13 +1137,11 @@ namespace FluentFTP {
 			}
 
 			try {
-				DateTime auth_start;
-				TimeSpan auth_time_total;
-
 				CreateBufferStream();
 				CreateSslStream();
 
-				auth_start = DateTime.Now;
+				var authStart = DateTime.Now;
+
 				try {
 #if NETSTANDARD
 					m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation).Wait();
@@ -1173,9 +1171,13 @@ namespace FluentFTP {
 #endif
 				}
 
-				auth_time_total = DateTime.Now.Subtract(auth_start);
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, protocol = " + Client.SslProtocolActive);
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Time to activate encryption: " + auth_time_total.Hours + "h " + auth_time_total.Minutes + "m " + auth_time_total.Seconds + "s.  Total Seconds: " + auth_time_total.TotalSeconds + ".");
+				if (Client.Config.LogDurations) {
+					var authDuration = DateTime.Now.Subtract(authStart);
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, protocol = " + Client.SslProtocolActive + " [" + authDuration.ToShortString() + "]");
+				}
+				else {
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, protocol = " + Client.SslProtocolActive);
+				}
 			}
 			catch (AuthenticationException ex) {
 				// authentication failed and in addition it left our
