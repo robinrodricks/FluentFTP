@@ -67,10 +67,6 @@ namespace FluentFTP.Client.BaseClient {
 					LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for response to: " + LogMaskModule.MaskCommand(this, command));
 				}
 
-				if (!IsConnected) {
-					throw new InvalidOperationException("No connection to the server has been established.");
-				}
-
 				// Implement this: https://github.com/robinrodricks/FluentFTP/wiki/Noop#how-do-servers-respond-to-noop
 				// Cannot use the normal timeout mechanism though, as a System.TimeoutException
 				// causes the stream to disconnect.
@@ -91,6 +87,10 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				do {
+					if (!IsConnected) {
+						throw new InvalidOperationException("No connection to the server exists.");
+					}
+
 					elapsedTime = sw.ElapsedMilliseconds;
 
 					// Maximum wait time for collecting NOOP responses: parameter timeOut
