@@ -39,11 +39,11 @@ namespace FluentFTP.Tests.Integration {
 
 		// These can only do FTPS
 		[Fact]
-		public async Task FileZilla() {
+		public async Task FileZillaSsl() {
 			await IntegrationTestRunner.Run(FtpServer.FileZilla);
 		}
 		[Fact]
-		public async Task Glftpd() {
+		public async Task GlftpdSsl() {
 			await IntegrationTestRunner.Run(FtpServer.glFTPd);
 		}
 
