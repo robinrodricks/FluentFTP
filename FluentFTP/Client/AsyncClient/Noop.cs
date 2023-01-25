@@ -31,5 +31,9 @@ namespace FluentFTP {
 			return false;
 		}
 
+		// Note: Enhancement would be to send the following commands in
+		// a random sequence to foil content aware firewalls that would
+		// make this keep alive scheme fail: NOOP, TYPE A, TYPE I, PWD
+
 	}
 }
