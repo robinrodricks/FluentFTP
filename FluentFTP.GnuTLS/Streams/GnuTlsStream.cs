@@ -7,19 +7,11 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Security.Authentication;
 using FluentFTP.GnuTLS.Core;
 
-/// TODO list:
-///
-/// 1. Get Free(ptr) to work
-/// 2. Find out why there is a PULL failure after a (long long) while
-/// 3. Setup session resume for TLS1.3
-/// 
-/// a. FEAT: CLNT, then issue CLNT command on logon
-///
-
 namespace FluentFTP.GnuTLS {
 
 	/// <summary>
-	/// Adds support for TLS1.3 streams into FluentFTP using a .NET port of GnuTLS.
+	/// Adds support for GnuTLS TLS1.2 and TLS1.3 (with session resume capability)
+	/// for FluentFTP by using a .NET c# wrapper for GnuTLS.
 	/// </summary>
 	internal class GnuTlsStream : Stream, IDisposable {
 
