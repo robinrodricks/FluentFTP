@@ -6,8 +6,6 @@ using static System.Collections.Specialized.BitVector32;
 namespace FluentFTP.GnuTLS.Core {
 	internal static class Static {
 
-		public const string Ciphers = @"SECURE256:+SECURE128:-ARCFOUR-128:-3DES-CBC:-MD5:+SIGN-ALL:-SIGN-RSA-MD5:+CTYPE-X509:-VERS-SSL3.0:-VERS-TLS1.3";
-
 		// G l o b a l
 
 		public static string? CheckVersion(string? reqVersion) {
