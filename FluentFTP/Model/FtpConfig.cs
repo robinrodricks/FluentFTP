@@ -34,8 +34,46 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Enable use of GnuTls instead of SslStream/SChannel for
+		/// TLS security on the FTP control and data connections
+		/// If you enable this, you will need to install NuGet package
+		/// FluentFTP.GnuTlsWrap
+		/// </summary>
+		public bool GnuTls { get; set; } = true;
+		/// <summary>
+		/// GnuTLS will add it own log messages to the FluentFTP log.
+		/// Select the maximum verbosity of the GnuTLS messages, which are 
+		/// all added to the FluentFTP log with serverity "verbose".
+		/// The allowed values are 0-99.
+		/// </summary>
+		public int GnuTlsLogLevel { get; set; } = 2;
+		/// <summary>
+		/// In case of a catastrophic failure, how many messages at maximum
+		/// verbosity should be output prior to termination.
+		/// </summary>
+		public int GnuTlsLogBuffSize { get; set; } = 50;
+
+		/// <summary>
+		/// You can set the ciphersuite to be used for connections.
+		/// Either: Leave it empty. The GnuTLS defaults will be used.
+		/// Or: Set it to a string that starts with "+" or "-". Then
+		/// the following GnuTLS default ciphers will be modified by
+		/// your entry.
+		/// To disable TLS 1.3, use or add "-VERS-TLS1.3"
+		/// Or: Set it to a string that **does not** starts with "+" or "-".
+		/// Then the string will be used verbatim.
+		/// Example: "SECURE256:+SECURE128:-ARCFOUR-128:-3DES-CBC:-MD5:+SIGN-ALL:-SIGN-RSA-MD5:+CTYPE-X509:-VERS-SSL3.0"
+		/// To disable TLS 1.3, add ":-VERS-TLS1.3"
+		/// </summary>
+		public string GnuTlsCiphers { get; set; } = string.Empty; // "-VERS-TLS1.3";
+		/// <summary>
 		/// Should the function calls be logged in Verbose mode?
 		/// </summary>
+		/// <summary>
+		/// Set the GnuTLS handshake timeout. Set to zero to disable.
+		/// </summary>
+		public int GnuHandshakeTimeout { get; set; } = 5000;
+
 		public bool LogToConsole { get; set; } = false;
 
 		/// <summary>

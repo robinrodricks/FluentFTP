@@ -37,6 +37,30 @@
         </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Streams\GnuTlsWrap\Libs\libgcc_s_seh-1.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Streams\GnuTlsWrap\Libs\libgmp-10.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Streams\GnuTlsWrap\Libs\libgnutls-30.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Streams\GnuTlsWrap\Libs\libhogweed-6.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Streams\GnuTlsWrap\Libs\libnettle-8.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Streams\GnuTlsWrap\Libs\libwinpthread-1.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Streams\GnuTlsWrap\Libs\zlib1.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
     <PropertyGroup Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net472'">
         <DefineConstants>$(DefineConstants);NETFRAMEWORK;</DefineConstants>
     </PropertyGroup>
