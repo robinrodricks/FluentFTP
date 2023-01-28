@@ -1,5 +1,6 @@
 ﻿using FluentFTP.Client.BaseClient;
 using FluentFTP.Servers;
+using FluentFTP.Streams;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -512,6 +513,18 @@ namespace FluentFTP {
 		public IPAddress SocketLocalIp { get; set; }
 
 
+		/// <summary>
+		/// Used to set a custom stream handler, for example to integrate with the `FluentFTP.GnuTLS` package.
+		/// </summary>
+		public Type CustomStream { get; set; } = null;
+
+		/// <summary>
+		/// Used to set the configuration for a custom stream handler, for example to integrate with the `FluentFTP.GnuTLS` package.
+		/// </summary>
+		public IFtpStreamConfig CustomStreamConfig { get; set; } = null;
+
+
+
 
 		//-------------------------------------------------------------//
 		// ADD NEW PROPERTIES INTO THIS FUNCTION: FtpConfig.CopyTo()
@@ -586,6 +599,8 @@ namespace FluentFTP {
 			write.UploadDirectoryDeleteExcluded = read.UploadDirectoryDeleteExcluded;
 			write.DownloadDirectoryDeleteExcluded = read.DownloadDirectoryDeleteExcluded;
 			write.SocketLocalIp = read.SocketLocalIp;
+			write.CustomStream = read.CustomStream;
+			write.CustomStreamConfig = read.CustomStreamConfig;
 
 #if NETSTANDARD
 			write.LocalTimeZone = read.LocalTimeZone;

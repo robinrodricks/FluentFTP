@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentFTP {
-	internal interface IInternalFtpClient {
+	public interface IInternalFtpClient {
 
 		void ConnectInternal(bool reConnect);
 		void ConnectInternal(bool reConnect, CancellationToken token);

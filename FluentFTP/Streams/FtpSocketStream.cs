@@ -12,6 +12,8 @@ using FluentFTP.Helpers;
 using FluentFTP.Exceptions;
 using FluentFTP.Client.BaseClient;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using FluentFTP.Streams;
 
 namespace FluentFTP {
 
@@ -20,6 +22,23 @@ namespace FluentFTP {
 	/// Stream class used for talking. Used by FtpClient, extended by FtpDataStream
 	/// </summary>
 	public class FtpSocketStream : Stream, IDisposable {
+
+		private NetworkStream m_netStream = null;
+
+		/// <summary>
+		/// The non-encrypted stream
+		/// </summary>
+		private NetworkStream NetworkStream {
+			get => m_netStream;
+			set => m_netStream = value;
+		}
+
+		private BufferedStream m_bufStream = null;
+
+		private FtpSslStream m_sslStream = null;
+
+		private IFtpStream m_customStream = null;
+
 
 		/// <summary>
 		/// The client this stream is associated with
@@ -149,7 +168,12 @@ namespace FluentFTP {
 		/// </summary>
 		public bool IsEncrypted {
 			get {
-				return m_sslStream != null;
+				if (Client.Config.CustomStream != null) {
+					return m_customStream != null;
+				}
+				else {
+					return m_sslStream != null;
+				}
 			}
 		}
 
@@ -164,30 +188,23 @@ namespace FluentFTP {
 		/// </summary>
 		public SslProtocols SslProtocolActive {
 			get {
-				return IsEncrypted ? m_sslStream.SslProtocol : SslProtocols.None;
+				if (Client.Config.CustomStream != null) {
+					return IsEncrypted ? m_customStream.GetSslProtocol() : SslProtocols.None;
+				}
+				else {
+					return IsEncrypted ? m_sslStream.SslProtocol : SslProtocols.None;
+				}
 			}
 		}
-
-		private NetworkStream m_netStream = null;
-
 		/// <summary>
-		/// The non-encrypted stream
-		/// </summary>
-		private NetworkStream NetworkStream {
-			get => m_netStream;
-			set => m_netStream = value;
-		}
-
-		private BufferedStream m_bufStream = null;
-
-		private FtpSslLib.FtpSslStream m_sslStream = null;
-
-		/// <summary>
-		/// Gets the underlying stream, could be a NetworkStream or SslStream
+		/// Gets the underlying stream, could be a NetworkStream, SslStream or GnuTlsStream
 		/// </summary>
 		protected Stream BaseStream {
 			get {
-				if (m_sslStream != null) {
+				if (m_customStream != null) {
+					return m_customStream.GetBaseStream();
+				}
+				else if (m_sslStream != null) {
 					return m_sslStream;
 				}
 				else if (m_netStream != null) {
@@ -202,7 +219,13 @@ namespace FluentFTP {
 		/// </summary>
 		public override bool CanRead {
 			get {
-				if (m_netStream != null) {
+				if (m_customStream != null) {
+					return m_customStream.CanRead();
+				}
+				else if (m_sslStream != null) {
+					return m_sslStream.CanRead;
+				}
+				else if (m_netStream != null) {
 					return m_netStream.CanRead;
 				}
 
@@ -220,7 +243,13 @@ namespace FluentFTP {
 		/// </summary>
 		public override bool CanWrite {
 			get {
-				if (m_netStream != null) {
+				if (m_customStream != null) {
+					return m_customStream.CanWrite();
+				}
+				else if (m_sslStream != null) {
+					return m_sslStream.CanWrite;
+				}
+				else if (m_netStream != null) {
 					return m_netStream.CanWrite;
 				}
 
@@ -564,7 +593,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Reads all lines from the socket
+		/// Reads all line from the socket
 		/// </summary>
 		/// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
 		/// <param name="bufferSize">The size of the buffer</param>
@@ -632,7 +661,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Reads all lines from the socket
+		/// Reads all line from the socket
 		/// </summary>
 		/// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
 		/// <param name="bufferSize">The size of the buffer</param>
@@ -745,9 +774,20 @@ namespace FluentFTP {
 			// Change this if-statement if you ever need to debug this
 			if (disposing && Client != null) {
 				string infoText = disposing ? "Closing/Disposing" : "Finalizing";
-					string connText = this.IsControlConnection ? "control" : "data";
+				string connText = this.IsControlConnection ? "control" : "data";
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, infoText + " FtpSocketStream(" + connText + " connection)");
 			}
+
+			if (m_customStream != null) {
+				try {
+					m_customStream.Dispose();
+				}
+				catch {
+				}
+
+				m_customStream = null;
+			}
+
 
 			if (m_sslStream != null) {
 				try {
@@ -1132,64 +1172,89 @@ namespace FluentFTP {
 				throw new InvalidOperationException("The base network stream is null.");
 			}
 
-			if (m_sslStream != null) {
-				throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
-			}
+			var authStart = DateTime.Now;
+			string authType, cipherSuite;
 
-			try {
-				CreateBufferStream();
-				CreateSslStream();
+			if (Client.Config.CustomStream != null) {
+				if (m_customStream != null) {
+					throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
+				}
 
-				var authStart = DateTime.Now;
+				authType = "GnuTLS";
 
 				try {
-#if NETSTANDARD
-					m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation).Wait();
-#else
-					m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
-#endif
+					CreateCustomStream();
 				}
-#if NETSTANDARD
-				catch (AggregateException ex) {
-					if (ex.InnerException is AuthenticationException) {
-						throw ex.InnerException;
-					}
-					if (ex.InnerException is IOException) {
-						throw new AuthenticationException(ex.InnerException.Message);
-					}
+				catch (Exception ex) {
+					Close();
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication failed, lib = " + authType, ex, true);
 					throw;
 				}
+
+				cipherSuite = m_customStream.GetCipherSuite();
+			}
+			else {
+				if (m_sslStream != null) {
+					throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
+				}
+
+				authType = ".NET SslStream";
+
+				try {
+					CreateBufferStream();
+					CreateSslStream();
+
+					try {
+#if NETSTANDARD
+						m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation).Wait();
+#else
+						m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
 #endif
-				catch (IOException ex) {
-					if (ex.InnerException is Win32Exception { NativeErrorCode: 10053 }) {
-						throw new FtpMissingSocketException(ex);
 					}
+#if NETSTANDARD
+					catch (AggregateException ex) {
+						if (ex.InnerException is AuthenticationException) {
+							throw ex.InnerException;
+						}
+						if (ex.InnerException is IOException) {
+							throw new AuthenticationException(ex.InnerException.Message);
+						}
+						throw;
+					}
+#endif
+					catch (IOException ex) {
+						if (ex.InnerException is Win32Exception { NativeErrorCode: 10053 }) {
+							throw new FtpMissingSocketException(ex);
+						}
 #if NETFRAMEWORK
-					throw new AuthenticationException(ex.Message);
+						throw new AuthenticationException(ex.Message);
 #else
-					throw;
+						throw;
 #endif
+					}
+
 				}
 
-				if (Client.Config.LogDurations) {
-					var authDuration = DateTime.Now.Subtract(authStart);
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, protocol = " + Client.SslProtocolActive + " [" + authDuration.ToShortString() + "]");
+				catch (AuthenticationException ex) {
+					// authentication failed and in addition it left our
+					// ssl stream in an unusable state so cleanup needs
+					// to be done and the exception can be re-thrown for
+					// handling down the chain.
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication failed, lib = " + authType, ex, true);
+					Close();
+					throw;
 				}
-				else {
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, protocol = " + Client.SslProtocolActive);
-				}
-			}
-			catch (AuthenticationException ex) {
-				// authentication failed and in addition it left our
-				// ssl stream in an unusable state so cleanup needs
-				// to be done and the exception can be re-thrown for
-				// handling down the chain.
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed", ex, true);
-				Close();
-				throw;
+
+				cipherSuite = m_sslStream.ToString();
 			}
 
-			((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "SslStream: " + m_sslStream.ToString());
+			if (Client.Config.LogDurations) {
+				var authDuration = DateTime.Now.Subtract(authStart);
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, lib = " + authType + ", cipher suite = " + cipherSuite + " [" + authDuration.ToShortString() + "]");
+			}
+			else {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, lib = " + authType + ", cipher suite = " + cipherSuite);
+			}
 		}
 
 		/// <summary>
@@ -1211,77 +1276,105 @@ namespace FluentFTP {
 				throw new InvalidOperationException("The base network stream is null.");
 			}
 
-			if (m_sslStream != null) {
-				throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
-			}
+			var authStart = DateTime.Now;
+			string authType, cipherSuite;
 
-			try {
-				CreateBufferStream();
-				CreateSslStream();
+			if (Client.Config.CustomStream != null) {
+				if (m_customStream != null) {
+					throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
+				}
 
-				var authStart = DateTime.Now;
+				authType = "GnuTLS";
 
 				try {
+					CreateCustomStream();
+				}
+				catch (Exception ex) {
+					Close();
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication failed, lib = " + authType, ex, true);
+					throw;
+				}
+
+				cipherSuite = m_customStream.GetCipherSuite();
+			}
+			else {
+				if (m_sslStream != null) {
+					throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
+				}
+
+				authType = ".NET SslStream";
+
+				try {
+					CreateBufferStream();
+					CreateSslStream();
+
+
+					try {
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-					var options = new SslClientAuthenticationOptions() {
-						TargetHost = targethost,
-						ClientCertificates = clientCerts,
-						EnabledSslProtocols = sslProtocols,
-						CertificateRevocationCheckMode = Client.Config.ValidateCertificateRevocation ? X509RevocationMode.Online : X509RevocationMode.NoCheck
-					};
-					await m_sslStream.AuthenticateAsClientAsync(options, token);
+						var options = new SslClientAuthenticationOptions() {
+							TargetHost = targethost,
+							ClientCertificates = clientCerts,
+							EnabledSslProtocols = sslProtocols,
+							CertificateRevocationCheckMode = Client.Config.ValidateCertificateRevocation ? X509RevocationMode.Online : X509RevocationMode.NoCheck
+						};
+						await m_sslStream.AuthenticateAsClientAsync(options, token);
 #else
 					await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
 #endif
-				}
+					}
 #if NETSTANDARD
-				catch (AggregateException ex) {
-					if (ex.InnerException is AuthenticationException) {
-						throw ex.InnerException;
+					catch (AggregateException ex) {
+						if (ex.InnerException is AuthenticationException) {
+							throw ex.InnerException;
+						}
+						if (ex.InnerException is IOException) {
+							throw new AuthenticationException(ex.InnerException.Message);
+						}
+						throw;
 					}
-					if (ex.InnerException is IOException) {
-						throw new AuthenticationException(ex.InnerException.Message);
-					}
-					throw;
-				}
 #endif
-				catch (IOException ex) {
-					if (ex.InnerException is Win32Exception { NativeErrorCode: 10053 }) {
-						throw new FtpMissingSocketException(ex);
-					}
+					catch (IOException ex) {
+						if (ex.InnerException is Win32Exception { NativeErrorCode: 10053 }) {
+							throw new FtpMissingSocketException(ex);
+						}
 #if NETFRAMEWORK
 					throw new AuthenticationException(ex.Message);
 #else
-					throw;
+						throw;
 #endif
+					}
+
 				}
 
-				if (Client.Config.LogDurations) {
-					var authDuration = DateTime.Now.Subtract(authStart);
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, protocol = " + Client.SslProtocolActive + " [" + authDuration.ToShortString() + "]");
+				catch (AuthenticationException ex) {
+					Close();
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication failed, lib = " + authType, ex, true);
+					throw;
 				}
-				else {
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, protocol = " + Client.SslProtocolActive);
-				}
-			}
-			catch (AuthenticationException ex) {
-				// authentication failed and in addition it left our
-				// ssl stream in an unusable state so cleanup needs
-				// to be done and the exception can be re-thrown for
-				// handling down the chain. (Add logging?)
-				Close();
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication Failed", ex);
-				throw;
+
+				cipherSuite = m_sslStream.ToString();
 			}
 
-			((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "SslStream: " + m_sslStream.ToString());
+			if (Client.Config.LogDurations) {
+				var authDuration = DateTime.Now.Subtract(authStart);
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, lib = " + authType + ", cipher suite = " + cipherSuite + " [" + authDuration.ToShortString() + "]");
+			}
+			else {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, lib = " + authType + ", cipher suite = " + cipherSuite);
+			}
 		}
 
 		private void CreateSslStream() {
 
-			m_sslStream = new FtpSslLib.FtpSslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
+			m_sslStream = new FtpSslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
 				delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
 			));
+
+		}
+
+		private void CreateCustomStream() {
+
+			m_customStream = Activator.CreateInstance(Client.Config.CustomStream) as IFtpStream;
 		}
 
 		/// <summary>
@@ -1327,23 +1420,23 @@ namespace FluentFTP {
 			return m_bufStream != null ? (Stream)m_bufStream : (Stream)NetworkStream;
 		}
 
-#if NETFRAMEWORK
-		/// <summary>
-		/// Deactivates SSL on this stream using the specified protocols and reverts back to plain-text FTP.
-		/// </summary>
-		public void DeactivateEncryption() {
-			if (!IsConnected) {
-				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
-			}
+		//#if NETFRAMEWORK
+		//		/// <summary>
+		//		/// Deactivates SSL on this stream using the specified protocols and reverts back to plain-text FTP.
+		//		/// </summary>
+		//		public void DeactivateEncryption() {
+		//			if (!IsConnected) {
+		//				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
+		//			}
 
-			if (m_sslStream == null) {
-				throw new InvalidOperationException("SSL Encryption has not been enabled on this stream.");
-			}
+		//			if (m_sslStream == null) {
+		//				throw new InvalidOperationException("SSL Encryption has not been enabled on this stream.");
+		//			}
 
-			m_sslStream.Close();
-			m_sslStream = null;
-		}
-#endif
+		//			m_sslStream.Close();
+		//			m_sslStream = null;
+		//		}
+		//#endif
 
 		/// <summary>
 		/// Instructs this stream to listen for connections on the specified address and port

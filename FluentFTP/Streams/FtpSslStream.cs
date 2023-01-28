@@ -5,8 +5,9 @@ using System.Linq;
 using System.Net.Security;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using FluentFTP.Streams;
 
-namespace FtpSslLib {
+namespace FluentFTP.Streams {
 	/// <summary>
 	/// FtpSslStream is an SslStream that properly sends a close_notify message when closing
 	/// the connection. This is required per RFC 5246 to avoid truncation attacks.
