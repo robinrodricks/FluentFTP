@@ -197,7 +197,7 @@ namespace FluentFTP {
 			}
 		}
 		/// <summary>
-		/// Gets the underlying stream, could be a NetworkStream, SslStream or GnuTlsStream
+		/// Gets the underlying stream, could be a NetworkStream, SslStream or CustomStream
 		/// </summary>
 		protected Stream BaseStream {
 			get {

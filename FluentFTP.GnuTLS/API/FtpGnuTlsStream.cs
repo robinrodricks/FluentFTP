@@ -1,11 +1,9 @@
 ﻿using FluentFTP.Client.BaseClient;
 using FluentFTP.Streams;
-using System;
-using System.Collections.Generic;
+
 using System.IO;
 using System.Net.Sockets;
 using System.Security.Authentication;
-using System.Text;
 
 namespace FluentFTP.GnuTLS {
 	public class FtpGnuTlsStream : IFtpStream {
@@ -23,7 +21,9 @@ namespace FluentFTP.GnuTLS {
 
 			// link to client
 			Client = client;
+
 			var typedConfig = config as FtpGnuConfig;
+
 			GnuTlsStream.GnuStreamLogCBFunc fluentFtpLog =
 				s => ((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "GnuTLS: " + s);
 
@@ -32,12 +32,13 @@ namespace FluentFTP.GnuTLS {
 				socket,
 				isControl ? "ftp" : "ftp-data",
 				isControl ? null : (controlConnStream as FtpGnuTlsStream).BaseStream,
+				typedConfig.Ciphers,
+				typedConfig.HandshakeTimeout,
 				fluentFtpLog,
-				typedConfig.LogBuffSize,
-				typedConfig.LogLevel);
+				typedConfig.LogLevel,
+				typedConfig.LogBuffSize);
 
 		}
-
 
 		public Stream GetBaseStream() {
 			return BaseStream;
@@ -58,7 +59,6 @@ namespace FluentFTP.GnuTLS {
 			BaseStream?.Dispose();
 			BaseStream = null;
 		}
-
 
 	}
 }
