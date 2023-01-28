@@ -14,11 +14,13 @@ namespace FluentFTP.Streams {
 		void Init(BaseFtpClient client, Socket socket, bool isControl, IFtpStream controlConnStream, IFtpStreamConfig config);
 
 		Stream GetBaseStream();
+
 		bool CanRead();
 		bool CanWrite();
-		SslProtocols GetSslProtocol();
 
+		SslProtocols GetSslProtocol();
 		string GetCipherSuite(); 
+
 		void Dispose();
 
 

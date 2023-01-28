@@ -1180,7 +1180,7 @@ namespace FluentFTP {
 					throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
 				}
 
-				authType = "GnuTLS";
+				authType = Client.Config.CustomStream.ToString();
 
 				try {
 					CreateCustomStream();
@@ -1284,7 +1284,7 @@ namespace FluentFTP {
 					throw new InvalidOperationException("SSL Encryption has already been enabled on this stream.");
 				}
 
-				authType = "GnuTLS";
+				authType = Client.Config.CustomStream.ToString();
 
 				try {
 					CreateCustomStream();
