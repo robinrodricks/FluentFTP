@@ -1375,6 +1375,8 @@ namespace FluentFTP {
 		private void CreateCustomStream() {
 
 			m_customStream = Activator.CreateInstance(Client.Config.CustomStream) as IFtpStream;
+			m_customStream.Init(Client, m_socket, IsControlConnection, ((IInternalFtpClient)Client).GetBaseStream().m_customStream, Client.Config.CustomStreamConfig);
+
 		}
 
 		/// <summary>

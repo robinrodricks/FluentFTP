@@ -1,4 +1,5 @@
-﻿using FluentFTP.Streams;
+﻿using FluentFTP.Client.BaseClient;
+using FluentFTP.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,9 +12,9 @@ namespace FluentFTP.GnuTLS.API {
 
 		private GnuTlsStream BaseStream;
 
-		public FtpClient Client;
+		public BaseFtpClient Client;
 
-		public void Init(FtpClient client, Socket socket, bool isControl, IFtpStream controlConnStream, IFtpStreamConfig config) {
+		public void Init(BaseFtpClient client, Socket socket, bool isControl, IFtpStream controlConnStream, IFtpStreamConfig config) {
 
 			// use default config if not given or if wrong type
 			if (config == null || (config as FtpGnuConfig) == null) {
