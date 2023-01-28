@@ -58,13 +58,19 @@ namespace FluentFTP.GnuTLS {
 
 		//
 
-		public GnuTlsStream(Socket socket, string? alpn, GnuTlsStream streamToResume, GnuStreamLogCBFunc elog, int logQueueMaxSize, int logMaxLevel) {
+		public GnuTlsStream(Socket socket, string? alpn, GnuTlsStream streamToResume, string ciphers, int handshakeTimeout, GnuStreamLogCBFunc elog, int logMaxLevel, int logQueueMaxSize) {
 
 			if (ctorCount < 1) { // == 0 !
+				Logging.InitLogging(elog, logMaxLevel, logQueueMaxSize);
 
-				Logging.InitLogging(elog, logQueueMaxSize, logMaxLevel);
+				string versionNeeded = "3.7.7";
+				string version = Static.CheckVersion(null);
 
-				Logging.Log("GnuTLS " + Static.CheckVersion(null));
+				Logging.Log("GnuTLS " + version);
+
+				if (version != versionNeeded) {
+					throw new GnuTlsException("GnuTLS library version must be " + versionNeeded);
+				}
 
 				Static.GlobalInit();
 
@@ -78,23 +84,31 @@ namespace FluentFTP.GnuTLS {
 			sess = new(InitFlagsT.GNUTLS_NO_TICKETS_TLS12);
 
 			//Static.SessionSetPtr(sess);
-			//Static.DbSetPtr(sess, sess.ptr);
 
 			Static.DbSetCacheExpiration(sess, 100000000);
 
-			Static.PrioritySetDirect(sess, Static.Ciphers);
-			//Static.SetDefaultPriority(sess);
+			if (ciphers == string.Empty) {
+				Static.SetDefaultPriority(sess);
+			}
+			else if (ciphers.StartsWith("+") || ciphers.StartsWith("-")) {
+				Static.SetDefaultPriority(sess);
+				Static.SetDefaultPriorityAppend(sess, ciphers);
+			}
+			else {
+				Static.PrioritySetDirect(sess, ciphers);
+			}
 
 			Static.DhSetPrimeBits(sess, 1024);
 
 			Static.CredentialsSet(cred, sess);
 
-			Static.HandshakeSetTimeout(sess, 4096);
+			Static.HandshakeSetTimeout(sess, (uint)handshakeTimeout);
 
 			// Setup transport functions
 			//gnutls_transport_set_push_function(session_, c_push_function);
 			//gnutls_transport_set_pull_function(session_, c_pull_function);
 			//gnutls_transport_set_ptr(session_, (gnutls_transport_ptr_t)this);
+			// or:
 			Static.TransportSetInt(sess, (int)sock.Handle);
 
 			// Application Layer Protocol Negotiation (ALPN)
@@ -124,7 +138,7 @@ namespace FluentFTP.GnuTLS {
 			// Reenable the Nagle Algorithm
 			sock.NoDelay = false;
 
-			// TLS1.2 TLS1.3 or what?
+			// TLS1.2, TLS1.3 or what?
 			ProtocolName = Static.ProtocolGetName(Static.ProtocolGetVersion(sess));
 
 			if (ProtocolName == "TLS1.2") {

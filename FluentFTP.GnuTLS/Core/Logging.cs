@@ -63,12 +63,12 @@ namespace FluentFTP.GnuTLS.Core {
 		// Avoid garbage collection failure of this callback
 		private static GnuTlsLogCBFunc gnuTlsLogCBFunc = Log;
 
-		public static void InitLogging(GnuStreamLogCBFunc logCBFunc, int logQueueMaxSize, int logMaxLevel) {
+		public static void InitLogging(GnuStreamLogCBFunc logCBFunc, int logMaxLevel, int logQueueMaxSize) {
 			logQueue = new Queue<string>();
 
 			Logging.logCBFunc = logCBFunc;
-			Logging.logQueueMaxSize = logQueueMaxSize;
 			Logging.logMaxLevel = logMaxLevel;
+			Logging.logQueueMaxSize = logQueueMaxSize;
 
 			Static.GlobalSetLogFunction(gnuTlsLogCBFunc);
 			Static.GlobalSetLogLevel(99);
