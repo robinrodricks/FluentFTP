@@ -36,7 +36,7 @@ namespace FluentFTP.GnuTLS {
 
 		internal Logging logging;
 
-		private static CertificateCredentials cred = new();
+		private static CertificateCredentials cred;
 
 		private static DatumT resumeDataTLS12 = new();
 

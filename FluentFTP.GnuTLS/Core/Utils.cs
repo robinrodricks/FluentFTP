@@ -29,17 +29,17 @@ namespace FluentFTP.GnuTLS.Core {
 
 			if (!EC.ec.TryGetValue(result, out string errTxt)) errTxt = "Unknown error";
 
-			ex = new GnuTlsException(methodName + " failed: (" + result + ") " + errTxt);
+			ex = new GnuTlsException("Error   : " + methodName + " failed: (" + result + ") " + errTxt);
 			ex.ExMethod = methodName;
 			ex.ExResult = result;
 			ex.ExMeaning = errTxt;
 
 			Logging.LogNoQueue(ex.Message);
 
-			Logging.LogNoQueue("Last " + Logging.logQueueMaxSize + " GnuTLS buffered debug messages:");
+			Logging.LogNoQueue("Debug   : Last " + Logging.logQueueMaxSize + " GnuTLS buffered debug messages follow:");
 
 			foreach (string s in Logging.logQueue) {
-				Logging.LogNoQueue(s);
+				Logging.LogNoQueue("Debug   : " + s);
 			}
 
 			throw ex;

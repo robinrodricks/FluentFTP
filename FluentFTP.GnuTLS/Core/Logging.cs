@@ -21,7 +21,7 @@ namespace FluentFTP.GnuTLS.Core {
 		}
 
 		public static void LogGnuFunc(string msg) {
-			Log(1, "Interop : " + msg, false);
+			Log(1, "Interop : " + msg, true);
 		}
 
 		public static void Log(int lvl, string msg, bool q) {
@@ -50,7 +50,16 @@ namespace FluentFTP.GnuTLS.Core {
 		}
 
 		private static void Log(int lvl, IntPtr msg) {
-			string logMsg = "Internal: " + Marshal.PtrToStringAnsi(msg);
+			string s = Marshal.PtrToStringAnsi(msg);
+
+			// Remove some unimportant messages
+			if (lvl == 2 &&
+				(s.StartsWith("Keeping ciphersuite") ||
+				 s.StartsWith("Advertizing version"))) {
+				return;
+			}
+
+			string logMsg = "Internal: " + s;
 			//Static.Free(msg);
 			Log(lvl, logMsg, true);
 		}

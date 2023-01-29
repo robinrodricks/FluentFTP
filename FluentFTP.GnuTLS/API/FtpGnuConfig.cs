@@ -16,7 +16,7 @@ namespace FluentFTP.GnuTLS {
 		/// In case of a catastrophic failure, how many messages at maximum
 		/// verbosity should be output prior to termination.
 		/// </summary>
-		public int LogBuffSize { get; set; } = 50;
+		public int LogBuffSize { get; set; } = 150;
 
 		/// <summary>
 		/// You can set the ciphersuite to be used for connections.
