@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
-using static System.Collections.Specialized.BitVector32;
 
 namespace FluentFTP.GnuTLS.Core {
 	public abstract class Credentials : IDisposable {
@@ -24,7 +22,7 @@ namespace FluentFTP.GnuTLS.Core {
 			Logging.LogGnuFunc(gcm);
 
 			string errText = "CertificateCredentials()";
-			_ = Utils.Check(errText + " : certificate_allocate_credentials", gnutls_certificate_allocate_credentials(ref this.ptr));
+			_ = Utils.Check(errText + " : certificate_allocate_credentials", Native.gnutls_certificate_allocate_credentials(ref this.ptr));
 		}
 
 		public void Dispose() {
@@ -32,19 +30,9 @@ namespace FluentFTP.GnuTLS.Core {
 				string gcm = Utils.GetCurrentMethod() + ":CertificateCredentials";
 				Logging.LogGnuFunc(gcm);
 
-				gnutls_certificate_free_credentials(this.ptr);
+				Native.gnutls_certificate_free_credentials(this.ptr);
 				this.ptr = IntPtr.Zero;
 			}
 		}
-
-		// G N U T L S API calls for certificate credentials init / deinit
-
-		// int gnutls_certificate_allocate_credentials (gnutls_certificate_credentials_t * res)
-		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_allocate_credentials")]
-		private static extern int gnutls_certificate_allocate_credentials(ref IntPtr res);
-
-		// void gnutls_certificate_free_credentials(gnutls_certificate_credentials_t sc)
-		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_free_credentials")]
-		private static extern void gnutls_certificate_free_credentials(IntPtr sc);
 	}
 }

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.ComTypes;
 using System.Security.Authentication;
 using FluentFTP.GnuTLS.Core;
 
@@ -21,7 +19,7 @@ namespace FluentFTP.GnuTLS {
 		public static SslProtocols SslProtocol { get; private set; } = SslProtocols.Tls12;
 		public static int MaxRecordSize { get; private set; } = 8192;
 
-		public bool IsResumed { get { return Static.SessionIsResumed(sess) == 1; } }
+		public bool IsResumed { get { return Native.SessionIsResumed(sess) == 1; } }
 		public bool IsSessionOk { get; private set; } = false;
 
 		// Logging call back to our user
@@ -56,7 +54,7 @@ namespace FluentFTP.GnuTLS {
 				Logging.InitLogging(elog, logMaxLevel, logQueueMaxSize);
 
 				string versionNeeded = "3.7.7";
-				string version = Static.CheckVersion(null);
+				string version = Native.CheckVersion(null);
 
 				Logging.Log("GnuTLS " + version);
 
@@ -64,7 +62,7 @@ namespace FluentFTP.GnuTLS {
 					throw new GnuTlsException("GnuTLS library version must be " + versionNeeded);
 				}
 
-				Static.GlobalInit();
+				Native.GlobalInit();
 
 				cred = new();
 			}
@@ -75,63 +73,63 @@ namespace FluentFTP.GnuTLS {
 
 			sess = new(InitFlagsT.GNUTLS_NO_TICKETS_TLS12);
 
-			//Static.SessionSetPtr(sess);
+			//Native.SessionSetPtr(sess, ????);
 
-			Static.DbSetCacheExpiration(sess, 100000000);
+			Native.DbSetCacheExpiration(sess, 100000000);
 
 			if (ciphers == string.Empty) {
-				Static.SetDefaultPriority(sess);
+				Native.SetDefaultPriority(sess);
 			}
 			else if (ciphers.StartsWith("+") || ciphers.StartsWith("-")) {
-				Static.SetDefaultPriority(sess);
-				Static.SetDefaultPriorityAppend(sess, ciphers);
+				Native.SetDefaultPriority(sess);
+				Native.SetDefaultPriorityAppend(sess, ciphers);
 			}
 			else {
-				Static.PrioritySetDirect(sess, ciphers);
+				Native.PrioritySetDirect(sess, ciphers);
 			}
 
-			Static.DhSetPrimeBits(sess, 1024);
+			Native.DhSetPrimeBits(sess, 1024);
 
-			Static.CredentialsSet(cred, sess);
+			Native.CredentialsSet(cred, sess);
 
-			Static.HandshakeSetTimeout(sess, (uint)handshakeTimeout);
+			Native.HandshakeSetTimeout(sess, (uint)handshakeTimeout);
 
 			// Setup transport functions
 			//gnutls_transport_set_push_function(session_, c_push_function);
 			//gnutls_transport_set_pull_function(session_, c_pull_function);
 			//gnutls_transport_set_ptr(session_, (gnutls_transport_ptr_t)this);
 			// or:
-			Static.TransportSetInt(sess, (int)sock.Handle);
+			Native.TransportSetInt(sess, (int)sock.Handle);
 
 			// Application Layer Protocol Negotiation (ALPN)
 			if (!string.IsNullOrEmpty(alpn)) {
-				Static.AlpnSetProtocols(sess, alpn);
+				Native.AlpnSetProtocols(sess, alpn);
 			}
 
 			IsSessionOk = true;
 
 			// Session Resume
 			if (streamToResume != null) {
-				Static.SessionGetData2(streamToResume.sess, ref resumeDataTLS12);
+				Native.SessionGetData2(streamToResume.sess, ref resumeDataTLS12);
 
 				Logging.LogGnuFunc("Setting up session resume from control connection");
-				Static.SessionSetData(sess, resumeDataTLS12);
-				Static.Free(resumeDataTLS12.ptr);
+				Native.SessionSetData(sess, resumeDataTLS12);
+				Native.Free(resumeDataTLS12.ptr);
 			}
 
 			// Disable the Nagle Algorithm
 			sock.NoDelay = true;
 
 			// Handshake logging hook
-			Static.HandshakeSetHookFunction(sess, (uint)HandshakeDescriptionT.GNUTLS_HANDSHAKE_ANY, (int)HandshakeHookT.GNUTLS_HOOK_BOTH, handshakeHookFunc);
+			Native.HandshakeSetHookFunction(sess, (uint)HandshakeDescriptionT.GNUTLS_HANDSHAKE_ANY, (int)HandshakeHookT.GNUTLS_HOOK_BOTH, handshakeHookFunc);
 
-			Static.HandShake(sess);
+			Native.HandShake(sess);
 
 			// Reenable the Nagle Algorithm
 			sock.NoDelay = false;
 
 			// TLS1.2, TLS1.3 or what?
-			ProtocolName = Static.ProtocolGetName(Static.ProtocolGetVersion(sess));
+			ProtocolName = Native.ProtocolGetName(Native.ProtocolGetVersion(sess));
 
 			if (ProtocolName == "TLS1.2") {
 				SslProtocol = SslProtocols.Tls12;
@@ -151,13 +149,13 @@ namespace FluentFTP.GnuTLS {
 
 			// (TLS1.2)-(ECDHE-SECP384R1)-(ECDSA-SHA384)-(AES-256-GCM)
 			// (TLS1.3)-(ECDHE-SECP256R1)-(ECDSA-SECP256R1-SHA256)-(AES-256-GCM)
-			CipherSuite = Static.SessionGetDesc(sess);
+			CipherSuite = Native.SessionGetDesc(sess);
 
 			// ftp ftp-data
-			AlpnProtocol = Static.AlpnGetSelectedProtocol(sess);
+			AlpnProtocol = Native.AlpnGetSelectedProtocol(sess);
 
 			// Maximum record size
-			MaxRecordSize = Static.RecordGetMaxSize(sess);
+			MaxRecordSize = Native.RecordGetMaxSize(sess);
 			Logging.LogGnuFunc("Maximum record size: " + MaxRecordSize);
 
 			if (IsResumed) {
@@ -173,19 +171,19 @@ namespace FluentFTP.GnuTLS {
 		public void Dispose() {
 			if (sess != null) {
 				if (IsSessionOk) {
-					int count = Static.RecordCheckPending(sess);
+					int count = Native.RecordCheckPending(sess);
 					if (count > 0) {
 						byte[] buf = new byte[count];
 						int result = this.Read(buf, 0, count);
 					}
-					Static.Bye(sess, CloseRequestT.GNUTLS_SHUT_RDWR);
+					Native.Bye(sess, CloseRequestT.GNUTLS_SHUT_RDWR);
 				}
 				sess.Dispose();
 			}
 
 			if (ctorCount <= 1) {
 				cred.Dispose();
-				Static.GlobalDeInit();
+				Native.GlobalDeInit();
 			}
 
 			ctorCount--;
@@ -203,7 +201,7 @@ namespace FluentFTP.GnuTLS {
 
 			maxCount = Math.Min(maxCount, MaxRecordSize);
 
-			int result = Static.gnutls_record_recv(sess.ptr, buffer, maxCount);
+			int result = Native.gnutls_record_recv(sess.ptr, buffer, maxCount);
 
 			Utils.Check("FtpGnuStream.Read", result);
 
@@ -225,7 +223,7 @@ namespace FluentFTP.GnuTLS {
 			int result = int.MaxValue;
 
 			while (result > 0) {
-				result = Static.gnutls_record_send(sess.ptr, buf, Math.Min(buf.Length, MaxRecordSize));
+				result = Native.gnutls_record_send(sess.ptr, buf, Math.Min(buf.Length, MaxRecordSize));
 				int newLength = buf.Length - result;
 				if (newLength <= 0) {
 					break;

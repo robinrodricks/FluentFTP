@@ -352,6 +352,41 @@ namespace FluentFTP.GnuTLS.Core {
 		GNUTLS_A_MAX = GNUTLS_A_NO_APPLICATION_PROTOCOL
 	}
 
+	/**
+	 * gnutls_session_flags_t:
+	 * @GNUTLS_SFLAGS_SAFE_RENEGOTIATION: Safe renegotiation (RFC5746) was used
+	 * @GNUTLS_SFLAGS_EXT_MASTER_SECRET: The extended master secret (RFC7627) extension was used
+	 * @GNUTLS_SFLAGS_ETM: The encrypt then MAC (RFC7366) extension was used
+	 * @GNUTLS_SFLAGS_RFC7919: The RFC7919 Diffie-Hellman parameters were negotiated
+	 * @GNUTLS_SFLAGS_HB_LOCAL_SEND: The heartbeat negotiation allows the local side to send heartbeat messages
+	 * @GNUTLS_SFLAGS_HB_PEER_SEND: The heartbeat negotiation allows the peer to send heartbeat messages
+	 * @GNUTLS_SFLAGS_FALSE_START: False start was used in this client session.
+	 * @GNUTLS_SFLAGS_SESSION_TICKET: A session ticket has been received by the server.
+	 * @GNUTLS_SFLAGS_POST_HANDSHAKE_AUTH: Indicates client capability for post-handshake auth; set only on server side.
+	 * @GNUTLS_SFLAGS_EARLY_START: The TLS1.3 server session returned early.
+	 * @GNUTLS_SFLAGS_EARLY_DATA: The TLS1.3 early data has been received by the server.
+	 * @GNUTLS_SFLAGS_CLI_REQUESTED_OCSP: Set when the client has requested OCSP staple during handshake.
+	 * @GNUTLS_SFLAGS_SERV_REQUESTED_OCSP: Set when the server has requested OCSP staple during handshake.
+	 *
+	 * Enumeration of different session parameters.
+	*/
+	[Flags]
+	enum SessionFlagsT : uint {
+		GNUTLS_SFLAGS_SAFE_RENEGOTIATION = 1,
+		GNUTLS_SFLAGS_EXT_MASTER_SECRET = 1 << 1,
+		GNUTLS_SFLAGS_ETM = 1 << 2,
+		GNUTLS_SFLAGS_HB_LOCAL_SEND = 1 << 3,
+		GNUTLS_SFLAGS_HB_PEER_SEND = 1 << 4,
+		GNUTLS_SFLAGS_FALSE_START = 1 << 5,
+		GNUTLS_SFLAGS_RFC7919 = 1 << 6,
+		GNUTLS_SFLAGS_SESSION_TICKET = 1 << 7,
+		GNUTLS_SFLAGS_POST_HANDSHAKE_AUTH = 1 << 8,
+		GNUTLS_SFLAGS_EARLY_START = 1 << 9,
+		GNUTLS_SFLAGS_EARLY_DATA = 1 << 10,
+		GNUTLS_SFLAGS_CLI_REQUESTED_OCSP = 1 << 11,
+		GNUTLS_SFLAGS_SERV_REQUESTED_OCSP = 1 << 12
+	}
+
 	public class TimeoutV {
 		// Very special values:
 		uint GNUTLS_DEFAULT_HANDSHAKE_TIMEOUT = unchecked((uint)-1);

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Runtime.InteropServices;
-using static System.Collections.Specialized.BitVector32;
 
 namespace FluentFTP.GnuTLS.Core {
-	internal static class Static {
+	internal static class Native {
 
 		// G l o b a l
 
@@ -68,6 +66,37 @@ namespace FluentFTP.GnuTLS.Core {
 
 
 		// S e s s i o n
+
+		// G N U T L S API calls for session init / deinit
+
+		// int gnutls_init (gnutls_session_t * session, unsigned int flags)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_init")]
+		public static extern int gnutls_init(ref IntPtr session, InitFlagsT flags);
+
+		// void gnutls_deinit (gnutls_session_t session)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_deinit")]
+		public static extern void gnutls_deinit(IntPtr session);
+
+		public static IntPtr SessionGetPtr(Session sess) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return gnutls_session_get_ptr(sess.ptr);
+		}
+		// IntPtr gnutls_session_get_ptr (gnutls_session_t session)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_session_get_ptr")]
+		private static extern IntPtr gnutls_session_get_ptr(IntPtr session);
+
+		public static void SessionSetPtr(Session sess, IntPtr ptr) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			gnutls_session_set_ptr(sess.ptr, ptr);
+		}
+		// void gnutls_session_set_ptr (gnutls_session_t session, void * ptr)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_session_set_ptr")]
+		private static extern void gnutls_session_set_ptr(IntPtr session, IntPtr ptr);
+
 
 		public static void DbSetCacheExpiration(Session sess, int seconds) {
 			string gcm = Utils.GetCurrentMethod();
@@ -326,6 +355,17 @@ namespace FluentFTP.GnuTLS.Core {
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_get_peers")]
 		private static extern IntPtr gnutls_certificate_get_peers(IntPtr session, IntPtr session_data, uint list_size);
 
+		public static uint SessionGetFlags(Session sess) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return gnutls_session_get_flags(sess.ptr);
+		}
+		// unsigned gnutls_session_get_flags(gnutls_session_t session)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_session_get_flags")]
+		private static extern uint gnutls_session_get_flags(IntPtr session);
+
+
 		// ALPN
 
 		public static int AlpnSetProtocols(Session sess, string protocols) {
@@ -361,6 +401,16 @@ namespace FluentFTP.GnuTLS.Core {
 
 
 		// C r e d e n t i a l s
+
+		// G N U T L S API calls for certificate credentials init / deinit
+
+		// int gnutls_certificate_allocate_credentials (gnutls_certificate_credentials_t * res)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_allocate_credentials")]
+		public static extern int gnutls_certificate_allocate_credentials(ref IntPtr res);
+
+		// void gnutls_certificate_free_credentials(gnutls_certificate_credentials_t sc)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_free_credentials")]
+		public static extern void gnutls_certificate_free_credentials(IntPtr sc);
 
 		// Set
 
