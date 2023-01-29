@@ -79,8 +79,8 @@ namespace FluentFTP.GnuTLS.Core {
 			Logging.logMaxLevel = logMaxLevel;
 			Logging.logQueueMaxSize = logQueueMaxSize;
 
-			Static.GlobalSetLogFunction(gnuTlsLogCBFunc);
-			Static.GlobalSetLogLevel(99);
+			Native.GlobalSetLogFunction(gnuTlsLogCBFunc);
+			Native.GlobalSetLogLevel(99);
 		}
 	}
 }
