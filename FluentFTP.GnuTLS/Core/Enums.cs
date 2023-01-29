@@ -218,7 +218,7 @@ namespace FluentFTP.GnuTLS.Core {
 	 *
 	 * Enumeration of different TLS handshake packets.
 	*/
-	public enum HandshakeDescriptionT : int {
+	public enum HandshakeDescriptionT : uint {
 		GNUTLS_HANDSHAKE_HELLO_REQUEST = 0,
 		GNUTLS_HANDSHAKE_CLIENT_HELLO = 1,
 		GNUTLS_HANDSHAKE_SERVER_HELLO = 2,
@@ -240,7 +240,7 @@ namespace FluentFTP.GnuTLS.Core {
 		GNUTLS_HANDSHAKE_CHANGE_CIPHER_SPEC = 254,
 		GNUTLS_HANDSHAKE_CLIENT_HELLO_V2 = 1024,
 		GNUTLS_HANDSHAKE_HELLO_RETRY_REQUEST = 1025,
-		GNUTLS_HANDSHAKE_ANY = -1,
+		GNUTLS_HANDSHAKE_ANY = unchecked((uint)-1),
 	}
 
 	/**
@@ -352,36 +352,9 @@ namespace FluentFTP.GnuTLS.Core {
 		GNUTLS_A_MAX = GNUTLS_A_NO_APPLICATION_PROTOCOL
 	}
 
-	//std::string prio = ciphers;
-	//switch (min_tls_ver_) {
-	//case tls_ver::v1_3:
-	//	prio += ":-VERS-TLS1.2";
-	//	// Fallthrough
-	//case tls_ver::v1_2:
-	//	prio += ":-VERS-TLS1.1";
-	//	// Fallthrough
-	//case tls_ver::v1_1:
-	//	prio += ":-VERS-TLS1.0";
-	//	break;
-	//default:
-	//	break;
-	//}
-
-	//if (max_tls_ver_) {
-	//	switch (* max_tls_ver_) {
-	//	case tls_ver::v1_0:
-	//		prio += ":-VERS-TLS1.1";
-	//		// Fallthrough
-	//	case tls_ver::v1_1:
-	//		prio += ":-VERS-TLS1.2";
-	//		// Fallthrough
-	//	case tls_ver::v1_2:
-	//		prio += ":-VERS-TLS1.3";
-	//		break;
-	//	default:
-	//		break;
-	//	}
-	//}
-	//
-	//res = gnutls_priority_set_direct(session_, prio.c_str(), nullptr)
+	public class TimeoutV {
+		// Very special values:
+		uint GNUTLS_DEFAULT_HANDSHAKE_TIMEOUT = unchecked((uint)-1);
+		uint GNUTLS_INDEFINITE_TIMEOUT = unchecked((uint)-2);
+	}
 }

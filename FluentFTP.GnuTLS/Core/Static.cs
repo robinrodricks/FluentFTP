@@ -140,7 +140,7 @@ namespace FluentFTP.GnuTLS.Core {
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_handshake")]
 		private static extern int gnutls_handshake(IntPtr session);
 
-		public static void HandshakeSetHookFunction(Session sess, int htype, int when, GnuTlsStream.GnuTlsHandshakeHookFunc handshakeHookFunc) {
+		public static void HandshakeSetHookFunction(Session sess, uint htype, int when, GnuTlsStream.GnuTlsHandshakeHookFunc handshakeHookFunc) {
 			string gcm = Utils.GetCurrentMethod();
 			Logging.LogGnuFunc(gcm);
 
@@ -148,7 +148,7 @@ namespace FluentFTP.GnuTLS.Core {
 		}
 		// void gnutls_handshake_set_hook_function (gnutls_session_t session, unsigned int htype, int when, gnutls_handshake_hook_func func)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_handshake_set_hook_function")]
-		private static extern void gnutls_handshake_set_hook_function(IntPtr session, int htype, int when, [In()][MarshalAs(UnmanagedType.FunctionPtr)] GnuTlsStream.GnuTlsHandshakeHookFunc func);
+		private static extern void gnutls_handshake_set_hook_function(IntPtr session, uint htype, int when, [In()][MarshalAs(UnmanagedType.FunctionPtr)] GnuTlsStream.GnuTlsHandshakeHookFunc func);
 
 		public static int Bye(Session sess, CloseRequestT how) {
 			string gcm = Utils.GetCurrentMethod();

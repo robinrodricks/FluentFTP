@@ -123,7 +123,7 @@ namespace FluentFTP.GnuTLS {
 			sock.NoDelay = true;
 
 			// Handshake logging hook
-			Static.HandshakeSetHookFunction(sess, (int)HandshakeDescriptionT.GNUTLS_HANDSHAKE_ANY, (int)HandshakeHookT.GNUTLS_HOOK_BOTH, handshakeHookFunc);
+			Static.HandshakeSetHookFunction(sess, (uint)HandshakeDescriptionT.GNUTLS_HANDSHAKE_ANY, (int)HandshakeHookT.GNUTLS_HOOK_BOTH, handshakeHookFunc);
 
 			Static.HandShake(sess);
 
