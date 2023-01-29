@@ -106,9 +106,12 @@ namespace FluentFTP.GnuTLS {
 				Native.AlpnSetProtocols(sess, alpn);
 			}
 
+			// Setup handshake hook
+			Native.HandshakeSetHookFunction(sess, (uint)HandshakeDescriptionT.GNUTLS_HANDSHAKE_ANY, (int)HandshakeHookT.GNUTLS_HOOK_BOTH, handshakeHookFunc);
+
 			IsSessionOk = true;
 
-			// Session Resume
+			// Setup Session Resume
 			if (streamToResume != null) {
 				Native.SessionGetData2(streamToResume.sess, ref resumeDataTLS12);
 
@@ -119,9 +122,6 @@ namespace FluentFTP.GnuTLS {
 
 			// Disable the Nagle Algorithm
 			sock.NoDelay = true;
-
-			// Handshake logging hook
-			Native.HandshakeSetHookFunction(sess, (uint)HandshakeDescriptionT.GNUTLS_HANDSHAKE_ANY, (int)HandshakeHookT.GNUTLS_HOOK_BOTH, handshakeHookFunc);
 
 			Native.HandShake(sess);
 
@@ -294,6 +294,12 @@ namespace FluentFTP.GnuTLS {
 			}
 
 			Logging.LogGnuFunc("Handshake " + prefix + " " + Enum.GetName(typeof(HandshakeDescriptionT), htype));
+
+			if (prefix == "processed") { 
+				if (htype == (uint)HandshakeDescriptionT.GNUTLS_HANDSHAKE_NEW_SESSION_TICKET) {
+
+				}
+			}
 
 		}
 	}

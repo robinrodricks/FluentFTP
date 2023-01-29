@@ -32,7 +32,7 @@ namespace FluentFTP.GnuTLS {
 				socket,
 				isControl ? "ftp" : "ftp-data",
 				isControl ? null : (controlConnStream as FtpGnuTlsStream).BaseStream,
-				typedConfig.Ciphers,
+				typedConfig.Priority,
 				typedConfig.HandshakeTimeout,
 				fluentFtpLog,
 				typedConfig.LogLevel,
