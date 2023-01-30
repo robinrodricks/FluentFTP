@@ -36,6 +36,9 @@ namespace FluentFTP.GnuTLS {
 		/// "NORMAL:-VERS-ALL:+VERS-TLS1.3:%NO_TICKETS"
 		/// "NORMAL:-VERS-ALL:+VERS-TLS1.3:%NO_TICKETS_TLS12"
 		/// "NORMAL:-VERS-ALL:+VERS-TLS1.3:%NO_SESSION_HASH"
+		/// Note:
+		/// %NO_TICKETS_TLS12 is enabled by default and cannot be disabled using the
+		/// priority strings.
 		/// </summary>
 		public string Priority { get; set; } = string.Empty; // "-VERS-TLS1.3";
 
