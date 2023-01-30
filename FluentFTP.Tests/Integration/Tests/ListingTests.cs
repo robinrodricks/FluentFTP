@@ -14,8 +14,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 
 	internal class ListingTests : IntegrationTestSuite {
 
-		public ListingTests(DockerFtpServer fixture) : base(fixture) { }
-
+		public ListingTests(DockerFtpServer fixture, UseStream stream) : base(fixture, stream) { }
 
 		/// <summary>
 		/// Main entrypoint executed for all types of FTP servers.

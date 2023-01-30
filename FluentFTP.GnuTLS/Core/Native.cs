@@ -241,7 +241,7 @@ namespace FluentFTP.GnuTLS.Core {
 			return Utils.Check(gcm, gnutls_set_default_priority_append(sess.ptr, priorities, out errPos, 0));
 		}
 		// int gnutls_set_default_priority_append (gnutls_session_t session, const char * add_prio, const char ** err_pos, unsigned flags)
-		[DllImport("Streams/GnuTlsWrap/Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_set_default_priority_append")]
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_set_default_priority_append")]
 		private static extern int gnutls_set_default_priority_append(IntPtr session, [In()][MarshalAs(UnmanagedType.LPStr)] string? priorities, out IntPtr err_pos, uint flags);
 
 		public static int DhSetPrimeBits(Session sess, uint bits) {
@@ -355,7 +355,7 @@ namespace FluentFTP.GnuTLS.Core {
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_get_peers")]
 		private static extern IntPtr gnutls_certificate_get_peers(IntPtr session, IntPtr session_data, uint list_size);
 
-		public static uint SessionGetFlags(Session sess) {
+		public static SessionFlagsT SessionGetFlags(Session sess) {
 			string gcm = Utils.GetCurrentMethod();
 			Logging.LogGnuFunc(gcm);
 
@@ -363,7 +363,7 @@ namespace FluentFTP.GnuTLS.Core {
 		}
 		// unsigned gnutls_session_get_flags(gnutls_session_t session)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_session_get_flags")]
-		private static extern uint gnutls_session_get_flags(IntPtr session);
+		private static extern SessionFlagsT gnutls_session_get_flags(IntPtr session);
 
 
 		// ALPN

@@ -37,7 +37,7 @@ namespace FluentFTP.GnuTLS {
 		/// "NORMAL:-VERS-ALL:+VERS-TLS1.3:%NO_TICKETS_TLS12"
 		/// "NORMAL:-VERS-ALL:+VERS-TLS1.3:%NO_SESSION_HASH"
 		/// </summary>
-		public string Priority { get; set; } = string.Empty; // "-VERS-TLS1.3";
+		public string Priority { get; set; } = "-VERS-TLS1.3";
 
 		/// <summary>
 		/// Set the GnuTLS handshake timeout. Set to zero to disable.

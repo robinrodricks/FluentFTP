@@ -1,20 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using FluentFTP.Xunit.Docker;
-using FluentFTP.Xunit.Attributes;
 using FluentFTP.Tests.Integration.System;
 
 namespace FluentFTP.Tests.Integration.Tests {
 
 	internal class ConnectTests : IntegrationTestSuite {
 
-		public ConnectTests(DockerFtpServer fixture) : base(fixture) { }
+		public ConnectTests(DockerFtpServer fixture, UseStream stream) : base(fixture, stream) { }
 
 
 		/// <summary>

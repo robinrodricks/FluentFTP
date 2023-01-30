@@ -81,7 +81,6 @@ namespace FluentFTP.GnuTLS {
 				Native.SetDefaultPriority(sess);
 			}
 			else if (ciphers.StartsWith("+") || ciphers.StartsWith("-")) {
-				Native.SetDefaultPriority(sess);
 				Native.SetDefaultPriorityAppend(sess, ciphers);
 			}
 			else {
@@ -202,6 +201,23 @@ namespace FluentFTP.GnuTLS {
 			maxCount = Math.Min(maxCount, MaxRecordSize);
 
 			int result = Native.gnutls_record_recv(sess.ptr, buffer, maxCount);
+
+			if (result == (int)EC.en.GNUTLS_E_AGAIN) {
+				SessionFlagsT flags = Native.SessionGetFlags(sess);
+				if (flags.HasFlag(SessionFlagsT.GNUTLS_SFLAGS_SESSION_TICKET)) {
+					Native.SessionGetData2(sess, ref resumeDataTLS12);
+
+					Logging.LogGnuFunc("Retrieving session data with session key");
+					Native.SessionSetData(sess, resumeDataTLS12);
+					Native.Free(resumeDataTLS12.ptr);
+
+					result = Native.gnutls_record_recv(sess.ptr, buffer, maxCount);
+
+					if (result == (int)EC.en.GNUTLS_E_AGAIN) {
+						result = Native.gnutls_record_recv(sess.ptr, buffer, maxCount);
+					}
+				}
+			}
 
 			Utils.Check("FtpGnuStream.Read", result);
 
