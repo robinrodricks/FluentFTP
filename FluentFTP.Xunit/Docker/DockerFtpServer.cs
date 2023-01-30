@@ -1,22 +1,14 @@
-﻿using DotNet.Testcontainers.Builders;
-using DotNet.Testcontainers.Containers;
+﻿using DotNet.Testcontainers.Containers;
 using FluentFTP.Xunit.Attributes;
-using FluentFTP.Xunit.System;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FluentFTP.Xunit.Docker {
 	public class DockerFtpServer : IDisposable {
 		internal DockerFtpContainer _server;
 		internal TestcontainersContainer? _container;
 		internal bool _useSsl;
+		internal string _useStream;
 
-		public DockerFtpServer(FtpServer serverType, bool useSsl) {
+		public DockerFtpServer(FtpServer serverType, string useStream, bool useSsl) {
 
 			// find the server
 			_server = DockerFtpContainerIndex.Index.FirstOrDefault(s => s.ServerType == serverType)!;
@@ -25,6 +17,7 @@ namespace FluentFTP.Xunit.Docker {
 			}
 
 			_useSsl = useSsl;
+			_useStream = useStream;
 
 			// build and start the container image
 			StartContainer();
@@ -64,7 +57,7 @@ namespace FluentFTP.Xunit.Docker {
 					_container?.DisposeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
 					// build the container image
-					_container = _server.Build(_useSsl);
+					_container = _server.Build(_useStream, _useSsl);
 
 					// start the container
 					_container.StartAsync().ConfigureAwait(false).GetAwaiter().GetResult();
