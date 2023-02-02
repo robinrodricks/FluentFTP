@@ -173,7 +173,7 @@ namespace FluentFTP.GnuTLS {
 					int count = Native.RecordCheckPending(sess);
 					if (count > 0) {
 						byte[] buf = new byte[count];
-						int result = this.Read(buf, 0, count);
+						this.Read(buf, 0, count);
 					}
 					Native.Bye(sess, CloseRequestT.GNUTLS_SHUT_RDWR);
 				}
@@ -192,32 +192,37 @@ namespace FluentFTP.GnuTLS {
 
 		public override int Read(byte[] buffer, int offset, int maxCount) {
 			if (maxCount <= 0) {
-				throw new ArgumentException("maxCount must be greater than zero");
+				throw new ArgumentException("FtpGnuStream.Read: maxCount must be greater than zero");
 			}
 			if (offset + maxCount > buffer.Length) {
-				throw new ArgumentException("offset + maxCount go beyond buffer length");
+				throw new ArgumentException("FtpGnuStream.Write: offset + maxCount go beyond buffer length");
 			}
 
 			maxCount = Math.Min(maxCount, MaxRecordSize);
 
-			int result = Native.gnutls_record_recv(sess.ptr, buffer, maxCount);
+			int result;
+			SessionFlagsT flags;
 
-			if (result == (int)EC.en.GNUTLS_E_AGAIN) {
-				SessionFlagsT flags = Native.SessionGetFlags(sess);
-				if (flags.HasFlag(SessionFlagsT.GNUTLS_SFLAGS_SESSION_TICKET)) {
-					Native.SessionGetData2(sess, ref resumeDataTLS12);
-
-					Logging.LogGnuFunc("Retrieving session data with session key");
-					Native.SessionSetData(sess, resumeDataTLS12);
-					Native.Free(resumeDataTLS12.ptr);
+			do {
 
 					result = Native.gnutls_record_recv(sess.ptr, buffer, maxCount);
 
-					if (result == (int)EC.en.GNUTLS_E_AGAIN) {
-						result = Native.gnutls_record_recv(sess.ptr, buffer, maxCount);
-					}
+				if (result >= (int)EC.en.GNUTLS_E_SUCCESS) { break; }
+				Logging.LogGnuFunc("FtpGnuStream.Read repeat due to " + Enum.GetName(typeof(EC.en), result));
+				switch (result) {
+					case (int)EC.en.GNUTLS_E_WARNING_ALERT_RECEIVED:
+						Logging.LogGnuFunc("Warning alert received: " + Native.AlertGetName(Native.AlertGet(sess)));
+						break;
+					case (int)EC.en.GNUTLS_E_FATAL_ALERT_RECEIVED:
+						Logging.LogGnuFunc("Fatal alert received: " + Native.AlertGetName(Native.AlertGet(sess)));
+						break;
+					default:
+						break;
 				}
-			}
+			} while (result == (int)EC.en.GNUTLS_E_AGAIN ||
+					 result == (int)EC.en.GNUTLS_E_INTERRUPTED ||
+					 result == (int)EC.en.GNUTLS_E_WARNING_ALERT_RECEIVED ||
+					 result == (int)EC.en.GNUTLS_E_FATAL_ALERT_RECEIVED);
 
 			Utils.Check("FtpGnuStream.Read", result);
 
@@ -239,7 +244,25 @@ namespace FluentFTP.GnuTLS {
 			int result = int.MaxValue;
 
 			while (result > 0) {
+				do {
 				result = Native.gnutls_record_send(sess.ptr, buf, Math.Min(buf.Length, MaxRecordSize));
+					if (result >= (int)EC.en.GNUTLS_E_SUCCESS) { break; }
+					Logging.LogGnuFunc("FtpGnuStream.Write repeat due to " + Enum.GetName(typeof(EC.en), result));
+					switch (result) {
+						case (int)EC.en.GNUTLS_E_WARNING_ALERT_RECEIVED:
+							Logging.LogGnuFunc("Warning alert received: " + Native.AlertGetName(Native.AlertGet(sess)));
+							break;
+						case (int)EC.en.GNUTLS_E_FATAL_ALERT_RECEIVED:
+							Logging.LogGnuFunc("Fatal alert received: " + Native.AlertGetName(Native.AlertGet(sess)));
+							break;
+						default:
+							break;
+					}
+				} while (result == (int)EC.en.GNUTLS_E_AGAIN ||
+						 result == (int)EC.en.GNUTLS_E_INTERRUPTED ||
+						 result == (int)EC.en.GNUTLS_E_WARNING_ALERT_RECEIVED ||
+						 result == (int)EC.en.GNUTLS_E_FATAL_ALERT_RECEIVED);
+
 				int newLength = buf.Length - result;
 				if (newLength <= 0) {
 					break;
@@ -313,6 +336,13 @@ namespace FluentFTP.GnuTLS {
 
 			if (prefix == "processed") { 
 				if (htype == (uint)HandshakeDescriptionT.GNUTLS_HANDSHAKE_NEW_SESSION_TICKET) {
+					SessionFlagsT flags = Native.SessionGetFlags(session);
+					if (flags.HasFlag(SessionFlagsT.GNUTLS_SFLAGS_SESSION_TICKET)) {
+						Native.SessionGetData2(session, ref resumeDataTLS12);
+						Logging.LogGnuFunc("Retrieving session data with session key");
+						Native.SessionSetData(session, resumeDataTLS12);
+						Native.Free(resumeDataTLS12.ptr);
+					}
 
 				}
 			}

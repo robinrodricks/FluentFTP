@@ -24,6 +24,8 @@ namespace FluentFTP.GnuTLS.Core {
 				return result;
 			}
 
+			// Consider also checking Native.ErrorIsFatal(result)
+
 			GnuTlsException ex;
 
 			if (!EC.ec.TryGetValue(result, out string errTxt)) errTxt = "Unknown error";
