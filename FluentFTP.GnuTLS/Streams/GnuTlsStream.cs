@@ -205,7 +205,7 @@ namespace FluentFTP.GnuTLS {
 
 			do {
 
-					result = Native.gnutls_record_recv(sess.ptr, buffer, maxCount);
+				result = Native.gnutls_record_recv(sess.ptr, buffer, maxCount);
 
 				if (result >= (int)EC.en.GNUTLS_E_SUCCESS) { break; }
 				Logging.LogGnuFunc("FtpGnuStream.Read repeat due to " + Enum.GetName(typeof(EC.en), result));
@@ -245,7 +245,7 @@ namespace FluentFTP.GnuTLS {
 
 			while (result > 0) {
 				do {
-				result = Native.gnutls_record_send(sess.ptr, buf, Math.Min(buf.Length, MaxRecordSize));
+					result = Native.gnutls_record_send(sess.ptr, buf, Math.Min(buf.Length, MaxRecordSize));
 					if (result >= (int)EC.en.GNUTLS_E_SUCCESS) { break; }
 					Logging.LogGnuFunc("FtpGnuStream.Write repeat due to " + Enum.GetName(typeof(EC.en), result));
 					switch (result) {
