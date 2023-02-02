@@ -157,13 +157,49 @@ namespace FluentFTP.GnuTLS.Core {
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_record_get_max_size")]
 		private static extern int gnutls_record_get_max_size(IntPtr session);
 
+		public static AlertDescriptionT AlertGet(Session sess) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return gnutls_alert_get(sess.ptr);
+		}
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_alert_get")]
+		private static extern AlertDescriptionT gnutls_alert_get(IntPtr session);
+
+		public static string? AlertGetName(AlertDescriptionT alert) {
+			return Marshal.PtrToStringAnsi(gnutls_get_alert_name(alert));
+		}
+		// const char * gnutls_alert_get_name (gnutls_alert_description_t alert)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_get_alert_name")]
+		private static extern IntPtr gnutls_get_alert_name(AlertDescriptionT alert);
+
+		public static bool ErrorIsFatal(int error) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return gnutls_error_is_fatal(error);
+		}
+		// int gnutls_error_is_fatal (int error)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_error_is_fatal")]
+		private static extern bool gnutls_error_is_fatal(int error);
+
 		// Traffic
 
 		public static int HandShake(Session sess) {
 			string gcm = Utils.GetCurrentMethod();
 			Logging.LogGnuFunc(gcm);
 
-			return Utils.Check(gcm, gnutls_handshake(sess.ptr));
+			int result;
+			do {
+				result = Native.gnutls_handshake(sess.ptr);
+				if (result >= (int)EC.en.GNUTLS_E_SUCCESS) { break; }
+				Logging.LogGnuFunc(gcm + " repeat due to " + Enum.GetName(typeof(EC.en), result));
+			} while (result == (int)EC.en.GNUTLS_E_AGAIN ||
+					 result == (int)EC.en.GNUTLS_E_INTERRUPTED ||
+					 result == (int)EC.en.GNUTLS_E_WARNING_ALERT_RECEIVED ||
+					 result == (int)EC.en.GNUTLS_E_GOT_APPLICATION_DATA);
+
+			return Utils.Check(gcm, result);
 		}
 		// int gnutls_handshake (gnutls_session_t session)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_handshake")]
@@ -183,7 +219,15 @@ namespace FluentFTP.GnuTLS.Core {
 			string gcm = Utils.GetCurrentMethod();
 			Logging.LogGnuFunc(gcm);
 
-			return Utils.Check(gcm, gnutls_bye(sess.ptr, how));
+			int result;
+			do {
+				result = gnutls_bye(sess.ptr, how);
+				if (result >= (int)EC.en.GNUTLS_E_SUCCESS) { break; }
+				Logging.LogGnuFunc(gcm + " repeat due to " + Enum.GetName(typeof(EC.en), result));
+			} while (result == (int)EC.en.GNUTLS_E_AGAIN ||
+					 result == (int)EC.en.GNUTLS_E_INTERRUPTED);
+
+			return Utils.Check(gcm, result);
 		}
 		// int gnutls_bye (gnutls_session_t session, gnutls_close_request_t how)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_bye")]
@@ -292,6 +336,12 @@ namespace FluentFTP.GnuTLS.Core {
 
 			return Utils.Check(gcm, gnutls_session_get_data2(sess.ptr, data));
 		}
+		public static int SessionGetData2(IntPtr sess, ref DatumT data) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return Utils.Check(gcm, gnutls_session_get_data2(sess, data));
+		}
 		// int gnutls_session_get_data2 (gnutls_session_t session, gnutls_datum_t * data)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_session_get_data2")]
 		private static extern int gnutls_session_get_data2(IntPtr session, [MarshalAs(UnmanagedType.LPStruct)] DatumT data);
@@ -301,6 +351,12 @@ namespace FluentFTP.GnuTLS.Core {
 			Logging.LogGnuFunc(gcm);
 
 			return Utils.Check(gcm, gnutls_session_set_data(sess.ptr, data.ptr, data.size));
+		}
+		public static int SessionSetData(IntPtr sess, DatumT data) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return Utils.Check(gcm, gnutls_session_set_data(sess, data.ptr, data.size));
 		}
 		// int gnutls_session_set_data (gnutls_session_t session, const void * session_data, size_t session_data_size)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_session_set_data")]
@@ -315,6 +371,12 @@ namespace FluentFTP.GnuTLS.Core {
 			Logging.LogGnuFunc(gcm);
 
 			return gnutls_session_get_flags(sess.ptr);
+		}
+		public static SessionFlagsT SessionGetFlags(IntPtr sess) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return gnutls_session_get_flags(sess);
 		}
 		// unsigned gnutls_session_get_flags(gnutls_session_t session)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_session_get_flags")]
