@@ -336,6 +336,7 @@ namespace FluentFTP.GnuTLS.Core {
 
 			return Utils.Check(gcm, gnutls_session_get_data2(sess.ptr, data));
 		}
+		// Special overload for HandshakeHook callback function
 		public static int SessionGetData2(IntPtr sess, ref DatumT data) {
 			string gcm = Utils.GetCurrentMethod();
 			Logging.LogGnuFunc(gcm);
@@ -352,6 +353,7 @@ namespace FluentFTP.GnuTLS.Core {
 
 			return Utils.Check(gcm, gnutls_session_set_data(sess.ptr, data.ptr, data.size));
 		}
+		// Special overload for HandshakeHook callback function
 		public static int SessionSetData(IntPtr sess, DatumT data) {
 			string gcm = Utils.GetCurrentMethod();
 			Logging.LogGnuFunc(gcm);
@@ -372,6 +374,7 @@ namespace FluentFTP.GnuTLS.Core {
 
 			return gnutls_session_get_flags(sess.ptr);
 		}
+		// Special overload for HandshakeHook callback function
 		public static SessionFlagsT SessionGetFlags(IntPtr sess) {
 			string gcm = Utils.GetCurrentMethod();
 			Logging.LogGnuFunc(gcm);
@@ -393,7 +396,7 @@ namespace FluentFTP.GnuTLS.Core {
 			var valuePtr = Marshal.StringToHGlobalAnsi(protocols);
 			Marshal.StructureToPtr(new DatumT { ptr = valuePtr, size = (uint)protocols.Length }, datumPtr, true);
 
-		    int result = Utils.Check(gcm, gnutls_alpn_set_protocols(sess.ptr, datumPtr, 1, AlpnFlagsT.GNUTLS_ALPN_MANDATORY));
+			int result = Utils.Check(gcm, gnutls_alpn_set_protocols(sess.ptr, datumPtr, 1, AlpnFlagsT.GNUTLS_ALPN_MANDATORY));
 
 			Marshal.FreeHGlobal(valuePtr);
 			Marshal.FreeHGlobal(datumPtr);
@@ -440,5 +443,13 @@ namespace FluentFTP.GnuTLS.Core {
 		// int gnutls_credentials_set (gnutls_session_t session, gnutls_credentials_type_t type, void * cred)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_credentials_set")]
 		private static extern int gnutls_credentials_set(IntPtr session, CredentialsTypeT type, IntPtr cred);
+
+
+		// C e r t i f i c a t e  V e r i f i c a t i o n
+
+		// void gnutls_session_set_verify_cert(gnutls_session_t session, const char* hostname, unsigned flags)
+
+		// unsigned int gnutls_session_get_verify_cert_status (gnutls_session_t session)
+
 	}
 }

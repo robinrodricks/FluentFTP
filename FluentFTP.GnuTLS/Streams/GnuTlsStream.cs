@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Security.Authentication;
 using FluentFTP.GnuTLS.Core;
+using static System.Collections.Specialized.BitVector32;
 
 namespace FluentFTP.GnuTLS {
 
@@ -307,35 +308,27 @@ namespace FluentFTP.GnuTLS {
 
 		// 
 
-		public static void HandshakeHook(IntPtr session, uint htype, uint post, uint incoming) {
+		public static void HandshakeHook(IntPtr session, uint desc, uint post, uint incoming) {
 
 			if (session == null) {
 				return;
 			}
 
-			string prefix;
+			string action;
 
-			if (incoming != 0) {
-				if (post != 0) {
-					prefix = "processed";
-				}
-				else {
-					prefix = "received";
-				}
+			if (incoming == 0) {
+				// send
+				action = post == 0 ? "about to send" : "sent";
 			}
 			else {
-				if (post != 0) {
-					prefix = "sent";
-				}
-				else {
-					prefix = "about to send";
-				}
+				// receive
+				action = post == 0 ? "received" : "processed";
 			}
 
-			Logging.LogGnuFunc("Handshake " + prefix + " " + Enum.GetName(typeof(HandshakeDescriptionT), htype));
+			Logging.LogGnuFunc("Handshake " + action + " " + Enum.GetName(typeof(HandshakeDescriptionT), desc));
 
-			if (prefix == "processed") { 
-				if (htype == (uint)HandshakeDescriptionT.GNUTLS_HANDSHAKE_NEW_SESSION_TICKET) {
+			if (incoming != 0 && post != 0) { // receive processed") 
+				if (desc == (uint)HandshakeDescriptionT.GNUTLS_HANDSHAKE_NEW_SESSION_TICKET) {
 					SessionFlagsT flags = Native.SessionGetFlags(session);
 					if (flags.HasFlag(SessionFlagsT.GNUTLS_SFLAGS_SESSION_TICKET)) {
 						Native.SessionGetData2(session, ref resumeDataTLS12);
@@ -343,10 +336,10 @@ namespace FluentFTP.GnuTLS {
 						Native.SessionSetData(session, resumeDataTLS12);
 						Native.Free(resumeDataTLS12.ptr);
 					}
-
 				}
 			}
 
 		}
+
 	}
 }
