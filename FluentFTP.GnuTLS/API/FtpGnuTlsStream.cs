@@ -2,6 +2,7 @@
 using FluentFTP.Streams;
 
 using System.IO;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 
@@ -12,7 +13,14 @@ namespace FluentFTP.GnuTLS {
 
 		public BaseFtpClient Client;
 
-		public void Init(BaseFtpClient client, Socket socket, bool isControl, IFtpStream controlConnStream, IFtpStreamConfig config) {
+		public void Init(
+			BaseFtpClient client,
+			string targetHost,
+			Socket socket,
+			CustomRemoteCertificateValidationCallback customRemoteCertificateValidation,
+			bool isControl,
+			IFtpStream controlConnStream,
+			IFtpStreamConfig config) {
 
 			// use default config if not given or if wrong type
 			if (config == null || (config as FtpGnuConfig) == null) {
@@ -29,7 +37,9 @@ namespace FluentFTP.GnuTLS {
 
 			// create a Gnu TLS stream
 			BaseStream = new GnuTlsStream(
+				targetHost,
 				socket,
+				customRemoteCertificateValidation,
 				isControl ? "ftp" : "ftp-data",
 				isControl ? null : (controlConnStream as FtpGnuTlsStream).BaseStream,
 				typedConfig.Priority,

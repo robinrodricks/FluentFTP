@@ -53,6 +53,16 @@ namespace FluentFTP {
 			set => m_policyErrors = value;
 		}
 
+		private string m_policyErrorMessage = string.Empty;
+
+		/// <summary>
+		/// Validation errors, if any.
+		/// </summary>
+		public string PolicyErrorMessage {
+			get => m_policyErrorMessage;
+			set => m_policyErrorMessage = value;
+		}
+
 		private bool m_accept = false;
 
 		/// <summary>
