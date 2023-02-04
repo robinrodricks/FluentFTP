@@ -12,7 +12,6 @@ using FluentFTP.Helpers;
 using FluentFTP.Exceptions;
 using FluentFTP.Client.BaseClient;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
 using FluentFTP.Streams;
 
 namespace FluentFTP {
@@ -368,6 +367,33 @@ namespace FluentFTP {
 			// if the event was not handled then only accept
 			// the certificate if there were no validation errors
 			return errors == SslPolicyErrors.None;
+		}
+
+		/// <summary>
+		/// Fires the SSL certificate validation event for custom encrypted streams
+		/// </summary>
+		/// <param name="certificate">Certificate being validated</param>
+		/// <param name="chain">Certificate chain</param>
+		/// <param name="errorMessage">Policy errors if any</param>
+		/// <returns>True if it was accepted, false otherwise</returns>
+		protected bool OnValidateCertificate(X509Certificate certificate, X509Chain chain, string errorMessage) {
+			var evt = m_sslvalidate;
+
+			if (evt != null) {
+				var e = new FtpSslValidationEventArgs() {
+					Certificate = certificate,
+					Chain = chain,
+					PolicyErrorMessage = errorMessage,
+					Accept = errorMessage == string.Empty,
+				};
+
+				evt(this, e);
+				return e.Accept;
+			}
+
+			// if the event was not handled then only accept
+			// the certificate if there were no validation errors
+			return errorMessage == string.Empty;
 		}
 
 		/// <summary>
@@ -1159,11 +1185,11 @@ namespace FluentFTP {
 		/// If this event is not handled and there are SslPolicyErrors present, the certificate will
 		/// not be accepted.
 		/// </summary>
-		/// <param name="targethost">The host to authenticate the certificate against</param>
+		/// <param name="targetHost">The host to authenticate the certificate against</param>
 		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
 		/// <param name="sslProtocols">A bitwise parameter for supported encryption protocols.</param>
 		/// <exception cref="AuthenticationException">Thrown when authentication fails</exception>
-		public void ActivateEncryption(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols) {
+		public void ActivateEncryption(string targetHost, X509CertificateCollection clientCerts, SslProtocols sslProtocols) {
 			if (!IsConnected) {
 				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
 			}
@@ -1183,7 +1209,7 @@ namespace FluentFTP {
 				authType = Client.Config.CustomStream.ToString();
 
 				try {
-					CreateCustomStream();
+					CreateCustomStream(targetHost);
 				}
 				catch (Exception ex) {
 					Close();
@@ -1206,9 +1232,9 @@ namespace FluentFTP {
 
 					try {
 #if NETSTANDARD
-						m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation).Wait();
+						m_sslStream.AuthenticateAsClientAsync(targetHost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation).Wait();
 #else
-						m_sslStream.AuthenticateAsClient(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
+						m_sslStream.AuthenticateAsClient(targetHost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
 #endif
 					}
 #if NETSTANDARD
@@ -1262,12 +1288,12 @@ namespace FluentFTP {
 		/// If this event is not handled and there are SslPolicyErrors present, the certificate will
 		/// not be accepted.
 		/// </summary>
-		/// <param name="targethost">The host to authenticate the certificate against</param>
+		/// <param name="targetHost">The host to authenticate the certificate against</param>
 		/// <param name="clientCerts">A collection of client certificates to use when authenticating the SSL stream</param>
 		/// <param name="sslProtocols">A bitwise parameter for supported encryption protocols.</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <exception cref="AuthenticationException">Thrown when authentication fails</exception>
-		public async Task ActivateEncryptionAsync(string targethost, X509CertificateCollection clientCerts, SslProtocols sslProtocols, CancellationToken token = default) {
+		public async Task ActivateEncryptionAsync(string targetHost, X509CertificateCollection clientCerts, SslProtocols sslProtocols, CancellationToken token = default) {
 			if (!IsConnected) {
 				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
 			}
@@ -1287,7 +1313,7 @@ namespace FluentFTP {
 				authType = Client.Config.CustomStream.ToString();
 
 				try {
-					CreateCustomStream();
+					CreateCustomStream(targetHost);
 				}
 				catch (Exception ex) {
 					Close();
@@ -1312,14 +1338,14 @@ namespace FluentFTP {
 					try {
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 						var options = new SslClientAuthenticationOptions() {
-							TargetHost = targethost,
+							TargetHost = targetHost,
 							ClientCertificates = clientCerts,
 							EnabledSslProtocols = sslProtocols,
 							CertificateRevocationCheckMode = Client.Config.ValidateCertificateRevocation ? X509RevocationMode.Online : X509RevocationMode.NoCheck
 						};
 						await m_sslStream.AuthenticateAsClientAsync(options, token);
 #else
-					await m_sslStream.AuthenticateAsClientAsync(targethost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
+					await m_sslStream.AuthenticateAsClientAsync(targetHost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
 #endif
 					}
 #if NETSTANDARD
@@ -1372,10 +1398,16 @@ namespace FluentFTP {
 
 		}
 
-		private void CreateCustomStream() {
+		private void CreateCustomStream(string targetHost) {
 
 			m_customStream = Activator.CreateInstance(Client.Config.CustomStream) as IFtpStream;
-			m_customStream.Init(Client, m_socket, IsControlConnection, ((IInternalFtpClient)Client).GetBaseStream().m_customStream, Client.Config.CustomStreamConfig);
+			m_customStream.Init(Client,
+				targetHost,
+				m_socket,
+				new CustomRemoteCertificateValidationCallback(delegate (object sender, X509Certificate certificate,	X509Chain chain, string errorMessage) {	return OnValidateCertificate(certificate, chain, errorMessage);	}),
+				IsControlConnection,
+				((IInternalFtpClient)Client).GetBaseStream().m_customStream,
+				Client.Config.CustomStreamConfig);
 
 		}
 

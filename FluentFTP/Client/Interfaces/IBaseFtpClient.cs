@@ -16,6 +16,10 @@ namespace FluentFTP {
 	/// <summary>
 	/// Base object for FtpClient, AsyncFtpClient and the internal client
 	/// </summary>
+	///
+
+	public delegate bool CustomRemoteCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, string errorMessage);
+
 	public interface IBaseFtpClient {
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member

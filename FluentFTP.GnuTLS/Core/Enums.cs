@@ -392,4 +392,193 @@ namespace FluentFTP.GnuTLS.Core {
 		uint GNUTLS_DEFAULT_HANDSHAKE_TIMEOUT = unchecked((uint)-1);
 		uint GNUTLS_INDEFINITE_TIMEOUT = unchecked((uint)-2);
 	}
+
+	/**
+	 * gnutls_certificate_status_t:
+	 * @GNUTLS_CERT_INVALID: The certificate is not signed by one of the
+	 *   known authorities or the signature is invalid (deprecated by the flags 
+	 *   %GNUTLS_CERT_SIGNATURE_FAILURE and %GNUTLS_CERT_SIGNER_NOT_FOUND).
+	 * @GNUTLS_CERT_SIGNATURE_FAILURE: The signature verification failed.
+	 * @GNUTLS_CERT_REVOKED: Certificate is revoked by its authority.  In X.509 this will be
+	 *   set only if CRLs are checked.
+	 * @GNUTLS_CERT_SIGNER_NOT_FOUND: The certificate's issuer is not known. 
+	 *   This is the case if the issuer is not included in the trusted certificate list.
+	 * @GNUTLS_CERT_SIGNER_NOT_CA: The certificate's signer was not a CA. This
+	 *   may happen if this was a version 1 certificate, which is common with
+	 *   some CAs, or a version 3 certificate without the basic constrains extension.
+	 * @GNUTLS_CERT_SIGNER_CONSTRAINTS_FAILURE: The certificate's signer constraints were
+	 *   violated.
+	 * @GNUTLS_CERT_INSECURE_ALGORITHM:  The certificate was signed using an insecure
+	 *   algorithm such as MD2 or MD5. These algorithms have been broken and
+	 *   should not be trusted.
+	 * @GNUTLS_CERT_NOT_ACTIVATED: The certificate is not yet activated.
+	 * @GNUTLS_CERT_EXPIRED: The certificate has expired.
+	 * @GNUTLS_CERT_REVOCATION_DATA_SUPERSEDED: The revocation data are old and have been superseded.
+	 * @GNUTLS_CERT_REVOCATION_DATA_ISSUED_IN_FUTURE: The revocation data have a future issue date.
+	 * @GNUTLS_CERT_UNEXPECTED_OWNER: The owner is not the expected one.
+	 * @GNUTLS_CERT_MISMATCH: The certificate presented isn't the expected one (TOFU)
+	 * @GNUTLS_CERT_PURPOSE_MISMATCH: The certificate or an intermediate does not match the intended purpose (extended key usage).
+	 * @GNUTLS_CERT_MISSING_OCSP_STATUS: The certificate requires the server to send the certificate status, but no status was received.
+	 * @GNUTLS_CERT_INVALID_OCSP_STATUS: The received OCSP status response is invalid.
+	 * @GNUTLS_CERT_UNKNOWN_CRIT_EXTENSIONS: The certificate has extensions marked as critical which are not supported.
+	 *
+	 * Enumeration of certificate status codes.  Note that the status
+	 * bits may have different meanings in OpenPGP keys and X.509
+	 * certificate verification.
+	*/
+	[Flags]
+	enum CertificateStatusT : uint {
+		GNUTLS_CERT_INVALID = 1 << 1,
+		GNUTLS_CERT_REVOKED = 1 << 5,
+		GNUTLS_CERT_SIGNER_NOT_FOUND = 1 << 6,
+		GNUTLS_CERT_SIGNER_NOT_CA = 1 << 7,
+		GNUTLS_CERT_INSECURE_ALGORITHM = 1 << 8,
+		GNUTLS_CERT_NOT_ACTIVATED = 1 << 9,
+		GNUTLS_CERT_EXPIRED = 1 << 10,
+		GNUTLS_CERT_SIGNATURE_FAILURE = 1 << 11,
+		GNUTLS_CERT_REVOCATION_DATA_SUPERSEDED = 1 << 12,
+		GNUTLS_CERT_UNEXPECTED_OWNER = 1 << 14,
+		GNUTLS_CERT_REVOCATION_DATA_ISSUED_IN_FUTURE = 1 << 15,
+		GNUTLS_CERT_SIGNER_CONSTRAINTS_FAILURE = 1 << 16,
+		GNUTLS_CERT_MISMATCH = 1 << 17,
+		GNUTLS_CERT_PURPOSE_MISMATCH = 1 << 18,
+		GNUTLS_CERT_MISSING_OCSP_STATUS = 1 << 19,
+		GNUTLS_CERT_INVALID_OCSP_STATUS = 1 << 20,
+		GNUTLS_CERT_UNKNOWN_CRIT_EXTENSIONS = 1 << 21
+	}
+
+	/**
+	 * gnutls_certificate_request_t:
+	 * @GNUTLS_CERT_IGNORE: Ignore certificate.
+	 * @GNUTLS_CERT_REQUEST: Request certificate.
+	 * @GNUTLS_CERT_REQUIRE: Require certificate.
+	 *
+	 * Enumeration of certificate request types.
+	*/
+	enum CertificateRequestT : uint {
+		GNUTLS_CERT_IGNORE = 0,
+		GNUTLS_CERT_REQUEST = 1,
+		GNUTLS_CERT_REQUIRE = 2
+	}
+
+	/**
+	 * gnutls_certificate_verify_flags:
+	 * @GNUTLS_VERIFY_DISABLE_CA_SIGN: If set a signer does not have to be
+	 *   a certificate authority. This flag should normally be disabled,
+	 *   unless you know what this means.
+	 * @GNUTLS_VERIFY_DISABLE_TRUSTED_TIME_CHECKS: If set a signer in the trusted
+	 *   list is never checked for expiration or activation.
+	 * @GNUTLS_VERIFY_DO_NOT_ALLOW_X509_V1_CA_CRT: Do not allow trusted CA
+	 *   certificates that have version 1.  This option is to be used
+	 *   to deprecate all certificates of version 1.
+	 * @GNUTLS_VERIFY_DO_NOT_ALLOW_SAME: If a certificate is not signed by
+	 *   anyone trusted but exists in the trusted CA list do not treat it
+	 *   as trusted.
+	 * @GNUTLS_VERIFY_ALLOW_UNSORTED_CHAIN: A certificate chain is tolerated
+	 *   if unsorted (the case with many TLS servers out there). This is the
+	 *   default since GnuTLS 3.1.4.
+	 * @GNUTLS_VERIFY_DO_NOT_ALLOW_UNSORTED_CHAIN: Do not tolerate an unsorted
+	 *   certificate chain.
+	 * @GNUTLS_VERIFY_ALLOW_ANY_X509_V1_CA_CRT: Allow CA certificates that
+	 *   have version 1 (both root and intermediate). This might be
+	 *   dangerous since those haven't the basicConstraints
+	 *   extension. 
+	 * @GNUTLS_VERIFY_ALLOW_SIGN_RSA_MD2: Allow certificates to be signed
+	 *   using the broken MD2 algorithm.
+	 * @GNUTLS_VERIFY_ALLOW_SIGN_RSA_MD5: Allow certificates to be signed
+	 *   using the broken MD5 algorithm.
+	 * @GNUTLS_VERIFY_ALLOW_SIGN_WITH_SHA1: Allow certificates to be signed
+	 *   using the broken SHA1 hash algorithm.
+	 * @GNUTLS_VERIFY_ALLOW_BROKEN: Allow certificates to be signed
+	 *   using any broken algorithm.
+	 * @GNUTLS_VERIFY_DISABLE_TIME_CHECKS: Disable checking of activation
+	 *   and expiration validity periods of certificate chains. Don't set
+	 *   this unless you understand the security implications.
+	 * @GNUTLS_VERIFY_DISABLE_CRL_CHECKS: Disable checking for validity
+	 *   using certificate revocation lists or the available OCSP data.
+	 * @GNUTLS_VERIFY_DO_NOT_ALLOW_WILDCARDS: When including a hostname
+	 *   check in the verification, do not consider any wildcards.
+	 * @GNUTLS_VERIFY_DO_NOT_ALLOW_IP_MATCHES: When verifying a hostname
+	 *   prevent textual IP addresses from matching IP addresses in the
+	 *   certificate. Treat the input only as a DNS name.
+	 * @GNUTLS_VERIFY_USE_TLS1_RSA: This indicates that a (raw) RSA signature is provided
+	 *   as in the TLS 1.0 protocol. Not all functions accept this flag.
+	 * @GNUTLS_VERIFY_IGNORE_UNKNOWN_CRIT_EXTENSIONS: This signals the verification
+	 *   process, not to fail on unknown critical extensions.
+	 * @GNUTLS_VERIFY_RSA_PSS_FIXED_SALT_LENGTH: Disallow RSA-PSS signatures made
+	 *   with mismatching salt length with digest length, as mandated in RFC 8446
+	 *   4.2.3.
+	 *
+	 * Enumeration of different certificate verify flags. Additional
+	 * verification profiles can be set using GNUTLS_PROFILE_TO_VFLAGS()
+	 * and %gnutls_certificate_verification_profiles_t.
+	*/
+	[Flags]
+	enum CertificateVerifyFlagsT : uint {
+		GNUTLS_VERIFY_DISABLE_CA_SIGN = 1 << 0,
+		GNUTLS_VERIFY_DO_NOT_ALLOW_IP_MATCHES = 1 << 1,
+		GNUTLS_VERIFY_DO_NOT_ALLOW_SAME = 1 << 2,
+		GNUTLS_VERIFY_ALLOW_ANY_X509_V1_CA_CRT = 1 << 3,
+		GNUTLS_VERIFY_ALLOW_SIGN_RSA_MD2 = 1 << 4,
+		GNUTLS_VERIFY_ALLOW_SIGN_RSA_MD5 = 1 << 5,
+		GNUTLS_VERIFY_DISABLE_TIME_CHECKS = 1 << 6,
+		GNUTLS_VERIFY_DISABLE_TRUSTED_TIME_CHECKS = 1 << 7,
+		GNUTLS_VERIFY_DO_NOT_ALLOW_X509_V1_CA_CRT = 1 << 8,
+		GNUTLS_VERIFY_DISABLE_CRL_CHECKS = 1 << 9,
+		GNUTLS_VERIFY_ALLOW_UNSORTED_CHAIN = 1 << 10,
+		GNUTLS_VERIFY_DO_NOT_ALLOW_UNSORTED_CHAIN = 1 << 11,
+		GNUTLS_VERIFY_DO_NOT_ALLOW_WILDCARDS = 1 << 12,
+		GNUTLS_VERIFY_USE_TLS1_RSA = 1 << 13,
+		GNUTLS_VERIFY_IGNORE_UNKNOWN_CRIT_EXTENSIONS = 1 << 14,
+		GNUTLS_VERIFY_ALLOW_SIGN_WITH_SHA1 = 1 << 15,
+		GNUTLS_VERIFY_RSA_PSS_FIXED_SALT_LENGTH = 1 << 16
+		/* cannot exceed 2^24 due to GNUTLS_PROFILE_TO_VFLAGS() */
+	}
+
+	/**
+	 * gnutls_certificate_verification_profiles_t:
+	 * @GNUTLS_PROFILE_UNKNOWN: An invalid/unknown profile.
+	 * @GNUTLS_PROFILE_VERY_WEAK: A verification profile that
+	 *  corresponds to @GNUTLS_SEC_PARAM_VERY_WEAK (64 bits)
+	 * @GNUTLS_PROFILE_LOW: A verification profile that
+	 *  corresponds to @GNUTLS_SEC_PARAM_LOW (80 bits)
+	 * @GNUTLS_PROFILE_LEGACY: A verification profile that
+	 *  corresponds to @GNUTLS_SEC_PARAM_LEGACY (96 bits)
+	 * @GNUTLS_PROFILE_MEDIUM: A verification profile that
+	 *  corresponds to @GNUTLS_SEC_PARAM_MEDIUM (112 bits)
+	 * @GNUTLS_PROFILE_HIGH: A verification profile that
+	 *  corresponds to @GNUTLS_SEC_PARAM_HIGH (128 bits)
+	 * @GNUTLS_PROFILE_ULTRA: A verification profile that
+	 *  corresponds to @GNUTLS_SEC_PARAM_ULTRA (192 bits)
+	 * @GNUTLS_PROFILE_FUTURE: A verification profile that
+	 *  corresponds to @GNUTLS_SEC_PARAM_FUTURE (256 bits)
+	 * @GNUTLS_PROFILE_SUITEB128: A verification profile that
+	 *  applies the SUITEB128 rules
+	 * @GNUTLS_PROFILE_SUITEB192: A verification profile that
+	 *  applies the SUITEB192 rules
+	 *
+	 * Enumeration of different certificate verification profiles.
+	*/
+	enum CertificateVerificationProfilesT : uint {
+		GNUTLS_PROFILE_UNKNOWN = 0,
+		GNUTLS_PROFILE_VERY_WEAK = 1,
+		GNUTLS_PROFILE_LOW = 2,
+		GNUTLS_PROFILE_LEGACY = 4,
+		GNUTLS_PROFILE_MEDIUM = 5,
+		GNUTLS_PROFILE_HIGH = 6,
+		GNUTLS_PROFILE_ULTRA = 7,
+		GNUTLS_PROFILE_FUTURE = 8,
+		GNUTLS_PROFILE_SUITEB128 = 32,
+		GNUTLS_PROFILE_SUITEB192 = 33
+		/*GNUTLS_PROFILE_MAX=255*/
+	}
+
+	//#define GNUTLS_PROFILE_TO_VFLAGS(x) \
+	//	(((unsigned) x)<<24)
+
+	//#define GNUTLS_VFLAGS_PROFILE_MASK (0xff000000)
+
+	//#define GNUTLS_VFLAGS_TO_PROFILE(x) \
+	//	((((unsigned) x)>>24)&0xff)
+
 }

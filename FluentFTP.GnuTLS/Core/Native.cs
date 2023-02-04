@@ -1,5 +1,9 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using static System.Collections.Specialized.BitVector32;
+using System.Xml.Linq;
 
 namespace FluentFTP.GnuTLS.Core {
 	internal static class Native {
@@ -450,6 +454,30 @@ namespace FluentFTP.GnuTLS.Core {
 		// void gnutls_session_set_verify_cert(gnutls_session_t session, const char* hostname, unsigned flags)
 
 		// unsigned int gnutls_session_get_verify_cert_status (gnutls_session_t session)
+
+		public static int CertificateVerifyPeers3(Session sess, string? hostname, out CertificateStatusT status) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			CertificateStatusT temp;
+			int result = gnutls_certificate_verify_peers3(sess.ptr, hostname, out temp);
+			status = temp;
+			return Utils.Check(gcm, result);
+		}
+		// int gnutls_certificate_verify_peers3 (gnutls_session_t session, const char * hostname, unsigned int * status)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_verify_peers3")]
+		private static extern int gnutls_certificate_verify_peers3(IntPtr session, [In()][MarshalAs(UnmanagedType.LPStr)] string? hostname, [Out()][MarshalAs(UnmanagedType.U4)] out CertificateStatusT status);
+
+		public static void CertificateSetVerifyFlags(CertificateCredentials res, CertificateVerifyFlagsT flags) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			gnutls_certificate_set_verify_flags(res.ptr, flags);
+			return;
+		}
+		// void gnutls_certificate_set_verify_flags(gnutls_certificate_credentials_t res, unsigned int flags)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_set_verify_flags")]
+		private static extern void gnutls_certificate_set_verify_flags(IntPtr res, CertificateVerifyFlagsT flags);
 
 	}
 }

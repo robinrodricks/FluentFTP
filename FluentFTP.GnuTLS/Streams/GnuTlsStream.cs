@@ -4,7 +4,6 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Security.Authentication;
 using FluentFTP.GnuTLS.Core;
-using static System.Collections.Specialized.BitVector32;
 
 namespace FluentFTP.GnuTLS {
 
@@ -49,7 +48,17 @@ namespace FluentFTP.GnuTLS {
 
 		//
 
-		public GnuTlsStream(Socket socket, string? alpn, GnuTlsStream streamToResume, string ciphers, int handshakeTimeout, GnuStreamLogCBFunc elog, int logMaxLevel, int logQueueMaxSize) {
+		public GnuTlsStream(
+			string targetHost,
+			Socket socket,
+			CustomRemoteCertificateValidationCallback customRemoteCertificateValidation,
+			string? alpn,
+			GnuTlsStream streamToResume,
+			string ciphers,
+			int handshakeTimeout,
+			GnuStreamLogCBFunc elog,
+			int logMaxLevel,
+			int logQueueMaxSize) {
 
 			if (ctorCount < 1) { // == 0 !
 				Logging.InitLogging(elog, logMaxLevel, logQueueMaxSize);
@@ -128,6 +137,30 @@ namespace FluentFTP.GnuTLS {
 			// Reenable the Nagle Algorithm
 			sock.NoDelay = false;
 
+			// Check server certificate
+			CertificateStatusT serverCertificateStatus;
+
+			// Set Certificate Verification Profile and Flags
+			// If no profile is set (uppermost 8 bits), it is taken from the priority string
+			// If no flags are set, the internal default is used.
+			//Native.CertificateSetVerifyFlags(cred, (CertificateVerifyFlagsT)0x00FFFFFF);
+
+			Native.CertificateVerifyPeers3(sess, targetHost, out serverCertificateStatus);
+
+			string serverCertificateStatusText = serverCertificateStatus.ToString("G");
+			if (serverCertificateStatusText == "0") {
+				serverCertificateStatusText = string.Empty;
+			}
+
+			if (serverCertificateStatus != 0) {
+				Logging.LogGnuFunc("Server certificate internal validation failure: " + serverCertificateStatusText);
+			}
+
+			if (!customRemoteCertificateValidation(this, null, null, serverCertificateStatusText)) {
+				Logging.LogGnuFunc("Server certificate external validation failure");
+				throw new AuthenticationException(serverCertificateStatusText);
+			};
+
 			// TLS1.2, TLS1.3 or what?
 			ProtocolName = Native.ProtocolGetName(Native.ProtocolGetVersion(sess));
 
@@ -202,13 +235,13 @@ namespace FluentFTP.GnuTLS {
 			maxCount = Math.Min(maxCount, MaxRecordSize);
 
 			int result;
-			SessionFlagsT flags;
 
 			do {
-
 				result = Native.gnutls_record_recv(sess.ptr, buffer, maxCount);
 
-				if (result >= (int)EC.en.GNUTLS_E_SUCCESS) { break; }
+				if (result >= (int)EC.en.GNUTLS_E_SUCCESS) {
+					break;
+				}
 				Logging.LogGnuFunc("FtpGnuStream.Read repeat due to " + Enum.GetName(typeof(EC.en), result));
 				switch (result) {
 					case (int)EC.en.GNUTLS_E_WARNING_ALERT_RECEIVED:
@@ -247,7 +280,9 @@ namespace FluentFTP.GnuTLS {
 			while (result > 0) {
 				do {
 					result = Native.gnutls_record_send(sess.ptr, buf, Math.Min(buf.Length, MaxRecordSize));
-					if (result >= (int)EC.en.GNUTLS_E_SUCCESS) { break; }
+					if (result >= (int)EC.en.GNUTLS_E_SUCCESS) {
+						break;
+					}
 					Logging.LogGnuFunc("FtpGnuStream.Write repeat due to " + Enum.GetName(typeof(EC.en), result));
 					switch (result) {
 						case (int)EC.en.GNUTLS_E_WARNING_ALERT_RECEIVED:
@@ -332,7 +367,8 @@ namespace FluentFTP.GnuTLS {
 					SessionFlagsT flags = Native.SessionGetFlags(session);
 					if (flags.HasFlag(SessionFlagsT.GNUTLS_SFLAGS_SESSION_TICKET)) {
 						Native.SessionGetData2(session, ref resumeDataTLS12);
-						Logging.LogGnuFunc("Retrieving session data with session key");
+						Logging.LogGnuFunc("Retrieved session data with new session ticket");
+
 						Native.SessionSetData(session, resumeDataTLS12);
 						Native.Free(resumeDataTLS12.ptr);
 					}
