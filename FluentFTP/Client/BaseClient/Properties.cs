@@ -1,16 +1,14 @@
-﻿using System;
-using System.IO;
-using System.Text;
-using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using System.Globalization;
-using System.Security.Authentication;
-using System.Net;
-using FluentFTP.Servers;
+﻿using FluentFTP.Exceptions;
 using FluentFTP.Helpers;
+using FluentFTP.Servers;
+
+using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Sockets;
+using System.Security.Authentication;
+using System.Text;
 using System.Threading;
-using FluentFTP.Exceptions;
 
 namespace FluentFTP.Client.BaseClient {
 
