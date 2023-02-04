@@ -1,9 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using static System.Collections.Specialized.BitVector32;
-using System.Xml.Linq;
 
 namespace FluentFTP.GnuTLS.Core {
 	internal static class Native {
@@ -448,6 +444,29 @@ namespace FluentFTP.GnuTLS.Core {
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_credentials_set")]
 		private static extern int gnutls_credentials_set(IntPtr session, CredentialsTypeT type, IntPtr cred);
 
+		// Info
+
+		public static bool CertificateClientGetRequestStatus(Session sess) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return gnutls_certificate_client_get_request_status(sess.ptr);
+		}
+		// unsigned gnutls_certificate_client_get_request_status(gnutls_session_t session)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_client_get_request_status")]
+		private static extern bool gnutls_certificate_client_get_request_status(IntPtr session);
+
+		// Retrieve certificate(s)
+
+		public static DatumT CertificateGetPeers(Session sess, ref uint listSize) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return Marshal.PtrToStructure<DatumT>(gnutls_certificate_get_peers(sess.ptr, ref listSize));
+		}
+		// const gnutls_datum_t * gnutls_certificate_get_peers (gnutls_session_t session, unsigned int * list_size)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_get_peers")]
+		private static extern IntPtr gnutls_certificate_get_peers(IntPtr session, ref uint list_size);
 
 		// C e r t i f i c a t e  V e r i f i c a t i o n
 

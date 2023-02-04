@@ -22,13 +22,13 @@ namespace FluentFTP.GnuTLS {
 		public bool IsResumed { get { return Native.SessionIsResumed(sess) == 1; } }
 		public bool IsSessionOk { get; private set; } = false;
 
-		// Logging call back to our user
+		// Logging call back to our user.
 		public delegate void GnuStreamLogCBFunc(string message);
 
 		// GnuTLS Handshake Hook function
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-		public delegate void GnuTlsHandshakeHookFunc(IntPtr session, uint htype, uint post, uint incoming);
-		public GnuTlsHandshakeHookFunc handshakeHookFunc = HandshakeHook;
+		internal delegate void GnuTlsHandshakeHookFunc(IntPtr session, uint htype, uint post, uint incoming);
+		internal GnuTlsHandshakeHookFunc handshakeHookFunc = HandshakeHook;
 
 		//
 
@@ -40,10 +40,15 @@ namespace FluentFTP.GnuTLS {
 
 		private ClientSession sess;
 
+		// We need a socket for each instance. This is brought in by the creator of
+		// this instance of GnuTlsStream when constructing it.
 		private Socket sock;
 
 		//
 
+		// Keep track: Is this the first instance or a subsequent one?
+		// We need to do a "GLobal Init" and a "Global DeInit" when the first
+		// instance is born or dies.
 		private static int ctorCount = 0;
 
 		//
@@ -59,6 +64,12 @@ namespace FluentFTP.GnuTLS {
 			GnuStreamLogCBFunc elog,
 			int logMaxLevel,
 			int logQueueMaxSize) {
+
+			// On the first instance of GnuTlsStream, setup:
+			// 1. Logging
+			// 2. Make sure GnuTls version corresponds to our Native. and Enums.
+			// 3. GnuTls Gobal Init
+			// 4. One single credentials set
 
 			if (ctorCount < 1) { // == 0 !
 				Logging.InitLogging(elog, logMaxLevel, logQueueMaxSize);
@@ -77,9 +88,16 @@ namespace FluentFTP.GnuTLS {
 				cred = new();
 			}
 
+			// Further code runs on first and all subsequent instantiations of
+			// GnuTlsStream - for FTP, typically there is one control connections
+			// as the first instance, and one further instance that is born and then dies
+			// multiple times as a data connection.
+
 			ctorCount++;
 
 			sock = socket;
+
+
 
 			sess = new(InitFlagsT.GNUTLS_NO_TICKETS_TLS12);
 
@@ -100,6 +118,12 @@ namespace FluentFTP.GnuTLS {
 			Native.DhSetPrimeBits(sess, 1024);
 
 			Native.CredentialsSet(cred, sess);
+
+			//
+			// TODO: Setup (if any) client certificates for verification
+			//       by the server, at this point.
+			// ****
+			//
 
 			Native.HandshakeSetTimeout(sess, (uint)handshakeTimeout);
 
@@ -153,13 +177,27 @@ namespace FluentFTP.GnuTLS {
 			}
 
 			if (serverCertificateStatus != 0) {
-				Logging.LogGnuFunc("Server certificate internal validation failure: " + serverCertificateStatusText);
+				Logging.LogGnuFunc("Server certificate internal validation failure: ");
+				Logging.LogGnuFunc(serverCertificateStatusText);
 			}
 
+			// 
+			// TODO: Get the servers certificate, get the servers certificate chain and insert
+			//       these here --------------------------+ ----+
+			//                                            |     |
+			// ****                                       |     |
+			//                                            V     V
 			if (!customRemoteCertificateValidation(this, null, null, serverCertificateStatusText)) {
 				Logging.LogGnuFunc("Server certificate external validation failure");
 				throw new AuthenticationException(serverCertificateStatusText);
 			};
+
+			if (Native.CertificateClientGetRequestStatus(sess)) {
+				Logging.LogGnuFunc("Server requested client certificate");
+			}
+			else {
+				Logging.LogGnuFunc("Server did not request client certificate");
+			}
 
 			// TLS1.2, TLS1.3 or what?
 			ProtocolName = Native.ProtocolGetName(Native.ProtocolGetVersion(sess));
@@ -343,7 +381,7 @@ namespace FluentFTP.GnuTLS {
 
 		// 
 
-		public static void HandshakeHook(IntPtr session, uint desc, uint post, uint incoming) {
+		internal static void HandshakeHook(IntPtr session, uint desc, uint post, uint incoming) {
 
 			if (session == null) {
 				return;
