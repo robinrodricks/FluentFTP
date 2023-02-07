@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 namespace FluentFTP.GnuTLS.Core {
-	internal static class Native {
+	internal static class GnuTls {
 
 		// G l o b a l
 
@@ -181,7 +181,7 @@ namespace FluentFTP.GnuTLS.Core {
 
 			int result;
 			do {
-				result = Native.gnutls_handshake(sess.ptr);
+				result = GnuTls.gnutls_handshake(sess.ptr);
 				if (result >= (int)EC.en.GNUTLS_E_SUCCESS) { break; }
 				Logging.LogGnuFunc(LogDebugInformationMessagesT.Handshake, gcm + " repeat due to " + Enum.GetName(typeof(EC.en), result));
 			} while (result == (int)EC.en.GNUTLS_E_AGAIN ||
@@ -312,29 +312,29 @@ namespace FluentFTP.GnuTLS.Core {
 
 		// Session Resume
 
-		public static int SessionIsResumed(Session sess) {
-			return Utils.Check(Utils.GetCurrentMethod(), gnutls_session_is_resumed(sess.ptr));
+		public static bool SessionIsResumed(Session sess) {
+			return gnutls_session_is_resumed(sess.ptr);
 		}
 		// int gnutls_session_is_resumed (gnutls_session_t session)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_session_is_resumed")]
-		private static extern int gnutls_session_is_resumed(IntPtr session);
+		private static extern bool gnutls_session_is_resumed(IntPtr session);
 
-		public static int SessionGetData2(Session sess, ref DatumT data) {
+		public static int SessionGetData2(Session sess, out DatumT data) {
 			string gcm = Utils.GetCurrentMethod();
 			Logging.LogGnuFunc(gcm);
 
-			return Utils.Check(gcm, gnutls_session_get_data2(sess.ptr, ref data));
+			return Utils.Check(gcm, gnutls_session_get_data2(sess.ptr, out data));
 		}
 		// Special overload for HandshakeHook callback function
-		public static int SessionGetData2(IntPtr sess, ref DatumT data) {
+		public static int SessionGetData2(IntPtr sess, out DatumT data) {
 			string gcm = Utils.GetCurrentMethod();
 			Logging.LogGnuFunc(gcm);
 
-			return Utils.Check(gcm, gnutls_session_get_data2(sess, ref data));
+			return Utils.Check(gcm, gnutls_session_get_data2(sess, out data));
 		}
 		// int gnutls_session_get_data2 (gnutls_session_t session, gnutls_datum_t * data)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_session_get_data2")]
-		private static extern int gnutls_session_get_data2(IntPtr session, ref DatumT data);
+		private static extern int gnutls_session_get_data2(IntPtr session, out DatumT data);
 
 		public static int SessionSetData(Session sess, DatumT data) {
 			string gcm = Utils.GetCurrentMethod();

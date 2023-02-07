@@ -46,6 +46,7 @@ namespace FluentFTP.GnuTLS {
 				typedConfig.HandshakeTimeout,
 				fluentFtpLog,
 				typedConfig.LogLevel,
+				typedConfig.LogDebugInformation,
 				typedConfig.LogBuffSize);
 
 		}

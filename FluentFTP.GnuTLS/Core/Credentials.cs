@@ -22,7 +22,7 @@ namespace FluentFTP.GnuTLS.Core {
 			Logging.LogGnuFunc(gcm);
 
 			string errText = "CertificateCredentials()";
-			_ = Utils.Check(errText + " : certificate_allocate_credentials", Native.gnutls_certificate_allocate_credentials(ref this.ptr));
+			_ = Utils.Check(errText + " : certificate_allocate_credentials", GnuTls.gnutls_certificate_allocate_credentials(ref this.ptr));
 		}
 
 		public void Dispose() {
@@ -30,7 +30,7 @@ namespace FluentFTP.GnuTLS.Core {
 				string gcm = Utils.GetCurrentMethod() + ":CertificateCredentials";
 				Logging.LogGnuFunc(gcm);
 
-				Native.gnutls_certificate_free_credentials(this.ptr);
+				GnuTls.gnutls_certificate_free_credentials(this.ptr);
 				this.ptr = IntPtr.Zero;
 			}
 		}

@@ -60,10 +60,7 @@ namespace FluentFTP.GnuTLS.Core {
 				return;
 			}
 
-			if (logCBFunc == null) {
-				Console.WriteLine(s);
-			}
-			else {
+			if (logCBFunc != null) {
 				logCBFunc(s);
 			}
 		}
@@ -104,8 +101,8 @@ namespace FluentFTP.GnuTLS.Core {
 			Logging.logDebugInformation = logDebugInformation;
 			Logging.logQueueMaxSize = logQueueMaxSize;
 
-			Native.GlobalSetLogFunction(gnuTlsLogCBFunc);
-			Native.GlobalSetLogLevel(99);
+			GnuTls.GlobalSetLogFunction(gnuTlsLogCBFunc);
+			GnuTls.GlobalSetLogLevel(99);
 		}
 	}
 }

@@ -27,7 +27,7 @@ namespace FluentFTP.GnuTLS {
 			//
 			// Perform the GnuTls internal validation, it is part of the handshake process
 			//
-			Native.CertificateVerifyPeers3(sess, hostname, out serverCertificateStatus);
+			GnuTls.CertificateVerifyPeers3(sess, hostname, out serverCertificateStatus);
 
 			string serverCertificateStatusText = serverCertificateStatus.ToString("G");
 			if (serverCertificateStatusText == "0") {
@@ -47,21 +47,29 @@ namespace FluentFTP.GnuTLS {
 			// Determine the type of the servers certificate(s)/key and get the data out
 			// from them.
 			//
-			CertificateTypeT certificateType = Native.CertificateTypeGet2(sess, CtypeTargetT.GNUTLS_CTYPE_PEERS);
+			CertificateTypeT certificateType = GnuTls.CertificateTypeGet2(sess, CtypeTargetT.GNUTLS_CTYPE_PEERS);
 
 			string serverCertificate = string.Empty;
 
 			switch (certificateType) {
+
 				case CertificateTypeT.GNUTLS_CRT_X509:
+
+					// Extract X509 certificate(s)
 					GetCertInfoX509(out serverCertificate);
+
 					break;
 
 				case CertificateTypeT.GNUTLS_CRT_RAWPK:
+
+					// Extract Raw Publick Key "certificate(s)"
 					GetCertInfoRAWPK();
+
 					break;
 
 				default:
 					break;
+
 			}
 
 			//
@@ -99,6 +107,8 @@ namespace FluentFTP.GnuTLS {
 			//
 			// Extract X509 certificate(s)
 			//
+			#region GetCertInfoX509(out string pCertS)
+
 			void GetCertInfoX509(out string pCertS) {
 
 				pCertS = string.Empty;
@@ -107,7 +117,7 @@ namespace FluentFTP.GnuTLS {
 				uint numData = 0;
 
 				// Get the servers list of X.509 certificates, these will be in DER format
-				data = Native.CertificateGetPeers(sess, ref numData);
+				data = GnuTls.CertificateGetPeers(sess, ref numData);
 				if (numData == 0) {
 					Logging.LogGnuFunc(LogDebugInformationMessagesT.X509, "No certificates found");
 					return;
@@ -125,19 +135,19 @@ namespace FluentFTP.GnuTLS {
 
 					int result;
 
-					result = Native.X509CrtInit(ref cert);
+					result = GnuTls.X509CrtInit(ref cert);
 					if (result < 0) {
 						Logging.LogGnuFunc(LogDebugInformationMessagesT.X509, "Error allocating Memory");
 						return;
 					}
 
-					result = Native.X509CrtImport(cert, ref data[i], X509CrtFmtT.GNUTLS_X509_FMT_DER);
+					result = GnuTls.X509CrtImport(cert, ref data[i], X509CrtFmtT.GNUTLS_X509_FMT_DER);
 					if (result < 0) {
 						Logging.LogGnuFunc(LogDebugInformationMessagesT.X509, "Error decoding: " + Utils.GnuTlsErrorText(result));
 						return;
 					}
 
-					result = Native.X509CrtExport2(cert, X509CrtFmtT.GNUTLS_X509_FMT_PEM, ref cinfo);
+					result = GnuTls.X509CrtExport2(cert, X509CrtFmtT.GNUTLS_X509_FMT_PEM, ref cinfo);
 					if (result == 0) {
 						string cOutput = Marshal.PtrToStringAnsi(cinfo.ptr);
 						pCertS = cOutput;
@@ -146,30 +156,33 @@ namespace FluentFTP.GnuTLS {
 					}
 
 					CertificatePrintFormatsT flag = CertificatePrintFormatsT.GNUTLS_CRT_PRINT_FULL;
-					result = Native.X509CrtPrint(cert, flag, ref pinfo);
+					result = GnuTls.X509CrtPrint(cert, flag, ref pinfo);
 					if (result == 0) {
 						string pOutput = Marshal.PtrToStringAnsi(pinfo.ptr);
 						Logging.LogGnuFunc(LogDebugInformationMessagesT.X509, pOutput);
 						//Native.GnuFree(cinfo.ptr);
 					}
 
-					Native.X509CrtDeinit(cert);
+					GnuTls.X509CrtDeinit(cert);
 
 				}
 
 				return;
 			}
+			#endregion
 
 			//
 			// Extract Raw Publick Key "certificate(s)"
 			//
+			#region GetCertInfoRAWPK()
+
 			void GetCertInfoRAWPK() {
 
 				DatumT[] data;
 				uint numData = 0;
 
 				// Get the servers list of Raw Public Key certificates, these will be in DER format
-				data = Native.CertificateGetPeers(sess, ref numData);
+				data = GnuTls.CertificateGetPeers(sess, ref numData);
 				if (numData == 0) {
 					Logging.LogGnuFunc(LogDebugInformationMessagesT.RAWPK, "No certificates found");
 					return;
@@ -183,7 +196,7 @@ namespace FluentFTP.GnuTLS {
 
 				int result;
 
-				result = Native.PcertImportRawpkRaw(cert, ref data[0], X509CrtFmtT.GNUTLS_X509_FMT_DER, 0, 0);
+				result = GnuTls.PcertImportRawpkRaw(cert, ref data[0], X509CrtFmtT.GNUTLS_X509_FMT_DER, 0, 0);
 				if (result < 0) {
 					Logging.LogGnuFunc(LogDebugInformationMessagesT.RAWPK, "Error decoding: " + Utils.GnuTlsErrorText(result));
 					return;
@@ -214,6 +227,7 @@ namespace FluentFTP.GnuTLS {
 
 				return;
 			}
+			#endregion
 
 		}
 

@@ -71,8 +71,8 @@ namespace FluentFTP.GnuTLS {
 		/// ========
 		/// 
 		/// You can set the priority string to be used for connections.
-		/// You are STRONGLY advised to read the section on "priority strings" in
-		/// the GnuTLS documentation (currently chapter 6.10 for GnuTLS 3.7.7)
+		/// You are **STRONGLY** advised to read the section on "priority strings"
+		/// in the GnuTLS documentation (currently chapter 6.10 for GnuTLS 3.7.7)
 		/// Either: Leave it empty. The GnuTLS defaults will be used.
 		/// Or: Set it to a string that starts with "+" or "-". Then
 		/// the following GnuTLS default ciphers will be modified by
@@ -97,7 +97,7 @@ namespace FluentFTP.GnuTLS {
 		/// HandshakeTimeout
 		/// ================
 		/// 
-		/// Set the GnuTLS handshake timeout. Set to zero to disable.
+		/// Set the GnuTLS handshake timeout in ms. Set to zero to disable.
 		/// </summary>
 		public int HandshakeTimeout { get; set; } = 5000;
 
