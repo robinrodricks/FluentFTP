@@ -147,20 +147,22 @@ namespace FluentFTP.GnuTLS {
 						return;
 					}
 
-					result = GnuTls.X509CrtExport2(cert, X509CrtFmtT.GNUTLS_X509_FMT_PEM, ref cinfo);
-					if (result == 0) {
-						string cOutput = Marshal.PtrToStringAnsi(cinfo.ptr);
-						pCertS = cOutput;
-						Logging.LogGnuFunc(LogDebugInformationMessagesT.X509, cOutput);
-						//Native.GnuFree(pinfo.ptr);
-					}
+					if (ctorCount < 2) {
+						CertificatePrintFormatsT flag = CertificatePrintFormatsT.GNUTLS_CRT_PRINT_FULL;
+						result = GnuTls.X509CrtPrint(cert, flag, ref pinfo);
+						if (result == 0) {
+							string pOutput = Marshal.PtrToStringAnsi(pinfo.ptr);
+							Logging.LogGnuFunc(LogDebugInformationMessagesT.ShowClientCertificateInfo, pOutput);
+							//Native.GnuFree(cinfo.ptr);
+						}
 
-					CertificatePrintFormatsT flag = CertificatePrintFormatsT.GNUTLS_CRT_PRINT_FULL;
-					result = GnuTls.X509CrtPrint(cert, flag, ref pinfo);
-					if (result == 0) {
-						string pOutput = Marshal.PtrToStringAnsi(pinfo.ptr);
-						Logging.LogGnuFunc(LogDebugInformationMessagesT.X509, pOutput);
-						//Native.GnuFree(cinfo.ptr);
+						result = GnuTls.X509CrtExport2(cert, X509CrtFmtT.GNUTLS_X509_FMT_PEM, ref cinfo);
+						if (result == 0) {
+							string cOutput = Marshal.PtrToStringAnsi(cinfo.ptr);
+							pCertS = cOutput;
+							Logging.LogGnuFunc(LogDebugInformationMessagesT.ShowClientCertificatePEM, "X.509 Certificate (PEM)" + Environment.NewLine + cOutput);
+							//Native.GnuFree(pinfo.ptr);
+						}
 					}
 
 					GnuTls.X509CrtDeinit(cert);
@@ -202,25 +204,29 @@ namespace FluentFTP.GnuTLS {
 					return;
 				}
 
-				//
-				// TODO:
-				//
-				//pk_algo = gnutls_pubkey_get_pk_algorithm(pk_cert.pubkey, NULL);
+				if (ctorCount < 2) {
 
-				//log_msg(out, "- Raw pk info:\n");
-				//log_msg(out, " - PK algo: %s\n", gnutls_pk_algorithm_get_name(pk_algo));
+					//
+					// TODO:
+					//
+					//pk_algo = gnutls_pubkey_get_pk_algorithm(pk_cert.pubkey, NULL);
 
-				//if (print_cert) {
-				//	gnutls_datum_t pem;
+					//log_msg(out, "- Raw pk info:\n");
+					//log_msg(out, " - PK algo: %s\n", gnutls_pk_algorithm_get_name(pk_algo));
 
-				//	ret = gnutls_pubkey_export2(pk_cert.pubkey, GNUTLS_X509_FMT_PEM, &pem);
-				//	if (ret < 0) {
-				//		fprintf(stderr, "Encoding error: %s\n",
-				//			gnutls_strerror(ret));
-				//		return;
-				//	}
+					//if (print_cert) {
+					//	gnutls_datum_t pem;
 
-				//	log_msg(out, "\n%s\n", (char*)pem.data);
+					//	ret = gnutls_pubkey_export2(pk_cert.pubkey, GNUTLS_X509_FMT_PEM, &pem);
+					//	if (ret < 0) {
+					//		fprintf(stderr, "Encoding error: %s\n",
+					//			gnutls_strerror(ret));
+					//		return;
+					//	}
+
+					//	log_msg(out, "\n%s\n", (char*)pem.data);
+
+				}
 
 				//	gnutls_free(pem.data);
 				//}
