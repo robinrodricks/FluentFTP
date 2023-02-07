@@ -163,7 +163,7 @@ namespace FluentFTP.GnuTLS {
 
 				Logging.LogGnuFunc(LogDebugInformationMessagesT.Handshake, "Setting up session resume from control connection");
 				GnuTls.SessionSetData(sess, resumeDataTLS);
-				//Native.GnuFree(resumeDataTLS.ptr);
+				//GnuTls.Free(resumeDataTLS.ptr);
 
 				gcHandle.Free();
 			}

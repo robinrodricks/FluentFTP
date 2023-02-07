@@ -47,7 +47,7 @@ namespace FluentFTP.GnuTLS.Core {
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_global_deinit")]
 		private static extern void gnutls_global_deinit();
 
-		public static void GnuFree(IntPtr ptr) {
+		public static void Free(IntPtr ptr) {
 			gnutls_free(ptr);
 		}
 		// void gnutls_free(* ptr)
@@ -107,7 +107,8 @@ namespace FluentFTP.GnuTLS.Core {
 
 			IntPtr descPtr = gnutls_session_get_desc(sess.ptr);
 			string desc = Marshal.PtrToStringAnsi(descPtr);
-			//Static.gnutls_free(descPtr);
+			//gnutls_free(descPtr);
+
 			return desc;
 		}
 		// char* gnutls_session_get_desc(gnutls_session_t session)

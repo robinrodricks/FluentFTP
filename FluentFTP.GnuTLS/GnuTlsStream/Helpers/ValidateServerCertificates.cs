@@ -123,7 +123,7 @@ namespace FluentFTP.GnuTLS {
 					return;
 				}
 
-				//Logging.LogGnuFunc("Certificate type: X.509, list contains " + numData);
+				Logging.LogGnuFunc(LogDebugInformationMessagesT.X509, "Certificate type: X.509, list contains " + numData);
 
 				IntPtr cert = IntPtr.Zero;
 				DatumT pinfo = new();
@@ -148,12 +148,13 @@ namespace FluentFTP.GnuTLS {
 					}
 
 					if (ctorCount < 2) {
+
 						CertificatePrintFormatsT flag = CertificatePrintFormatsT.GNUTLS_CRT_PRINT_FULL;
 						result = GnuTls.X509CrtPrint(cert, flag, ref pinfo);
 						if (result == 0) {
 							string pOutput = Marshal.PtrToStringAnsi(pinfo.ptr);
 							Logging.LogGnuFunc(LogDebugInformationMessagesT.ShowClientCertificateInfo, pOutput);
-							//Native.GnuFree(cinfo.ptr);
+							//GnuTls.Free(cinfo.ptr);
 						}
 
 						result = GnuTls.X509CrtExport2(cert, X509CrtFmtT.GNUTLS_X509_FMT_PEM, ref cinfo);
@@ -161,8 +162,9 @@ namespace FluentFTP.GnuTLS {
 							string cOutput = Marshal.PtrToStringAnsi(cinfo.ptr);
 							pCertS = cOutput;
 							Logging.LogGnuFunc(LogDebugInformationMessagesT.ShowClientCertificatePEM, "X.509 Certificate (PEM)" + Environment.NewLine + cOutput);
-							//Native.GnuFree(pinfo.ptr);
+							//GnuTls.Free(pinfo.ptr);
 						}
+
 					}
 
 					GnuTls.X509CrtDeinit(cert);
