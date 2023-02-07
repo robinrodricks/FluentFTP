@@ -1,29 +1,48 @@
-﻿using System;
+﻿using static FluentFTP.GnuTLS.GnuTlsStream;
+
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using static FluentFTP.GnuTLS.GnuTlsStream;
 
 namespace FluentFTP.GnuTLS.Core {
 	internal class Logging {
 
+		public static int logMaxLevel;
+		public static LogDebugInformationMessagesT logDebugInformation;
 		public static Queue<string> logQueue;
 		public static int logQueueMaxSize;
-		public static int logMaxLevel;
 
 		private static GnuStreamLogCBFunc logCBFunc;
 
+		// Not suppressable, level 0 - the GnuTls version message
 		public static void Log(string msg) {
 			Log(0, msg, true);
 		}
 
+		// Not suppressable, level 0 - messages from Utils - Check(...)
+		// prior to exception throw
 		public static void LogNoQueue(string msg) {
 			Log(0, msg, false);
 		}
 
+		// Suppressable, level 1 - Debug messages from the GnuTls stream
+		// Default: InteropFunction
 		public static void LogGnuFunc(string msg) {
-			Log(1, "Interop : " + msg, true);
+			LogGnuFunc(LogDebugInformationMessagesT.InteropFunction, msg);
+		}
+		// General: Any type
+		public static void LogGnuFunc(LogDebugInformationMessagesT type, string msg) {
+			if ((type & logDebugInformation) != 0 || msg.StartsWith("Error")) {
+				Log(1, "Interop : " + msg, true);
+			}
 		}
 
+		// Common log routine for "Interop" and "Internal" messages.
+		// These are buffered regardless of loglevel settings.
+		// Then they are filtered by loglevel and passed via callback
+		// to the FluentFTP logging framework.
+		// In case of an exception being thrown, the buffered messages
+		// are re-issued prior to throw of the exception to aid in debugging.
 		public static void Log(int lvl, string msg, bool q) {
 			string s = lvl.ToString().PadRight(3) + " " + msg.TrimEnd(new char[] { '\n', '\r' });
 
@@ -49,6 +68,10 @@ namespace FluentFTP.GnuTLS.Core {
 			}
 		}
 
+		// This "Log" overload is used by the GnuTLS.dll "internal" log callback
+		// To suppress these messages in the overall FluentFTP log, use the
+		// GnuTls config option "LogLevel" - to suppress them entirely, set
+		// to 0.
 		private static void Log(int lvl, IntPtr msg) {
 			string s = Marshal.PtrToStringAnsi(msg);
 
@@ -72,11 +95,13 @@ namespace FluentFTP.GnuTLS.Core {
 		// Avoid garbage collection failure of this callback
 		private static GnuTlsLogCBFunc gnuTlsLogCBFunc = Log;
 
-		public static void InitLogging(GnuStreamLogCBFunc logCBFunc, int logMaxLevel, int logQueueMaxSize) {
+		// Setup logging
+		public static void InitLogging(GnuStreamLogCBFunc logCBFunc, int logMaxLevel, LogDebugInformationMessagesT logDebugInformation, int logQueueMaxSize) {
 			logQueue = new Queue<string>();
 
 			Logging.logCBFunc = logCBFunc;
 			Logging.logMaxLevel = logMaxLevel;
+			Logging.logDebugInformation = logDebugInformation;
 			Logging.logQueueMaxSize = logQueueMaxSize;
 
 			Native.GlobalSetLogFunction(gnuTlsLogCBFunc);

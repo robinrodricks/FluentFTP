@@ -1,24 +1,75 @@
-﻿using FluentFTP.Streams;
+﻿using FluentFTP.GnuTLS.Core;
+
+using FluentFTP.Streams;
 
 namespace FluentFTP.GnuTLS {
 
 	public class FtpGnuConfig : IFtpStreamConfig {
 
 		/// <summary>
+		/// LogLevel
+		/// ========
+		/// 
 		/// GnuTLS will add its own log messages to the FluentFTP log.
 		/// Select the maximum verbosity of the GnuTLS messages, which are 
 		/// all added to the FluentFTP log with serverity "verbose".
 		/// The allowed values are 0-99.
+		///
+		/// Set this to
+		/// 0	   to suppress GnuTls related messages entirely
+		/// 1	   to see messages originating in the GnuTls wrapper,
+		///		   (labelled "Interop").
+		/// 2	   reserved
+		/// 3..99  to add messages from GnuTls processes
+		///        (labelled "Internal").
+		///
+		/// If you use a value of 1 or higher, you can further filter log
+		/// messages of severity 1 (from the GnuTls wrapper, labelled
+		/// "interop") by using the "DebugInformation" enum described next.
 		/// </summary>
-		public int LogLevel { get; set; } = 2;
+		public int LogLevel { get; set; } = 1;
 
 		/// <summary>
+		/// LogDebugInformation
+		/// ===================
+		/// 
+		/// Debug: Additional debug information
+		///
+		/// This is a "[Flags] enum : ushort". Use OR to set
+		/// multiple options to turn these messages on.
+		/// 
+		/// 		None = 0
+		///
+		///			InteropFunction = 1,
+		///			InteropMsg = 2,
+		///			Handshake = 4,
+		///			Alert = 8,
+		///			Read = 16,
+		///			Write = 32,
+		///			ClientCertificateValidation = 64,
+		///			X509 = 128,
+		///			RAWPK = 256,
+		///			
+		///			All = 0xFFFF,
+		///			
+		/// Example: LogDebugInformationMessagesT.Handshake | LogDebugInformationMessagesT.InteropFunction;
+		///
+		/// </summary>
+		public LogDebugInformationMessagesT LogDebugInformation { get; set; } = LogDebugInformationMessagesT.None;
+
+		/// <summary>
+		/// LogBuffSize
+		/// ===========
+		/// 
 		/// In case of a catastrophic failure, how many messages at maximum
 		/// verbosity should be output prior to termination.
 		/// </summary>
 		public int LogBuffSize { get; set; } = 150;
 
 		/// <summary>
+		/// Priority
+		/// ========
+		/// 
 		/// You can set the priority string to be used for connections.
 		/// You are STRONGLY advised to read the section on "priority strings" in
 		/// the GnuTLS documentation (currently chapter 6.10 for GnuTLS 3.7.7)
@@ -43,6 +94,9 @@ namespace FluentFTP.GnuTLS {
 		public string Priority { get; set; } = string.Empty; // "-VERS-TLS1.3";
 
 		/// <summary>
+		/// HandshakeTimeout
+		/// ================
+		/// 
 		/// Set the GnuTLS handshake timeout. Set to zero to disable.
 		/// </summary>
 		public int HandshakeTimeout { get; set; } = 5000;

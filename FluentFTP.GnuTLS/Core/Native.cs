@@ -13,23 +13,13 @@ namespace FluentFTP.GnuTLS.Core {
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_check_version")]
 		private static extern IntPtr gnutls_check_version([In()][MarshalAs(UnmanagedType.LPStr)] string? req_version);
 
-		// This is the function where you set the logging function
-		// gnutls is going to use.This function only accepts a
-		// character array.Normally you may not use this function
-		// since it is only used for debugging purposes.
 		public static void GlobalSetLogFunction(Logging.GnuTlsLogCBFunc logCBFunc) {
 			gnutls_global_set_log_function(logCBFunc);
 		}
 		// void gnutls_global_set_log_function (gnutls_log_func log_func)
-		// gnutls_log_func is of the form: void (*gnutls_log_func)( int level, const char*);
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_global_set_log_function")]
 		private static extern void gnutls_global_set_log_function([In()][MarshalAs(UnmanagedType.FunctionPtr)] Logging.GnuTlsLogCBFunc log_func);
 
-		// This is the function that allows you to set the log level.
-		// The level is an integer between 0 and 99. Higher values mean
-		// more verbosity. The default value is 0. Larger values should
-		// only be used with care, since they may reveal sensitive information.
-		// Use a log level over 10 to enable all debugging options.
 		public static void GlobalSetLogLevel(int level) {
 			gnutls_global_set_log_level(level);
 		}
@@ -57,8 +47,8 @@ namespace FluentFTP.GnuTLS.Core {
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_global_deinit")]
 		private static extern void gnutls_global_deinit();
 
-		public static void Free(IntPtr ptr) {
-			//gnutls_free(ptr);
+		public static void GnuFree(IntPtr ptr) {
+			gnutls_free(ptr);
 		}
 		// void gnutls_free(* ptr)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_free")]
@@ -193,7 +183,7 @@ namespace FluentFTP.GnuTLS.Core {
 			do {
 				result = Native.gnutls_handshake(sess.ptr);
 				if (result >= (int)EC.en.GNUTLS_E_SUCCESS) { break; }
-				Logging.LogGnuFunc(gcm + " repeat due to " + Enum.GetName(typeof(EC.en), result));
+				Logging.LogGnuFunc(LogDebugInformationMessagesT.Handshake, gcm + " repeat due to " + Enum.GetName(typeof(EC.en), result));
 			} while (result == (int)EC.en.GNUTLS_E_AGAIN ||
 					 result == (int)EC.en.GNUTLS_E_INTERRUPTED ||
 					 result == (int)EC.en.GNUTLS_E_WARNING_ALERT_RECEIVED ||
@@ -223,7 +213,7 @@ namespace FluentFTP.GnuTLS.Core {
 			do {
 				result = gnutls_bye(sess.ptr, how);
 				if (result >= (int)EC.en.GNUTLS_E_SUCCESS) { break; }
-				Logging.LogGnuFunc(gcm + " repeat due to " + Enum.GetName(typeof(EC.en), result));
+				Logging.LogGnuFunc(LogDebugInformationMessagesT.Handshake, gcm + " repeat due to " + Enum.GetName(typeof(EC.en), result));
 			} while (result == (int)EC.en.GNUTLS_E_AGAIN ||
 					 result == (int)EC.en.GNUTLS_E_INTERRUPTED);
 
@@ -276,7 +266,6 @@ namespace FluentFTP.GnuTLS.Core {
 		// int gnutls_priority_set_direct(gnutls_session_t session, const char* priorities, const char** err_pos)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_priority_set_direct")]
 		private static extern int gnutls_priority_set_direct(IntPtr session, [In()][MarshalAs(UnmanagedType.LPStr)] string? priorities, out IntPtr err_pos);
-
 		public static int SetDefaultPriorityAppend(Session sess, string priorities) {
 			string gcm = Utils.GetCurrentMethod();
 			Logging.LogGnuFunc(gcm);
@@ -334,18 +323,18 @@ namespace FluentFTP.GnuTLS.Core {
 			string gcm = Utils.GetCurrentMethod();
 			Logging.LogGnuFunc(gcm);
 
-			return Utils.Check(gcm, gnutls_session_get_data2(sess.ptr, data));
+			return Utils.Check(gcm, gnutls_session_get_data2(sess.ptr, ref data));
 		}
 		// Special overload for HandshakeHook callback function
 		public static int SessionGetData2(IntPtr sess, ref DatumT data) {
 			string gcm = Utils.GetCurrentMethod();
 			Logging.LogGnuFunc(gcm);
 
-			return Utils.Check(gcm, gnutls_session_get_data2(sess, data));
+			return Utils.Check(gcm, gnutls_session_get_data2(sess, ref data));
 		}
 		// int gnutls_session_get_data2 (gnutls_session_t session, gnutls_datum_t * data)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_session_get_data2")]
-		private static extern int gnutls_session_get_data2(IntPtr session, [MarshalAs(UnmanagedType.LPStruct)] DatumT data);
+		private static extern int gnutls_session_get_data2(IntPtr session, ref DatumT data);
 
 		public static int SessionSetData(Session sess, DatumT data) {
 			string gcm = Utils.GetCurrentMethod();
@@ -362,7 +351,7 @@ namespace FluentFTP.GnuTLS.Core {
 		}
 		// int gnutls_session_set_data (gnutls_session_t session, const void * session_data, size_t session_data_size)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_session_set_data")]
-		private static extern int gnutls_session_set_data(IntPtr session, IntPtr session_data, uint session_data_size);
+		private static extern int gnutls_session_set_data(IntPtr session, IntPtr session_data, ulong session_data_size);
 
 		// const gnutls_datum_t* gnutls_certificate_get_peers (gnutls_session_t session, unsigned int * list_size)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_get_peers")]
@@ -394,6 +383,7 @@ namespace FluentFTP.GnuTLS.Core {
 
 			var datumPtr = Marshal.AllocHGlobal(Marshal.SizeOf<DatumT>());
 			var valuePtr = Marshal.StringToHGlobalAnsi(protocols);
+
 			Marshal.StructureToPtr(new DatumT { ptr = valuePtr, size = (uint)protocols.Length }, datumPtr, true);
 
 			int result = Utils.Check(gcm, gnutls_alpn_set_protocols(sess.ptr, datumPtr, 1, AlpnFlagsT.GNUTLS_ALPN_MANDATORY));
@@ -417,7 +407,7 @@ namespace FluentFTP.GnuTLS.Core {
 		}
 		// int gnutls_alpn_get_selected_protocol (gnutls_session_t session, gnutls_datum_t * protocol)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_alpn_get_selected_protocol")]
-		private static extern int gnutls_alpn_get_selected_protocol(IntPtr session, [MarshalAs(UnmanagedType.LPStruct)] DatumT data);
+		private static extern int gnutls_alpn_get_selected_protocol(IntPtr session, DatumT data);
 
 
 		// C r e d e n t i a l s
@@ -456,23 +446,7 @@ namespace FluentFTP.GnuTLS.Core {
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_client_get_request_status")]
 		private static extern bool gnutls_certificate_client_get_request_status(IntPtr session);
 
-		// Retrieve certificate(s)
-
-		public static DatumT CertificateGetPeers(Session sess, ref uint listSize) {
-			string gcm = Utils.GetCurrentMethod();
-			Logging.LogGnuFunc(gcm);
-
-			return Marshal.PtrToStructure<DatumT>(gnutls_certificate_get_peers(sess.ptr, ref listSize));
-		}
-		// const gnutls_datum_t * gnutls_certificate_get_peers (gnutls_session_t session, unsigned int * list_size)
-		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_get_peers")]
-		private static extern IntPtr gnutls_certificate_get_peers(IntPtr session, ref uint list_size);
-
 		// C e r t i f i c a t e  V e r i f i c a t i o n
-
-		// void gnutls_session_set_verify_cert(gnutls_session_t session, const char* hostname, unsigned flags)
-
-		// unsigned int gnutls_session_get_verify_cert_status (gnutls_session_t session)
 
 		public static int CertificateVerifyPeers3(Session sess, string? hostname, out CertificateStatusT status) {
 			string gcm = Utils.GetCurrentMethod();
@@ -497,6 +471,105 @@ namespace FluentFTP.GnuTLS.Core {
 		// void gnutls_certificate_set_verify_flags(gnutls_certificate_credentials_t res, unsigned int flags)
 		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_set_verify_flags")]
 		private static extern void gnutls_certificate_set_verify_flags(IntPtr res, CertificateVerifyFlagsT flags);
+
+		public static CertificateTypeT CertificateTypeGet2(Session sess, CtypeTargetT target) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return gnutls_certificate_type_get2(sess.ptr, target);
+		}
+		// gnutls_certificate_type_t gnutls_certificate_type_get2 (gnutls_session_t session, gnutls_ctype_target_t target)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_type_get2")]
+		private static extern CertificateTypeT gnutls_certificate_type_get2(IntPtr session, CtypeTargetT target);
+
+		// Retrieve certificate(s)
+
+		public static DatumT[] CertificateGetPeers(Session sess, ref uint listSize) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			IntPtr datumTAPtr = gnutls_certificate_get_peers(sess.ptr, ref listSize);
+			if (listSize == 0) {
+				return null;
+			}
+
+			ulong datumTAInt = (ulong)datumTAPtr;
+
+			DatumT[] temp = new DatumT[listSize];
+
+			for (int i = 0; i < listSize; i++) {
+				temp[i] = Marshal.PtrToStructure<DatumT>((IntPtr)datumTAInt);
+				datumTAInt += 16;
+			}
+
+			return temp;
+		}
+		// const gnutls_datum_t * gnutls_certificate_get_peers (gnutls_session_t session, unsigned int * list_size)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_certificate_get_peers")]
+		private static extern IntPtr gnutls_certificate_get_peers(IntPtr session, ref uint list_size);
+
+
+		// X 5 0 9
+
+		public static int X509CrtInit(ref IntPtr cert) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return gnutls_x509_crt_init(ref cert);
+		}
+		//  int gnutls_x509_crt_init (gnutls_x509_crt_t * cert)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_x509_crt_init")]
+		private static extern int gnutls_x509_crt_init(ref IntPtr cert);
+
+		public static int X509CrtDeinit(IntPtr cert) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return gnutls_x509_crt_deinit(cert);
+		}
+		//  int gnutls_x509_crt_deinit (gnutls_x509_crt_t * cert)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_x509_crt_deinit")]
+		private static extern int gnutls_x509_crt_deinit(IntPtr cert);
+
+		public static int X509CrtImport(IntPtr cert, ref DatumT data, X509CrtFmtT format) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return gnutls_x509_crt_import(cert, ref data, format);
+		}
+		// int gnutls_x509_crt_import (gnutls_x509_crt_t cert, const gnutls_datum_t * data, gnutls_x509_crt_fmt_t format)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_x509_crt_import")]
+		private static extern int gnutls_x509_crt_import(IntPtr cert, ref DatumT data, X509CrtFmtT format);
+
+		public static int X509CrtPrint(IntPtr cert, CertificatePrintFormatsT format, ref DatumT output) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return gnutls_x509_crt_print(cert, format, ref output);
+		}
+		//  int gnutls_x509_crt_print (gnutls_x509_crt_t cert, gnutls_certificate_print_formats_t format, gnutls_datum_t * out)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_x509_crt_print")]
+		private static extern int gnutls_x509_crt_print(IntPtr cert, CertificatePrintFormatsT format, ref DatumT output);
+
+		public static int X509CrtExport2(IntPtr cert, X509CrtFmtT format, ref DatumT output) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return gnutls_x509_crt_export2(cert, format, ref output);
+		}
+		// int gnutls_x509_crt_export2(gnutls_x509_crt_t cert, gnutls_x509_crt_fmt_t format, gnutls_datum_t* out)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_x509_crt_export2")]
+		private static extern int gnutls_x509_crt_export2(IntPtr cert, X509CrtFmtT format, ref DatumT output);
+
+		public static int PcertImportRawpkRaw(IntPtr pcert, ref DatumT data, X509CrtFmtT format, uint keyUsage, uint flags) {
+			string gcm = Utils.GetCurrentMethod();
+			Logging.LogGnuFunc(gcm);
+
+			return gnutls_pcert_import_rawpk_raw(pcert, ref data, format, keyUsage, flags);
+		}
+		//  int gnutls_pcert_import_rawpk_raw (gnutls_pcert_st* pcert, const gnutls_datum_t* rawpubkey, gnutls_x509_crt_fmt_t format, unsigned int key_usage, unsigned int flags)
+		[DllImport("Libs/libgnutls-30.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.Cdecl, EntryPoint = "gnutls_pcert_import_rawpk_raw")]
+		private static extern int gnutls_pcert_import_rawpk_raw(IntPtr pcert, ref DatumT data, X509CrtFmtT format, uint key_usage, uint flags);
 
 	}
 }
