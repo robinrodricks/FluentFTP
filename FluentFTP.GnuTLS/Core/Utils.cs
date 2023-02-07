@@ -11,16 +11,16 @@ namespace FluentFTP.GnuTLS.Core {
 			var st = new StackTrace();
 			var sf = st.GetFrame(1);
 
-			return sf.GetMethod().Name;
+			return "*" + sf.GetMethod().Name + "(...)";
 		}
 
-		public static int Check(string? methodName, int result, params int[] allowed) {
+		public static int Check(string? methodName, int result, params int[] resultsAllowed) {
 
 			if (result >= 0) {
 				return result;
 			}
 
-			if (allowed.Contains(result)) {
+			if (resultsAllowed.Contains(result)) {
 				return result;
 			}
 
@@ -28,7 +28,7 @@ namespace FluentFTP.GnuTLS.Core {
 
 			GnuTlsException ex;
 
-			if (!EC.ec.TryGetValue(result, out string errTxt)) errTxt = "Unknown error";
+			string errTxt = GnuTlsErrorText(result);
 
 			ex = new GnuTlsException("Error   : " + methodName + " failed: (" + result + ") " + errTxt);
 			ex.ExMethod = methodName;
@@ -44,6 +44,11 @@ namespace FluentFTP.GnuTLS.Core {
 			}
 
 			throw ex;
+		}
+
+		public static string GnuTlsErrorText(int errorCode) {
+			if (!EC.ec.TryGetValue(errorCode, out string errText)) errText = "Unknown error";
+			return errText;
 		}
 	}
 }

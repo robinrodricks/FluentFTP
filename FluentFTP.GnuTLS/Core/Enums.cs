@@ -3,20 +3,28 @@ using System.Runtime.InteropServices;
 
 namespace FluentFTP.GnuTLS.Core {
 
-	[StructLayout(LayoutKind.Sequential)]
-	public class DatumT {
-		public IntPtr ptr = IntPtr.Zero;
-		public uint size = 0;
+	[Flags]
+	public enum LogDebugInformationMessagesT : ushort {
+		None = 0,
+
+		InteropFunction = 1,
+		InteropMsg = 2,
+		Handshake = 4,
+		Alert = 8,
+		Read = 16,
+		Write = 32,
+		ClientCertificateValidation = 64,
+		X509 = 128,
+		RAWPK = 256,
+
+		All = unchecked((ushort)-1),
 	}
 
-	//	[StructLayout(LayoutKind.Explicit)]
-	//	unsafe struct headerUnion                  // 2048 bytes in header
-	//  {
-	//		[FieldOffset(0)]
-	//		public fixed byte headerBytes[2048];
-	//		[FieldOffset(0)]
-	//		public long header;
-	//	}
+	[StructLayout(LayoutKind.Sequential)]
+	public struct DatumT {
+		public IntPtr ptr;
+		public ulong size;
+	}
 
 	/**
 	* gnutls_init_flags_t:
@@ -428,23 +436,23 @@ namespace FluentFTP.GnuTLS.Core {
 	*/
 	[Flags]
 	enum CertificateStatusT : uint {
-		GNUTLS_CERT_INVALID = 1 << 1,
-		GNUTLS_CERT_REVOKED = 1 << 5,
-		GNUTLS_CERT_SIGNER_NOT_FOUND = 1 << 6,
-		GNUTLS_CERT_SIGNER_NOT_CA = 1 << 7,
-		GNUTLS_CERT_INSECURE_ALGORITHM = 1 << 8,
-		GNUTLS_CERT_NOT_ACTIVATED = 1 << 9,
-		GNUTLS_CERT_EXPIRED = 1 << 10,
-		GNUTLS_CERT_SIGNATURE_FAILURE = 1 << 11,
-		GNUTLS_CERT_REVOCATION_DATA_SUPERSEDED = 1 << 12,
-		GNUTLS_CERT_UNEXPECTED_OWNER = 1 << 14,
-		GNUTLS_CERT_REVOCATION_DATA_ISSUED_IN_FUTURE = 1 << 15,
-		GNUTLS_CERT_SIGNER_CONSTRAINTS_FAILURE = 1 << 16,
-		GNUTLS_CERT_MISMATCH = 1 << 17,
-		GNUTLS_CERT_PURPOSE_MISMATCH = 1 << 18,
-		GNUTLS_CERT_MISSING_OCSP_STATUS = 1 << 19,
-		GNUTLS_CERT_INVALID_OCSP_STATUS = 1 << 20,
-		GNUTLS_CERT_UNKNOWN_CRIT_EXTENSIONS = 1 << 21
+		INVALID = 1 << 1,
+		REVOKED = 1 << 5,
+		SIGNER_NOT_FOUND = 1 << 6,
+		SIGNER_NOT_CA = 1 << 7,
+		INSECURE_ALGORITHM = 1 << 8,
+		NOT_ACTIVATED = 1 << 9,
+		EXPIRED = 1 << 10,
+		SIGNATURE_FAILURE = 1 << 11,
+		REVOCATION_DATA_SUPERSEDED = 1 << 12,
+		UNEXPECTED_OWNER = 1 << 14,
+		REVOCATION_DATA_ISSUED_IN_FUTURE = 1 << 15,
+		SIGNER_CONSTRAINTS_FAILURE = 1 << 16,
+		MISMATCH = 1 << 17,
+		PURPOSE_MISMATCH = 1 << 18,
+		MISSING_OCSP_STATUS = 1 << 19,
+		INVALID_OCSP_STATUS = 1 << 20,
+		UNKNOWN_CRIT_EXTENSIONS = 1 << 21
 	}
 
 	/**
@@ -581,4 +589,104 @@ namespace FluentFTP.GnuTLS.Core {
 	//#define GNUTLS_VFLAGS_TO_PROFILE(x) \
 	//	((((unsigned) x)>>24)&0xff)
 
+
+	/**
+	 * gnutls_certificate_type_t:
+	 * @GNUTLS_CRT_UNKNOWN: Unknown certificate type.
+	 * @GNUTLS_CRT_X509: X.509 Certificate.
+	 * @GNUTLS_CRT_OPENPGP: OpenPGP certificate.
+	 * @GNUTLS_CRT_RAWPK: Raw public-key (SubjectPublicKeyInfo)
+	 *
+	 * Enumeration of different certificate types.
+	*/
+	enum CertificateTypeT : uint {
+		GNUTLS_CRT_UNKNOWN = 0,
+		GNUTLS_CRT_X509 = 1,
+		GNUTLS_CRT_OPENPGP = 2,
+		GNUTLS_CRT_RAWPK = 3,
+		GNUTLS_CRT_MAX = GNUTLS_CRT_RAWPK
+	}
+
+	/**
+	 * gnutls_x509_crt_fmt_t:
+	 * @GNUTLS_X509_FMT_DER: X.509 certificate in DER format (binary).
+	 * @GNUTLS_X509_FMT_PEM: X.509 certificate in PEM format (text).
+	 *
+	 * Enumeration of different certificate encoding formats.
+	*/
+	enum X509CrtFmtT : uint {
+		GNUTLS_X509_FMT_DER = 0,
+		GNUTLS_X509_FMT_PEM = 1
+	}
+
+	/**
+	 * gnutls_certificate_print_formats_t:
+	 * @GNUTLS_CRT_PRINT_FULL: Full information about certificate.
+	 * @GNUTLS_CRT_PRINT_FULL_NUMBERS: Full information about certificate and include easy to parse public key parameters.
+	 * @GNUTLS_CRT_PRINT_COMPACT: Information about certificate name in one line, plus identification of the public key.
+	 * @GNUTLS_CRT_PRINT_ONELINE: Information about certificate in one line.
+	 * @GNUTLS_CRT_PRINT_UNSIGNED_FULL: All info for an unsigned certificate.
+	 *
+	 * Enumeration of different certificate printing variants.
+	 */
+	enum CertificatePrintFormatsT : int {
+		GNUTLS_CRT_PRINT_FULL = 0,
+		GNUTLS_CRT_PRINT_ONELINE = 1,
+		GNUTLS_CRT_PRINT_UNSIGNED_FULL = 2,
+		GNUTLS_CRT_PRINT_COMPACT = 3,
+		GNUTLS_CRT_PRINT_FULL_NUMBERS = 4
+	}
+
+	/**
+	 * gnutls_ctype_target_t:
+	 * @GNUTLS_CTYPE_CLIENT: for requesting client certificate type values.
+	 * @GNUTLS_CTYPE_SERVER: for requesting server certificate type values.
+	 * @GNUTLS_CTYPE_OURS: for requesting our certificate type values.
+	 * @GNUTLS_CTYPE_PEERS: for requesting the peers' certificate type values.
+	 *
+	 * Enumeration of certificate type targets with respect to asymmetric
+	 * certificate types as specified in RFC7250 and P2P connection set up
+	 * as specified in draft-vanrein-tls-symmetry-02.
+	 */
+	enum CtypeTargetT : uint {
+		GNUTLS_CTYPE_CLIENT,
+		GNUTLS_CTYPE_SERVER,
+		GNUTLS_CTYPE_OURS,
+		GNUTLS_CTYPE_PEERS
+	}
+
+	/**
+	 * gnutls_pk_algorithm_t:
+	 * @GNUTLS_PK_UNKNOWN: Unknown public-key algorithm.
+	 * @GNUTLS_PK_RSA: RSA public-key algorithm.
+	 * @GNUTLS_PK_RSA_PSS: RSA public-key algorithm, with PSS padding.
+	 * @GNUTLS_PK_DSA: DSA public-key algorithm.
+	 * @GNUTLS_PK_DH: Diffie-Hellman algorithm. Used to generate parameters.
+	 * @GNUTLS_PK_ECDSA: Elliptic curve algorithm. These parameters are compatible with the ECDSA and ECDH algorithm.
+	 * @GNUTLS_PK_ECDH_X25519: Elliptic curve algorithm, restricted to ECDH as per rfc7748.
+	 * @GNUTLS_PK_EDDSA_ED25519: Edwards curve Digital signature algorithm. Used with SHA512 on signatures.
+	 * @GNUTLS_PK_GOST_01: GOST R 34.10-2001 algorithm per rfc5832.
+	 * @GNUTLS_PK_GOST_12_256: GOST R 34.10-2012 algorithm, 256-bit key per rfc7091.
+	 * @GNUTLS_PK_GOST_12_512: GOST R 34.10-2012 algorithm, 512-bit key per rfc7091.
+	 * @GNUTLS_PK_ECDH_X448: Elliptic curve algorithm, restricted to ECDH as per rfc7748.
+	 * @GNUTLS_PK_EDDSA_ED448: Edwards curve Digital signature algorithm. Used with SHAKE256 on signatures.
+	 *
+	 * Enumeration of different public-key algorithms.
+	*/
+	enum PkAlgorithmT : uint {
+		GNUTLS_PK_UNKNOWN = 0,
+		GNUTLS_PK_RSA = 1,
+		GNUTLS_PK_DSA = 2,
+		GNUTLS_PK_DH = 3,
+		GNUTLS_PK_ECDSA = 4,
+		GNUTLS_PK_ECDH_X25519 = 5,
+		GNUTLS_PK_RSA_PSS = 6,
+		GNUTLS_PK_EDDSA_ED25519 = 7,
+		GNUTLS_PK_GOST_01 = 8,
+		GNUTLS_PK_GOST_12_256 = 9,
+		GNUTLS_PK_GOST_12_512 = 10,
+		GNUTLS_PK_ECDH_X448 = 11,
+		GNUTLS_PK_EDDSA_ED448 = 12,
+		GNUTLS_PK_MAX = GNUTLS_PK_EDDSA_ED448
+	}
 }

@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 
 namespace FluentFTP.GnuTLS {
+
 	public class FtpGnuTlsStream : IFtpStream {
 
 		private GnuTlsStream BaseStream;
