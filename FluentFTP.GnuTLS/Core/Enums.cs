@@ -14,8 +14,10 @@ namespace FluentFTP.GnuTLS.Core {
 		Read = 1 << 4,
 		Write = 1 << 5,
 		ClientCertificateValidation = 1 << 6,
-		X509 = 1 << 7,
-		RAWPK = 1 << 8,
+		ShowClientCertificateInfo = 1 << 7,
+		ShowClientCertificatePEM = 1 << 8,
+		X509 = 1 << 9,
+		RAWPK = 1 << 10,
 
 		All = unchecked((ushort)-1),
 	}
