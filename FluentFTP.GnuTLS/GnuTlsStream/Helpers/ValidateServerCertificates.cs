@@ -176,7 +176,7 @@ namespace FluentFTP.GnuTLS {
 			#endregion
 
 			//
-			// Extract Raw Publick Key "certificate(s)"
+			// Extract Raw Public Key "certificate(s)"
 			//
 			#region GetCertInfoRAWPK()
 
