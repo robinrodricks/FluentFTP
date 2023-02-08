@@ -140,7 +140,7 @@ namespace FluentFTP.GnuTLS {
 			}
 
 			// Further code runs on first and all subsequent instantiations of
-			// GnuTlsStream - for FTP, typically there is one control connections
+			// GnuTlsStream - for FTP, typically there is one control connection
 			// as the first instance, and one further instance that is born and then dies
 			// multiple times as a data connection.
 
