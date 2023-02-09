@@ -1,7 +1,7 @@
 ﻿using System;
 
 namespace FluentFTP.GnuTLS.Core {
-	public abstract class Credentials : IDisposable {
+	internal abstract class Credentials : IDisposable {
 
 		public IntPtr ptr;
 
@@ -15,23 +15,23 @@ namespace FluentFTP.GnuTLS.Core {
 		}
 	}
 
-	public class CertificateCredentials : Credentials, IDisposable {
+	internal class CertificateCredentials : Credentials, IDisposable {
 
 		public CertificateCredentials() : base(CredentialsTypeT.GNUTLS_CRD_CERTIFICATE) {
-			string gcm = Utils.GetCurrentMethod() + ":CertificateCredentials";
+			string gcm = GnuUtils.GetCurrentMethod() + ":CertificateCredentials";
 			Logging.LogGnuFunc(gcm);
 
 			string errText = "CertificateCredentials()";
-			_ = Utils.Check(errText + " : certificate_allocate_credentials", GnuTls.gnutls_certificate_allocate_credentials(ref this.ptr));
+			_ = GnuUtils.Check(errText + " : certificate_allocate_credentials", GnuTls.gnutls_certificate_allocate_credentials(ref ptr));
 		}
 
 		public void Dispose() {
-			if (this.ptr != IntPtr.Zero) {
-				string gcm = Utils.GetCurrentMethod() + ":CertificateCredentials";
+			if (ptr != IntPtr.Zero) {
+				string gcm = GnuUtils.GetCurrentMethod() + ":CertificateCredentials";
 				Logging.LogGnuFunc(gcm);
 
-				GnuTls.gnutls_certificate_free_credentials(this.ptr);
-				this.ptr = IntPtr.Zero;
+				GnuTls.gnutls_certificate_free_credentials(ptr);
+				ptr = IntPtr.Zero;
 			}
 		}
 	}

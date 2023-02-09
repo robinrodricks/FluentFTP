@@ -1,11 +1,11 @@
-﻿using FluentFTP.GnuTLS.Core;
-
-using System;
+﻿using System;
 using System.IO;
+using FluentFTP.GnuTLS.Core;
+using FluentFTP.GnuTLS.Enums;
 
 namespace FluentFTP.GnuTLS {
 
-	internal partial class GnuTlsStream : Stream, IDisposable {
+	internal partial class GnuTlsInternalStream : Stream, IDisposable {
 
 		private void SetupClientCertificates() {
 
@@ -15,7 +15,7 @@ namespace FluentFTP.GnuTLS {
 			// ****
 			//
 
-			Logging.LogGnuFunc(LogDebugInformationMessagesT.Handshake, "Setup client certificate - currently not implemented");
+			Logging.LogGnuFunc(GnuMessage.Handshake, "Setup client certificate - currently not implemented");
 
 		}
 

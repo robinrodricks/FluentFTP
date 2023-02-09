@@ -1,15 +1,15 @@
-﻿using FluentFTP.GnuTLS.Core;
-
-using System;
+﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using FluentFTP.GnuTLS.Core;
+using FluentFTP.GnuTLS.Enums;
 
 namespace FluentFTP.GnuTLS {
 
-	internal partial class GnuTlsStream : Stream, IDisposable {
+	internal partial class GnuTlsInternalStream : Stream, IDisposable {
 
 		private void ValidateServerCertificates(CustomRemoteCertificateValidationCallback customRemoteCertificateValidation) {
 
@@ -27,7 +27,7 @@ namespace FluentFTP.GnuTLS {
 			//
 			// Perform the GnuTls internal validation, it is part of the handshake process
 			//
-			GnuTls.CertificateVerifyPeers3(sess, hostname, out serverCertificateStatus);
+			Core.GnuTls.CertificateVerifyPeers3(sess, hostname, out serverCertificateStatus);
 
 			string serverCertificateStatusText = serverCertificateStatus.ToString("G");
 			if (serverCertificateStatusText == "0") {
@@ -35,8 +35,8 @@ namespace FluentFTP.GnuTLS {
 			}
 
 			if (serverCertificateStatus != 0) {
-				Logging.LogGnuFunc(LogDebugInformationMessagesT.Handshake, "Internal server certificate validation function reports:");
-				Logging.LogGnuFunc(LogDebugInformationMessagesT.Handshake, serverCertificateStatusText);
+				Logging.LogGnuFunc(GnuMessage.Handshake, "Internal server certificate validation function reports:");
+				Logging.LogGnuFunc(GnuMessage.Handshake, serverCertificateStatusText);
 			}
 
 			//
@@ -47,7 +47,7 @@ namespace FluentFTP.GnuTLS {
 			// Determine the type of the servers certificate(s)/key and get the data out
 			// from them.
 			//
-			CertificateTypeT certificateType = GnuTls.CertificateTypeGet2(sess, CtypeTargetT.GNUTLS_CTYPE_PEERS);
+			CertificateTypeT certificateType = Core.GnuTls.CertificateTypeGet2(sess, CtypeTargetT.GNUTLS_CTYPE_PEERS);
 
 			string serverCertificate = string.Empty;
 
@@ -97,7 +97,7 @@ namespace FluentFTP.GnuTLS {
 			// Invoke any external user supplied validation callback
 			//
 			if (!customRemoteCertificateValidation(this, valCert, valChain, serverCertificateStatusText)) {
-				Logging.LogGnuFunc(LogDebugInformationMessagesT.ClientCertificateValidation, "Error set by external server certificate validation function");
+				Logging.LogGnuFunc(GnuMessage.ClientCertificateValidation, "Error set by external server certificate validation function");
 				throw new AuthenticationException(serverCertificateStatusText);
 			};
 
@@ -117,13 +117,13 @@ namespace FluentFTP.GnuTLS {
 				uint numData = 0;
 
 				// Get the servers list of X.509 certificates, these will be in DER format
-				data = GnuTls.CertificateGetPeers(sess, ref numData);
+				data = Core.GnuTls.CertificateGetPeers(sess, ref numData);
 				if (numData == 0) {
-					Logging.LogGnuFunc(LogDebugInformationMessagesT.X509, "No certificates found");
+					Logging.LogGnuFunc(GnuMessage.X509, "No certificates found");
 					return;
 				}
 
-				Logging.LogGnuFunc(LogDebugInformationMessagesT.X509, "Certificate type: X.509, list contains " + numData);
+				Logging.LogGnuFunc(GnuMessage.X509, "Certificate type: X.509, list contains " + numData);
 
 				IntPtr cert = IntPtr.Zero;
 				DatumT pinfo = new();
@@ -131,43 +131,43 @@ namespace FluentFTP.GnuTLS {
 
 				for (uint i = 0; i < numData; i++) {
 
-					Logging.LogGnuFunc(LogDebugInformationMessagesT.X509, "Certificate #" + (i + 1));
+					Logging.LogGnuFunc(GnuMessage.X509, "Certificate #" + (i + 1));
 
 					int result;
 
-					result = GnuTls.X509CrtInit(ref cert);
+					result = Core.GnuTls.X509CrtInit(ref cert);
 					if (result < 0) {
-						Logging.LogGnuFunc(LogDebugInformationMessagesT.X509, "Error allocating Memory");
+						Logging.LogGnuFunc(GnuMessage.X509, "Error allocating Memory");
 						return;
 					}
 
-					result = GnuTls.X509CrtImport(cert, ref data[i], X509CrtFmtT.GNUTLS_X509_FMT_DER);
+					result = Core.GnuTls.X509CrtImport(cert, ref data[i], X509CrtFmtT.GNUTLS_X509_FMT_DER);
 					if (result < 0) {
-						Logging.LogGnuFunc(LogDebugInformationMessagesT.X509, "Error decoding: " + Utils.GnuTlsErrorText(result));
+						Logging.LogGnuFunc(GnuMessage.X509, "Error decoding: " + GnuUtils.GnuTlsErrorText(result));
 						return;
 					}
 
 					if (ctorCount < 2) {
 
 						CertificatePrintFormatsT flag = CertificatePrintFormatsT.GNUTLS_CRT_PRINT_FULL;
-						result = GnuTls.X509CrtPrint(cert, flag, ref pinfo);
+						result = Core.GnuTls.X509CrtPrint(cert, flag, ref pinfo);
 						if (result == 0) {
 							string pOutput = Marshal.PtrToStringAnsi(pinfo.ptr);
-							Logging.LogGnuFunc(LogDebugInformationMessagesT.ShowClientCertificateInfo, pOutput);
+							Logging.LogGnuFunc(GnuMessage.ShowClientCertificateInfo, pOutput);
 							//GnuTls.Free(cinfo.ptr);
 						}
 
-						result = GnuTls.X509CrtExport2(cert, X509CrtFmtT.GNUTLS_X509_FMT_PEM, ref cinfo);
+						result = Core.GnuTls.X509CrtExport2(cert, X509CrtFmtT.GNUTLS_X509_FMT_PEM, ref cinfo);
 						if (result == 0) {
 							string cOutput = Marshal.PtrToStringAnsi(cinfo.ptr);
 							pCertS = cOutput;
-							Logging.LogGnuFunc(LogDebugInformationMessagesT.ShowClientCertificatePEM, "X.509 Certificate (PEM)" + Environment.NewLine + cOutput);
+							Logging.LogGnuFunc(GnuMessage.ShowClientCertificatePEM, "X.509 Certificate (PEM)" + Environment.NewLine + cOutput);
 							//GnuTls.Free(pinfo.ptr);
 						}
 
 					}
 
-					GnuTls.X509CrtDeinit(cert);
+					Core.GnuTls.X509CrtDeinit(cert);
 
 				}
 
@@ -186,9 +186,9 @@ namespace FluentFTP.GnuTLS {
 				uint numData = 0;
 
 				// Get the servers list of Raw Public Key certificates, these will be in DER format
-				data = GnuTls.CertificateGetPeers(sess, ref numData);
+				data = Core.GnuTls.CertificateGetPeers(sess, ref numData);
 				if (numData == 0) {
-					Logging.LogGnuFunc(LogDebugInformationMessagesT.RAWPK, "No certificates found");
+					Logging.LogGnuFunc(GnuMessage.RAWPK, "No certificates found");
 					return;
 				}
 
@@ -200,9 +200,9 @@ namespace FluentFTP.GnuTLS {
 
 				int result;
 
-				result = GnuTls.PcertImportRawpkRaw(cert, ref data[0], X509CrtFmtT.GNUTLS_X509_FMT_DER, 0, 0);
+				result = Core.GnuTls.PcertImportRawpkRaw(cert, ref data[0], X509CrtFmtT.GNUTLS_X509_FMT_DER, 0, 0);
 				if (result < 0) {
-					Logging.LogGnuFunc(LogDebugInformationMessagesT.RAWPK, "Error decoding: " + Utils.GnuTlsErrorText(result));
+					Logging.LogGnuFunc(GnuMessage.RAWPK, "Error decoding: " + GnuUtils.GnuTlsErrorText(result));
 					return;
 				}
 

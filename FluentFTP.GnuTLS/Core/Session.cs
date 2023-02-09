@@ -1,41 +1,41 @@
 ﻿using System;
 
 namespace FluentFTP.GnuTLS.Core {
-	public abstract class Session : IDisposable {
+	internal abstract class Session : IDisposable {
 
 		public IntPtr ptr;
 
 		protected Session(InitFlagsT flags) {
-			string gcm = Utils.GetCurrentMethod() + ":Session";
+			string gcm = GnuUtils.GetCurrentMethod() + ":Session";
 			Logging.LogGnuFunc(gcm);
 
-			_ = Utils.Check(gcm, GnuTls.gnutls_init(ref ptr, flags));
+			_ = GnuUtils.Check(gcm, GnuTls.gnutls_init(ref ptr, flags));
 		}
 
 		public void Dispose() {
-			if (this.ptr != IntPtr.Zero) {
-				string gcm = Utils.GetCurrentMethod() + ":Session";
+			if (ptr != IntPtr.Zero) {
+				string gcm = GnuUtils.GetCurrentMethod() + ":Session";
 				Logging.LogGnuFunc(gcm);
 
 				GnuTls.gnutls_deinit(ptr);
-				this.ptr = IntPtr.Zero;
+				ptr = IntPtr.Zero;
 			}
 		}
 	}
 
-	public class ClientSession : Session {
+	internal class ClientSession : Session {
 
 		public ClientSession() : base(InitFlagsT.GNUTLS_CLIENT) {
 		}
-		public ClientSession(InitFlagsT flags) : base(InitFlagsT.GNUTLS_CLIENT | (flags & ~InitFlagsT.GNUTLS_SERVER)) {
+		public ClientSession(InitFlagsT flags) : base(InitFlagsT.GNUTLS_CLIENT | flags & ~InitFlagsT.GNUTLS_SERVER) {
 		}
 	}
 
-	public class ServerSession : Session {
+	internal class ServerSession : Session {
 
 		public ServerSession() : base(InitFlagsT.GNUTLS_SERVER) {
 		}
-		public ServerSession(InitFlagsT flags) : base(InitFlagsT.GNUTLS_SERVER | (flags & ~InitFlagsT.GNUTLS_CLIENT)) {
+		public ServerSession(InitFlagsT flags) : base(InitFlagsT.GNUTLS_SERVER | flags & ~InitFlagsT.GNUTLS_CLIENT) {
 		}
 	}
 }

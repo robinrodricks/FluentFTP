@@ -1,15 +1,15 @@
-﻿using FluentFTP.Client.BaseClient;
-using FluentFTP.Streams;
-
-using System.IO;
+﻿using System.IO;
 using System.Net.Sockets;
 using System.Security.Authentication;
+using FluentFTP.Client.BaseClient;
+using FluentFTP.GnuTLS.Priority;
+using FluentFTP.Streams;
 
 namespace FluentFTP.GnuTLS {
 
-	public class FtpGnuTlsStream : IFtpStream {
+	public class GnuTlsStream : IFtpStream {
 
-		private GnuTlsStream BaseStream;
+		private GnuTlsInternalStream BaseStream;
 
 		public BaseFtpClient Client;
 
@@ -20,34 +20,39 @@ namespace FluentFTP.GnuTLS {
 			CustomRemoteCertificateValidationCallback customRemoteCertificateValidation,
 			bool isControl,
 			IFtpStream controlConnStream,
-			IFtpStreamConfig config) {
+			IFtpStreamConfig untypedConfig) {
 
 			// use default config if not given or if wrong type
-			if (config == null || (config as FtpGnuConfig) == null) {
-				config = new FtpGnuConfig();
+			if (untypedConfig == null || (untypedConfig as GnuConfig) == null) {
+				untypedConfig = new GnuConfig();
 			}
 
 			// link to client
 			Client = client;
 
-			var typedConfig = config as FtpGnuConfig;
+			var config = untypedConfig as GnuConfig;
 
-			GnuTlsStream.GnuStreamLogCBFunc fluentFtpLog =
+			GnuTlsInternalStream.GnuStreamLogCBFunc fluentFtpLog =
 				s => ((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Verbose, "GnuTLS: " + s);
 
+			// build the priority string
+			var priority = PriorityBuilder.Build(
+				config.SecuritySuite, config.SecurityOptions,
+				config.AdvancedOptions, config.SecurityProfile);
+
 			// create a Gnu TLS stream
-			BaseStream = new GnuTlsStream(
+			BaseStream = new GnuTlsInternalStream(
 				targetHost,
 				socket,
 				customRemoteCertificateValidation,
 				isControl ? "ftp" : "ftp-data",
-				isControl ? null : (controlConnStream as FtpGnuTlsStream).BaseStream,
-				typedConfig.Priority,
-				typedConfig.HandshakeTimeout,
+				isControl ? null : (controlConnStream as GnuTlsStream).BaseStream,
+				priority,
+				config.HandshakeTimeout,
 				fluentFtpLog,
-				typedConfig.LogLevel,
-				typedConfig.LogDebugInformation,
-				typedConfig.LogBuffSize);
+				config.LogLevel,
+				config.LogMessages,
+				config.LogLength);
 
 		}
 
@@ -61,10 +66,10 @@ namespace FluentFTP.GnuTLS {
 			return BaseStream.CanWrite;
 		}
 		public SslProtocols GetSslProtocol() {
-			return GnuTlsStream.SslProtocol;
+			return GnuTlsInternalStream.SslProtocol;
 		}
 		public string GetCipherSuite() {
-			return GnuTlsStream.CipherSuite;
+			return GnuTlsInternalStream.CipherSuite;
 		}
 		public void Dispose() {
 			BaseStream?.Dispose();

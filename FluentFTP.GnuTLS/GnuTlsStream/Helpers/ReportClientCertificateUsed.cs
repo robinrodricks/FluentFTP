@@ -1,19 +1,19 @@
-﻿using FluentFTP.GnuTLS.Core;
-
-using System;
+﻿using System;
 using System.IO;
+using FluentFTP.GnuTLS.Core;
+using FluentFTP.GnuTLS.Enums;
 
 namespace FluentFTP.GnuTLS {
 
-	internal partial class GnuTlsStream : Stream, IDisposable {
+	internal partial class GnuTlsInternalStream : Stream, IDisposable {
 
 		private void ReportClientCertificateUsed() {
 
-			if (GnuTls.CertificateClientGetRequestStatus(sess)) {
-				Logging.LogGnuFunc(LogDebugInformationMessagesT.Handshake, "Server requested client certificate");
+			if (Core.GnuTls.CertificateClientGetRequestStatus(sess)) {
+				Logging.LogGnuFunc(GnuMessage.Handshake, "Server requested client certificate");
 			}
 			else {
-				Logging.LogGnuFunc(LogDebugInformationMessagesT.Handshake, "Server did not request client certificate");
+				Logging.LogGnuFunc(GnuMessage.Handshake, "Server did not request client certificate");
 			}
 
 		}

@@ -3,10 +3,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace FluentFTP.GnuTLS.Core {
-	public class Utils {
+	internal class GnuUtils {
 
 		[MethodImpl(MethodImplOptions.NoInlining)]
-		public static string? GetCurrentMethod() {
+		public static string GetCurrentMethod() {
 
 			var st = new StackTrace();
 			var sf = st.GetFrame(1);
@@ -14,7 +14,7 @@ namespace FluentFTP.GnuTLS.Core {
 			return "*" + sf.GetMethod().Name + "(...)";
 		}
 
-		public static int Check(string? methodName, int result, params int[] resultsAllowed) {
+		public static int Check(string methodName, int result, params int[] resultsAllowed) {
 
 			if (result >= 0) {
 				return result;

@@ -1,11 +1,11 @@
-﻿using FluentFTP.GnuTLS.Core;
-
-using System;
+﻿using System;
 using System.IO;
+using FluentFTP.GnuTLS.Core;
+using FluentFTP.GnuTLS.Enums;
 
 namespace FluentFTP.GnuTLS {
 
-	internal partial class GnuTlsStream : Stream, IDisposable {
+	internal partial class GnuTlsInternalStream : Stream, IDisposable {
 
 		internal static void HandshakeHook(IntPtr session, uint description, uint post, uint incoming) {
 
@@ -33,7 +33,7 @@ namespace FluentFTP.GnuTLS {
 				action = post == 0 ? "received" : "processed";
 			}
 
-			Logging.LogGnuFunc(LogDebugInformationMessagesT.Handshake, "Handshake " + action + " " + Enum.GetName(typeof(HandshakeDescriptionT), description));
+			Logging.LogGnuFunc(GnuMessage.Handshake, "Handshake " + action + " " + Enum.GetName(typeof(HandshakeDescriptionT), description));
 
 			// Check for certain action/description combinations
 
@@ -47,12 +47,12 @@ namespace FluentFTP.GnuTLS {
 				// TLS1.3 : A session ticket appeared
 				//
 				if (description == (uint)HandshakeDescriptionT.GNUTLS_HANDSHAKE_NEW_SESSION_TICKET) {
-					SessionFlagsT flags = GnuTls.SessionGetFlags(session);
+					SessionFlagsT flags = Core.GnuTls.SessionGetFlags(session);
 					if (flags.HasFlag(SessionFlagsT.GNUTLS_SFLAGS_SESSION_TICKET)) {
-						GnuTls.SessionGetData2(session, out resumeDataTLS);
-						Logging.LogGnuFunc(LogDebugInformationMessagesT.Handshake, "Retrieved session data with new session ticket");
+						Core.GnuTls.SessionGetData2(session, out resumeDataTLS);
+						Logging.LogGnuFunc(GnuMessage.Handshake, "Retrieved session data with new session ticket");
 
-						GnuTls.SessionSetData(session, resumeDataTLS);
+						Core.GnuTls.SessionSetData(session, resumeDataTLS);
 						//GnuTls.GnuFree(resumeDataTLS.ptr);
 					}
 				}

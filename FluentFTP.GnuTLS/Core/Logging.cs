@@ -1,14 +1,15 @@
-﻿using static FluentFTP.GnuTLS.GnuTlsStream;
+﻿using static FluentFTP.GnuTLS.GnuTlsInternalStream;
 
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using FluentFTP.GnuTLS.Enums;
 
 namespace FluentFTP.GnuTLS.Core {
 	internal class Logging {
 
 		public static int logMaxLevel;
-		public static LogDebugInformationMessagesT logDebugInformation;
+		public static GnuMessage logDebugInformation;
 		public static Queue<string> logQueue;
 		public static int logQueueMaxSize;
 
@@ -28,10 +29,10 @@ namespace FluentFTP.GnuTLS.Core {
 		// Suppressable, level 1 - Debug messages from the GnuTls stream
 		// Default: InteropFunction
 		public static void LogGnuFunc(string msg) {
-			LogGnuFunc(LogDebugInformationMessagesT.InteropFunction, msg);
+			LogGnuFunc(GnuMessage.InteropFunction, msg);
 		}
 		// General: Any type
-		public static void LogGnuFunc(LogDebugInformationMessagesT type, string msg) {
+		public static void LogGnuFunc(GnuMessage type, string msg) {
 			if ((type & logDebugInformation) != 0 || msg.StartsWith("Error")) {
 				Log(1, "Interop : " + msg, true);
 			}
@@ -93,7 +94,7 @@ namespace FluentFTP.GnuTLS.Core {
 		private static GnuTlsLogCBFunc gnuTlsLogCBFunc = Log;
 
 		// Setup logging
-		public static void InitLogging(GnuStreamLogCBFunc logCBFunc, int logMaxLevel, LogDebugInformationMessagesT logDebugInformation, int logQueueMaxSize) {
+		public static void InitLogging(GnuStreamLogCBFunc logCBFunc, int logMaxLevel, GnuMessage logDebugInformation, int logQueueMaxSize) {
 			logQueue = new Queue<string>();
 
 			Logging.logCBFunc = logCBFunc;
