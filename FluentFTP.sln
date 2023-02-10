@@ -15,8 +15,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentFTP.Xunit", "FluentFT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentFTP.Logging", "FluentFTP.Logging\FluentFTP.Logging.csproj", "{611163CE-C9A0-45A6-9090-F7068AEF8D6B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentFTP.GnuTLS", "FluentFTP.GnuTLS\FluentFTP.GnuTLS.csproj", "{6ECEA90B-B40B-4790-BD39-DF7917DB6F6C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,14 +71,6 @@ Global
 		{611163CE-C9A0-45A6-9090-F7068AEF8D6B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{611163CE-C9A0-45A6-9090-F7068AEF8D6B}.Release|x64.ActiveCfg = Release|Any CPU
 		{611163CE-C9A0-45A6-9090-F7068AEF8D6B}.Release|x64.Build.0 = Release|Any CPU
-		{6ECEA90B-B40B-4790-BD39-DF7917DB6F6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6ECEA90B-B40B-4790-BD39-DF7917DB6F6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6ECEA90B-B40B-4790-BD39-DF7917DB6F6C}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{6ECEA90B-B40B-4790-BD39-DF7917DB6F6C}.Debug|x64.Build.0 = Debug|Any CPU
-		{6ECEA90B-B40B-4790-BD39-DF7917DB6F6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6ECEA90B-B40B-4790-BD39-DF7917DB6F6C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6ECEA90B-B40B-4790-BD39-DF7917DB6F6C}.Release|x64.ActiveCfg = Release|Any CPU
-		{6ECEA90B-B40B-4790-BD39-DF7917DB6F6C}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -28,7 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FluentFTP.GnuTLS\FluentFTP.GnuTLS.csproj" />
     <ProjectReference Include="..\FluentFTP.Xunit\FluentFTP.Xunit.csproj" />
     <ProjectReference Include="..\FluentFTP\FluentFTP.csproj" />
   </ItemGroup>
