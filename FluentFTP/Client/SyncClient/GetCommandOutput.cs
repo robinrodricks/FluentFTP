@@ -16,8 +16,7 @@ namespace FluentFTP {
 
 
 		/// <summary>
-		/// Gets a command output from the server. Each <see cref="FtpListItem"/> object returned
-		/// contains information about the line that was able to be retrieved. 
+		/// Gets command output from the server. 
 		/// </summary>
 		/// </remarks>
 		/// <param name="command">The command to issue which produces output</param>
@@ -34,7 +33,7 @@ namespace FluentFTP {
 			List<string> rawlisting = new List<string> { "Lines captured:" };
 
 			try {
-				// read in raw file listing from data stream
+				// read in raw command output from data stream
 				try {
 					using (var stream = OpenDataStream(command, 0)) {
 						try {
@@ -48,7 +47,7 @@ namespace FluentFTP {
 							Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
 							if (Config.BulkListing) {
-								// increases performance of GetListing by reading multiple lines of the file listing at once
+								// increases performance of GetListing by reading multiple lines of the command output at once
 								foreach (var line in stream.ReadAllLines(Encoding, Config.BulkListingLength)) {
 									if (!Strings.IsNullOrWhiteSpace(line)) {
 										rawlisting.Add(line);
@@ -57,7 +56,7 @@ namespace FluentFTP {
 								}
 							}
 							else {
-								// GetListing will read file listings line-by-line (actually byte-by-byte)
+								// Read command output line-by-line (actually byte-by-byte)
 								string buf;
 								while ((buf = stream.ReadLine(Encoding)) != null) {
 									if (buf.Length > 0) {
@@ -85,7 +84,7 @@ namespace FluentFTP {
 				}
 			}
 			catch (FtpMissingSocketException) {
-				// Some FTP server does not send any response when listing an empty directory
+				// Some FTP server does not send any response when producing an empty response
 				// and the connection fails because no communication socket is provided by the server
 			}
 			catch (FtpCommandException ftpEx) {
