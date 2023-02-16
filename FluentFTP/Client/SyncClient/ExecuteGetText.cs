@@ -16,20 +16,20 @@ namespace FluentFTP {
 
 
 		/// <summary>
-		/// Execute a custom FTP command and return its multiline output. If you only need a single line output, use `Execute` instead.
+		/// Execute a custom FTP command and read the data channel to return its multiline output.
 		/// </summary>
 		/// <param name="command">The command to issue which produces output</param>
 		/// <returns>A list of string objects corresponding to the multi-line response by the server</returns>
-		public List<string> ExecuteMultiline(string command) {
-			return ExecuteMultilineInternal(command, true);
+		public List<string> ExecuteGetText(string command) {
+			return ExecuteGetTextInternal(command, true);
 		}
 
 		/// <summary>
-		/// Execute a custom FTP command and return its multiline output. If you only need a single line output, use `Execute` instead.
+		/// Execute a custom FTP command and return its multiline output.
 		/// </summary>
 		/// <param name="command">The command to issue which produces output</param>
 		/// <param name="retry">Retry the command execution on temporary failure?</param>
-		protected List<string> ExecuteMultilineInternal(string command, bool retry) {
+		protected List<string> ExecuteGetTextInternal(string command, bool retry) {
 
 			List<string> rawlisting = new List<string> { "Lines captured:" };
 
@@ -106,7 +106,7 @@ namespace FluentFTP {
 						// retry once more, but do not go into a infinite recursion loop here
 						// note: this will cause an automatic reconnect in Execute(...)
 						Log(FtpTraceLevel.Verbose, "Warning:  Retry ExecuteMultiline once more due to control connection disconnect");
-						return ExecuteMultilineInternal(command, false);
+						return ExecuteGetTextInternal(command, false);
 					}
 					else {
 						throw;
@@ -117,7 +117,7 @@ namespace FluentFTP {
 				if (retry && ioEx.Message.ContainsAnyCI(ServerStringModule.unexpectedEOF)) {
 					// retry once more, but do not go into a infinite recursion loop here
 					Log(FtpTraceLevel.Verbose, "Warning:  Retry ExecuteMultiline once more due to unexpected EOF");
-					return ExecuteMultilineInternal(command, false);
+					return ExecuteGetTextInternal(command, false);
 				}
 				else {
 					// suppress all other types of exceptions

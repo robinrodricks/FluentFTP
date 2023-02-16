@@ -33,7 +33,7 @@ namespace FluentFTP {
 		Task Connect(bool reConnect, CancellationToken token = default(CancellationToken));
 		Task Disconnect(CancellationToken token = default(CancellationToken));
 		Task<FtpReply> Execute(string command, CancellationToken token = default(CancellationToken));
-		Task<List<string>> ExecuteMultiline(string command, CancellationToken token = default(CancellationToken));
+		Task<List<string>> ExecuteGetText(string command, CancellationToken token = default(CancellationToken));
 		Task<FtpReply> GetReply(CancellationToken token = default(CancellationToken));
 
 		// MANAGEMENT

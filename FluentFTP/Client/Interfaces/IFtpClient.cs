@@ -33,7 +33,7 @@ namespace FluentFTP {
 		void Connect(bool reConnect);
 		void Disconnect();
 		FtpReply Execute(string command);
-		List<string> ExecuteMultiline(string command);
+		List<string> ExecuteGetText(string command);
 		FtpReply GetReply();
 
 		// MANAGEMENT
