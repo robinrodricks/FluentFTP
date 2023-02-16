@@ -1,7 +1,10 @@
 # Release Notes
 
+#### 45.0.3
+ - Fix: `AsyncFtpClient.CreateDirectory` fails on freshly created client instance (thanks [FanDjango](/FanDjango))
+
 #### 45.0.2
- - New: `ExecuteGetText` API to execute an FTP command and return multiline output
+ - New: `ExecuteGetText` API to execute an FTP command and return multiline output (thanks [FanDjango](/FanDjango))
  - New: Integration with `FluentFTP.GnuTLS` NuGet package to allow for GnuTLS TLS 1.3 streams
 
 #### 44.0.1
