@@ -1,6 +1,6 @@
 # Release Notes
 
-#### 45.0.0
+#### 45.0.1
  - New: `ExecuteMultiline` API to execute an FTP command and return multiline output
  - New: Integration with `FluentFTP.GnuTLS` NuGet package to allow for GnuTLS TLS 1.3 streams
 
