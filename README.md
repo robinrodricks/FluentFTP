@@ -74,7 +74,7 @@ Stable binaries are released on NuGet, and contain everything you need to use FT
 
 | Package      		| Latest Version	|  Downloads	|   Docs	| 
 |---------------		|-----------	|-----------	|-----------|
-| **[FluentFTP](https://www.nuget.org/packages/FluentFTP)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP) | [FluentFTP Docs]() |
+| **[FluentFTP](https://www.nuget.org/packages/FluentFTP)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP) | [FluentFTP Docs](https://github.com/robinrodricks/FluentFTP/wiki) |
 | **[FluentFTP.Logging](https://www.nuget.org/packages/FluentFTP.Logging)**      	|    [![Version](https://img.shields.io/nuget/vpre/FluentFTP.Logging.svg)](https://www.nuget.org/packages/FluentFTP.Logging)  		| [![Downloads](https://img.shields.io/nuget/dt/FluentFTP.Logging.svg)](https://www.nuget.org/packages/FluentFTP.Logging) | [Logging Docs](https://github.com/robinrodricks/FluentFTP/wiki/Logging) |
 | **[FluentFTP.GnuTLS](https://www.nuget.org/packages/FluentFTP.GnuTLS)**      	|    [![Version](https://img.shields.io/nuget/vpre/FluentFTP.GnuTLS.svg)](https://www.nuget.org/packages/FluentFTP.GnuTLS)  		| [![Downloads](https://img.shields.io/nuget/dt/FluentFTP.GnuTLS.svg)](https://www.nuget.org/packages/FluentFTP.GnuTLS) | [GnuTLS Docs](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Connection-using-GnuTLS) |
 
