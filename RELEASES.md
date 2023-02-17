@@ -1,6 +1,7 @@
 # Release Notes
 
-#### 45.0.3
+#### 45.0.4
+ - API: Rename `ExecuteGetText` to `ExecuteDownloadText`
  - Fix: `AsyncFtpClient.CreateDirectory` fails on freshly created client instance (thanks [FanDjango](/FanDjango))
 
 #### 45.0.2
