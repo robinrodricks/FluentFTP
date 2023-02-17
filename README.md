@@ -19,7 +19,7 @@ FluentFTP is released under the permissive MIT License, so it can be used in bot
 
 ## Features
 
-  - Full support for [FTP](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Support), [FXP](https://github.com/robinrodricks/FluentFTP/wiki/FXP-Server-To-Server#how-does-fxp-transfer-work), [FTPS](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_ftps) (FTP over SSL), [FTPS with client certificates](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_certs) and [FTPS Proxies](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Proxies)
+  - Full support for [FTP](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Support), [FXP](https://github.com/robinrodricks/FluentFTP/wiki/FXP-Server-To-Server#how-does-fxp-transfer-work), [FTPS](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_ftps), [FTPS with TLS 1.3](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Connection-using-GnuTLS), [FTPS with client certificates](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_certs) and [FTPS Proxies](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Proxies)
   - Full support for over 30 [FTP server types](#server-support) with integration tests for all major servers
   - **File management:**
     - File and directory listing for [all major server types](https://github.com/robinrodricks/FluentFTP/wiki/Directory-Listing#faq_listings) (Unix, Windows/IIS, Azure, Pure-FTPd, ProFTPD, Vax, VMS, OpenVMS, Tandem, HP NonStop Guardian, [IBM z/OS and OS/400](https://github.com/robinrodricks/FluentFTP/wiki/IBM-zOS-and-OS-400-Support), Windows CE, Serv-U, etc)
@@ -72,10 +72,11 @@ FluentFTP is released under the permissive MIT License, so it can be used in bot
 
 Stable binaries are released on NuGet, and contain everything you need to use FTP/FTPS in your .Net/CLR application.
 
-| Package      		| Latest Version	|  Downloads	| 
+| Package      		| Latest Version	|  Downloads	|   Docs	| 
 |---------------		|-----------	|-----------		|
-| **[FluentFTP](https://www.nuget.org/packages/FluentFTP)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP) |
-| **[FluentFTP.Logging](https://www.nuget.org/packages/FluentFTP.Logging)**      	|    [![Version](https://img.shields.io/nuget/vpre/FluentFTP.Logging.svg)](https://www.nuget.org/packages/FluentFTP.Logging)  		| [![Downloads](https://img.shields.io/nuget/dt/FluentFTP.Logging.svg)](https://www.nuget.org/packages/FluentFTP.Logging) |
+| **[FluentFTP](https://www.nuget.org/packages/FluentFTP)**      	|     [![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP) 		|  [![Downloads](https://img.shields.io/nuget/dt/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP) | [FluentFTP Docs]() |
+| **[FluentFTP.Logging](https://www.nuget.org/packages/FluentFTP.Logging)**      	|    [![Version](https://img.shields.io/nuget/vpre/FluentFTP.Logging.svg)](https://www.nuget.org/packages/FluentFTP.Logging)  		| [![Downloads](https://img.shields.io/nuget/dt/FluentFTP.Logging.svg)](https://www.nuget.org/packages/FluentFTP.Logging) | [Logging Docs](https://github.com/robinrodricks/FluentFTP/wiki/Logging) |
+| **[FluentFTP.GnuTLS](https://www.nuget.org/packages/FluentFTP.GnuTLS)**      	|    [![Version](https://img.shields.io/nuget/vpre/FluentFTP.GnuTLS.svg)](https://www.nuget.org/packages/FluentFTP.GnuTLS)  		| [![Downloads](https://img.shields.io/nuget/dt/FluentFTP.GnuTLS.svg)](https://www.nuget.org/packages/FluentFTP.GnuTLS) | [GnuTLS Docs](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Connection-using-GnuTLS) |
 
 For usage see the [Quick Start Example](https://github.com/robinrodricks/FluentFTP/wiki/Quick-Start-Example) and the [Documentation](https://github.com/robinrodricks/FluentFTP/wiki) wiki.
 
