@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Net.Sockets;
 using System.Linq;
 using FluentFTP.Helpers;
 using System.Text.RegularExpressions;
@@ -53,7 +51,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
- 		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>
+		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>
 		/// <returns>FtpReply representing the response from the server</returns>
 		protected FtpReply GetReplyInternal(string command, bool exhaustNoop, int timeOut) {
 			var reply = new FtpReply();
@@ -67,10 +65,6 @@ namespace FluentFTP.Client.BaseClient {
 					LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for response to: " + LogMaskModule.MaskCommand(this, command));
 				}
 
-				// Implement this: https://github.com/robinrodricks/FluentFTP/wiki/Noop#how-do-servers-respond-to-noop
-				// Cannot use the normal timeout mechanism though, as a System.TimeoutException
-				// causes the stream to disconnect.
-
 				string sequence = string.Empty;
 
 				string response;
@@ -83,6 +77,7 @@ namespace FluentFTP.Client.BaseClient {
 				sw.Start();
 
 				if (exhaustNoop) {
+					// Issue a final NOOP command, some servers need that to trigger final output
 					m_stream.WriteLine(Encoding, "NOOP");
 				}
 
@@ -93,34 +88,16 @@ namespace FluentFTP.Client.BaseClient {
 
 					elapsedTime = sw.ElapsedMilliseconds;
 
-					// Maximum wait time for collecting NOOP responses: parameter timeOut
-					if (exhaustNoop && elapsedTime > timeOut) {
-						break;
-					}
+					response = null;
 
-					if (!exhaustNoop) {
-
-						// If we are not exhausting NOOPs, i.e. doing a normal GetReply(...)
-						// we do a blocking ReadLine(...). This can throw a
-						// System.TimeoutException which will disconnect us.
-						// Unless timeOut is -1, then we do a single non-blocking read,
-						// otherwise we totally disregard timeOut
-						if (timeOut >= 0) {
-							m_stream.ReadTimeout = Config.ReadTimeout;
-							response = m_stream.ReadLine(Encoding);
-						}
-						else {
-							response = string.Empty;
-							if (m_stream.SocketDataAvailable > 0) {
-								response = m_stream.ReadLine(Encoding);
-							}
-						}
-
-					}
-					else {
+					if (exhaustNoop) {
 
 						// If we are exhausting NOOPs, use a non-blocking ReadLine(...)
 						// as we don't want a timeout exception, which would disconnect us.
+
+						if (elapsedTime > timeOut) {
+							break;
+						}
 
 						if (m_stream.SocketDataAvailable > 0) {
 							response = m_stream.ReadLine(Encoding);
@@ -130,13 +107,36 @@ namespace FluentFTP.Client.BaseClient {
 								previousElapsedTime = elapsedTime;
 								LogWithPrefix(FtpTraceLevel.Verbose, "Waiting - " + ((10000 - elapsedTime) / 1000).ToString() + " seconds left");
 							}
-							response = null;
-							Thread.Sleep(100);
+						}
+
+					}
+					else {
+
+						// If we are not exhausting NOOPs, i.e. doing a normal GetReply(...)
+
+						if (elapsedTime > Config.ReadTimeout) {
+							throw new System.TimeoutException();
+						}
+
+						// we normally need blocking reads apart from some special cases indicated
+						// by parameter timeOut having been set to -1
+
+						if (timeOut >= 0) {
+							// BLOCKING read
+							m_stream.ReadTimeout = Config.ReadTimeout;
+							response = m_stream.ReadLine(Encoding);
+						}
+						else {
+							// NON BLOCKING read
+							if (m_stream.SocketDataAvailable > 0) {
+								response = m_stream.ReadLine(Encoding);
+							}
 						}
 
 					}
 
 					if (string.IsNullOrEmpty(response)) {
+						Thread.Sleep(100);
 						continue;
 					}
 
@@ -165,7 +165,7 @@ namespace FluentFTP.Client.BaseClient {
 
 					}
 
-					// Accumulate non-valid response text too, prior to a valid response
+					// Accumulate all responses
 					reply.InfoMessages += response + "\n";
 
 				} while (true);
