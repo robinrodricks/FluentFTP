@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 45.1.0
+ - New: `DiscoverSslSessionLength` API to auto compute a working value for SSL Session length (thanks [FanDjango](/FanDjango))
+
 #### 45.0.4
  - API: Rename `ExecuteGetText` to `ExecuteDownloadText`
  - Fix: `AsyncFtpClient.CreateDirectory` fails on freshly created client instance (thanks [FanDjango](/FanDjango))
