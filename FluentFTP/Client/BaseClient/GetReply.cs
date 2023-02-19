@@ -74,12 +74,12 @@ namespace FluentFTP.Client.BaseClient {
 				long elapsedTime;
 				long previousElapsedTime = 0;
 
-				sw.Start();
-
 				if (exhaustNoop) {
 					// Issue a final NOOP command, some servers need that to trigger final output
 					m_stream.WriteLine(Encoding, "NOOP");
 				}
+
+			sw.Start();
 
 				do {
 					if (!IsConnected) {
