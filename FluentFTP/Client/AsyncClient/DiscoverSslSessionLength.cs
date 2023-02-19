@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FluentFTP {
-	public partial class FtpClient {
+	public partial class AsyncFtpClient {
 
 
 		/// <summary>
@@ -11,7 +13,9 @@ namespace FluentFTP {
 		/// <param name="command">The command to issue</param>
 		/// <param name="maxTries">Maximum number of commands to issue</param>
 		/// <returns>The detected command limit, 0 if infinite</returns>
-		public int DiscoverSslSessionLength(string command = "PWD", int maxTries = 2000) {
+		public async Task<int> DiscoverSslSessionLength(string command = "PWD", int maxTries = 2000,
+			CancellationToken token = default(CancellationToken)) {
+
 			if (!IsEncrypted) {
 				return 0;
 			}
@@ -25,7 +29,7 @@ namespace FluentFTP {
 			for (int i = 0; i < maxTries; i++) {
 				//Console.WriteLine("Try " + i);
 				try {
-					Execute(command);
+					await Execute(command, token);
 				}
 				catch {
 					Log(FtpTraceLevel.Verbose, "Exception: ");
@@ -36,9 +40,13 @@ namespace FluentFTP {
 					Log(FtpTraceLevel.Verbose, "Reconnect detected");
 					break;
 				}
+
+				if (token.IsCancellationRequested) {
+					return 0;
+				}
 			}
 
-			Execute(command);
+			await Execute(command, token);
 
 			if (Status.ConnectCount > connects) {
 				Log(FtpTraceLevel.Verbose, "Failure ocurred at: " + m_stream.SslSessionLength);
