@@ -131,7 +131,7 @@ namespace FluentFTP {
 					catch (IOException ex) {
 						LogWithPrefix(FtpTraceLevel.Verbose, "IOException in DownloadFileInternal", ex);
 
-						FtpReply exStatus = GetReplyInternal("*IOException*", anyNoop, 10);
+						FtpReply exStatus = GetReplyInternal("*DOWNLOAD: after IOException*", anyNoop, 10);
 						if (exStatus.Code == "226") {
 							sw.Stop();
 							earlySuccess = true;
