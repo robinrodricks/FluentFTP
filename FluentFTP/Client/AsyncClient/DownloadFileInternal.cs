@@ -132,7 +132,7 @@ namespace FluentFTP {
 					catch (IOException ex) {
 						LogWithPrefix(FtpTraceLevel.Verbose, "IOException in DownloadFileInternal", ex);
 
-						FtpReply exStatus = await GetReplyAsyncInternal(token, "*DOWNLOAD: after IOException*", anyNoop, 10);
+						FtpReply exStatus = await GetReplyAsyncInternal(token, LastCommandExecuted + ", after IOException", anyNoop, 10);
 						if (exStatus.Code == "226") {
 							earlySuccess = true;
 							sw.Stop();
@@ -187,7 +187,7 @@ namespace FluentFTP {
 
 				// listen for a success/failure reply or out of band data (like NOOP responses)
 				// GetReply(true) means: Exhaust any NOOP responses
-				FtpReply status = await GetReplyAsyncInternal(token, "*DOWNLOAD*", anyNoop);
+				FtpReply status = await GetReplyAsyncInternal(token, LastCommandExecuted, anyNoop);
 
 				// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
 				// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
@@ -198,7 +198,7 @@ namespace FluentFTP {
 				return true;
 			}
 			catch (AuthenticationException) {
-				FtpReply reply = await GetReplyAsyncInternal(token, "*DOWNLOAD*", false, -1); // no exhaustNoop, but non-blocking
+				FtpReply reply = await GetReplyAsyncInternal(token, LastCommandExecuted, false, -1); // no exhaustNoop, but non-blocking
 				if (!reply.Success) {
 					throw new FtpCommandException(reply);
 				}
