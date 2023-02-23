@@ -47,7 +47,11 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				if (reconnect) {
-					LogWithPrefix(FtpTraceLevel.Warn, "Reconnect needed due to " + reconnectReason + " control connection (SslSessionLength: " + m_stream?.SslSessionLength + ")");
+					string sslLengthInfo = string.Empty;
+					if (m_stream.IsEncrypted) {
+						sslLengthInfo = " (SslSessionLength: " + m_stream?.SslSessionLength + ")";
+					}
+					LogWithPrefix(FtpTraceLevel.Warn, "Reconnect needed due to " + reconnectReason + " control connection" + sslLengthInfo);
 					LogWithPrefix(FtpTraceLevel.Info, "Command stashed: " + command);
 
 					if (IsConnected) {
