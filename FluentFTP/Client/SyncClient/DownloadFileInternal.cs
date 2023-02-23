@@ -129,9 +129,9 @@ namespace FluentFTP {
 						throw new IOException($"Unexpected EOF for remote file {remotePath} [{offset}/{fileLen} bytes read]");
 					}
 					catch (IOException ex) {
-						LogWithPrefix(FtpTraceLevel.Verbose, "IOException", ex);
+						LogWithPrefix(FtpTraceLevel.Verbose, "IOException in DownloadFileInternal", ex);
 
-						FtpReply exStatus = GetReplyInternal("*IOException*", anyNoop, 10);
+						FtpReply exStatus = GetReplyInternal("*DOWNLOAD: after IOException*", anyNoop, 10);
 						if (exStatus.Code == "226") {
 							sw.Stop();
 							earlySuccess = true;

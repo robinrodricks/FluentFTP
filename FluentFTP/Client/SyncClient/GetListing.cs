@@ -238,7 +238,7 @@ namespace FluentFTP {
 						}
 					}
 					catch (AuthenticationException) {
-						FtpReply reply = GetReplyInternal("*GETLISTING*", false, -1); // no exhaustNoop, but non-blocking
+						FtpReply reply = GetReplyInternal(listcmd, false, -1); // no exhaustNoop, but non-blocking
 						if (!reply.Success) {
 							throw new FtpCommandException(reply);
 						}
