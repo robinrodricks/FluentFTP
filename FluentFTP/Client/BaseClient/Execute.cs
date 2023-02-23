@@ -78,6 +78,7 @@ namespace FluentFTP.Client.BaseClient {
 
 				// send command to FTP server
 				m_stream.WriteLine(m_textEncoding, command);
+				LastCommandExecuted = command;
 				LastCommandTimestamp = DateTime.UtcNow;
 				reply = GetReplyInternal(command);
 				if (reply.Success) {

@@ -89,6 +89,11 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		protected DateTime LastCommandTimestamp;
 
+		/// <summary>
+		/// To help in logging / debugging
+		/// </summary>
+		protected string LastCommandExecuted;
+
 		protected FtpReply HandshakeReply;
 
 		protected string LastStreamPath;
