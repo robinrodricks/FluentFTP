@@ -2,7 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
+using System.Net.NetworkInformation;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
@@ -37,8 +40,17 @@ namespace FluentFTP {
 		FtpReply LastReply { get; }
 		List<FtpReply> LastReplies { get; set; }
 		Encoding Encoding { get; set; }
-
 		Action<FtpTraceLevel, string> LegacyLogger { get; set; }
+		FtpClientState Status { get; }
+		FtpIpVersion? InternetProtocol { get; }
+		bool IsAuthenticated { get; }
+		SslProtocols SslProtocolActive { get; }
+		bool IsEncrypted { get; }
+		bool ValidateCertificateHandlerExists { get; }
+		bool RecursiveList { get; }
+		IPEndPoint SocketLocalEndPoint { get; }
+		IPEndPoint SocketRemoteEndPoint { get; }
+
 
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 

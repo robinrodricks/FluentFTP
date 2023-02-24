@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 45.1.1
+ - New: Add 9 missing properties to the FTP client interfaces
+
 #### 45.1.0
  - New: `DiscoverSslSessionLength` API to auto compute a working value for SSL Session length (thanks [FanDjango](/FanDjango))
 
