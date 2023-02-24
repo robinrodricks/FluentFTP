@@ -74,8 +74,8 @@ namespace FluentFTP {
 			long previousElapsedTime = 0;
 
 			if (exhaustNoop) {
-				// Issue a final NOOP command, some servers need that to trigger final output
-				await m_stream.WriteLineAsync(Encoding, "NOOP", token);
+				// tickle the server
+				m_stream.WriteLine(Encoding, "NOOP");
 			}
 
 			sw.Start();
@@ -104,7 +104,11 @@ namespace FluentFTP {
 					else {
 						if (elapsedTime > (previousElapsedTime + 1000)) {
 							previousElapsedTime = elapsedTime;
-							LogWithPrefix(FtpTraceLevel.Verbose, "Waiting - " + ((10000 - elapsedTime) / 1000).ToString() + " seconds left");
+							LogWithPrefix(FtpTraceLevel.Verbose, "Waiting - " + ((timeOut - elapsedTime) / 1000).ToString() + " seconds left");
+							// if we have more then 5 seconds left, tickle the server some more
+							if (timeOut - elapsedTime >= 5000) {
+								await m_stream.WriteLineAsync(Encoding, "NOOP", token);
+							}
 						}
 					}
 
