@@ -247,7 +247,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// Decodes the given FTP response string into a FtpReply, separating the FTP return code and message.
 		/// Returns true if the string was decoded correctly or false if it is not a standard format FTP response.
 		/// </summary>
-		protected bool DecodeStringToReply(string text, ref FtpReply reply) {
+		protected static bool DecodeStringToReply(string text, ref FtpReply reply) {
 			Match m = Regex.Match(text, "^(?<code>[0-9]{3}) (?<message>.*)$");
 			if (m.Success) {
 				reply.Code = m.Groups["code"].Value;
