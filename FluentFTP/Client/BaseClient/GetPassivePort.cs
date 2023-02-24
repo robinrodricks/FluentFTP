@@ -33,16 +33,22 @@ namespace FluentFTP.Client.BaseClient {
 					throw new FtpException("Failed to get the EPSV port from: " + reply.Message);
 				}
 			}
-			// If ESPV is responded with Entering Extended Passive. The IP must remain the same.
+			// If ESPV is responded with Entering Extended Passive. The IP must remain the same as the control connection.
+
 			/* Example:
+
 			Command: EPSV
 			Response: 229 Entering Extended Passive Mode(|||10016|)
 
-			If we set the host to ftp.host.com and ftp.host.com has multiple ip's we may end up with the wrong ip.
-			Making sure that we use the same IP.
-			host = m_host; 
+			If the server (per hostname DNS query) has multiple ip's we will **NOT** end up with the wrong ip, because:
+			On the connect we have stored the previously used IPAD in the hostname/IPAD cache, replacing the list of IPADs
+			that DNS gave us by the single one that we successfully connected to.
+
+			Therefore the subsequent connects will use this single stored IPAD instead of querying DNS and getting a list of IPADs.
 			*/
-			host = SocketRemoteEndPoint.Address.ToString();
+
+			host = m_host;
+
 			port = int.Parse(m.Groups["port"].Value);
 		}
 
