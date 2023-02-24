@@ -3,8 +3,8 @@
 #### 45.2.0
  - New: Add 9 missing properties to the FTP client interfaces
  - New: Improve log message wording for EPSV & proxies (thanks [FanDjango](/FanDjango))
- - Fix: Improve GetReply behaviour to correctly handle timeout exceptions (thanks [FanDjango](/FanDjango))
- - Fix: Improve NOOP behaviour to correctly handle timeout exceptions (thanks [FanDjango](/FanDjango))
+ - Fix: Improve GetReply behavior to correctly handle timeout exceptions (thanks [FanDjango](/FanDjango))
+ - Fix: Improve NOOP behavior to correctly handle timeout exceptions (thanks [FanDjango](/FanDjango))
 
 #### 45.1.0
  - New: `DiscoverSslSessionLength` API to auto compute a working value for SSL Session length (thanks [FanDjango](/FanDjango))
