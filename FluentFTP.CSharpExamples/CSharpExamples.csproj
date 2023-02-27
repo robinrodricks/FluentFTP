@@ -10,6 +10,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <PackageReference Include="log4net" Version="2.0.15" />
+	  <PackageReference Include="NLog" Version="5.1.2" />
+	  <PackageReference Include="NLog.Extensions.Logging" Version="5.2.2" />
+	  <PackageReference Include="Serilog" Version="2.12.0" />
+	  <PackageReference Include="Serilog.Extensions.Logging" Version="3.1.0" />
+	  <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\FluentFTP.Logging\FluentFTP.Logging.csproj" />
 		<ProjectReference Include="..\FluentFTP\FluentFTP.csproj" />
 	</ItemGroup>
 
