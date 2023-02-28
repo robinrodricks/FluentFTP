@@ -116,7 +116,9 @@ namespace FluentFTP {
 #endif
 #if NETFRAMEWORK
 			ar.AsyncWaitHandle.WaitOne(Config.DataConnectionConnectTimeout);
-			ar.AsyncWaitHandle.Close(); // See issue #648 this needs to be commented out for MONO
+			if (Type.GetType("Mono.Runtime") == null) {
+				ar.AsyncWaitHandle.Close(); // See issue #648 this needs to be commented out for MONO
+			}
 			if (!ar.IsCompleted) {
 				stream.Close();
 				throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
