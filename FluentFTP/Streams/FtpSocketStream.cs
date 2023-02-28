@@ -545,10 +545,9 @@ namespace FluentFTP {
 				Close();
 				throw new TimeoutException("Timed out trying to read data from the socket stream!");
 			}
-			else {
+			else if (Type.GetType("Mono.Runtime") == null) {
 				ar.AsyncWaitHandle.Close(); // See issue #648 this needs to be commented out for MONO
 			}
-
 			return BaseStream.EndRead(ar);
 #endif
 		}
