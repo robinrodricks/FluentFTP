@@ -3,7 +3,7 @@
 #### 45.2.0
  - New: Add 9 missing properties to the FTP client interfaces
  - New: Improve log message wording for EPSV & proxies (thanks [FanDjango](/FanDjango))
- - Fix: Improve GetReply to handle connection loss edge cases and timeout exceptions (thanks [FanDjango](/FanDjango))
+ - Fix: Improve GetReply to handle connection loss edge cases and timeout exceptions, possibly incurring cpu-loops (thanks [FanDjango](/FanDjango))
  - Fix: Improve NOOP behavior to correctly handle timeout exceptions (thanks [FanDjango](/FanDjango))
 
 #### 45.1.0
