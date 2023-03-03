@@ -20,7 +20,7 @@ namespace FluentFTP {
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
 		protected bool DownloadFileInternal(string localPath, string remotePath, Stream outStream, long restartPosition,
-			Action<FtpProgress> progress, FtpProgress metaProgress, long knownFileSize, bool isAppend) {
+			Action<FtpProgress> progress, FtpProgress metaProgress, long knownFileSize, bool isAppend, long stopPosition) {
 
 			Stream downStream = null;
 			var disposeOutStream = false;
@@ -31,6 +31,11 @@ namespace FluentFTP {
 
 				if (progress != null) {
 					fileLen = knownFileSize > 0 ? knownFileSize : GetFileSize(remotePath);
+				}
+
+				// #690: honor the "stop position" if provided and if less than the file length
+				if (stopPosition > 0 && (fileLen <= 0 || stopPosition < fileLen)) {
+					fileLen = stopPosition;
 				}
 
 				// open the file for reading

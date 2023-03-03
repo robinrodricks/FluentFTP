@@ -22,8 +22,9 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="restartPosition">The size of the existing file in bytes, or 0 if unknown. The download restarts from this byte index.</param>
 		/// <param name="progress">Provide a callback to track download progress.</param>
+		/// <param name="stopPosition">The last byte index that should be downloaded, or 0 if the entire file should be downloaded.</param>
 		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public bool DownloadBytes(out byte[] outBytes, string remotePath, long restartPosition = 0, Action<FtpProgress> progress = null) {
+		public bool DownloadBytes(out byte[] outBytes, string remotePath, long restartPosition = 0, Action<FtpProgress> progress = null, long stopPosition = 0) {
 			// verify args
 			if (remotePath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
@@ -38,7 +39,7 @@ namespace FluentFTP {
 			// download the file from the server
 			bool ok;
 			using (var outStream = new MemoryStream()) {
-				ok = DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0), 0, false);
+				ok = DownloadFileInternal(null, remotePath, outStream, restartPosition, progress, new FtpProgress(1, 0), 0, false, stopPosition);
 				if (ok) {
 					outBytes = outStream.ToArray();
 				}

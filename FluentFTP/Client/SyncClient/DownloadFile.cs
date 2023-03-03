@@ -109,7 +109,7 @@ namespace FluentFTP {
 			do {
 
 				// download the file from the server to a file stream or memory stream
-				downloadSuccess = DownloadFileInternal(localPath, remotePath, null, restartPos, progress, metaProgress, knownFileSize, isAppend);
+				downloadSuccess = DownloadFileInternal(localPath, remotePath, null, restartPos, progress, metaProgress, knownFileSize, isAppend, 0);
 				attemptsLeft--;
 
 				if (!downloadSuccess) {

@@ -126,7 +126,7 @@ namespace FluentFTP {
 			do {
 
 				// download the file from the server to a file stream or memory stream
-				downloadSuccess = await DownloadFileInternalAsync(localPath, remotePath, null, restartPos, progress, token, metaProgress, knownFileSize, isAppend);
+				downloadSuccess = await DownloadFileInternalAsync(localPath, remotePath, null, restartPos, progress, token, metaProgress, knownFileSize, isAppend, 0);
 				attemptsLeft--;
 
 				if (!downloadSuccess) {
