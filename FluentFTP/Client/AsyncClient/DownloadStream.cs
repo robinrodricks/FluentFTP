@@ -43,18 +43,5 @@ namespace FluentFTP {
 			return await DownloadFileInternalAsync(null, remotePath, outStream, restartPosition, progress, token, new FtpProgress(1, 0), 0, false, stopPosition);
 		}
 
-		/// <summary>
-		/// Downloads the specified file into the specified stream asynchronously .
-		/// High-level API that takes care of various edge cases internally.
-		/// Supports very large files since it downloads data in chunks.
-		/// </summary>
-		/// <param name="outStream">The stream that the file will be written to. Provide a new MemoryStream if you only want to read the file into memory.</param>
-		/// <param name="remotePath">The full or relative path to the file on the server</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>If true then the file was downloaded, false otherwise.</returns>
-		public async Task<bool> DownloadStream(Stream outStream, string remotePath, CancellationToken token = default(CancellationToken)) {
-			return await DownloadStream(outStream, remotePath, 0, null, token, 0);
-		}
-
 	}
 }

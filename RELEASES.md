@@ -1,5 +1,8 @@
 # Release Notes
 
+#### 46.0.1
+ - Fix: Hotfix to remove new `DowloadStream` overload that causes compile failure
+
 #### 46.0.0
  - New: Add `stopPosition` parameter to `DownloadBytes` and `DowloadStream` to allow partial downloads
 
