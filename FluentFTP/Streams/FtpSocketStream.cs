@@ -1211,8 +1211,8 @@ namespace FluentFTP {
 					CreateCustomStream(targetHost);
 				}
 				catch (Exception ex) {
-					Close();
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication failed, lib = " + authType, ex, true);
+					Close();
 					throw;
 				}
 
