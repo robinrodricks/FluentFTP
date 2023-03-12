@@ -1212,6 +1212,9 @@ namespace FluentFTP {
 				}
 				catch (Exception ex) {
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication failed, lib = " + authType, ex, true);
+					if (ex.InnerException != null) {
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, ex.InnerException.Message);
+					}
 					Close();
 					throw;
 				}
