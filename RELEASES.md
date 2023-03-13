@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 46.0.2
+ - Fix: Custom stream logging tweak: Message first then close stream
+ - Fix: Custom stream: Also log `InnerException` if it exists within the exception
+ - Fix: Internal stream null check to avoid exception in `Execute` API methods
+
 #### 46.0.1
  - Fix: Hotfix to remove new `DowloadStream` overload that causes compile failure
 
