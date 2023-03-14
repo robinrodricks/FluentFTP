@@ -11,10 +11,11 @@ using FluentFTP.Client.Modules;
 using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP {
+
 	public partial class AsyncFtpClient {
 
 		/// <summary>
-		/// Return information about a remote file system object asynchronously. 
+		/// Return information about a remote file system object asynchronously.
 		/// </summary>
 		/// <remarks>
 		/// You should check the <see cref="BaseFtpClient.Capabilities"/> property for the <see cref="FtpCapability.MLSD"/>
@@ -49,8 +50,8 @@ namespace FluentFTP {
 				// USE MACHINE LISTING TO GET INFO FOR A SINGLE FILE
 
 				if ((reply = await Execute("MLST " + path, token)).Success) {
-					res = reply.InfoMessages.Split('\n');
-					if (res.Length > 1) {
+					res = reply.InfoMessages?.Split('\n');
+					if (res?.Length > 1) {
 						var info = new StringBuilder();
 
 						for (var i = 1; i < res.Length; i++) {
@@ -90,7 +91,5 @@ namespace FluentFTP {
 
 			return result;
 		}
-
 	}
-
 }
