@@ -163,7 +163,7 @@ namespace FluentFTP.Client.BaseClient {
 		}
 
 		void IInternalFtpClient.ConnectInternal(bool reConnect) {
-        }
+		}
 		void IInternalFtpClient.ConnectInternal(bool reConnect, CancellationToken token) {
 		}
 

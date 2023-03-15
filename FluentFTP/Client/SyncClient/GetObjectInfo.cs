@@ -32,7 +32,6 @@ namespace FluentFTP {
 			LogFunction(nameof(GetObjectInfo), new object[] { path, dateModified });
 
 			FtpReply reply;
-			string[] res;
 
 			var supportsMachineList = HasFeature(FtpCapability.MLSD);
 
@@ -42,15 +41,17 @@ namespace FluentFTP {
 				// USE MACHINE LISTING TO GET INFO FOR A SINGLE FILE
 
 				if ((reply = Execute("MLST " + path)).Success) {
-					res = reply.InfoMessages.Split('\n');
-					if (res.Length > 1) {
-						var info = new StringBuilder();
+					if (reply.InfoMessages != null) {
+						string[] res = reply.InfoMessages.Split('\n');
+						if (res.Length > 1) {
+							var info = new StringBuilder();
 
-						for (var i = 1; i < res.Length; i++) {
-							info.Append(res[i]);
+							for (var i = 1; i < res.Length; i++) {
+								info.Append(res[i]);
+							}
+
+							result = CurrentListParser.ParseSingleLine(null, info.ToString(), m_capabilities, true);
 						}
-
-						result = CurrentListParser.ParseSingleLine(null, info.ToString(), m_capabilities, true);
 					}
 				}
 				else {

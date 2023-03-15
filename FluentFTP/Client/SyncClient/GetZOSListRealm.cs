@@ -41,8 +41,7 @@ namespace FluentFTP {
 			// 250-The working directory may be a load library                          
 			// 250 The working directory "GEEK.PRODUCT.LOADLIB" is a partitioned data set
 
-			if (reply.InfoMessages != null &&
-				reply.InfoMessages.Contains("may be a load library")) {
+			if (reply.InfoMessages?.Contains("may be a load library") == true) {
 				return FtpZOSListRealm.MemberU;
 			}
 
