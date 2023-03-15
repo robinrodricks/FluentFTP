@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
+
 	public partial class FtpClient {
 
 		/// <summary>
@@ -42,8 +43,8 @@ namespace FluentFTP {
 				// USE MACHINE LISTING TO GET INFO FOR A SINGLE FILE
 
 				if ((reply = Execute("MLST " + path)).Success) {
-					res = reply.InfoMessages.Split('\n');
-					if (res.Length > 1) {
+					res = reply.InfoMessages?.Split('\n');
+					if (res?.Length > 1) {
 						var info = new StringBuilder();
 
 						for (var i = 1; i < res.Length; i++) {
