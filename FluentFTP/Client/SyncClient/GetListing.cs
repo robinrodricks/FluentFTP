@@ -184,10 +184,12 @@ namespace FluentFTP {
 					if (reply.Success) {
 						Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 
-						foreach (var line in reply.InfoMessages.Split('\n')) {
-							if (!Strings.IsNullOrWhiteSpace(line)) {
-								rawlisting.Add(line);
-								Log(FtpTraceLevel.Verbose, "Listing:  " + line);
+						if (reply.InfoMessages != null) {
+							foreach (var line in reply.InfoMessages.Split('\n')) {
+								if (!Strings.IsNullOrWhiteSpace(line)) {
+									rawlisting.Add(line);
+									Log(FtpTraceLevel.Verbose, "Listing:  " + line);
+								}
 							}
 						}
 
