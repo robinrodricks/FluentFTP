@@ -36,10 +36,10 @@ namespace FluentFTP.Tests.Integration.System {
 		/// </summary>
 		protected FtpClient GetClient() {
 			var client = new FtpClient("localhost", new NetworkCredential(_fixture.GetUsername(), _fixture.GetPassword()));
-			/*if (_stream == UseStream.GnuTlsStream) {
+			if (_stream == UseStream.GnuTlsStream) {
 				client.Config.CustomStream = typeof(FluentFTP.GnuTLS.GnuTlsStream);
 				client.Config.CustomStreamConfig = new FluentFTP.GnuTLS.GnuConfig();
-			}*/
+			}
 			client.Config.EncryptionMode = FtpEncryptionMode.Auto;
 			client.Config.ValidateAnyCertificate = true;
 			client.Config.LogHost = true;
@@ -62,10 +62,10 @@ namespace FluentFTP.Tests.Integration.System {
 		/// </summary>
 		protected async Task<AsyncFtpClient> GetAsyncClient() {
 			var client = new AsyncFtpClient("localhost", new NetworkCredential(_fixture.GetUsername(), _fixture.GetPassword()));
-			/*if (_stream == UseStream.GnuTlsStream) {
+			if (_stream == UseStream.GnuTlsStream) {
 				client.Config.CustomStream = typeof(FluentFTP.GnuTLS.GnuTlsStream);
 				client.Config.CustomStreamConfig = new FluentFTP.GnuTLS.GnuConfig();
-			}*/
+			}
 			client.Config.EncryptionMode = FtpEncryptionMode.Auto;
 			client.Config.ValidateAnyCertificate = true;
 			client.Config.LogHost = true;
