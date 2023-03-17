@@ -383,6 +383,7 @@ namespace FluentFTP {
 				var e = new FtpSslValidationEventArgs() {
 					Certificate = certificate,
 					Chain = chain,
+					PolicyErrors = String.IsNullOrEmpty(errorMessage) ? SslPolicyErrors.None : SslPolicyErrors.RemoteCertificateNameMismatch,
 					PolicyErrorMessage = errorMessage,
 					Accept = errorMessage == string.Empty,
 				};
