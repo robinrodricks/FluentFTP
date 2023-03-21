@@ -267,6 +267,8 @@ namespace FluentFTP.Tests.Unit {
 			parser.Init(FtpOperatingSystem.Windows);
 
 			var sample = new[] {
+				"03-10-21 11:12       <DIR> System Volume Information",
+				"12-03-20 13:40       <DIR> FCDATA01",
 				"03-07-13  10:02AM                  901 File01.xml",
 				"03-07-13  10:03AM                  921 File02.xml",
 				"03-07-13  10:04AM                  904 File03.xml",
@@ -286,6 +288,8 @@ namespace FluentFTP.Tests.Unit {
 				"2013-09-02  19:06                9,730 File17",
 			};
 			var expected = new FtpListItem?[]{
+				new FtpListItem("System Volume Information", 0, FtpObjectType.Directory, new DateTime(2021,3, 10, 11, 12, 0, 0)),
+				new FtpListItem("FCDATA01", 0, FtpObjectType.Directory, new DateTime(2020, 12, 3, 13, 40, 0, 0)),
 				new FtpListItem("File01.xml", 901, FtpObjectType.File, new DateTime(2013, 3, 7, 10, 2, 0, 0)),
 				new FtpListItem("File02.xml", 921, FtpObjectType.File, new DateTime(2013, 3, 7, 10, 3, 0, 0)),
 				new FtpListItem("File03.xml", 904, FtpObjectType.File, new DateTime(2013, 3, 7, 10, 4, 0, 0)),
