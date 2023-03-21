@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers.Parsers {
@@ -84,33 +85,23 @@ namespace FluentFTP.Helpers.Parsers {
 		/// Parses the file or folder name from IIS/DOS format listings
 		/// </summary>
 		private static string ParseName(BaseFtpClient client, string record, string[] values, bool isDir) {
-			// Find starting point of the name by finding the pos of all the date/time fields.
-			var pos = 0;
-			var ok = true;
-			for (var i = 0; i < 3; i++) {
-				pos = record.IndexOf(values[i], pos);
-				if (pos < 0) {
-					ok = false;
-					break;
-				}
-				else {
-					pos += values[i].Length;
-				}
-			}
 
-			string name = null;
-			if (ok) {
-				//---------------------------------------
-				//03-24-22  09:50AM       <DIR>          TestSubDirectory01
-				//03-24-22  09:50AM                   31 TextFileA.txt
-				//---------------------------------------
-				name = isDir ? record.Substring(pos + OffsetLengthDirectory) : record.Substring(pos + OffsetLengthFile);
-			}
-			else {
-				((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Error, "Failed to retrieve name: " + record);
-			}
+			// Remove the first 3 "words"
 
-			return name;
+			//---------------------------------------
+			//03-24-22  09:50AM       <DIR>          TestSubDirectory01
+			//03-24-22  09:50AM                   31 TextFileA.txt
+			//---------------------------------------
+
+			int wc = 0;
+			string s = record.Trim();
+
+			do {
+				s = s.Substring(s.IndexOf(' ') + 1).Trim();
+				wc++;
+			} while (wc < 3);
+
+			return s;
 		}
 
 		/// <summary>
