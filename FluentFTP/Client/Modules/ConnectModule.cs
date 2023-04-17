@@ -118,7 +118,7 @@ namespace FluentFTP.Client.Modules {
 						}
 
 						// check if permanent failures and hard abort
-						var permaEx = IsPermanantConnectionFailure(ex);
+						var permaEx = IsPermanentConnectionFailure(ex);
 						if (permaEx != null) {
 							if (cloneConnection) {
 								conn.Dispose();
@@ -249,7 +249,7 @@ namespace FluentFTP.Client.Modules {
 						}
 
 						// check if permanent failures and hard abort
-						var permaEx = IsPermanantConnectionFailure(ex);
+						var permaEx = IsPermanentConnectionFailure(ex);
 						if (permaEx != null) {
 							if (cloneConnection) {
 								conn.Dispose();
@@ -374,7 +374,7 @@ namespace FluentFTP.Client.Modules {
 		/// so that we don't need to retry all the connection config combinations and can hard-abort the AutoConnect.
 		/// Return the exception if it is a hard failure, or null if no issue is found.
 		/// </summary>
-		private static Exception IsPermanantConnectionFailure(Exception ex) {
+		private static Exception IsPermanentConnectionFailure(Exception ex) {
 
 			// permanent failure: wrong FTPS certificate
 			if (ex is AuthenticationException credEx) {
