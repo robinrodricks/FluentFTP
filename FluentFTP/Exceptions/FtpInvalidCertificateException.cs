@@ -23,8 +23,7 @@ namespace FluentFTP.Exceptions {
 		/// Default constructor
 		/// </summary>
 		public FtpInvalidCertificateException(Exception innerException)
-			: base("FTPS security could not be established on the server. The certificate was not accepted.") {
-			InnerException = innerException;
+			: base("FTPS security could not be established on the server. The certificate was not accepted.", innerException) {
 		}
 
 		/// <summary>
