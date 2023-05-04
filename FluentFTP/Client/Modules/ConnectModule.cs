@@ -376,12 +376,9 @@ namespace FluentFTP.Client.Modules {
 		/// </summary>
 		private static Exception IsPermanentConnectionFailure(Exception ex) {
 
-			// permanent failure: wrong FTPS certificate
-			if (ex is AuthenticationException credEx) {
-				return new FtpInvalidCertificateException(credEx);
-			}
+			// Authentication related failures
 
-			// permanent failure: unsupported protocol
+			// catch unsupported protocol failure
 			var msg = "Authentication failed because the remote party sent a TLS alert: 'ProtocolVersion'";
 			if (ex.Message.Contains(msg) ||
 				(ex is AuthenticationException authEx &&
@@ -391,6 +388,24 @@ namespace FluentFTP.Client.Modules {
 				return new FtpProtocolUnsupportedException("Your server requires TLS 1.3 and FluentFTP does not currently support TLS 1.3 due to poor .NET support for this protocol.");
 			}
 
+			// catch credential related authentication failure (see issue #697)
+			if (ex is FtpAuthenticationException credEx) {
+
+				// only catch auth error if the credentials have been rejected by the server
+				// because the error is also thrown if connection drops due to TLS or EncryptionMode
+				// (see issue #700 for more details)
+				if (credEx.CompletionCode != null && credEx.CompletionCode.StartsWith("530")) {
+					return ex;
+				}
+			}
+
+			// generic permanent authentication failure leftover: probably wrong FTPS certificate
+			if (ex is AuthenticationException certEx) {
+				return new FtpInvalidCertificateException(certEx);
+			}
+
+			// Network related failures
+
 			// catch error "no such host is known" and hard abort
 			if (ex is SocketException { SocketErrorCode: SocketError.HostNotFound }) {
 				return ex;
@@ -399,17 +414,6 @@ namespace FluentFTP.Client.Modules {
 			// catch error "timed out trying to connect" and hard abort
 			if (ex is TimeoutException) {
 				return ex;
-			}
-
-			// catch authentication error and hard abort (see issue #697)
-			if (ex is FtpAuthenticationException authError) {
-
-				// only catch auth error if the credentials have been rejected by the server
-				// because the error is also thrown if connection drops due to TLS or EncryptionMode
-				// (see issue #700 for more details)
-				if (authError.CompletionCode != null && authError.CompletionCode.StartsWith("530")) {
-					return ex;
-				}
 			}
 
 			return null;
