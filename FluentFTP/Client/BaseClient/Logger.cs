@@ -14,8 +14,79 @@ namespace FluentFTP.Client.BaseClient {
 		protected void LogVersion() {
 
 			string applicationVersion = Assembly.GetAssembly(MethodBase.GetCurrentMethod().DeclaringType).GetName().Version.ToString();
-			LogWithPrefix(FtpTraceLevel.Verbose, "FluentFTP " + applicationVersion);
-
+			string target = "Unknown";
+#if NET20
+			target = ".NET Framework 2.0";
+#elif NET35
+			target = ".NET Framework 3.5";
+#elif NET40
+			target = ".NET Framework 4.0";
+#elif NET45
+			target = ".NET Framework 4.5";
+#elif NET451
+			target = ".NET Framework 4.5.1";
+#elif NET452
+			target = ".NET Framework 4.5.2";
+#elif NET46
+			target = ".NET Framework 4.6";
+#elif NET461
+			target = ".NET Framework 4.6.1";
+#elif NET462
+			target = ".NET Framework 4.6.2";
+#elif NET47
+			target = ".NET Framework 4.7";
+#elif NET471
+			target = ".NET Framework 4.7.1";
+#elif NET472
+			target = ".NET Framework 4.7.2";
+#elif NET48
+			target = ".NET Framework 4.8";
+#elif NET48_OR_GREATER
+			target = ".NET Framework 4.8+";
+#elif NETSTANDARD1_0
+			target = ".NET Standard 1.0";
+#elif NETSTANDARD1_1
+			target = ".NET Standard 1.1";
+#elif NETSTANDARD1_2
+			target = ".NET Standard 1.2";
+#elif NETSTANDARD1_3
+			target = ".NET Standard 1.3";
+#elif NETSTANDARD1_4
+			target = ".NET Standard 1.4";
+#elif NETSTANDARD1_5
+			target = ".NET Standard 1.5";
+#elif NETSTANDARD1_6
+			target = ".NET Standard 1.6";
+#elif NETSTANDARD2_0
+			target = ".NET Standard 2.0";
+#elif NETSTANDARD2_1
+			target = ".NET Standard 2.1";
+#elif NETSTANDARD2_1_OR_GREATER
+			target = ".NET Standard 2.1+";
+#elif NETCOREAPP1_0
+			target = ".NET Core 1.0";
+#elif NETCOREAPP1_1
+			target = ".NET Core 1.1";
+#elif NETCOREAPP2_0
+			target = ".NET Core 2.0";
+#elif NETCOREAPP2_1
+			target = ".NET Core 2.1";
+#elif NETCOREAPP2_2
+			target = ".NET Core 2.2";
+#elif NETCOREAPP3_0
+			target = ".NET Core 3.0";
+#elif NETCOREAPP3_1
+			target = ".NET Core 3.1";
+#elif NET5_0
+			target = ".NET 5.0";
+#elif NET6_0
+			target = ".NET 6.0";
+#elif NET7_0
+			target = ".NET 7.0";
+#elif NET7_0_OR_GREATER
+			target = ".NET 7.0+";
+#endif
+			LogWithPrefix(FtpTraceLevel.Verbose, "FluentFTP " + applicationVersion + "(" + target + ")");
 		}
 
 		/// <summary>
