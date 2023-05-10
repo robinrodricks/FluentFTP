@@ -73,7 +73,7 @@ namespace FluentFTP.Client.BaseClient {
 			port = (int.Parse(m.Groups["port1"].Value) << 8) + int.Parse(m.Groups["port2"].Value);
 
 			// Fix #409 for BlueCoat proxy connections. This code replaces the name of the proxy with the name of the FTP server and then nothing works.
-			if (!IsProxy()) {
+			if (Config.EnableBlueCoatProxyHack && !IsProxy()) {
 				//use host ip if server advertises a non-routable IP
 				m = Regex.Match(host, @"(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)|(^127\.0\.0\.1)|(^0\.0\.0\.0)");
 

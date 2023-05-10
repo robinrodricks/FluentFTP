@@ -75,8 +75,8 @@ namespace FluentFTP {
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds
 		/// that must pass since the last socket activity
-		/// before calling <see cref="System.Net.Sockets.Socket.Poll"/> 
-		/// on the socket to test for connectivity. 
+		/// before calling <see cref="System.Net.Sockets.Socket.Poll"/>
+		/// on the socket to test for connectivity.
 		/// Setting this interval too low will
 		/// have a negative impact on performance. Setting this
 		/// interval to 0 disables Polling all together.
@@ -172,7 +172,7 @@ namespace FluentFTP {
 		public bool DisconnectWithQuit { get; set; } = true;
 
 		/// <summary>
-		/// Gets or sets the length of time in milliseconds to wait for a connection 
+		/// Gets or sets the length of time in milliseconds to wait for a connection
 		/// attempt to succeed before giving up. Default is 0 (Use OS default timeout)
 		/// See: https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#connection-timeout-settings
 		/// and: https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_timeoutwindows
@@ -193,7 +193,7 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds the data channel
-		/// should wait for the server to send data. Default value is 
+		/// should wait for the server to send data. Default value is
 		/// 15000 (15 seconds).
 		/// </summary>
 		public int DataConnectionReadTimeout { get; set; } = 15000;
@@ -201,7 +201,7 @@ namespace FluentFTP {
 		protected bool _keepAlive = false;
 
 		/// <summary>
-		/// Gets or sets a value indicating if <see cref="System.Net.Sockets.SocketOptionName.KeepAlive"/> should be set on 
+		/// Gets or sets a value indicating if <see cref="System.Net.Sockets.SocketOptionName.KeepAlive"/> should be set on
 		/// the underlying stream's socket. If the connection is alive, the option is
 		/// adjusted in real-time. The value is stored and the KeepAlive option is set
 		/// accordingly upon any new connections. The value set here is also applied to
@@ -275,7 +275,7 @@ namespace FluentFTP {
 		protected FtpParser _parser = FtpParser.Auto;
 
 		/// <summary>
-		/// File listing parser to be used. 
+		/// File listing parser to be used.
 		/// Automatically calculated based on the type of the server at the time of connection.
 		/// If you want to override this property, make sure to do it after calling Connect.
 		/// </summary>
@@ -403,7 +403,7 @@ namespace FluentFTP {
 		/// of the file listing at once. If false then GetListing will read file
 		/// listings line-by-line. If GetListing is having issues with your server,
 		/// set it to false.
-		/// 
+		///
 		/// The number of bytes read is based upon <see cref="BulkListingLength"/>.
 		/// </summary>
 		public bool BulkListing { get; set; } = true;
@@ -523,8 +523,10 @@ namespace FluentFTP {
 		/// </summary>
 		public IFtpStreamConfig CustomStreamConfig { get; set; } = null;
 
-
-
+		/// <summary>
+		/// Enable hack for Fix #409 for BlueCoat proxy connections. This code replaces the name of the proxy with the name of the FTP server and then nothing works.
+		/// </summary>
+		public bool EnableBlueCoatProxyHack  { get; set; } = false;
 
 		//-------------------------------------------------------------//
 		// ADD NEW PROPERTIES INTO THIS FUNCTION: FtpConfig.CopyTo()
@@ -601,6 +603,7 @@ namespace FluentFTP {
 			write.SocketLocalIp = read.SocketLocalIp;
 			write.CustomStream = read.CustomStream;
 			write.CustomStreamConfig = read.CustomStreamConfig;
+			write.EnableBlueCoatProxyHack = read.EnableBlueCoatProxyHack;
 
 #if NETSTANDARD
 			write.LocalTimeZone = read.LocalTimeZone;
