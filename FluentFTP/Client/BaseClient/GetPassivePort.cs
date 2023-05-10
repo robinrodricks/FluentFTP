@@ -66,6 +66,7 @@ namespace FluentFTP.Client.BaseClient {
 
 			// PASVEX mode ignores the IPAD advertised in the PASV response and overrides all other concerns
 			if (type == FtpDataConnectionType.PASVEX) {
+				LogWithPrefix(FtpTraceLevel.Verbose, "PASV advertised IPAD ignored (PASVEX). Using original connect dnsname/IPAD");
 				host = m_host; // m_host is the original connect dnsname/IPAD for the control connection
 				return;
 			}
@@ -81,10 +82,12 @@ namespace FluentFTP.Client.BaseClient {
 
 			// PASVUSE mode forces the advertised IPAD to be used, even if not routable - useful for connections: WITHIN private networks, or with proxys
 			if (type == FtpDataConnectionType.PASVUSE) {
+				LogWithPrefix(FtpTraceLevel.Verbose, "PASV advertised non-routable IPAD will be force-used (PASVUSE)");
 				return;
 			}
 
 			// Not routable? Use the original connect dnsname/IPAD
+			LogWithPrefix(FtpTraceLevel.Verbose, "PASV advertised non-routable IPAD. Using original connect dnsname/IPAD");
 			host = m_host;			
 		}
 
