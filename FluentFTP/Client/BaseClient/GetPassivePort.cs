@@ -106,6 +106,5 @@ namespace FluentFTP.Client.BaseClient {
 			// Use supplied IPAD
 			return ipad.ToString();
 		}
-
 	}
 }
