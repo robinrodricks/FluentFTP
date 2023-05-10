@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
+﻿using System.Net;
 using System.Text.RegularExpressions;
 using FluentFTP.Exceptions;
-using FluentFTP.Helpers;
-using FluentFTP.Rules;
 
 namespace FluentFTP.Client.BaseClient {
 
@@ -13,91 +8,103 @@ namespace FluentFTP.Client.BaseClient {
 
 
 		/// <summary>
-		/// Parse the host and port number from an EPSV response
+		/// Parse the advertisedIpad and advertisedPort number from an EPSV response
 		/// Handles (|||nnnn|) and (!!!nnnn!)
 		/// </summary>
-		protected void GetEnhancedPassivePort(FtpReply reply, out string host, out int port) {
-			var m = Regex.Match(reply.Message, @"\([!\|][!\|][!\|](?<port>\d+)[!\|]\)");
+		protected void GetEnhancedPassivePort(FtpReply reply, out string advertisedIpad, out int advertisedPort) {
+			// Check the format of the EPSV response, respecting the code page problems of the vertical bar ! vs. |
+			var m = Regex.Match(reply.Message, @"\([!\|][!\|][!\|](?<advertisedPort>\d+)[!\|]\)");
+
 			if (!m.Success) {
 				// In the case that ESPV is responded with a regular "Entering Passive Mode" instead, we'll try that parsing before we raise the exception
 				/* Example:
 				Command: EPSV
 				Response: 227 Entering Passive Mode(XX, XX, XX, XX, 143, 225).
 				*/
-
 				try {
-					GetPassivePort(FtpDataConnectionType.AutoPassive, reply, out host, out port);
+					GetPassivePort(FtpDataConnectionType.AutoPassive, reply, out advertisedIpad, out advertisedPort);
 					return;
 				}
 				catch {
-					throw new FtpException("Failed to get the EPSV port from: " + reply.Message);
+					throw new FtpException("Failed to get the EPSV advertisedPort from: " + reply.Message);
 				}
 			}
-			// If ESPV is responded with Entering Extended Passive. The IP must remain the same as the control connection.
+
+			// retrieve the advertised advertisedPort
+			advertisedPort = int.Parse(m.Groups["advertisedPort"].Value);
+
+			// If ESPV is responded with Entering Extended Passive, the IPAD must remain the same as the control connection.
 
 			/* Example:
-
 			Command: EPSV
 			Response: 229 Entering Extended Passive Mode(|||10016|)
 
-			If the server (per hostname DNS query) has multiple ip's we will **NOT** end up with the wrong ip, because:
+			If the server (per hostname DNS query) has multiple IPAD's we will **NOT** end up with the wrong IPAD, because:
 			On the connect we have stored the previously used IPAD in the hostname/IPAD cache, replacing the list of IPADs
 			that DNS gave us by the single one that we successfully connected to.
 
 			Therefore the subsequent connects will use this single stored IPAD instead of querying DNS and getting a list of IPADs.
 			*/
 
-			host = m_host;
-
-			port = int.Parse(m.Groups["port"].Value);
+			// Pick up the IPAD the server advertises
+			advertisedIpad = m_host; // m_host is the original connect dnsname/IPAD for the control connection
 		}
 
 		/// <summary>
-		/// Parse the host and port number from an PASV or PASVEX response
+		/// Parse the advertisedIpad and advertisedPort number from an PASV or PASVEX response
 		/// </summary>
 		protected void GetPassivePort(FtpDataConnectionType type, FtpReply reply, out string host, out int port) {
+			// Check the format of the PASV response
 			var m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
 
 			if (!m.Success || m.Groups.Count != 7) {
 				throw new FtpException("Malformed PASV response: " + reply.Message);
 			}
 
-			// PASVEX mode ignores the host supplied in the PASV response
-			if (type == FtpDataConnectionType.PASVEX) {
-				host = m_host;
-			}
-			else {
-				host = m.Groups["quad1"].Value + "." + m.Groups["quad2"].Value + "." + m.Groups["quad3"].Value + "." + m.Groups["quad4"].Value;
-			}
-
+			// retrieve the advertised advertisedPort
 			port = (int.Parse(m.Groups["port1"].Value) << 8) + int.Parse(m.Groups["port2"].Value);
 
-			// Fix #409 for BlueCoat proxy connections. This code replaces the name of the proxy with the name of the FTP server and then nothing works.
-			if (!IsProxy()) {
-				//use host ip if server advertises a non-routable IP
-				m = Regex.Match(host, @"(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)|(^127\.0\.0\.1)|(^0\.0\.0\.0)");
-
-				if (m.Success) {
-					host = m_host;
-				}
+			// PASVEX mode ignores the IPAD advertised in the PASV response and overrides all other concerns
+			if (type == FtpDataConnectionType.PASVEX) {
+				LogWithPrefix(FtpTraceLevel.Verbose, "PASV advertised IPAD ignored (PASVEX). Using original connect dnsname/IPAD");
+				host = m_host; // m_host is the original connect dnsname/IPAD for the control connection
+				return;
 			}
+
+			// Pick up the IPAD the server advertises
+			host = m.Groups["quad1"].Value + "." + m.Groups["quad2"].Value + "." + m.Groups["quad3"].Value + "." + m.Groups["quad4"].Value;
+
+			// Is the PASV IPAD routable?
+			var mP = Regex.Match(host, @"(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)|(^127\.0\.0\.1)|(^0\.0\.0\.0)");
+			if (!mP.Success) {
+				return; // Routable IPAD, this is the best scenario, simply use the IPAD advertised by the PASV reply
+			}
+
+			// PASVUSE mode forces the advertised IPAD to be used, even if not routable - useful for connections: WITHIN private networks, or with proxys
+			if (type == FtpDataConnectionType.PASVUSE) {
+				LogWithPrefix(FtpTraceLevel.Verbose, "PASV advertised non-routable IPAD will be force-used (PASVUSE)");
+				return;
+			}
+
+			// Not routable? Use the original connect dnsname/IPAD
+			LogWithPrefix(FtpTraceLevel.Verbose, "PASV advertised non-routable IPAD. Using original connect dnsname/IPAD");
+			host = m_host;			
 		}
 
 		/// <summary>
 		/// Returns the IP address to be sent to the server for the active connection.
 		/// </summary>
-		/// <param name="ip"></param>
+		/// <param name="ipad"></param>
 		/// <returns></returns>
-		protected string GetLocalAddress(IPAddress ip) {
+		protected string GetLocalAddress(IPAddress ipad) {
 
 			// Use resolver
 			if (Config.AddressResolver != null) {
 				return m_Address ?? (m_Address = Config.AddressResolver());
 			}
 
-			// Use supplied IP
-			return ip.ToString();
+			// Use supplied IPAD
+			return ipad.ToString();
 		}
-
 	}
 }
