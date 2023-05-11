@@ -41,6 +41,13 @@ namespace FluentFTP {
 		PASVEX,
 
 		/// <summary>
+		/// Same as PASV except the host supplied by the server is used even
+		/// if the address is an unroutable address. Useful if you are connecting
+		/// to a server with the same private network.
+		/// </summary>
+		PASVUSE,
+
+		/// <summary>
 		/// Extended passive data connection, recommended. Works
 		/// the same as a PASV connection except the server
 		/// does not dictate an IP address to connect to, instead

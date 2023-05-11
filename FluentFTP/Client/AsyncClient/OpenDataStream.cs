@@ -41,6 +41,7 @@ namespace FluentFTP {
 
 					case FtpDataConnectionType.PASV:
 					case FtpDataConnectionType.PASVEX:
+					case FtpDataConnectionType.PASVUSE:
 						type = FtpDataConnectionType.EPSV;
 						Log(FtpTraceLevel.Info, "Changed data connection type to EPSV because we are connected with IPv6.");
 						break;
@@ -52,6 +53,7 @@ namespace FluentFTP {
 				case FtpDataConnectionType.EPSV:
 				case FtpDataConnectionType.PASV:
 				case FtpDataConnectionType.PASVEX:
+				case FtpDataConnectionType.PASVUSE:
 					stream = await OpenPassiveDataStreamAsync(type, command, restart, token);
 					break;
 
