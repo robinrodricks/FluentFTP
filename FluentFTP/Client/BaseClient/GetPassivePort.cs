@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.IO;
+using System.Net;
 using System.Text.RegularExpressions;
 using FluentFTP.Exceptions;
 
@@ -88,10 +89,11 @@ namespace FluentFTP.Client.BaseClient {
 				return;
 			}
 
-			// Not routable? ignore the advertised IPAD, use the original connect dnsname/IPAD
+			// Non-routable PASV IPAD advertisement so ignore the advertised IPAD,
+			// use the original connect dnsname/IPAD for the connection
 			// This VERY OFTEN works (often also with the help of DNS), but not always.
 			// If you NEED to connect via the non-routable IPAD, you must use "PASVUSE" mode
-			LogWithPrefix(FtpTraceLevel.Verbose, "PASV advertised non-routable IPAD. Using original connect dnsname/IPAD");
+			LogWithPrefix(FtpTraceLevel.Verbose, "PASV advertised a non-routable IPAD. Using original connect dnsname/IPAD");
 			host = m_host;			
 		}
 
