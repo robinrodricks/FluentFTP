@@ -1,17 +1,19 @@
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Net;
-using FluentFTP.Helpers;
-using FluentFTP.Exceptions;
-using FluentFTP.Client.BaseClient;
 using System.Threading.Tasks;
+
+using FluentFTP.Client.BaseClient;
+using FluentFTP.Exceptions;
+using FluentFTP.Helpers;
 using FluentFTP.Streams;
 
 namespace FluentFTP {
@@ -1407,7 +1409,7 @@ namespace FluentFTP {
 			m_customStream.Init(Client,
 				targetHost,
 				m_socket,
-				new CustomRemoteCertificateValidationCallback(delegate (object sender, X509Certificate certificate,	X509Chain chain, string errorMessage) {	return OnValidateCertificate(certificate, chain, errorMessage);	}),
+				new CustomRemoteCertificateValidationCallback(delegate (object sender, X509Certificate certificate, X509Chain chain, string errorMessage) { return OnValidateCertificate(certificate, chain, errorMessage); }),
 				IsControlConnection,
 				((IInternalFtpClient)Client).GetBaseStream().m_customStream,
 				Client.Config.CustomStreamConfig);
@@ -1418,35 +1420,58 @@ namespace FluentFTP {
 		/// Conditionally create a SSL BufferStream based on the configuration in FtpClient.SslBuffering.
 		/// </summary>
 		private void CreateBufferStream() {
-			// Even if SSL Bufferstream is requested, it is force-disabled automatically when
-			// Fix: using FTP proxies
-			// Fix: user needs NOOPs - See #823
-			// Fix: running on .NET 5.0 and later due to issues in .NET framework - See #682
-#if NET50_OR_LATER
-			if (Client.Config.SslBuffering is FtpsBuffering.On or FtpsBuffering.Auto) {
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "SSL Buffering force disabled, is .NET 5.0 and later");
-			}
+			List<string> reasonForIgnore = new List<string>();
 
 			m_bufStream = null;
-#else
-			if (Client.Config.SslBuffering is FtpsBuffering.On or FtpsBuffering.Auto &&
-				 (!Client.IsProxy()) &&
-				 (!IsControlConnection || Client.Config.NoopInterval == 0)) {
+
+			bool bufferingConfigured = Client.Config.SslBuffering is FtpsBuffering.On or FtpsBuffering.Auto;
+
+			// User has not requested buffering
+			if (!bufferingConfigured) { return; }
+
+			// So the user would like buffering. But we might need to ignore this request
+			bool useBuffering = true;
+
+#if NET50_OR_LATER
+			// Fix: running on .NET 5.0 and later due to issues in .NET framework - See #682
+			if (bufferingConfigured /*&& NET50_OR_LATER*/) {
+				useBuffering = false;
+				reasonForIgnore.Add(".NET 5.0 and later, ");
+			}
+#endif
+
+			// Fix: using FTP proxies
+			if (bufferingConfigured && Client.IsProxy()) {
+				useBuffering = false;
+				reasonForIgnore.Add("proxy, ");
+			}
+
+			if (bufferingConfigured && IsControlConnection) {
+				useBuffering = false;
+				// reasonForIgnore.Add("control connection, ");
+			}
+
+			// Fix: user needs NOOPs - See #823
+			if (bufferingConfigured && Client.Config.NoopInterval > 0) {
+				useBuffering = false;
+				reasonForIgnore.Add("NOOPs requested, ");
+			}
+
+			if (useBuffering) {
 				m_bufStream = new BufferedStream(NetworkStream, 81920);
 			}
 			else {
-				if (Client.Config.SslBuffering is FtpsBuffering.On or FtpsBuffering.Auto) {
-					if (Client.IsProxy()) {
-						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "SSL Buffering force disabled, is proxy");
-					}
-					else if (Client.Config.NoopInterval > 0) {
-						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "SSL Buffering force disabled, NOOPs requested");
-					}
-				}
-
 				m_bufStream = null;
+
+				if (reasonForIgnore.Count == 0) { return; }
+
+				StringBuilder text = new StringBuilder("SSL Buffering disabled because of ");
+				foreach (string reason in reasonForIgnore) {
+					text.Append(reason);
+				}
+				string stext = text.ToString().TrimEnd(new char[] { ' ', ',' });
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, stext);
 			}
-#endif
 		}
 
 		/// <summary>
