@@ -19,11 +19,14 @@ namespace FluentFTP.Streams {
 	/// See: https://learn.microsoft.com/en-us/windows/win32/secauthn/using-sspi-with-a-windows-sockets-client?source=recommendations
 	///
 	/// Note:
+	/// It seems we need this reflection kludge ONLY for .NET Framework 4.6.2. All our other
+	/// targets support ShutdownAsync
+	/// 
+	/// Note:
 	/// Microsoft says we should not override close():
 	/// "Place all cleanup logic for your stream object in Dispose(Boolean). Do not override Close()."
 	/// See: https://learn.microsoft.com/en-us/dotnet/api/system.io.stream.dispose?view=net-7.0
 	/// But: We recently changed the below logic due to issue #1107, which solved the problem in part
-	/// 
 	/// </summary>
 	public class FtpSslStream : SslStream {
 
@@ -34,7 +37,7 @@ namespace FluentFTP.Streams {
 			: base(innerStream, leaveInnerStreamOpen, userCertificateValidationCallback) {
 		}
 
-#if NETFRAMEWORK
+#if NET462
 		private bool _Closed = false;
 #endif
 
@@ -42,19 +45,43 @@ namespace FluentFTP.Streams {
 		/// Close
 		/// </summary>
 		public override void Close() {
-
-#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-			base.ShutdownAsync()
-				.ConfigureAwait(false)
-				.GetAwaiter()
-				.GetResult();
-#elif NETFRAMEWORK
+#if NET462
 			if (!_Closed) {
 				_Closed = true;
 				SslDirectCall.CloseNotify(this);
 			}
+
+#elif NET47_OR_GREATER
+			base.ShutdownAsync()
+				.ConfigureAwait(false)
+				.GetAwaiter()
+				.GetResult();
+
+#elif NET5_0_OR_GREATER
+			base.ShutdownAsync()
+				.ConfigureAwait(false)
+				.GetAwaiter()
+				.GetResult();
+
+#elif NETSTANDARD2_0
+			; // This is a problem: .NET Standard 2.0 does not seem to provide a way to
+			  // cleanly close-notify an SSL stream. A hack such as down below would need to
+			  // be developed.
+			  //
+			  // Here is quote from: https://github.com/dotnet/standard/issues/598#issuecomment-352148072
+			  // "The SslStream.ShutdownAsync API was added to .NET Core 2.0. It was also added to .NET Framework 4.7.
+			  // Logically, since .NET Core 2.0 and .NET Framework 4.7.1 are aligned with NETStandard2.0, it could
+			  // have been part of the NETStandard20 definition. But it wasn't due to when the NETStandard2.0 spec
+			  // was originally designed."
+
+#elif NETSTANDARD2_1_OR_GREATER
+			base.ShutdownAsync()
+				.ConfigureAwait(false)
+				.GetAwaiter()
+				.GetResult();
+
 #else
-			;
+			; // shouldn't really become active, all proj build frameworks are above
 #endif
 		}
 
@@ -62,16 +89,22 @@ namespace FluentFTP.Streams {
 		/// For representing this SslStream in the log
 		/// </summary>
 		public override string ToString() {
-#if NET5_0_OR_GREATER
+#if NETFRAMEWORK                     // All .NET Framework targets know nothing about NegotiatedCipherSuite
+			return $"{SslProtocol} ({CipherAlgorithm}, {KeyExchangeAlgorithm}, {KeyExchangeStrength})";
+#elif NET5_0_OR_GREATER
 			return $"{SslProtocol} ({CipherAlgorithm}, {NegotiatedCipherSuite}, {KeyExchangeAlgorithm}, {KeyExchangeStrength})";
-#elif NETFRAMEWORK
+#elif NETSTANDARD2_0_OR_GREATER      // <-- 2_0 is not a typo.
 			return $"{SslProtocol} ({CipherAlgorithm}, {KeyExchangeAlgorithm}, {KeyExchangeStrength})";
 #else
-			return string.Empty;
+			return $"Not available"; // shouldn't really become active, all proj build frameworks are above
 #endif
 		}
 	}
 
+	/// <summary>
+	/// Reflection hack to issue an SSL Close Notify Alert to cleanly shutdown an SSL session
+	/// Valid only on .NET Framework
+	/// </summary>
 	internal unsafe static class SslDirectCall {
 		public static void CloseNotify(SslStream sslStream) {
 			if (!sslStream.IsAuthenticated) {
@@ -86,22 +119,6 @@ namespace FluentFTP.Streams {
 			NativeApi.SSPIHandle securityContextHandle = default(NativeApi.SSPIHandle);
 			NativeApi.SSPIHandle credentialsHandleHandle = default(NativeApi.SSPIHandle);
 
-			//If ever needed, here are the necessary changes to work for .NET 5.0+
-			//var context = ReflectUtil.GetField(sslStream, "_context");
-
-			//var securityContext = ReflectUtil.GetField(context, "_securityContext");
-			//var securityContextHandleOriginal = ReflectUtil.GetField(securityContext, "_handle");
-
-			//securityContextHandle.HandleHi = (IntPtr)ReflectUtil.GetField(securityContextHandleOriginal, "dwLower");
-			//securityContextHandle.HandleLo = (IntPtr)ReflectUtil.GetField(securityContextHandleOriginal, "dwUpper");
-
-			//var credentialsHandle = ReflectUtil.GetField(context, "_credentialsHandle");
-			//var credentialsHandleHandleOriginal = ReflectUtil.GetField(credentialsHandle, "_handle");
-
-			//credentialsHandleHandle.HandleHi = (IntPtr)ReflectUtil.GetField(credentialsHandleHandleOriginal, "dwLower");
-			//credentialsHandleHandle.HandleLo = (IntPtr)ReflectUtil.GetField(credentialsHandleHandleOriginal, "dwUpper");
-
-			// The following is for .NET Framework
 			var sslstate = ReflectUtil.GetField(sslStream, "_SslState");
 			var context = ReflectUtil.GetProperty(sslstate, "Context");
 
@@ -173,10 +190,6 @@ namespace FluentFTP.Streams {
 				resultSize = resultArr.Length;
 			}
 
-			//If ever needed, here are the necessary changes to work for .NET 5.0+
-			//var innerStream = (Stream)ReflectUtil.GetProperty(sslStream, "InnerStream");
-
-			// The following is for .NET Framework
 			var innerStream = (Stream)ReflectUtil.GetProperty(sslstate, "InnerStream");
 
 			innerStream.Write(result, 0, resultSize);
@@ -248,7 +261,5 @@ namespace FluentFTP.Streams {
 			}
 			return t.GetProperties(flags).Concat(GetAllProperties(t.BaseType));
 		}
-
 	}
-
 }
