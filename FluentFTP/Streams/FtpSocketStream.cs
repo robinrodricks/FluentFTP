@@ -1420,11 +1420,12 @@ namespace FluentFTP {
 		/// Conditionally create a SSL BufferStream based on the configuration in FtpClient.SslBuffering.
 		/// </summary>
 		private void CreateBufferStream() {
-			List<string> reasonForIgnore = new List<string>();
+			List<string> reasonsForIgnore = new List<string>();
 
 			m_bufStream = null;
 
-			bool bufferingConfigured = Client.Config.SslBuffering is FtpsBuffering.On or FtpsBuffering.Auto;
+			// Default config for SslBuffering is "Auto", or user modified it
+			bool bufferingConfigured = Client.Config.SslBuffering is FtpsBuffering.Auto or FtpsBuffering.On;
 
 			// User has not requested buffering
 			if (!bufferingConfigured) { return; }
@@ -1436,42 +1437,40 @@ namespace FluentFTP {
 			// Fix: running on .NET 5.0 and later due to issues in .NET framework - See #682
 			if (bufferingConfigured /*&& NET50_OR_LATER*/) {
 				useBuffering = false;
-				reasonForIgnore.Add(".NET 5.0 and later, ");
+				reasonsForIgnore.Add(".NET 5.0 and later, ");
 			}
 #endif
 
 			// Fix: using FTP proxies
 			if (bufferingConfigured && Client.IsProxy()) {
 				useBuffering = false;
-				reasonForIgnore.Add("proxy, ");
+				reasonsForIgnore.Add("proxy, ");
 			}
 
 			if (bufferingConfigured && IsControlConnection) {
 				useBuffering = false;
-				// reasonForIgnore.Add("control connection, ");
+				// reasonsForIgnore.Add("control connection, ");
 			}
 
 			// Fix: user needs NOOPs - See #823
 			if (bufferingConfigured && Client.Config.NoopInterval > 0) {
 				useBuffering = false;
-				reasonForIgnore.Add("NOOPs requested, ");
+				reasonsForIgnore.Add("NOOPs requested, ");
 			}
 
 			if (useBuffering) {
 				m_bufStream = new BufferedStream(NetworkStream, 81920);
+				return;
 			}
-			else {
-				m_bufStream = null;
 
-				if (reasonForIgnore.Count == 0) { return; }
+			if (reasonsForIgnore.Count == 0) { return; }
 
-				StringBuilder text = new StringBuilder("SSL Buffering disabled because of ");
-				foreach (string reason in reasonForIgnore) {
-					text.Append(reason);
-				}
-				string stext = text.ToString().TrimEnd(new char[] { ' ', ',' });
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, stext);
+			StringBuilder text = new StringBuilder("SSL Buffering disabled because of ");
+			foreach (string reason in reasonsForIgnore) {
+				text.Append(reason);
 			}
+			string stext = text.ToString().TrimEnd(new char[] { ' ', ',' });
+			((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, stext);
 		}
 
 		/// <summary>
