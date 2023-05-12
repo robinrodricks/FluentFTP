@@ -4,6 +4,7 @@ using FluentFTP.Streams;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Authentication;
@@ -426,6 +427,12 @@ namespace FluentFTP {
 		/// and all the other file and directory transfer methods.
 		/// </summary>
 		public int LocalFileBufferSize { get; set; } = 4096;
+
+		/// <summary>
+		/// Gets or sets the FileShare setting to be used when opening a FileReadStream for uploading to the server,
+		/// which needs to be set to FileShare.ReadWrite in special cases to avoid denied access.
+		/// </summary>
+		public FileShare LocalFileShareOption { get; set; } = FileShare.Read;
 
 		protected int _retryAttempts = 3;
 
