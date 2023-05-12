@@ -18,7 +18,7 @@ namespace FluentFTP.Streams {
 	/// See: https://learn.microsoft.com/en-us/windows/win32/secauthn/using-sspi-with-a-windows-sockets-client?source=recommendations
 	///
 	/// Note:
-	/// Here is quote from: https://github.com/dotnet/standard/issues/598#issuecomment-352148072
+	/// Here is a quote from: https://github.com/dotnet/standard/issues/598#issuecomment-352148072
 	/// "The SslStream.ShutdownAsync API was added to .NET Core 2.0. It was also added to .NET Framework 4.7.
 	/// Logically, since .NET Core 2.0 and .NET Framework 4.7.1 are aligned with NETStandard2.0, it could
 	/// have been part of the NETStandard20 definition. But it wasn't due to when the NETStandard2.0 spec
