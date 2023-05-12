@@ -6,7 +6,11 @@ namespace FluentFTP {
 	/// </summary>
 	public enum FtpsBuffering {
 		/// <summary>
-		/// Enables buffering in all cases except when using FTP proxies.
+		/// Enables SSL Buffering to massively speed up FTPS operations except when:
+		/// Under .NET 5.0 and later due to platform issues (see issue 682 in FluentFTP issue tracker).
+		/// On the control connection
+		/// For proxy connections
+		/// If NOOPs are configured to be used
 		/// </summary>
 		Auto,
 
@@ -16,7 +20,7 @@ namespace FluentFTP {
 		Off,
 
 		/// <summary>
-		/// Always enables SSL Buffering to massively speed up FTPS operations.
+		/// Same as "Auto"
 		/// </summary>
 		On
 	}
