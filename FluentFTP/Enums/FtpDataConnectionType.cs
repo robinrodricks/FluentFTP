@@ -3,8 +3,29 @@
 namespace FluentFTP {
 	/// <summary>
 	/// Data connection type
+	///
+	/// PASV, EPSV, PORT, EPRT correspond directly to the "classic" FTP
+	/// connection types available on most "modern" FTP servers. These are
+	/// subject to the well known caveats and you might like to examine the
+	/// following enhanced alternatives:
+	///
+	/// AutoActive, AutoPassive are FluentFTP extensions to make a fallback
+	/// to the non-extended versions of EPSV and EPRT automatic if not supported.
+	///
+	/// PassiveExtended delivers the functionality of EPSV on servers that do not
+	/// support this command.
+	///
+	/// PassiveAllowUnroutable makes using PASV work inside local networks.
 	/// </summary>
 	public enum FtpDataConnectionType {
+		/// <summary>
+		/// This type of data connection attempts to use the EPRT command
+		/// and if the server does not support EPRT it falls back to the
+		/// PORT command before giving up unless you are connected via IPv6
+		/// in which case the PORT command is not supported.
+		/// </summary>
+		AutoActive,
+
 		/// <summary>
 		/// This type of data connection attempts to use the EPSV command
 		/// and if the server does not support EPSV it falls back to the
@@ -28,19 +49,6 @@ namespace FluentFTP {
 		PASV,
 
 		/// <summary>
-		/// Same as PASV except the host supplied by the server is ignored
-		/// and the data connection is made to the same address that the control
-		/// connection is connected to. This is useful in scenarios where the
-		/// server supplies a private/non-routable network address in the
-		/// PASV response. It's functionally identical to EPSV except some
-		/// servers may not implement the EPSV command. Please note that IPv6
-		/// does not support this type data connection. If you
-		/// ask for PASV and are connected via IPv6 EPSV will
-		/// automatically be used in its place.
-		/// </summary>
-		PASVEX,
-
-		/// <summary>
 		/// Extended passive data connection, recommended. Works
 		/// the same as a PASV connection except the server
 		/// does not dictate an IP address to connect to, instead
@@ -49,14 +57,6 @@ namespace FluentFTP {
 		/// supports IPv4 and IPv6.
 		/// </summary>
 		EPSV,
-
-		/// <summary>
-		/// This type of data connection attempts to use the EPRT command
-		/// and if the server does not support EPRT it falls back to the
-		/// PORT command before giving up unless you are connected via IPv6
-		/// in which case the PORT command is not supported.
-		/// </summary>
-		AutoActive,
 
 		/// <summary>
 		/// Active data connection, not recommended unless
@@ -84,6 +84,28 @@ namespace FluentFTP {
 		/// connects to the IP address it sees the client coming
 		/// from. This type of data connection supports IPv4 and IPv6.
 		/// </summary>
-		EPRT
+		EPRT,
+
+		/// <summary>
+		/// Same as PASV except the host supplied by the server is ignored
+		/// and the data connection is made to the same address that the control
+		/// connection is connected to. This is useful in scenarios where the
+		/// server supplies a private/non-routable network address in the
+		/// PASV response. It's functionally identical to EPSV except some
+		/// servers may not implement the EPSV command. Please note that IPv6
+		/// does not support this type data connection. If you
+		/// ask for PASV and are connected via IPv6 EPSV will
+		/// automatically be used in its place.
+		/// </summary>
+		PASVEX,
+		PassiveExtended = PASVEX, 
+
+		/// <summary>
+		/// Same as PASV except the host supplied by the server is used even
+		/// if the address is an unroutable address. Useful if you are connecting
+		/// to a server with the same private network.
+		/// </summary>
+		PASVUSE,                
+		PassiveAllowUnroutable = PASVUSE, 
 	}
 }
