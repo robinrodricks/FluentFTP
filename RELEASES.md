@@ -1,5 +1,29 @@
 # Release Notes
 
+#### 47.0.0
+ - **Logging** (thanks [FanDjango](/FanDjango))
+   - New: Add exact .NET platform build target during the version logging
+ - **File Transfer**
+   - New: Config API `LocalFileShareOption` to allow setting file sharing mode for uploads
+   - New: Connection type `PASVUSE` aka `PassiveAllowUnroutable`
+   - New: Add friendlier names for connection types `AutoActive` and `PassiveExtended`
+ - **File Hashing** (thanks [FanDjango](/FanDjango))
+   - Fix: Parse non-standard FTP hashes for BrickFTP, Files.com, ExaVault.com
+ - **FTP Connections** (thanks [FanDjango](/FanDjango))
+   - Fix: SSL Buffering: Improve connection logic, update comments, refactor code
+   - Fix: SSL Buffering: Cannot connect to FTPS IIS server on Windows 2019 from Azure Functions V4
+   - Fix: Disconnection: Improve conditional compiles and test for each target in `FtpSslStream`
+   - Fix: Disconnection: Use `ShutDownAsync ` for .NET 4.7 and later
+   - Fix: Improved implementation of `GetPassivePort` and `GetEnhancedPassivePort`
+   - Fix: `InnerException` does not get caught during FTPS security exception
+   - Fix: Remove dead code in SSL permanent failure detection
+   - Fix: Custom Stream: `PolicyErrors` not being set correctly
+ - **File Listing** (thanks [FanDjango](/FanDjango))
+   - Fix: Improve file name parsing logic for DOS/Windows/IIS servers
+   - Fix: Improved null checks for `InfoMessages` (thanks [jnyrup](/jnyrup))(thanks @jnyrup)
+ - **Testing** (thanks [FanDjango](/FanDjango))
+   - Fix: `GnuTlsStream` integration tests due to invalid stream detection
+
 #### 46.0.2
  - Fix: Custom stream logging tweak: Message first then close stream
  - Fix: Custom stream: Also log `InnerException` if it exists within the exception
