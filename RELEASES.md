@@ -14,13 +14,12 @@
    - Fix: SSL Buffering: Cannot connect to FTPS IIS server on Windows 2019 from Azure Functions V4
    - Fix: Disconnection: Improve conditional compiles and test for each target in `FtpSslStream`
    - Fix: Disconnection: Use `ShutDownAsync ` for .NET 4.7 and later
-   - Fix: Improved implementation of `GetPassivePort` and `GetEnhancedPassivePort`
    - Fix: `InnerException` does not get caught during FTPS security exception
    - Fix: Remove dead code in SSL permanent failure detection
    - Fix: Custom Stream: `PolicyErrors` not being set correctly
  - **File Listing** (thanks [FanDjango](/FanDjango))
    - Fix: Improve file name parsing logic for DOS/Windows/IIS servers
-   - Fix: Improved null checks for `InfoMessages` (thanks [jnyrup](/jnyrup))(thanks @jnyrup)
+   - Fix: Improved null checks for `InfoMessages` (thanks [jnyrup](/jnyrup))
  - **Testing** (thanks [FanDjango](/FanDjango))
    - Fix: `GnuTlsStream` integration tests due to invalid stream detection
 
