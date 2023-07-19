@@ -1,15 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Text;
-using System.Collections.Generic;
-using System.Security.Authentication;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
-using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP.Client.BaseClient;
-using System.Linq;
 using FluentFTP.Exceptions;
+using FluentFTP.Helpers;
 
 namespace FluentFTP.Client.Modules {
 	/// <summary>
@@ -18,16 +16,16 @@ namespace FluentFTP.Client.Modules {
 	internal static class ConnectModule {
 
 		private static List<FtpEncryptionMode> DefaultEncryptionPriority = new List<FtpEncryptionMode> {
-			FtpEncryptionMode.Auto, FtpEncryptionMode.None, FtpEncryptionMode.Implicit,
+			FtpEncryptionMode.Auto,
+
+			// Do we really want to AutoDetect non encrypted connections?
+			FtpEncryptionMode.None, // Yes! It seems we do.
 		};
 
 		private static List<SysSslProtocols> DefaultProtocolPriority = new List<SysSslProtocols> {
-
-			SysSslProtocols.Tls12 | SysSslProtocols.Tls11,
-
-#if NETFRAMEWORK
-			SysSslProtocols.Default,
-#endif
+			SysSslProtocols.Tls11 | SysSslProtocols.Tls12,
+			// Do not EVER use "Default". It boils down to "SSL or TLS1.0" or worse.
+			// Do not use "None" - it can connect to TLS13, but Session Resume won't work, so a successful AutoDetect will be a false truth.
 		};
 
 		/// <summary>
@@ -64,7 +62,6 @@ namespace FluentFTP.Client.Modules {
 
 			// try each encryption mode
 			foreach (var encryption in encryptionsToTry) {
-
 				// skip if FTPS was tried and failed
 				if (blacklistedEncryptions.Contains(encryption)) {
 					continue;
@@ -72,11 +69,12 @@ namespace FluentFTP.Client.Modules {
 
 				// try each SSL protocol
 				foreach (var protocol in DefaultProtocolPriority) {
-
-					// skip secure protocols if testing plain FTP
-					if (encryption == FtpEncryptionMode.None && protocol != SysSslProtocols.None) {
+					// Only check the first combination for FtpEncryptionMode.None
+					if (encryption == FtpEncryptionMode.None && DefaultProtocolPriority.IndexOf(protocol) > 0) {
 						continue;
 					}
+
+					((IInternalFtpClient)conn).LogStatus(FtpTraceLevel.Verbose, "Auto-Detect trying: " + encryption.ToString() + " / " + protocol.ToString());
 
 					// reset port so it auto computes based on encryption type
 					if (resetPort) {
@@ -101,14 +99,8 @@ namespace FluentFTP.Client.Modules {
 							((IInternalFtpClient)conn).DisconnectInternal();
 						}
 					}
-					catch (Exception ex) {
 
-						// unpack aggregate exception
-#if NET50_OR_LATER
-						if (ex is AggregateException aex) {
-							ex = aex.InnerExceptions[0];
-						}
-#endif
+					catch (Exception ex) {
 						// since the connection failed, disconnect and retry
 						((IInternalFtpClient)conn).DisconnectInternal();
 
@@ -131,7 +123,6 @@ namespace FluentFTP.Client.Modules {
 
 					// if it worked
 					if (connected) {
-
 						// if connected by explicit FTPS failed, no point trying encryption again
 						if (IsConnectedButFtpsFailure(blacklistedEncryptions, encryption, conn.Status.ConnectionFTPSFailure)) {
 						}
@@ -194,7 +185,6 @@ namespace FluentFTP.Client.Modules {
 
 			// try each encryption mode
 			foreach (var encryption in encryptionsToTry) {
-
 				// skip if FTPS was tried and failed
 				if (blacklistedEncryptions.Contains(encryption)) {
 					continue;
@@ -202,11 +192,12 @@ namespace FluentFTP.Client.Modules {
 
 				// try each SSL protocol
 				foreach (var protocol in DefaultProtocolPriority) {
-
-					// skip secure protocols if testing plain FTP
-					if (encryption == FtpEncryptionMode.None && protocol != SysSslProtocols.None) {
+					// Only check the first combination for FtpEncryptionMode.None 
+					if (encryption == FtpEncryptionMode.None && DefaultProtocolPriority.IndexOf(protocol) > 0) {
 						continue;
 					}
+
+					((IInternalFtpClient)conn).LogStatus(FtpTraceLevel.Verbose, "Auto-Detect trying: " + encryption.ToString() + " / " + protocol.ToString());
 
 					// reset port so it auto computes based on encryption type
 					if (resetPort) {
@@ -231,15 +222,8 @@ namespace FluentFTP.Client.Modules {
 							await conn.Disconnect(token);
 						}
 					}
+
 					catch (Exception ex) {
-
-						// unpack aggregate exception
-#if NET50_OR_LATER
-						if (ex is AggregateException aex) {
-							ex = aex.InnerExceptions[0];
-						}
-#endif
-
 						// since the connection failed, disconnect and retry
 						await conn.Disconnect(token);
 
@@ -262,7 +246,6 @@ namespace FluentFTP.Client.Modules {
 
 					// if it worked
 					if (connected) {
-
 						// if connected by explicit FTPS failed, no point trying encryption again
 						if (IsConnectedButFtpsFailure(blacklistedEncryptions, encryption, conn.Status.ConnectionFTPSFailure)) {
 						}
@@ -378,22 +361,11 @@ namespace FluentFTP.Client.Modules {
 
 			// Authentication related failures
 
-			// catch unsupported protocol failure
-			var msg = "Authentication failed because the remote party sent a TLS alert: 'ProtocolVersion'";
-			if (ex.Message.Contains(msg) ||
-				(ex is AuthenticationException authEx &&
-					authEx.InnerException != null &&
-					authEx.InnerException.Message.ToLower().ContainsAny(ServerStringModule.failedTLS))) {
-
-				return new FtpProtocolUnsupportedException("Your server requires TLS 1.3 and FluentFTP does not currently support TLS 1.3 due to poor .NET support for this protocol.");
-			}
-
-			// catch credential related authentication failure (see issue #697)
+			// catch credential related authentication failures
 			if (ex is FtpAuthenticationException credEx) {
-
 				// only catch auth error if the credentials have been rejected by the server
 				// because the error is also thrown if connection drops due to TLS or EncryptionMode
-				// (see issue #700 for more details)
+				// (see issue #697 and #700 for more details)
 				if (credEx.CompletionCode != null && credEx.CompletionCode.StartsWith("530")) {
 					return ex;
 				}
