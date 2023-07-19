@@ -399,11 +399,6 @@ namespace FluentFTP.Client.Modules {
 				}
 			}
 
-			// generic permanent authentication failure leftover: probably wrong FTPS certificate
-			if (ex is AuthenticationException certEx) {
-				return new FtpInvalidCertificateException(certEx);
-			}
-
 			// Network related failures
 
 			// catch error "no such host is known" and hard abort
