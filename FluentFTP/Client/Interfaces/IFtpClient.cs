@@ -26,7 +26,7 @@ namespace FluentFTP {
 		bool HasFeature(FtpCapability cap);
 		void DisableUTF8();
 
-		List<FtpProfile> AutoDetect(bool firstOnly = true, bool cloneConnection = true);
+		List<FtpProfile> AutoDetect(bool firstOnly = true, bool cloneConnection = true, bool requireEncryption = false, bool includeImplicit = true);
 		FtpProfile AutoConnect();
 		void Connect();
 		void Connect(FtpProfile profile);

@@ -17,9 +17,6 @@ namespace FluentFTP.Client.Modules {
 
 		private static List<FtpEncryptionMode> DefaultEncryptionPriority = new List<FtpEncryptionMode> {
 			FtpEncryptionMode.Auto,
-
-			// Do we really want to AutoDetect non encrypted connections?
-			FtpEncryptionMode.None, // Yes! It seems we do.
 		};
 
 		private static List<SysSslProtocols> DefaultProtocolPriority = new List<SysSslProtocols> {
@@ -35,8 +32,16 @@ namespace FluentFTP.Client.Modules {
 		/// You can then generate code for the profile using the FtpProfile.ToCode method.
 		/// If no successful profiles are found, a blank list is returned.
 		/// </summary>
-		public static List<FtpProfile> AutoDetect(FtpClient client, bool firstOnly, bool cloneConnection) {
+		public static List<FtpProfile> AutoDetect(FtpClient client, bool firstOnly, bool cloneConnection, bool requireEncryption, bool includeImplicit) {
 			var results = new List<FtpProfile>();
+
+			if (!requireEncryption) {
+				DefaultEncryptionPriority.Add(FtpEncryptionMode.None);
+			}
+
+			if (includeImplicit) {
+				DefaultEncryptionPriority.Add(FtpEncryptionMode.Implicit);
+			}
 
 			// get known working connection profile based on the host (if any)
 			List<FtpEncryptionMode> encryptionsToTry;
