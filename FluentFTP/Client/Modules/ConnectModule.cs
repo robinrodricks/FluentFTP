@@ -74,7 +74,7 @@ namespace FluentFTP.Client.Modules {
 						continue;
 					}
 
-					((IInternalFtpClient)conn).LogStatus(FtpTraceLevel.Verbose, "Auto-Detect trying: " + encryption.ToString() + " / " + protocol.ToString());
+					((IInternalFtpClient)conn).LogStatus(FtpTraceLevel.Verbose, "Auto-Detect trying encryption mode \"" + encryption.ToString() + "\"" + ((encryption == FtpEncryptionMode.None) ? string.Empty : " with \"" + protocol.ToString() + "\""));
 
 					// reset port so it auto computes based on encryption type
 					if (resetPort) {
@@ -197,7 +197,7 @@ namespace FluentFTP.Client.Modules {
 						continue;
 					}
 
-					((IInternalFtpClient)conn).LogStatus(FtpTraceLevel.Verbose, "Auto-Detect trying: " + encryption.ToString() + " / " + protocol.ToString());
+					((IInternalFtpClient)conn).LogStatus(FtpTraceLevel.Verbose, "Auto-Detect trying encryption mode \"" + encryption.ToString() + "\"" + ((encryption == FtpEncryptionMode.None) ? string.Empty : " with \"" + protocol.ToString() + "\""));
 
 					// reset port so it auto computes based on encryption type
 					if (resetPort) {
