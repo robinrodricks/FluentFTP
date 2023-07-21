@@ -114,6 +114,7 @@ namespace FluentFTP.Client.Modules {
 			"SPSV",
 			"PORT",
 			"LPRT",
+			"RNFR",
 		};
 
 		public static string[] criticalTerminatingCommands = new[] {
@@ -127,6 +128,7 @@ namespace FluentFTP.Client.Modules {
 			"REST",
 			"RETR",
 			"THMB",
+			"RNTO",
 		};
 
 		#endregion
