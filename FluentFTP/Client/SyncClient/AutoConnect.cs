@@ -16,7 +16,10 @@ namespace FluentFTP {
 			LogFunction(nameof(AutoConnect));
 
 			// connect to the first available connection profile
-			var results = AutoDetect(true, false);
+			var results = AutoDetect(new FtpAutoDetectConfig() {
+				FirstOnly = true,
+				CloneConnection = false,
+			});
 			if (results.Count > 0) {
 				var profile = results[0];
 
