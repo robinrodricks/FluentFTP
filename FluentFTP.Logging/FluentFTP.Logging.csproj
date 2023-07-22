@@ -37,7 +37,7 @@
 
     <ItemGroup>
         <!-- Reference the first version of FluentFTP that exposes IFluentLogger. Do not change this version. -->
-        <PackageReference Include="FluentFTP" Version="47.0.0" />
+        <PackageReference Include="FluentFTP" Version="43.0.1" />
         <!-- Reference the oldest version of MELA possible. Do not change this version. -->
         <PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.0" />
     </ItemGroup>
