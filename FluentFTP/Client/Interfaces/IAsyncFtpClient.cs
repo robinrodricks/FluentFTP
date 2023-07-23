@@ -1,4 +1,5 @@
-﻿using FluentFTP.Rules;
+﻿using FluentFTP.Model.Config;
+using FluentFTP.Rules;
 using FluentFTP.Servers;
 using System;
 using System.Collections.Generic;

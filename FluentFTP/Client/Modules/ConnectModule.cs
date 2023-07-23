@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using FluentFTP.Client.BaseClient;
 using FluentFTP.Exceptions;
 using FluentFTP.Helpers;
+using FluentFTP.Model.Functions;
 
 namespace FluentFTP.Client.Modules {
 	/// <summary>
@@ -28,6 +29,10 @@ namespace FluentFTP.Client.Modules {
 		/// </summary>
 		public static List<FtpProfile> AutoDetect(FtpClient client, FtpAutoDetectConfig config) {
 			var results = new List<FtpProfile>();
+
+			if (config == null) {
+				config = new FtpAutoDetectConfig();
+			}
 
 			if (!config.RequireEncryption) {
 				DefaultEncryptionPriority.Add(FtpEncryptionMode.None);

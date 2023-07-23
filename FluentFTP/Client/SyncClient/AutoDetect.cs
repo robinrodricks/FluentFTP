@@ -2,6 +2,7 @@
 using System.Threading;
 using FluentFTP.Client.Modules;
 using System.Threading.Tasks;
+using FluentFTP.Model.Functions;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -15,7 +16,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="config">The coresponding config object for this API</param>
 		/// <returns></returns>
-		public List<FtpProfile> AutoDetect(FtpAutoDetectConfig config) {
+		public List<FtpProfile> AutoDetect(FtpAutoDetectConfig config = null) {
 
 			lock (m_lock) {
 				// LogFunction(nameof(AutoDetect), new object[] { firstOnly, cloneConnection });

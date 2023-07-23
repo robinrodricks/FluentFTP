@@ -2,6 +2,7 @@
 using System.Threading;
 using FluentFTP.Client.Modules;
 using System.Threading.Tasks;
+using FluentFTP.Model.Config;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {

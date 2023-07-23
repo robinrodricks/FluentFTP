@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
 
-namespace FluentFTP {
+namespace FluentFTP.Model.Functions {
 
 	public class FtpAutoDetectConfig {
 
@@ -16,21 +16,19 @@ namespace FluentFTP {
 		public bool FirstOnly { get; set; } = true;
 
 		/// <summary>
-		/// Also try the very seldom used Implicit mode
-		/// Default is try implicit, otherwise many would need a code change
-		/// as per the previous versions of AutoDetect.
-		/// Recommendation: Change this default to "false"
+		/// If true, then try the very rarely used Implicit FTP mode.
 		/// </summary>
 		public bool IncludeImplicit { get; set; } = true;
 
 		/// <summary>
-		/// Do not try the insecure unencrypted mode (even if it might work)
-		/// Default is allow insecure, otherwise many would need a code change
-		/// as per the previous versions of AutoDetect.
+		/// If true, then we will not try the insecure FTP unencrypted mode, and only try FTPS.
+		/// If false, then both FTP and FTPS will be tried.
 		/// </summary>
 		public bool RequireEncryption { get; set; } = false;
-		/// Recommendation: Change this default to "true"
 
+		/// <summary>
+		/// List of protocols to be tried, and the order they should be tried in.
+		/// </summary>
 		public List<SysSslProtocols> ProtocolPriority = new List<SysSslProtocols> {
 			SysSslProtocols.Tls11 | SysSslProtocols.Tls12,
 			// Do not EVER use "Default". It boils down to "SSL or TLS1.0" or worse.
