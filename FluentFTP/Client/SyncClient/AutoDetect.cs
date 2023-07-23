@@ -13,16 +13,16 @@ namespace FluentFTP {
 		/// You can then generate code for the profile using the FtpProfile.ToCode method.
 		/// If no successful profiles are found, a blank list is returned.
 		/// </summary>
-		/// <param name="firstOnly">Find all successful profiles (false) or stop after finding the first successful profile (true)</param>
-		/// <param name="cloneConnection">Use a new cloned FtpClient for testing connection profiles (true) or use the source FtpClient (false)</param>
+		/// <param name="config">The coresponding config object for this API</param>
 		/// <returns></returns>
-		public List<FtpProfile> AutoDetect(bool firstOnly = true, bool cloneConnection = true) {
+		public List<FtpProfile> AutoDetect(FtpAutoDetectConfig config) {
 
 			lock (m_lock) {
-				LogFunction(nameof(AutoDetect), new object[] { firstOnly, cloneConnection });
+				// LogFunction(nameof(AutoDetect), new object[] { firstOnly, cloneConnection });
+
 				ValidateAutoDetect();
 
-				return ConnectModule.AutoDetect(this, firstOnly, cloneConnection);
+				return ConnectModule.AutoDetect(this, config);
 			}
 		}
 

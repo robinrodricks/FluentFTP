@@ -62,14 +62,14 @@ namespace FluentFTP.Tests.Integration.Tests {
 
 		public void AutoDetect() {
 			using var ftpClient = GetClient();
-			var profiles = ftpClient.AutoDetect();
+			var profiles = ftpClient.AutoDetect(new FtpAutoDetectConfig());
 			Assert.NotEmpty(profiles);
 		}
 
 
 		public async Task AutoDetectAsync() {
 			using var ftpClient = await GetAsyncClient();
-			var profiles = await ftpClient.AutoDetect(false);
+			var profiles = await ftpClient.AutoDetect(new FtpAutoDetectConfig());
 			Assert.NotEmpty(profiles);
 		}
 

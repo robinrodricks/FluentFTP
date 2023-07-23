@@ -17,15 +17,6 @@ namespace FluentFTP.Client.Modules {
 
 		private static List<FtpEncryptionMode> DefaultEncryptionPriority = new List<FtpEncryptionMode> {
 			FtpEncryptionMode.Auto,
-
-			// Do we really want to AutoDetect non encrypted connections?
-			FtpEncryptionMode.None, // Yes! It seems we do.
-		};
-
-		private static List<SysSslProtocols> DefaultProtocolPriority = new List<SysSslProtocols> {
-			SysSslProtocols.Tls11 | SysSslProtocols.Tls12,
-			// Do not EVER use "Default". It boils down to "SSL or TLS1.0" or worse.
-			// Do not use "None" - it can connect to TLS13, but Session Resume won't work, so a successful AutoDetect will be a false truth.
 		};
 
 		/// <summary>
@@ -35,8 +26,16 @@ namespace FluentFTP.Client.Modules {
 		/// You can then generate code for the profile using the FtpProfile.ToCode method.
 		/// If no successful profiles are found, a blank list is returned.
 		/// </summary>
-		public static List<FtpProfile> AutoDetect(FtpClient client, bool firstOnly, bool cloneConnection) {
+		public static List<FtpProfile> AutoDetect(FtpClient client, FtpAutoDetectConfig config) {
 			var results = new List<FtpProfile>();
+
+			if (!config.RequireEncryption) {
+				DefaultEncryptionPriority.Add(FtpEncryptionMode.None);
+			}
+
+			if (!config.IncludeImplicit) {
+				DefaultEncryptionPriority.Add(FtpEncryptionMode.Implicit);
+			}
 
 			// get known working connection profile based on the host (if any)
 			List<FtpEncryptionMode> encryptionsToTry;
@@ -46,10 +45,10 @@ namespace FluentFTP.Client.Modules {
 			bool resetPort = (client.Port == 990 || client.Port == 21);
 
 			// clone this connection or use this connection
-			FtpClient conn = cloneConnection ? (FtpClient)client.Clone() : client;
+			FtpClient conn = config.CloneConnection ? (FtpClient)client.Clone() : client;
 
 			// copy basic props if cloned connection
-			if (cloneConnection) {
+			if (config.CloneConnection) {
 				conn.Host = client.Host;
 				conn.Port = client.Port;
 				conn.Credentials = client.Credentials;
@@ -68,9 +67,9 @@ namespace FluentFTP.Client.Modules {
 				}
 
 				// try each SSL protocol
-				foreach (var protocol in DefaultProtocolPriority) {
+				foreach (var protocol in config.ProtocolPriority) {
 					// Only check the first combination for FtpEncryptionMode.None
-					if (encryption == FtpEncryptionMode.None && DefaultProtocolPriority.IndexOf(protocol) > 0) {
+					if (encryption == FtpEncryptionMode.None && config.ProtocolPriority.IndexOf(protocol) > 0) {
 						continue;
 					}
 
@@ -95,7 +94,7 @@ namespace FluentFTP.Client.Modules {
 						dataConn = AutoDataConnection(conn);
 
 						// if non-cloned connection, we want to remain connected if it works
-						if (cloneConnection) {
+						if (config.CloneConnection) {
 							((IInternalFtpClient)conn).DisconnectInternal();
 						}
 					}
@@ -112,7 +111,7 @@ namespace FluentFTP.Client.Modules {
 						// check if permanent failures and hard abort
 						var permaEx = IsPermanentConnectionFailure(ex);
 						if (permaEx != null) {
-							if (cloneConnection) {
+							if (config.CloneConnection) {
 								conn.Dispose();
 							}
 
@@ -131,7 +130,7 @@ namespace FluentFTP.Client.Modules {
 						SaveResult(results, knownProfile, blacklistedEncryptions, conn, encryption, protocol, dataConn);
 
 						// stop if only 1 wanted
-						if (firstOnly) {
+						if (config.FirstOnly) {
 							goto Exit;
 						}
 
@@ -145,7 +144,7 @@ namespace FluentFTP.Client.Modules {
 
 
 		Exit:
-			if (cloneConnection) {
+			if (config.CloneConnection) {
 				conn.Dispose();
 			}
 			return results;
@@ -158,7 +157,7 @@ namespace FluentFTP.Client.Modules {
 		/// You can then generate code for the profile using the FtpProfile.ToCode method.
 		/// If no successful profiles are found, a blank list is returned.
 		/// </summary>
-		public static async Task<List<FtpProfile>> AutoDetectAsync(AsyncFtpClient client, bool firstOnly, bool cloneConnection, CancellationToken token) {
+		public static async Task<List<FtpProfile>> AutoDetectAsync(AsyncFtpClient client, FtpAutoDetectConfig config, CancellationToken token) {
 			var results = new List<FtpProfile>();
 
 			// get known working connection profile based on the host (if any)
@@ -169,10 +168,10 @@ namespace FluentFTP.Client.Modules {
 			bool resetPort = (client.Port == 990 || client.Port == 21);
 
 			// clone this connection or use this connection
-			AsyncFtpClient conn = cloneConnection ? (AsyncFtpClient)client.Clone() : client;
+			AsyncFtpClient conn = config.CloneConnection ? (AsyncFtpClient)client.Clone() : client;
 
 			// copy basic props if cloned connection
-			if (cloneConnection) {
+			if (config.CloneConnection) {
 				conn.Host = client.Host;
 				conn.Port = client.Port;
 				conn.Credentials = client.Credentials;
@@ -191,9 +190,9 @@ namespace FluentFTP.Client.Modules {
 				}
 
 				// try each SSL protocol
-				foreach (var protocol in DefaultProtocolPriority) {
+				foreach (var protocol in config.ProtocolPriority) {
 					// Only check the first combination for FtpEncryptionMode.None 
-					if (encryption == FtpEncryptionMode.None && DefaultProtocolPriority.IndexOf(protocol) > 0) {
+					if (encryption == FtpEncryptionMode.None && config.ProtocolPriority.IndexOf(protocol) > 0) {
 						continue;
 					}
 
@@ -218,7 +217,7 @@ namespace FluentFTP.Client.Modules {
 						dataConn = AutoDataConnection(conn);
 
 						// if non-cloned connection, we want to remain connected if it works
-						if (cloneConnection) {
+						if (config.CloneConnection) {
 							await conn.Disconnect(token);
 						}
 					}
@@ -235,7 +234,7 @@ namespace FluentFTP.Client.Modules {
 						// check if permanent failures and hard abort
 						var permaEx = IsPermanentConnectionFailure(ex);
 						if (permaEx != null) {
-							if (cloneConnection) {
+							if (config.CloneConnection) {
 								conn.Dispose();
 							}
 
@@ -254,7 +253,7 @@ namespace FluentFTP.Client.Modules {
 						SaveResult(results, knownProfile, blacklistedEncryptions, conn, encryption, protocol, dataConn);
 
 						// stop if only 1 wanted
-						if (firstOnly) {
+						if (config.FirstOnly) {
 							goto Exit;
 						}
 					}
@@ -267,7 +266,7 @@ namespace FluentFTP.Client.Modules {
 
 
 		Exit:
-			if (cloneConnection) {
+			if (config.CloneConnection) {
 				conn.Dispose();
 			}
 
