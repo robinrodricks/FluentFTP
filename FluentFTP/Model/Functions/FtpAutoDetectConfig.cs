@@ -37,14 +37,14 @@ namespace FluentFTP.Model.Functions {
 
 		public object[] ToArray() {
 			return new object[] {
-				"CloneConnection="+CloneConnection,
-				"FirstOnly="+FirstOnly,
-				"IncludeImplicit="+IncludeImplicit,
-				"RequireEncryption="+RequireEncryption,
-				"ProtocolPriority="+ProtocolPriority,
+				"CloneConnection=" + CloneConnection,
+				"FirstOnly=" + FirstOnly,
+				"IncludeImplicit=" + IncludeImplicit,
+				"RequireEncryption=" + RequireEncryption,
+				"ProtocolPriority=" + ProtocolPriority,
 			};
 		}
 
 
-}
+	}
 }
