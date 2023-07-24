@@ -1,16 +1,11 @@
-﻿using FluentFTP.Model.Config;
-using FluentFTP.Rules;
-using FluentFTP.Servers;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Net;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+
+using FluentFTP.Model.Functions;
+using FluentFTP.Rules;
 
 namespace FluentFTP {
 

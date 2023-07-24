@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Xunit;
+
 using FluentFTP.Xunit.Docker;
 using FluentFTP.Tests.Integration.System;
+using FluentFTP.Model.Functions;
 
 namespace FluentFTP.Tests.Integration.Tests {
 
