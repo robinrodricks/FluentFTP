@@ -21,6 +21,7 @@ namespace FluentFTP {
 		void DisableUTF8();
 
 		List<FtpProfile> AutoDetect(FtpAutoDetectConfig config);
+		List<FtpProfile> AutoDetect(bool firstOnly, bool cloneConnection = true);
 		FtpProfile AutoConnect();
 		void Connect();
 		void Connect(FtpProfile profile);
