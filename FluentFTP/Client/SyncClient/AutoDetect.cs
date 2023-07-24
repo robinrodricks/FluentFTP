@@ -19,7 +19,7 @@ namespace FluentFTP {
 		public List<FtpProfile> AutoDetect(FtpAutoDetectConfig config = null) {
 
 			lock (m_lock) {
-				LogFunction(nameof(AutoDetect), new object[] { config });
+				LogFunction(nameof(AutoDetect), config.ToArray());
 
 				ValidateAutoDetect();
 
