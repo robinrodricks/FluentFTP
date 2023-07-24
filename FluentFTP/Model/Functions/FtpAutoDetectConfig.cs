@@ -29,7 +29,7 @@ namespace FluentFTP.Model.Functions {
 		/// <summary>
 		/// List of protocols to be tried, and the order they should be tried in.
 		/// </summary>
-		public List<SysSslProtocols> ProtocolPriority = new List<SysSslProtocols> {
+		public List<SysSslProtocols> ProtocolPriority { get; set; } = new List<SysSslProtocols> {
 			SysSslProtocols.Tls11 | SysSslProtocols.Tls12,
 			// Do not EVER use "Default". It boils down to "SSL or TLS1.0" or worse.
 			// Do not use "None" - it can connect to TLS13, but Session Resume won't work, so a successful AutoDetect will be a false truth.
@@ -37,14 +37,14 @@ namespace FluentFTP.Model.Functions {
 
 		public object[] ToArray() {
 			return new object[] {
-				"CloneConnection="+CloneConnection,
-				"FirstOnly="+FirstOnly,
-				"IncludeImplicit="+IncludeImplicit,
-				"RequireEncryption="+RequireEncryption,
-				"ProtocolPriority="+ProtocolPriority,
+				"CloneConnection=" + CloneConnection,
+				"FirstOnly=" + FirstOnly,
+				"IncludeImplicit=" + IncludeImplicit,
+				"RequireEncryption=" + RequireEncryption,
+				"ProtocolPriority=" + ProtocolPriority,
 			};
 		}
 
 
-}
+	}
 }
