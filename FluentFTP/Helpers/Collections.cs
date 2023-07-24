@@ -1,5 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Text;
+using System.Xml.Serialization;
+using System.Xml;
 
 namespace FluentFTP.Helpers {
 	/// <summary>
@@ -50,6 +54,9 @@ namespace FluentFTP.Helpers {
 				else if (v is string) {
 					txt = "\"" + v + "\"";
 				}
+				else if (!v.GetType().IsEnum && !v.GetType().IsPrimitive) {
+					txt = vSerialize(v);
+				}
 				else {
 					txt = v.ToString();
 				}
@@ -58,6 +65,37 @@ namespace FluentFTP.Helpers {
 			}
 
 			return results;
+		}
+
+		public static string vSerialize(object o) {
+			StringBuilder sb = new StringBuilder();
+
+			var xmlSettings = new XmlWriterSettings {
+				OmitXmlDeclaration = true,
+				Indent = true,
+				NewLineOnAttributes = true,
+			};
+			XmlSerializer serializer = new XmlSerializer(o.GetType());
+			StringBuilder result = new StringBuilder();
+			using (var writer = XmlWriter.Create(result, xmlSettings)) {
+				serializer.Serialize(writer, o);
+			}
+
+			XmlDocument doc = new XmlDocument();
+			doc.LoadXml(result.ToString());
+
+			foreach (XmlNode node in doc.DocumentElement.ChildNodes) {
+				if (node.HasChildNodes) {
+					foreach (XmlNode childNode in node.ChildNodes) {
+						sb.Append(node.Name + "=" + childNode.InnerText + ", ");
+					}
+				}
+				else {
+					sb.Append(node.Name + "=" + node.InnerText + ", ");
+				}
+			}
+
+			return sb.ToString().TrimEnd(new char[] { ',', ' ' });
 		}
 
 		/// <summary>
