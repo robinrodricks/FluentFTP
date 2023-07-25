@@ -94,9 +94,11 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <param name="function">The name of the API function</param>
 		/// <param name="args">The args passed to the function</param>
-		protected void LogFunction(string function, object[] args = null) {
+		protected void LogFunction(string function, object args) {
 
-			var fullMessage = (">         " + function + "(" + args.ItemsToString().Join(", ") + ")");
+			var funcCallString = function + "(" + args.ObjectPropsToString() + ")";
+
+			var fullMessage = ">         " + funcCallString;
 
 			// log to modern logger if given
 			m_logger?.Log(FtpTraceLevel.Info, fullMessage);
@@ -106,7 +108,30 @@ namespace FluentFTP.Client.BaseClient {
 
 			// log to system
 			LogToDebugOrConsole("");
-			LogToDebugOrConsole("# " + function + "(" + args.ItemsToString().Join(", ") + ")");
+			LogToDebugOrConsole("# " + funcCallString);
+
+		}
+
+		/// <summary>
+		/// Log a function call with relevant arguments
+		/// </summary>
+		/// <param name="function">The name of the API function</param>
+		/// <param name="args">The args passed to the function</param>
+		protected void LogFunction(string function, object[] args = null) {
+
+			var funcCallString = function + "(" + args.ItemsToString().Join(", ") + ")";
+
+			var fullMessage = ">         " + funcCallString;
+
+			// log to modern logger if given
+			m_logger?.Log(FtpTraceLevel.Info, fullMessage);
+
+			// log to legacy logger if given
+			m_legacyLogger?.Invoke(FtpTraceLevel.Verbose, fullMessage);
+
+			// log to system
+			LogToDebugOrConsole("");
+			LogToDebugOrConsole("# " + funcCallString);
 
 		}
 

@@ -18,10 +18,10 @@ namespace FluentFTP {
 		/// <param name="config">The coresponding config object for this API</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns></returns>
-		public async Task<List<FtpProfile>> AutoDetect(FtpAutoDetectConfig config, CancellationToken token = default(CancellationToken)) {
+		public async Task<List<FtpProfile>> AutoDetect(FtpAutoDetectConfig config = null, CancellationToken token = default(CancellationToken)) {
 			var results = new List<FtpProfile>();
 
-			LogFunction(nameof(AutoDetect), new object[] { config });
+			LogFunction(nameof(AutoDetect), config);
 			ValidateAutoDetect();
 
 			return await ConnectModule.AutoDetectAsync(this, config, token);

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml.Serialization;
 using System.Xml;
+using System.Reflection;
 
 namespace FluentFTP.Helpers {
 	/// <summary>
@@ -54,9 +55,6 @@ namespace FluentFTP.Helpers {
 				else if (v is string) {
 					txt = "\"" + v + "\"";
 				}
-				else if (!v.GetType().IsEnum && !v.GetType().IsPrimitive) {
-					txt = vSerialize(v);
-				}
 				else {
 					txt = v.ToString();
 				}
@@ -67,37 +65,38 @@ namespace FluentFTP.Helpers {
 			return results;
 		}
 
-		public static string vSerialize(object o) {
-			StringBuilder sb = new StringBuilder();
+		public static string ObjectPropsToString(this object obj) {
+			var type = obj.GetType();
+			var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+			var lastProp = properties[properties.Length - 1];
 
-			var xmlSettings = new XmlWriterSettings {
-				OmitXmlDeclaration = true,
-				Indent = true,
-				NewLineOnAttributes = true,
-			};
-			XmlSerializer serializer = new XmlSerializer(o.GetType());
 			StringBuilder result = new StringBuilder();
-			using (var writer = XmlWriter.Create(result, xmlSettings)) {
-				serializer.Serialize(writer, o);
-			}
+			foreach (var property in properties) {
+				string p = property.Name;
+				object v = property.GetValue(obj);
+				string txt = "";
 
-			XmlDocument doc = new XmlDocument();
-			doc.LoadXml(result.ToString());
-
-			foreach (XmlNode node in doc.DocumentElement.ChildNodes) {
-				if (node.HasChildNodes) {
-					foreach (XmlNode childNode in node.ChildNodes) {
-						sb.Append(node.Name + "=" + childNode.InnerText + ", ");
-					}
+				if (v == null) {
+					txt = "null";
+				}
+				else if (v is string) {
+					txt = "\"" + v + "\"";
+				}
+				else if (v is IList) {
+					txt = "[" + string.Join(", ", (IList)v) + "]";
 				}
 				else {
-					sb.Append(node.Name + "=" + node.InnerText + ", ");
+					txt = v.ToString();
+				}
+
+				result.Append($"{p} = {txt}");
+				if (property != lastProp) {
+					result.Append(", ");
 				}
 			}
 
-			return sb.ToString().TrimEnd(new char[] { ',', ' ' });
+			return result.ToString();
 		}
-
 		/// <summary>
 		/// Ensures the given item is only added once. If it was not present true is returned, else false is returned.
 		/// </summary>
