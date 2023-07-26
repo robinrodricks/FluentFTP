@@ -1,5 +1,12 @@
 # Release Notes
 
+#### 47.1.0
+- New: Overloaded API `AutoDetect` with object-driven configuration using `FtpAutoDetectConfig`
+- New: Function Logging method to support logging objects
+- New: Add options `RequireEncryption` and `IncludeImplicit` to `AutoDetect` to allow for more configurability during auto-connection (thanks [FanDjango](/FanDjango))
+- Fix: Improve `AutoDetect` behaviour to support various server use-cases (thanks [FanDjango](/FanDjango))
+- Fix: Add `RNFM`/`RNTO` FTP commands to critical-sequence list to fix Auto-Reconnect of SSL sessions (thanks [FanDjango](/FanDjango))
+
 #### 47.0.0
  - **Logging** (thanks [FanDjango](/FanDjango))
    - New: Add exact .NET platform build target during the version logging
