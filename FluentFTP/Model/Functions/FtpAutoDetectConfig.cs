@@ -35,16 +35,5 @@ namespace FluentFTP.Model.Functions {
 			// Do not use "None" - it can connect to TLS13, but Session Resume won't work, so a successful AutoDetect will be a false truth.
 		};
 
-		public object[] ToArray() {
-			return new object[] {
-				"CloneConnection=" + CloneConnection,
-				"FirstOnly=" + FirstOnly,
-				"IncludeImplicit=" + IncludeImplicit,
-				"RequireEncryption=" + RequireEncryption,
-				"ProtocolPriority=" + ProtocolPriority,
-			};
-		}
-
-
 	}
 }

@@ -19,7 +19,7 @@ namespace FluentFTP {
 		public List<FtpProfile> AutoDetect(FtpAutoDetectConfig config = null) {
 
 			lock (m_lock) {
-				LogFunction(nameof(AutoDetect), config.ToArray());
+				LogFunction(nameof(AutoDetect), config);
 
 				ValidateAutoDetect();
 
@@ -39,7 +39,7 @@ namespace FluentFTP {
 		/// <param name="firstOnly">Find all successful profiles (false) or stop after finding the first successful profile (true)</param>
 		/// <param name="cloneConnection">Use a new cloned FtpClient for testing connection profiles (true) or use the source FtpClient (false)</param>
 		/// <returns></returns>
-		public List<FtpProfile> AutoDetect(bool firstOnly, bool cloneConnection = true) {
+		public List<FtpProfile> AutoDetect(bool firstOnly = true, bool cloneConnection = true) {
 
 			lock (m_lock) {
 				LogFunction(nameof(AutoDetect), new object[] { firstOnly, cloneConnection });
