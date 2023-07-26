@@ -5,6 +5,7 @@ using System.Text;
 using System.Xml.Serialization;
 using System.Xml;
 using System.Reflection;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace FluentFTP.Helpers {
 	/// <summary>
@@ -65,38 +66,7 @@ namespace FluentFTP.Helpers {
 			return results;
 		}
 
-		public static string ObjectPropsToString(this object obj) {
-			var type = obj.GetType();
-			var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-			var lastProp = properties[properties.Length - 1];
 
-			StringBuilder result = new StringBuilder();
-			foreach (var property in properties) {
-				string p = property.Name;
-				object v = property.GetValue(obj);
-				string txt = "";
-
-				if (v == null) {
-					txt = "null";
-				}
-				else if (v is string) {
-					txt = "\"" + v + "\"";
-				}
-				else if (v is IList) {
-					txt = "[" + string.Join(", ", (IList)v) + "]";
-				}
-				else {
-					txt = v.ToString();
-				}
-
-				result.Append($"{p} = {txt}");
-				if (property != lastProp) {
-					result.Append(", ");
-				}
-			}
-
-			return result.ToString();
-		}
 		/// <summary>
 		/// Ensures the given item is only added once. If it was not present true is returned, else false is returned.
 		/// </summary>

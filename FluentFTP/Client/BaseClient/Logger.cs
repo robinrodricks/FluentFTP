@@ -96,7 +96,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="args">The args passed to the function</param>
 		protected void LogFunction(string function, object args) {
 
-			var funcCallString = function + "(" + args.ObjectPropsToString() + ")";
+			var funcCallString = function + "(" + args.ObjectToString() + ")";
 
 			var fullMessage = ">         " + funcCallString;
 
