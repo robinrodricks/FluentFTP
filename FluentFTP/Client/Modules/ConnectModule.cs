@@ -166,6 +166,18 @@ namespace FluentFTP.Client.Modules {
 		public static async Task<List<FtpProfile>> AutoDetectAsync(AsyncFtpClient client, FtpAutoDetectConfig config, CancellationToken token) {
 			var results = new List<FtpProfile>();
 
+			if (config == null) {
+				config = new FtpAutoDetectConfig();
+			}
+
+			if (!config.RequireEncryption) {
+				DefaultEncryptionPriority.Add(FtpEncryptionMode.None);
+			}
+
+			if (!config.IncludeImplicit) {
+				DefaultEncryptionPriority.Add(FtpEncryptionMode.Implicit);
+			}
+
 			// get known working connection profile based on the host (if any)
 			List<FtpEncryptionMode> encryptionsToTry;
 			var knownProfile = GetWorkingProfileFromHost(client.Host, out encryptionsToTry);

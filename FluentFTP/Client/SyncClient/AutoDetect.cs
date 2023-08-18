@@ -21,6 +21,10 @@ namespace FluentFTP {
 			lock (m_lock) {
 				LogFunction(nameof(AutoDetect), config);
 
+				if (config == null) {
+					config = new FtpAutoDetectConfig();
+				}
+
 				ValidateAutoDetect();
 
 				return ConnectModule.AutoDetect(this, config);

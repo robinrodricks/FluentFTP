@@ -6,10 +6,16 @@ namespace FluentFTP.Helpers {
 	public static class ValuePrinter {
 
 		public static string ObjectToString(this object obj) {
+			if (obj == null) {
+				// print null
+				return "null";
+			};
+
 			var type = obj.GetType();
 			var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 			var lastProp = properties[properties.Length - 1];
 
+			// print list
 			StringBuilder result = new StringBuilder();
 			foreach (var property in properties) {
 				string p = property.Name;
@@ -30,17 +36,14 @@ namespace FluentFTP.Helpers {
 		private static string ValueToString(object v) {
 			string txt;
 			if (v == null) {
-
 				// print null
 				txt = "null";
 			}
 			else if (v is string) {
-
 				// print string
 				txt = "\"" + v + "\"";
 			}
 			else if (v is IList) {
-
 				// print list
 				var vals = new StringBuilder();
 				vals.Append("[");
@@ -55,7 +58,6 @@ namespace FluentFTP.Helpers {
 				txt = vals.ToString();
 			}
 			else {
-
 				// print any
 				txt = v.ToString();
 			}
