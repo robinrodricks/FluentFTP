@@ -22,6 +22,11 @@ namespace FluentFTP {
 			var results = new List<FtpProfile>();
 
 			LogFunction(nameof(AutoDetect), config);
+
+			if (config == null) {
+				config = new FtpAutoDetectConfig();
+			}
+
 			ValidateAutoDetect();
 
 			return await ConnectModule.AutoDetectAsync(this, config, token);
@@ -44,6 +49,7 @@ namespace FluentFTP {
 			var results = new List<FtpProfile>();
 
 			LogFunction(nameof(AutoDetect), new object[] { firstOnly, cloneConnection });
+
 			ValidateAutoDetect();
 
 			return await ConnectModule.AutoDetectAsync(this, new FtpAutoDetectConfig() {
