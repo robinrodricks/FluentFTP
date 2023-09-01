@@ -61,13 +61,27 @@ namespace FluentFTP {
 
 			path = await GetAbsolutePathAsync(path, token);
 
-			// MLSD provides a machine readable format with 100% accurate information
-			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
+			bool cwdBeforeListCommand = false;
+			string cwdSave = string.Empty;
+
+			if ((Config.ListingWrap == FtpListingWrapType.Always) ||
+               ((Config.ListingWrap == FtpListingWrapType.IfBlanks) && path.Contains(" "))) {
+				cwdBeforeListCommand = true;
+				options = options | FtpListOption.NoPath;
+			}
 			bool machineList;
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
-			// read in raw file listing
+			if (cwdBeforeListCommand) {
+				cwdSave = await GetWorkingDirectory();
+				if (cwdSave != path) await SetWorkingDirectory(path);
+			}
+
 			rawlisting = await GetListingInternal(listcmd, options, true, token);
+
+			if (cwdBeforeListCommand) {
+				if (cwdSave != path) await SetWorkingDirectory(cwdSave);
+			}
 
 			FtpListItem item = null;
 
@@ -173,13 +187,27 @@ namespace FluentFTP {
 
 			path = await GetAbsolutePathAsync(path, token);
 
-			// MLSD provides a machine readable format with 100% accurate information
-			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
+			bool cwdBeforeListCommand = false;
+			string cwdSave = string.Empty;
+
+			if ((Config.ListingWrap == FtpListingWrapType.Always) ||
+			   ((Config.ListingWrap == FtpListingWrapType.IfBlanks) && path.Contains(" "))) {
+				cwdBeforeListCommand = true;
+				options = options | FtpListOption.NoPath;
+			}
 			bool machineList;
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
-			// read in raw file listing
+			if (cwdBeforeListCommand) {
+				cwdSave = await GetWorkingDirectory();
+				if (cwdSave != path) await SetWorkingDirectory(path);
+			}
+
 			rawlisting = await GetListingInternal(listcmd, options, true, token);
+
+			if (cwdBeforeListCommand) {
+				if (cwdSave != path) await SetWorkingDirectory(cwdSave);
+			}
 
 			FtpListItem item = null;
 

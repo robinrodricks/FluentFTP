@@ -12,7 +12,7 @@ namespace FluentFTP {
 		/// <param name="command">The command to execute</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>The servers reply to the command</returns>
-		public async Task<FtpReply> Execute(string command, CancellationToken token) {
+		public async Task<FtpReply> Execute(string command, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
 			bool reconnect = false;

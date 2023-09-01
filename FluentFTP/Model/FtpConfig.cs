@@ -270,6 +270,18 @@ namespace FluentFTP {
 		public bool ValidateCertificateRevocation { get; set; } = false;
 
 		/// <summary>
+		/// When to "wrap" listing commands (MSLD, LIST, NLST) in a CWD and restore CWD
+		/// if the listing command does not like the format of path names it is given.
+		/// None:
+		/// Modern servers are robust and accept pathnames according to the RFCs.
+		/// Always:
+		/// Wrap all listing commands in a CWD, <list command>, <restore CWD> sequence
+		/// IfBlank:
+		/// Only wrap the listing commands if the pathname contains blanks
+		/// </summary>
+		public FtpListingWrapType ListingWrap { get; set; } = FtpListingWrapType.None;
+
+		/// <summary>
 		/// Controls if the file listings are downloaded in Binary or ASCII mode.
 		/// </summary>
 		public FtpDataType ListingDataType { get; set; } = FtpDataType.Binary;
