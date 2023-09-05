@@ -88,13 +88,28 @@ namespace FluentFTP {
 
 			path = GetAbsolutePath(path);
 
-			// MLSD provides a machine readable format with 100% accurate information
-			// so always prefer MLSD over LIST unless the caller of this method overrides it with the ForceList option
+			bool cwdBeforeListCommand = false;
+			string cwdSave = string.Empty;
+
+			if ((Config.ListingWrap == FtpListingWrapType.Always) ||
+			   ((Config.ListingWrap == FtpListingWrapType.IfBlanks) && path.Contains(" "))) {
+				cwdBeforeListCommand = true;
+				options = options | FtpListOption.NoPath;
+			}
 			bool machineList;
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
 			lock (m_lock) {
+				if (cwdBeforeListCommand) {
+					cwdSave = GetWorkingDirectory();
+					if (cwdSave != path) SetWorkingDirectory(path);
+				}
+
 				rawlisting = GetListingInternal(listcmd, options, true);
+
+				if (cwdBeforeListCommand) {
+					if (cwdSave != path) SetWorkingDirectory(cwdSave);
+				}
 			}
 
 			for (var i = 0; i < rawlisting.Count; i++) {
