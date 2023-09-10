@@ -88,7 +88,7 @@ namespace FluentFTP {
 
 			path = GetAbsolutePath(path);
 
-			string pwd = string.Empty;
+			string pwdSave = string.Empty;
 
 			if (Config.AutoNavigate) {
 				options = options | FtpListOption.NoPath;
@@ -99,8 +99,8 @@ namespace FluentFTP {
 
 			lock (m_lock) {
 				if (Config.AutoNavigate) {
-					pwd = GetWorkingDirectory();
-					if (pwd != path) {
+					pwdSave = GetWorkingDirectory();
+					if (pwdSave != path) {
 						LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + path + "\"");
 						SetWorkingDirectory(path);
 					}
@@ -109,9 +109,9 @@ namespace FluentFTP {
 				rawlisting = GetListingInternal(listcmd, options, true);
 
 				if (Config.AutoNavigate) {
-					if (pwd != GetWorkingDirectory()) {
-						LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwd + "\"");
-						SetWorkingDirectory(pwd);
+					if (pwdSave != GetWorkingDirectory()) {
+						LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
+						SetWorkingDirectory(pwdSave);
 					}
 				}
 			}

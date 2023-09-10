@@ -27,6 +27,20 @@ namespace FluentFTP {
 				throw new ArgumentException("You have requested resuming file upload with FtpRemoteExists.Resume, but the local file stream cannot be seeked. Use another type of Stream or another existsMode.", nameof(fileData));
 			}
 
+			string remoteDirectory = string.Empty;
+			string pwdSave = string.Empty;
+
+			if (Config.AutoNavigate) {
+				remoteDirectory = GetAbsolutePath(Path.GetDirectoryName(remotePath));
+				remotePath = Path.GetFileName(remotePath);
+
+				pwdSave = GetWorkingDirectory();
+				if (pwdSave != remoteDirectory) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + remoteDirectory + "\"");
+					SetWorkingDirectory(remoteDirectory);
+				}
+			}
+
 			try {
 				long localPosition = 0, remotePosition = 0, remoteFileLen = -1;
 
@@ -250,6 +264,13 @@ namespace FluentFTP {
 				// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
 				if (status.Code != null && !status.Success) {
 					return FtpStatus.Failed;
+				}
+
+				if (Config.AutoNavigate) {
+					if (pwdSave != GetWorkingDirectory()) {
+						LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
+						SetWorkingDirectory(pwdSave);
+					}
 				}
 
 				return FtpStatus.Success;
