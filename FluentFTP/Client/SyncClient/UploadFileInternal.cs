@@ -30,7 +30,17 @@ namespace FluentFTP {
 			string remoteDirectory = string.Empty;
 			string pwdSave = string.Empty;
 
-			if (Config.AutoNavigate) {
+			bool navigationNeeded = false;
+			bool navigationRestoreNeeded = false;
+
+			bool navigationRequested = Config.Navigate.HasFlag(FtpNavigate.Auto) || Config.Navigate.HasFlag(FtpNavigate.SemiAuto);
+			bool navigationRestoreRequested = Config.Navigate.HasFlag(FtpNavigate.SemiAuto);
+			bool navigationOnlyIfBlanks = Config.Navigate.HasFlag(FtpNavigate.Conditional);
+
+			navigationNeeded = navigationRequested && (!navigationOnlyIfBlanks || (navigationOnlyIfBlanks && Path.GetDirectoryName(remotePath).Contains(" ")));
+			navigationRestoreNeeded = navigationNeeded && navigationRestoreRequested;
+
+			if (navigationNeeded) {
 				remoteDirectory = GetAbsolutePath(Path.GetDirectoryName(remotePath));
 				remotePath = Path.GetFileName(remotePath);
 
@@ -266,7 +276,7 @@ namespace FluentFTP {
 					return FtpStatus.Failed;
 				}
 
-				if (Config.AutoNavigate) {
+				if (navigationRestoreNeeded) {
 					if (pwdSave != GetWorkingDirectory()) {
 						LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
 						SetWorkingDirectory(pwdSave);

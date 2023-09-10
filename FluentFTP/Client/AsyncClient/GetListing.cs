@@ -63,14 +63,24 @@ namespace FluentFTP {
 
 			string pwdSave = string.Empty;
 
-			if (Config.AutoNavigate) {
+			bool navigationNeeded = false;
+			bool navigationRestoreNeeded = false;
+
+			bool navigationRequested = Config.Navigate.HasFlag(FtpNavigate.Auto) || Config.Navigate.HasFlag(FtpNavigate.SemiAuto);
+			bool navigationRestoreRequested = Config.Navigate.HasFlag(FtpNavigate.SemiAuto);
+			bool navigationOnlyIfBlanks = Config.Navigate.HasFlag(FtpNavigate.Conditional);
+
+			navigationNeeded = navigationRequested && (!navigationOnlyIfBlanks || (navigationOnlyIfBlanks && path.Contains(" ")));
+			navigationRestoreNeeded = navigationNeeded && navigationRestoreRequested;
+
+			if (navigationNeeded) { 
 				options = options | FtpListOption.NoPath;
 			}
 
 			bool machineList;
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
-			if (Config.AutoNavigate) {
+			if (navigationNeeded) {
 				pwdSave = await GetWorkingDirectory();
 				if (pwdSave != path) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + path + "\"");
@@ -80,7 +90,7 @@ namespace FluentFTP {
 
 			rawlisting = await GetListingInternal(listcmd, options, true, token);
 
-			if (Config.AutoNavigate) {
+			if (navigationRestoreRequested) {
 				if (pwdSave != await GetWorkingDirectory()) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
 					await SetWorkingDirectory(pwdSave);
@@ -193,14 +203,24 @@ namespace FluentFTP {
 
 			string pwdSave = string.Empty;
 
-			if (Config.AutoNavigate) {
+			bool navigationNeeded = false;
+			bool navigationRestoreNeeded = false;
+
+			bool navigationRequested = Config.Navigate.HasFlag(FtpNavigate.Auto) || Config.Navigate.HasFlag(FtpNavigate.SemiAuto);
+			bool navigationRestoreRequested = Config.Navigate.HasFlag(FtpNavigate.SemiAuto);
+			bool navigationOnlyIfBlanks = Config.Navigate.HasFlag(FtpNavigate.Conditional);
+
+			navigationNeeded = navigationRequested && (!navigationOnlyIfBlanks || (navigationOnlyIfBlanks && path.Contains(" ")));
+			navigationRestoreNeeded = navigationNeeded && navigationRestoreRequested;
+
+			if (navigationNeeded) { 
 				options = options | FtpListOption.NoPath;
 			}
 
 			bool machineList;
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
-			if (Config.AutoNavigate) {
+			if (navigationNeeded) {
 				pwdSave = await GetWorkingDirectory();
 				if (pwdSave != path) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + path + "\"");
@@ -210,7 +230,7 @@ namespace FluentFTP {
 
 			rawlisting = await GetListingInternal(listcmd, options, true, token);
 
-			if (Config.AutoNavigate) {
+			if (navigationRestoreNeeded) {
 				if (pwdSave != await GetWorkingDirectory()) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
 					await SetWorkingDirectory(pwdSave);

@@ -281,8 +281,22 @@ namespace FluentFTP {
 		/// Note: It is assumed, that the command AT LEAST will accept these characters on
 		/// the filename parameters, otherwise your server is too deficient to handle your
 		/// request at all (for STOR, RETR, etc.).
+		///
+		/// Manual:
+		/// No navigation by FluentFTP will take place.
+		///
+		/// Auto:
+		/// FluentFTP will navigate to the needed location, all paths must be absolute paths.
+		///
+		/// SemiAuto:
+		/// FluentFTP will navigate to the needed location, paths can be absolute OR relative,
+		/// the previous CWD will be restored.
+		///
+		/// OR in the additional flag "Conditional" into Auto or SemiAuto to:
+		/// Only perform the navigation if the path contains blanks
+		/// 
 		/// </summary>
-		public bool AutoNavigate { get; set; } = false;
+		public FtpNavigate Navigate { get; set; } = FtpNavigate.Manual;
 
 		/// <summary>
 		/// Controls if the file listings are downloaded in Binary or ASCII mode.
