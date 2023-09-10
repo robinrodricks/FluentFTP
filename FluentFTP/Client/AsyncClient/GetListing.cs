@@ -61,7 +61,7 @@ namespace FluentFTP {
 
 			path = await GetAbsolutePathAsync(path, token);
 
-			string pwd = string.Empty;
+			string pwdSave = string.Empty;
 
 			if (Config.AutoNavigate) {
 				options = options | FtpListOption.NoPath;
@@ -71,8 +71,8 @@ namespace FluentFTP {
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
 			if (Config.AutoNavigate) {
-				pwd = await GetWorkingDirectory();
-				if (pwd != path) {
+				pwdSave = await GetWorkingDirectory();
+				if (pwdSave != path) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + path + "\"");
 					await SetWorkingDirectory(path);
 				}
@@ -81,9 +81,9 @@ namespace FluentFTP {
 			rawlisting = await GetListingInternal(listcmd, options, true, token);
 
 			if (Config.AutoNavigate) {
-				if (pwd != await GetWorkingDirectory()) {
-					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwd + "\"");
-					await SetWorkingDirectory(pwd);
+				if (pwdSave != await GetWorkingDirectory()) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
+					await SetWorkingDirectory(pwdSave);
 				}
 			}
 
@@ -191,7 +191,7 @@ namespace FluentFTP {
 
 			path = await GetAbsolutePathAsync(path, token);
 
-			string pwd = string.Empty;
+			string pwdSave = string.Empty;
 
 			if (Config.AutoNavigate) {
 				options = options | FtpListOption.NoPath;
@@ -201,8 +201,8 @@ namespace FluentFTP {
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
 			if (Config.AutoNavigate) {
-				pwd = await GetWorkingDirectory();
-				if (pwd != path) {
+				pwdSave = await GetWorkingDirectory();
+				if (pwdSave != path) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + path + "\"");
 					await SetWorkingDirectory(path);
 				}
@@ -211,9 +211,9 @@ namespace FluentFTP {
 			rawlisting = await GetListingInternal(listcmd, options, true, token);
 
 			if (Config.AutoNavigate) {
-				if (pwd != await GetWorkingDirectory()) {
-					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwd + "\"");
-					await SetWorkingDirectory(pwd);
+				if (pwdSave != await GetWorkingDirectory()) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
+					await SetWorkingDirectory(pwdSave);
 				}
 			}
 

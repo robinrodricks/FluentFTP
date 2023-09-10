@@ -25,6 +25,20 @@ namespace FluentFTP {
 			Stream downStream = null;
 			var disposeOutStream = false;
 
+			string remoteDirectory = string.Empty;
+			string pwdSave = string.Empty;
+
+			if (Config.AutoNavigate) {
+				remoteDirectory = GetAbsolutePath(Path.GetDirectoryName(remotePath));
+				remotePath = Path.GetFileName(remotePath);
+
+				pwdSave = GetWorkingDirectory();
+				if (pwdSave != remoteDirectory) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + remoteDirectory + "\"");
+					SetWorkingDirectory(remoteDirectory);
+				}
+			}
+
 			try {
 				// get file size if progress requested
 				long fileLen = 0;
@@ -192,6 +206,13 @@ namespace FluentFTP {
 				// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
 				if (status.Code != null && !status.Success) {
 					return false;
+				}
+
+				if (Config.AutoNavigate) {
+					if (pwdSave != GetWorkingDirectory()) {
+						LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
+						SetWorkingDirectory(pwdSave);
+					}
 				}
 
 				return true;
