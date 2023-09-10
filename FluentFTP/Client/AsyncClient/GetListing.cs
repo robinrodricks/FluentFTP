@@ -61,27 +61,24 @@ namespace FluentFTP {
 
 			path = await GetAbsolutePathAsync(path, token);
 
-			bool cwdBeforeListCommand = false;
-			string cwdSave = string.Empty;
+			string pwd = string.Empty;
 
-			if ((Config.ListingWrap == FtpListingWrapType.Always) ||
-               ((Config.ListingWrap == FtpListingWrapType.IfBlanks) && path.Contains(" "))) {
-				cwdBeforeListCommand = true;
+			if (Config.AutoNavigate) {
 				options = options | FtpListOption.NoPath;
 			}
+
 			bool machineList;
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
-			if (cwdBeforeListCommand) {
-				cwdSave = await GetWorkingDirectory();
-				if (cwdSave != path) await SetWorkingDirectory(path);
+			if (Config.AutoNavigate) {
+				pwd = await GetWorkingDirectory();
+				if (pwd != path) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + path + "\"");
+					await SetWorkingDirectory(path);
+				}
 			}
 
 			rawlisting = await GetListingInternal(listcmd, options, true, token);
-
-			if (cwdBeforeListCommand) {
-				if (cwdSave != path) await SetWorkingDirectory(cwdSave);
-			}
 
 			FtpListItem item = null;
 
@@ -187,27 +184,24 @@ namespace FluentFTP {
 
 			path = await GetAbsolutePathAsync(path, token);
 
-			bool cwdBeforeListCommand = false;
-			string cwdSave = string.Empty;
+			string pwd = string.Empty;
 
-			if ((Config.ListingWrap == FtpListingWrapType.Always) ||
-			   ((Config.ListingWrap == FtpListingWrapType.IfBlanks) && path.Contains(" "))) {
-				cwdBeforeListCommand = true;
+			if (Config.AutoNavigate) {
 				options = options | FtpListOption.NoPath;
 			}
+
 			bool machineList;
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
-			if (cwdBeforeListCommand) {
-				cwdSave = await GetWorkingDirectory();
-				if (cwdSave != path) await SetWorkingDirectory(path);
+			if (Config.AutoNavigate) {
+				pwd = await GetWorkingDirectory();
+				if (pwd != path) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + path + "\"");
+					await SetWorkingDirectory(path);
+				}
 			}
 
 			rawlisting = await GetListingInternal(listcmd, options, true, token);
-
-			if (cwdBeforeListCommand) {
-				if (cwdSave != path) await SetWorkingDirectory(cwdSave);
-			}
 
 			FtpListItem item = null;
 
