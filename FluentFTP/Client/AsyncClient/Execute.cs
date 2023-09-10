@@ -106,6 +106,11 @@ namespace FluentFTP {
 
 			// Update stored values
 			if (command.TrimEnd() == "CWD" || command.StartsWith("CWD ", StringComparison.Ordinal)) {
+				// Sadly, there are cases where a successful CWD does not let us easily
+				// calculate the resulting working directory! So, we must ask the server
+				// where we now are. So, a CWD always results in a PWD command following it.
+				// Otherwise we would need to identify all cases (and special servers) where
+				// we would need to do special handling.
 				Status.LastWorkingDir = null;
 				await ReadCurrentWorkingDirectory(token);
 			}
