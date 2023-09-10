@@ -80,6 +80,13 @@ namespace FluentFTP {
 
 			rawlisting = await GetListingInternal(listcmd, options, true, token);
 
+			if (Config.AutoNavigate) {
+				if (pwd != await GetWorkingDirectory()) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwd + "\"");
+					await SetWorkingDirectory(pwd);
+				}
+			}
+
 			FtpListItem item = null;
 
 			for (var i = 0; i < rawlisting.Count; i++) {
@@ -202,6 +209,13 @@ namespace FluentFTP {
 			}
 
 			rawlisting = await GetListingInternal(listcmd, options, true, token);
+
+			if (Config.AutoNavigate) {
+				if (pwd != await GetWorkingDirectory()) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwd + "\"");
+					await SetWorkingDirectory(pwd);
+				}
+			}
 
 			FtpListItem item = null;
 
