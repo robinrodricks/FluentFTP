@@ -88,28 +88,25 @@ namespace FluentFTP {
 
 			path = GetAbsolutePath(path);
 
-			bool cwdBeforeListCommand = false;
-			string cwdSave = string.Empty;
+			string pwd = string.Empty;
 
-			if ((Config.ListingWrap == FtpListingWrapType.Always) ||
-			   ((Config.ListingWrap == FtpListingWrapType.IfBlanks) && path.Contains(" "))) {
-				cwdBeforeListCommand = true;
+			if (Config.AutoNavigate) {
 				options = options | FtpListOption.NoPath;
 			}
+
 			bool machineList;
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
 			lock (m_lock) {
-				if (cwdBeforeListCommand) {
-					cwdSave = GetWorkingDirectory();
-					if (cwdSave != path) SetWorkingDirectory(path);
+				if (Config.AutoNavigate) {
+					pwd = GetWorkingDirectory();
+					if (pwd != path) {
+						LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + path + "\"");
+						SetWorkingDirectory(path);
+					}
 				}
 
 				rawlisting = GetListingInternal(listcmd, options, true);
-
-				if (cwdBeforeListCommand) {
-					if (cwdSave != path) SetWorkingDirectory(cwdSave);
-				}
 			}
 
 			for (var i = 0; i < rawlisting.Count; i++) {
