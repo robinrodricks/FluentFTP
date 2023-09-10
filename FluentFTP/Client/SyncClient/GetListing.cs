@@ -107,6 +107,13 @@ namespace FluentFTP {
 				}
 
 				rawlisting = GetListingInternal(listcmd, options, true);
+
+				if (Config.AutoNavigate) {
+					if (pwd != GetWorkingDirectory()) {
+						LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwd + "\"");
+						SetWorkingDirectory(pwd);
+					}
+				}
 			}
 
 			for (var i = 0; i < rawlisting.Count; i++) {
