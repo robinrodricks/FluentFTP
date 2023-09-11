@@ -649,7 +649,23 @@ namespace FluentFTP {
 
 		}
 
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+		internal bool ShouldAutoNavigate(string absPath) {
+			var navToDir = Navigate.HasFlag(FtpNavigate.Auto) || Navigate.HasFlag(FtpNavigate.SemiAuto);
+			var navOnlyIfBlanks = Navigate.HasFlag(FtpNavigate.Conditional);
+			var autoNav = navToDir && (!navOnlyIfBlanks || (navOnlyIfBlanks && absPath.Contains(" ")));
+			return autoNav;
+		}
+		internal bool ShouldAutoRestore(string absPath) {
+			if (Navigate.HasFlag(FtpNavigate.SemiAuto)) {
+				var autoRestore = ShouldAutoNavigate(absPath);
+				return autoRestore;
+			}
+			return false;
+			
+		}
 
+
+
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 	}
 }
