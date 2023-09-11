@@ -630,8 +630,12 @@ namespace FluentFTP {
 		internal bool ShouldAutoNavigate(string absPath) {
 			var navToDir = Navigate.HasFlag(FtpNavigate.Auto) || Navigate.HasFlag(FtpNavigate.SemiAuto);
 			var navOnlyIfBlanks = Navigate.HasFlag(FtpNavigate.Conditional);
-			var autoNav = navToDir && (!navOnlyIfBlanks || (navOnlyIfBlanks && absPath.Contains(" ")));
-			return autoNav;
+			if (!navOnlyIfBlanks) {
+				return navToDir;
+			}
+			else {
+				return absPath.Contains(" ");
+			}
 		}
 		internal bool ShouldAutoRestore(string absPath) {
 			if (Navigate.HasFlag(FtpNavigate.SemiAuto)) {
