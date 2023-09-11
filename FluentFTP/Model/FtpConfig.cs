@@ -270,31 +270,9 @@ namespace FluentFTP {
 		public bool ValidateCertificateRevocation { get; set; } = false;
 
 		/// <summary>
-		/// When to "prepend" commands that take a path-filename (like STOR or RETR), or
-		/// commands that take a path as parameter (like LIST or MLSD), with a CWD command
-		/// to "go to" the path, before issueing the command alone or with the filename only.
-		/// Useful when the command fails due to blanks or other strange characters in the
-		/// pathname.
-		/// Note: It is assumed, that the CWD command AT LEAST will accept these characters
-		/// on the path parameters, otherwise your server is too deficient to handle your
-		/// request at all.
-		/// Note: It is assumed, that the command AT LEAST will accept these characters on
-		/// the filename parameters, otherwise your server is too deficient to handle your
-		/// request at all (for STOR, RETR, etc.).
-		///
-		/// Manual:
-		/// No navigation by FluentFTP will take place.
-		///
-		/// Auto:
-		/// FluentFTP will navigate to the needed location, all paths must be absolute paths.
-		///
-		/// SemiAuto:
-		/// FluentFTP will navigate to the needed location, paths can be absolute OR relative,
-		/// the previous CWD will be restored.
-		///
-		/// OR in the additional flag "Conditional" into Auto or SemiAuto to:
-		/// Only perform the navigation if the path contains blanks
-		/// 
+		/// Directory navigation mode that control how server-side directory traversal is performed.
+		/// Manual mode is the legacy version which allows users full control of the working directory.
+		/// All the other modes are smarter automatic versions where FluentFTP will take control of the working directory.
 		/// </summary>
 		public FtpNavigate Navigate { get; set; } = FtpNavigate.Manual;
 

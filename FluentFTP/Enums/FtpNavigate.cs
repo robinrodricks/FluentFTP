@@ -2,9 +2,9 @@
 
 namespace FluentFTP {
 	/// <summary>
-	/// Navigation mode honored by the FtpClient.
+	/// Directory navigation mode that control how server-side directory traversal is performed.
 	/// Manual mode is the legacy version which allows users full control of the working directory.
-	/// All the other modes are newer automatic versions.
+	/// All the other modes are smarter automatic versions where FluentFTP will take control of the working directory.
 	/// </summary>
 	[Flags]
 	public enum FtpNavigate:uint {
@@ -37,6 +37,7 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Adds a flag to the enum that allows for automatic directory traversal ONLY if the path contains spaces.
+		/// Only works with `Auto` or `SemiAuto` modes.
 		/// </summary>
 		Conditional = 255,
 
