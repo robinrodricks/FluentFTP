@@ -1,16 +1,13 @@
-﻿using FluentFTP.Client.BaseClient;
-using FluentFTP.Servers;
-using FluentFTP.Streams;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
+
+using FluentFTP.Client.BaseClient;
+using FluentFTP.Streams;
 
 namespace FluentFTP {
 
@@ -270,7 +267,7 @@ namespace FluentFTP {
 		public bool ValidateCertificateRevocation { get; set; } = false;
 
 		/// <summary>
-		/// Directory navigation mode that control how server-side directory traversal is performed.
+		/// Directory navigation mode that controls how server-side directory traversal is performed.
 		/// Manual mode is the legacy version which allows users full control of the working directory.
 		/// All the other modes are smarter automatic versions where FluentFTP will take control of the working directory.
 		/// </summary>
@@ -590,29 +587,35 @@ namespace FluentFTP {
 			write.SslProtocols = read.SslProtocols;
 			write.SslBuffering = read.SslBuffering;
 			write.SslSessionLength = read.SslSessionLength;
-			write.TransferChunkSize = read.TransferChunkSize;
-			write.LocalFileBufferSize = read.LocalFileBufferSize;
+			write.ValidateAnyCertificate = read.ValidateAnyCertificate;
+			write.ValidateCertificateRevocation = read.ValidateCertificateRevocation;
+			write.Navigate = read.Navigate;
 			write.ListingDataType = read.ListingDataType;
 			write.ListingParser = read.ListingParser;
 			write.ListingCulture = read.ListingCulture;
 			write.ListingCustomParser = read.ListingCustomParser;
 			write.TimeZone = read.TimeZone;
 			write.TimeConversion = read.TimeConversion;
+			write.BulkListing = read.BulkListing;
+			write.BulkListingLength = read.BulkListingLength;
+			write.TransferChunkSize = read.TransferChunkSize;
+			write.LocalFileBufferSize = read.LocalFileBufferSize;
+			write.LocalFileShareOption = read.LocalFileShareOption;
 			write.RetryAttempts = read.RetryAttempts;
 			write.UploadRateLimit = read.UploadRateLimit;
-			write.DownloadZeroByteFiles = read.DownloadZeroByteFiles;
 			write.DownloadRateLimit = read.DownloadRateLimit;
-			write.DownloadDataType = read.DownloadDataType;
-			write.UploadDataType = read.UploadDataType;
+			write.DownloadZeroByteFiles = read.DownloadZeroByteFiles;
 			write.ActivePorts = read.ActivePorts;
 			write.PassiveBlockedPorts = read.PassiveBlockedPorts;
 			write.PassiveMaxAttempts = read.PassiveMaxAttempts;
-			write.SendHost = read.SendHost;
-			write.SendHostDomain = read.SendHostDomain;
-			write.FXPDataType = read.FXPDataType;
-			write.FXPProgressInterval = read.FXPProgressInterval;
+			write.DownloadDataType = read.DownloadDataType;
+			write.UploadDataType = read.UploadDataType;
 			write.UploadDirectoryDeleteExcluded = read.UploadDirectoryDeleteExcluded;
 			write.DownloadDirectoryDeleteExcluded = read.DownloadDirectoryDeleteExcluded;
+			write.FXPDataType = read.FXPDataType;
+			write.FXPProgressInterval = read.FXPProgressInterval;
+			write.SendHost = read.SendHost;
+			write.SendHostDomain = read.SendHostDomain;
 			write.SocketLocalIp = read.SocketLocalIp;
 			write.CustomStream = read.CustomStream;
 			write.CustomStreamConfig = read.CustomStreamConfig;
