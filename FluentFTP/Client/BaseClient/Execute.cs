@@ -38,7 +38,7 @@ namespace FluentFTP.Client.BaseClient {
 				}
 				// Check for stale data on the socket?
 				else if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
-					var staleData = ReadStaleData(true, "prior to command execution");
+					var staleData = ReadStaleData(true, "prior to command execution of \"" + command.Split()[0] + "\"");
 
 					if (staleData != null) {
 						reconnect = true;
