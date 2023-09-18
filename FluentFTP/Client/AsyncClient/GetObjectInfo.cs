@@ -61,6 +61,9 @@ namespace FluentFTP {
 							result = CurrentListParser.ParseSingleLine(null, info.ToString(), m_capabilities, true);
 						}
 					}
+					else {
+						LogWithPrefix(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " with error: Null response");
+					}
 				}
 				else {
 					LogWithPrefix(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " with error " + reply.ErrorMessage);
@@ -79,7 +82,9 @@ namespace FluentFTP {
 					}
 				}
 
-				LogWithPrefix(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " since MLST not supported and GetListing() fails to list file/folder.");
+				if (result == null) {
+					LogWithPrefix(FtpTraceLevel.Warn, "Failed to get object info for path " + path + " using \"GetListing(...)\", MLST not supported.");
+				}
 			}
 
 			// Get the accurate date modified using another MDTM command
