@@ -14,7 +14,6 @@ namespace FluentFTP.Client.BaseClient {
 		/// Read and discard whatever is there.
 		/// Returns the stale data as text, if any, or null if none was found.
 		/// </summary>
-		/// <param name="logData">copy stale data information to logs?</param>
 		/// <param name="logFrom">for the log information</param>
 		protected string ReadStaleData(string logFrom) {
 			string staleData = null;
@@ -81,7 +80,6 @@ namespace FluentFTP.Client.BaseClient {
 		/// Read and discard whatever is there.
 		/// Returns the stale data as text, if any, or null if none was found.
 		/// </summary>
-		/// <param name="logData">copy stale data information to logs?</param>
 		/// <param name="logFrom">called from where (text)</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		protected async Task<string> ReadStaleDataAsync(string logFrom, CancellationToken token) {
