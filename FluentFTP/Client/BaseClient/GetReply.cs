@@ -65,6 +65,8 @@ namespace FluentFTP.Client.BaseClient {
 					LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for response to: " + LogMaskModule.MaskCommand(this, command));
 				}
 
+				Status.IgnoreStaleData = false;
+
 				string sequence = string.Empty;
 
 				string response;
