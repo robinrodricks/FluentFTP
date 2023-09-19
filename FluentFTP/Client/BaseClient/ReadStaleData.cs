@@ -15,12 +15,12 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <param name="logData">copy stale data information to logs?</param>
 		/// <param name="logFrom">for the log information</param>
-		protected string ReadStaleData(bool logData, string logFrom) {
+		protected string ReadStaleData(string logFrom) {
 			string staleData = null;
 
 			if (m_stream != null) {
 
-				if (m_stream.SocketDataAvailable > 0 && logData) {
+				if (m_stream.SocketDataAvailable > 0) {
 					LogWithPrefix(FtpTraceLevel.Info, "Control connection has stale data - " + logFrom);
 				}
 
@@ -35,7 +35,7 @@ namespace FluentFTP.Client.BaseClient {
 					staleData += Encoding.GetString(buf).TrimEnd('\0', '\r', '\n') + Environment.NewLine;
 				}
 
-				if (!string.IsNullOrEmpty(staleData) && logData) {
+				if (!string.IsNullOrEmpty(staleData)) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: ");
 					string[] staleLines = Regex.Split(staleData, Environment.NewLine);
 					foreach (string staleLine in staleLines) {
@@ -66,12 +66,12 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="logData">copy stale data information to logs?</param>
 		/// <param name="logFrom">called from where (text)</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		protected async Task<string> ReadStaleDataAsync(bool logData, string logFrom, CancellationToken token) {
+		protected async Task<string> ReadStaleDataAsync(string logFrom, CancellationToken token) {
 			string staleData = null;
 
 			if (m_stream != null) {
 
-				if (m_stream.SocketDataAvailable > 0 && logData) {
+				if (m_stream.SocketDataAvailable > 0) {
 					LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data - " + logFrom);
 				}
 
@@ -86,7 +86,7 @@ namespace FluentFTP.Client.BaseClient {
 					staleData += Encoding.GetString(buf).TrimEnd('\0', '\r', '\n') + Environment.NewLine;
 				}
 
-				if (!string.IsNullOrEmpty(staleData) && logData) {
+				if (!string.IsNullOrEmpty(staleData)) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: ");
 					string[] staleLines = Regex.Split(staleData, Environment.NewLine);
 					foreach (string staleLine in staleLines) {
