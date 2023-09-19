@@ -21,7 +21,7 @@ namespace FluentFTP {
 		/// <returns>A stream for reading the file on the server</returns>
 		//[Obsolete("OpenRead() is obsolete, please use Download() or DownloadFile() instead", false)]
 		public virtual Stream OpenRead(string path, FtpDataType type = FtpDataType.Binary, long restart = 0, bool checkIfFileExists = true) {
-			return OpenRead(path, type, restart, checkIfFileExists ? 0 : -1);
+			return OpenReadInternal(path, type, restart, checkIfFileExists ? 0 : -1, true);
 		}
 
 		/// <summary>
@@ -39,6 +39,19 @@ namespace FluentFTP {
 		/// <returns>A stream for reading the file on the server</returns>
 		//[Obsolete("OpenRead() is obsolete, please use Download() or DownloadFile() instead", false)]
 		public virtual Stream OpenRead(string path, FtpDataType type, long restart, long fileLen) {
+			return OpenReadInternal(path, type, restart, fileLen, true);
+		}
+
+		/// <summary>
+		/// Internal routine
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="type"></param>
+		/// <param name="restart"></param>
+		/// <param name="fileLen"></param>
+		/// <param name="ignoreStaleData">Normally false. Obsolete API uses true</param>
+		/// <returns>A stream for reading the file on the server</returns>
+		public virtual Stream OpenReadInternal(string path, FtpDataType type, long restart, long fileLen, bool ignoreStaleData) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
@@ -71,7 +84,7 @@ namespace FluentFTP {
 				}
 			}
 
-			Status.IgnoreStaleData = true;
+			Status.IgnoreStaleData = ignoreStaleData;
 
 			return stream;
 		}

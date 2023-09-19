@@ -21,7 +21,7 @@ namespace FluentFTP {
 		/// <returns>A stream for writing to the file on the server</returns>
 		//[Obsolete("OpenWriteAsync() is obsolete, please use UploadAsync() or UploadFileAsync() instead", false)]
 		public virtual Task<Stream> OpenWrite(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken)) {
-			return OpenWrite(path, type, checkIfFileExists ? 0 : -1, token);
+			return OpenWriteInternal(path, type, checkIfFileExists ? 0 : -1, true, token);
 		}
 
 		/// <summary>
@@ -38,7 +38,20 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for writing to the file on the server</returns>
 		//[Obsolete("OpenWriteAsync() is obsolete, please use UploadAsync() or UploadFileAsync() instead", false)]
-		public virtual async Task<Stream> OpenWrite(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken)) {
+		public virtual Task<Stream> OpenWrite(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken)) {
+			return OpenWriteInternal(path, type, fileLen, true, token);
+		}
+
+		/// <summary>
+		/// Internal routine
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="type"></param>
+		/// <param name="fileLen"></param>
+		/// <param name="ignoreStaleData">Normally false. Obsolete API uses true</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <returns>A stream for writing the file on the server</returns>
+		public virtual async Task<Stream> OpenWriteInternal(string path, FtpDataType type, long fileLen, bool ignoreStaleData, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
@@ -62,7 +75,7 @@ namespace FluentFTP {
 				stream.SetLength(length);
 			}
 
-			Status.IgnoreStaleData = true;
+			Status.IgnoreStaleData = ignoreStaleData;
 
 			return stream;
 		}

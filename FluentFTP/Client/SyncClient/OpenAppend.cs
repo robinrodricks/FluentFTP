@@ -17,10 +17,10 @@ namespace FluentFTP {
 		/// <param name="path">The full or relative path to the file to be opened</param>
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
-		/// <returns>A stream for writing to the file on the server</returns>
+		/// <returns>A stream for appending to the file on the server</returns>
 		//[Obsolete("OpenAppend() is obsolete, please use UploadFile() with FtpRemoteExists.Resume or FtpRemoteExists.AddToEnd instead", false)]
 		public virtual Stream OpenAppend(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true) {
-			return OpenAppend(path, type, checkIfFileExists ? 0 : -1);
+			return OpenAppendInternal(path, type, checkIfFileExists ? 0 : -1, true);
 		}
 
 		/// <summary>
@@ -34,9 +34,21 @@ namespace FluentFTP {
 		/// <br> 0  => File length is unknown, try to determine it</br>
 		/// <br> >0 => File length is KNOWN. No need to determine it</br>
 		/// </param>
-		/// <returns>A stream for writing to the file on the server</returns>
+		/// <returns>A stream for appending to the file on the server</returns>
 		//[Obsolete("OpenAppend() is obsolete, please use UploadFile() with FtpRemoteExists.Resume or FtpRemoteExists.AddToEnd instead", false)]
 		public virtual Stream OpenAppend(string path, FtpDataType type, long fileLen) {
+			return OpenAppendInternal(path, type, fileLen, true);
+		}
+
+		/// <summary>
+		/// Internal routine
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="type"></param>
+		/// <param name="fileLen"></param>
+		/// <param name="ignoreStaleData">Normally false. Obsolete API uses true</param>
+		/// <returns>A stream for appending the file on the server</returns>
+		public virtual Stream OpenAppendInternal(string path, FtpDataType type, long fileLen, bool ignoreStaleData) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
@@ -65,7 +77,7 @@ namespace FluentFTP {
 
 			}
 
-			Status.IgnoreStaleData = true;
+			Status.IgnoreStaleData = ignoreStaleData;
 
 			return stream;
 		}
