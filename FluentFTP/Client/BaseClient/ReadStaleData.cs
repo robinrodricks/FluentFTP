@@ -24,7 +24,7 @@ namespace FluentFTP.Client.BaseClient {
 					Stopwatch sw = new Stopwatch();
 					sw.Start();
 
-					LogWithPrefix(FtpTraceLevel.Verbose, "Stale data wait");
+					LogWithPrefix(FtpTraceLevel.Verbose, "Stale data wait - " + logFrom);
 
 					do {
 						if (m_stream.SocketDataAvailable > 0 || !m_stream.IsConnected) {
@@ -91,7 +91,7 @@ namespace FluentFTP.Client.BaseClient {
 					Stopwatch sw = new Stopwatch();
 					sw.Start();
 
-					LogWithPrefix(FtpTraceLevel.Verbose, "Stale data wait");
+					LogWithPrefix(FtpTraceLevel.Verbose, "Stale data wait - " + logFrom);
 
 					do {
 						if (m_stream.SocketDataAvailable > 0 || !m_stream.IsConnected) {
