@@ -78,6 +78,12 @@ namespace FluentFTP {
 		/// </summary>
 		public int ConnectCount { get; set; } = 0;
 
+		/// <summary>
+		/// Stale date will be on the control connection
+		/// Ignore it
+		/// </summary>
+		public bool IgnoreStaleData { get; set; } = false;
+
         /// <summary>
 		/// These flags must be reset every time we connect, to allow for users to connect to
 		/// different FTP servers with the same client object.

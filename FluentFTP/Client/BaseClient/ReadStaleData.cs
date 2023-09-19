@@ -45,6 +45,12 @@ namespace FluentFTP.Client.BaseClient {
 					}
 				}
 
+				if (Status.IgnoreStaleData) {
+					Status.IgnoreStaleData = false;
+					LogWithPrefix(FtpTraceLevel.Verbose, "Stale data ignored");
+					return null;
+				}
+
 			}
 
 			return staleData;
@@ -88,6 +94,12 @@ namespace FluentFTP.Client.BaseClient {
 					}
 				}
 
+			}
+
+			if (Status.IgnoreStaleData) {
+				Status.IgnoreStaleData = false;
+				LogWithPrefix(FtpTraceLevel.Verbose, "Stale data ignored");
+				return null;
 			}
 
 			return staleData;
