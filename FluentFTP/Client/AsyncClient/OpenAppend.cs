@@ -63,6 +63,8 @@ namespace FluentFTP {
 				stream.SetPosition(length);
 			}
 
+			Status.IgnoreStaleData = true;
+
 			return stream;
 		}
 
