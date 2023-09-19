@@ -20,7 +20,7 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Fully automatic directory traversal on the server-side.
-		/// Users CAN `SetWorkingDirectory` (CWD), which will only temporarily override the CWD that will be set internally.
+		/// Users can `SetWorkingDirectory` (CWD), which will only temporarily override the CWD that will be set internally.
 		/// Paths provided to FTP API can be absolute or relative to the current working directory.
 		/// FluentFTP will automatically change the working directory based on the file path provided to the API method.
 		/// Fast mode.
@@ -30,7 +30,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Fully automatic directory traversal on the server-side.
 		/// FluentFTP will automatically change the working directory based on the file path provided to the API method.
-		/// Users CAN `SetWorkingDirectory` (CWD), which will only temporarily override the CWD that will be set internally.
+		/// Users can `SetWorkingDirectory` (CWD), which will only temporarily override the CWD that will be set internally.
 		/// Paths provided to FTP API can be absolute or relative to the current working directory.
 		/// This mode is slower than `Auto` because we will restore the directory (if needed) to the one the one that was active
 		/// prior to the API call.

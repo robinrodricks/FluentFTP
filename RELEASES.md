@@ -1,11 +1,23 @@
 # Release Notes
 
-#### 47.1.0
-- New: Overloaded API `AutoDetect` with object-driven configuration using `FtpAutoDetectConfig`
-- New: Function Logging method to support logging objects
-- New: Add options `RequireEncryption` and `IncludeImplicit` to `AutoDetect` to allow for more configurability during auto-connection (thanks [FanDjango](/FanDjango))
-- Fix: Improve `AutoDetect` behaviour to support various server use-cases (thanks [FanDjango](/FanDjango))
-- Fix: Add `RNFM`/`RNTO` FTP commands to critical-sequence list to fix Auto-Reconnect of SSL sessions (thanks [FanDjango](/FanDjango))
+#### 48.0.0
+ - **File Transfer** (thanks [FanDjango](/FanDjango))
+   - New: `DownloadUriBytes` API method to directly connect and download a URI/URL
+   - New: `Navigate` Config setting to automatically handle FTP directory navigation
+   - New: Download and Upload API honors `Navigate` setting
+   - New: `GetListing` API honors `Navigate` setting
+   - Fix: `OpenRead`, `OpenWrite` and `OpenAppend` quirks to handle their stale data
+   - Fix: Complete redesign of FTP socket stale data handling and `CheckStaleData` implementation
+ - **Auto Connection** (thanks [FanDjango](/FanDjango))
+   - New: Overloaded API `AutoDetect` with object-driven configuration using `FtpAutoDetectConfig`
+   - New: Add options `RequireEncryption` and `IncludeImplicit` to `AutoDetect` to allow for more configurability during auto-connection
+   - Fix: Improve `AutoDetect` behaviour to support various server use-cases
+   - Fix: Add `RNFM`/`RNTO` FTP commands to critical-sequence list to fix Auto-Reconnect of SSL sessions
+   - Fix: `AutoDetect` empty config is gracefully handled
+ - **Logging**
+   - New: Function Logging method to support logging objects
+   - New: Logging strings creation conditional on it being at all in use (thanks [jnyrup](/jnyrup))
+   - Fix: Improve logging of FTP socket stale data (thanks [FanDjango](/FanDjango))
 
 #### 47.0.0
  - **Logging** (thanks [FanDjango](/FanDjango))
