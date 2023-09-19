@@ -14,7 +14,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <returns>FtpReply representing the response from the server</returns>
-		public async Task<FtpReply> GetReply(CancellationToken token) {
+		public async Task<FtpReply> GetReply(CancellationToken token = default(CancellationToken)) {
 			return await GetReplyAsyncInternal(token, null, false, 0);
 		}
 
@@ -63,6 +63,8 @@ namespace FluentFTP {
 			else {
 				LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for response to: " + LogMaskModule.MaskCommand(this, command));
 			}
+
+			Status.IgnoreStaleData = false;
 
 			string sequence = string.Empty;
 
