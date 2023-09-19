@@ -141,10 +141,10 @@ namespace FluentFTP {
 
 				// open a file connection
 				if (remotePosition == 0 && existsMode is not (FtpRemoteExists.ResumeNoCheck or FtpRemoteExists.AddToEndNoCheck)) {
-					upStream = await OpenWrite(remotePath, Config.UploadDataType, remoteFileLen, token);
+					upStream = await OpenWriteInternal(remotePath, Config.UploadDataType, remoteFileLen, false, token);
 				}
 				else {
-					upStream = await OpenAppend(remotePath, Config.UploadDataType, remoteFileLen, token);
+					upStream = await OpenAppendInternal(remotePath, Config.UploadDataType, remoteFileLen, false, token);
 				}
 
 				// calculate chunk size and rate limiting
@@ -329,7 +329,7 @@ namespace FluentFTP {
 					LogWithPrefix(FtpTraceLevel.Info, "Attempting upload resume at position " + remotePosition);
 
 					// create and return a new stream starting at the current remotePosition
-					var returnStream = await OpenAppend(remotePath, Config.UploadDataType, 0, token);
+					var returnStream = await OpenWriteInternal(remotePath, Config.UploadDataType, 0, false, token);
 					returnStream.Position = remotePosition;
 					return Tuple.Create(true, returnStream);
 				}

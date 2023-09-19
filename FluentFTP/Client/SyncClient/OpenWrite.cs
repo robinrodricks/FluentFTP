@@ -20,7 +20,7 @@ namespace FluentFTP {
 		/// <returns>A stream for writing to the file on the server</returns>
 		//[Obsolete("OpenWrite() is obsolete, please use Upload() or UploadFile() instead", false)]
 		public virtual Stream OpenWrite(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true) {
-			return OpenWrite(path, type, checkIfFileExists ? 0 : -1);
+			return OpenWriteInternal(path, type, checkIfFileExists ? 0 : -1, true);
 		}
 
 		/// <summary>
@@ -37,6 +37,18 @@ namespace FluentFTP {
 		/// <returns>A stream for writing to the file on the server</returns>
 		//[Obsolete("OpenWrite() is obsolete, please use Upload() or UploadFile() instead", false)]
 		public virtual Stream OpenWrite(string path, FtpDataType type, long fileLen) {
+			return OpenWriteInternal(path, type, fileLen, true);
+		}
+
+		/// <summary>
+		/// Internal routine
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="type"></param>
+		/// <param name="fileLen"></param>
+		/// <param name="ignoreStaleData">Normally false. Obsolete API uses true</param>
+		/// <returns>A stream for writing the file on the server</returns>
+		public virtual Stream OpenWriteInternal(string path, FtpDataType type, long fileLen, bool ignoreStaleData) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
@@ -64,7 +76,7 @@ namespace FluentFTP {
 
 			}
 
-			Status.IgnoreStaleData = true;
+			Status.IgnoreStaleData = ignoreStaleData;
 
 			return stream;
 		}

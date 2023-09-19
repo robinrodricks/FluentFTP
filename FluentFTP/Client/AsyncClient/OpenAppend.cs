@@ -18,10 +18,10 @@ namespace FluentFTP {
 		/// <param name="type">ASCII/Binary</param>
 		/// <param name="checkIfFileExists">Only set this to false if you are SURE that the file does not exist. If true, it reads the file size and saves it into the stream length.</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A stream for writing to the file on the server</returns>
+		/// <returns>A stream for appending to the file on the server</returns>
 		//[Obsolete("OpenAppendAsync() is obsolete, please use UploadFileAsync() with FtpRemoteExists.Resume or FtpRemoteExists.AddToEnd instead", false)]
 		public virtual Task<Stream> OpenAppend(string path, FtpDataType type = FtpDataType.Binary, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken)) {
-			return OpenAppend(path, type, checkIfFileExists ? 0 : -1, token);
+			return OpenAppendInternal(path, type, checkIfFileExists ? 0 : -1, true, token);
 		}
 
 		/// <summary>
@@ -36,9 +36,22 @@ namespace FluentFTP {
 		/// <br> >0 => File length is KNOWN. No need to determine it</br>
 		/// </param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>A stream for writing to the file on the server</returns>
+		/// <returns>A stream for appending to the file on the server</returns>
 		//[Obsolete("OpenAppendAsync() is obsolete, please use UploadFileAsync() with FtpRemoteExists.Resume or FtpRemoteExists.AddToEnd instead", false)]
-		public virtual async Task<Stream> OpenAppend(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken)) {
+		public virtual Task<Stream> OpenAppend(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken)) {
+			return OpenAppendInternal(path, type, fileLen, true, token);
+		}
+
+		/// <summary>
+		/// Internal routine
+		/// </summary>
+		/// <param name="path"></param>
+		/// <param name="type"></param>
+		/// <param name="fileLen"></param>
+		/// <param name="ignoreStaleData">Normally false. Obsolete API uses true</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <returns>A stream for appending the file on the server</returns>
+		public virtual async Task<Stream> OpenAppendInternal(string path, FtpDataType type, long fileLen, bool ignoreStaleData, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
@@ -63,7 +76,7 @@ namespace FluentFTP {
 				stream.SetPosition(length);
 			}
 
-			Status.IgnoreStaleData = true;
+			Status.IgnoreStaleData = ignoreStaleData;
 
 			return stream;
 		}
