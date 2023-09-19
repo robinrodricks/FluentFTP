@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -19,6 +20,23 @@ namespace FluentFTP.Client.BaseClient {
 			string staleData = null;
 
 			if (m_stream != null) {
+
+				if (Status.IgnoreStaleData) {
+					Stopwatch sw = new Stopwatch();
+					sw.Start();
+
+					LogWithPrefix(FtpTraceLevel.Verbose, "Stale data wait");
+
+					do {
+						if (m_stream.SocketDataAvailable > 0 || !m_stream.IsConnected) {
+							break;
+						}
+					} while (true);
+
+					if (m_stream.IsConnected) {
+						LogWithPrefix(FtpTraceLevel.Verbose, "Stale data took " + sw.ElapsedMilliseconds + "(ms) to arrive");
+					}
+				}
 
 				if (m_stream.SocketDataAvailable > 0) {
 					LogWithPrefix(FtpTraceLevel.Info, "Control connection has stale data - " + logFrom);
@@ -70,6 +88,23 @@ namespace FluentFTP.Client.BaseClient {
 			string staleData = null;
 
 			if (m_stream != null) {
+
+				if (Status.IgnoreStaleData) {
+					Stopwatch sw = new Stopwatch();
+					sw.Start();
+
+					LogWithPrefix(FtpTraceLevel.Verbose, "Stale data wait");
+
+					do {
+						if (m_stream.SocketDataAvailable > 0 || !m_stream.IsConnected) {
+							break;
+						}
+					} while (true);
+
+					if (m_stream.IsConnected) {
+						LogWithPrefix(FtpTraceLevel.Verbose, "Stale data took " + sw.ElapsedMilliseconds + "(ms) to arrive");
+					}
+				}
 
 				if (m_stream.SocketDataAvailable > 0) {
 					LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data - " + logFrom);
