@@ -1,11 +1,12 @@
 # Release Notes
 
 #### 48.0.0
- - **File Transfer** (thanks [FanDjango](/FanDjango))
-   - New: `DownloadUriBytes` API method to directly connect and download a URI/URL
+ - **Directory Navigation** 
    - New: `Navigate` Config setting to automatically handle FTP directory navigation
    - New: Download and Upload API honors `Navigate` setting
    - New: `GetListing` API honors `Navigate` setting
+ - **File Transfer** (thanks [FanDjango](/FanDjango))
+   - New: `DownloadUriBytes` API method to directly connect and download a URI/URL
    - Fix: `OpenRead`, `OpenWrite` and `OpenAppend` quirks to handle their stale data
    - Fix: Complete redesign of FTP socket stale data handling and `CheckStaleData` implementation
  - **Auto Connection** (thanks [FanDjango](/FanDjango))
@@ -16,7 +17,7 @@
    - Fix: `AutoDetect` empty config is gracefully handled
  - **Logging**
    - New: Function Logging method to support logging objects
-   - New: Logging strings creation conditional on it being at all in use (thanks [jnyrup](/jnyrup))
+   - Fix: Logging strings creation conditional on it being at all in use (thanks [jnyrup](/jnyrup))
    - Fix: Improve logging of FTP socket stale data (thanks [FanDjango](/FanDjango))
 
 #### 47.0.0
