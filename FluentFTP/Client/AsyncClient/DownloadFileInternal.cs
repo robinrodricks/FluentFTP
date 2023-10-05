@@ -25,20 +25,21 @@ namespace FluentFTP {
 			Stream downStream = null;
 			var disposeOutStream = false;
 
-			string remoteDirectory = string.Empty;
+			string remoteDirectory;
 			string pwdSave = string.Empty;
 
 			var autoNav = Config.ShouldAutoNavigate(remotePath);
 			var autoRestore = Config.ShouldAutoRestore(remotePath);
 
 			if (autoNav) {
-				remoteDirectory = await GetAbsolutePathAsync(Path.GetDirectoryName(remotePath), token);
+				var temp = await GetAbsolutePathAsync(remotePath, token);
+				remoteDirectory = Path.GetDirectoryName(temp).Replace("\\", "/");
 				remotePath = Path.GetFileName(remotePath);
 
-				pwdSave = await GetWorkingDirectory();
+				pwdSave = await GetWorkingDirectory(token);
 				if (pwdSave != remoteDirectory) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + remoteDirectory + "\"");
-					await SetWorkingDirectory(remoteDirectory);
+					await SetWorkingDirectory(remoteDirectory, token);
 				}
 			}
 
@@ -218,9 +219,9 @@ namespace FluentFTP {
 				}
 
 				if (autoRestore) {
-					if (pwdSave != await GetWorkingDirectory()) {
+					if (pwdSave != await GetWorkingDirectory(token)) {
 						LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
-						await SetWorkingDirectory(pwdSave);
+						await SetWorkingDirectory(pwdSave, token);
 					}
 				}
 

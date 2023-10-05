@@ -74,7 +74,7 @@ namespace FluentFTP {
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
 			if (autoNav) {
-				pwdSave = await GetWorkingDirectory();
+				pwdSave = await GetWorkingDirectory(token);
 				if (pwdSave != path) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + path + "\"");
 					await SetWorkingDirectory(path);
@@ -84,7 +84,7 @@ namespace FluentFTP {
 			rawlisting = await GetListingInternal(listcmd, options, true, token);
 
 			if (autoRestore) {
-				if (pwdSave != await GetWorkingDirectory()) {
+				if (pwdSave != await GetWorkingDirectory(token)) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
 					await SetWorkingDirectory(pwdSave);
 				}
@@ -207,7 +207,7 @@ namespace FluentFTP {
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
 			if (autoNav) {
-				pwdSave = await GetWorkingDirectory();
+				pwdSave = await GetWorkingDirectory(token);
 				if (pwdSave != path) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + path + "\"");
 					await SetWorkingDirectory(path);
@@ -217,7 +217,7 @@ namespace FluentFTP {
 			rawlisting = await GetListingInternal(listcmd, options, true, token);
 
 			if (autoRestore) {
-				if (pwdSave != await GetWorkingDirectory()) {
+				if (pwdSave != await GetWorkingDirectory(token)) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
 					await SetWorkingDirectory(pwdSave);
 				}

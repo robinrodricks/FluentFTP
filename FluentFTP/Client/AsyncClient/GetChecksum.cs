@@ -5,6 +5,7 @@ using HashAlgos = FluentFTP.Helpers.Hashing.HashAlgorithms;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP.Exceptions;
+using System.IO;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -21,24 +22,24 @@ namespace FluentFTP {
 		/// 5. XSHA512 command
 		/// 6. XCRC command
 		/// </remarks>
-		/// <param name="path">Full or relative path of the file to checksum</param>
+		/// <param name="remotePath">Full or relative path of the file to checksum</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <param name="algorithm">Specify an algorithm that you prefer, or NONE to use the first available algorithm. If the preferred algorithm is not supported, a blank hash is returned.</param>
 		/// <returns><see cref="FtpHash"/> object containing the value and algorithm. Use the <see cref="FtpHash.IsValid"/> property to
 		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
 		/// the underlying calls.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
-		public async Task<FtpHash> GetChecksum(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken)) {
+		public async Task<FtpHash> GetChecksum(string remotePath, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE, CancellationToken token = default(CancellationToken)) {
 
-			if (path == null) {
-				throw new ArgumentException("Required argument is null", nameof(path));
+			if (remotePath == null) {
+				throw new ArgumentException("Required argument is null", nameof(remotePath));
 			}
 
 			ValidateChecksumAlgorithm(algorithm);
 
-			path = path.GetFtpPath();
+			remotePath = remotePath.GetFtpPath();
 
-			LogFunction(nameof(GetChecksum), new object[] { path });
+			LogFunction(nameof(GetChecksum), new object[] { remotePath });
 
 			var useFirst = (algorithm == FtpHashAlgorithm.NONE);
 
@@ -49,7 +50,7 @@ namespace FluentFTP {
 				await SetHashAlgorithmInternalAsync(algorithm, token);
 
 				// get the hash of the file using HASH Command
-				return await HashCommandInternalAsync(path, token);
+				return await HashCommandInternalAsync(remotePath, token);
 
 			}
 
@@ -60,7 +61,7 @@ namespace FluentFTP {
 				await SetHashAlgorithmInternalAsync(HashAlgos.FirstSupported(HashAlgorithms), token);
 
 				// get the hash of the file using HASH Command
-				return await HashCommandInternalAsync(path, token);
+				return await HashCommandInternalAsync(remotePath, token);
 			}
 
 			else {
@@ -69,52 +70,36 @@ namespace FluentFTP {
 				// execute the first available algorithm, or the preferred algorithm if specified
 
 				if (HasFeature(FtpCapability.MD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = await GetHashInternalAsync(path, "MD5", token);
+					result.Value = await GetHashInternalAsync(remotePath, "MD5", token);
 					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
 				else if (HasFeature(FtpCapability.XMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = await GetHashInternalAsync(path, "XMD5", token);
+					result.Value = await GetHashInternalAsync(remotePath, "XMD5", token);
 					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
 				else if (HasFeature(FtpCapability.MMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = await GetHashInternalAsync(path, "MMD5", token);
+					result.Value = await GetHashInternalAsync(remotePath, "MMD5", token);
 					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
 				else if (HasFeature(FtpCapability.XSHA1) && (useFirst || algorithm == FtpHashAlgorithm.SHA1)) {
-					result.Value = await GetHashInternalAsync(path, "XSHA1", token);
+					result.Value = await GetHashInternalAsync(remotePath, "XSHA1", token);
 					result.Algorithm = FtpHashAlgorithm.SHA1;
 				}
 				else if (HasFeature(FtpCapability.XSHA256) && (useFirst || algorithm == FtpHashAlgorithm.SHA256)) {
-					result.Value = await GetHashInternalAsync(path, "XSHA256", token);
+					result.Value = await GetHashInternalAsync(remotePath, "XSHA256", token);
 					result.Algorithm = FtpHashAlgorithm.SHA256;
 				}
 				else if (HasFeature(FtpCapability.XSHA512) && (useFirst || algorithm == FtpHashAlgorithm.SHA512)) {
-					result.Value = await GetHashInternalAsync(path, "XSHA512", token);
+					result.Value = await GetHashInternalAsync(remotePath, "XSHA512", token);
 					result.Algorithm = FtpHashAlgorithm.SHA512;
 				}
 				else if (HasFeature(FtpCapability.XCRC) && (useFirst || algorithm == FtpHashAlgorithm.CRC)) {
-					result.Value = await GetHashInternalAsync(path, "XCRC", token);
+					result.Value = await GetHashInternalAsync(remotePath, "XCRC", token);
 					result.Algorithm = FtpHashAlgorithm.CRC;
 				}
 
 				return result;
 			}
-		}
-
-		/// <summary>
-		/// Gets the hash of the specified file using the given command.
-		/// </summary>
-		internal async Task<string> GetHashInternalAsync(string path, string command, CancellationToken token = default(CancellationToken)) {
-			FtpReply reply;
-			string response;
-
-			if (!(reply = await Execute(command + " " + path, token)).Success) {
-				throw new FtpCommandException(reply);
-			}
-
-			response = reply.Message;
-			response = CleanHashResult(path, response);
-			return response;
 		}
 
 		/// <summary>
@@ -144,13 +129,80 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Gets the hash of the specified file using the given command.
+		/// </summary>
+		internal async Task<string> GetHashInternalAsync(string remotePath, string command, CancellationToken token = default(CancellationToken)) {
+			FtpReply reply;
+			string response;
+
+			string remoteDirectory;
+			string pwdSave = string.Empty;
+
+			var autoNav = Config.ShouldAutoNavigate(remotePath);
+			var autoRestore = Config.ShouldAutoRestore(remotePath);
+
+			if (autoNav) {
+				var temp = await GetAbsolutePathAsync(remotePath, token);
+				remoteDirectory = Path.GetDirectoryName(temp).Replace("\\", "/");
+				remotePath = Path.GetFileName(remotePath);
+
+				pwdSave = await GetWorkingDirectory(token);
+				if (pwdSave != remoteDirectory) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + remoteDirectory + "\"");
+					await SetWorkingDirectory(remoteDirectory, token);
+				}
+			}
+
+			if (!(reply = await Execute(command + " " + remotePath, token)).Success) {
+				throw new FtpCommandException(reply);
+			}
+
+			if (autoRestore) {
+				if (pwdSave != await GetWorkingDirectory(token)) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
+					await SetWorkingDirectory(pwdSave, token);
+				}
+			}
+
+			response = reply.Message;
+			response = CleanHashResult(remotePath, response);
+
+			return response;
+		}
+
+		/// <summary>
 		/// Gets the hash of an object on the server using the currently selected hash algorithm.
 		/// </summary>
-		protected async Task<FtpHash> HashCommandInternalAsync(string path, CancellationToken token = default(CancellationToken)) {
+		protected async Task<FtpHash> HashCommandInternalAsync(string remotePath, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
-			if (!(reply = await Execute("HASH " + path, token)).Success) {
+			string remoteDirectory;
+			string pwdSave = string.Empty;
+
+			var autoNav = Config.ShouldAutoNavigate(remotePath);
+			var autoRestore = Config.ShouldAutoRestore(remotePath);
+
+			if (autoNav) {
+				var temp = await GetAbsolutePathAsync(remotePath, token);
+				remoteDirectory = Path.GetDirectoryName(temp).Replace("\\", "/");
+				remotePath = Path.GetFileName(remotePath);
+
+				pwdSave = await GetWorkingDirectory(token);
+				if (pwdSave != remoteDirectory) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + remoteDirectory + "\"");
+					await SetWorkingDirectory(remoteDirectory, token);
+				}
+			}
+
+			if (!(reply = await Execute("HASH " + remotePath, token)).Success) {
 				throw new FtpCommandException(reply);
+			}
+
+			if (autoRestore) {
+				if (pwdSave != await GetWorkingDirectory(token)) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
+					await SetWorkingDirectory(pwdSave, token);
+				}
 			}
 
 			// parse hash from the server reply

@@ -25,14 +25,15 @@ namespace FluentFTP {
 			Stream downStream = null;
 			var disposeOutStream = false;
 
-			string remoteDirectory = string.Empty;
+			string remoteDirectory;
 			string pwdSave = string.Empty;
 
 			var autoNav = Config.ShouldAutoNavigate(remotePath);
 			var autoRestore = Config.ShouldAutoRestore(remotePath);
 
 			if (autoNav) {
-				remoteDirectory = GetAbsolutePath(Path.GetDirectoryName(remotePath));
+				var temp = GetAbsolutePath(remotePath);
+				remoteDirectory = Path.GetDirectoryName(temp).Replace("\\", "/");
 				remotePath = Path.GetFileName(remotePath);
 
 				pwdSave = GetWorkingDirectory();
