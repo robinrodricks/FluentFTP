@@ -27,14 +27,15 @@ namespace FluentFTP {
 				throw new ArgumentException("You have requested resuming file upload with FtpRemoteExists.Resume, but the local file stream cannot be seeked. Use another type of Stream or another existsMode.", nameof(fileData));
 			}
 
-			string remoteDirectory = string.Empty;
+			string remoteDirectory;
 			string pwdSave = string.Empty;
 
 			var autoNav = Config.ShouldAutoNavigate(remotePath);
 			var autoRestore = Config.ShouldAutoRestore(remotePath);
 
 			if (autoNav) {
-				remoteDirectory = GetAbsolutePath(Path.GetDirectoryName(remotePath));
+				var temp = GetAbsolutePath(remotePath);
+				remoteDirectory = Path.GetDirectoryName(temp).Replace("\\", "/");
 				remotePath = Path.GetFileName(remotePath);
 
 				pwdSave = GetWorkingDirectory();

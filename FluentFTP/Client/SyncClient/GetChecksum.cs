@@ -5,6 +5,7 @@ using HashAlgos = FluentFTP.Helpers.Hashing.HashAlgorithms;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP.Exceptions;
+using System.IO;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -30,17 +31,17 @@ namespace FluentFTP {
 		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from
 		/// the underlying calls.</returns>
 		/// <exception cref="FtpCommandException">The command fails</exception>
-		public FtpHash GetChecksum(string path, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE) {
+		public FtpHash GetChecksum(string remotePath, FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE) {
 
-			if (path == null) {
-				throw new ArgumentException("Required argument is null", nameof(path));
+			if (remotePath == null) {
+				throw new ArgumentException("Required argument is null", nameof(remotePath));
 			}
 
 			ValidateChecksumAlgorithm(algorithm);
 
-			path = path.GetFtpPath();
+			remotePath = remotePath.GetFtpPath();
 
-			LogFunction(nameof(GetChecksum), new object[] { path });
+			LogFunction(nameof(GetChecksum), new object[] { remotePath });
 
 			var useFirst = (algorithm == FtpHashAlgorithm.NONE);
 
@@ -51,7 +52,7 @@ namespace FluentFTP {
 				SetHashAlgorithmInternal(algorithm);
 
 				// get the hash of the file using HASH Command
-				return HashCommandInternal(path);
+				return HashCommandInternal(remotePath);
 
 			}
 
@@ -62,7 +63,7 @@ namespace FluentFTP {
 				SetHashAlgorithmInternal(HashAlgos.FirstSupported(HashAlgorithms));
 
 				// get the hash of the file using HASH Command
-				return HashCommandInternal(path);
+				return HashCommandInternal(remotePath);
 			}
 			else {
 				var result = new FtpHash();
@@ -70,59 +71,37 @@ namespace FluentFTP {
 				// execute the first available algorithm, or the preferred algorithm if specified
 
 				if (HasFeature(FtpCapability.MD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = GetHashInternal(path, "MD5");
+					result.Value = GetHashInternal(remotePath, "MD5");
 					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
 				else if (HasFeature(FtpCapability.XMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = GetHashInternal(path, "XMD5");
+					result.Value = GetHashInternal(remotePath, "XMD5");
 					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
 				else if (HasFeature(FtpCapability.MMD5) && (useFirst || algorithm == FtpHashAlgorithm.MD5)) {
-					result.Value = GetHashInternal(path, "MMD5");
+					result.Value = GetHashInternal(remotePath, "MMD5");
 					result.Algorithm = FtpHashAlgorithm.MD5;
 				}
 				else if (HasFeature(FtpCapability.XSHA1) && (useFirst || algorithm == FtpHashAlgorithm.SHA1)) {
-					result.Value = GetHashInternal(path, "XSHA1");
+					result.Value = GetHashInternal(remotePath, "XSHA1");
 					result.Algorithm = FtpHashAlgorithm.SHA1;
 				}
 				else if (HasFeature(FtpCapability.XSHA256) && (useFirst || algorithm == FtpHashAlgorithm.SHA256)) {
-					result.Value = GetHashInternal(path, "XSHA256");
+					result.Value = GetHashInternal(remotePath, "XSHA256");
 					result.Algorithm = FtpHashAlgorithm.SHA256;
 				}
 				else if (HasFeature(FtpCapability.XSHA512) && (useFirst || algorithm == FtpHashAlgorithm.SHA512)) {
-					result.Value = GetHashInternal(path, "XSHA512");
+					result.Value = GetHashInternal(remotePath, "XSHA512");
 					result.Algorithm = FtpHashAlgorithm.SHA512;
 				}
 				else if (HasFeature(FtpCapability.XCRC) && (useFirst || algorithm == FtpHashAlgorithm.CRC)) {
-					result.Value = GetHashInternal(path, "XCRC");
+					result.Value = GetHashInternal(remotePath, "XCRC");
 					result.Algorithm = FtpHashAlgorithm.CRC;
 				}
 
 				return result;
 			}
 		}
-
-		#endregion
-
-		#region MD5, SHA1, SHA256, SHA512 Commands
-
-		/// <summary>
-		/// Gets the hash of the specified file using the given command.
-		/// </summary>
-		internal string GetHashInternal(string path, string command) {
-			FtpReply reply;
-			string response;
-
-			if (!(reply = Execute(command + " " + path)).Success) {
-				throw new FtpCommandException(reply);
-			}
-
-			response = reply.Message;
-			response = CleanHashResult(path, response);
-			return response;
-		}
-
-		#endregion
 
 		#region HASH Command
 
@@ -154,17 +133,89 @@ namespace FluentFTP {
 			}
 		}
 
+		#endregion
+
+		#region MD5, SHA1, SHA256, SHA512 Commands
+
+		/// <summary>
+		/// Gets the hash of the specified file using the given command.
+		/// </summary>
+		internal string GetHashInternal(string remotePath, string command) {
+			FtpReply reply;
+			string response;
+
+			string remoteDirectory;
+			string pwdSave = string.Empty;
+
+			var autoNav = Config.ShouldAutoNavigate(remotePath);
+			var autoRestore = Config.ShouldAutoRestore(remotePath);
+
+			if (autoNav) {
+				var temp = GetAbsolutePath(remotePath);
+				remoteDirectory = Path.GetDirectoryName(temp).Replace("\\", "/");
+				remotePath = Path.GetFileName(remotePath);
+
+				pwdSave = GetWorkingDirectory();
+				if (pwdSave != remoteDirectory) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + remoteDirectory + "\"");
+					SetWorkingDirectory(remoteDirectory);
+				}
+			}
+
+			if (!(reply = Execute(command + " " + remotePath)).Success) {
+				throw new FtpCommandException(reply);
+			}
+
+			if (autoRestore) {
+				if (pwdSave != GetWorkingDirectory()) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
+					SetWorkingDirectory(pwdSave);
+				}
+			}
+
+			response = reply.Message;
+			response = CleanHashResult(remotePath, response);
+			return response;
+		}
+
+		#endregion
+
 		/// <summary>
 		/// Gets the hash of an object on the server using the currently selected hash algorithm.
 		/// </summary>
-		protected FtpHash HashCommandInternal(string path) {
+		protected FtpHash HashCommandInternal(string remotePath) {
 			FtpReply reply;
 
+			string remoteDirectory;
+			string pwdSave = string.Empty;
+
+			var autoNav = Config.ShouldAutoNavigate(remotePath);
+			var autoRestore = Config.ShouldAutoRestore(remotePath);
+
+			if (autoNav) {
+				var temp = GetAbsolutePath(remotePath);
+				remoteDirectory = Path.GetDirectoryName(temp).Replace("\\", "/");
+				remotePath = Path.GetFileName(remotePath);
+
+				pwdSave = GetWorkingDirectory();
+				if (pwdSave != remoteDirectory) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + remoteDirectory + "\"");
+					SetWorkingDirectory(remoteDirectory);
+				}
+			}
+
 			lock (m_lock) {
-				if (!(reply = Execute("HASH " + path)).Success) {
+				if (!(reply = Execute("HASH " + remotePath)).Success) {
 					throw new FtpCommandException(reply);
 				}
 
+			}
+
+			if (autoRestore) {
+				if (pwdSave != GetWorkingDirectory()) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
+					SetWorkingDirectory(pwdSave);
+				}
 			}
 
 			// parse hash from the server reply
