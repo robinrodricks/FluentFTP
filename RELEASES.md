@@ -1,5 +1,12 @@
 # Release Notes
 
+#### 48.0.1
+ - **Directory Navigation** (thanks [FanDjango](/FanDjango))
+   - New: Add auto-navigate support to `GetCheckSum`
+   - Fix: `UploadDirectory` with `FtpNavigate.Conditional` does not auto-navigate correctly
+   - Fix: Not all servers support double-quotes as path separator character
+   - Fix: Cancellation token passing and await syntax for `DownloadFile`, `UploadFile`, `GetListing`
+
 #### 48.0.0
  - **Directory Navigation** 
    - New: `Navigate` Config setting to automatically handle FTP directory navigation
