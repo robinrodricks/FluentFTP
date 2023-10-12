@@ -181,6 +181,10 @@ Special thanks to these awesome people who helped create FluentFTP!
   <img src="https://contributors-img.web.app/image?repo=robinrodricks/FluentFTP" />
 </a>
 
+## Reporting Vulnerabilities
+
+Any security vulnerabilities that are found can be reported to the project owner at `r o b i n r o d r i c k s at g m a i l`. No other direct correspondence will be entertained.
+
 ## Software Support
 
 FluentFTP has received free software from these generous organizations:
