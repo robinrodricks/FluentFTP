@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentFTP.Client.Modules;
+using FluentFTP.Helpers;
 
 namespace FluentFTP.Client.BaseClient {
 
@@ -101,21 +102,33 @@ namespace FluentFTP.Client.BaseClient {
 		protected void OnPostExecute(string command) {
 
 			// Update stored values
+
+			// CWD LastWorkingDir
 			if (command.TrimEnd() == "CWD" || command.StartsWith("CWD ", StringComparison.Ordinal)) {
+				// At least for a successful absolute Unix CWD, we know where we are.
+				string parms = command.Length <= 4 ? string.Empty : command.Substring(4);
+				if (parms.IsAbsolutePath()) {
+					Status.LastWorkingDir = parms;
+					return;
+				}
+
 				// Sadly, there are cases where a successful CWD does not let us easily
 				// calculate the resulting working directory! So, we must ask the server
-				// where we now are. So, a CWD always results in a PWD command following it.
+				// where we now are. So, such a CWD results in a PWD command following it.
 				// Otherwise we would need to identify all cases (and special servers) where
 				// we would need to do special handling.
 				Status.LastWorkingDir = null;
 				ReadCurrentWorkingDirectory();
 			}
+
+			// TYPE CurrentDataType
 			else if (command.StartsWith("TYPE I", StringComparison.Ordinal)) {
 				Status.CurrentDataType = FtpDataType.Binary;
 			}
 			else if (command.StartsWith("TYPE A", StringComparison.Ordinal)) {
 				Status.CurrentDataType = FtpDataType.ASCII;
 			}
+
 		}
 	}
 }
