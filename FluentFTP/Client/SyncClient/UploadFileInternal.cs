@@ -43,9 +43,8 @@ namespace FluentFTP {
 					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + remoteDir + "\"");
 
 					if (createRemoteDir) {
-						var dirname = remotePath.GetFtpDirectoryName();
-						if (!DirectoryExists(dirname)) {
-							CreateDirectory(dirname);
+						if (!DirectoryExists(remoteDir)) {
+							CreateDirectory(remoteDir);
 						}
 					}
 
