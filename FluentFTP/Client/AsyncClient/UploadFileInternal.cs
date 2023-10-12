@@ -27,7 +27,7 @@ namespace FluentFTP {
 				throw new ArgumentException("You have requested resuming file upload with FtpRemoteExists.Resume, but the local file stream cannot be seeked. Use another type of Stream or another existsMode.", nameof(fileData));
 			}
 
-			string remoteDirectory;
+			string remoteDir;
 			string pwdSave = string.Empty;
 
 			var autoNav = Config.ShouldAutoNavigate(remotePath);
@@ -35,13 +35,21 @@ namespace FluentFTP {
 
 			if (autoNav) {
 				var temp = await GetAbsolutePathAsync(remotePath, token);
-				remoteDirectory = temp.GetFtpDirectoryName();
+				remoteDir = temp.GetFtpDirectoryName();
 				remotePath = Path.GetFileName(remotePath);
 
 				pwdSave = await GetWorkingDirectory(token);
-				if (pwdSave != remoteDirectory) {
-					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + remoteDirectory + "\"");
-					await SetWorkingDirectory(remoteDirectory, token);
+				if (pwdSave != remoteDir) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + remoteDir + "\"");
+
+					if (createRemoteDir) {
+						var dirname = remotePath.GetFtpDirectoryName();
+						if (!await DirectoryExists(dirname, token)) {
+							await CreateDirectory(dirname, token);
+						}
+					}
+
+					await SetWorkingDirectory(remoteDir, token);
 				}
 			}
 
