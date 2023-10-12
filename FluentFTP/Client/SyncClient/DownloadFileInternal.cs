@@ -33,7 +33,7 @@ namespace FluentFTP {
 
 			if (autoNav) {
 				var temp = GetAbsolutePath(remotePath);
-				remoteDirectory = Path.GetDirectoryName(temp).GetFtpPath();
+				remoteDirectory = temp.GetFtpDirectoryName();
 				remotePath = Path.GetFileName(remotePath);
 
 				pwdSave = GetWorkingDirectory();
