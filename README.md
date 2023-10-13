@@ -6,7 +6,7 @@
 [![GitHub contributors](https://img.shields.io/github/contributors/robinrodricks/FluentFTP.svg)](https://github.com/robinrodricks/FluentFTP/graphs/contributors)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/8bc33aa55cb8494da3a7a07dba5316f7)](https://www.codacy.com/gh/robinrodricks/FluentFTP/dashboard)
 [![License](https://img.shields.io/github/license/robinrodricks/FluentFTP.svg)](https://github.com/robinrodricks/FluentFTP/blob/master/LICENSE.TXT)
-[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/6661/badge)](https://www.bestpractices.dev/projects/6661)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/badge_static/passing)](https://www.bestpractices.dev/projects/6661)
 
 FluentFTP is a fully managed FTP and FTPS client library for .NET & .NET Standard, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, FXP transfers, UTF-8 support, Async/await support, Powershell support and more.
 
