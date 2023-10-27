@@ -53,15 +53,15 @@ namespace FluentFTP.Client.BaseClient {
 					// Even though SocketDataAvailable > 0, this is possible: nRcvBytes = 0
 					// Prevent endless loop
 					if (nRcvBytes <= 0) {
+						if (string.IsNullOrEmpty(staleData)) {
+							LogWithPrefix(FtpTraceLevel.Verbose, "Unable to retrieve stale data");
+						}
 						break;
 					}
 					staleData += Encoding.GetString(buf).TrimEnd('\0', '\r', '\n') + Environment.NewLine;
 				}
 
-				if (string.IsNullOrEmpty(staleData)) {
-					LogWithPrefix(FtpTraceLevel.Verbose, "Unable to retrieve stale data");
-				}
-				else {
+				if (!string.IsNullOrEmpty(staleData)) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: ");
 					string[] staleLines = Regex.Split(staleData, Environment.NewLine);
 					foreach (string staleLine in staleLines) {
@@ -76,8 +76,8 @@ namespace FluentFTP.Client.BaseClient {
 			if (Status.IgnoreStaleData) {
 				Status.IgnoreStaleData = false;
 				if (staleData != null) {
-					LogWithPrefix(FtpTraceLevel.Verbose, "Stale data ignored");
 					staleData = null;
+					LogWithPrefix(FtpTraceLevel.Verbose, "Stale data ignored");
 				}
 			}
 
