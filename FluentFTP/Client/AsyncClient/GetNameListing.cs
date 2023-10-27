@@ -67,8 +67,9 @@ namespace FluentFTP {
 				// and the connection fails because no communication socket is provided by the server
 			}
 			catch (FtpCommandException ftpEx) {
-				// Some FTP servers throw 550 for empty folders. Absorb these.
-				if (ftpEx.CompletionCode == null || !ftpEx.CompletionCode.StartsWith("550")) {
+				// Some FTP servers throw 450 or 550 for empty folders. Absorb these.
+				if (ftpEx.CompletionCode == null ||
+					(!ftpEx.CompletionCode.StartsWith("450") && !ftpEx.CompletionCode.StartsWith("550"))) {
 					throw ftpEx;
 				}
 			}
