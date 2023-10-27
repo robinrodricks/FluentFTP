@@ -42,17 +42,26 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				while (m_stream.SocketDataAvailable > 0) {
+					int nRcvBytes;
 					byte[] buf = new byte[m_stream.SocketDataAvailable];
 					if (m_stream.IsEncrypted) {
-						m_stream.Read(buf, 0, buf.Length);
+						nRcvBytes = m_stream.Read(buf, 0, buf.Length);
 					}
 					else {
-						m_stream.RawSocketRead(buf);
+						nRcvBytes = m_stream.RawSocketRead(buf);
+					}
+					// Even though SocketDataAvailable > 0, this is possible: nRcvBytes = 0
+					// Prevent endless loop
+					if (nRcvBytes <= 0) {
+						break;
 					}
 					staleData += Encoding.GetString(buf).TrimEnd('\0', '\r', '\n') + Environment.NewLine;
 				}
 
-				if (!string.IsNullOrEmpty(staleData)) {
+				if (string.IsNullOrEmpty(staleData)) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "Unable to retrieve stale data");
+				}
+				else {
 					LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: ");
 					string[] staleLines = Regex.Split(staleData, Environment.NewLine);
 					foreach (string staleLine in staleLines) {
