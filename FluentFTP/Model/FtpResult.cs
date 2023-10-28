@@ -119,5 +119,21 @@ namespace FluentFTP {
 			return sb.ToString();
 		}
 
+		/// <summary>
+		/// Convert this object to a FtpStatus enum for quick comparison.
+		/// </summary>
+		public FtpStatus ToStatus() {
+			if (IsSkipped) {
+				return FtpStatus.Skipped;
+			}
+			else if (IsFailed) {
+				return FtpStatus.Failed;
+			}
+			else if (IsSuccess) {
+				return FtpStatus.Success;
+			}
+			return FtpStatus.Failed;
+		}
+
 	}
 }
