@@ -1,5 +1,15 @@
 # Release Notes
 
+#### 48.0.3
+ - **Utilities**
+   - New: `FtpResult.ToStatus()` API to easily compare result values of `DownloadFile`/`DownloadFiles` and `UploadFile`/`UploadFiles`
+ - **File Transfer** (thanks [FanDjango](/FanDjango))
+   - Fix: Code cleanup for FTP path and directory handling
+   - Fix: `CreateDirectory` sometimes needed in `AutoNavigate` mode
+   - Fix: Optimize `CWD`/`PWD` directory navigation in `AutoNavigate` mode
+   - Fix: Prevent infinite loop on stale data read when FTP socket stalled
+   - Fix: Some FTP servers throw `550` error for empty folders
+
 #### 48.0.1
  - **Directory Navigation** (thanks [FanDjango](/FanDjango))
    - New: Add auto-navigate support to `GetCheckSum`
