@@ -8,13 +8,13 @@
    - Fix: `CreateDirectory` sometimes needed in `AutoNavigate` mode
    - Fix: Optimize `CWD`/`PWD` directory navigation in `AutoNavigate` mode
    - Fix: Prevent infinite loop on stale data read when FTP socket stalled
-   - Fix: Some FTP servers throw `550` error for empty folders
+   - Fix: Some FTP servers throw `450` error for empty folders
 
 #### 48.0.1
  - **Directory Navigation** (thanks [FanDjango](/FanDjango))
    - New: Add auto-navigate support to `GetCheckSum`
    - Fix: `UploadDirectory` with `FtpNavigate.Conditional` does not auto-navigate correctly
-   - Fix: Not all servers support double-quotes as path separator character
+   - Fix: Not all linux ftp servers support backslash as path separator character
    - Fix: Cancellation token passing and await syntax for `DownloadFile`, `UploadFile`, `GetListing`
 
 #### 48.0.0
