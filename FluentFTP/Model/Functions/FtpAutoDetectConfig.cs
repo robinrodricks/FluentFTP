@@ -21,6 +21,11 @@ namespace FluentFTP.Model.Functions {
 		public bool IncludeImplicit { get; set; } = true;
 
 		/// <summary>
+		/// If true, timeouts will lead to an exception, otherwise we will try the next profile.
+		/// </summary>
+		public bool AbortOnTimeout { get; set; } = true;
+
+		/// <summary>
 		/// If true, then we will not try the insecure FTP unencrypted mode, and only try FTPS.
 		/// If false, then both FTP and FTPS will be tried.
 		/// </summary>
