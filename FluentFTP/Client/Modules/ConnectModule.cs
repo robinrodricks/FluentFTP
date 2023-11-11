@@ -115,7 +115,7 @@ namespace FluentFTP.Client.Modules {
 						}
 
 						// check if permanent failures and hard abort
-						var permaEx = IsPermanentConnectionFailure(ex);
+						var permaEx = IsPermanentConnectionFailure(ex, config.AbortOnTimeout);
 						if (permaEx != null) {
 							if (config.CloneConnection) {
 								conn.Dispose();
@@ -209,7 +209,7 @@ namespace FluentFTP.Client.Modules {
 
 				// try each SSL protocol
 				foreach (var protocol in config.ProtocolPriority) {
-					// Only check the first combination for FtpEncryptionMode.None 
+					// Only check the first combination for FtpEncryptionMode.None
 					if (encryption == FtpEncryptionMode.None && config.ProtocolPriority.IndexOf(protocol) > 0) {
 						continue;
 					}
@@ -250,7 +250,7 @@ namespace FluentFTP.Client.Modules {
 						}
 
 						// check if permanent failures and hard abort
-						var permaEx = IsPermanentConnectionFailure(ex);
+						var permaEx = IsPermanentConnectionFailure(ex, config.AbortOnTimeout);
 						if (permaEx != null) {
 							if (config.CloneConnection) {
 								conn.Dispose();
@@ -374,7 +374,7 @@ namespace FluentFTP.Client.Modules {
 		/// so that we don't need to retry all the connection config combinations and can hard-abort the AutoConnect.
 		/// Return the exception if it is a hard failure, or null if no issue is found.
 		/// </summary>
-		private static Exception IsPermanentConnectionFailure(Exception ex) {
+		private static Exception IsPermanentConnectionFailure(Exception ex, bool treatTimeoutAsPermanent) {
 
 			// Authentication related failures
 
@@ -396,7 +396,7 @@ namespace FluentFTP.Client.Modules {
 			}
 
 			// catch error "timed out trying to connect" and hard abort
-			if (ex is TimeoutException) {
+			if (ex is TimeoutException && treatTimeoutAsPermanent) {
 				return ex;
 			}
 
