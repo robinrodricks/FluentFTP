@@ -100,7 +100,7 @@ namespace FluentFTP {
 			ConnectionFTPSFailure = false;
 			ConnectionUTF8Success = false;
 			AllowCheckStaleData = false;
-			InCriticalSequence = false;
+			InCriticalSequence = true;
 		}
 
 		/// <summary>

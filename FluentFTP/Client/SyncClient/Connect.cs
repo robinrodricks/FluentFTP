@@ -83,6 +83,7 @@ namespace FluentFTP {
 				}
 
 				Status.Reset(reConnect);
+				m_stream.SslSessionLength = 0;
 
 				m_hashAlgorithms = FtpHashAlgorithm.NONE;
 				m_stream.ConnectTimeout = Config.ConnectTimeout;
@@ -230,6 +231,8 @@ namespace FluentFTP {
 
 				// FIX #922: disable checking for stale data during connection
 				Status.AllowCheckStaleData = true;
+
+				Status.InCriticalSequence = false;
 			}
 		}
 
