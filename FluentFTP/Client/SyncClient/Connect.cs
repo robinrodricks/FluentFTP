@@ -183,6 +183,8 @@ namespace FluentFTP {
 					ServerHandler = ServerModule.GetServerHandler(m_serverType);
 				}
 
+				LogWithPrefix(FtpTraceLevel.Verbose, "Active ServerHandler is: " + (ServerHandler == null ? "None" : ServerHandler.ToEnum().ToString()));
+
 				// Assume the system's capabilities if FEAT command not supported by the server
 				if (assumeCaps) {
 					ServerFeatureModule.Assume(ServerHandler, m_capabilities, ref m_hashAlgorithms);
