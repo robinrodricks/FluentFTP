@@ -22,7 +22,7 @@ namespace FluentFTP {
 		/// <returns>A stream for reading the file on the server</returns>
 		//[Obsolete("OpenReadAsync() is obsolete, please use DownloadAsync() or DownloadFileAsync() instead", false)]
 		public virtual Task<Stream> OpenRead(string path, FtpDataType type = FtpDataType.Binary, long restart = 0, bool checkIfFileExists = true, CancellationToken token = default(CancellationToken)) {
-			return OpenReadInternal(path, type, restart, checkIfFileExists ? 0 : -1, true, token);
+			return OpenReadInternal(path, type, checkIfFileExists ? 0 : -1, restart, true, token);
 		}
 
 
@@ -42,7 +42,7 @@ namespace FluentFTP {
 		/// <returns>A stream for reading the file on the server</returns>
 		//[Obsolete("OpenReadAsync() is obsolete, please use DownloadAsync() or DownloadFileAsync() instead", false)]
 		public virtual Task<Stream> OpenRead(string path, FtpDataType type, long restart, long fileLen, CancellationToken token = default(CancellationToken)) {
-			return OpenReadInternal(path, type, restart, fileLen, true, token);
+			return OpenReadInternal(path, type, fileLen, restart, true, token);
 		}
 
 		/// <summary>
@@ -50,12 +50,12 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path"></param>
 		/// <param name="type"></param>
-		/// <param name="restart"></param>
 		/// <param name="fileLen"></param>
+		/// <param name="restart"></param>
 		/// <param name="ignoreStaleData">Normally false. Obsolete API uses true</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A stream for reading the file on the server</returns>
-		public virtual async Task<Stream> OpenReadInternal(string path, FtpDataType type, long restart, long fileLen, bool ignoreStaleData, CancellationToken token = default(CancellationToken)) {
+		public virtual async Task<Stream> OpenReadInternal(string path, FtpDataType type, long fileLen, long restart, bool ignoreStaleData, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
@@ -64,7 +64,7 @@ namespace FluentFTP {
 			path = path.GetFtpPath();
 			LastStreamPath = path;
 
-			LogFunction(nameof(OpenRead), new object[] { path, type, restart, fileLen });
+			LogFunction(nameof(OpenRead), new object[] { path, type, restart, fileLen, ignoreStaleData });
 
 			var client = this;
 			FtpDataStream stream = null;

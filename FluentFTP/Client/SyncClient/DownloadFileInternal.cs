@@ -57,7 +57,7 @@ namespace FluentFTP {
 				}
 
 				// open the file for reading
-				downStream = OpenReadInternal(remotePath, Config.DownloadDataType, restartPosition, fileLen, false);
+				downStream = OpenReadInternal(remotePath, Config.DownloadDataType, fileLen, restartPosition, false);
 
 				// Fix: workaround for SOCKS4 and SOCKS4a proxies
 				if (restartPosition == 0) {

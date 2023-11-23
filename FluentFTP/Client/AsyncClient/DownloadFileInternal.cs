@@ -57,7 +57,7 @@ namespace FluentFTP {
 				}
 
 				// open the file for reading
-				downStream = await OpenReadInternal(remotePath, Config.DownloadDataType, restartPosition, fileLen, false, token);
+				downStream = await OpenReadInternal(remotePath, Config.DownloadDataType, fileLen, restartPosition, false, token);
 
 				// Fix: workaround for SOCKS4 and SOCKS4a proxies
 				if (restartPosition == 0) {
@@ -286,7 +286,7 @@ namespace FluentFTP {
 					LogWithPrefix(FtpTraceLevel.Info, "Attempting download resume from offset " + offset);
 
 					// create and return a new stream starting at the current remotePosition
-					return Tuple.Create(true, await OpenReadInternal(remotePath, Config.DownloadDataType, offset, 0, false, token: token));
+					return Tuple.Create(true, await OpenReadInternal(remotePath, Config.DownloadDataType, 0, offset, false, token: token));
 				}
 
 				// resume not allowed
