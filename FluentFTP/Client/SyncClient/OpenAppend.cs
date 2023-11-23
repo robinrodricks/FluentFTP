@@ -57,7 +57,7 @@ namespace FluentFTP {
 			path = path.GetFtpPath();
 			LastStreamPath = path;
 
-			LogFunction(nameof(OpenAppend), new object[] { path, type });
+			LogFunction(nameof(OpenAppend), new object[] { path, type, fileLen, ignoreStaleData });
 
 			var client = this;
 			FtpDataStream stream = null;

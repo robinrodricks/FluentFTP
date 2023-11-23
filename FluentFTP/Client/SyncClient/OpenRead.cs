@@ -21,7 +21,7 @@ namespace FluentFTP {
 		/// <returns>A stream for reading the file on the server</returns>
 		//[Obsolete("OpenRead() is obsolete, please use Download() or DownloadFile() instead", false)]
 		public virtual Stream OpenRead(string path, FtpDataType type = FtpDataType.Binary, long restart = 0, bool checkIfFileExists = true) {
-			return OpenReadInternal(path, type, restart, checkIfFileExists ? 0 : -1, true);
+			return OpenReadInternal(path, type, checkIfFileExists ? 0 : -1, restart, true);
 		}
 
 		/// <summary>
@@ -39,7 +39,7 @@ namespace FluentFTP {
 		/// <returns>A stream for reading the file on the server</returns>
 		//[Obsolete("OpenRead() is obsolete, please use Download() or DownloadFile() instead", false)]
 		public virtual Stream OpenRead(string path, FtpDataType type, long restart, long fileLen) {
-			return OpenReadInternal(path, type, restart, fileLen, true);
+			return OpenReadInternal(path, type, fileLen, restart, true);
 		}
 
 		/// <summary>
@@ -47,11 +47,11 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="path"></param>
 		/// <param name="type"></param>
-		/// <param name="restart"></param>
 		/// <param name="fileLen"></param>
+		/// <param name="restart"></param>
 		/// <param name="ignoreStaleData">Normally false. Obsolete API uses true</param>
 		/// <returns>A stream for reading the file on the server</returns>
-		public virtual Stream OpenReadInternal(string path, FtpDataType type, long restart, long fileLen, bool ignoreStaleData) {
+		public virtual Stream OpenReadInternal(string path, FtpDataType type, long fileLen, long restart, bool ignoreStaleData) {
 			// verify args
 			if (path.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
@@ -60,7 +60,7 @@ namespace FluentFTP {
 			path = path.GetFtpPath();
 			LastStreamPath = path;
 
-			LogFunction(nameof(OpenRead), new object[] { path, type, restart, fileLen });
+			LogFunction(nameof(OpenRead), new object[] { path, type, restart, fileLen, ignoreStaleData });
 
 			var client = this;
 			FtpDataStream stream = null;
