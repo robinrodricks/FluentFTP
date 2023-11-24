@@ -299,7 +299,7 @@ namespace FluentFTP.Proxy.Socks {
 			{
 				(byte)SocksVersion.V5, // VER
 				0x01, // NMETHODS
-				(byte)SocksAuthType.NoAuthRequired // Methods
+				MapAuthMethod() // Methods
 			};
 
 			await _socketStream.WriteAsync(methodsBuffer, 0, methodsBuffer.Length, cancellationToken);
