@@ -41,7 +41,7 @@ namespace FluentFTP.Client.Modules {
 				encryptionsPriority.Add(FtpEncryptionMode.None);
 			}
 
-			if (!config.IncludeImplicit) {
+			if (config.IncludeImplicit) {
 				encryptionsPriority.Add(FtpEncryptionMode.Implicit);
 			}
 
@@ -178,7 +178,7 @@ namespace FluentFTP.Client.Modules {
 				encryptionsPriority.Add(FtpEncryptionMode.None);
 			}
 
-			if (!config.IncludeImplicit) {
+			if (config.IncludeImplicit) {
 				encryptionsPriority.Add(FtpEncryptionMode.Implicit);
 			}
 
