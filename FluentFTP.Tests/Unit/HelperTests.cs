@@ -18,7 +18,7 @@ namespace FluentFTP.Tests.Unit {
 			var obj = new FtpAutoDetectConfig();
 			var txt = ValuePrinter.ObjectToString(obj);
 
-			Assert.Equal(txt, "CloneConnection = True, FirstOnly = True, IncludeImplicit = True, RequireEncryption = False, ProtocolPriority = [Tls11, Tls12]");
+			Assert.Equal(txt, "CloneConnection = True, FirstOnly = True, IncludeImplicit = True, AbortOnTimeout = True, RequireEncryption = False, ProtocolPriority = [Tls11, Tls12]");
 		}
 
 	}
