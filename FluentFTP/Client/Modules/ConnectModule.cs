@@ -17,7 +17,7 @@ namespace FluentFTP.Client.Modules {
 	/// </summary>
 	internal static class ConnectModule {
 
-		private static List<FtpEncryptionMode> DefaultEncryptionPriority = new List<FtpEncryptionMode> {
+		private static List<FtpEncryptionMode> DefaultEncryptionsPriority = new List<FtpEncryptionMode> {
 			FtpEncryptionMode.Auto,
 		};
 
@@ -35,17 +35,19 @@ namespace FluentFTP.Client.Modules {
 				config = new FtpAutoDetectConfig();
 			}
 
+			List<FtpEncryptionMode> encryptionsPriority = DefaultEncryptionsPriority.ShallowClone(); ;
+
 			if (!config.RequireEncryption) {
-				DefaultEncryptionPriority.Add(FtpEncryptionMode.None);
+				encryptionsPriority.Add(FtpEncryptionMode.None);
 			}
 
 			if (!config.IncludeImplicit) {
-				DefaultEncryptionPriority.Add(FtpEncryptionMode.Implicit);
+				encryptionsPriority.Add(FtpEncryptionMode.Implicit);
 			}
 
 			// get known working connection profile based on the host (if any)
 			List<FtpEncryptionMode> encryptionsToTry;
-			var knownProfile = GetWorkingProfileFromHost(client.Host, out encryptionsToTry);
+			var knownProfile = GetWorkingProfileFromHost(client.Host, encryptionsPriority, out encryptionsToTry);
 
 			var blacklistedEncryptions = new List<FtpEncryptionMode>();
 			bool resetPort = (client.Port == 990 || client.Port == 21);
@@ -170,17 +172,19 @@ namespace FluentFTP.Client.Modules {
 				config = new FtpAutoDetectConfig();
 			}
 
+			List<FtpEncryptionMode> encryptionsPriority = DefaultEncryptionsPriority.ShallowClone(); ;
+
 			if (!config.RequireEncryption) {
-				DefaultEncryptionPriority.Add(FtpEncryptionMode.None);
+				encryptionsPriority.Add(FtpEncryptionMode.None);
 			}
 
 			if (!config.IncludeImplicit) {
-				DefaultEncryptionPriority.Add(FtpEncryptionMode.Implicit);
+				encryptionsPriority.Add(FtpEncryptionMode.Implicit);
 			}
 
 			// get known working connection profile based on the host (if any)
 			List<FtpEncryptionMode> encryptionsToTry;
-			var knownProfile = GetWorkingProfileFromHost(client.Host, out encryptionsToTry);
+			var knownProfile = GetWorkingProfileFromHost(client.Host, encryptionsPriority, out encryptionsToTry);
 
 			var blacklistedEncryptions = new List<FtpEncryptionMode>();
 			bool resetPort = (client.Port == 990 || client.Port == 21);
@@ -481,9 +485,9 @@ namespace FluentFTP.Client.Modules {
 		/// <summary>
 		/// Return a known working connection profile from the host/port combination.
 		/// </summary>
-		public static FtpProfile GetWorkingProfileFromHost(string host, out List<FtpEncryptionMode> encryptionsToTry) {
+		public static FtpProfile GetWorkingProfileFromHost(string host, List<FtpEncryptionMode> encryptionsPriority, out List<FtpEncryptionMode> encryptionsToTry) {
 
-			encryptionsToTry = DefaultEncryptionPriority.ShallowClone();
+			encryptionsToTry = encryptionsPriority.ShallowClone();
 
 			// Azure App Services / Azure Websites
 			if (host.IndexOf("azurewebsites.windows.net", StringComparison.OrdinalIgnoreCase) > -1) {
