@@ -17,7 +17,7 @@ namespace FluentFTP.Client.Modules {
 	/// </summary>
 	internal static class ConnectModule {
 
-		private static List<FtpEncryptionMode> DefaultEncryptionsPriority = new List<FtpEncryptionMode> {
+		private static readonly List<FtpEncryptionMode> DefaultEncryptionsPriority = new List<FtpEncryptionMode> {
 			FtpEncryptionMode.Auto,
 		};
 
