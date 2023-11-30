@@ -14,8 +14,8 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <returns>FtpReply representing the response from the server</returns>
-		public async Task<FtpReply> GetReply(CancellationToken token = default(CancellationToken)) {
-			return await GetReplyAsyncInternal(token, null, false, 0);
+		public Task<FtpReply> GetReply(CancellationToken token = default(CancellationToken)) {
+			return GetReplyAsyncInternal(token, null, false, 0);
 		}
 
 		/// <summary>
@@ -26,8 +26,8 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <returns>FtpReply representing the response from the server</returns>
-		public async Task<FtpReply> GetReplyAsyncInternal(CancellationToken token, string command) {
-			return await GetReplyAsyncInternal(token, command, false, 0);
+		public Task<FtpReply> GetReplyAsyncInternal(CancellationToken token, string command) {
+			return GetReplyAsyncInternal(token, command, false, 0);
 		}
 
 		/// <summary>
@@ -39,8 +39,8 @@ namespace FluentFTP {
 		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <returns>FtpReply representing the response from the server</returns>
-		public async Task<FtpReply> GetReplyAsyncInternal(CancellationToken token, string command, bool exhaustNoop) {
-			return await GetReplyAsyncInternal(token, command, exhaustNoop, exhaustNoop ? 10000 : 0);
+		public Task<FtpReply> GetReplyAsyncInternal(CancellationToken token, string command, bool exhaustNoop) {
+			return GetReplyAsyncInternal(token, command, exhaustNoop, exhaustNoop ? 10000 : 0);
 		}
 
 		/// <summary>

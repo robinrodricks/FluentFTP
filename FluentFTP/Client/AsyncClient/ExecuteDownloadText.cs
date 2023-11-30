@@ -19,10 +19,9 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="command">The command to issue which produces output</param>
 		/// <returns>A list of string objects corresponding to the multi-line response by the server</returns>
-		public async Task<List<string>> ExecuteDownloadText(string command, CancellationToken token = default(CancellationToken)) {
+		public Task<List<string>> ExecuteDownloadText(string command, CancellationToken token = default(CancellationToken)) {
 
-			return await ExecuteDownloadTextInternal(command, true, token);
-
+			return ExecuteDownloadTextInternal(command, true, token);
 		}
 
 		/// <summary>

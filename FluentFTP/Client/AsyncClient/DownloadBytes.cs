@@ -49,9 +49,9 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
-		public async Task<byte[]> DownloadBytes(string remotePath, CancellationToken token = default(CancellationToken)) {
+		public Task<byte[]> DownloadBytes(string remotePath, CancellationToken token = default(CancellationToken)) {
 			// download the file from the server
-			return await DownloadBytes(remotePath, 0, null, token);
+			return DownloadBytes(remotePath, 0, null, token);
 		}
 
 	}
