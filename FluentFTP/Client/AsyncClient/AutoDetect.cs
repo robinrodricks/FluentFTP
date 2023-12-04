@@ -48,7 +48,7 @@ namespace FluentFTP {
 
 			ValidateAutoDetect();
 
-			return ConnectModule.AutoDetectAsync(this, new FtpAutoDetectConfig() {
+			return ConnectModule.AutoDetectAsync(this, new FtpAutoDetectConfig {
 				FirstOnly = firstOnly,
 				CloneConnection = cloneConnection,
 			}, token);
