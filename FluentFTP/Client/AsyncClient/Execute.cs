@@ -42,7 +42,7 @@ namespace FluentFTP {
 
 			// Check for stale data on the socket?
 			else if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 				var staleData = await ReadStaleDataAsync("prior to command execution of \"" + command.Split()[0] + "\"", token);
 #else
 				var staleData = ReadStaleData("prior to command execution of \"" + command.Split()[0] + "\"");

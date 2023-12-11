@@ -43,16 +43,6 @@
     </PropertyGroup>
 
 
-<!-- We include symbol NETSTANDARD on NET 5 and NET 6 to simplify #IF statements in the code -->
-
-    <PropertyGroup Condition="'$(TargetFramework)'=='net6.0'">
-        <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(TargetFramework)'=='net5.0'">
-        <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
-    </PropertyGroup>
-    
     <ItemGroup>
         <None Include="..\.github\logo-nuget.png">
             <Pack>True</Pack>

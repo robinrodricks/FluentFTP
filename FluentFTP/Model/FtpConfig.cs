@@ -363,7 +363,7 @@ namespace FluentFTP {
 		}
 
 
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 		protected double _localTimeZone = 0;
 		protected TimeSpan _localTimeOffset = new TimeSpan();
 
@@ -620,7 +620,7 @@ namespace FluentFTP {
 			write.CustomStream = read.CustomStream;
 			write.CustomStreamConfig = read.CustomStreamConfig;
 
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 			write.LocalTimeZone = read.LocalTimeZone;
 #endif
 

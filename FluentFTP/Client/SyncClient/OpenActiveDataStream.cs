@@ -30,7 +30,7 @@ namespace FluentFTP {
 			}
 
 			StartListeningOnPort(stream);
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 			var args = stream.BeginAccept();
 #endif
 #if NETFRAMEWORK
@@ -111,7 +111,7 @@ namespace FluentFTP {
 			// otherwise things can get out of sync.
 			stream.CommandStatus = reply;
 
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 			stream.EndAccept(args, Config.DataConnectionConnectTimeout);
 #endif
 #if NETFRAMEWORK
