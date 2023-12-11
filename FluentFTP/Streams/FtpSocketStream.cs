@@ -1433,7 +1433,7 @@ namespace FluentFTP {
 			// So the user would like buffering. But we might need to ignore this request
 			bool useBuffering = true;
 
-#if NET50_OR_LATER
+#if NET5_0_OR_GREATER
 			// Fix: running on .NET 5.0 and later due to issues in .NET framework - See #682
 			if (bufferingConfigured /*&& NET50_OR_LATER*/) {
 				useBuffering = false;
