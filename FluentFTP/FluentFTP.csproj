@@ -18,14 +18,41 @@
         <LangVersion>10.0</LangVersion>
     </PropertyGroup>
 
+
+<!-- Official Target Monikers:
+ 
+.NET 8          8       net8.0
+.NET 7          7       net7.0
+.NET 6          6       net6.0
+.NET 5          5       net5.0
+.NET Standard   2.1     netstandard2.1
+.NET Standard   2.0     netstandard2.0
+.NET Core       3.1     netcoreapp3.1
+.NET Framework  4.8     net48
+.NET Framework  4.7.2   net472
+.NET Framework  4.6.2   net462
+
+-->
+
     <PropertyGroup>
-        <TargetFrameworks>net60;net50;net472;net462;netstandard2.0;netstandard2.1</TargetFrameworks>
+        <TargetFrameworks>net6.0;net5.0;net472;net462;netstandard2.0;netstandard2.1</TargetFrameworks>
         <Platforms>AnyCPU;x64</Platforms>
         <PackageReadmeFile></PackageReadmeFile>
         <RepositoryUrl>https://github.com/robinrodricks/FluentFTP</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
+
+<!-- We include symbol NETSTANDARD on NET 5 and NET 6 to simplify #IF statements in the code -->
+
+    <PropertyGroup Condition="'$(TargetFramework)'=='net6.0'">
+        <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(TargetFramework)'=='net5.0'">
+        <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
+    </PropertyGroup>
+    
     <ItemGroup>
         <None Include="..\.github\logo-nuget.png">
             <Pack>True</Pack>
@@ -36,22 +63,6 @@
             <PackagePath></PackagePath>
         </None>
     </ItemGroup>
-
-    <PropertyGroup Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net472'">
-        <DefineConstants>$(DefineConstants);NETFRAMEWORK;</DefineConstants>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
-        <DefineConstants>$(DefineConstants);NETSTANDARD;</DefineConstants>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(TargetFramework)'=='net50'">
-        <DefineConstants>$(DefineConstants);NET50;NETSTANDARD;NET50_OR_LATER;</DefineConstants>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(TargetFramework)'=='net60'">
-        <DefineConstants>$(DefineConstants);NET60;NETSTANDARD;NET50_OR_LATER;</DefineConstants>
-    </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
