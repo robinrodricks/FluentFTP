@@ -275,7 +275,7 @@ namespace FluentFTP {
 					LogWithPrefix(FtpTraceLevel.Info, "Attempting download resume from offset " + offset);
 
 					// create and return a new stream starting at the current remotePosition
-					downStream = OpenWriteInternal(remotePath, Config.DownloadDataType, offset, false);
+					downStream = OpenReadInternal(remotePath, Config.DownloadDataType, 0, offset, false);
 
 					// resume not allowed
 					return true;
