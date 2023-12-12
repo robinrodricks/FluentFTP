@@ -69,7 +69,7 @@ namespace FluentFTP {
 		Task<string[]> GetNameListing(string path, CancellationToken token = default(CancellationToken));
 		Task<string[]> GetNameListing(CancellationToken token = default(CancellationToken));
 
-#if NET50_OR_LATER
+#if NET5_0_OR_GREATER
 		IAsyncEnumerable<FtpListItem> GetListingEnumerable(string path, FtpListOption options, CancellationToken token = default, CancellationToken enumToken = default);
 		IAsyncEnumerable<FtpListItem> GetListingEnumerable(string path, CancellationToken token = default, CancellationToken enumToken = default);
 		IAsyncEnumerable<FtpListItem> GetListingEnumerable(CancellationToken token = default, CancellationToken enumToken = default);

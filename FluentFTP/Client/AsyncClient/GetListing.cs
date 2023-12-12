@@ -14,7 +14,7 @@ using FluentFTP.Proxy.AsyncProxy;
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
 
-#if NET50_OR_LATER
+#if NET5_0_OR_GREATER
 		/// <summary>
 		/// Gets a file listing from the server asynchronously. Each <see cref="FtpListItem"/> object returned
 		/// contains information about the file that was able to be retrieved. 
@@ -471,7 +471,7 @@ namespace FluentFTP {
 			return GetListing(null, token);
 		}
 
-#if NET50_OR_LATER
+#if NET5_0_OR_GREATER
 		/// <summary>
 		/// Recursive method of GetListingAsync, to recurse through directories on servers that do not natively support recursion.
 		/// Automatically called by GetListingAsync where required.

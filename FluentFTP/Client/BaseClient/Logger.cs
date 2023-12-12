@@ -83,8 +83,10 @@ namespace FluentFTP.Client.BaseClient {
 				target = ".NET 6.0";
 #elif NET7_0
 				target = ".NET 7.0";
-#elif NET7_0_OR_GREATER
-				target = ".NET 7.0+";
+#elif NET8_0
+				target = ".NET 8.0";
+#elif NET8_0_OR_GREATER
+				target = ".NET 8.0+";
 #else
 				target = "Unknown";
 #endif
