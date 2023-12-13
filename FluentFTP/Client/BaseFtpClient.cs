@@ -84,11 +84,9 @@ namespace FluentFTP.Client.BaseClient {
 			if (host == null) {
 				throw new ArgumentNullException(nameof(host), "Host is required");
 			}
-#if NETFRAMEWORK
 			if (host.Scheme != Uri.UriSchemeFtp) {
 				throw new ArgumentException("Host is not a valid FTP path");
 			}
-#endif
 			return host.Host;
 		}
 
