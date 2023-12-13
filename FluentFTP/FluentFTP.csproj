@@ -46,11 +46,11 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(TargetFramework)'=='net50'">
-        <DefineConstants>$(DefineConstants);NET50;NETSTANDARD;NET50_OR_LATER;</DefineConstants>
+        <DefineConstants>$(DefineConstants);NET50;NETSTANDARD</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(TargetFramework)'=='net60'">
-        <DefineConstants>$(DefineConstants);NET60;NETSTANDARD;NET50_OR_LATER;</DefineConstants>
+        <DefineConstants>$(DefineConstants);NET60;NETSTANDARD</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
