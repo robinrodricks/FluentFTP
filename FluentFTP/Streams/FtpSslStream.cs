@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net.Security;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Numerics;
 
 namespace FluentFTP.Streams {
 	/// <summary>
@@ -64,8 +63,6 @@ namespace FluentFTP.Streams {
 
 			base.ShutdownAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
-#else
-#error "Check FluentFTP.csproj - TFM not catered for"
 #endif
 
 			base.Close();
@@ -88,9 +85,6 @@ namespace FluentFTP.Streams {
 #elif NETSTANDARD2_0_OR_GREATER      // <-- 2_0 is not a typo.
 
 			return $"{SslProtocol} ({CipherAlgorithm}, {KeyExchangeAlgorithm}, {KeyExchangeStrength})";
-
-#else
-#error "Check FluentFTP.csproj - TFM not catered for"
 #endif
 
 		}
@@ -138,7 +132,9 @@ namespace FluentFTP.Streams {
 			credentialsHandleHandle.HandleHi = (IntPtr)ReflectUtil.GetField(credentialsHandleHandleOriginal, "HandleHi");
 			credentialsHandleHandle.HandleLo = (IntPtr)ReflectUtil.GetField(credentialsHandleHandleOriginal, "HandleLo");
 
-#elif NETSTANDARD || NET5_0_OR_GREATER
+#endif
+
+#if NETSTANDARD || NET5_0_OR_GREATER
 
 			// Access the "context" field directly
 			var context = ReflectUtil.GetField(sslStream, "_context");
@@ -155,8 +151,6 @@ namespace FluentFTP.Streams {
 			credentialsHandleHandle.HandleHi = (IntPtr)ReflectUtil.GetField(credentialsHandleHandleOriginal, "dwLower");
 			credentialsHandleHandle.HandleLo = (IntPtr)ReflectUtil.GetField(credentialsHandleHandleOriginal, "dwUpper");
 
-#else
-#error "Check FluentFTP.csproj - TFM not catered for"
 #endif
 
 			NativeApi.SecurityBufferDescriptor securityBufferDescriptor = new NativeApi.SecurityBufferDescriptor();
@@ -220,13 +214,13 @@ namespace FluentFTP.Streams {
 			var innerStream = (Stream)ReflectUtil.GetProperty(sslstate, "InnerStream");
 			innerStream.Write(result, 0, resultSize);
 
-#elif NETSTANDARD || NET5_0_OR_GREATER
+#endif
+
+#if NETSTANDARD || NET5_0_OR_GREATER
 
 			var innerStream = (Stream)ReflectUtil.GetProperty(sslStream, "InnerStream");
 			innerStream.Write(result, 0, resultSize);
 
-#else
-#error "Check FluentFTP.csproj - TFM not catered for"
 #endif
 
 		}
