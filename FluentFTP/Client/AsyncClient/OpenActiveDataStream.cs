@@ -33,10 +33,9 @@ namespace FluentFTP {
 			StartListeningOnPort(stream);
 #if NETSTANDARD || NET5_0_OR_GREATER
 			var args = stream.BeginAccept();
-#elif NETFRAMEWORK
+#endif
+#if NETFRAMEWORK
 			var ar = stream.BeginAccept(null, null);
-#else
-#error "Check FluentFTP.csproj - TFM not catered for"
 #endif
 
 			if (type is FtpDataConnectionType.EPRT or FtpDataConnectionType.AutoActive) {
@@ -115,7 +114,8 @@ namespace FluentFTP {
 
 #if NETSTANDARD || NET5_0_OR_GREATER
 			stream.EndAccept(args, Config.DataConnectionConnectTimeout);
-#elif NETFRAMEWORK
+#endif
+#if NETFRAMEWORK
 			ar.AsyncWaitHandle.WaitOne(Config.DataConnectionConnectTimeout);
 			if (Type.GetType("Mono.Runtime") == null) {
 				ar.AsyncWaitHandle.Close();  // See issue #648 this needs to be commented out for MONO
@@ -126,8 +126,6 @@ namespace FluentFTP {
 			}
 
 			stream.EndAccept(ar);
-#else
-#error "Check FluentFTP.csproj - TFM not catered for"
 #endif
 
 			if (Config.DataConnectionEncryption && Config.EncryptionMode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
