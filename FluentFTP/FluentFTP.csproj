@@ -19,7 +19,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <TargetFrameworks>net60;net50;net472;net462;netstandard2.0;netstandard2.1</TargetFrameworks>
+        <TargetFrameworks>net6.0;net5.0;net472;net462;netstandard2.0;netstandard2.1</TargetFrameworks>
         <Platforms>AnyCPU;x64</Platforms>
         <PackageReadmeFile></PackageReadmeFile>
         <RepositoryUrl>https://github.com/robinrodricks/FluentFTP</RepositoryUrl>
@@ -46,11 +46,11 @@
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(TargetFramework)'=='net50'">
-        <DefineConstants>$(DefineConstants);NET50;NETSTANDARD</DefineConstants>
+        <DefineConstants>$(DefineConstants)NETSTANDARD</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(TargetFramework)'=='net60'">
-        <DefineConstants>$(DefineConstants);NET60;NETSTANDARD</DefineConstants>
+        <DefineConstants>$(DefineConstants)NETSTANDARD</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
