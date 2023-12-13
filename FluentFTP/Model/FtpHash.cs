@@ -78,7 +78,7 @@ namespace FluentFTP {
 
 				switch (m_algorithm) {
 					case FtpHashAlgorithm.SHA1:
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 						hashAlg = SHA1.Create();
 #else
 						hashAlg = new SHA1CryptoServiceProvider();
@@ -86,7 +86,7 @@ namespace FluentFTP {
 						break;
 
 					case FtpHashAlgorithm.SHA256:
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 						hashAlg = SHA256.Create();
 #else
 						hashAlg = new SHA256CryptoServiceProvider();
@@ -94,7 +94,7 @@ namespace FluentFTP {
 						break;
 
 					case FtpHashAlgorithm.SHA512:
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 						hashAlg = SHA512.Create();
 #else
 						hashAlg = new SHA512CryptoServiceProvider();
@@ -102,7 +102,7 @@ namespace FluentFTP {
 						break;
 
 					case FtpHashAlgorithm.MD5:
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 						hashAlg = MD5.Create();
 #else
 						hashAlg = new MD5CryptoServiceProvider();

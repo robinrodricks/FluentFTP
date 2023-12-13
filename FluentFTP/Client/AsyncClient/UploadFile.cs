@@ -52,7 +52,7 @@ namespace FluentFTP {
 
 
 			// skip uploading if the local file does not exist
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 			if (!await Task.Run(() => File.Exists(localPath), token)) {
 #else
 			if (!File.Exists(localPath)) {

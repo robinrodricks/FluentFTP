@@ -539,7 +539,7 @@ namespace FluentFTP {
 			}
 
 			m_lastActivity = DateTime.Now;
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 			return BaseStream.Read(buffer, offset, count);
 #else
 			ar = BaseStream.BeginRead(buffer, offset, count, null, null);
@@ -786,7 +786,7 @@ namespace FluentFTP {
 			await WriteAsync(data, 0, data.Length, token);
 		}
 
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 		/// <summary>
 		/// Disconnects from server
 		/// </summary>
@@ -925,7 +925,7 @@ namespace FluentFTP {
 				ipads = Client.Status.CachedHostIpads[host];
 			}
 			else {
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 				ipads = Dns.GetHostAddressesAsync(host).Result;
 #else
 				ipads = Dns.GetHostAddresses(host);
@@ -1028,7 +1028,7 @@ namespace FluentFTP {
 
 			int ctmo = this.ConnectTimeout;
 
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 			var args = new SocketAsyncEventArgs {
 				RemoteEndPoint = new IPEndPoint(ipad, port)
 			};
@@ -1236,13 +1236,13 @@ namespace FluentFTP {
 					CreateSslStream();
 
 					try {
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 						m_sslStream.AuthenticateAsClientAsync(targetHost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation).Wait();
 #else
 						m_sslStream.AuthenticateAsClient(targetHost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
 #endif
 					}
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 					catch (AggregateException ex) {
 						if (ex.InnerException is AuthenticationException) {
 							throw ex.InnerException;
@@ -1353,7 +1353,7 @@ namespace FluentFTP {
 					await m_sslStream.AuthenticateAsClientAsync(targetHost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
 #endif
 					}
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 					catch (AggregateException ex) {
 						if (ex.InnerException is AuthenticationException) {
 							throw ex.InnerException;
@@ -1579,7 +1579,7 @@ namespace FluentFTP {
 				m_socket = await m_socket.AcceptAsync();
 #endif
 				socketSave.Close();
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 				m_netStream = new NetworkStream(m_socket);
 				m_netStream.ReadTimeout = m_readTimeout;
 #endif

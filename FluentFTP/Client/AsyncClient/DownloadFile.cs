@@ -72,7 +72,7 @@ namespace FluentFTP {
 			// skip downloading if the local file exists
 			long knownFileSize = 0;
 			long restartPos = 0;
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 			if (existsMode == FtpLocalExists.Resume && await Task.Run(() => File.Exists(localPath), token)) {
 				knownFileSize = (await GetFileSize(remotePath, -1, token));
 				restartPos = await FtpFileStream.GetFileSizeAsync(localPath, false, token);
@@ -90,7 +90,7 @@ namespace FluentFTP {
 					isAppend = true;
 				}
 			}
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 			else if (existsMode == FtpLocalExists.Skip && await Task.Run(() => File.Exists(localPath), token)) {
 #else
 			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
@@ -102,7 +102,7 @@ namespace FluentFTP {
 			try {
 				// create the folders
 				var dirPath = Path.GetDirectoryName(localPath);
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 				if (!string.IsNullOrWhiteSpace(dirPath) && !await Task.Run(() => Directory.Exists(dirPath), token)) {
 #else
 				if (!string.IsNullOrWhiteSpace(dirPath) && !Directory.Exists(dirPath)) {
