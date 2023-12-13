@@ -59,7 +59,7 @@
     </PropertyGroup>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)'=='Release' And '$(TargetFramework)'=='net45'">
-        <Exec Command="copy /Y &quot;$(ProjectDir)bin\Release\net45\FluentFTP.dll&quot; &quot;$(SolutionDir)Powershell\FluentFTP.dll&quot;" />
+        <Exec Command="copy /Y &quot;$(ProjectDir)bin\Release\net462\FluentFTP.dll&quot; &quot;$(SolutionDir)Powershell\FluentFTP.dll&quot;" />
     </Target>
 
 </Project>
