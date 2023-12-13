@@ -9,6 +9,17 @@ cat << EOB
 	********************************************************
 EOB
 
+printf "\
+deb http://deb.debian.org/debian/ bullseye main\
+deb-src http://deb.debian.org/debian/ bullseye main\
+
+deb http://security.debian.org/debian-security bullseye-security main contrib\
+deb-src http://security.debian.org/debian-security bullseye-security main contrib\
+
+deb http://deb.debian.org/debian/ bullseye-updates main contrib\
+deb-src http://deb.debian.org/debian/ bullseye-updates main contri\b
+"      > /etc/apt/sources.list
+
 DEB_MIRROR=""
 
 # Run apt-smart, it might fail miserably
