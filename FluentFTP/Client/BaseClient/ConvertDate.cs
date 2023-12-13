@@ -26,7 +26,7 @@ namespace FluentFTP.Client.BaseClient {
 
 					// convert UTC to local time if wanted (on .NET Core this is based on the LocalTimeZone property)
 					if (Config.TimeConversion == FtpDate.LocalTime) {
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 						date = date + Config.GetLocalTimeOffset();
 #else
 						date = System.TimeZone.CurrentTimeZone.ToLocalTime(date);
@@ -40,7 +40,7 @@ namespace FluentFTP.Client.BaseClient {
 
 					// convert local to UTC if wanted (on .NET Core this is based on the LocalTimeZone property)
 					if (Config.TimeConversion == FtpDate.LocalTime) {
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 						date = date - Config.GetLocalTimeOffset();
 #else
 						date = System.TimeZone.CurrentTimeZone.ToUniversalTime(date);

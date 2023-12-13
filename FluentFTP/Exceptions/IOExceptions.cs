@@ -18,7 +18,7 @@ namespace FluentFTP.Exceptions {
 			// resume if server disconnects midway (fixes #39 and #410)
 			if (exception.InnerException != null || exception.Message.ContainsAnyCI(ServerStringModule.unexpectedEOF)) {
 				if (exception.InnerException is SocketException socketException) {
-#if NETSTANDARD
+#if NETSTANDARD || NET5_0_OR_GREATER
 					return (int)socketException.SocketErrorCode == 10054;
 #else
 					return socketException.ErrorCode == 10054;
