@@ -90,7 +90,12 @@ namespace FluentFTP.Client.BaseClient {
 #else
 				target = "Unknown";
 #endif
+
+#if NET5_0 || NET6_0 || NETSTANDARD2_0 || NETSTANDARD2_1 || NET462 || NET472
 				LogWithPrefix(FtpTraceLevel.Verbose, "FluentFTP " + applicationVersion + "(" + target + ")");
+#else
+#error .csproj: TFM must be either net5.0, net6.0, netstandard2.0, netstandard2.1, net462 or net472
+#endif
 			}
 		}
 
