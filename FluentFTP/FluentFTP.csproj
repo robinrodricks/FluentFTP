@@ -37,10 +37,6 @@
         </None>
     </ItemGroup>
 
-    <PropertyGroup Condition="'$(TargetFramework)'=='net60'">
-        <DefineConstants>$(DefineConstants)NETSTANDARD</DefineConstants>
-    </PropertyGroup>
-
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     </PropertyGroup>
