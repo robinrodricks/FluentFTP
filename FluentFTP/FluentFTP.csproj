@@ -35,7 +35,7 @@
 -->
 
     <PropertyGroup>
-        <TargetFrameworks>net5.0;net6.0;netstandard2.0;netstandard2.1;net462;net472</TargetFrameworks>
+        <TargetFrameworks>net6.0;net5.0;netstandard2.1;netstandard2.0;net472;net462</TargetFrameworks>
         <Platforms>AnyCPU;x64</Platforms>
         <PackageReadmeFile></PackageReadmeFile>
         <RepositoryUrl>https://github.com/robinrodricks/FluentFTP</RepositoryUrl>
