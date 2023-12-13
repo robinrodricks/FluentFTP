@@ -37,10 +37,6 @@
         </None>
     </ItemGroup>
 
-    <PropertyGroup Condition="'$(TargetFramework)'=='net462' Or '$(TargetFramework)'=='net472'">
-        <DefineConstants>$(DefineConstants);NETFRAMEWORK;</DefineConstants>
-    </PropertyGroup>
-
     <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='netstandard2.1'">
         <DefineConstants>$(DefineConstants);NETSTANDARD;</DefineConstants>
     </PropertyGroup>
