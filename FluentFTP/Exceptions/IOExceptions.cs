@@ -20,10 +20,8 @@ namespace FluentFTP.Exceptions {
 				if (exception.InnerException is SocketException socketException) {
 #if NETSTANDARD || NET5_0_OR_GREATER
 					return (int)socketException.SocketErrorCode == 10054;
-#elif NETFRAMEWORK
-					return socketException.ErrorCode == 10054;
 #else
-#error "Check FluentFTP.csproj - TFM not catered for"
+					return socketException.ErrorCode == 10054;
 #endif
 				}
 
