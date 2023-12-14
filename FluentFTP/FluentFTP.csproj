@@ -40,8 +40,8 @@
 
 		net6.0;net5.0;net472;net462;netstandard2.0;netstandard2.1
 
-	In the code, preferrably AVOID using the generic "NETFRAMEWORK", "NET", "NETSTANDARD"
-	symbols. Try to specifiy EXACTLY under which conditions conditional code will execute.
+	In the code, preferably AVOID using the generic "NETFRAMEWORK", "NET", "NETSTANDARD"
+	symbols. Try to specify EXACTLY under which conditions conditional code will execute.
 
 	If you do INSIST on using one of these generics, be aware that
 
