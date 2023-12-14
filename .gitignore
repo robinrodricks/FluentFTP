@@ -24,3 +24,4 @@ API_Reference_CHM.shfbproj_jp
 
 FluentFTP.Tests/testdata
 *.yaml
+/Powershell/FluentFTP.dll
