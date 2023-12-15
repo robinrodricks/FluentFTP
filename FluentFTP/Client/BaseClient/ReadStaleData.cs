@@ -12,11 +12,12 @@ namespace FluentFTP.Client.BaseClient {
 		/// <summary>
 		/// Data shouldn't be on the socket, if it is it probably means we've been disconnected.
 		/// Read and discard whatever is there.
-		/// Returns the stale data as text, if any, or null if none was found.
+		/// Returns the stale data as text or string.empty, if any, or null if none was found.
 		/// </summary>
 		/// <param name="logFrom">for the log information</param>
 		protected string ReadStaleData(string logFrom) {
 			string staleData = null;
+			int staleBytes = 0;
 
 			if (m_stream != null) {
 
@@ -56,13 +57,15 @@ namespace FluentFTP.Client.BaseClient {
 						if (string.IsNullOrEmpty(staleData)) {
 							LogWithPrefix(FtpTraceLevel.Verbose, "Unable to retrieve stale data");
 						}
+						staleData = string.Empty; // Not NULL, i.e. we had stale data but it was empty
 						break;
 					}
+					staleBytes += nRcvBytes;
 					staleData += Encoding.GetString(buf).TrimEnd('\0', '\r', '\n') + Environment.NewLine;
 				}
 
 				if (!string.IsNullOrEmpty(staleData)) {
-					LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: ");
+					LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was (length = " + staleBytes + "): ");
 					string[] staleLines = Regex.Split(staleData, Environment.NewLine);
 					foreach (string staleLine in staleLines) {
 						if (!string.IsNullOrWhiteSpace(staleLine)) {
@@ -76,8 +79,8 @@ namespace FluentFTP.Client.BaseClient {
 			if (Status.IgnoreStaleData) {
 				Status.IgnoreStaleData = false;
 				if (staleData != null) {
-					staleData = null;
 					LogWithPrefix(FtpTraceLevel.Verbose, "Stale data ignored");
+					staleData = null;
 				}
 			}
 
@@ -87,12 +90,13 @@ namespace FluentFTP.Client.BaseClient {
 		/// <summary>
 		/// Data shouldn't be on the socket, if it is it probably means we've been disconnected.
 		/// Read and discard whatever is there.
-		/// Returns the stale data as text, if any, or null if none was found.
+		/// Returns the stale data as text or string.empty, if any, or null if none was found.
 		/// </summary>
 		/// <param name="logFrom">called from where (text)</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		protected async Task<string> ReadStaleDataAsync(string logFrom, CancellationToken token) {
 			string staleData = null;
+			int staleBytes = 0;
 
 			if (m_stream != null) {
 
@@ -114,22 +118,33 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				if (m_stream.SocketDataAvailable > 0) {
-					LogWithPrefix(FtpTraceLevel.Info, "Socket has stale data - " + logFrom);
+					LogWithPrefix(FtpTraceLevel.Info, "Control connection has stale data - " + logFrom);
 				}
 
 				while (m_stream.SocketDataAvailable > 0) {
+					int nRcvBytes;
 					byte[] buf = new byte[m_stream.SocketDataAvailable];
 					if (m_stream.IsEncrypted) {
-						await m_stream.ReadAsync(buf, 0, buf.Length, token);
+						nRcvBytes = await m_stream.ReadAsync(buf, 0, buf.Length, token);
 					}
 					else {
-						await m_stream.RawSocketReadAsync(buf, token);
+						nRcvBytes = await m_stream.RawSocketReadAsync(buf, token);
 					}
+					// Even though SocketDataAvailable > 0, this is possible: nRcvBytes = 0
+					// Prevent endless loop
+					if (nRcvBytes <= 0) {
+						if (string.IsNullOrEmpty(staleData)) {
+							LogWithPrefix(FtpTraceLevel.Verbose, "Unable to retrieve stale data");
+						}
+						staleData = string.Empty; // Not NULL, i.e. we had stale data but it was empty
+						break;
+					}
+					staleBytes += nRcvBytes;
 					staleData += Encoding.GetString(buf).TrimEnd('\0', '\r', '\n') + Environment.NewLine;
 				}
 
 				if (!string.IsNullOrEmpty(staleData)) {
-					LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was: ");
+					LogWithPrefix(FtpTraceLevel.Verbose, "The stale data was (length = " + staleBytes + "): ");
 					string[] staleLines = Regex.Split(staleData, Environment.NewLine);
 					foreach (string staleLine in staleLines) {
 						if (!string.IsNullOrWhiteSpace(staleLine)) {
