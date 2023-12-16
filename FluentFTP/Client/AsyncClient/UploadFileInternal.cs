@@ -207,7 +207,7 @@ namespace FluentFTP {
 							}
 
 							// Fix #387: keep alive with NOOP as configured and needed
-							anyNoop = await NoopAsync(token) || anyNoop;
+							anyNoop = await NoopAsync(false, token) || anyNoop;
 
 							// honor the rate limit
 							var swTime = sw.ElapsedMilliseconds;

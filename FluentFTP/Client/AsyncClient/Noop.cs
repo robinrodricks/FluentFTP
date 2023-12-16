@@ -16,10 +16,11 @@ namespace FluentFTP {
 		/// Please call <see cref="GetReply"/> as needed to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// Note that response is not guaranteed by all FTP servers when sent during file transfers.
 		/// </summary>
+ 		/// <param name="ignoreNoopInterval"/>Send the command regardless of NoopInterval
 		/// <param name="token"></param>
 		/// <returns>true if NOOP command was sent</returns>
-		protected async Task<bool> NoopAsync(CancellationToken token) {
-			if (Config.NoopInterval > 0 && DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval) {
+		protected async Task<bool> NoopAsync(bool ignoreNoopInterval = false, CancellationToken token = default(CancellationToken)) {
+			if (ignoreNoopInterval || (Config.NoopInterval > 0 && DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval)) {
 				Log(FtpTraceLevel.Verbose, "Command:  NOOP");
 
 				await m_stream.WriteLineAsync(m_textEncoding, "NOOP", token);
