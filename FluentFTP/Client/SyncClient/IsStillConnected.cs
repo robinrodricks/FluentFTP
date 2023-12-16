@@ -23,6 +23,13 @@ namespace FluentFTP {
 					}
 				}
 				Config.NoopInterval = saveNoopInterval;
+				if (!connected) {
+					// This will clean up the SocketStream
+					bool saveDisconnectWithQuit = Config.DisconnectWithQuit;
+					Config.DisconnectWithQuit = false;
+					Disconnect();
+					Config.DisconnectWithQuit = saveDisconnectWithQuit;
+				}
 			}
 			return connected;
 		}

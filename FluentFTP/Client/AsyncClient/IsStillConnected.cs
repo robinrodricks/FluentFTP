@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.Design;
 using System.Configuration;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +25,13 @@ namespace FluentFTP {
 					}
 				}
 				Config.NoopInterval = saveNoopInterval;
+				if (!connected) {
+					// This will clean up the SocketStream
+					bool saveDisconnectWithQuit = Config.DisconnectWithQuit;
+					Config.DisconnectWithQuit = false;
+					await Disconnect(token);
+					Config.DisconnectWithQuit = saveDisconnectWithQuit;
+				}
 			}
 			return connected;
 		}
