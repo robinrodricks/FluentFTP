@@ -12,6 +12,8 @@ namespace FluentFTP {
  		/// <paramref name="timeout"/>How to wait for connection confirmation
 		/// </summary>
 		public bool IsStillConnected(int timeout = 10000) {
+			LogFunction(nameof(IsStillConnected), new object[] { timeout });
+
 			bool connected = false;
 			if (IsConnected && IsAuthenticated) {
 				int saveNoopInterval = Config.NoopInterval;
@@ -23,7 +25,9 @@ namespace FluentFTP {
 							connected = true;
 						}
 					}
-					catch { }
+					catch (Exception ex) { 
+						LogWithPrefix(FtpTraceLevel.Verbose, "Exception: " + ex.Message);
+					}
 				}
 				Config.NoopInterval = saveNoopInterval;
 				if (!connected) {
@@ -33,6 +37,9 @@ namespace FluentFTP {
 					Disconnect();
 					Config.DisconnectWithQuit = saveDisconnectWithQuit;
 				}
+			}
+			if (!connected) {
+				LogWithPrefix(FtpTraceLevel.Verbose, "Control connections is not connected");
 			}
 			return connected;
 		}
