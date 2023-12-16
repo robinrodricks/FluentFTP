@@ -207,8 +207,8 @@ namespace FluentFTP {
 
 					LogWithPrefix(FtpTraceLevel.Info, $"FXP transfer of file {sourcePath} has completed");
 
-					Noop();
-					remoteClient.Noop();
+					Noop(true);
+					remoteClient.Noop(true);
 
 					ftpFxpSession.Dispose();
 

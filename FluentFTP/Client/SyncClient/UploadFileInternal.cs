@@ -203,7 +203,7 @@ namespace FluentFTP {
 							}
 
 							// Fix #387: keep alive with NOOP as configured and needed
-							anyNoop = Noop() || anyNoop;
+							anyNoop = Noop(false) || anyNoop;
 
 							// honor the speed limit
 							var swTime = sw.ElapsedMilliseconds;
