@@ -18,9 +18,12 @@ namespace FluentFTP {
 				LastCommandTimestamp = DateTime.MinValue;
 				Config.NoopInterval = 1;
 				if (Noop()) {
-					if (GetReplyInternal("NOOP", false, timeout).Success) {
-						connected = true;
+					try {
+						if (GetReplyInternal("NOOP", false, timeout).Success) {
+							connected = true;
+						}
 					}
+					catch { }
 				}
 				Config.NoopInterval = saveNoopInterval;
 				if (!connected) {
