@@ -10,6 +10,8 @@ namespace FluentFTP {
 		/// Disconnects from the server
 		/// </summary>
 		public void Disconnect() {
+			LogFunction(nameof(Disconnect), null);
+
 			lock (m_lock) {
 				if (m_stream != null && m_stream.IsConnected) {
 					try {

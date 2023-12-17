@@ -76,6 +76,8 @@ namespace FluentFTP {
 			long previousElapsedTime = 0;
 
 			if (exhaustNoop) {
+				Status.DaemonEnable = false;
+
 				// tickle the server
 				m_stream.WriteLine(Encoding, "NOOP");
 			}
@@ -180,6 +182,8 @@ namespace FluentFTP {
 			if (exhaustNoop) {
 				LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) sequence: " + sequence.TrimStart(','));
 			}
+
+			Status.DaemonEnable = true;
 
 			reply = ProcessGetReply(reply, command);
 

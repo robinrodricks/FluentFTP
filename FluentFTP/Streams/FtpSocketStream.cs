@@ -850,6 +850,24 @@ namespace FluentFTP {
 			}
 
 			DisposeSocket();
+
+			// needed or not? base.Dispose(disposing);
+
+			if (Client.Status.DaemonRunning) {
+
+				if (this.IsControlConnection) {
+					DateTime tn = DateTime.Now;
+					do {
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Waiting for daemon termination");
+						Thread.Sleep(150);
+						if (!Client.Status.DaemonRunning) break;
+						Thread.Sleep(850);
+					} while (DateTime.Compare(DateTime.Now, tn.AddMilliseconds(5000)) <= 0);
+				}
+				else {
+					Client.Status.DaemonGetReply = true;
+				}
+			}
 		}
 
 		/// <summary>
@@ -1016,6 +1034,8 @@ namespace FluentFTP {
 			m_netStream = new NetworkStream(m_socket);
 			m_netStream.ReadTimeout = m_readTimeout;
 			m_lastActivity = DateTime.Now;
+
+			Client.Status.DaemonGetReply = false;
 		}
 
 		/// <summary>
@@ -1149,6 +1169,8 @@ namespace FluentFTP {
 			m_netStream = new NetworkStream(m_socket);
 			m_netStream.ReadTimeout = m_readTimeout;
 			m_lastActivity = DateTime.Now;
+
+			Client.Status.DaemonGetReply = false;
 		}
 
 		/// <summary>

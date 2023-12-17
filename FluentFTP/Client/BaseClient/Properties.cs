@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace FluentFTP.Client.BaseClient {
 
@@ -84,8 +85,7 @@ namespace FluentFTP.Client.BaseClient {
 		}
 
 		/// <summary>
-		/// When last command was sent (NOOP or other), for having <see cref="FtpClient.Noop"/>/<see cref="AsyncFtpClient.NoopAsync(CancellationToken)"/>.
-		/// Respects the <see cref="FtpConfig.NoopInterval"/>.
+		/// When last command was sent (NOOP or other)/>.
 		/// </summary>
 		protected DateTime LastCommandTimestamp;
 
@@ -99,6 +99,11 @@ namespace FluentFTP.Client.BaseClient {
 		protected string LastStreamPath;
 
 		protected FtpListParser CurrentListParser;
+
+		/// <summary>
+		/// A thread for background tasks
+		/// </summary>
+		protected Task m_task;
 
 		// Holds the cached resolved address
 		protected string m_Address;

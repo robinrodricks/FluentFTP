@@ -131,5 +131,21 @@ namespace FluentFTP {
 		/// </summary>
 		public ushort zOSListingLRECL { get; set; }
 
+		/// <summary>
+		/// Background task status
+		/// </summary>
+		public bool DaemonRunning { get; set; }
+		/// <summary>
+		/// Background task should GetReply
+		/// </summary>
+		public bool DaemonGetReply { get; set; }
+		/// <summary>
+		/// Background task enabled
+		/// </summary>
+		public bool DaemonEnable { get; set; }
+		/// <summary>
+		/// Background task sent noops
+		/// </summary>
+		public bool DaemonAnyNoops { get; set; }
 	}
 }

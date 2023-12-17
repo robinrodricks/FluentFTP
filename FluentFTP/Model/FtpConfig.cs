@@ -108,12 +108,12 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds after last command
-		/// (NOOP or other) that a NOOP command is sent by <see cref="FtpClient.Noop"/>/<see cref="AsyncFtpClient.NoopAsync(System.Threading.CancellationToken)"/>.
-		/// This is called during downloading/uploading. Setting this
-		/// interval to 0 disables <see cref="FtpClient.Noop"/>/<see cref="AsyncFtpClient.NoopAsync(System.Threading.CancellationToken)"/> all together.
-		/// The default value is 0 (disabled).
+		/// (NOOP or other) that a NOOP command is sent./>.
+		/// This is called during downloading/uploading and idle times. Setting this
+		/// interval to 0 disables this all together.
+		/// The default value is 600000 (60 seconds).
 		/// </summary>
-		public int NoopInterval { get; set; } = 0;
+		public int NoopInterval { get; set; } = 60000;
 
 		/// <summary>
 		/// When this value is set to true (default) the control connection

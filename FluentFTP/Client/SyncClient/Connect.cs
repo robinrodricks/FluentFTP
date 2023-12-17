@@ -41,7 +41,7 @@ namespace FluentFTP {
 
 			lock (m_lock) {
 
-				LogFunction(nameof(Connect), new object[] {reConnect});
+				LogFunction(nameof(Connect), new object[] { reConnect });
 
 				// If we have never been connected before...
 				if (reConnect && Status.ConnectCount == 0) {
@@ -235,6 +235,10 @@ namespace FluentFTP {
 				Status.AllowCheckStaleData = true;
 
 				Status.InCriticalSequence = false;
+
+				if (!Status.DaemonRunning) {
+					m_task = Task.Run(() => { Daemon(); });
+				}
 			}
 		}
 

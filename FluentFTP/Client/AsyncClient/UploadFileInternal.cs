@@ -178,7 +178,7 @@ namespace FluentFTP {
 				catch {
 				}
 
-				var anyNoop = false;
+				Status.DaemonAnyNoops = false;
 
 				// loop till entire file uploaded
 				while (localFileLen == 0 || localPosition < localFileLen) {
@@ -205,9 +205,6 @@ namespace FluentFTP {
 							if (progress != null) {
 								ReportProgress(progress, localFileLen, localPosition, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
 							}
-
-							// Fix #387: keep alive with NOOP as configured and needed
-							anyNoop = await NoopAsync(false, token) || anyNoop;
 
 							// honor the rate limit
 							var swTime = sw.ElapsedMilliseconds;
@@ -278,7 +275,7 @@ namespace FluentFTP {
 
 				// listen for a success/failure reply or out of band data (like NOOP responses)
 				// GetReply(true) means: Exhaust any NOOP responses
-				FtpReply status = await GetReplyAsyncInternal(token, LastCommandExecuted, anyNoop);
+				FtpReply status = await GetReplyAsyncInternal(token, LastCommandExecuted, Status.DaemonAnyNoops);
 
 				// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
 				// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway
