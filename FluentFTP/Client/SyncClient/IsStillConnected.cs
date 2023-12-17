@@ -17,15 +17,13 @@ namespace FluentFTP {
 
 			bool connected = false;
 			if (IsConnected && IsAuthenticated) {
-				if (Noop(true)) {
-					try {
-						if (GetReplyInternal("NOOP", false, timeout).Success) {
-							connected = true;
-						}
+				try {
+					if (Noop(true) && GetReplyInternal("NOOP", false, timeout).Success) {
+						connected = true;
 					}
-					catch (Exception ex) { 
-						LogWithPrefix(FtpTraceLevel.Verbose, "Exception: " + ex.Message);
-					}
+				}
+				catch (Exception ex) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "Exception: " + ex.Message);
 				}
 				if (!connected) {
 					// This will clean up the SocketStream
