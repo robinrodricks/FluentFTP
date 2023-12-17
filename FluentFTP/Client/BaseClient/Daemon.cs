@@ -61,11 +61,11 @@ namespace FluentFTP.Client.BaseClient {
 						// in case one of these commands is issued, make sure we store that
 
 						if (s) {
-							if (rndCmd.StartsWith("Type I")) {
+							if (rndCmd.StartsWith("TYPE I")) {
 								Status.CurrentDataType = FtpDataType.Binary;
 							}
 
-							if (rndCmd.StartsWith("Type A")) {
+							if (rndCmd.StartsWith("TYPE A")) {
 								Status.CurrentDataType = FtpDataType.ASCII;
 							}
 						}
