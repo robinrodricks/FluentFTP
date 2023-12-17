@@ -1035,7 +1035,9 @@ namespace FluentFTP {
 			m_netStream.ReadTimeout = m_readTimeout;
 			m_lastActivity = DateTime.Now;
 
-			Client.Status.DaemonGetReply = false;
+			if (!IsControlConnection) {
+				Client.Status.DaemonGetReply = false;
+			}
 		}
 
 		/// <summary>
@@ -1170,7 +1172,9 @@ namespace FluentFTP {
 			m_netStream.ReadTimeout = m_readTimeout;
 			m_lastActivity = DateTime.Now;
 
-			Client.Status.DaemonGetReply = false;
+			if (!IsControlConnection) {
+				Client.Status.DaemonGetReply = false;
+			}
 		}
 
 		/// <summary>
