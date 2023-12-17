@@ -9,18 +9,21 @@ namespace FluentFTP.Client.BaseClient {
 
 	public partial class BaseFtpClient {
 
+		// same as what FileZilla does
 		static List<string> rndNormalCmds = new List<string> { "NOOP", "PWD", "TYPE I", "TYPE A" };
+		// only NOOP for now
 		static List<string> rndSafeCmds = new List<string> { "NOOP" };
 
 		public void Daemon() {
 
 			LogWithPrefix(FtpTraceLevel.Verbose, "Daemon initialized");
+
 			Status.DaemonRunning = true;
 			Status.DaemonGetReply = true;
 			Status.DaemonEnable = true;
 			Status.DaemonAnyNoops = false;
 
-			do {
+			do { // while(true)
 
 				if (m_stream == null || !m_stream.IsConnected) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "Daemon terminated");
@@ -32,20 +35,30 @@ namespace FluentFTP.Client.BaseClient {
 
 					Random rnd = new Random();
 
-					string rndCmd = Status.DaemonGetReply ? rndNormalCmds[rnd.Next(rndNormalCmds.Count)] : rndNormalCmds[rnd.Next(rndSafeCmds.Count)];
+					// choose one of the normal or the safe commands
+					string rndCmd = Status.DaemonGetReply ?
+						rndNormalCmds[rnd.Next(rndNormalCmds.Count)] :
+						rndNormalCmds[rnd.Next(rndSafeCmds.Count)];
 
+					// only log this if we have an active data connection
 					if (!Status.DaemonGetReply) {
 						LogWithPrefix(FtpTraceLevel.Verbose, "Sending " + rndCmd + " (daemon)");
 					}
 
+					// send the random NOOP command
 					m_stream.WriteLine(m_textEncoding, rndCmd);
 
 					LastCommandTimestamp = DateTime.UtcNow;
 
+					// tell the outside world, NOOPs have actually been sent.
 					Status.DaemonAnyNoops = true;
 
+					// pick the command reply if this is just an idle control connection
 					if (Status.DaemonGetReply) {
+
 						bool s = GetReplyInternal(rndCmd + " (daemon)", false, 10000).Success;
+
+						// in case one of these commands is issued, make sure we store that
 
 						if (s) {
 							if (rndCmd.StartsWith("Type I")) {
@@ -56,6 +69,7 @@ namespace FluentFTP.Client.BaseClient {
 								Status.CurrentDataType = FtpDataType.ASCII;
 							}
 						}
+
 					}
 
 				}
