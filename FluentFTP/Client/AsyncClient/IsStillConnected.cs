@@ -15,18 +15,17 @@ namespace FluentFTP {
 		/// <param name="timeout"/>How to wait for connection confirmation
 		/// <returns>bool connection status</returns>
 		public async Task<bool> IsStillConnected(int timeout = 10000, CancellationToken token = default(CancellationToken)) {
-			LogFunction(nameof(IsStillConnected), new object[] { timeout }); bool connected = false;
+			LogFunction(nameof(IsStillConnected), new object[] { timeout });
 
+			bool connected = false;
 			if (IsConnected && IsAuthenticated) {
-				if (await NoopAsync(true, token)) {
-					try {
-						if ((await GetReplyAsyncInternal(token, "NOOP", false, timeout)).Success) {
-							connected = true;
-						}
+				try {
+					if (await NoopAsync(true, token) && (await GetReplyAsyncInternal(token, "NOOP", false, timeout)).Success) {
+						connected = true;
 					}
-					catch (Exception ex) {
-						LogWithPrefix(FtpTraceLevel.Verbose, "Exception: " + ex.Message);
-					}
+				}
+				catch (Exception ex) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "Exception: " + ex.Message);
 				}
 				if (!connected) {
 					// This will clean up the SocketStream
