@@ -111,9 +111,9 @@ namespace FluentFTP {
 		/// (NOOP or other) that a NOOP command is sent./>.
 		/// This is called during downloading/uploading and idle times. Setting this
 		/// interval to 0 disables this all together.
-		/// The default value is 600000 (60 seconds).
+		/// The default value is 0 (disabled).
 		/// </summary>
-		public int NoopInterval { get; set; } = 60000;
+		public int NoopInterval { get; set; } = 0;
 
 		/// <summary>
 		/// When this value is set to true (default) the control connection
