@@ -85,16 +85,22 @@ namespace FluentFTP {
 			Log(FtpTraceLevel.Info, "Command:  " + cleanedCommand);
 
 			// send command to FTP server
-			await m_stream.WriteLineAsync(m_textEncoding, command, token);
-			LastCommandExecuted = command;
-			LastCommandTimestamp = DateTime.UtcNow;
-			reply = await GetReplyAsyncInternal(token, command);
-			if (reply.Success) {
-				await OnPostExecute(command, token);
+			await m_sema.WaitAsync();
+			try {
+				await m_stream.WriteLineAsync(m_textEncoding, command, token);
+				LastCommandExecuted = command;
+				LastCommandTimestamp = DateTime.UtcNow;
+				reply = await GetReplyAsyncInternal(token, command);
+				if (reply.Success) {
+					await OnPostExecute(command, token);
 
-				if (Config.SslSessionLength > 0) {
-					ConnectModule.CheckCriticalSequence(this, command);
+					if (Config.SslSessionLength > 0) {
+						ConnectModule.CheckCriticalSequence(this, command);
+					}
 				}
+			}
+			finally {
+				m_sema.Release();
 			}
 
 			return reply;

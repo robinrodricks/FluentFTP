@@ -18,7 +18,17 @@ namespace FluentFTP {
 		/// </summary>
 		/// <returns>FtpReply representing the response from the server</returns>
 		public FtpReply GetReply() {
-			return GetReplyInternal();
+			FtpReply ftpReply = new FtpReply();
+
+			m_sema.Wait();
+			try {
+				 ftpReply = GetReplyInternal();
+			}
+			finally {
+				m_sema.Release();
+			}
+
+			return ftpReply;
 		}
 
 	}

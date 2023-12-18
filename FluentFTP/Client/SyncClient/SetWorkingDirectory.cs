@@ -26,13 +26,11 @@ namespace FluentFTP {
 				return;
 			}
 
-			lock (m_lock) {
-				// modify working dir
-				if (!(reply = Execute("CWD " + path)).Success) {
-					throw new FtpCommandException(reply);
-				}
-
+			// modify working dir
+			if (!(reply = Execute("CWD " + path)).Success) {
+				throw new FtpCommandException(reply);
 			}
+
 		}
 
 	}

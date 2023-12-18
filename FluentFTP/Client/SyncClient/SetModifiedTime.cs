@@ -25,34 +25,31 @@ namespace FluentFTP {
 
 			FtpReply reply;
 
-			lock (m_lock) {
+			// calculate the final date string with the timezone conversion
+			date = ConvertDate(date, true);
+			var timeStr = date.GenerateFtpDate();
 
-				// calculate the final date string with the timezone conversion
-				date = ConvertDate(date, true);
-				var timeStr = date.GenerateFtpDate();
-
-				// set modified date of a file
-				if (HasFeature(FtpCapability.MFMT)) {
-					if ((reply = Execute("MFMT " + timeStr + " " + path)).Success) {
-					}
+			// set modified date of a file
+			if (HasFeature(FtpCapability.MFMT)) {
+				if ((reply = Execute("MFMT " + timeStr + " " + path)).Success) {
 				}
-				else if (HasFeature(FtpCapability.MDTM)) {
-					if ((reply = Execute("MDTM " + timeStr + " " + path)).Success) {
-					}
-				}
-				else {
-					throw new FtpException("No time setting command available - see FEAT response");
-				}
-
-				// TODO: Consider also supporting SITE UTIME.
-				// Advantages:
-				//	Uses UTC, no time zone concerns
-				// Disadvantages:
-				//  Some servers do not advertise this command in FEAT response,
-				//  need to test the availability of this command
-				//  Some servers do not support it correctly or in different formats
-
 			}
+			else if (HasFeature(FtpCapability.MDTM)) {
+				if ((reply = Execute("MDTM " + timeStr + " " + path)).Success) {
+				}
+			}
+			else {
+				throw new FtpException("No time setting command available - see FEAT response");
+			}
+
+			// TODO: Consider also supporting SITE UTIME.
+			// Advantages:
+			//	Uses UTC, no time zone concerns
+			// Disadvantages:
+			//  Some servers do not advertise this command in FEAT response,
+			//  need to test the availability of this command
+			//  Some servers do not support it correctly or in different formats
+
 		}
 
 	}

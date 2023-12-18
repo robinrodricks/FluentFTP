@@ -102,7 +102,6 @@ namespace FluentFTP.Client.BaseClient {
 		/// object.
 		/// </summary>
 		public virtual void Dispose() {
-			lock (m_lock) {
 				if (IsDisposed) {
 					return;
 				}
@@ -143,7 +142,6 @@ namespace FluentFTP.Client.BaseClient {
 
 				IsDisposed = true;
 				GC.SuppressFinalize(this);
-			}
 		}
 
 		/// <summary>

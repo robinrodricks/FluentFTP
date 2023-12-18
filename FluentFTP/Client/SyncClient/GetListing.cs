@@ -100,22 +100,20 @@ namespace FluentFTP {
 			bool machineList;
 			CalculateGetListingCommand(path, options, out listcmd, out machineList);
 
-			lock (m_lock) {
-				if (autoNav) {
-					pwdSave = GetWorkingDirectory();
-					if (pwdSave != path) {
-						LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + path + "\"");
-						SetWorkingDirectory(path);
-					}
+			if (autoNav) {
+				pwdSave = GetWorkingDirectory();
+				if (pwdSave != path) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + path + "\"");
+					SetWorkingDirectory(path);
 				}
+			}
 
-				rawlisting = GetListingInternal(listcmd, options, true);
+			rawlisting = GetListingInternal(listcmd, options, true);
 
-				if (autoRestore) {
-					if (pwdSave != GetWorkingDirectory()) {
-						LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
-						SetWorkingDirectory(pwdSave);
-					}
+			if (autoRestore) {
+				if (pwdSave != GetWorkingDirectory()) {
+					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
+					SetWorkingDirectory(pwdSave);
 				}
 			}
 
@@ -197,7 +195,7 @@ namespace FluentFTP {
 			var isUseStat = options.HasFlag(FtpListOption.UseStat);
 
 			// Get the file listing in the desired format
-			SetDataTypeNoLock(Config.ListingDataType);
+			SetDataType(Config.ListingDataType);
 
 			try {
 				// read in raw file listing from control stream
