@@ -76,7 +76,8 @@ namespace FluentFTP.Client.BaseClient {
 			Log(FtpTraceLevel.Info, "Command:  " + cleanedCommand);
 
 			// send command to FTP server and get the reply
-			lock (m_lock) {
+			m_sema.Wait();
+			try {
 				m_stream.WriteLine(m_textEncoding, command);
 				LastCommandExecuted = command;
 				LastCommandTimestamp = DateTime.UtcNow;
@@ -90,6 +91,9 @@ namespace FluentFTP.Client.BaseClient {
 						ConnectModule.CheckCriticalSequence(this, command);
 					}
 				}
+			}
+			finally {
+				m_sema.Release();
 			}
 
 			return reply;

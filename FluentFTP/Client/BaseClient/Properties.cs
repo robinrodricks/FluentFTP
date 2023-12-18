@@ -122,12 +122,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// Used for internally synchronizing access to this
 		/// object from multiple threads in SYNC code
 		/// </summary>
-		protected readonly object m_lock = new object();
-
-		/// <summary>
-		/// For usage by FTP proxies only
-		/// </summary>
-		protected object Lock => m_lock;
+		protected SemaphoreSlim m_sema = new SemaphoreSlim(1, 1);
 
 		/// <summary>
 		/// Control connection socket stream

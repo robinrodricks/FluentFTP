@@ -20,7 +20,9 @@ namespace FluentFTP {
 		/// <returns>true if NOOP command was sent</returns>
 		public bool Noop(bool ignoreNoopInterval = false) {
 			if (ignoreNoopInterval || (Config.NoopInterval > 0 && DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval)) {
-				lock (m_lock) {
+
+				m_sema.Wait();
+				try { 
 					Log(FtpTraceLevel.Verbose, "Command:  NOOP");
 
 					m_stream.WriteLine(m_textEncoding, "NOOP");
@@ -28,14 +30,15 @@ namespace FluentFTP {
 
 					return true;
 				}
+				finally
+				{
+					m_sema.Release();
+				};
+
 			}
 
 			return false;
 		}
-
-		// Note: Enhancement would be to send the following commands in
-		// a random sequence to foil content aware firewalls that would
-		// make this keep alive scheme fail: NOOP, TYPE A, TYPE I, PWD
 
 	}
 }

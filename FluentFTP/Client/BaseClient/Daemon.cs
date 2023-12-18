@@ -37,7 +37,8 @@ namespace FluentFTP.Client.BaseClient {
 						rndNormalCmds[rnd.Next(rndNormalCmds.Count)] :
 						rndNormalCmds[rnd.Next(rndSafeCmds.Count)];
 
-					lock (m_lock) {
+					m_sema.Wait();
+					try {
 						// only log this if we have an active data connection
 						if (!Status.DaemonGetReply) {
 							LogWithPrefix(FtpTraceLevel.Verbose, "Sending " + rndCmd + " (daemon)");
@@ -70,7 +71,10 @@ namespace FluentFTP.Client.BaseClient {
 
 						}
 					}
-
+					finally
+					{
+						m_sema.Release();
+					}
 				}
 
 				Thread.Sleep(100);
