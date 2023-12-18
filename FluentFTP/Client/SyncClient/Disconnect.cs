@@ -12,21 +12,18 @@ namespace FluentFTP {
 		public void Disconnect() {
 			LogFunction(nameof(Disconnect), null);
 
-			lock (m_lock) {
-				if (m_stream != null && m_stream.IsConnected) {
-					try {
-						if (Config.DisconnectWithQuit) {
-							Execute("QUIT");
-						}
-					}
-					catch (Exception ex) {
-						LogWithPrefix(FtpTraceLevel.Warn, "FtpClient.Disconnect(): Exception caught and discarded while closing control connection", ex);
-					}
-					finally {
-						m_stream.Close();
+			if (m_stream != null && m_stream.IsConnected) {
+				try {
+					if (Config.DisconnectWithQuit) {
+						Execute("QUIT");
 					}
 				}
-
+				catch (Exception ex) {
+					LogWithPrefix(FtpTraceLevel.Warn, "FtpClient.Disconnect(): Exception caught and discarded while closing control connection", ex);
+				}
+				finally {
+					m_stream.Close();
+				}
 			}
 		}
 
