@@ -851,8 +851,6 @@ namespace FluentFTP {
 
 			DisposeSocket();
 
-			// needed or not? base.Dispose(disposing);
-
 			if (Client.Status.DaemonRunning) {
 
 				if (this.IsControlConnection) {
@@ -861,7 +859,9 @@ namespace FluentFTP {
 					do {
 						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Waiting for daemon termination");
 						Thread.Sleep(150);
-						if (!Client.Status.DaemonRunning) break;
+						if (!Client.Status.DaemonRunning) {
+							break;
+						}
 						Thread.Sleep(850);
 					} while (DateTime.Compare(DateTime.Now, tn.AddMilliseconds(5000)) <= 0);
 				}
