@@ -120,7 +120,7 @@ namespace FluentFTP.Client.BaseClient {
 
 		/// <summary>
 		/// Used for internally synchronizing access to this
-		/// object from multiple threads
+		/// object from multiple threads in SYNC code
 		/// </summary>
 		protected readonly object m_lock = new object();
 
