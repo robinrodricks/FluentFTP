@@ -1,11 +1,12 @@
 ﻿using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+
+using FluentFTP.Exceptions;
 using FluentFTP.Helpers;
 using FluentFTP.Helpers.Hashing;
 using HashAlgos = FluentFTP.Helpers.Hashing.HashAlgorithms;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentFTP.Exceptions;
-using System.IO;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentFTP.Rules;
-using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
+
+using FluentFTP.Helpers;
+using FluentFTP.Rules;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {

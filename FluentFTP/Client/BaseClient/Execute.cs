@@ -1,6 +1,7 @@
-﻿using System;
-using FluentFTP.Client.Modules;
+﻿using FluentFTP.Client.Modules;
 using FluentFTP.Helpers;
+
+using System;
 
 namespace FluentFTP.Client.BaseClient {
 

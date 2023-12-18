@@ -1,15 +1,12 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using FluentFTP.Streams;
-using FluentFTP.Helpers;
-using FluentFTP.Exceptions;
-using FluentFTP.Client.Modules;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Data;
+
+using FluentFTP.Exceptions;
+using FluentFTP.Helpers;
 using FluentFTP.Rules;
 
 namespace FluentFTP {

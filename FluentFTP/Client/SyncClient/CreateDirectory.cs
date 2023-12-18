@@ -1,8 +1,6 @@
-﻿using FluentFTP.Helpers;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentFTP.Client.Modules;
+﻿using FluentFTP.Client.Modules;
 using FluentFTP.Exceptions;
+using FluentFTP.Helpers;
 
 namespace FluentFTP {
 	public partial class FtpClient {

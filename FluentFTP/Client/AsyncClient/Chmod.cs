@@ -1,7 +1,5 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using FluentFTP.Helpers;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {

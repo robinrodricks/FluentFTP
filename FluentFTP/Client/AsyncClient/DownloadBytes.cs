@@ -1,14 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using FluentFTP.Streams;
-using FluentFTP.Helpers;
-using FluentFTP.Exceptions;
-using FluentFTP.Client.Modules;
 using System.Threading;
 using System.Threading.Tasks;
+
+using FluentFTP.Helpers;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {

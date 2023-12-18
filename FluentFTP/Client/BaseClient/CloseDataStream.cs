@@ -1,5 +1,7 @@
 ﻿using FluentFTP.Exceptions;
+
 using System;
+
 namespace FluentFTP.Client.BaseClient {
 
 	public partial class BaseFtpClient {

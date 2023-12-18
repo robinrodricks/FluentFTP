@@ -1,12 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Net.Sockets;
-using System.Text.RegularExpressions;
-using System.Linq;
-using System.Net;
-using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
+
+using FluentFTP.Helpers;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {

@@ -1,8 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using FluentFTP.Client.Modules;
 using FluentFTP.Helpers;
+
+using System;
+using System.Linq;
 using System.Text.RegularExpressions;
-using FluentFTP.Client.Modules;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
