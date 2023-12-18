@@ -15,7 +15,17 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <returns>FtpReply representing the response from the server</returns>
 		public async Task<FtpReply> GetReply(CancellationToken token = default(CancellationToken)) {
-			return await GetReplyAsyncInternal(token, null, false, 0);
+			FtpReply ftpReply = new FtpReply();
+
+			m_sema.WaitAsync();
+			try {
+				ftpReply = await GetReplyAsyncInternal(token, null, false, 0);
+			}
+			finally {
+				m_sema.Release();
+			};
+
+			return ftpReply;
 		}
 
 		/// <summary>
@@ -76,6 +86,8 @@ namespace FluentFTP {
 			long previousElapsedTime = 0;
 
 			if (exhaustNoop) {
+				Status.DaemonEnable = false;
+
 				// tickle the server
 				m_stream.WriteLine(Encoding, "NOOP");
 			}
@@ -180,6 +192,8 @@ namespace FluentFTP {
 			if (exhaustNoop) {
 				LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) sequence: " + sequence.TrimStart(','));
 			}
+
+			Status.DaemonEnable = true;
 
 			reply = ProcessGetReply(reply, command);
 

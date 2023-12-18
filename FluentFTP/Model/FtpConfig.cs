@@ -108,12 +108,24 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds after last command
-		/// (NOOP or other) that a NOOP command is sent by <see cref="FtpClient.Noop"/>/<see cref="AsyncFtpClient.NoopAsync(System.Threading.CancellationToken)"/>.
-		/// This is called during downloading/uploading. Setting this
-		/// interval to 0 disables <see cref="FtpClient.Noop"/>/<see cref="AsyncFtpClient.NoopAsync(System.Threading.CancellationToken)"/> all together.
+		/// (NOOP or other) that a NOOP command is sent./>.
+		/// This is called during downloading/uploading and idle times. Setting this
+		/// interval to 0 disables this all together.
 		/// The default value is 0 (disabled).
 		/// </summary>
 		public int NoopInterval { get; set; } = 0;
+
+		/// <summary>
+		/// These commands are to be used when the dataconnection is not active, i.e. no transfer
+		/// is taking place. Currently allowed: NOOP, PWD, TYPE I, TYPE A
+		/// </summary>
+		public List<string> NoopIdleCmds = new List<string> { "NOOP", "PWD", "TYPE I", "TYPE A" };
+
+		/// <summary>
+		/// These commands are to be used when the dataconnection is active, i.e. a transfer
+		/// is taking place. Currently allowed: NOOP
+		/// </summary>
+		public List<string> NoopXferCmds = new List<string> { "NOOP" };
 
 		/// <summary>
 		/// When this value is set to true (default) the control connection

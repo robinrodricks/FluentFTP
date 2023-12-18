@@ -18,17 +18,15 @@ namespace FluentFTP {
 		/// <returns></returns>
 		public List<FtpProfile> AutoDetect(FtpAutoDetectConfig config = null) {
 
-			lock (m_lock) {
-				LogFunction(nameof(AutoDetect), config);
+			LogFunction(nameof(AutoDetect), config);
 
-				if (config == null) {
-					config = new FtpAutoDetectConfig();
-				}
-
-				ValidateAutoDetect();
-
-				return ConnectModule.AutoDetect(this, config);
+			if (config == null) {
+				config = new FtpAutoDetectConfig();
 			}
+
+			ValidateAutoDetect();
+
+			return ConnectModule.AutoDetect(this, config);
 		}
 
 		/// <summary>
@@ -45,15 +43,13 @@ namespace FluentFTP {
 		/// <returns></returns>
 		public List<FtpProfile> AutoDetect(bool firstOnly = true, bool cloneConnection = true) {
 
-			lock (m_lock) {
-				LogFunction(nameof(AutoDetect), new object[] { firstOnly, cloneConnection });
-				ValidateAutoDetect();
+			LogFunction(nameof(AutoDetect), new object[] { firstOnly, cloneConnection });
+			ValidateAutoDetect();
 
-				return ConnectModule.AutoDetect(this, new FtpAutoDetectConfig() {
-					FirstOnly = firstOnly,
-					CloneConnection = cloneConnection,
-				});
-			}
+			return ConnectModule.AutoDetect(this, new FtpAutoDetectConfig() {
+				FirstOnly = firstOnly,
+				CloneConnection = cloneConnection,
+			});
 		}
 	}
 }

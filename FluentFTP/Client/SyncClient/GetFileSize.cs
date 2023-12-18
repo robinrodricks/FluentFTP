@@ -33,9 +33,8 @@ namespace FluentFTP {
 			}
 
 			var sizeReply = new FtpSizeReply();
-			lock (m_lock) {
-				GetFileSizeInternal(path, sizeReply, defaultValue);
-			}
+			GetFileSizeInternal(path, sizeReply, defaultValue);
+
 			return sizeReply.FileSize;
 		}
 
@@ -49,7 +48,7 @@ namespace FluentFTP {
 
 			// Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.
 			if (Status.FileSizeASCIINotSupported) {
-				SetDataTypeNoLock(FtpDataType.Binary);
+				SetDataType(FtpDataType.Binary);
 			}
 
 			// execute the SIZE command

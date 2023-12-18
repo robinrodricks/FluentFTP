@@ -18,54 +18,52 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
-			lock (m_lock) {
-				path = path.GetFtpPath();
+			path = path.GetFtpPath();
 
-				LogFunction(nameof(FileExists), new object[] { path });
+			LogFunction(nameof(FileExists), new object[] { path });
 
-				path = GetAbsolutePath(path);
+			path = GetAbsolutePath(path);
 
-				// since FTP does not include a specific command to check if a file exists
-				// here we check if file exists by attempting to get its filesize (SIZE)
-				if (HasFeature(FtpCapability.SIZE) && (ServerHandler == null || (ServerHandler != null && !ServerHandler.DontUseSizeEvenIfCapable(path)))) {
-					// Fix #328: get filesize in ASCII or Binary mode as required by server
-					var sizeReply = new FtpSizeReply();
-					GetFileSizeInternal(path, sizeReply, -1);
+			// since FTP does not include a specific command to check if a file exists
+			// here we check if file exists by attempting to get its filesize (SIZE)
+			if (HasFeature(FtpCapability.SIZE) && (ServerHandler == null || (ServerHandler != null && !ServerHandler.DontUseSizeEvenIfCapable(path)))) {
+				// Fix #328: get filesize in ASCII or Binary mode as required by server
+				var sizeReply = new FtpSizeReply();
+				GetFileSizeInternal(path, sizeReply, -1);
 
-					// handle known errors to the SIZE command
-					var sizeKnownError = CheckFileExistsBySize(sizeReply);
-					if (sizeKnownError.HasValue) {
-						return sizeKnownError.Value;
-					}
+				// handle known errors to the SIZE command
+				var sizeKnownError = CheckFileExistsBySize(sizeReply);
+				if (sizeKnownError.HasValue) {
+					return sizeKnownError.Value;
 				}
+			}
 
-				// check if file exists by attempting to get its date modified (MDTM)
-				if (HasFeature(FtpCapability.MDTM) && (ServerHandler == null || (ServerHandler != null && !ServerHandler.DontUseMdtmEvenIfCapable(path)))) {
-					var reply = Execute("MDTM " + path);
-					var ch = reply.Code[0];
-					if (ch == '2') {
-						return true;
-					}
-					if (ch == '5' && reply.Message.ContainsAnyCI(ServerStringModule.fileNotFound)) {
-						return false;
-					}
+			// check if file exists by attempting to get its date modified (MDTM)
+			if (HasFeature(FtpCapability.MDTM) && (ServerHandler == null || (ServerHandler != null && !ServerHandler.DontUseMdtmEvenIfCapable(path)))) {
+				var reply = Execute("MDTM " + path);
+				var ch = reply.Code[0];
+				if (ch == '2') {
+					return true;
 				}
-
-				// check if file exists by getting a name listing (NLST)
-
-				bool? handledByCustom = null;
-
-				if (ServerHandler != null && ServerHandler.IsCustomFileExists()) {
-					handledByCustom = ServerHandler.FileExists(this, path);
+				if (ch == '5' && reply.Message.ContainsAnyCI(ServerStringModule.fileNotFound)) {
+					return false;
 				}
+			}
 
-				if (handledByCustom != null) {
-					return (bool)handledByCustom;
-				}
-				else {
-					var fileList = GetNameListing(path.GetFtpDirectoryName());
-					return FileListings.FileExistsInNameListing(fileList, path);
-				}
+			// check if file exists by getting a name listing (NLST)
+
+			bool? handledByCustom = null;
+
+			if (ServerHandler != null && ServerHandler.IsCustomFileExists()) {
+				handledByCustom = ServerHandler.FileExists(this, path);
+			}
+
+			if (handledByCustom != null) {
+				return (bool)handledByCustom;
+			}
+			else {
+				var fileList = GetNameListing(path.GetFtpDirectoryName());
+				return FileListings.FileExistsInNameListing(fileList, path);
 			}
 		}
 

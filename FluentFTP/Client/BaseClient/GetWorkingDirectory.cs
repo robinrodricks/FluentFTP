@@ -26,11 +26,9 @@ namespace FluentFTP.Client.BaseClient {
 		protected FtpReply ReadCurrentWorkingDirectory() {
 			FtpReply reply;
 
-			lock (m_lock) {
-				// read the absolute path of the current working dir
-				if (!(reply = ((IInternalFtpClient)this).ExecuteInternal("PWD")).Success) {
-					throw new FtpCommandException(reply);
-				}
+			// read the absolute path of the current working dir
+			if (!(reply = ((IInternalFtpClient)this).ExecuteInternal("PWD")).Success) {
+				throw new FtpCommandException(reply);
 			}
 
 			// cache the last working dir

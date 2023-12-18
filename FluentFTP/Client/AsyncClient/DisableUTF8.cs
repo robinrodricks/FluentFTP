@@ -20,14 +20,12 @@ namespace FluentFTP {
 		public void DisableUTF8() {
 			FtpReply reply;
 
-			lock (m_lock) {
-				if (!(reply = ((IInternalFtpClient)this).ExecuteInternal("OPTS UTF8 OFF")).Success) {
-					throw new FtpCommandException(reply);
-				}
-
-				m_textEncoding = Encoding.ASCII;
-				m_textEncodingAutoUTF = false;
+			if (!(reply = ((IInternalFtpClient)this).ExecuteInternal("OPTS UTF8 OFF")).Success) {
+				throw new FtpCommandException(reply);
 			}
+
+			m_textEncoding = Encoding.ASCII;
+			m_textEncodingAutoUTF = false;
 
 		}
 	}
