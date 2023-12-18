@@ -63,18 +63,14 @@ namespace FluentFTP {
 			FtpDataStream stream = null;
 			long length = 0;
 
-			lock (m_lock) {
+			length = fileLen == 0 ? client.GetFileSize(path) : fileLen;
 
-				length = fileLen == 0 ? client.GetFileSize(path) : fileLen;
+			client.SetDataType(type);
+			stream = client.OpenDataStream("APPE " + path, 0);
 
-				client.SetDataType(type);
-				stream = client.OpenDataStream("APPE " + path, 0);
-
-				if (length > 0 && stream != null) {
-					stream.SetLength(length);
-					stream.SetPosition(length);
-				}
-
+			if (length > 0 && stream != null) {
+				stream.SetLength(length);
+				stream.SetPosition(length);
 			}
 
 			Status.IgnoreStaleData = ignoreStaleData;

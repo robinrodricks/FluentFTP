@@ -17,70 +17,71 @@ namespace FluentFTP.Client.BaseClient {
 			bool reconnect = false;
 			string reconnectReason = string.Empty;
 
+			// Automatic reconnect because we lost the control channel?
+			if (!IsConnected) {
+				if (command == "QUIT") {
+					LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
+					return new FtpReply() {
+						Code = "200",
+						Message = "Connection already closed."
+					};
+				}
+
+				reconnect = true;
+				reconnectReason = "disconnected";
+			}
+			// Automatic reconnect on reaching SslSessionLength?
+			else if (m_stream.IsEncrypted && Config.SslSessionLength > 0 && !Status.InCriticalSequence && m_stream.SslSessionLength > Config.SslSessionLength) {
+				reconnect = true;
+				reconnectReason = "max SslSessionLength reached on";
+			}
+			// Check for stale data on the socket?
+			else if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
+				var staleData = ReadStaleData("prior to command execution of \"" + command.Split()[0] + "\"");
+
+				if (staleData != null) {
+					reconnect = true;
+					reconnectReason = "stale data present on";
+				}
+			}
+
+			if (reconnect) {
+				string sslLengthInfo = string.Empty;
+				if (m_stream is not null && m_stream.IsEncrypted) {
+					sslLengthInfo = " (SslSessionLength: " + m_stream.SslSessionLength + ")";
+				}
+				LogWithPrefix(FtpTraceLevel.Warn, "Reconnect needed due to " + reconnectReason + " control connection" + sslLengthInfo);
+				LogWithPrefix(FtpTraceLevel.Info, "Command stashed: " + command);
+
+				if (IsConnected) {
+					if (Status.LastWorkingDir == null) {
+						Status.InCriticalSequence = true;
+						((IInternalFtpClient)this).GetWorkingDirectoryInternal();
+					}
+
+					m_stream.Close();
+					m_stream = null;
+				}
+
+				((IInternalFtpClient)this).ConnectInternal(true);
+
+				Log(FtpTraceLevel.Info, "");
+				LogWithPrefix(FtpTraceLevel.Info, "Executing stashed command");
+				Log(FtpTraceLevel.Info, "");
+			}
+
+			// hide sensitive data from logs
+			string cleanedCommand = LogMaskModule.MaskCommand(this, command);
+
+			Log(FtpTraceLevel.Info, "Command:  " + cleanedCommand);
+
+			// send command to FTP server and get the reply
 			lock (m_lock) {
-
-				// Automatic reconnect because we lost the control channel?
-				if (!IsConnected) {
-					if (command == "QUIT") {
-						LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
-						return new FtpReply() {
-							Code = "200",
-							Message = "Connection already closed."
-						};
-					}
-
-					reconnect = true;
-					reconnectReason = "disconnected";
-				}
-				// Automatic reconnect on reaching SslSessionLength?
-				else if (m_stream.IsEncrypted && Config.SslSessionLength > 0 && !Status.InCriticalSequence && m_stream.SslSessionLength > Config.SslSessionLength) {
-					reconnect = true;
-					reconnectReason = "max SslSessionLength reached on";
-				}
-				// Check for stale data on the socket?
-				else if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
-					var staleData = ReadStaleData("prior to command execution of \"" + command.Split()[0] + "\"");
-
-					if (staleData != null) {
-						reconnect = true;
-						reconnectReason = "stale data present on";
-					}
-				}
-
-				if (reconnect) {
-					string sslLengthInfo = string.Empty;
-					if (m_stream is not null && m_stream.IsEncrypted) {
-						sslLengthInfo = " (SslSessionLength: " + m_stream.SslSessionLength + ")";
-					}
-					LogWithPrefix(FtpTraceLevel.Warn, "Reconnect needed due to " + reconnectReason + " control connection" + sslLengthInfo);
-					LogWithPrefix(FtpTraceLevel.Info, "Command stashed: " + command);
-
-					if (IsConnected) {
-						if (Status.LastWorkingDir == null) {
-							Status.InCriticalSequence = true;
-							((IInternalFtpClient)this).GetWorkingDirectoryInternal();
-						}
-
-						m_stream.Close();
-						m_stream = null;
-					}
-
-					((IInternalFtpClient)this).ConnectInternal(true);
-
-					Log(FtpTraceLevel.Info, "");
-					LogWithPrefix(FtpTraceLevel.Info, "Executing stashed command");
-					Log(FtpTraceLevel.Info, "");
-				}
-
-				// hide sensitive data from logs
-				string cleanedCommand = LogMaskModule.MaskCommand(this, command);
-
-				Log(FtpTraceLevel.Info, "Command:  " + cleanedCommand);
-
-				// send command to FTP server
 				m_stream.WriteLine(m_textEncoding, command);
 				LastCommandExecuted = command;
 				LastCommandTimestamp = DateTime.UtcNow;
+
+				// get the reply
 				reply = GetReplyInternal(command);
 				if (reply.Success) {
 					OnPostExecute(command);
@@ -88,7 +89,6 @@ namespace FluentFTP.Client.BaseClient {
 					if (Config.SslSessionLength > 0) {
 						ConnectModule.CheckCriticalSequence(this, command);
 					}
-
 				}
 			}
 

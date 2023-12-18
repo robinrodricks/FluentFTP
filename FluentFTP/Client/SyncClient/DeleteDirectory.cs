@@ -55,69 +55,66 @@ namespace FluentFTP {
 
 			path = path.GetFtpPath();
 
-			lock (m_lock) {
+			// server-specific directory deletion
+			// don't use it if requested to leave the top level dir, because
+			// server specific RMDIRs usually brutally delete all
+			if (deleteFinalDir && !path.IsFtpRootDirectory()) {
 
-				// server-specific directory deletion
-				// don't use it if requested to leave the top level dir, because
-				// server specific RMDIRs usually brutally delete all
-				if (deleteFinalDir && !path.IsFtpRootDirectory()) {
-
-					// ask the server handler to delete a directory
-					if (ServerHandler != null) {
-						if (ServerHandler.DeleteDirectory(this, path, path, deleteContents, options)) {
-							return;
-						}
+				// ask the server handler to delete a directory
+				if (ServerHandler != null) {
+					if (ServerHandler.DeleteDirectory(this, path, path, deleteContents, options)) {
+						return;
 					}
 				}
+			}
 
-				// DELETE CONTENTS OF THE DIRECTORY
-				if (deleteContents) {
-					// when GetListing is called with recursive option, then it does not
-					// make any sense to call another DeleteDirectory with force flag set.
-					// however this requires always delete files first.
-					var recurse = !WasGetListingRecursive(options);
+			// DELETE CONTENTS OF THE DIRECTORY
+			if (deleteContents) {
+				// when GetListing is called with recursive option, then it does not
+				// make any sense to call another DeleteDirectory with force flag set.
+				// however this requires always delete files first.
+				var recurse = !WasGetListingRecursive(options);
 
-					// items that are deeper in directory tree are listed first, 
-					// then files will be listed before directories. This matters
-					// only if GetListing was called with recursive option.
-					FtpListItem[] itemList;
-					if (recurse) {
-						itemList = GetListing(path, options);
-					}
-					else {
-						itemList = GetListing(path, options).OrderByDescending(x => x.FullName.Count(c => c.Equals('/'))).ThenBy(x => x.Type).ToArray();
-					}
-
-					// delete the item based on the type
-					foreach (var item in itemList) {
-						switch (item.Type) {
-							case FtpObjectType.File:
-								DeleteFile(item.FullName);
-								break;
-
-							case FtpObjectType.Directory:
-								DeleteDirInternal(item.FullName, recurse, options, true, false);
-								break;
-
-							default:
-								throw new FtpException("Don't know how to delete object type: " + item.Type);
-						}
-					}
+				// items that are deeper in directory tree are listed first, 
+				// then files will be listed before directories. This matters
+				// only if GetListing was called with recursive option.
+				FtpListItem[] itemList;
+				if (recurse) {
+					itemList = GetListing(path, options);
+				}
+				else {
+					itemList = GetListing(path, options).OrderByDescending(x => x.FullName.Count(c => c.Equals('/'))).ThenBy(x => x.Type).ToArray();
 				}
 
-				// SKIP DELETING ROOT DIRS
+				// delete the item based on the type
+				foreach (var item in itemList) {
+					switch (item.Type) {
+						case FtpObjectType.File:
+							DeleteFile(item.FullName);
+							break;
 
-				// can't delete the working directory and
-				// can't delete the server root.
-				if (path.IsFtpRootDirectory()) {
-					return;
-				}
+						case FtpObjectType.Directory:
+							DeleteDirInternal(item.FullName, recurse, options, true, false);
+							break;
 
-				// DELETE ACTUAL DIRECTORY
-				if (!firstCall || deleteFinalDir) {
-					if (!(reply = Execute("RMD " + path)).Success) {
-						throw new FtpCommandException(reply);
+						default:
+							throw new FtpException("Don't know how to delete object type: " + item.Type);
 					}
+				}
+			}
+
+			// SKIP DELETING ROOT DIRS
+
+			// can't delete the working directory and
+			// can't delete the server root.
+			if (path.IsFtpRootDirectory()) {
+				return;
+			}
+
+			// DELETE ACTUAL DIRECTORY
+			if (!firstCall || deleteFinalDir) {
+				if (!(reply = Execute("RMD " + path)).Success) {
+					throw new FtpCommandException(reply);
 				}
 			}
 

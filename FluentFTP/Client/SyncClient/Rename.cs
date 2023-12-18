@@ -27,25 +27,23 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(dest));
 			}
 
-			lock (m_lock) {
-				path = path.GetFtpPath();
-				dest = dest.GetFtpPath();
+			path = path.GetFtpPath();
+			dest = dest.GetFtpPath();
 
-				LogFunction(nameof(Rename), new object[] { path, dest });
+			LogFunction(nameof(Rename), new object[] { path, dest });
 
-				// calc the absolute filepaths
-				path = GetAbsolutePath(path);
-				dest = GetAbsolutePath(dest);
+			// calc the absolute filepaths
+			path = GetAbsolutePath(path);
+			dest = GetAbsolutePath(dest);
 
-				if (!(reply = Execute("RNFR " + path)).Success) {
-					throw new FtpCommandException(reply);
-				}
-
-				if (!(reply = Execute("RNTO " + dest)).Success) {
-					throw new FtpCommandException(reply);
-				}
-
+			if (!(reply = Execute("RNFR " + path)).Success) {
+				throw new FtpCommandException(reply);
 			}
+
+			if (!(reply = Execute("RNTO " + dest)).Success) {
+				throw new FtpCommandException(reply);
+			}
+
 		}
 
 	}

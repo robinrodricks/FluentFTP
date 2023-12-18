@@ -39,16 +39,14 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
-			lock (m_lock) {
-				path = path.GetFtpPath();
+			path = path.GetFtpPath();
 
-				LogFunction(nameof(SetFilePermissions), new object[] { path, permissions });
+			LogFunction(nameof(SetFilePermissions), new object[] { path, permissions });
 
-				if (!(reply = Execute("SITE CHMOD " + permissions.ToString() + " " + path)).Success) {
-					throw new FtpCommandException(reply);
-				}
-
+			if (!(reply = Execute("SITE CHMOD " + permissions.ToString() + " " + path)).Success) {
+				throw new FtpCommandException(reply);
 			}
+
 		}
 
 	}
