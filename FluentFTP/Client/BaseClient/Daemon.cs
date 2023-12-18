@@ -40,36 +40,38 @@ namespace FluentFTP.Client.BaseClient {
 						rndNormalCmds[rnd.Next(rndNormalCmds.Count)] :
 						rndNormalCmds[rnd.Next(rndSafeCmds.Count)];
 
-					// only log this if we have an active data connection
-					if (!Status.DaemonGetReply) {
-						LogWithPrefix(FtpTraceLevel.Verbose, "Sending " + rndCmd + " (daemon)");
-					}
-
-					// send the random NOOP command
-					m_stream.WriteLine(m_textEncoding, rndCmd);
-
-					LastCommandTimestamp = DateTime.UtcNow;
-
-					// tell the outside world, NOOPs have actually been sent.
-					Status.DaemonAnyNoops = true;
-
-					// pick the command reply if this is just an idle control connection
-					if (Status.DaemonGetReply) {
-
-						bool s = GetReplyInternal(rndCmd + " (daemon)", false, 10000).Success;
-
-						// in case one of these commands is issued, make sure we store that
-
-						if (s) {
-							if (rndCmd.StartsWith("TYPE I")) {
-								Status.CurrentDataType = FtpDataType.Binary;
-							}
-
-							if (rndCmd.StartsWith("TYPE A")) {
-								Status.CurrentDataType = FtpDataType.ASCII;
-							}
+					lock (m_lock) {
+						// only log this if we have an active data connection
+						if (!Status.DaemonGetReply) {
+							LogWithPrefix(FtpTraceLevel.Verbose, "Sending " + rndCmd + " (daemon)");
 						}
 
+						// send the random NOOP command
+						m_stream.WriteLine(m_textEncoding, rndCmd);
+
+						LastCommandTimestamp = DateTime.UtcNow;
+
+						// tell the outside world, NOOPs have actually been sent.
+						Status.DaemonAnyNoops = true;
+
+						// pick the command reply if this is just an idle control connection
+						if (Status.DaemonGetReply) {
+
+							bool s = GetReplyInternal(rndCmd + " (daemon)", false, 10000).Success;
+
+							// in case one of these commands is issued, make sure we store that
+
+							if (s) {
+								if (rndCmd.StartsWith("TYPE I")) {
+									Status.CurrentDataType = FtpDataType.Binary;
+								}
+
+								if (rndCmd.StartsWith("TYPE A")) {
+									Status.CurrentDataType = FtpDataType.ASCII;
+								}
+							}
+
+						}
 					}
 
 				}
