@@ -15,7 +15,6 @@ namespace FluentFTP {
 		/// <param name="timeout"/>How to wait for connection confirmation
 		/// <returns>bool connection status</returns>
 		public async Task<bool> IsStillConnected(int timeout = 10000, CancellationToken token = default(CancellationToken)) {
-			LogFunction(nameof(IsStillConnected), new object[] { timeout });
 
 			bool connected = false;
 			if (IsConnected && IsAuthenticated) {
@@ -36,7 +35,7 @@ namespace FluentFTP {
 				}
 			}
 			if (!connected) {
-				LogWithPrefix(FtpTraceLevel.Verbose, "Control connections is not connected");
+				LogWithPrefix(FtpTraceLevel.Verbose, "IsStillConnected: Control connections is not connected");
 			}
 			return connected;
 		}
