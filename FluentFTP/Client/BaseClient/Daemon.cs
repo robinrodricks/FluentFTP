@@ -6,7 +6,7 @@ namespace FluentFTP.Client.BaseClient {
 
 	public partial class BaseFtpClient {
 
-		public void Daemon() {
+		protected void Daemon() {
 
 			LogWithPrefix(FtpTraceLevel.Verbose, "Daemon initialized");
 
