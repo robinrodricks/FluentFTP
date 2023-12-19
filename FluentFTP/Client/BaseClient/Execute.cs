@@ -31,6 +31,19 @@ namespace FluentFTP.Client.BaseClient {
 				reconnectReason = "disconnected";
 			}
 
+			if (Config.NoopAddNoopCmd && IsAuthenticated && !((IInternalFtpClient)this).IsStillConnectedInternal()) {
+				if (command == "QUIT") {
+					LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
+					return new FtpReply() {
+						Code = "200",
+						Message = "Connection already closed."
+					};
+				}
+
+				reconnect = true;
+				reconnectReason = "disconnected";
+			}
+
 			// Automatic reconnect on reaching SslSessionLength?
 			else if (m_stream.IsEncrypted && Config.SslSessionLength > 0 && !Status.InCriticalSequence && m_stream.SslSessionLength > Config.SslSessionLength) {
 				reconnect = true;

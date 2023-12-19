@@ -8,8 +8,9 @@ using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace FluentFTP {
-	public partial class FtpClient {
+namespace FluentFTP.Client.BaseClient {
+
+	public partial class BaseFtpClient {
 
 		/// <summary>
 		/// Sends the NOOP command according to <see cref="FtpConfig.NoopInterval"/> (effectively a no-op if 0).
@@ -18,8 +19,25 @@ namespace FluentFTP {
 		/// <param name="ignoreNoopInterval"/>Send the command regardless of NoopInterval
 		/// </summary>
 		/// <returns>true if NOOP command was sent</returns>
-		public bool Noop(bool ignoreNoopInterval = false) {
-			return ((IInternalFtpClient)this).NoopInternal(ignoreNoopInterval);
+		bool IInternalFtpClient.NoopInternal(bool ignoreNoopInterval = false) {
+			if (ignoreNoopInterval || (Config.NoopInterval > 0 && DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval)) {
+
+				m_sema.Wait();
+				try {
+					Log(FtpTraceLevel.Verbose, "Command:  NOOP");
+
+					m_stream.WriteLine(m_textEncoding, "NOOP");
+					LastCommandTimestamp = DateTime.UtcNow;
+
+					return true;
+				}
+				finally {
+					m_sema.Release();
+				}
+
+			}
+
+			return false;
 		}
 
 	}

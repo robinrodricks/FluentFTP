@@ -17,6 +17,10 @@ namespace FluentFTP {
 
 		FtpReply ExecuteInternal(string command);
 
+		bool IsStillConnectedInternal(int timeout = 10000);
+
+		bool NoopInternal(bool ignoreNoopInterval = false);
+
 		string GetWorkingDirectoryInternal();
 
 		FtpReply CloseDataStreamInternal(FtpDataStream stream);
@@ -28,6 +32,5 @@ namespace FluentFTP {
 		FtpSocketStream GetBaseStream();
 
 		void SetListingParser(FtpParser parser);
-
 	}
 }

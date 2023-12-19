@@ -57,7 +57,6 @@ namespace FluentFTP {
 		Task<string> GetWorkingDirectory(CancellationToken token = default(CancellationToken));
 		Task<long> GetFileSize(string path, long defaultValue = -1, CancellationToken token = default(CancellationToken));
 		Task<DateTime> GetModifiedTime(string path, CancellationToken token = default(CancellationToken));
-
 		Task SetModifiedTime(string path, DateTime date, CancellationToken token = default(CancellationToken));
 
 		// LISTING
