@@ -113,7 +113,6 @@ namespace FluentFTP {
 		/// interval to 0 disables this all together.
 		/// The default value is 0 (disabled).
 		/// </summary>
-
 		public int NoopInterval { get; set; } = 0;
 
 		private List<string> _noopIdleCmds = new List<string> { "NOOP", "PWD", "TYPE I", "TYPE A" };
@@ -137,18 +136,6 @@ namespace FluentFTP {
 			get => _noopXferCmds;
 			set => _noopXferCmds = value;
 		}
-
-		/// <summary>
-		/// These commands are to be used when the dataconnection is not active, i.e. no transfer
-		/// is taking place. Currently allowed: NOOP, PWD, TYPE I, TYPE A
-		/// </summary>
-		public List<string> NoopIdleCmds = new List<string> { "NOOP", "PWD", "TYPE I", "TYPE A" };
-
-		/// <summary>
-		/// These commands are to be used when the dataconnection is active, i.e. a transfer
-		/// is taking place. Currently allowed: NOOP
-		/// </summary>
-		public List<string> NoopXferCmds = new List<string> { "NOOP" };
 
 		/// <summary>
 		/// When this value is set to true (default) the control connection
