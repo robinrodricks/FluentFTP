@@ -138,6 +138,14 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Issue a NOOP command tp precede any command issued on the control connection
+		/// to test connectivity in a reliable fashion. Note: This can incur some control
+		/// connection overhead and does not alleviate inactivity timeouts, it just helps
+		/// to identify connectivity issues early on.
+		/// </summary>
+		public bool NoopAddNoopCmd { get; set; } = false;
+
+		/// <summary>
 		/// When this value is set to true (default) the control connection
 		/// will set which features are available by executing the FEAT command
 		/// when the connect method is called.
