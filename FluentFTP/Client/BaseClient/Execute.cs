@@ -30,6 +30,7 @@ namespace FluentFTP.Client.BaseClient {
 				reconnect = true;
 				reconnectReason = "disconnected";
 			}
+
 			// Automatic reconnect on reaching SslSessionLength?
 			else if (m_stream.IsEncrypted && Config.SslSessionLength > 0 && !Status.InCriticalSequence && m_stream.SslSessionLength > Config.SslSessionLength) {
 				reconnect = true;
