@@ -33,7 +33,7 @@ namespace FluentFTP {
 				}
 				finally {
 					m_sema.Release();
-				};
+				}
 
 			}
 
