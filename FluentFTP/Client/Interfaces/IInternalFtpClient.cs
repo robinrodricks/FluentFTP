@@ -10,10 +10,10 @@ namespace FluentFTP {
 	public interface IInternalFtpClient {
 
 		void ConnectInternal(bool reConnect);
-		void ConnectInternal(bool reConnect, CancellationToken token);
+		Task ConnectInternal(bool reConnect, CancellationToken token);
 
 		void DisconnectInternal();
-		void DisconnectInternal(CancellationToken token);
+		Task DisconnectInternal(CancellationToken token);
 
 		FtpReply ExecuteInternal(string command);
 

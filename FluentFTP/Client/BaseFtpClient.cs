@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient : IDisposable, IInternalFtpClient {
@@ -153,14 +154,17 @@ namespace FluentFTP.Client.BaseClient {
 
 		#endregion
 
-		void IInternalFtpClient.DisconnectInternal() {
-		}
-		void IInternalFtpClient.DisconnectInternal(CancellationToken token) {
-		}
-
 		void IInternalFtpClient.ConnectInternal(bool reConnect) {
+			((IFtpClient)this).Connect(reConnect);
 		}
-		void IInternalFtpClient.ConnectInternal(bool reConnect, CancellationToken token) {
+		async Task IInternalFtpClient.ConnectInternal(bool reConnect, CancellationToken token) {
+			await ((IAsyncFtpClient)this).Connect(reConnect, token);
+		}
+		void IInternalFtpClient.DisconnectInternal() {
+			((IFtpClient)this).Disconnect();
+		}
+		async Task IInternalFtpClient.DisconnectInternal(CancellationToken token) {
+			await ((IAsyncFtpClient)this).Disconnect(token);
 		}
 
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
