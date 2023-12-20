@@ -20,7 +20,7 @@ namespace FluentFTP {
 		// METHODS
 
 		bool HasFeature(FtpCapability cap);
-		void DisableUTF8();
+		Task DisableUTF8(CancellationToken token = default(CancellationToken));
 
 		Task<FtpProfile> AutoConnect(CancellationToken token = default(CancellationToken));
 		Task<List<FtpProfile>> AutoDetect(FtpAutoDetectConfig config, CancellationToken token = default(CancellationToken));
