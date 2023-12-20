@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Threading.Tasks;
 using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP {
@@ -93,10 +94,11 @@ namespace FluentFTP {
 		#endregion
 
 		void IInternalFtpClient.ConnectInternal(bool reConnect) {
-			Connect(reConnect);
+			((IFtpClient)this).Connect(reConnect);
 		}
+
 		void IInternalFtpClient.DisconnectInternal() {
-			Disconnect();
+			((IFtpClient)this).Disconnect();
 		}
 
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
