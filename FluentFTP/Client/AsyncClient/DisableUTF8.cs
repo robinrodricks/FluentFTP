@@ -1,13 +1,8 @@
-﻿using System;
-using System.IO;
+﻿using FluentFTP.Exceptions;
+
 using System.Text;
-using System.Collections.Generic;
-using FluentFTP.Exceptions;
-using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
-using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -17,10 +12,12 @@ namespace FluentFTP {
 		/// back to ASCII. If the server returns an error when trying
 		/// to turn UTF8 off a FtpCommandException will be thrown.
 		/// </summary>
-		public void DisableUTF8() {
+		public async Task DisableUTF8(CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
-			if (!(reply = ((IInternalFtpClient)this).ExecuteInternal("OPTS UTF8 OFF")).Success) {
+			reply = await Execute("OPTS UTF8 OFF", token);
+
+			if (!reply.Success) {
 				throw new FtpCommandException(reply);
 			}
 
