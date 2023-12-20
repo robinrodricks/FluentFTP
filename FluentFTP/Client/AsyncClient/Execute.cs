@@ -103,7 +103,7 @@ namespace FluentFTP {
 				await m_stream.WriteLineAsync(m_textEncoding, command, token);
 				LastCommandExecuted = command;
 				LastCommandTimestamp = DateTime.UtcNow;
-				reply = await ((IInternalFtpClient)this).GetReplyInternal(token, command);
+				reply = await ((IInternalFtpClient)this).GetReplyInternal(token, command, false, 0, false);
 				if (reply.Success) {
 					await OnPostExecute(command, token);
 
