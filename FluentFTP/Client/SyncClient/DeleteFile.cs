@@ -20,14 +20,12 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
-			lock (m_lock) {
-				path = path.GetFtpPath();
+			path = path.GetFtpPath();
 
-				LogFunction(nameof(DeleteFile), new object[] { path });
+			LogFunction(nameof(DeleteFile), new object[] { path });
 
-				if (!(reply = Execute("DELE " + path)).Success) {
-					throw new FtpCommandException(reply);
-				}
+			if (!(reply = Execute("DELE " + path)).Success) {
+				throw new FtpCommandException(reply);
 			}
 		}
 

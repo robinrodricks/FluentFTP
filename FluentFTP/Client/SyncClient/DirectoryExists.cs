@@ -36,20 +36,18 @@ namespace FluentFTP {
 			}
 
 			// check if a folder exists by changing the working dir to it
-			lock (m_lock) {
-				pwd = GetWorkingDirectory();
+			pwd = GetWorkingDirectory();
 
-				if (Execute("CWD " + path).Success) {
-					var reply = Execute("CWD " + pwd);
+			if (Execute("CWD " + path).Success) {
+				var reply = Execute("CWD " + pwd);
 
-					if (!reply.Success) {
-						throw new FtpException("DirectoryExists(): Failed to restore the working directory.");
-					}
-
-					return true;
+				if (!reply.Success) {
+					throw new FtpException("DirectoryExists(): Failed to restore the working directory.");
 				}
 
+				return true;
 			}
+
 
 			return false;
 		}

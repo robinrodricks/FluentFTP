@@ -54,19 +54,25 @@ namespace FluentFTP.Proxy.SyncProxy {
 		protected override void Connect(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions) {
 			base.Connect(stream);
 
-			var writer = new StreamWriter(stream);
-			writer.WriteLine("CONNECT {0}:{1} HTTP/1.1", host, port);
-			writer.WriteLine("Host: {0}:{1}", host, port);
-			if (Proxy.ProxyCredentials != null) {
-				var credentialsHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Proxy.ProxyCredentials.UserName + ":" + Proxy.ProxyCredentials.Password));
-				writer.WriteLine("Proxy-Authorization: Basic " + credentialsHash);
+			m_sema.Wait();
+			try {
+				var writer = new StreamWriter(stream);
+				writer.WriteLine("CONNECT {0}:{1} HTTP/1.1", host, port);
+				writer.WriteLine("Host: {0}:{1}", host, port);
+				if (Proxy.ProxyCredentials != null) {
+					var credentialsHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(Proxy.ProxyCredentials.UserName + ":" + Proxy.ProxyCredentials.Password));
+					writer.WriteLine("Proxy-Authorization: Basic " + credentialsHash);
+				}
+
+				writer.WriteLine("User-Agent: custom-ftp-client");
+				writer.WriteLine();
+				writer.Flush();
+
+				ProxyHandshake(stream);
 			}
-
-			writer.WriteLine("User-Agent: custom-ftp-client");
-			writer.WriteLine();
-			writer.Flush();
-
-			ProxyHandshake(stream);
+			finally {
+				m_sema.Release();
+			}
 		}
 
 		private void ProxyHandshake(FtpSocketStream stream) {
@@ -80,41 +86,37 @@ namespace FluentFTP.Proxy.SyncProxy {
 			var reply = new FtpReply();
 			string buf;
 
-			lock (Lock) {
-				if (!IsConnected) {
-					throw new InvalidOperationException("No connection to the server has been established.");
+			if (!IsConnected) {
+				throw new InvalidOperationException("No connection to the server has been established.");
+			}
+
+			stream.ReadTimeout = Config.ReadTimeout;
+			while ((buf = stream.ReadLine(Encoding)) != null) {
+				Match m;
+
+				Log(FtpTraceLevel.Info, buf);
+
+				if ((m = Regex.Match(buf, @"^HTTP/.*\s(?<code>[0-9]{3}) (?<message>.*)$")).Success) {
+					reply.Code = m.Groups["code"].Value;
+					reply.Message = m.Groups["message"].Value;
+					break;
 				}
 
-				stream.ReadTimeout = Config.ReadTimeout;
-				while ((buf = stream.ReadLine(Encoding)) != null) {
-					Match m;
+				reply.InfoMessages += buf + "\n";
+			}
 
-					Log(FtpTraceLevel.Info, buf);
+			// fixes #84 (missing bytes when downloading/uploading files through proxy)
+			while ((buf = stream.ReadLine(Encoding)) != null) {
+				Log(FtpTraceLevel.Info, buf);
 
-					if ((m = Regex.Match(buf, @"^HTTP/.*\s(?<code>[0-9]{3}) (?<message>.*)$")).Success) {
-						reply.Code = m.Groups["code"].Value;
-						reply.Message = m.Groups["message"].Value;
-						break;
-					}
-
-					reply.InfoMessages += buf + "\n";
+				if (Strings.IsNullOrWhiteSpace(buf)) {
+					break;
 				}
 
-				// fixes #84 (missing bytes when downloading/uploading files through proxy)
-				while ((buf = stream.ReadLine(Encoding)) != null) {
-					Log(FtpTraceLevel.Info, buf);
-
-					if (Strings.IsNullOrWhiteSpace(buf)) {
-						break;
-					}
-
-					reply.InfoMessages += buf + "\n";
-				}
-
+				reply.InfoMessages += buf + "\n";
 			}
 
 			return reply;
 		}
-
 	}
 }

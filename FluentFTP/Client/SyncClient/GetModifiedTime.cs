@@ -25,15 +25,12 @@ namespace FluentFTP {
 			var date = DateTime.MinValue;
 			FtpReply reply;
 
-			lock (m_lock) {
-
-				// get modified date of a file
-				if ((reply = Execute("MDTM " + path)).Success) {
-					date = reply.Message.ParseFtpDate(this);
-					date = ConvertDate(date);
-				}
-
+			// get modified date of a file
+			if ((reply = Execute("MDTM " + path)).Success) {
+				date = reply.Message.ParseFtpDate(this);
+				date = ConvertDate(date);
 			}
+
 			return date;
 		}
 

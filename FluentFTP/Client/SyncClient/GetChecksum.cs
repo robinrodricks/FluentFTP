@@ -116,21 +116,19 @@ namespace FluentFTP {
 				return;
 			}
 
-			lock (m_lock) {
-				if ((HashAlgorithms & algorithm) != algorithm) {
-					throw new NotImplementedException("The hash algorithm " + algorithm.ToString() + " was not advertised by the server.");
-				}
-
-				string algoName = HashAlgos.PrintToString(algorithm);
-
-				if (!(reply = Execute("OPTS HASH " + algoName)).Success) {
-					throw new FtpCommandException(reply);
-				}
-
-				// save the current hash algo so no need to repeat this command
-				Status.LastHashAlgo = algorithm;
-
+			if ((HashAlgorithms & algorithm) != algorithm) {
+				throw new NotImplementedException("The hash algorithm " + algorithm.ToString() + " was not advertised by the server.");
 			}
+
+			string algoName = HashAlgos.PrintToString(algorithm);
+
+			if (!(reply = Execute("OPTS HASH " + algoName)).Success) {
+				throw new FtpCommandException(reply);
+			}
+
+			// save the current hash algo so no need to repeat this command
+			Status.LastHashAlgo = algorithm;
+
 		}
 
 		#endregion
@@ -204,11 +202,8 @@ namespace FluentFTP {
 				}
 			}
 
-			lock (m_lock) {
-				if (!(reply = Execute("HASH " + remotePath)).Success) {
-					throw new FtpCommandException(reply);
-				}
-
+			if (!(reply = Execute("HASH " + remotePath)).Success) {
+				throw new FtpCommandException(reply);
 			}
 
 			if (autoRestore) {
