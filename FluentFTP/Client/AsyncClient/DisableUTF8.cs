@@ -23,7 +23,6 @@ namespace FluentFTP {
 
 			m_textEncoding = Encoding.ASCII;
 			m_textEncodingAutoUTF = false;
-
 		}
 	}
 }
