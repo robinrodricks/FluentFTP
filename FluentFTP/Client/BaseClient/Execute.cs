@@ -97,7 +97,7 @@ namespace FluentFTP.Client.BaseClient {
 				LastCommandTimestamp = DateTime.UtcNow;
 
 				// get the reply
-				reply = GetReplyInternal(command);
+				reply = ((IInternalFtpClient)this).GetReplyInternal(command, false);
 				if (reply.Success) {
 					OnPostExecute(command);
 

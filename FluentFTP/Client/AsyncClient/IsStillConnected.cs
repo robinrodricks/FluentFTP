@@ -19,7 +19,7 @@ namespace FluentFTP {
 			bool connected = false;
 			if (IsConnected && IsAuthenticated) {
 				try {
-					if (await NoopAsync(true, token) && (await GetReplyAsyncInternal(token, "NOOP", false, timeout)).Success) {
+					if (await Noop(true, token) && (await ((IInternalFtpClient)this).GetReplyInternal(token, "NOOP", false, timeout)).Success) {
 						connected = true;
 					}
 				}

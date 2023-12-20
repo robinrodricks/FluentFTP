@@ -25,7 +25,7 @@ namespace FluentFTP.Client.BaseClient {
 					// the server will send a reply when the data connection
 					// is closed.
 					if (stream.CommandStatus.Type == FtpResponseType.PositivePreliminary) {
-						if (!(reply = GetReplyInternal(LastCommandExecuted)).Success) {
+						if (!(reply = ((IInternalFtpClient)this).GetReplyInternal(LastCommandExecuted)).Success) {
 							throw new FtpCommandException(reply);
 						}
 					}

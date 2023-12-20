@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP.Helpers;
 
-namespace FluentFTP.Client.BaseClient{
+namespace FluentFTP.Client.BaseClient {
 
 	public partial class BaseFtpClient {
 
@@ -18,9 +18,9 @@ namespace FluentFTP.Client.BaseClient{
 			bool connected = false;
 			if (IsConnected && IsAuthenticated) {
 				try {
-					//if (Noop(true) && GetReplyInternal("NOOP", false, timeout).Success) {
-					//	connected = true;
-				//}
+					if (((IInternalFtpClient)this).NoopInternal(true) && ((IInternalFtpClient)this).GetReplyInternal("NOOP", false, timeout).Success) {
+						connected = true;
+					}
 				}
 				catch (Exception ex) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "Exception: " + ex.Message);

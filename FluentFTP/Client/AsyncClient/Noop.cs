@@ -19,7 +19,7 @@ namespace FluentFTP {
 		/// <param name="ignoreNoopInterval"/>Send the command regardless of NoopInterval
 		/// <param name="token"></param>
 		/// <returns>true if NOOP command was sent</returns>
-		protected async Task<bool> NoopAsync(bool ignoreNoopInterval = false, CancellationToken token = default(CancellationToken)) {
+		protected async Task<bool> Noop(bool ignoreNoopInterval = false, CancellationToken token = default(CancellationToken)) {
 			if (ignoreNoopInterval || (Config.NoopInterval > 0 && DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval)) {
 
 				await m_sema.WaitAsync();

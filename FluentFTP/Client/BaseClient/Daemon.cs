@@ -49,8 +49,7 @@ namespace FluentFTP.Client.BaseClient {
 
 						// pick the command reply if this is just an idle control connection
 						if (Status.DaemonCmdMode) {
-
-							bool s = GetReplyInternal(rndCmd + " (daemon)", false, 10000).Success;
+							bool s = ((IInternalFtpClient)this).GetReplyInternal(rndCmd + " (daemon)", false, 10000).Success;
 
 							// in case one of these commands is issued, make sure we store that
 
@@ -63,7 +62,6 @@ namespace FluentFTP.Client.BaseClient {
 									Status.CurrentDataType = FtpDataType.ASCII;
 								}
 							}
-
 						}
 					}
 					finally
