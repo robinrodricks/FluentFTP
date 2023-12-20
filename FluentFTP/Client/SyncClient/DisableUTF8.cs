@@ -1,13 +1,8 @@
-﻿using System;
-using System.IO;
+﻿using FluentFTP.Exceptions;
+
+
+
 using System.Text;
-using System.Collections.Generic;
-using FluentFTP.Exceptions;
-using FluentFTP.Helpers;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
-using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -21,7 +16,9 @@ namespace FluentFTP {
 			FtpReply reply;
 
 			lock (m_lock) {
-				if (!(reply = Execute("OPTS UTF8 OFF")).Success) {
+				reply = Execute("OPTS UTF8 OFF");
+
+				if (!reply.Success) {
 					throw new FtpCommandException(reply);
 				}
 
