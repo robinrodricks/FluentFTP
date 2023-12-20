@@ -34,6 +34,19 @@ namespace FluentFTP {
 				reconnectReason = "disconnected";
 			}
 
+			if (Config.NoopAddNoopCmd && IsAuthenticated && !await IsStillConnected()) {
+				if (command == "QUIT") {
+					LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
+					return new FtpReply() {
+						Code = "200",
+						Message = "Connection already closed."
+					};
+				}
+
+				reconnect = true;
+				reconnectReason = "disconnected";
+			}
+
 			// Automatic reconnect on reaching SslSessionLength?
 			else if (m_stream.IsEncrypted && Config.SslSessionLength > 0 && !Status.InCriticalSequence && m_stream.SslSessionLength > Config.SslSessionLength) {
 				reconnect = true;
@@ -85,16 +98,22 @@ namespace FluentFTP {
 			Log(FtpTraceLevel.Info, "Command:  " + cleanedCommand);
 
 			// send command to FTP server
-			await m_stream.WriteLineAsync(m_textEncoding, command, token);
-			LastCommandExecuted = command;
-			LastCommandTimestamp = DateTime.UtcNow;
-			reply = await GetReplyAsyncInternal(token, command);
-			if (reply.Success) {
-				await OnPostExecute(command, token);
+			await m_sema.WaitAsync();
+			try {
+				await m_stream.WriteLineAsync(m_textEncoding, command, token);
+				LastCommandExecuted = command;
+				LastCommandTimestamp = DateTime.UtcNow;
+				reply = await ((IInternalFtpClient)this).GetReplyInternal(token, command, false, 0, false);
+				if (reply.Success) {
+					await OnPostExecute(command, token);
 
-				if (Config.SslSessionLength > 0) {
-					ConnectModule.CheckCriticalSequence(this, command);
+					if (Config.SslSessionLength > 0) {
+						ConnectModule.CheckCriticalSequence(this, command);
+					}
 				}
+			}
+			finally {
+				m_sema.Release();
 			}
 
 			return reply;

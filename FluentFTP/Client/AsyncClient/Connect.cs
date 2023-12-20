@@ -239,6 +239,10 @@ namespace FluentFTP {
 			Status.AllowCheckStaleData = true;
 
 			Status.InCriticalSequence = false;
+
+			if (!Status.DaemonRunning) { 
+				m_task = Task.Run(() => { Daemon(); });
+			}
 		}
 
 		/// <summary>
