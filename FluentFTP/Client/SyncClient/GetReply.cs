@@ -1,12 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Net.Sockets;
-using System.Text.RegularExpressions;
-using System.Linq;
-using System.Net;
-using FluentFTP.Helpers;
+﻿using System.Threading.Tasks;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -18,8 +11,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <returns>FtpReply representing the response from the server</returns>
 		public FtpReply GetReply() {
-			return GetReplyInternal();
+			return ((IInternalFtpClient)this).GetReplyInternal(null, false, 0);
 		}
-
 	}
 }

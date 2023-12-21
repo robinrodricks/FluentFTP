@@ -39,54 +39,51 @@ namespace FluentFTP {
 
 			path = GetAbsolutePath(path);
 
-			lock (m_lock) {
+			// always get the file listing in binary to avoid character translation issues with ASCII.
+			SetDataType(Config.ListingDataType);
 
-				// always get the file listing in binary to avoid character translation issues with ASCII.
-				SetDataTypeNoLock(Config.ListingDataType);
+			// read in raw listing
+			try {
+				using (var stream = OpenDataStream("NLST " + path, 0)) {
+					Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
+					string line;
 
-				// read in raw listing
-				try {
-					using (var stream = OpenDataStream("NLST " + path, 0)) {
-						Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
-						string line;
-
-						try {
-							while ((line = stream.ReadLine(Encoding)) != null) {
-								listing.Add(line);
-								Log(FtpTraceLevel.Verbose, "Listing:  " + line);
-							}
+					try {
+						while ((line = stream.ReadLine(Encoding)) != null) {
+							listing.Add(line);
+							Log(FtpTraceLevel.Verbose, "Listing:  " + line);
 						}
-						finally {
-							// We want to close/dispose it NOW, and not when the GM
-							// gets around to it (after the "using" expires).
-							stream.Close();
-						}
-						Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 					}
-				}
-				catch (AuthenticationException) {
-					FtpReply reply = GetReplyInternal("NLST " + path, false, -1); // no exhaustNoop, but non-blocking
-					if (!reply.Success) {
-						throw new FtpCommandException(reply);
+					finally {
+						// We want to close/dispose it NOW, and not when the GM
+						// gets around to it (after the "using" expires).
+						stream.Close();
 					}
-					throw;
+					Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 				}
-				catch (FtpMissingSocketException) {
-					// Some FTP server does not send any response when listing an empty directory
-					// and the connection fails because no communication socket is provided by the server
-				}
-				catch (FtpCommandException ftpEx) {
-					// Some FTP servers throw 450 or 550 for empty folders. Absorb these.
-					if (ftpEx.CompletionCode == null ||
-						(!ftpEx.CompletionCode.StartsWith("450") && !ftpEx.CompletionCode.StartsWith("550")) ) {
-						throw ftpEx;
-					}
-				}
-				catch (IOException) {
-					// Some FTP servers forcibly close the connection, we absorb these errors
-				}
-
 			}
+			catch (AuthenticationException) {
+				FtpReply reply = ((IInternalFtpClient)this).GetReplyInternal("NLST " + path, false, -1); // no exhaustNoop, but non-blocking
+				if (!reply.Success) {
+					throw new FtpCommandException(reply);
+				}
+				throw;
+			}
+			catch (FtpMissingSocketException) {
+				// Some FTP server does not send any response when listing an empty directory
+				// and the connection fails because no communication socket is provided by the server
+			}
+			catch (FtpCommandException ftpEx) {
+				// Some FTP servers throw 450 or 550 for empty folders. Absorb these.
+				if (ftpEx.CompletionCode == null ||
+					(!ftpEx.CompletionCode.StartsWith("450") && !ftpEx.CompletionCode.StartsWith("550"))) {
+					throw ftpEx;
+				}
+			}
+			catch (IOException) {
+				// Some FTP servers forcibly close the connection, we absorb these errors
+			}
+
 			return listing.ToArray();
 		}
 

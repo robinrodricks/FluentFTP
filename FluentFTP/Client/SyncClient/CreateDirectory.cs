@@ -38,45 +38,42 @@ namespace FluentFTP {
 				return false;
 			}
 
-			lock (m_lock) {
-
-				// server-specific directory creation
-				// ask the server handler to create a directory
-				if (ServerHandler != null) {
-					if (ServerHandler.CreateDirectory(this, path, path, force)) {
-						return true;
-					}
+			// server-specific directory creation
+			// ask the server handler to create a directory
+			if (ServerHandler != null) {
+				if (ServerHandler.CreateDirectory(this, path, path, force)) {
+					return true;
 				}
-
-				path = path.TrimEnd('/');
-
-				if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
-					LogWithPrefix(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
-					CreateDirectory(path.GetFtpDirectoryName(), true);
-				}
-
-				// fix: improve performance by skipping the directory exists check
-				/*else if (DirectoryExists(path)) {
-					return false;
-				}*/
-
-				LogWithPrefix(FtpTraceLevel.Verbose, "CreateDirectory " + path);
-
-				if (!(reply = Execute("MKD " + path)).Success) {
-
-					// if the error indicates the directory already exists, its not an error
-					if (reply.Code == "550") {
-						return false;
-					}
-					if (reply.Code[0] == '5' && reply.Message.ContainsAnyCI(ServerStringModule.folderExists)) {
-						return false;
-					}
-
-					throw new FtpCommandException(reply);
-				}
-				return true;
-
 			}
+
+			path = path.TrimEnd('/');
+
+			if (force && !DirectoryExists(path.GetFtpDirectoryName())) {
+				LogWithPrefix(FtpTraceLevel.Verbose, "Create non-existent parent directory: " + path.GetFtpDirectoryName());
+				CreateDirectory(path.GetFtpDirectoryName(), true);
+			}
+
+			// fix: improve performance by skipping the directory exists check
+			/*else if (DirectoryExists(path)) {
+				return false;
+			}*/
+
+			LogWithPrefix(FtpTraceLevel.Verbose, "CreateDirectory " + path);
+
+			if (!(reply = Execute("MKD " + path)).Success) {
+
+				// if the error indicates the directory already exists, its not an error
+				if (reply.Code == "550") {
+					return false;
+				}
+				if (reply.Code[0] == '5' && reply.Message.ContainsAnyCI(ServerStringModule.folderExists)) {
+					return false;
+				}
+
+				throw new FtpCommandException(reply);
+			}
+			return true;
+
 		}
 	}
 }

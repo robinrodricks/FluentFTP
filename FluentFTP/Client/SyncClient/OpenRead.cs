@@ -66,13 +66,10 @@ namespace FluentFTP {
 			FtpDataStream stream = null;
 			long length = 0;
 
-			lock (m_lock) {
+			length = fileLen == 0 ? client.GetFileSize(path) : fileLen;
 
-				length = fileLen == 0 ? client.GetFileSize(path) : fileLen;
-
-				client.SetDataType(type);
-				stream = client.OpenDataStream("RETR " + path, restart);
-			}
+			client.SetDataType(type);
+			stream = client.OpenDataStream("RETR " + path, restart);
 
 			if (stream != null) {
 				if (length > 0) {
