@@ -156,19 +156,6 @@ namespace FluentFTP.Client.BaseClient {
 
 		#endregion
 
-		void IInternalFtpClient.ConnectInternal(bool reConnect) {
-			((IFtpClient)this).Connect(reConnect);
-		}
-		async Task IInternalFtpClient.ConnectInternal(bool reConnect, CancellationToken token) {
-			await ((IAsyncFtpClient)this).Connect(reConnect, token);
-		}
-		void IInternalFtpClient.DisconnectInternal() {
-			((IFtpClient)this).Disconnect();
-		}
-		async Task IInternalFtpClient.DisconnectInternal(CancellationToken token) {
-			await ((IAsyncFtpClient)this).Disconnect(token);
-		}
-
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
 	}
