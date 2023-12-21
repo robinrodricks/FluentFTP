@@ -107,11 +107,16 @@ namespace FluentFTP {
 		public bool StaleDataCheck { get; set; } = true;
 
 		/// <summary>
+		/// Install the Noop Daemon. It is needed for all of the Noop functionality
+		/// </summary>
+		public bool NoopInstallDaemon { get; set; } = false;
+
+		/// <summary>
 		/// Gets or sets the length of time in milliseconds after last command
 		/// (NOOP or other) that a NOOP command is sent./>.
 		/// This is called during downloading/uploading and idle times. Setting this
-		/// interval to 0 disables this all together.
-		/// The default value is 0 (disabled).
+		/// interval to 0 stops NOOPs from being issued.
+		/// The default value is 0 - no NOOPs are issued.
 		/// </summary>
 		public int NoopInterval { get; set; } = 0;
 
@@ -604,7 +609,11 @@ namespace FluentFTP {
 			write.InternetProtocolVersions = read.InternetProtocolVersions;
 			write.SocketPollInterval = read.SocketPollInterval;
 			write.StaleDataCheck = read.StaleDataCheck;
+			write.NoopInstallDaemon = read.NoopInstallDaemon;
 			write.NoopInterval = read.NoopInterval;
+			write.NoopIdleCmds = read.NoopIdleCmds;
+			write.NoopXferCmds = read.NoopXferCmds;
+			write.NoopAddNoopCmd = read.NoopAddNoopCmd;
 			write.DataConnectionType = read.DataConnectionType;
 			write.DisconnectWithQuit = read.DisconnectWithQuit;
 			write.ConnectTimeout = read.ConnectTimeout;
