@@ -30,7 +30,6 @@ namespace FluentFTP {
 			await Connect(false, token);
 		}
 
-		// TODO: add example
 		/// <summary>
 		/// Connect to the server
 		/// </summary>
