@@ -31,11 +31,9 @@ namespace FluentFTP {
 			// Ok, the CWD starts with a single quote. Classic z/OS dataset realm
 			FtpReply reply;
 
-			lock (m_lock) {
-				// Fetch the current working directory. The reply will tell us what it is we are...
-				if (!(reply = Execute("CWD " + Status.LastWorkingDir)).Success) {
-					throw new FtpCommandException(reply);
-				}
+			// Fetch the current working directory. The reply will tell us what it is we are...
+			if (!(reply = Execute("CWD " + Status.LastWorkingDir)).Success) {
+				throw new FtpCommandException(reply);
 			}
 
 			// 250-The working directory may be a load library                          

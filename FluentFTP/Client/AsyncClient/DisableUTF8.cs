@@ -15,7 +15,6 @@ namespace FluentFTP {
 		public async Task DisableUTF8(CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
-
 			reply = await Execute("OPTS UTF8 OFF", token);
 
 			if (!reply.Success) {
@@ -24,7 +23,6 @@ namespace FluentFTP {
 
 			m_textEncoding = Encoding.ASCII;
 			m_textEncodingAutoUTF = false;
-
 		}
 	}
 }

@@ -23,52 +23,50 @@ namespace FluentFTP {
 
 			LogFunction(nameof(OpenDataStream), new object[] { command, restart });
 
-			lock (m_lock) {
-				if (!IsConnected) {
-					LogWithPrefix(FtpTraceLevel.Warn, "Reconnect due to disconnected control connection");
-					Connect(true);
-				}
+			if (!IsConnected) {
+				LogWithPrefix(FtpTraceLevel.Warn, "Reconnect due to disconnected control connection");
+				Connect(true);
+			}
 
-				// The PORT and PASV commands do not work with IPv6 so
-				// if either one of those types are set change them
-				// to EPSV or EPRT appropriately.
-				if (m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetworkV6) {
-					switch (type) {
-						case FtpDataConnectionType.PORT:
-							type = FtpDataConnectionType.EPRT;
-							Log(FtpTraceLevel.Info, "Changed data connection type to EPRT because we are connected with IPv6.");
-							break;
-
-						case FtpDataConnectionType.PASV:
-						case FtpDataConnectionType.PASVEX:
-						case FtpDataConnectionType.PASVUSE:
-							type = FtpDataConnectionType.EPSV;
-							Log(FtpTraceLevel.Info, "Changed data connection type to EPSV because we are connected with IPv6.");
-							break;
-					}
-				}
-
+			// The PORT and PASV commands do not work with IPv6 so
+			// if either one of those types are set change them
+			// to EPSV or EPRT appropriately.
+			if (m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetworkV6) {
 				switch (type) {
-					case FtpDataConnectionType.AutoPassive:
-					case FtpDataConnectionType.EPSV:
+					case FtpDataConnectionType.PORT:
+						type = FtpDataConnectionType.EPRT;
+						Log(FtpTraceLevel.Info, "Changed data connection type to EPRT because we are connected with IPv6.");
+						break;
+
 					case FtpDataConnectionType.PASV:
 					case FtpDataConnectionType.PASVEX:
 					case FtpDataConnectionType.PASVUSE:
-						stream = OpenPassiveDataStream(type, command, restart);
-						break;
-
-					case FtpDataConnectionType.AutoActive:
-					case FtpDataConnectionType.EPRT:
-					case FtpDataConnectionType.PORT:
-						stream = OpenActiveDataStream(type, command, restart);
+						type = FtpDataConnectionType.EPSV;
+						Log(FtpTraceLevel.Info, "Changed data connection type to EPSV because we are connected with IPv6.");
 						break;
 				}
-
-				if (stream == null) {
-					throw new InvalidOperationException("The specified data channel type is not implemented.");
-				}
-
 			}
+
+			switch (type) {
+				case FtpDataConnectionType.AutoPassive:
+				case FtpDataConnectionType.EPSV:
+				case FtpDataConnectionType.PASV:
+				case FtpDataConnectionType.PASVEX:
+				case FtpDataConnectionType.PASVUSE:
+					stream = OpenPassiveDataStream(type, command, restart);
+					break;
+
+				case FtpDataConnectionType.AutoActive:
+				case FtpDataConnectionType.EPRT:
+				case FtpDataConnectionType.PORT:
+					stream = OpenActiveDataStream(type, command, restart);
+					break;
+			}
+
+			if (stream == null) {
+				throw new InvalidOperationException("The specified data channel type is not implemented.");
+			}
+
 			return stream;
 		}
 
