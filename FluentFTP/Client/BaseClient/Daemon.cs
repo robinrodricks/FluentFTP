@@ -29,8 +29,8 @@ namespace FluentFTP.Client.BaseClient {
 
 					// choose one of the normal or the safe commands
 					string rndCmd = Status.DaemonCmdMode ?
-						Config.NoopIdleCmds[rnd.Next(Config.NoopIdleCmds.Count)] :
-						Config.NoopXferCmds[rnd.Next(Config.NoopXferCmds.Count)];
+						Config.NoopInactiveCommands[rnd.Next(Config.NoopInactiveCommands.Count)] :
+						Config.NoopActiveCommands[rnd.Next(Config.NoopActiveCommands.Count)];
 
 					m_sema.Wait();
 					try {

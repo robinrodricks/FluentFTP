@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
@@ -84,7 +85,7 @@ namespace FluentFTP {
 			get => _socketPollInterval;
 			set {
 				_socketPollInterval = value;
-
+				
 				// set this value on the FtpClient's base stream
 				if (_client != null) {
 					var stream = ((IInternalFtpClient)_client).GetBaseStream();
@@ -105,11 +106,12 @@ namespace FluentFTP {
 		/// available on the socket before executing a command.
 		/// </summary>
 		public bool StaleDataCheck { get; set; } = true;
-
+		
 		/// <summary>
-		/// Install the Noop Daemon. It is needed for all of the Noop functionality
+		/// Install the NOOP Daemon whenever an FTP connection is established, which ensures that NOOPs are sent at regular intervals.
+		/// This is the master switch for all NOOP functionality.
 		/// </summary>
-		public bool NoopInstallDaemon { get; set; } = false;
+		public bool Noop { get; set; } = false;
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds after last command
@@ -120,26 +122,26 @@ namespace FluentFTP {
 		/// </summary>
 		public int NoopInterval { get; set; } = 0;
 
-		private List<string> _noopIdleCmds = new List<string> { "NOOP", "PWD", "TYPE I", "TYPE A" };
+		private List<string> _noopInactiveCmds = new List<string> { "NOOP", "PWD", "TYPE I", "TYPE A" };
 
 		/// <summary>
 		/// These commands are to be used when the dataconnection is not active, i.e. no transfer
-		/// is taking place. Currently allowed: NOOP, PWD, TYPE I, TYPE A
+		/// is taking place. Default: NOOP, PWD, TYPE I, TYPE A
 		/// </summary>
-		public List<string> NoopIdleCmds {
-			get => _noopIdleCmds;
-			set => _noopIdleCmds = value;
+		public List<string> NoopInactiveCommands {
+			get => _noopInactiveCmds;
+			set => _noopInactiveCmds = value;
 		}
 
-		private List<string> _noopXferCmds = new List<string> { "NOOP" };
+		private List<string> _noopActiveCommands = new List<string> { "NOOP" };
 
 		/// <summary>
 		/// These commands are to be used when the dataconnection is active, i.e. a transfer
-		/// is taking place. Currently allowed: NOOP
+		/// is taking place. Default: NOOP
 		/// </summary>
-		public List<string> NoopXferCmds {
-			get => _noopXferCmds;
-			set => _noopXferCmds = value;
+		public List<string> NoopActiveCommands {
+			get => _noopActiveCommands;
+			set => _noopActiveCommands = value;
 		}
 
 		/// <summary>
@@ -148,7 +150,7 @@ namespace FluentFTP {
 		/// connection overhead and does not alleviate inactivity timeouts, it just helps
 		/// to identify connectivity issues early on.
 		/// </summary>
-		public bool NoopAddNoopCmd { get; set; } = false;
+		public bool NoopTestConnectivity { get; set; } = false;
 
 		/// <summary>
 		/// When this value is set to true (default) the control connection
@@ -609,11 +611,11 @@ namespace FluentFTP {
 			write.InternetProtocolVersions = read.InternetProtocolVersions;
 			write.SocketPollInterval = read.SocketPollInterval;
 			write.StaleDataCheck = read.StaleDataCheck;
-			write.NoopInstallDaemon = read.NoopInstallDaemon;
+			write.Noop = read.Noop;
 			write.NoopInterval = read.NoopInterval;
-			write.NoopIdleCmds = read.NoopIdleCmds;
-			write.NoopXferCmds = read.NoopXferCmds;
-			write.NoopAddNoopCmd = read.NoopAddNoopCmd;
+			write.NoopInactiveCommands = read.NoopInactiveCommands;
+			write.NoopActiveCommands = read.NoopActiveCommands;
+			write.NoopTestConnectivity = read.NoopTestConnectivity;
 			write.DataConnectionType = read.DataConnectionType;
 			write.DisconnectWithQuit = read.DisconnectWithQuit;
 			write.ConnectTimeout = read.ConnectTimeout;

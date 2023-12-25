@@ -34,7 +34,7 @@ namespace FluentFTP {
 				reconnectReason = "disconnected";
 			}
 
-			if (Config.NoopAddNoopCmd && IsAuthenticated && !await IsStillConnected()) {
+			if (Config.NoopTestConnectivity && IsAuthenticated && !await IsStillConnected()) {
 				if (command == "QUIT") {
 					LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
 					return new FtpReply() {

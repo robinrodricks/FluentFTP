@@ -239,7 +239,7 @@ namespace FluentFTP {
 
 			Status.InCriticalSequence = false;
 
-			if (Config.NoopInstallDaemon && !Status.DaemonRunning) { 
+			if (Config.Noop && !Status.DaemonRunning) { 
 				m_task = Task.Run(() => { Daemon(); });
 			}
 		}
