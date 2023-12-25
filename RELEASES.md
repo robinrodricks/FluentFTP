@@ -1,5 +1,37 @@
 # Release Notes
 
+#### 49.0.0
+
+ - **NOOP Daemon** (thanks [FanDjango](/FanDjango))
+   - New: Revised NOOP handling with new config option `Noop` to enable NOOP daemon
+   - New: New config options `NoopInactiveCommands` and `NoopActiveCommands` to set FTP commands usable
+   - New: New config option `NoopTestConnectivity` to issue NOOP commands before every FTP command
+   - Change: `NoopInterval` now has a default of 3 minutes
+   - Change: Update `GetReply` for new NOOP handling logic
+ - **Connection Status** (thanks [FanDjango](/FanDjango))
+   - New: `IsStillConnected()` API to reliably check if FTP connection is still active
+ - **Auto Connection** (mostly thanks [FanDjango](/FanDjango))
+   - New: Treat timeouts during `AutoDetect` as failed detection instead of aborting (thanks [FabBadDog](/FabBadDog))
+   - Fix: Prevent Auto-Reconnect occurring before connect is complete
+   - Fix: `AutoDetect` is thread unsafe, fix `AutoDetectConfig` `IncludeImplicit` logic
+ - **FTP Transfers** (thanks [FanDjango](/FanDjango))
+   - Fix: Servers with no server handler used wrong `GetListing()` command
+   - Fix: `OpenRead` retry attempt fails due to typo
+   - Fix: Missing code in async stale data handler
+   - Fix: Missing code in Async `DisableUTF8` API
+ - **FTP Proxies**
+   - Fix: Correctly set supported method in SOCKS 5 proxy negotiation (thanks [rmja](/rmja))
+ - **Codebase Maintainance** (mostly thanks [FanDjango](/FanDjango))
+   - Fix: Remove `NET50_OR_LATER` invalid moniker (thanks [sean-bloch](/sean-bloch))
+   - Fix: Cleanup and standardize all .NET Target framework markers (TFMs)
+   - Maintenance: Clean up interfaces and implementation for Connect/Disconnect
+ - **Testing** (thanks [FanDjango](/FanDjango))
+   - Fix: Powershell folder was not being populated, add to GIT ignore list
+   - Fix: Docker build process was failing due to debian py image changes
+ - **Logging** (thanks [FanDjango](/FanDjango))
+   - New: Log selected server handler, if any are detected
+   - New: Log improvements for `OpenAppend`, `OpenRead` and `OpenWrite` to help in debugging
+
 #### 48.0.3
  - **Utilities**
    - New: `FtpResult.ToStatus()` API to easily compare result values of `DownloadFile`/`DownloadFiles` and `UploadFile`/`UploadFiles`
