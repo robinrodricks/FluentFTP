@@ -118,9 +118,9 @@ namespace FluentFTP {
 		/// (NOOP or other) that a NOOP command is sent./>.
 		/// This is called during downloading/uploading and idle times. Setting this
 		/// interval to 0 stops NOOPs from being issued.
-		/// The default value is 0 - no NOOPs are issued.
+		/// The default value is 3 minutes, which catches the typical 5 minute timeout by FTP servers.
 		/// </summary>
-		public int NoopInterval { get; set; } = 0;
+		public int NoopInterval { get; set; } = 180000;
 
 		private List<string> _noopInactiveCmds = new List<string> { "NOOP", "PWD", "TYPE I", "TYPE A" };
 
