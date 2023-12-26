@@ -89,7 +89,7 @@ namespace FluentFTP.Client.BaseClient {
 			long previousElapsedTime = 0;
 
 			if (useSema) {
-				m_sema.WaitAsync();
+				m_sema.Wait();
 			}
 
 			try {

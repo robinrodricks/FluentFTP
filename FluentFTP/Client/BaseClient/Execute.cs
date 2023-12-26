@@ -98,16 +98,16 @@ namespace FluentFTP.Client.BaseClient {
 
 				// get the reply
 				reply = ((IInternalFtpClient)this).GetReplyInternal(command, false, 0, false);
-				if (reply.Success) {
-					OnPostExecute(command);
-
-					if (Config.SslSessionLength > 0) {
-						ConnectModule.CheckCriticalSequence(this, command);
-					}
-				}
 			}
 			finally {
 				m_sema.Release();
+			}
+			if (reply.Success) {
+				OnPostExecute(command);
+
+				if (Config.SslSessionLength > 0) {
+					ConnectModule.CheckCriticalSequence(this, command);
+				}
 			}
 
 			return reply;

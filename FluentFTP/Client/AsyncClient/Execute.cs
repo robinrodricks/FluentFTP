@@ -103,17 +103,19 @@ namespace FluentFTP {
 				await m_stream.WriteLineAsync(m_textEncoding, command, token);
 				LastCommandExecuted = command;
 				LastCommandTimestamp = DateTime.UtcNow;
-				reply = await ((IInternalFtpClient)this).GetReplyInternal(token, command, false, 0, false);
-				if (reply.Success) {
-					await OnPostExecute(command, token);
 
-					if (Config.SslSessionLength > 0) {
-						ConnectModule.CheckCriticalSequence(this, command);
-					}
-				}
+				// get the reply
+				reply = await ((IInternalFtpClient)this).GetReplyInternal(token, command, false, 0, false);
 			}
 			finally {
 				m_sema.Release();
+			}
+			if (reply.Success) {
+				await OnPostExecute(command, token);
+
+				if (Config.SslSessionLength > 0) {
+					ConnectModule.CheckCriticalSequence(this, command);
+				}
 			}
 
 			return reply;
