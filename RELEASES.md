@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 49.0.1
+
+ - Fix: Change semaphore logic to prevent deadlock in NOOP Daemon (thanks [FanDjango](/FanDjango))
+
 #### 49.0.0
 
  - **NOOP Daemon** (thanks [FanDjango](/FanDjango))
@@ -14,6 +18,8 @@
    - New: Treat timeouts during `AutoDetect` as failed detection instead of aborting (thanks [FabBadDog](/FabBadDog))
    - Fix: Prevent Auto-Reconnect occurring before connect is complete
    - Fix: `AutoDetect` is thread unsafe, fix `AutoDetectConfig` `IncludeImplicit` logic
+ - **Multi-Threading** (thanks [FanDjango](/FanDjango))
+   - Change: Remove all internal locking in the sync `FtpClient`
  - **FTP Transfers** (thanks [FanDjango](/FanDjango))
    - Fix: Servers with no server handler used wrong `GetListing()` command
    - Fix: `OpenRead` retry attempt fails due to typo
@@ -24,7 +30,7 @@
  - **Codebase Maintainance** (mostly thanks [FanDjango](/FanDjango))
    - Fix: Remove `NET50_OR_LATER` invalid moniker (thanks [sean-bloch](/sean-bloch))
    - Fix: Cleanup and standardize all .NET Target framework markers (TFMs)
-   - Maintenance: Clean up interfaces and implementation for Connect/Disconnect
+   - Fix: Clean up interfaces and implementation for Connect/Disconnect
  - **Testing** (thanks [FanDjango](/FanDjango))
    - Fix: Powershell folder was not being populated, add to GIT ignore list
    - Fix: Docker build process was failing due to debian py image changes
