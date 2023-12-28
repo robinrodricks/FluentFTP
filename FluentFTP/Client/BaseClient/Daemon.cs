@@ -1,11 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace FluentFTP.Client.BaseClient {
 
 	public partial class BaseFtpClient {
 
+		/// <summary>
+		/// Daemon for NOOP handling
+		/// </summary>
 		protected void Daemon() {
 
 			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Daemon initialized");
@@ -14,6 +16,8 @@ namespace FluentFTP.Client.BaseClient {
 			Status.DaemonCmdMode = true;
 			Status.DaemonEnable = true;
 			Status.DaemonAnyNoops = false;
+
+			bool gotEx = false;
 
 			do { // while(true)
 
@@ -31,14 +35,26 @@ namespace FluentFTP.Client.BaseClient {
 						Config.NoopActiveCommands[rnd.Next(Config.NoopActiveCommands.Count)];
 
 					m_sema.Wait();
+
 					try {
+
 						// only log this if we have an active data connection
-						if (!Status.DaemonCmdMode) {
+						if (Status.DaemonCmdMode) {
+							Log(FtpTraceLevel.Verbose, "Command:  " + rndCmd + " (daemon)");
+						}
+						else {
 							((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Sending " + rndCmd + " (daemon)");
 						}
 
 						// send the random NOOP command
-						m_stream.WriteLine(m_textEncoding, rndCmd);
+						try {
+							m_stream.WriteLine(m_textEncoding, rndCmd);
+						}
+						catch (Exception ex) {
+							((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#1): " + ex.Message + " (daemon)");
+							gotEx = true;
+							break;
+						}
 
 						LastCommandTimestamp = DateTime.UtcNow;
 
@@ -52,11 +68,12 @@ namespace FluentFTP.Client.BaseClient {
 								success = ((IInternalFtpClient)this).GetReplyInternal(rndCmd + " (daemon)", false, 10000, false).Success;
 							}
 							catch (Exception ex) {
-								((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#1): " + ex.Message + " (daemon)");
+								((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#2): " + ex.Message + " (daemon)");
+								gotEx = true;
+								break;
 							}
 
-							// in case one of these commands is issued, make sure we store that
-
+							// in case one of these commands was successfully issued, make sure we store that
 							if (success) {
 								if (rndCmd.StartsWith("TYPE I")) {
 									Status.CurrentDataType = FtpDataType.Binary;
@@ -69,20 +86,25 @@ namespace FluentFTP.Client.BaseClient {
 						}
 					}
 					catch (Exception ex) {
-						((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#2): " + ex.Message + " (daemon)");
+						((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#3): " + ex.Message + " (daemon)");
+						gotEx = true;
+						break;
 					}
-					finally {
-						m_sema.Release();
-					}
+
+					m_sema.Release();
 				}
 
 				Thread.Sleep(100);
 
 			} while (true);
 
+			if (gotEx) {
+				m_stream.Close();
+			}
+
 			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Daemon terminated");
 			Status.DaemonRunning = false;
+			m_sema.Release();
 		}
-
 	}
 }
