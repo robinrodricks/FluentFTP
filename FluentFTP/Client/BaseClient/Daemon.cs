@@ -8,7 +8,7 @@ namespace FluentFTP.Client.BaseClient {
 
 		protected void Daemon() {
 
-			LogWithPrefix(FtpTraceLevel.Verbose, "Daemon initialized");
+			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Daemon initialized");
 
 			Status.DaemonRunning = true;
 			Status.DaemonCmdMode = true;
@@ -18,9 +18,7 @@ namespace FluentFTP.Client.BaseClient {
 			do { // while(true)
 
 				if (m_stream == null || !m_stream.IsConnected) {
-					LogWithPrefix(FtpTraceLevel.Verbose, "Daemon terminated");
-					Status.DaemonRunning = false;
-					return;
+					break;
 				}
 
 				if (Status.DaemonEnable && Config.NoopInterval > 0 && DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval) {
@@ -36,7 +34,7 @@ namespace FluentFTP.Client.BaseClient {
 					try {
 						// only log this if we have an active data connection
 						if (!Status.DaemonCmdMode) {
-							LogWithPrefix(FtpTraceLevel.Verbose, "Sending " + rndCmd + " (daemon)");
+							((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Sending " + rndCmd + " (daemon)");
 						}
 
 						// send the random NOOP command
@@ -49,11 +47,17 @@ namespace FluentFTP.Client.BaseClient {
 
 						// pick the command reply if this is just an idle control connection
 						if (Status.DaemonCmdMode) {
-							bool s = ((IInternalFtpClient)this).GetReplyInternal(rndCmd + " (daemon)", false, 10000, false).Success;
+							bool success = false;
+							try {
+								success = ((IInternalFtpClient)this).GetReplyInternal(rndCmd + " (daemon)", false, 10000, false).Success;
+							}
+							catch (Exception ex) {
+								((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#1): " + ex.Message + " (daemon)");
+							}
 
 							// in case one of these commands is issued, make sure we store that
 
-							if (s) {
+							if (success) {
 								if (rndCmd.StartsWith("TYPE I")) {
 									Status.CurrentDataType = FtpDataType.Binary;
 								}
@@ -64,8 +68,10 @@ namespace FluentFTP.Client.BaseClient {
 							}
 						}
 					}
-					finally
-					{
+					catch (Exception ex) {
+						((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#2): " + ex.Message + " (daemon)");
+					}
+					finally {
 						m_sema.Release();
 					}
 				}
@@ -74,6 +80,8 @@ namespace FluentFTP.Client.BaseClient {
 
 			} while (true);
 
+			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Daemon terminated");
+			Status.DaemonRunning = false;
 		}
 
 	}

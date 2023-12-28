@@ -852,20 +852,7 @@ namespace FluentFTP {
 			DisposeSocket();
 
 			if (Client.Status.DaemonRunning) {
-				if (this.IsControlConnection) {
-					// if we are terminating the control connection, stop the NOOP daemon
-					DateTime tn = DateTime.Now;
-					do {
-						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Waiting for daemon termination");
-						Thread.Sleep(150);
-						if (!Client.Status.DaemonRunning) {
-							break;
-						}
-						Thread.Sleep(850);
-					} while (DateTime.Compare(DateTime.Now, tn.AddMilliseconds(5000)) <= 0);
-				}
-				else {
-					// if terminating a data connection, tell the NOOP daemon to revert to GetReply usage
+				if (!this.IsControlConnection) {
 					Client.Status.DaemonCmdMode = true;
 				}
 			}
