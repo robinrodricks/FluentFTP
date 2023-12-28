@@ -1,11 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 
 namespace FluentFTP.Client.BaseClient {
 
 	public partial class BaseFtpClient {
 
+		/// <summary>
+		/// Daemon for NOOP handling
+		/// </summary>
 		protected void Daemon() {
 
 			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Daemon initialized");
@@ -55,8 +57,7 @@ namespace FluentFTP.Client.BaseClient {
 								((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#1): " + ex.Message + " (daemon)");
 							}
 
-							// in case one of these commands is issued, make sure we store that
-
+							// in case one of these commands was successfully issued, make sure we store that
 							if (success) {
 								if (rndCmd.StartsWith("TYPE I")) {
 									Status.CurrentDataType = FtpDataType.Binary;
@@ -74,6 +75,7 @@ namespace FluentFTP.Client.BaseClient {
 					finally {
 						m_sema.Release();
 					}
+
 				}
 
 				Thread.Sleep(100);
@@ -83,6 +85,5 @@ namespace FluentFTP.Client.BaseClient {
 			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Daemon terminated");
 			Status.DaemonRunning = false;
 		}
-
 	}
 }
