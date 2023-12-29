@@ -34,7 +34,7 @@ namespace FluentFTP.Client.BaseClient {
 				}
 			}
 			if (!connected) {
-				LogWithPrefix(FtpTraceLevel.Verbose, "Control connections is not connected");
+				LogWithPrefix(FtpTraceLevel.Verbose, "IsStillConnected: Control connections is not connected");
 			}
 			return connected;
 		}
