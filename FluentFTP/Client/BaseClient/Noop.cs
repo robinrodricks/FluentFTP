@@ -24,12 +24,14 @@ namespace FluentFTP.Client.BaseClient {
 
 				m_sema.Wait();
 				try {
-					Log(FtpTraceLevel.Verbose, "Command:  NOOP");
+					if (m_stream != null && m_stream.IsConnected) {
+						Log(FtpTraceLevel.Verbose, "Command:  NOOP");
 
-					m_stream.WriteLine(m_textEncoding, "NOOP");
-					LastCommandTimestamp = DateTime.UtcNow;
+						m_stream.WriteLine(m_textEncoding, "NOOP");
+						LastCommandTimestamp = DateTime.UtcNow;
 
-					return true;
+						return true;
+					}
 				}
 				finally {
 					m_sema.Release();
