@@ -24,7 +24,7 @@ namespace FluentFTP {
 			m_sema.Release();
 
 			// Automatic reconnect because we lost the control channel?
-			if (!IsConnected || (Config.NoopTestConnectivity && IsAuthenticated && !await IsStillConnected())) {
+			if (!IsConnected || (Config.NoopTestConnectivity && IsAuthenticated && Status.DaemonRunning && !await IsStillConnected())) {
 				if (command == "QUIT") {
 					LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
 					return new FtpReply() {
