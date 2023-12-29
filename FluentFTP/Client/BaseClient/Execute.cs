@@ -17,8 +17,11 @@ namespace FluentFTP.Client.BaseClient {
 			bool reconnect = false;
 			string reconnectReason = string.Empty;
 
+			m_sema.Wait();
+			m_sema.Release();
+
 			// Automatic reconnect because we lost the control channel?
-			if (!IsConnected) {
+			if (!IsConnected || (Config.NoopTestConnectivity && IsAuthenticated && !((IInternalFtpClient)this).IsStillConnectedInternal())) {
 				if (command == "QUIT") {
 					LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
 					return new FtpReply() {
@@ -30,22 +33,8 @@ namespace FluentFTP.Client.BaseClient {
 				reconnect = true;
 				reconnectReason = "disconnected";
 			}
-
-			if (Config.NoopTestConnectivity && IsAuthenticated && !((IInternalFtpClient)this).IsStillConnectedInternal()) {
-				if (command == "QUIT") {
-					LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
-					return new FtpReply() {
-						Code = "200",
-						Message = "Connection already closed."
-					};
-				}
-
-				reconnect = true;
-				reconnectReason = "disconnected";
-			}
-
 			// Automatic reconnect on reaching SslSessionLength?
-			else if (m_stream.IsEncrypted && Config.SslSessionLength > 0 && !Status.InCriticalSequence && m_stream.SslSessionLength > Config.SslSessionLength) {
+			else if (m_stream is not null && m_stream.IsEncrypted && Config.SslSessionLength > 0 && !Status.InCriticalSequence && m_stream.SslSessionLength > Config.SslSessionLength) {
 				reconnect = true;
 				reconnectReason = "max SslSessionLength reached on";
 			}
