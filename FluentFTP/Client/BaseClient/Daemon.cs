@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace FluentFTP.Client.BaseClient {
@@ -21,7 +22,7 @@ namespace FluentFTP.Client.BaseClient {
 
 			do { // while(true)
 
-				if (m_stream == null || !m_stream.IsConnected) {
+				if (!IsConnected) {
 					break;
 				}
 
@@ -35,7 +36,6 @@ namespace FluentFTP.Client.BaseClient {
 						Config.NoopActiveCommands[rnd.Next(Config.NoopActiveCommands.Count)];
 
 					m_sema.Wait();
-
 					try {
 
 						// only log this if we have an active data connection
@@ -53,7 +53,6 @@ namespace FluentFTP.Client.BaseClient {
 						catch (Exception ex) {
 							((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#1): " + ex.Message + " (daemon)");
 							gotEx = true;
-							break;
 						}
 
 						LastCommandTimestamp = DateTime.UtcNow;
@@ -70,7 +69,6 @@ namespace FluentFTP.Client.BaseClient {
 							catch (Exception ex) {
 								((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#2): " + ex.Message + " (daemon)");
 								gotEx = true;
-								break;
 							}
 
 							// in case one of these commands was successfully issued, make sure we store that
@@ -88,23 +86,31 @@ namespace FluentFTP.Client.BaseClient {
 					catch (Exception ex) {
 						((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#3): " + ex.Message + " (daemon)");
 						gotEx = true;
-						break;
 					}
+					finally {
+						if (gotEx) {
+							m_stream.Close();
+							m_stream = null;
+						}
+						m_sema.Release();
+					}
+				}
 
-					m_sema.Release();
+				if (gotEx) {
+					break;
 				}
 
 				Thread.Sleep(100);
 
 			} while (true);
 
+			string reason = string.Empty;
 			if (gotEx) {
-				m_stream.Close();
+				reason =  "due to detected connection problem";
 			}
 
-			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Daemon terminated");
+			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Daemon terminated " + reason);
 			Status.DaemonRunning = false;
-			m_sema.Release();
 		}
 	}
 }
