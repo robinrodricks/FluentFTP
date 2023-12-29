@@ -24,7 +24,7 @@ namespace FluentFTP {
 
 				await m_sema.WaitAsync();
 				try {
-					if (m_stream != null && m_stream.IsConnected) {
+					if (IsConnected) {
 						Log(FtpTraceLevel.Verbose, "Command:  NOOP");
 
 						await m_stream.WriteLineAsync(m_textEncoding, "NOOP", token);
