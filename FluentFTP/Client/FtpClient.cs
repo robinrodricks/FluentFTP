@@ -93,14 +93,6 @@ namespace FluentFTP {
 
 		#endregion
 
-		void IInternalFtpClient.ConnectInternal(bool reConnect) {
-			((IFtpClient)this).Connect(reConnect);
-		}
-
-		void IInternalFtpClient.DisconnectInternal() {
-			((IFtpClient)this).Disconnect();
-		}
-
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
 	}

@@ -11,7 +11,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		protected void Daemon() {
 
-			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Daemon initialized");
+			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Daemon is initialized");
 
 			Status.DaemonRunning = true;
 			Status.DaemonCmdMode = true;
@@ -26,7 +26,7 @@ namespace FluentFTP.Client.BaseClient {
 					break;
 				}
 
-				if (Status.DaemonEnable && Config.NoopInterval > 0 && DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval) {
+				if (Status.DaemonEnable) {
 
 					Random rnd = new Random();
 
@@ -37,54 +37,59 @@ namespace FluentFTP.Client.BaseClient {
 
 					m_sema.Wait();
 					try {
+						if (Config.NoopInterval > 0 && DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval) {
 
-						// only log this if we have an active data connection
-						if (Status.DaemonCmdMode) {
-							Log(FtpTraceLevel.Verbose, "Command:  " + rndCmd + " (daemon)");
-						}
-						else {
-							((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Sending " + rndCmd + " (daemon)");
-						}
+							LastCommandTimestamp = DateTime.UtcNow;
 
-						// send the random NOOP command
-						try {
-							m_stream.WriteLine(m_textEncoding, rndCmd);
-						}
-						catch (Exception ex) {
-							((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#1): " + ex.Message + " (daemon)");
-							gotEx = true;
-						}
+							// only log this if we have an active data connection
+							if (Status.DaemonCmdMode) {
+								Log(FtpTraceLevel.Verbose, "Command:  " + rndCmd + " (<-Daemon)");
+							}
+							else {
+								((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Sending " + rndCmd + " (<-Daemon)");
+							}
 
-						LastCommandTimestamp = DateTime.UtcNow;
-
-						// tell the outside world, NOOPs have actually been sent.
-						Status.DaemonAnyNoops = true;
-
-						// pick the command reply if this is just an idle control connection
-						if (Status.DaemonCmdMode) {
-							bool success = false;
+							// send the random NOOP command
 							try {
-								success = ((IInternalFtpClient)this).GetReplyInternal(rndCmd + " (daemon)", false, 10000, false).Success;
+								m_stream.WriteLine(m_textEncoding, rndCmd);
 							}
 							catch (Exception ex) {
-								((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#2): " + ex.Message + " (daemon)");
+								((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#1): " + ex.Message + " (Daemon)");
 								gotEx = true;
 							}
 
-							// in case one of these commands was successfully issued, make sure we store that
-							if (success) {
-								if (rndCmd.StartsWith("TYPE I")) {
-									Status.CurrentDataType = FtpDataType.Binary;
-								}
+							if (!gotEx) {
 
-								if (rndCmd.StartsWith("TYPE A")) {
-									Status.CurrentDataType = FtpDataType.ASCII;
+								// tell the outside world, NOOPs have actually been sent.
+								Status.DaemonAnyNoops = true;
+
+								// pick the command reply if this is just an idle control connection
+								if (Status.DaemonCmdMode) {
+									bool success = false;
+									try {
+										success = ((IInternalFtpClient)this).GetReplyInternal(rndCmd + " (<-Daemon)", false, 10000, false).Success;
+									}
+									catch (Exception ex) {
+										((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#2): " + ex.Message + " (Daemon)");
+										gotEx = true;
+									}
+
+									// in case one of these commands was successfully issued, make sure we store that
+									if (success) {
+										if (rndCmd.StartsWith("TYPE I")) {
+											Status.CurrentDataType = FtpDataType.Binary;
+										}
+
+										if (rndCmd.StartsWith("TYPE A")) {
+											Status.CurrentDataType = FtpDataType.ASCII;
+										}
+									}
 								}
 							}
 						}
 					}
 					catch (Exception ex) {
-						((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#3): " + ex.Message + " (daemon)");
+						((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#3): " + ex.Message + " (Daemon)");
 						gotEx = true;
 					}
 					finally {

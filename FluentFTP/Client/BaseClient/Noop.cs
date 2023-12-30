@@ -25,7 +25,7 @@ namespace FluentFTP.Client.BaseClient {
 				m_sema.Wait();
 				try {
 					if (IsConnected) {
-						Log(FtpTraceLevel.Verbose, "Command:  NOOP");
+						Log(FtpTraceLevel.Verbose, "Command:  NOOP (<-Noop)");
 
 						m_stream.WriteLine(m_textEncoding, "NOOP");
 						LastCommandTimestamp = DateTime.UtcNow;
