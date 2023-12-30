@@ -21,7 +21,12 @@ namespace FluentFTP.Client.BaseClient {
 			m_sema.Release();
 
 			// Automatic reconnect because we lost the control channel?
-			if (!IsConnected || (Config.NoopTestConnectivity && IsAuthenticated && Status.DaemonRunning && !((IInternalFtpClient)this).IsStillConnectedInternal())) {
+			if (!IsConnected ||
+				(Config.NoopTestConnectivity
+				 && command != "QUIT"
+				 && IsAuthenticated
+				 && Status.DaemonRunning
+				 && !((IInternalFtpClient)this).IsStillConnectedInternal())) {
 				if (command == "QUIT") {
 					LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
 					return new FtpReply() {
@@ -40,7 +45,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 			// Check for stale data on the socket?
 			else if (Config.StaleDataCheck && Status.AllowCheckStaleData) {
-				var staleData = ReadStaleData("prior to command execution of \"" + command.Split()[0] + "\"");
+				var staleData = ReadStaleData("prior to command execution of \"" + command + "\"");
 
 				if (staleData != null) {
 					reconnect = true;
