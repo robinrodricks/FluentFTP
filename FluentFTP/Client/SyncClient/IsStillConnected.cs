@@ -13,29 +13,9 @@ namespace FluentFTP {
 		/// <param name="timeout"/>How to wait for connection confirmation
 		/// <returns>bool connection status</returns>
 		public bool IsStillConnected(int timeout = 10000) {
+			LogFunction(nameof(IsStillConnected), new object[] { timeout });
 
-			bool connected = false;
-			if (IsConnected && IsAuthenticated) {
-				try {
-					if (Noop(true) && ((IInternalFtpClient)this).GetReplyInternal("NOOP", false, timeout).Success) {
-						connected = true;
-					}
-				}
-				catch (Exception ex) {
-					LogWithPrefix(FtpTraceLevel.Verbose, "Exception: " + ex.Message);
-				}
-				if (!connected) {
-					// This will clean up the SocketStream
-					bool saveDisconnectWithQuit = Config.DisconnectWithQuit;
-					Config.DisconnectWithQuit = false;
-					Disconnect();
-					Config.DisconnectWithQuit = saveDisconnectWithQuit;
-				}
-			}
-			if (!connected) {
-				LogWithPrefix(FtpTraceLevel.Verbose, "IsStillConnected: Control connections is not connected");
-			}
-			return connected;
+			return ((IInternalFtpClient)this).IsStillConnectedInternal(timeout);
 		}
 
 	}
