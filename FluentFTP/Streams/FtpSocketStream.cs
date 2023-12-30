@@ -744,7 +744,15 @@ namespace FluentFTP {
 				return;
 			}
 
-			BaseStream.Write(buffer, offset, count);
+			try {
+				BaseStream.Write(buffer, offset, count);
+			}
+			catch (Exception ex) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, ex.Message);
+				this.Close();
+				this.Dispose();
+				throw;
+			}
 			m_lastActivity = DateTime.Now;
 		}
 
@@ -760,7 +768,15 @@ namespace FluentFTP {
 				return;
 			}
 
-			await BaseStream.WriteAsync(buffer, offset, count, token);
+			try {
+				await BaseStream.WriteAsync(buffer, offset, count, token);
+			}
+			catch (Exception ex) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, ex.Message);
+				this.Close();
+				this.Dispose();
+				throw;
+			}
 			m_lastActivity = DateTime.Now;
 		}
 
