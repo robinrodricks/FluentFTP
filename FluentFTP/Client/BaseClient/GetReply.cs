@@ -130,6 +130,7 @@ namespace FluentFTP.Client.BaseClient {
 								LogWithPrefix(FtpTraceLevel.Verbose, "Waiting - " + ((timeOut - elapsedTime) / 1000).ToString() + " seconds left");
 								// if we have more then 5 seconds left, tickle the server some more
 								if (timeOut - elapsedTime >= 5000) {
+									LogWithPrefix(FtpTraceLevel.Verbose, "Sending NOOP (<-GetReply)");
 									m_stream.WriteLine(Encoding, "NOOP");
 								}
 							}
@@ -339,6 +340,7 @@ namespace FluentFTP.Client.BaseClient {
 								LogWithPrefix(FtpTraceLevel.Verbose, "Waiting - " + ((timeOut - elapsedTime) / 1000).ToString() + " seconds left");
 								// if we have more then 5 seconds left, tickle the server some more
 								if (timeOut - elapsedTime >= 5000) {
+									LogWithPrefix(FtpTraceLevel.Verbose, "Sending NOOP (<-GetReply)");
 									await m_stream.WriteLineAsync(Encoding, "NOOP", token);
 								}
 							}
