@@ -170,7 +170,7 @@ namespace FluentFTP.Client.BaseClient {
 					sequence += "," + response.Split(' ')[0];
 
 					if (exhaustNoop &&
-						((response.StartsWith("200") && (response.IndexOf("NOOP", StringComparison.InvariantCultureIgnoreCase) >= 0)) ||
+						((response.StartsWith("200") && (response.IndexOf("NOOP", StringComparison.OrdinalIgnoreCase) >= 0)) ||
 						response.StartsWith("500"))) {
 
 						Log(FtpTraceLevel.Verbose, "Skipped:  " + response);
@@ -380,7 +380,7 @@ namespace FluentFTP.Client.BaseClient {
 					sequence += "," + response.Split(' ')[0];
 
 					if (exhaustNoop &&
-						((response.StartsWith("200") && (response.IndexOf("NOOP", StringComparison.InvariantCultureIgnoreCase) >= 0)) ||
+						((response.StartsWith("200") && (response.IndexOf("NOOP", StringComparison.OrdinalIgnoreCase) >= 0)) ||
 						response.StartsWith("500"))) {
 
 						Log(FtpTraceLevel.Verbose, "Skipped:  " + response);
