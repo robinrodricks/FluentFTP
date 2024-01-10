@@ -105,9 +105,10 @@ namespace FluentFTP {
 						var readBytes = 1;
 						long limitCheckBytes = 0;
 						long bytesProcessed = 0;
+						int bytesToReadInBuffer = offset == 0 || (offset > 0 && fileLen - offset > buffer.Length) ? buffer.Length : (int)(fileLen - offset);
 
 						sw.Start();
-						while ((readBytes = await downStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0 && (offset < fileLen || readToEnd)) {
+						while ((readBytes = await downStream.ReadAsync(buffer, 0, bytesToReadInBuffer, token)) > 0 && (offset < fileLen || readToEnd)) {
 
 							// Fix #552: only create outstream when first bytes downloaded
 							if (outStream == null && localPath != null) {
@@ -120,6 +121,7 @@ namespace FluentFTP {
 							offset += readBytes;
 							bytesProcessed += readBytes;
 							limitCheckBytes += readBytes;
+							bytesToReadInBuffer = offset == 0 || (offset > 0 && fileLen - offset > buffer.Length) ? buffer.Length : (int)(fileLen - offset);
 
 							// send progress reports
 							if (progress != null) {
