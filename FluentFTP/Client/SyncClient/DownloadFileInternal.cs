@@ -107,7 +107,7 @@ namespace FluentFTP {
 						long bytesProcessed = 0;
 
 						sw.Start();
-						while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0) {
+						while ((readBytes = downStream.Read(buffer, 0, buffer.Length)) > 0 && (offset < fileLen || readToEnd)) {
 
 							// Fix #552: only create outstream when first bytes downloaded
 							if (outStream == null && localPath != null) {
@@ -140,6 +140,10 @@ namespace FluentFTP {
 							}
 						}
 
+						if (stopPosition != 0 && offset >= fileLen && readToEnd != true) {
+							earlySuccess = true; // not sure if this is earlySuccess, but we should stop here
+							break;
+						}
 						// if we reach here means EOF encountered
 						// stop if we are in "read until EOF" mode
 						if (offset == fileLen || readToEnd) {
