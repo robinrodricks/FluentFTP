@@ -116,10 +116,10 @@ namespace FluentFTP {
 
 					// calculate % based on file length vs file offset
 					// send a value between 0-100 indicating percentage complete
-					progressValue = (double)position / (double)fileSize * 100;
+					progressValue = (double)bytesProcessed / (double)fileSize * 100;
 
 					//calculate remaining time			
-					estimatedRemaingTime = TimeSpan.FromSeconds((fileSize - position) / transferSpeed);
+					estimatedRemaingTime = TimeSpan.FromSeconds((fileSize - bytesProcessed) / transferSpeed);
 				}
 			}
 			catch (Exception) {
@@ -133,7 +133,7 @@ namespace FluentFTP {
 				transferSpeed = 0;
 			}
 
-			var p = new FtpProgress(progressValue, position, transferSpeed, estimatedRemaingTime, localPath, remotePath, metaProgress);
+			var p = new FtpProgress(progressValue, bytesProcessed, transferSpeed, estimatedRemaingTime, localPath, remotePath, metaProgress);
 			return p;
 		}
 

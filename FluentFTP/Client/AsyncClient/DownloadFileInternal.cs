@@ -84,6 +84,7 @@ namespace FluentFTP {
 
 				var buffer = new byte[chunkSize];
 				var offset = restartPosition;
+				long bytesProcessed = 0;
 
 				var transferStarted = DateTime.Now;
 				var sw = new Stopwatch();
@@ -104,10 +105,10 @@ namespace FluentFTP {
 						// read a chunk of bytes from the FTP stream
 						var readBytes = 1;
 						long limitCheckBytes = 0;
-						long bytesProcessed = 0;
+						int bytesToReadInBuffer = fileLen != 0 && buffer.Length > fileLen - offset ? (int)(fileLen - offset) : buffer.Length;
 
 						sw.Start();
-						while ((readBytes = await downStream.ReadAsync(buffer, 0, buffer.Length, token)) > 0 && (offset < fileLen || readToEnd)) {
+						while ((readBytes = await downStream.ReadAsync(buffer, 0, bytesToReadInBuffer, token)) > 0 && (offset < fileLen || readToEnd)) {
 
 							// Fix #552: only create outstream when first bytes downloaded
 							if (outStream == null && localPath != null) {
@@ -120,10 +121,11 @@ namespace FluentFTP {
 							offset += readBytes;
 							bytesProcessed += readBytes;
 							limitCheckBytes += readBytes;
+							bytesToReadInBuffer = fileLen != 0 && buffer.Length > fileLen - offset ? (int)(fileLen - offset) : buffer.Length;
 
 							// send progress reports
 							if (progress != null) {
-								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
+								ReportProgress(progress, fileLen - restartPosition, offset, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
 							}
 
 							// honor the rate limit
@@ -186,7 +188,7 @@ namespace FluentFTP {
 					}
 				}
 
-				LogWithPrefix(FtpTraceLevel.Verbose, "Downloaded " + offset + " bytes");
+				LogWithPrefix(FtpTraceLevel.Verbose, "Downloaded " + bytesProcessed + " bytes");
 
 				sw.Stop();
 
@@ -201,9 +203,6 @@ namespace FluentFTP {
 					outStream?.Dispose();
 					disposeOutStream = false;
 				}
-
-				// send progress reports
-				progress?.Report(new FtpProgress(100.0, offset, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
 
 				if (earlySuccess) {
 					return true;
