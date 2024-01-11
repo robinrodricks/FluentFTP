@@ -199,9 +199,6 @@ namespace FluentFTP {
 					disposeOutStream = false;
 				}
 
-				// send progress reports
-				progress?.Invoke(new FtpProgress(100.0, offset, 0, TimeSpan.Zero, localPath, remotePath, metaProgress));
-
 				if (earlySuccess) {
 					return true;
 				}
