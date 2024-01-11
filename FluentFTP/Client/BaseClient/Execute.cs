@@ -72,6 +72,14 @@ namespace FluentFTP.Client.BaseClient {
 					m_stream = null;
 				}
 
+				if (command == "QUIT") {
+					LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
+					return new FtpReply() {
+						Code = "200",
+						Message = "Connection already closed."
+					};
+				}
+
 				((IInternalFtpClient)this).ConnectInternal(true);
 
 				Log(FtpTraceLevel.Info, "");
