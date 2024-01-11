@@ -144,7 +144,7 @@ namespace FluentFTP {
 						}
 
 						if (stopPosition != 0 && offset >= fileLen && readToEnd != true) {
-							earlySuccess = true; // not sure if this is earlySuccess, but we should stop here
+							earlySuccess = true; // We should stop here
 							break;
 						}
 						// if we reach here means EOF encountered
