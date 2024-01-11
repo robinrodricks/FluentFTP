@@ -506,10 +506,19 @@ namespace FluentFTP.Client.Modules {
 		}
 
 		/// <summary>
+		/// A critical command will not be preceded by an automatic reconnect.
+		/// </summary>
+		public static bool CheckCriticalSingleCommand(BaseFtpClient client, string cmd) {
+			var cmdFirstWord = cmd.Split(new char[] { ' ' })[0];
+
+			return cmdFirstWord.EqualsAny(ServerStringModule.criticalSingleCommands);
+		}
+
+		/// <summary>
 		/// Modify the `Status.InCriticalSequence` flag based on the FTP command sent, by checking against a list of known critical commands.
 		/// A critical sequence will not be interrupted by an automatic reconnect.
 		/// </summary>
-		public static void CheckCriticalSequence(BaseFtpClient client, string cmd) {
+		public static void CheckCriticalCommandSequence(BaseFtpClient client, string cmd) {
 			var cmdFirstWord = cmd.Split(new char[] { ' ' })[0];
 
 			if (cmdFirstWord.EqualsAny(ServerStringModule.criticalStartingCommands)) {

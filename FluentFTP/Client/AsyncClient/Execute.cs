@@ -43,7 +43,7 @@ namespace FluentFTP {
 				reconnectReason = "disconnected";
 			}
 			// Automatic reconnect on reaching SslSessionLength?
-			else if (m_stream.IsEncrypted && Config.SslSessionLength > 0 && !Status.InCriticalSequence && m_stream.SslSessionLength > Config.SslSessionLength) {
+			else if (m_stream.IsEncrypted && Config.SslSessionLength > 0 && !Status.InCriticalSequence && !ConnectModule.CheckCriticalSingleCommand(this, command) && m_stream.SslSessionLength > Config.SslSessionLength) {
 				reconnect = true;
 				reconnectReason = "max SslSessionLength reached on";
 			}
@@ -108,7 +108,7 @@ namespace FluentFTP {
 				await OnPostExecute(command, token);
 
 				if (Config.SslSessionLength > 0) {
-					ConnectModule.CheckCriticalSequence(this, command);
+					ConnectModule.CheckCriticalCommandSequence(this, command);
 				}
 			}
 
