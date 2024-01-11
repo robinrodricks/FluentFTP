@@ -107,7 +107,6 @@ namespace FluentFTP.Client.Modules {
 		#region Critical commands
 		public static string[] criticalSingleCommands = new[] {
 			"QUIT",
-			"NOOP",
 		};
 
 		public static string[] criticalStartingCommands = new[] {
