@@ -84,6 +84,7 @@ namespace FluentFTP {
 
 				var buffer = new byte[chunkSize];
 				var offset = restartPosition;
+				long bytesProcessed = 0;
 
 				var transferStarted = DateTime.Now;
 				var sw = new Stopwatch();
@@ -104,7 +105,6 @@ namespace FluentFTP {
 						// read a chunk of bytes from the FTP stream
 						var readBytes = 1;
 						long limitCheckBytes = 0;
-						long bytesProcessed = 0;
 						int bytesToReadInBuffer = fileLen != 0 && buffer.Length > fileLen - offset ? (int)(fileLen - offset) : buffer.Length;
 
 						sw.Start();
@@ -185,7 +185,7 @@ namespace FluentFTP {
 					}
 				}
 
-				LogWithPrefix(FtpTraceLevel.Verbose, "Downloaded " + offset + " bytes");
+				LogWithPrefix(FtpTraceLevel.Verbose, "Downloaded " + bytesProcessed + " bytes");
 
 				sw.Stop();
 
