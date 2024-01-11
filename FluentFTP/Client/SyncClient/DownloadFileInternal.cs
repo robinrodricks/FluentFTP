@@ -125,7 +125,7 @@ namespace FluentFTP {
 
 							// send progress reports
 							if (progress != null) {
-								ReportProgress(progress, fileLen, offset, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
+								ReportProgress(progress, fileLen - restartPosition, offset, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
 							}
 
 							// honor the rate limit
