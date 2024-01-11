@@ -116,7 +116,7 @@ namespace FluentFTP.Client.BaseClient {
 			// Update stored values
 
 			// CWD LastWorkingDir
-			if (command.TrimEnd() == "CWD" || command.StartsWith("CWD ", StringComparison.Ordinal)) {
+			if (command.ToUpper().TrimEnd() == "CWD" || command.ToUpper().StartsWith("CWD ", StringComparison.Ordinal)) {
 				// At least for a successful absolute Unix CWD, we know where we are.
 				string parms = command.Length <= 4 ? string.Empty : command.Substring(4);
 				if (parms.IsAbsolutePath()) {
@@ -134,10 +134,10 @@ namespace FluentFTP.Client.BaseClient {
 			}
 
 			// TYPE CurrentDataType
-			else if (command.StartsWith("TYPE I", StringComparison.Ordinal)) {
+			else if (command.ToUpper().StartsWith("TYPE I", StringComparison.Ordinal)) {
 				Status.CurrentDataType = FtpDataType.Binary;
 			}
-			else if (command.StartsWith("TYPE A", StringComparison.Ordinal)) {
+			else if (command.ToUpper().StartsWith("TYPE A", StringComparison.Ordinal)) {
 				Status.CurrentDataType = FtpDataType.ASCII;
 			}
 
