@@ -66,7 +66,7 @@ namespace FluentFTP {
 
 			LogFunction(nameof(DownloadFile), new object[] { localPath, remotePath, existsMode, verifyOptions });
 
-
+			DateTime functionStarted = DateTime.Now;	
 			bool isAppend = false;
 
 			// skip downloading if the local file exists
@@ -83,7 +83,16 @@ namespace FluentFTP {
 				restartPos = FtpFileStream.GetFileSize(localPath, false);
 				if (knownFileSize.Equals(restartPos)) {
 #endif
+
 					LogWithPrefix(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully downloaded (Remote: " + remotePath + ", Local: " + localPath + ")");
+
+					// Updating progress every single time processing files, because what is the point showing progress only when you download one file,
+					// and then you never update anymore? It's not that heavy as calling, and when you are checking the file that is exist it doesn't take much time.
+					// zeroes inside of Reporting Progress are zero, because we are simply checking file, we don't need to update "downloading" progress, we just updating fileProcessed / fileCountToDownload
+					if (progress != null) {
+						ReportProgress(progress, 0, 0, 0, TimeSpan.Zero, localPath, remotePath, metaProgress);
+					}
+
 					return FtpStatus.Skipped;
 				}
 				else {
@@ -96,6 +105,11 @@ namespace FluentFTP {
 			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
 #endif
 				LogWithPrefix(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists locally (Remote: " + remotePath + ", Local: " + localPath + ")");
+
+				if (progress != null) {
+					ReportProgress(progress, 0, 0, 0, TimeSpan.Zero, localPath, remotePath, metaProgress);
+				}
+
 				return FtpStatus.Skipped;
 			}
 
