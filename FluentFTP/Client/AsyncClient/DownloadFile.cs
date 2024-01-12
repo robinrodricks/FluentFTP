@@ -66,7 +66,6 @@ namespace FluentFTP {
 
 			LogFunction(nameof(DownloadFile), new object[] { localPath, remotePath, existsMode, verifyOptions });
 
-			DateTime functionStarted = DateTime.Now;	
 			bool isAppend = false;
 
 			// skip downloading if the local file exists
