@@ -75,6 +75,12 @@ namespace FluentFTP {
 				restartPos = FtpFileStream.GetFileSize(localPath, false);
 				if (knownFileSize.Equals(restartPos)) {
 					LogWithPrefix(FtpTraceLevel.Info, "Skipping file because Resume is enabled and file is fully downloaded (Remote: " + remotePath + ", Local: " + localPath + ")");
+
+					// Also updating progress in sync operations. 
+					if (progress != null) {
+						ReportProgress(progress, 0, 0, 0, TimeSpan.Zero, localPath, remotePath, metaProgress);
+					}
+
 					return FtpStatus.Skipped;
 				}
 				else {
@@ -83,6 +89,12 @@ namespace FluentFTP {
 			}
 			else if (existsMode == FtpLocalExists.Skip && File.Exists(localPath)) {
 				LogWithPrefix(FtpTraceLevel.Info, "Skipping file because Skip is enabled and file already exists locally (Remote: " + remotePath + ", Local: " + localPath + ")");
+
+				// Also updating progress in sync operations. 
+				if (progress != null) {
+					ReportProgress(progress, 0, 0, 0, TimeSpan.Zero, localPath, remotePath, metaProgress);
+				}
+
 				return FtpStatus.Skipped;
 			}
 
