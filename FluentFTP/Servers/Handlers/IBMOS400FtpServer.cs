@@ -66,5 +66,19 @@ namespace FluentFTP.Servers.Handlers {
 			}
 		}
 
+		/// <summary>
+		/// Perform server-specific post-connection commands here.
+		/// Return true if you executed a server-specific command.
+		/// </summary>
+		public override async Task AfterConnectedAsync(AsyncFtpClient client, CancellationToken token) {
+			FtpReply reply;
+			if (!(reply = await client.Execute("SITE LISTFMT 1", token)).Success) {
+				throw new FtpCommandException(reply);
+			}
+			if (!(reply = await client.Execute("SITE NAMEFMT 1", token)).Success) {
+				throw new FtpCommandException(reply);
+			}
+		}
+
 	}
 }
