@@ -1,5 +1,31 @@
 # Release Notes
 
+#### 49.0.2
+
+ - **NOOP Daemon** (thanks [FanDjango](/FanDjango))
+   - Fix: Improve NOOP daemon logic
+   - Fix: More reliable termination
+   - Fix: Handle NOOP API exceptions
+   - Fix: Handle NOOP situations in `Execute` API
+   - Fix: No need for NOOP commands before a QUIT command
+   - Fix: Improve `GetReply` logging and handling for stale data and NOOP reactions
+   - Fix: If QUIT is stashed and reconnect is pending, defer it.
+   - Fix: Recognize special commands & responses in all cases
+   - Fix: Delay NOOP connectivity tests until connection fully established
+
+ - **Connection Status** (thanks [FanDjango](/FanDjango))
+   - Fix: `IsStillConnected`: Clean up `Connect`/`DisconnectInternal` interface artifacts
+   - Fix: `IsStillConnected`: Add log messages
+
+ - **IBM OS/400** (thanks [FanDjango](/FanDjango))
+   - Fix: Enhance detection of IBM OS/400 servers
+   - Fix: Set `SITE LISTFMT 1` and `SITE NAMEFMT 1` on connect
+
+ - **File Transfer**
+   - Fix: `DownloadFile`: `FileCount` Progress updated even when files are skipped (thanks [J0nathan550](/J0nathan550))
+   - Fix: `DownloadFile`: `stopPosition` not working in some cases (thanks [alexgubanow](/alexgubanow))
+   - Fix: `DownloadFile`: Progress calculation not correct when using `stopPosition` (thanks [alexgubanow](/alexgubanow))
+
 #### 49.0.1
 
  - Fix: Change semaphore logic to prevent deadlock in NOOP Daemon (thanks [FanDjango](/FanDjango))
