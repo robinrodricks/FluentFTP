@@ -108,6 +108,9 @@ namespace FluentFTP.Client.BaseClient {
 		// Holds the cached resolved address
 		protected string m_Address;
 
+		// Sync or Async Ftp Client
+		public string ClientType => this.GetType().ToString().Split('.')[1];
+
 		/// <summary>
 		/// Current FTP client status flags used for improving performance and caching data.
 		/// </summary>
