@@ -1,7 +1,6 @@
 ﻿using FluentFTP.Helpers;
 
 using System;
-using System.CodeDom;
 using System.Threading;
 
 namespace FluentFTP.Client.BaseClient {
