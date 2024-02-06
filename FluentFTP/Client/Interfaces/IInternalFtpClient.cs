@@ -36,6 +36,7 @@ namespace FluentFTP {
 		string GetWorkingDirectoryInternal();
 
 		FtpReply CloseDataStreamInternal(FtpDataStream stream);
+		Task<FtpReply> CloseDataStreamInternal(FtpDataStream stream, CancellationToken token);
 
 		void LogStatus(FtpTraceLevel eventType, string message, Exception exception = null, bool exNewLine = false);
 
