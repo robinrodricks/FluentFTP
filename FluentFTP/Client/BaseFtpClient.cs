@@ -1,6 +1,7 @@
 ﻿using FluentFTP.Helpers;
 
 using System;
+using System.Threading;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient : IDisposable, IInternalFtpClient {
@@ -115,7 +116,13 @@ namespace FluentFTP.Client.BaseClient {
 
 			try {
 				if (IsConnected) {
-					((IInternalFtpClient)this).DisconnectInternal();
+					if (this is AsyncFtpClient) {
+						CancellationToken token = new CancellationToken();
+						((IInternalFtpClient)this).DisconnectInternal(token).GetAwaiter().GetResult();
+					}
+					else {
+						((IInternalFtpClient)this).DisconnectInternal();
+					}
 				}
 			}
 			catch {
