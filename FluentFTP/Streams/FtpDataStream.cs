@@ -125,7 +125,13 @@ namespace FluentFTP {
 
 			try {
 				if (ControlConnection != null) {
-					((IInternalFtpClient)ControlConnection).CloseDataStreamInternal(this);
+					if (ControlConnection is AsyncFtpClient) {
+						CancellationToken token = new CancellationToken();
+						((IInternalFtpClient)ControlConnection).CloseDataStreamInternal(this, token).GetAwaiter().GetResult();
+					}
+					else {
+						((IInternalFtpClient)ControlConnection).CloseDataStreamInternal(this);
+					}
 				}
 			}
 			finally {
