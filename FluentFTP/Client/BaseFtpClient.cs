@@ -1,8 +1,6 @@
 ﻿using FluentFTP.Helpers;
 
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient : IDisposable, IInternalFtpClient {
@@ -103,46 +101,46 @@ namespace FluentFTP.Client.BaseClient {
 		/// object.
 		/// </summary>
 		public virtual void Dispose() {
-				if (IsDisposed) {
-					return;
-				}
+			if (IsDisposed) {
+				return;
+			}
 
-				// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
+			// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
+			try {
+				LogFunction(nameof(Dispose));
+				LogWithPrefix(FtpTraceLevel.Verbose, "Disposing " + this.ClientType + " object...");
+			}
+			catch {
+			}
+
+			try {
+				if (IsConnected) {
+					((IInternalFtpClient)this).DisconnectInternal();
+				}
+			}
+			catch {
+			}
+
+			if (m_stream != null) {
 				try {
-					LogFunction(nameof(Dispose));
-					LogWithPrefix(FtpTraceLevel.Verbose, "Disposing FtpClient object...");
+					m_stream.Dispose();
 				}
 				catch {
 				}
 
-				try {
-					if (IsConnected) {
-						((IInternalFtpClient)this).DisconnectInternal();
-					}
-				}
-				catch {
-				}
+				m_stream = null;
+			}
 
-				if (m_stream != null) {
-					try {
-						m_stream.Dispose();
-					}
-					catch {
-					}
+			try {
+				m_credentials = null;
+				m_textEncoding = null;
+				m_host = null;
+			}
+			catch {
+			}
 
-					m_stream = null;
-				}
-
-				try {
-					m_credentials = null;
-					m_textEncoding = null;
-					m_host = null;
-				}
-				catch {
-				}
-
-				IsDisposed = true;
-				GC.SuppressFinalize(this);
+			IsDisposed = true;
+			GC.SuppressFinalize(this);
 		}
 
 		/// <summary>
