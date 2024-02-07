@@ -16,10 +16,6 @@ namespace FluentFTP {
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
-		protected override BaseFtpClient Create() {
-			return new FtpClient();
-		}
-
 		#region Constructors
 
 		/// <summary>
@@ -92,6 +88,10 @@ namespace FluentFTP {
 		#region Destructor
 
 		#endregion
+
+		protected override BaseFtpClient Create() {
+			return new FtpClient();
+		}
 
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
