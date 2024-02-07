@@ -116,13 +116,7 @@ namespace FluentFTP.Client.BaseClient {
 
 			try {
 				if (IsConnected) {
-					if (this is AsyncFtpClient) {
-						CancellationToken token = new CancellationToken();
-						((IInternalFtpClient)this).DisconnectInternal(token).GetAwaiter().GetResult();
-					}
-					else {
-						((IInternalFtpClient)this).DisconnectInternal();
-					}
+					((IInternalFtpClient)this).DisconnectInternal();
 				}
 			}
 			catch {
