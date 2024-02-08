@@ -15,6 +15,13 @@ namespace FluentFTP {
 		void DisconnectInternal();
 		Task DisconnectInternal(CancellationToken token);
 
+		void DisposeInternal();
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+		ValueTask DisposeInternal(CancellationToken token);
+#else
+		Task DisposeInternal(CancellationToken token);
+#endif
+
 		FtpReply ExecuteInternal(string command);
 
 		FtpReply GetReplyInternal();

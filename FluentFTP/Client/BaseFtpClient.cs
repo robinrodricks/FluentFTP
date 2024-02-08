@@ -73,7 +73,12 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		public void AutoDispose() {
 			if (Status.AutoDispose) {
-				Dispose();
+				if (this is AsyncFtpClient) {
+					((IAsyncFtpClient)this).DisposeAsync();
+				}
+				else {
+					((IFtpClient)this).Dispose();
+				}
 			}
 		}
 		/// <summary>

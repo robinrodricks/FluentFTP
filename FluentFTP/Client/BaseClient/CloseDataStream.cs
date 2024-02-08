@@ -40,7 +40,7 @@ namespace FluentFTP.Client.BaseClient {
 				// connection we should Dispose()
 				if (IsClone) {
 					((IInternalFtpClient)this).DisconnectInternal();
-					Dispose();
+					((IInternalFtpClient)this).DisposeInternal();
 				}
 			}
 
@@ -79,7 +79,7 @@ namespace FluentFTP.Client.BaseClient {
 				// connection we should Dispose()
 				if (IsClone) {
 					await ((IInternalFtpClient)this).DisconnectInternal(token);
-					Dispose();
+					await ((IInternalFtpClient)this).DisposeInternal(token);
 				}
 			}
 
