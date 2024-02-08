@@ -13,13 +13,15 @@ namespace FluentFTP {
 	/// 
 	/// Debugging problems with FTP is much easier when you enable logging. Visit our Github Wiki for more info.
 	/// </summary>
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+	// IAsyncDisposable can be used
+	public partial class AsyncFtpClient : BaseFtpClient, IInternalFtpClient, IDisposable, IAsyncDisposable, IAsyncFtpClient {
+#else
+	// IAsyncDisposable is not available
 	public partial class AsyncFtpClient : BaseFtpClient, IInternalFtpClient, IDisposable, IAsyncFtpClient {
+#endif
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
-		protected override BaseFtpClient Create() {
-			return new AsyncFtpClient();
-		}
 
 		#region Constructors
 
@@ -92,9 +94,75 @@ namespace FluentFTP {
 
 		#region Destructor
 
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+
+		public void Dispose() {
+			LogFunction(nameof(Dispose));
+			LogWithPrefix(FtpTraceLevel.Verbose, "Warning: sync dispose for " + this.ClientType + " object invoked...");
+			LogWithPrefix(FtpTraceLevel.Verbose, "Please consider using \"DisposeAsync\" instead.");
+			DisposeAsync().GetAwaiter().GetResult();
+		}
+
+		public async ValueTask DisposeAsync() {
+			// Perform async cleanup.
+			await DisposeAsyncCore();
+
+			// Suppress finalization.
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual async ValueTask DisposeAsyncCore() {
+			if (IsDisposed) {
+				return;
+			}
+
+			// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
+			try {
+				LogFunction(nameof(DisposeAsync));
+				LogWithPrefix(FtpTraceLevel.Verbose, "Disposing " + this.ClientType + " object...");
+			}
+			catch {
+			}
+
+			try {
+				if (IsConnected) {
+					await Disconnect();
+				}
+			}
+			catch {
+			}
+
+			if (m_stream != null) {
+				try {
+					await m_stream.DisposeAsync();
+				}
+				catch {
+				}
+
+				m_stream = null;
+			}
+
+			try {
+				m_credentials = null;
+				m_textEncoding = null;
+				m_host = null;
+			}
+			catch {
+			}
+
+			IsDisposed = true;
+		}
+
+#endif
+
 		#endregion
+
+		protected override BaseFtpClient Create() {
+			return new AsyncFtpClient();
+		}
 
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
 	}
 }
+
