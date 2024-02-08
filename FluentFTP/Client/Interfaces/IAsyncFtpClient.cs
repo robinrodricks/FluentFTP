@@ -18,7 +18,6 @@ namespace FluentFTP {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-
 		void Dispose();
 		ValueTask DisposeAsync();
 #else

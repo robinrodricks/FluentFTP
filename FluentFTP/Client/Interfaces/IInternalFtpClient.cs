@@ -7,7 +7,14 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentFTP {
+
+	/// <summary>
+	/// Interface for the InternalFtpClient class.
+	/// For detailed documentation of the methods, please see the FtpClient class or check the Wiki on the FluentFTP Github project.
+	/// </summary>
 	public interface IInternalFtpClient {
+
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 		void ConnectInternal(bool reConnect);
 		Task ConnectInternal(bool reConnect, CancellationToken token);
@@ -52,5 +59,8 @@ namespace FluentFTP {
 		FtpSocketStream GetBaseStream();
 
 		void SetListingParser(FtpParser parser);
+
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
 	}
 }
