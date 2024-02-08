@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP.Client.BaseClient;
 
@@ -94,24 +93,29 @@ namespace FluentFTP {
 
 		#region Destructor
 
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-
 		public override void Dispose() {
 			LogFunction(nameof(Dispose));
-			LogWithPrefix(FtpTraceLevel.Verbose, "Warning: sync dispose for " + this.ClientType + " object invoked...");
-			LogWithPrefix(FtpTraceLevel.Verbose, "Please consider using \"DisposeAsync\" instead.");
+			LogWithPrefix(FtpTraceLevel.Verbose, "Warning: sync dispose called for " + this.ClientType + " object invoked...");
 			DisposeAsync().GetAwaiter().GetResult();
 		}
 
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		public async ValueTask DisposeAsync() {
-			// Perform async cleanup.
 			await DisposeAsyncCore();
-
-			// Suppress finalization.
 			GC.SuppressFinalize(this);
 		}
+#else
+		public async Task DisposeAsync() {
+			await DisposeAsyncCore();
+			GC.SuppressFinalize(this);
+		}
+#endif
 
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		protected virtual async ValueTask DisposeAsyncCore() {
+#else
+		protected virtual async Task DisposeAsyncCore() {
+#endif
 			if (IsDisposed) {
 				return;
 			}
@@ -134,7 +138,11 @@ namespace FluentFTP {
 
 			if (m_stream != null) {
 				try {
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 					await m_stream.DisposeAsync();
+#else
+					m_stream.Dispose(); // TODO: cleanup stream dispose to support async
+#endif
 				}
 				catch {
 				}
@@ -153,9 +161,7 @@ namespace FluentFTP {
 			IsDisposed = true;
 		}
 
-#endif
-
-		#endregion
+#endregion
 
 		protected override BaseFtpClient Create() {
 			return new AsyncFtpClient();
