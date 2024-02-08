@@ -12,12 +12,13 @@ using System.Text;
 namespace FluentFTP {
 
 	/// <summary>
-	/// Base object for FtpClient, AsyncFtpClient and the internal client
+	/// Callback for any custom streams to handle certificate validation
 	/// </summary>
-	///
-
 	public delegate bool CustomRemoteCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, string errorMessage);
 
+	/// <summary>
+	/// Base object for FtpClient, AsyncFtpClient and the internal client
+	/// </summary>
 	public interface IBaseFtpClient {
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
