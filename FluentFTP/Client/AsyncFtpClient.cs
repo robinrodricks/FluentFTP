@@ -96,7 +96,7 @@ namespace FluentFTP {
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 
-		public void Dispose() {
+		public override void Dispose() {
 			LogFunction(nameof(Dispose));
 			LogWithPrefix(FtpTraceLevel.Verbose, "Warning: sync dispose for " + this.ClientType + " object invoked...");
 			LogWithPrefix(FtpTraceLevel.Verbose, "Please consider using \"DisposeAsync\" instead.");
