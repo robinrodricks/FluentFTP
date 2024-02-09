@@ -803,7 +803,7 @@ namespace FluentFTP {
 			if (disposing && Client != null) {
 				string infoText = disposing ? "Closing/Disposing" : "Finalizing";
 				string connText = this.IsControlConnection ? "control" : "data";
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, infoText + " FtpSocketStream(" + connText + " connection)");
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, infoText + " FtpSocketStream(" + connText + " connection of " + Client.ClientType + ")");
 			}
 
 			if (m_customStream != null) {
