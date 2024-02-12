@@ -114,7 +114,7 @@ namespace FluentFTP.Client.BaseClient {
 			// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
 			try {
 				LogFunction(nameof(Dispose));
-				LogWithPrefix(FtpTraceLevel.Verbose, "Disposing " + this.ClientType + " object...");
+				LogWithPrefix(FtpTraceLevel.Verbose, "Disposing(sync) " + this.ClientType);
 			}
 			catch {
 			}

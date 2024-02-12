@@ -123,7 +123,7 @@ namespace FluentFTP {
 			// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
 			try {
 				LogFunction(nameof(DisposeAsync));
-				LogWithPrefix(FtpTraceLevel.Verbose, "Disposing " + this.ClientType + " object...");
+				LogWithPrefix(FtpTraceLevel.Verbose, "Disposing(async) " + this.ClientType);
 			}
 			catch {
 			}
