@@ -10,6 +10,8 @@ namespace FluentFTP {
 		/// Disconnects from the server asynchronously
 		/// </summary>
 		public async Task Disconnect(CancellationToken token = default(CancellationToken)) {
+			LogFunction(nameof(Disconnect), null);
+
 			if (IsConnected) {
 				try {
 					if (Config.DisconnectWithQuit) {
