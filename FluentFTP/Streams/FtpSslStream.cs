@@ -106,6 +106,7 @@ namespace FluentFTP.Streams {
 
 #endif
 
+#pragma warning disable CS0162 // Unreachable code detected
 			byte[] result;
 			int resultSize;
 
@@ -113,6 +114,7 @@ namespace FluentFTP.Streams {
 
 			NativeApi.SSPIHandle securityContextHandle = default(NativeApi.SSPIHandle);
 			NativeApi.SSPIHandle credentialsHandleHandle = default(NativeApi.SSPIHandle);
+#pragma warning restore CS0162 // Unreachable code detected
 
 #if NETFRAMEWORK
 
