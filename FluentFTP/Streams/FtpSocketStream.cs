@@ -1135,7 +1135,7 @@ namespace FluentFTP {
 				bool lastIP = iPlusOne == ipads.Length;
 
 				try {
-					if (await ConnectAsyncHelper(ipad, port, token)) {
+					if (await ConnectHelperAsync(ipad, port, token)) {
 						break;
 					}
 					else {
@@ -1179,7 +1179,7 @@ namespace FluentFTP {
 		/// <param name="ipad">The ip address to connect to</param>
 		/// <param name="port">The port to connect to</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
-		private async Task<bool> ConnectAsyncHelper(IPAddress ipad, int port, CancellationToken token) {
+		private async Task<bool> ConnectHelperAsync(IPAddress ipad, int port, CancellationToken token) {
 			try {
 				using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
 					timeoutSrc.CancelAfter(ConnectTimeout);
