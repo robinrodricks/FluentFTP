@@ -55,8 +55,6 @@ namespace FluentFTP {
 						}
 					}
 					finally {
-						// We want to close/dispose it NOW, and not when the GM
-						// gets around to it (after the "using" expires).
 						stream.Close();
 					}
 					Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
