@@ -113,6 +113,11 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Gets a value indicating if this socket stream is disposed
+		/// </summary>
+		public bool IsDisposed { get; set; } = false;
+
+		/// <summary>
 		/// Gets a value indicating if this socket stream is connected
 		/// </summary>
 		public bool IsConnected {
