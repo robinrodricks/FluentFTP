@@ -37,7 +37,7 @@ namespace FluentFTP {
 
 			// read in raw listing
 			try {
-				using (FtpDataStream stream = await OpenDataStreamAsync("NLST " + path, 0, token)) {
+				await using (FtpDataStream stream = await OpenDataStreamAsync("NLST " + path, 0, token)) {
 					Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 					string line;
 
@@ -48,7 +48,7 @@ namespace FluentFTP {
 						}
 					}
 					finally {
-						stream.Close();
+						await stream.CloseAsync(token);
 					}
 					Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 				}

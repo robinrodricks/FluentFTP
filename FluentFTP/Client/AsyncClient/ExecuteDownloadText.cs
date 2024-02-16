@@ -38,7 +38,7 @@ namespace FluentFTP {
 			try {
 				// read in raw command output from data stream
 				try {
-					using (FtpDataStream stream = await OpenDataStreamAsync(command, 0, token)) {
+					await using (FtpDataStream stream = await OpenDataStreamAsync(command, 0, token)) {
 						try {
 							if (this is AsyncFtpClientSocks4Proxy || this is AsyncFtpClientSocks4aProxy) {
 								// first 6 bytes contains 2 bytes of unknown (to me) purpose and 4 ip address bytes
@@ -72,7 +72,7 @@ namespace FluentFTP {
 							Log(FtpTraceLevel.Verbose, "-----------------------------------------");
 						}
 						finally {
-							stream.Close();
+							await stream.CloseAsync(token);
 						}
 					}
 				}

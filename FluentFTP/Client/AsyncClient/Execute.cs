@@ -75,7 +75,7 @@ namespace FluentFTP {
 						await GetWorkingDirectory();
 					}
 
-					m_stream.Close();
+					await m_stream.CloseAsync(token);
 					m_stream = null;
 				}
 
