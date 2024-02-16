@@ -22,7 +22,11 @@ namespace FluentFTP {
 	/// <summary>
 	/// Stream class used for talking. Used by FtpClient, extended by FtpDataStream
 	/// </summary>
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+	public class FtpSocketStream : Stream, IDisposable, IAsyncDisposable {
+#else
 	public class FtpSocketStream : Stream, IDisposable {
+#endif
 
 		private NetworkStream m_netStream = null;
 
@@ -1664,5 +1668,239 @@ namespace FluentFTP {
 		}
 
 #endif
+
+		//
+		// CLOSE and DISPOSE logic
+		//
+		// To be called from Sync:
+		// Close()
+		// Dispose()
+		//
+		// To be called from Async:
+		// CloseAsync()
+		// DisposeAsync()
+		//
+
+		//
+		// S Y N C
+		//
+
+		/// <summary>
+		/// Disconnects from server, replace a Close by Dispose in these .NET versions
+		/// </summary>
+#if NETSTANDARD || NET5_0_OR_GREATER
+		public override void Close() {
+#if DEBUG || true
+			if (Client is AsyncFtpClient) {
+				// If this is called from an AsyncFtpClient, it is an error and needs a code change in the
+				// caller, to "await CloseAsync()".
+				// One of the biggest cuplrits would be "stream.IsConnected" above.
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "AsyncFtpClient incorrectly called Close(sync)");
+			}
+#endif
+			Dispose();
+		}
+#else
+#if DEBUG || true
+		public override void Close() {
+			if (Client is AsyncFtpClient) {
+				// If this is called from an AsyncFtpClient, it is an error and needs a code change in the
+				// caller, to "await CloseAsync()".
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "AsyncFtpClient incorrectly called Close(sync)");
+			}
+			// Close is done by base of FtpSocketStream ( = Stream )
+			// which in turn will dispose, internally.
+			base.Close();
+		}
+#endif
+#endif
+
+		/// <summary>
+		/// Disconnects from server
+		/// </summary>
+		protected new void Dispose() {
+			if (IsDisposed) {
+				return;
+			}
+
+			if (Client != null) {
+				string connText = this.IsControlConnection ? "control" : "data";
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) FtpSocketStream(" + connText + " connection of " + Client.ClientType + ")");
+			}
+
+			if (m_customStream != null) {
+				try {
+					m_customStream.Dispose();
+				}
+				catch {
+				}
+				m_customStream = null;
+			}
+
+			if (m_sslStream != null) {
+				try {
+					m_sslStream.Dispose();
+				}
+				catch {
+				}
+				m_sslStream = null;
+			}
+
+			if (m_bufStream != null) {
+				try {
+					m_bufStream.Flush();
+				}
+				catch {
+				}
+				m_bufStream = null;
+			}
+
+			if (m_netStream != null) {
+				try {
+					m_netStream.Dispose();
+				}
+				catch {
+				}
+				m_netStream = null;
+			}
+
+			DisposeSocket();
+
+			base.Dispose(true);
+
+			if (Client.Status.DaemonRunning) {
+				if (!this.IsControlConnection) {
+					Client.Status.DaemonCmdMode = true;
+				}
+			}
+
+			IsDisposed = true;
+		}
+
+		//
+		// A S Y N C
+		//
+
+		/// <summary>
+		/// CloseAsync, disconnects from server
+		/// </summary>
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+		public virtual async ValueTask CloseAsync(CancellationToken token = default(CancellationToken)) {
+			await DisposeAsync();
+		}
+#else
+		public virtual async Task CloseAsync(CancellationToken token = default(CancellationToken)) {
+			await DisposeAsync();
+		}
+#endif
+
+		/// <summary>
+		/// DisposeAsync, disconnects from server
+		/// </summary>
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+		public override async ValueTask DisposeAsync() {
+			await DisposeAsyncCore();
+			GC.SuppressFinalize(this);
+		}
+#else
+		public async Task DisposeAsync() {
+			await DisposeAsyncCore();
+			GC.SuppressFinalize(this);
+		}
+#endif
+
+		/// <summary>
+		/// Disconnects from server, actually
+		/// </summary>
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+		protected async ValueTask DisposeAsyncCore() {
+#else
+		protected async Task DisposeAsyncCore() {
+#endif
+			if (IsDisposed) {
+				return;
+			}
+
+			if (Client != null) {
+				string connText = this.IsControlConnection ? "control" : "data";
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(async) FtpSocketStream(" + connText + " connection of " + Client.ClientType + ")");
+			}
+
+			if (m_customStream != null) {
+				try {
+					m_customStream.Dispose(); // Async not supported by custom stream interface
+				}
+				catch {
+				}
+				m_customStream = null;
+			}
+
+			if (m_sslStream != null) {
+				try {
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+					await m_sslStream.DisposeAsync();
+#else
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) FtpSslStream of FtpSocketStream");
+					m_sslStream.Dispose(); // Async dispose not supported in this .NET?
+#endif
+				}
+				catch {
+				}
+				m_sslStream = null;
+			}
+
+			if (m_bufStream != null) {
+				try {
+					// ensure the last of the buffered bytes are flushed
+					// before we close the socket and network stream
+					await m_bufStream.FlushAsync();
+				}
+				catch {
+				}
+				m_bufStream = null;
+			}
+
+			if (m_netStream != null) {
+				try {
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+					await m_netStream.DisposeAsync();
+#else
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) NetworkStream of FtpSocketStream");
+					m_netStream.Dispose(); // Async dispose not supported in this .NET?
+#endif
+	}
+				catch {
+				}
+				m_netStream = null;
+			}
+
+			DisposeSocket();
+
+			base.Dispose(true);
+
+			if (Client.Status.DaemonRunning) {
+				if (!this.IsControlConnection) {
+					Client.Status.DaemonCmdMode = true;
+				}
+			}
+
+			IsDisposed = true;
+		}
+
+		/// <summary>
+		/// Safely close the socket if its open
+		/// </summary>
+		internal void DisposeSocket() {
+			if (m_socket != null) {
+				try {
+					m_socket.Dispose();
+				}
+				catch {
+				}
+				m_socket = null;
+			}
+
+		}
+
 	}
 }
