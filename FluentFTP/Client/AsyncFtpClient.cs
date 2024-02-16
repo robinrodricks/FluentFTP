@@ -138,11 +138,7 @@ namespace FluentFTP {
 
 			if (m_stream != null) {
 				try {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 					await m_stream.DisposeAsync();
-#else
-					m_stream.Dispose(); // TODO: cleanup stream dispose to support async
-#endif
 				}
 				catch {
 				}
