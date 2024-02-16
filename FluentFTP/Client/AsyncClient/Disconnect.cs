@@ -25,7 +25,7 @@ namespace FluentFTP {
 					// When debugging, the stream might have already been taken down
 					// from the remote side, thus causing an exception here, so check for null
 					if (m_stream != null) {
-						m_stream.Close();
+						await m_stream.CloseAsync(token);
 					}
 				}
 			}
