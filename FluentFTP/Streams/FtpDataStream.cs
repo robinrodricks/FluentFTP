@@ -118,20 +118,14 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Closes the connection and reads the server's reply
+		/// Closes the connection and reads (and discards) the server's reply
 		/// </summary>
-		public new FtpReply Close() {
+		public override void Close() {
 			base.Close();
 
 			try {
 				if (ControlConnection != null) {
-					if (ControlConnection is AsyncFtpClient) {
-						CancellationToken token = new CancellationToken();
-						((IInternalFtpClient)ControlConnection).CloseDataStreamInternal(this, token).GetAwaiter().GetResult();
-					}
-					else {
-						((IInternalFtpClient)ControlConnection).CloseDataStreamInternal(this);
-					}
+					((IInternalFtpClient)ControlConnection).CloseDataStreamInternal(this);
 				}
 			}
 			finally {
@@ -139,7 +133,7 @@ namespace FluentFTP {
 				m_control = null;
 			}
 
-			return new FtpReply();
+			return;
 		}
 
 		/// <summary>
