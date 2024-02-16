@@ -581,7 +581,7 @@ namespace FluentFTP {
 			m_lastActivity = DateTime.Now;
 			using (var cts = CancellationTokenSource.CreateLinkedTokenSource(token)) {
 				cts.CancelAfter(ReadTimeout);
-				cts.Token.Register(() => Close());
+				cts.Token.Register(async () => await CloseAsync(token));
 				try {
 					var res = await BaseStream.ReadAsync(buffer, offset, count, cts.Token);
 					return res;
@@ -1258,7 +1258,7 @@ namespace FluentFTP {
 					CreateCustomStream(targetHost);
 				}
 				catch (Exception ex) {
-					Close();
+					await CloseAsync(token);
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication failed, lib = " + authType, ex, true);
 					throw;
 				}
@@ -1287,7 +1287,7 @@ namespace FluentFTP {
 						};
 						await m_sslStream.AuthenticateAsClientAsync(options, token);
 #else
-					await m_sslStream.AuthenticateAsClientAsync(targetHost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
+						await m_sslStream.AuthenticateAsClientAsync(targetHost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
 #endif
 					}
 #if NETSTANDARD || NET5_0_OR_GREATER
@@ -1306,7 +1306,7 @@ namespace FluentFTP {
 							throw new FtpMissingSocketException(ex);
 						}
 #if NETFRAMEWORK
-					throw new AuthenticationException(ex.Message);
+						throw new AuthenticationException(ex.Message);
 #else
 						throw;
 #endif
@@ -1315,7 +1315,7 @@ namespace FluentFTP {
 				}
 
 				catch (AuthenticationException ex) {
-					Close();
+					await CloseAsync(token);
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication failed, lib = " + authType, ex, true);
 					throw;
 				}
@@ -1780,7 +1780,7 @@ namespace FluentFTP {
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) NetworkStream of FtpSocketStream");
 					m_netStream.Dispose(); // Async dispose not supported in this .NET?
 #endif
-	}
+				}
 				catch {
 				}
 				m_netStream = null;
