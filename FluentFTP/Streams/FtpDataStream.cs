@@ -159,7 +159,12 @@ namespace FluentFTP {
 		~FtpDataStream() {
 			// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
 			try {
-				Dispose(false);
+				if (Client is AsyncFtpClient) {
+					DisposeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+				}
+				else {
+					Dispose();
+				}
 			}
 			catch {
 			}
