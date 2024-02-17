@@ -1660,7 +1660,7 @@ namespace FluentFTP {
 
 			if (m_bufStream != null) {
 				try {
-					m_bufStream.Flush();
+					m_bufStream.Dispose();
 				}
 				catch {
 				}
@@ -1763,9 +1763,12 @@ namespace FluentFTP {
 
 			if (m_bufStream != null) {
 				try {
-					// ensure the last of the buffered bytes are flushed
-					// before we close the socket and network stream
-					await m_bufStream.FlushAsync();
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+					await m_bufStream.DisposeAsync();
+#else
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) BufferedStream of FtpSocketStream");
+					m_bufStream.Dispose(); // Async dispose not supported in this .NET?
+#endif
 				}
 				catch {
 				}
