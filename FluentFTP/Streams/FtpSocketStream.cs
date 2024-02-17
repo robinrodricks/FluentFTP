@@ -1770,7 +1770,6 @@ namespace FluentFTP {
 					m_bufStream.Dispose(); // Async dispose not supported in this .NET?
 #endif
 				}
-				}
 				catch {
 				}
 				m_bufStream = null;
