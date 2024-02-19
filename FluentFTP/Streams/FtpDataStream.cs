@@ -118,9 +118,9 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Closes the connection and reads the server's reply
+		/// Closes the connection and reads (and discards) the server's reply
 		/// </summary>
-		public new FtpReply Close() {
+		public override void Close() {
 			base.Close();
 
 			try {
@@ -133,7 +133,30 @@ namespace FluentFTP {
 				m_control = null;
 			}
 
-			return new FtpReply();
+			return;
+		}
+
+		/// <summary>
+		/// Closes the connection and reads (and discards) the server's reply
+		/// </summary>
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+		public override async ValueTask CloseAsync(CancellationToken token = default(CancellationToken)) {
+#else
+		public override async Task CloseAsync(CancellationToken token = default(CancellationToken)) {
+#endif
+			await base.CloseAsync(token);
+
+			try {
+				if (ControlConnection != null) {
+					await ((IInternalFtpClient)ControlConnection).CloseDataStreamInternal(this, token);
+				}
+			}
+			finally {
+				m_commandStatus = new FtpReply();
+				m_control = null;
+			}
+
+			return;
 		}
 
 		/// <summary>
@@ -159,7 +182,12 @@ namespace FluentFTP {
 		~FtpDataStream() {
 			// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
 			try {
-				Dispose(false);
+				if (Client is AsyncFtpClient) {
+					DisposeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+				}
+				else {
+					Dispose();
+				}
 			}
 			catch {
 			}

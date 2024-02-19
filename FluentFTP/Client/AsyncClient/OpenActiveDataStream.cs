@@ -58,11 +58,11 @@ namespace FluentFTP {
 					// if we're connected with IPv4 and the data channel type is AutoActive then try to fall back to the PORT command
 					if (reply.Type == FtpResponseType.PermanentNegativeCompletion && type == FtpDataConnectionType.AutoActive && m_stream != null && m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
 						stream.ControlConnection = null; // we don't want this failed EPRT attempt to close our control connection when the stream is closed so clear out the reference.
-						stream.Close();
+						await stream.CloseAsync(token);
 						return await OpenActiveDataStreamAsync(FtpDataConnectionType.PORT, command, restart, token);
 					}
 					else {
-						stream.Close();
+						await stream.CloseAsync(token);
 						throw new FtpCommandException(reply);
 					}
 				}
@@ -76,7 +76,7 @@ namespace FluentFTP {
 												 GetLocalAddress(stream.LocalEndPoint.Address).Replace('.', ',') + "," +
 												 stream.LocalEndPoint.Port / 256 + "," +
 												 stream.LocalEndPoint.Port % 256, token)).Success) {
-					stream.Close();
+					await stream.CloseAsync(token);
 					throw new FtpCommandException(reply);
 				}
 			}
@@ -102,7 +102,7 @@ namespace FluentFTP {
 			}
 
 			if (!(reply = await Execute(command, token)).Success) {
-				stream.Close();
+				await stream.CloseAsync(token);
 				throw new FtpCommandException(reply);
 			}
 
@@ -121,7 +121,7 @@ namespace FluentFTP {
 				ar.AsyncWaitHandle.Close();  // See issue #648 this needs to be commented out for MONO
 			}
 			if (!ar.IsCompleted) {
-				stream.Close();
+				await stream.CloseAsync(token);
 				throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
 			}
 

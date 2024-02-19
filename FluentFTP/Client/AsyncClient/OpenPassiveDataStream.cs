@@ -130,7 +130,7 @@ namespace FluentFTP {
 			}
 
 			if (!(reply = await Execute(command, token)).Success) {
-				stream.Close();
+				await stream.CloseAsync(token);
 				throw new FtpCommandException(reply);
 			}
 

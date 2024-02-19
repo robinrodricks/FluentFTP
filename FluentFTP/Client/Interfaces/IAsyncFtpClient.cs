@@ -13,9 +13,21 @@ namespace FluentFTP {
 	/// Interface for the AsyncFtpClient class.
 	/// For detailed documentation of the methods, please see the FtpClient class or check the Wiki on the FluentFTP Github project.
 	/// </summary>
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+	public interface IAsyncFtpClient : IDisposable, IAsyncDisposable, IBaseFtpClient {
+#else
 	public interface IAsyncFtpClient : IDisposable, IBaseFtpClient {
+#endif
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
+		new void Dispose();
+
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+		new ValueTask DisposeAsync();
+#else
+		Task DisposeAsync();
+#endif
 
 		// METHODS
 

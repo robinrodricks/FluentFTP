@@ -90,7 +90,7 @@ namespace FluentFTP.Client.BaseClient {
 #else
 				target = "Unknown";
 #endif
-				LogWithPrefix(FtpTraceLevel.Verbose, "FluentFTP " + applicationVersion + "(" + target + ")");
+				LogWithPrefix(FtpTraceLevel.Verbose, "FluentFTP " + applicationVersion + "(" + target + ") " + this.ClientType);
 			}
 		}
 

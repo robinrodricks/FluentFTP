@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP.Client.BaseClient;
 
@@ -13,13 +12,15 @@ namespace FluentFTP {
 	/// 
 	/// Debugging problems with FTP is much easier when you enable logging. Visit our Github Wiki for more info.
 	/// </summary>
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+	// IAsyncDisposable can be used
+	public partial class AsyncFtpClient : BaseFtpClient, IInternalFtpClient, IDisposable, IAsyncDisposable, IAsyncFtpClient {
+#else
+	// IAsyncDisposable is not available
 	public partial class AsyncFtpClient : BaseFtpClient, IInternalFtpClient, IDisposable, IAsyncFtpClient {
+#endif
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
-		protected override BaseFtpClient Create() {
-			return new AsyncFtpClient();
-		}
 
 		#region Constructors
 
@@ -92,9 +93,78 @@ namespace FluentFTP {
 
 		#region Destructor
 
-		#endregion
+		public override void Dispose() {
+			LogFunction(nameof(Dispose));
+			LogWithPrefix(FtpTraceLevel.Verbose, "Warning: sync dispose called for " + this.ClientType + " object invoked...");
+			DisposeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+		}
+
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+		public async ValueTask DisposeAsync() {
+			await DisposeAsyncCore();
+			GC.SuppressFinalize(this);
+		}
+#else
+		public async Task DisposeAsync() {
+			await DisposeAsyncCore();
+			GC.SuppressFinalize(this);
+		}
+#endif
+
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+		protected virtual async ValueTask DisposeAsyncCore() {
+#else
+		protected virtual async Task DisposeAsyncCore() {
+#endif
+			if (IsDisposed) {
+				return;
+			}
+
+			// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
+			try {
+				LogFunction(nameof(DisposeAsync));
+				LogWithPrefix(FtpTraceLevel.Verbose, "Disposing(async) " + this.ClientType);
+			}
+			catch {
+			}
+
+			try {
+				if (IsConnected) {
+					await Disconnect();
+				}
+			}
+			catch {
+			}
+
+			if (m_stream != null) {
+				try {
+					await m_stream.DisposeAsync();
+				}
+				catch {
+				}
+
+				m_stream = null;
+			}
+
+			try {
+				m_credentials = null;
+				m_textEncoding = null;
+				m_host = null;
+			}
+			catch {
+			}
+
+			IsDisposed = true;
+		}
+
+#endregion
+
+		protected override BaseFtpClient Create() {
+			return new AsyncFtpClient();
+		}
 
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
 	}
 }
+

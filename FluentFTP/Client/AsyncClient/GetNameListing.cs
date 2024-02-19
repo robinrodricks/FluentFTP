@@ -37,7 +37,7 @@ namespace FluentFTP {
 
 			// read in raw listing
 			try {
-				using (FtpDataStream stream = await OpenDataStreamAsync("NLST " + path, 0, token)) {
+				await using (FtpDataStream stream = await OpenDataStreamAsync("NLST " + path, 0, token)) {
 					Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 					string line;
 
@@ -48,9 +48,7 @@ namespace FluentFTP {
 						}
 					}
 					finally {
-						// We want to close/dispose it NOW, and not when the GM
-						// gets around to it (after the "using" expires).
-						stream.Close();
+						await stream.CloseAsync(token);
 					}
 					Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
 				}

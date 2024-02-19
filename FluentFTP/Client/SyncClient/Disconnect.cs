@@ -22,7 +22,11 @@ namespace FluentFTP {
 					LogWithPrefix(FtpTraceLevel.Warn, "FtpClient.Disconnect(): Exception caught and discarded while closing control connection", ex);
 				}
 				finally {
-					m_stream.Close();
+					// When debugging, the stream might have already been taken down
+					// from the remote side, thus causing an exception here, so check for null
+					if (m_stream != null) {
+						m_stream.Close();
+					}
 				}
 			}
 		}
