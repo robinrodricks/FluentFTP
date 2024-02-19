@@ -178,7 +178,7 @@ https://contributors-img.web.app/image?repo=robinrodricks/FluentFTP
 -->
 
 <a href="https://github.com/robinrodricks/FluentFTP/graphs/contributors">
-  <img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/contributors-2.png" />
+  <img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/contributors-3.png" />
 </a>
 
 
