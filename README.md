@@ -14,7 +14,7 @@ It is written entirely in C#, with no external dependency. It has an extensive a
 
 FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications. 
 
-![Features](https://github.com/robinrodricks/FluentFTP/raw/master/.github/features-4.png)
+![Features](https://github.com/robinrodricks/FluentFTP/raw/master/.github/features-5.png)
 
 
 ## Features
@@ -173,17 +173,18 @@ I have been a freelancer for more than a decade, and your contributions go towar
 
 Special thanks to these awesome people who helped create FluentFTP!
 
-<!---
-<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/contributors.png" />
+<!--
+https://contributors-img.web.app/image?repo=robinrodricks/FluentFTP
 -->
 
 <a href="https://github.com/robinrodricks/FluentFTP/graphs/contributors">
-  <img src="https://contributors-img.web.app/image?repo=robinrodricks/FluentFTP" />
+  <img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/contributors-3.png" />
 </a>
+
 
 ## Reporting Vulnerabilities
 
-Any security vulnerabilities that are found can be reported to the project owner at `r o b i n r o d r i c k s at g m a i l`. No other direct correspondence will be entertained.
+Any security vulnerabilities that are found can be reported to the project owner at `r o b i n r o d r i c k s 7 at g m a i l`. No other direct correspondence will be entertained.
 
 ## Software Support
 
