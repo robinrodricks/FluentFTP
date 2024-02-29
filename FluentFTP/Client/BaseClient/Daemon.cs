@@ -111,10 +111,10 @@ namespace FluentFTP.Client.BaseClient {
 
 			string reason = string.Empty;
 			if (gotEx) {
-				reason =  "due to detected connection problem";
+				reason =  " due to detected connection problem";
 			}
 
-			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Daemon terminated " + reason);
+			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Daemon terminated" + reason);
 			Status.DaemonRunning = false;
 		}
 	}
