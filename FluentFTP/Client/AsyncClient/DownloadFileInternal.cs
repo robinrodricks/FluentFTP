@@ -196,7 +196,7 @@ namespace FluentFTP {
 				if (outStream != null) {
 					await outStream.FlushAsync(token);
 				}
-				downStream.Dispose();
+				await ((FtpDataStream)downStream).DisposeAsync();
 
 				// Fix #552: close the filestream if it was created in this method
 				if (disposeOutStream) {
@@ -238,7 +238,9 @@ namespace FluentFTP {
 
 				// close stream before throwing error
 				try {
-					downStream?.Dispose();
+					if (downStream != null) {
+						await ((FtpDataStream)downStream).DisposeAsync();
+					}
 				}
 				catch (Exception) {
 				}
@@ -282,7 +284,7 @@ namespace FluentFTP {
 				// if resume possible
 				if (ex.IsResumeAllowed()) {
 					// dispose the old bugged out stream
-					downStream.Dispose();
+					await ((FtpDataStream)downStream).DisposeAsync();
 					LogWithPrefix(FtpTraceLevel.Info, "Attempting download resume from offset " + offset);
 
 					// create and return a new stream starting at the current remotePosition
