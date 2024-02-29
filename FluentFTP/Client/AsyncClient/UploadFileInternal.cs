@@ -271,7 +271,7 @@ namespace FluentFTP {
 				progress?.Report(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 
 				// disconnect FTP stream before exiting
-				upStream.Dispose();
+				await ((FtpDataStream)upStream).DisposeAsync();
 
 				// listen for a success/failure reply or out of band data (like NOOP responses)
 				// GetReply(true) means: Exhaust any NOOP responses
@@ -302,7 +302,9 @@ namespace FluentFTP {
 			catch (Exception ex1) {
 				// close stream before throwing error
 				try {
-					upStream?.Dispose();
+					if (upStream != null) {
+						await ((FtpDataStream)upStream).DisposeAsync();
+					}
 				}
 				catch (Exception) {
 				}
@@ -330,7 +332,7 @@ namespace FluentFTP {
 				// if resume possible
 				if (ex.IsResumeAllowed()) {
 					// dispose the old bugged out stream
-					upStream.Dispose();
+					await ((FtpDataStream)upStream).DisposeAsync();
 					LogWithPrefix(FtpTraceLevel.Info, "Attempting upload resume at position " + remotePosition);
 
 					// create and return a new stream starting at the current remotePosition
