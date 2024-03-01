@@ -120,7 +120,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Closes the connection and reads (and discards) the server's reply
 		/// </summary>
-		public override void Close() {
+		public new void Close() {
 			base.Close();
 
 			try {
