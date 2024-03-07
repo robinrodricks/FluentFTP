@@ -32,14 +32,18 @@ namespace FluentFTP.Proxy.AsyncProxy {
 			await base.HandshakeAsync(token);
 		}
 
-		/// <summary>
-		/// Connect
-		/// </summary>
+		/// <inheritdoc />
 		protected override async Task ConnectAsync(FtpSocketStream stream, CancellationToken cancellationToken) {
 			await base.ConnectAsync(stream, cancellationToken);
 			var proxy = new Socks4Proxy(Host, Port, stream);
 			await proxy.ConnectAsync(cancellationToken);
 		}
 
+		/// <inheritdoc />
+		protected override async Task ConnectAsync(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions, CancellationToken cancellationToken) {
+			await base.ConnectAsync(stream, cancellationToken);
+			var proxy = new Socks4Proxy(Host, Port, stream);
+			await proxy.ConnectAsync(cancellationToken);
+		}
 	}
 }

@@ -26,11 +26,15 @@ namespace FluentFTP.Proxy.AsyncProxy {
 		}
 
 		/// <summary> Redefine connect for FtpClient : authentication on the Proxy  </summary>
-		/// <param name="stream">The socket stream.</param>
-		/// <param name="token">Cancellation token.</param>
+		/// <inheritdoc />
 		protected override Task ConnectAsync(FtpSocketStream stream, CancellationToken token) {
 			return stream.ConnectAsync(Proxy.ProxyHost, Proxy.ProxyPort, Config.InternetProtocolVersions, token);
 		}
 
+		/// <summary> Redefine connect for FtpClient : authentication on the Proxy  </summary>
+		/// <inheritdoc />
+		protected override Task ConnectAsync(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions, CancellationToken token) {
+			return stream.ConnectAsync(Proxy.ProxyHost, Proxy.ProxyPort, Config.InternetProtocolVersions, token);
+		}
 	}
 }
