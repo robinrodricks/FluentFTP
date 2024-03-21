@@ -31,6 +31,12 @@ namespace FluentFTP {
 				throw new ArgumentNullException(nameof(fxpDestinationClient), "Destination FXP AsyncFtpClient cannot be null!");
 			}
 
+			var sourceSize = await GetFileSize(sourcePath, -1, token);
+			var remoteSize = await GetFileSize(remotePath, -1, token);
+			if (sourceSize != remoteSize) {
+				return false;
+			}
+
 			// check if any algorithm is supported by both servers
 			var algorithm = GetFirstMutualChecksum(fxpDestinationClient);
 			if (algorithm != FtpHashAlgorithm.NONE) {
@@ -53,7 +59,7 @@ namespace FluentFTP {
 				Log(FtpTraceLevel.Info, "Source and Destination servers do not support any common hashing algorithm");
 			}
 
-			// since not supported return true to ignore validation
+			// check was successful
 			return true;
 		}
 

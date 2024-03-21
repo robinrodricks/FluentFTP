@@ -22,9 +22,9 @@ namespace FluentFTP {
 		/// <param name="metaProgress"></param>
 		/// Returns a FtpStatus indicating if the file was transferred.
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
-		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file size and hash will be verified against the target servers. If a server does not support
+		/// any hash algorithm, the checksum verification is skipped. If only <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on both a successful
+		/// transfer &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
 		/// </remarks>
 		public FtpStatus TransferFile(string sourcePath, FtpClient remoteClient, string remotePath,
 			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Resume, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null, FtpProgress metaProgress = null) {

@@ -38,9 +38,9 @@ namespace FluentFTP {
 		Throw = 4,
 
 		/// <summary>
-		/// The checksum of the file is verified, if supported by the server.
-		/// If the checksum comparison fails then the method returns false and no other action is taken.
+		/// The file size and checksum is verified. Checksums will be skipped if the server does not support them.
+		/// If any of the comparisons fail, the method returns false and no further action is taken.
 		/// </summary>
-		OnlyChecksum = 8,
+		OnlyVerify = 8,
 	}
 }

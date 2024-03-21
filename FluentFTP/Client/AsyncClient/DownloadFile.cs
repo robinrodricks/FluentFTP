@@ -26,9 +26,9 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>FtpStatus flag indicating if the file was downloaded, skipped or failed to transfer.</returns>
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
-		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file size and hash will be verified against the server. If the server does not support
+		/// any hash algorithm, the checksum verification is skipped. If only <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on both a successful
+		/// download &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
 		/// </remarks>
 		public async Task<FtpStatus> DownloadFile(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Resume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 			// verify args

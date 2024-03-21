@@ -25,8 +25,8 @@ namespace FluentFTP {
 		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file size and hash will be verified against the server. If the server does not support
+		/// any hash algorithm, the checksum verification is skipped. If only <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on both a successful
 		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.

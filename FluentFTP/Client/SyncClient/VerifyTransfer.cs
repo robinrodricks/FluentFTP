@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using FluentFTP.Helpers;
+using FluentFTP.Streams;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,6 +26,14 @@ namespace FluentFTP {
 			}
 
 			try {
+
+				var localSize = FtpFileStream.GetFileSize(localPath, false);
+				var remoteSize = GetFileSize(remotePath);
+				if (localSize != remoteSize) {
+					return false;
+				}
+
+
 				if (SupportsChecksum()) {
 					var hash = GetChecksum(remotePath);
 					if (!hash.IsValid) {
@@ -34,7 +43,7 @@ namespace FluentFTP {
 					return hash.Verify(localPath);
 				}
 
-				// not supported, so return true to ignore validation
+				// check was successful
 				return true;
 			}
 			catch (IOException ex) {

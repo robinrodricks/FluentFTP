@@ -3,6 +3,7 @@ using System.IO;
 using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentFTP.Streams;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -26,6 +27,13 @@ namespace FluentFTP {
 			}
 
 			try {
+
+				var localSize = await FtpFileStream.GetFileSizeAsync(localPath, false, token);
+				var remoteSize = await GetFileSize(remotePath, -1, token);
+				if (localSize != remoteSize) {
+					 return false;
+				}
+
 				if (SupportsChecksum()) {
 					FtpHash hash = await GetChecksum(remotePath, FtpHashAlgorithm.NONE, token);
 					if (!hash.IsValid) {
@@ -35,7 +43,7 @@ namespace FluentFTP {
 					return hash.Verify(localPath);
 				}
 
-				// not supported, so return true to ignore validation
+				// check was successful
 				return true;
 			}
 			catch (IOException ex) {

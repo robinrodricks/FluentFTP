@@ -1,7 +1,5 @@
 ﻿using System;
 using FluentFTP.Helpers;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -36,6 +34,12 @@ namespace FluentFTP {
 
 				// get the hashes of both files using the same mutual algorithm
 
+				var sourceSize = GetFileSize(sourcePath, -1);
+				var remoteSize = GetFileSize(remotePath, -1);
+				if (sourceSize != remoteSize) {
+					return false;
+				}
+
 				FtpHash sourceHash = GetChecksum(sourcePath, algorithm);
 				if (!sourceHash.IsValid) {
 					return false;
@@ -52,7 +56,7 @@ namespace FluentFTP {
 				Log(FtpTraceLevel.Info, "Source and Destination servers do not support any common hashing algorithm");
 			}
 
-			// since not supported return true to ignore validation
+			// check was successful
 			return true;
 		}
 
