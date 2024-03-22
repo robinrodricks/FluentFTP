@@ -54,7 +54,7 @@ namespace FluentFTP {
 			// cleanup the remote path
 			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
 
-			LogFunction(nameof(DownloadDirectory), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+			LogFunction(nameof(DownloadDirectory), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules"), verifyMethods });
 
 			var results = new List<FtpResult>();
 

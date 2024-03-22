@@ -31,8 +31,6 @@ namespace FluentFTP {
 
 				//fallback to size if only checksum is set and the server does not support hashing.
 				if (verifyMethod == FtpVerifyMethod.Checksum && !SupportsChecksum()) {
-
-					verifyMethod = FtpVerifyMethod.Size;
 					Log(FtpTraceLevel.Info, "Source server dooes not support any common hashing algorithm");
 					Log(FtpTraceLevel.Info, "Falling back to file size comparison");
 					verifyMethod = FtpVerifyMethod.Size;
@@ -49,7 +47,6 @@ namespace FluentFTP {
 
 				//compare date modified
 				if (verifyMethod.HasFlag(FtpVerifyMethod.Date)) {
-
 					var localDate = await FtpFileStream.GetFileDateModifiedUtcAsync(localPath, token);
 					var remoteDate = await GetModifiedTime(remotePath, token);
 					if (!localDate.Equals(remoteDate)) {

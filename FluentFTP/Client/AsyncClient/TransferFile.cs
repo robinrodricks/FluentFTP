@@ -35,7 +35,7 @@ namespace FluentFTP {
 			sourcePath = sourcePath.GetFtpPath();
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunction(nameof(TransferFile), new object[] { sourcePath, remoteClient, remotePath, Config.FXPDataType, createRemoteDir, existsMode, verifyOptions });
+			LogFunction(nameof(TransferFile), new object[] { sourcePath, remoteClient, remotePath, Config.FXPDataType, createRemoteDir, existsMode, verifyOptions, verifyMethods });
 
 			// verify input params
 			VerifyTransferFileParams(sourcePath, remoteClient, remotePath, existsMode);

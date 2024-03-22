@@ -53,7 +53,7 @@ namespace FluentFTP {
 			sourceFolder = sourceFolder.GetFtpPath().EnsurePostfix("/");
 			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
 
-			LogFunction(nameof(TransferDirectory), new object[] { sourceFolder, remoteClient, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
+			LogFunction(nameof(TransferDirectory), new object[] { sourceFolder, remoteClient, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules"), verifyMethods });
 
 			var results = new List<FtpResult>();
 

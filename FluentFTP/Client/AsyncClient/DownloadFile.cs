@@ -66,7 +66,7 @@ namespace FluentFTP {
 
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunction(nameof(DownloadFile), new object[] { localPath, remotePath, existsMode, verifyOptions });
+			LogFunction(nameof(DownloadFile), new object[] { localPath, remotePath, existsMode, verifyOptions , verifyMethods });
 
 			bool isAppend = false;
 

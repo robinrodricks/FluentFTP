@@ -63,7 +63,7 @@ namespace FluentFTP {
 				return FtpStatus.Failed;
 			}
 
-			LogFunction(nameof(UploadFile), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
+			LogFunction(nameof(UploadFile), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions, verifyMethods });
 
 			// If retries are allowed set the retry counter to the allowed count
 			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? Config.RetryAttempts : 1;

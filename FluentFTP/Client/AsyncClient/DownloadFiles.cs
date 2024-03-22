@@ -54,7 +54,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(localDir));
 			}
 
-			LogFunction(nameof(DownloadFiles), new object[] { localDir, remotePaths, existsMode, verifyOptions });
+			LogFunction(nameof(DownloadFiles), new object[] { localDir, remotePaths, existsMode, verifyOptions, verifyMethods });
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
 			token.ThrowIfCancellationRequested();

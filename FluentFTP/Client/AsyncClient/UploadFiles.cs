@@ -58,7 +58,7 @@ namespace FluentFTP {
 
 			remoteDir = remoteDir.GetFtpPath();
 
-			LogFunction(nameof(UploadFiles), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
+			LogFunction(nameof(UploadFiles), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling, verifyMethods });
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
 			token.ThrowIfCancellationRequested();
