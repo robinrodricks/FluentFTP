@@ -17,15 +17,14 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to destination file on the remote FTP Server</param>
 		/// <param name="createRemoteDir">Indicates if the folder should be created on the remote FTP Server</param>
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="verifyOptions">Sets verification behaviour and what to do if verification fails (See Remarks)</param>
 		/// <param name="progress">Provide a callback to track download progress.</param>
 		/// <param name="metaProgress"></param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// Returns a FtpStatus indicating if the file was transferred.
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
-		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically be set to true for subsequent attempts.
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file will be verified against the source server using the verification methods specified in <paramref name="verifyOptions"/>.
+		/// Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
 		/// </remarks>
 		public async Task<FtpStatus> TransferFile(string sourcePath, AsyncFtpClient remoteClient, string remotePath,
 			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Resume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, FtpProgress metaProgress = null, CancellationToken token = default(CancellationToken)) {
@@ -53,7 +52,7 @@ namespace FluentFTP {
 
 				// if verification is needed
 				if (fxpSuccess && verifyOptions != FtpVerify.None) {
-					verified = await VerifyFXPTransferAsync(sourcePath, remoteClient, remotePath, token);
+					verified = await VerifyFXPTransferAsync(sourcePath, remoteClient, remotePath, verifyOptions, token);
 					LogWithPrefix(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 					if (!verified && attemptsLeft > 0) {
 						LogWithPrefix(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpRemoteExists.Resume ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
