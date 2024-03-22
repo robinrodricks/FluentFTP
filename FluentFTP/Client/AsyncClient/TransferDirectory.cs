@@ -39,7 +39,7 @@ namespace FluentFTP {
 		/// Returns a blank list if nothing was transferred. Never returns null.
 		/// </returns>
 		public async Task<List<FtpResult>> TransferDirectory(string sourceFolder, AsyncFtpClient remoteClient, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
-			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken), FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum) {
 
 			if (sourceFolder.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(sourceFolder));
@@ -107,7 +107,7 @@ namespace FluentFTP {
 
 			// loop through each file and transfer it
 			var filesToUpload = await GetFilesToTransfer(sourceFolder, remoteFolder, rules, results, shouldExist, fileListing, token);
-			await TransferServerFiles(filesToUpload, remoteClient, existsMode, verifyOptions, verifyMethods, progress, remoteListing, token);
+			await TransferServerFiles(filesToUpload, remoteClient, existsMode, verifyOptions, progress, remoteListing, token, verifyMethods);
 
 			// delete the extra remote files if in mirror mode and the directory was pre-existing
 			// DeleteExtraServerFiles(mode, shouldExist, remoteListing);
@@ -158,7 +158,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Transfer the files
 		/// </summary>
-		protected async Task TransferServerFiles(List<FtpResult> filesToTransfer, AsyncFtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, FtpVerifyMethod verifyMethods, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
+		protected async Task TransferServerFiles(List<FtpResult> filesToTransfer, AsyncFtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token, FtpVerifyMethod verifyMethods) {
 
 			LogFunction(nameof(TransferServerFiles), new object[] { filesToTransfer.Count + " files" });
 
@@ -179,7 +179,7 @@ namespace FluentFTP {
 					var metaProgress = new FtpProgress(filesToTransfer.Count, r);
 
 					// transfer the file
-					var transferred = await TransferFile(result.LocalPath, remoteClient, result.RemotePath, false, existsModeToUse, verifyOptions, verifyMethods, progress, metaProgress, token);
+					var transferred = await TransferFile(result.LocalPath, remoteClient, result.RemotePath, false, existsModeToUse, verifyOptions, progress, metaProgress, token, verifyMethods);
 					result.IsSuccess = transferred.IsSuccess();
 					result.IsSkipped = transferred == FtpStatus.Skipped;
 

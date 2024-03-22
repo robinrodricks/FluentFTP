@@ -44,8 +44,8 @@ namespace FluentFTP {
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception to propagate from this method.
 		/// </remarks>
 		public async Task<List<FtpResult>> UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true,
-			FtpVerify verifyOptions = FtpVerify.None, FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken),
-			IProgress<FtpProgress> progress = null, List<FtpRule> rules = null) {
+			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken),
+			IProgress<FtpProgress> progress = null, List<FtpRule> rules = null, FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum) {
 
 			// verify args
 			if (!errorHandling.IsValidCombination()) {
@@ -101,7 +101,7 @@ namespace FluentFTP {
 
 				// try to upload it
 				try {
-					var ok = await UploadFileFromFile(result.LocalPath, result.RemotePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, result.RemotePath), true, verifyOptions, verifyMethods, token, progress, metaProgress);
+					var ok = await UploadFileFromFile(result.LocalPath, result.RemotePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, result.RemotePath), true, verifyOptions, token, progress, metaProgress, verifyMethods);
 
 					// mark that the file succeeded
 					result.IsSuccess = ok.IsSuccess();
@@ -199,9 +199,9 @@ namespace FluentFTP {
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception to propagate from this method.
 		/// </remarks>
 		public async Task<List<FtpResult>> UploadFiles(IEnumerable<FileInfo> localFiles, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true,
-			FtpVerify verifyOptions = FtpVerify.None, FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken),
-			IProgress<FtpProgress> progress = null, List<FtpRule> rules = null) {
-			return await UploadFiles(localFiles.Select(f => f.FullName), remoteDir, existsMode, createRemoteDir, verifyOptions, verifyMethods, errorHandling, token, progress, rules);
+			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken),
+			IProgress<FtpProgress> progress = null, List<FtpRule> rules = null, FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum) {
+			return await UploadFiles(localFiles.Select(f => f.FullName), remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling, token, progress, rules, verifyMethods);
 		}
 
 		/// <summary>

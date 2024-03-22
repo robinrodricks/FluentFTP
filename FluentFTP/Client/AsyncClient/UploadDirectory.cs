@@ -37,7 +37,7 @@ namespace FluentFTP {
 		/// Returns a blank list if nothing was transferred. Never returns null.
 		/// </returns>
 		public async Task<List<FtpResult>> UploadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
-			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken), FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum) {
 
 			if (localFolder.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(localFolder));
@@ -107,7 +107,7 @@ namespace FluentFTP {
 
 			// loop through each file and transfer it
 			var filesToUpload = GetFilesToUpload(localFolder, remoteFolder, rules, results, shouldExist, fileListing);
-			await UploadDirectoryFiles(filesToUpload, existsMode, verifyOptions, verifyMethods, progress, remoteListing, token);
+			await UploadDirectoryFiles(filesToUpload, existsMode, verifyOptions, progress, remoteListing, token, verifyMethods);
 
 			// delete the extra remote files if in mirror mode and the directory was pre-existing
 			await DeleteExtraServerFiles(mode, remoteFolder, shouldExist, remoteListing, rules, token);
@@ -147,7 +147,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Upload all the files within the main directory
 		/// </summary>
-		protected async Task UploadDirectoryFiles(List<FtpResult> filesToUpload, FtpRemoteExists existsMode, FtpVerify verifyOptions, FtpVerifyMethod verifyMethods, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
+		protected async Task UploadDirectoryFiles(List<FtpResult> filesToUpload, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token, FtpVerifyMethod verifyMethods) {
 
 			LogFunction(nameof(UploadDirectoryFiles), new object[] { filesToUpload.Count + " files" });
 
@@ -168,7 +168,7 @@ namespace FluentFTP {
 					var metaProgress = new FtpProgress(filesToUpload.Count, r);
 
 					// upload the file
-					var ok = await UploadFileFromFile(result.LocalPath, result.RemotePath, false, existsModeToUse, false, false, verifyOptions, verifyMethods, token, progress, metaProgress);
+					var ok = await UploadFileFromFile(result.LocalPath, result.RemotePath, false, existsModeToUse, false, false, verifyOptions, token, progress, metaProgress, verifyMethods);
 					result.IsSuccess = ok.IsSuccess();
 					result.IsSkipped = ok == FtpStatus.Skipped;
 

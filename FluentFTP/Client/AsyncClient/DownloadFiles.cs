@@ -42,8 +42,8 @@ namespace FluentFTP {
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception to propagate from this method.
 		/// </remarks>
 		public async Task<List<FtpResult>> DownloadFiles(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite,
-			FtpVerify verifyOptions = FtpVerify.None, FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken),
-			IProgress<FtpProgress> progress = null, List<FtpRule> rules = null) {
+			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken),
+			IProgress<FtpProgress> progress = null, List<FtpRule> rules = null, FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum) {
 
 			// verify args
 			if (!errorHandling.IsValidCombination()) {
@@ -84,7 +84,7 @@ namespace FluentFTP {
 
 				// try to download it
 				try {
-					var ok = await DownloadFileToFileAsync(result.LocalPath, result.RemotePath, existsMode, verifyOptions, verifyMethods, progress, token, metaProgress);
+					var ok = await DownloadFileToFileAsync(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, token, metaProgress, verifyMethods);
 
 					// mark that the file succeeded
 					result.IsSuccess = ok.IsSuccess();

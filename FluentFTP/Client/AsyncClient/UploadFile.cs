@@ -33,7 +33,7 @@ namespace FluentFTP {
 		/// If <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on both a successful upload &amp; verification.
 		/// Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
 		/// </remarks>
-		public async Task<FtpStatus> UploadFile(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None, FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+		public async Task<FtpStatus> UploadFile(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken), FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum) {
 			// verify args
 			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(localPath));
@@ -43,14 +43,14 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
-			return await UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, verifyMethods, token, progress, new FtpProgress(1, 0));
+			return await UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token, progress, new FtpProgress(1, 0), verifyMethods);
 		}
 
 		/// <summary>
 		/// Upload from a local file to a remote file
 		/// </summary>
 		protected async Task<FtpStatus> UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
-			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, FtpVerifyMethod verifyMethods, CancellationToken token, IProgress<FtpProgress> progress, FtpProgress metaProgress) {
+			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token, IProgress<FtpProgress> progress, FtpProgress metaProgress, FtpVerifyMethod verifyMethods) {
 
 
 			// skip uploading if the local file does not exist
