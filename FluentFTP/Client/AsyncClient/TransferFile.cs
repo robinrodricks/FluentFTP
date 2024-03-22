@@ -28,12 +28,12 @@ namespace FluentFTP {
 		/// both a successful transfer &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
 		/// </remarks>
 		public async Task<FtpStatus> TransferFile(string sourcePath, AsyncFtpClient remoteClient, string remotePath,
-			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Resume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, FtpProgress metaProgress = null, CancellationToken token = default(CancellationToken), FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum) {
+			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Resume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, FtpProgress metaProgress = null, CancellationToken token = default(CancellationToken)) {
 
 			sourcePath = sourcePath.GetFtpPath();
 			remotePath = remotePath.GetFtpPath();
 
-			LogFunction(nameof(TransferFile), new object[] { sourcePath, remoteClient, remotePath, Config.FXPDataType, createRemoteDir, existsMode, verifyOptions, verifyMethods });
+			LogFunction(nameof(TransferFile), new object[] { sourcePath, remoteClient, remotePath, Config.FXPDataType, createRemoteDir, existsMode, verifyOptions });
 
 			// verify input params
 			VerifyTransferFileParams(sourcePath, remoteClient, remotePath, existsMode);

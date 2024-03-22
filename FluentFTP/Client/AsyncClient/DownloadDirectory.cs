@@ -36,7 +36,7 @@ namespace FluentFTP {
 		/// Returns a blank list if nothing was transferred. Never returns null.
 		/// </returns>
 		public async Task<List<FtpResult>> DownloadDirectory(string localFolder, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
-			FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken), FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum) {
+			FtpLocalExists existsMode = FtpLocalExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			if (localFolder.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(localFolder));
@@ -52,7 +52,7 @@ namespace FluentFTP {
 			// cleanup the remote path
 			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
 
-			LogFunction(nameof(DownloadDirectory), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules"), verifyMethods });
+			LogFunction(nameof(DownloadDirectory), new object[] { localFolder, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 
 			var results = new List<FtpResult>();
 
@@ -84,7 +84,7 @@ namespace FluentFTP {
 			 *-------------------------------------------------------------------------------------*/
 
 			// loop through each file and transfer it #2
-			await DownloadServerFilesAsync(toDownload, existsMode, verifyOptions, progress, token, verifyMethods);
+			await DownloadServerFilesAsync(toDownload, existsMode, verifyOptions, progress, token);
 
 			// delete the extra local files if in mirror mode
 			DeleteExtraLocalFiles(localFolder, mode, shouldExist, rules);
@@ -95,7 +95,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Download all the listed files and folders from the main directory
 		/// </summary>
-		protected async Task DownloadServerFilesAsync(List<FtpResult> toDownload, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token, FtpVerifyMethod verifyMethods) {
+		protected async Task DownloadServerFilesAsync(List<FtpResult> toDownload, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token) {
 
 			LogFunction(nameof(DownloadServerFilesAsync), new object[] { toDownload.Count + " files" });
 
@@ -113,7 +113,7 @@ namespace FluentFTP {
 						var metaProgress = new FtpProgress(toDownload.Count, r);
 
 						// download the file
-						var ok = await DownloadFileToFileAsync(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, token, metaProgress, verifyMethods);
+						var ok = await DownloadFileToFileAsync(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, token, metaProgress);
 						result.IsSuccess = ok.IsSuccess();
 						result.IsSkipped = ok == FtpStatus.Skipped;
 					}

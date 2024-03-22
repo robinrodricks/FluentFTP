@@ -41,7 +41,7 @@ namespace FluentFTP {
 		/// </remarks>
 		public async Task<List<FtpResult>> DownloadFiles(string localDir, IEnumerable<string> remotePaths, FtpLocalExists existsMode = FtpLocalExists.Overwrite,
 			FtpVerify verifyOptions = FtpVerify.None, FtpError errorHandling = FtpError.None, CancellationToken token = default(CancellationToken),
-			IProgress<FtpProgress> progress = null, List<FtpRule> rules = null, FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum) {
+			IProgress<FtpProgress> progress = null, List<FtpRule> rules = null) {
 
 			// verify args
 			if (!errorHandling.IsValidCombination()) {
@@ -52,7 +52,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(localDir));
 			}
 
-			LogFunction(nameof(DownloadFiles), new object[] { localDir, remotePaths, existsMode, verifyOptions, verifyMethods });
+			LogFunction(nameof(DownloadFiles), new object[] { localDir, remotePaths, existsMode, verifyOptions});
 
 			//check if cancellation was requested and throw to set TaskStatus state to Canceled
 			token.ThrowIfCancellationRequested();
@@ -82,7 +82,7 @@ namespace FluentFTP {
 
 				// try to download it
 				try {
-					var ok = await DownloadFileToFileAsync(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, token, metaProgress, verifyMethods);
+					var ok = await DownloadFileToFileAsync(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, token, metaProgress);
 
 					// mark that the file succeeded
 					result.IsSuccess = ok.IsSuccess();
