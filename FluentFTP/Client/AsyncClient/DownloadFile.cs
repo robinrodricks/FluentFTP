@@ -21,16 +21,18 @@ namespace FluentFTP {
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it doesn't exists</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="verifyOptions">Sets verification behaviour and what to do if verification fails (See Remarks)</param>
+		/// <param name="verifyMethods">Which verification methods to use. (See Remarks)</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress.</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>FtpStatus flag indicating if the file was downloaded, skipped or failed to transfer.</returns>
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file size and hash will be verified against the server. If the server does not support
-		/// any hash algorithm, the checksum verification is skipped. If only <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on both a successful
-		/// download &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file will be verified against the source using the verification methods specified in <paramref name="verifyMethods"/>.
+		/// If only <see cref="FtpVerifyMethod.Checksum"/> is set, but the server does not support any hash algorithm, verification will fall back to file size comparison.
+		/// If <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on both a successful download &amp; verification.
+		/// Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
 		/// </remarks>
-		public async Task<FtpStatus> DownloadFile(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Resume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+		public async Task<FtpStatus> DownloadFile(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Resume, FtpVerify verifyOptions = FtpVerify.None, FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(localPath));
@@ -40,13 +42,13 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
-			return await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, progress, token, new FtpProgress(1, 0));
+			return await DownloadFileToFileAsync(localPath, remotePath, existsMode, verifyOptions, verifyMethods, progress, token, new FtpProgress(1, 0));
 		}
 
 		/// <summary>
 		/// Download a remote file to a local file
 		/// </summary>
-		protected async Task<FtpStatus> DownloadFileToFileAsync(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
+		protected async Task<FtpStatus> DownloadFileToFileAsync(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, FtpVerifyMethod verifyMethods, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
 
 			// verify args
 			if (localPath.IsBlank()) {
@@ -146,7 +148,7 @@ namespace FluentFTP {
 
 				// if verification is needed
 				if (downloadSuccess && verifyOptions != FtpVerify.None) {
-					verified = await VerifyTransferAsync(localPath, remotePath, token);
+					verified = await VerifyTransferAsync(localPath, remotePath, verifyMethods, token);
 					LogWithPrefix(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 					if (!verified && attemptsLeft > 0) {
 						LogWithPrefix(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpLocalExists.Resume ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");

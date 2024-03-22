@@ -22,23 +22,24 @@ namespace FluentFTP {
 		/// <param name="remoteFolder">The full or relative path to destination folder on the remote FTP Server</param>
 		/// <param name="mode">Only Update mode is currently implemented</param>
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="verifyOptions">Sets verification behaviour and what to do if verification fails (See Remarks)</param>
+		/// <param name="verifyMethods">Which verification methods to use. (See Remarks)</param>
 		/// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
 		/// <param name="progress">Provide a callback to track download progress.</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file size and hash will be verified against the target servers. If a server does not support
-		/// any hash algorithm, the checksum verification is skipped. If only <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on both a successful
-		/// transfer &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
-		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
-		/// to propagate from this method.
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file will be verified against the source server using the verification methods specified in <paramref name="verifyMethods"/>.
+		/// If only <see cref="FtpVerifyMethod.Checksum"/> is set, and a server does not support any hash algorithm, verification will fall back to file size comparison.
+		/// If <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on both a successful transfer &amp; verification.
+		/// Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
+		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception to propagate from this method.
 		/// </remarks>
 		/// <returns>
 		/// Returns a listing of all the remote files, indicating if they were downloaded, skipped or overwritten.
 		/// Returns a blank list if nothing was transferred. Never returns null.
 		/// </returns>
 		public async Task<List<FtpResult>> TransferDirectory(string sourceFolder, AsyncFtpClient remoteClient, string remoteFolder, FtpFolderSyncMode mode = FtpFolderSyncMode.Update,
-			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
+			FtpRemoteExists existsMode = FtpRemoteExists.Skip, FtpVerify verifyOptions = FtpVerify.None, FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum, List<FtpRule> rules = null, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 
 			if (sourceFolder.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(sourceFolder));
@@ -106,7 +107,7 @@ namespace FluentFTP {
 
 			// loop through each file and transfer it
 			var filesToUpload = await GetFilesToTransfer(sourceFolder, remoteFolder, rules, results, shouldExist, fileListing, token);
-			await TransferServerFiles(filesToUpload, remoteClient, existsMode, verifyOptions, progress, remoteListing, token);
+			await TransferServerFiles(filesToUpload, remoteClient, existsMode, verifyOptions, verifyMethods, progress, remoteListing, token);
 
 			// delete the extra remote files if in mirror mode and the directory was pre-existing
 			// DeleteExtraServerFiles(mode, shouldExist, remoteListing);
@@ -157,7 +158,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Transfer the files
 		/// </summary>
-		protected async Task TransferServerFiles(List<FtpResult> filesToTransfer, AsyncFtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
+		protected async Task TransferServerFiles(List<FtpResult> filesToTransfer, AsyncFtpClient remoteClient, FtpRemoteExists existsMode, FtpVerify verifyOptions, FtpVerifyMethod verifyMethods, IProgress<FtpProgress> progress, FtpListItem[] remoteListing, CancellationToken token) {
 
 			LogFunction(nameof(TransferServerFiles), new object[] { filesToTransfer.Count + " files" });
 
@@ -178,7 +179,7 @@ namespace FluentFTP {
 					var metaProgress = new FtpProgress(filesToTransfer.Count, r);
 
 					// transfer the file
-					var transferred = await TransferFile(result.LocalPath, remoteClient, result.RemotePath, false, existsModeToUse, verifyOptions, progress, metaProgress, token);
+					var transferred = await TransferFile(result.LocalPath, remoteClient, result.RemotePath, false, existsModeToUse, verifyOptions, verifyMethods, progress, metaProgress, token);
 					result.IsSuccess = transferred.IsSuccess();
 					result.IsSkipped = transferred == FtpStatus.Skipped;
 

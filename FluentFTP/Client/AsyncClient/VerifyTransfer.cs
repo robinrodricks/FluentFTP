@@ -13,10 +13,11 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath"></param>
 		/// <param name="remotePath"></param>
+		/// <param name="verifyMethod"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentException"></exception>
-		protected async Task<bool> VerifyTransferAsync(string localPath, string remotePath, CancellationToken token = default(CancellationToken)) {
+		protected async Task<bool> VerifyTransferAsync(string localPath, string remotePath, FtpVerifyMethod verifyMethod,  CancellationToken token = default(CancellationToken)) {
 
 			// verify args
 			if (localPath.IsBlank()) {
@@ -28,13 +29,36 @@ namespace FluentFTP {
 
 			try {
 
-				var localSize = await FtpFileStream.GetFileSizeAsync(localPath, false, token);
-				var remoteSize = await GetFileSize(remotePath, -1, token);
-				if (localSize != remoteSize) {
-					 return false;
+				//fallback to size if only checksum is set and the server does not support hashing.
+				if (verifyMethod == FtpVerifyMethod.Checksum && !SupportsChecksum()) {
+
+					verifyMethod = FtpVerifyMethod.Size;
+					Log(FtpTraceLevel.Info, "Source server dooes not support any common hashing algorithm");
+					Log(FtpTraceLevel.Info, "Falling back to file size comparison");
+					verifyMethod = FtpVerifyMethod.Size;
 				}
 
-				if (SupportsChecksum()) {
+				//compare size
+				if (verifyMethod.HasFlag(FtpVerifyMethod.Size)) {
+					var localSize = await FtpFileStream.GetFileSizeAsync(localPath, false, token);
+					var remoteSize = await GetFileSize(remotePath, -1, token);
+					if (localSize != remoteSize) {
+						return false;
+					}
+				}
+
+				//compare date modified
+				if (verifyMethod.HasFlag(FtpVerifyMethod.Date)) {
+
+					var localDate = await FtpFileStream.GetFileDateModifiedUtcAsync(localPath, token);
+					var remoteDate = await GetModifiedTime(remotePath, token);
+					if (!localDate.Equals(remoteDate)) {
+						return false;
+					}
+				}
+
+				//compare hash
+				if (verifyMethod.HasFlag(FtpVerifyMethod.Checksum) && SupportsChecksum()) {
 					FtpHash hash = await GetChecksum(remotePath, FtpHashAlgorithm.NONE, token);
 					if (!hash.IsValid) {
 						return false;

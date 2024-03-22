@@ -2,6 +2,7 @@
 using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentFTP.Streams;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -12,11 +13,12 @@ namespace FluentFTP {
 		/// <param name="sourcePath"></param>
 		/// <param name="fxpDestinationClient"></param>
 		/// <param name="remotePath"></param>
+		/// <param name="verifyMethod"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentException"></exception>
 		/// <exception cref="ArgumentNullException"></exception>
-		protected async Task<bool> VerifyFXPTransferAsync(string sourcePath, AsyncFtpClient fxpDestinationClient, string remotePath, CancellationToken token = default(CancellationToken)) {
+		protected async Task<bool> VerifyFXPTransferAsync(string sourcePath, AsyncFtpClient fxpDestinationClient, string remotePath, FtpVerifyMethod verifyMethod, CancellationToken token = default(CancellationToken)) {
 
 			// verify args
 			if (sourcePath.IsBlank()) {
@@ -31,18 +33,40 @@ namespace FluentFTP {
 				throw new ArgumentNullException(nameof(fxpDestinationClient), "Destination FXP AsyncFtpClient cannot be null!");
 			}
 
-			var sourceSize = await GetFileSize(sourcePath, -1, token);
-			var remoteSize = await GetFileSize(remotePath, -1, token);
-			if (sourceSize != remoteSize) {
-				return false;
-			}
-
 			// check if any algorithm is supported by both servers
 			var algorithm = GetFirstMutualChecksum(fxpDestinationClient);
-			if (algorithm != FtpHashAlgorithm.NONE) {
+
+			//fallback to size if only checksum is set and the server does not support hashing.
+			if (verifyMethod == FtpVerifyMethod.Checksum && algorithm == FtpHashAlgorithm.NONE) {
+
+				Log(FtpTraceLevel.Info, "Source and Destination servers do not support any common hashing algorithm");
+				Log(FtpTraceLevel.Info, "Falling back to file size comparison");
+				verifyMethod = FtpVerifyMethod.Size;
+			}
+
+			//compare size
+			if (verifyMethod.HasFlag(FtpVerifyMethod.Size)) {
+				var sourceSize = await GetFileSize(sourcePath, -1, token);
+				var remoteSize = await GetFileSize(remotePath, -1, token);
+				if (sourceSize != remoteSize) {
+					return false;
+				}
+			}
+
+			//compare date modified
+			if (verifyMethod.HasFlag(FtpVerifyMethod.Date)) {
+
+				var sourceDate = await FtpFileStream.GetFileDateModifiedUtcAsync(sourcePath, token);
+				var remoteDate = await GetModifiedTime(remotePath, token);
+				if (!sourceDate.Equals(remoteDate)) {
+					return false;
+				}
+			}
+
+			//compare hash
+			if (verifyMethod.HasFlag(FtpVerifyMethod.Checksum) && algorithm != FtpHashAlgorithm.NONE) {
 
 				// get the hashes of both files using the same mutual algorithm
-
 				FtpHash sourceHash = await GetChecksum(sourcePath, algorithm, token);
 				if (!sourceHash.IsValid) {
 					return false;
@@ -54,9 +78,6 @@ namespace FluentFTP {
 				}
 
 				return sourceHash.Value == destinationHash.Value;
-			}
-			else {
-				Log(FtpTraceLevel.Info, "Source and Destination servers do not support any common hashing algorithm");
 			}
 
 			// check was successful
