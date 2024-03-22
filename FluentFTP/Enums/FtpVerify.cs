@@ -7,11 +7,14 @@ namespace FluentFTP {
 	/// FTP server does not support any hashing algorithms.
 	/// </summary>
 	[Flags]
-	public enum FtpVerify {
+	public enum FtpVerify :ushort {
 		/// <summary>
 		/// No verification of the file is performed
 		/// </summary>
 		None = 0,
+
+		// Section Options
+		// 0x0001 -> 0x0010
 
 		/// <summary>
 		/// The checksum of the file is verified, if supported by the server.
@@ -39,14 +42,36 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// OnlyChecksum is now renamed to OnlyVerify.
-		/// </summary>y
+		/// </summary>
 		[Obsolete("OnlyChecksum is now renamed to OnlyVerify to better reflect its behaviour.", true)]
 		OnlyChecksum = 8,
 
 		/// <summary>
-		/// The file size and checksum is verified. Checksums will be skipped if the server does not support them.
-		/// If any of the comparisons fail, the method returns false and no further action is taken.
+		/// The file is only verified. If no verification type is specified, checksum is used.
+		/// If the comparison fails, the method returns false and no further action is taken.
 		/// </summary>
 		OnlyVerify = 16,
+
+
+		// Section Methods
+		//0x0100 -> 0x0800
+
+		/// <summary>
+		/// Compares the file size.
+		/// Both file sizes should exactly match for the file to be considered equal.
+		/// </summary>
+		Size = 256,
+
+		/// <summary>
+		/// Compares the date modified of the file.
+		/// Both dates should exactly match for the file to be considered equal.
+		/// </summary>
+		Date = 1024,
+
+		/// <summary>
+		/// Compares the checksum or hash of the file using the first supported hash algorithm.
+		/// Both checksums should exactly match for the file to be considered equal.
+		/// </summary>
+		Checksum = 2048,
 	}
 }

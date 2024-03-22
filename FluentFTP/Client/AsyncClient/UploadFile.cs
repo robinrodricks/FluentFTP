@@ -22,18 +22,16 @@ namespace FluentFTP {
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to  <see cref="FtpRemoteExists.NoCheck"/> for fastest performance
 		///  but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="verifyOptions">Sets verification behaviour and what to do if verification fails (See Remarks)</param>
-		/// <param name="verifyMethods">Which verification methods to use. (See Remarks)</param>
+		/// <param name="verifyOptions">Sets verification type and what to do if verification fails (See Remarks)</param>
 		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
 		/// <returns>FtpStatus flag indicating if the file was uploaded, skipped or failed to transfer.</returns>
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file will be verified against the source using the verification methods specified in <paramref name="verifyMethods"/>.
-		/// If only <see cref="FtpVerifyMethod.Checksum"/> is set, but the server does not support any hash algorithm, verification will fall back to file size comparison.
-		/// If <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on both a successful upload &amp; verification.
-		/// Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file will be verified against the server. If no specific verification method is set Checksum will be used as default.
+		/// If the server does not support any hash algorithm, verification will fall back to file size comparison. If only <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on
+		/// both a successful upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
 		/// </remarks>
-		public async Task<FtpStatus> UploadFile(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken), FtpVerifyMethod verifyMethods = FtpVerifyMethod.Checksum) {
+		public async Task<FtpStatus> UploadFile(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 			// verify args
 			if (localPath.IsBlank()) {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(localPath));
@@ -43,14 +41,14 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
-			return await UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token, progress, new FtpProgress(1, 0), verifyMethods);
+			return await UploadFileFromFile(localPath, remotePath, createRemoteDir, existsMode, false, false, verifyOptions, token, progress, new FtpProgress(1, 0));
 		}
 
 		/// <summary>
 		/// Upload from a local file to a remote file
 		/// </summary>
 		protected async Task<FtpStatus> UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
-			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token, IProgress<FtpProgress> progress, FtpProgress metaProgress, FtpVerifyMethod verifyMethods) {
+			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, CancellationToken token, IProgress<FtpProgress> progress, FtpProgress metaProgress) {
 
 
 			// skip uploading if the local file does not exist
@@ -63,7 +61,7 @@ namespace FluentFTP {
 				return FtpStatus.Failed;
 			}
 
-			LogFunction(nameof(UploadFile), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions, verifyMethods });
+			LogFunction(nameof(UploadFile), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 
 			// If retries are allowed set the retry counter to the allowed count
 			var attemptsLeft = verifyOptions.HasFlag(FtpVerify.Retry) ? Config.RetryAttempts : 1;
@@ -88,7 +86,7 @@ namespace FluentFTP {
 
 					// If verification is needed, update the validated flag
 					if (verifyOptions != FtpVerify.None) {
-						verified = await VerifyTransferAsync(localPath, remotePath, verifyMethods, token);
+						verified = await VerifyTransferAsync(localPath, remotePath, verifyOptions, token);
 						LogWithPrefix(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 						if (!verified && attemptsLeft > 0) {
 							LogWithPrefix(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode != FtpRemoteExists.Overwrite ? "  Switching to FtpExists.Overwrite mode.  " : "  ") + attemptsLeft + " attempts remaining");

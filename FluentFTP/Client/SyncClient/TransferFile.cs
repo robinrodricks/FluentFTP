@@ -17,14 +17,14 @@ namespace FluentFTP {
 		/// <param name="remotePath">The full or relative path to destination file on the remote FTP Server</param>
 		/// <param name="createRemoteDir">Indicates if the folder should be created on the remote FTP Server</param>
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="verifyOptions"> Sets verification type and what to do if verification fails (See Remarks)</param>
 		/// <param name="progress">Provide a callback to track download progress.</param>
 		/// <param name="metaProgress"></param>
 		/// Returns a FtpStatus indicating if the file was transferred.
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file size and hash will be verified against the target servers. If a server does not support
-		/// any hash algorithm, the checksum verification is skipped. If only <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on both a successful
-		/// transfer &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file will be verified against the server. If no specific verification method is set Checksum will be used as default.
+		/// If a server does not support any hash algorithm, verification will fall back to file size comparison. If only <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on
+		/// both a successful transfer &amp; verification. Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
 		/// </remarks>
 		public FtpStatus TransferFile(string sourcePath, FtpClient remoteClient, string remotePath,
 			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Resume, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null, FtpProgress metaProgress = null) {
@@ -52,7 +52,7 @@ namespace FluentFTP {
 
 				// if verification is needed
 				if (fxpSuccess && verifyOptions != FtpVerify.None) {
-					verified = VerifyFXPTransfer(sourcePath, remoteClient, remotePath);
+					verified = VerifyFXPTransfer(sourcePath, remoteClient, remotePath, verifyOptions);
 					LogWithPrefix(FtpTraceLevel.Info, "File Verification: " + (verified ? "PASS" : "FAIL"));
 					if (!verified && attemptsLeft > 0) {
 						LogWithPrefix(FtpTraceLevel.Verbose, "Retrying due to failed verification." + (existsMode == FtpRemoteExists.Resume ? "  Overwrite will occur." : "") + "  " + attemptsLeft + " attempts remaining");
