@@ -21,13 +21,13 @@ namespace FluentFTP {
 		/// <param name="remoteFolder">The full path of the remote FTP folder that you want to download. If it does not exist, an empty result list is returned.</param>
 		/// <param name="mode">Mirror or Update mode, as explained above</param>
 		/// <param name="existsMode">If the file exists on disk, should we skip it, resume the download or restart the download?</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful download and what to do if it fails verification (See Remarks)</param>
+		/// <param name="verifyOptions"> Sets verification type and what to do if verification fails (See Remarks)</param>
 		/// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
 		/// <param name="progress">Provide a callback to track download progress.</param>
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file size and hash will be verified against the server. If the server does not support
-		/// any hash algorithm, the checksum verification is skipped. If only <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on both a successful
-		/// download &amp; verification.  Additionally, if any verify option is set and a retry is attempted then overwrite will automatically switch to true for subsequent attempts.
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file will be verified against the server. If no specific verification method is set Checksum will be used as default.
+		/// If the server does not support any hash algorithm, verification will fall back to file size comparison. If only <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on
+		/// both a successful download &amp; verification. Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception
 		/// to propagate from this method.
 		/// </remarks>

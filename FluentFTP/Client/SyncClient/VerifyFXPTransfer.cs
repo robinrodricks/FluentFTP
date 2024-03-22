@@ -31,6 +31,10 @@ namespace FluentFTP {
 			// Isolate verify methods, which are the top byte of 16.
 			FtpVerify verifyMethod = (FtpVerify)((ushort)verify & 0xFF00);
 
+			if (verifyMethod == FtpVerify.None) {
+				verifyMethod = FtpVerify.Checksum;
+			}
+
 			// check if any algorithm is supported by both servers
 			var algorithm = GetFirstMutualChecksum(fxpDestinationClient);
 

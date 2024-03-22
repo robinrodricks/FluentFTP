@@ -28,6 +28,10 @@ namespace FluentFTP {
 			// Isolate verify methods, which are the top byte of 16.
 			FtpVerify verifyMethod = (FtpVerify)((ushort)verify & 0xFF00);
 
+			if (verifyMethod == FtpVerify.None) {
+				verifyMethod = FtpVerify.Checksum;
+			}
+
 			try {
 				//fallback to size if only checksum is set and the server does not support hashing.
 				if (verifyMethod == FtpVerify.Checksum && !SupportsChecksum()) {

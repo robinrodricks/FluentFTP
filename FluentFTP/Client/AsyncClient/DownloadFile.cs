@@ -21,13 +21,14 @@ namespace FluentFTP {
 		/// <param name="localPath">The full or relative path to the file on the local file system</param>
 		/// <param name="remotePath">The full or relative path to the file on the server</param>
 		/// <param name="existsMode">Overwrite if you want the local file to be overwritten if it already exists. Append will also create a new file if it doesn't exists</param>
-		/// <param name="verifyOptions">Sets verification behaviour and what to do if verification fails (See Remarks)</param>
+		/// <param name="verifyOptions">Sets verification type and what to do if verification fails (See Remarks)</param>
 		/// <param name="progress">Provide an implementation of IProgress to track download progress.</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>FtpStatus flag indicating if the file was downloaded, skipped or failed to transfer.</returns>
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file will be verified against the source using the verification methods specified in <paramref name="verifyOptions"/>.
-		/// Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file will be verified against the server. If no specific verification method is set Checksum will be used as default.
+		/// If the server does not support any hash algorithm, verification will fall back to file size comparison. If only <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on
+		/// both a successful download &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception to propagate from this method.
 		/// </remarks>
 		public async Task<FtpStatus> DownloadFile(string localPath, string remotePath, FtpLocalExists existsMode = FtpLocalExists.Resume, FtpVerify verifyOptions = FtpVerify.None, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {

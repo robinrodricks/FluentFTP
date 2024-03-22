@@ -14,7 +14,7 @@ namespace FluentFTP {
 		None = 0,
 
 		// Section Options
-		// 0x0001 -> 0x0080
+		// 0x0001 -> 0x0010
 
 		/// <summary>
 		/// The checksum of the file is verified, if supported by the server.
@@ -40,8 +40,21 @@ namespace FluentFTP {
 		/// </summary>
 		Throw = 4,
 
+		/// <summary>
+		/// OnlyChecksum is now renamed to OnlyVerify.
+		/// </summary>
+		[Obsolete("OnlyChecksum is now renamed to OnlyVerify to better reflect its behaviour.", true)]
+		OnlyChecksum = 8,
+
+		/// <summary>
+		/// The file is only verified. If no verification type is specified, checksum is used.
+		/// If the comparison fails, the method returns false and no further action is taken.
+		/// </summary>
+		OnlyVerify = 16,
+
+
 		// Section Methods
-		// 0x0100 -> 0x8000
+		//0x0100 -> 0x0800
 
 		/// <summary>
 		/// Compares the file size.
@@ -60,11 +73,5 @@ namespace FluentFTP {
 		/// Both checksums should exactly match for the file to be considered equal.
 		/// </summary>
 		Checksum = 2048,
-
-		/// <summary>
-		/// The checksum of the file is verified, if supported by the server.
-		/// If the checksum comparison fails then the method returns false and no other action is taken.
-		/// </summary>
-		OnlyChecksum = 4096,
 	}
 }

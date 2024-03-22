@@ -26,7 +26,7 @@ namespace FluentFTP {
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to <see cref="FtpRemoteExists.NoCheck"/> for fastest performance,
 		///  but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist.</param>
-		/// <param name="verifyOptions">Sets verification behaviour and what to do if verification fails (See Remarks)</param>
+		/// <param name="verifyOptions">Sets verification type and what to do if verification fails (See Remarks)</param>
 		/// <param name="errorHandling">Used to determine how errors are handled</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <param name="progress">Provide an implementation of IProgress to track upload progress.</param>
@@ -36,8 +36,9 @@ namespace FluentFTP {
 		/// Returns a blank list if nothing was transferred. Never returns null.
 		/// </returns>
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file will be verified against the source using the verification methods specified in <paramref name="verifyOptions"/>.
-		/// Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file will be verified against the server. If no specific verification method is set Checksum will be used as default.
+		/// If the server does not support any hash algorithm, verification will fall back to file size comparison. If only <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on
+		/// both a successful upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception to propagate from this method.
 		/// </remarks>
 		public async Task<List<FtpResult>> UploadFiles(IEnumerable<string> localPaths, string remoteDir, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = true,
