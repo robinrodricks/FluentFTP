@@ -13,12 +13,11 @@ namespace FluentFTP {
 		/// <param name="sourcePath"></param>
 		/// <param name="fxpDestinationClient"></param>
 		/// <param name="remotePath"></param>
-		/// <param name="verifyMethod"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentException"></exception>
 		/// <exception cref="ArgumentNullException"></exception>
-		protected async Task<bool> VerifyFXPTransferAsync(string sourcePath, AsyncFtpClient fxpDestinationClient, string remotePath, FtpVerifyMethod verifyMethod, CancellationToken token = default(CancellationToken)) {
+		protected async Task<bool> VerifyFXPTransferAsync(string sourcePath, AsyncFtpClient fxpDestinationClient, string remotePath, CancellationToken token = default(CancellationToken)) {
 
 			// verify args
 			if (sourcePath.IsBlank()) {
