@@ -7,7 +7,7 @@ namespace FluentFTP {
 	/// FTP server does not support any hashing algorithms.
 	/// </summary>
 	[Flags]
-	public enum FtpVerify :ushort {
+	public enum FtpVerify {
 		/// <summary>
 		/// No verification of the file is performed
 		/// </summary>

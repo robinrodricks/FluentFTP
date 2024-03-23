@@ -31,11 +31,11 @@ namespace FluentFTP {
 
 				//fallback to size if only checksum is set and the server does not support hashing.
 				if (verifyMethod == FtpVerifyMethod.Checksum && !SupportsChecksum()) {
-					verifyMethod = FtpVerifyMethod.Size;
 					Log(FtpTraceLevel.Info, "Source server dooes not support any common hashing algorithm");
 					Log(FtpTraceLevel.Info, "Falling back to file size comparison");
 					verifyMethod = FtpVerifyMethod.Size;
 				}
+
 				//compare size
 				if (verifyMethod.HasFlag(FtpVerifyMethod.Size)) {
 					var localSize = FtpFileStream.GetFileSize(localPath, false);
