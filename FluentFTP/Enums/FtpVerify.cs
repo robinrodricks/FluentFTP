@@ -38,9 +38,15 @@ namespace FluentFTP {
 		Throw = 4,
 
 		/// <summary>
-		/// The checksum of the file is verified, if supported by the server.
-		/// If the checksum comparison fails then the method returns false and no other action is taken.
+		/// OnlyChecksum is now renamed to OnlyVerify.
 		/// </summary>
+		[Obsolete("OnlyChecksum is now renamed to OnlyVerify to better reflect its behaviour.", true)]
 		OnlyChecksum = 8,
+
+		/// <summary>
+		/// The file is only verified. If no verification type is specified, checksum is used.
+		/// If the comparison fails, the method returns false and no further action is taken.
+		/// </summary>
+		OnlyVerify = 16,
 	}
 }

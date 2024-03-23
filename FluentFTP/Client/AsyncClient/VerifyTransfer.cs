@@ -3,6 +3,7 @@ using System.IO;
 using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentFTP.Streams;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -25,8 +26,36 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
+			FtpVerifyMethod verifyMethod = Config.VerifyMethod;
+
 			try {
-				if (SupportsChecksum()) {
+				//fallback to size if only checksum is set and the server does not support hashing.
+				if (verifyMethod == FtpVerifyMethod.Checksum && !SupportsChecksum()) {
+					Log(FtpTraceLevel.Info, "Source server does not support any common hashing algorithm");
+					Log(FtpTraceLevel.Info, "Falling back to file size comparison");
+					verifyMethod = FtpVerifyMethod.Size;
+				}
+
+				//compare size
+				if (verifyMethod.HasFlag(FtpVerifyMethod.Size)) {
+					var localSize = await FtpFileStream.GetFileSizeAsync(localPath, false, token);
+					var remoteSize = await GetFileSize(remotePath, -1, token);
+					if (localSize != remoteSize) {
+						return false;
+					}
+				}
+
+				//compare date modified
+				if (verifyMethod.HasFlag(FtpVerifyMethod.Date)) {
+					var localDate = await FtpFileStream.GetFileDateModifiedUtcAsync(localPath, token);
+					var remoteDate = await GetModifiedTime(remotePath, token);
+					if (!localDate.Equals(remoteDate)) {
+						return false;
+					}
+				}
+
+				//compare hash
+				if (verifyMethod.HasFlag(FtpVerifyMethod.Checksum) && SupportsChecksum()) {
 					FtpHash hash = await GetChecksum(remotePath, FtpHashAlgorithm.NONE, token);
 					if (!hash.IsValid) {
 						return false;
@@ -35,7 +64,7 @@ namespace FluentFTP {
 					return hash.Verify(localPath);
 				}
 
-				// not supported, so return true to ignore validation
+				// check was successful
 				return true;
 			}
 			catch (IOException ex) {

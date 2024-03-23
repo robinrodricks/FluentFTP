@@ -488,6 +488,13 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Defines which verification types should be performed when 
+		/// uploading/downloading files using the high-level APIs.
+		/// Multiple verification types can be combined.
+		/// </summary>
+		public FtpVerifyMethod VerifyMethod { get; set; } = FtpVerifyMethod.SizeOrChecksum;
+
+		/// <summary>
 		/// Rate limit for uploads in kbyte/s. Set this to 0 for unlimited speed.
 		/// Honored by high-level API such as Upload(), Download(), UploadFile(), DownloadFile()..
 		/// </summary>
@@ -643,6 +650,7 @@ namespace FluentFTP {
 			write.LocalFileBufferSize = read.LocalFileBufferSize;
 			write.LocalFileShareOption = read.LocalFileShareOption;
 			write.RetryAttempts = read.RetryAttempts;
+			write.VerifyMethod = read.VerifyMethod;
 			write.UploadRateLimit = read.UploadRateLimit;
 			write.DownloadRateLimit = read.DownloadRateLimit;
 			write.DownloadZeroByteFiles = read.DownloadZeroByteFiles;
