@@ -1,13 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using FluentFTP.Streams;
 using FluentFTP.Helpers;
 using FluentFTP.Exceptions;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -22,14 +17,15 @@ namespace FluentFTP {
 		/// <param name="existsMode">What to do if the file already exists? Skip, overwrite or append? Set this to  <see cref="FtpRemoteExists.NoCheck"/> for fastest performance 
 		/// but only if you are SURE that the files do not exist on the server.</param>
 		/// <param name="createRemoteDir">Create the remote directory if it does not exist. Slows down upload due to additional checks required.</param>
-		/// <param name="verifyOptions">Sets if checksum verification is required for a successful upload and what to do if it fails verification (See Remarks)</param>
+		/// <param name="verifyOptions"> Sets verification type and what to do if verification fails (See Remarks)</param>
 		/// <param name="progress">Provide a callback to track download progress.</param>
-		/// <returns>FtpStatus flag indicating if the file was uploaded, skipped or failed to transfer.</returns>
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the hash will be checked against the server.  If the server does not support
-		/// any hash algorithm, then verification is ignored.  If only <see cref="FtpVerify.OnlyChecksum"/> is set then the return of this method depends on both a successful 
-		/// upload &amp; verification.  Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file will be verified against the source using the verification methods specified by <see cref="FtpVerifyMethod"/> in the client config.
+		/// <br/> If only <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on both a successful transfer &amp; verification.
+		/// <br/> Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
+		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception to propagate from this method.
 		/// </remarks>
+		/// <returns>FtpStatus flag indicating if the file was uploaded, skipped or failed to transfer.</returns>
 		public FtpStatus UploadFile(string localPath, string remotePath, FtpRemoteExists existsMode = FtpRemoteExists.Overwrite, bool createRemoteDir = false,
 			FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null) {
 			// verify args

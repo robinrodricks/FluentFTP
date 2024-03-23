@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using FluentFTP.Helpers;
+using FluentFTP.Streams;
+
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,6 +14,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath"></param>
 		/// <param name="remotePath"></param>
+		/// <param name="verifyMethod"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentException"></exception>
 		protected bool VerifyTransfer(string localPath, string remotePath) {
@@ -24,9 +27,38 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
+			FtpVerifyMethod verifyMethod = Config.VerifyMethod;
+
 			try {
-				if (SupportsChecksum()) {
-					var hash = GetChecksum(remotePath);
+
+				//fallback to size if only checksum is set and the server does not support hashing.
+				if (verifyMethod == FtpVerifyMethod.Checksum && !SupportsChecksum()) {
+					Log(FtpTraceLevel.Info, "Source server does not support any common hashing algorithm");
+					Log(FtpTraceLevel.Info, "Falling back to file size comparison");
+					verifyMethod = FtpVerifyMethod.Size;
+				}
+
+				//compare size
+				if (verifyMethod.HasFlag(FtpVerifyMethod.Size)) {
+					var localSize = FtpFileStream.GetFileSize(localPath, false);
+					var remoteSize = GetFileSize(remotePath, -1);
+					if (localSize != remoteSize) {
+						return false;
+					}
+				}
+
+				//compare date modified
+				if (verifyMethod.HasFlag(FtpVerifyMethod.Date)) {
+					var localDate = FtpFileStream.GetFileDateModifiedUtc(localPath);
+					var remoteDate = GetModifiedTime(remotePath);
+					if (!localDate.Equals(remoteDate)) {
+						return false;
+					}
+				}
+
+				//compare hash
+				if (verifyMethod.HasFlag(FtpVerifyMethod.Checksum) && SupportsChecksum()) {
+					FtpHash hash = GetChecksum(remotePath, FtpHashAlgorithm.NONE);
 					if (!hash.IsValid) {
 						return false;
 					}
@@ -34,7 +66,7 @@ namespace FluentFTP {
 					return hash.Verify(localPath);
 				}
 
-				// not supported, so return true to ignore validation
+				// check was successful
 				return true;
 			}
 			catch (IOException ex) {
