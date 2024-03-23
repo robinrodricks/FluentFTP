@@ -11,11 +11,10 @@ namespace FluentFTP {
 		/// <param name="sourcePath"></param>
 		/// <param name="fxpDestinationClient"></param>
 		/// <param name="remotePath"></param>
-		/// <param name="verifyMethod"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentException"></exception>
 		/// <exception cref="ArgumentNullException"></exception>
-		protected bool VerifyFXPTransfer(string sourcePath, FtpClient fxpDestinationClient, string remotePath, FtpVerifyMethod verifyMethod) {
+		protected bool VerifyFXPTransfer(string sourcePath, FtpClient fxpDestinationClient, string remotePath) {
 
 			// verify args
 			if (sourcePath.IsBlank()) {
