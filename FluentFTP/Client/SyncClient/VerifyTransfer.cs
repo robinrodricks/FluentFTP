@@ -3,9 +3,6 @@ using System.IO;
 using FluentFTP.Helpers;
 using FluentFTP.Streams;
 
-using System.Threading;
-using System.Threading.Tasks;
-
 namespace FluentFTP {
 	public partial class FtpClient {
 
@@ -14,7 +11,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath"></param>
 		/// <param name="remotePath"></param>
-		/// <param name="verifyMethod"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentException"></exception>
 		protected bool VerifyTransfer(string localPath, string remotePath) {

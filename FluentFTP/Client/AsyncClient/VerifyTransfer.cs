@@ -13,7 +13,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath"></param>
 		/// <param name="remotePath"></param>
-		/// <param name="verifyMethod"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentException"></exception>
