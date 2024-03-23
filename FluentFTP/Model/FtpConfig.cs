@@ -492,8 +492,7 @@ namespace FluentFTP {
 		/// uploading/downloading files using the high-level APIs.
 		/// Multiple verification types can be combined.
 		/// </summary>
-
-		public FtpVerifyMethod VerifyMethod { get; set; } = FtpVerifyMethod.Checksum;
+		public FtpVerifyMethod VerifyMethod { get; set; } = FtpVerifyMethod.SizeOrChecksum;
 
 		/// <summary>
 		/// Rate limit for uploads in kbyte/s. Set this to 0 for unlimited speed.

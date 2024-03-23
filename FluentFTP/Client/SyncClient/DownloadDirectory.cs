@@ -3,8 +3,6 @@ using System.IO;
 using System.Collections.Generic;
 using FluentFTP.Rules;
 using FluentFTP.Helpers;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentFTP.Exceptions;
 
 namespace FluentFTP {
@@ -25,8 +23,7 @@ namespace FluentFTP {
 		/// <param name="rules">Only files and folders that pass all these rules are downloaded, and the files that don't pass are skipped. In the Mirror mode, the files that fail the rules are also deleted from the local folder.</param>
 		/// <param name="progress">Provide a callback to track download progress.</param>
 		/// <remarks>
-		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file will be verified against the source using the verification methods specified by <see cref="FtpVerifyMethod"/> in the client config .
-		/// <br/> If only <see cref="FtpVerifyMethod.Checksum"/> is set, but the server does not support any hash algorithm, verification will fall back to file size comparison.
+		/// If verification is enabled (All options other than <see cref="FtpVerify.None"/>) the file will be verified against the source using the verification methods specified by <see cref="FtpVerifyMethod"/> in the client config.
 		/// <br/> If only <see cref="FtpVerify.OnlyVerify"/> is set then the return of this method depends on both a successful transfer &amp; verification.
 		/// <br/> Additionally, if any verify option is set and a retry is attempted the existsMode will automatically be set to <see cref="FtpRemoteExists.Overwrite"/>.
 		/// If <see cref="FtpVerify.Throw"/> is set and <see cref="FtpError.Throw"/> is <i>not set</i>, then individual verification errors will not cause an exception to propagate from this method.

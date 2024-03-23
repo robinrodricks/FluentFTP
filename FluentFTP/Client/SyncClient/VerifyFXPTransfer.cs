@@ -30,6 +30,8 @@ namespace FluentFTP {
 				throw new ArgumentNullException(nameof(fxpDestinationClient), "Destination FXP FtpClient cannot be null!");
 			}
 
+			FtpVerifyMethod verifyMethod = Config.VerifyMethod;
+
 			// check if any algorithm is supported by both servers
 			var algorithm = GetFirstMutualChecksum(fxpDestinationClient);
 

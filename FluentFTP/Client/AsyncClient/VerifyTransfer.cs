@@ -13,11 +13,10 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath"></param>
 		/// <param name="remotePath"></param>
-		/// <param name="verifyMethod"></param>
 		/// <param name="token"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentException"></exception>
-		protected async Task<bool> VerifyTransferAsync(string localPath, string remotePath, FtpVerifyMethod verifyMethod, CancellationToken token = default(CancellationToken)) {
+		protected async Task<bool> VerifyTransferAsync(string localPath, string remotePath, CancellationToken token = default(CancellationToken)) {
 
 			// verify args
 			if (localPath.IsBlank()) {
@@ -27,10 +26,12 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
+			FtpVerifyMethod verifyMethod = Config.VerifyMethod;
+
 			try {
 				//fallback to size if only checksum is set and the server does not support hashing.
 				if (verifyMethod == FtpVerifyMethod.Checksum && !SupportsChecksum()) {
-					Log(FtpTraceLevel.Info, "Source server dooes not support any common hashing algorithm");
+					Log(FtpTraceLevel.Info, "Source server does not support any common hashing algorithm");
 					Log(FtpTraceLevel.Info, "Falling back to file size comparison");
 					verifyMethod = FtpVerifyMethod.Size;
 				}

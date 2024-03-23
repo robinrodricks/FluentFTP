@@ -9,7 +9,6 @@ using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP.Helpers.Parsers {
 	internal static class MachineListParser {
-
 		/// <summary>
 		/// Checks if the given listing is a valid Machine Listing item
 		/// </summary>
@@ -88,17 +87,18 @@ namespace FluentFTP.Helpers.Parsers {
 			return item;
 		}
 
+		private const DateTimeStyles DateTimeStyle = DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal;
 		/// <summary>
 		/// Parses the date modified field from MLSD/MLST format listings
 		/// </summary>
 		private static void ParseDateTime(string record, FtpListItem item, BaseFtpClient client) {
 			Match m;
 			if ((m = Regex.Match(record, "modify=(?<modify>.+?);", RegexOptions.IgnoreCase)).Success) {
-				item.Modified = m.Groups["modify"].Value.ParseFtpDate(client);
+				item.Modified = m.Groups["modify"].Value.ParseFtpDate(client, styles: DateTimeStyle);
 			}
 
 			if ((m = Regex.Match(record, "created?=(?<create>.+?);", RegexOptions.IgnoreCase)).Success) {
-				item.Created = m.Groups["create"].Value.ParseFtpDate(client);
+				item.Created = m.Groups["create"].Value.ParseFtpDate(client, styles: DateTimeStyle);
 			}
 		}
 
