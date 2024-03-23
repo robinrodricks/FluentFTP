@@ -13,9 +13,6 @@ namespace FluentFTP {
 		/// </summary>
 		None = 0,
 
-		// Section Options
-		// 0x0001 -> 0x0010
-
 		/// <summary>
 		/// The checksum of the file is verified, if supported by the server.
 		/// If the checksum comparison fails then we retry the download/upload
@@ -51,27 +48,5 @@ namespace FluentFTP {
 		/// If the comparison fails, the method returns false and no further action is taken.
 		/// </summary>
 		OnlyVerify = 16,
-
-
-		// Section Methods
-		//0x0100 -> 0x0800
-
-		/// <summary>
-		/// Compares the file size.
-		/// Both file sizes should exactly match for the file to be considered equal.
-		/// </summary>
-		Size = 256,
-
-		/// <summary>
-		/// Compares the date modified of the file.
-		/// Both dates should exactly match for the file to be considered equal.
-		/// </summary>
-		Date = 1024,
-
-		/// <summary>
-		/// Compares the checksum or hash of the file using the first supported hash algorithm.
-		/// Both checksums should exactly match for the file to be considered equal.
-		/// </summary>
-		Checksum = 2048,
 	}
 }

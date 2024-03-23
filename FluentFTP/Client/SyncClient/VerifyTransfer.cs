@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using FluentFTP.Helpers;
 using FluentFTP.Streams;
+
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,9 +14,10 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="localPath"></param>
 		/// <param name="remotePath"></param>
+		/// <param name="verifyMethod"></param>
 		/// <returns></returns>
 		/// <exception cref="ArgumentException"></exception>
-		protected bool VerifyTransfer(string localPath, string remotePath, FtpVerify verify) {
+		protected bool VerifyTransfer(string localPath, string remotePath, FtpVerifyMethod verifyMethod) {
 
 			// verify args
 			if (localPath.IsBlank()) {
@@ -25,23 +27,17 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
-			// Isolate verify methods, which are the top byte of 16.
-			FtpVerify verifyMethod = (FtpVerify)((ushort)verify & 0xFF00);
-
-			if (verifyMethod == FtpVerify.None) {
-				verifyMethod = FtpVerify.Checksum;
-			}
-
 			try {
-				//fallback to size if only checksum is set and the server does not support hashing.
-				if (verifyMethod == FtpVerify.Checksum && !SupportsChecksum()) {
-					Log(FtpTraceLevel.Verbose, "Source server does not support any common hashing algorithm");
-					Log(FtpTraceLevel.Verbose, "Falling back to file size comparison");
-					verifyMethod = FtpVerify.Size;
-				}
 
+				//fallback to size if only checksum is set and the server does not support hashing.
+				if (verifyMethod == FtpVerifyMethod.Checksum && !SupportsChecksum()) {
+					verifyMethod = FtpVerifyMethod.Size;
+					Log(FtpTraceLevel.Info, "Source server dooes not support any common hashing algorithm");
+					Log(FtpTraceLevel.Info, "Falling back to file size comparison");
+					verifyMethod = FtpVerifyMethod.Size;
+				}
 				//compare size
-				if (verifyMethod.HasFlag(FtpVerify.Size)) {
+				if (verifyMethod.HasFlag(FtpVerifyMethod.Size)) {
 					var localSize = FtpFileStream.GetFileSize(localPath, false);
 					var remoteSize = GetFileSize(remotePath, -1);
 					if (localSize != remoteSize) {
@@ -50,8 +46,8 @@ namespace FluentFTP {
 				}
 
 				//compare date modified
-				if (verifyMethod.HasFlag(FtpVerify.Date)) {
-					var localDate = FtpFileStream.GetFileSize(localPath, true);
+				if (verifyMethod.HasFlag(FtpVerifyMethod.Date)) {
+					var localDate = FtpFileStream.GetFileDateModifiedUtc(localPath);
 					var remoteDate = GetModifiedTime(remotePath);
 					if (!localDate.Equals(remoteDate)) {
 						return false;
@@ -59,7 +55,7 @@ namespace FluentFTP {
 				}
 
 				//compare hash
-				if (verifyMethod.HasFlag(FtpVerify.Checksum) && SupportsChecksum()) {
+				if (verifyMethod.HasFlag(FtpVerifyMethod.Checksum) && SupportsChecksum()) {
 					FtpHash hash = GetChecksum(remotePath, FtpHashAlgorithm.NONE);
 					if (!hash.IsValid) {
 						return false;
