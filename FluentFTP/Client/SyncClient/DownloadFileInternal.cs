@@ -105,7 +105,7 @@ namespace FluentFTP {
 						// read a chunk of bytes from the FTP stream
 						var readBytes = 1;
 						long limitCheckBytes = 0;
-						int bytesToReadInBuffer = fileLen != 0 && buffer.Length > fileLen - offset ? (int)(fileLen - offset) : buffer.Length;
+						int bytesToReadInBuffer = fileLen > 0 && buffer.Length > fileLen - offset ? (int)(fileLen - offset) : buffer.Length;
 
 						sw.Start();
 						while ((readBytes = downStream.Read(buffer, 0, bytesToReadInBuffer)) > 0 && (offset < fileLen || readToEnd)) {
@@ -121,7 +121,7 @@ namespace FluentFTP {
 							offset += readBytes;
 							bytesProcessed += readBytes;
 							limitCheckBytes += readBytes;
-							bytesToReadInBuffer = fileLen != 0 && buffer.Length > fileLen - offset ? (int)(fileLen - offset) : buffer.Length;
+							bytesToReadInBuffer = fileLen > 0 && buffer.Length > fileLen - offset ? (int)(fileLen - offset) : buffer.Length;
 
 							// send progress reports
 							if (progress != null) {
