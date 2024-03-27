@@ -125,7 +125,7 @@ namespace FluentFTP {
 
 							// send progress reports
 							if (progress != null) {
-								ReportProgress(progress, fileLen - restartPosition, offset, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
+									ReportProgress(progress, fileLen - restartPosition, offset, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
 							}
 
 							// honor the rate limit
@@ -236,6 +236,10 @@ namespace FluentFTP {
 				throw;
 			}
 			catch (Exception ex1) {
+				FtpReply reply = await ((IInternalFtpClient)this).GetReplyInternal(token, LastCommandExecuted, false, -1); // no exhaustNoop, but non-blocking
+				if (!reply.Success) {
+					throw new FtpCommandException(reply);
+				}
 
 				// close stream before throwing error
 				try {

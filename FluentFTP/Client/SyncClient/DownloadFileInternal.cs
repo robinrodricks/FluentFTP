@@ -231,6 +231,10 @@ namespace FluentFTP {
 				throw;
 			}
 			catch (Exception ex1) {
+				FtpReply reply = ((IInternalFtpClient)this).GetReplyInternal(LastCommandExecuted, false, -1); // no exhaustNoop, but non-blocking
+				if (!reply.Success) {
+					throw new FtpCommandException(reply);
+				}
 
 				// close stream before throwing error
 				try {
