@@ -125,7 +125,7 @@ namespace FluentFTP {
 
 							// send progress reports
 							if (progress != null) {
-								ReportProgress(progress, fileLen - restartPosition, offset, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
+									ReportProgress(progress, fileLen - restartPosition, offset, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
 							}
 
 							// honor the rate limit
@@ -229,6 +229,8 @@ namespace FluentFTP {
 				return true;
 			}
 			catch (AuthenticationException) {
+				LogWithPrefix(FtpTraceLevel.Verbose, "Authentication error encountered downloading file");
+
 				FtpReply reply = await ((IInternalFtpClient)this).GetReplyInternal(token, LastCommandExecuted, false, -1); // no exhaustNoop, but non-blocking
 				if (!reply.Success) {
 					throw new FtpCommandException(reply);
@@ -236,11 +238,6 @@ namespace FluentFTP {
 				throw;
 			}
 			catch (Exception ex1) {
-				FtpReply reply = await ((IInternalFtpClient)this).GetReplyInternal(token, LastCommandExecuted, false, -1); // no exhaustNoop, but non-blocking
-				if (!reply.Success) {
-					throw new FtpCommandException(reply);
-				}
-
 				// close stream before throwing error
 				try {
 					if (downStream != null) {
@@ -260,6 +257,13 @@ namespace FluentFTP {
 					}
 				}
 
+				LogWithPrefix(FtpTraceLevel.Verbose, "Error encountered downloading file");
+
+				FtpReply reply = await ((IInternalFtpClient)this).GetReplyInternal(token, LastCommandExecuted, false, -1); // no exhaustNoop, but non-blocking
+				if (!reply.Success) {
+					throw new FtpCommandException(reply);
+				}
+
 				if (ex1 is IOException) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "IOException for file " + localPath, ex1);
 					return false;
@@ -277,7 +281,6 @@ namespace FluentFTP {
 				}
 
 				// catch errors during download
-				LogWithPrefix(FtpTraceLevel.Verbose, "Error while downloading the file from the server: " + ex1.Message);
 				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
 			}
 		}

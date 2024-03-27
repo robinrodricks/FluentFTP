@@ -293,6 +293,8 @@ namespace FluentFTP {
 				return FtpStatus.Success;
 			}
 			catch (AuthenticationException) {
+				LogWithPrefix(FtpTraceLevel.Verbose, "Authentication error encountered uploading file");
+
 				FtpReply reply = await ((IInternalFtpClient)this).GetReplyInternal(token, LastCommandExecuted, false, -1); // no exhaustNoop, but non-blocking
 				if (!reply.Success) {
 					throw new FtpCommandException(reply);
@@ -300,11 +302,6 @@ namespace FluentFTP {
 				throw;
 			}
 			catch (Exception ex1) {
-				FtpReply reply = await ((IInternalFtpClient)this).GetReplyInternal(token, LastCommandExecuted, false, -1); // no exhaustNoop, but non-blocking
-				if (!reply.Success) {
-					throw new FtpCommandException(reply);
-				}
-
 				// close stream before throwing error
 				try {
 					if (upStream != null) {
@@ -312,6 +309,13 @@ namespace FluentFTP {
 					}
 				}
 				catch (Exception) {
+				}
+
+				LogWithPrefix(FtpTraceLevel.Verbose, "Error encountered uploading file");
+
+				FtpReply reply = await ((IInternalFtpClient)this).GetReplyInternal(token, LastCommandExecuted, false, -1); // no exhaustNoop, but non-blocking
+				if (!reply.Success) {
+					throw new FtpCommandException(reply);
 				}
 
 				if (ex1 is IOException) {
@@ -325,7 +329,6 @@ namespace FluentFTP {
 				}
 
 				// catch errors during upload
-				LogWithPrefix(FtpTraceLevel.Verbose, "Error while uploading the file to the server: " + ex1.Message);
 				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
 			}
 		}
