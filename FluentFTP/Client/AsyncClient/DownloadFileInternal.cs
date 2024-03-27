@@ -192,17 +192,18 @@ namespace FluentFTP {
 
 				sw.Stop();
 
-				// disconnect FTP stream before exiting
+				// disconnect FTP streams before exiting
 				if (outStream != null) {
 					await outStream.FlushAsync(token);
 				}
-				await ((FtpDataStream)downStream).DisposeAsync();
 
 				// Fix #552: close the filestream if it was created in this method
 				if (disposeOutStream) {
 					outStream?.Dispose();
 					disposeOutStream = false;
 				}
+
+				await ((FtpDataStream)downStream).DisposeAsync();
 
 				if (earlySuccess) {
 					return true;
