@@ -189,15 +189,16 @@ namespace FluentFTP {
 
 				sw.Stop();
 
-				// disconnect FTP stream before exiting
+				// disconnect FTP streams before exiting
 				outStream?.Flush();
-				((FtpDataStream)downStream).Dispose();
 
 				// Fix #552: close the filestream if it was created in this method
 				if (disposeOutStream) {
 					outStream?.Dispose();
 					disposeOutStream = false;
 				}
+
+				((FtpDataStream)downStream).Dispose();
 
 				if (earlySuccess) {
 					return true;
@@ -262,6 +263,7 @@ namespace FluentFTP {
 				}
 
 				// catch errors during download
+				LogWithPrefix(FtpTraceLevel.Verbose, "Error while downloading the file from the server: " + ex1.Message);
 				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
 			}
 		}

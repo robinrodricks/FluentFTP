@@ -305,7 +305,8 @@ namespace FluentFTP {
 					return FtpStatus.Failed;
 				}
 
-				// catch errors during upload, 
+				// catch errors during upload
+				LogWithPrefix(FtpTraceLevel.Verbose, "Error while uploading the file to the server: " + ex1.Message);
 				throw new FtpException("Error while uploading the file to the server. See InnerException for more info.", ex1);
 			}
 		}
