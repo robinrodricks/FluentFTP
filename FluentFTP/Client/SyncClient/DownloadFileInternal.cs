@@ -263,6 +263,7 @@ namespace FluentFTP {
 				}
 
 				// catch errors during download
+				LogWithPrefix(FtpTraceLevel.Verbose, "Error while downloading the file from the server: " + ex1.Message);
 				throw new FtpException("Error while downloading the file from the server. See InnerException for more info.", ex1);
 			}
 		}
