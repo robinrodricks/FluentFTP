@@ -67,7 +67,6 @@ namespace FluentFTP {
 					sslLengthInfo = " (SslSessionLength: " + m_stream.SslSessionLength + ")";
 				}
 				LogWithPrefix(FtpTraceLevel.Warn, "Reconnect needed due to " + reconnectReason + " control connection" + sslLengthInfo);
-				LogWithPrefix(FtpTraceLevel.Info, "Command stashed: " + command);
 
 				if (IsConnected) {
 					if (Status.LastWorkingDir == null) {
@@ -80,12 +79,14 @@ namespace FluentFTP {
 				}
 
 				if (command == "QUIT") {
-					LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
+					LogWithPrefix(FtpTraceLevel.Info, "Not reconnecting for a QUIT command");
 					return new FtpReply() {
 						Code = "200",
 						Message = "Connection already closed."
 					};
 				}
+
+				LogWithPrefix(FtpTraceLevel.Info, "Command stashed: " + command);
 
 				await Connect(true, token);
 
