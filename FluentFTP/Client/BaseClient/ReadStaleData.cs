@@ -39,7 +39,7 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				if (m_stream.SocketDataAvailable > 0) {
-					LogWithPrefix(FtpTraceLevel.Info, "Control connection has stale data - " + logFrom);
+					LogWithPrefix(FtpTraceLevel.Info, "Control connection has stale data(" + m_stream.SocketDataAvailable + ") - " + logFrom);
 				}
 
 				while (m_stream.SocketDataAvailable > 0) {
@@ -118,7 +118,7 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				if (m_stream.SocketDataAvailable > 0) {
-					LogWithPrefix(FtpTraceLevel.Info, "Control connection has stale data - " + logFrom);
+					LogWithPrefix(FtpTraceLevel.Info, "Control connection has stale data(" + m_stream.SocketDataAvailable + ") - " + logFrom);
 				}
 
 				while (m_stream.SocketDataAvailable > 0) {
