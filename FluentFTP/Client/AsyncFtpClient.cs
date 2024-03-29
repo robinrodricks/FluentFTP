@@ -96,6 +96,7 @@ namespace FluentFTP {
 		public override void Dispose() {
 			LogFunction(nameof(Dispose));
 			LogWithPrefix(FtpTraceLevel.Verbose, "Warning: sync dispose called for " + this.ClientType + " object invoked...");
+			// This can happen when someone is "using" the async client without specifying "await using"
 			DisposeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 		}
 
