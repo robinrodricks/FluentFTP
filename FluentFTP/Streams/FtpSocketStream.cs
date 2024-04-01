@@ -698,7 +698,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Reads all line from the socket
+		/// Reads all lines from the socket
 		/// </summary>
 		/// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
 		/// <param name="bufferSize">The size of the buffer</param>
