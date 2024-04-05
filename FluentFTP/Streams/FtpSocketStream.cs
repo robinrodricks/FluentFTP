@@ -630,7 +630,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Reads all line from the socket
+		/// Reads all lines from the socket
 		/// </summary>
 		/// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
 		/// <param name="bufferSize">The size of the buffer</param>
@@ -698,7 +698,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Reads all line from the socket
+		/// Reads all lines from the socket
 		/// </summary>
 		/// <param name="encoding">The type of encoding used to convert from byte[] to string</param>
 		/// <param name="bufferSize">The size of the buffer</param>
@@ -1651,6 +1651,7 @@ namespace FluentFTP {
 
 			if (m_sslStream != null) {
 				try {
+					m_sslStream.Close();
 					m_sslStream.Dispose();
 				}
 				catch {
@@ -1749,6 +1750,7 @@ namespace FluentFTP {
 
 			if (m_sslStream != null) {
 				try {
+					m_sslStream.Close();                // This blocks. It should be recorded in FtpSslStream.cs to be sort of async
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 					await m_sslStream.DisposeAsync();
 #else
