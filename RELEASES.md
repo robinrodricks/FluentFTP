@@ -1,5 +1,33 @@
 # Release Notes
 
+#### 50.0.0
+
+ - **File Verification** (thanks [DasRaschloch](/DasRaschloch) and [FanDjango](/FanDjango))
+   - New: All file transfer methods now support size/checksum/date comparison
+   - New: `DownloadDirectory`, `DownloadFile`, `DownloadFiles`, support new size/checksum/date comparison
+   - New: `UploadDirectory`, `UploadFile`, `UploadFiles` support new size/checksum/date comparison
+   - New: FXP `TransferDirectory`, `TransferFile` support new size/checksum/date comparison
+   - New: `FtpVerify` has new options: `Size/Date/Checksum/OnlyChecksum`
+ - **File Transfer** (thanks [FanDjango](/FanDjango))
+   - Fix: `DownloadFile` with Progress throws `FtpException`
+   - Fix: Correctly handle internal errors in `UploadInternal`/`DownloadInternal`
+   - Fix: `GetFileSize` provides invalid file length and transfer fails
+ - **FTP Proxy** (thanks [zhaohuiyingxue](/zhaohuiyingxue))
+   - Fix: `GetListing` does not use the proxy with passive FTP
+ - **FTP Disconnection** (thanks [FanDjango](/FanDjango))
+   - New: Indicate creating/disposing sync/async connections in log
+   - Fix: Disconnection during Connect async needs to be awaited
+   - Fix: FTP `BaseClient` is also `IAsyncDisposable` in addition to `IDisposable`
+   - Fix: Disposing a connected `AsyncFtpClient` throws non-fatal `InvalidCastException`
+   - Fix: Cloning a `AsyncFtpClient` throws non-fatal `InvalidCastException`
+   - Change: `AsyncFtpClient` to change all `Close` usage to `await CloseAsync`
+   - Change: `FtpDataStream` now supports an async close method
+   - Change: Use `DisposeAsync` pattern for `AsyncFtpClient`
+   - Change: Call `Dispose`/`DisposeAsync` on `BufferedStream` instead of `Flush`/`FlushAsync`
+   - Fix: Restore call to `FtpSslStream` for graceful TLS termination
+ - **IBM OS/400** (thanks [FanDjango](/FanDjango))
+   - Fix: Async server-specific post-connection commands was missing for OS400
+
 #### 49.0.2
 
  - **NOOP Daemon** (thanks [FanDjango](/FanDjango))
