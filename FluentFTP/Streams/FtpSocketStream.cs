@@ -1364,8 +1364,8 @@ namespace FluentFTP {
 			// Default config for SslBuffering is "Auto", or user modified it
 			bool bufferingConfigured = Client.Config.SslBuffering is FtpsBuffering.Auto or FtpsBuffering.On;
 
-			// User has not requested buffering
-			if (!bufferingConfigured) { return; }
+			// User has not requested buffering or this is the control connection
+			if (!bufferingConfigured || IsControlConnection) { return; }
 
 			// So the user would like buffering. But we might need to ignore this request
 			bool useBuffering = true;
@@ -1384,13 +1384,8 @@ namespace FluentFTP {
 				reasonsForIgnore.Add("proxy, ");
 			}
 
-			if (bufferingConfigured && IsControlConnection) {
-				useBuffering = false;
-				// reasonsForIgnore.Add("control connection, ");
-			}
-
 			// Fix: user needs NOOPs - See #823
-			if (bufferingConfigured && Client.Config.NoopInterval > 0) {
+			if (bufferingConfigured && Client.Config.Noop) {
 				useBuffering = false;
 				reasonsForIgnore.Add("NOOPs requested, ");
 			}
