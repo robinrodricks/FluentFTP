@@ -1367,35 +1367,27 @@ namespace FluentFTP {
 			// User has not requested buffering or this is the control connection
 			if (!bufferingConfigured || IsControlConnection) { return; }
 
-			// So the user would like buffering. But we might need to ignore this request
-			bool useBuffering = true;
-
 #if NET5_0_OR_GREATER
-			// Fix: running on .NET 5.0 and later due to issues in .NET framework - See #682
+			// Fix: running on .NET 5.0 and later - See #682
 			if (bufferingConfigured /*&& NET5_0_OR_GREATER*/) {
-				useBuffering = false;
 				reasonsForIgnore.Add(".NET 5.0 and later, ");
 			}
 #endif
 
 			// Fix: using FTP proxies
 			if (bufferingConfigured && Client.IsProxy()) {
-				useBuffering = false;
 				reasonsForIgnore.Add("proxy, ");
 			}
 
 			// Fix: user needs NOOPs - See #823
 			if (bufferingConfigured && Client.Config.Noop) {
-				useBuffering = false;
 				reasonsForIgnore.Add("NOOPs requested, ");
 			}
 
-			if (useBuffering) {
+			if (reasonsForIgnore.Count == 0) {
 				m_bufStream = new BufferedStream(NetworkStream, 81920);
 				return;
 			}
-
-			if (reasonsForIgnore.Count == 0) { return; }
 
 			StringBuilder text = new StringBuilder("SSL Buffering disabled because of ");
 			foreach (string reason in reasonsForIgnore) {
