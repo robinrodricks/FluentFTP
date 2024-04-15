@@ -1585,34 +1585,17 @@ namespace FluentFTP {
 		//
 
 		/// <summary>
-		/// Disconnects from server, replace a Close by Dispose in these .NET versions
+		/// Disconnects from server
 		/// </summary>
-#if NETSTANDARD || NET5_0_OR_GREATER
 		public override void Close() {
-#if DEBUG || true
 			if (Client is AsyncFtpClient) {
 				// If this is called from an AsyncFtpClient, it is an error and needs a code change in the
 				// caller, to "await CloseAsync()".
 				// One of the biggest cuplrits would be "stream.IsConnected" above.
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "AsyncFtpClient incorrectly called Close(sync)");
 			}
-#endif
 			Dispose();
 		}
-#else
-#if DEBUG || true
-		public override void Close() {
-			if (Client is AsyncFtpClient) {
-				// If this is called from an AsyncFtpClient, it is an error and needs a code change in the
-				// caller, to "await CloseAsync()".
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "AsyncFtpClient incorrectly called Close(sync)");
-			}
-			// Close is done by base of FtpSocketStream ( = Stream )
-			// which in turn will dispose, internally.
-			base.Close();
-		}
-#endif
-#endif
 
 		/// <summary>
 		/// Disconnects from server
@@ -1638,7 +1621,6 @@ namespace FluentFTP {
 
 			if (m_sslStream != null) {
 				try {
-					m_sslStream.Close();
 					m_sslStream.Dispose();
 				}
 				catch {
@@ -1737,11 +1719,12 @@ namespace FluentFTP {
 
 			if (m_sslStream != null) {
 				try {
-					m_sslStream.Close();                // This blocks. It should be recorded in FtpSslStream.cs to be sort of async
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+					// Note: FtpSslStream SSL shutdown get called here ( in the Close() )
+					m_sslStream.Close();   // Async Close override not supported yet
 					await m_sslStream.DisposeAsync();
 #else
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) FtpSslStream of FtpSocketStream");
+					// Note: FtpSslStream SSL shutdown get called here ( Dispose() calls Close() )
 					m_sslStream.Dispose(); // Async dispose not supported in this .NET?
 #endif
 				}
@@ -1755,7 +1738,6 @@ namespace FluentFTP {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 					await m_bufStream.DisposeAsync();
 #else
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) BufferedStream of FtpSocketStream");
 					m_bufStream.Dispose(); // Async dispose not supported in this .NET?
 #endif
 				}
