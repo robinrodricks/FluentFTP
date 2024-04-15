@@ -1751,7 +1751,6 @@ namespace FluentFTP {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 					await m_netStream.DisposeAsync();
 #else
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) NetworkStream of FtpSocketStream");
 					m_netStream.Dispose(); // Async dispose not supported in this .NET?
 #endif
 				}
