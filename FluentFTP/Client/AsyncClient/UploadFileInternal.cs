@@ -313,11 +313,6 @@ namespace FluentFTP {
 
 				LogWithPrefix(FtpTraceLevel.Verbose, "Error encountered uploading file");
 
-				FtpReply reply = await ((IInternalFtpClient)this).GetReplyInternal(token, LastCommandExecuted, false, -1); // no exhaustNoop, but non-blocking
-				if (!reply.Success) {
-					throw new FtpCommandException(reply);
-				}
-
 				if (ex1 is IOException) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "IOException for file " + localPath, ex1);
 					return FtpStatus.Failed;
