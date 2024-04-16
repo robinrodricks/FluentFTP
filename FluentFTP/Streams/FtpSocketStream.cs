@@ -226,7 +226,7 @@ namespace FluentFTP {
 					return m_bufStream.CanRead;
 				}
 				else if (m_customStream != null) {
-					return m_customStream.CanRead();
+					return m_customStream.GetBaseStream().CanRead;
 				}
 				else if (m_sslStream != null) {
 					return m_sslStream.CanRead;
@@ -252,7 +252,7 @@ namespace FluentFTP {
 					return m_bufStream.CanWrite;
 				}
 				else if (m_customStream != null) {
-					return m_customStream.CanWrite();
+					return m_customStream.GetBaseStream().CanWrite;
 				}
 				else if (m_sslStream != null) {
 					return m_sslStream.CanWrite;
@@ -1360,7 +1360,7 @@ namespace FluentFTP {
 			}
 
 			if (m_customStream != null) {
-				m_bufStream = new BufferedStream((Stream)m_customStream, 81920);
+				m_bufStream = new BufferedStream(m_customStream.GetBaseStream(), 81920);
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Bufferstream created over CustomStream");
 			}
 			else if (m_sslStream != null) {
@@ -1578,6 +1578,15 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) FtpSocketStream(" + connText + " connection of " + Client.ClientType + ")");
 			}
 
+			if (m_bufStream != null) {
+				try {
+					m_bufStream.Dispose();
+				}
+				catch {
+				}
+				m_bufStream = null;
+			}
+
 			if (m_customStream != null) {
 				try {
 					m_customStream.Dispose();
@@ -1594,15 +1603,6 @@ namespace FluentFTP {
 				catch {
 				}
 				m_sslStream = null;
-			}
-
-			if (m_bufStream != null) {
-				try {
-					m_bufStream.Dispose();
-				}
-				catch {
-				}
-				m_bufStream = null;
 			}
 
 			if (m_netStream != null) {
@@ -1676,6 +1676,19 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(async) FtpSocketStream(" + connText + " connection of " + Client.ClientType + ")");
 			}
 
+			if (m_bufStream != null) {
+				try {
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+					await m_bufStream.DisposeAsync();
+#else
+					m_bufStream.Dispose(); // Async dispose not supported in this .NET?
+#endif
+				}
+				catch {
+				}
+				m_bufStream = null;
+			}
+
 			if (m_customStream != null) {
 				try {
 					m_customStream.Dispose(); // Async not supported by custom stream interface
@@ -1699,19 +1712,6 @@ namespace FluentFTP {
 				catch {
 				}
 				m_sslStream = null;
-			}
-
-			if (m_bufStream != null) {
-				try {
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-					await m_bufStream.DisposeAsync();
-#else
-					m_bufStream.Dispose(); // Async dispose not supported in this .NET?
-#endif
-				}
-				catch {
-				}
-				m_bufStream = null;
 			}
 
 			if (m_netStream != null) {
