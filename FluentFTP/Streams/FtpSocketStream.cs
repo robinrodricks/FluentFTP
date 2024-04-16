@@ -1170,11 +1170,7 @@ namespace FluentFTP {
 					CreateSslStream();
 
 					try {
-#if NETSTANDARD || NET5_0_OR_GREATER
-						m_sslStream.AuthenticateAsClientAsync(targetHost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation).Wait();
-#else
 						m_sslStream.AuthenticateAsClient(targetHost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
-#endif
 					}
 #if NETSTANDARD || NET5_0_OR_GREATER
 					catch (AggregateException ex) {
