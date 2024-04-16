@@ -30,20 +30,11 @@ namespace FluentFTP {
 
 		private NetworkStream m_netStream = null;
 
-		/// <summary>
-		/// The non-encrypted stream
-		/// </summary>
-		private NetworkStream NetworkStream {
-			get => m_netStream;
-			set => m_netStream = value;
-		}
+		private FtpSslStream m_sslStream = null;
 
 		private BufferedStream m_bufStream = null;
 
-		private FtpSslStream m_sslStream = null;
-
 		private IFtpStream m_customStream = null;
-
 
 		/// <summary>
 		/// The client this stream is associated with
@@ -192,7 +183,6 @@ namespace FluentFTP {
 		/// </summary>
 		public bool IsControlConnection { get; set; } = true;
 
-
 		/// <summary>
 		/// The negotiated SSL/TLS protocol version. Will have a valid value after connection is complete.
 		/// </summary>
@@ -207,11 +197,14 @@ namespace FluentFTP {
 			}
 		}
 		/// <summary>
-		/// Gets the underlying stream, could be a NetworkStream, SslStream or CustomStream
+		/// Gets the underlying stream, could be a BufferedStream, CustomStream, SslStream or NetworkStream
 		/// </summary>
 		protected Stream BaseStream {
 			get {
-				if (m_customStream != null) {
+				if (m_bufStream != null) {
+					return m_bufStream;
+				}
+				else if (m_customStream != null) {
 					return m_customStream.GetBaseStream();
 				}
 				else if (m_sslStream != null) {
@@ -229,7 +222,10 @@ namespace FluentFTP {
 		/// </summary>
 		public override bool CanRead {
 			get {
-				if (m_customStream != null) {
+				if (m_bufStream != null) {
+					return m_bufStream.CanRead;
+				}
+				else if (m_customStream != null) {
 					return m_customStream.CanRead();
 				}
 				else if (m_sslStream != null) {
@@ -238,7 +234,6 @@ namespace FluentFTP {
 				else if (m_netStream != null) {
 					return m_netStream.CanRead;
 				}
-
 				return false;
 			}
 		}
@@ -253,7 +248,10 @@ namespace FluentFTP {
 		/// </summary>
 		public override bool CanWrite {
 			get {
-				if (m_customStream != null) {
+				if (m_bufStream != null) {
+					return m_bufStream.CanWrite;
+				}
+				else if (m_customStream != null) {
 					return m_customStream.CanWrite();
 				}
 				else if (m_sslStream != null) {
@@ -1169,7 +1167,6 @@ namespace FluentFTP {
 				authType = ".NET SslStream";
 
 				try {
-					CreateBufferStream();
 					CreateSslStream();
 
 					try {
@@ -1273,9 +1270,7 @@ namespace FluentFTP {
 				authType = ".NET SslStream";
 
 				try {
-					CreateBufferStream();
 					CreateSslStream();
-
 
 					try {
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
@@ -1334,7 +1329,7 @@ namespace FluentFTP {
 
 		private void CreateSslStream() {
 
-			m_sslStream = new FtpSslStream(GetBufferStream(), true, new RemoteCertificateValidationCallback(
+			m_sslStream = new FtpSslStream(m_netStream, true, new RemoteCertificateValidationCallback(
 				delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
 			));
 
@@ -1354,55 +1349,32 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Conditionally create a SSL BufferStream based on the configuration in FtpClient.SslBuffering.
+		/// Conditionally create a BufferStream based on the configuration in FtpClient.Buffering.
+		/// Note: This is only called by creation of a data connection.
 		/// </summary>
-		private void CreateBufferStream() {
-			List<string> reasonsForIgnore = new List<string>();
-
+		public void CreateBufferStream() {
 			m_bufStream = null;
 
 			// Default config for SslBuffering is "Auto", or user modified it
 			bool bufferingConfigured = Client.Config.SslBuffering is FtpsBuffering.Auto or FtpsBuffering.On;
 
-			// User has not requested buffering or this is the control connection
-			if (!bufferingConfigured || IsControlConnection) { return; }
-
-#if NET5_0_OR_GREATER
-			// Fix: running on .NET 5.0 and later - See #682
-			if (bufferingConfigured /*&& NET5_0_OR_GREATER*/) {
-				reasonsForIgnore.Add(".NET 5.0 and later, ");
-			}
-#endif
-
-			// Fix: using FTP proxies
-			if (bufferingConfigured && Client.IsProxy()) {
-				reasonsForIgnore.Add("proxy, ");
-			}
-
-			// Fix: user needs NOOPs - See #823
-			if (bufferingConfigured && Client.Config.Noop) {
-				reasonsForIgnore.Add("NOOPs requested, ");
-			}
-
-			if (reasonsForIgnore.Count == 0) {
-				m_bufStream = new BufferedStream(NetworkStream, 81920);
+			// User has not requested buffering
+			if (!bufferingConfigured) {
 				return;
 			}
 
-			StringBuilder text = new StringBuilder("SSL Buffering disabled because of ");
-			foreach (string reason in reasonsForIgnore) {
-				text.Append(reason);
+			if (m_customStream != null) {
+				m_bufStream = new BufferedStream((Stream)m_customStream, 81920);
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Bufferstream created over CustomStream");
 			}
-			string stext = text.ToString().TrimEnd(new char[] { ' ', ',' });
-			((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, stext);
-		}
-
-		/// <summary>
-		/// If SSL Buffering is enabled it returns the BufferStream, else returns the internal NetworkStream.
-		/// </summary>
-		/// <returns></returns>
-		private Stream GetBufferStream() {
-			return m_bufStream != null ? (Stream)m_bufStream : (Stream)NetworkStream;
+			else if (m_sslStream != null) {
+				m_bufStream = new BufferedStream((Stream)m_sslStream, 81920);
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Bufferstream created over SslStream");
+			}
+			else if (m_netStream != null) {
+				m_bufStream = new BufferedStream((Stream)m_netStream, 81920);
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Bufferstream created over NetworkStream");
+			}
 		}
 
 		//#if NETFRAMEWORK

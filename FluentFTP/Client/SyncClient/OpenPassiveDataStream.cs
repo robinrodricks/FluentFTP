@@ -154,6 +154,8 @@ namespace FluentFTP {
 					Config.SslProtocols);
 			}
 
+			stream.CreateBufferStream();
+
 			return stream;
 		}
 

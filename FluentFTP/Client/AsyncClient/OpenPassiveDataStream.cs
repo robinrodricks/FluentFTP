@@ -148,6 +148,8 @@ namespace FluentFTP {
 					token: token);
 			}
 
+			stream.CreateBufferStream();
+
 			return stream;
 		}
 	}

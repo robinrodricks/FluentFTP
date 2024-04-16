@@ -138,6 +138,8 @@ namespace FluentFTP {
 			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, Config.SocketKeepAlive);
 			stream.ReadTimeout = Config.DataConnectionReadTimeout;
 
+			stream.CreateBufferStream();
+
 			return stream;
 		}
 
