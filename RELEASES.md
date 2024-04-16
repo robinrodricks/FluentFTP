@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 50.0.1
+
+ - Fix: Correct sequencing of FTP stream disposing for .NET Framework
+ - Fix: Extraneous `GetReply` call in `UploadInternal`/`DownloadInternal`
+
 #### 50.0.0
 
  - **File Verification** (thanks [DasRaschloch](/DasRaschloch) and [FanDjango](/FanDjango))
