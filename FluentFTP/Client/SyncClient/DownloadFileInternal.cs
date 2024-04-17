@@ -185,9 +185,16 @@ namespace FluentFTP {
 					}
 				}
 
-				LogWithPrefix(FtpTraceLevel.Verbose, "Downloaded " + bytesProcessed + " bytes");
-
 				sw.Stop();
+
+				string bps;
+				try {
+					bps = (bytesProcessed / sw.ElapsedMilliseconds * 1000L).FileSizeToString();
+				}
+				catch {
+					bps = "0";
+				}
+				LogWithPrefix(FtpTraceLevel.Verbose, "Downloaded " + bytesProcessed + " bytes (" + sw.Elapsed.ToShortString() + ", " + bps + "/s)");
 
 				// disconnect FTP streams before exiting
 				outStream?.Flush();
