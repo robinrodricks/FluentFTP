@@ -259,13 +259,20 @@ namespace FluentFTP {
 					}
 				}
 
-				sw.Stop();
-
 				// wait for transfer to get over
 				while (upStream.Position < upStream.Length) {
 				}
 
-				LogWithPrefix(FtpTraceLevel.Verbose, "Uploaded " + upStream.Position + " bytes");
+				sw.Stop();
+
+				string bps;
+				try {
+					bps = (upStream.Position / sw.ElapsedMilliseconds * 1000L).FileSizeToString();
+				}
+				catch {
+					bps = "0";
+				}
+				LogWithPrefix(FtpTraceLevel.Verbose, "Uploaded " + upStream.Position + " bytes (" + sw.Elapsed.ToShortString() + ", " + bps + "/s)");
 
 				// send progress reports
 				progress?.Report(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
