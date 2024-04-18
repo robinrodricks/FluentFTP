@@ -1663,6 +1663,13 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(async) " + Client.ClientType + ".FtpSocketStream(" + connText + ")");
 			}
 
+			// BufferedStream dispose WILL dispose the underlying stream.
+			// If this is a buffered SslStream (created with LeaveInnerStreamOpen), disposing it
+			// won't dispose of the underlying NetStream.
+			// In case of a buffered CustomStream or a buffered NetStream, we need not do more.
+			// TODO: To support the CCC (Deactivate Encryption) command, some more additional logic
+			// is required and note that CustomStream GnuTLS currently does not support this at all.
+
 			try {
 				if (m_bufStream != null) {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
@@ -1670,26 +1677,44 @@ namespace FluentFTP {
 #else
 					m_bufStream.Dispose(); // Async dispose not supported in this .NET?
 #endif
-				}
-				else if (m_sslStream != null) {
+					if (m_sslStream != null) {
+						if (m_netStream != null) {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-					// Note: FtpSslStream SSL shutdown get called here ( in the Close() )
-					m_sslStream.Close();   // Async Close override not supported yet
-					await m_sslStream.DisposeAsync();
+							await m_netStream.DisposeAsync();
 #else
-					// Note: FtpSslStream SSL shutdown get called here ( Dispose() calls Close() )
-					m_sslStream.Dispose(); // Async dispose not supported in this .NET?
+							m_netStream.Dispose(); // Async dispose not supported in this .NET?
 #endif
+						}
+					}
 				}
-				else if (m_customStream != null) {
-					m_customStream.Dispose(); // Async not supported by custom stream interface
-				}
-				else if (m_netStream != null) {
+				else {
+					if (m_sslStream != null) {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-					await m_netStream.DisposeAsync();
+						// Note: FtpSslStream SSL shutdown get called here ( in the Close() )
+						m_sslStream.Close();   // Async Close override not supported yet
+						await m_sslStream.DisposeAsync();
 #else
-					m_netStream.Dispose(); // Async dispose not supported in this .NET?
+						// Note: FtpSslStream SSL shutdown get called here ( Dispose() calls Close() )
+						m_sslStream.Dispose(); // Async dispose not supported in this .NET?
 #endif
+						if (m_netStream != null) {
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+							await m_netStream.DisposeAsync();
+#else
+							m_netStream.Dispose(); // Async dispose not supported in this .NET?
+#endif
+						}
+					}
+					else if (m_customStream != null) {
+						m_customStream.Dispose();
+					}
+					else if (m_netStream != null) {
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+						await m_netStream.DisposeAsync();
+#else
+						m_netStream.Dispose(); // Async dispose not supported in this .NET?
+#endif
+					}
 				}
 			}
 			catch {
