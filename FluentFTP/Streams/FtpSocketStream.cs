@@ -1562,18 +1562,35 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) " + Client.ClientType + ".FtpSocketStream(" + connText + ")");
 			}
 
+			// BufferedStream dispose WILL dispose the underlying stream.
+			// If this is a buffered SslStream (created with LeaveInnerStreamOpen), disposing it
+			// won't dispose of the underlying NetStream.
+			// In case of a buffered CustomStream or a buffered NetStream, we need not do more.
+			// TODO: To support the CCC (Deactivate Encryption) command, some more additional logic
+			// is required and note that CustomStream GnuTLS currently does not support this at all.
+
 			try {
 				if (m_bufStream != null) {
 					m_bufStream.Dispose();
+					if (m_sslStream != null) {
+						if (m_netStream != null) {
+							m_netStream.Dispose();
+						}
+					}
 				}
-				else if (m_sslStream != null) {
-					m_sslStream.Dispose();
-				}
-				else if (m_customStream != null) {
-					m_customStream.Dispose();
-				}
-				else if (m_netStream != null) {
-					m_netStream.Dispose();
+				else {
+					if (m_sslStream != null) {
+						m_sslStream.Dispose();
+						if (m_netStream != null) {
+							m_netStream.Dispose();
+						}
+					}
+					else if (m_customStream != null) {
+						m_customStream.Dispose();
+					}
+					else if (m_netStream != null) {
+						m_netStream.Dispose();
+					}
 				}
 			}
 			catch {
