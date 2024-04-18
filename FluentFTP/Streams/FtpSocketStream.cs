@@ -898,10 +898,10 @@ namespace FluentFTP {
 				string logIp = Client.Config.LogHost ? ipad.ToString() : "***";
 				string connText = this.IsControlConnection ? "control" : "data";
 
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Connecting(sync) " + Client.ClientType + ".FtpSocketStream(" + connText + ") IP #" + iPlusOne + "= " + logIp + ":" + port);
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Connecting(sync) " + Client.ClientType + ".FtpSocketStream(" + connText + ") IP #" + iPlusOne + " = " + logIp + ":" + port);
 
 				if (!IsIpVersionAllowed(ipad, ipVersions, out string logFamily)) {
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...skipped " + logFamily + " address: " + logIp);
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...skipped IP #" + iPlusOne + " - " + logFamily + ", IP address: " + logIp);
 					continue;
 				}
 
@@ -916,7 +916,7 @@ namespace FluentFTP {
 						break;
 					}
 					else {
-						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...failed to connect to IP #" + iPlusOne + "= " + logIp + ":" + port);
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...failed to connect to IP #" + iPlusOne);
 					}
 				}
 				catch (TimeoutException) {
@@ -924,11 +924,11 @@ namespace FluentFTP {
 						throw new TimeoutException("Timed out trying to connect!");
 					}
 					else {
-						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...timeout connecting to IP #" + iPlusOne + "= " + logIp + ":" + port);
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...timeout connecting to IP #" + iPlusOne);
 					}
 				}
 				catch (Exception ex) when (!lastIP) {
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error connecting to IP #" + iPlusOne + "= " + logIp + ":" + port, ex);
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error connecting to IP #" + iPlusOne, ex);
 				}
 			}
 
@@ -1037,10 +1037,10 @@ namespace FluentFTP {
 				string logIp = Client.Config.LogHost ? ipad.ToString() : "***";
 				string connText = this.IsControlConnection ? "control" : "data";
 
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Connecting(async) " + Client.ClientType + ".FtpSocketStream(" + connText + ") IP #" + iPlusOne + "= " + logIp + ":" + port);
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Connecting(async) " + Client.ClientType + ".FtpSocketStream(" + connText + ") IP #" + iPlusOne + " = " + logIp + ":" + port);
 
 				if (!IsIpVersionAllowed(ipad, ipVersions, out string logFamily)) {
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...skipped " + logFamily + "address: " + logIp);
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...skipped IP #" + iPlusOne + " - " + logFamily + ", IP address: " + logIp);
 					continue;
 				}
 
@@ -1055,7 +1055,7 @@ namespace FluentFTP {
 						break;
 					}
 					else {
-						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...failed to connect to IP #" + iPlusOne + "= " + logIp + ":" + port);
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...failed to connect to IP #" + iPlusOne);
 					}
 				}
 				catch (TimeoutException) {
@@ -1063,11 +1063,11 @@ namespace FluentFTP {
 						throw new TimeoutException("Timed out trying to connect!");
 					}
 					else {
-						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...timeout connecting to IP #" + iPlusOne + "= " + logIp + ":" + port);
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...timeout connecting to IP #" + iPlusOne);
 					}
 				}
 				catch (Exception ex) when (!lastIP) {
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error connecting to IP #" + iPlusOne + "= " + logIp + ":" + port, ex);
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error connecting to IP #" + iPlusOne, ex);
 				}
 			}
 
