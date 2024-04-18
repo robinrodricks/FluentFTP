@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace FluentFTP.Client.Modules {
@@ -55,6 +56,22 @@ namespace FluentFTP.Client.Modules {
 
 				}
 			}
+
+			// if IPAD needs to be masked out
+			if (!client.Config.LogHost) {
+
+				// if its the reply to the PASV command
+				if (command.StartsWith("PASV", StringComparison.Ordinal)) {
+
+					// mask out IPAD
+					if (reply.Code == "227") {
+						Regex regEx = new Regex(@"^(Entering Passive Mode \()(\d{1,3},\d{1,3},\d{1,3},\d{1,3}),(\d{1,3},\d{1,3}\).)$");
+						message = regEx.Replace(message, @"$1***,***,***,***,$3");
+					}
+
+				}
+			}
+
 			return message;
 		}
 

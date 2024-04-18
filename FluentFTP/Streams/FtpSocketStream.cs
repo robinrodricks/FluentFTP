@@ -896,13 +896,14 @@ namespace FluentFTP {
 				ipad = ipads[i];
 
 				string logIp = Client.Config.LogHost ? ipad.ToString() : "***";
+				string connText = this.IsControlConnection ? "control" : "data";
+
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Connecting(sync) " + Client.ClientType + ".FtpSocketStream(" + connText + ") IP #" + iPlusOne + "= " + logIp + ":" + port);
 
 				if (!IsIpVersionAllowed(ipad, ipVersions, out string logFamily)) {
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Skipped " + logFamily + " address: " + logIp);
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...skipped " + logFamily + " address: " + logIp);
 					continue;
 				}
-
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "Connecting to IP #" + iPlusOne + "= " + logIp + ":" + port);
 
 				m_socket = new Socket(ipad.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -1034,13 +1035,14 @@ namespace FluentFTP {
 				ipad = ipads[i];
 
 				string logIp = Client.Config.LogHost ? ipad.ToString() : "***";
+				string connText = this.IsControlConnection ? "control" : "data";
+
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Connecting(async) " + Client.ClientType + ".FtpSocketStream(" + connText + ") IP #" + iPlusOne + "= " + logIp + ":" + port);
 
 				if (!IsIpVersionAllowed(ipad, ipVersions, out string logFamily)) {
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Skipped " + logFamily + "address: " + logIp);
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...skipped " + logFamily + "address: " + logIp);
 					continue;
 				}
-
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "Connecting to IP #" + iPlusOne + "= " + logIp + ":" + port);
 
 				m_socket = new Socket(ipad.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -1575,7 +1577,7 @@ namespace FluentFTP {
 
 			if (Client != null) {
 				string connText = this.IsControlConnection ? "control" : "data";
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) FtpSocketStream(" + connText + " connection of " + Client.ClientType + ")");
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) " + Client.ClientType + ".FtpSocketStream(" + connText + ")");
 			}
 
 			try {
@@ -1659,7 +1661,7 @@ namespace FluentFTP {
 
 			if (Client != null) {
 				string connText = this.IsControlConnection ? "control" : "data";
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(async) FtpSocketStream(" + connText + " connection of " + Client.ClientType + ")");
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(async) " + Client.ClientType + ".FtpSocketStream(" + connText + ")");
 			}
 
 			try {
