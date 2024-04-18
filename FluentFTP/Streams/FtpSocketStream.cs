@@ -1375,24 +1375,6 @@ namespace FluentFTP {
 			}
 		}
 
-		//#if NETFRAMEWORK
-		//		/// <summary>
-		//		/// Deactivates SSL on this stream using the specified protocols and reverts back to plain-text FTP.
-		//		/// </summary>
-		//		public void DeactivateEncryption() {
-		//			if (!IsConnected) {
-		//				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
-		//			}
-
-		//			if (m_sslStream == null) {
-		//				throw new InvalidOperationException("SSL Encryption has not been enabled on this stream.");
-		//			}
-
-		//			m_sslStream.Close();
-		//			m_sslStream = null;
-		//		}
-		//#endif
-
 		/// <summary>
 		/// Instructs this stream to listen for connections on the specified address and port
 		/// </summary>
