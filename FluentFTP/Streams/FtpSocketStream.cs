@@ -1578,41 +1578,27 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) FtpSocketStream(" + connText + " connection of " + Client.ClientType + ")");
 			}
 
-			if (m_bufStream != null) {
-				try {
+			try {
+				if (m_bufStream != null) {
 					m_bufStream.Dispose();
 				}
-				catch {
-				}
-				m_bufStream = null;
-			}
-
-			if (m_customStream != null) {
-				try {
-					m_customStream.Dispose();
-				}
-				catch {
-				}
-				m_customStream = null;
-			}
-
-			if (m_sslStream != null) {
-				try {
+				else if (m_sslStream != null) {
 					m_sslStream.Dispose();
 				}
-				catch {
+				else if (m_customStream != null) {
+					m_customStream.Dispose();
 				}
-				m_sslStream = null;
-			}
-
-			if (m_netStream != null) {
-				try {
+				else if (m_netStream != null) {
 					m_netStream.Dispose();
 				}
-				catch {
-				}
-				m_netStream = null;
 			}
+			catch {
+			}
+
+			m_bufStream = null;
+			m_sslStream = null;
+			m_customStream = null;
+			m_netStream = null;
 
 			DisposeSocket();
 
@@ -1676,30 +1662,15 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(async) FtpSocketStream(" + connText + " connection of " + Client.ClientType + ")");
 			}
 
-			if (m_bufStream != null) {
-				try {
+			try {
+				if (m_bufStream != null) {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 					await m_bufStream.DisposeAsync();
 #else
 					m_bufStream.Dispose(); // Async dispose not supported in this .NET?
 #endif
 				}
-				catch {
-				}
-				m_bufStream = null;
-			}
-
-			if (m_customStream != null) {
-				try {
-					m_customStream.Dispose(); // Async not supported by custom stream interface
-				}
-				catch {
-				}
-				m_customStream = null;
-			}
-
-			if (m_sslStream != null) {
-				try {
+				else if (m_sslStream != null) {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 					// Note: FtpSslStream SSL shutdown get called here ( in the Close() )
 					m_sslStream.Close();   // Async Close override not supported yet
@@ -1709,23 +1680,24 @@ namespace FluentFTP {
 					m_sslStream.Dispose(); // Async dispose not supported in this .NET?
 #endif
 				}
-				catch {
+				else if (m_customStream != null) {
+					m_customStream.Dispose(); // Async not supported by custom stream interface
 				}
-				m_sslStream = null;
-			}
-
-			if (m_netStream != null) {
-				try {
+				else if (m_netStream != null) {
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 					await m_netStream.DisposeAsync();
 #else
 					m_netStream.Dispose(); // Async dispose not supported in this .NET?
 #endif
 				}
-				catch {
-				}
-				m_netStream = null;
 			}
+			catch {
+			}
+
+			m_bufStream = null;
+			m_sslStream = null;
+			m_customStream = null;
+			m_netStream = null;
 
 			DisposeSocket();
 
