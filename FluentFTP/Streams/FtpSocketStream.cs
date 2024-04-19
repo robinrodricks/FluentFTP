@@ -1562,7 +1562,7 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) " + Client.ClientType + ".FtpSocketStream(" + connText + ")");
 			}
 
-			// BufferedStream dispose WILL dispose the underlying stream.
+			// BufferedStream dispose WILL normally dispose the underlying stream.
 			// If this is a buffered SslStream (created with LeaveInnerStreamOpen), disposing it
 			// won't dispose of the underlying NetStream.
 			// In case of a buffered CustomStream or a buffered NetStream, we need not do more.
@@ -1663,7 +1663,7 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(async) " + Client.ClientType + ".FtpSocketStream(" + connText + ")");
 			}
 
-			// BufferedStream dispose WILL dispose the underlying stream.
+			// BufferedStream dispose WILL normally dispose the underlying stream.
 			// If this is a buffered SslStream (created with LeaveInnerStreamOpen), disposing it
 			// won't dispose of the underlying NetStream.
 			// In case of a buffered CustomStream or a buffered NetStream, we need not do more.
