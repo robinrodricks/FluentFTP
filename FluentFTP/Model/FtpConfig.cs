@@ -274,13 +274,6 @@ namespace FluentFTP {
 		public SslProtocols SslProtocols { get; set; } = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls;
 
 		/// <summary>
-		/// Whether to use SSL Buffering to speed up data transfer during FTP operations.
-		/// SSL Buffering is always disabled on .NET 5.0 and later due to platform issues (see issue 682 in FluentFTP issue tracker).
-		/// Also disabled on the control connection, for proxy connections and if NOOPs are configured to be used
-		/// </summary>
-		public FtpsBuffering SslBuffering { get; set; } = FtpsBuffering.Auto;
-
-		/// <summary>
 		/// Gets or sets the max number of socket write/read transactions
 		/// before an automatic disconnect/reconnect is performed.
 		/// This is required to bypass an SSL issue that occurs after a specific number of transactions.
@@ -633,7 +626,6 @@ namespace FluentFTP {
 			write.EncryptionMode = read.EncryptionMode;
 			write.DataConnectionEncryption = read.DataConnectionEncryption;
 			write.SslProtocols = read.SslProtocols;
-			write.SslBuffering = read.SslBuffering;
 			write.SslSessionLength = read.SslSessionLength;
 			write.ValidateAnyCertificate = read.ValidateAnyCertificate;
 			write.ValidateCertificateRevocation = read.ValidateCertificateRevocation;
