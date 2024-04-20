@@ -66,7 +66,7 @@ namespace FluentFTP {
 		/// the exception that would be thrown when trying to
 		/// read or write to the disconnected socket.
 		/// </summary>
-		private DateTime m_lastActivity = DateTime.Now;
+		private DateTime m_lastActivity = DateTime.UtcNow;
 
 		private Socket m_socket = null;
 
@@ -141,11 +141,11 @@ namespace FluentFTP {
 						return false;
 					}
 
-					if (m_socketPollInterval > 0 && DateTime.Now.Subtract(m_lastActivity).TotalMilliseconds > m_socketPollInterval) {
+					if (m_socketPollInterval > 0 && DateTime.UtcNow.Subtract(m_lastActivity).TotalMilliseconds > m_socketPollInterval) {
 						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Testing connectivity using Socket.Poll()...");
 
 						// FIX : #273 update m_lastActivity to the current time
-						m_lastActivity = DateTime.Now;
+						m_lastActivity = DateTime.UtcNow;
 
 						// Poll (SelectRead) returns true if:
 						// Listen has been called and connection is pending (cannot be the case)
@@ -547,7 +547,7 @@ namespace FluentFTP {
 				return 0;
 			}
 
-			m_lastActivity = DateTime.Now;
+			m_lastActivity = DateTime.UtcNow;
 #if NETSTANDARD || NET5_0_OR_GREATER
 			return BaseStream.Read(buffer, offset, count);
 #else
@@ -578,7 +578,7 @@ namespace FluentFTP {
 				return 0;
 			}
 
-			m_lastActivity = DateTime.Now;
+			m_lastActivity = DateTime.UtcNow;
 			using (var cts = CancellationTokenSource.CreateLinkedTokenSource(token)) {
 				cts.CancelAfter(ReadTimeout);
 				cts.Token.Register(async () => await CloseAsync(token));
@@ -754,7 +754,7 @@ namespace FluentFTP {
 			}
 
 			BaseStream.Write(buffer, offset, count);
-			m_lastActivity = DateTime.Now;
+			m_lastActivity = DateTime.UtcNow;
 		}
 
 		/// <summary>
@@ -770,7 +770,7 @@ namespace FluentFTP {
 			}
 
 			await BaseStream.WriteAsync(buffer, offset, count, token);
-			m_lastActivity = DateTime.Now;
+			m_lastActivity = DateTime.UtcNow;
 		}
 
 		/// <summary>
@@ -943,7 +943,7 @@ namespace FluentFTP {
 
 			m_netStream = new NetworkStream(m_socket);
 			m_netStream.ReadTimeout = m_readTimeout;
-			m_lastActivity = DateTime.Now;
+			m_lastActivity = DateTime.UtcNow;
 
 			// the NOOP daemon needs to know this
 			if (!IsControlConnection) {
@@ -1082,7 +1082,7 @@ namespace FluentFTP {
 
 			m_netStream = new NetworkStream(m_socket);
 			m_netStream.ReadTimeout = m_readTimeout;
-			m_lastActivity = DateTime.Now;
+			m_lastActivity = DateTime.UtcNow;
 
 			// the NOOP daemon needs to know this
 			if (!IsControlConnection) {
