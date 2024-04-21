@@ -527,13 +527,13 @@ namespace FluentFTP {
 		/// <param name="count">Number of bytes to be read</param>
 		/// <returns>The amount of bytes read from the stream</returns>
 		public override int Read(byte[] buffer, int offset, int count) {
-#if NETFRAMEWORK
-			IAsyncResult ar = null;
-#endif
-
 			if (BaseStream == null) {
 				return 0;
 			}
+
+#if NETFRAMEWORK
+			IAsyncResult ar = null;
+#endif
 
 			m_lastActivity = DateTime.UtcNow;
 #if NETSTANDARD || NET5_0_OR_GREATER
