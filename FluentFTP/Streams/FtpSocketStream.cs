@@ -1561,9 +1561,7 @@ namespace FluentFTP {
 
 				base.Dispose(true);
 			}
-			catch (Exception ex) {
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Error disposing(sync) " + Client.ClientType + ".FtpSocketStream(" + connText + ")");
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, ex.Message);
+			catch {
 			}
 
 			m_sslStream = null;
@@ -1665,9 +1663,7 @@ namespace FluentFTP {
 
 				base.Dispose(true);
 			}
-			catch (Exception ex) {
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Error disposing(async) " + Client.ClientType + ".FtpSocketStream(" + connText + ")");
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, ex.Message);
+			catch {
 			}
 
 			m_sslStream = null;
