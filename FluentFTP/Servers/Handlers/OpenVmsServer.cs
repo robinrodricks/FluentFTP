@@ -70,7 +70,7 @@ namespace FluentFTP.Servers.Handlers {
 			// FIX : #402 for OpenVMS absolute paths are "SYSDEVICE:[USERS.mylogin]"
 			// FIX : #424 for OpenVMS absolute paths are "FTP_DEFAULT:[WAGN_IN]"
 			// FIX : #454 for OpenVMS absolute paths are "TOPAS$ROOT:[000000.TUIL.YR_20.SUBLIS]"
-			if (new Regex("[A-Za-z$._]*:\\[[A-Za-z0-9$_.]*\\]").Match(path).Success) {
+			if (Regex.IsMatch(path, @"[A-Za-z$._]*:\\[[A-Za-z0-9$_.]*\\]")) {
 				return true;
 			}
 
