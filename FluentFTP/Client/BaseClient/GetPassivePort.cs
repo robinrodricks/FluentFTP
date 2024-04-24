@@ -14,7 +14,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		protected void GetEnhancedPassivePort(FtpReply reply, out string derivedIpad, out int advertisedPort) {
 			// Check the format of the EPSV response, respecting the code page problems of the vertical bar | vs. !
-			var m = Regex.Match(reply.Message, @"\([!\|][!\|][!\|](?<advertisedPort>\d+)[!\|]\)");
+			var m = Regex.Match(reply.Message, @"\([!\|][!\|][!\|](?<advertisedPort>[0-9]+)[!\|]\)");
 
 			if (!m.Success) {
 				// In case EPSV responded with a regular "227 Entering Passive Mode" instead,
@@ -56,7 +56,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		protected void GetPassivePort(FtpDataConnectionType type, FtpReply reply, out string host, out int port) {
 			// Check the format of the PASV response
-			var m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
+			var m = Regex.Match(reply.Message, @"(?<quad1>[0-9]+)," + @"(?<quad2>[0-9]+)," + @"(?<quad3>[0-9]+)," + @"(?<quad4>[0-9]+)," + @"(?<port1>[0-9]+)," + @"(?<port2>[0-9]+)");
 
 			if (!m.Success || m.Groups.Count != 7) {
 				throw new FtpException("Malformed PASV response: " + reply.Message);
@@ -79,7 +79,7 @@ namespace FluentFTP.Client.BaseClient {
 			var mP = Regex.Match(host, @"(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)|(^127\.0\.0\.1)|(^0\.0\.0\.0)");
 			if (!mP.Success) {
 				// Routable IPAD, simply use the IPAD advertised by the PASV response
-				return; 
+				return;
 			}
 
 			// PASVUSE mode forces the advertised IPAD to be used, even if not routable,
@@ -94,7 +94,7 @@ namespace FluentFTP.Client.BaseClient {
 			// This VERY OFTEN works (often also with the help of DNS), but not always.
 			// If you NEED to connect via the non-routable IPAD, you must use "PASVUSE" mode
 			LogWithPrefix(FtpTraceLevel.Verbose, "PASV advertised a non-routable IPAD. Using original connect dnsname/IPAD");
-			host = m_host;			
+			host = m_host;
 		}
 
 		/// <summary>

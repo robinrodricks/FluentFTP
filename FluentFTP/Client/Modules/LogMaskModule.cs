@@ -67,7 +67,7 @@ namespace FluentFTP.Client.Modules {
 					if (reply.Code == "227") {
 						message = Regex.Replace(
 							message,
-							@"^(Entering Passive Mode \()(\d{1,3},\d{1,3},\d{1,3},\d{1,3}),(\d{1,3},\d{1,3}\).)$",
+							@"^(Entering Passive Mode \()([0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3}),([0-9]{1,3},[0-9]{1,3}\).)$",
 							@"$1***,***,***,***,$3");
 					}
 

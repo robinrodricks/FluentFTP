@@ -49,7 +49,7 @@ namespace FluentFTP {
 			}
 
 			// extract port from response
-			m = Regex.Match(reply.Message, @"(?<quad1>\d+)," + @"(?<quad2>\d+)," + @"(?<quad3>\d+)," + @"(?<quad4>\d+)," + @"(?<port1>\d+)," + @"(?<port2>\d+)");
+			m = Regex.Match(reply.Message, @"(?<quad1>[0-9]+)," + @"(?<quad2>[0-9]+)," + @"(?<quad3>[0-9]+)," + @"(?<quad4>[0-9]+)," + @"(?<port1>[0-9]+)," + @"(?<port2>[0-9]+)");
 			if (!m.Success || m.Groups.Count != 7) {
 				throw new FtpException("Malformed PASV response: " + reply.Message);
 			}
