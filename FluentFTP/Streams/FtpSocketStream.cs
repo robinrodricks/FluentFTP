@@ -963,6 +963,10 @@ namespace FluentFTP {
 				}
 			}
 
+			if (args.SocketError == SocketError.TimedOut) {
+				throw new TimeoutException("Timed out trying to connect!");
+			}
+
 			return args.SocketError == SocketError.Success;
 #else
 			IAsyncResult iar = m_socket.BeginConnect(ipad, port, null, null);
