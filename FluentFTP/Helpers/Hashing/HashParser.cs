@@ -27,7 +27,7 @@ namespace FluentFTP.Helpers.Hashing {
 			// Try to parse these differing formats:
 
 			Match m;
-			if (!(m = Regex.Match(reply, @"^(?<algorithm>\S+)\s(?<bytestart>\d+)-(?<byteend>\d+)\s(?<hash>\S+)\s*(?<filename>.*)$")).Success) {
+			if (!(m = Regex.Match(reply, @"^(?<algorithm>\S+)\s(?<bytestart>[0-9]+)-(?<byteend>[0-9]+)\s(?<hash>\S+)\s*(?<filename>.*)$")).Success) {
 				m = Regex.Match(reply, @"(?<algorithm>.+)\s(?<hash>.+)\s");
 			}
 

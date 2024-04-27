@@ -65,8 +65,10 @@ namespace FluentFTP.Client.Modules {
 
 					// mask out IPAD
 					if (reply.Code == "227") {
-						Regex regEx = new Regex(@"^(Entering Passive Mode \()(\d{1,3},\d{1,3},\d{1,3},\d{1,3}),(\d{1,3},\d{1,3}\).)$");
-						message = regEx.Replace(message, @"$1***,***,***,***,$3");
+						message = Regex.Replace(
+							message,
+							@"^(Entering Passive Mode \()([0-9]{1,3},[0-9]{1,3},[0-9]{1,3},[0-9]{1,3}),([0-9]{1,3},[0-9]{1,3}\).)$",
+							@"$1***,***,***,***,$3");
 					}
 
 				}
