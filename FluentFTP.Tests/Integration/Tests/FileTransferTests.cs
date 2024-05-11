@@ -23,6 +23,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 		public override void RunAllTests() {
 			UploadDownloadBytes();
 			UploadDownloadStream();
+			UploadDownloadDirect();
 			DownloadMissing();
 		}
 
@@ -32,6 +33,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 		public async override Task RunAllTestsAsync() {
 			await UploadDownloadBytesAsync();
 			await UploadDownloadStreamAsync();
+			await UploadDownloadDirectAsync();
 			await DownloadMissingAsync();
 		}
 
@@ -82,7 +84,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 
 		}
 
-		public async Task DownloadMissing() {
+		public void DownloadMissing() {
 
 			using var client = GetConnectedClient();
 			var filePath = "/no/such/file.txt";
@@ -106,8 +108,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 
 			// DownloadBytes should crash with FtpMissingObjectException if the file does not exist
 			try {
-				byte[] result2 = null;
-				client.DownloadBytes(out result2, filePath, 0);
+				client.DownloadBytes(out byte[] result2, filePath, 0);
 			}
 			catch (Exception ex) {
 				Assert.IsType<FtpMissingObjectException>(ex);
@@ -200,7 +201,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 			streamWriter.Flush();
 			stream.Position = 0;
 
-			const string path = "/UploadDownloadStreamAsync/helloworld.txt";
+			const string path = "/UploadDownloadStream/helloworld.txt";
 			using var client = GetConnectedClient();
 			var uploadStatus = client.UploadStream(stream, path, createRemoteDir: true);
 			Assert.Equal(FtpStatus.Success, uploadStatus);
@@ -212,6 +213,60 @@ namespace FluentFTP.Tests.Integration.Tests {
 			outStream.Position = 0;
 			using var streamReader = new StreamReader(outStream, Encoding.UTF8);
 			var outContent = streamReader.ReadToEnd();
+			Assert.Equal(content, outContent);
+		}
+
+
+		public async Task UploadDownloadDirectAsync() {
+
+			const string content = "Hello World!";
+			ReadOnlyMemory<byte> buffer = Encoding.UTF8.GetBytes(content);
+
+			const string directory = "UploadDownloadDirectAsync";
+			const string path = $"/{directory}/helloworld.txt";
+			using var client = await GetConnectedAsyncClient();
+			await client.CreateDirectory(directory);
+			await using (var dest = await client.OpenWrite(path)) {
+				await dest.WriteAsync(buffer);
+			}
+
+			Memory<byte> outBuffer = new byte[buffer.Length];
+			var readBuffer = outBuffer;
+			await using (var src = await client.OpenRead(path)) {
+				var readCount = 0;
+				while (readBuffer.Length > 0 && (readCount = await src.ReadAsync(readBuffer)) > 0) {
+					readBuffer = readBuffer.Slice(readCount);
+				}
+			}
+
+			var outContent = Encoding.UTF8.GetString(outBuffer.Span);
+			Assert.Equal(content, outContent);
+		}
+
+
+		public void UploadDownloadDirect() {
+
+			const string content = "Hello World!";
+			ReadOnlySpan<byte> buffer = Encoding.UTF8.GetBytes(content);
+
+			const string directory = "UploadDownloadDirect";
+			const string path = $"/{directory}/helloworld.txt";
+			using var client = GetConnectedClient();
+			client.CreateDirectory(directory);
+			using (var dest = client.OpenWrite(path)) {
+				dest.Write(buffer);
+			}
+
+			Span<byte> outBuffer = new byte[buffer.Length];
+			var readBuffer = outBuffer;
+			using (var src = client.OpenRead(path)) {
+				var readCount = 0;
+				while (readBuffer.Length > 0 && (readCount = src.Read(readBuffer)) > 0) {
+					readBuffer = readBuffer.Slice(readCount);
+				}
+			}
+
+			var outContent = Encoding.UTF8.GetString(outBuffer);
 			Assert.Equal(content, outContent);
 		}
 
