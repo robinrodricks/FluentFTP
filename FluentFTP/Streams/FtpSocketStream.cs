@@ -552,6 +552,22 @@ namespace FluentFTP {
 #endif
 		}
 
+#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+		/// <summary>
+		/// Reads data from the stream
+		/// </summary>
+		/// <param name="buffer">Buffer to read into</param>
+		/// <returns>The amount of bytes read from the stream</returns>
+		public override int Read(Span<byte> buffer) {
+			if (BaseStream == null) {
+				return 0;
+			}
+
+			m_lastActivity = DateTime.UtcNow;
+
+			return BaseStream.Read(buffer);
+		}
+#endif
 
 		/// <summary>
 		/// Reads data from the stream
@@ -590,6 +606,44 @@ namespace FluentFTP {
 				}
 			}
 		}
+
+#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+		/// <summary>
+		/// Reads data from the stream
+		/// </summary>
+		/// <param name="buffer">Buffer to read into</param>
+		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+		/// <returns>The amount of bytes read from the stream</returns>
+		public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken token) {
+			if (BaseStream == null) {
+				return 0;
+			}
+
+			m_lastActivity = DateTime.UtcNow;
+			using (var cts = CancellationTokenSource.CreateLinkedTokenSource(token)) {
+				cts.CancelAfter(ReadTimeout);
+				cts.Token.Register(async () => await CloseAsync(token));
+				try {
+					var res = await BaseStream.ReadAsync(buffer, cts.Token);
+					return res;
+				}
+				catch {
+					// CTS for Cancellation triggered and caused the exception
+					if (token.IsCancellationRequested) {
+						throw new OperationCanceledException("Cancelled read from socket stream");
+					}
+
+					// CTS for Timeout triggered and caused the exception
+					if (cts.IsCancellationRequested) {
+						throw new TimeoutException("Timed out trying to read data from the socket stream!");
+					}
+
+					// Nothing of the above. So we rethrow the exception.
+					throw;
+				}
+			}
+		}
+#endif
 
 		/// <summary>
 		/// Reads a line from the socket
@@ -745,6 +799,21 @@ namespace FluentFTP {
 			m_lastActivity = DateTime.UtcNow;
 		}
 
+#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+		/// <summary>
+		/// Writes data to the stream
+		/// </summary>
+		/// <param name="buffer">Buffer to write to stream</param>
+		public override void Write(ReadOnlySpan<byte> buffer) {
+			if (BaseStream == null) {
+				return;
+			}
+
+			BaseStream.Write(buffer);
+			m_lastActivity = DateTime.UtcNow;
+		}
+#endif
+
 		/// <summary>
 		/// Writes data to the stream asynchronously
 		/// </summary>
@@ -760,6 +829,22 @@ namespace FluentFTP {
 			await BaseStream.WriteAsync(buffer, offset, count, token);
 			m_lastActivity = DateTime.UtcNow;
 		}
+
+#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+		/// <summary>
+		/// Writes data to the stream asynchronously
+		/// </summary>
+		/// <param name="buffer">Buffer to write to stream</param>
+		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+		public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken token) {
+			if (BaseStream == null) {
+				return;
+			}
+
+			await BaseStream.WriteAsync(buffer, token);
+			m_lastActivity = DateTime.UtcNow;
+		}
+#endif
 
 		/// <summary>
 		/// Writes a line to the stream using the specified encoding
