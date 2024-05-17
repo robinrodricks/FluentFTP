@@ -63,6 +63,19 @@ namespace FluentFTP {
 			return read;
 		}
 
+#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+		/// <summary>
+		/// Reads data off the stream
+		/// </summary>
+		/// <param name="buffer">The buffer to read into</param>
+		/// <returns>The number of bytes read</returns>
+		public override int Read(Span<byte> buffer) {
+			var read = base.Read(buffer);
+			m_position += read;
+			return read;
+		}
+#endif
+
 		/// <summary>
 		/// Reads data off the stream asynchronously
 		/// </summary>
@@ -77,6 +90,20 @@ namespace FluentFTP {
 			return read;
 		}
 
+#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+		/// <summary>
+		/// Reads data off the stream asynchronously
+		/// </summary>
+		/// <param name="buffer">The buffer to read into</param>
+		/// <param name="token">The cancellation token for this task</param>
+		/// <returns>The number of bytes read</returns>
+		public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken token) {
+			int read = await base.ReadAsync(buffer, token);
+			m_position += read;
+			return read;
+		}
+#endif
+
 		/// <summary>
 		/// Writes data to the stream
 		/// </summary>
@@ -87,6 +114,17 @@ namespace FluentFTP {
 			base.Write(buffer, offset, count);
 			m_position += count;
 		}
+
+#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+		/// <summary>
+		/// Writes data to the stream
+		/// </summary>
+		/// <param name="buffer">The buffer to write to the stream</param>
+		public override void Write(ReadOnlySpan<byte> buffer) {
+			base.Write(buffer);
+			m_position += buffer.Length;
+		}
+#endif
 
 		/// <summary>
 		/// Writes data to the stream asynchronously
@@ -99,6 +137,18 @@ namespace FluentFTP {
 			await base.WriteAsync(buffer, offset, count, token);
 			m_position += count;
 		}
+
+#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+		/// <summary>
+		/// Writes data to the stream asynchronously
+		/// </summary>
+		/// <param name="buffer">The buffer to write to the stream</param>
+		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
+		public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken token) {
+			await base.WriteAsync(buffer, token);
+			m_position += buffer.Length;
+		}
+#endif
 
 		/// <summary>
 		/// Sets the length of this stream
