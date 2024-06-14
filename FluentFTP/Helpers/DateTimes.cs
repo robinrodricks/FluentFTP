@@ -18,13 +18,12 @@ namespace FluentFTP.Helpers {
 		/// <param name="styles">The <see cref="DateTimeStyles"/> used when parsing</param>
 		/// <returns>A <see cref="DateTime"/> object representing the date, or <see cref="DateTime.MinValue"/> if there was a problem</returns>
 		public static DateTime ParseFtpDate(this string dateString, BaseFtpClient client, string[] formats = null, DateTimeStyles styles = DateTimeStyles.None) {
-			if (formats == null) {
-				formats = FtpDateFormats;
-			}
+
+			formats ??= FtpDateFormats;
 
 			// parse the raw timestamp without performing any timezone conversions
 			try {
-				DateTime date = DateTime.ParseExact(dateString, FtpDateFormats, client.Config.ListingCulture.DateTimeFormat, styles); // or client.ListingCulture.DateTimeFormat
+				DateTime date = DateTime.ParseExact(dateString, formats, client.Config.ListingCulture.DateTimeFormat, styles); // or client.ListingCulture.DateTimeFormat
 
 				return date;
 			}
@@ -71,7 +70,7 @@ namespace FluentFTP.Helpers {
 			return sb.ToString();
 		}
 
-		private static string[] FtpDateFormats = { "yyyyMMddHHmmss", "yyyyMMddHHmmss'.'f", "yyyyMMddHHmmss'.'ff", "yyyyMMddHHmmss'.'fff", "MMM dd  yyyy", "MMM  d  yyyy", "MMM dd HH:mm", "MMM  d HH:mm" };
+		private static readonly string[] FtpDateFormats = { "yyyyMMddHHmmss", "yyyyMMddHHmmss'.'f", "yyyyMMddHHmmss'.'ff", "yyyyMMddHHmmss'.'fff", "MMM dd  yyyy", "MMM  d  yyyy", "MMM dd HH:mm", "MMM  d HH:mm" };
 
 	}
 }
