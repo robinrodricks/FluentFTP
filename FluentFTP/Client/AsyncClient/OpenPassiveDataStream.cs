@@ -129,23 +129,25 @@ namespace FluentFTP {
 				}
 			}
 
-			if (!(reply = await Execute(command, token)).Success) {
-				await stream.CloseAsync(token);
-				throw new FtpCommandException(reply);
-			}
-
-			// the command status is used to determine
-			// if a reply needs to be read from the server
-			// when the stream is closed so always set it
-			// otherwise things can get out of sync.
+			reply = await Execute(command, token);
 			stream.CommandStatus = reply;
 
-			// this needs to take place after the command is executed
-			if (Config.DataConnectionEncryption && Config.EncryptionMode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
-				await stream.ActivateEncryptionAsync(m_host,
-					Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null,
-					Config.SslProtocols,
-					token: token);
+			if (reply.Success) {
+				// Activating encryption needs to take place after the command is executed
+				if (Config.DataConnectionEncryption && Config.EncryptionMode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
+					await stream.ActivateEncryptionAsync(m_host,
+						Config.ClientCertificates.Count > 0 ? Config.ClientCertificates : null,
+						Config.SslProtocols,
+						token: token);
+				}
+			}
+			else {
+				await stream.CloseAsync(token);
+				if (command.StartsWith("NLST ") && reply.Code == "550" && reply.Message == "No files found.") {
+				}
+				else {
+					throw new FtpCommandException(reply);
+				}
 			}
 
 			return stream;
