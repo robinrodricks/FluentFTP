@@ -40,6 +40,7 @@ namespace FluentFTP {
 					if (destExists) {
 						switch (existsMode) {
 							case FtpRemoteExists.Overwrite:
+							case FtpRemoteExists.OverwriteInPlace:
 								await DeleteDirectory(dest, token);
 								break;
 

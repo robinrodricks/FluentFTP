@@ -562,9 +562,9 @@ namespace FluentFTP {
 		public IPAddress SocketLocalIp { get; set; }
 
 		/// <summary>
-		/// Enable AfterConnected command execution in server handlers
+		/// Enables/disables the init sequence performed immediately after connection for some servers, like IBM OS/400.
 		/// </summary>
-		public bool EnableAfterConnected { get; set; } = true;
+		public bool PostConnect { get; set; } = true;
 
 		/// <summary>
 		/// Used to set a custom stream handler, for example to integrate with the `FluentFTP.GnuTLS` package.
@@ -662,7 +662,7 @@ namespace FluentFTP {
 			write.SendHost = read.SendHost;
 			write.SendHostDomain = read.SendHostDomain;
 			write.SocketLocalIp = read.SocketLocalIp;
-			write.EnableAfterConnected = read.EnableAfterConnected;
+			write.PostConnect = read.PostConnect;
 			write.CustomStream = read.CustomStream;
 			write.CustomStreamConfig = read.CustomStreamConfig;
 

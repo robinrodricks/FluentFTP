@@ -41,9 +41,17 @@ namespace FluentFTP {
 		Skip,
 
 		/// <summary>
-		/// Overwrite the file if it exists.
+		/// Overwrite the file if it exists. This will delete the file if it exists, and then perform a fresh upload.
+		/// It is most reliable way of performing an overwrite and supported on all FTP servers.
+		/// If you want direct overwriting, use `OverwriteInPlace`.
 		/// </summary>
 		Overwrite,
+
+		/// <summary>
+		/// Overwrite the file if it exists, by directly copying the file data over the previous file.
+		/// This mode retains file permissions on the FTP server, which are otherwise lost when using the `Overwrite` mode.
+		/// </summary>
+		OverwriteInPlace,
 
 		/// <summary>
 		/// Resume uploading by appending to the remote file if it exists.
