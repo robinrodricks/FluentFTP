@@ -7,8 +7,8 @@
  - **Connection**
    - New: `FtpConfig.PostConnect` to enable the init sequence performed immediately after connection
    - Fix: Undetected connect timeout in .NET 5+
-   - Fix: Remove BufferedStream feature and further refactoring of Dispose logic 
-   - Fix: Use correct SSL stream AuthenticateAsClient API rather than outdated API
+   - Fix: Remove `BufferedStream` feature and further refactoring of Dispose logic 
+   - Fix: Use correct SSL stream `AuthenticateAsClient` API rather than outdated API
    - Fix: Mask the FTP server host IP in PASV response when `Config.LogHost` is set to false
  - **File Transfer**
    - Fix `DateTimes.ParseFtpDate` will consider provided `formats` when parsing date/time values
