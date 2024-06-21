@@ -56,7 +56,7 @@ namespace FluentFTP {
 				long localPosition = 0, remotePosition = 0, remoteFileLen = -1;
 
 				// check if the file exists, and skip, overwrite or append
-				if (existsMode == FtpRemoteExists.NoCheck) {
+				if (existsMode == FtpRemoteExists.NoCheck || existsMode == FtpRemoteExists.OverwriteInPlace) {
 				}
 				else if (existsMode is FtpRemoteExists.ResumeNoCheck or FtpRemoteExists.AddToEndNoCheck) {
 

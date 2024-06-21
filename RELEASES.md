@@ -1,5 +1,22 @@
 # Release Notes
 
+#### 50.1.0
+
+ - **File Upload**
+   - New: `FtpRemoteExists.OverwriteInPlace` mode which overwrites files without deleting them first
+ - **Connection**
+   - New: `FtpConfig.PostConnect` to enable the init sequence performed immediately after connection
+   - Fix: Undetected connect timeout in .NET 5+
+   - Fix: Remove `BufferedStream` feature and further refactoring of Dispose logic 
+   - Fix: Use correct SSL stream `AuthenticateAsClient` API rather than outdated API
+   - Fix: Mask the FTP server host IP in PASV response when `Config.LogHost` is set to false
+ - **File Transfer**
+   - Fix `DateTimes.ParseFtpDate` will consider provided `formats` when parsing date/time values
+ - **File Listing**
+   - Improve: Improved performance for Regex parsing by utilizing Regex caching
+   - Improve: Improved performance for Stream Read/Write API for .NET Standard 2.1 and newer
+   
+
 #### 50.0.1
 
  - Fix: Correct sequencing of FTP stream disposing for .NET Framework

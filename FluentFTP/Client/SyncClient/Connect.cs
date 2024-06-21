@@ -202,7 +202,7 @@ namespace FluentFTP {
 			CurrentListParser.Init(m_serverOS, Config.ListingParser);
 
 			// Execute server-specific post-connection event
-			if (Config.EnableAfterConnected && ServerHandler != null) {
+			if (Config.PostConnect && ServerHandler != null) {
 				ServerHandler.AfterConnected(this);
 			}
 

@@ -121,6 +121,7 @@ namespace FluentFTP {
 								break;
 
 							case FtpRemoteExists.Overwrite:
+							case FtpRemoteExists.OverwriteInPlace:
 
 								if (fileExists) {
 									await remoteClient.DeleteFile(remotePath, token);
