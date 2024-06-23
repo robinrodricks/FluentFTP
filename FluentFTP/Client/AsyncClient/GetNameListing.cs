@@ -50,7 +50,7 @@ namespace FluentFTP {
 					finally {
 						await stream.CloseAsync(token);
 					}
-					Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
+					Log(FtpTraceLevel.Verbose, "-----------------------------------------");
 				}
 			}
 			catch (AuthenticationException) {
