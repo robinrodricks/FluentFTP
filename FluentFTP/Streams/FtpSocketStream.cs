@@ -130,7 +130,8 @@ namespace FluentFTP {
 					}
 
 					if (m_socketPollInterval > 0 && DateTime.UtcNow.Subtract(m_lastActivity).TotalMilliseconds > m_socketPollInterval) {
-						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Testing connectivity using Socket.Poll()...");
+						string connText = this.IsControlConnection ? "control" : "data";
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Testing connectivity of " + Client.ClientType + ".FtpSocketStream(" + connText + ") " + " using Socket.Poll()...");
 
 						// FIX : #273 update m_lastActivity to the current time
 						m_lastActivity = DateTime.UtcNow;
