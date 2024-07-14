@@ -257,12 +257,8 @@ namespace FluentFTP {
 				sw.Stop();
 
 				string bps;
-				try {
-					bps = (upStream.Position / sw.ElapsedMilliseconds * 1000L).FileSizeToString();
-				}
-				catch {
-					bps = "0";
-				}
+				long ems = sw.ElapsedMilliseconds;
+				bps = ems == 0 ? "?" : (upStream.Position / ems * 1000L).FileSizeToString();
 				LogWithPrefix(FtpTraceLevel.Verbose, "Uploaded " + upStream.Position + " bytes (" + sw.Elapsed.ToShortString() + ", " + bps + "/s)");
 
 				// send progress reports
