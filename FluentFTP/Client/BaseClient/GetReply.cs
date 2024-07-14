@@ -74,6 +74,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>
+		/// <param name="useSema">Put a semaphore wait around the entire GetReply invocation</param>
 		/// <returns>FtpReply representing the response from the server</returns>
 		/// <exception cref="TimeoutException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
@@ -294,6 +295,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>
+		/// <param name="useSema">Put a semaphore wait around the entire GetReply invocation</param>
 		/// <returns>FtpReply representing the response from the server</returns>
 		/// <exception cref="TimeoutException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
