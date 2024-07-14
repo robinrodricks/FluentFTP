@@ -18,6 +18,8 @@ namespace FluentFTP.Client.BaseClient {
 		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
 		/// </summary>
 		/// <returns>FtpReply representing the response from the server</returns>
+		/// <exception cref="TimeoutException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
 		FtpReply IInternalFtpClient.GetReplyInternal() {
 			return ((IInternalFtpClient)this).GetReplyInternal(null, false, 0, true);
 		}
@@ -29,6 +31,8 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <returns>FtpReply representing the response from the server</returns>
+		/// <exception cref="TimeoutException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
 		FtpReply IInternalFtpClient.GetReplyInternal(string command) {
 			return ((IInternalFtpClient)this).GetReplyInternal(command, false, 0, true);
 		}
@@ -41,6 +45,8 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <returns>FtpReply representing the response from the server</returns>
+		/// <exception cref="TimeoutException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
 		FtpReply IInternalFtpClient.GetReplyInternal(string command, bool exhaustNoop) {
 			return ((IInternalFtpClient)this).GetReplyInternal(command, exhaustNoop, exhaustNoop ? 10000 : 0, true);
 		}
@@ -54,6 +60,8 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>
 		/// <returns>FtpReply representing the response from the server</returns>
+		/// <exception cref="TimeoutException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
 		FtpReply IInternalFtpClient.GetReplyInternal(string command, bool exhaustNoop, int timeOut) {
 			return ((IInternalFtpClient)this).GetReplyInternal(command, exhaustNoop, timeOut, true);
 		}
@@ -67,6 +75,8 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>
 		/// <returns>FtpReply representing the response from the server</returns>
+		/// <exception cref="TimeoutException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
 		FtpReply IInternalFtpClient.GetReplyInternal(string command, bool exhaustNoop, int timeOut, bool useSema) {
 			var reply = new FtpReply();
 
@@ -142,7 +152,7 @@ namespace FluentFTP.Client.BaseClient {
 						// If we are not exhausting NOOPs, i.e. doing a normal GetReply(...)
 
 						if (elapsedTime > Config.ReadTimeout) {
-							throw new System.TimeoutException();
+							throw new TimeoutException();
 						}
 
 						// we normally need blocking reads apart from some special cases indicated
@@ -224,6 +234,8 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <returns>FtpReply representing the response from the server</returns>
+		/// <exception cref="TimeoutException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
 		async Task<FtpReply> IInternalFtpClient.GetReplyInternal(CancellationToken token) {
 			return await ((IInternalFtpClient)this).GetReplyInternal(token, null, false, 0, true);
 		}
@@ -236,6 +248,8 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="token">The token that can be used to cancel the entire process.</param>
 		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <returns>FtpReply representing the response from the server</returns>
+		/// <exception cref="TimeoutException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
 		async Task<FtpReply> IInternalFtpClient.GetReplyInternal(CancellationToken token, string command) {
 			return await ((IInternalFtpClient)this).GetReplyInternal(token, command, false, 0, true);
 		}
@@ -249,6 +263,8 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="command">We are waiting for the response to which command?</param>
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <returns>FtpReply representing the response from the server</returns>
+		/// <exception cref="TimeoutException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
 		async Task<FtpReply> IInternalFtpClient.GetReplyInternal(CancellationToken token, string command, bool exhaustNoop) {
 			return await ((IInternalFtpClient)this).GetReplyInternal(token, command, exhaustNoop, exhaustNoop ? 10000 : 0, true);
 		}
@@ -263,6 +279,8 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>
 		/// <returns>FtpReply representing the response from the server</returns>
+		/// <exception cref="TimeoutException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
 		async Task<FtpReply> IInternalFtpClient.GetReplyInternal(CancellationToken token, string command, bool exhaustNoop, int timeOut) {
 			return await ((IInternalFtpClient)this).GetReplyInternal(token, command, exhaustNoop, timeOut, true);
 		}
@@ -277,6 +295,8 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>
 		/// <returns>FtpReply representing the response from the server</returns>
+		/// <exception cref="TimeoutException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
 		async Task<FtpReply> IInternalFtpClient.GetReplyInternal(CancellationToken token, string command, bool exhaustNoop, int timeOut, bool useSema) {
 			var reply = new FtpReply();
 
@@ -352,7 +372,7 @@ namespace FluentFTP.Client.BaseClient {
 						// If we are not exhausting NOOPs, i.e. doing a normal GetReply(...)
 
 						if (elapsedTime > Config.ReadTimeout) {
-							throw new System.TimeoutException();
+							throw new TimeoutException();
 						}
 
 						// we normally need blocking reads apart from some special cases indicated
@@ -470,8 +490,9 @@ namespace FluentFTP.Client.BaseClient {
 			reply.Command = string.IsNullOrEmpty(command) ? string.Empty : LogMaskModule.MaskCommand(this, command);
 
 			if (LastReplies == null) {
-				LastReplies = new List<FtpReply>();
-				LastReplies.Add(reply);
+				LastReplies = new List<FtpReply> {
+					reply
+				};
 			}
 			else {
 				LastReplies.Insert(0, reply);
