@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 
 namespace FluentFTP.Client.BaseClient {
@@ -7,16 +6,16 @@ namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
 
 		/// <summary>
-		/// Daemon for NOOP handling
+		/// NoopDaemon for NOOP handling
 		/// </summary>
-		protected void Daemon() {
+		protected void NoopDaemon() {
 
-			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Daemon is initialized");
+			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "NoopDaemon is initialized");
 
-			Status.DaemonRunning = true;
-			Status.DaemonCmdMode = true;
-			Status.DaemonEnable = true;
-			Status.DaemonAnyNoops = false;
+			Status.NoopDaemonRunning = true;
+			Status.NoopDaemonCmdMode = true;
+			Status.NoopDaemonEnable = true;
+			Status.NoopDaemonAnyNoops = false;
 
 			bool gotEx = false;
 
@@ -26,27 +25,27 @@ namespace FluentFTP.Client.BaseClient {
 					break;
 				}
 
-				if (Status.DaemonEnable) {
+				if (Status.NoopDaemonEnable) {
 
 					Random rnd = new Random();
 
 					// choose one of the normal or the safe commands
-					string rndCmd = Status.DaemonCmdMode ?
+					string rndCmd = Status.NoopDaemonCmdMode ?
 						Config.NoopInactiveCommands[rnd.Next(Config.NoopInactiveCommands.Count)] :
 						Config.NoopActiveCommands[rnd.Next(Config.NoopActiveCommands.Count)];
 
-					m_sema.Wait();
+					m_NoopSema.Wait();
 					try {
 						if (Config.NoopInterval > 0 && DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval) {
 
 							LastCommandTimestamp = DateTime.UtcNow;
 
 							// only log this if we have an active data connection
-							if (Status.DaemonCmdMode) {
-								Log(FtpTraceLevel.Verbose, "Command:  " + rndCmd + " (<-Daemon)");
+							if (Status.NoopDaemonCmdMode) {
+								Log(FtpTraceLevel.Verbose, "Command:  " + rndCmd + " (<-NoopDaemon)");
 							}
 							else {
-								((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Sending " + rndCmd + " (<-Daemon)");
+								((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Sending " + rndCmd + " (<-NoopDaemon)");
 							}
 
 							// send the random NOOP command
@@ -54,23 +53,23 @@ namespace FluentFTP.Client.BaseClient {
 								m_stream.WriteLine(m_textEncoding, rndCmd);
 							}
 							catch (Exception ex) {
-								((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#1): " + ex.Message + " (Daemon)");
+								((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#1): " + ex.Message + " (NoopDaemon)");
 								gotEx = true;
 							}
 
 							if (!gotEx) {
 
 								// tell the outside world, NOOPs have actually been sent.
-								Status.DaemonAnyNoops = true;
+								Status.NoopDaemonAnyNoops = true;
 
 								// pick the command reply if this is just an idle control connection
-								if (Status.DaemonCmdMode) {
+								if (Status.NoopDaemonCmdMode) {
 									bool success = false;
 									try {
-										success = ((IInternalFtpClient)this).GetReplyInternal(rndCmd + " (<-Daemon)", false, 10000, false).Success;
+										success = ((IInternalFtpClient)this).GetReplyInternal(rndCmd + " (<-NoopDaemon)", false, 10000, false).Success;
 									}
 									catch (Exception ex) {
-										((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#2): " + ex.Message + " (Daemon)");
+										((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#2): " + ex.Message + " (NoopDaemon)");
 										gotEx = true;
 									}
 
@@ -89,7 +88,7 @@ namespace FluentFTP.Client.BaseClient {
 						}
 					}
 					catch (Exception ex) {
-						((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#3): " + ex.Message + " (Daemon)");
+						((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#3): " + ex.Message + " (NoopDaemon)");
 						gotEx = true;
 					}
 					finally {
@@ -99,7 +98,7 @@ namespace FluentFTP.Client.BaseClient {
 								m_stream = null;
 							}
 						}
-						m_sema.Release();
+						m_NoopSema.Release();
 					}
 				}
 
@@ -116,8 +115,8 @@ namespace FluentFTP.Client.BaseClient {
 				reason = " due to detected connection problem";
 			}
 
-			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Daemon terminated" + reason);
-			Status.DaemonRunning = false;
+			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "NoopDaemon terminated" + reason);
+			Status.NoopDaemonRunning = false;
 		}
 	}
 }

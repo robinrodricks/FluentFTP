@@ -1021,7 +1021,7 @@ namespace FluentFTP {
 
 			// the NOOP daemon needs to know this
 			if (!IsControlConnection) {
-				Client.Status.DaemonCmdMode = false;
+				Client.Status.NoopDaemonCmdMode = false;
 			}
 		}
 
@@ -1164,7 +1164,7 @@ namespace FluentFTP {
 
 			// the NOOP daemon needs to know this
 			if (!IsControlConnection) {
-				Client.Status.DaemonCmdMode = false;
+				Client.Status.NoopDaemonCmdMode = false;
 			}
 		}
 
@@ -1661,8 +1661,8 @@ namespace FluentFTP {
 
 			IsDisposed = true;
 
-			if (Client.Status.DaemonRunning && !IsControlConnection) {
-				Client.Status.DaemonCmdMode = true;
+			if (Client.Status.NoopDaemonRunning && !IsControlConnection) {
+				Client.Status.NoopDaemonCmdMode = true;
 			}
 		}
 
@@ -1763,8 +1763,8 @@ namespace FluentFTP {
 
 			IsDisposed = true;
 
-			if (Client.Status.DaemonRunning && !IsControlConnection) {
-				Client.Status.DaemonCmdMode = true;
+			if (Client.Status.NoopDaemonRunning && !IsControlConnection) {
+				Client.Status.NoopDaemonCmdMode = true;
 			}
 		}
 

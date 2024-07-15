@@ -108,7 +108,7 @@ namespace FluentFTP {
 		public bool StaleDataCheck { get; set; } = true;
 		
 		/// <summary>
-		/// Install the NOOP Daemon whenever an FTP connection is established, which ensures that NOOPs are sent at regular intervals.
+		/// Install the NOOP NoopDaemon whenever an FTP connection is established, which ensures that NOOPs are sent at regular intervals.
 		/// This is the master switch for all NOOP functionality.
 		/// </summary>
 		public bool Noop { get; set; } = false;
