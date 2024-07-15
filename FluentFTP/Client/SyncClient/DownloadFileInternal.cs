@@ -91,7 +91,7 @@ namespace FluentFTP {
 
 				var earlySuccess = false;
 
-				Status.DaemonAnyNoops = false;
+				Status.NoopDaemonAnyNoops = false;
 
 				// Fix #554: ability to download zero-byte files
 				if (Config.DownloadZeroByteFiles && outStream == null && localPath != null) {
@@ -158,7 +158,7 @@ namespace FluentFTP {
 					catch (IOException ex) {
 						LogWithPrefix(FtpTraceLevel.Verbose, "IOException in DownloadFileInternal", ex);
 
-						FtpReply exStatus = ((IInternalFtpClient)this).GetReplyInternal(LastCommandExecuted + ", after IOException", Status.DaemonAnyNoops, 10000);
+						FtpReply exStatus = ((IInternalFtpClient)this).GetReplyInternal(LastCommandExecuted + ", after IOException", Status.NoopDaemonAnyNoops, 10000);
 						if (exStatus.Code == "226") {
 							sw.Stop();
 							earlySuccess = true;
@@ -209,7 +209,7 @@ namespace FluentFTP {
 
 				// listen for a success/failure reply or out of band data (like NOOP responses)
 				// GetReply(true) means: Exhaust any NOOP responses
-				FtpReply status = ((IInternalFtpClient)this).GetReplyInternal(LastCommandExecuted, Status.DaemonAnyNoops);
+				FtpReply status = ((IInternalFtpClient)this).GetReplyInternal(LastCommandExecuted, Status.NoopDaemonAnyNoops);
 
 				// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
 				// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway

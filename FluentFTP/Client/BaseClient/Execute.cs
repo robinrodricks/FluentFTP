@@ -18,15 +18,15 @@ namespace FluentFTP.Client.BaseClient {
 			bool reconnect = false;
 			string reconnectReason = string.Empty;
 
-			m_sema.Wait();
-			m_sema.Release();
+			m_NoopSema.Wait();
+			m_NoopSema.Release();
 
 			// Automatic reconnect because we lost the control channel?
 			if (!IsConnected ||
 				(Config.NoopTestConnectivity
 				 && command != "QUIT"
 				 && IsAuthenticated
-				 && Status.DaemonRunning
+				 && Status.NoopDaemonRunning
 				 && !((IInternalFtpClient)this).IsStillConnectedInternal())) {
 				if (command == "QUIT") {
 					LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
@@ -94,7 +94,7 @@ namespace FluentFTP.Client.BaseClient {
 			Log(FtpTraceLevel.Info, "Command:  " + cleanedCommand);
 
 			// send command to FTP server and get the reply
-			m_sema.Wait();
+			m_NoopSema.Wait();
 			try {
 				m_stream.WriteLine(m_textEncoding, command);
 				LastCommandExecuted = command;
@@ -104,7 +104,7 @@ namespace FluentFTP.Client.BaseClient {
 				reply = ((IInternalFtpClient)this).GetReplyInternal(command, false, 0, false);
 			}
 			finally {
-				m_sema.Release();
+				m_NoopSema.Release();
 			}
 			if (reply.Success) {
 				OnPostExecute(command);

@@ -22,7 +22,7 @@ namespace FluentFTP.Client.BaseClient {
 		bool IInternalFtpClient.NoopInternal(bool ignoreNoopInterval = false) {
 			if (ignoreNoopInterval || (Config.NoopInterval > 0 && DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval)) {
 
-				m_sema.Wait();
+				m_NoopSema.Wait();
 				try {
 					if (IsConnected) {
 						Log(FtpTraceLevel.Verbose, "Command:  NOOP (<-Noop)");
@@ -34,7 +34,7 @@ namespace FluentFTP.Client.BaseClient {
 					}
 				}
 				finally {
-					m_sema.Release();
+					m_NoopSema.Release();
 				}
 
 			}

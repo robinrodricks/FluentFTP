@@ -134,18 +134,18 @@ namespace FluentFTP {
 		/// <summary>
 		/// Background task status
 		/// </summary>
-		public bool DaemonRunning { get; set; }
+		public bool NoopDaemonRunning { get; set; }
 		/// <summary>
 		/// Background task should GetReply
 		/// </summary>
-		public bool DaemonCmdMode { get; set; }
+		public bool NoopDaemonCmdMode { get; set; }
 		/// <summary>
 		/// Background task enabled
 		/// </summary>
-		public bool DaemonEnable { get; set; }
+		public bool NoopDaemonEnable { get; set; }
 		/// <summary>
 		/// Background task sent noops
 		/// </summary>
-		public bool DaemonAnyNoops { get; set; }
+		public bool NoopDaemonAnyNoops { get; set; }
 	}
 }
