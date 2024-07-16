@@ -91,7 +91,7 @@ namespace FluentFTP {
 
 				var earlySuccess = false;
 
-				Status.NoopDaemonAnyNoops = false;
+				Status.NoopDaemonAnyNoops = 0;
 
 				// Fix #554: ability to download zero-byte files
 				if (Config.DownloadZeroByteFiles && outStream == null && localPath != null) {
@@ -158,7 +158,7 @@ namespace FluentFTP {
 					catch (IOException ex) {
 						LogWithPrefix(FtpTraceLevel.Verbose, "IOException in DownloadFileInternal", ex);
 
-						FtpReply exStatus = await ((IInternalFtpClient)this).GetReplyInternal(token, LastCommandExecuted + ", after IOException", Status.NoopDaemonAnyNoops, 10000);
+						FtpReply exStatus = await ((IInternalFtpClient)this).GetReplyInternal(token, LastCommandExecuted + ", after IOException", Status.NoopDaemonAnyNoops > 0, 10000);
 						if (exStatus.Code == "226") {
 							earlySuccess = true;
 							sw.Stop();
@@ -190,10 +190,17 @@ namespace FluentFTP {
 
 				sw.Stop();
 
-				string bps;
+				long tot = bytesProcessed;
 				long ems = sw.ElapsedMilliseconds;
-				bps = ems == 0 ? "?" : (bytesProcessed / ems * 1000L).FileSizeToString();
-				LogWithPrefix(FtpTraceLevel.Verbose, "Downloaded " + bytesProcessed + " bytes (" + sw.Elapsed.ToShortString() + ", " + bps + "/s)");
+				string bps = ems == 0 ? "?" : (tot / ems * 1000L).FileSizeToString();
+				string successText = "Downloaded " + tot + " bytes, " + sw.Elapsed.ToShortString() + ", " + bps + "/s";
+				if (Config.Noop) {
+					successText += ", " + Status.NoopDaemonAnyNoops + " NOOPs";
+				}
+				//if (Config.Poll) {
+				//	successText += ", " + Status.PollDaemonAnyPolls + " POLLs";
+				//}
+				LogWithPrefix(FtpTraceLevel.Verbose, successText);
 
 				// disconnect FTP streams before exiting
 				if (outStream != null) {
@@ -214,7 +221,7 @@ namespace FluentFTP {
 
 				// listen for a success/failure reply or out of band data (like NOOP responses)
 				// GetReply(true) means: Exhaust any NOOP responses
-				FtpReply status = await ((IInternalFtpClient)this).GetReplyInternal(token, LastCommandExecuted, Status.NoopDaemonAnyNoops);
+				FtpReply status = await ((IInternalFtpClient)this).GetReplyInternal(token, LastCommandExecuted, Status.NoopDaemonAnyNoops > 0);
 
 				// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
 				// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway

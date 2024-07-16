@@ -174,7 +174,7 @@ namespace FluentFTP {
 				catch {
 				}
 
-				Status.NoopDaemonAnyNoops = false;
+				Status.NoopDaemonAnyNoops = 0;
 
 				// loop till entire file uploaded
 				while (localFileLen == 0 || localPosition < localFileLen) {
@@ -256,10 +256,17 @@ namespace FluentFTP {
 
 				sw.Stop();
 
-				string bps;
+				long tot = upStream.Position;
 				long ems = sw.ElapsedMilliseconds;
-				bps = ems == 0 ? "?" : (upStream.Position / ems * 1000L).FileSizeToString();
-				LogWithPrefix(FtpTraceLevel.Verbose, "Uploaded " + upStream.Position + " bytes (" + sw.Elapsed.ToShortString() + ", " + bps + "/s)");
+				string bps = ems == 0 ? "?" : (tot / ems * 1000L).FileSizeToString();
+				string successText = "Uploaded " + tot + " bytes " + sw.Elapsed.ToShortString() + ", " + bps + "/s";
+				if (Config.Noop) {
+					successText += ", " + Status.NoopDaemonAnyNoops + " NOOPs";
+				}
+				//if (Config.Poll) {
+				//	successText += ", " + Status.PollDaemonAnyPolls + " POLLs";
+				//}
+				LogWithPrefix(FtpTraceLevel.Verbose, successText);
 
 				// send progress reports
 				progress?.Invoke(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
@@ -269,7 +276,7 @@ namespace FluentFTP {
 
 				// listen for a success/failure reply or out of band data (like NOOP responses)
 				// GetReply(true) means: Exhaust any NOOP responses
-				FtpReply status = ((IInternalFtpClient)this).GetReplyInternal(LastCommandExecuted, Status.NoopDaemonAnyNoops);
+				FtpReply status = ((IInternalFtpClient)this).GetReplyInternal(LastCommandExecuted, Status.NoopDaemonAnyNoops > 0);
 
 				// Fix #353: if server sends 550 or 5xx the transfer was received but could not be confirmed by the server
 				// Fix #509: if server sends 450 or 4xx the transfer was aborted or failed midway

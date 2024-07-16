@@ -17,7 +17,7 @@ namespace FluentFTP.Client.BaseClient {
 			Status.NoopDaemonRunning = true;
 			Status.NoopDaemonCmdMode = true;
 			Status.NoopDaemonEnable = true;
-			Status.NoopDaemonAnyNoops = false;
+			Status.NoopDaemonAnyNoops = 0;
 
 			bool gotEx = false;
 
@@ -60,7 +60,7 @@ namespace FluentFTP.Client.BaseClient {
 
 						if (!gotEx) {
 							// tell the outside world, NOOPs have actually been sent.
-							Status.NoopDaemonAnyNoops = true;
+							Status.NoopDaemonAnyNoops += 1;
 
 							// pick the command reply if this is just an idle control connection
 							if (Status.NoopDaemonCmdMode) {

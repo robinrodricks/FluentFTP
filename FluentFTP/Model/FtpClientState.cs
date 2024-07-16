@@ -146,6 +146,6 @@ namespace FluentFTP {
 		/// <summary>
 		/// Background task sent noops
 		/// </summary>
-		public bool NoopDaemonAnyNoops { get; set; }
+		public int NoopDaemonAnyNoops { get; set; }
 	}
 }
