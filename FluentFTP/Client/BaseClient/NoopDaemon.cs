@@ -33,7 +33,7 @@ namespace FluentFTP.Client.BaseClient {
 
 				if (Status.NoopDaemonEnable) {
 
-					m_daemonSema.Wait(ct);
+					m_daemonSemaphore.Wait(ct);
 
 					try {
 						m_daemonSemaphore.Wait();

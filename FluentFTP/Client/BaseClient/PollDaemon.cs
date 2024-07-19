@@ -32,7 +32,7 @@ namespace FluentFTP.Client.BaseClient {
 
 				if (Status.PollDaemonEnable) {
 
-					m_daemonSema.Wait(ct);
+					m_daemonSemaphore.Wait(ct);
 
 					if (Config.PollIntervalControl > 0 &&
 						DateTime.UtcNow.Subtract(m_stream.m_lastActivity).TotalMilliseconds > Config.PollIntervalControl) {
@@ -66,7 +66,7 @@ namespace FluentFTP.Client.BaseClient {
 						}
 					}
 
-					m_daemonSema.Release();
+					m_daemonSemaphore.Release();
 
 				} // if (Status.PollDaemonEnable)
 
@@ -82,7 +82,7 @@ namespace FluentFTP.Client.BaseClient {
 
 				if (Status.PollDaemonEnable) {
 
-					m_daemonSema.Wait(ct);
+					m_daemonSemaphore.Wait(ct);
 
 					if (Config.PollIntervalData > 0 &&
 						DateTime.UtcNow.Subtract(m_datastream.m_lastActivity).TotalMilliseconds > Config.PollIntervalData) {
@@ -117,7 +117,7 @@ namespace FluentFTP.Client.BaseClient {
 						}
 					}
 
-					m_daemonSema.Release();
+					m_daemonSemaphore.Release();
 
 				} // if (Status.PollDaemonEnable)
 
