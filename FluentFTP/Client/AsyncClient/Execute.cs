@@ -30,7 +30,7 @@ namespace FluentFTP {
 				 && command != "QUIT"
 		 		 && IsAuthenticated
 				 && Status.NoopDaemonRunning
-				 && !await IsStillConnected())) {
+				 && !await IsStillConnected(token: token))) {
 				if (command == "QUIT") {
 					LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");
 					return new FtpReply() {
