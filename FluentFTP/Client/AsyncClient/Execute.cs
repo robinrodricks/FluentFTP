@@ -20,8 +20,8 @@ namespace FluentFTP {
 			bool reconnect = false;
 			string reconnectReason = string.Empty;
 
-			m_daemonSema.Wait();
-			m_daemonSema.Release();
+			m_daemonSemaphore.Wait();
+			m_daemonSemaphore.Release();
 
 			// Automatic reconnect because we lost the control channel?
 			if (!IsConnected ||
@@ -100,7 +100,7 @@ namespace FluentFTP {
 			Log(FtpTraceLevel.Info, "Command:  " + cleanedCommand);
 
 			// send command to FTP server
-			await m_daemonSema.WaitAsync();
+			await m_daemonSemaphore.WaitAsync();
 			try {
 				await m_stream.WriteLineAsync(m_textEncoding, command, token);
 				LastCommandExecuted = command;
@@ -110,7 +110,7 @@ namespace FluentFTP {
 				reply = await ((IInternalFtpClient)this).GetReplyInternal(token, command, false, 0, false);
 			}
 			finally {
-				m_daemonSema.Release();
+				m_daemonSemaphore.Release();
 			}
 			if (reply.Success) {
 				await OnPostExecute(command, token);

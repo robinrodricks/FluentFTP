@@ -35,8 +35,8 @@ namespace FluentFTP.Client.BaseClient {
 
 					m_daemonSema.Wait(ct);
 
-					if (Config.NoopInterval > 0 &&
-						DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval) {
+					try {
+						m_daemonSemaphore.Wait();
 
 						// choose one of the normal or the safe commands
 						string rndCmd = Status.NoopDaemonCmdMode ?
@@ -108,10 +108,20 @@ namespace FluentFTP.Client.BaseClient {
 							}
 						}
 					}
-
-					m_daemonSema.Release();
-
-				} // if (Status.NoopDaemonEnable)
+					catch (Exception ex) {
+						((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#3): " + ex.Message + " (NoopDaemon)");
+						gotEx = true;
+					}
+					finally {
+						if (gotEx) {
+							if (m_stream != null) {
+								m_stream.Close();
+								m_stream = null;
+							}
+						}
+						m_daemonSemaphore.Release();
+					}
+				}
 
 				if (gotEx) {
 					break;
