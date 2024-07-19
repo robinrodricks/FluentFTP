@@ -45,7 +45,7 @@ namespace FluentFTP.Client.BaseClient {
 					}
 
 					try {
-						m_NoopSema.Wait();
+						m_daemonSemaphore.Wait();
 
 						LastCommandTimestamp = DateTime.UtcNow;
 
@@ -100,7 +100,7 @@ namespace FluentFTP.Client.BaseClient {
 								m_stream = null;
 							}
 						}
-						m_NoopSema.Release();
+						m_daemonSemaphore.Release();
 					}
 				}
 

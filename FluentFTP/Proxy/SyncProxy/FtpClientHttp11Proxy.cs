@@ -54,7 +54,7 @@ namespace FluentFTP.Proxy.SyncProxy {
 		protected override void Connect(FtpSocketStream stream, string host, int port, FtpIpVersion ipVersions) {
 			base.Connect(stream);
 
-			m_NoopSema.Wait();
+			m_daemonSemaphore.Wait();
 			try {
 				var writer = new StreamWriter(stream);
 				writer.WriteLine("CONNECT {0}:{1} HTTP/1.1", host, port);
@@ -71,7 +71,7 @@ namespace FluentFTP.Proxy.SyncProxy {
 				ProxyHandshake(stream);
 			}
 			finally {
-				m_NoopSema.Release();
+				m_daemonSemaphore.Release();
 			}
 		}
 

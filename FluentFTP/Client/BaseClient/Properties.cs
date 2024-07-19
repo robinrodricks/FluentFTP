@@ -125,7 +125,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// Used for internally synchronizing access to this
 		/// object from multiple threads in SYNC code
 		/// </summary>
-		protected SemaphoreSlim m_NoopSema = new SemaphoreSlim(1, 1);
+		protected SemaphoreSlim m_daemonSemaphore = new SemaphoreSlim(1, 1);
 
 		/// <summary>
 		/// Control connection socket stream
