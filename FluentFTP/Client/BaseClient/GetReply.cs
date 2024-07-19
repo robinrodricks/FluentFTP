@@ -100,14 +100,12 @@ namespace FluentFTP.Client.BaseClient {
 			long previousElapsedTime = 0;
 
 			if (useSema) {
-				m_NoopSema.Wait();
+				m_daemonSema.Wait();
 			}
 
 			try {
 
 				if (exhaustNoop) {
-					Status.NoopDaemonEnable = false;
-
 					// tickle the server
 					m_stream.WriteLine(Encoding, "NOOP");
 				}
@@ -144,6 +142,7 @@ namespace FluentFTP.Client.BaseClient {
 									LogWithPrefix(FtpTraceLevel.Verbose, "Sending NOOP (<-GetReply)");
 									m_stream.WriteLine(Encoding, "NOOP");
 								}
+								LastCommandTimestamp = DateTime.UtcNow;
 							}
 						}
 
@@ -214,12 +213,11 @@ namespace FluentFTP.Client.BaseClient {
 					LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) sequence: " + sequence.TrimStart(','));
 				}
 
-				Status.NoopDaemonEnable = true;
 
 			}
 			finally {
 				if (useSema) {
-					m_NoopSema.Release();
+					m_daemonSema.Release();
 				}
 			}
 
@@ -321,14 +319,12 @@ namespace FluentFTP.Client.BaseClient {
 			long previousElapsedTime = 0;
 
 			if (useSema) {
-				await m_NoopSema.WaitAsync();
+				await m_daemonSema.WaitAsync();
 			}
 
 			try {
 
 				if (exhaustNoop) {
-					Status.NoopDaemonEnable = false;
-
 					// tickle the server
 					m_stream.WriteLine(Encoding, "NOOP");
 				}
@@ -365,6 +361,7 @@ namespace FluentFTP.Client.BaseClient {
 									LogWithPrefix(FtpTraceLevel.Verbose, "Sending NOOP (<-GetReply)");
 									await m_stream.WriteLineAsync(Encoding, "NOOP", token);
 								}
+								LastCommandTimestamp = DateTime.UtcNow;
 							}
 						}
 
@@ -435,12 +432,10 @@ namespace FluentFTP.Client.BaseClient {
 					LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) sequence: " + sequence.TrimStart(','));
 				}
 
-				Status.NoopDaemonEnable = true;
-
 			}
 			finally {
 				if (useSema) {
-					m_NoopSema.Release();
+					m_daemonSema.Release();
 				}
 			}
 

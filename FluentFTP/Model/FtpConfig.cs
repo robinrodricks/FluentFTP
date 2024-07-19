@@ -108,7 +108,8 @@ namespace FluentFTP {
 		public bool StaleDataCheck { get; set; } = true;
 		
 		/// <summary>
-		/// Install the NOOP NoopDaemon whenever an FTP connection is established, which ensures that NOOPs are sent at regular intervals.
+		/// Install the NOOP NoopDaemon whenever an FTP connection is established,
+		/// which ensures that NOOPs are sent at regular intervals.
 		/// This is the master switch for all NOOP functionality.
 		/// </summary>
 		public bool Noop { get; set; } = false;
@@ -119,6 +120,9 @@ namespace FluentFTP {
 		/// This is called during downloading/uploading and idle times. Setting this
 		/// interval to 0 stops NOOPs from being issued.
 		/// The default value is 3 minutes, which catches the typical 5 minute timeout by FTP servers.
+		/// Note that many servers nowadays implement a "No-files-transferred" timeout. In such a case
+		/// you would need to schedule a small dummy file transfer from time to time to avoid triggering
+		/// this. Regular NOOP commands will not help in this case.
 		/// </summary>
 		public int NoopInterval { get; set; } = 180000;
 
@@ -151,6 +155,31 @@ namespace FluentFTP {
 		/// to identify connectivity issues early on.
 		/// </summary>
 		public bool NoopTestConnectivity { get; set; } = false;
+
+		/// <summary>
+		/// Install the POLL NoopDaemon whenever an FTP data connection is established,
+		/// which ensures that POLLs are sent at regular intervals.
+		/// This is the master switch for all NOOP functionality.
+		/// </summary>
+		public bool Poll { get; set; } = false;
+
+		/// <summary>
+		/// Gets or sets the length of time in milliseconds after last command
+		/// POLL command is sent./>.
+		/// This is called during downloading/uploading and idle times. Setting this
+		/// interval to 0 stops POLLs from being issued.
+		/// The default value is 3 minutes, which catches the typical 5 minute timeout by FTP servers.
+		/// </summary>
+		public int PollIntervalControl { get; set; } = 180000;
+
+		/// <summary>
+		/// Gets or sets the length of time in milliseconds after last command
+		/// POLL command is sent./>.
+		/// This is called during downloading/uploading and idle times. Setting this
+		/// interval to 0 stops POLLs from being issued.
+		/// The default value is 3 minutes, which catches the typical 5 minute timeout by FTP servers.
+		/// </summary>
+		public int PollIntervalData { get; set; } = 180000;
 
 		/// <summary>
 		/// When this value is set to true (default) the control connection

@@ -54,7 +54,7 @@ namespace FluentFTP {
 		/// the exception that would be thrown when trying to
 		/// read or write to the disconnected socket.
 		/// </summary>
-		private DateTime m_lastActivity = DateTime.UtcNow;
+		public DateTime m_lastActivity = DateTime.UtcNow;
 
 		private Socket m_socket = null;
 
@@ -118,22 +118,20 @@ namespace FluentFTP {
 					if (m_socket == null) {
 						return false;
 					}
-
 					if (!m_socket.Connected) {
 						Close();
 						return false;
 					}
-
 					if (!CanRead || !CanWrite) {
 						Close();
 						return false;
 					}
 
+					// ** TO BE REMOVED
 					if (m_socketPollInterval > 0 && DateTime.UtcNow.Subtract(m_lastActivity).TotalMilliseconds > m_socketPollInterval) {
 						string connText = this.IsControlConnection ? "control" : "data";
-						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Testing connectivity of " + Client.ClientType + ".FtpSocketStream(" + connText + ") " + " using Socket.Poll()...");
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Testing connectivity of " + Client.ClientType + ".FtpSocketStream(" + connText + ") using Socket.Poll()");
 
-						// FIX : #273 update m_lastActivity to the current time
 						m_lastActivity = DateTime.UtcNow;
 
 						// Poll (SelectRead) returns true if:
@@ -141,6 +139,7 @@ namespace FluentFTP {
 						// Data is available for reading
 						// Connection has been closed, reset or terminated <--- this is the one we want
 						// The ordering in the if-statement is important: Available is updated by the Poll
+
 						if (m_socket.Poll(500000, SelectMode.SelectRead) && m_socket.Available == 0) {
 							Close();
 							return false;
@@ -157,9 +156,33 @@ namespace FluentFTP {
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "FtpSocketStream.IsConnected: Caught and discarded IOException while testing for connectivity", ioex);
 					return false;
 				}
-
 				return true;
 			}
+		}
+
+		/// <summary>
+		/// Polls the connection
+		/// </summary>
+		public bool Poll() {
+			if (m_socket == null) { return false; }
+
+			//string connText = this.IsControlConnection ? "control" : "data";
+			//((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Testing connectivity of " + Client.ClientType + ".FtpSocketStream(" + connText + ") using Socket.Poll()");
+
+			m_lastActivity = DateTime.UtcNow;
+
+			// Poll (SelectRead) returns true if:
+			// Listen has been called and connection is pending (cannot be the case)
+			// Data is available for reading
+			// Connection has been closed, reset or terminated <--- this is the one we want
+			// The ordering in the if-statement is important: Available is updated by the Poll
+
+			if (m_socket.Poll(500000, SelectMode.SelectRead) && m_socket.Available == 0) {
+				Close();
+				return false;
+			}
+
+			return true;
 		}
 
 		/// <summary>
@@ -1622,11 +1645,19 @@ namespace FluentFTP {
 		/// Disconnects from server
 		/// </summary>
 		protected new void Dispose() {
+			if (IsControlConnection) {
+				Client.Status.NoopDaemonEnable = false;
+			}
+			else {
+				Client.Status.PollDaemonEnable = false;
+				Client.Status.NoopDaemonCmdMode = true;
+			}
+
 			if (IsDisposed) {
 				return;
 			}
 
-			string connText = this.IsControlConnection ? "control" : "data";
+			string connText = IsControlConnection ? "control" : "data";
 
 			if (Client != null) {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) " + Client.ClientType + ".FtpSocketStream(" + connText + ")");
@@ -1660,10 +1691,6 @@ namespace FluentFTP {
 			m_socket = null;
 
 			IsDisposed = true;
-
-			if (Client.Status.NoopDaemonRunning && !IsControlConnection) {
-				Client.Status.NoopDaemonCmdMode = true;
-			}
 		}
 
 		internal void DisposeSslStream() {
@@ -1724,6 +1751,14 @@ namespace FluentFTP {
 #else
 		protected async Task DisposeAsyncCore() {
 #endif
+			if (IsControlConnection) {
+				Client.Status.NoopDaemonEnable = false;
+			}
+			else {
+				Client.Status.PollDaemonEnable = false;
+				Client.Status.NoopDaemonCmdMode = true;
+			}
+
 			if (IsDisposed) {
 				return;
 			}
@@ -1762,10 +1797,6 @@ namespace FluentFTP {
 			m_socket = null;
 
 			IsDisposed = true;
-
-			if (Client.Status.NoopDaemonRunning && !IsControlConnection) {
-				Client.Status.NoopDaemonCmdMode = true;
-			}
 		}
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER

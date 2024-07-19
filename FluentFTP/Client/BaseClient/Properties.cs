@@ -100,11 +100,6 @@ namespace FluentFTP.Client.BaseClient {
 
 		protected FtpListParser CurrentListParser;
 
-		/// <summary>
-		/// A thread for background tasks
-		/// </summary>
-		protected Task m_task;
-
 		// Holds the cached resolved address
 		protected string m_Address;
 
@@ -125,7 +120,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// Used for internally synchronizing access to this
 		/// object from multiple threads in SYNC code
 		/// </summary>
-		protected SemaphoreSlim m_NoopSema = new SemaphoreSlim(1, 1);
+		protected SemaphoreSlim m_daemonSema = new SemaphoreSlim(1, 1);
 
 		/// <summary>
 		/// Control connection socket stream
@@ -139,6 +134,28 @@ namespace FluentFTP.Client.BaseClient {
 		FtpSocketStream IInternalFtpClient.GetBaseStream() {
 			return m_stream;
 		}
+
+		/// <summary>
+		/// data connection socket stream, null if currently none
+		/// </summary>
+		protected FtpSocketStream m_datastream = null;
+
+		/// <summary>
+		/// Gets the base stream for talking to the server via
+		/// any current data connection.
+		/// </summary>
+		FtpSocketStream IInternalFtpClient.GetBaseDataStream() {
+			return m_datastream;
+		}
+
+		/// <summary>
+		/// Resets the base stream for talking to the server via
+		/// any current data connection.
+		/// </summary>
+		void IInternalFtpClient.ResetBaseDataStream() {
+			m_datastream = null;
+		}
+
 		void IInternalFtpClient.SetListingParser(FtpParser parser) {
 			CurrentListParser.CurrentParser = parser;
 			CurrentListParser.ParserConfirmed = false;

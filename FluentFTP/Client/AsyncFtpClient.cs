@@ -89,10 +89,12 @@ namespace FluentFTP {
 			Logger = logger;
 		}
 
+		protected override BaseFtpClient Create() {
+			return new AsyncFtpClient();
+		}
 		#endregion
 
 		#region Destructor
-
 		public override void Dispose() {
 			LogFunction(nameof(Dispose));
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
@@ -104,33 +106,32 @@ namespace FluentFTP {
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		public async ValueTask DisposeAsync() {
-			await DisposeAsyncCore();
-			GC.SuppressFinalize(this);
-		}
 #else
 		public async Task DisposeAsync() {
+#endif
+			if (IsDisposed) {
+				return;
+			}
+
+			LogFunction(nameof(DisposeAsync));
+			LogWithPrefix(FtpTraceLevel.Verbose, "Disposing(async) " + this.ClientType);
+
 			await DisposeAsyncCore();
+
+			await Task.Run(() => {
+				WaitForDaemonTermination();
+			});
+
+			IsDisposed = true;
+
 			GC.SuppressFinalize(this);
 		}
-#endif
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		protected virtual async ValueTask DisposeAsyncCore() {
 #else
 		protected virtual async Task DisposeAsyncCore() {
 #endif
-			if (IsDisposed) {
-				return;
-			}
-
-			// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
-			try {
-				LogFunction(nameof(DisposeAsync));
-				LogWithPrefix(FtpTraceLevel.Verbose, "Disposing(async) " + this.ClientType);
-			}
-			catch {
-			}
-
 			try {
 				if (IsConnected) {
 					await Disconnect();
@@ -145,26 +146,13 @@ namespace FluentFTP {
 				}
 				catch {
 				}
-
-				m_stream = null;
+				finally {
+					m_stream = null;
+				}
 			}
-
-			try {
-				m_credentials = null;
-				m_textEncoding = null;
-				m_host = null;
-			}
-			catch {
-			}
-
-			IsDisposed = true;
 		}
 
-#endregion
-
-		protected override BaseFtpClient Create() {
-			return new AsyncFtpClient();
-		}
+		#endregion
 
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 

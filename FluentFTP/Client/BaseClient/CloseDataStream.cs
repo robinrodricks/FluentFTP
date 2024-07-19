@@ -22,6 +22,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 
 			// A socket poll in here would be trouble, so disable by setting to zero.
+			// ** to be removed...
 			int saveSocketPollInterval = stream.SocketPollInterval;
 			stream.SocketPollInterval = 0;
 
@@ -45,6 +46,7 @@ namespace FluentFTP.Client.BaseClient {
 				}
 			}
 
+			// ** to be removed
 			stream.SocketPollInterval = saveSocketPollInterval;
 
 			return reply;
@@ -64,6 +66,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 
 			// A socket poll in here would be trouble, so disable by setting to zero.
+			// ** to be removed...
 			int saveSocketPollInterval = stream.SocketPollInterval;
 			stream.SocketPollInterval = 0;
 
@@ -87,6 +90,7 @@ namespace FluentFTP.Client.BaseClient {
 				}
 			}
 
+			// ** to be removed
 			stream.SocketPollInterval = saveSocketPollInterval;
 
 			return reply;

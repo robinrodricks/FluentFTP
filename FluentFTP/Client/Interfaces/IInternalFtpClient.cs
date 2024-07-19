@@ -57,6 +57,8 @@ namespace FluentFTP {
 		void LogLine(FtpTraceLevel eventType, string message);
 
 		FtpSocketStream GetBaseStream();
+		FtpSocketStream GetBaseDataStream();
+		void ResetBaseDataStream();
 
 		void SetListingParser(FtpParser parser);
 

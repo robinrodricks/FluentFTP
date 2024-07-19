@@ -236,8 +236,19 @@ namespace FluentFTP {
 
 			Status.InCriticalSequence = false;
 
-			if (Config.Noop && !Status.NoopDaemonRunning) {
-				m_task = Task.Run(() => { NoopDaemon(); });
+			if (Config.Noop) {
+				if (Status.NoopDaemonTask == null) {
+					Status.NoopDaemonTask = Task.Factory.StartNew(() => { NoopDaemon(Status.NoopDaemonTokenSource.Token); }, Status.NoopDaemonTokenSource.Token);
+				}
+				Status.NoopDaemonEnable = true;
+				Status.NoopDaemonCmdMode = true;
+			}
+
+			if (Config.Poll) {
+				if (Status.PollDaemonTask == null) {
+					Status.PollDaemonTask = Task.Factory.StartNew(() => { PollDaemon(Status.PollDaemonTokenSource.Token); }, Status.NoopDaemonTokenSource.Token);
+				}
+				Status.PollDaemonEnable = false;
 			}
 		}
 

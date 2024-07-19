@@ -67,6 +67,12 @@ namespace FluentFTP {
 				throw new InvalidOperationException("The specified data channel type is not implemented.");
 			}
 
+			m_datastream = stream;
+
+			Status.PollDaemonAnyControlPolls = 0;
+			Status.PollDaemonAnyDataPolls = 0;
+			Status.PollDaemonEnable = true;
+
 			return stream;
 		}
 

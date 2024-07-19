@@ -181,6 +181,7 @@ namespace FluentFTP {
 			finally {
 				m_commandStatus = new FtpReply();
 				m_control = null;
+				((IInternalFtpClient)ControlConnection).ResetBaseDataStream();
 			}
 
 			return;
@@ -204,6 +205,7 @@ namespace FluentFTP {
 			finally {
 				m_commandStatus = new FtpReply();
 				m_control = null;
+				((IInternalFtpClient)ControlConnection).ResetBaseDataStream();
 			}
 
 			return;
