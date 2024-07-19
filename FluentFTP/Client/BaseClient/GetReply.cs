@@ -100,7 +100,7 @@ namespace FluentFTP.Client.BaseClient {
 			long previousElapsedTime = 0;
 
 			if (useSema) {
-				m_NoopSema.Wait();
+				m_daemonSemaphore.Wait();
 			}
 
 			try {
@@ -220,7 +220,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 			finally {
 				if (useSema) {
-					m_NoopSema.Release();
+					m_daemonSemaphore.Release();
 				}
 			}
 
@@ -322,7 +322,7 @@ namespace FluentFTP.Client.BaseClient {
 			long previousElapsedTime = 0;
 
 			if (useSema) {
-				await m_NoopSema.WaitAsync();
+				await m_daemonSemaphore.WaitAsync();
 			}
 
 			try {
@@ -442,7 +442,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 			finally {
 				if (useSema) {
-					m_NoopSema.Release();
+					m_daemonSemaphore.Release();
 				}
 			}
 
