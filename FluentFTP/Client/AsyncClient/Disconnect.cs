@@ -19,7 +19,7 @@ namespace FluentFTP {
 					}
 				}
 				catch (Exception ex) {
-					LogWithPrefix(FtpTraceLevel.Verbose, "FtpClient.Disconnect().Execute(\"QUIT\"): ", ex);
+					LogWithPrefix(FtpTraceLevel.Verbose, "AsyncFtpClient.Disconnect().Execute(\"QUIT\"): " + ex.Message);
 				}
 				finally {
 					// When debugging, the stream might have already been taken down
