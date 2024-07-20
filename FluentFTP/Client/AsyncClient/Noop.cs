@@ -22,7 +22,7 @@ namespace FluentFTP {
 		protected async Task<bool> Noop(bool ignoreNoopInterval = false, CancellationToken token = default(CancellationToken)) {
 			if (ignoreNoopInterval || (Config.NoopInterval > 0 && DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval)) {
 
-				await m_NoopSema.WaitAsync();
+				await m_daemonSemaphore.WaitAsync();
 				try {
 					if (IsConnected) {
 						Log(FtpTraceLevel.Verbose, "Command:  NOOP (<-Noop)");
@@ -34,7 +34,7 @@ namespace FluentFTP {
 					}
 				}
 				finally {
-					m_NoopSema.Release();
+					m_daemonSemaphore.Release();
 				}
 
 			}
