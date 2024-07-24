@@ -20,16 +20,15 @@ namespace FluentFTP {
 			bool reconnect = false;
 			string reconnectReason = string.Empty;
 
-			m_daemonSemaphore.Wait();
+			m_daemonSemaphore.Wait(token);
 			m_daemonSemaphore.Release();
 
 			// Automatic reconnect because we lost the control channel?
-
 			if (!IsConnected ||
 				(Config.NoopTestConnectivity
 				 && command != "QUIT"
 		 		 && IsAuthenticated
-				 && Status.NoopDaemonRunning
+				 && Status.NoopDaemonEnable
 				 && !await IsStillConnected(token: token))) {
 				if (command == "QUIT") {
 					LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");

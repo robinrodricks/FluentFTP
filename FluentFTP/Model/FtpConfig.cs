@@ -69,33 +69,6 @@ namespace FluentFTP {
 		/// </summary>
 		public FtpIpVersion InternetProtocolVersions { get; set; } = FtpIpVersion.ANY;
 
-		protected int _socketPollInterval = 15000;
-
-		/// <summary>
-		/// Gets or sets the length of time in milliseconds
-		/// that must pass since the last socket activity
-		/// before calling <see cref="System.Net.Sockets.Socket.Poll"/> 
-		/// on the socket to test for connectivity. 
-		/// Setting this interval too low will
-		/// have a negative impact on performance. Setting this
-		/// interval to 0 disables Polling all together.
-		/// The default value is 15 seconds.
-		/// </summary>
-		public int SocketPollInterval {
-			get => _socketPollInterval;
-			set {
-				_socketPollInterval = value;
-				
-				// set this value on the FtpClient's base stream
-				if (_client != null) {
-					var stream = ((IInternalFtpClient)_client).GetBaseStream();
-					if (stream != null) {
-						stream.SocketPollInterval = value;
-					}
-				}
-			}
-		}
-
 		/// <summary>
 		/// Gets or sets a value indicating whether a test should be performed to
 		/// see if there is stale (unrequested data) sitting on the socket. In some
@@ -108,7 +81,8 @@ namespace FluentFTP {
 		public bool StaleDataCheck { get; set; } = true;
 		
 		/// <summary>
-		/// Install the NOOP NoopDaemon whenever an FTP connection is established, which ensures that NOOPs are sent at regular intervals.
+		/// Install the NOOP NoopDaemon whenever an FTP connection is established,
+		/// which ensures that NOOPs are sent at regular intervals.
 		/// This is the master switch for all NOOP functionality.
 		/// </summary>
 		public bool Noop { get; set; } = false;
@@ -119,6 +93,9 @@ namespace FluentFTP {
 		/// This is called during downloading/uploading and idle times. Setting this
 		/// interval to 0 stops NOOPs from being issued.
 		/// The default value is 3 minutes, which catches the typical 5 minute timeout by FTP servers.
+		/// Note that many servers nowadays implement a "No-files-transferred" timeout. In such a case
+		/// you would need to schedule a small dummy file transfer from time to time to avoid triggering
+		/// this. Regular NOOP commands will not help in this case.
 		/// </summary>
 		public int NoopInterval { get; set; } = 180000;
 
@@ -613,7 +590,6 @@ namespace FluentFTP {
 			write.LogUserName = read.LogUserName;
 			write.LogPassword = read.LogPassword;
 			write.InternetProtocolVersions = read.InternetProtocolVersions;
-			write.SocketPollInterval = read.SocketPollInterval;
 			write.StaleDataCheck = read.StaleDataCheck;
 			write.Noop = read.Noop;
 			write.NoopInterval = read.NoopInterval;

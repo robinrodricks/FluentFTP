@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FluentFTP {
 
@@ -132,20 +134,24 @@ namespace FluentFTP {
 		public ushort zOSListingLRECL { get; set; }
 
 		/// <summary>
-		/// Background task status
+		/// NOOP Daemon Task
 		/// </summary>
-		public bool NoopDaemonRunning { get; set; }
+		public Task NoopDaemonTask;
 		/// <summary>
-		/// Background task should GetReply
+		/// NOOP Daemon TokenSource
 		/// </summary>
-		public bool NoopDaemonCmdMode { get; set; }
+		public CancellationTokenSource NoopDaemonTokenSource = new CancellationTokenSource();
 		/// <summary>
-		/// Background task enabled
+		/// NOOP Daemon enabled
 		/// </summary>
 		public bool NoopDaemonEnable { get; set; }
 		/// <summary>
-		/// Background task sent noops
+		/// NOOP Daemon sent noops
 		/// </summary>
 		public int NoopDaemonAnyNoops { get; set; }
+		/// <summary>
+		/// NOOP Daemon should GetReply
+		/// </summary>
+		public bool NoopDaemonCmdMode { get; set; }
 	}
 }

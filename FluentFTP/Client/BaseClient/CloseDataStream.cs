@@ -21,10 +21,6 @@ namespace FluentFTP.Client.BaseClient {
 				throw new ArgumentException("The data stream parameter was null");
 			}
 
-			// A socket poll in here would be trouble, so disable by setting to zero.
-			int saveSocketPollInterval = stream.SocketPollInterval;
-			stream.SocketPollInterval = 0;
-
 			try {
 				if (IsConnected) {
 					// Because the data connection was closed, if the command that required the data
@@ -45,8 +41,6 @@ namespace FluentFTP.Client.BaseClient {
 				}
 			}
 
-			stream.SocketPollInterval = saveSocketPollInterval;
-
 			return reply;
 		}
 
@@ -62,10 +56,6 @@ namespace FluentFTP.Client.BaseClient {
 			if (stream == null) {
 				throw new ArgumentException("The data stream parameter was null");
 			}
-
-			// A socket poll in here would be trouble, so disable by setting to zero.
-			int saveSocketPollInterval = stream.SocketPollInterval;
-			stream.SocketPollInterval = 0;
 
 			try {
 				if (IsConnected) {
@@ -86,8 +76,6 @@ namespace FluentFTP.Client.BaseClient {
 					await ((IInternalFtpClient)this).DisposeInternal(token);
 				}
 			}
-
-			stream.SocketPollInterval = saveSocketPollInterval;
 
 			return reply;
 		}

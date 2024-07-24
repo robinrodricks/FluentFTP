@@ -326,7 +326,6 @@ namespace FluentFTP.Client.Modules {
 			if (knownProfile != null) {
 				client.Config.ConnectTimeout = knownProfile.Timeout;
 				client.Config.RetryAttempts = knownProfile.RetryAttempts;
-				client.Config.SocketPollInterval = knownProfile.SocketPollInterval;
 			}
 		}
 
@@ -456,9 +455,6 @@ namespace FluentFTP.Client.Modules {
 				client.Config.ReadTimeout = profile.Timeout;
 				client.Config.DataConnectionConnectTimeout = profile.Timeout;
 				client.Config.DataConnectionReadTimeout = profile.Timeout;
-			}
-			if (client.Config.SocketPollInterval != 0) {
-				client.Config.SocketPollInterval = profile.SocketPollInterval;
 			}
 			if (client.Config.RetryAttempts != 0) {
 				client.Config.RetryAttempts = profile.RetryAttempts;
