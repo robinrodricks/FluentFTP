@@ -108,7 +108,7 @@ namespace FluentFTP {
 		/// the control connections is inactive longer than a set time.
 		/// This is the master switch for all NOOP related functionality.
 		/// </summary>
-		public bool Noop { get; set; } = true;
+		public bool Noop { get; set; } = false;
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds of inactivity on the control
