@@ -54,7 +54,7 @@ namespace FluentFTP {
 		public bool LogPassword { get; set; } = false;
 
 		/// <summary>
-		/// Should the command duration be shown after each log command?
+		/// Should the command duration be shown after each logged command?
 		/// </summary>
 		public bool LogDurations { get; set; } = true;
 
@@ -81,21 +81,23 @@ namespace FluentFTP {
 		public bool StaleDataCheck { get; set; } = true;
 		
 		/// <summary>
-		/// Install the NOOP NoopDaemon whenever an FTP connection is established,
-		/// which ensures that NOOPs are sent at regular intervals.
-		/// This is the master switch for all NOOP functionality.
+		/// Install the NOOP Daemon whenever an FTP connection is established,
+		/// which enables the capability to send NOOP commands at regular intervals when
+		/// the control connections is inactive longer than a set time.
+		/// This is the master switch for all NOOP related functionality.
 		/// </summary>
 		public bool Noop { get; set; } = false;
 
 		/// <summary>
-		/// Gets or sets the length of time in milliseconds after last command
-		/// (NOOP or other) that a NOOP command is sent./>.
-		/// This is called during downloading/uploading and idle times. Setting this
-		/// interval to 0 stops NOOPs from being issued.
-		/// The default value is 3 minutes, which catches the typical 5 minute timeout by FTP servers.
-		/// Note that many servers nowadays implement a "No-files-transferred" timeout. In such a case
-		/// you would need to schedule a small dummy file transfer from time to time to avoid triggering
-		/// this. Regular NOOP commands will not help in this case.
+		/// Gets or sets the length of time in milliseconds of inactivity on the control
+		/// connection that must expire before a NOOP command is sent, both during downloading/uploading
+		/// and during idle times. Setting this interval to 0 stops NOOPs from being issued.
+		/// The default value is 3 minutes, which catches the typical 5 minute timeout of popular FTP
+		/// servers.
+		/// Note that many servers nowadays implement a "No-files-transferred" timeout, in order to thwart
+		/// a users attempts to keep the control connection alive. In such a case you would need to
+		/// schedule a small dummy file transfer from time to time to avoid this timeout from triggering.
+		/// Regular NOOP commands will not help when your FTP server uses such a strategy.
 		/// </summary>
 		public int NoopInterval { get; set; } = 180000;
 
@@ -122,7 +124,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Issue a NOOP command tp precede any command issued on the control connection
+		/// Issue a NOOP command to precede any command issued on the control connection
 		/// to test connectivity in a reliable fashion. Note: This can incur some control
 		/// connection overhead and does not alleviate inactivity timeouts, it just helps
 		/// to identify connectivity issues early on.
