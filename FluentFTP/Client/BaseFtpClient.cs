@@ -93,7 +93,7 @@ namespace FluentFTP.Client.BaseClient {
 				LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for Daemon termination(" + this.ClientType + ")");
 				Status.NoopDaemonTokenSource.Cancel();
 				DateTime startTime = DateTime.UtcNow;
-				while (Config.Noop && Status.NoopDaemonTask.Status == TaskStatus.Running &&
+				while (Config.Noop && Status.NoopDaemonTask != null && Status.NoopDaemonTask.Status == TaskStatus.Running &&
 					DateTime.UtcNow.Subtract(startTime).TotalMilliseconds < 20000) {
 					Thread.Sleep(250);
 				};
