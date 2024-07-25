@@ -79,27 +79,51 @@ namespace FluentFTP {
 		/// available on the socket before executing a command.
 		/// </summary>
 		public bool StaleDataCheck { get; set; } = true;
-		
+
+		protected int _socketPollInterval = 15000;
+
+		/// <summary>
+		/// Gets or sets the length of time in milliseconds
+		/// that must pass since the last socket activity
+		/// before calling <see cref="System.Net.Sockets.Socket.Poll"/> 
+		/// on the socket to test for connectivity. 
+		/// Setting this interval too low will
+		/// have a negative impact on performance. Setting this
+		/// interval to 0 disables Polling all together.
+		/// The default value is 15 seconds.
+		/// This has been removed and you are encouraged to use
+		/// <see cref="Noop"/> instead, if you are interested in
+		/// avoiding inactivity timeouts or in more aggressive ways
+		/// to detect connection failures.
+		/// </summary>
+		[Obsolete]
+		public int SocketPollInterval {
+			get => _socketPollInterval;
+			set => _socketPollInterval = value;
+		}
+
 		/// <summary>
 		/// Install the NOOP Daemon whenever an FTP connection is established,
 		/// which enables the capability to send NOOP commands at regular intervals when
 		/// the control connections is inactive longer than a set time.
 		/// This is the master switch for all NOOP related functionality.
 		/// </summary>
-		public bool Noop { get; set; } = false;
+		public bool Noop { get; set; } = true;
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds of inactivity on the control
 		/// connection that must expire before a NOOP command is sent, both during downloading/uploading
 		/// and during idle times. Setting this interval to 0 stops NOOPs from being issued.
-		/// The default value is 3 minutes, which catches the typical 5 minute timeout of popular FTP
+		/// The default value is 4:30 minutes, which defeats the typical 5 minute timeout of popular FTP
 		/// servers.
+		/// If you are interested in very aggressive detection of connection failures, you may set
+		/// this value to as low as 1000ms.
 		/// Note that many servers nowadays implement a "No-files-transferred" timeout, in order to thwart
-		/// a users attempts to keep the control connection alive. In such a case you would need to
-		/// schedule a small dummy file transfer from time to time to avoid this timeout from triggering.
+		/// a users attempts to keep the control connection alive. In such a case your code would need to
+		/// schedule a small dummy file transfer from time to time to avoid such a timeout from triggering.
 		/// Regular NOOP commands will not help when your FTP server uses such a strategy.
 		/// </summary>
-		public int NoopInterval { get; set; } = 180000;
+		public int NoopInterval { get; set; } = 270000;
 
 		private List<string> _noopInactiveCmds = new List<string> { "NOOP", "PWD", "TYPE I", "TYPE A" };
 
