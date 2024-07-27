@@ -897,7 +897,7 @@ namespace FluentFTP {
 		/// <param name="ipad">The ip address to connect to</param>
 		/// <param name="ipVersions">The enum value of allowed IP Versions</param>
 		/// <param name="ipVersionString">Textual representation of the address family</param>
-		private bool IsIpVersionAllowed(IPAddress ipad, FtpIpVersion ipVersions, out string ipVersionString) {
+		private static bool IsIpVersionAllowed(IPAddress ipad, FtpIpVersion ipVersions, out string ipVersionString) {
 			ipVersionString = string.Empty;
 
 			if (ipVersions == FtpIpVersion.ANY) {
