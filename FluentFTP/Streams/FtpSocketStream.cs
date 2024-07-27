@@ -1014,8 +1014,8 @@ namespace FluentFTP {
 			m_netStream.ReadTimeout = m_readTimeout;
 			m_lastActivity = DateTime.UtcNow;
 
-			// the NOOP daemon needs to know this
 			if (!IsControlConnection) {
+				// the NOOP daemon needs to know this
 				Client.Status.NoopDaemonCmdMode = false;
 			}
 		}
@@ -1158,7 +1158,7 @@ namespace FluentFTP {
 			m_lastActivity = DateTime.UtcNow;
 
 			if (!IsControlConnection) {
-			// the NOOP daemon needs to know this
+				// the NOOP daemon needs to know this
 				Client.Status.NoopDaemonCmdMode = false;
 			}
 		}
