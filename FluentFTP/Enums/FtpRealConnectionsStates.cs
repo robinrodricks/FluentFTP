@@ -4,7 +4,6 @@ namespace FluentFTP {
 	/// <summary>
 	/// Real transitional connection states
 	/// </summary>
-	[Flags]
 	public enum FtpRealConnectionStates {
 		/// <summary>
 		/// Deamon will determine the state in a short while
