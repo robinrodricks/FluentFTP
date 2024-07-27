@@ -461,19 +461,6 @@ namespace FluentFTP {
 			return read;
 		}
 
-		internal async Task EnableCancellation(Task task, CancellationToken token, Action action) {
-			var registration = token.Register(action);
-			_ = task.ContinueWith(x => registration.Dispose(), CancellationToken.None);
-			await task;
-		}
-
-		internal async Task<T> EnableCancellation<T>(Task<T> task, CancellationToken token, Action action) {
-			var registration = token.Register(action);
-			_ = task.ContinueWith(x => registration.Dispose(), CancellationToken.None);
-			return await task;
-		}
-
-
 #if NETFRAMEWORK
 		/// <summary>
 		/// Bypass the stream and read directly off the socket.
@@ -1174,6 +1161,24 @@ namespace FluentFTP {
 			if (!IsControlConnection) {
 				Client.Status.NoopDaemonCmdMode = false;
 			}
+		}
+
+		/// <summary>
+		/// Helper for Async cancel in ConnectAsync 
+		/// </summary>
+		internal async Task EnableCancellation(Task task, CancellationToken token, Action action) {
+			var registration = token.Register(action);
+			_ = task.ContinueWith(x => registration.Dispose(), CancellationToken.None);
+			await task;
+		}
+
+		/// <summary>
+		/// Helper for Async cancel in ConnectAsync 
+		/// </summary>
+		internal async Task<T> EnableCancellation<T>(Task<T> task, CancellationToken token, Action action) {
+			var registration = token.Register(action);
+			_ = task.ContinueWith(x => registration.Dispose(), CancellationToken.None);
+			return await task;
 		}
 
 		/// <summary>
