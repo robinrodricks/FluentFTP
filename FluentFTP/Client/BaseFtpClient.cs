@@ -96,7 +96,7 @@ namespace FluentFTP.Client.BaseClient {
 				while (Config.Noop && Status.NoopDaemonTask != null && Status.NoopDaemonTask.Status == TaskStatus.Running &&
 					DateTime.UtcNow.Subtract(startTime).TotalMilliseconds < 20000) {
 					Thread.Sleep(250);
-				};
+				}
 				LogWithPrefix(FtpTraceLevel.Verbose, "Daemon terminated");
 			}
 		}
