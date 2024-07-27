@@ -142,7 +142,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Used for tracking read/write activity on the socket
 		/// </summary>
-		public DateTime m_lastActivity = DateTime.UtcNow;
+		private DateTime m_lastActivity = DateTime.UtcNow;
 
 		private Socket m_socket = null;
 
