@@ -27,12 +27,6 @@ namespace FluentFTP {
 	public class FtpSocketStream : Stream, IDisposable {
 #endif
 
-		private NetworkStream m_netStream = null;
-
-		private FtpSslStream m_sslStream = null;
-
-		private IFtpStream m_customStream = null;
-
 		/// <summary>
 		/// The client this stream is associated with
 		/// </summary>
@@ -46,68 +40,61 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Used for tracking read/write activity on the socket
-		/// to determine if Poll() should be used to test for
-		/// socket connectivity. The socket in this class will
-		/// not know it has been disconnected if the remote host
-		/// closes the connection first. Using Poll() avoids
-		/// the exception that would be thrown when trying to
-		/// read or write to the disconnected socket.
+		/// This FtpSocketStream could be a NetStream
 		/// </summary>
-		private DateTime m_lastActivity = DateTime.UtcNow;
-
-		private Socket m_socket = null;
+		private NetworkStream m_netStream = null;
 
 		/// <summary>
-		/// The socket used for talking
+		/// This FtpSocketStream could be a SslStream over a NetStream
 		/// </summary>
-		protected Socket Socket {
-			get => m_socket;
-			private set => m_socket = value;
-		}
+		private FtpSslStream m_sslStream = null;
 
 		/// <summary>
-		/// Keep a count of command/response transactions on the
-		/// control connection
+		/// This FtpSocketStream could be a customStream (such as a GnuTlsStream)
 		/// </summary>
-		public int SslSessionLength = 0;
-
-		private int m_socketPollInterval = 15000;
+		private IFtpStream m_customStream = null;
 
 		/// <summary>
-		/// Gets or sets the length of time in milliseconds
-		/// that must pass since the last socket activity
-		/// before calling Poll() on the socket to test for
-		/// connectivity. Setting this interval too low will
-		/// have a negative impact on performance. Setting this
-		/// interval to 0 disables Poll()'ing all together.
-		/// The default value is 15 seconds.
+		/// Gets the underlying stream, could be a NetworkStream, SslStream or CustomStream
 		/// </summary>
-		public int SocketPollInterval {
-			get => m_socketPollInterval;
-			set => m_socketPollInterval = value;
-		}
-
-		/// <summary>
-		/// Gets the number of available bytes on the socket, 0 if the
-		/// socket has not been initialized. This property is used internally
-		/// by FtpClient in an effort to detect disconnections and gracefully
-		/// reconnect the control connection.
-		/// </summary>
-		internal int SocketDataAvailable {
+		protected Stream BaseStream {
 			get {
-				if (m_socket != null) {
-					return m_socket.Available;
+				if (m_customStream != null) {
+					return m_customStream.GetBaseStream();
 				}
-
-				return 0;
+				else if (m_sslStream != null) {
+					return m_sslStream;
+				}
+				else if (m_netStream != null) {
+					return m_netStream;
+				}
+				return null;
 			}
 		}
+
+		/// <summary>
+		/// Is this stream the control connection?
+		/// </summary>
+		public bool IsControlConnection { get; set; } = true;
 
 		/// <summary>
 		/// Gets a value indicating if this socket stream is disposed
 		/// </summary>
 		public bool IsDisposed { get; set; } = false;
+
+		/// <summary>
+		/// Gets a value indicating if encryption is being used
+		/// </summary>
+		public bool IsEncrypted {
+			get {
+				if (Client.Config.CustomStream != null) {
+					return m_customStream != null;
+				}
+				else {
+					return m_sslStream != null;
+				}
+			}
+		}
 
 		/// <summary>
 		/// Gets a value indicating if this socket stream is connected
@@ -163,24 +150,61 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Gets a value indicating if encryption is being used
+		/// Used for tracking read/write activity on the socket
+		/// to determine if Poll() should be used to test for
+		/// socket connectivity. The socket in this class will
+		/// not know it has been disconnected if the remote host
+		/// closes the connection first. Using Poll() avoids
+		/// the exception that would be thrown when trying to
+		/// read or write to the disconnected socket.
 		/// </summary>
-		public bool IsEncrypted {
+		private DateTime m_lastActivity = DateTime.UtcNow;
+
+		private Socket m_socket = null;
+
+		/// <summary>
+		/// The socket used for talking on this connection
+		/// </summary>
+		protected Socket Socket {
+			get => m_socket;
+			private set => m_socket = value;
+		}
+
+		private int m_socketPollInterval = 15000;
+
+		/// <summary>
+		/// Gets or sets the length of time in milliseconds
+		/// that must pass since the last socket activity
+		/// before calling Poll() on the socket to test for
+		/// connectivity. Setting this interval too low will
+		/// have a negative impact on performance. Setting this
+		/// interval to 0 disables Poll()'ing all together.
+		/// The default value is 15 seconds.
+		/// </summary>
+		public int SocketPollInterval {
+			get => m_socketPollInterval;
+			set => m_socketPollInterval = value;
+		}
+
+		/// <summary>
+		/// Gets the number of available bytes on the socket, 0 if the
+		/// socket has not been initialized.
+		/// </summary>
+		internal int SocketDataAvailable {
 			get {
-				if (Client.Config.CustomStream != null) {
-					return m_customStream != null;
+				if (m_socket != null) {
+					return m_socket.Available;
 				}
-				else {
-					return m_sslStream != null;
-				}
+
+				return 0;
 			}
 		}
 
 		/// <summary>
-		/// Is this stream the control connection?
+		/// Keep a count of command/response transactions on the
+		/// control connection
 		/// </summary>
-		public bool IsControlConnection { get; set; } = true;
-
+		public int SslSessionLength = 0;
 
 		/// <summary>
 		/// The negotiated SSL/TLS protocol version. Will have a valid value after connection is complete.
@@ -195,24 +219,6 @@ namespace FluentFTP {
 				}
 			}
 		}
-		/// <summary>
-		/// Gets the underlying stream, could be a NetworkStream, SslStream or CustomStream
-		/// </summary>
-		protected Stream BaseStream {
-			get {
-				if (m_customStream != null) {
-					return m_customStream.GetBaseStream();
-				}
-				else if (m_sslStream != null) {
-					return m_sslStream;
-				}
-				else if (m_netStream != null) {
-					return m_netStream;
-				}
-				return null;
-			}
-		}
-
 		/// <summary>
 		/// Gets a value indicating if this stream can be read
 		/// </summary>
@@ -233,11 +239,6 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Gets a value indicating if this stream if seekable
-		/// </summary>
-		public override bool CanSeek => false;
-
-		/// <summary>
 		/// Gets a value indicating if this stream can be written to
 		/// </summary>
 		public override bool CanWrite {
@@ -255,6 +256,11 @@ namespace FluentFTP {
 				return false;
 			}
 		}
+
+		/// <summary>
+		/// Gets a value indicating if this stream if seekable
+		/// </summary>
+		public override bool CanSeek => false;
 
 		/// <summary>
 		/// Gets the length of the stream
@@ -482,7 +488,6 @@ namespace FluentFTP {
 
 			return read;
 		}
-
 #endif
 
 #if !NETFRAMEWORK
