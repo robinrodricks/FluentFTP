@@ -1158,7 +1158,7 @@ namespace FluentFTP {
 			m_lastActivity = DateTime.UtcNow;
 
 			if (!IsControlConnection) {
-				// the NOOP daemon needs to know this
+			// the NOOP daemon needs to know this
 				Client.Status.NoopDaemonCmdMode = false;
 			}
 		}
@@ -1635,11 +1635,18 @@ namespace FluentFTP {
 		/// Disconnects from server
 		/// </summary>
 		protected new void Dispose() {
+			if (IsControlConnection) {
+				Client.Status.NoopDaemonEnable = false;
+			}
+			else {
+				Client.Status.NoopDaemonCmdMode = true;
+			}
+
 			if (IsDisposed) {
 				return;
 			}
 
-			string connText = this.IsControlConnection ? "control" : "data";
+			string connText = IsControlConnection ? "control" : "data";
 
 			if (Client != null) {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) " + Client.ClientType + ".FtpSocketStream(" + connText + ")");
@@ -1648,24 +1655,20 @@ namespace FluentFTP {
 			// TODO: To support the CCC (Deactivate Encryption) command, some more additional logic
 			// is required and note that CustomStream GnuTLS currently does not support this at all.
 
-			try {
-				if (m_sslStream != null) {          // Connection was a standard .NET SslStream (actually FtpSslStream)
-					DisposeSslStream();
-					DisposeNetStream();
-				}
-				else if (m_customStream != null) {  // Connection was a custom Stream (typically: FluentFTP.GnuTLS)
-					DisposeCustomStream();
-				}
-				else {
-					DisposeNetStream();             // Connection was a standard .NET NetworkStream (unencrypted)
-				}
-
-				DisposeSocket();
-
-				base.Dispose(true);
+			if (m_sslStream != null) {          // Connection was a standard .NET SslStream (actually FtpSslStream)
+				DisposeSslStream();
+				DisposeNetStream();
 			}
-			catch {
+			else if (m_customStream != null) {  // Connection was a custom Stream (typically: FluentFTP.GnuTLS)
+				DisposeCustomStream();
 			}
+			else {                              // Connection was a standard .NET NetworkStream (unencrypted)
+				DisposeNetStream();
+			}
+
+			DisposeSocket();
+
+			base.Dispose(true);
 
 			m_sslStream = null;
 			m_customStream = null;
@@ -1673,28 +1676,46 @@ namespace FluentFTP {
 			m_socket = null;
 
 			IsDisposed = true;
-
-			if (Client.Status.NoopDaemonRunning && !IsControlConnection) {
-				Client.Status.NoopDaemonCmdMode = true;
-			}
 		}
 
 		internal void DisposeSslStream() {
 			// Note: FtpSslStream SSL shutdown gets called here ( Dispose() calls Close() )
-			//		 This sends the Ssl Alert "Notify Close" and causes an orderly Ssl shutdown
-			m_sslStream.Dispose();
+			//		 This sends the Ssl Alert "Notify Close" and causes an orderly Ssl shutdown.
+			//		 This send will fail in those cases where a connection is lost and not shutdown.
+			try {
+				m_sslStream.Dispose();
+			}
+			catch (Exception ex) {
+				// ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught SYNC SSLSTREAM(Dispose) exception: " + ex.Message);
+			};
 		}
 
 		internal void DisposeCustomStream() {
-			m_customStream.Dispose();
+			try {
+				m_customStream.Dispose();
+			}
+			catch (Exception ex) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught SYNC CUSTOMSTREAM(Dispose) exception: " + ex.Message);
+			};
 		}
 
 		internal void DisposeNetStream() {
-			m_netStream?.Dispose();
+			try {
+				m_netStream?.Dispose();
+			}
+			catch (Exception ex) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught SYNC NETSTREAM(Dispose) exception: " + ex.Message);
+			};
+
 		}
 
 		internal void DisposeSocket() {
-			m_socket?.Dispose();
+			try {
+				m_socket?.Dispose();
+			}
+			catch (Exception ex) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught SYNC SOCKET(Dispose) exception: " + ex.Message);
+			};
 		}
 
 		//
@@ -1737,6 +1758,13 @@ namespace FluentFTP {
 #else
 		protected async Task DisposeAsyncCore() {
 #endif
+			if (IsControlConnection) {
+				Client.Status.NoopDaemonEnable = false;
+			}
+			else {
+				Client.Status.NoopDaemonCmdMode = true;
+			}
+
 			if (IsDisposed) {
 				return;
 			}
@@ -1750,24 +1778,20 @@ namespace FluentFTP {
 			// TODO: To support the CCC (Deactivate Encryption) command, some more additional logic
 			// is required and note that CustomStream GnuTLS currently does not support this at all.
 
-			try {
-				if (m_sslStream != null) {          // Connection was a standard .NET SslStream (actually FtpSslStream)
-					await DisposeSslStreamAsync();
-					await DisposeNetStreamAsync();
-				}
-				else if (m_customStream != null) {  // Connection was a custom Stream (typically: FluentFTP.GnuTLS)
-					await DisposeCustomStreamAsync();
-				}
-				else {
-					await DisposeNetStreamAsync();  // Connection was a standard .NET NetworkStream (unencrypted)
-				}
-
-				await DisposeSocketAsync();
-
-				base.Dispose(true);
+			if (m_sslStream != null) {             // Connection was a standard .NET SslStream (actually FtpSslStream)
+				await DisposeSslStreamAsync();
+				await DisposeNetStreamAsync();
 			}
-			catch {
+			else if (m_customStream != null) {      // Connection was a custom Stream (typically: FluentFTP.GnuTLS)
+				await DisposeCustomStreamAsync();
 			}
+			else {
+				await DisposeNetStreamAsync();  // Connection was a standard .NET NetworkStream (unencrypted)
+			}
+
+			await DisposeSocketAsync();
+
+			base.Dispose(true);
 
 			m_sslStream = null;
 			m_customStream = null;
@@ -1775,32 +1799,53 @@ namespace FluentFTP {
 			m_socket = null;
 
 			IsDisposed = true;
-
-			if (Client.Status.NoopDaemonRunning && !IsControlConnection) {
-				Client.Status.NoopDaemonCmdMode = true;
-			}
 		}
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		internal async ValueTask DisposeSslStreamAsync() {
 			// Note: FtpSslStream SSL shutdown gets called here ( in the Close() )
 			//		 This sends the Ssl Alert "Notify Close" and causes an orderly Ssl shutdown
-			m_sslStream.Close();   // Async Close override in FtpSslStream not supported yet
-			await m_sslStream.DisposeAsync();
+			try {
+				m_sslStream.Close();   // Async Close override in FtpSslStream not supported yet
+			}
+			catch (Exception ex) {
+				// ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC SSLSTREAM(Close) dispose exception: " + ex.Message);
+			};
+			try {
+				await m_sslStream.DisposeAsync();
+			}
+			catch (Exception ex) {
+				// ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC SSLSTREAM(Dispose) dispose exception: " + ex.Message);
+			};
 #else
 		internal async Task DisposeSslStreamAsync() {
 			// Note: FtpSslStream SSL shutdown gets called here ( Dispose() calls Close() )
 			//		 This sends the Ssl Alert "Notify Close" and causes an orderly Ssl shutdown
-			m_sslStream.Dispose(); // Async dispose not supported in this .NET?
+			try {
+				m_sslStream.Dispose(); // Async dispose not supported in this .NET?
+			}
+			catch (Exception ex) {
+				// ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC SSLSTREAM(Dispose) exception: " + ex.Message);
+			};
 #endif
 		}
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		internal async ValueTask DisposeCustomStreamAsync() {
-			m_customStream.Dispose();
+			try {
+				m_customStream.Dispose();
+			}
+			catch (Exception ex) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC CUSTOMSTREAM(Dispose) exception: " + ex.Message);
+			};
 #else
 		internal async Task DisposeCustomStreamAsync() {
-			m_customStream.Dispose();
+			try {
+				m_customStream.Dispose();
+			}
+			catch (Exception ex) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC CUSTOMSTREAM(Dispose) exception: " + ex.Message);
+			};
 #endif
 		}
 
@@ -1809,13 +1854,23 @@ namespace FluentFTP {
 			if (m_netStream == null) {
 				return;
 			}
-			await m_netStream.DisposeAsync();
+			try {
+				await m_netStream.DisposeAsync();
+			}
+			catch (Exception ex) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC NETSTREAM(Dispose) exception: " + ex.Message);
+			};
 #else
 		internal async Task DisposeNetStreamAsync() {
 			if (m_netStream == null) {
 				return;
 			}
-			m_netStream.Dispose(); // Async dispose not supported in this .NET?
+			try {
+				m_netStream.Dispose(); // Async dispose not supported in this .NET?
+			}
+			catch (Exception ex) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC NETSTREAM(Dispose) exception: " + ex.Message);
+			};
 #endif
 		}
 
@@ -1830,7 +1885,12 @@ namespace FluentFTP {
 			if (m_socket == null) {
 				return;
 			}
-			m_socket.Dispose();    // Async dispose not supported in this .NET?
+			try {
+				m_socket.Dispose();    // Async dispose not supported in this .NET?
+			}
+			catch (Exception ex) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC SOCKET(Dispose) exception: " + ex.Message);
+			};
 		}
 
 	}
