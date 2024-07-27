@@ -588,7 +588,11 @@ namespace FluentFTP {
 				cts.CancelAfter(ReadTimeout);
 				cts.Token.Register(async () => await CloseAsync(token));
 				try {
+#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+					var res = await BaseStream.ReadAsync(buffer.AsMemory(offset, count), cts.Token);
+#else
 					var res = await BaseStream.ReadAsync(buffer, offset, count, cts.Token);
+#endif
 					return res;
 				}
 				catch {
@@ -827,7 +831,11 @@ namespace FluentFTP {
 				return;
 			}
 
+#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+			await BaseStream.WriteAsync(buffer.AsMemory(offset, count), token);
+#else
 			await BaseStream.WriteAsync(buffer, offset, count, token);
+#endif
 			m_lastActivity = DateTime.UtcNow;
 		}
 
