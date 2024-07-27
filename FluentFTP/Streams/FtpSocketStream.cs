@@ -276,16 +276,6 @@ namespace FluentFTP {
 			set => throw new InvalidOperationException();
 		}
 
-		private event FtpSocketStreamSslValidation m_sslvalidate = null;
-
-		/// <summary>
-		/// Event is fired when a SSL certificate needs to be validated
-		/// </summary>
-		public event FtpSocketStreamSslValidation ValidateCertificate {
-			add => m_sslvalidate += value;
-			remove => m_sslvalidate -= value;
-		}
-
 		private int m_readTimeout = Timeout.Infinite;
 
 		/// <summary>
@@ -340,6 +330,16 @@ namespace FluentFTP {
 
 				return (IPEndPoint)m_socket.RemoteEndPoint;
 			}
+		}
+
+		private event FtpSocketStreamSslValidation m_sslvalidate = null;
+
+		/// <summary>
+		/// Event is fired when a SSL certificate needs to be validated
+		/// </summary>
+		public event FtpSocketStreamSslValidation ValidateCertificate {
+			add => m_sslvalidate += value;
+			remove => m_sslvalidate -= value;
 		}
 
 		/// <summary>
