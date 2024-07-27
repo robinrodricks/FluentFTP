@@ -136,11 +136,11 @@ namespace FluentFTP {
 		/// <summary>
 		/// NOOP Daemon Task
 		/// </summary>
-		public Task NoopDaemonTask;
+		public Task NoopDaemonTask { get; set; }
 		/// <summary>
 		/// NOOP Daemon TokenSource
 		/// </summary>
-		public CancellationTokenSource NoopDaemonTokenSource = new CancellationTokenSource();
+		public CancellationTokenSource NoopDaemonTokenSource { get; set; } = new CancellationTokenSource();
 		/// <summary>
 		/// NOOP Daemon enabled
 		/// </summary>
