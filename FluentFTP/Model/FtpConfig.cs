@@ -54,7 +54,7 @@ namespace FluentFTP {
 		public bool LogPassword { get; set; } = false;
 
 		/// <summary>
-		/// Should the command duration be shown after each log command?
+		/// Should the command duration be shown after each logged command?
 		/// </summary>
 		public bool LogDurations { get; set; } = true;
 
@@ -69,6 +69,17 @@ namespace FluentFTP {
 		/// </summary>
 		public FtpIpVersion InternetProtocolVersions { get; set; } = FtpIpVersion.ANY;
 
+		/// <summary>
+		/// Gets or sets a value indicating whether a test should be performed to
+		/// see if there is stale (unrequested data) sitting on the socket. In some
+		/// cases the control connection may time out but before the server closes
+		/// the connection it might send a 4xx response that was unexpected and
+		/// can cause synchronization errors with transactions. To avoid this
+		/// problem the <see cref="o:Execute"/> method checks to see if there is any data
+		/// available on the socket before executing a command.
+		/// </summary>
+		public bool StaleDataCheck { get; set; } = true;
+
 		protected int _socketPollInterval = 15000;
 
 		/// <summary>
@@ -80,47 +91,39 @@ namespace FluentFTP {
 		/// have a negative impact on performance. Setting this
 		/// interval to 0 disables Polling all together.
 		/// The default value is 15 seconds.
+		/// This has been removed and you are encouraged to use
+		/// <see cref="Noop"/> instead, if you are interested in
+		/// avoiding inactivity timeouts or in more aggressive ways
+		/// to detect connection failures.
 		/// </summary>
+		[Obsolete]
 		public int SocketPollInterval {
 			get => _socketPollInterval;
-			set {
-				_socketPollInterval = value;
-				
-				// set this value on the FtpClient's base stream
-				if (_client != null) {
-					var stream = ((IInternalFtpClient)_client).GetBaseStream();
-					if (stream != null) {
-						stream.SocketPollInterval = value;
-					}
-				}
-			}
+			set => _socketPollInterval = value;
 		}
 
 		/// <summary>
-		/// Gets or sets a value indicating whether a test should be performed to
-		/// see if there is stale (unrequested data) sitting on the socket. In some
-		/// cases the control connection may time out but before the server closes
-		/// the connection it might send a 4xx response that was unexpected and
-		/// can cause synchronization errors with transactions. To avoid this
-		/// problem the <see cref="o:Execute"/> method checks to see if there is any data
-		/// available on the socket before executing a command.
-		/// </summary>
-		public bool StaleDataCheck { get; set; } = true;
-		
-		/// <summary>
-		/// Install the NOOP NoopDaemon whenever an FTP connection is established, which ensures that NOOPs are sent at regular intervals.
-		/// This is the master switch for all NOOP functionality.
+		/// Install the NOOP Daemon whenever an FTP connection is established,
+		/// which enables the capability to send NOOP commands at regular intervals when
+		/// the control connections is inactive longer than a set time.
+		/// This is the master switch for all NOOP related functionality.
 		/// </summary>
 		public bool Noop { get; set; } = false;
 
 		/// <summary>
-		/// Gets or sets the length of time in milliseconds after last command
-		/// (NOOP or other) that a NOOP command is sent./>.
-		/// This is called during downloading/uploading and idle times. Setting this
-		/// interval to 0 stops NOOPs from being issued.
-		/// The default value is 3 minutes, which catches the typical 5 minute timeout by FTP servers.
+		/// Gets or sets the length of time in milliseconds of inactivity on the control
+		/// connection that must expire before a NOOP command is sent, both during downloading/uploading
+		/// and during idle times. Setting this interval to 0 stops NOOPs from being issued.
+		/// The default value is 4:30 minutes, which defeats the typical 5 minute timeout of popular FTP
+		/// servers.
+		/// If you are interested in very aggressive detection of connection failures, you may set
+		/// this value to as low as 1000ms.
+		/// Note that many servers nowadays implement a "No-files-transferred" timeout, in order to thwart
+		/// a users attempts to keep the control connection alive. In such a case your code would need to
+		/// schedule a small dummy file transfer from time to time to avoid such a timeout from triggering.
+		/// Regular NOOP commands will not help when your FTP server uses such a strategy.
 		/// </summary>
-		public int NoopInterval { get; set; } = 180000;
+		public int NoopInterval { get; set; } = 270000;
 
 		private List<string> _noopInactiveCmds = new List<string> { "NOOP", "PWD", "TYPE I", "TYPE A" };
 
@@ -145,7 +148,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Issue a NOOP command tp precede any command issued on the control connection
+		/// Issue a NOOP command to precede any command issued on the control connection
 		/// to test connectivity in a reliable fashion. Note: This can incur some control
 		/// connection overhead and does not alleviate inactivity timeouts, it just helps
 		/// to identify connectivity issues early on.
@@ -613,7 +616,6 @@ namespace FluentFTP {
 			write.LogUserName = read.LogUserName;
 			write.LogPassword = read.LogPassword;
 			write.InternetProtocolVersions = read.InternetProtocolVersions;
-			write.SocketPollInterval = read.SocketPollInterval;
 			write.StaleDataCheck = read.StaleDataCheck;
 			write.Noop = read.Noop;
 			write.NoopInterval = read.NoopInterval;

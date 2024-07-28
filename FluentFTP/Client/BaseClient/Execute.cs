@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using FluentFTP.Client.Modules;
 using FluentFTP.Helpers;
 
@@ -26,7 +27,7 @@ namespace FluentFTP.Client.BaseClient {
 				(Config.NoopTestConnectivity
 				 && command != "QUIT"
 				 && IsAuthenticated
-				 && Status.NoopDaemonRunning
+				 && Status.NoopDaemonEnable
 				 && !((IInternalFtpClient)this).IsStillConnectedInternal())) {
 				if (command == "QUIT") {
 					LogWithPrefix(FtpTraceLevel.Info, "Not sending QUIT because the connection has already been closed.");

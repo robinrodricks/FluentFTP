@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,6 +28,9 @@ namespace FluentFTP {
 						m_stream = null;
 					}
 				}
+			}
+			else {
+				LogWithPrefix(FtpTraceLevel.Verbose, "Connection already closed, nothing to do.");
 			}
 		}
 

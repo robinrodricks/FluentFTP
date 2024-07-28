@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient : IDisposable, IInternalFtpClient {
@@ -15,6 +16,12 @@ namespace FluentFTP.Client.BaseClient {
 			Config = config ?? new FtpConfig();
 		}
 
+		/// <summary>
+		/// Creates a new instance of this class. Useful in FTP proxy classes.
+		/// </summary>
+		protected virtual BaseFtpClient Create() {
+			return new BaseFtpClient(null);
+		}
 		#endregion
 
 		#region Clone
@@ -63,7 +70,6 @@ namespace FluentFTP.Client.BaseClient {
 
 		}
 
-
 		#endregion
 
 		#region Destructor
@@ -81,25 +87,18 @@ namespace FluentFTP.Client.BaseClient {
 				}
 			}
 		}
-		/// <summary>
-		/// Check if the host parameter is valid
-		/// </summary>
-		/// <param name="host"></param>
-		protected string ValidateHost(Uri host) {
-			if (host == null) {
-				throw new ArgumentNullException(nameof(host), "Host is required");
-			}
-			if (host.Scheme != Uri.UriSchemeFtp) {
-				throw new ArgumentException("Host is not a valid FTP path");
-			}
-			return host.Host;
-		}
 
-		/// <summary>
-		/// Creates a new instance of this class. Useful in FTP proxy classes.
-		/// </summary>
-		protected virtual BaseFtpClient Create() {
-			return new BaseFtpClient(null);
+		public void WaitForDaemonTermination() {
+			if (Config.Noop) {
+				LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for Daemon termination(" + this.ClientType + ")");
+				Status.NoopDaemonTokenSource.Cancel();
+				DateTime startTime = DateTime.UtcNow;
+				while (Config.Noop && Status.NoopDaemonTask != null && Status.NoopDaemonTask.Status == TaskStatus.Running &&
+					DateTime.UtcNow.Subtract(startTime).TotalMilliseconds < 20000) {
+					Thread.Sleep(250);
+				}
+				LogWithPrefix(FtpTraceLevel.Verbose, "Daemon terminated");
+			}
 		}
 
 		/// <summary>
@@ -111,13 +110,8 @@ namespace FluentFTP.Client.BaseClient {
 				return;
 			}
 
-			// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
-			try {
-				LogFunction(nameof(Dispose));
-				LogWithPrefix(FtpTraceLevel.Verbose, "Disposing(sync) " + this.ClientType);
-			}
-			catch {
-			}
+			LogFunction(nameof(Dispose));
+			LogWithPrefix(FtpTraceLevel.Verbose, "Disposing(sync) " + this.ClientType);
 
 			try {
 				if (IsConnected) {
@@ -133,19 +127,19 @@ namespace FluentFTP.Client.BaseClient {
 				}
 				catch {
 				}
-
-				m_stream = null;
+				finally {
+					m_stream = null;
+				}
 			}
 
-			try {
-				m_credentials = null;
-				m_textEncoding = null;
-				m_host = null;
-			}
-			catch {
-			}
+			m_credentials = null;
+			m_textEncoding = null;
+			m_host = null;
+
+			WaitForDaemonTermination();
 
 			IsDisposed = true;
+
 			GC.SuppressFinalize(this);
 		}
 

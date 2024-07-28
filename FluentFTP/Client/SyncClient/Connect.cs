@@ -85,7 +85,6 @@ namespace FluentFTP {
 
 			m_hashAlgorithms = FtpHashAlgorithm.NONE;
 			m_stream.ConnectTimeout = Config.ConnectTimeout;
-			m_stream.SocketPollInterval = Config.SocketPollInterval;
 			Connect(m_stream);
 
 			m_stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, Config.SocketKeepAlive);
@@ -236,8 +235,12 @@ namespace FluentFTP {
 
 			Status.InCriticalSequence = false;
 
-			if (Config.Noop && !Status.NoopDaemonRunning) {
-				m_task = Task.Run(() => { NoopDaemon(); });
+			if (Config.Noop) {
+				if (Status.NoopDaemonTask == null) {
+					Status.NoopDaemonTask = Task.Factory.StartNew(() => { NoopDaemon(Status.NoopDaemonTokenSource.Token); }, Status.NoopDaemonTokenSource.Token);
+				}
+				Status.NoopDaemonEnable = true;
+				Status.NoopDaemonCmdMode = true;
 			}
 		}
 
