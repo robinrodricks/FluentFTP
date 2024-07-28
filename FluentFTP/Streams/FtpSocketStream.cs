@@ -97,66 +97,50 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Real transitional connection states
+		/// </summary>
+		public FtpRealConnectionStates RealConnectionState { get; set; } = FtpRealConnectionStates.Down;
+
+		/// <summary>
 		/// Gets a value indicating if this socket stream is connected
 		/// </summary>
 		public bool IsConnected {
 			get {
-				try {
-					if (m_socket == null) {
-						return false;
+				if (m_socket == null || !m_socket.Connected || !CanRead || !CanWrite) {
+					if (RealConnectionState != FtpRealConnectionStates.Down) {
+						RealConnectionState = FtpRealConnectionStates.PendingDown;
 					}
+				}
 
-					if (!m_socket.Connected) {
-						Close();
-						return false;
-					}
-
-					if (!CanRead || !CanWrite) {
-						Close();
-						return false;
-					}
-
-					if (m_socketPollInterval > 0 && DateTime.UtcNow.Subtract(m_lastActivity).TotalMilliseconds > m_socketPollInterval) {
-						string connText = this.IsControlConnection ? "control" : "data";
-						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Testing connectivity of " + Client.ClientType + ".FtpSocketStream(" + connText + ") " + " using Socket.Poll()...");
-
-						// FIX : #273 update m_lastActivity to the current time
-						m_lastActivity = DateTime.UtcNow;
-
-						// Poll (SelectRead) returns true if:
-						// Listen has been called and connection is pending (cannot be the case)
-						// Data is available for reading
-						// Connection has been closed, reset or terminated <--- this is the one we want
-						// The ordering in the if-statement is important: Available is updated by the Poll
-						if (m_socket.Poll(500000, SelectMode.SelectRead) && m_socket.Available == 0) {
-							Close();
-							return false;
+				if (RealConnectionState == FtpRealConnectionStates.Unknown) {
+					Thread.Sleep(500);
+					if (RealConnectionState == FtpRealConnectionStates.Unknown) {
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Connection state unknown. Waiting for timeout");
+						DateTime startTime = DateTime.UtcNow;
+						while (RealConnectionState == FtpRealConnectionStates.Unknown &&
+							DateTime.UtcNow.Subtract(startTime).TotalMilliseconds < 20000) {
+							Thread.Sleep(1000);
 						}
 					}
 				}
-				catch (SocketException sockex) {
-					Close();
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "FtpSocketStream.IsConnected: Caught and discarded SocketException while testing for connectivity", sockex);
-					return false;
-				}
-				catch (IOException ioex) {
-					Close();
-					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Warn, "FtpSocketStream.IsConnected: Caught and discarded IOException while testing for connectivity", ioex);
-					return false;
+
+				if (RealConnectionState == FtpRealConnectionStates.PendingDown) {
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Connection state pending down. Closing");
+					if (Client is AsyncFtpClient) {
+						CloseAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+					}
+					else {
+						Close();
+					}
 				}
 
-				return true;
+				// DEBUG ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "IsCOnnected returns: " + (RealConnectionState == FtpRealConnectionStates.Up).ToString() + " " + RealConnectionState.ToString());
+				return RealConnectionState == FtpRealConnectionStates.Up;
 			}
 		}
 
 		/// <summary>
 		/// Used for tracking read/write activity on the socket
-		/// to determine if Poll() should be used to test for
-		/// socket connectivity. The socket in this class will
-		/// not know it has been disconnected if the remote host
-		/// closes the connection first. Using Poll() avoids
-		/// the exception that would be thrown when trying to
-		/// read or write to the disconnected socket.
 		/// </summary>
 		private DateTime m_lastActivity = DateTime.UtcNow;
 
@@ -168,22 +152,6 @@ namespace FluentFTP {
 		protected Socket Socket {
 			get => m_socket;
 			private set => m_socket = value;
-		}
-
-		private int m_socketPollInterval = 15000;
-
-		/// <summary>
-		/// Gets or sets the length of time in milliseconds
-		/// that must pass since the last socket activity
-		/// before calling Poll() on the socket to test for
-		/// connectivity. Setting this interval too low will
-		/// have a negative impact on performance. Setting this
-		/// interval to 0 disables Poll()'ing all together.
-		/// The default value is 15 seconds.
-		/// </summary>
-		public int SocketPollInterval {
-			get => m_socketPollInterval;
-			set => m_socketPollInterval = value;
 		}
 
 		/// <summary>
@@ -425,14 +393,6 @@ namespace FluentFTP {
 		/// Flushes the stream
 		/// </summary>
 		public override void Flush() {
-			if (!IsConnected) {
-				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
-			}
-
-			if (BaseStream == null) {
-				throw new InvalidOperationException("The base stream of the FtpSocketStream object is null.");
-			}
-
 			BaseStream.Flush();
 		}
 
@@ -441,14 +401,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
 		public override async Task FlushAsync(CancellationToken token) {
-			if (!IsConnected) {
-				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
-			}
-
-			if (BaseStream == null) {
-				throw new InvalidOperationException("The base stream of the FtpSocketStream object is null.");
-			}
-
 			await BaseStream.FlushAsync(token);
 		}
 
@@ -467,7 +419,27 @@ namespace FluentFTP {
 			return read;
 		}
 
-#if NETFRAMEWORK
+#if NETSTANDARD || NET5_0_OR_GREATER
+		/// <summary>
+		/// Bypass the stream and read directly off the socket.
+		/// </summary>
+		/// <param name="buffer">The buffer to read into</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <returns>The number of bytes read</returns>
+		internal async Task<int> RawSocketReadAsync(byte[] buffer, CancellationToken token) {
+			var read = 0;
+
+			if (m_socket != null && m_socket.Connected && !token.IsCancellationRequested) {
+#if NET6_0_OR_GREATER
+				read = await m_socket.ReceiveAsync(buffer, 0, token);
+#else
+				read = await m_socket.ReceiveAsync(new ArraySegment<byte>(buffer), 0);
+#endif
+			}
+
+			return read;
+		}
+#else
 		/// <summary>
 		/// Bypass the stream and read directly off the socket.
 		/// </summary>
@@ -484,28 +456,6 @@ namespace FluentFTP {
 					token,
 					() => DisposeSocket()
 				);
-			}
-
-			return read;
-		}
-#endif
-
-#if !NETFRAMEWORK
-		/// <summary>
-		/// Bypass the stream and read directly off the socket.
-		/// </summary>
-		/// <param name="buffer">The buffer to read into</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>The number of bytes read</returns>
-		internal async Task<int> RawSocketReadAsync(byte[] buffer, CancellationToken token) {
-			var read = 0;
-
-			if (m_socket != null && m_socket.Connected && !token.IsCancellationRequested) {
-#if NET6_0_OR_GREATER
-				read = await m_socket.ReceiveAsync(buffer, 0, token);
-#else
-				read = await m_socket.ReceiveAsync(new ArraySegment<byte>(buffer), 0);
-#endif
 			}
 
 			return read;
@@ -1013,11 +963,14 @@ namespace FluentFTP {
 				throw new IOException("Failed to connect to host.");
 			}
 
+
 			SetCachedHostAddresses(host, ipad);
 
 			m_netStream = new NetworkStream(m_socket);
 			m_netStream.ReadTimeout = m_readTimeout;
 			m_lastActivity = DateTime.UtcNow;
+
+			RealConnectionState = FtpRealConnectionStates.Up;
 
 			if (!IsControlConnection) {
 				// the NOOP daemon needs to know this
@@ -1161,6 +1114,8 @@ namespace FluentFTP {
 			m_netStream = new NetworkStream(m_socket);
 			m_netStream.ReadTimeout = m_readTimeout;
 			m_lastActivity = DateTime.UtcNow;
+
+			RealConnectionState = FtpRealConnectionStates.Up;
 
 			if (!IsControlConnection) {
 				// the NOOP daemon needs to know this
@@ -1647,14 +1602,13 @@ namespace FluentFTP {
 				Client.Status.NoopDaemonCmdMode = true;
 			}
 
-			if (IsDisposed) {
-				return;
-			}
+			RealConnectionState = FtpRealConnectionStates.Down;
 
 			string connText = IsControlConnection ? "control" : "data";
+			string reduText = this.IsDisposed ? " (redundant)" : string.Empty;
 
 			if (Client != null) {
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) " + Client.ClientType + ".FtpSocketStream(" + connText + ")");
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) " + Client.ClientType + ".FtpSocketStream(" + connText + ")" + reduText);
 			}
 
 			// TODO: To support the CCC (Deactivate Encryption) command, some more additional logic
@@ -1765,20 +1719,22 @@ namespace FluentFTP {
 #endif
 			if (IsControlConnection) {
 				Client.Status.NoopDaemonEnable = false;
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "NoopDaemon disabled");
 			}
 			else {
 				Client.Status.NoopDaemonCmdMode = true;
 			}
 
-			if (IsDisposed) {
-				return;
-			}
+			RealConnectionState = FtpRealConnectionStates.Down;
 
 			string connText = this.IsControlConnection ? "control" : "data";
+			string reduText = this.IsDisposed ? " (redundant)" : string.Empty;
 
 			if (Client != null) {
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(async) " + Client.ClientType + ".FtpSocketStream(" + connText + ")");
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(async) " + Client.ClientType + ".FtpSocketStream(" + connText + ")" + reduText);
 			}
+
+			// DEBUG ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, new System.Diagnostics.StackTrace().ToString());
 
 			// TODO: To support the CCC (Deactivate Encryption) command, some more additional logic
 			// is required and note that CustomStream GnuTLS currently does not support this at all.

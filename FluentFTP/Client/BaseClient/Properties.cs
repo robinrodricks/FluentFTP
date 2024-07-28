@@ -100,11 +100,6 @@ namespace FluentFTP.Client.BaseClient {
 
 		protected FtpListParser CurrentListParser;
 
-		/// <summary>
-		/// A thread for background tasks
-		/// </summary>
-		protected Task m_task;
-
 		// Holds the cached resolved address
 		protected string m_Address;
 
@@ -139,6 +134,7 @@ namespace FluentFTP.Client.BaseClient {
 		FtpSocketStream IInternalFtpClient.GetBaseStream() {
 			return m_stream;
 		}
+
 		void IInternalFtpClient.SetListingParser(FtpParser parser) {
 			CurrentListParser.CurrentParser = parser;
 			CurrentListParser.ParserConfirmed = false;
