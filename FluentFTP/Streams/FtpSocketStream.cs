@@ -1603,6 +1603,7 @@ namespace FluentFTP {
 			}
 
 			if (IsDisposed) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught redundant SYNC DISPOSE");
 				return;
 			}
 
@@ -1726,6 +1727,7 @@ namespace FluentFTP {
 			}
 
 			if (IsDisposed) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught redundant ASYNC dispose");
 				return;
 			}
 
