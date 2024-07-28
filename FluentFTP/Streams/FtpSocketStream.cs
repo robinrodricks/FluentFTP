@@ -99,7 +99,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Real transitional connection states
 		/// </summary>
-		public FtpRealConnectionStates RealConnectionState { get; set; } = FtpRealConnectionStates.Unknown;
+		public FtpRealConnectionStates RealConnectionState { get; set; } = FtpRealConnectionStates.Down;
 
 		/// <summary>
 		/// Gets a value indicating if this socket stream is connected
