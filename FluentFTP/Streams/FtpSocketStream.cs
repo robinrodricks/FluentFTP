@@ -393,14 +393,6 @@ namespace FluentFTP {
 		/// Flushes the stream
 		/// </summary>
 		public override void Flush() {
-			if (!IsConnected) {
-				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
-			}
-
-			if (BaseStream == null) {
-				throw new InvalidOperationException("The base stream of the FtpSocketStream object is null.");
-			}
-
 			BaseStream.Flush();
 		}
 
@@ -409,14 +401,6 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="token">The <see cref="CancellationToken"/> for this task</param>
 		public override async Task FlushAsync(CancellationToken token) {
-			if (!IsConnected) {
-				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
-			}
-
-			if (BaseStream == null) {
-				throw new InvalidOperationException("The base stream of the FtpSocketStream object is null.");
-			}
-
 			await BaseStream.FlushAsync(token);
 		}
 
