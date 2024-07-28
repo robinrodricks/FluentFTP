@@ -435,7 +435,27 @@ namespace FluentFTP {
 			return read;
 		}
 
-#if NETFRAMEWORK
+#if NETSTANDARD || NET5_0_OR_GREATER
+		/// <summary>
+		/// Bypass the stream and read directly off the socket.
+		/// </summary>
+		/// <param name="buffer">The buffer to read into</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <returns>The number of bytes read</returns>
+		internal async Task<int> RawSocketReadAsync(byte[] buffer, CancellationToken token) {
+			var read = 0;
+
+			if (m_socket != null && m_socket.Connected && !token.IsCancellationRequested) {
+#if NET6_0_OR_GREATER
+				read = await m_socket.ReceiveAsync(buffer, 0, token);
+#else
+				read = await m_socket.ReceiveAsync(new ArraySegment<byte>(buffer), 0);
+#endif
+			}
+
+			return read;
+		}
+#else
 		/// <summary>
 		/// Bypass the stream and read directly off the socket.
 		/// </summary>
@@ -452,28 +472,6 @@ namespace FluentFTP {
 					token,
 					() => DisposeSocket()
 				);
-			}
-
-			return read;
-		}
-#endif
-
-#if !NETFRAMEWORK
-		/// <summary>
-		/// Bypass the stream and read directly off the socket.
-		/// </summary>
-		/// <param name="buffer">The buffer to read into</param>
-		/// <param name="token">The token that can be used to cancel the entire process</param>
-		/// <returns>The number of bytes read</returns>
-		internal async Task<int> RawSocketReadAsync(byte[] buffer, CancellationToken token) {
-			var read = 0;
-
-			if (m_socket != null && m_socket.Connected && !token.IsCancellationRequested) {
-#if NET6_0_OR_GREATER
-				read = await m_socket.ReceiveAsync(buffer, 0, token);
-#else
-				read = await m_socket.ReceiveAsync(new ArraySegment<byte>(buffer), 0);
-#endif
 			}
 
 			return read;
