@@ -18,8 +18,6 @@ namespace FluentFTP.Client.BaseClient {
 			Status.NoopDaemonAnyNoops = 0;
 			Status.NoopDaemonCmdMode = true;
 
-			bool gotEx = false;
-
 			do { // while(true)
 
 				if (ct.IsCancellationRequested) {
@@ -30,6 +28,8 @@ namespace FluentFTP.Client.BaseClient {
 					Status.NoopDaemonEnable) {
 
 					m_daemonSemaphore.Wait(ct);
+
+					bool gotEx = false;
 
 					if (Config.NoopInterval > 0 &&
 						DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval) {
@@ -78,15 +78,15 @@ namespace FluentFTP.Client.BaseClient {
 									}
 									finally {
 										LastCommandTimestamp = DateTime.UtcNow;
-										m_stream.RealConnectionState = FtpRealConnectionStates.Up;
 									}
 
-									// in case one of these commands was successfully issued, make sure we store that
 									if (success) {
+										m_stream.RealConnectionState = FtpRealConnectionStates.Up;
+
+										// in case one of these commands was successfully issued, make sure we store that
 										if (rndCmd.StartsWith("TYPE I")) {
 											Status.CurrentDataType = FtpDataType.Binary;
 										}
-
 										if (rndCmd.StartsWith("TYPE A")) {
 											Status.CurrentDataType = FtpDataType.ASCII;
 										}
@@ -100,12 +100,10 @@ namespace FluentFTP.Client.BaseClient {
 						}
 					}
 
-
 					if (gotEx) {
 						((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Indicating connection lost (NoopDaemon)");
 						Status.NoopDaemonEnable = false;
 						m_stream.RealConnectionState = FtpRealConnectionStates.PendingDown;
-						gotEx = false;
 					}
 
 					m_daemonSemaphore.Release();
