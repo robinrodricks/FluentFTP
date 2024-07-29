@@ -112,17 +112,6 @@ namespace FluentFTP {
 					}
 				}
 
-				if (RealConnectionState == FtpRealConnectionStates.PendingDown) {
-					if (Client is AsyncFtpClient) {
-						CloseAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-					}
-					else {
-						Close();
-					}
-					RealConnectionState = FtpRealConnectionStates.Down;
-					return false;
-				}
-
 				if (RealConnectionState == FtpRealConnectionStates.Unknown) {
 					Thread.Sleep(500);
 					if (RealConnectionState == FtpRealConnectionStates.Unknown) {
@@ -133,6 +122,17 @@ namespace FluentFTP {
 							Thread.Sleep(1000);
 						}
 					}
+				}
+
+				if (RealConnectionState == FtpRealConnectionStates.PendingDown) {
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Connection state pending down. Closing");
+					if (Client is AsyncFtpClient) {
+						CloseAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+					}
+					else {
+						Close();
+					}
+					RealConnectionState = FtpRealConnectionStates.Down;
 				}
 
 				return RealConnectionState == FtpRealConnectionStates.Up;
