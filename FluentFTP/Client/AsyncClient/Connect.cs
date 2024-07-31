@@ -241,7 +241,6 @@ namespace FluentFTP {
 				if (Status.NoopDaemonTask == null) {
 					Status.NoopDaemonTask = Task.Factory.StartNew(() => { NoopDaemon(Status.NoopDaemonTokenSource.Token); }, Status.NoopDaemonTokenSource.Token);
 				}
-				LastCommandTimestamp = DateTime.UtcNow;
 				Status.NoopDaemonEnable = true;
 				Status.NoopDaemonCmdMode = true;
 				LogWithPrefix(FtpTraceLevel.Verbose, "NoopDaemon enabled");
