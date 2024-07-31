@@ -132,23 +132,11 @@ namespace FluentFTP {
 #else
 		protected virtual async Task DisposeAsyncCore() {
 #endif
-			try {
-				if (IsConnected) {
-					await Disconnect();
-				}
-			}
-			catch {
-			}
+			await Disconnect();
 
 			if (m_stream != null) {
-				try {
-					await m_stream.CloseAsync();
-				}
-				catch {
-				}
-				finally {
-					m_stream = null;
-				}
+				await m_stream.CloseAsync();
+				m_stream = null;
 			}
 
 			m_credentials = null;

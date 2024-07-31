@@ -93,7 +93,7 @@ namespace FluentFTP.Client.BaseClient {
 				LogWithPrefix(FtpTraceLevel.Verbose, "Waiting for Daemon termination(" + this.ClientType + ")");
 				Status.NoopDaemonTokenSource.Cancel();
 				DateTime startTime = DateTime.UtcNow;
-				while (Config.Noop && Status.NoopDaemonTask != null && Status.NoopDaemonTask.Status == TaskStatus.Running &&
+				while (Status.NoopDaemonTask != null && Status.NoopDaemonTask.Status == TaskStatus.Running &&
 					DateTime.UtcNow.Subtract(startTime).TotalMilliseconds < 20000) {
 					Thread.Sleep(250);
 				}
@@ -113,23 +113,11 @@ namespace FluentFTP.Client.BaseClient {
 			LogFunction(nameof(Dispose));
 			LogWithPrefix(FtpTraceLevel.Verbose, "Disposing(sync) " + this.ClientType);
 
-			try {
-				if (IsConnected) {
-					((IInternalFtpClient)this).DisconnectInternal();
-				}
-			}
-			catch {
-			}
+			((IInternalFtpClient)this).DisconnectInternal();
 
 			if (m_stream != null) {
-				try {
-					m_stream.Dispose();
-				}
-				catch {
-				}
-				finally {
-					m_stream = null;
-				}
+				m_stream.Dispose();
+				m_stream = null;
 			}
 
 			m_credentials = null;
