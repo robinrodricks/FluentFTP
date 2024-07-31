@@ -324,15 +324,6 @@ namespace FluentFTP.Client.BaseClient {
 			protected set => m_hashAlgorithms = value;
 		}
 
-		///// <summary>
-		///// The negotiated SSL/TLS protocol version.
-		///// Will return a valid value after connection is complete.
-		///// Before connection it will return `SslProtocols.None`.
-		///// </summary>
-		//public SslProtocols SslProtocolActive {
-		//	get { return m_stream != null ? m_stream.SslProtocolActive : SslProtocols.None; }
-		//}
-
 		/// <summary>
 		/// Checks if FTPS/SSL encryption is currently active.
 		/// Useful to see if your server supports FTPS, when using FtpEncryptionMode.Auto. 
