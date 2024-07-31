@@ -1596,7 +1596,10 @@ namespace FluentFTP {
 		/// </summary>
 		protected new void Dispose() {
 			if (IsControlConnection) {
-				Client.Status.NoopDaemonEnable = false;
+				if (Client.Status.NoopDaemonEnable) {
+					Client.Status.NoopDaemonEnable = false;
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "NoopDaemon disabled");
+				}
 			}
 			else {
 				Client.Status.NoopDaemonCmdMode = true;
@@ -1718,8 +1721,10 @@ namespace FluentFTP {
 		protected async Task DisposeAsyncCore() {
 #endif
 			if (IsControlConnection) {
-				Client.Status.NoopDaemonEnable = false;
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "NoopDaemon disabled");
+				if (Client.Status.NoopDaemonEnable) {
+					Client.Status.NoopDaemonEnable = false;
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "NoopDaemon disabled");
+				}
 			}
 			else {
 				Client.Status.NoopDaemonCmdMode = true;
