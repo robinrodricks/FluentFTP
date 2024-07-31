@@ -10,7 +10,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		protected void NoopDaemon(CancellationToken ct) {
 
-			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "NoopDaemon(" + this.ClientType + ") is initialized, NoopInterval = " + Config.NoopInterval);
+			((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "NoopDaemon(" + this.ClientType + ") is initialized, NoopInterval = " + Config.NoopInterval + "ms");
 
 			Random rnd = new Random();
 
