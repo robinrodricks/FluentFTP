@@ -24,15 +24,16 @@ namespace FluentFTP.Client.BaseClient {
 					break;
 				}
 
-				if (m_stream.RealConnectionState == FtpRealConnectionStates.Up &&
+				if (m_stream != null &&
+					m_stream.RealConnectionState == FtpRealConnectionStates.Up &&
 					Status.NoopDaemonEnable) {
-
-					m_daemonSemaphore.Wait(ct);
 
 					bool gotEx = false;
 
 					if (Config.NoopInterval > 0 &&
 						DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval) {
+
+						m_daemonSemaphore.Wait(ct);
 
 						try {
 							// choose one of the normal or the safe commands
@@ -98,6 +99,8 @@ namespace FluentFTP.Client.BaseClient {
 							((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Got exception (#3): " + ex.Message + " (NoopDaemon)");
 							gotEx = true;
 						}
+
+						m_daemonSemaphore.Release();
 					}
 
 					if (gotEx) {
@@ -106,7 +109,6 @@ namespace FluentFTP.Client.BaseClient {
 						m_stream.RealConnectionState = FtpRealConnectionStates.PendingDown;
 					}
 
-					m_daemonSemaphore.Release();
 
 				}
 

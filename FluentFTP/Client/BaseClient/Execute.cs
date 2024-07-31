@@ -69,7 +69,6 @@ namespace FluentFTP.Client.BaseClient {
 					}
 
 					m_stream.Close();
-					m_stream = null;
 				}
 
 				if (command == "QUIT") {

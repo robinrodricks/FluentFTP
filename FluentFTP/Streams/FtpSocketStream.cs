@@ -132,9 +132,9 @@ namespace FluentFTP {
 					else {
 						Close();
 					}
-					RealConnectionState = FtpRealConnectionStates.Down;
 				}
 
+				// DEBUG ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "IsCOnnected returns: " + (RealConnectionState == FtpRealConnectionStates.Up).ToString() + " " + RealConnectionState.ToString());
 				return RealConnectionState == FtpRealConnectionStates.Up;
 			}
 		}
@@ -1602,15 +1602,13 @@ namespace FluentFTP {
 				Client.Status.NoopDaemonCmdMode = true;
 			}
 
-			if (IsDisposed) {
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught redundant SYNC DISPOSE");
-				return;
-			}
+			RealConnectionState = FtpRealConnectionStates.Down;
 
 			string connText = IsControlConnection ? "control" : "data";
+			string reduText = this.IsDisposed ? " (redundant)" : string.Empty;
 
 			if (Client != null) {
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) " + Client.ClientType + ".FtpSocketStream(" + connText + ")");
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) " + Client.ClientType + ".FtpSocketStream(" + connText + ")" + reduText);
 			}
 
 			// TODO: To support the CCC (Deactivate Encryption) command, some more additional logic
@@ -1721,21 +1719,22 @@ namespace FluentFTP {
 #endif
 			if (IsControlConnection) {
 				Client.Status.NoopDaemonEnable = false;
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "NoopDaemon disabled");
 			}
 			else {
 				Client.Status.NoopDaemonCmdMode = true;
 			}
 
-			if (IsDisposed) {
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught redundant ASYNC dispose");
-				return;
-			}
+			RealConnectionState = FtpRealConnectionStates.Down;
 
 			string connText = this.IsControlConnection ? "control" : "data";
+			string reduText = this.IsDisposed ? " (redundant)" : string.Empty;
 
 			if (Client != null) {
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(async) " + Client.ClientType + ".FtpSocketStream(" + connText + ")");
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(async) " + Client.ClientType + ".FtpSocketStream(" + connText + ")" + reduText);
 			}
+
+			// DEBUG ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, new System.Diagnostics.StackTrace().ToString());
 
 			// TODO: To support the CCC (Deactivate Encryption) command, some more additional logic
 			// is required and note that CustomStream GnuTLS currently does not support this at all.

@@ -142,7 +142,7 @@ namespace FluentFTP {
 
 			if (m_stream != null) {
 				try {
-					await m_stream.DisposeAsync();
+					await m_stream.CloseAsync();
 				}
 				catch {
 				}

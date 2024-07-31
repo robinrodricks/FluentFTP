@@ -74,7 +74,6 @@ namespace FluentFTP {
 					}
 
 					await m_stream.CloseAsync(token);
-					m_stream = null;
 				}
 
 				if (command == "QUIT") {
