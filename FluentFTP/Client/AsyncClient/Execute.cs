@@ -20,7 +20,7 @@ namespace FluentFTP {
 			bool reconnect = false;
 			string reconnectReason = string.Empty;
 
-			m_daemonSemaphore.Wait(token);
+			await m_daemonSemaphore.WaitAsync(token);
 			m_daemonSemaphore.Release();
 
 			// Automatic reconnect because we lost the control channel?
