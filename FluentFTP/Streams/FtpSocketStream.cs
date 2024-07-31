@@ -134,7 +134,6 @@ namespace FluentFTP {
 					}
 				}
 
-				// DEBUG ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "IsCOnnected returns: " + (RealConnectionState == FtpRealConnectionStates.Up).ToString() + " " + RealConnectionState.ToString());
 				return RealConnectionState == FtpRealConnectionStates.Up;
 			}
 		}
@@ -1731,8 +1730,6 @@ namespace FluentFTP {
 			if (Client != null) {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(async) " + Client.ClientType + ".FtpSocketStream(" + connText + ")" + reduText);
 			}
-
-			// DEBUG ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, new System.Diagnostics.StackTrace().ToString());
 
 			// TODO: To support the CCC (Deactivate Encryption) command, some more additional logic
 			// is required and note that CustomStream GnuTLS currently does not support this at all.
