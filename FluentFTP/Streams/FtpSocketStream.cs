@@ -206,19 +206,20 @@ namespace FluentFTP {
 		/// </summary>
 		public int SslSessionLength = 0;
 
-		/// <summary>
-		/// The negotiated SSL/TLS protocol version. Will have a valid value after connection is complete.
-		/// </summary>
-		public SslProtocols SslProtocolActive {
-			get {
-				if (Client.Config.CustomStream != null) {
-					return IsEncrypted ? m_customStream.GetSslProtocol() : SslProtocols.None;
-				}
-				else {
-					return IsEncrypted ? m_sslStream.SslProtocol : SslProtocols.None;
-				}
-			}
-		}
+		///// <summary>
+		///// The negotiated SSL/TLS protocol version. Will have a valid value after connection is complete.
+		///// </summary>
+		//public SslProtocols SslProtocolActive {
+		//	get {
+		//		if (Client.Config.CustomStream != null) {
+		//			return IsEncrypted ? m_customStream.GetSslProtocol() : SslProtocols.None;
+		//		}
+		//		else {
+		//			return IsEncrypted ? m_sslStream.SslProtocol : SslProtocols.None;
+		//		}
+		//	}
+		//}
+
 		/// <summary>
 		/// Gets a value indicating if this stream can be read
 		/// </summary>
