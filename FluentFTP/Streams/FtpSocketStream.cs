@@ -175,19 +175,6 @@ namespace FluentFTP {
 		public int SslSessionLength = 0;
 
 		/// <summary>
-		/// The negotiated SSL/TLS protocol version. Will have a valid value after connection is complete.
-		/// </summary>
-		public SslProtocols SslProtocolActive {
-			get {
-				if (Client.Config.CustomStream != null) {
-					return IsEncrypted ? m_customStream.GetSslProtocol() : SslProtocols.None;
-				}
-				else {
-					return IsEncrypted ? m_sslStream.SslProtocol : SslProtocols.None;
-				}
-			}
-		}
-		/// <summary>
 		/// Gets a value indicating if this stream can be read
 		/// </summary>
 		public override bool CanRead {
@@ -528,7 +515,6 @@ namespace FluentFTP {
 			m_lastActivity = DateTime.UtcNow;
 			using (var cts = CancellationTokenSource.CreateLinkedTokenSource(token)) {
 				cts.CancelAfter(ReadTimeout);
-				cts.Token.Register(async () => await CloseAsync(token));
 				try {
 #if NETSTANDARD2_1 || NET5_0_OR_GREATER
 					var res = await BaseStream.ReadAsync(buffer.AsMemory(offset, count), cts.Token);
@@ -538,6 +524,10 @@ namespace FluentFTP {
 					return res;
 				}
 				catch {
+					if (cts.IsCancellationRequested) {
+						await CloseAsync(token);
+					}
+    
 					// CTS for Cancellation triggered and caused the exception
 					if (token.IsCancellationRequested) {
 						throw new OperationCanceledException("Cancelled read from socket stream");
