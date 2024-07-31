@@ -144,14 +144,14 @@ namespace FluentFTP {
 		/// <summary>
 		/// NOOP Daemon enabled
 		/// </summary>
-		public bool NoopDaemonEnable { get; set; }
+		public bool NoopDaemonEnable { get; set; } = false;
 		/// <summary>
 		/// NOOP Daemon sent noops
 		/// </summary>
-		public int NoopDaemonAnyNoops { get; set; }
+		public int NoopDaemonAnyNoops { get; set; } = 0;
 		/// <summary>
 		/// NOOP Daemon should GetReply
 		/// </summary>
-		public bool NoopDaemonCmdMode { get; set; }
+		public bool NoopDaemonCmdMode { get; set; } = true;
 	}
 }
