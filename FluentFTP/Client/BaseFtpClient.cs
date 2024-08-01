@@ -131,13 +131,6 @@ namespace FluentFTP.Client.BaseClient {
 			GC.SuppressFinalize(this);
 		}
 
-		/// <summary>
-		/// Finalizer
-		/// </summary>
-		~BaseFtpClient() {
-			Dispose();
-		}
-
 		#endregion
 
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
