@@ -232,10 +232,10 @@ namespace FluentFTP {
 		~FtpDataStream() {
 			try {
 				if (Client is AsyncFtpClient) {
-					DisposeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+					CloseAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 				}
 				else {
-					Dispose();
+					Close();
 				}
 			}
 			catch (Exception ex) {
