@@ -197,9 +197,6 @@ namespace FluentFTP {
 				if (Config.Noop) {
 					successText += ", " + Status.NoopDaemonAnyNoops + " NOOPs";
 				}
-				//if (Config.Poll) {
-				//	successText += ", " + Status.PollDaemonAnyPolls + " POLLs";
-				//}
 				LogWithPrefix(FtpTraceLevel.Verbose, successText);
 
 				// disconnect FTP streams before exiting

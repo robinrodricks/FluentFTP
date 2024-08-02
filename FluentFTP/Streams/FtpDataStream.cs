@@ -230,7 +230,6 @@ namespace FluentFTP {
 		/// Finalizer
 		/// </summary>
 		~FtpDataStream() {
-			// Fix: Hard catch and suppress all exceptions during disposing as there are constant issues with this method
 			try {
 				if (Client is AsyncFtpClient) {
 					DisposeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
@@ -239,7 +238,8 @@ namespace FluentFTP {
 					Dispose();
 				}
 			}
-			catch {
+			catch (Exception ex) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught DATASTREAM(Dispose) exception: " + ex.Message);
 			}
 		}
 	}
