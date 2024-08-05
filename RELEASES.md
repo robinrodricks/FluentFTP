@@ -1,5 +1,27 @@
 # Release Notes
 
+#### 51.0.0
+
+ - **Connection**
+   - New: Accurate FTP connection status tracking with the help of `NoopDaemon` (integrated into `IsConnected` API)
+   - New: Enum `FtpConnection` to track FTP socket connection state
+   - Improve: IsConnected: Handle sync/async close situations and remove unwanted `Poll` calls
+   - Improve: Detailed logging of Close/Dispose failures for improved error reporting in user logs
+   - Fix: Regression where multiple sequential connects/disconnects crash the FTP Client
+ - **File Listing**
+   - Fix: DrFtpd sends invalid FTP response `550` when folder exists but is empty
+ - **File Transfer**
+   - Improve: Upload/Download speed calculation and improve handling of divide by zero errors
+   - Improve: Upload/Download log message format 
+   - Improve: Improve file transfer performance by using the new `AsMemory` API for reading/writing data from/to the FTP socket stream in .NET 5+
+ - **Core**
+   - Remove: `Config.SocketPollInterval` setting, because it is no longer used or required
+   - Improve: Dozens of log messages throughout the internal socket handling subsystem
+   - Improve: Documentation for `GetReply` core function
+   - Fix: Pass missing cancellation token in async `Execute` API
+   - Change: Disposing log messages are now Verbose instead of Warning
+   - Fix: Uncatchable exceptions after cancellation of read in `FtpSocketStream`
+   
 #### 50.1.0
 
  - **File Upload**
