@@ -1,7 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -26,9 +23,11 @@ namespace FluentFTP {
 					// from the remote side, thus causing an exception here, so check for null
 					if (m_stream != null) {
 						m_stream.Close();
-						m_stream = null;
 					}
 				}
+			}
+			else {
+				LogWithPrefix(FtpTraceLevel.Verbose, "Connection already closed, nothing to do.");
 			}
 		}
 

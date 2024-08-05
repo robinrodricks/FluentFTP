@@ -106,8 +106,6 @@ namespace FluentFTP.Client.BaseClient {
 			try {
 
 				if (exhaustNoop) {
-					Status.NoopDaemonEnable = false;
-
 					// tickle the server
 					m_stream.WriteLine(Encoding, "NOOP");
 				}
@@ -115,7 +113,7 @@ namespace FluentFTP.Client.BaseClient {
 				sw.Start();
 
 				do {
-					if (!IsConnected) {
+					if (useSema && !IsConnected) {
 						throw new InvalidOperationException("No connection to the server exists.");
 					}
 
@@ -215,7 +213,6 @@ namespace FluentFTP.Client.BaseClient {
 					LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) sequence: " + sequence.TrimStart(','));
 				}
 
-				Status.NoopDaemonEnable = true;
 
 			}
 			finally {
@@ -328,8 +325,6 @@ namespace FluentFTP.Client.BaseClient {
 			try {
 
 				if (exhaustNoop) {
-					Status.NoopDaemonEnable = false;
-
 					// tickle the server
 					m_stream.WriteLine(Encoding, "NOOP");
 				}
@@ -337,7 +332,7 @@ namespace FluentFTP.Client.BaseClient {
 				sw.Start();
 
 				do {
-					if (!IsConnected) {
+					if (useSema && !IsConnected) {
 						throw new InvalidOperationException("No connection to the server exists.");
 					}
 
@@ -436,8 +431,6 @@ namespace FluentFTP.Client.BaseClient {
 				if (exhaustNoop) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) sequence: " + sequence.TrimStart(','));
 				}
-
-				Status.NoopDaemonEnable = true;
 
 			}
 			finally {
