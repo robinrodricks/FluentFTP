@@ -25,7 +25,7 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				if (m_stream != null &&
-					m_stream.ConnectionState == FtpConnection.Connected &&
+					m_stream.ConnectionState == FtpConnectionState.Connected &&
 					Status.NoopDaemonEnable) {
 
 					bool gotEx = false;
@@ -68,7 +68,7 @@ namespace FluentFTP.Client.BaseClient {
 								if (Status.NoopDaemonCmdMode) {
 									bool success = false;
 
-									m_stream.ConnectionState = FtpConnection.Unknown;
+									m_stream.ConnectionState = FtpConnectionState.Unknown;
 
 									try {
 										success = ((IInternalFtpClient)this).GetReplyInternal(rndCmd + " (<-NoopDaemon)", false, 10000, false).Success;
@@ -82,7 +82,7 @@ namespace FluentFTP.Client.BaseClient {
 									}
 
 									if (success) {
-										m_stream.ConnectionState = FtpConnection.Connected;
+										m_stream.ConnectionState = FtpConnectionState.Connected;
 
 										// in case one of these commands was successfully issued, make sure we store that
 										if (rndCmd.StartsWith("TYPE I")) {
@@ -106,7 +106,7 @@ namespace FluentFTP.Client.BaseClient {
 					if (gotEx) {
 						((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Indicating connection lost (NoopDaemon)");
 						Status.NoopDaemonEnable = false;
-						m_stream.ConnectionState = FtpConnection.PendingDisconnect;
+						m_stream.ConnectionState = FtpConnectionState.PendingDisconnect;
 					}
 
 

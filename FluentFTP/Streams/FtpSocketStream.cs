@@ -99,7 +99,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Actual connection state from the FTP client to the FTP server, as determined by the NOOP Deamon.
 		/// </summary>
-		public FtpConnection ConnectionState { get; set; } = FtpConnection.Disconnected;
+		public FtpConnectionState ConnectionState { get; set; } = FtpConnectionState.Disconnected;
 
 		/// <summary>
 		/// Gets a value indicating if this socket stream is connected
@@ -107,24 +107,24 @@ namespace FluentFTP {
 		public bool IsConnected {
 			get {
 				if (m_socket == null || !m_socket.Connected || !CanRead || !CanWrite) {
-					if (ConnectionState != FtpConnection.Disconnected) {
-						ConnectionState = FtpConnection.PendingDisconnect;
+					if (ConnectionState != FtpConnectionState.Disconnected) {
+						ConnectionState = FtpConnectionState.PendingDisconnect;
 					}
 				}
 
-				if (ConnectionState == FtpConnection.Unknown) {
+				if (ConnectionState == FtpConnectionState.Unknown) {
 					Thread.Sleep(500);
-					if (ConnectionState == FtpConnection.Unknown) {
+					if (ConnectionState == FtpConnectionState.Unknown) {
 						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Connection state unknown. Waiting for timeout");
 						DateTime startTime = DateTime.UtcNow;
-						while (ConnectionState == FtpConnection.Unknown &&
+						while (ConnectionState == FtpConnectionState.Unknown &&
 							DateTime.UtcNow.Subtract(startTime).TotalMilliseconds < 20000) {
 							Thread.Sleep(1000);
 						}
 					}
 				}
 
-				if (ConnectionState == FtpConnection.PendingDisconnect) {
+				if (ConnectionState == FtpConnectionState.PendingDisconnect) {
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Connection state pending down. Closing");
 					if (Client is AsyncFtpClient) {
 						CloseAsync().ConfigureAwait(false).GetAwaiter().GetResult();
@@ -134,7 +134,7 @@ namespace FluentFTP {
 					}
 				}
 
-				return ConnectionState == FtpConnection.Connected;
+				return ConnectionState == FtpConnectionState.Connected;
 			}
 		}
 
@@ -962,7 +962,7 @@ namespace FluentFTP {
 			m_netStream.ReadTimeout = m_readTimeout;
 			m_lastActivity = DateTime.UtcNow;
 
-			ConnectionState = FtpConnection.Connected;
+			ConnectionState = FtpConnectionState.Connected;
 
 			if (!IsControlConnection) {
 				// the NOOP daemon needs to know this
@@ -1107,7 +1107,7 @@ namespace FluentFTP {
 			m_netStream.ReadTimeout = m_readTimeout;
 			m_lastActivity = DateTime.UtcNow;
 
-			ConnectionState = FtpConnection.Connected;
+			ConnectionState = FtpConnectionState.Connected;
 
 			if (!IsControlConnection) {
 				// the NOOP daemon needs to know this
@@ -1597,7 +1597,7 @@ namespace FluentFTP {
 				Client.Status.NoopDaemonCmdMode = true;
 			}
 
-			ConnectionState = FtpConnection.Disconnected;
+			ConnectionState = FtpConnectionState.Disconnected;
 
 			string connText = IsControlConnection ? "control" : "data";
 			string reduText = this.IsDisposed ? " (redundant)" : string.Empty;
@@ -1722,7 +1722,7 @@ namespace FluentFTP {
 				Client.Status.NoopDaemonCmdMode = true;
 			}
 
-			ConnectionState = FtpConnection.Disconnected;
+			ConnectionState = FtpConnectionState.Disconnected;
 
 			string connText = this.IsControlConnection ? "control" : "data";
 			string reduText = this.IsDisposed ? " (redundant)" : string.Empty;

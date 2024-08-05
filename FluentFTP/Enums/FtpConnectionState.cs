@@ -5,7 +5,7 @@ namespace FluentFTP {
 	/// <summary>
 	/// Actual connection state from the FTP client to the FTP server, as determined by the NOOP Deamon.
 	/// </summary>
-	public enum FtpConnection {
+	public enum FtpConnectionState {
 
 		/// <summary>
 		/// Unknown state. NOOP Deamon will determine the state in a short while.
