@@ -4,7 +4,7 @@
 
  - **Connection**
    - New: Accurate FTP connection status tracking with the help of `NoopDaemon` (integrated into `IsConnected` API)
-   - New: Enum `FtpConnection` to track FTP socket connection state
+   - New: Enum `FtpConnectionState` to track FTP socket connection state
    - Improve: IsConnected: Handle sync/async close situations and remove unwanted `Poll` calls
    - Improve: Detailed logging of Close/Dispose failures for improved error reporting in user logs
    - Fix: Regression where multiple sequential connects/disconnects crash the FTP Client
