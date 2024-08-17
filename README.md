@@ -1,12 +1,19 @@
+<p align="center">
+<img src="https://github.com/robinrodricks/FluentFTP/raw/master/.github/logo-new.png" alt="FluentFTP" />
+</p>
 
-![FluentFTP](https://github.com/robinrodricks/FluentFTP/raw/master/.github/logo-new.png)
+<p align="center">
+<a href="https://www.nuget.org/packages/FluentFTP"><img src="https://img.shields.io/nuget/vpre/FluentFTP.svg" alt="Version" /></a>
+<a href="https://www.nuget.org/packages/FluentFTP"><img src="https://img.shields.io/nuget/dt/FluentFTP.svg" alt="Downloads" /></a>
+<a href="https://github.com/robinrodricks/FluentFTP/graphs/contributors"><img src="https://img.shields.io/github/contributors/robinrodricks/FluentFTP.svg" alt="GitHub contributors" /></a>
+<a href="https://app.codacy.com/gh/robinrodricks/FluentFTP/dashboard"><img src="https://app.codacy.com/project/badge/Grade/8bc33aa55cb8494da3a7a07dba5316f7" alt="Codacy Badge" /></a>
+<a href="https://github.com/robinrodricks/FluentFTP/blob/master/LICENSE.TXT"><img src="https://img.shields.io/github/license/robinrodricks/FluentFTP.svg" alt="License" /></a>
+<a href="https://www.bestpractices.dev/projects/6661"><img src="https://www.bestpractices.dev/badge_static/passing" alt="OpenSSF Best Practices" /></a>
+</p>
 
-[![Version](https://img.shields.io/nuget/vpre/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP)
-[![Downloads](https://img.shields.io/nuget/dt/FluentFTP.svg)](https://www.nuget.org/packages/FluentFTP)
-[![GitHub contributors](https://img.shields.io/github/contributors/robinrodricks/FluentFTP.svg)](https://github.com/robinrodricks/FluentFTP/graphs/contributors)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8bc33aa55cb8494da3a7a07dba5316f7)](https://app.codacy.com/gh/robinrodricks/FluentFTP/dashboard)
-[![License](https://img.shields.io/github/license/robinrodricks/FluentFTP.svg)](https://github.com/robinrodricks/FluentFTP/blob/master/LICENSE.TXT)
-[![OpenSSF Best Practices](https://www.bestpractices.dev/badge_static/passing)](https://www.bestpractices.dev/projects/6661)
+<p align="center">
+    <b>FluentFTP is free, but powered by</b> <a href="https://github.com/sponsors/robinrodricks"><b>your donations</b></a>
+</p>
 
 FluentFTP is a fully managed FTP and FTPS client library for .NET & .NET Standard, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, FXP transfers, UTF-8 support, Async/await support, Powershell support and more.
 
