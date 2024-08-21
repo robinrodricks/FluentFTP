@@ -22,7 +22,7 @@ namespace FluentFTP.Client.Modules {
 				}
 
 				if (featName.StartsWith("MLST") || featName.StartsWith("MLSD")) {
-					capabilities.AddOnce(FtpCapability.MLSD);
+					capabilities.AddOnce(FtpCapability.MLST);
 				}
 				else if (featName.StartsWith("MDTM")) {
 					capabilities.AddOnce(FtpCapability.MDTM);

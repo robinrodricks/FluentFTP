@@ -33,7 +33,7 @@ namespace FluentFTP {
 
 			FtpReply reply;
 
-			var supportsMachineList = HasFeature(FtpCapability.MLSD);
+			var supportsMachineList = HasFeature(FtpCapability.MLST);
 
 			FtpListItem result = null;
 

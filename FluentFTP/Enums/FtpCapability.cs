@@ -14,7 +14,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Supports the MLST command (machine listings)
 		/// </summary>
-		MLSD = 2,
+		MLST = 2,
 
 		/// <summary>
 		/// Supports the SIZE command (get file size)

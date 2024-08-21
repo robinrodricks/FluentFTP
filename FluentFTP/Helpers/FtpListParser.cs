@@ -222,7 +222,7 @@ namespace FluentFTP.Helpers {
 		}
 
 		private bool IsWrongMachineListing() {
-			return CurrentParser == FtpParser.Machine && client != null && !client.HasFeature(FtpCapability.MLSD);
+			return CurrentParser == FtpParser.Machine && client != null && !client.HasFeature(FtpCapability.MLST);
 		}
 
 		/// <summary>

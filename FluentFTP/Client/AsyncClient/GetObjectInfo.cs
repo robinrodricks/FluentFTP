@@ -18,7 +18,7 @@ namespace FluentFTP {
 		/// Return information about a remote file system object asynchronously.
 		/// </summary>
 		/// <remarks>
-		/// You should check the <see cref="BaseFtpClient.Capabilities"/> property for the <see cref="FtpCapability.MLSD"/>
+		/// You should check the <see cref="BaseFtpClient.Capabilities"/> property for the <see cref="FtpCapability.MLST"/>
 		/// flag before calling this method. Failing to do so will result in an InvalidOperationException
 		/// being thrown when the server does not support machine listings. Returns null if the server response can't
 		/// be parsed or the server returns a failure completion code. The error for a failure
@@ -41,7 +41,7 @@ namespace FluentFTP {
 
 			FtpReply reply;
 
-			var supportsMachineList = HasFeature(FtpCapability.MLSD);
+			var supportsMachineList = HasFeature(FtpCapability.MLST);
 
 			FtpListItem result = null;
 

@@ -125,6 +125,7 @@ namespace FluentFTP.Client.Modules {
 			"LIST",
 			"NLST",
 			"MLSD",
+			"MLST",
 			"STOR",
 			"STOU",
 			"APPE",
