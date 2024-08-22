@@ -101,7 +101,7 @@ namespace FluentFTP {
 			// This can happen when someone is "using" the async client without specifying "await using"
 			LogWithPrefix(FtpTraceLevel.Verbose, "Warning: sync dispose called for " + this.ClientType + " object");
 #endif
-			DisposeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+			Task.Run(async () => await DisposeAsync()).Wait();
 		}
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
