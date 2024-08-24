@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Security;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 
 namespace FluentFTP.Streams {
 	/// <summary>
@@ -61,7 +62,7 @@ namespace FluentFTP.Streams {
 
 			// Invoke the SslStream.ShutdownAsync API
 
-			base.ShutdownAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+			Task.Run(async () => await base.ShutdownAsync()).Wait();
 
 #endif
 
