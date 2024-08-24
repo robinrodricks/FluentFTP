@@ -127,7 +127,7 @@ namespace FluentFTP {
 				if (ConnectionState == FtpConnectionState.PendingDisconnect) {
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Connection state pending down. Closing");
 					if (Client is AsyncFtpClient) {
-						CloseAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+						Task.Run(async () => await CloseAsync()).Wait();
 					}
 					else {
 						Close();

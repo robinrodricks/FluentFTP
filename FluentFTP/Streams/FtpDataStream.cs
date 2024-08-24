@@ -225,22 +225,5 @@ namespace FluentFTP {
 
 			IsControlConnection = false;
 		}
-
-		/// <summary>
-		/// Finalizer
-		/// </summary>
-		~FtpDataStream() {
-			try {
-				if (Client is AsyncFtpClient) {
-					DisposeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-				}
-				else {
-					Dispose();
-				}
-			}
-			catch (Exception ex) {
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught DATASTREAM(Dispose) exception: " + ex.Message);
-			}
-		}
 	}
 }
