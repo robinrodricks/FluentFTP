@@ -192,7 +192,7 @@ namespace FluentFTP {
 			// FIX : #739 prefer using machine listings to fix issues with GetListing and DeleteDirectory
 			if (Config.ListingParser != FtpParser.Custom) {
 				Config.ListingParser = ServerHandler != null ? ServerHandler.GetParser() : FtpParser.Auto;
-				if (HasFeature(FtpCapability.MLSD)) {
+				if (HasFeature(FtpCapability.MLST)) {
 					Config.ListingParser = FtpParser.Machine;
 				}
 			}

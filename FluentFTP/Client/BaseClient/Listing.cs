@@ -106,7 +106,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 			else {
 				// use machine listing if supported by the server
-				if (!isForceList && Config.ListingParser == FtpParser.Machine && HasFeature(FtpCapability.MLSD)) {
+				if (!isForceList && Config.ListingParser == FtpParser.Machine && HasFeature(FtpCapability.MLST)) {
 					listcmd = "MLSD";
 					machineList = true;
 				}
@@ -164,7 +164,7 @@ namespace FluentFTP.Client.BaseClient {
 				if (!isUseStat) {
 
 					// if not using machine listing (MSLD)
-					if ((!isForceList || Config.ListingParser == FtpParser.Machine) && HasFeature(FtpCapability.MLSD)) {
+					if ((!isForceList || Config.ListingParser == FtpParser.Machine) && HasFeature(FtpCapability.MLST)) {
 					}
 					else {
 

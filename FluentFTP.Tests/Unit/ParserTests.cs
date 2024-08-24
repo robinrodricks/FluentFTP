@@ -62,7 +62,7 @@ namespace FluentFTP.Tests.Unit {
 		public void Machine() {
 
 			var client = new FtpClient();
-			client.SetFeatures(new List<FtpCapability> { FtpCapability.MLSD });
+			client.SetFeatures(new List<FtpCapability> { FtpCapability.MLST });
 			var parser = new FtpListParser(client);
 			parser.Init(FtpOperatingSystem.Unix, FtpParser.Machine);
 

@@ -15,7 +15,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Load the modify date using MDTM when it could not
 		/// be parsed from the server listing. This only pertains
-		/// to servers that do not implement the MLSD command.
+		/// to servers that do not implement the MLST command.
 		/// </summary>
 		Modify = 1,
 
@@ -23,7 +23,7 @@ namespace FluentFTP {
 		/// Load the file size using the SIZE command when it
 		/// could not be parsed from the server listing. This
 		/// only pertains to servers that do not support the
-		/// MLSD command.
+		/// MLST command.
 		/// </summary>
 		Size = 2,
 
@@ -34,10 +34,10 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Show hidden/dot files. This only pertains to servers
-		/// that do not support the MLSD command. This option
+		/// that do not support the MLST command. This option
 		/// makes use the non standard -a parameter to LIST to
 		/// tell the server to show hidden files. Since it's a
-		/// non-standard option it may not always work. MLSD listings
+		/// non-standard option it may not always work. MLST listings
 		/// have no such option and whether or not a hidden file is
 		/// shown is at the discretion of the server.
 		/// </summary>
@@ -45,7 +45,7 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Force the use of OS-specific listings (LIST command) even if
-		/// machine listings (MLSD command) are supported by the server
+		/// machine listings (MLST command) are supported by the server
 		/// </summary>
 		ForceList = 8,
 
