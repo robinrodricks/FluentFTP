@@ -1,5 +1,11 @@
 # Release Notes
 
+#### 51.1.0
+
+ - Fix: GUI hangs during `Dispose` of `AsyncFtpClient`
+ - Fix: Improve Async & GUI cohabitation
+ - Change: Rename `FtpCapability.MLSD` to `MLST` to better reflect its behaviour
+
 #### 51.0.0
 
  - **Connection**
