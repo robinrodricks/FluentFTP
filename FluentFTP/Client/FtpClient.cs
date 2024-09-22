@@ -66,6 +66,8 @@ namespace FluentFTP {
 		/// <summary>
 		/// Creates a new instance of a synchronous FTP Client, with the given host and credentials.
 		/// </summary>
+		/// <exception cref="ArgumentNullException">Thrown if <paramref name="host"/> or <paramref name="credentials"/> are null</exception>
+		/// <exception cref="ArgumentException">Thrown if UserName field of <paramref name="credentials"/> is empty</exception>	"
 		public FtpClient(string host, NetworkCredential credentials, int port = 0, FtpConfig config = null, IFtpLogger logger = null) : base(config) {
 
 			// set host
@@ -73,6 +75,10 @@ namespace FluentFTP {
 
 			// set credentials
 			Credentials = credentials ?? throw new ArgumentNullException(nameof(credentials));
+
+			if (Credentials.UserName.Length == 0) {
+				throw new ArgumentException("UserName can't be empty", nameof(credentials));
+			}
 
 			// set port
 			if (port > 0) {
