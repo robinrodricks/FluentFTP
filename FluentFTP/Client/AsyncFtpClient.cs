@@ -57,6 +57,7 @@ namespace FluentFTP {
 
 			// set credentials
 			if (user == null) throw new ArgumentNullException(nameof(user));
+			if (user.Length == 0) throw new ArgumentException("UserName can't be empty", nameof(user));
 			if (pass == null) throw new ArgumentNullException(nameof(pass));
 			Credentials = new NetworkCredential(user, pass);
 
