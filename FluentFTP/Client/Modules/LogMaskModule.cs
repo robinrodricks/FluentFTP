@@ -35,23 +35,21 @@ namespace FluentFTP.Client.Modules {
 
 			// if username needs to be masked out
 			if (!client.Config.LogUserName) {
-
 				// if its the reply to the USER command
 				if (command.StartsWith("USER", StringComparison.Ordinal)) {
-
 					// mask out username
-					if (reply.Code == "331") {
-						message = message.Replace(client.Credentials.UserName, "***");
+					string userName = client.Credentials.UserName;
+					if (reply.Code == "331" && userName.Length > 0) {
+						message = message.Replace(userName, "***");
 					}
-
 				}
 
 				// if its the reply to the PASS command
 				if (command.StartsWith("PASS", StringComparison.Ordinal)) {
-
 					// mask out username
-					if (reply.Code == "230") {
-						message = message.Replace(client.Credentials.UserName, "***");
+					string userName = client.Credentials.UserName;
+					if (reply.Code == "230" && userName.Length > 0) {
+						message = message.Replace(userName, "***");
 					}
 
 				}
