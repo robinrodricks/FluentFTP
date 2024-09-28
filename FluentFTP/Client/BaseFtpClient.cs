@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient : IDisposable, IInternalFtpClient {
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 		#region Constructor
 
@@ -133,7 +132,6 @@ namespace FluentFTP.Client.BaseClient {
 
 		#endregion
 
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
 	}
 }

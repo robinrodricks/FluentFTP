@@ -20,9 +20,6 @@ namespace FluentFTP {
 	/// Base object for FtpClient, AsyncFtpClient and the internal client
 	/// </summary>
 	public interface IBaseFtpClient {
-
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-
 		FtpConfig Config { get; set; }
 		IFtpLogger Logger { get; set; }
 		bool IsDisposed { get; }
@@ -50,8 +47,5 @@ namespace FluentFTP {
 		bool RecursiveList { get; }
 		IPEndPoint SocketLocalEndPoint { get; }
 		IPEndPoint SocketRemoteEndPoint { get; }
-
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-
 	}
 }

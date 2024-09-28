@@ -66,4 +66,17 @@ dotnet_naming_symbols.locals_and_parameters.applicable_kinds = parameter, local
 
 dotnet_naming_style.camel_case_style.capitalization = camel_case
 
+# // Missing XML comment
 dotnet_diagnostic.CS1591.severity = none
+
+# // Use 'new(...)'
+dotnet_diagnostic.IDE0090.severity = none
+
+# // Make field readonly
+dotnet_diagnostic.IDE0044.severity = none
+
+# // Namespace does not match folder structure...
+dotnet_diagnostic.IDE0130.severity = none
+
+# // Method should have token as LAST parameter...
+dotnet_diagnostic.CA1068.severity = none
