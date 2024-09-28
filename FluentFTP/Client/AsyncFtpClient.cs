@@ -20,7 +20,6 @@ namespace FluentFTP {
 	public partial class AsyncFtpClient : BaseFtpClient, IInternalFtpClient, IDisposable, IAsyncFtpClient {
 #endif
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 		#region Constructors
 
@@ -152,8 +151,6 @@ namespace FluentFTP {
 		}
 
 		#endregion
-
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
 	}
 }

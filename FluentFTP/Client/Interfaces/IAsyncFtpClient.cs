@@ -19,7 +19,6 @@ namespace FluentFTP {
 	public interface IAsyncFtpClient : IDisposable, IBaseFtpClient {
 #endif
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 		new void Dispose();
 
@@ -121,8 +120,5 @@ namespace FluentFTP {
 		// COMPARE
 
 		Task<FtpCompareResult> CompareFile(string localPath, string remotePath, FtpCompareOption options = FtpCompareOption.Auto, CancellationToken token = default(CancellationToken));
-
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-
 	}
 }

@@ -105,9 +105,10 @@ namespace FluentFTP.Streams {
 
 			throw new NotImplementedException("CloseNotify hack only for NET462 or NETSTANDARD2_0");
 
+#pragma warning disable CS0162 // Unreachable code detected
+
 #endif
 
-#pragma warning disable CS0162 // Unreachable code detected
 			byte[] result;
 			int resultSize;
 
@@ -115,7 +116,6 @@ namespace FluentFTP.Streams {
 
 			NativeApi.SSPIHandle securityContextHandle = default(NativeApi.SSPIHandle);
 			NativeApi.SSPIHandle credentialsHandleHandle = default(NativeApi.SSPIHandle);
-#pragma warning restore CS0162 // Unreachable code detected
 
 #if NETFRAMEWORK
 
@@ -225,6 +225,8 @@ namespace FluentFTP.Streams {
 			innerStream.Write(result, 0, resultSize);
 
 #endif
+
+#pragma warning restore CS0162 // Unreachable code detected
 
 		}
 	}

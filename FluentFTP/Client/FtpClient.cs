@@ -14,7 +14,6 @@ namespace FluentFTP {
 	/// </summary>
 	public partial class FtpClient : BaseFtpClient, IInternalFtpClient, IDisposable, IFtpClient {
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 		#region Constructors
 
@@ -99,8 +98,6 @@ namespace FluentFTP {
 		protected override BaseFtpClient Create() {
 			return new FtpClient();
 		}
-
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
 	}
 }

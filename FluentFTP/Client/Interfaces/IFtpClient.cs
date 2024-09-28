@@ -13,7 +13,6 @@ namespace FluentFTP {
 	/// </summary>
 	public interface IFtpClient : IDisposable, IBaseFtpClient {
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 		// METHODS
 
@@ -98,8 +97,5 @@ namespace FluentFTP {
 
 		// COMPARE
 		FtpCompareResult CompareFile(string localPath, string remotePath, FtpCompareOption options = FtpCompareOption.Auto);
-
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-
 	}
 }

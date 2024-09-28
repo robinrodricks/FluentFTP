@@ -12,7 +12,6 @@ using FluentFTP.Streams;
 
 namespace FluentFTP {
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
 	/// <summary>
 	/// Holds all the configuration settings for a single FTP client.
@@ -679,9 +678,5 @@ namespace FluentFTP {
 			return false;
 			
 		}
-
-
-
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 	}
 }
