@@ -25,7 +25,7 @@ namespace FluentFTP {
 		/// 5. XSHA512 command
 		/// 6. XCRC command
 		/// </remarks>
-		/// <param name="path">Full or relative path of the file to checksum</param>
+		/// <param name="remotePath">Full or relative path of the file to checksum</param>
 		/// <param name="algorithm">Specify an algorithm that you prefer, or NONE to use the first available algorithm. If the preferred algorithm is not supported, a blank hash is returned.</param>
 		/// <returns><see cref="FtpHash"/> object containing the value and algorithm. Use the <see cref="FtpHash.IsValid"/> property to
 		/// determine if this command was successful. <see cref="FtpCommandException"/>s can be thrown from

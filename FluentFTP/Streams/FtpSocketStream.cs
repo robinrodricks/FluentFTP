@@ -1639,7 +1639,7 @@ namespace FluentFTP {
 			try {
 				m_sslStream.Dispose();
 			}
-			catch (Exception ex) {
+			catch /*(Exception ex)*/ {
 				// ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught SYNC SSLSTREAM(Dispose) exception: " + ex.Message);
 			};
 		}
@@ -1671,6 +1671,8 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught SYNC SOCKET(Dispose) exception: " + ex.Message);
 			};
 		}
+
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
 		//
 		// A S Y N C
@@ -1764,13 +1766,13 @@ namespace FluentFTP {
 			try {
 				m_sslStream.Close();   // Async Close override in FtpSslStream not supported yet
 			}
-			catch (Exception ex) {
+			catch /*(Exception ex)*/ {
 				// ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC SSLSTREAM(Close) dispose exception: " + ex.Message);
 			};
 			try {
 				await m_sslStream.DisposeAsync();
 			}
-			catch (Exception ex) {
+			catch /*(Exception ex)*/ {
 				// ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC SSLSTREAM(Dispose) dispose exception: " + ex.Message);
 			};
 #else
@@ -1780,7 +1782,7 @@ namespace FluentFTP {
 			try {
 				m_sslStream.Dispose(); // Async dispose not supported in this .NET?
 			}
-			catch (Exception ex) {
+			catch /*(Exception ex)*/ {
 				// ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC SSLSTREAM(Dispose) exception: " + ex.Message);
 			};
 #endif
@@ -1850,4 +1852,7 @@ namespace FluentFTP {
 		}
 
 	}
+
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+
 }

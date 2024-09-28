@@ -39,7 +39,10 @@ namespace FluentFTP.Exceptions {
 		/// <summary>
 		/// Creates a new FtpMissingObjectException.
 		/// </summary>
+		/// <param name="message">The message text.</param>
 		/// <param name="innerException">The original exception.</param>
+		/// <param name="fullPath">The path/filename.</param>
+		/// <param name="type">The object type.</param>
 		public FtpMissingObjectException(string message, Exception innerException, string fullPath, FtpObjectType type)
 			: base(message, innerException) {
 			this.FullPath = fullPath;

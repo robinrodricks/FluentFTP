@@ -12,6 +12,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="command">The command to issue</param>
 		/// <param name="maxTries">Maximum number of commands to issue</param>
+		/// <param name="token">Cancellation token</param>
 		/// <returns>The detected command limit, 0 if infinite</returns>
 		public async Task<int> DiscoverSslSessionLength(string command = "PWD", int maxTries = 2000,
 			CancellationToken token = default(CancellationToken)) {

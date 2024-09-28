@@ -11,12 +11,14 @@ namespace FluentFTP.Xunit.Docker {
 	internal class DockerFtpContainer {
 
 		public FtpServer ServerType;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 		public string ServerName;
 		public string DockerImage;
 		public string DockerImageOriginal;
 		public string DockerGithub;
 		public string FixedUsername;
 		public string FixedPassword;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
 		public virtual ITestcontainersBuilder<TestcontainersContainer> Configure(ITestcontainersBuilder<TestcontainersContainer> builder) {
 			return builder;

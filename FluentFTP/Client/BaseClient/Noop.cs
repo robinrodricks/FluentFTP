@@ -14,12 +14,12 @@ namespace FluentFTP.Client.BaseClient {
 
 		/// <summary>
 		/// Sends the NOOP command according to <see cref="FtpConfig.NoopInterval"/> (effectively a no-op if 0).
-		/// Please call <see cref="GetReply"/> as needed to read the "OK" command sent by the server and prevent stale data on the socket.
+		/// Please call GetReply() as needed to read the "OK" command sent by the server and prevent stale data on the socket.
 		/// Note that response is not guaranteed by all FTP servers when sent during file transfers.
 		/// <param name="ignoreNoopInterval"/>Send the command regardless of NoopInterval
 		/// </summary>
 		/// <returns>true if NOOP command was sent</returns>
-		bool IInternalFtpClient.NoopInternal(bool ignoreNoopInterval = false) {
+		bool IInternalFtpClient.NoopInternal(bool ignoreNoopInterval) {
 			if (ignoreNoopInterval || (Config.NoopInterval > 0 && DateTime.UtcNow.Subtract(LastCommandTimestamp).TotalMilliseconds > Config.NoopInterval)) {
 
 				m_daemonSemaphore.Wait();

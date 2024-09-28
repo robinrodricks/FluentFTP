@@ -48,6 +48,8 @@ namespace FluentFTP.Client.BaseClient {
 		/// Disconnects a data stream
 		/// </summary>
 		/// <param name="stream">The data stream to close</param>
+ 		/// <param name="token">Cancellation token</param>
+
 		async Task<FtpReply> IInternalFtpClient.CloseDataStreamInternal(FtpDataStream stream, CancellationToken token) {
 			LogFunction("CloseDataStream");
 
