@@ -33,7 +33,7 @@ namespace FluentFTP {
 			this.Credentials.UserName = userInfo[0];
 			this.Credentials.Password = userInfo[1];
 
-			await AutoConnect();
+			await AutoConnect(token);
 
 			string remotePath = formalUri.AbsolutePath;
 
@@ -42,7 +42,7 @@ namespace FluentFTP {
 
 			ok = await DownloadFileInternalAsync(null, remotePath, outStream, 0, progress, token, new FtpProgress(1, 0), 0, false, 0);
 
-			await Disconnect();
+			await Disconnect(token);
 
 			return ok ? outStream.ToArray() : null;
 		}

@@ -210,7 +210,7 @@ namespace FluentFTP {
 				pwdSave = await GetWorkingDirectory(token);
 				if (pwdSave != path) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate to: \"" + path + "\"");
-					await SetWorkingDirectory(path);
+					await SetWorkingDirectory(path, token);
 				}
 			}
 
@@ -219,7 +219,7 @@ namespace FluentFTP {
 			if (autoRestore) {
 				if (pwdSave != await GetWorkingDirectory(token)) {
 					LogWithPrefix(FtpTraceLevel.Verbose, "AutoNavigate-restore to: \"" + pwdSave + "\"");
-					await SetWorkingDirectory(pwdSave);
+					await SetWorkingDirectory(pwdSave, token);
 				}
 			}
 
@@ -352,7 +352,7 @@ namespace FluentFTP {
 									// first 6 bytes contains 2 bytes of unknown (to me) purpose and 4 ip address bytes
 									// we need to skip them otherwise they will be downloaded to the file
 									// moreover, these bytes cause "Failed to get the EPSV port" error
-									await stream.ReadAsync(new byte[6], 0, 6);
+									await stream.ReadAsync(new byte[6], 0, 6, token);
 								}
 
 								Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
