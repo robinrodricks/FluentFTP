@@ -126,6 +126,7 @@ namespace FluentFTP {
 		/// Things to do after executing a command
 		/// </summary>
 		/// <param name="command"></param>
+		/// <param name="token">Cancellation token</param>
 		protected async Task OnPostExecute(string command, CancellationToken token) {
 
 			// Update stored values
