@@ -70,7 +70,7 @@ namespace FluentFTP {
 				if (IsConnected) {
 					if (Status.LastWorkingDir == null) {
 						Status.InCriticalSequence = true;
-						await GetWorkingDirectory();
+						await GetWorkingDirectory(token);
 					}
 
 					await m_stream.CloseAsync(token);
@@ -99,7 +99,7 @@ namespace FluentFTP {
 			Log(FtpTraceLevel.Info, "Command:  " + cleanedCommand);
 
 			// send command to FTP server
-			await m_daemonSemaphore.WaitAsync();
+			await m_daemonSemaphore.WaitAsync(token);
 			try {
 				await m_stream.WriteLineAsync(m_textEncoding, command, token);
 				LastCommandExecuted = command;
@@ -126,6 +126,7 @@ namespace FluentFTP {
 		/// Things to do after executing a command
 		/// </summary>
 		/// <param name="command"></param>
+		/// <param name="token">Cancellation token</param>
 		protected async Task OnPostExecute(string command, CancellationToken token) {
 
 			// Update stored values

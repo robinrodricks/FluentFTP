@@ -7,6 +7,7 @@ Imports FluentFTP.Exceptions
 
 Namespace Examples
 	Friend Module ExecuteFTPCommandExample
+		<Obsolete("Please refactor calling code to use normal Visual Basic assignment")>
 		Sub Execute()
 			Using conn = New FtpClient("127.0.0.1", "ftptest", "ftptest")
 				conn.Connect()
@@ -18,6 +19,7 @@ Namespace Examples
 			End Using
 		End Sub
 
+		<Obsolete("Please refactor calling code to use normal Visual Basic assignment")>
 		Async Function ExecuteAsync() As Task
 			Dim token = New CancellationToken()
 

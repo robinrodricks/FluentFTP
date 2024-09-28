@@ -18,6 +18,7 @@ namespace FluentFTP {
 		/// Execute a custom FTP command and read the data channel to return its multiline output.
 		/// </summary>
 		/// <param name="command">The command to issue which produces output</param>
+		/// <param name="token">Cancellation token</param>
 		/// <returns>A list of string objects corresponding to the multi-line response by the server</returns>
 		public async Task<List<string>> ExecuteDownloadText(string command, CancellationToken token = default(CancellationToken)) {
 
@@ -30,6 +31,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="command">The command to issue which produces output</param>
 		/// <param name="retry">Retry the command execution on temporary failure?</param>
+		/// <param name="token">Cancellation token</param>
 		/// <returns>A list of string objects corresponding to the multi-line response by the server</returns>
 		protected async Task<List<string>> ExecuteDownloadTextInternal(string command, bool retry, CancellationToken token) {
 
@@ -44,7 +46,7 @@ namespace FluentFTP {
 								// first 6 bytes contains 2 bytes of unknown (to me) purpose and 4 ip address bytes
 								// we need to skip them otherwise they will be downloaded to the file
 								// moreover, these bytes cause "Failed to get the EPSV port" error
-								await stream.ReadAsync(new byte[6], 0, 6);
+								await stream.ReadAsync(new byte[6], 0, 6, token);
 							}
 
 							Log(FtpTraceLevel.Verbose, "+---------------------------------------+");
@@ -95,7 +97,7 @@ namespace FluentFTP {
 				}
 				// Some FTP servers throw 550 for empty folders. Absorb these.
 				if (!ftpEx.CompletionCode.StartsWith("550")) {
-					throw ftpEx;
+					throw;
 				}
 			}
 			catch (IOException ioEx) {

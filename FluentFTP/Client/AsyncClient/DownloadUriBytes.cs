@@ -13,6 +13,7 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="uri">The uri of the item to download</param>
 		/// <param name="progress">Provide a callback to track download progress.</param>
+		/// <param name="token">Cancellation token</param>
 		/// <returns>A byte array containing the contents of the downloaded file if successful, otherwise null.</returns>
 		public async Task<byte[]> DownloadUriBytes(string uri, IProgress<FtpProgress> progress = null, CancellationToken token = default(CancellationToken)) {
 			// verify args
@@ -33,7 +34,7 @@ namespace FluentFTP {
 			this.Credentials.UserName = userInfo[0];
 			this.Credentials.Password = userInfo[1];
 
-			await AutoConnect();
+			await AutoConnect(token);
 
 			string remotePath = formalUri.AbsolutePath;
 
@@ -42,7 +43,7 @@ namespace FluentFTP {
 
 			ok = await DownloadFileInternalAsync(null, remotePath, outStream, 0, progress, token, new FtpProgress(1, 0), 0, false, 0);
 
-			await Disconnect();
+			await Disconnect(token);
 
 			return ok ? outStream.ToArray() : null;
 		}
