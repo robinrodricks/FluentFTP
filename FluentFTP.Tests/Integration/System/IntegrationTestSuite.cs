@@ -28,8 +28,10 @@ namespace FluentFTP.Tests.Integration.System {
 		/// <summary>
 		/// Main entrypoint executed for all types of FTP servers.
 		/// </summary>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 		public async virtual Task RunAllTestsAsync() {
 		}
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
 		/// <summary>
 		/// Creates a new FTP client capable of connecting to this dockerized FTP server.
@@ -60,6 +62,7 @@ namespace FluentFTP.Tests.Integration.System {
 		/// <summary>
 		/// Creates a new FTP client capable of connecting to this dockerized FTP server.
 		/// </summary>
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 		protected async Task<AsyncFtpClient> GetAsyncClient() {
 			var client = new AsyncFtpClient("localhost", new NetworkCredential(_fixture.GetUsername(), _fixture.GetPassword()));
 			if (_stream == UseStream.GnuTlsStream) {
@@ -73,6 +76,7 @@ namespace FluentFTP.Tests.Integration.System {
 			client.Config.LogPassword = true;
 			return client;
 		}
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
 		/// <summary>
 		/// Creates & Connects a new FTP client capable of connecting to this dockerized FTP server.

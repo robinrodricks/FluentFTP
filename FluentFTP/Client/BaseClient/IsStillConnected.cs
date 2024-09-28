@@ -13,7 +13,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <param name="timeout"/>How to wait for connection confirmation
 		/// <returns>bool connection status</returns>
-		bool IInternalFtpClient.IsStillConnectedInternal(int timeout = 10000) {
+		bool IInternalFtpClient.IsStillConnectedInternal(int timeout) {
 
 			bool connected = false;
 			if (IsConnected && IsAuthenticated) {

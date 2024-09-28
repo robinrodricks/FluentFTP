@@ -13,6 +13,7 @@ namespace FluentFTP {
 		/// More thourough than IsConnected.
 		/// </summary>
 		/// <param name="timeout"/>How to wait for connection confirmation
+ 		/// <param name="token">Cancellation token</param>
 		/// <returns>bool connection status</returns>
 		public async Task<bool> IsStillConnected(int timeout = 10000, CancellationToken token = default(CancellationToken)) {
 			LogFunction(nameof(IsStillConnected), new object[] { timeout });
