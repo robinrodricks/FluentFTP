@@ -68,7 +68,7 @@ namespace FluentFTP {
 				// Some FTP servers throw 450 or 550 for empty folders. Absorb these.
 				if (ftpEx.CompletionCode == null ||
 					(!ftpEx.CompletionCode.StartsWith("450") && !ftpEx.CompletionCode.StartsWith("550"))) {
-					throw ftpEx;
+					throw;
 				}
 			}
 			catch (IOException) {
