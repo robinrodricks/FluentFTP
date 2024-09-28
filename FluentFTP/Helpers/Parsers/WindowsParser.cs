@@ -146,8 +146,8 @@ namespace FluentFTP.Helpers.Parsers {
 			"MM'-'dd'-'yy hh':'mmtt", "MM'-'dd'-'yy HH':'mm", "MM'-'dd'-'yyyy hh':'mmtt",
 			"yyyy'-'MM'-'dd hh':'mmtt", "yyyy'-'MM'-'dd HH':'mm", "yyyy'-'MM'-'dd hh':'mmtt"
 		};
-		private static int OffsetLengthDirectory = 10;
-		private static int OffsetLengthFile = 1;
+		//private static int OffsetLengthDirectory = 10;
+		//private static int OffsetLengthFile = 1;
 
 		#endregion
 	}
