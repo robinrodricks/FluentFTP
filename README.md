@@ -70,7 +70,7 @@ FluentFTP is released under the permissive MIT License, so it can be used in bot
     - Easily add custom logging/tracing functionality using industry-standard [`ILogger`](https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.logging.ilogger?view=dotnet-plat-ext-6.0) interface
     - Easily add support for custom non-standard FTP servers (see the [Custom Servers](https://github.com/robinrodricks/FluentFTP/wiki/Custom-Servers) page)
     - Easily add support for more file or directory filtering rules (simply extend [`FtpRule`](https://github.com/robinrodricks/FluentFTP/wiki/Class-FtpRule))
-    - Easily add support for more proxy types (simply extend [`FtpClientProxy`](https://github.com/robinrodricks/FluentFTP/blob/master/FluentFTP/Proxy/FtpClientProxy.cs))
+    - Easily add support for more proxy types (simply extend [`FtpClientProxy`](https://github.com/robinrodricks/FluentFTP/blob/master/FluentFTP/Proxy/SyncProxy/FtpClientProxy.cs))
     - Easily add unsupported directory listing parsers (see the [`CustomParser`](https://github.com/robinrodricks/FluentFTP/blob/master/FluentFTP.CSharpExamples/CustomParser.cs) example)
 	- Easily add your own Powershell commands by extending the scripts in [`FluentFTP.ps1`](https://github.com/robinrodricks/FluentFTP/wiki/Powershell)
 
