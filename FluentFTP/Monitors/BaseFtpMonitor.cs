@@ -26,7 +26,7 @@ namespace FluentFTP.Monitors {
 		/// <summary>
 		/// Gets or sets the polling interval in seconds
 		/// </summary>
-		public int PollIntervalSeconds { get; set; } = 60;
+		public int PollInterval { get; set; } = 60;
 
 		/// <summary>
 		/// Gets or sets whether to wait for files to be fully uploaded before reporting
@@ -40,7 +40,7 @@ namespace FluentFTP.Monitors {
 
 
 		internal void StartTimer(TimerCallback callback) {
-			_timer = new Timer(callback, null, TimeSpan.Zero, TimeSpan.FromSeconds(PollIntervalSeconds));
+			_timer = new Timer(callback, null, TimeSpan.Zero, TimeSpan.FromSeconds(PollInterval));
 		}
 
 		internal void StopTimer() {
