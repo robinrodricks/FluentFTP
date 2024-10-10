@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentFTP.Monitors {
-
 	/// <summary>
 	/// An async FTP folder monitor that monitors a specific remote folder on the FTP server.
 	/// It triggers events when files are added or removed.
@@ -12,27 +12,13 @@ namespace FluentFTP.Monitors {
 	/// If `WaitTillFileFullyUploaded` is true, then the file is only detected as an added file if the file size is stable.
 	/// </summary>
 	public class AsyncFtpFolderMonitor : BaseFtpMonitor {
+		private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
 		private AsyncFtpClient _ftpClient;
 
-		/// <summary>
-		/// Event triggered when files are changed (when the file size changes).
-		/// </summary>
-		public event EventHandler<List<string>> FilesChanged;
-
-		/// <summary>
-		/// Event triggered when files are added (if a new file exists, that was not on the server before).
-		/// </summary>
-		public event EventHandler<List<string>> FilesAdded;
-
-		/// <summary>
-		/// Event triggered when files are deleted (if a file is missing, which existed on the server before)
-		/// </summary>
-		public event EventHandler<List<string>> FilesDeleted;
-
-		/// <summary>
-		/// Event triggered when any change is detected
-		/// </summary>
-		public event EventHandler<EventArgs> ChangeDetected;
+		private readonly List<Func<List<string>, CancellationToken, Task>> _filesChangedHandlers = new List<Func<List<string>, CancellationToken, Task>>();
+		private readonly List<Func<List<string>, CancellationToken, Task>> _filesAddedHandlers = new List<Func<List<string>, CancellationToken, Task>>();
+		private readonly List<Func<List<string>, CancellationToken, Task>> _filesDeletedHandlers = new List<Func<List<string>, CancellationToken, Task>>();
+		private readonly List<Func<List<string>, CancellationToken, Task>> _changeDetectedHandlers = new List<Func<List<string>, CancellationToken, Task>>();
 
 		/// <summary>
 		/// Create a new FTP monitor.
@@ -47,24 +33,89 @@ namespace FluentFTP.Monitors {
 		/// <summary>
 		/// Starts monitoring the FTP folder
 		/// </summary>
-		public async Task Start() {
-			if (!Active) {
-				if (!_ftpClient.IsConnected) {
-					await _ftpClient.Connect();
+		public async Task StartAsync(CancellationToken ct) {
+			while (true) {
+				try {
+					var startTimeUtc = DateTime.UtcNow;
+
+					await PollFolderAsync(ct).ConfigureAwait(false);
+
+					var pollInterval = _unstableFiles.Count > 0 ? UnstablePollInterval : PollInterval;
+					var waitTime = pollInterval - (DateTime.UtcNow - startTimeUtc);
+
+					if (waitTime > TimeSpan.Zero) {
+						await Task.Delay(waitTime, ct).ConfigureAwait(false);
+					}
 				}
-				StartTimer(PollFolder);
-				Active = true;
+				catch (OperationCanceledException)
+					when (ct.IsCancellationRequested) {
+					break;
+				}
 			}
 		}
 
 		/// <summary>
-		/// Stops monitoring the FTP folder
+		/// Event triggered when files are changed (when the file size changes).
 		/// </summary>
-		public async Task Stop() {
-			if (Active) {
-				StopTimer();
-				await _ftpClient.Disconnect();
-				Active = false;
+		public void FilesChanged(Func<List<string>, CancellationToken, Task> handler) => AddHandler(_filesChangedHandlers, handler);
+		public void FilesChanged(Func<List<string>, Task> handler) => FilesChanged((list, _) => handler(list));
+		public void FilesChanged(Action<List<string>> handler) => FilesChanged((list, _) => { handler(list); return Task.CompletedTask; });
+
+		/// <summary>
+		/// Event triggered when files are added (if a new file exists, that was not on the server before).
+		/// </summary>
+		public void FilesAdded(Func<List<string>, CancellationToken, Task> handler) => AddHandler(_filesAddedHandlers, handler);
+		public void FilesAdded(Func<List<string>, Task> handler) => FilesAdded((list, _) => handler(list));
+		public void FilesAdded(Action<List<string>> handler) => FilesAdded((list, _) => { handler(list); return Task.CompletedTask; });
+
+		/// <summary>
+		/// Event triggered when files are deleted (if a file is missing, which existed on the server before)
+		/// </summary>
+		public void FilesDeleted(Func<List<string>, CancellationToken, Task> handler) => AddHandler(_filesDeletedHandlers, handler);
+		public void FilesDeleted(Func<List<string>, Task> handler) => FilesDeleted((list, _) => handler(list));
+		public void FilesDeleted(Action<List<string>> handler) => FilesDeleted((list, _) => { handler(list); return Task.CompletedTask; });
+
+		/// <summary>
+		/// Event triggered when any change is detected
+		/// </summary>
+		public void ChangesDetected(Func<List<string>, CancellationToken, Task> handler) => AddHandler(_changeDetectedHandlers, handler);
+		public void ChangesDetected(Func<List<string>, Task> handler) => ChangesDetected((list, _) => handler(list));
+		public void ChangesDetected(Action<List<string>> handler) => ChangesDetected((list, _) => { handler(list); return Task.CompletedTask; });
+
+		private void AddHandler<T>(List<T> handlers, T handler) {
+			_lock.Wait();
+			try {
+				handlers.Add(handler);
+			}
+			finally {
+				_lock.Release();
+			}
+		}
+
+
+		private async Task<List<Exception>> RunHandlers(List<Func<List<string>, CancellationToken, Task>> handlers, List<string> files, CancellationToken ct) {
+			await _lock.WaitAsync(ct).ConfigureAwait(false);
+
+			try {
+				var exceptions = new List<Exception>();
+				foreach (var handler in handlers) {
+					try {
+						ct.ThrowIfCancellationRequested();
+						await handler(files, ct).ConfigureAwait(false);
+					}
+					catch (OperationCanceledException)
+						when (ct.IsCancellationRequested) {
+						throw;
+					}
+					catch (Exception ex) {
+						exceptions.Add(ex);
+					}
+				}
+
+				return exceptions;
+			}
+			finally {
+				_lock.Release();
 			}
 		}
 
@@ -72,82 +123,70 @@ namespace FluentFTP.Monitors {
 		/// <summary>
 		/// Polls the FTP folder for changes
 		/// </summary>
-		private async void PollFolder(object state) {
-			try {
+		private async Task PollFolderAsync(CancellationToken token) {
+			// Step 1: Get the current listing
+			var currentListing = await GetCurrentListing(token).ConfigureAwait(false);
 
-				// exit if not connected
-				if (!_ftpClient.IsConnected) {
-					return;
-				}
-
-				// stop the timer
-				StopTimer();
-
-				// Step 1: Get the current listing
-				var currentListing = await GetCurrentListing();
-
-				// Step 2: Handle unstable files if WaitTillFileFullyUploaded is true
-				if (WaitTillFileFullyUploaded) {
-					currentListing = HandleUnstableFiles(currentListing);
-				}
-
-				// Step 3: Compare current listing to last listing
-				var filesAdded = new List<string>();
-				var filesChanged = new List<string>();
-				var filesDeleted = new List<string>();
-				foreach (var file in currentListing) {
-					if (!_lastListing.TryGetValue(file.Key, out long lastSize)) {
-						filesAdded.Add(file.Key);
-					}
-					else if (lastSize != file.Value) {
-						filesChanged.Add(file.Key);
-					}
-				}
-				filesDeleted = _lastListing.Keys.Except(currentListing.Keys).ToList();
-
-				// Trigger events
-				if (filesAdded.Count > 0) FilesAdded?.Invoke(this, filesAdded);
-				if (filesChanged.Count > 0) FilesChanged?.Invoke(this, filesChanged);
-				if (filesDeleted.Count > 0) FilesDeleted?.Invoke(this, filesDeleted);
-
-				if (filesAdded.Count > 0 || filesChanged.Count > 0 || filesDeleted.Count > 0) {
-					ChangeDetected?.Invoke(this, EventArgs.Empty);
-				}
-
-				// Step 4: Update last listing
-				_lastListing = currentListing;
-
-			}
-			catch (Exception ex) {
-				// Log the exception or handle it as needed
-				Console.WriteLine($"Error polling FTP folder: {ex.Message}");
+			// Step 2: Handle unstable files if WaitTillFileFullyUploaded is true
+			if (WaitTillFileFullyUploaded) {
+				currentListing = HandleUnstableFiles(currentListing);
 			}
 
-			// restart the timer
-			StartTimer(PollFolder);
+			// Step 3: Compare current listing to last listing
+			var filesAdded = new List<string>();
+			var filesChanged = new List<string>();
+
+			foreach (var file in currentListing) {
+				if (!_lastListing.TryGetValue(file.Key, out long lastSize)) {
+					filesAdded.Add(file.Key);
+				}
+				else if (lastSize != file.Value) {
+					filesChanged.Add(file.Key);
+				}
+			}
+
+			var filesDeleted = _lastListing.Keys.Except(currentListing.Keys).ToList();
+
+			var exceptions = new List<Exception>();
+			if (filesAdded.Count > 0 && _filesAddedHandlers.Count > 0) {
+				exceptions.AddRange(await RunHandlers(_filesAddedHandlers, filesAdded, token).ConfigureAwait(false));
+			}
+			if (filesChanged.Count > 0 && _filesChangedHandlers.Count > 0) {
+				exceptions.AddRange(await RunHandlers(_filesChangedHandlers, filesChanged, token).ConfigureAwait(false));
+			}
+			if (filesDeleted.Count > 0 && _filesDeletedHandlers.Count > 0) {
+				exceptions.AddRange(await RunHandlers(_filesDeletedHandlers, filesDeleted, token).ConfigureAwait(false));
+			}
+			if (filesAdded.Count > 0 || filesChanged.Count > 0 || filesDeleted.Count > 0) {
+				var allChanges = filesAdded.Concat(filesChanged).Concat(filesDeleted).ToList();
+				exceptions.AddRange(await RunHandlers(_changeDetectedHandlers, allChanges, token).ConfigureAwait(false));
+			}
+
+			if (exceptions.Count > 0) {
+				throw new AggregateException("One or more handlers failed", exceptions);
+			}
+
+			// Step 4: Update last listing
+			_lastListing = currentListing;
 		}
 
 		/// <summary>
 		/// Gets the current listing of files from the FTP server
 		/// </summary>
-		private async Task<Dictionary<string, long>> GetCurrentListing() {
+		private async Task<Dictionary<string, long>> GetCurrentListing(CancellationToken token) {
 			FtpListOption options = GetListingOptions(_ftpClient.Capabilities);
 
-			var files = await _ftpClient.GetListing(FolderPath, options);
+			var files = await _ftpClient.GetListing(FolderPath, options, token).ConfigureAwait(false);
 			return files.Where(f => f.Type == FtpObjectType.File)
 						.ToDictionary(f => f.FullName, f => f.Size);
 		}
-
-		
 
 		/// <summary>
 		/// Releases the resources used by the FtpFolderMonitor
 		/// </summary>
 		public void Dispose() {
-			StopTimer();
 			_ftpClient?.Dispose();
 			_ftpClient = null;
 		}
 	}
-
 }
