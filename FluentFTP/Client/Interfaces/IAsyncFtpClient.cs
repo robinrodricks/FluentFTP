@@ -19,15 +19,6 @@ namespace FluentFTP {
 	public interface IAsyncFtpClient : IDisposable, IBaseFtpClient {
 #endif
 
-
-		new void Dispose();
-
-#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
-		new ValueTask DisposeAsync();
-#else
-		Task DisposeAsync();
-#endif
-
 		// METHODS
 
 		bool HasFeature(FtpCapability cap);
