@@ -79,7 +79,12 @@ namespace FluentFTP.Client.BaseClient {
 		public void AutoDispose() {
 			if (Status.AutoDispose) {
 				if (this is AsyncFtpClient) {
-					((IAsyncFtpClient)this).DisposeAsync();
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+
+					Task.Run(() => ((IAsyncFtpClient)this).DisposeAsync()).Wait();
+#else
+					Task.Run(() => ((IAsyncFtpClient)this).Dispose()).Wait();
+#endif
 				}
 				else {
 					((IFtpClient)this).Dispose();
@@ -130,7 +135,7 @@ namespace FluentFTP.Client.BaseClient {
 			GC.SuppressFinalize(this);
 		}
 
-		#endregion
+#endregion
 
 
 	}
