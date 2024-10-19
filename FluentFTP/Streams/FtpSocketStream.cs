@@ -862,12 +862,8 @@ namespace FluentFTP {
 		/// </summary>
 		/// <param name="host">The host to query</param>
 		private IPAddress[] GetCachedHostAddresses(string host) {
-			IPAddress[] ipads;
 
-			if (Client.Status.CachedHostIpads.ContainsKey(host)) {
-				ipads = Client.Status.CachedHostIpads[host];
-			}
-			else {
+			if (!Client.Status.CachedHostIpads.TryGetValue(host, out IPAddress[] ipads)) {
 #if NETSTANDARD || NET5_0_OR_GREATER
 				ipads = Dns.GetHostAddressesAsync(host).Result;
 #else
@@ -885,12 +881,7 @@ namespace FluentFTP {
 		/// <param name="host">The host to query</param>
 		/// <param name="ipad">The IP address to store in the cache</param>
 		private void SetCachedHostAddresses(string host, IPAddress ipad) {
-			if (Client.Status.CachedHostIpads.ContainsKey(host)) {
-				Client.Status.CachedHostIpads[host] = new IPAddress[1] { ipad };
-			}
-			else {
-				Client.Status.CachedHostIpads.Add(host, new IPAddress[1] { ipad });
-			}
+			Client.Status.CachedHostIpads[host] = new IPAddress[1] { ipad };
 		}
 
 		/// <summary>
@@ -1021,12 +1012,8 @@ namespace FluentFTP {
 		/// <param name="host">The host to query</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		private async Task<IPAddress[]> GetCachedHostAddressesAsync(string host, CancellationToken token) {
-			IPAddress[] ipads;
 
-			if (Client.Status.CachedHostIpads.ContainsKey(host)) {
-				ipads = Client.Status.CachedHostIpads[host];
-			}
-			else {
+			if (!Client.Status.CachedHostIpads.TryGetValue(host, out IPAddress[] ipads)) {
 #if NET6_0_OR_GREATER
 				ipads = await Dns.GetHostAddressesAsync(host, token);
 #else
