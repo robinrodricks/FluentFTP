@@ -869,7 +869,7 @@ namespace FluentFTP {
 #else
 				ipads = Dns.GetHostAddresses(host);
 #endif
-				Client.Status.CachedHostIpads.Add(host, ipads);
+				Client.Status.CachedHostIpads[host] = ipads;
 			}
 
 			return ipads;
@@ -1019,7 +1019,7 @@ namespace FluentFTP {
 #else
 				ipads = await Dns.GetHostAddressesAsync(host);
 #endif
-				Client.Status.CachedHostIpads.Add(host, ipads);
+				Client.Status.CachedHostIpads[host] = ipads;
 			}
 
 			return ipads;
