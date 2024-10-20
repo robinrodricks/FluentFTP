@@ -29,11 +29,9 @@ namespace FluentFTP.Helpers.Hashing {
 		/// <param name="name">Name of the hash algorithm</param>
 		/// <returns>The FtpHashAlgorithm</returns>
 		public static FtpHashAlgorithm FromString(string name) {
-			if (!NameToEnum.ContainsKey(name.ToUpper())) {
-				throw new NotImplementedException("Unknown hash algorithm: " + name);
-			}
-
-			return NameToEnum[name];
+			return NameToEnum.TryGetValue(name, out var value)
+				? value
+				: throw new NotImplementedException("Unknown hash algorithm: " + name);
 		}
 
 		/// <summary>
@@ -42,11 +40,9 @@ namespace FluentFTP.Helpers.Hashing {
 		/// <param name="name">FtpHashAlgorithm to be converted into string</param>
 		/// <returns>Name of the hash algorithm</returns>
 		public static string PrintToString(this FtpHashAlgorithm name) {
-			if (!EnumToName.ContainsKey(name)) {
-				return name.ToString();
-			}
-
-			return EnumToName[name];
+			return EnumToName.TryGetValue(name, out var value)
+				? value
+				: name.ToString();
 		}
 
 		private static readonly List<FtpHashAlgorithm> AlgoPreference = new List<FtpHashAlgorithm> {
