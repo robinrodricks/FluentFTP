@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace FluentFTP.Monitors {
@@ -15,32 +14,25 @@ namespace FluentFTP.Monitors {
 	public class FtpFolderMonitor : BaseFtpMonitor {
 		private FtpClient _ftpClient;
 
-		internal Timer _timer;
-
-		/// <summary>
-		/// Is the monitoring started?
-		/// </summary>
-		public bool Active { get; internal set; }
-
 		/// <summary>
 		/// Event triggered when files are changed (when the file size changes).
 		/// </summary>
-		public event EventHandler<FtpFolderMonitorEventArgs> FilesChanged;
+		public event EventHandler<List<string>> FilesChanged;
 
 		/// <summary>
 		/// Event triggered when files are added (if a new file exists, that was not on the server before).
 		/// </summary>
-		public event EventHandler<FtpFolderMonitorEventArgs> FilesAdded;
+		public event EventHandler<List<string>> FilesAdded;
 
 		/// <summary>
 		/// Event triggered when files are deleted (if a file is missing, which existed on the server before)
 		/// </summary>
-		public event EventHandler<FtpFolderMonitorEventArgs> FilesDeleted;
+		public event EventHandler<List<string>> FilesDeleted;
 
 		/// <summary>
 		/// Event triggered when any change is detected
 		/// </summary>
-		public event EventHandler<FtpFolderMonitorEventArgs> ChangeDetected;
+		public event EventHandler<EventArgs> ChangeDetected;
 
 		/// <summary>
 		/// Create a new FTP monitor.
@@ -80,8 +72,9 @@ namespace FluentFTP.Monitors {
 		/// <summary>
 		/// Polls the FTP folder for changes
 		/// </summary>
-		private void PollFolder(object state) {
+		private async void PollFolder(object state) {
 			try {
+
 				// exit if not connected
 				if (!_ftpClient.IsConnected) {
 					return;
@@ -91,7 +84,7 @@ namespace FluentFTP.Monitors {
 				StopTimer();
 
 				// Step 1: Get the current listing
-				var currentListing = GetCurrentListing();
+				var currentListing = await GetCurrentListing();
 
 				// Step 2: Handle unstable files if WaitTillFileFullyUploaded is true
 				if (WaitTillFileFullyUploaded) {
@@ -101,6 +94,7 @@ namespace FluentFTP.Monitors {
 				// Step 3: Compare current listing to last listing
 				var filesAdded = new List<string>();
 				var filesChanged = new List<string>();
+				var filesDeleted = new List<string>();
 
 				foreach (var file in currentListing) {
 					if (!_lastListing.TryGetValue(file.Key, out long lastSize)) {
@@ -111,15 +105,15 @@ namespace FluentFTP.Monitors {
 					}
 				}
 
-				var filesDeleted = _lastListing.Keys.Except(currentListing.Keys).ToList();
+				filesDeleted = _lastListing.Keys.Except(currentListing.Keys).ToList();
 
 				// Trigger events
-				if (filesAdded.Count > 0) FilesAdded?.Invoke(this, new FtpFolderMonitorEventArgs { Files = filesAdded });
-				if (filesChanged.Count > 0) FilesChanged?.Invoke(this, new FtpFolderMonitorEventArgs { Files = filesChanged });
-				if (filesDeleted.Count > 0) FilesDeleted?.Invoke(this, new FtpFolderMonitorEventArgs { Files = filesDeleted });
+				if (filesAdded.Count > 0) FilesAdded?.Invoke(this, filesAdded);
+				if (filesChanged.Count > 0) FilesChanged?.Invoke(this, filesChanged);
+				if (filesDeleted.Count > 0) FilesDeleted?.Invoke(this, filesDeleted);
 
 				if (filesAdded.Count > 0 || filesChanged.Count > 0 || filesDeleted.Count > 0) {
-					ChangeDetected?.Invoke(this, new FtpFolderMonitorEventArgs { Files = filesAdded.Concat(filesChanged).Concat(filesDeleted).ToList() });
+					ChangeDetected?.Invoke(this, EventArgs.Empty);
 				}
 
 				// Step 4: Update last listing
@@ -137,7 +131,7 @@ namespace FluentFTP.Monitors {
 		/// <summary>
 		/// Gets the current listing of files from the FTP server
 		/// </summary>
-		private Dictionary<string, long> GetCurrentListing() {
+		private async Task<Dictionary<string, long>> GetCurrentListing() {
 			FtpListOption options = GetListingOptions(_ftpClient.Capabilities);
 
 			var files = _ftpClient.GetListing(FolderPath, options);
@@ -153,20 +147,5 @@ namespace FluentFTP.Monitors {
 			_ftpClient?.Dispose();
 			_ftpClient = null;
 		}
-
-		private void StartTimer(TimerCallback callback) {
-			var pollInterval = (_unstableFiles.Count > 0 ? UnstablePollInterval : PollInterval);
-
-			_timer = new Timer(callback, null, TimeSpan.Zero, pollInterval);
-		}
-
-		private void StopTimer() {
-			_timer?.Dispose();
-			_timer = null;
-		}
 	}
-}
-
-public class FtpFolderMonitorEventArgs : EventArgs {
-	public List<string> Files { get; set; }
 }
