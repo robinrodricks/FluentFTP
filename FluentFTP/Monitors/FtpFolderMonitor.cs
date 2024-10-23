@@ -123,9 +123,10 @@ namespace FluentFTP.Monitors {
 				// Log the exception or handle it as needed
 				Console.WriteLine($"Error polling FTP folder: {ex.Message}");
 			}
-
-			// restart the timer
-			StartTimer(PollFolder);
+			finally {
+				// restart the timer
+				StartTimer(PollFolder);
+			}
 		}
 
 		/// <summary>
