@@ -41,13 +41,8 @@ namespace FluentFTP.Monitors {
 		/// The client can be used in the handler to perform FTP operations.
 		/// </summary>
 		public AsyncFtpMonitor(IAsyncFtpClient ftpClient, string folderPath) {
-			if (ftpClient == null)
-				throw new ArgumentNullException(nameof(ftpClient));
-			if (folderPath == null)
-				throw new ArgumentNullException(nameof(folderPath));
-
-			_ftpClient = ftpClient;
-			FolderPath = folderPath;
+			_ftpClient = ftpClient ?? throw new ArgumentNullException(nameof(ftpClient));
+			FolderPath = folderPath ?? throw new ArgumentNullException(nameof(folderPath));
 		}
 
 		/// <summary>
@@ -78,9 +73,10 @@ namespace FluentFTP.Monitors {
 		public FtpListOption Options {
 			get => _options;
 			set {
-					_options = value;
-					_lastListing.Clear();
-				}
+				_options = value;
+				_lastListing.Clear();
+				_unstableFiles.Clear();
+			}
 		}
 
 		/// <summary>
@@ -122,13 +118,11 @@ namespace FluentFTP.Monitors {
 
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		public async ValueTask DisposeAsync() {
-#else
-		public async Task DisposeAsync() {
-#endif
 			if (_ftpClient != null) {
 				await _ftpClient.DisposeAsync().ConfigureAwait(false);
 			}
 		}
+#endif
 
 		/// <summary>
 		/// Polls the FTP folder for changes
@@ -162,13 +156,15 @@ namespace FluentFTP.Monitors {
 			// Step 4: Update last listing
 			_lastListing = currentListing;
 
-			if (itemsAdded.Count == 0 && itemsChanged.Count == 0 && itemsDeleted.Count == 0)
+			if (itemsAdded.Count == 0 && itemsChanged.Count == 0 && itemsDeleted.Count == 0) {
 				return;
+			}
 
 			// Step 5: Raise event
 			var handler = _handler;
-			if (handler == null)
+			if (handler == null) {
 				return;
+			}
 
 			try {
 				var args = new AsyncFtpMonitorEventArgs(FolderPath, itemsAdded, itemsChanged, itemsDeleted, _ftpClient, token);
@@ -226,10 +222,7 @@ namespace FluentFTP.Monitors {
 		private FtpListOption GetListingOptions(List<FtpCapability> caps) {
 			FtpListOption options = Options;
 
-			if (caps.Contains(FtpCapability.MLST)) {
-				//options |= FtpListOption.;
-			}
-			else if (caps.Contains(FtpCapability.STAT)) {
+			if (caps.Contains(FtpCapability.STAT)) {
 				options |= FtpListOption.UseStat;
 			}
 

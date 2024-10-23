@@ -127,14 +127,17 @@
 #nullable disable warnings
 #endif
 #pragma warning disable 67 // Event never used
+	// NOSONAR
 	public class FtpClientMock : IAsyncFtpClient {
 		private readonly ManualResetEventSlim _poll = new(false);
 		private FtpListItem[] _listing = Array.Empty<FtpListItem>();
 
 		public async Task WaitForPoll(TimeSpan timeout) {
 			_poll.Reset();
-			if (!await Task.Run(() => _poll.Wait(timeout)))
+			// Don't know what synchronization context we're in so block on a thread pool thread to avoid deadlocks
+			if (!await Task.Run(() => _poll.Wait(timeout))) {
 				throw new TimeoutException();
+			}
 		}
 
 		public void SetListing(FtpListItem[] listing) => _listing = listing;
@@ -146,240 +149,142 @@
 
 		public List<FtpCapability> Capabilities { get; set; } = new();
 
-		void IDisposable.Dispose() {
-			_poll.Dispose();
-		}
+		public void Dispose() => _poll.Dispose();
 
-		ValueTask IAsyncFtpClient.DisposeAsync() => ValueTask.CompletedTask;
-
-		ValueTask IAsyncDisposable.DisposeAsync() => ValueTask.CompletedTask;
+		public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
 		#region NotImplemented
 
 		public bool HasFeature(FtpCapability cap) => throw new NotImplementedException();
 
-		public Task DisableUTF8(CancellationToken token = default(CancellationToken)) => throw new NotImplementedException();
+		public Task DisableUTF8(CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<FtpProfile> AutoConnect(CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<FtpProfile> AutoConnect(CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<List<FtpProfile>> AutoDetect(FtpAutoDetectConfig config, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<List<FtpProfile>> AutoDetect(FtpAutoDetectConfig config, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<List<FtpProfile>> AutoDetect(bool firstOnly, bool cloneConnection = true, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<List<FtpProfile>> AutoDetect(bool firstOnly, bool cloneConnection = true, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task Connect(CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task Connect(CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task Connect(FtpProfile profile, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task Connect(FtpProfile profile, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task Connect(bool reConnect, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task Connect(bool reConnect, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task Disconnect(CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task Disconnect(CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<FtpReply> Execute(string command, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<FtpReply> Execute(string command, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<List<string>> ExecuteDownloadText(string command, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<List<string>> ExecuteDownloadText(string command, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<FtpReply> GetReply(CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<FtpReply> GetReply(CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task DeleteFile(string path, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task DeleteFile(string path, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task DeleteDirectory(string path, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task DeleteDirectory(string path, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task DeleteDirectory(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task DeleteDirectory(string path, FtpListOption options, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task EmptyDirectory(string path, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task EmptyDirectory(string path, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task EmptyDirectory(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task EmptyDirectory(string path, FtpListOption options, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<bool> DirectoryExists(string path, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<bool> DirectoryExists(string path, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<bool> FileExists(string path, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<bool> FileExists(string path, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<bool> CreateDirectory(string path, bool force, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<bool> CreateDirectory(string path, bool force, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<bool> CreateDirectory(string path, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<bool> CreateDirectory(string path, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task Rename(string path, string dest, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task Rename(string path, string dest, CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task<bool> MoveFile(string path,
 		                           string dest,
 		                           FtpRemoteExists existsMode = FtpRemoteExists.Overwrite,
-		                           CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                           CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task<bool> MoveDirectory(string path,
 		                                string dest,
 		                                FtpRemoteExists existsMode = FtpRemoteExists.Overwrite,
-		                                CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                                CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task SetFilePermissions(string path, int permissions, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task SetFilePermissions(string path, int permissions, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task Chmod(string path, int permissions, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task Chmod(string path, int permissions, CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task SetFilePermissions(string path,
 		                               FtpPermission owner,
 		                               FtpPermission group,
 		                               FtpPermission other,
-		                               CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                               CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task Chmod(string path,
 		                  FtpPermission owner,
 		                  FtpPermission group,
 		                  FtpPermission other,
-		                  CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                  CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<FtpListItem> GetFilePermissions(string path, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<FtpListItem> GetFilePermissions(string path, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<int> GetChmod(string path, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<int> GetChmod(string path, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task SetWorkingDirectory(string path, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task SetWorkingDirectory(string path, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<string> GetWorkingDirectory(CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<string> GetWorkingDirectory(CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<long> GetFileSize(string path, long defaultValue = -1, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<long> GetFileSize(string path, long defaultValue = -1, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<DateTime> GetModifiedTime(string path, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<DateTime> GetModifiedTime(string path, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task SetModifiedTime(string path, DateTime date, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task SetModifiedTime(string path, DateTime date, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<FtpListItem> GetObjectInfo(string path, bool dateModified = false, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<FtpListItem> GetObjectInfo(string path, bool dateModified = false, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<FtpListItem[]> GetListing(string path, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<FtpListItem[]> GetListing(string path, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<FtpListItem[]> GetListing(CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<FtpListItem[]> GetListing(CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<string[]> GetNameListing(string path, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<string[]> GetNameListing(string path, CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<string[]> GetNameListing(CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<string[]> GetNameListing(CancellationToken token = default) => throw new NotImplementedException();
 
 		public IAsyncEnumerable<FtpListItem> GetListingEnumerable(string path,
 		                                                          FtpListOption options,
 		                                                          CancellationToken token = default,
-		                                                          CancellationToken enumToken = default) {
-			throw new NotImplementedException();
-		}
+		                                                          CancellationToken enumToken = default) => throw new NotImplementedException();
 
 		public IAsyncEnumerable<FtpListItem> GetListingEnumerable(string path,
 		                                                          CancellationToken token = default,
-		                                                          CancellationToken enumToken = default) {
-			throw new NotImplementedException();
-		}
+		                                                          CancellationToken enumToken = default) => throw new NotImplementedException();
 
-		public IAsyncEnumerable<FtpListItem> GetListingEnumerable(CancellationToken token = default, CancellationToken enumToken = default) {
-			throw new NotImplementedException();
-		}
+		public IAsyncEnumerable<FtpListItem> GetListingEnumerable(CancellationToken token = default, CancellationToken enumToken = default) => throw new NotImplementedException();
 
 		public Task<Stream> OpenRead(string path,
 		                             FtpDataType type = FtpDataType.Binary,
 		                             long restart = 0,
 		                             bool checkIfFileExists = true,
-		                             CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                             CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task<Stream> OpenRead(string path,
 		                             FtpDataType type,
 		                             long restart,
 		                             long fileLen,
-		                             CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                             CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task<Stream> OpenWrite(string path,
 		                              FtpDataType type = FtpDataType.Binary,
 		                              bool checkIfFileExists = true,
-		                              CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                              CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<Stream> OpenWrite(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<Stream> OpenWrite(string path, FtpDataType type, long fileLen, CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task<Stream> OpenAppend(string path,
 		                               FtpDataType type = FtpDataType.Binary,
 		                               bool checkIfFileExists = true,
-		                               CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                               CancellationToken token = default) => throw new NotImplementedException();
 
-		public Task<Stream> OpenAppend(string path, FtpDataType type, long fileLen, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<Stream> OpenAppend(string path, FtpDataType type, long fileLen, CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task<List<FtpResult>> UploadFiles(IEnumerable<string> localPaths,
 		                                         string remoteDir,
@@ -387,11 +292,9 @@
 		                                         bool createRemoteDir = true,
 		                                         FtpVerify verifyOptions = FtpVerify.None,
 		                                         FtpError errorHandling = FtpError.None,
-		                                         CancellationToken token = default(CancellationToken),
+		                                         CancellationToken token = default,
 		                                         IProgress<FtpProgress> progress = null,
-		                                         List<FtpRule> rules = null) {
-			throw new NotImplementedException();
-		}
+		                                         List<FtpRule> rules = null) => throw new NotImplementedException();
 
 		public Task<List<FtpResult>> UploadFiles(IEnumerable<FileInfo> localFiles,
 		                                         string remoteDir,
@@ -399,22 +302,18 @@
 		                                         bool createRemoteDir = true,
 		                                         FtpVerify verifyOptions = FtpVerify.None,
 		                                         FtpError errorHandling = FtpError.None,
-		                                         CancellationToken token = default(CancellationToken),
+		                                         CancellationToken token = default,
 		                                         IProgress<FtpProgress> progress = null,
-		                                         List<FtpRule> rules = null) {
-			throw new NotImplementedException();
-		}
+		                                         List<FtpRule> rules = null) => throw new NotImplementedException();
 
 		public Task<List<FtpResult>> DownloadFiles(string localDir,
 		                                           IEnumerable<string> remotePaths,
 		                                           FtpLocalExists existsMode = FtpLocalExists.Overwrite,
 		                                           FtpVerify verifyOptions = FtpVerify.None,
 		                                           FtpError errorHandling = FtpError.None,
-		                                           CancellationToken token = default(CancellationToken),
+		                                           CancellationToken token = default,
 		                                           IProgress<FtpProgress> progress = null,
-		                                           List<FtpRule> rules = null) {
-			throw new NotImplementedException();
-		}
+		                                           List<FtpRule> rules = null) => throw new NotImplementedException();
 
 		public Task<FtpStatus> UploadFile(string localPath,
 		                                  string remotePath,
@@ -422,63 +321,47 @@
 		                                  bool createRemoteDir = false,
 		                                  FtpVerify verifyOptions = FtpVerify.None,
 		                                  IProgress<FtpProgress> progress = null,
-		                                  CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                                  CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task<FtpStatus> UploadStream(Stream fileStream,
 		                                    string remotePath,
 		                                    FtpRemoteExists existsMode = FtpRemoteExists.Overwrite,
 		                                    bool createRemoteDir = false,
 		                                    IProgress<FtpProgress> progress = null,
-		                                    CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                                    CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task<FtpStatus> UploadBytes(byte[] fileData,
 		                                   string remotePath,
 		                                   FtpRemoteExists existsMode = FtpRemoteExists.Overwrite,
 		                                   bool createRemoteDir = false,
 		                                   IProgress<FtpProgress> progress = null,
-		                                   CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                                   CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task<FtpStatus> DownloadFile(string localPath,
 		                                    string remotePath,
 		                                    FtpLocalExists existsMode = FtpLocalExists.Overwrite,
 		                                    FtpVerify verifyOptions = FtpVerify.None,
 		                                    IProgress<FtpProgress> progress = null,
-		                                    CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                                    CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task<bool> DownloadStream(Stream outStream,
 		                                 string remotePath,
 		                                 long restartPosition = 0,
 		                                 IProgress<FtpProgress> progress = null,
-		                                 CancellationToken token = default(CancellationToken),
-		                                 long stopPosition = 0) {
-			throw new NotImplementedException();
-		}
+		                                 CancellationToken token = default,
+		                                 long stopPosition = 0) => throw new NotImplementedException();
 
 		public Task<byte[]> DownloadBytes(string remotePath,
 		                                  long restartPosition = 0,
 		                                  IProgress<FtpProgress> progress = null,
-		                                  CancellationToken token = default(CancellationToken),
-		                                  long stopPosition = 0) {
-			throw new NotImplementedException();
-		}
+		                                  CancellationToken token = default,
+		                                  long stopPosition = 0) => throw new NotImplementedException();
 
-		public Task<byte[]> DownloadBytes(string remotePath, CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		public Task<byte[]> DownloadBytes(string remotePath, CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task<byte[]> DownloadUriBytes(string uri,
 		                                     IProgress<FtpProgress> progress = null,
-		                                     CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                                     CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task<List<FtpResult>> DownloadDirectory(string localFolder,
 		                                               string remoteFolder,
@@ -487,9 +370,7 @@
 		                                               FtpVerify verifyOptions = FtpVerify.None,
 		                                               List<FtpRule> rules = null,
 		                                               IProgress<FtpProgress> progress = null,
-		                                               CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                                               CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task<List<FtpResult>> UploadDirectory(string localFolder,
 		                                             string remoteFolder,
@@ -498,24 +379,16 @@
 		                                             FtpVerify verifyOptions = FtpVerify.None,
 		                                             List<FtpRule> rules = null,
 		                                             IProgress<FtpProgress> progress = null,
-		                                             CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                                             CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task<FtpHash> GetChecksum(string path,
 		                                 FtpHashAlgorithm algorithm = FtpHashAlgorithm.NONE,
-		                                 CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
+		                                 CancellationToken token = default) => throw new NotImplementedException();
 
 		public Task<FtpCompareResult> CompareFile(string localPath,
 		                                          string remotePath,
 		                                          FtpCompareOption options = FtpCompareOption.Auto,
-		                                          CancellationToken token = default(CancellationToken)) {
-			throw new NotImplementedException();
-		}
-
-		void IAsyncFtpClient.Dispose() { }
+		                                          CancellationToken token = default) => throw new NotImplementedException();
 
 		public FtpConfig Config { get; set; }
 

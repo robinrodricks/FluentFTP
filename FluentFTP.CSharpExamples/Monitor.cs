@@ -10,6 +10,8 @@ namespace Examples {
 
 	internal static class MonitorExample {
 
+		// Downloads all PDF files from a folder on an FTP server
+		// when they are fully uploaded (stable)
 		public static async Task DownloadStablePdfFilesAsync(CancellationToken token) {
 			var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest");
 
@@ -24,13 +26,25 @@ namespace Examples {
 				                      .Where(x => x.Type == FtpObjectType.File)
 				                      .Where(x => Path.GetExtension(x.Name) == ".pdf")) {
 					var localFilePath = Path.Combine(@"C:\LocalFolder", file.Name);
-					await e.FtpClient.DownloadFile(localFilePath, file.FullName);
-					await e.FtpClient.DeleteFile(file.FullName);
+					await e.FtpClient.DownloadFile(localFilePath, file.FullName, token: e.CancellationToken);
+					await e.FtpClient.DeleteFile(file.FullName); // don't cancel this operation
 				}
 			});
 
-			await conn.Connect();
+			await conn.Connect(token);
 			await monitor.Start(token);
+		}
+
+		// How to use the monitor in a console application
+		public static async Task MainAsync() {
+			var tokenSource = new CancellationTokenSource();
+			Console.CancelKeyPress += (_, e) =>
+			{
+				e.Cancel = true; // keep running until monitor is stopped
+				tokenSource.Cancel(); // stop the monitor
+			};
+
+			await DownloadStablePdfFilesAsync(tokenSource.Token);
 		}
 	}
 }
