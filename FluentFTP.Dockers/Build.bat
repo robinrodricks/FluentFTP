@@ -1,8 +1,8 @@
 rem uncomment for build cache cleanup before starting
-rem docker builder prune --all -f
+docker builder prune --all -f
 
 rem uncomment for image cleanup, force total rebuild before starting
-rem docker image prune -f
+docker image prune -f
 
 rem
 rem Debian mirror selection using a helper container
