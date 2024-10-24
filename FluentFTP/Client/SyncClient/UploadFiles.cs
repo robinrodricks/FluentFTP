@@ -90,6 +90,7 @@ namespace FluentFTP {
 					// mark that the file succeeded
 					result.IsSuccess = ok.IsSuccess();
 					result.IsSkipped = ok == FtpStatus.Skipped;
+					result.IsFailed = ok.IsFailure();
 
 					if (ok.IsSuccess()) {
 						successfulUploads.Add(result.RemotePath);
