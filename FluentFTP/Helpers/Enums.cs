@@ -22,6 +22,13 @@
 		}
 
 		/// <summary>
+		/// Checks if the operation was skipped (specifically).
+		/// </summary>
+		public static bool IsSkipped(this FtpStatus status) {
+			return status is FtpStatus.Skipped;
+		}
+
+		/// <summary>
 		/// Checks if the operation has failed.
 		/// </summary>
 		public static bool IsFailure(this FtpStatus status) {
