@@ -2,7 +2,7 @@
 # FluentFTP Integration Test: Debian Mirror Selection
 #
 
-FROM	python:3-slim AS prebuild
+FROM	python:3.10-slim AS prebuild
 
 SHELL	["/bin/bash", "-c"]
 
