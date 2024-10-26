@@ -10,11 +10,8 @@ FROM	common-debian:fluentftp AS build
 
 SHELL   ["/bin/bash", "-c"]
 
-ARG	LIBFILEZILLA_VERSION=0.39.2
-ARG	FILEZILLA_VERSION=1.5.1
-
-ARG	LIBFILEZILLA_URL=https://download.filezilla-project.org/libfilezilla/libfilezilla-${LIBFILEZILLA_VERSION}.tar.bz2
-ARG	FILEZILLA_URL=https://download.filezilla-project.org/server/FileZilla_Server_${FILEZILLA_VERSION}_src.tar.bz2
+ARG	LIBFILEZILLA_URL=https://svn.filezilla-project.org/svn/libfilezilla/trunk
+ARG	FILEZILLA_URL=https://svn.filezilla-project.org/svn/FileZilla%20Server/trunk
 
 ARG	DEBIAN_FRONTEND=noninteractive
 ARG	APT_CMD='apt install -y --no-install-recommends'
@@ -28,6 +25,10 @@ RUN	apt update && apt upgrade -y && apt install -y apt-utils && \
 		bzip2 \
 		binutils \
 		pkg-config \
+		subversion \
+		autoconf \
+		automake \
+		libtool \
 		libgmp-dev \
 		nettle-dev \
 		gnutls-dev \
@@ -35,10 +36,10 @@ RUN	apt update && apt upgrade -y && apt install -y apt-utils && \
 		libwxgtk3.0-gtk3-dev
 
 WORKDIR	/tmp/libfilezilla
-RUN	curl -L ${LIBFILEZILLA_URL} | tar xj --strip 1 -C /tmp/libfilezilla
+RUN	svn co ${LIBFILEZILLA_URL} /tmp/libfilezilla
 
 WORKDIR	/tmp/filezilla
-RUN	curl -L ${FILEZILLA_URL} | tar xj --strip 1 -C /tmp/filezilla
+RUN	svn co ${FILEZILLA_URL} /tmp/filezilla
 
 #
 # configure, make, make install sequences for libfilezilla and filezilla-server
@@ -53,6 +54,7 @@ RUN	export CFLAGS="-Os -fomit-frame-pointer" && \
 #
 	cd /tmp/libfilezilla && \
 	\
+	autoreconf -i && \
 	./configure --enable-shared=no --with-pic && \
 	\
 	make -j$(nproc) && \
@@ -81,6 +83,7 @@ RUN	export CFLAGS="-Os -fomit-frame-pointer" && \
 	\
 	cd /tmp/filezilla && \
 	\
+	autoreconf -i && \
 	export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig && \
 	./configure --with-pugixml=builtin && \
 	\
