@@ -17,10 +17,11 @@ Namespace Examples
 				monitor.WaitTillFileFullyUploaded = True
 				monitor.UnstablePollInterval = TimeSpan.FromSeconds(10)
 	
-				monitor.SetHandler(Async Function(source, e ) 
-					For Each file In e.Added _
-					                  .Where(Function(x) x.Type = FtpObjectType.File) _
-					                  .Where(Function(x) Path.GetExtension(x.Name) = ".pdf")
+				monitor.SetHandler(Async Function(source, e) 
+					For Each file In From listItem In e.Added 
+					                 Where listItem.Type = FtpObjectType.File
+					                 Where Path.GetExtension(listItem.Name) = ".pdf"
+
 						Dim localFilePath = Path.Combine("C:\LocalFolder", file.Name)
 						Await e.FtpClient.DownloadFile(localFilePath, file.FullName, token := e.CancellationToken)
 						Await e.FtpClient.DeleteFile(file.FullName) ' don't cancel this operation
@@ -34,13 +35,14 @@ Namespace Examples
 
 		' How to use the monitor in a console application
 		Public Async Function MainAsync() As Task
-			Dim tokenSource = New CancellationTokenSource()
-			AddHandler Console.CancelKeyPress, Sub (source, e)
-				e.Cancel = True ' keep running until monitor is stopped
-				tokenSource.Cancel() ' stop the monitor
-			End Sub
+			Using tokenSource = New CancellationTokenSource()
+				AddHandler Console.CancelKeyPress, Sub (source, e)
+					e.Cancel = True ' keep running until monitor is stopped
+					tokenSource.Cancel() ' stop the monitor
+				End Sub
 
-			Await DownloadStablePdfFilesAsync(tokenSource.Token)
+				Await DownloadStablePdfFilesAsync(tokenSource.Token)
+			End Using
 		End Function
 	End Module
 End Namespace

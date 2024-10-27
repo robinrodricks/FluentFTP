@@ -37,7 +37,7 @@ namespace Examples {
 
 		// How to use the monitor in a console application
 		public static async Task MainAsync() {
-			var tokenSource = new CancellationTokenSource();
+			using var tokenSource = new CancellationTokenSource();
 			Console.CancelKeyPress += (_, e) =>
 			{
 				e.Cancel = true; // keep running until monitor is stopped
