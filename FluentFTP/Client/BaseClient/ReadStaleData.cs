@@ -32,9 +32,9 @@ namespace FluentFTP.Client.BaseClient {
 							break;
 						}
 						Thread.Sleep(250);
-					} while (true);
+					} while (sw.ElapsedMilliseconds < 10000);
 
-					if (m_stream.IsConnected) {
+					if (m_stream.SocketDataAvailable > 0) {
 						LogWithPrefix(FtpTraceLevel.Verbose, "Stale data took " + sw.ElapsedMilliseconds + "(ms) to arrive");
 					}
 				}
@@ -112,9 +112,9 @@ namespace FluentFTP.Client.BaseClient {
 							break;
 						}
 						Thread.Sleep(250);
-					} while (true);
+					} while (sw.ElapsedMilliseconds < 10000);
 
-					if (m_stream.IsConnected) {
+					if (m_stream.SocketDataAvailable > 0) {
 						LogWithPrefix(FtpTraceLevel.Verbose, "Stale data took " + sw.ElapsedMilliseconds + "(ms) to arrive");
 					}
 				}
