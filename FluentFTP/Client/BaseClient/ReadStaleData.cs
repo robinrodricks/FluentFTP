@@ -31,6 +31,7 @@ namespace FluentFTP.Client.BaseClient {
 						if (m_stream.SocketDataAvailable > 0 || !m_stream.IsConnected) {
 							break;
 						}
+						Thread.Sleep(250);
 					} while (true);
 
 					if (m_stream.IsConnected) {
@@ -110,6 +111,7 @@ namespace FluentFTP.Client.BaseClient {
 						if (m_stream.SocketDataAvailable > 0 || !m_stream.IsConnected) {
 							break;
 						}
+						Thread.Sleep(250);
 					} while (true);
 
 					if (m_stream.IsConnected) {
