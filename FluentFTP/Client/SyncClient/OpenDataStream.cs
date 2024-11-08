@@ -23,11 +23,6 @@ namespace FluentFTP {
 
 			LogFunction(nameof(OpenDataStream), new object[] { command, restart });
 
-			if (!IsConnected) {
-				LogWithPrefix(FtpTraceLevel.Warn, "Reconnect due to disconnected control connection");
-				Connect(true);
-			}
-
 			// The PORT and PASV commands do not work with IPv6 so
 			// if either one of those types are set change them
 			// to EPSV or EPRT appropriately.
