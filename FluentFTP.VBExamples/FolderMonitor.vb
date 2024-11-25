@@ -11,7 +11,7 @@ Namespace Examples
 		Async Function DownloadStablePdfFilesAsync(token As CancellationToken) As Task
 			Dim conn As New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
 
-			Using monitor As new AsyncFtpMonitor(conn, "path/to/folder")
+			Using monitor As new BlockingAsyncFtpMonitor(conn, "path/to/folder")
 
 				monitor.PollInterval = TimeSpan.FromMinutes(5)
 				monitor.WaitTillFileFullyUploaded = True

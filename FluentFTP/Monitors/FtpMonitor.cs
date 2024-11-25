@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 namespace FluentFTP.Monitors {
 
 	/// <summary>
-	/// An async FTP folder monitor that monitors a specific remote folder on the FTP server.
+	/// A synchronous FTP folder monitor that monitors a specific remote folder on the FTP server.
 	/// It triggers events when files are added or removed.
-	/// Internally it polls the remote folder every so often and checks for changed files.
+	/// Internally it polls the remote folder(s) every `PollInterval` and checks for changed files.
 	/// If `WaitTillFileFullyUploaded` is true, then the file is only detected as an added file if the file size is stable.
 	/// </summary>
-	public class AsyncFtpFolderMonitor : BaseFtpMonitor {
-		private AsyncFtpClient _ftpClient;
+	public class FtpMonitor : BaseFtpMonitor {
+		private FtpClient _ftpClient;
 
 		/// <summary>
 		/// Event triggered when files are changed (when the file size changes).
@@ -39,7 +39,8 @@ namespace FluentFTP.Monitors {
 		/// Provide a valid FTP client, and then do not use this client for any other purpose.
 		/// This FTP client would then be owned and controlled by this class.
 		/// </summary>
-		public AsyncFtpFolderMonitor(AsyncFtpClient ftpClient, string folderPath) {
+
+		public FtpMonitor(FtpClient ftpClient, string folderPath) {
 			_ftpClient = ftpClient;
 			FolderPath = folderPath;
 		}
@@ -47,10 +48,10 @@ namespace FluentFTP.Monitors {
 		/// <summary>
 		/// Starts monitoring the FTP folder
 		/// </summary>
-		public async Task Start() {
+		public void Start() {
 			if (!Active) {
 				if (!_ftpClient.IsConnected) {
-					await _ftpClient.Connect();
+					_ftpClient.Connect();
 				}
 				StartTimer(PollFolder);
 				Active = true;
@@ -60,14 +61,13 @@ namespace FluentFTP.Monitors {
 		/// <summary>
 		/// Stops monitoring the FTP folder
 		/// </summary>
-		public async Task Stop() {
+		public void Stop() {
 			if (Active) {
 				StopTimer();
-				await _ftpClient.Disconnect();
+				_ftpClient.Disconnect();
 				Active = false;
 			}
 		}
-
 
 		/// <summary>
 		/// Polls the FTP folder for changes
@@ -95,6 +95,7 @@ namespace FluentFTP.Monitors {
 				var filesAdded = new List<string>();
 				var filesChanged = new List<string>();
 				var filesDeleted = new List<string>();
+
 				foreach (var file in currentListing) {
 					if (!_lastListing.TryGetValue(file.Key, out long lastSize)) {
 						filesAdded.Add(file.Key);
@@ -103,6 +104,7 @@ namespace FluentFTP.Monitors {
 						filesChanged.Add(file.Key);
 					}
 				}
+
 				filesDeleted = _lastListing.Keys.Except(currentListing.Keys).ToList();
 
 				// Trigger events
@@ -116,15 +118,15 @@ namespace FluentFTP.Monitors {
 
 				// Step 4: Update last listing
 				_lastListing = currentListing;
-
 			}
 			catch (Exception ex) {
 				// Log the exception or handle it as needed
 				Console.WriteLine($"Error polling FTP folder: {ex.Message}");
 			}
-
-			// restart the timer
-			StartTimer(PollFolder);
+			finally {
+				// restart the timer
+				StartTimer(PollFolder);
+			}
 		}
 
 		/// <summary>
@@ -133,12 +135,10 @@ namespace FluentFTP.Monitors {
 		private async Task<Dictionary<string, long>> GetCurrentListing() {
 			FtpListOption options = GetListingOptions(_ftpClient.Capabilities);
 
-			var files = await _ftpClient.GetListing(FolderPath, options);
+			var files = _ftpClient.GetListing(FolderPath, options);
 			return files.Where(f => f.Type == FtpObjectType.File)
 						.ToDictionary(f => f.FullName, f => f.Size);
 		}
-
-		
 
 		/// <summary>
 		/// Releases the resources used by the FtpFolderMonitor
@@ -149,5 +149,4 @@ namespace FluentFTP.Monitors {
 			_ftpClient = null;
 		}
 	}
-
 }

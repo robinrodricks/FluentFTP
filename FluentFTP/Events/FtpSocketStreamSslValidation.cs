@@ -1,16 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Net.Sockets;
-using System.Net.Security;
-using System.Security.Authentication;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
-using System.Threading.Tasks;
-
-namespace FluentFTP {
+﻿namespace FluentFTP {
 
 	/// <summary>
 	/// Event fired if a bad SSL certificate is encountered. This even is used internally; if you

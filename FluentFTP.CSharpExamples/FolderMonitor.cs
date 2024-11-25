@@ -15,7 +15,7 @@ namespace Examples {
 		public static async Task DownloadStablePdfFilesAsync(CancellationToken token) {
 			var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest");
 
-			await using var monitor = new AsyncFtpMonitor(conn, "path/to/folder");
+			await using var monitor = new BlockingAsyncFtpMonitor(conn, "path/to/folder");
 
 			monitor.PollInterval = TimeSpan.FromMinutes(5);
 			monitor.WaitTillFileFullyUploaded = true;

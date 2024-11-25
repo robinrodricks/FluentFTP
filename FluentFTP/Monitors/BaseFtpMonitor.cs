@@ -74,7 +74,7 @@ namespace FluentFTP.Monitors {
 				if (_unstableFiles.TryGetValue(file.Key, out long previousSize)) {
 					if (previousSize == file.Value) {
 						// File size is stable, move to stable files
-						stableFiles[file.Key] = file.Value;
+						stableFiles.Add(file.Key, file.Value);
 						_unstableFiles.Remove(file.Key);
 					}
 					else {
@@ -84,11 +84,11 @@ namespace FluentFTP.Monitors {
 				}
 				else if (!_lastListing.ContainsKey(file.Key)) {
 					// New file, add to unstable files
-					_unstableFiles[file.Key] = file.Value;
+					_unstableFiles.Add(file.Key, file.Value);
 				}
 				else {
 					// Existing file, add to stable files
-					stableFiles[file.Key] = file.Value;
+					stableFiles.Add(file.Key, file.Value);
 				}
 			}
 
