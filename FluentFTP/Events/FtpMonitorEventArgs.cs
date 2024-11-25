@@ -5,52 +5,53 @@
 	using System.Threading;
 
 	public class FtpMonitorEventArgs : EventArgs {
-		public FtpMonitorEventArgs(string[] folderPaths,
-										List<FtpListItem> added,
-										List<FtpListItem> changed,
-										List<FtpListItem> deleted,
-										IAsyncFtpClient ftpClient,
-										CancellationToken cancellationToken) {
-			FolderPaths = folderPaths;
+		public FtpMonitorEventArgs(List<string> added,
+										List<string> changed,
+										List<string> deleted,
+										AsyncFtpClient asyncFtpClient = null,
+										FtpClient ftpClient = null,
+										CancellationToken cancellationToken = default) {
 			Added = added;
 			Changed = changed;
 			Deleted = deleted;
+			AsyncFtpClient = asyncFtpClient;
 			FtpClient = ftpClient;
 			CancellationToken = cancellationToken;
 		}
 
 		/// <summary>
-		/// Gets the monitored FTP folder path(s)
+		/// Gets the files that are added (newly added files that did not exist at the last check).
 		/// </summary>
-		public string[] FolderPaths { get; }
+		/// </summary>
+		public List<string> Added { get; }
 
 		/// <summary>
-		/// Gets the list items that were added
+		/// Gets the files that are changed (when the file size changes).
 		/// </summary>
-		public List<FtpListItem> Added { get; }
+		public List<string> Changed { get; }
 
 		/// <summary>
-		/// Gets the list items that were changed
+		/// Gets the files that were deleted (if a file is missing, which existed on the server before)
 		/// </summary>
-		public List<FtpListItem> Changed { get; }
+		public List<string> Deleted { get; }
 
 		/// <summary>
-		/// Gets the list items that were deleted
+		/// Gets the active FTP client when using the async monitor.
 		/// </summary>
-		public List<FtpListItem> Deleted { get; }
+		public AsyncFtpClient AsyncFtpClient { get; }
 
 		/// <summary>
-		/// Gets the active FTP client
+		/// Gets the active FTP client when using the synchronous monitor.
 		/// </summary>
-		public IAsyncFtpClient FtpClient { get; }
+		public FtpClient FtpClient { get; }
 
 		/// <summary>
-		/// The cancellation token for closing the monitor
+		/// The cancellation token for closing the monitor (async monitor only).
 		/// </summary>
 		public CancellationToken CancellationToken { get; }
 
 		public override string ToString() {
-			return $"FolderPaths = \"{string.Join("\",\"", FolderPaths)}\" Added: {Added.Count} Changed: {Changed.Count} Deleted: {Deleted.Count}";
+			return $"Added: {Added.Count} Changed: {Changed.Count} Deleted: {Deleted.Count}";
 		}
 	}
 }

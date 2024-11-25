@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace FluentFTP.Monitors {
 
 	/// <summary>
-	/// An async FTP folder monitor that monitors a specific remote folder on the FTP server.
+	/// An async FTP folder monitor that monitors specific remote folders on the FTP server.
 	/// It triggers events when files are added or removed.
 	/// Internally it polls the remote folder(s) every `PollInterval` and checks for changed files.
 	/// If `WaitTillFileFullyUploaded` is true, then the file is only detected as an added file if the file size is stable.
@@ -15,33 +15,18 @@ namespace FluentFTP.Monitors {
 		private AsyncFtpClient _ftpClient;
 
 		/// <summary>
-		/// Event triggered when files are changed (when the file size changes).
-		/// </summary>
-		public event EventHandler<List<string>> FilesChanged;
-
-		/// <summary>
-		/// Event triggered when files are added (if a new file exists, that was not on the server before).
-		/// </summary>
-		public event EventHandler<List<string>> FilesAdded;
-
-		/// <summary>
-		/// Event triggered when files are deleted (if a file is missing, which existed on the server before)
-		/// </summary>
-		public event EventHandler<List<string>> FilesDeleted;
-
-		/// <summary>
 		/// Event triggered when any change is detected
 		/// </summary>
-		public event EventHandler<EventArgs> ChangeDetected;
+		public event EventHandler<FtpMonitorEventArgs> ChangeDetected;
 
 		/// <summary>
 		/// Create a new FTP monitor.
 		/// Provide a valid FTP client, and then do not use this client for any other purpose.
 		/// This FTP client would then be owned and controlled by this class.
 		/// </summary>
-		public AsyncFtpMonitor(AsyncFtpClient ftpClient, string folderPath) {
+		public AsyncFtpMonitor(AsyncFtpClient ftpClient, List<string> folderPaths) {
 			_ftpClient = ftpClient;
-			FolderPath = folderPath;
+			FolderPaths = folderPaths;
 		}
 
 		/// <summary>
@@ -105,13 +90,10 @@ namespace FluentFTP.Monitors {
 				}
 				filesDeleted = _lastListing.Keys.Except(currentListing.Keys).ToList();
 
-				// Trigger events
-				if (filesAdded.Count > 0) FilesAdded?.Invoke(this, filesAdded);
-				if (filesChanged.Count > 0) FilesChanged?.Invoke(this, filesChanged);
-				if (filesDeleted.Count > 0) FilesDeleted?.Invoke(this, filesDeleted);
-
+				// Trigger event
 				if (filesAdded.Count > 0 || filesChanged.Count > 0 || filesDeleted.Count > 0) {
-					ChangeDetected?.Invoke(this, EventArgs.Empty);
+					var args = new FtpMonitorEventArgs(filesAdded, filesChanged, filesDeleted, _ftpClient);
+					ChangeDetected?.Invoke(this, args);
 				}
 
 				// Step 4: Update last listing
@@ -133,9 +115,22 @@ namespace FluentFTP.Monitors {
 		private async Task<Dictionary<string, long>> GetCurrentListing() {
 			FtpListOption options = GetListingOptions(_ftpClient.Capabilities);
 
-			var files = await _ftpClient.GetListing(FolderPath, options);
-			return files.Where(f => f.Type == FtpObjectType.File)
-						.ToDictionary(f => f.FullName, f => f.Size);
+			// per folder to check
+			var allItems = new Dictionary<string, long>();
+			foreach (var folderPath in FolderPaths) {
+
+				// get listing
+				var items = await _ftpClient.GetListing(folderPath, options);
+				foreach (var f in items) {
+					if (f.Type == FtpObjectType.File) {
+
+						// combine it into the results
+						allItems[f.FullName] = f.Size;
+					}
+				}
+			}
+
+			return allItems;
 		}
 
 		

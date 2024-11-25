@@ -6,33 +6,18 @@ using System.Threading.Tasks;
 namespace FluentFTP.Monitors {
 
 	/// <summary>
-	/// A synchronous FTP folder monitor that monitors a specific remote folder on the FTP server.
+	/// A synchronous FTP folder monitor that monitors specific remote folders on the FTP server.
 	/// It triggers events when files are added or removed.
 	/// Internally it polls the remote folder(s) every `PollInterval` and checks for changed files.
 	/// If `WaitTillFileFullyUploaded` is true, then the file is only detected as an added file if the file size is stable.
 	/// </summary>
-	public class FtpMonitor : BaseFtpMonitor {
+	public class FtpMonitor : BaseFtpMonitor, IDisposable {
 		private FtpClient _ftpClient;
-
-		/// <summary>
-		/// Event triggered when files are changed (when the file size changes).
-		/// </summary>
-		public event EventHandler<List<string>> FilesChanged;
-
-		/// <summary>
-		/// Event triggered when files are added (if a new file exists, that was not on the server before).
-		/// </summary>
-		public event EventHandler<List<string>> FilesAdded;
-
-		/// <summary>
-		/// Event triggered when files are deleted (if a file is missing, which existed on the server before)
-		/// </summary>
-		public event EventHandler<List<string>> FilesDeleted;
 
 		/// <summary>
 		/// Event triggered when any change is detected
 		/// </summary>
-		public event EventHandler<EventArgs> ChangeDetected;
+		public event EventHandler<FtpMonitorEventArgs> ChangeDetected;
 
 		/// <summary>
 		/// Create a new FTP monitor.
@@ -40,9 +25,9 @@ namespace FluentFTP.Monitors {
 		/// This FTP client would then be owned and controlled by this class.
 		/// </summary>
 
-		public FtpMonitor(FtpClient ftpClient, string folderPath) {
+		public FtpMonitor(FtpClient ftpClient, List<string> folderPaths) {
 			_ftpClient = ftpClient;
-			FolderPath = folderPath;
+			FolderPaths = folderPaths;
 		}
 
 		/// <summary>
@@ -135,9 +120,22 @@ namespace FluentFTP.Monitors {
 		private async Task<Dictionary<string, long>> GetCurrentListing() {
 			FtpListOption options = GetListingOptions(_ftpClient.Capabilities);
 
-			var files = _ftpClient.GetListing(FolderPath, options);
-			return files.Where(f => f.Type == FtpObjectType.File)
-						.ToDictionary(f => f.FullName, f => f.Size);
+			// per folder to check
+			var allItems = new Dictionary<string, long>();
+			foreach (var folderPath in FolderPaths) {
+
+				// get listing
+				var items = _ftpClient.GetListing(folderPath, options);
+				foreach (var f in items) {
+					if (f.Type == FtpObjectType.File) {
+
+						// combine it into the results
+						allItems[f.FullName] = f.Size;
+					}
+				}
+			}
+
+			return allItems;
 		}
 
 		/// <summary>

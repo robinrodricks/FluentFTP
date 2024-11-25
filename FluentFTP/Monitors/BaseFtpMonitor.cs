@@ -19,19 +19,26 @@ namespace FluentFTP.Monitors {
 		public bool Active { get; internal set; }
 
 		/// <summary>
-		/// Gets the monitored FTP folder path
+		/// Gets the monitored FTP folder path(s)
 		/// </summary>
-		public string FolderPath { get; internal set; }
+		public List<string> FolderPaths { get; internal set; }
 
 		/// <summary>
-		/// Gets or sets the polling interval in seconds
+		/// Gets or sets the polling interval. Default is 10 minutes.
 		/// </summary>
-		public int PollInterval { get; set; } = 60;
+		public TimeSpan PollInterval { get; set; } = TimeSpan.FromMinutes(10);
 
 		/// <summary>
-		/// Gets or sets whether to wait for files to be fully uploaded before reporting
+		/// Whether to wait for list items to be fully uploaded (having a stable file size) before reporting them as added.
 		/// </summary>
-		public bool WaitTillFileFullyUploaded { get; set; } = false;
+		public bool WaitTillFileFullyUploaded { get; set; } = true;
+
+		/// <summary>
+		/// Gets or sets the polling interval to check for stable list items sizes
+		/// when `WaitTillFileFullyUploaded` is `true`.
+		/// Set it to `null` (default) to use the `PollInterval` as the unstable poll interval.
+		/// </summary>
+		public TimeSpan? UnstablePollInterval { get; set; }
 
 		/// <summary>
 		/// Gets or sets whether to recursively monitor subfolders
