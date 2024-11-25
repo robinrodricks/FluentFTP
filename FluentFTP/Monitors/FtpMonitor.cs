@@ -93,12 +93,9 @@ namespace FluentFTP.Monitors {
 				filesDeleted = _lastListing.Keys.Except(currentListing.Keys).ToList();
 
 				// Trigger events
-				if (filesAdded.Count > 0) FilesAdded?.Invoke(this, filesAdded);
-				if (filesChanged.Count > 0) FilesChanged?.Invoke(this, filesChanged);
-				if (filesDeleted.Count > 0) FilesDeleted?.Invoke(this, filesDeleted);
-
 				if (filesAdded.Count > 0 || filesChanged.Count > 0 || filesDeleted.Count > 0) {
-					ChangeDetected?.Invoke(this, EventArgs.Empty);
+					var args = new FtpMonitorEventArgs(filesAdded, filesChanged, filesDeleted, null, _ftpClient);
+					ChangeDetected?.Invoke(this, args);
 				}
 
 				// Step 4: Update last listing

@@ -47,7 +47,7 @@ namespace FluentFTP.Monitors {
 
 
 		internal void StartTimer(TimerCallback callback) {
-			_timer = new Timer(callback, null, TimeSpan.Zero, TimeSpan.FromSeconds(PollInterval));
+			_timer = new Timer(callback, null, TimeSpan.Zero, PollInterval);
 		}
 
 		internal void StopTimer() {
