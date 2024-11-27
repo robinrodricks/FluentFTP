@@ -7,9 +7,9 @@ namespace FluentFTP.Monitors {
 
 	/// <summary>
 	/// A synchronous FTP folder monitor that monitors specific remote folders on the FTP server.
-	/// It triggers events when files are added or removed.
+	/// It triggers the `ChangeDetected` event when files are added, changed or removed.
 	/// Internally it polls the remote folder(s) every `PollInterval` and checks for changed files.
-	/// If `WaitTillFileFullyUploaded` is true, then the file is only detected as an added file if the file size is stable.
+	/// If `WaitForUpload` is true, then the file is only detected as an added file if the file size is stable.
 	/// </summary>
 	public class FtpMonitor : BaseFtpMonitor, IDisposable {
 		private FtpClient _ftpClient;
@@ -71,8 +71,8 @@ namespace FluentFTP.Monitors {
 				// Step 1: Get the current listing
 				var currentListing = GetCurrentListing();
 
-				// Step 2: Handle unstable files if WaitTillFileFullyUploaded is true
-				if (WaitTillFileFullyUploaded) {
+				// Step 2: Handle unstable files if WaitForUpload is true
+				if (WaitForUpload) {
 					currentListing = HandleUnstableFiles(currentListing);
 				}
 

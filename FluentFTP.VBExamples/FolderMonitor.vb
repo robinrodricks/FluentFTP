@@ -14,7 +14,7 @@ Namespace Examples
 			Using monitor As new BlockingAsyncFtpMonitor(conn, "path/to/folder")
 
 				monitor.PollInterval = TimeSpan.FromMinutes(5)
-				monitor.WaitTillFileFullyUploaded = True
+				monitor.WaitForUpload = True
 				monitor.UnstablePollInterval = TimeSpan.FromSeconds(10)
 	
 				monitor.SetHandler(Async Function(source, e) 

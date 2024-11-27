@@ -31,14 +31,7 @@ namespace FluentFTP.Monitors {
 		/// <summary>
 		/// Whether to wait for list items to be fully uploaded (having a stable file size) before reporting them as added.
 		/// </summary>
-		public bool WaitTillFileFullyUploaded { get; set; } = true;
-
-		/// <summary>
-		/// Gets or sets the polling interval to check for stable list items sizes
-		/// when `WaitTillFileFullyUploaded` is `true`.
-		/// Set it to `null` (default) to use the `PollInterval` as the unstable poll interval.
-		/// </summary>
-		public TimeSpan? UnstablePollInterval { get; set; }
+		public bool WaitForUpload { get; set; } = true;
 
 		/// <summary>
 		/// Gets or sets whether to recursively monitor subfolders
@@ -72,7 +65,7 @@ namespace FluentFTP.Monitors {
 		}
 
 		/// <summary>
-		/// Handles unstable files when WaitTillFileFullyUploaded is true
+		/// Handles unstable files when WaitForUpload is true
 		/// </summary>
 		internal Dictionary<string, long> HandleUnstableFiles(Dictionary<string, long> currentListing) {
 			var stableFiles = new Dictionary<string, long>();

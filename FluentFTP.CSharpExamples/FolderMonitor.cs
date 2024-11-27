@@ -18,7 +18,7 @@ namespace Examples {
 			await using var monitor = new BlockingAsyncFtpMonitor(conn, "path/to/folder");
 
 			monitor.PollInterval = TimeSpan.FromMinutes(5);
-			monitor.WaitTillFileFullyUploaded = true;
+			monitor.WaitForUpload = true;
 			monitor.UnstablePollInterval = TimeSpan.FromSeconds(10);
 
 			monitor.SetHandler(static async (_, e) => {

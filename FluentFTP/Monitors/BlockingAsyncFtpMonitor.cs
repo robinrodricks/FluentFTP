@@ -8,9 +8,9 @@ namespace FluentFTP.Monitors {
 
 	/// <summary>
 	/// An async FTP folder monitor that monitors specific remote folders on the FTP server.
-	/// It triggers events when list items are added, changed or removed.
+	/// It triggers the `ChangeDetected` event when files are added, changed or removed.
 	/// Internally it polls the remote folder(s) every `PollInterval` and checks for changed files.
-	/// If `WaitTillFileFullyUploaded` is true, then the list items is only detected as an added when the size is stable.
+	/// If `WaitForUpload` is true, then the file is only detected as an added when the size is stable.
 	///
 	/// NOTE: This is user contributed code and uses an unusual async pattern.
 	/// Refer to the original PR to understand the design principles:
@@ -55,8 +55,7 @@ namespace FluentFTP.Monitors {
 
 					await PollFolder(token).ConfigureAwait(false);
 
-					var pollInterval = _unstableFiles.Count > 0 && UnstablePollInterval != null ? UnstablePollInterval.Value : PollInterval;
-					var waitTime = pollInterval - (DateTime.UtcNow - startTimeUtc);
+					var waitTime = PollInterval - (DateTime.UtcNow - startTimeUtc);
 
 					if (waitTime > TimeSpan.Zero) {
 						await Task.Delay(waitTime, token).ConfigureAwait(false);
@@ -84,7 +83,7 @@ namespace FluentFTP.Monitors {
 		}
 #endif
 		public override string ToString() {
-			return $"FolderPaths = \"{string.Join("\",\"", FolderPaths)}\" PollInterval = {PollInterval} WaitTillFileFullyUploaded = {WaitTillFileFullyUploaded}";
+			return $"FolderPaths = \"{string.Join("\",\"", FolderPaths)}\" PollInterval = {PollInterval} WaitForUpload = {WaitForUpload}";
 		}
 
 		/// <summary>
@@ -95,8 +94,8 @@ namespace FluentFTP.Monitors {
 			// Step 1: Get the current listing
 			var currentListing = await GetCurrentListing(token).ConfigureAwait(false);
 
-			// Step 2: Handle unstable list items if WaitTillFileFullyUploaded is true
-			if (WaitTillFileFullyUploaded) {
+			// Step 2: Handle unstable list items if WaitForUpload is true
+			if (WaitForUpload) {
 				currentListing = HandleUnstableFiles(currentListing);
 			}
 
