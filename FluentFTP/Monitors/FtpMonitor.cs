@@ -57,7 +57,7 @@ namespace FluentFTP.Monitors {
 		/// <summary>
 		/// Polls the FTP folder for changes
 		/// </summary>
-		private async void PollFolder(object state) {
+		private void PollFolder(object state) {
 			try {
 
 				// exit if not connected
@@ -69,7 +69,7 @@ namespace FluentFTP.Monitors {
 				StopTimer();
 
 				// Step 1: Get the current listing
-				var currentListing = await GetCurrentListing();
+				var currentListing = GetCurrentListing();
 
 				// Step 2: Handle unstable files if WaitTillFileFullyUploaded is true
 				if (WaitTillFileFullyUploaded) {
@@ -77,24 +77,21 @@ namespace FluentFTP.Monitors {
 				}
 
 				// Step 3: Compare current listing to last listing
-				var filesAdded = new List<string>();
-				var filesChanged = new List<string>();
-				var filesDeleted = new List<string>();
-
+				var added = new List<string>();
+				var changed = new List<string>();
 				foreach (var file in currentListing) {
 					if (!_lastListing.TryGetValue(file.Key, out long lastSize)) {
-						filesAdded.Add(file.Key);
+						added.Add(file.Key);
 					}
 					else if (lastSize != file.Value) {
-						filesChanged.Add(file.Key);
+						changed.Add(file.Key);
 					}
 				}
-
-				filesDeleted = _lastListing.Keys.Except(currentListing.Keys).ToList();
+				var deleted = _lastListing.Keys.Except(currentListing.Keys).ToList();
 
 				// Trigger events
-				if (filesAdded.Count > 0 || filesChanged.Count > 0 || filesDeleted.Count > 0) {
-					var args = new FtpMonitorEventArgs(filesAdded, filesChanged, filesDeleted, null, _ftpClient);
+				if (added.Count > 0 || changed.Count > 0 || deleted.Count > 0) {
+					var args = new FtpMonitorEventArgs(added, changed, deleted, null, _ftpClient);
 					ChangeDetected?.Invoke(this, args);
 				}
 
@@ -114,7 +111,7 @@ namespace FluentFTP.Monitors {
 		/// <summary>
 		/// Gets the current listing of files from the FTP server
 		/// </summary>
-		private async Task<Dictionary<string, long>> GetCurrentListing() {
+		private Dictionary<string, long> GetCurrentListing() {
 			FtpListOption options = GetListingOptions(_ftpClient.Capabilities);
 
 			// per folder to check

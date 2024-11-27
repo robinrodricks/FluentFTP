@@ -101,23 +101,22 @@ namespace FluentFTP.Monitors {
 			}
 
 			// Step 3: Compare current listing to last listing
-			var listItemsAdded = new List<string>();
-			var listItemsChanged = new List<string>();
-
+			var added = new List<string>();
+			var changed = new List<string>();
 			foreach (var listItem in currentListing) {
 				if (!_lastListing.TryGetValue(listItem.Key, out var lastItem)) {
-					listItemsAdded.Add(listItem.Key);
+					added.Add(listItem.Key);
 				}
 				else if (lastItem != listItem.Value) {
-					listItemsChanged.Add(listItem.Key);
+					changed.Add(listItem.Key);
 				}
 			}
-			var listItemsDeleted = _lastListing.Keys.Except(currentListing.Keys).ToList();
+			var deleted = _lastListing.Keys.Except(currentListing.Keys).ToList();
 
 			// Step 4: Update last listing
 			_lastListing = currentListing;
 
-			if (listItemsAdded.Count == 0 && listItemsChanged.Count == 0 && listItemsDeleted.Count == 0) {
+			if (added.Count == 0 && changed.Count == 0 && deleted.Count == 0) {
 				return;
 			}
 
@@ -125,9 +124,8 @@ namespace FluentFTP.Monitors {
 			if (ChangeDetected == null) {
 				return;
 			}
-
 			try {
-				var args = new FtpMonitorEventArgs(listItemsAdded, listItemsChanged, listItemsDeleted, _ftpClient, null, token);
+				var args = new FtpMonitorEventArgs(added, changed, deleted, _ftpClient, null, token);
 				await ChangeDetected(args).ConfigureAwait(false);
 			}
 			catch (OperationCanceledException)

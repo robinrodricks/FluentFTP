@@ -77,22 +77,21 @@ namespace FluentFTP.Monitors {
 				}
 
 				// Step 3: Compare current listing to last listing
-				var filesAdded = new List<string>();
-				var filesChanged = new List<string>();
-				var filesDeleted = new List<string>();
+				var added = new List<string>();
+				var changed = new List<string>();
 				foreach (var file in currentListing) {
 					if (!_lastListing.TryGetValue(file.Key, out long lastSize)) {
-						filesAdded.Add(file.Key);
+						added.Add(file.Key);
 					}
 					else if (lastSize != file.Value) {
-						filesChanged.Add(file.Key);
+						changed.Add(file.Key);
 					}
 				}
-				filesDeleted = _lastListing.Keys.Except(currentListing.Keys).ToList();
+				var deleted = _lastListing.Keys.Except(currentListing.Keys).ToList();
 
 				// Trigger event
-				if (filesAdded.Count > 0 || filesChanged.Count > 0 || filesDeleted.Count > 0) {
-					var args = new FtpMonitorEventArgs(filesAdded, filesChanged, filesDeleted, _ftpClient);
+				if (added.Count > 0 || changed.Count > 0 || deleted.Count > 0) {
+					var args = new FtpMonitorEventArgs(added, changed, deleted, _ftpClient);
 					ChangeDetected?.Invoke(this, args);
 				}
 
