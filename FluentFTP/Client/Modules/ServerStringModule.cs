@@ -19,6 +19,7 @@ namespace FluentFTP.Client.Modules {
 			"failed to open file",
 			"not found",
 			"no such file",
+			"couldn't open the file",
 			"cannot find the file",
 			"cannot find",
 			"can't get file",
