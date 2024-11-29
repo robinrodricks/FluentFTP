@@ -15,9 +15,4 @@ cat << EOB
 EOB
 
 # Run filezilla:
-
-# &>/dev/null /opt/filezilla-server/bin/filezilla-server
-
-cat /opt/filezilla-server/etc/settings.xml
-
-/opt/filezilla-server/bin/filezilla-server --config-dir /opt/filezilla-server/etc
+&>/dev/null /opt/filezilla-server/bin/filezilla-server --config-dir /opt/filezilla-server/etc
