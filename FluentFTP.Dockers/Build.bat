@@ -64,6 +64,6 @@ rem for pyftpdlib, not needed
 del vsftpd\sources.list
 
 rem uncomment this if you need the storage after the build
-rem docker image rm common-mirror:fluentftp common-debian:fluentftp common-debian-slim:fluentftp
+docker image rm common-mirror:fluentftp common-debian:fluentftp common-debian-slim:fluentftp
 
 pause
