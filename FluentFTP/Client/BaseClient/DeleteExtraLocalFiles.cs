@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using FluentFTP.Client.Modules;
 using FluentFTP.Helpers;
 using FluentFTP.Rules;
 
 namespace FluentFTP.Client.BaseClient {
 
 	public partial class BaseFtpClient {
-
 
 		/// <summary>
 		/// Delete the extra local files if in mirror mode
@@ -26,7 +26,7 @@ namespace FluentFTP.Client.BaseClient {
 					if (!shouldExist.ContainsKey(existingLocalFile.ToLower())) {
 
 						// only delete the local file if its permitted by the configuration
-						if (CanDeleteLocalFile(rules, existingLocalFile)) {
+						if (FileRuleModule.CanDeleteLocalFile(this, rules, existingLocalFile)) {
 							LogWithPrefix(FtpTraceLevel.Info, "Delete extra file from disk: " + existingLocalFile);
 
 							// delete the file from disk
@@ -39,39 +39,6 @@ namespace FluentFTP.Client.BaseClient {
 					}
 				}
 			}
-		}
-
-		/// <summary>
-		/// Check if the local file can be deleted, based on the DownloadDirectoryDeleteExcluded property
-		/// </summary>
-		protected bool CanDeleteLocalFile(List<FtpRule> rules, string existingLocalFile) {
-
-			// if we should not delete excluded files
-			if (!Config.DownloadDirectoryDeleteExcluded && !rules.IsBlank()) {
-
-				// create the result object to validate rules to ensure that file from excluded
-				// directories are not deleted on the local filesystem
-				var result = new FtpResult() {
-					Type = FtpObjectType.File,
-					Size = 0,
-					Name = Path.GetFileName(existingLocalFile),
-					LocalPath = existingLocalFile,
-					IsDownload = false,
-				};
-
-				// check if the file passes the rules
-				if (FilePassesRules(result, rules, true)) {
-					// delete the file because it is included
-					return true;
-				}
-				else {
-					// do not delete the file because it is excluded
-					return false;
-				}
-			}
-
-			// always delete the file whether its included or excluded by the rules
-			return true;
 		}
 
 	}

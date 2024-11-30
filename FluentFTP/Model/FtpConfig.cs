@@ -346,78 +346,70 @@ namespace FluentFTP {
 		/// <returns>Return an FtpListItem object if the line can be parsed, else return null</returns>
 		public delegate FtpListItem CustomParser(string line, List<FtpCapability> capabilities, BaseFtpClient client);
 
-		protected double _serverTimeZone = 0;
-		protected TimeSpan _serverTimeOffset = new TimeSpan();
+
+		[Obsolete("Use `ServerTimeZone` or `SetServerTimeZone` to set the server's timezone.")]
+		public double TimeZone { get; set; }
+
+
+		[Obsolete("Use `ClientTimeZone` or `SetClientTimeZone` to set the client's timezone.")]
+		public double LocalTimeZone { get; set; }
+
 
 		/// <summary>
-		/// The timezone of the FTP server. If the server is in Tokyo with UTC+9 then set this to 9.
-		/// If the server returns timestamps in UTC then keep this 0.
-		/// </summary>
-		public double TimeZone {
-			get => _serverTimeZone;
-			set {
-				if (value < -14 || value > 14) {
-					throw new ArgumentOutOfRangeException(nameof(value), "TimeZone must be within -14 to +14 to represent UTC-14 to UTC+14");
-				}
-				_serverTimeZone = value;
-
-				// configure parser
-				if (value == 0) {
-					_serverTimeOffset = TimeSpan.Zero;
-				}
-				else {
-					var hours = (int)Math.Floor(_serverTimeZone);
-					var mins = (int)Math.Floor((_serverTimeZone - Math.Floor(_serverTimeZone)) * 60);
-					_serverTimeOffset = new TimeSpan(hours, mins, 0);
-				}
-			}
-		}
-
-		public TimeSpan GetServerTimeOffset() {
-			return _serverTimeOffset;
-		}
-
-
-#if NETSTANDARD || NET5_0_OR_GREATER
-		protected double _localTimeZone = 0;
-		protected TimeSpan _localTimeOffset = new TimeSpan();
-
-		/// <summary>
-		/// The timezone of your machine. If your machine is in Tokyo with UTC+9 then set this to 9.
-		/// If your machine is synchronized with UTC then keep this 0.
-		/// </summary>
-		public double LocalTimeZone {
-			get => _localTimeZone;
-			set {
-				if (value < -14 || value > 14) {
-					throw new ArgumentOutOfRangeException(nameof(value), "LocalTimeZone must be within -14 to +14 to represent UTC-14 to UTC+14");
-				}
-				_localTimeZone = value;
-
-				// configure parser
-				if (value == 0) {
-					_localTimeOffset = TimeSpan.Zero;
-				}
-				else {
-					var hours = (int)Math.Floor(_localTimeZone);
-					var mins = (int)Math.Floor((_localTimeZone - Math.Floor(_localTimeZone)) * 60);
-					_localTimeOffset = new TimeSpan(hours, mins, 0);
-				}
-			}
-		}
-		public TimeSpan GetLocalTimeOffset() {
-			return _localTimeOffset;
-		}
-#endif
-
-		/// <summary>
-		/// Server timestamps are converted into the given timezone.
-		/// ServerTime will return the original timestamp.
-		/// LocalTime will convert the timestamp into your local machine's timezone.
-		/// UTC will convert the timestamp into UTC format (GMT+0).
-		/// You need to set TimeZone and LocalTimeZone (.NET core only) for these to work.
+		/// Configures the type of timezone conversion done on all timestamps sent/recieved from the FTP server.
+		/// `ServerTime` will return the original timestamp as reported by the FTP server.
+		/// `LocalTime` will convert the timestamp into your local machine's timezone.
+		/// `UTC` will convert the timestamp into UTC format (GMT+0).
+		/// You need to set `ServerTimeZone` and `ClientTimeZone` for these to work.
 		/// </summary>
 		public FtpDate TimeConversion { get; set; } = FtpDate.ServerTime;
+
+		protected TimeZoneInfo _serverTimeZone = TimeZoneInfo.Utc;
+		protected TimeZoneInfo _clientTimeZone = TimeZoneInfo.Local;
+
+		/// <summary>
+		/// The timezone of the FTP server. Defaults to UTC.
+		/// If the server returns timestamps in UTC then keep this `TimeZoneInfo.Utc`.
+		/// Use `SetServerTimeZone` to easily set this property.
+		/// </summary>
+		public TimeZoneInfo ServerTimeZone {
+			get => _serverTimeZone;
+			set {
+				_serverTimeZone = value ?? throw new ArgumentNullException(nameof(value), "ServerTimeZone cannot be null.");
+			}
+		}
+
+		/// <summary>
+		/// The timezone of your client machine. Defaults to `TimeZoneInfo.Local`.
+		/// If your machine is synchronized with UTC then keep this `TimeZoneInfo.Utc`.
+		/// Use `SetClientTimeZone` to easily set this property.
+		/// </summary>
+		public TimeZoneInfo ClientTimeZone {
+			get => _clientTimeZone;
+			set {
+				_clientTimeZone = value ?? throw new ArgumentNullException(nameof(value), "ClientTimeZone cannot be null.");
+			}
+		}
+
+#if NET5_0_OR_GREATER
+		/// <summary>
+		/// Sets the server timezone reliably on Windows or Unix.
+		/// </summary>
+		/// <param name="windowsTimezone">The Windows timezone ID (e.g., "Tokyo Standard Time").</param>
+		/// <param name="unixTimezone">The Unix timezone ID (e.g., "Asia/Tokyo").</param>
+		public void SetServerTimeZone(string windowsTimezone, string unixTimezone) {
+			ServerTimeZone = TimeZoneInfo.FindSystemTimeZoneById(OperatingSystem.IsWindows() ? windowsTimezone : unixTimezone);
+		}
+
+		/// <summary>
+		/// Sets the client timezone reliably on Windows or Unix.
+		/// </summary>
+		/// <param name="windowsTimezone">The Windows timezone ID (e.g., "Pacific Standard Time").</param>
+		/// <param name="unixTimezone">The Unix timezone ID (e.g., "America/Los_Angeles").</param>
+		public void SetClientTimeZone(string windowsTimezone, string unixTimezone) {
+			ClientTimeZone = TimeZoneInfo.FindSystemTimeZoneById(OperatingSystem.IsWindows() ? windowsTimezone : unixTimezone);
+		}
+#endif
 
 		/// <summary>
 		/// If true, increases performance of GetListing by reading multiple lines
@@ -622,8 +614,9 @@ namespace FluentFTP {
 			write.ListingParser = read.ListingParser;
 			write.ListingCulture = read.ListingCulture;
 			write.ListingCustomParser = read.ListingCustomParser;
-			write.TimeZone = read.TimeZone;
 			write.TimeConversion = read.TimeConversion;
+			write.ClientTimeZone = read.ClientTimeZone;
+			write.ServerTimeZone = read.ServerTimeZone;
 			write.BulkListing = read.BulkListing;
 			write.BulkListingLength = read.BulkListingLength;
 			write.TransferChunkSize = read.TransferChunkSize;

@@ -33,7 +33,7 @@ namespace FluentFTP {
 		public async IAsyncEnumerable<FtpListItem> GetListingEnumerable(string path, FtpListOption options, CancellationToken token = default(CancellationToken), [EnumeratorCancellation] CancellationToken enumToken = default(CancellationToken)) {
 
 			// start recursive process if needed and unsupported by the server
-			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
+			if (options.HasFlag(FtpListOption.Recursive) && !ListingModule.IsServerSideRecursionSupported(this, options)) {
 				await foreach (FtpListItem i in GetListingRecursiveEnumerable(await GetAbsolutePathAsync(path, token), options, token, enumToken)) {
 					yield return i;
 				}
@@ -71,7 +71,7 @@ namespace FluentFTP {
 			}
 
 			bool machineList;
-			CalculateGetListingCommand(path, options, out listcmd, out machineList);
+			ListingModule.CalculateGetListingCommand(this, path, options, out listcmd, out machineList);
 
 			if (autoNav) {
 				pwdSave = await GetWorkingDirectory(token);
@@ -170,7 +170,7 @@ namespace FluentFTP {
 		public async Task<FtpListItem[]> GetListing(string path, FtpListOption options, CancellationToken token = default(CancellationToken)) {
 
 			// start recursive process if needed and unsupported by the server
-			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
+			if (options.HasFlag(FtpListOption.Recursive) && !ListingModule.IsServerSideRecursionSupported(this, options)) {
 				return await GetListingRecursive(await GetAbsolutePathAsync(path, token), options, token);
 			}
 
@@ -204,7 +204,7 @@ namespace FluentFTP {
 			}
 
 			bool machineList;
-			CalculateGetListingCommand(path, options, out listcmd, out machineList);
+			ListingModule.CalculateGetListingCommand(this, path, options, out listcmd, out machineList);
 
 			if (autoNav) {
 				pwdSave = await GetWorkingDirectory(token);

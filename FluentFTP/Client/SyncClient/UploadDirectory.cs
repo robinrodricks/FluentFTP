@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using FluentFTP.Rules;
 using FluentFTP.Helpers;
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -76,14 +77,14 @@ namespace FluentFTP {
 			var remoteListing = checkFileExistence ? GetListing(remoteFolder, FtpListOption.Recursive) : null;
 
 			// loop through each folder and ensure it exists
-			var dirsToUpload = GetSubDirectoriesToUpload(localFolder, remoteFolder, rules, results, dirListing);
+			var dirsToUpload = DirectoryModule.GetSubDirectoriesToUpload(this, localFolder, remoteFolder, rules, results, dirListing);
 			CreateSubDirectories(this, dirsToUpload);
 
 			// get all the files in the local directory
 			var fileListing = Directory.GetFiles(localFolder, "*.*", SearchOption.AllDirectories);
 
 			// loop through each file and transfer it
-			var filesToUpload = GetFilesToUpload(localFolder, remoteFolder, rules, results, shouldExist, fileListing);
+			var filesToUpload = FileUploadModule.GetFilesToUpload(this, localFolder, remoteFolder, rules, results, shouldExist, fileListing);
 			UploadDirectoryFiles(filesToUpload, existsMode, verifyOptions, progress, remoteListing);
 
 			// delete the extra remote files if in mirror mode and the directory was pre-existing
@@ -137,7 +138,7 @@ namespace FluentFTP {
 
 					// skip uploading if the file already exists on the server
 					FtpRemoteExists existsModeToUse;
-					if (!CanUploadFile(result, remoteListing, existsMode, out existsModeToUse)) {
+					if (!FileUploadModule.CanUploadFile(this, result, remoteListing, existsMode, out existsModeToUse)) {
 						continue;
 					}
 
@@ -178,7 +179,7 @@ namespace FluentFTP {
 						if (!shouldExist.ContainsKey(existingServerFile.FullName.ToLower())) {
 
 							// only delete the remote file if its permitted by the configuration
-							if (CanDeleteRemoteFile(rules, existingServerFile)) {
+							if (DirectoryModule.CanDeleteRemoteFile(this, rules, existingServerFile)) {
 								LogWithPrefix(FtpTraceLevel.Info, "Delete extra file from server: " + existingServerFile.FullName);
 
 								// delete the file from the server

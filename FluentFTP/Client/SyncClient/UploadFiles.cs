@@ -6,6 +6,7 @@ using FluentFTP.Helpers;
 using FluentFTP.Exceptions;
 using System.Data;
 using FluentFTP.Rules;
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -197,7 +198,7 @@ namespace FluentFTP {
 				remoteFilePath = GetAbsoluteFilePath(remoteDir, fileName);
 
 				// record that this file should be uploaded
-				RecordFileToUpload(rules, results, shouldExist, filesToUpload, localPath, remoteFilePath);
+				FileUploadModule.RecordFileToUpload(this, rules, results, shouldExist, filesToUpload, localPath, remoteFilePath);
 			}
 
 			return filesToUpload;

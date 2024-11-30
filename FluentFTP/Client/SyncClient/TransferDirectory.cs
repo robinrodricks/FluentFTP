@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentFTP.Rules;
 using FluentFTP.Helpers;
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -77,7 +78,7 @@ namespace FluentFTP {
 			var remoteListing = checkFileExistence ? remoteClient.GetListing(remoteFolder, FtpListOption.Recursive) : null;
 
 			// loop through each folder and ensure it exists #1
-			var dirsToUpload = GetSubDirectoriesToTransfer(sourceFolder, remoteFolder, rules, results, dirListing);
+			var dirsToUpload = DirectoryModule.GetSubDirectoriesToTransfer(this, sourceFolder, remoteFolder, rules, results, dirListing);
 			CreateSubDirectories(remoteClient, dirsToUpload);
 
 			// get all the files in the local directory
@@ -119,7 +120,7 @@ namespace FluentFTP {
 				results.Add(result);
 
 				// skip transferring the file if it does not pass all the rules
-				if (!FilePassesRules(result, rules, true)) {
+				if (!FileRuleModule.FilePassesRules(this, result, rules, true)) {
 					continue;
 				}
 
@@ -155,7 +156,7 @@ namespace FluentFTP {
 
 					// skip uploading if the file already exists on the server
 					FtpRemoteExists existsModeToUse;
-					if (!CanUploadFile(result, remoteListing, existsMode, out existsModeToUse)) {
+					if (!FileUploadModule.CanUploadFile(this, result, remoteListing, existsMode, out existsModeToUse)) {
 						continue;
 					}
 

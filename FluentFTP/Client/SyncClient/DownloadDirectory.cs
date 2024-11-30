@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using FluentFTP.Rules;
 using FluentFTP.Helpers;
 using FluentFTP.Exceptions;
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -68,7 +69,7 @@ namespace FluentFTP {
 			var shouldExist = new Dictionary<string, bool>();
 
 			// loop through each file and transfer it
-			var toDownload = GetFilesToDownload(localFolder, remoteFolder, rules, results, listing, shouldExist);
+			var toDownload = FileDownloadModule.GetFilesToDownload(this, localFolder, remoteFolder, rules, results, listing, shouldExist);
 			DownloadServerFiles(toDownload, existsMode, verifyOptions, progress);
 
 			// delete the extra local files if in mirror mode

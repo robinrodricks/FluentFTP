@@ -9,6 +9,7 @@ using FluentFTP.Exceptions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Authentication;
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -64,7 +65,7 @@ namespace FluentFTP {
 					remoteFileLen = remotePosition = GetFileSize(remotePath, 0);
 
 					// calculate the local position for appending / resuming
-					localPosition = CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
+					localPosition = FileTransferModule.CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
 
 				}
 				else {
@@ -100,7 +101,7 @@ namespace FluentFTP {
 							remoteFileLen = remotePosition = GetFileSize(remotePath, 0);
 
 							// calculate the local position for appending / resuming
-							localPosition = CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
+							localPosition = FileTransferModule.CalculateAppendLocalPosition(remotePath, existsMode, remotePosition);
 						}
 					}
 				}
@@ -154,7 +155,7 @@ namespace FluentFTP {
 				// calculate chunk size and rate limiting
 				const int rateControlResolution = 100;
 				var rateLimitBytes = Config.UploadRateLimit != 0 ? (long)Config.UploadRateLimit * 1024 : 0;
-				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
+				var chunkSize = FileTransferModule.CalculateTransferChunkSize(this, rateLimitBytes, rateControlResolution);
 
 				// calc desired length based on the mode (if need to append to the end of remote file, length is sum of local+remote)
 				var remoteFileDesiredLen = (existsMode is FtpRemoteExists.AddToEnd or FtpRemoteExists.AddToEndNoCheck) ?

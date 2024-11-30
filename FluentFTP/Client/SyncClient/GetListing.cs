@@ -62,7 +62,7 @@ namespace FluentFTP {
 		public FtpListItem[] GetListing(string path, FtpListOption options) {
 
 			// start recursive process if needed and unsupported by the server
-			if (options.HasFlag(FtpListOption.Recursive) && !IsServerSideRecursionSupported(options)) {
+			if (options.HasFlag(FtpListOption.Recursive) && !ListingModule.IsServerSideRecursionSupported(this, options)) {
 				return GetListingRecursive(GetAbsolutePath(path), options);
 			}
 
@@ -98,7 +98,7 @@ namespace FluentFTP {
 			}
 
 			bool machineList;
-			CalculateGetListingCommand(path, options, out listcmd, out machineList);
+			ListingModule.CalculateGetListingCommand(this, path, options, out listcmd, out machineList);
 
 			if (autoNav) {
 				pwdSave = GetWorkingDirectory();

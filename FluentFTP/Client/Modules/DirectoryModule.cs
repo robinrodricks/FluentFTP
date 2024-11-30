@@ -6,14 +6,52 @@ using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP.Client.Modules;
+using FluentFTP.Client.BaseClient;
 
-namespace FluentFTP.Client.BaseClient {
-	public partial class BaseFtpClient {
+namespace FluentFTP.Client.Modules {
+	internal static class DirectoryModule {
+
+		/// <summary>
+		/// Make a list of subdirectories to transfer.
+		/// </summary>
+		public static List<FtpResult> GetSubDirectoriesToTransfer(BaseFtpClient client, string sourceFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, string[] dirListing) {
+
+			var dirsToTransfer = new List<FtpResult>();
+
+			foreach (var sourceFile in dirListing) {
+
+				// calculate the local path
+				var relativePath = sourceFile.Replace(sourceFolder, "").EnsurePostfix("/");
+				var remoteFile = remoteFolder + relativePath;
+
+				// create the result object
+				var result = new FtpResult {
+					Type = FtpObjectType.Directory,
+					Size = 0,
+					Name = sourceFile.GetFtpDirectoryName(),
+					RemotePath = remoteFile,
+					LocalPath = sourceFile,
+					IsDownload = false,
+				};
+
+				// record the folder
+				results.Add(result);
+
+				// skip transferring the file if it does not pass all the rules
+				if (!FileRuleModule.FilePassesRules(client, result, rules, true)) {
+					continue;
+				}
+
+				dirsToTransfer.Add(result);
+			}
+
+			return dirsToTransfer;
+		}
 
 		/// <summary>
 		/// Get a list of all the sub directories that need to be created within the main directory
 		/// </summary>
-		protected List<FtpResult> GetSubDirectoriesToUpload(string localFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, string[] dirListing) {
+		public static List<FtpResult> GetSubDirectoriesToUpload(BaseFtpClient client, string localFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, string[] dirListing) {
 
 			var dirsToUpload = new List<FtpResult>();
 
@@ -37,7 +75,7 @@ namespace FluentFTP.Client.BaseClient {
 				results.Add(result);
 
 				// skip uploading the file if it does not pass all the rules
-				if (!FilePassesRules(result, rules, true)) {
+				if (!FileRuleModule.FilePassesRules(client, result, rules, true)) {
 					continue;
 				}
 
@@ -50,10 +88,10 @@ namespace FluentFTP.Client.BaseClient {
 		/// <summary>
 		/// Check if the remote file can be deleted, based on the UploadDirectoryDeleteExcluded property
 		/// </summary>
-		protected bool CanDeleteRemoteFile(List<FtpRule> rules, FtpListItem existingServerFile) {
+		public static bool CanDeleteRemoteFile(BaseFtpClient client, List<FtpRule> rules, FtpListItem existingServerFile) {
 
 			// if we should not delete excluded files
-			if (!Config.UploadDirectoryDeleteExcluded && !rules.IsBlank()) {
+			if (!client.Config.UploadDirectoryDeleteExcluded && !rules.IsBlank()) {
 
 				// create the result object to validate rules to ensure that file from excluded
 				// directories are not deleted on the FTP remote server
@@ -66,7 +104,7 @@ namespace FluentFTP.Client.BaseClient {
 				};
 
 				// check if the file passes the rules
-				if (FilePassesRules(result, rules, false)) {
+				if (FileRuleModule.FilePassesRules(client, result, rules, false)) {
 					// delete the file because it is included
 					return true;
 				}

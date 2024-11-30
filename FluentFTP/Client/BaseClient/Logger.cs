@@ -141,7 +141,7 @@ namespace FluentFTP.Client.BaseClient {
 		}
 
 		/// <summary>
-		/// Log a message
+		/// Log a raw message.
 		/// </summary>
 		/// <param name="eventType">The type of tracing event</param>
 		/// <param name="message">The message to write</param>
@@ -161,9 +161,9 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		/// <param name="eventType">The type of tracing event</param>
 		/// <param name="message">The message to write</param>
-		/// <param name="exception">An optional exeption</param>
-		/// <param name="exNewLine">Write an optional exeption on a new line</param>
-		protected void LogWithPrefix(FtpTraceLevel eventType, string message, Exception exception = null, bool exNewLine = false) {
+		/// <param name="exception">An optional exception</param>
+		/// <param name="exNewLine">Write the exception on a new line</param>
+		public void LogWithPrefix(FtpTraceLevel eventType, string message, Exception exception = null, bool exNewLine = false) {
 			if (AnyLoggingIsEnabled()) {
 				// log to attached logger if given
 				m_logger?.Log(eventType, message, exception);

@@ -5,6 +5,7 @@ using System.Linq;
 using FluentFTP.Helpers;
 using FluentFTP.Exceptions;
 using FluentFTP.Rules;
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class FtpClient {
@@ -57,7 +58,7 @@ namespace FluentFTP {
 			localDir = !localDir.EndsWith(Path.DirectorySeparatorChar.ToString()) ? localDir + Path.DirectorySeparatorChar.ToString() : localDir;
 
 			// check which files should be downloaded or filtered out based on rules
-			var filesToDownload = GetFilesToDownload2(localDir, remotePaths, rules, results, shouldExist);
+			var filesToDownload = FileDownloadModule.GetFilesToDownload2(this, localDir, remotePaths, rules, results, shouldExist);
 
 			// per remote file
 			var r = -1;

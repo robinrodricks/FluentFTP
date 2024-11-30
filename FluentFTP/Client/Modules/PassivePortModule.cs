@@ -1,18 +1,18 @@
 ﻿using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
+using FluentFTP.Client.BaseClient;
 using FluentFTP.Exceptions;
 
-namespace FluentFTP.Client.BaseClient {
+namespace FluentFTP.Client.Modules {
 
-	public partial class BaseFtpClient {
-
+	internal static class PassivePortModule {
 
 		/// <summary>
 		/// Parse the advertised port number from an EPSV response and derive an IPAD
 		/// Handles (|||nnnn|) and (!!!nnnn!)
 		/// </summary>
-		protected void GetEnhancedPassivePort(FtpReply reply, out string derivedIpad, out int advertisedPort) {
+		public static void GetEnhancedPassivePort(BaseFtpClient client, FtpReply reply, out string derivedIpad, out int advertisedPort) {
 			// Check the format of the EPSV response, respecting the code page problems of the vertical bar | vs. !
 			var m = Regex.Match(reply.Message, @"\([!\|][!\|][!\|](?<advertisedPort>[0-9]+)[!\|]\)");
 
@@ -24,7 +24,7 @@ namespace FluentFTP.Client.BaseClient {
 				Response: 227 Entering Passive Mode(XX, XX, XX, XX, 143, 225).
 				*/
 				try {
-					GetPassivePort(FtpDataConnectionType.AutoPassive, reply, out derivedIpad, out advertisedPort);
+					GetPassivePort(client, FtpDataConnectionType.AutoPassive, reply, out derivedIpad, out advertisedPort);
 					return;
 				}
 				catch {
@@ -48,13 +48,14 @@ namespace FluentFTP.Client.BaseClient {
 			*/
 
 			// Derive the IPAD
-			derivedIpad = m_host; // m_host is the original connect dnsname/IPAD for the control connection
+			derivedIpad = client.Host; // m_host is the original connect dnsname/IPAD for the control connection
 		}
 
 		/// <summary>
 		/// Parse the advertised IPAD and advertised port number from a PASV response and derive the final IPAD
 		/// </summary>
-		protected void GetPassivePort(FtpDataConnectionType type, FtpReply reply, out string host, out int port) {
+		public static void GetPassivePort(BaseFtpClient client, FtpDataConnectionType type, FtpReply reply, out string host, out int port) {
+
 			// Check the format of the PASV response
 			var m = Regex.Match(reply.Message, @"(?<quad1>[0-9]+)," + @"(?<quad2>[0-9]+)," + @"(?<quad3>[0-9]+)," + @"(?<quad4>[0-9]+)," + @"(?<port1>[0-9]+)," + @"(?<port2>[0-9]+)");
 
@@ -67,8 +68,8 @@ namespace FluentFTP.Client.BaseClient {
 
 			// PASVEX mode ignores the IPAD advertised in the PASV response and overrides all other concerns
 			if (type == FtpDataConnectionType.PASVEX) {
-				LogWithPrefix(FtpTraceLevel.Verbose, "PASV advertised IPAD ignored (PASVEX). Using original connect dnsname/IPAD");
-				host = m_host; // m_host is the original connect dnsname/IPAD for the control connection
+				client.LogWithPrefix(FtpTraceLevel.Verbose, "PASV advertised IPAD ignored (PASVEX). Using original connect dnsname/IPAD");
+				host = client.Host; // m_host is the original connect dnsname/IPAD for the control connection
 				return;
 			}
 
@@ -85,7 +86,7 @@ namespace FluentFTP.Client.BaseClient {
 			// PASVUSE mode forces the advertised IPAD to be used, even if not routable,
 			// which can be useful for connections WITHIN private networks, or with proxys
 			if (type == FtpDataConnectionType.PASVUSE) {
-				LogWithPrefix(FtpTraceLevel.Verbose, "PASV advertised non-routable IPAD will be force-used (PASVUSE)");
+				client.LogWithPrefix(FtpTraceLevel.Verbose, "PASV advertised non-routable IPAD will be force-used (PASVUSE)");
 				return;
 			}
 
@@ -93,24 +94,10 @@ namespace FluentFTP.Client.BaseClient {
 			// use the original connect dnsname/IPAD for the connection
 			// This VERY OFTEN works (often also with the help of DNS), but not always.
 			// If you NEED to connect via the non-routable IPAD, you must use "PASVUSE" mode
-			LogWithPrefix(FtpTraceLevel.Verbose, "PASV advertised a non-routable IPAD. Using original connect dnsname/IPAD");
-			host = m_host;
+			client.LogWithPrefix(FtpTraceLevel.Verbose, "PASV advertised a non-routable IPAD. Using original connect dnsname/IPAD");
+			host = client.Host;
 		}
 
-		/// <summary>
-		/// Returns the IPAD to be sent to the server for the active connection.
-		/// </summary>
-		/// <param name="ipad"></param>
-		/// <returns></returns>
-		protected string GetLocalAddress(IPAddress ipad) {
 
-			// Use resolver
-			if (Config.AddressResolver != null) {
-				return m_Address ?? (m_Address = Config.AddressResolver());
-			}
-
-			// Use supplied IPAD
-			return ipad.ToString();
-		}
 	}
 }

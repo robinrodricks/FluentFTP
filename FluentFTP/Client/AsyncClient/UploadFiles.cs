@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Data;
 using FluentFTP.Rules;
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -214,7 +215,7 @@ namespace FluentFTP {
 				remoteFilePath = await GetAbsoluteFilePathAsync(remoteDir, fileName, token);
 
 				// record that this file should be uploaded
-				RecordFileToUpload(rules, results, shouldExist, filesToUpload, localPath, remoteFilePath);
+				FileUploadModule.RecordFileToUpload(this, rules, results, shouldExist, filesToUpload, localPath, remoteFilePath);
 			}
 
 			return filesToUpload;

@@ -5,6 +5,7 @@ using FluentFTP.Rules;
 using FluentFTP.Helpers;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentFTP.Client.Modules;
 
 namespace FluentFTP {
 	public partial class AsyncFtpClient {
@@ -88,7 +89,7 @@ namespace FluentFTP {
 			token.ThrowIfCancellationRequested();
 
 			// loop through each folder and ensure it exists #1
-			var dirsToUpload = GetSubDirectoriesToTransfer(sourceFolder, remoteFolder, rules, results, dirListing);
+			var dirsToUpload = DirectoryModule.GetSubDirectoriesToTransfer(this, sourceFolder, remoteFolder, rules, results, dirListing);
 
 			// break if task is cancelled
 			token.ThrowIfCancellationRequested();
@@ -139,7 +140,7 @@ namespace FluentFTP {
 				results.Add(result);
 
 				// skip transferring the file if it does not pass all the rules
-				if (!FilePassesRules(result, rules, true)) {
+				if (!FileRuleModule.FilePassesRules(this, result, rules, true)) {
 					continue;
 				}
 
@@ -169,7 +170,7 @@ namespace FluentFTP {
 
 					// skip uploading if the file already exists on the server
 					FtpRemoteExists existsModeToUse;
-					if (!CanUploadFile(result, remoteListing, existsMode, out existsModeToUse)) {
+					if (!FileUploadModule.CanUploadFile(this, result, remoteListing, existsMode, out existsModeToUse)) {
 						continue;
 					}
 

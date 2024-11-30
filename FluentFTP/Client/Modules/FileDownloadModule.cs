@@ -5,14 +5,15 @@ using FluentFTP.Rules;
 using FluentFTP.Helpers;
 using FluentFTP.Client.Modules;
 using System.Linq;
+using FluentFTP.Client.BaseClient;
 
-namespace FluentFTP.Client.BaseClient {
-	public partial class BaseFtpClient {
+namespace FluentFTP.Client.Modules {
+	internal static class FileDownloadModule {
 
 		/// <summary>
 		/// Get a list of all the files and folders that need to be downloaded
 		/// </summary>
-		protected List<FtpResult> GetFilesToDownload(string localFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, FtpListItem[] listing, Dictionary<string, bool> shouldExist) {
+		public static List<FtpResult> GetFilesToDownload(BaseFtpClient client, string localFolder, string remoteFolder, List<FtpRule> rules, List<FtpResult> results, FtpListItem[] listing, Dictionary<string, bool> shouldExist) {
 
 			var toDownload = new List<FtpResult>();
 
@@ -25,7 +26,7 @@ namespace FluentFTP.Client.BaseClient {
 					// calculate the local path
 					var relativePath = remoteFile.FullName.EnsurePrefix("/").RemovePrefix(remoteFolder).Replace('/', Path.DirectorySeparatorChar);
 					var localFile = localFolder.CombineLocalPath(relativePath);
-					RecordFileToDownload(rules, results, shouldExist, toDownload, remoteFile, localFile);
+					RecordFileToDownload(client, rules, results, shouldExist, toDownload, remoteFile, localFile);
 
 				}
 			}
@@ -36,7 +37,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <summary>
 		/// Get a list of all the files and folders that need to be downloaded
 		/// </summary>
-		protected List<FtpResult> GetFilesToDownload2(string localFolder, IEnumerable<string> remotePaths, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist) {
+		public static List<FtpResult> GetFilesToDownload2(BaseFtpClient client, string localFolder, IEnumerable<string> remotePaths, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist) {
 
 			var toDownload = new List<FtpResult>();
 
@@ -45,7 +46,7 @@ namespace FluentFTP.Client.BaseClient {
 				// calc local path
 				var localPath = localFolder.CombineLocalPath(remotePath.GetFtpFileName());
 
-				RecordFileToDownload(rules, results, shouldExist, toDownload, null, localPath, remotePath);
+				RecordFileToDownload(client, rules, results, shouldExist, toDownload, null, localPath, remotePath);
 
 			}
 
@@ -55,7 +56,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <summary>
 		/// Create an FtpResult object for the given file to be downloaded, and check if the file passes the rules.
 		/// </summary>
-		protected void RecordFileToDownload(List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, List<FtpResult> toDownload, FtpListItem remoteFile, string localFile, string remoteFilePath = null) {
+		private static void RecordFileToDownload(BaseFtpClient client, List<FtpRule> rules, List<FtpResult> results, Dictionary<string, bool> shouldExist, List<FtpResult> toDownload, FtpListItem remoteFile, string localFile, string remoteFilePath = null) {
 
 			// create the result object
 			FtpResult result;
@@ -84,7 +85,7 @@ namespace FluentFTP.Client.BaseClient {
 			results.Add(result);
 
 			// only download the file if it passes all the rules
-			if (FilePassesRules(result, rules, false, remoteFile)) {
+			if (FileRuleModule.FilePassesRules(client, result, rules, false, remoteFile)) {
 
 				// record that this file/folder should exist
 				shouldExist.Add(localFile.ToLower(), true);
@@ -94,5 +95,6 @@ namespace FluentFTP.Client.BaseClient {
 
 			}
 		}
+
 	}
 }

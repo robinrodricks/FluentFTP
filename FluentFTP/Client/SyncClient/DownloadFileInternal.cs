@@ -80,7 +80,7 @@ namespace FluentFTP {
 
 				const int rateControlResolution = 100;
 				var rateLimitBytes = Config.DownloadRateLimit != 0 ? (long)Config.DownloadRateLimit * 1024 : 0;
-				var chunkSize = CalculateTransferChunkSize(rateLimitBytes, rateControlResolution);
+				var chunkSize = FileTransferModule.CalculateTransferChunkSize(this, rateLimitBytes, rateControlResolution);
 
 				var buffer = new byte[chunkSize];
 				var offset = restartPosition;

@@ -433,5 +433,19 @@ namespace FluentFTP.Client.BaseClient {
 			get => m_stream?.RemoteEndPoint;
 		}
 
+		/// <summary>
+		/// Returns the IPAD to be sent to the server for the active connection.
+		/// </summary>
+		public string GetLocalAddress(IPAddress ipad) {
+
+			// Use resolver
+			if (Config.AddressResolver != null) {
+				return m_Address ?? (m_Address = Config.AddressResolver());
+			}
+
+			// Use supplied IPAD
+			return ipad.ToString();
+		}
+
 	}
 }
