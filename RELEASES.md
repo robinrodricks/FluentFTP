@@ -1,5 +1,14 @@
 # Release Notes
 
+#### 51.2.0
+
+ - New: FTP monitors to detect changes in FTP folders and send events (`FluentFTP.Monitors` namespace)
+ - Fix: Total rewrite of FileZilla FTP server docker for integration testing (thanks @FanDjango)
+ - Fix: `LogMaskModule` throwing exception when `UserName` is empty (thanks @ssg)
+ - Minor: Improve performance of dictionary lookups (thanks @ssg)
+ - Fix: Improve `AsyncFtpClient` dispose logic (thanks @FanDjango)
+ - Fix: Cleanup warnings on build (thanks @FanDjango)
+
 #### 51.1.0
 
  - Fix: GUI hangs during `Dispose` of `AsyncFtpClient`
