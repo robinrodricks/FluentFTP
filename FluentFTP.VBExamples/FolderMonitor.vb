@@ -1,48 +1,39 @@
-﻿Imports System.IO
+﻿Imports System
+Imports System.Collections.Generic
+Imports System.IO
+Imports System.Linq
 Imports System.Threading
+Imports System.Threading.Tasks
 Imports FluentFTP
 Imports FluentFTP.Monitors
 
 Namespace Examples
-	Friend Module MonitorExample 
+	Friend Module FolderMonitorExample
+		Async Function DownloadStablePdfFilesAsync(ByVal token As CancellationToken) As Task
+			Dim conn = New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
+			Await conn.Connect(token)
 
-		' Downloads all PDF files from a folder on an FTP server
-		' when they are fully uploaded (stable)
-		Async Function DownloadStablePdfFilesAsync(token As CancellationToken) As Task
-			Dim conn As New AsyncFtpClient("127.0.0.1", "ftptest", "ftptest")
-
-			Using monitor As new BlockingAsyncFtpMonitor(conn, "path/to/folder")
-
+			Using monitor = New BlockingAsyncFtpMonitor(conn, New List(Of String) From {
+				"path/to/folder"
+			})
 				monitor.PollInterval = TimeSpan.FromMinutes(5)
 				monitor.WaitForUpload = True
-				monitor.UnstablePollInterval = TimeSpan.FromSeconds(10)
-	
-				monitor.SetHandler(Async Function(source, e) 
-					For Each file In From listItem In e.Added 
-					                 Where listItem.Type = FtpObjectType.File
-					                 Where Path.GetExtension(listItem.Name) = ".pdf"
 
-						Dim localFilePath = Path.Combine("C:\LocalFolder", file.Name)
-						Await e.FtpClient.DownloadFile(localFilePath, file.FullName, token := e.CancellationToken)
-						Await e.FtpClient.DeleteFile(file.FullName) ' don't cancel this operation
-					Next
-				End Function)
+				monitor.ChangeDetected =
+					Async Function(e)
+						If True Then
+							For Each file In e.Added.Where(Function(x) Path.GetExtension(x) = ".pdf")
+								Dim localFilePath = Path.Combine("C:\LocalFolder", Path.GetFileName(file))
+								Await e.AsyncFtpClient.DownloadFile(localFilePath, file, token:=e.CancellationToken)
+								Await e.AsyncFtpClient.DeleteFile(file)
+							Next
+						End If
+					End Function
 
-				Await conn.Connect(token)
 				Await monitor.Start(token)
 			End Using
 		End Function
 
-		' How to use the monitor in a console application
-		Public Async Function MainAsync() As Task
-			Using tokenSource = New CancellationTokenSource()
-				AddHandler Console.CancelKeyPress, Sub (source, e)
-					e.Cancel = True ' keep running until monitor is stopped
-					tokenSource.Cancel() ' stop the monitor
-				End Sub
-
-				Await DownloadStablePdfFilesAsync(tokenSource.Token)
-			End Using
-		End Function
 	End Module
 End Namespace
+

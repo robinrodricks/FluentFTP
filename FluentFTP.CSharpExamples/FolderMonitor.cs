@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -8,26 +9,24 @@ using FluentFTP.Monitors;
 
 namespace Examples {
 
-	internal static class MonitorExample {
+	internal static class FolderMonitorExample {
 
 		// Downloads all PDF files from a folder on an FTP server
 		// when they are fully uploaded (stable)
 		public static async Task DownloadStablePdfFilesAsync(CancellationToken token) {
 			var conn = new AsyncFtpClient("127.0.0.1", "ftptest", "ftptest");
 
-			await using var monitor = new BlockingAsyncFtpMonitor(conn, "path/to/folder");
+			await using var monitor = new BlockingAsyncFtpMonitor(conn, new List<string> { "path/to/folder" });
 
 			monitor.PollInterval = TimeSpan.FromMinutes(5);
 			monitor.WaitForUpload = true;
-			monitor.UnstablePollInterval = TimeSpan.FromSeconds(10);
 
-			monitor.SetHandler(static async (_, e) => {
+			monitor.ChangeDetected = (static async (e) => {
 				foreach (var file in e.Added
-				                      .Where(x => x.Type == FtpObjectType.File)
-				                      .Where(x => Path.GetExtension(x.Name) == ".pdf")) {
-					var localFilePath = Path.Combine(@"C:\LocalFolder", file.Name);
-					await e.FtpClient.DownloadFile(localFilePath, file.FullName, token: e.CancellationToken);
-					await e.FtpClient.DeleteFile(file.FullName); // don't cancel this operation
+				                      .Where(x => Path.GetExtension(x) == ".pdf")) {
+					var localFilePath = Path.Combine(@"C:\LocalFolder", Path.GetFileName(file));
+					await e.AsyncFtpClient.DownloadFile(localFilePath, file, token: e.CancellationToken);
+					await e.AsyncFtpClient.DeleteFile(file); // don't cancel this operation
 				}
 			});
 
