@@ -17,20 +17,28 @@ namespace FluentFTP.Client.Modules {
 			}
 
 			if (!reverse) {
-				// Server to client conversion
-				date = TimeZoneInfo.ConvertTime(date, config.ServerTimeZone, TimeZoneInfo.Utc);
 
+				// Server to client conversion
 				if (config.TimeConversion == FtpDate.LocalTime) {
-					date = TimeZoneInfo.ConvertTime(date, TimeZoneInfo.Utc, config.ClientTimeZone);
+					date = TimeZoneInfo.ConvertTime(date, config.ServerTimeZone, config.ClientTimeZone);
+				}
+				else {
+
+					// Server to UTC conversion
+					date = TimeZoneInfo.ConvertTime(date, config.ServerTimeZone, TimeZoneInfo.Utc);
 				}
 			}
 			else {
+
 				// Client to server conversion
 				if (config.TimeConversion == FtpDate.LocalTime) {
-					date = TimeZoneInfo.ConvertTime(date, config.ClientTimeZone, TimeZoneInfo.Utc);
+					date = TimeZoneInfo.ConvertTime(date, config.ClientTimeZone, config.ServerTimeZone);
 				}
+				else {
 
-				date = TimeZoneInfo.ConvertTime(date, TimeZoneInfo.Utc, config.ServerTimeZone);
+					// UTC to server conversion
+					date = TimeZoneInfo.ConvertTime(date, TimeZoneInfo.Utc, config.ServerTimeZone);
+				}
 			}
 
 			return date;

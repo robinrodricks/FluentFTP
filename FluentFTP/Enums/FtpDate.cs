@@ -13,14 +13,14 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Returns the server timestamps in Local Time.
-		/// Ensure that the TimeZone property is correctly set to the server's timezone.
-		/// If you are on .NET Core/.NET Standard, you need to set the LocalTimeZone property for this to work.
+		/// Ensure that the `ServerTimeZone` property is set to the server's timezone.
+		/// Ensure that the `ClientTimeZone` property is set to the client's timezone.
 		/// </summary>
 		LocalTime = 1,
 
 		/// <summary>
 		/// Returns the server timestamps in UTC (Coordinated Universal Time).
-		/// Ensure that the TimeZone property is correctly set to the server's timezone.
+		/// Ensure that the `ServerTimeZone` property is correctly set to the server's timezone.
 		/// </summary>
 		UTC = 2,
 
