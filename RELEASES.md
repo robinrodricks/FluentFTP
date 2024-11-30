@@ -3,22 +3,22 @@
 #### 52.0.0
 
  - **Time Zones**
-   - New: Time Zone conversion is performed using standard .NET classes instead of hourly offset values
-   - New: Properties to configure Time Zone conversion (`ClientTimeZone` and `ServerTimeZone`)
-   - New: Utility methods to configure Time Zone conversion (`SetClientTimeZone` and `SetServerTimeZone`)
+   - New: Time Zone conversion is performed using standard .NET `TimeZoneInfo` instead of hourly offset values
+   - New: `ClientTimeZone` and `ServerTimeZone` Properties to configure Time Zone conversion
+   - New: `SetClientTimeZone` and `SetServerTimeZone` Utility methods to configure Time Zone conversion
  - **FTP Monitoring**
-   - New: FTP monitors to detect changes in FTP folders and send events (`FluentFTP.Monitors` namespace)
+   - New: FTP monitors to detect added/updated/deleted files in remote FTP folders and send events to your application accordingly (`FtpMonitor`, `AsyncFtpMonitor`, `BlockingAsyncFtpMonitor`)
+   - New: FTP monitor event with details on changed files (`FtpMonitorEventArgs`)
+   - New: Sample code for `BlockingAsyncFtpMonitor`
  - **Testing**
    - Fix: Total rewrite of FileZilla FTP server docker for integration testing (thanks @FanDjango)
    - Fix: Updated tests for new TimeZone API
-   - New: New tests for FTP Monitor using blocking async monitor
  - **Maintainance**
-   - Change: Allow overriding of download/upload internal methods in FTP client subclasses
+   - Change: Allow overriding of download/upload internal methods in FTP client subclasses (`DownloadFileInternal` and `UploadFileInternal`)
    - Change: Refactor file transfer and file listing utilities into static module classes
    - Change: Improve performance of dictionary lookups (thanks @ssg)
    - Fix: `LogMaskModule` throwing exception when `UserName` is empty (thanks @ssg)
-   - Fix: Improve `AsyncFtpClient` dispose logic (thanks @FanDjango)
-   - Fix: Cleanup warnings on build (thanks @FanDjango)
+   - Fix: Improve `AsyncFtpClient` dispose logic and cleanup warnings on build (thanks @FanDjango)
 
 #### 51.1.0
 

@@ -41,8 +41,4 @@
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     </PropertyGroup>
 
-    <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)'=='Release' And '$(TargetFramework)'=='net462'">
-        <Exec Command="copy /Y &quot;$(ProjectDir)bin\Release\net6.0\FluentFTP.dll&quot; &quot;$(SolutionDir)Powershell\FluentFTP.dll&quot;" />
-    </Target>
-
 </Project>
