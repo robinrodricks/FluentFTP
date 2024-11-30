@@ -1,13 +1,24 @@
 # Release Notes
 
-#### 51.2.0
+#### 52.0.0
 
- - New: FTP monitors to detect changes in FTP folders and send events (`FluentFTP.Monitors` namespace)
- - Fix: Total rewrite of FileZilla FTP server docker for integration testing (thanks @FanDjango)
- - Fix: `LogMaskModule` throwing exception when `UserName` is empty (thanks @ssg)
- - Minor: Improve performance of dictionary lookups (thanks @ssg)
- - Fix: Improve `AsyncFtpClient` dispose logic (thanks @FanDjango)
- - Fix: Cleanup warnings on build (thanks @FanDjango)
+ - **Time Zones**
+   - New: Time Zone conversion is performed using standard .NET classes instead of hourly offset values
+   - New: Properties to configure Time Zone conversion (`ClientTimeZone` and `ServerTimeZone`)
+   - New: Utility methods to configure Time Zone conversion (`SetClientTimeZone` and `SetServerTimeZone`)
+ - **FTP Monitoring**
+   - New: FTP monitors to detect changes in FTP folders and send events (`FluentFTP.Monitors` namespace)
+ - **Testing**
+   - Fix: Total rewrite of FileZilla FTP server docker for integration testing (thanks @FanDjango)
+   - Fix: Updated tests for new TimeZone API
+   - New: New tests for FTP Monitor using blocking async monitor
+ - **Maintainance**
+   - Change: Allow overriding of download/upload internal methods in FTP client subclasses
+   - Change: Refactor file transfer and file listing utilities into static module classes
+   - Change: Improve performance of dictionary lookups (thanks @ssg)
+   - Fix: `LogMaskModule` throwing exception when `UserName` is empty (thanks @ssg)
+   - Fix: Improve `AsyncFtpClient` dispose logic (thanks @FanDjango)
+   - Fix: Cleanup warnings on build (thanks @FanDjango)
 
 #### 51.1.0
 
