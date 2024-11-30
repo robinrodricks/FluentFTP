@@ -18,7 +18,7 @@ namespace FluentFTP {
 		/// Upload the given stream to the server as a new file asynchronously. Overwrites the file if it exists.
 		/// Writes data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		protected async Task<FtpStatus> UploadFileInternalAsync(Stream fileData, string localPath, string remotePath, bool createRemoteDir,
+		protected virtual async Task<FtpStatus> UploadFileInternalAsync(Stream fileData, string localPath, string remotePath, bool createRemoteDir,
 			FtpRemoteExists existsMode, bool fileExists, bool fileExistsKnown, IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress) {
 
 			Stream upStream = null;

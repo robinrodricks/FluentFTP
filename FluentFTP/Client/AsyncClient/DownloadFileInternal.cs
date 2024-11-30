@@ -19,7 +19,7 @@ namespace FluentFTP {
 		/// Download a file from the server and write the data into the given stream asynchronously.
 		/// Reads data in chunks. Retries if server disconnects midway.
 		/// </summary>
-		protected async Task<bool> DownloadFileInternalAsync(string localPath, string remotePath, Stream outStream, long restartPosition,
+		protected virtual async Task<bool> DownloadFileInternalAsync(string localPath, string remotePath, Stream outStream, long restartPosition,
 			IProgress<FtpProgress> progress, CancellationToken token, FtpProgress metaProgress, long knownFileSize, bool isAppend, long stopPosition) {
 
 			Stream downStream = null;
