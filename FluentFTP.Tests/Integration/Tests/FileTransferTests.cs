@@ -229,6 +229,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 			await using (var dest = await client.OpenWrite(path)) {
 				await dest.WriteAsync(buffer);
 			}
+			await client.GetReply();
 
 			Memory<byte> outBuffer = new byte[buffer.Length];
 			var readBuffer = outBuffer;
@@ -256,6 +257,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 			using (var dest = client.OpenWrite(path)) {
 				dest.Write(buffer);
 			}
+			client.GetReply();
 
 			Span<byte> outBuffer = new byte[buffer.Length];
 			var readBuffer = outBuffer;
