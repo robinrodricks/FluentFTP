@@ -46,6 +46,7 @@ FluentFTP is released under the permissive MIT License, so it can be used in bot
     - Compare a local file against a remote file using the [hash/checksum](https://github.com/robinrodricks/FluentFTP/wiki/File-Hashing#faq_comparefile) (MD5, CRC32, SHA-1, SHA-256, SHA-512)
     - Dereference of symbolic links to calculate the linked file/folder
 	- [Throttling](https://github.com/robinrodricks/FluentFTP/wiki/File-Transfer#faq_throttle) of uploads and downloads with configurable speed limit
+	- FTP monitors to monitor folders on FTP servers and trigger events when files are added/changed/removed
   - **FTP protocol:**
     - Automatic [FTP/FTPS connection negotiation](https://github.com/robinrodricks/FluentFTP/wiki/Automatic-Connection#faq_autoconnect) and detection of [working connection settings](https://github.com/robinrodricks/FluentFTP/wiki/Automatic-Connection#faq_autodetect)
     - Automatic detection of the [FTP server software](https://github.com/robinrodricks/FluentFTP/wiki/Server-Information#faq_servertype) and its [capabilities](https://github.com/robinrodricks/FluentFTP/wiki/Server-Information#faq_serverspecific)
@@ -142,6 +143,7 @@ FluentFTP works on .NET and .NET Standard/.NET Core.
 | **.NET 4.7.2**      	| net472     		| 
 | **.NET 5.0**      	| net50     		| 
 | **.NET 6.0**      	| net60     		| 
+| **.NET 7.0**      	| net70     		| 
 | **.NET Standard 2.0** | netstandard2.0	| 
 | **.NET Standard 2.1** | netstandard2.1	| 
 
