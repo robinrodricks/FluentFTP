@@ -327,6 +327,15 @@ namespace FluentFTP.Client.BaseClient {
 		}
 
 		/// <summary>
+		/// The negotiated SSL/TLS cipher suite.
+		/// Will return a valid value after connection is complete.
+		/// Before connection it will return `string.Empty`.
+		/// </summary>
+		public string SslCipherSuiteActive {
+			get { return m_stream != null ? m_stream.SslCipherSuiteActive : string.Empty; }
+		}
+
+		/// <summary>
 		/// Checks if FTPS/SSL encryption is currently active.
 		/// Useful to see if your server supports FTPS, when using FtpEncryptionMode.Auto. 
 		/// </summary>
