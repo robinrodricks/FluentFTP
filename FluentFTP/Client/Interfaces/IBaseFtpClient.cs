@@ -42,6 +42,7 @@ namespace FluentFTP {
 		FtpClientState Status { get; }
 		FtpIpVersion? InternetProtocol { get; }
 		bool IsAuthenticated { get; }
+		SslProtocols SslProtocolActive { get; }
 		bool IsEncrypted { get; }
 		bool ValidateCertificateHandlerExists { get; }
 		bool RecursiveList { get; }
