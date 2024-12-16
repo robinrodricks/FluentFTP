@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -43,6 +44,7 @@ namespace FluentFTP {
 		FtpIpVersion? InternetProtocol { get; }
 		bool IsAuthenticated { get; }
 		SslProtocols SslProtocolActive { get; }
+		string SslCipherSuiteActive { get; }
 		bool IsEncrypted { get; }
 		bool ValidateCertificateHandlerExists { get; }
 		bool RecursiveList { get; }

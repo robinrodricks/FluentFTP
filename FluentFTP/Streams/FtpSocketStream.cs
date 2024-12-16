@@ -188,6 +188,20 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// The negotiated SSL/TLS protocol ciphers. Will have a valid value after connection is complete.
+		/// </summary>
+		public string SslCipherSuiteActive {
+			get {
+				if (Client.Config.CustomStream != null) {
+					return IsEncrypted ? m_customStream.GetCipherSuite() : string.Empty;
+				}
+				else {
+					return IsEncrypted ? m_sslStream.ToString() : string.Empty;
+				}
+			}
+		}
+
+		/// <summary>
 		/// Gets a value indicating if this stream can be read
 		/// </summary>
 		public override bool CanRead {
