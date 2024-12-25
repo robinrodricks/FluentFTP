@@ -330,7 +330,7 @@ namespace FluentFTP {
 				// if resume possible
 				if (ex.IsResumeAllowed()) {
 					// dispose the old bugged out stream
-					((FtpDataStream)upStream).Dispose();
+					upStream.Dispose();
 					LogWithPrefix(FtpTraceLevel.Info, "Attempting upload resume at position " + remotePosition);
 
 					// create and return a new stream starting at the current remotePosition

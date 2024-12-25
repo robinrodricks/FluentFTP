@@ -344,7 +344,11 @@ namespace FluentFTP {
 				// if resume possible
 				if (ex.IsResumeAllowed()) {
 					// dispose the old bugged out stream
-					await ((FtpDataStream)upStream).DisposeAsync();
+#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+					await upStream.DisposeAsync();
+#else
+					upStream.Dispose();
+#endif
 					LogWithPrefix(FtpTraceLevel.Info, "Attempting upload resume at position " + remotePosition);
 
 					// create and return a new stream starting at the current remotePosition
