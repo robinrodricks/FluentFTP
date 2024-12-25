@@ -22,7 +22,6 @@
 		/// <summary>
 		/// Gets the files that are added (newly added files that did not exist at the last check).
 		/// </summary>
-		/// </summary>
 		public List<string> Added { get; }
 
 		/// <summary>
