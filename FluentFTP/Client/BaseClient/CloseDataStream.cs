@@ -33,6 +33,9 @@ namespace FluentFTP.Client.BaseClient {
 					}
 				}
 			}
+			catch (TimeoutException ex) {
+				((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Timeout on data stream close", ex, true);
+			}
 			finally {
 				// if this is a clone of the original control connection we should Dispose() the entire client
 				if (IsClone) {
@@ -70,6 +73,9 @@ namespace FluentFTP.Client.BaseClient {
 						}
 					}
 				}
+			}
+			catch (TimeoutException ex) {
+				((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Timeout on data stream close", ex, true);
 			}
 			finally {
 				// if this is a clone of the original control connection we should Dispose() the entire client
