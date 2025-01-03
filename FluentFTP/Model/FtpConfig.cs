@@ -557,13 +557,14 @@ namespace FluentFTP {
 		/// </summary>
 		public IFtpStreamConfig CustomStreamConfig { get; set; } = null;
 
-
-
+		/// <summary>
+		/// Configure the behaviour of the Self Connect feature for the control connection
+		/// </summary>
+		public FtpSelfConnectMode SelfConnectMode { get; set; } = FtpSelfConnectMode.OnConnectionLost;
 
 		//-------------------------------------------------------------//
 		// ADD NEW PROPERTIES INTO THIS FUNCTION: FtpConfig.CopyTo()
 		//-------------------------------------------------------------//
-
 
 
 		/// <summary>
@@ -646,6 +647,7 @@ namespace FluentFTP {
 			write.PostConnect = read.PostConnect;
 			write.CustomStream = read.CustomStream;
 			write.CustomStreamConfig = read.CustomStreamConfig;
+			write.SelfConnectMode = read.SelfConnectMode;
 
 #if NETSTANDARD || NET5_0_OR_GREATER
 #pragma warning disable CS0618 // Type or member is obsolete

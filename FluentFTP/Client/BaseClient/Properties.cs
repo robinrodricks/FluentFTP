@@ -272,16 +272,26 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		public List<FtpCapability> Capabilities {
 			get {
+				// See issues #683 and 1698 for the following logic
+				// See also Execute(...) for similar connect logic
 
-				// FIX #683: if capabilities are already loaded, don't check if connected and return straight away
-				if (m_capabilities != null && m_capabilities.Count > 0) {
+				// We have possible distinct capabilities, that must have been set by a connect
+				if (Status.ConnectCount > 0) {
 					return m_capabilities;
 				}
 
-				// FIX #683: while using async operations, it is possible that the stream is not
-				// connected, so don't connect using synchronous connection logic
-				if (m_stream == null) {
-					throw new FtpException("Please call Connect() before trying to read the Capabilities!");
+				if (m_stream == null || !m_stream.IsConnected) {
+					if (Config.SelfConnectMode == FtpSelfConnectMode.Never ||
+						((Status.ConnectCount == 0) && Config.SelfConnectMode == FtpSelfConnectMode.OnConnectionLost)) {
+						throw new FtpException("A call to Connect(...) is needed prior to calling this API!");
+					}
+
+					if (ClientType is "AsyncFtpClient") {
+						Task.Run(async () => await ((IInternalFtpClient)this).ConnectInternal(true, CancellationToken.None)).Wait();
+					}
+					else {
+						((IInternalFtpClient)this).ConnectInternal(true);
+					}
 				}
 
 				return m_capabilities;
@@ -300,16 +310,26 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		public FtpHashAlgorithm HashAlgorithms {
 			get {
+				// See issues #683 and 1698 for the following logic
+				// See also Execute(...) for similar connect logic
 
-				// FIX #683: if hash types are already loaded, don't check if connected and return straight away
-				if (m_hashAlgorithms != FtpHashAlgorithm.NONE) {
+				// We have possible distinct hash algos, that must have been set by a connect
+				if (Status.ConnectCount > 0) {
 					return m_hashAlgorithms;
 				}
 
-				// FIX #683: while using async operations, it is possible that the stream is not
-				// connected, so don't connect using synchronous connection logic
 				if (m_stream == null || !m_stream.IsConnected) {
-					throw new FtpException("Please call Connect() before trying to read the HashAlgorithms!");
+					if (Config.SelfConnectMode == FtpSelfConnectMode.Never ||
+						((Status.ConnectCount == 0) && Config.SelfConnectMode == FtpSelfConnectMode.OnConnectionLost)) {
+						throw new FtpException("A call to Connect(...) is needed prior to calling this API!");
+					}
+
+					if (ClientType is "AsyncFtpClient") {
+						Task.Run(async () => await ((IInternalFtpClient)this).ConnectInternal(true, CancellationToken.None)).Wait();
+					}
+					else {
+						((IInternalFtpClient)this).ConnectInternal(true);
+					}
 				}
 
 				return m_hashAlgorithms;
