@@ -11,7 +11,7 @@ namespace FluentFTP {
 	public enum FtpNavigate:uint {
 
 		/// <summary>
-		/// The legacy navigation mode.
+		/// The legacy navigation mode and the default.
 		/// No automatic directory navigation performed by FluentFTP.
 		/// Users can `SetWorkingDirectory` (CWD).
 		/// Paths provided to FTP API can be absolute or relative to the current working directory.
