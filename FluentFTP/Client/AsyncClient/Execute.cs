@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP.Client.Modules;
+using FluentFTP.Exceptions;
 using FluentFTP.Helpers;
 
 namespace FluentFTP {
@@ -66,6 +67,11 @@ namespace FluentFTP {
 					sslLengthInfo = " (SslSessionLength: " + m_stream.SslSessionLength + ")";
 				}
 				LogWithPrefix(FtpTraceLevel.Warn, "Reconnect needed due to " + reconnectReason + " control connection" + sslLengthInfo);
+
+				if (Config.AutoConnectType == FtpAutoConnectType.Never ||
+				   ((Status.ConnectCount == 0) && Config.AutoConnectType == FtpAutoConnectType.OnConnectionLost)) {
+					throw new FtpException("A reconnect is needed but it is not allowed by the config");
+				}
 
 				if (IsConnected) {
 					if (Status.LastWorkingDir == null) {

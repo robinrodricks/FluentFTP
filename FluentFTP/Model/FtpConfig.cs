@@ -557,8 +557,10 @@ namespace FluentFTP {
 		/// </summary>
 		public IFtpStreamConfig CustomStreamConfig { get; set; } = null;
 
-
-
+		/// <summary>
+		/// Configure the Auto-Connect behaviour
+		/// </summary>
+		public FtpAutoConnectType AutoConnectType { get; set; } = FtpAutoConnectType.Always;
 
 		//-------------------------------------------------------------//
 		// ADD NEW PROPERTIES INTO THIS FUNCTION: FtpConfig.CopyTo()
@@ -646,6 +648,7 @@ namespace FluentFTP {
 			write.PostConnect = read.PostConnect;
 			write.CustomStream = read.CustomStream;
 			write.CustomStreamConfig = read.CustomStreamConfig;
+			write.AutoConnectType = read.AutoConnectType;
 
 #if NETSTANDARD || NET5_0_OR_GREATER
 #pragma warning disable CS0618 // Type or member is obsolete
