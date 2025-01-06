@@ -272,16 +272,15 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		public List<FtpCapability> Capabilities {
 			get {
+				// See issues #683 and 1698 for the following logic
 
-				// FIX #683: if capabilities are already loaded, don't check if connected and return straight away
-				if (m_capabilities != null && m_capabilities.Count > 0) {
+				// We have distinct capabilities, that have been set by a connect
+				if (Status.ConnectCount > 0) {
 					return m_capabilities;
 				}
 
-				// FIX #683: while using async operations, it is possible that the stream is not
-				// connected, so don't connect using synchronous connection logic
-				if (m_stream == null) {
-					throw new FtpException("Please call Connect() before trying to read the Capabilities!");
+				if (m_stream == null || !m_stream.IsConnected) {
+					throw new FtpException("A call to Connect(...) is needed prior to calling this API!");
 				}
 
 				return m_capabilities;
@@ -300,16 +299,14 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		public FtpHashAlgorithm HashAlgorithms {
 			get {
+				// See issues #683 and 1698 for the following logic
 
-				// FIX #683: if hash types are already loaded, don't check if connected and return straight away
-				if (m_hashAlgorithms != FtpHashAlgorithm.NONE) {
+				if (Status.ConnectCount > 0) {
 					return m_hashAlgorithms;
 				}
 
-				// FIX #683: while using async operations, it is possible that the stream is not
-				// connected, so don't connect using synchronous connection logic
 				if (m_stream == null || !m_stream.IsConnected) {
-					throw new FtpException("Please call Connect() before trying to read the HashAlgorithms!");
+					throw new FtpException("A call to Connect(...) is needed prior to calling this API!");
 				}
 
 				return m_hashAlgorithms;
