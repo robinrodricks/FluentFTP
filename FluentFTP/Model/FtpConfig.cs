@@ -558,14 +558,19 @@ namespace FluentFTP {
 		public IFtpStreamConfig CustomStreamConfig { get; set; } = null;
 
 		/// <summary>
-		/// Configure the Auto-Connect behaviour
+		/// Configure the behaviour of the Self Connect feature for the control connection
+		/// Always (default): If the control connection is needed to process an API process (either for entering commands to the server
+		/// or to retrieve information about the server (FEAT capabilities, HASH algorithms, Current Working directory) it will be (re-)
+		/// connected if not available.
+		/// OnConnectionLost: As with "Always", BUT only if there had been a connection in the first place before it got lost.
+		/// Never: Connections will not be made unless you explicitly call Connect(...) yourself. If a connection is needed and not
+		/// established, your API processes will fail instead of attempting to (re-)connect.
 		/// </summary>
-		public FtpAutoConnectType AutoConnectType { get; set; } = FtpAutoConnectType.Always;
+		public FtpSelfConnectMode SelfConnectMode { get; set; } = FtpSelfConnectMode.Always;
 
 		//-------------------------------------------------------------//
 		// ADD NEW PROPERTIES INTO THIS FUNCTION: FtpConfig.CopyTo()
 		//-------------------------------------------------------------//
-
 
 
 		/// <summary>
@@ -648,7 +653,7 @@ namespace FluentFTP {
 			write.PostConnect = read.PostConnect;
 			write.CustomStream = read.CustomStream;
 			write.CustomStreamConfig = read.CustomStreamConfig;
-			write.AutoConnectType = read.AutoConnectType;
+			write.SelfConnectMode = read.SelfConnectMode;
 
 #if NETSTANDARD || NET5_0_OR_GREATER
 #pragma warning disable CS0618 // Type or member is obsolete

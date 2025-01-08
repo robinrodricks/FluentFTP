@@ -281,8 +281,8 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				if (m_stream == null || !m_stream.IsConnected) {
-					if (Config.AutoConnectType == FtpAutoConnectType.Never ||
-						((Status.ConnectCount == 0) && Config.AutoConnectType == FtpAutoConnectType.OnConnectionLost)) {
+					if (Config.SelfConnectMode == FtpSelfConnectMode.Never ||
+						((Status.ConnectCount == 0) && Config.SelfConnectMode == FtpSelfConnectMode.OnConnectionLost)) {
 						throw new FtpException("A call to Connect(...) is needed prior to calling this API!");
 					}
 
@@ -318,8 +318,8 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 				if (m_stream == null || !m_stream.IsConnected) {
-					if (Config.AutoConnectType == FtpAutoConnectType.Never ||
-						((Status.ConnectCount == 0) && Config.AutoConnectType == FtpAutoConnectType.OnConnectionLost)) {
+					if (Config.SelfConnectMode == FtpSelfConnectMode.Never ||
+						((Status.ConnectCount == 0) && Config.SelfConnectMode == FtpSelfConnectMode.OnConnectionLost)) {
 						throw new FtpException("A call to Connect(...) is needed prior to calling this API!");
 					}
 

@@ -68,8 +68,8 @@ namespace FluentFTP {
 				}
 				LogWithPrefix(FtpTraceLevel.Warn, "Reconnect needed due to " + reconnectReason + " control connection" + sslLengthInfo);
 
-				if (Config.AutoConnectType == FtpAutoConnectType.Never ||
-				   ((Status.ConnectCount == 0) && Config.AutoConnectType == FtpAutoConnectType.OnConnectionLost)) {
+				if (Config.SelfConnectMode == FtpSelfConnectMode.Never ||
+				   ((Status.ConnectCount == 0) && Config.SelfConnectMode == FtpSelfConnectMode.OnConnectionLost)) {
 					throw new FtpException("A reconnect is needed but it is not allowed by the config");
 				}
 
