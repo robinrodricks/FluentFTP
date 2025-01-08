@@ -275,7 +275,7 @@ namespace FluentFTP.Client.BaseClient {
 				// See issues #683 and 1698 for the following logic
 				// See also Execute(...) for similar connect logic
 
-				// We have distinct capabilities, that have been set by a connect
+				// We have possible distinct capabilities, that must have been set by a connect
 				if (Status.ConnectCount > 0) {
 					return m_capabilities;
 				}
@@ -313,6 +313,7 @@ namespace FluentFTP.Client.BaseClient {
 				// See issues #683 and 1698 for the following logic
 				// See also Execute(...) for similar connect logic
 
+				// We have possible distinct hash algos, that must have been set by a connect
 				if (Status.ConnectCount > 0) {
 					return m_hashAlgorithms;
 				}
