@@ -51,6 +51,7 @@ public class DateTimesTests {
 	public static TheoryData<(string DateString, DateTime ExpectedDate)> SupportedDateFormats {
 		get {
 			var expected = new DateTime(1985, 5, 30, 6, 8, 25);
+			var nowY = DateTime.Now.Year;
 			return new () {
 				("19850530060825", expected), // yyyyMMddHHmmss
 				("19850530060825.1", expected.AddMilliseconds(100)), // yyyyMMddHHmmss'.'f
@@ -58,8 +59,8 @@ public class DateTimesTests {
 				("19850530060825.123", expected.AddMilliseconds(123)), // yyyyMMddHHmmss'.'fff
 				("May 30  1985", new DateTime(1985, 5, 30)), // MMM dd  yyyy
 				("May  30  1985", new DateTime(1985, 5, 30)), // MMM  d  yyyy
-				("May 30 06:08", new DateTime(2024, 5, 30, 6, 8, 0)), // MMM dd HH:mm
-				("May  30 06:08", new DateTime(2024, 5, 30, 6, 8, 0)) // MMM  d HH:mm
+				("May 30 06:08", new DateTime(nowY, 5, 30, 6, 8, 0)), // MMM dd HH:mm
+				("May  30 06:08", new DateTime(nowY, 5, 30, 6, 8, 0)) // MMM  d HH:mm
 			};
 		}
 	}
