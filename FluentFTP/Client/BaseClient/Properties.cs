@@ -273,14 +273,25 @@ namespace FluentFTP.Client.BaseClient {
 		public List<FtpCapability> Capabilities {
 			get {
 				// See issues #683 and 1698 for the following logic
+				// See also Execute(...) for similar connect logic
 
-				// We have distinct capabilities, that have been set by a connect
+				// We have possible distinct capabilities, that must have been set by a connect
 				if (Status.ConnectCount > 0) {
 					return m_capabilities;
 				}
 
 				if (m_stream == null || !m_stream.IsConnected) {
-					throw new FtpException("A call to Connect(...) is needed prior to calling this API!");
+					if (Config.SelfConnectMode == FtpSelfConnectMode.Never ||
+						((Status.ConnectCount == 0) && Config.SelfConnectMode == FtpSelfConnectMode.OnConnectionLost)) {
+						throw new FtpException("A call to Connect(...) is needed prior to calling this API!");
+					}
+
+					if (ClientType is "AsyncFtpClient") {
+						Task.Run(async () => await ((IInternalFtpClient)this).ConnectInternal(true, CancellationToken.None)).Wait();
+					}
+					else {
+						((IInternalFtpClient)this).ConnectInternal(true);
+					}
 				}
 
 				return m_capabilities;
@@ -300,13 +311,25 @@ namespace FluentFTP.Client.BaseClient {
 		public FtpHashAlgorithm HashAlgorithms {
 			get {
 				// See issues #683 and 1698 for the following logic
+				// See also Execute(...) for similar connect logic
 
+				// We have possible distinct hash algos, that must have been set by a connect
 				if (Status.ConnectCount > 0) {
 					return m_hashAlgorithms;
 				}
 
 				if (m_stream == null || !m_stream.IsConnected) {
-					throw new FtpException("A call to Connect(...) is needed prior to calling this API!");
+					if (Config.SelfConnectMode == FtpSelfConnectMode.Never ||
+						((Status.ConnectCount == 0) && Config.SelfConnectMode == FtpSelfConnectMode.OnConnectionLost)) {
+						throw new FtpException("A call to Connect(...) is needed prior to calling this API!");
+					}
+
+					if (ClientType is "AsyncFtpClient") {
+						Task.Run(async () => await ((IInternalFtpClient)this).ConnectInternal(true, CancellationToken.None)).Wait();
+					}
+					else {
+						((IInternalFtpClient)this).ConnectInternal(true);
+					}
 				}
 
 				return m_hashAlgorithms;
