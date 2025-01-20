@@ -559,14 +559,8 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Configure the behaviour of the Self Connect feature for the control connection
-		/// Always (default): If the control connection is needed to process an API process (either for entering commands to the server
-		/// or to retrieve information about the server (FEAT capabilities, HASH algorithms, Current Working directory) it will be (re-)
-		/// connected if not available.
-		/// OnConnectionLost: As with "Always", BUT only if there had been a connection in the first place before it got lost.
-		/// Never: Connections will not be made unless you explicitly call Connect(...) yourself. If a connection is needed and not
-		/// established, your API processes will fail instead of attempting to (re-)connect.
 		/// </summary>
-		public FtpSelfConnectMode SelfConnectMode { get; set; } = FtpSelfConnectMode.Always;
+		public FtpSelfConnectMode SelfConnectMode { get; set; } = FtpSelfConnectMode.OnConnectionLost;
 
 		//-------------------------------------------------------------//
 		// ADD NEW PROPERTIES INTO THIS FUNCTION: FtpConfig.CopyTo()
