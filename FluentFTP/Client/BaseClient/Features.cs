@@ -36,7 +36,7 @@ namespace FluentFTP.Client.BaseClient {
 				return true;
 			}
 
-			return Capabilities.Contains(cap);
+			return Capabilities != null && Capabilities.Contains(cap);
 		}
 	}
 }
