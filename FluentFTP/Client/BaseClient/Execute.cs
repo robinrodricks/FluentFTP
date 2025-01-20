@@ -65,7 +65,7 @@ namespace FluentFTP.Client.BaseClient {
 
 				if (Config.SelfConnectMode == FtpSelfConnectMode.Never ||
 				   ((Status.ConnectCount == 0) && Config.SelfConnectMode == FtpSelfConnectMode.OnConnectionLost)) {
-					throw new FtpException("A reconnect is needed but it is not allowed by the config");
+					throw new FtpException("A " + ((Status.ConnectCount == 0) ? "C" : "Rec") + "onnect needed but forbidden by the client config (\"SelfConnectMode\")");
 				}
 
 				if (IsConnected) {
