@@ -126,6 +126,7 @@ namespace FluentFTP {
 
 			stream.EndAccept(ar);
 #endif
+			stream.ConnectionState = FtpConnectionState.Connected;
 
 			if (Config.DataConnectionEncryption && Config.EncryptionMode != FtpEncryptionMode.None && !Status.ConnectionFTPSFailure) {
 				stream.ActivateEncryption(m_host,
