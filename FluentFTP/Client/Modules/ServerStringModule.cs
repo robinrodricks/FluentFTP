@@ -43,21 +43,6 @@ namespace FluentFTP.Client.Modules {
 
 		#endregion
 
-		#region File Size
-
-		/// <summary>
-		/// Error messages returned by various servers when a file size is not supported in ASCII mode.
-		/// MUST BE LOWER CASE!
-		/// </summary>
-		public static string[] fileSizeNotInASCII = new[] {
-			"not allowed in ascii",
-			"size not allowed in ascii",
-			"n'est pas autorisé en mode ascii",
-			"не разрешено в режиме ascii"
-		};
-
-		#endregion
-
 		#region File Transfer
 
 		/// <summary>

@@ -31,21 +31,23 @@ namespace FluentFTP {
 				var sizeReply = new FtpSizeReply();
 				GetFileSizeInternal(path, sizeReply, -1);
 
-				// handle known errors to the SIZE command
-				var sizeKnownError = CheckFileExistsBySize(sizeReply);
-				if (sizeKnownError.HasValue) {
-					return sizeKnownError.Value;
+				if (sizeReply.Reply.Code[0] == '2') {
+					return true;
+				}
+
+				if (sizeReply.Reply.Code == "550") {
+					return false;
 				}
 			}
 
 			// check if file exists by attempting to get its date modified (MDTM)
 			if (HasFeature(FtpCapability.MDTM) && (ServerHandler == null || (ServerHandler != null && !ServerHandler.DontUseMdtmEvenIfCapable(path)))) {
 				var reply = Execute("MDTM " + path);
-				var ch = reply.Code[0];
-				if (ch == '2') {
+				if (reply.Code[0] == '2') {
 					return true;
 				}
-				if (ch == '5' && reply.Message.ContainsAnyCI(ServerStringModule.fileNotFound)) {
+
+				if (reply.Code == "550") {
 					return false;
 				}
 			}
