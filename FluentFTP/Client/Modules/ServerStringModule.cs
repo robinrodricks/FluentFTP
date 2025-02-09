@@ -92,19 +92,6 @@ namespace FluentFTP.Client.Modules {
 
 		#endregion
 
-		#region TLS Exception
-
-		/// <summary>
-		/// Error messages returned by various servers when the connection failed due to wrong TLS version used.
-		/// MUST BE LOWER CASE!
-		/// </summary>
-		public static string[] failedTLS = new[] {
-			"die angeforderte funktion wird nicht unterstützt",
-			"the function requested is not supported",
-		};
-
-		#endregion
-
 		#region Critical commands
 		public static string[] criticalSingleCommands = new[] {
 			"QUIT",
