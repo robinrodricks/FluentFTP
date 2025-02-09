@@ -43,7 +43,7 @@ namespace FluentFTP {
 		/// Gets the file size of an object, without locking
 		/// Note: Some servers do not support calculating the file size for a file that
 		/// will be converted to ASCII on download - Pre-calculating that costs time and
-		/// storage for the server, which can hurt performance server-sider.
+		/// storage for the server, which can hurt performance server-side.
 		/// The tradeoff is to issue a TYPE I first if needed, potentially causing overhead
 		/// that detriments the transfer of multiple files.
 		/// </summary>
