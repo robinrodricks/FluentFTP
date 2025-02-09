@@ -41,13 +41,17 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Gets the file size of an object, without locking
+		/// Note: Some servers do not support calculating the file size for a file that
+		/// will be converted to ASCII on download - Pre-calculating that costs time and
+		/// storage for the server, which can hurt performance server-sider.
+		/// The tradeoff is to issue a TYPE I first if needed, potentially causing overhead
+		/// that detriments the transfer of multiple files.
 		/// </summary>
 		protected async Task GetFileSizeInternal(string path, long defaultValue, CancellationToken token, FtpSizeReply sizeReply) {
 			long length = defaultValue;
 
 			path = path.GetFtpPath();
 
-			// Fix #137: Switch to binary mode since some servers don't support SIZE command for ASCII files.
 			if (Status.FileSizeASCIINotSupported) {
 				await SetDataTypeNoLockAsync(FtpDataType.Binary, token);
 			}
@@ -58,9 +62,10 @@ namespace FluentFTP {
 			if (!reply.Success) {
 				sizeReply.FileSize = defaultValue;
 
-				// Fix #137: FTP server returns 'SIZE not allowed in ASCII mode'
-				if (!Status.FileSizeASCIINotSupported && reply.Message.ContainsAnyCI(ServerStringModule.fileSizeNotInASCII)) {
-					// set the flag so mode switching is done
+				// 550 SIZE not allowed in ASCII mode
+				// Checking for the text "ascii" works in all languages seen up to now
+				if (!Status.FileSizeASCIINotSupported && reply.Code == "550" && reply.Message.ToLower().Contains("ascii")) {
+					// set the flag so mode switching is always done
 					Status.FileSizeASCIINotSupported = true;
 
 					// retry getting the file size

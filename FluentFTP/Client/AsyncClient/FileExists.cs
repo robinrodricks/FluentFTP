@@ -32,22 +32,23 @@ namespace FluentFTP {
 				FtpSizeReply sizeReply = new FtpSizeReply();
 				await GetFileSizeInternal(path, -1, token, sizeReply);
 
-				// handle known errors to the SIZE command
-				var sizeKnownError = CheckFileExistsBySize(sizeReply);
-				if (sizeKnownError.HasValue) {
-					return sizeKnownError.Value;
+				if (sizeReply.Reply.Code[0] == '2') {
+					return true;
+				}
+
+				if (sizeReply.Reply.Code == "550") {
+					return false;
 				}
 			}
 
 			// check if file exists by attempting to get its date modified (MDTM)
 			if (HasFeature(FtpCapability.MDTM) && (ServerHandler == null || (ServerHandler != null && !ServerHandler.DontUseMdtmEvenIfCapable(path)))) {
 				FtpReply reply = await Execute("MDTM " + path, token);
-				var ch = reply.Code[0];
-				if (ch == '2') {
+				if (reply.Code[0] == '2') {
 					return true;
 				}
 
-				if (ch == '5' && reply.Message.ContainsAnyCI(ServerStringModule.fileNotFound)) {
+				if (reply.Code == "550") {
 					return false;
 				}
 			}
