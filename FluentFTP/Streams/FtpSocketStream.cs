@@ -1866,6 +1866,15 @@ namespace FluentFTP {
 			};
 		}
 
+		/// <summary>
+		/// Closes the undelying ssl stream.
+		/// </summary>
+		internal void SwitchToUnsecuredMode() {
+			if (m_sslStream != null) {
+				DisposeSslStream();
+				m_sslStream = null;
+			}
+		}
 	}
 
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
