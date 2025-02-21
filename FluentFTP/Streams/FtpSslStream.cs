@@ -104,6 +104,11 @@ namespace FluentFTP.Streams {
 #if !NET462 && !NETSTANDARD2_0
 
 			throw new NotImplementedException("CloseNotify hack only for NET462 or NETSTANDARD2_0");
+			/// BECAUSE:
+			/// "The SslStream.ShutdownAsync API was added to .NET Core 2.0. It was also added to .NET Framework 4.7.
+			/// Logically, since .NET Core 2.0 and .NET Framework 4.7.1 are aligned with NETStandard2.0, it could
+			/// have been part of the NETStandard20 definition. But it wasn't due to when the NETStandard2.0 spec
+			/// was originally designed."
 
 #pragma warning disable CS0162 // Unreachable code detected
 
