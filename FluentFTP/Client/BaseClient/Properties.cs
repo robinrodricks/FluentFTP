@@ -343,7 +343,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// Before connection it will return `SslProtocols.None`.
 		/// </summary>
 		public SslProtocols SslProtocolActive {
-			get { return m_stream != null ? m_stream.SslProtocolActive : SslProtocols.None; }
+			get { return m_stream != null ? m_stream.SslProtocol : SslProtocols.None; }
 		}
 
 		/// <summary>
@@ -352,7 +352,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// Before connection it will return `string.Empty`.
 		/// </summary>
 		public string SslCipherSuiteActive {
-			get { return m_stream != null ? m_stream.SslCipherSuiteActive : string.Empty; }
+			get { return m_stream != null ? m_stream.SslCipherSuite : string.Empty; }
 		}
 
 		/// <summary>
