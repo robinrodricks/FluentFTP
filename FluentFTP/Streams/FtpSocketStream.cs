@@ -176,7 +176,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// The negotiated SSL/TLS protocol version. Will have a valid value after connection is complete.
 		/// </summary>
-		public SslProtocols SslProtocolActive {
+		public SslProtocols SslProtocol {
 			get {
 				if (Client.Config.CustomStream != null) {
 					return IsEncrypted ? m_customStream.GetSslProtocol() : SslProtocols.None;
@@ -190,7 +190,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// The negotiated SSL/TLS protocol ciphers. Will have a valid value after connection is complete.
 		/// </summary>
-		public string SslCipherSuiteActive {
+		public string SslCipherSuite {
 			get {
 				if (Client.Config.CustomStream != null) {
 					return IsEncrypted ? m_customStream.GetCipherSuite() : string.Empty;
