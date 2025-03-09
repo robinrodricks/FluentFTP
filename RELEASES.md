@@ -1,5 +1,19 @@
 # Release Notes
 
+#### 52.1.0
+
+ - **Connection**
+   - Add `SslProtocol` and `SslCipherSuite` properties.
+   - Set TLS1.1 as obsolete in .NET 7+ targets
+   - Fix: Crashing host process on FTP socket timeout
+ - **Commands**
+   - Fix: Remove language specific checks and improve detection of File Exists check
+ - **Reconnection**
+   - Change: Prevent auto connecting the FTP Client when `HashAlgorithms` is read
+   - Add: New option `FtpSelfConnectMode` to control how FTP reconnections are handled
+ - **Testing**	
+   - Fix incorrect call sequence in `FileTransferTests`
+   
 #### 52.0.0
 
  - **Time Zones**
