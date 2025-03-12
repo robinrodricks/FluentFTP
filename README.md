@@ -188,7 +188,6 @@ FluentFTP has received major sponsorship from these generous organizations:
 
 Has FluentFTP made a difference for you or your organization? If so, consider [becoming a sponsor](https://github.com/sponsors/robinrodricks) to help keep the project thriving. Even a small monthly contribution, like $20, can make a meaningful impact.
 
-As a seasoned freelancer with over a decade of experience, your support helps me continue dedicating time to these open-source projects while also supporting my family. Your contributions directly fuel the work that makes a difference to millions of developers around the world.
 
 ## Contributors
 
