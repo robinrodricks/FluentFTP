@@ -403,6 +403,15 @@ namespace FluentFTP.Client.Modules {
 				return ex;
 			}
 
+			// catch CCC failed
+			if (ex is FtpException && ex.Message.Contains("Fallback")) {
+				return ex;
+			}
+			// catch CCC failed
+			if (ex is InvalidOperationException && ex.Message.Contains("SSL Encryption deactivation not supported")) {
+				return ex;
+			}
+
 			return null;
 		}
 

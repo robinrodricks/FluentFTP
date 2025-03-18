@@ -152,6 +152,24 @@ namespace FluentFTP {
 				}
 			}
 
+			if (m_stream.IsEncrypted && Config.EncryptAuthenticationOnly) {
+				if (HasFeature(FtpCapability.CCC)) {
+					reply = Execute("CCC");
+					if (reply.Success) {
+						m_stream.DeActivateEncryption();
+						Config.EncryptionMode = FtpEncryptionMode.None;
+					}
+					else {
+						LogWithPrefix(FtpTraceLevel.Error, "Fallback to plaintext failed");
+						throw new FtpException("Fallback to plaintext failed");
+					}
+				}
+				else {
+					LogWithPrefix(FtpTraceLevel.Error, "Fallback to plaintext not supported");
+					throw new FtpException("Fallback to plaintext not supported");
+				}
+			}
+
 			// Enable UTF8 if the encoding is ASCII and UTF8 is supported
 			if (m_textEncodingAutoUTF && m_textEncoding == Encoding.ASCII && HasFeature(FtpCapability.UTF8)) {
 				m_textEncoding = Encoding.UTF8;
