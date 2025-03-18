@@ -408,7 +408,7 @@ namespace FluentFTP.Client.Modules {
 				return ex;
 			}
 			// catch CCC failed
-			if (ex is InvalidOperationException && ex.Message.Contains("SSL Encryption deactivation not supported")) {
+			if (ex is NotImplementedException && ex.Message.Contains("SSL Encryption deactivation not supported")) {
 				return ex;
 			}
 

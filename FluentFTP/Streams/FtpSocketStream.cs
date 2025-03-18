@@ -1560,7 +1560,7 @@ namespace FluentFTP {
 			}
 
 			if (m_customStream != null) {
-				throw new InvalidOperationException("SSL Encryption deactivation not supported on this stream.");
+				throw new NotImplementedException("SSL Encryption deactivation not supported on this stream.");
 			}
 
 			if (m_sslStream == null) {
@@ -1584,7 +1584,7 @@ namespace FluentFTP {
 			}
 
 			if (m_customStream != null) {
-				throw new InvalidOperationException("SSL Encryption deactivation not supported on this stream.");
+				throw new NotImplementedException("SSL Encryption deactivation not supported on this stream.");
 			}
 
 			if (m_sslStream == null) {
