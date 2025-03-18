@@ -338,21 +338,21 @@ namespace FluentFTP.Client.BaseClient {
 		}
 
 		/// <summary>
-		/// The negotiated SSL/TLS protocol version.
+		/// The currently negotiated SSL/TLS protocol version.
 		/// Will return a valid value after connection is complete.
 		/// Before connection it will return `SslProtocols.None`.
 		/// </summary>
-		public SslProtocols SslProtocolActive {
-			get { return m_stream != null ? m_stream.SslProtocolActive : SslProtocols.None; }
+		public SslProtocols SslProtocol {
+			get { return m_stream != null ? m_stream.SslProtocol : SslProtocols.None; }
 		}
 
 		/// <summary>
-		/// The negotiated SSL/TLS cipher suite.
+		/// The currently negotiated SSL/TLS cipher suite.
 		/// Will return a valid value after connection is complete.
 		/// Before connection it will return `string.Empty`.
 		/// </summary>
-		public string SslCipherSuiteActive {
-			get { return m_stream != null ? m_stream.SslCipherSuiteActive : string.Empty; }
+		public string SslCipherSuite {
+			get { return m_stream != null ? m_stream.SslCipherSuite : string.Empty; }
 		}
 
 		/// <summary>
