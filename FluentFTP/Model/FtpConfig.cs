@@ -206,6 +206,11 @@ namespace FluentFTP {
 		public int ReadTimeout { get; set; } = 15000;
 
 		/// <summary>
+		/// Use CCC command to deactivate encryption after connection and authentication
+		/// </summary>
+		public bool EncryptAuthenticationOnly { get; set; } = false;
+
+		/// <summary>
 		/// Gets or sets the length of time in milliseconds for a data connection
 		/// to be established before giving up. Default is 15000 (15 seconds).
 		/// </summary>

@@ -1406,24 +1406,6 @@ namespace FluentFTP {
 
 		}
 
-		//#if NETFRAMEWORK
-		//		/// <summary>
-		//		/// Deactivates SSL on this stream using the specified protocols and reverts back to plain-text FTP.
-		//		/// </summary>
-		//		public void DeactivateEncryption() {
-		//			if (!IsConnected) {
-		//				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
-		//			}
-
-		//			if (m_sslStream == null) {
-		//				throw new InvalidOperationException("SSL Encryption has not been enabled on this stream.");
-		//			}
-
-		//			m_sslStream.Close();
-		//			m_sslStream = null;
-		//		}
-		//#endif
-
 		/// <summary>
 		/// Instructs this stream to listen for connections on the specified address and port
 		/// </summary>
@@ -1568,6 +1550,50 @@ namespace FluentFTP {
 		}
 
 #endif
+
+		/// <summary>
+		/// Closes the underlying ssl stream ( CCC )
+		/// </summary>
+		internal void DeActivateEncryption() {
+			if (!IsConnected) {
+				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
+			}
+
+			if (m_customStream != null) {
+				throw new InvalidOperationException("SSL Encryption deactivation not supported on this stream.");
+			}
+
+			if (m_sslStream == null) {
+				throw new InvalidOperationException("SSL Encryption has not been enabled on this stream.");
+			}
+
+			DisposeSslStream();
+			m_sslStream = null;
+		}
+
+		/// <summary>
+		/// Closes the underlying ssl stream ( CCC )
+		/// </summary>
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+		public virtual async ValueTask DeActivateEncryptionAsync(CancellationToken token = default(CancellationToken)) {
+#else
+		public virtual async Task DeActivateEncryptionAsync(CancellationToken token = default(CancellationToken)) {
+#endif
+			if (!IsConnected) {
+				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
+			}
+
+			if (m_customStream != null) {
+				throw new InvalidOperationException("SSL Encryption deactivation not supported on this stream.");
+			}
+
+			if (m_sslStream == null) {
+				throw new InvalidOperationException("SSL Encryption has not been enabled on this stream.");
+			}
+
+			await DisposeSslStreamAsync();
+			m_sslStream = null;
+		}
 
 		//
 		// CLOSE and DISPOSE logic
