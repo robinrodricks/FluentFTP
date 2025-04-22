@@ -1387,7 +1387,7 @@ namespace FluentFTP {
 		private void CreateSslStream() {
 
 			m_sslStream = new FtpSslStream(m_netStream, true, new RemoteCertificateValidationCallback(
-				delegate (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return OnValidateCertificate(certificate, chain, sslPolicyErrors); }
+				(object _, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) => OnValidateCertificate(certificate, chain, sslPolicyErrors)
 			));
 
 		}
@@ -1398,7 +1398,7 @@ namespace FluentFTP {
 			m_customStream.Init(Client,
 				targetHost,
 				m_socket,
-				new CustomRemoteCertificateValidationCallback(delegate (object sender, X509Certificate certificate, X509Chain chain, string errorMessage) { return OnValidateCertificate(certificate, chain, errorMessage); }),
+				new CustomRemoteCertificateValidationCallback((object _, X509Certificate certificate, X509Chain chain, string errorMessage) => OnValidateCertificate(certificate, chain, errorMessage)),
 				IsControlConnection,
 				((IInternalFtpClient)Client).GetBaseStream().m_customStream,
 				Client.Config.CustomStreamConfig);

@@ -65,7 +65,7 @@ namespace FluentFTP.Client.BaseClient {
 			// gets here it means the certificate on the control connection object being
 			// cloned was already accepted.
 			write.ValidateCertificate += new FtpSslValidation(
-				delegate (BaseFtpClient obj, FtpSslValidationEventArgs e) { e.Accept = true; });
+				(BaseFtpClient _, FtpSslValidationEventArgs e) => e.Accept = true);
 
 		}
 
@@ -135,7 +135,7 @@ namespace FluentFTP.Client.BaseClient {
 			GC.SuppressFinalize(this);
 		}
 
-#endregion
+		#endregion
 
 
 	}

@@ -219,7 +219,7 @@ namespace FluentFTP {
 			// always accept certificate no matter what because if code execution ever
 			// gets here it means the certificate on the control connection object being
 			// cloned was already accepted.
-			ValidateCertificate += new FtpSocketStreamSslValidation(delegate (FtpSocketStream obj, FtpSslValidationEventArgs e) { e.Accept = true; });
+			ValidateCertificate += new FtpSocketStreamSslValidation((FtpSocketStream _, FtpSslValidationEventArgs e) => e.Accept = true);
 
 			m_position = 0;
 
