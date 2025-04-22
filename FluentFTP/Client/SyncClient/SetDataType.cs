@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 namespace FluentFTP {
 	public partial class FtpClient {
 
+		/// <summary>
 		/// Sets the data type of information sent over the data stream
+		/// </summary>
 		/// <exception cref="FtpCommandException">Thrown when a FTP Command error condition occurs.</exception>
 		/// <exception cref="FtpException">Thrown when a FTP error condition occurs.</exception>
 		/// <param name="type">ASCII/Binary.</param>
