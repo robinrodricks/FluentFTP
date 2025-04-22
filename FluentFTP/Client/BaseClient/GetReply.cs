@@ -395,7 +395,7 @@ namespace FluentFTP.Client.BaseClient {
 					}
 
 					if (string.IsNullOrEmpty(response)) {
-						Thread.Sleep(100);
+						await Task.Delay(100, token);
 						continue;
 					}
 
