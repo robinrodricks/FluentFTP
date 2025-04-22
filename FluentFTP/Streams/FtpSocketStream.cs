@@ -924,7 +924,7 @@ namespace FluentFTP {
 			IPAddress ipad = null;
 
 			if (ipVersions == 0) {
-				throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.");
+				throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.", nameof(ipVersions));
 			}
 
 			for (var i = 0; i < ipads.Length; i++) {
@@ -1066,7 +1066,7 @@ namespace FluentFTP {
 			IPAddress ipad = null;
 
 			if (ipVersions == 0) {
-				throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.");
+				throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.", nameof(ipVersions));
 			}
 
 			for (var i = 0; i < ipads.Length; i++) {
