@@ -107,7 +107,7 @@ namespace FluentFTP.Client.BaseClient {
 
 				if (exhaustNoop) {
 					// tickle the server
-					LogWithPrefix(FtpTraceLevel.Verbose, "Sending NOOP" + " (<-GetReply)");
+					LogWithPrefix(FtpTraceLevel.Verbose, "Sending NOOP (<-GetReply)");
 					m_stream.WriteLine(Encoding, "NOOP");
 					LastCommandTimestamp = DateTime.UtcNow;
 				}
@@ -327,7 +327,7 @@ namespace FluentFTP.Client.BaseClient {
 
 				if (exhaustNoop) {
 					// tickle the server
-					LogWithPrefix(FtpTraceLevel.Verbose, "Sending NOOP" + " (<-GetReply)");
+					LogWithPrefix(FtpTraceLevel.Verbose, "Sending NOOP (<-GetReply)");
 					m_stream.WriteLine(Encoding, "NOOP");
 					LastCommandTimestamp = DateTime.UtcNow;
 				}
