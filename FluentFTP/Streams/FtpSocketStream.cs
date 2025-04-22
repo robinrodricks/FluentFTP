@@ -554,7 +554,7 @@ namespace FluentFTP {
 					if (cts.IsCancellationRequested) {
 						await CloseAsync(token);
 					}
-    
+
 					// CTS for Cancellation triggered and caused the exception
 					if (token.IsCancellationRequested) {
 						throw new OperationCanceledException("Cancelled read from socket stream");
@@ -1682,7 +1682,7 @@ namespace FluentFTP {
 			}
 			catch /*(Exception ex)*/ {
 				// ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught SYNC SSLSTREAM(Dispose) exception: " + ex.Message);
-			};
+			}
 		}
 
 		internal void DisposeCustomStream() {
@@ -1691,7 +1691,7 @@ namespace FluentFTP {
 			}
 			catch (Exception ex) {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught SYNC CUSTOMSTREAM(Dispose) exception: " + ex.Message);
-			};
+			}
 		}
 
 		internal void DisposeNetStream() {
@@ -1700,7 +1700,7 @@ namespace FluentFTP {
 			}
 			catch (Exception ex) {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught SYNC NETSTREAM(Dispose) exception: " + ex.Message);
-			};
+			}
 
 		}
 
@@ -1710,7 +1710,7 @@ namespace FluentFTP {
 			}
 			catch (Exception ex) {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught SYNC SOCKET(Dispose) exception: " + ex.Message);
-			};
+			}
 		}
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -1809,13 +1809,13 @@ namespace FluentFTP {
 			}
 			catch /*(Exception ex)*/ {
 				// ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC SSLSTREAM(Close) dispose exception: " + ex.Message);
-			};
+			}
 			try {
 				await m_sslStream.DisposeAsync();
 			}
 			catch /*(Exception ex)*/ {
 				// ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC SSLSTREAM(Dispose) dispose exception: " + ex.Message);
-			};
+			}
 #else
 		internal async Task DisposeSslStreamAsync() {
 			// Note: FtpSslStream SSL shutdown gets called here ( Dispose() calls Close() )
@@ -1825,7 +1825,7 @@ namespace FluentFTP {
 			}
 			catch /*(Exception ex)*/ {
 				// ((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC SSLSTREAM(Dispose) exception: " + ex.Message);
-			};
+			}
 #endif
 		}
 
@@ -1836,7 +1836,7 @@ namespace FluentFTP {
 			}
 			catch (Exception ex) {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC CUSTOMSTREAM(Dispose) exception: " + ex.Message);
-			};
+			}
 #else
 		internal async Task DisposeCustomStreamAsync() {
 			try {
@@ -1844,7 +1844,7 @@ namespace FluentFTP {
 			}
 			catch (Exception ex) {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC CUSTOMSTREAM(Dispose) exception: " + ex.Message);
-			};
+			}
 #endif
 		}
 
@@ -1858,7 +1858,7 @@ namespace FluentFTP {
 			}
 			catch (Exception ex) {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC NETSTREAM(Dispose) exception: " + ex.Message);
-			};
+			}
 #else
 		internal async Task DisposeNetStreamAsync() {
 			if (m_netStream == null) {
@@ -1869,7 +1869,7 @@ namespace FluentFTP {
 			}
 			catch (Exception ex) {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC NETSTREAM(Dispose) exception: " + ex.Message);
-			};
+			}
 #endif
 		}
 
@@ -1889,7 +1889,7 @@ namespace FluentFTP {
 			}
 			catch (Exception ex) {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Caught ASYNC SOCKET(Dispose) exception: " + ex.Message);
-			};
+			}
 		}
 
 	}

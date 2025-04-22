@@ -9,7 +9,7 @@ namespace FluentFTP.Helpers {
 			if (obj == null) {
 				// print null
 				return "null";
-			};
+			}
 
 			var type = obj.GetType();
 			var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);

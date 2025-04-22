@@ -35,7 +35,7 @@ namespace FluentFTP.Client.Modules {
 				config = new FtpAutoDetectConfig();
 			}
 
-			List<FtpEncryptionMode> encryptionsPriority = DefaultEncryptionsPriority.ShallowClone(); ;
+			List<FtpEncryptionMode> encryptionsPriority = DefaultEncryptionsPriority.ShallowClone();
 
 			if (!config.RequireEncryption) {
 				encryptionsPriority.Add(FtpEncryptionMode.None);
@@ -172,7 +172,7 @@ namespace FluentFTP.Client.Modules {
 				config = new FtpAutoDetectConfig();
 			}
 
-			List<FtpEncryptionMode> encryptionsPriority = DefaultEncryptionsPriority.ShallowClone(); ;
+			List<FtpEncryptionMode> encryptionsPriority = DefaultEncryptionsPriority.ShallowClone();
 
 			if (!config.RequireEncryption) {
 				encryptionsPriority.Add(FtpEncryptionMode.None);
