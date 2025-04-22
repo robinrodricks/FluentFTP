@@ -9,8 +9,9 @@ namespace FluentFTP {
 	/// An FTP client that manages a connection to a single FTP server.
 	/// Interacts with any FTP/FTPS server and provides a high-level and low-level API to work with files and folders.
 	/// Uses synchronous operations only. For the async version use `AsyncFtpClient`.
-	/// 
+	/// <para>
 	/// Debugging problems with FTP is much easier when you enable logging. Visit our Github Wiki for more info.
+	/// </para>
 	/// </summary>
 	public partial class FtpClient : BaseFtpClient, IInternalFtpClient, IDisposable, IFtpClient {
 

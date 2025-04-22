@@ -5,9 +5,10 @@ using System.Threading.Tasks;
 namespace FluentFTP.Proxy.AsyncProxy {
 	/// <summary> 
 	/// A FTP client with a user@host proxy identification, that works with Blue Coat FTP Service servers.
-	/// 
+	/// <para>
 	/// The 'blue coat variant' forces the client to wait for a 220 FTP response code in 
 	/// the handshake phase.
+	/// </para>
 	/// </summary>
 	public class AsyncFtpClientBlueCoatProxy : AsyncFtpClientProxy {
 		/// <summary> A FTP client with a user@host proxy identification. </summary>
