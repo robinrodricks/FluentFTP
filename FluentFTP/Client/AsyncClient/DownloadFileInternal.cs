@@ -143,7 +143,7 @@ namespace FluentFTP {
 							}
 						}
 
-						if (stopPosition != 0 && offset >= fileLen && readToEnd != true) {
+						if (stopPosition != 0 && offset >= fileLen && !readToEnd) {
 							earlySuccess = true; // We should stop here
 							break;
 						}
