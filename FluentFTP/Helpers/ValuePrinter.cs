@@ -46,14 +46,14 @@ namespace FluentFTP.Helpers {
 			else if (v is IList list) {
 				// print list
 				var vals = new StringBuilder();
-				vals.Append("[");
+				vals.Append('[');
 				for (int i = 0; i < list.Count; i++) {
 					vals.Append(ValueToString(list[i]));
 					if (i != (list.Count - 1)) {
 						vals.Append(", ");
 					}
 				}
-				vals.Append("]");
+				vals.Append(']');
 				txt = vals.ToString();
 			}
 			else {
