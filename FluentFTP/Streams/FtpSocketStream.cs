@@ -823,8 +823,7 @@ namespace FluentFTP {
 		/// <param name="encoding">Encoding used for writing the line</param>
 		/// <param name="buf">The data to write</param>
 		public void WriteLine(System.Text.Encoding encoding, string buf) {
-			byte[] data;
-			data = encoding.GetBytes(buf + "\r\n");
+			byte[] data = encoding.GetBytes(buf + "\r\n");
 			Write(data, 0, data.Length);
 		}
 

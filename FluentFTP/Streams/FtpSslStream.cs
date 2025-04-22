@@ -173,9 +173,7 @@ namespace FluentFTP.Streams {
 				unmanagedBuffer[0].count = 4;
 				unmanagedBuffer[0].type = 2;
 
-				int status;
-
-				status = NativeApi.ApplyControlToken(
+				int status = NativeApi.ApplyControlToken(
 					ref securityContextHandle,
 					securityBufferDescriptor);
 
