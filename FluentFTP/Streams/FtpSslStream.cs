@@ -274,7 +274,7 @@ namespace FluentFTP.Streams {
 
 	internal static class ReflectUtil {
 
-		private static BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+		private const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
 		public static object GetField(object obj, string fieldName) {
 			var tp = obj.GetType();
