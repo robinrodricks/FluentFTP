@@ -31,9 +31,7 @@ namespace FluentFTP.Client.Modules {
 		public static List<FtpProfile> AutoDetect(FtpClient client, FtpAutoDetectConfig config) {
 			var results = new List<FtpProfile>();
 
-			if (config == null) {
-				config = new FtpAutoDetectConfig();
-			}
+			config ??= new FtpAutoDetectConfig();
 
 			List<FtpEncryptionMode> encryptionsPriority = DefaultEncryptionsPriority.ShallowClone();
 
@@ -168,9 +166,7 @@ namespace FluentFTP.Client.Modules {
 		public static async Task<List<FtpProfile>> AutoDetectAsync(AsyncFtpClient client, FtpAutoDetectConfig config, CancellationToken token) {
 			var results = new List<FtpProfile>();
 
-			if (config == null) {
-				config = new FtpAutoDetectConfig();
-			}
+			config ??= new FtpAutoDetectConfig();
 
 			List<FtpEncryptionMode> encryptionsPriority = DefaultEncryptionsPriority.ShallowClone();
 

@@ -20,9 +20,7 @@ namespace FluentFTP {
 
 			LogFunction(nameof(AutoDetect), config);
 
-			if (config == null) {
-				config = new FtpAutoDetectConfig();
-			}
+			config ??= new FtpAutoDetectConfig();
 
 			ValidateAutoDetect();
 

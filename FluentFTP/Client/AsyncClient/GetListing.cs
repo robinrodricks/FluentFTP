@@ -66,8 +66,8 @@ namespace FluentFTP {
 			var autoNav = Config.ShouldAutoNavigate(path);
 			var autoRestore = Config.ShouldAutoRestore(path);
 
-			if (autoNav) { 
-				options = options | FtpListOption.NoPath;
+			if (autoNav) {
+				options |= FtpListOption.NoPath;
 			}
 
 			bool machineList;
@@ -199,8 +199,8 @@ namespace FluentFTP {
 			var autoNav = Config.ShouldAutoNavigate(path);
 			var autoRestore = Config.ShouldAutoRestore(path);
 
-			if (autoNav) { 
-				options = options | FtpListOption.NoPath;
+			if (autoNav) {
+				options |= FtpListOption.NoPath;
 			}
 
 			bool machineList;

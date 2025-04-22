@@ -1413,9 +1413,7 @@ namespace FluentFTP {
 		/// <param name="port">The port to listen on</param>
 		public void Listen(IPAddress address, int port) {
 			if (!IsConnected) {
-				if (m_socket == null) {
-					m_socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-				}
+				m_socket ??= new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
 				m_socket.Bind(new IPEndPoint(address, port));
 				m_socket.Listen(1);

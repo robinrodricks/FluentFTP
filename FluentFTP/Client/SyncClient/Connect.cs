@@ -76,9 +76,7 @@ namespace FluentFTP {
 				throw new FtpException("No host has been specified");
 			}
 
-			if (m_capabilities == null) {
-				m_capabilities = new List<FtpCapability>();
-			}
+			m_capabilities ??= new List<FtpCapability>();
 
 			Status.Reset(reConnect);
 			m_stream.SslSessionLength = 0;
@@ -194,9 +192,7 @@ namespace FluentFTP {
 			}
 
 			// Set a FTP server handler if a custom handler has not already been set
-			if (ServerHandler == null) {
-				ServerHandler = ServerModule.GetServerHandler(m_serverType);
-			}
+			ServerHandler ??= ServerModule.GetServerHandler(m_serverType);
 
 			LogWithPrefix(FtpTraceLevel.Verbose, "Active ServerHandler is: " + (ServerHandler == null ? "None" : ServerHandler.ToEnum().ToString()));
 

@@ -23,9 +23,7 @@ namespace FluentFTP {
 
 			LogFunction(nameof(AutoDetect), config);
 
-			if (config == null) {
-				config = new FtpAutoDetectConfig();
-			}
+			config ??= new FtpAutoDetectConfig();
 
 			ValidateAutoDetect();
 
@@ -33,7 +31,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
- 		/// LEGACY CALL FORMAT, to be deleted sometime in the future
+		/// LEGACY CALL FORMAT, to be deleted sometime in the future
 		/// 
 		/// Automatic FTP and FTPS connection negotiation.
 		/// This method tries every possible combination of the FTP connection properties, and returns the list of successful connection profiles.
