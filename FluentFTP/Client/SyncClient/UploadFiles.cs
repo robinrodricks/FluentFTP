@@ -74,7 +74,7 @@ namespace FluentFTP {
 
 			// check which files should be uploaded or filtered out based on rules
 			var filesToUpload = GetFilesToUpload2(localPaths, remoteDir, rules, results, shouldExist);
-			var existingFiles = checkFileExistence ? GetNameListing(GetAbsoluteDir(remoteDir)) : new string[0];
+			var existingFiles = checkFileExistence ? GetNameListing(GetAbsoluteDir(remoteDir)) : Array.Empty<string>();
 
 			// per local file
 			var r = -1;
