@@ -27,7 +27,7 @@ namespace FluentFTP {
 
 			// since FTP does not include a specific command to check if a file exists
 			// here we check if file exists by attempting to get its filesize (SIZE)
-			if (HasFeature(FtpCapability.SIZE) && (ServerHandler == null || (ServerHandler != null && !ServerHandler.DontUseSizeEvenIfCapable(path)))) {
+			if (HasFeature(FtpCapability.SIZE) && (ServerHandler == null || !ServerHandler.DontUseSizeEvenIfCapable(path))) {
 				// Fix #328: get filesize in ASCII or Binary mode as required by server
 				FtpSizeReply sizeReply = new FtpSizeReply();
 				await GetFileSizeInternal(path, -1, token, sizeReply);
@@ -42,7 +42,7 @@ namespace FluentFTP {
 			}
 
 			// check if file exists by attempting to get its date modified (MDTM)
-			if (HasFeature(FtpCapability.MDTM) && (ServerHandler == null || (ServerHandler != null && !ServerHandler.DontUseMdtmEvenIfCapable(path)))) {
+			if (HasFeature(FtpCapability.MDTM) && (ServerHandler == null || !ServerHandler.DontUseMdtmEvenIfCapable(path))) {
 				FtpReply reply = await Execute("MDTM " + path, token);
 				if (reply.Code[0] == '2') {
 					return true;
