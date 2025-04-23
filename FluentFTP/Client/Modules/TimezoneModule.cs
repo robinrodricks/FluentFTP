@@ -6,8 +6,14 @@ namespace FluentFTP.Client.Modules {
 		/// <summary>
 		/// If `reverse` is false, converts the date provided by the FTP server into the timezone required locally.
 		/// If `reverse` is true, converts the local timezone date into the date required by the FTP server.
-		///
-		/// Affected by properties: TimeConversion, ServerTimeZone, ClientTimeZone.
+		/// <para>
+		/// Affected by properties:
+		/// <list type="bullet">
+		/// <item>TimeConversion</item>
+		/// <item>ServerTimeZone</item>
+		/// <item>ClientTimeZone</item>
+		/// </list>
+		/// </para>
 		/// </summary>
 		public static DateTime ConvertDate(DateTime date, FtpConfig config, bool reverse) {
 

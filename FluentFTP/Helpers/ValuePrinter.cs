@@ -9,7 +9,7 @@ namespace FluentFTP.Helpers {
 			if (obj == null) {
 				// print null
 				return "null";
-			};
+			}
 
 			var type = obj.GetType();
 			var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -43,18 +43,17 @@ namespace FluentFTP.Helpers {
 				// print string
 				txt = "\"" + v + "\"";
 			}
-			else if (v is IList) {
+			else if (v is IList list) {
 				// print list
 				var vals = new StringBuilder();
-				vals.Append("[");
-				var list = (IList)v;
+				vals.Append('[');
 				for (int i = 0; i < list.Count; i++) {
 					vals.Append(ValueToString(list[i]));
 					if (i != (list.Count - 1)) {
 						vals.Append(", ");
 					}
 				}
-				vals.Append("]");
+				vals.Append(']');
 				txt = vals.ToString();
 			}
 			else {

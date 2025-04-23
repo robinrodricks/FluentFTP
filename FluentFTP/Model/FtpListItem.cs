@@ -13,16 +13,18 @@ namespace FluentFTP {
 	public class FtpListItem {
 		/// <summary>
 		/// Blank constructor, you will need to fill arguments manually.
-		/// 
+		/// <para>
 		/// NOTE TO USER : You should not need to construct this class manually except in advanced cases. Typically constructed by GetListing().
+		/// </para>
 		/// </summary>
 		public FtpListItem() {
 		}
 
 		/// <summary>
 		/// Constructor with mandatory arguments filled.
-		/// 
+		/// <para>
 		/// NOTE TO USER : You should not need to construct this class manually except in advanced cases. Typically constructed by GetListing().
+		/// </para>
 		/// </summary>
 		public FtpListItem(string record, string name, long size, bool isDir, DateTime lastModifiedTime) {
 			this.Input = record;
@@ -34,8 +36,9 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Constructor with mandatory arguments filled.
-		/// 
+		/// <para>
 		/// NOTE TO USER : You should not need to construct this class manually except in advanced cases. Typically constructed by GetListing().
+		/// </para>
 		/// </summary>
 		public FtpListItem(string name, long size, FtpObjectType type, DateTime lastModifiedTime) {
 			this.Name = name;

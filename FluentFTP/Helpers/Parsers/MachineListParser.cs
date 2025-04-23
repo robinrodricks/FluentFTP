@@ -107,7 +107,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// </summary>
 		private static void ParseFileSize(string record, FtpListItem item) {
 			Match m;
-			if ((m = Regex.Match(record, @"size=(?<size>[0-9]+);", RegexOptions.IgnoreCase)).Success) {
+			if ((m = Regex.Match(record, "size=(?<size>[0-9]+);", RegexOptions.IgnoreCase)).Success) {
 				long size;
 
 				if (long.TryParse(m.Groups["size"].Value, out size)) {
@@ -121,7 +121,7 @@ namespace FluentFTP.Helpers.Parsers {
 		/// </summary>
 		private static void ParsePermissions(string record, FtpListItem item) {
 			Match m;
-			if ((m = Regex.Match(record, @"unix.mode=(?<mode>[0-9]+);", RegexOptions.IgnoreCase)).Success) {
+			if ((m = Regex.Match(record, "unix.mode=(?<mode>[0-9]+);", RegexOptions.IgnoreCase)).Success) {
 				if (m.Groups["mode"].Value.Length == 4) {
 					item.SpecialPermissions = (FtpSpecialPermissions)int.Parse(m.Groups["mode"].Value[0].ToString());
 					item.OwnerPermissions = (FtpPermission)int.Parse(m.Groups["mode"].Value[1].ToString());

@@ -377,36 +377,17 @@ namespace FluentFTP.Proxy.Socks {
 			}
 		}
 		private void HandleProxyCommandError(SocksReply replyCode) {
-			string proxyErrorText;
-			switch (replyCode) {
-				case SocksReply.GeneralSOCKSServerFailure:
-					proxyErrorText = "a general socks destination failure occurred";
-					break;
-				case SocksReply.NotAllowedByRuleset:
-					proxyErrorText = "the connection is not allowed by proxy destination rule set";
-					break;
-				case SocksReply.NetworkUnreachable:
-					proxyErrorText = "the network was unreachable";
-					break;
-				case SocksReply.HostUnreachable:
-					proxyErrorText = "the host was unreachable";
-					break;
-				case SocksReply.ConnectionRefused:
-					proxyErrorText = "the connection was refused by the remote network";
-					break;
-				case SocksReply.TTLExpired:
-					proxyErrorText = "the time to live (TTL) has expired";
-					break;
-				case SocksReply.CommandNotSupported:
-					proxyErrorText = "the command issued by the proxy client is not supported by the proxy destination";
-					break;
-				case SocksReply.AddressTypeNotSupported:
-					proxyErrorText = "the address type specified is not supported";
-					break;
-				default:
-					proxyErrorText = $"an unknown SOCKS reply with the code value '{replyCode}' was received";
-					break;
-			}
+			string proxyErrorText = replyCode switch {
+				SocksReply.GeneralSOCKSServerFailure => "a general socks destination failure occurred",
+				SocksReply.NotAllowedByRuleset => "the connection is not allowed by proxy destination rule set",
+				SocksReply.NetworkUnreachable => "the network was unreachable",
+				SocksReply.HostUnreachable => "the host was unreachable",
+				SocksReply.ConnectionRefused => "the connection was refused by the remote network",
+				SocksReply.TTLExpired => "the time to live (TTL) has expired",
+				SocksReply.CommandNotSupported => "the command issued by the proxy client is not supported by the proxy destination",
+				SocksReply.AddressTypeNotSupported => "the address type specified is not supported",
+				_ => $"an unknown SOCKS reply with the code value '{replyCode}' was received",
+			};
 
 			_socketStream.Close();
 			throw new FtpProxyException($"Proxy error: {proxyErrorText} for destination host {_destinationHost} port number {_destinationPort}.");

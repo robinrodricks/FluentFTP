@@ -38,7 +38,7 @@ namespace FluentFTP {
 
 			// verify args
 			if (!errorHandling.IsValidCombination()) {
-				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
+				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined", nameof(errorHandling));
 			}
 
 			if (localDir.IsBlank()) {
@@ -71,7 +71,7 @@ namespace FluentFTP {
 				// try to download it
 				try {
 					var ok = DownloadFileToFile(result.LocalPath, result.RemotePath, existsMode, verifyOptions, progress, metaProgress);
-					
+
 					// mark that the file succeeded
 					result.IsSuccess = ok.IsSuccess();
 					result.IsSkipped = ok.IsSkipped();
@@ -86,7 +86,7 @@ namespace FluentFTP {
 					}
 				}
 				catch (Exception ex) {
-				
+
 					// mark that the file failed
 					result.IsFailed = true;
 					result.Exception = ex;

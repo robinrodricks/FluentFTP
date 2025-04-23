@@ -57,7 +57,7 @@ namespace FluentFTP.Client.Modules {
 		public static void GetPassivePort(BaseFtpClient client, FtpDataConnectionType type, FtpReply reply, out string host, out int port) {
 
 			// Check the format of the PASV response
-			var m = Regex.Match(reply.Message, @"(?<quad1>[0-9]+)," + @"(?<quad2>[0-9]+)," + @"(?<quad3>[0-9]+)," + @"(?<quad4>[0-9]+)," + @"(?<port1>[0-9]+)," + @"(?<port2>[0-9]+)");
+			var m = Regex.Match(reply.Message, "(?<quad1>[0-9]+),(?<quad2>[0-9]+),(?<quad3>[0-9]+),(?<quad4>[0-9]+),(?<port1>[0-9]+),(?<port2>[0-9]+)");
 
 			if (!m.Success || m.Groups.Count != 7) {
 				throw new FtpException("Malformed PASV response: " + reply.Message);

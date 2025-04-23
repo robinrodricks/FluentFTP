@@ -83,7 +83,7 @@ namespace FluentFTP {
 			var filesToUpload = await GetFilesToUpload2Async(localPaths, remoteDir, rules, results, shouldExist, token);
 
 			// get all the already existing files (if directory was created just create an empty array)
-			var existingFiles = checkFileExistence ? await GetNameListing(remoteDir, token) : new string[0];
+			var existingFiles = checkFileExistence ? await GetNameListing(remoteDir, token) : Array.Empty<string>();
 
 			// per local file
 			var r = -1;

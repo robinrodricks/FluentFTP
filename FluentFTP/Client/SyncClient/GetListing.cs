@@ -283,7 +283,7 @@ namespace FluentFTP {
 			catch (IOException ioEx) {
 				// Some FTP servers forcibly close the connection, we absorb these errors,
 				// unless we have lost the control connection itself
-				if (m_stream.IsConnected == false) {
+				if (!m_stream.IsConnected) {
 					if (retry) {
 						// retry once more, but do not go into a infinite recursion loop here
 						// note: this will cause an automatic reconnect in Execute(...)

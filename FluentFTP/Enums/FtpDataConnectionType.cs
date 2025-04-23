@@ -3,19 +3,23 @@
 namespace FluentFTP {
 	/// <summary>
 	/// Data connection type
-	///
+	/// <para>
 	/// PASV, EPSV, PORT, EPRT correspond directly to the "classic" FTP
 	/// connection types available on most "modern" FTP servers. These are
 	/// subject to the well known caveats and you might like to examine the
 	/// following enhanced alternatives:
-	///
+	/// </para>
+	/// <para>
 	/// AutoActive, AutoPassive are FluentFTP extensions to make a fallback
 	/// to the non-extended versions of EPSV and EPRT automatic if not supported.
-	///
+	/// </para>
+	/// <para>
 	/// PassiveExtended delivers the functionality of EPSV on servers that do not
 	/// support this command.
-	///
+	/// </para>
+	/// <para>
 	/// PassiveAllowUnroutable makes using PASV work inside local networks.
+	/// </para>
 	/// </summary>
 	public enum FtpDataConnectionType {
 		/// <summary>
@@ -98,14 +102,14 @@ namespace FluentFTP {
 		/// automatically be used in its place.
 		/// </summary>
 		PASVEX,
-		PassiveExtended = PASVEX, 
+		PassiveExtended = PASVEX,
 
 		/// <summary>
 		/// Same as PASV except the host supplied by the server is used even
 		/// if the address is an unroutable address. Useful if you are connecting
 		/// to a server with the same private network.
 		/// </summary>
-		PASVUSE,                
-		PassiveAllowUnroutable = PASVUSE, 
+		PASVUSE,
+		PassiveAllowUnroutable = PASVUSE,
 	}
 }

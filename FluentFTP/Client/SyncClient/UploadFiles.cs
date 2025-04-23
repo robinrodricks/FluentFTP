@@ -42,7 +42,7 @@ namespace FluentFTP {
 
 			// verify args
 			if (!errorHandling.IsValidCombination()) {
-				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined");
+				throw new ArgumentException("Invalid combination of FtpError flags.  Throw & Stop cannot be combined", nameof(errorHandling));
 			}
 
 			if (remoteDir.IsBlank()) {
@@ -74,7 +74,7 @@ namespace FluentFTP {
 
 			// check which files should be uploaded or filtered out based on rules
 			var filesToUpload = GetFilesToUpload2(localPaths, remoteDir, rules, results, shouldExist);
-			var existingFiles = checkFileExistence ? GetNameListing(GetAbsoluteDir(remoteDir)) : new string[0];
+			var existingFiles = checkFileExistence ? GetNameListing(GetAbsoluteDir(remoteDir)) : Array.Empty<string>();
 
 			// per local file
 			var r = -1;
@@ -87,7 +87,7 @@ namespace FluentFTP {
 				// try to upload it
 				try {
 					var ok = UploadFileFromFile(result.LocalPath, result.RemotePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, result.RemotePath), true, verifyOptions, progress, metaProgress);
-					
+
 					// mark that the file succeeded
 					result.IsSuccess = ok.IsSuccess();
 					result.IsSkipped = ok.IsSkipped();
@@ -104,7 +104,7 @@ namespace FluentFTP {
 					}
 				}
 				catch (Exception ex) {
-				
+
 					// mark that the file failed
 					result.IsFailed = true;
 					result.Exception = ex;

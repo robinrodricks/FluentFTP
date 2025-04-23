@@ -478,7 +478,7 @@ namespace FluentFTP.Client.BaseClient {
 
 			// Use resolver
 			if (Config.AddressResolver != null) {
-				return m_Address ?? (m_Address = Config.AddressResolver());
+				return m_Address ??= Config.AddressResolver();
 			}
 
 			// Use supplied IPAD

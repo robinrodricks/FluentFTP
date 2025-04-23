@@ -6,14 +6,16 @@ namespace FluentFTP.Client.Modules {
 	/// <summary>
 	/// All servers with server-specific handling and support are listed here.
 	/// Its possible you can connect to other FTP servers too.
-	/// 
+	/// <para>
 	/// To add support for another standard FTP server:
 	///		1) Add a new enum in the `FtpServer` enum
 	///		2) Add a new class extending `FtpBaseServer` under the `Servers.Handlers` NS
 	///		3) Create a new instance of your class in `FtpHandlerIndex.AllServers`
-	///		
+	///	</para>
+	///	<para>
 	/// To support a custom FTP server you only need to extend `FtpBaseServer`
 	/// and set it on your client.ServerHandler before calling Connect.
+	/// </para>
 	/// </summary>
 	internal static class ServerModule {
 

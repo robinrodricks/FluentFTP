@@ -12,24 +12,29 @@ namespace FluentFTP.Streams {
 	/// FtpSslStream is an SslStream that properly sends a close_notify message when closing
 	/// the connection. This is required per RFC 5246 to avoid truncation attacks.
 	/// For more information, see https://tools.ietf.org/html/rfc5246#section-7.2.1
-	///
+	/// <para>
 	/// Inspired by: https://stackoverflow.com/questions/237807/net-sslstream-doesnt-close-tls-connection-properly/22626756#22626756
-	///
-	/// See: https://learn.microsoft.com/en-us/windows/win32/secauthn/shutting-down-an-schannel-connection
-	/// See: https://learn.microsoft.com/en-us/windows/win32/secauthn/using-sspi-with-a-windows-sockets-client?source=recommendations
-	///
+	/// </para>
+	/// See also:
+	/// <list type="bullet">
+	/// <item>https://learn.microsoft.com/en-us/windows/win32/secauthn/shutting-down-an-schannel-connection</item>
+	/// <item>https://learn.microsoft.com/en-us/windows/win32/secauthn/using-sspi-with-a-windows-sockets-client?source=recommendations</item>
+	/// </list>
+	/// <para>
 	/// Note:
 	/// Here is a quote from: https://github.com/dotnet/standard/issues/598#issuecomment-352148072
 	/// "The SslStream.ShutdownAsync API was added to .NET Core 2.0. It was also added to .NET Framework 4.7.
 	/// Logically, since .NET Core 2.0 and .NET Framework 4.7.1 are aligned with NETStandard2.0, it could
 	/// have been part of the NETStandard20 definition. But it wasn't due to when the NETStandard2.0 spec
 	/// was originally designed."
-	/// 
+	/// <para>
+	/// </para>
 	/// Note:
 	/// Microsoft says we should not override close():
 	/// "Place all cleanup logic for your stream object in Dispose(Boolean). Do not override Close()."
 	/// See: https://learn.microsoft.com/en-us/dotnet/api/system.io.stream.dispose?view=net-7.0
 	/// But: We recently changed the below logic due to issue #1107, which solved the problem in part
+	/// </para>
 	/// </summary>
 	public class FtpSslStream : SslStream {
 
@@ -104,11 +109,11 @@ namespace FluentFTP.Streams {
 #if !NET462 && !NETSTANDARD2_0
 
 			throw new NotImplementedException("CloseNotify hack only for NET462 or NETSTANDARD2_0");
-			/// BECAUSE:
-			/// "The SslStream.ShutdownAsync API was added to .NET Core 2.0. It was also added to .NET Framework 4.7.
-			/// Logically, since .NET Core 2.0 and .NET Framework 4.7.1 are aligned with NETStandard2.0, it could
-			/// have been part of the NETStandard20 definition. But it wasn't due to when the NETStandard2.0 spec
-			/// was originally designed."
+			// BECAUSE:
+			// "The SslStream.ShutdownAsync API was added to .NET Core 2.0. It was also added to .NET Framework 4.7.
+			// Logically, since .NET Core 2.0 and .NET Framework 4.7.1 are aligned with NETStandard2.0, it could
+			// have been part of the NETStandard20 definition. But it wasn't due to when the NETStandard2.0 spec
+			// was originally designed."
 
 #pragma warning disable CS0162 // Unreachable code detected
 
@@ -173,9 +178,7 @@ namespace FluentFTP.Streams {
 				unmanagedBuffer[0].count = 4;
 				unmanagedBuffer[0].type = 2;
 
-				int status;
-
-				status = NativeApi.ApplyControlToken(
+				int status = NativeApi.ApplyControlToken(
 					ref securityContextHandle,
 					securityBufferDescriptor);
 
@@ -274,7 +277,7 @@ namespace FluentFTP.Streams {
 
 	internal static class ReflectUtil {
 
-		private static BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly;
+		private const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
 		public static object GetField(object obj, string fieldName) {
 			var tp = obj.GetType();

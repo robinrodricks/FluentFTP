@@ -425,8 +425,9 @@ namespace FluentFTP {
 		/// of the file listing at once. If false then GetListing will read file
 		/// listings line-by-line. If GetListing is having issues with your server,
 		/// set it to false.
-		/// 
+		/// <para>
 		/// The number of bytes read is based upon <see cref="BulkListingLength"/>.
+		/// </para>
 		/// </summary>
 		public bool BulkListing { get; set; } = true;
 
@@ -682,7 +683,6 @@ namespace FluentFTP {
 				return autoRestore;
 			}
 			return false;
-			
 		}
 	}
 }

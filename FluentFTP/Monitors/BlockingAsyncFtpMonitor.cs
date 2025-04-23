@@ -11,12 +11,12 @@ namespace FluentFTP.Monitors {
 	/// It triggers the `ChangeDetected` event when files are added, changed or removed.
 	/// Internally it polls the remote folder(s) every `PollInterval` and checks for changed files.
 	/// If `WaitForUpload` is true, then the file is only detected as an added when the size is stable.
-	///
+	/// <para>
 	/// NOTE: This is user contributed code and uses an unusual async pattern.
 	/// Refer to the original PR to understand the design principles:
 	/// https://github.com/robinrodricks/FluentFTP/pull/1663
+	/// </para>
 	/// </summary>
-	/// 
 	public class BlockingAsyncFtpMonitor : BaseFtpMonitor, IDisposable
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		, IAsyncDisposable

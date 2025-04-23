@@ -36,10 +36,11 @@ namespace FluentFTP.Helpers {
 
 		/// <summary>
 		/// Is the version number returned as part of the filename?
-		/// 
+		/// <para>
 		/// Some VMS FTP servers do not permit a file to be deleted unless
 		/// the filename includes the version number. Note that directories are
 		/// never returned with the version number.
+		/// </para>
 		/// </summary>
 		public static bool VMSNameHasVersion { get; set; } = false;
 

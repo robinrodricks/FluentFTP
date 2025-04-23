@@ -31,11 +31,9 @@ namespace FluentFTP.Client.Modules {
 		public static List<FtpProfile> AutoDetect(FtpClient client, FtpAutoDetectConfig config) {
 			var results = new List<FtpProfile>();
 
-			if (config == null) {
-				config = new FtpAutoDetectConfig();
-			}
+			config ??= new FtpAutoDetectConfig();
 
-			List<FtpEncryptionMode> encryptionsPriority = DefaultEncryptionsPriority.ShallowClone(); ;
+			List<FtpEncryptionMode> encryptionsPriority = DefaultEncryptionsPriority.ShallowClone();
 
 			if (!config.RequireEncryption) {
 				encryptionsPriority.Add(FtpEncryptionMode.None);
@@ -168,11 +166,9 @@ namespace FluentFTP.Client.Modules {
 		public static async Task<List<FtpProfile>> AutoDetectAsync(AsyncFtpClient client, FtpAutoDetectConfig config, CancellationToken token) {
 			var results = new List<FtpProfile>();
 
-			if (config == null) {
-				config = new FtpAutoDetectConfig();
-			}
+			config ??= new FtpAutoDetectConfig();
 
-			List<FtpEncryptionMode> encryptionsPriority = DefaultEncryptionsPriority.ShallowClone(); ;
+			List<FtpEncryptionMode> encryptionsPriority = DefaultEncryptionsPriority.ShallowClone();
 
 			if (!config.RequireEncryption) {
 				encryptionsPriority.Add(FtpEncryptionMode.None);
@@ -474,8 +470,8 @@ namespace FluentFTP.Client.Modules {
 		/// Create a default ValidateCertificate handler that accepts valid certificates.
 		/// </summary>
 		public static void SetDefaultCertificateValidation(BaseFtpClient client, FtpProfile profile) {
-			if (profile.Encryption != FtpEncryptionMode.None && client.ValidateCertificateHandlerExists == false) {
-				client.ValidateCertificate += new FtpSslValidation(delegate (BaseFtpClient c, FtpSslValidationEventArgs e) {
+			if (profile.Encryption != FtpEncryptionMode.None && !client.ValidateCertificateHandlerExists) {
+				client.ValidateCertificate += new FtpSslValidation((BaseFtpClient _, FtpSslValidationEventArgs e) => {
 					if (e.PolicyErrors != System.Net.Security.SslPolicyErrors.None) {
 						e.Accept = false;
 					}
