@@ -585,7 +585,7 @@ namespace FluentFTP {
 
 			m_lastActivity = DateTime.UtcNow;
 			using (var cts = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-				cts.Token.Register(async () => await CloseAsync(token));
+				cts.CancelAfter(ReadTimeout);
 				try {
 					var res = await BaseStream.ReadAsync(buffer, cts.Token);
 					return res;
