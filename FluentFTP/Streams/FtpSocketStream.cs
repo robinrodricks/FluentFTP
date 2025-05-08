@@ -1130,7 +1130,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Helper for Async cancel in ConnectAsync 
+		/// Helper for Async cancel in ConnectAsync
 		/// </summary>
 		internal async Task EnableCancellation(Task task, CancellationToken token, Action action) {
 			var registration = token.Register(action);
@@ -1139,7 +1139,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Helper for Async cancel in ConnectAsync 
+		/// Helper for Async cancel in ConnectAsync
 		/// </summary>
 		internal async Task<T> EnableCancellation<T>(Task<T> task, CancellationToken token, Action action) {
 			var registration = token.Register(action);
@@ -1172,6 +1172,7 @@ namespace FluentFTP {
 			}
 #endif
 			catch (SocketException ex) when (ex.SocketErrorCode is SocketError.OperationAborted or SocketError.TimedOut) {
+				token.ThrowIfCancellationRequested();
 				throw new TimeoutException("Timed out trying to connect!");
 			}
 

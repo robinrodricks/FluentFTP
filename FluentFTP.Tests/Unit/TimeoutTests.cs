@@ -61,5 +61,28 @@ namespace FluentFTP.Tests.Unit {
 			}
 		}
 
+		[Fact]
+		public async Task ConnectTimeoutAsyncCancel() {
+
+			var client = new AsyncFtpClient("test.github.com", new NetworkCredential("wrong", "password"));
+			client.Config.DataConnectionType = FtpDataConnectionType.PASVEX;
+			client.Config.ConnectTimeout = timeoutMillis;
+			var tokenSource = new System.Threading.CancellationTokenSource(1000);
+			var token = tokenSource.Token;
+			var start = DateTime.Now;
+			try {
+				await client.Connect(token);
+				Assert.True(false, "Connect succeeded. Was supposed to time out.");
+			}
+			catch (OperationCanceledException ex) {
+				Assert.True(true, "This is what we expect.");
+			}
+			catch (TimeoutException) {
+				Assert.True(false, "We should get an OperationCanceledException here.");
+			}
+			catch (SocketException) {
+				Assert.True(false, "We should get an OperationCanceledException here.");
+			}
+		}
 	}
 }
