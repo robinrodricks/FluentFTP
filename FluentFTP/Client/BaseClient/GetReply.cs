@@ -63,6 +63,22 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>
 		/// <param name="useSema">Put a semaphore wait around the entire GetReply invocation</param>
+		/// <returns>FtpReply representing the response from the server</returns>
+		/// <exception cref="TimeoutException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
+		FtpReply IInternalFtpClient.GetReplyInternal(string command, bool exhaustNoop, int timeOut, bool useSema) {
+			return ((IInternalFtpClient)this).GetReplyInternal(command, exhaustNoop, timeOut, useSema, -1);
+		}
+
+		/// <summary>
+		/// Retrieves a reply from the server.
+		/// Support "normal" mode waiting for a command reply, subject to timeout exception
+		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
+		/// </summary>
+		/// <param name="command">We are waiting for the response to which command?</param>
+		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
+		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>
+		/// <param name="useSema">Put a semaphore wait around the entire GetReply invocation</param>
 		/// <param name="linesExpected">-1 normal operation, 0 accumulate until timeOut, >0 accumulate until n msgs received</param>
 		/// <returns>FtpReply representing the response from the server</returns>
 		/// <exception cref="TimeoutException"></exception>
@@ -269,6 +285,23 @@ namespace FluentFTP.Client.BaseClient {
 		/// <exception cref="InvalidOperationException"></exception>
 		async Task<FtpReply> IInternalFtpClient.GetReplyInternal(CancellationToken token, string command, bool exhaustNoop, int timeOut) {
 			return await ((IInternalFtpClient)this).GetReplyInternal(token, command, exhaustNoop, timeOut, true, -1);
+		}
+
+		/// <summary>
+		/// Retrieves a reply from the server.
+		/// Support "normal" mode waiting for a command reply, subject to timeout exception
+		/// and "exhaustNoop" mode, which waits for 10 seconds to collect out of band NOOP responses
+		/// </summary>
+		/// <param name="token">The token that can be used to cancel the entire process.</param>
+		/// <param name="command">We are waiting for the response to which command?</param>
+		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
+		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>
+		/// <param name="useSema">Put a semaphore wait around the entire GetReply invocation</param>
+		/// <returns>FtpReply representing the response from the server</returns>
+		/// <exception cref="TimeoutException"></exception>
+		/// <exception cref="InvalidOperationException"></exception>
+		async Task<FtpReply> IInternalFtpClient.GetReplyInternal(CancellationToken token, string command, bool exhaustNoop, int timeOut, bool useSema) {
+			return await ((IInternalFtpClient)this).GetReplyInternal(token, command, exhaustNoop, timeOut, useSema, -1);
 		}
 
 		/// <summary>
