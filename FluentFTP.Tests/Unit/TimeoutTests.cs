@@ -74,7 +74,7 @@ namespace FluentFTP.Tests.Unit {
 				await client.Connect(token);
 				Assert.True(false, "Connect succeeded. Was supposed to time out.");
 			}
-			catch (OperationCanceledException ex) {
+			catch (OperationCanceledException) {
 				Assert.True(true, "This is what we expect.");
 			}
 			catch (TimeoutException) {

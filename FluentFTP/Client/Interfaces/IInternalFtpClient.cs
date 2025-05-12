@@ -27,6 +27,7 @@ namespace FluentFTP {
 #endif
 
 		FtpReply ExecuteInternal(string command);
+		FtpReply ExecuteInternal(string command, int linesExpected);
 
 		FtpReply GetReplyInternal(string command);
 		FtpReply GetReplyInternal(string command, bool exhaustNoop);
