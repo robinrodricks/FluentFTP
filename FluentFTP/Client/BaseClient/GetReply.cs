@@ -165,9 +165,6 @@ namespace FluentFTP.Client.BaseClient {
 								break;
 							}
 
-							if (useSema) {
-								m_daemonSemaphore.Release();
-							}
 							throw new TimeoutException();
 						}
 
@@ -400,9 +397,6 @@ namespace FluentFTP.Client.BaseClient {
 								break;
 							}
 
-							if (useSema) {
-								m_daemonSemaphore.Release();
-							}
 							throw new TimeoutException();
 						}
 
