@@ -161,7 +161,7 @@ namespace FluentFTP.Client.BaseClient {
 						// If we are not exhausting NOOPs, i.e. doing a normal GetReply(...)
 
 						if (elapsedTime > Config.ReadTimeout) {
-							if (linesExpected >= 0) {
+							if (linesExpected == 0) {
 								break;
 							}
 
@@ -396,7 +396,7 @@ namespace FluentFTP.Client.BaseClient {
 						// If we are not exhausting NOOPs, i.e. doing a normal GetReply(...)
 
 						if (elapsedTime > Config.ReadTimeout) {
-							if (linesExpected >= 0) {
+							if (linesExpected == 0) {
 								break;
 							}
 
