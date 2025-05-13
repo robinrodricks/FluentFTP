@@ -16,6 +16,17 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		/// <returns>The servers reply to the command</returns>
 		public async Task<FtpReply> Execute(string command, CancellationToken token = default(CancellationToken)) {
+			return await Execute(command, -1, token);
+		}
+
+		/// <summary>
+		/// Performs an asynchronous execution of the specified command
+		/// </summary>
+		/// <param name="command">The command to execute</param>
+		/// <param name="linesExpected">-1 normal operation, 0 accumulate until timeOut, >0 accumulate until n msgs received</param>
+		/// <param name="token">The token that can be used to cancel the entire process</param>
+		/// <returns>The servers reply to the command</returns>
+		public async Task<FtpReply> Execute(string command, int linesExpected, CancellationToken token = default(CancellationToken)) {
 			FtpReply reply;
 
 			bool reconnect = false;
@@ -112,7 +123,7 @@ namespace FluentFTP {
 				LastCommandTimestamp = DateTime.UtcNow;
 
 				// get the reply
-				reply = await ((IInternalFtpClient)this).GetReplyInternal(token, command, false, 0, false);
+				reply = await ((IInternalFtpClient)this).GetReplyInternal(token, command, false, 0, false, linesExpected);
 			}
 			finally {
 				m_daemonSemaphore.Release();
