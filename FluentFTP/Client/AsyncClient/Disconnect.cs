@@ -25,6 +25,7 @@ namespace FluentFTP {
 					// from the remote side, thus causing an exception here, so check for null
 					if (m_stream != null) {
 						await m_stream.CloseAsync(token);
+						m_stream = null;
 					}
 				}
 			}
