@@ -27,7 +27,7 @@ namespace FluentFTP {
 		/// <param name="linesExpected">-1 normal operation, 0 accumulate until timeOut, >0 accumulate until n msgs received</param>
 		/// <returns>The servers reply to the command</returns>
 		public FtpReply Execute(string command, int linesExpected) {
-			return ((IInternalFtpClient)this).ExecuteInternal(command);
+			return ((IInternalFtpClient)this).ExecuteInternal(command, linesExpected);
 		}
 
 	}
