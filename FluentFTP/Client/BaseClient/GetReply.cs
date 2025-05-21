@@ -228,6 +228,14 @@ namespace FluentFTP.Client.BaseClient {
 				}
 
 			}
+			catch (Exception ex) {
+				if (m_stream != null) {
+					m_stream.Close();
+					m_stream = null;
+				}
+				LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) failure: " + ex.Message);
+				throw;
+			}
 			finally {
 				if (useSema) {
 					m_daemonSemaphore.Release();
@@ -459,6 +467,14 @@ namespace FluentFTP.Client.BaseClient {
 					LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) sequence: " + sequence.TrimStart(','));
 				}
 
+			}
+			catch (Exception ex) {
+				if (m_stream != null) {
+					await m_stream.CloseAsync();
+					m_stream = null;
+				}
+				LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) failure: " + ex.Message);
+				throw;
 			}
 			finally {
 				if (useSema) {
