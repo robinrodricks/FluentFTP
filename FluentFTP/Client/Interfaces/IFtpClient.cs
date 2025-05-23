@@ -27,6 +27,7 @@ namespace FluentFTP {
 		void Connect(bool reConnect);
 		void Disconnect();
 		FtpReply Execute(string command);
+		FtpReply Execute(string command, int linesExpected);
 		List<string> ExecuteDownloadText(string command);
 		FtpReply GetReply();
 
