@@ -544,11 +544,15 @@ namespace FluentFTP {
 				cts.CancelAfter(ReadTimeout);
 				try {
 #if NETSTANDARD2_1 || NET5_0_OR_GREATER
-					var res = await BaseStream.ReadAsync(buffer.AsMemory(offset, count), cts.Token);
+					var res = BaseStream.ReadAsync(buffer.AsMemory(offset, count), cts.Token);
+					if (await Task.WhenAny(res.AsTask(), Task.Delay(Timeout.Infinite, cts.Token)) != res.AsTask())
+						throw new TimeoutException();
 #else
-					var res = await BaseStream.ReadAsync(buffer, offset, count, cts.Token);
+					var res =  BaseStream.ReadAsync(buffer, offset, count, cts.Token);
+					if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, cts.Token)) != res)
+						throw new TimeoutException();					
 #endif
-					return res;
+					return await res;
 				}
 				catch {
 					await CloseAsync(token);
@@ -568,7 +572,7 @@ namespace FluentFTP {
 				}
 			}
 		}
-
+		
 #if NETSTANDARD2_1 || NET5_0_OR_GREATER
 		/// <summary>
 		/// Reads data from the stream
