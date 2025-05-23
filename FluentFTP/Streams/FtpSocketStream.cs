@@ -545,12 +545,14 @@ namespace FluentFTP {
 				try {
 #if NETSTANDARD2_1 || NET5_0_OR_GREATER
 					var res = BaseStream.ReadAsync(buffer.AsMemory(offset, count), cts.Token);
-					if (await Task.WhenAny(res.AsTask(), Task.Delay(Timeout.Infinite, cts.Token)) != res.AsTask())
+					if (await Task.WhenAny(res.AsTask(), Task.Delay(Timeout.Infinite, cts.Token)) != res.AsTask()){
 						throw new TimeoutException();
+					}
 #else
 					var res =  BaseStream.ReadAsync(buffer, offset, count, cts.Token);
-					if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, cts.Token)) != res)
-						throw new TimeoutException();					
+					if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, cts.Token)) != res){
+						throw new TimeoutException();	
+					}				
 #endif
 					return await res;
 				}
