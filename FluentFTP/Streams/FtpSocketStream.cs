@@ -589,16 +589,14 @@ namespace FluentFTP {
 					return res;
 				}
 				catch {
-					if (cts.IsCancellationRequested) {
-						await CloseAsync(token);
-					}
+					await CloseAsync(token);
 
-					// CTS for Cancellation triggered and caused the exception
+					// token for Cancellation triggered and caused the exception
 					if (token.IsCancellationRequested) {
 						throw new OperationCanceledException("Cancelled read from socket stream");
 					}
 
-					// CTS for Timeout triggered and caused the exception
+					// token for Timeout triggered and caused the exception
 					if (cts.IsCancellationRequested) {
 						throw new TimeoutException("Timed out trying to read data from the socket stream!");
 					}
