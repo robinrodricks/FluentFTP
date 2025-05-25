@@ -545,15 +545,13 @@ namespace FluentFTP {
 				try {
 #if NETSTANDARD2_1 || NET5_0_OR_GREATER
 					var res = BaseStream.ReadAsync(buffer.AsMemory(offset, count), cts.Token).AsTask();
+#else
+					var res =  BaseStream.ReadAsync(buffer, offset, count, cts.Token);
+#endif
 					if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, cts.Token)) != res){
 						throw new TimeoutException();
 					}
-#else
-					var res =  BaseStream.ReadAsync(buffer, offset, count, cts.Token);
-					if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, cts.Token)) != res){
-						throw new TimeoutException();	
-					}				
-#endif
+					
 					return await res;
 				}
 				catch {
@@ -591,8 +589,12 @@ namespace FluentFTP {
 			using (var cts = CancellationTokenSource.CreateLinkedTokenSource(token)) {
 				cts.CancelAfter(ReadTimeout);
 				try {
-					var res = await BaseStream.ReadAsync(buffer, cts.Token);
-					return res;
+					var res = BaseStream.ReadAsync(buffer, cts.Token).AsTask();
+					if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, cts.Token)) != res){
+						throw new TimeoutException();	
+					}
+
+					return await res;
 				}
 				catch {
 					if (cts.IsCancellationRequested) {
