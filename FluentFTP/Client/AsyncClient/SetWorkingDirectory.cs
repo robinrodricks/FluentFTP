@@ -27,6 +27,10 @@ namespace FluentFTP {
 				return;
 			}
 
+			if (path != "/" && Config.PreserveTrailingSlashCmdList != null && Config.PreserveTrailingSlashCmdList.Contains("CWD")) {
+				path += "/";
+			}
+
 			// modify working dir
 			if (!(reply = await Execute("CWD " + path, token)).Success) {
 				throw new FtpCommandException(reply);

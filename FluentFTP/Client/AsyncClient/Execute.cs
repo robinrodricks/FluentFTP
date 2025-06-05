@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+
 using FluentFTP.Client.Modules;
 using FluentFTP.Exceptions;
 using FluentFTP.Helpers;
@@ -150,11 +151,14 @@ namespace FluentFTP {
 
 			// CWD LastWorkingDir
 			if (command.ToUpper().TrimEnd() == "CWD" || command.ToUpper().StartsWith("CWD ", StringComparison.Ordinal)) {
-				// At least for a successful absolute Unix CWD, we know where we are.
-				string parms = command.Length <= 4 ? string.Empty : command.Substring(4);
-				if (parms.IsAbsolutePath()) {
-					Status.LastWorkingDir = parms;
-					return;
+				if (Config.PreserveTrailingSlashCmdList == null || !Config.PreserveTrailingSlashCmdList.Contains("CWD")) {
+					// Only assume the following for normal processing
+					// At least for a successful absolute Unix CWD, we know where we are.
+					string parms = command.Length <= 4 ? string.Empty : command.Substring(4);
+					if (parms.IsAbsolutePath()) {
+						Status.LastWorkingDir = parms;
+						return;
+					}
 				}
 
 				// Sadly, there are cases where a successful CWD does not let us easily
