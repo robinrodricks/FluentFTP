@@ -26,7 +26,9 @@ namespace FluentFTP {
 				return;
 			}
 
-			if (path != "/" && Config.PreserveTrailingSlashCmdList != null && Config.PreserveTrailingSlashCmdList.Contains("CWD")) {
+			// If PreserveTrailingSlashCmdList enabled for CWD... but: Don't do it for root dir and any
+			// directories that already end with a slash (which shouldn't happen, but let's be safe)
+			if (Config.PreserveTrailingSlashCmdList != null && Config.PreserveTrailingSlashCmdList.Contains("CWD") && !path.EndsWith("/")) {
 				path += "/";
 			}
 

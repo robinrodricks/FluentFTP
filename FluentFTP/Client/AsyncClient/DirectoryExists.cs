@@ -36,8 +36,20 @@ namespace FluentFTP {
 				return true;
 			}
 
+			// If PreserveTrailingSlashCmdList enabled for CWD... but: Don't do it for root dir and any
+			// directories that already end with a slash (which shouldn't happen, but let's be safe)
+			if (Config.PreserveTrailingSlashCmdList != null && Config.PreserveTrailingSlashCmdList.Contains("CWD") && !path.EndsWith("/")) {
+				path += "/";
+			}
+
 			// check if a folder exists by changing the working dir to it
 			pwd = await GetWorkingDirectory(token);
+
+			// If PreserveTrailingSlashCmdList enabled for CWD... but: Don't do it for root dir and any
+			// directories that already end with a slash (which shouldn't happen, but let's be safe)
+			if (Config.PreserveTrailingSlashCmdList != null && Config.PreserveTrailingSlashCmdList.Contains("CWD") && !pwd.EndsWith("/")) {
+				pwd += "/";
+			}
 
 			if ((await Execute("CWD " + path, token)).Success) {
 				FtpReply reply = await Execute("CWD " + pwd, token);
