@@ -4,7 +4,7 @@ using FluentFTP.Xunit.Attributes;
 namespace FluentFTP.Xunit.Docker {
 	public class DockerFtpServer : IDisposable {
 		internal DockerFtpContainer _server;
-		internal TestcontainersContainer? _container;
+		internal DockerContainer? _container;
 		internal bool _useSsl;
 		internal string _useStream;
 

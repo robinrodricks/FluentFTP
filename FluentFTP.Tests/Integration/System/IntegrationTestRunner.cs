@@ -34,7 +34,7 @@ namespace FluentFTP.Tests.Integration.System {
 
 			}
 			catch (Exception ex) {
-				Assert.True(false, $"Integration test failed : " + ex.ToString());
+				Assert.Fail($"Integration test failed : " + ex.ToString());
 			}
 
 		}

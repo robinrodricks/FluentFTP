@@ -1,12 +1,6 @@
-﻿using FluentFTP.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
-using System.Net.Sockets;
+﻿using System.Net;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Sdk;
 
 namespace FluentFTP.Tests.Unit {
 	public class CustomTests {
