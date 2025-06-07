@@ -31,7 +31,7 @@ public class DateTimesTests {
 		var actual = DateTimes.ParseFtpDate(unsupportedDateString, client);
 		Assert.Equal(DateTime.MinValue, actual);
 
-		Assert.Equal(1, logger.LogEntries.Count);
+		Assert.Single(logger.LogEntries);
 		var entry = logger.LogEntries.Single();
 		Assert.Equal(FtpTraceLevel.Error, entry.Severity);
 		Assert.Equal($"Failed to parse date string '{unsupportedDateString}'", entry.Message);

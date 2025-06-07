@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FluentFTP.Xunit.Docker {
+﻿namespace FluentFTP.Xunit.Docker {
 	public static class DockerFtpConfig {
 
 		/// <summary>

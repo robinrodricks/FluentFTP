@@ -1,12 +1,8 @@
-﻿using FluentFTP.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Sdk;
 
 namespace FluentFTP.Tests.Unit {
 	public class TimeoutTests {
@@ -16,7 +12,7 @@ namespace FluentFTP.Tests.Unit {
 		private void ValidateTime(DateTime callStart, string methodName) {
 			var maxElapsedMillis = (timeoutMillis + 500);
 			if ((DateTime.Now - callStart).TotalMilliseconds > maxElapsedMillis) {
-				Assert.True(false, $"ConnectTimeout is being ignored with {methodName}() method!");
+				Assert.Fail($"ConnectTimeout is being ignored with {methodName}() method!");
 			}
 			else {
 				Assert.True(true);
@@ -32,7 +28,7 @@ namespace FluentFTP.Tests.Unit {
 			var start = DateTime.Now;
 			try {
 				client.Connect();
-				Assert.True(false, "Connect succeeded. Was supposed to time out.");
+				Assert.Fail("Connect succeeded. Was supposed to time out.");
 			}
 			catch (TimeoutException) {
 				ValidateTime(start, "Connect");
@@ -48,7 +44,7 @@ namespace FluentFTP.Tests.Unit {
 			var start = DateTime.Now;
 			try {
 				await client.Connect();
-				Assert.True(false, "Connect succeeded. Was supposed to time out.");
+				Assert.Fail("Connect succeeded. Was supposed to time out.");
 			}
 			catch (TimeoutException) {
 				ValidateTime(start, "ConnectAsync");
@@ -72,16 +68,16 @@ namespace FluentFTP.Tests.Unit {
 			var start = DateTime.Now;
 			try {
 				await client.Connect(token);
-				Assert.True(false, "Connect succeeded. Was supposed to time out.");
+				Assert.Fail("Connect succeeded. Was supposed to time out.");
 			}
 			catch (OperationCanceledException) {
 				Assert.True(true, "This is what we expect.");
 			}
 			catch (TimeoutException) {
-				Assert.True(false, "We should get an OperationCanceledException here.");
+				Assert.Fail("We should get an OperationCanceledException here.");
 			}
 			catch (SocketException) {
-				Assert.True(false, "We should get an OperationCanceledException here.");
+				Assert.Fail("We should get an OperationCanceledException here.");
 			}
 		}
 	}
