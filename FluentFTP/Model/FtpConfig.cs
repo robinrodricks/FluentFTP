@@ -568,6 +568,20 @@ namespace FluentFTP {
 		/// </summary>
 		public FtpSelfConnectMode SelfConnectMode { get; set; } = FtpSelfConnectMode.OnConnectionLost;
 
+		private List<string> _preserveTrailingSlashCmdList = null;
+
+		/// <summary>
+		/// Some servers, when taking a path spec as paramter, require a trailing slash.
+		/// Specify an empty list or null if normal processing is request, i.e. any posix
+		/// trailing slashes will be removed (exeption: root "/"). Specify, as an example,
+		/// PreserveTrailingSlashCmdList = new List&lt;string&gt; { "CWD" };
+		/// to have all CWD commands include a trailing slash.
+		/// </summary>
+		public List<string> PreserveTrailingSlashCmdList {
+			get => _preserveTrailingSlashCmdList;
+			set => _preserveTrailingSlashCmdList = value;
+		}
+
 		//-------------------------------------------------------------//
 		// ADD NEW PROPERTIES INTO THIS FUNCTION: FtpConfig.CopyTo()
 		//-------------------------------------------------------------//
