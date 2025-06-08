@@ -19,7 +19,6 @@ sudo cp sources.list common-debian
 sudo cp sources.list common-debian-slim
 sudo cp sources.list apache
 sudo cp sources.list bftpd
-sudo cp sources.list filezilla
 sudo cp sources.list glftpd
 sudo cp sources.list proftpd
 sudo cp sources.list pureftpd
@@ -41,7 +40,6 @@ sudo docker build common-debian-slim --pull --progress=plain -t common-debian-sl
 #
 sudo docker build apache    --progress=plain -t apache:fluentftp
 sudo docker build bftpd     --progress=plain -t bftpd:fluentftp
-sudo docker build filezilla --progress=plain -t filezilla:fluentftp
 sudo docker build glftpd    --progress=plain -t glftpd:fluentftp
 sudo docker build proftpd   --progress=plain -t proftpd:fluentftp
 sudo docker build pureftpd  --progress=plain -t pureftpd:fluentftp
@@ -56,7 +54,6 @@ sudo rm common-debian\sources.list
 sudo rm common-debian-slim\sources.list
 sudo rm apache\sources.list
 sudo rm bftpd\sources.list
-sudo rm filezilla\sources.list
 sudo rm glftpd\sources.list
 sudo rm proftpd\sources.list
 sudo rm pureftpd\sources.list
