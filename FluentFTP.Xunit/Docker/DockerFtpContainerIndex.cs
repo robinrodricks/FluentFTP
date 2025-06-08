@@ -6,7 +6,6 @@ namespace FluentFTP.Xunit.Docker {
 		public static List<DockerFtpContainer> Index = new List<DockerFtpContainer> {
 			new ApacheContainer(),
 			new BFtpdContainer(),
-			new FileZillaContainer(),
 			new GlFtpdContainer(),
 			new ProFtpdContainer(),
 			new PureFtpdContainer(),
