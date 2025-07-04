@@ -230,7 +230,7 @@ namespace FluentFTP.Tests.Unit {
 				new FtpListItem("data.0000", 9, FtpObjectType.Link, new DateTime(2011, 9, 27, 0, 0, 0, 0)),
 				new FtpListItem("data.6460", 512, FtpObjectType.Directory, new DateTime(2012, 6, 29, 0, 0, 0, 0)),
 				new FtpListItem("sys.0000", 8, FtpObjectType.Link, new DateTime(2011, 9, 27, 0, 0, 0, 0)),
-				new FtpListItem("sys.6460", 4096, FtpObjectType.Directory, new DateTime(2024, 6, 25, 16, 26, 0, 0)),
+				new FtpListItem("sys.6460", 4096, FtpObjectType.Directory, new DateTime(DateTime.UtcNow.Year, 6, 25, 16, 26, 0, 0)),
 				new FtpListItem("File001.xml dir", 512, FtpObjectType.Directory, new DateTime(1994, 4, 8, 0, 0, 0, 0)),
 				new FtpListItem("File003.xml dir", 512, FtpObjectType.Directory, new DateTime(1994, 4, 8, 0, 0, 0, 0)),
 				new FtpListItem("File-3.txt file", 1392298, FtpObjectType.File, new DateTime(1995, 11, 22, 0, 0, 0, 0)),
