@@ -27,19 +27,19 @@ namespace FluentFTP {
 #endif
 
 		FtpReply ExecuteInternal(string command);
-		FtpReply ExecuteInternal(string command, bool acceptIllFormed);
+		FtpReply ExecuteInternal(string command, int linesExpected);
 
 		FtpReply GetReplyInternal(string command);
 		FtpReply GetReplyInternal(string command, bool exhaustNoop);
 		FtpReply GetReplyInternal(string command, bool exhaustNoop, int timeOut);
 		FtpReply GetReplyInternal(string command, bool exhaustNoop, int timeOut, bool useSema);
-		FtpReply GetReplyInternal(string command, bool exhaustNoop, int timeOut, bool useSema, bool acceptIllFormed);
+		FtpReply GetReplyInternal(string command, bool exhaustNoop, int timeOut, bool useSema, int linesExpected);
 
 		Task<FtpReply> GetReplyInternal(CancellationToken token, string command);
 		Task<FtpReply> GetReplyInternal(CancellationToken token, string command, bool exhaustNoop);
 		Task<FtpReply> GetReplyInternal(CancellationToken token, string command, bool exhaustNoop, int timeOut);
 		Task<FtpReply> GetReplyInternal(CancellationToken token, string command, bool exhaustNoop, int timeOut, bool useSema);
-		Task<FtpReply> GetReplyInternal(CancellationToken token, string command, bool exhaustNoop, int timeOut, bool useSema, bool acceptIllFormed);
+		Task<FtpReply> GetReplyInternal(CancellationToken token, string command, bool exhaustNoop, int timeOut, bool useSema, int linesExpected);
 
 		bool IsStillConnectedInternal(int timeout = 10000);
 
