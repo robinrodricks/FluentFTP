@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Linq;
+using FluentFTP.Helpers;
+using System.Text.RegularExpressions;
+using FluentFTP.Client.Modules;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentFTP.Client.Modules;
-using FluentFTP.Helpers;
 
 namespace FluentFTP.Client.BaseClient {
 
@@ -23,7 +22,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <exception cref="TimeoutException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
 		FtpReply IInternalFtpClient.GetReplyInternal(string command) {
-			return ((IInternalFtpClient)this).GetReplyInternal(command, false, 0, true, false);
+			return ((IInternalFtpClient)this).GetReplyInternal(command, false, 0, true, -1);
 		}
 
 		/// <summary>
@@ -37,7 +36,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <exception cref="TimeoutException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
 		FtpReply IInternalFtpClient.GetReplyInternal(string command, bool exhaustNoop) {
-			return ((IInternalFtpClient)this).GetReplyInternal(command, exhaustNoop, exhaustNoop ? 10000 : 0, true, false);
+			return ((IInternalFtpClient)this).GetReplyInternal(command, exhaustNoop, exhaustNoop ? 10000 : 0, true, -1);
 		}
 
 		/// <summary>
@@ -52,7 +51,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <exception cref="TimeoutException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
 		FtpReply IInternalFtpClient.GetReplyInternal(string command, bool exhaustNoop, int timeOut) {
-			return ((IInternalFtpClient)this).GetReplyInternal(command, exhaustNoop, timeOut, true, false);
+			return ((IInternalFtpClient)this).GetReplyInternal(command, exhaustNoop, timeOut, true, -1);
 		}
 
 		/// <summary>
@@ -68,7 +67,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <exception cref="TimeoutException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
 		FtpReply IInternalFtpClient.GetReplyInternal(string command, bool exhaustNoop, int timeOut, bool useSema) {
-			return ((IInternalFtpClient)this).GetReplyInternal(command, exhaustNoop, timeOut, useSema, false);
+			return ((IInternalFtpClient)this).GetReplyInternal(command, exhaustNoop, timeOut, useSema, -1);
 		}
 
 		/// <summary>
@@ -80,11 +79,11 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>
 		/// <param name="useSema">Put a semaphore wait around the entire GetReply invocation</param>
-		/// <param name="acceptIllFormed">A flag indicating whether to accept ill-formed responses.</param>
+		/// <param name="linesExpected">-1 normal operation, 0 accumulate until timeOut, >0 accumulate until n msgs received</param>
 		/// <returns>FtpReply representing the response from the server</returns>
 		/// <exception cref="TimeoutException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
-		FtpReply IInternalFtpClient.GetReplyInternal(string command, bool exhaustNoop, int timeOut, bool useSema, bool acceptIllFormed) {
+		FtpReply IInternalFtpClient.GetReplyInternal(string command, bool exhaustNoop, int timeOut, bool useSema, int linesExpected) {
 			var reply = new FtpReply();
 
 			if (string.IsNullOrEmpty(command)) {
@@ -95,6 +94,8 @@ namespace FluentFTP.Client.BaseClient {
 			}
 
 			Status.IgnoreStaleData = false;
+
+			int lines = 0;
 
 			string sequence = string.Empty;
 
@@ -120,7 +121,6 @@ namespace FluentFTP.Client.BaseClient {
 
 				sw.Start();
 
-				var isMultiline = false;
 				do {
 					if (useSema && !IsConnected) {
 						throw new InvalidOperationException("No connection to the server exists.");
@@ -143,7 +143,7 @@ namespace FluentFTP.Client.BaseClient {
 							response = m_stream.ReadLine(Encoding);
 						}
 						else {
-							if (elapsedTime > previousElapsedTime + 1000) {
+							if (elapsedTime > (previousElapsedTime + 1000)) {
 								previousElapsedTime = elapsedTime;
 								LogWithPrefix(FtpTraceLevel.Verbose, "Waiting - " + ((timeOut - elapsedTime) / 1000).ToString() + " seconds left");
 								// if we have more then 5 seconds left, tickle the server some more
@@ -161,6 +161,10 @@ namespace FluentFTP.Client.BaseClient {
 						// If we are not exhausting NOOPs, i.e. doing a normal GetReply(...)
 
 						if (elapsedTime > Config.ReadTimeout) {
+							if (linesExpected == 0) {
+								break;
+							}
+
 							throw new TimeoutException();
 						}
 
@@ -189,7 +193,7 @@ namespace FluentFTP.Client.BaseClient {
 					sequence += "," + response.Split(' ')[0];
 
 					if (exhaustNoop &&
-						((response.StartsWith("200") && response.IndexOf("NOOP", StringComparison.OrdinalIgnoreCase) >= 0) ||
+						((response.StartsWith("200") && (response.IndexOf("NOOP", StringComparison.OrdinalIgnoreCase) >= 0)) ||
 						response.StartsWith("500"))) {
 
 						Log(FtpTraceLevel.Verbose, "Skipped:  " + response);
@@ -197,9 +201,25 @@ namespace FluentFTP.Client.BaseClient {
 						continue;
 					}
 
-					DecodeStringToReply(response, acceptIllFormed, ref reply, ref isMultiline);
+					if (DecodeStringToReply(response, ref reply)) {
+						if (exhaustNoop) {
+							// We need to perhaps exhaust more NOOP responses
+							continue;
+						}
+						else {
+							// On a normal GetReply(...) we are happy to collect the first valid response
+							break;
+						}
+					}
 
-				} while (isMultiline || exhaustNoop);
+					reply.InfoMessages += response + "\n";
+					lines++;
+
+					if (linesExpected > 0 && lines >= linesExpected) {
+						break;
+					}
+
+				} while (true);
 
 				sw.Stop();
 
@@ -238,7 +258,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <exception cref="TimeoutException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
 		async Task<FtpReply> IInternalFtpClient.GetReplyInternal(CancellationToken token, string command) {
-			return await ((IInternalFtpClient)this).GetReplyInternal(token, command, false, 0, true, false);
+			return await ((IInternalFtpClient)this).GetReplyInternal(token, command, false, 0, true, -1);
 		}
 
 		/// <summary>
@@ -253,7 +273,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <exception cref="TimeoutException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
 		async Task<FtpReply> IInternalFtpClient.GetReplyInternal(CancellationToken token, string command, bool exhaustNoop) {
-			return await ((IInternalFtpClient)this).GetReplyInternal(token, command, exhaustNoop, exhaustNoop ? 10000 : 0, true, false);
+			return await ((IInternalFtpClient)this).GetReplyInternal(token, command, exhaustNoop, exhaustNoop ? 10000 : 0, true, -1);
 		}
 
 		/// <summary>
@@ -269,7 +289,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <exception cref="TimeoutException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
 		async Task<FtpReply> IInternalFtpClient.GetReplyInternal(CancellationToken token, string command, bool exhaustNoop, int timeOut) {
-			return await ((IInternalFtpClient)this).GetReplyInternal(token, command, exhaustNoop, timeOut, true, false);
+			return await ((IInternalFtpClient)this).GetReplyInternal(token, command, exhaustNoop, timeOut, true, -1);
 		}
 
 		/// <summary>
@@ -286,7 +306,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// <exception cref="TimeoutException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
 		async Task<FtpReply> IInternalFtpClient.GetReplyInternal(CancellationToken token, string command, bool exhaustNoop, int timeOut, bool useSema) {
-			return await ((IInternalFtpClient)this).GetReplyInternal(token, command, exhaustNoop, timeOut, useSema, false);
+			return await ((IInternalFtpClient)this).GetReplyInternal(token, command, exhaustNoop, timeOut, useSema, -1);
 		}
 
 		/// <summary>
@@ -299,11 +319,11 @@ namespace FluentFTP.Client.BaseClient {
 		/// <param name="exhaustNoop">Set to true to select the NOOP devouring mode</param>
 		/// <param name="timeOut">-1 non-blocking, no timeout, >0 exhaustNoop mode, timeOut in seconds</param>
 		/// <param name="useSema">Put a semaphore wait around the entire GetReply invocation</param>
-		/// <param name="acceptIllFormed">A flag indicating whether to accept ill-formed responses.</param>
+		/// <param name="linesExpected">-1 normal operation, 0 accumulate until timeOut, >0 accumulate until n msgs received</param>
 		/// <returns>FtpReply representing the response from the server</returns>
 		/// <exception cref="TimeoutException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
-		async Task<FtpReply> IInternalFtpClient.GetReplyInternal(CancellationToken token, string command, bool exhaustNoop, int timeOut, bool useSema, bool acceptIllFormed) {
+		async Task<FtpReply> IInternalFtpClient.GetReplyInternal(CancellationToken token, string command, bool exhaustNoop, int timeOut, bool useSema, int linesExpected) {
 			var reply = new FtpReply();
 
 			if (string.IsNullOrEmpty(command)) {
@@ -315,6 +335,8 @@ namespace FluentFTP.Client.BaseClient {
 
 			Status.IgnoreStaleData = false;
 
+			int lines = 0;
+
 			string sequence = string.Empty;
 
 			string response;
@@ -325,7 +347,7 @@ namespace FluentFTP.Client.BaseClient {
 			long previousElapsedTime = 0;
 
 			if (useSema) {
-				await m_daemonSemaphore.WaitAsync(token);
+				await m_daemonSemaphore.WaitAsync();
 			}
 
 			try {
@@ -333,13 +355,12 @@ namespace FluentFTP.Client.BaseClient {
 				if (exhaustNoop) {
 					// tickle the server
 					LogWithPrefix(FtpTraceLevel.Verbose, "Sending NOOP (<-GetReply)");
-					await m_stream.WriteLineAsync(Encoding, "NOOP", token);
+					m_stream.WriteLine(Encoding, "NOOP");
 					LastCommandTimestamp = DateTime.UtcNow;
 				}
 
 				sw.Start();
 
-				var isMultiline = false;
 				do {
 					if (useSema && !IsConnected) {
 						throw new InvalidOperationException("No connection to the server exists.");
@@ -362,9 +383,9 @@ namespace FluentFTP.Client.BaseClient {
 							response = await m_stream.ReadLineAsync(Encoding, token);
 						}
 						else {
-							if (elapsedTime > previousElapsedTime + 1000) {
+							if (elapsedTime > (previousElapsedTime + 1000)) {
 								previousElapsedTime = elapsedTime;
-								LogWithPrefix(FtpTraceLevel.Verbose, "Waiting - " + (timeOut - elapsedTime) / 1000 + " seconds left");
+								LogWithPrefix(FtpTraceLevel.Verbose, "Waiting - " + ((timeOut - elapsedTime) / 1000).ToString() + " seconds left");
 								// if we have more then 5 seconds left, tickle the server some more
 								if (timeOut - elapsedTime >= 5000) {
 									LogWithPrefix(FtpTraceLevel.Verbose, "Sending NOOP (<-GetReply)");
@@ -380,6 +401,10 @@ namespace FluentFTP.Client.BaseClient {
 						// If we are not exhausting NOOPs, i.e. doing a normal GetReply(...)
 
 						if (elapsedTime > Config.ReadTimeout) {
+							if (linesExpected == 0) {
+								break;
+							}
+
 							throw new TimeoutException();
 						}
 
@@ -408,7 +433,7 @@ namespace FluentFTP.Client.BaseClient {
 					sequence += "," + response.Split(' ')[0];
 
 					if (exhaustNoop &&
-						((response.StartsWith("200") && response.IndexOf("NOOP", StringComparison.OrdinalIgnoreCase) >= 0) ||
+						((response.StartsWith("200") && (response.IndexOf("NOOP", StringComparison.OrdinalIgnoreCase) >= 0)) ||
 						response.StartsWith("500"))) {
 
 						Log(FtpTraceLevel.Verbose, "Skipped:  " + response);
@@ -416,9 +441,25 @@ namespace FluentFTP.Client.BaseClient {
 						continue;
 					}
 
-					DecodeStringToReply(response, acceptIllFormed, ref reply, ref isMultiline);
+					if (DecodeStringToReply(response, ref reply)) {
+						if (exhaustNoop) {
+							// We need to perhaps exhaust more NOOP responses
+							continue;
+						}
+						else {
+							// On a normal GetReply(...) we are happy to collect the first valid response
+							break;
+						}
+					}
 
-				} while (isMultiline || exhaustNoop);
+					reply.InfoMessages += response + "\n";
+					lines++;
+
+					if (linesExpected > 0 && lines >= linesExpected) {
+						break;
+					}
+
+				} while (true);
 
 				sw.Stop();
 
@@ -429,7 +470,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 			catch (Exception ex) {
 				if (m_stream != null) {
-					await m_stream.CloseAsync(token);
+					await m_stream.CloseAsync();
 					m_stream = null;
 				}
 				LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) failure: " + ex.Message);
@@ -505,49 +546,16 @@ namespace FluentFTP.Client.BaseClient {
 
 		/// <summary>
 		/// Decodes the given FTP response string into a FtpReply, separating the FTP return code and message.
+		/// Returns true if the string was decoded correctly or false if it is not a standard format FTP response.
 		/// </summary>
-		/// <param name="text">The FTP response text.</param>
-		/// <param name="reply">The FTP reply structure.</param>
-		/// <returns>True, if the string was decoded correctly, or false if it is not a standard format FTP response.</returns>
 		protected static bool DecodeStringToReply(string text, ref FtpReply reply) {
-			var isMultiline = false;
-			return DecodeStringToReply(text, false, ref reply, ref isMultiline);
-		}
-
-		/// <summary>
-		/// Decodes the given FTP response string into a FtpReply, separating the FTP return code and message.
-		/// </summary>
-		/// <param name="text">The FTP response text.</param>
-		/// <param name="acceptIllFormed">A flag indicating whether to accept ill-formed responses.</param>
-		/// <param name="reply">The FTP reply structure.</param>
-		/// <param name="isMultiline">A flag indicating whether we currently decode a multiline FTP response.</param>
-		/// <returns>True, if the string was decoded correctly, or false if it is not a standard format FTP response.</returns>
-		protected static bool DecodeStringToReply(string text, bool acceptIllFormed, ref FtpReply reply, ref bool isMultiline) {
-			text = text.Trim();
-			var m = Regex.Match(text, "^(?<code>[0-9]{3})(?<multiline>[- ])?(?<message>.*)$");
-			var code = m.Groups["code"].Value;
-
-			if (isMultiline && !string.Equals(reply.Code, code)) {
-				// We have a multiline response which isn't the last line
-				reply.InfoMessages += text + "\n";
+			Match m = Regex.Match(text, "^(?<code>[0-9]{3}) (?<message>.*)$");
+			if (m.Success) {
+				reply.Code = m.Groups["code"].Value;
+				reply.Message = m.Groups["message"].Value;
 			}
-			else if (m.Success) {
-				// We have a well-formed response (i.e., single-line, or beginning/end of multiline)
-				reply.Code = code;
-				isMultiline = string.Equals(m.Groups["multiline"].Value, "-");
-				if (isMultiline) {
-					reply.InfoMessages += text + "\n";
-				}
-				else {
-					reply.Message = m.Groups["message"].Value.Trim();
-				}
-			}
-			else if (acceptIllFormed) {
-				// We have an ill-formed response
-				reply.Message = text;
-			}
-
 			return m.Success;
 		}
+
 	}
 }
