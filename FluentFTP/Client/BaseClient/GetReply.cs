@@ -470,7 +470,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 			catch (Exception ex) {
 				if (m_stream != null) {
-					await m_stream.CloseAsync();
+					await m_stream.CloseAsync(token);
 					m_stream = null;
 				}
 				LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) failure: " + ex.Message);
