@@ -564,7 +564,7 @@ namespace FluentFTP {
 		public IFtpStreamConfig CustomStreamConfig { get; set; } = null;
 
 		/// <summary>
-		/// Configure the behaviour of the Self Connect feature for the control connection
+		/// Configure how and when the FTP client should attempt to reconnect to the FTP server.
 		/// </summary>
 		public FtpSelfConnectMode SelfConnectMode { get; set; } = FtpSelfConnectMode.OnConnectionLost;
 

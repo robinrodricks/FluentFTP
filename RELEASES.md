@@ -1,5 +1,29 @@
 # Release Notes
 
+#### 53.0.0
+
+ - **FTP Protocol**
+   - New: Handle no-reply from FTP server by adding new overload to `Execute()` (thanks @FanDjango)
+   - Fix: `NetworkStream` `ReadAsync` infinite timeout when server is unresponsive (thanks @Gino1024)
+   - Fix: Preserve trailing slashes for special servers (thanks @FanDjango)
+   - New: Add `Config.PreserveTrailingSlashCmdList` setting (thanks @FanDjango)
+   - Fix: Improved handling of multiline FTP server responses (thanks @FanDjango and @kowalski-se)
+   - Fix: `GetChecksum()` cannot parse FTP server response if the path contains spaces (thanks @FanDjango)
+ - **FTP Connection**
+   - New: Implement `Config.EncryptAuthenticationOnly` (thanks @FanDjango)
+   - Fix: CCC failure: `NotImplementedException ` (thanks @FanDjango)
+   - Fix: NOOP command failure does not indicate disconnection (thanks @FanDjango)
+   - Fix: Make sure a `OperationCancelledException` is thrown when cancelling a `AsyncConnect()` (thanks @bruinsg)
+ - **Testing**
+   - Fix: Update XUnit from 2.4.1 to 2.9.3 (thanks @FanDjango)
+   - Fix: All integration tests fixed for Docker 4.42.0 (thanks @FanDjango)
+   - Fix: Date parser unit tests (thanks @FanDjango)
+   - Remove FileZilla Integration Test as there is no pre-made docker image (thanks @FanDjango)
+ - **Code cleanup**
+   - Fix: Use `Task.Delay` instead of `Thread.Sleep` (thanks @jnyrup)
+   - Fix: Various syntax cleanups and modernizations (thanks @jnyrup)
+   - Fix: Do not call `CancellationToken.Register` with async delegate (thanks @jnyrup)
+
 #### 52.1.0
 
  - **Connection**
