@@ -1,6 +1,6 @@
 # Release Notes
 
-#### 53.0.0
+#### 53.0.1
 
  - **FTP Protocol**
    - New: Handle no-reply from FTP server by adding new overload to `Execute()` (thanks @FanDjango)
@@ -15,6 +15,7 @@
    - Fix: NOOP command failure does not indicate disconnection (thanks @FanDjango)
    - Fix: Make sure a `OperationCancelledException` is thrown when cancelling a `AsyncConnect()` (thanks @bruinsg)
  - **Testing**
+   - New: Add fake FTP clients suitable for mocking (`FakeAsyncFtpClient` and `FakeFtpClient`)
    - Fix: Update XUnit from 2.4.1 to 2.9.3 (thanks @FanDjango)
    - Fix: All integration tests fixed for Docker 4.42.0 (thanks @FanDjango)
    - Fix: Date parser unit tests (thanks @FanDjango)
