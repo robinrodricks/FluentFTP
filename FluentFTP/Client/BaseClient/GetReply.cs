@@ -362,9 +362,6 @@ namespace FluentFTP.Client.BaseClient {
 				sw.Start();
 
 				do {
-					if (m_stream == null) {
-					}
-
 					if (useSema && !IsConnected) {
 						throw new InvalidOperationException("No connection to the server exists.");
 					}
@@ -472,11 +469,11 @@ namespace FluentFTP.Client.BaseClient {
 
 			}
 			catch (Exception ex) {
+				LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) failure: " + ex.Message);
 				if (m_stream != null) {
 					await m_stream.CloseAsync(token);
 					m_stream = null;
 				}
-				LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) failure: " + ex.Message);
 				throw;
 			}
 			finally {
