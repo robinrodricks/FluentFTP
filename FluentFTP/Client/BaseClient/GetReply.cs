@@ -362,9 +362,6 @@ namespace FluentFTP.Client.BaseClient {
 				sw.Start();
 
 				do {
-					if (m_stream == null) {
-					}
-
 					if (useSema && !IsConnected) {
 						throw new InvalidOperationException("No connection to the server exists.");
 					}
