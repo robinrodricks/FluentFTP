@@ -469,11 +469,11 @@ namespace FluentFTP.Client.BaseClient {
 
 			}
 			catch (Exception ex) {
+				LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) failure: " + ex.Message);
 				if (m_stream != null) {
 					await m_stream.CloseAsync(token);
 					m_stream = null;
 				}
-				LogWithPrefix(FtpTraceLevel.Verbose, "GetReply(...) failure: " + ex.Message);
 				throw;
 			}
 			finally {
