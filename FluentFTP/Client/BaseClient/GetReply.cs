@@ -355,13 +355,16 @@ namespace FluentFTP.Client.BaseClient {
 				if (exhaustNoop) {
 					// tickle the server
 					LogWithPrefix(FtpTraceLevel.Verbose, "Sending NOOP (<-GetReply)");
-					m_stream.WriteLine(Encoding, "NOOP");
+					await m_stream.WriteLineAsync(Encoding, "NOOP", token);
 					LastCommandTimestamp = DateTime.UtcNow;
 				}
 
 				sw.Start();
 
 				do {
+					if (m_stream == null) {
+					}
+
 					if (useSema && !IsConnected) {
 						throw new InvalidOperationException("No connection to the server exists.");
 					}
