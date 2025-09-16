@@ -8,20 +8,20 @@ using Timer = System.Threading.Timer;
 namespace FluentFTP.Monitors {
 	public abstract class BaseFtpMonitor {
 
-		internal Dictionary<string, long> _lastListing = new Dictionary<string, long>();
-		internal Dictionary<string, long> _unstableFiles = new Dictionary<string, long>();
+		protected Dictionary<string, long> _lastListing = new Dictionary<string, long>();
+		protected Dictionary<string, long> _unstableFiles = new Dictionary<string, long>();
 
-		internal Timer _timer;
+		protected Timer _timer;
 
 		/// <summary>
 		/// Is the monitoring started?
 		/// </summary>
-		public bool Active { get; internal set; }
+		public bool Active { get; protected set; }
 
 		/// <summary>
 		/// Gets the monitored FTP folder path(s)
 		/// </summary>
-		public List<string> FolderPaths { get; internal set; }
+		public List<string> FolderPaths { get; protected set; }
 
 		/// <summary>
 		/// Gets or sets the polling interval. Default is 10 minutes.
@@ -39,15 +39,15 @@ namespace FluentFTP.Monitors {
 		public bool Recursive { get; set; } = false;
 
 
-		internal void StartTimer(TimerCallback callback) {
+		protected void StartTimer(TimerCallback callback) {
 			_timer = new Timer(callback, null, PollInterval, PollInterval);
 		}
 
-		internal void StopTimer() {
+		protected void StopTimer() {
 			_timer?.Dispose();
 			_timer = null;
 		}
-		internal FtpListOption GetListingOptions(List<FtpCapability> caps) {
+		protected virtual FtpListOption GetListingOptions(List<FtpCapability> caps) {
 			FtpListOption options = FtpListOption.Modify | FtpListOption.Size;
 
 			if (Recursive) {
@@ -67,7 +67,7 @@ namespace FluentFTP.Monitors {
 		/// <summary>
 		/// Handles unstable files when WaitForUpload is true
 		/// </summary>
-		internal Dictionary<string, long> HandleUnstableFiles(Dictionary<string, long> currentListing) {
+		protected virtual Dictionary<string, long> HandleUnstableFiles(Dictionary<string, long> currentListing) {
 			var stableFiles = new Dictionary<string, long>();
 
 			foreach (var file in currentListing) {
@@ -100,7 +100,5 @@ namespace FluentFTP.Monitors {
 
 			return stableFiles;
 		}
-
-
 	}
 }
