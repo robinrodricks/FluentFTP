@@ -48,7 +48,7 @@ namespace FluentFTP.Monitors {
 		/// Monitor the FTP folder(s) until the token is cancelled
 		/// or an exception occurs in the FTP client or the handler.
 		/// </summary>
-		public async Task Start(CancellationToken token) {
+		public virtual async Task Start(CancellationToken token) {
 			while (true) {
 				try {
 					var startTimeUtc = DateTime.UtcNow;
@@ -89,7 +89,7 @@ namespace FluentFTP.Monitors {
 		/// <summary>
 		/// Polls the FTP folder(s) for changes
 		/// </summary>
-		private async Task PollFolder(CancellationToken token) {
+		protected virtual async Task PollFolder(CancellationToken token) {
 
 			// Step 1: Get the current listing
 			var currentListing = await GetCurrentListing(token).ConfigureAwait(false);
@@ -136,7 +136,7 @@ namespace FluentFTP.Monitors {
 		/// <summary>
 		/// Gets the current list items from the FTP server
 		/// </summary>
-		private async Task<Dictionary<string, long>> GetCurrentListing(CancellationToken token) {
+		protected virtual async Task<Dictionary<string, long>> GetCurrentListing(CancellationToken token) {
 			var options = GetListingOptions(_ftpClient.Capabilities);
 
 			// per folder to check
@@ -156,6 +156,5 @@ namespace FluentFTP.Monitors {
 
 			return allItems;
 		}
-
 	}
 }

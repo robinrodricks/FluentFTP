@@ -57,7 +57,7 @@ namespace FluentFTP.Monitors {
 		/// <summary>
 		/// Polls the FTP folder for changes
 		/// </summary>
-		private async void PollFolder(object state) {
+		protected virtual async void PollFolder(object state) {
 			try {
 
 				// exit if not connected
@@ -111,7 +111,7 @@ namespace FluentFTP.Monitors {
 		/// <summary>
 		/// Gets the current listing of files from the FTP server
 		/// </summary>
-		private async Task<Dictionary<string, long>> GetCurrentListing() {
+		protected virtual async Task<Dictionary<string, long>> GetCurrentListing() {
 			FtpListOption options = GetListingOptions(_ftpClient.Capabilities);
 
 			// per folder to check
