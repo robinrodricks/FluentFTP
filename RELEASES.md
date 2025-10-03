@@ -1,5 +1,12 @@
 # Release Notes
 
+#### 53.0.2
+
+ - Fix missing await and async in Async `GetReply`
+ - Fix timer/polling issue in `AsyncFtpMonitor.StartTimer`
+ - Rework `AsyncFtpMonitor` and `FtpMonitor` access modifiers to virtual for easy overriding
+ - Drop support for .NET 5, .NET 6 and add support for .NET 9 builds
+
 #### 53.0.1
 
  - **FTP Protocol**

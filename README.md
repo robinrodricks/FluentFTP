@@ -141,9 +141,9 @@ FluentFTP works on .NET and .NET Standard/.NET Core.
 |---------------		|-----------		|
 | **.NET 4.6.2**      	| net462     		| 
 | **.NET 4.7.2**      	| net472     		| 
-| **.NET 5.0**      	| net50     		| 
-| **.NET 6.0**      	| net60     		| 
 | **.NET 7.0**      	| net70     		| 
+| **.NET 8.0**      	| net80     		| 
+| **.NET 9.0**      	| net90     		| 
 | **.NET Standard 2.0** | netstandard2.0	| 
 | **.NET Standard 2.1** | netstandard2.1	| 
 
