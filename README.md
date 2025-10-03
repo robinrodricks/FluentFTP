@@ -154,7 +154,7 @@ FluentFTP is also supported on these platforms: (via .NET Standard)
   - **Xamarin.Android** 10.0
   - **Universal Windows Platform** 10.0
 
-Binaries for all platforms are built from a single Visual Studio Project. You will need the latset [Visual Studio](https://visualstudio.microsoft.com/downloads/) to build or contribute to FluentFTP.
+Binaries for all platforms are built from a single Visual Studio Project. You will need the latest [Visual Studio](https://visualstudio.microsoft.com/downloads/) to build or contribute to FluentFTP.
 
 
 ## Example Usage
