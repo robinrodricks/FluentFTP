@@ -419,7 +419,8 @@ namespace FluentFTP.Client.BaseClient {
 			}
 		}
 
-		/// <summary> Gets the last replies received from the server</summary>
+		/// <summary> Gets the last replies received from the server. We allocate this
+		/// to have 5 slots. If you need more, allocate your own with more.</summary>
 		public List<FtpReply> LastReplies { get; set; }
 
 		/// <summary>
