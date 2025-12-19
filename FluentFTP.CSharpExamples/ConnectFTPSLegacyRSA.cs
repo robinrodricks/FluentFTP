@@ -29,7 +29,7 @@ namespace Examples {
 				// Configure SSL client authentication options to include RSA cipher suites
 				// This is required for legacy servers that only support RSA key-exchange
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-				conn.ConfigureSslClientAuthenticationOptions += (client, e) => {
+				conn.ConfigureAuthentication += (client, e) => {
 #if NET5_0_OR_GREATER
 					// Set cipher suites policy to include RSA key-exchange ciphers
 					// CipherSuitesPolicy is only available in .NET 5.0+
@@ -75,7 +75,7 @@ namespace Examples {
 				// Configure SSL client authentication options to include RSA cipher suites
 				// This is required for legacy servers that only support RSA key-exchange
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-				conn.ConfigureSslClientAuthenticationOptions += (client, e) => {
+				conn.ConfigureAuthentication += (client, e) => {
 #if NET5_0_OR_GREATER
 					// Set cipher suites policy to include RSA key-exchange ciphers
 					// CipherSuitesPolicy is only available in .NET 5.0+
@@ -112,7 +112,7 @@ namespace Examples {
 				conn.Config.EncryptionMode = FtpEncryptionMode.Explicit;
 
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-				conn.ConfigureSslClientAuthenticationOptions += (client, e) => {
+				conn.ConfigureAuthentication += (client, e) => {
 #if NET5_0_OR_GREATER
 					// Minimal set: Only the most common RSA cipher suites
 					e.Options.CipherSuitesPolicy = new CipherSuitesPolicy(new[] {

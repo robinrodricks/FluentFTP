@@ -384,7 +384,7 @@ namespace FluentFTP.Client.BaseClient {
 		}
 
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-		protected FtpSslClientAuthenticationOptions m_ConfigureSslClientAuthenticationOptions = null;
+		protected FtpSslAuthentication m_ConfigureAuthentication = null;
 
 		/// <summary>
 		/// Event is fired when SSL client authentication options need to be configured before the TLS handshake.
@@ -410,9 +410,9 @@ namespace FluentFTP.Client.BaseClient {
 		/// Only use this for interop with legacy FTPS servers that cannot be upgraded.
 		/// </para>
 		/// </summary>
-		public event FtpSslClientAuthenticationOptions ConfigureSslClientAuthenticationOptions {
-			add => m_ConfigureSslClientAuthenticationOptions += value;
-			remove => m_ConfigureSslClientAuthenticationOptions -= value;
+		public event FtpSslAuthentication ConfigureAuthentication {
+			add => m_ConfigureAuthentication += value;
+			remove => m_ConfigureAuthentication -= value;
 		}
 #endif
 

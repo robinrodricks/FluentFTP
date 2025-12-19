@@ -10,12 +10,12 @@ namespace FluentFTP {
 	/// </summary>
 	/// <param name="control">The control connection that triggered the event</param>
 	/// <param name="e">Event args containing the SslClientAuthenticationOptions to customize</param>
-	public delegate void FtpSslClientAuthenticationOptions(BaseFtpClient control, FtpSslClientAuthenticationOptionsEventArgs e);
+	public delegate void FtpSslAuthentication(BaseFtpClient control, FtpSslAuthenticationEventArgs e);
 
 	/// <summary>
 	/// Event args for the FtpSslClientAuthenticationOptions delegate
 	/// </summary>
-	public class FtpSslClientAuthenticationOptionsEventArgs : EventArgs {
+	public class FtpSslAuthenticationEventArgs : EventArgs {
 		private SslClientAuthenticationOptions m_options = null;
 
 		/// <summary>
@@ -31,7 +31,7 @@ namespace FluentFTP {
 		/// Creates a new instance of FtpSslClientAuthenticationOptionsEventArgs
 		/// </summary>
 		/// <param name="options">The SSL client authentication options</param>
-		public FtpSslClientAuthenticationOptionsEventArgs(SslClientAuthenticationOptions options) {
+		public FtpSslAuthenticationEventArgs(SslClientAuthenticationOptions options) {
 			m_options = options ?? throw new ArgumentNullException(nameof(options));
 		}
 	}

@@ -1244,7 +1244,7 @@ namespace FluentFTP {
 							CertificateRevocationCheckMode = Client.Config.ValidateCertificateRevocation ? X509RevocationMode.Online : X509RevocationMode.NoCheck
 						};
 
-						Client.OnConfigureSslClientAuthenticationOptions(options);
+						Client.OnConfigureAuthentication(options);
 
 						m_sslStream.AuthenticateAsClient(options);
 #else
@@ -1357,7 +1357,7 @@ namespace FluentFTP {
 						};
 
 						// Fire event to allow user customization (e.g. CipherSuitesPolicy)
-						Client.OnConfigureSslClientAuthenticationOptions(options);
+						Client.OnConfigureAuthentication(options);
 
 						await m_sslStream.AuthenticateAsClientAsync(options, token);
 #else

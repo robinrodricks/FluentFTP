@@ -30,7 +30,7 @@ public class FakeAsyncFtpClient : IAsyncFtpClient {
 	public FtpHashAlgorithm HashAlgorithms { get; }
 	public event FtpSslValidation ValidateCertificate;
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-	public event FtpSslClientAuthenticationOptions ConfigureSslClientAuthenticationOptions;
+	public event FtpSslAuthentication ConfigureAuthentication;
 #endif
 	public string SystemType { get; }
 	public FtpServer ServerType { get; }

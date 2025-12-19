@@ -9,11 +9,11 @@ namespace FluentFTP.Client.BaseClient {
 		/// Fires the SSL client authentication options configuration event
 		/// </summary>
 		/// <param name="options">The SSL client authentication options to be customized</param>
-		internal void OnConfigureSslClientAuthenticationOptions(SslClientAuthenticationOptions options) {
-			var evt = m_ConfigureSslClientAuthenticationOptions;
+		internal void OnConfigureAuthentication(SslClientAuthenticationOptions options) {
+			var evt = m_ConfigureAuthentication;
 
 			if (evt != null) {
-				var e = new FtpSslClientAuthenticationOptionsEventArgs(options);
+				var e = new FtpSslAuthenticationEventArgs(options);
 				evt(this, e);
 			}
 		}
