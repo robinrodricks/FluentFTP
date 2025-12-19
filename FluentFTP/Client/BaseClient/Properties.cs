@@ -383,6 +383,39 @@ namespace FluentFTP.Client.BaseClient {
 			remove => m_ValidateCertificate -= value;
 		}
 
+#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+		protected FtpSslClientAuthenticationOptions m_ConfigureSslClientAuthenticationOptions = null;
+
+		/// <summary>
+		/// Event is fired when SSL client authentication options need to be configured before the TLS handshake.
+		/// This allows customization of SSL options such as CipherSuitesPolicy for legacy FTPS servers
+		/// that only support RSA key-exchange ciphers (e.g., on Linux where .NET's default cipher list may not include RSA suites).
+		/// <para>
+		/// Example usage for legacy RSA-only servers:
+		/// <code>
+		/// ftp.ConfigureSslClientAuthenticationOptions += (client, e) =>
+		/// {
+		/// #if NET5_0_OR_GREATER
+		///     e.Options.CipherSuitesPolicy = new CipherSuitesPolicy(new[]
+		///     {
+		///         TlsCipherSuite.TLS_RSA_WITH_AES_256_GCM_SHA384,
+		///         TlsCipherSuite.TLS_RSA_WITH_AES_128_GCM_SHA256,
+		///     });
+		/// #endif
+		/// };
+		/// </code>
+		/// </para>
+		/// <para>
+		/// <b>Security Note:</b> Enabling RSA key-exchange ciphers reduces security (no forward secrecy).
+		/// Only use this for interop with legacy FTPS servers that cannot be upgraded.
+		/// </para>
+		/// </summary>
+		public event FtpSslClientAuthenticationOptions ConfigureSslClientAuthenticationOptions {
+			add => m_ConfigureSslClientAuthenticationOptions += value;
+			remove => m_ConfigureSslClientAuthenticationOptions -= value;
+		}
+#endif
+
 		protected string m_systemType = "UNKNOWN";
 
 		/// <summary>

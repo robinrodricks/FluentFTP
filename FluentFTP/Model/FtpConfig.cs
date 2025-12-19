@@ -192,7 +192,7 @@ namespace FluentFTP {
 		public bool DisconnectWithQuit { get; set; } = true;
 
 		/// <summary>
-		/// Gets or sets the length of time in milliseconds to wait for a connection 
+		/// Gets or sets the length of time in milliseconds to wait for a connection
 		/// attempt to succeed before giving up. Default is 0 (Use OS default timeout)
 		/// See: https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#connection-timeout-settings
 		/// and: https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_timeoutwindows
@@ -218,7 +218,7 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds the data channel
-		/// should wait for the server to send data. Default value is 
+		/// should wait for the server to send data. Default value is
 		/// 15000 (15 seconds).
 		/// </summary>
 		public int DataConnectionReadTimeout { get; set; } = 15000;
@@ -226,7 +226,7 @@ namespace FluentFTP {
 		protected bool _keepAlive = false;
 
 		/// <summary>
-		/// Gets or sets a value indicating if <see cref="System.Net.Sockets.SocketOptionName.KeepAlive"/> should be set on 
+		/// Gets or sets a value indicating if <see cref="System.Net.Sockets.SocketOptionName.KeepAlive"/> should be set on
 		/// the underlying stream's socket. If the connection is alive, the option is
 		/// adjusted in real-time. The value is stored and the KeepAlive option is set
 		/// accordingly upon any new connections. The value set here is also applied to
@@ -305,7 +305,7 @@ namespace FluentFTP {
 		protected FtpParser _parser = FtpParser.Auto;
 
 		/// <summary>
-		/// File listing parser to be used. 
+		/// File listing parser to be used.
 		/// Automatically calculated based on the type of the server at the time of connection.
 		/// If you want to override this property, make sure to do it after calling Connect.
 		/// </summary>
@@ -468,7 +468,7 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
-		/// Defines which verification types should be performed when 
+		/// Defines which verification types should be performed when
 		/// uploading/downloading files using the high-level APIs.
 		/// Multiple verification types can be combined.
 		/// </summary>

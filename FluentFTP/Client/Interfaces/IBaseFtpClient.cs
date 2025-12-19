@@ -31,6 +31,9 @@ namespace FluentFTP {
 		List<FtpCapability> Capabilities { get; }
 		FtpHashAlgorithm HashAlgorithms { get; }
 		event FtpSslValidation ValidateCertificate;
+#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+		event FtpSslClientAuthenticationOptions ConfigureSslClientAuthenticationOptions;
+#endif
 		string SystemType { get; }
 		FtpServer ServerType { get; }
 		FtpBaseServer ServerHandler { get; set; }

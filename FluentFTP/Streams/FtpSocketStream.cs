@@ -551,7 +551,7 @@ namespace FluentFTP {
 					if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, cts.Token)) != res){
 						throw new TimeoutException();
 					}
-					
+
 					return await res;
 				}
 				catch {
@@ -572,7 +572,7 @@ namespace FluentFTP {
 				}
 			}
 		}
-		
+
 #if NETSTANDARD2_1 || NET5_0_OR_GREATER
 		/// <summary>
 		/// Reads data from the stream
@@ -591,7 +591,7 @@ namespace FluentFTP {
 				try {
 					var res = BaseStream.ReadAsync(buffer, cts.Token).AsTask();
 					if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, cts.Token)) != res){
-						throw new TimeoutException();	
+						throw new TimeoutException();
 					}
 
 					return await res;
@@ -1236,7 +1236,20 @@ namespace FluentFTP {
 					CreateSslStream();
 
 					try {
+#if NET5_0_OR_GREATER
+						var options = new SslClientAuthenticationOptions() {
+							TargetHost = targetHost,
+							ClientCertificates = clientCerts,
+							EnabledSslProtocols = sslProtocols,
+							CertificateRevocationCheckMode = Client.Config.ValidateCertificateRevocation ? X509RevocationMode.Online : X509RevocationMode.NoCheck
+						};
+
+						Client.OnConfigureSslClientAuthenticationOptions(options);
+
+						m_sslStream.AuthenticateAsClient(options);
+#else
 						m_sslStream.AuthenticateAsClient(targetHost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
+#endif
 					}
 #if NETSTANDARD || NET5_0_OR_GREATER
 					catch (AggregateException ex) {
@@ -1335,13 +1348,17 @@ namespace FluentFTP {
 					CreateSslStream();
 
 					try {
-#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NET5_0_OR_GREATER
 						var options = new SslClientAuthenticationOptions() {
 							TargetHost = targetHost,
 							ClientCertificates = clientCerts,
 							EnabledSslProtocols = sslProtocols,
 							CertificateRevocationCheckMode = Client.Config.ValidateCertificateRevocation ? X509RevocationMode.Online : X509RevocationMode.NoCheck
 						};
+
+						// Fire event to allow user customization (e.g. CipherSuitesPolicy)
+						Client.OnConfigureSslClientAuthenticationOptions(options);
+
 						await m_sslStream.AuthenticateAsClientAsync(options, token);
 #else
 						await m_sslStream.AuthenticateAsClientAsync(targetHost, clientCerts, sslProtocols, Client.Config.ValidateCertificateRevocation);
