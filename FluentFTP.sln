@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.2.32616.157
+# Visual Studio Version 18
+VisualStudioVersion = 18.2.11415.280 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentFTP", "FluentFTP\FluentFTP.csproj", "{117F9BA2-711B-4C71-92EC-002220B157DD}"
 EndProject
@@ -14,6 +14,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentFTP.Xunit", "FluentFTP.Xunit\FluentFTP.Xunit.csproj", "{78BBB136-352C-4C06-A133-630C8AC57575}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentFTP.Logging", "FluentFTP.Logging\FluentFTP.Logging.csproj", "{611163CE-C9A0-45A6-9090-F7068AEF8D6B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Powershell", "Powershell", "{CB5F08AF-DB8A-4340-9D82-F3ADB75D7084}"
+	ProjectSection(SolutionItems) = preProject
+		Powershell\FluentFTP.ps1 = Powershell\FluentFTP.ps1
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
