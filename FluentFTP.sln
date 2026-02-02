@@ -15,6 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentFTP.Xunit", "FluentFT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentFTP.Logging", "FluentFTP.Logging\FluentFTP.Logging.csproj", "{611163CE-C9A0-45A6-9090-F7068AEF8D6B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Powershell", "Powershell", "{CB5F08AF-DB8A-4340-9D82-F3ADB75D7084}"
+	ProjectSection(SolutionItems) = preProject
+		Powershell\FluentFTP.ps1 = Powershell\FluentFTP.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
