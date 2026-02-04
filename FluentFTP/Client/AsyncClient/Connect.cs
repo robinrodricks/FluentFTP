@@ -154,7 +154,7 @@ namespace FluentFTP {
 			}
 
 			if (m_stream.IsEncrypted && Config.EncryptAuthenticationOnly) {
-				if (HasFeature(FtpCapability.CCC) && !m_stream.IsCustomStream) {
+				if (HasFeature(FtpCapability.CCC)) {
 					reply = await Execute("CCC", token);
 					if (reply.Success) {
 						await m_stream.DeActivateEncryptionAsync(token);
