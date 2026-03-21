@@ -3,6 +3,8 @@
 #### 54.0.2
 
  - **High severity security fixes**
+   - CVE (unassigned) for CRLF vulnerability (credits to Pramod Kumar)
+   - URL-encoded, directory traversal, path confusion and Unicode-spoofing vulnerabilities (credits to Robin Rodricks)
  - **FTP Protocol**
    - New: Secure FTP path sanitizer to protect against FTP command injection, traversal, encoding bypasses, and parser confusion attacks
    - Security: Major changes to FTP path handling, many new restrictions are introduced (check FluentFTP Wiki -> Security page), and while this may break complex file or directory paths, it is required for the security of your application
