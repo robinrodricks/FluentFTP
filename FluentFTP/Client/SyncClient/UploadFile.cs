@@ -57,7 +57,7 @@ namespace FluentFTP {
 		protected FtpStatus UploadFileFromFile(string localPath, string remotePath, bool createRemoteDir, FtpRemoteExists existsMode,
 			bool fileExists, bool fileExistsKnown, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
 
-			remotePath = remotePath.GetFtpPath();
+			remotePath = remotePath.SanitizeFtpPath();
 
 			LogFunction(nameof(UploadFile), new object[] { localPath, remotePath, existsMode, createRemoteDir, verifyOptions });
 

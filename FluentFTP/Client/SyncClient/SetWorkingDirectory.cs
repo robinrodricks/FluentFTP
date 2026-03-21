@@ -15,7 +15,7 @@ namespace FluentFTP {
 		/// <param name="path">The path of the directory to change to</param>
 		public void SetWorkingDirectory(string path) {
 
-			path = path.GetFtpPath();
+			path = path.SanitizeFtpPath();
 
 			LogFunction(nameof(SetWorkingDirectory), new object[] { path });
 

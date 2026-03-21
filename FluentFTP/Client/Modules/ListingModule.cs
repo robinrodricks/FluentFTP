@@ -82,7 +82,7 @@ namespace FluentFTP.Client.Modules {
 			}
 
 			if (!isNoPath) {
-				listcmd = listcmd + " " + path.GetFtpPath();
+				listcmd = listcmd + " " + path.SanitizeFtpPath();
 			}
 		}
 

@@ -47,8 +47,8 @@ namespace FluentFTP {
 			}
 
 			// cleanup the FTP paths
-			sourceFolder = sourceFolder.GetFtpPath().EnsurePostfix("/");
-			remoteFolder = remoteFolder.GetFtpPath().EnsurePostfix("/");
+			sourceFolder = sourceFolder.SanitizeFtpPath().EnsurePostfix("/");
+			remoteFolder = remoteFolder.SanitizeFtpPath().EnsurePostfix("/");
 
 			LogFunction(nameof(TransferDirectory), new object[] { sourceFolder, remoteClient, remoteFolder, mode, existsMode, verifyOptions, (rules.IsBlank() ? null : rules.Count + " rules") });
 

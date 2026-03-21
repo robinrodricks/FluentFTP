@@ -43,7 +43,7 @@ namespace FluentFTP {
 						path = path.Remove(0, 2);
 					}
 
-					path = (pwd + "/" + path).GetFtpPath();
+					path = (pwd + "/" + path).SanitizeFtpPath();
 				}
 			}
 

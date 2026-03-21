@@ -53,7 +53,7 @@ namespace FluentFTP {
 		protected FtpStatus DownloadFileToFile(string localPath, string remotePath, FtpLocalExists existsMode, FtpVerify verifyOptions, Action<FtpProgress> progress, FtpProgress metaProgress) {
 			bool isAppend = false;
 
-			remotePath = remotePath.GetFtpPath();
+			remotePath = remotePath.SanitizeFtpPath();
 
 			LogFunction(nameof(DownloadFile), new object[] { localPath, remotePath, existsMode, verifyOptions });
 

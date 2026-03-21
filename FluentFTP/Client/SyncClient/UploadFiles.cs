@@ -49,7 +49,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(remoteDir));
 			}
 
-			remoteDir = remoteDir.GetFtpPath();
+			remoteDir = remoteDir.SanitizeFtpPath();
 
 			LogFunction(nameof(UploadFiles), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 

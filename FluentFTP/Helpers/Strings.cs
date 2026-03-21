@@ -322,7 +322,29 @@ namespace FluentFTP.Helpers {
 			}
 			return value.EndsWith(substring, StringComparison.OrdinalIgnoreCase);
 		}
+		/// <summary>
+		/// Returns the substring before the first occurrence of the search term.
+		/// </summary>
+		public static string BeforeFirst(this string text, char searchTerm, bool returnAll = true) {
+			int start = text.IndexOf(searchTerm);
+			if (start == -1) {
+				return returnAll ? text : "";
+			}
+			return text.Substring(0, start);
+		}
 
+
+		/// <summary>
+		/// Returns the substring after the first occurrence of the search term.
+		/// </summary>
+		public static string AfterFirst(this string text, char searchTerm, bool returnAll = true) {
+			int start = text.IndexOf(searchTerm);
+			if (start == -1) {
+				return returnAll ? text : "";
+			}
+			start += 1;
+			return text.Substring(start);
+		}
 
 	}
 }

@@ -19,7 +19,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
-			path = path.GetFtpPath();
+			path = path.SanitizeFtpPath();
 
 			LogFunction(nameof(GetFileSize), new object[] { path });
 
@@ -49,7 +49,7 @@ namespace FluentFTP {
 		protected void GetFileSizeInternal(string path, FtpSizeReply sizeReply, long defaultValue) {
 			long length = defaultValue;
 
-			path = path.GetFtpPath();
+			path = path.SanitizeFtpPath();
 
 			if (Status.FileSizeASCIINotSupported) {
 				SetDataType(FtpDataType.Binary);

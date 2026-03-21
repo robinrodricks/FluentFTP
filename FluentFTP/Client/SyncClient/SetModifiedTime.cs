@@ -19,7 +19,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
-			path = path.GetFtpPath();
+			path = path.SanitizeFtpPath();
 
 			LogFunction(nameof(SetModifiedTime), new object[] { path, date });
 

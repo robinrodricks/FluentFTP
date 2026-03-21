@@ -16,7 +16,7 @@ namespace FluentFTP {
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public async Task SetWorkingDirectory(string path, CancellationToken token = default(CancellationToken)) {
 
-			path = path.GetFtpPath();
+			path = path.SanitizeFtpPath();
 
 			LogFunction(nameof(SetWorkingDirectory), new object[] { path });
 

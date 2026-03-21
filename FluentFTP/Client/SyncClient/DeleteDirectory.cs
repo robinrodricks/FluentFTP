@@ -19,7 +19,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
-			path = path.GetFtpPath();
+			path = path.SanitizeFtpPath();
 
 			LogFunction(nameof(DeleteDirectory), new object[] { path });
 			DeleteDirInternal(path, true, FtpListOption.Recursive, true, true);
@@ -36,7 +36,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
-			path = path.GetFtpPath();
+			path = path.SanitizeFtpPath();
 
 			LogFunction(nameof(DeleteDirectory), new object[] { path, options });
 			DeleteDirInternal(path, true, options, true, true);
@@ -53,7 +53,7 @@ namespace FluentFTP {
 		protected void DeleteDirInternal(string path, bool deleteContents, FtpListOption options, bool deleteFinalDir, bool firstCall) {
 			FtpReply reply;
 
-			path = path.GetFtpPath();
+			path = path.SanitizeFtpPath();
 
 			// server-specific directory deletion
 			// don't use it if requested to leave the top level dir, because

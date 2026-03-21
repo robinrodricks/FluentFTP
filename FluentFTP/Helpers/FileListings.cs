@@ -51,7 +51,7 @@
 			// per entry in the name list
 			foreach (var fileListEntry in fileList) {
 				// support servers that return:  4) full paths with invalid slashes
-				if (fileListEntry.GetFtpPath() == path) {
+				if (fileListEntry.SanitizeFtpPath() == path) {
 					return true;
 				}
 			}

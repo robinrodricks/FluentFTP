@@ -27,7 +27,7 @@ namespace FluentFTP {
 			//if (path.IsBlank())
 			//	throw new ArgumentException("Required parameter is null or blank.", "path");
 
-			path = path.GetFtpPath();
+			path = path.SanitizeFtpPath();
 
 			LogFunction(nameof(CreateDirectory), new object[] { path, force });
 

@@ -28,8 +28,8 @@ namespace FluentFTP {
 		public FtpStatus TransferFile(string sourcePath, FtpClient remoteClient, string remotePath,
 			bool createRemoteDir = false, FtpRemoteExists existsMode = FtpRemoteExists.Resume, FtpVerify verifyOptions = FtpVerify.None, Action<FtpProgress> progress = null, FtpProgress metaProgress = null) {
 
-			sourcePath = sourcePath.GetFtpPath();
-			remotePath = remotePath.GetFtpPath();
+			sourcePath = sourcePath.SanitizeFtpPath();
+			remotePath = remotePath.SanitizeFtpPath();
 
 			LogFunction(nameof(TransferFile), new object[] { sourcePath, remoteClient, remotePath, Config.FXPDataType, createRemoteDir, existsMode, verifyOptions });
 

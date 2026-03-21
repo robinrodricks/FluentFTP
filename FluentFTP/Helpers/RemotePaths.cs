@@ -24,29 +24,6 @@ namespace FluentFTP.Helpers {
 			return ftppath is "." or "./" or "/";
 		}
 
-		/// <summary>
-		/// Converts the specified path into a valid FTP file system path.
-		/// Replaces invalid back-slashes with valid forward-slashes.
-		/// Replaces multiple slashes with single slashes.
-		/// Removes the ending postfix slash if any.
-		/// </summary>
-		/// <param name="path">The file system path</param>
-		/// <returns>A path formatted for FTP</returns>
-		public static string GetFtpPath(this string path) {
-			if (string.IsNullOrEmpty(path)) {
-				return "/";
-			}
-
-			path = path.Replace('\\', '/');
-			path = Regex.Replace(path, "[/]+", "/");
-			path = path.TrimEnd('/');
-
-			if (path.Length == 0) {
-				path = "/";
-			}
-
-			return path;
-		}
 
 		/// <summary>
 		/// Creates a valid FTP path by appending the specified segments to this string
@@ -54,7 +31,7 @@ namespace FluentFTP.Helpers {
 		/// <param name="path">This string</param>
 		/// <param name="segments">The path segments to append</param>
 		/// <returns>A valid FTP path</returns>
-		public static string GetFtpPath(this string path, params string[] segments) {
+		public static string AppendFtpPath(this string path, params string[] segments) {
 			if (string.IsNullOrEmpty(path)) {
 				path = "/";
 			}
@@ -83,7 +60,7 @@ namespace FluentFTP.Helpers {
 		/// <param name="path">The path</param>
 		/// <returns>The parent directory path</returns>
 		public static string GetFtpDirectoryName(this string path) {
-			var tpath = path == null ? "" : path.GetFtpPath();
+			var tpath = path == null ? "" : path.SanitizeFtpPath();
 
 			if (tpath.Length == 0 || tpath == "/") {
 				return "/";
@@ -188,7 +165,7 @@ namespace FluentFTP.Helpers {
 					item.Name = item.Name.GetFtpFileName();
 				}
 				else if (path != null) {
-					item.FullName = path.GetFtpPath(item.Name); //.GetFtpPathWithoutGlob();
+					item.FullName = path.AppendFtpPath(item.Name); //.GetFtpPathWithoutGlob();
 				}
 				else {
 					((IInternalFtpClient)client).LogStatus(FtpTraceLevel.Warn, "Couldn't determine the full path of this object: " +
@@ -200,10 +177,10 @@ namespace FluentFTP.Helpers {
 			// then try to resolve it.
 			if (item.LinkTarget != null && !item.LinkTarget.StartsWith("/")) {
 				if (item.LinkTarget.StartsWith("./")) {
-					item.LinkTarget = path.GetFtpPath(item.LinkTarget.Remove(0, 2)).Trim();
+					item.LinkTarget = path.AppendFtpPath(item.LinkTarget.Remove(0, 2)).Trim();
 				}
 				else {
-					item.LinkTarget = path.GetFtpPath(item.LinkTarget).Trim();
+					item.LinkTarget = path.AppendFtpPath(item.LinkTarget).Trim();
 				}
 			}
 		}

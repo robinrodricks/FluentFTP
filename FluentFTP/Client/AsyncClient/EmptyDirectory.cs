@@ -30,7 +30,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
-			path = path.GetFtpPath();
+			path = path.SanitizeFtpPath();
 
 			LogFunction(nameof(EmptyDirectory), new object[] { path, options });
 			return DeleteDirInternalAsync(path, true, options, false, true, token);

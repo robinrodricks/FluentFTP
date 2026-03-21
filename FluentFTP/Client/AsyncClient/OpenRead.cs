@@ -61,7 +61,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
-			path = path.GetFtpPath();
+			path = path.SanitizeFtpPath();
 			LastStreamPath = path;
 
 			LogFunction(nameof(OpenRead), new object[] { path, type, restart, fileLen, ignoreStaleData });
