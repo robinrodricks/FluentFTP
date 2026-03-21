@@ -73,6 +73,11 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Gets a value indicating if this stream is a custom stream
+		/// </summary>
+		public bool IsCustomStream => m_customStream != null;
+
+		/// <summary>
 		/// Is this stream the control connection?
 		/// </summary>
 		public bool IsControlConnection { get; set; } = true;
@@ -1578,16 +1583,17 @@ namespace FluentFTP {
 				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
 			}
 
-			if (m_customStream != null) {
-				throw new NotImplementedException("SSL Encryption deactivation not supported on this stream.");
+			if (m_sslStream != null) {
+				DisposeSslStream();
+				m_sslStream = null;
 			}
-
-			if (m_sslStream == null) {
+			else if (m_customStream != null) {
+				DisposeCustomStream();
+				m_customStream = null;
+			}
+			else {
 				throw new InvalidOperationException("SSL Encryption has not been enabled on this stream.");
 			}
-
-			DisposeSslStream();
-			m_sslStream = null;
 		}
 
 		/// <summary>
@@ -1602,16 +1608,17 @@ namespace FluentFTP {
 				throw new InvalidOperationException("The FtpSocketStream object is not connected.");
 			}
 
-			if (m_customStream != null) {
-				throw new NotImplementedException("SSL Encryption deactivation not supported on this stream.");
+			if (m_sslStream != null) {
+				await DisposeSslStreamAsync();
+				m_sslStream = null;
 			}
-
-			if (m_sslStream == null) {
+			else if (m_customStream != null) {
+				await DisposeCustomStreamAsync();
+				m_customStream = null;
+			}
+			else {
 				throw new InvalidOperationException("SSL Encryption has not been enabled on this stream.");
 			}
-
-			await DisposeSslStreamAsync();
-			m_sslStream = null;
 		}
 
 		//
