@@ -63,14 +63,14 @@ namespace FluentFTP {
 				throw new ObjectDisposedException("This AsyncFtpClient object has been disposed. It is no longer accessible.");
 			}
 
-			if (m_stream == null) {
+			if (m_stream != null && IsConnected) {
+				// After this call m_stream will be null and IsConnected will be false
+				await ((IInternalFtpClient)this).DisconnectInternal(token); 
+			}
+
+			if (m_stream == null || IsConnected) {
 				m_stream = new FtpSocketStream(this);
 				m_stream.ValidateCertificate += new FtpSocketStreamSslValidation(FireValidateCertficate);
-			}
-			else {
-				if (IsConnected) {
-					await ((IInternalFtpClient)this).DisconnectInternal(token);
-				}
 			}
 
 			if (Host == null) {
