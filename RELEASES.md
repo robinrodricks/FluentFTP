@@ -1,5 +1,9 @@
 # Release Notes
 
+#### 54.0.3
+
+ - Change: Allowed the `&` character in filenames by default
+
 #### 54.0.2
 
  - **High severity security fixes**
