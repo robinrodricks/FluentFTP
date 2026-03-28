@@ -107,7 +107,7 @@ namespace FluentFTP.Helpers {
 				char c = path[i];
 
 				// single condition: control chars, unix-command delimiters, newlines (CR / LF)
-				if (c < 32 || c == 127 || c == ';' || c == '|' || c == '&')
+				if (c < 32 || c == 127 || c == ';' || c == '|'/* || c == '&'*/)
 					return true;
 			}
 			return false;
@@ -123,7 +123,7 @@ namespace FluentFTP.Helpers {
 
 				// truncate everything after the first found char
 				// (control chars, unix-command delimiters, newlines (CR / LF))
-				if (c < 32 || c == 127 || c == ';' || c == '|' || c == '&') {
+				if (c < 32 || c == 127 || c == ';' || c == '|'/* || c == '&'*/) {
 					break;
 				}
 
@@ -142,16 +142,6 @@ namespace FluentFTP.Helpers {
 			}
 			catch { }
 			return path;
-		}
-
-		/// <summary>Removes command injection chars</summary>
-		private static string RemoveCommandChars(string path) {
-			var sb = new System.Text.StringBuilder(path.Length);
-			foreach (char c in path) {
-				if (c != ';' && c != '|' && c != '&')
-					sb.Append(c);
-			}
-			return sb.ToString();
 		}
 
 		/// <summary>Checks unicode control chars</summary>
