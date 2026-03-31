@@ -7,7 +7,7 @@
 #### 54.0.2
 
  - **High severity security fixes**
-   - CVE (unassigned) for CRLF vulnerability (credits to Pramod Kumar)
+   - CRLF vulnerability (credits to Pramod Kumar)
    - URL-encoded, directory traversal, path confusion and Unicode-spoofing vulnerabilities (credits to Robin Rodricks)
  - **FTP Protocol**
    - New: Secure FTP path sanitizer to protect against FTP command injection, traversal, encoding bypasses, and parser confusion attacks
