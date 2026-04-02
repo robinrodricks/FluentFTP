@@ -707,14 +707,6 @@ namespace FluentFTP {
 			write.SanitizeUrlEncoding = read.SanitizeUrlEncoding;
 			write.SanitizeTraversal = read.SanitizeTraversal;
 
-
-
-#if NETSTANDARD || NET5_0_OR_GREATER
-#pragma warning disable CS0618 // Type or member is obsolete
-			write.LocalTimeZone = read.LocalTimeZone;
-#pragma warning restore CS0618 // Type or member is obsolete
-#endif
-
 			// copy certificates from self
 			write.ClientCertificates.Clear();
 			write.ClientCertificates.AddRange(read.ClientCertificates);
