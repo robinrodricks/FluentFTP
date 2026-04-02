@@ -4,7 +4,7 @@
 
  - **FTP Security**
    - New: `SanitizeControlChars`, `SanitizeMultiline`, `SanitizeUnicodeSpoofing`, `SanitizeTraversal` and `SanitizeUrlEncoding` Properties to configure FTP path sanitization at a granular level
-   - Change: Refactor path sanitization logic into new `SanitizerModule`
+   - Change: Refactor path and command sanitization logic into new `SanitizerModule`
    - Change: Only clean slashes when sanitizing folder paths of already-sanitized paths
    - Change: Remove outdated Properties `TimeZone` and `LocalTimeZone`
 
