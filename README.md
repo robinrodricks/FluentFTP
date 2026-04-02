@@ -172,6 +172,9 @@ Check the [Wiki](https://github.com/robinrodricks/FluentFTP/wiki).
 
 We have an extensive [automated test suite](https://github.com/robinrodricks/FluentFTP/wiki/Automated-Testing) that tests FluentFTP against many servers. We use docker to orchestrate containerized FTP servers that are used for testing.
 
+## Security
+
+We have a state-of-the-art [security system](https://github.com/robinrodricks/FluentFTP/wiki/Security) to prevent many known FTP attacks.
 
 ## Sponsorship
 
