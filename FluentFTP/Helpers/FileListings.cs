@@ -1,4 +1,6 @@
-﻿namespace FluentFTP.Helpers {
+﻿using FluentFTP.Client.BaseClient;
+
+namespace FluentFTP.Helpers {
 	/// <summary>
 	/// Extension methods related to FTP tasks
 	/// </summary>
@@ -12,7 +14,7 @@
 		/// <param name="fileList">The listing returned by GetNameListing</param>
 		/// <param name="path">The full file path you want to check</param>
 		/// <returns></returns>
-		public static bool FileExistsInNameListing(string[] fileList, string path) {
+		public static bool FileExistsInNameListing(BaseFtpClient client, string[] fileList, string path) {
 			// exit quickly if no paths
 			if (fileList.Length == 0) {
 				return false;
@@ -51,7 +53,7 @@
 			// per entry in the name list
 			foreach (var fileListEntry in fileList) {
 				// support servers that return:  4) full paths with invalid slashes
-				if (fileListEntry.SanitizeFtpPath() == path) {
+				if (SanitizerModule.SanitizePath(client, fileListEntry) == path) {
 					return true;
 				}
 			}

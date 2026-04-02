@@ -43,7 +43,7 @@ namespace FluentFTP {
 
 			// FIX : #768 NullOrEmpty is valid, means "use working directory".
 			if (!string.IsNullOrEmpty(path)) {
-				path = path.SanitizeFtpPath();
+				path = SanitizerModule.SanitizePath(this, path);
 			}
 
 			LogFunction(nameof(GetListing), new object[] { path, options });
@@ -176,7 +176,7 @@ namespace FluentFTP {
 
 			// FIX : #768 NullOrEmpty is valid, means "use working directory".
 			if (!string.IsNullOrEmpty(path)) {
-				path = path.SanitizeFtpPath();
+				path = SanitizerModule.SanitizePath(this, path);
 			}
 
 			LogFunction(nameof(GetListing), new object[] { path, options });

@@ -59,7 +59,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Local path must specify a file path and not a folder path.", nameof(localPath));
 			}
 
-			remotePath = remotePath.SanitizeFtpPath();
+			remotePath = SanitizerModule.SanitizePath(this, remotePath);
 
 			LogFunction(nameof(DownloadFile), new object[] { localPath, remotePath, existsMode, verifyOptions});
 

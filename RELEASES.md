@@ -1,15 +1,21 @@
 # Release Notes
 
+#### 54.1.0
+
+ - **FTP Security**
+   - New: `SanitizeControlChars`, `SanitizeMultiline`, `SanitizeUnicodeSpoofing`, `SanitizeTraversal` and `SanitizeUrlEncoding` Properties to configure FTP path sanitization at a granular level
+   - Change: Refactor path sanitization logic into new `SanitizerModule`
+   - Change: Only clean slashes when sanitizing folder paths of already-sanitized paths
+   - Change: Remove outdated Properties `TimeZone` and `LocalTimeZone`
+
 #### 54.0.3
 
- - Change: Allowed the `&` character in filenames by default
+ - **FTP Security**
+   - Change: Allowed the `&` character in filenames by default
 
 #### 54.0.2
 
- - **High severity security fixes**
-   - CRLF vulnerability (credits to Pramod Kumar)
-   - URL-encoded, directory traversal, path confusion and Unicode-spoofing vulnerabilities (credits to Robin Rodricks)
- - **FTP Protocol**
+ - **FTP Security**
    - New: Secure FTP path sanitizer to protect against FTP command injection, traversal, encoding bypasses, and parser confusion attacks
    - Security: Major changes to FTP path handling, many new restrictions are introduced (check FluentFTP Wiki -> Security page), and while this may break complex file or directory paths, it is required for the security of your application
    - Security: FTP command sanitization implemented in `Execute` API

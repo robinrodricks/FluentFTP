@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentFTP.Client.BaseClient;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,43 @@ namespace FluentFTP.Helpers {
 	/// <summary>
 	/// Extension methods related to FTP paths.
 	/// </summary>
-	public static class PathSanitizer {
+	public static class SanitizerModule {
+
+		/// <summary>
+		/// Converts the specified path into a valid and sanitized FTP file system path.
+		/// Replaces invalid back-slashes with valid forward-slashes.
+		/// Replaces multiple slashes with single slashes.
+		/// Removes the ending postfix slash if any.
+		/// Does NOT implement any security features.
+		/// </summary>
+		/// <param name="path">The file system path</param>
+		public static string SanitizeSlashes(string path) {
+			if (string.IsNullOrEmpty(path)) {
+				return "";
+			}
+
+			// Replace backslashes
+			if (path.IndexOf('\\') >= 0)
+				path = ReplaceBackslashes(path);
+
+			// Collapse slashes
+			if (path.IndexOf("//", StringComparison.Ordinal) >= 0)
+				path = CollapseSlashes(path);
+
+			// Trim trailing slash
+			if (path.Length > 1 && path[path.Length - 1] == '/')
+				path = path.TrimEnd('/');
+
+			// Trim whitespace
+			if (path.Length > 0 && (char.IsWhiteSpace(path[0]) || char.IsWhiteSpace(path[path.Length - 1])))
+				path = path.Trim();
+
+			// Final trailing slash trim
+			if (path.Length > 1 && path[path.Length - 1] == '/')
+				path = path.TrimEnd('/');
+
+			return path;
+		}
 
 		/// <summary>
 		/// Converts the specified path into a valid and sanitized FTP file system path.
@@ -16,11 +53,12 @@ namespace FluentFTP.Helpers {
 		/// Replaces multiple slashes with single slashes.
 		/// Removes the ending postfix slash if any.
 		/// Multiline commands are stripped and only the first line of the command is retained.
-		/// Performs many corrections to the path to prevent path-injection and command-injection.
+		/// Performs many security corrections to the path to prevent path-injection and command-injection.
 		/// </summary>
+		/// <param name="client">FTP client used for the purpose of reading enabled sanitization config. If null, then all sanitization features are enabled.</param>
 		/// <param name="path">The file system path</param>
 		/// <returns>A secure and sanitized path formatted for FTP servers</returns>
-		public static string SanitizeFtpPath(this string path) {
+		public static string SanitizePath(BaseFtpClient client, string path) {
 			if (string.IsNullOrEmpty(path)) {
 				return "/";
 			}
@@ -42,12 +80,23 @@ namespace FluentFTP.Helpers {
 				path = path.Trim();
 
 			// Decode URL encoding
-			if (path.IndexOf('%') >= 0)
+			if ((client == null || client.Config.SanitizeUrlEncoding) && path.IndexOf('%') >= 0)
 				path = DecodeUrl(path);
 
-			// Remove control chars
-			if (ContainsControlChars(path))
-				path = SanitizePayloads(path);
+			// Remove control chars and newlines
+			if ((client == null || client.Config.SanitizeControlChars)) {
+				if (ContainsControlChars(path)) {
+					path = SanitizeControlChars(path);
+				}
+			}
+			else {
+				// Remove only newlines
+				if ((client == null || client.Config.SanitizeMultiline)) {
+					if (ContainsMultiline(path)) {
+						path = SanitizeMultiline(path);
+					}
+				}
+			}
 
 			// Re-normalize slashes after decode
 			if (path.IndexOf('\\') >= 0)
@@ -57,11 +106,11 @@ namespace FluentFTP.Helpers {
 				path = CollapseSlashes(path);
 
 			// Remove unicode spoofing chars
-			if (ContainsUnicodeControl(path))
+			if ((client == null || client.Config.SanitizeUnicodeSpoofing) && ContainsUnicodeControl(path))
 				path = RemoveUnicodeControl(path);
 
 			// Resolve traversal
-			if (path.IndexOf("..", StringComparison.Ordinal) >= 0)
+			if ((client == null || client.Config.SanitizeTraversal) && path.IndexOf("..", StringComparison.Ordinal) >= 0)
 				path = ResolveTraversal(path);
 			else if (path.Length == 0/* || path[0] != '/'*/)
 				path = EnsureLeadingSlash(path);
@@ -113,8 +162,18 @@ namespace FluentFTP.Helpers {
 			return false;
 		}
 
+		/// <summary>Checks for any newlines</summary>
+		private static bool ContainsMultiline(string path) {
+			for (int i = 0; i < path.Length; i++) {
+				char c = path[i];
+				if (c == '\r' || c == '\n')
+					return true;
+			}
+			return false;
+		}
+
 		/// <summary>Removes control chars and remove injected payloads</summary>
-		private static string SanitizePayloads(string path) {
+		private static string SanitizeControlChars(string path) {
 
 			var sb = new StringBuilder(path.Length);
 
@@ -124,6 +183,25 @@ namespace FluentFTP.Helpers {
 				// truncate everything after the first found char
 				// (control chars, unix-command delimiters, newlines (CR / LF))
 				if (c < 32 || c == 127 || c == ';' || c == '|'/* || c == '&'*/) {
+					break;
+				}
+
+				sb.Append(c);
+			}
+
+			return sb.ToString().TrimEnd();
+		}
+
+		/// <summary>Removes injected payloads in multiline paths</summary>
+		private static string SanitizeMultiline(string path) {
+
+			var sb = new StringBuilder(path.Length);
+
+			for (int i = 0; i < path.Length; i++) {
+				char c = path[i];
+
+				// truncate everything after the first found newline
+				if (c == '\r' || c == '\n'){
 					break;
 				}
 
@@ -190,6 +268,21 @@ namespace FluentFTP.Helpers {
 		/// <summary>Ensures path starts with '/'</summary>
 		private static string EnsureLeadingSlash(string path) {
 			return "/" + path;
+		}
+
+		/// <summary>
+		/// Converts the specified command into a valid FTP command.
+		/// Multiline commands are stripped and only the first line of the command is retained.
+		/// </summary>
+		public static string SanitizeCommand(BaseFtpClient client, string command) {
+			if (command == null || command.Length == 0) {
+				return command;
+			}
+
+			// FIX: Prevent multiline FTP commands
+			command = command.BeforeFirst('\r', true).BeforeFirst('\n', true);
+
+			return command;
 		}
 
 	}

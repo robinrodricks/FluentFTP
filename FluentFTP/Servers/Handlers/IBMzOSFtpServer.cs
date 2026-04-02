@@ -202,25 +202,25 @@ namespace FluentFTP.Servers.Handlers {
 
 			if (pwd.StartsWith("/")) {
 				if (pwd.Equals("/")) {
-					path = (pwd + path).SanitizeFtpPath();
+					path = SanitizerModule.SanitizeSlashes((pwd + path));
 				}
 				else {
-					path = (pwd + "/" + path).SanitizeFtpPath();
+					path = SanitizerModule.SanitizeSlashes((pwd + "/" + path));
 				}
 				return path;
 			}
 
 			if (pwd.StartsWith("\'")) {
 				if (pwd.Equals("`\'\'")) {
-					path = ("\'" + path + "\'").SanitizeFtpPath();
+					path = SanitizerModule.SanitizeSlashes(("\'" + path + "\'"));
 				}
 				else {
 					pwd = pwd.TrimEnd('\'');
 					if (pwd.EndsWith(".")) {
-						path = (pwd + path + "\'").SanitizeFtpPath();
+						path = SanitizerModule.SanitizeSlashes((pwd + path + "\'"));
 					}
 					else {
-						path = (pwd + "(" + path + ")\'").SanitizeFtpPath();
+						path = SanitizerModule.SanitizeSlashes((pwd + "(" + path + ")\'"));
 					}
 				}
 				return path;
@@ -248,25 +248,25 @@ namespace FluentFTP.Servers.Handlers {
 
 			if (pwd.StartsWith("/")) {
 				if (pwd.Equals("/")) {
-					path = (pwd + path).SanitizeFtpPath();
+					path = SanitizerModule.SanitizeSlashes((pwd + path));
 				}
 				else {
-					path = (pwd + "/" + path).SanitizeFtpPath();
+					path = SanitizerModule.SanitizeSlashes((pwd + "/" + path));
 				}
 				return path;
 			}
 
 			if (pwd.StartsWith("\'")) {
 				if (pwd.Equals("`\'\'")) {
-					path = ("\'" + path + "\'").SanitizeFtpPath();
+					path = SanitizerModule.SanitizeSlashes(("\'" + path + "\'"));
 				}
 				else {
 					pwd = pwd.TrimEnd('\'');
 					if (pwd.EndsWith(".")) {
-						path = (pwd + path + "\'").SanitizeFtpPath();
+						path = SanitizerModule.SanitizeSlashes((pwd + path + "\'"));
 					}
 					else {
-						path = (pwd + "(" + path + ")\'").SanitizeFtpPath();
+						path = SanitizerModule.SanitizeSlashes((pwd + "(" + path + ")\'"));
 					}
 				}
 				return path;

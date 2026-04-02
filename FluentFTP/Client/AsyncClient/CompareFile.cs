@@ -32,7 +32,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(remotePath));
 			}
 
-			remotePath = remotePath.SanitizeFtpPath();
+			remotePath = SanitizerModule.SanitizePath(this, remotePath);
 
 			LogFunction(nameof(CompareFile), new object[] { localPath, remotePath, options });
 

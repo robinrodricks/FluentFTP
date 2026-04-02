@@ -356,14 +356,6 @@ namespace FluentFTP {
 		public delegate FtpListItem CustomParser(string line, List<FtpCapability> capabilities, BaseFtpClient client);
 
 
-		[Obsolete("Use `ServerTimeZone` or `SetServerTimeZone` to set the server's timezone.")]
-		public double TimeZone { get; set; }
-
-
-		[Obsolete("Use `ClientTimeZone` or `SetClientTimeZone` to set the client's timezone.")]
-		public double LocalTimeZone { get; set; }
-
-
 		/// <summary>
 		/// Configures the type of timezone conversion done on all timestamps sent/recieved from the FTP server.
 		/// `ServerTime` will return the original timestamp as reported by the FTP server.
@@ -582,6 +574,47 @@ namespace FluentFTP {
 			set => _preserveTrailingSlashCmdList = value;
 		}
 
+		/// <summary>
+		/// [SECURITY] Prevents FTP command-injection attacks by removing any characters after an ASCII control character in filepaths.
+		/// Disabling this will weaken system security.
+		/// See the "Security" page on FluentFTP wiki for details.
+		/// </summary>
+		public bool SanitizeControlChars { get; set; } = true;
+
+		/// <summary>
+		/// [SECURITY] Prevents FTP command-injection attacks by only retaining the first line of any multiline path.
+		/// This prevents attackers from adding payloads consisting of rogue commands after the first line.
+		/// If you are disabling this, you will also need to disable `SanitizeControlChars`.
+		/// Disabling this will weaken system security.
+		/// See the "Security" page on FluentFTP wiki for details.
+		/// </summary>
+		public bool SanitizeMultiline { get; set; } = true;
+
+		/// <summary>
+		/// [SECURITY] Prevents FTP Unicode-spoofing attacks by removing Unicode control characters from filepaths.
+		/// Disabling this will weaken system security.
+		/// See the "Security" page on FluentFTP wiki for details.
+		/// </summary>
+		public bool SanitizeUnicodeSpoofing { get; set; } = true;
+
+		/// <summary>
+		/// [SECURITY] Prevents FTP URL-encoded attacks by performing a URL decode on filepaths.
+		/// Disabling this will weaken system security.
+		/// See the "Security" page on FluentFTP wiki for details.
+		/// </summary>
+		public bool SanitizeUrlEncoding { get; set; } = true;
+
+		/// <summary>
+		/// [SECURITY] Prevents FTP directory-traversal attacks by removing directory traversal prefixes in filepaths.
+		/// This prevents attackers from using relative FTP filepaths to access sensitive folders outside the scope of their current FTP folder.
+		/// This means you cannot upload or download using paths like "../../secretFolder/secretFile.txt".
+		/// Disabling this will weaken system security.
+		/// See the "Security" page on FluentFTP wiki for details.
+		/// </summary>
+		public bool SanitizeTraversal { get; set; } = true;
+
+
+
 		//-------------------------------------------------------------//
 		// ADD NEW PROPERTIES INTO THIS FUNCTION: FtpConfig.CopyTo()
 		//-------------------------------------------------------------//
@@ -668,6 +701,13 @@ namespace FluentFTP {
 			write.CustomStream = read.CustomStream;
 			write.CustomStreamConfig = read.CustomStreamConfig;
 			write.SelfConnectMode = read.SelfConnectMode;
+			write.SanitizeControlChars = read.SanitizeControlChars;
+			write.SanitizeMultiline = read.SanitizeMultiline;
+			write.SanitizeUnicodeSpoofing = read.SanitizeUnicodeSpoofing;
+			write.SanitizeUrlEncoding = read.SanitizeUrlEncoding;
+			write.SanitizeTraversal = read.SanitizeTraversal;
+
+
 
 #if NETSTANDARD || NET5_0_OR_GREATER
 #pragma warning disable CS0618 // Type or member is obsolete

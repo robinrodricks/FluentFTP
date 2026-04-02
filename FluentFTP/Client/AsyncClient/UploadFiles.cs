@@ -53,7 +53,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(remoteDir));
 			}
 
-			remoteDir = remoteDir.SanitizeFtpPath();
+			remoteDir = SanitizerModule.SanitizePath(this, remoteDir);
 
 			LogFunction(nameof(UploadFiles), new object[] { localPaths, remoteDir, existsMode, createRemoteDir, verifyOptions, errorHandling });
 
@@ -98,7 +98,8 @@ namespace FluentFTP {
 
 				// try to upload it
 				try {
-					var ok = await UploadFileFromFile(result.LocalPath, result.RemotePath, false, existsMode, FileListings.FileExistsInNameListing(existingFiles, result.RemotePath), true, verifyOptions, token, progress, metaProgress);
+					var existsInListing = FileListings.FileExistsInNameListing(this, existingFiles, result.RemotePath);
+					var ok = await UploadFileFromFile(result.LocalPath, result.RemotePath, false, existsMode, existsInListing, true, verifyOptions, token, progress, metaProgress);
 
 					// mark that the file succeeded
 					result.IsSuccess = ok.IsSuccess();

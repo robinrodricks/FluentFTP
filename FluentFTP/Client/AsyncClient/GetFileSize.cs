@@ -20,7 +20,7 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(path));
 			}
 
-			path = path.SanitizeFtpPath();
+			path = SanitizerModule.SanitizePath(this, path);
 
 			LogFunction(nameof(GetFileSize), new object[] { path, defaultValue });
 
@@ -50,7 +50,7 @@ namespace FluentFTP {
 		protected async Task GetFileSizeInternal(string path, long defaultValue, CancellationToken token, FtpSizeReply sizeReply) {
 			long length = defaultValue;
 
-			path = path.SanitizeFtpPath();
+			path = SanitizerModule.SanitizePath(this, path);
 
 			if (Status.FileSizeASCIINotSupported) {
 				await SetDataTypeNoLockAsync(FtpDataType.Binary, token);

@@ -60,7 +60,7 @@ namespace FluentFTP.Helpers {
 		/// <param name="path">The path</param>
 		/// <returns>The parent directory path</returns>
 		public static string GetFtpDirectoryName(this string path) {
-			var tpath = path == null ? "" : path.SanitizeFtpPath();
+			var tpath = path == null ? "" : SanitizerModule.SanitizeSlashes(path);
 
 			if (tpath.Length == 0 || tpath == "/") {
 				return "/";

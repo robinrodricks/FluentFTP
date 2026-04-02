@@ -45,11 +45,11 @@ namespace FluentFTP.Client.BaseClient {
 			Match m;
 
 			if ((m = Regex.Match(reply.Message, "\"(?<pwd>.*)\"")).Success) {
-				return m.Groups["pwd"].Value.SanitizeFtpPath();
+				return SanitizerModule.SanitizePath(this, m.Groups["pwd"].Value);
 			}
 
 			if ((m = Regex.Match(reply.Message, "PWD = (?<pwd>.*)")).Success) {
-				return m.Groups["pwd"].Value.SanitizeFtpPath();
+				return SanitizerModule.SanitizePath(this, m.Groups["pwd"].Value);
 			}
 
 			LogWithPrefix(FtpTraceLevel.Warn, "Failed to parse working directory from: " + reply.Message);
