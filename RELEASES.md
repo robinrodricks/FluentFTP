@@ -17,7 +17,7 @@
 
  - **FTP Security**
    - New: Secure FTP path sanitizer to protect against FTP command injection, traversal, encoding bypasses, and parser confusion attacks
-   - Security: Major changes to FTP path handling, many new restrictions are introduced (check FluentFTP Wiki -> Security page), and while this may break complex file or directory paths, it is required for the security of your application
+   - Security: Major changes to FTP path handling, many new restrictions are introduced (see "Security" page on FluentFTP Wiki)
    - Security: FTP command sanitization implemented in `Execute` API
    - Security: FTP path sanitization implemented in all major API: `CreateDirectory`, `DeleteDirectory`, `DeleteFile`, `DirectoryExists`, `DownloadBytes`, `DownloadDirectory`, `DownloadFile`, `DownloadStream`, `EmptyDirectory`, `FileExists`, `GetChecksum`, `GetFilePermissions`, `GetFileSize`, `GetListing`, `GetModifiedTime`, `GetNameListing`, `GetObjectInfo`, `MoveDirectory`, `MoveFile`, `OpenAppend`, `OpenRead`, `OpenWrite`, `Rename`, `SetFilePermissions`, `SetModifiedTime`, `SetWorkingDirectory`, `TransferDirectory`, `TransferFile`, `UploadBytes`, `UploadDirectory`, `UploadFiles`, `UploadStream`, `CompareFile` 
  - **Code cleanup**
