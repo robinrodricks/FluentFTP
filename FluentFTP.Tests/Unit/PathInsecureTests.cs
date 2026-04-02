@@ -4,7 +4,7 @@ using Xunit;
 
 namespace FluentFTP.Tests.Unit {
 	/// <summary>
-	/// Test cases for FTP path sanitization to ensure the sanitizer is disabled when config settings are changed.
+	/// Test cases for FTP path sanitization to ensure the sanitizer is disabled based on config properties.
 	/// Trimming, leading-slash and trailing-slash removal will still be enabled.
 	/// </summary>
 	public class PathInsecureTests {

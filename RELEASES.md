@@ -7,6 +7,8 @@
    - Change: Refactor path and command sanitization logic into new `SanitizerModule`
    - Change: Only clean slashes when sanitizing folder paths of already-sanitized paths
    - Change: Remove outdated Properties `TimeZone` and `LocalTimeZone`
+ - **Testing**
+   - New: `PathInsecureTests` to ensure that the sanitizer is disabled based on config properties
 
 #### 54.0.3
 
