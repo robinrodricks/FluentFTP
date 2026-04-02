@@ -53,6 +53,7 @@ FluentFTP is released under the permissive MIT License, so it can be used in bot
 	- Automatic [reconnection of FTP connections](https://github.com/robinrodricks/FluentFTP/wiki/Automatic-Reconnection) for broken or degraded sockets
     - Extensive support for [FTP commands](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Support), including some server-specific commands
     - Easily send [server-specific](https://github.com/robinrodricks/FluentFTP/issues/88) FTP commands using the `Execute()` method
+	- State-of-the-art [security system](https://github.com/robinrodricks/FluentFTP/wiki/Security) to prevent FTP command injection, directory traversal attacks, encoding bypasses, and parser confusion attacks
     - Explicit and Implicit [SSL connections](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_ftps) are supported for the control and data connections using .NET's `SslStream`
     - Passive and active data connections (PASV, EPSV, PORT and EPRT)
     - Supports Unix CHMOD, PRET, ProFTPD's SITE MKDIR and RMDIR commands, Serv-U's RMDA command
