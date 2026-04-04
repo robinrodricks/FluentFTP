@@ -6,7 +6,6 @@
 <a href="https://www.nuget.org/packages/FluentFTP"><img src="https://img.shields.io/nuget/vpre/FluentFTP.svg" alt="Version" /></a>
 <a href="https://www.nuget.org/packages/FluentFTP"><img src="https://img.shields.io/nuget/dt/FluentFTP.svg" alt="Downloads" /></a>
 <a href="https://github.com/robinrodricks/FluentFTP/graphs/contributors"><img src="https://img.shields.io/github/contributors/robinrodricks/FluentFTP.svg" alt="GitHub contributors" /></a>
-<a href="https://app.codacy.com/gh/robinrodricks/FluentFTP/dashboard"><img src="https://app.codacy.com/project/badge/Grade/8bc33aa55cb8494da3a7a07dba5316f7" alt="Codacy Badge" /></a>
 <a href="https://github.com/robinrodricks/FluentFTP/blob/master/LICENSE.TXT"><img src="https://img.shields.io/github/license/robinrodricks/FluentFTP.svg" alt="License" /></a>
 <a href="https://www.bestpractices.dev/projects/6661"><img src="https://www.bestpractices.dev/badge_static/passing" alt="OpenSSF Best Practices" /></a>
 </p>
