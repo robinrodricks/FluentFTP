@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 54.1.1
+
+ - **FTP Connection**
+   - Fix: Copy missing properties in `FtpConfig.CopyTo`
+
 #### 54.1.0
 
  - **FTP Security**
@@ -14,6 +19,9 @@
 
  - **FTP Security**
    - Change: Allowed the `&` character in filenames by default
+ - **FTP Connection**
+   - Fix: `NullReferenceException` in FTPS disconnect when accessing `SslSessionLength`
+   - Fix: Improve CCC command handling for custom streams
 
 #### 54.0.2
 
@@ -25,6 +33,9 @@
  - **Code cleanup**
    - Change: Renamed primary overload of `GetFtpPath` to `SanitizeFtpPath` to better convey its intended function
    - Change: Renamed secondary overload of `GetFtpPath` to `AppendFtpPath` to better convey its intended function
+ - **FTP Connection**
+   - New: Add `ConfigureAuthentication` event handler to FTP clients to customize `SslClientAuthenticationOptions` before TLS handshake and enable support for Linux for legacy FTPS servers
+   - New: Updated TLS handshake code to use `SslClientAuthenticationOptions` pattern in both synchronous and async methods
 
 #### 53.0.2
 
