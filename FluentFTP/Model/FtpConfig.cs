@@ -711,6 +711,18 @@ namespace FluentFTP {
 			write.ClientCertificates.Clear();
 			write.ClientCertificates.AddRange(read.ClientCertificates);
 
+			write.AddressResolver = read.AddressResolver;
+			write.CheckCapabilities = read.CheckCapabilities;
+			write.EncryptAuthenticationOnly = read.EncryptAuthenticationOnly;
+			write.LogDurations = read.LogDurations;
+			if (read.PreserveTrailingSlashCmdList == null) {
+				write.PreserveTrailingSlashCmdList = null;
+			}
+			else {
+				write.PreserveTrailingSlashCmdList = new List<string>();
+				write.PreserveTrailingSlashCmdList.AddRange(read.PreserveTrailingSlashCmdList);
+			}
+
 		}
 
 		internal bool ShouldAutoNavigate(string absPath) {
