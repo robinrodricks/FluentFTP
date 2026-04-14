@@ -63,7 +63,7 @@ namespace FluentFTP {
 			return read;
 		}
 
-#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		/// <summary>
 		/// Reads data off the stream
 		/// </summary>
@@ -90,7 +90,7 @@ namespace FluentFTP {
 			return read;
 		}
 
-#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		/// <summary>
 		/// Reads data off the stream asynchronously
 		/// </summary>
@@ -115,7 +115,7 @@ namespace FluentFTP {
 			m_position += count;
 		}
 
-#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		/// <summary>
 		/// Writes data to the stream
 		/// </summary>
@@ -138,7 +138,7 @@ namespace FluentFTP {
 			m_position += count;
 		}
 
-#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		/// <summary>
 		/// Writes data to the stream asynchronously
 		/// </summary>
