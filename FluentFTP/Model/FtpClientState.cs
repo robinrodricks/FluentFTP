@@ -86,14 +86,15 @@ namespace FluentFTP {
 		/// </summary>
 		public bool IgnoreStaleData { get; set; } = false;
 
-        /// <summary>
+		/// <summary>
 		/// These flags must be reset every time we connect, to allow for users to connect to
 		/// different FTP servers with the same client object.
 		/// </summary>
-        public void Reset(bool reConnect) {
+		public void Reset(bool reConnect) {
 			if (!reConnect) {
 				LastWorkingDir = null;
 				CurrentDataType = FtpDataType.Unknown;
+				NoopDaemonTokenSource ??= new CancellationTokenSource();
 			}
 			EPSVNotSupported = false;
 			FileSizeASCIINotSupported = false;
@@ -140,7 +141,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// NOOP Daemon TokenSource
 		/// </summary>
-		public CancellationTokenSource NoopDaemonTokenSource { get; set; } = new CancellationTokenSource();
+		public CancellationTokenSource NoopDaemonTokenSource { get; set; }
 		/// <summary>
 		/// NOOP Daemon enabled
 		/// </summary>
