@@ -544,38 +544,39 @@ namespace FluentFTP {
 				return 0;
 			}
 
-			m_lastActivity = DateTime.UtcNow;
-			using (var cts = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-				cts.CancelAfter(ReadTimeout);
-				try {
-#if NETSTANDARD2_1 || NET5_0_OR_GREATER
-					var res = BaseStream.ReadAsync(buffer.AsMemory(offset, count), cts.Token).AsTask();
-#else
-					var res =  BaseStream.ReadAsync(buffer, offset, count, cts.Token);
-#endif
-					if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, cts.Token)) != res){
-						throw new TimeoutException();
+					m_lastActivity = DateTime.UtcNow;
+					using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
+						timeoutSrc.CancelAfter(ReadTimeout);
+						try {
+			#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+							var res = BaseStream.ReadAsync(buffer.AsMemory(offset, count), timeoutSrc.Token).AsTask();
+			#else
+							var res =  BaseStream.ReadAsync(buffer, offset, count, timeoutSrc.Token);
+			#endif
+							if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, timeoutSrc.Token)) != res){
+								throw new TimeoutException();
+							}
+
+							timeoutSrc.Cancel();
+							return await res;
+						}
+						catch {
+							await CloseAsync(token);
+
+							// token for Cancellation triggered and caused the exception
+							if (token.IsCancellationRequested) {
+								throw new OperationCanceledException("Cancelled read from socket stream");
+							}
+
+							// token for Timeout triggered and caused the exception
+							if (timeoutSrc.IsCancellationRequested) {
+								throw new TimeoutException("Timed out trying to read data from the socket stream!");
+							}
+
+							// Nothing of the above. So we rethrow the exception.
+							throw;
+						}
 					}
-
-					return await res;
-				}
-				catch {
-					await CloseAsync(token);
-
-					// token for Cancellation triggered and caused the exception
-					if (token.IsCancellationRequested) {
-						throw new OperationCanceledException("Cancelled read from socket stream");
-					}
-
-					// token for Timeout triggered and caused the exception
-					if (cts.IsCancellationRequested) {
-						throw new TimeoutException("Timed out trying to read data from the socket stream!");
-					}
-
-					// Nothing of the above. So we rethrow the exception.
-					throw;
-				}
-			}
 		}
 
 #if NETSTANDARD2_1 || NET5_0_OR_GREATER
@@ -591,33 +592,34 @@ namespace FluentFTP {
 			}
 
 			m_lastActivity = DateTime.UtcNow;
-			using (var cts = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-				cts.CancelAfter(ReadTimeout);
-				try {
-					var res = BaseStream.ReadAsync(buffer, cts.Token).AsTask();
-					if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, cts.Token)) != res){
-						throw new TimeoutException();
-					}
+				using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
+					timeoutSrc.CancelAfter(ReadTimeout);
+					try {
+						var res = BaseStream.ReadAsync(buffer, timeoutSrc.Token).AsTask();
+						if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, timeoutSrc.Token)) != res){
+							throw new TimeoutException();
+						}
 
-					return await res;
+						timeoutSrc.Cancel();
+						return await res;
+					}
+					catch {
+						await CloseAsync(token);
+
+						// token for Cancellation triggered and caused the exception
+						if (token.IsCancellationRequested) {
+							throw new OperationCanceledException("Cancelled read from socket stream");
+						}
+
+						// token for Timeout triggered and caused the exception
+						if (timeoutSrc.IsCancellationRequested) {
+							throw new TimeoutException("Timed out trying to read data from the socket stream!");
+						}
+
+						// Nothing of the above. So we rethrow the exception.
+						throw;
+					}
 				}
-				catch {
-					await CloseAsync(token);
-
-					// token for Cancellation triggered and caused the exception
-					if (token.IsCancellationRequested) {
-						throw new OperationCanceledException("Cancelled read from socket stream");
-					}
-
-					// token for Timeout triggered and caused the exception
-					if (cts.IsCancellationRequested) {
-						throw new TimeoutException("Timed out trying to read data from the socket stream!");
-					}
-
-					// Nothing of the above. So we rethrow the exception.
-					throw;
-				}
-			}
 		}
 #endif
 
