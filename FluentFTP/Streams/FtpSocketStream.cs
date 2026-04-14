@@ -544,39 +544,33 @@ namespace FluentFTP {
 				return 0;
 			}
 
-					m_lastActivity = DateTime.UtcNow;
-					using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-						timeoutSrc.CancelAfter(ReadTimeout);
-						try {
-			#if NETSTANDARD2_1 || NET5_0_OR_GREATER
-							var res = BaseStream.ReadAsync(buffer.AsMemory(offset, count), timeoutSrc.Token).AsTask();
-			#else
-							var res =  BaseStream.ReadAsync(buffer, offset, count, timeoutSrc.Token);
-			#endif
-							if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, timeoutSrc.Token)) != res){
-								throw new TimeoutException();
-							}
+			m_lastActivity = DateTime.UtcNow;
+			using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
+				timeoutSrc.CancelAfter(ReadTimeout);
+				try {
+#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+					return await BaseStream.ReadAsync(buffer.AsMemory(offset, count), timeoutSrc.Token);
+#else
+					return await BaseStream.ReadAsync(buffer, offset, count, timeoutSrc.Token);
+#endif
+				}
+				catch {
+					await CloseAsync(token);
 
-							timeoutSrc.Cancel();
-							return await res;
-						}
-						catch {
-							await CloseAsync(token);
-
-							// token for Cancellation triggered and caused the exception
-							if (token.IsCancellationRequested) {
-								throw new OperationCanceledException("Cancelled read from socket stream");
-							}
-
-							// token for Timeout triggered and caused the exception
-							if (timeoutSrc.IsCancellationRequested) {
-								throw new TimeoutException("Timed out trying to read data from the socket stream!");
-							}
-
-							// Nothing of the above. So we rethrow the exception.
-							throw;
-						}
+					// token for Cancellation triggered and caused the exception
+					if (token.IsCancellationRequested) {
+						throw new OperationCanceledException("Cancelled read from socket stream");
 					}
+
+					// token for Timeout triggered and caused the exception
+					if (timeoutSrc.IsCancellationRequested) {
+						throw new TimeoutException("Timed out trying to read data from the socket stream!");
+					}
+
+					// Nothing of the above. So we rethrow the exception.
+					throw;
+				}
+			}
 		}
 
 #if NETSTANDARD2_1 || NET5_0_OR_GREATER
@@ -592,34 +586,28 @@ namespace FluentFTP {
 			}
 
 			m_lastActivity = DateTime.UtcNow;
-				using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-					timeoutSrc.CancelAfter(ReadTimeout);
-					try {
-						var res = BaseStream.ReadAsync(buffer, timeoutSrc.Token).AsTask();
-						if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, timeoutSrc.Token)) != res){
-							throw new TimeoutException();
-						}
-
-						timeoutSrc.Cancel();
-						return await res;
-					}
-					catch {
-						await CloseAsync(token);
-
-						// token for Cancellation triggered and caused the exception
-						if (token.IsCancellationRequested) {
-							throw new OperationCanceledException("Cancelled read from socket stream");
-						}
-
-						// token for Timeout triggered and caused the exception
-						if (timeoutSrc.IsCancellationRequested) {
-							throw new TimeoutException("Timed out trying to read data from the socket stream!");
-						}
-
-						// Nothing of the above. So we rethrow the exception.
-						throw;
-					}
+			using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
+				timeoutSrc.CancelAfter(ReadTimeout);
+				try {
+					return await BaseStream.ReadAsync(buffer, timeoutSrc.Token);
 				}
+				catch {
+					await CloseAsync(token);
+
+					// token for Cancellation triggered and caused the exception
+					if (token.IsCancellationRequested) {
+						throw new OperationCanceledException("Cancelled read from socket stream");
+					}
+
+					// token for Timeout triggered and caused the exception
+					if (timeoutSrc.IsCancellationRequested) {
+						throw new TimeoutException("Timed out trying to read data from the socket stream!");
+					}
+
+					// Nothing of the above. So we rethrow the exception.
+					throw;
+				}
+			}
 		}
 #endif
 
