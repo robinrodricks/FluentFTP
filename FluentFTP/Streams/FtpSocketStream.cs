@@ -1134,12 +1134,7 @@ namespace FluentFTP {
 		/// </summary>
 		internal async Task EnableCancellation(Task task, CancellationToken token, Action action) {
 			using (var registration = token.Register(action)) {
-				try {
-					await task;
-				}
-				finally {
-					// Ensure registration is disposed even if task throws
-				}
+				await task.ConfigureAwait(false);
 			}
 		}
 
@@ -1148,12 +1143,7 @@ namespace FluentFTP {
 		/// </summary>
 		internal async Task<T> EnableCancellation<T>(Task<T> task, CancellationToken token, Action action) {
 			using (var registration = token.Register(action)) {
-				try {
-					return await task;
-				}
-				finally {
-					// Ensure registration is disposed even if task throws
-				}
+				return await task.ConfigureAwait(false);
 			}
 		}
 
