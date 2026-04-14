@@ -1134,12 +1134,7 @@ namespace FluentFTP {
 		/// </summary>
 		internal async Task EnableCancellation(Task task, CancellationToken token, Action action) {
 			using (var registration = token.Register(action)) {
-				try {
-					await task;
-				}
-				finally {
-					// Ensure registration is disposed even if task throws
-				}
+				await task.ConfigureAwait(false);
 			}
 		}
 
@@ -1148,12 +1143,7 @@ namespace FluentFTP {
 		/// </summary>
 		internal async Task<T> EnableCancellation<T>(Task<T> task, CancellationToken token, Action action) {
 			using (var registration = token.Register(action)) {
-				try {
-					return await task;
-				}
-				finally {
-					// Ensure registration is disposed even if task throws
-				}
+				return await task.ConfigureAwait(false);
 			}
 		}
 
@@ -1165,8 +1155,8 @@ namespace FluentFTP {
 		/// <param name="port">The port to connect to</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		private async Task<bool> ConnectHelperAsync(IPAddress ipad, int port, CancellationToken token) {
-			try {
-				using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
+			using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
+				try {
 					timeoutSrc.CancelAfter(ConnectTimeout);
 #if NET462
 					var connectResult = m_socket.BeginConnect(ipad, port, null, null);
@@ -1175,18 +1165,18 @@ namespace FluentFTP {
 					await EnableCancellation(m_socket.ConnectAsync(ipad, port), timeoutSrc.Token, () => DisposeSocket());
 #endif
 				}
-			}
 #if !NETSTANDARD
-			catch (ObjectDisposedException) {
-				throw new TimeoutException("Timed out trying to connect!");
-			}
+				catch (ObjectDisposedException) {
+					throw new TimeoutException("Timed out trying to connect!");
+				}
 #endif
-			catch (SocketException ex) when (ex.SocketErrorCode is SocketError.OperationAborted or SocketError.TimedOut) {
-				token.ThrowIfCancellationRequested();
-				throw new TimeoutException("Timed out trying to connect!");
-			}
+				catch (SocketException ex) when (ex.SocketErrorCode is SocketError.OperationAborted or SocketError.TimedOut) {
+					token.ThrowIfCancellationRequested();
+					throw new TimeoutException("Timed out trying to connect!");
+				}
 
-			return m_socket.Connected;
+				return m_socket.Connected;
+			}
 		}
 
 		/// <summary>
