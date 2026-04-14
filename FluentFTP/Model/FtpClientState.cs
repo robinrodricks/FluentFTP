@@ -94,11 +94,7 @@ namespace FluentFTP {
 			if (!reConnect) {
 				LastWorkingDir = null;
 				CurrentDataType = FtpDataType.Unknown;
-
-				// Create a new CancellationTokenSource for NOOP daemon if needed
-				if (NoopDaemonTokenSource == null) {
-					NoopDaemonTokenSource = new CancellationTokenSource();
-				}
+				NoopDaemonTokenSource ??= new CancellationTokenSource();
 			}
 			EPSVNotSupported = false;
 			FileSizeASCIINotSupported = false;
