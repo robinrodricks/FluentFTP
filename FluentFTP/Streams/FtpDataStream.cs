@@ -182,8 +182,6 @@ namespace FluentFTP {
 				m_commandStatus = new FtpReply();
 				m_control = null;
 			}
-
-			return;
 		}
 
 		/// <summary>
@@ -205,8 +203,6 @@ namespace FluentFTP {
 				m_commandStatus = new FtpReply();
 				m_control = null;
 			}
-
-			return;
 		}
 
 		/// <summary>
