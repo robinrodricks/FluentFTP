@@ -251,6 +251,7 @@ namespace FluentFTP {
 
 			if (Config.Noop) {
 				if (Status.NoopDaemonTask == null) {
+					Status.NoopDaemonTokenSource ??= new CancellationTokenSource();
 					Status.NoopDaemonTask = Task.Factory.StartNew(() => { NoopDaemon(Status.NoopDaemonTokenSource.Token); }, Status.NoopDaemonTokenSource.Token);
 				}
 				Status.NoopDaemonEnable = true;
