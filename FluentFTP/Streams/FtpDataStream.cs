@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+
 using FluentFTP.Client.BaseClient;
 
 namespace FluentFTP {
@@ -31,6 +32,8 @@ namespace FluentFTP {
 			get => m_control;
 			set => m_control = value;
 		}
+
+		private FtpSocketStreamSslValidation m_certificateValidationHandler = null;
 
 		private long m_length = 0;
 
@@ -63,7 +66,7 @@ namespace FluentFTP {
 			return read;
 		}
 
-#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		/// <summary>
 		/// Reads data off the stream
 		/// </summary>
@@ -90,7 +93,7 @@ namespace FluentFTP {
 			return read;
 		}
 
-#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		/// <summary>
 		/// Reads data off the stream asynchronously
 		/// </summary>
@@ -115,7 +118,7 @@ namespace FluentFTP {
 			m_position += count;
 		}
 
-#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		/// <summary>
 		/// Writes data to the stream
 		/// </summary>
@@ -138,7 +141,7 @@ namespace FluentFTP {
 			m_position += count;
 		}
 
-#if NETSTANDARD2_1 || NET5_0_OR_GREATER
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
 		/// <summary>
 		/// Writes data to the stream asynchronously
 		/// </summary>
@@ -182,8 +185,6 @@ namespace FluentFTP {
 				m_commandStatus = new FtpReply();
 				m_control = null;
 			}
-
-			return;
 		}
 
 		/// <summary>
@@ -196,6 +197,11 @@ namespace FluentFTP {
 #endif
 			await base.CloseAsync(token);
 
+			if (m_certificateValidationHandler != null) {
+				ValidateCertificate -= m_certificateValidationHandler;
+				m_certificateValidationHandler = null;
+			}
+
 			try {
 				if (ControlConnection != null) {
 					await ((IInternalFtpClient)ControlConnection).CloseDataStreamInternal(this, token);
@@ -205,8 +211,6 @@ namespace FluentFTP {
 				m_commandStatus = new FtpReply();
 				m_control = null;
 			}
-
-			return;
 		}
 
 		/// <summary>
@@ -219,7 +223,8 @@ namespace FluentFTP {
 			// always accept certificate no matter what because if code execution ever
 			// gets here it means the certificate on the control connection object being
 			// cloned was already accepted.
-			ValidateCertificate += new FtpSocketStreamSslValidation((FtpSocketStream _, FtpSslValidationEventArgs e) => e.Accept = true);
+			m_certificateValidationHandler = (FtpSocketStream _, FtpSslValidationEventArgs e) => e.Accept = true;
+			ValidateCertificate += m_certificateValidationHandler;
 
 			m_position = 0;
 

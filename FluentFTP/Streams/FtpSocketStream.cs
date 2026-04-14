@@ -1010,24 +1010,25 @@ namespace FluentFTP {
 			int ctmo = this.ConnectTimeout;
 
 #if NETSTANDARD || NET5_0_OR_GREATER
-			var args = new SocketAsyncEventArgs {
+			using (var args = new SocketAsyncEventArgs {
 				RemoteEndPoint = new IPEndPoint(ipad, port)
-			};
-			var connectEvent = new ManualResetEvent(false);
-			args.Completed += (s, e) => { connectEvent.Set(); };
+			})
+			using (var connectEvent = new ManualResetEvent(false)) {
+				args.Completed += (s, e) => { connectEvent.Set(); };
 
-			if (m_socket.ConnectAsync(args)) {
-				if (!connectEvent.WaitOne(ctmo)) {
-					Close();
+				if (m_socket.ConnectAsync(args)) {
+					if (!connectEvent.WaitOne(ctmo)) {
+						Close();
+						throw new TimeoutException("Timed out trying to connect!");
+					}
+				}
+
+				if (args.SocketError == SocketError.TimedOut) {
 					throw new TimeoutException("Timed out trying to connect!");
 				}
-			}
 
-			if (args.SocketError == SocketError.TimedOut) {
-				throw new TimeoutException("Timed out trying to connect!");
+				return args.SocketError == SocketError.Success;
 			}
-
-			return args.SocketError == SocketError.Success;
 #else
 			IAsyncResult iar = m_socket.BeginConnect(ipad, port, null, null);
 			_ = iar.AsyncWaitHandle.WaitOne(ctmo, true);
@@ -1144,18 +1145,28 @@ namespace FluentFTP {
 		/// Helper for Async cancel in ConnectAsync
 		/// </summary>
 		internal async Task EnableCancellation(Task task, CancellationToken token, Action action) {
-			var registration = token.Register(action);
-			_ = task.ContinueWith(x => registration.Dispose(), CancellationToken.None);
-			await task;
+			using (var registration = token.Register(action)) {
+				try {
+					await task;
+				}
+				finally {
+					// Ensure registration is disposed even if task throws
+				}
+			}
 		}
 
 		/// <summary>
 		/// Helper for Async cancel in ConnectAsync
 		/// </summary>
 		internal async Task<T> EnableCancellation<T>(Task<T> task, CancellationToken token, Action action) {
-			var registration = token.Register(action);
-			_ = task.ContinueWith(x => registration.Dispose(), CancellationToken.None);
-			return await task;
+			using (var registration = token.Register(action)) {
+				try {
+					return await task;
+				}
+				finally {
+					// Ensure registration is disposed even if task throws
+				}
+			}
 		}
 
 		/// <summary>
@@ -1542,7 +1553,9 @@ namespace FluentFTP {
 			args.UserToken = connectEvent;
 			args.Completed += (s, e) => { connectEvent.Set(); };
 			if (!m_socket.AcceptAsync(args)) {
+				connectEvent.Dispose();
 				CheckResult(args);
+				args.Dispose();
 				return null;
 			}
 
@@ -1555,12 +1568,18 @@ namespace FluentFTP {
 			}
 
 			var connectEvent = (ManualResetEvent)args.UserToken;
-			if (!connectEvent.WaitOne(timeout)) {
-				Close();
-				throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
-			}
+			try {
+				if (!connectEvent.WaitOne(timeout)) {
+					Close();
+					throw new TimeoutException("Timed out waiting for the server to connect to the active data socket.");
+				}
 
-			CheckResult(args);
+				CheckResult(args);
+			}
+			finally {
+				connectEvent?.Dispose();
+				args?.Dispose();
+			}
 		}
 
 		private void CheckResult(SocketAsyncEventArgs args) {
