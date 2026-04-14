@@ -545,19 +545,19 @@ namespace FluentFTP {
 			}
 
 					m_lastActivity = DateTime.UtcNow;
-					using (var cts = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-						cts.CancelAfter(ReadTimeout);
+					using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
+						timeoutSrc.CancelAfter(ReadTimeout);
 						try {
 			#if NETSTANDARD2_1 || NET5_0_OR_GREATER
-							var res = BaseStream.ReadAsync(buffer.AsMemory(offset, count), cts.Token).AsTask();
+							var res = BaseStream.ReadAsync(buffer.AsMemory(offset, count), timeoutSrc.Token).AsTask();
 			#else
-							var res =  BaseStream.ReadAsync(buffer, offset, count, cts.Token);
+							var res =  BaseStream.ReadAsync(buffer, offset, count, timeoutSrc.Token);
 			#endif
-							if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, cts.Token)) != res){
+							if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, timeoutSrc.Token)) != res){
 								throw new TimeoutException();
 							}
 
-							cts.Cancel();
+							timeoutSrc.Cancel();
 							return await res;
 						}
 						catch {
@@ -569,7 +569,7 @@ namespace FluentFTP {
 							}
 
 							// token for Timeout triggered and caused the exception
-							if (cts.IsCancellationRequested) {
+							if (timeoutSrc.IsCancellationRequested) {
 								throw new TimeoutException("Timed out trying to read data from the socket stream!");
 							}
 
@@ -592,15 +592,15 @@ namespace FluentFTP {
 			}
 
 			m_lastActivity = DateTime.UtcNow;
-				using (var cts = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-					cts.CancelAfter(ReadTimeout);
+				using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
+					timeoutSrc.CancelAfter(ReadTimeout);
 					try {
-						var res = BaseStream.ReadAsync(buffer, cts.Token).AsTask();
-						if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, cts.Token)) != res){
+						var res = BaseStream.ReadAsync(buffer, timeoutSrc.Token).AsTask();
+						if (await Task.WhenAny(res, Task.Delay(Timeout.Infinite, timeoutSrc.Token)) != res){
 							throw new TimeoutException();
 						}
 
-						cts.Cancel();
+						timeoutSrc.Cancel();
 						return await res;
 					}
 					catch {
@@ -612,7 +612,7 @@ namespace FluentFTP {
 						}
 
 						// token for Timeout triggered and caused the exception
-						if (cts.IsCancellationRequested) {
+						if (timeoutSrc.IsCancellationRequested) {
 							throw new TimeoutException("Timed out trying to read data from the socket stream!");
 						}
 
