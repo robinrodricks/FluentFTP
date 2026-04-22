@@ -106,7 +106,9 @@ namespace FluentFTP.Client.BaseClient {
 					if (gotEx) {
 						((IInternalFtpClient)this).LogStatus(FtpTraceLevel.Verbose, "Indicating connection lost (NoopDaemon)");
 						Status.NoopDaemonEnable = false;
-						m_stream.ConnectionState = FtpConnectionState.PendingDisconnect;
+						if (m_stream != null) {
+							m_stream.ConnectionState = FtpConnectionState.PendingDisconnect;
+						}
 					}
 
 
