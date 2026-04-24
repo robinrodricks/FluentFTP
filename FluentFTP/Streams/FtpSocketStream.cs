@@ -1672,9 +1672,6 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(sync) " + Client.ClientType + ".FtpSocketStream(" + connText + ")" + reduText);
 			}
 
-			// TODO: To support the CCC (Deactivate Encryption) command, some more additional logic
-			// is required and note that CustomStream GnuTLS currently does not support this at all.
-
 			if (m_sslStream != null) {          // Connection was a standard .NET SslStream (actually FtpSslStream)
 				DisposeSslStream();
 				DisposeNetStream();
@@ -1798,9 +1795,6 @@ namespace FluentFTP {
 			if (Client != null) {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Disposing(async) " + Client.ClientType + ".FtpSocketStream(" + connText + ")" + reduText);
 			}
-
-			// TODO: To support the CCC (Deactivate Encryption) command, some more additional logic
-			// is required and note that CustomStream GnuTLS currently does not support this at all.
 
 			if (m_sslStream != null) {             // Connection was a standard .NET SslStream (actually FtpSslStream)
 				await DisposeSslStreamAsync();
