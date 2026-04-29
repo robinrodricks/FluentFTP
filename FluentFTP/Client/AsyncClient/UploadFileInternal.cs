@@ -266,6 +266,9 @@ namespace FluentFTP {
 
 				sw.Stop();
 
+				// send progress reports
+				progress?.Report(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+
 				long tot = upStream.Position;
 				long ems = sw.ElapsedMilliseconds;
 				string bps = ems == 0 ? "?" : (tot / ems * 1000L).FileSizeToString();
@@ -274,9 +277,6 @@ namespace FluentFTP {
 					successText += ", " + Status.NoopDaemonAnyNoops + " NOOPs";
 				}
 				LogWithPrefix(FtpTraceLevel.Verbose, successText);
-
-				// send progress reports
-				progress?.Report(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
 
 				// disconnect FTP stream before exiting
 				await ((FtpDataStream)upStream).DisposeAsync();
