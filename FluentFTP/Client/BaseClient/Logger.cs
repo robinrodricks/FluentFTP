@@ -2,11 +2,24 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
+
 using FluentFTP.Helpers;
 using FluentFTP.Helpers.Logging;
 
 namespace FluentFTP.Client.BaseClient {
 	public partial class BaseFtpClient {
+
+#if NET462
+		private static bool IsUnix { get; } = (int)Environment.OSVersion.Platform == 4 || (int)Environment.OSVersion.Platform == 6 || (int)Environment.OSVersion.Platform == 128;
+		private static bool IsLinux { get; } = (int)Environment.OSVersion.Platform == 4 || (int)Environment.OSVersion.Platform == 128;
+		private static bool IsOSX { get; } = (int)Environment.OSVersion.Platform == 6;
+#else
+		private static bool IsUnix { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+		private static bool IsLinux { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+		private static bool IsOSX { get; } = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+#endif
+		private static bool IsMono { get; } = Type.GetType("Mono.Runtime") != null;
 
 		/// <summary>
 		/// Log the version of the running assembly
@@ -15,6 +28,7 @@ namespace FluentFTP.Client.BaseClient {
 			if (AnyLoggingIsEnabled()) {
 				string applicationVersion = Assembly.GetAssembly(MethodBase.GetCurrentMethod().DeclaringType).GetName().Version.ToString();
 				string target;
+
 #if NET20
 				target = ".NET Framework 2.0";
 #elif NET35
@@ -92,7 +106,34 @@ namespace FluentFTP.Client.BaseClient {
 #else
 				target = "Unknown";
 #endif
-				LogWithPrefix(FtpTraceLevel.Verbose, "FluentFTP " + applicationVersion + "(" + target + ") " + this.ClientType);
+
+				string platform;
+
+				if (IsUnix) {
+					// Unix platforms
+					if (IsLinux) {
+						// Linux
+						platform = "Linux";
+					}
+					else if (IsOSX) {
+						// OSX
+						platform = "OSX";
+					}
+					else if (IsMono) {
+						// Mono
+						platform = "Mono";
+					}
+					else {
+						// Unsupported Unix platform
+						platform = "Unknown Unix";
+					}
+				}
+				else {
+					// Windows
+					platform = "Windows";
+				}
+
+				LogWithPrefix(FtpTraceLevel.Verbose, "FluentFTP " + applicationVersion + "(" + platform + "/" + target + ") " + this.ClientType);
 			}
 		}
 
