@@ -180,6 +180,7 @@ namespace FluentFTP {
 				}
 
 				Status.NoopDaemonAnyNoops = 0;
+				bool reached100Percent = false;
 
 				// loop till entire file uploaded
 				while (localFileLen == 0 || localPosition < localFileLen) {
@@ -205,6 +206,9 @@ namespace FluentFTP {
 							// send progress reports
 							if (progress != null) {
 								ReportProgress(progress, localFileLen, localPosition, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
+								if (upStream.Position >= upStream.Length) {
+									reached100Percent = true;
+								}
 							}
 
 							// honor the rate limit
@@ -266,8 +270,11 @@ namespace FluentFTP {
 
 				sw.Stop();
 
-				// send progress reports
-				progress?.Report(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+				// send a last final progress report unless we already reached 100% in the loop above, because some stream implementations update
+				// Position asynchronously and might not report 100% in the loop above
+				if (!reached100Percent) {
+					progress?.Report(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+				}
 
 				long tot = upStream.Position;
 				long ems = sw.ElapsedMilliseconds;
