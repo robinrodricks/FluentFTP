@@ -195,7 +195,6 @@ namespace FluentFTP {
 							// write chunk to the FTP stream
 							await upStream.WriteAsync(buffer, 0, readBytes, token);
 
-
 							// move file pointers ahead
 							localPosition += readBytes;
 							remotePosition += readBytes;
