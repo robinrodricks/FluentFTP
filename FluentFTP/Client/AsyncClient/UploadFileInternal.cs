@@ -194,7 +194,6 @@ namespace FluentFTP {
 						while ((readBytes = await fileData.ReadAsync(buffer, 0, buffer.Length, token)) > 0) {
 							// write chunk to the FTP stream
 							await upStream.WriteAsync(buffer, 0, readBytes, token);
-							await upStream.FlushAsync(token);
 
 
 							// move file pointers ahead
@@ -264,8 +263,25 @@ namespace FluentFTP {
 					}
 				}
 
-				// wait for transfer to get over
+				try {
+					// flush any buffered data first
+					await upStream.FlushAsync(token);
+
+					// wait until the stream reports that all bytes have been written
+					// (some stream implementations update Position asynchronously)
+					try {
 				while (upStream.Position < upStream.Length) {
+							await Task.Delay(50, token);
+						}
+						// a short extra pause to give the OS socket layer time to drain
+						await Task.Delay(100, token);
+					}
+					catch (OperationCanceledException) {
+						throw;
+					}
+				}
+				catch (Exception ex) {
+					LogWithPrefix(FtpTraceLevel.Info, "Error waiting for data stream to complete: " + ex.ToString());
 				}
 
 				sw.Stop();

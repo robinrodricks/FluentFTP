@@ -255,8 +255,25 @@ namespace FluentFTP {
 					}
 				}
 
-				// wait for transfer to get over
-				while (upStream.Position < upStream.Length) {
+				try {
+					// flush any buffered data first
+					upStream.FlushAsync();
+
+					// wait until the stream reports that all bytes have been written
+					// (some stream implementations update Position asynchronously)
+					try {
+						while (upStream.Position < upStream.Length) {
+							Task.Delay(50);
+						}
+						// a short extra pause to give the OS socket layer time to drain
+						Task.Delay(100);
+					}
+					catch (OperationCanceledException) {
+						throw;
+					}
+				}
+				catch (Exception ex) {
+					LogWithPrefix(FtpTraceLevel.Info, "Error waiting for data stream to complete: " + ex.ToString());
 				}
 
 				sw.Stop();
