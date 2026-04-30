@@ -192,7 +192,7 @@ namespace FluentFTP {
 
 				long tot = bytesProcessed;
 				long ems = sw.ElapsedMilliseconds;
-				string bps = ems == 0 ? "?" : (tot / ems * 1000L).FileSizeToString();
+				string bps = ems == 0 ? "?" : (tot * 1000L / ems).FileSizeToString();
 				string successText = "Downloaded " + tot + " bytes, " + sw.Elapsed.ToShortString() + ", " + bps + "/s";
 				if (Config.Noop) {
 					successText += ", " + Status.NoopDaemonAnyNoops + " NOOPs";
