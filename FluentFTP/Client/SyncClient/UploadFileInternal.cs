@@ -176,6 +176,7 @@ namespace FluentFTP {
 				}
 
 				Status.NoopDaemonAnyNoops = 0;
+				bool reached100Percent = false;
 
 				// loop till entire file uploaded
 				while (localFileLen == 0 || localPosition < localFileLen) {
@@ -190,7 +191,6 @@ namespace FluentFTP {
 
 							// write chunk to the FTP stream
 							upStream.Write(buffer, 0, readBytes);
-							upStream.Flush();
 
 							// move file pointers ahead
 							localPosition += readBytes;
@@ -201,6 +201,9 @@ namespace FluentFTP {
 							// send progress reports
 							if (progress != null) {
 								ReportProgress(progress, localFileLen, localPosition, bytesProcessed, DateTime.Now - transferStarted, localPath, remotePath, metaProgress);
+								if (upStream.Position >= upStream.Length) {
+									reached100Percent = true;
+								}
 							}
 
 							// honor the speed limit
@@ -251,18 +254,38 @@ namespace FluentFTP {
 					}
 				}
 
-				// wait for transfer to get over
-				while (upStream.Position < upStream.Length) {
+				try {
+					// flush any buffered data first
+					upStream.FlushAsync();
+
+					// wait until the stream reports that all bytes have been written
+					// (some stream implementations update Position asynchronously)
+					try {
+						while (upStream.Position < upStream.Length) {
+							Task.Delay(50);
+						}
+						// a short extra pause to give the OS socket layer time to drain
+						Task.Delay(100);
+					}
+					catch (OperationCanceledException) {
+						throw;
+					}
+				}
+				catch (Exception ex) {
+					LogWithPrefix(FtpTraceLevel.Info, "Error waiting for data stream to complete: " + ex.ToString());
 				}
 
 				sw.Stop();
 
-				// send progress reports
-				progress?.Invoke(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+				// send a last final progress report unless we already reached 100% in the loop above, because some stream implementations update
+				// Position asynchronously and might not report 100% in the loop above
+				if (!reached100Percent) {
+					progress?.Invoke(new FtpProgress(100.0, upStream.Length, 0, TimeSpan.FromSeconds(0), localPath, remotePath, metaProgress));
+				}
 
 				long tot = upStream.Position;
 				long ems = sw.ElapsedMilliseconds;
-				string bps = ems == 0 ? "?" : (tot / ems * 1000L).FileSizeToString();
+				string bps = ems == 0 ? "?" : (tot * 1000L / ems).FileSizeToString();
 				string successText = "Uploaded " + tot + " bytes, " + sw.Elapsed.ToShortString() + ", " + bps + "/s";
 				if (Config.Noop) {
 					successText += ", " + Status.NoopDaemonAnyNoops + " NOOPs";
