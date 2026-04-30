@@ -107,30 +107,40 @@ namespace FluentFTP.Client.BaseClient {
 				target = "Unknown";
 #endif
 
-				string platform;
+				string platform = "Unknown";
 
 				if (IsUnix) {
 					// Unix platforms
 					if (IsLinux) {
 						// Linux
-						platform = "Linux";
+						if (IsMono) {
+							// Mono under Linux)
+							platform = "Mono/Linux";
+						}
+						else {
+							platform = "Linux";
+						}
 					}
 					else if (IsOSX) {
-						// OSX
-						platform = "OSX";
-					}
-					else if (IsMono) {
-						// Mono
-						platform = "Mono";
-					}
-					else {
-						// Unsupported Unix platform
-						platform = "Unknown Unix";
+						if (IsMono) {
+							// Mono under OSX
+							platform = "Mono/OSX";
+						}
+						else {
+							// OSX
+							platform = "OSX";
+						}
 					}
 				}
 				else {
-					// Windows
-					platform = "Windows";
+					if (IsMono) {
+						// Mono under Windows
+						platform = "Mono/Windows";
+					}
+					else {
+						// Windows
+						platform = "Windows";
+					}
 				}
 
 				LogWithPrefix(FtpTraceLevel.Verbose, "FluentFTP " + applicationVersion + "(" + platform + "/" + target + ") " + this.ClientType);
