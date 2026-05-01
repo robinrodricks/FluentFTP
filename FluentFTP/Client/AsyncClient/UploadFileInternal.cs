@@ -269,7 +269,7 @@ namespace FluentFTP {
 					// wait until the stream reports that all bytes have been written
 					// (some stream implementations update Position asynchronously)
 					try {
-				while (upStream.Position < upStream.Length) {
+						while (upStream.Position < upStream.Length) {
 							await Task.Delay(50, token);
 						}
 						// a short extra pause to give the OS socket layer time to drain
