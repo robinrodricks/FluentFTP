@@ -917,13 +917,22 @@ namespace FluentFTP {
 		/// <param name="port">The port to connect to</param>
 		/// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
 		public void Connect(string host, int port, FtpIpVersion ipVersions) {
-
-			IPAddress[] ipads = GetCachedHostAddresses(host);
-			IPAddress ipad = null;
-
 			if (ipVersions == 0) {
 				throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.", nameof(ipVersions));
 			}
+
+			IPAddress[] ipads;
+
+			try {
+				ipads = GetCachedHostAddresses(host);
+			}
+			catch {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error in DNS lookup");
+				Close();
+				throw new IOException("Failed to connect to host.");
+			};
+
+			IPAddress ipad = null;
 
 			for (var i = 0; i < ipads.Length; i++) {
 				int iPlusOne = i + 1;
@@ -942,7 +951,16 @@ namespace FluentFTP {
 
 				m_socket = new Socket(ipad.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-				BindSocketToLocalIp();
+				try {
+					BindSocketToLocalIp();
+				}
+				catch (Exception ex) {
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error binding socket to local IP", ex);
+					m_socket.Dispose();
+					m_socket = null;
+					Close();
+					throw new IOException("Failed to connect to host.");
+				}
 
 				bool lastIP = iPlusOne == ipads.Length;
 
@@ -951,12 +969,12 @@ namespace FluentFTP {
 						break;
 					}
 					else {
-						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...failed to connect to IP #" + iPlusOne);
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error connecting to IP #" + iPlusOne);
 					}
 				}
 				catch (TimeoutException) {
 					if (lastIP) {
-						throw new TimeoutException("Timed out trying to connect!");
+						throw new TimeoutException("Timed out trying to connect to IP #" + iPlusOne);
 					}
 					else {
 						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...timeout connecting to IP #" + iPlusOne);
@@ -968,6 +986,8 @@ namespace FluentFTP {
 			}
 
 			if (m_socket == null || !m_socket.Connected) {
+				m_socket.Dispose();
+				m_socket = null;
 				Close();
 				throw new IOException("Failed to connect to host.");
 			}
@@ -1060,13 +1080,22 @@ namespace FluentFTP {
 		/// <param name="ipVersions">Internet Protocol versions to support during the connection phase</param>
 		/// <param name="token">The token that can be used to cancel the entire process</param>
 		public async Task ConnectAsync(string host, int port, FtpIpVersion ipVersions, CancellationToken token) {
-
-			IPAddress[] ipads = await GetCachedHostAddressesAsync(host, token);
-			IPAddress ipad = null;
-
 			if (ipVersions == 0) {
 				throw new ArgumentException("The ipVersions parameter must contain at least 1 flag.", nameof(ipVersions));
 			}
+
+			IPAddress[] ipads;
+
+			try {
+				ipads = await GetCachedHostAddressesAsync(host, token);
+			}
+			catch {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error in DNS lookup");
+				Close();
+				throw new IOException("Failed to connect to host.");
+			};
+
+			IPAddress ipad = null;
 
 			for (var i = 0; i < ipads.Length; i++) {
 				int iPlusOne = i + 1;
@@ -1085,7 +1114,16 @@ namespace FluentFTP {
 
 				m_socket = new Socket(ipad.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-				BindSocketToLocalIp();
+				try {
+					BindSocketToLocalIp();
+				}
+				catch (Exception ex) {
+					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error binding socket to local IP", ex);
+					m_socket.Dispose();
+					m_socket = null;
+					Close();
+					throw new IOException("Failed to connect to host.");
+				}
 
 				bool lastIP = iPlusOne == ipads.Length;
 
@@ -1094,12 +1132,12 @@ namespace FluentFTP {
 						break;
 					}
 					else {
-						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...failed to connect to IP #" + iPlusOne);
+						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error connecting to IP #" + iPlusOne);
 					}
 				}
 				catch (TimeoutException) {
 					if (lastIP) {
-						throw new TimeoutException("Timed out trying to connect!");
+						throw new TimeoutException("Timed out trying to connect to IP #" + iPlusOne);
 					}
 					else {
 						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...timeout connecting to IP #" + iPlusOne);
@@ -1111,6 +1149,8 @@ namespace FluentFTP {
 			}
 
 			if (m_socket == null || !m_socket.Connected) {
+				m_socket.Dispose();
+				m_socket = null;
 				Close();
 				throw new IOException("Failed to connect to host.");
 			}
@@ -1514,10 +1554,6 @@ namespace FluentFTP {
 
 				var localPort = LocalPorts.GetRandomAvailable(Client.Config.SocketLocalIp);
 				var localEndpoint = new IPEndPoint(Client.Config.SocketLocalIp, localPort);
-
-#if DEBUG
-				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, $"Will now bind to {localEndpoint}");
-#endif
 
 				this.m_socket.Bind(localEndpoint);
 			}
