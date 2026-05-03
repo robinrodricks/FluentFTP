@@ -1,5 +1,18 @@
 # Release Notes
 
+#### 54.1.2
+
+ - **Xamarin**
+   - Improve error handling during FTP connection to fix intermittent hanging on Xamarin
+   - Improve `LogVersion` in Logger for Mono/Xamarin
+   - Improve file upload status messages to help debug upload failures
+ - **Optimization**
+   - Fix memory leak in `CancellationTokenSource` affecting `AsyncFtpClient` and `GnuTLS`
+   - Fix multiple memory leaks after extensive testing
+ - **Maintenance**
+   - Update log4net from 2.0.15 to 3.3.0 in example projects
+   - Add .NET 9 and .NET 10 to log version message
+
 #### 54.1.1
 
  - **FTP Connection**
