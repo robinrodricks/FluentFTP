@@ -10,6 +10,7 @@
    - Fix memory leak in `CancellationTokenSource` affecting `AsyncFtpClient` and `GnuTLS`
    - Fix multiple memory leaks after extensive testing
  - **Maintenance**
+   - Fix C# code generation for `FtpProfile.ToCode` to generate encoding code correctly
    - Update log4net from 2.0.15 to 3.3.0 in example projects
    - Add .NET 9 and .NET 10 to log version message
 
