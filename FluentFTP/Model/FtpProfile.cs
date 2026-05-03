@@ -106,13 +106,9 @@ namespace FluentFTP {
 			}
 
 			// Fix #468 - Invalid code generated: Encoding = System.Text.UTF8Encoding+UTF8EncodingSealed
-			var encoding = Encoding.ToString();
-			if (encoding.Contains("+")) {
-				sb.AppendLine("	Encoding = " + encoding.Substring(0, encoding.IndexOf('+')) + ",");
-			}
-			else {
-				sb.AppendLine("	Encoding = " + encoding + ",");
-			}
+			// Fix #1835 - Invalid code generated: `System.Text.UTF8Encoding` instead of constant `System.Text.UTF8Encoding.UTF8`
+			var encoding = Encodings.ToCode(Encoding);
+			sb.AppendLine("	Encoding = " + encoding + ",");
 
 			// Required for #533 - Auto detect Azure servers and use working settings
 			if (Timeout != 0) {
