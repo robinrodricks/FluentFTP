@@ -107,6 +107,7 @@ namespace FluentFTP {
 			stream = new FtpDataStream(this);
 			stream.ConnectTimeout = Config.DataConnectionConnectTimeout;
 			stream.ReadTimeout = Config.DataConnectionReadTimeout;
+			stream.WriteTimeout = Config.DataConnectionWriteTimeout;
 			await ConnectAsync(stream, host, port, Config.InternetProtocolVersions, token);
 			stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, Config.SocketKeepAlive);
 

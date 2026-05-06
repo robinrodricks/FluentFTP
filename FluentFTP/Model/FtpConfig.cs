@@ -206,6 +206,12 @@ namespace FluentFTP {
 		public int ReadTimeout { get; set; } = 15000;
 
 		/// <summary>
+		/// Gets or sets the length of time wait in milliseconds for data to be
+		/// written to the underlying stream. The default value is 15000 (15 seconds).
+		/// </summary>
+		public int WriteTimeout { get; set; } = 15000;
+
+		/// <summary>
 		/// Use CCC command to deactivate encryption after connection and authentication
 		/// </summary>
 		public bool EncryptAuthenticationOnly { get; set; } = false;
@@ -222,6 +228,13 @@ namespace FluentFTP {
 		/// 15000 (15 seconds).
 		/// </summary>
 		public int DataConnectionReadTimeout { get; set; } = 15000;
+
+		/// <summary>
+		/// Gets or sets the length of time in milliseconds the data channel
+		/// should wait for the server to be sent data. Default value is
+		/// 15000 (15 seconds).
+		/// </summary>
+		public int DataConnectionWriteTimeout { get; set; } = 15000;
 
 		protected bool _keepAlive = false;
 
@@ -658,8 +671,10 @@ namespace FluentFTP {
 			write.DisconnectWithQuit = read.DisconnectWithQuit;
 			write.ConnectTimeout = read.ConnectTimeout;
 			write.ReadTimeout = read.ReadTimeout;
+			write.WriteTimeout = read.WriteTimeout;
 			write.DataConnectionConnectTimeout = read.DataConnectionConnectTimeout;
 			write.DataConnectionReadTimeout = read.DataConnectionReadTimeout;
+			write.DataConnectionWriteTimeout = read.DataConnectionWriteTimeout;
 			write.SocketKeepAlive = read.SocketKeepAlive;
 			write.EncryptionMode = read.EncryptionMode;
 			write.DataConnectionEncryption = read.DataConnectionEncryption;

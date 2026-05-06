@@ -285,6 +285,22 @@ namespace FluentFTP {
 			}
 		}
 
+		private int m_writeTimeout = Timeout.Infinite;
+
+		/// <summary>
+		/// Gets or sets the amount of time to wait for a write operation to complete. Default
+		/// value is Timeout.Infinite.
+		/// </summary>
+		public override int WriteTimeout {
+			get => m_writeTimeout;
+			set {
+				m_writeTimeout = value;
+				if (m_netStream != null) {
+					m_netStream.WriteTimeout = m_writeTimeout;
+				}
+			}
+		}
+
 		private int m_connectTimeout = int.MaxValue;
 
 		/// <summary>
@@ -493,11 +509,11 @@ namespace FluentFTP {
 				return 0;
 			}
 
+			m_lastActivity = DateTime.UtcNow;
+
 #if NETFRAMEWORK
 			IAsyncResult ar = null;
 #endif
-
-			m_lastActivity = DateTime.UtcNow;
 #if NETSTANDARD || NET5_0_OR_GREATER
 			return BaseStream.Read(buffer, offset, count);
 #else
@@ -545,8 +561,9 @@ namespace FluentFTP {
 			}
 
 			m_lastActivity = DateTime.UtcNow;
+
 			using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-				timeoutSrc.CancelAfter(ReadTimeout);
+				timeoutSrc.CancelAfter(m_readTimeout);
 				try {
 #if NETSTANDARD2_1 || NET5_0_OR_GREATER
 					return await BaseStream.ReadAsync(buffer.AsMemory(offset, count), timeoutSrc.Token);
@@ -586,8 +603,9 @@ namespace FluentFTP {
 			}
 
 			m_lastActivity = DateTime.UtcNow;
+
 			using (var timeoutSrc = CancellationTokenSource.CreateLinkedTokenSource(token)) {
-				timeoutSrc.CancelAfter(ReadTimeout);
+				timeoutSrc.CancelAfter(m_readTimeout);
 				try {
 					return await BaseStream.ReadAsync(buffer, timeoutSrc.Token);
 				}
@@ -761,8 +779,25 @@ namespace FluentFTP {
 				return;
 			}
 
-			BaseStream.Write(buffer, offset, count);
 			m_lastActivity = DateTime.UtcNow;
+
+#if NETFRAMEWORK
+			IAsyncResult ar = null;
+#endif
+#if NETSTANDARD || NET5_0_OR_GREATER
+			BaseStream.Write(buffer, offset, count);
+#else
+			ar = BaseStream.BeginWrite(buffer, offset, count, null, null);
+			bool success = ar.AsyncWaitHandle.WaitOne(m_writeTimeout, true);
+			if (!success) {
+				Close();
+				throw new TimeoutException("Timed out trying to write data to the socket stream!");
+			}
+			else if (Type.GetType("Mono.Runtime") == null) {
+				ar.AsyncWaitHandle.Close(); // See issue #648 this needs to be commented out for MONO
+			}
+			BaseStream.EndWrite(ar);
+#endif
 		}
 
 #if NETSTANDARD2_1 || NET5_0_OR_GREATER
@@ -775,8 +810,9 @@ namespace FluentFTP {
 				return;
 			}
 
-			BaseStream.Write(buffer);
 			m_lastActivity = DateTime.UtcNow;
+
+			BaseStream.Write(buffer);
 		}
 #endif
 
@@ -792,12 +828,13 @@ namespace FluentFTP {
 				return;
 			}
 
+			m_lastActivity = DateTime.UtcNow;
+
 #if NETSTANDARD2_1 || NET5_0_OR_GREATER
 			await BaseStream.WriteAsync(buffer.AsMemory(offset, count), token);
 #else
 			await BaseStream.WriteAsync(buffer, offset, count, token);
 #endif
-			m_lastActivity = DateTime.UtcNow;
 		}
 
 #if NETSTANDARD2_1 || NET5_0_OR_GREATER
@@ -811,8 +848,9 @@ namespace FluentFTP {
 				return;
 			}
 
-			await BaseStream.WriteAsync(buffer, token);
 			m_lastActivity = DateTime.UtcNow;
+
+			await BaseStream.WriteAsync(buffer, token);
 		}
 #endif
 
@@ -997,6 +1035,7 @@ namespace FluentFTP {
 
 			m_netStream = new NetworkStream(m_socket);
 			m_netStream.ReadTimeout = m_readTimeout;
+			m_netStream.WriteTimeout = m_writeTimeout;
 			m_lastActivity = DateTime.UtcNow;
 
 			ConnectionState = FtpConnectionState.Connected;
@@ -1159,6 +1198,7 @@ namespace FluentFTP {
 
 			m_netStream = new NetworkStream(m_socket);
 			m_netStream.ReadTimeout = m_readTimeout;
+			m_netStream.WriteTimeout = m_writeTimeout;
 			m_lastActivity = DateTime.UtcNow;
 
 			ConnectionState = FtpConnectionState.Connected;
@@ -1514,6 +1554,7 @@ namespace FluentFTP {
 				socketSave.Close();
 				m_netStream = new NetworkStream(m_socket);
 				m_netStream.ReadTimeout = m_readTimeout;
+				m_netStream.WriteTimeout = m_writeTimeout;
 			}
 		}
 
@@ -1544,6 +1585,7 @@ namespace FluentFTP {
 #if NETSTANDARD || NET5_0_OR_GREATER
 				m_netStream = new NetworkStream(m_socket);
 				m_netStream.ReadTimeout = m_readTimeout;
+				m_netStream.WriteTimeout = m_writeTimeout;
 #endif
 			}
 		}
@@ -1606,6 +1648,7 @@ namespace FluentFTP {
 			socketSave.Close();
 			m_netStream = new NetworkStream(args.AcceptSocket);
 			m_netStream.ReadTimeout = m_readTimeout;
+			m_netStream.WriteTimeout = m_writeTimeout;
 		}
 
 #endif

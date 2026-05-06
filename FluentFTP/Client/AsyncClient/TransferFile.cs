@@ -92,8 +92,9 @@ namespace FluentFTP {
 				try {
 
 					ftpFxpSession.SourceServer.Config.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
+					ftpFxpSession.SourceServer.Config.WriteTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
 					ftpFxpSession.TargetServer.Config.ReadTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
-
+					ftpFxpSession.TargetServer.Config.WriteTimeout = (int)TimeSpan.FromMinutes(30.0).TotalMilliseconds;
 
 					// check if the file exists, and skip, overwrite or append
 					if (existsMode == FtpRemoteExists.ResumeNoCheck) {
