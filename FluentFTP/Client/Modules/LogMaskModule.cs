@@ -75,5 +75,23 @@ namespace FluentFTP.Client.Modules {
 			return message;
 		}
 
+		public static string MaskUri(BaseFtpClient client, Uri uri) {
+			var builder = new UriBuilder(uri);
+
+			if (!client.Config.LogUserName) {
+				builder.UserName = "***";
+			}
+
+			if (!client.Config.LogPassword) {
+				builder.Password = "***";
+			}
+
+			if (!client.Config.LogHost) {
+				builder.Host = "***";
+			}
+
+			return builder.Uri.ToString();
+		}
+
 	}
 }

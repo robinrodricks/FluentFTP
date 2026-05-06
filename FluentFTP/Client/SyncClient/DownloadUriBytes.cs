@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 
+using FluentFTP.Client.Modules;
 using FluentFTP.Helpers;
 
 namespace FluentFTP {
@@ -19,12 +20,12 @@ namespace FluentFTP {
 				throw new ArgumentException("Required parameter is null or blank.", nameof(uri));
 			}
 
-			LogFunction(nameof(DownloadUriBytes), new object[] { uri });
-
 			// Example:
 			// "ftp[s]://username:password@host:port/path"
 
 			var formalUri = new Uri(uri);
+
+			LogFunction(nameof(DownloadUriBytes), new object[] { LogMaskModule.MaskUri(this, formalUri) });
 
 			this.Host = formalUri.DnsSafeHost;
 			this.Port = formalUri.Port;
