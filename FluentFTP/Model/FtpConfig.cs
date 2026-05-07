@@ -207,9 +207,9 @@ namespace FluentFTP {
 
 		/// <summary>
 		/// Gets or sets the length of time wait in milliseconds for data to be
-		/// written to the underlying stream. The default value is 15000 (15 seconds).
+		/// written to the underlying stream. The default value is -1 (Use OS default timeout = infinite).
 		/// </summary>
-		public int WriteTimeout { get; set; } = 15000;
+		public int WriteTimeout { get; set; } = -1;
 
 		/// <summary>
 		/// Use CCC command to deactivate encryption after connection and authentication
