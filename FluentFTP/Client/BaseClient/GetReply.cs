@@ -173,7 +173,6 @@ namespace FluentFTP.Client.BaseClient {
 
 						if (timeOut >= 0) {
 							// BLOCKING read
-							m_stream.ReadTimeout = Config.ReadTimeout;
 							response = m_stream.ReadLine(Encoding);
 						}
 						else {
@@ -413,7 +412,6 @@ namespace FluentFTP.Client.BaseClient {
 
 						if (timeOut >= 0) {
 							// BLOCKING read
-							m_stream.ReadTimeout = Config.ReadTimeout;
 							response = await m_stream.ReadLineAsync(Encoding, token);
 						}
 						else {
