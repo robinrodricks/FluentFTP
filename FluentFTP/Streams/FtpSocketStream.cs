@@ -803,6 +803,8 @@ namespace FluentFTP {
 				return;
 			}
 
+			TrackConfigChanges();
+
 			m_lastActivity = DateTime.UtcNow;
 
 #if NETFRAMEWORK
@@ -834,6 +836,8 @@ namespace FluentFTP {
 				return;
 			}
 
+			TrackConfigChanges();
+
 			m_lastActivity = DateTime.UtcNow;
 
 			BaseStream.Write(buffer);
@@ -851,6 +855,8 @@ namespace FluentFTP {
 			if (BaseStream == null) {
 				return;
 			}
+
+			TrackConfigChanges();
 
 			m_lastActivity = DateTime.UtcNow;
 
@@ -871,6 +877,8 @@ namespace FluentFTP {
 			if (BaseStream == null) {
 				return;
 			}
+
+			TrackConfigChanges();
 
 			m_lastActivity = DateTime.UtcNow;
 
