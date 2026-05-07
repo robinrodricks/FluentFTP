@@ -232,9 +232,9 @@ namespace FluentFTP {
 		/// <summary>
 		/// Gets or sets the length of time in milliseconds the data channel
 		/// should wait for the server to be sent data. Default value is
-		/// 15000 (15 seconds).
+		/// -1 (Use OS default timeout = infinite).
 		/// </summary>
-		public int DataConnectionWriteTimeout { get; set; } = 15000;
+		public int DataConnectionWriteTimeout { get; set; } = -1;
 
 		protected bool _keepAlive = false;
 
