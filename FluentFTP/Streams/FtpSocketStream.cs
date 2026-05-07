@@ -14,7 +14,6 @@ using FluentFTP.Client.BaseClient;
 using FluentFTP.Exceptions;
 using FluentFTP.Helpers;
 using FluentFTP.Streams;
-using System.Runtime.CompilerServices;
 
 namespace FluentFTP {
 
@@ -994,7 +993,6 @@ namespace FluentFTP {
 				Close();
 				throw new IOException("Failed to connect to host.");
 			}
-			;
 
 			IPAddress ipad = null;
 
@@ -1159,7 +1157,6 @@ namespace FluentFTP {
 				Close();
 				throw new IOException("Failed to connect to host.");
 			}
-			;
 
 			IPAddress ipad = null;
 
