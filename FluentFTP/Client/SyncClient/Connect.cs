@@ -83,6 +83,7 @@ namespace FluentFTP {
 
 			m_hashAlgorithms = FtpHashAlgorithm.NONE;
 			m_stream.ConnectTimeout = Config.ConnectTimeout;
+			m_stream.ReadTimeout = Config.ReadTimeout;
 			Connect(m_stream);
 
 			m_stream.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, Config.SocketKeepAlive);
