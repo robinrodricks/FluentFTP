@@ -14,6 +14,7 @@ using FluentFTP.Client.BaseClient;
 using FluentFTP.Exceptions;
 using FluentFTP.Helpers;
 using FluentFTP.Streams;
+using System.Runtime.CompilerServices;
 
 namespace FluentFTP {
 
@@ -498,6 +499,22 @@ namespace FluentFTP {
 #endif
 
 		/// <summary>
+		/// Any configuration changes that may have happened that affect a streams parameters such as timeouts
+		/// should be applied before the next read/write operation. This is to ensure that the stream is always
+		/// up to date with the latest configuration settings.
+		/// </summary>
+		private void TrackConfigChanges() {
+			if (IsControlConnection) {
+				ReadTimeout = Client.Config.ReadTimeout;
+				WriteTimeout = Client.Config.WriteTimeout;
+			}
+			else {
+				ReadTimeout = Client.Config.DataConnectionReadTimeout;
+				WriteTimeout = Client.Config.DataConnectionWriteTimeout;
+			}
+		}
+
+		/// <summary>
 		/// Reads data from the stream
 		/// </summary>
 		/// <param name="buffer">Buffer to read into</param>
@@ -508,6 +525,8 @@ namespace FluentFTP {
 			if (BaseStream == null) {
 				return 0;
 			}
+
+			TrackConfigChanges();
 
 			m_lastActivity = DateTime.UtcNow;
 
@@ -541,6 +560,8 @@ namespace FluentFTP {
 				return 0;
 			}
 
+			TrackConfigChanges();
+
 			m_lastActivity = DateTime.UtcNow;
 
 			return BaseStream.Read(buffer);
@@ -559,6 +580,8 @@ namespace FluentFTP {
 			if (BaseStream == null) {
 				return 0;
 			}
+
+			TrackConfigChanges();
 
 			m_lastActivity = DateTime.UtcNow;
 
@@ -601,6 +624,8 @@ namespace FluentFTP {
 			if (BaseStream == null) {
 				return 0;
 			}
+
+			TrackConfigChanges();
 
 			m_lastActivity = DateTime.UtcNow;
 
@@ -968,7 +993,8 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error in DNS lookup");
 				Close();
 				throw new IOException("Failed to connect to host.");
-			};
+			}
+			;
 
 			IPAddress ipad = null;
 
@@ -1132,7 +1158,8 @@ namespace FluentFTP {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "...error in DNS lookup");
 				Close();
 				throw new IOException("Failed to connect to host.");
-			};
+			}
+			;
 
 			IPAddress ipad = null;
 
