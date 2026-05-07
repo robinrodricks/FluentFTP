@@ -87,6 +87,7 @@ namespace FluentFTP.Proxy.AsyncProxy {
 			}
 
 			stream.ReadTimeout = Config.ReadTimeout;
+			stream.WriteTimeout = Config.WriteTimeout;
 			while ((buf = await stream.ReadLineAsync(Encoding, token)) != null) {
 				Match m;
 

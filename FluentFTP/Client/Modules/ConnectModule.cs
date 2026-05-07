@@ -458,8 +458,10 @@ namespace FluentFTP.Client.Modules {
 			if (profile.Timeout != 0) {
 				client.Config.ConnectTimeout = profile.Timeout;
 				client.Config.ReadTimeout = profile.Timeout;
+				client.Config.WriteTimeout = profile.Timeout;
 				client.Config.DataConnectionConnectTimeout = profile.Timeout;
 				client.Config.DataConnectionReadTimeout = profile.Timeout;
+				client.Config.DataConnectionWriteTimeout = profile.Timeout;
 			}
 			if (client.Config.RetryAttempts != 0) {
 				client.Config.RetryAttempts = profile.RetryAttempts;

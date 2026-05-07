@@ -91,6 +91,7 @@ namespace FluentFTP.Proxy.SyncProxy {
 			}
 
 			stream.ReadTimeout = Config.ReadTimeout;
+			stream.WriteTimeout = Config.WriteTimeout;
 			while ((buf = stream.ReadLine(Encoding)) != null) {
 				Match m;
 
