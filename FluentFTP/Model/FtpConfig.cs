@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+#if NET7_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -561,6 +564,9 @@ namespace FluentFTP {
 		/// <summary>
 		/// Used to set a custom stream handler, for example to integrate with the `FluentFTP.GnuTLS` package.
 		/// </summary>
+#if NET7_0_OR_GREATER
+		[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+#endif
 		public Type CustomStream { get; set; } = null;
 
 		/// <summary>

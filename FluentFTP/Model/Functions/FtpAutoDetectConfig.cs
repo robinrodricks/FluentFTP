@@ -43,5 +43,14 @@ namespace FluentFTP.Model.Functions {
 			// Do not EVER use "Default". It boils down to "SSL or TLS1.0" or worse.
 			// Do not use "None" - it can connect to TLS13, but Session Resume won't work, so a successful AutoDetect will be a false truth.
 		};
+
+		public override string ToString() {
+			return nameof(CloneConnection) + " = " + CloneConnection +
+				", " + nameof(FirstOnly) + " = " + FirstOnly +
+				", " + nameof(IncludeImplicit) + " = " + IncludeImplicit +
+				", " + nameof(AbortOnTimeout) + " = " + AbortOnTimeout +
+				", " + nameof(RequireEncryption) + " = " + RequireEncryption +
+				", " + nameof(ProtocolPriority) + " = [" + string.Join(", ", ProtocolPriority) + "]";
+		}
 	}
 }

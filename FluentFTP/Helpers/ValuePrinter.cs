@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Reflection;
 using System.Text;
 
 namespace FluentFTP.Helpers {
@@ -11,26 +10,7 @@ namespace FluentFTP.Helpers {
 				return "null";
 			}
 
-			var type = obj.GetType();
-			var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-			var lastProp = properties[properties.Length - 1];
-
-			// print list
-			StringBuilder result = new StringBuilder();
-			foreach (var property in properties) {
-				string p = property.Name;
-				object v = property.GetValue(obj);
-
-				result.Append(p);
-				result.Append(" = ");
-				result.Append(ValueToString(v));
-
-				if (property != lastProp) {
-					result.Append(", ");
-				}
-			}
-
-			return result.ToString();
+			return ValueToString(obj);
 		}
 
 		private static string ValueToString(object v) {
