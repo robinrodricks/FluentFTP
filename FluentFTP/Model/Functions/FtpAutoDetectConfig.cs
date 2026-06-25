@@ -45,12 +45,13 @@ namespace FluentFTP.Model.Functions {
 		};
 
 		public override string ToString() {
+			var protocolPriority = ProtocolPriority == null ? "null" : string.Join(", ", ProtocolPriority);
 			return nameof(CloneConnection) + " = " + CloneConnection +
 				", " + nameof(FirstOnly) + " = " + FirstOnly +
 				", " + nameof(IncludeImplicit) + " = " + IncludeImplicit +
 				", " + nameof(AbortOnTimeout) + " = " + AbortOnTimeout +
 				", " + nameof(RequireEncryption) + " = " + RequireEncryption +
-				", " + nameof(ProtocolPriority) + " = [" + string.Join(", ", ProtocolPriority) + "]";
+				", " + nameof(ProtocolPriority) + " = [" + protocolPriority + "]";
 		}
 	}
 }
