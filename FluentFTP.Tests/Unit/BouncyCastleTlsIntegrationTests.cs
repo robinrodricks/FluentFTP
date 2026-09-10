@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -58,7 +58,7 @@ namespace FluentFTP.Tests.Unit {
 			await fixture.Exchange(control, null, new BouncyCastleFtpConfig(), (_, _, _, _) => true, true);
 			using var data = new BouncyCastleFtpStream();
 			var failure = await fixture.Exchange(data, control, new BouncyCastleFtpConfig(), (_, _, _, _) => true, false);
-			Assert.NotNull(failure);
+			Assert.IsType<AuthenticationException>(failure);
 			Assert.False(fixture.LastResumed);
 			Assert.False(data.CanWrite());
 		}
@@ -71,7 +71,9 @@ namespace FluentFTP.Tests.Unit {
 			using var fixture = new TlsFixture { Version = ProtocolVersion.Get(3, minorVersion) };
 			using var stream = new BouncyCastleFtpStream();
 			var failure = await fixture.Exchange(stream, null, new BouncyCastleFtpConfig(), (_, _, _, _) => true, false);
-			Assert.Contains("protocol_version", failure!.ToString());
+			var rejection = Assert.IsType<AuthenticationException>(failure);
+			Assert.Contains("protocol_version", rejection.ToString());
+			Assert.IsAssignableFrom<TlsException>(rejection.InnerException);
 			Assert.False(stream.CanWrite());
 			Assert.Equal(0, fixture.CompletedHandshakes);
 		}
@@ -85,8 +87,13 @@ namespace FluentFTP.Tests.Unit {
 				errors = message;
 				return string.IsNullOrEmpty(message);
 			}, false);
-			Assert.NotNull(failure);
-			Assert.Contains("certificate was rejected", failure!.ToString());
+			// Callers see the SslStream exception type; the Bouncy Castle alert stays available underneath.
+			var rejection = Assert.IsType<AuthenticationException>(failure);
+			Assert.Contains("certificate was rejected", rejection.Message);
+			var alert = Assert.IsType<TlsFatalAlert>(rejection.InnerException);
+			Assert.Equal(AlertDescription.bad_certificate, alert.AlertDescription);
+			Assert.NotNull(fixture.LastAlertReceived);
+			Assert.Equal(AlertDescription.bad_certificate, fixture.LastAlertReceived.Value);
 			Assert.Contains("chain", errors!, StringComparison.OrdinalIgnoreCase);
 			Assert.Equal(0, fixture.CompletedHandshakes);
 			Assert.False(control.CanRead());
@@ -115,6 +122,7 @@ namespace FluentFTP.Tests.Unit {
 			internal bool Legacy { get; set; }
 			internal ProtocolVersion Version { get; set; } = ProtocolVersion.TLSv12;
 			internal bool LastResumed { get; private set; }
+			internal short? LastAlertReceived { get; private set; }
 			internal int CompletedHandshakes { get; private set; }
 
 			internal TlsFixture() {
@@ -133,6 +141,7 @@ namespace FluentFTP.Tests.Unit {
 				try {
 					var payload = RandomNumberGenerator.GetBytes(32769); // Cross TLS record boundaries.
 					LastResumed = false;
+					LastAlertReceived = null;
 					var server = Task.Run(() => ServeExchange(listener, payload, succeeds));
 					using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 					socket.ReceiveTimeout = socket.SendTimeout = 5000;
@@ -141,9 +150,9 @@ namespace FluentFTP.Tests.Unit {
 					var failure = Record.Exception(() => stream.Init(client, host, socket, validation, control == null, control!, config));
 					if (succeeds && failure == null) {
 						var tls = stream.GetBaseStream();
-						tls.Write(payload, 0, payload.Length);
+						await tls.WriteAsync(payload, m_deadline.Token);
 						var received = new byte[payload.Length];
-						tls.ReadExactly(received);
+						await tls.ReadExactlyAsync(received, m_deadline.Token);
 						Assert.Equal(payload, received);
 					}
 					await server.WaitAsync(m_deadline.Token);
@@ -163,6 +172,9 @@ namespace FluentFTP.Tests.Unit {
 				try {
 					protocol.Accept(new TestServer(this));
 					EchoPayload(protocol.Stream, payload, succeeds);
+				}
+				catch (TlsFatalAlertReceived alert) when (!succeeds) {
+					LastAlertReceived = alert.AlertDescription;
 				}
 				catch (IOException) when (!succeeds) {
 					// A client rejecting the handshake sends an alert and closes TLS.

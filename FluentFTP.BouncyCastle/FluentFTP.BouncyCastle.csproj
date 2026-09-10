@@ -18,12 +18,13 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<TargetFrameworks>net6.0;net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
+		<!-- Kept in step with the core FluentFTP project so the whole solution builds with the same SDK. -->
+		<TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
 		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<!-- Reference the oldest compatible FluentFTP release so the package remains broadly usable. -->
+		<!-- An older FluentFTP release that already exposes the custom stream API (available since 45.0.0), so the package stays usable with existing applications. -->
 		<PackageReference Include="FluentFTP" Version="48.0.3" />
 		<PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0" />
 	</ItemGroup>

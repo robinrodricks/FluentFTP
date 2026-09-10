@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Formats.Asn1;
 using System.Globalization;
 using System.IO;
@@ -21,6 +21,7 @@ namespace FluentFTP.Tests.Unit {
 		private const string ServerAuthenticationOid = "1.3.6.1.5.5.7.3.1";
 		private const string ClientAuthenticationOid = "1.3.6.1.5.5.7.3.2";
 		private const string SubjectAlternativeNameOid = "2.5.29.17";
+		private const string CommonNameOid = "2.5.4.3";
 
 		[Theory]
 		[InlineData("ftp.example.test", "ftp.example.test", true)]
@@ -93,6 +94,22 @@ namespace FluentFTP.Tests.Unit {
 				writer.WriteCharacterString(UniversalTagNumber.IA5String, dnsName, new Asn1Tag(TagClass.ContextSpecific, 2));
 			}
 			request.CertificateExtensions.Add(new X509Extension(SubjectAlternativeNameOid, writer.Encode(), false));
+			using var certificate = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(1));
+			Assert.False(ServerCertificateValidation.MatchesHost(certificate, "ftp.example.test"));
+		}
+
+		[Fact]
+		public void CommonNameWithUnsupportedStringTypeCannotMatch() {
+			using var key = RSA.Create(2048);
+			var writer = new AsnWriter(AsnEncodingRules.DER);
+			using (writer.PushSequence())
+			using (writer.PushSetOf())
+			using (writer.PushSequence()) {
+				writer.WriteObjectIdentifier(CommonNameOid);
+				// UniversalString "A": valid ASN.1, but not a string type that AsnReader can decode.
+				writer.WriteEncodedValue(new byte[] { 0x1C, 0x04, 0x00, 0x00, 0x00, 0x41 });
+			}
+			var request = new CertificateRequest(new X500DistinguishedName(writer.Encode()), key, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
 			using var certificate = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(1));
 			Assert.False(ServerCertificateValidation.MatchesHost(certificate, "ftp.example.test"));
 		}
@@ -217,6 +234,7 @@ namespace FluentFTP.Tests.Unit {
 			listener.Start();
 			string? sni = null;
 			string? errors = null;
+			X509Certificate? validated = null;
 			X509RevocationMode? revocation = null;
 			var server = Task.Run(async () => {
 				using var peer = await listener.AcceptTcpClientAsync(deadline.Token);
@@ -241,7 +259,8 @@ namespace FluentFTP.Tests.Unit {
 				using var client = new FtpClient();
 				client.Config.ValidateCertificateRevocation = checkRevocation;
 				var failure = Record.Exception(() => {
-					stream.Init(client, host, socket, (_, _, chain, message) => {
+					stream.Init(client, host, socket, (_, presented, chain, message) => {
+						validated = presented;
 						errors = message;
 						revocation = chain.ChainPolicy.RevocationMode;
 						return acceptErrors || message.Length == 0;
@@ -249,11 +268,13 @@ namespace FluentFTP.Tests.Unit {
 				});
 				if (acceptErrors) {
 					Assert.Null(failure);
+					// The accepted certificate stays usable until the stream is disposed, as with SslStream.
+					Assert.Equal(certificate.GetCertHashString(), validated!.GetCertHashString());
 					stream.GetBaseStream().WriteByte(42);
 				}
 				else {
-					Assert.NotNull(failure);
-					Assert.Contains("certificate was rejected", failure.ToString());
+					var rejection = Assert.IsType<AuthenticationException>(failure);
+					Assert.Contains("certificate was rejected", rejection.Message);
 					Assert.False(stream.CanWrite());
 				}
 				await server;

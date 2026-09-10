@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.Globalization;
@@ -43,7 +43,7 @@ namespace FluentFTP.BouncyCastle {
 			return string.Join("; ", errors);
 		}
 
-		// One implementation across .NET 6-10. IP addresses require an IP SAN; DNS SANs
+		// One implementation across .NET 6-9. IP addresses require an IP SAN; DNS SANs
 		// take precedence over CN. Wildcards match exactly one complete DNS label.
 		internal static bool MatchesHost(X509Certificate2 certificate, string host) {
 			var normalized = NormalizeHost(host);
@@ -142,11 +142,21 @@ namespace FluentFTP.BouncyCastle {
 				return false;
 			}
 			var tag = attribute.PeekTag();
-			if (tag.TagClass != TagClass.Universal) {
+			if (tag.TagClass != TagClass.Universal || !IsSupportedCharacterString((UniversalTagNumber)tag.TagValue)) {
 				return false;
 			}
 			commonName = attribute.ReadCharacterString((UniversalTagNumber)tag.TagValue);
 			return true;
 		}
+
+		// AsnReader.ReadCharacterString throws ArgumentOutOfRangeException, not AsnContentException,
+		// for other string types, so an unusual CN encoding must fail closed here instead.
+		private static bool IsSupportedCharacterString(UniversalTagNumber tag) => tag is UniversalTagNumber.UTF8String
+			or UniversalTagNumber.PrintableString
+			or UniversalTagNumber.IA5String
+			or UniversalTagNumber.BMPString
+			or UniversalTagNumber.T61String
+			or UniversalTagNumber.VisibleString
+			or UniversalTagNumber.NumericString;
 	}
 }

@@ -32,6 +32,8 @@ current FluentFTP package explicitly in your application to receive later core
 security and bug fixes; the minimum dependency is not a recommendation to stay
 on that version.
 
+## Certificate validation
+
 The adapter checks certificate chain trust, server-authentication usage, and
 the requested server's identity before calling FluentFTP's validation callback.
 DNS Subject Alternative Names (SANs) take precedence over the Common Name (CN).
@@ -52,6 +54,25 @@ disables server identity protection. FluentFTP's existing custom-stream API
 carries validation details in `PolicyErrorMessage`; its `PolicyErrors` enum
 does not distinguish chain failures from hostname failures.
 
+A rejected certificate sends a `bad_certificate` TLS alert to the server. The
+certificate passed to the validation callback stays valid until the stream is
+disposed, as with `SslStream`; copy it if you need it for longer.
+
+## Failures and diagnostics
+
+Handshake and certificate failures are raised as
+`System.Security.Authentication.AuthenticationException`, matching FluentFTP's
+default `SslStream` behaviour, so FluentFTP's own error handling and existing
+`catch` blocks keep working. The Bouncy Castle `TlsException` is attached as
+the inner exception and carries the TLS alert description.
+
+Connection diagnostics (session offers, resumption results and certificate
+acceptance) are written to FluentFTP's log at the Verbose level with a
+`BouncyCastle:` prefix. `BouncyCastleFtpConfig.Diagnostic` optionally receives
+the same messages.
+
+## Legacy session resumption
+
 Some legacy servers require session resumption without RFC 7627 Extended Master
 Secret. Bouncy Castle blocks that by default. Enable compatibility only for a
 known server that requires it:
@@ -68,40 +89,34 @@ a general fallback.
 
 ## Current limitations
 
-- The adapter currently offers TLS 1.2 only.
-- Client certificates are not currently supported.
+- The adapter offers TLS 1.2 only.
+- Client certificates are not supported. If `client.Config.ClientCertificates`
+  is populated, a warning is logged and the handshake proceeds without one.
 - The Bouncy Castle handshake is synchronous, including when used through
   `AsyncFtpClient`. The custom-stream interface does not pass a cancellation
   token to the handshake.
+- Bouncy Castle's stream does not observe cancellation tokens on reads and
+  writes. A cancelled `AsyncFtpClient` operation completes only when the
+  socket read timeout (`client.Config.ReadTimeout`) expires.
 - Concurrent data transfers have not yet been verified.
 
-Earlier development reported directory listings and file uploads against a
-Bambu Lab X1 Carbon implicit FTPS server. The security review below did not
-repeat hardware testing; those reports do not establish certificate rejection
-or compatibility of the current changes with that device.
+The original adapter was developed against the implicit FTPS server of a Bambu
+Lab X1 Carbon printer. The hardened certificate validation has not been
+re-tested on that device.
 
-## Regression tests
-
-Run the unit suite with:
+## Tests
 
 ```powershell
 # Only needed if the .NET 7 runtime is absent.
 $env:DOTNET_ROLL_FORWARD = 'Major'
-dotnet test FluentFTP.Tests -c Release --filter FullyQualifiedName~Unit
+dotnet test FluentFTP.Tests --filter FullyQualifiedName~BouncyCastle
 ```
 
-The certificate tests generate their own certificates and use custom chain
-trust without changing the operating system's trusted roots. Loopback TLS
-servers verify SNI and callback acceptance/rejection. A loopback HTTP server
-serves a signed CRL to test revocation. No printer or external server is
-required for these tests. Cleanup-failure injection verifies that initialization
-keeps the original exception even if closing the TLS protocol also fails.
-Additional loopback tests check repeated TLS session resumption, rejection when
-required resumption fails, legacy opt-in, TLS version restrictions, and exact
-32,769-byte bidirectional transfers. Both FluentFTP clients are tested for
-certificate rejection before login and explicit acceptance through pinning or
-`ValidateAnyCertificate`. The payload tests exercise TLS streams, not FTP file
-upload/download commands.
+The tests generate their own certificates, use custom chain trust without
+changing the operating system's trusted roots, and run loopback TLS, FTPS and
+CRL servers. No printer or external server is required.
 
-See [the 2026-09-10 security review](SECURITY-REVIEW.md) for tested revisions,
-results, reproduction commands, and remaining verification limits.
+See the [security notes][security-notes] for the validation defects fixed in
+the adapter and its remaining limits.
+
+[security-notes]: https://github.com/robinrodricks/FluentFTP/blob/master/FluentFTP.BouncyCastle/SECURITY-REVIEW.md

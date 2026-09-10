@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using FluentFTP.BouncyCastle;
@@ -39,6 +39,8 @@ namespace FluentFTP.Tests.Unit {
 			var stream = new BouncyCastleFtpStream();
 			stream.Dispose();
 			stream.Dispose();
+			Assert.False(stream.CanRead());
+			Assert.False(stream.CanWrite());
 		}
 
 		[Fact]
