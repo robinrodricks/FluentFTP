@@ -1093,7 +1093,10 @@ namespace FluentFTP {
 				RemoteEndPoint = new IPEndPoint(ipad, port)
 			})
 			using (var connectEvent = new ManualResetEvent(false)) {
-				args.Completed += (s, e) => { connectEvent.Set(); };
+				// The Completed callback can fire on a background thread after we've already
+				// timed out and disposed connectEvent below - guard against that race instead
+				// of crashing the process with an unhandled ObjectDisposedException.
+				args.Completed += (s, e) => { try { connectEvent.Set(); } catch (ObjectDisposedException) { } };
 
 				if (m_socket.ConnectAsync(args)) {
 					if (!connectEvent.WaitOne(ctmo)) {
@@ -1642,7 +1645,9 @@ namespace FluentFTP {
 			var args = new SocketAsyncEventArgs();
 			var connectEvent = new ManualResetEvent(false);
 			args.UserToken = connectEvent;
-			args.Completed += (s, e) => { connectEvent.Set(); };
+			// Same disposed-handle race as in ConnectHelper: EndAccept may have already
+			// timed out and disposed connectEvent by the time this callback runs.
+			args.Completed += (s, e) => { try { connectEvent.Set(); } catch (ObjectDisposedException) { } };
 			if (!m_socket.AcceptAsync(args)) {
 				connectEvent.Dispose();
 				CheckResult(args);

@@ -1,5 +1,10 @@
 # Release Notes
 
+#### 54.2.1
+
+ - Fix: Race condition when `connectEvent` accessed after `FtpSocketStream` is disposed
+ - Fix: Improve AutoConnect `FEAT` check to assume EPSV is supported by default
+
 #### 54.2.0
 
  - **FTP Security**

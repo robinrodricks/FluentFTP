@@ -31,6 +31,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FluentFTP.Xunit\FluentFTP.Xunit.csproj" />
     <ProjectReference Include="..\FluentFTP\FluentFTP.csproj" />
+    <ProjectReference Include="..\FluentFTP.BouncyCastle\FluentFTP.BouncyCastle.csproj" />
   </ItemGroup>
 
 </Project>

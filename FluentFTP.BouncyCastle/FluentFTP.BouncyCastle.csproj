@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<PackageId>FluentFTP.BouncyCastle</PackageId>
+		<Title>FluentFTP.BouncyCastle</Title>
+		<Description>Fully managed Bouncy Castle TLS stream integration for FluentFTP with explicit FTPS session reuse.</Description>
+		<Authors>Robin Rodricks, Wixely, FluentFTP Contributors</Authors>
+		<PackageProjectUrl>https://github.com/robinrodricks/FluentFTP</PackageProjectUrl>
+		<Copyright>Copyright (c) 2015 Robin Rodricks, Wixely and FluentFTP Contributors</Copyright>
+		<PackageTags>ftp,ftp-client,ftps,ftps-client,bouncycastle,ssl,tls,session-resumption</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIcon>logo-nuget.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/robinrodricks/FluentFTP</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<Version>1.0.0</Version>
+		<LangVersion>10.0</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<TargetFrameworks>net6.0;net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
+		<Platforms>AnyCPU;x64</Platforms>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- Reference the oldest compatible FluentFTP release so the package remains broadly usable. -->
+		<PackageReference Include="FluentFTP" Version="48.0.3" />
+		<PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\.github\logo-nuget.png" Pack="true" PackagePath="\" />
+		<None Include="..\LICENSE.TXT" Pack="true" PackagePath="\" />
+		<None Include="README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+</Project>
