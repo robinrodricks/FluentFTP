@@ -19,6 +19,8 @@ namespace FluentFTP.Tests.Integration.System {
 			// spin up a new docker
 			using var server = new DockerFtpServer(serverType, useStream.ToString(), useSsl);
 
+			IntegrationTestSuite.ResetCertificateCounters();
+
 			try {
 				// TODO: create a better system instead of calling each test suite manually
 
@@ -35,6 +37,12 @@ namespace FluentFTP.Tests.Integration.System {
 			}
 			catch (Exception ex) {
 				Assert.Fail($"Integration test failed : " + ex.ToString());
+			}
+
+			if (useStream == UseStream.BouncyCastleStream && useSsl) {
+				// Every FTPS handshake went through the adapter's validation, and none reported a hostname error.
+				Assert.True(IntegrationTestSuite.CertificateValidations > 0, "No server certificate was validated, so TLS was not used.");
+				Assert.Equal(0, IntegrationTestSuite.HostnameMismatches);
 			}
 
 		}
