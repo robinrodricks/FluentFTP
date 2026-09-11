@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Text;
+using FluentFTP.Helpers;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
 
 namespace FluentFTP.Model.Functions {
@@ -45,13 +47,26 @@ namespace FluentFTP.Model.Functions {
 		};
 
 		public override string ToString() {
-			var protocolPriority = ProtocolPriority == null ? "null" : string.Join(", ", ProtocolPriority);
-			return nameof(CloneConnection) + " = " + CloneConnection +
-				", " + nameof(FirstOnly) + " = " + FirstOnly +
-				", " + nameof(IncludeImplicit) + " = " + IncludeImplicit +
-				", " + nameof(AbortOnTimeout) + " = " + AbortOnTimeout +
-				", " + nameof(RequireEncryption) + " = " + RequireEncryption +
-				", " + nameof(ProtocolPriority) + " = [" + protocolPriority + "]";
+			var sb = new StringBuilder();
+			sb.Append(nameof(CloneConnection)).Append(" = ").Append(ValuePrinter.ValueToString(CloneConnection));
+			sb.Append(", ").Append(nameof(FirstOnly)).Append(" = ").Append(ValuePrinter.ValueToString(FirstOnly));
+			sb.Append(", ").Append(nameof(IncludeImplicit)).Append(" = ").Append(ValuePrinter.ValueToString(IncludeImplicit));
+			sb.Append(", ").Append(nameof(AbortOnTimeout)).Append(" = ").Append(ValuePrinter.ValueToString(AbortOnTimeout));
+			sb.Append(", ").Append(nameof(RequireEncryption)).Append(" = ").Append(ValuePrinter.ValueToString(RequireEncryption));
+			sb.Append(", ").Append(nameof(ProtocolPriority)).Append(" = [");
+			if (ProtocolPriority == null) {
+				sb.Append("null");
+			}
+			else {
+				for (int i = 0; i < ProtocolPriority.Count; i++) {
+					if (i > 0) {
+						sb.Append(", ");
+					}
+					sb.Append(ValuePrinter.ValueToString(ProtocolPriority[i]));
+				}
+			}
+			sb.Append(']');
+			return sb.ToString();
 		}
 	}
 }

@@ -45,7 +45,7 @@ namespace FluentFTP.Helpers {
 #endif
 		}
 
-		private static string ValueToString(object v) {
+		internal static string ValueToString(object v) {
 			string txt;
 			if (v == null) {
 				// print null
