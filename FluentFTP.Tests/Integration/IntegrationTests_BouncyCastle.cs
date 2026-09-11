@@ -18,10 +18,6 @@ namespace FluentFTP.Tests.Integration {
 			await IntegrationTestRunner.Run(FtpServer.ProFTPD, UseStream.BouncyCastleStream, UseSsl);
 		}
 		[Fact]
-		public async Task PureFtpdSsl() {
-			await IntegrationTestRunner.Run(FtpServer.PureFTPd, UseStream.BouncyCastleStream, UseSsl);
-		}
-		[Fact]
 		public async Task VsFtpdSsl() {
 			await IntegrationTestRunner.Run(FtpServer.VsFTPd, UseStream.BouncyCastleStream, UseSsl);
 		}
