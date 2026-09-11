@@ -41,7 +41,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 			using var client = await GetConnectedAsyncClient();
 			var filePath = "/no/such/file.txt";
 			var dirPath = "/no/such/dir/";
-			var localDir = Path.Combine(Path.GetTempPath(), "FluentFTP.Tests", "DownloadMissing");
+			var localDir = Path.Combine(AppContext.BaseDirectory, "DownloadMissing");
 
 			// DownloadDirectory should crash with FtpMissingObjectException if the dir does not exist
 			try {
@@ -88,7 +88,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 			using var client = GetConnectedClient();
 			var filePath = "/no/such/file.txt";
 			var dirPath = "/no/such/dir/";
-			var localDir = Path.Combine(Path.GetTempPath(), "FluentFTP.Tests", "DownloadMissing");
+			var localDir = Path.Combine(AppContext.BaseDirectory, "DownloadMissing");
 
 			// DownloadDirectory should crash with FtpMissingObjectException if the dir does not exist
 			try {

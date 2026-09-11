@@ -1,5 +1,8 @@
 name: bouncycastle
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
