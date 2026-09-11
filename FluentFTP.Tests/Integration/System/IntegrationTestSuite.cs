@@ -124,6 +124,8 @@ namespace FluentFTP.Tests.Integration.System {
 			client.Config.LogHost = true;
 			client.Config.LogUserName = true;
 			client.Config.LogPassword = true;
+			// Lets a CI run capture the FTP conversation when a container test fails.
+			client.Config.LogToConsole = string.Equals(Environment.GetEnvironmentVariable("FLUENTFTP_LOG_TO_CONSOLE"), "true", StringComparison.OrdinalIgnoreCase);
 		}
 
 	}

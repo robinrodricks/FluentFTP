@@ -67,6 +67,7 @@ jobs:
         # GitHub sets CI=true, which makes IntegrationTestRunner skip; these tests need Docker and must run here.
         env:
           CI: "false"
+          FLUENTFTP_LOG_TO_CONSOLE: "true"
         run: dotnet test FluentFTP.Tests/FluentFTP.Tests.csproj -c Debug --no-build --filter "FullyQualifiedName~IntegrationTests_BouncyCastle" --logger "trx;LogFileName=bouncycastle-integration.trx" --logger "console;verbosity=normal"
       - uses: actions/upload-artifact@v4
         if: always()
