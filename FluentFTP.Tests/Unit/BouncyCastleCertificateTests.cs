@@ -222,13 +222,7 @@ namespace FluentFTP.Tests.Unit {
 		public async Task HandshakeSendsSniAndReportsValidationErrorsToCallback(
 			string host, string expectedSni, bool expectedNameError, bool checkRevocation, bool acceptErrors) {
 			using var generated = CreateCertificate("unused.test", "ftp.example.test");
-			// Schannel needs a PFX-imported key for server authentication on Windows.
-			// DefaultKeySet creates a temporary key, removed when the certificate is disposed.
-#if NET9_0_OR_GREATER
-			using var certificate = X509CertificateLoader.LoadPkcs12(generated.Export(X509ContentType.Pfx), null);
-#else
-			using var certificate = new X509Certificate2(generated.Export(X509ContentType.Pfx));
-#endif
+			using var certificate = ImportForServerAuthentication(generated);
 			using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(15));
 			using var listener = new TestListener();
 			listener.Start();
@@ -236,22 +230,7 @@ namespace FluentFTP.Tests.Unit {
 			string? errors = null;
 			X509Certificate? validated = null;
 			X509RevocationMode? revocation = null;
-			var server = Task.Run(async () => {
-				using var peer = await listener.AcceptTcpClientAsync(deadline.Token);
-				using var tls = new SslStream(peer.GetStream());
-				try {
-					await tls.AuthenticateAsServerAsync(new SslServerAuthenticationOptions {
-						EnabledSslProtocols = SslProtocols.Tls12,
-						ServerCertificateSelectionCallback = (_, name) => { sni = name; return certificate; },
-					}, deadline.Token);
-					var buffer = new byte[1];
-					await tls.ReadExactlyAsync(buffer, deadline.Token);
-					Assert.Equal(42, buffer[0]);
-				}
-				catch (Exception exception) when (!acceptErrors && (exception is AuthenticationException || exception is IOException)) {
-					// A rejecting client closes the TLS handshake.
-				}
-			});
+			var server = ServeSniHandshake(listener, certificate, acceptErrors, name => sni = name, deadline.Token);
 			using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			socket.ReceiveTimeout = socket.SendTimeout = 10000;
 			await socket.ConnectAsync(listener.LocalEndpoint, deadline.Token);
@@ -266,17 +245,7 @@ namespace FluentFTP.Tests.Unit {
 						return acceptErrors || message.Length == 0;
 					}, true, null!, new BouncyCastleFtpConfig());
 				});
-				if (acceptErrors) {
-					Assert.Null(failure);
-					// The accepted certificate stays usable until the stream is disposed, as with SslStream.
-					Assert.Equal(certificate.GetCertHashString(), validated!.GetCertHashString());
-					stream.GetBaseStream().WriteByte(42);
-				}
-				else {
-					var rejection = Assert.IsType<AuthenticationException>(failure);
-					Assert.Contains("certificate was rejected", rejection.Message);
-					Assert.False(stream.CanWrite());
-				}
+				AssertHandshakeOutcome(stream, failure, acceptErrors, certificate, validated);
 				await server;
 			}
 			// SslStream decodes IDN SNI back to Unicode before invoking its callback.
@@ -322,11 +291,56 @@ namespace FluentFTP.Tests.Unit {
 			return request.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(1));
 		}
 
+		// Schannel needs a PFX-imported key for server authentication on Windows.
+		// DefaultKeySet creates a temporary key, removed when the certificate is disposed.
+		private static X509Certificate2 ImportForServerAuthentication(X509Certificate2 certificate) {
+#if NET9_0_OR_GREATER
+			return X509CertificateLoader.LoadPkcs12(certificate.Export(X509ContentType.Pfx), null);
+#else
+			return new X509Certificate2(certificate.Export(X509ContentType.Pfx));
+#endif
+		}
+
 		private static X509Chain TrustOnly(X509Certificate2 certificate) {
 			var chain = new X509Chain();
 			chain.ChainPolicy.TrustMode = X509ChainTrustMode.CustomRootTrust;
 			chain.ChainPolicy.CustomTrustStore.Add(certificate);
 			return chain;
+		}
+
+		private static Task ServeSniHandshake(TcpListener listener, X509Certificate2 certificate, bool acceptErrors,
+			Action<string?> sniObserved, CancellationToken token) {
+			return Task.Run(async () => {
+				using var peer = await listener.AcceptTcpClientAsync(token);
+				using var tls = new SslStream(peer.GetStream());
+				try {
+					await tls.AuthenticateAsServerAsync(new SslServerAuthenticationOptions {
+						EnabledSslProtocols = SslProtocols.Tls12,
+						ServerCertificateSelectionCallback = (_, name) => { sniObserved(name); return certificate; },
+					}, token);
+					var buffer = new byte[1];
+					await tls.ReadExactlyAsync(buffer, token);
+					Assert.Equal(42, buffer[0]);
+				}
+				catch (Exception exception) when (!acceptErrors && (exception is AuthenticationException || exception is IOException)) {
+					// A rejecting client closes the TLS handshake.
+				}
+			});
+		}
+
+		private static void AssertHandshakeOutcome(BouncyCastleFtpStream stream, Exception? failure, bool acceptErrors,
+			X509Certificate2 expected, X509Certificate? validated) {
+			if (acceptErrors) {
+				Assert.Null(failure);
+				// The accepted certificate stays usable until the stream is disposed, as with SslStream.
+				Assert.Equal(expected.GetCertHashString(), validated!.GetCertHashString());
+				stream.GetBaseStream().WriteByte(42);
+			}
+			else {
+				var rejection = Assert.IsType<AuthenticationException>(failure);
+				Assert.Contains("certificate was rejected", rejection.Message);
+				Assert.False(stream.CanWrite());
+			}
 		}
 
 		private static async Task ServeCrl(TcpListener listener, byte[] body, CancellationToken token) {

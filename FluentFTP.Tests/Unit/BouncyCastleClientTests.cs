@@ -32,12 +32,13 @@ namespace FluentFTP.Tests.Unit {
 			listener.Start();
 			try {
 				var accepts = policy == "pin" || policy == "any";
+				var handlesEvent = policy == "pin" || policy == "reject";
 				var commands = new List<string>();
 				var server = Task.Run(() => ServeLogin(listener, certificate, commands, accepts, deadline.Token));
 				var client = CreateClient(asynchronous, ((IPEndPoint)listener.LocalEndpoint).Port);
 				client.Config.ValidateAnyCertificate = policy == "any";
 				string? errors = null;
-				if (policy == "pin" || policy == "reject") {
+				if (handlesEvent) {
 					client.ValidateCertificate += (_, args) => {
 						errors = args.PolicyErrorMessage;
 						args.Accept = policy == "pin" && certificate.GetCertHashString(HashAlgorithmName.SHA256) ==
@@ -57,7 +58,7 @@ namespace FluentFTP.Tests.Unit {
 					Assert.Contains("certificate was rejected", rejection.Message);
 					Assert.Empty(commands);
 				}
-				if (policy == "pin" || policy == "reject") {
+				if (handlesEvent) {
 					Assert.Contains("does not match", errors!);
 					Assert.Contains("chain", errors!, StringComparison.OrdinalIgnoreCase);
 				}
