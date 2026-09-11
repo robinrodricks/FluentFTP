@@ -45,7 +45,7 @@ regression tests.
 
 ```powershell
 $env:DOTNET_ROLL_FORWARD = 'Major'
-dotnet test FluentFTP.Tests --filter FullyQualifiedName~BouncyCastle
+dotnet test FluentFTP.Tests --filter FullyQualifiedName~Unit.BouncyCastle
 ```
 
 The tests generate disposable certificates, use custom chain trust without

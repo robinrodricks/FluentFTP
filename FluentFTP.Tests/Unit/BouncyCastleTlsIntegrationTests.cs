@@ -79,6 +79,15 @@ namespace FluentFTP.Tests.Unit {
 		}
 
 		[Fact]
+		public async Task ServersLimitedToAes256GcmCanNegotiate() {
+			// vsftpd's default configuration accepts only ECDHE-RSA-AES256-GCM-SHA384.
+			using var fixture = new TlsFixture { CipherSuites = new[] { CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 } };
+			using var stream = new BouncyCastleFtpStream();
+			await fixture.Exchange(stream, null, new BouncyCastleFtpConfig(), (_, _, _, _) => true, true);
+			Assert.Equal("0xC030", stream.GetCipherSuite());
+		}
+
+		[Fact]
 		public async Task RejectedCertificateCannotExposeApplicationStream() {
 			using var fixture = new TlsFixture();
 			using var control = new BouncyCastleFtpStream();
@@ -121,6 +130,10 @@ namespace FluentFTP.Tests.Unit {
 			internal bool Resume { get; set; } = true;
 			internal bool Legacy { get; set; }
 			internal ProtocolVersion Version { get; set; } = ProtocolVersion.TLSv12;
+			internal int[] CipherSuites { get; set; } = {
+				CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+				CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+			};
 			internal bool LastResumed { get; private set; }
 			internal short? LastAlertReceived { get; private set; }
 			internal int CompletedHandshakes { get; private set; }
@@ -220,10 +233,7 @@ namespace FluentFTP.Tests.Unit {
 				private readonly TlsFixture m_fixture;
 				internal TestServer(TlsFixture fixture) : base(new BcTlsCrypto(new SecureRandom())) { m_fixture = fixture; }
 				protected override ProtocolVersion[] GetSupportedVersions() => new[] { m_fixture.Version };
-				protected override int[] GetSupportedCipherSuites() => new[] {
-					CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-					CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
-				};
+				protected override int[] GetSupportedCipherSuites() => m_fixture.CipherSuites;
 				public override bool ShouldUseExtendedMasterSecret() => !m_fixture.Legacy;
 				public override TlsSession? GetSessionToResume(byte[] sessionID) =>
 					m_fixture.Resume && m_fixture.m_session != null && sessionID.SequenceEqual(m_fixture.m_session.SessionID)

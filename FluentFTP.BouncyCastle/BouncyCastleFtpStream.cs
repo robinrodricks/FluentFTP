@@ -241,6 +241,40 @@ namespace FluentFTP.BouncyCastle {
 
 			protected override ProtocolVersion[] GetSupportedVersions() => new[] { ProtocolVersion.TLSv12 };
 
+			// Bouncy Castle's defaults offer AES-128 and ChaCha20 only. vsftpd's default configuration accepts
+			// nothing but ECDHE-RSA-AES256-GCM-SHA384, so offer the same suite families as SslStream does.
+			private static readonly int[] m_offeredCipherSuites = {
+				CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+				CipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+				CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+				CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+				CipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+				CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+				CipherSuite.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384,
+				CipherSuite.TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+				CipherSuite.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256,
+				CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384,
+				CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
+				CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,
+				CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,
+				CipherSuite.TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,
+				CipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,
+				CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+				CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+				CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+				CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+				CipherSuite.TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
+				CipherSuite.TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
+				CipherSuite.TLS_RSA_WITH_AES_256_GCM_SHA384,
+				CipherSuite.TLS_RSA_WITH_AES_128_GCM_SHA256,
+				CipherSuite.TLS_RSA_WITH_AES_256_CBC_SHA256,
+				CipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA256,
+				CipherSuite.TLS_RSA_WITH_AES_256_CBC_SHA,
+				CipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA,
+			};
+
+			protected override int[] GetSupportedCipherSuites() => TlsUtilities.GetSupportedCipherSuites(Crypto, m_offeredCipherSuites);
+
 			protected override IList<ServerName>? GetSniServerNames() => IPAddress.TryParse(m_targetHost, out _)
 				? null
 				: new[] { new ServerName(NameType.host_name, Encoding.ASCII.GetBytes(m_targetHost)) };

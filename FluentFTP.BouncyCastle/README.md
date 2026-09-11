@@ -42,6 +42,11 @@ when no DNS SAN is present; an IP address always requires a matching IP SAN.
 Internationalized hostnames are converted to ASCII for matching and SNI.
 SNI is sent for DNS hosts and omitted for IP addresses.
 
+The adapter offers the AES-256-GCM, AES-128-GCM, ChaCha20-Poly1305 and AES-CBC
+suites with ECDHE, DHE and RSA key exchange, the same families as `SslStream`.
+This matters for vsftpd, whose default configuration accepts nothing but
+`ECDHE-RSA-AES256-GCM-SHA384`, a suite Bouncy Castle's own defaults omit.
+
 `client.Config.ValidateCertificateRevocation` controls online revocation checks
 (off by default, matching FluentFTP). When enabled, unavailable revocation
 information is reported as a validation error, just like a revoked certificate.
@@ -109,7 +114,7 @@ re-tested on that device.
 ```powershell
 # Only needed if the .NET 7 runtime is absent.
 $env:DOTNET_ROLL_FORWARD = 'Major'
-dotnet test FluentFTP.Tests --filter FullyQualifiedName~BouncyCastle
+dotnet test FluentFTP.Tests --filter FullyQualifiedName~Unit.BouncyCastle
 ```
 
 The tests generate their own certificates, use custom chain trust without
