@@ -55,9 +55,21 @@ file transfer tests.
 
 ## Remaining limits
 
+Cipher review date: 2026-09-13. The adapter preserves the original Bouncy Castle
+defaults and adds only ECDHE-RSA-AES256-GCM-SHA384. Loopback tests cover that
+suite's repeated session resumption and reject the removed AES-256 static-RSA
+suites. The original AES-128 static-RSA compatibility remains; this is not a
+policy that guarantees forward secrecy for every accepted connection.
+
+A real X1 Carbon handshake with this policy selected
+ECDHE-RSA-AES256-GCM-SHA384. That probe explicitly accepted certificate errors
+and sent no login or file
+commands. Owner: maintainers. Next action: verify authenticated listing,
+upload/download, and data-session resumption on the printer before release.
+
 - TLS 1.2 only; client certificates are not supported.
 - The handshake is synchronous, and reads and writes do not observe
   cancellation tokens.
-- Hardware compatibility (Bambu Lab X1 Carbon) has not been re-tested since
-  the validation changes.
+- Full hardware compatibility (Bambu Lab X1 Carbon) remains unverified beyond
+  the handshake described above.
 - Linux and concurrent transfers have not been verified.

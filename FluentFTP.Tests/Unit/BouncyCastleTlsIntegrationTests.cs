@@ -85,6 +85,32 @@ namespace FluentFTP.Tests.Unit {
 			using var stream = new BouncyCastleFtpStream();
 			await fixture.Exchange(stream, null, new BouncyCastleFtpConfig(), (_, _, _, _) => true, true);
 			Assert.Equal("0xC030", stream.GetCipherSuite());
+			for (var index = 0; index < 2; index++) {
+				using var data = new BouncyCastleFtpStream();
+				await fixture.Exchange(data, stream, new BouncyCastleFtpConfig(), (_, _, _, _) => true, true);
+				Assert.True(fixture.LastResumed);
+				Assert.Equal("0xC030", data.GetCipherSuite());
+			}
+		}
+
+		[Theory]
+		[InlineData(CipherSuite.TLS_RSA_WITH_AES_128_GCM_SHA256, true)]
+		[InlineData(CipherSuite.TLS_RSA_WITH_AES_128_CBC_SHA, true)]
+		[InlineData(CipherSuite.TLS_RSA_WITH_AES_256_GCM_SHA384, false)]
+		[InlineData(CipherSuite.TLS_RSA_WITH_AES_256_CBC_SHA256, false)]
+		[InlineData(CipherSuite.TLS_RSA_WITH_AES_256_CBC_SHA, false)]
+		public async Task StaticRsaCompatibilityDoesNotExpandBeyondOriginalDefaults(int suite, bool succeeds) {
+			using var fixture = new TlsFixture { CipherSuites = new[] { suite } };
+			using var stream = new BouncyCastleFtpStream();
+			var failure = await fixture.Exchange(stream, null, new BouncyCastleFtpConfig(), (_, _, _, _) => true, succeeds);
+			if (succeeds) {
+				Assert.Equal($"0x{suite:X4}", stream.GetCipherSuite());
+			}
+			else {
+				Assert.IsType<AuthenticationException>(failure);
+				Assert.False(stream.CanWrite());
+				Assert.Equal(0, fixture.CompletedHandshakes);
+			}
 		}
 
 		[Fact]
@@ -245,6 +271,10 @@ namespace FluentFTP.Tests.Unit {
 					m_fixture.CompletedHandshakes++;
 					m_fixture.m_session ??= m_context.ResumableSession;
 				}
+				protected override TlsCredentialedDecryptor GetRsaEncryptionCredentials() => new BcDefaultTlsCredentialedDecryptor(
+					(BcTlsCrypto)Crypto,
+					new Org.BouncyCastle.Tls.Certificate(new[] { Crypto.CreateCertificate(m_fixture.m_certificate.RawData) }),
+					PrivateKeyFactory.CreateKey(m_fixture.m_key.ExportPkcs8PrivateKey()));
 				protected override TlsCredentialedSigner GetRsaSignerCredentials() => new BcDefaultTlsCredentialedSigner(
 					new TlsCryptoParameters(m_context), (BcTlsCrypto)Crypto,
 					PrivateKeyFactory.CreateKey(m_fixture.m_key.ExportPkcs8PrivateKey()),

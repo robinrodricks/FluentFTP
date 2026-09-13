@@ -42,10 +42,10 @@ when no DNS SAN is present; an IP address always requires a matching IP SAN.
 Internationalized hostnames are converted to ASCII for matching and SNI.
 SNI is sent for DNS hosts and omitted for IP addresses.
 
-The adapter offers the AES-256-GCM, AES-128-GCM, ChaCha20-Poly1305 and AES-CBC
-suites with ECDHE, DHE and RSA key exchange, the same families as `SslStream`.
-This matters for vsftpd, whose default configuration accepts nothing but
-`ECDHE-RSA-AES256-GCM-SHA384`, a suite Bouncy Castle's own defaults omit.
+The adapter preserves Bouncy Castle's default cipher suites and adds only
+`ECDHE-RSA-AES256-GCM-SHA384` for vsftpd compatibility. It does not add AES-256
+static-RSA or CBC suites. The original defaults include AES-128 static-RSA
+suites, which remain available for compatibility and lack forward secrecy.
 
 `client.Config.ValidateCertificateRevocation` controls online revocation checks
 (off by default, matching FluentFTP). When enabled, unavailable revocation
@@ -105,9 +105,11 @@ a general fallback.
   socket read timeout (`client.Config.ReadTimeout`) expires.
 - Concurrent data transfers have not yet been verified.
 
-The original adapter was developed against the implicit FTPS server of a Bambu
-Lab X1 Carbon printer. The hardened certificate validation has not been
-re-tested on that device.
+The original adapter was developed against a Bambu Lab X1 Carbon printer.
+On 2026-09-13, the narrowed cipher policy completed a real printer handshake
+using `ECDHE-RSA-AES256-GCM-SHA384`. That probe explicitly accepted certificate
+errors and did not authenticate or transfer files. Current printer listing,
+upload, download, and certificate-policy compatibility remain unverified.
 
 ## Tests
 
