@@ -56,10 +56,17 @@ file transfer tests.
 ## Remaining limits
 
 Cipher review date: 2026-09-13. The adapter preserves the original Bouncy Castle
-defaults and adds only ECDHE-RSA-AES256-GCM-SHA384. Loopback tests cover that
-suite's repeated session resumption and reject the removed AES-256 static-RSA
-suites. The original AES-128 static-RSA compatibility remains; this is not a
-policy that guarantees forward secrecy for every accepted connection.
+defaults, which stop at AES-128, and adds two forward-secret AES-256-GCM suites:
+ECDHE-RSA-AES256-GCM-SHA384 and ECDHE-ECDSA-AES256-GCM-SHA384. Both are a
+compatibility measure for servers restricted to AES-256, not a hardening change.
+Loopback tests negotiate each suite against a server offering only that suite,
+using an RSA or an EC server certificate respectively, and verify repeated data
+connection resumption plus a byte-exact 32769-byte round trip on every handshake.
+Negative tests confirm the addition did not widen further: AES-256 CBC
+(ECDHE-RSA and ECDHE-ECDSA), DHE-RSA-AES256-GCM and the AES-256 static-RSA
+suites are all still refused. The original AES-128 static-RSA compatibility
+remains; this is not a policy that guarantees forward secrecy for every accepted
+connection.
 
 A real X1 Carbon handshake with this policy selected
 ECDHE-RSA-AES256-GCM-SHA384. That probe explicitly accepted certificate errors
@@ -72,10 +79,11 @@ printer before release.
   cancellation tokens.
 - Full hardware compatibility (Bambu Lab X1 Carbon) remains unverified beyond
   the handshake described above.
-- On revision `43629542`, [hosted Windows and Linux runs][hosted-tests] each
-  passed 76 adapter tests; the Linux vsftpd and proftpd integration scenarios
-  also passed.
-  The subsequent cipher change has been tested locally on Windows; its Linux
-  checks still need to run. Concurrent transfers remain unverified.
+- On revision `b85b822e`, [hosted Windows and Linux runs][hosted-tests] each
+  passed 81 adapter unit tests; the Linux vsftpd and proftpd integration
+  scenarios also passed. The same revision was independently re-run under WSL2,
+  where all 83 tests passed including both container scenarios.
+  The AES-256-GCM pair above postdates that run and still needs hosted CI.
+  Concurrent transfers remain unverified.
 
-[hosted-tests]: https://github.com/Wixely/FluentFTP/actions/runs/34587340267
+[hosted-tests]: https://github.com/Wixely/FluentFTP/actions/runs/34735211325

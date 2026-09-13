@@ -241,9 +241,17 @@ namespace FluentFTP.BouncyCastle {
 
 			protected override ProtocolVersion[] GetSupportedVersions() => new[] { ProtocolVersion.TLSv12 };
 
-			// Preserve the original adapter's cipher compatibility and add only the suite needed by vsftpd.
+			// Bouncy Castle's defaults stop at AES-128, so a server restricted to AES-256 cannot negotiate.
+			// Add only the two AES-256-GCM suites that keep forward secrecy, one per certificate key type:
+			// ECDSA for servers with an EC certificate, RSA for the rest (vsftpd's default accepts only the latter).
+			// Deliberately omits AES-256 CBC and static-RSA suites, which the original adapter also lacked.
+			private static readonly int[] m_addedCipherSuites = {
+				CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+				CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			};
+
 			protected override int[] GetSupportedCipherSuites() => TlsUtilities.GetSupportedCipherSuites(Crypto,
-				new[] { CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 }.Concat(base.GetSupportedCipherSuites()).ToArray());
+				m_addedCipherSuites.Concat(base.GetSupportedCipherSuites()).ToArray());
 
 			protected override IList<ServerName>? GetSniServerNames() => IPAddress.TryParse(m_targetHost, out _)
 				? null

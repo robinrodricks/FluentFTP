@@ -42,10 +42,18 @@ when no DNS SAN is present; an IP address always requires a matching IP SAN.
 Internationalized hostnames are converted to ASCII for matching and SNI.
 SNI is sent for DNS hosts and omitted for IP addresses.
 
-The adapter preserves Bouncy Castle's default cipher suites and adds only
-`ECDHE-RSA-AES256-GCM-SHA384` for vsftpd compatibility. It does not add AES-256
-static-RSA or CBC suites. The original defaults include AES-128 static-RSA
-suites, which remain available for compatibility and lack forward secrecy.
+The adapter preserves Bouncy Castle's default cipher suites, whose AES support
+stops at AES-128, and adds the two forward-secret AES-256-GCM suites needed to
+reach servers restricted to AES-256 — `ECDHE-RSA-AES256-GCM-SHA384` (the only
+suite vsftpd's default configuration accepts) and its ECDSA-certificate
+counterpart `ECDHE-ECDSA-AES256-GCM-SHA384`. It adds no AES-256 CBC or static-RSA
+suites. The original defaults include AES-128 static-RSA suites, which remain
+available for compatibility and lack forward secrecy.
+
+This is a compatibility measure, not a hardening one. Whether the stock
+`SslStream` path would reach the same servers depends on the platform TLS stack
+and its configured cipher policy, which an administrator can change, so it is
+not a fixed comparison.
 
 `client.Config.ValidateCertificateRevocation` controls online revocation checks
 (off by default, matching FluentFTP). When enabled, unavailable revocation

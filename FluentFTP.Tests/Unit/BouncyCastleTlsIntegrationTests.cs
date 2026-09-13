@@ -78,19 +78,38 @@ namespace FluentFTP.Tests.Unit {
 			Assert.Equal(0, fixture.CompletedHandshakes);
 		}
 
-		[Fact]
-		public async Task ServersLimitedToAes256GcmCanNegotiate() {
-			// vsftpd's default configuration accepts only ECDHE-RSA-AES256-GCM-SHA384.
-			using var fixture = new TlsFixture { CipherSuites = new[] { CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 } };
+		// 0xC030 is the suite vsftpd's default configuration accepts; 0xC02C is its ECDSA-certificate
+		// counterpart. Exchange() verifies a byte-exact 32769-byte round trip on every handshake.
+		[Theory]
+		[InlineData(CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, "0xC030")]
+		[InlineData(CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, "0xC02C")]
+		public async Task ServersLimitedToAes256GcmCanNegotiate(int suite, string expected) {
+			using var fixture = new TlsFixture { CipherSuites = new[] { suite } };
 			using var stream = new BouncyCastleFtpStream();
 			await fixture.Exchange(stream, null, new BouncyCastleFtpConfig(), (_, _, _, _) => true, true);
-			Assert.Equal("0xC030", stream.GetCipherSuite());
+			Assert.Equal(SslProtocols.Tls12, stream.GetSslProtocol());
+			Assert.Equal(expected, stream.GetCipherSuite());
 			for (var index = 0; index < 2; index++) {
 				using var data = new BouncyCastleFtpStream();
 				await fixture.Exchange(data, stream, new BouncyCastleFtpConfig(), (_, _, _, _) => true, true);
 				Assert.True(fixture.LastResumed);
-				Assert.Equal("0xC030", data.GetCipherSuite());
+				Assert.Equal(expected, data.GetCipherSuite());
 			}
+			Assert.Equal(3, fixture.CompletedHandshakes);
+		}
+
+		// The AES-256 addition is deliberately limited to the two GCM suites above.
+		[Theory]
+		[InlineData(CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384)]
+		[InlineData(CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384)]
+		[InlineData(CipherSuite.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384)]
+		public async Task Aes256SuitesBeyondTheAddedGcmPairRemainUnoffered(int suite) {
+			using var fixture = new TlsFixture { CipherSuites = new[] { suite } };
+			using var stream = new BouncyCastleFtpStream();
+			var failure = await fixture.Exchange(stream, null, new BouncyCastleFtpConfig(), (_, _, _, _) => true, false);
+			Assert.IsType<AuthenticationException>(failure);
+			Assert.False(stream.CanWrite());
+			Assert.Equal(0, fixture.CompletedHandshakes);
 		}
 
 		[Theory]
@@ -150,7 +169,9 @@ namespace FluentFTP.Tests.Unit {
 
 		private sealed class TlsFixture : IDisposable {
 			private readonly RSA m_key = RSA.Create(2048);
+			private readonly ECDsa m_ecdsaKey = ECDsa.Create(ECCurve.NamedCurves.nistP256);
 			private readonly X509Certificate2 m_certificate;
+			private readonly X509Certificate2 m_ecdsaCertificate;
 			private readonly CancellationTokenSource m_deadline = new CancellationTokenSource(TimeSpan.FromSeconds(30));
 			private TlsSession? m_session;
 			internal bool Resume { get; set; } = true;
@@ -165,11 +186,17 @@ namespace FluentFTP.Tests.Unit {
 			internal int CompletedHandshakes { get; private set; }
 
 			internal TlsFixture() {
-				var request = new CertificateRequest("CN=ftp.example.test", m_key, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
 				var san = new SubjectAlternativeNameBuilder();
 				san.AddDnsName("ftp.example.test");
+				var request = new CertificateRequest("CN=ftp.example.test", m_key, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
 				request.CertificateExtensions.Add(san.Build());
 				m_certificate = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(1));
+
+				// A second certificate so ECDHE_ECDSA suites can be negotiated; Bouncy Castle picks
+				// between the two by the negotiated key exchange, as a real dual-certificate server does.
+				var ecdsaRequest = new CertificateRequest("CN=ftp.example.test", m_ecdsaKey, HashAlgorithmName.SHA256);
+				ecdsaRequest.CertificateExtensions.Add(san.Build());
+				m_ecdsaCertificate = ecdsaRequest.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(1));
 			}
 
 			internal async Task<Exception?> Exchange(BouncyCastleFtpStream stream, BouncyCastleFtpStream? control,
@@ -253,6 +280,8 @@ namespace FluentFTP.Tests.Unit {
 				m_session?.Invalidate();
 				m_certificate.Dispose();
 				m_key.Dispose();
+				m_ecdsaCertificate.Dispose();
+				m_ecdsaKey.Dispose();
 			}
 
 			private sealed class TestServer : DefaultTlsServer {
@@ -280,6 +309,11 @@ namespace FluentFTP.Tests.Unit {
 					PrivateKeyFactory.CreateKey(m_fixture.m_key.ExportPkcs8PrivateKey()),
 					new Org.BouncyCastle.Tls.Certificate(new[] { Crypto.CreateCertificate(m_fixture.m_certificate.RawData) }),
 					new SignatureAndHashAlgorithm(Org.BouncyCastle.Tls.HashAlgorithm.sha256, SignatureAlgorithm.rsa));
+				protected override TlsCredentialedSigner GetECDsaSignerCredentials() => new BcDefaultTlsCredentialedSigner(
+					new TlsCryptoParameters(m_context), (BcTlsCrypto)Crypto,
+					PrivateKeyFactory.CreateKey(m_fixture.m_ecdsaKey.ExportPkcs8PrivateKey()),
+					new Org.BouncyCastle.Tls.Certificate(new[] { Crypto.CreateCertificate(m_fixture.m_ecdsaCertificate.RawData) }),
+					new SignatureAndHashAlgorithm(Org.BouncyCastle.Tls.HashAlgorithm.sha256, SignatureAlgorithm.ecdsa));
 			}
 		}
 	}
