@@ -46,9 +46,9 @@ The adapter preserves Bouncy Castle's default cipher suites, whose AES support
 stops at AES-128, and adds the two forward-secret AES-256-GCM suites needed to
 reach servers restricted to AES-256 — `ECDHE-RSA-AES256-GCM-SHA384` (the only
 suite vsftpd's default configuration accepts) and its ECDSA-certificate
-counterpart `ECDHE-ECDSA-AES256-GCM-SHA384`. It adds no AES-256 CBC or static-RSA
-suites. The original defaults include AES-128 static-RSA suites, which remain
-available for compatibility and lack forward secrecy.
+counterpart `ECDHE-ECDSA-AES256-GCM-SHA384`. It adds no AES-256 CBC or
+static-RSA suites. The original defaults include AES-128 static-RSA suites,
+which remain available for compatibility and lack forward secrecy.
 
 This is a compatibility measure, not a hardening one. Whether the stock
 `SslStream` path would reach the same servers depends on the platform TLS stack
@@ -114,10 +114,13 @@ a general fallback.
 - Concurrent data transfers have not yet been verified.
 
 The original adapter was developed against a Bambu Lab X1 Carbon printer.
-On 2026-09-13, the narrowed cipher policy completed a real printer handshake
-using `ECDHE-RSA-AES256-GCM-SHA384`. That probe explicitly accepted certificate
-errors and did not authenticate or transfer files. Current printer listing,
-upload, download, and certificate-policy compatibility remain unverified.
+On 2026-09-13, revision `b85b822e` passed real printer listing, upload, and
+download tests with both sync and async clients on Windows/.NET 8. Each client
+uploaded 32,769 bytes, downloaded them twice with an exact byte match, resumed
+five TLS data connections, and deleted its test file. Both negotiated
+`ECDHE-RSA-AES256-GCM-SHA384`. The tests used `ValidateAnyCertificate = true`
+and `AllowLegacyResumption = true`, matching the existing printer connection
+settings; they do not establish acceptance under the default certificate policy.
 
 ## Tests
 

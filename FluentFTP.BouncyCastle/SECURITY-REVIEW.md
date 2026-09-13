@@ -61,28 +61,36 @@ ECDHE-RSA-AES256-GCM-SHA384 and ECDHE-ECDSA-AES256-GCM-SHA384. Both are a
 compatibility measure for servers restricted to AES-256, not a hardening change.
 Loopback tests negotiate each suite against a server offering only that suite,
 using an RSA or an EC server certificate respectively, and verify repeated data
-connection resumption plus a byte-exact 32769-byte round trip on every handshake.
+connection resumption plus an exact 32769-byte round trip on every handshake.
 Negative tests confirm the addition did not widen further: AES-256 CBC
 (ECDHE-RSA and ECDHE-ECDSA), DHE-RSA-AES256-GCM and the AES-256 static-RSA
 suites are all still refused. The original AES-128 static-RSA compatibility
 remains; this is not a policy that guarantees forward secrecy for every accepted
 connection.
 
-A real X1 Carbon handshake with this policy selected
-ECDHE-RSA-AES256-GCM-SHA384. That probe explicitly accepted certificate errors
-and sent no login or file commands. Owner: maintainers. Next action: verify
-authenticated listing, upload/download, and data-session resumption on the
-printer before release.
+On 2026-09-13, revision `b85b822e` passed authenticated X1 Carbon tests with
+both FtpClient and AsyncFtpClient, using the local FluentFTP 54.2.1 core on
+Windows/.NET 8.0.25. Each client listed files, uploaded 32,769 bytes, downloaded
+them twice with exact byte equality, and verified deletion of its test file.
+Each recorded five resumed data connections; both negotiated
+ECDHE-RSA-AES256-GCM-SHA384. Tests used `ValidateAnyCertificate = true` and
+`AllowLegacyResumption = true`, matching the existing connection settings.
+They verify interoperability with those overrides, not default-policy trust
+or server identity protection. Credentials and printer identifiers are not
+included in this report.
 
 - TLS 1.2 only; client certificates are not supported.
 - The handshake is synchronous, and reads and writes do not observe
   cancellation tokens.
-- Full hardware compatibility (Bambu Lab X1 Carbon) remains unverified beyond
-  the handshake described above.
+- Hardware evidence is limited to the X1 Carbon operations and settings above.
+  Other printers and concurrent transfers remain unverified. The physical
+  printer tests ran on Windows only.
 - On revision `53bca793`, which includes the AES-256-GCM pair above,
   [hosted Windows and Linux runs][hosted-tests] each passed 85 adapter unit
   tests, and the Linux vsftpd and proftpd integration scenarios both passed.
   The preceding revision `b85b822e` was also reproduced independently under
-  WSL2. Concurrent transfers remain unverified.
+  WSL2.
+- Owner: maintainers. Next action: review these results before release and
+  repeat hardware checks after changes to the adapter or printer firmware.
 
 [hosted-tests]: https://github.com/Wixely/FluentFTP/actions/runs/34737182942
