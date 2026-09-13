@@ -73,7 +73,7 @@ namespace FluentFTP.Tests.Unit {
 			var failure = await fixture.Exchange(stream, null, new BouncyCastleFtpConfig(), (_, _, _, _) => true, false);
 			var rejection = Assert.IsType<AuthenticationException>(failure);
 			Assert.Contains("protocol_version", rejection.ToString());
-			Assert.IsAssignableFrom<TlsException>(rejection.InnerException);
+			Assert.IsType<TlsException>(rejection.InnerException, exactMatch: false);
 			Assert.False(stream.CanWrite());
 			Assert.Equal(0, fixture.CompletedHandshakes);
 		}

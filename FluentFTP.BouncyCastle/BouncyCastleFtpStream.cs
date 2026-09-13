@@ -309,16 +309,15 @@ namespace FluentFTP.BouncyCastle {
 			}
 
 			private bool Validate(X509Certificate2[] certificates) {
-				using (var chain = new X509Chain()) {
-					for (var index = 1; index < certificates.Length; index++) {
-						chain.ChainPolicy.ExtraStore.Add(certificates[index]);
-					}
-
-					var errorMessage = ServerCertificateValidation.Validate(
-						certificates[0], chain, m_targetHost, m_checkRevocation);
-
-					return m_certificateValidation(m_certificateValidationSender, certificates[0], chain, errorMessage);
+				using var chain = new X509Chain();
+				for (var index = 1; index < certificates.Length; index++) {
+					chain.ChainPolicy.ExtraStore.Add(certificates[index]);
 				}
+
+				var errorMessage = ServerCertificateValidation.Validate(
+					certificates[0], chain, m_targetHost, m_checkRevocation);
+
+				return m_certificateValidation(m_certificateValidationSender, certificates[0], chain, errorMessage);
 			}
 
 			// A TlsFatalAlert makes Bouncy Castle send bad_certificate to the server instead of internal_error.

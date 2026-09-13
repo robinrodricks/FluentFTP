@@ -36,7 +36,7 @@ namespace FluentFTP.Tests.Integration.System {
 
 			}
 			catch (Exception ex) {
-				Assert.Fail($"Integration test failed : " + ex.ToString());
+				Assert.Fail("Integration test failed : " + ex);
 			}
 
 			if (useStream == UseStream.BouncyCastleStream && useSsl) {

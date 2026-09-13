@@ -325,7 +325,7 @@ namespace FluentFTP.Tests.Unit {
 				catch (Exception exception) when (!acceptErrors && (exception is AuthenticationException || exception is IOException)) {
 					// A rejecting client closes the TLS handshake.
 				}
-			});
+			}, token);
 		}
 
 		private static void AssertHandshakeOutcome(BouncyCastleFtpStream stream, Exception? failure, bool acceptErrors,

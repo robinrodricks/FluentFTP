@@ -63,13 +63,19 @@ policy that guarantees forward secrecy for every accepted connection.
 
 A real X1 Carbon handshake with this policy selected
 ECDHE-RSA-AES256-GCM-SHA384. That probe explicitly accepted certificate errors
-and sent no login or file
-commands. Owner: maintainers. Next action: verify authenticated listing,
-upload/download, and data-session resumption on the printer before release.
+and sent no login or file commands. Owner: maintainers. Next action: verify
+authenticated listing, upload/download, and data-session resumption on the
+printer before release.
 
 - TLS 1.2 only; client certificates are not supported.
 - The handshake is synchronous, and reads and writes do not observe
   cancellation tokens.
 - Full hardware compatibility (Bambu Lab X1 Carbon) remains unverified beyond
   the handshake described above.
-- Linux and concurrent transfers have not been verified.
+- On revision `43629542`, [hosted Windows and Linux runs][hosted-tests] each
+  passed 76 adapter tests; the Linux vsftpd and proftpd integration scenarios
+  also passed.
+  The subsequent cipher change has been tested locally on Windows; its Linux
+  checks still need to run. Concurrent transfers remain unverified.
+
+[hosted-tests]: https://github.com/Wixely/FluentFTP/actions/runs/34587340267

@@ -236,7 +236,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 			await using (var src = await client.OpenRead(path)) {
 				var readCount = 0;
 				while (readBuffer.Length > 0 && (readCount = await src.ReadAsync(readBuffer)) > 0) {
-					readBuffer = readBuffer.Slice(readCount);
+					readBuffer = readBuffer[readCount..];
 				}
 			}
 
@@ -264,7 +264,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 			using (var src = client.OpenRead(path)) {
 				var readCount = 0;
 				while (readBuffer.Length > 0 && (readCount = src.Read(readBuffer)) > 0) {
-					readBuffer = readBuffer.Slice(readCount);
+					readBuffer = readBuffer[readCount..];
 				}
 			}
 
