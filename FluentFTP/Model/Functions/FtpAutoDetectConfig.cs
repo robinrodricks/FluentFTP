@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Text;
+using FluentFTP.Helpers;
 using SysSslProtocols = System.Security.Authentication.SslProtocols;
 
 namespace FluentFTP.Model.Functions {
@@ -43,5 +45,28 @@ namespace FluentFTP.Model.Functions {
 			// Do not EVER use "Default". It boils down to "SSL or TLS1.0" or worse.
 			// Do not use "None" - it can connect to TLS13, but Session Resume won't work, so a successful AutoDetect will be a false truth.
 		};
+
+		public override string ToString() {
+			var sb = new StringBuilder();
+			sb.Append(nameof(CloneConnection)).Append(" = ").Append(ValuePrinter.ValueToString(CloneConnection));
+			sb.Append(", ").Append(nameof(FirstOnly)).Append(" = ").Append(ValuePrinter.ValueToString(FirstOnly));
+			sb.Append(", ").Append(nameof(IncludeImplicit)).Append(" = ").Append(ValuePrinter.ValueToString(IncludeImplicit));
+			sb.Append(", ").Append(nameof(AbortOnTimeout)).Append(" = ").Append(ValuePrinter.ValueToString(AbortOnTimeout));
+			sb.Append(", ").Append(nameof(RequireEncryption)).Append(" = ").Append(ValuePrinter.ValueToString(RequireEncryption));
+			sb.Append(", ").Append(nameof(ProtocolPriority)).Append(" = [");
+			if (ProtocolPriority == null) {
+				sb.Append("null");
+			}
+			else {
+				for (int i = 0; i < ProtocolPriority.Count; i++) {
+					if (i > 0) {
+						sb.Append(", ");
+					}
+					sb.Append(ValuePrinter.ValueToString(ProtocolPriority[i]));
+				}
+			}
+			sb.Append(']');
+			return sb.ToString();
+		}
 	}
 }

@@ -1,5 +1,4 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -16,6 +15,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentFTP.Logging", "FluentFTP.Logging\FluentFTP.Logging.csproj", "{611163CE-C9A0-45A6-9090-F7068AEF8D6B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FluentFTP.BouncyCastle", "FluentFTP.BouncyCastle\FluentFTP.BouncyCastle.csproj", "{D831F003-8453-42A1-960E-4E3D00DFD3A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentFTP.AotExample", "FluentFTP.AotExample\FluentFTP.AotExample.csproj", "{6F4F2FE1-BCB7-4FC8-858B-6A9BAF15ED92}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Powershell", "Powershell", "{CB5F08AF-DB8A-4340-9D82-F3ADB75D7084}"
 	ProjectSection(SolutionItems) = preProject
@@ -86,6 +87,14 @@ Global
 		{D831F003-8453-42A1-960E-4E3D00DFD3A6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D831F003-8453-42A1-960E-4E3D00DFD3A6}.Release|x64.ActiveCfg = Release|Any CPU
 		{D831F003-8453-42A1-960E-4E3D00DFD3A6}.Release|x64.Build.0 = Release|Any CPU
+		{6F4F2FE1-BCB7-4FC8-858B-6A9BAF15ED92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F4F2FE1-BCB7-4FC8-858B-6A9BAF15ED92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F4F2FE1-BCB7-4FC8-858B-6A9BAF15ED92}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6F4F2FE1-BCB7-4FC8-858B-6A9BAF15ED92}.Debug|x64.Build.0 = Debug|Any CPU
+		{6F4F2FE1-BCB7-4FC8-858B-6A9BAF15ED92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F4F2FE1-BCB7-4FC8-858B-6A9BAF15ED92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F4F2FE1-BCB7-4FC8-858B-6A9BAF15ED92}.Release|x64.ActiveCfg = Release|Any CPU
+		{6F4F2FE1-BCB7-4FC8-858B-6A9BAF15ED92}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

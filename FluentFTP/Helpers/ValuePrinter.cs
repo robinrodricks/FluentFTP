@@ -11,8 +11,19 @@ namespace FluentFTP.Helpers {
 				return "null";
 			}
 
+#if NET5_0_OR_GREATER
+			// AOT-safe fallback for modern .NET.
+			// Relies on classes overriding ToString() (like FtpAutoDetectConfig)
+			// instead of using reflection to read properties dynamically.
+			return obj.ToString();
+#else
 			var type = obj.GetType();
 			var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+			if (properties.Length == 0) {
+				return obj.ToString();
+			}
+
 			var lastProp = properties[properties.Length - 1];
 
 			// print list
@@ -31,9 +42,10 @@ namespace FluentFTP.Helpers {
 			}
 
 			return result.ToString();
+#endif
 		}
 
-		private static string ValueToString(object v) {
+		internal static string ValueToString(object v) {
 			string txt;
 			if (v == null) {
 				// print null

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 
 using FluentFTP.Helpers;
@@ -26,7 +25,7 @@ namespace FluentFTP.Client.BaseClient {
 		/// </summary>
 		protected void LogVersion() {
 			if (AnyLoggingIsEnabled()) {
-				string applicationVersion = Assembly.GetAssembly(MethodBase.GetCurrentMethod().DeclaringType).GetName().Version.ToString();
+				string applicationVersion = typeof(BaseFtpClient).Assembly.GetName().Version.ToString();
 				string target;
 
 #if NET20
