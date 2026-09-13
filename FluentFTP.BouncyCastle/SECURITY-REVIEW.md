@@ -79,11 +79,10 @@ printer before release.
   cancellation tokens.
 - Full hardware compatibility (Bambu Lab X1 Carbon) remains unverified beyond
   the handshake described above.
-- On revision `b85b822e`, [hosted Windows and Linux runs][hosted-tests] each
-  passed 81 adapter unit tests; the Linux vsftpd and proftpd integration
-  scenarios also passed. The same revision was independently re-run under WSL2,
-  where all 83 tests passed including both container scenarios.
-  The AES-256-GCM pair above postdates that run and still needs hosted CI.
-  Concurrent transfers remain unverified.
+- On revision `53bca793`, which includes the AES-256-GCM pair above,
+  [hosted Windows and Linux runs][hosted-tests] each passed 85 adapter unit
+  tests, and the Linux vsftpd and proftpd integration scenarios both passed.
+  The preceding revision `b85b822e` was also reproduced independently under
+  WSL2. Concurrent transfers remain unverified.
 
-[hosted-tests]: https://github.com/Wixely/FluentFTP/actions/runs/34735211325
+[hosted-tests]: https://github.com/Wixely/FluentFTP/actions/runs/34737182942
