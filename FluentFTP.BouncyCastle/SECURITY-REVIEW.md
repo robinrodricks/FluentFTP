@@ -53,6 +53,18 @@ altering the operating system's roots, and run loopback TLS, FTPS and CRL
 servers. They exercise TLS streams and FluentFTP login; they are not end-to-end
 file transfer tests.
 
+On 2026-09-13, revision `e29848dc` also passed all 85 adapter tests against the
+minimum FluentFTP 48.0.3 NuGet package on both Windows/.NET 8.0.25 and .NET
+10.0.8, with zero failures or skips. The existing local compatibility harness
+references the adapter project and links the adapter tests, but references
+FluentFTP as a package rather than the in-repository core project. Its net8.0
+run uses the net8.0 adapter; its net10.0 run uses the net9.0 adapter.
+The resolved dependency and copied FluentFTP DLL were checked against the
+48.0.3 package, including SHA-256 equality. Results remain in the local review
+artifacts; this harness is not part of hosted CI. This verifies loopback
+compatibility at the dependency minimum, not physical printer transfers with
+that core version.
+
 ## Remaining limits
 
 Cipher review date: 2026-09-13. The adapter preserves the original Bouncy Castle
