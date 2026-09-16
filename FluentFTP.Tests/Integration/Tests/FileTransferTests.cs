@@ -41,11 +41,10 @@ namespace FluentFTP.Tests.Integration.Tests {
 			using var client = await GetConnectedAsyncClient();
 			var filePath = "/no/such/file.txt";
 			var dirPath = "/no/such/dir/";
-			var localDir = Path.Combine(AppContext.BaseDirectory, "DownloadMissing");
 
 			// DownloadDirectory should crash with FtpMissingObjectException if the dir does not exist
 			try {
-				await client.DownloadDirectory(localDir, dirPath);
+				await client.DownloadDirectory("/DownloadMissingAsync/", dirPath);
 			}
 			catch (Exception ex) {
 				Assert.IsType<FtpMissingObjectException>(ex);
@@ -53,7 +52,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 
 			// DownloadFile should crash with FtpMissingObjectException if the file does not exist
 			try {
-				await client.DownloadFile(Path.Combine(localDir, "myfile.txt"), filePath);
+				await client.DownloadFile("/DownloadMissingAsync/myfile.txt", filePath);
 			}
 			catch (Exception ex) {
 				Assert.IsType<FtpMissingObjectException>(ex);
@@ -77,7 +76,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 			}
 
 			// DownloadFiles should not crash, but should return the FtpMissingObjectException inside the first result's Exception property
-			var result = await client.DownloadFiles(localDir, new List<string> { filePath });
+			var result = await client.DownloadFiles("/DownloadMissingAsync/", new List<string> { filePath });
 			Assert.True(result[0].IsFailed);
 			Assert.IsType<FtpMissingObjectException>(result[0].Exception);
 
@@ -88,11 +87,10 @@ namespace FluentFTP.Tests.Integration.Tests {
 			using var client = GetConnectedClient();
 			var filePath = "/no/such/file.txt";
 			var dirPath = "/no/such/dir/";
-			var localDir = Path.Combine(AppContext.BaseDirectory, "DownloadMissing");
 
 			// DownloadDirectory should crash with FtpMissingObjectException if the dir does not exist
 			try {
-				client.DownloadDirectory(localDir, dirPath);
+				client.DownloadDirectory("/DownloadMissingAsync/", dirPath);
 			}
 			catch (Exception ex) {
 				Assert.IsType<FtpMissingObjectException>(ex);
@@ -100,7 +98,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 
 			// DownloadFile should crash with FtpMissingObjectException if the file does not exist
 			try {
-				client.DownloadFile(Path.Combine(localDir, "myfile.txt"), filePath);
+				client.DownloadFile("/DownloadMissingAsync/myfile.txt", filePath);
 			}
 			catch (Exception ex) {
 				Assert.IsType<FtpMissingObjectException>(ex);
@@ -124,7 +122,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 			}
 
 			// DownloadFiles should not crash, but should return the FtpMissingObjectException inside the first result's Exception property
-			var result = client.DownloadFiles(localDir, new List<string> { filePath });
+			var result = client.DownloadFiles("/DownloadMissingAsync/", new List<string> { filePath });
 			Assert.True(result[0].IsFailed);
 			Assert.IsType<FtpMissingObjectException>(result[0].Exception);
 
@@ -236,7 +234,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 			await using (var src = await client.OpenRead(path)) {
 				var readCount = 0;
 				while (readBuffer.Length > 0 && (readCount = await src.ReadAsync(readBuffer)) > 0) {
-					readBuffer = readBuffer[readCount..];
+					readBuffer = readBuffer.Slice(readCount);
 				}
 			}
 
@@ -264,7 +262,7 @@ namespace FluentFTP.Tests.Integration.Tests {
 			using (var src = client.OpenRead(path)) {
 				var readCount = 0;
 				while (readBuffer.Length > 0 && (readCount = src.Read(readBuffer)) > 0) {
-					readBuffer = readBuffer[readCount..];
+					readBuffer = readBuffer.Slice(readCount);
 				}
 			}
 

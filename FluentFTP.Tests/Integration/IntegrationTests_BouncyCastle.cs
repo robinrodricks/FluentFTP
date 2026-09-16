@@ -9,9 +9,10 @@ namespace FluentFTP.Tests.Integration {
 
 		private const bool UseSsl = true;
 
-		// Bouncy Castle: FTPS with TLS session reuse on the data connections, connecting by the
-		// DNS name "localhost" so the certificate's identity is validated against the host name.
-		// vsftpd and proftpd refuse data connections that do not resume the control session.
+		// Bouncy Castle: FTPS with TLS session reuse on the data connections. vsftpd and proftpd
+		// refuse data connections that do not resume the control session, so they exercise it.
+		// The docker servers use self-signed certificates, so these tests accept any certificate
+		// like the other streams do; certificate and host name checks are covered by the unit tests.
 
 		[Fact]
 		public async Task ProFtpdSsl() {

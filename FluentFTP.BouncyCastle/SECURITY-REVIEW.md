@@ -89,7 +89,13 @@ included in this report.
   [hosted Windows and Linux runs][hosted-tests] each passed 85 adapter unit
   tests, and the Linux vsftpd and proftpd integration scenarios both passed.
   The preceding revision `b85b822e` was also reproduced independently under
-  WSL2.
+  WSL2. Those runs used a GitHub Actions workflow and test-server
+  certificates carrying a `localhost` SAN, neither of which is part of this
+  change; reproducing them needs both restored.
+- The vsftpd and proftpd container tests set `ValidateAnyCertificate`, as the
+  other streams' container tests do, so they cover session resumption and
+  transfers rather than trust or host name checking. Certificate and host
+  name behaviour is covered by the unit tests instead.
 - Owner: maintainers. Next action: review these results before release and
   repeat hardware checks after changes to the adapter or printer firmware.
 

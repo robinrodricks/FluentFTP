@@ -44,7 +44,6 @@ RUN	sed -i -e "s/\r//" /etc/vsftpd.conf && \
 	openssl req -x509 -newkey rsa:4096 \
 		-keyout /etc/ssl/private/vsftpd.key -out /etc/ssl/certs/vsftpd.crt \
 		-subj "/C=US/ST=State/L=/O=Dev/CN=fluentftp" \
-		-addext "subjectAltName=DNS:localhost,DNS:fluentftp" \
 		-nodes -days 3650 && \
 	\
 	chmod 0600 /etc/ssl/private/vsftpd.key && \
