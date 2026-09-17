@@ -8,23 +8,27 @@
 		<PackageProjectUrl>https://github.com/robinrodricks/FluentFTP</PackageProjectUrl>
 		<Copyright>Copyright (c) 2026 Robin Rodricks and FluentFTP Contributors</Copyright>
 		<PackageTags>ftp,ftp-client,ftps,ftps-client,bouncycastle,ssl,tls,session-resumption</PackageTags>
+		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\FluentFTP.BouncyCastle.xml</DocumentationFile>
+		<SignAssembly>True</SignAssembly>
+		<AssemblyOriginatorKeyFile>sn.snk</AssemblyOriginatorKeyFile>
+		<Version>1.0.0</Version>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>logo-nuget.png</PackageIcon>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<RepositoryUrl>https://github.com/robinrodricks/FluentFTP</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<Version>1.0.0</Version>
 		<LangVersion>10.0</LangVersion>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
-		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<!-- Kept in step with the core FluentFTP project so the whole solution builds with the same SDK. -->
-		<TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
 		<Platforms>AnyCPU;x64</Platforms>
+		<PackageReadmeFile></PackageReadmeFile>
+		<RepositoryUrl>https://github.com/robinrodricks/FluentFTP</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<!-- An older FluentFTP release that already exposes the custom stream API (available since 45.0.0), so the package stays usable with existing applications. -->
+		<!-- An older FluentFTP release that supports the custom stream API (available since 45.0.0), so the package stays usable with existing applications. -->
 		<PackageReference Include="FluentFTP" Version="48.0.3" />
 		<PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0" />
 	</ItemGroup>
@@ -32,7 +36,11 @@
 	<ItemGroup>
 		<None Include="..\.github\logo-nuget.png" Pack="true" PackagePath="\" />
 		<None Include="..\LICENSE.TXT" Pack="true" PackagePath="\" />
-		<None Include="README.md" Pack="true" PackagePath="\" />
+		<None Include="..\README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
+
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	</PropertyGroup>
 
 </Project>

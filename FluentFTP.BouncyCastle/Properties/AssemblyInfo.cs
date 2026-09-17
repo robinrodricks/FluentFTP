@@ -1,3 +1,3 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("FluentFTP.Tests")]
+//[assembly: InternalsVisibleTo("FluentFTP.Tests")]

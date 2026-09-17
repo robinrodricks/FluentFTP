@@ -8,12 +8,12 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 namespace FluentFTP.BouncyCastle {
-	internal static class ServerCertificateValidation {
+	public static class ServerCertificateValidation {
 		private const string ServerAuthenticationOid = "1.3.6.1.5.5.7.3.1";
 		private const string SubjectAlternativeNameOid = "2.5.29.17";
 		private const string CommonNameOid = "2.5.4.3";
 
-		internal static string NormalizeHost(string host) {
+		public static string NormalizeHost(string host) {
 			if (string.IsNullOrWhiteSpace(host)) {
 				throw new ArgumentException("A TLS target host is required.", nameof(host));
 			}
@@ -27,7 +27,7 @@ namespace FluentFTP.BouncyCastle {
 			return dns;
 		}
 
-		internal static string Validate(X509Certificate2 certificate, X509Chain chain, string host, bool checkRevocation) {
+		public static string Validate(X509Certificate2 certificate, X509Chain chain, string host, bool checkRevocation) {
 			chain.ChainPolicy.RevocationMode = checkRevocation ? X509RevocationMode.Online : X509RevocationMode.NoCheck;
 			chain.ChainPolicy.RevocationFlag = X509RevocationFlag.ExcludeRoot;
 			chain.ChainPolicy.UrlRetrievalTimeout = TimeSpan.FromSeconds(10);
@@ -45,7 +45,7 @@ namespace FluentFTP.BouncyCastle {
 
 		// One implementation across .NET 6-9. IP addresses require an IP SAN; DNS SANs
 		// take precedence over CN. Wildcards match exactly one complete DNS label.
-		internal static bool MatchesHost(X509Certificate2 certificate, string host) {
+		public static bool MatchesHost(X509Certificate2 certificate, string host) {
 			var normalized = NormalizeHost(host);
 			var isIpAddress = IPAddress.TryParse(normalized, out var address);
 			try {

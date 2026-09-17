@@ -24,16 +24,11 @@
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
-    <ItemGroup>
-      <None Include="..\.github\logo-nuget.png">
-        <Pack>True</Pack>
-        <PackagePath>\</PackagePath>
-      </None>
-        <None Include="..\LICENSE.TXT">
-            <Pack>True</Pack>
-            <PackagePath></PackagePath>
-        </None>
-    </ItemGroup>
+	<ItemGroup>
+		<None Include="..\.github\logo-nuget.png" Pack="true" PackagePath="\" />
+		<None Include="..\LICENSE.TXT" Pack="true" PackagePath="\" />
+		<None Include="..\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
 
     <ItemGroup>
         <!-- Reference the first version of FluentFTP that exposes IFluentLogger. Do not change this version. -->

@@ -15,8 +15,10 @@ using Org.BouncyCastle.Tls.Crypto.Impl.BC;
 
 namespace FluentFTP.BouncyCastle {
 	/// <summary>
-	/// Implements FluentFTP's custom stream contract with Bouncy Castle TLS and carries the control
-	/// connection's resumable TLS 1.2 session into each FTPS data connection.
+	/// Implements FluentFTP's custom stream using Bouncy Castle TLS stream.
+	/// Supports TLS 1.2 and TLS session resumption.
+	///
+	/// Docs: https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Connection-using-BouncyCastle
 	/// </summary>
 	public sealed class BouncyCastleFtpStream : IFtpStream, IDisposable {
 		private const string LogPrefix = "BouncyCastle: ";
@@ -34,7 +36,7 @@ namespace FluentFTP.BouncyCastle {
 		public BouncyCastleFtpStream() : this(stream => new TlsClientProtocol(stream)) {
 		}
 
-		internal BouncyCastleFtpStream(Func<Stream, TlsClientProtocol> protocolFactory) {
+		public BouncyCastleFtpStream(Func<Stream, TlsClientProtocol> protocolFactory) {
 			m_protocolFactory = protocolFactory;
 		}
 
