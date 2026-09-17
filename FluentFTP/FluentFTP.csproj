@@ -23,6 +23,16 @@
         <TargetFrameworks>net7.0;net8.0;net9.0;net462;net472;netstandard2.0;netstandard2.1</TargetFrameworks>
         <Platforms>AnyCPU;x64</Platforms>
         <PackageReadmeFile>README_NUGET.md</PackageReadmeFile>
+		<PackageReleaseNotes>
+ - **AOT Support**
+   - New: FluentFTP is now fully AOT ready! This means you can use FluentFTP in projects that use Native Ahead-of-Time (AOT) compilation
+   - New: Rewrite core classes for AOT compatibility (`Logger`, `ValuePrinter`, `FtpAutoDetectConfig`, `FtpSslStream`)
+   - New: Add new C# project to test AOT compilation (`FluentFTP.AotExamples`)
+ - **BouncyCastle SSL Stream**
+   - New: FluentFTP now supports a new SSL stream backed by BouncyCastle, which allows us to fix some longstanding issues like SSL session reuse/resume which were failing with the default .NET TlsStream
+   - New: Integration tests for BouncyCastle stream under `FluentFTP.Tests.Integration` NS
+   - New: Unit tests for BouncyCastle stream under `FluentFTP.Tests.Unit.BouncyCastle` NS
+		</PackageReleaseNotes>
         <RepositoryUrl>https://github.com/robinrodricks/FluentFTP</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
