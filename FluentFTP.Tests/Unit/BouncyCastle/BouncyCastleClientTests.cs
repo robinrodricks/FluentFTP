@@ -14,7 +14,7 @@ using FluentFTP.BouncyCastle;
 using FluentFTP.Client.BaseClient;
 using Xunit;
 
-namespace FluentFTP.Tests.Unit {
+namespace FluentFTP.Tests.Unit.BouncyCastle {
 	public class BouncyCastleClientTests {
 		[Theory]
 		[InlineData(false, "default")]

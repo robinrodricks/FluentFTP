@@ -18,7 +18,7 @@ using Org.BouncyCastle.Tls.Crypto;
 using Xunit;
 using CertificateRequest = System.Security.Cryptography.X509Certificates.CertificateRequest;
 
-namespace FluentFTP.Tests.Unit {
+namespace FluentFTP.Tests.Unit.BouncyCastle {
 	public class BouncyCastleTlsIntegrationTests {
 		[Theory]
 		[InlineData(true, true, false)]

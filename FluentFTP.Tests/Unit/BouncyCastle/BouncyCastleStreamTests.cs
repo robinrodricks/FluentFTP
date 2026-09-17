@@ -5,7 +5,7 @@ using FluentFTP.BouncyCastle;
 using FluentFTP.Streams;
 using Xunit;
 
-namespace FluentFTP.Tests.Unit {
+namespace FluentFTP.Tests.Unit.BouncyCastle {
 	public class BouncyCastleStreamTests {
 		[Fact]
 		public void SessionResumptionIsRequiredByDefault() {

@@ -16,7 +16,7 @@ using Org.BouncyCastle.Tls;
 using Xunit;
 using CertificateRequest = System.Security.Cryptography.X509Certificates.CertificateRequest;
 
-namespace FluentFTP.Tests.Unit {
+namespace FluentFTP.Tests.Unit.BouncyCastle {
 	public class BouncyCastleCertificateTests {
 		private const string ServerAuthenticationOid = "1.3.6.1.5.5.7.3.1";
 		private const string ClientAuthenticationOid = "1.3.6.1.5.5.7.3.2";
