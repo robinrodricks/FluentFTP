@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using FluentFTP.Streams;
 
 namespace FluentFTP.BouncyCastle {
@@ -16,7 +16,10 @@ namespace FluentFTP.BouncyCastle {
 		/// </summary>
 		public bool AllowLegacyResumption { get; set; }
 
-		/// <summary>Gets or sets an optional callback for non-sensitive connection diagnostics.</summary>
+		/// <summary>
+		/// Gets or sets an optional callback that receives the non-sensitive connection diagnostics the
+		/// stream also writes to FluentFTP's log at the Verbose level.
+		/// </summary>
 		public Action<string>? Diagnostic { get; set; }
 	}
 }

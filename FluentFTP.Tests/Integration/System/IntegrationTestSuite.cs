@@ -7,6 +7,7 @@ namespace FluentFTP.Tests.Integration.System {
 	public enum UseStream : uint {
 		SslStream,
 		GnuTlsStream, 
+		BouncyCastleStream,
 	}
 
 	public class IntegrationTestSuite {
@@ -42,6 +43,10 @@ namespace FluentFTP.Tests.Integration.System {
 				client.Config.CustomStream = typeof(FluentFTP.GnuTLS.GnuTlsStream);
 				client.Config.CustomStreamConfig = new FluentFTP.GnuTLS.GnuConfig();
 			}
+			else if (_stream == UseStream.BouncyCastleStream) {
+				client.Config.CustomStream = typeof(FluentFTP.BouncyCastle.BouncyCastleFtpStream);
+				client.Config.CustomStreamConfig = new FluentFTP.BouncyCastle.BouncyCastleFtpConfig();
+			}
 			client.Config.EncryptionMode = FtpEncryptionMode.Auto;
 			client.Config.ValidateAnyCertificate = true;
 			client.Config.LogHost = true;
@@ -68,6 +73,10 @@ namespace FluentFTP.Tests.Integration.System {
 			if (_stream == UseStream.GnuTlsStream) {
 				client.Config.CustomStream = typeof(FluentFTP.GnuTLS.GnuTlsStream);
 				client.Config.CustomStreamConfig = new FluentFTP.GnuTLS.GnuConfig();
+			}
+			else if (_stream == UseStream.BouncyCastleStream) {
+				client.Config.CustomStream = typeof(FluentFTP.BouncyCastle.BouncyCastleFtpStream);
+				client.Config.CustomStreamConfig = new FluentFTP.BouncyCastle.BouncyCastleFtpConfig();
 			}
 			client.Config.EncryptionMode = FtpEncryptionMode.Auto;
 			client.Config.ValidateAnyCertificate = true;
