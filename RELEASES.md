@@ -1,5 +1,16 @@
 # Release Notes
 
+#### 55.0.0
+
+ - **AOT Support**
+   - New: FluentFTP is now fully AOT ready! This means you can use FluentFTP in projects that use Native Ahead-of-Time (AOT) compilation
+   - New: Rewrite core classes for AOT compatibility (`Logger`, `ValuePrinter`, `FtpAutoDetectConfig`, `FtpSslStream`)
+   - New: Add new C# project to test AOT compilation (`FluentFTP.AotExamples`)
+ - **BouncyCastle SSL Stream**
+   - New: FluentFTP now supports a new SSL stream backed by BouncyCastle, which allows us to fix some longstanding issues like SSL session reuse/resume which were failing with the default .NET TlsStream
+   - New: Integration tests for BouncyCastle stream under `FluentFTP.Tests.Integration` NS
+   - New: Unit tests for BouncyCastle stream under `FluentFTP.Tests.Unit.BouncyCastle` NS
+
 #### 54.2.1
 
  - Fix: Race condition when `connectEvent` accessed after `FtpSocketStream` is disposed
