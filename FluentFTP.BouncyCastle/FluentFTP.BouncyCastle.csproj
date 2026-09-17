@@ -22,7 +22,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
 		<Platforms>AnyCPU;x64</Platforms>
-		<PackageReadmeFile></PackageReadmeFile>
+		<PackageReadmeFile>README_NUGET.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/robinrodricks/FluentFTP</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
@@ -36,7 +36,7 @@
 	<ItemGroup>
 		<None Include="..\.github\logo-nuget.png" Pack="true" PackagePath="\" />
 		<None Include="..\LICENSE.TXT" Pack="true" PackagePath="\" />
-		<None Include="..\README.md" Pack="true" PackagePath="\" />
+		<None Include="..\README_NUGET.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='Release'">
