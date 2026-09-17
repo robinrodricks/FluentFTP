@@ -6,7 +6,7 @@
 		<Description>Fully managed Bouncy Castle TLS stream integration for FluentFTP with explicit FTPS session reuse.</Description>
 		<Authors>Robin Rodricks, Wixely, FluentFTP Contributors</Authors>
 		<PackageProjectUrl>https://github.com/robinrodricks/FluentFTP</PackageProjectUrl>
-		<Copyright>Copyright (c) 2015 Robin Rodricks, Wixely and FluentFTP Contributors</Copyright>
+		<Copyright>Copyright (c) 2026 Robin Rodricks and FluentFTP Contributors</Copyright>
 		<PackageTags>ftp,ftp-client,ftps,ftps-client,bouncycastle,ssl,tls,session-resumption</PackageTags>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>logo-nuget.png</PackageIcon>
