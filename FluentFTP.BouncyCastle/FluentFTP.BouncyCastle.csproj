@@ -28,7 +28,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<!-- An older FluentFTP release that supports the custom stream API (available since 45.0.0), so the package stays usable with existing applications. -->
+		<!-- Older FluentFTP release that supports the custom stream API (available since 45.0.0), so the package stays usable with existing applications. -->
 		<PackageReference Include="FluentFTP" Version="48.0.3" />
 		<PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0" />
 	</ItemGroup>
