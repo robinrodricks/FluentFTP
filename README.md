@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-    <b>A project by Robin Rodricks & Michael Stiemke</b>
+    <b>A project by Robin Rodricks & Michael Stiemke(FanDjango)</b>
 </p>
 
 FluentFTP is a fully managed FTP and FTPS client library for .NET & .NET Standard, optimized for speed. It provides extensive FTP commands, File uploads/downloads, SSL/TLS connections, Automatic directory listing parsing, File hashing/checksums, File permissions/CHMOD, FTP proxies, FXP transfers, UTF-8 support, Async/await support, Powershell support and more.
