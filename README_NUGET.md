@@ -4,6 +4,18 @@ It is written entirely in C#, with no external dependency. It has an extensive a
 
 FluentFTP is released under the permissive MIT License, so it can be used in both proprietary and free/open source applications. 
 
+## Release Notes
+
+### 55.0.0
+ - **AOT Support**
+   - New: FluentFTP is now fully AOT ready! This means you can use FluentFTP in projects that use Native Ahead-of-Time (AOT) compilation
+   - New: Rewrite core classes for AOT compatibility (`Logger`, `ValuePrinter`, `FtpAutoDetectConfig`, `FtpSslStream`)
+   - New: Add new C# project to test AOT compilation (`FluentFTP.AotExamples`)
+ - **BouncyCastle SSL Stream**
+   - New: FluentFTP now supports a new SSL stream backed by BouncyCastle, which allows us to fix some longstanding issues like SSL session reuse/resume which were failing with the default .NET TlsStream
+   - New: Integration tests for BouncyCastle stream under `FluentFTP.Tests.Integration` NS
+   - New: Unit tests for BouncyCastle stream under `FluentFTP.Tests.Unit.BouncyCastle` NS
+
 ## Features
 
   - Full support for [FTP](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Support), [FXP](https://github.com/robinrodricks/FluentFTP/wiki/FXP-Server-To-Server#how-does-fxp-transfer-work), [FTPS](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_ftps), [FTPS with TLS 1.3](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Connection-using-GnuTLS), [FTPS with client certificates](https://github.com/robinrodricks/FluentFTP/wiki/FTP-Connection#faq_certs) and [FTPS Proxies](https://github.com/robinrodricks/FluentFTP/wiki/FTPS-Proxies)
