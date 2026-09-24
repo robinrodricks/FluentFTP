@@ -63,8 +63,8 @@ namespace FluentFTP.Helpers {
 			if (string.IsNullOrEmpty(path)) {
 				return "/";
 			}
-			var sanitize = client.Config.SanitizeMode != FtpSanitize.Disabled;
-			var exception = client.Config.SanitizeMode == FtpSanitize.Throw;
+			var sanitize = client == null || client.Config.SanitizeMode != FtpSanitize.Disabled;
+			var exception = client != null && client.Config.SanitizeMode == FtpSanitize.Throw;
 
 			// Replace backslashes
 			if (path.IndexOf('\\') >= 0)

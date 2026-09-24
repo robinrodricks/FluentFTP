@@ -32,6 +32,13 @@ namespace FluentFTP.Tests.Unit {
 			return _insecureClient;
 		}
 
+		[Theory]
+		[InlineData("/safe%2Ffile\r\nDELE other", "/safe/file")]
+		[InlineData("/../../etc/passwd", "/etc/passwd")]
+		public void NullClient_EnablesAllSanitization(string input, string expected) {
+			Assert.Equal(expected, SanitizerModule.SanitizePath(null, input));
+		}
+
 		/// <summary>Null should return root</summary>
 		[Fact]
 		public void Null_ReturnsRoot() {
