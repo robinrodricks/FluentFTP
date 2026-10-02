@@ -33,19 +33,40 @@ namespace FluentFTP {
 				throw new InvalidOperationException("The control connection stream is null! Generally this means there is no connection to the server. Cannot open a passive data stream.");
 			}
 
-
 			for (int a = 0; a <= Config.PassiveMaxAttempts;) {
 
-				if (!Status.EPSVNotSupported && (type is FtpDataConnectionType.EPSV || (HasFeature(FtpCapability.EPSV) && type is FtpDataConnectionType.AutoPassive))) {
+				// Try using EPSV:
+				// if no previous attempt has failed,
+				// if explicitly requested,
+				// if auto-detecting and the server's FEAT confirms EPSV support
+				// if auto-detecting and the server's FEAT is unknown/unavailable (see Note below)
+
+				// Note: Per RFC, extended commands like EPSV can be trusted to NOT work if the FEAT command is not supported by the server. However, some servers do not implement FEAT correctly and will support EPSV even if FEAT is not supported.
+				// Therefore, we really SHOULD not try EPSV if FEAT is not supported. In the real world, some servers will support EPSV even if FEAT is not supported, so we will try EPSV in this case. 
+
+				// Attempt fallback to PASV:
+				// if EPSV fails and the data connection type is AutoPassive and EPSV not explicitly requested and the control connection is IPv4.
+
+				bool tryEPSV = !Status.EPSVTriedAndFailed &&
+					type switch {
+						FtpDataConnectionType.EPSV => true,
+						FtpDataConnectionType.AutoPassive => !HasFeature(FtpCapability.FEAT) || HasFeature(FtpCapability.EPSV),
+						_ => false,
+					};
+
+				if (tryEPSV) {
 					// execute EPSV to try enhanced-passive mode
 					if (!(reply = await Execute("EPSV", token)).Success) {
-						// if we're connected with IPv4 and data channel type is AutoPassive then fallback to IPv4
+						// if we're connected with IPv4 and data channel type is AutoPassive then fallback to PASV
 						if (reply.Type is FtpResponseType.TransientNegativeCompletion or FtpResponseType.PermanentNegativeCompletion
-							&& type == FtpDataConnectionType.AutoPassive
 							&& m_stream != null
+							// only fallback to PASV if the data connection type is AutoPassive and the control connection is IPv4
+							&& type == FtpDataConnectionType.AutoPassive
+							&& !HasFeature(FtpCapability.EPSV)
 							&& m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
+
 							// mark EPSV not supported so we do not try EPSV again during this connection
-							Status.EPSVNotSupported = true;
+							Status.EPSVTriedAndFailed = true;
 							return await OpenPassiveDataStreamAsync(FtpDataConnectionType.PASV, command, restart, token);
 						}
 
@@ -59,7 +80,7 @@ namespace FluentFTP {
 				}
 				else {
 					if (m_stream.LocalEndPoint.AddressFamily != AddressFamily.InterNetwork) {
-						throw new FtpException("Only IPv4 is supported by the PASV command. Use EPSV instead.");
+						throw new FtpException("Only IPv4 is supported by the PASV command. You must use EPSV instead.");
 					}
 
 					// execute PRET before passive if server requires it
