@@ -145,13 +145,14 @@ namespace FluentFTP {
 			if (!m_isClone && Config.CheckCapabilities) {
 				m_capabilities.Clear();
 			}
-			bool assumeCaps = false;
+			bool assumeCapabilities = false;
 			if (m_capabilities.IsBlank() && Config.CheckCapabilities) {
 				if ((reply = await Execute("FEAT", token)).Success && reply.InfoMessages != null) {
+					m_capabilities.Add(FtpCapability.FEAT); // FEAT is a feature in itself
 					GetFeatures(reply);
 				}
 				else {
-					assumeCaps = true;
+					assumeCapabilities = true;
 				}
 			}
 
@@ -202,7 +203,7 @@ namespace FluentFTP {
 			LogWithPrefix(FtpTraceLevel.Verbose, "Active ServerHandler is: " + (ServerHandler == null ? "None" : ServerHandler.ToEnum().ToString()));
 
 			// Assume the system's capabilities if FEAT command not supported by the server
-			if (assumeCaps) {
+			if (assumeCapabilities) {
 				ServerFeatureModule.Assume(ServerHandler, m_capabilities, ref m_hashAlgorithms);
 			}
 

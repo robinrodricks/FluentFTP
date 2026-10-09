@@ -18,7 +18,7 @@ namespace FluentFTP {
 		/// Used to improve performance of OpenPassiveDataStream.
 		/// Enhanced-passive mode is tried once, and if not supported, is not tried again.
 		/// </summary>
-		public bool EPSVNotSupported { get; set; } = false;
+		public bool EPSVTriedAndFailed { get; set; } = false;
 
 		/// <summary>
 		/// Used to improve performance of GetFileSize.
@@ -96,7 +96,7 @@ namespace FluentFTP {
 				CurrentDataType = FtpDataType.Unknown;
 				NoopDaemonTokenSource ??= new CancellationTokenSource();
 			}
-			EPSVNotSupported = false;
+			EPSVTriedAndFailed = false;
 			FileSizeASCIINotSupported = false;
 			RecursiveListSupported = false;
 			LastHashAlgo = FtpHashAlgorithm.NONE;
@@ -110,7 +110,7 @@ namespace FluentFTP {
 		/// These flags must be copied when we quickly clone the connection.
 		/// </summary>
 		public void CopyFrom(FtpClientState original) {
-			EPSVNotSupported = original.EPSVNotSupported;
+			EPSVTriedAndFailed = original.EPSVTriedAndFailed;
 			FileSizeASCIINotSupported = original.FileSizeASCIINotSupported;
 			RecursiveListSupported = original.RecursiveListSupported;
 		}
