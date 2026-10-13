@@ -12,7 +12,7 @@ SHELL	["/bin/bash", "-c"]
 
 ARG	APACHE_VERSION=1.2.0
 
-ARG	APACHE_URL=https://dlcdn.apache.org/mina/ftpserver/${APACHE_VERSION}/apache-ftpserver-${APACHE_VERSION}-bin.tar.gz
+ARG	APACHE_URL=https://archive.apache.org/dist/mina/ftpserver/${APACHE_VERSION}/apache-ftpserver-${APACHE_VERSION}-bin.tar.gz
 
 WORKDIR	/root
 RUN	wget -O apache.tar.gz ${APACHE_URL} && \
