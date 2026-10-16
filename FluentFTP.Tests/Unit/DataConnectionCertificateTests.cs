@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentFTP.BouncyCastle;
 using FluentFTP.Client.BaseClient;
+using FluentFTP.Model.Functions;
 using Xunit;
 
 namespace FluentFTP.Tests.Unit {
@@ -143,6 +144,104 @@ namespace FluentFTP.Tests.Unit {
 				Assert.Null(failure);
 				Assert.Contains("PASS test-password", server.Commands);
 			}
+		}
+
+		[Theory]
+		[InlineData(false, false)]
+		[InlineData(false, true)]
+		[InlineData(true, false)]
+		[InlineData(true, true)]
+		public async Task AutoDetectAndAutoConnectDoNotFallBackToPlaintext(bool asynchronous, bool autoConnect) {
+			using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+			// The server offers explicit FTPS but also accepts an unencrypted login, as most servers do. A second
+			// control connection is allowed so that a plaintext retry would be served and show up as PASS.
+			using var server = new LoopbackFtpsServer(m_foreignCertificate, m_foreignCertificate, deadline.Token,
+				controlConnections: 2, explicitTls: true);
+			// No handler: the self-signed certificate fails the default validation.
+			using var client = CreateClient(asynchronous, "SslStream", server.Port);
+
+			var failure = await Record.ExceptionAsync(() => autoConnect
+				? AutoConnect(client, deadline.Token)
+				: AutoDetect(client, new FtpAutoDetectConfig(), deadline.Token));
+
+			// Completion is not awaited: the second control connection never comes.
+			Assert.IsType<AuthenticationException>(failure);
+			Assert.Equal(new[] { "AUTH TLS" }, server.Commands);
+		}
+
+		[Theory]
+		[InlineData(false)]
+		[InlineData(true)]
+		public async Task AutoDetectDoesNotFallBackToPlaintextWhenAProtocolIsListedTwice(bool asynchronous) {
+			using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+			// Both TLS attempts are rejected; a third control connection is allowed so that a plaintext retry
+			// would be served and show up as PASS.
+			using var server = new LoopbackFtpsServer(m_foreignCertificate, m_foreignCertificate, deadline.Token,
+				controlConnections: 3, explicitTls: true);
+			// No handler: the self-signed certificate fails the default validation.
+			using var client = CreateClient(asynchronous, "SslStream", server.Port);
+			// The last attempt is identified by its position, not by its value, which also occurs first.
+			var config = new FtpAutoDetectConfig {
+				ProtocolPriority = new List<SslProtocols> { SslProtocols.Tls12, SslProtocols.Tls12 },
+			};
+
+			var failure = await Record.ExceptionAsync(() => AutoDetect(client, config, deadline.Token));
+
+			// Completion is not awaited: the third control connection never comes.
+			Assert.IsType<AuthenticationException>(failure);
+			Assert.Equal(new[] { "AUTH TLS", "AUTH TLS" }, server.Commands);
+		}
+
+		[Theory]
+		[InlineData(false)]
+		[InlineData(true)]
+		public async Task AutoDetectTriesRemainingProtocolsAfterHandshakeFailure(bool asynchronous) {
+			using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+			// The server only speaks TLS 1.2, so the TLS 1.3 attempt fails its handshake and the TLS 1.2 one succeeds.
+			using var server = new LoopbackFtpsServer(m_serverCertificate, m_serverCertificate, deadline.Token,
+				controlConnections: 2, explicitTls: true);
+			using var client = CreateClient(asynchronous, "SslStream", server.Port);
+			client.ValidateCertificate += (_, e) => e.Accept = IsServerCertificate(e.Certificate);
+			var config = new FtpAutoDetectConfig {
+				ProtocolPriority = new List<SslProtocols> { SslProtocols.Tls13, SslProtocols.Tls12 },
+			};
+
+			var profiles = await AutoDetect(client, config, deadline.Token);
+			await server.Completion.WaitAsync(deadline.Token);
+
+			var profile = Assert.Single(profiles);
+			Assert.Equal(FtpEncryptionMode.Auto, profile.Encryption);
+			Assert.Equal(SslProtocols.Tls12, profile.Protocols);
+		}
+
+		[Theory]
+		[InlineData(false)]
+		[InlineData(true)]
+		public async Task AutoDetectKeepsCollectedProfilesWhenALaterHandshakeFails(bool asynchronous) {
+			using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+			// The server only speaks TLS 1.2 and also accepts an unencrypted login. TLS 1.2 succeeds first, then the
+			// TLS 1.3 handshake fails as the last protocol, and the unencrypted profile is collected after that.
+			using var server = new LoopbackFtpsServer(m_serverCertificate, m_serverCertificate, deadline.Token,
+				controlConnections: 3, explicitTls: true);
+			using var client = CreateClient(asynchronous, "SslStream", server.Port);
+			client.ValidateCertificate += (_, e) => e.Accept = IsServerCertificate(e.Certificate);
+			var config = new FtpAutoDetectConfig {
+				FirstOnly = false,
+				IncludeImplicit = false,
+				ProtocolPriority = new List<SslProtocols> { SslProtocols.Tls12, SslProtocols.Tls13 },
+			};
+
+			var profiles = await AutoDetect(client, config, deadline.Token);
+			await server.Completion.WaitAsync(deadline.Token);
+
+			// An encrypted profile had been found, so the failed handshake must not abort and discard it. The
+			// unencrypted profile is listed as well because the caller allowed it and can see the encrypted option.
+			Assert.Collection(profiles,
+				profile => {
+					Assert.Equal(FtpEncryptionMode.Auto, profile.Encryption);
+					Assert.Equal(SslProtocols.Tls12, profile.Protocols);
+				},
+				profile => Assert.Equal(FtpEncryptionMode.None, profile.Encryption));
 		}
 
 		[Theory]
@@ -299,6 +398,16 @@ namespace FluentFTP.Tests.Unit {
 			syncClient.Disconnect();
 		}
 
+		private static Task<List<FtpProfile>> AutoDetect(BaseFtpClient client, FtpAutoDetectConfig config, CancellationToken token) =>
+			client is AsyncFtpClient asyncClient
+				? asyncClient.AutoDetect(config, token)
+				: Task.Run(() => ((FtpClient)client).AutoDetect(config), token);
+
+		private static Task<FtpProfile> AutoConnect(BaseFtpClient client, CancellationToken token) =>
+			client is AsyncFtpClient asyncClient
+				? asyncClient.AutoConnect(token)
+				: Task.Run(() => ((FtpClient)client).AutoConnect(), token);
+
 		/// <summary>
 		/// Connects, downloads the payload and disconnects, leaving the client reusable.
 		/// </summary>
@@ -323,22 +432,37 @@ namespace FluentFTP.Tests.Unit {
 		}
 
 		/// <summary>
-		/// Serves one implicit FTPS control connection. Each RETR or STOR is carried over an EPSV data
-		/// connection on which the server authenticates with the configured data certificate.
+		/// Serves the requested number of FTPS control connections, one after the other: implicit FTPS by
+		/// default, or explicit FTPS, where the session starts unencrypted and AUTH TLS upgrades it. Each RETR
+		/// or STOR is carried over an EPSV data connection on which the server authenticates with the
+		/// configured data certificate.
 		/// </summary>
 		private sealed class LoopbackFtpsServer : IDisposable {
 			private readonly TcpListener m_listener = new TcpListener(IPAddress.Loopback, 0);
 			private readonly X509Certificate2 m_controlCertificate;
 			private readonly X509Certificate2 m_dataCertificate;
+			private readonly bool m_explicitTls;
 			private readonly MemoryStream m_uploaded = new MemoryStream();
 			private readonly List<string> m_commands = new List<string>();
 			private TcpListener? m_dataListener;
+			private volatile bool m_stopped;
 
-			internal LoopbackFtpsServer(X509Certificate2 controlCertificate, X509Certificate2 dataCertificate, CancellationToken token) {
+			internal LoopbackFtpsServer(X509Certificate2 controlCertificate, X509Certificate2 dataCertificate, CancellationToken token,
+				int controlConnections = 1, bool explicitTls = false) {
 				m_controlCertificate = controlCertificate;
 				m_dataCertificate = dataCertificate;
+				m_explicitTls = explicitTls;
 				m_listener.Start();
-				Completion = Task.Run(() => Serve(token));
+				Completion = Task.Run(async () => {
+					for (var served = 0; served < controlConnections; served++) {
+						try {
+							await Serve(token);
+						}
+						catch (Exception) when (m_stopped) {
+							return; // Disposed while waiting for a connection that never came.
+						}
+					}
+				});
 			}
 
 			internal byte[] Payload { get; } = RandomNumberGenerator.GetBytes(32769); // Cross TLS record boundaries.
@@ -373,19 +497,21 @@ namespace FluentFTP.Tests.Unit {
 				}
 				catch (Exception error) when (error is AuthenticationException || error is IOException) {
 					tls.Dispose();
-					return null; // The client rejected the control certificate.
+					return null; // The client rejected the control certificate or offered no usable protocol.
 				}
 			}
 
 			private async Task Serve(CancellationToken token) {
 				using var peer = await m_listener.AcceptTcpClientAsync(token);
-				var tls = await AuthenticateControl(peer.GetStream(), token);
-				if (tls == null) {
+				SslStream? tls = null;
+				if (!m_explicitTls && (tls = await AuthenticateControl(peer.GetStream(), token)) == null) {
 					return;
 				}
 
-				var reader = new StreamReader(tls, Encoding.ASCII, false, 1024, true);
-				var writer = new StreamWriter(tls, Encoding.ASCII, 1024, true) { AutoFlush = true, NewLine = "\r\n" };
+				// Readers and writers leave the stream open, so they can be replaced when AUTH TLS upgrades it.
+				Stream control = (Stream?)tls ?? peer.GetStream();
+				var reader = new StreamReader(control, Encoding.ASCII, false, 1024, true);
+				var writer = new StreamWriter(control, Encoding.ASCII, 1024, true) { AutoFlush = true, NewLine = "\r\n" };
 				try {
 					await writer.WriteLineAsync("220 Loopback FTPS test");
 					while (true) {
@@ -398,6 +524,16 @@ namespace FluentFTP.Tests.Unit {
 						}
 						var verb = command.Split(' ')[0];
 						switch (verb) {
+							// The plaintext reader may have buffered beyond this line. That is safe only because FluentFTP
+							// never pipelines commands: nothing follows AUTH TLS until the 234 reply and the handshake.
+							case "AUTH" when m_explicitTls && tls == null:
+								await writer.WriteLineAsync("234 AUTH TLS successful");
+								if ((tls = await AuthenticateControl(peer.GetStream(), token)) == null) {
+									return;
+								}
+								reader = new StreamReader(tls, Encoding.ASCII, false, 1024, true);
+								writer = new StreamWriter(tls, Encoding.ASCII, 1024, true) { AutoFlush = true, NewLine = "\r\n" };
+								break;
 							case "EPSV":
 								m_dataListener = new TcpListener(IPAddress.Loopback, 0);
 								m_dataListener.Start();
@@ -422,7 +558,7 @@ namespace FluentFTP.Tests.Unit {
 					// The client may drop the control connection after a failed transfer.
 				}
 				finally {
-					tls.Dispose();
+					tls?.Dispose();
 				}
 			}
 
@@ -475,6 +611,7 @@ namespace FluentFTP.Tests.Unit {
 			};
 
 			public void Dispose() {
+				m_stopped = true;
 				m_listener.Stop();
 				m_dataListener?.Stop();
 				m_uploaded.Dispose();

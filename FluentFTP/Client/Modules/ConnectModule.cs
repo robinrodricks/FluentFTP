@@ -73,9 +73,11 @@ namespace FluentFTP.Client.Modules {
 				}
 
 				// try each SSL protocol
-				foreach (var protocol in config.ProtocolPriority) {
+				for (var protocolIndex = 0; protocolIndex < config.ProtocolPriority.Count; protocolIndex++) {
+					var protocol = config.ProtocolPriority[protocolIndex];
+
 					// Only check the first combination for FtpEncryptionMode.None
-					if (encryption == FtpEncryptionMode.None && config.ProtocolPriority.IndexOf(protocol) > 0) {
+					if (encryption == FtpEncryptionMode.None && protocolIndex > 0) {
 						continue;
 					}
 
@@ -115,8 +117,9 @@ namespace FluentFTP.Client.Modules {
 						}
 
 						// check if permanent failures and hard abort
-						var permaEx = IsPermanentConnectionFailure(ex, config.AbortOnTimeout);
+						var permaEx = IsPermanentConnectionFailure(ex, config.AbortOnTimeout, IsLastProtocol(config, protocolIndex) && !HasEncryptedProfile(results));
 						if (permaEx != null) {
+							LogPermanentConnectionFailure(conn, permaEx);
 							if (config.CloneConnection) {
 								conn.Dispose();
 							}
@@ -208,9 +211,11 @@ namespace FluentFTP.Client.Modules {
 				}
 
 				// try each SSL protocol
-				foreach (var protocol in config.ProtocolPriority) {
+				for (var protocolIndex = 0; protocolIndex < config.ProtocolPriority.Count; protocolIndex++) {
+					var protocol = config.ProtocolPriority[protocolIndex];
+
 					// Only check the first combination for FtpEncryptionMode.None
-					if (encryption == FtpEncryptionMode.None && config.ProtocolPriority.IndexOf(protocol) > 0) {
+					if (encryption == FtpEncryptionMode.None && protocolIndex > 0) {
 						continue;
 					}
 
@@ -250,8 +255,9 @@ namespace FluentFTP.Client.Modules {
 						}
 
 						// check if permanent failures and hard abort
-						var permaEx = IsPermanentConnectionFailure(ex, config.AbortOnTimeout);
+						var permaEx = IsPermanentConnectionFailure(ex, config.AbortOnTimeout, IsLastProtocol(config, protocolIndex) && !HasEncryptedProfile(results));
 						if (permaEx != null) {
+							LogPermanentConnectionFailure(conn, permaEx);
 							if (config.CloneConnection) {
 								conn.Dispose();
 							}
@@ -373,7 +379,7 @@ namespace FluentFTP.Client.Modules {
 		/// so that we don't need to retry all the connection config combinations and can hard-abort the AutoConnect.
 		/// Return the exception if it is a hard failure, or null if no issue is found.
 		/// </summary>
-		private static Exception IsPermanentConnectionFailure(Exception ex, bool treatTimeoutAsPermanent) {
+		private static Exception IsPermanentConnectionFailure(Exception ex, bool treatTimeoutAsPermanent, bool treatHandshakeFailureAsPermanent) {
 
 			// Authentication related failures
 
@@ -408,7 +414,43 @@ namespace FluentFTP.Client.Modules {
 				return ex;
 			}
 
+			// TLS related failures
+
+			// the server offers FTPS but the handshake failed, typically because the client rejected the
+			// server certificate. Trying the remaining profiles would recommend an unencrypted connection
+			// to a server that supports encryption, so hard abort and let the caller configure validation.
+			// A handshake can also fail because the server does not support the protocol, so only abort
+			// once the remaining protocols have been tried as well, and not when an encrypted profile has
+			// already been found, because the caller then has an encrypted option to choose from.
+			if (ex is System.Security.Authentication.AuthenticationException && treatHandshakeFailureAsPermanent) {
+				return ex;
+			}
+
 			return null;
+		}
+
+		/// <summary>
+		/// Check if the protocol at the given position is the last one in the configured protocol priority list.
+		/// Works on the position rather than the value, so a protocol that is listed twice is handled correctly.
+		/// </summary>
+		private static bool IsLastProtocol(FtpAutoDetectConfig config, int protocolIndex) {
+			return protocolIndex == config.ProtocolPriority.Count - 1;
+		}
+
+		/// <summary>
+		/// Check if an encrypted connection profile has already been found. Only possible when FirstOnly is false.
+		/// </summary>
+		private static bool HasEncryptedProfile(List<FtpProfile> results) {
+			return results.Exists(profile => profile.Encryption != FtpEncryptionMode.None);
+		}
+
+		/// <summary>
+		/// Log advice for permanent failures that the caller can resolve by configuring the client.
+		/// </summary>
+		private static void LogPermanentConnectionFailure(BaseFtpClient conn, Exception ex) {
+			if (ex is System.Security.Authentication.AuthenticationException) {
+				((IInternalFtpClient)conn).LogStatus(FtpTraceLevel.Warn, "Auto-Detect aborted: the server offers FTPS but no TLS handshake succeeded with the protocols in ProtocolPriority. Either the server certificate was rejected, so attach a ValidateCertificate handler or set Config.ValidateAnyCertificate before calling AutoDetect, or the server supports none of these protocols.");
+			}
 		}
 
 
