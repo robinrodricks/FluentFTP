@@ -22,8 +22,13 @@ namespace FluentFTP {
 			if (IsConnected && IsAuthenticated) {
 				try {
 					if (await Noop(true, token)) {
-						_ = await ((IInternalFtpClient)this).GetReplyInternal(token, "NOOP (<-IsStillConnected/Noop)", false, timeout);
-						connected = true;
+						var rep = await ((IInternalFtpClient)this).GetReplyInternal(token, "NOOP (<-IsStillConnected/Noop)", false, timeout);
+						// Successfully getting a reply from a NOOP command means we are still connected, UNLESS the reply code is 421,
+						// which means the server is closing the connection after this command and we are then no longer connected.
+						// From the RFC: 421 Service NOT available, closing control connection. This may be a reply to any command if the service knows it must shut down.
+						if (rep.Code != "421") {
+							connected = true;
+						}
 					}
 				}
 				catch (Exception ex) {
@@ -31,6 +36,7 @@ namespace FluentFTP {
 				}
 				if (!connected) {
 					// This will clean up the SocketStream
+					LogWithPrefix(FtpTraceLevel.Verbose, "IsStillConnected: Disconnecting for cleanup");
 					bool saveDisconnectWithQuit = Config.DisconnectWithQuit;
 					Config.DisconnectWithQuit = false;
 					await Disconnect(token);
@@ -38,7 +44,7 @@ namespace FluentFTP {
 				}
 			}
 			if (!connected) {
-				LogWithPrefix(FtpTraceLevel.Verbose, "IsStillConnected: Control connections is not connected");
+				LogWithPrefix(FtpTraceLevel.Verbose, "IsStillConnected: Control connection is not connected");
 			}
 			return connected;
 		}
