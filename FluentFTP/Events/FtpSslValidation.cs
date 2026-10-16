@@ -63,6 +63,18 @@ namespace FluentFTP {
 			set => m_policyErrorMessage = value;
 		}
 
+		private bool m_isDataConnection = false;
+
+		/// <summary>
+		/// Gets a value indicating if the certificate was presented on a data connection rather than
+		/// on the control connection. A data connection only asks for validation when its certificate
+		/// is not the one that was accepted on the control connection.
+		/// </summary>
+		public bool IsDataConnection {
+			get => m_isDataConnection;
+			set => m_isDataConnection = value;
+		}
+
 		private bool m_accept = false;
 
 		/// <summary>

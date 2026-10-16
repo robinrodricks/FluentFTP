@@ -1,5 +1,14 @@
 # Release Notes
 
+#### 55.0.1
+
+ - **FTPS Security**
+   - Fix: Data connections no longer accept any server certificate. A data connection certificate must match the certificate accepted on the control connection, or pass validation on its own (`ValidateAnyCertificate`, the `ValidateCertificate` event, or the default chain and hostname check)
+   - New: `FtpSslValidationEventArgs.IsDataConnection` lets a `ValidateCertificate` handler apply its own policy to a data connection certificate that differs from the control connection certificate
+   - Fix: Cloned clients (`Clone()`, `AutoDetect` with `CloneConnection`, FXP progress tracking) no longer accept any server certificate before sending credentials; they validate it with the handlers of the client they were cloned from
+   - Fix: A rejected data connection certificate is reported as `AuthenticationException` by both `FtpClient` and `AsyncFtpClient`, and the control connection stays usable afterwards (the server's reply to the aborted transfer is read instead of surfacing as an error or forcing a reconnect)
+   - Change: Servers that present a different untrusted certificate on data connections now need a `ValidateCertificate` handler that accepts it
+
 #### 55.0.0
 
  - **AOT Support**
