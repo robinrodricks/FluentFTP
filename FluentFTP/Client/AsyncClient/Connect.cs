@@ -82,6 +82,9 @@ namespace FluentFTP {
 			Status.Reset(reConnect);
 			m_stream.SslSessionLength = 0;
 
+			// the certificate pinned for data connections belongs to the previous control connection
+			m_controlCertificate = null;
+
 			m_hashAlgorithms = FtpHashAlgorithm.NONE;
 			m_stream.ConnectTimeout = Config.ConnectTimeout;
 			m_stream.ReadTimeout = Config.ReadTimeout;

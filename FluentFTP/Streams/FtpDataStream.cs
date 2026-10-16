@@ -188,6 +188,20 @@ namespace FluentFTP {
 		}
 
 		/// <summary>
+		/// Closes the connection after a failed TLS handshake and reads the server's reply to the
+		/// transfer command, so that the control connection stays usable. Errors while doing so are
+		/// logged and dropped, because the handshake failure is the error worth reporting.
+		/// </summary>
+		internal override void CloseAfterFailedAuthentication() {
+			try {
+				Close();
+			}
+			catch (Exception ex) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Ignoring error while closing the data stream after failed FTPS authentication: " + ex.Message);
+			}
+		}
+
+		/// <summary>
 		/// Closes the connection and reads (and discards) the server's reply
 		/// </summary>
 #if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
@@ -220,10 +234,9 @@ namespace FluentFTP {
 		public FtpDataStream(BaseFtpClient conn) : base(conn) {
 			ControlConnection = conn ?? throw new ArgumentException("The control connection cannot be null.", nameof(conn));
 
-			// always accept certificate no matter what because if code execution ever
-			// gets here it means the certificate on the control connection object being
-			// cloned was already accepted.
-			m_certificateValidationHandler = (FtpSocketStream _, FtpSslValidationEventArgs e) => e.Accept = true;
+			// a data connection may be intercepted independently of the control connection,
+			// so its certificate must match the accepted control certificate or be validated
+			m_certificateValidationHandler = (FtpSocketStream _, FtpSslValidationEventArgs e) => conn.ValidateDataCertificate(e);
 			ValidateCertificate += m_certificateValidationHandler;
 
 			m_position = 0;
