@@ -61,11 +61,9 @@ namespace FluentFTP.Client.BaseClient {
 			catch {
 			}
 
-			// always accept certificate no matter what because if code execution ever
-			// gets here it means the certificate on the control connection object being
-			// cloned was already accepted.
-			write.ValidateCertificate += new FtpSslValidation(
-				(BaseFtpClient _, FtpSslValidationEventArgs e) => e.Accept = true);
+			// the clone opens its own control connection and sends the credentials over it,
+			// so it must validate the server certificate exactly like the original does
+			write.m_ValidateCertificate = read.m_ValidateCertificate;
 
 		}
 
@@ -128,6 +126,7 @@ namespace FluentFTP.Client.BaseClient {
 			}
 
 			m_credentials = null;
+			m_controlCertificate = null;
 			m_textEncoding = null;
 			m_host = null;
 

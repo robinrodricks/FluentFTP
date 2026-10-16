@@ -294,6 +294,7 @@ namespace FluentFTP {
 		/// <summary>
 		/// Accept any SSL certificate received from the server and skip performing
 		/// the validation using the ValidateCertificate callback.
+		/// This applies to data connections too, which leaves transfers open to interception.
 		/// Useful for Powershell users.
 		/// </summary>
 		public bool ValidateAnyCertificate { get; set; } = false;

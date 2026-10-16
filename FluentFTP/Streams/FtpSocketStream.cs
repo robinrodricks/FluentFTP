@@ -366,6 +366,7 @@ namespace FluentFTP {
 					Certificate = certificate,
 					Chain = chain,
 					PolicyErrors = errors,
+					IsDataConnection = !IsControlConnection,
 					Accept = errors == SslPolicyErrors.None
 				};
 
@@ -394,6 +395,7 @@ namespace FluentFTP {
 					Chain = chain,
 					PolicyErrors = String.IsNullOrEmpty(errorMessage) ? SslPolicyErrors.None : SslPolicyErrors.RemoteCertificateNameMismatch,
 					PolicyErrorMessage = errorMessage,
+					IsDataConnection = !IsControlConnection,
 					Accept = errorMessage == string.Empty,
 				};
 
@@ -1333,7 +1335,7 @@ namespace FluentFTP {
 					if (ex.InnerException != null) {
 						((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, ex.InnerException.Message);
 					}
-					Close();
+					CloseAfterFailedAuthentication();
 					throw;
 				}
 
@@ -1395,7 +1397,7 @@ namespace FluentFTP {
 					// to be done and the exception can be re-thrown for
 					// handling down the chain.
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication failed, lib = " + authType, ex, true);
-					Close();
+					CloseAfterFailedAuthentication();
 					throw;
 				}
 
@@ -1444,7 +1446,7 @@ namespace FluentFTP {
 					CreateCustomStream(targetHost);
 				}
 				catch (Exception ex) {
-					await CloseAsync(token);
+					await CloseAfterFailedAuthenticationAsync(token);
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication failed, lib = " + authType, ex, true);
 					throw;
 				}
@@ -1503,7 +1505,7 @@ namespace FluentFTP {
 				}
 
 				catch (AuthenticationException ex) {
-					await CloseAsync(token);
+					await CloseAfterFailedAuthenticationAsync(token);
 					((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Error, "FTPS Authentication failed, lib = " + authType, ex, true);
 					throw;
 				}
@@ -1517,6 +1519,32 @@ namespace FluentFTP {
 			}
 			else {
 				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Info, "FTPS authentication successful, lib = " + authType + ", cipher suite = " + cipherSuite);
+			}
+		}
+
+		/// <summary>
+		/// Closes this stream after a failed TLS handshake. Data streams override this to also read the
+		/// server's reply to the transfer command, so that the control connection stays usable, without
+		/// letting that reply or an error while reading it hide the handshake failure.
+		/// </summary>
+		internal virtual void CloseAfterFailedAuthentication() {
+			Close();
+		}
+
+		/// <summary>
+		/// Closes this stream after a failed TLS handshake. Closing a data stream also reads the server's
+		/// reply to the transfer command, and neither a negative reply nor an error while reading it
+		/// must hide the handshake failure. Cancellation is still reported.
+		/// </summary>
+		private async Task CloseAfterFailedAuthenticationAsync(CancellationToken token) {
+			try {
+				await CloseAsync(token);
+			}
+			catch (OperationCanceledException) {
+				throw;
+			}
+			catch (Exception ex) {
+				((IInternalFtpClient)Client).LogStatus(FtpTraceLevel.Verbose, "Ignoring error while closing the stream after failed FTPS authentication: " + ex.Message);
 			}
 		}
 

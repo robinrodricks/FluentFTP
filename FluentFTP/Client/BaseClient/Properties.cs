@@ -366,6 +366,12 @@ namespace FluentFTP.Client.BaseClient {
 		protected FtpSslValidation m_ValidateCertificate = null;
 
 		/// <summary>
+		/// Raw data of the server certificate accepted on the current control connection, if any.
+		/// Data connections presenting this certificate are accepted without validating it again.
+		/// </summary>
+		internal byte[] m_controlCertificate = null;
+
+		/// <summary>
 		/// Easiest way to check if a handler has been attached.
 		/// </summary>
 		public bool ValidateCertificateHandlerExists {
@@ -376,6 +382,9 @@ namespace FluentFTP.Client.BaseClient {
 		/// Event is fired to validate SSL certificates. If this event is
 		/// not handled and there are errors validating the certificate
 		/// the connection will be aborted.
+		/// Fired for the control connection, and for a data connection whose certificate is not the one
+		/// accepted on the control connection (see <see cref="FtpSslValidationEventArgs.IsDataConnection"/>).
+		/// Clones of this client inherit the handlers attached at the time of cloning.
 		/// Not fired if ValidateAnyCertificate is set to true.
 		/// </summary>
 		public event FtpSslValidation ValidateCertificate {
