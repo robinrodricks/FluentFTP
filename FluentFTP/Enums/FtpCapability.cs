@@ -2,198 +2,200 @@
 
 namespace FluentFTP {
 	/// <summary>
-	/// Server features
+	/// Server features.
+	/// Warning: Do not change these constant values as they may be stored in numeric form by our users.
 	/// </summary>
 	[Flags]
 	public enum FtpCapability : int {
-		/// <summary>
-		/// This server doesn't even support the FEAT command
-		/// </summary>
-		FEAT = 1,
 
 		/// <summary>
 		/// This server said it doesn't support anything!
 		/// </summary>
-		NONE = 2,
+		NONE = 1,
 
 		/// <summary>
 		/// Supports the MLST command (machine listings)
 		/// </summary>
-		MLST = 3,
+		MLST = 2,
 
 		/// <summary>
 		/// Supports the SIZE command (get file size)
 		/// </summary>
-		SIZE = 4,
+		SIZE = 3,
 
 		/// <summary>
 		/// Supports the MDTM command (get file date modified)
 		/// </summary>
-		MDTM = 5,
+		MDTM = 4,
 
 		/// <summary>
 		/// Supports download/upload stream resumes
 		/// </summary>
-		REST = 6,
+		REST = 5,
 
 		/// <summary>
 		/// Supports UTF8
 		/// </summary>
-		UTF8 = 7,
+		UTF8 = 6,
 
 		/// <summary>
 		/// PRET Command used by DrFTPD
 		/// </summary>
-		PRET = 8,
+		PRET = 7,
 
 		/// <summary>
 		/// Server supports the MFMT command for setting the
 		/// modified date of an object on the server
 		/// </summary>
-		MFMT = 9,
+		MFMT = 8,
 
 		/// <summary>
 		/// Server supports the MFCT command for setting the
 		/// created date of an object on the server
 		/// </summary>
-		MFCT = 10,
+		MFCT = 9,
 
 		/// <summary>
 		/// Server supports the MFF command for setting certain facts
 		/// about file system objects. It typically allows you to modify
 		/// the last modification time, creation time, UNIX group/owner/mode of a file.
 		/// </summary>
-		MFF = 11,
+		MFF = 10,
 
 		/// <summary>
 		/// Server supports the STAT command
 		/// </summary>
-		STAT = 12,
+		STAT = 11,
 
 		/// <summary>
 		/// Support for the HASH command
 		/// </summary>
-		HASH = 13,
+		HASH = 12,
 
 		/// <summary>
 		/// Support for the MD5 command
 		/// </summary>
-		MD5 = 14,
+		MD5 = 13,
 
 		/// <summary>
 		/// Support for the XMD5 command
 		/// </summary>
-		XMD5 = 15,
+		XMD5 = 14,
 
 		/// <summary>
 		/// Support for the XCRC command
 		/// </summary>
-		XCRC = 16,
+		XCRC = 15,
 
 		/// <summary>
 		/// Support for the XSHA1 command
 		/// </summary>
-		XSHA1 = 17,
+		XSHA1 = 16,
 
 		/// <summary>
 		/// Support for the XSHA256 command
 		/// </summary>
-		XSHA256 = 18,
+		XSHA256 = 17,
 
 		/// <summary>
 		/// Support for the XSHA512 command
 		/// </summary>
-		XSHA512 = 19,
+		XSHA512 = 18,
 
 		/// <summary>
 		/// Support for the EPSV file-transfer command
 		/// </summary>
-		EPSV = 20,
+		EPSV = 19,
 
 		/// <summary>
 		/// Support for the CPSV command
 		/// </summary>
-		CPSV = 21,
+		CPSV = 20,
 
 		/// <summary>
 		/// Support for the NOOP command
 		/// </summary>
-		NOOP = 22,
+		NOOP = 21,
 
 		/// <summary>
 		/// Support for the CLNT command
 		/// </summary>
-		CLNT = 23,
+		CLNT = 22,
 
 		/// <summary>
 		/// Support for the SSCN command
 		/// </summary>
-		SSCN = 24,
+		SSCN = 23,
 
 		/// <summary>
 		/// Support for the SITE MKDIR (make directory) server-specific command for ProFTPd
 		/// </summary>
-		SITE_MKDIR = 25,
+		SITE_MKDIR = 24,
 
 		/// <summary>
 		/// Support for the SITE RMDIR (remove directory) server-specific command for ProFTPd
 		/// </summary>
-		SITE_RMDIR = 26,
+		SITE_RMDIR = 25,
 
 		/// <summary>
 		/// Support for the SITE UTIME server-specific command for ProFTPd
 		/// </summary>
-		SITE_UTIME = 27,
+		SITE_UTIME = 26,
 
 		/// <summary>
 		/// Support for the SITE SYMLINK server-specific command for ProFTPd
 		/// </summary>
-		SITE_SYMLINK = 28,
+		SITE_SYMLINK = 27,
 
 		/// <summary>
 		/// Support for the AVBL (get available space) server-specific command for Serv-U
 		/// </summary>
-		AVBL = 29,
+		AVBL = 28,
 
 		/// <summary>
 		/// Support for the THMB (get image thumbnail) server-specific command for Serv-U
 		/// </summary>
-		THMB = 30,
+		THMB = 29,
 
 		/// <summary>
 		/// Support for the RMDA (remove directory) server-specific command for Serv-U
 		/// </summary>
-		RMDA = 31,
+		RMDA = 30,
 
 		/// <summary>
 		/// Support for the DSIZ (get directory size) server-specific command for Serv-U
 		/// </summary>
-		DSIZ = 32,
+		DSIZ = 31,
 
 		/// <summary>
 		/// Support for the HOST (get host) server-specific command for Serv-U
 		/// </summary>
-		HOST = 33,
+		HOST = 32,
 
 		/// <summary>
 		/// Support for the CCC (Clear Command Channel) command, which makes a secure FTP channel revert back to plain text.
 		/// </summary>
-		CCC = 34,
+		CCC = 33,
 
 		/// <summary>
 		/// Support for the MODE Z (compression enabled) command, which says that the server supports ZLIB compression for all transfers
 		/// </summary>
-		MODE_Z = 35,
+		MODE_Z = 34,
 
 		/// <summary>
 		/// Support for the LANG (language negotiation) command.
 		/// </summary>
-		LANG = 36,
+		LANG = 35,
 
 		/// <summary>
 		/// Support for the MMD5 (multiple MD5 hash) command.
 		/// </summary>
-		MMD5 = 37,
+		MMD5 = 36,
+
+		/// <summary>
+		/// This server doesn't even support the FEAT command
+		/// </summary>
+		FEAT = 37,
 
 	}
 }
