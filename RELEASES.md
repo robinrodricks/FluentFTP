@@ -1,13 +1,21 @@
 # Release Notes
 
-#### 55.0.1
+#### 55.1.0
 
+ - **FTP Connection**
+   - New: Improve `AutoPassive` logic to prefer EPSV with a fallback to PASV
+   - Fix: `IsStillConnected` reaction to reply code 421 (421 reply code does not mean that we are connected)
+   - Fix: `SanitizePath` supports client being null and has predictable behaviour
  - **FTPS Security**
-   - Fix: Data connections no longer accept any server certificate. A data connection certificate must match the certificate accepted on the control connection, or pass validation on its own (`ValidateAnyCertificate`, the `ValidateCertificate` event, or the default chain and hostname check)
+   - Fix: Data connections no longer accept any server certificate, and will only accept certificates matching the one accepted on the control connection, or pass validation on its own (`ValidateAnyCertificate`, the `ValidateCertificate` event, or the default chain and hostname check)
    - New: `FtpSslValidationEventArgs.IsDataConnection` lets a `ValidateCertificate` handler apply its own policy to a data connection certificate that differs from the control connection certificate
-   - Fix: Cloned clients (`Clone()`, `AutoDetect` with `CloneConnection`, FXP progress tracking) no longer accept any server certificate before sending credentials; they validate it with the handlers of the client they were cloned from
-   - Fix: A rejected data connection certificate is reported as `AuthenticationException` by both `FtpClient` and `AsyncFtpClient`, and the control connection stays usable afterwards (the server's reply to the aborted transfer is read instead of surfacing as an error or forcing a reconnect)
+   - Fix: Cloned FTP clients no longer accept any server certificate before sending credentials, they validate it with the handlers of the client they were cloned from
+   - Fix: A rejected data connection certificate is reported as `AuthenticationException` by both `FtpClient` and `AsyncFtpClient`
    - Change: Servers that present a different untrusted certificate on data connections now need a `ValidateCertificate` handler that accepts it
+ - **Testing**
+   - Fix: Apache and Debian paths in Dockerfiles updated to latest
+   - Fix: Optimize duplicate code in integration tests of various FTP stream types
+   - Fix: BouncyCastle integration tests must test across all test servers 
 
 #### 55.0.0
 
