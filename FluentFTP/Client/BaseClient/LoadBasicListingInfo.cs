@@ -47,7 +47,9 @@ namespace FluentFTP.Client.BaseClient {
 					lst.Add(item);
 				}
 				else {
-					//this.LogStatus(FtpTraceLevel.Verbose, "Skipped self or parent item: " + item.Name);
+					// skipped self or parent item: tell the caller to skip it as well,
+					// otherwise the enumerable listing would yield it
+					return false;
 				}
 			}
 			else if (ServerHandler != null && !ServerHandler.SkipParserErrorReport()) {
