@@ -105,6 +105,9 @@ namespace FluentFTP {
 			foreach (var result in toDownload) {
 				r++;
 
+				// check if cancellation was requested and throw to set TaskStatus state to Canceled
+				token.ThrowIfCancellationRequested();
+
 				if (result.Type == FtpObjectType.File) {
 
 					// absorb errors
@@ -119,6 +122,13 @@ namespace FluentFTP {
 						result.IsSkipped = ok == FtpStatus.Skipped;
 					}
 					catch (Exception ex) {
+
+						if (ex is OperationCanceledException) {
+							LogWithPrefix(FtpTraceLevel.Info, "Download cancellation requested");
+
+							// DO NOT SUPPRESS CANCELLATION REQUESTS -- BUBBLE UP!
+							throw;
+						}
 
 						LogWithPrefix(FtpTraceLevel.Warn, "File failed to download: " + result.RemotePath);
 
