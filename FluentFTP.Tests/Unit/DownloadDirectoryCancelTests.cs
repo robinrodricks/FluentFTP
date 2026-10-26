@@ -47,7 +47,7 @@ namespace FluentFTP.Tests.Unit {
 			var client = new TestClient();
 
 			// cancel once the download of the file has started
-			client.LegacyLogger = (level, message) => {
+			client.LegacyLogger = (_, message) => {
 				if (message.Contains("DownloadFile(")) {
 					cts.Cancel();
 				}
