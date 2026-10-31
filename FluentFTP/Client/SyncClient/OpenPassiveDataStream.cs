@@ -52,6 +52,8 @@ namespace FluentFTP {
 				bool tryEPSV = !Status.EPSVTriedAndFailed &&
 					type switch {
 						FtpDataConnectionType.EPSV => true,
+					                                      // Used to be "true", but now fixes for issues...
+														  // ...#1872.............................#1849
 						FtpDataConnectionType.AutoPassive => !HasFeature(FtpCapability.FEAT) || HasFeature(FtpCapability.EPSV),
 						_ => false,
 					};
