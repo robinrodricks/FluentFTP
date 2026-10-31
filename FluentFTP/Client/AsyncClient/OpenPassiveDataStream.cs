@@ -35,10 +35,9 @@ namespace FluentFTP {
 
 			for (int a = 0; a <= Config.PassiveMaxAttempts;) {
 
-				// Try using EPSV if:
-				// * no previous attempt has failed,
-				// * if explicitly requested,
-				// * if AutoPassive and the server's FEAT list confirms EPSV support
+				// Try using EPSV if no previous attempt has failed and either:
+				// * if explicitly requested or
+				// * if AutoPassive and the server's FEAT list confirms EPSV support or 
 				// * if AutoPassive and the server's FEAT list is unknown/unavailable (see Note below)
 
 				// Note: Per RFC, extended commands like EPSV can be TRUSTED to NOT work if the FEAT command
@@ -47,8 +46,8 @@ namespace FluentFTP {
 				// still try EPSV to be safe. 
 
 				// Attempt fallback to PASV after EPSV failed if:
-				// * the data connection type is AutoPassive and
-				// * EPSV was not explicitly requested and
+				// * the stream still exists and
+				// * the data connection type is AutoPassive (which means EPSV was not explicitly requested) and
 				// * the control connection is IPv4 (i.e. don't fallback since it PASV is not supported on IPv6)
 
 				bool tryEPSV = !Status.EPSVTriedAndFailed &&
