@@ -35,17 +35,21 @@ namespace FluentFTP {
 
 			for (int a = 0; a <= Config.PassiveMaxAttempts;) {
 
-				// Try using EPSV:
-				// if no previous attempt has failed,
-				// if explicitly requested,
-				// if auto-detecting and the server's FEAT confirms EPSV support
-				// if auto-detecting and the server's FEAT is unknown/unavailable (see Note below)
+				// Try using EPSV if:
+				// * no previous attempt has failed,
+				// * if explicitly requested,
+				// * if AutoPassive and the server's FEAT list confirms EPSV support
+				// * if AutoPassive and the server's FEAT list is unknown/unavailable (see Note below)
 
-				// Note: Per RFC, extended commands like EPSV can be trusted to NOT work if the FEAT command is not supported by the server. However, some servers do not implement FEAT correctly and will support EPSV even if FEAT is not supported.
-				// Therefore, we really SHOULD not try EPSV if FEAT is not supported. In the real world, some servers will support EPSV even if FEAT is not supported, so we will try EPSV in this case. 
+				// Note: Per RFC, extended commands like EPSV can be TRUSTED to NOT work if the FEAT command
+				// itself is not supported by the server. However, some servers do not implement the RFCs
+				// correctly and will support EPSV even if FEAT itself is not supported. Therefore we will
+				// still try EPSV to be safe. 
 
-				// Attempt fallback to PASV:
-				// if EPSV fails and the data connection type is AutoPassive and EPSV not explicitly requested and the control connection is IPv4.
+				// Attempt fallback to PASV after EPSV failed if:
+				// * the data connection type is AutoPassive and
+				// * EPSV was not explicitly requested and
+				// * the control connection is IPv4 (i.e. don't fallback since it PASV is not supported on IPv6)
 
 				bool tryEPSV = !Status.EPSVTriedAndFailed &&
 					type switch {
@@ -60,7 +64,6 @@ namespace FluentFTP {
 						// if we're connected with IPv4 and data channel type is AutoPassive then fallback to PASV
 						if (reply.Type is FtpResponseType.TransientNegativeCompletion or FtpResponseType.PermanentNegativeCompletion
 							&& m_stream != null
-							// only fallback to PASV if the data connection type is AutoPassive and the control connection is IPv4
 							&& type == FtpDataConnectionType.AutoPassive
 							&& !HasFeature(FtpCapability.EPSV)
 							&& m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
