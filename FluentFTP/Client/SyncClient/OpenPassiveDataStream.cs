@@ -63,7 +63,6 @@ namespace FluentFTP {
 						if (reply.Type is FtpResponseType.TransientNegativeCompletion or FtpResponseType.PermanentNegativeCompletion
 							&& m_stream != null
 							&& type == FtpDataConnectionType.AutoPassive
-							&& !HasFeature(FtpCapability.EPSV)
 							&& m_stream.LocalEndPoint.AddressFamily == AddressFamily.InterNetwork) {
 							// mark EPSV not supported so we do not try EPSV again during this connection
 							Status.EPSVTriedAndFailed = true;
