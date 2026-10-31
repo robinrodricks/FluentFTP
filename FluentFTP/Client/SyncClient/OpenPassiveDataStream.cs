@@ -39,10 +39,15 @@ namespace FluentFTP {
 				// * if AutoPassive and the server's FEAT list confirms EPSV support or 
 				// * if AutoPassive and the server's FEAT list is unknown/unavailable (see Note below)
 
-				// Note: Per RFC, extended commands like EPSV can be TRUSTED to NOT work if the FEAT command
+				// Note:
+				//
+				// Per RFC, extended commands like EPSV can be TRUSTED to NOT work if the FEAT command
 				// itself is not supported by the server. However, some servers do not implement the RFCs
 				// correctly and will support EPSV even if FEAT itself is not supported. Therefore we will
 				// still try EPSV to be safe. 
+				//
+				// On the other hand, if FEAT does not report that EPSV is supported, then we will NOT try EPSV
+				// since the server has explicitly told us that it does not support it.
 
 				// Attempt fallback to PASV after EPSV failed if:
 				// * the stream still exists and
