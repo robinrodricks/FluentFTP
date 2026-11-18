@@ -143,7 +143,7 @@ namespace FluentFTP.Client.BaseClient {
 			// Update stored values
 
 			// CWD LastWorkingDir
-			if (command.ToUpper().TrimEnd() == "CWD" || command.ToUpper().StartsWith("CWD ", StringComparison.Ordinal)) {
+			if (command.ToUpperInvariant().TrimEnd() == "CWD" || command.ToUpperInvariant().StartsWith("CWD ", StringComparison.Ordinal)) {
 				if (Config.PreserveTrailingSlashCmdList == null || !Config.PreserveTrailingSlashCmdList.Contains("CWD")) {
 					// Only assume the following for normal processing
 					// At least for a successful absolute Unix CWD, we know where we are.
@@ -164,10 +164,10 @@ namespace FluentFTP.Client.BaseClient {
 			}
 
 			// TYPE CurrentDataType
-			else if (command.ToUpper().StartsWith("TYPE I", StringComparison.Ordinal)) {
+			else if (command.ToUpperInvariant().StartsWith("TYPE I", StringComparison.Ordinal)) {
 				Status.CurrentDataType = FtpDataType.Binary;
 			}
-			else if (command.ToUpper().StartsWith("TYPE A", StringComparison.Ordinal)) {
+			else if (command.ToUpperInvariant().StartsWith("TYPE A", StringComparison.Ordinal)) {
 				Status.CurrentDataType = FtpDataType.ASCII;
 			}
 

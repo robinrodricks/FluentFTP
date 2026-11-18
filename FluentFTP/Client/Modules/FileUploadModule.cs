@@ -77,7 +77,7 @@ namespace FluentFTP.Client.Modules {
 			if (FileRuleModule.FilePassesRules(client, result, rules, true)) {
 
 				// record that this file should exist
-				shouldExist.Add(remoteFile.ToLower(), true);
+				shouldExist.Add(remoteFile.ToLowerInvariant(), true);
 
 				// absorb errors
 				filesToUpload.Add(result);

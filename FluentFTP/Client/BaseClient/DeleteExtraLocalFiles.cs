@@ -23,7 +23,7 @@ namespace FluentFTP.Client.BaseClient {
 				// delete files that are not in listed in shouldExist
 				foreach (var existingLocalFile in localListing) {
 
-					if (!shouldExist.ContainsKey(existingLocalFile.ToLower())) {
+					if (!shouldExist.ContainsKey(existingLocalFile.ToLowerInvariant())) {
 
 						// only delete the local file if its permitted by the configuration
 						if (FileRuleModule.CanDeleteLocalFile(this, rules, existingLocalFile)) {
